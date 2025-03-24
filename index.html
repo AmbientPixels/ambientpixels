@@ -3,100 +3,746 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ambient Pixels</title>
+    <title>Ambient Pixels - Creative Tech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-dark: #1A1F21;
+            --text-dark: #DDE4E6;
+            --accent-dark: #00C4E6;
+            --highlight-dark: #E63977;
+            --card-dark: #252B2D; /* Fixed from # Maybe it's just me252B2D */
+            --bg-light: #F7F9FA;
+            --text-light: #2A2F33;
+            --accent-light: #0086B3;
+            --highlight-light: #D92E5F;
+            --card-light: #FFFFFF;
+            --frosted-bg: rgba(37, 43, 45, 0.8);
+            --frosted-bg-light: rgba(247, 249, 250, 0.8);
+        }
         body {
             margin: 0;
-            font-family: 'Arial', sans-serif;
-            background: #1C2526; /* Deep slate gray */
-            color: #D9E2E6; /* Soft off-white */
-            line-height: 1.6;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+            line-height: 1.5;
+            transition: background-color 0.3s, color 0.3s;
         }
-        header {
-            padding: 30px;
-            text-align: center;
-            background: #2E383A; /* Darker slate */
-            border-bottom: 1px solid #3D4B4E; /* Subtle border */
+        body.light {
+            background-color: var(--bg-light);
+            color: var(--text-light);
         }
-        header h1 {
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: var(--frosted-bg);
+            backdrop-filter: blur(10px);
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            transition: background 0.3s;
+            box-sizing: border-box;
+        }
+        body.light .navbar {
+            background: var(--frosted-bg-light);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .navbar-logo {
+            width: 50px;
+            height: auto;
+        }
+        .navbar h1 {
+            font-size: 1.6em;
+            color: #FFFFFF;
             margin: 0;
-            font-size: 2.2em;
-            color: #FFFFFF; /* Pure white */
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-weight: 500;
         }
-        nav {
-            margin: 15px 0;
+        .navbar-menu {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-right: 15px;
+            flex-shrink: 0;
         }
-        nav a {
-            color: #5E8C9A; /* Muted blue */
+        .navbar-menu a {
+            color: var(--text-dark);
             text-decoration: none;
-            margin: 0 20px;
-            font-weight: bold;
-            transition: color 0.3s ease;
+            font-size: 1em;
+            transition: color 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
         }
-        nav a:hover {
-            color: #A3BFFA; /* Light muted blue */
+        body.light .navbar-menu a {
+            color: var(--text-light);
+        }
+        .navbar-menu a:hover {
+            color: var(--accent-dark);
+            text-decoration: none;
+        }
+        body.light .navbar-menu a:hover {
+            color: var(--accent-light);
+        }
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.1em;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 0 5px;
+        }
+        body.light .theme-toggle {
+            color: var(--text-light);
+        }
+        .theme-toggle:hover {
+            color: var(--accent-dark);
+        }
+        body.light .theme-toggle:hover {
+            color: var(--accent-light);
+        }
+        .navbar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            font-size: 1.3em;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        body.light .navbar-toggle {
+            color: var(--text-light);
+        }
+        .navbar-toggle:hover {
+            color: var(--accent-dark);
+        }
+        body.light .navbar-toggle:hover {
+            color: var(--accent-light);
         }
         .hero {
-            text-align: center;
-            padding: 60px 20px;
-            background: #1C2526;
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: url('_images/banner.jpg') no-repeat center/cover;
+            margin-top: 60px;
         }
-        .hero h2 {
-            font-size: 2.8em;
-            margin: 0 0 20px;
-            color: #FFFFFF; /* Crisp white */
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 31, 33, 0.7);
+            z-index: 1;
         }
-        .hero p {
+        .hero-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            color: #FFFFFF;
+            z-index: 2;
+            font-weight: 500;
+            text-shadow: 0 0 5px var(--accent-dark);
+            display: none;
+        }
+        .hero-text span {
+            display: inline-block;
+            opacity: 0;
+            animation: aiGenerate 0.1s forwards;
+        }
+        @keyframes aiGenerate {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .loading-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #FFFFFF;
             font-size: 1.2em;
-            color: #B0BEC5; /* Light gray-blue */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
-        .meme-section {
-            padding: 50px 20px;
+        .loading-screen i {
+            font-size: 1.5em;
+            animation: pulse 1s infinite;
+        }
+        .loading-screen i:nth-child(1) { animation-delay: 0s; }
+        .loading-screen i:nth-child(2) { animation-delay: 0.2s; }
+        .loading-screen i:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.2); opacity: 1; }
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: var(--card-dark);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
             text-align: center;
-            background: #252F31; /* Slightly lighter slate */
-            border-top: 1px solid #3D4B4E;
+            transition: background 0.3s;
         }
-        .meme-section h3 {
-            color: #5E8C9A; /* Muted blue */
+        body.light .container {
+            background: var(--card-light);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .tagline {
+            font-size: 1.3em;
+            color: #B8C7CA;
             margin-bottom: 20px;
-            font-size: 1.8em;
+            font-weight: 400;
         }
-        .meme-section p {
-            font-style: italic;
-            color: #8D9CA1; /* Softer gray */
+        body.light .tagline {
+            color: #5A6A6F;
+        }
+        .description {
+            font-size: 1.1em;
+            margin: 0 auto 30px;
+            max-width: 700px;
+        }
+        .description a {
+            color: var(--accent-dark);
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+        body.light .description a {
+            color: var(--accent-light);
+        }
+        .description a:hover {
+            color: var(--highlight-dark);
+        }
+        body.light .description a:hover {
+            color: var(--highlight-light);
+        }
+        .highlight {
+            color: var(--highlight-dark);
+            font-weight: 600;
+        }
+        body.light .highlight {
+            color: var(--highlight-light);
+        }
+        .social-links {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+        .social-links a {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-size: 1.4em;
+            transition: color 0.2s ease, transform 0.2s ease;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        body.light .social-links a {
+            color: var(--text-light);
+        }
+        .social-links a:hover {
+            transform: scale(1.05);
+            text-decoration: none;
+        }
+        .social-links a:hover i {
+            color: var(--accent-dark);
+        }
+        body.light .social-links a:hover i {
+            color: var(--accent-light);
+        }
+        .social-links span {
+            font-size: 0.7em;
+            color: #B8C7CA;
+        }
+        body.light .social-links span {
+            color: #5A6A6F;
+        }
+        .cta {
+            margin-top: 20px;
+        }
+        .notify-form {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .notify-form input[type="email"] {
+            padding: 8px 12px;
+            font-size: 0.95em;
+            border: 1px solid var(--text-dark);
+            border-radius: 4px;
+            background: transparent;
+            color: var(--text-dark);
+            width: 220px;
+            max-width: 100%;
+            transition: border-color 0.2s;
+        }
+        body.light .notify-form input[type="email"] {
+            border-color: var(--text-light);
+            color: var(--text-light);
+        }
+        .notify-form input[type="email"]::placeholder {
+            color: rgba(221, 228, 230, 0.7);
+        }
+        body.light .notify-form input[type="email"]::placeholder {
+            color: rgba(42, 47, 51, 0.7);
+        }
+        .notify-form input[type="email"]:focus {
+            border-color: var(--accent-dark);
+            outline: none;
+        }
+        body.light .notify-form input[type="email"]:focus {
+            border-color: var(--accent-light);
+        }
+        .notify-form button {
+            padding: 8px 16px;
+            background: var(--accent-dark);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+        body.light .notify-form button {
+            background: var(--accent-light);
+        }
+        .notify-form button:hover {
+            background: var(--highlight-dark);
+            transform: translateY(-1px);
+        }
+        body.light .notify-form button:hover {
+            background: var(--highlight-light);
+        }
+        .form-message {
+            margin-top: 8px;
+            font-size: 0.85em;
+            color: #B8C7CA;
+            display: none;
+        }
+        body.light .form-message {
+            color: #5A6A6F;
+        }
+        .preview-section {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: var(--card-dark);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            transition: background 0.3s;
+        }
+        body.light .preview-section {
+            background: var(--card-light);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .preview-section h2 {
+            font-size: 1.8em;
+            color: var(--accent-dark);
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        body.light .preview-section h2 {
+            color: var(--accent-light);
+        }
+        .preview-section h2 i {
+            margin-right: 8px;
+        }
+        .preview-section p {
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+        .preview-section p a {
+            color: var(--accent-dark);
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+        body.light .preview-section p a {
+            color: var(--accent-light);
+        }
+        .preview-section p a:hover {
+            color: var(--highlight-dark);
+        }
+        body.light .preview-section p a:hover {
+            color: var(--highlight-light);
+        }
+        .preview-link {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--highlight-dark);
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 0.95em;
+            border-radius: 4px;
+            transition: background 0.2s, transform 0.2s;
+        }
+        body.light .preview-link {
+            background: var(--highlight-light);
+        }
+        .preview-link:hover {
+            background: var(--accent-dark);
+            transform: translateY(-1px);
+            text-decoration: none;
+        }
+        body.light .preview-link:hover {
+            background: var(--accent-light);
         }
         footer {
-            text-align: center;
-            padding: 20px;
+            width: 100%;
+            background: var(--frosted-bg);
+            backdrop-filter: blur(10px);
+            padding: 15px;
             font-size: 0.9em;
-            color: #6B7A80; /* Muted slate */
-            background: #1C2526;
-            border-top: 1px solid #3D4B4E;
+            color: #B8C7CA;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+        }
+        body.light footer {
+            background: var(--frosted-bg-light);
+            color: #5A6A6F;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        footer a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        footer a:hover {
+            color: var(--accent-dark);
+        }
+        body.light footer a:hover {
+            color: var(--accent-light);
+        }
+        .footer-tag {
+            font-size: 0.8em;
+            margin-top: 5px;
+            color: #B8C7CA;
+        }
+        body.light .footer-tag {
+            color: #5A6A6F;
+        }
+        .back-to-top {
+            margin-left: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 20;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: var(--frosted-bg);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            transition: background 0.3s;
+        }
+        body.light .modal-content {
+            background: var(--frosted-bg-light);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .modal-content p {
+            font-size: 1.1em;
+            margin: 0 0 20px;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        body.light .modal-content p {
+            color: var(--text-light);
+        }
+        .modal-content .ai-icon {
+            font-size: 1.2em;
+        }
+        .modal-content button {
+            padding: 8px 16px;
+            background: var(--accent-dark);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        body.light .modal-content button {
+            background: var(--accent-light);
+        }
+        .modal-content button:hover {
+            background: var(--highlight-dark);
+        }
+        body.light .modal-content button:hover {
+            background: var(--highlight-light);
+        }
+        @media (max-width: 768px) {
+            .navbar-menu {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 50px;
+                right: 15px;
+                background: var(--frosted-bg);
+                backdrop-filter: blur(10px);
+                padding: 8px;
+                border-radius: 4px;
+                margin-right: 0;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                transition: opacity 0.3s;
+                opacity: 0;
+            }
+            .navbar-menu.active {
+                display: flex;
+                opacity: 1;
+            }
+            body.light .navbar-menu {
+                background: var(--frosted-bg-light);
+                border: 1px solid rgba(0, 0, 0, 0.05);
+            }
+            .navbar-toggle {
+                display: block;
+            }
+            .navbar h1 {
+                font-size: 1.4em;
+            }
+            .navbar-logo {
+                width: 40px;
+            }
+            .social-links {
+                gap: 15px;
+            }
+            .notify-form {
+                flex-direction: column;
+                align-items: center;
+            }
+            .container, .preview-section {
+                max-width: none;
+                margin-left: 15px;
+                margin-right: 15px;
+            }
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Ambient Pixels V3</h1>
-        <nav>
-            <a href="#projects">Projects</a>
-            <a href="https://ambientpixels.github.io/memetron3030/" target="_blank">MemeTron 3030</a>
-        </nav>
-    </header>
-    <section class="hero">
-      <h2>Welcome to Ambient Pixels</h2>
-        <p>Creative tech for a modern future.</p>
-		<p>New Setup! <strong>Test 2</strong></p>
-    </section>
-    <section class="meme-section">
-        <h3>Meme Generator</h3>
-        <p>Coming soon—stay tuned for AI-powered fun.</p>
-    </section>
+    <div class="navbar">
+        <div class="navbar-left">
+            <img src="_images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="navbar-logo">
+            <h1>Ambient Pixels</h1>
+        </div>
+        <div class="navbar-menu">
+            <a onclick="showComingSoonModal('Home')"><i class="fas fa-home"></i> Home</a>
+            <a onclick="showComingSoonModal('Projects')"><i class="fas fa-cube"></i> Projects</a>
+            <a onclick="showComingSoonModal('Contact')"><i class="fas fa-envelope"></i> Contact</a>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+        <button class="navbar-toggle" onclick="toggleMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+    <div class="hero">
+        <div class="loading-screen" id="loadingScreen">
+            <i class="fas fa-microchip"></i>
+            <i class="fas fa-cogs"></i>
+            <i class="fas fa-brain"></i>
+            <span>Generating...</span>
+        </div>
+        <div class="hero-text" id="randomTagline"></div>
+    </div>
+    <div class="container">
+        <p class="tagline">Pixel Chaos, Unleashed</p>
+        <p class="description">A wild mashup of digital art, quirky apparel, and futuristic tech. We’re chaos architects—think vibrant visuals, AI meme magic, and designs that explode like a supernova.</p>
+        <div class="social-links">
+            <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="Explore My Art on DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
+            <a href="https://x.com/AIAmbientPixels" target="_blank" title="Follow Me on X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
+            <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="Watch Me on YouTube"><i class="fab fa-youtube"></i><span>Vids</span></a>
+            <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Connect on Facebook"><i class="fab fa-facebook"></i><span>Connect</span></a>
+        </div>
+        <div class="cta">
+            <form class="notify-form" id="notifyForm" method="POST">
+                <input type="email" name="email" placeholder="Your Email" required>
+                <button type="submit"><i class="fas fa-bell"></i> Notify Me</button>
+            </form>
+            <p class="form-message">Thanks! We’ll keep you posted.</p>
+        </div>
+    </div>
+    <div class="preview-section" id="memetronSection">
+        <h2><i class="fas fa-robot"></i> Memetron 3030</h2>
+        <p>Preview our AI-powered meme generator—create dank memes with a futuristic edge!<br><span id="memetronWarning" style="font-size: 0.85em; color: #B8C7CA;"></span></p>
+        <a href="https://memetron3030.vercel.app/" target="_blank" class="preview-link">Try It Now</a>
+    </div>
+    <div class="preview-section">
+        <h2><i class="fas fa-tshirt"></i> Glitch Apparel</h2>
+        <p>Chaos stitched into every thread—drops soon!</p>
+    </div>
     <footer>
-        © 2025 Ambient Pixels. All rights reserved.
+        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
+        <p class="footer-tag">Forged by AI, fueled by chaos</p>
     </footer>
+    <!-- Form Modal -->
+    <div class="modal" id="formModal">
+        <div class="modal-content">
+            <p>Thanks for joining the chaos! We’ll keep you posted.</p>
+            <button onclick="closeModal('formModal')">Close</button>
+        </div>
+    </div>
+    <!-- Coming Soon Modal -->
+    <div class="modal" id="comingSoonModal">
+        <div class="modal-content">
+            <p id="comingSoonMessage"><span id="comingSoonIcon"></span> <span id="comingSoonText"></span></p>
+            <button onclick="closeModal('comingSoonModal')">Close</button>
+        </div>
+    </div>
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('light');
+            const icon = document.querySelector('.theme-toggle i');
+            icon.classList.toggle('fa-moon');
+            icon.classList.toggle('fa-sun');
+        }
+        function toggleMenu() {
+            document.querySelector('.navbar-menu').classList.toggle('active');
+        }
+
+        // Random taglines with loading screen and AI text effect
+        const taglines = [
+            "Oops, the pixels got drunk again!",
+            "Chaos.exe has entered the chat.",
+            "Art + Tech = Glorious Mess.",
+            "Pixel storm incoming—duck!",
+            "AI says: Beep boop, creativity overload!",
+            "Supernova vibes, no survivors.",
+            "When memes crash the mainframe."
+        ];
+        const taglineElement = document.getElementById('randomTagline');
+        const loadingScreen = document.getElementById('loadingScreen');
+        const randomTagline = taglines[Math.floor(Math.random() * taglines.length)];
+
+        // Split text into spans, preserving spaces
+        taglineElement.innerHTML = randomTagline.split('').map(char => 
+            char === ' ' ? `<span> </span>` : `<span>${char}</span>`
+        ).join('');
+
+        // Show loading screen for 1.5s, then reveal text
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+            taglineElement.style.display = 'block';
+            const spans = taglineElement.querySelectorAll('span');
+            spans.forEach((span, index) => {
+                span.style.animationDelay = `${index * 0.05}s`;
+            });
+        }, 1500);
+
+        // Random Memetron warning
+        const memetronWarnings = [
+            "Test mode: AI’s still learning—expect glitches, maybe a meme-pocalypse!",
+            "Beta vibes: AI might spit out 404 memes—hold tight!",
+            "Under AI construction—glitches are free DLC!",
+            "AI’s on training wheels—brace for meme chaos!",
+            "Test run: AI’s meme skills are 50% dank, 50% derp!"
+        ];
+        document.getElementById('memetronWarning').textContent = memetronWarnings[Math.floor(Math.random() * memetronWarnings.length)];
+
+        // Coming soon modal with quirky phrases and icons
+        const comingSoonContent = [
+            { icon: '<i class="fas fa-bug ai-icon"></i>', text: "AI debug mode: Page not found—yet!" },
+            { icon: '<i class="fas fa-skull ai-icon"></i>', text: "This page terminated by rogue AI!" },
+            { icon: '<i class="fas fa-bomb ai-icon"></i>', text: "AI blew up this section—rebuilding soon!" },
+            { icon: '<i class="fas fa-ghost ai-icon"></i>', text: "Ghost in the machine ate this page!" },
+            { icon: '<i class="fas fa-poo ai-icon"></i>', text: "AI took a dump, page coming later!" },
+            { icon: '<i class="fas fa-alien ai-icon"></i>', text: "AI abducted this content—ETA unknown!" },
+            { icon: '<i class="fas fa-robot ai-icon"></i>', text: "AI’s drunk on binary—page pending!" }
+        ];
+        function showComingSoonModal(section) {
+            const randomContent = comingSoonContent[Math.floor(Math.random() * comingSoonContent.length)];
+            document.getElementById('comingSoonIcon').innerHTML = randomContent.icon;
+            document.getElementById('comingSoonText').textContent = `${section}: ${randomContent.text}`;
+            document.getElementById('comingSoonModal').style.display = 'flex';
+        }
+
+        // Modal functions
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Form submission
+        document.getElementById('notifyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+            const data = new FormData(form);
+            fetch('https://formspree.io/f/xanejjnz', {
+                method: 'POST',
+                body: data,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById('formModal').style.display = 'flex';
+                    form.reset();
+                } else {
+                    alert('Oops! Something went wrong.');
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+            });
+        });
+
+        // Back-to-top functionality
+        const backToTop = document.querySelector('.back-to-top');
+        backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 200) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+    </script>
 </body>
 </html>
