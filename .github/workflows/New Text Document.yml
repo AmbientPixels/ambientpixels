@@ -1,0 +1,69 @@
+# Docs: https://github.com/Azure/webapps-deploy
+# More Actions: https://github.com/Azure/actions
+
+name: Build and deploy Node.js Function App to Azure - ambientpixels-meme-api
+
+on:
+  push:
+    branches:
+      - main  # Change to 'master' if your branch is 'master'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: read  # Required for checkout
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js version
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.x'  # Matches your Node 22 LTS
+
+      - name: npm install in meme-api
+        working-directory: ./meme-api  # Target the subfolder
+        run: |
+          npm install
+          npm run build --if-present
+          npm run test --if-present
+      
+      - name: Upload artifact for deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-app
+          path: ./meme-api  # Upload only the meme-api folder
+
+  deploy:
+    runs-on: windows-latest  # Match build OS
+    needs: build
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    permissions:
+      id-token: write  # For JWT
+      contents: read   # For checkout
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: node-app
+          path: ./meme-api  # Download to subfolder
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy to Azure Function App
+        uses: azure/webapps-deploy@v3
+        id: deploy-to-webapp
+        with:
+          app-name: 'ambientpixels-meme-api'
+          slot-name: 'Production'
+          package: ./meme-api  # Deploy from subfolder
