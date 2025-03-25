@@ -7,6 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - name: List Files
+      run: ls -R .
     - name: Deploy to Azure Functions
       uses: Azure/functions-action@v1
       with:
