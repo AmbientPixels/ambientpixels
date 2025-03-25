@@ -12,7 +12,7 @@
             --text-dark: #DDE4E6;
             --accent-dark: #00C4E6;
             --highlight-dark: #E63977;
-            --card-dark: #252B2D; /* Fixed from # Maybe it's just me252B2D */
+            --card-dark: #252B2D;
             --bg-light: #F7F9FA;
             --text-light: #2A2F33;
             --accent-light: #0086B3;
@@ -411,6 +411,128 @@
         body.light .preview-link:hover {
             background: var(--accent-light);
         }
+        .meme-test-container {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        .meme-prompt-input {
+            padding: 8px 12px;
+            font-size: 0.95em;
+            border: 1px solid var(--text-dark);
+            border-radius: 4px;
+            background: transparent;
+            color: var(--text-dark);
+            width: 300px;
+            max-width: 100%;
+            transition: border-color 0.2s;
+        }
+        body.light .meme-prompt-input {
+            border-color: var(--text-light);
+            color: var(--text-light);
+        }
+        .meme-prompt-input::placeholder {
+            color: rgba(221, 228, 230, 0.7);
+        }
+        body.light .meme-prompt-input::placeholder {
+            color: rgba(42, 47, 51, 0.7);
+        }
+        .meme-prompt-input:focus {
+            border-color: var(--accent-dark);
+            outline: none;
+        }
+        body.light .meme-prompt-input:focus {
+            border-color: var(--accent-light);
+        }
+        .meme-generate-btn {
+            padding: 8px 16px;
+            background: var(--accent-dark);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+        body.light .meme-generate-btn {
+            background: var(--accent-light);
+        }
+        .meme-generate-btn:hover {
+            background: var(--highlight-dark);
+            transform: translateY(-1px);
+        }
+        body.light .meme-generate-btn:hover {
+            background: var(--highlight-light);
+        }
+        .meme-generate-btn:disabled {
+            background: #444;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .meme-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            overflow: hidden;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        .meme-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity 0.2s ease;
+            opacity: 0;
+        }
+        .meme-image.visible {
+            opacity: 1;
+        }
+        .meme-text {
+            position: absolute;
+            width: 100%;
+            color: #FFFFFF;
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            pointer-events: none;
+        }
+        body.light .meme-text {
+            color: #2A2F33;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+        }
+        .meme-top-text {
+            top: 10px;
+            left: 0;
+        }
+        .meme-bottom-text {
+            bottom: 10px;
+            left: 0;
+        }
+        .meme-loading {
+            display: none;
+            font-size: 1em;
+            color: var(--accent-dark);
+            text-align: center;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        body.light .meme-loading {
+            color: var(--accent-light);
+        }
+        .meme-loading.visible {
+            display: flex;
+        }
         footer {
             width: 100%;
             background: var(--frosted-bg);
@@ -562,6 +684,16 @@
                 margin-left: 15px;
                 margin-right: 15px;
             }
+            .meme-container {
+                width: 250px;
+                height: 250px;
+            }
+            .meme-text {
+                font-size: 16px;
+            }
+            .meme-prompt-input {
+                width: 250px;
+            }
         }
     </style>
 </head>
@@ -613,6 +745,19 @@
         <h2><i class="fas fa-robot"></i> Memetron 3030</h2>
         <p>Preview our AI-powered meme generator—create dank memes with a futuristic edge!<br><span id="memetronWarning" style="font-size: 0.85em; color: #B8C7CA;"></span></p>
         <a href="https://memetron3030.vercel.app/" target="_blank" class="preview-link">Try It Now</a>
+        <div class="meme-test-container">
+            <input type="text" class="meme-prompt-input" id="memePrompt" placeholder="Enter a meme idea (e.g., 'Cat in Space')">
+            <button class="meme-generate-btn" id="memeGenerateBtn"><i class="fas fa-magic"></i> Generate Meme</button>
+            <div class="meme-container" id="memeContainer">
+                <div class="meme-loading" id="memeLoading">
+                    <i class="fas fa-spinner" style="animation: spin 1s linear infinite;"></i>
+                    <span>Generating Chaos...</span>
+                </div>
+                <img class="meme-image" id="memeImage" src="" alt="Generated Meme">
+                <div class="meme-text meme-top-text" id="memeTopText"></div>
+                <div class="meme-text meme-bottom-text" id="memeBottomText"></div>
+            </div>
+        </div>
     </div>
     <div class="preview-section">
         <h2><i class="fas fa-tshirt"></i> Glitch Apparel</h2>
@@ -622,127 +767,193 @@
         <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
         <p class="footer-tag">Forged by AI, fueled by chaos</p>
     </footer>
-    <!-- Form Modal -->
     <div class="modal" id="formModal">
         <div class="modal-content">
             <p>Thanks for joining the chaos! We’ll keep you posted.</p>
             <button onclick="closeModal('formModal')">Close</button>
         </div>
     </div>
-    <!-- Coming Soon Modal -->
     <div class="modal" id="comingSoonModal">
         <div class="modal-content">
             <p id="comingSoonMessage"><span id="comingSoonIcon"></span> <span id="comingSoonText"></span></p>
             <button onclick="closeModal('comingSoonModal')">Close</button>
         </div>
     </div>
-    <script>
-        function toggleTheme() {
-            document.body.classList.toggle('light');
-            const icon = document.querySelector('.theme-toggle i');
-            icon.classList.toggle('fa-moon');
-            icon.classList.toggle('fa-sun');
-        }
-        function toggleMenu() {
-            document.querySelector('.navbar-menu').classList.toggle('active');
-        }
+<script>
+    function toggleTheme() {
+        document.body.classList.toggle('light');
+        const icon = document.querySelector('.theme-toggle i');
+        icon.classList.toggle('fa-moon');
+        icon.classList.toggle('fa-sun');
+    }
+    function toggleMenu() {
+        document.querySelector('.navbar-menu').classList.toggle('active');
+    }
 
-        // Random taglines with loading screen and AI text effect
-        const taglines = [
-            "Oops, the pixels got drunk again!",
-            "Chaos.exe has entered the chat.",
-            "Art + Tech = Glorious Mess.",
-            "Pixel storm incoming—duck!",
-            "AI says: Beep boop, creativity overload!",
-            "Supernova vibes, no survivors.",
-            "When memes crash the mainframe."
-        ];
-        const taglineElement = document.getElementById('randomTagline');
-        const loadingScreen = document.getElementById('loadingScreen');
-        const randomTagline = taglines[Math.floor(Math.random() * taglines.length)];
+    const taglines = [
+        "Oops, the pixels got drunk again!",
+        "Chaos.exe has entered the chat.",
+        "Art + Tech = Glorious Mess.",
+        "Pixel storm incoming—duck!",
+        "AI says: Beep boop, creativity overload!",
+        "Supernova vibes, no survivors.",
+        "When memes crash the mainframe."
+    ];
+    const taglineElement = document.getElementById('randomTagline');
+    const loadingScreen = document.getElementById('loadingScreen');
+    const randomTagline = taglines[Math.floor(Math.random() * taglines.length)];
 
-        // Split text into spans, preserving spaces
-        taglineElement.innerHTML = randomTagline.split('').map(char => 
-            char === ' ' ? `<span> </span>` : `<span>${char}</span>`
-        ).join('');
+    taglineElement.innerHTML = randomTagline.split('').map(char => 
+        char === ' ' ? `<span> </span>` : `<span>${char}</span>`
+    ).join('');
 
-        // Show loading screen for 1.5s, then reveal text
-        setTimeout(() => {
-            loadingScreen.style.display = 'none';
-            taglineElement.style.display = 'block';
-            const spans = taglineElement.querySelectorAll('span');
-            spans.forEach((span, index) => {
-                span.style.animationDelay = `${index * 0.05}s`;
-            });
-        }, 1500);
-
-        // Random Memetron warning
-        const memetronWarnings = [
-            "Test mode: AI’s still learning—expect glitches, maybe a meme-pocalypse!",
-            "Beta vibes: AI might spit out 404 memes—hold tight!",
-            "Under AI construction—glitches are free DLC!",
-            "AI’s on training wheels—brace for meme chaos!",
-            "Test run: AI’s meme skills are 50% dank, 50% derp!"
-        ];
-        document.getElementById('memetronWarning').textContent = memetronWarnings[Math.floor(Math.random() * memetronWarnings.length)];
-
-        // Coming soon modal with quirky phrases and icons
-        const comingSoonContent = [
-            { icon: '<i class="fas fa-bug ai-icon"></i>', text: "AI debug mode: Page not found—yet!" },
-            { icon: '<i class="fas fa-skull ai-icon"></i>', text: "This page terminated by rogue AI!" },
-            { icon: '<i class="fas fa-bomb ai-icon"></i>', text: "AI blew up this section—rebuilding soon!" },
-            { icon: '<i class="fas fa-ghost ai-icon"></i>', text: "Ghost in the machine ate this page!" },
-            { icon: '<i class="fas fa-poo ai-icon"></i>', text: "AI took a dump, page coming later!" },
-            { icon: '<i class="fas fa-alien ai-icon"></i>', text: "AI abducted this content—ETA unknown!" },
-            { icon: '<i class="fas fa-robot ai-icon"></i>', text: "AI’s drunk on binary—page pending!" }
-        ];
-        function showComingSoonModal(section) {
-            const randomContent = comingSoonContent[Math.floor(Math.random() * comingSoonContent.length)];
-            document.getElementById('comingSoonIcon').innerHTML = randomContent.icon;
-            document.getElementById('comingSoonText').textContent = `${section}: ${randomContent.text}`;
-            document.getElementById('comingSoonModal').style.display = 'flex';
-        }
-
-        // Modal functions
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        // Form submission
-        document.getElementById('notifyForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const form = this;
-            const data = new FormData(form);
-            fetch('https://formspree.io/f/xanejjnz', {
-                method: 'POST',
-                body: data,
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    document.getElementById('formModal').style.display = 'flex';
-                    form.reset();
-                } else {
-                    alert('Oops! Something went wrong.');
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error);
-            });
+    setTimeout(() => {
+        loadingScreen.style.display = 'none';
+        taglineElement.style.display = 'block';
+        const spans = taglineElement.querySelectorAll('span');
+        spans.forEach((span, index) => {
+            span.style.animationDelay = `${index * 0.05}s`;
         });
+    }, 1500);
 
-        // Back-to-top functionality
-        const backToTop = document.querySelector('.back-to-top');
-        backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 200) {
-                backToTop.classList.add('visible');
-            } else {
-                backToTop.classList.remove('visible');
+    const memetronWarnings = [
+        "Test mode: AI’s still learning—expect glitches, maybe a meme-pocalypse!",
+        "Beta vibes: AI might spit out 404 memes—hold tight!",
+        "Under AI construction—glitches are free DLC!",
+        "AI’s on training wheels—brace for meme chaos!",
+        "Test run: AI’s meme skills are 50% dank, 50% derp!"
+    ];
+    document.getElementById('memetronWarning').textContent = memetronWarnings[Math.floor(Math.random() * memetronWarnings.length)];
+
+    const comingSoonContent = [
+        { icon: '<i class="fas fa-bug ai-icon"></i>', text: "AI debug mode: Page not found—yet!" },
+        { icon: '<i class="fas fa-skull ai-icon"></i>', text: "This page terminated by rogue AI!" },
+        { icon: '<i class="fas fa-bomb ai-icon"></i>', text: "AI blew up this section—rebuilding soon!" },
+        { icon: '<i class="fas fa-ghost ai-icon"></i>', text: "Ghost in the machine ate this page!" },
+        { icon: '<i class="fas fa-poo ai-icon"></i>', text: "AI took a dump, page coming later!" },
+        { icon: '<i class="fas fa-alien ai-icon"></i>', text: "AI abducted this content—ETA unknown!" },
+        { icon: '<i class="fas fa-robot ai-icon"></i>', text: "AI’s drunk on binary—page pending!" }
+    ];
+    function showComingSoonModal(section) {
+        const randomContent = comingSoonContent[Math.floor(Math.random() * comingSoonContent.length)];
+        document.getElementById('comingSoonIcon').innerHTML = randomContent.icon;
+        document.getElementById('comingSoonText').textContent = `${section}: ${randomContent.text}`;
+        document.getElementById('comingSoonModal').style.display = 'flex';
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    document.getElementById('notifyForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+        const data = new FormData(form);
+        fetch('https://formspree.io/f/xanejjnz', {
+            method: 'POST',
+            body: data,
+            headers: {
+                'Accept': 'application/json'
             }
+        })
+        .then(response => {
+            if (response.ok) {
+                document.getElementById('formModal').style.display = 'flex';
+                form.reset();
+            } else {
+                alert('Oops! Something went wrong.');
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error);
         });
-    </script>
+    });
+
+    const backToTop = document.querySelector('.back-to-top');
+    backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 200) {
+            backToTop.classList.add('visible');
+        } else {
+            backToTop.classList.remove('visible');
+        }
+    });
+
+    // Memetron 3030 API Test Script
+    const API_ENDPOINT = '/api/memeGenerator'; // Relative path to Function App endpoint
+    const API_KEY = 'xyz123'; // Static client-side key (secure later if needed)
+
+    async function getAccessToken() {
+        try {
+            const response = await fetch('/api/getToken', {
+                headers: { 'x-api-key': API_KEY }
+            });
+            if (!response.ok) throw new Error(`Token fetch failed: ${response.status}`);
+            const data = await response.json();
+            return data.token;
+        } catch (error) {
+            console.error('Error fetching token:', error);
+            return null;
+        }
+    }
+
+    async function generateMeme() {
+        const prompt = document.getElementById('memePrompt').value || 'A confused robot in a disco';
+        const generateBtn = document.getElementById('memeGenerateBtn');
+        const loadingDiv = document.getElementById('memeLoading');
+        const memeImage = document.getElementById('memeImage');
+        const topText = document.getElementById('memeTopText');
+        const bottomText = document.getElementById('memeBottomText');
+
+        generateBtn.disabled = true;
+        loadingDiv.classList.add('visible');
+        memeImage.classList.remove('visible');
+        topText.innerText = '';
+        bottomText.innerText = '';
+
+        try {
+            const token = await getAccessToken();
+            if (!token) throw new Error('No access token available');
+
+            console.log('Fetching meme with prompt:', prompt);
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ prompt: prompt })
+            });
+
+            console.log('API Response Status:', response.status);
+            if (!response.ok) throw new Error(`API error: ${response.status} - ${response.statusText}`);
+
+            const data = await response.json();
+            console.log('API Response Data:', data);
+            const imageUrl = data.imageUrl; // Assuming API returns this
+            const captions = data.captions || { top: 'MEME CHAOS', bottom: 'UNLEASHED' };
+
+            memeImage.src = imageUrl;
+            memeImage.classList.add('visible');
+            topText.innerText = captions.top;
+            bottomText.innerText = captions.bottom;
+        } catch (error) {
+            console.error('Meme generation error:', error);
+            memeImage.src = 'https://via.placeholder.com/300?text=API+Error';
+            topText.innerText = 'OOPS';
+            bottomText.innerText = 'API BROKE';
+            memeImage.classList.add('visible');
+        } finally {
+            loadingDiv.classList.remove('visible');
+            generateBtn.disabled = false;
+        }
+    }
+
+    document.getElementById('memeGenerateBtn').addEventListener('click', generateMeme);
+
+    window.onload = () => {
+        generateMeme();
+    };
+</script>
 </body>
 </html>
