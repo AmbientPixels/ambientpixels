@@ -1,8 +1,7 @@
 {
-  "name": "ambientpixels-meme-api",
+  "name": "ambientpixels",
   "version": "1.0.0",
   "scripts": {
-    "start": "func start"
-  },
-  "dependencies": {}
+    "start": "node api/static/index.js"
+  }
 }
