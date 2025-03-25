@@ -1,0 +1,7 @@
+{
+  "name": "ambientpixels",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node api/static/index.js"
+  }
+}
