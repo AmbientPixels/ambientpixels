@@ -803,7 +803,7 @@
         const loadingScreen = document.getElementById('loadingScreen');
         const randomTagline = taglines[Math.floor(Math.random() * taglines.length)];
 
-        taglineElement.innerHTML = randomTagline.split('').map(char => 
+        taglineElement.innerHTML = randomTagline.split('').map(char =>
             char === ' ' ? `<span> </span>` : `<span>${char}</span>`
         ).join('');
 
@@ -933,7 +933,7 @@
                 bottomText.innerText = captions.bottom;
             } catch (error) {
                 console.error('Meme generation error:', error);
-                memeImage.src = 'https://via.placeholder.com/300?text=API+Error';
+                memeImage.src = 'https://placehold.co/300x300?text=API+Error';
                 topText.innerText = 'OOPS';
                 bottomText.innerText = 'API BROKE';
                 memeImage.classList.add('visible');
