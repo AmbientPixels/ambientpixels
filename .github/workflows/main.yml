@@ -2,6 +2,7 @@ name: Deploy to Azure Functions
 on:
   push:
     branches: [ "master" ]
+  workflow_dispatch:  # Add this
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
