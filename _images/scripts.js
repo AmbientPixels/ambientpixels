@@ -23,7 +23,7 @@ const loadingScreen = document.getElementById('loadingScreen');
 const randomTagline = taglines[Math.floor(Math.random() * taglines.length)];
 
 taglineElement.innerHTML = randomTagline.split('').map(char =>
-    char === ' ' ? `<span>&nbsp;</span>` : `<span>${char}</span>`
+    char === ' ' ? `<span> </span>` : `<span>${char}</span>`
 ).join('');
 
 setTimeout(() => {
@@ -101,8 +101,10 @@ async function getAccessToken() {
         const response = await fetch('https://ambientpixels-meme-api-fn.azurewebsites.net/api/getToken', {
             headers: { 'x-api-key': API_KEY }
         });
+        console.log('Token Response Status:', response.status);
         if (!response.ok) throw new Error(`Token fetch failed: ${response.status}`);
         const data = await response.json();
+        console.log('Token Data:', data);
         return data.token;
     } catch (error) {
         console.error('Error fetching token:', error);
@@ -111,7 +113,8 @@ async function getAccessToken() {
 }
 
 async function generateMeme() {
-    const prompt = document.getElementById('memePrompt').value || 'A confused robot in a disco';
+    const promptInput = document.getElementById('memePrompt');
+    const prompt = promptInput.value.trim() || 'A confused robot in a disco';
     const generateBtn = document.getElementById('memeGenerateBtn');
     const loadingDiv = document.getElementById('memeLoading');
     const memeImage = document.getElementById('memeImage');
