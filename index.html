@@ -916,19 +916,20 @@ async function generateMeme() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ endpoint: "text", prompt: prompt })
+            body: JSON.stringify({ endpoint: "image", prompt: prompt }) // Changed to "image"
         });
 
         console.log('API Response Status:', response.status);
         if (!response.ok) throw new Error(`API error: ${response.status} - ${response.statusText}`);
 
-        const text = await response.text(); // Changed from .json()
-        console.log('API Response Text:', text);
+        const blob = await response.blob(); // Changed to .blob() for image
+        const imageUrl = URL.createObjectURL(blob);
+        console.log('API Response Image URL:', imageUrl);
 
-        memeImage.src = 'https://placehold.co/300x300?text=' + encodeURIComponent(prompt); // Placeholder
+        memeImage.src = imageUrl;
         memeImage.classList.add('visible');
-        topText.innerText = text.slice(0, 20); // First 20 chars
-        bottomText.innerText = text.slice(-20); // Last 20 chars
+        topText.innerText = prompt.slice(0, 20); // Use prompt for now
+        bottomText.innerText = prompt.slice(-20);
     } catch (error) {
         console.error('Meme generation error:', error);
         memeImage.src = 'https://placehold.co/300x300?text=API+Error';
@@ -940,7 +941,6 @@ async function generateMeme() {
         generateBtn.disabled = false;
     }
 }
-
         document.getElementById('memeGenerateBtn').addEventListener('click', generateMeme);
 
         window.onload = () => {
