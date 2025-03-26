@@ -16,7 +16,7 @@ module.exports = async function (context, req) {
   try {
     if (endpoint === 'image') {
       const response = await fetch(
-        'https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5',
+        'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1',
         {
           method: 'POST',
           headers: {
@@ -59,4 +59,4 @@ module.exports = async function (context, req) {
     context.log.error(error);
     context.res = { status: 500, body: `Error: ${error.message}` };
   }
-};// JavaScript Document
+};
