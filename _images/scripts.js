@@ -93,8 +93,8 @@
         });
 
         // Memetron 3030 API Test Script
-        const API_ENDPOINT = '/api/memeGenerator';
-        const API_KEY = 'xyz123';
+        const API_ENDPOINT = 'https://ambientpixels-meme-api-fn.azurewebsites.net/api/memeGenerator';
+        const token = await fetch('https://ambientpixels-meme-api-fn.azurewebsites.net/api/getToken', { headers: { 'x-api-key': API_KEY } });
 
         async function getAccessToken() {
             try {
