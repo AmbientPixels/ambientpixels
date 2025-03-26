@@ -891,57 +891,55 @@
             }
         }
 
-        async function generateMeme() {
-            const prompt = document.getElementById('memePrompt').value || 'A confused robot in a disco';
-            const generateBtn = document.getElementById('memeGenerateBtn');
-            const loadingDiv = document.getElementById('memeLoading');
-            const memeImage = document.getElementById('memeImage');
-            const topText = document.getElementById('memeTopText');
-            const bottomText = document.getElementById('memeBottomText');
+async function generateMeme() {
+    const prompt = document.getElementById('memePrompt').value || 'A confused robot in a disco';
+    const generateBtn = document.getElementById('memeGenerateBtn');
+    const loadingDiv = document.getElementById('memeLoading');
+    const memeImage = document.getElementById('memeImage');
+    const topText = document.getElementById('memeTopText');
+    const bottomText = document.getElementById('memeBottomText');
 
-            generateBtn.disabled = true;
-            loadingDiv.classList.add('visible');
-            memeImage.classList.remove('visible');
-            topText.innerText = '';
-            bottomText.innerText = '';
+    generateBtn.disabled = true;
+    loadingDiv.classList.add('visible');
+    memeImage.classList.remove('visible');
+    topText.innerText = '';
+    bottomText.innerText = '';
 
-            try {
-                const token = await getAccessToken();
-                if (!token) throw new Error('No access token available');
+    try {
+        const token = await getAccessToken();
+        if (!token) throw new Error('No access token available');
 
-                console.log('Fetching meme with prompt:', prompt);
-                const response = await fetch(API_ENDPOINT, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ endpoint: "text", prompt: prompt })
-                });
+        console.log('Fetching meme with prompt:', prompt);
+        const response = await fetch(API_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ endpoint: "text", prompt: prompt })
+        });
 
-                console.log('API Response Status:', response.status);
-                if (!response.ok) throw new Error(`API error: ${response.status} - ${response.statusText}`);
+        console.log('API Response Status:', response.status);
+        if (!response.ok) throw new Error(`API error: ${response.status} - ${response.statusText}`);
 
-                const data = await response.json();
-                console.log('API Response Data:', data);
-                const imageUrl = data.imageUrl;
-                const captions = data.captions || { top: 'MEME CHAOS', bottom: 'UNLEASHED' };
+        const text = await response.text(); // Changed from .json()
+        console.log('API Response Text:', text);
 
-                memeImage.src = imageUrl;
-                memeImage.classList.add('visible');
-                topText.innerText = captions.top;
-                bottomText.innerText = captions.bottom;
-            } catch (error) {
-                console.error('Meme generation error:', error);
-                memeImage.src = 'https://placehold.co/300x300?text=API+Error';
-                topText.innerText = 'OOPS';
-                bottomText.innerText = 'API BROKE';
-                memeImage.classList.add('visible');
-            } finally {
-                loadingDiv.classList.remove('visible');
-                generateBtn.disabled = false;
-            }
-        }
+        memeImage.src = 'https://placehold.co/300x300?text=' + encodeURIComponent(prompt); // Placeholder
+        memeImage.classList.add('visible');
+        topText.innerText = text.slice(0, 20); // First 20 chars
+        bottomText.innerText = text.slice(-20); // Last 20 chars
+    } catch (error) {
+        console.error('Meme generation error:', error);
+        memeImage.src = 'https://placehold.co/300x300?text=API+Error';
+        topText.innerText = 'OOPS';
+        bottomText.innerText = 'API BROKE';
+        memeImage.classList.add('visible');
+    } finally {
+        loadingDiv.classList.remove('visible');
+        generateBtn.disabled = false;
+    }
+}
 
         document.getElementById('memeGenerateBtn').addEventListener('click', generateMeme);
 
