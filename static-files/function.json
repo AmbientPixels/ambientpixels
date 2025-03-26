@@ -6,7 +6,7 @@
       "direction": "in",
       "name": "req",
       "methods": ["get"],
-      "route": "_images/{fileName}"
+      "route": "_images/{fileName:regex(^(ambient-pixel-logo-rainbow\\.png|banner\\.jpg|styles\\.css|scripts\\.js)$)}"
     },
     {
       "type": "http",
