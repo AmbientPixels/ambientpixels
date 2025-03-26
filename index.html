@@ -916,19 +916,19 @@ async function generateMeme() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ endpoint: "image", prompt: prompt }) // Changed to "image"
+            body: JSON.stringify({ endpoint: "image", prompt: prompt })
         });
 
         console.log('API Response Status:', response.status);
         if (!response.ok) throw new Error(`API error: ${response.status} - ${response.statusText}`);
 
-        const blob = await response.blob(); // Changed to .blob() for image
+        const blob = await response.blob();
         const imageUrl = URL.createObjectURL(blob);
         console.log('API Response Image URL:', imageUrl);
 
         memeImage.src = imageUrl;
         memeImage.classList.add('visible');
-        topText.innerText = prompt.slice(0, 20); // Use prompt for now
+        topText.innerText = prompt.slice(0, 20);
         bottomText.innerText = prompt.slice(-20);
     } catch (error) {
         console.error('Meme generation error:', error);
@@ -940,8 +940,7 @@ async function generateMeme() {
         loadingDiv.classList.remove('visible');
         generateBtn.disabled = false;
     }
-}
-        document.getElementById('memeGenerateBtn').addEventListener('click', generateMeme);
+}        document.getElementById('memeGenerateBtn').addEventListener('click', generateMeme);
 
         window.onload = () => {
             generateMeme();
