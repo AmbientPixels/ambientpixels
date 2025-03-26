@@ -916,7 +916,7 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ prompt: prompt })
+                    body: JSON.stringify({ endpoint: "text", prompt: prompt })
                 });
 
                 console.log('API Response Status:', response.status);
