@@ -17,13 +17,26 @@
         </div>
         <div class="navbar-menu">
             <a href="/"><i class="fas fa-home"></i> Home</a>
-            <a href="/projects.html"><i class="fas fa-cube"></i> Projects</a>
-            <a onclick="showComingSoonModal('Contact')"><i class="fas fa-envelope"></i> Contact</a>
+            <div class="dropdown">
+                <a href="/projects.html"><i class="fas fa-cube"></i> Projects</a>
+                <div class="dropdown-content">
+                    <a onclick="showComingSoonModal('Memetron')"><i class="fas fa-robot"></i> Memetron 3030</a>
+                    <a onclick="showComingSoonModal('Glitch Apparel')"><i class="fas fa-tshirt"></i> Glitch Apparel</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a onclick="showComingSoonModal('Contact')"><i class="fas fa-envelope"></i> Contact</a>
+                <div class="dropdown-content">
+                    <a onclick="showComingSoonModal('Email')"><i class="fas fa-envelope"></i> Email Us</a>
+                    <a onclick="showComingSoonModal('Social')"><i class="fas fa-users"></i> Social Media</a>
+                </div>
+            </div>
             <button class="theme-toggle" onclick="toggleTheme()">
                 <i class="fas fa-moon"></i>
             </button>
         </div>
         <button class="navbar-toggle" onclick="toggleMenu()">
+            ASSIGNMENT 1: Create a simple website using HTML/CSS/JavaScript
             <i class="fas fa-bars"></i>
         </button>
     </div>
@@ -32,19 +45,35 @@
         <h1>[Page Title]</h1>
     </div>
 
-    <section class="section-container">
-        <h2 onclick="toggleSection(this)"><i class="fas fa-info-circle"></i> [Section 1]</h2>
-        <div class="section-content">
-            <p>[Content goes here]</p>
-        </div>
-    </section>
+    <div class="breadcrumbs">
+        <p><a href="/">Home</a> > [Page Title]</p>
+    </div>
 
-    <section class="section-container">
-        <h2 onclick="toggleSection(this)"><i class="fas fa-info-circle"></i> [Section 2]</h2>
-        <div class="section-content">
-            <p>[Content goes here]</p>
-        </div>
-    </section>
+    <div class="content-wrapper">
+        <aside class="sidebar">
+            <h3>Contents</h3>
+            <ul>
+                <li><a href="#section1">[Section 1]</a></li>
+                <li><a href="#section2">[Section 2]</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <section class="section-container" id="section1">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-info-circle"></i> [Section 1]</h2>
+                <div class="section-content">
+                    <p>[Content goes here]</p>
+                </div>
+            </section>
+
+            <section class="section-container" id="section2">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-info-circle"></i> [Section 2]</h2>
+                <div class="section-content">
+                    <p>[Content goes here]</p>
+                </div>
+            </section>
+        </main>
+    </div>
 
     <footer>
         <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
@@ -64,7 +93,7 @@
             const content = header.nextElementSibling;
             content.classList.toggle('active');
         }
-        document.querySelectorAll('.section-content')[0].classList.add('active'); // Open first section
+        document.querySelectorAll('.section-content')[0].classList.add('active');
     </script>
 </body>
 </html>
