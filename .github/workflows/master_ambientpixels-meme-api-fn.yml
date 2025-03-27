@@ -3,18 +3,30 @@ name: Deploy to Azure Functions
 on:
   push:
     branches: [ "master" ]
+    paths:  # Trigger on Function App files and package.json
+      - 'getToken/**'
+      - 'meme-api/**'
+      - 'static/**'
+      - 'static-files/**'
+      - 'package.json'
   workflow_dispatch:
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout GitHub Action
       uses: actions/checkout@v4
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'  # Match Function App runtime
+    - name: Install Dependencies
+      run: npm install  # Installs uuid from package.json
     - name: List Files
       run: ls -R .
     - name: Deploy to Azure Functions
       uses: Azure/functions-action@v1
       with:
-        app-name: ambientpixels-meme-api-fn
-        package: .
+        app-name: 'ambientpixels-meme-api-fn'
+        package: '.'
         publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E5BE881F58F440D69430618422EEB336 }}
