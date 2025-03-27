@@ -61,7 +61,7 @@ body.light .navbar {
     font-weight: 500;
 }
 body.light .navbar h1 {
-    color: #2A2F33; /* Light mode—matches --text-light */
+    color: #2A2F33;
 }
 .navbar-menu {
     display: flex;
@@ -131,7 +131,7 @@ body.light .navbar-toggle:hover {
     position: relative;
     width: 100%;
     height: 500px;
-    background: no-repeat center/cover; /* Dynamic—JS sets image */
+    background: no-repeat center/cover;
     margin-top: 60px;
 }
 .hero::after {
@@ -199,28 +199,24 @@ body.light .navbar-toggle:hover {
     text-align: center;
     transition: background 0.3s;
 }
+body.light .container {
+    background: var(--card-light);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
 ul {
-    list-style-type: none; /* Remove default bullets—use <strong> styling */
-    margin: 0 0 20px 0; /* No left margin—keep tight */
+    list-style-type: disc;
+    margin: 0 0 20px 20px;
     padding: 0;
 }
 li {
-    display: flex;
-    align-items: flex-start; /* Align top for multi-line */
-    gap: 8px; /* Tight space between bullet and text */
-    margin-bottom: 12px; /* Space between items */
+    margin-bottom: 12px;
 }
 li strong {
-    color: var(--accent-dark); /* Bold titles pop */
+    color: var(--accent-dark);
     font-weight: 600;
 }
 body.light li strong {
     color: var(--accent-light);
-}
-
-body.light .container {
-    background: var(--card-light);
-    border: 1px solid rgba(0, 0, 0, 0.05);
 }
 .tagline {
     font-size: 1.3em;
