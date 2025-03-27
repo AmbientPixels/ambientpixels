@@ -111,7 +111,8 @@ async function getAccessToken() {
 
 async function generateMeme() {
     const promptInput = document.getElementById('memePrompt');
-    const prompt = promptInput.value.trim() || 'A confused robot in a disco';
+    const defaultPrompt = 'A confused robot in a disco';
+    const prompt = promptInput && promptInput.value.trim() ? promptInput.value.trim() : defaultPrompt; // Ensure input or default
     const generateBtn = document.getElementById('memeGenerateBtn');
     const loadingDiv = document.getElementById('memeLoading');
     const memeImage = document.getElementById('memeImage');
