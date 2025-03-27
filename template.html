@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <title>Ambient Pixels - [Page Title]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="_images/styles.css">
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-left">
+            <img src="_images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="navbar-logo">
+            <h1>Ambient Pixels</h1>
+        </div>
+        <div class="navbar-menu">
+            <a href="/"><i class="fas fa-home"></i> Home</a>
+            <a href="/projects.html"><i class="fas fa-cube"></i> Projects</a>
+            <a onclick="showComingSoonModal('Contact')"><i class="fas fa-envelope"></i> Contact</a>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+        <button class="navbar-toggle" onclick="toggleMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <div class="mini-hero">
+        <h1>[Page Title]</h1>
+    </div>
+
+    <section class="section-container">
+        <h2 onclick="toggleSection(this)"><i class="fas fa-info-circle"></i> [Section 1]</h2>
+        <div class="section-content">
+            <p>[Content goes here]</p>
+        </div>
+    </section>
+
+    <section class="section-container">
+        <h2 onclick="toggleSection(this)"><i class="fas fa-info-circle"></i> [Section 2]</h2>
+        <div class="section-content">
+            <p>[Content goes here]</p>
+        </div>
+    </section>
+
+    <footer>
+        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
+        <p class="footer-tag">Forged by AI, fueled by chaos</p>
+    </footer>
+
+    <div class="modal" id="comingSoonModal">
+        <div class="modal-content">
+            <p id="comingSoonMessage"><span id="comingSoonIcon"></span> <span id="comingSoonText"></span></p>
+            <button onclick="closeModal('comingSoonModal')">Close</button>
+        </div>
+    </div>
+
+    <script src="_images/scripts.js" defer></script>
+    <script>
+        function toggleSection(header) {
+            const content = header.nextElementSibling;
+            content.classList.toggle('active');
+        }
+        document.querySelectorAll('.section-content')[0].classList.add('active'); // Open first section
+    </script>
+</body>
+</html>
