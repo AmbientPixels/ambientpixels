@@ -1,5 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 module.exports = async function (context, req) {
+    context.log('getToken called—origin:', req.headers.origin); // Debug
     context.res = {
         status: 200,
         headers: {
