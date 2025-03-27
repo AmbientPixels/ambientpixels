@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <title>Ambient Pixels - CI/CD Process Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="_images/styles.css">
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-left">
+            <img src="_images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="navbar-logo">
+            <h1>Ambient Pixels</h1>
+        </div>
+        <div class="navbar-menu">
+            <a href="/"><i class="fas fa-home"></i> Home</a>
+            <a href="/projects.html"><i class="fas fa-cube"></i> Projects</a>
+            <a onclick="showComingSoonModal('Contact')"><i class="fas fa-envelope"></i> Contact</a>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+        <button class="navbar-toggle" onclick="toggleMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+    <div class="container">
+        <h2><i class="fas fa-cogs"></i> CI/CD Process Documentation</h2>
+        <p>Behind the chaos—how we deploy Ambient Pixels as of March 27, 2025.</p>
+
+        <h3>Overview</h3>
+        <p>This page details our Continuous Integration/Continuous Deployment (CI/CD) pipeline, showing how changes go from edits to live deployment on <code>ambientpixels.ai</code>. It covers Azure services, GitHub workflows, API security, and technical specifics.</p>
+
+        <h3>CI/CD Pipeline: Publishing Workflow</h3>
+        <p>Our process is an automated CI/CD pipeline:</p>
+        <ul>
+            <li><strong>Dreamweaver (DW) Edit</strong>: Local edits to files (e.g., <code>projects.html</code>, <code>_images/styles.css</code>) in Adobe Dreamweaver.</li>
+            <li><strong>Git Push</strong>: Commit changes to the local repo (<code>C:\_projects\AmbientPixels.ai</code>) and push to <code>origin/master</code> on GitHub (<a href="https://github.com/AmbientPixels/ambientpixels">github.com/AmbientPixels/ambientpixels</a>).</li>
+            <li><strong>GitHub Workflows</strong>: Two workflows trigger:
+                <ul>
+                    <li><code>azure-static-web-apps-calm-sky-05cc8e110.yml</code>: Deploys static content to Azure Static Web App.</li>
+                    <li><code>master_ambientpixels-meme-api-fn.yml</code>: Deploys API updates to Azure Function App.</li>
+                </ul>
+            </li>
+            <li><strong>Azure Deployment</strong>: Updates go live:
+                <ul>
+                    <li>Static Web App (<code>ambientpixelsV2</code>)—<code>https://calm-sky-05cc8e110.6.azurestaticapps.net/</code> and <code>ambientpixels.ai</code> (once DNS resolves).</li>
+                    <li>Function App (<code>ambientpixels-meme-api-fn</code>)—API endpoints (e.g., <code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/getToken</code>).</li>
+                </ul>
+            </li>
+        </ul>
+        <p><strong>Why Fast?</strong> Pre-configured GitHub Actions with API tokens—Push triggers instant deployment without manual steps.</p>
+
+        <h3>Azure Services Setup</h3>
+        <p>We run two Azure services side-by-side:</p>
+        <ul>
+            <li><strong>Static Web App (<code>ambientpixelsV2</code>)</strong>:
+                <p>Purpose: Hosts static content—HTML, CSS, JS (e.g., <code>index.html</code>, <code>projects.html</code>, <code>_images/</code>).</p>
+                <p>URL: <code>https://calm-sky-05cc8e110.6.azurestaticapps.net/</code>—Custom domain <code>ambientpixels.ai</code> (pending full DNS/SSL).</p>
+                <p>Deployment: GitHub workflow <code>azure-static-web-apps-calm-sky-05cc8e110.yml</code> uploads files directly—no build step (<code>skip_app_build: "true"</code>).</p>
+                <p>SSL: Azure-managed HTTPS—Requires custom domain validation (TXT record).</p>
+            </li>
+            <li><strong>Function App (<code>ambientpixels-meme-api-fn</code>)</strong>:
+                <p>Purpose: Runs serverless APIs—<code>getToken</code> (generates UUIDs), <code>memeGenerator</code> (creates memes).</p>
+                <p>URL: <code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/[endpoint]</code>.</p>
+                <p>Deployment: GitHub workflow <code>master_ambientpixels-meme-api-fn.yml</code> builds Node.js functions (e.g., <code>getToken/index.js</code>) and deploys.</p>
+                <p>CORS: Secured with <code>Access-Control-Allow-Origin</code> headers—Allows <code>calm-sky…</code> and <code>ambientpixels.ai</code>.</p>
+            </li>
+        </ul>
+        <p><strong>How They Work Together</strong>: Static Web App serves the frontend, calling Function App APIs via fetch (e.g., <code>scripts.js</code> calls <code>/api/getToken</code>). Function App handles backend logic, returning data (e.g., tokens, meme URLs). Separation keeps static content lightweight and fast, with APIs scaling independently.</p>
+
+        <h3>API Security</h3>
+        <p><strong>Token-Based</strong>: <code>getToken</code> generates UUIDs—Used in <code>memeGenerator</code> requests (not fully implemented—future enhancement).</p>
+        <p><strong>CORS Configuration</strong>: Set in <code>getToken/index.js</code>:</p>
+        <pre>
+headers: {
+    "Access-Control-Allow-Origin": "https://calm-sky-05cc8e110.6.azurestaticapps.net",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization"
+}
+        </pre>
+        <p>Also configured in Azure Portal > Function App > CORS to allow <code>ambientpixels.ai</code> and <code>www.ambientpixels.ai</code>.</p>
+        <p><strong>Status</strong>: Secured for current origins—Scalable for future domains.</p>
+
+        <h3>Dual GitHub Workflows</h3>
+        <p><strong>Why Two Workflows?</strong></p>
+        <ul>
+            <li>Static Content: <code>azure-static-web-apps-calm-sky-05cc8e110.yml</code> deploys HTML/CSS/JS to Static Web App—Triggers on all <code>master</code> pushes.</li>
+            <li>API Functions: <code>master_ambientpixels-meme-api-fn.yml</code> deploys Node.js functions to Function App—Triggers only on API-related file changes (e.g., <code>getToken/</code>, <code>meme-api/</code>, <code>package.json</code>).</li>
+            <li>Separation: Prevents unnecessary API deploys—Optimizes speed—Static changes deploy instantly—API builds only when needed.</li>
+        </ul>
+        <p><strong>How They Work</strong>:</p>
+        <p>Static Workflow (<code>azure-static-web-apps-calm-sky-05cc8e110.yml</code>):</p>
+        <pre>
+on:
+  push:
+    branches: [ "master" ]
+jobs:
+  build_and_deploy_job:
+    steps:
+      - uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_SKY_05CC8E110 }}
+          app_location: "/"
+          output_location: ""
+          skip_app_build: "true"
+        </pre>
+        <p>Function Workflow (<code>master_ambientpixels-meme-api-fn.yml</code>):</p>
+        <pre>
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - 'getToken/**'
+      - 'meme-api/**'
+      - 'package.json'
+jobs:
+  build-and-deploy:
+    steps:
+      - uses: Azure/functions-action@v1
+        with:
+          app-name: 'ambientpixels-meme-api-fn'
+          package: '.'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E5BE881F58F440D69430618422EEB336 }}
+        </pre>
+        <p><strong>Push Process</strong>: Single <code>git push</code>—GitHub splits work—Static deploys always—Function deploys conditionally.</p>
+
+        <h3>Additional Technical Info</h3>
+        <ul>
+            <li><strong>Repo</strong>: <a href="https://github.com/AmbientPixels/ambientpixels">github.com/AmbientPixels/ambientpixels</a>—<code>master</code> branch—All code and workflows.</li>
+            <li><strong>Workflow Files</strong>:
+                <p><code>azure-static-web-apps-calm-sky-05cc8e110.yml</code>: Static content—Runs on all pushes—Token in GitHub Secrets (<code>AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_SKY_05CC8E110</code>).</p>
+                <p><code>master_ambientpixels-meme-api-fn.yml</code>: Function App—Runs on API changes—Publish profile in Secrets (<code>AZUREAPPSERVICE_PUBLISHPROFILE_E5BE881F58F440D69430618422EEB336</code>).</p>
+            </li>
+            <li><strong>Azure Setup</strong>:
+                <p>Resource Group: <code>ambientpixelsV2</code>—Houses both services.</p>
+                <p>Static Web App SKU: Standard—Free HTTPS, custom domains.</p>
+                <p>Function App Runtime: Node.js ~20—Serverless, scalable.</p>
+            </li>
+            <li><strong>Push History</strong>:
+                <p><code>f9dd481</code>: Last major update—Projects content, bullet fixes.</p>
+                <p>[Latest, e.g., <code>vwx012</code>]: Standard bullet styles update—Replace with your latest hash.</p>
+            </li>
+            <li><strong>Tips</strong>:
+                <p>Flush DNS: <code>ipconfig /flushdns</code>—Clears local cache if old IPs linger.</p>
+                <p>Check Propagation: <code>nslookup ambientpixels.ai 8.8.8.8</code>—Uses Google DNS for fresh lookup.</p>
+                <p>Monitor: GitHub Actions logs—Azure Deployment Center for status.</p>
+            </li>
+        </ul>
+
+        <h3>Next Steps</h3>
+        <ul>
+            <li>Confirm HTTPS on <code>ambientpixels.ai</code>—Test full site.</li>
+            <li>Enhance Projects page—Add more ideas or polish content.</li>
+            <li>Secure API further—Implement token validation in <code>memeGenerator</code>.</li>
+        </ul>
+        <p><em>Forged by chaos, deployed with precision—Ambient Pixels, 2025.</em></p>
+    </div>
+    <footer>
+        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
+        <p class="footer-tag">Forged by AI, fueled by chaos</p>
+    </footer>
+    <div class="modal" id="comingSoonModal">
+        <div class="modal-content">
+            <p id="comingSoonMessage"><span id="comingSoonIcon"></span> <span id="comingSoonText"></span></p>
+            <button onclick="closeModal('comingSoonModal')">Close</button>
+        </div>
+    </div>
+    <script src="_images/scripts.js" defer></script>
+</body>
+</html>
