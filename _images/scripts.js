@@ -23,7 +23,7 @@ const loadingScreen = document.getElementById('loadingScreen');
 const randomTagline = taglines[Math.floor(Math.random() * taglines.length)];
 
 taglineElement.innerHTML = randomTagline.split('').map(char =>
-    char === ' ' ? `<span>&nbsp;</span>` : `<span>${char}</span>`
+    char === ' ' ? `<span> </span>` : `<span>${char}</span>`
 ).join('');
 
 setTimeout(() => {
@@ -94,13 +94,10 @@ window.addEventListener('scroll', () => {
 
 // Memetron 3030 API Test Script
 const API_ENDPOINT = 'https://ambientpixels-meme-api-fn.azurewebsites.net/api/memeGenerator';
-const API_KEY = 'xyz123';
 
 async function getAccessToken() {
     try {
-        const response = await fetch('https://ambientpixels-meme-api-fn.azurewebsites.net/api/getToken', {
-            headers: { 'x-api-key': API_KEY }
-        });
+        const response = await fetch('https://ambientpixels-meme-api-fn.azurewebsites.net/api/getToken');
         console.log('Token Response Status:', response.status);
         if (!response.ok) throw new Error(`Token fetch failed: ${response.status}`);
         const data = await response.json();
