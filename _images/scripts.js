@@ -23,7 +23,7 @@ const loadingScreen = document.getElementById('loadingScreen');
 const randomTagline = taglines[Math.floor(Math.random() * taglines.length)];
 
 taglineElement.innerHTML = randomTagline.split('').map(char =>
-    char === ' ' ? `<span> </span>` : `<span>${char}</span>`
+    char === ' ' ? `<span>&nbsp;</span>` : `<span>${char}</span>`
 ).join('');
 
 setTimeout(() => {
