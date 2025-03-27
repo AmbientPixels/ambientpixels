@@ -3,5 +3,4 @@
 # Example.gitignore files : https://github.com/github/gitignore
 _notes/
 /bower_components/
-/node_modules/
 api/_images
