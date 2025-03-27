@@ -36,7 +36,7 @@ body.menu-open {
     width: 100%;
     background: var(--frosted-bg);
     backdrop-filter: blur(10px);
-    padding: 10px 20px;
+    padding: 10px 20px; /* Aligned with content below */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -276,15 +276,15 @@ body.light .breadcrumbs a:hover { color: var(--accent-light); }
 .content-wrapper {
     max-width: 1000px;
     margin: 20px auto;
-    padding: 0 20px;
     display: flex;
     gap: 20px;
+    /* No padding here—Moved to children */
 }
 .sidebar {
-    width: 180px; /* Adjusted to fit within 1000px with gap and main-content */
+    width: 180px; /* Fits within 1000px with gap and main-content */
     flex-shrink: 0;
     background: var(--card-dark);
-    padding: 15px; /* Full padding restored */
+    padding: 0 20px; /* Aligns with content edges */
     border-radius: 4px;
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -292,7 +292,7 @@ body.light .sidebar {
     background: var(--card-light);
     border: 1px solid rgba(0, 0, 0, 0.05);
 }
-.sidebar h3 { margin-top: 0; }
+.sidebar h3 { margin-top: 15px; } /* Match section-container padding */
 .sidebar ul { margin-left: 15px; }
 .sidebar a { color: var(--text-dark); text-decoration: none; }
 body.light .sidebar a { color: var(--text-light); }
@@ -300,7 +300,7 @@ body.light .sidebar a { color: var(--text-light); }
 body.light .sidebar a:hover { color: var(--accent-light); }
 .main-content {
     flex-grow: 1;
-    padding: 0 20px; /* Full padding restored */
+    padding: 0 20px; /* Aligns with content edges */
 }
 .section-container {
     max-width: 1000px;
@@ -824,7 +824,7 @@ body.light .modal-content button:hover {
         display: block;
     }
     .navbar {
-        padding: 10px 15px;
+        padding: 10px 15px; /* Mobile alignment */
     }
     .navbar h1 {
         font-size: 1.4em;
@@ -845,29 +845,35 @@ body.light .modal-content button:hover {
         margin-right: 15px;
     }
     .mini-hero {
+        max-width: none;
         margin-left: 15px;
         margin-right: 15px;
+        padding: 0 15px;
     }
     .content-wrapper {
         flex-direction: column;
-        padding: 0 15px;
+        max-width: none;
+        margin-left: 15px;
+        margin-right: 15px;
     }
     .sidebar {
         width: 100%;
-        padding: 15px;
+        padding: 0 15px;
     }
     .main-content {
         padding: 0 15px;
     }
     .section-container {
         max-width: none;
-        min-width: 0;
         margin-left: 15px;
         margin-right: 15px;
+        padding: 15px;
     }
     .breadcrumbs {
+        max-width: none;
         margin-left: 15px;
         margin-right: 15px;
+        padding: 0 15px;
     }
     .meme-container {
         width: 250px;
