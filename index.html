@@ -10,23 +10,23 @@
 <link rel="stylesheet" href="_images/styles.css">
 </head>
 <body>
-    <div class="navbar">
-        <div class="navbar-left">
-            <img src="_images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="navbar-logo">
-            <h1>Ambient Pixels</h1>
-        </div>
-        <div class="navbar-menu">
-            <a onclick="showComingSoonModal('Home')"><i class="fas fa-home"></i> Home</a>
-            <a onclick="showComingSoonModal('Projects')"><i class="fas fa-cube"></i> Projects</a>
-            <a onclick="showComingSoonModal('Contact')"><i class="fas fa-envelope"></i> Contact</a>
-            <button class="theme-toggle" onclick="toggleTheme()">
-                <i class="fas fa-moon"></i>
-            </button>
-        </div>
-        <button class="navbar-toggle" onclick="toggleMenu()">
-            <i class="fas fa-bars"></i>
+<div class="navbar">
+    <div class="navbar-left">
+        <img src="_images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="navbar-logo">
+        <h1>Ambient Pixels</h1>
+    </div>
+    <div class="navbar-menu">
+        <a href="/"><i class="fas fa-home"></i> Home</a>
+        <a href="/projects.html"><i class="fas fa-cube"></i> Projects</a>
+        <a onclick="showComingSoonModal('Contact')"><i class="fas fa-envelope"></i> Contact</a>
+        <button class="theme-toggle" onclick="toggleTheme()">
+            <i class="fas fa-moon"></i>
         </button>
     </div>
+    <button class="navbar-toggle" onclick="toggleMenu()">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>
     <div class="hero">
         <div class="loading-screen" id="loadingScreen">
             <i class="fas fa-microchip"></i>
