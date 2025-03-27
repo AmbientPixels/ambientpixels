@@ -199,6 +199,25 @@ body.light .navbar-toggle:hover {
     text-align: center;
     transition: background 0.3s;
 }
+ul {
+    list-style-type: none; /* Remove default bullets—use <strong> styling */
+    margin: 0 0 20px 0; /* No left margin—keep tight */
+    padding: 0;
+}
+li {
+    display: flex;
+    align-items: flex-start; /* Align top for multi-line */
+    gap: 8px; /* Tight space between bullet and text */
+    margin-bottom: 12px; /* Space between items */
+}
+li strong {
+    color: var(--accent-dark); /* Bold titles pop */
+    font-weight: 600;
+}
+body.light li strong {
+    color: var(--accent-light);
+}
+
 body.light .container {
     background: var(--card-light);
     border: 1px solid rgba(0, 0, 0, 0.05);
