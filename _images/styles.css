@@ -55,6 +55,7 @@ body.light .navbar {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: nowrap; /* Prevent text wrapping below logo */
 }
 .navbar-logo {
     width: 50px;
@@ -257,7 +258,7 @@ body.light .container {
     margin-top: 60px;
 }
 .breadcrumbs {
-    max-width: 800px;
+    max-width: 1000px; /* Match content-wrapper */
     margin: 10px auto;
     padding: 0 20px;
     font-size: 0.9em;
@@ -303,6 +304,10 @@ body.light .sidebar a:hover { color: var(--accent-light); }
     border: 1px solid rgba(255, 255, 255, 0.05);
     transition: background 0.3s;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+.section-container#intro {
+    max-width: 1000px; /* Match content-wrapper */
+    min-width: 800px; /* Wider for intro */
 }
 body.light .section-container {
     background: var(--card-light);
@@ -837,6 +842,9 @@ body.light .modal-content button:hover {
     }
     .sidebar {
         width: 100%;
+    }
+    .section-container#intro {
+        min-width: 0; /* Reset for mobile */
     }
     .meme-container {
         width: 250px;
