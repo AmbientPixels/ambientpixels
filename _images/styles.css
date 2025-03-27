@@ -60,6 +60,9 @@
             margin: 0;
             font-weight: 500;
         }
+		body.light .navbar h1 {
+    color: #2A2F33; /* Light mode—matches --text-light */
+		}
         .navbar-menu {
             display: flex;
             gap: 12px;
