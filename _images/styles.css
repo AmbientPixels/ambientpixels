@@ -50,6 +50,12 @@ body.light .navbar {
     align-items: center;
     gap: 10px;
 }
+.navbar-left a {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 .navbar-logo {
     width: 50px;
     height: auto;
@@ -248,7 +254,7 @@ body.light .container {
     color: #FFFFFF;
     font-size: 1.8em;
     text-shadow: 0 0 5px #000;
-    margin-top: 60px; /* Clean gradient—no glitch */
+    margin-top: 60px;
 }
 .breadcrumbs {
     max-width: 800px;
@@ -318,6 +324,10 @@ body.light .section-container {
 body.light .section-container h2:hover {
     color: var(--highlight-light);
 }
+.section-container h3 {
+    font-size: 1.3em;
+    margin: 15px 0 10px;
+}
 .section-content {
     display: none;
     text-align: left;
@@ -342,7 +352,6 @@ body.light li strong {
 }
 .tagline {
     font-size: 1.3em;
-
     color: #B8C7CA;
     margin-bottom: 20px;
     font-weight: 400;

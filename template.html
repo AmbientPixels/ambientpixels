@@ -12,8 +12,10 @@
 <body>
     <div class="navbar">
         <div class="navbar-left">
-            <img src="_images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="navbar-logo">
-            <h1>Ambient Pixels</h1>
+            <a href="/">
+                <img src="_images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="navbar-logo">
+                <h1>Ambient Pixels</h1>
+            </a>
         </div>
         <div class="navbar-menu">
             <a href="/"><i class="fas fa-home"></i> Home</a>
@@ -36,7 +38,6 @@
             </button>
         </div>
         <button class="navbar-toggle" onclick="toggleMenu()">
-            ASSIGNMENT 1: Create a simple website using HTML/CSS/JavaScript
             <i class="fas fa-bars"></i>
         </button>
     </div>
@@ -49,27 +50,45 @@
         <p><a href="/">Home</a> > [Page Title]</p>
     </div>
 
+    <section class="section-container" id="intro">
+        <h2><i class="fas fa-star"></i> Welcome to [Page Title]</h2>
+        <div class="section-content active">
+            <p>This is the intro section—your gateway to the chaos! Dive into the wild world of Ambient Pixels, where creativity meets tech in a supernova of style.</p>
+        </div>
+    </section>
+
     <div class="content-wrapper">
         <aside class="sidebar">
             <h3>Contents</h3>
             <ul>
+                <li><a href="#intro">Intro</a></li>
+                <li><a href="#styles">Text Styles</a></li>
                 <li><a href="#section1">[Section 1]</a></li>
-                <li><a href="#section2">[Section 2]</a></li>
             </ul>
         </aside>
 
         <main class="main-content">
-            <section class="section-container" id="section1">
-                <h2 onclick="toggleSection(this)"><i class="fas fa-info-circle"></i> [Section 1]</h2>
+            <section class="section-container" id="styles">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-font"></i> Text Styles Showcase</h2>
                 <div class="section-content">
-                    <p>[Content goes here]</p>
+                    <p class="tagline">Tagline Style: Chaos Unleashed</p>
+                    <p><strong>Strong Text:</strong> Bold and punchy—stands out in the crowd.</p>
+                    <p><span class="highlight">Highlight Text:</span> Pops with color—grabs attention.</p>
+                    <p>Regular paragraph text flows naturally, keeping it clean and readable.</p>
+                    <ul>
+                        <li>Bullet point—simple and crisp.</li>
+                        <li><strong>Bullet with Strong:</strong> Adds emphasis within lists.</li>
+                        <li><span class="highlight">Bullet with Highlight:</span> Combines flair and function.</li>
+                    </ul>
+                    <h3>Subheading: Smaller but Mighty</h3>
+                    <p>A subheading breaks up content—keeps the chaos organized!</p>
                 </div>
             </section>
 
-            <section class="section-container" id="section2">
-                <h2 onclick="toggleSection(this)"><i class="fas fa-info-circle"></i> [Section 2]</h2>
+            <section class="section-container" id="section1">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-info-circle"></i> [Section 1]</h2>
                 <div class="section-content">
-                    <p>[Content goes here]</p>
+                    <p>[Content goes here—Add your wild ideas!]</p>
                 </div>
             </section>
         </main>
