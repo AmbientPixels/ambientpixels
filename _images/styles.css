@@ -55,7 +55,7 @@ body.light .navbar {
     display: flex;
     align-items: center;
     gap: 10px;
-    flex-wrap: nowrap; /* Prevent text wrapping below logo */
+    flex-wrap: nowrap;
 }
 .navbar-logo {
     width: 50px;
@@ -258,8 +258,8 @@ body.light .container {
     margin-top: 60px;
 }
 .breadcrumbs {
-    max-width: 1000px; /* Match content-wrapper */
-    margin: 10px auto;
+    max-width: 1000px;
+    margin: 20px auto; /* Consistent with content-wrapper */
     padding: 0 20px;
     font-size: 0.9em;
     color: #B8C7CA;
@@ -295,8 +295,8 @@ body.light .sidebar a { color: var(--text-light); }
 body.light .sidebar a:hover { color: var(--accent-light); }
 .main-content { flex-grow: 1; }
 .section-container {
-    max-width: 800px;
-    min-width: 600px;
+    max-width: 1000px; /* Match content-wrapper and intro */
+    min-width: 0; /* Flexible, aligns with wrapper */
     margin: 20px auto;
     padding: 20px;
     background: var(--card-dark);
@@ -304,10 +304,6 @@ body.light .sidebar a:hover { color: var(--accent-light); }
     border: 1px solid rgba(255, 255, 255, 0.05);
     transition: background 0.3s;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-.section-container#intro {
-    max-width: 1000px; /* Match content-wrapper */
-    min-width: 800px; /* Wider for intro */
 }
 body.light .section-container {
     background: var(--card-light);
@@ -525,6 +521,7 @@ body.light .preview-section h2 {
     margin-bottom: 20px;
 }
 .preview-section p a {
+
     color: var(--accent-dark);
     text-decoration: underline;
     transition: color 0.2s;
@@ -843,8 +840,15 @@ body.light .modal-content button:hover {
     .sidebar {
         width: 100%;
     }
-    .section-container#intro {
-        min-width: 0; /* Reset for mobile */
+    .section-container {
+        max-width: none; /* Reset for mobile */
+        min-width: 0;
+        margin-left: 15px;
+        margin-right: 15px;
+    }
+    .breadcrumbs {
+        margin-left: 15px;
+        margin-right: 15px;
     }
     .meme-container {
         width: 250px;
