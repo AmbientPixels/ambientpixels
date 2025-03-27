@@ -30,6 +30,18 @@ setTimeout(() => {
     loadingScreen.style.display = 'none';
     taglineElement.style.display = 'block';
 }, 1500);
+// Random hero images
+const heroImages = [
+    '_images/banner.jpg',
+    '_images/banner1.jpg',
+    '_images/banner2.jpg',
+    '_images/banner3.jpg',
+    '_images/banner4.jpg',
+    '_images/banner5.jpg'
+];
+const heroElement = document.querySelector('.hero');
+const randomHeroImage = heroImages[Math.floor(Math.random() * heroImages.length)];
+heroElement.style.backgroundImage = `url('${randomHeroImage}')`;
 
 const memetronWarnings = [
     "Test mode: AI’s still learning—expect glitches, maybe a meme-pocalypse!",
