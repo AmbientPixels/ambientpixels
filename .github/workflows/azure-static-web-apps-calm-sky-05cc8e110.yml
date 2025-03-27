@@ -18,3 +18,4 @@ jobs:
           app_location: "/" # Root—index.html, projects.html
           output_location: "" # No build—static files
           api_location: "" # No API build—Function App separate
+          skip_app_build: "true" # Skip Oryx build—static only
