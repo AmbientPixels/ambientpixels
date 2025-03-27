@@ -259,7 +259,7 @@ body.light .container {
 }
 .breadcrumbs {
     max-width: 1000px;
-    margin: 20px auto; /* Consistent with content-wrapper */
+    margin: 20px auto;
     padding: 0 20px;
     font-size: 0.9em;
     color: #B8C7CA;
@@ -279,7 +279,7 @@ body.light .breadcrumbs a:hover { color: var(--accent-light); }
     width: 200px;
     flex-shrink: 0;
     background: var(--card-dark);
-    padding: 15px;
+    padding: 15px 15px 15px 0; /* No left padding */
     border-radius: 4px;
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -293,10 +293,13 @@ body.light .sidebar {
 body.light .sidebar a { color: var(--text-light); }
 .sidebar a:hover { color: var(--accent-dark); }
 body.light .sidebar a:hover { color: var(--accent-light); }
-.main-content { flex-grow: 1; }
+.main-content {
+    flex-grow: 1;
+    padding: 0 0 0 20px; /* No right padding */
+}
 .section-container {
-    max-width: 1000px; /* Match content-wrapper and intro */
-    min-width: 0; /* Flexible, aligns with wrapper */
+    max-width: 1000px;
+    min-width: 0;
     margin: 20px auto;
     padding: 20px;
     background: var(--card-dark);
@@ -521,7 +524,6 @@ body.light .preview-section h2 {
     margin-bottom: 20px;
 }
 .preview-section p a {
-
     color: var(--accent-dark);
     text-decoration: underline;
     transition: color 0.2s;
@@ -836,12 +838,17 @@ body.light .modal-content button:hover {
     }
     .content-wrapper {
         flex-direction: column;
+        padding: 0 15px;
     }
     .sidebar {
         width: 100%;
+        padding: 15px 0; /* No horizontal padding on mobile */
+    }
+    .main-content {
+        padding: 0; /* No padding on mobile */
     }
     .section-container {
-        max-width: none; /* Reset for mobile */
+        max-width: none;
         min-width: 0;
         margin-left: 15px;
         margin-right: 15px;
