@@ -1,4 +1,4 @@
-const VERSION_NUMBER = "v0.17.1-20250328";
+const VERSION_NUMBER = "v0.17.2-20250328";
 const API_ENDPOINT = "https://ambientpixels-meme-api-fn.azurewebsites.net/api/memeGenerator";
 
 document.addEventListener('DOMContentLoaded', () => {
