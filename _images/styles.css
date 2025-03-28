@@ -1,5 +1,5 @@
 @charset "utf-8";
-/* CSS Document - Ambient Pixels v0.16.10-20250328 - March 28, 2025 */
+/* CSS Document - Ambient Pixels v0.17.0-20250328 - March 28, 2025 */
 
 :root {
     --bg-dark: #1A1F21;
@@ -388,7 +388,8 @@ body.light .section-header {
     margin: 0 auto 20px;
     display: flex;
     gap: 20px;
-    min-height: 100vh;
+    min-height: auto; /* Let content dictate height */
+    margin-bottom: 150px; /* Reserve space for footer */
 }
 
 .sidebar {
@@ -409,6 +410,7 @@ body.light .sidebar {
     background: var(--card-light);
     border: 1px solid rgba(0, 0, 0, 0.05);
 }
+
 
 .sidebar h3 {
     margin-top: 0;
@@ -438,16 +440,20 @@ body.light .sidebar a:hover {
 .main-content {
     flex-grow: 1;
     padding: 0;
+    max-width: 100%; /* Ensure it fills content-wrapper */
 }
 
 .section-group {
     margin-bottom: 20px;
+    max-width: 1000px; /* Match section-container */
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .group-header {
     cursor: pointer;
-    max-width: 1000px; /* Aligned with section-container */
-    margin: 0 auto 20px; /* Aligned margins */
+    max-width: 1000px; /* Match section-container */
+    margin: 0 auto; /* Center like section-container */
     padding: 10px 20px; /* Match section-container padding */
     background: var(--card-dark);
     border-radius: 4px;
@@ -874,6 +880,10 @@ footer {
     color: #B8C7CA;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
     text-align: center;
+    position: relative; /* Stay in flow */
+    z-index: 5; /* Below navbar, above content */
+    min-height: 100px; /* Ensure visibility */
+    clear: both; /* Clear any floats */
 }
 
 body.light footer {
@@ -1300,6 +1310,7 @@ body.light .meme-loading {
         flex-direction: column;
         max-width: none;
         margin: 0 15px 20px;
+        margin-bottom: 150px; /* Match wide viewport */
     }
 
     .sidebar {
@@ -1312,9 +1323,14 @@ body.light .meme-loading {
         padding: 0;
     }
 
+    .section-group {
+        max-width: none;
+        margin: 0 15px 20px; /* Match section-container */
+    }
+
     .group-header {
         max-width: none;
-        margin: 0 15px 20px; /* Aligned with section-container */
+        margin: 0 15px; /* Match section-container */
         padding: 10px 15px; /* Match mobile section-container */
     }
 

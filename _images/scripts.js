@@ -1,7 +1,7 @@
-// JavaScript Document - Ambient Pixels v0.16.9-20250328 - March 28, 2025
+// JavaScript Document - Ambient Pixels v0.16.10-20250328 - March 28, 2025
 
 // Single point of truth for version number
-const VERSION_NUMBER = "v0.16.9-20250328";
+const VERSION_NUMBER = "v0.17.0-20250328";
 
 // Apply version number to all pages
 const versionElement = document.getElementById('version-number');

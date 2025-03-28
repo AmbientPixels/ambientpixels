@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <title>Ambient Pixels - CI/CD & Style Guide (v0.16.10-20250328)</title>
+    <title>Ambient Pixels - CI/CD & Style Guide (<span id="version-number">v0.17.0-20250328</span>)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="_images/styles.css">
@@ -43,18 +43,18 @@
     </div>
 
     <div class="mini-hero">
-        <h1>CI/CD & Style Guide (v0.16.10-20250328)</h1>
+        <h1>CI/CD & Style Guide (<span id="version-number">v0.17.0-20250328</span>)</h1>
     </div>
 
     <div class="breadcrumbs">
-        <p><a href="/">Home</a> > CI/CD & Style Guide</p>
+        <p><a href="/">Home</a> > CI/CD & Style Guide (<span id="version-number">v0.17.0-20250328</span>)</p>
     </div>
 
     <section class="section-container" id="intro">
         <h2 id="intro"><i class="fas fa-star"></i> Overview</h2>
-        <div>
+        <div class="section-content active">
             <p class="tagline">Chaos Meets Precision</p>
-            <p>This page details our Continuous Integration/Continuous Deployment (CI/CD) pipeline and style guide for <code>ambientpixels.ai</code>, updated to version v0.16.10-20250328 as of March 28, 2025, 11:45 AM PDT. It covers deployment processes, Azure services, GitHub workflows, API security, and our evolving design system—including the homepage template status and hero randomizer functionality.</p>
+            <p>This page details our Continuous Integration/Continuous Deployment (CI/CD) pipeline, style guide, and scripting for <code>ambientpixels.ai</code>, updated to version <span id="version-number">v0.17.0-20250328</span> as of March 28, 2025, 12:30 PM PDT. It’s a living guide for building the site—educating me (Grok), you (the team), and future contributors on workflows, styles, and code.</p>
         </div>
     </section>
 
@@ -72,14 +72,17 @@
                 <li><a href="#pipeline">CI/CD Workflow</a></li>
                 <li><a href="#azure">Azure Services</a></li>
                 <li><a href="#security-group">Security</a></li>
-                <li><a href="#api-security">API Security</a></li>
                 <li><a href="#workflows">Dual Workflows</a></li>
                 <li><a href="#tech">Tech Info</a></li>
+                <li><a href="#scripts-group">Scripts</a></li>
+                <li><a href="#scripts">Core Scripts</a></li>
+                <li><a href="#hero">Hero Randomizer</a></li>
                 <li><a href="#styles-group">Style Guide</a></li>
                 <li><a href="#styles">Text Styles</a></li>
                 <li><a href="#ui">UI Functions</a></li>
-                <li><a href="#hero">Hero Randomizer</a></li>
                 <li><a href="#homepage">Homepage Template</a></li>
+                <li><a href="#history">Version History</a></li>
+                <li><a href="#troubleshooting">Troubleshooting</a></li>
                 <li><a href="#next">Next Steps</a></li>
             </ul>
         </aside>
@@ -141,26 +144,6 @@
             <div class="section-group" id="security-group">
                 <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-lock"></i> Security <i class="fas fa-chevron-down toggle-icon"></i></h2>
                 <div class="group-content">
-                    <section class="section-container" id="api-security">
-                        <h2 id="api-security" onclick="toggleSection(this)"><i class="fas fa-shield-alt"></i> API Security</h2>
-                        <div class="section-content">
-                            <p><strong>Token-Based</strong>: <code>getToken</code> generates UUIDs—Used in <code>memeGenerator</code> requests (future enhancement pending).</p>
-                            <p><strong>CORS Configuration</strong>: Set in <code>getToken/index.js</code>:</p>
-                            <pre class="code-block">
-headers: {
-    "Access-Control-Allow-Origin": "https://calm-sky-05cc8e110.6.azurestaticapps.net",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization"
-}
-                            </pre>
-                            <p>Also configured in Azure Portal > Function App > CORS to allow <code>ambientpixels.ai</code> and <code>www.ambientpixels.ai</code>.</p>
-                            <div class="callout callout-info">
-                                <i class="fas fa-info-circle"></i>
-                                <p><strong>Status:</strong> Secured for current origins—Scalable for future domains.</p>
-                            </div>
-                        </div>
-                    </section>
-
                     <section class="section-container" id="workflows">
                         <h2 id="workflows" onclick="toggleSection(this)"><i class="fas fa-code-branch"></i> Dual GitHub Workflows</h2>
                         <div class="section-content">
@@ -186,7 +169,6 @@ jobs:
           skip_app_build: "true"
                             </pre>
                             <p><strong>Function Workflow</strong>:</p>
-
                             <pre class="code-block">
 on:
   push:
@@ -224,12 +206,6 @@ jobs:
                             <p>Static Web App SKU: Standard—Free HTTPS, custom domains.</p>
                             <p>Function App Runtime: Node.js ~20—Serverless, scalable.</p>
                         </li>
-                        <li><strong>Push History</strong>:
-                            <p><code>f9dd481</code>: Projects content, bullet fixes.</p>
-                            <p><code>stu901</code>: v0.16.2-20250327—Smooth scroll attempt.</p>
-                            <p><code>yza567</code>: v0.16.4-20250328—Homepage template, intro without background.</p>
-                            <p><code>be3ade2</code>: v0.16.9-20250328—Fixed hero randomizer, added banners 6-10.</p>
-                        </li>
                         <li><strong>Tips</strong>:
                             <p>Flush DNS: <code>ipconfig /flushdns</code>.</p>
                             <p>Check Propagation: <code>nslookup ambientpixels.ai 8.8.8.8</code>.</p>
@@ -239,6 +215,131 @@ jobs:
                 </div>
             </section>
 
+            <div class="section-group" id="scripts-group">
+                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-code"></i> Scripts <i class="fas fa-chevron-down toggle-icon"></i></h2>
+                <div class="group-content active">
+                    <section class="section-container" id="scripts">
+                        <h2 id="scripts" onclick="toggleSection(this)"><i class="fas fa-file-code"></i> Core Scripts</h2>
+                        <div class="section-content active">
+                            <p><strong>Purpose</strong>: <code>_images/scripts.js</code> powers shared functionality across pages—UI toggles, version display, meme generation.</p>
+                            <p><strong>Key Functions</strong>:</p>
+                            <ul>
+                                <li><strong>Version Number</strong>: Sets dynamic version—<code>const VERSION_NUMBER = "v0.17.0-20250328";</code>—Updates <code>#version-number</code>.</li>
+                                <li><strong>UI Toggles</strong>: <code>toggleTheme</code>, <code>toggleMenu</code>, <code>toggleSection</code>, <code>toggleGroup</code>, <code>toggleAllSections</code>—Handle light/dark, mobile nav, and section collapsing.</li>
+                                <li><strong>Animations</strong>: <code>animateSections</code>—Fades in sections on load.</li>
+                                <li><strong>Meme Generator</strong>: <code>getAccessToken</code>, <code>generateMeme</code>—Fetches API token, generates memes with prompt.</li>
+                            </ul>
+                            <p><strong>Code Example</strong>:</p>
+                            <pre class="code-block"><code>async function generateMeme() {
+    const promptInput = document.getElementById('memePrompt');
+    const defaultPrompt = 'A confused robot in a disco';
+    const prompt = promptInput?.value.trim() || defaultPrompt;
+    const generateBtn = document.getElementById('memeGenerateBtn');
+    const loadingDiv = document.getElementById('memeLoading');
+    const memeImage = document.getElementById('memeImage');
+    const topText = document.getElementById('memeTopText');
+    const bottomText = document.getElementById('memeBottomText');
+
+    if (!generateBtn || !loadingDiv || !memeImage || !topText || !bottomText) return;
+
+    generateBtn.disabled = true;
+    loadingDiv.classList.add('visible');
+    memeImage.classList.remove('visible');
+    topText.innerText = '';
+    bottomText.innerText = '';
+
+    try {
+        const token = await getAccessToken();
+        if (!token) throw new Error('No access token available');
+        const response = await fetch(API_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ endpoint: "image", prompt: prompt })
+        });
+        if (!response.ok) throw new Error(`API error: ${response.status}`);
+        const blob = await response.blob();
+        memeImage.src = URL.createObjectURL(blob);
+        memeImage.classList.add('visible');
+        topText.innerText = prompt.slice(0, 20);
+        bottomText.innerText = prompt.slice(-20);
+    } catch (error) {
+        console.error('Meme generation error:', error);
+        memeImage.src = 'https://placehold.co/300x300?text=API+Error';
+        topText.innerText = 'OOPS';
+        bottomText.innerText = 'API BROKE';
+        memeImage.classList.add('visible');
+    } finally {
+        loadingDiv.classList.remove('visible');
+        generateBtn.disabled = false;
+    }
+}
+                            </code></pre>
+                            <p><strong>Notes</strong>: Split from <code>hero-randomizer.js</code> in v0.16.8-20250328—Keeps core logic shared, hero-specific code separate.</p>
+                        </div>
+                    </section>
+
+                    <section class="section-container" id="hero">
+                        <h2 id="hero" onclick="toggleSection(this)"><i class="fas fa-image"></i> Hero Randomizer</h2>
+                        <div class="section-content">
+                            <p><strong>Purpose</strong>: Adds chaotic flair to <code>index.html</code>—Randomizes hero banner images and taglines on load.</p>
+                            <p><strong>Location</strong>: <code>_images/hero-randomizer.js</code>—Split from <code>scripts.js</code> in v0.16.8-20250328 for homepage-specific use.</p>
+                            <p><strong>Functionality</strong>:</p>
+                            <ul>
+                                <li><strong>Taglines</strong>: Picks from 7 chaotic phrases (e.g., “Pixel storm incoming—duck!”)—Displays in <code>#randomTagline</code> with letter-by-letter animation.</li>
+                                <li><strong>Images</strong>: Randomizes 11 banners (<code>banner.jpg</code>, <code>banner1.jpg</code> to <code>banner10.jpg</code>)—Sets as <code>.hero</code> background.</li>
+                                <li><strong>Loading</strong>: Shows <code>#loadingScreen</code> for 1.5s—Hides, reveals tagline.</li>
+                                <li><strong>Execution</strong>: Wrapped in <code>DOMContentLoaded</code>—Ensures DOM readiness.</li>
+                            </ul>
+                            <p><strong>Code</strong>:</p>
+                            <pre class="code-block"><code>document.addEventListener('DOMContentLoaded', () => {
+    const taglines = [
+        "Oops, the pixels got drunk again!",
+        "Chaos.exe has entered the chat.",
+        // ... 5 more ...
+    ];
+    const taglineElement = document.getElementById('randomTagline');
+    const loadingScreen = document.getElementById('loadingScreen');
+    if (taglineElement && loadingScreen) {
+        const randomTagline = taglines[Math.floor(Math.random() * taglines.length)];
+        taglineElement.innerHTML = randomTagline.split('').map(char =>
+            char === ' ' ? `<span>&nbsp;</span>` : `<span>${char}</span>`
+        ).join('');
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+            taglineElement.style.display = 'block';
+        }, 1500);
+    }
+
+    const heroImages = [
+        '_images/banner.jpg',
+        '_images/banner1.jpg',
+        '_images/banner2.jpg', // Replaced v0.16.7
+        '_images/banner3.jpg',
+        '_images/banner4.jpg',
+        '_images/banner5.jpg',
+        '_images/banner6.jpg', // Added v0.16.7
+        '_images/banner7.jpg',
+        '_images/banner8.jpg',
+        '_images/banner9.jpg',
+        '_images/banner10.jpg'
+    ];
+    const heroElement = document.querySelector('.hero');
+    if (heroElement) {
+        const randomHeroImage = heroImages[Math.floor(Math.random() * heroImages.length)];
+        heroElement.style.backgroundImage = `url('${randomHeroImage}')`;
+    }
+});
+                            </code></pre>
+                            <p><strong>Future Enhancements</strong>: Planned—Fade effects, manual controls, more banners.</p>
+                            <p><strong>Notes</strong>: Debug logs added in v0.16.9-20250328—Removed for clarity. Homepage-only—Other pages use <code>scripts.js</code>.</p>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
             <div class="section-group" id="styles-group">
                 <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-font"></i> Style Guide <i class="fas fa-chevron-down toggle-icon"></i></h2>
                 <div class="group-content active">
@@ -246,7 +347,7 @@ jobs:
                         <h2 id="styles" onclick="toggleSection(this)"><i class="fas fa-text-height"></i> Text Styles</h2>
                         <div class="section-content active">
                             <p class="tagline">Chaos Unleashed in Style</p>
-                            <p>Our design system, updated to v0.16.10-20250328, powers <code>ambientpixels.ai</code>. Here’s the suite:</p>
+                            <p>Our design system, updated to <span id="version-number">v0.17.0-20250328</span>, powers <code>ambientpixels.ai</code>. See <code>template.html</code> for full examples. Here’s the suite:</p>
                             <p><strong>Strong Text:</strong> Bold and punchy.</p>
                             <p><span class="highlight">Highlight Text:</span> Pops with color.</p>
                             <p>Regular paragraph text flows naturally.</p>
@@ -306,76 +407,14 @@ console.log(chaos + " rocks!");</code></pre>
                             <p><strong>toggleTheme</strong>: Light/dark switch—Moon/sun button.</p>
                             <p><strong>backToTop</strong>: Snaps to top—Appears on scroll (<code>scrollY > 200</code>).</p>
                             <p><strong>Version Number</strong>: Dynamically sets version across pages—Defined in <code>scripts.js</code>.</p>
-                            <pre class="code-block"><code>const VERSION_NUMBER = "v0.16.10-20250328";
-const versionElement = document.getElementById('version-number');
-if (versionElement) {
-    versionElement.textContent = VERSION_NUMBER;
-}</code></pre>
                             <p><strong>Notes</strong>: Homepage uses uncollapsed sections—Other pages (e.g., this doc) use toggleable groups and standalone sections.</p>
-                        </div>
-                    </section>
-
-                    <section class="section-container" id="hero">
-                        <h2 id="hero" onclick="toggleSection(this)"><i class="fas fa-image"></i> Hero Randomizer</h2>
-                        <div class="section-content">
-                            <p><strong>Purpose</strong>: Adds chaotic flair to <code>index.html</code>—Randomizes hero banner images and taglines on load.</p>
-                            <p><strong>Location</strong>: <code>_images/hero-randomizer.js</code>—Split from <code>scripts.js</code> in v0.16.8-20250328 for homepage-specific use.</p>
-                            <p><strong>Functionality</strong>:</p>
-                            <ul>
-                                <li><strong>Taglines</strong>: Picks from 7 chaotic phrases (e.g., “Pixel storm incoming—duck!”)—Displays in <code>#randomTagline</code> with letter-by-letter animation.</li>
-                                <li><strong>Images</strong>: Randomizes 11 banners (<code>banner.jpg</code>, <code>banner1.jpg</code> to <code>banner10.jpg</code>)—Sets as <code>.hero</code> background.</li>
-                                <li><strong>Loading</strong>: Shows <code>#loadingScreen</code> for 1.5s—Hides, reveals tagline.</li>
-                                <li><strong>Execution</strong>: Wrapped in <code>DOMContentLoaded</code>—Ensures DOM readiness.</li>
-                            </ul>
-                            <p><strong>Code</strong>:</p>
-                            <pre class="code-block"><code>document.addEventListener('DOMContentLoaded', () => {
-    const taglines = [
-        "Oops, the pixels got drunk again!",
-        "Chaos.exe has entered the chat.",
-        // ... 5 more ...
-    ];
-    const taglineElement = document.getElementById('randomTagline');
-    const loadingScreen = document.getElementById('loadingScreen');
-    if (taglineElement && loadingScreen) {
-        const randomTagline = taglines[Math.floor(Math.random() * taglines.length)];
-        taglineElement.innerHTML = randomTagline.split('').map(char =>
-            char === ' ' ? `<span> </span>` : `<span>${char}</span>`
-        ).join('');
-        setTimeout(() => {
-            loadingScreen.style.display = 'none';
-            taglineElement.style.display = 'block';
-        }, 1500);
-    }
-
-    const heroImages = [
-        '_images/banner.jpg',
-        '_images/banner1.jpg',
-        '_images/banner2.jpg', // Replaced v0.16.7
-        '_images/banner3.jpg',
-        '_images/banner4.jpg',
-        '_images/banner5.jpg',
-        '_images/banner6.jpg', // Added v0.16.7
-        '_images/banner7.jpg',
-        '_images/banner8.jpg',
-        '_images/banner9.jpg',
-        '_images/banner10.jpg'
-    ];
-    const heroElement = document.querySelector('.hero');
-    if (heroElement) {
-        const randomHeroImage = heroImages[Math.floor(Math.random() * heroImages.length)];
-        heroElement.style.backgroundImage = `url('${randomHeroImage}')`;
-    }
-});
-                            </code></pre>
-                            <p><strong>Future Enhancements</strong>: Planned additions—Fade effects, manual controls, more banners.</p>
-                            <p><strong>Notes</strong>: Debug logs added in v0.16.9-20250328—Removed here for clarity. Only on homepage—Other pages use <code>scripts.js</code> alone.</p>
                         </div>
                     </section>
 
                     <section class="section-container" id="homepage">
                         <h2 id="homepage" onclick="toggleSection(this)"><i class="fas fa-home"></i> Homepage Template</h2>
                         <div class="section-content">
-                            <p><strong>Status (3/28/2025, 11:45 AM PDT)</strong>: Updated to v0.16.10-20250328—Solid foundation for <code>index.html</code>. Features:</p>
+                            <p><strong>Status (3/28/2025, 2:00 PM PDT)</strong>: Updated to <span id="version-number">v0.17.0-20250328</span>—Solid foundation for <code>index.html</code>. Features:</p>
                             <ul>
                                 <li>Main <code>.hero</code> with random images and taglines—Full-width, chaotic entry via <code>hero-randomizer.js</code>.</li>
                                 <li><code>#intro</code> without section background—Centered text below hero, sets the tone.</li>
@@ -390,22 +429,51 @@ if (versionElement) {
                                 <li><strong>Spacing Boost</strong>: Increase <code>.section-container</code> bottom margin to 30px—Done in v0.16.4-20250328.</li>
                                 <li><strong>Hero Subheading</strong>: Static text below random tagline (e.g., “Creative Tech Unleashed”).</li>
                             </ul>
-                            <p><strong>Next</strong>: Test overlay + subheading—Expand hero features.</p>
                         </div>
                     </section>
                 </div>
             </div>
 
+            <section class="section-container" id="history">
+                <h2 id="history" onclick="toggleSection(this)"><i class="fas fa-history"></i> Version History</h2>
+                <div class="section-content">
+                    <p><strong>Purpose</strong>: Tracks major updates—Helps understand site evolution.</p>
+                    <ul>
+                        <li><strong>v0.16.4-20250328</strong> (<code>yza567</code>): Homepage template locked, intro section added, spacing boosted to 30px.</li>
+                        <li><strong>v0.16.7-20250328</strong> (<code>fa8c691</code>): Added banners 6-10, reduced social icon sizes (1em #connect, 1.2em footer).</li>
+                        <li><strong>v0.16.9-20250328</strong> (<code>be3ade2</code>): Fixed hero randomizer with <code>DOMContentLoaded</code>, added debug logs.</li>
+                        <li><strong>v0.17.0-20250328</strong> (Pending): Split scripts, documented hero randomizer, aligned <code>.group-header</code>, updated <code>template.html</code> with all styles, enhanced docs, fixed footer by removing suspect content.</li>
+                    </ul>
+                    <p><strong>Notes</strong>: Earlier hashes (e.g., <code>f9dd481</code>, <code>stu901</code>) in Tech Info—Full log in GitHub commits.</p>
+                </div>
+            </section>
+
+            <section class="section-container" id="troubleshooting">
+                <h2 id="troubleshooting" onclick="toggleSection(this)"><i class="fas fa-tools"></i> Troubleshooting</h2>
+                <div class="section-content">
+                    <p><strong>Purpose</strong>: Quick fixes for common issues—Educates on debugging.</p>
+                    <ul>
+                        <li><strong>Images Not Loading</strong>: Check paths (e.g., <code>_images/bannerX.jpg</code>), case sensitivity, GitHub repo sync. Fix: Re-upload, verify hash.</li>
+                        <li><strong>Scripts Fail</strong>: Ensure <code>defer</code> on <code>&lt;script&gt;</code> tags, use <code>DOMContentLoaded</code>. Log errors with <code>console.log</code>.</li>
+                        <li><strong>Styles Misaligned</strong>: Verify <code>max-width</code>, <code>margin</code> consistency—e.g., <code>.group-header</code> vs <code>.section-container</code>.</li>
+                        <li><strong>API Errors</strong>: Check CORS, token fetch—Test endpoints in browser (<code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/getToken</code>).</li>
+                        <li><strong>Footer Missing</strong>: Check for unescaped <code>&lt;</code> or <code>&gt;</code> in code blocks—Escape as <code>&lt;</code> and <code>&gt;</code> or remove suspect sections.</li>
+                    </ul>
+                    <p><strong>Tip</strong>: Open browser console (F12)—Look for 404s, JS errors, or CSS warnings.</p>
+                </div>
+            </section>
+
             <section class="section-container" id="next">
                 <h2 id="next" onclick="toggleSection(this)"><i class="fas fa-forward"></i> Next Steps</h2>
                 <div class="section-content">
                     <ul>
-                        <li>Lock v0.16.10-20250328—Homepage template confirmed, hero randomizer documented.</li>
+                        <li>Lock v0.17.0-20250328—Milestone: Split scripts, full style showcase, alignment fixed, dynamic version injection, footer restored.</li>
                         <li>Today (3/28): Test homepage layout tweaks—Overlay intro, hero subheading.</li>
                         <li>Enhance <code>hero-randomizer.js</code>—Add fade effects, controls.</li>
                         <li>Update <code>projects.html</code>—More chaos content.</li>
                         <li>Secure API—Token validation in <code>memeGenerator</code>.</li>
                         <li>Revisit smooth scroll—Optional tweak.</li>
+                        <li>Restore <code>#api-security</code> section—Once footer issue confirmed resolved.</li>
                     </ul>
                     <p><em>Forged by chaos, deployed with precision—Ambient Pixels, 2025.</em></p>
                 </div>
@@ -414,7 +482,7 @@ if (versionElement) {
     </div>
 
     <footer>
-        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <span id="version-number">v0.16.10-20250328</span> | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
+        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <span id="version-number">v0.17.0-20250328</span> | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
         <div class="social-links">
             <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
             <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
