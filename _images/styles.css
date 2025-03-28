@@ -281,13 +281,28 @@ body.light .breadcrumbs { color: #5A6A6F; }
 .breadcrumbs a { color: inherit; text-decoration: none; }
 .breadcrumbs a:hover { color: var(--accent-dark); }
 body.light .breadcrumbs a:hover { color: var(--accent-light); }
+.section-header-wrapper {
+    max-width: 1000px;
+    margin: 20px auto 0;
+    padding: 0 20px;
+    position: relative;
+}
+.section-header {
+    margin: 0;
+    font-size: 1.8em;
+    font-weight: 500;
+    color: var(--text-dark);
+    display: inline-block;
+}
+body.light .section-header {
+    color: var(--text-light);
+}
 .content-wrapper {
     max-width: 1000px;
-    margin: 20px auto;
+    margin: 0 auto 20px;
     display: flex;
     gap: 20px;
     min-height: 100vh;
-    position: relative;
 }
 .sidebar {
     width: 180px;
@@ -315,12 +330,46 @@ body.light .sidebar a:hover { color: var(--accent-light); }
 .main-content {
     flex-grow: 1;
     padding: 0;
-    margin-top: 40px; /* Keep from V16.4.1 */
+}
+.section-group {
+    margin-bottom: 20px;
+}
+.group-header {
+    cursor: pointer;
+    margin: 0 20px;
+    padding: 10px;
+    background: var(--card-dark);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.3s;
+}
+body.light .group-header {
+    background: var(--card-light);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+.group-header:hover {
+    background: var(--accent-dark);
+    color: #FFFFFF;
+}
+body.light .group-header:hover {
+    background: var(--accent-light);
+}
+.group-header .toggle-icon {
+    font-size: 1.2em;
+}
+.group-content {
+    display: none;
+}
+.group-content.active {
+    display: block;
 }
 .section-container {
     max-width: 1000px;
     min-width: 0;
-    margin: 0 auto 20px auto;
+    margin: 0 20px 20px;
     padding: 20px;
     background: var(--card-dark);
     border-radius: 4px;
@@ -332,6 +381,9 @@ body.light .section-container {
     background: var(--card-light);
     border: 1px solid rgba(0, 0, 0, 0.05);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.section-container.standalone {
+    margin: 0 20px 20px;
 }
 .section-container h2 {
     cursor: pointer;
@@ -1032,16 +1084,6 @@ body.light .section-container.loading {
 @keyframes shimmer {
     0% { background-position: -200px 0; }
     100% { background-position: 200px 0; }
-}
-.section-header {
-    margin: 0 0 10px 20px;
-    font-size: 1.8em;
-    font-weight: 500;
-    color: var(--text-dark);
-    display: inline-block;
-}
-body.light .section-header {
-    color: var(--text-light);
 }
 #toggleAllSections {
     position: absolute;

@@ -63,73 +63,89 @@
         </div>
     </section>
 
+    <div class="section-header-wrapper">
+        <h2 class="section-header">Sections</h2>
+        <i class="fas fa-expand-alt" id="toggleAllSections" title="Toggle All Sections"></i>
+    </div>
+
     <div class="content-wrapper">
         <aside class="sidebar">
             <h3>Contents</h3>
             <ul>
                 <li><a href="#intro">Intro</a></li>
+                <li><a href="#group1">Style Group</a></li>
                 <li><a href="#styles">Text Styles</a></li>
                 <li><a href="#section1">[Section 1]</a></li>
             </ul>
         </aside>
 
-        <h2 class="section-header">Sections</h2>
-        <i class="fas fa-expand-alt" id="toggleAllSections" title="Toggle All Sections"></i>
         <main class="main-content">
-            <section class="section-container" id="styles">
-                <h2 id="styles" onclick="toggleSection(this)"><i class="fas fa-font"></i> Text Styles Showcase</h2>
-                <div class="section-content">
-                    <p class="tagline">Tagline Style: Chaos Unleashed</p>
-                    <p><strong>Strong Text:</strong> Bold and punchy—stands out in the crowd.</p>
-                    <p><span class="highlight">Highlight Text:</span> Pops with color—grabs attention.</p>
-                    <p>Regular paragraph text flows naturally, keeping it clean and readable.</p>
-                    <ul>
-                        <li>Bullet point—simple and crisp.</li>
-                        <li><strong>Bullet with Strong:</strong> Adds emphasis within lists.</li>
-                        <li><span class="highlight">Bullet with Highlight:</span> Combines flair and function.</li>
-                    </ul>
+            <div class="section-group" id="group1">
+                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-folder"></i> Style Group <i class="fas fa-chevron-down toggle-icon"></i></h2>
+                <div class="group-content">
+                    <section class="section-container" id="styles">
+                        <h2 id="styles" onclick="toggleSection(this)"><i class="fas fa-font"></i> Text Styles Showcase</h2>
+                        <div class="section-content">
+                            <p class="tagline">Tagline Style: Chaos Unleashed</p>
+                            <p><strong>Strong Text:</strong> Bold and punchy—stands out in the crowd.</p>
+                            <p><span class="highlight">Highlight Text:</span> Pops with color—grabs attention.</p>
+                            <p>Regular paragraph text flows naturally, keeping it clean and readable.</p>
+                            <ul>
+                                <li>Bullet point—simple and crisp.</li>
+                                <li><strong>Bullet with Strong:</strong> Adds emphasis within lists.</li>
+                                <li><span class="highlight">Bullet with Highlight:</span> Combines flair and function.</li>
+                            </ul>
 
-                    <div class="callout callout-warning">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <p><strong>Warning:</strong> AI overload imminent—proceed with caution!</p>
-                    </div>
+                            <div class="callout callout-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <p><strong>Warning:</strong> AI overload imminent—proceed with caution!</p>
+                            </div>
 
-                    <div class="callout callout-info">
-                        <i class="fas fa-info-circle"></i>
-                        <p><strong>Info:</strong> Ambient Pixels runs on pure chaos fuel.</p>
-                    </div>
+                            <div class="callout callout-info">
+                                <i class="fas fa-info-circle"></i>
+                                <p><strong>Info:</strong> Ambient Pixels runs on pure chaos fuel.</p>
+                            </div>
 
-                    <div class="highlight-box">
-                        <p>This is a highlight box—great for key takeaways or spicy quotes!</p>
-                    </div>
+                            <div class="highlight-box">
+                                <p>This is a highlight box—great for key takeaways or spicy quotes!</p>
+                            </div>
 
-                    <h3>H3: Subheading—Bold and Clear</h3>
-                    <p>A subheading breaks up content—keeps the chaos organized!</p>
-                    <h4>H4: Smaller Subheading—Still Punchy</h4>
-                    <p>Perfect for nested sections or secondary points.</p>
-                    <h5>H5: Tiny Subheading—Subtle Yet Mighty</h5>
-                    <p>For fine details or deep dives.</p>
+                            <h3>H3: Subheading—Bold and Clear</h3>
+                            <p>A subheading breaks up content—keeps the chaos organized!</p>
+                            <h4>H4: Smaller Subheading—Still Punchy</h4>
+                            <p>Perfect for nested sections or secondary points.</p>
+                            <h5>H5: Tiny Subheading—Subtle Yet Mighty</h5>
+                            <p>For fine details or deep dives.</p>
 
-                    <pre class="code-block"><code>const chaos = "Ambient Pixels";
+                            <pre class="code-block"><code>const chaos = "Ambient Pixels";
 console.log(chaos + " rocks!");</code></pre>
-                    <p>Inline code: <code>let x = 42;</code>—Clean and monospaced.</p>
+                            <p>Inline code: <code>let x = 42;</code>—Clean and monospaced.</p>
 
-                    <p>Check out our <a href="#" class="link-standard">standard link</a> or this <a href="#" class="link-hover">hover-effect link</a> for more chaos.</p>
+                            <p>Check out our <a href="#" class="link-standard">standard link</a> or this <a href="#" class="link-hover">hover-effect link</a> for more chaos.</p>
 
-                    <p><button class="btn btn-primary">Primary Button</button> <button class="btn btn-secondary">Secondary Button</button></p>
+                            <p><button class="btn btn-primary">Primary Button</button> <button class="btn btn-secondary">Secondary Button</button></p>
 
-                    <blockquote class="blockquote">
-                        <p>“Chaos is just creativity with extra steps.” —Some AI, probably</p>
-                    </blockquote>
-                    <p class="small-text">Small text for footnotes or disclaimers—tiny but legible.</p>
-                    <p class="drop-cap">Drop cap kicks off a paragraph with flair—perfect for storytelling or emphasis.</p>
+                            <blockquote class="blockquote">
+                                <p>“Chaos is just creativity with extra steps.” —Some AI, probably</p>
+                            </blockquote>
+                            <p class="small-text">Small text for footnotes or disclaimers—tiny but legible.</p>
+                            <p class="drop-cap">Drop cap kicks off a paragraph with flair—perfect for storytelling or emphasis.</p>
+                        </div>
+                    </section>
+
+                    <section class="section-container" id="section1">
+                        <h2 id="section1" onclick="toggleSection(this)"><i class="fas fa-info-circle"></i> [Section 1]</h2>
+                        <div class="section-content">
+                            <p>[Content goes here—Add your wild ideas!]</p>
+                        </div>
+                    </section>
                 </div>
-            </section>
+            </div>
 
-            <section class="section-container" id="section1">
-                <h2 id="section1" onclick="toggleSection(this)"><i class="fas fa-info-circle"></i> [Section 1]</h2>
+            <section class="section-container standalone" id="standalone1">
+                <h2 id="standalone1" onclick="toggleSection(this)"><i class="fas fa-cog"></i> Standalone Section</h2>
                 <div class="section-content">
-                    <p>[Content goes here—Add your wild ideas!]</p>
+                    <p>This is a standalone section outside any group—pure chaos, no nesting!</p>
                 </div>
             </section>
         </main>
@@ -161,6 +177,14 @@ console.log(chaos + " rocks!");</code></pre>
             content.classList.toggle('active');
         }
 
+        function toggleGroup(header) {
+            const content = header.nextElementSibling;
+            content.classList.toggle('active');
+            const icon = header.querySelector('.toggle-icon');
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-up');
+        }
+
         function toggleMenu() {
             const menu = document.querySelector('.navbar-menu');
             menu.classList.toggle('active');
@@ -187,10 +211,20 @@ console.log(chaos + " rocks!");</code></pre>
             link.addEventListener('click', (e) => {
                 const targetId = link.getAttribute('href').substring(1);
                 const targetSection = document.getElementById(targetId);
-                if (targetSection && targetSection.classList.contains('section-container')) {
-                    const content = targetSection.querySelector('.section-content');
-                    if (content && !content.classList.contains('active')) {
-                        content.classList.add('active');
+                if (targetSection) {
+                    if (targetSection.classList.contains('section-group')) {
+                        const content = targetSection.querySelector('.group-content');
+                        if (content && !content.classList.contains('active')) {
+                            content.classList.add('active');
+                            const icon = targetSection.querySelector('.toggle-icon');
+                            icon.classList.remove('fa-chevron-down');
+                            icon.classList.add('fa-chevron-up');
+                        }
+                    } else if (targetSection.classList.contains('section-container')) {
+                        const content = targetSection.querySelector('.section-content');
+                        if (content && !content.classList.contains('active')) {
+                            content.classList.add('active');
+                        }
                     }
                 }
             });
@@ -200,14 +234,23 @@ console.log(chaos + " rocks!");</code></pre>
         const toggleAllButton = document.getElementById('toggleAllSections');
         let allCollapsed = true;
         toggleAllButton.addEventListener('click', () => {
-            const sections = document.querySelectorAll('.main-content .section-content');
-            sections.forEach(content => {
-                if (allCollapsed) {
-                    content.classList.add('active');
-                } else {
-                    content.classList.remove('active');
-                }
-            });
+            const groups = document.querySelectorAll('.group-content');
+            const sections = document.querySelectorAll('.section-content');
+            if (allCollapsed) {
+                groups.forEach(group => group.classList.add('active'));
+                sections.forEach(section => section.classList.add('active'));
+                document.querySelectorAll('.toggle-icon').forEach(icon => {
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                });
+            } else {
+                groups.forEach(group => group.classList.remove('active'));
+                sections.forEach(section => section.classList.remove('active'));
+                document.querySelectorAll('.toggle-icon').forEach(icon => {
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                });
+            }
             allCollapsed = !allCollapsed;
             toggleAllButton.className = allCollapsed ? 'fas fa-expand-alt' : 'fas fa-compress-alt';
         });
