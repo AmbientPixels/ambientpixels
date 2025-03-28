@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <title>Ambient Pixels - [Chaos Hub <span id="version-number">v0.17.0-20250328</span>]</title>
+    <title>Ambient Pixels - [Chaos Hub <span id="version-number">v0.17.1-20250328</span>]</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="_images/styles.css">
@@ -33,6 +33,13 @@
                 </div>
             </div>
             <div class="dropdown">
+                <a href="#"><i class="fas fa-book"></i> Resources</a>
+                <div class="dropdown-content">
+                    <a href="/doc.html"><i class="fas fa-file-alt"></i> Documentation</a>
+                    <a href="/template.html"><i class="fas fa-paint-brush"></i> Style Template</a>
+                </div>
+            </div>
+            <div class="dropdown">
                 <a onclick="showComingSoonModal('Contact')"><i class="fas fa-envelope"></i> Contact</a>
                 <div class="dropdown-content">
                     <a onclick="showComingSoonModal('Email')"><i class="fas fa-envelope"></i> Email Us</a>
@@ -49,11 +56,11 @@
     </div>
 
     <div class="mini-hero">
-        <h1>[Chaos Hub <span id="version-number">v0.17.0-20250328</span>]</h1>
+        <h1>[Chaos Hub <span id="version-number">v0.17.1-20250328</span>]</h1>
     </div>
 
     <div class="breadcrumbs">
-        <p><a href="/">Home</a> > [Chaos Hub <span id="version-number">v0.17.0-20250328</span>]</p>
+        <p><a href="/">Home</a> > [Chaos Hub <span id="version-number">v0.17.1-20250328</span>]</p>
     </div>
 
     <section class="section-container" id="intro">
@@ -74,39 +81,55 @@
             <h3>Contents</h3>
             <ul>
                 <li><a href="#intro">Intro</a></li>
+                <li><a href="#theme-switcher">Theme Switcher</a></li>
                 <li><a href="#text-styles-group">Text Styles</a></li>
                 <li><a href="#basic-styles">Basic Styles</a></li>
                 <li><a href="#advanced-styles">Advanced Styles</a></li>
                 <li><a href="#extras-group">Extras</a></li>
                 <li><a href="#code">Code Snippets</a></li>
                 <li><a href="#quotes">Quotes & More</a></li>
+                <li><a href="#colors">Colors</a></li>
                 <li><a href="#loading">Loading State</a></li>
+                <li><a href="#icons">Icons</a></li>
+                <li><a href="#chaos-mode">Chaos Mode</a></li>
                 <li><a href="#standalone">Standalone Chaos</a></li>
             </ul>
         </aside>
 
         <main class="main-content">
+            <section class="section-container" id="theme-switcher">
+                <h2 id="theme-switcher"><i class="fas fa-moon"></i> Theme Switcher</h2>
+                <div class="section-content active">
+                    <p>Toggle themes live—See the chaos shift!</p>
+                    <div class="theme-buttons">
+                        <button class="btn btn-primary" onclick="setTheme('dark')">Dark Mode</button>
+                        <button class="btn btn-secondary" onclick="setTheme('light')">Light Mode</button>
+                    </div>
+                </div>
+            </section>
+
             <div class="section-group" id="text-styles-group">
                 <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-font"></i> Text Styles <i class="fas fa-chevron-down toggle-icon"></i></h2>
                 <div class="group-content active">
                     <section class="section-container" id="basic-styles">
                         <h2 id="basic-styles" onclick="toggleSection(this)"><i class="fas fa-text-height"></i> Basic Styles</h2>
                         <div class="section-content active">
-                            <!-- Tagline: Large, muted text -->
                             <p class="tagline">Tagline: Chaos Unleashed</p>
-                            <!-- Strong: Bold emphasis -->
-                            <p><strong>Strong Text:</strong> Bold and punchy—stands out in the crowd.</p>
-                            <!-- Highlight: Colored emphasis -->
-                            <p><span class="highlight">Highlight Text:</span> Pops with color—grabs attention.</p>
-                            <!-- Regular paragraph -->
-                            <p>Regular paragraph text flows naturally, keeping it clean and readable.</p>
-                            <!-- Bulleted list -->
+                            <p>Regular paragraph text flows naturally—Clean and readable chaos.</p>
+                            <p><strong>Strong Text:</strong> Bold and punchy—Grabs the spotlight.</p>
+                            <p><span class="highlight">Highlight Text:</span> Pops with color—Stands out loud.</p>
+                            <p>Inline code: <code>let x = 42;</code>—Monospaced precision.</p>
+                            <h3>H3: Major Chaos Heading</h3>
+                            <p>Larger subheading—Breaks up the madness.</p>
+                            <h4>H4: Mid-Level Chaos</h4>
+                            <p>Smaller subheading—Nests the chaos.</p>
+                            <h5>H5: Tiny Chaos Note</h5>
+                            <p>Fine details—Whispers in the storm.</p>
                             <ul>
-                                <li>Bullet point—simple and crisp.</li>
-                                <li><strong>Bullet with Strong:</strong> Adds emphasis within lists.</li>
-                                <li><span class="highlight">Bullet with Highlight:</span> Combines flair and function.</li>
+                                <li>Bullet point—Simple and crisp.</li>
+                                <li><strong>Bullet with Strong:</strong> Emphasis in lists.</li>
+                                <li><span class="highlight">Bullet with Highlight:</span> Flair and function.</li>
                             </ul>
-                            <!-- Buttons -->
                             <p><button class="btn btn-primary">Primary Button</button> <button class="btn btn-secondary">Secondary Button</button></p>
                         </div>
                     </section>
@@ -114,21 +137,17 @@
                     <section class="section-container" id="advanced-styles">
                         <h2 id="advanced-styles" onclick="toggleSection(this)"><i class="fas fa-paint-brush"></i> Advanced Styles</h2>
                         <div class="section-content active">
-                            <!-- Callout Warning: Alert box -->
                             <div class="callout callout-warning">
                                 <i class="fas fa-exclamation-triangle"></i>
-                                <p><strong>Warning:</strong> AI overload imminent—proceed with caution!</p>
+                                <p><strong>Warning:</strong> AI overload imminent—Proceed with caution!</p>
                             </div>
-                            <!-- Callout Info: Info box -->
                             <div class="callout callout-info">
                                 <i class="fas fa-info-circle"></i>
                                 <p><strong>Info:</strong> Ambient Pixels runs on pure chaos fuel.</p>
                             </div>
-                            <!-- Highlight Box: Standout section -->
                             <div class="highlight-box">
                                 <p>Highlight Box: Key takeaways or spicy quotes stand out here!</p>
                             </div>
-                            <!-- Links -->
                             <p>Links: <a href="#" class="link-standard">Standard Link</a> or <a href="#" class="link-hover">Hover-Effect Link</a>—Pick your chaos!</p>
                         </div>
                     </section>
@@ -141,12 +160,9 @@
                     <section class="section-container" id="code">
                         <h2 id="code" onclick="toggleSection(this)"><i class="fas fa-code"></i> Code Snippets</h2>
                         <div class="section-content active">
-                            <!-- H3: Major subheading -->
                             <h3>Code Block Example</h3>
-                            <!-- Code Block: Preformatted code -->
                             <pre class="code-block"><code>const chaos = "Ambient Pixels";
 console.log(chaos + " rocks!");</code></pre>
-                            <!-- Inline Code: Monospaced snippet -->
                             <p>Inline code: <code>let x = 42;</code>—Clean and monospaced.</p>
                         </div>
                     </section>
@@ -154,35 +170,130 @@ console.log(chaos + " rocks!");</code></pre>
                     <section class="section-container" id="quotes">
                         <h2 id="quotes" onclick="toggleSection(this)"><i class="fas fa-quote-left"></i> Quotes & More</h2>
                         <div class="section-content active">
-                            <!-- H4: Mid-level subheading -->
                             <h4>Blockquote</h4>
-                            <!-- Blockquote: Italicized quote -->
                             <blockquote class="blockquote">
                                 <p>“Chaos is just creativity with extra steps.” —Some AI, probably</p>
                             </blockquote>
-                            <!-- H5: Minor subheading -->
                             <h5>Small Text</h5>
-                            <!-- Small Text: Fine print -->
-                            <p class="small-text">Small text for footnotes or disclaimers—tiny but legible.</p>
-                            <!-- Drop Cap: Fancy first letter -->
-                            <p class="drop-cap">Drop cap kicks off a paragraph with flair—perfect for storytelling or emphasis in chaotic tales.</p>
+                            <p class="small-text">Small text for footnotes or disclaimers—Tiny but legible.</p>
+                            <p class="drop-cap">Drop cap kicks off a paragraph with flair—Perfect for storytelling or emphasis in chaotic tales.</p>
                         </div>
                     </section>
                 </div>
             </div>
 
+            <section class="section-container" id="colors">
+                <h2 id="colors" onclick="toggleSection(this)"><i class="fas fa-palette"></i> Color Palette</h2>
+                <div class="section-content active">
+                    <p>Core colors from <code>:root</code>—The chaos palette:</p>
+                    <div class="color-palette">
+                        <div class="color-swatch" style="background: var(--bg-dark);"><span>--bg-dark</span></div>
+                        <div class="color-swatch" style="background: var(--text-dark);"><span>--text-dark</span></div>
+                        <div class="color-swatch" style="background: var(--accent-dark);"><span>--accent-dark</span></div>
+                        <div class="color-swatch" style="background: var(--highlight-dark);"><span>--highlight-dark</span></div>
+                        <div class="color-swatch" style="background: var(--card-dark);"><span>--card-dark</span></div>
+                        <div class="color-swatch" style="background: var(--bg-light);"><span>--bg-light</span></div>
+                        <div class="color-swatch" style="background: var(--text-light);"><span>--text-light</span></div>
+                        <div class="color-swatch" style="background: var(--accent-light);"><span>--accent-light</span></div>
+                        <div class="color-swatch" style="background: var(--highlight-light);"><span>--highlight-light</span></div>
+                        <div class="color-swatch" style="background: var(--card-light);"><span>--card-light</span></div>
+                        <div class="color-swatch" style="background: var(--frosted-bg);"><span>--frosted-bg</span></div>
+                        <div class="color-swatch" style="background: var(--frosted-bg-light);"><span>--frosted-bg-light</span></div>
+                    </div>
+                </div>
+            </section>
+
             <section class="section-container loading" id="loading">
                 <h2 id="loading" onclick="toggleSection(this)"><i class="fas fa-spinner"></i> Loading State</h2>
                 <div class="section-content active">
-                    <!-- Loading: Shimmer effect -->
-                    <p>This section mimics a loading state—See the shimmer animation on <code>.section-container.loading</code>.</p>
+                    <p>Demoing loading states—Subtle to chaotic:</p>
+                    <h4>Text Shimmer</h4>
+                    <div class="loading-text">Loading chaos...</div>
+                    <h4>Dots Pulse</h4>
+                    <div class="loading-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <h4>Bar Slide</h4>
+                    <div class="loading-bar">
+                        <div class="loading-bar-inner"></div>
+                    </div>
+                    <h4>Spinner</h4>
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner"></i>
+                    </div>
+                    <h4>Glitch Flash</h4>
+                    <div class="loading-glitch">CHAOS</div>
+                    <h4>Pixel Storm</h4>
+                    <div class="loading-pixel-storm">
+                        <span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                    <h4>Chaos Spin</h4>
+                    <div class="loading-chaos-spin">
+                        <i class="fas fa-bolt"></i><i class="fas fa-star"></i><i class="fas fa-cog"></i>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-container" id="icons">
+                <h2 id="icons" onclick="toggleSection(this)"><i class="fas fa-icons"></i> Icon Showcase</h2>
+                <div class="section-content active">
+                    <p>Font Awesome icons—Hover for chaos! Categorized for clarity:</p>
+                    <h4>Navigation Icons</h4>
+                    <div class="icon-demo">
+                        <i class="fas fa-home" title="Home"></i>
+                        <i class="fas fa-arrow-up" title="Back to Top"></i>
+                        <i class="fas fa-bars" title="Menu Toggle"></i>
+                        <i class="fas fa-chevron-down" title="Dropdown"></i>
+                        <i class="fas fa-expand-alt" title="Expand All"></i>
+                        <i class="fas fa-compress-alt" title="Compress All"></i>
+                    </div>
+                    <h4>Content Icons</h4>
+                    <div class="icon-demo">
+                        <i class="fas fa-star" title="Star"></i>
+                        <i class="fas fa-cube" title="Cube"></i>
+                        <i class="fas fa-robot" title="Robot"></i>
+                        <i class="fas fa-tshirt" title="T-shirt"></i>
+                        <i class="fas fa-file-alt" title="File"></i>
+                        <i class="fas fa-paint-brush" title="Paint Brush"></i>
+                        <i class="fas fa-code" title="Code"></i>
+                        <i class="fas fa-text-height" title="Text Height"></i>
+                    </div>
+                    <h4>Social Icons</h4>
+                    <div class="icon-demo">
+                        <i class="fab fa-deviantart" title="DeviantArt"></i>
+                        <i class="fab fa-x-twitter" title="X"></i>
+                        <i class="fab fa-youtube" title="YouTube"></i>
+                        <i class="fab fa-facebook" title="Facebook"></i>
+                        <i class="fas fa-users" title="Users"></i>
+                        <i class="fas fa-envelope" title="Envelope"></i>
+                    </div>
+                    <h4>Chaos Icons</h4>
+                    <div class="icon-demo">
+                        <i class="fas fa-bolt" title="Bolt"></i>
+                        <i class="fas fa-fire" title="Fire"></i>
+                        <i class="fas fa-cog" title="Cog"></i>
+                        <i class="fas fa-spinner" title="Spinner"></i>
+                        <i class="fas fa-exclamation-triangle" title="Warning"></i>
+                        <i class="fas fa-info-circle" title="Info"></i>
+                        <i class="fas fa-quote-left" title="Quote Left"></i>
+                        <i class="fas fa-icons" title="Icons"></i>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-container" id="chaos-mode">
+                <h2 id="chaos-mode"><i class="fas fa-bolt"></i> Chaos Mode</h2>
+                <div class="section-content active">
+                    <p>Unleash maximum chaos—Toggle for wild effects!</p>
+                    <button class="btn btn-primary" id="chaosToggle" onclick="toggleChaosMode()">Toggle Chaos Mode</button>
+                    <p class="chaos-text">This text gets glitchy in chaos mode!</p>
                 </div>
             </section>
 
             <section class="section-container standalone" id="standalone">
                 <h2 id="standalone" onclick="toggleSection(this)"><i class="fas fa-cog"></i> Standalone Chaos</h2>
                 <div class="section-content active">
-                    <p>This standalone section breaks free from groups—pure chaos, no nesting! Here’s a <span class="highlight">highlight</span> to spice it up.</p>
+                    <p>This standalone section breaks free from groups—Pure chaos, no nesting! Here’s a <span class="highlight">highlight</span> to spice it up.</p>
                     <p><button class="btn btn-primary">Click Me</button> <a href="#" class="link-hover">Hover Over Me</a></p>
                 </div>
             </section>
@@ -190,7 +301,7 @@ console.log(chaos + " rocks!");</code></pre>
     </div>
 
     <footer>
-        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <span id="version-number">v0.17.0-20250328</span> | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
+        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <span id="version-number">v0.17.1-20250328</span> | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
         <div class="social-links">
             <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
             <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>

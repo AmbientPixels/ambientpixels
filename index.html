@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <title>Ambient Pixels - Creative Tech (v0.16.10-20250328)</title>
+    <title>Ambient Pixels - Chaos Meets Code (<span id="version-number">v0.17.1-20250328</span>)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="_images/styles.css">
-    <meta name="description" content="Chaos meets code. Glitchy, artsy, AI-fueled madness lives here at Ambient Pixels.">
+    <meta name="description" content="Chaos meets code. Glitchy, artsy, AI-fueled madness lives here.">
     <meta property="og:title" content="Ambient Pixels">
     <meta property="og:description" content="Chaos meets code. Glitchy, artsy, AI-fueled madness lives here.">
     <meta property="og:image" content="/_images/ambient-pixel-logo-rainbow.png">
@@ -33,6 +33,13 @@
                 </div>
             </div>
             <div class="dropdown">
+                <a href="#"><i class="fas fa-book"></i> Resources</a>
+                <div class="dropdown-content">
+                    <a href="/doc.html"><i class="fas fa-file-alt"></i> Documentation</a>
+                    <a href="/template.html"><i class="fas fa-paint-brush"></i> Style Template</a>
+                </div>
+            </div>
+            <div class="dropdown">
                 <a onclick="showComingSoonModal('Contact')"><i class="fas fa-envelope"></i> Contact</a>
                 <div class="dropdown-content">
                     <a onclick="showComingSoonModal('Email')"><i class="fas fa-envelope"></i> Email Us</a>
@@ -48,76 +55,58 @@
         </button>
     </div>
 
-    <div class="hero">
+    <section class="hero">
         <div class="loading-screen" id="loadingScreen">
-            <i class="fas fa-microchip"></i>
-            <i class="fas fa-cogs"></i>
-            <i class="fas fa-brain"></i>
-            <span>Generating...</span>
+            <i class="fas fa-circle-notch"></i>
+            <i class="fas fa-circle-notch"></i>
+            <i class="fas fa-circle-notch"></i>
         </div>
-        <div class="hero-text" id="randomTagline"></div>
-    </div>
+        <h2 class="hero-text" id="randomTagline"></h2>
+    </section>
 
     <section id="intro">
-        <h2><i class="fas fa-star"></i> Welcome to Ambient Pixels</h2>
-        <p class="tagline">Pixel Chaos, Unleashed</p>
-        <p>A wild mashup of digital art, quirky apparel, and futuristic tech. We’re chaos architects—vibrant visuals, AI meme magic, and designs that explode like a supernova.</p>
+        <h2><i class="fas fa-fire"></i> Chaos Meets Code</h2>
+        <p class="tagline">Where glitches turn into gold</p>
+        <p class="description">Ambient Pixels is your portal to AI-driven madness—art, memes, and tech collide in a pixelated storm. Buckle up, it’s gonna get wild.</p>
     </section>
 
     <section class="section-container" id="memetron">
-        <h2 id="memetron"><i class="fas fa-robot"></i> Memetron 3030</h2>
-        <div class="section-content active">
-            <p>Preview our AI-powered meme generator—create dank memes with a futuristic edge!</p>
-            <p><span id="memetronWarning"></span></p>
-            <a href="https://memetron3030.vercel.app/" target="_blank" class="btn btn-primary">Try It Now</a>
-            <div class="meme-test-container">
-                <input type="text" class="meme-prompt-input" id="memePrompt" placeholder="Enter a meme idea (e.g., 'Cat in Space')">
-                <button class="btn btn-primary meme-generate-btn" id="memeGenerateBtn"><i class="fas fa-magic"></i> Generate Meme</button>
-                <div class="meme-container" id="memeContainer">
-                    <div class="meme-loading" id="memeLoading">
-                        <i class="fas fa-spinner"></i>
-                        <span>Generating Chaos...</span>
-                    </div>
-                    <img class="meme-image" id="memeImage" src="" alt="Generated Meme">
-                    <div class="meme-text meme-top-text" id="memeTopText"></div>
-                    <div class="meme-text meme-bottom-text" id="memeBottomText"></div>
+        <h2><i class="fas fa-robot"></i> Memetron 3030</h2>
+        <p class="description">Our AI meme generator is live—powered by chaos and a touch of insanity. Feed it a prompt, watch it spit out pixelated hilarity.</p>
+        <div class="meme-test-container">
+            <input type="text" id="memePrompt" class="meme-prompt-input" placeholder="Enter meme prompt...">
+            <button id="memeGenerateBtn" class="meme-generate-btn" onclick="generateMeme()">Generate Meme</button>
+            <div class="meme-container">
+                <img id="memeImage" class="meme-image" alt="Generated Meme">
+                <div id="memeTopText" class="meme-text meme-top-text"></div>
+                <div id="memeBottomText" class="meme-text meme-bottom-text"></div>
+                <div id="memeLoading" class="meme-loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Generating...</span>
                 </div>
             </div>
         </div>
     </section>
 
     <section class="section-container" id="glitch">
-        <h2 id="glitch"><i class="fas fa-tshirt"></i> Glitch Apparel</h2>
-        <div class="section-content active">
-            <p>Chaos stitched into every thread—drops soon&nbsp;</p>
-            <div class="callout callout-info">
-                <i class="fas fa-info-circle"></i>
-              <p><strong>Coming Soon:</strong> Stay tuned for glitchy goodness.</p>
-            </div>
-        </div>
+        <h2><i class="fas fa-tshirt"></i> Glitch Apparel</h2>
+        <p class="description">Wear the chaos—AI-crafted designs coming soon. Think glitchy tees, hoodies, and vibes that scream “I’m from the future.”</p>
+        <p><button class="btn btn-primary" onclick="showComingSoonModal('Glitch Apparel')">Notify Me</button></p>
     </section>
 
     <section class="section-container" id="connect">
-        <h2 id="connect"><i class="fas fa-users"></i> Connect with Us</h2>
-        <div class="section-content active">
-            <div class="social-links">
-                <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
-                <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
-                <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube"></i><span>Vids</span></a>
-                <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook"></i><span>Connect</span></a>
-            </div>
-            <div class="cta">
-                <form class="notify-form" id="notifyForm" method="POST">
-                    <input type="email" name="email" placeholder="Your Email" required>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-bell"></i> Notify Me</button>
-                </form>
-                <p class="form-message">Thanks! We’ll keep you posted.</p>
-            </div>
+        <h2><i class="fas fa-users"></i> Join the Chaos</h2>
+        <p class="description">We’re scattered across the digital void—connect with us where the pixels party.</p>
+        <div class="social-links">
+            <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
+            <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
+            <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube"></i><span>Vids</span></a>
+            <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook"></i><span>Connect</span></a>
         </div>
     </section>
 
     <footer>
-        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <span id="version-number">v0.16.10-20250328</span> | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
+        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <span id="version-number">v0.17.1-20250328</span> | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
         <div class="social-links">
             <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
             <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
@@ -127,12 +116,6 @@
         <p class="footer-tag">Forged by AI, fueled by chaos</p>
     </footer>
 
-    <div class="modal" id="formModal">
-        <div class="modal-content">
-            <p>Thanks for joining the chaos! We’ll keep you posted.</p>
-            <button onclick="closeModal('formModal')">Close</button>
-        </div>
-    </div>
     <div class="modal" id="comingSoonModal">
         <div class="modal-content">
             <p id="comingSoonMessage"><span id="comingSoonIcon"></span> <span id="comingSoonText"></span></p>
