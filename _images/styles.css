@@ -286,6 +286,7 @@ body.light .breadcrumbs a:hover { color: var(--accent-light); }
     margin: 20px auto;
     display: flex;
     gap: 20px;
+    min-height: 100vh; /* Ensure sticky works */
 }
 .sidebar {
     width: 180px;
@@ -294,8 +295,11 @@ body.light .breadcrumbs a:hover { color: var(--accent-light); }
     padding: 20px;
     border-radius: 4px;
     border: 1px solid rgba(255, 255, 255, 0.05);
-    position: sticky; /* Sticky Sidebar */
-    top: 70px; /* Below navbar */
+    position: sticky;
+    top: 70px;
+    height: fit-content; /* Size to content */
+    max-height: calc(100vh - 70px); /* Cap at viewport minus navbar */
+    overflow-y: auto; /* Scroll if too tall */
 }
 body.light .sidebar {
     background: var(--card-light);
