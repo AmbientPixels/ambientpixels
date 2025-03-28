@@ -54,7 +54,7 @@
         <h2 id="intro"><i class="fas fa-star"></i> Overview</h2>
         <div>
             <p class="tagline">Chaos Meets Precision</p>
-            <p>This page details our Continuous Integration/Continuous Deployment (CI/CD) pipeline and style guide for <code>ambientpixels.ai</code>, updated to version V16.4.3 as of March 28, 2025. It covers deployment processes, Azure services, GitHub workflows, API security, and our evolving design system.</p>
+            <p>This page details our Continuous Integration/Continuous Deployment (CI/CD) pipeline and style guide for <code>ambientpixels.ai</code>, updated to version V16.4.3 as of March 28, 2025, 12:18 AM PDT. It covers deployment processes, Azure services, GitHub workflows, API security, and our evolving design system—including the homepage template status.</p>
         </div>
     </section>
 
@@ -78,6 +78,7 @@
                 <li><a href="#styles-group">Style Guide</a></li>
                 <li><a href="#styles">Text Styles</a></li>
                 <li><a href="#ui">UI Functions</a></li>
+                <li><a href="#homepage">Homepage Template</a></li>
                 <li><a href="#next">Next Steps</a></li>
             </ul>
         </aside>
@@ -224,7 +225,7 @@ jobs:
                         <li><strong>Push History</strong>:
                             <p><code>f9dd481</code>: Projects content, bullet fixes.</p>
                             <p><code>stu901</code>: V16.2—Smooth scroll attempt.</p>
-                            <p><code>tuv678</code>: V16.4.3—Centered intro, modern hierarchy (update with your hash).</p>
+                            <p><code>yza567</code>: V16.4.3—Homepage template, intro without background (update with your hash).</p>
                         </li>
                         <li><strong>Tips</strong>:
                             <p>Flush DNS: <code>ipconfig /flushdns</code>.</p>
@@ -301,7 +302,35 @@ console.log(chaos + " rocks!");</code></pre>
                             <p><strong>toggleMenu</strong>: Mobile navbar toggle—Burger icon.</p>
                             <p><strong>toggleTheme</strong>: Light/dark switch—Moon/sun button.</p>
                             <p><strong>backToTop</strong>: Snaps to top—Appears on scroll (<code>scrollY > 200</code>).</p>
-                            <p><strong>Notes</strong>: Intro section static—Groups (“Pipeline”, “Security”, “Style Guide”) and standalone sections centered at <code>max-width: 1000px</code>.</p>
+                            <p><strong>Version Number</strong>: Dynamically sets version across pages—Defined in <code>scripts.js</code>.</p>
+                            <pre class="code-block"><code>const VERSION_NUMBER = "V16.4.3";
+const versionElement = document.getElementById('version-number');
+if (versionElement) {
+    versionElement.textContent = VERSION_NUMBER;
+}</code></pre>
+                            <p><strong>Notes</strong>: Homepage uses uncollapsed sections—Other pages (e.g., this doc) use toggleable groups and standalone sections.</p>
+                        </div>
+                    </section>
+
+                    <section class="section-container" id="homepage">
+                        <h2 id="homepage" onclick="toggleSection(this)"><i class="fas fa-home"></i> Homepage Template</h2>
+                        <div class="section-content">
+                            <p><strong>Status (3/28/2025, 12:18 AM PDT)</strong>: Locked at V16.4.3—Solid foundation for <code>index.html</code>. Features:</p>
+                            <ul>
+                                <li>Main <code>.hero</code> with random images and taglines—Full-width, chaotic entry.</li>
+                                <li><code>#intro</code> without section background—Centered text below hero, sets the tone.</li>
+                                <li>Uncollapsed standalone sections: <code>#memetron</code>, <code>#glitch</code>, <code>#connect</code>—No toggles, all content visible.</li>
+                                <li>Footer with social icons (DeviantArt, X, YouTube, Facebook) and dynamic version number.</li>
+                                <li>No mini-hero, sidebar, or breadcrumbs—Clean, focused layout.</li>
+                            </ul>
+                            <p><strong>Notes for Tomorrow</strong>: Layout suggestions to explore:</p>
+                            <ul>
+                                <li><strong>Intro Overlay</strong>: Move <code>#intro</code> into <code>.hero</code> as a bottom overlay—Add “Dive In” button to <code>#memetron</code>.</li>
+                                <li><strong>Grid Layout</strong>: 2-column grid for <code>#memetron</code> and <code>#glitch</code>—<code>#connect</code> full-width below.</li>
+                                <li><strong>Spacing Boost</strong>: Increase <code>.section-container</code> bottom margin to 30px.</li>
+                                <li><strong>Hero Subheading</strong>: Static text below random tagline (e.g., “Creative Tech Unleashed”).</li>
+                            </ul>
+                            <p><strong>Next</strong>: Test overlay + spacing—Roll out footer version to other pages.</p>
                         </div>
                     </section>
                 </div>
@@ -311,8 +340,9 @@ console.log(chaos + " rocks!");</code></pre>
                 <h2 id="next" onclick="toggleSection(this)"><i class="fas fa-forward"></i> Next Steps</h2>
                 <div class="section-content">
                     <ul>
-                        <li>Lock V16.4.3—Style base confirmed.</li>
-                        <li>Roll out styles to <code>index.html</code>, <code>projects.html</code>—New homepage template.</li>
+                        <li>Lock V16.4.3—Homepage template confirmed.</li>
+                        <li>Tomorrow (3/28): Test homepage layout tweaks—Overlay intro, grid sections.</li>
+                        <li>Roll out footer version number to <code>doc.html</code>, <code>projects.html</code>.</li>
                         <li>Enhance Projects page—More chaos.</li>
                         <li>Secure API—Token validation in <code>memeGenerator</code>.</li>
                         <li>Revisit smooth scroll—Optional tweak.</li>
@@ -324,7 +354,7 @@ console.log(chaos + " rocks!");</code></pre>
     </div>
 
     <footer>
-        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
+        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <span id="version-number">V16.4.3</span> | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
         <div class="social-links">
             <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
             <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
