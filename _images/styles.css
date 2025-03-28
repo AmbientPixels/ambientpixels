@@ -312,7 +312,7 @@ body.light .sidebar a:hover { color: var(--accent-light); }
 .section-container {
     max-width: 1000px;
     min-width: 0;
-    margin: 20px auto;
+    margin: 0 auto 20px auto; /* Top margin removed */
     padding: 20px;
     background: var(--card-dark);
     border-radius: 4px;
@@ -810,7 +810,7 @@ body.light .modal-content button:hover {
     border: 1px solid;
 }
 .callout-warning {
-    background: rgba(230, 126, 34, 0.05); /* Softer opacity */
+    background: rgba(230, 126, 34, 0.05);
     border-color: var(--warning-dark);
     color: var(--text-dark);
 }
@@ -826,7 +826,7 @@ body.light .callout-warning i {
     color: var(--warning-light);
 }
 .callout-info {
-    background: rgba(52, 152, 219, 0.05); /* Softer opacity */
+    background: rgba(52, 152, 219, 0.05);
     border-color: var(--info-dark);
     color: var(--text-dark);
 }
@@ -947,7 +947,7 @@ body.light .link-hover:hover {
     font-size: 0.95em;
     cursor: pointer;
     transition: background 0.2s, transform 0.2s;
-    margin: 0 10px 10px 0; /* Consistent spacing */
+    margin: 0 10px 10px 0;
 }
 .btn-primary {
     background: var(--accent-dark);
