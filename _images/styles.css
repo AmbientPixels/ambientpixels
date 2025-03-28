@@ -286,7 +286,7 @@ body.light .breadcrumbs a:hover { color: var(--accent-light); }
     margin: 20px auto;
     display: flex;
     gap: 20px;
-    min-height: 100vh; /* Ensure sticky works */
+    min-height: 100vh;
 }
 .sidebar {
     width: 180px;
@@ -296,10 +296,10 @@ body.light .breadcrumbs a:hover { color: var(--accent-light); }
     border-radius: 4px;
     border: 1px solid rgba(255, 255, 255, 0.05);
     position: sticky;
-    top: 70px;
-    height: fit-content; /* Size to content */
-    max-height: calc(100vh - 70px); /* Cap at viewport minus navbar */
-    overflow-y: auto; /* Scroll if too tall */
+    top: 80px;
+    height: fit-content;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
 }
 body.light .sidebar {
     background: var(--card-light);
@@ -526,6 +526,7 @@ body.light .preview-section {
     border: 1px solid rgba(0, 0, 0, 0.05);
 }
 .preview-section h2 {
+
     font-size: 1.8em;
     color: var(--accent-dark);
     margin-bottom: 15px;
@@ -1031,6 +1032,23 @@ body.light .section-container.loading {
     0% { background-position: -200px 0; }
     100% { background-position: 200px 0; }
 }
+#toggleAllSections {
+    float: right;
+    margin: 10px 20px 10px 0;
+    font-size: 1.2em;
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+body.light #toggleAllSections {
+    color: var(--text-light);
+}
+#toggleAllSections:hover {
+    color: var(--accent-dark);
+}
+body.light #toggleAllSections:hover {
+    color: var(--accent-light);
+}
 
 @media (max-width: 768px) {
     .navbar-menu {
@@ -1100,7 +1118,7 @@ body.light .section-container.loading {
     .sidebar {
         width: 100%;
         padding: 15px;
-        position: static; /* Reset sticky on mobile */
+        position: static;
     }
     .main-content {
         padding: 0;

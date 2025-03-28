@@ -5,6 +5,7 @@ function toggleTheme() {
     icon.classList.toggle('fa-moon');
     icon.classList.toggle('fa-sun');
 }
+
 function toggleMenu() {
     document.querySelector('.navbar-menu').classList.toggle('active');
 }
@@ -20,16 +21,16 @@ const taglines = [
 ];
 const taglineElement = document.getElementById('randomTagline');
 const loadingScreen = document.getElementById('loadingScreen');
-const randomTagline = taglines[Math.floor(Math.random() * taglines.length)];
-
-taglineElement.innerHTML = randomTagline.split('').map(char =>
-    char === ' ' ? `<span> </span>` : `<span>${char}</span>`
-).join('');
-
-setTimeout(() => {
-    loadingScreen.style.display = 'none';
-    taglineElement.style.display = 'block';
-}, 1500);
+if (taglineElement && loadingScreen) {
+    const randomTagline = taglines[Math.floor(Math.random() * taglines.length)];
+    taglineElement.innerHTML = randomTagline.split('').map(char =>
+        char === ' ' ? `<span>&nbsp;</span>` : `<span>${char}</span>`
+    ).join('');
+    setTimeout(() => {
+        loadingScreen.style.display = 'none';
+        taglineElement.style.display = 'block';
+    }, 1500);
+}
 
 // Random hero images
 const heroImages = [
@@ -41,8 +42,10 @@ const heroImages = [
     '_images/banner5.jpg'
 ];
 const heroElement = document.querySelector('.hero');
-const randomHeroImage = heroImages[Math.floor(Math.random() * heroImages.length)];
-heroElement.style.backgroundImage = `url('${randomHeroImage}')`;
+if (heroElement) {
+    const randomHeroImage = heroImages[Math.floor(Math.random() * heroImages.length)];
+    heroElement.style.backgroundImage = `url('${randomHeroImage}')`;
+}
 
 const memetronWarnings = [
     "Test mode: AI’s still learning—expect glitches, maybe a meme-pocalypse!",
@@ -51,39 +54,43 @@ const memetronWarnings = [
     "AI’s on training wheels—brace for meme chaos!",
     "Test run: AI’s meme skills are 50% dank, 50% derp!"
 ];
-document.getElementById('memetronWarning').textContent = memetronWarnings[Math.floor(Math.random() * memetronWarnings.length)];
+const warningElement = document.getElementById('memetronWarning');
+if (warningElement) {
+    warningElement.textContent = memetronWarnings[Math.floor(Math.random() * memetronWarnings.length)];
+}
 
-document.getElementById('notifyForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const form = this;
-    const data = new FormData(form);
-    fetch('https://formspree.io/f/xanejjnz', {
-        method: 'POST',
-        body: data,
-        headers: { 'Accept': 'application/json' }
-    })
-    .then(response => {
-        if (response.ok) {
-            document.getElementById('formModal').style.display = 'flex';
-            form.reset();
-        } else {
-            alert('Oops! Something went wrong.');
-        }
-    })
-    .catch(error => {
-        alert('Error: ' + error);
+const notifyForm = document.getElementById('notifyForm');
+if (notifyForm) {
+    notifyForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+        const data = new FormData(form);
+        fetch('https://formspree.io/f/xanejjnz', {
+            method: 'POST',
+            body: data,
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(response => {
+            if (response.ok) {
+                document.getElementById('formModal').style.display = 'flex';
+                form.reset();
+            } else {
+                alert('Oops! Something went wrong.');
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error);
+        });
     });
-});
+}
 
 const backToTop = document.querySelector('.back-to-top');
-backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-window.addEventListener('scroll', () => {
-    if (window.scrollY > 200) {
-        backToTop.classList.add('visible');
-    } else {
-        backToTop.classList.remove('visible');
-    }
-});
+if (backToTop) {
+    backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    window.addEventListener('scroll', () => {
+        backToTop.classList.toggle('visible', window.scrollY > 200);
+    });
+}
 
 // Memetron 3030 API Test Script
 const API_ENDPOINT = 'https://ambientpixels-meme-api-fn.azurewebsites.net/api/memeGenerator';
@@ -91,10 +98,8 @@ const API_ENDPOINT = 'https://ambientpixels-meme-api-fn.azurewebsites.net/api/me
 async function getAccessToken() {
     try {
         const response = await fetch('https://ambientpixels-meme-api-fn.azurewebsites.net/api/getToken');
-        console.log('Token Response Status:', response.status);
         if (!response.ok) throw new Error(`Token fetch failed: ${response.status}`);
         const data = await response.json();
-        console.log('Token Data:', data);
         return data.token;
     } catch (error) {
         console.error('Error fetching token:', error);
@@ -112,6 +117,8 @@ async function generateMeme() {
     const topText = document.getElementById('memeTopText');
     const bottomText = document.getElementById('memeBottomText');
 
+    if (!generateBtn || !loadingDiv || !memeImage || !topText || !bottomText) return;
+
     generateBtn.disabled = true;
     loadingDiv.classList.add('visible');
     memeImage.classList.remove('visible');
@@ -122,7 +129,6 @@ async function generateMeme() {
         const token = await getAccessToken();
         if (!token) throw new Error('No access token available');
 
-        console.log('Fetching meme with prompt:', prompt);
         const response = await fetch(API_ENDPOINT, {
             method: 'POST',
             headers: {
@@ -132,13 +138,10 @@ async function generateMeme() {
             body: JSON.stringify({ endpoint: "image", prompt: prompt })
         });
 
-        console.log('API Response Status:', response.status);
         if (!response.ok) throw new Error(`API error: ${response.status} - ${response.statusText}`);
 
         const blob = await response.blob();
         const imageUrl = URL.createObjectURL(blob);
-        console.log('API Response Image URL:', imageUrl);
-
         memeImage.src = imageUrl;
         memeImage.classList.add('visible');
         topText.innerText = prompt.slice(0, 20);
@@ -155,8 +158,8 @@ async function generateMeme() {
     }
 }
 
-document.getElementById('memeGenerateBtn').addEventListener('click', generateMeme);
-
-window.onload = () => {
-    generateMeme();
-};
+const memeGenerateBtn = document.getElementById('memeGenerateBtn');
+if (memeGenerateBtn) {
+    memeGenerateBtn.addEventListener('click', generateMeme);
+    window.onload = () => generateMeme();
+}

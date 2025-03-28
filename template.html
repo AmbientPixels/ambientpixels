@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <title>Ambient Pixels - [Chaos Hub V16.3]</title>
+    <title>Ambient Pixels - [Chaos Hub V16.4]</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="_images/styles.css">
@@ -49,15 +49,15 @@
     </div>
 
     <div class="mini-hero">
-        <h1>[Chaos Hub V16.3]</h1>
+        <h1>[Chaos Hub V16.4]</h1>
     </div>
 
     <div class="breadcrumbs">
-        <p><a href="/">Home</a> > [Chaos Hub V16.3]</p>
+        <p><a href="/">Home</a> > [Chaos Hub V16.4]</p>
     </div>
 
     <section class="section-container" id="intro">
-        <h2 id="intro"><i class="fas fa-star"></i> Welcome to [Chaos Hub V16.3]</h2>
+        <h2 id="intro"><i class="fas fa-star"></i> Welcome to [Chaos Hub V16.4]</h2>
         <div>
             <p>This is the intro section—your gateway to the chaos! Dive into the wild world of Ambient Pixels, where creativity meets tech in a supernova of style.</p>
         </div>
@@ -74,6 +74,7 @@
         </aside>
 
         <main class="main-content">
+            <i class="fas fa-expand-alt" id="toggleAllSections" title="Toggle All Sections"></i>
             <section class="section-container" id="styles">
                 <h2 id="styles" onclick="toggleSection(this)"><i class="fas fa-font"></i> Text Styles Showcase</h2>
                 <div class="section-content">
@@ -87,24 +88,20 @@
                         <li><span class="highlight">Bullet with Highlight:</span> Combines flair and function.</li>
                     </ul>
 
-                    <!-- Warning Callout -->
                     <div class="callout callout-warning">
                         <i class="fas fa-exclamation-triangle"></i>
                         <p><strong>Warning:</strong> AI overload imminent—proceed with caution!</p>
                     </div>
 
-                    <!-- Info Callout -->
                     <div class="callout callout-info">
                         <i class="fas fa-info-circle"></i>
                         <p><strong>Info:</strong> Ambient Pixels runs on pure chaos fuel.</p>
                     </div>
 
-                    <!-- Highlight Box -->
                     <div class="highlight-box">
                         <p>This is a highlight box—great for key takeaways or spicy quotes!</p>
                     </div>
 
-                    <!-- H3-H5 -->
                     <h3>H3: Subheading—Bold and Clear</h3>
                     <p>A subheading breaks up content—keeps the chaos organized!</p>
                     <h4>H4: Smaller Subheading—Still Punchy</h4>
@@ -112,18 +109,14 @@
                     <h5>H5: Tiny Subheading—Subtle Yet Mighty</h5>
                     <p>For fine details or deep dives.</p>
 
-                    <!-- Dev Code -->
                     <pre class="code-block"><code>const chaos = "Ambient Pixels";
 console.log(chaos + " rocks!");</code></pre>
                     <p>Inline code: <code>let x = 42;</code>—Clean and monospaced.</p>
 
-                    <!-- Inline Links -->
                     <p>Check out our <a href="#" class="link-standard">standard link</a> or this <a href="#" class="link-hover">hover-effect link</a> for more chaos.</p>
 
-                    <!-- Buttons -->
                     <p><button class="btn btn-primary">Primary Button</button> <button class="btn btn-secondary">Secondary Button</button></p>
 
-                    <!-- New Styles -->
                     <blockquote class="blockquote">
                         <p>“Chaos is just creativity with extra steps.” —Some AI, probably</p>
                     </blockquote>
@@ -186,6 +179,36 @@ console.log(chaos + " rocks!");</code></pre>
         });
         window.addEventListener('scroll', () => {
             backToTop.classList.toggle('visible', window.scrollY > 200);
+        });
+
+        // Anchor link uncollapse
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const targetId = link.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+                if (targetSection && targetSection.classList.contains('section-container')) {
+                    const content = targetSection.querySelector('.section-content');
+                    if (content && !content.classList.contains('active')) {
+                        content.classList.add('active');
+                    }
+                }
+            });
+        });
+
+        // Toggle all sections
+        const toggleAllButton = document.getElementById('toggleAllSections');
+        let allCollapsed = true;
+        toggleAllButton.addEventListener('click', () => {
+            const sections = document.querySelectorAll('.main-content .section-content');
+            sections.forEach(content => {
+                if (allCollapsed) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+            allCollapsed = !allCollapsed;
+            toggleAllButton.className = allCollapsed ? 'fas fa-expand-alt' : 'fas fa-compress-alt';
         });
 
         document.title = `Ambient Pixels – ${document.querySelector('h1')?.innerText || 'Home'}`;
