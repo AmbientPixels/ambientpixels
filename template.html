@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <title>Ambient Pixels - [Chaos Hub V16.4]</title>
+    <title>Ambient Pixels - [Chaos Hub V16.4.3]</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="_images/styles.css">
@@ -49,15 +49,15 @@
     </div>
 
     <div class="mini-hero">
-        <h1>[Chaos Hub V16.4]</h1>
+        <h1>[Chaos Hub V16.4.3]</h1>
     </div>
 
     <div class="breadcrumbs">
-        <p><a href="/">Home</a> > [Chaos Hub V16.4]</p>
+        <p><a href="/">Home</a> > [Chaos Hub V16.4.3]</p>
     </div>
 
     <section class="section-container" id="intro">
-        <h2 id="intro"><i class="fas fa-star"></i> Welcome to [Chaos Hub V16.4]</h2>
+        <h2 id="intro"><i class="fas fa-star"></i> Welcome to [Chaos Hub V16.4.3]</h2>
         <div>
             <p>This is the intro section—your gateway to the chaos! Dive into the wild world of Ambient Pixels, where creativity meets tech in a supernova of style.</p>
         </div>
@@ -98,6 +98,7 @@
                                 <li>Bullet point—simple and crisp.</li>
                                 <li><strong>Bullet with Strong:</strong> Adds emphasis within lists.</li>
                                 <li><span class="highlight">Bullet with Highlight:</span> Combines flair and function.</li>
+                                <li>New bullet example—Indented 25px left—<code><ul><li></code>.</li>
                             </ul>
                             <p><button class="btn btn-primary">Primary Button</button> <button class="btn btn-secondary">Secondary Button</button></p>
                         </div>
@@ -212,7 +213,6 @@ console.log(chaos + " rocks!");</code></pre>
             backToTop.classList.toggle('visible', window.scrollY > 200);
         });
 
-        // Anchor link uncollapse
         document.querySelectorAll('.sidebar a').forEach(link => {
             link.addEventListener('click', (e) => {
                 const targetId = link.getAttribute('href').substring(1);
@@ -236,9 +236,8 @@ console.log(chaos + " rocks!");</code></pre>
             });
         });
 
-        // Toggle all sections
         const toggleAllButton = document.getElementById('toggleAllSections');
-        let allCollapsed = false; // Start expanded
+        let allCollapsed = false;
         toggleAllButton.addEventListener('click', () => {
             const groups = document.querySelectorAll('.group-content');
             const sections = document.querySelectorAll('.section-content');

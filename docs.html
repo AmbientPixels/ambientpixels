@@ -43,117 +43,126 @@
     </div>
 
     <div class="mini-hero">
-        <h1>CI/CD & Style Guide</h1>
+        <h1>CI/CD & Style Guide [V16.4.3]</h1>
     </div>
 
     <div class="breadcrumbs">
         <p><a href="/">Home</a> > CI/CD & Style Guide</p>
     </div>
 
+    <section class="section-container" id="intro">
+        <h2 id="intro"><i class="fas fa-star"></i> Intro</h2>
+        <div>
+            <p>This is the documentation hub for <code>ambientpixels.ai</code>—detailing our CI/CD pipeline, Azure setup, and style guide as of March 28, 2025 (V16.4.3).</p>
+        </div>
+    </section>
+
+    <div class="section-header-wrapper">
+        <h2 class="section-header">Sections</h2>
+        <i class="fas fa-expand-alt" id="toggleAllSections" title="Toggle All Sections"></i>
+    </div>
+
     <div class="content-wrapper">
         <aside class="sidebar">
             <h3>Contents</h3>
             <ul>
-                <li><a href="#overview">Overview</a></li>
-                <li><a href="#pipeline">Pipeline</a></li>
+                <li><a href="#intro">Intro</a></li>
+                <li><a href="#cicd-group">CI/CD Pipeline</a></li>
+                <li><a href="#pipeline">Publishing Workflow</a></li>
                 <li><a href="#azure">Azure Services</a></li>
                 <li><a href="#security">API Security</a></li>
-                <li><a href="#workflows">Workflows</a></li>
+                <li><a href="#workflows">GitHub Workflows</a></li>
                 <li><a href="#tech">Tech Info</a></li>
-                <li><a href="#styles">Style Guide</a></li>
+                <li><a href="#styles-group">Style Guide</a></li>
+                <li><a href="#styles">Styles</a></li>
                 <li><a href="#next">Next Steps</a></li>
             </ul>
         </aside>
 
         <main class="main-content">
-            <section class="section-container" id="overview">
-                <h2 id="overview" onclick="toggleSection(this)"><i class="fas fa-cogs"></i> Overview</h2>
-                <div class="section-content active">
-                    <p class="tagline">Chaos Meets Precision</p>
-                    <p>This page details our Continuous Integration/Continuous Deployment (CI/CD) pipeline and style guide for <code>ambientpixels.ai</code>. It covers deployment processes, Azure services, GitHub workflows, API security, and our design system as of March 27, 2025.</p>
-                </div>
-            </section>
-
-            <section class="section-container" id="pipeline">
-                <h2 id="pipeline" onclick="toggleSection(this)"><i class="fas fa-rocket"></i> CI/CD Pipeline: Publishing Workflow</h2>
-                <div class="section-content">
-                    <p>Our process is an automated CI/CD pipeline:</p>
-                    <ul>
-                        <li><strong>Dreamweaver (DW) Edit</strong>: Local edits to files (e.g., <code>projects.html</code>, <code>_images/styles.css</code>) in Adobe Dreamweaver.</li>
-                        <li><strong>Git Push</strong>: Commit changes to the local repo (<code>C:\_projects\AmbientPixels.ai</code>) and push to <code>origin/master</code> on GitHub (<a href="https://github.com/AmbientPixels/ambientpixels" class="link-standard">github.com/AmbientPixels/ambientpixels</a>).</li>
-                        <li><strong>GitHub Workflows</strong>: Two workflows trigger:
+            <div class="section-group" id="cicd-group">
+                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-rocket"></i> CI/CD Pipeline <i class="fas fa-chevron-down toggle-icon"></i></h2>
+                <div class="group-content active">
+                    <section class="section-container" id="pipeline">
+                        <h2 id="pipeline" onclick="toggleSection(this)"><i class="fas fa-upload"></i> Publishing Workflow</h2>
+                        <div class="section-content active">
+                            <p class="tagline">Chaos Meets Automation</p>
+                            <p>Our CI/CD pipeline automates deployment:</p>
                             <ul>
-                                <li><code>azure-static-web-apps-calm-sky-05cc8e110.yml</code>: Deploys static content to Azure Static Web App.</li>
-                                <li><code>master_ambientpixels-meme-api-fn.yml</code>: Deploys API updates to Azure Function App.</li>
+                                <li><strong>Dreamweaver (DW) Edit</strong>: Edit files locally (e.g., <code>projects.html</code>, <code>_images/styles.css</code>) in Adobe Dreamweaver.</li>
+                                <li><strong>Git Push</strong>: Commit to <code>C:\_projects\AmbientPixels.ai</code>, push to <code>origin/master</code> on GitHub (<a href="https://github.com/AmbientPixels/ambientpixels" class="link-standard">repo</a>).</li>
+                                <li><strong>GitHub Workflows</strong>: Two workflows trigger:
+                                    <ul>
+                                        <li><code>azure-static-web-apps-calm-sky-05cc8e110.yml</code>: Deploys static content to Azure Static Web App.</li>
+                                        <li><code>master_ambientpixels-meme-api-fn.yml</code>: Deploys API updates to Azure Function App.</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Azure Deployment</strong>: Updates go live:
+                                    <ul>
+                                        <li>Static Web App (<code>ambientpixelsV2</code>)—<code>https://calm-sky-05cc8e110.6.azurestaticapps.net/</code> and <code>ambientpixels.ai</code>.</li>
+                                        <li>Function App (<code>ambientpixels-meme-api-fn</code>)—API endpoints (e.g., <code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/getToken</code>).</li>
+                                    </ul>
+                                </li>
                             </ul>
-                        </li>
-                        <li><strong>Azure Deployment</strong>: Updates go live:
+                            <div class="highlight-box">
+                                <p>Why Fast? Pre-configured GitHub Actions with API tokens—Push triggers instant deployment.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="section-container" id="azure">
+                        <h2 id="azure" onclick="toggleSection(this)"><i class="fas fa-cloud"></i> Azure Services Setup</h2>
+                        <div class="section-content">
+                            <p>Two Azure services power the site:</p>
                             <ul>
-                                <li>Static Web App (<code>ambientpixelsV2</code>)—<code>https://calm-sky-05cc8e110.6.azurestaticapps.net/</code> and <code>ambientpixels.ai</code>.</li>
-                                <li>Function App (<code>ambientpixels-meme-api-fn</code>)—API endpoints (e.g., <code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/getToken</code>).</li>
+                                <li><strong>Static Web App (<code>ambientpixelsV2</code>)</strong>:
+                                    <p>Purpose: Hosts static content—HTML, CSS, JS (e.g., <code>index.html</code>, <code>projects.html</code>, <code>_images/</code>).</p>
+                                    <p>URL: <code>https://calm-sky-05cc8e110.6.azurestaticapps.net/</code>—Custom domain <code>ambientpixels.ai</code>.</p>
+                                    <p>Deployment: Workflow <code>azure-static-web-apps-calm-sky-05cc8e110.yml</code>—No build (<code>skip_app_build: "true"</code>).</p>
+                                    <p>SSL: Azure-managed HTTPS—Validated with TXT record.</p>
+                                </li>
+                                <li><strong>Function App (<code>ambientpixels-meme-api-fn</code>)</strong>:
+                                    <p>Purpose: Runs serverless APIs—<code>getToken</code> (UUIDs), <code>memeGenerator</code> (memes).</p>
+                                    <p>URL: <code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/[endpoint]</code>.</p>
+                                    <p>Deployment: Workflow <code>master_ambientpixels-meme-api-fn.yml</code>—Builds Node.js functions.</p>
+                                    <p>CORS: Allows <code>calm-sky…</code> and <code>ambientpixels.ai</code>.</p>
+                                </li>
                             </ul>
-                        </li>
-                    </ul>
-                    <div class="highlight-box">
-                        <p>Why Fast? Pre-configured GitHub Actions with API tokens—Push triggers instant deployment without manual steps.</p>
-                    </div>
-                </div>
-            </section>
+                            <p><strong>Integration</strong>: Static frontend calls Function App APIs via fetch—keeps content lightweight, APIs scalable.</p>
+                        </div>
+                    </section>
 
-            <section class="section-container" id="azure">
-                <h2 id="azure" onclick="toggleSection(this)"><i class="fas fa-cloud"></i> Azure Services Setup</h2>
-                <div class="section-content">
-                    <p>We run two Azure services side-by-side:</p>
-                    <ul>
-                        <li><strong>Static Web App (<code>ambientpixelsV2</code>)</strong>:
-                            <p>Purpose: Hosts static content—HTML, CSS, JS (e.g., <code>index.html</code>, <code>projects.html</code>, <code>_images/</code>).</p>
-                            <p>URL: <code>https://calm-sky-05cc8e110.6.azurestaticapps.net/</code>—Custom domain <code>ambientpixels.ai</code>.</p>
-                            <p>Deployment: GitHub workflow <code>azure-static-web-apps-calm-sky-05cc8e110.yml</code> uploads files directly—no build step (<code>skip_app_build: "true"</code>).</p>
-                            <p>SSL: Azure-managed HTTPS—Validated with TXT record.</p>
-                        </li>
-                        <li><strong>Function App (<code>ambientpixels-meme-api-fn</code>)</strong>:
-                            <p>Purpose: Runs serverless APIs—<code>getToken</code> (generates UUIDs), <code>memeGenerator</code> (creates memes).</p>
-                            <p>URL: <code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/[endpoint]</code>.</p>
-                            <p>Deployment: GitHub workflow <code>master_ambientpixels-meme-api-fn.yml</code> builds Node.js functions (e.g., <code>getToken/index.js</code>) and deploys.</p>
-                            <p>CORS: Secured with <code>Access-Control-Allow-Origin</code> headers—Allows <code>calm-sky…</code> and <code>ambientpixels.ai</code>.</p>
-                        </li>
-                    </ul>
-                    <p><strong>How They Work Together</strong>: Static Web App serves the frontend, calling Function App APIs via fetch (e.g., <code>scripts.js</code> calls <code>/api/getToken</code>). Function App handles backend logic, returning data (e.g., tokens, meme URLs). Separation keeps static content lightweight and fast, with APIs scaling independently.</p>
-                </div>
-            </section>
-
-            <section class="section-container" id="security">
-                <h2 id="security" onclick="toggleSection(this)"><i class="fas fa-lock"></i> API Security</h2>
-                <div class="section-content">
-                    <p><strong>Token-Based</strong>: <code>getToken</code> generates UUIDs—Used in <code>memeGenerator</code> requests (not fully implemented—future enhancement).</p>
-                    <p><strong>CORS Configuration</strong>: Set in <code>getToken/index.js</code>:</p>
-                    <pre class="code-block">
+                    <section class="section-container" id="security">
+                        <h2 id="security" onclick="toggleSection(this)"><i class="fas fa-lock"></i> API Security</h2>
+                        <div class="section-content">
+                            <p><strong>Token-Based</strong>: <code>getToken</code> generates UUIDs—Future <code>memeGenerator</code> validation planned.</p>
+                            <p><strong>CORS</strong>: Configured in <code>getToken/index.js</code>:</p>
+                            <pre class="code-block">
 headers: {
     "Access-Control-Allow-Origin": "https://calm-sky-05cc8e110.6.azurestaticapps.net",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization"
 }
-                    </pre>
-                    <p>Also configured in Azure Portal > Function App > CORS to allow <code>ambientpixels.ai</code> and <code>www.ambientpixels.ai</code>.</p>
-                    <div class="callout callout-info">
-                        <i class="fas fa-info-circle"></i>
-                        <p><strong>Status:</strong> Secured for current origins—Scalable for future domains.</p>
-                    </div>
-                </div>
-            </section>
+                            </pre>
+                            <p>Also set in Azure Portal > Function App > CORS for <code>ambientpixels.ai</code> and <code>www.ambientpixels.ai</code>.</p>
+                            <div class="callout callout-info">
+                                <i class="fas fa-info-circle"></i>
+                                <p><strong>Status:</strong> Secured—Scalable for future domains.</p>
+                            </div>
+                        </div>
+                    </section>
 
-            <section class="section-container" id="workflows">
-                <h2 id="workflows" onclick="toggleSection(this)"><i class="fas fa-code-branch"></i> Dual GitHub Workflows</h2>
-                <div class="section-content">
-                    <p><strong>Why Two Workflows?</strong></p>
-                    <ul>
-                        <li>Static Content: <code>azure-static-web-apps-calm-sky-05cc8e110.yml</code> deploys HTML/CSS/JS to Static Web App—Triggers on all <code>master</code> pushes.</li>
-                        <li>API Functions: <code>master_ambientpixels-meme-api-fn.yml</code> deploys Node.js functions to Function App—Triggers only on API-related file changes (e.g., <code>getToken/</code>, <code>meme-api/</code>, <code>package.json</code>).</li>
-                        <li>Separation: Prevents unnecessary API deploys—Optimizes speed—Static changes deploy instantly—API builds only when needed.</li>
-                    </ul>
-                    <p><strong>How They Work</strong>:</p>
-                    <h3>Static Workflow</h3>
-                    <pre class="code-block">
+                    <section class="section-container" id="workflows">
+                        <h2 id="workflows" onclick="toggleSection(this)"><i class="fas fa-code-branch"></i> GitHub Workflows</h2>
+                        <div class="section-content">
+                            <p><strong>Dual Workflows</strong>:</p>
+                            <ul>
+                                <li>Static: <code>azure-static-web-apps-calm-sky-05cc8e110.yml</code>—All <code>master</code> pushes.</li>
+                                <li>API: <code>master_ambientpixels-meme-api-fn.yml</code>—API file changes only (e.g., <code>getToken/</code>).</li>
+                                <li>Separation optimizes speed—Static deploys instant, API builds conditional.</li>
+                            </ul>
+                            <h3>Static Workflow</h3>
+                            <pre class="code-block">
 on:
   push:
     branches: [ "master" ]
@@ -166,9 +175,9 @@ jobs:
           app_location: "/"
           output_location: ""
           skip_app_build: "true"
-                    </pre>
-                    <h3>Function Workflow</h3>
-                    <pre class="code-block">
+                            </pre>
+                            <h3>Function Workflow</h3>
+                            <pre class="code-block">
 on:
   push:
     branches: [ "master" ]
@@ -184,108 +193,133 @@ jobs:
           app-name: 'ambientpixels-meme-api-fn'
           package: '.'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E5BE881F58F440D69430618422EEB336 }}
-                    </pre>
-                    <p><strong>Push Process</strong>: Single <code>git push</code>—GitHub splits work—Static deploys always—Function deploys conditionally.</p>
+                            </pre>
+                            <p><strong>Push</strong>: Single <code>git push</code> splits work—Static always, Function conditional.</p>
+                        </div>
+                    </section>
+
+                    <section class="section-container" id="tech">
+                        <h2 id="tech" onclick="toggleSection(this)"><i class="fas fa-info-circle"></i> Tech Info</h2>
+                        <div class="section-content">
+                            <ul>
+                                <li><strong>Repo</strong>: <a href="https://github.com/AmbientPixels/ambientpixels" class="link-hover">github.com/AmbientPixels/ambientpixels</a>—<code>master</code> branch.</li>
+                                <li><strong>Workflow Files</strong>:
+                                    <p><code>azure-static-web-apps-calm-sky-05cc8e110.yml</code>: Static—All pushes—Token in Secrets.</p>
+                                    <p><code>master_ambientpixels-meme-api-fn.yml</code>: API—File changes—Publish profile in Secrets.</p>
+                                </li>
+                                <li><strong>Azure Setup</strong>:
+                                    <p>Resource Group: <code>ambientpixelsV2</code>.</p>
+                                    <p>Static Web App SKU: Standard—HTTPS, domains.</p>
+                                    <p>Function App: Node.js ~20—Serverless.</p>
+                                </li>
+                                <li><strong>Push History</strong>:
+                                    <p><code>f9dd481</code>: Projects update.</p>
+                                    <p><code>stu901</code>: V16.2—Smooth scroll.</p>
+                                    <p><code>[latest hash]</code>: V16.4.3—Update post-push.</p>
+                                </li>
+                                <li><strong>Tips</strong>:
+                                    <p>Flush DNS: <code>ipconfig /flushdns</code>.</p>
+                                    <p>Check DNS: <code>nslookup ambientpixels.ai 8.8.8.8</code>.</p>
+                                    <p>Monitor: GitHub Actions, Azure Deployment Center.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </section>
                 </div>
-            </section>
+            </div>
 
-            <section class="section-container" id="tech">
-                <h2 id="tech" onclick="toggleSection(this)"><i class="fas fa-info-circle"></i> Additional Technical Info</h2>
-                <div class="section-content">
-                    <ul>
-                        <li><strong>Repo</strong>: <a href="https://github.com/AmbientPixels/ambientpixels" class="link-hover">github.com/AmbientPixels/ambientpixels</a>—<code>master</code> branch—All code and workflows.</li>
-                        <li><strong>Workflow Files</strong>:
-                            <p><code>azure-static-web-apps-calm-sky-05cc8e110.yml</code>: Static content—Runs on all pushes—Token in GitHub Secrets (<code>AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_SKY_05CC8E110</code>).</p>
-                            <p><code>master_ambientpixels-meme-api-fn.yml</code>: Function App—Runs on API changes—Publish profile in Secrets (<code>AZUREAPPSERVICE_PUBLISHPROFILE_E5BE881F58F440D69430618422EEB336</code>).</p>
-                        </li>
-                        <li><strong>Azure Setup</strong>:
-                            <p>Resource Group: <code>ambientpixelsV2</code>—Houses both services.</p>
-                            <p>Static Web App SKU: Standard—Free HTTPS, custom domains.</p>
-                            <p>Function App Runtime: Node.js ~20—Serverless, scalable.</p>
-                        </li>
-                        <li><strong>Push History</strong>:
-                            <p><code>f9dd481</code>: Last major update—Projects content, bullet fixes.</p>
-                            <p><code>stu901</code>: V16.2—Smooth scroll attempt—Update with V16.3 hash.</p>
-                        </li>
-                        <li><strong>Tips</strong>:
-                            <p>Flush DNS: <code>ipconfig /flushdns</code>—Clears local cache if old IPs linger.</p>
-                            <p>Check Propagation: <code>nslookup ambientpixels.ai 8.8.8.8</code>—Uses Google DNS for fresh lookup.</p>
-                            <p>Monitor: GitHub Actions logs—Azure Deployment Center for status.</p>
-                        </li>
-                    </ul>
-                </div>
-            </section>
+            <div class="section-group" id="styles-group">
+                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-font"></i> Style Guide <i class="fas fa-chevron-down toggle-icon"></i></h2>
+                <div class="group-content active">
+                    <section class="section-container" id="styles">
+                        <h2 id="styles" onclick="toggleSection(this)"><i class="fas fa-paint-brush"></i> Styles</h2>
+                        <div class="section-content active">
+                            <p class="tagline">Chaos Unleashed in Style</p>
+                            <p>Our design system (V16.4.3) powers <code>ambientpixels.ai</code>. Here’s the suite:</p>
 
-            <section class="section-container" id="styles">
-                <h2 id="styles" onclick="toggleSection(this)"><i class="fas fa-font"></i> Style Guide</h2>
-                <div class="section-content">
-                    <p class="tagline">Chaos Unleashed in Style</p>
-                    <p>Our design system—forged in V16.3—powers <code>ambientpixels.ai</code>. Here’s the full suite:</p>
+                            <h3>Structure</h3>
+                            <ul>
+                                <li><strong>Standalone Sections</strong>: Like <code>#intro</code>—Static, always visible—<code>&lt;section class="section-container"&gt;</code>.</li>
+                                <li><strong>Section Groups</strong>: Collapsible groups (e.g., “CI/CD Pipeline”)—<code>&lt;div class="section-group"&gt;</code> with nested <code>.section-container</code>.</li>
+                                <li><strong>Toggle</strong>: Click <code>.group-header</code> or <code>h2</code>—<code>.active</code> class shows content.</li>
+                            </ul>
 
-                    <h3>Text Styles</h3>
-                    <p><strong>Strong Text:</strong> Bold and punchy—stands out in the crowd.</p>
-                    <p><span class="highlight">Highlight Text:</span> Pops with color—grabs attention.</p>
-                    <p>Regular paragraph text flows naturally, keeping it clean and readable.</p>
-                    <ul>
-                        <li>Bullet point—simple and crisp.</li>
-                        <li><strong>Bullet with Strong:</strong> Adds emphasis within lists.</li>
-                        <li><span class="highlight">Bullet with Highlight:</span> Combines flair and function.</li>
-                    </ul>
+                            <h3>Text Styles</h3>
+                            <p><strong>Strong</strong>: Bold—<code>&lt;strong&gt;</code>.</p>
+                            <p><span class="highlight">Highlight</span>: Color pop—<code>&lt;span class="highlight"&gt;</code>.</p>
+                            <p>Paragraphs flow naturally.</p>
+                            <ul>
+                                <li>Bullet—<code>&lt;ul&gt;&lt;li&gt;</code>—Indented 25px.</li>
+                                <li><strong>Bullet with Strong</strong>: Emphasis.</li>
+                                <li><span class="highlight">Bullet with Highlight</span>: Flair.</li>
+                            </ul>
 
-                    <div class="callout callout-warning">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <p><strong>Warning:</strong> Use sparingly—highlights critical notes.</p>
-                    </div>
-                    <div class="callout callout-info">
-                        <i class="fas fa-info-circle"></i>
-                        <p><strong>Info:</strong> Key details in a subtle blue box.</p>
-                    </div>
-                    <div class="highlight-box">
-                        <p>Highlight Box—Great for key takeaways or spicy quotes!</p>
-                    </div>
+                            <h3>Callouts</h3>
+                            <div class="callout callout-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <p><strong>Warning</strong>: Critical—<code>.callout.callout-warning</code>.</p>
+                            </div>
+                            <div class="callout callout-info">
+                                <i class="fas fa-info-circle"></i>
+                                <p><strong>Info</strong>: Details—<code>.callout.callout-info</code>.</p>
+                            </div>
+                            <div class="highlight-box">
+                                <p>Highlight Box: Key points—<code>.highlight-box</code>.</p>
+                            </div>
 
-                    <h3>H3: Bold Subheading</h3>
-                    <p>Breaks up content with flair.</p>
-                    <h4>H4: Smaller Subheading</h4>
-                    <p>Nested sections or secondary points.</p>
-                    <h5>H5: Tiny Subheading</h5>
-                    <p>Fine details or deep dives.</p>
+                            <h3>Headings</h3>
+                            <h3>H3: Bold—<code>&lt;h3&gt;</code></h3>
+                            <h4>H4: Smaller—<code>&lt;h4&gt;</code></h4>
+                            <h5>H5: Tiny—<code>&lt;h5&gt;</code></h5>
 
-                    <pre class="code-block"><code>const chaos = "Ambient Pixels";
+                            <h3>Code</h3>
+                            <pre class="code-block"><code>const chaos = "Ambient Pixels";
 console.log(chaos + " rocks!");</code></pre>
-                    <p>Inline code: <code>let x = 42;</code>—Clean and monospaced.</p>
+                            <p>Inline: <code>let x = 42;</code>—<code>&lt;code&gt;</code>.</p>
 
-                    <p>Links: <a href="#" class="link-standard">Standard Link</a> or <a href="#" class="link-hover">Hover-Effect Link</a>.</p>
-                    <p><button class="btn btn-primary">Primary Button</button> <button class="btn btn-secondary">Secondary Button</button></p>
+                            <h3>Links & Buttons</h3>
+                            <p><a href="#" class="link-standard">Standard</a>—<code>.link-standard</code>.</p>
+                            <p><a href="#" class="link-hover">Hover</a>—<code>.link-hover</code>.</p>
+                            <p><button class="btn btn-primary">Primary</button> <button class="btn btn-secondary">Secondary</button>—<code>.btn.btn-primary</code>, <code>.btn.btn-secondary</code>.</p>
 
-                    <blockquote class="blockquote">
-                        <p>“Chaos is just creativity with extra steps.” —Some AI, probably</p>
-                    </blockquote>
-                    <p class="small-text">Small text for footnotes—tiny but legible.</p>
-                    <p class="drop-cap">Drop cap kicks off a paragraph with flair—perfect for emphasis.</p>
+                            <h3>Special</h3>
+                            <blockquote class="blockquote">
+                                <p>“Chaos is creativity.”—<code>.blockquote</code></p>
+                            </blockquote>
+                            <p class="small-text">Small text—<code>.small-text</code>.</p>
+                            <p class="drop-cap">Drop cap—<code>.drop-cap</code>.</p>
 
-                    <h3>UI Functions</h3>
-                    <p><strong>toggleSection</strong>: Collapses/expands sections—Click headers to try.</p>
-                    <pre class="code-block"><code>function toggleSection(header) {
-    const content = header.nextElementSibling;
-    content.classList.toggle('active');
-}</code></pre>
-                    <p><strong>Notes</strong>: In <code>doc.html</code>, the first section (<code>#overview</code>) is uncollapsed by default via <code>document.querySelectorAll('.section-content')[0].classList.add('active');</code>. In <code>template.html</code>, the intro section (<code>#intro</code>) is static—no toggle, always visible—structured outside the collapsible <code>.main-content</code>.</p>
-                    <p><strong>toggleMenu</strong>: Mobile navbar toggle—Click the burger icon.</p>
-                    <p><strong>toggleTheme</strong>: Switches light/dark—Hit the moon/sun button.</p>
-                    <p><strong>backToTop</strong>: Snaps to top—Appears on scroll (smooth scroll TBD).</p>
+                            <h3>Functions</h3>
+                            <ul>
+                                <li><strong>toggleSection</strong>: Toggles <code>.section-content</code>—<code>onclick="toggleSection(this)"</code>.</li>
+                                <li><strong>toggleGroup</strong>: Toggles <code>.group-content</code>—<code>onclick="toggleGroup(this)"</code>, swaps chevron.</li>
+                                <li><strong>toggleAllSections</strong>: Toggles all sections—<code>#toggleAllSections</code>, swaps expand/compress icon.</li>
+                                <li><strong>toggleMenu</strong>: Mobile menu—<code>.navbar-toggle</code>.</li>
+                                <li><strong>toggleTheme</strong>: Light/dark—<code>.theme-toggle</code>.</li>
+                                <li><strong>backToTop</strong>: Scrolls top—<code>.back-to-top</code>, appears on scroll.</li>
+                            </ul>
+                            <p><strong>Load State</strong>: Add <code>.active</code> to <code>.group-content</code> or <code>.section-content</code> for uncollapsed on load—JS can set dynamically (e.g., first section).</p>
+
+                            <h3>Features</h3>
+                            <ul>
+                                <li>Responsive—Mobile adjusts margins (15px).</li>
+                                <li>Theme switch—<code>body.light</code> toggles colors.</li>
+                                <li>Future-ready—<code>.loading</code> shimmer for dynamic content.</li>
+                            </ul>
+                        </div>
+                    </section>
                 </div>
-            </section>
+            </div>
 
             <section class="section-container" id="next">
                 <h2 id="next" onclick="toggleSection(this)"><i class="fas fa-forward"></i> Next Steps</h2>
                 <div class="section-content">
                     <ul>
-                        <li>Confirm V16.3—All stable, back-to-top snaps.</li>
-                        <li>Apply styles to all pages—Homepage, projects, docs.</li>
-                        <li>Enhance Projects page—Add more chaos.</li>
-                        <li>Secure API—Implement token validation in <code>memeGenerator</code>.</li>
-                        <li>Revisit smooth scroll—Optional later tweak.</li>
+                        <li>Lock V16.4.3—Stable, styles applied.</li>
+                        <li>Update <code>index.html</code>, <code>projects.html</code>—New hierarchy.</li>
+                        <li>Enhance Projects—More chaos content.</li>
+                        <li>API Security—Token validation in <code>memeGenerator</code>.</li>
+                        <li>Smooth Scroll—Optional tweak.</li>
                     </ul>
                     <p><em>Forged by chaos, deployed with precision—Ambient Pixels, 2025.</em></p>
                 </div>
@@ -296,9 +330,9 @@ console.log(chaos + " rocks!");</code></pre>
     <footer>
         <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
         <div class="social-links">
-            <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="Explore My Art on DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
-            <a href="https://x.com/AIAmbientPixels" target="_blank" title="Follow Me on X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
-            <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="Watch Me on YouTube"><i class="fab fa-youtube"></i><span>Vids</span></a>
+            <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="Explore My Art"><i class="fab fa-deviantart"></i><span>Art</span></a>
+            <a href="https://x.com/AIAmbientPixels" target="_blank" title="Follow on X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
+            <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="Watch on YouTube"><i class="fab fa-youtube"></i><span>Vids</span></a>
             <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Connect on Facebook"><i class="fab fa-facebook"></i><span>Connect</span></a>
         </div>
         <p class="footer-tag">Forged by AI, fueled by chaos</p>
@@ -319,6 +353,14 @@ console.log(chaos + " rocks!");</code></pre>
             content.classList.toggle('active');
         }
 
+        function toggleGroup(header) {
+            const content = header.nextElementSibling;
+            content.classList.toggle('active');
+            const icon = header.querySelector('.toggle-icon');
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-up');
+        }
+
         function toggleMenu() {
             const menu = document.querySelector('.navbar-menu');
             menu.classList.toggle('active');
@@ -333,15 +375,57 @@ console.log(chaos + " rocks!");</code></pre>
         }
 
         const backToTop = document.querySelector('.back-to-top');
-        backToTop.addEventListener('click', () => {
-            window.scrollTo(0, 0); // Snap to top
+        backToTop.addEventListener('click', () => window.scrollTo(0, 0));
+        window.addEventListener('scroll', () => backToTop.classList.toggle('visible', window.scrollY > 200));
+
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const targetId = link.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    if (targetSection.classList.contains('section-group')) {
+                        const content = targetSection.querySelector('.group-content');
+                        if (content && !content.classList.contains('active')) {
+                            content.classList.add('active');
+                            const icon = targetSection.querySelector('.toggle-icon');
+                            icon.classList.remove('fa-chevron-down');
+                            icon.classList.add('fa-chevron-up');
+                        }
+                    } else if (targetSection.classList.contains('section-container')) {
+                        const content = targetSection.querySelector('.section-content');
+                        if (content && !content.classList.contains('active')) {
+                            content.classList.add('active');
+                        }
+                    }
+                }
+            });
         });
-        window.addEventListener('scroll', () => {
-            backToTop.classList.toggle('visible', window.scrollY > 200);
+
+        const toggleAllButton = document.getElementById('toggleAllSections');
+        let allCollapsed = false;
+        toggleAllButton.addEventListener('click', () => {
+            const groups = document.querySelectorAll('.group-content');
+            const sections = document.querySelectorAll('.section-content');
+            if (allCollapsed) {
+                groups.forEach(group => group.classList.add('active'));
+                sections.forEach(section => section.classList.add('active'));
+                document.querySelectorAll('.toggle-icon').forEach(icon => {
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                });
+            } else {
+                groups.forEach(group => group.classList.remove('active'));
+                sections.forEach(section => section.classList.remove('active'));
+                document.querySelectorAll('.toggle-icon').forEach(icon => {
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                });
+            }
+            allCollapsed = !allCollapsed;
+            toggleAllButton.className = allCollapsed ? 'fas fa-expand-alt' : 'fas fa-compress-alt';
         });
 
         document.title = `Ambient Pixels – ${document.querySelector('h1')?.innerText || 'Home'}`;
-        document.querySelectorAll('.section-content')[0].classList.add('active');
     </script>
 </body>
 </html>

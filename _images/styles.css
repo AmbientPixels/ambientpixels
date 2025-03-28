@@ -483,7 +483,7 @@ body.light .section-container {
 }
 
 #intro {
-    margin-bottom: 10px; /* Reduce gap below intro */
+    margin-bottom: 5px; /* Tighter gap below intro */
 }
 
 .section-container h2 {
@@ -521,12 +521,12 @@ body.light .section-container h2:hover {
 /* Text Styles */
 ul {
     list-style-type: disc;
-    margin: 0 0 20px 20px;
+    margin: 0 0 20px 25px; /* Standard left indent */
     padding: 0;
 }
 
 li {
-    margin-bottom: 12px;
+    margin: 0 0 12px 0; /* No extra left margin—handled by ul */
 }
 
 li strong {
@@ -1198,14 +1198,21 @@ body.light .meme-loading {
         width: 40px;
     }
 
-    .social-links {
-        gap: 15px;
-    }
+.social-links a {
+    color: var(--text-dark);
+    text-decoration: none;
+    font-size: 1.8em; /* Bigger icons */
+    transition: color 0.2s ease, transform 0.2s ease;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
 
-    .notify-form {
-        flex-direction: column;
-        align-items: center;
-    }
+body.light .social-links a {
+    color: var(--text-light);
+}
 
     .container,
     .preview-section {
