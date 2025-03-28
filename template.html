@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <title>Ambient Pixels - [Chaos Hub V16.4.3]</title>
+    <title>Ambient Pixels - [Chaos Hub v0.16.10-20250328]</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="_images/styles.css">
@@ -49,15 +49,15 @@
     </div>
 
     <div class="mini-hero">
-        <h1>[Chaos Hub V16.4.3]</h1>
+        <h1>[Chaos Hub v0.16.10-20250328]</h1>
     </div>
 
     <div class="breadcrumbs">
-        <p><a href="/">Home</a> > [Chaos Hub V16.4.3]</p>
+        <p><a href="/">Home</a> > [Chaos Hub v0.16.10-20250328]</p>
     </div>
 
     <section class="section-container" id="intro">
-        <h2 id="intro"><i class="fas fa-star"></i> Welcome to [Chaos Hub V16.4.3]</h2>
+        <h2 id="intro"><i class="fas fa-star"></i> Welcome to [Chaos Hub v0.16.10-20250328]</h2>
         <div>
             <p>This is the intro section—your gateway to the chaos! Dive into the wild world of Ambient Pixels, where creativity meets tech in a supernova of style.</p>
         </div>
@@ -159,12 +159,12 @@ console.log(chaos + " rocks!");</code></pre>
     </div>
 
     <footer>
-        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
+        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <span id="version-number">v0.16.10-20250328</span> | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
         <div class="social-links">
-            <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="Explore My Art on DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
-            <a href="https://x.com/AIAmbientPixels" target="_blank" title="Follow Me on X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
-            <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="Watch Me on YouTube"><i class="fab fa-youtube"></i><span>Vids</span></a>
-            <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Connect on Facebook"><i class="fab fa-facebook"></i><span>Connect</span></a>
+            <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
+            <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
+            <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube"></i><span>Vids</span></a>
+            <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook"></i><span>Connect</span></a>
         </div>
         <p class="footer-tag">Forged by AI, fueled by chaos</p>
     </footer>
@@ -178,89 +178,5 @@ console.log(chaos + " rocks!");</code></pre>
 
     <script src="_images/scripts.js" defer></script>
     <script src="_images/modal-window.js" defer></script>
-    <script>
-        function toggleSection(header) {
-            const content = header.nextElementSibling;
-            content.classList.toggle('active');
-        }
-
-        function toggleGroup(header) {
-            const content = header.nextElementSibling;
-            content.classList.toggle('active');
-            const icon = header.querySelector('.toggle-icon');
-            icon.classList.toggle('fa-chevron-down');
-            icon.classList.toggle('fa-chevron-up');
-        }
-
-        function toggleMenu() {
-            const menu = document.querySelector('.navbar-menu');
-            menu.classList.toggle('active');
-            document.body.classList.toggle('menu-open');
-        }
-
-        function toggleTheme() {
-            document.body.classList.toggle('light');
-            const icon = document.querySelector('.theme-toggle i');
-            icon.classList.toggle('fa-moon');
-            icon.classList.toggle('fa-sun');
-        }
-
-        const backToTop = document.querySelector('.back-to-top');
-        backToTop.addEventListener('click', () => {
-            window.scrollTo(0, 0); // Snap to top
-        });
-        window.addEventListener('scroll', () => {
-            backToTop.classList.toggle('visible', window.scrollY > 200);
-        });
-
-        document.querySelectorAll('.sidebar a').forEach(link => {
-            link.addEventListener('click', (e) => {
-                const targetId = link.getAttribute('href').substring(1);
-                const targetSection = document.getElementById(targetId);
-                if (targetSection) {
-                    if (targetSection.classList.contains('section-group')) {
-                        const content = targetSection.querySelector('.group-content');
-                        if (content && !content.classList.contains('active')) {
-                            content.classList.add('active');
-                            const icon = targetSection.querySelector('.toggle-icon');
-                            icon.classList.remove('fa-chevron-down');
-                            icon.classList.add('fa-chevron-up');
-                        }
-                    } else if (targetSection.classList.contains('section-container')) {
-                        const content = targetSection.querySelector('.section-content');
-                        if (content && !content.classList.contains('active')) {
-                            content.classList.add('active');
-                        }
-                    }
-                }
-            });
-        });
-
-        const toggleAllButton = document.getElementById('toggleAllSections');
-        let allCollapsed = false;
-        toggleAllButton.addEventListener('click', () => {
-            const groups = document.querySelectorAll('.group-content');
-            const sections = document.querySelectorAll('.section-content');
-            if (allCollapsed) {
-                groups.forEach(group => group.classList.add('active'));
-                sections.forEach(section => section.classList.add('active'));
-                document.querySelectorAll('.toggle-icon').forEach(icon => {
-                    icon.classList.remove('fa-chevron-down');
-                    icon.classList.add('fa-chevron-up');
-                });
-            } else {
-                groups.forEach(group => group.classList.remove('active'));
-                sections.forEach(section => section.classList.remove('active'));
-                document.querySelectorAll('.toggle-icon').forEach(icon => {
-                    icon.classList.remove('fa-chevron-up');
-                    icon.classList.add('fa-chevron-down');
-                });
-            }
-            allCollapsed = !allCollapsed;
-            toggleAllButton.className = allCollapsed ? 'fas fa-expand-alt' : 'fas fa-compress-alt';
-        });
-
-        document.title = `Ambient Pixels – ${document.querySelector('h1')?.innerText || 'Home'}`;
-    </script>
 </body>
 </html>

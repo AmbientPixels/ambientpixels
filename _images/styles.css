@@ -1,5 +1,5 @@
 @charset "utf-8";
-/* CSS Document - Ambient Pixels v0.16.7-20250328 - March 28, 2025 */
+/* CSS Document - Ambient Pixels v0.16.10-20250328 - March 28, 2025 */
 
 :root {
     --bg-dark: #1A1F21;
@@ -310,7 +310,7 @@ body.light .navbar-toggle:hover {
 
 /* Content Sections */
 .container {
-    max-width: 800px;
+    max-width: 1000px; /* Aligned with section-container */
     margin: 40px auto;
     padding: 20px;
     background: var(--card-dark);
@@ -446,8 +446,9 @@ body.light .sidebar a:hover {
 
 .group-header {
     cursor: pointer;
-    margin: 0 20px;
-    padding: 10px 15px;
+    max-width: 1000px; /* Aligned with section-container */
+    margin: 0 auto 20px; /* Aligned margins */
+    padding: 10px 20px; /* Match section-container padding */
     background: var(--card-dark);
     border-radius: 4px;
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -1284,25 +1285,21 @@ body.light .meme-loading {
         align-items: center;
     }
 
-    .container,
-    .preview-section {
+    .container {
         max-width: none;
-        margin-left: 15px;
-        margin-right: 15px;
+        margin: 40px 15px; /* Aligned margins for small screens */
     }
 
     .mini-hero {
         max-width: none;
-        margin-left: 15px;
-        margin-right: 15px;
+        margin: 60px 15px 20px;
         padding: 0 15px;
     }
 
     .content-wrapper {
         flex-direction: column;
         max-width: none;
-        margin-left: 15px;
-        margin-right: 15px;
+        margin: 0 15px 20px;
     }
 
     .sidebar {
@@ -1315,6 +1312,12 @@ body.light .meme-loading {
         padding: 0;
     }
 
+    .group-header {
+        max-width: none;
+        margin: 0 15px 20px; /* Aligned with section-container */
+        padding: 10px 15px; /* Match mobile section-container */
+    }
+
     .section-container {
         max-width: none;
         margin: 0 15px 30px; /* Spacing Boost on mobile */
@@ -1323,8 +1326,13 @@ body.light .meme-loading {
 
     .breadcrumbs {
         max-width: none;
-        margin-left: 15px;
-        margin-right: 15px;
+        margin: 20px 15px;
+        padding: 0 15px;
+    }
+
+    .section-header-wrapper {
+        max-width: none;
+        margin: 80px 15px 20px;
         padding: 0 15px;
     }
 

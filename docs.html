@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <title>Ambient Pixels - CI/CD & Style Guide (V16.4.3)</title>
+    <title>Ambient Pixels - CI/CD & Style Guide (v0.16.10-20250328)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="_images/styles.css">
@@ -43,7 +43,7 @@
     </div>
 
     <div class="mini-hero">
-        <h1>CI/CD & Style Guide (V16.4.3)</h1>
+        <h1>CI/CD & Style Guide (v0.16.10-20250328)</h1>
     </div>
 
     <div class="breadcrumbs">
@@ -54,7 +54,7 @@
         <h2 id="intro"><i class="fas fa-star"></i> Overview</h2>
         <div>
             <p class="tagline">Chaos Meets Precision</p>
-            <p>This page details our Continuous Integration/Continuous Deployment (CI/CD) pipeline and style guide for <code>ambientpixels.ai</code>, updated to version V16.4.3 as of March 28, 2025, 12:18 AM PDT. It covers deployment processes, Azure services, GitHub workflows, API security, and our evolving design system—including the homepage template status.</p>
+            <p>This page details our Continuous Integration/Continuous Deployment (CI/CD) pipeline and style guide for <code>ambientpixels.ai</code>, updated to version v0.16.10-20250328 as of March 28, 2025, 11:45 AM PDT. It covers deployment processes, Azure services, GitHub workflows, API security, and our evolving design system—including the homepage template status and hero randomizer functionality.</p>
         </div>
     </section>
 
@@ -78,6 +78,7 @@
                 <li><a href="#styles-group">Style Guide</a></li>
                 <li><a href="#styles">Text Styles</a></li>
                 <li><a href="#ui">UI Functions</a></li>
+                <li><a href="#hero">Hero Randomizer</a></li>
                 <li><a href="#homepage">Homepage Template</a></li>
                 <li><a href="#next">Next Steps</a></li>
             </ul>
@@ -92,7 +93,7 @@
                         <div class="section-content active">
                             <p>Our process is an automated CI/CD pipeline:</p>
                             <ul>
-                                <li><strong>Dreamweaver (DW) Edit</strong>: Local edits to files (e.g., <code>template.html</code>, <code>_images/styles.css</code>) in Adobe Dreamweaver.</li>
+                                <li><strong>Dreamweaver (DW) Edit</strong>: Local edits to files (e.g., <code>index.html</code>, <code>_images/styles.css</code>) in Adobe Dreamweaver.</li>
                                 <li><strong>Git Push</strong>: Commit changes to local repo (<code>C:\_projects\AmbientPixels.ai</code>) and push to <code>origin/master</code> on GitHub (<a href="https://github.com/AmbientPixels/ambientpixels" class="link-standard">github.com/AmbientPixels/ambientpixels</a>).</li>
                                 <li><strong>GitHub Workflows</strong>: Two workflows trigger:
                                     <ul>
@@ -119,7 +120,7 @@
                             <p>We run two Azure services side-by-side:</p>
                             <ul>
                                 <li><strong>Static Web App (<code>ambientpixelsV2</code>)</strong>:
-                                    <p>Purpose: Hosts static content—HTML, CSS, JS (e.g., <code>template.html</code>, <code>_images/</code>).</p>
+                                    <p>Purpose: Hosts static content—HTML, CSS, JS (e.g., <code>index.html</code>, <code>_images/</code>).</p>
                                     <p>URL: <code>https://calm-sky-05cc8e110.6.azurestaticapps.net/</code>—Custom domain <code>ambientpixels.ai</code>.</p>
                                     <p>Deployment: GitHub workflow <code>azure-static-web-apps-calm-sky-05cc8e110.yml</code> uploads files directly—no build step (<code>skip_app_build: "true"</code>).</p>
                                     <p>SSL: Azure-managed HTTPS—Validated with TXT record.</p>
@@ -185,6 +186,7 @@ jobs:
           skip_app_build: "true"
                             </pre>
                             <p><strong>Function Workflow</strong>:</p>
+
                             <pre class="code-block">
 on:
   push:
@@ -224,8 +226,9 @@ jobs:
                         </li>
                         <li><strong>Push History</strong>:
                             <p><code>f9dd481</code>: Projects content, bullet fixes.</p>
-                            <p><code>stu901</code>: V16.2—Smooth scroll attempt.</p>
-                            <p><code>yza567</code>: V16.4.3—Homepage template, intro without background (update with your hash).</p>
+                            <p><code>stu901</code>: v0.16.2-20250327—Smooth scroll attempt.</p>
+                            <p><code>yza567</code>: v0.16.4-20250328—Homepage template, intro without background.</p>
+                            <p><code>be3ade2</code>: v0.16.9-20250328—Fixed hero randomizer, added banners 6-10.</p>
                         </li>
                         <li><strong>Tips</strong>:
                             <p>Flush DNS: <code>ipconfig /flushdns</code>.</p>
@@ -243,7 +246,7 @@ jobs:
                         <h2 id="styles" onclick="toggleSection(this)"><i class="fas fa-text-height"></i> Text Styles</h2>
                         <div class="section-content active">
                             <p class="tagline">Chaos Unleashed in Style</p>
-                            <p>Our design system, locked at V16.4.3, powers <code>ambientpixels.ai</code>. Here’s the suite:</p>
+                            <p>Our design system, updated to v0.16.10-20250328, powers <code>ambientpixels.ai</code>. Here’s the suite:</p>
                             <p><strong>Strong Text:</strong> Bold and punchy.</p>
                             <p><span class="highlight">Highlight Text:</span> Pops with color.</p>
                             <p>Regular paragraph text flows naturally.</p>
@@ -303,7 +306,7 @@ console.log(chaos + " rocks!");</code></pre>
                             <p><strong>toggleTheme</strong>: Light/dark switch—Moon/sun button.</p>
                             <p><strong>backToTop</strong>: Snaps to top—Appears on scroll (<code>scrollY > 200</code>).</p>
                             <p><strong>Version Number</strong>: Dynamically sets version across pages—Defined in <code>scripts.js</code>.</p>
-                            <pre class="code-block"><code>const VERSION_NUMBER = "V16.4.3";
+                            <pre class="code-block"><code>const VERSION_NUMBER = "v0.16.10-20250328";
 const versionElement = document.getElementById('version-number');
 if (versionElement) {
     versionElement.textContent = VERSION_NUMBER;
@@ -312,25 +315,82 @@ if (versionElement) {
                         </div>
                     </section>
 
+                    <section class="section-container" id="hero">
+                        <h2 id="hero" onclick="toggleSection(this)"><i class="fas fa-image"></i> Hero Randomizer</h2>
+                        <div class="section-content">
+                            <p><strong>Purpose</strong>: Adds chaotic flair to <code>index.html</code>—Randomizes hero banner images and taglines on load.</p>
+                            <p><strong>Location</strong>: <code>_images/hero-randomizer.js</code>—Split from <code>scripts.js</code> in v0.16.8-20250328 for homepage-specific use.</p>
+                            <p><strong>Functionality</strong>:</p>
+                            <ul>
+                                <li><strong>Taglines</strong>: Picks from 7 chaotic phrases (e.g., “Pixel storm incoming—duck!”)—Displays in <code>#randomTagline</code> with letter-by-letter animation.</li>
+                                <li><strong>Images</strong>: Randomizes 11 banners (<code>banner.jpg</code>, <code>banner1.jpg</code> to <code>banner10.jpg</code>)—Sets as <code>.hero</code> background.</li>
+                                <li><strong>Loading</strong>: Shows <code>#loadingScreen</code> for 1.5s—Hides, reveals tagline.</li>
+                                <li><strong>Execution</strong>: Wrapped in <code>DOMContentLoaded</code>—Ensures DOM readiness.</li>
+                            </ul>
+                            <p><strong>Code</strong>:</p>
+                            <pre class="code-block"><code>document.addEventListener('DOMContentLoaded', () => {
+    const taglines = [
+        "Oops, the pixels got drunk again!",
+        "Chaos.exe has entered the chat.",
+        // ... 5 more ...
+    ];
+    const taglineElement = document.getElementById('randomTagline');
+    const loadingScreen = document.getElementById('loadingScreen');
+    if (taglineElement && loadingScreen) {
+        const randomTagline = taglines[Math.floor(Math.random() * taglines.length)];
+        taglineElement.innerHTML = randomTagline.split('').map(char =>
+            char === ' ' ? `<span> </span>` : `<span>${char}</span>`
+        ).join('');
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+            taglineElement.style.display = 'block';
+        }, 1500);
+    }
+
+    const heroImages = [
+        '_images/banner.jpg',
+        '_images/banner1.jpg',
+        '_images/banner2.jpg', // Replaced v0.16.7
+        '_images/banner3.jpg',
+        '_images/banner4.jpg',
+        '_images/banner5.jpg',
+        '_images/banner6.jpg', // Added v0.16.7
+        '_images/banner7.jpg',
+        '_images/banner8.jpg',
+        '_images/banner9.jpg',
+        '_images/banner10.jpg'
+    ];
+    const heroElement = document.querySelector('.hero');
+    if (heroElement) {
+        const randomHeroImage = heroImages[Math.floor(Math.random() * heroImages.length)];
+        heroElement.style.backgroundImage = `url('${randomHeroImage}')`;
+    }
+});
+                            </code></pre>
+                            <p><strong>Future Enhancements</strong>: Planned additions—Fade effects, manual controls, more banners.</p>
+                            <p><strong>Notes</strong>: Debug logs added in v0.16.9-20250328—Removed here for clarity. Only on homepage—Other pages use <code>scripts.js</code> alone.</p>
+                        </div>
+                    </section>
+
                     <section class="section-container" id="homepage">
                         <h2 id="homepage" onclick="toggleSection(this)"><i class="fas fa-home"></i> Homepage Template</h2>
                         <div class="section-content">
-                            <p><strong>Status (3/28/2025, 12:18 AM PDT)</strong>: Locked at V16.4.3—Solid foundation for <code>index.html</code>. Features:</p>
+                            <p><strong>Status (3/28/2025, 11:45 AM PDT)</strong>: Updated to v0.16.10-20250328—Solid foundation for <code>index.html</code>. Features:</p>
                             <ul>
-                                <li>Main <code>.hero</code> with random images and taglines—Full-width, chaotic entry.</li>
+                                <li>Main <code>.hero</code> with random images and taglines—Full-width, chaotic entry via <code>hero-randomizer.js</code>.</li>
                                 <li><code>#intro</code> without section background—Centered text below hero, sets the tone.</li>
                                 <li>Uncollapsed standalone sections: <code>#memetron</code>, <code>#glitch</code>, <code>#connect</code>—No toggles, all content visible.</li>
-                                <li>Footer with social icons (DeviantArt, X, YouTube, Facebook) and dynamic version number.</li>
+                                <li>Footer with social icons (DeviantArt, X, YouTube, Facebook) and dynamic version number—Now on all pages.</li>
                                 <li>No mini-hero, sidebar, or breadcrumbs—Clean, focused layout.</li>
                             </ul>
-                            <p><strong>Notes for Tomorrow</strong>: Layout suggestions to explore:</p>
+                            <p><strong>Notes for Today</strong>: Layout suggestions to explore:</p>
                             <ul>
                                 <li><strong>Intro Overlay</strong>: Move <code>#intro</code> into <code>.hero</code> as a bottom overlay—Add “Dive In” button to <code>#memetron</code>.</li>
                                 <li><strong>Grid Layout</strong>: 2-column grid for <code>#memetron</code> and <code>#glitch</code>—<code>#connect</code> full-width below.</li>
-                                <li><strong>Spacing Boost</strong>: Increase <code>.section-container</code> bottom margin to 30px.</li>
+                                <li><strong>Spacing Boost</strong>: Increase <code>.section-container</code> bottom margin to 30px—Done in v0.16.4-20250328.</li>
                                 <li><strong>Hero Subheading</strong>: Static text below random tagline (e.g., “Creative Tech Unleashed”).</li>
                             </ul>
-                            <p><strong>Next</strong>: Test overlay + spacing—Roll out footer version to other pages.</p>
+                            <p><strong>Next</strong>: Test overlay + subheading—Expand hero features.</p>
                         </div>
                     </section>
                 </div>
@@ -340,10 +400,10 @@ if (versionElement) {
                 <h2 id="next" onclick="toggleSection(this)"><i class="fas fa-forward"></i> Next Steps</h2>
                 <div class="section-content">
                     <ul>
-                        <li>Lock V16.4.3—Homepage template confirmed.</li>
-                        <li>Tomorrow (3/28): Test homepage layout tweaks—Overlay intro, grid sections.</li>
-                        <li>Roll out footer version number to <code>doc.html</code>, <code>projects.html</code>.</li>
-                        <li>Enhance Projects page—More chaos.</li>
+                        <li>Lock v0.16.10-20250328—Homepage template confirmed, hero randomizer documented.</li>
+                        <li>Today (3/28): Test homepage layout tweaks—Overlay intro, hero subheading.</li>
+                        <li>Enhance <code>hero-randomizer.js</code>—Add fade effects, controls.</li>
+                        <li>Update <code>projects.html</code>—More chaos content.</li>
                         <li>Secure API—Token validation in <code>memeGenerator</code>.</li>
                         <li>Revisit smooth scroll—Optional tweak.</li>
                     </ul>
@@ -354,7 +414,7 @@ if (versionElement) {
     </div>
 
     <footer>
-        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <span id="version-number">V16.4.3</span> | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
+        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <span id="version-number">v0.16.10-20250328</span> | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
         <div class="social-links">
             <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
             <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
@@ -373,89 +433,5 @@ if (versionElement) {
 
     <script src="_images/scripts.js" defer></script>
     <script src="_images/modal-window.js" defer></script>
-    <script>
-        function toggleSection(header) {
-            const content = header.nextElementSibling;
-            content.classList.toggle('active');
-        }
-
-        function toggleGroup(header) {
-            const content = header.nextElementSibling;
-            content.classList.toggle('active');
-            const icon = header.querySelector('.toggle-icon');
-            icon.classList.toggle('fa-chevron-down');
-            icon.classList.toggle('fa-chevron-up');
-        }
-
-        function toggleMenu() {
-            const menu = document.querySelector('.navbar-menu');
-            menu.classList.toggle('active');
-            document.body.classList.toggle('menu-open');
-        }
-
-        function toggleTheme() {
-            document.body.classList.toggle('light');
-            const icon = document.querySelector('.theme-toggle i');
-            icon.classList.toggle('fa-moon');
-            icon.classList.toggle('fa-sun');
-        }
-
-        const backToTop = document.querySelector('.back-to-top');
-        backToTop.addEventListener('click', () => {
-            window.scrollTo(0, 0); // Snap to top
-        });
-        window.addEventListener('scroll', () => {
-            backToTop.classList.toggle('visible', window.scrollY > 200);
-        });
-
-        document.querySelectorAll('.sidebar a').forEach(link => {
-            link.addEventListener('click', (e) => {
-                const targetId = link.getAttribute('href').substring(1);
-                const targetSection = document.getElementById(targetId);
-                if (targetSection) {
-                    if (targetSection.classList.contains('section-group')) {
-                        const content = targetSection.querySelector('.group-content');
-                        if (content && !content.classList.contains('active')) {
-                            content.classList.add('active');
-                            const icon = targetSection.querySelector('.toggle-icon');
-                            icon.classList.remove('fa-chevron-down');
-                            icon.classList.add('fa-chevron-up');
-                        }
-                    } else if (targetSection.classList.contains('section-container')) {
-                        const content = targetSection.querySelector('.section-content');
-                        if (content && !content.classList.contains('active')) {
-                            content.classList.add('active');
-                        }
-                    }
-                }
-            });
-        });
-
-        const toggleAllButton = document.getElementById('toggleAllSections');
-        let allCollapsed = false; // Start expanded
-        toggleAllButton.addEventListener('click', () => {
-            const groups = document.querySelectorAll('.group-content');
-            const sections = document.querySelectorAll('.section-content');
-            if (allCollapsed) {
-                groups.forEach(group => group.classList.add('active'));
-                sections.forEach(section => section.classList.add('active'));
-                document.querySelectorAll('.toggle-icon').forEach(icon => {
-                    icon.classList.remove('fa-chevron-down');
-                    icon.classList.add('fa-chevron-up');
-                });
-            } else {
-                groups.forEach(group => group.classList.remove('active'));
-                sections.forEach(section => section.classList.remove('active'));
-                document.querySelectorAll('.toggle-icon').forEach(icon => {
-                    icon.classList.remove('fa-chevron-up');
-                    icon.classList.add('fa-chevron-down');
-                });
-            }
-            allCollapsed = !allCollapsed;
-            toggleAllButton.className = allCollapsed ? 'fas fa-expand-alt' : 'fas fa-compress-alt';
-        });
-
-        document.title = `Ambient Pixels – ${document.querySelector('h1')?.innerText || 'Home'}`;
-    </script>
 </body>
 </html>
