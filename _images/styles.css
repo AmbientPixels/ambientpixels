@@ -287,6 +287,7 @@ body.light .breadcrumbs a:hover { color: var(--accent-light); }
     display: flex;
     gap: 20px;
     min-height: 100vh;
+    position: relative; /* Anchor #toggleAllSections */
 }
 .sidebar {
     width: 180px;
@@ -526,7 +527,6 @@ body.light .preview-section {
     border: 1px solid rgba(0, 0, 0, 0.05);
 }
 .preview-section h2 {
-
     font-size: 1.8em;
     color: var(--accent-dark);
     margin-bottom: 15px;
@@ -1033,8 +1033,9 @@ body.light .section-container.loading {
     100% { background-position: 200px 0; }
 }
 #toggleAllSections {
-    float: right;
-    margin: 10px 20px 10px 0;
+    position: absolute;
+    top: 0;
+    right: 20px;
     font-size: 1.2em;
     color: var(--text-dark);
     cursor: pointer;
