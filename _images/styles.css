@@ -14,6 +14,9 @@
     --frosted-bg: rgba(37, 43, 45, 0.8);
     --frosted-bg-light: rgba(247, 249, 250, 0.8);
 }
+* {
+    box-sizing: border-box; /* Ensures padding/margins don't break alignment */
+}
 body {
     font-family: 'Inter', sans-serif;
     margin: 0;
@@ -34,15 +37,17 @@ body.menu-open {
     position: fixed;
     top: 0;
     width: 100%;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
     background: var(--frosted-bg);
     backdrop-filter: blur(10px);
-    padding: 10px 20px; /* Aligned with content below */
+    padding: 10px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     z-index: 10;
     transition: background 0.3s;
-    box-sizing: border-box;
 }
 body.light .navbar {
     background: var(--frosted-bg-light);
@@ -77,7 +82,7 @@ body.light .navbar h1 {
     display: flex;
     gap: 12px;
     align-items: center;
-    margin-right: 15px;
+    margin-right: 0;
     flex-shrink: 0;
 }
 .navbar-menu a {
@@ -278,13 +283,12 @@ body.light .breadcrumbs a:hover { color: var(--accent-light); }
     margin: 20px auto;
     display: flex;
     gap: 20px;
-    /* No padding here—Moved to children */
 }
 .sidebar {
-    width: 180px; /* Fits within 1000px with gap and main-content */
+    width: 180px;
     flex-shrink: 0;
     background: var(--card-dark);
-    padding: 0 20px; /* Aligns with content edges */
+    padding: 20px; /* Matches section-container */
     border-radius: 4px;
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -292,7 +296,7 @@ body.light .sidebar {
     background: var(--card-light);
     border: 1px solid rgba(0, 0, 0, 0.05);
 }
-.sidebar h3 { margin-top: 15px; } /* Match section-container padding */
+.sidebar h3 { margin-top: 0; }
 .sidebar ul { margin-left: 15px; }
 .sidebar a { color: var(--text-dark); text-decoration: none; }
 body.light .sidebar a { color: var(--text-light); }
@@ -300,7 +304,7 @@ body.light .sidebar a { color: var(--text-light); }
 body.light .sidebar a:hover { color: var(--accent-light); }
 .main-content {
     flex-grow: 1;
-    padding: 0 20px; /* Aligns with content edges */
+    padding: 0; /* Sections handle padding */
 }
 .section-container {
     max-width: 1000px;
@@ -824,7 +828,8 @@ body.light .modal-content button:hover {
         display: block;
     }
     .navbar {
-        padding: 10px 15px; /* Mobile alignment */
+        max-width: none;
+        padding: 10px 15px;
     }
     .navbar h1 {
         font-size: 1.4em;
@@ -858,16 +863,16 @@ body.light .modal-content button:hover {
     }
     .sidebar {
         width: 100%;
-        padding: 0 15px;
+        padding: 15px; /* Reduced for mobile */
     }
     .main-content {
-        padding: 0 15px;
+        padding: 0;
     }
     .section-container {
         max-width: none;
         margin-left: 15px;
         margin-right: 15px;
-        padding: 15px;
+        padding: 15px; /* Reduced for mobile */
     }
     .breadcrumbs {
         max-width: none;
