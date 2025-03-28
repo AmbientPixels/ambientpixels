@@ -287,7 +287,7 @@ body.light .breadcrumbs a:hover { color: var(--accent-light); }
     display: flex;
     gap: 20px;
     min-height: 100vh;
-    position: relative; /* Anchor #toggleAllSections */
+    position: relative;
 }
 .sidebar {
     width: 180px;
@@ -315,6 +315,7 @@ body.light .sidebar a:hover { color: var(--accent-light); }
 .main-content {
     flex-grow: 1;
     padding: 0;
+    margin-top: 40px; /* Shift content down to clear #toggleAllSections */
 }
 .section-container {
     max-width: 1000px;
@@ -1034,7 +1035,7 @@ body.light .section-container.loading {
 }
 #toggleAllSections {
     position: absolute;
-    top: 0;
+    top: 10px; /* Slight offset from top */
     right: 20px;
     font-size: 1.2em;
     color: var(--text-dark);
