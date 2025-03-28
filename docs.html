@@ -205,7 +205,7 @@ jobs:
                         </li>
                         <li><strong>Push History</strong>:
                             <p><code>f9dd481</code>: Last major update—Projects content, bullet fixes.</p>
-                            <p><code>vwx012</code>: Standard bullet styles—Update with latest hash post-V16.1.</p>
+                            <p><code>mno345</code>: V16.1—Sticky sidebar, social footer—Update with latest hash post-V16.2.</p>
                         </li>
                         <li><strong>Tips</strong>:
                             <p>Flush DNS: <code>ipconfig /flushdns</code>—Clears local cache if old IPs linger.</p>
@@ -220,7 +220,7 @@ jobs:
                 <h2 id="styles" onclick="toggleSection(this)"><i class="fas fa-font"></i> Style Guide</h2>
                 <div class="section-content">
                     <p class="tagline">Chaos Unleashed in Style</p>
-                    <p>Our design system—forged in V16.1—powers <code>ambientpixels.ai</code>. Here’s the full suite:</p>
+                    <p>Our design system—forged in V16.2—powers <code>ambientpixels.ai</code>. Here’s the full suite:</p>
 
                     <h3>Text Styles</h3>
                     <p><strong>Strong Text:</strong> Bold and punchy—stands out in the crowd.</p>
@@ -280,7 +280,7 @@ console.log(chaos + " rocks!");</code></pre>
                 <h2 id="next" onclick="toggleSection(this)"><i class="fas fa-forward"></i> Next Steps</h2>
                 <div class="section-content">
                     <ul>
-                        <li>Confirm V16.1—Sticky sidebar, social footer.</li>
+                        <li>Confirm V16.2—Smooth back-to-top scroll.</li>
                         <li>Apply styles to all pages—Homepage, projects, docs.</li>
                         <li>Enhance Projects page—Add more chaos.</li>
                         <li>Secure API—Implement token validation in <code>memeGenerator</code>.</li>
@@ -331,10 +331,34 @@ console.log(chaos + " rocks!");</code></pre>
         }
 
         const backToTop = document.querySelector('.back-to-top');
-        backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        backToTop.addEventListener('click', () => {
+            console.log('Back to top clicked'); // Debug
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
         window.addEventListener('scroll', () => {
             backToTop.classList.toggle('visible', window.scrollY > 200);
         });
+
+        // Fallback for older browsers
+        if (!('scrollBehavior' in document.documentElement.style)) {
+            backToTop.addEventListener('click', () => {
+                console.log('Using fallback scroll'); // Debug
+                let start = window.scrollY;
+                let startTime = performance.now();
+                const duration = 500; // ms
+                function smoothScroll(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const ease = progress * (2 - progress); // Ease-in-out
+                    window.scrollTo(0, start * (1 - ease));
+                    if (progress < 1) requestAnimationFrame(smoothScroll);
+                }
+                requestAnimationFrame(smoothScroll);
+            });
+        }
 
         document.title = `Ambient Pixels – ${document.querySelector('h1')?.innerText || 'Home'}`;
         document.querySelectorAll('.section-content')[0].classList.add('active');

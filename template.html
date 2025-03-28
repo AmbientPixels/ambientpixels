@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <title>Ambient Pixels - [Chaos Hub V16.1]</title>
+    <title>Ambient Pixels - [Chaos Hub V16.2]</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="_images/styles.css">
@@ -49,15 +49,15 @@
     </div>
 
     <div class="mini-hero">
-        <h1>[Chaos Hub V16.1]</h1>
+        <h1>[Chaos Hub V16.2]</h1>
     </div>
 
     <div class="breadcrumbs">
-        <p><a href="/">Home</a> > [Chaos Hub V16.1]</p>
+        <p><a href="/">Home</a> > [Chaos Hub V16.2]</p>
     </div>
 
     <section class="section-container" id="intro">
-        <h2 id="intro"><i class="fas fa-star"></i> Welcome to [Chaos Hub V16.1]</h2>
+        <h2 id="intro"><i class="fas fa-star"></i> Welcome to [Chaos Hub V16.2]</h2>
         <div>
             <p>This is the intro section—your gateway to the chaos! Dive into the wild world of Ambient Pixels, where creativity meets tech in a supernova of style.</p>
         </div>
@@ -181,10 +181,34 @@ console.log(chaos + " rocks!");</code></pre>
         }
 
         const backToTop = document.querySelector('.back-to-top');
-        backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        backToTop.addEventListener('click', () => {
+            console.log('Back to top clicked'); // Debug
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
         window.addEventListener('scroll', () => {
             backToTop.classList.toggle('visible', window.scrollY > 200);
         });
+
+        // Fallback for older browsers
+        if (!('scrollBehavior' in document.documentElement.style)) {
+            backToTop.addEventListener('click', () => {
+                console.log('Using fallback scroll'); // Debug
+                let start = window.scrollY;
+                let startTime = performance.now();
+                const duration = 500; // ms
+                function smoothScroll(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const ease = progress * (2 - progress); // Ease-in-out
+                    window.scrollTo(0, start * (1 - ease));
+                    if (progress < 1) requestAnimationFrame(smoothScroll);
+                }
+                requestAnimationFrame(smoothScroll);
+            });
+        }
 
         document.title = `Ambient Pixels – ${document.querySelector('h1')?.innerText || 'Home'}`;
     </script>
