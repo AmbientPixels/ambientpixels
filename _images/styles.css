@@ -36,7 +36,7 @@ body.menu-open {
 .navbar {
     position: fixed;
     top: 0;
-    width: 100%; /* Full viewport, like footer */
+    width: 100%;
     background: var(--frosted-bg);
     backdrop-filter: blur(10px);
     padding: 10px 20px;
@@ -345,6 +345,7 @@ body.light .section-container h2:hover {
 .section-content.active {
     display: block;
 }
+
 ul {
     list-style-type: disc;
     margin: 0 0 20px 20px;
