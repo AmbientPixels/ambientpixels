@@ -1,5 +1,5 @@
 @charset "utf-8";
-/* CSS Document - Ambient Pixels v0.16.5-20250328 - March 28, 2025 */
+/* CSS Document - Ambient Pixels v0.16.7-20250328 - March 28, 2025 */
 
 :root {
     --bg-dark: #1A1F21;
@@ -828,7 +828,7 @@ body.light .btn-secondary:hover {
 .social-links a {
     color: var(--text-dark);
     text-decoration: none;
-    font-size: 1.4em; /* Reduced from 1.8em */
+    font-size: 1em; /* Reduced from 1.2em for #connect */
     transition: color 0.2s ease, transform 0.2s ease;
     padding: 6px;
     display: flex;
@@ -896,7 +896,7 @@ body.light footer a:hover {
 }
 
 footer .social-links a {
-    font-size: 1.8em; /* Reduced from 2.2em */
+    font-size: 1.2em; /* Reduced from 1.4em */
 }
 
 body.light footer .social-links a {
