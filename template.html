@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <title>Ambient Pixels - [Chaos Hub V15]</title>
+    <title>Ambient Pixels - [Chaos Hub V16]</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="_images/styles.css">
-    <meta name="description" content="Forged by AI, fueled by chaos. Ambient Pixels showcases AI-powered creative tools, art, and glitchy web wonders.">
+    <meta name="description" content="Explore the Ambient Pixels text style suite—callouts, headings, code, links, buttons, and more chaotic goodness!">
     <meta property="og:title" content="Ambient Pixels">
     <meta property="og:description" content="Chaos meets code. Glitchy, artsy, AI-fueled madness lives here.">
     <meta property="og:image" content="/_images/ambient-pixel-logo-rainbow.png">
@@ -49,15 +49,15 @@
     </div>
 
     <div class="mini-hero">
-        <h1>[Chaos Hub V15]</h1>
+        <h1>[Chaos Hub V16]</h1>
     </div>
 
     <div class="breadcrumbs">
-        <p><a href="/">Home</a> > [Chaos Hub V15]</p>
+        <p><a href="/">Home</a> > [Chaos Hub V16]</p>
     </div>
 
     <section class="section-container" id="intro">
-        <h2><i class="fas fa-star"></i> Welcome to [Chaos Hub V15]</h2>
+        <h2 id="intro"><i class="fas fa-star"></i> Welcome to [Chaos Hub V16]</h2>
         <div>
             <p>This is the intro section—your gateway to the chaos! Dive into the wild world of Ambient Pixels, where creativity meets tech in a supernova of style.</p>
         </div>
@@ -75,7 +75,7 @@
 
         <main class="main-content">
             <section class="section-container" id="styles">
-                <h2 onclick="toggleSection(this)"><i class="fas fa-font"></i> Text Styles Showcase</h2>
+                <h2 id="styles" onclick="toggleSection(this)"><i class="fas fa-font"></i> Text Styles Showcase</h2>
                 <div class="section-content">
                     <p class="tagline">Tagline Style: Chaos Unleashed</p>
                     <p><strong>Strong Text:</strong> Bold and punchy—stands out in the crowd.</p>
@@ -133,7 +133,7 @@ console.log(chaos + " rocks!");</code></pre>
             </section>
 
             <section class="section-container" id="section1">
-                <h2 onclick="toggleSection(this)"><i class="fas fa-info-circle"></i> [Section 1]</h2>
+                <h2 id="section1" onclick="toggleSection(this)"><i class="fas fa-info-circle"></i> [Section 1]</h2>
                 <div class="section-content">
                     <p>[Content goes here—Add your wild ideas!]</p>
                 </div>
@@ -173,6 +173,12 @@ console.log(chaos + " rocks!");</code></pre>
             icon.classList.toggle('fa-moon');
             icon.classList.toggle('fa-sun');
         }
+
+        const backToTop = document.querySelector('.back-to-top');
+        backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        window.addEventListener('scroll', () => {
+            backToTop.classList.toggle('visible', window.scrollY > 200);
+        });
 
         document.title = `Ambient Pixels – ${document.querySelector('h1')?.innerText || 'Home'}`;
     </script>
