@@ -73,19 +73,23 @@
             <h3>Contents</h3>
             <ul>
                 <li><a href="#intro">Intro</a></li>
-                <li><a href="#group1">Style Group</a></li>
-                <li><a href="#styles">Text Styles</a></li>
-                <li><a href="#section1">[Section 1]</a></li>
+                <li><a href="#text-styles-group">Text Styles</a></li>
+                <li><a href="#styles">Basic Styles</a></li>
+                <li><a href="#advanced-styles">Advanced Styles</a></li>
+                <li><a href="#extras-group">Extras</a></li>
+                <li><a href="#code">Code Snippets</a></li>
+                <li><a href="#quotes">Quotes</a></li>
+                <li><a href="#standalone">Standalone</a></li>
             </ul>
         </aside>
 
         <main class="main-content">
-            <div class="section-group" id="group1">
-                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-folder"></i> Style Group <i class="fas fa-chevron-down toggle-icon"></i></h2>
-                <div class="group-content">
+            <div class="section-group" id="text-styles-group">
+                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-font"></i> Text Styles <i class="fas fa-chevron-down toggle-icon"></i></h2>
+                <div class="group-content active">
                     <section class="section-container" id="styles">
-                        <h2 id="styles" onclick="toggleSection(this)"><i class="fas fa-font"></i> Text Styles Showcase</h2>
-                        <div class="section-content">
+                        <h2 id="styles" onclick="toggleSection(this)"><i class="fas fa-text-height"></i> Basic Styles</h2>
+                        <div class="section-content active">
                             <p class="tagline">Tagline Style: Chaos Unleashed</p>
                             <p><strong>Strong Text:</strong> Bold and punchy—stands out in the crowd.</p>
                             <p><span class="highlight">Highlight Text:</span> Pops with color—grabs attention.</p>
@@ -95,36 +99,45 @@
                                 <li><strong>Bullet with Strong:</strong> Adds emphasis within lists.</li>
                                 <li><span class="highlight">Bullet with Highlight:</span> Combines flair and function.</li>
                             </ul>
+                            <p><button class="btn btn-primary">Primary Button</button> <button class="btn btn-secondary">Secondary Button</button></p>
+                        </div>
+                    </section>
 
+                    <section class="section-container" id="advanced-styles">
+                        <h2 id="advanced-styles" onclick="toggleSection(this)"><i class="fas fa-paint-brush"></i> Advanced Styles</h2>
+                        <div class="section-content active">
                             <div class="callout callout-warning">
                                 <i class="fas fa-exclamation-triangle"></i>
                                 <p><strong>Warning:</strong> AI overload imminent—proceed with caution!</p>
                             </div>
-
                             <div class="callout callout-info">
                                 <i class="fas fa-info-circle"></i>
                                 <p><strong>Info:</strong> Ambient Pixels runs on pure chaos fuel.</p>
                             </div>
-
                             <div class="highlight-box">
                                 <p>This is a highlight box—great for key takeaways or spicy quotes!</p>
                             </div>
+                            <p>Check out our <a href="#" class="link-standard">standard link</a> or this <a href="#" class="link-hover">hover-effect link</a> for more chaos.</p>
+                        </div>
+                    </section>
+                </div>
+            </div>
 
-                            <h3>H3: Subheading—Bold and Clear</h3>
-                            <p>A subheading breaks up content—keeps the chaos organized!</p>
-                            <h4>H4: Smaller Subheading—Still Punchy</h4>
-                            <p>Perfect for nested sections or secondary points.</p>
-                            <h5>H5: Tiny Subheading—Subtle Yet Mighty</h5>
-                            <p>For fine details or deep dives.</p>
-
+            <div class="section-group" id="extras-group">
+                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-box-open"></i> Extras <i class="fas fa-chevron-down toggle-icon"></i></h2>
+                <div class="group-content">
+                    <section class="section-container" id="code">
+                        <h2 id="code" onclick="toggleSection(this)"><i class="fas fa-code"></i> Code Snippets</h2>
+                        <div class="section-content">
                             <pre class="code-block"><code>const chaos = "Ambient Pixels";
 console.log(chaos + " rocks!");</code></pre>
                             <p>Inline code: <code>let x = 42;</code>—Clean and monospaced.</p>
+                        </div>
+                    </section>
 
-                            <p>Check out our <a href="#" class="link-standard">standard link</a> or this <a href="#" class="link-hover">hover-effect link</a> for more chaos.</p>
-
-                            <p><button class="btn btn-primary">Primary Button</button> <button class="btn btn-secondary">Secondary Button</button></p>
-
+                    <section class="section-container" id="quotes">
+                        <h2 id="quotes" onclick="toggleSection(this)"><i class="fas fa-quote-left"></i> Quotes</h2>
+                        <div class="section-content">
                             <blockquote class="blockquote">
                                 <p>“Chaos is just creativity with extra steps.” —Some AI, probably</p>
                             </blockquote>
@@ -132,18 +145,11 @@ console.log(chaos + " rocks!");</code></pre>
                             <p class="drop-cap">Drop cap kicks off a paragraph with flair—perfect for storytelling or emphasis.</p>
                         </div>
                     </section>
-
-                    <section class="section-container" id="section1">
-                        <h2 id="section1" onclick="toggleSection(this)"><i class="fas fa-info-circle"></i> [Section 1]</h2>
-                        <div class="section-content">
-                            <p>[Content goes here—Add your wild ideas!]</p>
-                        </div>
-                    </section>
                 </div>
             </div>
 
-            <section class="section-container standalone" id="standalone1">
-                <h2 id="standalone1" onclick="toggleSection(this)"><i class="fas fa-cog"></i> Standalone Section</h2>
+            <section class="section-container standalone" id="standalone">
+                <h2 id="standalone" onclick="toggleSection(this)"><i class="fas fa-cog"></i> Standalone Section</h2>
                 <div class="section-content">
                     <p>This is a standalone section outside any group—pure chaos, no nesting!</p>
                 </div>
@@ -232,7 +238,7 @@ console.log(chaos + " rocks!");</code></pre>
 
         // Toggle all sections
         const toggleAllButton = document.getElementById('toggleAllSections');
-        let allCollapsed = true;
+        let allCollapsed = false; // Start expanded
         toggleAllButton.addEventListener('click', () => {
             const groups = document.querySelectorAll('.group-content');
             const sections = document.querySelectorAll('.section-content');
