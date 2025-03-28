@@ -1,7 +1,7 @@
-// JavaScript Document - Ambient Pixels V16.4.3 - March 28, 2025
+// JavaScript Document - Ambient Pixels v0.16.8-20250328 - March 28, 2025
 
 // Single point of truth for version number
-const VERSION_NUMBER = "v0.16.7-20250328";
+const VERSION_NUMBER = "v0.16.8-20250328";
 
 // Apply version number to all pages
 const versionElement = document.getElementById('version-number');
@@ -131,43 +131,6 @@ if (notifyForm) {
             alert('Error: ' + error);
         });
     });
-}
-
-// Hero taglines and images
-const taglines = [
-    "Oops, the pixels got drunk again!",
-    "Chaos.exe has entered the chat.",
-    "Art + Tech = Glorious Mess.",
-    "Pixel storm incoming—duck!",
-    "AI says: Beep boop, creativity overload!",
-    "Supernova vibes, no survivors.",
-    "When memes crash the mainframe."
-];
-const taglineElement = document.getElementById('randomTagline');
-const loadingScreen = document.getElementById('loadingScreen');
-if (taglineElement && loadingScreen) {
-    const randomTagline = taglines[Math.floor(Math.random() * taglines.length)];
-    taglineElement.innerHTML = randomTagline.split('').map(char =>
-        char === ' ' ? `<span> </span>` : `<span>${char}</span>`
-    ).join('');
-    setTimeout(() => {
-        loadingScreen.style.display = 'none';
-        taglineElement.style.display = 'block';
-    }, 1500);
-}
-
-const heroImages = [
-    '_images/banner.jpg',
-    '_images/banner1.jpg',
-    '_images/banner2.jpg',
-    '_images/banner3.jpg',
-    '_images/banner4.jpg',
-    '_images/banner5.jpg'
-];
-const heroElement = document.querySelector('.hero');
-if (heroElement) {
-    const randomHeroImage = heroImages[Math.floor(Math.random() * heroImages.length)];
-    heroElement.style.backgroundImage = `url('${randomHeroImage}')`;
 }
 
 // Memetron warnings
