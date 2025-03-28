@@ -30,6 +30,7 @@ setTimeout(() => {
     loadingScreen.style.display = 'none';
     taglineElement.style.display = 'block';
 }, 1500);
+
 // Random hero images
 const heroImages = [
     '_images/banner.jpg',
@@ -51,26 +52,6 @@ const memetronWarnings = [
     "Test run: AI’s meme skills are 50% dank, 50% derp!"
 ];
 document.getElementById('memetronWarning').textContent = memetronWarnings[Math.floor(Math.random() * memetronWarnings.length)];
-
-const comingSoonContent = [
-    { icon: '<i class="fas fa-bug"></i>', text: "AI debug mode: Page not found—yet!" },
-    { icon: '<i class="fas fa-skull"></i>', text: "This page terminated by rogue AI!" },
-    { icon: '<i class="fas fa-bomb"></i>', text: "AI blew up this section—rebuilding soon!" },
-    { icon: '<i class="fas fa-ghost"></i>', text: "Ghost in the machine ate this page!" },
-    { icon: '<i class="fas fa-poo"></i>', text: "AI took a dump, page coming later!" },
-    { icon: '<i class="fas fa-alien"></i>', text: "AI abducted this content—ETA unknown!" },
-    { icon: '<i class="fas fa-robot"></i>', text: "AI’s drunk on binary—page pending!" }
-];
-function showComingSoonModal(section) {
-    const randomContent = comingSoonContent[Math.floor(Math.random() * comingSoonContent.length)];
-    document.getElementById('comingSoonIcon').innerHTML = randomContent.icon;
-    document.getElementById('comingSoonText').textContent = `${section}: ${randomContent.text}`;
-    document.getElementById('comingSoonModal').style.display = 'flex';
-}
-
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-}
 
 document.getElementById('notifyForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -124,7 +105,7 @@ async function getAccessToken() {
 async function generateMeme() {
     const promptInput = document.getElementById('memePrompt');
     const defaultPrompt = 'A confused robot in a disco';
-    const prompt = promptInput && promptInput.value.trim() ? promptInput.value.trim() : defaultPrompt; // Ensure input or default
+    const prompt = promptInput && promptInput.value.trim() ? promptInput.value.trim() : defaultPrompt;
     const generateBtn = document.getElementById('memeGenerateBtn');
     const loadingDiv = document.getElementById('memeLoading');
     const memeImage = document.getElementById('memeImage');
