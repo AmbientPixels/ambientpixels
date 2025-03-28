@@ -1,5 +1,5 @@
 @charset "utf-8";
-/* CSS Document - Ambient Pixels v0.16.4-20250328 - March 28, 2025 */
+/* CSS Document - Ambient Pixels v0.16.5-20250328 - March 28, 2025 */
 
 :root {
     --bg-dark: #1A1F21;
@@ -486,7 +486,7 @@ body.light .group-header:hover {
 .section-container {
     max-width: 1000px;
     min-width: 0;
-    margin: 0 auto 30px; /* Spacing Boost: Updated from 20px to 30px */
+    margin: 0 auto 30px; /* Spacing Boost from v0.16.4-20250328 */
     padding: 20px;
     background: var(--card-dark);
     border-radius: 4px;
@@ -816,6 +816,124 @@ body.light .btn-secondary:hover {
     background: var(--accent-light);
 }
 
+/* Social Links */
+.social-links {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    flex-wrap: wrap;
+}
+
+.social-links a {
+    color: var(--text-dark);
+    text-decoration: none;
+    font-size: 1.4em; /* Reduced from 1.8em */
+    transition: color 0.2s ease, transform 0.2s ease;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+body.light .social-links a {
+    color: var(--text-light);
+}
+
+.social-links a:hover {
+    transform: scale(1.05);
+    text-decoration: none;
+}
+
+.social-links a:hover i {
+    color: var(--accent-dark);
+}
+
+body.light .social-links a:hover i {
+    color: var(--accent-light);
+}
+
+.social-links span {
+    font-size: 0.7em;
+    color: #B8C7CA;
+}
+
+body.light .social-links span {
+    color: #5A6A6F;
+}
+
+/* Footer */
+footer {
+    width: 100%;
+    background: var(--frosted-bg);
+    backdrop-filter: blur(10px);
+    padding: 15px;
+    font-size: 0.9em;
+    color: #B8C7CA;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    text-align: center;
+}
+
+body.light footer {
+    background: var(--frosted-bg-light);
+    color: #5A6A6F;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+footer a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+footer a:hover {
+    color: var(--accent-dark);
+}
+
+body.light footer a:hover {
+    color: var(--accent-light);
+}
+
+footer .social-links a {
+    font-size: 1.8em; /* Reduced from 2.2em */
+}
+
+body.light footer .social-links a {
+    color: var(--text-light);
+}
+
+footer .social-links a:hover i {
+    color: var(--accent-dark);
+}
+
+body.light footer .social-links a:hover i {
+    color: var(--accent-light);
+}
+
+.footer-tag {
+    font-size: 0.8em;
+    margin-top: 5px;
+    color: #B8C7CA;
+}
+
+body.light .footer-tag {
+    color: #5A6A6F;
+}
+
+.back-to-top {
+    margin-left: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+}
+
 /* Additional Styles */
 .blockquote {
     font-style: italic;
@@ -888,108 +1006,6 @@ body.light #toggleAllSections {
 
 body.light #toggleAllSections:hover {
     color: var(--accent-light);
-}
-
-/* Social Links */
-.social-links {
-    margin-top: 30px;
-    display: flex;
-    justify-content: center;
-    gap: 25px;
-    flex-wrap: wrap;
-}
-
-.social-links a {
-    color: var(--text-dark);
-    text-decoration: none;
-    font-size: 1.8em;
-    transition: color 0.2s ease, transform 0.2s ease;
-    padding: 6px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-}
-
-body.light .social-links a {
-    color: var(--text-light);
-}
-
-.social-links a:hover {
-    transform: scale(1.05);
-    text-decoration: none;
-}
-
-.social-links a:hover i {
-    color: var(--accent-dark);
-}
-
-body.light .social-links a:hover i {
-    color: var(--accent-light);
-}
-
-.social-links span {
-    font-size: 0.7em;
-    color: #B8C7CA;
-}
-
-body.light .social-links span {
-    color: #5A6A6F;
-}
-
-/* Footer */
-footer {
-    width: 100%;
-    background: var(--frosted-bg);
-    backdrop-filter: blur(10px);
-    padding: 15px;
-    font-size: 0.9em;
-    color: #B8C7CA;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    text-align: center;
-}
-
-body.light footer {
-    background: var(--frosted-bg-light);
-    color: #5A6A6F;
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-footer a {
-    color: inherit;
-    text-decoration: none;
-    transition: color 0.2s;
-}
-
-footer a:hover {
-    color: var(--accent-dark);
-}
-
-body.light footer a:hover {
-    color: var(--accent-light);
-}
-
-.footer-tag {
-    font-size: 0.8em;
-    margin-top: 5px;
-    color: #B8C7CA;
-}
-
-body.light .footer-tag {
-    color: #5A6A6F;
-}
-
-.back-to-top {
-    margin-left: 10px;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-.back-to-top.visible {
-    opacity: 1;
 }
 
 /* Modal */
