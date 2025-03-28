@@ -426,7 +426,8 @@ body.light .sidebar a:hover {
 
 .group-header {
     cursor: pointer;
-    margin: 0 20px;
+    max-width: 1000px; /* Match section-container */
+    margin: 0 auto 20px; /* Center and space below */
     padding: 10px 15px;
     background: var(--card-dark);
     border-radius: 4px;
@@ -466,7 +467,7 @@ body.light .group-header:hover {
 .section-container {
     max-width: 1000px;
     min-width: 0;
-    margin: 0 auto 20px;
+    margin: 0 auto 20px; /* Center all sections consistently */
     padding: 20px;
     background: var(--card-dark);
     border-radius: 4px;
@@ -1230,6 +1231,12 @@ body.light .meme-loading {
 
     .main-content {
         padding: 0;
+    }
+
+    .group-header {
+        max-width: none;
+        margin: 0 15px 20px;
+        padding: 10px 15px;
     }
 
     .section-container {
