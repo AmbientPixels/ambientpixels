@@ -1,5 +1,5 @@
 @charset "utf-8";
-/* Base CSS - Ambient Pixels v0.17.2-20250328 - March 28, 2025 */
+/* Base CSS - Ambient Pixels v0.17.3-20250328 - March 29, 2025, 9:25 AM PDT */
 
 :root {
     --bg-dark: #1A1F21;
@@ -43,4 +43,90 @@ body.light {
 
 body.menu-open {
     overflow-y: hidden;
+}
+
+/* Footer Icons */
+footer p i.fas {
+    font-size: 1rem;
+    color: var(--text-dark);
+    vertical-align: middle;
+    margin: 0 4px;
+}
+
+.footer-social a {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-dark);
+    font-size: 0.9rem;
+    margin: 0 8px;
+}
+
+.footer-social a i.fab {
+    font-size: 1.1rem;
+    margin-right: 4px;
+}
+
+.footer-social a:hover i.fab {
+    color: var(--accent-dark);
+    transform: scale(1.1);
+    transition: all 0.3s ease;
+}
+
+body.light footer p i.fas,
+body.light .footer-social a,
+body.light .footer-social a i.fab {
+    color: var(--text-light);
+}
+
+body.light .footer-social a:hover i.fab {
+    color: var(--accent-light);
+}
+
+/* Content Social Icons */
+.content-social a {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-dark);
+    font-size: 1rem;
+    margin: 0 12px;
+}
+
+.content-social a i.fab {
+    font-size: 1.5rem;
+    margin-right: 6px;
+}
+
+.content-social a:hover i.fab {
+    color: var(--accent-dark);
+    transform: scale(1.15);
+    transition: all 0.3s ease;
+}
+
+body.light .content-social a,
+body.light .content-social a i.fab {
+    color: var(--text-light);
+}
+
+body.light .content-social a:hover i.fab {
+    color: var(--accent-light);
+}
+
+/* Footer Links */
+footer p a {
+    color: var(--text-dark);
+    text-decoration: none;
+}
+
+body.light footer p a {
+    color: var(--text-light);
+}
+
+footer p a:hover {
+    color: var(--accent-dark);
+}
+
+body.light footer p a:hover {
+    color: var(--accent-light);
 }

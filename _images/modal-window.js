@@ -1,4 +1,5 @@
-// modal-window.js
+// modal-window.js - Ambient Pixels v0.17.3-20250328 - March 29, 2025, 10:45 AM PDT
+
 const comingSoonContent = [
     { icon: '<i class="fas fa-bug"></i>', text: "AI debug mode: Page not found—yet!" },
     { icon: '<i class="fas fa-skull"></i>', text: "This page terminated by rogue AI!" },
@@ -9,13 +10,41 @@ const comingSoonContent = [
     { icon: '<i class="fas fa-robot"></i>', text: "AI’s drunk on binary—page pending!" }
 ];
 
-function showComingSoonModal(section) {
-    const randomContent = comingSoonContent[Math.floor(Math.random() * comingSoonContent.length)];
-    document.getElementById('comingSoonIcon').innerHTML = randomContent.icon;
-    document.getElementById('comingSoonText').textContent = `${section}: ${randomContent.text}`;
-    document.getElementById('comingSoonModal').style.display = 'flex';
-}
+window.showComingSoonModal = function(section) {
+    console.log('showComingSoonModal called with:', section);
+    const modal = document.getElementById('comingSoonModal');
+    const iconElement = document.getElementById('comingSoonIcon');
+    const textElement = document.getElementById('comingSoonText');
+    
+    if (!modal || !iconElement || !textElement) {
+        console.error('Modal elements missing:', { modal, iconElement, textElement });
+        return;
+    }
 
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-}
+    const randomContent = comingSoonContent[Math.floor(Math.random() * comingSoonContent.length)];
+    iconElement.innerHTML = randomContent.icon;
+    textElement.textContent = `${section}: ${randomContent.text}`;
+    modal.classList.add('active');
+    console.log('Modal class set to active');
+};
+
+window.closeModal = function(modalId) {
+    console.log('closeModal called with:', modalId);
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('active');
+        console.log('Modal class removed');
+    } else {
+        console.error(`Modal with ID ${modalId} not found`);
+    }
+};
+
+document.addEventListener('click', (event) => {
+    const modal = document.getElementById('comingSoonModal');
+    if (modal && modal.classList.contains('active') && !event.target.closest('.modal-content')) {
+        console.log('Clicked outside—closing modal');
+        modal.classList.remove('active');
+    }
+});
+
+console.log('modal-window.js script loaded');

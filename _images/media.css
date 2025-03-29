@@ -1,113 +1,31 @@
 @charset "utf-8";
-/* Media Queries CSS - Ambient Pixels v0.17.2-20250328 - March 28, 2025 */
+/* Media Queries CSS - Ambient Pixels v0.17.3-20250328 - March 29, 2025, 9:25 AM PDT */
 
-@media (max-width: 768px) {
-    .navbar-menu {
-        display: none;
-        flex-direction: column;
-        position: absolute;
-        top: 50px;
-        right: 15px;
-        background: var(--frosted-bg);
-        backdrop-filter: blur(10px);
-        padding: 8px;
-        border-radius: 4px;
-        margin-right: 0;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        transition: opacity 0.3s;
-        opacity: 0;
+@media (max-width: 1200px) {
+    .grid-container {
+        grid-template-columns: repeat(4, 1fr);
     }
+    .grid-col-5, .grid-col-6 { grid-column: span 4; }
+}
 
-    .navbar-menu.active {
-        display: flex;
-        opacity: 1;
+@media (max-width: 900px) {
+    .grid-container {
+        grid-template-columns: repeat(3, 1fr);
     }
+    .grid-col-4, .grid-col-5, .grid-col-6 { grid-column: span 3; }
+}
 
-    .navbar-menu .dropdown-content {
-        position: static;
-        border: none;
-        padding: 5px 0;
+@media (max-width: 600px) {
+    .grid-container {
+        grid-template-columns: repeat(2, 1fr);
     }
+    .grid-col-3, .grid-col-4, .grid-col-5, .grid-col-6 { grid-column: span 2; }
+    .sidebar, .main-content { grid-column: span 2; }
+}
 
-    body.light .navbar-menu {
-        background: var(--frosted-bg-light);
-        border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .navbar-toggle {
-        display: block;
-    }
-
-    .navbar {
-        padding: 10px 15px;
-    }
-
-    .navbar h1 {
-        font-size: 1.4em;
-    }
-
-    .navbar-logo {
-        width: 40px;
-    }
-
-    .social-links {
-        gap: 15px;
-    }
-
-    .container {
-        max-width: none;
-        margin: 40px 15px;
-    }
-
-    .mini-hero {
-        max-width: none;
-        margin: 60px 15px 20px;
-        padding: 0 15px;
-    }
-
-    .content-wrapper {
-        flex-direction: column;
-        max-width: none;
-        margin: 0 15px 20px;
-        margin-bottom: 150px;
-    }
-
-    .sidebar {
-        width: 100%;
-        padding: 15px;
-        position: static;
-    }
-
-    .main-content {
+@media (max-width: 400px) {
+    .grid-container {
         grid-template-columns: 1fr;
     }
-
-    .section-group, .group-content, .section-standalone {
-        grid-column: 1 / -1;
-    }
-
-    .breadcrumbs {
-        max-width: none;
-        margin: 20px 15px;
-        padding: 0 15px;
-    }
-
-    .section-header-wrapper {
-        max-width: none;
-        margin: 80px 15px 20px;
-        padding: 0 15px;
-    }
-
-    .meme-container {
-        width: 250px;
-        height: 250px;
-    }
-
-    .meme-text {
-        font-size: 16px;
-    }
-
-    .meme-prompt-input {
-        width: 250px;
-    }
+    .grid-col-1, .grid-col-2, .grid-col-3, .grid-col-4, .grid-col-5, .grid-col-6 { grid-column: span 1; }
 }

@@ -1,5 +1,5 @@
 @charset "utf-8";
-/* Hero CSS - Ambient Pixels v0.17.2-20250328 - March 28, 2025 */
+/* Hero CSS - Ambient Pixels v0.17.3-20250328 - March 29, 2025, 9:25 AM PDT */
 
 .hero {
     position: relative;
@@ -22,7 +22,7 @@
 
 .hero-text {
     position: absolute;
-    top: 50%;
+    top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 2em;
@@ -37,6 +37,23 @@
     display: inline-block;
     opacity: 0;
     animation: aiGenerate 0.1s forwards;
+}
+
+.hero-subheading {
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.2em;
+    color: #B8C7CA;
+    z-index: 2;
+    font-weight: 400;
+    text-shadow: 0 0 3px var(--accent-dark);
+    display: none;
+}
+
+body.light .hero-subheading {
+    color: #5A6A6F;
 }
 
 @keyframes aiGenerate {

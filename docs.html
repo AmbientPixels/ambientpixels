@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <title>Ambient Pixels - [Chaos Hub <span id="version-number">v0.17.2-20250328</span>]</title>
+    <title>Ambient Pixels - CI/CD & Style Guide (<span class="version-number">v0.17.4-20250329</span>)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="_images/base.css">
@@ -15,11 +15,11 @@
     <link rel="stylesheet" href="_images/components.css">
     <link rel="stylesheet" href="_images/animations.css">
     <link rel="stylesheet" href="_images/media.css">
-    <meta name="description" content="Explore the Ambient Pixels text style suite—callouts, headings, code, links, buttons, and more chaotic goodness!">
-    <meta property="og:title" content="Ambient Pixels">
-    <meta property="og:description" content="Chaos meets code. Glitchy, artsy, AI-fueled madness lives here.">
+    <meta name="description" content="CI/CD and style guide for Ambient Pixels—chaos meets code.">
+    <meta property="og:title" content="Ambient Pixels - CI/CD & Style Guide">
+    <meta property="og:description" content="CI/CD and style guide for Ambient Pixels—chaos meets code.">
     <meta property="og:image" content="/_images/ambient-pixel-logo-rainbow.png">
-    <meta property="og:url" content="https://ambientpixels.ai">
+    <meta property="og:url" content="https://ambientpixels.ai/docs.html">
     <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
@@ -53,164 +53,222 @@
                     <a onclick="showComingSoonModal('Social')"><i class="fas fa-users"></i> Social Media</a>
                 </div>
             </div>
-            <button class="theme-toggle" onclick="toggleTheme()">
-                <i class="fas fa-moon"></i>
-            </button>
+            <i class="fas fa-moon theme-toggle" onclick="toggleTheme()"></i>
         </div>
-        <button class="navbar-toggle" onclick="toggleMenu()">
-            <i class="fas fa-bars"></i>
-        </button>
+        <i class="fas fa-bars navbar-toggle" onclick="toggleMenu()"></i>
     </div>
 
     <div class="mini-hero">
-        <h1>[Chaos Hub <span id="version-number">v0.17.2-20250328</span>]</h1>
+        <h1>CI/CD & Style Guide (<span class="version-number">v0.17.4-20250329</span>)</h1>
     </div>
 
     <div class="breadcrumbs">
-        <p><a href="/">Home</a> > [Chaos Hub <span id="version-number">v0.17.2-20250328</span>]</p>
+        <p><a href="/">Home</a> > CI/CD & Style Guide (<span class="version-number">v0.17.4-20250329</span>)</p>
     </div>
 
-    <section class="section-container" id="intro">
-        <h2 id="intro"><i class="fas fa-star"></i> Welcome to Chaos Hub</h2>
-        <div class="section-content active">
-            <p class="tagline">Unleash the Madness</p>
-            <p class="description">Dive into the wild world of Ambient Pixels—where <strong>chaos</strong> meets <span class="highlight">creativity</span> in a supernova of style. This page showcases every style in our CSS suite—use it to learn and build!</p>
-        </div>
-    </section>
-
-    <div class="section-header-wrapper">
-        <h2 class="section-header">Style Showcase</h2>
-        <i class="fas fa-expand-alt" id="toggleAllSections" title="Toggle All Sections"></i>
-    </div>
-
-    <div class="content-wrapper">
-        <aside class="sidebar">
+    <div class="grid-container">
+        <aside class="sidebar grid-col-2">
             <h3>Contents</h3>
             <ul>
-                <li><a href="#intro">Intro</a></li>
-                <li><a href="#theme-group">Theme</a></li>
-                <li><a href="#theme-switcher">Theme Switcher</a></li>
-                <li><a href="#text-group">Text Styles</a></li>
-                <li><a href="#text-basic">Basic Styles</a></li>
-                <li><a href="#text-advanced">Advanced Styles</a></li>
-                <li><a href="#extras-group">Extras</a></li>
-                <li><a href="#extras-code">Code Snippets</a></li>
-                <li><a href="#extras-quotes">Quotes</a></li>
-                <li><a href="#colors">Colors</a></li>
-                <li><a href="#loading">Loading States</a></li>
-                <li><a href="#icons">Icons</a></li>
-                <li><a href="#chaos">Chaos Mode</a></li>
+                <li><a href="#intro">Overview</a></li>
+                <li><a href="#pipeline-group">Pipeline</a></li>
+                <li><a href="#pipeline">CI/CD Workflow</a></li>
+                <li><a href="#azure">Azure Services</a></li>
+                <li><a href="#security">Security</a></li>
+                <li><a href="#tech">Tech Stack</a></li>
+                <li><a href="#scripts">Scripts</a></li>
+                <li><a href="#style-guide">Style Guide</a></li>
+                <li><a href="#history">Version History</a></li>
+                <li><a href="#troubleshooting">Troubleshooting</a></li>
+                <li><a href="#next">Next Steps</a></li>
             </ul>
         </aside>
 
-        <main class="main-content">
-            <div class="section-group" id="theme-group">
-                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-moon"></i> Theme <i class="fas fa-chevron-down toggle-icon"></i></h2>
-                <div class="group-content">
-                    <section class="section-container" id="theme-switcher">
-                        <h2 id="theme-switcher" onclick="toggleSection(this)"><i class="fas fa-moon"></i> Theme Switcher</h2>
+        <main class="main-content grid-col-4">
+            <section class="section-container grid-col-6" id="intro">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-star"></i> Overview</h2>
+                <div class="section-content active">
+                    <p class="tagline">Your Technical Blueprint for Ambient Pixels</p>
+                    <p class="description">This document is the definitive guide for <code>ambientpixels.ai</code>—covering our CI/CD pipeline, security protocols, technical stack, scripts, and style system as of <span class="version-number">v0.17.4-20250329</span> (<time datetime="2025-03-29T12:00:00-07:00">March 29, 2025, 12:00 PM PDT</time>). It’s designed to onboard and train contributors on deployment workflows, code structure, and styling conventions.</p>
+                </div>
+            </section>
+
+            <div class="section-group grid-col-6" id="pipeline-group">
+                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-rocket"></i> Pipeline <i class="fas fa-chevron-down toggle-icon"></i></h2>
+                <div class="group-content active">
+                    <section class="section-container grid-col-3" id="pipeline">
+                        <h2 onclick="toggleSection(this)"><i class="fas fa-cogs"></i> CI/CD Workflow</h2>
                         <div class="section-content active">
-                            <p>Toggle themes live—See the chaos shift!</p>
-                            <div class="theme-buttons">
-                                <button class="btn btn-primary" onclick="setTheme('dark')">Dark Mode</button>
-                                <button class="btn btn-secondary" onclick="setTheme('light')">Light Mode</button>
-                            </div>
+                            <p>Our CI/CD pipeline automates deployment:</p>
+                            <ul>
+                                <li><strong>Local Development</strong>: Edit in Adobe Dreamweaver—HTML, CSS, JS files in <code>C:\_projects\AmbientPixels.ai\</code>.</li>
+                                <li><strong>Version Control</strong>: Commit changes to <a href="https://github.com/AmbientPixels/ambientpixels" class="link-standard">GitHub repo</a>—branch <code>main</code>.</li>
+                                <li><strong>GitHub Actions</strong>:
+                                    <ul>
+                                        <li><code>static.yml</code>: Builds and deploys static content to Azure Static Web App.</li>
+                                        <li><code>api.yml</code>: Deploys API functions to Azure Function App.</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Triggers</strong>: Push to <code>main</code> or PR merge—workflows run in parallel.</li>
+                            </ul>
+                            <p>Example commit: <code>git commit -m "Update grid layout - v0.17.4"</code></p>
+                        </div>
+                    </section>
+                    <section class="section-container grid-col-3" id="azure">
+                        <h2 onclick="toggleSection(this)"><i class="fas fa-cloud"></i> Azure Services</h2>
+                        <div class="section-content active">
+                            <p>We leverage Azure for hosting and serverless functionality:</p>
+                            <ul>
+                                <li><strong>Static Web App</strong>: Hosts <code>index.html</code>, <code>docs.html</code>, CSS/JS in <code>_images/</code>.</li>
+                                <li><strong>Function App</strong>: Runs serverless APIs—e.g., <code>memeGenerator</code> endpoint at <code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/</code>.</li>
+                                <li><strong>Configuration</strong>: Managed via Azure Portal—SWA for static, Function App for APIs with token auth.</li>
+                            </ul>
                         </div>
                     </section>
                 </div>
             </div>
 
-            <div class="section-group" id="text-group">
-                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-font"></i> Text Styles <i class="fas fa-chevron-down toggle-icon"></i></h2>
-                <div class="group-content">
-                    <section class="section-container" id="text-basic">
-                        <h2 id="text-basic" onclick="toggleSection(this)"><i class="fas fa-text-height"></i> Basic Styles</h2>
-                        <div class="section-content active">
-                            <p class="tagline">Tagline: Chaos Unleashed</p>
-                            <p>Regular text flows naturally—Clean chaos.</p>
-                            <p><strong>Strong Text:</strong> Bold and punchy.</p>
-                            <p><span class="highlight">Highlight Text:</span> Pops with color.</p>
-                        </div>
-                    </section>
-                    <section class="section-container" id="text-advanced">
-                        <h2 id="text-advanced" onclick="toggleSection(this)"><i class="fas fa-paint-brush"></i> Advanced Styles</h2>
-                        <div class="section-content active">
-                            <div class="callout callout-warning">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <p><strong>Warning:</strong> AI overload imminent!</p>
-                            </div>
-                            <div class="callout callout-info">
-                                <i class="fas fa-info-circle"></i>
-                                <p><strong>Info:</strong> Chaos runs this show.</p>
-                            </div>
-                            <div class="highlight-box">
-                                <p>Highlight Box: Key takeaways here!</p>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-            </div>
-
-            <div class="section-group" id="extras-group">
-                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-box-open"></i> Extras <i class="fas fa-chevron-down toggle-icon"></i></h2>
-                <div class="group-content">
-                    <section class="section-container" id="extras-code">
-                        <h2 id="extras-code" onclick="toggleSection(this)"><i class="fas fa-code"></i> Code Snippets</h2>
-                        <div class="section-content active">
-                            <p>Code example:</p>
-                            <pre class="code-block">[code]const chaos = "Ambient Pixels";[/code]</pre>
-                        </div>
-                    </section>
-                    <section class="section-container" id="extras-quotes">
-                        <h2 id="extras-quotes" onclick="toggleSection(this)"><i class="fas fa-quote-left"></i> Quotes</h2>
-                        <div class="section-content active">
-                            <blockquote class="blockquote">
-                                <p>"Chaos is creativity with extra steps." —Some AI</p>
-                            </blockquote>
-                        </div>
-                    </section>
-                </div>
-            </div>
-
-            <section class="section-standalone" id="colors">
-                <h2><i class="fas fa-palette"></i> Colors</h2>
-                <p>Core palette from CSS variables—Chaos colors:</p>
-                <div class="color-palette">
-                    <div class="color-swatch" style="background: var(--bg-dark);"><span>--bg-dark</span></div>
-                    <div class="color-swatch" style="background: var(--text-dark);"><span>--text-dark</span></div>
-                    <div class="color-swatch" style="background: var(--accent-dark);"><span>--accent-dark</span></div>
+            <section class="section-container grid-col-6" id="security">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-lock"></i> Security</h2>
+                <div class="section-content active">
+                    <p>Security is baked into our pipeline and deployment:</p>
+                    <ul>
+                        <li><strong>API Security</strong>:
+                            <ul>
+                                <li>Token-based auth—JWTs issued via <code>getToken</code> endpoint.</li>
+                                <li>CORS configured—allowed origins: <code>ambientpixels.ai</code>.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Dual Workflows</strong>:
+                            <ul>
+                                <li>Static: <code>.github/workflows/static.yml</code>—isolates HTML/CSS/JS.</li>
+                                <li>API: <code>.github/workflows/api.yml</code>—secures function deployment.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Secrets</strong>: Stored in GitHub Secrets—e.g., <code>AZURE_CREDENTIALS</code>.</li>
+                    </ul>
                 </div>
             </section>
 
-            <section class="section-standalone" id="loading">
-                <h2><i class="fas fa-spinner"></i> Loading States</h2>
-                <p>Demoing loading states:</p>
-                <div class="loading-text">Loading chaos...</div>
-                <div class="loading-dots"><span></span><span></span><span></span></div>
-            </section>
-
-            <section class="section-standalone" id="icons">
-                <h2><i class="fas fa-icons"></i> Icons</h2>
-                <p>Font Awesome icons—Hover for chaos!</p>
-                <div class="icon-demo">
-                    <i class="fas fa-home" title="Home"></i>
-                    <i class="fas fa-cube" title="Cube"></i>
-                    <i class="fas fa-robot" title="Robot"></i>
+            <section class="section-container grid-col-6" id="tech">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-tools"></i> Tech Stack</h2>
+                <div class="section-content active">
+                    <p>Our technical foundation:</p>
+                    <ul>
+                        <li><strong>Frontend</strong>: HTML5, CSS3, vanilla JS—Font Awesome 6.5.1 for icons.</li>
+                        <li><strong>Hosting</strong>: Azure Static Web App—<code>ambientpixels.ai</code>.</li>
+                        <li><strong>Serverless</strong>: Azure Function App—Node.js runtime for APIs.</li>
+                        <li><strong>VCS</strong>: GitHub—<code>main</code> branch, <code>.github/workflows/</code>.</li>
+                        <li><strong>Tools</strong>: Adobe Dreamweaver—local dev environment.</li>
+                    </ul>
                 </div>
             </section>
 
-            <section class="section-standalone" id="chaos">
-                <h2><i class="fas fa-bolt"></i> Chaos Mode</h2>
-                <p>Unleash maximum chaos!</p>
-                <button class="btn btn-primary" id="chaosToggle" onclick="toggleChaosMode()">Toggle Chaos Mode</button>
-                <p class="chaos-text">This text gets glitchy!</p>
+            <section class="section-container grid-col-6" id="scripts">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-code"></i> Scripts</h2>
+                <div class="section-content active">
+                    <p>Core scripts driving functionality (<code>_images/</code>):</p>
+                    <ul>
+                        <li><strong>scripts.js</strong>:
+                            <pre class="code-block">
+// Excerpt from scripts.js
+document.addEventListener('DOMContentLoaded', () => {
+    const sections = document.querySelectorAll('.section-container');
+    sections.forEach(section => {
+        const header = section.querySelector('h2');
+        if (header) header.addEventListener('click', () => toggleSection(header));
+    });
+    animateSections();
+});
+
+function toggleChaosMode() {
+    document.body.classList.toggle('chaos-active');
+}
+                            </pre>
+                            <p>Handles section toggles, animations, chaos mode.</p>
+                        </li>
+                        <li><strong>modal-window.js</strong>:
+                            <pre class="code-block">
+// Excerpt from modal-window.js
+window.showComingSoonModal = function(section) {
+    const modal = document.getElementById('comingSoonModal');
+    const randomContent = comingSoonContent[Math.floor(Math.random() * comingSoonContent.length)];
+    modal.querySelector('#comingSoonIcon').innerHTML = randomContent.icon;
+    modal.querySelector('#comingSoonText').textContent = `${section}: ${randomContent.text}`;
+    modal.classList.add('active');
+};
+                            </pre>
+                            <p>Manages modal popups with random messages.</p>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section-container grid-col-6" id="style-guide">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-paint-brush"></i> Style Guide</h2>
+                <div class="section-content active">
+                    <p>Updated style system as of <span class="version-number">v0.17.4-20250329</span>:</p>
+                    <ul>
+                        <li><strong>Grid Layouts</strong>: Responsive 1–6 column system—e.g., 3-col demo:
+                            <div class="grid-container" style="grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                                <div class="grid-col-1"><p><i class="fas fa-robot"></i> AI</p></div>
+                                <div class="grid-col-1"><p><i class="fas fa-paint-brush"></i> Art</p></div>
+                                <div class="grid-col-1"><p><i class="fas fa-bolt"></i> Glitch</p></div>
+                            </div>
+                        </li>
+                        <li><strong>Icons</strong>: 34 icons, pink hover (<code>#E63977</code> dark, <code>#D92E5F</code> light)—e.g., <i class="fas fa-cog"></i>.</li>
+                        <li><strong>Colors</strong>: 8-swatch grid—<code>--bg-dark</code>, <code>--accent-dark</code>, etc.</li>
+                        <li><strong>Links</strong>: <a href="#" class="link-standard">Standard</a> (underline, blue-to-pink), <a href="#" class="link-hover">Hover</a> (animated pink underline).</li>
+                        <li><strong>Forms</strong>: Dropdown, input, radio, textarea, checkboxes—pink hover/focus:
+                            <input type="text" class="form-input" placeholder="Test input">
+                        </li>
+                        <li><strong>Effects</strong>: 8 hover effects—e.g., <i class="fas fa-cog effect-spin" style="font-size: 2em;"></i> (spin).</li>
+                        <li><strong>Chaos Mode</strong>: Toggles glitch on text—<span class="chaos-text">Glitch me!</span></li>
+                    </ul>
+                    <p>Full demos: <a href="/template.html" class="link-hover">Style Template</a>.</p>
+                </div>
+            </section>
+
+            <section class="section-container grid-col-6" id="history">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-history"></i> Version History</h2>
+                <div class="section-content active">
+                    <p>Key milestones:</p>
+                    <ul>
+                        <li><strong>v0.17.4-20250329</strong>: Added grid layouts, form elements (dropdown, radio, checkboxes), style enhancements—pink icons, links, chaos mode (March 29, 2025).</li>
+                        <li><strong>v0.17.3-20250328</strong>: Initial CI/CD pipeline, basic style system (March 28, 2025).</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section-container grid-col-6" id="troubleshooting">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-wrench"></i> Troubleshooting</h2>
+                <div class="section-content active">
+                    <p>Common issues and fixes:</p>
+                    <ul>
+                        <li><strong>API Errors</strong>: Verify token in Function App logs—<code>GET /api/getToken</code>.</li>
+                        <li><strong>Style Not Applied</strong>: Clear browser cache (Ctrl+F5), check <code>_images/</code> links.</li>
+                        <li><strong>Workflow Fails</strong>: Inspect GitHub Actions logs—ensure secrets are set.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section-container grid-col-6" id="next">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-forward"></i> Next Steps</h2>
+                <div class="section-content active">
+                    <p>Future enhancements:</p>
+                    <ul>
+                        <li>Interactive form validation.</li>
+                        <li>Expanded chaos mode effects—e.g., site-wide glitches.</li>
+                        <li>Additional API endpoints—e.g., style generator.</li>
+                    </ul>
+                </div>
             </section>
         </main>
     </div>
 
     <footer>
-        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <span id="version-number">v0.17.2-20250328</span> | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
-        <div class="social-links">
+        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <span class="version-number">v0.17.4-20250329</span> | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
+        <div class="social-links footer-social">
             <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
             <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
             <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube"></i><span>Vids</span></a>
@@ -222,7 +280,7 @@
     <div class="modal" id="comingSoonModal">
         <div class="modal-content">
             <p id="comingSoonMessage"><span id="comingSoonIcon"></span> <span id="comingSoonText"></span></p>
-            <button onclick="closeModal('comingSoonModal')">Close</button>
+            <button class="btn btn-primary" onclick="closeModal('comingSoonModal')">Close</button>
         </div>
     </div>
 

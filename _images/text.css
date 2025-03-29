@@ -1,5 +1,5 @@
 @charset "utf-8";
-/* Text CSS - Ambient Pixels v0.17.2-20250328 - March 28, 2025 */
+/* Text CSS - Ambient Pixels v0.17.3-20250328 - March 29, 2025, 9:25 AM PDT */
 
 ul {
     list-style-type: disc;
@@ -115,207 +115,19 @@ body.light .callout-info i {
     color: var(--info-light);
 }
 
-.highlight-box {
-    background: var(--highlight-dark);
-    color: #FFFFFF;
-    padding: 15px;
-    margin: 15px 0;
-    border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-body.light .highlight-box {
-    background: var(--highlight-light);
-    color: #FFFFFF;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-}
-
-h3 {
-    font-size: 1.5em;
-    font-weight: 600;
-    margin: 15px 0 10px;
-    color: var(--accent-dark);
-}
-
-body.light h3 {
-    color: var(--accent-light);
-}
-
-h4 {
-    font-size: 1.2em;
-    font-weight: 500;
-    margin: 12px 0 8px;
-    color: var(--text-dark);
-}
-
-body.light h4 {
-    color: var(--text-light);
-}
-
-h5 {
-    font-size: 1em;
-    font-weight: 500;
-    margin: 10px 0 6px;
-    color: #B8C7CA;
-}
-
-body.light h5 {
-    color: #5A6A6F;
-}
-
 .code-block {
     background: var(--code-bg-dark);
-    color: #DDE4E6;
-    padding: 15px;
-    margin: 15px 0;
+    color: var(--text-dark);
+    padding: 10px;
     border-radius: 4px;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: monospace;
     font-size: 0.9em;
+    margin: 10px 0;
+    max-width: 100%;
     overflow-x: auto;
 }
 
 body.light .code-block {
     background: var(--code-bg-light);
-    color: #2A2F33;
-}
-
-code {
-    background: var(--code-bg-dark);
-    color: #DDE4E6;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 0.9em;
-}
-
-body.light code {
-    background: var(--code-bg-light);
-    color: #2A2F33;
-}
-
-.link-standard {
-    color: var(--accent-dark);
-    text-decoration: underline;
-    transition: color 0.2s;
-}
-
-body.light .link-standard {
-    color: var(--accent-light);
-}
-
-.link-standard:hover {
-    color: var(--highlight-dark);
-    text-decoration: none;
-}
-
-body.light .link-standard:hover {
-    color: var(--highlight-light);
-}
-
-.link-hover {
-    color: var(--text-dark);
-    text-decoration: none;
-    padding-bottom: 2px;
-    border-bottom: 1px solid transparent;
-    transition: border-bottom-color 0.2s, color 0.2s;
-}
-
-body.light .link-hover {
     color: var(--text-light);
-}
-
-.link-hover:hover {
-    color: var(--accent-dark);
-    border-bottom-color: var(--accent-dark);
-}
-
-body.light .link-hover:hover {
-    color: var(--accent-light);
-    border-bottom-color: var(--accent-light);
-}
-
-.btn {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.95em;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.2s;
-    margin: 0 10px 10px 0;
-}
-
-.btn-primary {
-    background: var(--accent-dark);
-    color: #FFFFFF;
-}
-
-body.light .btn-primary {
-    background: var(--accent-light);
-}
-
-.btn-primary:hover {
-    background: var(--highlight-dark);
-    transform: translateY(-1px);
-}
-
-body.light .btn-primary:hover {
-    background: var(--highlight-light);
-}
-
-.btn-secondary {
-    background: var(--card-dark);
-    color: var(--text-dark);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-body.light .btn-secondary {
-    background: var(--card-light);
-    color: var(--text-light);
-    border: 1px solid rgba(0, 0, 0, 0.2);
-}
-
-.btn-secondary:hover {
-    background: var(--accent-dark);
-    color: #FFFFFF;
-    transform: translateY(-1px);
-}
-
-body.light .btn-secondary:hover {
-    background: var(--accent-light);
-}
-
-.blockquote {
-    font-style: italic;
-    margin: 15px 0;
-    padding-left: 20px;
-    border-left: 4px solid var(--accent-dark);
-    color: #B8C7CA;
-}
-
-body.light .blockquote {
-    border-left-color: var(--accent-light);
-    color: #5A6A6F;
-}
-
-.small-text {
-    font-size: 0.85em;
-    color: #B8C7CA;
-    margin: 10px 0;
-}
-
-body.light .small-text {
-    color: #5A6A6F;
-}
-
-.drop-cap:first-letter {
-    float: left;
-    font-size: 3em;
-    line-height: 0.8;
-    margin-right: 8px;
-    color: var(--highlight-dark);
-    font-weight: 600;
-}
-
-body.light .drop-cap:first-letter {
-    color: var(--highlight-light);
 }

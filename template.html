@@ -4,11 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <title>Ambient Pixels - [Chaos Hub <span id="version-number">v0.17.1-20250328</span>]</title>
+    <title>Ambient Pixels - [Chaos Hub <span class="version-number">v0.17.3-20250328</span>]</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="_images/styles.css">
-    <meta name="description" content="Explore the Ambient Pixels text style suite—callouts, headings, code, links, buttons, and more chaotic goodness!">
+    <link rel="stylesheet" href="_images/base.css">
+    <link rel="stylesheet" href="_images/navbar.css">
+    <link rel="stylesheet" href="_images/hero.css">
+    <link rel="stylesheet" href="_images/layout.css">
+    <link rel="stylesheet" href="_images/text.css">
+    <link rel="stylesheet" href="_images/components.css">
+    <link rel="stylesheet" href="_images/animations.css">
+    <link rel="stylesheet" href="_images/media.css">
+    <meta name="description" content="Explore the Ambient Pixels style suite—chaos in action!">
     <meta property="og:title" content="Ambient Pixels">
     <meta property="og:description" content="Chaos meets code. Glitchy, artsy, AI-fueled madness lives here.">
     <meta property="og:image" content="/_images/ambient-pixel-logo-rainbow.png">
@@ -46,38 +53,21 @@
                     <a onclick="showComingSoonModal('Social')"><i class="fas fa-users"></i> Social Media</a>
                 </div>
             </div>
-            <button class="theme-toggle" onclick="toggleTheme()">
-                <i class="fas fa-moon"></i>
-            </button>
+            <i class="fas fa-moon theme-toggle" onclick="toggleTheme()"></i>
         </div>
-        <button class="navbar-toggle" onclick="toggleMenu()">
-            <i class="fas fa-bars"></i>
-        </button>
+        <i class="fas fa-bars navbar-toggle" onclick="toggleMenu()"></i>
     </div>
 
     <div class="mini-hero">
-        <h1>[Chaos Hub <span id="version-number">v0.17.1-20250328</span>]</h1>
+        <h1>[Chaos Hub <span class="version-number">v0.17.3-20250328</span>]</h1>
     </div>
 
     <div class="breadcrumbs">
-        <p><a href="/">Home</a> > [Chaos Hub <span id="version-number">v0.17.1-20250328</span>]</p>
+        <p><a href="/">Home</a> > [Chaos Hub <span class="version-number">v0.17.3-20250328</span>]</p>
     </div>
 
-    <section class="section-container" id="intro">
-        <h2 id="intro"><i class="fas fa-star"></i> Welcome to Chaos Hub</h2>
-        <div class="section-content active">
-            <p class="tagline">Unleash the Madness</p>
-            <p class="description">Dive into the wild world of Ambient Pixels—where <strong>chaos</strong> meets <span class="highlight">creativity</span> in a supernova of style. This page showcases every style in <code>styles.css</code>—use it to learn and build!</p>
-        </div>
-    </section>
-
-    <div class="section-header-wrapper">
-        <h2 class="section-header">Style Showcase</h2>
-        <i class="fas fa-expand-alt" id="toggleAllSections" title="Toggle All Sections"></i>
-    </div>
-
-    <div class="content-wrapper">
-        <aside class="sidebar">
+    <div class="grid-container">
+        <aside class="sidebar grid-col-2">
             <h3>Contents</h3>
             <ul>
                 <li><a href="#intro">Intro</a></li>
@@ -85,20 +75,30 @@
                 <li><a href="#text-styles-group">Text Styles</a></li>
                 <li><a href="#basic-styles">Basic Styles</a></li>
                 <li><a href="#advanced-styles">Advanced Styles</a></li>
-                <li><a href="#extras-group">Extras</a></li>
                 <li><a href="#code">Code Snippets</a></li>
                 <li><a href="#quotes">Quotes & More</a></li>
                 <li><a href="#colors">Colors</a></li>
-                <li><a href="#loading">Loading State</a></li>
+                <li><a href="#loading">Loading States</a></li>
                 <li><a href="#icons">Icons</a></li>
+                <li><a href="#effects">Effects</a></li>
+                <li><a href="#forms">Forms</a></li>
                 <li><a href="#chaos-mode">Chaos Mode</a></li>
-                <li><a href="#standalone">Standalone Chaos</a></li>
+                <li><a href="#grid-demo-3">3-Column Grid Demo</a></li>
+                <li><a href="#grid-demo-4">4-Column Grid Demo</a></li>
             </ul>
         </aside>
 
-        <main class="main-content">
-            <section class="section-container" id="theme-switcher">
-                <h2 id="theme-switcher"><i class="fas fa-moon"></i> Theme Switcher</h2>
+        <main class="main-content grid-col-4">
+            <section class="section-container grid-col-6" id="intro">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-star"></i> Welcome to Chaos Hub</h2>
+                <div class="section-content active">
+                    <p class="tagline">Where Styles Collide in Glorious Chaos</p>
+                    <p class="description">This is your front-row seat to the Ambient Pixels style showcase—an awesome explosion of design elements as of <span class="version-number">v0.17.3-20250328</span> (<time datetime="2025-03-28T17:00:00-07:00">March 28, 2025, 5:00 PM PDT</time>). Explore typography, forms, colors, and more—built to inspire and unleash your creative madness!</p>
+                </div>
+            </section>
+
+            <section class="section-container grid-col-6" id="theme-switcher">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-moon"></i> Theme Switcher</h2>
                 <div class="section-content active">
                     <p>Toggle themes live—See the chaos shift!</p>
                     <div class="theme-buttons">
@@ -108,11 +108,11 @@
                 </div>
             </section>
 
-            <div class="section-group" id="text-styles-group">
+            <div class="section-group grid-col-6" id="text-styles-group">
                 <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-font"></i> Text Styles <i class="fas fa-chevron-down toggle-icon"></i></h2>
                 <div class="group-content active">
-                    <section class="section-container" id="basic-styles">
-                        <h2 id="basic-styles" onclick="toggleSection(this)"><i class="fas fa-text-height"></i> Basic Styles</h2>
+                    <section class="section-container grid-col-3" id="basic-styles">
+                        <h2 onclick="toggleSection(this)"><i class="fas fa-text-height"></i> Basic Styles</h2>
                         <div class="section-content active">
                             <p class="tagline">Tagline: Chaos Unleashed</p>
                             <p>Regular paragraph text flows naturally—Clean and readable chaos.</p>
@@ -134,8 +134,8 @@
                         </div>
                     </section>
 
-                    <section class="section-container" id="advanced-styles">
-                        <h2 id="advanced-styles" onclick="toggleSection(this)"><i class="fas fa-paint-brush"></i> Advanced Styles</h2>
+                    <section class="section-container grid-col-3" id="advanced-styles">
+                        <h2 onclick="toggleSection(this)"><i class="fas fa-paint-brush"></i> Advanced Styles</h2>
                         <div class="section-content active">
                             <div class="callout callout-warning">
                                 <i class="fas fa-exclamation-triangle"></i>
@@ -154,90 +154,98 @@
                 </div>
             </div>
 
-            <div class="section-group" id="extras-group">
-                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-box-open"></i> Extras <i class="fas fa-chevron-down toggle-icon"></i></h2>
-                <div class="group-content active">
-                    <section class="section-container" id="code">
-                        <h2 id="code" onclick="toggleSection(this)"><i class="fas fa-code"></i> Code Snippets</h2>
-                        <div class="section-content active">
-                            <h3>Code Block Example</h3>
-                            <pre class="code-block"><code>const chaos = "Ambient Pixels";
-console.log(chaos + " rocks!");</code></pre>
-                            <p>Inline code: <code>let x = 42;</code>—Clean and monospaced.</p>
-                        </div>
-                    </section>
-
-                    <section class="section-container" id="quotes">
-                        <h2 id="quotes" onclick="toggleSection(this)"><i class="fas fa-quote-left"></i> Quotes & More</h2>
-                        <div class="section-content active">
-                            <h4>Blockquote</h4>
-                            <blockquote class="blockquote">
-                                <p>“Chaos is just creativity with extra steps.” —Some AI, probably</p>
-                            </blockquote>
-                            <h5>Small Text</h5>
-                            <p class="small-text">Small text for footnotes or disclaimers—Tiny but legible.</p>
-                            <p class="drop-cap">Drop cap kicks off a paragraph with flair—Perfect for storytelling or emphasis in chaotic tales.</p>
-                        </div>
-                    </section>
-                </div>
-            </div>
-
-            <section class="section-container" id="colors">
-                <h2 id="colors" onclick="toggleSection(this)"><i class="fas fa-palette"></i> Color Palette</h2>
+            <section class="section-container grid-col-6" id="code">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-code"></i> Code Snippets</h2>
                 <div class="section-content active">
-                    <p>Core colors from <code>:root</code>—The chaos palette:</p>
-                    <div class="color-palette">
-                        <div class="color-swatch" style="background: var(--bg-dark);"><span>--bg-dark</span></div>
-                        <div class="color-swatch" style="background: var(--text-dark);"><span>--text-dark</span></div>
-                        <div class="color-swatch" style="background: var(--accent-dark);"><span>--accent-dark</span></div>
-                        <div class="color-swatch" style="background: var(--highlight-dark);"><span>--highlight-dark</span></div>
-                        <div class="color-swatch" style="background: var(--card-dark);"><span>--card-dark</span></div>
-                        <div class="color-swatch" style="background: var(--bg-light);"><span>--bg-light</span></div>
-                        <div class="color-swatch" style="background: var(--text-light);"><span>--text-light</span></div>
-                        <div class="color-swatch" style="background: var(--accent-light);"><span>--accent-light</span></div>
-                        <div class="color-swatch" style="background: var(--highlight-light);"><span>--highlight-light</span></div>
-                        <div class="color-swatch" style="background: var(--card-light);"><span>--card-light</span></div>
-                        <div class="color-swatch" style="background: var(--frosted-bg);"><span>--frosted-bg</span></div>
-                        <div class="color-swatch" style="background: var(--frosted-bg-light);"><span>--frosted-bg-light</span></div>
+                    <h3>Code Block Example</h3>
+                    <pre class="code-block">const chaos = "Ambient Pixels"; console.log(chaos + " rocks!");</pre>
+                    <p>Inline code: <code>let x = 42;</code>—Clean and monospaced.</p>
+                </div>
+            </section>
+
+            <section class="section-container grid-col-6" id="quotes">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-quote-left"></i> Quotes & More</h2>
+                <div class="section-content active">
+                    <h4>Blockquote</h4>
+                    <blockquote class="blockquote">
+                        <p>“Chaos is just creativity with extra steps.” —Some AI, probably</p>
+                    </blockquote>
+                    <h5>Small Text</h5>
+                    <p class="small-text">Small text for footnotes or disclaimers—Tiny but legible.</p>
+                    <p class="drop-cap">Drop cap kicks off a paragraph with flair—Perfect for storytelling or emphasis in chaotic tales.</p>
+                </div>
+            </section>
+
+            <section class="section-container grid-col-6" id="colors">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-palette"></i> Color Palette</h2>
+                <div class="section-content active">
+                    <p>Core colors from <code>:root</code>—The chaos palette in a grid:</p>
+                    <div class="grid-container" style="grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                        <div class="grid-col-1 color-swatch" style="background: var(--bg-dark);"><span>--bg-dark<br>#1A1F21</span></div>
+                        <div class="grid-col-1 color-swatch" style="background: var(--text-dark);"><span>--text-dark<br>#DDE4E6</span></div>
+                        <div class="grid-col-1 color-swatch" style="background: var(--accent-dark);"><span>--accent-dark<br>#00C4E6</span></div>
+                        <div class="grid-col-1 color-swatch" style="background: var(--highlight-dark);"><span>--highlight-dark<br>#E63977</span></div>
+                        <div class="grid-col-1 color-swatch" style="background: var(--card-dark);"><span>--card-dark<br>#252B2D</span></div>
+                        <div class="grid-col-1 color-swatch" style="background: var(--bg-light);"><span>--bg-light<br>#F7F9FA</span></div>
+                        <div class="grid-col-1 color-swatch" style="background: var(--text-light);"><span>--text-light<br>#2A2F33</span></div>
+                        <div class="grid-col-1 color-swatch" style="background: var(--accent-light);"><span>--accent-light<br>#0086B3</span></div>
                     </div>
                 </div>
             </section>
 
-            <section class="section-container loading" id="loading">
-                <h2 id="loading" onclick="toggleSection(this)"><i class="fas fa-spinner"></i> Loading State</h2>
+            <section class="section-container grid-col-6" id="loading">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-spinner"></i> Loading States</h2>
                 <div class="section-content active">
-                    <p>Demoing loading states—Subtle to chaotic:</p>
-                    <h4>Text Shimmer</h4>
-                    <div class="loading-text">Loading chaos...</div>
-                    <h4>Dots Pulse</h4>
-                    <div class="loading-dots">
-                        <span></span><span></span><span></span>
-                    </div>
-                    <h4>Bar Slide</h4>
-                    <div class="loading-bar">
-                        <div class="loading-bar-inner"></div>
-                    </div>
-                    <h4>Spinner</h4>
-                    <div class="loading-spinner">
-                        <i class="fas fa-spinner"></i>
-                    </div>
-                    <h4>Glitch Flash</h4>
-                    <div class="loading-glitch">CHAOS</div>
-                    <h4>Pixel Storm</h4>
-                    <div class="loading-pixel-storm">
-                        <span></span><span></span><span></span><span></span><span></span>
-                    </div>
-                    <h4>Chaos Spin</h4>
-                    <div class="loading-chaos-spin">
-                        <i class="fas fa-bolt"></i><i class="fas fa-star"></i><i class="fas fa-cog"></i>
+                    <p>A showcase of loading states—Subtle to chaotic, sliding scale:</p>
+                    <div class="grid-container" style="grid-template-columns: repeat(5, 1fr); gap: 10px;">
+                        <div class="grid-col-1">
+                            <h4>Subtle Blink</h4>
+                            <div class="loading-blink"><i class="fas fa-circle"></i></div>
+                        </div>
+                        <div class="grid-col-1">
+                            <h4>Subtle Fade</h4>
+                            <div class="loading-fade"><i class="fas fa-circle-notch"></i></div>
+                        </div>
+                        <div class="grid-col-1">
+                            <h4>Subtle Dots</h4>
+                            <div class="loading-dots"><span></span><span></span><span></span></div>
+                        </div>
+                        <div class="grid-col-1">
+                            <h4>Middle Pulse</h4>
+                            <div class="loading-pulse"><i class="fas fa-spinner"></i></div>
+                        </div>
+                        <div class="grid-col-1">
+                            <h4>Middle Bounce</h4>
+                            <div class="loading-bounce"><span></span><span></span><span></span></div>
+                        </div>
+                        <div class="grid-col-1">
+                            <h4>Middle Wave</h4>
+                            <div class="loading-wave"><span></span><span></span><span></span></div>
+                        </div>
+                        <div class="grid-col-1">
+                            <h4>Middle Bar</h4>
+                            <div class="loading-bar"><div class="loading-bar-inner"></div></div>
+                        </div>
+                        <div class="grid-col-1">
+                            <h4>Chaotic Flip</h4>
+                            <div class="loading-flip"><i class="fas fa-square"></i></div>
+                        </div>
+                        <div class="grid-col-1">
+                            <h4>Chaotic Spin</h4>
+                            <div class="loading-chaos"><i class="fas fa-cog"></i></div>
+                        </div>
+                        <div class="grid-col-1">
+                            <h4>Chaotic Glitch</h4>
+                            <div class="loading-glitch">CHAOS</div>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <section class="section-container" id="icons">
-                <h2 id="icons" onclick="toggleSection(this)"><i class="fas fa-icons"></i> Icon Showcase</h2>
+            <section class="section-container grid-col-6" id="icons">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-icons"></i> Icon Showcase</h2>
                 <div class="section-content active">
-                    <p>Font Awesome icons—Hover for chaos! Categorized for clarity:</p>
+                    <p>Font Awesome icons—Big, subtle hover flair! Categorized:</p>
                     <h4>Navigation Icons</h4>
                     <div class="icon-demo">
                         <i class="fas fa-home" title="Home"></i>
@@ -246,6 +254,20 @@ console.log(chaos + " rocks!");</code></pre>
                         <i class="fas fa-chevron-down" title="Dropdown"></i>
                         <i class="fas fa-expand-alt" title="Expand All"></i>
                         <i class="fas fa-compress-alt" title="Compress All"></i>
+                        <i class="fas fa-arrow-left" title="Back"></i>
+                        <i class="fas fa-arrow-right" title="Forward"></i>
+                        <i class="fas fa-search" title="Search"></i>
+                    </div>
+                    <h4>Social Icons</h4>
+                    <div class="icon-demo">
+                        <i class="fab fa-deviantart" title="DeviantArt"></i>
+                        <i class="fab fa-x-twitter" title="X"></i>
+                        <i class="fab fa-youtube" title="YouTube"></i>
+                        <i class="fab fa-facebook" title="Facebook"></i>
+                        <i class="fab fa-instagram" title="Instagram"></i>
+                        <i class="fab fa-tiktok" title="TikTok"></i>
+                        <i class="fab fa-linkedin" title="LinkedIn"></i>
+                        <i class="fab fa-github" title="GitHub"></i>
                     </div>
                     <h4>Content Icons</h4>
                     <div class="icon-demo">
@@ -257,15 +279,8 @@ console.log(chaos + " rocks!");</code></pre>
                         <i class="fas fa-paint-brush" title="Paint Brush"></i>
                         <i class="fas fa-code" title="Code"></i>
                         <i class="fas fa-text-height" title="Text Height"></i>
-                    </div>
-                    <h4>Social Icons</h4>
-                    <div class="icon-demo">
-                        <i class="fab fa-deviantart" title="DeviantArt"></i>
-                        <i class="fab fa-x-twitter" title="X"></i>
-                        <i class="fab fa-youtube" title="YouTube"></i>
-                        <i class="fab fa-facebook" title="Facebook"></i>
-                        <i class="fas fa-users" title="Users"></i>
-                        <i class="fas fa-envelope" title="Envelope"></i>
+                        <i class="fas fa-image" title="Image"></i>
+                        <i class="fas fa-video" title="Video"></i>
                     </div>
                     <h4>Chaos Icons</h4>
                     <div class="icon-demo">
@@ -277,32 +292,149 @@ console.log(chaos + " rocks!");</code></pre>
                         <i class="fas fa-info-circle" title="Info"></i>
                         <i class="fas fa-quote-left" title="Quote Left"></i>
                         <i class="fas fa-icons" title="Icons"></i>
+                        <i class="fas fa-bomb" title="Bomb"></i>
+                        <i class="fas fa-skull" title="Skull"></i>
                     </div>
                 </div>
             </section>
 
-            <section class="section-container" id="chaos-mode">
-                <h2 id="chaos-mode"><i class="fas fa-bolt"></i> Chaos Mode</h2>
+            <section class="section-container grid-col-6" id="effects">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-magic"></i> Effects Showcase</h2>
                 <div class="section-content active">
-                    <p>Unleash maximum chaos—Toggle for wild effects!</p>
-                    <button class="btn btn-primary" id="chaosToggle" onclick="toggleChaosMode()">Toggle Chaos Mode</button>
-                    <p class="chaos-text">This text gets glitchy in chaos mode!</p>
+                    <p>A plethora of effects—Hover or watch the chaos unfold!</p>
+                    <div class="grid-container" style="grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                        <div class="grid-col-1">
+                            <h4>Spin</h4>
+                            <i class="fas fa-cog effect-spin" title="Spin" style="font-size: 3em;"></i>
+                        </div>
+                        <div class="grid-col-1">
+                            <h4>Bounce</h4>
+                            <i class="fas fa-circle effect-bounce" title="Bounce" style="font-size: 3em;"></i>
+                        </div>
+                        <div class="grid-col-1">
+                            <h4>Pulse</h4>
+                            <i class="fas fa-heart effect-pulse" title="Pulse" style="font-size: 3em;"></i>
+                        </div>
+                        <div class="grid-col-1">
+                            <h4>Glitch</h4>
+                            <i class="fas fa-bolt effect-glitch" title="Glitch" style="font-size: 3em;"></i>
+                        </div>
+                        <div class="grid-col-1">
+                            <h4>Flip</h4>
+                            <i class="fas fa-square effect-flip" title="Flip" style="font-size: 3em;"></i>
+                        </div>
+                        <div class="grid-col-1">
+                            <h4>Shake</h4>
+                            <i class="fas fa-bell effect-shake" title="Shake" style="font-size: 3em;"></i>
+                        </div>
+                        <div class="grid-col-1">
+                            <h4>Wobble</h4>
+                            <i class="fas fa-star effect-wobble" title="Wobble" style="font-size: 3em;"></i>
+                        </div>
+                        <div class="grid-col-1">
+                            <h4>Zoom</h4>
+                            <i class="fas fa-search effect-zoom" title="Zoom" style="font-size: 3em;"></i>
+                        </div>
+                    </div>
                 </div>
             </section>
 
-            <section class="section-container standalone" id="standalone">
-                <h2 id="standalone" onclick="toggleSection(this)"><i class="fas fa-cog"></i> Standalone Chaos</h2>
+            <section class="section-container grid-col-6" id="forms">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-keyboard"></i> Forms Showcase</h2>
                 <div class="section-content active">
-                    <p>This standalone section breaks free from groups—Pure chaos, no nesting! Here’s a <span class="highlight">highlight</span> to spice it up.</p>
-                    <p><button class="btn btn-primary">Click Me</button> <a href="#" class="link-hover">Hover Over Me</a></p>
+                    <p>Styled form elements—Interact with the chaos!</p>
+                    <div class="grid-container" style="grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                        <div class="grid-col-1">
+                            <h4>Dropdown (Single Select)</h4>
+                            <select class="form-dropdown">
+                                <option value="">Select a Chaos Level</option>
+                                <option value="low">Low Chaos</option>
+                                <option value="medium">Medium Chaos</option>
+                                <option value="high">High Chaos</option>
+                            </select>
+                        </div>
+                        <div class="grid-col-1">
+                            <h4>Single-Line Entry</h4>
+                            <input type="text" class="form-input" placeholder="Enter your chaotic thought...">
+                        </div>
+                        <div class="grid-col-1">
+                            <h4>Single-Select Bullets</h4>
+                            <div class="form-radio">
+                                <label><input type="radio" name="chaos-radio" value="glitch"> Glitch Mode</label><br>
+                                <label><input type="radio" name="chaos-radio" value="pixel"> Pixel Vibe</label><br>
+                                <label><input type="radio" name="chaos-radio" value="ai"> AI Frenzy</label>
+                            </div>
+                        </div>
+                        <div class="grid-col-1">
+                            <h4>Multi-Line Entry</h4>
+                            <textarea class="form-textarea" placeholder="Unleash your chaos here..."></textarea>
+                        </div>
+                        <div class="grid-col-2">
+                            <h4>Multiple-Select Bullets</h4>
+                            <div class="form-checkbox">
+                                <label><input type="checkbox" name="chaos-check" value="glitch"> Glitch Effects</label><br>
+                                <label><input type="checkbox" name="chaos-check" value="pixel"> Pixel Art</label><br>
+                                <label><input type="checkbox" name="chaos-check" value="ai"> AI Madness</label><br>
+                                <label><input type="checkbox" name="chaos-check" value="chaos"> Pure Chaos</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-container grid-col-6" id="chaos-mode">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-bolt"></i> Chaos Mode</h2>
+                <div class="section-content active">
+                    <p>Unleash subtle chaos—Toggle to glitch the text below!</p>
+                    <button class="btn btn-primary" id="chaosToggle" onclick="toggleChaosMode()">Toggle Chaos Mode</button>
+                    <p class="chaos-text">This text glitches when chaos mode is on!</p>
+                </div>
+            </section>
+
+            <section class="section-container grid-col-6" id="grid-demo-3">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-columns"></i> 3-Column Grid Demo</h2>
+                <div class="section-content active">
+                    <p>Ambient Pixels quirks in a 3-column grid—Chaos in action:</p>
+                    <div class="grid-container" style="grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                        <div class="grid-col-1">
+                            <p><i class="fas fa-robot fa-spin"></i> <strong>AI Overlord:</strong> Our bots are plotting memes.</p>
+                        </div>
+                        <div class="grid-col-1">
+                            <p><i class="fas fa-paint-brush" style="color: var(--accent-dark);"></i> <strong>Pixel Paint:</strong> Art drips with chaos.</p>
+                        </div>
+                        <div class="grid-col-1">
+                            <p><i class="fas fa-bolt loading-glitch"></i> <strong>Glitch Zap:</strong> Sparks fly, site thrives.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-container grid-col-6" id="grid-demo-4">
+                <h2 onclick="toggleSection(this)"><i class="fas fa-columns"></i> 4-Column Grid Demo</h2>
+                <div class="section-content active">
+                    <p>Ambient Pixels madness in a 4-column grid—Unleash the weird:</p>
+                    <div class="grid-container" style="grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                        <div class="grid-col-1">
+                            <p><i class="fas fa-tshirt" style="color: var(--highlight-dark);"></i> <strong>Glitch Tee:</strong> Wear the chaos.</p>
+                        </div>
+                        <div class="grid-col-1">
+                            <p><i class="fas fa-cube fa-spin"></i> <strong>Chaos Cube:</strong> 3D madness spins free.</p>
+                        </div>
+                        <div class="grid-col-1">
+                            <p><i class="fas fa-bomb loading-glitch"></i> <strong>Bomb Drop:</strong> Explosive updates.</p>
+                        </div>
+                        <div class="grid-col-1">
+                            <p><i class="fas fa-skull" style="color: var(--warning-dark);"></i> <strong>Skull Code:</strong> Deadlines haunt us.</p>
+                        </div>
+                    </div>
                 </div>
             </section>
         </main>
     </div>
 
     <footer>
-        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <span id="version-number">v0.17.1-20250328</span> | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
-        <div class="social-links">
+        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <span class="version-number">v0.17.3-20250328</span> | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
+        <div class="social-links footer-social">
             <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
             <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
             <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube"></i><span>Vids</span></a>
@@ -314,7 +446,7 @@ console.log(chaos + " rocks!");</code></pre>
     <div class="modal" id="comingSoonModal">
         <div class="modal-content">
             <p id="comingSoonMessage"><span id="comingSoonIcon"></span> <span id="comingSoonText"></span></p>
-            <button onclick="closeModal('comingSoonModal')">Close</button>
+            <button class="btn btn-primary" onclick="closeModal('comingSoonModal')">Close</button>
         </div>
     </div>
 
