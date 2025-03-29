@@ -1,0 +1,46 @@
+@charset "utf-8";
+/* Base CSS - Ambient Pixels v0.17.2-20250328 - March 28, 2025 */
+
+:root {
+    --bg-dark: #1A1F21;
+    --text-dark: #DDE4E6;
+    --accent-dark: #00C4E6;
+    --highlight-dark: #E63977;
+    --card-dark: #252B2D;
+    --bg-light: #F7F9FA;
+    --text-light: #2A2F33;
+    --accent-light: #0086B3;
+    --highlight-light: #D92E5F;
+    --card-light: #FFFFFF;
+    --frosted-bg: rgba(37, 43, 45, 0.8);
+    --frosted-bg-light: rgba(247, 249, 250, 0.8);
+    --warning-dark: #E67E22;
+    --warning-light: #D35400;
+    --info-dark: #3498DB;
+    --info-light: #2980B9;
+    --code-bg-dark: #2D2D2D;
+    --code-bg-light: #ECECEC;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-dark);
+    color: var(--text-dark);
+    line-height: 1.5;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body.light {
+    background-color: var(--bg-light);
+    color: var(--text-light);
+}
+
+body.menu-open {
+    overflow-y: hidden;
+}

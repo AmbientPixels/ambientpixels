@@ -1,0 +1,337 @@
+@charset "utf-8";
+/* Components CSS - Ambient Pixels v0.17.2-20250328 - March 28, 2025 */
+
+.social-links {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    flex-wrap: wrap;
+}
+
+.social-links a {
+    color: var(--text-dark);
+    text-decoration: none;
+    font-size: 1em;
+    transition: color 0.2s ease, transform 0.2s ease;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+body.light .social-links a {
+    color: var(--text-light);
+}
+
+.social-links a:hover {
+    transform: scale(1.05);
+    text-decoration: none;
+}
+
+.social-links a:hover i {
+    color: var(--accent-dark);
+}
+
+body.light .social-links a:hover i {
+    color: var(--accent-light);
+}
+
+.social-links span {
+    font-size: 0.7em;
+    color: #B8C7CA;
+}
+
+body.light .social-links span {
+    color: #5A6A6F;
+}
+
+footer {
+    width: 100%;
+    background: var(--frosted-bg);
+    backdrop-filter: blur(10px);
+    padding: 15px;
+    font-size: 0.9em;
+    color: #B8C7CA;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    text-align: center;
+    position: relative;
+    z-index: 5;
+    min-height: 100px;
+    clear: both;
+}
+
+body.light footer {
+    background: var(--frosted-bg-light);
+    color: #5A6A6F;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+footer a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+footer a:hover {
+    color: var(--accent-dark);
+}
+
+body.light footer a:hover {
+    color: var(--accent-light);
+}
+
+footer .social-links a {
+    font-size: 1.2em;
+}
+
+body.light footer .social-links a {
+    color: var(--text-light);
+}
+
+footer .social-links a:hover i {
+    color: var(--accent-dark);
+}
+
+body.light footer .social-links a:hover i {
+    color: var(--accent-light);
+}
+
+.footer-tag {
+    font-size: 0.8em;
+    margin-top: 5px;
+    color: #B8C7CA;
+}
+
+body.light .footer-tag {
+    color: #5A6A6F;
+}
+
+.back-to-top {
+    margin-left: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 20;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: var(--frosted-bg);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    transition: background 0.3s;
+}
+
+body.light .modal-content {
+    background: var(--frosted-bg-light);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.modal-content p {
+    font-size: 1.1em;
+    margin: 0 0 20px;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+body.light .modal-content p {
+    color: var(--text-light);
+}
+
+.modal-content .ai-icon {
+    font-size: 1.2em;
+}
+
+.modal-content button {
+    padding: 8px 16px;
+    background: var(--accent-dark);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+body.light .modal-content button {
+    background: var(--accent-light);
+}
+
+.modal-content button:hover {
+    background: var(--highlight-dark);
+}
+
+body.light .modal-content button:hover {
+    background: var(--highlight-light);
+}
+
+.meme-test-container {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.meme-prompt-input {
+    padding: 8px 12px;
+    font-size: 0.95em;
+    border: 1px solid var(--text-dark);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-dark);
+    width: 300px;
+    max-width: 100%;
+    transition: border-color 0.2s;
+}
+
+body.light .meme-prompt-input {
+    border-color: var(--text-light);
+    color: var(--text-light);
+}
+
+.meme-prompt-input::placeholder {
+    color: rgba(221, 228, 230, 0.7);
+}
+
+body.light .meme-prompt-input::placeholder {
+    color: rgba(42, 47, 51, 0.7);
+}
+
+.meme-prompt-input:focus {
+    border-color: var(--accent-dark);
+    outline: none;
+}
+
+body.light .meme-prompt-input:focus {
+    border-color: var(--accent-light);
+}
+
+.meme-generate-btn {
+    padding: 8px 16px;
+    background: var(--accent-dark);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+body.light .meme-generate-btn {
+    background: var(--accent-light);
+}
+
+.meme-generate-btn:hover {
+    background: var(--highlight-dark);
+    transform: translateY(-1px);
+}
+
+body.light .meme-generate-btn:hover {
+    background: var(--highlight-light);
+}
+
+.meme-generate-btn:disabled {
+    background: #444;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.meme-container {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    overflow: hidden;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.meme-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: opacity 0.2s ease;
+    opacity: 0;
+}
+
+.meme-image.visible {
+    opacity: 1;
+}
+
+.meme-text {
+    position: absolute;
+    width: 100%;
+    color: #FFFFFF;
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    text-align: center;
+    pointer-events: none;
+}
+
+body.light .meme-text {
+    color: #2A2F33;
+    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+}
+
+.meme-top-text {
+    top: 10px;
+    left: 0;
+}
+
+.meme-bottom-text {
+    bottom: 10px;
+    left: 0;
+}
+
+.meme-loading {
+    display: none;
+    font-size: 1em;
+    color: var(--accent-dark);
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+body.light .meme-loading {
+    color: var(--accent-light);
+}
+
+.meme-loading.visible {
+    display: flex;
+}

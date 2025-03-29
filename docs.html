@@ -4,10 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <title>Ambient Pixels - CI/CD & Style Guide (<span id="version-number">v0.17.1-20250328</span>)</title>
+    <title>Ambient Pixels - [Chaos Hub <span id="version-number">v0.17.2-20250328</span>]</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="_images/styles.css">
+    <link rel="stylesheet" href="_images/base.css">
+    <link rel="stylesheet" href="_images/navbar.css">
+    <link rel="stylesheet" href="_images/hero.css">
+    <link rel="stylesheet" href="_images/layout.css">
+    <link rel="stylesheet" href="_images/text.css">
+    <link rel="stylesheet" href="_images/components.css">
+    <link rel="stylesheet" href="_images/animations.css">
+    <link rel="stylesheet" href="_images/media.css">
+    <meta name="description" content="Explore the Ambient Pixels text style suite—callouts, headings, code, links, buttons, and more chaotic goodness!">
+    <meta property="og:title" content="Ambient Pixels">
+    <meta property="og:description" content="Chaos meets code. Glitchy, artsy, AI-fueled madness lives here.">
+    <meta property="og:image" content="/_images/ambient-pixel-logo-rainbow.png">
+    <meta property="og:url" content="https://ambientpixels.ai">
+    <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
     <div class="navbar">
@@ -50,23 +63,23 @@
     </div>
 
     <div class="mini-hero">
-        <h1>CI/CD & Style Guide (<span id="version-number">v0.17.1-20250328</span>)</h1>
+        <h1>[Chaos Hub <span id="version-number">v0.17.2-20250328</span>]</h1>
     </div>
 
     <div class="breadcrumbs">
-        <p><a href="/">Home</a> > CI/CD & Style Guide (<span id="version-number">v0.17.1-20250328</span>)</p>
+        <p><a href="/">Home</a> > [Chaos Hub <span id="version-number">v0.17.2-20250328</span>]</p>
     </div>
 
     <section class="section-container" id="intro">
-        <h2 id="intro"><i class="fas fa-star"></i> Overview</h2>
+        <h2 id="intro"><i class="fas fa-star"></i> Welcome to Chaos Hub</h2>
         <div class="section-content active">
-            <p class="tagline">Chaos Meets Precision</p>
-            <p>This page details our Continuous Integration/Continuous Deployment (CI/CD) pipeline, style guide, and scripting for <code>ambientpixels.ai</code>, updated to version <span id="version-number">v0.17.1-20250328</span> as of March 28, 2025, 4:00 PM PDT. It’s a living guide for building the site—educating me (Grok), you (the team), and future contributors on workflows, styles, and code.</p>
+            <p class="tagline">Unleash the Madness</p>
+            <p class="description">Dive into the wild world of Ambient Pixels—where <strong>chaos</strong> meets <span class="highlight">creativity</span> in a supernova of style. This page showcases every style in our CSS suite—use it to learn and build!</p>
         </div>
     </section>
 
     <div class="section-header-wrapper">
-        <h2 class="section-header">Documentation</h2>
+        <h2 class="section-header">Style Showcase</h2>
         <i class="fas fa-expand-alt" id="toggleAllSections" title="Toggle All Sections"></i>
     </div>
 
@@ -74,449 +87,129 @@
         <aside class="sidebar">
             <h3>Contents</h3>
             <ul>
-                <li><a href="#intro">Overview</a></li>
-                <li><a href="#pipeline-group">Pipeline</a></li>
-                <li><a href="#pipeline">CI/CD Workflow</a></li>
-                <li><a href="#azure">Azure Services</a></li>
-                <li><a href="#security-group">Security</a></li>
-                <li><a href="#api-security">API Security</a></li>
-                <li><a href="#workflows">Dual Workflows</a></li>
-                <li><a href="#tech">Tech Info</a></li>
-                <li><a href="#scripts-group">Scripts</a></li>
-                <li><a href="#scripts">Core Scripts</a></li>
-                <li><a href="#hero">Hero Randomizer</a></li>
-                <li><a href="#styles-group">Style Guide</a></li>
-                <li><a href="#styles">Text Styles</a></li>
-                <li><a href="#ui">UI Functions</a></li>
-                <li><a href="#homepage">Homepage Template</a></li>
-                <li><a href="#history">Version History</a></li>
-                <li><a href="#troubleshooting">Troubleshooting</a></li>
-                <li><a href="#next">Next Steps</a></li>
+                <li><a href="#intro">Intro</a></li>
+                <li><a href="#theme-group">Theme</a></li>
+                <li><a href="#theme-switcher">Theme Switcher</a></li>
+                <li><a href="#text-group">Text Styles</a></li>
+                <li><a href="#text-basic">Basic Styles</a></li>
+                <li><a href="#text-advanced">Advanced Styles</a></li>
+                <li><a href="#extras-group">Extras</a></li>
+                <li><a href="#extras-code">Code Snippets</a></li>
+                <li><a href="#extras-quotes">Quotes</a></li>
+                <li><a href="#colors">Colors</a></li>
+                <li><a href="#loading">Loading States</a></li>
+                <li><a href="#icons">Icons</a></li>
+                <li><a href="#chaos">Chaos Mode</a></li>
             </ul>
         </aside>
 
         <main class="main-content">
-            <div class="section-group" id="pipeline-group">
-                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-rocket"></i> Pipeline <i class="fas fa-chevron-down toggle-icon"></i></h2>
-                <div class="group-content active">
-                    <section class="section-container" id="pipeline">
-                        <h2 id="pipeline" onclick="toggleSection(this)"><i class="fas fa-cogs"></i> CI/CD Workflow</h2>
-                        <div class="section-content active">
-                            <p>Our process is an automated CI/CD pipeline:</p>
-                            <ul>
-                                <li><strong>Dreamweaver (DW) Edit</strong>: Local edits to files (e.g., <code>index.html</code>, <code>_images/styles.css</code>) in Adobe Dreamweaver.</li>
-                                <li><strong>Git Push</strong>: Commit changes to local repo (<code>C:\_projects\AmbientPixels.ai</code>) and push to <code>origin/master</code> on GitHub (<a href="https://github.com/AmbientPixels/ambientpixels" class="link-standard">github.com/AmbientPixels/ambientpixels</a>).</li>
-                                <li><strong>GitHub Workflows</strong>: Two workflows trigger:
-                                    <ul>
-                                        <li><code>azure-static-web-apps-calm-sky-05cc8e110.yml</code>: Deploys static content to Azure Static Web App.</li>
-                                        <li><code>master_ambientpixels-meme-api-fn.yml</code>: Deploys API updates to Azure Function App.</li>
-                                    </ul>
-                                </li>
-                                <li><strong>Azure Deployment</strong>: Updates go live:
-                                    <ul>
-                                        <li>Static Web App (<code>ambientpixelsV2</code>)—<code>https://calm-sky-05cc8e110.6.azurestaticapps.net/</code> and <code>ambientpixels.ai</code>.</li>
-                                        <li>Function App (<code>ambientpixels-meme-api-fn</code>)—API endpoints (e.g., <code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/getToken</code>).</li>
-                                    </ul>
-                                </li>
-                            </ul>
-                            <div class="highlight-box">
-                                <p>Why Fast? Pre-configured GitHub Actions with API tokens—Push triggers instant deployment without manual steps.</p>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="section-container" id="azure">
-                        <h2 id="azure" onclick="toggleSection(this)"><i class="fas fa-cloud"></i> Azure Services</h2>
-                        <div class="section-content">
-                            <p>We run two Azure services side-by-side:</p>
-                            <ul>
-                                <li><strong>Static Web App (<code>ambientpixelsV2</code>)</strong>:
-                                    <p>Purpose: Hosts static content—HTML, CSS, JS (e.g., <code>index.html</code>, <code>_images/</code>).</p>
-                                    <p>URL: <code>https://calm-sky-05cc8e110.6.azurestaticapps.net/</code>—Custom domain <code>ambientpixels.ai</code>.</p>
-                                    <p>Deployment: GitHub workflow <code>azure-static-web-apps-calm-sky-05cc8e110.yml</code> uploads files directly—no build step (<code>skip_app_build: "true"</code>).</p>
-                                    <p>SSL: Azure-managed HTTPS—Validated with TXT record.</p>
-                                </li>
-                                <li><strong>Function App (<code>ambientpixels-meme-api-fn</code>)</strong>:
-                                    <p>Purpose: Runs serverless APIs—<code>getToken</code> (UUIDs), <code>memeGenerator</code> (memes).</p>
-                                    <p>URL: <code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/[endpoint]</code>.</p>
-                                    <p>Deployment: GitHub workflow <code>master_ambientpixels-meme-api-fn.yml</code> builds Node.js functions (e.g., <code>getToken/index.js</code>).</p>
-                                    <p>CORS: Secured with <code>Access-Control-Allow-Origin</code>—Allows <code>calm-sky…</code> and <code>ambientpixels.ai</code>.</p>
-                                </li>
-                            </ul>
-                            <p><strong>Integration</strong>: Static Web App serves frontend, fetching from Function App APIs via <code>scripts.js</code>. Separation ensures lightweight static content and scalable APIs.</p>
-                        </div>
-                    </section>
-                </div>
-            </div>
-
-            <div class="section-group" id="security-group">
-                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-lock"></i> Security <i class="fas fa-chevron-down toggle-icon"></i></h2>
+            <div class="section-group" id="theme-group">
+                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-moon"></i> Theme <i class="fas fa-chevron-down toggle-icon"></i></h2>
                 <div class="group-content">
-                    <section class="section-container" id="api-security">
-                        <h2 id="api-security" onclick="toggleSection(this)"><i class="fas fa-shield-alt"></i> API Security</h2>
-                        <div class="section-content">
-                            <p><strong>Token-Based</strong>: <code>getToken</code> generates UUIDs—Used in <code>memeGenerator</code> requests (future enhancement pending).</p>
-                            <p><strong>CORS Configuration</strong>: Set in <code>getToken/index.js</code>:</p>
-                            <pre class="code-block">
-headers: {
-    "Access-Control-Allow-Origin": "https://calm-sky-05cc8e110.6.azurestaticapps.net",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization"
-}
-                            </pre>
-                            <p>Also configured in Azure Portal > Function App > CORS to allow <code>ambientpixels.ai</code> and <code>www.ambientpixels.ai</code>.</p>
-                            <div class="callout callout-info">
-                                <i class="fas fa-info-circle"></i>
-                                <p><strong>Status:</strong> Secured for current origins—Scalable for future domains.</p>
+                    <section class="section-container" id="theme-switcher">
+                        <h2 id="theme-switcher" onclick="toggleSection(this)"><i class="fas fa-moon"></i> Theme Switcher</h2>
+                        <div class="section-content active">
+                            <p>Toggle themes live—See the chaos shift!</p>
+                            <div class="theme-buttons">
+                                <button class="btn btn-primary" onclick="setTheme('dark')">Dark Mode</button>
+                                <button class="btn btn-secondary" onclick="setTheme('light')">Light Mode</button>
                             </div>
                         </div>
                     </section>
-
-                    <section class="section-container" id="workflows">
-                        <h2 id="workflows" onclick="toggleSection(this)"><i class="fas fa-code-branch"></i> Dual GitHub Workflows</h2>
-                        <div class="section-content">
-                            <p><strong>Why Two Workflows?</strong></p>
-                            <ul>
-                                <li>Static Content: <code>azure-static-web-apps-calm-sky-05cc8e110.yml</code> deploys HTML/CSS/JS—Triggers on all <code>master</code> pushes.</li>
-                                <li>API Functions: <code>master_ambientpixels-meme-api-fn.yml</code> deploys Node.js functions—Triggers on API file changes (e.g., <code>getToken/</code>, <code>meme-api/</code>, <code>package.json</code>).</li>
-                                <li>Separation: Prevents unnecessary API deploys—Optimizes speed.</li>
-                            </ul>
-                            <p><strong>Static Workflow</strong>:</p>
-                            <pre class="code-block">
-on:
-  push:
-    branches: [ "master" ]
-jobs:
-  build_and_deploy_job:
-    steps:
-      - uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_SKY_05CC8E110 }}
-          app_location: "/"
-          output_location: ""
-          skip_app_build: "true"
-                            </pre>
-                            <p><strong>Function Workflow</strong>:</p>
-                            <pre class="code-block">
-on:
-  push:
-    branches: [ "master" ]
-    paths:
-      - 'getToken/**'
-      - 'meme-api/**'
-      - 'package.json'
-jobs:
-  build-and-deploy:
-    steps:
-      - uses: Azure/functions-action@v1
-        with:
-          app-name: 'ambientpixels-meme-api-fn'
-          package: '.'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E5BE881F58F440D69430618422EEB336 }}
-                            </pre>
-                            <p><strong>Process</strong>: Single <code>git push</code>—GitHub splits work—Static deploys always—Function deploys conditionally.</p>
-                        </div>
-                    </section>
                 </div>
             </div>
 
-            <section class="section-container" id="tech">
-                <h2 id="tech" onclick="toggleSection(this)"><i class="fas fa-info-circle"></i> Technical Info</h2>
-                <div class="section-content">
-                    <ul>
-                        <li><strong>Repo</strong>: <a href="https://github.com/AmbientPixels/ambientpixels" class="link-hover">github.com/AmbientPixels/ambientpixels</a>—<code>master</code> branch.</li>
-                        <li><strong>Workflow Files</strong>:
-                            <p><code>azure-static-web-apps-calm-sky-05cc8e110.yml</code>: Static content—Token in Secrets (<code>AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_SKY_05CC8E110</code>).</p>
-                            <p><code>master_ambientpixels-meme-api-fn.yml</code>: Function App—Publish profile in Secrets (<code>AZUREAPPSERVICE_PUBLISHPROFILE_E5BE881F58F440D69430618422EEB336</code>).</p>
-                        </li>
-                        <li><strong>Azure Setup</strong>:
-                            <p>Resource Group: <code>ambientpixelsV2</code>.</p>
-                            <p>Static Web App SKU: Standard—Free HTTPS, custom domains.</p>
-                            <p>Function App Runtime: Node.js ~20—Serverless, scalable.</p>
-                        </li>
-                        <li><strong>Tips</strong>:
-                            <p>Flush DNS: <code>ipconfig /flushdns</code>.</p>
-                            <p>Check Propagation: <code>nslookup ambientpixels.ai 8.8.8.8</code>.</p>
-                            <p>Monitor: GitHub Actions logs—Azure Deployment Center.</p>
-                        </li>
-                    </ul>
-                </div>
-            </section>
-
-            <div class="section-group" id="scripts-group">
-                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-code"></i> Scripts <i class="fas fa-chevron-down toggle-icon"></i></h2>
-                <div class="group-content active">
-                    <section class="section-container" id="scripts">
-                        <h2 id="scripts" onclick="toggleSection(this)"><i class="fas fa-file-code"></i> Core Scripts</h2>
+            <div class="section-group" id="text-group">
+                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-font"></i> Text Styles <i class="fas fa-chevron-down toggle-icon"></i></h2>
+                <div class="group-content">
+                    <section class="section-container" id="text-basic">
+                        <h2 id="text-basic" onclick="toggleSection(this)"><i class="fas fa-text-height"></i> Basic Styles</h2>
                         <div class="section-content active">
-                            <p><strong>Purpose</strong>: <code>_images/scripts.js</code> powers shared functionality across pages—UI toggles, version display, meme generation.</p>
-                            <p><strong>Key Functions</strong>:</p>
-                            <ul>
-                                <li><strong>Version Number</strong>: Sets dynamic version—<code>const VERSION_NUMBER = "v0.17.1-20250328";</code>—Updates <code>#version-number</code>.</li>
-                                <li><strong>UI Toggles</strong>: <code>toggleTheme</code>, <code>toggleMenu</code>, <code>toggleSection</code>, <code>toggleGroup</code>, <code>toggleAllSections</code>—Handle light/dark, mobile nav, and section collapsing.</li>
-                                <li><strong>Animations</strong>: <code>animateSections</code>—Fades in sections on load.</li>
-                                <li><strong>Meme Generator</strong>: <code>getAccessToken</code>, <code>generateMeme</code>—Fetches API token, generates memes with prompt.</li>
-                                <li><strong>Theme Switcher</strong>: <code>setTheme</code>—Sets light/dark mode explicitly (v0.17.1-20250328).</li>
-                                <li><strong>Chaos Mode</strong>: <code>toggleChaosMode</code>—Toggles chaotic effects (v0.17.1-20250328).</li>
-                            </ul>
-                            <p><strong>Code Example</strong>:</p>
-                            <pre class="code-block"><code>async function generateMeme() {
-    const promptInput = document.getElementById('memePrompt');
-    const defaultPrompt = 'A confused robot in a disco';
-    const prompt = promptInput?.value.trim() || defaultPrompt;
-    const generateBtn = document.getElementById('memeGenerateBtn');
-    const loadingDiv = document.getElementById('memeLoading');
-    const memeImage = document.getElementById('memeImage');
-    const topText = document.getElementById('memeTopText');
-    const bottomText = document.getElementById('memeBottomText');
-
-    if (!generateBtn || !loadingDiv || !memeImage || !topText || !bottomText) return;
-
-    generateBtn.disabled = true;
-    loadingDiv.classList.add('visible');
-    memeImage.classList.remove('visible');
-    topText.innerText = '';
-    bottomText.innerText = '';
-
-    try {
-        const token = await getAccessToken();
-        if (!token) throw new Error('No access token available');
-        const response = await fetch(API_ENDPOINT, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ endpoint: "image", prompt: prompt })
-        });
-        if (!response.ok) throw new Error(`API error: ${response.status}`);
-        const blob = await response.blob();
-        memeImage.src = URL.createObjectURL(blob);
-        memeImage.classList.add('visible');
-        topText.innerText = prompt.slice(0, 20);
-        bottomText.innerText = prompt.slice(-20);
-    } catch (error) {
-        console.error('Meme generation error:', error);
-        memeImage.src = 'https://placehold.co/300x300?text=API+Error';
-        topText.innerText = 'OOPS';
-        bottomText.innerText = 'API BROKE';
-        memeImage.classList.add('visible');
-    } finally {
-        loadingDiv.classList.remove('visible');
-        generateBtn.disabled = false;
-    }
-}
-                            </code></pre>
-                            <p><strong>Notes</strong>: Split from <code>hero-randomizer.js</code> in v0.16.8-20250328—Keeps core logic shared, hero-specific code separate. Enhanced in v0.17.1-20250328 with theme and chaos controls.</p>
-                        </div>
-                    </section>
-
-                    <section class="section-container" id="hero">
-                        <h2 id="hero" onclick="toggleSection(this)"><i class="fas fa-image"></i> Hero Randomizer</h2>
-                        <div class="section-content">
-                            <p><strong>Purpose</strong>: Adds chaotic flair to <code>index.html</code>—Randomizes hero banner images and taglines on load.</p>
-                            <p><strong>Location</strong>: <code>_images/hero-randomizer.js</code>—Split from <code>scripts.js</code> in v0.16.8-20250328 for homepage-specific use.</p>
-                            <p><strong>Functionality</strong>:</p>
-                            <ul>
-                                <li><strong>Taglines</strong>: Picks from 7 chaotic phrases (e.g., “Pixel storm incoming—duck!”)—Displays in <code>#randomTagline</code> with letter-by-letter animation.</li>
-                                <li><strong>Images</strong>: Randomizes 11 banners (<code>banner.jpg</code>, <code>banner1.jpg</code> to <code>banner10.jpg</code>)—Sets as <code>.hero</code> background.</li>
-                                <li><strong>Loading</strong>: Shows <code>#loadingScreen</code> for 1.5s—Hides, reveals tagline.</li>
-                                <li><strong>Execution</strong>: Wrapped in <code>DOMContentLoaded</code>—Ensures DOM readiness.</li>
-                            </ul>
-                            <p><strong>Code</strong>:</p>
-                            <pre class="code-block"><code>document.addEventListener('DOMContentLoaded', () => {
-    const taglines = [
-        "Oops, the pixels got drunk again!",
-        "Chaos.exe has entered the chat.",
-        // ... 5 more ...
-    ];
-    const taglineElement = document.getElementById('randomTagline');
-    const loadingScreen = document.getElementById('loadingScreen');
-    if (taglineElement && loadingScreen) {
-        const randomTagline = taglines[Math.floor(Math.random() * taglines.length)];
-        taglineElement.innerHTML = randomTagline.split('').map(char =>
-            char === ' ' ? `[span] [/span]` : `[span]${char}[/span]`
-        ).join('');
-        setTimeout(() => {
-            loadingScreen.style.display = 'none';
-            taglineElement.style.display = 'block';
-        }, 1500);
-    }
-
-    const heroImages = [
-        '_images/banner.jpg',
-        '_images/banner1.jpg',
-        '_images/banner2.jpg', // Replaced v0.16.7
-        '_images/banner3.jpg',
-        '_images/banner4.jpg',
-        '_images/banner5.jpg',
-        '_images/banner6.jpg', // Added v0.16.7
-        '_images/banner7.jpg',
-        '_images/banner8.jpg',
-        '_images/banner9.jpg',
-        '_images/banner10.jpg'
-    ];
-    const heroElement = document.querySelector('.hero');
-    if (heroElement) {
-        const randomHeroImage = heroImages[Math.floor(Math.random() * heroImages.length)];
-        heroElement.style.backgroundImage = `url('${randomHeroImage}')`;
-    }
-});
-                            </code></pre>
-                            <p><strong>Future Enhancements</strong>: Planned—Fade effects, manual controls, more banners.</p>
-                            <p><strong>Notes</strong>: Debug logs added in v0.16.9-20250328—Removed for clarity. Homepage-only—Other pages use <code>scripts.js</code>.</p>
-                        </div>
-                    </section>
-                </div>
-            </div>
-
-            <div class="section-group" id="styles-group">
-                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-font"></i> Style Guide <i class="fas fa-chevron-down toggle-icon"></i></h2>
-                <div class="group-content active">
-                    <section class="section-container" id="styles">
-                        <h2 id="styles" onclick="toggleSection(this)"><i class="fas fa-text-height"></i> Text Styles</h2>
-                        <div class="section-content active">
-                            <p class="tagline">Chaos Unleashed in Style</p>
-                            <p>Our design system, updated to <span id="version-number">v0.17.1-20250328</span>, powers <code>ambientpixels.ai</code>. See <code>template.html</code> for full examples. Here’s the suite:</p>
+                            <p class="tagline">Tagline: Chaos Unleashed</p>
+                            <p>Regular text flows naturally—Clean chaos.</p>
                             <p><strong>Strong Text:</strong> Bold and punchy.</p>
                             <p><span class="highlight">Highlight Text:</span> Pops with color.</p>
-                            <p>Regular paragraph text flows naturally.</p>
-                            <ul>
-                                <li>Bullet point—simple.</li>
-                                <li><strong>Bullet with Strong:</strong> Emphasis in lists.</li>
-                                <li><span class="highlight">Bullet with Highlight:</span> Flair and function.</li>
-                            </ul>
+                        </div>
+                    </section>
+                    <section class="section-container" id="text-advanced">
+                        <h2 id="text-advanced" onclick="toggleSection(this)"><i class="fas fa-paint-brush"></i> Advanced Styles</h2>
+                        <div class="section-content active">
                             <div class="callout callout-warning">
                                 <i class="fas fa-exclamation-triangle"></i>
-                                <p><strong>Warning:</strong> Use sparingly—critical notes.</p>
+                                <p><strong>Warning:</strong> AI overload imminent!</p>
                             </div>
                             <div class="callout callout-info">
                                 <i class="fas fa-info-circle"></i>
-                                <p><strong>Info:</strong> Key details in blue.</p>
+                                <p><strong>Info:</strong> Chaos runs this show.</p>
                             </div>
                             <div class="highlight-box">
-                                <p>Highlight Box—Key takeaways or quotes!</p>
+                                <p>Highlight Box: Key takeaways here!</p>
                             </div>
-                            <h3>H3: Bold Subheading</h3>
-                            <p>Breaks up content.</p>
-                            <h4>H4: Smaller Subheading</h4>
-                            <p>Nested sections.</p>
-                            <h5>H5: Tiny Subheading</h5>
-                            <p>Fine details.</p>
-                            <pre class="code-block"><code>const chaos = "Ambient Pixels";
-console.log(chaos + " rocks!");</code></pre>
-                            <p>Inline code: <code>let x = 42;</code>—Monospaced.</p>
-                            <p>Links: <a href="#" class="link-standard">Standard</a> or <a href="#" class="link-hover">Hover-Effect</a>.</p>
-                            <p><button class="btn btn-primary">Primary</button> <button class="btn btn-secondary">Secondary</button></p>
-                            <blockquote class="blockquote">
-                                <p>“Chaos is creativity with extra steps.” —Some AI</p>
-                            </blockquote>
-                            <p class="small-text">Small text for footnotes.</p>
-                            <p class="drop-cap">Drop cap kicks off with flair.</p>
-                        </div>
-                    </section>
-
-                    <section class="section-container" id="ui">
-                        <h2 id="ui" onclick="toggleSection(this)"><i class="fas fa-desktop"></i> UI Functions</h2>
-                        <div class="section-content">
-                            <p><strong>toggleSection</strong>: Collapses/expands sections—Click headers.</p>
-                            <pre class="code-block"><code>function toggleSection(header) {
-    const content = header.nextElementSibling;
-    content.classList.toggle('active');
-}</code></pre>
-                            <p><strong>toggleGroup</strong>: Collapses/expands section groups—Swaps chevron icons.</p>
-                            <pre class="code-block"><code>function toggleGroup(header) {
-    const content = header.nextElementSibling;
-    content.classList.toggle('active');
-    const icon = header.querySelector('.toggle-icon');
-    icon.classList.toggle('fa-chevron-down');
-    icon.classList.toggle('fa-chevron-up');
-}</code></pre>
-                            <p><strong>toggleAllSections</strong>: Toggles all groups and sections—Swaps expand/compress icons.</p>
-                            <p><strong>toggleMenu</strong>: Mobile navbar toggle—Burger icon.</p>
-                            <p><strong>toggleTheme</strong>: Light/dark switch—Moon/sun button.</p>
-                            <p><strong>setTheme</strong>: Explicitly sets light/dark mode—Added v0.17.1-20250328.</p>
-                            <p><strong>toggleChaosMode</strong>: Toggles chaotic effects—Added v0.17.1-20250328.</p>
-                            <p><strong>backToTop</strong>: Snaps to top—Appears on scroll (<code>scrollY > 200</code>).</p>
-                            <p><strong>Version Number</strong>: Dynamically sets version across pages—Defined in <code>scripts.js</code>.</p>
-                            <p><strong>Notes</strong>: Homepage uses uncollapsed sections—Other pages (e.g., this doc) use toggleable groups and standalone sections.</p>
-                        </div>
-                    </section>
-
-                    <section class="section-container" id="homepage">
-                        <h2 id="homepage" onclick="toggleSection(this)"><i class="fas fa-home"></i> Homepage Template</h2>
-                        <div class="section-content">
-                            <p><strong>Status (3/28/2025, 4:00 PM PDT)</strong>: Updated to <span id="version-number">v0.17.1-20250328</span>—Solid foundation for <code>index.html</code>. Features:</p>
-                            <ul>
-                                <li>Main <code>.hero</code> with random images and taglines—Full-width, chaotic entry via <code>hero-randomizer.js</code>.</li>
-                                <li><code>#intro</code> without section background—Centered text below hero, sets the tone.</li>
-                                <li>Uncollapsed standalone sections: <code>#memetron</code>, <code>#glitch</code>, <code>#connect</code>—No toggles, all content visible.</li>
-                                <li>Footer with social icons (DeviantArt, X, YouTube, Facebook) and dynamic version number—Now on all pages.</li>
-                                <li>No mini-hero, sidebar, or breadcrumbs—Clean, focused layout.</li>
-                            </ul>
-                            <p><strong>Notes for Today</strong>: Layout suggestions to explore:</p>
-                            <ul>
-                                <li><strong>Intro Overlay</strong>: Move <code>#intro</code> into <code>.hero</code> as a bottom overlay—Add “Dive In” button to <code>#memetron</code>.</li>
-                                <li><strong>Grid Layout</strong>: 2-column grid for <code>#memetron</code> and <code>#glitch</code>—<code>#connect</code> full-width below.</li>
-                                <li><strong>Spacing Boost</strong>: Increase <code>.section-container</code> bottom margin to 30px—Done in v0.16.4-20250328.</li>
-                                <li><strong>Hero Subheading</strong>: Static text below random tagline (e.g., “Creative Tech Unleashed”).</li>
-                            </ul>
                         </div>
                     </section>
                 </div>
             </div>
 
-            <section class="section-container" id="history">
-                <h2 id="history" onclick="toggleSection(this)"><i class="fas fa-history"></i> Version History</h2>
-                <div class="section-content">
-                    <p><strong>Purpose</strong>: Tracks major updates—Helps understand site evolution.</p>
-                    <ul>
-                        <li><strong>v0.16.4-20250328</strong> (<code>yza567</code>): Homepage template locked, intro section added, spacing boosted to 30px.</li>
-                        <li><strong>v0.16.7-20250328</strong> (<code>fa8c691</code>): Added banners 6-10, reduced social icon sizes (1em #connect, 1.2em footer).</li>
-                        <li><strong>v0.16.9-20250328</strong> (<code>be3ade2</code>): Fixed hero randomizer with <code>DOMContentLoaded</code>, added debug logs.</li>
-                        <li><strong>v0.17.0-20250328</strong> (<code>[your last hash]</code>): Split scripts, documented hero randomizer, aligned <code>.group-header</code>, updated <code>template.html</code> with all styles, enhanced docs, fixed footer by removing suspect content.</li>
-                        <li><strong>v0.17.1-20250328</strong> (<code>f9ab041</code>): Added Resources dropdown to navbar, replaced <code>[</code> and <code>]</code> for <code><</code> and <code>></code> in <code>doc.html</code> to fix footer, expanded <code>template.html</code> with subtle/chaotic loading states (7 total), 32 categorized icons, theme switcher, color palette, chaos mode; updated <code>scripts.js</code> with <code>setTheme</code> and <code>toggleChaosMode</code>.</li>
-                    </ul>
-                    <p><strong>Notes</strong>: Earlier hashes (e.g., <code>f9dd481</code>, <code>stu901</code>) in Tech Info—Full log in GitHub commits.</p>
+            <div class="section-group" id="extras-group">
+                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-box-open"></i> Extras <i class="fas fa-chevron-down toggle-icon"></i></h2>
+                <div class="group-content">
+                    <section class="section-container" id="extras-code">
+                        <h2 id="extras-code" onclick="toggleSection(this)"><i class="fas fa-code"></i> Code Snippets</h2>
+                        <div class="section-content active">
+                            <p>Code example:</p>
+                            <pre class="code-block">[code]const chaos = "Ambient Pixels";[/code]</pre>
+                        </div>
+                    </section>
+                    <section class="section-container" id="extras-quotes">
+                        <h2 id="extras-quotes" onclick="toggleSection(this)"><i class="fas fa-quote-left"></i> Quotes</h2>
+                        <div class="section-content active">
+                            <blockquote class="blockquote">
+                                <p>"Chaos is creativity with extra steps." —Some AI</p>
+                            </blockquote>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <section class="section-standalone" id="colors">
+                <h2><i class="fas fa-palette"></i> Colors</h2>
+                <p>Core palette from CSS variables—Chaos colors:</p>
+                <div class="color-palette">
+                    <div class="color-swatch" style="background: var(--bg-dark);"><span>--bg-dark</span></div>
+                    <div class="color-swatch" style="background: var(--text-dark);"><span>--text-dark</span></div>
+                    <div class="color-swatch" style="background: var(--accent-dark);"><span>--accent-dark</span></div>
                 </div>
             </section>
 
-            <section class="section-container" id="troubleshooting">
-                <h2 id="troubleshooting" onclick="toggleSection(this)"><i class="fas fa-tools"></i> Troubleshooting</h2>
-                <div class="section-content">
-                    <p><strong>Purpose</strong>: Quick fixes for common issues—Educates on debugging.</p>
-                    <ul>
-                        <li><strong>Images Not Loading</strong>: Check paths (e.g., <code>_images/bannerX.jpg</code>), case sensitivity, GitHub repo sync. Fix: Re-upload, verify hash.</li>
-                        <li><strong>Scripts Fail</strong>: Ensure <code>defer</code> on <code>[script]</code> tags, use <code>DOMContentLoaded</code>. Log errors with <code>console.log</code>.</li>
-                        <li><strong>Styles Misaligned</strong>: Verify <code>max-width</code>, <code>margin</code> consistency—e.g., <code>.group-header</code> vs <code>.section-container</code>.</li>
-                        <li><strong>API Errors</strong>: Check CORS, token fetch—Test endpoints in browser (<code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/getToken</code>).</li>
-                        <li><strong>Footer Missing</strong>: Check for unescaped <code><</code> or <code>></code> in code blocks—Replace with <code>[</code> and <code>]</code> (fixed in v0.17.1-20250328).</li>
-                        <li><strong>Chaos Mode Stalls</strong>: Ensure <code>toggleChaosMode</code> toggles <code>.chaos-active</code>—Check browser console for JS errors.</li>
-                    </ul>
-                    <p><strong>Tip</strong>: Open browser console (F12)—Look for 404s, JS errors, or CSS warnings.</p>
+            <section class="section-standalone" id="loading">
+                <h2><i class="fas fa-spinner"></i> Loading States</h2>
+                <p>Demoing loading states:</p>
+                <div class="loading-text">Loading chaos...</div>
+                <div class="loading-dots"><span></span><span></span><span></span></div>
+            </section>
+
+            <section class="section-standalone" id="icons">
+                <h2><i class="fas fa-icons"></i> Icons</h2>
+                <p>Font Awesome icons—Hover for chaos!</p>
+                <div class="icon-demo">
+                    <i class="fas fa-home" title="Home"></i>
+                    <i class="fas fa-cube" title="Cube"></i>
+                    <i class="fas fa-robot" title="Robot"></i>
                 </div>
             </section>
 
-            <section class="section-container" id="next">
-                <h2 id="next" onclick="toggleSection(this)"><i class="fas fa-forward"></i> Next Steps</h2>
-                <div class="section-content">
-                    <ul>
-                        <li>Lock v0.17.1-20250328—Milestone: Footer restored with character substitution, navbar enhanced, template demo leveled up with loading states, icons, theme switcher, colors, chaos mode.</li>
-                        <li>Today (3/28): Test homepage layout tweaks—Overlay intro, hero subheading.</li>
-                        <li>Enhance <code>hero-randomizer.js</code>—Add fade effects, controls.</li>
-                        <li>Update <code>projects.html</code>—More chaos content.</li>
-                        <li>Secure API—Token validation in <code>memeGenerator</code>.</li>
-                        <li>Revisit smooth scroll—Optional tweak.</li>
-                        <li>Expand <code>template.html</code>—Add animated section transitions or live style playground?</li>
-                    </ul>
-                    <p><em>Forged by chaos, deployed with precision—Ambient Pixels, 2025.</em></p>
-                </div>
+            <section class="section-standalone" id="chaos">
+                <h2><i class="fas fa-bolt"></i> Chaos Mode</h2>
+                <p>Unleash maximum chaos!</p>
+                <button class="btn btn-primary" id="chaosToggle" onclick="toggleChaosMode()">Toggle Chaos Mode</button>
+                <p class="chaos-text">This text gets glitchy!</p>
             </section>
         </main>
     </div>
 
     <footer>
-        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <span id="version-number">v0.17.1-20250328</span> | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
+        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <span id="version-number">v0.17.2-20250328</span> | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
         <div class="social-links">
             <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
             <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
