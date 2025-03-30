@@ -1,4 +1,4 @@
-/* navbar.css - Ambient Pixels v0.17.7-20250330 - March 30, 2025, 3:25 PM PDT */
+/* navbar.css - Ambient Pixels v0.17.7-20250330 - March 30, 2025, 3:45 PM PDT */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -104,6 +104,7 @@ body.light .navbar-menu a:hover {
 
     .navbar-menu.active {
         display: flex !important; /* Force show when toggled */
+        visibility: visible !important; /* Ensure visible */
     }
 
     .navbar-toggle {
@@ -121,5 +122,6 @@ body.light .navbar-menu a:hover {
 
     body.light .navbar-menu.active {
         display: flex !important; /* Force show in light mode */
+        visibility: visible !important;
     }
 }
