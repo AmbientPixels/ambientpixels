@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <title>Ambient Pixels - Chaos Meets Code (<span class="version-number"></span>)</title>
+    <title>Ambient Pixels - Chaos Meets Code (<span class="version-number">v0.17.7-20250330</span>)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="_images/base.css">
@@ -15,14 +15,22 @@
     <link rel="stylesheet" href="_images/components.css">
     <link rel="stylesheet" href="_images/animations.css">
     <link rel="stylesheet" href="_images/media.css">
-    <meta name="description" content="Chaos meets code—v0.17.6 blends glitchy art and AI magic with style!">
+    <meta name="description" content="Chaos meets code—v0.17.7-20250330 blends glitchy art and AI magic with style!">
     <meta property="og:title" content="Ambient Pixels">
-    <meta property="og:description" content="Chaos meets code—v0.17.6 blends glitchy art and AI magic with style!">
+    <meta property="og:description" content="Chaos meets code—v0.17.7-20250330 blends glitchy art and AI magic with style!">
     <meta property="og:image" content="/_images/ambient-pixel-logo-rainbow.png">
     <meta property="og:url" content="https://ambientpixels.ai">
     <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
+    <!-- Modal moved to top of body -->
+    <div class="modal" id="comingSoonModal">
+        <div class="modal-content">
+            <p id="comingSoonMessage"><span id="comingSoonIcon"></span> <span id="comingSoonText"></span></p>
+            <button class="btn btn-primary effect-pulse" onclick="closeModal('comingSoonModal')">Close</button>
+        </div>
+    </div>
+
     <div class="navbar">
         <div class="navbar-left">
             <a href="/">
@@ -73,8 +81,8 @@
             <h2 onclick="toggleSection(this)"><i class="fas fa-fire effect-pulse"></i> Chaos Meets Code</h2>
             <div class="section-content active">
                 <p class="tagline">Where glitches spark brilliance</p>
-                <p class="description">Welcome to Ambient Pixels—a fusion of AI magic and glitchy art! Version <span class="version-number"></span> lands with sleek grids, stylish forms, and a pink chaos twist. Dive in—this is where creativity ignites!</p>
-                <p><time datetime="2025-03-29T12:00:00-07:00">Launched: March 29, 2025, 12:00 PM PDT</time></p>
+                <p class="description">Welcome to Ambient Pixels—a fusion of AI magic and glitchy art! Version <span class="version-number">v0.17.7-20250330</span> lands with sleek grids, stylish forms, and a pink chaos twist. Dive in—this is where creativity ignites!</p>
+                <p><time datetime="2025-03-30T00:00:00-07:00">Launched: March 30, 2025, 12:00 AM PDT</time></p>
             </div>
         </section>
 
@@ -101,7 +109,7 @@
         <section class="section-container grid-col-3" id="glitch">
             <h2 onclick="toggleSection(this)"><i class="fas fa-tshirt effect-bounce"></i> Glitch Apparel</h2>
             <div class="section-content active">
-                <p class="description">Wear the vibe—AI-crafted gear hits soon! Tees and hoodies with v0.17.6 flair—sign up to snag the first batch.</p>
+                <p class="description">Wear the vibe—AI-crafted gear hits soon! Tees and hoodies with v0.17.7 flair—sign up to snag the first batch.</p>
                 <p><button class="btn btn-primary effect-pulse" onclick="showComingSoonModal('Glitch Apparel')">Notify Me</button></p>
             </div>
         </section>
@@ -120,9 +128,9 @@
         </section>
 
         <section class="section-container grid-col-3" id="update">
-            <h2 onclick="toggleSection(this)"><i class="fas fa-bolt effect-pulse"></i> v0.17.6 Unleashed!</h2>
+            <h2 onclick="toggleSection(this)"><i class="fas fa-bolt effect-pulse"></i> v0.17.7 Unleashed!</h2>
             <div class="section-content active">
-                <p class="description">v0.17.6 drops with flair—grids that shine, forms that pop, and pink chaos in style! Check <a href="/docs.html" class="link-hover">the docs</a> or <a href="/template.html" class="link-standard">style guide</a>—it’s live!</p>
+                <p class="description">v0.17.7-20250330 drops with flair—grids that shine, forms that pop, and pink chaos in style! Check <a href="/docs.html" class="link-hover">the docs</a> or <a href="/template.html" class="link-standard">style guide</a>—it’s live!</p>
                 <p><i class="fas fa-cog effect-spin"></i> AI-crafted, chaos-driven!</p>
             </div>
         </section>
@@ -148,13 +156,6 @@
         <p class="footer-tagline"><span class="version-flair"></span></p>
         <p>Forged by AI, fueled by chaos</p>
     </footer>
-
-    <div class="modal" id="comingSoonModal">
-        <div class="modal-content">
-            <p id="comingSoonMessage"><span id="comingSoonIcon"></span> <span id="comingSoonText"></span></p>
-            <button class="btn btn-primary effect-pulse" onclick="closeModal('comingSoonModal')">Close</button>
-        </div>
-    </div>
 
     <script src="_images/modal-window.js" defer></script>
     <script src="_images/scripts.js" defer></script>

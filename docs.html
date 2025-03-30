@@ -23,6 +23,14 @@
     <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
+    <!-- Modal moved to top of body -->
+    <div class="modal" id="comingSoonModal">
+        <div class="modal-content">
+            <p id="comingSoonMessage"><span id="comingSoonIcon"></span> <span id="comingSoonText"></span></p>
+            <button class="btn btn-primary effect-pulse" onclick="closeModal('comingSoonModal')">Close</button>
+        </div>
+    </div>
+
     <div class="navbar">
         <div class="navbar-left">
             <a href="/">
@@ -53,9 +61,9 @@
                     <a onclick="showComingSoonModal('Social')"><i class="fas fa-users"></i> Social Media</a>
                 </div>
             </div>
-            <i class="fas fa-moon theme-toggle" onclick="toggleTheme()"></i>
+            <i class="fas fa-moon theme-toggle effect-pulse" onclick="toggleTheme()"></i>
         </div>
-        <i class="fas fa-bars navbar-toggle" onclick="toggleMenu()"></i>
+        <i class="fas fa-bars navbar-toggle effect-pulse" onclick="toggleMenu()"></i>
     </div>
 
     <div class="mini-hero">
@@ -86,7 +94,7 @@
 
         <main class="main-content grid-col-4">
             <section class="section-container grid-col-6" id="intro">
-                <h2 onclick="toggleSection(this)"><i class="fas fa-star"></i> Overview</h2>
+                <h2 onclick="toggleSection(this)"><i class="fas fa-star effect-pulse"></i> Overview</h2>
                 <div class="section-content active">
                     <p class="tagline">Your Technical Blueprint for Ambient Pixels</p>
                     <p class="description">This document is the definitive guide for <code>ambientpixels.ai</code>—covering our CI/CD pipeline, security protocols, technical stack, scripts, and style system as of <span class="version-number"></span>. It’s designed to onboard and train contributors on deployment workflows, code structure, and styling conventions.</p>
@@ -94,10 +102,10 @@
             </section>
 
             <div class="section-group grid-col-6" id="pipeline-group">
-                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-rocket"></i> Pipeline <i class="fas fa-chevron-down toggle-icon"></i></h2>
+                <h2 class="group-header" onclick="toggleGroup(this)"><i class="fas fa-rocket effect-pulse"></i> Pipeline <i class="fas fa-chevron-down toggle-icon"></i></h2>
                 <div class="group-content active">
                     <section class="section-container grid-col-3" id="pipeline">
-                        <h2 onclick="toggleSection(this)"><i class="fas fa-cogs"></i> CI/CD Workflow</h2>
+                        <h2 onclick="toggleSection(this)"><i class="fas fa-cogs effect-spin"></i> CI/CD Workflow</h2>
                         <div class="section-content active">
                             <p>Our process is an automated CI/CD pipeline:</p>
                             <ul>
@@ -111,11 +119,11 @@
                                 </li>
                                 <li><strong>Triggers</strong>: Push to <code>main</code> or PR merge—workflows run in parallel.</li>
                             </ul>
-                            <p>Example commit: <code>git commit -m "Update grid layout - v0.17.5"</code></p>
+                            <p>Example commit: <code>git commit -m "Fix modal display - v0.17.7"</code></p>
                         </div>
                     </section>
                     <section class="section-container grid-col-3" id="azure">
-                        <h2 onclick="toggleSection(this)"><i class="fas fa-cloud"></i> Azure Services</h2>
+                        <h2 onclick="toggleSection(this)"><i class="fas fa-cloud effect-bounce"></i> Azure Services</h2>
                         <div class="section-content active">
                             <p>We leverage Azure for hosting and serverless functionality:</p>
                             <ul>
@@ -129,7 +137,7 @@
             </div>
 
             <section class="section-container grid-col-6" id="security">
-                <h2 onclick="toggleSection(this)"><i class="fas fa-lock"></i> Security</h2>
+                <h2 onclick="toggleSection(this)"><i class="fas fa-lock effect-pulse"></i> Security</h2>
                 <div class="section-content active">
                     <p>Security is baked into our pipeline and deployment:</p>
                     <ul>
@@ -151,7 +159,7 @@
             </section>
 
             <section class="section-container grid-col-6" id="tech">
-                <h2 onclick="toggleSection(this)"><i class="fas fa-tools"></i> Tech Stack</h2>
+                <h2 onclick="toggleSection(this)"><i class="fas fa-tools effect-bounce"></i> Tech Stack</h2>
                 <div class="section-content active">
                     <p>Our technical foundation:</p>
                     <ul>
@@ -165,7 +173,7 @@
             </section>
 
             <section class="section-container grid-col-6" id="scripts">
-                <h2 onclick="toggleSection(this)"><i class="fas fa-code"></i> Scripts</h2>
+                <h2 onclick="toggleSection(this)"><i class="fas fa-code effect-spin"></i> Scripts</h2>
                 <div class="section-content active">
                     <p>Core scripts driving functionality (<code>_images/</code>):</p>
                     <ul>
@@ -180,10 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     animateSections();
 });
-
-function toggleChaosMode() {
-    document.body.classList.toggle('chaos-active');
-}
                             </pre>
                             <p>Handles section toggles, animations, chaos mode.</p>
                         </li>
@@ -195,17 +199,43 @@ window.showComingSoonModal = function(section) {
     const randomContent = comingSoonContent[Math.floor(Math.random() * comingSoonContent.length)];
     modal.querySelector('#comingSoonIcon').innerHTML = randomContent.icon;
     modal.querySelector('#comingSoonText').textContent = `${section}: ${randomContent.text}`;
-    modal.classList.add('active');
+    modal.style.display = 'block';
+    modal.style.opacity = '1';
+    modal.style.visibility = 'visible';
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    requestAnimationFrame(() => {
+        modal.style.display = 'block';
+    });
+};
+window.closeModal = function(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.style.display = 'none';
 };
                             </pre>
-                            <p>Manages modal popups with random messages.</p>
+                            <p><strong>Modal Functionality:</strong> Manages modal popups with random messages. Updated in v0.17.7 to use direct <code>style.display</code> toggling instead of class-based CSS for reliable rendering. Requires modal HTML (<code>&lt;div class="modal" id="comingSoonModal"&gt;</code>) at the top of <code>&lt;body&gt;</code> to avoid stacking issues.</p>
+                            <p><strong>How It Works:</strong></p>
+                            <ul>
+                                <li><strong>Trigger</strong>: Called via <code>onclick="showComingSoonModal('Section')"</code>—e.g., navbar links.</li>
+                                <li><strong>Content</strong>: Picks random message from <code>comingSoonContent</code> array, sets icon and text.</li>
+                                <li><strong>Display</strong>: Sets <code>style.display = 'block'</code>, forces position with <code>fixed</code>, top/left at 0, ensures visibility with <code>opacity</code> and <code>visibility</code>. Uses <code>requestAnimationFrame</code> to force browser repaint.</li>
+                                <li><strong>Close</strong>: <code>closeModal('comingSoonModal')</code> hides via <code>style.display = 'none'</code>. Outside clicks also close via event listener.</li>
+                            </ul>
+                            <p><strong>How to Use:</strong></p>
+                            <ul>
+                                <li>Add modal HTML at top of <code>&lt;body&gt;</code>: <code>&lt;div class="modal" id="comingSoonModal"&gt;...&lt;/div&gt;</code>.</li>
+                                <li>Link trigger: <code>&lt;a onclick="showComingSoonModal('Section Name')"&gt;</code>.</li>
+                                <li>Ensure <code>modal-window.js</code> is loaded: <code>&lt;script src="_images/modal-window.js" defer&gt;&lt;/script&gt;</code>.</li>
+                            </ul>
+                            <p><strong>Notes</strong>: Modal CSS lives in <code>components.css</code>. Avoid nesting modal in other elements—top-level placement ensures visibility.</p>
                         </li>
                     </ul>
                 </div>
             </section>
 
             <section class="section-container grid-col-6" id="style-guide">
-                <h2 onclick="toggleSection(this)"><i class="fas fa-paint-brush"></i> Style Guide</h2>
+                <h2 onclick="toggleSection(this)"><i class="fas fa-paint-brush effect-pulse"></i> Style Guide</h2>
                 <div class="section-content active">
                     <p>Updated style system as of <span class="version-number"></span>:</p>
                     <ul>
@@ -230,10 +260,11 @@ window.showComingSoonModal = function(section) {
             </section>
 
             <section class="section-container grid-col-6" id="history">
-                <h2 onclick="toggleSection(this)"><i class="fas fa-history"></i> Version History</h2>
+                <h2 onclick="toggleSection(this)"><i class="fas fa-history effect-bounce"></i> Version History</h2>
                 <div class="section-content active">
                     <p>Key milestones:</p>
                     <ul>
+                        <li><strong>v0.17.7-20250329</strong>: Fixed modal display with JS style toggle—top-of-body placement (March 29, 2025).</li>
                         <li><strong>v0.17.5-20250329</strong>: Added grid layouts, form elements (dropdown, radio, checkboxes), style enhancements—pink icons, links, chaos mode (March 29, 2025).</li>
                         <li><strong>v0.17.3-20250328</strong>: Initial CI/CD pipeline, basic style system (March 28, 2025).</li>
                     </ul>
@@ -241,19 +272,20 @@ window.showComingSoonModal = function(section) {
             </section>
 
             <section class="section-container grid-col-6" id="troubleshooting">
-                <h2 onclick="toggleSection(this)"><i class="fas fa-wrench"></i> Troubleshooting</h2>
+                <h2 onclick="toggleSection(this)"><i class="fas fa-wrench effect-pulse"></i> Troubleshooting</h2>
                 <div class="section-content active">
                     <p>Common issues and fixes:</p>
                     <ul>
                         <li><strong>API Errors</strong>: Verify token in Function App logs—<code>GET /api/getToken</code>.</li>
                         <li><strong>Style Not Applied</strong>: Clear browser cache (Ctrl+F5), check <code>_images/</code> links.</li>
+                        <li><strong>Modal Not Showing</strong>: Ensure <code>&lt;div id="comingSoonModal"&gt;</code> is at top of <code>&lt;body&gt;</code>, JS uses <code>style.display</code>.</li>
                         <li><strong>Workflow Fails</strong>: Inspect GitHub Actions logs—ensure secrets are set.</li>
                     </ul>
                 </div>
             </section>
 
             <section class="section-container grid-col-6" id="next">
-                <h2 onclick="toggleSection(this)"><i class="fas fa-forward"></i> Next Steps</h2>
+                <h2 onclick="toggleSection(this)"><i class="fas fa-forward effect-spin"></i> Next Steps</h2>
                 <div class="section-content active">
                     <p>Future enhancements:</p>
                     <ul>
@@ -266,24 +298,17 @@ window.showComingSoonModal = function(section) {
         </main>
     </div>
 
-<footer>
-    <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
-    <div class="social-links footer-social">
-        <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
-        <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
-        <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube"></i><span>Vids</span></a>
-        <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook"></i><span>Connect</span></a>
-    </div>
-    <p class="footer-tagline"><span class="version-flair"></span></p>
-    <p>Forged by AI, fueled by chaos</p>
-</footer>
-
-    <div class="modal" id="comingSoonModal">
-        <div class="modal-content">
-            <p id="comingSoonMessage"><span id="comingSoonIcon"></span> <span id="comingSoonText"></span></p>
-            <button class="btn btn-primary" onclick="closeModal('comingSoonModal')">Close</button>
+    <footer>
+        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
+        <div class="social-links footer-social">
+            <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
+            <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
+            <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube"></i><span>Vids</span></a>
+            <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook"></i><span>Connect</span></a>
         </div>
-    </div>
+        <p class="footer-tagline"><span class="version-flair"></span></p>
+        <p>Forged by AI, fueled by chaos</p>
+    </footer>
 
     <script src="_images/modal-window.js" defer></script>
     <script src="_images/scripts.js" defer></script>

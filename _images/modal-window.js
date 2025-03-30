@@ -1,5 +1,4 @@
-// modal-window.js - Ambient Pixels v0.17.5-20250329 - March 29, 2025, 1:55 PM PDT
-
+// modal-window.js - Ambient Pixels v0.17.7-20250330 - March 30, 2025, 12:35 AM PDT
 const comingSoonContent = [
     { icon: '<i class="fas fa-bug"></i>', text: "AI debug mode: Page not found—yet!" },
     { icon: '<i class="fas fa-skull"></i>', text: "This page terminated by rogue AI!" },
@@ -24,16 +23,25 @@ window.showComingSoonModal = function(section) {
     const randomContent = comingSoonContent[Math.floor(Math.random() * comingSoonContent.length)];
     iconElement.innerHTML = randomContent.icon;
     textElement.textContent = `${section}: ${randomContent.text}`;
-    modal.classList.add('active');
-    console.log('Modal class set to active');
+    console.log('Modal content set:', { icon: randomContent.icon, text: textElement.textContent });
+    modal.style.display = 'block';
+    modal.style.opacity = '1';
+    modal.style.visibility = 'visible';
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    requestAnimationFrame(() => {
+        modal.style.display = 'block';
+        console.log('Modal style set:', { display: modal.style.display, opacity: modal.style.opacity, visibility: modal.style.visibility, position: modal.style.position, top: modal.style.top, left: modal.style.left });
+    });
 };
 
 window.closeModal = function(modalId) {
     console.log('closeModal called with:', modalId);
     const modal = document.getElementById(modalId);
     if (modal) {
-        modal.classList.remove('active');
-        console.log('Modal class removed');
+        modal.style.display = 'none';
+        console.log('Modal style set to display: none');
     } else {
         console.error(`Modal with ID ${modalId} not found`);
     }
@@ -41,9 +49,9 @@ window.closeModal = function(modalId) {
 
 document.addEventListener('click', (event) => {
     const modal = document.getElementById('comingSoonModal');
-    if (modal && modal.classList.contains('active') && !event.target.closest('.modal-content')) {
+    if (modal && modal.style.display === 'block' && !event.target.closest('.modal-content')) {
         console.log('Clicked outside—closing modal');
-        modal.classList.remove('active');
+        modal.style.display = 'none';
     }
 });
 
