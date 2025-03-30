@@ -1,6 +1,6 @@
-// scripts.js - Ambient Pixels v0.17.3-20250328 - March 29, 2025, 11:15 AM PDT
+// scripts.js - Ambient Pixels v0.17.5-20250329 - March 29, 2025, 1:55 PM PDT
 
-const VERSION_NUMBER = "v0.17.4-20250329";
+const VERSION_NUMBER = "v0.17.5-20250329";
 const API_ENDPOINT = "https://ambientpixels-meme-api-fn.azurewebsites.net/api/memeGenerator";
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -82,29 +82,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (savedTheme) setTheme(savedTheme);
 
     // Activate loading animations
-    const loadingBlinks = document.querySelectorAll('.loading-blink');
-    loadingBlinks.forEach(blink => blink.classList.add('active'));
-
     const loadingFades = document.querySelectorAll('.loading-fade');
     loadingFades.forEach(fade => fade.classList.add('active'));
 
     const loadingDots = document.querySelectorAll('.loading-dots');
     loadingDots.forEach(dots => dots.classList.add('active'));
 
-    const loadingPulses = document.querySelectorAll('.loading-pulse');
-    loadingPulses.forEach(pulse => pulse.classList.add('active'));
-
     const loadingBounces = document.querySelectorAll('.loading-bounce');
     loadingBounces.forEach(bounce => bounce.classList.add('active'));
 
-    const loadingWaves = document.querySelectorAll('.loading-wave');
-    loadingWaves.forEach(wave => wave.classList.add('active'));
-
     const loadingBars = document.querySelectorAll('.loading-bar');
     loadingBars.forEach(bar => bar.classList.add('active'));
-
-    const loadingFlips = document.querySelectorAll('.loading-flip');
-    loadingFlips.forEach(flip => flip.classList.add('active'));
 
     const loadingChaos = document.querySelectorAll('.loading-chaos');
     loadingChaos.forEach(chaos => chaos.classList.add('active'));

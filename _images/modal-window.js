@@ -1,4 +1,4 @@
-// modal-window.js - Ambient Pixels v0.17.3-20250328 - March 29, 2025, 10:45 AM PDT
+// modal-window.js - Ambient Pixels v0.17.5-20250329 - March 29, 2025, 1:55 PM PDT
 
 const comingSoonContent = [
     { icon: '<i class="fas fa-bug"></i>', text: "AI debug mode: Page not found—yet!" },
