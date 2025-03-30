@@ -8,11 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body style="background: #1A1F21; color: #DDE4E6; font-family: 'Inter', sans-serif;">
-    <h1>Test Playground</h1>
-    <p>Click below to test the modal—should pop up with flair!</p>
-    <button style="padding: 10px 20px; background: #E63977; color: #fff; border: none; border-radius: 5px; cursor: pointer;" onclick="showPlayModal('Play Trigger')">Trigger Modal</button>
-
-    <!-- Modal with inline CSS -->
+    <!-- Move modal to top of body -->
     <div class="play-modal" id="playModal">
         <div class="modal-content">
             <p id="playModalMessage"><span id="playModalIcon"></span> <span id="playModalText"></span></p>
@@ -46,6 +42,10 @@
         </style>
     </div>
 
+    <h1>Test Playground</h1>
+    <p>Click below to test the modal—should pop up with flair!</p>
+    <button style="padding: 10px 20px; background: #E63977; color: #fff; border: none; border-radius: 5px; cursor: pointer;" onclick="showPlayModal('Play Trigger')">Trigger Modal</button>
+
     <script>
         const playModalContent = [
             { icon: '<i class="fas fa-bug"></i>', text: "Debug mode activated!" },
@@ -69,11 +69,15 @@
             textElement.textContent = `${section}: ${randomContent.text}`;
             console.log('Modal content set:', { icon: randomContent.icon, text: textElement.textContent });
             modal.style.display = 'block';
-            modal.style.opacity = '1'; // Force visibility
+            modal.style.opacity = '1';
             modal.style.visibility = 'visible';
-            modal.style.top = '0'; // Ensure position
+            modal.style.position = 'fixed'; // Force position
+            modal.style.top = '0';
             modal.style.left = '0';
-            console.log('Play modal style set:', { display: modal.style.display, opacity: modal.style.opacity, visibility: modal.style.visibility, top: modal.style.top, left: modal.style.left });
+            requestAnimationFrame(() => {
+                modal.style.display = 'block'; // Force repaint
+                console.log('Play modal style set:', { display: modal.style.display, opacity: modal.style.opacity, visibility: modal.style.visibility, position: modal.style.position, top: modal.style.top, left: modal.style.left });
+            });
         };
 
         window.closePlayModal = function(modalId) {
