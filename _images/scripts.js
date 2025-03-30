@@ -1,11 +1,31 @@
-// scripts.js - Ambient Pixels v0.17.5-20250329 - March 29, 2025, 1:55 PM PDT
+// scripts.js - Ambient Pixels v0.17.6-20250329 - March 29, 2025, 5:05 PM PDT
 
-const VERSION_NUMBER = "v0.17.5-20250329";
+const VERSION_NUMBER = "v0.17.6-20250329";
 const API_ENDPOINT = "https://ambientpixels-meme-api-fn.azurewebsites.net/api/memeGenerator";
 
+const versionFlair = [
+    "shines bright!",
+    "sparks chaos!",
+    "ignites the void!",
+    "blasts off!",
+    "glows wild!",
+    "rocks hard!",
+    "paints the glitch!"
+];
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Inject plain version number for all .version-number elements
     const versionElements = document.querySelectorAll('.version-number');
-    versionElements.forEach(element => element.textContent = VERSION_NUMBER);
+    versionElements.forEach(element => {
+        element.textContent = VERSION_NUMBER;
+    });
+
+    // Inject version number with flair for .version-flair elements in footer tagline
+    const flairElements = document.querySelectorAll('.version-flair');
+    const randomFlair = versionFlair[Math.floor(Math.random() * versionFlair.length)];
+    flairElements.forEach(element => {
+        element.textContent = `${VERSION_NUMBER} ${randomFlair}`;
+    });
 
     const toggleAllSectionsBtn = document.getElementById('toggleAllSections');
     if (toggleAllSectionsBtn) toggleAllSectionsBtn.addEventListener('click', toggleAllSections);
