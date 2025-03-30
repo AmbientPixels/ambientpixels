@@ -1,4 +1,4 @@
-/* navbar.css - Ambient Pixels v0.17.7-20250330 - March 30, 2025, 4:25 PM PDT */
+/* navbar.css - Ambient Pixels v0.17.7-20250330 - March 30, 2025, 5:25 PM PDT */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -36,7 +36,7 @@
 }
 
 .navbar-menu {
-    display: flex;
+    display: flex; /* Desktop default */
     align-items: center;
     gap: 20px;
 }
@@ -55,10 +55,10 @@
 }
 
 .navbar-toggle {
-    display: none;
+    display: none; /* Hidden on desktop */
     font-size: 1.5em;
     cursor: pointer;
-    z-index: 1002;
+    z-index: 1004;
     padding: 5px;
 }
 
@@ -66,7 +66,7 @@
     font-size: 1.5em;
     cursor: pointer;
     margin-left: 20px;
-    z-index: 1002;
+    z-index: 1004;
     position: relative;
     padding: 5px;
 }
@@ -90,7 +90,7 @@ body.light .navbar-menu a:hover {
     }
 
     .navbar-menu {
-        display: none !important; /* Hidden by default on mobile */
+        display: none !important; /* Hidden on narrow */
         flex-direction: column;
         position: absolute;
         top: 60px;
@@ -99,17 +99,17 @@ body.light .navbar-menu a:hover {
         background: var(--bg-dark);
         padding: 20px;
         box-sizing: border-box;
-        z-index: 1001; /* Base z-index */
+        z-index: 1003;
     }
 
     .navbar-menu.active {
-        display: flex !important; /* Force show when toggled */
+        display: flex !important; /* Show when toggled */
         visibility: visible !important;
-        z-index: 1003; /* Above all else */
+        z-index: 1003;
     }
 
     .navbar-toggle {
-        display: block !important; /* Show on mobile */
+        display: block !important; /* Show on narrow */
     }
 
     .theme-toggle {
@@ -124,6 +124,6 @@ body.light .navbar-menu a:hover {
     body.light .navbar-menu.active {
         display: flex !important;
         visibility: visible !important;
-        z-index: 1003; /* Above all else */
+        z-index: 1003;
     }
 }
