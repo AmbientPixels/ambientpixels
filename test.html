@@ -12,7 +12,7 @@
     <p>Click below to test the modal—should pop up with flair!</p>
     <button style="padding: 10px 20px; background: #E63977; color: #fff; border: none; border-radius: 5px; cursor: pointer;" onclick="showPlayModal('Play Trigger')">Trigger Modal</button>
 
-    <!-- Modal with simplified inline CSS -->
+    <!-- Modal with inline CSS -->
     <div class="play-modal" id="playModal">
         <div class="modal-content">
             <p id="playModalMessage"><span id="playModalIcon"></span> <span id="playModalText"></span></p>
@@ -68,15 +68,19 @@
             iconElement.innerHTML = randomContent.icon;
             textElement.textContent = `${section}: ${randomContent.text}`;
             console.log('Modal content set:', { icon: randomContent.icon, text: textElement.textContent });
-            modal.style.display = 'block'; // JS style toggle
-            console.log('Play modal style set to display: block');
+            modal.style.display = 'block';
+            modal.style.opacity = '1'; // Force visibility
+            modal.style.visibility = 'visible';
+            modal.style.top = '0'; // Ensure position
+            modal.style.left = '0';
+            console.log('Play modal style set:', { display: modal.style.display, opacity: modal.style.opacity, visibility: modal.style.visibility, top: modal.style.top, left: modal.style.left });
         };
 
         window.closePlayModal = function(modalId) {
             console.log('closePlayModal called with:', modalId);
             const modal = document.getElementById(modalId);
             if (modal) {
-                modal.style.display = 'none'; // JS style toggle
+                modal.style.display = 'none';
                 console.log('Play modal style set to display: none');
             } else {
                 console.error(`Play modal with ID ${modalId} not found`);
