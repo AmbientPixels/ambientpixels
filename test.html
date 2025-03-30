@@ -6,7 +6,6 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <title>Ambient Pixels - Test Playground</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Removed all other CSS links -->
 </head>
 <body style="background: #1A1F21; color: #DDE4E6; font-family: 'Inter', sans-serif;">
     <h1>Test Playground</h1>
@@ -71,16 +70,17 @@
             iconElement.innerHTML = randomContent.icon;
             textElement.textContent = `${section}: ${randomContent.text}`;
             console.log('Modal content set:', { icon: randomContent.icon, text: textElement.textContent });
-            modal.classList.add('active');
-            console.log('Play modal class set to active');
+            modal.style.display = 'block'; // JS style toggle
+            console.log('Play modal style set to display: block');
+            alert('Modal should be visible now!'); // Confirm execution
         };
 
         window.closePlayModal = function(modalId) {
             console.log('closePlayModal called with:', modalId);
             const modal = document.getElementById(modalId);
             if (modal) {
-                modal.classList.remove('active');
-                console.log('Play modal class removed');
+                modal.style.display = 'none'; // JS style toggle
+                console.log('Play modal style set to display: none');
             } else {
                 console.error(`Play modal with ID ${modalId} not found`);
             }
@@ -88,9 +88,9 @@
 
         document.addEventListener('click', (event) => {
             const modal = document.getElementById('playModal');
-            if (modal && modal.classList.contains('active') && !event.target.closest('.modal-content')) {
+            if (modal && modal.style.display === 'block' && !event.target.closest('.modal-content')) {
                 console.log('Clicked outside—closing play modal');
-                modal.classList.remove('active');
+                modal.style.display = 'none';
             }
         });
     </script>
