@@ -1,58 +1,15 @@
-/* base.css - Ambient Pixels v0.17.7-20250330 - March 30, 2025, 5:25 PM PDT */
-:root {
-    --bg-dark: #1A1F21;
-    --text-dark: #DDE4E6;
-    --accent-dark: #00C4E6;
-    --highlight-dark: #E63977;
-    --card-dark: #252B2D;
-    --bg-light: #F7F9FA;
-    --text-light: #2A2F33;
-    --accent-light: #0086B3;
-}
-
-* {
-    box-sizing: border-box;
+/* base.css - Ambient Pixels v0.17.7-20250330 - March 30, 2025, 6:05 PM PDT */
+body {
+    background: #1A1F21; /* Fallback */
+    color: #DDE4E6; /* Fallback */
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
     margin: 0;
     padding: 0;
 }
 
-html body {
-    background: var(--bg-dark);
-    color: var(--text-dark);
-    font-family: 'Inter', sans-serif;
-    font-size: 16px;
-    line-height: 1.6;
-    transition: background 0.3s ease, color 0.3s ease;
-}
-
-html body.light {
-    background: var(--bg-light) !important;
-    color: var(--text-light) !important;
-}
-
-html body a {
-    color: var(--accent-dark);
-    text-decoration: underline;
-    transition: color 0.3s;
-}
-
-html body a:hover {
-    color: var(--highlight-dark);
-}
-
-html body.light a {
-    color: var(--accent-light);
-}
-
-html body.light a:hover {
-    color: var(--highlight-dark);
-}
-
-html body h1, html body h2, html body h3 {
-    font-weight: 500;
-    color: inherit;
-}
-
-html body p {
-    margin-bottom: 1em;
+body.light {
+    background: #F7F9FA !important; /* Fallback */
+    color: #2A2F33 !important; /* Fallback */
 }

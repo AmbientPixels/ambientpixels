@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="_images/layout.css?v=0.17.7-20250330">
     <link rel="stylesheet" href="_images/text.css?v=0.17.7-20250330">
     <link rel="stylesheet" href="_images/components.css?v=0.17.7-20250330">
-    <link rel="stylesheet" href="_images/animations.css?v=0.17.7-20250330">
+    <!-- Removed animations.css -->
     <link rel="stylesheet" href="_images/media.css?v=0.17.7-20250330">
     <meta name="description" content="Test playground for Ambient Pixels—debugging hero, modal, and more!">
     <meta property="og:title" content="Ambient Pixels - Test Playground">
@@ -23,14 +23,6 @@
     <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
-    <!-- Modal at top of body -->
-    <div class="modal" id="playModal">
-        <div class="modal-content">
-            <p id="playModalMessage"><span id="playModalIcon"></span> <span id="playModalText"></span></p>
-            <button class="btn btn-primary effect-pulse" onclick="closePlayModal('playModal')">Close</button>
-        </div>
-    </div>
-
     <div class="navbar">
         <div class="navbar-left">
             <a href="/">
@@ -41,15 +33,15 @@
         <div class="navbar-menu">
             <a href="/"><i class="fas fa-home"></i> Home</a>
             <a href="/test.html"><i class="fas fa-flask"></i> Test</a>
-            <i class="fas fa-moon theme-toggle effect-pulse" onclick="toggleTheme()"></i>
+            <i class="fas fa-moon theme-toggle" onclick="toggleTheme()"></i>
         </div>
-        <i class="fas fa-bars navbar-toggle effect-pulse" onclick="toggleMenu()"></i>
+        <i class="fas fa-bars navbar-toggle" onclick="toggleMenu()"></i>
     </div>
 
     <!-- Hero Section -->
     <section class="hero">
         <div class="loading-screen" id="loadingScreen">
-            <i class="fas fa-robot effect-spin"></i>
+            <i class="fas fa-robot"></i>
             <div class="loading-text"></div>
             <div class="loading-bar"></div>
         </div>
@@ -64,48 +56,48 @@
     <div class="grid-container">
         <!-- Test Scenario 1: Modal Trigger (6 columns) -->
         <section class="section-container grid-col-6">
-            <h2><i class="fas fa-tools effect-pulse"></i> Modal Test Zone</h2>
+            <h2><i class="fas fa-tools"></i> Modal Test Zone</h2>
             <div class="section-content active">
                 <p class="description">Click below to test the modal—should pop up with flair!</p>
-                <p><button class="btn btn-primary effect-pulse" onclick="showPlayModal('Play Trigger')">Trigger Modal</button></p>
+                <p><button class="btn btn-primary" onclick="showPlayModal('Play Trigger')">Trigger Modal</button></p>
             </div>
         </section>
 
         <!-- Test Scenario 2: Chaos Mode Toggle (3 columns) -->
         <section class="section-container grid-col-3">
-            <h2><i class="fas fa-bolt effect-bounce"></i> Chaos Mode Test</h2>
+            <h2><i class="fas fa-bolt"></i> Chaos Mode Test</h2>
             <div class="section-content active">
                 <p class="description">Toggle chaos mode—watch the text glitch!</p>
-                <p><button class="btn btn-primary effect-pulse" onclick="toggleChaosMode()">Toggle Chaos</button></p>
+                <p><button class="btn btn-primary" onclick="toggleChaosMode()">Toggle Chaos</button></p>
                 <p class="chaos-text">Glitch me up!</p>
             </div>
         </section>
 
         <!-- Test Scenario 3: Form Input (3 columns) -->
         <section class="section-container grid-col-3">
-            <h2><i class="fas fa-keyboard effect-spin"></i> Form Test</h2>
+            <h2><i class="fas fa-keyboard"></i> Form Test</h2>
             <div class="section-content active">
                 <p class="description">Test form input—type and see!</p>
                 <input type="text" class="form-input" placeholder="Enter chaos here...">
-                <p><button class="btn btn-primary effect-pulse" onclick="alert('Form input test!')">Submit</button></p>
+                <p><button class="btn btn-primary" onclick="alert('Form input test!')">Submit</button></p>
             </div>
         </section>
 
         <!-- Test Scenario 4: Icon Animation (2 columns) -->
         <section class="section-container grid-col-2">
-            <h2><i class="fas fa-icons effect-pulse"></i> Icon Test</h2>
+            <h2><i class="fas fa-icons"></i> Icon Test</h2>
             <div class="section-content active">
                 <p class="description">Hover to animate—icon chaos!</p>
                 <div class="icon-demo">
-                    <i class="fas fa-robot effect-spin" style="font-size: 3em;"></i>
-                    <i class="fas fa-bomb effect-bounce" style="font-size: 3em;"></i>
+                    <i class="fas fa-robot" style="font-size: 3em;"></i>
+                    <i class="fas fa-bomb" style="font-size: 3em;"></i>
                 </div>
             </div>
         </section>
 
         <!-- Test Scenario 5: Grid Layout Stress (4 columns) -->
         <section class="section-container grid-col-4">
-            <h2><i class="fas fa-columns effect-bounce"></i> Grid Stress Test</h2>
+            <h2><i class="fas fa-columns"></i> Grid Stress Test</h2>
             <div class="section-content active">
                 <p class="description">Nested grid—test responsiveness!</p>
                 <div class="grid-container" style="grid-template-columns: repeat(2, 1fr); gap: 10px;">
@@ -132,58 +124,5 @@
 
     <script src="_images/hero.js" defer></script>
     <script src="_images/scripts.js" defer></script>
-    <script>
-        const playModalContent = [
-            { icon: '<i class="fas fa-bug"></i>', text: "Debug mode activated!" },
-            { icon: '<i class="fas fa-robot"></i>', text: "AI testing in progress!" },
-            { icon: '<i class="fas fa-bomb"></i>', text: "Chaos test underway!" }
-        ];
-
-        window.showPlayModal = function(section) {
-            console.log('showPlayModal called with:', section);
-            const modal = document.getElementById('playModal');
-            const iconElement = document.getElementById('playModalIcon');
-            const textElement = document.getElementById('playModalText');
-            
-            if (!modal || !iconElement || !textElement) {
-                console.error('Play modal elements missing:', { modal, iconElement, textElement });
-                return;
-            }
-
-            const randomContent = playModalContent[Math.floor(Math.random() * playModalContent.length)];
-            iconElement.innerHTML = randomContent.icon;
-            textElement.textContent = section + ': ' + randomContent.text;
-            console.log('Modal content set:', { icon: randomContent.icon, text: textElement.textContent });
-            modal.style.display = 'block';
-            modal.style.opacity = '1';
-            modal.style.visibility = 'visible';
-            modal.style.position = 'fixed';
-            modal.style.top = '0';
-            modal.style.left = '0';
-            requestAnimationFrame(() => {
-                modal.style.display = 'block';
-                console.log('Play modal style set:', { display: modal.style.display, opacity: modal.style.opacity, visibility: modal.style.visibility, position: modal.style.position, top: modal.style.top, left: modal.style.left });
-            });
-        };
-
-        window.closePlayModal = function(modalId) {
-            console.log('closePlayModal called with:', modalId);
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.style.display = 'none';
-                console.log('Play modal style set to display: none');
-            } else {
-                console.error('Play modal with ID ' + modalId + ' not found');
-            }
-        };
-
-        document.addEventListener('click', function(event) {
-            const modal = document.getElementById('playModal');
-            if (modal && modal.style.display === 'block' && !event.target.closest('.modal-content')) {
-                console.log('Clicked outside—closing play modal');
-                modal.style.display = 'none';
-            }
-        });
-    </script>
 </body>
 </html>

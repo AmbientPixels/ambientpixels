@@ -1,11 +1,11 @@
-/* navbar.css - Ambient Pixels v0.17.7-20250330 - March 30, 2025, 5:45 PM PDT */
+/* navbar.css - Ambient Pixels v0.17.7-20250330 - March 30, 2025, 6:05 PM PDT */
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
-    background: var(--bg-dark);
-    color: var(--text-dark);
+    background: #1A1F21; /* Fallback */
+    color: #DDE4E6; /* Fallback */
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -22,7 +22,7 @@
     display: flex;
     align-items: center;
     text-decoration: none;
-    color: var(--text-dark);
+    color: #DDE4E6; /* Fallback */
 }
 
 .navbar-logo {
@@ -42,23 +42,22 @@
 }
 
 .navbar-menu a {
-    color: var(--text-dark);
+    color: #DDE4E6; /* Fallback */
     text-decoration: none;
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: color 0.3s ease;
 }
 
 .navbar-menu a:hover {
-    color: var(--highlight-dark);
+    color: #E63977; /* Fallback */
 }
 
 .navbar-toggle {
     display: none; /* Hidden on desktop */
     font-size: 1.5em;
     cursor: pointer;
-    z-index: 9999; /* Max out */
+    z-index: 9999;
     padding: 5px;
 }
 
@@ -66,29 +65,24 @@
     font-size: 1.5em;
     cursor: pointer;
     margin-left: 20px;
-    z-index: 9999; /* Max out */
-    position: relative;
+    z-index: 9999;
     padding: 5px;
 }
 
 body.light .navbar {
-    background: var(--bg-light);
-    color: var(--text-light);
+    background: #F7F9FA; /* Fallback */
+    color: #2A2F33; /* Fallback */
 }
 
 body.light .navbar-menu a {
-    color: var(--text-light);
+    color: #2A2F33; /* Fallback */
 }
 
 body.light .navbar-menu a:hover {
-    color: var(--highlight-dark);
+    color: #E63977; /* Fallback */
 }
 
 @media (max-width: 768px) {
-    .navbar {
-        padding: 10px;
-    }
-
     .navbar-menu {
         display: none !important; /* Hidden on narrow */
         flex-direction: column;
@@ -96,16 +90,14 @@ body.light .navbar-menu a:hover {
         top: 60px;
         left: 0;
         width: 100%;
-        background: var(--bg-dark);
+        background: #1A1F21; /* Fallback */
         padding: 20px;
-        box-sizing: border-box;
-        z-index: 9998; /* Just below toggle */
+        z-index: 9998;
     }
 
     .navbar-menu.active {
         display: flex !important; /* Force show */
         visibility: visible !important;
-        z-index: 9998;
     }
 
     .navbar-toggle {
@@ -118,12 +110,11 @@ body.light .navbar-menu a:hover {
     }
 
     body.light .navbar-menu {
-        background: var(--bg-light);
+        background: #F7F9FA; /* Fallback */
     }
 
     body.light .navbar-menu.active {
         display: flex !important;
         visibility: visible !important;
-        z-index: 9998;
     }
 }
