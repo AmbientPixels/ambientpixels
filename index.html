@@ -155,11 +155,34 @@
         <button class="btn btn-primary effect-pulse" onclick="closeModal('comingSoonModal')">Close</button>
     </div>
     <style>
-		
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Overlay */
+            z-index: 999; /* Below active */
+        }
         .modal.active {
             display: block !important;
             z-index: 1000 !important;
             opacity: 1 !important;
+        }
+        .modal-content {
+            position: relative;
+            background: #fff; /* Default light theme */
+            padding: 20px;
+            margin: 15% auto;
+            width: 50%;
+            max-width: 500px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        body.light .modal-content {
+            background: #252B2D; /* Dark theme adjust */
+            color: #DDE4E6;
         }
     </style>
 </div>
