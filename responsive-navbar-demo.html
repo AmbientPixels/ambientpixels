@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" href="/_images/favicon.ico" />
+  <title>Ambient Pixels - Test Playground</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-dark: #1a1f21;
+      --text-dark: #dde4e6;
+      --highlight-dark: #e63977;
+      --bg-light: #f7f9fa;
+      --text-light: #2a2f33;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.dark {
+      background: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    body.light {
+      background: var(--bg-light);
+      color: var(--text-light);
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .navbar-logo {
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    .navbar-menu {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .navbar-menu a {
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .navbar-toggle {
+      display: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .theme-toggle {
+      margin-left: 20px;
+      cursor: pointer;
+      padding: 6px 10px;
+    }
+
+    /* Mobile Menu Behavior */
+    @media (max-width: 768px) {
+      .navbar-menu {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background: var(--bg-dark);
+        position: absolute;
+        top: 60px;
+        left: 0;
+        padding: 20px;
+        animation: slideDown 0.3s ease forwards;
+      }
+
+      .navbar-menu.active {
+        display: flex;
+      }
+
+      .navbar-toggle {
+        display: block;
+        z-index: 1001;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    }
+
+    @media (min-width: 769px) {
+      .navbar-menu {
+        display: flex !important;
+        position: static;
+        flex-direction: row;
+        background: transparent;
+      }
+
+      .navbar-toggle {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body class="dark">
+  <div class="navbar">
+    <div class="navbar-left">
+      <a href="/">
+        <img src="/_images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="navbar-logo" />
+        <h1>Ambient Pixels</h1>
+      </a>
+    </div>
+    <div class="navbar-menu" id="navbarMenu">
+      <a href="/"><i class="fas fa-home"></i> Home</a>
+      <a href="/test.html"><i class="fas fa-flask"></i> Test</a>
+      <a href="/about"><i class="fas fa-info"></i> About</a>
+      <a href="/contact"><i class="fas fa-envelope"></i> Contact</a>
+      <button class="theme-toggle" onclick="toggleTheme()">Light Mode</button>
+    </div>
+    <i class="fas fa-bars navbar-toggle" id="menuToggle"></i>
+  </div>
+
+  <section>
+    <h2>Test Text</h2>
+    <p>This is a minimal test page to debug styles locally.</p>
+    <button onclick="setTheme('dark')">Dark</button>
+    <button onclick="setTheme('light')">Light</button>
+  </section>
+
+  <footer>
+    <p>© 2025 Ambient Pixels | <a href="#">Back to top</a></p>
+  </footer>
+
+  <script>
+    function setTheme(theme) {
+      document.body.classList.remove('dark', 'light');
+      document.body.classList.add(theme);
+      localStorage.setItem('theme', theme);
+      const toggleBtn = document.querySelector('.theme-toggle');
+      toggleBtn.textContent = theme === 'light' ? 'Dark Mode' : 'Light Mode';
+    }
+
+    function toggleTheme() {
+      const current = document.body.classList.contains('light') ? 'light' : 'dark';
+      setTheme(current === 'light' ? 'dark' : 'light');
+    }
+
+    function loadTheme() {
+      const saved = localStorage.getItem('theme') || 'dark';
+      setTheme(saved);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadTheme();
+
+      const toggle = document.getElementById('menuToggle');
+      const menu = document.getElementById('navbarMenu');
+
+      toggle.addEventListener('click', () => {
+        menu.classList.toggle('active');
+        toggle.classList.toggle('fa-bars');
+        toggle.classList.toggle('fa-times');
+      });
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+          menu.classList.remove('active');
+          toggle.classList.remove('fa-times');
+          toggle.classList.add('fa-bars');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

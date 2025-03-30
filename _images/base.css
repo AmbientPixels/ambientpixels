@@ -1,15 +1,40 @@
-/* base.css - Ambient Pixels v0.17.7-20250330 - March 30, 2025, 6:05 PM PDT */
-body {
-    background: #1A1F21; /* Fallback */
-    color: #DDE4E6; /* Fallback */
-    font-family: 'Inter', sans-serif;
-    font-size: 16px;
-    line-height: 1.6;
+/* base.css - Ambient Pixels v0.17.7-20250330 - March 31, 2025, 9:30 AM PDT */
+:root {
+    --bg-dark: #1A1F21;
+    --text-dark: #DDE4E6;
+    --accent-dark: #00C4E6;
+    --highlight-dark: #E63977;
+    --card-dark: #252B2D;
+    --bg-light: #F7F9FA;
+    --text-light: #2A2F33;
+    --accent-light: #0086B3;
+}
+
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+body {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
 body.light {
-    background: #F7F9FA !important; /* Fallback */
-    color: #2A2F33 !important; /* Fallback */
+    background: var(--bg-light);
+    color: var(--text-light);
+}
+
+h2 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+p {
+    margin-bottom: 1em;
 }

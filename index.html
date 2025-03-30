@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="_images/favicon.ico">
     <title>Ambient Pixels - Chaos Meets Code (<span class="version-number">v0.17.7-20250330</span>)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="_images/base.css">
+    <link rel="stylesheet" href="_images/animations.css">
+    <link rel="stylesheet" href="_images/layout.css">
     <link rel="stylesheet" href="_images/navbar.css">
     <link rel="stylesheet" href="_images/hero.css">
-    <link rel="stylesheet" href="_images/layout.css">
-    <link rel="stylesheet" href="_images/text.css">
     <link rel="stylesheet" href="_images/components.css">
-    <link rel="stylesheet" href="_images/animations.css">
+    <link rel="stylesheet" href="_images/text.css">
     <link rel="stylesheet" href="_images/media.css">
     <meta name="description" content="Chaos meets code—v0.17.7-20250330 blends glitchy art and AI magic with style!">
     <meta property="og:title" content="Ambient Pixels">
@@ -23,11 +23,10 @@
     <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
-    <!-- Modal moved to top of body -->
     <div class="modal" id="comingSoonModal">
         <div class="modal-content">
             <p id="comingSoonMessage"><span id="comingSoonIcon"></span> <span id="comingSoonText"></span></p>
-            <button class="btn btn-primary effect-pulse" onclick="closeModal('comingSoonModal')">Close</button>
+            <button class="btn btn-primary" onclick="closeModal('comingSoonModal')">Close</button>
         </div>
     </div>
 
@@ -43,8 +42,8 @@
             <div class="dropdown">
                 <a href="/projects.html"><i class="fas fa-cube"></i> Projects</a>
                 <div class="dropdown-content">
-                    <a onclick="showComingSoonModal('Memetron')"><i class="fas fa-robot"></i> Memetron 3030</a>
-                    <a onclick="showComingSoonModal('Glitch Apparel')"><i class="fas fa-tshirt"></i> Glitch Apparel</a>
+                    <a onclick="showModal('Memetron')"><i class="fas fa-robot"></i> Memetron 3030</a>
+                    <a onclick="showModal('Glitch Apparel')"><i class="fas fa-tshirt"></i> Glitch Apparel</a>
                 </div>
             </div>
             <div class="dropdown">
@@ -55,30 +54,30 @@
                 </div>
             </div>
             <div class="dropdown">
-                <a onclick="showComingSoonModal('Contact')"><i class="fas fa-envelope"></i> Contact</a>
+                <a onclick="showModal('Contact')"><i class="fas fa-envelope"></i> Contact</a>
                 <div class="dropdown-content">
-                    <a onclick="showComingSoonModal('Email')"><i class="fas fa-envelope"></i> Email Us</a>
-                    <a onclick="showComingSoonModal('Social')"><i class="fas fa-users"></i> Social Media</a>
+                    <a onclick="showModal('Email')"><i class="fas fa-envelope"></i> Email Us</a>
+                    <a onclick="showModal('Social')"><i class="fas fa-users"></i> Social Media</a>
                 </div>
             </div>
-            <i class="fas fa-moon theme-toggle effect-pulse" onclick="toggleTheme()"></i>
+            <i class="fas fa-moon theme-toggle" onclick="toggleTheme()"></i>
         </div>
-        <i class="fas fa-bars navbar-toggle effect-pulse" onclick="toggleMenu()"></i>
+        <i class="fas fa-bars navbar-toggle" onclick="toggleMenu()"></i>
     </div>
 
-<section class="hero">
-    <div class="loading-screen" id="loadingScreen">
-        <i class="fas fa-robot effect-spin"></i>
-        <div class="loading-text"></div>
-        <div class="loading-bar"></div>
-    </div>
-    <h2 class="hero-text" id="randomTagline"></h2>
-    <p class="hero-subheading" id="randomSubheading"></p>
-</section>
+    <section class="hero">
+        <div class="loading-screen" id="loadingScreen">
+            <i class="fas fa-robot"></i>
+            <div class="loading-text"></div>
+            <div class="loading-bar"></div>
+        </div>
+        <h2 class="hero-text" id="randomTagline"></h2>
+        <p class="hero-subheading" id="randomSubheading"></p>
+    </section>
 
     <div class="grid-container">
         <section class="section-container grid-col-6" id="intro">
-            <h2 onclick="toggleSection(this)"><i class="fas fa-fire effect-pulse"></i> Chaos Meets Code</h2>
+            <h2 onclick="toggleSection(this)"><i class="fas fa-fire"></i> Chaos Meets Code</h2>
             <div class="section-content active">
                 <p class="tagline">Where glitches spark brilliance</p>
                 <p class="description">Welcome to Ambient Pixels—a fusion of AI magic and glitchy art! Version <span class="version-number">v0.17.7-20250330</span> lands with sleek grids, stylish forms, and a pink chaos twist. Dive in—this is where creativity ignites!</p>
@@ -87,12 +86,12 @@
         </section>
 
         <section class="section-container grid-col-6" id="memetron">
-            <h2 onclick="toggleSection(this)"><i class="fas fa-robot effect-spin"></i> Memetron 3030</h2>
+            <h2 onclick="toggleSection(this)"><i class="fas fa-robot"></i> Memetron 3030</h2>
             <div class="section-content active">
                 <p class="description">Our AI meme generator is live—drop a prompt, and it’ll craft glitchy gold in a flash! Test it out below and unleash your inner chaos artist.</p>
                 <div class="meme-test-container">
                     <input type="text" id="memePrompt" class="form-input meme-prompt-input" placeholder="Craft your meme magic...">
-                    <button id="memeGenerateBtn" class="btn btn-primary meme-generate-btn effect-pulse" onclick="generateMeme()">Generate Meme</button>
+                    <button id="memeGenerateBtn" class="btn btn-primary meme-generate-btn" onclick="generateMeme()">Generate Meme</button>
                     <div class="meme-container">
                         <img id="memeImage" class="meme-image" alt="Generated Meme">
                         <div id="memeTopText" class="meme-text meme-top-text"></div>
@@ -107,39 +106,39 @@
         </section>
 
         <section class="section-container grid-col-3" id="glitch">
-            <h2 onclick="toggleSection(this)"><i class="fas fa-tshirt effect-bounce"></i> Glitch Apparel</h2>
+            <h2 onclick="toggleSection(this)"><i class="fas fa-tshirt"></i> Glitch Apparel</h2>
             <div class="section-content active">
                 <p class="description">Wear the vibe—AI-crafted gear hits soon! Tees and hoodies with v0.17.7 flair—sign up to snag the first batch.</p>
-                <p><button class="btn btn-primary effect-pulse" onclick="showComingSoonModal('Glitch Apparel')">Notify Me</button></p>
+                <p><button class="btn btn-primary" onclick="showModal('Glitch Apparel')">Notify Me</button></p>
             </div>
         </section>
 
         <section class="section-container grid-col-3" id="connect">
-            <h2 onclick="toggleSection(this)"><i class="fas fa-users effect-pulse"></i> Join the Crew</h2>
+            <h2 onclick="toggleSection(this)"><i class="fas fa-users"></i> Join the Crew</h2>
             <div class="section-content active">
                 <p class="description">We’re vibing across the digital landscape—connect where the pixels play and the chaos flows!</p>
                 <div class="social-links content-social">
-                    <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart effect-bounce"></i><span>Art</span></a>
-                    <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter effect-bounce"></i><span>Tweets</span></a>
-                    <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube effect-bounce"></i><span>Vids</span></a>
-                    <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook effect-bounce"></i><span>Connect</span></a>
+                    <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
+                    <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
+                    <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube"></i><span>Vids</span></a>
+                    <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook"></i><span>Connect</span></a>
                 </div>
             </div>
         </section>
 
         <section class="section-container grid-col-3" id="update">
-            <h2 onclick="toggleSection(this)"><i class="fas fa-bolt effect-pulse"></i> v0.17.7 Unleashed!</h2>
+            <h2 onclick="toggleSection(this)"><i class="fas fa-bolt"></i> v0.17.7 Unleashed!</h2>
             <div class="section-content active">
                 <p class="description">v0.17.7-20250330 drops with flair—grids that shine, forms that pop, and pink chaos in style! Check <a href="/docs.html" class="link-hover">the docs</a> or <a href="/template.html" class="link-standard">style guide</a>—it’s live!</p>
-                <p><i class="fas fa-cog effect-spin"></i> AI-crafted, chaos-driven!</p>
+                <p><i class="fas fa-cog"></i> AI-crafted, chaos-driven!</p>
             </div>
         </section>
 
         <section class="section-container grid-col-3" id="chaos-zone">
-            <h2 onclick="toggleSection(this)"><i class="fas fa-bomb effect-bounce"></i> Chaos Zone</h2>
+            <h2 onclick="toggleSection(this)"><i class="fas fa-bomb"></i> Chaos Zone</h2>
             <div class="section-content active">
                 <p class="description">Enter the chaos—toggle below for a glitchy surprise, or just soak in the vibe!</p>
-                <p><button class="btn btn-primary effect-pulse" onclick="toggleChaosMode()">Toggle Chaos</button></p>
+                <p><button class="btn btn-primary" onclick="toggleChaosMode()">Toggle Chaos</button></p>
                 <p class="chaos-text">Glitch it up!</p>
             </div>
         </section>
@@ -157,12 +156,29 @@
         <p>Forged by AI, fueled by chaos</p>
     </footer>
 
-<script src="_images/hero.js" defer></script>
-<script src="_images/scripts.js" defer></script>
-<script src="_images/modal-window.js" defer></script>
-	<script src="_images/hero.js?v=0.17.7-20250330" defer></script>
-<script src="_images/scripts.js?v=0.17.7-20250330" defer></script>
-<script src="_images/modal-window.js?v=0.17.7-20250330" defer></script>
-	
+    <script src="_images/hero.js"></script>
+    <script src="_images/scripts.js"></script>
+    <script>
+        function showModal(section) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <p><i class="fas fa-tools"></i> ${section}: Coming Soon!</p>
+                    <button class="btn btn-primary" onclick="this.parentElement.parentElement.remove()">Close</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            setTimeout(() => {
+                modal.style.display = 'block';
+                modal.style.opacity = '1';
+                modal.style.visibility = 'visible';
+            }, 10);
+        }
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.remove();
+        }
+    </script>
 </body>
 </html>

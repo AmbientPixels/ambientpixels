@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Theme Toggle Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      transition: background 0.3s ease, color 0.3s ease;
+      margin: 0;
+      padding: 0;
+    }
+
+    body.dark {
+      background: #1A1F21;
+      color: #DDE4E6;
+    }
+
+    body.light {
+      background: #F7F9FA;
+      color: #2A2F33;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: inherit;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .theme-toggle {
+      background: yellow;
+      border: 1px solid red;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    h2, p {
+      padding: 1rem 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="brand">🌈 Ambient Pixels</div>
+    <button class="theme-toggle" aria-label="Toggle Theme" title="Toggle Theme">Light Mode</button>
+  </div>
+
+  <h2>Test Text</h2>
+  <p>This is a minimal test page to debug theme toggling.</p>
+
+  <script>
+    function setTheme(theme) {
+      console.log('setTheme called:', theme);
+      document.body.classList.remove('light', 'dark');
+      document.body.classList.add(theme);
+      localStorage.setItem('theme', theme);
+
+      const toggleBtn = document.querySelector('.theme-toggle');
+      toggleBtn.textContent = theme === 'light' ? 'Dark Mode' : 'Light Mode';
+    }
+
+    function toggleTheme() {
+      console.log('toggleTheme clicked');
+      const currentTheme = document.body.classList.contains('light') ? 'light' : 'dark';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      setTheme(newTheme);
+    }
+
+    window.onload = () => {
+      console.log('Page fully loaded');
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      setTheme(savedTheme);
+
+      const toggleBtn = document.querySelector('.theme-toggle');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          console.log('Theme toggle listener triggered');
+          toggleTheme();
+        });
+      } else {
+        console.error('Theme toggle not found');
+      }
+    };
+  </script>
+</body>
+</html>
