@@ -4,72 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <title>Ambient Pixels - Test Playground (<span class="version-number"></span>)</title>
+    <title>Ambient Pixels - Test Playground</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="_images/base.css">
-    <link rel="stylesheet" href="_images/navbar.css">
-    <link rel="stylesheet" href="_images/hero.css">
-    <link rel="stylesheet" href="_images/layout.css">
-    <link rel="stylesheet" href="_images/text.css">
-    <link rel="stylesheet" href="_images/components.css">
-    <link rel="stylesheet" href="_images/animations.css">
-    <link rel="stylesheet" href="_images/media.css">
-    <meta name="description" content="Test playground for Ambient Pixels—debugging modal and more!">
-    <meta property="og:title" content="Ambient Pixels - Test Playground">
-    <meta property="og:description" content="Test playground for Ambient Pixels—debugging modal and more!">
-    <meta property="og:image" content="/_images/ambient-pixel-logo-rainbow.png">
-    <meta property="og:url" content="https://ambientpixels.ai/test.html">
-    <meta name="twitter:card" content="summary_large_image">
+    <!-- Removed all other CSS links -->
 </head>
-<body>
-    <div class="navbar">
-        <div class="navbar-left">
-            <a href="./">
-                <img src="_images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="navbar-logo">
-                <h1>Ambient Pixels</h1>
-            </a>
-        </div>
-        <div class="navbar-menu">
-            <a href="./"><i class="fas fa-home"></i> Home</a>
-            <a href="test.html"><i class="fas fa-flask"></i> Test</a>
-            <i class="fas fa-moon theme-toggle effect-pulse" onclick="toggleTheme()"></i>
-        </div>
-        <i class="fas fa-bars navbar-toggle effect-pulse" onclick="toggleMenu()"></i>
-    </div>
+<body style="background: #1A1F21; color: #DDE4E6; font-family: 'Inter', sans-serif;">
+    <h1>Test Playground</h1>
+    <p>Click below to test the modal—should pop up with flair!</p>
+    <button style="padding: 10px 20px; background: #E63977; color: #fff; border: none; border-radius: 5px; cursor: pointer;" onclick="showPlayModal('Play Trigger')">Trigger Modal</button>
 
-    <div class="mini-hero">
-        <h1>Test Playground (<span class="version-number"></span>)</h1>
-    </div>
-
-    <div class="grid-container">
-        <section class="section-container grid-col-6">
-            <h2><i class="fas fa-tools effect-pulse"></i> Modal Test Zone</h2>
-            <div class="section-content active">
-                <p class="description">Click below to test the modal—should pop up with flair!</p>
-                <p><button class="btn btn-primary effect-pulse" onclick="showPlayModal('Play Trigger')">Trigger Modal</button></p>
-            </div>
-        </section>
-    </div>
-
-    <footer>
-        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
-        <div class="social-links footer-social">
-            <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
-            <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
-            <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube"></i><span>Vids</span></a>
-            <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook"></i><span>Connect</span></a>
-        </div>
-        <p class="footer-tagline"><span class="version-flair"></span></p>
-        <p>Forged by AI, fueled by chaos</p>
-    </footer>
-
-    <!-- Max force inline CSS -->
+    <!-- Barebones modal with inline CSS -->
     <div class="play-modal" id="playModal">
         <div class="modal-content">
             <p id="playModalMessage"><span id="playModalIcon"></span> <span id="playModalText"></span></p>
-            <button class="btn btn-primary effect-pulse" onclick="closePlayModal('playModal')">Close</button>
-
+            <button style="padding: 10px 20px; background: #E63977; color: #fff; border: none; border-radius: 5px; cursor: pointer;" onclick="closePlayModal('playModal')">Close</button>
         </div>
         <style>
             div#playModal.play-modal {
@@ -98,14 +46,9 @@
                 text-align: center !important;
                 color: #DDE4E6 !important;
             }
-            body.light div#playModal.play-modal .modal-content {
-                background: #fff !important;
-                color: #2A2F33 !important;
-            }
         </style>
     </div>
 
-    <script src="_images/scripts.js" defer></script>
     <script>
         const playModalContent = [
             { icon: '<i class="fas fa-bug"></i>', text: "Debug mode activated!" },
