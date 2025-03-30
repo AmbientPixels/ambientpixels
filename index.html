@@ -15,9 +15,9 @@
     <link rel="stylesheet" href="_images/components.css">
     <link rel="stylesheet" href="_images/animations.css">
     <link rel="stylesheet" href="_images/media.css">
-    <meta name="description" content="Chaos meets code—v0.17.5 blends glitchy art and AI magic with style!">
+    <meta name="description" content="Chaos meets code—v0.17.6 blends glitchy art and AI magic with style!">
     <meta property="og:title" content="Ambient Pixels">
-    <meta property="og:description" content="Chaos meets code—v0.17.5 blends glitchy art and AI magic with style!">
+    <meta property="og:description" content="Chaos meets code—v0.17.6 blends glitchy art and AI magic with style!">
     <meta property="og:image" content="/_images/ambient-pixel-logo-rainbow.png">
     <meta property="og:url" content="https://ambientpixels.ai">
     <meta name="twitter:card" content="summary_large_image">
@@ -101,7 +101,7 @@
         <section class="section-container grid-col-3" id="glitch">
             <h2 onclick="toggleSection(this)"><i class="fas fa-tshirt effect-bounce"></i> Glitch Apparel</h2>
             <div class="section-content active">
-                <p class="description">Wear the vibe—AI-crafted gear hits soon! Tees and hoodies with v0.17.5 flair—sign up to snag the first batch.</p>
+                <p class="description">Wear the vibe—AI-crafted gear hits soon! Tees and hoodies with v0.17.6 flair—sign up to snag the first batch.</p>
                 <p><button class="btn btn-primary effect-pulse" onclick="showComingSoonModal('Glitch Apparel')">Notify Me</button></p>
             </div>
         </section>
@@ -120,9 +120,9 @@
         </section>
 
         <section class="section-container grid-col-3" id="update">
-            <h2 onclick="toggleSection(this)"><i class="fas fa-bolt effect-pulse"></i> v0.17.5 Unleashed!</h2>
+            <h2 onclick="toggleSection(this)"><i class="fas fa-bolt effect-pulse"></i> v0.17.6 Unleashed!</h2>
             <div class="section-content active">
-                <p class="description">v0.17.5 drops with flair—grids that shine, forms that pop, and pink chaos in style! Check <a href="/docs.html" class="link-hover">the docs</a> or <a href="/template.html" class="link-standard">style guide</a>—it’s live!</p>
+                <p class="description">v0.17.6 drops with flair—grids that shine, forms that pop, and pink chaos in style! Check <a href="/docs.html" class="link-hover">the docs</a> or <a href="/template.html" class="link-standard">style guide</a>—it’s live!</p>
                 <p><i class="fas fa-cog effect-spin"></i> AI-crafted, chaos-driven!</p>
             </div>
         </section>
@@ -137,57 +137,25 @@
         </section>
     </div>
 
-<footer>
-    <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
-    <div class="social-links footer-social">
-        <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
-        <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
-        <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube"></i><span>Vids</span></a>
-        <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook"></i><span>Connect</span></a>
-    </div>
-    <p class="footer-tagline"><span class="version-flair"></span></p>
-    <p>Forged by AI, fueled by chaos</p>
-</footer>
+    <footer>
+        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
+        <div class="social-links footer-social">
+            <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart"></i><span>Art</span></a>
+            <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter"></i><span>Tweets</span></a>
+            <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube"></i><span>Vids</span></a>
+            <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook"></i><span>Connect</span></a>
+        </div>
+        <p class="footer-tagline"><span class="version-flair"></span></p>
+        <p>Forged by AI, fueled by chaos</p>
+    </footer>
 
-<div class="modal" id="comingSoonModal">
-    <div class="modal-content">
-        <p id="comingSoonMessage"><span id="comingSoonIcon"></span> <span id="comingSoonText"></span></p>
-        <button class="btn btn-primary effect-pulse" onclick="closeModal('comingSoonModal')">Close</button>
+    <div class="modal" id="comingSoonModal">
+        <div class="modal-content">
+            <p id="comingSoonMessage"><span id="comingSoonIcon"></span> <span id="comingSoonText"></span></p>
+            <button class="btn btn-primary effect-pulse" onclick="closeModal('comingSoonModal')">Close</button>
+        </div>
     </div>
-    <style>
-        #comingSoonModal.modal {
-            display: none !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            background: rgba(0, 0, 0, 0.5) !important;
-            z-index: 999 !important;
-        }
-        #comingSoonModal.modal.active {
-            display: block !important;
-            z-index: 10000 !important;
-            opacity: 1 !important;
-        }
-        #comingSoonModal .modal-content {
-            position: relative !important;
-            background: #fff !important; /* Light theme */
-            padding: 20px !important;
-            margin: 15% auto !important;
-            width: 50% !important;
-            max-width: 500px !important;
-            border-radius: 5px !important;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3) !important;
-        }
-        body.light #comingSoonModal .modal-content {
-            background: #252B2D !important; /* Dark theme */
-            color: #DDE4E6 !important;
-        }
-    </style>
-</div>
 
-    <!-- Load modal-window.js first to ensure showComingSoonModal is available -->
     <script src="_images/modal-window.js" defer></script>
     <script src="_images/scripts.js" defer></script>
 </body>
