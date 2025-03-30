@@ -64,14 +64,15 @@
         <p>Forged by AI, fueled by chaos</p>
     </footer>
 
-    <!-- Fresh modal with inline CSS -->
+    <!-- Max force inline CSS -->
     <div class="play-modal" id="playModal">
         <div class="modal-content">
             <p id="playModalMessage"><span id="playModalIcon"></span> <span id="playModalText"></span></p>
             <button class="btn btn-primary effect-pulse" onclick="closePlayModal('playModal')">Close</button>
+
         </div>
         <style>
-            #playModal.play-modal {
+            div#playModal.play-modal {
                 display: none !important;
                 position: fixed !important;
                 top: 0 !important;
@@ -79,15 +80,15 @@
                 width: 100% !important;
                 height: 100% !important;
                 background: rgba(0, 0, 0, 0.6) !important;
-                z-index: 9999 !important;
+                z-index: 999999 !important;
             }
-            #playModal.play-modal.active {
+            div#playModal.play-modal.active {
                 display: block !important;
                 opacity: 1 !important;
             }
-            #playModal .modal-content {
+            div#playModal.play-modal .modal-content {
                 position: relative !important;
-                background: #252B2D !important; /* Dark theme default */
+                background: #252B2D !important;
                 padding: 20px !important;
                 margin: 15% auto !important;
                 width: 50% !important;
@@ -97,7 +98,7 @@
                 text-align: center !important;
                 color: #DDE4E6 !important;
             }
-            body.light #playModal .modal-content {
+            body.light div#playModal.play-modal .modal-content {
                 background: #fff !important;
                 color: #2A2F33 !important;
             }
