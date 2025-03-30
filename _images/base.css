@@ -1,4 +1,4 @@
-/* base.css - Ambient Pixels v0.17.7-20250330 - March 30, 2025, 3:45 PM PDT */
+/* base.css - Ambient Pixels v0.17.7-20250330 - March 30, 2025, 4:25 PM PDT */
 :root {
     --bg-dark: #1A1F21;
     --text-dark: #DDE4E6;
@@ -16,7 +16,7 @@
     padding: 0;
 }
 
-body {
+html body {
     background: var(--bg-dark);
     color: var(--text-dark);
     font-family: 'Inter', sans-serif;
@@ -25,8 +25,8 @@ body {
     transition: background 0.3s ease, color 0.3s ease;
 }
 
-body.light {
-    background: var(--bg-light) !important; /* Force apply */
+html body.light {
+    background: var(--bg-light) !important;
     color: var(--text-light) !important;
 }
 
@@ -40,11 +40,11 @@ a:hover {
     color: var(--highlight-dark);
 }
 
-body.light a {
+html body.light a {
     color: var(--accent-light);
 }
 
-body.light a:hover {
+html body.light a:hover {
     color: var(--highlight-dark);
 }
 
