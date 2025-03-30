@@ -47,7 +47,7 @@
             <h2><i class="fas fa-tools effect-pulse"></i> Modal Test Zone</h2>
             <div class="section-content active">
                 <p class="description">Click below to test the modal—should pop up with flair!</p>
-                <p><button class="btn btn-primary effect-pulse" onclick="showTestModal('Test Trigger')">Trigger Modal</button></p>
+                <p><button class="btn btn-primary effect-pulse" onclick="showPlayModal('Play Trigger')">Trigger Modal</button></p>
             </div>
         </section>
     </div>
@@ -64,14 +64,14 @@
         <p>Forged by AI, fueled by chaos</p>
     </footer>
 
-    <!-- Test modal with louder inline CSS -->
-    <div class="test-modal" id="testModal">
+    <!-- Fresh modal with inline CSS -->
+    <div class="play-modal" id="playModal">
         <div class="modal-content">
-            <p id="testModalMessage"><span id="testModalIcon"></span> <span id="testModalText"></span></p>
-            <button class="btn btn-primary effect-pulse" onclick="closeTestModal('testModal')">Close</button>
+            <p id="playModalMessage"><span id="playModalIcon"></span> <span id="playModalText"></span></p>
+            <button class="btn btn-primary effect-pulse" onclick="closePlayModal('playModal')">Close</button>
         </div>
         <style>
-            #testModal.test-modal {
+            #playModal.play-modal {
                 display: none !important;
                 position: fixed !important;
                 top: 0 !important;
@@ -79,15 +79,15 @@
                 width: 100% !important;
                 height: 100% !important;
                 background: rgba(0, 0, 0, 0.6) !important;
-                z-index: 10000 !important;
+                z-index: 9999 !important;
             }
-            #testModal.test-modal.active {
+            #playModal.play-modal.active {
                 display: block !important;
                 opacity: 1 !important;
             }
-            #testModal .modal-content {
+            #playModal .modal-content {
                 position: relative !important;
-                background: #fff !important; /* Light theme */
+                background: #252B2D !important; /* Dark theme default */
                 padding: 20px !important;
                 margin: 15% auto !important;
                 width: 50% !important;
@@ -95,57 +95,57 @@
                 border-radius: 5px !important;
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.3) !important;
                 text-align: center !important;
-            }
-            body.light #testModal .modal-content {
-                background: #252B2D !important; /* Dark theme */
                 color: #DDE4E6 !important;
+            }
+            body.light #playModal .modal-content {
+                background: #fff !important;
+                color: #2A2F33 !important;
             }
         </style>
     </div>
 
     <script src="_images/scripts.js" defer></script>
     <script>
-        // New modal JS for test page
-        const testModalContent = [
+        const playModalContent = [
             { icon: '<i class="fas fa-bug"></i>', text: "Debug mode activated!" },
             { icon: '<i class="fas fa-robot"></i>', text: "AI testing in progress!" },
             { icon: '<i class="fas fa-bomb"></i>', text: "Chaos test underway!" }
         ];
 
-        window.showTestModal = function(section) {
-            console.log('showTestModal called with:', section);
-            const modal = document.getElementById('testModal');
-            const iconElement = document.getElementById('testModalIcon');
-            const textElement = document.getElementById('testModalText');
+        window.showPlayModal = function(section) {
+            console.log('showPlayModal called with:', section);
+            const modal = document.getElementById('playModal');
+            const iconElement = document.getElementById('playModalIcon');
+            const textElement = document.getElementById('playModalText');
             
             if (!modal || !iconElement || !textElement) {
-                console.error('Test modal elements missing:', { modal, iconElement, textElement });
+                console.error('Play modal elements missing:', { modal, iconElement, textElement });
                 return;
             }
 
-            const randomContent = testModalContent[Math.floor(Math.random() * testModalContent.length)];
+            const randomContent = playModalContent[Math.floor(Math.random() * playModalContent.length)];
             iconElement.innerHTML = randomContent.icon;
             textElement.textContent = `${section}: ${randomContent.text}`;
             console.log('Modal content set:', { icon: randomContent.icon, text: textElement.textContent });
             modal.classList.add('active');
-            console.log('Test modal class set to active');
+            console.log('Play modal class set to active');
         };
 
-        window.closeTestModal = function(modalId) {
-            console.log('closeTestModal called with:', modalId);
+        window.closePlayModal = function(modalId) {
+            console.log('closePlayModal called with:', modalId);
             const modal = document.getElementById(modalId);
             if (modal) {
                 modal.classList.remove('active');
-                console.log('Test modal class removed');
+                console.log('Play modal class removed');
             } else {
-                console.error(`Test modal with ID ${modalId} not found`);
+                console.error(`Play modal with ID ${modalId} not found`);
             }
         };
 
         document.addEventListener('click', (event) => {
-            const modal = document.getElementById('testModal');
+            const modal = document.getElementById('playModal');
             if (modal && modal.classList.contains('active') && !event.target.closest('.modal-content')) {
-                console.log('Clicked outside—closing test modal');
+                console.log('Clicked outside—closing play modal');
                 modal.classList.remove('active');
             }
         });
