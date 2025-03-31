@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ambient Pixels component documentation">
+    <link rel="icon" type="image/x-icon" href="_images/favicon.ico">
+    <title>Ambient Pixels - Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="_images/base.css">
+    <link rel="stylesheet" href="_images/navbar.css">
+    <link rel="stylesheet" href="_images/components.css">
+    <link rel="stylesheet" href="_images/grid.css">
+    <link rel="stylesheet" href="_images/animations.css">
+    <link rel="stylesheet" href="_images/footer.css">
+    <link rel="stylesheet" href="_images/mini-hero.css">
+    <link rel="stylesheet" href="_images/hero.css">
+    <link rel="stylesheet" href="_images/banner.css">
+    <link rel="stylesheet" href="_images/text.css">
+</head>
+<body class="dark">
+    <div class="navbar frost-effect">
+        <div class="navbar-left">
+            <a href="/">
+                <img src="_images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="navbar-logo">
+                <h1>Ambient Pixels</h1>
+            </a>
+        </div>
+        <div class="navbar-menu" id="navbarMenu">
+            <a href="/index.html"><i class="fas fa-home"></i> Home</a>
+            <a href="/test.html"><i class="fas fa-flask"></i> Test</a>
+            <a href="/document.html"><i class="fas fa-book"></i> Docs</a>
+            <a href="/style-guide.html"><i class="fas fa-paint-brush"></i> Style Guide</a>
+            <a href="/skills.html"><i class="fas fa-star"></i> Skills</a>
+            <button class="theme-toggle effect-pulse" onclick="toggleTheme()" aria-label="Toggle Theme"><i class="fas fa-moon"></i></button>
+        </div>
+        <i class="fas fa-bars navbar-toggle effect-pulse" id="menuToggle" aria-label="Toggle Menu" aria-expanded="false" role="button" tabindex="0"></i>
+    </div>
+
+    <section class="hero frost-effect">
+        <h2 class="hero-text">Component Documentation</h2>
+        <p class="hero-subheading">A guide to Ambient Pixels UI elements and backend pipeline</p>
+    </section>
+
+    <div class="grid-container">
+        <section class="grid-col-12">
+            <h2>Overview</h2>
+            <p>Your Technical Blueprint for Ambient Pixels—covering UI components and the CI/CD pipeline as of v0.17.8-20250331. This guide helps contributors understand deployment workflows, code structure, and backend systems.</p>
+        </section>
+
+        <section class="grid-col-12">
+            <h2>Banners</h2>
+            <p>Rotating site banners with tooltips, fade transitions, and close buttons. Features: 5s rotation, pause on hover, fade on close (0.5s), tooltips on hover.</p>
+        </section>
+
+        <section class="grid-col-12">
+            <h2>Navbar</h2>
+            <p>Frosted navigation bar with logo, links, and theme toggle. Features: Fixed position, frost effect, responsive toggle.</p>
+        </section>
+
+        <section class="grid-col-12">
+            <h2>Pipeline</h2>
+            <p>Our automated CI/CD process:</p>
+            <ul>
+                <li><strong>Local Development</strong>: Edit in Adobe Dreamweaver—HTML, CSS, JS files in <code>C:\_projects\AmbientPixels.ai\</code>.</li>
+                <li><strong>Version Control</strong>: Commit changes to <a href="https://github.com/AmbientPixels/ambientpixels">GitHub repo</a>—branch <code>main</code>.</li>
+                <li><strong>GitHub Actions</strong>:
+                    <ul>
+                        <li><code>static.yml</code>: Builds and deploys static content to Azure Static Web App.</li>
+                        <li><code>api.yml</code>: Deploys API functions to Azure Function App.</li>
+                    </ul>
+                </li>
+                <li><strong>Triggers</strong>: Push to <code>main</code> or PR merge—workflows run in parallel.</li>
+            </ul>
+            <p>Example commit: <code>git commit -m "Fix modal display - v0.17.7"</code></p>
+        </section>
+
+        <section class="grid-col-12">
+            <h2>Azure Services</h2>
+            <p>We leverage Azure for hosting and serverless functionality:</p>
+            <ul>
+                <li><strong>Static Web App</strong>: Hosts <code>index.html</code>, <code>docs.html</code>, CSS/JS in <code>_images/</code>.</li>
+                <li><strong>Function App</strong>: Runs serverless APIs—e.g., <code>memeGenerator</code> endpoint at <code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/</code>.</li>
+                <li><strong>Configuration</strong>: Managed via Azure Portal—SWA for static, Function App for APIs with token auth.</li>
+            </ul>
+        </section>
+
+        <section class="grid-col-12">
+            <h2>Security</h2>
+            <p>Security is baked into our pipeline and deployment:</p>
+            <ul>
+                <li><strong>API Security</strong>:
+                    <ul>
+                        <li>Token-based auth—JWTs issued via <code>getToken</code> endpoint.</li>
+                        <li>CORS configured—allowed origins: <code>ambientpixels.ai</code>.</li>
+                    </ul>
+                </li>
+                <li><strong>Dual Workflows</strong>:
+                    <ul>
+                        <li>Static: <code>.github/workflows/static.yml</code>—isolates HTML/CSS/JS.</li>
+                        <li>API: <code>.github/workflows/api.yml</code>—secures function deployment.</li>
+                    </ul>
+                </li>
+                <li><strong>Secrets</strong>: Stored in GitHub Secrets—e.g., <code>AZURE_CREDENTIALS</code>.</li>
+            </ul>
+        </section>
+
+        <section class="grid-col-12">
+            <h2>Tech Stack</h2>
+            <p>Our technical foundation:</p>
+            <ul>
+                <li><strong>Frontend</strong>: HTML5, CSS3, vanilla JS—Font Awesome 6.5.1 for icons.</li>
+                <li><strong>Hosting</strong>: Azure Static Web App—<code>ambientpixels.ai</code>.</li>
+                <li><strong>Serverless</strong>: Azure Function App—Node.js runtime for APIs.</li>
+                <li><strong>VCS</strong>: GitHub—<code>main</code> branch, <code>.github/workflows/</code>.</li>
+                <li><strong>Tools</strong>: Adobe Dreamweaver—local dev environment.</li>
+            </ul>
+        </section>
+
+        <section class="grid-col-12">
+            <h2>Scripts</h2>
+            <p>Core scripts driving functionality (<code>_images/</code>):</p>
+            <ul>
+                <li><strong>modal-window.js</strong>: Manages modal popups with random messages. Updated in v0.17.7 to use <code>style.display</code> toggling for reliable rendering. Requires modal at top of <code><body></code>.</li>
+                <li><strong>How It Works</strong>:
+                    <ul>
+                        <li><strong>Trigger</strong>: Called via <code>onclick="showComingSoonModal('Section')"</code>.</li>
+                        <li><strong>Content</strong>: Picks random message from <code>comingSoonContent</code> array.</li>
+                        <li><strong>Display</strong>: Sets <code>style.display = 'block'</code>, forces repaint with <code>requestAnimationFrame</code>.</li>
+                        <li><strong>Close</strong>: <code>closeModal('comingSoonModal')</code> hides via <code>style.display = 'none'</code>.</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <section class="grid-col-12">
+            <h2>Effects</h2>
+            <p>Animated icons with hover tooltips—opacity, motion, transform, and more. Features: 20+ animations, colorful, tooltips on hover.</p>
+        </section>
+
+        <section class="grid-col-12">
+            <h2>Buttons</h2>
+            <p>Styled buttons with sizes, states, and hover effects. Features: Hover scale, disabled state, focus outline.</p>
+        </section>
+
+        <section class="grid-col-12">
+            <h2>Cards</h2>
+            <p>Flexible card layouts with hover effects. Features: Image/text combos, hover scale, shadow.</p>
+        </section>
+
+        <section class="grid-col-12">
+            <h2>Progress</h2>
+            <p>Circular progress indicators with percentage fill. Features: Static % fill (25%, 50%, 75%), teal arc.</p>
+        </section>
+
+        <section class="grid-col-12">
+            <h2>Form</h2>
+            <p>Two-column form with inputs, selects, and buttons. Features: Left labels, right inputs, centered submit.</p>
+        </section>
+
+        <section class="grid-col-12">
+            <h2>Grid</h2>
+            <p>12-column grid system for layout. Features: Responsive, flexible columns.</p>
+        </section>
+
+        <section class="grid-col-12">
+            <h2>Loading States</h2>
+            <p>Animated loading indicators with bars and icons. Features: Spinners, bars with % animation (WIP).</p>
+        </section>
+    </div>
+
+    <footer>
+        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top">Top</a></p>
+        <p>Forged by AI, fueled by chaos</p>
+    </footer>
+
+    <script src="_images/theme.js" defer></script>
+    <script src="_images/version.js" defer></script>
+    <script src="_images/grid-scripts.js" defer></script>
+</body>
+</html>

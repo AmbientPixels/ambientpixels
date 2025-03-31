@@ -1,12 +1,9 @@
-/* footer.css - Ambient Pixels v0.17.8-20250331 */
+/* footer.css - Ambient Pixels v0.17.3-20250328 */
 footer {
+    background: var(--card-dark);
     padding: 20px;
     text-align: center;
-    background: var(--bg-dark);
     color: var(--text-dark);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
 }
 
 body.light footer {
@@ -14,56 +11,51 @@ body.light footer {
     color: var(--text-light);
 }
 
-.footer-social {
+footer p {
+    margin: 5px 0;
+}
+
+footer a {
+    color: var(--accent-dark);
+    text-decoration: none;
+}
+
+body.light footer a {
+    color: var(--accent-light);
+}
+
+footer a:hover {
+    color: var(--highlight-dark);
+}
+
+body.light footer a:hover {
+    color: var(--highlight-light);
+}
+
+.social-links {
     display: flex;
     justify-content: center;
     gap: 20px;
-    flex-wrap: wrap;
+    margin: 10px 0;
 }
 
 .social-links a {
-    color: var(--text-dark); /* Light grey */
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    transition: color 0.3s ease, text-shadow 0.3s ease, transform 0.3s ease; /* Smooth color, glow, lift - Subtle flair */
-}
-
-.social-links a:hover {
-    color: #66D9EF; /* Lighter teal - Lustre */
-    text-shadow: 0 0 5px rgba(102, 217, 239, 0.5); /* Tiny glow - Shine */
-    transform: translateY(-2px); /* Slight lift - Animation, no bounce */
-}
-
-.social-links i {
-    font-size: 1.5em; /* Bigger icons - Keep pop */
+    color: var(--text-dark);
+    font-size: 1.5em;
 }
 
 body.light .social-links a {
     color: var(--text-light);
 }
 
+.social-links a:hover {
+    color: var(--highlight-dark);
+}
+
 body.light .social-links a:hover {
-    color: #4DB8D1; /* Lighter teal for light theme */
-    text-shadow: 0 0 5px rgba(77, 184, 209, 0.5); /* Tiny glow */
-    transform: translateY(-2px); /* Same lift */
+    color: var(--highlight-light);
 }
 
-footer p a {
-    color: var(--accent-dark); /* Teal */
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-footer p a:hover {
-    color: #66D9EF; /* Lighter teal - Subtle */
-}
-
-body.light footer p a {
-    color: var(--accent-light);
-}
-
-body.light footer p a:hover {
-    color: #4DB8D1;
+.social-links span {
+    display: none;
 }

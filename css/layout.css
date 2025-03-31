@@ -1,4 +1,4 @@
-/* grid.css - Ambient Pixels v0.17.3-20250328 */
+/* layout.css - Ambient Pixels v1.0.0-20250401 */
 .grid-container {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
@@ -10,14 +10,6 @@
 
 .grid-col-6 {
     grid-column: span 6;
-    padding: 20px;
-    background: var(--card-dark);
-    border-radius: 8px;
-    box-sizing: border-box;
-}
-
-body.light .grid-col-6 {
-    background: var(--bg-light);
 }
 
 .grid-col-12 {

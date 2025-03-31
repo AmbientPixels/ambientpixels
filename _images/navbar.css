@@ -1,144 +1,104 @@
-/* navbar.css - Ambient Pixels v0.17.7-20250330 - March 30, 2025, 8:00 PM PDT */
+/* navbar.css - Ambient Pixels v0.17.3-20250328 */
 .navbar {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    padding: 10px 20px !important;
-    background: var(--bg-dark) !important;
-    color: var(--text-dark) !important;
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 1000 !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: var(--card-dark);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Vertically center all items */
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+body.light .navbar {
+    background: var(--bg-light);
 }
 
 .navbar-left {
-    display: flex !important;
-    align-items: center !important;
-}
-
-.navbar-left a {
-    display: flex !important;
-    align-items: center !important;
-    text-decoration: none !important;
-    color: var(--text-dark) !important;
+    display: flex;
+    align-items: center; /* Center logo and text */
 }
 
 .navbar-logo {
-    height: 40px !important;
-    margin-right: 10px !important;
+    height: 60px; /* Increased size */
+    margin-right: 10px;
 }
 
-.navbar h1 {
-    font-size: 1.5em !important;
-    margin: 0 !important;
+.navbar-left a {
+    text-decoration: none; /* Reset link underline */
+    color: inherit; /* Prevent webkit link color */
+}
+
+.navbar-left h1 {
+    margin: 0;
+    font-size: 2em; /* Increased size (~32px) */
+    line-height: 60px; /* Matches logo height */
+    display: inline; /* Prevents line break */
+    white-space: nowrap; /* Keeps text on one line */
+    color: var(--text-dark); /* Explicit color */
+}
+
+body.light .navbar-left h1 {
+    color: var(--text-light); /* Explicit light mode color */
 }
 
 .navbar-menu {
-    display: flex !important;
-    align-items: center !important;
-    gap: 20px !important;
+    display: flex;
+    align-items: center; /* Center links vertically */
+    gap: 20px;
 }
 
 .navbar-menu a {
-    color: var(--text-dark) !important;
-    text-decoration: none !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    transition: color 0.3s ease !important;
+    color: var(--text-dark);
+    text-decoration: none;
+    font-size: 1.5em; /* Match h1 size (~24px base, adjusted) */
+    line-height: 60px; /* Sync with logo and h1 */
+}
+
+body.light .navbar-menu a {
+    color: var(--text-light);
 }
 
 .navbar-menu a:hover {
-    color: var(--highlight-dark) !important;
+    color: var(--highlight-dark);
 }
 
-.navbar-toggle {
-    display: none !important;
-    font-size: 1.5em !important;
-    cursor: pointer !important;
-    z-index: 10002 !important;
-    padding: 5px !important;
+body.light .navbar-menu a:hover {
+    color: var(--highlight-light);
 }
 
 .theme-toggle {
-    font-size: 1.5em !important;
-    cursor: pointer !important;
-    margin-left: 20px !important;
-    z-index: 10002 !important;
-    padding: 5px !important;
     background: none;
     border: none;
-    color: inherit;
-    transition: color 0.3s ease;
+    color: var(--text-dark);
+    font-size: 1.5em;
+    cursor: pointer;
+    line-height: 60px; /* Sync with others */
 }
 
-html body.light .navbar {
-    background: var(--bg-light) !important;
-    color: var(--text-light) !important;
+body.light .theme-toggle {
+    color: var(--text-light);
 }
 
-html body.light .navbar-menu a {
-    color: var(--text-light) !important;
+.navbar-toggle {
+    display: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: var(--text-dark);
+    line-height: 60px; /* Sync with others */
 }
 
-html body.light .navbar-menu a:hover {
-    color: var(--highlight-dark) !important;
-}
-
-html body.dark .navbar h1 {
-    color: var(--text-dark) !important;
-}
-
-html body.light .navbar h1 {
-    color: #000000 !important; /* Darkened from #1A1F21 to #000000 for contrast */
+body.light .navbar-toggle {
+    color: var(--text-light);
 }
 
 @media (max-width: 768px) {
-    .navbar {
-        padding: 10px !important;
-    }
-
-    .navbar-menu {
-        display: none !important;
-        flex-direction: column !important;
-        position: fixed !important;
-        top: 60px !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: auto !important;
-        background: var(--bg-dark) !important;
-        padding: 20px !important;
-        z-index: 10001 !important;
-        opacity: 0 !important;
-        overflow: visible !important;
-    }
-
-    .navbar-menu.active {
-        display: flex !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        background: var(--bg-dark) !important;
-    }
-
     .navbar-toggle {
-        display: block !important;
+        display: block;
     }
-
-    .theme-toggle {
-        margin-left: 0 !important;
-        order: -1 !important;
-    }
-
-    html body.light .navbar-menu {
-        background: var(--bg-light) !important;
-    }
-
-    html body.light .navbar-menu.active {
-        display: flex !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        background: var(--bg-light) !important;
+    .navbar-menu {
+        display: none;
     }
 }

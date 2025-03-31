@@ -1,32 +1,27 @@
-/* mini-hero.css - Ambient Pixels v0.17.8-20250331 */
+/* mini-hero.css - Ambient Pixels v0.17.3-20250328 */
 .mini-hero {
-    max-width: 100%;
-    margin: 0;
-    padding: 0;
-    height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    grid-column: span 12;
     position: relative;
-    overflow: hidden;
+    text-align: center;
+    padding: 20px;
+    background: var(--card-dark);
+}
+
+body.light .mini-hero {
+    background: var(--bg-light);
 }
 
 .mini-hero img {
     width: 100%;
-    height: 100%;
+    max-height: 150px;
     object-fit: cover;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 0;
 }
 
 .mini-hero h1 {
-    position: relative;
-    z-index: 1;
-    color: #FFFFFF; /* White text—pops on image */
-    font-size: 2em;
-    text-shadow: 0 0 5px #000; /* Shadow for contrast */
-    margin: 0;
+    margin: 10px 0 0;
+    font-size: 1.8em;
+    color: var(--text-dark);
+}
+
+body.light .mini-hero h1 {
+    color: var(--text-light);
 }

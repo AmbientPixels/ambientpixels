@@ -1,87 +1,28 @@
-/* hero.css - Ambient Pixels v0.17.8-20250331 */
+/* hero.css - Ambient Pixels v0.17.3-20250328 */
 .hero {
     position: relative;
-    min-height: 400px;
-    width: 100%;
+    background-image: url('../_images/banner.jpg'); /* Relative from test.html */
     background-size: cover;
     background-position: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    padding: 60px 20px;
     text-align: center;
-    color: #FFFFFF;
-}
-
-.loading-screen {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    opacity: 1;
-    transition: opacity 0.5s ease;
-}
-
-.loading-screen.hidden {
-    opacity: 0;
-    display: none;
-}
-
-.loading-text {
-    margin: 10px 0;
-    font-size: 1.2em;
-    text-shadow: 0 0 6px rgba(0, 196, 230, 0.6);
-}
-
-.loading-bar {
-    width: 0%;
-    height: 5px;
-    background: linear-gradient(90deg, #E63977, #00C4E6);
-    transition: width 0.1s ease;
-}
-
-.hero-text {
-    font-size: 3em; /* Keep big */
-    margin: 0;
-    opacity: 0;
-    font-weight: 700;
-    color: #FFFFFF; /* Pure white */
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Darker, tighter shadow - cuts through */
-    transition: opacity 0.5s ease;
-}
-
-.hero-text.visible {
-    opacity: 1;
-}
-
-.hero-subheading {
-    font-size: 1.8em; /* Keep big */
-    margin: 10px 0 0;
-    opacity: 0;
-    font-weight: 500;
-    color: #FFFFFF; /* Pure white - match text */
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); /* Slightly smaller shadow - subtle */
-    transition: opacity 0.5s ease;
-}
-
-.hero-subheading.visible {
-    opacity: 1;
+    margin-top: 60px;
+    min-height: 200px;
+    color: var(--text-dark);
 }
 
 body.light .hero {
-    color: #FFFFFF; /* Keep white in light theme */
+    color: var(--text-light);
 }
 
-body.light .loading-bar {
-    background: linear-gradient(90deg, #D92E5F, #0086B3);
+.hero-text {
+    font-size: 2.5em;
+    margin: 0;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
 }
 
-body.light .loading-text {
-    text-shadow: 0 0 6px rgba(0, 134, 179, 0.6);
+.hero-subheading {
+    font-size: 1.5em;
+    margin: 10px 0 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }

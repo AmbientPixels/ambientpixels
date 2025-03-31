@@ -1,11 +1,11 @@
-/* base.css - Ambient Pixels v0.17.8-20250331 */
+/* base.css - Ambient Pixels v0.17.3-20250328 */
 :root {
     --bg-dark: #1A1F21;
     --text-dark: #DDE4E6;
     --card-dark: #252B2D;
-    --accent-dark: #00C4E6; /* Teal - Info */
-    --highlight-dark: #E63977; /* Pink - Warning */
-    --success-dark: #28A745; /* Green - Success */
+    --accent-dark: #00C4E6;
+    --highlight-dark: #E63977;
+    --success-dark: #28A745;
     --bg-light: #F7F9FA;
     --text-light: #2A2F33;
     --accent-light: #0086B3;
@@ -26,65 +26,45 @@ body.light {
     color: var(--text-light);
 }
 
-.grid-container {
-    background: transparent;
-}
-
-.grid-col-6 {
-    padding: 20px;
-    background: var(--card-dark);
-    border-radius: 8px;
-    box-sizing: border-box;
-    overflow: hidden;
-}
-
-.grid-col-6 h2 {
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-    margin: 0 0 10px 0;
+    font-size: 1em;
+    transition: background 0.2s ease;
 }
 
-body.light .grid-col-6 {
-    background: var(--bg-light);
-    color: var(--text-light);
+.btn-primary {
+    background: var(--accent-dark);
+    color: #FFFFFF;
 }
 
-.section-content {
-    display: none;
+.btn-primary:hover {
+    background: var(--highlight-dark);
 }
 
-.section-content.active {
-    display: block;
+body.light .btn-primary {
+    background: var(--accent-light);
 }
 
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
+body.light .btn-primary:hover {
+    background: var(--highlight-light);
 }
 
-.modal-content {
-    background: var(--card-dark);
-    color: var(--text-dark);
-    margin: 15% auto;
-    padding: 20px;
-    border-radius: 8px;
-    width: 80%;
-    max-width: 500px;
-    text-align: center;
+.btn-secondary {
+    background: var(--success-dark);
+    color: #FFFFFF;
 }
 
-body.light .modal-content {
-    background: var(--bg-light);
-    color: var(--text-light);
+.btn-secondary:hover {
+    background: var(--highlight-dark);
 }
 
-.close-modal {
-    float: right;
-    font-size: 1.5em;
-    cursor: pointer;
+body.light .btn-secondary {
+    background: var(--success-light);
+}
+
+body.light .btn-secondary:hover {
+    background: var(--highlight-light);
 }
