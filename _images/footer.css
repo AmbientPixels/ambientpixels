@@ -4,9 +4,66 @@ footer {
     text-align: center;
     background: var(--bg-dark);
     color: var(--text-dark);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 body.light footer {
     background: var(--bg-light);
     color: var(--text-light);
+}
+
+.footer-social {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.social-links a {
+    color: var(--text-dark); /* Light grey */
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.3s ease, text-shadow 0.3s ease, transform 0.3s ease; /* Smooth color, glow, lift - Subtle flair */
+}
+
+.social-links a:hover {
+    color: #66D9EF; /* Lighter teal - Lustre */
+    text-shadow: 0 0 5px rgba(102, 217, 239, 0.5); /* Tiny glow - Shine */
+    transform: translateY(-2px); /* Slight lift - Animation, no bounce */
+}
+
+.social-links i {
+    font-size: 1.5em; /* Bigger icons - Keep pop */
+}
+
+body.light .social-links a {
+    color: var(--text-light);
+}
+
+body.light .social-links a:hover {
+    color: #4DB8D1; /* Lighter teal for light theme */
+    text-shadow: 0 0 5px rgba(77, 184, 209, 0.5); /* Tiny glow */
+    transform: translateY(-2px); /* Same lift */
+}
+
+footer p a {
+    color: var(--accent-dark); /* Teal */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+footer p a:hover {
+    color: #66D9EF; /* Lighter teal - Subtle */
+}
+
+body.light footer p a {
+    color: var(--accent-light);
+}
+
+body.light footer p a:hover {
+    color: #4DB8D1;
 }
