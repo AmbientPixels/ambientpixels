@@ -1,4 +1,4 @@
-// theme.js - Adjusted for v0.17.7-20250330, Light Default
+// theme.js - Adjusted for v0.17.8-20250331, Dark Default
 function toggleTheme() {
     console.log('toggleTheme clicked');
     const currentTheme = document.body.classList.contains('light') ? 'light' : 'dark';
@@ -15,6 +15,7 @@ function setTheme(theme) {
     const h1 = document.querySelector('.navbar h1');
     const footer = document.querySelector('footer');
     const socialLinks = document.querySelectorAll('.social-links a');
+    const toggle = document.getElementById('menuToggle');
 
     document.body.classList.remove('light', 'dark');
     document.body.classList.add(theme);
@@ -36,10 +37,37 @@ function setTheme(theme) {
     });
 }
 
+function generateMeme() {
+    console.log('Generating meme...');
+    const output = document.getElementById('meme-output');
+    const memes = ['Chaos reigns!', 'Glitch it up!', 'AI says hi!'];
+    const randomImage = '_images/banner.jpg'; // Placeholder
+    if (output) {
+        output.innerHTML = `<img src="${randomImage}" alt="Chaos Meme" style="max-width: 100%;"><p>${memes[Math.floor(Math.random() * memes.length)]}</p>`;
+    }
+}
+
+function toggleChaosMode() {
+    console.log('Toggling chaos mode...');
+    document.body.classList.toggle('chaos-active');
+    const sections = document.querySelectorAll('.grid-col-6');
+    sections.forEach(section => {
+        if (document.body.classList.contains('chaos-active')) {
+            const x = Math.random() * 20 - 10;
+            const y = Math.random() * 20 - 10;
+            section.style.transform = `translate(${x}px, ${y}px)`;
+            section.querySelectorAll('p').forEach(p => p.classList.add('chaos-text'));
+        } else {
+            section.style.transform = 'translate(0, 0)';
+            section.querySelectorAll('p').forEach(p => p.classList.remove('chaos-text'));
+        }
+    });
+}
+
 function loadTheme() {
-    const savedTheme = localStorage.getItem('theme');
-    console.log('Saved theme:', savedTheme);
-    setTheme(savedTheme || 'light'); // Default to light if null
+    console.log('Loading dark theme by default');
+    setTheme('dark');
+    localStorage.setItem('theme', 'dark');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -53,6 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         menu.classList.toggle('active');
         toggle.classList.toggle('fa-bars');
         toggle.classList.toggle('fa-times');
+        toggle.setAttribute('aria-expanded', menu.classList.contains('active') ? 'true' : 'false');
         console.log('Menu toggled, active:', menu.classList.contains('active'));
     });
 
@@ -62,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
             menu.classList.toggle('active');
             toggle.classList.toggle('fa-bars');
             toggle.classList.toggle('fa-times');
+            toggle.setAttribute('aria-expanded', menu.classList.contains('active') ? 'true' : 'false');
         }
     });
 
@@ -70,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
             menu.classList.remove('active');
             toggle.classList.remove('fa-times');
             toggle.classList.add('fa-bars');
+            toggle.setAttribute('aria-expanded', 'false');
         }
     });
 

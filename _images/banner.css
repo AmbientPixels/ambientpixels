@@ -1,0 +1,61 @@
+/* banner.css - Ambient Pixels v0.17.8-20250331 */
+.site-banner {
+    position: relative;
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+    z-index: 1001;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease; /* Flair - smooth fade */
+}
+
+.site-banner p {
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.close-banner {
+    background: none;
+    border: none;
+    color: #FFFFFF;
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 0 10px;
+}
+
+.site-banner.warning {
+    background: var(--highlight-dark); /* Pink - Warning */
+    color: #FFFFFF;
+}
+
+.site-banner.info {
+    background: var(--accent-dark); /* Teal - Info */
+    color: #FFFFFF;
+}
+
+.site-banner.success {
+    background: var(--success-dark); /* Green - Success */
+    color: #FFFFFF;
+}
+
+body.light .site-banner.warning {
+    background: var(--highlight-light);
+    color: #FFFFFF;
+}
+
+body.light .site-banner.info {
+    background: var(--accent-light);
+    color: #FFFFFF;
+}
+
+body.light .site-banner.success {
+    background: var(--success-light);
+    color: #FFFFFF;
+}
+
+/* Stack banners with offset */
+#siteBanner1 { top: 0; }
+#siteBanner2 { top: 40px; }
+#siteBanner3 { top: 80px; }

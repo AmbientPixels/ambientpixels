@@ -87,6 +87,14 @@ html body.light .navbar-menu a:hover {
     color: var(--highlight-dark) !important;
 }
 
+html body.dark .navbar h1 {
+    color: var(--text-dark) !important;
+}
+
+html body.light .navbar h1 {
+    color: #000000 !important; /* Darkened from #1A1F21 to #000000 for contrast */
+}
+
 @media (max-width: 768px) {
     .navbar {
         padding: 10px !important;

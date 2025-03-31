@@ -1,0 +1,12 @@
+/* footer.css - Ambient Pixels v0.17.8-20250331 */
+footer {
+    padding: 20px;
+    text-align: center;
+    background: var(--bg-dark);
+    color: var(--text-dark);
+}
+
+body.light footer {
+    background: var(--bg-light);
+    color: var(--text-light);
+}
