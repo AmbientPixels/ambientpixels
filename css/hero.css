@@ -6,7 +6,7 @@
     background-position: center;
     padding: 60px 20px;
     text-align: center;
-    margin-top: 60px; /* Space below sticky nav */
+    margin-top: 0px; /* No gap above */
     min-height: 200px;
 }
 
@@ -37,9 +37,15 @@ body[data-theme="light"] .mini-hero {
     width: 100%;
     max-height: 150px;
     object-fit: cover;
+    display: block;
 }
 
 .mini-hero h1 {
     margin: 10px 0 0;
     font-size: 1.8em;
+}
+
+.mini-hero .hero-subheading {
+    margin: 5px 0 0;
+    font-size: 1.2em;
 }
