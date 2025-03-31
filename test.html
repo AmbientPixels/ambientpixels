@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/_images/favicon.ico">
-    <title>Ambient Pixels - Test Playground</title>
+    <title>Ambient Pixels - Base Template</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/_images/base.css">
     <link rel="stylesheet" href="/_images/navbar.css">
     <link rel="stylesheet" href="/_images/components.css">
+    <link rel="stylesheet" href="/_images/grid.css">
 </head>
-<body class="dark">
+<body class="light">
     <div class="navbar">
         <div class="navbar-left">
             <a href="/">
@@ -24,17 +25,25 @@
             <a href="/test.html"><i class="fas fa-flask"></i> Test</a>
             <a href="/about"><i class="fas fa-info"></i> About</a>
             <a href="/contact"><i class="fas fa-envelope"></i> Contact</a>
-            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme"><i class="fas fa-moon"></i></button>
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme"><i class="fas fa-sun"></i></button>
         </div>
         <i class="fas fa-bars navbar-toggle" id="menuToggle" aria-label="Toggle Menu" role="button" tabindex="0"></i>
     </div>
 
-    <section>
-        <h2>Test Text</h2>
-        <p>This is a minimal test page to debug styles locally.</p>
-        <button onclick="setTheme('dark')">Dark</button>
-        <button onclick="setTheme('light')">Light</button>
-    </section>
+    <div class="grid-container">
+        <section class="grid-col-4">
+            <h2>Test 1</h2>
+            <p>Column 1—should resize!</p>
+        </section>
+        <section class="grid-col-4">
+            <h2>Test 2</h2>
+            <p>Column 2—watch me shift!</p>
+        </section>
+        <section class="grid-col-4">
+            <h2>Test 3</h2>
+            <p>Column 3—breakpoints, yo!</p>
+        </section>
+    </div>
 
     <footer>
         <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
