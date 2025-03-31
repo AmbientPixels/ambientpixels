@@ -1,4 +1,4 @@
-// theme.js - Adjusted for v0.17.7-20250330
+// theme.js - Adjusted for v0.17.7-20250330, Light Default
 function toggleTheme() {
     console.log('toggleTheme clicked');
     const currentTheme = document.body.classList.contains('light') ? 'light' : 'dark';
@@ -39,7 +39,7 @@ function setTheme(theme) {
 function loadTheme() {
     const savedTheme = localStorage.getItem('theme');
     console.log('Saved theme:', savedTheme);
-    setTheme(savedTheme || 'dark'); // Default to dark if null
+    setTheme(savedTheme || 'light'); // Default to light if null
 }
 
 document.addEventListener('DOMContentLoaded', () => {
