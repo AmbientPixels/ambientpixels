@@ -17,5 +17,26 @@ body, html {
     margin: 0;
     padding: 0;
     font-family: 'Inter', sans-serif;
-    overflow: visible !important; /* Prevent overflow breakage */
+    overflow: visible !important;
+    font-size: 16px; /* Base size */
+    line-height: 1.6; /* Readable spacing */
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0 0 10px;
+    font-weight: 500; /* Cyberpunk edge */
+    line-height: 1.2;
+}
+
+h1 { font-size: 2.5em; } /* 40px */
+h2 { font-size: 1.75em; } /* 28px */
+h3 { font-size: 1.5em; } /* 24px */
+h4 { font-size: 1.25em; } /* 20px */
+h5 { font-size: 1.125em; } /* 18px */
+h6 { font-size: 1em; } /* 16px */
+
+p {
+    margin: 0 0 15px;
+    font-size: 1em;
+    font-weight: 400;
 }
