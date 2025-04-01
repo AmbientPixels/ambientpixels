@@ -6,6 +6,8 @@
     top: 0;
     z-index: 1000;
     overflow: visible !important;
+    height: 70px; /* Fixed height to lock layout flow */
+    /* border: 2px solid limegreen; */ /* Debug removed */
 }
 
 .nav-blur-layer {
@@ -33,6 +35,7 @@ body[data-theme="light"] .nav-blur-layer {
     position: relative;
     z-index: 1;
     overflow: visible !important;
+    /* border: 2px solid orange; */ /* Debug removed */
 }
 
 .nav-logo-link {
@@ -79,7 +82,7 @@ body[data-theme="light"] .nav-toggle {
     display: flex;
     align-items: center;
     gap: 20px;
-    transition: opacity 0.3s ease; /* Fade flair for mobile */
+    transition: opacity 0.3s ease;
 }
 
 .nav-links a {
@@ -138,6 +141,7 @@ body[data-theme="light"] .nav-links .theme-toggle:hover {
         padding: 10px 0;
         visibility: hidden;
         opacity: 0;
+        transition: opacity 0.3s ease;
     }
 
     body[data-theme="light"] .nav-links {
@@ -220,7 +224,7 @@ body[data-theme="light"] .footer .social-links a:hover {
     font-size: 1em;
     background: var(--accent-dark);
     color: var(--text-dark);
-    transition: background 0.2s ease, transform 0.2s ease; /* Scale flair */
+    transition: background 0.2s ease, transform 0.2s ease;
 }
 
 body[data-theme="light"] .btn {
@@ -230,10 +234,30 @@ body[data-theme="light"] .btn {
 
 .btn:hover {
     background: var(--highlight-dark);
-    transform: scale(1.05); /* Button pop */
+    transform: scale(1.05);
 }
 
 body[data-theme="light"] .btn:hover {
     background: var(--highlight-light);
     transform: scale(1.05);
+}
+
+.content {
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(26, 31, 40, 0.8);
+    backdrop-filter: blur(5px);
+    border-radius: 4px;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.content.open {
+    max-height: 300px;
+}
+
+body[data-theme="light"] .content {
+    background: rgba(255, 255, 255, 0.2);
 }

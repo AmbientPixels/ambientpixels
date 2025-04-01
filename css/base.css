@@ -20,6 +20,7 @@ body, html {
     overflow: visible !important;
     font-size: 16px;
     line-height: 1.6;
+    display: block; /* Ensure safe sticky context */
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -121,7 +122,7 @@ body[data-theme="light"] ul li::before {
 }
 
 ul li:hover {
-    text-shadow: 0 0 8px var(--highlight-dark); /* Bigger glow */
+    text-shadow: 0 0 8px var(--highlight-dark);
     transition: text-shadow 0.2s ease;
 }
 

@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="css/theme.css">
 </head>
 <body>
-    <!-- Navigation -->
+    <!-- Navigation - Directly under body -->
     <nav class="nav">
         <div class="nav-blur-layer"></div>
         <div class="nav-container">
@@ -47,7 +47,7 @@
         <h1>Quantum glitch zone</h1>
     </div>
 
-    <!-- Grid Content with Full Typography Demo -->
+    <!-- Grid Content with Toggleable Sections -->
     <div class="grid-container">
         <section class="grid-col-6">
             <h2>Video Projects</h2>
@@ -58,7 +58,12 @@
                 <li>Reel 1—Fast cuts</li>
                 <li>Reel 2—Bold <q>frames</q></li>
             </ul>
-            <button class="btn">Preview</button>
+            <button class="btn" data-toggle="video-content">Preview</button>
+            <div class="content" id="video-content" style="display: none;">
+                <h4>Video Highlights</h4>
+                <p>Reel 1: Neon-drenched glitch cuts—<code>runtime: 0:30</code>.</p>
+                <p>Reel 2: Cosmic beats in 4K—<q>pure glow</q>.</p>
+            </div>
         </section>
         <section class="grid-col-6">
             <h2>Art Gallery</h2>
@@ -69,7 +74,12 @@
                 <li>Sketch—Outline glow</li>
                 <li>Final—Frosty <q>finish</q></li>
             </ol>
-            <button class="btn">View</button>
+            <button class="btn" data-toggle="art-content">View</button>
+            <div class="content" id="art-content" style="display: none;">
+                <h4>Art Pieces</h4>
+                <p>Sketch: Neon wireframe—<code>layers: 3</code>.</p>
+                <p>Final: Frosted canvas—<q>glow maxed</q>.</p>
+            </div>
         </section>
         <section class="grid-col-6">
             <h2>Client Work</h2>
@@ -80,7 +90,12 @@
                 <li>Site A—Cosmic UI</li>
                 <li>Site B—Neon <q>UX</q></li>
             </ul>
-            <button class="btn">Explore</button>
+            <button class="btn" data-toggle="client-content">Explore</button>
+            <div class="content" id="client-content" style="display: none;">
+                <h4>Client Projects</h4>
+                <p>Site A: Cosmic dashboard—<code>uptime: 99.9%</code>.</p>
+                <p>Site B: Neon storefront—<q>sales up</q>.</p>
+            </div>
         </section>
         <section class="grid-col-6">
             <h2>Dev Tools</h2>
@@ -91,7 +106,12 @@
                 <li>Tool 1—Quick fix</li>
                 <li>Tool 2—Sharp <q>edge</q></li>
             </ol>
-            <button class="btn">Launch</button>
+            <button class="btn" data-toggle="tools-content">Launch</button>
+            <div class="content" id="tools-content" style="display: none;">
+                <h4>Toolset</h4>
+                <p>Tool 1: Grid aligner—<code>lines: 12</code>.</p>
+                <p>Tool 2: Neon debugger—<q>bugs zapped</q>.</p>
+            </div>
         </section>
     </div>
 
