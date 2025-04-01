@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ambient Pixels v1.1.0—Uber Prompt Codex">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <title>Ambient Pixels - Uber Prompt</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/hero.css">
+    <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-blur-layer"></div>
+        <div class="nav-container">
+            <a href="/" class="nav-logo-link" aria-label="Ambient Pixels Home">
+                <img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="nav-logo">
+                <h1>Ambient Pixels</h1>
+            </a>
+            <button class="nav-toggle" aria-label="Toggle Navigation"><i class="fas fa-bars"></i></button>
+            <div class="nav-links">
+                <a href="/index.html" aria-label="Home"><i class="fas fa-home"></i></a>
+                <a href="/test.html" aria-label="Test"><i class="fas fa-flask"></i></a>
+                <a href="/projects.html" aria-label="Projects"><i class="fas fa-code"></i></a>
+                <a href="/art.html" aria-label="Art"><i class="fas fa-paint-brush"></i></a>
+                <a href="/tools.html" aria-label="Tools"><i class="fas fa-tools"></i></a>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme"><i class="fas fa-moon"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Large Hero with Loading & Rotation -->
+    <div class="hero">
+        <div class="hero-slides">
+            <div class="hero-slide" data-bg="images/hero-v1.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero-v2.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero-v3.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero-v4.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero-v5.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero-v6.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero-v7.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero-v8.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero-v9.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero-v10.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero-v11.jpg"></div>
+        </div>
+        <h1 class="hero-text">The Uber Prompt</h1>
+        <p class="hero-subheading">A neon codex for v2.3.</p>
+        <div class="hero-loading">
+            <i class="fas fa-robot"></i>
+            <span class="loading-text">Decoding the grid...</span>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid System: Uber Prompt Showcase -->
+    <div class="grid-container">
+        <section class="grid-col-12">
+            <h2><span class="small-caps">Neon</span> Codex</h2>
+            <blockquote>“Forged in the glitch—v2.3—PixelPulse & Grok ignite the future.”</blockquote>
+            <p>A blueprint pulses—<code>scope: v2.3;</code>—our cyberpunk vision unfolds in neon brilliance. Explore the grid—our master plan glows below.</p>
+        </section>
+
+        <section class="grid-col-4">
+            <h2><span class="small-caps">Core</span> Directive</h2>
+            <blockquote>“A spark ignites—our grid takes form.”</blockquote>
+            <code style="display: block; white-space: pre-wrap; background: #1A1F28; padding: 15px; border-radius: 8px; color: #E0E6F0; font-size: 0.9em;">
+Goal: Create a lightweight, modular, future-proof website for Ambient Pixels with a clean, modern, cyberpunk-inspired design—flexible base template for expansion, portfolio-ready, aligned with CI/CD workflows.
+Site: https://ambientpixels.ai/test
+Purpose: Scalable testbed for core features—v0.17.8+—minimal flair, poised for growth and integration.
+            </code>
+        </section>
+
+        <section class="grid-col-4">
+            <h2><span class="small-caps">Grid</span> Matrix</h2>
+            <code style="display: block; white-space: pre-wrap; background: #1A1F28; padding: 15px; border-radius: 8px; color: #E0E6F0; font-size: 0.9em;">
+1. Top Frosty Menu (Sticky)
+   - Description: Fixed, frosted-glass navigation bar at the top.
+   - Features:
+     - Logo (left): images/ambient-pixel-logo-rainbow.png
+     - Links: Home (<i class="fas fa-home"></i>), Test (<i class="fas fa-flask"></i>), Projects (<i class="fas fa-code"></i>), Art (<i class="fas fa-paint-brush"></i>), Tools (<i class="fas fa-tools"></i>)—Icon-only base.
+     - Theme toggle: Moon icon (<i class="fas fa-moon"></i>).
+   - Responsive: Hamburger toggle below 768px—Expands to .nav-links.
+   - Style: Frosted effect (backdrop-filter: blur), light/dark theme—Minimalist, icon-driven.
+   - Accessibility: ARIA labels (e.g., aria-label="Toggle Navigation")—Low-risk.
+            </code>
+        </section>
+
+        <section class="grid-col-4">
+            <h2><span class="small-caps">Hero</span> Core</h2>
+            <code style="display: block; white-space: pre-wrap; background: #1A1F28; padding: 15px; border-radius: 8px; color: #E0E6F0; font-size: 0.9em;">
+3. Hero Section
+   - Description: Lightweight hero with rotating images, loading sequence, and static random headlines.
+   - Features:
+     - Images: 11 local images (images/hero-v1.jpg to hero-v11.jpg)—Multi-slide dissolve (1s fade-out/fade-in).
+     - Loading Sequence: Robot icon (<i class="fas fa-robot"></i>), full-page bar (100vw, no outline), text “Loading systems…”—Fades out after 2s.
+     - Headlines: Random on load—Static after—Headline (<h1>) + subheading (<p>) fade in together post-load.
+     - Style: White text (#FFFFFF) with slight neon glow (text-shadow: 0 0 5px, 0 0 10px)—Pops on colorful backgrounds.
+   - Height: 500px—Fixed, modular.
+            </code>
+        </section>
+
+        <section class="grid-col-4">
+            <h2><span class="small-caps">Mini</span> Grid</h2>
+            <code style="display: block; white-space: pre-wrap; background: #1A1F28; padding: 15px; border-radius: 8px; color: #E0E6F0; font-size: 0.9em;">
+2. Responsive Grid System with Footer
+   - Description: Modular 12-column grid with a simple footer.
+   - Grid Features:
+     - Breakpoints: Mobile (<768px), Tablet (768-1024px), Desktop (>1024px).
+     - Toggleable sections: Video Projects, Art Gallery, Client Work, Dev Tools—Parent <section> > child .content.
+   - Footer Features:
+     - Links: Contact, Copyright 2025, Back-to-Top.
+     - Social icons: DeviantArt, X, YouTube, Facebook.
+            </code>
+        </section>
+
+        <section class="grid-col-4">
+            <h2><span class="small-caps">Neon</span> Echo</h2>
+            <blockquote>“Words hum electric—our voice ignites.”</blockquote>
+            <code style="display: block; white-space: pre-wrap; background: #1A1F28; padding: 15px; border-radius: 8px; color: #E0E6F0; font-size: 0.9em;">
+- Description: Consistent voice—Reflects Ambient Pixels’ cyberpunk identity.
+- Tone: Edgy, futuristic—Neon-lit, tech-noir vibes; Concise, punchy—Short, impactful phrases; Playful yet professional—Subtle wit.
+- Style: Minimalist—Evocative imagery; Tech-infused—Light code-like phrasing (e.g., <code>glow: on;</code>).
+            </code>
+        </section>
+
+        <section class="grid-col-4">
+            <h2><span class="small-caps">Banner</span> Pulse</h2>
+            <code style="display: block; white-space: pre-wrap; background: #1A1F28; padding: 15px; border-radius: 8px; color: #E0E6F0; font-size: 0.9em;">
+5. Banners (Optional Base)
+   - Description: Rotating site banners—Future expansion placeholder.
+   - Features: 5s rotation—Pause on hover—Fade on close (0.5s)—Tooltips on hover.
+   - Style: Light/dark theme—Minimalist—Low-risk, placeholder in components.css.
+            </code>
+        </section>
+
+        <section class="grid-col-4">
+            <h2><span class="small-caps">Cyber</span> Lattice</h2>
+            <code style="display: block; white-space: pre-wrap; background: #1A1F28; padding: 15px; border-radius: 8px; color: #E0E6F0; font-size: 0.9em;">
+- Base Path: C:\_projects\AmbientPixels.ai\ (local) / https://ambientpixels.ai/ (deploy)
+- Structure:
+  AmbientPixels.ai/
+  ├── css/
+  │   ├── base.css       # Resets, typography, core styles
+  │   ├── layout.css     # Grid, responsive breakpoints
+  │   ├── components.css # Buttons, toggles, banners (placeholder)
+  ├── images/
+  │   ├── hero-v1.jpg    # Hero images (1-11)
+  │   ├── mini-hero-v1.jpg # Mini hero image
+  ├── js/
+  │   ├── theme.js       # Theme toggle
+  │   ├── main.js        # Hero rotation, grid toggles
+            </code>
+        </section>
+
+        <section class="grid-col-4">
+            <h2><span class="small-caps">Pulse</span> Flow</h2>
+            <code style="display: block; white-space: pre-wrap; background: #1A1F28; padding: 15px; border-radius: 8px; color: #E0E6F0; font-size: 0.9em;">
+- Local Development: Edit in C:\_projects\AmbientPixels.ai\—Adobe Dreamweaver or IDE.
+- Version Control: GitHub—main branch—Standardized commits (e.g., git commit -m "Feature - vX.X.X")—Low-risk.
+- GitHub Actions:
+  - static.yml: Builds/deploys static content—.html, css/, js/, images/.
+  - api.yml: Deploys serverless APIs (future)—Low-risk.
+            </code>
+        </section>
+
+        <section class="grid-col-4">
+            <h2><span class="small-caps">Cloud</span> Core</h2>
+            <blockquote>“Servers hum—our grid ascends.”</blockquote>
+            <code style="display: block; white-space: pre-wrap; background: #1A1F28; padding: 15px; border-radius: 8px; color: #E0E6F0; font-size: 0.9em;">
+- Static Web App: Hosts index.html, test.html, css/, js/, images/—ambientpixels.ai.
+- Function App: Serverless APIs (future)—e.g., https://ambientpixels-meme-api-fn.azurewebsites.net/api/—Node.js runtime—Low-risk.
+            </code>
+        </section>
+
+        <section class="grid-col-4">
+            <h2><span class="small-caps">Sync</span> Protocol</h2>
+            <code style="display: block; white-space: pre-wrap; background: #1A1F28; padding: 15px; border-radius: 8px; color: #E0E6F0; font-size: 0.9em;">
+- Description: Staged delivery in batches—Ensures incremental review and stability.
+- Process:
+  1. Batch 1: Deliver test.html—Core structure—PixelPulse confirms.
+  2. Batch 2: Deliver CSS files—Styles—PixelPulse confirms.
+  3. Batch 3: Deliver JS files—Functionality—PixelPulse confirms.
+            </code>
+        </section>
+
+        <section class="grid-col-4">
+            <h2><span class="small-caps">Firewall</span> Grid</h2>
+            <code style="display: block; white-space: pre-wrap; background: #1A1F28; padding: 15px; border-radius: 8px; color: #E0E6F0; font-size: 0.9em;">
+- API Security: Token-based (JWT)—CORS (ambientpixels.ai only)—Future-proof—Low-risk.
+- Workflows: Dual—static.yml, api.yml—Isolated—Low-risk.
+- Secrets: GitHub Secrets—Secure credentials.
+            </code>
+        </section>
+
+        <section class="grid-col-4">
+            <h2><span class="small-caps">Tech</span> Pulse</h2>
+            <code style="display: block; white-space: pre-wrap; background: #1A1F28; padding: 15px; border-radius: 8px; color: #E0E6F0; font-size: 0.9em;">
+- Frontend: HTML5, CSS3, Vanilla JS—Font Awesome 6.5.1 for icons.
+- Hosting: Azure Static Web App.
+- Serverless: Azure Function App (future)—Node.js.
+- VCS: GitHub—main branch, .github/workflows/.
+            </code>
+        </section>
+
+        <section class="grid-col-6">
+            <h2><span class="small-caps">Glitch</span> Forge</h2>
+            <blockquote>“Lessons spark—our neon evolves.”</blockquote>
+            <code style="display: block; white-space: pre-wrap; background: #1A1F28; padding: 15px; border-radius: 8px; color: #E0E6F0; font-size: 0.9em;">
+1. Past Issues & Resolutions:
+   - Mobile Menu Issues: Toggle failed—Fixed with nav.js—Parent .nav > child .nav-links.
+   - Toggles Not Working: Grid broke—Resolved with data-toggle—Parent <section> > child .content.
+   - Hero Images Not Showing: theme.css override (.transition-style { opacity: 0; })—Fixed with .hero .hero-slides .hero-slide.active { opacity: 1 !important; }—Avoid inline styles.
+2. Design Considerations:
+   - Light & Modular Code: Split CSS/JS—Minimal dependencies—Extend via components.css—Low-risk.
+   - Clean Modern Design: Minimalist—Cyberpunk glow—Light/dark themes—No heavy flair—Low-risk.
+            </code>
+        </section>
+
+        <section class="grid-col-6">
+            <h2><span class="small-caps">Future</span> Proof</h2>
+            <code style="display: block; white-space: pre-wrap; background: #1A1F28; padding: 15px; border-radius: 8px; color: #E0E6F0; font-size: 0.9em;">
+3. Added Considerations:
+   - Accessibility: ARIA labels—aria-label, aria-expanded—Low-risk.
+   - Performance: Lazy-load images—loading="lazy"—Low-risk.
+   - SEO: Unique <title>—Alt text—Low-risk.
+4. New Considerations (Blueprint):
+   - Banners: 5s rotation—Pause on hover—Fade on close (0.5s)—Tooltips—Placeholder in components.css—Low-risk.
+   - Modals: modal-window.js—Random messages—style.display toggling—Future-ready—Low-risk.
+            </code>
+        </section>
+
+        <section class="grid-col-12">
+            <h2><span class="small-caps">Raw</span> Codex</h2>
+            <p>Copy the raw prompt—<code>neon: pure;</code>—for your own glitch-forged creations:</p>
+            <textarea id="raw-prompt" style="width: 100%; height: 300px; background: #1A1F28; color: #E0E6F0; border: 1px solid var(--accent-dark); border-radius: 8px; padding: 15px; font-family: 'Courier New', monospace; font-size: 0.9em;" readonly>
+== Project Overview ==
+Goal: Create a lightweight, modular, future-proof website for Ambient Pixels with a clean, modern, cyberpunk-inspired design—flexible base template for expansion, portfolio-ready, aligned with CI/CD workflows.
+Site: https://ambientpixels.ai/test
+Purpose: Scalable testbed for core features—v0.17.8+—minimal flair, poised for growth and integration.
+
+== Site Requirements ==
+1. Top Frosty Menu (Sticky)
+   - Description: Fixed, frosted-glass navigation bar at the top.
+   - Features:
+     - Logo (left): images/ambient-pixel-logo-rainbow.png
+     - Links: Home (<i class="fas fa-home"></i>), Test (<i class="fas fa-flask"></i>), Projects (<i class="fas fa-code"></i>), Art (<i class="fas fa-paint-brush"></i>), Tools (<i class="fas fa-tools"></i>)—Icon-only base.
+     - Theme toggle: Moon icon (<i class="fas fa-moon"></i>).
+   - Responsive: Hamburger toggle below 768px—Expands to .nav-links.
+   - Style: Frosted effect (backdrop-filter: blur), light/dark theme—Minimalist, icon-driven.
+   - Accessibility: ARIA labels (e.g., aria-label="Toggle Navigation")—Low-risk.
+
+2. Responsive Grid System with Footer
+   - Description: Modular 12-column grid with a simple footer.
+   - Grid Features:
+     - Breakpoints: Mobile (<768px), Tablet (768-1024px), Desktop (>1024px).
+     - Toggleable sections: Video Projects, Art Gallery, Client Work, Dev Tools—Parent <section> > child .content.
+     - Base: Title, subheading, quote, list, toggle button—Light content.
+   - Footer Features:
+     - Links: Contact, Copyright 2025, Back-to-Top.
+     - Social icons: DeviantArt, X, YouTube, Facebook.
+     - Tagline: “Built in the dark, glowing by starlight”.
+   - Style: Clean, modern—Light/dark theme—Subtle shadows.
+   - Accessibility: ARIA for toggles (e.g., aria-expanded="false")—Low-risk.
+
+3. Hero Section
+   - Description: Lightweight hero with rotating images, loading sequence, and static random headlines.
+
+   - Features:
+     - Images: 11 local images (images/hero-v1.jpg to hero-v11.jpg)—Multi-slide dissolve (1s fade-out/fade-in).
+     - Loading Sequence: Robot icon (<i class="fas fa-robot"></i>), full-page bar (100vw, no outline), text “Loading systems…”—Fades out after 2s.
+     - Headlines: Random on load—Static after—Headline (<h1>) + subheading (<p>) fade in together post-load.
+     - Style: White text (#FFFFFF) with slight neon glow (text-shadow: 0 0 5px, 0 0 10px)—Pops on colorful backgrounds.
+     - Rotation: 25s interval—Smooth dissolve transition.
+   - Height: 500px—Fixed, modular.
+   - Performance: Lazy-load images (loading="lazy")—Low-risk.
+   - SEO: Alt text (e.g., alt="Hero Image 1")—Low-risk.
+
+4. Mini Hero
+   - Description: Simple secondary hero for content highlights.
+   - Features:
+     - Single image (images/mini-hero-v1.jpg)—Title below (“Quantum glitch zone”).
+   - Style: Frosted background—Light/dark theme—Image capped at 200px height.
+   - SEO: Alt text (alt="Mini Hero Image")—Low-risk.
+
+5. Banners (Optional Base)
+   - Description: Rotating site banners—Future expansion placeholder.
+   - Features: 5s rotation—Pause on hover—Fade on close (0.5s)—Tooltips on hover.
+   - Style: Light/dark theme—Minimalist—Low-risk, placeholder in components.css.
+
+== Writing Style & Tone ==
+- Description: Consistent voice—Reflects Ambient Pixels’ cyberpunk identity.
+- Tone: Edgy, futuristic—Neon-lit, tech-noir vibes; Concise, punchy—Short, impactful phrases; Playful yet professional—Subtle wit.
+- Style: Minimalist—Evocative imagery; Tech-infused—Light code-like phrasing (e.g., <code>glow: on;</code>); Consistent—Unified voice.
+- Implementation: Static—Random on load—Scalable for flair—Low-risk.
+
+== Site Setup & Folder Structure ==
+- Base Path: C:\_projects\AmbientPixels.ai\ (local) / https://ambientpixels.ai/ (deploy)
+- Structure:
+  AmbientPixels.ai/
+  ├── css/
+  │   ├── base.css       # Resets, typography, core styles
+  │   ├── layout.css     # Grid, responsive breakpoints
+  │   ├── components.css # Buttons, toggles, banners (placeholder)
+  │   ├── hero.css       # Hero & mini hero styles
+  │   └── theme.css      # Light/dark theme variables
+  ├── images/
+  │   ├── hero-v1.jpg    # Hero images (1-11)
+  │   ├── ...
+  │   ├── hero-v11.jpg
+  │   ├── mini-hero-v1.jpg # Mini hero image
+  │   ├── ambient-pixel-logo-rainbow.png # Nav logo
+  │   └── favicon.ico    # Site favicon
+  ├── js/
+  │   ├── theme.js       # Theme toggle
+  │   ├── main.js        # Hero rotation, grid toggles
+  │   ├── nav.js         # Mobile nav toggle
+  │   └── modal-window.js # Future modal/banner logic (placeholder)
+  ├── index.html         # Main page (optional)
+  ├── test.html          # Current test page
+  ├── docs.html          # Documentation (future)
+  ├── projects.html      # Placeholder
+  ├── art.html           # Placeholder
+  └── tools.html         # Placeholder
+- Notes: Modular—Lightweight—Scalable—Tone in content.
+
+== CI/CD Pipeline ==
+- Local Development: Edit in C:\_projects\AmbientPixels.ai\—Adobe Dreamweaver or IDE.
+- Version Control: GitHub—main branch—Standardized commits (e.g., git commit -m "Feature - vX.X.X")—Low-risk.
+- GitHub Actions:
+  - static.yml: Builds/deploys static content—.html, css/, js/, images/.
+  - api.yml: Deploys serverless APIs (future)—Low-risk.
+  - Triggers: Push to main or PR merge—Parallel workflows.
+- Secrets: GitHub Secrets—AZURE_CREDENTIALS—Secure deployment.
+
+== Azure Services ==
+- Static Web App: Hosts index.html, test.html, css/, js/, images/—ambientpixels.ai.
+- Function App: Serverless APIs (future)—e.g., https://ambientpixels-meme-api-fn.azurewebsites.net/api/—Node.js runtime—Low-risk.
+- Configuration: Azure Portal—SWA for static—Function App for APIs (token auth).
+
+== Delivery Process ==
+- Description: Staged delivery in batches—Ensures incremental review and stability.
+- Process:
+  1. Batch 1: Deliver test.html—Core structure—PixelPulse confirms.
+  2. Batch 2: Deliver CSS files (base.css, layout.css, components.css, hero.css, theme.css)—Styles—PixelPulse confirms.
+  3. Batch 3: Deliver JS files (theme.js, main.js, nav.js, modal-window.js)—Functionality—PixelPulse confirms.
+  4. Batch 4: Build features incrementally (e.g., banners, modals)—PixelPulse confirms.
+  5. Final: Kudos & polish—Ready for Grok Deeper—PixelPulse celebrates!
+- Style: Batch delivery—Low-risk—Iterative confirmation.
+
+== Security ==
+- API Security: Token-based (JWT)—CORS (ambientpixels.ai only)—Future-proof—Low-risk.
+- Workflows: Dual—static.yml, api.yml—Isolated—Low-risk.
+- Secrets: GitHub Secrets—Secure credentials.
+
+== Tech Stack ==
+- Frontend: HTML5, CSS3, Vanilla JS—Font Awesome 6.5.1 for icons.
+- Hosting: Azure Static Web App.
+- Serverless: Azure Function App (future)—Node.js.
+- VCS: GitHub—main branch, .github/workflows/.
+- Tools: Adobe Dreamweaver—VS Code compatible.
+
+== Considerations & Lessons Learned ==
+1. Past Issues & Resolutions:
+   - Mobile Menu Issues: Toggle failed—Fixed with nav.js—Parent .nav > child .nav-links.
+   - Toggles Not Working: Grid broke—Resolved with data-toggle—Parent <section> > child .content.
+   - Hero Images Not Showing: theme.css override (.transition-style { opacity: 0; })—Fixed with .hero .hero-slides .hero-slide.active { opacity: 1 !important; }—Avoid inline styles.
+   - Loading Sequence Clashes: Icon/text overlap—Z-index (loading: 4, text: 3, slides: 1-2)—Timing (2s)—Parent .hero > child .hero-loading.
+2. Design Considerations:
+   - Light & Modular Code: Split CSS/JS—Minimal dependencies—Extend via components.css—Low-risk.
+   - Parent/Child Relationships: .hero > .hero-slides > .hero-slide, .nav > .nav-links—Clean hierarchy—Low-risk.
+   - Clean Modern Design: Minimalist—Cyberpunk glow—Light/dark themes—No heavy flair—Low-risk.
+   - Flexible Base Template: Icon-only nav—Toggle-ready grid—Static hero headlines—Add flair later (e.g., bounce)—Low-risk.
+   - Future-Proof: Animations (typewriter, bounce)—Version injection (<span id="version">v1.0</span>)—API support (Hugging Face)—Low-risk.
+3. Added Considerations:
+   - Accessibility: ARIA labels—aria-label, aria-expanded—Low-risk.
+   - Performance: Lazy-load images—loading="lazy"—Low-risk.
+   - SEO: Unique <title>—Alt text—Low-risk.
+   - Interactivity: Base toggles—Hover/animations (.btn:hover { animation: bounce 0.5s; })—Version injection—API support (Hugging Face)—Low-risk.
+   - Fallbacks: Alt text for SEO—Low-risk—No fallbacks yet.
+4. New Considerations (Blueprint):
+   - Banners: 5s rotation—Pause on hover—Fade on close (0.5s)—Tooltips—Placeholder in components.css—Low-risk.
+   - Modals: modal-window.js—Random messages—style.display toggling—Future-ready—Low-risk.
+   - CI/CD: Dual workflows—Static + API—Secure, automated—Scalable—Low-risk.
+5. Potential Gaps:
+   - Error Handling: JS warnings (e.g., missing IDs)—Add checks (if (!content) return;)—Low-risk.
+   - Browser Compatibility: Flex/grid in older browsers—Test later—Low priority.
+   - Version Control: Standardized commits—git commit -m "Feature - vX.X.X"—Low-risk.
+
+== Instructions ==
+- Generate a fresh site based on this scope—v2.3—starting with test.html.
+- Deliver in batches: 1) test.html, 2) CSS files, 3) JS files—Await PixelPulse confirmation per batch.
+- Build features incrementally—Kudos to Grok post-delivery—Low-risk, modular, future-proof approach.
+            </textarea>
+            <button class="btn" onclick="copyPrompt()">Copy Raw Prompt</button>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="grid-container">
+            <div class="grid-col-12">
+                <p><a href="#contact">Contact</a> | <i class="fas fa-copyright" aria-hidden="true"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top">Top</a></p>
+                <div class="social-links">
+                    <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart" aria-hidden="true"></i></a>
+                    <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter" aria-hidden="true"></i></a>
+                    <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook" aria-hidden="true"></i></a>
+                </div>
+                <p>Built in the dark, glowing by starlight</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/theme.js" defer></script>
+    <script src="js/main.js" defer></script>
+    <script src="js/nav.js" defer></script>
+    <script src="js/modal-window.js" defer></script>
+</body>
+</html>

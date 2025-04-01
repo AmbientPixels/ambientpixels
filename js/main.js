@@ -1,52 +1,62 @@
-// main.js - Ambient Pixels v1.0.1-20250401
+// main.js - Ambient Pixels v1.1.0-20250402
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Main JS loaded - Circuits online');
 
     setTimeout(() => {
-        const gridButtons = document.querySelectorAll('.grid-col-6 .btn');
-        const toggleHeaders = document.querySelectorAll('.toggle-header');
+        // Hero Loading & Rotation
+        const slides = document.querySelectorAll('.hero-slide');
+        const heroText = document.querySelector('.hero-text');
+        const heroSub = document.querySelector('.hero-subheading');
+        const loading = document.querySelector('.hero-loading');
 
-        if (gridButtons.length === 0 && toggleHeaders.length === 0) {
-            console.warn('No toggle elements found');
-            return;
+        slides.forEach(slide => {
+            const bgImage = slide.getAttribute('data-bg');
+            if (bgImage) slide.style.backgroundImage = `url('${bgImage}')`;
+        });
+
+        const headlines = [
+            { text: "Neon beats in cosmic streets.", sub: "Code the void. Paint the stars." },
+            { text: "Glitch the multiverse.", sub: "Pixels pulse. Worlds collide." },
+            { text: "Forge the neon frontier.", sub: "Tools spark. Futures glow." },
+            { text: "Quantum code unleashed.", sub: "Bits bend. Reality shifts." },
+            { text: "Cyber dreams in 4K.", sub: "Reels hum. Screens ignite." },
+            { text: "Pixel chaos reigns.", sub: "Art glows. Grid lives." },
+            { text: "Neon grid uprising.", sub: "Code runs. Stars fall." },
+            { text: "Echoes of the void.", sub: "Glitch sings. Time breaks." },
+            { text: "Cosmic tools awaken.", sub: "Forge fast. Shine bright." },
+            { text: "Infinite neon pulse.", sub: "Beats drop. Worlds sync." },
+            { text: "Ambient Pixels", sub: "Neon beats in cosmic streets—v2.3 ignites." }
+        ];
+
+        let currentIndex = 0;
+        const initialHeadline = headlines[Math.floor(Math.random() * headlines.length)];
+
+        function rotateHero() {
+            slides[currentIndex].classList.remove('active');
+            currentIndex = (currentIndex + 1) % slides.length;
+            slides[currentIndex].classList.add('active');
+            console.log(`Hero rotated - BG: ${currentIndex + 1}, Headline: "${heroText.textContent}"`);
         }
 
-        // Function to toggle content with typewriter animation
-        const toggleContent = (contentId, header) => {
-            const content = document.getElementById(contentId);
-            if (!content) {
-                console.warn(`Content not found for ID: ${contentId}`);
-                return;
-            }
+        heroText.textContent = initialHeadline.text;
+        heroSub.textContent = initialHeadline.sub;
 
-            if (content.classList.contains('open')) {
-                content.style.maxHeight = '0';
-                content.style.opacity = '0';
-                setTimeout(() => { content.classList.remove('open'); }, 300);
-                header.classList.remove('typing');
-            } else {
-                content.classList.add('open');
-                content.style.maxHeight = content.scrollHeight + 'px';
-                content.style.opacity = '1';
-                header.classList.add('typing');
-                setTimeout(() => { header.classList.remove('typing'); }, 1000); // Match animation duration
-            }
-            console.log(`Content toggled for: ${contentId}`, content.classList.contains('open') ? 'Shown' : 'Hidden');
-        };
+        setTimeout(() => {
+            slides[0].classList.add('active');
+            loading.style.display = 'none';
+            heroText.classList.add('visible');
+            heroSub.classList.add('visible');
+        }, 2000);
 
-        // Button toggles
-        gridButtons.forEach((btn) => {
-            const contentId = btn.getAttribute('data-toggle');
-            const header = btn.closest('.grid-col-6').querySelector('.toggle-header');
-            btn.addEventListener('click', () => toggleContent(contentId, header));
-            console.log(`Attached toggle handler to button: ${contentId}`);
-        });
-
-        // Header toggles
-        toggleHeaders.forEach((header) => {
-            const contentId = header.getAttribute('data-toggle');
-            header.addEventListener('click', () => toggleContent(contentId, header));
-            console.log(`Attached toggle handler to header: ${contentId}`);
-        });
+        setInterval(rotateHero, 25000);
     }, 50);
+
+    // Copy Prompt Functionality
+    window.copyPrompt = function() {
+        const textarea = document.getElementById('raw-prompt');
+        textarea.select();
+        document.execCommand('copy');
+        console.log('Raw prompt copied to clipboard');
+        alert('Prompt copied—forge your neon future!');
+    };
 });

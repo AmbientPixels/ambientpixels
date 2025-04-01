@@ -1,60 +1,153 @@
-/* hero.css - Ambient Pixels v1.0.0-20250401 */
+/* hero.css - Ambient Pixels v1.1.0-20250402 */
 .hero {
     position: relative;
-    background-image: url('../images/hero-v1.jpg');
-    background-size: cover;
-    background-position: center;
-    padding: 80px 20px;
-    text-align: center;
-    margin-top: 0px;
-    min-height: 300px;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
-    opacity: 0; /* Start hidden */
-    animation: fadeIn 1s ease forwards; /* Fade in on load */
+    width: 100%;
+    max-width: 100vw;
+    min-height: 500px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+.hero .hero-slides {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.hero .hero-slides .hero-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    z-index: 1;
+}
+
+.hero .hero-slides .hero-slide.active {
+    opacity: 1 !important;
+    z-index: 2;
 }
 
 .hero-text {
-    font-size: 3em;
+    position: relative;
+    z-index: 3;
+    font-size: 2.5em;
     margin: 0;
-    color: var(--text-dark);
-    text-shadow: 0 0 10px var(--accent-dark);
+    color: #FFFFFF;
+    text-shadow: 0 0 5px var(--accent-dark), 0 0 10px var(--accent-dark);
+    opacity: 0;
+    transition: opacity 0.5s ease, text-shadow 0.5s ease;
+}
+
+.hero-text.visible {
+    opacity: 1;
+    text-shadow: 0 0 10px var(--accent-dark), 0 0 15px var(--accent-dark);
+}
+
+body[data-theme="light"] .hero-text {
+    color: #FFFFFF;
+    text-shadow: 0 0 5px var(--accent-light), 0 0 10px var(--accent-light);
+}
+
+body[data-theme="light"] .hero-text.visible {
+    text-shadow: 0 0 10px var(--accent-light), 0 0 15px var(--accent-light);
 }
 
 .hero-subheading {
-    font-size: 1.8em;
-    margin: 15px 0 0;
-    color: var(--text-dark);
-    text-shadow: 0 0 8px var(--highlight-dark);
-}
-
-.mini-hero {
     position: relative;
-    text-align: center;
-    padding: 30px;
-    background: rgba(26, 31, 40, 0.8);
-    backdrop-filter: blur(5px);
+    z-index: 3;
+    font-size: 1.25em;
+    margin-top: 10px;
+    color: #FFFFFF;
+    text-shadow: 0 0 5px var(--success-dark), 0 0 10px var(--success-dark);
+    opacity: 0;
+    transition: opacity 0.5s ease, text-shadow 0.5s ease;
 }
 
-body[data-theme="light"] .mini-hero {
-    background: rgba(255, 255, 255, 0.1);
+.hero-subheading.visible {
+    opacity: 1;
+    text-shadow: 0 0 10px var(--success-dark), 0 0 15px var(--success-dark);
 }
 
-.mini-hero img {
+body[data-theme="light"] .hero-subheading {
+    color: #FFFFFF;
+    text-shadow: 0 0 5px var(--success-light), 0 0 10px var(--success-light);
+}
+
+body[data-theme="light"] .hero-subheading.visible {
+    text-shadow: 0 0 10px var(--success-light), 0 0 15px var(--success-light);
+}
+
+.hero-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
     width: 100%;
-    max-height: 200px;
-    object-fit: cover;
-    display: block;
-    border-radius: 8px;
 }
 
-.mini-hero h1 {
-    margin: 15px 0 0;
+.hero-loading i {
     font-size: 2em;
+    color: var(--accent-dark);
+    animation: spin 1s linear infinite;
+    text-shadow: 0 0 10px var(--accent-dark);
+}
+
+body[data-theme="light"] .hero-loading i {
+    color: var(--accent-light);
+    text-shadow: 0 0 10px var(--accent-light);
+}
+
+.loading-text {
+    font-size: 1em;
     color: var(--text-dark);
-    text-shadow: 0 0 5px var(--success-dark);
+    text-shadow: 0 0 5px var(--accent-dark);
+}
+
+body[data-theme="light"] .loading-text {
+    color: var(--text-light);
+    text-shadow: 0 0 5px var(--accent-light);
+}
+
+.loading-bar {
+    width: 100vw;
+    height: 6px;
+    background: var(--card-dark);
+    overflow: hidden;
+}
+
+body[data-theme="light"] .loading-bar {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.loading-progress {
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-dark), var(--highlight-dark));
+    animation: progress 2s forwards;
+}
+
+body[data-theme="light"] .loading-progress {
+    background: linear-gradient(90deg, var(--accent-light), var(--highlight-light));
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes progress {
+    100% { width: 100%; }
 }

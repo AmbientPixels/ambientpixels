@@ -1,164 +1,35 @@
-/* base.css - Ambient Pixels v1.0.0-20250401 */
-:root {
-    --bg-dark: #0A0F14;
-    --text-dark: #E0E6F0;
-    --card-dark: #1A1F28;
-    --accent-dark: #00D4FF;
-    --highlight-dark: #FF1A8C;
-    --success-dark: #33FF99;
-    --bg-light: #F0F4F8;
-    --text-light: #0A0F14;
-    --accent-light: #00A3CC;
-    --highlight-light: #FF007A;
-    --success-light: #00CC66;
-}
-
-body, html {
+/* base.css - Ambient Pixels v1.1.0-20250402 */
+* {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+}
+
+body {
     font-family: 'Inter', sans-serif;
-    overflow: visible !important;
-    font-size: 16px;
+    background: #0A0F14;
+    color: #E0E6F0;
     line-height: 1.6;
-    display: block; /* Ensure safe sticky context */
 }
 
-h1, h2, h3, h4, h5, h6 {
-    margin: 0 0 10px;
-    font-weight: 500;
-    line-height: 1.2;
-    letter-spacing: 0.5px;
-    transition: text-shadow 0.2s ease;
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.3s ease;
 }
 
-h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
-    text-shadow: 0 0 5px var(--highlight-dark);
+a:hover {
+    color: var(--highlight-dark);
 }
 
-body[data-theme="light"] h1:hover, 
-body[data-theme="light"] h2:hover, 
-body[data-theme="light"] h3:hover, 
-body[data-theme="light"] h4:hover, 
-body[data-theme="light"] h5:hover, 
-body[data-theme="light"] h6:hover {
-    text-shadow: 0 0 5px var(--highlight-light);
-}
-
-h1 { font-size: 2.5em; }
-h2 { font-size: 1.75em; }
-h3 { font-size: 1.5em; }
-h4 { font-size: 1.25em; }
-h5 { font-size: 1.125em; }
-h6 { font-size: 1em; }
-
-p {
-    margin: 0 0 15px;
-    font-size: 1em;
-    font-weight: 400;
-}
-
-blockquote {
-    margin: 15px 0;
-    padding: 10px 15px;
-    font-size: 1.125em;
-    font-style: italic;
-    border-left: 4px solid var(--accent-dark);
-    background: rgba(26, 31, 40, 0.5);
-    color: var(--text-dark);
-}
-
-body[data-theme="light"] blockquote {
-    border-left-color: var(--accent-light);
-    background: rgba(255, 255, 255, 0.2);
-    color: var(--text-light);
-}
-
-.small-caps {
-    font-variant: small-caps;
-    font-size: 1.1em;
-    letter-spacing: 1px;
-    color: var(--accent-dark);
-}
-
-body[data-theme="light"] .small-caps {
-    color: var(--accent-light);
-}
-
-q {
-    font-style: italic;
-    quotes: "“" "”" "‘" "’";
-    color: var(--success-dark);
-}
-
-body[data-theme="light"] q {
-    color: var(--success-light);
-}
-
-q::before {
-    content: open-quote;
-}
-
-q::after {
-    content: close-quote;
+body[data-theme="light"] a:hover {
+    color: var(--highlight-light);
 }
 
 ul, ol {
-    margin: 0 0 15px;
-    padding-left: 20px;
-}
-
-ul {
     list-style: none;
 }
 
-ul li::before {
-    content: "▹";
-    color: var(--accent-dark);
-    margin-right: 8px;
-}
-
-body[data-theme="light"] ul li::before {
-    color: var(--accent-light);
-}
-
-ul li:hover {
-    text-shadow: 0 0 8px var(--highlight-dark);
-    transition: text-shadow 0.2s ease;
-}
-
-body[data-theme="light"] ul li:hover {
-    text-shadow: 0 0 8px var(--highlight-light);
-}
-
-ol {
-    list-style: decimal;
-}
-
-li {
-    margin: 5px 0;
-    font-size: 1em;
-    color: var(--text-dark);
-    transition: text-shadow 0.2s ease;
-}
-
-body[data-theme="light"] li {
-    color: var(--text-light);
-}
-
-code {
-    font-family: 'Inter', monospace;
-    font-size: 0.9em;
-    background: var(--card-dark);
-    padding: 2px 6px;
-    border-radius: 4px;
-    color: var(--success-dark);
-    border: 1px solid var(--accent-dark);
-    box-shadow: 0 0 5px var(--success-dark);
-}
-
-body[data-theme="light"] code {
-    background: rgba(255, 255, 255, 0.3);
-    color: var(--success-light);
-    border-color: var(--accent-light);
-    box-shadow: 0 0 5px var(--success-light);
+h1, h2, h3 {
+    margin-bottom: 10px;
 }
