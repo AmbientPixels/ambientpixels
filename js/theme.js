@@ -12,6 +12,6 @@ function toggleTheme() {
 
 document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme');
-    document.body.setAttribute('data-theme', savedTheme || 'dark'); // Default dark
+    document.body.setAttribute('data-theme', savedTheme || 'dark');
     console.log('Theme JS loaded - Frequency set');
 });

@@ -6,6 +6,7 @@
     position: sticky;
     top: 0;
     z-index: 1000;
+    position: relative; /* Relative container for nav-links */
 }
 
 body[data-theme="light"] .nav {
@@ -30,11 +31,11 @@ body[data-theme="light"] .nav {
 .nav-logo {
     height: 40px;
     margin-right: 10px;
-    filter: drop-shadow(0 0 20px var(--accent-dark)); /* Glow boost */
+    filter: drop-shadow(0 0 10px var(--accent-dark));
 }
 
 body[data-theme="light"] .nav-logo {
-    filter: drop-shadow(0 0 20px var(--accent-light));
+    filter: drop-shadow(0 0 10px var(--accent-light));
 }
 
 .nav-container h1 {
@@ -44,6 +45,20 @@ body[data-theme="light"] .nav-logo {
 }
 
 body[data-theme="light"] .nav-container h1 {
+    color: var(--text-light);
+}
+
+.nav-toggle {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    color: var(--text-dark);
+    cursor: pointer;
+    display: none;
+    transition: color 0.2s ease;
+}
+
+body[data-theme="light"] .nav-toggle {
     color: var(--text-light);
 }
 
@@ -90,165 +105,31 @@ body[data-theme="light"] .nav-links .theme-toggle:hover {
 }
 
 @media (max-width: 768px) {
-    .nav-links {
-        display: none;
+    .nav-toggle {
+        display: block;
     }
-}
 
-.footer {
-    background: rgba(10, 15, 20, 0.8);
-    backdrop-filter: blur(10px);
-    padding: 20px 0;
-    text-align: center;
-}
-
-body[data-theme="light"] .footer {
-    background: rgba(240, 244, 248, 0.8);
-}
-
-.footer p {
-    margin: 5px 0;
-    color: var(--text-dark);
-}
-
-body[data-theme="light"] .footer p {
-    color: var(--text-light);
-}
-
-.footer a {
-    text-decoration: none;
-    color: var(--accent-dark);
-}
-
-body[data-theme="light"] .footer a {
-    color: var(--accent-light);
-}
-
-.footer a:hover {
-    color: var(--highlight-dark);
-}
-
-body[data-theme="light"] .footer a:hover {
-    color: var(--highlight-light);
-}
-
-.footer .social-links {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin: 10px 0;
-}
-
-.footer .social-links a {
-    font-size: 1.5em;
-    color: var(--text-dark);
-    transition: color 0.2s ease;
-}
-
-body[data-theme="light"] .footer .social-links a {
-    color: var(--text-light);
-}
-
-.footer .social-links a:hover {
-    color: var(--highlight-dark);
-}
-
-body[data-theme="light"] .footer .social-links a:hover {
-    color: var(--highlight-light);
-}/* components.css - Ambient Pixels v1.0.0-20250401 */
-.nav {
-    background: rgba(10, 15, 20, 0.8);
-    backdrop-filter: blur(10px);
-    padding: 10px 0;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
-
-body[data-theme="light"] .nav {
-    background: rgba(240, 244, 248, 0.8);
-}
-
-.nav-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-.nav-logo-link {
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-}
-
-.nav-logo {
-    height: 40px;
-    margin-right: 10px;
-    filter: drop-shadow(0 0 20px var(--accent-dark)); /* Glow boost */
-}
-
-body[data-theme="light"] .nav-logo {
-    filter: drop-shadow(0 0 20px var(--accent-light));
-}
-
-.nav-container h1 {
-    margin: 0;
-    font-size: 1.5em;
-    color: var(--text-dark);
-}
-
-body[data-theme="light"] .nav-container h1 {
-    color: var(--text-light);
-}
-
-.nav-links {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.nav-links a {
-    text-decoration: none;
-    font-size: 1.1em;
-    color: var(--text-dark);
-    transition: color 0.2s ease;
-}
-
-body[data-theme="light"] .nav-links a {
-    color: var(--text-light);
-}
-
-.nav-links a:hover {
-    color: var(--highlight-dark);
-}
-
-body[data-theme="light"] .nav-links a:hover {
-    color: var(--highlight-light);
-}
-
-.nav-links .theme-toggle {
-    background: none;
-    border: none;
-    font-size: 1.5em;
-    cursor: pointer;
-    color: var(--text-dark);
-    transition: color 0.2s ease;
-}
-
-body[data-theme="light"] .nav-links .theme-toggle {
-    color: var(--text-light);
-}
-
-body[data-theme="light"] .nav-links .theme-toggle:hover {
-    color: var(--highlight-light);
-}
-
-@media (max-width: 768px) {
     .nav-links {
-        display: none;
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: rgba(10, 15, 20, 0.8);
+        padding: 10px 0;
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    body[data-theme="light"] .nav-links {
+        background: rgba(240, 244, 248, 0.8);
+    }
+
+    .nav-links.nav-open {
+        visibility: visible;
+        opacity: 1;
     }
 }
 

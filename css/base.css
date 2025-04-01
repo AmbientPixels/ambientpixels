@@ -1,16 +1,16 @@
 /* base.css - Ambient Pixels v1.0.0-20250401 */
 :root {
-    --bg-dark: #0A0F14; /* Cosmic black */
-    --text-dark: #E0E6F0; /* Starlight white */
-    --card-dark: #1A1F28; /* Frosted dark */
-    --accent-dark: #00D4FF; /* Neon cyan */
-    --highlight-dark: #FF1A8C; /* Cosmic pink */
-    --success-dark: #33FF99; /* Electric green */
-    --bg-light: #F0F4F8; /* Soft glow */
-    --text-light: #0A0F14; /* Cosmic black */
-    --accent-light: #00A3CC; /* Cool cyan */
-    --highlight-light: #FF007A; /* Hot pink */
-    --success-light: #00CC66; /* Bright green */
+    --bg-dark: #0A0F14;
+    --text-dark: #E0E6F0;
+    --card-dark: #1A1F28;
+    --accent-dark: #00D4FF;
+    --highlight-dark: #FF1A8C;
+    --success-dark: #33FF99;
+    --bg-light: #F0F4F8;
+    --text-light: #0A0F14;
+    --accent-light: #00A3CC;
+    --highlight-light: #FF007A;
+    --success-light: #00CC66;
 }
 
 body {
