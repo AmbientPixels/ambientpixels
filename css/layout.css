@@ -10,6 +10,14 @@
 
 .grid-col-6 {
     grid-column: span 6;
+    padding: 20px;
+    background: var(--card-dark);
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+body[data-theme="light"] .grid-col-6 {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .grid-col-12 {

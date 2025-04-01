@@ -1,6 +1,7 @@
 // theme.js - Ambient Pixels v1.0.0-20250401
-function toggleTheme(mode) {
-    if (mode === 'dark' || (mode !== 'light' && document.body.getAttribute('data-theme') === 'light')) {
+function toggleTheme() {
+    const currentTheme = document.body.getAttribute('data-theme');
+    if (currentTheme === 'light') {
         document.body.setAttribute('data-theme', 'dark');
         localStorage.setItem('theme', 'dark');
     } else {
@@ -11,10 +12,6 @@ function toggleTheme(mode) {
 
 document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-        document.body.setAttribute('data-theme', 'light');
-    } else {
-        document.body.setAttribute('data-theme', 'dark');
-    }
-    console.log('Theme JS loaded');
+    document.body.setAttribute('data-theme', savedTheme || 'dark'); // Default dark
+    console.log('Theme JS loaded - Frequency set');
 });

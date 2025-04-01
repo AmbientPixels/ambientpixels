@@ -4,35 +4,7 @@ body[data-theme="dark"] {
     color: var(--text-dark);
 }
 
-body[data-theme="dark"] .nav-left h1,
-body[data-theme="dark"] .nav-right a,
-body[data-theme="dark"] .nav-right .theme-toggle,
-body[data-theme="dark"] .hero,
-body[data-theme="dark"] .mini-hero h1,
-body[data-theme="dark"] .footer,
-body[data-theme="dark"] .footer .social-links a {
-    color: var(--text-dark);
-}
-
-body[data-theme="dark"] .footer a {
-    color: var(--accent-dark);
-}
-
 body[data-theme="light"] {
     background: var(--bg-light);
     color: var(--text-light);
-}
-
-body[data-theme="light"] .nav-left h1,
-body[data-theme="light"] .nav-right a,
-body[data-theme="light"] .nav-right .theme-toggle,
-body[data-theme="light"] .hero,
-body[data-theme="light"] .mini-hero h1,
-body[data-theme="light"] .footer,
-body[data-theme="light"] .footer .social-links a {
-    color: var(--text-light);
-}
-
-body[data-theme="light"] .footer a {
-    color: var(--accent-light);
 }

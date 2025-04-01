@@ -4,48 +4,54 @@
     background-image: url('../images/hero-v1.jpg');
     background-size: cover;
     background-position: center;
-    padding: 60px 20px;
+    padding: 80px 20px;
     text-align: center;
-    margin-top: 0px; /* No gap above */
-    min-height: 200px;
+    margin-top: 0;
+    min-height: 300px;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
 .hero-text {
-    font-size: 2.5em;
+    font-size: 3em;
     margin: 0;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    color: var(--text-dark);
+    text-shadow: 0 0 10px var(--accent-dark);
 }
 
 .hero-subheading {
-    font-size: 1.5em;
-    margin: 10px 0 0;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    font-size: 1.8em;
+    margin: 15px 0 0;
+    color: var(--text-dark);
+    text-shadow: 0 0 8px var(--highlight-dark);
 }
 
 .mini-hero {
     position: relative;
     text-align: center;
-    padding: 20px;
-    background: var(--card-dark);
+    padding: 30px;
+    background: rgba(26, 31, 40, 0.8);
+    backdrop-filter: blur(5px);
 }
 
 body[data-theme="light"] .mini-hero {
-    background: var(--bg-light);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .mini-hero img {
     width: 100%;
-    max-height: 150px;
+    max-height: 200px;
     object-fit: cover;
     display: block;
+    border-radius: 8px;
 }
 
 .mini-hero h1 {
-    margin: 10px 0 0;
-    font-size: 1.8em;
+    margin: 15px 0 0;
+    font-size: 2em;
+    color: #000000; /* Black default for light */
+    text-shadow: 0 0 5px var(--success-dark);
 }
 
-.mini-hero .hero-subheading {
-    margin: 5px 0 0;
-    font-size: 1.2em;
+body[data-theme="dark"] .mini-hero h1 {
+    color: var(--text-dark); /* White-ish for dark */
 }
