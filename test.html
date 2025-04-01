@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="css/theme.css">
 </head>
 <body>
-    <!-- Navigation - Directly under body -->
+    <!-- Navigation -->
     <nav class="nav">
         <div class="nav-blur-layer"></div>
         <div class="nav-container">
@@ -47,10 +47,11 @@
         <h1>Quantum glitch zone</h1>
     </div>
 
-    <!-- Grid Content with Toggleable Sections -->
+    <!-- Grid Content with Toggleable Sections in Own Buckets -->
     <div class="grid-container">
+        <!-- Video Projects -->
         <section class="grid-col-6">
-            <h2>Video Projects</h2>
+            <h2 class="toggle-header" data-toggle="video-content">Video Projects</h2>
             <h3><span class="small-caps">Reels</span> with pixel precision.</h3>
             <blockquote>“Neon clips that <q>hum electric</q> in the void.”</blockquote>
             <p>Cosmic reels coded tight—<code>glow: on;</code> pulses through.</p>
@@ -59,14 +60,16 @@
                 <li>Reel 2—Bold <q>frames</q></li>
             </ul>
             <button class="btn" data-toggle="video-content">Preview</button>
-            <div class="content" id="video-content" style="display: none;">
-                <h4>Video Highlights</h4>
-                <p>Reel 1: Neon-drenched glitch cuts—<code>runtime: 0:30</code>.</p>
-                <p>Reel 2: Cosmic beats in 4K—<q>pure glow</q>.</p>
-            </div>
         </section>
+        <section class="grid-col-6 content" id="video-content">
+            <h4>Video Highlights</h4>
+            <p>Reel 1: Neon-drenched glitch cuts—<code>runtime: 0:30</code>.</p>
+            <p>Reel 2: Cosmic beats in 4K—<q>pure glow</q>.</p>
+        </section>
+
+        <!-- Art Gallery -->
         <section class="grid-col-6">
-            <h2>Art Gallery</h2>
+            <h2 class="toggle-header" data-toggle="art-content">Art Gallery</h2>
             <h3><span class="small-caps">Designs</span> that spark.</h3>
             <blockquote>“Canvas pulsing with <q>cosmic chaos</q>.”</blockquote>
             <p>Art built sharp—<code>neon.css</code> ignites the grid.</p>
@@ -75,14 +78,16 @@
                 <li>Final—Frosty <q>finish</q></li>
             </ol>
             <button class="btn" data-toggle="art-content">View</button>
-            <div class="content" id="art-content" style="display: none;">
-                <h4>Art Pieces</h4>
-                <p>Sketch: Neon wireframe—<code>layers: 3</code>.</p>
-                <p>Final: Frosted canvas—<q>glow maxed</q>.</p>
-            </div>
         </section>
+        <section class="grid-col-6 content" id="art-content">
+            <h4>Art Pieces</h4>
+            <p>Sketch: Neon wireframe—<code>layers: 3</code>.</p>
+            <p>Final: Frosted canvas—<q>glow maxed</q>.</p>
+        </section>
+
+        <!-- Client Work -->
         <section class="grid-col-6">
-            <h2>Client Work</h2>
+            <h2 class="toggle-header" data-toggle="client-content">Client Work</h2>
             <h3><span class="small-caps">Code</span> that delivers.</h3>
             <blockquote>“Pixels for the <q>multiverse</q> grid.”</blockquote>
             <p>Projects shipped fast—<code>grid.js</code> holds steady.</p>
@@ -91,14 +96,16 @@
                 <li>Site B—Neon <q>UX</q></li>
             </ul>
             <button class="btn" data-toggle="client-content">Explore</button>
-            <div class="content" id="client-content" style="display: none;">
-                <h4>Client Projects</h4>
-                <p>Site A: Cosmic dashboard—<code>uptime: 99.9%</code>.</p>
-                <p>Site B: Neon storefront—<q>sales up</q>.</p>
-            </div>
         </section>
+        <section class="grid-col-6 content" id="client-content">
+            <h4>Client Projects</h4>
+            <p>Site A: Cosmic dashboard—<code>uptime: 99.9%</code>.</p>
+            <p>Site B: Neon storefront—<q>sales up</q>.</p>
+        </section>
+
+        <!-- Dev Tools -->
         <section class="grid-col-6">
-            <h2>Dev Tools</h2>
+            <h2 class="toggle-header" data-toggle="tools-content">Dev Tools</h2>
             <h3><span class="small-caps">Gear</span> for the frontier.</h3>
             <blockquote>“Forge tools in the <q>dark</q> glow.”</blockquote>
             <p>Utils coded lean—<code>utils.js</code> runs smooth.</p>
@@ -107,11 +114,11 @@
                 <li>Tool 2—Sharp <q>edge</q></li>
             </ol>
             <button class="btn" data-toggle="tools-content">Launch</button>
-            <div class="content" id="tools-content" style="display: none;">
-                <h4>Toolset</h4>
-                <p>Tool 1: Grid aligner—<code>lines: 12</code>.</p>
-                <p>Tool 2: Neon debugger—<q>bugs zapped</q>.</p>
-            </div>
+        </section>
+        <section class="grid-col-6 content" id="tools-content">
+            <h4>Toolset</h4>
+            <p>Tool 1: Grid aligner—<code>lines: 12</code>.</p>
+            <p>Tool 2: Neon debugger—<q>bugs zapped</q>.</p>
         </section>
     </div>
 

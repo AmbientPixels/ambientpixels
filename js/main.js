@@ -2,36 +2,47 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Main JS loaded - Circuits online');
 
-    // Ensure DOM is fully loaded
     setTimeout(() => {
         const gridButtons = document.querySelectorAll('.grid-col-6 .btn');
+        const toggleHeaders = document.querySelectorAll('.toggle-header');
 
-        if (gridButtons.length === 0) {
-            console.warn('No grid buttons found');
+        if (gridButtons.length === 0 && toggleHeaders.length === 0) {
+            console.warn('No toggle elements found');
             return;
         }
 
-        gridButtons.forEach((btn) => {
-            const contentId = btn.getAttribute('data-toggle');
+        // Function to toggle content
+        const toggleContent = (contentId) => {
             const content = document.getElementById(contentId);
-
             if (!content) {
                 console.warn(`Content not found for ID: ${contentId}`);
                 return;
             }
 
-            btn.addEventListener('click', () => {
-                if (content.classList.contains('open')) {
-                    content.style.maxHeight = '0';
-                    content.style.opacity = '0';
-                    setTimeout(() => { content.classList.remove('open'); }, 300); // Match transition duration
-                } else {
-                    content.classList.add('open');
-                    content.style.maxHeight = content.scrollHeight + 'px';
-                    setTimeout(() => { content.style.opacity = '1'; }, 10); // Smooth fade-in
-                }
-            });
-            console.log(`Attached toggle handler to: ${contentId} button`);
+            if (content.classList.contains('open')) {
+                content.style.maxHeight = '0';
+                content.style.opacity = '0';
+                setTimeout(() => { content.classList.remove('open'); }, 300);
+            } else {
+                content.classList.add('open');
+                content.style.maxHeight = content.scrollHeight + 'px';
+                content.style.opacity = '1';
+            }
+            console.log(`Content toggled for: ${contentId}`, content.classList.contains('open') ? 'Shown' : 'Hidden');
+        };
+
+        // Button toggles
+        gridButtons.forEach((btn) => {
+            const contentId = btn.getAttribute('data-toggle');
+            btn.addEventListener('click', () => toggleContent(contentId));
+            console.log(`Attached toggle handler to button: ${contentId}`);
         });
-    }, 50); // 50ms delay to ensure DOM readiness
+
+        // Header toggles
+        toggleHeaders.forEach((header) => {
+            const contentId = header.getAttribute('data-toggle');
+            header.addEventListener('click', () => toggleContent(contentId));
+            console.log(`Attached toggle handler to header: ${contentId}`);
+        });
+    }, 50);
 });
