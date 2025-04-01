@@ -79,6 +79,7 @@ body[data-theme="light"] .nav-toggle {
     display: flex;
     align-items: center;
     gap: 20px;
+    transition: opacity 0.3s ease; /* Fade flair for mobile */
 }
 
 .nav-links a {
@@ -110,15 +111,15 @@ body[data-theme="light"] .nav-links a:hover {
 }
 
 .nav-links .theme-toggle:hover {
-    color: var(--highlight-dark); /* Hover for dark theme */
+    color: var(--highlight-dark);
 }
 
-body[data-theme="light"] ..nav-links .theme-toggle {
+body[data-theme="light"] .nav-links .theme-toggle {
     color: var(--text-light);
 }
 
 body[data-theme="light"] .nav-links .theme-toggle:hover {
-    color: var(--highlight-light); /* Hover for light theme */
+    color: var(--highlight-light);
 }
 
 @media (max-width: 768px) {
@@ -137,7 +138,6 @@ body[data-theme="light"] .nav-links .theme-toggle:hover {
         padding: 10px 0;
         visibility: hidden;
         opacity: 0;
-        transition: opacity 0.2s ease;
     }
 
     body[data-theme="light"] .nav-links {
@@ -220,7 +220,7 @@ body[data-theme="light"] .footer .social-links a:hover {
     font-size: 1em;
     background: var(--accent-dark);
     color: var(--text-dark);
-    transition: background 0.2s ease;
+    transition: background 0.2s ease, transform 0.2s ease; /* Scale flair */
 }
 
 body[data-theme="light"] .btn {
@@ -230,8 +230,10 @@ body[data-theme="light"] .btn {
 
 .btn:hover {
     background: var(--highlight-dark);
+    transform: scale(1.05); /* Button pop */
 }
 
 body[data-theme="light"] .btn:hover {
     background: var(--highlight-light);
+    transform: scale(1.05);
 }
