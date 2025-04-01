@@ -241,16 +241,33 @@ body[data-theme="light"] .btn:hover {
 }
 
 .toggle-header {
-    cursor: pointer; /* Clickable hover */
+    cursor: pointer;
     transition: color 0.2s ease;
+    position: relative; /* For cursor positioning */
+    display: inline-block; /* Contain animation */
 }
 
 .toggle-header:hover {
-    color: var(--highlight-dark); /* Hover color matches links */
+    color: var(--highlight-dark);
 }
 
 body[data-theme="light"] .toggle-header:hover {
     color: var(--highlight-light);
+}
+
+.toggle-header.typing {
+    animation: typewriter 1s steps(20, end) forwards; /* Typewriter effect */
+    border-right: 2px solid var(--accent-dark); /* Blinking cursor */
+    animation-iteration-count: 1;
+}
+
+body[data-theme="light"] .toggle-header.typing {
+    border-right: 2px solid var(--accent-light);
+}
+
+@keyframes typewriter {
+    from { clip-path: inset(0 100% 0 0); }
+    to { clip-path: inset(0 0 0 0); }
 }
 
 .content {
@@ -265,7 +282,7 @@ body[data-theme="light"] .toggle-header:hover {
 }
 
 .content.open {
-    max-height: 300px; /* Fixed height for now - dynamic in JS */
+    max-height: 300px;
     opacity: 1;
 }
 

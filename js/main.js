@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Function to toggle content
-        const toggleContent = (contentId) => {
+        // Function to toggle content with typewriter animation
+        const toggleContent = (contentId, header) => {
             const content = document.getElementById(contentId);
             if (!content) {
                 console.warn(`Content not found for ID: ${contentId}`);
@@ -23,10 +23,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 content.style.maxHeight = '0';
                 content.style.opacity = '0';
                 setTimeout(() => { content.classList.remove('open'); }, 300);
+                header.classList.remove('typing');
             } else {
                 content.classList.add('open');
                 content.style.maxHeight = content.scrollHeight + 'px';
                 content.style.opacity = '1';
+                header.classList.add('typing');
+                setTimeout(() => { header.classList.remove('typing'); }, 1000); // Match animation duration
             }
             console.log(`Content toggled for: ${contentId}`, content.classList.contains('open') ? 'Shown' : 'Hidden');
         };
@@ -34,14 +37,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Button toggles
         gridButtons.forEach((btn) => {
             const contentId = btn.getAttribute('data-toggle');
-            btn.addEventListener('click', () => toggleContent(contentId));
+            const header = btn.closest('.grid-col-6').querySelector('.toggle-header');
+            btn.addEventListener('click', () => toggleContent(contentId, header));
             console.log(`Attached toggle handler to button: ${contentId}`);
         });
 
         // Header toggles
         toggleHeaders.forEach((header) => {
             const contentId = header.getAttribute('data-toggle');
-            header.addEventListener('click', () => toggleContent(contentId));
+            header.addEventListener('click', () => toggleContent(contentId, header));
             console.log(`Attached toggle handler to header: ${contentId}`);
         });
     }, 50);

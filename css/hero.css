@@ -6,9 +6,16 @@
     background-position: center;
     padding: 80px 20px;
     text-align: center;
-    margin-top: 0px; /* Fixed - no margin needed, nav is under body */
+    margin-top: 0px;
     min-height: 300px;
     box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+    opacity: 0; /* Start hidden */
+    animation: fadeIn 1s ease forwards; /* Fade in on load */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .hero-text {
