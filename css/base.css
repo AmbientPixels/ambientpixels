@@ -18,14 +18,29 @@ body, html {
     padding: 0;
     font-family: 'Inter', sans-serif;
     overflow: visible !important;
-    font-size: 16px; /* Base size */
-    line-height: 1.6; /* Readable spacing */
+    font-size: 16px;
+    line-height: 1.6;
 }
 
 h1, h2, h3, h4, h5, h6 {
     margin: 0 0 10px;
-    font-weight: 500; /* Cyberpunk edge */
+    font-weight: 500;
     line-height: 1.2;
+    letter-spacing: 0.5px; /* Cyberpunk spacing */
+    transition: text-shadow 0.2s ease; /* Flair glow */
+}
+
+h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+    text-shadow: 0 0 5px var(--highlight-dark);
+}
+
+body[data-theme="light"] h1:hover, 
+body[data-theme="light"] h2:hover, 
+body[data-theme="light"] h3:hover, 
+body[data-theme="light"] h4:hover, 
+body[data-theme="light"] h5:hover, 
+body[data-theme="light"] h6:hover {
+    text-shadow: 0 0 5px var(--highlight-light);
 }
 
 h1 { font-size: 2.5em; } /* 40px */
@@ -39,4 +54,59 @@ p {
     margin: 0 0 15px;
     font-size: 1em;
     font-weight: 400;
+}
+
+blockquote {
+    margin: 15px 0;
+    padding: 10px 15px;
+    font-size: 1.125em; /* 18px */
+    font-style: italic;
+    border-left: 4px solid var(--accent-dark);
+    background: rgba(26, 31, 40, 0.5);
+    color: var(--text-dark);
+}
+
+body[data-theme="light"] blockquote {
+    border-left-color: var(--accent-light);
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-light);
+}
+
+ul, ol {
+    margin: 0 0 15px;
+    padding-left: 20px;
+}
+
+ul {
+    list-style: disc;
+}
+
+ol {
+    list-style: decimal;
+}
+
+li {
+    margin: 5px 0;
+    font-size: 1em;
+    color: var(--text-dark);
+}
+
+body[data-theme="light"] li {
+    color: var(--text-light);
+}
+
+code {
+    font-family: 'Inter', monospace; /* Cyberpunk mono */
+    font-size: 0.9em; /* 14.4px */
+    background: var(--card-dark);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--success-dark);
+    border: 1px solid var(--accent-dark);
+}
+
+body[data-theme="light"] code {
+    background: rgba(255, 255, 255, 0.3);
+    color: var(--success-light);
+    border-color: var(--accent-light);
 }

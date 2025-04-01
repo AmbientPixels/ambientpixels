@@ -6,7 +6,6 @@
     top: 0;
     z-index: 1000;
     overflow: visible !important;
-    /* border: 2px solid red; */ /* Debug removed */
 }
 
 .nav-blur-layer {
@@ -110,12 +109,16 @@ body[data-theme="light"] .nav-links a:hover {
     transition: color 0.2s ease;
 }
 
-body[data-theme="light"] .nav-links .theme-toggle {
+.nav-links .theme-toggle:hover {
+    color: var(--highlight-dark); /* Hover for dark theme */
+}
+
+body[data-theme="light"] ..nav-links .theme-toggle {
     color: var(--text-light);
 }
 
 body[data-theme="light"] .nav-links .theme-toggle:hover {
-    color: var(--highlight-light);
+    color: var(--highlight-light); /* Hover for light theme */
 }
 
 @media (max-width: 768px) {
