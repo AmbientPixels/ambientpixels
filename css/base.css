@@ -26,8 +26,8 @@ h1, h2, h3, h4, h5, h6 {
     margin: 0 0 10px;
     font-weight: 500;
     line-height: 1.2;
-    letter-spacing: 0.5px; /* Cyberpunk spacing */
-    transition: text-shadow 0.2s ease; /* Flair glow */
+    letter-spacing: 0.5px;
+    transition: text-shadow 0.2s ease;
 }
 
 h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
@@ -59,7 +59,7 @@ p {
 blockquote {
     margin: 15px 0;
     padding: 10px 15px;
-    font-size: 1.125em; /* 18px */
+    font-size: 1.125em;
     font-style: italic;
     border-left: 4px solid var(--accent-dark);
     background: rgba(26, 31, 40, 0.5);
@@ -72,13 +72,60 @@ body[data-theme="light"] blockquote {
     color: var(--text-light);
 }
 
+.small-caps {
+    font-variant: small-caps;
+    font-size: 1.1em;
+    letter-spacing: 1px;
+    color: var(--accent-dark);
+}
+
+body[data-theme="light"] .small-caps {
+    color: var(--accent-light);
+}
+
+q {
+    font-style: italic;
+    quotes: "“" "”" "‘" "’";
+    color: var(--success-dark);
+}
+
+body[data-theme="light"] q {
+    color: var(--success-light);
+}
+
+q::before {
+    content: open-quote;
+}
+
+q::after {
+    content: close-quote;
+}
+
 ul, ol {
     margin: 0 0 15px;
     padding-left: 20px;
 }
 
 ul {
-    list-style: disc;
+    list-style: none; /* Custom bullets */
+}
+
+ul li::before {
+    content: "▹"; /* Cyberpunk bullet */
+    color: var(--accent-dark);
+    margin-right: 8px;
+}
+
+body[data-theme="light"] ul li::before {
+    color: var(--accent-light);
+}
+
+ul li:hover {
+    text-shadow: 0 0 5px var(--highlight-dark);
+}
+
+body[data-theme="light"] ul li:hover {
+    text-shadow: 0 0 5px var(--highlight-light);
 }
 
 ol {
@@ -89,6 +136,7 @@ li {
     margin: 5px 0;
     font-size: 1em;
     color: var(--text-dark);
+    transition: text-shadow 0.2s ease;
 }
 
 body[data-theme="light"] li {
@@ -96,17 +144,19 @@ body[data-theme="light"] li {
 }
 
 code {
-    font-family: 'Inter', monospace; /* Cyberpunk mono */
-    font-size: 0.9em; /* 14.4px */
+    font-family: 'Inter', monospace;
+    font-size: 0.9em;
     background: var(--card-dark);
     padding: 2px 6px;
     border-radius: 4px;
     color: var(--success-dark);
     border: 1px solid var(--accent-dark);
+    box-shadow: 0 0 5px var(--success-dark); /* Cyberpunk glow */
 }
 
 body[data-theme="light"] code {
     background: rgba(255, 255, 255, 0.3);
     color: var(--success-light);
     border-color: var(--accent-light);
+    box-shadow: 0 0 5px var(--success-light);
 }
