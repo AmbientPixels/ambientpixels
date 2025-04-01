@@ -13,8 +13,9 @@
     --success-light: #00CC66;
 }
 
-body {
+body, html {
     margin: 0;
     padding: 0;
     font-family: 'Inter', sans-serif;
+    overflow: visible !important; /* Prevent overflow breakage */
 }
