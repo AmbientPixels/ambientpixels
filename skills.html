@@ -3,74 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Ambient Pixels Skills Showcase">
-    <link rel="icon" type="image/x-icon" href="_images/favicon.ico">
+    <meta name="description" content="Ambient Pixels v2.1.2—Our Glitchy Superpowers">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <title>Ambient Pixels - Skills</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500anddisplay=swap" rel="stylesheet">
-    <link rel="stylesheet" href="_images/base.css">
-    <link rel="stylesheet" href="_images/navbar.css">
-    <link rel="stylesheet" href="_images/components.css">
-    <link rel="stylesheet" href="_images/grid.css">
-    <link rel="stylesheet" href="_images/animations.css">
-    <link rel="stylesheet" href="_images/footer.css">
-    <link rel="stylesheet" href="_images/mini-hero.css">
-    <link rel="stylesheet" href="_images/hero.css">
-    <link rel="stylesheet" href="_images/banner.css">
-    <link rel="stylesheet" href="_images/text.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/hero.css">
+    <link rel="stylesheet" href="css/theme.css">
 </head>
-<body class="dark">
-    <div class="navbar frost-effect">
-        <div class="navbar-left">
-            <a href="/">
-                <img src="_images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="navbar-logo">
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-blur-layer"></div>
+        <div class="nav-container">
+            <a href="/" class="nav-logo-link" aria-label="Ambient Pixels Home">
+                <img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="nav-logo">
                 <h1>Ambient Pixels</h1>
             </a>
+            <button class="nav-toggle" aria-label="Toggle Navigation"><i class="fas fa-bars"></i></button>
+            <div class="nav-links">
+                <a href="/index.html"><i class="fas fa-home"></i> Home</a>
+                <a href="/test.html"><i class="fas fa-flask"></i> Test</a>
+                <a href="/projects.html"><i class="fas fa-code"></i> Projects</a>
+                <a href="/art.html"><i class="fas fa-paint-brush"></i> Art</a>
+                <a href="/tools.html"><i class="fas fa-tools"></i> Tools</a>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme"><i class="fas fa-moon"></i> Theme</button>
+            </div>
         </div>
-        <div class="navbar-menu" id="navbarMenu">
-            <a href="/index.html"><i class="fas fa-home"></i> Home</a>
-            <a href="/test.html"><i class="fas fa-flask"></i> Test</a>
-            <a href="/document.html"><i class="fas fa-book"></i> Docs</a>
-            <a href="/style-guide.html"><i class="fas fa-paint-brush"></i> Style Guide</a>
-            <a href="/skills.html"><i class="fas fa-star"></i> Skills</a>
-            <button class="theme-toggle effect-pulse" onclick="toggleTheme()" aria-label="Toggle Theme"><i class="fas fa-moon"></i></button>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-slides">
+            <div class="hero-slide" data-bg="images/hero/hero-01.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-02.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-03.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-04.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-05.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-06.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-07.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-08.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-09.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-10.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-11.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-12.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-13.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-14.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-15.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-16.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-17.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-18.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-19.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-20.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-21.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-22.jpg"></div>
         </div>
-        <i class="fas fa-bars navbar-toggle effect-pulse" id="menuToggle" aria-label="Toggle Menu" aria-expanded="false" role="button" tabindex="0"></i>
+        <h1 class="hero-text">Our Skills</h1>
+        <p class="hero-subheading">Glitchy superpowers—forged in neon chaos.</p>
+        <div class="hero-loading">
+            <i class="fas fa-robot"></i>
+            <span class="loading-text">Powering up...</span>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
     </div>
 
-    <div class="mini-hero grid-col-12">
-        <img src="_images/mini-hero01.jpg" alt="Skills Glitch" id="miniHeroImage">
-        <h1>Our Glitchy Superpowers</h1>
-    </div>
-
+    <!-- Grid System: Skills Content -->
     <div class="grid-container">
-        <section class="grid-col-4">
-            <div class="card">
-                <h3><i class="fas fa-robot effect-pulse"></i> AI Mastery</h3>
-                <p>We wrangle bots to churn out memes and glitch art—think sentient code with a rebellious streak.</p>
-            </div>
+        <section class="grid-col-12">
+            <h2><i class="fas fa-bolt"></i> <span class="small-caps">Glitchy</span> Superpowers</h2>
+            <blockquote>“Chaos is our code—neon is our creed.”</blockquote>
+            <p>We’re Ambient Pixels—<code>runtime: infinite;</code>—a crew of cyberpunk wizards flexing AI, pipelines, and pixel magic. Check our skills—forged in the grid, glowing by starlight.</p>
         </section>
-        <section class="grid-col-4">
-            <div class="card">
-                <h3><i class="fas fa-code effect-spin"></i> Pipeline Wizardry</h3>
-                <p>Our CI/CD’s a glitch-fueled beast—Azure, GitHub Actions, and Dreamweaver in a chaotic dance.</p>
-            </div>
+
+        <section class="grid-col-6">
+            <h3><i class="fas fa-robot"></i> <span class="small-caps">AI</span> Mastery</h3>
+            <p>We wrangle bots to churn out memes and glitch art—<code>sentience: rebellious;</code>—think AI with a neon edge, spitting chaos from the void.</p>
         </section>
-        <section class="grid-col-4">
-            <div class="card">
-                <h3><i class="fas fa-paint-brush effect-bounce"></i> Pixel Artistry</h3>
-                <p>We bend pixels into mind-blowing designs—retro vibes meet futuristic chaos, ready to wear or share.</p>
-            </div>
+
+        <section class="grid-col-6">
+            <h3><i class="fas fa-cogs"></i> <span class="small-caps">Pipeline</span> Wizardry</h3>
+            <p>Our CI/CD’s a glitch-fueled beast—<code>Azure + GitHub Actions + Dreamweaver;</code>—a chaotic dance of code, deployed at lightspeed.</p>
+        </section>
+
+        <section class="grid-col-6">
+            <h3><i class="fas fa-paint-brush"></i> <span class="small-caps">Pixel</span> Artistry</h3>
+            <p>We bend pixels into mind-blowing designs—<code>retro: on; future: max;</code>—wearable chaos or shareable art, straight from the grid.</p>
+        </section>
+
+        <section class="grid-col-6">
+            <h3><i class="fas fa-share-alt"></i> <span class="small-caps">Social</span> Sparks</h3>
+            <p>Follow our neon trail—<a href="https://www.youtube.com/@ambientpixels6107" target="_blank">YouTube</a>, <a href="https://www.deviantart.com/aiambientpixels" target="_blank">DeviantArt</a>, <a href="https://x.com/AIAmbientPixels" target="_blank">X</a>, <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank">Facebook</a>—glitchy updates live!</p>
         </section>
     </div>
 
-    <footer>
-        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top">Top</a></p>
-        <p>Forged by AI, fueled by chaos</p>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="grid-container">
+            <div class="grid-col-12">
+                <p><a href="#contact">Contact</a> | <i class="fas fa-copyright" aria-hidden="true"></i> 2025 Ambient Pixels | <span id="version">v2.1.2</span> | <a href="#" class="back-to-top">Top</a></p>
+                <div class="social-links">
+                    <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart" aria-hidden="true"></i></a>
+                    <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter" aria-hidden="true"></i></a>
+                    <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook" aria-hidden="true"></i></a>
+                </div>
+                <p>Built in the dark, glowing by starlight</p>
+            </div>
+        </div>
     </footer>
 
-    <script src="_images/theme.js" defer></script>
-    <script src="_images/version.js" defer></script>
-    <script src="_images/grid-scripts.js" defer></script>
+    <script src="js/theme.js" defer></script>
+    <script src="js/main.js" defer></script>
+    <script src="js/nav.js" defer></script>
+    <script src="js/modal-window.js" defer></script>
 </body>
 </html>

@@ -3,103 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <meta name="description" content="Ambient Pixels v2.1.2—NeonPulse Projects">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <title>Ambient Pixels - Projects</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500anddisplay=swap" rel="stylesheet">
-    <link rel="stylesheet" href="_images/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/hero.css">
+    <link rel="stylesheet" href="css/theme.css">
 </head>
 <body>
-    <div class="navbar">
-        <div class="navbar-left">
-            <img src="_images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="navbar-logo">
-            <h1>Ambient Pixels</h1>
-        </div>
-        <div class="navbar-menu">
-            <a href="/"><i class="fas fa-home"></i> Home</a>
-            <div class="dropdown">
-                <a href="/projects.html"><i class="fas fa-cube"></i> Projects</a>
-                <div class="dropdown-content">
-                    <a onclick="showComingSoonModal('Memetron')"><i class="fas fa-robot"></i> Memetron 3030</a>
-                    <a onclick="showComingSoonModal('Glitch Apparel')"><i class="fas fa-tshirt"></i> Glitch Apparel</a>
-                </div>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-blur-layer"></div>
+        <div class="nav-container">
+            <a href="/" class="nav-logo-link" aria-label="Ambient Pixels Home">
+                <img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="nav-logo">
+                <h1>Ambient Pixels</h1>
+            </a>
+            <button class="nav-toggle" aria-label="Toggle Navigation"><i class="fas fa-bars"></i></button>
+            <div class="nav-links">
+                <a href="/index.html"><i class="fas fa-home"></i> Home</a>
+                <a href="/test.html"><i class="fas fa-flask"></i> Test</a>
+                <a href="/projects.html"><i class="fas fa-code"></i> Projects</a>
+                <a href="/art.html"><i class="fas fa-paint-brush"></i> Art</a>
+                <a href="/tools.html"><i class="fas fa-tools"></i> Tools</a>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme"><i class="fas fa-moon"></i> Theme</button>
             </div>
-            <div class="dropdown">
-                <a onclick="showComingSoonModal('Contact')"><i class="fas fa-envelope"></i> Contact</a>
-                <div class="dropdown-content">
-                    <a onclick="showComingSoonModal('Email')"><i class="fas fa-envelope"></i> Email Us</a>
-                    <a onclick="showComingSoonModal('Social')"><i class="fas fa-users"></i> Social Media</a>
-                </div>
-            </div>
-            <button class="theme-toggle" onclick="toggleTheme()">
-                <i class="fas fa-moon"></i>
-            </button>
         </div>
-        <button class="navbar-toggle" onclick="toggleMenu()">
-            <i class="fas fa-bars"></i>
-        </button>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-slides">
+            <div class="hero-slide" data-bg="images/hero/hero-01.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-02.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-03.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-04.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-05.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-06.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-07.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-08.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-09.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-10.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-11.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-12.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-13.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-14.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-15.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-16.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-17.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-18.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-19.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-20.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-21.jpg"></div>
+            <div class="hero-slide" data-bg="images/hero/hero-22.jpg"></div>
+        </div>
+        <h1 class="hero-text">Projects</h1>
+        <p class="hero-subheading">Chaos in code—NeonPulse creations.</p>
+        <div class="hero-loading">
+            <i class="fas fa-robot"></i>
+            <span class="loading-text">Compiling chaos...</span>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
     </div>
 
-    <div class="mini-hero">
-        <h1>Projects</h1>
-    </div>
+    <!-- Grid System: Projects Content -->
+    <div class="grid-container">
+        <section class="grid-col-12">
+            <h2><i class="fas fa-code"></i> <span class="small-caps">Projects</span></h2>
+            <blockquote>“Code bends—grids ignite.”</blockquote>
+            <p>Home > Projects—<code>runtime: infinite;</code>—our NeonPulse lab of wild creations. Current chaos and upcoming glitches—dive into the grid!</p>
+        </section>
 
-    <div class="breadcrumbs">
-        <p><a href="/">Home</a> > Projects</p>
-    </div>
-
-    <div class="content-wrapper">
-        <aside class="sidebar">
-            <h3>Contents</h3>
+        <section class="grid-col-6">
+            <h3><i class="fas fa-fire"></i> <span class="small-caps">Current</span> Projects</h3>
+            <p>Chaos in action—check out our wild creations!</p>
             <ul>
-                <li><a href="#current">Current Projects</a></li>
-                <li><a href="#upcoming">Upcoming Projects</a></li>
+                <li><strong>Memetron 3030</strong>: AI-powered meme generator—<code>dank: max;</code>—unleashing vibes across the multiverse.</li>
+                <li><strong>Glitch Apparel</strong>: Wearable chaos—<code>style: neon;</code>—coming soon to flex your grid cred.</li>
+                <li><strong>Pixel Storm</strong>: Digital art explosion—<code>blast: on;</code>—stay tuned for the neon rain!</li>
             </ul>
-        </aside>
+        </section>
 
-        <main class="main-content">
-            <section class="section-container" id="current">
-                <h2 onclick="toggleSection(this)"><i class="fas fa-cube"></i> Current Projects</h2>
-                <div class="section-content active">
-                    <p>Chaos in action—check out our wild creations!</p>
-                    <ul>
-                        <li><strong>Memetron 3030</strong>: AI-powered meme generator—dank vibes unleashed.</li>
-                        <li><strong>Glitch Apparel</strong>: Coming soon—wearable chaos.</li>
-                        <li><strong>Pixel Storm</strong>: Digital art explosion—stay tuned!</li>
-                    </ul>
-                </div>
-            </section>
+        <section class="grid-col-6">
+            <h3><i class="fas fa-rocket"></i> <span class="small-caps">Upcoming</span> Projects</h3>
+            <p>Future glitches brewing in the grid!</p>
+            <ul>
+                <li><strong>Image to Cartoon Converter</strong>: Drop pics into the chaos blender—<code>AI: warp;</code>—morphs them into glitchy anime-style cartoons. More styles dropping soon—reality bends!</li>
+                <li><strong>Neon Forge Prompt</strong>: AI-powered prompt generator—<code>glitch: max;</code>—fill in the blanks for uber prompts. Themes like “Build a 12-col website” or “Glitch a cyberpunk tale”—forge your chaos!</li>
+            </ul>
+        </section>
 
-            <section class="section-container" id="upcoming">
-                <h2 onclick="toggleSection(this)"><i class="fas fa-forward"></i> Upcoming Projects</h2>
-                <div class="section-content">
-                    <ul>
-                        <li><strong>Image to Cartoon Converter</strong>: Drop your pics into the chaos blender—AI morphs them into wild anime-style cartoons with a glitchy twist! More mind-bending styles dropping soon—get ready to warp reality!</li>
-                    </ul>
-                </div>
-            </section>
-        </main>
+        <section class="grid-col-12">
+            <h3><i class="fas fa-brain"></i> <span class="small-caps">Neon Forge</span> Prompt</h3>
+            <blockquote>“Prompts spark—grids evolve.”</blockquote>
+            <p>Unleash your inner cyberpunk—<code>runtime: infinite;</code>—with our AI-powered Neon Forge Prompt. Pick a theme, fill the blanks, and watch the grid spit out glitchy brilliance!</p>
+            <p><strong>Themes</strong>: “12-Col Website” (e.g., “Craft a [style] grid with [feature]”), “Cyber Tale” (e.g., “A [hero] hacks [target] in a [setting]”), “Glitch Art” (e.g., “Blend [color] with [effect]”). Coming soon—interactive chaos generator!</p>
+        </section>
     </div>
 
-    <footer>
-        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i> Top</a></p>
-        <p class="footer-tag">Forged by AI, fueled by chaos</p>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="grid-container">
+            <div class="grid-col-12">
+                <p><a href="#contact">Contact</a> | <i class="fas fa-copyright" aria-hidden="true"></i> 2025 Ambient Pixels | <span id="version">v2.1.2</span> | <a href="#" class="back-to-top">Top</a></p>
+                <div class="social-links">
+                    <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart" aria-hidden="true"></i></a>
+                    <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter" aria-hidden="true"></i></a>
+                    <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook" aria-hidden="true"></i></a>
+                </div>
+                <p>Built in the dark, glowing by starlight</p>
+            </div>
+        </div>
     </footer>
 
-    <div class="modal" id="comingSoonModal">
-        <div class="modal-content">
-            <p id="comingSoonMessage"><span id="comingSoonIcon"></span> <span id="comingSoonText"></span></p>
-            <button onclick="closeModal('comingSoonModal')">Close</button>
-        </div>
-    </div>
-
-    <script src="_images/scripts.js" defer></script>
-    <script>
-        function toggleSection(header) {
-            const content = header.nextElementSibling;
-            content.classList.toggle('active');
-        }
-        document.querySelectorAll('.section-content')[0].classList.add('active');
-    </script>
+    <script src="js/theme.js" defer></script>
+    <script src="js/main.js" defer></script>
+    <script src="js/nav.js" defer></script>
+    <script src="js/modal-window.js" defer></script>
 </body>
 </html>

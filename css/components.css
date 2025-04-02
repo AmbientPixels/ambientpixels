@@ -1,4 +1,4 @@
-/* components.css - Ambient Pixels v2.1.0-20250402 */
+/* components.css - Ambient Pixels v2.1.2-20250402 */
 .btn {
     background: var(--accent-dark);
     color: #FFFFFF;
@@ -12,7 +12,7 @@
 .btn:hover {
     background: var(--neon-pulse);
     box-shadow: 0 0 20px var(--highlight-dark); /* Bolder glow */
-    transform: scale(1.1); /* More obvious pulse */
+    transform: scale(1.1); /* Obvious pulse */
 }
 
 body[data-theme="light"] .btn {
@@ -71,4 +71,31 @@ blockquote {
     margin: 10px 0;
     padding-left: 15px;
     border-left: 3px solid var(--accent-dark);
+}
+
+.footer {
+    border-top: 2px solid var(--neon-pulse); /* Neon gradient border */
+    padding-top: 10px;
+}
+
+body[data-theme="light"] .footer {
+    border-top: 2px solid var(--neon-pulse); /* Gradient in light mode too */
+}
+
+#version {
+    font-weight: bold;
+    color: var(--highlight-dark); /* Pink version */
+    text-shadow: 0 0 5px var(--highlight-dark);
+}
+
+body[data-theme="light"] #version {
+    color: var(--highlight-light);
+    text-shadow: 0 0 5px var(--highlight-light);
+}
+
+@media (max-width: 768px) {
+    .nav-links a {
+        color: #FFFFFF; /* Brighter icons/text in mobile */
+        text-shadow: 0 0 5px var(--accent-dark); /* Glow for contrast */
+    }
 }
