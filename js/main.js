@@ -1,4 +1,4 @@
-// main.js - Ambient Pixels v2.1.3-20250402
+// main.js - Ambient Pixels v2.1.5-20250402
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Main JS loaded - Circuits online');
 
@@ -102,6 +102,15 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`Neon Forge Prompt: "${output}"`);
     };
 
-    // Version Injection
-    document.getElementById('version').textContent = 'v2.1.3';
+    // Theme Toggle Demo
+    document.querySelectorAll('.theme-toggle-demo').forEach(button => {
+        button.addEventListener('click', () => {
+            const darkIcon = button.querySelector('.dark-icon-demo');
+            const lightIcon = button.querySelector('.light-icon-demo');
+            const isLight = lightIcon.style.display === 'inline';
+            darkIcon.style.display = isLight ? 'inline' : 'none';
+            lightIcon.style.display = isLight ? 'none' : 'inline';
+            console.log(`Theme toggle demo - Light: ${!isLight}`);
+        });
+    });
 });

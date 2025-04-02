@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Ambient Pixels v1.1.0—Cyberpunk Test Center">
+    <meta name="description" content="Ambient Pixels v2.1.5—Cyberpunk Test Center">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <title>Ambient Pixels - Test Center</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -14,23 +14,27 @@
     <link rel="stylesheet" href="css/hero.css">
     <link rel="stylesheet" href="css/theme.css">
 </head>
-<body>
+<body data-theme="dark">
     <!-- Navigation -->
     <nav class="nav">
         <div class="nav-blur-layer"></div>
         <div class="nav-container">
-            <a href="/" class="nav-logo-link" aria-label="Ambient Pixels Home">
-                <img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="nav-logo">
-                <h1>Ambient Pixels</h1>
-            </a>
+            <div class="nav-left">
+                <a href="/" class="nav-logo-link" aria-label="Ambient Pixels Home">
+                    <img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="nav-logo">
+                    <h1>Ambient Pixels</h1>
+                </a>
+            </div>
             <button class="nav-toggle" aria-label="Toggle Navigation"><i class="fas fa-bars"></i></button>
             <div class="nav-links">
-                <a href="/index.html" aria-label="Home"><i class="fas fa-home"></i></a>
-                <a href="/test.html" aria-label="Test"><i class="fas fa-flask"></i></a>
-                <a href="/projects.html" aria-label="Projects"><i class="fas fa-code"></i></a>
-                <a href="/art.html" aria-label="Art"><i class="fas fa-paint-brush"></i></a>
-                <a href="/tools.html" aria-label="Tools"><i class="fas fa-tools"></i></a>
-                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme"><i class="fas fa-moon"></i></button>
+                <a href="/index.html"><i class="fas fa-home"></i> Home</a>
+                <a href="/test.html"><i class="fas fa-flask"></i> Test</a>
+                <a href="/projects.html"><i class="fas fa-code"></i> Projects</a>
+                <a href="/art.html"><i class="fas fa-paint-brush"></i> Art</a>
+                <a href="/tools.html"><i class="fas fa-tools"></i> Tools</a>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
+                    <i class="fas fa-moon dark-icon"></i><i class="fas fa-sun light-icon" style="display: none;"></i>
+                </button>
             </div>
         </div>
     </nav>
@@ -75,36 +79,49 @@
     <!-- Grid System: Test Center Playground -->
     <div class="grid-container">
         <section class="grid-col-12">
-            <h2><span class="small-caps">Welcome</span> to the Grid</h2>
-            <blockquote>“Code hums electric—v1.1.0 sparks alive.”</blockquote>
+            <h2><i class="fas fa-flask"></i> <span class="small-caps">Welcome</span> to the Grid</h2>
+            <blockquote>“Code hums electric—v2.1.5 sparks alive.”</blockquote>
             <p>This is our cyberpunk test hub—<code>runtime: infinite;</code>—a sandbox for wild experiments. Forge tools, tweak glitches, and unleash neon magic—your playground awaits.</p>
         </section>
 
         <section class="grid-col-6">
             <h3><i class="fas fa-flask"></i> <span class="small-caps">Meme-o-Tron</span> 3000</h3>
             <blockquote>“Prompts spark—memes ignite.”</blockquote>
-            <p>Craft neon-charged prompts—<code>input: chaos;</code>—a generator to meme the multiverse. Coming soon—plug in and play!</p>
-            <button class="btn" onclick="showComingSoonModal('Meme-o-Tron 3000')">Test Coming Soon</button>
+            <p>Craft neon-charged prompts—<code>input: chaos;</code>—a generator to meme the multiverse.</p>
+            <button class="btn" data-toggle="memeotron">Toggle</button>
+            <div class="content" id="memeotron" style="display: none;">Coming soon—plug in and play!</div>
         </section>
 
         <section class="grid-col-6">
             <h3><i class="fas fa-paint-brush"></i> <span class="small-caps">Pixel</span> Glitcher</h3>
             <blockquote>“Images bend—art evolves.”</blockquote>
-            <p>Upload visuals—<code>filter: neon;</code>—and let AI twist them into cyberpunk masterpieces. Download the glow—watch this space!</p>
-            <button class="btn" onclick="showComingSoonModal('Pixel Glitcher')">Test Coming Soon</button>
+            <p>Upload visuals—<code>filter: neon;</code>—and let AI twist them into cyberpunk masterpieces.</p>
+            <button class="btn" data-toggle="glitcher">Toggle</button>
+            <div class="content" id="glitcher" style="display: none;">Download the glow—watch this space!</div>
         </section>
 
         <section class="grid-col-6">
             <h3><i class="fas fa-code"></i> <span class="small-caps">Code</span> Forge</h3>
-            <p>A lab for scripts—<code>execute: now;</code>—test JS chaos here. Future home of interactive coding tools.</p>
-            <button class="btn" onclick="showComingSoonModal('Code Forge')">Test Coming Soon</button>
+            <p>A lab for scripts—<code>execute: now;</code>—test JS chaos here.</p>
+            <button class="btn" data-toggle="codeforge">Toggle</button>
+            <div class="content" id="codeforge" style="display: none;">Future home of interactive coding tools.</div>
         </section>
 
         <section class="grid-col-6">
             <h3><i class="fas fa-tools"></i> <span class="small-caps">Dev</span> Toolkit</h3>
             <blockquote>“Gear hums—frontiers glow.”</blockquote>
-            <p>Utils for the grid—<code>align: true;</code>—debuggers, aligners, and more. Build your kit—coming soon!</p>
-            <button class="btn" onclick="showComingSoonModal('Dev Toolkit')">Test Coming Soon</button>
+            <p>Utils for the grid—<code>align: true;</code>—debuggers, aligners, and more.</p>
+            <button class="btn" data-toggle="toolkit">Toggle</button>
+            <div class="content" id="toolkit" style="display: none;">Build your kit—coming soon!</div>
+        </section>
+
+        <section class="grid-col-6">
+            <h3><i class="fas fa-sun"></i> <span class="small-caps">Theme</span> Switch Demo</h3>
+            <blockquote>“Light bends—dark glows.”</blockquote>
+            <p>Test the grid’s theme toggle—<code>switch: on;</code>—sun and moon dance in neon!</p>
+            <button class="btn theme-toggle-demo" aria-label="Toggle Theme Demo">
+                <i class="fas fa-moon dark-icon-demo"></i><i class="fas fa-sun light-icon-demo" style="display: none;"></i>
+            </button>
         </section>
     </div>
 
@@ -112,7 +129,7 @@
     <footer class="footer">
         <div class="grid-container">
             <div class="grid-col-12">
-                <p><a href="#contact">Contact</a> | <i class="fas fa-copyright" aria-hidden="true"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top">Top</a></p>
+                <p><a href="#contact">Contact</a> | <i class="fas fa-copyright" aria-hidden="true"></i> 2025 Ambient Pixels | <span id="version"></span> | <a href="#" class="back-to-top">Top</a></p>
                 <div class="social-links">
                     <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart" aria-hidden="true"></i></a>
                     <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter" aria-hidden="true"></i></a>
@@ -128,5 +145,6 @@
     <script src="js/main.js" defer></script>
     <script src="js/nav.js" defer></script>
     <script src="js/modal-window.js" defer></script>
+    <script src="js/version.js" defer></script>
 </body>
 </html>

@@ -1,35 +1,36 @@
-// theme.js - Ambient Pixels v2.1.4-20250402
+// theme.js - Ambient Pixels v2.1.5-20250402
 function toggleTheme() {
     const body = document.body;
     const currentTheme = body.getAttribute('data-theme');
-    const darkIcon = document.querySelector('.dark-icon');
-    const lightIcon = document.querySelector('.light-icon');
+    const darkIcons = document.querySelectorAll('.dark-icon, .dark-icon-demo');
+    const lightIcons = document.querySelectorAll('.light-icon, .light-icon-demo');
 
     if (currentTheme === 'light') {
         body.removeAttribute('data-theme');
-        darkIcon.style.display = 'inline';
-        lightIcon.style.display = 'none';
+        darkIcons.forEach(icon => icon.style.display = 'inline');
+        lightIcons.forEach(icon => icon.style.display = 'none');
     } else {
         body.setAttribute('data-theme', 'light');
-        darkIcon.style.display = 'none';
-        lightIcon.style.display = 'inline';
+        darkIcons.forEach(icon => icon.style.display = 'none');
+        lightIcons.forEach(icon => icon.style.display = 'inline');
     }
     localStorage.setItem('theme', body.getAttribute('data-theme') || 'dark');
+    console.log(`Theme toggled - Now: ${body.getAttribute('data-theme') || 'dark'}`);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'dark'; // Default dark
     const body = document.body;
-    const darkIcon = document.querySelector('.dark-icon');
-    const lightIcon = document.querySelector('.light-icon');
+    const darkIcons = document.querySelectorAll('.dark-icon, .dark-icon-demo');
+    const lightIcons = document.querySelectorAll('.light-icon, .light-icon-demo');
 
     if (savedTheme === 'light') {
         body.setAttribute('data-theme', 'light');
-        darkIcon.style.display = 'none';
-        lightIcon.style.display = 'inline';
+        darkIcons.forEach(icon => icon.style.display = 'none');
+        lightIcons.forEach(icon => icon.style.display = 'inline');
     } else {
         body.removeAttribute('data-theme');
-        darkIcon.style.display = 'inline';
-        lightIcon.style.display = 'none';
+        darkIcons.forEach(icon => icon.style.display = 'inline');
+        lightIcons.forEach(icon => icon.style.display = 'none');
     }
 });

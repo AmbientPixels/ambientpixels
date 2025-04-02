@@ -153,7 +153,18 @@
         <li><strong>Logic</strong>: Switch-case builds prompts—e.g., "Build a ${input1} site with ${input2}" for "Website". Self-Glitch uses random picks.</li>
         <li><strong>Output</strong>: Displays in <code>#forge-output</code>—e.g., "Build a cyberpunk site with toggles—12 columns pulse with glitchy chaos."</li>
     </ul>
-    <p><strong>Status</strong>: Live in <code>v2.1.3</code>—future interactive form planned.</p>
+    <p><strong>Status</strong>: Live in <code>v2.1.5</code>—future interactive form planned.</p>
+</section>
+
+<section class="grid-col-12">
+    <h3><span class="small-caps">Version</span> Injection</h3>
+    <p>Dynamic version display—<code>version.js</code> injects the current version into <code><span id="version"></code>:</p>
+    <ul>
+        <li><strong>File</strong>: <code>js/version.js</code>—Standalone script for easy updates.</li>
+        <li><strong>Logic</strong>: <code>document.getElementById('version').textContent = VERSION;</code>—Sets version on load.</li>
+        <li><strong>Update Process</strong>: Edit <code>const VERSION = 'vX.Y.Z';</code> in <code>version.js</code> per release—keeps <code>main.js</code> safe.</li>
+        <li><strong>Status</strong>: Live in <code>v2.1.5</code>—version injected across all pages.</li>
+    </ul>
 </section>
         <section class="grid-col-12">
             <h3><span class="small-caps">Style</span> Guide</h3>

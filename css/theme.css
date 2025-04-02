@@ -1,26 +1,26 @@
-/* theme.css - Ambient Pixels v2.1.4-20250402 */
+/* theme.css - Ambient Pixels v2.1.5-20250402 */
 :root {
     --accent-dark: #00D4FF;          /* Cyan glow */
     --highlight-dark: #FF1A8C;       /* Neon pink */
     --success-dark: #33FF99;         /* Glitch green */
-    --text-dark: #E0E6F0;            /* Light grey */
+    --text-dark: #FFFFFF;            /* White for dark theme */
     --card-dark: #1A1F28;            /* Dark card */
     --neon-pulse: linear-gradient(90deg, #FF1A8C, #00D4FF); /* Gradient flair */
-    --accent-light: #2F4F4F;         /* Dark slate gray for light theme */
+    --accent-light: #483D8B;         /* Dark slate blue for light theme */
     --highlight-light: #D81B60;      /* Light pink */
     --success-light: #00E676;        /* Light green */
-    --text-light: #2F4F4F;           /* Dark slate gray text */
+    --text-light: #483D8B;           /* Dark slate blue text */
     --card-light: #F5F5F5;           /* Light card */
 }
 
 body {
     background: #0A0F14;             /* Default dark */
-    color: #E0E6F0;
+    color: var(--text-dark);
 }
 
 body[data-theme="light"] {
     background: #FFFFFF;             /* Bright white base */
-    color: var(--text-light);        /* Dark slate gray */
+    color: var(--text-light);        /* Dark slate blue */
 }
 
 body[data-theme="light"] .nav-blur-layer {
@@ -28,12 +28,22 @@ body[data-theme="light"] .nav-blur-layer {
     box-shadow: 0 0 20px var(--accent-light); /* Slate glow */
 }
 
+.nav-links a {
+    color: var(--text-dark);         /* White in dark theme */
+    text-shadow: 0 0 5px var(--accent-dark); /* Cyan glow */
+}
+
+.nav-links a:hover {
+    color: var(--highlight-dark);    /* Pink hover */
+    text-shadow: 0 0 10px var(--highlight-dark);
+}
+
 body[data-theme="light"] .nav-links a {
-    color: var(--text-light);        /* Slate */
-    text-shadow: 0 0 5px var(--accent-light); /* Subtle glow */
+    color: var(--text-light);        /* Slate in light theme */
+    text-shadow: 0 0 5px var(--accent-light); /* Slate glow */
 }
 
 body[data-theme="light"] .nav-links a:hover {
     color: var(--highlight-light);   /* Pink hover */
-    text-shadow: 0 0 10px var(--highlight-light); /* Bolder glow */
+    text-shadow: 0 0 10px var(--highlight-light);
 }

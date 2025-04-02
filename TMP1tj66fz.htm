@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Ambient Pixels v2.1.4—Grid Demo">
+    <meta name="description" content="Ambient Pixels v2.1.5—Typography Showcase">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
-    <title>Ambient Pixels - Grid Demo</title>
+    <title>Ambient Pixels - Typography</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/base.css">
@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="css/hero.css">
     <link rel="stylesheet" href="css/theme.css">
 </head>
-<body>
+<body data-theme="dark">
     <!-- Navigation -->
     <nav class="nav">
         <div class="nav-blur-layer"></div>
@@ -41,28 +41,30 @@
 
     <!-- Mini Hero -->
     <div class="mini-hero">
-        <h1>Grid Demo</h1>
-        <p>A labeled grid—<code>runtime: infinite;</code>—for NeonPulse feature reference.</p>
+        <img src="images/mini-hero-v1.jpg" alt="Mini Hero Image">
+        <h1>Typography Showcase</h1>
+        <p>Neon letters—<code>runtime: infinite;</code>—our growing suite of glitchy text.</p>
     </div>
 
-    <!-- Grid System: Demo Content -->
+    <!-- Grid System: Typography Content -->
     <div class="grid-container">
         <section class="grid-col-12">
-            <h2><i class="fas fa-th"></i> <span class="small-caps">Full</span> Width</h2>
-            <p>Grid Col 12—<code>flex: 0 0 100%;</code>—spans the full container. Use for headers or banners.</p>
+            <h2><i class="fas fa-font"></i> <span class="small-caps">Typography</span></h2>
+            <blockquote>“Words glow—grids speak.”</blockquote>
+            <p>Our cyberpunk text suite—<code>Inter: on;</code>—starts here. More styles to come as NeonPulse evolves!</p>
         </section>
 
         <section class="grid-col-6">
-            <h3><i class="fas fa-columns"></i> <span class="small-caps">Half</span> Width</h3>
-            <p>Grid Col 6—<code>flex: 0 0 48%;</code>—half the grid, stacks on mobile. Perfect for teasers.</p>
-            <a href="#" class="btn">Pulse</a>
+            <h3><i class="fas fa-heading"></i> <span class="small-caps">Headings</span></h3>
+            <p><strong>H1</strong>: <code>font-size: 2.5em;</code>—Hero titles glow with neon shadows.</p>
+            <p><strong>H2</strong>: <code>font-size: 1.75em;</code>—Section headers hum with glitch.</p>
+            <p><strong>H3</strong>: <code>font-size: 1.25em;</code>—Subheads spark in the grid.</p>
         </section>
 
         <section class="grid-col-6">
-            <h3><i class="fas fa-toggle-on"></i> <span class="small-caps">Toggle</span> Demo</h3>
-            <p>Toggle section—<code>display: toggle;</code>—expands on click.</p>
-            <button class="btn" data-toggle="demo">Toggle</button>
-            <div class="content" id="demo" style="display: none;">Neon chaos unleashed!</div>
+            <h3><i class="fas fa-paragraph"></i> <span class="small-caps">Body</span> Text</h3>
+            <p><strong>P</strong>: <code>font-size: 1em; line-height: 1.6;</code>—Readable chaos, neon-edged.</p>
+            <p><strong>Code</strong>: <code>font-family: 'Courier New';</code>—Tech vibes in glitchy boxes.</p>
         </section>
     </div>
 
@@ -86,5 +88,6 @@
     <script src="js/main.js" defer></script>
     <script src="js/nav.js" defer></script>
     <script src="js/modal-window.js" defer></script>
+    <script src="js/version.js" defer></script>
 </body>
 </html>
