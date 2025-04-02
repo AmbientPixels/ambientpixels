@@ -1,4 +1,4 @@
-/* layout.css - Ambient Pixels v1.1.0-20250402 */
+/* layout.css - Ambient Pixels v2.1.0-20250402 */
 .grid-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -43,6 +43,10 @@
     flex-wrap: wrap;
 }
 
+.nav-toggle {
+    display: none; /* Hidden by default in wide viewports */
+}
+
 .nav-links {
     display: flex;
     gap: 20px;
@@ -55,7 +59,7 @@
     }
 
     .nav-toggle {
-        display: block;
+        display: block; /* Visible only in mobile */
         background: none;
         border: none;
         color: #E0E6F0;
@@ -104,4 +108,13 @@ body[data-theme="light"] .mini-hero {
     font-size: 1.5em;
     color: var(--text-dark);
     text-shadow: 0 0 5px var(--success-dark);
+}
+
+/* Fix overlapping in grid and footer */
+.grid-col-6 p {
+    margin-bottom: 15px; /* Space above buttons */
+}
+
+.footer p {
+    margin-bottom: 10px; /* Space between footer lines */
 }

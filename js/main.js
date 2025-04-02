@@ -1,4 +1,4 @@
-// main.js - Ambient Pixels v1.1.0-20250402
+// main.js - Ambient Pixels v2.1.0-20250402
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Main JS loaded - Circuits online');
 

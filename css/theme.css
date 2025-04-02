@@ -1,10 +1,11 @@
-/* theme.css - Ambient Pixels v1.1.0-20250402 */
+/* theme.css - Ambient Pixels v2.1.0-20250402 */
 :root {
-    --accent-dark: #00D4FF;
-    --highlight-dark: #FF1A8C;
-    --success-dark: #33FF99;
-    --text-dark: #E0E6F0;
-    --card-dark: #1A1F28;
+    --accent-dark: #00D4FF;          /* Cyan glow */
+    --highlight-dark: #FF1A8C;       /* Neon pink */
+    --success-dark: #33FF99;         /* Glitch green */
+    --text-dark: #E0E6F0;            /* Light grey */
+    --card-dark: #1A1F28;            /* Dark card */
+    --neon-pulse: linear-gradient(90deg, #FF1A8C, #00D4FF); /* Gradient flair */
     --accent-light: #00B8D4;
     --highlight-light: #D81B60;
     --success-light: #00E676;

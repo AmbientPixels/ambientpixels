@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Ambient Pixels v1.1.0—Technical Blueprint">
+    <meta name="description" content="Ambient Pixels v2.1.0—Technical Blueprint">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <title>Ambient Pixels - Documentation</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -62,7 +62,7 @@
             <div class="hero-slide" data-bg="images/hero/hero-22.jpg"></div>
         </div>
         <h1 class="hero-text">Documentation</h1>
-        <p class="hero-subheading">Your Technical Blueprint for Ambient Pixels—v1.1.0</p>
+        <p class="hero-subheading">Your Technical Blueprint for Ambient Pixels—v2.1.0</p>
         <div class="hero-loading">
             <i class="fas fa-robot"></i>
             <span class="loading-text">Loading systems...</span>
@@ -77,7 +77,7 @@
         <section class="grid-col-12">
             <h2><span class="small-caps">Overview</span></h2>
             <blockquote>“A neon-lit guide—etched for eternity.”</blockquote>
-            <p>This document is the definitive blueprint for <a href="https://ambientpixels.ai/">ambientpixels.ai</a> as of v1.1.0 (April 2, 2025)—covering our CI/CD pipeline, security protocols, technical stack, scripts, and style system. It’s built to onboard contributors, train on deployment workflows, and detail code/style conventions—your key to the grid.</p>
+            <p>This document is the definitive blueprint for <a href="https://ambientpixels.ai/">ambientpixels.ai</a> as of v2.1.0 (April 2, 2025)—covering our CI/CD pipeline, security protocols, technical stack, scripts, and style system. It’s built to onboard contributors, train on deployment workflows, and detail code/style conventions—your key to the NeonPulse grid.</p>
         </section>
 
         <section class="grid-col-6">
@@ -85,7 +85,7 @@
             <p><strong>CI/CD Workflow</strong>: An automated pipeline powers our grid:</p>
             <ul>
                 <li><strong>Local Development</strong>: Edit in Adobe Dreamweaver—HTML, CSS, JS in <code>C:\_projects\AmbientPixels.ai\</code></li>
-                <li><strong>Version Control</strong>: GitHub—main branch—Commits like <code>git commit -m "v1.1.0 full refresh with v2.3 content"</code></li>
+                <li><strong>Version Control</strong>: GitHub—main branch—Commits like <code>git commit -m "v2.1.0 fixed uberprompt, added index V2 launch"</code></li>
                 <li><strong>GitHub Actions</strong>:
                     <ul>
                         <li><code>static.yml</code>: Builds/deploys static content—<code>.html</code>, <code>css/</code>, <code>js/</code>, <code>images/</code></li>
@@ -94,7 +94,7 @@
                     </ul>
                 </li>
             </ul>
-            <p><strong>Example</strong>: Azure Static Web Apps CI/CD - <code>ambientpixelsV2 #123: Commit 451d100 pushed by AmbientPixels</code>—deployed April 2, 2025.</p>
+            <p><strong>Example</strong>: Azure Static Web Apps CI/CD - <code>ambientpixelsV2 #125: Commit 8f4b37e pushed by AmbientPixels</code>—deployed April 2, 2025.</p>
         </section>
 
         <section class="grid-col-6">
@@ -145,7 +145,7 @@
 
         <section class="grid-col-12">
             <h3><span class="small-caps">Style</span> Guide</h3>
-            <p>Style system as of v1.1.0—cyberpunk and lean:</p>
+            <p>Style system as of v2.1.0—cyberpunk and lean:</p>
             <ul>
                 <li><strong>Grid Layouts</strong>: 12-column—<code>.grid-col-12</code> (100%), <code>.grid-col-6</code> (48%)—Stacks at <768px</li>
                 <li><strong>Icons</strong>: Font Awesome 6.5.1—Pink hover (<code>#FF1A8C</code> dark, <code>#D81B60</code> light)—e.g., <i class="fas fa-robot"></i></li>
@@ -164,16 +164,16 @@
                 <li><strong>Update HTML</strong>: Open <code>test.html</code>, <code>uberprompt.html</code>, and <code>docs.html</code> in Dreamweaver. In each, find the <code>.hero-slides</code> div.</li>
                 <li><strong>Add Slide</strong>: Insert a new line before the closing <code></div></code>—e.g., <code><div class="hero-slide" data-bg="images/hero/hero-23.jpg"></div></code>. Increment the number (23, 24, etc.) for each new image.</li>
                 <li><strong>Save & Test</strong>: Save all files. Test locally (<code>file://C:/_projects/AmbientPixels.ai/test.html</code>)—new image should rotate every 25s.</li>
-                <li><strong>Commit & Push</strong>: Stage changes in Dreamweaver—<code>git commit -m "Added hero-23.jpg - v1.1.0"</code>—push to GitHub. CI/CD (<code>static.yml</code>) deploys to Azure.</li>
+                <li><strong>Commit & Push</strong>: Stage changes in Dreamweaver—<code>git commit -m "Added hero-23.jpg - v2.1.0"</code>—push to GitHub. CI/CD (<code>static.yml</code>) deploys to Azure.</li>
             </ol>
-            <p><strong>Notes</strong>: No CSS/JS changes needed—<code>main.js</code> auto-detects new slides. Ensure images are optimized (<500KB) for performance. Current count: 22 (<code>hero-01.jpg</code> to <code>hero-22.jpg</code>).</p>
+            <p><strong>Notes</strong>: No CSS/JS changes needed—<code>main.js</code> auto-detects new slides. Optimize images (<500KB) for performance. Current count: 22 (<code>hero-01.jpg</code> to <code>hero-22.jpg</code>).</p>
         </section>
 
         <section class="grid-col-12">
             <h3><span class="small-caps">Version</span> History</h3>
             <p>Key milestones:</p>
             <ul>
-                <li><strong>v1.1.0-20250402</strong>: Full refresh—22 hero images, test center, updated docs—April 2, 2025</li>
+                <li><strong>v2.1.0-20250402</strong>: Full refresh—22 hero images, test center, index V2 launch, updated docs—April 2, 2025</li>
                 <li><strong>v0.17.7-20250329</strong>: Modal fixes, style enhancements—March 29, 2025</li>
                 <li><strong>v0.17.5-20250329</strong>: Grid layouts, initial forms—March 29, 2025</li>
                 <li><strong>v0.17.3-20250328</strong>: CI/CD pipeline, basic styles—March 28, 2025</li>
@@ -193,12 +193,13 @@
 
         <section class="grid-col-12">
             <h3><span class="small-caps">Next</span> Steps</h3>
-            <p>Future enhancements for v2.3:</p>
+            <p>Future enhancements for NeonPulse v2.3:</p>
             <ul>
                 <li>Banners—5s rotation with hover pause</li>
                 <li>Modals—Random messages via <code>modal-window.js</code></li>
                 <li>Interactive tools—Meme generator, glitcher</li>
                 <li>API endpoints—E.g., style generator</li>
+                <li><strong>Preview Environment</strong>: Set up dual workflow in Azure—publish to preview (<code>preview.ambientpixels.ai</code>) from local test, then push to live (<code>ambientpixels.ai</code>)—test safely before deploy</li>
             </ul>
         </section>
     </div>
