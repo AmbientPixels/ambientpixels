@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Ambient Pixels v2.1.0—Technical Blueprint">
+    <meta name="description" content="Ambient Pixels v2.1.6—Documentation">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
-    <title>Ambient Pixels - Documentation</title>
+    <title>Ambient Pixels - Docs</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/base.css">
@@ -14,31 +14,30 @@
     <link rel="stylesheet" href="css/hero.css">
     <link rel="stylesheet" href="css/theme.css">
 </head>
-<body>
+<body data-theme="dark">
     <!-- Navigation -->
-<!-- Update nav only -->
-<nav class="nav">
-    <div class="nav-blur-layer"></div>
-    <div class="nav-container">
-        <div class="nav-left">
-            <a href="/" class="nav-logo-link" aria-label="Ambient Pixels Home">
-                <img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="nav-logo">
-                <h1>Ambient Pixels</h1>
-            </a>
+    <nav class="nav">
+        <div class="nav-blur-layer"></div>
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="/" class="nav-logo-link" aria-label="Ambient Pixels Home">
+                    <img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="nav-logo">
+                    <h1>Ambient Pixels</h1>
+                </a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle Navigation"><i class="fas fa-bars"></i></button>
+            <div class="nav-links">
+                <a href="/index.html"><i class="fas fa-home"></i> Home</a>
+                <a href="/test.html"><i class="fas fa-flask"></i> Test</a>
+                <a href="/projects.html"><i class="fas fa-code"></i> Projects</a>
+                <a href="/art.html"><i class="fas fa-paint-brush"></i> Art</a>
+                <a href="/tools.html"><i class="fas fa-tools"></i> Tools</a>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
+                    <i class="fas fa-moon dark-icon"></i><i class="fas fa-sun light-icon" style="display: none;"></i>
+                </button>
+            </div>
         </div>
-        <button class="nav-toggle" aria-label="Toggle Navigation"><i class="fas fa-bars"></i></button>
-        <div class="nav-links">
-            <a href="/index.html"><i class="fas fa-home"></i> Home</a>
-            <a href="/test.html"><i class="fas fa-flask"></i> Test</a>
-            <a href="/projects.html"><i class="fas fa-code"></i> Projects</a>
-            <a href="/art.html"><i class="fas fa-paint-brush"></i> Art</a>
-            <a href="/tools.html"><i class="fas fa-tools"></i> Tools</a>
-            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
-                <i class="fas fa-moon dark-icon"></i><i class="fas fa-sun light-icon" style="display: none;"></i>
-            </button>
-        </div>
-    </div>
-</nav>to
+    </nav>
 
     <!-- Hero Section -->
     <div class="hero">
@@ -53,250 +52,86 @@
             <div class="hero-slide" data-bg="images/hero/hero-08.jpg"></div>
             <div class="hero-slide" data-bg="images/hero/hero-09.jpg"></div>
             <div class="hero-slide" data-bg="images/hero/hero-10.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-11.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-12.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-13.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-14.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-15.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-16.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-17.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-18.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-19.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-20.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-21.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-22.jpg"></div>
         </div>
         <h1 class="hero-text">Documentation</h1>
-        <p class="hero-subheading">Your Technical Blueprint for Ambient Pixels—v2.1.0</p>
+        <p class="hero-subheading">Neon blueprints—our grid’s core.</p>
         <div class="hero-loading">
             <i class="fas fa-robot"></i>
-            <span class="loading-text">Loading systems...</span>
+            <span class="loading-text">Loading chaos...</span>
             <div class="loading-bar">
                 <div class="loading-progress"></div>
             </div>
         </div>
     </div>
 
-    <!-- Grid System: Documentation Content -->
+    <!-- Grid System: Docs Content -->
     <div class="grid-container">
         <section class="grid-col-12">
-            <h2><span class="small-caps">Overview</span></h2>
-            <blockquote>“A neon-lit guide—etched for eternity.”</blockquote>
-            <p>This document is the definitive blueprint for <a href="https://ambientpixels.ai/">ambientpixels.ai</a> as of v2.1.0 (April 2, 2025)—covering our CI/CD pipeline, security protocols, technical stack, scripts, and style system. It’s built to onboard contributors, train on deployment workflows, and detail code/style conventions—your key to the NeonPulse grid.</p>
+            <h2><i class="fas fa-book"></i> <span class="small-caps">Docs</span></h2>
+            <blockquote>“Code hums—grids glow.”</blockquote>
+            <p>Home > Docs—<code>runtime: infinite;</code>—our NeonPulse blueprint hub. From <a href="/index.html">Home</a> chaos to <a href="/test.html">Test</a> tweaks—track it all here! See latest updates on <a href="/index.html">Home</a>.</p>
         </section>
 
-        <section class="grid-col-6">
-            <h3><span class="small-caps">Pipeline</span></h3>
-            <p><strong>CI/CD Workflow</strong>: An automated pipeline powers our grid:</p>
-            <ul>
-                <li><strong>Local Development</strong>: Edit in Adobe Dreamweaver—HTML, CSS, JS in <code>C:\_projects\AmbientPixels.ai\</code></li>
-                <li><strong>Version Control</strong>: GitHub—main branch—Commits like <code>git commit -m "v2.1.0 fixed uberprompt, added index V2 launch"</code></li>
-                <li><strong>GitHub Actions</strong>:
-                    <ul>
-                        <li><code>static.yml</code>: Builds/deploys static content—<code>.html</code>, <code>css/</code>, <code>js/</code>, <code>images/</code></li>
-                        <li><code>api.yml</code>: Future API deployment—Node.js runtime</li>
-                        <li><strong>Triggers</strong>: Push to main or PR merge—Parallel execution</li>
-                    </ul>
-                </li>
-            </ul>
-            <p><strong>Example</strong>: Azure Static Web Apps CI/CD - <code>ambientpixelsV2 #125: Commit 8f4b37e pushed by AmbientPixels</code>—deployed April 2, 2025.</p>
-        </section>
-
-        <section class="grid-col-6">
-            <h3><span class="small-caps">Azure</span> Services</h3>
-            <p>We leverage Azure for hosting and scalability:</p>
-            <ul>
-                <li><strong>Static Web App</strong>: Hosts <code>index.html</code>, <code>test.html</code>, <code>docs.html</code>, <code>css/</code>, <code>js/</code>, <code>images/</code>—<a href="https://ambientpixels.ai/">ambientpixels.ai</a></li>
-                <li><strong>Function App</strong>: Future serverless APIs—e.g., <code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/</code>—Node.js, token auth planned</li>
-                <li><strong>Configuration</strong>: Azure Portal—SWA for static, Function App for APIs—JWT auth in progress</li>
-            </ul>
-            <p><strong>Status</strong>: Static live—API pending Batch 4.</p>
-        </section>
-
-        <section class="grid-col-6">
-            <h3><span class="small-caps">Security</span></h3>
-            <p>Security is our grid’s shield:</p>
-            <ul>
-                <li><strong>API Security</strong>: Token-based (JWT)—CORS locked to <code>ambientpixels.ai</code>—Future-proof</li>
-                <li><strong>Dual Workflows</strong>: <code>static.yml</code>—Static content; <code>api.yml</code>—API isolation—Low-risk</li>
-                <li><strong>Secrets</strong>: GitHub Secrets—<code>AZURE_CREDENTIALS</code>—Encrypted</li>
-            </ul>
-            <p><strong>Status</strong>: Static secure—API security to be implemented.</p>
-        </section>
-
-        <section class="grid-col-6">
-            <h3><span class="small-caps">Tech</span> Stack</h3>
-            <p>Our neon foundation:</p>
-            <ul>
-                <li><strong>Frontend</strong>: HTML5, CSS3, Vanilla JS—Font Awesome 6.5.1 (<code><i class="fas fa-robot"></i></code>)</li>
-                <li><strong>Hosting</strong>: Azure Static Web App—<a href="https://ambientpixels.ai/">ambientpixels.ai</a></li>
-                <li><strong>Serverless</strong>: Azure Function App—Node.js—Future APIs</li>
-                <li><strong>VCS</strong>: GitHub—main branch, <code>.github/workflows/</code></li>
-                <li><strong>Tools</strong>: Adobe Dreamweaver—VS Code compatible</li>
-            </ul>
-        </section>
-
+        <!-- Neon Forge Prompt Logic -->
         <section class="grid-col-12">
-            <h3><span class="small-caps">Scripts</span></h3>
-            <p>Core scripts in <code>js/</code>—driving the grid:</p>
+            <h3><span class="small-caps">Neon Forge</span> Prompt Logic</h3>
+            <p>Interactive AI prompt generator in <a href="/projects.html">projects.html</a>—<code>main.js</code> powers the chaos:</p>
             <ul>
-                <li><strong><code>main.js</code></strong>: Hero rotation (22 images), copy prompt—<code>document.addEventListener('DOMContentLoaded', ...)</code> initializes</li>
-                <li><strong><code>nav.js</code></strong>: Mobile nav toggle—<code>.nav-toggle</code> click expands <code>.nav-links</code></li>
-                <li><strong><code>theme.js</code></strong>: Theme switch—<code>toggleTheme()</code> swaps light/dark, saves to localStorage</li>
-                <li><strong><code>modal-window.js</code></strong>: Placeholder for future modals—<code>console.log('Modal window JS loaded')</code></li>
+                <li><strong>Function</strong>: <code>generateForgePrompt()</code>—Triggers on "Forge" button click.</li>
+                <li><strong>Themes</strong>: Dropdown (<code>#forge-theme</code>)—Website, Tale, Art, Self-Glitch Mode.</li>
+                <li><strong>Inputs</strong>: Two text fields (<code>#forge-input1</code>, <code>#forge-input2</code>)—e.g., "cyberpunk" + "toggles". Defaults to "[random]" + "[chaos]" if blank.</li>
+                <li><strong>Logic</strong>: Switch-case builds prompts—e.g., "Build a ${input1} site with ${input2}" for "Website". Self-Glitch uses random picks.</li>
+                <li><strong>Output</strong>: Displays in <code>#forge-output</code>—e.g., "Build a cyberpunk site with toggles—12 columns pulse with glitchy chaos."</li>
             </ul>
-            <p><strong>How It Works</strong>: <code>main.js</code> rotates 22 hero images every 25s, manages copy functionality for <code>#raw-prompt</code>. <code>nav.js</code> ensures mobile nav works below 768px. <code>theme.js</code> persists theme choice. <code>modal-window.js</code> preps for banners/modals.</p>
+            <p><strong>Status</strong>: Live in <code>v2.1.6</code>—future interactive form planned.</p>
         </section>
-<!-- Add under "Scripts" section -->
-<section class="grid-col-12">
-    <h3><span class="small-caps">Neon Forge</span> Prompt Logic</h3>
-    <p>Interactive AI prompt generator in <code>projects.html</code>—<code>main.js</code> powers the chaos:</p>
-    <ul>
-        <li><strong>Function</strong>: <code>generateForgePrompt()</code>—Triggers on "Forge" button click.</li>
-        <li><strong>Themes</strong>: Dropdown (<code>#forge-theme</code>)—Website, Tale, Art, Self-Glitch Mode.</li>
-        <li><strong>Inputs</strong>: Two text fields (<code>#forge-input1</code>, <code>#forge-input2</code>)—e.g., "cyberpunk" + "toggles". Defaults to "[random]" + "[chaos]" if blank.</li>
-        <li><strong>Logic</strong>: Switch-case builds prompts—e.g., "Build a ${input1} site with ${input2}" for "Website". Self-Glitch uses random picks.</li>
-        <li><strong>Output</strong>: Displays in <code>#forge-output</code>—e.g., "Build a cyberpunk site with toggles—12 columns pulse with glitchy chaos."</li>
-    </ul>
-    <p><strong>Status</strong>: Live in <code>v2.1.5</code>—future interactive form planned.</p>
-</section>
 
-<section class="grid-col-12">
-    <h3><span class="small-caps">Version</span> Injection</h3>
-    <p>Dynamic version display—<code>version.js</code> injects the current version into <code><span id="version"></code>:</p>
-    <ul>
-        <li><strong>File</strong>: <code>js/version.js</code>—Standalone script for easy updates.</li>
-        <li><strong>Logic</strong>: <code>document.getElementById('version').textContent = VERSION;</code>—Sets version on load.</li>
-        <li><strong>Update Process</strong>: Edit <code>const VERSION = 'vX.Y.Z';</code> in <code>version.js</code> per release—keeps <code>main.js</code> safe.</li>
-        <li><strong>Status</strong>: Live in <code>v2.1.5</code>—version injected across all pages.</li>
-    </ul>
-</section>
+        <!-- Version Injection -->
         <section class="grid-col-12">
-            <h3><span class="small-caps">Style</span> Guide</h3>
-            <p>Style system as of v2.1.0—cyberpunk and lean:</p>
+            <h3><span class="small-caps">Version</span> Injection</h3>
+            <p>Dynamic version display—<code>version.js</code> injects the current version into <code><span id="version"></code>:</p>
             <ul>
-                <li><strong>Grid Layouts</strong>: 12-column—<code>.grid-col-12</code> (100%), <code>.grid-col-6</code> (48%)—Stacks at <768px</li>
-                <li><strong>Icons</strong>: Font Awesome 6.5.1—Pink hover (<code>#FF1A8C</code> dark, <code>#D81B60</code> light)—e.g., <i class="fas fa-robot"></i></li>
-                <li><strong>Colors</strong>: 10 swatches—<code>--accent-dark: #00D4FF</code>, <code>--highlight-dark: #FF1A8C</code>, etc.—<code>theme.css</code></li>
-                <li><strong>Links</strong>: No underline, hover glow—<code>color: var(--highlight-dark)</code>, <code>text-shadow: 0 0 10px</code></li>
-                <li><strong>Effects</strong>: Neon glow—<code>text-shadow</code> on hero text, buttons—<code>box-shadow</code> on hover</li>
+                <li><strong>File</strong>: <code>js/version.js</code>—Standalone script for easy updates.</li>
+                <li><strong>Logic</strong>: <code>document.getElementById('version').textContent = VERSION;</code>—Sets version on load.</li>
+                <li><strong>Update Process</strong>: Edit <code>const VERSION = 'vX.Y.Z';</code> in <code>version.js</code> per release—keeps <code>main.js</code> safe.</li>
+                <li><strong>Status</strong>: Live in <code>v2.1.6</code>—version injected across all pages.</li>
             </ul>
-            <p><strong>Status</strong>: Slim but expandable—future flair (e.g., chaos mode) planned.</p>
         </section>
 
-        <section class="grid-col-12">
-            <h3><span class="small-caps">Adding Hero</span> Images</h3>
-            <p><strong>Tutorial: How to Add New Hero Images</strong>: Expand the hero rotation with these steps:</p>
-            <ol>
-                <li><strong>Prepare Image</strong>: Save your new image (e.g., <code>hero-23.jpg</code>) in <code>C:\_projects\AmbientPixels.ai\images\hero\</code>. Use JPG format, follow naming convention (<code>hero-XX.jpg</code>).</li>
-                <li><strong>Update HTML</strong>: Open <code>test.html</code>, <code>uberprompt.html</code>, and <code>docs.html</code> in Dreamweaver. In each, find the <code>.hero-slides</code> div.</li>
-                <li><strong>Add Slide</strong>: Insert a new line before the closing <code></div></code>—e.g., <code><div class="hero-slide" data-bg="images/hero/hero-23.jpg"></div></code>. Increment the number (23, 24, etc.) for each new image.</li>
-                <li><strong>Save & Test</strong>: Save all files. Test locally (<code>file://C:/_projects/AmbientPixels.ai/test.html</code>)—new image should rotate every 25s.</li>
-                <li><strong>Commit & Push</strong>: Stage changes in Dreamweaver—<code>git commit -m "Added hero-23.jpg - v2.1.0"</code>—push to GitHub. CI/CD (<code>static.yml</code>) deploys to Azure.</li>
-            </ol>
-            <p><strong>Notes</strong>: No CSS/JS changes needed—<code>main.js</code> auto-detects new slides. Optimize images (<500KB) for performance. Current count: 22 (<code>hero-01.jpg</code> to <code>hero-22.jpg</code>).</p>
-        </section>
-
+        <!-- Version History -->
         <section class="grid-col-12">
             <h3><span class="small-caps">Version</span> History</h3>
             <p>Key milestones:</p>
             <ul>
+                <li><strong>v2.1.6-20250402</strong>: Light theme tweaked (#4B0082), logo aligned, tools page added—April 2, 2025</li>
+                <li><strong>v2.1.5-20250402</strong>: Full refresh, theme toggle fixed, dark default—April 2, 2025</li>
                 <li><strong>v2.1.0-20250402</strong>: Full refresh—22 hero images, test center, index V2 launch, updated docs—April 2, 2025</li>
-                <li><strong>v0.17.7-20250329</strong>: Modal fixes, style enhancements—March 29, 2025</li>
-                <li><strong>v0.17.5-20250329</strong>: Grid layouts, initial forms—March 29, 2025</li>
-                <li><strong>v0.17.3-20250328</strong>: CI/CD pipeline, basic styles—March 28, 2025</li>
             </ul>
         </section>
 
-        <section class="grid-col-12">
-            <h3><span class="small-caps">Troubleshooting</span></h3>
-            <p>Common issues and fixes:</p>
-            <ul>
-                <li><strong>Hero Not Showing</strong>: Check <code>images/hero/hero-01.jpg</code> paths—Clear cache (Ctrl+F5)</li>
-                <li><strong>Nav Not Toggling</strong>: Ensure <code>nav.js</code> loaded—Verify <code>.nav-toggle</code> click event</li>
-                <li><strong>Styles Missing</strong>: Confirm <code>css/</code> files linked—Check relative paths</li>
-                <li><strong>Workflow Fails</strong>: Inspect GitHub Actions logs—Verify <code>AZURE_CREDENTIALS</code></li>
-            </ul>
-        </section>
-
+        <!-- Next Steps (Including Banner Reminder) -->
         <section class="grid-col-12">
             <h3><span class="small-caps">Next</span> Steps</h3>
-            <p>Future enhancements for NeonPulse v2.3:</p>
+            <p>Upcoming chaos—<code>forge: on;</code>—to keep the grid glowing:</p>
             <ul>
-                <li>Banners—5s rotation with hover pause</li>
-                <li>Modals—Random messages via <code>modal-window.js</code></li>
-                <li>Interactive tools—Meme generator, glitcher</li>
-                <li>API endpoints—E.g., style generator</li>
-                <li><strong>Preview Environment</strong>: Set up dual workflow in Azure—publish to preview (<code>preview.ambientpixels.ai</code>) from local test, then push to live (<code>ambientpixels.ai</code>)—test safely before deploy</li>
+                <li>Create banner system—dynamic notifications (e.g., nav fix, HAL tease)—target v2.1.8.</li>
             </ul>
         </section>
     </div>
-<!-- Add under "Next Steps" section -->
-<section class="grid-col-12">
-    <h3><i class="fas fa-calendar"></i> <span class="small-caps">Publish</span> Schedule Cadence</h3>
-    <p>Our NeonPulse rhythm—<code>runtime: infinite;</code>—tracked as of April 2, 2025:</p>
-    <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
-        <thead>
-            <tr style="background: var(--card-dark); color: var(--text-dark);">
-                <th style="padding: 8px; border: 1px solid var(--accent-dark);">Date</th>
-                <th style="padding: 8px; border: 1px solid var(--accent-dark);">Push #</th>
-                <th style="padding: 8px; border: 1px solid var(--accent-dark);">Version</th>
-                <th style="padding: 8px; border: 1px solid var(--accent-dark);">Details</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">April 1, 2025</td>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">#129</td>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">v2.1.2</td>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">Styled light theme, skills/projects pages</td>
-            </tr>
-            <tr>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">April 1, 2025</td>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">#130</td>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">v2.1.3</td>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">Sidebar behavior confirmed</td>
-            </tr>
-            <tr>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">April 1, 2025</td>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">#131</td>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">v2.1.4</td>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">Grid demo, typography, nav fixes</td>
-            </tr>
-            <tr>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">April 1, 2025</td>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">#132</td>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">v2.1.5</td>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">Full refresh, theme toggle fix</td>
-            </tr>
-            <tr>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">April 1, 2025</td>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">#133</td>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">v2.1.6</td>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">Light theme tweak, logo fix, tools page</td>
-            </tr>
-            <tr>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">April 2, 2025</td>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">#134</td>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">v2.1.6</td>
-                <td style="padding: 8px; border: 1px solid var(--accent-dark);">Engaging index.html, tips/process update</td>
-            </tr>
-        </tbody>
-    </table>
-    <p><strong>Pulse Frequency (PF)</strong>: 3—Daily pushes, ~1-2 updates/day. Pattern: ~5 pushes/day, mixing features and fixes.</p>
-</section>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="grid-container">
             <div class="grid-col-12">
-                <p><a href="#contact">Contact</a> | <i class="fas fa-copyright" aria-hidden="true"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top">Top</a></p>
+                <p><a href="#contact">Contact</a> | <i class="fas fa-copyright" aria-hidden="true"></i> 2025 Ambient Pixels | <span id="version"></span> | <a href="#" class="back-to-top">Top</a></p>
                 <div class="social-links">
                     <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart" aria-hidden="true"></i></a>
-                    <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter" aria-hidden="true"></i></a>
+                    <a href="https://x.com/AIAmbientPixels" target="_blank" title="Pulse on X"><i class="fab fa-x-twitter" aria-hidden="true"></i></a>
+                    <a href="https://www.twitch.tv/AmbientPixelsLive" target="_blank" title="Twitch Live"><i class="fab fa-twitch" aria-hidden="true"></i></a>
                     <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
                     <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook" aria-hidden="true"></i></a>
                 </div>
-                <p>Built in the dark, glowing by starlight</p>
+                <p>Built in the dark, glowing by starlight—NeonPulse out!</p>
             </div>
         </div>
     </footer>
@@ -305,5 +140,6 @@
     <script src="js/main.js" defer></script>
     <script src="js/nav.js" defer></script>
     <script src="js/modal-window.js" defer></script>
+    <script src="js/version.js" defer></script>
 </body>
 </html>
