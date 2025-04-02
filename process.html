@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Ambient Pixels v2.1.0—NeonPulse V2 Build Log">
+    <meta name="description" content="Ambient Pixels v2.1.6—Build Process">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
-    <title>Ambient Pixels - Build Process</title>
+    <title>Ambient Pixels - Process</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/base.css">
@@ -14,96 +14,74 @@
     <link rel="stylesheet" href="css/hero.css">
     <link rel="stylesheet" href="css/theme.css">
 </head>
-<body>
+<body data-theme="dark">
     <!-- Navigation -->
     <nav class="nav">
         <div class="nav-blur-layer"></div>
         <div class="nav-container">
-            <a href="/" class="nav-logo-link" aria-label="Ambient Pixels Home">
-                <img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="nav-logo">
-                <h1>Ambient Pixels</h1>
-            </a>
+            <div class="nav-left">
+                <a href="/" class="nav-logo-link" aria-label="Ambient Pixels Home">
+                    <img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="nav-logo">
+                    <h1>Ambient Pixels</h1>
+                </a>
+            </div>
             <button class="nav-toggle" aria-label="Toggle Navigation"><i class="fas fa-bars"></i></button>
             <div class="nav-links">
-                <a href="/index.html" aria-label="Home"><i class="fas fa-home"></i></a>
-                <a href="/test.html" aria-label="Test"><i class="fas fa-flask"></i></a>
-                <a href="/projects.html" aria-label="Projects"><i class="fas fa-code"></i></a>
-                <a href="/art.html" aria-label="Art"><i class="fas fa-paint-brush"></i></a>
-                <a href="/tools.html" aria-label="Tools"><i class="fas fa-tools"></i></a>
-                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme"><i class="fas fa-moon"></i></button>
+                <a href="/index.html"><i class="fas fa-home"></i> Home</a>
+                <a href="/test.html"><i class="fas fa-flask"></i> Test</a>
+                <a href="/projects.html"><i class="fas fa-code"></i> Projects</a>
+                <a href="/art.html"><i class="fas fa-paint-brush"></i> Art</a>
+                <a href="/tools.html"><i class="fas fa-tools"></i> Tools</a>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
+                    <i class="fas fa-moon dark-icon"></i><i class="fas fa-sun light-icon" style="display: none;"></i>
+                </button>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <div class="hero">
-        <div class="hero-slides">
-            <div class="hero-slide" data-bg="images/hero/hero-01.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-02.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-03.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-04.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-05.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-06.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-07.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-08.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-09.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-10.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-11.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-12.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-13.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-14.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-15.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-16.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-17.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-18.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-19.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-20.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-21.jpg"></div>
-            <div class="hero-slide" data-bg="images/hero/hero-22.jpg"></div>
-        </div>
-        <h1 class="hero-text">Build Process</h1>
-        <p class="hero-subheading">Daily logs of NeonPulse V2—code in motion.</p>
-        <div class="hero-loading">
-            <i class="fas fa-robot"></i>
-            <span class="loading-text">Logging progress...</span>
-            <div class="loading-bar">
-                <div class="loading-progress"></div>
-            </div>
-        </div>
+    <!-- Mini Hero -->
+    <div class="mini-hero">
+        <img src="images/mini-hero-v1.jpg" alt="Mini Hero Image">
+        <h1>Build Process</h1>
+        <p>Neon-forged workflow—<code>runtime: infinite;</code>—how we glitch.</p>
     </div>
 
     <!-- Grid System: Process Content -->
     <div class="grid-container">
         <section class="grid-col-12">
-            <h2><i class="fas fa-history"></i> <span class="small-caps">Build</span> Log</h2>
-            <blockquote>“Neon evolves—step by glitchy step.”</blockquote>
-            <p>Follow the daily grind of NeonPulse V2—<code>build: on;</code>—our cyberpunk journey from GridBase-12 to neon masterpiece. Updates roll in as we forge—check back for the latest!</p>
+            <h2><i class="fas fa-cogs"></i> <span class="small-caps">Process</span> Forge</h2>
+            <blockquote>“Chaos bends—grids ignite.”</blockquote>
+            <p>Our cyberpunk build flow—<code>forge: on;</code>—evolving nightly (April 2, 2025). From <a href="/index.html">Home</a> to <a href="/test.html">Test</a>, here’s how we roll—track it in <a href="/docs.html">Docs</a>!</p>
         </section>
-<!-- Add under "Build Log" section -->
-<section class="grid-col-12">
-    <h3><i class="fas fa-calendar-day"></i> April 2, 2025—Day 2</h3>
-    <p><strong>Progress</strong>: Pushed <code>v2.1.5</code>—theme switcher fixed, dark default locked, light theme tweaked, tools page started. Brainstormed “Neon Clip”—AI copy/paste tool with glitch styles. <strong>Next</strong>: Logo alignment, light theme polish, typography ideas!</p>
-    <p><strong>Commit</strong>: <code>git commit -m "v2.1.5 full refresh of updated files"</code>—Live via Azure #132, Commit ae78eab.</p>
-</section>
-        <section class="grid-col-12">
-            <h3><i class="fas fa-calendar-day"></i> April 1, 2025—Day 1</h3>
-            <p><strong>Progress</strong>: Locked in GridBase-12 as base—pushed <code>v2.1.0</code> with fixed <code>uberprompt.html</code>, V2 <code>index.html</code>, and new <code>tips.html</code>, <code>process.html</code>. Stable foundation set—22 hero images hum, nav toggles, grid flows. Named project “NeonPulse”—vibes electric! <strong>Next</strong>: Styling begins tonight—slow, shiny steps!</p>
-            <p><strong>Commit</strong>: <code>git commit -m "v2.1.0.04012025 fixed uberprompt, added index V2 launch"</code>—Live via Azure Static Web Apps #125, Commit 8f4b37e.</p>
+
+        <section class="grid-col-6">
+            <h3><i class="fas fa-sync"></i> Iterate Fast</h3>
+            <p>We push hard—<code>PF: 3;</code>—four tries tonight to nail <a href="/index.html">Home</a>. Rapid tweaks (like <a href="/tools.html">Tools</a> additions) and fixes (hero slimmed)—keep the grid pulsing!</p>
+        </section>
+
+        <section class="grid-col-6">
+            <h3><i class="fas fa-th"></i> Grid Crafting</h3>
+            <p>Flex the layout—<code>cols: 12;</code>—like <a href="/grid-demo.html">Grid Demo</a> or <a href="/index.html">Home</a>’s col-6 and col-4 mix. Link it up—<a href="/art.html">Art</a> to <a href="/projects.html">Projects</a>—for neon flow!</p>
+        </section>
+
+        <section class="grid-col-6">
+            <h3><i class="fas fa-comment"></i> Clear the Static</h3>
+            <p>Miscomms spark retries—<code>try: 4;</code>—like tonight’s footer dance. Clarify, refine (see <a href="/tips.html">Tips</a>), and push—communication keeps us tight!</p>
         </section>
     </div>
 
-    <!-- Footer -->
+    <!-- Footer (Reverted to Socials with Hover) -->
     <footer class="footer">
         <div class="grid-container">
             <div class="grid-col-12">
-                <p><a href="#contact">Contact</a> | <i class="fas fa-copyright" aria-hidden="true"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top">Top</a></p>
+                <p><a href="#contact">Contact</a> | <i class="fas fa-copyright" aria-hidden="true"></i> 2025 Ambient Pixels | <span id="version"></span> | <a href="#" class="back-to-top">Top</a></p>
                 <div class="social-links">
                     <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart" aria-hidden="true"></i></a>
                     <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter" aria-hidden="true"></i></a>
                     <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
                     <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook" aria-hidden="true"></i></a>
                 </div>
-                <p>Built in the dark, glowing by starlight</p>
+                <p>Built in the dark, glowing by starlight—NeonPulse out!</p>
             </div>
         </div>
     </footer>
@@ -112,5 +90,6 @@
     <script src="js/main.js" defer></script>
     <script src="js/nav.js" defer></script>
     <script src="js/modal-window.js" defer></script>
+    <script src="js/version.js" defer></script>
 </body>
 </html>
