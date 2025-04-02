@@ -142,7 +142,19 @@
             </ul>
             <p><strong>How It Works</strong>: <code>main.js</code> rotates 22 hero images every 25s, manages copy functionality for <code>#raw-prompt</code>. <code>nav.js</code> ensures mobile nav works below 768px. <code>theme.js</code> persists theme choice. <code>modal-window.js</code> preps for banners/modals.</p>
         </section>
-
+<!-- Add under "Scripts" section -->
+<section class="grid-col-12">
+    <h3><span class="small-caps">Neon Forge</span> Prompt Logic</h3>
+    <p>Interactive AI prompt generator in <code>projects.html</code>—<code>main.js</code> powers the chaos:</p>
+    <ul>
+        <li><strong>Function</strong>: <code>generateForgePrompt()</code>—Triggers on "Forge" button click.</li>
+        <li><strong>Themes</strong>: Dropdown (<code>#forge-theme</code>)—Website, Tale, Art, Self-Glitch Mode.</li>
+        <li><strong>Inputs</strong>: Two text fields (<code>#forge-input1</code>, <code>#forge-input2</code>)—e.g., "cyberpunk" + "toggles". Defaults to "[random]" + "[chaos]" if blank.</li>
+        <li><strong>Logic</strong>: Switch-case builds prompts—e.g., "Build a ${input1} site with ${input2}" for "Website". Self-Glitch uses random picks.</li>
+        <li><strong>Output</strong>: Displays in <code>#forge-output</code>—e.g., "Build a cyberpunk site with toggles—12 columns pulse with glitchy chaos."</li>
+    </ul>
+    <p><strong>Status</strong>: Live in <code>v2.1.3</code>—future interactive form planned.</p>
+</section>
         <section class="grid-col-12">
             <h3><span class="small-caps">Style</span> Guide</h3>
             <p>Style system as of v2.1.0—cyberpunk and lean:</p>

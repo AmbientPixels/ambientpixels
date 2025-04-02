@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ambient Pixels v2.1.4—Grid Demo">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <title>Ambient Pixels - Grid Demo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/hero.css">
+    <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-blur-layer"></div>
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="./" class="nav-logo-link" aria-label="Ambient Pixels Home">
+                    <img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="nav-logo">
+                    <h1>Ambient Pixels</h1>
+                </a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle Navigation"><i class="fas fa-bars"></i></button>
+            <div class="nav-links">
+                <a href="index.html"><i class="fas fa-home"></i> Home</a>
+                <a href="test.html"><i class="fas fa-flask"></i> Test</a>
+                <a href="projects.html"><i class="fas fa-code"></i> Projects</a>
+                <a href="art.html"><i class="fas fa-paint-brush"></i> Art</a>
+                <a href="tools.html"><i class="fas fa-tools"></i> Tools</a>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
+                    <i class="fas fa-moon dark-icon"></i><i class="fas fa-sun light-icon" style="display: none;"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mini Hero -->
+    <div class="mini-hero">
+        <h1>Grid Demo</h1>
+        <p>A labeled grid—<code>runtime: infinite;</code>—for NeonPulse feature reference.</p>
+    </div>
+
+    <!-- Grid System: Demo Content -->
+    <div class="grid-container">
+        <section class="grid-col-12">
+            <h2><i class="fas fa-th"></i> <span class="small-caps">Full</span> Width</h2>
+            <p>Grid Col 12—<code>flex: 0 0 100%;</code>—spans the full container. Use for headers or banners.</p>
+        </section>
+
+        <section class="grid-col-6">
+            <h3><i class="fas fa-columns"></i> <span class="small-caps">Half</span> Width</h3>
+            <p>Grid Col 6—<code>flex: 0 0 48%;</code>—half the grid, stacks on mobile. Perfect for teasers.</p>
+            <a href="#" class="btn">Pulse</a>
+        </section>
+
+        <section class="grid-col-6">
+            <h3><i class="fas fa-toggle-on"></i> <span class="small-caps">Toggle</span> Demo</h3>
+            <p>Toggle section—<code>display: toggle;</code>—expands on click.</p>
+            <button class="btn" data-toggle="demo">Toggle</button>
+            <div class="content" id="demo" style="display: none;">Neon chaos unleashed!</div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="grid-container">
+            <div class="grid-col-12">
+                <p><a href="#contact">Contact</a> | <i class="fas fa-copyright" aria-hidden="true"></i> 2025 Ambient Pixels | <span id="version"></span> | <a href="#" class="back-to-top">Top</a></p>
+                <div class="social-links">
+                    <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart" aria-hidden="true"></i></a>
+                    <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter" aria-hidden="true"></i></a>
+                    <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook" aria-hidden="true"></i></a>
+                </div>
+                <p>Built in the dark, glowing by starlight</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/theme.js" defer></script>
+    <script src="js/main.js" defer></script>
+    <script src="js/nav.js" defer></script>
+    <script src="js/modal-window.js" defer></script>
+</body>
+</html>

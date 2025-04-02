@@ -1,4 +1,4 @@
-// theme.js - Ambient Pixels v2.1.3-20250402
+// theme.js - Ambient Pixels v2.1.4-20250402
 function toggleTheme() {
     const body = document.body;
     const currentTheme = body.getAttribute('data-theme');
