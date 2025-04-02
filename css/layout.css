@@ -1,4 +1,4 @@
-/* layout.css - Ambient Pixels v2.1.5-20250402 */
+/* layout.css - Ambient Pixels v2.1.6-20250402 */
 .grid-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -40,13 +40,14 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* Prevent wrap for logo alignment */
 }
 
 .nav-left {
     display: flex;
     align-items: center;
     gap: 10px; /* Space between logo and text */
+    flex-shrink: 0; /* Prevent shrinking */
 }
 
 .nav-toggle {
@@ -56,6 +57,7 @@
 .nav-links {
     display: flex;
     gap: 20px;
+    flex-shrink: 0; /* Keep nav links on right */
 }
 
 @media (max-width: 768px) {
@@ -101,7 +103,7 @@
     padding: 20px;
     background: rgba(26, 31, 40, 0.8);
     backdrop-filter: blur(5px);
-    margin-top: 60px; /* Clear fixed nav */
+    margin-top: 80px; /* Clear fixed nav */
 }
 
 body[data-theme="light"] .mini-hero {

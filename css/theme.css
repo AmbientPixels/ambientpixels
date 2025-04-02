@@ -1,4 +1,4 @@
-/* theme.css - Ambient Pixels v2.1.5-20250402 */
+/* theme.css - Ambient Pixels v2.1.6-20250402 */
 :root {
     --accent-dark: #00D4FF;          /* Cyan glow */
     --highlight-dark: #FF1A8C;       /* Neon pink */
@@ -6,10 +6,10 @@
     --text-dark: #FFFFFF;            /* White for dark theme */
     --card-dark: #1A1F28;            /* Dark card */
     --neon-pulse: linear-gradient(90deg, #FF1A8C, #00D4FF); /* Gradient flair */
-    --accent-light: #483D8B;         /* Dark slate blue for light theme */
+    --accent-light: #4B0082;         /* Indigo for light theme */
     --highlight-light: #D81B60;      /* Light pink */
     --success-light: #00E676;        /* Light green */
-    --text-light: #483D8B;           /* Dark slate blue text */
+    --text-light: #4B0082;           /* Indigo text */
     --card-light: #F5F5F5;           /* Light card */
 }
 
@@ -20,12 +20,12 @@ body {
 
 body[data-theme="light"] {
     background: #FFFFFF;             /* Bright white base */
-    color: var(--text-light);        /* Dark slate blue */
+    color: var(--text-light);        /* Indigo */
 }
 
 body[data-theme="light"] .nav-blur-layer {
     background: rgba(255, 255, 255, 0.8); /* Frosted light nav */
-    box-shadow: 0 0 20px var(--accent-light); /* Slate glow */
+    box-shadow: 0 0 20px var(--accent-light); /* Indigo glow */
 }
 
 .nav-links a {
@@ -39,8 +39,8 @@ body[data-theme="light"] .nav-blur-layer {
 }
 
 body[data-theme="light"] .nav-links a {
-    color: var(--text-light);        /* Slate in light theme */
-    text-shadow: 0 0 5px var(--accent-light); /* Slate glow */
+    color: var(--text-light);        /* Indigo in light theme */
+    text-shadow: 0 0 5px var(--accent-light); /* Indigo glow */
 }
 
 body[data-theme="light"] .nav-links a:hover {
