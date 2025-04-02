@@ -1,4 +1,4 @@
-// main.js - Ambient Pixels v2.1.0-20250402
+// main.js - Ambient Pixels v2.1.3-20250402
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Main JS loaded - Circuits online');
 
@@ -51,6 +51,20 @@ document.addEventListener('DOMContentLoaded', () => {
         setInterval(rotateHero, 25000);
     }, 50);
 
+    // Toggle Sections
+    document.querySelectorAll('[data-toggle]').forEach(button => {
+        button.addEventListener('click', () => {
+            const targetId = button.getAttribute('data-toggle');
+            const content = document.getElementById(targetId);
+            if (content) {
+                const isExpanded = content.style.display === 'block';
+                content.style.display = isExpanded ? 'none' : 'block';
+                button.setAttribute('aria-expanded', !isExpanded);
+                console.log(`Toggled ${targetId} - Expanded: ${!isExpanded}`);
+            }
+        });
+    });
+
     // Copy Prompt Functionality
     window.copyPrompt = function() {
         const textarea = document.getElementById('raw-prompt');
@@ -59,4 +73,35 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Raw prompt copied to clipboard');
         alert('Prompt copied—forge your neon future!');
     };
+
+    // Neon Forge Prompt
+    window.generateForgePrompt = function() {
+        const theme = document.getElementById('forge-theme').value;
+        const input1 = document.getElementById('forge-input1').value || '[random]';
+        const input2 = document.getElementById('forge-input2').value || '[chaos]';
+        let output;
+
+        switch (theme) {
+            case 'website':
+                output = `Build a ${input1} site with ${input2}—12 columns pulse with glitchy chaos.`;
+                break;
+            case 'tale':
+                output = `A ${input1} hacks ${input2} in a neon sprawl—grid bends, stars fall.`;
+                break;
+            case 'art':
+                output = `Blend ${input1} with ${input2}—pixels shatter in neon rain.`;
+                break;
+            case 'self':
+                output = `AI forges a ${Math.random() > 0.5 ? 'grid' : 'tale'} with ${Math.random() > 0.5 ? 'neon' : 'glitch'}—self-glitched chaos ignites!`;
+                break;
+            default:
+                output = 'Awaiting your chaos...';
+        }
+
+        document.getElementById('forge-output').textContent = output;
+        console.log(`Neon Forge Prompt: "${output}"`);
+    };
+
+    // Version Injection
+    document.getElementById('version').textContent = 'v2.1.3';
 });

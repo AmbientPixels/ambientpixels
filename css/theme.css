@@ -1,4 +1,4 @@
-/* theme.css - Ambient Pixels v2.1.2-20250402 */
+/* theme.css - Ambient Pixels v2.1.3-20250402 */
 :root {
     --accent-dark: #00D4FF;          /* Cyan glow */
     --highlight-dark: #FF1A8C;       /* Neon pink */
@@ -6,25 +6,30 @@
     --text-dark: #E0E6F0;            /* Light grey */
     --card-dark: #1A1F28;            /* Dark card */
     --neon-pulse: linear-gradient(90deg, #FF1A8C, #00D4FF); /* Gradient flair */
-    --accent-light: #00B8D4;         /* Light cyan */
+    --accent-light: #008080;         /* Teal for light theme */
     --highlight-light: #D81B60;      /* Light pink */
     --success-light: #00E676;        /* Light green */
-    --text-light: #00D4FF;           /* Neon cyan for light theme */
+    --text-light: #008080;           /* Teal text */
     --card-light: #F5F5F5;           /* Light card */
+}
+
+body {
+    background: #0A0F14;             /* Default dark */
+    color: #E0E6F0;
 }
 
 body[data-theme="light"] {
     background: #FFFFFF;             /* Bright white base */
-    color: var(--text-light);        /* Neon cyan text */
+    color: var(--text-light);        /* Teal text */
 }
 
 body[data-theme="light"] .nav-blur-layer {
     background: rgba(255, 255, 255, 0.8); /* Frosted light nav */
-    box-shadow: 0 0 20px var(--accent-light); /* Cyan glow */
+    box-shadow: 0 0 20px var(--accent-light); /* Teal glow */
 }
 
 body[data-theme="light"] .nav-links a {
-    color: var(--text-light);        /* Neon cyan */
+    color: var(--text-light);        /* Teal */
     text-shadow: 0 0 5px var(--accent-light); /* Subtle glow */
 }
 
