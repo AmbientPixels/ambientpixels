@@ -1,4 +1,5 @@
 /* components.css - Ambient Pixels v2.1.2-20250402 */
+
 .btn {
     background: var(--accent-dark);
     color: #FFFFFF;
@@ -56,12 +57,23 @@ pre {
     font-variant: small-caps;
 }
 
-.social-links a:hover i {
-    color: var(--highlight-dark);
-    text-shadow: 0 0 10px var(--highlight-dark);
+.social-links a {
+    font-size: 1.5em; /* Bigger icons */
+    color: var(--text-dark);
+    margin: 0 10px;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
-body[data-theme="light"] .social-links a:hover i {
+.social-links a:hover {
+    color: var(--highlight-dark); /* Neon pink */
+    text-shadow: 0 0 10px var(--highlight-dark); /* Glow effect */
+}
+
+body[data-theme="light"] .social-links a {
+    color: var(--text-light);
+}
+
+body[data-theme="light"] .social-links a:hover {
     color: var(--highlight-light);
     text-shadow: 0 0 10px var(--highlight-light);
 }
