@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Base Theme Demo</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #1a1a1a;
+      --text-muted: #666666;
+      --primary: #0dd3ff;
+      --accent: #ff4cf9;
+      --success: #54f754;
+      --warning: #ffc84c;
+      --border: #e0e0e0;
+      --surface: #f9f9f9;
+      --link: #0dd3ff;
+    }
+
+    body.dark {
+      --bg: #121212;
+      --text: #f5f5f5;
+      --text-muted: #bbbbbb;
+      --border: #333333;
+      --surface: #1e1e1e;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: sans-serif;
+      padding: 2rem;
+      transition: all 0.3s ease;
+    }
+
+    .card {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      border-radius: 8px;
+      max-width: 500px;
+      margin: 2rem auto;
+    }
+
+    .primary-button {
+      background-color: var(--primary);
+      color: #fff;
+      padding: 0.6em 1.2em;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--primary);
+      transition: background-color 0.2s ease;
+    }
+
+    .primary-button:hover {
+      background-color: #10f4fc;
+    }
+
+    a {
+      color: var(--link);
+      text-decoration: none;
+      font-weight: bold;
+      text-shadow: 0 0 4px var(--link);
+    }
+
+    .theme-toggle {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .muted {
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>🌗 Themed UI Demo</h2>
+    <p>This is a base <strong>theme palette</strong> preview for light and dark modes.</p>
+    <p class="muted">Muted text example for subtle UI hints.</p>
+    <button class="primary-button">Primary Action</button>
+    <br><br>
+    <a href="#">Neon Link</a>
+  </div>
+
+  <div class="theme-toggle">
+    <button onclick="document.body.classList.toggle('dark')">Toggle Theme</button>
+  </div>
+</body>
+</html>

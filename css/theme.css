@@ -1,49 +1,139 @@
-/* theme.css - Ambient Pixels v2.1.6-20250402 */
+/* theme.css - Ambient Pixels v2.1.7-20250402 */
+/* Crisp link styles, no base shadow, subtle hover */
 :root {
-    --accent-dark: #00D4FF;          /* Cyan glow */
-    --highlight-dark: #FF1A8C;       /* Neon pink */
-    --success-dark: #33FF99;         /* Glitch green */
-    --text-dark: #FFFFFF;            /* White for dark theme */
-    --card-dark: #1A1F28;            /* Dark card */
-    --neon-pulse: linear-gradient(90deg, #FF1A8C, #00D4FF); /* Gradient flair */
-    --accent-light: #4B0082;         /* Indigo for light theme */
-    --highlight-light: #D81B60;      /* Light pink */
-    --success-light: #00E676;        /* Light green */
-    --text-light: #4B0082;           /* Indigo text */
-    --card-light: #F5F5F5;           /* Light card */
+    --bg: #ffffff;                  /* Light background */
+    --text: #1a1a1a;                /* Dark text */
+    --text-muted: #666666;          /* Muted text */
+    --primary: #0288D1;             /* Darker cyan for buttons */
+    --accent: #ff4cf9;              /* Pink for hover */
+    --success: #54f754;             /* Green (unused here) */
+    --warning: #ffc84c;             /* Yellow (unused here) */
+    --border: #e0e0e0;              /* Light border */
+    --surface: #f9f9f9;             /* Light card */
+    --link: #0dd3ff;                /* Cyan links */
+}
+
+body[data-theme="dark"] {
+    --bg: #121212;                  /* Dark background */
+    --text: #f5f5f5;                /* Light text */
+    --text-muted: #bbbbbb;          /* Muted text */
+    --primary: #0288D1;             /* Darker cyan buttons */
+    --border: #333333;              /* Dark border */
+    --surface: #1e1e1e;             /* Dark card */
+    --link: #0dd3ff;                /* Cyan links */
 }
 
 body {
-    background: #0A0F14;             /* Default dark */
-    color: var(--text-dark);
+    background-color: var(--bg);
+    color: var(--text);
+    transition: all 0.3s ease;
 }
 
-body[data-theme="light"] {
-    background: #FFFFFF;             /* Bright white base */
-    color: var(--text-light);        /* Indigo */
+/* Link Styles - Crisp, no base shadow, slight hover shadow */
+a {
+    color: var(--link);             /* Cyan for both */
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s ease, text-shadow 0.2s ease, transform 0.2s ease;
 }
 
-body[data-theme="light"] .nav-blur-layer {
-    background: rgba(255, 255, 255, 0.8); /* Frosted light nav */
-    box-shadow: 0 0 20px var(--accent-light); /* Indigo glow */
+a:hover {
+    color: #10f4fc;                 /* Lighter cyan hover */
+    text-shadow: 0 0 1px #10f4fc;   /* Subtle hover shadow */
+    transform: scale(1.03);         /* Modern scale */
 }
 
+body[data-theme="light"] a {
+    color: var(--link);
+}
+
+body[data-theme="light"] a:hover {
+    color: #10f4fc;
+    text-shadow: 0 0 1px #10f4fc;
+    transform: scale(1.03);
+}
+
+/* Button Styles - Soft cyan, minimal shadow, subtle hover */
+.btn {
+    background: var(--primary);     /* Darker cyan for dark */
+    color: #fff;
+    padding: 0.6em 1.2em;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 4px var(--primary);
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.btn:hover {
+    background: #0277BD;            /* Slightly darker cyan */
+    box-shadow: 0 0 6px #0277BD;
+    transform: translateY(-2px);
+}
+
+body[data-theme="light"] .btn {
+    background: var(--primary);     /* Darker cyan for light */
+    color: #fff;
+}
+
+body[data-theme="light"] .btn:hover {
+    background: #0277BD;
+    box-shadow: 0 0 6px #0277BD;
+    transform: translateY(-2px);
+}
+
+/* Nav Links - Match regular links */
 .nav-links a {
-    color: var(--text-dark);         /* White in dark theme */
-    text-shadow: 0 0 5px var(--accent-dark); /* Cyan glow */
+    color: var(--link);
 }
 
 .nav-links a:hover {
-    color: var(--highlight-dark);    /* Pink hover */
-    text-shadow: 0 0 10px var(--highlight-dark);
+    color: #10f4fc;
+    text-shadow: 0 0 1px #10f4fc;
+    transform: scale(1.03);
 }
 
 body[data-theme="light"] .nav-links a {
-    color: var(--text-light);        /* Indigo in light theme */
-    text-shadow: 0 0 5px var(--accent-light); /* Indigo glow */
+    color: var(--link);
 }
 
 body[data-theme="light"] .nav-links a:hover {
-    color: var(--highlight-light);   /* Pink hover */
-    text-shadow: 0 0 10px var(--highlight-light);
+    color: #10f4fc;
+    text-shadow: 0 0 1px #10f4fc;
+    transform: scale(1.03);
+}
+
+/* Footer Social Links - Specific styles, no underline */
+.footer .social-links a {
+    color: var(--text-muted);       /* Muted base (#bbbbbb dark, #666666 light) */
+    font-size: 1.5em;
+    padding: 0.5em;
+    transition: color 0.2s ease, text-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.footer .social-links a:hover {
+    color: var(--accent);           /* Pink #ff4cf9 hover */
+    text-shadow: 0 0 2px var(--accent);
+    transform: scale(1.05);
+}
+
+body[data-theme="dark"] .footer .social-links a {
+    color: var(--text-muted);
+}
+
+body[data-theme="dark"] .footer .social-links a:hover {
+    color: var(--accent);
+    text-shadow: 0 0 2px var(--accent);
+    transform: scale(1.05);
+}
+
+body[data-theme="light"] .footer .social-links a {
+    color: var(--text-muted);
+}
+
+body[data-theme="light"] .footer .social-links a:hover {
+    color: var(--accent);
+    text-shadow: 0 0 2px var(--accent);
+    transform: scale(1.05);
 }
