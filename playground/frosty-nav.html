@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sticky Frosty Nav</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .frosty {
+      backdrop-filter: blur(10px);
+      background-color: rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 min-h-screen text-white">
+
+  <!-- Sticky Frosty Navbar -->
+  <nav class="fixed top-0 left-0 w-full z-50 frosty px-4 md:px-8 py-3 flex items-center justify-between">
+    <!-- Logo + Text -->
+    <div class="flex items-center space-x-2">
+      <img src="https://placehold.co/40x40/ffffff/000000?text=⚡" alt="Logo" class="w-10 h-10 rounded-full" />
+      <span class="text-xl font-semibold">FrostyNav</span>
+    </div>
+
+    <!-- Menu (hidden on small, shown on md+) -->
+    <ul class="hidden md:flex items-center space-x-6 text-sm">
+      <li><a href="#" class="hover:text-blue-400 transition">Home</a></li>
+      <li><a href="#" class="hover:text-blue-400 transition">About</a></li>
+      <li><a href="#" class="hover:text-blue-400 transition">Projects</a></li>
+      <li><a href="#" class="hover:text-blue-400 transition">Contact</a></li>
+    </ul>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="md:hidden flex items-center justify-center w-10 h-10" id="menuToggle">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="md:hidden" id="mobileMenu" style="display: none;">
+    <ul class="absolute top-[64px] right-0 w-full bg-gray-800 text-white space-y-4 px-4 py-6 frosty">
+      <li><a href="#" class="block">Home</a></li>
+      <li><a href="#" class="block">About</a></li>
+      <li><a href="#" class="block">Projects</a></li>
+      <li><a href="#" class="block">Contact</a></li>
+    </ul>
+  </div>
+
+  <!-- Page Content Placeholder -->
+  <main class="pt-24 px-6">
+    <h1 class="text-4xl font-bold mb-4">Welcome to FrostyNav</h1>
+    <p class="text-lg text-gray-300">Resize the window to see the responsive sticky frosted navbar in action.</p>
+  </main>
+
+  <script>
+    const toggle = document.getElementById("menuToggle");
+    const mobileMenu = document.getElementById("mobileMenu");
+
+    toggle.addEventListener("click", () => {
+      mobileMenu.style.display = mobileMenu.style.display === "none" ? "block" : "none";
+    });
+  </script>
+</body>
+</html>

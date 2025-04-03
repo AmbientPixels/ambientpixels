@@ -1,109 +1,132 @@
-/* layout.css - Ambient Pixels v2.1.6-20250402 */
+/* layout.css - Ambient Pixels v2.1.7-20250402 */
+/* Controls structural layout - positioning, spacing, flex/grid */
+
+/* Grid Container - Parent for all grid sections */
 .grid-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
+    max-width: 1200px;          /* Caps width for readability */
+    margin: 0 auto;             /* Centers horizontally */
+    padding: 20px;              /* Adds inner space */
+    display: flex;              /* Flex parent for grid kids */
+    flex-wrap: wrap;            /* Wraps kids on small screens */
+    gap: 20px;                  /* Space between grid items */
 }
 
-.grid-col-12 {
-    flex: 0 0 100%;
-    max-width: 100%;
-}
+/* Grid Kids - Define column widths */
+.grid-col-12 { flex: 0 0 100%; max-width: 100%; } /* Full width */
+.grid-col-6 { flex: 0 0 48%; max-width: 48%; }    /* Half width */
 
-.grid-col-6 {
-    flex: 0 0 48%;
-    max-width: 48%;
-}
-
+/* Mobile Grid - Overrides for smaller screens */
 @media (max-width: 768px) {
-    .grid-col-6 {
-        flex: 0 0 100%;
-        max-width: 100%;
-    }
+    .grid-col-6 { flex: 0 0 100%; max-width: 100%; } /* Full width on mobile */
 }
 
+/* Nav - Fixed header bar */
 .nav {
-    position: fixed;
+    position: fixed;            /* Sticks to top */
     top: 0;
     left: 0;
-    width: 100%;
-    z-index: 1000;
+    width: 100%;                /* Spans full width */
+    z-index: 1000;              /* Stays above other content */
 }
 
+/* Nav Container - Parent of nav-left, toggle, and links */
 .nav-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: nowrap; /* Prevent wrap for logo alignment */
+    display: flex;              /* Flex parent for nav kids */
+    align-items: center;        /* Vertically centers kids */
+    justify-content: space-between; /* Spreads kids apart */
+    flex-wrap: nowrap;          /* Prevents wrapping */
 }
 
+/* Nav Left - Child of nav-container, parent of logo and title */
 .nav-left {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Space between logo and text */
-    flex-shrink: 0; /* Prevent shrinking */
+    display: flex;              /* Flex parent for logo and h1 */
+    flex-direction: row;        /* Horizontal on desktop */
+    align-items: center;        /* Centers vertically */
+    gap: 10px;                  /* Space between logo and text */
 }
 
+/* Nav Logo Link - Child of nav-left, parent of img and h1 */
+.nav-logo-link {
+    display: flex;              /* Flex parent for logo and text */
+    flex-direction: row;        /* Horizontal layout */
+    align-items: center;        /* Centers vertically */
+    gap: 10px;                  /* Space between logo and text */
+}
+
+/* Nav Logo - Child of nav-logo-link */
+.nav-logo {
+    width: 40px;                /* Desktop size */
+    height: auto;               /* Maintains aspect ratio */
+}
+
+/* Nav Title - Child of nav-logo-link */
+.nav-left h1 {
+    margin: 0;                  /* Removes default margin */
+    font-size: 1.5em;           /* Readable size */
+    white-space: nowrap;        /* Prevents text wrap */
+}
+
+/* Nav Toggle - Child of nav-container, hidden on desktop */
 .nav-toggle {
-    display: none; /* Hidden by default in wide viewports */
+    display: none;              /* Hidden by default */
+    background: none;
+    border: none;
+    color: #FF1A8C;             /* Neon pink */
+    text-shadow: 0 0 5px #FF1A8C; /* Glow effect */
+    font-size: 1.5em;
+    cursor: pointer;
 }
 
+/* Nav Links - Child of nav-container, parent of links */
 .nav-links {
-    display: flex;
-    gap: 20px;
-    flex-shrink: 0; /* Keep nav links on right */
+    display: flex;              /* Flex parent for links */
+    gap: 20px;                  /* Space between links */
+    flex-shrink: 0;             /* Prevents shrinking */
 }
 
+/* Mobile Adjustments - Overrides for screens <= 768px */
 @media (max-width: 768px) {
     .nav-container {
-        flex-direction: column;
-        align-items: flex-start;
+        padding: 10px;          /* Tighter padding */
     }
-
-    .nav-left {
-        width: 100%;
-        justify-content: space-between;
+    .nav-left,
+    .nav-logo-link {           /* Both switch to column on mobile */
+        flex-direction: column; /* Stacks logo and text */
+        align-items: flex-start; /* Aligns left */
+        gap: 5px;               /* Tighter gap */
     }
-
+    .nav-logo {
+        width: 30px;            /* Smaller logo on mobile */
+    }
+    .nav-left h1 {
+        font-size: 1.2em;       /* Smaller text */
+    }
     .nav-toggle {
-        display: block; /* Visible only in mobile */
-        background: none;
-        border: none;
-        color: #FF1A8C; /* Neon pink */
-        text-shadow: 0 0 5px #FF1A8C; /* Glow */
-        font-size: 1.5em;
-        cursor: pointer;
+        display: block;         /* Shows toggle button */
     }
-
     .nav-links {
-        display: none;
-        flex-direction: column;
-        width: 100%;
-        background: rgba(26, 31, 40, 0.9);
-        padding: 20px;
-        position: absolute;
-        top: 60px;
+        display: none;          /* Hidden by default */
+        flex-direction: column; /* Stacks links */
+        position: absolute;     /* Positions below nav */
+        top: 60px;              /* Clears nav height */
         left: 0;
-    }
-
-    .nav-links.active {
-        display: flex;
+        right: 0;
+        background: var(--bg);  /* Matches body bg */
+        padding: 20px;          /* Inner spacing */
     }
 }
 
+/* Mini Hero - Below nav, avoids overlap */
 .mini-hero {
     position: relative;
     text-align: center;
     padding: 20px;
     background: rgba(26, 31, 40, 0.8);
     backdrop-filter: blur(5px);
-    margin-top: 80px; /* Clear fixed nav */
+    margin-top: 80px;           /* Clears fixed nav */
 }
 
 body[data-theme="light"] .mini-hero {
@@ -130,11 +153,7 @@ body[data-theme="light"] .mini-hero {
     color: var(--text-dark);
 }
 
-/* Fix overlapping in grid and footer */
-.grid-col-6 p {
-    margin-bottom: 15px; /* Space above buttons */
-}
-
+/* Footer - Centered layout */
 .footer {
-    text-align: center; /* Centered footer */
+    text-align: center;
 }
