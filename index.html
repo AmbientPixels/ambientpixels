@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Ambient Pixels v2.1.9—Cyberpunk Sandbox">
+    <meta name="description" content="Ambient Pixels v2.1.10—Cyberpunk Sandbox">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <title>Ambient Pixels</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -18,80 +18,94 @@
 
 <!-- Navigation -->
 <nav class="nav">
-    <div class="nav-blur-layer"></div> <!-- Background blur layer -->
-    <div class="nav-container"> <!-- Parent container for nav elements -->
-        <div class="nav-left"> <!-- Left side with logo and title -->
-            <a href="/" class="nav-logo-link" aria-label="Ambient Pixels Home"> <!-- Link wrapper -->
-                <img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="nav-logo"> <!-- Logo image -->
-                <h1>Ambient Pixels</h1> <!-- Site title -->
+    <div class="nav-blur-layer"></div>
+    <div class="nav-container">
+        <div class="nav-left">
+            <a href="/" class="nav-logo-link" aria-label="Ambient Pixels Home">
+                <img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="nav-logo">
+                <h1>Ambient Pixels</h1>
             </a>
         </div>
-        <button class="nav-toggle" aria-label="Toggle Navigation"><i class="fas fa-bars"></i></button> <!-- Mobile toggle button -->
-        <div class="nav-links"> <!-- Links container -->
-            <a href="/index.html"><i class="fas fa-home"></i> Home</a> <!-- Home link -->
-            <a href="/test.html"><i class="fas fa-flask"></i> Test</a> <!-- Test link -->
-            <a href="/projects.html"><i class="fas fa-code"></i> Projects</a> <!-- Projects link -->
-            <a href="/art.html"><i class="fas fa-paint-brush"></i> Art</a> <!-- Art link -->
-            <a href="/tools.html"><i class="fas fa-tools"></i> Tools</a> <!-- Tools link -->
-            <i class="fas fa-moon theme-icon" aria-label="Toggle Theme"></i> <!-- Theme switcher icon -->
+        <button class="nav-toggle" aria-label="Toggle Navigation"><i class="fas fa-bars"></i></button>
+        <div class="nav-links">
+            <a href="/index.html"><i class="fas fa-home"></i> Home</a>
+            <a href="/test.html"><i class="fas fa-flask"></i> Test</a>
+            <a href="/docs.html"><i class="fas fa-book"></i> Docs</a>
+            <i class="fas fa-moon theme-icon" aria-label="Toggle Theme"></i>
         </div>
     </div>
 </nav>
 <!-- END Navigation -->
 
 <!-- Hero Section -->
-<div class="hero"> <!-- Main hero container -->
-    <div class="hero-slides"> <!-- Slides container -->
-        <div class="hero-slide" data-bg="images/hero/hero-01.jpg"></div> <!-- Slide 1 -->
-        <div class="hero-slide" data-bg="images/hero/hero-02.jpg"></div> <!-- Slide 2 -->
-        <div class="hero-slide" data-bg="images/hero/hero-03.jpg"></div> <!-- Slide 3 -->
-        <div class="hero-slide" data-bg="images/hero/hero-04.jpg"></div> <!-- Slide 4 -->
-        <div class="hero-slide" data-bg="images/hero/hero-05.jpg"></div> <!-- Slide 5 -->
-        <div class="hero-slide" data-bg="images/hero/hero-06.jpg"></div> <!-- Slide 6 -->
-        <div class="hero-slide" data-bg="images/hero/hero-07.jpg"></div> <!-- Slide 7 -->
-        <div class="hero-slide" data-bg="images/hero/hero-08.jpg"></div> <!-- Slide 8 -->
-        <div class="hero-slide" data-bg="images/hero/hero-09.jpg"></div> <!-- Slide 9 -->
-        <div class="hero-slide" data-bg="images/hero/hero-10.jpg"></div> <!-- Slide 10 -->
-    </div>
-    <h1 class="hero-text">Ambient Pixels</h1> <!-- Hero title -->
-    <p class="hero-subheading">A cyberpunk sandbox glowing with chaos.</p> <!-- Hero subtitle -->
-    <div class="hero-loading"> <!-- Static loading indicator -->
-        <i class="fas fa-robot"></i> <!-- Robot icon -->
-        <span class="loading-text">Initializing chaos...</span> <!-- Loading message -->
-        <div class="loading-bar"> <!-- Loading bar container -->
-            <div class="loading-progress"></div> <!-- Static progress -->
+<div class="hero" id="hero">
+    <div class="loading-overlay" id="loading">
+        <i class="fas fa-robot fa-3x"></i>
+        <div class="loading-text">Initializing chaos...</div>
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
         </div>
     </div>
+    <h1 id="hero-headline">Quantum Code Unleashed</h1>
+    <p id="hero-subheading">A neon playground for cosmic chaos.</p>
 </div>
 <!-- END Hero Section -->
 
-<!-- Today’s Neon Wins Section -->
-<section class="neon-wins grid-container"> <!-- New content section -->
-    <div class="grid-col-12"> <!-- Full-width column -->
-        <h2><i class="fas fa-bolt"></i> Today’s Neon Wins</h2> <!-- Section title -->
-        <p>April 2, 2025—NeonPulse v2.1.9 sparks alive:</p> <!-- Intro text -->
-        <ul> <!-- Highlights list -->
-            <li>Theme Switcher: Moon and sun icons light the way—dark/light vibes perfected.</li> <!-- Theme icon win -->
-            <li>Grid Reboot: Bugs zapped, circuits stable—NeonPulse hums electric.</li> <!-- Stability win -->
-        </ul>
-        <p>Pulse on—more chaos brewing soon!</p> <!-- Closing tease -->
+<!-- Neon Wins & Drops Section -->
+<section class="neon-section grid-container">
+    <div class="grid-col-12">
+        <h2><i class="fas fa-bolt"></i> Neon Pulse</h2>
+        <p>April 3, 2025—NeonPulse v2.1.10 sparks alive:</p>
+    </div>
+    <div class="grid-col-6">
+        <div class="neon-card">
+            <img src="images/cards/card-01.jpg" alt="Neon Wins" class="card-img">
+            <div class="card-content">
+                <h3>Wins</h3>
+                <ul>
+                    <li>Theme Switcher: Moon and sun icons—dark/light vibes perfected.</li>
+                    <li>Grid Reboot: Hero images fixed, circuits hum electric.</li>
+                    <li>Robot Spin: Loader spins—cyberpunk polish live.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="grid-col-6">
+        <div class="neon-card">
+            <img src="images/cards/card-02.jpg" alt="Neon Drops" class="card-img">
+            <div class="card-content">
+                <h3>Drops</h3>
+                <p>New Onboarding Video—Sleek, green-glowing experience for game devs with Ava’s VO fresh from the studio yesterday, motion design, UI walkthroughs. Powered by After Effects—drops soon! <a href="/test.html">Test</a></p>
+                <p>EchoForge Teaser—AI voice vibes coming to <a href="/test.html">Test</a>!</p>
+                <p>Sub-Hero Shift—Pages refreshed with sleek style.</p>
+            </div>
+        </div>
+    </div>
+    <div class="grid-col-12">
+        <div class="neon-card spotlight-card">
+            <img src="images/cards/card-03.jpg" alt="Kavinsky Spotlight" class="card-img">
+            <div class="card-content">
+                <h3>Artist Spotlight: Kavinsky</h3>
+                <p>Kavinsky, synthwave maestro, fuels NeonPulse with retro-futurist beats. Check his cyberpunk vibes on <a href="https://open.spotify.com/artist/0UF7RXGHRnH6PboFVO6PgN" target="_blank">Spotify</a>—perfect soundtrack for our neon grid!</p>
+            </div>
+        </div>
     </div>
 </section>
-<!-- END Today’s Neon Wins Section -->
+<!-- END Neon Wins & Drops Section -->
 
 <!-- Footer -->
-<footer class="footer"> <!-- Footer container -->
-    <div class="grid-container"> <!-- Grid wrapper -->
-        <div class="grid-col-12"> <!-- Full-width column -->
-            <p><a href="#contact">Contact</a> | <i class="fas fa-copyright" aria-hidden="true"></i> 2025 Ambient Pixels | <span id="version"></span> | <a href="#" class="back-to-top">Top</a></p> <!-- Footer links -->
-            <div class="social-links"> <!-- Social icons -->
+<footer class="footer">
+    <div class="grid-container">
+        <div class="grid-col-12">
+            <p><a href="#contact">Contact</a> | <i class="fas fa-copyright" aria-hidden="true"></i> 2025 Ambient Pixels | <span id="version"></span> | <a href="#" class="back-to-top">Top</a></p>
+            <div class="social-links">
                 <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart" aria-hidden="true"></i></a>
                 <a href="https://x.com/AIAmbientPixels" target="_blank" title="Pulse on X"><i class="fab fa-x-twitter" aria-hidden="true"></i></a>
                 <a href="https://www.twitch.tv/AmbientPixelsLive" target="_blank" title="Twitch Live"><i class="fab fa-twitch" aria-hidden="true"></i></a>
                 <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
                 <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook" aria-hidden="true"></i></a>
             </div>
-            <p>Built in the dark, glowing by starlight—NeonPulse out!</p> <!-- Footer tagline -->
+            <p>Built in the dark, glowing by starlight—NeonPulse out!</p>
         </div>
     </div>
 </footer>
@@ -102,5 +116,6 @@
 <script src="js/nav.js" defer></script>
 <script src="js/modal-window.js" defer></script>
 <script src="js/version.js" defer></script>
+<script src="js/hero.js" defer></script>
 </body>
 </html>

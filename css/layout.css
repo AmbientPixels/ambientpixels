@@ -1,159 +1,215 @@
-/* layout.css - Ambient Pixels v2.1.7-20250402 */
-/* Controls structural layout - positioning, spacing, flex/grid */
+/* layout.css - Ambient Pixels v2.1.10-20250403 */
+/* Controls structural layout - positioning, spacing, flex/grid, and typography */
 
-/* Grid Container - Parent for all grid sections */
+/* Grid Container */
 .grid-container {
-    max-width: 1200px;          /* Caps width for readability */
-    margin: 0 auto;             /* Centers horizontally */
-    padding: 20px;              /* Adds inner space */
-    display: flex;              /* Flex parent for grid kids */
-    flex-wrap: wrap;            /* Wraps kids on small screens */
-    gap: 20px;                  /* Space between grid items */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
-/* Grid Kids - Define column widths */
-.grid-col-12 { flex: 0 0 100%; max-width: 100%; } /* Full width */
-.grid-col-6 { flex: 0 0 48%; max-width: 48%; }    /* Half width */
+/* Grid Kids */
+.grid-col-12 { flex: 0 0 100%; max-width: 100%; }
+.grid-col-6 { flex: 0 0 48%; max-width: 48%; }
+.grid-col-4 { flex: 0 0 31%; max-width: 31%; }
+.grid-offset-2 { margin-left: 16.66%; }
+.grid-offset-4 { margin-left: 33.33%; }
 
-/* Mobile Grid - Overrides for smaller screens */
+/* Mobile Grid */
 @media (max-width: 768px) {
-    .grid-col-6 { flex: 0 0 100%; max-width: 100%; } /* Full width on mobile */
+    .grid-col-6, .grid-col-4 { flex: 0 0 100%; max-width: 100%; }
+    .grid-offset-2, .grid-offset-4 { margin-left: 0; }
 }
 
-/* Nav - Fixed header bar */
+/* Nav */
 .nav {
-    position: fixed;            /* Sticks to top */
+    position: fixed;
     top: 0;
     left: 0;
-    width: 100%;                /* Spans full width */
-    z-index: 1000;              /* Stays above other content */
+    width: 100%;
+    z-index: 1000;
+    background: rgba(18, 18, 18, 0.9);
+    backdrop-filter: blur(5px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Nav Container - Parent of nav-left, toggle, and links */
+/* Nav Container */
 .nav-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 10px 20px;
-    display: flex;              /* Flex parent for nav kids */
-    align-items: center;        /* Vertically centers kids */
-    justify-content: space-between; /* Spreads kids apart */
-    flex-wrap: nowrap;          /* Prevents wrapping */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
 }
 
-/* Nav Left - Child of nav-container, parent of logo and title */
+/* Nav Left */
 .nav-left {
-    display: flex;              /* Flex parent for logo and h1 */
-    flex-direction: row;        /* Horizontal on desktop */
-    align-items: center;        /* Centers vertically */
-    gap: 10px;                  /* Space between logo and text */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
 }
 
-/* Nav Logo Link - Child of nav-left, parent of img and h1 */
+/* Nav Logo Link */
 .nav-logo-link {
-    display: flex;              /* Flex parent for logo and text */
-    flex-direction: row;        /* Horizontal layout */
-    align-items: center;        /* Centers vertically */
-    gap: 10px;                  /* Space between logo and text */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
 }
 
-/* Nav Logo - Child of nav-logo-link */
+/* Nav Logo */
 .nav-logo {
-    width: 40px;                /* Desktop size */
-    height: auto;               /* Maintains aspect ratio */
+    width: 40px;
+    height: auto;
 }
 
-/* Nav Title - Child of nav-logo-link */
+/* Nav Title */
 .nav-left h1 {
-    margin: 0;                  /* Removes default margin */
-    font-size: 1.5em;           /* Readable size */
-    white-space: nowrap;        /* Prevents text wrap */
+    margin: 0;
+    font-size: 1.5em;
+    white-space: nowrap;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* Nav Toggle - Child of nav-container, hidden on desktop */
+/* Nav Toggle */
 .nav-toggle {
-    display: none;              /* Hidden by default */
+    display: none;
     background: none;
     border: none;
-    color: #FF1A8C;             /* Neon pink */
-    text-shadow: 0 0 5px #FF1A8C; /* Glow effect */
+    color: #bbb;
     font-size: 1.5em;
     cursor: pointer;
+    transition: color 0.2s ease;
 }
 
-/* Nav Links - Child of nav-container, parent of links */
+.nav-toggle:hover {
+    color: #4682B4;
+}
+
+/* Nav Links */
 .nav-links {
-    display: flex;              /* Flex parent for links */
-    gap: 20px;                  /* Space between links */
-    flex-shrink: 0;             /* Prevents shrinking */
+    display: flex;
+    gap: 20px;
+    flex-shrink: 0;
+    align-items: center;
 }
 
-/* Mobile Adjustments - Overrides for screens <= 768px */
+/* Theme Icon */
+.theme-icon {
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #bbb;
+    transition: color 0.2s ease;
+}
+
+.theme-icon:hover {
+    color: #4682B4;
+}
+
+/* Hidden Class */
+.nav-links.hidden {
+    display: none;
+}
+
+/* Mobile Adjustments */
 @media (max-width: 768px) {
-    .nav-container {
-        padding: 10px;          /* Tighter padding */
-    }
-    .nav-left,
-    .nav-logo-link {           /* Both switch to column on mobile */
-        flex-direction: column; /* Stacks logo and text */
-        align-items: flex-start; /* Aligns left */
-        gap: 5px;               /* Tighter gap */
-    }
-    .nav-logo {
-        width: 30px;            /* Smaller logo on mobile */
-    }
-    .nav-left h1 {
-        font-size: 1.2em;       /* Smaller text */
-    }
-    .nav-toggle {
-        display: block;         /* Shows toggle button */
-    }
+    .nav-container { padding: 10px; }
+    .nav-left, .nav-logo-link { flex-direction: column; align-items: flex-start; gap: 5px; }
+    .nav-logo { width: 30px; }
+    .nav-left h1 { font-size: 1.2em; }
+    .nav-toggle { display: block; }
     .nav-links {
-        display: none;          /* Hidden by default */
-        flex-direction: column; /* Stacks links */
-        position: absolute;     /* Positions below nav */
-        top: 60px;              /* Clears nav height */
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
         left: 0;
         right: 0;
-        background: var(--bg);  /* Matches body bg */
-        padding: 20px;          /* Inner spacing */
+        background: rgba(18, 18, 18, 0.9);
+        backdrop-filter: blur(5px);
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 }
 
-/* Mini Hero - Below nav, avoids overlap */
-.mini-hero {
-    position: relative;
-    text-align: center;
+/* Neon Section */
+.neon-section {
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(20, 20, 20, 0.95);
+}
+
+/* Neon Card */
+.neon-card {
+    background: rgba(30, 30, 30, 0.9) url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAAXNSR0IArs4c6QAAAB5JREFUGFdjZGBg+H+KYwZgYGBgYHj5/39DAwMDIwAFAv2gmcU9AAAAAElFTkSuQmCC') repeat;
     padding: 20px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(70, 130, 180, 0.2);
+    display: flex;
+    flex-direction: column;
+    min-height: 300px; /* Uniform height for 6-col cards */
+}
+
+/* Spotlight Card */
+.spotlight-card {
+    min-height: 350px; /* Slightly taller for emphasis */
+}
+
+/* Card Image */
+.card-img {
+    width: 100%;
+    height: auto;
+    max-height: 150px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+/* Card Content */
+.card-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Sub-Hero Section */
+.sub-hero {
+    position: relative;
+    margin-top: 80px;
+    padding: 15px;
     background: rgba(26, 31, 40, 0.8);
     backdrop-filter: blur(5px);
-    margin-top: 80px;           /* Clears fixed nav */
+    text-align: center;
 }
 
-body[data-theme="light"] .mini-hero {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.mini-hero img {
+.sub-hero-img {
     width: 100%;
     max-height: 200px;
     object-fit: cover;
-    display: block;
-    border-radius: 8px;
+    border-radius: 6px;
 }
 
-.mini-hero h1 {
+.sub-hero h1 {
     margin: 10px 0 0;
     font-size: 1.5em;
-    color: var(--text-dark);
-    text-shadow: 0 0 5px var(--success-dark);
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.mini-hero p {
-    font-size: 1em;
-    color: var(--text-dark);
-}
-
-/* Footer - Centered layout */
+/* Footer */
 .footer {
     text-align: center;
+    padding: 20px;
+    background: rgba(18, 18, 18, 0.9);
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.2);
 }

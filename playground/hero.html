@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ambient Pixels - Hero Demo</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      background: #000;
+      color: white;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .hero {
+      position: relative;
+      height: 100vh;
+      width: 100%;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      transition: background-image 1s ease-in-out;
+    }
+
+    .hero h1 {
+      font-size: 3em;
+      margin: 0.2em 0 0.1em;
+    }
+
+    .hero p {
+      font-size: 1.2em;
+      color: #ccc;
+    }
+
+    .loading-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 1s ease;
+    }
+
+    .loading-text {
+      font-size: 1.5em;
+      margin-top: 1em;
+    }
+
+    .loading-bar {
+      width: 80%;
+      height: 10px;
+      background: #333;
+      border-radius: 5px;
+      margin-top: 1em;
+      overflow: hidden;
+    }
+
+    .loading-progress {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(to right, #ff4cf9, #0dd3ff, #54f754, #ffc84c);
+      animation: loadBar 3s ease forwards;
+    }
+
+    @keyframes loadBar {
+      to { width: 100%; }
+    }
+
+    .fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loading">
+    <i class="fas fa-robot fa-3x"></i>
+    <div class="loading-text">Initializing chaos...</div>
+    <div class="loading-bar">
+      <div class="loading-progress"></div>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <div class="hero" id="hero">
+    <h1 id="hero-headline">Loading...</h1>
+    <p id="hero-subheading">Please wait...</p>
+  </div>
+
+  <script>
+    const hero = document.getElementById("hero");
+    const headlineEl = document.getElementById("hero-headline");
+    const subheadingEl = document.getElementById("hero-subheading");
+
+    // Image pool
+    const heroImages = [
+      'hero-01.jpg', 'hero-02.jpg', 'hero-03.jpg', 'hero-04.jpg', 'hero-05.jpg',
+      'hero-06.jpg', 'hero-07.jpg', 'hero-08.jpg', 'hero-09.jpg', 'hero-10.jpg'
+    ].map(img => `images/hero/${img}`);
+
+    // Random text pool
+    const headlines = [
+      "Code Hums Electric", "Neon Dreams Ignite", "Where Chaos Sparks Genius",
+      "Booting the Multiverse", "Welcome to the Glitch", "Data Surge Online",
+      "Cosmic Scripts Loaded", "Your Playground Awaits", "Hack the Grid", "Memes Activate"
+    ];
+
+    const subheadings = [
+      "A neon playground for cosmic chaos.",
+      "Initializing deep-space protocol.",
+      "Runtime: infinite;",
+      "Plug in and play.",
+      "Powered by coffee and stardust.",
+      "AI circuits warmed up.",
+      "Synthwave loaded. Let's go.",
+      "Dreams stitched in code.",
+      "Systems nominal. Begin.",
+      "Dark mode: engaged."
+    ];
+
+    // Random helper
+    const randomFrom = arr => arr[Math.floor(Math.random() * arr.length)];
+
+    // Load a random background
+    let currentIndex = Math.floor(Math.random() * heroImages.length);
+    function updateHeroBackground() {
+      hero.style.backgroundImage = `url('${heroImages[currentIndex]}')`;
+      currentIndex = (currentIndex + 1) % heroImages.length;
+    }
+
+    // Initial headline + background
+    window.addEventListener("load", () => {
+      headlineEl.textContent = randomFrom(headlines);
+      subheadingEl.textContent = randomFrom(subheadings);
+      updateHeroBackground();
+
+      // Rotate background every 10s
+      setInterval(updateHeroBackground, 10000);
+
+      // Fade out loader after 3.5s
+      setTimeout(() => {
+        document.getElementById("loading").classList.add("fade-out");
+      }, 3500);
+    });
+  </script>
+</body>
+</html>

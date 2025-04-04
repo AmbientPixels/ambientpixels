@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Ambient Pixels v2.1.6—NeonPulse Tools">
+    <meta name="description" content="Ambient Pixels v2.1.10—Cyberpunk Tools">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <title>Ambient Pixels - Tools</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -15,78 +15,68 @@
     <link rel="stylesheet" href="css/theme.css">
 </head>
 <body data-theme="dark">
-    <!-- Navigation -->
-    <nav class="nav">
-        <div class="nav-blur-layer"></div>
-        <div class="nav-container">
-            <div class="nav-left">
-                <a href="/" class="nav-logo-link" aria-label="Ambient Pixels Home">
-                    <img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="nav-logo">
-                    <h1>Ambient Pixels</h1>
-                </a>
-            </div>
-            <button class="nav-toggle" aria-label="Toggle Navigation"><i class="fas fa-bars"></i></button>
-            <div class="nav-links">
-                <a href="/index.html"><i class="fas fa-home"></i> Home</a>
-                <a href="/test.html"><i class="fas fa-flask"></i> Test</a>
-                <a href="/projects.html"><i class="fas fa-code"></i> Projects</a>
-                <a href="/art.html"><i class="fas fa-paint-brush"></i> Art</a>
-                <a href="/tools.html"><i class="fas fa-tools"></i> Tools</a>
-                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
-                    <i class="fas fa-moon dark-icon"></i><i class="fas fa-sun light-icon" style="display: none;"></i>
-                </button>
-            </div>
+
+<!-- Navigation -->
+<nav class="nav">
+    <div class="nav-blur-layer"></div>
+    <div class="nav-container">
+        <div class="nav-left">
+            <a href="/" class="nav-logo-link" aria-label="Ambient Pixels Home">
+                <img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="nav-logo">
+                <h1>Ambient Pixels</h1>
+            </a>
         </div>
-    </nav>
-
-    <!-- Mini Hero -->
-    <div class="mini-hero">
-        <img src="images/mini-hero-v1.jpg" alt="Mini Hero Image">
-        <h1>Tools Shed</h1>
-        <p>Gear for the grid—<code>runtime: infinite;</code>—NeonPulse utilities.</p>
+        <button class="nav-toggle" aria-label="Toggle Navigation"><i class="fas fa-bars"></i></button>
+        <div class="nav-links">
+            <a href="/index.html"><i class="fas fa-home"></i> Home</a>
+            <a href="/test.html"><i class="fas fa-flask"></i> Test</a>
+            <a href="/projects.html"><i class="fas fa-code"></i> Projects</a>
+            <a href="/art.html"><i class="fas fa-paint-brush"></i> Art</a>
+            <a href="/tools.html"><i class="fas fa-tools"></i> Tools</a>
+            <i class="fas fa-moon theme-icon" aria-label="Toggle Theme"></i>
+        </div>
     </div>
+</nav>
+<!-- END Navigation -->
 
-    <!-- Grid System: Tools Content -->
+<!-- Sub-Hero Section -->
+<div class="sub-hero">
+    <img src="images/hero/hero-03.jpg" alt="Tools Sub-Hero" class="sub-hero-img">
+    <h1>Tools</h1>
+</div>
+<!-- END Sub-Hero Section -->
+
+<!-- Tools Content -->
+<section class="tools grid-container">
+    <div class="grid-col-12">
+        <h2><i class="fas fa-tools"></i> Grid Utils</h2>
+        <p>Essential tools for the cyberpunk sandbox—more coming soon.</p>
+    </div>
+</section>
+<!-- END Tools Content -->
+
+<!-- Footer -->
+<footer class="footer">
     <div class="grid-container">
-        <section class="grid-col-12">
-            <h2><i class="fas fa-tools"></i> <span class="small-caps">Tools</span></h2>
-            <blockquote>“Gear hums—frontiers glow.”</blockquote>
-            <p>Home > Tools—<code>runtime: infinite;</code>—our NeonPulse toolkit for cyberpunk chaos. More utilities forging soon!</p>
-        </section>
-
-        <section class="grid-col-6">
-            <h3><i class="fas fa-clipboard"></i> <span class="small-caps">Neon</span> Clipboard</h3>
-            <blockquote>“Copy bends—paste ignites.”</blockquote>
-            <p>Supercharge your clipboard—<code>glitch: on;</code>—log copies, transform text with neon flair, share snippets. Coming soon—paste the future!</p>
-        </section>
-
-        <section class="grid-col-6">
-            <h3><i class="fas fa-icons"></i> <span class="small-caps">Icon</span> Gallery</h3>
-            <p>Our Font Awesome stash—<code>icons: live;</code>—cyberpunk vibes in neon:</p>
-            <p><i class="fas fa-home"></i> Home | <i class="fas fa-flask"></i> Test | <i class="fas fa-code"></i> Code | <i class="fas fa-paint-brush"></i> Art | <i class="fas fa-tools"></i> Tools | <i class="fas fa-moon"></i> Dark | <i class="fas fa-sun"></i> Light</p>
-        </section>
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="grid-container">
-            <div class="grid-col-12">
-                <p><a href="#contact">Contact</a> | <i class="fas fa-copyright" aria-hidden="true"></i> 2025 Ambient Pixels | <span id="version"></span> | <a href="#" class="back-to-top">Top</a></p>
-                <div class="social-links">
-                    <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart" aria-hidden="true"></i></a>
-                    <a href="https://x.com/AIAmbientPixels" target="_blank" title="X"><i class="fab fa-x-twitter" aria-hidden="true"></i></a>
-                    <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
-                    <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook" aria-hidden="true"></i></a>
-                </div>
-                <p>Built in the dark, glowing by starlight</p>
+        <div class="grid-col-12">
+            <p><a href="#contact">Contact</a> | <i class="fas fa-copyright" aria-hidden="true"></i> 2025 Ambient Pixels | <span id="version"></span> | <a href="#" class="back-to-top">Top</a></p>
+            <div class="social-links">
+                <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart" aria-hidden="true"></i></a>
+                <a href="https://x.com/AIAmbientPixels" target="_blank" title="Pulse on X"><i class="fab fa-x-twitter" aria-hidden="true"></i></a>
+                <a href="https://www.twitch.tv/AmbientPixelsLive" target="_blank" title="Twitch Live"><i class="fab fa-twitch" aria-hidden="true"></i></a>
+                <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+                <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook" aria-hidden="true"></i></a>
             </div>
+            <p>Built in the dark, glowing by starlight—NeonPulse out!</p>
         </div>
-    </footer>
+    </div>
+</footer>
+<!-- END Footer -->
 
-    <script src="js/theme.js" defer></script>
-    <script src="js/main.js" defer></script>
-    <script src="js/nav.js" defer></script>
-    <script src="js/modal-window.js" defer></script>
-    <script src="js/version.js" defer></script>
+<script src="js/theme.js" defer></script>
+<script src="js/main.js" defer></script>
+<script src="js/nav.js" defer></script>
+<script src="js/modal-window.js" defer></script>
+<script src="js/version.js" defer></script>
 </body>
 </html>
