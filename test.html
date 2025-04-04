@@ -13,18 +13,19 @@
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/hero.css">
     <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/banner.css">
 </head>
 <body data-theme="dark">
 
 <!-- Header Placeholder -->
 <div id="header-placeholder"></div>
 
-<!-- Sub-Hero Section -->
-<div class="sub-hero">
-    <img src="images/hero/hero-01.jpg" alt="Test Sub-Hero" class="sub-hero-img">
-    <h1>Test Center</h1>
+<!-- Mini Hero Section -->
+<div class="sub-hero mini-hero">
+    <img src="images/hero/hero-01.jpg" alt="Test Mini Hero" class="sub-hero-img">
+    <h1>Chaos Lab</h1>
 </div>
-<!-- END Sub-Hero Section -->
+<!-- END Mini Hero Section -->
 
 <!-- Test Center Content -->
 <section class="test-center grid-container">
@@ -92,15 +93,14 @@
 <script src="js/modal-window.js" defer></script>
 <script src="js/version.js" defer></script>
 <script src="js/test-toggles.js" defer></script>
+<script src="js/banner.js" defer></script>
 <script>
     // Load modular header and footer, then init theme and version
     document.addEventListener('DOMContentLoaded', () => {
-        // Fetch header
         fetch('/modules/header.html')
             .then(response => response.text())
             .then(data => {
                 document.getElementById('header-placeholder').innerHTML = data;
-                // Theme switch logic after header loads
                 const themeIcon = document.querySelector('.theme-icon');
                 if (themeIcon) {
                     themeIcon.addEventListener('click', () => {
@@ -114,12 +114,10 @@
             })
             .catch(err => console.error('Header load failed:', err));
 
-        // Fetch footer
         fetch('/modules/footer.html')
             .then(response => response.text())
             .then(data => {
                 document.getElementById('footer-placeholder').innerHTML = data;
-                // Version injection after footer loads
                 const versionElement = document.getElementById('version');
                 if (versionElement) {
                     versionElement.textContent = 'v2.1.10';
