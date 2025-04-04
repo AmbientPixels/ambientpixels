@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ambient Pixels v2.1.10—Style Showcase">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <title>Ambient Pixels - Showcase</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/hero.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        /* Custom Showcase Styles */
+        .no-bullets { list-style: none; }
+        .no-numbers { list-style: none; }
+        .icon-grid { display: flex; gap: 15px; flex-wrap: wrap; padding: 10px; }
+        .fade-in { animation: fadeIn 1s ease-in; }
+        .spin { animation: spin 2s infinite linear; }
+        .pulse { animation: pulse 1.5s infinite; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        a:hover { color: #87ceeb; transition: color 0.3s ease; }
+        .btn-hover:hover { background: #4682b4; transition: background 0.3s ease; }
+        .glitch { animation: glitch 1s infinite; }
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(2px, -2px); }
+            60% { transform: translate(-2px, -2px); }
+            80% { transform: translate(2px, 2px); }
+            100% { transform: translate(0); }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+
+<!-- Header Placeholder -->
+<div id="header-placeholder"></div>
+
+<!-- Mini Hero Section -->
+<div class="sub-hero mini-hero">
+    <img src="images/hero/hero-05.jpg" alt="Showcase Mini Hero" class="sub-hero-img">
+    <h1>Style Showcase</h1>
+</div>
+<!-- END Mini Hero Section -->
+
+<!-- Showcase Content -->
+<section class="neon-section grid-container">
+    <div class="grid-col-12">
+        <h2><i class="fas fa-paint-brush"></i> NeonPulse Styles</h2>
+        <blockquote>“Design hums—pixels dance.”</blockquote>
+        <p>April 4, 2025—Cyberpunk design playground—effects, icons, and more!</p>
+    </div>
+
+    <!-- Effects -->
+    <section class="grid-col-6">
+        <div class="neon-card">
+            <h3><i class="fas fa-magic"></i> Effects</h3>
+            <p>Hover me—neon glows:</p>
+            <div class="neon-card" style="margin: 10px; padding: 10px;">Nested Card—Hover Test</div>
+            <p>Card scales and shadows shift—cyberpunk vibes.</p>
+        </div>
+    </section>
+
+    <!-- Icons -->
+    <section class="grid-col-6">
+        <div class="neon-card">
+            <h3><i class="fas fa-icons"></i> Icons</h3>
+            <p>Utility:</p>
+            <div class="icon-grid">
+                <i class="fas fa-home fa-2x"></i>
+                <i class="fas fa-search fa-2x"></i>
+                <i class="fas fa-user fa-2x"></i>
+                <i class="fas fa-cog fa-2x"></i>
+                <i class="fas fa-trash fa-2x"></i>
+                <i class="fas fa-save fa-2x"></i>
+                <i class="fas fa-download fa-2x"></i>
+                <i class="fas fa-upload fa-2x"></i>
+                <i class="fas fa-eye fa-2x"></i>
+                <i class="fas fa-bell fa-2x"></i>
+            </div>
+            <p>Tech:</p>
+            <div class="icon-grid">
+                <i class="fas fa-code fa-2x"></i>
+                <i class="fas fa-server fa-2x"></i>
+                <i class="fas fa-database fa-2x"></i>
+                <i class="fas fa-laptop fa-2x"></i>
+                <i class="fas fa-cloud fa-2x"></i>
+                <i class="fas fa-bug fa-2x"></i>
+                <i class="fas fa-terminal fa-2x"></i>
+                <i class="fas fa-robot fa-2x"></i>
+                <i class="fas fa-microchip fa-2x"></i>
+                <i class="fas fa-wifi fa-2x"></i>
+            </div>
+            <p>Fun:</p>
+            <div class="icon-grid">
+                <i class="fas fa-star fa-2x"></i>
+                <i class="fas fa-moon fa-2x"></i>
+                <i class="fas fa-sun fa-2x"></i>
+                <i class="fas fa-fire fa-2x"></i>
+                <i class="fas fa-bolt fa-2x"></i>
+                <i class="fas fa-music fa-2x"></i>
+                <i class="fas fa-gamepad fa-2x"></i>
+                <i class="fas fa-rocket fa-2x"></i>
+                <i class="fas fa-flask fa-2x"></i>
+                <i class="fas fa-paint-brush fa-2x"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Animations -->
+    <section class="grid-col-6">
+        <div class="neon-card">
+            <h3><i class="fas fa-film"></i> Animations</h3>
+            <div class="icon-grid">
+                <i class="fas fa-star fa-2x fade-in" title="Fade In"></i>
+                <i class="fas fa-cog fa-2x spin" title="Spin"></i>
+                <i class="fas fa-bolt fa-2x pulse" title="Pulse"></i>
+            </div>
+            <p>Minimal icons—maximum motion.</p>
+        </div>
+    </section>
+
+    <!-- Typography -->
+    <section class="grid-col-6">
+        <div class="neon-card">
+            <h3><i class="fas fa-font"></i> Typography</h3>
+            <h1>H1: Neon Pulse</h1>
+            <h2>H2: Cyber Grid</h2>
+            <h3>H3: Code Glow</h3>
+            <h4>H4: Subtle Spark</h4>
+            <p>Paragraph: Inter font—crisp, futuristic, <a href="#">hover me</a> for neon kicks.</p>
+            <small>Small: Tiny cyber whispers.</small>
+            <code>code: { neon: true; }</code>
+            <p>Bullet Styles:</p>
+            <ul class="no-bullets">
+                <li>Unordered—no bullets.</li>
+                <li>Sharp and sleek.</li>
+            </ul>
+            <ol class="no-numbers">
+                <li>Ordered—no numbers.</li>
+                <li>Flowing chaos.</li>
+            </ol>
+            <p><a href="#" class="btn btn-hover">Button Hover</a></p>
+        </div>
+    </section>
+
+    <!-- Forms -->
+    <section class="grid-col-6">
+        <div class="neon-card">
+            <h3><i class="fas fa-keyboard"></i> Forms</h3>
+            <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px;">
+                <input type="text" placeholder="Enter chaos..." style="padding: 8px; border: 1px solid rgba(70, 130, 180, 0.2); border-radius: 4px; background: rgba(20, 20, 20, 0.9); color: #fff;">
+                <button class="btn btn-hover">Submit Pulse</button>
+            </div>
+            <p>Neon-edged inputs—hover shifts.</p>
+        </div>
+    </section>
+
+    <!-- Extras -->
+    <section class="grid-col-6">
+        <div class="neon-card">
+            <h3><i class="fas fa-random"></i> Extras</h3>
+            <p>Glitch Text:</p>
+            <div class="glitch" style="padding: 10px;">Neon Chaos</div>
+            <p>More to come—cyberpunk surprises!</p>
+        </div>
+    </section>
+</section>
+<!-- END Showcase Content -->
+
+<!-- Footer Placeholder -->
+<div id="footer-placeholder"></div>
+
+<script src="js/theme.js" defer></script>
+<script src="js/main.js" defer></script>
+<script src="js/nav.js" defer></script>
+<script src="js/modal-window.js" defer></script>
+<script src="js/version.js" defer></script>
+<script>
+    // Load modular header and footer, then init theme and version
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('/modules/header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header-placeholder').innerHTML = data;
+                const themeIcon = document.querySelector('.theme-icon');
+                if (themeIcon) {
+                    themeIcon.addEventListener('click', () => {
+                        const currentTheme = document.body.getAttribute('data-theme');
+                        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                        document.body.setAttribute('data-theme', newTheme);
+                        localStorage.setItem('theme', newTheme);
+                        themeIcon.className = `fas fa-${newTheme === 'dark' ? 'moon' : 'sun'} theme-icon`;
+                    });
+                }
+            })
+            .catch(err => console.error('Header load failed:', err));
+
+        fetch('/modules/footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer-placeholder').innerHTML = data;
+                const versionElement = document.getElementById('version');
+                if (versionElement) {
+                    versionElement.textContent = 'v2.1.10';
+                }
+            })
+            .catch(err => console.error('Footer load failed:', err));
+    });
+</script>
+</body>
+</html>
