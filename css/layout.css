@@ -9,6 +9,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
+    align-items: stretch;       /* Stretch cards to match tallest in row */
 }
 
 /* Grid Kids */
@@ -157,12 +158,12 @@
     border: 1px solid rgba(70, 130, 180, 0.2);
     display: flex;
     flex-direction: column;
-    min-height: 300px; /* Uniform height for 6-col cards */
+    min-height: 350px;          /* Baseline height */
 }
 
 /* Spotlight Card */
 .spotlight-card {
-    min-height: 350px; /* Slightly taller for emphasis */
+    min-height: 400px;          /* Taller baseline */
 }
 
 /* Card Image */

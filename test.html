@@ -48,75 +48,54 @@
 <section class="test-center grid-container">
     <div class="grid-col-12">
         <h2><i class="fas fa-flask"></i> Chaos Lab</h2>
-        <p>April 3, 2025—Test Center log:</p>
-        <ul>
-            <li>Hero Test Run: Full-screen chaos with neon overlays—stable and spinning.</li>
-        </ul>
+        <p>April 3, 2025—Test Center log: Play with the grid!</p>
     </div>
 
-    <!-- Test Sections -->
+    <!-- Meme-o-Tron -->
     <div class="grid-col-6">
         <div class="neon-card">
-            <h3><span class="small-caps">Welcome</span> to the Grid</h3>
-            <blockquote>“Code hums electric—v2.1.10 sparks alive.”</blockquote>
-            <p>Our cyberpunk test hub—<code>runtime: infinite;</code>—a sandbox for wild experiments. Forge tools, tweak glitches, and unleash neon magic—your playground awaits. Check <a href="/index.html">Home</a> for updates!</p>
-        </div>
-    </div>
-    <div class="grid-col-6">
-        <div class="neon-card">
-            <h3><span class="small-caps">Meme-o-Tron</span> 3000</h3>
-            <blockquote>“Prompts spark—memes ignite.”</blockquote>
-            <p>Craft neon-charged prompts—<code>input: chaos;</code>—generator live below. Ties to Projects.</p>
-            <button class="btn" data-toggle="memeotron">Toggle</button>
-            <div class="content" id="memeotron" style="display: none;">Coming soon—plug in and play!</div>
+            <img src="images/cards/card-01.jpg" alt="Meme-o-Tron" class="card-img">
+            <div class="card-content">
+                <h3><span class="small-caps">Meme-o-Tron</span> 3000</h3>
+                <blockquote>“Prompts spark—memes ignite.”</blockquote>
+                <p>Craft neon-charged prompts—<code>input: chaos;</code>—generator teaser below.</p>
+                <button class="btn" data-toggle="memeotron" aria-expanded="false">Toggle</button>
+                <div class="content" id="memeotron" style="display: none;">
+                    <p>Coming soon—plug in and play! Try: "Neon glitch meme"!</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Projects Section -->
+    <!-- Pixel Glitcher -->
     <div class="grid-col-6">
         <div class="neon-card">
-            <h3><i class="fas fa-code"></i> <span class="small-caps">Projects</span></h3>
-            <p>Code runs deep—our latest experiments:</p>
-            <ul>
-                <li><strong>Memetron 3030</strong>: Neon meme generator—<code>input: chaos;</code>—live above.</li>
-                <li><strong>EchoForge</strong>: AI voice vibes—teaser incoming!</li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- Art Section -->
-    <div class="grid-col-6">
-        <div class="neon-card">
-            <h3><i class="fas fa-paint-brush"></i> <span class="small-caps">Art</span></h3>
-            <p>Visual chaos meets cyberpunk flair:</p>
-            <ul>
-                <li><strong>Pixel Glitcher</strong>: AI-twisted visuals—<code>filter: neon;</code>—test below.</li>
-                <li><strong>Lila Voss VO</strong>: Neon whispers—VO art drop teased for 2025.</li>
-            </ul>
-            <button class="btn" data-toggle="glitcher">Toggle</button>
-            <div class="content" id="glitcher" style="display: none;">Download the glow—watch this space!</div>
-        </div>
-    </div>
-
-    <!-- Tools Section -->
-    <div class="grid-col-6">
-        <div class="neon-card">
-            <h3><i class="fas fa-tools"></i> <span class="small-caps">Tools</span></h3>
-            <p>Utils for the grid—<code>align: true;</code>—debuggers, aligners, and more brewing.</p>
-            <button class="btn" data-toggle="toolkit">Toggle</button>
-            <div class="content" id="toolkit" style="display: none;">Build your kit—coming soon!</div>
+            <img src="images/cards/card-02.jpg" alt="Pixel Glitcher" class="card-img">
+            <div class="card-content">
+                <h3><span class="small-caps">Pixel Glitcher</span></h3>
+                <blockquote>“Visuals twist—neon glows.”</blockquote>
+                <p>AI-twisted visuals—<code>filter: neon;</code>—preview below.</p>
+                <button class="btn" data-toggle="glitcher" aria-expanded="false">Toggle</button>
+                <div class="content" id="glitcher" style="display: none;">
+                    <p>Download the glow—watch this space for glitch art!</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Theme Switch Demo -->
     <div class="grid-col-6">
         <div class="neon-card">
-            <h3><i class="fas fa-sun"></i> <span class="small-caps">Theme</span> Switch Demo</h3>
-            <blockquote>“Light bends—dark glows.”</blockquote>
-            <p>Test the grid’s theme toggle—<code>switch: on;</code>—sun and moon dance in style!</p>
-            <button class="btn theme-toggle-demo" aria-label="Toggle Theme Demo">
-                <i class="fas fa-moon dark-icon-demo"></i><i class="fas fa-sun light-icon-demo" style="display: none;"></i>
-            </button>
+            <img src="images/cards/card-03.jpg" alt="Theme Switch" class="card-img">
+            <div class="card-content">
+                <h3><i class="fas fa-sun"></i> <span class="small-caps">Theme</span> Switch Demo</h3>
+                <blockquote>“Light bends—dark glows.”</blockquote>
+                <p>Test the grid’s theme toggle—<code>switch: on;</code>—sun and moon dance!</p>
+                <button class="btn" data-toggle="themeswitch" aria-expanded="false">Toggle</button>
+                <div class="content" id="themeswitch" style="display: none;">
+                    <p>Switch it up—dark or light, your call!</p>
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -145,5 +124,6 @@
 <script src="js/nav.js" defer></script>
 <script src="js/modal-window.js" defer></script>
 <script src="js/version.js" defer></script>
+<script src="js/test-toggles.js" defer></script>
 </body>
 </html>
