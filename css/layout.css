@@ -5,16 +5,16 @@
 .grid-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 15px;
+    padding: 15px 0;            /* Remove horizontal padding, keep vertical */
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 15px 10px;             /* Vertical gap 15px, horizontal gap 10px */
     align-items: stretch;       /* Stretch cards to match tallest in row */
 }
 
 /* Grid Kids */
 .grid-col-12 { flex: 0 0 100%; max-width: 100%; }
-.grid-col-6 { flex: 0 0 48%; max-width: 48%; }
+.grid-col-6 { flex: 0 0 calc(50% - 5px); max-width: calc(50% - 5px); } /* Adjust for gap */
 .grid-col-4 { flex: 0 0 31%; max-width: 31%; }
 .grid-offset-2 { margin-left: 16.66%; }
 .grid-offset-4 { margin-left: 33.33%; }
@@ -144,13 +144,20 @@
 
 /* Neon Section */
 .neon-section {
-    margin-top: 0px;            /* No gap below hero */
+    margin-top: 0px;
+    padding: 15px;
+    background: rgba(20, 20, 20, 0.95);
+}
+
+/* Test Center Section */
+.test-center {
+    margin-top: 15px;
     padding: 15px;
     background: rgba(20, 20, 20, 0.95);
 }
 
 /* Neon Card */
-.neon-card {
+.grid-col-6 .neon-card {
     background: rgba(30, 30, 30, 0.9) url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAAXNSR0IArs4c6QAAAB5JREFUGFdjZGBg+H+KYwZgYGBgYHj5/39DAwMDIwAFAv2gmcU9AAAAAElFTkSuQmCC') repeat;
     padding: 20px;
     border-radius: 6px;
@@ -158,12 +165,20 @@
     border: 1px solid rgba(70, 130, 180, 0.2);
     display: flex;
     flex-direction: column;
-    min-height: 350px;          /* Baseline height */
+    height: 400px;              /* Fixed height for 6-col cards */
 }
 
 /* Spotlight Card */
+.grid-col-12 .neon-card,
 .spotlight-card {
-    min-height: 400px;          /* Taller baseline */
+    background: rgba(30, 30, 30, 0.9) url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAAXNSR0IArs4c6QAAAB5JREFUGFdjZGBg+H+KYwZgYGBgYHj5/39DAwMDIwAFAv2gmcU9AAAAAElFTkSuQmCC') repeat;
+    padding: 20px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(70, 130, 180, 0.2);
+    display: flex;
+    flex-direction: column;
+    min-height: 400px;          /* Taller baseline for 12-col */
 }
 
 /* Card Image */
