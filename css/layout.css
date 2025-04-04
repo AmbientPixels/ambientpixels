@@ -1,20 +1,20 @@
-/* layout.css - Ambient Pixels v2.1.10-20250403 */
+/* layout.css - Ambient Pixels v2.1.10-20250404 */
 /* Controls structural layout - positioning, spacing, flex/grid, and typography */
 
 /* Grid Container */
 .grid-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 15px 0;            /* Remove horizontal padding, keep vertical */
+    padding: 15px 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 15px 10px;             /* Vertical gap 15px, horizontal gap 10px */
-    align-items: stretch;       /* Stretch cards to match tallest in row */
+    gap: 15px 10px;
+    align-items: stretch;
 }
 
 /* Grid Kids */
 .grid-col-12 { flex: 0 0 100%; max-width: 100%; }
-.grid-col-6 { flex: 0 0 calc(50% - 5px); max-width: calc(50% - 5px); } /* Adjust for gap */
+.grid-col-6 { flex: 0 0 calc(50% - 5px); max-width: calc(50% - 5px); }
 .grid-col-4 { flex: 0 0 31%; max-width: 31%; }
 .grid-offset-2 { margin-left: 16.66%; }
 .grid-offset-4 { margin-left: 33.33%; }
@@ -61,25 +61,35 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 10px;
+    gap: 5px;
+    text-decoration: none;
 }
 
 /* Nav Logo */
 .nav-logo {
-    width: 40px;
-    height: auto;
+    height: 65px !important;    /* Bumped to 65px with !important */
+    width: auto;                /* Let width adjust */
+    object-fit: contain;        /* Prevent stretching */
 }
 
 /* Nav Title */
 .nav-left h1 {
     margin: 0;
-    font-size: 1.5em;
+    font-size: 2em;
     white-space: nowrap;
     font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #fff;
+    color: var(--text-color);
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Nav Subheading */
+.nav-subheading {
+    display: block;
+    font-size: 0.9em;
+    font-weight: 400;
+    color: var(--text-muted, var(--text-color));
+    text-align: center;
+    margin-top: -2px;
 }
 
 /* Nav Toggle */
@@ -87,14 +97,14 @@
     display: none;
     background: none;
     border: none;
-    color: #bbb;
+    color: var(--text-color);
     font-size: 1.5em;
     cursor: pointer;
     transition: color 0.2s ease;
 }
 
 .nav-toggle:hover {
-    color: #4682B4;
+    color: var(--accent-blue);
 }
 
 /* Nav Links */
@@ -109,12 +119,12 @@
 .theme-icon {
     font-size: 1.5em;
     cursor: pointer;
-    color: #bbb;
+    color: var(--text-color);
     transition: color 0.2s ease;
 }
 
 .theme-icon:hover {
-    color: #4682B4;
+    color: var(--accent-blue);
 }
 
 /* Hidden Class */
@@ -126,8 +136,9 @@
 @media (max-width: 768px) {
     .nav-container { padding: 10px; }
     .nav-left, .nav-logo-link { flex-direction: column; align-items: flex-start; gap: 5px; }
-    .nav-logo { width: 30px; }
-    .nav-left h1 { font-size: 1.2em; }
+    .nav-logo { height: 40px !important; } /* Mobile tweak */
+    .nav-left h1 { font-size: 1.5em; }
+    .nav-subheading { font-size: 0.8em; }
     .nav-toggle { display: block; }
     .nav-links {
         flex-direction: column;
@@ -165,7 +176,13 @@
     border: 1px solid rgba(70, 130, 180, 0.2);
     display: flex;
     flex-direction: column;
-    height: 400px;              /* Fixed height for 6-col cards */
+    height: 400px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.grid-col-6 .neon-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(70, 130, 180, 0.5);
 }
 
 /* Spotlight Card */
@@ -178,7 +195,14 @@
     border: 1px solid rgba(70, 130, 180, 0.2);
     display: flex;
     flex-direction: column;
-    min-height: 400px;          /* Taller baseline for 12-col */
+    min-height: 400px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.grid-col-12 .neon-card:hover,
+.spotlight-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(70, 130, 180, 0.5);
 }
 
 /* Card Image */

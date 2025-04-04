@@ -1,139 +1,158 @@
-/* theme.css - Ambient Pixels v2.1.7-20250402 */
-/* Crisp link styles, no base shadow, subtle hover */
+/* theme.css - Ambient Pixels v2.1.10-20250404 */
+/* Light/dark theme variables with DeviantArt-inspired dark and Digital Dawn light */
+
+/* Root Variables */
 :root {
-    --bg: #ffffff;                  /* Light background */
-    --text: #1a1a1a;                /* Dark text */
-    --text-muted: #666666;          /* Muted text */
-    --primary: #0288D1;             /* Darker cyan for buttons */
-    --accent: #ff4cf9;              /* Pink for hover */
-    --success: #54f754;             /* Green (unused here) */
-    --warning: #ffc84c;             /* Yellow (unused here) */
-    --border: #e0e0e0;              /* Light border */
-    --surface: #f9f9f9;             /* Light card */
-    --link: #0dd3ff;                /* Cyan links */
+    /* Dark Theme */
+    --bg-dark: #1A1A1A;         /* Deep gray background */
+    --text-dark: #F5F5F5;       /* Light text */
+    --highlight-dark: #FFFF99;  /* Yellow highlight */
+    --accent-blue-dark: #4682B4;/* Steel blue */
+    --accent-purple-dark: #8A2BE2; /* Vibrant purple */
+    --button-bg-dark: linear-gradient(45deg, #4682B4, #8A2BE2); /* Iridescent gradient */
+    --button-hover-dark: linear-gradient(45deg, #87CEEB, #DDA0DD); /* Lighter hover */
+    --frost-bg-dark: rgba(26, 26, 26, 0.8); /* Frosty overlay */
+    --card-bg-dark: #2A2A2A;    /* Slightly lighter card surface */
+
+    /* Light Theme - "Digital Dawn" */
+    --bg-light: #F7FAFC;        /* Cloud White */
+    --text-light: #1E1E24;      /* Charcoal Black */
+    --text-muted-light: #6B7280;/* Slate Gray */
+    --highlight-light: #FFD700; /* Solar Yellow */
+    --accent-blue-light: #3B82F6; /* Deep Sky Blue */
+    --accent-purple-light: #A78BFA; /* Orchid Purple */
+    --button-bg-light: linear-gradient(45deg, #8F00FF, #00FFD1); /* Ultraviolet to Electric Mint */
+    --button-hover-light: linear-gradient(45deg, #A78BFA, #3B82F6); /* Purple to Blue hover */
+    --frost-bg-light: rgba(255, 255, 255, 0.9); /* Bright frosty overlay */
+    --card-bg-light: #E4E7EC;   /* Soft Gray card surface */
+    --border-light: #CBD5E1;    /* Light Silver */
 }
 
-body[data-theme="dark"] {
-    --bg: #121212;                  /* Dark background */
-    --text: #f5f5f5;                /* Light text */
-    --text-muted: #bbbbbb;          /* Muted text */
-    --primary: #0288D1;             /* Darker cyan buttons */
-    --border: #333333;              /* Dark border */
-    --surface: #1e1e1e;             /* Dark card */
-    --link: #0dd3ff;                /* Cyan links */
-}
-
+/* Paper Texture */
 body {
-    background-color: var(--bg);
-    color: var(--text);
-    transition: all 0.3s ease;
+    background: var(--bg-color) url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAAXNSR0IArs4c6QAAAB5JREFUGFdjZGBg+H+KYwZgYGBgYHj5/39DAwMDIwAFAv2gmcU9AAAAAElFTkSuQmCC') repeat;
+    color: var(--text-color);
 }
 
-/* Link Styles - Crisp, no base shadow, slight hover shadow */
-a {
-    color: var(--link);             /* Cyan for both */
-    text-decoration: none;
-    font-weight: bold;
-    transition: color 0.2s ease, text-shadow 0.2s ease, transform 0.2s ease;
+/* Dark Theme */
+[data-theme="dark"] {
+    --bg-color: var(--bg-dark);
+    --text-color: var(--text-dark);
+    --text-muted: var(--text-dark); /* No muted in dark for now */
+    --highlight-color: var(--highlight-dark);
+    --accent-blue: var(--accent-blue-dark);
+    --accent-purple: var(--accent-purple-dark);
+    --button-bg: var(--button-bg-dark);
+    --button-hover: var(--button-hover-dark);
+    --frost-bg: var(--frost-bg-dark);
+    --card-bg: var(--card-bg-dark);
+    --border-color: var(--accent-blue);
+}
+
+/* Light Theme - "Digital Dawn" */
+[data-theme="light"] {
+    --bg-color: var(--bg-light);
+    --text-color: var(--text-light);
+    --text-muted: var(--text-muted-light);
+    --highlight-color: var(--highlight-light);
+    --accent-blue: var(--accent-blue-light);
+    --accent-purple: var(--accent-purple-light);
+    --button-bg: var(--button-bg-light);
+    --button-hover: var(--button-hover-light);
+    --frost-bg: var(--frost-bg-light);
+    --card-bg: var(--card-bg-light);
+    --border-color: var(--border-light);
+}
+
+/* Apply Theme Variables */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+a, a:visited {
+    color: var(--accent-blue);
 }
 
 a:hover {
-    color: #10f4fc;                 /* Lighter cyan hover */
-    text-shadow: 0 0 1px #10f4fc;   /* Subtle hover shadow */
-    transform: scale(1.03);         /* Modern scale */
+    color: var(--highlight-color);
 }
 
-body[data-theme="light"] a {
-    color: var(--link);
+/* Nav Frostiness */
+.nav {
+    background: var(--frost-bg);
+    backdrop-filter: blur(5px);
 }
 
-body[data-theme="light"] a:hover {
-    color: #10f4fc;
-    text-shadow: 0 0 1px #10f4fc;
-    transform: scale(1.03);
+.nav-blur-layer {
+    background: var(--frost-bg);
+    backdrop-filter: blur(5px);
 }
 
-/* Button Styles - Soft cyan, minimal shadow, subtle hover */
+/* Hero */
+.hero {
+    background-color: var(--bg-color); /* Ensure hero follows body bg */
+}
+
+/* Sub-Hero Frostiness */
+.sub-hero {
+    background: var(--frost-bg);
+    backdrop-filter: blur(5px);
+}
+
+/* Neon Card Highlights */
+.neon-card {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.neon-card:hover {
+    box-shadow: 0 4px 8px var(--accent-blue);
+}
+
+/* Buttons */
 .btn {
-    background: var(--primary);     /* Darker cyan for dark */
-    color: #fff;
-    padding: 0.6em 1.2em;
+    background: var(--button-bg);
+    color: var(--text-color);
+    padding: 8px 16px;
     border: none;
-    border-radius: 6px;
-    font-weight: bold;
+    border-radius: 4px;
     cursor: pointer;
-    box-shadow: 0 0 4px var(--primary);
-    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    transition: background 0.2s ease, transform 0.2s ease;
+    overflow: hidden;           /* Contain gradient */
 }
 
 .btn:hover {
-    background: #0277BD;            /* Slightly darker cyan */
-    box-shadow: 0 0 6px #0277BD;
-    transform: translateY(-2px);
-}
-
-body[data-theme="light"] .btn {
-    background: var(--primary);     /* Darker cyan for light */
-    color: #fff;
-}
-
-body[data-theme="light"] .btn:hover {
-    background: #0277BD;
-    box-shadow: 0 0 6px #0277BD;
-    transform: translateY(-2px);
-}
-
-/* Nav Links - Match regular links */
-.nav-links a {
-    color: var(--link);
-}
-
-.nav-links a:hover {
-    color: #10f4fc;
-    text-shadow: 0 0 1px #10f4fc;
-    transform: scale(1.03);
-}
-
-body[data-theme="light"] .nav-links a {
-    color: var(--link);
-}
-
-body[data-theme="light"] .nav-links a:hover {
-    color: #10f4fc;
-    text-shadow: 0 0 1px #10f4fc;
-    transform: scale(1.03);
-}
-
-/* Footer Social Links - Specific styles, no underline */
-.footer .social-links a {
-    color: var(--text-muted);       /* Muted base (#bbbbbb dark, #666666 light) */
-    font-size: 1.5em;
-    padding: 0.5em;
-    transition: color 0.2s ease, text-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.footer .social-links a:hover {
-    color: var(--accent);           /* Pink #ff4cf9 hover */
-    text-shadow: 0 0 2px var(--accent);
+    background: var(--button-hover);
     transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-body[data-theme="dark"] .footer .social-links a {
-    color: var(--text-muted);
+/* Headings */
+h1, h2, h3 {
+    color: var(--text-color);
 }
 
-body[data-theme="dark"] .footer .social-links a:hover {
-    color: var(--accent);
-    text-shadow: 0 0 2px var(--accent);
-    transform: scale(1.05);
+h2 {
+    border-bottom: 2px solid var(--highlight-color);
 }
 
-body[data-theme="light"] .footer .social-links a {
-    color: var(--text-muted);
+/* Neon Section */
+.neon-section {
+    background: var(--bg-color);
 }
 
-body[data-theme="light"] .footer .social-links a:hover {
-    color: var(--accent);
-    text-shadow: 0 0 2px var(--accent);
-    transform: scale(1.05);
+/* Test Center Section */
+.test-center {
+    background: var(--bg-color);
+}
+
+/* Footer */
+.footer {
+    background: var(--frost-bg);
+}
+
+/* Muted Text */
+p, li {
+    color: var(--text-muted, var(--text-color)); /* Fallback to text-color if muted not set */
 }
