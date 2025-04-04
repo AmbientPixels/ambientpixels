@@ -28,13 +28,14 @@
 
 <!-- Docs Content -->
 <div class="grid-container">
+    <!-- Intro -->
     <section class="grid-col-12">
         <h2><i class="fas fa-book"></i> <span class="small-caps">Docs</span></h2>
         <blockquote>“Code hums—grids glow.”</blockquote>
         <p>Our NeonPulse blueprint hub—<code>runtime: infinite;</code>—tracks chaos from <a href="/index.html">Home</a> to <a href="/test.html">Test</a>. All tech details live here!</p>
     </section>
 
-    <!-- Project Overview -->
+    <!-- Core Sections -->
     <section class="grid-col-12">
         <div class="neon-card">
             <h3><i class="fas fa-map"></i> Project Overview</h3>
@@ -42,7 +43,6 @@
         </div>
     </section>
 
-    <!-- Backend Setup -->
     <section class="grid-col-12">
         <div class="neon-card">
             <h3><i class="fas fa-server"></i> Backend Setup</h3>
@@ -58,10 +58,10 @@
         </div>
     </section>
 
-    <!-- Frontend Structure -->
+    <!-- Paired Sections -->
     <section class="grid-col-6">
         <div class="neon-card">
-            <h3><i class="fas fa-folder"></i> Folder Structure</h3>
+            <h3><i class="fas fa-folder"></i> Frontend Structure</h3>
             <p>“Files hum—structure glows.” Local: <code>C:\_projects\AmbientPixels.ai\</code>—Deploy: <a href="https://ambientpixels.ai">ambientpixels.ai</a></p>
             <ul>
                 <li><code>css/</code>: <code>base.css</code>, <code>layout.css</code>, <code>components.css</code>, <code>hero.css</code>, <code>theme.css</code>—split for modularity.</li>
@@ -72,7 +72,6 @@
         </div>
     </section>
 
-    <!-- Tech Stack -->
     <section class="grid-col-6">
         <div class="neon-card">
             <h3><i class="fas fa-tools"></i> Tech Stack</h3>
@@ -88,21 +87,6 @@
         </div>
     </section>
 
-    <!-- Version History -->
-    <section class="grid-col-12">
-        <div class="neon-card">
-            <h3><i class="fas fa-history"></i> Version History</h3>
-            <p>Key milestones:</p>
-            <ul>
-                <li><strong>v2.1.10-20250403</strong>: Hero fixed (images, text timing), sub-hero shift, Xbox video teased, pages compacted, docs expanded—April 3, 2025</li>
-                <li><strong>v2.1.6-20250402</strong>: Light theme tweak (#4B0082), logo aligned, tools added—April 2, 2025</li>
-                <li><strong>v2.1.5-20250402</strong>: Full refresh, theme toggle fixed—April 2, 2025</li>
-                <li><strong>v2.1.0-20250402</strong>: 22 hero images, Test Center, index V2—April 2, 2025</li>
-            </ul>
-        </div>
-    </section>
-
-    <!-- Deployment Tips -->
     <section class="grid-col-6">
         <div class="neon-card">
             <h3><i class="fas fa-rocket"></i> Deployment Tips</h3>
@@ -115,7 +99,6 @@
         </div>
     </section>
 
-    <!-- Scaling Notes -->
     <section class="grid-col-6">
         <div class="neon-card">
             <h3><i class="fas fa-expand"></i> Scaling Notes</h3>
@@ -128,7 +111,7 @@
         </div>
     </section>
 
-    <!-- Managing Banners -->
+    <!-- Modular Sections -->
     <section class="grid-col-12">
         <div class="neon-card">
             <h3><i class="fas fa-bullhorn"></i> Managing Banners</h3>
@@ -154,6 +137,9 @@
             </ul>
         </div>
     </section>
+
+    <div id="version-history-placeholder"></div>
+    <div id="bugs-placeholder"></div>
 </div>
 <!-- END Docs Content -->
 
@@ -166,7 +152,7 @@
 <script src="js/modal-window.js" defer></script>
 <script src="js/version.js" defer></script>
 <script>
-    // Load modular header and footer, then init theme and version
+    // Load modular header, footer, bugs, and version history, then init theme and version
     document.addEventListener('DOMContentLoaded', () => {
         fetch('/modules/header.html')
             .then(response => response.text())
@@ -195,6 +181,20 @@
                 }
             })
             .catch(err => console.error('Footer load failed:', err));
+
+        fetch('/modules/bugs.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('bugs-placeholder').innerHTML = data;
+            })
+            .catch(err => console.error('Bugs load failed:', err));
+
+        fetch('/modules/version-history.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('version-history-placeholder').innerHTML = data;
+            })
+            .catch(err => console.error('Version history load failed:', err));
     });
 </script>
 </body>
