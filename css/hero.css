@@ -3,115 +3,106 @@
 
 /* Hero - Parent container for loading overlay, headline, and subheading */
 .hero {
-    position: relative;         /* Parent for absolute children */
-    height: 400px;              /* Fixed height matching previous hero */
-    width: 100%;                /* Full width */
-    background-size: cover;     /* Covers area with background image */
-    background-position: center; /* Centers background image */
-    display: flex;              /* Flex parent for vertical stacking */
-    flex-direction: column;     /* Stacks children vertically */
-    justify-content: center;    /* Centers children vertically */
-    align-items: center;        /* Centers children horizontally */
-    text-align: center;         /* Centers text within children */
-    transition: background-image 1s ease-in-out; /* Smooth background swap */
-    z-index: 1;                 /* Base layer */
+    position: relative;
+    height: 400px;              /* Reverted to original height */
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    transition: background-image 1s ease-in-out; /* Smooth image fade */
+    margin: 0;
+    padding: 0;
 }
 
 /* Hero Headline - Child of .hero */
 .hero h1 {
-    font-size: 2.5em;           /* Adjusted from 3em to fit 400px */
-    margin: 0.2em 0 0.1em;      /* Tight spacing */
-    color: #fff;                /* White text for contrast */
-    font-weight: 500;           /* Medium weight */
-    text-transform: uppercase;  /* Modern vibe */
-    letter-spacing: 1.5px;      /* Subtle spacing */
-    text-shadow: 0 0 4px rgba(255, 255, 255, 0.3), /* Subtle white glow */
-                 0 2px 4px rgba(0, 0, 0, 0.3); /* Subtle drop shadow */
-    z-index: 10;                /* Above loader */
-    opacity: 0;                 /* Hidden until loader fades */
-    transform: translateY(10px); /* Start slightly below */
-    transition: opacity 0.5s ease, transform 0.5s ease; /* Fade and bump */
+    font-size: 2.5em;
+    margin: 0.2em 0 0.1em;
+    color: #fff;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    text-shadow: 0 0 4px rgba(255, 255, 255, 0.3), 0 2px 4px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
 /* Hero Subheading - Child of .hero */
 .hero p {
-    font-size: 1.2em;           /* Smaller subtitle */
-    color: #f5f5f5;             /* Very light gray for contrast */
-    font-weight: 400;           /* Normal weight */
-    letter-spacing: 1px;        /* Subtle spacing */
-    text-shadow: 0 0 4px rgba(255, 255, 255, 0.3), /* Subtle white glow */
-                 0 2px 4px rgba(0, 0, 0, 0.3); /* Subtle drop shadow */
-    z-index: 10;                /* Above loader */
-    opacity: 0;                 /* Hidden until loader fades */
-    transform: translateY(10px); /* Start slightly below */
-    transition: opacity 0.5s ease, transform 0.5s ease; /* Fade and bump */
+    font-size: 1.2em;
+    color: #f5f5f5;
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-shadow: 0 0 4px rgba(255, 255, 255, 0.3), 0 2px 4px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
 /* Hero Loaded State - Applied by JS post-fade */
 .hero.loaded h1,
 .hero.loaded p {
-    opacity: 1;                 /* Visible after loader fades */
-    transform: translateY(0);   /* Bump up to position */
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* Loading Overlay - Child of .hero, parent of icon, text, and bar */
 .loading-overlay {
-    position: absolute;         /* Overlays .hero */
-    top: 0; left: 0; right: 0; bottom: 0; /* Full coverage */
-    background: rgba(0, 0, 0, 0.9); /* Dark semi-transparent bg */
-    z-index: 50;                /* Above hero, below text */
-    display: flex;              /* Flex parent for children */
-    flex-direction: column;     /* Stacks children vertically */
-    align-items: center;        /* Centers children horizontally */
-    justify-content: center;    /* Centers children vertically */
-    transition: opacity 1s ease; /* Smooth fade */
-}
-
-/* Robot Icon - Child of .loading-overlay */
-.loading-overlay i {
-    font-size: 3em;             /* Matches fa-3x */
-    color: #fff;                /* White for contrast */
-    animation: spin 1s linear infinite; /* Subtle continuous spin */
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 1s ease;
 }
 
 /* Loading Text - Child of .loading-overlay */
 .loading-text {
-    font-size: 1.5em;           /* Readable size */
-    margin-top: 1em;            /* Space above bar */
-    color: #fff;                /* White text */
+    font-size: 1.5em;
+    margin-top: 1em;
+    color: #fff;
 }
 
 /* Loading Bar - Child of .loading-overlay, parent of progress */
 .loading-bar {
-    width: 100%;                /* Full page width */
-    height: 10px;               /* Thin bar */
-    background: #333;           /* Dark gray base */
-    border-radius: 0;           /* No rounding for full span */
-    margin-top: 1em;            /* Space below text */
-    overflow: hidden;           /* Hides excess progress */
+    width: 100%;
+    height: 10px;
+    background: #333;
+    border-radius: 0;
+    margin-top: 1em;
+    overflow: hidden;
 }
 
 /* Loading Progress - Child of .loading-bar */
 .loading-progress {
-    height: 100%;               /* Fills bar height */
-    width: 0%;                  /* Starts empty */
-    background: linear-gradient(to right, #ff4cf9, #0dd3ff, #54f754, #ffc84c); /* Gradient */
-    animation: loadBar 3s ease forwards; /* Animates once */
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, #ff4cf9, #0dd3ff, #54f754, #ffc84c);
+    animation: loadBar 3s ease forwards;
 }
 
-/* Spin Animation - Keyframes for robot icon */
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-/* Loading Bar Animation - Keyframes for .loading-progress */
+/* Loading Animation - Keyframes for .loading-progress */
 @keyframes loadBar {
-    to { width: 100%; }         /* Grows to full width */
+    to { width: 100%; }
 }
 
 /* Fade Out Class - Applied to .loading-overlay by JS */
 .fade-out {
-    opacity: 0;                 /* Fades out */
-    pointer-events: none;       /* Disables interaction */
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Light Mode Adjustment */
+[data-theme="light"] .hero {
+    background-color: #f5f5f5; /* Ensure no gap contrast */
 }
