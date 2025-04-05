@@ -1,15 +1,13 @@
-<!-- bugs.html - Ambient Pixels v2.1.10-20250404 -->
-<section class="grid-col-12">
-    <div class="neon-card">
-        <h3><i class="fas fa-bug"></i> Bug Tracking</h3>
-        <p>Lightweight glitch log—keep content lean, track chaos:</p>
-        <ul>
-            <li><strong>Bug 1</strong>: Banner overlaps mini hero in <code>test.html</code>—fixed with <code>top: 130px</code> in <code>banner.css</code>.</li>
-            <li><strong>Bug 2</strong>: Version History and Bug Tracking don’t span full 12-col width in <code>docs.html</code>—pending, CSS tweak failed.</li>
-            <li><strong>Bug 3</strong>: Twitch footer icon is white—should match other social icons’ color—pending.</li>
-            <li><strong>Bug 4</strong>: Grid sections misaligned—no consistency between pages, needs template—pending.</li>
-            <li><strong>Bug 5</strong>: Header and footer not loading in <code>index.html</code>—pending, likely path issue.</li>
-        </ul>
-        <p><strong>Note</strong>: Add bugs here—short desc, fix status. Keep it simple.</p>
-    </div>
-</section>
+<div id="bugs-placeholder">
+    <section class="grid-col-12">
+        <div class="neon-card">
+            <h3><i class="fas fa-bug"></i> Bug Log</h3>
+            <ul>
+                <li><strong>Hero Images Not Loading</strong>—Reported April 6, 2025—Hero section blank. Fixed in #156—<code>main.js</code> cycles <code>hero-01.jpg</code> to <code>hero-10.jpg</code>. Closed.</li>
+                <li><strong>Theme Switcher Broken</strong>—Reported April 6, 2025—Moon icon didn’t toggle. Fixed in #156—<code>main.js</code> handles <code>.theme-icon</code> clicks. Closed.</li>
+                <li><strong>Banner Not Showing</strong>—Reported April 6, 2025—Maintenance banner invisible. Fixed in #156—Moved to <code>main.js</code>, adjusted <code>banner.css</code>. Closed.</li>
+                <li><strong>Grid Layout Spacing</strong>—Reported April 6, 2025—Full-width spans too spaced. Fixed in #156—<code>index.html</code> uses <code>grid-col-6</code> for spotlights, tightened in <code>layout.css</code>. Closed.</li>
+            </ul>
+        </div>
+    </section>
+</div>

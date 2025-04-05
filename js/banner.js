@@ -1,11 +1,10 @@
-// banner.js - Ambient Pixels v2.1.10-20250404
-// Single test banner
+// banner.js - Ambient Pixels v2.1.10-20250406
 document.addEventListener('DOMContentLoaded', () => {
     const banners = [
         {
             level: 'low',
             icon: 'fas fa-music',
-            text: 'NeonPulse Vibes: Kavinsky’s beats fuel the night—tune in, stack up.'
+            text: 'Caution: Grid Gremlins at Work—Blinky Bits Blame the Handlers!'
         }
     ];
 

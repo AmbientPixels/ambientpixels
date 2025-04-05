@@ -25,11 +25,26 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(() => {
         // Version injection
         const versionElement = document.getElementById('version');
-        if (versionElement) {
-            versionElement.textContent = 'v2.1.10';
-        } else {
-            console.warn('Version element not found');
-        }
+        if (versionElement) versionElement.textContent = 'v2.1.10';
+
+        // Banner logic (moved up for priority)
+        console.log('Banner JS loaded - Neon alert pulsing');
+        const banners = [
+            { level: 'low', icon: 'fas fa-music', text: 'Caution: Grid Gremlins at Work—Blinky Bits Blame the Handlers!' }
+        ];
+        const container = document.createElement('div');
+        container.className = 'banner-container';
+        document.body.insertBefore(container, document.body.firstChild); // Insert at top
+        const banner = banners[0];
+        container.innerHTML = `
+            <div class="banner ${banner.level}">
+                <i class="${banner.icon} banner-icon"></i>
+                <span>${banner.text}</span>
+                <button class="banner-close" aria-label="Close Banner">×</button>
+            </div>
+        `;
+        const closeBtn = container.querySelector('.banner-close');
+        closeBtn.addEventListener('click', () => container.classList.add('hidden'));
 
         // Hero logic
         console.log('Hero JS loaded - Cosmic visuals pulsing');
@@ -37,10 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const loadingOverlay = document.getElementById('loading');
         const headline = document.getElementById('hero-headline');
         const subheading = document.getElementById('hero-subheading');
-
-        if (!hero || !loadingOverlay || !headline || !subheading) {
-            console.error('Hero elements missing:', { hero, loadingOverlay, headline, subheading });
-        } else {
+        if (hero && loadingOverlay && headline && subheading) {
             const headlines = [
                 'Code Hums Electric', 'Neon Dreams Ignite', 'Where Chaos Sparks Genius',
                 'Booting the Multiverse', 'Welcome to the Glitch', 'Data Surge Online',
@@ -59,26 +71,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 './images/hero/hero-10.jpg'
             ];
             let currentImageIndex = Math.floor(Math.random() * heroImages.length);
-
             const randomFrom = arr => arr[Math.floor(Math.random() * arr.length)];
-            heroImages.forEach((src) => {
+            heroImages.forEach(src => {
                 const img = new Image();
                 img.src = src;
                 img.onload = () => console.log(`Preloaded: ${src}`);
                 img.onerror = () => console.error(`Failed to preload: ${src}`);
             });
-
             function cycleBackground() {
                 hero.style.backgroundImage = `url(${heroImages[currentImageIndex]})`;
                 console.log(`Setting background: ${heroImages[currentImageIndex]}`);
                 currentImageIndex = (currentImageIndex + 1) % heroImages.length;
             }
-
             headline.textContent = randomFrom(headlines);
             subheading.textContent = randomFrom(subheadings);
             cycleBackground();
             setInterval(cycleBackground, 10000);
-
             setTimeout(() => {
                 console.log('Fading out loading overlay');
                 loadingOverlay.classList.add('fade-out');
@@ -90,18 +98,12 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Theme JS loaded - Dark/light switching ready');
         const body = document.body;
         const themeIcons = document.querySelectorAll('.theme-icon');
-
-        if (!themeIcons.length) {
-            console.error('No theme icons found');
-        } else {
+        if (themeIcons.length) {
             themeIcons.forEach(icon => {
                 if (body.getAttribute('data-theme') === 'light') {
                     icon.classList.remove('fa-moon');
                     icon.classList.add('fa-sun');
                 }
-            });
-
-            themeIcons.forEach(icon => {
                 icon.addEventListener('click', () => {
                     console.log('Theme icon clicked');
                     const currentTheme = body.getAttribute('data-theme');
@@ -116,11 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Load remaining scripts
-        const scripts = [
-            'js/nav.js',
-            'js/banner.js',
-            'js/modal-window.js'
-        ];
+        const scripts = ['js/nav.js', 'js/modal-window.js', 'js/test-toggles.js'];
         scripts.forEach(src => {
             const script = document.createElement('script');
             script.src = src;

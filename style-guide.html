@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ambient Pixels Writing Style Guide">
+    <link rel="icon" type="image/x-icon" href="_images/favicon.ico">
+    <title>Ambient Pixels - Writing Style Guide</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500anddisplay=swap" rel="stylesheet">
+    <link rel="stylesheet" href="_images/base.css">
+    <link rel="stylesheet" href="_images/navbar.css">
+    <link rel="stylesheet" href="_images/components.css">
+    <link rel="stylesheet" href="_images/grid.css">
+    <link rel="stylesheet" href="_images/animations.css">
+    <link rel="stylesheet" href="_images/footer.css">
+    <link rel="stylesheet" href="_images/mini-hero.css">
+    <link rel="stylesheet" href="_images/hero.css">
+    <link rel="stylesheet" href="_images/banner.css">
+    <link rel="stylesheet" href="_images/text.css">
+</head>
+<body class="dark">
+    <div class="navbar frost-effect">
+        <div class="navbar-left">
+            <a href="/">
+                <img src="_images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="navbar-logo">
+                <h1>Ambient Pixels</h1>
+            </a>
+        </div>
+        <div class="navbar-menu" id="navbarMenu">
+            <a href="/index.html"><i class="fas fa-home"></i> Home</a>
+            <a href="/test.html"><i class="fas fa-flask"></i> Test</a>
+            <a href="/document.html"><i class="fas fa-book"></i> Docs</a>
+            <a href="/style-guide.html"><i class="fas fa-paint-brush"></i> Style Guide</a>
+            <a href="/skills.html"><i class="fas fa-star"></i> Skills</a>
+            <button class="theme-toggle effect-pulse" onclick="toggleTheme()" aria-label="Toggle Theme"><i class="fas fa-moon"></i></button>
+        </div>
+        <i class="fas fa-bars navbar-toggle effect-pulse" id="menuToggle" aria-label="Toggle Menu" aria-expanded="false" role="button" tabindex="0"></i>
+    </div>
+
+    <div class="mini-hero grid-col-12">
+        <img src="_images/mini-hero01.jpg" alt="Writing Glitch" id="miniHeroImage">
+        <h1>Writing in the Glitch Zone</h1>
+    </div>
+
+    <div class="grid-container">
+        <section class="grid-col-6">
+            <h2><i class="fas fa-pen effect-pulse"></i> Voice and Tone</h2>
+            <p>We’re bold, glitchy, and a little unhinged—like an AI with a caffeine buzz. Keep it casual, punchy, and dripping with chaos. Think: “Yo, this code’s wild—let’s break it and remake it!”</p>
+        </section>
+
+        <section class="grid-col-6">
+            <h2><i class="fas fa-bolt effect-spin"></i> Rules of the Game</h2>
+            <p>Short sentences. Active voice. Glitch puns encouraged. Avoid jargon unless it’s techy and cool—like “serverless” or “CI/CD.” Example: “Our pipeline’s a glitch-fueled rocket—blasting code to Azure!”</p>
+        </section>
+
+        <section class="grid-col-12">
+            <h2><i class="fas fa-code effect-bounce"></i> Placeholder Vibes</h2>
+            <p>Need filler? Go wild: “This section’s glitching into existence—think pixelated dreams and rogue bots plotting memes. Stay tuned for the chaos drop!”</p>
+        </section>
+    </div>
+
+    <footer>
+        <p><a href="#contact">Contact</a> | <i class="fas fa-copyright"></i> 2025 Ambient Pixels | <a href="#" class="back-to-top">Top</a></p>
+        <p>Forged by AI, fueled by chaos</p>
+    </footer>
+
+    <script src="_images/theme.js" defer></script>
+    <script src="_images/version.js" defer></script>
+    <script src="_images/grid-scripts.js" defer></script>
+</body>
+</html>

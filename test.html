@@ -7,7 +7,7 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <title>Ambient Pixels - Test</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Orbitron:wght@400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/components.css">
@@ -16,115 +16,122 @@
     <link rel="stylesheet" href="css/banner.css">
 </head>
 <body data-theme="dark">
+    <!-- Header Placeholder -->
+    <div id="header-placeholder"></div>
 
-<!-- Header Placeholder -->
-<div id="header-placeholder"></div>
-
-<!-- Mini Hero Section -->
-<div class="sub-hero mini-hero">
-    <img src="images/hero/hero-01.jpg" alt="Test Mini Hero" class="sub-hero-img">
-    <h1>Chaos Lab</h1>
-</div>
-<!-- END Mini Hero Section -->
-
-<!-- Test Center Content -->
-<section class="test-center grid-container">
-    <div class="grid-col-12">
-        <h2><i class="fas fa-flask"></i> Chaos Lab</h2>
-        <p>April 3, 2025—Test Center log: Play with the grid!</p>
+    <!-- Mini Hero Section -->
+    <div class="sub-hero mini-hero">
+        <img src="images/hero/hero-01.jpg" alt="Test Mini Hero" class="sub-hero-img">
+        <h1>Chaos Lab</h1>
     </div>
 
-    <!-- Meme-o-Tron -->
-    <div class="grid-col-6">
-        <div class="neon-card">
-            <img src="images/cards/card-01.jpg" alt="Meme-o-Tron" class="card-img">
-            <div class="card-content">
-                <h3><span class="small-caps">Meme-o-Tron</span> 3000</h3>
-                <blockquote>“Prompts spark—memes ignite.”</blockquote>
-                <p>Craft neon-charged prompts—<code>input: chaos;</code>—generator teaser below.</p>
-                <button class="btn" data-toggle="memeotron" aria-expanded="false">Toggle</button>
-                <div class="content" id="memeotron" style="display: none;">
-                    <p>Coming soon—plug in and play! Try: "Neon glitch meme"!</p>
+    <!-- Test Center Content -->
+    <section class="test-center grid-container">
+        <div class="grid-col-12">
+            <h2><i class="fas fa-flask"></i> Chaos Lab</h2>
+            <p>April 3, 2025—Test Center log: Play with the grid!</p>
+        </div>
+
+        <!-- Meme-o-Tron -->
+        <div class="grid-col-6">
+            <div class="neon-card">
+                <img src="images/cards/card-01.jpg" alt="Meme-o-Tron" class="card-img">
+                <div class="card-content">
+                    <h3><span class="small-caps">Meme-o-Tron</span> 3000</h3>
+                    <blockquote>“Prompts spark—memes ignite.”</blockquote>
+                    <p>Craft neon-charged prompts—<code>input: chaos;</code>—generator teaser below.</p>
+                    <button class="btn" data-toggle="memeotron" aria-expanded="false">Toggle</button>
+                    <div class="content" id="memeotron" style="display: none;">
+                        <p>Coming soon—plug in and play! Try: "Neon glitch meme"!</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Pixel Glitcher -->
-    <div class="grid-col-6">
-        <div class="neon-card">
-            <img src="images/cards/card-02.jpg" alt="Pixel Glitcher" class="card-img">
-            <div class="card-content">
-                <h3><span class="small-caps">Pixel Glitcher</span></h3>
-                <blockquote>“Visuals twist—neon glows.”</blockquote>
-                <p>AI-twisted visuals—<code>filter: neon;</code>—preview below.</p>
-                <button class="btn" data-toggle="glitcher" aria-expanded="false">Toggle</button>
-                <div class="content" id="glitcher" style="display: none;">
-                    <p>Download the glow—watch this space for glitch art!</p>
+        <!-- Pixel Glitcher -->
+        <div class="grid-col-6">
+            <div class="neon-card">
+                <img src="images/cards/card-02.jpg" alt="Pixel Glitcher" class="card-img">
+                <div class="card-content">
+                    <h3><span class="small-caps">Pixel Glitcher</span></h3>
+                    <blockquote>“Visuals twist—neon glows.”</blockquote>
+                    <p>AI-twisted visuals—<code>filter: neon;</code>—preview below.</p>
+                    <button class="btn" data-toggle="glitcher" aria-expanded="false">Toggle</button>
+                    <div class="content" id="glitcher" style="display: none;">
+                        <p>Download the glow—watch this space for glitch art!</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Theme Switch Demo -->
-    <div class="grid-col-6">
-        <div class="neon-card">
-            <img src="images/cards/card-03.jpg" alt="Theme Switch" class="card-img">
-            <div class="card-content">
-                <h3><i class="fas fa-sun"></i> <span class="small-caps">Theme</span> Switch Demo</h3>
-                <blockquote>“Light bends—dark glows.”</blockquote>
-                <p>Test the grid’s theme toggle—<code>switch: on;</code>—sun and moon dance!</p>
-                <button class="btn" data-toggle="themeswitch" aria-expanded="false">Toggle</button>
-                <div class="content" id="themeswitch" style="display: none;">
-                    <p>Switch it up—dark or light, your call!</p>
+        <!-- Theme Switch Demo -->
+        <div class="grid-col-6">
+            <div class="neon-card">
+                <img src="images/cards/card-03.jpg" alt="Theme Switch" class="card-img">
+                <div class="card-content">
+                    <h3><i class="fas fa-sun"></i> <span class="small-caps">Theme</span> Switch Demo</h3>
+                    <blockquote>“Light bends—dark glows.”</blockquote>
+                    <p>Test the grid’s theme toggle—<code>switch: on;</code>—sun and moon dance!</p>
+                    <button class="btn" data-toggle="themeswitch" aria-expanded="false">Toggle</button>
+                    <div class="content" id="themeswitch" style="display: none;">
+                        <p>Switch it up—dark or light, your call!</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
-<!-- END Test Center Content -->
 
-<!-- Footer Placeholder -->
-<div id="footer-placeholder"></div>
+        <!-- Typography -->
+        <div class="grid-col-12" id="typography">
+            <div class="neon-card">
+                <h3><i class="fas fa-font"></i> <span class="small-caps">Typography</span></h3>
+                <blockquote>“Words glow—grids hum.”</blockquote>
+                <p>Lynx’s text game—<code>Inter: on;</code>—neon letters spark here. More glitchy styles droppin’ soon!</p>
+                <div class="grid-col-6">
+                    <h3><i class="fas fa-heading"></i> <span class="small-caps">Headings</span></h3>
+                    <p><strong>H1</strong>: <code>font-size: 2.5em;</code>—Hero titles blaze with neon glow.</p>
+                    <p><strong>H2</strong>: <code>font-size: 1.75em;</code>—Section heads pulse with glitch.</p>
+                    <p><strong>H3</strong>: <code>font-size: 1.25em;</code>—Subheads zap the grid alive.</p>
+                </div>
+                <div class="grid-col-6">
+                    <h3><i class="fas fa-paragraph"></i> <span class="small-caps">Body</span> Text</h3>
+                    <p><strong>P</strong>: <code>font-size: 1em; line-height: 1.6;</code>—Chaos you can read, neon-edged.</p>
+                    <p><strong>Code</strong>: <code>font-family: 'Courier New';</code>—Tech vibes, glitch-boxed.</p>
+                    <p><strong>Orbitron</strong>: <code>font-family: 'Orbitron';</code>—Future flair, check it!</p>
+                    <p style="font-family: 'Orbitron', sans-serif;">Lynx in Orbitron—cosmic vibes maxed!</p>
+                </div>
+            </div>
+        </div>
 
-<script src="js/theme.js" defer></script>
-<script src="js/main.js" defer></script>
-<script src="js/nav.js" defer></script>
-<script src="js/modal-window.js" defer></script>
-<script src="js/version.js" defer></script>
-<script src="js/test-toggles.js" defer></script>
-<script src="js/banner.js" defer></script>
-<script>
-    // Load modular header and footer, then init theme and version
-    document.addEventListener('DOMContentLoaded', () => {
-        fetch('/modules/header.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('header-placeholder').innerHTML = data;
-                const themeIcon = document.querySelector('.theme-icon');
-                if (themeIcon) {
-                    themeIcon.addEventListener('click', () => {
-                        const currentTheme = document.body.getAttribute('data-theme');
-                        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                        document.body.setAttribute('data-theme', newTheme);
-                        localStorage.setItem('theme', newTheme);
-                        themeIcon.className = `fas fa-${newTheme === 'dark' ? 'moon' : 'sun'} theme-icon`;
-                    });
-                }
-            })
-            .catch(err => console.error('Header load failed:', err));
+        <!-- Grid Demo -->
+        <div class="grid-col-12" id="grid-demo">
+            <div class="neon-card">
+                <h3><i class="fas fa-th"></i> <span class="small-caps">Grid</span> Demo</h3>
+                <p>Lynx’s grid playground—<code>runtime: infinite;</code>—test the layout chaos!</p>
+                <div class="grid-col-12" style="background: rgba(0, 212, 255, 0.2); padding: 20px;">
+                    <h3><i class="fas fa-th"></i> <span class="small-caps">Full</span> Width</h3>
+                    <p>Grid Col 12—<code>flex: 0 0 100%;</code>—owns the whole damn grid. Headers or banners—full neon blast!</p>
+                </div>
+                <div class="grid-col-6" style="background: rgba(255, 26, 140, 0.2); padding: 20px;">
+                    <h3><i class="fas fa-columns"></i> <span class="small-caps">Half</span> Width</h3>
+                    <p>Grid Col 6—<code>flex: 0 0 48%;</code>—half the chaos, stacks on mobile. Teasers live here—sharp and sleek!</p>
+                    <a href="#" class="btn">Pulse</a>
+                </div>
+                <div class="grid-col-6" style="background: rgba(51, 255, 153, 0.2); padding: 20px;">
+                    <h3><i class="fas fa-toggle-on"></i> <span class="small-caps">Toggle</span> Demo</h3>
+                    <p>Toggle vibes—<code>display: toggle;</code>—flip it open, glitch it out!</p>
+                    <button class="btn" data-toggle="demo">Toggle</button>
+                    <div class="content" id="demo" style="display: none;">Neon chaos unleashed!</div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        fetch('/modules/footer.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('footer-placeholder').innerHTML = data;
-                const versionElement = document.getElementById('version');
-                if (versionElement) {
-                    versionElement.textContent = 'v2.1.10';
-                }
-            })
-            .catch(err => console.error('Footer load failed:', err));
-    });
-</script>
+    <!-- Footer Placeholder -->
+    <div id="footer-placeholder"></div>
+
+    <script src="js/main.js" defer></script>
+    <script src="js/nav.js" defer></script>
+    <script src="js/modal-window.js" defer></script>
+    <script src="js/test-toggles.js" defer></script>
 </body>
 </html>

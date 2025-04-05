@@ -1,13 +1,11 @@
-/* banner.css - Ambient Pixels v2.1.10-20250404 */
-/* Styles for global banner system */
-
+/* banner.css - Ambient Pixels v2.1.10-20250406 */
 .banner-container {
     position: fixed;
-    top: 75px;                  /* Your pixel-perfect tweak */
+    top: 75px; /* Below nav */
     left: 0;
-    width: 100%;                /* Full width */
-    max-width: none;            /* Remove cap */
-    z-index: 1000;              /* Below nav (2000), above content */
+    width: 100%;
+    max-width: none;
+    z-index: 1000; /* Below nav (2000), above content */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -23,26 +21,27 @@
     align-items: center;
     gap: 10px;
     width: 100%;
+    max-width: 1200px; /* Match grid-container */
     transition: opacity 0.5s ease;
-    background: rgba(18, 18, 18, 0.9); /* Match site’s dark base */
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* Subtle glow */
+    background: rgba(18, 18, 18, 0.9);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .banner.high {
-    border: 1px solid #ff6666;   /* Muted red accent */
+    border: 1px solid #ff6666;
 }
 
 .banner.medium {
-    border: 1px solid #4682b4;  /* Steel blue accent */
+    border: 1px solid #4682b4;
 }
 
 .banner.low {
-    border: 1px solid #32cd32;  /* Subtle green accent */
+    border: 1px solid #32cd32;
 }
 
 .banner-icon {
     font-size: 1.2em;
-    color: #87ceeb;             /* Light blue accent */
+    color: #87ceeb;
 }
 
 .banner-close {
@@ -55,7 +54,7 @@
 }
 
 .banner-close:hover {
-    color: #87ceeb;             /* Hover matches icon */
+    color: #87ceeb;
 }
 
 .hidden {
