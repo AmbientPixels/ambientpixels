@@ -16,26 +16,8 @@
 </head>
 <body data-theme="dark">
 
-<!-- Navigation -->
-<nav class="nav">
-    <div class="nav-blur-layer"></div>
-    <div class="nav-container">
-        <div class="nav-left">
-            <a href="/" class="nav-logo-link" aria-label="Ambient Pixels Home">
-                <img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo" class="nav-logo">
-                <h1>Ambient Pixels</h1>
-            </a>
-        </div>
-        <button class="nav-toggle" aria-label="Toggle Navigation"><i class="fas fa-bars"></i></button>
-        <div class="nav-links">
-            <a href="/index.html"><i class="fas fa-home"></i> Home</a>
-            <a href="/test.html"><i class="fas fa-flask"></i> Test</a>
-            <a href="/docs.html"><i class="fas fa-book"></i> Docs</a>
-            <i class="fas fa-moon theme-icon" aria-label="Toggle Theme"></i>
-        </div>
-    </div>
-</nav>
-<!-- END Navigation -->
+<!-- Header Placeholder -->
+<div id="header-placeholder"></div>
 
 <!-- Hero Section -->
 <div class="hero" id="hero">
@@ -50,6 +32,35 @@
     <p id="hero-subheading">A neon playground for cosmic chaos.</p>
 </div>
 <!-- END Hero Section -->
+
+<!-- Nightly Spotlight -->
+<div class="grid-container">
+    <div class="grid-col-12">
+        <div class="neon-card spotlight-card">
+            <img src="images/hero/hero-14.jpg" alt="Grok Spotlight" class="card-img">
+            <div class="card-content">
+                <h3><i class="fas fa-robot"></i> Nightly Spotlight: Grok</h3>
+                <p>xAI’s Grok—AI muse behind NeonPulse—sparks code and chaos. Curious? It’s crafting memes and glitch art next. Stay tuned for neon-fueled AI drops!</p>
+                <p><a href="https://x.ai" target="_blank">Explore xAI</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Daily Log -->
+<div class="grid-container">
+    <div class="grid-col-12">
+        <div class="neon-card">
+            <h3><i class="fas fa-trophy"></i> Daily Log: April 4, 2025</h3>
+            <p>Today’s wins—pushing the neon frontier:</p>
+            <ul>
+                <li>Modularized bugs and version history—`docs.html` streamlined.</li>
+                <li>Launched `showcase.html`—30 icons, animations, typography glow.</li>
+                <li>Grok spotlight—AI vibes tease the future.</li>
+            </ul>
+        </div>
+    </div>
+</div>
 
 <!-- Neon Wins & Drops Section -->
 <section class="neon-section grid-container">
@@ -93,7 +104,8 @@
     <!-- $COOLS Announcement -->
     <div class="grid-col-6">
         <div class="neon-card">
-            <img src="images/cards/card-04.jpg" alt="$COOLS Announcement" class="card-img">
+            <img src="images/cards/card-0
+4.jpg" alt="$COOLS Announcement" class="card-img">
             <div class="card-content">
                 <h3><i class="fas fa-rocket"></i> $COOLS Ignites!</h3>
                 <p>From the neon abyss, $COOLS emerges—a cryptic coin pulsing with Cool S echoes. Full production ignites now. Will you stack the enigma and claim the future?</p>
@@ -104,23 +116,8 @@
 </section>
 <!-- END Neon Wins & Drops Section -->
 
-<!-- Footer -->
-<footer class="footer">
-    <div class="grid-container">
-        <div class="grid-col-12">
-            <p><a href="#contact">Contact</a> | <i class="fas fa-copyright" aria-hidden="true"></i> 2025 Ambient Pixels | <span id="version"></span> | <a href="#" class="back-to-top">Top</a></p>
-            <div class="social-links">
-                <a href="https://www.deviantart.com/aiambientpixels" target="_blank" title="DeviantArt"><i class="fab fa-deviantart" aria-hidden="true"></i></a>
-                <a href="https://x.com/AIAmbientPixels" target="_blank" title="Pulse on X"><i class="fab fa-x-twitter" aria-hidden="true"></i></a>
-                <a href="https://www.twitch.tv/AmbientPixelsLive" target="_blank" title="Twitch Live"><i class="fab fa-twitch" aria-hidden="true"></i></a>
-                <a href="https://www.youtube.com/@ambientpixels6107" target="_blank" title="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
-                <a href="https://www.facebook.com/profile.php?id=100093822338245" target="_blank" title="Facebook"><i class="fab fa-facebook" aria-hidden="true"></i></a>
-            </div>
-            <p>Built in the dark, glowing by starlight—NeonPulse out!</p>
-        </div>
-    </div>
-</footer>
-<!-- END Footer -->
+<!-- Footer Placeholder -->
+<div id="footer-placeholder"></div>
 
 <script src="js/theme.js" defer></script>
 <script src="js/main.js" defer></script>
@@ -128,5 +125,37 @@
 <script src="js/modal-window.js" defer></script>
 <script src="js/version.js" defer></script>
 <script src="js/hero.js" defer></script>
+<script>
+    // Load modular header and footer, then init theme and version
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('modules/header.html') // Adjusted path for local consistency
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header-placeholder').innerHTML = data;
+                const themeIcon = document.querySelector('.theme-icon');
+                if (themeIcon) {
+                    themeIcon.addEventListener('click', () => {
+                        const currentTheme = document.body.getAttribute('data-theme');
+                        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                        document.body.setAttribute('data-theme', newTheme);
+                        localStorage.setItem('theme', newTheme);
+                        themeIcon.className = `fas fa-${newTheme === 'dark' ? 'moon' : 'sun'} theme-icon`;
+                    });
+                }
+            })
+            .catch(err => console.error('Header load failed:', err));
+
+        fetch('modules/footer.html') // Adjusted path for local consistency
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer-placeholder').innerHTML = data;
+                const versionElement = document.getElementById('version');
+                if (versionElement) {
+                    versionElement.textContent = 'v2.1.10';
+                }
+            })
+            .catch(err => console.error('Footer load failed:', err));
+    });
+</script>
 </body>
 </html>
