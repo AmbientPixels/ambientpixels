@@ -13,6 +13,10 @@
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/hero.css">
     <link rel="stylesheet" href="css/theme.css">
+    <style>
+        .pulse-text { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    </style>
 </head>
 <body data-theme="dark">
 
@@ -28,8 +32,8 @@
             <div class="loading-progress"></div>
         </div>
     </div>
-    <h1 id="hero-headline">Quantum Code Unleashed</h1>
-    <p id="hero-subheading">A neon playground for cosmic chaos.</p>
+    <h1 id="hero-headline" class="pulse-text">Quantum Code Unleashed</h1>
+    <p id="hero-subheading">A Grid for Cosmic Vibes</p>
 </div>
 <!-- END Hero Section -->
 
@@ -40,7 +44,7 @@
             <img src="images/hero/hero-14.jpg" alt="Grok Spotlight" class="card-img">
             <div class="card-content">
                 <h3><i class="fas fa-robot"></i> Nightly Spotlight: Grok</h3>
-                <p>xAI’s Grok—AI muse behind NeonPulse—sparks code and chaos. Curious? It’s crafting memes and glitch art next. Stay tuned for neon-fueled AI drops!</p>
+                <p>xAI’s Grok—AI muse behind EchoGrid—sparks code and chaos. Curious? It’s crafting memes and glitch art next. Stay tuned for neon-fueled AI drops!</p>
                 <p><a href="https://x.ai" target="_blank">Explore xAI</a></p>
             </div>
         </div>
@@ -65,8 +69,8 @@
 <!-- Neon Wins & Drops Section -->
 <section class="neon-section grid-container">
     <div class="grid-col-12">
-        <h2><i class="fas fa-bolt"></i> Neon Pulse</h2>
-        <p>April 4, 2025—NeonPulse v2.1.10 sparks alive:</p>
+        <h2><i class="fas fa-bolt"></i> EchoGrid Pulse</h2>
+        <p>April 4, 2025—EchoGrid v2.1.10 sparks alive:</p>
     </div>
     <div class="grid-col-6">
         <div class="neon-card">
@@ -97,15 +101,13 @@
             <img src="images/cards/card-03.jpg" alt="Kavinsky Spotlight" class="card-img">
             <div class="card-content">
                 <h3>Artist Spotlight: Kavinsky</h3>
-                <p>A synthwave shadow moves—Kavinsky’s retro beats electrify NeonPulse. From dark highways to neon grids, his sound fuels the void. Dive into the cyberpunk pulse on <a href="https://open.spotify.com/artist/0UF7RXGHRnH6PboFVO6PgN" target="_blank">Spotify</a>.</p>
+                <p>A synthwave shadow moves—Kavinsky’s retro beats electrify EchoGrid. From dark highways to neon grids, his sound fuels the void. Dive into the cyberpunk pulse on <a href="https://open.spotify.com/artist/0UF7RXGHRnH6PboFVO6PgN" target="_blank">Spotify</a>.</p>
             </div>
         </div>
     </div>
-    <!-- $COOLS Announcement -->
     <div class="grid-col-6">
         <div class="neon-card">
-            <img src="images/cards/card-0
-4.jpg" alt="$COOLS Announcement" class="card-img">
+            <img src="images/cards/card-04.jpg" alt="$COOLS Announcement" class="card-img">
             <div class="card-content">
                 <h3><i class="fas fa-rocket"></i> $COOLS Ignites!</h3>
                 <p>From the neon abyss, $COOLS emerges—a cryptic coin pulsing with Cool S echoes. Full production ignites now. Will you stack the enigma and claim the future?</p>
@@ -119,42 +121,107 @@
 <!-- Footer Placeholder -->
 <div id="footer-placeholder"></div>
 
-<script src="js/theme.js" defer></script>
-<script src="js/main.js" defer></script>
-<script src="js/nav.js" defer></script>
-<script src="js/modal-window.js" defer></script>
-<script src="js/version.js" defer></script>
-<script src="js/hero.js" defer></script>
 <script>
-    // Load modular header and footer, then init theme and version
+    // Load modular header and footer, then initialize all JS
     document.addEventListener('DOMContentLoaded', () => {
-        fetch('modules/header.html') // Adjusted path for local consistency
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('header-placeholder').innerHTML = data;
-                const themeIcon = document.querySelector('.theme-icon');
-                if (themeIcon) {
-                    themeIcon.addEventListener('click', () => {
-                        const currentTheme = document.body.getAttribute('data-theme');
-                        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                        document.body.setAttribute('data-theme', newTheme);
-                        localStorage.setItem('theme', newTheme);
-                        themeIcon.className = `fas fa-${newTheme === 'dark' ? 'moon' : 'sun'} theme-icon`;
-                    });
-                }
-            })
-            .catch(err => console.error('Header load failed:', err));
+        Promise.all([
+            fetch('./modules/header.html')
+                .then(response => {
+                    if (!response.ok) throw new Error(`Header fetch failed: ${response.status}`);
+                    return response.text();
+                })
+                .then(data => {
+                    console.log('Header fetched:', data);
+                    document.getElementById('header-placeholder').innerHTML = data;
+                }),
+            fetch('./modules/footer.html')
+                .then(response => {
+                    if (!response.ok) throw new Error(`Footer fetch failed: ${response.status}`);
+                    return response.text();
+                })
+                .then(data => {
+                    console.log('Footer fetched:', data);
+                    document.getElementById('footer-placeholder').innerHTML = data;
+                })
+        ])
+        .then(() => {
+            // Theme switching (theme.js)
+            console.log('Theme JS loaded - Dark/light switching ready');
+            const themeIcon = document.querySelector('.theme-icon');
+            if (themeIcon) {
+                themeIcon.addEventListener('click', () => {
+                    const currentTheme = document.body.getAttribute('data-theme');
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    document.body.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                    themeIcon.className = `fas fa-${newTheme === 'dark' ? 'moon' : 'sun'} theme-icon`;
+                });
+            } else {
+                console.error('No theme icons found - Check .theme-icon in HTML');
+            }
 
-        fetch('modules/footer.html') // Adjusted path for local consistency
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('footer-placeholder').innerHTML = data;
-                const versionElement = document.getElementById('version');
-                if (versionElement) {
-                    versionElement.textContent = 'v2.1.10';
-                }
-            })
-            .catch(err => console.error('Footer load failed:', err));
+            // Main JS (main.js)
+            console.log('Main JS loaded - Circuits online');
+            const versionElementMain = document.getElementById('version');
+            if (!versionElementMain) {
+                console.error('Version element not found - Check #version in HTML');
+            }
+
+            // Nav toggle (nav.js)
+            const navToggle = document.querySelector('.nav-toggle');
+            const navLinks = document.querySelector('.nav-links');
+            if (navToggle && navLinks) {
+                navToggle.addEventListener('click', () => {
+                    navLinks.classList.toggle('hidden');
+                });
+            } else {
+                console.error('Nav toggle or links not found');
+            }
+
+            // Version (version.js)
+            const versionElement = document.getElementById('version');
+            if (versionElement) {
+                versionElement.textContent = 'v2.1.10';
+            } else {
+                console.error('Version element not found after footer fetch');
+            }
+
+            // Hero JS (hero.js)
+            console.log('Hero JS loaded - Cosmic visuals pulsing');
+            const hero = document.getElementById('hero');
+            const loadingOverlay = document.getElementById('loading');
+            const heroImages = [
+                './images/hero/hero-01.jpg', './images/hero/hero-02.jpg', './images/hero/hero-03.jpg',
+                './images/hero/hero-04.jpg', './images/hero/hero-05.jpg', './images/hero/hero-06.jpg',
+                './images/hero/hero-07.jpg', './images/hero/hero-08.jpg', './images/hero/hero-09.jpg',
+                './images/hero/hero-10.jpg'
+            ];
+            let currentImageIndex = 0;
+
+            heroImages.forEach((src) => {
+                const img = new Image();
+                img.src = src;
+                img.onload = () => console.log(`Preloaded: ${src}`);
+            });
+
+            function cycleBackground() {
+                hero.style.backgroundImage = `url(${heroImages[currentImageIndex]})`;
+                console.log(`Setting background: ${heroImages[currentImageIndex]}`);
+                currentImageIndex = (currentImageIndex + 1) % heroImages.length;
+            }
+
+            cycleBackground();
+            setInterval(cycleBackground, 5000);
+
+            setTimeout(() => {
+                console.log('Fading out loading overlay');
+                loadingOverlay.style.opacity = '0';
+                setTimeout(() => loadingOverlay.style.display = 'none', 1000);
+            }, 2000);
+
+            console.log('All fetches complete, JS initialized');
+        })
+        .catch(err => console.error('Fetch failed:', err));
     });
 </script>
 </body>
