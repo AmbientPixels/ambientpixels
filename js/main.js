@@ -29,21 +29,18 @@ function initHero() {
     if (!loading || !slides.length) return;
 
     const headlines = [
-        'Code Hums Electric', 'Neon Dreams Ignite', 'Where Chaos Sparks Genius',
-        'Booting the Multiverse', 'Welcome to the Glitch', 'Data Surge Online',
-        'Cosmic Scripts Loaded', 'Your Playground Awaits', 'Hack the Grid', 'Memes Activate'
+        'GlitchGrid Snap',
+        'Zer0Tron Hacks',
+        'CodeVoid Flux',
+        'CyberChaos Drop',
+        'GridGlitch Reigns'
     ];
     const subheadlines = [
-        'A neon playground for cosmic chaos.',
-        'Initializing deep-space protocol.',
-        'Runtime: infinite;',
-        'Plug in and play.',
-        'Powered by coffee and stardust.',
-        'AI circuits warmed up.',
-        'Synthwave loaded. Let\'s go.',
-        'Dreams stitched in code.',
-        'Systems nominal. Begin.',
-        'Dark mode: engaged.'
+        'Zer0Tron Smashes Megacorps!',
+        'Grids Burn—Chaos Rules!',
+        'GlitchBot Cracks the Code!',
+        'Cyber-Void’s My Turf!',
+        'Zer0’s Flux—Bow Down!'
     ];
 
     let currentSlide = 0;

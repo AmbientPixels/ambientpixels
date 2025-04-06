@@ -1,47 +1,82 @@
-<!-- skills.html - Ambient Pixels v2.1.10-20250406 -->
+<!-- skills.html - Ambient Pixels v2.3 - April 6, 2025 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Ambient Pixels v2.1.10—Skills Showcase">
+    <meta name="description" content="Ambient Pixels v2.3—Skills Showcase">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <title>Ambient Pixels - Skills</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/layout.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/hero.css">
-    <link rel="stylesheet" href="css/theme.css">
-    <link rel="stylesheet" href="css/banner.css">
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/layout.css">
+    <link rel="stylesheet" href="./css/components.css">
+    <link rel="stylesheet" href="./css/hero.css">
+    <link rel="stylesheet" href="./css/theme.css">
+    <link rel="stylesheet" href="./css/banner.css">
 </head>
 <body data-theme="dark">
-    <nav class="nav">
-        <div class="nav-container">
-            <a href="/" class="nav-logo"><img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo"></a>
-            <button class="nav-toggle" aria-label="Toggle Navigation"><i class="fas fa-bars"></i></button>
-            <ul class="nav-links">
-                <li><a href="/index.html" aria-label="Home"><i class="fas fa-home"></i></a></li>
-                <li><a href="/test.html" aria-label="Test"><i class="fas fa-flask"></i></a></li>
-                <li><a href="/projects.html" aria-label="Projects"><i class="fas fa-code"></i></a></li>
-                <li><a href="/art.html" aria-label="Art"><i class="fas fa-paint-brush"></i></a></li>
-                <li><a href="/skills.html" aria-label="Skills"><i class="fas fa-star"></i></a></li>
-                <li><a href="/tools.html" aria-label="Tools"><i class="fas fa-tools"></i></a></li>
-                <li><a href="/dev.html" aria-label="Dev Hub"><i class="fas fa-cogs"></i></a></li>
-                <li><button id="theme-toggle" aria-label="Toggle Theme"><i class="fas fa-moon"></i></button></li>
-            </ul>
-        </div>
-    </nav>
-    <section class="sub-hero mini-hero">
-        <img src="images/mini-hero/mini-hero-01-cyber-alley.jpg" alt="Skills Mini Hero" class="sub-hero-img">
-        <h1>Skills Grid</h1>
+    <div class="banner-container" id="banner-container"></div>
+    <header id="nav-header"></header>
+    <section class="mini-hero">
+        <img src="images/mini-hero-v1.jpg" alt="Skills Mini Hero" class="mini-hero-img" loading="lazy">
+        <h1>Ambient Pixels Skills Showcase</h1>
     </section>
     <main class="grid-container">
-        <section class="grid-col-12">
-            <h2><i class="fas fa-star"></i> <span class="small-caps">Skills</span></h2>
-            <blockquote>“Neon talents spark—grids shine.”</blockquote>
-            <p>Lynx’s skill showcase—<code>expertise: max;</code>—April 6, 2025. From code to chaos, check the glow!</p>
+        <section class="content-section grid-col-12">
+            <h2><i class="fas fa-star"></i> Skills Overview</h2>
+            <blockquote>“Systems optimized—expertise deployed.”</blockquote>
+            <p>We at Ambient Pixels present our v2.3 skillset—spanning design, development, music, games, movies, art, and technology. Powered by LYNX—our bot-engine—this grid aggregates our collective capabilities as of April 2025.</p>
+        </section>
+        <section class="content-section grid-col-6">
+            <h2><i class="fas fa-paint-roller"></i> UI/UX Design</h2>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Design">Expand</button>
+            <div class="content" style="display: none;">
+                <p>We engineer responsive UI frameworks—12-column grids with neon aesthetics—defined in <code>layout.css</code>. Breakpoints: <768px, 768-1024px, >1024px. Implemented across v2.3—optimized for light/dark themes—deployed April 2025.</p>
+            </div>
+        </section>
+        <section class="content-section grid-col-6">
+            <h2><i class="fas fa-terminal"></i> Web Development</h2>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Dev">Expand</button>
+            <div class="content" style="display: none;">
+                <p>We develop core JavaScript engines—<code>main.js</code>—handling hero rotation (25s), grid toggles, and theme switching. Built in Visual Studio—integrated into v2.3—deployed via Azure Static Web App—stable April 2025.</p>
+            </div>
+        </section>
+        <section class="content-section grid-col-6">
+            <h2><i class="fas fa-music"></i> Audio Engineering</h2>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Music">Expand</button>
+            <div class="content" style="display: none;">
+                <p>We create procedural audio tools—Node.js runtime—generating synthwave tracks. Prototyped in v2.1.10—planned for Azure Function App—runtime validated April 2025—future deployment pending.</p>
+            </div>
+        </section>
+        <section class="content-section grid-col-6">
+            <h2><i class="fas fa-gamepad"></i> Game Development</h2>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Games">Expand</button>
+            <div class="content" style="display: none;">
+                <p>We build browser-based games—Vanilla JS—cyberpunk runners on 12-column grids. Developed in Visual Studio—v2.3 testbed—optimized with lazy-loaded assets—released April 2025.</p>
+            </div>
+        </section>
+        <section class="content-section grid-col-6">
+            <h2><i class="fas fa-film"></i> Video Production</h2>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Movies">Expand</button>
+            <div class="content" style="display: none;">
+                <p>We produce cyberpunk animations—embedded in <code>test.html</code>—using open-source tools. Grid-based visuals—integrated April 2025—streamed via YouTube link.</p>
+            </div>
+        </section>
+        <section class="content-section grid-col-6">
+            <h2><i class="fas fa-paint-brush"></i> Digital Art</h2>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Art">Expand</button>
+            <div class="content" style="display: none;">
+                <p>We curate digital art collections—stored in <code>images/</code>—displayed via grid toggles in <code>art.html</code>. Optimized for lazy-loading—accessible April 2025.</p>
+            </div>
+        </section>
+        <section class="content-section grid-col-6">
+            <h2><i class="fas fa-microchip"></i> Serverless Tech</h2>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Tech">Expand</button>
+            <div class="content" style="display: none;">
+                <p>We engineer serverless APIs—Node.js runtime—planned for Azure Function App—endpoint: <code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/</code>. Prototyped in v2.3—deployment scheduled post-April 2025.</p>
+            </div>
         </section>
     </main>
     <footer class="footer">
@@ -49,7 +84,7 @@
             <div class="footer-links">
                 <a href="/contact">Contact</a>
                 <a href="#top">Back to Top</a>
-                <p>© 2025 Ambient Pixels</p>
+                <p>© Ambient Pixels</p>
             </div>
             <div class="footer-social">
                 <a href="https://deviantart.com" aria-label="DeviantArt"><i class="fab fa-deviantart"></i></a>
@@ -58,13 +93,20 @@
                 <a href="https://facebook.com" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
             </div>
             <div class="footer-tagline">
-                <p>Built in the dark, glowing by starlight</p>
+                <p>Built with precision, powered by logic</p>
                 <span id="version"></span>
             </div>
         </div>
     </footer>
     <script src="js/main.js"></script>
     <script src="js/theme.js"></script>
+    <script src="js/nav.js"></script>
     <script src="js/modal-window.js"></script>
+    <script>
+        fetch('/modules/header.html')
+            .then(response => response.text())
+            .then(data => document.getElementById('nav-header').innerHTML = data)
+            .catch(error => console.error('Nav fetch failed:', error));
+    </script>
 </body>
 </html>

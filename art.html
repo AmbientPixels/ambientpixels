@@ -1,4 +1,4 @@
-<!-- art.html - Ambient Pixels v2.3 - April 5, 2025 -->
+<!-- art.html - Ambient Pixels v2.3 - April 6, 2025 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,43 +14,34 @@
     <link rel="stylesheet" href="./css/components.css">
     <link rel="stylesheet" href="./css/hero.css">
     <link rel="stylesheet" href="./css/theme.css">
+    <link rel="stylesheet" href="./css/banner.css">
 </head>
 <body data-theme="dark">
     <div class="banner-container" id="banner-container"></div>
-    <nav class="nav">
-        <div class="nav-container">
-            <a href="/" class="nav-logo">
-                <img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo">
-                <div class="nav-logo-text">
-                    <h1>Ambient Pixels</h1>
-                    <span class="nav-subheading">A Grid for Cosmic Vibes</span>
-                </div>
-            </a>
-            <button class="nav-toggle" aria-label="Toggle Navigation"><i class="fas fa-bars"></i></button>
-            <ul class="nav-links">
-                <li><a href="/index.html" aria-label="Home"><i class="fas fa-home"></i></a></li>
-                <li><a href="/test.html" aria-label="Test"><i class="fas fa-flask"></i></a></li>
-                <li><a href="/projects.html" aria-label="Projects"><i class="fas fa-code"></i></a></li>
-                <li><a href="/art.html" aria-label="Art"><i class="fas fa-paint-brush"></i></a></li>
-                <li><a href="/tools.html" aria-label="Tools"><i class="fas fa-tools"></i></a></li>
-                <li><button id="theme-toggle" aria-label="Toggle Theme"><i class="fas fa-moon"></i></button></li>
-            </ul>
-        </div>
-    </nav>
+    <header id="nav-header"></header>
     <section class="mini-hero">
         <img src="images/mini-hero-v1.jpg" alt="Art Mini Hero" class="mini-hero-img" loading="lazy">
-        <h1>Art Gallery</h1>
+        <h1>Ambient Pixels Art Gallery</h1>
     </section>
     <main class="grid-container">
+        <section class="content-section grid-col-12">
+            <h2><i class="fas fa-paint-brush"></i> Art Overview</h2>
+            <blockquote>“Canvas live—pixels flow.”</blockquote>
+            <p>We at Ambient Pixels showcase our v2.3 art collection—digital and traditional works curated as of April 6, 2025. Powered by LYNX—our bot-engine—this gallery reflects our creative output.</p>
+        </section>
         <section class="content-section grid-col-6">
             <h2>Digital Art</h2>
-            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Digital Art">Show More</button>
-            <div class="content" style="display: none;">Pixel vibes—AI-crafted chaos.</div>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Digital Art">Expand</button>
+            <div class="content" style="display: none;">
+                <p>We produce AI-crafted digital pieces—stored in <code>images/</code>—optimized for grid display in v2.3—accessible April 2025.</p>
+            </div>
         </section>
         <section class="content-section grid-col-6">
             <h2>Traditional Art</h2>
-            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Traditional Art">Show More</button>
-            <div class="content" style="display: none;">Sketches, paints—old-school soul.</div>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Traditional Art">Expand</button>
+            <div class="content" style="display: none;">
+                <p>We digitize sketches and paintings—traditional techniques integrated into v2.3—showcased April 2025.</p>
+            </div>
         </section>
     </main>
     <footer class="footer">
@@ -58,7 +49,7 @@
             <div class="footer-links">
                 <a href="/contact">Contact</a>
                 <a href="#top">Back to Top</a>
-                <p>© 2025 Ambient Pixels</p>
+                <p>© Ambient Pixels</p>
             </div>
             <div class="footer-social">
                 <a href="https://deviantart.com" aria-label="DeviantArt"><i class="fab fa-deviantart"></i></a>
@@ -67,7 +58,7 @@
                 <a href="https://facebook.com" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
             </div>
             <div class="footer-tagline">
-                <p>Built with precision, layered with depth</p>
+                <p>Built with precision, powered by logic</p>
                 <span id="version"></span>
             </div>
         </div>
@@ -76,5 +67,11 @@
     <script src="js/theme.js"></script>
     <script src="js/nav.js"></script>
     <script src="js/modal-window.js"></script>
+    <script>
+        fetch('/modules/header.html')
+            .then(response => response.text())
+            .then(data => document.getElementById('nav-header').innerHTML = data)
+            .catch(error => console.error('Nav fetch failed:', error));
+    </script>
 </body>
 </html>

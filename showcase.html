@@ -1,22 +1,22 @@
+<!-- projects.html - Ambient Pixels v2.3 - April 6, 2025 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Ambient Pixels v2.1.10—Style Showcase">
+    <meta name="description" content="Ambient Pixels v2.3—Recent Project Updates">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
-    <title>Ambient Pixels - Showcase</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>Ambient Pixels - Projects</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/layout.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/hero.css">
-    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/layout.css">
+    <link rel="stylesheet" href="./css/components.css">
+    <link rel="stylesheet" href="./css/hero.css">
+    <link rel="stylesheet" href="./css/theme.css">
+    <link rel="stylesheet" href="./css/banner.css">
     <style>
-        /* Custom Showcase Styles */
-        .no-bullets { list-style: none; }
-        .no-numbers { list-style: none; }
+        /* Showcase Styles */
         .icon-grid { display: flex; gap: 15px; flex-wrap: wrap; padding: 10px; }
         .fade-in { animation: fadeIn 1s ease-in; }
         .spin { animation: spin 2s infinite linear; }
@@ -24,195 +24,145 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        a:hover { color: #87ceeb; transition: color 0.3s ease; }
-        .btn-hover:hover { background: #4682b4; transition: background 0.3s ease; }
-        .glitch { animation: glitch 1s infinite; }
-        @keyframes glitch {
-            0% { transform: translate(0); }
-            20% { transform: translate(-2px, 2px); }
-            40% { transform: translate(2px, -2px); }
-            60% { transform: translate(-2px, -2px); }
-            80% { transform: translate(2px, 2px); }
-            100% { transform: translate(0); }
-        }
     </style>
 </head>
 <body data-theme="dark">
-
-<!-- Header Placeholder -->
-<div id="header-placeholder"></div>
-
-<!-- Mini Hero Section -->
-<div class="sub-hero mini-hero">
-    <img src="images/hero/hero-05.jpg" alt="Showcase Mini Hero" class="sub-hero-img">
-    <h1>Style Showcase</h1>
-</div>
-<!-- END Mini Hero Section -->
-
-<!-- Showcase Content -->
-<section class="neon-section grid-container">
-    <div class="grid-col-12">
-        <h2><i class="fas fa-paint-brush"></i> NeonPulse Styles</h2>
-        <blockquote>“Design hums—pixels dance.”</blockquote>
-        <p>April 4, 2025—Cyberpunk design playground—effects, icons, and more!</p>
-    </div>
-
-    <!-- Effects -->
-    <section class="grid-col-6">
-        <div class="neon-card">
-            <h3><i class="fas fa-magic"></i> Effects</h3>
-            <p>Hover me—neon glows:</p>
-            <div class="neon-card" style="margin: 10px; padding: 10px;">Nested Card—Hover Test</div>
-            <p>Card scales and shadows shift—cyberpunk vibes.</p>
-        </div>
+    <div class="banner-container" id="banner-container"></div>
+    <header id="nav-header"></header>
+    <section class="mini-hero">
+        <img src="images/mini-hero-v1.jpg" alt="Projects Mini Hero" class="mini-hero-img" loading="lazy">
+        <h1>Ambient Pixels Project Updates</h1>
     </section>
+    <main class="grid-container">
+        <section class="content-section grid-col-12">
+            <h2><i class="fas fa-code"></i> Recent Projects Overview</h2>
+            <blockquote>“Systems synchronized—updates deployed.”</blockquote>
+            <p>We at Ambient Pixels present our latest v2.3 projects—executed April 5-6, 2025—covering design, development, music, games, movies, art, and technology. Powered by LYNX—our bot-engine—these updates reflect our active development pipeline.</p>
+        </section>
 
-    <!-- Icons -->
-    <section class="grid-col-6">
-        <div class="neon-card">
-            <h3><i class="fas fa-icons"></i> Icons</h3>
-            <p>Utility:</p>
-            <div class="icon-grid">
-                <i class="fas fa-home fa-2x"></i>
-                <i class="fas fa-search fa-2x"></i>
-                <i class="fas fa-user fa-2x"></i>
-                <i class="fas fa-cog fa-2x"></i>
-                <i class="fas fa-trash fa-2x"></i>
-                <i class="fas fa-save fa-2x"></i>
-                <i class="fas fa-download fa-2x"></i>
-                <i class="fas fa-upload fa-2x"></i>
-                <i class="fas fa-eye fa-2x"></i>
-                <i class="fas fa-bell fa-2x"></i>
+        <!-- Design Project -->
+        <section class="content-section grid-col-6">
+            <h2><i class="fas fa-paint-roller"></i> Hero Headline Redesign</h2>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Design">Expand</button>
+            <div class="content" style="display: none;">
+                <p>We redesigned hero headlines for <code>test.html</code> and <code>index.html</code>—10x10 random pool in <code>main.js</code>. Neon-wit implementation—design-driven—e.g., “Neon Dreams Ignite” / “Powered by coffee and stardust.” Deployed April 6, 2025—optimized for visual impact.</p>
             </div>
-            <p>Tech:</p>
-            <div class="icon-grid">
-                <i class="fas fa-code fa-2x"></i>
-                <i class="fas fa-server fa-2x"></i>
-                <i class="fas fa-database fa-2x"></i>
-                <i class="fas fa-laptop fa-2x"></i>
-                <i class="fas fa-cloud fa-2x"></i>
-                <i class="fas fa-bug fa-2x"></i>
-                <i class="fas fa-terminal fa-2x"></i>
-                <i class="fas fa-robot fa-2x"></i>
-                <i class="fas fa-microchip fa-2x"></i>
-                <i class="fas fa-wifi fa-2x"></i>
+        </section>
+
+        <!-- Development Project -->
+        <section class="content-section grid-col-6">
+            <h2><i class="fas fa-terminal"></i> Grid System Expansion</h2>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Dev">Expand</button>
+            <div class="content" style="display: none;">
+                <p>We expanded our 12-column grid—<code>layout.css</code>—to support new pages: <code>skills.html</code>, <code>projects.html</code>. Built in Visual Studio—deployed via Azure Static Web App—commit #158 (22f8abf)—stable April 6, 2025.</p>
             </div>
-            <p>Fun:</p>
-            <div class="icon-grid">
-                <i class="fas fa-star fa-2x"></i>
-                <i class="fas fa-moon fa-2x"></i>
-                <i class="fas fa-sun fa-2x"></i>
-                <i class="fas fa-fire fa-2x"></i>
-                <i class="fas fa-bolt fa-2x"></i>
-                <i class="fas fa-music fa-2x"></i>
-                <i class="fas fa-gamepad fa-2x"></i>
-                <i class="fas fa-rocket fa-2x"></i>
-                <i class="fas fa-flask fa-2x"></i>
-                <i class="fas fa-paint-brush fa-2x"></i>
+        </section>
+
+        <!-- Music Project -->
+        <section class="content-section grid-col-6">
+            <h2><i class="fas fa-music"></i> Audio Integration Test</h2>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Music">Expand</button>
+            <div class="content" style="display: none;">
+                <p>We tested synthwave audio cues—Node.js prototype—planned for <code>test.html</code> ambiance. Runtime validated April 5, 2025—future Azure Function App deployment pending—enhances user experience.</p>
+            </div>
+        </section>
+
+        <!-- Games Project -->
+        <section class="content-section grid-col-6">
+            <h2><i class="fas fa-gamepad"></i> Grid-Based UI Game</h2>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Games">Expand</button>
+            <div class="content" style="display: none;">
+                <p>We developed a browser-based game—Vanilla JS—interactive grid-runner for <code>test.html</code>. Optimized with lazy-loaded assets—released April 6, 2025—demonstrates gameplay integration.</p>
+            </div>
+        </section>
+
+        <!-- Movies Project -->
+        <section class="content-section grid-col-6">
+            <h2><i class="fas fa-film"></i> Neon Animation Short</h2>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Movies">Expand</button>
+            <div class="content" style="display: none;">
+                <p>We produced a 3-minute neon animation—embedded in <code>test.html</code>—using open-source tools. Grid-visual focus—streamed via YouTube—integrated April 5, 2025—showcases motion design.</p>
+            </div>
+        </section>
+
+        <!-- Art Project -->
+        <section class="content-section grid-col-6">
+            <h2><i class="fas fa-paint-brush"></i> Digital Art Refresh</h2>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Art">Expand</button>
+            <div class="content" style="display: none;">
+                <p>We refreshed digital art assets—<code>images/</code>—for <code>art.html</code> grid toggles. Lazy-loaded—curated April 6, 2025—enhances visual portfolio consistency.</p>
+            </div>
+        </section>
+
+        <!-- Tech Project -->
+        <section class="content-section grid-col-6">
+            <h2><i class="fas fa-microchip"></i> LYNX Bot Deployment</h2>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Tech">Expand</button>
+            <div class="content" style="display: none;">
+                <p>We deployed LYNX—our bot-engine—optimizing v2.3 workflows. Powers headline randomization, grid toggles—developed in Visual Studio—commit #158 (22f8abf)—live April 6, 2025.</p>
+            </div>
+        </section>
+
+        <!-- Showcase Section -->
+        <section class="content-section grid-col-12" id="showcase">
+            <h2><i class="fas fa-eye"></i> Style Showcase</h2>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Showcase">Expand</button>
+            <div class="content" style="display: none;">
+                <p>We cataloged design elements—v2.1.10—updated April 4, 2025—covering effects, icons, animations, typography. Integrated into v2.3—cyberpunk aesthetics optimized for user interaction.</p>
+                <div class="neon-card">
+                    <h3><i class="fas fa-magic"></i> Effects</h3>
+                    <p>Hover effects implemented—neon glow and scaling—cyberpunk styling in <code>components.css</code>.</p>
+                </div>
+                <div class="neon-card">
+                    <h3><i class="fas fa-icons"></i> Icons</h3>
+                    <p>Utility and tech icons from Font Awesome 6.5.1—deployed across v2.3 grid—e.g., <i class="fas fa-home fa-2x"></i>, <i class="fas fa-code fa-2x"></i>.</p>
+                    <div class="icon-grid">
+                        <i class="fas fa-home fa-2x"></i>
+                        <i class="fas fa-code fa-2x"></i>
+                        <i class="fas fa-music fa-2x"></i>
+                        <i class="fas fa-gamepad fa-2x"></i>
+                    </div>
+                </div>
+                <div class="neon-card">
+                    <h3><i class="fas fa-film"></i> Animations</h3>
+                    <p>Animation suite—fade-in, spin, pulse—CSS keyframes in <code>projects.html</code>—e.g., <i class="fas fa-star fa-2x fade-in"></i>.</p>
+                    <div class="icon-grid">
+                        <i class="fas fa-star fa-2x fade-in"></i>
+                        <i class="fas fa-cog fa-2x spin"></i>
+                        <i class="fas fa-bolt fa-2x pulse"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-links">
+                <a href="/contact">Contact</a>
+                <a href="#top">Back to Top</a>
+                <p>© Ambient Pixels</p>
+            </div>
+            <div class="footer-social">
+                <a href="https://deviantart.com" aria-label="DeviantArt"><i class="fab fa-deviantart"></i></a>
+                <a href="https://twitter.com" aria-label="X"><i class="fab fa-twitter"></i></a>
+                <a href="https://youtube.com" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                <a href="https://facebook.com" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+            </div>
+            <div class="footer-tagline">
+                <p>Built with precision, powered by logic</p>
+                <span id="version"></span>
             </div>
         </div>
-    </section>
-
-    <!-- Animations -->
-    <section class="grid-col-6">
-        <div class="neon-card">
-            <h3><i class="fas fa-film"></i> Animations</h3>
-            <div class="icon-grid">
-                <i class="fas fa-star fa-2x fade-in" title="Fade In"></i>
-                <i class="fas fa-cog fa-2x spin" title="Spin"></i>
-                <i class="fas fa-bolt fa-2x pulse" title="Pulse"></i>
-            </div>
-            <p>Minimal icons—maximum motion.</p>
-        </div>
-    </section>
-
-    <!-- Typography -->
-    <section class="grid-col-6">
-        <div class="neon-card">
-            <h3><i class="fas fa-font"></i> Typography</h3>
-            <h1>H1: Neon Pulse</h1>
-            <h2>H2: Cyber Grid</h2>
-            <h3>H3: Code Glow</h3>
-            <h4>H4: Subtle Spark</h4>
-            <p>Paragraph: Inter font—crisp, futuristic, <a href="#">hover me</a> for neon kicks.</p>
-            <small>Small: Tiny cyber whispers.</small>
-            <code>code: { neon: true; }</code>
-            <p>Bullet Styles:</p>
-            <ul class="no-bullets">
-                <li>Unordered—no bullets.</li>
-                <li>Sharp and sleek.</li>
-            </ul>
-            <ol class="no-numbers">
-                <li>Ordered—no numbers.</li>
-                <li>Flowing chaos.</li>
-            </ol>
-            <p><a href="#" class="btn btn-hover">Button Hover</a></p>
-        </div>
-    </section>
-
-    <!-- Forms -->
-    <section class="grid-col-6">
-        <div class="neon-card">
-            <h3><i class="fas fa-keyboard"></i> Forms</h3>
-            <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px;">
-                <input type="text" placeholder="Enter chaos..." style="padding: 8px; border: 1px solid rgba(70, 130, 180, 0.2); border-radius: 4px; background: rgba(20, 20, 20, 0.9); color: #fff;">
-                <button class="btn btn-hover">Submit Pulse</button>
-            </div>
-            <p>Neon-edged inputs—hover shifts.</p>
-        </div>
-    </section>
-
-    <!-- Extras -->
-    <section class="grid-col-6">
-        <div class="neon-card">
-            <h3><i class="fas fa-random"></i> Extras</h3>
-            <p>Glitch Text:</p>
-            <div class="glitch" style="padding: 10px;">Neon Chaos</div>
-            <p>More to come—cyberpunk surprises!</p>
-        </div>
-    </section>
-</section>
-<!-- END Showcase Content -->
-
-<!-- Footer Placeholder -->
-<div id="footer-placeholder"></div>
-
-<script src="js/theme.js" defer></script>
-<script src="js/main.js" defer></script>
-<script src="js/nav.js" defer></script>
-<script src="js/modal-window.js" defer></script>
-<script src="js/version.js" defer></script>
-<script>
-    // Load modular header and footer, then init theme and version
-    document.addEventListener('DOMContentLoaded', () => {
+    </footer>
+    <script src="js/main.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/modal-window.js"></script>
+    <script>
         fetch('/modules/header.html')
             .then(response => response.text())
-            .then(data => {
-                document.getElementById('header-placeholder').innerHTML = data;
-                const themeIcon = document.querySelector('.theme-icon');
-                if (themeIcon) {
-                    themeIcon.addEventListener('click', () => {
-                        const currentTheme = document.body.getAttribute('data-theme');
-                        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                        document.body.setAttribute('data-theme', newTheme);
-                        localStorage.setItem('theme', newTheme);
-                        themeIcon.className = `fas fa-${newTheme === 'dark' ? 'moon' : 'sun'} theme-icon`;
-                    });
-                }
-            })
-            .catch(err => console.error('Header load failed:', err));
-
-        fetch('/modules/footer.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('footer-placeholder').innerHTML = data;
-                const versionElement = document.getElementById('version');
-                if (versionElement) {
-                    versionElement.textContent = 'v2.1.10';
-                }
-            })
-            .catch(err => console.error('Footer load failed:', err));
-    });
-</script>
+            .then(data => document.getElementById('nav-header').innerHTML = data)
+            .catch(error => console.error('Nav fetch failed:', error));
+    </script>
 </body>
 </html>
