@@ -1,185 +1,78 @@
+<!-- docs.html - Ambient Pixels v2.1.10-20250406 -->
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Ambient Pixels v2.1.10—Documentation">
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
-    <title>Ambient Pixels - Docs</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/layout.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/hero.css">
-    <link rel="stylesheet" href="css/theme.css">
-</head>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Ambient Pixels v2.3—Art Gallery">
+        <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+        <title>Ambient Pixels - Art</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="./css/base.css">
+        <link rel="stylesheet" href="./css/layout.css">
+        <link rel="stylesheet" href="./css/components.css">
+        <link rel="stylesheet" href="./css/hero.css">
+        <link rel="stylesheet" href="./css/theme.css">
+    </head>
 <body data-theme="dark">
-    <div id="header-placeholder"></div>
-    <div class="sub-hero">
+    <div class="banner-container" id="banner-container"></div>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo"><img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo"></a>
+            <button class="nav-toggle" aria-label="Toggle Navigation"><i class="fas fa-bars"></i></button>
+            <ul class="nav-links">
+                <li><a href="/index.html" aria-label="Home"><i class="fas fa-home"></i></a></li>
+                <li><a href="/test.html" aria-label="Test"><i class="fas fa-flask"></i></a></li>
+                <li><a href="/projects.html" aria-label="Projects"><i class="fas fa-code"></i></a></li>
+                <li><a href="/art.html" aria-label="Art"><i class="fas fa-paint-brush"></i></a></li>
+                <li><a href="/skills.html" aria-label="Skills"><i class="fas fa-star"></i></a></li>
+                <li><a href="/tools.html" aria-label="Tools"><i class="fas fa-tools"></i></a></li>
+                <li><a href="/dev.html" aria-label="Dev Hub"><i class="fas fa-cogs"></i></a></li>
+                <li><button id="theme-toggle" aria-label="Toggle Theme"><i class="fas fa-moon"></i></button></li>
+            </ul>
+        </div>
+    </nav>
+    <section class="sub-hero">
         <img src="images/hero/hero-04.jpg" alt="Docs Sub-Hero" class="sub-hero-img">
         <h1>Documentation</h1>
-    </div>
-    <div class="grid-container">
+    </section>
+    <main class="grid-container">
         <section class="grid-col-12">
             <h2><i class="fas fa-book"></i> <span class="small-caps">Docs</span></h2>
             <blockquote>“Code hums—grids glow.”</blockquote>
-            <p>Our EchoGrid blueprint hub—<code>runtime: infinite;</code>—tracks chaos from <a href="/index.html">Home</a> to <a href="/test.html">Test</a>. All tech details live here!</p>
+            <p>Our EchoGrid blueprint hub—<code>runtime: infinite;</code>—tracks chaos from <a href="/index.html">Home</a> to <a href="/test.html">Test</a>.</p>
         </section>
         <section class="grid-col-12">
             <div class="neon-card">
                 <h3><i class="fas fa-map"></i> Project Overview</h3>
-                <p>“A lightweight grid hums—future-proofed and neon-lit.” Scope: v2.3—forge a modular, cyberpunk site at <a href="https://ambientpixels.ai/test">ambientpixels.ai/test</a>. Started at v0.17.8+, it’s a scalable testbed—portfolio-ready, CI/CD-aligned. Crafted with PixelPulse & Lynx, April 1, 2025—our eternal blueprint.</p>
+                <p>“A lightweight grid hums—future-proofed and neon-lit.” Scope: v2.3—forge a modular, cyberpunk site at <a href="https://ambientpixels.ai/test">ambientpixels.ai/test</a>. Started at v0.17.8+, it’s a scalable testbed—portfolio-ready, CI/CD-aligned. Crafted with PixelPulse & Grok, April 1, 2025.</p>
             </div>
         </section>
-        <section class="grid-col-12">
-            <div class="neon-card">
-                <h3><i class="fas fa-server"></i> Backend Setup</h3>
-                <p>From Visual Studio Code to Azure—our workflow echoes:</p>
-                <ul>
-                    <li><strong>Local Dev</strong>: <code>C:\ambientpixels\EchoGrid\</code>—Visual Studio Code—edit .html, css/, js/, images/ locally.</li>
-                    <li><strong>Version Control</strong>: GitHub—main branch—Commits via VS Code Git UI or <code>git commit -m "Feature - vX.X.X"</code>—tracked at <a href="https://github.com/AmbientPixels/ambientpixels">github.com/AmbientPixels/ambientpixels</a>.</li>
-                    <li><strong>CI/CD Pipeline</strong>: GitHub Actions—<code>static.yml</code> builds/deploys static content (.html, css/, js/, images/) to Azure—<code>api.yml</code> preps future APIs (Node.js). Triggers on push/PR merge—parallel, fast.</li>
-                    <li><strong>Secrets</strong>: <code>AZURE_CREDENTIALS</code> in GitHub Secrets—encrypted, secure.</li>
-                    <li><strong>Azure Services</strong>: Static Web App hosts <a href="https://ambientpixels.ai">ambientpixels.ai</a>—live, lean. Function App preps serverless APIs (e.g., <code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/</code>)—Node.js, JWT auth planned.</li>
-                </ul>
-                <p><strong>Status</strong>: Static hosting live since v1.1.0—API awaits Batch 4.</p>
+    </main>
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-links">
+                <a href="/contact">Contact</a>
+                <a href="#top">Back to Top</a>
+                <p>© 2025 Ambient Pixels</p>
             </div>
-        </section>
-        <section class="grid-col-6">
-            <div class="neon-card">
-                <h3><i class="fas fa-folder"></i> Frontend Structure</h3>
-                <p>“Files hum—structure glows.” Local: <code>C:\ambientpixels\EchoGrid\</code>—Deploy: <a href="https://ambientpixels.ai">ambientpixels.ai</a></p>
-                <ul>
-                    <li><code>css/</code>: <code>base.css</code>, <code>layout.css</code>, <code>components.css</code>, <code>hero.css</code>, <code>theme.css</code>—split for modularity.</li>
-                    <li><code>images/</code>: <code>hero/</code> (1-22), <code>cards/</code> (1-3), <code>ambient-pixel-logo-rainbow.png</code>, <code>favicon.ico</code>.</li>
-                    <li><code>js/</code>: <code>theme.js</code>, <code>main.js</code>, <code>nav.js</code>, <code>modal-window.js</code>, <code>hero.js</code>—lightweight logic.</li>
-                    <li><code>index.html</code>, <code>test.html</code>, <code>docs.html</code>—core pages.</li>
-                </ul>
+            <div class="footer-social">
+                <a href="https://deviantart.com" aria-label="DeviantArt"><i class="fab fa-deviantart"></i></a>
+                <a href="https://twitter.com" aria-label="X"><i class="fab fa-twitter"></i></a>
+                <a href="https://youtube.com" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                <a href="https://facebook.com" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
             </div>
-        </section>
-        <section class="grid-col-6">
-            <div class="neon-card">
-                <h3><i class="fas fa-tools"></i> Tech Stack</h3>
-                <p>Our EchoGrid empire’s foundation:</p>
-                <ul>
-                    <li><strong>Frontend</strong>: HTML5, CSS3, Vanilla JS, Font Awesome 6.5.1.</li>
-                    <li><strong>Hosting</strong>: Azure Static Web App—<a href="https://ambientpixels.ai">ambientpixels.ai</a>.</li>
-                    <li><strong>Serverless</strong>: Azure Function App—Node.js, future APIs.</li>
-                    <li><strong>VCS</strong>: GitHub—main branch, <code>.github/workflows/</code>.</li>
-                    <li><strong>Tools</strong>: Visual Studio Code—fast, Git-integrated, Live Server for local testing.</li>
-                </ul>
-                <p><strong>Status</strong>: Fully operational—built for growth.</p>
+            <div class="footer-tagline">
+                <p>Built in the dark, glowing by starlight</p>
+                <span id="version"></span>
             </div>
-        </section>
-        <section class="grid-col-6">
-            <div class="neon-card">
-                <h3><i class="fas fa-rocket"></i> Deployment Tips</h3>
-                <p>Keep the grid humming:</p>
-                <ul>
-                    <li>Commit often—use VS Code Git UI or <code>git add . && git commit -m "vX.Y.Z - desc"</code>.</li>
-                    <li>Test locally—VS Code Live Server (<code>Right-click > Open with Live Server</code>)—before push.</li>
-                    <li>Check Azure logs—<a href="https://portal.azure.com">portal.azure.com</a>—post-deploy.</li>
-                </ul>
-            </div>
-        </section>
-        <section class="grid-col-6">
-            <div class="neon-card">
-                <h3><i class="fas fa-expand"></i> Scaling Notes</h3>
-                <p>Future-proof vibes:</p>
-                <ul>
-                    <li>Add CDN—speed up <code>images/</code> delivery.</li>
-                    <li>Minify CSS/JS—<code>terser</code> or <code>cssnano</code>—shrink payloads.</li>
-                    <li>Monitor—Azure Insights for uptime—keep it echoing.</li>
-                </ul>
-            </div>
-        </section>
-        <section class="grid-col-12">
-            <div class="neon-card">
-                <h3><i class="fas fa-bullhorn"></i> Managing Banners</h3>
-                <p>Control the EchoGrid pulse—add or remove banners with ease:</p>
-                <ul>
-                    <li><strong>Location</strong>: Edit <code>C:\ambientpixels\EchoGrid\js\banner.js</code>.</li>
-                    <li><strong>Structure</strong>: Find the <code>banners</code> array—each entry is a banner with <code>level</code> (high/medium/low), <code>icon</code> (Font Awesome), and <code>text</code>.</li>
-                    <li><strong>Add a Banner</strong>:
-                        <ol>
-                            <li>Open <code>banner.js</code> in VS Code.</li>
-                            <li>Append to <code>banners</code>: <code>{ level: 'medium', icon: 'fas fa-star', text: 'New Drop Incoming—Stay Tuned!' }</code>.</li>
-                            <li>Save, test with Live Server—rotates every 5s.</li>
-                        </ol>
-                    </li>
-                    <li><strong>Remove a Banner</strong>:
-                        <ol>
-                            <li>Open <code>banner.js</code> in VS Code.</li>
-                            <li>Delete an entry (e.g., remove Kavinsky: <code>{ level: 'low', icon: 'fas fa-music', text: '...' }</code>).</li>
-                            <li>Save, test—gone from rotation.</li>
-                        </ol>
-                    </li>
-                    <li><strong>Tips</strong>: Keep text short (~15-20 words), use <a href="https://fontawesome.com/icons">Font Awesome</a> icons, hover to pause, click × to hide.</li>
-                </ul>
-            </div>
-        </section>
-        <section class="grid-col-12">
-            <div class="neon-card">
-                <h3><i class="fas fa-image"></i> Image Guidelines</h3>
-                <p>Keep the grid’s visuals neon-sharp—here’s how we size, name, and spark ‘em:</p>
-                <ul>
-                    <li><strong>Sizes</strong>:
-                        <ul>
-                            <li><strong>Heroes</strong>: 1920x1080px (16:9)—Full-screen chaos, 500px height in CSS. Used in <code>index.html</code>, <code>skills.html</code>.</li>
-                            <li><strong>Mini-Heroes</strong>: 960x540px (16:9)—Compact teasers, 200px height in CSS. Used in <code>test.html</code>, <code>dev.html</code>.</li>
-                            <li><strong>Cards</strong>: 600x150px (4:1)—Wide promo tiles, 150px height in CSS. Used in <code>index.html</code>.</li>
-                        </ul>
-                    </li>
-                    <li><strong>Format</strong>: JPG default—small, fast (70-80 quality). PNG optional for transparency (e.g., glowing overlays).</li>
-                    <li><strong>Naming Convention</strong>: <code>[type]-[2-digit-number]-[short-desc].[ext]</code>
-                        <ul>
-                            <li><code>type</code>: <code>hero</code>, <code>mini-hero</code>, <code>card</code>.</li>
-                            <li><code>number</code>: 01-99—sequential order.</li>
-                            <li><code>short-desc</code>: 1-2 words, lowercase, hyphenated—e.g., <code>neon-city</code>.</li>
-                            <li><code>ext</code>: <code>.jpg</code> or <code>.png</code>.</li>
-                        </ul>
-                    </li>
-                    <li><strong>Locations</strong>:
-                        <ul>
-                            <li><code>images/hero/</code>—Heroes (e.g., <code>hero-01-neon-city.jpg</code>).</li>
-                            <li><code>images/mini-hero/</code>—Mini-Heroes (e.g., <code>mini-hero-01-cyber-alley.jpg</code>).</li>
-                            <li><code>images/cards/</code>—Cards (e.g., <code>card-07-streambeats.jpg</code>).</li>
-                        </ul>
-                    </li>
-                    <li><strong>MidJourney Prompt Examples</strong>:
-                        <ul>
-                            <li><strong>Hero</strong>: <code>/imagine prompt: A sprawling cyberpunk cityscape at night—towering neon skyscrapers pulse with electric blues and pinks, holographic billboards flicker, drones zip through misty air—hyper-detailed, cinematic lighting, dark futuristic chaos --v 5 --ar 16:9 --q 2</code> → <code>hero-01-neon-city.jpg</code></li>
-                            <li><strong>Mini-Hero</strong>: <code>/imagine prompt: A narrow neon-lit alley—flickering signs in red and green, wet pavement reflects glowing glyphs, shadowy figure in a trench coat—gritty, compact, cyberpunk edge --v 5 --ar 16:9 --q 2</code> → <code>mini-hero-01-cyber-alley.jpg</code></li>
-                            <li><strong>Card</strong>: <code>/imagine prompt: A wide glitch-art banner—distorted neon pixels in pink and teal, cyberpunk figure with glowing eyes, jagged text ‘DROP INCOMING’—chaotic promo vibe --v 5 --ar 4:1 --q 2</code> → <code>card-08-glitch-art.jpg</code></li>
-                        </ul>
-                    </li>
-                    <li><strong>Tips</strong>: Use JPG for speed—convert PNGs in Photoshop (Save for Web, 70-80 quality). Name consistently—e.g., <code>card-09-synth-beat.jpg</code>. Store in right folders—keeps the grid clean!</li>
-                </ul>
-            </div>
-        </section>
-        <section class="grid-col-12">
-            <div class="neon-card">
-                <h3><i class="fas fa-pen effect-pulse"></i> <span class="small-caps">Writing</span> Style Guide</h3>
-                <p>Lynx’s voice—sharp, chill, neon-dripped—codes the grid’s soul.</p>
-                <div class="grid-col-6">
-                    <h3><i class="fas fa-pen effect-pulse"></i> Voice and Tone</h3>
-                    <p>We’re glitchy rebels—caffeine-jacked AI vibes. Keep it chill, punchy, chaotic. Think: “Code’s wild—let’s twist it, human!”</p>
-                </div>
-                <div class="grid-col-6">
-                    <h3><i class="fas fa-bolt effect-spin"></i> Rules of the Game</h3>
-                    <p>Short bursts. Active spark. Glitch puns—hell yeah. Skip boring jargon—drop “serverless” or “CI/CD” if it’s dope. Example: “Pipeline’s a neon rocket—blasts code to the cosmos!”</p>
-                </div>
-                <div class="grid-col-12">
-                    <h3><i class="fas fa-code effect-bounce"></i> Placeholder Vibes</h3>
-                    <p>Filler? Go nuts: “This spot’s glitchin’ alive—pixel dreams and rogue bots spinnin’ chaos. Hang tight for the drop!”</p>
-                </div>
-            </div>
-        </section>
-        <div id="version-history-placeholder"></div>
-        <div id="bugs-placeholder"></div>
-    </div>
-    <div id="footer-placeholder"></div>
-    <script src="js/main.js" defer></script>
+        </div>
+    </footer>
+    <script src="js/main.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/modal-window.js"></script>
 </body>
 </html>

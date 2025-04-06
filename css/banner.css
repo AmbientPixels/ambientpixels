@@ -1,49 +1,31 @@
-/* banner.css - Ambient Pixels v2.1.10-20250406 */
+/* banner.css - Ambient Pixels v2.3 - April 5, 2025 */
 .banner-container {
     position: fixed;
     top: 75px; /* Below nav */
     left: 0;
     width: 100%;
-    max-width: none;
-    z-index: 1000; /* Below nav (2000), above content */
+    z-index: 1000; /* Below nav, above content */
     display: flex;
     justify-content: center;
-    align-items: center;
     padding: 10px 0;
     font-family: 'Inter', sans-serif;
 }
-
 .banner {
     padding: 10px 20px;
-    border-radius: 0;
     color: #fff;
     display: flex;
     align-items: center;
     gap: 10px;
     width: 100%;
-    max-width: 1200px; /* Match grid-container */
+    max-width: 1200px;
     transition: opacity 0.5s ease;
-    background: rgba(18, 18, 18, 0.9);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    background: rgba(7, 16, 25, 0.9); /* Match dark theme */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
-
-.banner.high {
-    border: 1px solid #ff6666;
-}
-
-.banner.medium {
-    border: 1px solid #4682b4;
-}
-
-.banner.low {
-    border: 1px solid #32cd32;
-}
-
 .banner-icon {
     font-size: 1.2em;
-    color: #87ceeb;
+    color: #4682B4; /* Dark accent */
 }
-
 .banner-close {
     background: none;
     border: none;
@@ -51,12 +33,11 @@
     font-size: 1.2em;
     cursor: pointer;
     margin-left: auto;
+    transition: color 0.3s ease;
 }
-
 .banner-close:hover {
-    color: #87ceeb;
+    color: #4682B4;
 }
-
 .hidden {
     opacity: 0;
     pointer-events: none;

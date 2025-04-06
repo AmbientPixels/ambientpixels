@@ -1,113 +1,34 @@
-/* components.css - Ambient Pixels v2.1.2-20250402 */
-
-.btn {
-    background: var(--accent-dark);
-    color: #FFFFFF;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
+/* components.css - Ambient Pixels v2.3 - April 5, 2025 */
+.toggle-btn {
+    background: none;
+    border: 1px solid #4682B4;
+    padding: 8px 16px;
     cursor: pointer;
-    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+    color: inherit;
+    transition: background 0.3s ease;
 }
-
-.btn:hover {
-    background: var(--neon-pulse);
-    box-shadow: 0 0 20px var(--highlight-dark); /* Bolder glow */
-    transform: scale(1.1); /* Obvious pulse */
+.toggle-btn:hover {
+    background: rgba(70, 130, 180, 0.1);
 }
-
-body[data-theme="light"] .btn {
-    background: var(--accent-light);
+.footer-social a {
+    font-size: 1.5em;
+    margin: 0 15px;
+    transition: color 0.3s ease;
 }
-
-body[data-theme="light"] .btn:hover {
-    background: var(--highlight-light);
-    box-shadow: 0 0 20px var(--highlight-light);
-    transform: scale(1.1);
+.content-section {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
-.nav-logo {
-    height: 40px;
+#theme-toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: 1.5em;
+    color: inherit;
+    transition: color 0.3s ease;
 }
-
-.nav-blur-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(26, 31, 40, 0.8);
-    backdrop-filter: blur(5px);
-    box-shadow: 0 0 20px var(--accent-dark); /* Brighter glow */
-    z-index: -1;
-}
-
-code {
-    font-family: 'Courier New', Courier, monospace;
-    background: #1A1F28;
-    padding: 2px 5px;
-    border-radius: 4px;
-}
-
-pre {
-    overflow-x: auto;
-}
-
-.small-caps {
-    font-variant: small-caps;
-}
-
-.social-links a {
-    font-size: 1.5em; /* Bigger icons */
-    color: var(--text-dark);
-    margin: 0 10px;
-    transition: color 0.3s ease, text-shadow 0.3s ease;
-}
-
-.social-links a:hover {
-    color: var(--highlight-dark); /* Neon pink */
-    text-shadow: 0 0 10px var(--highlight-dark); /* Glow effect */
-}
-
-body[data-theme="light"] .social-links a {
-    color: var(--text-light);
-}
-
-body[data-theme="light"] .social-links a:hover {
-    color: var(--highlight-light);
-    text-shadow: 0 0 10px var(--highlight-light);
-}
-
-blockquote {
-    font-style: italic;
-    margin: 10px 0;
-    padding-left: 15px;
-    border-left: 3px solid var(--accent-dark);
-}
-
-.footer {
-    border-top: 2px solid var(--neon-pulse); /* Neon gradient border */
-    padding-top: 10px;
-}
-
-body[data-theme="light"] .footer {
-    border-top: 2px solid var(--neon-pulse); /* Gradient in light mode too */
-}
-
-#version {
-    font-weight: bold;
-    color: var(--highlight-dark); /* Pink version */
-    text-shadow: 0 0 5px var(--highlight-dark);
-}
-
-body[data-theme="light"] #version {
-    color: var(--highlight-light);
-    text-shadow: 0 0 5px var(--highlight-light);
-}
-
-@media (max-width: 768px) {
-    .nav-links a {
-        color: #FFFFFF; /* Brighter icons/text in mobile */
-        text-shadow: 0 0 5px var(--accent-dark); /* Glow for contrast */
-    }
+#theme-toggle:hover {
+    color: #4682B4; /* Subtle hover accent */
 }

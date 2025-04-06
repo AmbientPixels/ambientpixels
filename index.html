@@ -1,140 +1,103 @@
+<!-- index.html - Ambient Pixels v2.3 - April 5, 2025 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Ambient Pixels v2.1.10—Cyberpunk Sandbox">
+    <meta name="description" content="Ambient Pixels v2.3—Cyberpunk Sandbox">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <title>Ambient Pixels</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/layout.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/hero.css">
-    <link rel="stylesheet" href="css/theme.css">
-    <style>
-        .pulse-text { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-    </style>
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/layout.css">
+    <link rel="stylesheet" href="./css/components.css">
+    <link rel="stylesheet" href="./css/hero.css">
+    <link rel="stylesheet" href="./css/theme.css">
+    <link rel="stylesheet" href="./css/banner.css">
 </head>
 <body data-theme="dark">
-    <div id="header-placeholder"></div>
-    <div class="hero" id="hero">
-        <div class="loading-overlay" id="loading">
-            <i class="fas fa-robot fa-3x"></i>
-            <div class="loading-text">Initializing chaos...</div>
+    <div class="banner-container" id="banner-container"></div>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo">
+                <div class="nav-logo-text">
+                    <h1>Ambient Pixels</h1>
+                    <span class="nav-subheading">A Grid for Cosmic Vibes</span>
+                </div>
+            </a>
+            <button class="nav-toggle" aria-label="Toggle Navigation"><i class="fas fa-bars"></i></button>
+            <ul class="nav-links">
+                <li><a href="/index.html" aria-label="Home"><i class="fas fa-home"></i></a></li>
+                <li><a href="/test.html" aria-label="Test"><i class="fas fa-flask"></i></a></li>
+                <li><a href="/projects.html" aria-label="Projects"><i class="fas fa-code"></i></a></li>
+                <li><a href="/art.html" aria-label="Art"><i class="fas fa-paint-brush"></i></a></li>
+                <li><a href="/tools.html" aria-label="Tools"><i class="fas fa-tools"></i></a></li>
+                <li><button id="theme-toggle" aria-label="Toggle Theme"><i class="fas fa-moon"></i></button></li>
+            </ul>
+        </div>
+    </nav>
+    <section class="hero">
+        <div class="hero-loading">
+            <i class="fas fa-robot loading-icon"></i>
+            <p>Loading systems…</p>
             <div class="loading-bar">
                 <div class="loading-progress"></div>
             </div>
         </div>
-        <h1 id="hero-headline" class="pulse-text">Quantum Code Unleashed</h1>
-        <p id="hero-subheading">A Grid for Cosmic Vibes</p>
-    </div>
-    <div class="grid-container">
-        <div class="grid-col-6">
-            <div class="neon-card spotlight-card">
-                <img src="images/hero/hero-14.jpg" alt="Grok Spotlight" class="card-img">
-                <div class="card-content">
-                    <h3><i class="fas fa-robot"></i> Nightly Spotlight: Grok</h3>
-                    <p>xAI’s Grok—AI muse behind EchoGrid—sparks code and chaos. Curious? It’s crafting memes and glitch art next. Stay tuned for neon-fueled AI drops!</p>
-                    <p><a href="https://x.ai" target="_blank">Explore xAI</a></p>
-                </div>
-            </div>
+        <div class="hero-slides">
+            <img src="images/hero-v1.jpg" alt="Hero Image 1" class="hero-slide active" loading="lazy">
+            <img src="images/hero-v2.jpg" alt="Hero Image 2" class="hero-slide" loading="lazy">
+            <img src="images/hero-v3.jpg" alt="Hero Image 3" class="hero-slide" loading="lazy">
+            <img src="images/hero-v4.jpg" alt="Hero Image 4" class="hero-slide" loading="lazy">
+            <img src="images/hero-v5.jpg" alt="Hero Image 5" class="hero-slide" loading="lazy">
+            <img src="images/hero-v6.jpg" alt="Hero Image 6" class="hero-slide" loading="lazy">
+            <img src="images/hero-v7.jpg" alt="Hero Image 7" class="hero-slide" loading="lazy">
+            <img src="images/hero-v8.jpg" alt="Hero Image 8" class="hero-slide" loading="lazy">
+            <img src="images/hero-v9.jpg" alt="Hero Image 9" class="hero-slide" loading="lazy">
+            <img src="images/hero-v10.jpg" alt="Hero Image 10" class="hero-slide" loading="lazy">
+            <img src="images/hero-v11.jpg" alt="Hero Image 11" class="hero-slide" loading="lazy">
         </div>
-        <div class="grid-col-6">
-            <div class="neon-card spotlight-card">
-                <img src="images/cards/card-10-tech-chaos.jpg" alt="Lynx Spotlight" class="card-img">
-                <div class="card-content">
-                    <h3><i class="fas fa-bolt"></i> Nightly Spotlight: Lynx</h3>
-                    <p>Your neon guide—Lynx—bashed bugs all night with PixelPulse! Hero’s cycling, theme’s flipping—chaos turned cosmic. Catch the vibe on <a href="https://www.twitch.tv/AmbientPixelsLive" target="_blank">Twitch</a>!</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="grid-container">
-        <div class="grid-col-12">
-            <div class="neon-card">
-                <h3><i class="fas fa-trophy"></i> Daily Log: April 6, 2025</h3>
-                <p>Today’s wins—crushing chaos ‘til dawn with our Process Forge grind:</p>
-                <ul>
-                    <li>Bugs bashed—hero images load, theme switcher toggles—we iterated fast, four shots to lock <a href="/index.html">Home</a>.</li>
-                    <li>Scripts merged—<code>main.js</code> runs it all, redundant files zapped—grid crafted tight with <code>cols: 12</code>.</li>
-                    <li>New neon drops—<code>card-08-glitch-art.jpg</code>, <code>card-09-synth-beat.jpg</code>, <code>card-10-tech-chaos.jpg</code>—cleared static, kept it humming!</li>
-                </ul>
-                <p><a href="/docs.html">Dive into Docs</a> for the full tech breakdown!</p>
-            </div>
-        </div>
-        <div class="grid-col-12">
-            <div class="neon-card">
-                <h3><i class="fas fa-lightbulb"></i> <span class="small-caps">Tips</span> Vault</h3>
-                <blockquote>“Glow smarter—code sharper.”</blockquote>
-                <p>Lynx here—droppin’ neon nuggets from the grind (April 2, 2025). These tips spark the grid!</p>
-                <div class="grid-col-6">
-                    <h3><i class="fas fa-save"></i> Slim the Code</h3>
-                    <p>Cut hero pics from 22 to 10—<code>lines: lite;</code>. Less bulk, faster pulse—keep it lean, human!</p>
-                </div>
-                <div class="grid-col-6">
-                    <h3><i class="fas fa-link"></i> Cross-Link Chaos</h3>
-                    <p>Scatter links—<code>explore: max;</code>—like jumps to <a href="/test.html">Test</a> or <a href="/projects.html">Projects</a>. Web’s alive—click the neon!</p>
-                </div>
-                <div class="grid-col-6">
-                    <h3><i class="fas fa-comment"></i> Clear the Static</h3>
-                    <p>Miscomms glitch us—<code>retry: 4;</code>. Sync the vibe, keep it hummin’—sharp signals rule!</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <section class="neon-section grid-container">
-        <div class="grid-col-12">
-            <h2><i class="fas fa-bolt"></i> EchoGrid Pulse</h2>
-            <p>April 6, 2025—EchoGrid v2.1.10 sparks alive:</p>
-        </div>
-        <div class="grid-col-6">
-            <div class="neon-card">
-                <img src="images/cards/card-08-glitch-art.jpg" alt="Neon Wins" class="card-img">
-                <div class="card-content">
-                    <h3>Wins</h3>
-                    <ul>
-                        <li>Theme Switcher: Moon and sun icons—dark/light vibes perfected.</li>
-                        <li>Grid Reboot: Hero images fixed, circuits hum electric.</li>
-                        <li>Robot Spin: Loader spins—cyberpunk polish live.</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="grid-col-6">
-            <div class="neon-card">
-                <img src="images/cards/card-09-synth-beat.jpg" alt="Neon Drops" class="card-img">
-                <div class="card-content">
-                    <h3>Drops</h3>
-                    <p>New Onboarding Video—Sleek, green-glowing experience for game devs with Ava’s VO fresh from the studio yesterday, motion design, UI walkthroughs. Powered by After Effects—drops soon! <a href="/test.html">Test</a></p>
-                    <p>EchoForge Teaser—AI voice vibes coming to <a href="/test.html">Test</a>!</p>
-                    <p>Sub-Hero Shift—Pages refreshed with sleek style.</p>
-                </div>
-            </div>
-        </div>
-        <div class="grid-col-6">
-            <div class="neon-card">
-                <img src="images/cards/card-09-synth-beat.jpg" alt="StreamBeats Spotlight" class="card-img">
-                <div class="card-content">
-                    <h3>Music Spotlight: StreamBeats</h3>
-                    <p>Synthwave, Lo-Fi, and EDM—<a href="https://open.spotify.com/artist/6W5JdvJEUZ34p6mHzDdG5d" target="_blank">StreamBeats</a> by Harris Heller powers our Twitch chaos. Neon beats, DMCA-free—perfect for live coding and cosmic design drops!</p>
-                </div>
-            </div>
-        </div>
-        <div class="grid-col-6">
-            <div class="neon-card">
-                <img src="images/cards/card-10-tech-chaos.jpg" alt="$COOLS Announcement" class="card-img">
-                <div class="card-content">
-                    <h3><i class="fas fa-rocket"></i> $COOLS Ignites!</h3>
-                    <p>From the neon abyss, $COOLS emerges—a cryptic coin pulsing with Cool S echoes. Full production ignites now. Will you stack the enigma and claim the future?</p>
-                    <p><a href="#" class="btn">STACK $COOLS</a></p>
-                </div>
-            </div>
+        <div class="hero-content">
+            <h1 class="hero-headline">Ambient Pixels</h1>
+            <p class="hero-subheadline">A Cyberpunk Sandbox</p>
         </div>
     </section>
-    <div id="footer-placeholder"></div>
-    <script src="js/main.js" defer></script>
+    <main class="grid-container">
+        <section class="content-section grid-col-6">
+            <h2>Welcome</h2>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Welcome">Show More</button>
+            <div class="content" style="display: none;">Dive into a grid of cosmic chaos—built live on stream!</div>
+        </section>
+        <section class="content-section grid-col-6">
+            <h2>Live Build</h2>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Live Build">Show More</button>
+            <div class="content" style="display: none;">v2.3—crafted with PixelPulse and chat’s energy.</div>
+        </section>
+    </main>
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-links">
+                <a href="/contact">Contact</a>
+                <a href="#top">Back to Top</a>
+                <p>© 2025 Ambient Pixels</p>
+            </div>
+            <div class="footer-social">
+                <a href="https://deviantart.com" aria-label="DeviantArt"><i class="fab fa-deviantart"></i></a>
+                <a href="https://twitter.com" aria-label="X"><i class="fab fa-twitter"></i></a>
+                <a href="https://youtube.com" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                <a href="https://facebook.com" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+            </div>
+            <div class="footer-tagline">
+                <p>Built with precision, layered with depth</p>
+                <span id="version"></span>
+            </div>
+        </div>
+    </footer>
+    <script src="js/main.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/modal-window.js"></script>
 </body>
 </html>

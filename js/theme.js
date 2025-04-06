@@ -1,57 +1,33 @@
-// hero.js - Ambient Pixels v2.1.10
+// theme.js - Ambient Pixels v2.3 - April 5, 2025
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Hero JS loaded - Cosmic visuals pulsing');
-    const hero = document.getElementById('hero');
-    const loadingOverlay = document.getElementById('loading');
-    const headline = document.getElementById('hero-headline');
-    const subheading = document.getElementById('hero-subheading');
-
-    if (!hero || !loadingOverlay || !headline || !subheading) {
-        console.error('Hero elements missing:', { hero, loadingOverlay, headline, subheading });
+    const themeToggle = document.getElementById('theme-toggle');
+    if (!themeToggle) {
+        console.log('Theme toggle not found—check HTML!');
         return;
     }
 
-    const headlines = [
-        'Code Hums Electric', 'Neon Dreams Ignite', 'Where Chaos Sparks Genius',
-        'Booting the Multiverse', 'Welcome to the Glitch', 'Data Surge Online',
-        'Cosmic Scripts Loaded', 'Your Playground Awaits', 'Hack the Grid', 'Memes Activate'
-    ];
-    const subheadings = [
-        'A neon playground for cosmic chaos.', 'Initializing deep-space protocol.',
-        'Runtime: infinite;', 'Plug in and play.', 'Powered by coffee and stardust.',
-        'AI circuits warmed up.', 'Synthwave loaded. Let\'s go.', 'Dreams stitched in code.',
-        'Systems nominal. Begin.', 'Dark mode: engaged.'
-    ];
-    const heroImages = [
-        './images/hero/hero-01.jpg', './images/hero/hero-02.jpg', './images/hero/hero-03.jpg',
-        './images/hero/hero-04.jpg', './images/hero/hero-05.jpg', './images/hero/hero-06.jpg',
-        './images/hero/hero-07.jpg', './images/hero/hero-08.jpg', './images/hero/hero-09.jpg',
-        './images/hero/hero-10.jpg'
-    ];
-    let currentImageIndex = Math.floor(Math.random() * heroImages.length);
+    // Debug: Log initial state
+    console.log('Theme toggle loaded—initial theme:', localStorage.getItem('theme'));
 
-    const randomFrom = arr => arr[Math.floor(Math.random() * arr.length)];
-    heroImages.forEach((src) => {
-        const img = new Image();
-        img.src = src;
-        img.onload = () => console.log(`Preloaded: ${src}`);
-        img.onerror = () => console.error(`Failed to preload: ${src}`);
+    themeToggle.addEventListener('click', () => {
+        // Toggle class and update attribute
+        const body = document.body;
+        const isDark = body.classList.toggle('dark-theme');
+        body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        themeToggle.querySelector('i').className = isDark ? 'fas fa-moon' : 'fas fa-sun';
+        console.log('Theme toggled—new state:', isDark ? 'dark' : 'light');
     });
 
-    function cycleBackground() {
-        hero.style.backgroundImage = `url(${heroImages[currentImageIndex]})`;
-        console.log(`Setting background: ${heroImages[currentImageIndex]}`);
-        currentImageIndex = (currentImageIndex + 1) % heroImages.length;
+    // Initial theme setup
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+        document.body.setAttribute('data-theme', 'dark');
+        themeToggle.querySelector('i').className = 'fas fa-moon';
+    } else {
+        document.body.classList.remove('dark-theme');
+        document.body.setAttribute('data-theme', 'light');
+        themeToggle.querySelector('i').className = 'fas fa-sun';
     }
-
-    headline.textContent = randomFrom(headlines);
-    subheading.textContent = randomFrom(subheadings);
-    cycleBackground();
-    setInterval(cycleBackground, 10000);
-
-    setTimeout(() => {
-        console.log('Fading out loading overlay');
-        loadingOverlay.classList.add('fade-out');
-        hero.classList.add('loaded');
-    }, 3500);
 });

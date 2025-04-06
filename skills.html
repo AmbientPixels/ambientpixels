@@ -1,3 +1,4 @@
+<!-- skills.html - Ambient Pixels v2.1.10-20250406 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +7,7 @@
     <meta name="description" content="Ambient Pixels v2.1.10—Skills Showcase">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <title>Ambient Pixels - Skills</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/layout.css">
@@ -16,20 +17,54 @@
     <link rel="stylesheet" href="css/banner.css">
 </head>
 <body data-theme="dark">
-    <div id="header-placeholder"></div>
-    <div class="sub-hero mini-hero">
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo"><img src="images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels Logo"></a>
+            <button class="nav-toggle" aria-label="Toggle Navigation"><i class="fas fa-bars"></i></button>
+            <ul class="nav-links">
+                <li><a href="/index.html" aria-label="Home"><i class="fas fa-home"></i></a></li>
+                <li><a href="/test.html" aria-label="Test"><i class="fas fa-flask"></i></a></li>
+                <li><a href="/projects.html" aria-label="Projects"><i class="fas fa-code"></i></a></li>
+                <li><a href="/art.html" aria-label="Art"><i class="fas fa-paint-brush"></i></a></li>
+                <li><a href="/skills.html" aria-label="Skills"><i class="fas fa-star"></i></a></li>
+                <li><a href="/tools.html" aria-label="Tools"><i class="fas fa-tools"></i></a></li>
+                <li><a href="/dev.html" aria-label="Dev Hub"><i class="fas fa-cogs"></i></a></li>
+                <li><button id="theme-toggle" aria-label="Toggle Theme"><i class="fas fa-moon"></i></button></li>
+            </ul>
+        </div>
+    </nav>
+    <section class="sub-hero mini-hero">
         <img src="images/mini-hero/mini-hero-01-cyber-alley.jpg" alt="Skills Mini Hero" class="sub-hero-img">
         <h1>Skills Grid</h1>
-    </div>
-    <div class="grid-container">
+    </section>
+    <main class="grid-container">
         <section class="grid-col-12">
             <h2><i class="fas fa-star"></i> <span class="small-caps">Skills</span></h2>
             <blockquote>“Neon talents spark—grids shine.”</blockquote>
             <p>Lynx’s skill showcase—<code>expertise: max;</code>—April 6, 2025. From code to chaos, check the glow!</p>
         </section>
-        <!-- Add your existing skills content here, e.g., grid-col-6 cards -->
-    </div>
-    <div id="footer-placeholder"></div>
-    <script src="js/main.js" defer></script>
+    </main>
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-links">
+                <a href="/contact">Contact</a>
+                <a href="#top">Back to Top</a>
+                <p>© 2025 Ambient Pixels</p>
+            </div>
+            <div class="footer-social">
+                <a href="https://deviantart.com" aria-label="DeviantArt"><i class="fab fa-deviantart"></i></a>
+                <a href="https://twitter.com" aria-label="X"><i class="fab fa-twitter"></i></a>
+                <a href="https://youtube.com" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                <a href="https://facebook.com" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+            </div>
+            <div class="footer-tagline">
+                <p>Built in the dark, glowing by starlight</p>
+                <span id="version"></span>
+            </div>
+        </div>
+    </footer>
+    <script src="js/main.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/modal-window.js"></script>
 </body>
 </html>

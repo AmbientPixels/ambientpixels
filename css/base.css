@@ -1,35 +1,17 @@
-/* base.css - Ambient Pixels v2.1.0-20250402 */
+/* base.css - Ambient Pixels v2.3 - April 5, 2025 */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
-
 body {
     font-family: 'Inter', sans-serif;
-    background: #0A0F14;
-    color: #E0E6F0;
     line-height: 1.6;
 }
-
 a {
     text-decoration: none;
     color: inherit;
-    transition: color 0.3s ease;
 }
-
-a:hover {
-    color: var(--highlight-dark);
-}
-
-body[data-theme="light"] a:hover {
-    color: var(--highlight-light);
-}
-
-ul, ol {
+ul {
     list-style: none;
-}
-
-h1, h2, h3 {
-    margin-bottom: 10px;
 }
