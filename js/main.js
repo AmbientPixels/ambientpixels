@@ -1,4 +1,4 @@
-// main.js - Ambient Pixels v2.3 - April 5, 2025
+// main.js - Ambient Pixels v2.3 - April 6, 2025
 const VERSION = 'v2.3';
 
 function initBanners() {
@@ -29,9 +29,21 @@ function initHero() {
     if (!loading || !slides.length) return;
 
     const headlines = [
-        { h1: 'Tech Lab', p: 'A Sandbox for Innovation' },
-        { h1: 'Code Unleashed', p: 'Precision Meets Depth' },
-        { h1: 'Layered Systems', p: 'Built for the Future' }
+        'Code Hums Electric', 'Neon Dreams Ignite', 'Where Chaos Sparks Genius',
+        'Booting the Multiverse', 'Welcome to the Glitch', 'Data Surge Online',
+        'Cosmic Scripts Loaded', 'Your Playground Awaits', 'Hack the Grid', 'Memes Activate'
+    ];
+    const subheadlines = [
+        'A neon playground for cosmic chaos.',
+        'Initializing deep-space protocol.',
+        'Runtime: infinite;',
+        'Plug in and play.',
+        'Powered by coffee and stardust.',
+        'AI circuits warmed up.',
+        'Synthwave loaded. Let\'s go.',
+        'Dreams stitched in code.',
+        'Systems nominal. Begin.',
+        'Dark mode: engaged.'
     ];
 
     let currentSlide = 0;
@@ -39,11 +51,16 @@ function initHero() {
         slides[currentSlide].classList.remove('active');
         currentSlide = (currentSlide + 1) % slides.length;
         slides[currentSlide].classList.add('active');
+        const headlineIndex = Math.floor(Math.random() * headlines.length);
+        const subIndex = Math.floor(Math.random() * subheadlines.length);
+        document.querySelector('.hero-content h1').textContent = headlines[headlineIndex];
+        document.querySelector('.hero-content p').textContent = subheadlines[subIndex];
     }
 
-    const randomIndex = Math.floor(Math.random() * headlines.length);
-    document.querySelector('.hero-content h1').textContent = headlines[randomIndex].h1;
-    document.querySelector('.hero-content p').textContent = headlines[randomIndex].p;
+    const headlineIndex = Math.floor(Math.random() * headlines.length);
+    const subIndex = Math.floor(Math.random() * subheadlines.length);
+    document.querySelector('.hero-content h1').textContent = headlines[headlineIndex];
+    document.querySelector('.hero-content p').textContent = subheadlines[subIndex];
 
     setTimeout(() => {
         loading.style.opacity = '0';
