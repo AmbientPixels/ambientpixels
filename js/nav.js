@@ -1,15 +1,14 @@
-// nav.js - Ambient Pixels v2.3 - April 5, 2025
+// nav.js - Ambient Pixels v2.3 - April 7, 2025
 document.addEventListener('DOMContentLoaded', () => {
-    const navToggle = document.querySelector('.nav-toggle');
-    const navLinks = document.querySelector('.nav-links');
-
-    if (!navToggle || !navLinks) return;
-
-    navToggle.addEventListener('click', () => {
-        navLinks.classList.toggle('active');
-    });
-
-    window.addEventListener('resize', () => {
-        if (window.innerWidth > 768) navLinks.classList.remove('active');
-    });
+    const checkNavToggle = setInterval(() => {
+        const navToggle = document.querySelector('.nav-toggle');
+        const navLinks = document.querySelector('.nav-links');
+        if (navToggle && navLinks) {
+            clearInterval(checkNavToggle);
+            navToggle.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+                navToggle.setAttribute('aria-expanded', navLinks.classList.contains('active'));
+            });
+        }
+    }, 100); // Check every 100ms until nav loads
 });

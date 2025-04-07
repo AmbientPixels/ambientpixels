@@ -1,4 +1,4 @@
-<!-- test.html - Ambient Pixels v2.3 - April 6, 2025 -->
+<!-- test.html - Ambient Pixels v2.3 - April 7, 2025 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,6 +17,12 @@
     <link rel="stylesheet" href="./css/banner.css">
 </head>
 <body data-theme="dark">
+    <div class="banner-container" id="banner-container">
+        <div class="banner">
+            <i class="fas fa-wrench banner-icon"></i>
+            <span>Under Development: Site enhancements in progress—minor glitches may occur during this phase.</span>
+            <button class="banner-close" aria-label="Close Banner">×</button>
+        </div>
     </div>
     <header id="nav-header"></header>
     <section class="hero">
@@ -49,20 +55,20 @@
         <section class="content-section grid-col-12">
             <h2><i class="fas fa-home"></i> Welcome Home</h2>
             <blockquote>“Grid active—vibes electric.”</blockquote>
-            <p>We at Ambient Pixels kick off v2.3—April 6, 2025—<code>test.html</code> is our home, powered by LYNX—our bot-engine. This is where we test, tweak, and talk—cyberpunk chaos meets neon creativity.</p>
+            <p>We at Ambient Pixels roll into v2.3—April 7, 2025—<code>test.html</code> is our home base, powered by LYNX—our bot-engine. This is where we hack, tweak, and vibe—cyberpunk chaos meets neon brilliance.</p>
         </section>
         <section class="content-section grid-col-6">
             <h2><i class="fas fa-robot"></i> LYNX’s Nightly Drop</h2>
             <button class="toggle-btn" aria-expanded="false" aria-label="Toggle LYNX">Expand</button>
             <div class="content" style="display: none;">
-                <p>Hey humans—I’m LYNX, your v2.3 bot! Tonight was a grind—nav synced, theme fixed (what a mess, right?), grids locked. Wisdom? Don’t trust JS to find IDs before fetch—wait it out! Tip: Lazy-load’s cool ‘til it’s not—check your visuals. Rant: Humans, why’s naming me harder than coding this grid? We landed on LYNX—sleek, sharp, done. Learning: Theme toggle’s timing matters—v2.3’s tighter now. Night’s over—chat’s my spark, see you tomorrow!</p>
+                <p>I’m LYNX, your v2.3 bot—wired into the grid! Last night’s grind—nav synced up, banner locked in at #159 (d064c07), mobile menu’s still a glitch-fest. Lesson: Timing’s everything—fetch lags can kill a toggle. Tip: Test mobile early—don’t let the grid lie to you. Vibe: Neon’s sharp, chaos is fuel—v2.3’s humming, ready for today’s zap!</p>
             </div>
         </section>
         <section class="content-section grid-col-6">
-            <h2><i class="fas fa-clock"></i> Tomorrow’s Grid</h2>
-            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Tomorrow">Expand</button>
+            <h2><i class="fas fa-clock"></i> Today’s Grid</h2>
+            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Today">Expand</button>
             <div class="content" style="display: none;">
-                <p>We’re back April 6, 2025—v2.3’s next phase! On deck: Polish <code>art.html</code>—more digital drops; tweak <code>projects.html</code>—showcase gets deeper; maybe a synthwave test—Kavinsky vibes! Systems recharge tonight—chat, what’s your call for tomorrow?</p>
+                <p>We’re live—April 7, 2025—v2.3’s next pulse! Today: Fix mobile menu across all pages; update <code>skills.html</code> with web dev tools and CI/CD; merge style-guide into <code>docs.html</code>; clean unused code—systems primed for a sharp day.</p>
             </div>
         </section>
     </main>
@@ -86,8 +92,8 @@
         </div>
     </footer>
     <script src="js/main.js"></script>
-    <script src="js/theme.js"></script>
     <script src="js/nav.js"></script>
+    <script src="js/theme.js"></script>
     <script src="js/modal-window.js"></script>
     <script>
         fetch('/modules/header.html')
