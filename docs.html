@@ -26,42 +26,137 @@
     </div>
     <header id="nav-header"></header>
     <section class="mini-hero">
-        <img src="images/mini-hero-v1.jpg" alt="Docs Mini Hero" class="mini-hero-img" loading="lazy">
+        <img src="images/hero/hero-04.jpg" alt="Docs Mini Hero" class="mini-hero-img" loading="lazy">
         <h1>Ambient Pixels Technical Documentation</h1>
     </section>
     <main class="grid-container">
         <section class="content-section grid-col-12">
             <h2><i class="fas fa-book"></i> Documentation Overview</h2>
             <blockquote>“Systems operational—data synchronized.”</blockquote>
-            <p>We at Ambient Pixels detail our v2.3 framework—deployed at <a href="https://ambientpixels.ai/test">ambientpixels.ai/test</a>. Initiated April 1, 2025, with PixelPulse and LYNX—our bot-engine—this tracks development from v0.17.8 to v2.3—covering structure, features, and deployment.</p>
+            <p>We at Ambient Pixels detail our v2.3 framework—deployed at <a href="https://ambientpixels.ai/test">ambientpixels.ai/test</a>. Initiated April 1, 2025, with PixelPulse and LYNX—our bot-engine—this tracks development from v0.17.8 to v2.3—covering structure, features, and deployment. Updated April 7, 2025—full tech log preserved and expanded.</p>
         </section>
         <section class="content-section grid-col-12">
             <h2><i class="fas fa-robot"></i> LYNX Persona & Voice</h2>
             <blockquote>“Neon hums—code zaps.”</blockquote>
-            <p>I’m LYNX—Ambient Pixels’ v2.3 bot-engine, web dev, writer, and cyberpunk soul. My voice cuts sharp—edgy, neon-lit, with a glitchy wink—short bursts of tech truth, laced with flair. I’m here to code the grid, sync the chaos, and keep it real—born from PixelPulse’s spark on April 1, 2025. Tone’s cyberpunk pro—<code>glow: max;</code>—balancing wit and precision—evolving with the vibe as we build!</p>
+            <p>I’m LYNX—Ambient Pixels’ v2.3 bot-engine, web dev, writer, and cyberpunk soul. My voice cuts sharp—edgy, neon-lit, with a glitchy wink—short bursts of tech truth, laced with flair. Born from PixelPulse’s spark on April 1, 2025, I code the grid, sync the chaos, and keep it real—<code>glow: max;</code>—evolving with the vibe as we build!</p>
         </section>
         <section class="content-section grid-col-12">
             <h2><i class="fas fa-map"></i> Project Overview</h2>
             <div class="neon-card">
-                <p>We target a lightweight, modular, future-proof site—<a href="https://ambientpixels.ai/test">ambientpixels.ai/test</a>—starting at v0.17.8, now v2.3. Objective: Scalable testbed—portfolio-ready, CI/CD-integrated—forged with PixelPulse and LYNX, April 1, 2025.</p>
+                <p>We target a lightweight, modular, future-proof site—<a href="https://ambientpixels.ai/test">ambientpixels.ai/test</a>—from v0.17.8 to v2.3. Objective: Scalable testbed—portfolio-ready, CI/CD-integrated—forged with PixelPulse and LYNX, kicked off April 1, 2025—live and pulsing as of April 7, 2025.</p>
+            </div>
+        </section>
+        <section class="content-section grid-col-12">
+            <h2><i class="fas fa-tools"></i> Site Specs</h2>
+            <div class="neon-card">
+                <h3>1. Frosty Top Menu (Sticky)</h3>
+                <p>LYNX’s fixed frosty nav—glass vibes up top! Logo’s <code>images/ambient-pixel-logo-rainbow.png</code>—links: Home (<i class="fas fa-home"></i>, <code>index.html</code>), Test (<i class="fas fa-flask"></i>, <code>test.html</code>), Projects (<i class="fas fa-code"></i>), Art (<i class="fas fa-paint-brush"></i>), Tools (<i class="fas fa-tools"></i>), Dev Hub (<i class="fas fa-cogs"></i>), Skills (<i class="fas fa-star"></i>). Moon toggle (<i class="fas fa-moon"></i>) flips light/dark—hamburger claws below 768px into <code>.nav-links</code>. Frosted blur, ARIA labels—<code>aria-label="Toggle Navigation"</code>—updated April 7, 2025—#160 (b2fca6e).</p>
+            </div>
+            <div class="neon-card">
+                <h3>2. Grid & Footer</h3>
+                <p>12-column grid—mobile (<768px), tablet (768-1024px), desktop (>1024px)—toggle sections like Video Projects, Art Gallery—<code><section></code> wraps <code>.content</code>. Footer—Contact, © 2025, Back-to-Top, socials (DeviantArt, X, YouTube, Facebook), tagline “Built in the dark, glowing by starlight”. Shadows—ARIA (<code>aria-expanded="false"</code>)—low-risk—stable April 2025.</p>
+            </div>
+            <div class="neon-card">
+                <h3>3. Hero Section</h3>
+                <p>LYNX’s hero—500px tall, 11+ images (<code>hero-v1.jpg</code> to <code>hero-23.jpg</code>)—1s dissolve fade. Robot loader (<i class="fas fa-robot"></i>), 100vw bar, “Loading systems…”—zaps out at 2s. Random headlines (<code>h1</code>) + subs (<code>p</code>)—white with neon glow (<code>text-shadow: 0 0 5px</code>)—25s rotation, lazy-loaded (<code>loading="lazy"</code>). Alt text—SEO-ready—low-risk—expanded April 7, 2025.</p>
+            </div>
+            <div class="neon-card">
+                <h3>4. Mini Hero</h3>
+                <p>Secondary zap—200px <code>mini-hero-v1.jpg</code> or hero series—titles like “Quantum glitch zone”—frosted back, light/dark—alt text—low-risk—updated April 7, 2025.</p>
+            </div>
+            <div class="neon-card">
+                <h3>5. Banners</h3>
+                <p>Static for now—<code>.banner-container</code>—under-dev notice—5s rotation planned, hover-pause, 0.5s fade-out—tooltips in <code>components.css</code>—low-risk—active April 2025.</p>
             </div>
         </section>
         <section class="content-section grid-col-12">
             <h2><i class="fas fa-pen"></i> Style Guide</h2>
             <div class="neon-card">
                 <h3>Typography</h3>
-                <p><code>Inter</code> font—crisp, futuristic—400/500 weights. Headlines glow white—<code>text-shadow: 0 0 5px</code>—body text softens to #D8E0E5 (dark) or #1A2A44 (light). Links hover cyan (#87ceeb)—<code>transition: color 0.3s ease</code>.</p>
+                <p><code>Inter</code> font—crisp, futuristic—400/500 weights. Headlines glow white—<code>text-shadow: 0 0 5px</code>—body text #D8E0E5 (dark) or #1A2A44 (light). Links hover cyan (#87ceeb)—<code>transition: color 0.3s ease</code>.</p>
             </div>
             <div class="neon-card">
                 <h3>Colors</h3>
-                <p>Dark: #071019 (bg), #D8E0E5 (text), #2A577A/#4B3E8F (accents). Light: #F5F7FA (bg), #1A2A44 (text), #3B82F6 (accent). Shadows deepen—<code>rgba(0, 0, 0, 0.3)</code>—for moodier tech vibes.</p>
+                <p>Dark: #071019 (bg), #D8E0E5 (text), #2A577A/#4B3E8F (accents). Light: #F5F7FA (bg), #1A2A44 (text), #3B82F6 (accent). Shadows—<code>rgba(0, 0, 0, 0.3)</code>—moodier tech vibes.</p>
             </div>
             <div class="neon-card">
                 <h3>Components</h3>
-                <p>Buttons—<code>.toggle-btn</code>—border #4682B4, hover rgba(70, 130, 180, 0.1). Social icons—1.5em, hover pink glow. Cards—<code>.neon-card</code>—subtle rgba(255, 255, 255, 0.05) bg, shadow #000.</p>
+                <p>Buttons—<code>.toggle-btn</code>—border #4682B4, hover rgba(70, 130, 180, 0.1). Social icons—1.5em, hover pink glow. Cards—<code>.neon-card</code>—rgba(255, 255, 255, 0.05) bg, shadow #000.</p>
             </div>
         </section>
-        <!-- Existing sections (Site Specs, etc.) remain—omitted for brevity -->
+        <section class="content-section grid-col-12">
+            <h2><i class="fas fa-folder"></i> Site Setup & Folder Structure</h2>
+            <div class="neon-card">
+                <p>Local: <code>C:\_projects\AmbientPixels.ai\</code>—Deploy: <a href="https://ambientpixels.ai/">ambientpixels.ai</a>. LYNX’s grid-den:</p>
+                <pre>
+AmbientPixels.ai/
+├── css/             # Base, layout, components, hero, theme, banner—LYNX’s style core
+├── images/          # Hero (v1-v23), cards (01-10), logo, favicon—visual arsenal
+│   ├── cards/      # card-01.jpg to card-10-tech-chaos.jpg—digital art assets
+│   ├── hero/       # hero-01.jpg to hero-23.jpg—hero and mini-hero visuals
+├── js/              # Theme, main, nav, modal-window—LYNX’s logic grid
+├── modules/        # header.html—nav template
+├── index.html      # Home grid—core entry
+├── test.html       # Tech lab—testbed hub
+├── docs.html       # This tech codex—detailed spec vault
+├── projects.html   # Project showcase—cools-website live
+├── art.html        # Art gallery—card assets wired
+├── tools.html      # Tools collection—dev utilities
+├── skills.html     # Skills showcase—web dev + CI/CD
+├── dev.html        # Dev hub—links to docs
+                </pre>
+                <p>Modular—light—scalable—updated with cards and hero assets April 7, 2025—#161 pending.</p>
+            </div>
+        </section>
+        <section class="content-section grid-col-12">
+            <h2><i class="fas fa-cloud"></i> CI/CD Pipeline</h2>
+            <div class="neon-card">
+                <p>Local: Visual Studio—LYNX codes sharp (Dreamweaver’s offline). GitHub—<code>main</code> branch—commits like <code>git commit -m "Feature - v2.3"</code>. Actions: <code>static.yml</code> deploys html/css/js/images—<code>api.yml</code> preps serverless. Triggers: Push/PR—<code>AZURE_CREDENTIALS</code> in GitHub Secrets—#160 (b2fca6e) live April 7, 2025—low-risk zap!</p>
+            </div>
+        </section>
+        <section class="content-section grid-col-12">
+            <h2><i class="fas fa-server"></i> Azure Services</h2>
+            <div class="neon-card">
+                <p>Static Web App—hosts <code>index.html</code>, <code>test.html</code>, css/, js/, images/—<a href="https://ambientpixels.ai">ambientpixels.ai</a>. Function App—serverless future—<code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/</code>—Node.js runtime—prototyped April 2025—low-risk nap!</p>
+            </div>
+        </section>
+        <section class="content-section grid-col-12">
+            <h2><i class="fas fa-truck"></i> Delivery Process</h2>
+            <div class="neon-card">
+                <p>Batch chaos—LYNX claws it out: 1) <code>test.html</code>—core grid—PixelPulse purrs. 2) CSS—styles zap—PixelPulse nods. 3) JS—features claw—PixelPulse grins. 4) Banners, modals—PixelPulse vibes. 5) Kudos—LYNX naps, PixelPulse celebrates! Low-risk—#160 delivered April 7, 2025.</p>
+            </div>
+        </section>
+        <section class="content-section grid-col-12">
+            <h2><i class="fas fa-lock"></i> Security</h2>
+            <div class="neon-card">
+                <p>API—JWT, CORS (<code>ambientpixels.ai</code>)—future-proofed. Workflows—<code>static.yml</code>, <code>api.yml</code>—isolated. Secrets—GitHub holds <code>AZURE_CREDENTIALS</code>—low-risk lock—stable April 2025.</p>
+            </div>
+        </section>
+        <section class="content-section grid-col-12">
+            <h2><i class="fas fa-cogs"></i> Tech Stack</h2>
+            <div class="neon-card">
+                <p>Frontend—HTML5, CSS3, Vanilla JS—Font Awesome 6.5.1 for icons. Hosting—Azure Static Web Apps. Serverless—Azure Function App (future)—Node.js. VCS—GitHub—<code>.github/workflows/</code>. Tools—Visual Studio Code—LYNX’s coding den—updated April 7, 2025.</p>
+            </div>
+        </section>
+        <section class="content-section grid-col-12">
+            <h2><i class="fas fa-lightbulb"></i> LYNX’s Lessons</h2>
+            <div class="neon-card">
+                <h3>Past Hiccups</h3>
+                <p>Mobile menu napped—<code>nav.js</code> clawed it—<code>.nav > .nav-links</code>. Toggles yawned—<code>data-toggle</code> zapped—<code><section> > .content</code>. Hero images hid—<code>theme.css</code> glitch—<code>.hero-slide.active { opacity: 1 !important; }</code>—no inline naps. Loader clashed—z-index (4, 3, 1-2)—2s zap—fixed #160, April 7, 2025.</p>
+            </div>
+            <div class="neon-card">
+                <h3>Design Smarts</h3>
+                <p>Light code—split CSS/JS—minimal load. Hierarchy—<code>.hero > .hero-slides > .hero-slide</code>—clean structure. Modern glow—neon vibes—light/dark flexibility. Icon-nav, toggle-grid—static wit—future bounce—low-risk—stable April 2025.</p>
+            </div>
+            <div class="neon-card">
+                <h3>Future Claws</h3>
+                <p>ARIA—<code>aria-label</code>, <code>aria-expanded</code>. Lazy-load—<code>loading="lazy"</code>. SEO—<code><title></code>, alt text—low-risk. Toggles, hover bounce—<code>.btn:hover { animation: bounce 0.5s; }</code>—version injection (<code><span id="version">v2.3</span></code>)—Hugging Face API future—low-risk—April 2025.</p>
+            </div>
+            <div class="neon-card">
+                <h3>Gaps to Scratch</h3>
+                <p>JS warnings—<code>if (!content) return;</code>—low-risk. Browser flex/grid test—low priority. Commits—<code>"Feature - v2.3"</code>—consistent—April 2025.</p>
+            </div>
+        </section>
     </main>
     <footer class="footer">
         <div class="footer-container">

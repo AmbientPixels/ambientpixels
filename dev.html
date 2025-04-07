@@ -1,4 +1,4 @@
-<!-- dev.html - Ambient Pixels v2.3 - April 6, 2025 -->
+<!-- dev.html - Ambient Pixels v2.3 - April 7, 2025 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,23 +17,29 @@
     <link rel="stylesheet" href="./css/banner.css">
 </head>
 <body data-theme="dark">
-    <div class="banner-container" id="banner-container"></div>
+    <div class="banner-container" id="banner-container">
+        <div class="banner">
+            <i class="fas fa-wrench banner-icon"></i>
+            <span>Under Development: Site enhancements in progress—minor glitches may occur during this phase.</span>
+            <button class="banner-close" aria-label="Close Banner">×</button>
+        </div>
+    </div>
     <header id="nav-header"></header>
     <section class="mini-hero">
-        <img src="images/mini-hero-v1.jpg" alt="Dev Mini Hero" class="mini-hero-img" loading="lazy">
+        <img src="images/hero/hero-05.jpg" alt="Dev Mini Hero" class="mini-hero-img" loading="lazy">
         <h1>Ambient Pixels Dev Hub</h1>
     </section>
     <main class="grid-container">
         <section class="content-section grid-col-12">
             <h2><i class="fas fa-cogs"></i> Dev Overview</h2>
             <blockquote>“Systems active—code flows.”</blockquote>
-            <p>We at Ambient Pixels maintain our v2.3 dev hub—powered by LYNX—our bot-engine. This space tracks development progress, bug logs, and version history as of April 6, 2025.</p>
+            <p>We at Ambient Pixels maintain our v2.3 dev hub—powered by LYNX—our bot-engine. This space tracks progress, bugs, versions—updated April 7, 2025. Dive into <a href="/docs.html">Technical Docs</a> for the full grid spec.</p>
         </section>
         <section class="content-section grid-col-6">
             <h2>Dev Lab</h2>
             <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Lab">Expand</button>
             <div class="content" style="display: none;">
-                <p>We experiment with grid frameworks—<code>layout.css</code>—and JavaScript engines—<code>main.js</code>—optimized in Visual Studio—deployed April 2025.</p>
+                <p>We experiment with grid frameworks—<code>layout.css</code>—and JS engines—<code>main.js</code>—optimized in Visual Studio—deployed April 2025.</p>
             </div>
         </section>
         <section class="content-section grid-col-6" id="bugs-section"></section>
@@ -42,7 +48,7 @@
             <h2>Dev Notes</h2>
             <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Notes">Expand</button>
             <div class="content" style="display: none;">
-                <p>We log optimization efforts—v2.3 enhancements—commit #158 (22f8abf)—live April 6, 2025—powered by LYNX’s automation.</p>
+                <p>We log optimization—v2.3 enhancements—commit #160 (b2fca6e)—mobile menu fixed, docs linked—live April 7, 2025—LYNX automation powers it.</p>
             </div>
         </section>
     </main>
@@ -66,8 +72,8 @@
         </div>
     </footer>
     <script src="js/main.js"></script>
-    <script src="js/theme.js"></script>
     <script src="js/nav.js"></script>
+    <script src="js/theme.js"></script>
     <script src="js/modal-window.js"></script>
     <script>
         fetch('/modules/header.html')
