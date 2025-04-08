@@ -2,7 +2,7 @@ name: Update Nova Memory
 
 on:
   schedule:
-    - cron: '1 6 * * *'
+    - cron: '1 6 * * *'  # Every day at 6:01 AM UTC
   workflow_dispatch:
 
 jobs:
@@ -17,25 +17,28 @@ jobs:
         with:
           node-version: 18
 
-      - run: npm install || true
+      - name: Install dependencies (if any)
+        run: npm install || true
 
-      - run: node scripts/scanSiteStructure.js
-      - run: node scripts/componentScan.js
-      - run: node scripts/imageAudit.js
-      - run: node scripts/changelogSnapshot.js
-      - run: node scripts/versionTracker.js
-      - run: node scripts/codeFootprint.js
-      - run: node scripts/unusedCSS.js
-      - run: node scripts/moodScan.js
-      - run: node scripts/aiPromptGenerator.js
-      - run: node scripts/apiMonitor.js
-      - run: node scripts/jsFunctionMap.js
-      - run: node scripts/generateNovaBoot.js
+      - name: Run awareness scripts
+        run: |
+          node scripts/scanSiteStructure.js
+          node scripts/componentScan.js
+          node scripts/imageAudit.js
+          node scripts/changelogSnapshot.js
+          node scripts/versionTracker.js
+          node scripts/codeFootprint.js
+          node scripts/unusedCSS.js
+          node scripts/moodScan.js
+          node scripts/aiPromptGenerator.js
+          node scripts/apiMonitor.js
+          node scripts/jsFunctionMap.js
+          node scripts/generateNovaBoot.js
 
       - name: Commit Nova memory updates
         run: |
           git config user.name "NovaBot"
           git config user.email "nova@ambientpixels.ai"
-          git add data/*.json data/*.txt
+          git add data/*.json data/*.txt data/*.html
           git commit -m "Daily refresh: site memory update for Nova" || echo "No changes"
           git push
