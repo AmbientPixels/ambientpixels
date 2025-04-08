@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -35,10 +36,13 @@ jobs:
           node scripts/jsFunctionMap.js
           node scripts/generateNovaBoot.js
 
+      - name: Touch dummy file to trigger Azure deploy
+        run: echo "refresh: $(date -u)" >> nova-deploy-trigger.txt
+
       - name: Commit Nova memory updates
         run: |
           git config user.name "NovaBot"
           git config user.email "nova@ambientpixels.ai"
-          git add data/*.json data/*.txt data/*.html
+          git add data/*.json data/*.txt data/*.html nova-deploy-trigger.txt
           git commit -m "Daily refresh: site memory update for Nova" || echo "No changes"
           git push
