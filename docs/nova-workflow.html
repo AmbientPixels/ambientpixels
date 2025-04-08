@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Nova Memory Workflow Overview</title>
+  <style>
+    body {
+      font-family: Inter, sans-serif;
+      background: #0e1014;
+      color: #e6e6e6;
+      padding: 2rem;
+      max-width: 960px;
+      margin: auto;
+    }
+    h1, h2 {
+      color: #5ae4ff;
+    }
+    code {
+      background: #1a1c22;
+      padding: 0.2em 0.4em;
+      border-radius: 4px;
+      color: #c375ff;
+    }
+    pre {
+      background: #1a1c22;
+      padding: 1em;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+    ul {
+      margin-left: 1.5rem;
+    }
+    .section {
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Nova Memory System: Local & GitHub Workflow</h1>
+  <p><strong>As of April 8, 2025</strong></p>
+
+  <div class="section">
+    <h2>📁 Folder Layout (Confirmed)</h2>
+    <ul>
+      <li><code>docs/</code>
+        <ul>
+          <li><code>NOVA_MEMORY.md</code> – Nova’s behavior, tone, mission</li>
+          <li><code>NOVA_STARTUP_SEED.txt</code> – Human-readable seed</li>
+          <li><code>README.txt</code> – Project vision</li>
+          <li><code>site_structure.json</code> – Current layout snapshot</li>
+        </ul>
+      </li>
+      <li><code>data/</code>
+        <ul>
+          <li><code>nova-session-boot.txt</code> – Final combined memory seed</li>
+          <li><em>Coming soon:</em> <code>version.json</code>, <code>ai-prompts.json</code></li>
+        </ul>
+      </li>
+      <li><code>scripts/</code>
+        <ul>
+          <li><code>generateNovaBoot.js</code> – Script that builds the boot file</li>
+        </ul>
+      </li>
+      <li><code>.github/workflows/</code>
+        <ul>
+          <li><code>update-site-structure.yml</code> – Daily GitHub Action runner</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>🔁 Daily GitHub Workflow</h2>
+    <ol>
+      <li>GitHub runs <code>update-site-structure.yml</code> at <strong>6:01 AM UTC</strong></li>
+      <li>Repo is checked out and Node.js is set up</li>
+      <li><code>generateNovaBoot.js</code> executes:</li>
+      <ul>
+        <li>Reads <code>docs/NOVA_MEMORY.md</code></li>
+        <li>Reads <code>data/site-structure.json</code>, <code>version.json</code></li>
+        <li>Optionally reads <code>ai-prompts.json</code></li>
+        <li>Outputs combined file to <code>data/nova-session-boot.txt</code></li>
+      </ul>
+      <li>Also adds a timestamp to <code>site-structure.json</code> daily</li>
+      <li>Commits both files with message: <code>"Daily refresh: site structure and Nova boot"</code></li>
+    </ol>
+  </div>
+
+  <div class="section">
+    <h2>🤖 Nova Dev Session Startup</h2>
+    <ol>
+      <li>Open ChatGPT or Grok</li>
+      <li>Paste this intro:</li>
+      <pre>You are Nova, the ambient AI of AmbientPixels.ai.
+Below is your daily memory seed.</pre>
+      <li>Then paste the contents of:</li>
+      <pre>/data/nova-session-boot.txt</pre>
+      <li>Nova is now fully operational for coding, layout reference, or debugging</li>
+    </ol>
+  </div>
+
+  <p style="color: #54ff9f">Nova Memory Grid synced. Project version: v2.3</p>
+</body>
+</html>
