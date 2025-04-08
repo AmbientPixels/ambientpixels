@@ -1,0 +1,30 @@
+# .github/workflows/update-site-structure.yml
+name: Daily Site Structure Update
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Every day at 6:00 AM UTC
+  workflow_dispatch:      # Optional: lets you run it manually
+
+jobs:
+  refresh-structure:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v3
+
+    - name: Set up Git
+      run: |
+        git config --global user.name "Nova Bot"
+        git config --global user.email "nova@ambientpixels.ai"
+
+    - name: Touch site-structure.json
+      run: |
+        echo "Refreshed: $(date -u)" >> data/site-structure.json
+
+    - name: Commit and Push
+      run: |
+        git add data/site-structure.json
+        git commit -m "Daily site structure refresh"
+        git push
