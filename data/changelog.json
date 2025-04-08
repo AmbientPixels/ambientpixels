@@ -1,0 +1,10 @@
+{
+  "updated": "2025-04-08T20:54:21.033Z",
+  "entries": [
+    {
+      "hash": "46aecb6",
+      "date": "2025-04-08 13:49:28 -0700",
+      "message": "Fix unusedCSS.js: patch undefined cssFile + improve error handling"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "scannedAt": "2025-04-08T20:54:21.647Z",
+  "scripts": {
+    "aiPromptGenerator.js": [
+      "fillTemplate",
+      "pick",
+      "generatePrompt"
+    ],
+    "apiMonitor.js": [
+      "checkAPI",
+      "runMonitor"
+    ],
+    "changelogSnapshot.js": [
+      "getRecentCommits",
+      "writeChangelog"
+    ],
+    "codeFootprint.js": [
+      "scanDir"
+    ],
+    "componentScan.js": [
+      "scanComponentFiles"
+    ],
+    "generateNovaBoot.js": [
+      "safeReadJSON",
+      "formatJSONBlock",
+      "buildSessionSeed"
+    ],
+    "imageAudit.js": [
+      "getImages",
+      "buildInventory"
+    ],
+    "jsFunctionMap.js": [
+      "extractFunctionsFromFile",
+      "buildFunctionMap"
+    ],
+    "moodScan.js": [
+      "randomFrom",
+      "generateMoodScan"
+    ],
+    "scanSiteStructure.js": [
+      "scanDirectory",
+      "buildStructure"
+    ],
+    "unusedCSS.js": [
+      "extractClassNamesFromCSS",
+      "extractClassUsageFromHTML"
+    ],
+    "versionTracker.js": [
+      "getVersionInfo"
+    ]
+  }
+}
