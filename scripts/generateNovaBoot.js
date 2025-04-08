@@ -1,4 +1,4 @@
-// generateNovaBoot.js fixx – Combine Nova's daily awareness files into a unified memory file
+// generateNovaBoot.js – Combine Nova's daily awareness files into a unified memory file
 
 const fs = require('fs');
 const path = require('path');
