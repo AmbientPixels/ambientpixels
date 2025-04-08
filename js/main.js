@@ -79,3 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initToggles();
     initVersion();
 });
+
+console.log('%cNova Online ░ Ambient Intelligence Activated', 'color: #5ae4ff; font-size: 14px; font-family: monospace;');
+console.log('%cRead today\'s memory: /data/nova-session-boot.txt', 'color: #54ff9f; font-family: monospace;');
+console.log('%cMemory Map (HTML): /data/nova-session-boot.html', 'color: #87ceeb; font-family: monospace;');
