@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const htmlDir = path.resolve(__dirname, '..');
-const cssFile = path.join(htmlDir, 'assets/css/base.css'); // or change to css/components.css
+const cssPath = path.join(__dirname, '../css/base.css'); // or change to css/components.css
 const outputFile = path.join(htmlDir, 'data', 'unused-css-report.json');
 
 const excludeDirs = ['node_modules', 'data', 'docs', 'scripts', '.git', 'images', 'assets/js'];
