@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nova Daily Memory Refresh – System Overview</title>
+  <style>
+    body { font-family: Inter, sans-serif; background: #111; color: #eee; line-height: 1.6; padding: 2rem; }
+    h1, h2, h3 { color: #5ae4ff; }
+    code { background: #222; padding: 2px 4px; border-radius: 4px; color: #54ff9f; }
+    pre { background: #222; padding: 1rem; border-radius: 6px; overflow-x: auto; color: #eee; }
+    .section { margin-bottom: 2.5rem; }
+    .file-path { font-style: italic; color: #c375ff; }
+  </style>
+</head>
+<body>
+  <h1>🧠 Nova Memory System – Daily Refresh Overview</h1>
+
+  <div class="section">
+    <h2>What This Is</h2>
+    <p>This document outlines the automated system behind <strong>Nova’s daily memory refresh</strong> at <code>AmbientPixels.ai</code>. Every morning, Nova rebuilds her understanding of the site: its structure, visuals, creative tone, external APIs, and more.</p>
+  </div>
+
+  <div class="section">
+    <h2>How It Works</h2>
+    <p>Using a GitHub Actions workflow named <code>Update Nova Memory</code>, the following happens every day at <strong>6:01 AM UTC</strong>:</p>
+    <ol>
+      <li>The repo is cloned and Node.js is initialized</li>
+      <li>All <span class="file-path">/scripts/*.js</span> awareness scripts run sequentially</li>
+      <li>The output is written to <span class="file-path">/data/*.json</span> and <span class="file-path">nova-session-boot.txt</span></li>
+      <li>The GitHub Action commits and pushes the new memory files back to the repo</li>
+    </ol>
+  </div>
+
+  <div class="section">
+    <h2>Memory Awareness Modules</h2>
+    <ul>
+      <li><code>scanSiteStructure.js</code> – Detects pages and folder layout</li>
+      <li><code>componentScan.js</code> – Logs HTML includes and shared components</li>
+      <li><code>imageAudit.js</code> – Maps hero/card/media assets</li>
+      <li><code>changelogSnapshot.js</code> – Captures commit history</li>
+      <li><code>versionTracker.js</code> – Stores current version info</li>
+      <li><code>codeFootprint.js</code> – Measures file sizes and line counts</li>
+      <li><code>unusedCSS.js</code> – Flags unused classnames</li>
+      <li><code>moodScan.js</code> – Reads tone/voice from README or UI</li>
+      <li><code>aiPromptGenerator.js</code> – Creates a poetic creative prompt</li>
+      <li><code>apiMonitor.js</code> – Pings HuggingFace and Meme API endpoints</li>
+      <li><code>generateNovaBoot.js</code> – Combines all the above into Nova's boot file</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>Key Output Files</h2>
+    <ul>
+      <li><code>data/nova-session-boot.txt</code> – Nova's full daily memory (manual copy/paste into GPT)</li>
+      <li><code>data/ai-prompts.json</code> – Creative prompt of the day</li>
+      <li><code>data/api-monitor.json</code> – Latest status of connected APIs</li>
+      <li><code>data/site-structure.json</code> – Folder layout</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>GitHub Workflow File</h2>
+    <p>Located at: <span class="file-path">.github/workflows/update-site-structure.yml</span></p>
+    <p>This workflow is triggered on a schedule or manually. It automates the entire awareness scan and commits changes with the message:</p>
+    <pre><code>"Daily refresh: site memory update for Nova"</code></pre>
+  </div>
+
+  <div class="section">
+    <h2>Manual Testing</h2>
+    <ol>
+      <li>Go to GitHub → Actions → <strong>Update Nova Memory</strong></li>
+      <li>Click <strong>“Run workflow”</strong> manually</li>
+      <li>Check <span class="file-path">/data/</span> folder for updated files</li>
+    </ol>
+  </div>
+
+  <div class="section">
+    <h2>Next Ideas</h2>
+    <ul>
+      <li>Add <code>nova-memory.json</code> to track history across days</li>
+      <li>Let Nova self-report uptime or scan results to a dashboard</li>
+      <li>Create an admin panel or Nova console UI on the site</li>
+    </ul>
+  </div>
+
+  <footer style="margin-top: 3rem; font-size: 0.9em; color: #888;">
+    Nova v2.3 | Memory Core Online | Last updated: April 8, 2025
+  </footer>
+</body>
+</html>
