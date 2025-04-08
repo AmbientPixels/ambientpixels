@@ -1,0 +1,43 @@
+{
+  "version": "v2.3",
+  "date": "2025-04-08",
+  "pages": [
+    "index.html",
+    "test.html",
+    "art.html",
+    "projects.html",
+    "tools.html",
+    "docs.html",
+    "skills.html",
+    "dev.html"
+  ],
+  "components": {
+    "header": "includes/header.html",
+    "footer": "includes/footer.html",
+    "hero": ["assets/css/hero.css", "assets/js/main.js"],
+    "grid": "assets/css/layout.css",
+    "theme-toggle": ["assets/js/theme.js", "data-theme attribute"]
+  },
+  "layout": {
+    "body": [
+      "banner-container",
+      "header",
+      "hero",
+      "main.grid-container",
+      "footer"
+    ],
+    "grid": "12-column responsive layout for mobile, tablet, desktop",
+    "nav": "Sticky top nav with frosted glass styling and ARIA labels"
+  },
+  "knownIssues": [
+    "Occasional nav fetch delay on mobile",
+    "Modal load order bug with delayed toggle visibility"
+  ],
+  "recentUpdates": [
+    "2025-04-07: Fixed hero loader z-index bug and modal delay",
+    "2025-04-08: Nova replaced LYNX as active AI; startup seed created",
+    "2025-04-08: Footer version injection from version.json added",
+    "2025-04-08: Simplified banner styles and improved logging",
+    "2025-04-08: Grid layout planning expanded"
+  ]
+}
