@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2025-04-08T20:54:21.647Z",
+  "scannedAt": "2025-04-08T21:02:55.544Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -21,8 +21,7 @@
       "scanComponentFiles"
     ],
     "generateNovaBoot.js": [
-      "safeReadJSON",
-      "formatJSONBlock",
+      "readJSON",
       "buildSessionSeed"
     ],
     "imageAudit.js": [
