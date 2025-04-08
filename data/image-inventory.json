@@ -1,0 +1,85 @@
+{
+  "scannedAt": "2025-04-08T20:54:20.979Z",
+  "folders": [
+    {
+      "folder": "images",
+      "count": 29,
+      "files": [
+        "images/ambient-pixel-logo-rainbow.png",
+        "images/deviant-source.png",
+        "images/dievntart-template-16x9.jpg",
+        "images/hero-23.jpg",
+        "images/hero-V12.jpg",
+        "images/hero-V13.jpg",
+        "images/hero-V14.jpg",
+        "images/hero-V15.jpg",
+        "images/hero-V19.jpg",
+        "images/hero-V21.jpg",
+        "images/hero-v1.jpg",
+        "images/hero-v10.jpg",
+        "images/hero-v11.jpg",
+        "images/hero-v16.jpg",
+        "images/hero-v17.jpg",
+        "images/hero-v18.jpg",
+        "images/hero-v2.jpg",
+        "images/hero-v20.jpg",
+        "images/hero-v22.jpg",
+        "images/hero-v3.jpg",
+        "images/hero-v4.jpg",
+        "images/hero-v5.jpg",
+        "images/hero-v6.jpg",
+        "images/hero-v7.jpg",
+        "images/hero-v8.jpg",
+        "images/hero-v9.jpg",
+        "images/mini-hero-v1.jpg",
+        "images/mini-hero-v2.jpg",
+        "images/mini-hero-v3.jpg"
+      ]
+    },
+    {
+      "folder": "images/hero",
+      "count": 23,
+      "files": [
+        "images/hero/hero-01.jpg",
+        "images/hero/hero-02.jpg",
+        "images/hero/hero-03.jpg",
+        "images/hero/hero-04.jpg",
+        "images/hero/hero-05.jpg",
+        "images/hero/hero-06.jpg",
+        "images/hero/hero-07.jpg",
+        "images/hero/hero-08.jpg",
+        "images/hero/hero-09.jpg",
+        "images/hero/hero-10.jpg",
+        "images/hero/hero-11.jpg",
+        "images/hero/hero-12.jpg",
+        "images/hero/hero-13.jpg",
+        "images/hero/hero-14.jpg",
+        "images/hero/hero-15.jpg",
+        "images/hero/hero-16.jpg",
+        "images/hero/hero-17.jpg",
+        "images/hero/hero-18.jpg",
+        "images/hero/hero-19.jpg",
+        "images/hero/hero-20.jpg",
+        "images/hero/hero-21.jpg",
+        "images/hero/hero-22.jpg",
+        "images/hero/hero-23.jpg"
+      ]
+    },
+    {
+      "folder": "images/cards",
+      "count": 10,
+      "files": [
+        "images/cards/card-01.jpg",
+        "images/cards/card-02.jpg",
+        "images/cards/card-03.jpg",
+        "images/cards/card-04.jpg",
+        "images/cards/card-05.jpg",
+        "images/cards/card-06.jpg",
+        "images/cards/card-07-streambeats.jpg",
+        "images/cards/card-08-glitch-art.jpg",
+        "images/cards/card-09-synth-beat.jpg",
+        "images/cards/card-10-tech-chaos.jpg"
+      ]
+    }
+  ]
+}
