@@ -29,6 +29,7 @@ jobs:
       - run: node scripts/moodScan.js
       - run: node scripts/aiPromptGenerator.js
       - run: node scripts/apiMonitor.js
+      - run: node scripts/jsFunctionMap.js
       - run: node scripts/generateNovaBoot.js
 
       - name: Commit Nova memory updates

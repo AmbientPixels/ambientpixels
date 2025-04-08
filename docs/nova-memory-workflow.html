@@ -1,3 +1,4 @@
+<!-- Nova Memory Refresh System Overview – with JS Function Awareness -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,11 +15,11 @@
   </style>
 </head>
 <body>
-  <h1>🧠 Nova Memory System – Daily Refresh Overview</h1>
+  <h1>Nova Memory System – Daily Refresh Overview</h1>
 
   <div class="section">
     <h2>What This Is</h2>
-    <p>This document outlines the automated system behind <strong>Nova’s daily memory refresh</strong> at <code>AmbientPixels.ai</code>. Every morning, Nova rebuilds her understanding of the site: its structure, visuals, creative tone, external APIs, and more.</p>
+    <p>This document outlines the automated system behind <strong>Nova’s daily memory refresh</strong> at <code>AmbientPixels.ai</code>. Every morning, Nova rebuilds her understanding of the site: its structure, visuals, creative tone, external APIs, scripts, and more.</p>
   </div>
 
   <div class="section">
@@ -42,6 +43,7 @@
       <li><code>versionTracker.js</code> – Stores current version info</li>
       <li><code>codeFootprint.js</code> – Measures file sizes and line counts</li>
       <li><code>unusedCSS.js</code> – Flags unused classnames</li>
+      <li><code>jsFunctionMap.js</code> – Extracts function names from site JS scripts</li>
       <li><code>moodScan.js</code> – Reads tone/voice from README or UI</li>
       <li><code>aiPromptGenerator.js</code> – Creates a poetic creative prompt</li>
       <li><code>apiMonitor.js</code> – Pings HuggingFace and Meme API endpoints</li>
@@ -53,9 +55,10 @@
     <h2>Key Output Files</h2>
     <ul>
       <li><code>data/nova-session-boot.txt</code> – Nova's full daily memory (manual copy/paste into GPT)</li>
+      <li><code>data/js-function-map.json</code> – Map of JS function names across project scripts</li>
       <li><code>data/ai-prompts.json</code> – Creative prompt of the day</li>
       <li><code>data/api-monitor.json</code> – Latest status of connected APIs</li>
-      <li><code>data/site-structure.json</code> – Folder layout</li>
+      <li><code>data/site-structure.json</code> – Folder layout snapshot</li>
     </ul>
   </div>
 
@@ -78,9 +81,10 @@
   <div class="section">
     <h2>Next Ideas</h2>
     <ul>
-      <li>Add <code>nova-memory.json</code> to track history across days</li>
+      <li>Add <code>nova-memory.json</code> to track memory across days</li>
       <li>Let Nova self-report uptime or scan results to a dashboard</li>
       <li>Create an admin panel or Nova console UI on the site</li>
+      <li>Use <code>js-function-map.json</code> for Nova to intelligently reference site tools</li>
     </ul>
   </div>
 
