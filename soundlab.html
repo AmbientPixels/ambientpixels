@@ -1,0 +1,43 @@
+<!-- C:\ambientpixels\EchoGrid\soundlab.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sound Lab ░ Ambient Pixels</title>
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/layout.css" />
+  <link rel="stylesheet" href="./css/components.css" />
+  <link rel="stylesheet" href="./css/theme.css" />
+</head>
+<body data-theme="dark">
+  <header id="nav-header"></header>
+
+  <div class="mini-hero">
+    <img src="./images/cards/card-07-streambeats.jpg" alt="Sound Lab" class="mini-hero-img" />
+    <h1>🎧 Welcome to the Sound Lab</h1>
+    <p>Streambeats, pulse loops, and waveform chaos—coming soon.</p>
+  </div>
+
+  <main class="grid-container">
+    <section class="content-section grid-col-12">
+      <p>Nova’s working on a new sound space for beats, samples, and experimental tones. You’ll be able to explore audio-reactive visuals, streamable loops, and more.</p>
+      <p><strong>Status:</strong> Initiating audio grid… please stand by.</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <p><a href="/">← Back to Home</a></p>
+      <p>Ambient Pixels v2.3</p>
+    </div>
+  </footer>
+  <script src="./js/nav.js"></script>
+  <script>
+    fetch('/modules/header.html')
+      .then(res => res.text())
+      .then(html => document.getElementById('nav-header').innerHTML = html)
+      .catch(err => console.error('Nav failed:', err));
+  </script>
+</body>
+</html>

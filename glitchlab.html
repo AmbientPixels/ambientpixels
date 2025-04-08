@@ -1,0 +1,43 @@
+<!-- C:\ambientpixels\EchoGrid\glitchlab.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Glitch Lab ░ Ambient Pixels</title>
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/layout.css" />
+  <link rel="stylesheet" href="./css/components.css" />
+  <link rel="stylesheet" href="./css/theme.css" />
+</head>
+<body data-theme="dark">
+  <header id="nav-header"></header>
+
+  <div class="mini-hero">
+    <img src="./images/cards/card-08-glitch-art.jpg" alt="Glitch Lab" class="mini-hero-img" />
+    <h1>💥 Enter the Glitch Lab</h1>
+    <p>Where pixels rebel and chaos becomes a design tool.</p>
+  </div>
+
+  <main class="grid-container">
+    <section class="content-section grid-col-12">
+      <p>This lab will showcase Nova’s glitch art experiments, corrupted assets, and visual tools for messing with form.</p>
+      <p><strong>Status:</strong> Systems unstable. That’s how we like it.</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <p><a href="/">← Back to Home</a></p>
+      <p>Ambient Pixels v2.3</p>
+    </div>
+  </footer>
+  <script src="./js/nav.js"></script>
+  <script>
+    fetch('/modules/header.html')
+      .then(res => res.text())
+      .then(html => document.getElementById('nav-header').innerHTML = html)
+      .catch(err => console.error('Nav failed:', err));
+  </script>
+</body>
+</html>
