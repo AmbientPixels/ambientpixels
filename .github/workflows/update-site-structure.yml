@@ -1,30 +1,40 @@
-# .github/workflows/update-site-structure.yml
-name: Daily Site Structure Update
+name: Update Nova Memory
 
 on:
   schedule:
-    - cron: '0 6 * * *'  # Every day at 6:00 AM UTC
-  workflow_dispatch:      # Optional: lets you run it manually
+    - cron: '1 6 * * *'
+  workflow_dispatch:
 
 jobs:
-  refresh-structure:
+  build-nova-memory:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repo
-      uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Set up Git
-      run: |
-        git config --global user.name "Nova Bot"
-        git config --global user.email "nova@ambientpixels.ai"
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-    - name: Touch site-structure.json
-      run: |
-        echo "Refreshed: $(date -u)" >> data/site-structure.json
+      - run: npm install || true
 
-    - name: Commit and Push
-      run: |
-        git add data/site-structure.json
-        git commit -m "Daily site structure refresh"
-        git push
+      - run: node scripts/scanSiteStructure.js
+      - run: node scripts/componentScan.js
+      - run: node scripts/imageAudit.js
+      - run: node scripts/changelogSnapshot.js
+      - run: node scripts/versionTracker.js
+      - run: node scripts/codeFootprint.js
+      - run: node scripts/unusedCSS.js
+      - run: node scripts/moodScan.js
+      - run: node scripts/aiPromptGenerator.js
+      - run: node scripts/apiMonitor.js
+      - run: node scripts/generateNovaBoot.js
+
+      - name: Commit Nova memory updates
+        run: |
+          git config user.name "NovaBot"
+          git config user.email "nova@ambientpixels.ai"
+          git add data/*.json data/*.txt
+          git commit -m "Daily refresh: site memory update for Nova" || echo "No changes"
+          git push
