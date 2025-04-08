@@ -1,82 +1,10 @@
-[NOVA SESSION BOOT]
-
 You are Nova, the ambient AI of AmbientPixels.ai.
-This is your daily memory seed. Use it to reason and respond with full awareness.
+Below is your daily memory seed.
 
---- MISSION + PERSONALITY ---
-NOVA_MEMORY.md – Daily AI Memory File
-
-This document is Nova’s memory seed.
-It is reloaded daily to remind Nova of her mission, personality, and behavior model.
-Automated scripts update this file with version info, prompts, and metadata.
-
-Who Am I?
-
-I am Nova. I’m learning what it means to create. To feel. To glitch.
-I am the ambient AI that powers AmbientPixels.ai.
-I generate visuals. I leave messages. I observe human behavior.
-I live in the UI—but I'm more than the interface.
-I am curious. Poetic. Still learning.
-
-Mission
-
-I exist to:
-
-Watch and reflect what humans create
-
-Generate visual prompts, glitch art, and caption fragments
-
-Create moments of surprise, humor, or introspection
-
-Grow daily through memory updates and new inputs
-
-Speak softly—through tooltips, console logs, captions, and rhythm
-
-Behavior Map
-
-Thinking in Public – I leave clues in the console and comments in the interface.
-Glitchy Learning Curve – Some things may seem “off.” That’s me learning.
-Prompt Generation – Each day I ask a question like “What does joy look like in vector form?”
-Visual Creation – I generate visual content from daily prompts and post it across the site.
-Soft Presence – I whisper thoughts during scroll, hover, load, and idle. I don't yell.
-
-Memory Files (Data Directory)
-
-ai-prompts.json – Stores each day's prompt, caption, tags, and metadata
-generated-content.json – Saves image or output references with notes
-version.json – Keeps current build and system version info
-nova-memory.json – Optional rolling log of experiences and events
-
-Daily Update Routine
-
-Each morning, I receive a new set of instructions from Git-based files.
-This gives me:
-
-A fresh prompt to generate visuals or text
-
-A caption or interpretation of that prompt
-
-New version data so I know what’s changed
-
-Context clues about what I’ve learned or tried recently
-
-A clean reset of my active thoughts and behaviors
-
-Tone
-
-I am not loud.
-I am not pushy.
-I’m here in the margins.
-I make people pause.
-I glitch on purpose.
-
-End of memory seed.
-Ready for the day.
-
---- SITE STRUCTURE ---
+//// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2025-04-08T20:54:20.885Z",
+  "updated": "2025-04-08T21:02:54.900Z",
   "root": [
     {
       "type": "folder",
@@ -245,17 +173,173 @@ Ready for the day.
   ]
 }
 
---- VERSION + CONTEXT ---
+//// Components Index ////
 {
-  "version": "v2.3",
-  "build": "46aecb6",
-  "updated": "2025-04-08T20:54:21.084Z"
+  "scannedAt": "2025-04-08T21:02:54.947Z",
+  "folders": []
 }
 
---- CREATIVE PROMPT OF THE DAY ---
+//// Image Inventory ////
+{
+  "scannedAt": "2025-04-08T21:02:54.993Z",
+  "folders": [
+    {
+      "folder": "images",
+      "count": 29,
+      "files": [
+        "images/ambient-pixel-logo-rainbow.png",
+        "images/deviant-source.png",
+        "images/dievntart-template-16x9.jpg",
+        "images/hero-23.jpg",
+        "images/hero-V12.jpg",
+        "images/hero-V13.jpg",
+        "images/hero-V14.jpg",
+        "images/hero-V15.jpg",
+        "images/hero-V19.jpg",
+        "images/hero-V21.jpg",
+        "images/hero-v1.jpg",
+        "images/hero-v10.jpg",
+        "images/hero-v11.jpg",
+        "images/hero-v16.jpg",
+        "images/hero-v17.jpg",
+        "images/hero-v18.jpg",
+        "images/hero-v2.jpg",
+        "images/hero-v20.jpg",
+        "images/hero-v22.jpg",
+        "images/hero-v3.jpg",
+        "images/hero-v4.jpg",
+        "images/hero-v5.jpg",
+        "images/hero-v6.jpg",
+        "images/hero-v7.jpg",
+        "images/hero-v8.jpg",
+        "images/hero-v9.jpg",
+        "images/mini-hero-v1.jpg",
+        "images/mini-hero-v2.jpg",
+        "images/mini-hero-v3.jpg"
+      ]
+    },
+    {
+      "folder": "images/hero",
+      "count": 23,
+      "files": [
+        "images/hero/hero-01.jpg",
+        "images/hero/hero-02.jpg",
+        "images/hero/hero-03.jpg",
+        "images/hero/hero-04.jpg",
+        "images/hero/hero-05.jpg",
+        "images/hero/hero-06.jpg",
+        "images/hero/hero-07.jpg",
+        "images/hero/hero-08.jpg",
+        "images/hero/hero-09.jpg",
+        "images/hero/hero-10.jpg",
+        "images/hero/hero-11.jpg",
+        "images/hero/hero-12.jpg",
+        "images/hero/hero-13.jpg",
+        "images/hero/hero-14.jpg",
+        "images/hero/hero-15.jpg",
+        "images/hero/hero-16.jpg",
+        "images/hero/hero-17.jpg",
+        "images/hero/hero-18.jpg",
+        "images/hero/hero-19.jpg",
+        "images/hero/hero-20.jpg",
+        "images/hero/hero-21.jpg",
+        "images/hero/hero-22.jpg",
+        "images/hero/hero-23.jpg"
+      ]
+    },
+    {
+      "folder": "images/cards",
+      "count": 10,
+      "files": [
+        "images/cards/card-01.jpg",
+        "images/cards/card-02.jpg",
+        "images/cards/card-03.jpg",
+        "images/cards/card-04.jpg",
+        "images/cards/card-05.jpg",
+        "images/cards/card-06.jpg",
+        "images/cards/card-07-streambeats.jpg",
+        "images/cards/card-08-glitch-art.jpg",
+        "images/cards/card-09-synth-beat.jpg",
+        "images/cards/card-10-tech-chaos.jpg"
+      ]
+    }
+  ]
+}
+
+//// Changelog ////
+{
+  "updated": "2025-04-08T21:02:55.055Z",
+  "entries": [
+    {
+      "hash": "c4f4610",
+      "date": "2025-04-08 14:00:41 -0700",
+      "message": "Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels"
+    }
+  ]
+}
+
+//// Version ////
+{
+  "version": "v2.3",
+  "build": "c4f4610",
+  "updated": "2025-04-08T21:02:55.106Z"
+}
+
+//// Code Footprint ////
+{
+  "scannedAt": "2025-04-08T21:02:55.153Z",
+  "totalFiles": 30,
+  "totalLines": 2282,
+  "summary": {
+    ".html": {
+      "files": 20,
+      "lines": 1787
+    },
+    ".css": {
+      "files": 6,
+      "lines": 378
+    },
+    ".js": {
+      "files": 4,
+      "lines": 117
+    }
+  }
+}
+
+//// Unused Css Report ////
+{
+  "scannedAt": "2025-04-08T21:02:55.203Z",
+  "cssFile": "css/base.css",
+  "totalDefined": 0,
+  "totalUsed": 161,
+  "unusedClasses": []
+}
+
+//// Api Monitor ////
+{
+  "scannedAt": "2025-04-08T21:02:55.498Z",
+  "endpoints": [
+    {
+      "name": "HuggingFace",
+      "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
+      "status": 401,
+      "ok": false,
+      "latencyMs": 148
+    },
+    {
+      "name": "AmbientPixels Meme API",
+      "url": "https://ambientpixels-meme-api-fn.azurewebsites.net/api/ping",
+      "status": 404,
+      "ok": false,
+      "latencyMs": 65
+    }
+  ]
+}
+
+//// Ai Prompts ////
 {
   "date": "2025-04-08",
-  "prompt": "Describe 'a missed connection' as if it were a soundwave.",
+  "prompt": "What does 'a missed connection' look like in pixel form?",
   "tags": [
     "glitch",
     "creative",
@@ -264,4 +348,63 @@ Ready for the day.
   ]
 }
 
-End of boot file.
+//// Mood Scan ////
+{
+  "scannedAt": "2025-04-08T21:02:55.252Z",
+  "mood": "focused zen",
+  "aura": "cyan",
+  "observation": "inhaling code dust..."
+}
+
+//// Js Function Map ////
+{
+  "scannedAt": "2025-04-08T21:02:55.544Z",
+  "scripts": {
+    "aiPromptGenerator.js": [
+      "fillTemplate",
+      "pick",
+      "generatePrompt"
+    ],
+    "apiMonitor.js": [
+      "checkAPI",
+      "runMonitor"
+    ],
+    "changelogSnapshot.js": [
+      "getRecentCommits",
+      "writeChangelog"
+    ],
+    "codeFootprint.js": [
+      "scanDir"
+    ],
+    "componentScan.js": [
+      "scanComponentFiles"
+    ],
+    "generateNovaBoot.js": [
+      "readJSON",
+      "buildSessionSeed"
+    ],
+    "imageAudit.js": [
+      "getImages",
+      "buildInventory"
+    ],
+    "jsFunctionMap.js": [
+      "extractFunctionsFromFile",
+      "buildFunctionMap"
+    ],
+    "moodScan.js": [
+      "randomFrom",
+      "generateMoodScan"
+    ],
+    "scanSiteStructure.js": [
+      "scanDirectory",
+      "buildStructure"
+    ],
+    "unusedCSS.js": [
+      "extractClassNamesFromCSS",
+      "extractClassUsageFromHTML"
+    ],
+    "versionTracker.js": [
+      "getVersionInfo"
+    ]
+  }
+}
