@@ -32,3 +32,14 @@
 #theme-toggle:hover {
     color: #4682B4; /* Subtle hover accent */
 }
+/* Nova Intro Block */
+#nova-intro {
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 4px solid #5ae4ff;
+    padding-left: 1rem;
+    transition: background 0.3s ease;
+  }
+  body[data-theme="light"] #nova-intro {
+    background: rgba(0, 0, 0, 0.03);
+    border-left-color: #3b82f6;
+  }
