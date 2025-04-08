@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const htmlDir = path.resolve(__dirname, '..');
-const cssPath = path.join(__dirname, '../css/base.css'); // or change to css/components.css
+const cssPath = path.join(__dirname, '../css/base.css'); // Adjust to target other CSS files if needed
 const outputFile = path.join(htmlDir, 'data', 'unused-css-report.json');
 
 const excludeDirs = ['node_modules', 'data', 'docs', 'scripts', '.git', 'images', 'assets/js'];
@@ -42,19 +42,23 @@ function extractClassUsageFromHTML(dir) {
   return used;
 }
 
-const cssContent = fs.readFileSync(cssFile, 'utf8');
-const definedClasses = extractClassNamesFromCSS(cssContent);
-const usedClasses = extractClassUsageFromHTML(htmlDir);
+try {
+  const cssContent = fs.readFileSync(cssPath, 'utf8');
+  const definedClasses = extractClassNamesFromCSS(cssContent);
+  const usedClasses = extractClassUsageFromHTML(htmlDir);
 
-const unused = definedClasses.filter(cls => !usedClasses.has(cls));
+  const unused = definedClasses.filter(cls => !usedClasses.has(cls));
 
-const result = {
-  scannedAt: new Date().toISOString(),
-  cssFile: path.relative(htmlDir, cssFile),
-  totalDefined: definedClasses.length,
-  totalUsed: usedClasses.size,
-  unusedClasses: unused
-};
+  const result = {
+    scannedAt: new Date().toISOString(),
+    cssFile: path.relative(htmlDir, cssPath),
+    totalDefined: definedClasses.length,
+    totalUsed: usedClasses.size,
+    unusedClasses: unused
+  };
 
-fs.writeFileSync(outputFile, JSON.stringify(result, null, 2));
-console.log(`✅ Nova's unused CSS report written to /data/unused-css-report.json`);
+  fs.writeFileSync(outputFile, JSON.stringify(result, null, 2));
+  console.log(`✅ Nova's unused CSS report written to /data/unused-css-report.json`);
+} catch (err) {
+  console.error("❌ Error scanning CSS:", err.message);
+}
