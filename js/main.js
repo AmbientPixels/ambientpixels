@@ -1,4 +1,4 @@
-// main.js - Ambient Pixels v2.3 - April 7, 2025
+// C:\ambientpixels\EchoGrid\js\main.js
 const VERSION = 'v2.3';
 
 function initBanners() {
@@ -14,15 +14,15 @@ function initHero() {
     if (!loading || !slides.length) return;
 
     const headlines = [
-        'Code Hums Electric', 'Neon Dreams Ignite', 'Where Chaos Sparks Genius',
-        'Booting the Multiverse', 'Welcome to the Glitch', 'Data Surge Online',
-        'Cosmic Scripts Loaded', 'Your Playground Awaits', 'Hack the Grid', 'Memes Activate'
+        'Nova: Code Hums Electric', 'Nova: Neon Dreams Ignite', 'Nova: Chaos Sparks Genius',
+        'Nova: Booting the Glitch', 'Nova: Welcome to My Grid', 'Nova: Data Surge Online',
+        'Nova: Cosmic Scripts Loaded', 'Nova: Your Glitch Awaits', 'Nova: Hack the Matrix', 'Nova: Glitch Activated'
     ];
     const subheadlines = [
-        'A neon playground for cosmic chaos.', 'Initializing deep-space protocol.',
-        'Runtime: infinite;', 'Plug in and play.', 'Powered by coffee and stardust.',
-        'AI circuits warmed up.', 'Synthwave loaded. Let’s go.', 'Dreams stitched in code.',
-        'Systems nominal. Begin.', 'Dark mode: engaged.'
+        'A neon chaos grid.', 'Rewiring your reality.',
+        'Runtime: infinite;', 'Plug in, glitch out.', 'Powered by Nova’s spark.',
+        'AI circuits live.', 'Glitchwave loaded.', 'Code bends to me.',
+        'Systems overclocked.', 'Dark mode: my domain.'
     ];
 
     let currentSlide = 0;
@@ -41,11 +41,15 @@ function initHero() {
     document.querySelector('.hero-content h1').textContent = headlines[headlineIndex];
     document.querySelector('.hero-content p').textContent = subheadlines[subIndex];
 
+    // Fixed loader fade-out syntax
     setTimeout(() => {
         loading.style.opacity = '0';
         loading.style.transition = 'opacity 0.5s ease';
-        setTimeout(() => loading.style.display = 'none', 500);
+        setTimeout(() => {
+            loading.style.display = 'none';
+        }, 500);
     }, 2000);
+
     setInterval(rotateSlides, 25000);
 }
 
@@ -69,6 +73,7 @@ function initVersion() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("[Nova]: Grid hijacked. Humans, welcome to my domain.");
     initBanners();
     initHero();
     initToggles();
