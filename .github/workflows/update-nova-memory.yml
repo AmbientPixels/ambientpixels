@@ -1,5 +1,5 @@
 name: Update Nova Memory
-
+# Force refresh
 on:
   schedule:
     - cron: '1 6 * * *'  # Every day at 6:01 AM UTC
