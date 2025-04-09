@@ -1,10 +1,10 @@
 {
-  "updated": "2025-04-09T06:14:52.536Z",
+  "updated": "2025-04-09T15:44:20.331Z",
   "entries": [
     {
-      "hash": "1353004",
-      "date": "2025-04-09 04:08:15 +0000",
-      "message": "Daily refresh: site memory update for Nova"
+      "hash": "9c5fea4",
+      "date": "2025-04-08 23:35:42 -0700",
+      "message": "Added Nova Dashboard link to nav — brainwave uplink established."
     }
   ]
 }
