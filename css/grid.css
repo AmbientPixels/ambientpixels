@@ -1,0 +1,41 @@
+/* grid.css - Layout Grid System */
+
+.grid-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .grid-col-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  
+  .grid-col-6 {
+    flex: 0 0 calc(50% - 10px);
+    max-width: calc(50% - 10px);
+  }
+  
+  @media (max-width: 768px) {
+    .grid-col-6 {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+  }
+  
+  /* Mini Hero Section */
+.mini-hero {
+    margin-top: 80px;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .mini-hero-img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+  }
+  
