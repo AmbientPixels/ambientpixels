@@ -37,7 +37,7 @@ jobs:
           node scripts/generateNovaBoot.js
 
       - name: Touch dummy file to trigger Azure deploy
-        run: echo "refresh: $(date -u)" >> nova-deploy-trigger.txt
+        run: 'echo "refresh: $(date -u)" >> nova-deploy-trigger.txt'
 
       - name: Commit Nova memory updates
         run: |
