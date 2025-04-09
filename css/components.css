@@ -114,4 +114,15 @@
   .footer .social-links a:hover {
     color: var(--accent-color, #9bf00b); /* optional highlight color */
   }
+  .nova-manifesto blockquote {
+    font-style: italic;
+    color: #c375ff;
+    margin: 1em 0;
+    padding-left: 1rem;
+    border-left: 3px solid #5ae4ff;
+  }
+  .nova-manifesto p {
+    line-height: 1.7;
+    color: var(--dark-text, #d8e0e5);
+  }
   

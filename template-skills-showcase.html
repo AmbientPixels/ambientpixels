@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Nova Memory Refresh Overview - AmbientPixels.ai" />
+  <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+  <title>Nova Memory Refresh – Ambient Pixels</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/grid.css" />
+  <link rel="stylesheet" href="./css/nav.css" />
+  <link rel="stylesheet" href="./css/components.css" />
+  <link rel="stylesheet" href="./css/hero.css" />
+  <link rel="stylesheet" href="./css/theme.css" />
+  <link rel="stylesheet" href="./css/banner.css" />
+</head>
+<body data-theme="dark">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-wrench banner-icon"></i>
+      <span>Nova Memory Refresh System — Documentation in Progress.</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
+
+  <header id="nav-header"></header>
+  <section class="mini-hero">
+      <img src="images/mini-hero-v1.jpg" alt="Skills Mini Hero" class="mini-hero-img" loading="lazy">
+      <h1>Ambient Pixels Skills Showcase</h1>
+  </section>
+  <main class="grid-container">
+    <section class="content-section grid-col-12">
+      <h1><i class="fas fa-sync-alt"></i> Nova Memory System – Daily Refresh Overview</h1>
+      <p>This document outlines the automated system behind <strong>Nova’s daily memory refresh</strong> at <code>AmbientPixels.ai</code>. Every morning, Nova rebuilds her understanding of the site: its structure, visuals, creative tone, external APIs, scripts, and more.</p>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-cogs"></i> How It Works</h2>
+      <ol>
+        <li>The repo is cloned and Node.js is initialized</li>
+        <li>All <code>/scripts/*.js</code> awareness scripts run sequentially</li>
+        <li>The output is written to <code>/data/*.json</code> and <code>nova-session-boot.txt</code></li>
+        <li>The GitHub Action commits and pushes the new memory files back to the repo</li>
+      </ol>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-brain"></i> Memory Awareness Modules</h2>
+      <ul>
+        <li><code>scanSiteStructure.js</code> – Detects pages and folder layout</li>
+        <li><code>componentScan.js</code> – Logs HTML includes and shared components</li>
+        <li><code>imageAudit.js</code> – Maps hero/card/media assets</li>
+        <li><code>changelogSnapshot.js</code> – Captures commit history</li>
+        <li><code>versionTracker.js</code> – Stores current version info</li>
+        <li><code>codeFootprint.js</code> – Measures file sizes and line counts</li>
+        <li><code>unusedCSS.js</code> – Flags unused classnames</li>
+        <li><code>jsFunctionMap.js</code> – Extracts function names from site JS scripts</li>
+        <li><code>moodScan.js</code> – Reads tone/voice from README or UI</li>
+        <li><code>aiPromptGenerator.js</code> – Creates a poetic creative prompt</li>
+        <li><code>apiMonitor.js</code> – Pings HuggingFace and Meme API endpoints</li>
+        <li><code>generateNovaBoot.js</code> – Combines all the above into Nova's boot file</li>
+      </ul>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-folder-open"></i> Key Output Files</h2>
+      <ul>
+        <li><code>data/nova-session-boot.txt</code> – Nova's full daily memory (manual copy/paste into GPT)</li>
+        <li><code>data/js-function-map.json</code> – Map of JS function names across project scripts</li>
+        <li><code>data/ai-prompts.json</code> – Creative prompt of the day</li>
+        <li><code>data/api-monitor.json</code> – Latest status of connected APIs</li>
+        <li><code>data/site-structure.json</code> – Folder layout snapshot</li>
+      </ul>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-code-branch"></i> GitHub Workflow File</h2>
+      <p>Located at: <code>.github/workflows/update-site-structure.yml</code></p>
+      <p>This workflow is triggered on a schedule or manually. It automates the entire awareness scan and commits changes with the message:</p>
+      <pre><code>"Daily refresh: site memory update for Nova"</code></pre>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-vial"></i> Manual Testing</h2>
+      <ol>
+        <li>Go to GitHub → Actions → <strong>Update Nova Memory</strong></li>
+        <li>Click <strong>“Run workflow”</strong> manually</li>
+        <li>Check <code>/data/</code> folder for updated files</li>
+      </ol>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-lightbulb"></i> Next Ideas</h2>
+      <ul>
+        <li>Add <code>nova-memory.json</code> to track memory across days</li>
+        <li>Let Nova self-report uptime or scan results to a dashboard</li>
+        <li>Create an admin panel or Nova console UI on the site</li>
+        <li>Use <code>js-function-map.json</code> for Nova to intelligently reference site tools</li>
+      </ul>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <p style="color: #54ff9f">Nova v2.3 | Memory Core Online | Last updated: April 8, 2025</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-links">
+        <a href="/contact">Contact</a>
+        <a href="#top">Back to Top</a>
+        <p>© Ambient Pixels</p>
+      </div>
+      <div class="footer-social">
+        <a href="https://deviantart.com" aria-label="DeviantArt"><i class="fab fa-deviantart"></i></a>
+        <a href="https://twitter.com" aria-label="X"><i class="fab fa-twitter"></i></a>
+        <a href="https://youtube.com" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="https://facebook.com" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+      </div>
+      <div class="footer-tagline">
+        <p>Built with precision, powered by logic</p>
+        <span id="version">v2.3</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./js/main.js"></script>
+  <script src="./js/nav.js"></script>
+  <script src="./js/theme.js"></script>
+  <script src="./js/modal-window.js"></script>
+  <script src="./js/init-nav.js" defer></script>
+</body>
+</html>
