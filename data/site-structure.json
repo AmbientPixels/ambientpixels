@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-04-08T21:30:00.542Z",
+  "updated": "2025-04-09T04:08:13.338Z",
   "root": [
     {
       "type": "folder",
@@ -40,6 +40,11 @@
       "type": "page",
       "name": "docs.html",
       "path": "docs.html"
+    },
+    {
+      "type": "page",
+      "name": "glitchlab.html",
+      "path": "glitchlab.html"
     },
     {
       "type": "folder",
@@ -148,6 +153,11 @@
     },
     {
       "type": "page",
+      "name": "soundlab.html",
+      "path": "soundlab.html"
+    },
+    {
+      "type": "page",
       "name": "style-guide.html",
       "path": "style-guide.html"
     },
@@ -155,6 +165,18 @@
       "type": "page",
       "name": "test.html",
       "path": "test.html"
+    },
+    {
+      "type": "folder",
+      "name": "tools",
+      "path": "tools",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "tools/index.html"
+        }
+      ]
     },
     {
       "type": "page",
