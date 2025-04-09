@@ -1,0 +1,89 @@
+<!-- /nova/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nova Dashboard ░ Memory Core</title>
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/nova/nova.css" />
+</head>
+<body data-theme="dark">
+  <main class="nova-dashboard">
+
+    <section class="nova-memory-header">
+      <div class="memory-badge">
+        <h1>Nova Memory System</h1>
+        <p class="memory-version">Version: <span id="nova-version">–</span></p>
+        <p class="memory-mood">Mood: <span id="nova-mood">–</span></p>
+        <p class="memory-aura">Aura: <span id="nova-aura">–</span></p>
+        <p class="memory-observation">🧠 <span id="nova-observation">–</span></p>
+      </div>
+    </section>
+
+    <h1>🧠 Nova Memory Core</h1>
+
+    <section class="memory-seed">
+      <h2>💾 Current Memory Seed</h2>
+      <iframe src="/data/nova-session-boot.html" title="Nova Memory Map" loading="lazy"></iframe>
+    </section>
+
+    <section class="image-inventory">
+      <h2>🖼️ Image Inventory Grid</h2>
+      <div id="image-grid" class="image-grid">
+        <!-- Image tiles will be populated by JS -->
+      </div>
+    </section>
+
+    <section class="code-footprint">
+      <h2>📊 Code Footprint</h2>
+      <canvas id="codeFootprintChart" width="400" height="200"></canvas>
+    </section>
+
+    <section class="unused-css-report">
+        <h2>🧼 Unused CSS Report</h2>
+        <p id="unused-css-summary">Loading...</p>
+        <ul id="unused-css-list"></ul>
+      </section>
+      
+
+    <section class="function-map">
+      <h2>🧩 JavaScript Function Map</h2>
+      <div id="function-map-output">
+        <!-- Functions will be loaded here -->
+      </div>
+    </section>
+
+    <section class="prompt-history">
+      <h2>🧠 Prompt History</h2>
+      <div class="prompt-entry">
+        <p><strong>Date:</strong> April 08, 2025</p>
+        <p><strong>Prompt:</strong> What does 'unfinished thoughts' look like in fragment form?</p>
+        <p><strong>Tags:</strong> glitch, creative, ai, ambient</p>
+      </div>
+    </section>
+    <section class="api-monitor">
+        <h2>🔌 API Monitor</h2>
+        <ul id="api-monitor-list">
+          <li>Loading APIs...</li>
+        </ul>
+      </section>
+    <section class="recent-updates">
+      <h2>📜 Awareness Logs</h2>
+      <ul id="log-list">
+        <li>
+          <strong>Commit:</strong> <code>a6c3e05</code><br />
+          <strong>Message:</strong> Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels<br />
+          <strong>Date:</strong> April 08, 2025 at 02:28 PM
+        </li>
+      </ul>
+    </section>
+
+  </main>
+  <footer class="nova-footer">
+    <p>🛰️ Nova Dashboard v2.3 – Last sync: <span id="last-sync-time">loading...</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/js/nova-dashboard.js" defer></script>
+</body>
+</html>
