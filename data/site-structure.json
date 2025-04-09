@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-04-09T06:14:52.424Z",
+  "updated": "2025-04-09T15:44:20.207Z",
   "root": [
     {
       "type": "folder",
@@ -106,6 +106,18 @@
           "type": "page",
           "name": "version-history.html",
           "path": "modules/version-history.html"
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": "nova",
+      "path": "nova",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "nova/index.html"
         }
       ]
     },
