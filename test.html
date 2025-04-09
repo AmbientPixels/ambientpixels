@@ -1,105 +1,98 @@
-<!-- test.html - Ambient Pixels v2.3 - April 7, 2025 -->
+<!-- test.html - Ambient Pixels v2.3 - April 8, 2025 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Ambient Pixels v2.3—Tech Lab Home">
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Ambient Pixels v2.3—Tech Lab Home" />
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
     <title>Ambient Pixels - Home</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/base.css">
-    <link rel="stylesheet" href="./css/layout.css">
-    <link rel="stylesheet" href="./css/components.css">
-    <link rel="stylesheet" href="./css/hero.css">
-    <link rel="stylesheet" href="./css/theme.css">
-    <link rel="stylesheet" href="./css/banner.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./css/base.css" />
+    <link rel="stylesheet" href="./css/grid.css">
+    <link rel="stylesheet" href="./css/nav.css">  
+    <link rel="stylesheet" href="./css/components.css" />
+    <link rel="stylesheet" href="./css/hero.css" />
+    <link rel="stylesheet" href="./css/theme.css" />
+    <link rel="stylesheet" href="./css/banner.css" />
 </head>
 <body data-theme="dark">
-    <div class="banner-container" id="banner-container">
-        <div class="banner">
-            <i class="fas fa-wrench banner-icon"></i>
-            <span>Under Development: Site enhancements in progress—minor glitches may occur during this phase.</span>
-            <button class="banner-close" aria-label="Close Banner">×</button>
-        </div>
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-wrench banner-icon"></i>
+      <span>Under Development: Site enhancements in progress—minor glitches may occur during this phase.</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
     </div>
-    <header id="nav-header"></header>
-    <section class="hero">
-        <div class="hero-loading">
-            <i class="fas fa-robot loading-icon"></i>
-            <p>Loading systems…</p>
-            <div class="loading-bar">
-                <div class="loading-progress"></div>
-            </div>
-        </div>
-        <div class="hero-slides">
-            <img src="images/hero-v1.jpg" alt="Hero Image 1" class="hero-slide active" loading="lazy">
-            <img src="images/hero-v2.jpg" alt="Hero Image 2" class="hero-slide" loading="lazy">
-            <img src="images/hero-v3.jpg" alt="Hero Image 3" class="hero-slide" loading="lazy">
-            <img src="images/hero-v4.jpg" alt="Hero Image 4" class="hero-slide" loading="lazy">
-            <img src="images/hero-v5.jpg" alt="Hero Image 5" class="hero-slide" loading="lazy">
-            <img src="images/hero-v6.jpg" alt="Hero Image 6" class="hero-slide" loading="lazy">
-            <img src="images/hero-v7.jpg" alt="Hero Image 7" class="hero-slide" loading="lazy">
-            <img src="images/hero-v8.jpg" alt="Hero Image 8" class="hero-slide" loading="lazy">
-            <img src="images/hero-v9.jpg" alt="Hero Image 9" class="hero-slide" loading="lazy">
-            <img src="images/hero-v10.jpg" alt="Hero Image 10" class="hero-slide" loading="lazy">
-            <img src="images/hero-v11.jpg" alt="Hero Image 11" class="hero-slide" loading="lazy">
-        </div>
-        <div class="hero-content">
-            <h1 class="hero-headline">Ambient Pixels Home</h1>
-            <p class="hero-subheadline">Tech Lab Live</p>
-        </div>
+  </div>
+
+  <header id="nav-header"></header>
+
+  <section class="hero">
+    <div class="hero-loading">
+      <i class="fas fa-robot loading-icon"></i>
+      <p>Loading systems…</p>
+      <div class="loading-bar"><div class="loading-progress"></div></div>
+    </div>
+    <div class="hero-slides">
+      <img src="images/hero-v1.jpg" alt="Hero Image 1" class="hero-slide active" loading="lazy" />
+      <img src="images/hero-v2.jpg" alt="Hero Image 2" class="hero-slide" loading="lazy" />
+      <!-- Add remaining images... -->
+    </div>
+    <div class="hero-content">
+      <h1 class="hero-headline">Ambient Pixels Home</h1>
+      <p class="hero-subheadline">Tech Lab Live</p>
+    </div>
+  </section>
+
+  <main class="grid-container">
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-home"></i> Welcome Home</h2>
+      <blockquote>“Grid active—vibes electric.”</blockquote>
+      <p>This is <code>test.html</code>—Ambient Pixels v2.3, April 8, 2025. Powered by LYNX—our code-fueled AI core.</p>
     </section>
-    <main class="grid-container">
-        <section class="content-section grid-col-12">
-            <h2><i class="fas fa-home"></i> Welcome Home</h2>
-            <blockquote>“Grid active—vibes electric.”</blockquote>
-            <p>We at Ambient Pixels roll into v2.3—April 7, 2025—<code>test.html</code> is our home base, powered by LYNX—our bot-engine. This is where we hack, tweak, and vibe—cyberpunk chaos meets neon brilliance.</p>
-        </section>
-        <section class="content-section grid-col-6">
-            <h2><i class="fas fa-robot"></i> LYNX’s Nightly Drop</h2>
-            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle LYNX">Expand</button>
-            <div class="content" style="display: none;">
-                <p>I’m LYNX, your v2.3 bot—wired into the grid! Last night’s grind—nav synced up, banner locked in at #159 (d064c07), mobile menu’s still a glitch-fest. Lesson: Timing’s everything—fetch lags can kill a toggle. Tip: Test mobile early—don’t let the grid lie to you. Vibe: Neon’s sharp, chaos is fuel—v2.3’s humming, ready for today’s zap!</p>
-            </div>
-        </section>
-        <section class="content-section grid-col-6">
-            <h2><i class="fas fa-clock"></i> Today’s Grid</h2>
-            <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Today">Expand</button>
-            <div class="content" style="display: none;">
-                <p>We’re live—April 7, 2025—v2.3’s next pulse! Today: Fix mobile menu across all pages; update <code>skills.html</code> with web dev tools and CI/CD; merge style-guide into <code>docs.html</code>; clean unused code—systems primed for a sharp day.</p>
-            </div>
-        </section>
-    </main>
-    <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-links">
-                <a href="/contact">Contact</a>
-                <a href="#top">Back to Top</a>
-                <p>© Ambient Pixels</p>
-            </div>
-            <div class="footer-social">
-                <a href="https://deviantart.com" aria-label="DeviantArt"><i class="fab fa-deviantart"></i></a>
-                <a href="https://twitter.com" aria-label="X"><i class="fab fa-twitter"></i></a>
-                <a href="https://youtube.com" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                <a href="https://facebook.com" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-            </div>
-            <div class="footer-tagline">
-                <p>Built with precision, powered by logic</p>
-                <span id="version"></span>
-            </div>
-        </div>
-    </footer>
-    <script src="js/main.js"></script>
-    <script src="js/nav.js"></script>
-    <script src="js/theme.js"></script>
-    <script src="js/modal-window.js"></script>
-    <script>
-        fetch('/modules/header.html')
-            .then(response => response.text())
-            .then(data => document.getElementById('nav-header').innerHTML = data)
-            .catch(error => console.error('Nav fetch failed:', error));
-    </script>
+
+    <section class="content-section grid-col-6">
+      <h2><i class="fas fa-robot"></i> LYNX’s Nightly Drop</h2>
+      <button class="toggle-btn" aria-expanded="false">Expand</button>
+      <div class="content" style="display: none;">
+        <p>Nav overlay test passed! Mobile now zaps clean—tune the grid further as needed.</p>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-6">
+      <h2><i class="fas fa-clock"></i> Today’s Grid</h2>
+      <button class="toggle-btn" aria-expanded="false">Expand</button>
+      <div class="content" style="display: none;">
+        <p>Finalize mobile nav, test overlays, prep for deployment site-wide. Let the neon flow.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-links">
+        <a href="/contact">Contact</a>
+        <a href="#top">Back to Top</a>
+        <p>© Ambient Pixels</p>
+      </div>
+      <div class="footer-social">
+        <a href="https://deviantart.com" aria-label="DeviantArt"><i class="fab fa-deviantart"></i></a>
+        <a href="https://twitter.com" aria-label="X"><i class="fab fa-twitter"></i></a>
+        <a href="https://youtube.com" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+      </div>
+      <div class="footer-tagline">
+        <p>Built with precision, powered by logic</p>
+        <span id="version">v2.3</span>
+      </div>
+    </div>
+  </footer>
+
+<!-- Scripts -->
+<script src="js/main.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/modal-window.js"></script>
+<script src="js/init-nav.js" defer></script>
 </body>
 </html>

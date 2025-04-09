@@ -87,3 +87,31 @@
     align-self: flex-start;
     font-weight: 500;
 }
+
+/* Footer Styles */
+.footer {
+    padding: 30px 20px;
+    text-align: center;
+  }
+  
+  .footer p {
+    margin: 0.5em 0;
+  }
+  
+  .footer .social-links {
+    margin: 10px 0;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    font-size: 1.2em;
+  }
+  
+  .footer .social-links a {
+    color: inherit;
+    transition: color 0.3s ease;
+  }
+  
+  .footer .social-links a:hover {
+    color: var(--accent-color, #9bf00b); /* optional highlight color */
+  }
+  

@@ -1,14 +1,23 @@
-// nav.js - Ambient Pixels v2.3 - April 7, 2025
+// nav.js - Enhanced for mobile nav with overlay
 document.addEventListener('DOMContentLoaded', () => {
-    const checkNavToggle = setInterval(() => {
-        const navToggle = document.querySelector('.nav-toggle');
-        const navLinks = document.querySelector('.nav-links');
-        if (navToggle && navLinks) {
-            clearInterval(checkNavToggle);
-            navToggle.addEventListener('click', () => {
-                navLinks.classList.toggle('active');
-                navToggle.setAttribute('aria-expanded', navLinks.classList.contains('active'));
-            });
-        }
-    }, 100); // Check every 100ms until nav loads
+    const navToggle = document.querySelector('.nav-toggle');
+    const navLinks = document.querySelector('.nav-links');
+    const navOverlay = document.createElement('div');
+    navOverlay.classList.add('nav-overlay');
+    document.body.appendChild(navOverlay);
+
+    if (navToggle && navLinks) {
+        navToggle.addEventListener('click', () => {
+            const isActive = navLinks.classList.contains('active');
+            navLinks.classList.toggle('active');
+            navOverlay.classList.toggle('active');
+            navToggle.setAttribute('aria-expanded', !isActive);
+        });
+
+        navOverlay.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+            navOverlay.classList.remove('active');
+            navToggle.setAttribute('aria-expanded', false);
+        });
+    }
 });

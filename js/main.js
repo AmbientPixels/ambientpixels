@@ -1,5 +1,5 @@
 // C:\ambientpixels\EchoGrid\js\main.js
-const VERSION = 'v2.4';
+const VERSION = 'v2.3';
 
 function initBanners() {
     const container = document.getElementById('banner-container');
