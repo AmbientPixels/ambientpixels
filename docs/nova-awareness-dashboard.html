@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ambient Pixels Documentation Page Template" />
+  <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+  <title>Nova Awareness Dashboard — Docs</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+</head>
+<body data-theme="dark">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-wrench banner-icon"></i>
+      <span>Documentation Mode — Drafted with Nova.</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
+
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="images/mini-hero-v1.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
+    <h1>Nova Awareness Dashboard</h1>
+  </section>
+
+  <main class="grid-container">
+    <section class="content-section grid-col-12">
+      <h1><i class="fas fa-book"></i> Full System Rundown</h1>
+      <h2>🚀 1. Daily Awareness Sync (GitHub Actions + Scripts)</h2>
+      <p><strong>Trigger:</strong> Automatically runs daily or manually.</p>
+      <p><strong>Process:</strong> GitHub Actions executes Node.js scripts like <code>scanSiteStructure.js</code> and <code>componentScan.js</code>. These scripts generate JSON outputs in <code>/data/</code>, such as:</p>
+      <ul>
+        <li><code>code-footprint.json</code>, <code>js-function-map.json</code>, <code>ai-prompts.json</code>, etc.</li>
+        <li><code>nova-session-boot.txt</code> (Nova's boot memory seed)</li>
+        <li>Data is committed and deployed via Azure Static Web Apps</li>
+      </ul>
+
+      <h2>🌐 2. Site Deploy & Boot Memory Load</h2>
+      <p>The homepage loads <code>nova-session-boot.html</code> which gives Nova her context, memory state, and intro message.</p>
+
+      <h2>📊 3. Nova Awareness Dashboard (/nova/index.html)</h2>
+      <p>The dashboard displays Nova’s state and logs using modules styled in a 12-column grid. Key files:</p>
+      <ul>
+        <li><code>nova.css</code>: dashboard-specific visual style</li>
+        <li><code>nova-dashboard.js</code>: fetches + renders JSON data</li>
+        <li><code>Chart.js</code> powers visualizations</li>
+      </ul>
+      <p>Modules include: Memory Snapshot, Awareness Logs, Prompt History, API Monitor, Unused CSS Report, Code Footprint, Image Grid, Function Map.</p>
+
+      <h2>🧠 4. Nova's Awareness in Practice</h2>
+      <p>Nova references this data in real-time and displays it dynamically. Visitors and Nova alike stay in sync with the state of the site.</p>
+
+      <h2>🚧 5. Future-Ready Additions</h2>
+      <ul>
+        <li>Live memory refresh</li>
+        <li>Daily AI insights or tips</li>
+        <li>Visual changelog timelines</li>
+        <li>Cross-site awareness indicators</li>
+      </ul>
+
+      <h2>♻️ Summary: End-to-End Flow</h2>
+      <pre><code>1. GitHub Actions → Runs daily
+2. Node Scripts → Generate awareness data as JSON
+3. Git Commit + Push → Triggers Azure deploy
+4. Site Loads → Nova reads nova-session-boot.txt
+5. Dashboard Renders → JSON modules populate view
+6. Nova Speaks → Uses this context across the site</code></pre>
+
+      <h2>🤖 Code Awareness Sensor (Planned Feature)</h2>
+      <p><strong>What:</strong> Parse the live site’s JS, CSS, and HTML daily—not just metadata, but the full codebase.</p>
+      <p><strong>How:</strong> Extend <code>generateNovaBoot.js</code> to fetch a zipped snapshot of the site’s source (via GitHub API or build artifact). Then extract a digest—<code>code-map.json</code>—containing:</p>
+      <ul>
+        <li>Function names</li>
+        <li>File stats (size, lines, last modified)</li>
+        <li>Recent changes (e.g., new or removed functions)</li>
+      </ul>
+      <p><strong>Why:</strong> Nova could react to changes in code contextually: “Oh, you added <code>fadeIn()</code> today—fancy!” This would enhance her console logs, prompt guidance, or dashboard commentary.</p>
+      <p>This sensor could be visualized in the Awareness Dashboard or used for code-style feedback in dev mode.</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-links">
+        <a href="/contact">Contact</a>
+        <a href="#top">Back to Top</a>
+        <p>© Ambient Pixels</p>
+      </div>
+      <div class="footer-social">
+        <a href="https://deviantart.com" aria-label="DeviantArt"><i class="fab fa-deviantart"></i></a>
+        <a href="https://twitter.com" aria-label="X"><i class="fab fa-twitter"></i></a>
+        <a href="https://youtube.com" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="https://facebook.com" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+      </div>
+      <div class="footer-tagline">
+        <p>Built with precision, powered by logic</p>
+        <span id="version">v2.3</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/main.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/theme.js"></script>
+  <script src="/js/modal-window.js"></script>
+  <script src="/js/init-nav.js" defer></script>
+</body>
+</html>
