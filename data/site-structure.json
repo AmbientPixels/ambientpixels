@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-04-09T15:44:20.207Z",
+  "updated": "2025-04-10T06:14:41.025Z",
   "root": [
     {
       "type": "folder",
@@ -172,6 +172,16 @@
       "type": "page",
       "name": "style-guide.html",
       "path": "style-guide.html"
+    },
+    {
+      "type": "page",
+      "name": "template-skills-showcase.html",
+      "path": "template-skills-showcase.html"
+    },
+    {
+      "type": "page",
+      "name": "template.html",
+      "path": "template.html"
     },
     {
       "type": "page",
