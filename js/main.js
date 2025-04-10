@@ -78,8 +78,38 @@ document.addEventListener('DOMContentLoaded', () => {
     initHero();
     initToggles();
     initVersion();
+    loadNovaMoodCard(); // ✅ ← add this line here
 });
 
 console.log('%cNova Online ░ Ambient Intelligence Activated', 'color: #5ae4ff; font-size: 14px; font-family: monospace;');
 console.log('%cRead today\'s memory: /data/nova-session-boot.txt', 'color: #54ff9f; font-family: monospace;');
 console.log('%cMemory Map (HTML): /data/nova-session-boot.html', 'color: #87ceeb; font-family: monospace;');
+fetch('/data/mood-scan.json')
+  .then(res => res.json())
+  .then(data => {
+    const mood = `${data.mood} — ${data.observation}`;
+    document.getElementById('novaMood').textContent = `Nova's mood: ${mood}`;
+  })
+  .catch(err => {
+    console.warn('Nova mood unavailable:', err);
+    document.getElementById('novaMood').textContent = `Nova's mood: Unknown (glitch in the wires)`;
+  });
+  function loadNovaMoodCard() {
+    const moodCard = document.getElementById('nova-status-card');
+    if (!moodCard) return;
+  
+    fetch('/data/mood-scan.json')
+      .then(res => res.json())
+      .then(data => {
+        moodCard.querySelector('#nova-mood').textContent = data.mood;
+        moodCard.querySelector('#nova-observation').textContent = data.observation;
+        moodCard.querySelector('#nova-aura').textContent = data.aura;
+      })
+      .catch(err => {
+        console.warn('Nova mood unavailable:', err);
+        moodCard.querySelector('#nova-mood').textContent = 'Unknown';
+        moodCard.querySelector('#nova-observation').textContent = 'Unable to reach ambient sensors.';
+        moodCard.querySelector('#nova-aura').textContent = '??';
+      });
+  }
+  
