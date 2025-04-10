@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2025-04-10T06:14:42.413Z",
+  "scannedAt": "2025-04-10T16:19:00.286Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -19,6 +19,13 @@
     ],
     "componentScan.js": [
       "scanComponentFiles"
+    ],
+    "generateCodeMap.js": [
+      "extractFunctions",
+      "extractCSSClasses",
+      "extractHTMLTags",
+      "scanDirectory",
+      "writeCodeMap"
     ],
     "generateNovaBoot.js": [
       "readJSON",
