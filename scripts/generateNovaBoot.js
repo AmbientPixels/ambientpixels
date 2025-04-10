@@ -1,3 +1,6 @@
+const { execSync } = require('child_process');
+execSync('node generateCodeMap.js'); // Same folder, no ./scripts/
+
 // generateNovaBoot.js – Combine Nova's daily awareness files into a unified memory file
 
 const fs = require('fs');
@@ -19,7 +22,8 @@ const files = [
   'api-monitor.json',
   'ai-prompts.json',
   'mood-scan.json',
-  'js-function-map.json'
+  'js-function-map.json',
+  'code-map.json'  
 ];
 
 // Helper to read and stringify JSON
