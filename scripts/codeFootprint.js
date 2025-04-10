@@ -44,3 +44,6 @@ const result = {
 
 fs.writeFileSync(outputFile, JSON.stringify(result, null, 2));
 console.log(`✅ Nova's code footprint updated at /data/code-footprint.json`);
+
+
+

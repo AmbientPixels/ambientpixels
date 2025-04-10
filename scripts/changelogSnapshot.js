@@ -34,3 +34,5 @@ function writeChangelog(commits) {
 }
 
 writeChangelog(getRecentCommits(10));
+
+
