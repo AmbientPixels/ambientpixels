@@ -5,8 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
   loadFunctionMap();
   loadPromptHistory();
   loadImageInventoryGrid();
-  loadUnusedCSSReport(); // ✅ Add this line
-  loadApiMonitor(); // 🔥 This is the missing piece
+  loadUnusedCSSReport();
+  loadApiMonitor();
+  loadCodeMap(); // ⬅️ Add this line!
 });
 
 // Load version.json + mood-scan.json
@@ -209,4 +210,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const footerTime = document.getElementById('last-sync-time');
   if (footerTime) footerTime.textContent = syncTime;
 });
+function renderList(id, items) {
+  const el = document.getElementById(id);
+  el.innerHTML = '';
+  items.slice(0, 50).forEach(item => {
+    const li = document.createElement('li');
+    li.textContent = item;
+    el.appendChild(li);
+  });
+}
+async function loadCodeMap() {
+  const res = await fetch('/data/code-map.json');
+  const data = await res.json();
+
+  document.getElementById('code-summary').innerHTML = `
+    <p><strong>Total JS:</strong> ${data.summary.totalJS}</p>
+    <p><strong>Total CSS:</strong> ${data.summary.totalCSS}</p>
+    <p><strong>Total HTML:</strong> ${data.summary.totalHTML}</p>
+    <p><strong>Last Updated:</strong> ${new Date(data.timestamp).toLocaleString()}</p>
+  `;
+
+  renderList('code-functions', data.functions);
+  renderList('code-classes', data.cssClasses);
+  renderList('code-tags', data.htmlTags);
+}
 
