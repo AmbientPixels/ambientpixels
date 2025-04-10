@@ -164,3 +164,9 @@ padding-left: 1rem;
   margin-top: 0.5rem;
   font-style: italic;
 }
+.nova-mood {
+  font-style: italic;
+  font-size: 0.95rem;
+  color: #c375ff;
+  margin-top: -0.5em;
+}
