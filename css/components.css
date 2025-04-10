@@ -1,128 +1,159 @@
 /* components.css - Ambient Pixels v2.3 - April 5, 2025 */
 .toggle-btn {
-    background: none;
-    border: 1px solid #4682B4;
-    padding: 8px 16px;
-    cursor: pointer;
-    color: inherit;
-    transition: background 0.3s ease;
+  background: none;
+  border: 1px solid #4682B4;
+  padding: 8px 16px;
+  cursor: pointer;
+  color: inherit;
+  transition: background 0.3s ease;
 }
 .toggle-btn:hover {
-    background: rgba(70, 130, 180, 0.1);
+  background: rgba(70, 130, 180, 0.1);
 }
 .footer-social a {
-    font-size: 1.5em;
-    margin: 0 15px;
-    transition: color 0.3s ease;
+  font-size: 1.5em;
+  margin: 0 15px;
+  transition: color 0.3s ease;
 }
 .content-section {
-    background: rgba(255, 255, 255, 0.05);
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 #theme-toggle {
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    font-size: 1.5em;
-    color: inherit;
-    transition: color 0.3s ease;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 1.5em;
+  color: inherit;
+  transition: color 0.3s ease;
 }
 #theme-toggle:hover {
-    color: #4682B4; /* Subtle hover accent */
+  color: #4682B4; /* Subtle hover accent */
 }
+
 /* Nova Intro Block */
 #nova-intro {
-    background: rgba(255, 255, 255, 0.03);
-    border-left: 4px solid #5ae4ff;
-    padding-left: 1rem;
-    transition: background 0.3s ease;
-  }
-  body[data-theme="light"] #nova-intro {
-    background: rgba(0, 0, 0, 0.03);
-    border-left-color: #3b82f6;
-  }
-  .card-section {
-    background: rgba(255, 255, 255, 0.02);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-    border-radius: 6px;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 4px solid #5ae4ff;
+  padding-left: 1rem;
+  transition: background 0.3s ease;
+}
+body[data-theme="light"] #nova-intro {
+  background: rgba(0, 0, 0, 0.03);
+  border-left-color: #3b82f6;
+}
+
+.card-section {
+  background: rgba(255, 255, 255, 0.02);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card-section:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(90, 228, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(90, 228, 255, 0.3);
 }
 
 .card-image {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .card-content {
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .card-content h3 {
-    font-size: 1.2em;
-    margin: 0;
-    color: var(--dark-text);
+  font-size: 1.2em;
+  margin: 0;
+  color: var(--dark-text);
 }
 
 .card-content p {
-    font-size: 0.95em;
-    color: var(--dark-text);
+  font-size: 0.95em;
+  color: var(--dark-text);
 }
 
 .card-content a {
-    align-self: flex-start;
-    font-weight: 500;
+  align-self: flex-start;
+  font-weight: 500;
 }
 
 /* Footer Styles */
 .footer {
-    padding: 30px 20px;
-    text-align: center;
-  }
-  
-  .footer p {
-    margin: 0.5em 0;
-  }
-  
-  .footer .social-links {
-    margin: 10px 0;
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    font-size: 1.2em;
-  }
-  
-  .footer .social-links a {
-    color: inherit;
-    transition: color 0.3s ease;
-  }
-  
-  .footer .social-links a:hover {
-    color: var(--accent-color, #9bf00b); /* optional highlight color */
-  }
-  .nova-manifesto blockquote {
-    font-style: italic;
-    color: #c375ff;
-    margin: 1em 0;
-    padding-left: 1rem;
-    border-left: 3px solid #5ae4ff;
-  }
-  .nova-manifesto p {
-    line-height: 1.7;
-    color: var(--dark-text, #d8e0e5);
-  }
-  
+  padding: 30px 20px;
+  text-align: center;
+}
+
+.footer p {
+  margin: 0.5em 0;
+}
+
+.footer .social-links {
+  margin: 10px 0;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  font-size: 1.2em;
+}
+
+.footer .social-links a {
+  color: inherit;
+  transition: color 0.3s ease;
+}
+
+.footer .social-links a:hover {
+  color: var(--accent-color, #9bf00b); /* optional highlight color */
+}
+
+.nova-manifesto blockquote {
+  font-style: italic;
+  color: #c375ff;
+  margin: 1em 0;
+  padding-left: 1rem;
+  border-left: 3px solid #5ae4ff;
+}
+.nova-manifesto p {
+  line-height: 1.7;
+  color: var(--dark-text, #d8e0e5);
+}
+
+/* Nova’s Bug Vault Styles (New) */
+.neon-card {
+padding: 1.5rem;
+background: rgba(255, 255, 255, 0.03);
+border: 1px solid rgba(90, 228, 255, 0.1);
+border-radius: 10px;
+box-shadow: 0 0 12px rgba(90, 228, 255, 0.05);
+backdrop-filter: blur(4px);
+}
+
+.neon-card h3 {
+font-size: 1.4em;
+color: #5ae4ff;
+margin-bottom: 1rem;
+}
+
+.neon-card ul {
+list-style-type: none;
+padding: 0;
+font-size: 0.95em;
+line-height: 1.6;
+}
+
+.neon-card li {
+margin-bottom: 1rem;
+border-left: 3px solid #5ae4ff;
+padding-left: 1rem;
+}
