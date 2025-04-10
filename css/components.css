@@ -157,3 +157,10 @@ margin-bottom: 1rem;
 border-left: 3px solid #5ae4ff;
 padding-left: 1rem;
 }
+.nova-sync-time {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted, #aaa);
+  margin-top: 0.5rem;
+  font-style: italic;
+}
