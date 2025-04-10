@@ -1,19 +1,45 @@
-<!-- /nova/index.html -->
+<!-- /nova/index.html - Nova Awareness Dashboard v2.3 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nova Dashboard ░ Memory Core</title>
+  <meta name="description" content="Nova Dashboard - Awareness Logs and Memory Overview" />
+  <title>Nova Awareness Dashboard</title>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/nova/nova.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body data-theme="dark">
-  <main class="nova-dashboard">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-wrench banner-icon"></i>
+      <span>Nova Dashboard is evolving—minor glitches may sparkle during testing.</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
 
-    <section class="nova-memory-header">
-      <div class="memory-badge">
-        <h1>Nova Memory System</h1>
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/mini-hero/mini-hero-03-neon-pulse.jpg" alt="Nova Dashboard" class="mini-hero-img" loading="lazy" />
+    <h1>Nova Awareness Dashboard</h1>
+    <p class="dashboard-subtitle">v2.3 – System Presence, Memory, Mood</p>
+  </section>
+
+  <main class="grid-container nova-dashboard">
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-bolt"></i> Memory Snapshot</h2>
+      <div class="neon-card nova-panel nova-memory-header">
         <p class="memory-version">Version: <span id="nova-version">–</span></p>
         <p class="memory-mood">Mood: <span id="nova-mood">–</span></p>
         <p class="memory-aura">Aura: <span id="nova-aura">–</span></p>
@@ -21,69 +47,78 @@
       </div>
     </section>
 
-    <h1>🧠 Nova Memory Core</h1>
-
-    <section class="memory-seed">
+    <section class="content-section grid-col-12">
       <h2>💾 Current Memory Seed</h2>
-      <iframe src="/data/nova-session-boot.html" title="Nova Memory Map" loading="lazy"></iframe>
+      <iframe src="/data/nova-session-boot.html" title="Nova Memory Map" loading="lazy" style="width: 100%; height: 400px; border-radius: 1rem;"></iframe>
     </section>
 
-    <section class="image-inventory">
+    <section class="content-section grid-col-12">
       <h2>🖼️ Image Inventory Grid</h2>
-      <div id="image-grid" class="image-grid">
-        <!-- Image tiles will be populated by JS -->
-      </div>
+      <div id="image-grid" class="image-grid"></div>
     </section>
 
-    <section class="code-footprint">
+    <section class="content-section grid-col-12">
       <h2>📊 Code Footprint</h2>
       <canvas id="codeFootprintChart" width="400" height="200"></canvas>
     </section>
 
-    <section class="unused-css-report">
-        <h2>🧼 Unused CSS Report</h2>
-        <p id="unused-css-summary">Loading...</p>
-        <ul id="unused-css-list"></ul>
-      </section>
-      
-
-    <section class="function-map">
-      <h2>🧩 JavaScript Function Map</h2>
-      <div id="function-map-output">
-        <!-- Functions will be loaded here -->
-      </div>
+    <section class="content-section grid-col-12">
+      <h2>🧼 Unused CSS Report</h2>
+      <p id="unused-css-summary">Loading...</p>
+      <ul id="unused-css-list"></ul>
     </section>
 
-    <section class="prompt-history">
+    <section class="content-section grid-col-12">
+      <h2>🧩 JavaScript Function Map</h2>
+      <div id="function-map-output"></div>
+    </section>
+
+    <section class="content-section grid-col-12 prompt-history">
       <h2>🧠 Prompt History</h2>
       <div class="prompt-entry">
-        <p><strong>Date:</strong> April 08, 2025</p>
-        <p><strong>Prompt:</strong> What does 'unfinished thoughts' look like in fragment form?</p>
-        <p><strong>Tags:</strong> glitch, creative, ai, ambient</p>
+        <p>Loading prompt...</p>
       </div>
     </section>
-    <section class="api-monitor">
-        <h2>🔌 API Monitor</h2>
-        <ul id="api-monitor-list">
-          <li>Loading APIs...</li>
-        </ul>
-      </section>
-    <section class="recent-updates">
-      <h2>📜 Awareness Logs</h2>
-      <ul id="log-list">
-        <li>
-          <strong>Commit:</strong> <code>a6c3e05</code><br />
-          <strong>Message:</strong> Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels<br />
-          <strong>Date:</strong> April 08, 2025 at 02:28 PM
-        </li>
+
+    <section class="content-section grid-col-12 api-monitor">
+      <h2>🔌 API Monitor</h2>
+      <ul id="api-monitor-list">
+        <li>Loading APIs...</li>
       </ul>
     </section>
 
+    <section class="content-section grid-col-12">
+      <h2>📜 Awareness Logs</h2>
+      <ul id="log-list">
+        <li>Loading logs...</li>
+      </ul>
+    </section>
   </main>
-  <footer class="nova-footer">
-    <p>🛰️ Nova Dashboard v2.3 – Last sync: <span id="last-sync-time">loading...</span></p>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-links">
+        <a href="/contact">Contact</a>
+        <a href="#top">Back to Top</a>
+        <p>© Ambient Pixels</p>
+      </div>
+      <div class="footer-social">
+        <a href="https://deviantart.com" aria-label="DeviantArt"><i class="fab fa-deviantart"></i></a>
+        <a href="https://twitter.com" aria-label="X"><i class="fab fa-twitter"></i></a>
+        <a href="https://youtube.com" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="https://facebook.com" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+      </div>
+      <div class="footer-tagline">
+        <p>🛰️ Nova Dashboard v2.3 – Last sync: <span id="last-sync-time">loading...</span></p>
+      </div>
+    </div>
   </footer>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script src="/js/main.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/theme.js"></script>
+  <script src="/js/modal-window.js"></script>
+  <script src="/js/init-nav.js" defer></script>
   <script src="/js/nova-dashboard.js" defer></script>
 </body>
 </html>
