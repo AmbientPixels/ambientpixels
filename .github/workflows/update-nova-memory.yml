@@ -1,26 +1,20 @@
 name: Update Nova Memory
-# Force refresh
 on:
   schedule:
     - cron: '1 6 * * *'  # Every day at 6:01 AM UTC
   workflow_dispatch:
-
 jobs:
   build-nova-memory:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
-
       - name: Install dependencies (if any)
         run: npm install || true
-
       - name: Run awareness scripts
         run: |
           node scripts/scanSiteStructure.js
@@ -35,14 +29,16 @@ jobs:
           node scripts/apiMonitor.js
           node scripts/jsFunctionMap.js
           node scripts/generateNovaBoot.js
-
+      - name: Zip Site Code for Nova
+        run: |
+          zip -r data/site-code-snapshot.zip . -x "*.git*"
+          echo "Nova Code Snapshot: $(date -u)" >> data/nova-session-boot.txt
       - name: Touch dummy file to trigger Azure deploy
         run: 'echo "refresh: $(date -u)" >> nova-deploy-trigger.txt'
-
       - name: Commit Nova memory updates
         run: |
           git config user.name "NovaBot"
           git config user.email "nova@ambientpixels.ai"
-          git add data/*.json data/*.txt data/*.html nova-deploy-trigger.txt
-          git commit -m "Daily refresh: site memory update for Nova" || echo "No changes"
+          git add data/*.json data/*.txt data/*.html data/site-code-snapshot.zip nova-deploy-trigger.txt
+          git commit -m "Daily refresh: site memory update + code snapshot for Nova" || echo "No changes"
           git push
