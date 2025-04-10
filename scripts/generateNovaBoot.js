@@ -1,5 +1,5 @@
 const { execSync } = require('child_process');
-execSync('node generateCodeMap.js'); // Same folder, no ./scripts/
+execSync('node scripts/generateCodeMap.js');
 
 // generateNovaBoot.js – Combine Nova's daily awareness files into a unified memory file
 
