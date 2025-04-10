@@ -67,3 +67,5 @@ const escaped = finalText.replace(/[&<>"']/g, c => ({
 const htmlContent = `<html><head><meta charset="utf-8"><title>Nova Memory Dump</title></head><body><pre>${escaped}</pre></body></html>`;
 fs.writeFileSync(outputHtml, htmlContent);
 console.log(`✅ Nova boot memory written to HTML at: ${outputHtml}`);
+
+

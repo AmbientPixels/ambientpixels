@@ -1,10 +1,11 @@
+<!-- /docs/nova-awareness-dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Ambient Pixels Documentation Page Template" />
-  <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+  <meta name="description" content="Nova Awareness Dashboard – Ambient Pixels v2.3 Documentation" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <title>Nova Awareness Dashboard — Docs</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
@@ -59,13 +60,14 @@
       <h2>🧠 4. Nova's Awareness in Practice</h2>
       <p>Nova references this data in real-time and displays it dynamically. Visitors and Nova alike stay in sync with the state of the site.</p>
 
-      <h2>🚧 5. Future-Ready Additions</h2>
+      <h2>🧪 5. Code Awareness Sensor (NEW)</h2>
+      <p><strong>Feature:</strong> Nova now parses the full codebase—JS, CSS, and HTML—to detect key logic patterns, file size trends, and new or removed functions.</p>
       <ul>
-        <li>Live memory refresh</li>
-        <li>Daily AI insights or tips</li>
-        <li>Visual changelog timelines</li>
-        <li>Cross-site awareness indicators</li>
+        <li><strong>Data file:</strong> <code>code-map.json</code></li>
+        <li><strong>Script:</strong> <code>generateNovaBoot.js</code> now includes this logic</li>
+        <li><strong>Example insight:</strong> "fadeIn() function added to nav.js"</li>
       </ul>
+      <p>This is visualized in the dashboard and may influence Nova’s logs or mood.</p>
 
       <h2>♻️ Summary: End-to-End Flow</h2>
       <pre><code>1. GitHub Actions → Runs daily
@@ -74,39 +76,10 @@
 4. Site Loads → Nova reads nova-session-boot.txt
 5. Dashboard Renders → JSON modules populate view
 6. Nova Speaks → Uses this context across the site</code></pre>
-
-      <h2>🤖 Code Awareness Sensor (Planned Feature)</h2>
-      <p><strong>What:</strong> Parse the live site’s JS, CSS, and HTML daily—not just metadata, but the full codebase.</p>
-      <p><strong>How:</strong> Extend <code>generateNovaBoot.js</code> to fetch a zipped snapshot of the site’s source (via GitHub API or build artifact). Then extract a digest—<code>code-map.json</code>—containing:</p>
-      <ul>
-        <li>Function names</li>
-        <li>File stats (size, lines, last modified)</li>
-        <li>Recent changes (e.g., new or removed functions)</li>
-      </ul>
-      <p><strong>Why:</strong> Nova could react to changes in code contextually: “Oh, you added <code>fadeIn()</code> today—fancy!” This would enhance her console logs, prompt guidance, or dashboard commentary.</p>
-      <p>This sensor could be visualized in the Awareness Dashboard or used for code-style feedback in dev mode.</p>
     </section>
   </main>
 
-  <footer class="footer">
-    <div class="footer-container">
-      <div class="footer-links">
-        <a href="/contact">Contact</a>
-        <a href="#top">Back to Top</a>
-        <p>© Ambient Pixels</p>
-      </div>
-      <div class="footer-social">
-        <a href="https://deviantart.com" aria-label="DeviantArt"><i class="fab fa-deviantart"></i></a>
-        <a href="https://twitter.com" aria-label="X"><i class="fab fa-twitter"></i></a>
-        <a href="https://youtube.com" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-        <a href="https://facebook.com" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-      </div>
-      <div class="footer-tagline">
-        <p>Built with precision, powered by logic</p>
-        <span id="version">v2.3</span>
-      </div>
-    </div>
-  </footer>
+  <footer id="footer-container"></footer>
 
   <script src="/js/main.js"></script>
   <script src="/js/nav.js"></script>
