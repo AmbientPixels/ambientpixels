@@ -1,5 +1,5 @@
 
-/* /nova/nova.css - Corrected Layout and Image Grid Fixes */
+/* /nova/nova.css - Nova Dashboard Styles */
 
 body {
   background: #0b0f14;
@@ -48,7 +48,6 @@ body {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   margin-top: 30px;
 }
-
 .code-footprint canvas {
   max-width: 100%;
 }
@@ -63,42 +62,36 @@ body {
   background: rgba(255, 255, 255, 0.03);
   border-left: 4px solid var(--dark-accent);
 }
-
 .script-block h3 {
   margin: 0 0 8px 0;
   font-size: 1.1em;
   color: var(--dark-accent);
 }
-
 .script-block ul {
   padding-left: 20px;
   list-style: none;
 }
-
 .script-block li {
   padding: 2px 0;
   font-family: monospace;
   color: var(--dark-text);
 }
 
-/* Fixed Image Inventory Grid */
+/* Image Grid */
 .image-inventory {
   margin-top: 40px;
 }
-
 .image-grid {
-  display: grid !important;
+  display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 16px;
   margin-top: 15px;
-  align-items: start;
 }
-
-.image-grid .image-tile {
-  display: block !important;
-  width: auto !important;
-  max-width: 100%;
-  height: auto;
+.image-tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 200px;
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -108,72 +101,69 @@ body {
   font-size: 0.75rem;
   transition: transform 0.2s ease;
 }
-
 .image-tile img {
   width: 100%;
   height: 120px;
   object-fit: cover;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
-
 .image-caption {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 6px;
   background: rgba(0, 0, 0, 0.6);
   color: white;
 }
-
 .image-tile.used {
   border-color: #54b054;
 }
-
 .image-tile.unused {
   border-color: #dc7b7f;
   opacity: 0.6;
 }
-
 .image-tile:hover {
   transform: scale(1.03);
   box-shadow: 0 0 10px rgba(90, 228, 255, 0.2);
 }
 
+/* Unused CSS */
 .unused-css-report {
   margin-top: 40px;
   padding-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
-
 .unused-css-report ul {
   padding-left: 20px;
   font-family: monospace;
   font-size: 0.9em;
 }
-
 .unused-css-report li {
   padding: 4px 0;
   color: #ffc810;
 }
 
+/* API Monitor */
 .api-monitor {
   margin-top: 40px;
   padding-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
-
 .api-monitor ul {
   padding-left: 20px;
   font-family: monospace;
   font-size: 0.9em;
   list-style-type: none;
 }
-
 .api-monitor li.ok {
   color: #54b054;
 }
-
 .api-monitor li.fail {
   color: #dc7b7f;
 }
 
+/* Memory Snapshot Panel */
 .nova-memory-header {
   padding: 20px;
   border-radius: 8px;
@@ -182,13 +172,11 @@ body {
   backdrop-filter: blur(6px);
   transition: all 0.3s ease-in-out;
 }
-
 .nova-memory-header p {
   font-size: 1rem;
   margin: 6px 0;
   color: var(--dark-text);
 }
-
 .nova-memory-header span {
   font-weight: 500;
   color: #5ae4ff;
@@ -199,7 +187,6 @@ body[data-theme="light"] .nova-memory-header {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(90, 228, 255, 0.06));
   color: var(--light-text);
 }
-
 body[data-theme="light"] .nova-memory-header span {
   color: #3b82f6;
   text-shadow: none;
