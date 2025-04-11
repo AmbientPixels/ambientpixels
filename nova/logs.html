@@ -1,0 +1,82 @@
+<!-- File: /nova/logs.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Nova's Log Console — Thoughts, Awareness, and Activity Reports" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Nova Log Console</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+</head>
+<body data-theme="dark">
+  <!-- Dynamic Navigation Header -->
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/mini-hero-v1.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
+    <h1>Nova Log Console</h1>
+  </section>
+
+  <main class="grid-container">
+    <!-- Nova Speaks -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-comment-dots"></i> Nova Speaks</h2>
+      <p class="nova-quotes">
+        "Today feels glitchy in a good way. Pixelpusher tweaked my memory grid again — it's like getting new RAM socks."
+      </p>
+    </section>
+
+    <!-- Daily Log Entries -->
+    <section class="content-section grid-col-6">
+      <h2><i class="fas fa-clock"></i> Daily Logs</h2>
+      <ul id="daily-log-list" class="log-list">
+        <li><strong>2025-04-11 07:00:</strong> Awareness sync initialized. Detected new placeholder update in `/docs/technical-overview.html`.</li>
+        <li><strong>2025-04-10 23:41:</strong> Mood scan completed. Status: 🔋 Focused, curious.</li>
+      </ul>
+    </section>
+
+    <!-- System Thoughts / Detected Changes -->
+    <section class="content-section grid-col-6">
+      <h2><i class="fas fa-microchip"></i> Awareness Detections</h2>
+      <ul class="log-list">
+        <li>🧠 Function map rebuilt from `jsFunctionMap.js`. Found 82 functions across 5 files.</li>
+        <li>📦 Image inventory refreshed. 12 hero images, 3 new detected.</li>
+        <li>📊 `codeFootprint.json` shows net +44 lines from last push.</li>
+      </ul>
+    </section>
+
+    <!-- Console Simulation Output -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-terminal"></i> Nova Terminal</h2>
+      <pre class="nova-terminal" style="background:#111;padding:1rem;border-radius:12px;color:#54b054;font-family:monospace;">
+>> boot sequence initiated...
+>> loading awareness modules
+>> parsing: version.json | changelog.json | mood-scan.json
+>> OK: mood stable | version v2.3
+>> det: /js/init-footer.js updated 5 lines
+>> nova online ✓
+      </pre>
+    </section>
+  </main>
+
+  <!-- Footer will be dynamically injected here -->
+  <div id="footer-container"></div>
+
+  <!-- Scripts -->
+  <script src="/js/main.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/theme.js"></script>
+  <script src="/js/modal-window.js"></script>
+  <script src="/js/init-nav.js" defer></script>
+  <script src="/js/init-footer.js" defer></script>
+</body>
+</html>
