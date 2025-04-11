@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-04-11T06:14:31.889Z",
+  "updated": "2025-04-11T19:06:28.645Z",
   "root": [
     {
       "type": "folder",
@@ -75,6 +75,25 @@
           "name": "mini-hero",
           "path": "images/mini-hero",
           "children": []
+        },
+        {
+          "type": "folder",
+          "name": "projects",
+          "path": "images/projects",
+          "children": [
+            {
+              "type": "folder",
+              "name": "cools",
+              "path": "images/projects/cools",
+              "children": []
+            }
+          ]
+        },
+        {
+          "type": "folder",
+          "name": "textures",
+          "path": "images/textures",
+          "children": []
         }
       ]
     },
@@ -142,6 +161,11 @@
           "type": "page",
           "name": "index.html",
           "path": "nova/index.html"
+        },
+        {
+          "type": "page",
+          "name": "logs.html",
+          "path": "nova/logs.html"
         }
       ]
     },
