@@ -2,14 +2,98 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Nova’s Meme Maker</title>
-  <link rel="stylesheet" href="style.css" />
-  <script defer src="script.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ambient Pixels Projects — Experiments & Builds" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Ambient Pixels - Projects</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
 </head>
-<body class="dark">
-  <h1>Nova’s Meme Maker</h1>
-  <!-- Main content will be inserted here -->
+<body data-theme="dark">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-hammer banner-icon"></i>
+      <span>Project Grid Active — Prototypes Incoming.</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
+
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/mini-hero-v1.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
+    <h1>Ambient Projects</h1>
+  </section>
+
+  <main class="grid-container">
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-th"></i> Experiments & Builds</h2>
+    </section>
+
+    <!-- Nova Dashboard Section (col-12) -->
+    <section class="grid-col-12 card-section">
+      <img src="/images/textures/delchron_extreme_close-up_of_a_holographic_digital_dashboard_in.jpg" alt="Nova Dashboard" class="card-image">
+      <div class="card-content">
+        <h3><i class="fas fa-cogs"></i> Nova Dashboard</h3>
+        <p>Live status updates, mood syncs, and awareness system for Nova, our AI assistant.</p>
+        <a href="/nova/dashboard.html">View Nova Dashboard →</a>
+      </div>
+    </section>
+
+    <!-- Nova Logs Section (col-6) -->
+    <section class="grid-col-6 card-section">
+      <img src="/images/textures/delchron_Deltron_3030_texture_microscopic_extreme_close_up_futu.jpg" alt="Nova Logs" class="card-image">
+      <div class="card-content">
+        <h3><i class="fas fa-terminal"></i> Nova Logs</h3>
+        <p>Memory dashboard, awareness system, and daily snapshot of Nova’s mood, syncs, and system scans.</p>
+        <a href="/nova/logs.html">Launch Nova Logs →</a>
+      </div>
+    </section>
+
+    <!-- Glitch Chaos Engine Section (col-6) -->
+    <section class="grid-col-6 card-section">
+      <img src="/images/cards/card-10-tech-chaos.jpg" alt="Glitch Tech Chaos" class="card-image">
+      <div class="card-content">
+        <h3><i class="fas fa-brain"></i> Glitch Chaos Engine</h3>
+        <p>Tomorrow’s render glitch—Nova is testing a new chaotic theme injection. Dare to preview?</p>
+        <p><em>Coming soon!</em></p>
+      </div>
+    </section>
+
+    <!-- Collapsible Future Tools Section (Expanded by Default) -->
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-toolbox"></i> Future Tools</h2>
+        <button class="toggle-btn icon-only" aria-expanded="true" title="Toggle section">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div class="content" style="display: block;">
+        <section class="grid-col-12 card-section">
+          <img src="/images/textures/delchron_hyperrealistic_close-up_of_a_glowing_digital_interface.jpg" alt="Future Tools" class="card-image">
+          <div class="card-content">
+            <h3><i class="fas fa-toolbox"></i> Tools Lab</h3>
+            <p>Placeholder for upcoming utilities and tools developed by Nova—stay tuned for what's launching next.</p>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/main.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/theme.js"></script>
+  <script src="/js/modal-window.js"></script>
+  <script src="/js/init-nav.js" defer></script>
+  <script src="/js/init-footer.js" defer></script>
 </body>
 </html>

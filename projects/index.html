@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Ambient Pixels Documentation Page Template" />
-  <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
-  <title>Ambient Pixels Docs</title>
+  <meta name="description" content="Ambient Pixels Projects — Experiments & Builds" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Ambient Pixels - Projects</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -17,62 +17,78 @@
   <link rel="stylesheet" href="/css/banner.css" />
 </head>
 <body data-theme="dark">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-hammer banner-icon"></i>
+      <span>Project Grid Active — Prototypes Incoming.</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
 
-
-  <!-- Dynamic Navigation Header -->
   <header id="nav-header"></header>
 
   <section class="mini-hero">
-    <img src="/images/hero-v5.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
-    <h1>Ambient Pixels Projects</h1>
+    <img src="/images/mini-hero-v1.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
+    <h1>Ambient Projects</h1>
   </section>
 
   <main class="grid-container">
     <section class="content-section grid-col-12">
-      <h2><i class="fas fa-rocket"></i> Ongoing Launches</h2>
-      <p>Explore our creative dev experiments, toolkits, and web playgrounds—handcrafted and infused with AI-powered weirdness.</p>
+      <h2><i class="fas fa-th"></i> Experiments & Builds</h2>
+    </section>
+    <section class="grid-col-12 card-section">
+      <img src="/images/textures/delchron_Deltron_3030_texture_microscopic_extreme_close_up_futu.jpg" alt="Nova Logs" class="card-image">
+      <div class="card-content">
+        <h3><i class="fas fa-terminal"></i> Nova Logs</h3>
+        <p>Memory dashboard, awareness system, and daily snapshot of Nova’s mood, syncs, and system scans.</p>
+        <a href="/nova/logs.html">Launch Nova Logs →</a>
+      </div>
     </section>
 
-    <section class="neon-card grid-col-12">
-      <h3><i class="fas fa-robot"></i> Nova Awareness Dashboard</h3>
-      <p>Nova, our ambient AI, tracks memory state and mood across the site—live charts, logs, and system awareness in one cosmic dashboard.</p>
-      <a href="/nova/" class="button">View Dashboard</a>
+    <section class="grid-col-6 card-section">
+      <img src="/images/textures/delchron_extreme_close-up_of_pixelated_meme_templates_and_glitc.jpg" alt="Meme Maker" class="card-image">
+      <div class="card-content">
+        <h3><i class="fas fa-vial"></i> Meme Maker</h3>
+        <p>AI-powered meme generator with prompt input, theme switching, local saves, and secure API handling.</p>
+        <a href="https://memetron3030.vercel.app/" target="_blank">Open Meme Maker →</a>
+      </div>
     </section>
 
-    <section class="neon-card grid-col-6">
-      <h3><i class="fas fa-code"></i> Meme Maker</h3>
-      <p>Generate memes with a touch of AI flair. Featuring theme support, Gemini & Hugging Face integration, and text overlays.</p>
-      <a href="https://memetron3030.vercel.app/" class="button" target="_blank" rel="noopener noreferrer">Launch Meme Maker</a>
+    <section class="grid-col-6 card-section">
+      <img src="\images\projects\cools\logo-swirl.jpg" alt="Cool S" class="card-image">
+      <div class="card-content">
+        <h3><i class="fas fa-snowflake"></i> Cool S Project</h3>
+        <p>The iconic Cool S reimagined through glitch aesthetics, community remixes, and pixel art evolution.</p>
+        <a href="https://ambientpixels.github.io/cools-website/" target="_blank">Visit Cool S Site →</a>
+      </div>
     </section>
 
-    <section class="neon-card grid-col-6">
-      <h3><i class="fas fa-bezier-curve"></i> Playground Experiments</h3>
-      <p>A live dev sandbox for neon themes, layout tests, animation prototypes, and glitchy UI trials. Chaos encouraged.</p>
-      <a href="/dev.html" class="button">Explore Playground</a>
+    <section class="grid-col-6 card-section">
+      <img src="/images/textures/delchron_mechanical_texture_microscopic_extreme_close_up_futuri.jpg" alt="Future Tools" class="card-image">
+      <div class="card-content">
+        <h3><i class="fas fa-toolbox"></i> Tools Lab</h3>
+        <p>Placeholder for upcoming utilities and tools developed by Nova—stay tuned for what's launching next.</p>
+        <a href="/tools/index.html">Visit Tools Lab →</a>
+      </div>
     </section>
 
-    <section class="neon-card grid-col-6">
-      <h3><i class="fas fa-book"></i> Documentation Hub</h3>
-      <p>Guides and specs for Ambient Pixels components, dashboards, API tools, and theme controls—always evolving.</p>
-      <a href="/docs/" class="button">Open Docs</a>
-    </section>
-
-    <section class="neon-card grid-col-6">
-      <h3><i class="fas fa-dollar-sign"></i> $COOLS Coin Site</h3>
-      <p>The official landing page for $COOLS—the meme coin inspired by the iconic Cool S. Clean, weird, crypto-infused.</p>
-      <a href="https://ambientpixels.github.io/cools-website/" class="button" target="_blank">Visit $COOLS</a>
+    <section class="grid-col-6 card-section">
+      <img src="/images/cards/card-10-tech-chaos.jpg" alt="Glitch Tech Chaos" class="card-image">
+      <div class="card-content">
+        <h3><i class="fas fa-brain"></i> Glitch Chaos Engine</h3>
+        <p>Tomorrow’s render glitch—Nova is testing a new chaotic theme injection. Dare to preview?</p>
+        <a href="/glitchlab.html">See What’s Warping →</a>
+      </div>
     </section>
   </main>
 
-  <!-- Footer will be dynamically injected here -->
   <div id="footer-container"></div>
 
-  <!-- Scripts -->
   <script src="/js/main.js"></script>
   <script src="/js/nav.js"></script>
   <script src="/js/theme.js"></script>
   <script src="/js/modal-window.js"></script>
   <script src="/js/init-nav.js" defer></script>
-  <script src="/js/init-footer.js" defer></script> <!-- Footer Injection Script -->
+  <script src="/js/init-footer.js" defer></script>
 </body>
 </html>
