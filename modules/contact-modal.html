@@ -1,0 +1,25 @@
+<!-- /modules/contact-modal.html -->
+<div id="contact-modal" class="modal hidden">
+    <div class="modal-backdrop" id="modal-backdrop"></div>
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close" aria-label="Close contact form">
+        <i class="fas fa-times"></i>
+      </button>
+      <h2><i class="fas fa-envelope"></i> Contact Nova’s Grid</h2>
+      <form id="contact-form" class="contact-form">
+        <label for="name">Name</label>
+        <input type="text" name="name" id="name" required>
+      
+        <label for="email">Email</label>
+        <input type="email" name="email" id="email" required>
+      
+        <label for="message">Message</label>
+        <textarea name="message" id="message" rows="5" required></textarea>
+      
+        <button type="submit" class="button">Send Message</button>
+        <p class="form-status" id="form-status"></p>
+      </form>
+      
+    </div>
+  </div>
+  
