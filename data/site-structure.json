@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-04-10T16:24:27.129Z",
+  "updated": "2025-04-11T06:14:31.889Z",
   "root": [
     {
       "type": "folder",
@@ -21,6 +21,18 @@
       "path": "Untitled-3.html"
     },
     {
+      "type": "folder",
+      "name": "about",
+      "path": "about",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "about/index.html"
+        }
+      ]
+    },
+    {
       "type": "page",
       "name": "art.html",
       "path": "art.html"
@@ -35,11 +47,6 @@
       "type": "page",
       "name": "dev.html",
       "path": "dev.html"
-    },
-    {
-      "type": "page",
-      "name": "docs.html",
-      "path": "docs.html"
     },
     {
       "type": "page",
@@ -84,6 +91,18 @@
     },
     {
       "type": "folder",
+      "name": "lab",
+      "path": "lab",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "lab/index.html"
+        }
+      ]
+    },
+    {
+      "type": "folder",
       "name": "modules",
       "path": "modules",
       "children": [
@@ -91,6 +110,11 @@
           "type": "page",
           "name": "bugs.html",
           "path": "modules/bugs.html"
+        },
+        {
+          "type": "page",
+          "name": "contact-modal.html",
+          "path": "modules/contact-modal.html"
         },
         {
           "type": "page",
@@ -144,9 +168,16 @@
       ]
     },
     {
-      "type": "page",
-      "name": "projects.html",
-      "path": "projects.html"
+      "type": "folder",
+      "name": "projects",
+      "path": "projects",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "projects/index.html"
+        }
+      ]
     },
     {
       "type": "page",
@@ -159,9 +190,16 @@
       "path": "responsive-navbar-demo.html"
     },
     {
-      "type": "page",
-      "name": "skills.html",
-      "path": "skills.html"
+      "type": "folder",
+      "name": "skills",
+      "path": "skills",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "skills/index.html"
+        }
+      ]
     },
     {
       "type": "page",
