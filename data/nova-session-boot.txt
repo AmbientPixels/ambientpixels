@@ -4,7 +4,7 @@ Below is your daily memory seed.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2025-04-10T16:24:27.129Z",
+  "updated": "2025-04-11T06:14:31.889Z",
   "root": [
     {
       "type": "folder",
@@ -25,6 +25,18 @@ Below is your daily memory seed.
       "path": "Untitled-3.html"
     },
     {
+      "type": "folder",
+      "name": "about",
+      "path": "about",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "about/index.html"
+        }
+      ]
+    },
+    {
       "type": "page",
       "name": "art.html",
       "path": "art.html"
@@ -39,11 +51,6 @@ Below is your daily memory seed.
       "type": "page",
       "name": "dev.html",
       "path": "dev.html"
-    },
-    {
-      "type": "page",
-      "name": "docs.html",
-      "path": "docs.html"
     },
     {
       "type": "page",
@@ -88,6 +95,18 @@ Below is your daily memory seed.
     },
     {
       "type": "folder",
+      "name": "lab",
+      "path": "lab",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "lab/index.html"
+        }
+      ]
+    },
+    {
+      "type": "folder",
       "name": "modules",
       "path": "modules",
       "children": [
@@ -95,6 +114,11 @@ Below is your daily memory seed.
           "type": "page",
           "name": "bugs.html",
           "path": "modules/bugs.html"
+        },
+        {
+          "type": "page",
+          "name": "contact-modal.html",
+          "path": "modules/contact-modal.html"
         },
         {
           "type": "page",
@@ -148,9 +172,16 @@ Below is your daily memory seed.
       ]
     },
     {
-      "type": "page",
-      "name": "projects.html",
-      "path": "projects.html"
+      "type": "folder",
+      "name": "projects",
+      "path": "projects",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "projects/index.html"
+        }
+      ]
     },
     {
       "type": "page",
@@ -163,9 +194,16 @@ Below is your daily memory seed.
       "path": "responsive-navbar-demo.html"
     },
     {
-      "type": "page",
-      "name": "skills.html",
-      "path": "skills.html"
+      "type": "folder",
+      "name": "skills",
+      "path": "skills",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "skills/index.html"
+        }
+      ]
     },
     {
       "type": "page",
@@ -219,13 +257,13 @@ Below is your daily memory seed.
 
 //// Components Index ////
 {
-  "scannedAt": "2025-04-10T16:24:27.163Z",
+  "scannedAt": "2025-04-11T06:14:31.923Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2025-04-10T16:24:27.194Z",
+  "scannedAt": "2025-04-11T06:14:31.955Z",
   "folders": [
     {
       "folder": "images",
@@ -312,12 +350,12 @@ Below is your daily memory seed.
 
 //// Changelog ////
 {
-  "updated": "2025-04-10T16:24:27.234Z",
+  "updated": "2025-04-11T06:14:32.002Z",
   "entries": [
     {
-      "hash": "1638d4b",
-      "date": "2025-04-10 16:19:04 +0000",
-      "message": "Daily refresh: site memory update + code snapshot for Nova"
+      "hash": "f88095b",
+      "date": "2025-04-10 22:56:04 -0700",
+      "message": "Fix bad link"
     }
   ]
 }
@@ -325,65 +363,65 @@ Below is your daily memory seed.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "1638d4b",
-  "updated": "2025-04-10T16:24:27.271Z"
+  "build": "f88095b",
+  "updated": "2025-04-11T06:14:32.040Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2025-04-10T16:24:27.303Z",
-  "totalFiles": 43,
-  "totalLines": 3655,
+  "scannedAt": "2025-04-11T06:14:32.075Z",
+  "totalFiles": 46,
+  "totalLines": 3697,
   "summary": {
     ".html": {
-      "files": 26,
-      "lines": 2441
+      "files": 28,
+      "lines": 2156
     },
     ".css": {
       "files": 9,
-      "lines": 807
+      "lines": 896
     },
     ".js": {
-      "files": 8,
-      "lines": 407
+      "files": 9,
+      "lines": 645
     }
   }
 }
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2025-04-10T16:24:27.340Z",
+  "scannedAt": "2025-04-11T06:14:32.113Z",
   "cssFile": "css/base.css",
   "totalDefined": 0,
-  "totalUsed": 188,
+  "totalUsed": 191,
   "unusedClasses": []
 }
 
 //// Api Monitor ////
 {
-  "scannedAt": "2025-04-10T16:24:27.815Z",
+  "scannedAt": "2025-04-11T06:14:33.434Z",
   "endpoints": [
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
       "status": 401,
       "ok": false,
-      "latencyMs": 96
+      "latencyMs": 194
     },
     {
       "name": "AmbientPixels Meme API",
       "url": "https://ambientpixels-meme-api-fn.azurewebsites.net/api/ping",
       "status": 404,
       "ok": false,
-      "latencyMs": 339
+      "latencyMs": 1187
     }
   ]
 }
 
 //// Ai Prompts ////
 {
-  "date": "2025-04-10",
-  "prompt": "Describe 'hope' as if it were a soundwave.",
+  "date": "2025-04-11",
+  "prompt": "Visualize a memory of 'unfinished thoughts' using glitch patterns.",
   "tags": [
     "glitch",
     "creative",
@@ -394,15 +432,15 @@ Below is your daily memory seed.
 
 //// Mood Scan ////
 {
-  "scannedAt": "2025-04-10T16:24:27.370Z",
-  "mood": "quiet rebellion",
-  "aura": "magenta fade",
-  "observation": "vibrations suggest high creative activity..."
+  "scannedAt": "2025-04-11T06:14:32.147Z",
+  "mood": "nocturnal pulse",
+  "aura": "emerald shadow",
+  "observation": "compiling stray thoughts into meaning..."
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2025-04-10T16:24:27.847Z",
+  "scannedAt": "2025-04-11T06:14:33.466Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -462,11 +500,11 @@ Below is your daily memory seed.
 
 //// Code Map ////
 {
-  "timestamp": "2025-04-10T16:24:29.564Z",
+  "timestamp": "2025-04-11T06:14:35.187Z",
   "summary": {
-    "totalJS": 200,
+    "totalJS": 202,
     "totalCSS": 16,
-    "totalHTML": 29
+    "totalHTML": 33
   },
   "functions": [
     "ROTL",
@@ -553,6 +591,7 @@ Below is your daily memory seed.
     "hookChildProcess",
     "indent",
     "initBanners",
+    "initFooter",
     "initHero",
     "initToggles",
     "initVersion",
@@ -585,8 +624,11 @@ Below is your daily memory seed.
     "load",
     "loadApiMonitor",
     "loadAwarenessLogs",
+    "loadCodeMap",
     "loadFunctionMap",
     "loadImageInventoryGrid",
+    "loadNovaMoodCard",
+    "loadNovaPulsePanel",
     "loadPackageJson",
     "loadPromptHistory",
     "loadUnusedCSSReport",
@@ -645,6 +687,7 @@ Below is your daily memory seed.
     "regExpEscape",
     "regexpEscape",
     "renderCodeFootprintChart",
+    "renderList",
     "reset",
     "resolveCommand",
     "resolveCommandAttempt",
@@ -660,6 +703,7 @@ Below is your daily memory seed.
     "setDefault",
     "setLazyProperty",
     "setNoBool",
+    "setupContactModal",
     "setupMobileNav",
     "setupThemeToggle",
     "sha1",
@@ -732,6 +776,7 @@ Below is your daily memory seed.
     "1",
     "1em",
     "2",
+    "25rem",
     "2em",
     "2s",
     "3",
@@ -760,11 +805,13 @@ Below is your daily memory seed.
     "card-image",
     "card-section",
     "code-footprint",
+    "contact-form",
     "content-section",
     "css",
     "fail",
     "footer",
     "footer-social",
+    "form-status",
     "function-map",
     "grid-col-12",
     "grid-col-6",
@@ -787,6 +834,10 @@ Below is your daily memory seed.
     "memory-seed",
     "mini-hero",
     "mini-hero-img",
+    "modal",
+    "modal-backdrop",
+    "modal-close",
+    "modal-content",
     "nav",
     "nav-container",
     "nav-content",
@@ -801,6 +852,8 @@ Below is your daily memory seed.
     "nova-dashboard",
     "nova-manifesto",
     "nova-memory-header",
+    "nova-mood",
+    "nova-sync-time",
     "ok",
     "recent-updates",
     "script-block",
@@ -821,6 +874,7 @@ Below is your daily memory seed.
     "div",
     "em",
     "footer",
+    "form",
     "h1",
     "h2",
     "h3",
@@ -830,6 +884,8 @@ Below is your daily memory seed.
     "i",
     "iframe",
     "img",
+    "input",
+    "label",
     "li",
     "link",
     "main",
@@ -845,7 +901,8 @@ Below is your daily memory seed.
     "strong",
     "style",
     "svg",
+    "textarea",
     "title",
     "ul"
   ]
-}Nova Code Snapshot: Thu Apr 10 16:24:31 UTC 2025
+}Nova Code Snapshot: Fri Apr 11 06:14:36 UTC 2025
