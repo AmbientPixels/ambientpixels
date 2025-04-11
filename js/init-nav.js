@@ -117,10 +117,4 @@ function initFooter() {
       }
     });
 }
-// /js/init-footer.js or init-nav.js
-fetch('/modules/contact-modal.html')
-  .then(res => res.text())
-  .then(html => {
-    document.body.insertAdjacentHTML('beforeend', html);
-    setupContactModal(); // ← defined below
-  });
+
