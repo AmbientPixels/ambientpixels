@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ambient Pixels Documentation Page Template" />
+  <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+  <title>Ambient Pixels Docs</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+</head>   
+<body data-theme="dark">
+
+  <!-- Dynamic Navigation Header -->
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/mini-hero-v2.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
+    <h1>Ambient Pixels Documentation</h1>
+  </section>
+
+  <main class="grid-container">
+    <section class="content-section grid-col-12">
+        <h2><i class="fas fa-star"></i> Skills Overview</h2>
+        <blockquote>“Systems optimized—expertise deployed.”</blockquote>
+        <p>We at Ambient Pixels wield a v2.3 skillset—mastering web dev, design, multimedia, and deployment pipelines—powered by LYNX—our bot-engine—as of April 7, 2025.</p>
+    </section>
+    <section class="content-section grid-col-6">
+        <h2><i class="fas fa-paint-roller"></i> UI/UX Design</h2>
+        <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Design">Expand</button>
+        <div class="content" style="display: none;">
+            <p>We craft responsive UI frameworks—12-column grids with neon aesthetics—via <code>layout.css</code>. Tools: Figma, Adobe XD—breakpoints at <768px, 768-1024px, >1024px—optimized for light/dark themes—deployed April 2025.</p>
+        </div>
+    </section>
+    <section class="content-section grid-col-6">
+        <h2><i class="fas fa-terminal"></i> Web Development</h2>
+        <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Dev">Expand</button>
+        <div class="content" style="display: none;">
+            <p>We build with HTML5, CSS3, Vanilla JS—<code>main.js</code> drives hero rotation (25s), toggles, themes—Visual Studio Code as our forge—deployed via Azure Static Web App—stable April 2025.</p>
+        </div>
+    </section>
+    <section class="content-section grid-col-6">
+        <h2><i class="fas fa-tools"></i> CI/CD Pipeline</h2>
+        <button class="toggle-btn" aria-expanded="false" aria-label="Toggle CI/CD">Expand</button>
+        <div class="content" style="display: none;">
+            <p>We orchestrate CI/CD with GitHub Actions—<code>static.yml</code> deploys html/css/js/images—<code>AZURE_CREDENTIALS</code> in Secrets—push/PR triggers—Azure Static Web Apps hosts—live since April 2025.</p>
+        </div>
+    </section>
+    <section class="content-section grid-col-6">
+        <h2><i class="fas fa-server"></i> Azure Services</h2>
+        <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Azure">Expand</button>
+        <div class="content" style="display: none;">
+            <p>We leverage Azure Static Web Apps for hosting—<code>ambientpixels.ai</code>—and prototype serverless APIs with Azure Function App—Node.js runtime—<code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/</code>—deployed April 2025.</p>
+        </div>
+    </section>
+    <section class="content-section grid-col-6">
+        <h2><i class="fas fa-music"></i> Audio Engineering</h2>
+        <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Music">Expand</button>
+        <div class="content" style="display: none;">
+            <p>We generate synthwave tracks—Node.js tools, Audacity for polish—prototyped in v2.1.10—planned for Azure Function App—validated April 2025.</p>
+        </div>
+    </section>
+    <section class="content-section grid-col-6">
+        <h2><i class="fas fa-gamepad"></i> Game Development</h2>
+        <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Games">Expand</button>
+        <div class="content" style="display: none;">
+            <p>We code browser games—Vanilla JS—cyberpunk runners on 12-column grids—Visual Studio Code—lazy-loaded assets—released April 2025.</p>
+        </div>
+    </section>
+    <section class="content-section grid-col-6">
+        <h2><i class="fas fa-film"></i> Video Production</h2>
+        <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Movies">Expand</button>
+        <div class="content" style="display: none;">
+            <p>We produce cyberpunk animations—Blender, open-source stacks—embedded in <code>test.html</code>—YouTube-streamed—integrated April 2025.</p>
+        </div>
+    </section>
+    <section class="content-section grid-col-6">
+        <h2><i class="fas fa-paint-brush"></i> Digital Art</h2>
+        <button class="toggle-btn" aria-expanded="false" aria-label="Toggle Art">Expand</button>
+        <div class="content" style="display: none;">
+            <p>We curate digital art—Photoshop, GIMP—stored in <code>images/</code>—grid-displayed in <code>art.html</code>—lazy-loaded—accessible April 2025.</p>
+        </div>
+    </section>
+</main>
+
+  <!-- Footer will be dynamically injected here -->
+  <div id="footer-container"></div>
+
+  <!-- Scripts -->
+  <script src="/js/main.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/theme.js"></script>
+  <script src="/js/modal-window.js"></script>
+  <script src="/js/init-nav.js" defer></script>
+  <script src="/js/init-footer.js" defer></script> <!-- Footer Injection Script -->
+</body>
+</html>
