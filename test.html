@@ -1,98 +1,63 @@
-<!-- test.html - Ambient Pixels v2.3 - April 8, 2025 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Ambient Pixels v2.3—Tech Lab Home" />
-    <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
-    <title>Ambient Pixels - Home</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="./css/base.css" />
-    <link rel="stylesheet" href="./css/grid.css">
-    <link rel="stylesheet" href="./css/nav.css">  
-    <link rel="stylesheet" href="./css/components.css" />
-    <link rel="stylesheet" href="./css/hero.css" />
-    <link rel="stylesheet" href="./css/theme.css" />
-    <link rel="stylesheet" href="./css/banner.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ambient Pixels Documentation Page Template" />
+  <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+  <title>Ambient Pixels Docs</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
 </head>
 <body data-theme="dark">
   <div class="banner-container" id="banner-container">
     <div class="banner">
       <i class="fas fa-wrench banner-icon"></i>
-      <span>Under Development: Site enhancements in progress—minor glitches may occur during this phase.</span>
+      <span>Documentation Mode — Drafted with Nova.</span>
       <button class="banner-close" aria-label="Close Banner">×</button>
     </div>
   </div>
 
+  <!-- Dynamic Navigation Header -->
   <header id="nav-header"></header>
 
-  <section class="hero">
-    <div class="hero-loading">
-      <i class="fas fa-robot loading-icon"></i>
-      <p>Loading systems…</p>
-      <div class="loading-bar"><div class="loading-progress"></div></div>
-    </div>
-    <div class="hero-slides">
-      <img src="images/hero-v1.jpg" alt="Hero Image 1" class="hero-slide active" loading="lazy" />
-      <img src="images/hero-v2.jpg" alt="Hero Image 2" class="hero-slide" loading="lazy" />
-      <!-- Add remaining images... -->
-    </div>
-    <div class="hero-content">
-      <h1 class="hero-headline">Ambient Pixels Home</h1>
-      <p class="hero-subheadline">Tech Lab Live</p>
-    </div>
+  <section class="mini-hero">
+    <img src="images/mini-hero-v1.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
+    <h1>Ambient Pixels Test</h1>
   </section>
 
   <main class="grid-container">
+    <!-- Drop new .content-section grid blocks here -->
     <section class="content-section grid-col-12">
-      <h2><i class="fas fa-home"></i> Welcome Home</h2>
-      <blockquote>“Grid active—vibes electric.”</blockquote>
-      <p>This is <code>test.html</code>—Ambient Pixels v2.3, April 8, 2025. Powered by LYNX—our code-fueled AI core.</p>
-    </section>
-
-    <section class="content-section grid-col-6">
-      <h2><i class="fas fa-robot"></i> LYNX’s Nightly Drop</h2>
-      <button class="toggle-btn" aria-expanded="false">Expand</button>
-      <div class="content" style="display: none;">
-        <p>Nav overlay test passed! Mobile now zaps clean—tune the grid further as needed.</p>
+      <div class="section-header">
+        <h2><i class="fas fa-image"></i> Test Collapsible Section</h2>
+        <button class="toggle-btn icon-only" aria-expanded="true" title="Toggle section">
+          <i class="fas fa-chevron-down"></i>
+        </button>
       </div>
-    </section>
-
-    <section class="content-section grid-col-6">
-      <h2><i class="fas fa-clock"></i> Today’s Grid</h2>
-      <button class="toggle-btn" aria-expanded="false">Expand</button>
-      <div class="content" style="display: none;">
-        <p>Finalize mobile nav, test overlays, prep for deployment site-wide. Let the neon flow.</p>
+      <div class="content">
+        <p>This content block is collapsible. Click the chevron to toggle visibility.</p>
+        <p>Use this space to test layout, spacing, and animations.</p>
       </div>
     </section>
   </main>
 
-  <footer class="footer">
-    <div class="footer-container">
-      <div class="footer-links">
-        <a href="/contact">Contact</a>
-        <a href="#top">Back to Top</a>
-        <p>© Ambient Pixels</p>
-      </div>
-      <div class="footer-social">
-        <a href="https://deviantart.com" aria-label="DeviantArt"><i class="fab fa-deviantart"></i></a>
-        <a href="https://twitter.com" aria-label="X"><i class="fab fa-twitter"></i></a>
-        <a href="https://youtube.com" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-      </div>
-      <div class="footer-tagline">
-        <p>Built with precision, powered by logic</p>
-        <span id="version">v2.3</span>
-      </div>
-    </div>
-  </footer>
+  <!-- Footer will be dynamically injected here -->
+  <div id="footer-container"></div>
 
-<!-- Scripts -->
-<script src="js/main.js"></script>
-<script src="js/nav.js"></script>
-<script src="js/theme.js"></script>
-<script src="js/modal-window.js"></script>
-<script src="js/init-nav.js" defer></script>
+  <!-- Scripts -->
+  <script src="/js/main.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/theme.js"></script>
+  <script src="/js/modal-window.js"></script>
+  <script src="/js/init-nav.js" defer></script>
+  <script src="/js/init-footer.js" defer></script> <!-- Footer Injection Script -->
 </body>
 </html>
