@@ -246,3 +246,23 @@ padding-left: 1rem;
   margin-top: 1rem;
   font-weight: 500;
 }
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.toggle-btn.icon-only {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.toggle-btn[aria-expanded="false"] i {
+  transform: rotate(-90deg);
+}

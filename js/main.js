@@ -56,16 +56,16 @@ function initHero() {
 function initToggles() {
     const toggleButtons = document.querySelectorAll('.toggle-btn');
     toggleButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const section = button.closest('.content-section');
-            if (!section) return;
-            const content = section.querySelector('.content');
-            const isExpanded = button.getAttribute('aria-expanded') === 'true';
-            button.setAttribute('aria-expanded', !isExpanded);
-            content.style.display = isExpanded ? 'none' : 'block';
-        });
+      button.addEventListener('click', () => {
+        const section = button.closest('.content-section');
+        const content = section.querySelector('.content');
+        const isExpanded = button.getAttribute('aria-expanded') === 'true';
+  
+        button.setAttribute('aria-expanded', !isExpanded);
+        content.style.display = isExpanded ? 'none' : 'block';
+      });
     });
-}
+  }
 
 function initVersion() {
     const versionEl = document.getElementById('version');

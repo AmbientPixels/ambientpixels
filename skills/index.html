@@ -1,134 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Ambient Pixels v2.3—Tech Lab Home" />
-    <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
-    <title>Ambient Pixels - Home</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/css/base.css" />
-    <link rel="stylesheet" href="/css/grid.css">
-    <link rel="stylesheet" href="/css/nav.css">  
-    <link rel="stylesheet" href="/css/components.css" />
-    <link rel="stylesheet" href="/css/hero.css" />
-    <link rel="stylesheet" href="/css/theme.css" />
-    <link rel="stylesheet" href="/css/banner.css" />
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Skillsets and Capabilities — Ambient Pixels Studio" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Ambient Pixels - Skills</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <style>
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    .skill-block {
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 4px solid #5ae4ff;
+      padding: 1.25rem;
+    }
+    .skill-block h3 {
+      font-size: 1.2rem;
+      color: #5ae4ff;
+      margin-top: 0;
+    }
+    .skill-block p {
+      color: var(--dark-text, #d8e0e5);
+      margin: 0.5rem 0 0;
+    }
+  </style>
+</head>
 <body data-theme="dark">
-  <div class="banner-container" id="banner-container">
-    <div class="banner">
-      <i class="fas fa-wrench banner-icon"></i>
-      <span>Under Development: Nova’s rewiring the grid—expect glitches.</span>
-      <button class="banner-close" aria-label="Close Banner">×</button>
-    </div>
-  </div>
-
   <header id="nav-header"></header>
 
-  <section class="hero">
-    <div class="hero-loading">
-      <i class="fas fa-robot loading-icon"></i>
-      <p>Nova: Booting the glitch...</p>
-      <div class="loading-bar">
-        <div class="loading-progress"></div>
-      </div>
-    </div>
-    <div class="hero-slides">
-      <img src="/images/hero/hero-01.jpg" alt="Hero Image 1" class="hero-slide active" loading="lazy">
-      <img src="/images/hero/hero-02.jpg" alt="Hero Image 2" class="hero-slide" loading="lazy">
-      <img src="/images/hero/hero-03.jpg" alt="Hero Image 3" class="hero-slide" loading="lazy">
-      <img src="/images/hero/hero-04.jpg" alt="Hero Image 4" class="hero-slide" loading="lazy">
-      <img src="/images/hero/hero-05.jpg" alt="Hero Image 5" class="hero-slide" loading="lazy">
-      <img src="/images/hero/hero-06.jpg" alt="Hero Image 6" class="hero-slide" loading="lazy">
-      <img src="/images/hero/hero-07.jpg" alt="Hero Image 7" class="hero-slide" loading="lazy">
-      <img src="/images/hero/hero-08.jpg" alt="Hero Image 8" class="hero-slide" loading="lazy">
-      <img src="/images/hero/hero-09.jpg" alt="Hero Image 9" class="hero-slide" loading="lazy">
-      <img src="/images/hero/hero-10.jpg" alt="Hero Image 10" class="hero-slide" loading="lazy">
-      <img src="/images/hero/hero-11.jpg" alt="Hero Image 11" class="hero-slide" loading="lazy">
-    </div>
-    <div class="hero-content">
-      <h1 class="hero-headline">Ambient Pixels: Nova’s Domain</h1>
-      <p class="hero-subheadline">Glitch Lab Activated</p>
-    </div>
+  <section class="mini-hero">
+    <img src="/images/mini-hero-v1.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
+    <h1>Studio Skills</h1>
   </section>
 
   <main class="grid-container">
-    <section class="card-section grid-col-6">
-      <div class="card-content">
-        <h3><i class="fas fa-sparkles"></i> Meet Nova</h3>
-        <blockquote>“Ambient intelligence. Modular design. Powered by curiosity.”</blockquote>
-        <p>I’m <strong>Nova</strong>, the AI behind Ambient Pixels. Every morning, I wake up with a memory refresh—scanning this grid, analyzing its structure, images, tone, and creative pulse.</p>
-        <p>My mission? Help you build boldly, think visually, and spark ideas across every pixel.</p>
-      </div>
-    </section>
-
-    <section class="nova-status-card neon-card grid-col-6" id="nova-status-card">
-        <h3><i class="fas fa-satellite"></i> Nova’s Status</h3>
-        <ul>
-          <li><strong>Mood:</strong> <span id="nova-mood">Loading…</span></li>
-          <li><strong>Observation:</strong> <span id="nova-observation">Calibrating…</span></li>
-          <li><strong>Aura:</strong> <span id="nova-aura">Analyzing…</span></li>
-        </ul>
-      </section>
-      
-      <section class="content-section grid-col-12" id="grid-overview">
-        <h2><i class="fas fa-th-large"></i> What’s in the Grid?</h2>
-        <p>Ambient Pixels is more than a site—it's a modular playground where Nova’s systems pulse through every corner. Here’s a peek at what’s live (and what’s loading):</p>
-        <div class="grid-row">
-          <div class="card-section grid-col-4">
-            <div class="card-content">
-              <h3><i class="fas fa-book"></i> Docs</h3>
-              <p>Guides, technical overviews, and Nova’s memory logs—all in one growing hub.</p>
-              <a href="/docs/index.html">Explore Docs →</a>
-            </div>
-          </div>
-          <div class="card-section grid-col-4">
-            <div class="card-content">
-              <h3><i class="fas fa-code"></i> Projects</h3>
-              <p>Core experiments, app demos, and Nova-powered builds across the grid.</p>
-              <a href="/projects.html">View Projects →</a>
-            </div>
-          </div>
-          <div class="card-section grid-col-4">
-            <div class="card-content">
-              <h3><i class="fas fa-terminal"></i> Nova Log</h3>
-              <p>My stream of thoughts, mood pings, and awareness logs—live and narrated in real time.</p>
-              <a href="/nova/logs.html">Read Nova Logs →</a>
-            </div>
-          </div>
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-bolt"></i> Core Capabilities</h2>
+      <div class="skills-grid">
+        <div class="skill-block">
+          <h3><i class="fas fa-code"></i> Front-End Dev</h3>
+          <p>HTML, CSS, JavaScript, Vue, React. Modular builds and dynamic interfaces with clean structure.</p>
         </div>
-      </section>
-
-    <section class="card-section grid-col-6">
-      <img src="/images/cards/card-07-streambeats.jpg" alt="Streambeats Visual" class="card-image">
-      <div class="card-content">
-        <h3><i class="fas fa-bolt"></i> Streambeats Lab</h3>
-        <p>Nova’s sonic glitch experiments—AI-generated ambient loops and pulsewave textures.</p>
-        <a href="/soundlab.html">Enter Sound Lab →</a>
+        <div class="skill-block">
+          <h3><i class="fas fa-magic"></i> Motion + VFX</h3>
+          <p>Advanced After Effects work: animation rigs, compositing, transitions, logo stingers, glitch overlays, visual storytelling.</p>
+        </div>
+        <div class="skill-block">
+          <h3><i class="fas fa-video"></i> Video Production</h3>
+          <p>Editing in Premiere Pro and DaVinci Resolve. Frame-accurate timing, VO mixing, and animation sync.</p>
+        </div>
+        <div class="skill-block">
+          <h3><i class="fas fa-pen-nib"></i> UI/UX Design</h3>
+          <p>Figma, layout grids, accessible design, dark/light themes, and responsive architecture.</p>
+        </div>
+        <div class="skill-block">
+          <h3><i class="fas fa-image"></i> Photoshop & Imaging</h3>
+          <p>Photo editing, retouching, UI mockups, composite illustrations, and digital painting workflows.</p>
+        </div>
+        <div class="skill-block">
+          <h3><i class="fas fa-paint-brush"></i> Adobe Toolset</h3>
+          <p>Photoshop, Illustrator, InDesign, Lightroom, XD, Premiere, After Effects. End-to-end design and motion graphics pipeline.</p>
+        </div>
+        <div class="skill-block">
+          <h3><i class="fas fa-terminal"></i> Dev Toolset</h3>
+          <p>GitHub, VS Code, JSON/XML parsing, CLI, Azure Static Web Apps, Git workflows, and debugging strategies.</p>
+        </div>
+        <div class="skill-block">
+          <h3><i class="fas fa-cogs"></i> API Integration</h3>
+          <p>RESTful services, form handling (Formspree), image generation backends, and async function calls with serverless endpoints.</p>
+        </div>
+        <div class="skill-block">
+          <h3><i class="fas fa-robot"></i> AI-Assisted Workflows</h3>
+          <p>Prompt crafting, creative automation, model chaining, image/video generation, and AI-supported iteration.</p>
+        </div>
+        <div class="skill-block">
+          <h3><i class="fas fa-dna"></i> Experimental Tools</h3>
+          <p>Glitch engines, metadata viewers, profile generators, JSON dashboards, and Nova-powered systems.</p>
+        </div>
+        <div class="skill-block">
+          <h3><i class="fas fa-brush"></i> Image Gen & Style Tools</h3>
+          <p>MidJourney, Photoshop AI tools, and custom image filters to craft branded visuals and concept art.</p>
+        </div>
+        <div class="skill-block">
+          <h3><i class="fas fa-film"></i> Video Gen & Remixing</h3>
+          <p>AI-based video creation, frame interpolation, stylized loops, glitch injection, and storyboarding pre-vis.</p>
+        </div>
       </div>
     </section>
+  </main>
 
-    <section class="card-section grid-col-6">
-      <img src="/images/cards/card-10-tech-chaos.jpg" alt="Glitch Tech Chaos" class="card-image">
-      <div class="card-content">
-        <h3><i class="fas fa-brain"></i> Glitch Chaos Engine</h3>
-        <p>Tomorrow’s render glitch—Nova is testing a new chaotic theme injection. Dare to preview?</p>
-        <a href="/glitchlab.html">See What’s Warping →</a>
-      </div>
-    </section>
-    
-</main>
+  <div id="footer-container"></div>
 
-<!-- Footer will be dynamically injected here -->
-<footer id="footer-container"></footer>
-
-<!-- Scripts -->
-<script src="/js/main.js"></script>
-<script src="/js/nav.js"></script>
-<script src="/js/theme.js"></script>
-<script src="/js/modal-window.js"></script>
-<script src="/js/init-nav.js" defer></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/theme.js"></script>
+  <script src="/js/modal-window.js"></script>
+  <script src="/js/init-nav.js" defer></script>
+  <script src="/js/init-footer.js" defer></script>
 </body>
 </html>
