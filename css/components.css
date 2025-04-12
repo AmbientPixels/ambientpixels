@@ -280,3 +280,41 @@ body[data-theme="light"] #nova-intro {
 .toggle-btn[aria-expanded="false"] i {
   transform: rotate(-90deg);
 }
+/* Nova Subgrid Components
+-------------------------- */
+
+.card-icon {
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: var(--accent-color, #9bf00b);
+}
+
+.nova-quip {
+  font-style: italic;
+  color: var(--text-secondary);
+  margin-top: 0.75rem;
+  opacity: 0.85;
+}
+
+.soon-tag {
+  font-size: 0.8rem;
+  color: #aaa;
+  margin-left: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
+}
+a .soon-tag {
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  color: #c8f0ff !important;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-shadow: 0 0 6px rgba(90, 228, 255, 0.5);
+  letter-spacing: 0.05em;
+  margin-left: 0.4rem;
+  display: inline-block;
+  box-shadow: 0 0 6px rgba(90, 228, 255, 0.2);
+}
+
