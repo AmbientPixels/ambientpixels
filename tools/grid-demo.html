@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Ambient Pixels Grid Layout Page" />
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+    <title>Grid Layout Page - Ambient Pixels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/grid.css" />
+    <link rel="stylesheet" href="/css/nav.css" />
+    <link rel="stylesheet" href="/css/components.css" />
+    <link rel="stylesheet" href="/css/hero.css" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/banner.css" />
+  </head>
+  <body data-theme="dark">
+    <!-- Dynamic Navigation Header -->
+    <header id="nav-header"></header>
+
+    <!-- Mini Hero Section -->
+    <section class="mini-hero">
+      <img src="images/mini-hero-v1.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
+      <h1>Grid Layout Page</h1>
+    </section>
+
+    <main class="grid-container">
+      <!-- Full-Width Section -->
+      <section class="grid-col-12 content-section">
+        <h2><i class="fas fa-th-large"></i> Full-Width Section</h2>
+        <p>This section takes up the full width of the grid (12 columns).</p>
+      </section>
+
+      <!-- Half-Width Sections -->
+      <section class="grid-col-6 content-section">
+        <h2><i class="fas fa-cogs"></i> Half-Width Section 1</h2>
+        <p>This section takes up half of the grid width (6 columns).</p>
+      </section>
+      <section class="grid-col-6 content-section">
+        <h2><i class="fas fa-cogs"></i> Half-Width Section 2</h2>
+        <p>This section also takes up half of the grid width (6 columns).</p>
+      </section>
+
+      <!-- One-Third Width Sections -->
+      <section class="grid-col-4 content-section">
+        <h2><i class="fas fa-cogs"></i> One-Third Section 1</h2>
+        <p>This section takes up one-third of the grid width (4 columns).</p>
+      </section>
+      <section class="grid-col-4 content-section">
+        <h2><i class="fas fa-cogs"></i> One-Third Section 2</h2>
+        <p>This section also takes up one-third of the grid width (4 columns).</p>
+      </section>
+      <section class="grid-col-4 content-section">
+        <h2><i class="fas fa-cogs"></i> One-Third Section 3</h2>
+        <p>This section also takes up one-third of the grid width (4 columns).</p>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer-container"></div>
+
+    <!-- Scripts -->
+    <script src="/js/main.js"></script>
+    <script src="/js/nav.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/modal-window.js"></script>
+    <script src="/js/init-nav.js" defer></script>
+    <script src="/js/init-footer.js" defer></script>
+  </body>
+</html>

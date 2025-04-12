@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Components Demo - Ambient Pixels" />
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+    <title>Components Demo - Ambient Pixels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/grid.css" />
+    <link rel="stylesheet" href="/css/nav.css" />
+    <link rel="stylesheet" href="/css/components.css" />
+    <link rel="stylesheet" href="/css/hero.css" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/banner.css" />
+  </head>
+  <body data-theme="dark">
+    <!-- Dynamic Navigation Header -->
+    <header id="nav-header"></header>
+
+    <!-- Mini Hero Section -->
+    <section class="mini-hero">
+      <img src="/images/mini-hero-v1.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
+      <h1>Components Demo</h1>
+    </section>
+
+    <main class="grid-container">
+      <!-- Section: Buttons -->
+      <section class="content-section grid-col-12">
+        <h2><i class="fas fa-hand-pointer"></i> Buttons Demo</h2>
+        <div class="grid-row">
+          <button class="toggle-btn">Default Button</button>
+          <button class="toggle-btn hover">Hover Button</button>
+          <button class="toggle-btn" disabled>Disabled Button</button>
+        </div>
+      </section>
+
+      <!-- Section: Cards -->
+      <section class="content-section grid-col-12">
+        <h2><i class="fas fa-cogs"></i> Card Components</h2>
+        <div class="grid-row">
+          <!-- Card 1 -->
+          <section class="card-section grid-col-4">
+            <div class="card-content">
+              <h3>Card Title 1</h3>
+              <p>This is a description of the first card. It contains a heading and some content.</p>
+            </div>
+          </section>
+
+          <!-- Card 2 -->
+          <section class="card-section grid-col-4">
+            <div class="card-content">
+              <h3>Card Title 2</h3>
+              <p>This is a description of the second card. It also contains a heading and some content.</p>
+            </div>
+          </section>
+
+          <!-- Card 3 -->
+          <section class="card-section grid-col-4">
+            <div class="card-content">
+              <h3>Card Title 3</h3>
+              <p>This card shows a different type of content with a different title.</p>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- Section: Modals -->
+      <section class="content-section grid-col-12">
+        <h2><i class="fas fa-window-maximize"></i> Modal Window Demo</h2>
+        <button class="toggle-btn" onclick="showModal()">Open Modal</button>
+        <div id="modal" class="modal hidden">
+          <div class="modal-backdrop" onclick="closeModal()"></div>
+          <div class="modal-content">
+            <h2>Modal Title</h2>
+            <p>This is a modal window with a simple close button.</p>
+            <button onclick="closeModal()">Close</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer will be dynamically injected here -->
+    <div id="footer-container"></div>
+
+    <!-- Scripts -->
+    <script src="/js/main.js"></script>
+    <script src="/js/nav.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/modal-window.js"></script>
+    <script src="/js/init-nav.js" defer></script>
+    <script src="/js/init-footer.js" defer></script>
+  </body>
+</html>

@@ -102,3 +102,31 @@ body[data-theme="light"] .hero-subheadline {
 .hero p {
     font-size: 1.2em;
 }
+/* Mini Hero Section */
+.mini-hero {
+    position: relative;
+    text-align: center;
+    margin-top: 80px;
+    width: 100%;
+    height: 220px; /* Adjusted height for a more compact mini-hero */
+  }
+  
+  .mini-hero-img {
+    width: 100%;
+    height: 100%; /* Ensure the image fills the height of the container */
+    object-fit: cover; /* Make sure the image maintains its aspect ratio and covers the space */
+    display: block; /* Prevent any unwanted space below the image */
+  }
+  
+  .mini-hero h1 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2em; /* Adjust font size for smaller text */
+    color: #fff; /* White text for contrast */
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.8); /* Hard shadow: smaller blur and stronger opacity */
+    margin: 0;
+  }
+  
+  

@@ -4,16 +4,19 @@
     padding: 0;
     box-sizing: border-box;
 }
+
 body {
     font-family: 'Inter', sans-serif;
     line-height: 1.6;
 }
+
 a {
     text-decoration: none;
     color: #87ceeb; /* Cyan for dark theme */
     position: relative;
     transition: color 0.3s ease;
 }
+
 a::after {
     content: '';
     position: absolute;
@@ -26,24 +29,336 @@ a::after {
     transform-origin: bottom right;
     transition: transform 0.3s ease-out;
 }
+
 a:hover::after {
     transform: scaleX(1);
     transform-origin: bottom left;
 }
+
 a:hover {
     color: #4bcaff; /* Brighter cyan on hover */
     text-shadow: 0 0 5px rgba(135, 206, 235, 0.5); /* Subtle glow */
 }
+
 body[data-theme="light"] a {
     color: #3b82f6; /* Blue for light theme */
 }
+
 body[data-theme="light"] a::after {
     background: #3b82f6;
 }
+
 body[data-theme="light"] a:hover {
     color: #1e40af; /* Darker blue on hover */
     text-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
 }
+
 ul {
     list-style: none;
+}
+
+/* components.css - Ambient Pixels v2.3 - April 5, 2025 */
+.toggle-btn {
+  background: none;
+  border: 1px solid #4682B4;
+  padding: 8px 16px;
+  cursor: pointer;
+  color: inherit;
+  transition: background 0.3s ease;
+}
+
+.toggle-btn:hover {
+  background: rgba(70, 130, 180, 0.1);
+}
+
+.footer-social a {
+  font-size: 1.5em;
+  margin: 0 15px;
+  transition: color 0.3s ease;
+}
+
+.content-section {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#theme-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 1.5em;
+  color: inherit;
+  transition: color 0.3s ease;
+}
+
+#theme-toggle:hover {
+  color: #4682B4; /* Subtle hover accent */
+}
+
+/* Nova Intro Block */
+#nova-intro {
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 4px solid #5ae4ff;
+  padding-left: 1rem;
+  transition: background 0.3s ease;
+}
+
+body[data-theme="light"] #nova-intro {
+  background: rgba(0, 0, 0, 0.03);
+  border-left-color: #3b82f6;
+}
+
+/* Grid System */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
+  gap: 20px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.grid-col-12 {
+  grid-column: span 12; /* Full-width item */
+}
+
+.grid-col-6 {
+  grid-column: span 6; /* Half-width item */
+}
+
+.grid-col-4 {
+  grid-column: span 4; /* 33.33% width */
+}
+
+.grid-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .grid-col-6 {
+    grid-column: span 12; /* Full width on mobile */
+  }
+
+  .grid-container {
+    grid-template-columns: 1fr; /* 1 column on small screens */
+  }
+}
+
+/* Card Section */
+.card-section {
+  background: rgba(255, 255, 255, 0.02);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(90, 228, 255, 0.3);
+}
+
+.card-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card-content {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-content h3 {
+  font-size: 1.2em;
+  margin: 0;
+  color: var(--dark-text);
+}
+
+.card-content p {
+  font-size: 0.95em;
+  color: var(--dark-text);
+}
+
+.card-content a {
+  align-self: flex-start;
+  font-weight: 500;
+}
+
+/* Footer Styles */
+.footer {
+  padding: 30px 20px;
+  text-align: center;
+}
+
+.footer p {
+  margin: 0.5em 0;
+}
+
+.footer .social-links {
+  margin: 10px 0;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  font-size: 1.2em;
+}
+
+.footer .social-links a {
+  color: inherit;
+  transition: color 0.3s ease;
+}
+
+.footer .social-links a:hover {
+  color: var(--accent-color, #9bf00b); /* optional highlight color */
+}
+
+/* Nova’s Bug Vault Styles */
+.neon-card {
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(90, 228, 255, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(90, 228, 255, 0.05);
+  backdrop-filter: blur(4px);
+}
+
+.neon-card h3 {
+  font-size: 1.4em;
+  color: #5ae4ff;
+  margin-bottom: 1rem;
+}
+
+.neon-card ul {
+  list-style-type: none;
+  padding: 0;
+  font-size: 0.95em;
+  line-height: 1.6;
+}
+
+.neon-card li {
+  margin-bottom: 1rem;
+  border-left: 3px solid #5ae4ff;
+  padding-left: 1rem;
+}
+
+.nova-sync-time {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted, #aaa);
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+.nova-mood {
+  font-style: italic;
+  font-size: 0.95rem;
+  color: #c375ff;
+  margin-top: -0.5em;
+}
+
+/* Modal Window Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-backdrop {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(2px);
+}
+
+.modal-content {
+  position: relative;
+  background: var(--card-bg, #1a1a1a);
+  padding: 2rem;
+  border-radius: 8px;
+  z-index: 2;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 0 30px rgba(90, 228, 255, 0.2);
+  color: var(--text-color, #fff);
+}
+
+.modal-content h2 {
+  margin-top: 0;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  margin: 0.5rem 0 1rem;
+  padding: 0.75rem;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.contact-form button {
+  background: #5ae4ff;
+  color: #000;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #888;
+  cursor: pointer;
+}
+
+.form-status {
+  margin-top: 1rem;
+  font-weight: 500;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.toggle-btn.icon-only {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.toggle-btn[aria-expanded="false"] i {
+  transform: rotate(-90deg);
 }
