@@ -1,92 +1,114 @@
+<!-- File: /tools/index.html -->
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Ambient Pixels Projects — Experiments & Builds" />
-  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Ambient Pixels - Tools</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/base.css" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/nav.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
-  <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/banner.css" />
-</head>
-<body data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Ambient Pixels Tools Hub" />
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+    <title>Tools Hub - Ambient Pixels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/grid.css" />
+    <link rel="stylesheet" href="/css/nav.css" />
+    <link rel="stylesheet" href="/css/components.css" />
+    <link rel="stylesheet" href="/css/hero.css" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/banner.css" />
+  </head>
+  <body data-theme="dark">
+    <!-- Dynamic Navigation Header -->
+    <header id="nav-header"></header>
 
-  <header id="nav-header"></header>
-
-  <section class="mini-hero">
-    <img src="/images/textures/delchron_texture_the_copper_scroll_details_realistic_.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
-    <h1>Ambient Tools</h1>
-  </section>
-
-  <main class="grid-container">
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-th"></i> Experiments & Builds</h2>
+    <!-- Mini Hero Section -->
+    <section class="mini-hero">
+      <img src="/images/mini-hero-v3.jpg" alt="Mini Hero Neon Pulse" class="mini-hero-img" loading="lazy">
+      <h1>Tools Hub</h1>
     </section>
 
-    <!-- Nova Dashboard Section (col-12) -->
-    <section class="grid-col-12 card-section">
-      <img src="/images/textures/delchron_extreme_close-up_of_a_holographic_digital_dashboard_in.jpg" alt="Nova Dashboard" class="card-image">
-      <div class="card-content">
-        <h3><i class="fas fa-cogs"></i> Nova Dashboard</h3>
-        <p>Live status updates, mood syncs, and awareness system for Nova, our AI assistant.</p>
-        <a href="/nova/dashboard.html">View Nova Dashboard →</a>
-      </div>
-    </section>
+    <main class="grid-container">
+      <!-- Intro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-tools"></i> Welcome to the Tools Hub</h2>
+        <p>Dive into AmbientPixels.ai’s neon toolkit. Explore demos for grids, components, forms, scripts, and more—each a spark in Nova’s glitchy grid.</p>
+      </section>
 
-    <!-- Nova Logs Section (col-6) -->
-    <section class="grid-col-6 card-section">
-      <img src="/images/textures/delchron_Deltron_3030_texture_microscopic_extreme_close_up_futu.jpg" alt="Nova Logs" class="card-image">
-      <div class="card-content">
-        <h3><i class="fas fa-terminal"></i> Nova Logs</h3>
-        <p>Memory dashboard, awareness system, and daily snapshot of Nova’s mood, syncs, and system scans.</p>
-        <a href="/nova/logs.html">Launch Nova Logs →</a>
-      </div>
-    </section>
+      <!-- Demo Links -->
+      <section class="grid-col-4 content-section neon-card">
+        <h2><i class="fas fa-th"></i> Grid Demo</h2>
+        <p>A basic 12-column grid layout.</p>
+        <a href="/tools/gri-demo.html" class="toggle-btn">Visit Demo</a>
+      </section>
+      <section class="grid-col-4 content-section neon-card">
+        <h2><i class="fas fa-th-large"></i> Grid Styles</h2>
+        <p>All grid column combinations.</p>
+        <a href="/tools/grid-styles-demo.html" class="toggle-btn">Visit Demo</a>
+      </section>
+      <section class="grid-col-4 content-section neon-card">
+        <h2><i class="fas fa-cogs"></i> Components</h2>
+        <p>UI blocks like cards and modals.</p>
+        <a href="/tools/components-demo.html" class="toggle-btn">Visit Demo</a>
+      </section>
+      <section class="grid-col-4 content-section neon-card">
+        <h2><i class="fas fa-keyboard"></i> Forms</h2>
+        <p>Inputs, textareas, and modals.</p>
+        <a href="/tools/form-demo.html" class="toggle-btn">Visit Demo</a>
+      </section>
+      <section class="grid-col-4 content-section neon-card">
+        <h2><i class="fas fa-code"></i> Scripts</h2>
+        <p>Dynamic JS for nav and toggles.</p>
+        <a href="/tools/scripts-demo.html" class="toggle-btn">Visit Demo</a>
+      </section>
+      <section class="grid-col-4 content-section neon-card">
+        <h2><i class="fas fa-font"></i> Typography</h2>
+        <p>Fonts, headings, and quotes.</p>
+        <a href="/tools/typography-demo.html" class="toggle-btn">Visit Demo</a>
+      </section>
+      <section class="grid-col-4 content-section neon-card">
+        <h2><i class="fas fa-film"></i> Animations</h2>
+        <p>Hovers, fades, and glitch effects.</p>
+        <a href="/tools/animation-demo.html" class="toggle-btn">Visit Demo</a>
+      </section>
+      <section class="grid-col-4 content-section neon-card">
+        <h2><i class="fas fa-palette"></i> Colors</h2>
+        <p>Neon palette and themes.</p>
+        <a href="/tools/color-demo.html" class="toggle-btn">Visit Demo</a>
+      </section>
+      <section class="grid-col-4 content-section neon-card">
+        <h2><i class="fas fa-icons"></i> Icons</h2>
+        <p>FontAwesome icons for UI.</p>
+        <a href="/tools/icon-demo.html" class="toggle-btn">Visit Demo</a>
+      </section>
+      <section class="grid-col-4 content-section neon-card">
+        <h2><i class="fas fa-image"></i> Glitch Art</h2>
+        <p>Visuals for heroes and cards.</p>
+        <a href="/tools/glitch-art-demo.html" class="toggle-btn">Visit Demo</a>
+      </section>
+      <section class="grid-col-4 content-section neon-card">
+        <h2><i class="fas fa-universal-access"></i> Accessibility</h2>
+        <p>ARIA and focus states.</p>
+        <a href="/tools/accessibility-demo.html" class="toggle-btn">Visit Demo</a>
+      </section>
 
-    <!-- Glitch Chaos Engine Section (col-6) -->
-    <section class="grid-col-6 card-section">
-      <img src="/images/cards/card-10-tech-chaos.jpg" alt="Glitch Tech Chaos" class="card-image">
-      <div class="card-content">
-        <h3><i class="fas fa-brain"></i> Glitch Chaos Engine</h3>
-        <p>Tomorrow’s render glitch—Nova is testing a new chaotic theme injection. Dare to preview?</p>
-        <p><em>Coming soon!</em></p>
-      </div>
-    </section>
+      <!-- Outro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-star"></i> Tools Notes</h2>
+        <p>These demos are your playground for building in AmbientPixels.ai’s neon chaos. Explore, create, and glitch with Nova’s spark!</p>
+      </section>
+    </main>
 
-    <!-- Collapsible Future Tools Section (Expanded by Default) -->
-    <section class="content-section grid-col-12">
-      <div class="section-header">
-        <h2><i class="fas fa-toolbox"></i> Future Tools</h2>
-        <button class="toggle-btn icon-only" aria-expanded="true" title="Toggle section">
-          <i class="fas fa-chevron-down"></i>
-        </button>
-      </div>
-      <div class="content" style="display: block;">
-        <section class="grid-col-12 card-section">
-          <img src="/images/textures/delchron_hyperrealistic_close-up_of_a_glowing_digital_interface.jpg" alt="Future Tools" class="card-image">
-          <div class="card-content">
-            <h3><i class="fas fa-toolbox"></i> Tools Lab</h3>
-            <p>Placeholder for upcoming utilities and tools developed by Nova—stay tuned for what's launching next.</p>
-          </div>
-        </section>
-      </div>
-    </section>
-  </main>
+    <!-- Footer -->
+    <div id="footer-container"></div>
 
-  <div id="footer-container"></div>
-
-  <script src="/js/main.js"></script>
-  <script src="/js/nav.js"></script>
-  <script src="/js/theme.js"></script>
-  <script src="/js/modal-window.js"></script>
-  <script src="/js/init-nav.js" defer></script>
-  <script src="/js/init-footer.js" defer></script>
-</body>
+    <!-- Scripts -->
+    <script>
+      console.log('%cNova: Tools Hub Loaded! Your neon playground awaits at /tools/index.html', 'color: #5ae4ff; font-family: monospace;');
+    </script>
+    <script src="/js/main.js"></script>
+    <script src="/js/nav.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/modal-window.js"></script>
+    <script src="/js/init-nav.js" defer></script>
+  </body>
 </html>

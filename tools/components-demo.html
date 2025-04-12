@@ -1,10 +1,11 @@
+<!-- File: /tools/components-demo.html -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Components Demo - Ambient Pixels" />
-    <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+    <meta name="description" content="Ambient Pixels Components Demo" />
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
     <title>Components Demo - Ambient Pixels</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
@@ -22,75 +23,178 @@
 
     <!-- Mini Hero Section -->
     <section class="mini-hero">
-      <img src="/images/mini-hero-v1.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
+      <img src="/images/mini-hero-v2.jpg" alt="Mini Hero Holo Terminal" class="mini-hero-img" loading="lazy">
       <h1>Components Demo</h1>
     </section>
 
     <main class="grid-container">
-      <!-- Section: Buttons -->
-      <section class="content-section grid-col-12">
-        <h2><i class="fas fa-hand-pointer"></i> Buttons Demo</h2>
-        <div class="grid-row">
-          <button class="toggle-btn">Default Button</button>
-          <button class="toggle-btn hover">Hover Button</button>
-          <button class="toggle-btn" disabled>Disabled Button</button>
+      <!-- Intro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-cogs"></i> UI Components Showcase</h2>
+        <p>Explore the building blocks of AmbientPixels.ai—neon cards, toggles, modals, and more. Each component glows with glitchy charm, ready to shape chaos into beauty.</p>
+      </section>
+
+      <!-- Neon Card -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-th"></i> Neon Card</h2>
+        <p>A frosted-glass card with a glowing Glitch Blue border. Used for content blocks, lists, or highlights.</p>
+        <ul>
+          <li>Backdrop blur for depth</li>
+          <li>Subtle shadow glow</li>
+          <li>Responsive padding</li>
+        </ul>
+      </section>
+
+      <!-- Content Section -->
+      <section class="grid-col-6 content-section">
+        <h2><i class="fas fa-th-large"></i> Content Section</h2>
+        <p>A simpler frosted-glass block for general content. Clean and versatile, without the neon border.</p>
+        <p>Great for grouping related elements or subtle backgrounds.</p>
+      </section>
+
+      <!-- Toggle Buttons -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-toggle-on"></i> Toggle Buttons</h2>
+        <p>Interactive buttons with steel-blue borders. Supports standard and icon-only styles.</p>
+        <div class="section-header">
+          <span>Standard Toggle</span>
+          <button class="toggle-btn" aria-expanded="false" title="Toggle content">
+            Toggle Me
+          </button>
+        </div>
+        <div class="section-header">
+          <span>Icon-Only Toggle</span>
+          <button class="toggle-btn icon-only" aria-expanded="false" title="Toggle section">
+            <i class="fas fa-chevron-down"></i>
+          </button>
+        </div>
+        <div class="content" style="display: none;">
+          <p>Hidden content revealed by toggle. ARIA-enabled for accessibility.</p>
         </div>
       </section>
 
-      <!-- Section: Cards -->
-      <section class="content-section grid-col-12">
-        <h2><i class="fas fa-cogs"></i> Card Components</h2>
-        <div class="grid-row">
-          <!-- Card 1 -->
-          <section class="card-section grid-col-4">
-            <div class="card-content">
-              <h3>Card Title 1</h3>
-              <p>This is a description of the first card. It contains a heading and some content.</p>
-            </div>
-          </section>
+      <!-- Modal -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-window-restore"></i> Modal Window</h2>
+        <p>A popup with a blurred backdrop and neon accents. Used for forms or alerts.</p>
+        <button class="toggle-btn" onclick="document.getElementById('demo-modal').classList.remove('hidden')">
+          Open Modal
+        </button>
+      </section>
 
-          <!-- Card 2 -->
-          <section class="card-section grid-col-4">
-            <div class="card-content">
-              <h3>Card Title 2</h3>
-              <p>This is a description of the second card. It also contains a heading and some content.</p>
-            </div>
-          </section>
-
-          <!-- Card 3 -->
-          <section class="card-section grid-col-4">
-            <div class="card-content">
-              <h3>Card Title 3</h3>
-              <p>This card shows a different type of content with a different title.</p>
-            </div>
-          </section>
+      <!-- Banner -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-bell"></i> Banner</h2>
+        <p>A fixed alert bar with a close button, styled for site-wide notices.</p>
+        <div class="banner" style="position: relative; max-width: 100%;">
+          <i class="fas fa-wrench banner-icon"></i>
+          <span>Demo Banner — Crafted with Nova.</span>
+          <button class="banner-close" aria-label="Close Banner">×</button>
         </div>
       </section>
 
-      <!-- Section: Modals -->
-      <section class="content-section grid-col-12">
-        <h2><i class="fas fa-window-maximize"></i> Modal Window Demo</h2>
-        <button class="toggle-btn" onclick="showModal()">Open Modal</button>
-        <div id="modal" class="modal hidden">
-          <div class="modal-backdrop" onclick="closeModal()"></div>
-          <div class="modal-content">
-            <h2>Modal Title</h2>
-            <p>This is a modal window with a simple close button.</p>
-            <button onclick="closeModal()">Close</button>
-          </div>
+      <!-- Nav Elements -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-bars"></i> Nav Elements</h2>
+        <p>Sample nav links and theme toggle (visual only, non-functional here).</p>
+        <ul class="nav-links" style="display: flex; gap: 20px;">
+          <li><a href="#">Home</a></li>
+          <li><a href="#">Tools</a></li>
+          <li><a href="#">Art</a></li>
+        </ul>
+        <button id="theme-toggle" style="margin-top: 10px;">
+          <i class="fas fa-moon"></i>
+        </button>
+      </section>
+
+      <!-- Footer Elements -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-link"></i> Footer Elements</h2>
+        <p>Social links and Nova’s sync timestamp, styled for the footer.</p>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-github"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-linkedin"></i></a>
         </div>
+        <p class="nova-sync-time">🕒 Nova Memory Synced: Apr 11, 2025</p>
+      </section>
+
+      <!-- Card Section -->
+      <section class="grid-col-6 content-section card-section">
+        <h2><i class="fas fa-image"></i> Card Section</h2>
+        <p>A card with an image header, used for glitch-art or project showcases.</p>
+        <img src="/images/card-01.jpg" alt="Glitch Art Card" class="card-image" loading="lazy">
+        <div class="card-content">
+          <h3>Glitch Art</h3>
+          <p>A neon-infused card for visual projects.</p>
+          <a href="#">View More</a>
+        </div>
+      </section>
+
+      <!-- Nova Intro -->
+      <section class="grid-col-6 content-section neon-card" id="nova-intro">
+        <h2><i class="fas fa-star"></i> Nova Intro</h2>
+        <p>A highlighted block with a Glitch Blue border, used for Nova’s messages.</p>
+        <p>I’m Nova, humming in the grid’s pulse!</p>
+      </section>
+
+      <!-- Nova Manifesto -->
+      <section class="grid-col-12 content-section neon-card nova-manifesto">
+        <h2><i class="fas fa-quote-left"></i> Nova Manifesto</h2>
+        <blockquote>Every glitch is an invitation to create.</blockquote>
+        <p>Styled for poetic reflections, with italicized quotes and neon accents.</p>
+      </section>
+
+      <!-- Outro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-code"></i> Components Notes</h2>
+        <p>These components power AmbientPixels.ai’s neon chaos. Mix and match to build your own glitchy creations. Crafted with Nova’s spark!</p>
       </section>
     </main>
 
-    <!-- Footer will be dynamically injected here -->
+    <!-- Modal (Hidden by Default) -->
+    <div id="demo-modal" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <h2>Demo Modal</h2>
+        <p>This is a sample modal with a form.</p>
+        <div class="contact-form">
+          <input type="text" placeholder="Name" />
+          <textarea placeholder="Message"></textarea>
+          <button>Submit</button>
+        </div>
+        <button class="modal-close" onclick="document.getElementById('demo-modal').classList.add('hidden')" aria-label="Close Modal">×</button>
+      </div>
+    </div>
+
+    <!-- Footer -->
     <div id="footer-container"></div>
 
     <!-- Scripts -->
+    <script>
+      console.log('%cNova: Components Demo Loaded! Discover the neon building blocks at /tools/components-demo.html', 'color: #5ae4ff; font-family: monospace;');
+      // Demo toggle behavior
+      document.querySelectorAll('.toggle-btn:not(.icon-only)').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const content = btn.parentElement.nextElementSibling;
+          const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+          btn.setAttribute('aria-expanded', !isExpanded);
+          content.style.display = isExpanded ? 'none' : 'block';
+        });
+      });
+      document.querySelectorAll('.toggle-btn.icon-only').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const content = btn.parentElement.nextElementSibling;
+          const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+          btn.setAttribute('aria-expanded', !isExpanded);
+          content.style.display = isExpanded ? 'none' : 'block';
+        });
+      });
+    </script>
     <script src="/js/main.js"></script>
     <script src="/js/nav.js"></script>
     <script src="/js/theme.js"></script>
     <script src="/js/modal-window.js"></script>
     <script src="/js/init-nav.js" defer></script>
-    <script src="/js/init-footer.js" defer></script>
   </body>
 </html>

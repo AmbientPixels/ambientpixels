@@ -1,4 +1,4 @@
-// nav.js - Enhanced for mobile nav with overlay
+// /js/nav.js - Enhanced for mobile nav with overlay
 document.addEventListener('DOMContentLoaded', () => {
     const navToggle = document.querySelector('.nav-toggle');
     const navLinks = document.querySelector('.nav-links');

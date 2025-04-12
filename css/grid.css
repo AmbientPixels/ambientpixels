@@ -1,38 +1,97 @@
-/* grid.css - Grid Layout System */
+/* /css/grid.css - Ambient Pixels v2.3 - April 11, 2025 */
 
-/* Define grid container with proper columns */
+/* Grid Container */
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 equal-width columns */
-  gap: 20px; /* Space between grid items */
-  max-width: 1200px;
+  grid-template-columns: repeat(12, 1fr); /* 12 equal-width columns */
+  gap: 20px; /* Consistent spacing */
+  max-width: 1200px; /* Matches nav-container */
   margin: 0 auto;
   padding: 20px;
 }
 
-/* Full-width section (grid-col-12) */
+/* Column Spans */
 .grid-col-12 {
-  grid-column: span 12; /* Full-width item */
+  grid-column: span 12; /* Full-width (100%) */
 }
 
-/* Half-width section (grid-col-6) */
 .grid-col-6 {
-  grid-column: span 6; /* Half-width item */
+  grid-column: span 6; /* Half-width (50%) */
 }
 
-/* One-third width section (grid-col-4) */
 .grid-col-4 {
-  grid-column: span 4; /* 1/3 width */
+  grid-column: span 4; /* One-third width (~33.33%) */
 }
 
-/* Responsive behavior for smaller screens (less than 768px) */
-@media (max-width: 768px) {
+.grid-col-3 {
+  grid-column: span 3; /* One-quarter width (25%) */
+}
+
+.grid-col-2 {
+  grid-column: span 2; /* One-sixth width (~16.67%) */
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1024px) {
+  /* Tablet: 8-column grid for flexibility */
   .grid-container {
-    grid-template-columns: 1fr; /* Stack all columns in 1 column */
+    grid-template-columns: repeat(8, 1fr);
   }
 
-  /* Ensure columns take full width on mobile */
-  .grid-col-6, .grid-col-4, .grid-col-12 {
-    grid-column: span 12; /* Full-width items on small screens */
+  .grid-col-12 {
+    grid-column: span 8; /* Full-width on tablet */
   }
+
+  .grid-col-6 {
+    grid-column: span 4; /* Half-width */
+  }
+
+  .grid-col-4 {
+    grid-column: span 4; /* Maintain ~33% */
+  }
+
+  .grid-col-3 {
+    grid-column: span 2; /* Adjust for smaller grid */
+  }
+
+  .grid-col-2 {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Mobile: 1-column stack */
+  .grid-container {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-col-12,
+  .grid-col-6,
+  .grid-col-4,
+  .grid-col-3,
+  .grid-col-2 {
+    grid-column: span 1; /* Full-width stack */
+  }
+}
+
+/* Content Section Styling */
+.content-section {
+  background: rgba(255, 255, 255, 0.05); /* Frosted glass */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 0.3s ease;
+}
+
+.content-section:hover {
+  box-shadow: 0 4px 12px rgba(90, 228, 255, 0.2); /* Glitch Blue glow */
+}
+
+body[data-theme="light"] .content-section {
+  background: rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme="light"] .content-section:hover {
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); /* Light theme blue glow */
 }

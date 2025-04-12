@@ -1,0 +1,126 @@
+<!-- File: /tools/color-demo.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Ambient Pixels Color Demo" />
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+    <title>Color Demo - Ambient Pixels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/grid.css" />
+    <link rel="stylesheet" href="/css/nav.css" />
+    <link rel="stylesheet" href="/css/components.css" />
+    <link rel="stylesheet" href="/css/hero.css" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/banner.css" />
+    <style>
+      .color-swatch {
+        width: 100%;
+        height: 100px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body data-theme="dark">
+    <!-- Dynamic Navigation Header -->
+    <header id="nav-header"></header>
+
+    <!-- Mini Hero Section -->
+    <section class="mini-hero">
+      <img src="/images/mini-hero-v2.jpg" alt="Mini Hero Holo Terminal" class="mini-hero-img" loading="lazy">
+      <h1>Color Demo</h1>
+    </section>
+
+    <main class="grid-container">
+      <!-- Intro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-palette"></i> Color Showcase</h2>
+        <p>Explore the neon palette of AmbientPixels.ai—dark and light themes with glitchy blues, purples, and greens. Crafted by Nova’s radiant hue.</p>
+      </section>
+
+      <!-- Theme Colors -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-moon"></i> Theme Colors</h2>
+        <p>Core colors for dark and light themes from <code>/css/theme.css</code>.</p>
+        <div class="grid-container">
+          <div class="grid-col-4"><div class="color-swatch" style="background: #071019;"></div><p>Dark BG: #071019</p></div>
+          <div class="grid-col-4"><div class="color-swatch" style="background: #D8E0E5;"></div><p>Dark Text: #D8E0E5</p></div>
+          <div class="grid-col-4"><div class="color-swatch" style="background: #2A577A;"></div><p>Dark Accent: #2A577A</p></div>
+          <div class="grid-col-4"><div class="color-swatch" style="background: #F5F7FA;"></div><p>Light BG: #F5F7FA</p></div>
+          <div class="grid-col-4"><div class="color-swatch" style="background: #1A2A44;"></div><p>Light Text: #1A2A44</p></div>
+          <div class="grid-col-4"><div class="color-swatch" style="background: #3B82F6;"></div><p>Light Accent: #3B82F6</p></div>
+        </div>
+      </section>
+
+      <!-- Neon Accents -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-lightbulb"></i> Neon Accents</h2>
+        <p>Vibrant hues for buttons, borders, and text from site-wide styles.</p>
+        <div class="grid-container">
+          <div class="grid-col-4"><div class="color-swatch" style="background: #5ae4ff;"></div><p>Glitch Blue: #5ae4ff</p></div>
+          <div class="grid-col-4"><div class="color-swatch" style="background: #c375ff;"></div><p>Purple: #c375ff</p></div>
+          <div class="grid-col-4"><div class="color-swatch" style="background: #54ff9f;"></div><p>Green: #54ff9f</p></div>
+        </div>
+      </section>
+
+      <!-- Links -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-link"></i> Link Colors</h2>
+        <p>Links use cyan tones from <code>/css/base.css</code>.</p>
+        <p><a href="#">Link: #87ceeb</a></p>
+        <p><a href="#" style="color: #4bcaff;">Hover: #4bcaff</a></p>
+      </section>
+
+      <!-- Component Colors -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-cogs"></i> Component Colors</h2>
+        <p>Special colors for components from <code>/css/components.css</code>.</p>
+        <p class="nova-mood">Mood: #c375ff</p>
+        <p class="form-status" style="color: #54ff9f;">Success: #54ff9f</p>
+        <p class="form-status" style="color: #ff5a5a;">Error: #ff5a5a</p>
+      </section>
+
+      <!-- Theme Toggle -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-moon"></i> Theme Toggle</h2>
+        <p>Toggle to see colors shift between dark and light themes.</p>
+        <button id="demo-theme-toggle" class="toggle-btn">
+          <i class="fas fa-moon"></i> Toggle Theme
+        </button>
+      </section>
+
+      <!-- Outro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-star"></i> Color Notes</h2>
+        <p>These hues define AmbientPixels.ai’s neon soul. Mix them to paint your glitchy vision. Glows by Nova’s light!</p>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer-container"></div>
+
+    <!-- Scripts -->
+    <script>
+      console.log('%cNova: Color Demo Loaded! Glowing in neon harmony at /tools/color-demo.html', 'color: #5ae4ff; font-family: monospace;');
+      document.getElementById('demo-theme-toggle')?.addEventListener('click', () => {
+        const body = document.body;
+        const isDark = body.getAttribute('data-theme') === 'dark';
+        body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        const icon = document.querySelector('#demo-theme-toggle i');
+        if (icon) {
+          icon.classList.toggle('fa-moon');
+          icon.classList.toggle('fa-sun');
+        }
+      });
+    </script>
+    <script src="/js/main.js"></script>
+    <script src="/js/nav.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/modal-window.js"></script>
+    <script src="/js/init-nav.js" defer></script>
+  </body>
+</html>

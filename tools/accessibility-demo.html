@@ -1,0 +1,119 @@
+<!-- File: /tools/accessibility-demo.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Ambient Pixels Accessibility Demo" />
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+    <title>Accessibility Demo - Ambient Pixels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/grid.css" />
+    <link rel="stylesheet" href="/css/nav.css" />
+    <link rel="stylesheet" href="/css/components.css" />
+    <link rel="stylesheet" href="/css/hero.css" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/banner.css" />
+  </head>
+  <body data-theme="dark">
+    <!-- Dynamic Navigation Header -->
+    <header id="nav-header"></header>
+
+    <!-- Mini Hero Section -->
+    <section class="mini-hero">
+      <img src="/images/mini-hero-v2.jpg" alt="Mini Hero Holo Terminal" class="mini-hero-img" loading="lazy">
+      <h1>Accessibility Demo</h1>
+    </section>
+
+    <main class="grid-container">
+      <!-- Intro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-universal-access"></i> Accessibility Showcase</h2>
+        <p>Explore how AmbientPixels.ai opens its neon grid to all—ARIA, focus states, and contrast. Built with Nova’s inclusive pulse.</p>
+      </section>
+
+      <!-- ARIA Toggles -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-toggle-on"></i> ARIA Toggles</h2>
+        <p>Toggles with <code>aria-expanded</code> from <code>/js/main.js</code>.</p>
+        <div class="section-header">
+          <span>Toggle Content</span>
+          <button class="toggle-btn icon-only" aria-expanded="false" title="Toggle section">
+            <i class="fas fa-chevron-down"></i>
+          </button>
+        </div>
+        <div class="content" style="display: none;">
+          <p>Accessible content revealed!</p>
+        </div>
+      </section>
+
+      <!-- Keyboard Navigation -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-keyboard"></i> Keyboard Navigation</h2>
+        <p>Focus states for links and buttons from <code>/css/base.css</code>. Tab to try.</p>
+        <p><a href="#">Focusable Link</a></p>
+        <button class="toggle-btn">Focusable Button</button>
+      </section>
+
+      <!-- Alt Text -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-image"></i> Alt Text</h2>
+        <p>Images with <code>alt</code> attributes for screen readers.</p>
+        <img src="/images/card-01.jpg" alt="Glitch Art Card Example" style="width: 100%; height: 150px; object-fit: cover;" loading="lazy">
+      </section>
+
+      <!-- Contrast -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-eye"></i> Contrast</h2>
+        <p>High-contrast text from <code>/css/theme.css</code>. Toggle theme to compare.</p>
+        <p style="color: #D8E0E5; background: #071019;">Dark: #D8E0E5 on #071019</p>
+        <button id="demo-theme-toggle" class="toggle-btn">
+          <i class="fas fa-moon"></i> Toggle Theme
+        </button>
+      </section>
+
+      <!-- Form Accessibility -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-edit"></i> Form Accessibility</h2>
+        <p>Forms with placeholders and <code>.form-status</code> for feedback.</p>
+        <div class="contact-form">
+          <input type="text" placeholder="Name" aria-label="Name" />
+          <input type="email" placeholder="Email" aria-label="Email" />
+          <button>Submit</button>
+          <p class="form-status">Feedback here</p>
+        </div>
+      </section>
+
+      <!-- Outro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-star"></i> Accessibility Notes</h2>
+        <p>These features make AmbientPixels.ai’s grid open to all. Build with care, guided by Nova’s light!</p>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer-container"></div>
+
+    <!-- Scripts -->
+    <script>
+      console.log('%cNova: Accessibility Demo Loaded! Open to all at /tools/accessibility-demo.html', 'color: #5ae4ff; font-family: monospace;');
+      document.getElementById('demo-theme-toggle')?.addEventListener('click', () => {
+        const body = document.body;
+        const isDark = body.getAttribute('data-theme') === 'dark';
+        body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        const icon = document.querySelector('#demo-theme-toggle i');
+        if (icon) {
+          icon.classList.toggle('fa-moon');
+          icon.classList.toggle('fa-sun');
+        }
+      });
+    </script>
+    <script src="/js/main.js"></script>
+    <script src="/js/nav.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/modal-window.js"></script>
+    <script src="/js/init-nav.js" defer></script>
+  </body>
+</html>

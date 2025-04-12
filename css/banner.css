@@ -1,4 +1,4 @@
-/* banner.css - Ambient Pixels v2.3 - April 5, 2025 */
+/* /css/banner.css - Ambient Pixels v2.3 - April 11, 2025 */
 .banner-container {
     position: fixed;
     top: 75px; /* Below nav */
@@ -9,24 +9,27 @@
     justify-content: center;
     padding: 10px 0;
     font-family: 'Inter', sans-serif;
-}
-.banner {
+  }
+  
+  .banner {
     padding: 10px 20px;
     color: #fff;
     display: flex;
-    alaign-items: center;
+    align-items: center; /* Fixed typo: was 'alaign-items' */
     gap: 10px;
     width: 100%;
     max-width: 1200px;
     transition: opacity 0.5s ease;
     background: rgba(7, 16, 25, 0.9); /* Match dark theme */
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-}
-.banner-icon {
+  }
+  
+  .banner-icon {
     font-size: 1.2em;
     color: #4682B4; /* Dark accent */
-}
-.banner-close {
+  }
+  
+  .banner-close {
     background: none;
     border: none;
     color: #fff;
@@ -34,11 +37,13 @@
     cursor: pointer;
     margin-left: auto;
     transition: color 0.3s ease;
-}
-.banner-close:hover {
+  }
+  
+  .banner-close:hover {
     color: #4682B4;
-}
-.hidden {
+  }
+  
+  .hidden {
     opacity: 0;
     pointer-events: none;
-}
+  }

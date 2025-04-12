@@ -1,4 +1,6 @@
-/* components.css - Ambient Pixels v2.3 - April 5, 2025 */
+/* /css/components.css - Ambient Pixels v2.3 - April 11, 2025 */
+
+/* Toggle Button */
 .toggle-btn {
   background: none;
   border: 1px solid #4682B4;
@@ -7,19 +9,19 @@
   color: inherit;
   transition: background 0.3s ease;
 }
+
 .toggle-btn:hover {
   background: rgba(70, 130, 180, 0.1);
 }
+
+/* Footer Social Links */
 .footer-social a {
   font-size: 1.5em;
   margin: 0 15px;
   transition: color 0.3s ease;
 }
-.content-section {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+
+/* Theme Toggle */
 #theme-toggle {
   background: none;
   border: none;
@@ -29,6 +31,7 @@
   color: inherit;
   transition: color 0.3s ease;
 }
+
 #theme-toggle:hover {
   color: #4682B4; /* Subtle hover accent */
 }
@@ -40,11 +43,13 @@
   padding-left: 1rem;
   transition: background 0.3s ease;
 }
+
 body[data-theme="light"] #nova-intro {
   background: rgba(0, 0, 0, 0.03);
   border-left-color: #3b82f6;
 }
 
+/* Card Section */
 .card-section {
   background: rgba(255, 255, 255, 0.02);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
@@ -114,9 +119,10 @@ body[data-theme="light"] #nova-intro {
 }
 
 .footer .social-links a:hover {
-  color: var(--accent-color, #9bf00b); /* optional highlight color */
+  color: var(--accent-color, #9bf00b); /* Optional highlight color */
 }
 
+/* Nova Manifesto */
 .nova-manifesto blockquote {
   font-style: italic;
   color: #c375ff;
@@ -124,39 +130,42 @@ body[data-theme="light"] #nova-intro {
   padding-left: 1rem;
   border-left: 3px solid #5ae4ff;
 }
+
 .nova-manifesto p {
   line-height: 1.7;
   color: var(--dark-text, #d8e0e5);
 }
 
-/* Nova’s Bug Vault Styles (New) */
+/* Neon Card */
 .neon-card {
-padding: 1.5rem;
-background: rgba(255, 255, 255, 0.03);
-border: 1px solid rgba(90, 228, 255, 0.1);
-border-radius: 10px;
-box-shadow: 0 0 12px rgba(90, 228, 255, 0.05);
-backdrop-filter: blur(4px);
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(90, 228, 255, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(90, 228, 255, 0.05);
+  backdrop-filter: blur(4px);
 }
 
 .neon-card h3 {
-font-size: 1.4em;
-color: #5ae4ff;
-margin-bottom: 1rem;
+  font-size: 1.4em;
+  color: #5ae4ff;
+  margin-bottom: 1rem;
 }
 
 .neon-card ul {
-list-style-type: none;
-padding: 0;
-font-size: 0.95em;
-line-height: 1.6;
+  list-style-type: none;
+  padding: 0;
+  font-size: 0.95em;
+  line-height: 1.6;
 }
 
 .neon-card li {
-margin-bottom: 1rem;
-border-left: 3px solid #5ae4ff;
-padding-left: 1rem;
+  margin-bottom: 1rem;
+  border-left: 3px solid #5ae4ff;
+  padding-left: 1rem;
 }
+
+/* Nova Sync & Mood */
 .nova-sync-time {
   text-align: center;
   font-size: 0.75rem;
@@ -164,13 +173,15 @@ padding-left: 1rem;
   margin-top: 0.5rem;
   font-style: italic;
 }
+
 .nova-mood {
   font-style: italic;
   font-size: 0.95rem;
   color: #c375ff;
   margin-top: -0.5em;
 }
-/* Modal Window Styles */
+
+/* Modal Window */
 .modal {
   position: fixed;
   top: 0;
@@ -242,10 +253,13 @@ padding-left: 1rem;
   color: #888;
   cursor: pointer;
 }
+
 .form-status {
   margin-top: 1rem;
   font-weight: 500;
 }
+
+/* Section Header */
 .section-header {
   display: flex;
   justify-content: space-between;

@@ -1,11 +1,12 @@
+<!-- File: /tools/grid-styles-demo.html -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Ambient Pixels Grid Layout Page" />
-    <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
-    <title>Grid Layout Page - Ambient Pixels</title>
+    <meta name="description" content="Ambient Pixels Grid Styles Demo" />
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+    <title>Grid Styles Demo - Ambient Pixels</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/css/base.css" />
@@ -22,39 +23,109 @@
 
     <!-- Mini Hero Section -->
     <section class="mini-hero">
-      <img src="images/mini-hero-v1.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
-      <h1>Grid Layout Page</h1>
+      <img src="/images/mini-hero-v3.jpg" alt="Mini Hero Neon Pulse" class="mini-hero-img" loading="lazy">
+      <h1>Grid Styles Demo</h1>
     </section>
 
     <main class="grid-container">
-      <!-- Full-Width Section -->
-      <section class="grid-col-12 content-section">
-        <h2><i class="fas fa-th-large"></i> Full-Width Section</h2>
-        <p>This section takes up the full width of the grid (12 columns).</p>
+      <!-- Intro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-th"></i> All Grid Styles</h2>
+        <p>Explore the 12-column grid system of AmbientPixels.ai. Resize your screen to see responsive behavior: desktop (12 columns), tablet (8 columns), mobile (1 column).</p>
       </section>
 
-      <!-- Half-Width Sections -->
-      <section class="grid-col-6 content-section">
-        <h2><i class="fas fa-cogs"></i> Half-Width Section 1</h2>
-        <p>This section takes up half of the grid width (6 columns).</p>
-      </section>
-      <section class="grid-col-6 content-section">
-        <h2><i class="fas fa-cogs"></i> Half-Width Section 2</h2>
-        <p>This section also takes up half of the grid width (6 columns).</p>
+      <!-- Full-Width (12 Columns) -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-th-large"></i> 12 Columns (Full-Width)</h2>
+        <p>This section spans all 12 columns, perfect for hero content or single focal points.</p>
       </section>
 
-      <!-- One-Third Width Sections -->
-      <section class="grid-col-4 content-section">
-        <h2><i class="fas fa-cogs"></i> One-Third Section 1</h2>
-        <p>This section takes up one-third of the grid width (4 columns).</p>
+      <!-- Half-Width (6 Columns) -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-columns"></i> 6 Columns (Half-Width)</h2>
+        <p>Half the grid’s width, ideal for side-by-side content blocks.</p>
       </section>
-      <section class="grid-col-4 content-section">
-        <h2><i class="fas fa-cogs"></i> One-Third Section 2</h2>
-        <p>This section also takes up one-third of the grid width (4 columns).</p>
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-columns"></i> 6 Columns (Half-Width)</h2>
+        <p>Another 6-column section, showing balanced layout symmetry.</p>
       </section>
-      <section class="grid-col-4 content-section">
-        <h2><i class="fas fa-cogs"></i> One-Third Section 3</h2>
-        <p>This section also takes up one-third of the grid width (4 columns).</p>
+
+      <!-- One-Third (4 Columns) -->
+      <section class="grid-col-4 content-section neon-card">
+        <h2><i class="fas fa-th"></i> 4 Columns (One-Third)</h2>
+        <p>One-third of the grid, great for trios of content or cards.</p>
+      </section>
+      <section class="grid-col-4 content-section neon-card">
+        <h2><i class="fas fa-th"></i> 4 Columns (One-Third)</h2>
+        <p>Another 4-column section for balanced layouts.</p>
+      </section>
+      <section class="grid-col-4 content-section neon-card">
+        <h2><i class="fas fa-th"></i> 4 Columns (One-Third)</h2>
+        <p>Completing the trio, showing three-up alignment.</p>
+      </section>
+
+      <!-- One-Quarter (3 Columns) -->
+      <section class="grid-col-3 content-section neon-card">
+        <h2><i class="fas fa-th"></i> 3 Columns (One-Quarter)</h2>
+        <p>One-quarter width, perfect for compact cards or lists.</p>
+      </section>
+      <section class="grid-col-3 content-section neon-card">
+        <h2><i class="fas fa-th"></i> 3 Columns (One-Quarter)</h2>
+        <p>Another 3-column block for four-up layouts.</p>
+      </section>
+      <section class="grid-col-3 content-section neon-card">
+        <h2><i class="fas fa-th"></i> 3 Columns (One-Quarter)</h2>
+        <p>Third in the set, keeping things tight.</p>
+      </section>
+      <section class="grid-col-3 content-section neon-card">
+        <h2><i class="fas fa-th"></i> 3 Columns (One-Quarter)</h2>
+        <p>Completing the quartet with precision.</p>
+      </section>
+
+      <!-- One-Sixth (2 Columns) -->
+      <section class="grid-col-2 content-section neon-card">
+        <h2><i class="fas fa-th"></i> 2 Columns (One-Sixth)</h2>
+        <p>Narrow columns for small widgets or icons.</p>
+      </section>
+      <section class="grid-col-2 content-section neon-card">
+        <h2><i class="fas fa-th"></i> 2 Columns (One-Sixth)</h2>
+        <p>Second narrow block, flexible for lists.</p>
+      </section>
+      <section class="grid-col-2 content-section neon-card">
+        <h2><i class="fas fa-th"></i> 2 Columns (One-Sixth)</h2>
+        <p>Third in the series, compact and clean.</p>
+      </section>
+      <section class="grid-col-2 content-section neon-card">
+        <h2><i class="fas fa-th"></i> 2 Columns (One-Sixth)</h2>
+        <p>Fourth, showing six-up potential.</p>
+      </section>
+      <section class="grid-col-2 content-section neon-card">
+        <h2><i class="fas fa-th"></i> 2 Columns (One-Sixth)</h2>
+        <p>Fifth, maintaining the rhythm.</p>
+      </section>
+      <section class="grid-col-2 content-section neon-card">
+        <h2><i class="fas fa-th"></i> 2 Columns (One-Sixth)</h2>
+        <p>Sixth, wrapping the narrow set.</p>
+      </section>
+
+      <!-- Mixed Layout Example -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-th"></i> 6 Columns (Mixed)</h2>
+        <p>Half-width paired with smaller columns below.</p>
+      </section>
+      <section class="grid-col-3 content-section neon-card">
+        <h2><i class="fas fa-th"></i> 3 Columns (Mixed)</h2>
+        <p>Quarter-width for balanced asymmetry.</p>
+      </section>
+      <section class="grid-col-3 content-section neon-card">
+        <h2><i class="fas fa-th"></i> 3 Columns (Mixed)</h2>
+        <p>Another quarter to complete the row.</p>
+      </section>
+
+      <!-- Outro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-star"></i> Grid Notes</h2>
+        <p>Built with Nova’s 12-column system. Try resizing to see tablet (8 columns) and mobile (1 column) layouts. Every glitch is an invitation!</p>
       </section>
     </main>
 
@@ -62,11 +133,13 @@
     <div id="footer-container"></div>
 
     <!-- Scripts -->
+    <script>
+      console.log('%cNova: Grid Styles Demo Loaded! Explore the 12-column chaos at /tools/grid-styles-demo.html', 'color: #5ae4ff; font-family: monospace;');
+    </script>
     <script src="/js/main.js"></script>
     <script src="/js/nav.js"></script>
     <script src="/js/theme.js"></script>
     <script src="/js/modal-window.js"></script>
     <script src="/js/init-nav.js" defer></script>
-    <script src="/js/init-footer.js" defer></script>
   </body>
 </html>

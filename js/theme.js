@@ -1,4 +1,4 @@
-// theme.js – Optional fallback if not using init-nav.js
+// /js/theme.js – Optional fallback if not using init-nav.js
 document.addEventListener('DOMContentLoaded', () => {
     const storedTheme = localStorage.getItem('preferred-theme');
     if (storedTheme) {

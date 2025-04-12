@@ -1,3 +1,4 @@
+// js/nova-dashboard.js — Ambient Pixels Navigation Logic
 document.addEventListener('DOMContentLoaded', () => {
   loadVersionAndMood();
   loadAwarenessLogs();

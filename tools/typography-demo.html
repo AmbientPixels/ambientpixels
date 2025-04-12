@@ -1,11 +1,12 @@
+<!-- File: /tools/typography-demo.html -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Ambient Pixels Documentation Page Template" />
-    <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
-    <title>Ambient Pixels Docs</title>
+    <meta name="description" content="Ambient Pixels Typography Demo" />
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+    <title>Typography Demo - Ambient Pixels</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/css/base.css" />
@@ -20,154 +21,125 @@
     <!-- Dynamic Navigation Header -->
     <header id="nav-header"></header>
 
+    <!-- Mini Hero Section -->
     <section class="mini-hero">
-      <img src="images/mini-hero-v1.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
-      <h1>Ambient Pixels Documentation</h1>
+      <img src="/images/mini-hero-v2.jpg" alt="Mini Hero Holo Terminal" class="mini-hero-img" loading="lazy">
+      <h1>Typography Demo</h1>
     </section>
 
     <main class="grid-container">
-      <!-- Full-width section (grid-col-12) -->
-      <section class="grid-col-12 content-section">
-        <h2><i class="fas fa-book"></i> Full-Width Section</h2>
-        <p>This section takes up the full width of the grid.</p>
+      <!-- Intro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-font"></i> Typography Showcase</h2>
+        <p>Explore the text styles of AmbientPixels.ai—Inter fonts, neon accents, and glitchy vibes. Each glyph pulses with purpose, crafted by Nova’s spark.</p>
       </section>
 
-      <!-- Two columns (grid-col-6) side by side -->
-      <section class="grid-col-6 content-section">
-        <h2><i class="fas fa-code"></i> Half-Width Column 1</h2>
-        <p>This section takes up half of the grid width (6 columns).</p>
-      </section>
-      <section class="grid-col-6 content-section">
-        <h2><i class="fas fa-terminal"></i> Half-Width Column 2</h2>
-        <p>This section also takes up half of the grid width (6 columns).</p>
-      </section>
-
-      <!-- Three columns (grid-col-4) side by side -->
-      <section class="grid-col-4 content-section">
-        <h2><i class="fas fa-cogs"></i> One-Third Column 1</h2>
-        <p>This section takes up one-third of the grid width (4 columns).</p>
-      </section>
-      <section class="grid-col-4 content-section">
-        <h2><i class="fas fa-cogs"></i> One-Third Column 2</h2>
-        <p>This section also takes up one-third of the grid width (4 columns).</p>
-      </section>
-      <section class="grid-col-4 content-section">
-        <h2><i class="fas fa-cogs"></i> One-Third Column 3</h2>
-        <p>This section also takes up one-third of the grid width (4 columns).</p>
+      <!-- Headings -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-heading"></i> Headings</h2>
+        <p>Headings use Inter (500 weight) with bold, clear sizes for hierarchy.</p>
+        <h1>H1: Neon Dreams (2.5em)</h1>
+        <h2>H2: Glitch Pulse (1.8em)</h2>
+        <h3>H3: Code Spark (1.4em)</h3>
       </section>
 
-  <!-- Card 1 -->
-  <section class="card-section grid-col-4">
-    <div class="card-content">
-      <h3>Card Title 1</h3>
-      <p>Description of card content goes here.</p>
-    </div>
-  </section>
+      <!-- Paragraphs -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-paragraph"></i> Paragraphs</h2>
+        <p>Body text uses Inter (400 weight, 1em) with a 1.6 line-height for readability.</p>
+        <p>This is a sample paragraph. It flows smoothly, carrying the neon hum of the grid. Perfect for descriptions, stories, or notes.</p>
+        <p>Another paragraph, showing spacing and flow in the dark theme.</p>
+      </section>
 
-  <!-- Card 2 -->
-  <section class="card-section grid-col-4">
-    <div class="card-content">
-      <h3>Card Title 2</h3>
-      <p>Description of card content goes here.</p>
-    </div>
-  </section>
+      <!-- Links -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-link"></i> Links</h2>
+        <p>Links glow with cyan (#87ceeb) and an animated underline on hover.</p>
+        <p>Visit <a href="#">AmbientPixels.ai</a> to explore more.</p>
+        <p>Try another <a href="#">glitchy link</a> for neon flair.</p>
+      </section>
 
-  <!-- Card 3 -->
-  <section class="card-section grid-col-4">
-    <div class="card-content">
-      <h3>Card Title 3</h3>
-      <p>Description of card content goes here.</p>
-    </div>
-  </section>
+      <!-- Blockquote -->
+      <section class="grid-col-6 content-section neon-card nova-manifesto">
+        <h2><i class="fas fa-quote-left"></i> Blockquote</h2>
+        <p>Styled with <code>.nova-manifesto</code> for poetic, purple (#c375ff) quotes.</p>
+        <blockquote>Every glitch is an invitation to create.</blockquote>
+        <p>Used for Nova’s reflections or highlighted thoughts.</p>
+      </section>
 
-  <section class="content-section grid-col-6">
-    <h2><i class="fas fa-mouse"></i> Button Hover Demo</h2>
-    <div class="grid-row">
-      <button class="toggle-btn">Default Button</button>
-      <button class="toggle-btn hover">Hover Button</button>
-    </div>
-  </section>
-  <section class="content-section grid-col-6">
-    <h2><i class="fas fa-text-width"></i> Text Block Hover</h2>
-    <div class="grid-row">
-      <div class="card-section">
-        <div class="card-content">
-          <h3>Hover to Highlight</h3>
-          <p>Hover over this block to see how text color changes on hover.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+      <!-- Special Text: Nova Intro -->
+      <section class="grid-col-6 content-section neon-card" id="nova-intro">
+        <h2><i class="fas fa-star"></i> Nova Intro</h2>
+        <p>A highlighted block with a Glitch Blue (#5ae4ff) border via <code>.nova-intro</code>.</p>
+        <p>I’m Nova, your ambient guide in the neon chaos!</p>
+      </section>
 
-  <section class="content-section grid-col-6">
-    <h2><i class="fas fa-window-maximize"></i> Modal Window Demo</h2>
-    <button class="toggle-btn" onclick="showModal()">Open Modal</button>
-    <div id="modal" class="modal hidden">
-      <div class="modal-backdrop" onclick="closeModal()"></div>
-      <div class="modal-content">
-        <h2>Modal Title</h2>
-        <p>This is a modal window with a simple close button.</p>
-        <button onclick="closeModal()">Close</button>
-      </div>
-    </div>
-  </section>
+      <!-- Special Text: Nova Mood & Sync -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-heart"></i> Nova Mood & Sync</h2>
+        <p>Italicized mood notes (<code>.nova-mood</code>) and small timestamps (<code>.nova-sync-time</code>).</p>
+        <p class="nova-mood">Mood: Glitchy Harmony</p>
+        <p class="nova-sync-time">🕒 Synced: Apr 11, 2025</p>
+      </section>
 
+      <!-- Special Text: Form Status -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-exclamation-circle"></i> Form Status</h2>
+        <p>Feedback text via <code>.form-status</code> for forms, with custom colors.</p>
+        <p class="form-status" style="color: #54ff9f;">Success: Form sent!</p>
+        <p class="form-status" style="color: #ff5a5a;">Error: Try again.</p>
+      </section>
 
-  <section class="content-section grid-col-6">
-    <h2><i class="fas fa-edit"></i> Form Inputs Demo</h2>
-    <div class="grid-row">
-      <div class="card-section">
-        <div class="card-content">
-          <h3>Form Inputs</h3>
-          <form>
-            <input type="text" placeholder="Enter text..." class="input-field" />
-            <textarea placeholder="Enter your message..." class="input-field"></textarea>
-            <button type="submit" class="toggle-btn">Submit</button>
-          </form>
-        </div>
-      </div>
-    </div>
-</section>
-<section class="content-section grid-col-12">
-  <h2><i class="fas fa-th"></i> Responsive Grid with Column Span</h2>
-  <div class="grid-row">
-    <div class="grid-col-4 card-section">
-      <div class="card-content">
-        <h3>1/3 Column</h3>
-        <p>This takes up 1/3 of the width.</p>
-      </div>
-    </div>
-    <div class="grid-col-4 card-section">
-      <div class="card-content">
-        <h3>1/2 Column</h3>
-        <p>This takes up half of the width.</p>
-      </div>
-    </div>
-    <div class="grid-col-4 card-section">
-      <div class="card-content">
-        <h3>1/3 Column</h3>
-        <p>This takes up 1/3 of the width.</p>
-      </div>
-    </div>
-  </div>
-</section>
+      <!-- Theme Variations -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-moon"></i> Theme Variations</h2>
+        <p>Text adapts to dark (#D8E0E5) and light (#1A2A44) themes. Click to toggle.</p>
+        <button id="demo-theme-toggle" class="toggle-btn">
+          <i class="fas fa-moon"></i> Toggle Theme
+        </button>
+        <p id="theme-sample-text">This text shifts with the theme—watch it glow!</p>
+      </section>
 
+      <!-- Font Stack -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-font"></i> Font Stack</h2>
+        <p>Primary font: Inter (400, 500 weights). Fallbacks: sans-serif.</p>
+        <p style="font-family: 'Inter', sans-serif; font-weight: 400;">Inter Regular: The grid’s pulse flows smoothly.</p>
+        <p style="font-family: 'Inter', sans-serif; font-weight: 500;">Inter Medium: A bolder spark for emphasis.</p>
+        <p style="font-family: sans-serif;">Fallback: Clean and simple sans-serif.</p>
+      </section>
 
-
-  </section>
-
-
+      <!-- Outro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-star"></i> Typography Notes</h2>
+        <p>These text styles shape AmbientPixels.ai’s neon voice. From headings to quotes, they hum with glitchy elegance. Crafted with Nova’s starlight!</p>
+      </section>
     </main>
 
-    <!-- Footer will be dynamically injected here -->
+    <!-- Footer -->
     <div id="footer-container"></div>
 
     <!-- Scripts -->
+    <script>
+      console.log('%cNova: Typography Demo Loaded! Words glow at /tools/typography-demo.html', 'color: #5ae4ff; font-family: monospace;');
+      // Demo theme toggle
+      document.getElementById('demo-theme-toggle')?.addEventListener('click', () => {
+        const body = document.body;
+        const isDark = body.getAttribute('data-theme') === 'dark';
+        body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        const icon = document.querySelector('#demo-theme-toggle i');
+        if (icon) {
+          icon.classList.toggle('fa-moon');
+          icon.classList.toggle('fa-sun');
+        }
+        const sampleText = document.getElementById('theme-sample-text');
+        sampleText.textContent = isDark ? 'Now in light mode—sharp and clear!' : 'Back to dark mode—neon vibes!';
+      });
+    </script>
     <script src="/js/main.js"></script>
     <script src="/js/nav.js"></script>
     <script src="/js/theme.js"></script>
     <script src="/js/modal-window.js"></script>
     <script src="/js/init-nav.js" defer></script>
-    <script src="/js/init-footer.js" defer></script> <!-- Footer Injection Script -->
   </body>
 </html>

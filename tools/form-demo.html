@@ -1,11 +1,12 @@
+<!-- File: /tools/form-demo.html -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Ambient Pixels Documentation Page Template" />
-    <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
-    <title>Ambient Pixels Docs</title>
+    <meta name="description" content="Ambient Pixels Form Demo" />
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+    <title>Form Demo - Ambient Pixels</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/css/base.css" />
@@ -20,154 +21,129 @@
     <!-- Dynamic Navigation Header -->
     <header id="nav-header"></header>
 
+    <!-- Mini Hero Section -->
     <section class="mini-hero">
-      <img src="images/mini-hero-v1.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
-      <h1>Ambient Pixels Documentation</h1>
+      <img src="/images/mini-hero-v1.jpg" alt="Mini Hero Cyber Alley" class="mini-hero-img" loading="lazy">
+      <h1>Form Demo</h1>
     </section>
 
     <main class="grid-container">
-      <!-- Full-width section (grid-col-12) -->
-      <section class="grid-col-12 content-section">
-        <h2><i class="fas fa-book"></i> Full-Width Section</h2>
-        <p>This section takes up the full width of the grid.</p>
+      <!-- Intro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-keyboard"></i> Form Showcase</h2>
+        <p>Discover the form components of AmbientPixels.ai—inputs, textareas, and buttons styled with neon flair. Each form hums with glitchy elegance, ready to capture your chaos.</p>
       </section>
 
-      <!-- Two columns (grid-col-6) side by side -->
-      <section class="grid-col-6 content-section">
-        <h2><i class="fas fa-code"></i> Half-Width Column 1</h2>
-        <p>This section takes up half of the grid width (6 columns).</p>
-      </section>
-      <section class="grid-col-6 content-section">
-        <h2><i class="fas fa-terminal"></i> Half-Width Column 2</h2>
-        <p>This section also takes up half of the grid width (6 columns).</p>
-      </section>
-
-      <!-- Three columns (grid-col-4) side by side -->
-      <section class="grid-col-4 content-section">
-        <h2><i class="fas fa-cogs"></i> One-Third Column 1</h2>
-        <p>This section takes up one-third of the grid width (4 columns).</p>
-      </section>
-      <section class="grid-col-4 content-section">
-        <h2><i class="fas fa-cogs"></i> One-Third Column 2</h2>
-        <p>This section also takes up one-third of the grid width (4 columns).</p>
-      </section>
-      <section class="grid-col-4 content-section">
-        <h2><i class="fas fa-cogs"></i> One-Third Column 3</h2>
-        <p>This section also takes up one-third of the grid width (4 columns).</p>
-      </section>
-
-  <!-- Card 1 -->
-  <section class="card-section grid-col-4">
-    <div class="card-content">
-      <h3>Card Title 1</h3>
-      <p>Description of card content goes here.</p>
-    </div>
-  </section>
-
-  <!-- Card 2 -->
-  <section class="card-section grid-col-4">
-    <div class="card-content">
-      <h3>Card Title 2</h3>
-      <p>Description of card content goes here.</p>
-    </div>
-  </section>
-
-  <!-- Card 3 -->
-  <section class="card-section grid-col-4">
-    <div class="card-content">
-      <h3>Card Title 3</h3>
-      <p>Description of card content goes here.</p>
-    </div>
-  </section>
-
-  <section class="content-section grid-col-6">
-    <h2><i class="fas fa-mouse"></i> Button Hover Demo</h2>
-    <div class="grid-row">
-      <button class="toggle-btn">Default Button</button>
-      <button class="toggle-btn hover">Hover Button</button>
-    </div>
-  </section>
-  <section class="content-section grid-col-6">
-    <h2><i class="fas fa-text-width"></i> Text Block Hover</h2>
-    <div class="grid-row">
-      <div class="card-section">
-        <div class="card-content">
-          <h3>Hover to Highlight</h3>
-          <p>Hover over this block to see how text color changes on hover.</p>
+      <!-- Basic Form -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-edit"></i> Basic Form</h2>
+        <p>A standard form with inputs, textarea, and a submit button, styled for contact or feedback.</p>
+        <div class="contact-form">
+          <input type="text" placeholder="Name" />
+          <input type="email" placeholder="Email" />
+          <textarea placeholder="Your Message"></textarea>
+          <button onclick="document.getElementById('basic-form-status').textContent = 'Submitted! (Demo)'">Submit</button>
+          <p id="basic-form-status" class="form-status"></p>
         </div>
-      </div>
-    </div>
-  </section>
+      </section>
 
-  <section class="content-section grid-col-6">
-    <h2><i class="fas fa-window-maximize"></i> Modal Window Demo</h2>
-    <button class="toggle-btn" onclick="showModal()">Open Modal</button>
-    <div id="modal" class="modal hidden">
-      <div class="modal-backdrop" onclick="closeModal()"></div>
-      <div class="modal-content">
-        <h2>Modal Title</h2>
-        <p>This is a modal window with a simple close button.</p>
-        <button onclick="closeModal()">Close</button>
-      </div>
-    </div>
-  </section>
+      <!-- Modal Form -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-window-restore"></i> Modal Form</h2>
+        <p>A form inside a popup modal, perfect for focused interactions like signups or alerts.</p>
+        <button class="toggle-btn" onclick="document.getElementById('form-modal').classList.remove('hidden')">
+          Open Modal Form
+        </button>
+      </section>
 
-
-  <section class="content-section grid-col-6">
-    <h2><i class="fas fa-edit"></i> Form Inputs Demo</h2>
-    <div class="grid-row">
-      <div class="card-section">
-        <div class="card-content">
-          <h3>Form Inputs</h3>
-          <form>
-            <input type="text" placeholder="Enter text..." class="input-field" />
-            <textarea placeholder="Enter your message..." class="input-field"></textarea>
-            <button type="submit" class="toggle-btn">Submit</button>
-          </form>
+      <!-- Inline Form -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-envelope"></i> Inline Form</h2>
+        <p>A compact form for quick inputs, like a newsletter signup, styled for minimal space.</p>
+        <div class="contact-form" style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <input type="email" placeholder="Your Email" style="flex: 1; min-width: 200px;" />
+          <button onclick="document.getElementById('inline-form-status').textContent = 'Subscribed! (Demo)'">Sign Up</button>
+          <p id="inline-form-status" class="form-status" style="flex-basis: 100%;"></p>
         </div>
-      </div>
-    </div>
-</section>
-<section class="content-section grid-col-12">
-  <h2><i class="fas fa-th"></i> Responsive Grid with Column Span</h2>
-  <div class="grid-row">
-    <div class="grid-col-4 card-section">
-      <div class="card-content">
-        <h3>1/3 Column</h3>
-        <p>This takes up 1/3 of the width.</p>
-      </div>
-    </div>
-    <div class="grid-col-4 card-section">
-      <div class="card-content">
-        <h3>1/2 Column</h3>
-        <p>This takes up half of the width.</p>
-      </div>
-    </div>
-    <div class="grid-col-4 card-section">
-      <div class="card-content">
-        <h3>1/3 Column</h3>
-        <p>This takes up 1/3 of the width.</p>
-      </div>
-    </div>
-  </div>
-</section>
+      </section>
 
+      <!-- Form with Toggle -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-toggle-on"></i> Form with Toggle</h2>
+        <p>A form hidden by default, revealed with a toggle button for dynamic display.</p>
+        <div class="section-header">
+          <span>Show Form</span>
+          <button class="toggle-btn icon-only" aria-expanded="false" title="Toggle form">
+            <i class="fas fa-chevron-down"></i>
+          </button>
+        </div>
+        <div class="content" style="display: none;">
+          <div class="contact-form">
+            <input type="text" placeholder="Username" />
+            <input type="password" placeholder="Password" />
+            <button onclick="document.getElementById('toggle-form-status').textContent = 'Logged In! (Demo)'">Login</button>
+            <p id="toggle-form-status" class="form-status"></p>
+          </div>
+        </div>
+      </section>
 
+      <!-- Form with Error/Success States -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-exclamation-circle"></i> Form States</h2>
+        <p>Inputs with success or error feedback, using `.form-status` for messages.</p>
+        <div class="contact-form">
+          <input type="text" placeholder="Name" />
+          <p class="form-status" style="color: #54ff9f;">Success: Name looks good!</p>
+          <input type="email" placeholder="Email" />
+          <p class="form-status" style="color: #ff5a5a;">Error: Invalid email format.</p>
+          <button>Check</button>
+        </div>
+      </section>
 
-  </section>
-
-
+      <!-- Outro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-star"></i> Form Notes</h2>
+        <p>These forms power AmbientPixels.ai’s interactive pulse. Use them to capture input with neon elegance. Built with Nova’s glitchy spark!</p>
+      </section>
     </main>
 
-    <!-- Footer will be dynamically injected here -->
+    <!-- Modal Form (Hidden by Default) -->
+    <div id="form-modal" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <h2>Modal Form</h2>
+        <p>Enter your details below.</p>
+        <div class="contact-form">
+          <input type="text" placeholder="Full Name" />
+          <input type="email" placeholder="Email Address" />
+          <textarea placeholder="Your Feedback"></textarea>
+          <button onclick="document.getElementById('modal-form-status').textContent = 'Sent! (Demo)'">Send</button>
+          <p id="modal-form-status" class="form-status"></p>
+        </div>
+        <button class="modal-close" onclick="document.getElementById('form-modal').classList.add('hidden')" aria-label="Close Modal">×</button>
+      </div>
+    </div>
+
+    <!-- Footer -->
     <div id="footer-container"></div>
 
     <!-- Scripts -->
+    <script>
+      console.log('%cNova: Form Demo Loaded! Capture the chaos at /tools/form-demo.html', 'color: #5ae4ff; font-family: monospace;');
+      // Demo toggle behavior
+      document.querySelectorAll('.toggle-btn.icon-only').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const content = btn.parentElement.nextElementSibling;
+          const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+          btn.setAttribute('aria-expanded', !isExpanded);
+          content.style.display = isExpanded ? 'none' : 'block';
+        });
+      });
+    </script>
     <script src="/js/main.js"></script>
     <script src="/js/nav.js"></script>
     <script src="/js/theme.js"></script>
     <script src="/js/modal-window.js"></script>
     <script src="/js/init-nav.js" defer></script>
-    <script src="/js/init-footer.js" defer></script> <!-- Footer Injection Script -->
   </body>
 </html>

@@ -1,0 +1,109 @@
+<!-- File: /tools/icon-demo.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Ambient Pixels Icon Demo" />
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+    <title>Icon Demo - Ambient Pixels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/grid.css" />
+    <link rel="stylesheet" href="/css/nav.css" />
+    <link rel="stylesheet" href="/css/components.css" />
+    <link rel="stylesheet" href="/css/hero.css" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/banner.css" />
+  </head>
+  <body data-theme="dark">
+    <!-- Dynamic Navigation Header -->
+    <header id="nav-header"></header>
+
+    <!-- Mini Hero Section -->
+    <section class="mini-hero">
+      <img src="/images/mini-hero-v3.jpg" alt="Mini Hero Neon Pulse" class="mini-hero-img" loading="lazy">
+      <h1>Icon Demo</h1>
+    </section>
+
+    <main class="grid-container">
+      <!-- Intro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-icons"></i> Icon Showcase</h2>
+        <p>Explore FontAwesome v6.5.1 icons powering AmbientPixels.ai’s visual flair. From nav to forms, they spark neon life. Crafted by Nova’s glyph glow.</p>
+      </section>
+
+      <!-- Nav Icons -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-bars"></i> Nav Icons</h2>
+        <p>Icons for navigation from <code>/css/nav.css</code> and <code>/js/init-nav.js</code>.</p>
+        <p><i class="fas fa-bars" style="font-size: 1.5em;"></i> fa-bars (Nav Toggle)</p>
+        <p><i class="fas fa-moon" style="font-size: 1.5em;"></i> fa-moon (Theme)</p>
+        <p><i class="fas fa-sun" style="font-size: 1.5em;"></i> fa-sun (Theme)</p>
+      </section>
+
+      <!-- Form Icons -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-edit"></i> Form Icons</h2>
+        <p>Icons for forms and inputs from <code>/tools/form-demo.html</code>.</p>
+        <p><i class="fas fa-keyboard" style="font-size: 1.5em;"></i> fa-keyboard</p>
+        <p><i class="fas fa-edit" style="font-size: 1.5em;"></i> fa-edit</p>
+        <p><i class="fas fa-window-restore" style="font-size: 1.5em;"></i> fa-window-restore</p>
+      </section>
+
+      <!-- Component Icons -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-cogs"></i> Component Icons</h2>
+        <p>Icons for cards, toggles, and sections from <code>/css/components.css</code>.</p>
+        <div class="grid-container">
+          <div class="grid-col-3"><i class="fas fa-th-large" style="font-size: 1.5em;"></i><p>fa-th-large</p></div>
+          <div class="grid-col-3"><i class="fas fa-cogs" style="font-size: 1.5em;"></i><p>fa-cogs</p></div>
+          <div class="grid-col-3"><i class="fas fa-toggle-on" style="font-size: 1.5em;"></i><p>fa-toggle-on</p></div>
+          <div class="grid-col-3"><i class="fas fa-chevron-down" style="font-size: 1.5em;"></i><p>fa-chevron-down</p></div>
+        </div>
+      </section>
+
+      <!-- Banner Icons -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-bell"></i> Banner Icons</h2>
+        <p>Icons for alerts from <code>/css/banner.css</code>.</p>
+        <p><i class="fas fa-wrench" style="font-size: 1.5em;"></i> fa-wrench</p>
+        <div class="banner" style="position: relative; max-width: 100%;">
+          <i class="fas fa-wrench banner-icon"></i>
+          <span>Demo Banner</span>
+        </div>
+      </section>
+
+      <!-- Social Icons -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-link"></i> Social Icons</h2>
+        <p>Social links from <code>.social-links</code> in <code>/css/components.css</code>.</p>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-github" style="font-size: 1.5em;"></i></a>
+          <a href="#"><i class="fab fa-twitter" style="font-size: 1.5em;"></i></a>
+          <a href="#"><i class="fab fa-linkedin" style="font-size: 1.5em;"></i></a>
+        </div>
+      </section>
+
+      <!-- Outro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-star"></i> Icon Notes</h2>
+        <p>These icons add spark to AmbientPixels.ai’s neon grid. Use them to guide creators through your chaos. Lit by Nova’s glow!</p>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer-container"></div>
+
+    <!-- Scripts -->
+    <script>
+      console.log('%cNova: Icon Demo Loaded! Sparking visual vibes at /tools/icon-demo.html', 'color: #5ae4ff; font-family: monospace;');
+    </script>
+    <script src="/js/main.js"></script>
+    <script src="/js/nav.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/modal-window.js"></script>
+    <script src="/js/init-nav.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,111 @@
+<!-- File: /tools/animation-demo.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Ambient Pixels Animation Demo" />
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+    <title>Animation Demo - Ambient Pixels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/grid.css" />
+    <link rel="stylesheet" href="/css/nav.css" />
+    <link rel="stylesheet" href="/css/components.css" />
+    <link rel="stylesheet" href="/css/hero.css" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/banner.css" />
+    <style>
+      /* Demo glitch animation */
+      @keyframes glitch {
+        0% { transform: translate(0); }
+        20% { transform: translate(-2px, 2px); }
+        40% { transform: translate(2px, -2px); }
+        60% { transform: translate(-2px, 0); }
+        80% { transform: translate(2px, 2px); }
+        100% { transform: translate(0); }
+      }
+      .glitch-text:hover {
+        animation: glitch 0.3s infinite;
+      }
+    </style>
+  </head>
+  <body data-theme="dark">
+    <!-- Dynamic Navigation Header -->
+    <header id="nav-header"></header>
+
+    <!-- Mini Hero Section -->
+    <section class="mini-hero">
+      <img src="/images/mini-hero-v1.jpg" alt="Mini Hero Cyber Alley" class="mini-hero-img" loading="lazy">
+      <h1>Animation Demo</h1>
+    </section>
+
+    <main class="grid-container">
+      <!-- Intro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-film"></i> Animation Showcase</h2>
+        <p>Discover the motion of AmbientPixels.ai—hovers, fades, and glitches that pulse with neon life. Crafted by Nova’s kinetic spark.</p>
+      </section>
+
+      <!-- Link Hovers -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-link"></i> Link Hovers</h2>
+        <p>Links animate with an underline scale and cyan glow from <code>/css/base.css</code>.</p>
+        <p>Try hovering: <a href="#">Glitchy Link</a> | <a href="#">Neon Spark</a></p>
+      </section>
+
+      <!-- Button Transitions -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-toggle-on"></i> Button Transitions</h2>
+        <p>Buttons fade backgrounds on hover with <code>.toggle-btn</code> from <code>/css/components.css</code>.</p>
+        <button class="toggle-btn">Hover Me</button>
+        <button class="toggle-btn icon-only"><i class="fas fa-chevron-down"></i></button>
+      </section>
+
+      <!-- Hero Animations -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-star"></i> Hero Animations</h2>
+        <p>Fade-ins for headlines and loading bars from <code>/css/hero.css</code>. Reload to see.</p>
+        <div style="text-align: center;">
+          <h1 class="hero-headline">Neon Dreams Ignite</h1>
+          <p class="hero-subheadline">A glitchy pulse awaits.</p>
+          <div class="loading-bar"><div class="loading-progress"></div></div>
+        </div>
+      </section>
+
+      <!-- Glitch Effects -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-bug"></i> Glitch Effects</h2>
+        <p>A custom glitch animation for text, inspired by the site’s vibe.</p>
+        <p class="glitch-text" style="font-size: 1.5em;">Hover for Glitch!</p>
+      </section>
+
+      <!-- Neon Glows -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-lightbulb"></i> Neon Glows</h2>
+        <p>Card shadows glow on hover with <code>.neon-card</code> from <code>/css/components.css</code>.</p>
+        <p>Hover this card to see the Glitch Blue (#5ae4ff) shine!</p>
+      </section>
+
+      <!-- Outro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-star"></i> Animation Notes</h2>
+        <p>These motions bring AmbientPixels.ai to life. Use them to add glitchy flair to your creations. Powered by Nova’s neon pulse!</p>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer-container"></div>
+
+    <!-- Scripts -->
+    <script>
+      console.log('%cNova: Animations Demo Loaded! Flickering to life at /tools/animation-demo.html', 'color: #5ae4ff; font-family: monospace;');
+    </script>
+    <script src="/js/main.js"></script>
+    <script src="/js/nav.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/modal-window.js"></script>
+    <script src="/js/init-nav.js" defer></script>
+  </body>
+</html>

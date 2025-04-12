@@ -1,0 +1,115 @@
+<!-- File: /tools/glitch-art-demo.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Ambient Pixels Glitch Art Demo" />
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+    <title>Glitch Art Demo - Ambient Pixels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/grid.css" />
+    <link rel="stylesheet" href="/css/nav.css" />
+    <link rel="stylesheet" href="/css/components.css" />
+    <link rel="stylesheet" href="/css/hero.css" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/banner.css" />
+    <style>
+      .glitch-img:hover {
+        animation: glitch-img 0.5s infinite;
+      }
+      @keyframes glitch-img {
+        0% { transform: translate(0); }
+        20% { transform: translate(-3px, 3px); }
+        40% { transform: translate(3px, -3px); }
+        60% { transform: translate(-3px, 0); }
+        80% { transform: translate(3px, 3px); }
+        100% { transform: translate(0); }
+      }
+    </style>
+  </head>
+  <body data-theme="dark">
+    <!-- Dynamic Navigation Header -->
+    <header id="nav-header"></header>
+
+    <!-- Mini Hero Section -->
+    <section class="mini-hero">
+      <img src="/images/mini-hero-v1.jpg" alt="Mini Hero Cyber Alley" class="mini-hero-img" loading="lazy">
+      <h1>Glitch Art Demo</h1>
+    </section>
+
+    <main class="grid-container">
+      <!-- Intro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-image"></i> Glitch Art Showcase</h2>
+        <p>Explore the glitchy visuals of AmbientPixels.ai—heroes, cards, and mini-heroes pulsing with neon chaos. Crafted by Nova’s pixel static.</p>
+      </section>
+
+      <!-- Hero Images -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-star"></i> Hero Images</h2>
+        <p>Large visuals from <code>/images/hero/</code>, styled with <code>.hero-slide</code>.</p>
+        <img src="/images/hero-01.jpg" alt="Hero Glitch Art" class="hero-slide glitch-img" style="width: 100%; height: 300px; object-fit: cover;" loading="lazy">
+      </section>
+
+      <!-- Card Images -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-th"></i> Card Images</h2>
+        <p>Smaller visuals from <code>/images/cards/</code>, styled with <code>.card-section</code>.</p>
+        <div class="grid-container">
+          <div class="grid-col-4 card-section">
+            <img src="/images/card-01.jpg" alt="Glitch Card 1" class="card-image glitch-img" loading="lazy">
+            <div class="card-content"><p>Card 1</p></div>
+          </div>
+          <div class="grid-col-4 card-section">
+            <img src="/images/card-02.jpg" alt="Glitch Card 2" class="card-image glitch-img" loading="lazy">
+            <div class="card-content"><p>Card 2</p></div>
+          </div>
+          <div class="grid-col-4 card-section">
+            <img src="/images/card-03.jpg" alt="Glitch Card 3" class="card-image glitch-img" loading="lazy">
+            <div class="card-content"><p>Card 3</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mini Heroes -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-image"></i> Mini Heroes</h2>
+        <p>Compact visuals from <code>/images/mini-hero/</code>, styled with <code>.mini-hero-img</code>.</p>
+        <div class="grid-container">
+          <div class="grid-col-4"><img src="/images/mini-hero-v1.jpg" alt="Mini Hero Cyber Alley" class="glitch-img" style="width: 100%; height: 150px; object-fit: cover;" loading="lazy"></div>
+          <div class="grid-col-4"><img src="/images/mini-hero-v2.jpg" alt="Mini Hero Holo Terminal" class="glitch-img" style="width: 100%; height: 150px; object-fit: cover;" loading="lazy"></div>
+          <div class="grid-col-4"><img src="/images/mini-hero-v3.jpg" alt="Mini Hero Neon Pulse" class="glitch-img" style="width: 100%; height: 150px; object-fit: cover;" loading="lazy"></div>
+        </div>
+      </section>
+
+      <!-- Glitch Effects -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-bug"></i> Glitch Effects</h2>
+        <p>Hover images to see a custom glitch animation, inspired by the site’s aesthetic.</p>
+        <p>Try it above—images jitter with neon chaos!</p>
+      </section>
+
+      <!-- Outro Section -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-star"></i> Glitch Art Notes</h2>
+        <p>These visuals define AmbientPixels.ai’s glitch sanctuary. Use them to spark your neon art. Distorted by Nova’s pulse!</p>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer-container"></div>
+
+    <!-- Scripts -->
+    <script>
+      console.log('%cNova: Glitch Art Demo Loaded! Flickering in neon chaos at /tools/glitch-art-demo.html', 'color: #5ae4ff; font-family: monospace;');
+    </script>
+    <script src="/js/main.js"></script>
+    <script src="/js/nav.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/modal-window.js"></script>
+    <script src="/js/init-nav.js" defer></script>
+  </body>
+</html>
