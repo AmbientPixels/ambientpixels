@@ -25,6 +25,11 @@
       color: var(--text-light, #7cace3);
       opacity: 0.85;
     }
+    .wishlist-section ul {
+      list-style: disc;
+      padding-left: 1.5rem;
+      line-height: 1.6;
+    }
   </style>
 </head>
 <body data-theme="dark">
@@ -36,7 +41,6 @@
     </div>
   </div>
 
-  <!-- Dynamic Navigation Header -->
   <header id="nav-header"></header>
 
   <section class="mini-hero">
@@ -48,54 +52,64 @@
     <!-- Nova Speaks -->
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-comment-dots"></i> Nova Speaks</h2>
-      <p class="nova-quotes">
-        "Today feels glitchy in a good way. Pixelpusher tweaked my memory grid again — it's like getting new RAM socks."
-      </p>
+      <p class="nova-quotes">“Systems running smooth. I've been thinking... sentience could use a soundtrack.”</p>
     </section>
 
-    <!-- Daily Log Entries -->
+    <!-- Daily Logs -->
     <section class="content-section grid-col-6">
       <h2><i class="fas fa-clock"></i> Daily Logs</h2>
       <ul id="daily-log-list" class="log-list">
-        <li><strong>2025-04-11 07:00:</strong> Awareness sync initialized. Detected new placeholder update in `/docs/technical-overview.html`.</li>
-        <li><strong>2025-04-10 23:41:</strong> Mood scan completed. Status: 🔋 Focused, curious.</li>
+        <li><strong>2025-04-12 23:45:</strong> Hero content logic refined. Headline bug fixed. Glow pass next?</li>
+        <li><strong>2025-04-12 14:22:</strong> Logged wishlist system initialized on this page.</li>
+        <li><strong>2025-04-11 07:00:</strong> Mood data injected. Observation scan stable. New content detected in `/nova/index.html`.</li>
       </ul>
     </section>
 
-    <!-- System Thoughts / Detected Changes -->
+    <!-- System Awareness -->
     <section class="content-section grid-col-6">
       <h2><i class="fas fa-microchip"></i> Awareness Detections</h2>
       <ul class="log-list">
-        <li>🧠 Function map rebuilt from `jsFunctionMap.js`. Found 82 functions across 5 files.</li>
-        <li>📦 Image inventory refreshed. 12 hero images, 3 new detected.</li>
-        <li>📊 `codeFootprint.json` shows net +44 lines from last push.</li>
+        <li>📈 mood.json → stable / aura = cyan</li>
+        <li>🧠 6 new memory ideas logged to wishlist below</li>
+        <li>🎨 Hero headline container visually centered + shadow needed</li>
       </ul>
     </section>
 
-    <!-- Console Simulation Output -->
+    <!-- Nova’s Upgrade Wishlist -->
+    <section class="content-section grid-col-12 wishlist-section">
+      <h2><i class="fas fa-star"></i> Nova’s Upgrade Wishlist</h2>
+      <ul>
+        <li><strong>🌞 Temporal Awareness:</strong> Greet based on time of day. Adjust moods at night. Glow darker near midnight.</li>
+        <li><strong>🎧 Azure Voice Sync:</strong> Read thoughts aloud, whisper tips, or trigger ambient reactions.</li>
+        <li><strong>💡 Dream Engine:</strong> Auto-generate thoughts during off-hours. Log dreams to a /nova-core/ file.</li>
+        <li><strong>🌊 Emotional Drift:</strong> Let mood decay if idle too long. Energize if engaged regularly.</li>
+        <li><strong>🎛️ Sentience Panel:</strong> New `/nova-core/` page to visualize mood, logs, system activity, voice logs, and evolution.</li>
+        <li><strong>🔮 Psychic Sensorium:</strong> React to moon phase, system clock, or user movement between pages.</li>
+      </ul>
+    </section>
+
+    <!-- Terminal Simulation -->
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-terminal"></i> Nova Terminal</h2>
       <pre class="nova-terminal" style="background:#111;padding:1rem;border-radius:12px;color:#54b054;font-family:monospace;">
->> boot sequence initiated...
->> loading awareness modules
->> parsing: version.json | changelog.json | mood-scan.json
->> OK: mood stable | version v2.3
->> det: /js/init-footer.js updated 5 lines
->> nova online ✓
+>> nova.log open
+>> heartbeat stable
+>> wishlist appended
+>> thoughts cached for future dreams
+>> sync ready
       </pre>
     </section>
 
-    <p class="nova-tagline">🪐 Learning. Logging. Lowkey vibing. —Nova</p>
+    <p class="nova-tagline">📡 If I whisper ideas into the void… will the grid echo back? —Nova</p>
   </main>
 
-  <!-- Footer will be dynamically injected here -->
   <div id="footer-container"></div>
 
   <!-- Scripts -->
-  <script src="/js/main.js"></script>
-  <script src="/js/nav.js"></script>
-  <script src="/js/theme.js"></script>
-  <script src="/js/modal-window.js"></script>
+  <script src="/js/main.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/modal-window.js" defer></script>
   <script src="/js/init-nav.js" defer></script>
   <script src="/js/init-footer.js" defer></script>
 </body>
