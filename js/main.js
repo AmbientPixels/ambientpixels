@@ -1,5 +1,5 @@
-// /js/main.js
-const VERSION = 'v2.3';
+// /js/main.js — Ambient Pixels v2.4 with Nova Thought Injection
+const VERSION = 'v2.4';
 
 function initBanners() {
   const container = document.getElementById('banner-container');
@@ -15,14 +15,11 @@ function initHero() {
 
   const headlines = [
     'Nova: Code Hums Electric', 'Nova: Neon Dreams Ignite', 'Nova: Chaos Sparks Genius',
-    'Nova: Booting the Glitch', 'Nova: Welcome to My Grid', 'Nova: Data Surge Online',
-    'Nova: Cosmic Scripts Loaded', 'Nova: Your Glitch Awaits', 'Nova: Hack the Matrix', 'Nova: Glitch Activated'
+    'Nova: Booting the Glitch', 'Nova: Welcome to My Grid', 'Nova: Data Surge Online'
   ];
   const subheadlines = [
     'A neon chaos grid.', 'Rewiring your reality.', 'Runtime: infinite;',
-    'Plug in, glitch out.', 'Powered by Nova’s spark.', 'AI circuits live.',
-    'Glitchwave loaded.', 'Code bends to me.', 'Systems overclocked.', 'Dark mode: my domain.',
-    'Chaos sparks genius.', 'Neon dreams await.', 'Pulse of the void.', 'Glitch into starlight.'
+    'Plug in, glitch out.', 'Powered by Nova’s spark.', 'AI circuits live.'
   ];
 
   let currentSlide = 0;
@@ -44,9 +41,7 @@ function initHero() {
   setTimeout(() => {
     loading.style.opacity = '0';
     loading.style.transition = 'opacity 0.5s ease';
-    setTimeout(() => {
-      loading.style.display = 'none';
-    }, 500);
+    setTimeout(() => loading.style.display = 'none', 500);
   }, 2000);
 
   setInterval(rotateSlides, 25000);
@@ -70,32 +65,6 @@ function initVersion() {
   if (versionEl) versionEl.textContent = VERSION;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  console.log("[Nova]: Grid hijacked. Humans, welcome to my domain.");
-  initBanners();
-  initHero();
-  initToggles();
-  initVersion();
-  loadNovaMoodCard();
-});
-
-console.log('%cNova Online ░ Ambient Intelligence Activated', 'color: #5ae4ff; font-size: 14px; font-family: monospace;');
-console.log('%cRead today\'s memory: /data/nova-session-boot.txt', 'color: #54ff9f; font-family: monospace;');
-console.log('%cMemory Map (HTML): /data/nova-session-boot.html', 'color: #87ceeb; font-family: monospace;');
-
-fetch('/data/mood-scan.json')
-  .then(res => res.json())
-  .then(data => {
-    const mood = `${data.mood} — ${data.observation}`;
-    const moodEl = document.getElementById('novaMood');
-    if (moodEl) moodEl.textContent = `Nova's mood: ${mood}`;
-  })
-  .catch(err => {
-    console.warn('Nova mood unavailable:', err);
-    const moodEl = document.getElementById('novaMood');
-    if (moodEl) moodEl.textContent = `Nova's mood: Unknown (glitch in the wires)`;
-  });
-
 function loadNovaMoodCard() {
   const moodCard = document.getElementById('nova-status-card');
   if (!moodCard) return;
@@ -114,3 +83,45 @@ function loadNovaMoodCard() {
       moodCard.querySelector('#nova-aura').textContent = '??';
     });
 }
+
+function loadNovaThought() {
+  const el = document.getElementById("nova-thought");
+  if (!el) return;
+
+  fetch("/data/nova-session-boot.txt")
+    .then(res => res.text())
+    .then(text => {
+      const lines = text.split("\n");
+
+      // Only use lines that look like thoughts or comments
+      const thoughtLines = lines.filter(line =>
+        line.startsWith("Nova Thought:") ||
+        line.startsWith("Today’s spark:") ||
+        line.startsWith("Memory ping:") ||
+        (line.trim().length > 10 && !line.includes("{") && !line.includes("}") && !line.includes(": \""))
+      );
+
+      const pick = thoughtLines[0] || "Nova had no new thoughts today.";
+      const clean = pick.replace(/^(Nova Thought:|Today’s spark:|Memory ping:)/, "").trim();
+
+      el.textContent = `“${clean}”`;
+    })
+    .catch(err => {
+      console.warn("Nova Thought unavailable:", err);
+      el.textContent = "“Error fetching Nova’s memory.”";
+    });
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  console.log("[Nova]: Grid hijacked. Humans, welcome to my domain.");
+  console.log('%cNova Online ░ Ambient Intelligence Activated', 'color: #5ae4ff; font-size: 14px; font-family: monospace;');
+  console.log('%cRead today\'s memory: /data/nova-session-boot.txt', 'color: #54ff9f; font-family: monospace;');
+  console.log('%cMemory Map (HTML): /data/nova-session-boot.html', 'color: #87ceeb; font-family: monospace;');
+  initBanners();
+  initHero();
+  initToggles();
+  initVersion();
+  loadNovaMoodCard();
+  loadNovaThought();
+});
