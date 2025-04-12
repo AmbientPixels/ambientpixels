@@ -318,3 +318,50 @@ a .soon-tag {
   box-shadow: 0 0 6px rgba(90, 228, 255, 0.2);
 }
 
+.nova-badge-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-top: 0.5rem;
+}
+
+.nova-badge {
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 3px solid var(--accent-color, #5ae4ff);
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  flex: 1 1 200px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.system-pulse {
+  background: rgba(255, 255, 255, 0.02);
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  border-top: 1px solid rgba(90, 228, 255, 0.05);
+  border-bottom: 1px solid rgba(90, 228, 255, 0.05);
+  backdrop-filter: blur(2px);
+}
+
+.pulse-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.pulse-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: #c8f0ff;
+  text-shadow: 0 0 4px rgba(90, 228, 255, 0.3);
+}
+
+.pulse-item i {
+  color: #5ae4ff;
+  font-size: 1rem;
+}
