@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-04-12T02:33:58.299Z",
+  "updated": "2025-04-12T03:04:02.388Z",
   "root": [
     {
       "type": "folder",
@@ -14,6 +14,11 @@
           "children": []
         }
       ]
+    },
+    {
+      "type": "page",
+      "name": "404.html",
+      "path": "404.html"
     },
     {
       "type": "page",
@@ -257,8 +262,58 @@
       "children": [
         {
           "type": "page",
+          "name": "accessibility-demo.html",
+          "path": "tools/accessibility-demo.html"
+        },
+        {
+          "type": "page",
+          "name": "animation-demo.html",
+          "path": "tools/animation-demo.html"
+        },
+        {
+          "type": "page",
+          "name": "color-demo.html",
+          "path": "tools/color-demo.html"
+        },
+        {
+          "type": "page",
+          "name": "components-demo.html",
+          "path": "tools/components-demo.html"
+        },
+        {
+          "type": "page",
+          "name": "form-demo.html",
+          "path": "tools/form-demo.html"
+        },
+        {
+          "type": "page",
+          "name": "glitch-art-demo.html",
+          "path": "tools/glitch-art-demo.html"
+        },
+        {
+          "type": "page",
+          "name": "grid-demo.html",
+          "path": "tools/grid-demo.html"
+        },
+        {
+          "type": "page",
+          "name": "icon-demo.html",
+          "path": "tools/icon-demo.html"
+        },
+        {
+          "type": "page",
           "name": "index.html",
           "path": "tools/index.html"
+        },
+        {
+          "type": "page",
+          "name": "scripts-demo.html",
+          "path": "tools/scripts-demo.html"
+        },
+        {
+          "type": "page",
+          "name": "typography-demo.html",
+          "path": "tools/typography-demo.html"
         }
       ]
     },
