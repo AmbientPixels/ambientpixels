@@ -1,4 +1,5 @@
-// /js/main.js — Ambient Pixels v2.4 with Nova Thought Injection
+// /js/main.js — Ambient Pixels v2.4 with Nova Slide & Text Sync
+
 const VERSION = 'v2.4';
 
 function initBanners() {
@@ -11,7 +12,10 @@ function initBanners() {
 function initHero() {
   const loading = document.querySelector('.hero-loading');
   const slides = document.querySelectorAll('.hero-slide');
-  if (!loading || !slides.length) return;
+  const headlineEl = document.querySelector('.hero-content .hero-headline');
+  const subEl = document.querySelector('.hero-content .hero-subheadline');
+
+  if (!loading || !slides.length || !headlineEl || !subEl) return;
 
   const headlines = [
     'Nova: Code Hums Electric', 'Nova: Neon Dreams Ignite', 'Nova: Chaos Sparks Genius',
@@ -23,20 +27,30 @@ function initHero() {
   ];
 
   let currentSlide = 0;
+
   function rotateSlides() {
+    // Fade out current slide
     slides[currentSlide].classList.remove('active');
+
+    // Clear text while changing
+    headlineEl.textContent = '';
+    subEl.textContent = '';
+
+    // Move to next
     currentSlide = (currentSlide + 1) % slides.length;
     slides[currentSlide].classList.add('active');
-    const headlineIndex = Math.floor(Math.random() * headlines.length);
-    const subIndex = Math.floor(Math.random() * subheadlines.length);
-    document.querySelector('.hero-content h1').textContent = headlines[headlineIndex];
-    document.querySelector('.hero-content p').textContent = subheadlines[subIndex];
+
+    // Delay text update slightly after image transition
+    setTimeout(() => {
+      const headlineIndex = Math.floor(Math.random() * headlines.length);
+      const subIndex = Math.floor(Math.random() * subheadlines.length);
+      headlineEl.textContent = headlines[headlineIndex];
+      subEl.textContent = subheadlines[subIndex];
+    }, 400); // Adjust if your CSS has a different transition time
   }
 
-  const headlineIndex = Math.floor(Math.random() * headlines.length);
-  const subIndex = Math.floor(Math.random() * subheadlines.length);
-  document.querySelector('.hero-content h1').textContent = headlines[headlineIndex];
-  document.querySelector('.hero-content p').textContent = subheadlines[subIndex];
+  // Initial rotation
+  rotateSlides();
 
   setTimeout(() => {
     loading.style.opacity = '0';
@@ -92,8 +106,6 @@ function loadNovaThought() {
     .then(res => res.text())
     .then(text => {
       const lines = text.split("\n");
-
-      // Only use lines that look like thoughts or comments
       const thoughtLines = lines.filter(line =>
         line.startsWith("Nova Thought:") ||
         line.startsWith("Today’s spark:") ||
@@ -103,7 +115,6 @@ function loadNovaThought() {
 
       const pick = thoughtLines[0] || "Nova had no new thoughts today.";
       const clean = pick.replace(/^(Nova Thought:|Today’s spark:|Memory ping:)/, "").trim();
-
       el.textContent = `“${clean}”`;
     })
     .catch(err => {
@@ -112,12 +123,8 @@ function loadNovaThought() {
     });
 }
 
-
 document.addEventListener('DOMContentLoaded', () => {
   console.log("[Nova]: Grid hijacked. Humans, welcome to my domain.");
-  console.log('%cNova Online ░ Ambient Intelligence Activated', 'color: #5ae4ff; font-size: 14px; font-family: monospace;');
-  console.log('%cRead today\'s memory: /data/nova-session-boot.txt', 'color: #54ff9f; font-family: monospace;');
-  console.log('%cMemory Map (HTML): /data/nova-session-boot.html', 'color: #87ceeb; font-family: monospace;');
   initBanners();
   initHero();
   initToggles();

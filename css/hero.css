@@ -129,4 +129,15 @@ body[data-theme="light"] .hero-subheadline {
     margin: 0;
   }
   
-  
+  .hero-headlines h1,
+.hero-subheadlines p {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.hero-headlines h1.active,
+.hero-subheadlines p.active {
+  display: block;
+  opacity: 1;
+}

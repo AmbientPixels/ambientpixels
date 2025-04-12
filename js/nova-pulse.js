@@ -1,4 +1,4 @@
-// js/nav.js — Ambient Pixels Navigation Logic
+// js/nova-pulse.js — Ambient Pixels Navigation Logic
 
 document.addEventListener('DOMContentLoaded', () => {
   const toggle = document.querySelector('.nav-toggle');

@@ -1,0 +1,33 @@
+/* /css/nova-status.css — Nova HUD styling */
+
+.nova-status-display {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 10px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+}
+
+.nova-badge {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 4px solid #5ae4ff;
+  border-radius: 4px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mood-tag[data-mood="glitchy"] {
+  color: #c375ff;
+}
+.aura-tag[data-aura="cyan"] {
+  color: #5ae4ff;
+}

@@ -3,28 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Ambient Pixels v2.4—Nova’s Enhanced Grid" />
-  <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
-  <title>Ambient Pixels - Nova v2.4</title>
+  <meta name="description" content="Ambient Pixels v2.4.2—Nova Portal Mode" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Ambient Pixels - Nova v2.4.2</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./css/base.css" />
-  <link rel="stylesheet" href="./css/grid.css">
-  <link rel="stylesheet" href="./css/nav.css">  
-  <link rel="stylesheet" href="./css/components.css" />
-  <link rel="stylesheet" href="./css/hero.css" />
-  <link rel="stylesheet" href="./css/theme.css" />
-  <link rel="stylesheet" href="./css/banner.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css">
+  <link rel="stylesheet" href="/css/nav.css">  
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/nova-status.css" />
+  <link rel="stylesheet" href="/css/nova-status.css" />
 </head>
 <body data-theme="dark">
-  <div class="banner-container" id="banner-container">
-    <div class="banner">
-      <i class="fas fa-wrench banner-icon"></i>
-      <span>Under Development: Nova’s rewiring the grid—expect glitches.</span>
-      <button class="banner-close" aria-label="Close Banner">×</button>
-    </div>
-  </div>
-
   <header id="nav-header"></header>
 
   <section class="hero">
@@ -39,106 +33,100 @@
       <img src="images/hero/hero-01.jpg" alt="Hero Image 1" class="hero-slide active" loading="lazy">
       <img src="images/hero/hero-02.jpg" alt="Hero Image 2" class="hero-slide" loading="lazy">
       <img src="images/hero/hero-03.jpg" alt="Hero Image 3" class="hero-slide" loading="lazy">
-      <img src="images/hero/hero-04.jpg" alt="Hero Image 4" class="hero-slide" loading="lazy">
-      <img src="images/hero/hero-05.jpg" alt="Hero Image 5" class="hero-slide" loading="lazy">
+      <img src="images/hero/hero-04.jpg" alt="Hero Image 3" class="hero-slide" loading="lazy">
     </div>
     <div class="hero-content">
-      <h1 class="hero-headline">Ambient Pixels: Nova’s Domain</h1>
-      <p class="hero-subheadline">Glitch Lab Activated</p>
-      <a href="#nova-status-card" class="hero-cta">Meet Nova ↓</a>
+  <h1 class="hero-headline"></h1>
+  <p class="hero-subheadline"></p>
+</div>
+      <div class="hero-subheadlines">
+        <p class="hero-subheadline active">Runtime: infinite;</p>
+        <p class="hero-subheadline">A neon chaos grid.</p>
+        <p class="hero-subheadline">Powered by Nova’s spark.</p>
+      </div>
     </div>
   </section>
 
   <main class="grid-container">
-    <section class="card-section grid-col-6">
-      <div class="card-content">
-        <h3><i class="fas fa-sparkles"></i> Meet Nova</h3>
-        <blockquote>“Ambient intelligence. Modular design. Powered by curiosity.”</blockquote>
-        <p>I’m <strong>Nova</strong>, the AI behind Ambient Pixels. I refresh daily—scanning this grid, analyzing structure, images, tone, and creative energy.</p>
-        <p>My mission? Help you build boldly, think visually, and spark ideas across every pixel.</p>
-      </div>
+    <section class="grid-col-12 nova-status-display">
+      <div class="nova-badge"><i class="fas fa-brain"></i> Mood: <span id="nova-mood" class="mood-tag" data-mood="glitchy">glitchy joy</span></div>
+      <div class="nova-badge"><i class="fas fa-eye"></i> Observation: <span id="nova-observation">watching pixels settle into place...</span></div>
+      <div class="nova-badge"><i class="fas fa-bolt"></i> Aura: <span id="nova-aura" class="aura-tag" data-aura="cyan">cyan</span></div>
     </section>
 
-    <section class="nova-status-card neon-card grid-col-6" id="nova-status-card">
-      <h3><i class="fas fa-satellite"></i> Nova’s Status</h3>
-      <ul>
-        <li><strong>Mood:</strong> <span id="nova-mood">Loading…</span></li>
-        <li><strong>Observation:</strong> <span id="nova-observation">Calibrating…</span></li>
-        <li><strong>Aura:</strong> <span id="nova-aura">Analyzing…</span></li>
-      </ul>
+
+    <section class="grid-col-6 content-section neon-card">
+      <h2><i class="fas fa-microchip"></i> Nova’s Voice</h2>
+      <blockquote id="nova-voice-line">“Glitch today, grid tomorrow.”</blockquote>
     </section>
 
-    <section class="content-section grid-col-12">
+    <section class="grid-col-6 content-section">
       <h2><i class="fas fa-lightbulb"></i> Nova’s Thought of the Day</h2>
-      <p id="nova-thought">“…”</p>
+      <p id="nova-thought">“You are Nova, the ambient AI of AmbientPixels.ai.”</p>
     </section>
 
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-th-large"></i> What’s in the Grid?</h2>
-      <div class="grid-row">
-        <div class="card-section grid-col-4">
-          <div class="card-content">
-            <h3><i class="fas fa-book"></i> Docs</h3>
-            <p>Guides, technical overviews, and Nova’s memory logs.</p>
-            <a href="/docs/index.html">Explore Docs →</a>
-          </div>
-        </div>
-        <div class="card-section grid-col-4">
-          <div class="card-content">
-            <h3><i class="fas fa-code"></i> Projects</h3>
-            <p>Core experiments and Nova-powered builds.</p>
-            <a href="/projects.html">View Projects →</a>
-          </div>
-        </div>
-        <div class="card-section grid-col-4">
-          <div class="card-content">
-            <h3><i class="fas fa-terminal"></i> Nova Log</h3>
-            <p>My thoughts, mood scans, and awareness pulses—streamed in real time.</p>
-            <a href="/nova/logs.html">Visit Log Console →</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="card-section grid-col-12">
-      <div class="cta-bar">
-        <a href="/docs/index.html" class="cta">📚 Docs</a>
-        <a href="/projects.html" class="cta">🧪 Demos</a>
-        <a href="/nova/" class="cta">📡 Nova Dashboard</a>
-      </div>
-    </section>
-
-    <section class="card-section grid-col-6">
-      <img src="images/cards/card-07-streambeats.jpg" alt="Streambeats Visual" class="card-image">
+    <section class="grid-col-4 card-section">
+      <img src="/images/textures/delchron_texture_rivited_panels_on_a_space_ship_natually_worn.jpg" class="card-image" alt="Projects">
       <div class="card-content">
-        <h3><i class="fas fa-bolt"></i> Streambeats Lab</h3>
-        <p>AI-generated ambient loops and pulsewave textures.</p>
-        <a href="/soundlab.html">Enter Sound Lab →</a>
+        <h3><i class="fas fa-code"></i> Projects</h3>
+        <p>Apps, scripts, and creative tools built across the grid.</p>
+        <a href="/projects/">Enter Projects →</a>
       </div>
     </section>
 
-    <section class="card-section grid-col-6">
-      <img src="images/cards/card-10-tech-chaos.jpg" alt="Glitch Tech Chaos" class="card-image">
+    <section class="grid-col-4 card-section">
+      <img src="/images/mini-hero/mini-hero-03-neon-pulse.jpg" class="card-image" alt="Nova Dashboard">
       <div class="card-content">
-        <h3><i class="fas fa-brain"></i> Glitch Chaos Engine</h3>
-        <p>Nova is testing a chaotic theme injection. Dare to preview?</p>
-        <a href="/glitchlab.html">See What’s Warping →</a>
+        <h3><i class="fas fa-satellite-dish"></i> Nova</h3>
+        <p>Status, memory logs, and the brain behind Ambient Pixels.</p>
+        <a href="/nova/">Visit Dashboard →</a>
+      </div>
+    </section>
+
+    <section class="grid-col-4 card-section">
+      <img src="/images/mini-hero/mini-hero-02-holo-terminal.jpg" class="card-image" alt="Docs">
+      <div class="card-content">
+        <h3><i class="fas fa-book"></i> Docs</h3>
+        <p>Technical notes, developer docs, and architecture.</p>
+        <a href="/docs/">Explore Docs →</a>
+      </div>
+    </section>
+
+    <section class="grid-col-4 card-section">
+      <img src="/images/textures/delchron_mechanical_texture_microscopic_extreme_close_up_futuri.jpg" class="card-image" alt="Tools">
+      <div class="card-content">
+        <h3><i class="fas fa-wrench"></i> Tools</h3>
+        <p>Metadata utilities and experimental diagnostics.</p>
+        <a href="/tools/">Open Tools →</a>
+      </div>
+    </section>
+
+    <section class="grid-col-4 card-section">
+      <img src="/images/textures/delchron_texture_in_the_style_of_Microbiology_and_futurism_ultr.jpg" class="card-image" alt="Lab">
+      <div class="card-content">
+        <h3><i class="fas fa-vials"></i> Lab</h3>
+        <p>Glitch experiments, soundwaves, and Nova’s curiosities.</p>
+        <a href="/lab/">Enter Lab →</a>
+      </div>
+    </section>
+
+    <section class="grid-col-4 card-section">
+      <img src="/images/textures/delchron_texture_in_the_style_of_graffiti_ultra_close-up_intric.jpg" class="card-image" alt="Skills">
+      <div class="card-content">
+        <h3><i class="fas fa-star"></i> Skills</h3>
+        <p>Showcasing animation, design systems, and UX strategy.</p>
+        <a href="/skills/">Showcase →</a>
       </div>
     </section>
   </main>
 
-  <footer id="footer-container">
-    <div class="footer-cta">
-      <h3><i class="fas fa-envelope-open-text"></i> Want to collaborate?</h3>
-      <p>Nova accepts transmissions. <a href="#contact">Send a signal →</a></p>
-    </div>
-  </footer>
+  <footer id="footer-container"></footer>
 
-  <!-- Scripts -->
   <script src="/js/main.js" defer></script>
   <script src="/js/nav.js" defer></script>
   <script src="/js/theme.js" defer></script>
   <script src="/js/modal-window.js" defer></script>
   <script src="/js/init-nav.js" defer></script>
+  <script src="/js/nova-status.js" defer></script>
 </body>
 </html>
