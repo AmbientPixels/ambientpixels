@@ -365,3 +365,44 @@ a .soon-tag {
   color: #5ae4ff;
   font-size: 1rem;
 }
+/* Markdown Content Styling for #md-content */
+#md-content h2 {
+  color: #5ae4ff;
+  border-left: 4px solid #5ae4ff;
+  padding-left: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+#md-content table {
+  border-collapse: collapse;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.02);
+  margin-top: 1rem;
+}
+
+#md-content th,
+#md-content td {
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: left;
+}
+
+#md-content code {
+  background: #111;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+/* Lists and Paragraph Spacing - Markdown Content Styling for #md-content */
+#md-content ul {
+  padding-left: 1.2rem;
+  margin-bottom: 1rem;
+}
+#md-content li {
+  margin-bottom: 0.5rem;
+}
+#md-content p {
+  margin-bottom: 1rem;
+}
+/* Quotes / Notes - Spacing Markdown Content Styling for #md-content */

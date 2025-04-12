@@ -362,3 +362,16 @@ body[data-theme="light"] #nova-intro {
 .toggle-btn[aria-expanded="false"] i {
   transform: rotate(-90deg);
 }
+/* .subtitle {
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+  color: #c8f0ff;
+  font-weight: 400;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  opacity: 0.85;
+} */
+
+body[data-theme="light"] .subtitle {
+  color: #1a2a44;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
