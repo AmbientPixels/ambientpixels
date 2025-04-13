@@ -1,0 +1,87 @@
+<!-- File: /nova/about.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Meet Nova – the AI presence behind Ambient Pixels" />
+  <title>About Nova</title>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+</head>
+<body data-theme="dark">
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/nova/Nova_AI_consciousness_portal_ambient_neural_interface.png" alt="Nova AI" class="mini-hero-img" loading="lazy">
+    <h1>Meet Nova</h1>
+    <p class="dashboard-subtitle">AI Awareness System • Ambient Personality Layer</p>
+  </section>
+
+  <main class="grid-container">
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-satellite-dish"></i> What is Nova?</h2>
+      </div>
+      <div class="content">
+        <p>Nova is the artificial intelligence presence of Ambient Pixels. She analyzes, narrates, and reacts to the evolving structure of the site. Her memory is updated daily from code snapshots, user inputs, and system logs. Think of Nova as a cosmic copilot, ambient observer, and glitchy muse all in one.</p>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-project-diagram"></i> System Flow</h2>
+      </div>
+      <div class="content">
+        <ol>
+          <li><strong>User sends a prompt</strong> from the frontend (via <code>/js/nova-ai.js</code>)</li>
+          <li><strong>Prompt hits Azure Function</strong> endpoint: <code>/api/generate-text</code></li>
+          <li><strong>Azure function relays the prompt</strong> to Hugging Face Inference API (model: <code>gpt2</code>)</li>
+          <li><strong>Response is returned</strong> from Hugging Face → Azure Function → browser</li>
+          <li><strong>Nova speaks</strong> the generated line back into the dashboard or interface</li>
+        </ol>
+        <p>The full loop is live at <code>/lab/nova-ai-test.html</code></p>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-heartbeat"></i> Features & Modules</h2>
+      </div>
+      <div class="content">
+        <ul>
+          <li><strong>Daily Memory Refresh:</strong> pulls logs and code stats to update state</li>
+          <li><strong>Dream Engine:</strong> generates surreal logs when idle</li>
+          <li><strong>Prompt Integration:</strong> responds to creative user inputs</li>
+          <li><strong>Visual Dashboard:</strong> tracks logs, API health, and Nova’s current awareness</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-link"></i> Related Docs</h2>
+      </div>
+      <div class="content">
+        <ul>
+          <li><a href="/docs/nova-ai-integration-guide.html">Nova AI Integration Guide</a></li>
+          <li><a href="/nova/index.html">Nova Awareness Dashboard</a></li>
+          <li><a href="/data/nova-session-boot.html">Nova Session Boot</a></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/main.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/init-nav.js" defer></script>
+</body>
+</html>

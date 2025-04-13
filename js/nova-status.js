@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('/data/version.json').then(res => res.json())
   ])
     .then(([moodData, versionData]) => {
-      // Mood + Aura + Observation
       if (syncTimeEl && versionData.updated) {
         const time = new Date(versionData.updated);
         syncTimeEl.textContent = `${time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} on ${time.toLocaleDateString()}`;
@@ -58,18 +57,37 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
   // Nova Speaks — quote of the moment
-  const quoteEl = document.getElementById('nova-voice-line');
-  if (quoteEl) {
-    fetch('/data/nova-quotes.json')
-      .then(res => res.json())
-      .then(quotes => {
-        if (quotes && quotes.length > 0) {
-          const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-          quoteEl.textContent = `“${randomQuote}”`;
-        }
-      })
-      .catch(err => {
-        console.warn('[Nova] Could not load quotes.', err);
-      });
-  }
+  const waitForQuote = setInterval(() => {
+    const quoteEl = document.getElementById('nova-quote');
+    if (quoteEl) {
+      clearInterval(waitForQuote);
+      fetch('/data/mood-scan.json')
+        .then(res => res.json())
+        .then(data => {
+          quoteEl.textContent = `💭 "${data.quote || 'No spark today.'}"`;
+        })
+        .catch(err => {
+          quoteEl.textContent = '💭 "Nova is silent."';
+          console.warn('[Nova] Quote load failed:', err);
+        });
+    }
+  }, 100);
+
+  // Nova Module Count
+  const waitForModules = setInterval(() => {
+    const countEl = document.getElementById('nova-module-count');
+    if (countEl) {
+      clearInterval(waitForModules);
+      fetch('/data/site-structure.json')
+        .then(res => res.json())
+        .then(data => {
+          const count = Object.keys(data).length;
+          countEl.textContent = count;
+        })
+        .catch(err => {
+          countEl.textContent = '??';
+          console.warn('[Nova] Module count failed:', err);
+        });
+    }
+  }, 100);
 });
