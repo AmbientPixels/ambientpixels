@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-04-13T16:52:43.253Z",
+  "updated": "2025-04-13T20:31:12.943Z",
   "root": [
     {
       "type": "folder",
@@ -34,6 +34,25 @@
           "type": "page",
           "name": "index.html",
           "path": "about/index.html"
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": "ambientpixels-meme-api-fn",
+      "path": "ambientpixels-meme-api-fn",
+      "children": [
+        {
+          "type": "folder",
+          "name": ".vscode",
+          "path": "ambientpixels-meme-api-fn/.vscode",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "generate-text",
+          "path": "ambientpixels-meme-api-fn/generate-text",
+          "children": []
         }
       ]
     },
@@ -122,6 +141,11 @@
           "type": "page",
           "name": "index.html",
           "path": "lab/index.html"
+        },
+        {
+          "type": "page",
+          "name": "nova-ai-test.html",
+          "path": "lab/nova-ai-test.html"
         }
       ]
     },
@@ -149,6 +173,11 @@
           "type": "page",
           "name": "header.html",
           "path": "modules/header.html"
+        },
+        {
+          "type": "page",
+          "name": "nova-pulse.html",
+          "path": "modules/nova-pulse.html"
         },
         {
           "type": "page",

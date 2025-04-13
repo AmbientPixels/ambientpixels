@@ -1,9 +1,9 @@
 {
-  "timestamp": "2025-04-13T16:52:46.408Z",
+  "timestamp": "2025-04-13T20:31:15.997Z",
   "summary": {
-    "totalJS": 214,
+    "totalJS": 217,
     "totalCSS": 18,
-    "totalHTML": 59
+    "totalHTML": 63
   },
   "functions": [
     "ROTL",
@@ -60,6 +60,7 @@
     "extractFunctionsFromFile",
     "extractHTMLTags",
     "f",
+    "fetch",
     "fetchFail",
     "fillTemplate",
     "filter",
@@ -71,6 +72,7 @@
     "generateMoodScan",
     "generateNovaDream",
     "generateNovaInsight",
+    "generateNovaText",
     "generatePrompt",
     "generateUUID",
     "get",
@@ -96,6 +98,7 @@
     "initBanners",
     "initFooter",
     "initHero",
+    "initNovaStatus",
     "initToggles",
     "initVersion",
     "injectDreamLog",
