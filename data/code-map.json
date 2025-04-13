@@ -1,9 +1,9 @@
 {
-  "timestamp": "2025-04-13T01:58:14.678Z",
+  "timestamp": "2025-04-13T06:13:09.545Z",
   "summary": {
-    "totalJS": 208,
+    "totalJS": 210,
     "totalCSS": 18,
-    "totalHTML": 48
+    "totalHTML": 58
   },
   "functions": [
     "ROTL",
@@ -63,6 +63,7 @@
     "fetchFail",
     "fillTemplate",
     "filter",
+    "filterByTag",
     "findPackageJson",
     "foregroundChild",
     "fromEnvVal",
@@ -190,6 +191,9 @@
     "regexpEscape",
     "renderCodeFootprintChart",
     "renderList",
+    "renderProgress",
+    "renderProjects",
+    "renderStatusLED",
     "reset",
     "resolveCommand",
     "resolveCommandAttempt",
@@ -287,6 +291,7 @@
     "2s",
     "3",
     "33",
+    "3rem",
     "3s",
     "4",
     "4em",
@@ -297,6 +302,7 @@
     "5s",
     "6",
     "67",
+    "6rem",
     "7",
     "75rem",
     "8",
@@ -324,6 +330,9 @@
     "content-section",
     "css",
     "fail",
+    "filter-label",
+    "filter-pill",
+    "filter-toggle-group",
     "footer",
     "footer-social",
     "form-status",
