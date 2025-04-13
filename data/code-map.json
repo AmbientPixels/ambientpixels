@@ -1,9 +1,9 @@
 {
-  "timestamp": "2025-04-13T06:13:09.545Z",
+  "timestamp": "2025-04-13T16:52:46.408Z",
   "summary": {
-    "totalJS": 210,
+    "totalJS": 214,
     "totalCSS": 18,
-    "totalHTML": 58
+    "totalHTML": 59
   },
   "functions": [
     "ROTL",
@@ -69,6 +69,8 @@
     "fromEnvVal",
     "fsFromOption",
     "generateMoodScan",
+    "generateNovaDream",
+    "generateNovaInsight",
     "generatePrompt",
     "generateUUID",
     "get",
@@ -96,6 +98,7 @@
     "initHero",
     "initToggles",
     "initVersion",
+    "injectDreamLog",
     "injectMarkdown",
     "isArrayBufferLike",
     "isArrayBufferView",
@@ -303,6 +306,7 @@
     "6",
     "67",
     "6rem",
+    "6s",
     "7",
     "75rem",
     "8",
@@ -381,6 +385,7 @@
     "nav-toggle",
     "nav-utility",
     "neon-card",
+    "nova-alert",
     "nova-badge",
     "nova-badge-group",
     "nova-dashboard",
@@ -390,7 +395,11 @@
     "nova-quip",
     "nova-status-display",
     "nova-sync-time",
+    "nova-thought",
+    "nova-voice",
     "ok",
+    "progress-bar",
+    "progress-fill",
     "pulse-item",
     "pulse-wrap",
     "recent-updates",
