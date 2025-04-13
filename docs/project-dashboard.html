@@ -1,0 +1,60 @@
+<!-- File: /docs/project-dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ambient Pixels Project Tracker Dashboard" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Project Tracker Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+</head>
+<body data-theme="dark">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-folder-open banner-icon"></i>
+      <span>Project Tracker Dashboard — Powered by Nova.</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
+
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/mini-hero/mini-hero-02-holo-terminal.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
+    <h1>Project Tracker Dashboard</h1>
+    <p class="nova-quip">Monitoring all systems... surfacing insights from the grid.</p>
+  </section>
+
+  <main class="grid-container">
+    <section class="content-section grid-col-12">
+      <h2 class="section-title"><i class="fas fa-layer-group"></i> All Active & In-Progress Projects</h2>
+      <div id="project-filters" class="filter-toggle-group">
+        <button class="filter-pill" data-filter="video">Video</button>
+        <button class="filter-pill" data-filter="tool">Tool</button>
+        <button class="filter-pill" data-filter="dashboard">Dashboard</button>
+        <button class="filter-pill" data-filter="ai">AI</button>
+        <button class="filter-pill" data-filter="concept">Concept</button>
+      </div>
+      <div id="project-list" class="grid-row"></div>
+    </section>
+  </main>
+
+  <footer id="footer-container"></footer>
+
+  <script src="/js/main.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/theme.js"></script>
+  <script src="/js/modal-window.js"></script>
+  <script src="/js/init-nav.js" defer></script>
+  <script src="/js/project-dashboard.js" defer></script>
+</body>
+</html>

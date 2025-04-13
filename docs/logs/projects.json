@@ -1,0 +1,93 @@
+[
+    {
+      "id": "meme-maker",
+      "title": "Nova's Meme Maker",
+      "html": "/docs/logs/meme-maker.html",
+      "md": "/docs/logs/meme-maker.md",
+      "status": "Active",
+      "lastUpdated": "2025-04-12",
+      "tags": ["AI", "fun", "image generation"]
+    },
+    {
+      "id": "metalab",
+      "title": "MetaLab Studio",
+      "html": "/docs/logs/metalab.html",
+      "md": "/docs/logs/metalab.md",
+      "status": "In Progress",
+      "lastUpdated": "2025-04-10",
+      "tags": ["tools", "json", "xml", "validation"]
+    },
+    {
+      "id": "nova-dashboard",
+      "title": "Nova Awareness Dashboard",
+      "html": "/docs/logs/nova-dashboard.html",
+      "md": "/docs/logs/nova-dashboard.md",
+      "status": "Active",
+      "lastUpdated": "2025-04-11",
+      "tags": ["AI", "dashboard", "system awareness"]
+    },
+    {
+      "id": "site-grid",
+      "title": "Ambient Pixels Site Grid",
+      "html": "/docs/logs/site-grid.html",
+      "md": "/docs/logs/site-grid.md",
+      "status": "In Progress",
+      "lastUpdated": "2025-04-09",
+      "tags": ["layout", "css", "theme"]
+    },
+    {
+      "id": "nova-memory",
+      "title": "Nova Memory System",
+      "html": "/docs/logs/nova-memory.html",
+      "md": "/docs/logs/nova-memory.md",
+      "status": "Active",
+      "lastUpdated": "2025-04-12",
+      "tags": ["AI", "github actions", "memory", "logs"]
+    },
+    {
+      "id": "hal-video",
+      "title": "HAL – Partner Center Intro",
+      "html": "/docs/logs/hal-video.html",
+      "md": "/docs/logs/hal-video.md",
+      "status": "Embargoed",
+      "lastUpdated": "2025-04-12",
+      "tags": ["video", "ID@Xbox", "dark mode"]
+    },
+    {
+      "id": "nova-sensory-upgrade",
+      "title": "Nova Sensory & Sentience Upgrades",
+      "html": "/docs/logs/nova-sensory-upgrade.html",
+      "md": "/docs/logs/nova-sensory-upgrade.md",
+      "status": "Planned",
+      "lastUpdated": "2025-04-12",
+      "tags": ["AI", "concept", "future"]
+    },
+    {
+      "id": "glitch-chaos-engine",
+      "title": "Glitch Chaos Engine",
+      "html": "/docs/logs/glitch-chaos-engine.html",
+      "md": "/docs/logs/glitch-chaos-engine.md",
+      "status": "Planned",
+      "lastUpdated": "2025-04-08",
+      "tags": ["tools", "experimental"]
+    },
+    {
+      "id": "streambeats-lab",
+      "title": "Streambeats Lab",
+      "html": "/docs/logs/streambeats-lab.html",
+      "md": "/docs/logs/streambeats-lab.md",
+      "status": "Paused",
+      "lastUpdated": "2025-04-06",
+      "tags": ["audio", "sfx", "video"]
+    },
+    {
+      "id": "cartoonizer",
+      "title": "Photo Cartoonizer (Drag & Drop)",
+      "html": "/docs/logs/cartoonizer.html",
+      "md": "/docs/logs/cartoonizer.md",
+      "status": "Idea",
+      "lastUpdated": "2025-04-12",
+      "tags": ["AI", "image", "cartoon", "tool"]
+    }
+  ]
+  

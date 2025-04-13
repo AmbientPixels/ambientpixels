@@ -1,0 +1,142 @@
+<!-- File: /docs/logs/project-tracker-guide.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ambient Pixels Project Tracker System Documentation" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Project Tracker System Guide</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+</head>
+<body data-theme="dark">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-wrench banner-icon"></i>
+      <span>Documentation Mode — Drafted with Nova.</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
+
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/mini-hero/mini-hero-02-holo-terminal.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
+    <h1>Project Tracker System Guide</h1>
+  </section>
+
+  <main class="grid-container">
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-cogs"></i> System Overview</h2>
+        <button class="toggle-btn icon-only" aria-expanded="true"><i class="fas fa-chevron-down"></i></button>
+      </div>
+      <div class="content">
+        <p>The Project Tracker Dashboard is a dynamic, filterable view powered by a central <code>projects.json</code> file, markdown logs, and a live dashboard UI.</p>
+        <ul>
+          <li><code>/docs/logs/projects.json</code> — Master index</li>
+          <li><code>/docs/logs/[project-name].md</code> — Markdown logs</li>
+          <li><code>/docs/project-dashboard.html</code> — Dashboard interface</li>
+          <li><code>/js/project-dashboard.js</code> — Loader/renderer script</li>
+          <li><code>/css/components.css</code> — Style system</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-plus-circle"></i> How to Add a Project</h2>
+        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+      </div>
+      <div class="content" style="display: none;">
+        <ol>
+          <li>Create a log in <code>/docs/logs/[project].md</code></li>
+          <li>Convert to HTML (optional)</li>
+          <li>Add to <code>projects.json</code></li>
+          <li>Reload the dashboard to verify</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-database"></i> JSON Entry Format</h2>
+        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+      </div>
+      <div class="content" style="display: none;">
+        <pre><code>{
+  "title": "Nova Memory Dashboard",
+  "html": "/docs/logs/nova-memory-dashboard.html",
+  "tags": ["AI", "dashboard"],
+  "status": "Active",
+  "progress": 0.85,
+  "lastUpdated": "2025-04-11",
+  "latestLog": "Launched full Nova dashboard with modular awareness system."
+}</code></pre>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-brush"></i> Styling & Behavior</h2>
+        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+      </div>
+      <div class="content" style="display: none;">
+        <ul>
+          <li>Uses <code>.filter-pill</code> for interactive filters</li>
+          <li>Grid layout via <code>.grid-row</code></li>
+          <li>Progress bar only appears if defined</li>
+          <li>Status LEDs via emoji markers</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-tools"></i> Maintenance Tips</h2>
+        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+      </div>
+      <div class="content" style="display: none;">
+        <ul>
+          <li>Use ISO dates <code>YYYY-MM-DD</code></li>
+          <li>Keep tags consistent (no casing mismatches)</li>
+          <li>Keep logs synced (MD & HTML)</li>
+          <li>Short and clear <code>latestLog</code> notes</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-lightbulb"></i> Future Ideas</h2>
+        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+      </div>
+      <div class="content" style="display: none;">
+        <ul>
+          <li>Sidebar filter layout</li>
+          <li>Search by title/log content</li>
+          <li>Status tabs (Active, Paused, etc.)</li>
+          <li>Animated progress/status</li>
+        </ul>
+        <p class="nova-sync-time">Last synced by Nova: <code>2025-04-12</code></p>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/main.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/theme.js"></script>
+  <script src="/js/modal-window.js"></script>
+  <script src="/js/init-nav.js" defer></script>
+</body>
+</html>
