@@ -30,6 +30,7 @@ fetch('/docs/logs/projects.json')
     function renderProjects(data) {
       list.innerHTML = '';
       data.forEach(project => {
+        const insight = generateNovaInsight(project); // Inject Nova insight 🧠
         const card = document.createElement('section');
         card.className = 'grid-col-4 card-section';
         card.innerHTML = `
@@ -43,7 +44,7 @@ fetch('/docs/logs/projects.json')
             <div class="nova-badge-group">
               ${(project.tags || []).map(tag => `<span class="nova-badge">${tag}</span>`).join('')}
             </div>
-            <p class="nova-quip">${project.latestLog || '“No recent update.”'}</p>
+            <p class="nova-quip">${insight}</p>
             <a href="${project.html}" class="btn-link">View Log →</a>
           </div>
         `;
@@ -68,7 +69,7 @@ fetch('/docs/logs/projects.json')
       const pct = Math.round(progress * 100);
       return `
         <div class="progress-bar">
-          <div class="progress-fill" style="width:${pct}%;"></div>
+          <div class="progress-fill" style="width:${pct}%"></div>
         </div>
       `;
     }

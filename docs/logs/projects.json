@@ -6,7 +6,8 @@
       "md": "/docs/logs/project-memetron.md",
       "status": "Active",
       "lastUpdated": "2025-04-12",
-      "tags": ["AI", "fun", "image generation"]
+      "tags": ["AI", "fun", "image generation"],
+      "progress": 0.85
     },
     {
       "id": "metalab",
@@ -15,7 +16,8 @@
       "md": "/docs/logs/metalab.md",
       "status": "In Progress",
       "lastUpdated": "2025-04-10",
-      "tags": ["tools", "json", "xml", "validation"]
+      "tags": ["tools", "json", "xml", "validation"],
+      "progress": 0.6
     },
     {
       "id": "nova-dashboard",
@@ -24,7 +26,8 @@
       "md": "/docs/logs/nova-dashboard.md",
       "status": "Active",
       "lastUpdated": "2025-04-11",
-      "tags": ["AI", "dashboard", "system awareness"]
+      "tags": ["AI", "dashboard", "system awareness"],
+      "progress": 0.95
     },
     {
       "id": "site-grid",
@@ -33,7 +36,8 @@
       "md": "/docs/logs/template.md",
       "status": "In Progress",
       "lastUpdated": "2025-04-09",
-      "tags": ["layout", "css", "theme"]
+      "tags": ["layout", "css", "theme"],
+      "progress": 0.45
     },
     {
       "id": "nova-memory",
@@ -42,7 +46,8 @@
       "md": "/docs/logs/nova-build-core.md",
       "status": "Active",
       "lastUpdated": "2025-04-12",
-      "tags": ["AI", "github actions", "memory", "logs"]
+      "tags": ["AI", "github actions", "memory", "logs"],
+      "progress": 1.0
     },
     {
       "id": "hal-video",
@@ -51,7 +56,8 @@
       "md": "/docs/logs/hal-project-log.md",
       "status": "Embargoed",
       "lastUpdated": "2025-04-12",
-      "tags": ["video", "ID@Xbox", "dark mode"]
+      "tags": ["video", "ID@Xbox", "dark mode"],
+      "progress": 0.60
     },
     {
       "id": "nova-sensory-upgrade",
@@ -60,7 +66,8 @@
       "md": "/docs/logs/template.md",
       "status": "Planned",
       "lastUpdated": "2025-04-12",
-      "tags": ["AI", "concept", "future"]
+      "tags": ["AI", "concept", "future"],
+      "progress": 0.15
     },
     {
       "id": "glitch-chaos-engine",
@@ -69,7 +76,8 @@
       "md": "/docs/logs/project-glitch-chaos-engine.md",
       "status": "Planned",
       "lastUpdated": "2025-04-12",
-      "tags": ["tools", "experimental"]
+      "tags": ["tools", "experimental"],
+      "progress": 0.1
     },
     {
       "id": "streambeats-lab",
@@ -78,7 +86,8 @@
       "md": "/docs/logs/project-streambeats-lab.md",
       "status": "Paused",
       "lastUpdated": "2025-04-06",
-      "tags": ["audio", "sfx", "video"]
+      "tags": ["audio", "sfx", "video"],
+      "progress": 0.35
     },
     {
       "id": "cartoonizer",
@@ -87,7 +96,8 @@
       "md": "/docs/logs/project-cartoonizer.md",
       "status": "Idea",
       "lastUpdated": "2025-04-12",
-      "tags": ["AI", "image", "cartoon", "tool"]
+      "tags": ["AI", "image", "cartoon", "tool"],
+      "progress": 0.05
     },
     {
       "id": "echogrid-renderer",
@@ -107,7 +117,8 @@
       "md": "/docs/logs/nova-build-core.md",
       "status": "Active",
       "lastUpdated": "2025-04-12",
-      "tags": ["AI", "memory", "system", "core"]
+      "tags": ["AI", "memory", "system", "core"],
+      "progress": 0.8
     },
     {
       "id": "nova-project-log",
@@ -116,6 +127,7 @@
       "md": "/docs/logs/nova-project-log.md",
       "status": "Active",
       "lastUpdated": "2025-04-12",
-      "tags": ["AI", "persona", "emergence"]
+      "tags": ["AI", "persona", "emergence"],
+      "progress": 0.9
     }
 ]

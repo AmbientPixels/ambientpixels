@@ -488,3 +488,93 @@ details summary::before {
   font-weight: 500;
   margin-bottom: 0.25rem;
 }
+
+/* Animated Progress Bar */
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0.5rem 0;
+  box-shadow: inset 0 0 4px rgba(90, 228, 255, 0.2);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #5ae4ff, #9bf00b);
+  transition: width 1s ease-in-out;
+  border-radius: 4px;
+  box-shadow: 0 0 4px rgba(90, 228, 255, 0.4);
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+/* Nova voice */
+}
+.nova-quip {
+  font-style: italic;
+  color: #b3eaff;
+  text-shadow: 0 0 5px #87cefa88;
+  animation: fadeIn 0.6s ease-in;
+  font-weight: 500;
+}
+
+.nova-voice {
+  background: rgba(18, 32, 42, 0.6);
+  border-left: 4px solid #9bf00b;
+  padding: 1rem;
+  font-style: italic;
+  color: #d6faff;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 10px #87cefa33;
+  animation: fadeIn 0.5s ease-in;
+  margin-top: 1rem;
+}
+.nova-voice {
+  font-weight: 500;
+  font-style: italic;
+  color: #9bf0ff;
+  text-shadow: 0 0 4px rgba(155, 240, 255, 0.3);
+}
+
+.nova-alert {
+  color: #ff7070;
+  font-weight: bold;
+  background: rgba(255, 112, 112, 0.05);
+  border-left: 3px solid #ff7070;
+  padding-left: 0.75rem;
+  margin: 1rem 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.nova-thought {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: #e0e0ff;
+  opacity: 0.8;
+  margin-left: 1rem;
+  border-left: 2px solid #87ceeb;
+  padding-left: 0.75rem;
+}
+.nova-quip::before {
+  content: "💬 ";
+}
+.nova-voice::before {
+  content: "🤖 ";
+}
+.nova-alert::before {
+  content: "⚠️ ";
+}
+.nova-thought::before {
+  content: "💭 ";
+}
