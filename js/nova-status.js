@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const obsDetailEl = document.getElementById('nova-observation-detail');
   const auraDetailEl = document.getElementById('nova-aura-detail');
   const versionDetailEl = document.getElementById('nova-version-detail');
+  const syncTimeEl = document.getElementById('nova-sync-time');
 
   // Homepage Elements
   const moodHomeEl = document.getElementById('nova-mood');
@@ -20,6 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
   ])
     .then(([moodData, versionData]) => {
       // Mood + Aura + Observation
+      if (syncTimeEl && versionData.updated) {
+        const time = new Date(versionData.updated);
+        syncTimeEl.textContent = `${time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} on ${time.toLocaleDateString()}`;
+      }
       if (moodDetailEl) moodDetailEl.textContent = moodData.mood;
       if (obsDetailEl) obsDetailEl.textContent = moodData.observation;
       if (auraDetailEl) auraDetailEl.textContent = moodData.aura;
