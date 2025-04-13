@@ -1,9 +1,9 @@
 {
-  "timestamp": "2025-04-12T16:31:13.516Z",
+  "timestamp": "2025-04-13T01:58:14.678Z",
   "summary": {
-    "totalJS": 206,
+    "totalJS": 208,
     "totalCSS": 18,
-    "totalHTML": 45
+    "totalHTML": 48
   },
   "functions": [
     "ROTL",
@@ -95,6 +95,7 @@
     "initHero",
     "initToggles",
     "initVersion",
+    "injectMarkdown",
     "isArrayBufferLike",
     "isArrayBufferView",
     "isConfigOption",
@@ -278,6 +279,7 @@
     "1",
     "15rem",
     "1em",
+    "1rem",
     "2",
     "25rem",
     "2em",
@@ -387,6 +389,7 @@
     "section-header",
     "social-links",
     "soon-tag",
+    "subtitle",
     "system-pulse",
     "toggle-btn",
     "unused",
