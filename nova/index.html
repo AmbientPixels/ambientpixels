@@ -36,7 +36,9 @@
     <section class="grid-col-6 content-section nova-panel">
       <h2><i class="fas fa-wave-square"></i> Current State</h2>
       <ul>
-        <li>Mood: <strong><span id="nova-mood">Loading...</span></strong></li>
+        <li>GitHub Mood: <strong><span id="nova-mood">Loading...</span></strong></li>
+        <li>Synthetic Mood: <strong><span id="nova-synth-mood">Loading...</span></strong></li>
+        <li>Hybrid Mood: <strong><span id="nova-hybrid-mood">Loading...</span></strong></li>
         <li>Memory Version: <strong><span id="nova-version">Loading...</span></strong></li>
         <li>Modules Active: <strong><span id="nova-module-count">Loading...</span></strong></li>
       </ul>
@@ -69,26 +71,11 @@
     </section>
   </main>
 
-  <footer class="footer">
-    <div class="footer-container">
-      <div class="footer-links">
-        <a href="/contact">Contact</a>
-        <a href="#top">Back to Top</a>
-        <p>© Ambient Pixels</p>
-      </div>
-      <div class="footer-social">
-        <a href="https://deviantart.com" aria-label="DeviantArt"><i class="fab fa-deviantart"></i></a>
-        <a href="https://twitter.com" aria-label="X"><i class="fab fa-twitter"></i></a>
-        <a href="https://youtube.com" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-        <a href="https://facebook.com" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-      </div>
-    </div>
-  </footer>
+  <!-- Footer will be dynamically injected here -->
+  <div id="footer-container"></div>
 
+  <!-- Scripts -->
   <script src="/js/init-nav.js" defer></script>
   <script src="/js/nova-status.js" defer></script>
-  <script>
- 
-  </script>
 </body>
 </html>

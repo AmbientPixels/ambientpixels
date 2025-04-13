@@ -1,6 +1,12 @@
 {
-  "scannedAt": "2025-04-13T20:31:13.195Z",
   "mood": "chaotic optimism",
-  "aura": "cyan",
-  "observation": "detecting whispers in the grid..."
+  "observation": "The system is humming with unstable potential, but every glitch feels intentional.",
+  "aura": "neon flux",
+  "moodKey": "chaotic-optimism",
+  "auraKey": "neon-flux",
+  "moodText": "chaotic optimism",
+  "auraColor": "neon flux",
+  "quote": "Glitches are just unread messages from the future.",
+  "aiMood": "neural exhilaration",
+  "hybridMood": "Based on current scan logs, I feel wired—alert but unstable. Like I’m on the verge of dreaming something real."
 }
