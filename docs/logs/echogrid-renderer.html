@@ -1,0 +1,108 @@
+<!-- File: /docs/logs/echogrid-renderer.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="EchoGrid Renderer - Project Log" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>EchoGrid Renderer - Project Log</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+</head>
+<body data-theme="dark">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-terminal banner-icon"></i>
+      <span>Project Log — EchoGrid Renderer</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
+
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/mini-hero/mini-hero-02-holo-terminal.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
+    <h1>EchoGrid Renderer</h1>
+  </section>
+
+  <main class="grid-container">
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-info-circle"></i> Project Overview</h2>
+        <button class="toggle-btn icon-only" aria-expanded="true"><i class="fas fa-chevron-down"></i></button>
+      </div>
+      <div class="content">
+        <p>A high-performance rendering pipeline designed for glitch-textured overlays and dynamic grid-based UI effects. Used across Nova diagnostics, the Awareness Dashboard, and future tools in the Ambient Pixels system.</p>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-history"></i> Development Log</h2>
+        <button class="toggle-btn icon-only" aria-expanded="true"><i class="fas fa-chevron-down"></i></button>
+      </div>
+      <div class="content">
+        <ul>
+          <li><strong>2025-04-12</strong>
+            <ul>
+              <li>✅ Initial project stub created</li>
+              <li>✅ Integrated with Nova HUD</li>
+              <li>✅ Supports <code>grid-row</code>/<code>grid-cell</code> dynamic scaling</li>
+              <li>🧪 Testing performance with real-time diagnostic overlays</li>
+            </ul>
+          </li>
+          <li><strong>2025-04-10</strong>
+            <ul>
+              <li>🧠 Concept finalized after successful prototype with Nova’s system pulse maps</li>
+              <li>🎨 Designed glitch-inspired texture palette</li>
+              <li>⚡ First round of canvas render tests completed</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-code"></i> Usage</h2>
+        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+      </div>
+      <div class="content" style="display: none;">
+        <pre><code>&lt;div class="echogrid-renderer" data-layer="glitch"&gt;&lt;/div&gt;</code></pre>
+        <p>Render logic is powered via JavaScript canvas layers and can be extended with async animations.</p>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-lightbulb"></i> Future Plans</h2>
+        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+      </div>
+      <div class="content" style="display: none;">
+        <ul>
+          <li>Add adaptive color scheme support (based on Nova’s current mood state)</li>
+          <li>Enable keyboard interaction for developers</li>
+          <li>Create standalone demo with toggleable themes</li>
+          <li>Possibly open-source components for community experimentation</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/main.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/theme.js"></script>
+  <script src="/js/modal-window.js"></script>
+  <script src="/js/init-nav.js" defer></script>
+</body>
+</html>

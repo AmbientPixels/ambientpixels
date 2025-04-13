@@ -7,12 +7,16 @@ fetch('/docs/logs/projects.json')
     const filters = document.getElementById('project-filters');
     const allTags = new Set();
 
+    // Collect all unique tags
     projects.forEach(project => {
-      project.tags.forEach(tag => allTags.add(tag));
+      if (Array.isArray(project.tags)) {
+        project.tags.forEach(tag => allTags.add(tag));
+      }
     });
 
     // Create filter buttons
-    filters.innerHTML = '<div class="filter-label">Filter:</div>';    [...allTags].sort().forEach(tag => {
+    filters.innerHTML = '<div class="filter-label">Filter:</div>';
+    [...allTags].sort().forEach(tag => {
       const btn = document.createElement('button');
       btn.className = 'filter-pill';
       btn.textContent = tag;
@@ -20,6 +24,7 @@ fetch('/docs/logs/projects.json')
       filters.appendChild(btn);
     });
 
+    // Initial render
     renderProjects(projects);
 
     function renderProjects(data) {
@@ -36,7 +41,7 @@ fetch('/docs/logs/projects.json')
             ${renderProgress(project.progress)}
             <p class="nova-mood">${project.status} • Updated: ${project.lastUpdated}</p>
             <div class="nova-badge-group">
-              ${project.tags.map(tag => `<span class="nova-badge">${tag}</span>`).join('')}
+              ${(project.tags || []).map(tag => `<span class="nova-badge">${tag}</span>`).join('')}
             </div>
             <p class="nova-quip">${project.latestLog || '“No recent update.”'}</p>
             <a href="${project.html}" class="btn-link">View Log →</a>

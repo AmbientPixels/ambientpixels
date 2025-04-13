@@ -1,10 +1,11 @@
+<!-- File: /docs/logs/metalab.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Project NOVA — Core System Build Log" />
-  <title>Project NOVA Log</title>
+  <meta name="description" content="MetaLab Studio Project Log" />
+  <title>MetaLab Studio - Ambient Pixels</title>
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
@@ -19,8 +20,8 @@
 <body data-theme="dark">
   <div class="banner-container" id="banner-container">
     <div class="banner">
-      <i class="fas fa-robot banner-icon"></i>
-      <span>Project Log — NOVA System</span>
+      <i class="fas fa-vial banner-icon"></i>
+      <span>Project Log — MetaLab Studio</span>
       <button class="banner-close" aria-label="Close Banner">×</button>
     </div>
   </div>
@@ -28,38 +29,24 @@
   <header id="nav-header"></header>
 
   <section class="mini-hero">
-    <img src="/images/mini-hero/mini-hero-03-neon-pulse.jpg" alt="Project NOVA" class="mini-hero-img" loading="lazy">
-    <h1>Project NOVA</h1>
-    <p class="nova-quip">An ambient AI system. Curious by design.</p>
+    <img src="/images/mini-hero/mini-hero-02-holo-terminal.jpg" alt="MetaLab Hero" class="mini-hero-img" loading="lazy">
+    <h1>MetaLab Studio</h1>
+    <p class="nova-quip">Smarter metadata. Faster tools. Cleaner structure.</p>
   </section>
 
   <main class="grid-container">
     <section class="content-section grid-col-12">
       <div class="section-header">
-        <h2><i class="fas fa-terminal"></i> Project Overview</h2>
-        <button class="toggle-btn icon-only" aria-expanded="true"><i class="fas fa-chevron-down"></i></button>
-      </div>
-      <div class="content">
-        <ul>
-          <li><strong>Status:</strong> Active</li>
-          <li><strong>Category:</strong> AI, Core System</li>
-          <li><strong>Purpose:</strong> Build and evolve the memory, awareness, and UI framework for Nova as a live presence across Ambient Pixels.</li>
-        </ul>
-      </div>
-    </section>
-
-    <section class="content-section grid-col-12">
-      <div class="section-header">
-        <h2><i class="fas fa-clipboard-list"></i> Build Log — Markdown Source</h2>
+        <h2><i class="fas fa-flask"></i> Project Log</h2>
         <button class="toggle-btn icon-only" aria-expanded="true"><i class="fas fa-chevron-down"></i></button>
       </div>
       <div class="content" id="md-content">
-        <p><em>Loading log...</em></p>
+        <p>Loading log...</p>
       </div>
     </section>
   </main>
 
-  <div id="footer-container"></div>
+  <footer id="footer-container"></footer>
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="/js/main.js"></script>
@@ -69,7 +56,7 @@
   <script src="/js/init-nav.js" defer></script>
   <script src="/js/md-inject.js"></script>
   <script>
-    injectMarkdown("md-content", "/docs/logs/nova-project-log.md");
+    injectMarkdown("md-content", "/docs/logs/metalab.md");
   </script>
 </body>
 </html>
