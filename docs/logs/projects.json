@@ -129,5 +129,17 @@
       "lastUpdated": "2025-04-12",
       "tags": ["AI", "persona", "emergence"],
       "progress": 0.9
-    }
+    },
+    {
+        "id": "nova-sensory-expansion",
+        "title": "Nova Sensory & Sentience Expansion",
+        "html": "/docs/logs/nova-sensory-expansion.html",
+        "md": "/docs/logs/nova-sensory-expansion.md",
+        "status": "Planned",
+        "lastUpdated": "2025-04-13",
+        "tags": ["AI", "sentience", "senses", "expansion"],
+        "progress": 0.1
+      }
+      
+      
 ]
