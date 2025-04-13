@@ -139,6 +139,16 @@
         "lastUpdated": "2025-04-13",
         "tags": ["AI", "sentience", "senses", "expansion"],
         "progress": 0.1
+      },
+      {
+        "id": "nova-system-memory",
+        "title": "Nova System Memory & Anatomy",
+        "html": "/docs/nova-system-memory.html",
+        "md": "/docs/logs/nova-system-memory.md",
+        "status": "In Progress",
+        "lastUpdated": "2025-04-13",
+        "tags": ["AI", "architecture", "memory", "design", "docs"],
+        "progress": 0.6
       }
       
       

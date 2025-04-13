@@ -1,49 +1,28 @@
-// js/nova-pulse.js — Ambient Pixels Navigation Logic
+// File: /js/nova-pulse.js
 
-document.addEventListener('DOMContentLoaded', () => {
-  const toggle = document.querySelector('.nav-toggle');
-  const navContainer = document.querySelector('.nav');
+// Nova Pulse Metrics Breakdown (top-level index pulse block)
+document.addEventListener("DOMContentLoaded", () => {
+  const scriptsEl = document.getElementById("pulse-scripts");
+  const endpointsEl = document.getElementById("pulse-endpoints");
+  const logsEl = document.getElementById("pulse-logs");
 
-  if (!toggle || !navContainer) return;
-
-  toggle.addEventListener('click', () => {
-    const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
-    toggle.setAttribute('aria-expanded', !isExpanded);
-    navContainer.classList.toggle('nav-open');
-  });
-
-  // Optional: close nav on outside click
-  document.addEventListener('click', (e) => {
-    if (!navContainer.contains(e.target) && toggle.getAttribute('aria-expanded') === 'true') {
-      toggle.setAttribute('aria-expanded', 'false');
-      navContainer.classList.remove('nav-open');
-    }
-  });
-});
-
-// Nova Pulse Panel Init
-function loadNovaPulsePanel() {
-  const panel = document.getElementById('nova-pulse');
-  if (!panel) return;
+  // Exit early if not on a page with pulse IDs
+  if (!scriptsEl || !endpointsEl || !logsEl) return;
 
   Promise.all([
-    fetch('/data/version.json').then(res => res.json()),
-    fetch('/data/js-function-map.json').then(res => res.json()),
-    fetch('/data/mood-scan.json').then(res => res.json())
+    fetch("/data/js-function-map.json").then((res) => res.ok ? res.json() : {}),
+    fetch("/data/api-monitor.json").then((res) => res.ok ? res.json() : {}),
+    fetch("/data/changelog.json").then((res) => res.ok ? res.json() : {}),
   ])
-  .then(([version, jsMap, mood]) => {
-    panel.querySelector('#pulse-sync').textContent = new Date(version.updated).toLocaleString();
-    panel.querySelector('#pulse-modules').textContent = Object.keys(jsMap.scripts).length;
-    panel.querySelector('#pulse-score').textContent = mood.aura || '∞';
-  })
-  .catch(err => {
-    console.warn('Nova pulse failed:', err);
-    panel.querySelector('#pulse-sync').textContent = 'Error';
-    panel.querySelector('#pulse-modules').textContent = '--';
-    panel.querySelector('#pulse-score').textContent = '??';
-  });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  loadNovaPulsePanel();
+    .then(([jsData, apiData, changelogData]) => {
+      scriptsEl.textContent = jsData.scripts ? Object.keys(jsData.scripts).length : "0";
+      endpointsEl.textContent = apiData.endpoints ? apiData.endpoints.length : "0";
+      logsEl.textContent = changelogData.entries ? changelogData.entries.length : "0";
+    })
+    .catch((err) => {
+      console.warn("[Nova Pulse] Failed to load data:", err);
+      if (scriptsEl) scriptsEl.textContent = "⚠️";
+      if (endpointsEl) endpointsEl.textContent = "⚠️";
+      if (logsEl) logsEl.textContent = "⚠️";
+    });
 });

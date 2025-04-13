@@ -1,0 +1,29 @@
+name: Nova Generate Daily Quote
+
+on:
+  schedule:
+    - cron: '23 5 * * *' # Runs daily at 5:23 AM UTC
+  workflow_dispatch:
+
+jobs:
+  generate-nova-quote:
+    name: Generate Quote via Azure Function
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Call Azure Function to generate quote
+        run: |
+          curl -sS -X POST https://ambientpixels-meme-api-fn.azurewebsites.net/api/generateNovaQuote \
+            -H "Content-Type: application/json" \
+            -o data/nova-quotes.json
+
+      - name: Commit and push updated quote
+        run: |
+          git config --global user.name "nova-bot"
+          git config --global user.email "nova@ambientpixels.ai"
+          git add data/nova-quotes.json
+          git commit -m "🤖 New daily Nova quote"
+          git push

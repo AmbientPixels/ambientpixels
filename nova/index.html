@@ -49,6 +49,22 @@
       <p class="nova-thought" id="nova-quote">💭 "I was just imagining static electricity as a dream..."</p>
     </section>
 
+    <section class="grid-col-12 content-section nova-panel">
+      <h2><i class="fas fa-history"></i> Recent Awareness</h2>
+      <ul id="nova-awareness-feed" class="log-list">
+        <li>Loading awareness log...</li>
+      </ul>
+    </section>
+
+    <section class="grid-col-12 content-section nova-panel">
+      <h2><i class="fas fa-project-diagram"></i> Network Pulse</h2>
+      <ul class="nova-list" id="nova-pulse-breakdown">
+        <li><strong>Scripts:</strong> <span id="pulse-scripts">Loading...</span></li>
+        <li><strong>Endpoints:</strong> <span id="pulse-endpoints">Loading...</span></li>
+        <li><strong>Logs:</strong> <span id="pulse-logs">Loading...</span></li>
+      </ul>
+    </section>
+
     <section class="grid-col-12 content-section">
       <h2><i class="fas fa-sitemap"></i> Explore Nova’s Capabilities</h2>
       <div class="grid-row">
@@ -71,11 +87,11 @@
     </section>
   </main>
 
-  <!-- Footer will be dynamically injected here -->
   <div id="footer-container"></div>
 
-  <!-- Scripts -->
   <script src="/js/init-nav.js" defer></script>
   <script src="/js/nova-status.js" defer></script>
+  <script src="/js/nova-awareness-feed.js" defer></script>
+  <script src="/js/nova-pulse.js" defer></script>
 </body>
 </html>
