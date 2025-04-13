@@ -1,0 +1,13 @@
+{
+  "name": "nova-ai-function",
+  "version": "1.0.0",
+  "main": "generate-text/index.js",
+  "scripts": {
+    "start": "func start",
+    "test": "echo \"No tests yet...\""
+  },
+  "dependencies": {
+    "@azure/functions": "^4.0.0",
+    "node-fetch": "^3.3.2"
+  }
+}

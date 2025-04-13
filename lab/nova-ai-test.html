@@ -1,0 +1,67 @@
+<!-- File: /lab/nova-ai-test.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ambient Pixels Documentation Page Template" />
+  <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+  <title>Ambient Pixels Docs</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+</head>
+<body data-theme="dark">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-wrench banner-icon"></i>
+      <span>Documentation Mode — Drafted with Nova.</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
+
+  <!-- Dynamic Navigation Header -->
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/hero-23.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
+    <h1>Nova AI Test Lab</h1>
+  </section>
+
+  <main class="grid-container">
+    <section class="grid-col-12 content-section neon-card">
+      <h1><i class="fas fa-vials"></i> Nova AI Test Lab</h1>
+      <p>Send prompts to Nova's AI backend and preview the results in real time.</p>
+    </section>
+
+    <section class="grid-col-12 content-section neon-card">
+      <h2><i class="fas fa-terminal"></i> Output</h2>
+      <blockquote id="nova-voice-line">“Awaiting Nova’s words...”</blockquote>
+    </section>
+  </main>
+
+  <footer id="footer-container"></footer>
+
+  <script type="module">
+    import { generateNovaText } from '/js/nova-ai.js';
+  
+    const outputEl = document.getElementById('nova-voice-line');
+    const prompt = "Nova, describe static electricity as a dream.";
+  
+    if (outputEl) {
+      outputEl.textContent = '💭 Generating...';
+      generateNovaText(prompt).then(text => {
+        outputEl.textContent = `“${text}”`;
+      });
+    }
+  </script>
+  
+  <script src="/js/init-nav.js" defer></script>
+</body>
+</html>

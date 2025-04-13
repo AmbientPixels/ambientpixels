@@ -1,0 +1,200 @@
+<!-- File: /docs/logs/nova-ai-integration-guide.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ambient Pixels Nova AI API Integration Guide" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Nova AI API Integration Guide</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+</head>
+<body data-theme="dark">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-wrench banner-icon"></i>
+      <span>Documentation Mode — Drafted with Nova.</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
+
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/hero-23.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
+    <h1>Nova AI API Integration Guide</h1>
+  </section>
+
+  <main class="grid-container">
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-cogs"></i> Overview</h2>
+        <button class="toggle-btn icon-only" aria-expanded="true"><i class="fas fa-chevron-down"></i></button>
+      </div>
+      <div class="content">
+        <p>This guide walks through how Nova sends prompts to Hugging Face using an Azure Function backend, returning generated text for dynamic frontend use.</p>
+        <ul>
+          <li>API endpoint: <code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/generate-text</code></li>
+          <li>Azure Function: <code>generate-text</code></li>
+          <li>Frontend tester: <code>/lab/nova-ai-test.html</code></li>
+          <li>JS fetch logic: <code>/js/nova-ai.js</code></li>
+          <li>Server function: <code>/generate-text/index.js</code></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-route"></i> Request Flow</h2>
+        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+      </div>
+      <div class="content" style="display: none;">
+        <ol>
+          <li>User enters a prompt on the Nova AI test page or via site UI</li>
+          <li><code>nova-ai.js</code> sends a POST request with the prompt to Azure Function</li>
+          <li>Azure Function (Node.js) receives the prompt and attaches the Hugging Face API key</li>
+          <li>It then relays the prompt to Hugging Face model inference endpoint (e.g., <code>gpt2</code>)</li>
+          <li>Response is parsed, formatted, and returned back to the frontend</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-plug"></i> Setup Steps</h2>
+        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+      </div>
+      <div class="content" style="display: none;">
+        <ol>
+          <li><code>func init . --javascript</code> to initialize project</li>
+          <li><code>func new --name generate-text --template "HTTP trigger"</code></li>
+          <li><code>npm install node-fetch</code> (required for API requests)</li>
+          <li>Replace <code>/generate-text/index.js</code> with the custom function logic</li>
+          <li>In Azure > Configuration > Application Settings, set: <code>HUGGINGFACE_API_KEY</code></li>
+          <li>Under CORS, allow: <code>http://localhost:5500</code>, <code>http://127.0.0.1:5500</code>, and <code>https://ambientpixels.ai</code></li>
+          <li>Deploy with: <code>func azure functionapp publish ambientpixels-meme-api-fn --force</code></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-code"></i> Backend Function Sample</h2>
+        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+      </div>
+      <div class="content" style="display: none;">
+<pre><code>const fetch = require('node-fetch');
+
+module.exports = async function (context, req) {
+  const prompt = req.body?.prompt;
+  context.log('📩 Received prompt:', prompt);
+
+  if (!prompt) {
+    context.res = {
+      status: 400,
+      headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type' },
+      body: { error: 'Missing prompt in request body.' }
+    };
+    return;
+  }
+
+  const HUGGINGFACE_API_KEY = process.env.HUGGINGFACE_API_KEY;
+  const HF_MODEL = 'gpt2';
+
+  try {
+    const hfResponse = await fetch(`https://api-inference.huggingface.co/models/${HF_MODEL}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${HUGGINGFACE_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ inputs: prompt })
+    });
+
+    const text = await hfResponse.text();
+    context.log('📦 Hugging Face raw response:', text);
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (err) {
+      context.log('❌ Failed to parse JSON:', err);
+      throw new Error('Hugging Face returned invalid JSON or HTML');
+    }
+
+    context.res = {
+      status: hfResponse.ok ? 200 : 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      },
+      body: hfResponse.ok
+        ? { text: data[0]?.generated_text || '⚠️ No generated text.' }
+        : { error: 'Hugging Face error', details: data }
+    };
+  } catch (err) {
+    context.log.error('🔥 Nova AI Function Error:', err);
+    context.res = {
+      status: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      },
+      body: { error: 'Internal server error', message: err.message }
+    };
+  }
+};</code></pre>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-terminal"></i> Testing Locally</h2>
+        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+      </div>
+      <div class="content" style="display: none;">
+<pre><code>func start
+
+# In another terminal:
+Invoke-RestMethod -Uri http://localhost:7071/api/generate-text `
+  -Method POST `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{ "prompt": "Nova, describe static electricity as a dream." }'
+</code></pre>
+        <p>Successful response includes: <code>{ text: "Nova, describe static electricity as a dream..." }</code></p>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-bug"></i> Troubleshooting</h2>
+        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+      </div>
+      <div class="content" style="display: none;">
+        <ul>
+          <li><strong>500 error + HTML response</strong>: HF model is unavailable or invalid API key</li>
+          <li><strong>CORS error</strong>: Make sure all dev/test domains are added in Azure CORS settings</li>
+          <li><strong>fetch is not a function</strong>: Ensure <code>node-fetch</code> is installed locally</li>
+          <li><strong>Deployment not connecting</strong>: Check Azure CLI auth and use <code>az login</code></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/main.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/theme.js"></script>
+  <script src="/js/modal-window.js"></script>
+  <script src="/js/init-nav.js" defer></script>
+</body>
+</html>
