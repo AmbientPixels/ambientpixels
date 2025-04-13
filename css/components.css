@@ -578,3 +578,49 @@ details summary::before {
 .nova-thought::before {
   content: "💭 ";
 }
+/* Nova Voice Block - Theme Awareness */
+body[data-theme="dark"] .nova-voice {
+  background: rgba(18, 32, 42, 0.6);
+  border-left: 4px solid #9bf00b;
+  color: #d6faff;
+  text-shadow: 0 0 4px rgba(155, 240, 255, 0.3);
+}
+
+body[data-theme="light"] .nova-voice {
+  background: #f0f9ff;
+  border-left: 4px solid #107c10;
+  color: #1a2a44;
+  text-shadow: none;
+}
+
+/* Nova Alert Block */
+body[data-theme="dark"] .nova-alert {
+  background: rgba(255, 112, 112, 0.05);
+  border-left: 3px solid #ff7070;
+  color: #ff7070;
+}
+
+body[data-theme="light"] .nova-alert {
+  background: #fff0f0;
+  border-left: 3px solid #cc0000;
+  color: #cc0000;
+}
+
+/* Nova Thought Styling */
+body[data-theme="dark"] .nova-thought {
+  color: #e0e0ff;
+  opacity: 0.8;
+  border-left: 2px solid #87ceeb;
+}
+
+body[data-theme="light"] .nova-thought {
+  color: #444;
+  opacity: 0.9;
+  border-left: 2px solid #1a2a44;
+}
+
+/* Nova Quip */
+body[data-theme="light"] .nova-quip {
+  color: #334;
+  text-shadow: none;
+}
