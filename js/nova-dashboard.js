@@ -1,4 +1,7 @@
-// js/nova-dashboard.js — Ambient Pixels Navigation Logic
+// File: /js/nova-dashboard.js
+
+// Initialize Nova Dashboard Modules
+
 document.addEventListener('DOMContentLoaded', () => {
   loadVersionAndMood();
   loadAwarenessLogs();
@@ -8,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadImageInventoryGrid();
   loadUnusedCSSReport();
   loadApiMonitor();
-  loadCodeMap(); // ⬅️ Add this line!
+  loadCodeMap();
 });
 
 // Load version.json + mood-scan.json
@@ -36,7 +39,6 @@ async function loadAwarenessLogs() {
     const logList = document.getElementById('log-list');
 
     if (!logList) return;
-
     logList.innerHTML = '';
 
     data.entries.forEach(entry => {
@@ -44,7 +46,6 @@ async function loadAwarenessLogs() {
         dateStyle: 'long',
         timeStyle: 'short'
       });
-
       const li = document.createElement('li');
       li.innerHTML = `
         <strong>Commit:</strong> <code>${entry.hash}</code><br/>
@@ -63,7 +64,6 @@ async function renderCodeFootprintChart() {
   try {
     const res = await fetch('/data/code-footprint.json');
     const data = await res.json();
-
     const ctx = document.getElementById('codeFootprintChart').getContext('2d');
 
     new Chart(ctx, {
@@ -79,10 +79,7 @@ async function renderCodeFootprintChart() {
       options: {
         plugins: { legend: { display: false } },
         scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { stepSize: 100 }
-          }
+          y: { beginAtZero: true, ticks: { stepSize: 100 } }
         }
       }
     });
@@ -91,12 +88,11 @@ async function renderCodeFootprintChart() {
   }
 }
 
-// Load Function Map from js-function-map.json
+// Load Function Map
 async function loadFunctionMap() {
   try {
     const res = await fetch('/data/js-function-map.json');
     const data = await res.json();
-
     const container = document.getElementById('function-map-output');
     container.innerHTML = '';
 
@@ -114,12 +110,11 @@ async function loadFunctionMap() {
   }
 }
 
-// Load Prompt History from ai-prompts.json
+// Load Prompt History
 async function loadPromptHistory() {
   try {
     const res = await fetch('/data/ai-prompts.json');
     const data = await res.json();
-
     const container = document.querySelector('.prompt-history .prompt-entry');
     if (container) {
       const date = new Date(data.date).toLocaleDateString();
@@ -134,7 +129,7 @@ async function loadPromptHistory() {
   }
 }
 
-// Load Image Inventory Grid from image-inventory.json
+// Load Image Inventory Grid
 async function loadImageInventoryGrid() {
   const gridContainer = document.getElementById('image-grid');
   if (!gridContainer) return;
@@ -142,18 +137,15 @@ async function loadImageInventoryGrid() {
   try {
     const res = await fetch('/data/image-inventory.json');
     const data = await res.json();
-
     data.folders.forEach(folder => {
       folder.files.forEach(filePath => {
         const fileName = filePath.split('/').pop();
         const tile = document.createElement('div');
-        tile.className = 'image-tile unused'; // default state
-
+        tile.className = 'image-tile unused';
         tile.innerHTML = `
           <img src="/${filePath}" alt="${fileName}" loading="lazy">
           <div class="image-caption">${fileName}</div>
         `;
-
         gridContainer.appendChild(tile);
       });
     });
@@ -161,12 +153,12 @@ async function loadImageInventoryGrid() {
     console.error('⚠️ Failed to load image inventory:', err);
   }
 }
-// Load and display unused CSS report
+
+// Load Unused CSS Report
 async function loadUnusedCSSReport() {
   try {
     const res = await fetch('/data/unused-css-report.json');
     const data = await res.json();
-
     const summary = document.getElementById('unused-css-summary');
     const list = document.getElementById('unused-css-list');
 
@@ -174,9 +166,7 @@ async function loadUnusedCSSReport() {
       summary.textContent = `🎉 All ${data.totalUsed} CSS classes in ${data.cssFile} are used.`;
     } else {
       summary.textContent = `Found ${data.unusedClasses.length} unused CSS classes in ${data.cssFile}:`;
-      list.innerHTML = data.unusedClasses
-        .map(cls => `<li><code>${cls}</code></li>`)
-        .join('');
+      list.innerHTML = data.unusedClasses.map(cls => `<li><code>${cls}</code></li>`).join('');
     }
   } catch (err) {
     console.error('⚠️ Failed to load unused CSS report:', err);
@@ -184,11 +174,11 @@ async function loadUnusedCSSReport() {
   }
 }
 
+// Load API Monitor
 async function loadApiMonitor() {
   try {
     const res = await fetch('/data/api-monitor.json');
     const data = await res.json();
-
     const list = document.getElementById('api-monitor-list');
     list.innerHTML = '';
 
@@ -206,20 +196,8 @@ async function loadApiMonitor() {
     document.getElementById('api-monitor-list').innerHTML = '<li>⚠️ Could not load API data.</li>';
   }
 }
-document.addEventListener('DOMContentLoaded', () => {
-  const syncTime = new Date().toLocaleString();
-  const footerTime = document.getElementById('last-sync-time');
-  if (footerTime) footerTime.textContent = syncTime;
-});
-function renderList(id, items) {
-  const el = document.getElementById(id);
-  el.innerHTML = '';
-  items.slice(0, 50).forEach(item => {
-    const li = document.createElement('li');
-    li.textContent = item;
-    el.appendChild(li);
-  });
-}
+
+// Load and render code awareness map
 async function loadCodeMap() {
   const res = await fetch('/data/code-map.json');
   const data = await res.json();
@@ -236,3 +214,12 @@ async function loadCodeMap() {
   renderList('code-tags', data.htmlTags);
 }
 
+function renderList(id, items) {
+  const el = document.getElementById(id);
+  el.innerHTML = '';
+  items.slice(0, 50).forEach(item => {
+    const li = document.createElement('li');
+    li.textContent = item;
+    el.appendChild(li);
+  });
+}

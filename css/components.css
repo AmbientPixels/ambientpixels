@@ -624,3 +624,29 @@ body[data-theme="light"] .nova-quip {
   color: #334;
   text-shadow: none;
 }
+/* Simple Table Styling */
+.nova-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.nova-table thead {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.nova-table th,
+.nova-table td {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: left;
+}
+
+.nova-table code {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.85em;
+}

@@ -71,6 +71,99 @@
         </ul>
       </div>
     </section>
+<!-- JS Modules Overview -->
+<section class="content-section grid-col-12">
+  <div class="section-header">
+    <h2><i class="fas fa-code"></i> JS Modules Overview</h2>
+    <button class="toggle-btn icon-only" aria-expanded="true" title="Toggle section">
+      <i class="fas fa-chevron-down"></i>
+    </button>
+  </div>
+  <div class="content">
+    <p>Here's a current breakdown of all Nova + AmbientPixels scripts and their core responsibilities:</p>
+    <div class="table-wrapper">
+    <table class="nova-table">
+      <thead>
+        <tr>
+          <th>Script</th>
+          <th>Path</th>
+          <th>Used On Pages</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>main.js</code></td><td>/js/main.js</td><td>index, docs/hub</td></tr>
+        <tr><td><code>nav.js</code></td><td>/js/nav.js</td><td>all</td></tr>
+        <tr><td><code>theme.js</code></td><td>/js/theme.js</td><td>all</td></tr>
+        <tr><td><code>modal-window.js</code></td><td>/js/modal-window.js</td><td>docs/hub</td></tr>
+        <tr><td><code>init-header-footer.js</code></td><td>/js/init-header-footer.js</td><td>all</td></tr>
+        <tr><td><code>nova-status.js</code></td><td>/js/nova-status.js</td><td>index, nova, nova-core</td></tr>
+        <tr><td><code>nova-mood-core.js</code></td><td>/js/nova-mood-core.js</td><td>nova-core</td></tr>
+        <tr><td><code>nova-dashboard.js</code></td><td>/js/nova-dashboard.js</td><td>nova</td></tr>
+        <tr><td><code>nova-pulse.js</code></td><td>/js/nova-pulse.js</td><td>index</td></tr>
+        <tr><td><code>nova-quotes.js</code></td><td>/js/nova-quotes.js</td><td>index, nova-core</td></tr>
+        <tr><td><code>nova-awareness-feed.js</code></td><td>/js/nova-awareness-feed.js</td><td>nova</td></tr>
+        <tr><td><code>nova-ai.js</code></td><td>/js/nova-ai.js</td><td>nova-core (future: ai tools)</td></tr>
+        <tr><td><code>nova-insights.js</code></td><td>/js/nova-insights.js</td><td>project-dashboard</td></tr>
+        <tr><td><code>nova-interaction-log.js</code></td><td>/js/nova-interaction-log.js</td><td>planned</td></tr>
+        <tr><td><code>nova-telemetry-logger.js</code></td><td>/js/nova-telemetry-logger.js</td><td>planned</td></tr>
+        <tr><td><code>dreamEngine.js</code></td><td>/js/dreamEngine.js</td><td>nova, nova-core</td></tr>
+        <tr><td><code>project-dashboard.js</code></td><td>/js/project-dashboard.js</td><td>docs/project-dashboard</td></tr>
+        <tr><td><code>md-inject.js</code></td><td>/js/md-inject.js</td><td>docs/logs/*.html</td></tr>
+        <tr><td><code>template.js</code></td><td>/js/template.js</td><td>minimal pages / reserved</td></tr>
+        <tr><td><code>loader.js</code></td><td>/js/loader.js</td><td>all (master loader)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</section> 
+
+
+
+<!-- JS Modules Overview -->
+<section class="content-section grid-col-12">
+  <div class="section-header">
+    <h2><i class="fas fa-code"></i> JS Modules Overview</h2>
+    <button class="toggle-btn icon-only" aria-expanded="true" title="Toggle section">
+      <i class="fas fa-chevron-down"></i>
+    </button>
+  </div>
+  <div class="content">
+    <p>Here's a current breakdown of all Nova + AmbientPixels scripts and their core responsibilities:</p>
+    <div class="table-wrapper">
+      <table class="nova-table">
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>dreamEngine.js</code></td><td>Nova’s dream log generator</td></tr>
+          <tr><td><code>init-header-footer.js</code></td><td>Injects modular header/footer and nav logic</td></tr>
+          <tr><td><code>init-quotes.js</code></td><td>Injects daily Nova quote (used in cards)</td></tr>
+          <tr><td><code>main.js</code></td><td>Homepage hero, banners, and Nova headline sync</td></tr>
+          <tr><td><code>md-inject.js</code></td><td>Injects markdown logs into HTML docs</td></tr>
+          <tr><td><code>modal-window.js</code></td><td>Contact modal open/close behavior</td></tr>
+          <tr><td><code>nav.js</code></td><td>Enhanced mobile nav overlay with toggles</td></tr>
+          <tr><td><code>nova-ai.js</code></td><td>Fetches AI responses via Hugging Face API</td></tr>
+          <tr><td><code>nova-awareness-feed.js</code></td><td>Loads awareness feed from changelog</td></tr>
+          <tr><td><code>nova-dashboard.js</code></td><td>Loads version/mood, charts, prompt history, more</td></tr>
+          <tr><td><code>nova-insights.js</code></td><td>Generates project insights and commentary</td></tr>
+          <tr><td><code>nova-interaction-log.js</code></td><td>Logs user activity for future Nova responses</td></tr>
+          <tr><td><code>nova-mood-core.js</code></td><td>Renders live mood state on <code>/nova-core/</code></td></tr>
+          <tr><td><code>nova-pulse.js</code></td><td>Stats from code/functions/logs on homepage</td></tr>
+          <tr><td><code>nova-quotes.js</code></td><td>Standalone quote loader (overlaps with init-quotes)</td></tr>
+          <tr><td><code>nova-status.js</code></td><td>Syncs Nova mood/aura/version across site</td></tr>
+          <tr><td><code>nova-telemetry-logger.js</code></td><td>Future hook for logging Nova behavior</td></tr>
+          <tr><td><code>project-dashboard.js</code></td><td>Dynamic filtering and rendering of project cards</td></tr>
+          <tr><td><code>template.js</code></td><td>Empty or placeholder script</td></tr>
+          <tr><td><code>theme.js</code></td><td>Loads and syncs theme + icon on page load</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
 
     <!-- Data Logs Section -->
     <section class="content-section grid-col-12">
@@ -103,10 +196,26 @@
 
   <div id="footer-container"></div>
 
-  <script src="/js/main.js"></script>
-  <script src="/js/nav.js"></script>
-  <script src="/js/theme.js"></script>
-  <script src="/js/modal-window.js"></script>
-  <script src="/js/init-nav.js" defer></script>
+<!-- Scripts (Full Load for Dev Mode) -->
+<script src="/js/init-header-footer.js" defer></script>
+<script src="/js/dreamEngine.js" defer></script>
+<script src="/js/init-quotes.js" defer></script>
+<script src="/js/main.js" defer></script>
+<script src="/js/md-inject.js" defer></script>
+<script src="/js/modal-window.js" defer></script>
+<script src="/js/nav.js" defer></script>
+<script src="/js/nova-ai.js" defer></script>
+<script src="/js/nova-awareness-feed.js" defer></script>
+<script src="/js/nova-dashboard.js" defer></script>
+<script src="/js/nova-insights.js" defer></script>
+<script src="/js/nova-interaction-log.js" defer></script>
+<script src="/js/nova-mood-core.js" defer></script>
+<script src="/js/nova-pulse.js" defer></script>
+<script src="/js/nova-quotes.js" defer></script>
+<script src="/js/nova-status.js" defer></script>
+<script src="/js/nova-telemetry-logger.js" defer></script>
+<script src="/js/project-dashboard.js" defer></script>
+<script src="/js/template.js" defer></script>
+<script src="/js/theme.js" defer></script>
 </body>
 </html>

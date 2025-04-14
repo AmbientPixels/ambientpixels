@@ -1,4 +1,5 @@
-// /js/theme.js – Load preferred theme
+// File: /js/theme.js – Load Preferred Theme and Icon
+
 document.addEventListener('DOMContentLoaded', () => {
   const storedTheme = localStorage.getItem('preferred-theme');
   if (storedTheme) {
