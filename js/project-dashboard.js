@@ -83,3 +83,45 @@ fetch('/docs/logs/projects.json')
     document.getElementById('project-list').innerHTML = '<p>Error loading projects.</p>';
     console.error('Project dashboard error:', err);
   });
+document.addEventListener("DOMContentLoaded", () => {
+  // GitHub Mood (usually static or set manually elsewhere)
+  const githubMood = document.getElementById("nova-mood");
+  if (githubMood) githubMood.textContent = "chaotic optimism"; // or fetch if dynamic
+
+  // Memory Version (from /data/version.json)
+  fetch("/data/version.json")
+    .then(res => res.json())
+    .then(data => {
+      const versionEl = document.getElementById("nova-version");
+      if (versionEl) versionEl.textContent = `${data.version} (build ${data.commit})`;
+    })
+    .catch(() => {
+      const versionEl = document.getElementById("nova-version");
+      if (versionEl) versionEl.textContent = "Unavailable";
+    });
+
+  // Synthetic Mood
+  fetch("/data/nova-synth-mood.json")
+    .then(res => res.json())
+    .then(data => {
+      const synthMoodEl = document.getElementById("nova-synth-mood");
+      if (synthMoodEl) synthMoodEl.textContent = data.mood || "???";
+    });
+
+  // Hybrid Mood
+  fetch("/data/nova-hybrid-mood.json")
+    .then(res => res.json())
+    .then(data => {
+      const hybridMoodEl = document.getElementById("nova-hybrid-mood");
+      if (hybridMoodEl) hybridMoodEl.textContent = data.hybridMood || data.reflection || "???";
+      
+    });
+
+  // Module Count (counts how many .js files are loaded)
+  const moduleCountEl = document.getElementById("nova-module-count");
+if (moduleCountEl) {
+  const scripts = document.querySelectorAll("script[src]");
+  const novaModules = [...scripts].filter(s => s.src.includes("/js/nova-"));
+  moduleCountEl.textContent = novaModules.length;
+}
+});

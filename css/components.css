@@ -650,3 +650,16 @@ body[data-theme="light"] .nova-quip {
   border-radius: 4px;
   font-size: 0.85em;
 }
+.iridescent-pulse {
+  animation: pulseGlow 3s infinite;
+  border: 1px solid #a0f; /* placeholder color */
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 10px #a0f, 0 0 20px #0ff;
+  }
+  50% {
+    box-shadow: 0 0 20px #0ff, 0 0 40px #a0f;
+  }
+}
