@@ -2,13 +2,6 @@
 // Hugging Face image generation API (Stable Diffusion XL)
 
 export async function POST(request) {
-    if (request.method !== 'POST') {
-      return new Response(JSON.stringify({ error: 'Method Not Allowed' }), {
-        status: 405,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-  
     const { prompt } = await request.json();
     const HF_API_KEY = process.env.HF_API_KEY;
     const HF_ENDPOINT = 'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0';

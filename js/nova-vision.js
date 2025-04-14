@@ -1,4 +1,4 @@
-// File: /js/nova-image-lab.js
+// File: /js/nova-vision.js
 
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("imagePromptForm");
@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
       imageTag.alt = "Generating...";
   
       try {
-        const response = await fetch("/api/NovaVision", {
+        const response = await fetch("https://ambientpixels-meme-api-fn.azurewebsites.net/api/NovaVision", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt })
