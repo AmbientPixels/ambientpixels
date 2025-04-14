@@ -1,5 +1,3 @@
-// File: /js/nova-vision.js
-
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("imagePromptForm");
   const input = document.getElementById("promptInput");
@@ -18,7 +16,10 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const response = await fetch("https://ambientpixels-meme-api-fn.azurewebsites.net/api/novavision", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-functions-key": "YOUR_FUNCTION_KEY"
+        },
         body: JSON.stringify({ prompt })
       });
 
