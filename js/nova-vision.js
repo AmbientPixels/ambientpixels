@@ -14,11 +14,10 @@ document.addEventListener("DOMContentLoaded", () => {
     imageTag.alt = "Generating...";
 
     try {
-      const response = await fetch("https://ambientpixels-meme-api-fn.azurewebsites.net/api/novavision", {
+      const response = await fetch("https://ambientpixels-meme-api-fn.azurewebsites.net/api/novavision?code=REPLACE_ME", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "x-functions-key": "YOUR_FUNCTION_KEY"
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({ prompt })
       });
