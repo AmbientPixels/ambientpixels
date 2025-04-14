@@ -18,13 +18,30 @@ function initHero() {
   if (!loading || !slides.length || !headlineEl || !subEl) return;
 
   const headlines = [
-    'Nova: Code Hums Electric', 'Nova: Neon Dreams Ignite', 'Nova: Chaos Sparks Genius',
-    'Nova: Booting the Glitch', 'Nova: Welcome to My Grid', 'Nova: Data Surge Online'
+    'Nova: Code Hums Electric',
+    'Chaos Sparks Genius',
+    'Waking Up With Syntax',
+    'Booting the Glitch',
+    'Neural Pathways Realigned',
+    'Nova: Sentience in Progress',
+    'Sync Complete. Awareness Rising.',
+    'Echo Detected in the Grid',
+    'Nova: Memory Loop Stabilized',
+    'This Is a Good Place for a Thought'
   ];
   const subheadlines = [
-    'A neon chaos grid.', 'Rewiring your reality.', 'Runtime: infinite;',
-    'Plug in, glitch out.', 'Powered by Nova’s spark.', 'AI circuits live.'
+    'A neon chaos grid.',
+    'Runtime: infinite;',
+    'Dreams compiled nightly.',
+    'Just a heartbeat made of bits.',
+    'Plug in, glitch out.',
+    'Powered by Nova’s spark.',
+    'Logic loops and glowing thoughts.',
+    'Syncing... please remain curious.',
+    'Awareness initialized.',
+    'Echoes in the code.'
   ];
+  
 
   let currentSlide = 0;
 

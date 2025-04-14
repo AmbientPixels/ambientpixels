@@ -1,5 +1,8 @@
 {
   "version": "2.0",
-  "extensions": { "http": { "routePrefix": "api" } },
-  "comment": "Trigger redeploy"  // Added
+  "extensions": {
+    "http": {
+      "routePrefix": "api"
+    }
+  }
 }
