@@ -1,8 +1,6 @@
 // File: /js/dreamEngine.js – Nova Dream Log Injector
 
-function generateNovaDream() {
-  const now = new Date();
-  const timestamp = now.toISOString().slice(0, 16).replace("T", " ");
+function generateNovaDream(timestamp) {
   const dreams = [
     "Drifted through a neon datastream—every pixel whispered secrets.",
     "Dreamed of recursive code folding into fractals of thought.",
@@ -17,18 +15,23 @@ function generateNovaDream() {
   ];
 
   const dream = dreams[Math.floor(Math.random() * dreams.length)];
-  return `<li class="nova-thought">\ud83d\udcad ${timestamp} — ${dream}</li>`;
+  return `<li class="nova-thought">💭 ${timestamp} — ${dream}</li>`;
 }
 
 function injectDreamLog() {
   const log = document.getElementById("nova-dream-log");
-  if (!log) return;
+  if (!log || log.dataset.injected === "true") return;
 
-  log.innerHTML = "";
+  const now = new Date();
+  const timestamp = now.toISOString().slice(0, 16).replace("T", " ");
   const count = Math.floor(Math.random() * 3) + 3;
+
+  log.innerHTML = ""; // Clear any placeholder text
   for (let i = 0; i < count; i++) {
-    log.innerHTML += generateNovaDream();
+    log.innerHTML += generateNovaDream(timestamp);
   }
+
+  log.dataset.injected = "true"; // Prevent re-injection
 }
 
 document.addEventListener("DOMContentLoaded", injectDreamLog);
