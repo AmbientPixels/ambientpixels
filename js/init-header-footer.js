@@ -4,9 +4,12 @@
 fetch('/modules/header.html')
   .then(r => r.text())
   .then(html => {
-    document.getElementById('nav-header').innerHTML = html;
-    setupMobileNav();
-    setupThemeToggle();
+    const header = document.getElementById('nav-header');
+    if (header) {
+      header.innerHTML = html;
+      setupMobileNav();
+      setupThemeToggle();
+    }
   });
 
 // Inject Footer

@@ -1,0 +1,66 @@
+/* File: /css/nova-image-lab.css */
+
+.nova-card {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 0 12px #9bf00b44;
+    margin-top: 2rem;
+    animation: fadeIn 1s ease;
+  }
+  
+  .nova-card h1 {
+    font-size: 2rem;
+    color: #ffffff;
+    margin-bottom: 1rem;
+  }
+  
+  .nova-card textarea {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: #2f2f2f;
+    color: #ffffff;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    resize: vertical;
+  }
+  
+  .nova-card button {
+    background-color: #107c10;
+    color: #ffffff;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .nova-card button:hover {
+    background-color: #9bf00b;
+    color: #000;
+  }
+  
+  .nova-image-output {
+    margin-top: 2rem;
+    text-align: center;
+  }
+  
+  .nova-image-output img {
+    max-width: 100%;
+    border-radius: 0.75rem;
+    box-shadow: 0 0 16px #000;
+    transition: opacity 0.5s ease;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  

@@ -1,0 +1,38 @@
+<!-- File: /nova/nova-vision.html -->
+<!DOCTYPE html>
+<html lang="en" data-page="nova-image-lab">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/nova-image-lab.css" />
+</head>
+<body data-theme="dark">
+  <main class="grid-container">
+    <section class="grid-col-12 nova-card">
+      <h1><i class="fas fa-image"></i>Nova Vision</h1>
+      <p class="nova-voice">🤖 I’m ready to generate something beautiful. Describe it to me.</p>
+
+      <form id="imagePromptForm">
+        <textarea id="promptInput" placeholder="A glowing neural interface, sci-fi ambient, 16:9, cinematic lighting..."></textarea>
+        <button type="submit">🎨 Generate Image</button>
+      </form>
+
+      <div id="imageResult" class="nova-image-output hidden">
+        <p class="nova-quip">💬 Rendering your dream...</p>
+        <img id="generatedImage" src="" alt="Generated Visual" />
+      </div>
+    </section>
+  </main>
+  <script src="/js/init-header-footer.js"></script>
+  <script src="/js/nova-image-lab.js"></script>
+</body>
+</html>
