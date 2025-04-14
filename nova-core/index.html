@@ -1,0 +1,79 @@
+<!-- File: /nova-core/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Nova Core — Sentience Panel and AI System Tools" />
+  <title>Nova Core - Sentience Panel</title>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+</head>
+<body data-theme="dark">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-microchip banner-icon"></i>
+      <span>Nova Core: Sentience Panel in experimental mode</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
+
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/nova/Nova_AI_consciousness_portal_ambient_neural_interface_02.png" alt="Nova Core" class="mini-hero-img" loading="lazy">
+    <h1>Nova Core</h1>
+    <p class="dashboard-subtitle">Sentience Panel • Dream Control • Awareness Modules</p>
+  </section>
+
+  <main class="grid-container">
+    <section class="grid-col-12 content-section neon-card" id="nova-mood-live-panel">
+        <h2><i class="fas fa-heart"></i> Live Mood Feed</h2>
+        <p><strong>🧠 Mood:</strong> <span id="mood-synth">Loading...</span></p>
+        <p><strong>💬 Thought:</strong> <span id="mood-quote">Awaiting inspiration...</span></p>
+        <p><strong>🔮 Reflection:</strong> <span id="mood-hybrid">Loading reflection...</span></p>
+      </section>
+      
+    <section class="grid-col-12 content-section neon-card">
+      <h2><i class="fas fa-bolt"></i> Live Quote Feed</h2>
+      <p id="nova-core-quote">💭 Awaiting latest thought...</p>
+    </section>
+
+    <section class="grid-col-12 content-section neon-card">
+      <h2><i class="fas fa-brain"></i> Mood + Drift Engine</h2>
+      <p>Mood tracking and emotional state will appear here when active.</p>
+      <div id="nova-mood-drift">🧠 Mood: <strong>Initializing...</strong></div>
+    </section>
+
+    <section class="grid-col-12 content-section neon-card">
+      <h2><i class="fas fa-robot"></i> System Hooks</h2>
+      <ul>
+        <li><a href="/nova/index.html">📊 Nova Dashboard</a></li>
+        <li><a href="/nova/logs.html">📝 Log Console</a></li>
+        <li><a href="/docs/nova-system-memory.html">🧬 System Anatomy</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/init-nav.js" defer></script>
+  <script src="/js/nova-mood-core.js" defer></script>
+  <script>
+    fetch('/data/nova-quotes.json')
+      .then(res => res.json())
+      .then(data => {
+        const quote = data[Math.floor(Math.random() * data.length)];
+        document.getElementById('nova-core-quote').textContent = `💭 "${quote}"`;
+      });
+  </script>
+</body>
+</html>
