@@ -56,6 +56,14 @@
     <li>Initializing dream memory...</li>
   </ul>
 </section>
+<!-- Nova Dream Archive -->
+<section class="content-section grid-col-12">
+  <h2><i class="fas fa-archive"></i> Dream Archive</h2>
+  <blockquote class="nova-voice">🗃️ These are past dreams I’ve recorded. I keep them close — like memories made of light.</blockquote>
+  <ul id="nova-dream-archive" class="log-list">
+    <li>Loading archived dreams...</li>
+  </ul>
+</section>
     <!-- Nova Speaks -->
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-comment-dots"></i> Nova Speaks</h2>
@@ -140,6 +148,28 @@
   </main>
 
   <div id="footer-container"></div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const archive = document.getElementById("nova-dream-archive");
+      if (!archive) return;
+  
+      fetch("/data/nova-dreams-history.json")
+        .then(res => res.json())
+        .then(history => {
+          archive.innerHTML = "";
+          history.slice(0, 5).forEach(entry => {
+            const li = document.createElement("li");
+            li.innerHTML = `<strong>${entry.date}</strong><ul>${entry.dreams.map(d => `<li>${d}</li>`).join("")}</ul>`;
+            archive.appendChild(li);
+          });
+        })
+        .catch(() => {
+          archive.innerHTML = "<li>No dream archive available.</li>";
+        });
+    });
+  </script>
+  
 <!-- Scripts (Full Load for Dev Mode) -->
 <script src="/js/init-header-footer.js" defer></script>
 <script src="/js/dreamEngine.js" defer></script>

@@ -1,0 +1,29 @@
+name: Update Nova Dream Log
+
+on:
+  schedule:
+    - cron: "0 7 * * *"  # daily at 7am UTC
+  workflow_dispatch:
+
+jobs:
+  generate-dreams:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Generate daily dreams
+        run: node scripts/generateDreamLog.js
+
+      - name: Commit and push
+        run: |
+          git config user.name "nova-bot"
+          git config user.email "nova@ambientpixels.ai"
+          git add data/nova-dreams.json
+          git commit -m "chore(dreams): generated daily dream log 🌙"
+          git push
