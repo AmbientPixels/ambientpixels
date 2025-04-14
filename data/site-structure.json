@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-04-13T20:31:12.943Z",
+  "updated": "2025-04-14T13:27:44.551Z",
   "root": [
     {
       "type": "folder",
@@ -57,6 +57,25 @@
       ]
     },
     {
+      "type": "folder",
+      "name": "api",
+      "path": "api",
+      "children": [
+        {
+          "type": "folder",
+          "name": "dreamLogWriter",
+          "path": "api/dreamLogWriter",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "generateNovaQuote",
+          "path": "api/generateNovaQuote",
+          "children": []
+        }
+      ]
+    },
+    {
       "type": "page",
       "name": "art.html",
       "path": "art.html"
@@ -98,6 +117,12 @@
           "type": "folder",
           "name": "mini-hero",
           "path": "images/mini-hero",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "nova",
+          "path": "images/nova",
           "children": []
         },
         {
@@ -176,8 +201,8 @@
         },
         {
           "type": "page",
-          "name": "nova-pulse.html",
-          "path": "modules/nova-pulse.html"
+          "name": "pulse.html",
+          "path": "modules/pulse.html"
         },
         {
           "type": "page",
@@ -193,6 +218,26 @@
       "children": [
         {
           "type": "page",
+          "name": "_template.html",
+          "path": "nova/_template.html"
+        },
+        {
+          "type": "page",
+          "name": "about.html",
+          "path": "nova/about.html"
+        },
+        {
+          "type": "page",
+          "name": "awareness.html",
+          "path": "nova/awareness.html"
+        },
+        {
+          "type": "page",
+          "name": "core.html",
+          "path": "nova/core.html"
+        },
+        {
+          "type": "page",
           "name": "index.html",
           "path": "nova/index.html"
         },
@@ -200,6 +245,18 @@
           "type": "page",
           "name": "logs.html",
           "path": "nova/logs.html"
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": "nova-core",
+      "path": "nova-core",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "nova-core/index.html"
         }
       ]
     },

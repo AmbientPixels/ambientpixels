@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2025-04-13T20:31:14.045Z",
+  "scannedAt": "2025-04-14T13:27:45.308Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -27,9 +27,14 @@
       "scanDirectory",
       "writeCodeMap"
     ],
+    "generateDreamLog.js": [],
     "generateNovaBoot.js": [
       "readJSON",
       "buildSessionSeed"
+    ],
+    "generateQuoteOfTheDay.js": [
+      "pickRandomQuote",
+      "run"
     ],
     "imageAudit.js": [
       "getImages",
