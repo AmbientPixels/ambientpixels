@@ -1,9 +1,0 @@
-{
-    "IsEncrypted": false,
-    "Values": {
-      "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-      "FUNCTIONS_WORKER_RUNTIME": "node",
-      "HUGGINGFACE_API_KEY": "your-real-api-key"
-    }
-  }
-  
