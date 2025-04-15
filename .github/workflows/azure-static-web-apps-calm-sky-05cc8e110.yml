@@ -15,6 +15,7 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_SKY_05CC8E110 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "/" # Root—index.html, projects.html
-          output_location: "" # No build—static files
-          api_location: "" # No API build—Function App separate
+          app_location: "/"         # Your index.html is here
+          output_location: ""       # No build folder, so leave this empty
+          api_location: ""          # No API
+          skip_app_build: "true"    # 💡 This is the key
