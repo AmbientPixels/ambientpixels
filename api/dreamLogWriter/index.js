@@ -1,6 +1,8 @@
+// Example: api/generateNovaQuote/index.js
 module.exports = async function (context, req) {
+  context.log("generateNovaQuote called.");
   context.res = {
     status: 200,
-    body: { message: 'Dream log received.' }
+    body: "Hello from generateNovaQuote!"
   };
 };

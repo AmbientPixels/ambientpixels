@@ -1,7 +1,8 @@
 module.exports = async function (context, req) {
-  const quote = 'Sometimes a glitch is just misunderstood electricity.';
+  context.log("Function triggered:", context.executionContext.functionName);
+
   context.res = {
     status: 200,
-    body: { quote }
+    body: "✅ Hello from " + context.executionContext.functionName
   };
 };
