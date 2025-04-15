@@ -29,4 +29,4 @@ jobs:
           app-name: 'ambientpixels-api'
           package: '.'
           publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE_AMBIENTPIXELS_API }}
-          slot-name: 'production'  # ← this line fixes the RBAC error
+          slot-name: 'production'
