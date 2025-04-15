@@ -4,7 +4,7 @@ name: Deploy Nova API
 on:
   push:
     paths:
-      - 'nova-api/**'
+      - 'api/**'  # <-- 🔧 changed from 'nova-api/**' to 'api/**'
 
 jobs:
   build-and-deploy:
@@ -27,4 +27,4 @@ jobs:
         with:
           app-name: ambientpixels-nova-api
           publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE_AMBIENTPIXELS_API }}
-          package: 'api'
+          package: '.'   # deploys from root, finds the /api folder
