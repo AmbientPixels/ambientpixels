@@ -4,7 +4,7 @@ name: Deploy Nova API
 on:
   push:
     paths:
-      - 'api/**'  # <-- 🔧 changed from 'nova-api/**' to 'api/**'
+      - 'api/**'  # 🔧 changed from 'nova-api/**' to 'api/**'
 
 jobs:
   build-and-deploy:
