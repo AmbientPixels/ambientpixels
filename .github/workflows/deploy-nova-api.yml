@@ -17,6 +17,11 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Debug inputs
+        run: |
+          echo "App Name: ambientpixels-nova-api"
+          echo "Publish Profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE_AMBIENTPIXELS_API }}"
+
       - name: Run Azure Functions Action
         uses: Azure/functions-action@v1
         with:
