@@ -2,7 +2,7 @@ name: Deploy to Azure Functions (Nova API)
 
 on:
   push:
-    branches: [ "main" ]  # or "master" — match your default branch
+    branches: [ "main" ]
     paths:
       - 'api/**'
       - 'package.json'
@@ -24,9 +24,9 @@ jobs:
         run: npm install
 
       - name: Deploy to Azure Functions
-  uses: Azure/functions-action@v1
-  with:
-    app-name: 'ambientpixels-api'
-    package: '.'
-    publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE_AMBIENTPIXELS_API }}
-    slot-name: 'production'
+        uses: Azure/functions-action@v1
+        with:
+          app-name: 'ambientpixels-api'
+          package: '.'
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE_AMBIENTPIXELS_API }}
+          slot-name: 'production'  # ← this line fixes the RBAC error
