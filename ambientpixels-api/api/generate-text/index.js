@@ -1,7 +1,4 @@
-// File: generate-text/index.js
-
-// ✅ Dynamic import for compatibility with Node 18+ and Azure Functions runtime
-const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+const fetch = require('node-fetch');
 
 module.exports = async function (context, req) {
   const prompt = req.body?.prompt;
@@ -10,10 +7,7 @@ module.exports = async function (context, req) {
   if (!prompt) {
     context.res = {
       status: 400,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type'
-      },
+      headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type' },
       body: { error: 'Missing prompt in request body.' }
     };
     return;
@@ -21,15 +15,6 @@ module.exports = async function (context, req) {
 
   const HUGGINGFACE_API_KEY = process.env.HUGGINGFACE_API_KEY;
   const HF_MODEL = 'gpt2';
-
-  if (!HUGGINGFACE_API_KEY) {
-    context.log('❌ API key is missing.');
-    context.res = {
-      status: 500,
-      body: { error: 'Missing Hugging Face API Key' }
-    };
-    return;
-  }
 
   try {
     const hfResponse = await fetch(`https://api-inference.huggingface.co/models/${HF_MODEL}`, {
@@ -52,8 +37,6 @@ module.exports = async function (context, req) {
       throw new Error('Hugging Face returned invalid JSON or HTML');
     }
 
-    const resultText = data[0]?.generated_text || '⚠️ No generated text.';
-
     context.res = {
       status: hfResponse.ok ? 200 : 500,
       headers: {
@@ -61,7 +44,7 @@ module.exports = async function (context, req) {
         'Access-Control-Allow-Headers': 'Content-Type'
       },
       body: hfResponse.ok
-        ? { text: resultText }
+        ? { text: data[0]?.generated_text || '⚠️ No generated text.' }
         : { error: 'Hugging Face error', details: data }
     };
   } catch (err) {
