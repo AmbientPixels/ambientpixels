@@ -1,3 +1,5 @@
+// File: /js/nova-vision.js
+
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("imagePromptForm");
   const input = document.getElementById("promptInput");
@@ -14,10 +16,11 @@ document.addEventListener("DOMContentLoaded", () => {
     imageTag.alt = "Generating...";
 
     try {
-      const response = await fetch("https://ambientpixels-meme-api-fn.azurewebsites.net/api/novavision?code=REPLACE_ME", {
+      const response = await fetch("https://ambientpixels-meme-api-fn.azurewebsites.net/api/novavision", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "x-functions-key": NOVAVISION_KEY // Inject this at runtime or build-time
         },
         body: JSON.stringify({ prompt })
       });
