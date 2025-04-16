@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-04-16T05:52:21.854Z",
+  "updated": "2025-04-16T13:27:00.216Z",
   "root": [
     {
       "type": "folder",
@@ -56,8 +56,14 @@
         },
         {
           "type": "folder",
-          "name": "generateNovaQuote",
-          "path": "api/generateNovaQuote",
+          "name": "generate-text",
+          "path": "api/generate-text",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "generateText",
+          "path": "api/generateText",
           "children": []
         }
       ]
