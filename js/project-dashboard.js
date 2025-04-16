@@ -1,105 +1,102 @@
-// File: /js/project-dashboard.js
+// File: /js/project-dashboard.js (Fixed Version)
+
 document.addEventListener("DOMContentLoaded", () => {
   const codeEl = document.getElementById("code-footprint");
   if (codeEl) {
-    // safe to render chart
+    // placeholder for chart
   }
 
   const logEl = document.getElementById("changelog");
   if (logEl) {
-    // load changelog
+    // placeholder for log rendering
   }
-});
-fetch('/docs/logs/projects.json')
-  .then(res => res.json())
-  .then(projects => {
-    const list = document.getElementById('project-list');
-    const filters = document.getElementById('project-filters');
-    const allTags = new Set();
 
-    // Collect all unique tags
-    projects.forEach(project => {
-      if (Array.isArray(project.tags)) {
-        project.tags.forEach(tag => allTags.add(tag));
-      }
-    });
+  // Load and render project list
+  fetch('/docs/logs/projects.json?t=' + Date.now())
+    .then(res => res.json())
+    .then(projects => {
+      const list = document.getElementById('project-list');
+      const filters = document.getElementById('project-filters');
+      if (!list || !filters) return;
 
-    // Create filter buttons
-    filters.innerHTML = '<div class="filter-label">Filter:</div>';
-    [...allTags].sort().forEach(tag => {
-      const btn = document.createElement('button');
-      btn.className = 'filter-pill';
-      btn.textContent = tag;
-      btn.onclick = () => filterByTag(tag);
-      filters.appendChild(btn);
-    });
+      const allTags = new Set();
+      projects.forEach(project => {
+        if (Array.isArray(project.tags)) {
+          project.tags.forEach(tag => allTags.add(tag));
+        }
+      });
 
-    // Initial render
-    renderProjects(projects);
+      filters.innerHTML = '<div class="filter-label">Filter:</div>';
+      [...allTags].sort().forEach(tag => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-pill';
+        btn.textContent = tag;
+        btn.onclick = () => filterByTag(tag);
+        filters.appendChild(btn);
+      });
 
-    function renderProjects(data) {
-      list.innerHTML = '';
-      data.forEach(project => {
-        const insight = generateNovaInsight(project); // Inject Nova insight 🧠
-        const card = document.createElement('section');
-        card.className = 'grid-col-4 card-section';
-        card.innerHTML = `
-          <div class="card-content">
-            <h3>
-              ${renderStatusLED(project.status)}
-              ${project.title}
-            </h3>
-            ${renderProgress(project.progress)}
-            <p class="nova-mood">${project.status} • Updated: ${project.lastUpdated}</p>
-            <div class="nova-badge-group">
-              ${(project.tags || []).map(tag => `<span class="nova-badge">${tag}</span>`).join('')}
+      renderProjects(projects);
+
+      function renderProjects(data) {
+        list.innerHTML = '';
+        data.forEach(project => {
+          const insight = generateNovaInsight(project);
+          const card = document.createElement('section');
+          card.className = 'grid-col-4 card-section';
+          card.innerHTML = `
+            <div class="card-content">
+              <h3>
+                ${renderStatusLED(project.status)}
+                ${project.title}
+              </h3>
+              ${renderProgress(project.progress)}
+              <p class="nova-mood">${project.status} • Updated: ${project.lastUpdated}</p>
+              <div class="nova-badge-group">
+                ${(project.tags || []).map(tag => `<span class="nova-badge">${tag}</span>`).join('')}
+              </div>
+              <p class="nova-quip">${insight}</p>
+              <a href="${project.html}" class="btn-link">View Log →</a>
             </div>
-            <p class="nova-quip">${insight}</p>
-            <a href="${project.html}" class="btn-link">View Log →</a>
+          `;
+          list.appendChild(card);
+        });
+      }
+
+      function renderStatusLED(status) {
+        const statusColors = {
+          'Active': '🟢',
+          'In Progress': '🟡',
+          'Paused': '🟠',
+          'Planned': '🔵',
+          'Embargoed': '⚫',
+          'Idea': '💡'
+        };
+        return `<span title="${status}" style="margin-right: 0.4rem;">${statusColors[status] || '🔘'}</span>`;
+      }
+
+      function renderProgress(progress) {
+        if (typeof progress !== 'number') return '';
+        const pct = Math.round(progress * 100);
+        return `
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:${pct}%"></div>
           </div>
         `;
-        list.appendChild(card);
-      });
-    }
+      }
 
-    function renderStatusLED(status) {
-      const statusColors = {
-        'Active': '🟢',
-        'In Progress': '🟡',
-        'Paused': '🟠',
-        'Planned': '🔵',
-        'Embargoed': '⚫',
-        'Idea': '💡'
-      };
-      return `<span title="${status}" style="margin-right: 0.4rem;">${statusColors[status] || '🔘'}</span>`;
-    }
+      function filterByTag(tag) {
+        const filtered = projects.filter(p => p.tags.includes(tag));
+        renderProjects(filtered);
+      }
+    })
+    .catch(err => {
+      const list = document.getElementById('project-list');
+      if (list) list.innerHTML = '<p>Error loading projects.</p>';
+      console.error('Project dashboard error:', err);
+    });
 
-    function renderProgress(progress) {
-      if (typeof progress !== 'number') return '';
-      const pct = Math.round(progress * 100);
-      return `
-        <div class="progress-bar">
-          <div class="progress-fill" style="width:${pct}%"></div>
-        </div>
-      `;
-    }
-
-    function filterByTag(tag) {
-      const filtered = projects.filter(p => p.tags.includes(tag));
-      renderProjects(filtered);
-    }
-  })
-  .catch(err => {
-    document.getElementById('project-list').innerHTML = '<p>Error loading projects.</p>';
-    console.error('Project dashboard error:', err);
-  });
-document.addEventListener("DOMContentLoaded", () => {
-  // GitHub Mood (usually static or set manually elsewhere)
-  const githubMood = document.getElementById("nova-mood");
-  if (githubMood) githubMood.textContent = "chaotic optimism"; // or fetch if dynamic
-
-  // Memory Version (from /data/version.json)
-  fetch("/data/version.json")
+  // Load Nova mood indicators
+  fetch("/data/version.json?t=" + Date.now())
     .then(res => res.json())
     .then(data => {
       const versionEl = document.getElementById("nova-version");
@@ -110,28 +107,24 @@ document.addEventListener("DOMContentLoaded", () => {
       if (versionEl) versionEl.textContent = "Unavailable";
     });
 
-  // Synthetic Mood
-  fetch("/data/nova-synth-mood.json")
+  fetch("/data/nova-synth-mood.json?t=" + Date.now())
     .then(res => res.json())
     .then(data => {
       const synthMoodEl = document.getElementById("nova-synth-mood");
       if (synthMoodEl) synthMoodEl.textContent = data.mood || "???";
     });
 
-  // Hybrid Mood
-  fetch("/data/nova-hybrid-mood.json")
+  fetch("/data/nova-hybrid-mood.json?t=" + Date.now())
     .then(res => res.json())
     .then(data => {
       const hybridMoodEl = document.getElementById("nova-hybrid-mood");
       if (hybridMoodEl) hybridMoodEl.textContent = data.hybridMood || data.reflection || "???";
-      
     });
 
-  // Module Count (counts how many .js files are loaded)
   const moduleCountEl = document.getElementById("nova-module-count");
-if (moduleCountEl) {
-  const scripts = document.querySelectorAll("script[src]");
-  const novaModules = [...scripts].filter(s => s.src.includes("/js/nova-"));
-  moduleCountEl.textContent = novaModules.length;
-}
+  if (moduleCountEl) {
+    const scripts = document.querySelectorAll("script[src]");
+    const novaModules = [...scripts].filter(s => s.src.includes("/js/nova-"));
+    moduleCountEl.textContent = novaModules.length;
+  }
 });

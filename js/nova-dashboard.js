@@ -1,43 +1,43 @@
-// File: /js/nova-dashboard.js
-
-// Initialize Nova Dashboard Modules
+// File: /js/nova-dashboard.js (Fixed Version)
 
 document.addEventListener("DOMContentLoaded", () => {
-  const codeEl = document.getElementById("code-footprint");
-  if (codeEl) {
-    // safe to render chart
-  }
-
-  const logEl = document.getElementById("changelog");
-  if (logEl) {
-    // load changelog
-  }
+  loadVersionAndMood();
+  loadAwarenessLogs();
+  renderCodeFootprintChart();
+  loadFunctionMap();
+  loadPromptHistory();
+  loadImageInventoryGrid();
+  loadUnusedCSSReport();
+  loadApiMonitor();
+  loadCodeMap();
 });
 
-// Load version.json + mood-scan.json
 async function loadVersionAndMood() {
   try {
-    const versionRes = await fetch('/data/version.json');
-    const moodRes = await fetch('/data/mood-scan.json');
+    const versionRes = await fetch('/data/version.json?t=' + Date.now());
+    const moodRes = await fetch('/data/mood-scan.json?t=' + Date.now());
     const versionData = await versionRes.json();
     const moodData = await moodRes.json();
 
-    document.getElementById('nova-version').textContent = `${versionData.version} (build ${versionData.build})`;
-    document.getElementById('nova-mood').textContent = moodData.mood;
-    document.getElementById('nova-aura').textContent = moodData.aura;
-    document.getElementById('nova-observation').textContent = moodData.observation;
+    const versionEl = document.getElementById('nova-version');
+    if (versionEl) versionEl.textContent = `${versionData.version} (build ${versionData.build})`;
+
+    const moodEl = document.getElementById('nova-mood');
+    const auraEl = document.getElementById('nova-aura');
+    const observationEl = document.getElementById('nova-observation');
+    if (moodEl) moodEl.textContent = moodData.mood;
+    if (auraEl) auraEl.textContent = moodData.aura;
+    if (observationEl) observationEl.textContent = moodData.observation;
   } catch (err) {
     console.error('⚠️ Failed to load version or mood data:', err);
   }
 }
 
-// Load changelog.json into Awareness Logs
 async function loadAwarenessLogs() {
   try {
-    const res = await fetch('/data/changelog.json');
+    const res = await fetch('/data/changelog.json?t=' + Date.now());
     const data = await res.json();
     const logList = document.getElementById('log-list');
-
     if (!logList) return;
     logList.innerHTML = '';
 
@@ -59,14 +59,15 @@ async function loadAwarenessLogs() {
   }
 }
 
-// Render Code Footprint Chart
 async function renderCodeFootprintChart() {
   try {
-    const res = await fetch('/data/code-footprint.json');
+    const res = await fetch('/data/code-footprint.json?t=' + Date.now());
     const data = await res.json();
-    const ctx = document.getElementById('codeFootprintChart').getContext('2d');
+    const ctx = document.getElementById('codeFootprintChart');
+    if (!ctx) return;
+    const chartCtx = ctx.getContext('2d');
 
-    new Chart(ctx, {
+    new Chart(chartCtx, {
       type: 'bar',
       data: {
         labels: Object.keys(data.summary),
@@ -78,9 +79,7 @@ async function renderCodeFootprintChart() {
       },
       options: {
         plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: true, ticks: { stepSize: 100 } }
-        }
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 100 } } }
       }
     });
   } catch (err) {
@@ -88,12 +87,12 @@ async function renderCodeFootprintChart() {
   }
 }
 
-// Load Function Map
 async function loadFunctionMap() {
   try {
-    const res = await fetch('/data/js-function-map.json');
+    const res = await fetch('/data/js-function-map.json?t=' + Date.now());
     const data = await res.json();
     const container = document.getElementById('function-map-output');
+    if (!container) return;
     container.innerHTML = '';
 
     Object.entries(data.scripts).forEach(([file, functions]) => {
@@ -110,32 +109,30 @@ async function loadFunctionMap() {
   }
 }
 
-// Load Prompt History
 async function loadPromptHistory() {
   try {
-    const res = await fetch('/data/ai-prompts.json');
+    const res = await fetch('/data/ai-prompts.json?t=' + Date.now());
     const data = await res.json();
     const container = document.querySelector('.prompt-history .prompt-entry');
-    if (container) {
-      const date = new Date(data.date).toLocaleDateString();
-      container.innerHTML = `
-        <p><strong>Date:</strong> ${date}</p>
-        <p><strong>Prompt:</strong> ${data.prompt}</p>
-        <p><strong>Tags:</strong> ${data.tags.join(', ')}</p>
-      `;
-    }
+    if (!container) return;
+
+    const date = new Date(data.date).toLocaleDateString();
+    container.innerHTML = `
+      <p><strong>Date:</strong> ${date}</p>
+      <p><strong>Prompt:</strong> ${data.prompt}</p>
+      <p><strong>Tags:</strong> ${data.tags.join(', ')}</p>
+    `;
   } catch (err) {
     console.error('⚠️ Failed to load prompt history:', err);
   }
 }
 
-// Load Image Inventory Grid
 async function loadImageInventoryGrid() {
   const gridContainer = document.getElementById('image-grid');
   if (!gridContainer) return;
 
   try {
-    const res = await fetch('/data/image-inventory.json');
+    const res = await fetch('/data/image-inventory.json?t=' + Date.now());
     const data = await res.json();
     data.folders.forEach(folder => {
       folder.files.forEach(filePath => {
@@ -154,13 +151,13 @@ async function loadImageInventoryGrid() {
   }
 }
 
-// Load Unused CSS Report
 async function loadUnusedCSSReport() {
   try {
-    const res = await fetch('/data/unused-css-report.json');
+    const res = await fetch('/data/unused-css-report.json?t=' + Date.now());
     const data = await res.json();
     const summary = document.getElementById('unused-css-summary');
     const list = document.getElementById('unused-css-list');
+    if (!summary || !list) return;
 
     if (data.unusedClasses.length === 0) {
       summary.textContent = `🎉 All ${data.totalUsed} CSS classes in ${data.cssFile} are used.`;
@@ -170,16 +167,17 @@ async function loadUnusedCSSReport() {
     }
   } catch (err) {
     console.error('⚠️ Failed to load unused CSS report:', err);
-    document.getElementById('unused-css-summary').textContent = '⚠️ Could not load CSS data.';
+    const summary = document.getElementById('unused-css-summary');
+    if (summary) summary.textContent = '⚠️ Could not load CSS data.';
   }
 }
 
-// Load API Monitor
 async function loadApiMonitor() {
   try {
-    const res = await fetch('/data/api-monitor.json');
+    const res = await fetch('/data/api-monitor.json?t=' + Date.now());
     const data = await res.json();
     const list = document.getElementById('api-monitor-list');
+    if (!list) return;
     list.innerHTML = '';
 
     data.endpoints.forEach(api => {
@@ -193,29 +191,36 @@ async function loadApiMonitor() {
     });
   } catch (err) {
     console.error('⚠️ Failed to load API monitor:', err);
-    document.getElementById('api-monitor-list').innerHTML = '<li>⚠️ Could not load API data.</li>';
+    const list = document.getElementById('api-monitor-list');
+    if (list) list.innerHTML = '<li>⚠️ Could not load API data.</li>';
   }
 }
 
-// Load and render code awareness map
 async function loadCodeMap() {
-  const res = await fetch('/data/code-map.json');
-  const data = await res.json();
+  try {
+    const res = await fetch('/data/code-map.json?t=' + Date.now());
+    const data = await res.json();
+    const summaryEl = document.getElementById('code-summary');
+    if (!summaryEl) return;
 
-  document.getElementById('code-summary').innerHTML = `
-    <p><strong>Total JS:</strong> ${data.summary.totalJS}</p>
-    <p><strong>Total CSS:</strong> ${data.summary.totalCSS}</p>
-    <p><strong>Total HTML:</strong> ${data.summary.totalHTML}</p>
-    <p><strong>Last Updated:</strong> ${new Date(data.timestamp).toLocaleString()}</p>
-  `;
+    summaryEl.innerHTML = `
+      <p><strong>Total JS:</strong> ${data.summary.totalJS}</p>
+      <p><strong>Total CSS:</strong> ${data.summary.totalCSS}</p>
+      <p><strong>Total HTML:</strong> ${data.summary.totalHTML}</p>
+      <p><strong>Last Updated:</strong> ${new Date(data.timestamp).toLocaleString()}</p>
+    `;
 
-  renderList('code-functions', data.functions);
-  renderList('code-classes', data.cssClasses);
-  renderList('code-tags', data.htmlTags);
+    renderList('code-functions', data.functions);
+    renderList('code-classes', data.cssClasses);
+    renderList('code-tags', data.htmlTags);
+  } catch (err) {
+    console.error('⚠️ Failed to load code map:', err);
+  }
 }
 
 function renderList(id, items) {
   const el = document.getElementById(id);
+  if (!el) return;
   el.innerHTML = '';
   items.slice(0, 50).forEach(item => {
     const li = document.createElement('li');
