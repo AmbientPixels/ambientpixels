@@ -1,34 +1,41 @@
-bin
-obj
-csx
-.vs
-edge
-Publish
+# Build + IDE clutter
+bin/
+obj/
+csx/
+.vs/
+edge/
+Publish/
 
+# User + system files
 *.user
 *.suo
 *.cscfg
 *.Cache
 project.lock.json
 
-/packages
-/TestResults
-
+# Test + NuGet tools
+/packages/
+/TestResults/
 /tools/NuGet.exe
-/App_Data
-/secrets
-/data
-.secrets
+
+# App + secrets (exclude local dev secrets)
+App_Data/
+secrets/
+data/
+.secrets/
 appsettings.json
 local.settings.json
+api/local.settings.json
 
-node_modules
-dist
+# Node dependencies (do NOT commit)
+node_modules/
+api/node_modules/
 
-# Local python packages
+# Build output (generated)
+dist/
+
+# Python virtual environments
 .python_packages/
-
-# Python Environments
 .env
 .venv
 env/
@@ -37,12 +44,12 @@ ENV/
 env.bak/
 venv.bak/
 
-# Byte-compiled / optimized / DLL files
+# Python compiled files
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Azurite artifacts
-__blobstorage__
-__queuestorage__
+# Azurite emulator files
+__blobstorage__/
+__queuestorage__/
 __azurite_db*__.json
