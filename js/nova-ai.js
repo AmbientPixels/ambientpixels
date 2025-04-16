@@ -1,17 +1,10 @@
-// File: /js/nova-ai.js – Nova AI Client Fetch Module
+// File: /js/nova-ai.js – Non-module safe version
 
-/**
- * Send a prompt to Nova's backend AI generator.
- * @param {string} prompt - The prompt to send to Hugging Face via Azure Function.
- * @returns {Promise<string>} - The AI-generated response text.
- */
-export async function generateNovaText(prompt) {
+async function generateNovaText(prompt) {
   try {
-    const res = await fetch('https://ambientpixels-meme-api-fn.azurewebsites.net/api/generate-text', {
+    const res = await fetch('/api/generate-text', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt })
     });
 

@@ -1,78 +1,52 @@
+<!-- File: test.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Ambient Pixels Documentation Page Template" />
-  <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
-  <title>Ambient Pixels Docs</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/base.css" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/nav.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
-  <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/banner.css" />
+  <meta charset="UTF-8">
+  <title>Nova API Test</title>
+  <style>
+    body {
+      font-family: monospace;
+      background: #0d0d0d;
+      color: #00ffcc;
+      padding: 2rem;
+    }
+    #nova-output {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #1a1a1a;
+      border: 1px solid #00ffcc;
+    }
+  </style>
 </head>
-<body data-theme="dark">
+<body>
+  <h1>🔌 Nova API Test</h1>
+  <button id="run-test">Run Test</button>
+  <div id="nova-output">Waiting for response...</div>
 
-  <div class="banner-container" id="banner-container">
-    <div class="banner">
-      <i class="fas fa-wrench banner-icon"></i>
-      <span>Documentation Mode — Drafted with Nova.</span>
-      <button class="banner-close" aria-label="Close Banner">×</button>
-    </div>
-  </div>
-
-  <!-- Dynamic Navigation Header -->
-  <header id="nav-header"></header>
-
-  <section class="mini-hero">
-    <img src="images/mini-hero-v1.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
-    <h1>Ambient Pixels Test</h1>
-  </section>
-
-  <main class="grid-container">
-    <!-- Drop new .content-section grid blocks here -->
-    <section class="content-section grid-col-12">
-      <div class="section-header">
-        <h2><i class="fas fa-image"></i> Test Collapsible Section</h2>
-        <button class="toggle-btn icon-only" aria-expanded="true" title="Toggle section">
-          <i class="fas fa-chevron-down"></i>
-        </button>
-      </div>
-      <div class="content">
-        <p>This content block is collapsible. Click the chevron to toggle visibility.</p>
-        <p>Use this space to test layout, spacing, and animations.</p>
-      </div>
-    </section>
-  </main>
-
-  <!-- Footer will be dynamically injected here -->
-  <div id="footer-container"></div>
-<!-- Scripts (Full Load for Dev Mode) -->
-<script src="/js/init-header-footer.js" defer></script>
-<script src="/js/dreamEngine.js" defer></script>
-<script src="/js/init-quotes.js" defer></script>
-<script src="/js/main.js" defer></script>
-<script src="/js/md-inject.js" defer></script>
-<script src="/js/modal-window.js" defer></script>
-<script src="/js/nav.js" defer></script>
-<script src="/js/nova-ai.js" defer></script>
-<script src="/js/nova-awareness-feed.js" defer></script>
-<script src="/js/nova-dashboard.js" defer></script>
-<script src="/js/nova-insights.js" defer></script>
-<script src="/js/nova-interaction-log.js" defer></script>
-<script src="/js/nova-mood-core.js" defer></script>
-<script src="/js/nova-pulse.js" defer></script>
-<script src="/js/nova-quotes.js" defer></script>
-<script src="/js/nova-status.js" defer></script>
-<script src="/js/nova-telemetry-logger.js" defer></script>
-<script src="/js/project-dashboard.js" defer></script>
-<script src="/js/template.js" defer></script>
-<script src="/js/theme.js" defer></script>
-
+  <script>
+    document.getElementById("run-test").addEventListener("click", () => {
+      fetch("/api/generate-text", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ prompt: "Hello Nova" })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        console.log("[Nova]:", data);
+        document.getElementById("nova-output").textContent = data.text || JSON.stringify(data);
+      })
+      .catch(err => {
+        console.error("[Nova AI] Fetch failed:", err);
+        document.getElementById("nova-output").textContent = "❌ Error: " + err.message;
+      });
+    });
+  </script>
+  
 </body>
 </html>

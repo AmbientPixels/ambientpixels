@@ -1,0 +1,12 @@
+{
+    "liveServer.settings.proxy": {
+      "enable": true,
+      "proxyRules": [
+        {
+          "match": "/api",
+          "target": "http://localhost:7071"
+        }
+      ]
+    }
+  }
+  

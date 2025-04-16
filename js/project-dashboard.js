@@ -1,5 +1,15 @@
 // File: /js/project-dashboard.js
+document.addEventListener("DOMContentLoaded", () => {
+  const codeEl = document.getElementById("code-footprint");
+  if (codeEl) {
+    // safe to render chart
+  }
 
+  const logEl = document.getElementById("changelog");
+  if (logEl) {
+    // load changelog
+  }
+});
 fetch('/docs/logs/projects.json')
   .then(res => res.json())
   .then(projects => {

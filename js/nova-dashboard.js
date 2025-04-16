@@ -2,16 +2,16 @@
 
 // Initialize Nova Dashboard Modules
 
-document.addEventListener('DOMContentLoaded', () => {
-  loadVersionAndMood();
-  loadAwarenessLogs();
-  renderCodeFootprintChart();
-  loadFunctionMap();
-  loadPromptHistory();
-  loadImageInventoryGrid();
-  loadUnusedCSSReport();
-  loadApiMonitor();
-  loadCodeMap();
+document.addEventListener("DOMContentLoaded", () => {
+  const codeEl = document.getElementById("code-footprint");
+  if (codeEl) {
+    // safe to render chart
+  }
+
+  const logEl = document.getElementById("changelog");
+  if (logEl) {
+    // load changelog
+  }
 });
 
 // Load version.json + mood-scan.json
