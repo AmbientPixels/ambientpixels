@@ -1,12 +1,18 @@
 {
   "version": "v2.3",
-  "updated": "2025-04-14T13:27:44.551Z",
+  "updated": "2025-04-16T05:52:21.854Z",
   "root": [
     {
       "type": "folder",
       "name": ".github",
       "path": ".github",
       "children": [
+        {
+          "type": "folder",
+          "name": ".vscode",
+          "path": ".github/.vscode",
+          "children": []
+        },
         {
           "type": "folder",
           "name": "workflows",
@@ -34,25 +40,6 @@
           "type": "page",
           "name": "index.html",
           "path": "about/index.html"
-        }
-      ]
-    },
-    {
-      "type": "folder",
-      "name": "ambientpixels-meme-api-fn",
-      "path": "ambientpixels-meme-api-fn",
-      "children": [
-        {
-          "type": "folder",
-          "name": ".vscode",
-          "path": "ambientpixels-meme-api-fn/.vscode",
-          "children": []
-        },
-        {
-          "type": "folder",
-          "name": "generate-text",
-          "path": "ambientpixels-meme-api-fn/generate-text",
-          "children": []
         }
       ]
     },
@@ -245,6 +232,11 @@
           "type": "page",
           "name": "logs.html",
           "path": "nova/logs.html"
+        },
+        {
+          "type": "page",
+          "name": "nova-vision.html",
+          "path": "nova/nova-vision.html"
         }
       ]
     },
