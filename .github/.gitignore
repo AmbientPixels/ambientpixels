@@ -21,7 +21,6 @@ project.lock.json
 # App + secrets (exclude local dev secrets)
 App_Data/
 secrets/
-data/
 .secrets/
 appsettings.json
 local.settings.json
