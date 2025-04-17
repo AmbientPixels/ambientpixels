@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-04-16T13:27:00.216Z",
+  "updated": "2025-04-17T18:51:16.809Z",
   "root": [
     {
       "type": "folder",
@@ -62,8 +62,8 @@
         },
         {
           "type": "folder",
-          "name": "generateText",
-          "path": "api/generateText",
+          "name": "novavision",
+          "path": "api/novavision",
           "children": []
         }
       ]
