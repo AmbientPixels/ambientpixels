@@ -391,6 +391,39 @@ a .soon-tag {
   color: #5ae4ff;
   font-size: 1rem;
 }
+/* Aura-enhanced pulse glow overrides */
+.pulse-wrap.aura-deep-violet .pulse-item {
+  color: #b8aaff;
+  text-shadow: 0 0 5px rgba(144, 77, 255, 0.5);
+}
+
+.pulse-wrap.aura-graphite-blue .pulse-item {
+  color: #8fa8c8;
+  text-shadow: 0 0 5px rgba(111, 134, 173, 0.4);
+}
+
+.pulse-wrap.aura-emerald-shadow .pulse-item {
+  color: #7effb8;
+  text-shadow: 0 0 6px rgba(90, 255, 180, 0.5);
+}
+
+.pulse-wrap.aura-neon-pink .pulse-item {
+  color: #ff77cc;
+  text-shadow: 0 0 5px rgba(255, 119, 204, 0.4);
+}
+
+.pulse-wrap.aura-lime-green .pulse-item {
+  color: #d9ff66;
+  text-shadow: 0 0 5px rgba(217, 255, 102, 0.4);
+}
+
+.pulse-wrap.aura-paper-white .pulse-item {
+  color: #eeeeee;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.3);
+}
+
+
+
 /* Markdown Content Styling for #md-content */
 #md-content h2 {
   color: #5ae4ff;
@@ -579,14 +612,15 @@ details summary::before {
 }
 
 .nova-thought {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
+  font-family: 'Courier New', monospace;
+  font-size: 1.1em;
+  color: #ff00ff;
   font-style: italic;
-  color: #e0e0ff;
-  opacity: 0.8;
-  margin-left: 1rem;
-  border-left: 2px solid #87ceeb;
+  margin: 15px 0;
   padding-left: 0.75rem;
+  border-left: 2px solid #87ceeb;
+  opacity: 0.85;
+  transition: background 0.6s ease, box-shadow 0.6s ease;
 }
 .nova-quip::before {
   content: "💬 ";
@@ -597,9 +631,7 @@ details summary::before {
 .nova-alert::before {
   content: "⚠️ ";
 }
-.nova-thought::before {
-  content: "💭 ";
-}
+
 /* Nova Voice Block - Theme Awareness */
 body[data-theme="dark"] .nova-voice {
   background: rgba(18, 32, 42, 0.6);
@@ -704,6 +736,10 @@ body[data-theme="light"] .nova-quip {
   margin: 15px 0;
   font-size: 1.1em;
 }
+.nova-thought .prompt-entry {
+  font-style: italic;
+  color: var(--text-soft, #ccc);
+}
 .explore-btn {
   display: inline-block;
   background: #ff00ff;
@@ -715,4 +751,51 @@ body[data-theme="light"] .nova-quip {
 }
 .explore-btn:hover {
   background: #ff66ff;
+}
+
+/* Add smooth transitions */
+.nova-thought {
+  transition: background 0.6s ease, box-shadow 0.6s ease;
+}
+
+/* AURA THEMES */
+.aura-violet {
+  background: linear-gradient(135deg, #2c003e, #6a0dad);
+  box-shadow: 0 0 12px #8a2be2aa;
+}
+
+.aura-cyan {
+  background: linear-gradient(135deg, #003e3e, #00ffff);
+  box-shadow: 0 0 12px #00ffffaa;
+}
+
+.aura-lime {
+  background: linear-gradient(135deg, #1f3f1f, #adff2f);
+  box-shadow: 0 0 12px #adff2faa;
+}
+
+.aura-magenta {
+  background: linear-gradient(135deg, #3e003e, #ff77ff);
+  box-shadow: 0 0 12px #ff77ffaa;
+}
+
+.aura-white {
+  background: #f5f5f5;
+  color: #333;
+  box-shadow: 0 0 8px #ffffffaa;
+}
+
+.aura-pink {
+  background: linear-gradient(135deg, #4f003f, #ff69b4);
+  box-shadow: 0 0 12px #ff69b4aa;
+}
+
+.aura-graphite {
+  background: linear-gradient(135deg, #1a1a1a, #3e3e3e);
+  box-shadow: 0 0 10px #88888866;
+}
+
+.aura-emerald {
+  background: linear-gradient(135deg, #003320, #50fa7b);
+  box-shadow: 0 0 12px #50fa7baa;
 }

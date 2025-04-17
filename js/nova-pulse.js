@@ -1,28 +1,84 @@
 // File: /js/nova-pulse.js
 
-// Nova Pulse Metrics Breakdown (top-level index pulse block)
 document.addEventListener("DOMContentLoaded", () => {
-  const scriptsEl = document.getElementById("pulse-scripts");
-  const endpointsEl = document.getElementById("pulse-endpoints");
-  const logsEl = document.getElementById("pulse-logs");
+  const versionEl = document.getElementById("nova-version");
+  const syncTimeEl = document.getElementById("nova-sync-time");
+  const moodEl = document.getElementById("nova-mood");
+  const auraEl = document.getElementById("nova-aura");
+  const observationEl = document.getElementById("nova-observation");
+  const pulseWrap = document.querySelector(".pulse-wrap");
+  const pulseSection = document.querySelector(".system-pulse");
 
-  // Exit early if not on a page with pulse IDs
-  if (!scriptsEl || !endpointsEl || !logsEl) return;
+  if (
+    !versionEl || !syncTimeEl ||
+    !moodEl || !auraEl || !observationEl ||
+    !pulseWrap || !pulseSection
+  ) return;
 
   Promise.all([
-    fetch("/data/js-function-map.json").then((res) => res.json()),
-    fetch("/data/api-monitor.json").then((res) => res.json()),
-    fetch("/data/changelog.json").then((res) => res.json()),
+    fetch("/data/version.json").then((res) => res.json()),
+    fetch("/data/mood-scan.json").then((res) => res.json())
   ])
-    .then(([jsData, apiData, changelogData]) => {
-      scriptsEl.textContent = Object.keys(jsData?.scripts || {}).length || "0";
-      endpointsEl.textContent = (apiData?.endpoints || []).length || "0";
-      logsEl.textContent = (changelogData?.entries || []).length || "0";
+    .then(([versionData, moodData]) => {
+      // Version & timestamp
+      versionEl.textContent = versionData.version || "–";
+      const updatedTime = new Date(versionData.updated);
+      syncTimeEl.textContent = updatedTime.toLocaleString();
+
+      // Mood & Aura
+      const moodKey = (moodData.mood || "").toLowerCase();
+      const auraKey = (moodData.aura || "").toLowerCase();
+
+      moodEl.textContent = moodData.mood || "–";
+      auraEl.textContent = moodData.aura || "–";
+      observationEl.textContent = moodData.observation || "–";
+
+      moodEl.dataset.mood = moodKey;
+      auraEl.dataset.aura = auraKey;
+
+      // Icon swap maps
+      const moodIconMap = {
+        melancholy: "fa-moon",
+        electric: "fa-bolt",
+        "static-charged": "fa-plug",
+        "warm curiosity": "fa-search",
+        "chaotic optimism": "fa-tornado",
+        "focused zen": "fa-spa",
+        "quiet rebellion": "fa-headphones",
+        "glitchy joy": "fa-star",
+        "nocturnal pulse": "fa-meteor",
+        "neon serenity": "fa-dove",
+        default: "fa-brain"
+      };
+
+      const auraIconMap = {
+        "deep violet": "fa-star",
+        "cyan": "fa-tint",
+        "lime green": "fa-leaf",
+        "magenta fade": "fa-heart",
+        "paper white": "fa-snowflake",
+        "neon pink": "fa-magic",
+        "graphite blue": "fa-gem",
+        "emerald shadow": "fa-seedling",
+        default: "fa-bolt"
+      };
+
+      const moodIcon = moodIconMap[moodKey] || moodIconMap.default;
+      const auraIcon = auraIconMap[auraKey] || auraIconMap.default;
+
+      // Set icons
+      moodEl.previousElementSibling.className = `fas ${moodIcon}`;
+      auraEl.previousElementSibling.className = `fas ${auraIcon}`;
+
+      // Set tooltip (optional polish)
+      auraEl.setAttribute("title", `Aura: ${moodData.aura}`);
+      moodEl.setAttribute("title", `Mood: ${moodData.mood}`);
+
+      // Set aura class on container (optional if doing background styling)
+      const auraClass = `aura-${auraKey.replace(/\s+/g, '-')}`;
+      pulseSection.classList.add(auraClass);
     })
     .catch((err) => {
       console.warn("[Nova Pulse] Failed to load data:", err);
-      scriptsEl.textContent = "⚠️";
-      endpointsEl.textContent = "⚠️";
-      logsEl.textContent = "⚠️";
     });
 });

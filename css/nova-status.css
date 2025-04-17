@@ -1,5 +1,6 @@
 /* /css/nova-status.css — Nova HUD styling */
 
+/* HUD layout */
 .nova-status-display {
   display: flex;
   flex-wrap: wrap;
@@ -25,9 +26,42 @@
   gap: 10px;
 }
 
-.mood-tag[data-mood="glitchy"] {
+/* Mood-specific text colors */
+.mood-tag[data-mood="melancholy"] {
+  color: #8c82ff;
+}
+.mood-tag[data-mood="electric"] {
+  color: #ffd966;
+}
+.mood-tag[data-mood="glitchy joy"] {
   color: #c375ff;
+}
+.mood-tag[data-mood="focused zen"] {
+  color: #70e4b3;
+}
+.mood-tag[data-mood="chaotic optimism"] {
+  color: #f09090;
+}
+
+/* Aura-specific text colors */
+.aura-tag[data-aura="deep violet"] {
+  color: #b8aaff;
 }
 .aura-tag[data-aura="cyan"] {
   color: #5ae4ff;
+}
+.aura-tag[data-aura="graphite blue"] {
+  color: #8fa8c8;
+}
+.aura-tag[data-aura="emerald shadow"] {
+  color: #7effb8;
+}
+.aura-tag[data-aura="neon pink"] {
+  color: #ff77cc;
+}
+.aura-tag[data-aura="lime green"] {
+  color: #d9ff66;
+}
+.aura-tag[data-aura="paper white"] {
+  color: #eeeeee;
 }
