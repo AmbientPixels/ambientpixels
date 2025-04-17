@@ -23,7 +23,10 @@ App_Data/
 secrets/
 .secrets/
 appsettings.json
-**/local.settings.json
+/api/dreamLogWriter/local.settings.json
+/api/generate-text/local.settings.json
+/api/novavision/local.settings.json
+/api/synthesizeNovaMood/local.settings.json
 
 # Node dependencies (do NOT commit)
 node_modules/
