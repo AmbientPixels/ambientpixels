@@ -23,8 +23,7 @@ App_Data/
 secrets/
 .secrets/
 appsettings.json
-local.settings.json
-api/local.settings.json
+**/local.settings.json
 
 # Node dependencies (do NOT commit)
 node_modules/
