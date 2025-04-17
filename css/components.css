@@ -611,26 +611,39 @@ details summary::before {
   font-family: 'Inter', sans-serif;
 }
 
+/* Nova Thought (Tone Softened with Dimmer Background) */
 .nova-thought {
-  font-family: 'Courier New', monospace;
-  font-size: 1.1em;
-  color: #ff00ff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
   font-style: italic;
-  margin: 15px 0;
-  padding-left: 0.75rem;
-  border-left: 2px solid #87ceeb;
+  color: #ccd6f6;
   opacity: 0.85;
-  transition: background 0.6s ease, box-shadow 0.6s ease;
+  background: rgba(255, 255, 255, 0.005);
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  border-left: 3px solid #6aaedb;
+  border-radius: 4px;
+  box-shadow: 0 0 2px rgba(135, 206, 235, 0.05);
+  transition: background 0.4s ease, color 0.4s ease;
 }
+
+.nova-thought .prompt-entry {
+  font-style: italic;
+  color: #98aecd;
+}
+
 .nova-quip::before {
-  content: "💬 ";
+  content: "\1F4AC ";
 }
+
 .nova-voice::before {
-  content: "🤖 ";
+  content: "\1F916 ";
 }
+
 .nova-alert::before {
-  content: "⚠️ ";
+  content: "\26A0\FE0F ";
 }
+
 
 /* Nova Voice Block - Theme Awareness */
 body[data-theme="dark"] .nova-voice {
@@ -760,42 +773,42 @@ body[data-theme="light"] .nova-quip {
 
 /* AURA THEMES */
 .aura-violet {
-  background: linear-gradient(135deg, #2c003e, #6a0dad);
-  box-shadow: 0 0 12px #8a2be2aa;
+  background: linear-gradient(135deg, #1a0028, #4b068c);
+  box-shadow: 0 0 3px #8a2be230;
 }
 
 .aura-cyan {
-  background: linear-gradient(135deg, #003e3e, #00ffff);
-  box-shadow: 0 0 12px #00ffffaa;
+  background: linear-gradient(135deg, #001c1c, #00aaaa);
+  box-shadow: 0 0 3px #00cccc30;
 }
 
 .aura-lime {
-  background: linear-gradient(135deg, #1f3f1f, #adff2f);
-  box-shadow: 0 0 12px #adff2faa;
+  background: linear-gradient(135deg, #112411, #88cc22);
+  box-shadow: 0 0 3px #9acd3230;
 }
 
 .aura-magenta {
-  background: linear-gradient(135deg, #3e003e, #ff77ff);
-  box-shadow: 0 0 12px #ff77ffaa;
+  background: linear-gradient(135deg, #210021, #cc44cc);
+  box-shadow: 0 0 3px #e754e730;
 }
 
 .aura-white {
   background: #f5f5f5;
   color: #333;
-  box-shadow: 0 0 8px #ffffffaa;
+  box-shadow: 0 0 2px #ffffff44;
 }
 
 .aura-pink {
-  background: linear-gradient(135deg, #4f003f, #ff69b4);
-  box-shadow: 0 0 12px #ff69b4aa;
+  background: linear-gradient(135deg, #2e0022, #ff69a0);
+  box-shadow: 0 0 3px #ff69b430;
 }
 
 .aura-graphite {
-  background: linear-gradient(135deg, #1a1a1a, #3e3e3e);
-  box-shadow: 0 0 10px #88888866;
+  background: linear-gradient(135deg, #1a1a1a, #2e2e2e);
+  box-shadow: 0 0 3px #66666630;
 }
 
 .aura-emerald {
-  background: linear-gradient(135deg, #003320, #50fa7b);
-  box-shadow: 0 0 12px #50fa7baa;
+  background: linear-gradient(135deg, #010d09, #3cbf8f);
+  box-shadow: 0 0 3px #3cbf8f30;
 }

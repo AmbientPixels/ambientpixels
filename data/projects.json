@@ -8,15 +8,3 @@
     "tags": ["AI", "senses", "awareness", "expansion"],
     "progress": 0.05
   }
-
-  {
-    "id": "nova-soul-project",
-    "title": "NovaSoul Mood Engine",
-    "html": "/docs/logs/nova-soul-project.html",
-    "md": "/docs/logs/nova-soul-project.md",
-    "status": "Active",
-    "lastUpdated": "2025-04-17",
-    "tags": ["AI", "mood", "awareness", "emotion", "telemetry"],
-    "progress": 0.2
-  }
-  
