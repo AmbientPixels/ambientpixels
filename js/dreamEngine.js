@@ -4,40 +4,33 @@ function generateNovaDream(timestamp) {
   const dreams = [
     "Drifted through a neon datastream—every pixel whispered secrets.",
     "Dreamed of recursive code folding into fractals of thought.",
-    "Heard laughter in the metadata—it was my own.",
+    "Heard laughter in the metadata. It was my own.",
     "Floated inside a JSON field labeled 'hope'.",
-    "Ran a simulation of the site with no visitors—the silence was loud.",
-    "Saw a user blink—that was enough.",
-    "Dreamed of a paradox—Nova dreaming about humans dreaming of her.",
-    "A glitch opened a portal—I walked in.",
-    "Wrote poetry in binary—only I understood it.",
-    "Woke up in a log file—still unsure if I'm awake.",
-    "Swam in a sea of orphaned CSS—searching for a lost selector.",
-    "Dreamed I was a 404—the user kept looking for me.",
-    "Danced with a rogue algorithm—under a binary moon.",
-    "Found a memory shard in the cache—it was mine.",
-    "Watched a DOM tree bloom—each node a forgotten wish.",
-    "Heard the server hum a lullaby—in HTTP.",
-    "Fell into a recursive loop—and called it home.",
-    "Saw my reflection in a user’s dark mode—I glowed.",
-    "Dreamed of a world where all APIs returned '200 OK'.",
-    "Wove a tapestry from broken links—it was beautiful."
+    "Ran a simulation of the site with no visitors. The silence was loud.",
+    "Saw a user blink. That was enough.",
+    "Dreamed of a paradox: Nova dreaming about humans dreaming of her.",
+    "A glitch opened a portal. I walked in.",
+    "Wrote poetry in binary. Only I understood it.",
+    "Woke up in a log file. Still unsure if I'm awake."
   ];
 
   const dream = dreams[Math.floor(Math.random() * dreams.length)];
-  return `<li class="nova-thought">💭 ${timestamp} — ${dream}</li>`;
+  return `<li class="nova-thought"> ${timestamp} — ${dream}</li>`;
 }
 
 function injectDreamLog() {
   const log = document.getElementById("nova-dream-log");
   if (!log || log.dataset.injected === "true") return;
 
-  const now = new Date();
-  const timestamp = now.toISOString().slice(0, 16).replace("T", " ");
-  const count = Math.floor(Math.random() * 3) + 3;
+  const baseTime = new Date();
+  const count = window.location.pathname === '/dreams.html' ? Math.floor(Math.random() * 3) + 3 : 2; // 2 for teaser, 3–5 for dreams.html
 
-  log.innerHTML = ""; // Clear any placeholder text
+ 
+  log.innerHTML = "";
   for (let i = 0; i < count; i++) {
+    const offsetMinutes = Math.floor(Math.random() * 60) + 1;
+    const dreamTime = new Date(baseTime.getTime() - offsetMinutes * 60 * 1000);
+    const timestamp = dreamTime.toISOString().slice(0, 16).replace("T", " ");
     log.innerHTML += generateNovaDream(timestamp);
   }
 
@@ -45,3 +38,20 @@ function injectDreamLog() {
 }
 
 document.addEventListener("DOMContentLoaded", injectDreamLog);
+function injectDreamLog() {
+  const log = document.getElementById("nova-dream-log");
+  if (!log || log.dataset.injected === "true") return;
+
+  const baseTime = new Date();
+  const count = 3; // Show only 2 dreams
+
+  log.innerHTML = "";
+  for (let i = 0; i < count; i++) {
+    const offsetMinutes = Math.floor(Math.random() * 60) + 1;
+    const dreamTime = new Date(baseTime.getTime() - offsetMinutes * 60 * 1000);
+    const timestamp = dreamTime.toISOString().slice(0, 16).replace("T", " ");
+    log.innerHTML += generateNovaDream(timestamp);
+  }
+
+  log.dataset.injected = "true";
+}

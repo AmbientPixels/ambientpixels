@@ -688,3 +688,31 @@ body[data-theme="light"] .nova-quip {
     box-shadow: 0 0 20px #0ff, 0 0 40px #a0f;
   }
 }
+
+.dream-teaser {
+  padding: 20px;
+  text-align: center;
+  background: #1a1a1a;
+}
+.log-list {
+  list-style: none;
+  margin: 10px 0;
+}
+.nova-thought {
+  color: #ff00ff;
+  font-family: 'Courier New', monospace;
+  margin: 15px 0;
+  font-size: 1.1em;
+}
+.explore-btn {
+  display: inline-block;
+  background: #ff00ff;
+  color: #1a1a1a;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background 0.3s;
+}
+.explore-btn:hover {
+  background: #ff66ff;
+}

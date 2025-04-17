@@ -1,0 +1,58 @@
+# Build + IDE clutter
+bin/
+obj/
+csx/
+.vs/
+edge/
+Publish/
+
+# User + system files
+*.user
+*.suo
+*.cscfg
+*.Cache
+project.lock.json
+
+# Test + NuGet tools
+/packages/
+/TestResults/
+/tools/NuGet.exe
+
+# App + secrets (exclude local dev secrets)
+App_Data/
+secrets/
+data/
+.secrets/
+appsettings.json
+local.settings.json
+api/local.settings.json
+
+# Node dependencies (do NOT commit)
+node_modules/
+api/node_modules/
+
+# Build output (generated)
+dist/
+
+# Python virtual environments
+.python_packages/
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Python compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Azurite emulator files
+__blobstorage__/
+__queuestorage__/
+__azurite_db*__.json
+
+# HTTP test files (REST Client for VS Code)
+test-api.http
