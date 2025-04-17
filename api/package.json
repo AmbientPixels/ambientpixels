@@ -1,0 +1,14 @@
+{
+    "name": "ambientpixels-nova-api",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+      "start": "func start",
+      "test": "echo \"No tests specified\" && exit 0"
+    },
+    "dependencies": {
+      "@azure/functions": "^4.0.0",
+      "@azure/data-tables": "^13.0.0",
+      "axios": "^1.0.0"
+    }
+  }
