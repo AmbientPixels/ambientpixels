@@ -26,6 +26,37 @@
   gap: 10px;
 }
 
+/* Pulse styling for home */
+.system-pulse {
+  display: flex;
+  justify-content: center;
+  margin: 1rem auto 2rem auto;
+  padding: 0 1.5rem; /* Add side padding */
+  max-width: 1200px;  /* Keeps it aligned with your main grid */
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+.pulse-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+}
+
+.pulse-item {
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #c8f0ff;
+  text-shadow: 0 0 4px rgba(90, 228, 255, 0.3);
+}
+
 /* Mood-specific text colors */
 .mood-tag[data-mood="melancholy"] {
   color: #8c82ff;
