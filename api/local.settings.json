@@ -3,6 +3,8 @@
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "node",
-    "OPENAI_API_KEY": ""
+    "OPENAI_API_KEY": "",
+    "HUGGINGFACE_API_KEY": "",
+    "NOVA_API_KEY": ""
   }
 }
