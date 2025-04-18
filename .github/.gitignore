@@ -22,7 +22,7 @@ project.lock.json
 App_Data/
 secrets/
 .secrets/
-/api/local.settings.json
+api/local.settings.json
 
 # Node dependencies (do NOT commit)
 node_modules/
