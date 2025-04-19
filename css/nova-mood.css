@@ -1,0 +1,26 @@
+/* /css/nova-mood.css */
+body.aura-emerald-glow {
+    background: linear-gradient(to bottom, #001f1f, #003f3f);
+    color: #baffd1;
+  }
+  
+  body.aura-twilight-veil {
+    background: linear-gradient(to bottom, #1e1e2e, #2a2a40);
+    color: #c0c0ff;
+  }
+  
+  body.aura-storm-pulse {
+    background: #1a1a2a;
+    box-shadow: inset 0 0 20px rgba(255, 0, 0, 0.2);
+  }
+  
+  body.aura-neon-burst {
+    background: radial-gradient(circle, #ff00ff22, #000000);
+    color: #fff1ff;
+  }
+  
+  body.aura-silver-shimmer {
+    background-color: #111;
+    color: #cfd8dc;
+  }
+  

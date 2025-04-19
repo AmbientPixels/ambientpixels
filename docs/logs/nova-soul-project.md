@@ -46,7 +46,7 @@ Nova's mood directly feeds:
 - [x] UI hook on homepage
 
 ### 🛠 Phase 2 (In Progress)
-- [ ] Live telemetry injection
+- [x] Live telemetry injection
 - [ ] Mood-based style overlays
 - [ ] Toggle system: stealth / verbose / emoji-only
 - [ ] Lore integration: `nova-lore.html`
@@ -61,4 +61,4 @@ Nova's mood directly feeds:
 ---
 
 ## 📝 Last Update
-**April 17, 2025** — Core planning complete. Schema set. Awaiting first engine run.
+**April 18, 2025** — Hugging Face model integrated. Local testing successful. Mood output confirmed. Proceeding with Phase 2 development.

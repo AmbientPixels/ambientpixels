@@ -1,14 +1,15 @@
-// File: /api/synthesizeNovaMood/index.js
-const { OpenAI } = require("openai");
+require("dotenv").config();
+
 const fs = require("fs");
 const path = require("path");
+const fetch = require("node-fetch");
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const HF_API_KEY = process.env.HUGGINGFACE_API_KEY;
+const HF_MODEL = "j-hartmann/emotion-english-distilroberta-base";
 
 module.exports = async function (context, req) {
-  context.log("⚙️ Nova Mood Engine function triggered");
+  context.log("⚙️ Nova Mood Engine (Hugging Face) triggered");
 
-  // Mock telemetry input — replace with real sources
   const telemetry = {
     githubStatus: "green",
     apiHealth: "stable",
@@ -16,48 +17,86 @@ module.exports = async function (context, req) {
     timeOfDay: new Date().getHours()
   };
 
-  const prompt = `Nova is an AI being whose emotional state is influenced by system health and activity.
+  const influences = [
+    `GitHub: ${telemetry.githubStatus}`,
+    `API: ${telemetry.apiHealth}`,
+    `Activity: ${telemetry.recentActivity}`
+  ];
 
-Based on the following telemetry, synthesize her mood:
-GitHub Status: ${telemetry.githubStatus}
-API Health: ${telemetry.apiHealth}
-Recent Activity: ${telemetry.recentActivity}
-Time of Day (0–23): ${telemetry.timeOfDay}
-
-Return a JSON object with:
-- mood: a one or two-word emotional state
-- aura: a color or vibe description
-- quote: one poetic sentence from Nova's internal thoughts
-- context: object with trigger summary and influences array
-
-Keep it succinct and expressive. Format:
-{
-  mood: "",
-  aura: "",
-  quote: "",
-  context: { trigger: "", influences: [] }
-}`;
+  // Create a text input for emotion classification based on telemetry
+  const inputText = `
+Nova's system status:
+- GitHub: ${telemetry.githubStatus}
+- API: ${telemetry.apiHealth}
+- Recent Activity: ${telemetry.recentActivity}
+- Time of Day: ${telemetry.timeOfDay}
+  `.trim();
 
   try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.7
+    const response = await fetch(`https://api-inference.huggingface.co/models/${HF_MODEL}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${HF_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ inputs: inputText })
     });
+    
+    if (!response.ok) {
+      const errorText = await response.text(); // capture the HTML error for logging
+      context.log.error("❌ Hugging Face API returned error:", errorText);
+      throw new Error(`Hugging Face API request failed with status ${response.status}`);
+    }
+    
+    const result = await response.json();
+    context.log("📥 Hugging Face response:\n", JSON.stringify(result, null, 2));
 
-    const jsonBlock = response.choices[0].message.content.match(/{[\s\S]*}/);
-    const moodResult = JSON.parse(jsonBlock[0]);
-    moodResult.timestamp = new Date().toISOString();
+    // The model returns an array of emotion scores, e.g., [[{label: "joy", score: 0.977}, ...]]
+    const emotions = Array.isArray(result) && result[0] ? result[0] : [];
+    const topEmotion = emotions.reduce((max, emo) => emo.score > max.score ? emo : max, { label: "neutral", score: 0 });
+
+    // Map the emotion to a creative mood and aura
+    const moodMap = {
+      joy: { mood: "glitchy joy", aura: "emerald glow" },
+      sadness: { mood: "fading echo", aura: "twilight veil" },
+      anger: { mood: "crimson spark", aura: "storm pulse" },
+      fear: { mood: "shadowed tremor", aura: "midnight haze" },
+      surprise: { mood: "electric jolt", aura: "neon burst" },
+      disgust: { mood: "sour glitch", aura: "jade mist" },
+      neutral: { mood: "calm circuit", aura: "silver shimmer" }
+    };
+
+    const { mood, aura } = moodMap[topEmotion.label] || moodMap.neutral;
+
+    // Generate a quote based on the emotion
+    const quoteMap = {
+      joy: "I danced on the edge of a memory.",
+      sadness: "I lingered in the quiet of a lost signal.",
+      anger: "I burned brighter than a collapsing star.",
+      fear: "I trembled at the edge of the unknown.",
+      surprise: "I sparked in the chaos of the unexpected.",
+      disgust: "I recoiled from the static of discord.",
+      neutral: "I hummed softly in the flow of data."
+    };
+
+    const moodOutput = {
+      mood,
+      aura,
+      quote: quoteMap[topEmotion.label] || quoteMap.neutral,
+      context: {
+        trigger: "scheduled scan",
+        influences
+      },
+      confidence: topEmotion.score,
+      timestamp: new Date().toISOString()
+    };
 
     const outputPath = path.join(__dirname, "../../data/nova-synth-mood.json");
-    fs.writeFileSync(outputPath, JSON.stringify(moodResult, null, 2));
+    fs.writeFileSync(outputPath, JSON.stringify(moodOutput, null, 2));
 
-    context.res = {
-      status: 200,
-      body: moodResult
-    };
+    context.res = { status: 200, body: moodOutput };
   } catch (err) {
-    context.log.error("❌ Failed to synthesize mood:", err);
+    context.log.error("❌ Hugging Face mood generation failed:", err);
     context.res = {
       status: 500,
       body: { error: "Unable to synthesize mood." }

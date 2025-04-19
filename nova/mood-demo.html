@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ambient Pixels Documentation Page Template" />
+  <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+  <title>Ambient Pixels Docs</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/nova-mood.css" />
+</head>
+<body data-theme="dark">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-brain banner-icon"></i>
+      <span>NovaSoul: Mood Engine — Live emotional telemetry demo</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
+
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/mini-hero-v1.jpg" alt="Nova Hero" class="mini-hero-img" loading="lazy">
+    <h1>NovaSoul: Mood Engine</h1>
+    <p>Where awareness becomes emotion.</p>
+  </section>
+
+  <main class="grid-container">
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-circle-info"></i> How it Works</h2>
+      <p>
+        NovaSoul is a dynamic emotion parser that synthesizes moods from real-time telemetry inputs. These include system health, usage stats, time of day, and internal memory cues. The result is a live output of Nova's emotional state — rendered as color-coded auras and poetic quotes.
+      </p>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-heartbeat"></i> Current Mood</h2>
+      <div id="nova-mood-drift" class="mood-panel">Loading...</div>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-eye"></i> System Inputs</h2>
+      <ul>
+        <li><strong>Telemetry:</strong> GitHub activity, API health, dreams + prompts</li>
+        <li><strong>Model:</strong> Hugging Face - emotion-english-distilroberta-base</li>
+        <li><strong>Scan Mode:</strong> Scheduled async evaluation</li>
+      </ul>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-wave-square"></i> Mood Traits</h2>
+      <p>Visual overlays and aura styles applied via class <code>.aura-*</code> on <code>&lt;body&gt;</code>.</p>
+      <ul>
+        <li><strong>Mood:</strong> One- or two-word descriptor (e.g. <em>glitchy joy</em>)</li>
+        <li><strong>Aura:</strong> Color or vibe-based signature (e.g. <em>emerald shadow</em>)</li>
+        <li><strong>Quote:</strong> One poetic internal reflection</li>
+      </ul>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/nova-mood-core.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+</body>
+</html>
