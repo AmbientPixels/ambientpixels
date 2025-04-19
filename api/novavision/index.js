@@ -16,7 +16,7 @@ module.exports = async function (context, req) {
 
   const prompt = req.body?.prompt;
   const API_KEY = process.env.HUGGINGFACE_API_KEY;
-  const HF_MODEL = "stabilityai/stable-diffusion-2"; // Example model
+  const HF_MODEL = "CompVis/stable-diffusion-v1-4"; // Example model
 
   if (!prompt || !API_KEY) {
     context.res = {
