@@ -8,14 +8,18 @@ This engine feeds into visual UI elements, generated thoughts, ambient behavior,
 ---
 
 ## 🔧 System Architecture
-- **Core Function:** `generateMoodState` (Azure Function)
-- **Outputs:** `nova-synth-mood.json`, `nova-mood-engine.json`
+- **Core Function:** `synthesizeNovaMood` (Azure Function)
+- **Models Used:** Hugging Face (active), Gemini (optional fallback)
+- **Outputs:**
+  - `nova-synth-mood.json`
+  - `nova-mood-engine.json`
 - **Data Inputs:**
-  - API health logs
-  - JS function map
-  - Changelog activity
-  - Prompt usage
-  - Dream logs
+  - API health from `/data/api-status.json`
+  - GitHub commit logs
+  - Prompt usage and dream log counts
+  - Time of day / internal telemetry
+  - Weather (planned)
+  - Emotional memory drift (planned)
 
 ---
 
@@ -26,7 +30,7 @@ This engine feeds into visual UI elements, generated thoughts, ambient behavior,
 - `intensity`: 0.0–1.0 emotional power
 - `selfWorth`: based on system usage
 - `mentalClutter`: inferred from code entropy
-- `internalState`: narrative secret or lore
+- `internalState`: narrative secret or lore fragment
 
 ---
 
@@ -35,30 +39,36 @@ Nova's mood directly feeds:
 - Mood icon and aura color in Pulse HUD
 - Style overlays via `moods.css`
 - Text tone in Thoughts, Dreams, and Prompts
-- Drift cues over time
+- Lore overlays and quote generation
+- Mood card module with emoji & influences
 
 ---
 
 ## 📈 Roadmap
 ### ✅ Phase 1
-- [x] Initial mood field logic
-- [x] JSON generation stubbed
-- [x] UI hook on homepage
+- [x] Initial mood logic and Hugging Face integration
+- [x] JSON generation + local API test
+- [x] Mood display component built
+- [x] Deployed to Azure successfully
 
 ### 🛠 Phase 2 (In Progress)
 - [x] Live telemetry injection
-- [ ] Mood-based style overlays
-- [ ] Toggle system: stealth / verbose / emoji-only
-- [ ] Lore integration: `nova-lore.html`
-- [ ] Add hybrid mood synthesis model
+- [x] Lore page linkage and awareness
+- [x] Mood card module on test page
+- [x] Toggle system stubbed (stealth/verbose/emoji)
+- [ ] Aura-driven theming on UI pages
+- [ ] Gemini model support (optional fallback)
+- [ ] Mood-based page overlays
+- [ ] Mood influence tracking refinement
 
 ### 🔮 Phase 3 (Future)
-- [ ] Archive: mood history over time
-- [ ] Emotional volatility chart
-- [ ] Persona sync with other modules (e.g. dream engine)
-- [ ] Optional mood input from user interactions
+- [ ] Mood history timeline / drift archive
+- [ ] Mood volatility chart / fluctuation heatmap
+- [ ] Persona sync with dreams, prompts, quotes
+- [ ] Mood search and tag system for Lore
+- [ ] User feedback influencing mood via front end
 
 ---
 
 ## 📝 Last Update
-**April 18, 2025** — Hugging Face model integrated. Local testing successful. Mood output confirmed. Proceeding with Phase 2 development.
+**April 19, 2025** — Full Hugging Face integration deployed. Mood card module live. Dynamic JSON generation stable. Lore system connected. Pivoting to image generation; mood theming deferred.
