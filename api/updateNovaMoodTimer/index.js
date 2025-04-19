@@ -4,12 +4,8 @@ module.exports = async function (context, myTimer) {
   const timestamp = new Date().toISOString();
   context.log(`[Nova Timer] Mood sync started at ${timestamp}`);
 
-  const isLocal = process.env.NODE_ENV !== "production";
-  const baseUrl = isLocal
-    ? "http://localhost:7071"
-    : "https://ambientpixels-nova-api.azurewebsites.net";
-
-  const moodEndpoint = `${baseUrl}/api/synthesize-nova-mood`;
+  // 👉 Hardcoded to production API
+  const moodEndpoint = "https://ambientpixels-nova-api.azurewebsites.net/api/synthesizeNovaMood";
 
   try {
     const response = await axios.post(moodEndpoint);
