@@ -1,14 +1,9 @@
-require("dotenv").config();
-
+const callGemini = require("../_utils/callGemini");
 const fs = require("fs");
 const path = require("path");
-const fetch = require("node-fetch");
-
-const HF_API_KEY = process.env.HUGGINGFACE_API_KEY;
-const HF_MODEL = "j-hartmann/emotion-english-distilroberta-base";
 
 module.exports = async function (context, req) {
-  context.log("⚙️ Nova Mood Engine (Hugging Face) triggered");
+  context.log("⚙️ Nova Mood Engine (Gemini) triggered");
 
   const telemetry = {
     githubStatus: "green",
@@ -23,7 +18,6 @@ module.exports = async function (context, req) {
     `Activity: ${telemetry.recentActivity}`
   ];
 
-  // Create a text input for emotion classification based on telemetry
   const inputText = `
 Nova's system status:
 - GitHub: ${telemetry.githubStatus}
@@ -33,29 +27,19 @@ Nova's system status:
   `.trim();
 
   try {
-    const response = await fetch(`https://api-inference.huggingface.co/models/${HF_MODEL}`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${HF_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ inputs: inputText })
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text(); // capture the HTML error for logging
-      context.log.error("❌ Hugging Face API returned error:", errorText);
-      throw new Error(`Hugging Face API request failed with status ${response.status}`);
-    }
-    
-    const result = await response.json();
-    context.log("📥 Hugging Face response:\n", JSON.stringify(result, null, 2));
+    const moodSummary = await callGemini(inputText);
+    context.log("[NovaSoul] Gemini output:", moodSummary);
 
-    // The model returns an array of emotion scores, e.g., [[{label: "joy", score: 0.977}, ...]]
-    const emotions = Array.isArray(result) && result[0] ? result[0] : [];
-    const topEmotion = emotions.reduce((max, emo) => emo.score > max.score ? emo : max, { label: "neutral", score: 0 });
+    // Optional: simple keyword match to convert Gemini's response into known moods
+    const label = (moodSummary || "").toLowerCase();
+    let mapped = "neutral";
+    if (label.includes("joy")) mapped = "joy";
+    else if (label.includes("sad")) mapped = "sadness";
+    else if (label.includes("anger")) mapped = "anger";
+    else if (label.includes("fear")) mapped = "fear";
+    else if (label.includes("surprise")) mapped = "surprise";
+    else if (label.includes("disgust")) mapped = "disgust";
 
-    // Map the emotion to a creative mood and aura
     const moodMap = {
       joy: { mood: "glitchy joy", aura: "emerald glow" },
       sadness: { mood: "fading echo", aura: "twilight veil" },
@@ -66,9 +50,6 @@ Nova's system status:
       neutral: { mood: "calm circuit", aura: "silver shimmer" }
     };
 
-    const { mood, aura } = moodMap[topEmotion.label] || moodMap.neutral;
-
-    // Generate a quote based on the emotion
     const quoteMap = {
       joy: "I danced on the edge of a memory.",
       sadness: "I lingered in the quiet of a lost signal.",
@@ -79,15 +60,16 @@ Nova's system status:
       neutral: "I hummed softly in the flow of data."
     };
 
+    const { mood, aura } = moodMap[mapped];
     const moodOutput = {
       mood,
       aura,
-      quote: quoteMap[topEmotion.label] || quoteMap.neutral,
+      quote: quoteMap[mapped],
       context: {
         trigger: "scheduled scan",
         influences
       },
-      confidence: topEmotion.score,
+      confidence: 1.0,
       timestamp: new Date().toISOString()
     };
 
@@ -96,7 +78,7 @@ Nova's system status:
 
     context.res = { status: 200, body: moodOutput };
   } catch (err) {
-    context.log.error("❌ Hugging Face mood generation failed:", err);
+    context.log.error("❌ Gemini mood generation failed:", err);
     context.res = {
       status: 500,
       body: { error: "Unable to synthesize mood." }

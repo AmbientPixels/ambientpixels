@@ -44,14 +44,23 @@
 
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-heartbeat"></i> Current Mood</h2>
-      <div id="nova-mood-drift" class="mood-panel">Loading...</div>
+      <div class="mood-container" id="novaMood">
+        <div class="mood-emoji" id="moodEmoji">🧠</div>
+        <div class="mood-title" id="moodTitle">Loading...</div>
+        <div class="mood-aura" id="moodAura"></div>
+        <div class="mood-quote" id="moodQuote"></div>
+        <div class="mood-meta">
+          <div id="moodTimestamp"></div>
+          <div id="moodInfluences"></div>
+        </div>
+      </div>
     </section>
 
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-eye"></i> System Inputs</h2>
       <ul>
         <li><strong>Telemetry:</strong> GitHub activity, API health, dreams + prompts</li>
-        <li><strong>Model:</strong> Hugging Face - emotion-english-distilroberta-base</li>
+        <li><strong>Model:</strong> Gemini 1.5 Pro</li>
         <li><strong>Scan Mode:</strong> Scheduled async evaluation</li>
       </ul>
     </section>
@@ -69,8 +78,8 @@
 
   <div id="footer-container"></div>
 
+  <script src="/js/nova-mood-render.js"></script>
   <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/nova-mood-core.js" defer></script>
   <script src="/js/theme.js" defer></script>
 </body>
 </html>
