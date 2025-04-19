@@ -1,15 +1,11 @@
-// File: /js/nova-vision.js
-
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("imagePromptForm");
   const input = document.getElementById("promptInput");
   const imageContainer = document.getElementById("imageResult");
   const imageTag = document.getElementById("generatedImage");
 
-  const isLocal = location.hostname === "localhost" || location.hostname === "127.0.0.1";
-  const apiUrl = isLocal
-    ? "http://localhost:7071/api/novavision"
-    : "/api/novavision";
+  // Live Azure Function API URL
+  const apiUrl = "https://ambientpixels-nova-api.azurewebsites.net/api/novavision";
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
