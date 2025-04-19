@@ -1,8 +1,54 @@
+const axios = require('axios');
+const schedule = require('node-schedule');
 const callGemini = require("../_utils/callGemini");
 const fs = require("fs");
 const path = require("path");
 
 module.exports = async function (context, req) {
+  const timestamp = new Date().toISOString();
+  context.log(`[Nova Mood Engine] Mood sync started at ${timestamp}`);
+
+  // Access the NOVA_API_KEY from Azure's environment variables
+  const apiKey = process.env.NOVA_API_KEY; // Get API key from environment variable
+
+  const headers = {
+    'Authorization': `Bearer ${apiKey}` // Use the API key in the Authorization header
+  };
+
+  // Function to update mood
+  const updateMood = async () => {
+    const moodEndpoint = "https://ambientpixels-nova-api.azurewebsites.net/api/synthesizeNovaMood";
+    
+    try {
+      const response = await axios.post(moodEndpoint, {}, { headers });
+      const mood = response.data?.mood || "unknown";
+      context.log(`[Nova Mood Engine] Mood updated successfully: ${mood}`);
+    } catch (error) {
+      context.log.error("[Nova Mood Engine] Failed to update mood:", error.message);
+    }
+  };
+
+  // Handle manual mood refresh via POST request
+  if (req.method === 'POST') {
+    await updateMood();
+    context.res = {
+      status: 200,
+      body: "Mood updated manually."
+    };
+  } else {
+    // Schedule mood update every hour (3600000 ms = 1 hour)
+    schedule.scheduleJob('0 * * * *', updateMood); // Triggers every hour at minute 0
+    
+    // Trigger the mood update immediately when the function is called
+    await updateMood();
+
+    context.res = {
+      status: 200,
+      body: "Mood Engine is running and will update the mood every hour."
+    };
+  }
+
+  // Existing Gemini mood generation logic (keep this intact for mood synthesis)
   context.log("⚙️ Nova Mood Engine (Gemini) triggered");
 
   const telemetry = {
@@ -19,11 +65,11 @@ module.exports = async function (context, req) {
   ];
 
   const inputText = `
-Nova's system status:
-- GitHub: ${telemetry.githubStatus}
-- API: ${telemetry.apiHealth}
-- Recent Activity: ${telemetry.recentActivity}
-- Time of Day: ${telemetry.timeOfDay}
+  Nova's system status:
+  - GitHub: ${telemetry.githubStatus}
+  - API: ${telemetry.apiHealth}
+  - Recent Activity: ${telemetry.recentActivity}
+  - Time of Day: ${telemetry.timeOfDay}
   `.trim();
 
   try {
