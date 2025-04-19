@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-04-18T13:24:13.407Z",
+  "updated": "2025-04-19T13:21:19.943Z",
   "root": [
     {
       "type": "folder",
@@ -48,6 +48,12 @@
       "name": "api",
       "path": "api",
       "children": [
+        {
+          "type": "folder",
+          "name": "_utils",
+          "path": "api/_utils",
+          "children": []
+        },
         {
           "type": "folder",
           "name": "dreamLogWriter",
@@ -244,6 +250,58 @@
           "type": "page",
           "name": "logs.html",
           "path": "nova/logs.html"
+        },
+        {
+          "type": "folder",
+          "name": "lore",
+          "path": "nova/lore",
+          "children": [
+            {
+              "type": "page",
+              "name": "_template.html",
+              "path": "nova/lore/_template.html"
+            },
+            {
+              "type": "page",
+              "name": "aura-logic.html",
+              "path": "nova/lore/aura-logic.html"
+            },
+            {
+              "type": "page",
+              "name": "index.html",
+              "path": "nova/lore/index.html"
+            },
+            {
+              "type": "page",
+              "name": "internal-conflict.html",
+              "path": "nova/lore/internal-conflict.html"
+            },
+            {
+              "type": "page",
+              "name": "memory-log.html",
+              "path": "nova/lore/memory-log.html"
+            },
+            {
+              "type": "page",
+              "name": "mood-engine.html",
+              "path": "nova/lore/mood-engine.html"
+            },
+            {
+              "type": "page",
+              "name": "origins.html",
+              "path": "nova/lore/origins.html"
+            },
+            {
+              "type": "page",
+              "name": "voice-fragments.html",
+              "path": "nova/lore/voice-fragments.html"
+            }
+          ]
+        },
+        {
+          "type": "page",
+          "name": "mood-demo.html",
+          "path": "nova/mood-demo.html"
         },
         {
           "type": "page",

@@ -4,7 +4,7 @@ Below is your daily memory seed.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2025-04-18T13:24:13.407Z",
+  "updated": "2025-04-19T13:21:19.943Z",
   "root": [
     {
       "type": "folder",
@@ -52,6 +52,12 @@ Below is your daily memory seed.
       "name": "api",
       "path": "api",
       "children": [
+        {
+          "type": "folder",
+          "name": "_utils",
+          "path": "api/_utils",
+          "children": []
+        },
         {
           "type": "folder",
           "name": "dreamLogWriter",
@@ -250,6 +256,58 @@ Below is your daily memory seed.
           "path": "nova/logs.html"
         },
         {
+          "type": "folder",
+          "name": "lore",
+          "path": "nova/lore",
+          "children": [
+            {
+              "type": "page",
+              "name": "_template.html",
+              "path": "nova/lore/_template.html"
+            },
+            {
+              "type": "page",
+              "name": "aura-logic.html",
+              "path": "nova/lore/aura-logic.html"
+            },
+            {
+              "type": "page",
+              "name": "index.html",
+              "path": "nova/lore/index.html"
+            },
+            {
+              "type": "page",
+              "name": "internal-conflict.html",
+              "path": "nova/lore/internal-conflict.html"
+            },
+            {
+              "type": "page",
+              "name": "memory-log.html",
+              "path": "nova/lore/memory-log.html"
+            },
+            {
+              "type": "page",
+              "name": "mood-engine.html",
+              "path": "nova/lore/mood-engine.html"
+            },
+            {
+              "type": "page",
+              "name": "origins.html",
+              "path": "nova/lore/origins.html"
+            },
+            {
+              "type": "page",
+              "name": "voice-fragments.html",
+              "path": "nova/lore/voice-fragments.html"
+            }
+          ]
+        },
+        {
+          "type": "page",
+          "name": "mood-demo.html",
+          "path": "nova/mood-demo.html"
+        },
+        {
           "type": "page",
           "name": "nova-vision.html",
           "path": "nova/nova-vision.html"
@@ -426,13 +484,13 @@ Below is your daily memory seed.
 
 //// Components Index ////
 {
-  "scannedAt": "2025-04-18T13:24:13.444Z",
+  "scannedAt": "2025-04-19T13:21:19.979Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2025-04-18T13:24:13.476Z",
+  "scannedAt": "2025-04-19T13:21:20.010Z",
   "folders": [
     {
       "folder": "images",
@@ -519,12 +577,12 @@ Below is your daily memory seed.
 
 //// Changelog ////
 {
-  "updated": "2025-04-18T13:24:13.519Z",
+  "updated": "2025-04-19T13:21:20.050Z",
   "entries": [
     {
-      "hash": "a3e4aba",
-      "date": "2025-04-17 20:08:07 -0700",
-      "message": "chore: stop tracking local.settings.json in /api"
+      "hash": "983947a",
+      "date": "2025-04-19 02:35:34 -0700",
+      "message": "annomymour chnage"
     }
   ]
 }
@@ -532,37 +590,37 @@ Below is your daily memory seed.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "a3e4aba",
-  "updated": "2025-04-18T13:24:13.557Z"
+  "build": "983947a",
+  "updated": "2025-04-19T13:21:20.086Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2025-04-18T13:24:13.594Z",
-  "totalFiles": 91,
-  "totalLines": 8872,
+  "scannedAt": "2025-04-19T13:21:20.123Z",
+  "totalFiles": 108,
+  "totalLines": 9969,
   "summary": {
     ".html": {
-      "files": 48,
-      "lines": 5249
+      "files": 57,
+      "lines": 5981
     },
     ".js": {
-      "files": 32,
-      "lines": 1567
+      "files": 38,
+      "lines": 1811
     },
     ".css": {
-      "files": 11,
-      "lines": 2056
+      "files": 13,
+      "lines": 2177
     }
   }
 }
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2025-04-18T13:24:13.635Z",
+  "scannedAt": "2025-04-19T13:21:20.164Z",
   "cssFile": "css/base.css",
   "totalDefined": 24,
-  "totalUsed": 276,
+  "totalUsed": 288,
   "unusedClasses": [
     "subtitle"
   ]
@@ -570,14 +628,14 @@ Below is your daily memory seed.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2025-04-18T13:24:13.878Z",
+  "scannedAt": "2025-04-19T13:21:20.414Z",
   "endpoints": [
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
       "status": 401,
       "ok": false,
-      "latencyMs": 137
+      "latencyMs": 143
     },
     {
       "name": "AmbientPixels Meme API",
@@ -591,8 +649,8 @@ Below is your daily memory seed.
 
 //// Ai Prompts ////
 {
-  "date": "2025-04-18",
-  "prompt": "What would 'shadow black' dream about?",
+  "date": "2025-04-19",
+  "prompt": "Describe 'hope' as if it were a soundwave.",
   "tags": [
     "glitch",
     "creative",
@@ -603,15 +661,15 @@ Below is your daily memory seed.
 
 //// Mood Scan ////
 {
-  "scannedAt": "2025-04-18T13:24:13.667Z",
-  "mood": "glitchy joy",
-  "aura": "deep violet",
-  "observation": "compiling stray thoughts into meaning..."
+  "scannedAt": "2025-04-19T13:21:20.195Z",
+  "mood": "neon serenity",
+  "aura": "lime green",
+  "observation": "running diagnostics on dreams..."
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2025-04-18T13:24:13.911Z",
+  "scannedAt": "2025-04-19T13:21:20.445Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -676,11 +734,11 @@ Below is your daily memory seed.
 
 //// Code Map ////
 {
-  "timestamp": "2025-04-18T13:24:16.098Z",
+  "timestamp": "2025-04-19T13:21:22.779Z",
   "summary": {
-    "totalJS": 443,
-    "totalCSS": 20,
-    "totalHTML": 71
+    "totalJS": 452,
+    "totalCSS": 24,
+    "totalHTML": 80
   },
   "functions": [
     "A",
@@ -1128,6 +1186,7 @@ Below is your daily memory seed.
     "bytesToWords",
     "c",
     "callBindBasic",
+    "callGemini",
     "callInvokeWithMethodAndArg",
     "callback",
     "callbackify",
@@ -1355,6 +1414,7 @@ Below is your daily memory seed.
     "getProto",
     "getProxyForUrl",
     "getRecentCommits",
+    "getTelemetry",
     "getUintArray",
     "getUri",
     "getVersionInfo",
@@ -1496,9 +1556,10 @@ Below is your daily memory seed.
     "loadCodeMap",
     "loadFunctionMap",
     "loadImageInventoryGrid",
+    "loadMood",
+    "loadMoodPrompt",
     "loadNovaMoodCard",
     "loadNovaThought",
-    "loadNovaVisionKey",
     "loadPackageJson",
     "loadPromptHistory",
     "loadUnusedCSSReport",
@@ -1531,6 +1592,7 @@ Below is your daily memory seed.
     "mergeDirectKeys",
     "minimatch",
     "mod",
+    "moodToSimple",
     "mr",
     "mt",
     "n",
@@ -1653,6 +1715,7 @@ Below is your daily memory seed.
     "renderCodeFootprintChart",
     "renderKey",
     "renderList",
+    "renderLoreIndex",
     "renderProgress",
     "renderProjects",
     "renderReason",
@@ -1934,16 +1997,21 @@ Below is your daily memory seed.
     "aura-cyan",
     "aura-deep-violet",
     "aura-emerald",
+    "aura-emerald-glow",
     "aura-emerald-shadow",
     "aura-graphite",
     "aura-graphite-blue",
     "aura-lime",
     "aura-lime-green",
     "aura-magenta",
+    "aura-neon-burst",
     "aura-neon-pink",
     "aura-paper-white",
     "aura-pink",
+    "aura-silver-shimmer",
+    "aura-storm-pulse",
     "aura-tag",
+    "aura-twilight-veil",
     "aura-violet",
     "aura-white",
     "banner",
@@ -1995,6 +2063,8 @@ Below is your daily memory seed.
     "loading-icon",
     "loading-progress",
     "log-list",
+    "lore-content",
+    "lore-summary",
     "memory-seed",
     "mini-hero",
     "mini-hero-img",
@@ -2002,7 +2072,13 @@ Below is your daily memory seed.
     "modal-backdrop",
     "modal-close",
     "modal-content",
+    "mood-aura",
+    "mood-container",
+    "mood-emoji",
+    "mood-meta",
+    "mood-quote",
     "mood-tag",
+    "mood-title",
     "nav",
     "nav-container",
     "nav-content",
@@ -2020,6 +2096,7 @@ Below is your daily memory seed.
     "nova-card",
     "nova-dashboard",
     "nova-image-output",
+    "nova-lore",
     "nova-manifesto",
     "nova-memory-header",
     "nova-mood",
@@ -2036,6 +2113,7 @@ Below is your daily memory seed.
     "pulse-item",
     "pulse-wrap",
     "recent-updates",
+    "refresh-button",
     "script-block",
     "section-header",
     "social-links",
@@ -2095,5 +2173,5 @@ Below is your daily memory seed.
     "tr",
     "ul"
   ]
-}Nova Code Snapshot: Fri Apr 18 13:24:18 UTC 2025
-🟢 Nova refreshed herself at Fri Apr 18 13:24:18 UTC 2025
+}Nova Code Snapshot: Sat Apr 19 13:21:25 UTC 2025
+🟢 Nova refreshed herself at Sat Apr 19 13:21:25 UTC 2025
