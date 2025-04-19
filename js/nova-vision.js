@@ -6,6 +6,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const imageContainer = document.getElementById("imageResult");
   const imageTag = document.getElementById("generatedImage");
 
+  const isLocal = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+  const apiUrl = isLocal
+    ? "http://localhost:7071/api/novavision"
+    : "/api/novavision";
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const prompt = input.value.trim();
@@ -16,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     imageTag.alt = "Generating...";
 
     try {
-      const response = await fetch("/api/novavision", {
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
