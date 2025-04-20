@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ambient Pixels v2.4.2—Nova Portal Mode" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Ambient Pixels - Nova v2.4.2</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css">
+  <link rel="stylesheet" href="/css/nav.css">  
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/nova-status.css" />
+  <link rel="stylesheet" href="/css/nova-mood.css" />
+  <link rel="stylesheet" href="/css/nova-mood-dark.css" />
+</head>
+<body data-theme="dark">
+  <header id="nav-header"></header>
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-bug banner-icon"></i>
+      <span>Heads up, traveler — the site is actively evolving. Expect occasional glitches as Nova debugs the grid in real time.</span>
+      <button class="banner-close" aria-label="Close Banner">&times;</button>
+    </div>
+  </div>
+
+  <section class="hero">
+    <div class="hero-loading">
+      <i class="fas fa-robot loading-icon"></i>
+      <p>Nova: Booting the glitch...</p>
+      <div class="loading-bar"><div class="loading-progress"></div></div>
+    </div>
+    <div class="hero-slides">
+      <img src="images/hero/hero-01.jpg" alt="Hero Image 1" class="hero-slide active" loading="lazy">
+      <img src="images/hero/hero-02.jpg" alt="Hero Image 2" class="hero-slide" loading="lazy">
+      <img src="images/hero/hero-03.jpg" alt="Hero Image 3" class="hero-slide" loading="lazy">
+      <img src="images/hero/hero-04.jpg" alt="Hero Image 4" class="hero-slide" loading="lazy">
+    </div>
+    <div class="hero-content">
+      <h1 class="hero-headline"></h1>
+      <p class="hero-subheadline"></p>
+    </div>
+  </section>
+
+  <!-- Nova System Pulse Panel -->
+  <div id="nova-pulse-container"></div>
+
+  <main class="grid-container">
+    <!-- Nova Mood Grid -->
+    <section class="mood-grid-section">
+      <div id="novaMoodGrid">
+        <p>Loading Nova’s recent moods...</p>
+      </div>
+    </section>
+
+    <!-- Nova Thought -->
+    <section class="content-section grid-col-12 prompt-history nova-thought">
+      <h2>Nova’s Thought of the Day</h2>
+      <div class="prompt-entry">Loading...</div>
+    </section>
+
+    <!-- Dynamic Cards: Lore, Projects, Nova, Docs, Tools, Lab, Skills -->
+    <!-- TODO: Organize into rows with proper grid wrapping for responsiveness -->
+
+    <!-- What’s in the Grid / Subgrid Modules: Leave As-Is -->
+  </main>
+
+  <footer id="footer-container"></footer>
+
+  <!-- JS Loader Stack -->
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/dreamEngine.js" defer></script>
+  <script src="/js/init-quotes.js" defer></script>
+  <script src="/js/main.js" defer></script>
+  <script src="/js/md-inject.js" defer></script>
+  <script src="/js/modal-window.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/nova-ai.js" defer></script>
+  <script src="/js/nova-awareness-feed.js" defer></script>
+  <script src="/js/nova-dashboard.js" defer></script>
+  <script src="/js/nova-insights.js" defer></script>
+  <script src="/js/nova-interaction-log.js" defer></script>
+  <script src="/js/nova-mood-core.js" defer></script>
+  <script src="/js/nova-pulse.js" defer></script>
+  <script src="/js/nova-quotes.js" defer></script>
+  <script src="/js/nova-status.js" defer></script>
+  <script src="/js/nova-telemetry-logger.js" defer></script>
+  <script src="/js/project-dashboard.js" defer></script>
+  <script src="/js/template.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/nova-thought-of-the-day.js"></script>
+  <script src="/js/nova-mood-grid.js" defer></script>
+</body>
+</html>
