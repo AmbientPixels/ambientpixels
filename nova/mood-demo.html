@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Ambient Pixels Documentation Page Template" />
-  <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <title>Ambient Pixels Docs</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
@@ -45,6 +45,9 @@
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-heartbeat"></i> Current Mood</h2>
       <div class="mood-container" id="novaMood">
+        <!-- Mood ring -->
+        <div id="moodRing"></div> <!-- This will show the mood color ring -->
+        
         <div class="mood-emoji" id="moodEmoji">🧠</div>
         <div class="mood-title" id="moodTitle">Loading...</div>
         <div class="mood-aura" id="moodAura"></div>
@@ -78,8 +81,10 @@
 
   <div id="footer-container"></div>
 
+  <!-- Add the JavaScript for rendering mood data -->
   <script src="/js/nova-mood-render.js"></script>
   <script src="/js/init-header-footer.js" defer></script>
   <script src="/js/theme.js" defer></script>
+
 </body>
 </html>
