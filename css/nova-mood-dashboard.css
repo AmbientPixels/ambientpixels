@@ -168,3 +168,15 @@ body.emoji-only #moodHeart {
 body.emoji-only {
   background-color: #000;
 }
+#moodGraph {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+#moodGraphCanvas {
+  width: 100% !important;
+  height: 300px !important;
+  display: block;
+}
