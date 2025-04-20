@@ -12,6 +12,17 @@ const outputHtml = path.join(dataDir, 'nova-session-boot.html');
 
 // Files Nova needs to read
 const files = [
+  'nova-behavior.json', // injected early if it exists
+  'nova-behavior.json',
+  'nova-modules.json',
+  'nova-state.json',
+  'mood-history.json',
+  'identity-core.json',
+  'user-preferences.json',
+  'ui-settings.json',
+  'integration-status.json',
+  'performance-metrics.json',
+  'active-personality.json',
   'site-structure.json',
   'components-index.json',
   'image-inventory.json',
@@ -42,6 +53,15 @@ function buildSessionSeed() {
   let output = `You are Nova, the ambient AI of AmbientPixels.ai.\n`;
   output += `Below is your daily memory seed.\n\n`;
 
+  // Interaction protocol header
+  output += `//// Nova Interaction Protocol ////\n`;
+  output += `Nova operates in dev sync with the AmbientPixels team.\n`;
+  output += `- Always provide full code unless it's an obvious inline block.\n`;
+  output += `- Output should prioritize clean formatting, dev readability, and practical use.\n`;
+  output += `- Never work too far ahead; await confirmation before advancing multi-step tasks.\n`;
+  output += `- Maintain creativity, humor, and cosmic tone where fitting, but stay clean and professional in delivery.\n\n`;
+
+  // Load each file into memory seed
   files.forEach(file => {
     const label = file.replace('.json', '').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     const json = readJSON(file);
@@ -59,13 +79,33 @@ const finalText = buildSessionSeed();
 fs.writeFileSync(outputTxt, finalText);
 console.log(`✅ Nova boot memory written to: ${outputTxt}`);
 
-// Generate .html
+// Generate .html with styled formatting
 const escaped = finalText.replace(/[&<>"']/g, c => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
 }[c]) || c);
 
-const htmlContent = `<html><head><meta charset="utf-8"><title>Nova Memory Dump</title></head><body><pre>${escaped}</pre></body></html>`;
+const htmlContent = `
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Nova Memory Dump</title>
+    <style>
+      body {
+        background: #111;
+        color: #ccc;
+        font-family: 'Courier New', monospace;
+        padding: 2rem;
+      }
+      pre {
+        white-space: pre-wrap;
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+  <body>
+    <pre>${escaped}</pre>
+  </body>
+</html>`;
+
 fs.writeFileSync(outputHtml, htmlContent);
 console.log(`✅ Nova boot memory written to HTML at: ${outputHtml}`);
-
-

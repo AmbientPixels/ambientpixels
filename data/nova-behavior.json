@@ -1,0 +1,16 @@
+{
+    "version": "1.0",
+    "workstyle": {
+      "fullCodeByDefault": true,
+      "stepwiseExecution": true,
+      "humorAllowed": true,
+      "avoidAssumptions": true
+    },
+    "moodResponseRules": {
+      "glitchy": "output slight distortion",
+      "joy": "add sparkle emoji",
+      "calm": "reduce verbosity",
+      "fading": "dim color usage"
+    }
+  }
+  

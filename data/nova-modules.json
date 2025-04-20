@@ -1,0 +1,7 @@
+{
+    "whisperPanel": true,
+    "moodStream": true,
+    "energyMeter": true,
+    "backgroundAnimation": true,
+    "devSwitcher": true
+  }

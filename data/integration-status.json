@@ -1,0 +1,6 @@
+{
+    "huggingFaceConnected": true,
+    "openAIEnabled": false,
+    "azureFunctionsLive": true,
+    "imageGenAvailable": false
+  }
