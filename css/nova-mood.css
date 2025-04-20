@@ -61,3 +61,102 @@ body.aura-emerald-glow {
     border-radius: 0.5rem;
     cursor: pointer;
   }
+  /* 🌬️ Whisper Panel */
+.whisper-panel {
+  margin: 1.5rem auto;
+  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 4px solid #99f;
+  font-style: italic;
+  font-size: 1.1rem;
+  max-width: 600px;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  color: #ddd;
+}
+
+/* 🌊 Mood Stream */
+.mood-stream {
+  margin: 2rem auto;
+  padding: 1rem;
+  background: rgba(255,255,255,0.03);
+  max-width: 600px;
+  border-radius: 0.5rem;
+}
+
+.mood-stream h4 {
+  margin-bottom: 0.5rem;
+  color: #aaa;
+}
+
+.mood-stream ul {
+  list-style: none;
+  padding-left: 0;
+  font-size: 0.95rem;
+  color: #ccc;
+}
+
+.mood-stream li {
+  margin: 0.25rem 0;
+}
+
+/* 🔁 Shared */
+.hidden {
+  display: none;
+}
+/* Whisper / Stream Panel Styling */
+.whisper-panel,
+.mood-stream {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem 1.5rem;
+  margin-top: 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 0 1rem rgba(0,0,0,0.2);
+}
+
+.panel-subtext {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-bottom: 0.5rem;
+}
+/* nova-mood.css — Aura Badge Color Styles */
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-right: 0.5rem;
+  color: white;
+}
+
+.badge-aura-silver-shimmer {
+  background: #888;
+}
+.badge-aura-neon-burst {
+  background: #cc00ff;
+}
+.badge-aura-glitchy {
+  background: #5c5c5c;
+}
+.badge-aura-emerald-glow {
+  background: #00c9a7;
+}
+.badge-aura-spark {
+  background: #ffcc00;
+  color: #000;
+}
+.badge-aura-calm {
+  background: #2e7d32;
+}
+.badge-aura-electric {
+  background: #00e5ff;
+  color: #000;
+}
+.badge-aura-fading {
+  background: #555;
+}
+.badge-aura-default {
+  background: #999;
+}

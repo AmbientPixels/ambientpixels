@@ -1,3 +1,5 @@
+// nova-mood-render.js — Full with Whisper Panel + Mood Stream (Aura badges enabled)
+
 const moodToEmoji = {
   joy: "😄",
   sadness: "😢",
@@ -36,32 +38,26 @@ async function loadMood() {
 
     const simpleMood = moodToSimple(data.mood || "neutral");
 
-    // Render content
     document.getElementById("moodEmoji").textContent = moodToEmoji[simpleMood] || "🧠";
     document.getElementById("moodTitle").textContent = data.mood || "Unknown";
     document.getElementById("moodAura").textContent = data.aura || "N/A";
-    document.getElementById("moodQuote").textContent =
-      data.quote ? `“${data.quote}”` : "No quote available.";
-    document.getElementById("moodTimestamp").textContent =
-      data.timestamp ? `Last updated: ${new Date(data.timestamp).toLocaleString()}` : "Last updated: unknown.";
-    document.getElementById("moodInfluences").textContent =
-      `Influences: ${data.context?.influences?.join(", ") || "N/A"}`;
+    document.getElementById("moodQuote").textContent = data.quote ? `“${data.quote}”` : "No quote available.";
+    document.getElementById("moodTimestamp").textContent = data.timestamp ? `Last updated: ${new Date(data.timestamp).toLocaleString()}` : "Last updated: unknown.";
+    document.getElementById("moodInfluences").textContent = `Influences: ${data.context?.influences?.join(", ") || "N/A"}`;
 
-    // Clean up previous aura-* classes only
     document.body.className = document.body.className
       .split(" ")
       .filter(cls => !cls.startsWith("aura-"))
       .join(" ")
       .trim();
 
-    // Add new aura class
     const auraClass = "aura-" + (data.aura || "default").replace(/\s+/g, "-").toLowerCase();
     document.body.classList.add(auraClass);
     document.body.dataset.theme = "dark";
 
-    // Visual styling
     updateMoodRing(simpleMood);
     applyMoodAnimations(simpleMood);
+    renderWhisperAndMoodStream(data);
 
   } catch (e) {
     console.error("Failed to load mood:", e);
@@ -69,7 +65,6 @@ async function loadMood() {
   }
 }
 
-// Mood ring color update
 function updateMoodRing(mood) {
   const moodRing = document.getElementById("moodRing");
   let moodColor;
@@ -94,10 +89,8 @@ function updateMoodRing(mood) {
   }
 }
 
-// Optional animation for expressive moods
 function applyMoodAnimations(mood) {
   const moodEmoji = document.getElementById("moodEmoji");
-
   if (!moodEmoji) return;
 
   const pulseMoods = ["joy", "spark", "electric"];
@@ -108,8 +101,32 @@ function applyMoodAnimations(mood) {
   }
 }
 
-// Load mood on DOM ready
-window.addEventListener("DOMContentLoaded", loadMood);
+function renderWhisperAndMoodStream(data) {
+  const whisperText = document.querySelector("#whisperPanel .whisper-text");
+  const streamList = document.querySelector("#moodStream .mood-history-list");
 
-// Refresh every hour
+  if (!whisperText || !streamList) return;
+
+  // Whisper Panel
+  if (data.quote) {
+    whisperText.textContent = `“${data.quote}”`;
+    whisperText.closest("#whisperPanel").classList.remove("hidden");
+  }
+
+  // Mood Stream
+  fetch("/data/mood-history.json")
+    .then(res => res.json())
+    .then(history => {
+      const items = history.slice(0, 4).map(entry => {
+        const time = new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const aura = (entry.aura || "default").replace(/\s+/g, "-").toLowerCase();
+        return `<li><span class="badge badge-aura-${aura}">${entry.mood}</span> — ${time}</li>`;
+      }).join("");
+
+      streamList.innerHTML = items;
+      streamList.closest("#moodStream").classList.remove("hidden");
+    });
+}
+
+window.addEventListener("DOMContentLoaded", loadMood);
 setInterval(loadMood, 3600000);

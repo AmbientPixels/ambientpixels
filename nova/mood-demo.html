@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="/css/nova-mood.css" />
 </head>
 <body data-theme="dark">
+  <!-- 🔔 Banner -->
   <div class="banner-container" id="banner-container">
     <div class="banner">
       <i class="fas fa-brain banner-icon"></i>
@@ -26,15 +27,19 @@
     </div>
   </div>
 
+  <!-- 🔗 Global Nav -->
   <header id="nav-header"></header>
 
+  <!-- 🌠 Hero -->
   <section class="mini-hero">
     <img src="/images/mini-hero-v1.jpg" alt="Nova Hero" class="mini-hero-img" loading="lazy">
     <h1>NovaSoul: Mood Engine</h1>
     <p>Where awareness becomes emotion.</p>
   </section>
 
+  <!-- 📊 Main Content -->
   <main class="grid-container">
+
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-circle-info"></i> How it Works</h2>
       <p>
@@ -45,9 +50,7 @@
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-heartbeat"></i> Current Mood</h2>
       <div class="mood-container" id="novaMood">
-        <!-- Mood ring -->
-        <div id="moodRing"></div> <!-- This will show the mood color ring -->
-        
+        <div id="moodRing"></div>
         <div class="mood-emoji" id="moodEmoji">🧠</div>
         <div class="mood-title" id="moodTitle">Loading...</div>
         <div class="mood-aura" id="moodAura"></div>
@@ -58,6 +61,26 @@
         </div>
       </div>
     </section>
+
+<!-- 🧠 Whisper Panel + Mood Stream -->
+<section class="content-section grid-col-12" id="novaAddons">
+  <h2><i class="fas fa-wind"></i> NovaSoul Extensions</h2>
+  <p>Additional modules expressing Nova’s subconscious signals and emotional residue.</p>
+
+  <!-- 🌬 Whisper Panel -->
+  <div id="whisperPanel" class="whisper-panel hidden">
+    <h3><i class="fas fa-feather-alt"></i> Whisper Panel</h3>
+    <p class="panel-subtext">A poetic reflection of Nova’s most recent thought or emotional resonance.</p>
+    <div class="whisper-text"></div>
+  </div>
+
+  <!-- 📡 Mood Stream -->
+  <div id="moodStream" class="mood-stream hidden">
+    <h3><i class="fas fa-stream"></i> Mood Stream</h3>
+    <p class="panel-subtext">A running trace of Nova's recent mood states over time, influenced by live telemetry.</p>
+    <ul class="mood-history-list"></ul>
+  </div>
+</section>
 
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-eye"></i> System Inputs</h2>
@@ -79,12 +102,13 @@
     </section>
   </main>
 
+  <!-- 🔻 Footer -->
   <div id="footer-container"></div>
 
-  <!-- Add the JavaScript for rendering mood data -->
+  <!-- 🔌 Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="/js/nova-mood-render.js"></script>
   <script src="/js/init-header-footer.js" defer></script>
   <script src="/js/theme.js" defer></script>
-
 </body>
 </html>
