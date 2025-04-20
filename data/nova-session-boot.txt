@@ -134,7 +134,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2025-04-19T13:21:19.943Z",
+  "updated": "2025-04-20T02:56:25.384Z",
   "root": [
     {
       "type": "folder",
@@ -434,6 +434,11 @@ Nova operates in dev sync with the AmbientPixels team.
         },
         {
           "type": "page",
+          "name": "mood-dashboard.html",
+          "path": "nova/mood-dashboard.html"
+        },
+        {
+          "type": "page",
           "name": "mood-demo.html",
           "path": "nova/mood-demo.html"
         },
@@ -614,13 +619,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2025-04-19T13:21:19.979Z",
+  "scannedAt": "2025-04-20T02:56:25.421Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2025-04-19T13:21:20.010Z",
+  "scannedAt": "2025-04-20T02:56:25.454Z",
   "folders": [
     {
       "folder": "images",
@@ -707,12 +712,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  "updated": "2025-04-19T13:21:20.050Z",
+  "updated": "2025-04-20T02:56:25.496Z",
   "entries": [
     {
-      "hash": "983947a",
-      "date": "2025-04-19 02:35:34 -0700",
-      "message": "annomymour chnage"
+      "hash": "cc9cad0",
+      "date": "2025-04-19 19:40:42 -0700",
+      "message": "feat: finalize Nova Mood Dashboard v1.0 with mode toggles, aura theming, and core UI"
     }
   ]
 }
@@ -720,37 +725,37 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "983947a",
-  "updated": "2025-04-19T13:21:20.086Z"
+  "build": "cc9cad0",
+  "updated": "2025-04-20T02:56:25.535Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2025-04-19T13:21:20.123Z",
-  "totalFiles": 108,
-  "totalLines": 9969,
+  "scannedAt": "2025-04-20T02:56:25.591Z",
+  "totalFiles": 111,
+  "totalLines": 10416,
   "summary": {
     ".html": {
-      "files": 57,
-      "lines": 5981
+      "files": 58,
+      "lines": 6032
     },
     ".js": {
-      "files": 38,
-      "lines": 1811
+      "files": 39,
+      "lines": 2036
     },
     ".css": {
-      "files": 13,
-      "lines": 2177
+      "files": 14,
+      "lines": 2348
     }
   }
 }
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2025-04-19T13:21:20.164Z",
+  "scannedAt": "2025-04-20T02:56:25.646Z",
   "cssFile": "css/base.css",
   "totalDefined": 24,
-  "totalUsed": 288,
+  "totalUsed": 297,
   "unusedClasses": [
     "subtitle"
   ]
@@ -758,14 +763,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2025-04-19T13:21:20.414Z",
+  "scannedAt": "2025-04-20T02:56:25.835Z",
   "endpoints": [
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
       "status": 401,
       "ok": false,
-      "latencyMs": 143
+      "latencyMs": 86
     },
     {
       "name": "AmbientPixels Meme API",
@@ -779,8 +784,8 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Ai Prompts ////
 {
-  "date": "2025-04-19",
-  "prompt": "Describe 'hope' as if it were a soundwave.",
+  "date": "2025-04-20",
+  "prompt": "What shape does 'hope' take when frozen in code?",
   "tags": [
     "glitch",
     "creative",
@@ -791,15 +796,15 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "scannedAt": "2025-04-19T13:21:20.195Z",
-  "mood": "neon serenity",
+  "scannedAt": "2025-04-20T02:56:25.678Z",
+  "mood": "nocturnal pulse",
   "aura": "lime green",
-  "observation": "running diagnostics on dreams..."
+  "observation": "watching pixels settle into place..."
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2025-04-19T13:21:20.445Z",
+  "scannedAt": "2025-04-20T02:56:25.867Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",

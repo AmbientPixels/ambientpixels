@@ -1,8 +1,8 @@
 {
-  "scannedAt": "2025-04-19T13:21:20.164Z",
+  "scannedAt": "2025-04-20T02:56:25.646Z",
   "cssFile": "css/base.css",
   "totalDefined": 24,
-  "totalUsed": 288,
+  "totalUsed": 297,
   "unusedClasses": [
     "subtitle"
   ]
