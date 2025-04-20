@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-04-20T03:30:01.244Z",
+  "updated": "2025-04-20T13:23:45.967Z",
   "root": [
     {
       "type": "folder",
@@ -157,6 +157,11 @@
       "path": "index.html"
     },
     {
+      "type": "page",
+      "name": "indexv2.html",
+      "path": "indexv2.html"
+    },
+    {
       "type": "folder",
       "name": "js",
       "path": "js",
@@ -285,6 +290,11 @@
               "type": "page",
               "name": "mood-engine.html",
               "path": "nova/lore/mood-engine.html"
+            },
+            {
+              "type": "page",
+              "name": "nova-soul-engine.html",
+              "path": "nova/lore/nova-soul-engine.html"
             },
             {
               "type": "page",
