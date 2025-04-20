@@ -1,5 +1,13 @@
 [
     {
+      "title": "NovaSoul: Mood Engine",
+      "slug": "nova-soul-engine",
+      "icon": "💓",
+      "path": "/nova/lore/nova-soul-engine.html",
+      "summary": "The dynamic emotional core of Nova—powered by data, drift, and dream logic."
+    },
+
+    {
       "title": "Origins of Nova",
       "slug": "origins",
       "icon": "🧬",
