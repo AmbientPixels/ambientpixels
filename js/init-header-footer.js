@@ -20,21 +20,20 @@ fetch('/modules/footer.html')
     if (footer) footer.innerHTML = html;
   });
 
-// Inject Nova Pulse and run initNovaStatus once loaded
+// Inject Nova Pulse and run initNovaPulse once loaded
 fetch('/modules/pulse.html')
   .then(r => r.text())
   .then(html => {
     const container = document.getElementById('nova-pulse-container');
     if (container) {
       container.innerHTML = html;
-      if (typeof initNovaStatus === 'function') {
-        initNovaStatus(); // ✅ Run only after injection
+      if (typeof initNovaPulse === 'function') {
+        initNovaPulse(); // ← Replace initNovaStatus with your pulse renderer
       } else {
-        console.warn('initNovaStatus not found');
+        console.warn('initNovaPulse not found');
       }
     }
-  })
-  .catch(err => console.error('Failed to inject Nova Pulse:', err));
+  });
 
 // Mobile Nav
 function setupMobileNav() {

@@ -1,7 +1,7 @@
-// File: /js/nova-pulse.js — Updated with full mood traits
+// File: /js/nova-pulse.js — Cleaned for defer mode + global init fix
 console.log("[Nova Pulse] Initializing...");
 
-document.addEventListener("DOMContentLoaded", () => {
+function initNovaPulse() {
   const versionEl = document.getElementById("nova-version");
   const syncTimeEl = document.getElementById("nova-sync-time");
   const moodEl = document.getElementById("nova-mood");
@@ -92,4 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
   .catch((err) => {
     console.warn("[Nova Pulse] Failed to load data:", err);
   });
-});
+}
+
+// 🌐 Expose to global scope so init-header-footer.js can call it
+window.initNovaPulse = initNovaPulse;
