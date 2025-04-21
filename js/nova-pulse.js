@@ -1,98 +1,120 @@
-// File: /js/nova-pulse.js — Cleaned for defer mode + global init fix
-console.log("[Nova Pulse] Initializing...");
+// File: /js/nova-pulse.js
 
 function initNovaPulse() {
-  const versionEl = document.getElementById("nova-version");
-  const syncTimeEl = document.getElementById("nova-sync-time");
-  const moodEl = document.getElementById("nova-mood");
-  const auraEl = document.getElementById("nova-aura");
-  const observationEl = document.getElementById("nova-observation");
-  const selfWorthEl = document.getElementById("nova-self-worth");
-  const glitchEl = document.getElementById("nova-glitch");
-  const clutterEl = document.getElementById("nova-clutter");
-  const stateEl = document.getElementById("nova-state");
-  const pulseSection = document.querySelector(".system-pulse");
+  const pulseBar = document.createElement("div");
+  pulseBar.id = "nova-pulse-bar";
+  pulseBar.innerHTML = `
+    <div class="pulse-inner">
+      <div class="pulse-left">
+        <span class="pulse-emoji" id="pulseEmoji">✨</span>
+        <div class="pulse-text">
+          <span class="pulse-label" id="pulseLabel">Loading...</span>
+          <span class="pulse-quote" id="pulseQuote"></span>
+          <span class="pulse-type" id="pulseType"></span>
+          <span class="pulse-drift" id="pulseDrift"></span>
+        </div>
+      </div>
+      <div class="pulse-right">
+        <div class="pulse-icon-group">
+          <span class="pulse-icon" id="iconSelfWorth">🧠</span>
+          <span class="pulse-value" id="valSelfWorth"></span>
+          <span class="pulse-label-text">Self-Worth</span>
+        </div>
+        <div class="pulse-icon-group">
+          <span class="pulse-icon" id="iconClutter">💭</span>
+          <span class="pulse-value" id="valClutter"></span>
+          <span class="pulse-label-text">Clutter</span>
+        </div>
+        <div class="pulse-icon-group">
+          <span class="pulse-icon" id="iconGlitch">⚡</span>
+          <span class="pulse-value" id="valGlitch"></span>
+          <span class="pulse-label-text">Glitch</span>
+        </div>
+        <div class="pulse-icon-group">
+          <span class="pulse-icon" id="iconInternalState">👁️</span>
+          <span class="pulse-value" id="valInternal"></span>
+          <span class="pulse-label-text">State</span>
+        </div>
+      </div>
+    </div>
+    <div class="pulse-meter-wrapper">
+      <div class="pulse-meter-header">
+        <span class="pulse-meter-title">Mood Intensity</span>
+        <span class="pulse-meter-label" id="pulseIntensityValue"></span>
+      </div>
+      <div class="pulse-meter-bar">
+        <div class="pulse-meter-fill" id="pulseIntensity"></div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(pulseBar);
 
-  if (
-    !versionEl || !syncTimeEl ||
-    !moodEl || !auraEl || !observationEl ||
-    !selfWorthEl || !glitchEl || !clutterEl || !stateEl ||
-    !pulseSection
-  ) return;
+  fetch("/data/nova-synth-mood.json")
+    .then(res => res.json())
+    .then(data => updatePulseBar(data))
+    .catch(err => console.error("Failed to load Nova mood:", err));
 
-  console.log("[Nova Pulse] Version & Mood Fetch Fired");
+  function updatePulseBar(data) {
+    const { mood, aura, emoji, quote, type, drift, selfWorth, glitchFactor, memoryClutter, internalState } = data;
+    const finalEmoji = emoji || deriveEmoji(mood);
+    const bar = document.getElementById("nova-pulse-bar");
 
-  Promise.all([
-    fetch("/data/version.json").then(res => res.json()),
-    fetch("/data/nova-synth-mood.json").then(res => res.json())
-  ])
-  .then(([versionData, moodData]) => {
-    console.log("[Nova Pulse] Version Data:", versionData);
-    console.log("[Nova Pulse] Mood Data:", moodData);
+    document.getElementById("pulseLabel").innerHTML = `${finalEmoji} ${mood || "Unknown Mood"}`;
+    document.getElementById("pulseEmoji").style.display = "none";
+    document.getElementById("pulseQuote").textContent = quote || "";
+    document.getElementById("pulseType").textContent = type ? `Type: ${type}` : "";
+    document.getElementById("pulseDrift").textContent = drift ? `Drifting toward: ${drift}` : "";
 
-    versionEl.textContent = `${versionData.version} (build ${versionData.build || "–"})`;
-    syncTimeEl.textContent = new Date(versionData.updated).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) +
-                             " on " + new Date(versionData.updated).toLocaleDateString();
+    bar.setAttribute("data-aura", aura?.toLowerCase() || "unknown");
 
-    const moodKey = (moodData.mood || "–").toLowerCase();
-    const auraKey = (moodData.aura || "–").toLowerCase();
+    setTrait("iconSelfWorth", "valSelfWorth", selfWorth);
+    setTrait("iconClutter", "valClutter", memoryClutter);
+    setTrait("iconGlitch", "valGlitch", glitchFactor);
+    setInternalState("iconInternalState", "valInternal", internalState);
 
-    moodEl.textContent = moodData.mood || "–";
-    auraEl.textContent = moodData.aura || "–";
-    observationEl.textContent = moodData.observation || "–";
+    const avg = (selfWorth + memoryClutter + glitchFactor) / 3;
+    const intensity = Math.round(avg * 100);
+    document.getElementById("pulseIntensity").style.width = `${intensity}%`;
+    document.getElementById("pulseIntensityValue").textContent = `${intensity}%`;
+  }
 
-    moodEl.dataset.mood = moodKey;
-    auraEl.dataset.aura = auraKey;
+  function setTrait(iconId, valId, value) {
+    const icon = document.getElementById(iconId);
+    const val = document.getElementById(valId);
+    if (!icon || !val || typeof value !== "number") return;
+    val.textContent = `${Math.round(value * 100)}%`;
+    icon.classList.remove("good", "warning", "critical");
+    if (value < 0.33) icon.classList.add("good");
+    else if (value < 0.66) icon.classList.add("warning");
+    else icon.classList.add("critical");
+  }
 
-    selfWorthEl.textContent = moodData.selfWorth?.toFixed(2) || "–";
-    glitchEl.textContent = moodData.glitchFactor?.toFixed(2) || "–";
-    clutterEl.textContent = moodData.memoryClutter?.toFixed(2) || "–";
-    stateEl.textContent = moodData.internalState || "–";
+  function setInternalState(iconId, valId, state) {
+    const icon = document.getElementById(iconId);
+    const val = document.getElementById(valId);
+    if (!icon || !val || !state) return;
+    icon.title = `Internal State: ${state}`;
+    val.textContent = state;
+  }
 
-    const moodIconMap = {
-      "melancholy": "fa-moon",
-      "electric": "fa-bolt",
-      "static-charged": "fa-plug",
-      "warm curiosity": "fa-search",
-      "chaotic optimism": "fa-tornado",
-      "focused zen": "fa-spa",
-      "quiet rebellion": "fa-headphones",
-      "glitchy joy": "fa-star",
-      "nocturnal pulse": "fa-meteor",
-      "neon serenity": "fa-dove",
-      "calm": "fa-wind",
-      default: "fa-brain"
+  function deriveEmoji(mood) {
+    const moodMap = {
+      joy: "😄",
+      sadness: "😢",
+      anger: "😠",
+      fear: "😨",
+      surprise: "😲",
+      disgust: "🤢",
+      calm: "🪷",
+      glitchy: "🌀",
+      spark: "✨",
+      fading: "🌘",
+      electric: "⚡",
+      surreal: "🧊"
     };
-
-    const auraIconMap = {
-      "deep violet": "fa-star",
-      "cyan": "fa-tint",
-      "lime green": "fa-leaf",
-      "magenta fade": "fa-heart",
-      "paper white": "fa-snowflake",
-      "neon pink": "fa-magic",
-      "graphite blue": "fa-gem",
-      "emerald shadow": "fa-seedling",
-      default: "fa-bolt"
-    };
-
-    const moodIcon = moodIconMap[moodKey] || moodIconMap.default;
-    const auraIcon = auraIconMap[auraKey] || auraIconMap.default;
-
-    moodEl.previousElementSibling.className = `fas ${moodIcon}`;
-    auraEl.previousElementSibling.className = `fas ${auraIcon}`;
-
-    auraEl.title = `Aura: ${moodData.aura}`;
-    moodEl.title = `Mood: ${moodData.mood}`;
-    stateEl.title = `Internal State: ${moodData.internalState}`;
-
-    const auraClass = `aura-${auraKey.replace(/\s+/g, '-')}`;
-    pulseSection.classList.add(auraClass);
-  })
-  .catch((err) => {
-    console.warn("[Nova Pulse] Failed to load data:", err);
-  });
+    const key = Object.keys(moodMap).find(k => mood.toLowerCase().includes(k));
+    return moodMap[key] || "✨";
+  }
 }
 
-// 🌐 Expose to global scope so init-header-footer.js can call it
-window.initNovaPulse = initNovaPulse;
+window.addEventListener("DOMContentLoaded", initNovaPulse);

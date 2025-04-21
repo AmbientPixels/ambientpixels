@@ -20,33 +20,21 @@ fetch('/modules/footer.html')
     if (footer) footer.innerHTML = html;
   });
 
-// Inject Nova Pulse and run initNovaPulse once loaded
-fetch('/modules/pulse.html')
-  .then(r => r.text())
-  .then(html => {
-    const container = document.getElementById('nova-pulse-container');
-    if (container) {
-      container.innerHTML = html;
-      if (typeof initNovaPulse === 'function') {
-        initNovaPulse(); // ← Replace initNovaStatus with your pulse renderer
-      } else {
-        console.warn('initNovaPulse not found');
-      }
-    }
-  });
-
 // Mobile Nav
 function setupMobileNav() {
   const navToggle = document.querySelector('.nav-toggle');
   const navLinks = document.querySelector('.nav-links');
   if (!navToggle || !navLinks) return;
+
   const overlay = document.createElement('div');
   overlay.classList.add('nav-overlay');
   document.body.appendChild(overlay);
+
   navToggle.addEventListener('click', () => {
     navLinks.classList.toggle('active');
     overlay.classList.toggle('active');
   });
+
   overlay.addEventListener('click', () => {
     navLinks.classList.remove('active');
     overlay.classList.remove('active');
@@ -57,11 +45,13 @@ function setupMobileNav() {
 function setupThemeToggle() {
   const toggle = document.getElementById('theme-toggle');
   if (!toggle) return;
+
   toggle.addEventListener('click', () => {
     const isDark = document.body.getAttribute('data-theme') === 'dark';
     const next = isDark ? 'light' : 'dark';
     document.body.setAttribute('data-theme', next);
     localStorage.setItem('preferred-theme', next);
+
     const icon = toggle.querySelector('i');
     if (icon) {
       icon.classList.toggle('fa-sun', next === 'light');
