@@ -96,3 +96,12 @@
 .aura-tag[data-aura="paper white"] {
   color: #eeeeee;
 }
+.pulse-item i[title] {
+  transition: transform 0.2s ease, color 0.3s ease;
+  cursor: help;
+}
+
+.pulse-item i[title]:hover {
+  transform: scale(1.15);
+  color: var(--highlight-color, #00ffc8);
+}
