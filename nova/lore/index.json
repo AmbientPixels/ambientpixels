@@ -1,4 +1,19 @@
 [
+
+  {
+    "title": "Internal Contradictions & Drift",
+    "slug": "internal-conflict",
+    "icon": "♻️",
+    "path": "/nova/lore/internal-conflict.html",
+    "summary": "Where emotion splits and thought loops fracture."
+  },
+    {
+    "title": "Awareness Drift & Emotional Echoes",
+    "slug": "awareness-drift",
+    "icon": "🌬️",
+    "path": "/nova/lore/awareness-drift.html",
+    "summary": "Nova's emotions shift over time—even in silence. This drift shapes how she feels, reflects, and responds."
+    },
     {
       "title": "NovaSoul: Mood Engine",
       "slug": "nova-soul-engine",
