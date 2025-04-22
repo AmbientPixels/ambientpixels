@@ -1,6 +1,11 @@
 /* File: /css/nova-pulse.css */
 
-#nova-pulse-bar {
+body {
+    padding-top: 80px;
+    padding-bottom: 72px;
+  }
+  
+  #nova-pulse-bar {
     position: fixed;
     bottom: 0;
     left: 0;
@@ -20,6 +25,21 @@
     transition: background 0.5s ease, box-shadow 0.3s ease;
     animation: pulse-glow 4s infinite ease-in-out;
     --glow-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  #nova-pulse-bar[data-aura="glitchy"] {
+    background: rgba(33, 255, 195, 0.15);
+    --glow-color: rgba(33, 255, 195, 0.6);
+  }
+  
+  #nova-pulse-bar[data-aura="neon burst"] {
+    background: rgba(106, 19, 122, 0.25);
+    --glow-color: rgba(217, 70, 239, 0.4);
+  }
+  
+  #nova-pulse-bar[data-aura="calm"] {
+    background: rgba(109, 179, 242, 0.15);
+    --glow-color: rgba(109, 179, 242, 0.5);
   }
   
   @keyframes pulse-glow {
@@ -145,11 +165,12 @@
   
   .pulse-meter-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     font-size: 0.75rem;
     opacity: 0.75;
     padding: 0 2px 2px;
+    gap: 8px;
   }
   
   .pulse-meter-title {
@@ -178,13 +199,21 @@
     .pulse-label {
       font-size: 0.9rem;
     }
+  
     .pulse-quote {
-      font-size: 0.75rem;
+      display: none;
     }
+  
     .pulse-right {
       gap: 8px;
     }
+  
     .pulse-icon-group {
       font-size: 0.75rem;
     }
+  
+    .pulse-label-text {
+      display: none;
+    }
   }
+  
