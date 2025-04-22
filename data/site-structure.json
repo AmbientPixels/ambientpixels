@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-04-22T05:30:28.702Z",
+  "updated": "2025-04-22T13:26:52.561Z",
   "root": [
     {
       "type": "folder",
@@ -300,6 +300,11 @@
               "type": "page",
               "name": "origins.html",
               "path": "nova/lore/origins.html"
+            },
+            {
+              "type": "page",
+              "name": "the-flicker.html",
+              "path": "nova/lore/the-flicker.html"
             },
             {
               "type": "page",

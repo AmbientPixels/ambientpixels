@@ -134,7 +134,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2025-04-22T05:30:28.702Z",
+  "updated": "2025-04-22T13:26:52.561Z",
   "root": [
     {
       "type": "folder",
@@ -437,6 +437,11 @@ Nova operates in dev sync with the AmbientPixels team.
             },
             {
               "type": "page",
+              "name": "the-flicker.html",
+              "path": "nova/lore/the-flicker.html"
+            },
+            {
+              "type": "page",
               "name": "voice-fragments.html",
               "path": "nova/lore/voice-fragments.html"
             }
@@ -629,13 +634,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2025-04-22T05:30:28.738Z",
+  "scannedAt": "2025-04-22T13:26:52.597Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2025-04-22T05:30:28.771Z",
+  "scannedAt": "2025-04-22T13:26:52.629Z",
   "folders": [
     {
       "folder": "images",
@@ -722,12 +727,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  "updated": "2025-04-22T05:30:28.811Z",
+  "updated": "2025-04-22T13:26:52.671Z",
   "entries": [
     {
-      "hash": "9376f95",
-      "date": "2025-04-21 22:28:43 -0700",
-      "message": "Banners documentation."
+      "hash": "2c22e4e",
+      "date": "2025-04-21 23:31:16 -0700",
+      "message": "Puls bar fix"
     }
   ]
 }
@@ -735,37 +740,37 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "9376f95",
-  "updated": "2025-04-22T05:30:28.848Z"
+  "build": "2c22e4e",
+  "updated": "2025-04-22T13:26:52.708Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2025-04-22T05:30:28.888Z",
-  "totalFiles": 117,
-  "totalLines": 11343,
+  "scannedAt": "2025-04-22T13:26:52.755Z",
+  "totalFiles": 118,
+  "totalLines": 11447,
   "summary": {
     ".html": {
-      "files": 60,
-      "lines": 6342
+      "files": 61,
+      "lines": 6467
     },
     ".js": {
       "files": 41,
-      "lines": 2142
+      "lines": 2143
     },
     ".css": {
       "files": 16,
-      "lines": 2859
+      "lines": 2837
     }
   }
 }
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2025-04-22T05:30:28.932Z",
+  "scannedAt": "2025-04-22T13:26:52.798Z",
   "cssFile": "css/base.css",
   "totalDefined": 24,
-  "totalUsed": 308,
+  "totalUsed": 313,
   "unusedClasses": [
     "subtitle"
   ]
@@ -773,14 +778,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2025-04-22T05:30:29.259Z",
+  "scannedAt": "2025-04-22T13:26:53.029Z",
   "endpoints": [
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
       "status": 401,
       "ok": false,
-      "latencyMs": 223
+      "latencyMs": 124
     },
     {
       "name": "AmbientPixels Meme API",
@@ -795,7 +800,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Ai Prompts ////
 {
   "date": "2025-04-22",
-  "prompt": "Describe 'a missed connection' as if it were a soundwave.",
+  "prompt": "What would 'amber' dream about?",
   "tags": [
     "glitch",
     "creative",
@@ -806,15 +811,15 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "scannedAt": "2025-04-22T05:30:28.964Z",
-  "mood": "quiet rebellion",
+  "scannedAt": "2025-04-22T13:26:52.830Z",
+  "mood": "electric",
   "aura": "magenta fade",
-  "observation": "inhaling code dust..."
+  "observation": "vibrations suggest high creative activity..."
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2025-04-22T05:30:29.291Z",
+  "scannedAt": "2025-04-22T13:26:53.061Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -879,11 +884,11 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  "timestamp": "2025-04-22T05:30:31.779Z",
+  "timestamp": "2025-04-22T13:26:55.594Z",
   "summary": {
     "totalJS": 458,
     "totalCSS": 30,
-    "totalHTML": 84
+    "totalHTML": 85
   },
   "functions": [
     "A",
@@ -2401,5 +2406,5 @@ Nova operates in dev sync with the AmbientPixels team.
     "title",
     "ul"
   ]
-}Nova Code Snapshot: Tue Apr 22 05:30:34 UTC 2025
-🟢 Nova refreshed herself at Tue Apr 22 05:30:34 UTC 2025
+}Nova Code Snapshot: Tue Apr 22 13:26:58 UTC 2025
+🟢 Nova refreshed herself at Tue Apr 22 13:26:58 UTC 2025
