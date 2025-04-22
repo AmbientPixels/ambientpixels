@@ -1,49 +1,95 @@
-/* /css/banner.css - Ambient Pixels v2.3 - April 11, 2025 */
+/* File: /css/banner.css – Nova Themed Glassy Banner System */
+
 .banner-container {
-    position: fixed;
-    top: 75px; /* Below nav */
-    left: 0;
-    width: 100%;
-    z-index: 1000; /* Below nav, above content */
-    display: flex;
-    justify-content: center;
-    padding: 10px 0;
-    font-family: 'Inter', sans-serif;
-  }
-  
-  .banner {
-    padding: 10px 20px;
-    color: #fff;
-    display: flex;
-    align-items: center; /* Fixed typo: was 'alaign-items' */
-    gap: 10px;
-    width: 100%;
-    max-width: 1200px;
-    transition: opacity 0.5s ease;
-    background: rgba(7, 16, 25, 0.9); /* Match dark theme */
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  }
-  
-  .banner-icon {
-    font-size: 1.2em;
-    color: #4682B4; /* Dark accent */
-  }
-  
-  .banner-close {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 1.2em;
-    cursor: pointer;
-    margin-left: auto;
-    transition: color 0.3s ease;
-  }
-  
-  .banner-close:hover {
-    color: #4682B4;
-  }
-  
-  .hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
+  position: fixed;
+  top: 75px; /* Just below nav */
+  left: 0;
+  width: 100%;
+  z-index: 1050;
+  display: flex;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  pointer-events: none;
+}
+
+/* Base Banner Style */
+.banner {
+  pointer-events: auto;
+  width: 100%;
+  max-width: 1200px;
+  padding: 12px 24px;
+  background: rgba(75, 62, 143, 0.35); /* translucent dark purple */
+  color: var(--dark-text);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 0;
+  margin-top: 19px; /* Align precisely under nav bar */
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 1.8s ease, transform 1.2s ease;
+}
+
+/* Fade in */
+.banner.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Fade out */
+.banner.hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
+
+
+/* Fade in */
+.banner.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Fade out */
+.banner.hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
+
+.banner-icon {
+  font-size: 1.2em;
+  color: var(--dark-accent);
+}
+
+.banner-close {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.2em;
+  cursor: pointer;
+  margin-left: auto;
+  transition: opacity 0.3s ease;
+}
+
+.banner-close:hover {
+  opacity: 0.7;
+}
+
+.banner.info {
+  background: rgba(42, 87, 122, 0.4); /* dark glass blue */
+  color: var(--dark-text);
+}
+
+.banner.warn {
+  background: rgba(255, 213, 120, 0.35);
+  color: #2c1e00;
+}
+
+.banner.critical {
+  background: rgba(255, 90, 90, 0.35);
+  color: #ffe5e5;
+}
