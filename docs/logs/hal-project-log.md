@@ -11,6 +11,9 @@
 - Visual-only popups are included with styling notes  
 - SSML tags applied for Azure Speech Studio (pauses, emphasis, tone)  
 
+✅ **Ava’s VO pass updated with a warmer, more conversational tone**  
+✅ **Back-pocket neutral version still available if we pivot**  
+
 ---
 
 ## 🎞️ Scene Breakdown
@@ -95,11 +98,14 @@
 - Web/YouTube optimized  
 - Separate audio pass if needed for remixing  
 
-**Next Steps:**  
-- Review VO dry run  
-- Finalize screenshots per scene  
-- Animate cursor + screen elements  
-- Export AE pass and drop into Premiere  
-- Final output → internal/team review  
+---
 
-_Last updated: 2025-04-12 19:14:40_
+## ✅ Next Steps
+
+- [ ] Review VO dry run  
+- [ ] Finalize screenshots per scene  
+- [ ] Animate cursor + screen elements  
+- [ ] Export AE pass and drop into Premiere  
+- [ ] Final output → internal/team review  
+
+_Last updated: 2025-04-24_
