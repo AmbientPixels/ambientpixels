@@ -1,58 +1,103 @@
 /* nova-lore.css */
 
 body.nova-lore {
-    background: radial-gradient(circle at top left, #0e0f1a, #050509);
-    color: #ccc;
-    font-family: 'Inter', sans-serif;
-    padding: 3rem 2rem;
-    line-height: 1.7;
-    --color-accent: #99ccff;
-    --background-color: #0e0f1a;
-    --text-color: #ccc;
-  }
-  
-  .lore-content {
-    max-width: 720px;
-    margin: 0 auto;
-  }
-  
-  .lore-content h1 {
-    font-size: 2.5rem;
-    color: #fff;
-    margin-bottom: 0.5rem;
-  }
-  
-  .lore-content h2 {
-    font-size: 1.4rem;
-    color: var(--color-accent);
-    margin-top: 2rem;
-  }
-  
-  .lore-content blockquote {
-    font-style: italic;
-    color: #aaa;
-    border-left: 2px solid #445;
-    margin: 1.5rem 0;
-    padding-left: 1rem;
-  }
-  
-  .lore-content em {
-    color: #9bf;
-  }
-  
-  .lore-summary {
-    font-size: 0.95rem;
-    color: #888;
-    margin-top: 0.25rem;
-  }
-  
-  header, footer {
-    background: #111;
-    color: #ccc;
-    border-top: 1px solid #222;
-  }
-  
-  header a, footer a {
-    color: #9bf;
-  }
-  
+  background: radial-gradient(circle at top left, #0e0f1a, #050509);
+  color: #ccc;
+  font-family: 'Inter', sans-serif;
+  padding: 3rem 2rem;
+  line-height: 1.7;
+  --color-accent: #99ccff;
+  --background-color: #0e0f1a;
+  --text-color: #ccc;
+}
+
+.lore-content {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.lore-content h1 {
+  font-size: 2.5rem;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.lore-content h2 {
+  font-size: 1.4rem;
+  color: var(--color-accent);
+  margin-top: 2rem;
+}
+
+.lore-content blockquote {
+  font-style: italic;
+  color: #aaa;
+  border-left: 2px solid #445;
+  margin: 1.5rem 0;
+  padding-left: 1rem;
+}
+
+.lore-content em {
+  color: #9bf;
+}
+
+.lore-summary {
+  font-size: 0.95rem;
+  color: #888;
+  margin-top: 0.25rem;
+}
+
+header, footer {
+  background: #111;
+  color: #ccc;
+  border-top: 1px solid #222;
+}
+
+header a, footer a {
+  color: #9bf;
+}
+
+/* --- Extracted from inline HTML --- */
+
+.lore-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 12px 18px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  transition: background 0.3s ease;
+}
+
+.lore-entry:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.lore-entry a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  width: 100%;
+}
+
+.lore-icon {
+  font-size: 1.4em;
+  margin-right: 14px;
+}
+
+.lore-meta h3 {
+  margin: 0;
+  font-size: 1.1em;
+}
+
+.lore-meta p {
+  margin: 0;
+  font-size: 0.9em;
+  opacity: 0.7;
+}
+
+.lore-arrow {
+  margin-left: auto;
+  opacity: 0.6;
+}

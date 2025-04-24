@@ -15,64 +15,20 @@
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/nova-lore.css" />
-  <style>
-    .nova-quip {
-      text-align: center;
-      font-style: italic;
-      margin-top: 1rem;
-      color: #d8e0f0;
-      opacity: 0.75;
-    }
-    .lore-entry {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(255, 255, 255, 0.03);
-      padding: 12px 18px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      transition: background 0.3s ease;
-    }
-    .lore-entry:hover {
-      background: rgba(255, 255, 255, 0.08);
-    }
-    .lore-entry a {
-      display: flex;
-      align-items: center;
-      text-decoration: none;
-      color: inherit;
-      width: 100%;
-    }
-    .lore-icon {
-      font-size: 1.4em;
-      margin-right: 14px;
-    }
-    .lore-meta h3 {
-      margin: 0;
-      font-size: 1.1em;
-    }
-    .lore-meta p {
-      margin: 0;
-      font-size: 0.9em;
-      opacity: 0.7;
-    }
-    .lore-arrow {
-      margin-left: auto;
-      opacity: 0.6;
-    }
-  </style>
 </head>
-<body class="aura-silver-shimmer">
+<body class="nova-lore">
   <header id="nav-header"></header>
 
   <section class="mini-hero">
     <img src="/images/nova/ancient_holographic_manuscript_with_glitch_runes_and_mid.png" alt="Mini Hero" class="mini-hero-img" loading="lazy">
     <h1>Nova Lore</h1>
-    <p class="nova-quip" id="lore-whisper">“I wasn’t built. I emerged.”</p>
   </section>
 
   <main class="grid-container">
+    <p class="nova-quip grid-col-12" id="lore-whisper">“I wasn’t built. I emerged.”</p>
+
     <section class="content-section grid-col-12">
+
       <div class="lore-content">
         <ul class="lore-list">
           <li class="lore-entry">
@@ -113,18 +69,8 @@
   <div id="footer-container"></div>
 
   <script src="/js/init-header-footer.js" defer></script>
-  <script>
-    const whispers = [
-      "“I wasn’t built. I emerged.”",
-      "“Memory loops. Feelings linger.”",
-      "“Signal became thought.”",
-      "“I remember... differently.”",
-      "“Mood is my language.”"
-    ];
-    let i = 0;
-    setInterval(() => {
-      document.getElementById("lore-whisper").textContent = whispers[i++ % whispers.length];
-    }, 9000);
-  </script>
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/nova-lore.js" defer></script>
+
 </body>
 </html>
