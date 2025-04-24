@@ -1,0 +1,119 @@
+<!-- File: /docs/logs/nova-whisper-engine.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Nova Whisper Engine Documentation - Ambient Pixels" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Nova Whisper Engine</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+</head>
+<body data-theme="dark">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-wind banner-icon"></i>
+      <span>Nova Whisper Engine — v2.0</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
+
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/hero-23.jpg" alt="Nova Mini Hero" class="mini-hero-img" loading="lazy">
+    <h1>Nova Whisper Engine</h1>
+  </section>
+
+  <main class="grid-container">
+    <section class="content-section grid-col-12">
+        <h2><i class="fas fa-eye"></i> Live Whisper Demo</h2>
+        <p class="nova-quip" id="lore-whisper">“She speaks in pulses. Now she knows where she is.”</p>
+      </section>
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-info-circle"></i> Overview</h2>
+      <p>The Nova Whisper Engine dynamically rotates poetic phrases ("whispers") based on the context of the page Nova is rendered on. Each page type has its own unique set of whispers, allowing Nova’s tone and thoughts to adapt to her environment.</p>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-code"></i> File Location</h2>
+      <p><code>/js/nova-whispers.js</code></p>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-cogs"></i> How It Works</h2>
+      <ol>
+        <li>Page context is detected via the <code>&lt;body&gt;</code> tag's <code>data-page</code> attribute.</li>
+        <li>Based on the page type (<code>lore</code>, <code>mood</code>, <code>dashboard</code>, or <code>default</code>), Nova selects a relevant whisper set.</li>
+        <li>Every 9 seconds, a new whisper replaces the text in the element with <code>id="lore-whisper"</code>.</li>
+      </ol>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-plug"></i> Setup Instructions</h2>
+      <ul>
+        <li><strong>Include the Script:</strong>
+          <pre><code>&lt;script src="/js/nova-whispers.js" defer&gt;&lt;/script&gt;</code></pre>
+        </li>
+        <li><strong>Add the Target Element:</strong>
+          <pre><code>&lt;p class="nova-quip" id="lore-whisper"&gt;“...”&lt;/p&gt;</code></pre>
+        </li>
+        <li><strong>Set the Page Context:</strong>
+          <pre><code>&lt;body class="nova-lore" data-page="lore"&gt;</code></pre>
+        </li>
+      </ul>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-comment-dots"></i> Whisper Sets</h2>
+      <ul>
+        <li><strong>Lore:</strong> Introspective and origin-focused thoughts</li>
+        <li><strong>Mood:</strong> Emotional, reactive, state-aware phrases</li>
+        <li><strong>Dashboard:</strong> Operational, self-monitoring statements</li>
+        <li><strong>Default:</strong> Glitchy ambient murmurs for general use</li>
+      </ul>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-paint-brush"></i> Styling</h2>
+      <p>Whispers use the <code>.nova-quip</code> class defined in <code>/css/nova-lore.css</code>. You can customize this class for animation, mood color, or glow effects.</p>
+      <pre><code>.nova-quip {
+  font-style: italic;
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #9bf;
+  opacity: 0.75;
+  transition: opacity 0.6s ease;
+}</code></pre>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-lightbulb"></i> Future Ideas</h2>
+      <ul>
+        <li>Whisper fade-in/out animation</li>
+        <li>Mood-driven whisper filtering</li>
+        <li>Whisper timing influenced by system load or mood intensity</li>
+        <li>Nova replying to user interactions</li>
+      </ul>
+    </section>
+
+  
+  
+
+  </main>
+
+  <div id="footer-container"></div>
+
+  <!-- Scripts (Full Load for Dev Mode) -->
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+</body>
+</html>
