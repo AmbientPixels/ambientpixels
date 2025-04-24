@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON/XML Metadata QC Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        body.light-theme {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        body.high-contrast {
+            background-color: #000;
+            color: #fff;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            gap: 20px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .top-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .control-group {
+            flex: 1;
+            min-width: 250px;
+            background-color: #252525;
+            padding: 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        body.light-theme .control-group {
+            background-color: #ddd;
+        }
+        body.high-contrast .control-group {
+            background-color: #333;
+        }
+        .input-output-container {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+            min-height: 400px;
+        }
+        .input-section, .output-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .input-header, .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        #inputContainer {
+            position: relative;
+            flex: 1;
+        }
+        #inputData {
+            width: 100%;
+            height: 100%;
+            background-color: #2d2d2d;
+            color: #e0e0e0;
+            border: 1px solid #404040;
+            padding: 10px;
+            transition: border-color 0.3s, background-color 0.3s;
+            box-sizing: border-box;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            resize: none;
+            white-space: pre-wrap;
+        }
+        body.light-theme #inputData {
+            background-color: #fff;
+            color: #000;
+            border-color: #ccc;
+        }
+        body.high-contrast #inputData {
+            background-color: #222;
+            color: #fff;
+            border-color: #fff;
+        }
+        #inputData.dragover {
+            border-color: #4da8da;
+            background-color: #383838;
+        }
+        #output {
+            border: 1px solid #404040;
+            padding: 15px;
+            background-color: #252525;
+            transition: border-color 0.3s, background-color 0.3s;
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.4;
+            overflow-x: auto;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        #output.compare-mode {
+            display: flex;
+            gap: 10px;
+        }
+        #output.compare-mode > div {
+            flex: 1;
+            border: 1px solid #404040;
+            padding: 10px;
+            overflow-x: auto;
+        }
+        body.light-theme #output {
+            border-color: #ccc;
+            background-color: #fff;
+        }
+        body.high-contrast #output {
+            border-color: #fff;
+            background-color: #111;
+        }
+        .section {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #303030;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        body.light-theme .section {
+            background-color: #e0e0e0;
+        }
+        body.high-contrast .section {
+            background-color: #444;
+        }
+        h1 { 
+            color: #4da8da; 
+            margin: 0 0 20px 0; 
+            text-align: center;
+            font-size: 24px;
+        }
+        h2 { 
+            color: #89c2d9; 
+            font-size: 16px; 
+            margin: 5px 0;
+        }
+        h3 {
+            color: #89c2d9;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+        label {
+            color: #89c2d9;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        .instructions {
+            background-color: #2d2d2d;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        body.light-theme .instructions {
+            background-color: #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        body.high-contrast .instructions {
+            background-color: #333;
+        }
+        .status {
+            font-size: 12px;
+            color: #89c2d9;
+            margin-top: 5px;
+        }
+        .property {
+            margin: 8px 0;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .property label {
+            font-weight: bold;
+            color: #61dafb;
+            margin-right: 10px;
+            min-width: 100px;
+        }
+        .nested {
+            margin-left: 20px;
+            border-left: 2px solid #404040;
+            padding-left: 10px;
+        }
+        body.light-theme .nested {
+            border-left-color: #ccc;
+        }
+        body.high-contrast .nested {
+            border-left-color: #fff;
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .button-group h3 {
+            width: 100%;
+            margin: 0 0 5px 0;
+        }
+        button {
+            padding: 6px 15px;
+            cursor: pointer;
+            background-color: #4da8da;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s, transform 0.2s;
+            font-size: 12px;
+        }
+        button:disabled {
+            background-color: #404040;
+            cursor: not-allowed;
+        }
+        button:hover:not(:disabled) {
+            background-color: #61dafb;
+            transform: scale(1.05);
+        }
+        select {
+            padding: 6px;
+            background-color: #2d2d2d;
+            color: #e0e0e0;
+            border: 1px solid #404040;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        body.light-theme select {
+            background-color: #fff;
+            color: #333;
+            border-color: #ccc;
+        }
+        body.high-contrast select {
+            background-color: #222;
+            color: #fff;
+            border-color: #fff;
+        }
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #404040;
+            padding: 8px;
+            text-align: left;
+            transition: border-color 0.3s;
+        }
+        body.light-theme th, body.light-theme td {
+            border-color: #ccc;
+        }
+        body.high-contrast th, body.high-contrast td {
+            border-color: #fff;
+        }
+        th {
+            background-color: #2d2d2d;
+            color: #89c2d9;
+            font-size: 14px;
+        }
+        td {
+            background-color: #303030;
+            color: #e0e0e0;
+            font-size: 12px;
+        }
+        tr:nth-child(even) td {
+            background-color: #383838;
+        }
+        body.light-theme th {
+            background-color: #ddd;
+            color: #555;
+        }
+        body.light-theme td {
+            background-color: #fff;
+            color: #333;
+        }
+        body.light-theme tr:nth-child(even) td {
+            background-color: #f5f5f5;
+        }
+        body.high-contrast th {
+            background-color: #222;
+            color: #fff;
+        }
+        body.high-contrast td {
+            background-color: #333;
+            color: #fff;
+        }
+        .toggle-container {
+            display: inline-flex;
+            align-items: center;
+        }
+        .toggle-labels {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toggle-label-detail, .toggle-label-table {
+            color: #89c2d9;
+            font-weight: bold;
+            opacity: 0.5;
+            font-size: 12px;
+            transition: opacity 0.3s;
+        }
+        body.light-theme .toggle-label-detail, body.light-theme .toggle-label-table {
+            color: #555;
+        }
+        body.high-contrast .toggle-label-detail, body.high-contrast .toggle-label-table {
+            color: #fff;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+            margin: 0 8px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #404040;
+            transition: .4s;
+            border-radius: 26px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #e0e0e0;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:disabled + .slider {
+            background-color: #2d2d2d;
+            cursor: not-allowed;
+        }
+        input:checked + .slider {
+            background-color: #4da8da;
+        }
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        input:checked ~ .toggle-label-table {
+            opacity: 1;
+        }
+        input:not(:checked) ~ .toggle-label-detail {
+            opacity: 1;
+        }
+        #searchInput {
+            width: 150px;
+            padding: 5px;
+            background-color: #2d2d2d;
+            color: #e0e0e0;
+            border: 1px solid #404040;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+        body.light-theme #searchInput {
+            background-color: #fff;
+            color: #333;
+            border-color: #ccc;
+        }
+        body.high-contrast #searchInput {
+            background-color: #222;
+            color: #fff;
+            border-color: #fff;
+        }
+        .tab-container {
+            margin: 10px 0;
+            background-color: #252525;
+            padding: 5px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        body.light-theme .tab-container {
+            background-color: #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .tab {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            margin-right: 5px;
+            background-color: #404040;
+            cursor: pointer;
+            border-radius: 4px 4px 0 0;
+            font-size: 12px;
+            transition: background-color 0.3s;
+        }
+        .tab.active {
+            background-color: #4da8da;
+        }
+        body.light-theme .tab {
+            background-color: #ccc;
+        }
+        body.light-theme .tab.active {
+            background-color: #4da8da;
+        }
+        body.high-contrast .tab {
+            background-color: #555;
+        }
+        body.high-contrast .tab.active {
+            background-color: #61dafb;
+        }
+        .tab-close {
+            margin-left: 5px;
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .tab-close:hover {
+            color: #ff9999;
+        }
+        #fileInfo {
+            font-size: 12px;
+        }
+        #fileInfo p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>MetaLab Studio</h1>
+    <h2>JSON/XML Metadata QC Tool</H2>
+    <div class="container">
+        <div class="top-controls">
+            <div class="control-group">
+                <h3>Data Controls</h3>
+                <div class="button-group">
+                    <button onclick="parseAuto()" title="Process the input data automatically">Process Data</button>
+                    <button onclick="validateData()" title="Validate the structure and rules of the current data">Validate</button>
+                    <button onclick="toggleCompare()" id="compareBtn" disabled title="Compare two files side-by-side (requires at least 2 files)">Compare</button>
+                    <button onclick="clearInput()" title="Clear all input and output data">Clear All</button>
+                    <button onclick="undo()" title="Undo the last action (Ctrl+Z)">Undo</button>
+                    <button onclick="redo()" title="Redo the last undone action (Ctrl+Y)">Redo</button>
+                </div>
+            </div>
+            <div class="control-group">
+                <h3>File Options</h3>
+                <div class="button-group">
+                    <button onclick="saveState()" title="Save the current data as a JSON file">Save Current Data</button>
+                    <button onclick="document.getElementById('loadInput').click()" title="Load a previously saved JSON file">Load Saved Data</button>
+                    <input type="file" id="loadInput" style="display: none;" accept=".json" onchange="loadState(event)">
+                    <select onchange="exportData(this.value)" id="exportSelect" disabled title="Export the current data in the selected format">
+                        <option value="">Export As...</option>
+                        <option value="csv">Export to CSV</option>
+                        <option value="json">Export to JSON</option>
+                        <option value="xml">Export to XML</option>
+                    </select>
+                </div>
+            </div>
+            <div class="control-group">
+                <h3>View Options</h3>
+                <div class="button-group">
+                    <select onchange="applyTheme(this.value)" title="Switch between dark, light, or high-contrast themes">
+                        <option value="dark">Dark Theme</option>
+                        <option value="light">Light Theme</option>
+                        <option value="high-contrast">High Contrast</option>
+                    </select>
+                </div>
+            </div>
+            <div class="control-group" id="fileInfo"></div>
+        </div>
+        <div id="status" class="status">Ready to load files</div>
+        <div class="tab-container" id="tabContainer"></div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search..." oninput="filterOutput()" title="Search within the output data">
+            <input type="checkbox" id="caseSensitive" onchange="filterOutput()" title="Make the search case-sensitive"> Case Sensitive
+        </div>
+        <div class="input-output-container">
+            <div class="input-section">
+                <div class="input-header">
+                    <label>Input Data</label>
+                    <div class="toggle-container">
+                        <span class="toggle-label-detail">Pretty Print</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="prettyPrintToggle" onchange="togglePrettyPrint()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div id="inputContainer">
+                    <textarea id="inputData" placeholder="Drag JSON/XML files here or paste content..." title="Paste or drag JSON/XML files here to process"></textarea>
+                </div>
+            </div>
+            <div class="output-section">
+                <div class="output-header">
+                    <label>Output</label>
+                    <div class="toggle-container">
+                        <div class="toggle-labels">
+                            <span class="toggle-label-detail">Detailed View</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggleCheckbox" onchange="toggleView()" disabled title="Toggle between detailed and table views">
+                                <span class="slider"></span>
+                            </label>
+                            <span class="toggle-label-table">Table View</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="output" title="View the processed data or validation results here"></div>
+            </div>
+        </div>
+        <div class="instructions">
+            <h2>How to Use This Tool</h2>
+            <p>1. <strong>Paste or Drag Files</strong>: Drop .json, .xml, or .txt files into the box below, or paste content. <em>Auto-processes on input.</em></p>
+            <p>2. <strong>Validate</strong>: Check data structure validity.</p>
+            <p>3. <strong>Compare</strong>: Compare two files side-by-side.</p>
+            <p>4. <strong>View Options</strong>: Switch between "Detailed" and "Table" views.</p>
+            <p>5. <strong>Save & Load</strong>: Save parsed data or load a previous session.</p>
+            <p>6. <strong>Export</strong>: Download as CSV, JSON, or XML.</p>
+            <p>7. <strong>Extras</strong>: Undo/redo, switch themes, or search (case-sensitive option).</p>
+        </div>
+    </div>
+
+    <script>
+        let parsedData = [];
+        let isTableView = false;
+        let isPrettyPrint = false;
+        let currentFileIndex = 0;
+        let originalOutput = '';
+        let history = [];
+        let redoStack = [];
+        let compareMode = false;
+        let compareIndices = [];
+        const textarea = document.getElementById('inputData');
+        const statusDiv = document.getElementById('status');
+
+        textarea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            textarea.classList.add('dragover');
+            statusDiv.textContent = 'Drop files to add them!';
+        });
+        textarea.addEventListener('dragleave', () => {
+            textarea.classList.remove('dragover');
+            statusDiv.textContent = parsedData.length ? `${parsedData.length} file(s) loaded—drop more to append` : 'Ready to load files';
+        });
+        textarea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            textarea.classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files).filter(file => 
+                /\.(json|xml|txt)$/i.test(file.name)
+            );
+            if (files.length === 0) {
+                statusDiv.textContent = 'Only .json, .xml, or .txt files supported';
+                statusDiv.style.color = '#ff6b6b';
+                return;
+            }
+            readFiles(files);
+            setTimeout(parseAuto, 0);
+        });
+        textarea.addEventListener('input', () => setTimeout(parseAuto, 0));
+
+        function readFiles(files) {
+            let completed = 0;
+            const newContents = [];
+            statusDiv.textContent = `Loading ${files.length} file(s)...`;
+            statusDiv.style.color = '#89c2d9';
+
+            files.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    newContents[index] = e.target.result;
+                    try {
+                        const content = e.target.result.trim();
+                        let data;
+                        if (content.startsWith('<')) {
+                            const parser = new DOMParser();
+                            const xmlDoc = parser.parseFromString(content, "text/xml");
+                            if (xmlDoc.getElementsByTagName("parsererror").length > 0) throw new Error("Invalid XML");
+                            data = xmlToJson(xmlDoc.documentElement);
+                        } else {
+                            data = JSON.parse(content);
+                        }
+                        const formattedContent = isPrettyPrint ? JSON.stringify(data, null, 2) : JSON.stringify(data);
+                        parsedData.push({ name: file.name, data: data, raw: formattedContent, size: file.size, lastModified: file.lastModified });
+                    } catch (e) {
+                        parsedData.push({ name: file.name, error: e.message, raw: e.target.result, size: file.size, lastModified: file.lastModified });
+                    }
+                    completed++;
+                    if (completed === files.length) {
+                        saveHistory();
+                        updateTextarea();
+                        renderTabs();
+                        showFile(parsedData.length - 1);
+                        statusDiv.textContent = `${parsedData.length} file(s) loaded—drop more to append`;
+                        statusDiv.style.color = '#89c2d9';
+                        document.getElementById('exportSelect').disabled = false;
+                        document.getElementById('toggleCheckbox').disabled = false;
+                        document.getElementById('compareBtn').disabled = parsedData.length < 2;
+                    }
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        function updateTextarea() {
+            const textarea = document.getElementById('inputData');
+            textarea.value = parsedData.map(item => {
+                if (item.error) {
+                    return `// Error in ${item.name}: ${item.error}\n${item.raw}`;
+                }
+                return item.raw || (item.data ? 
+                    (isPrettyPrint ? JSON.stringify(item.data, null, 2) : JSON.stringify(item.data)) : '');
+            }).join('\n\n');
+        }
+
+        function togglePrettyPrint() {
+            isPrettyPrint = document.getElementById('prettyPrintToggle').checked;
+            parsedData = parsedData.map(item => {
+                if (item.data && !item.error) {
+                    item.raw = isPrettyPrint ? JSON.stringify(item.data, null, 2) : JSON.stringify(item.data);
+                }
+                return item;
+            });
+            updateTextarea();
+            showFile(currentFileIndex);
+            saveHistory();
+        }
+
+        function parseAuto() {
+            const input = textarea.value.trim();
+            const outputDiv = document.getElementById('output');
+            const exportSelect = document.getElementById('exportSelect');
+            const toggleCheckbox = document.getElementById('toggleCheckbox');
+            
+            parsedData = [];
+            outputDiv.innerHTML = '';
+            statusDiv.textContent = 'Processing...';
+            try {
+                if (input.startsWith('<')) {
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(input, "text/xml");
+                    if (xmlDoc.getElementsByTagName("parsererror").length > 0) throw new Error("Invalid XML format");
+                    const data = xmlToJson(xmlDoc.documentElement);
+                    parsedData.push({ 
+                        name: 'Input', 
+                        data: data, 
+                        raw: isPrettyPrint ? JSON.stringify(data, null, 2) : JSON.stringify(data) 
+                    });
+                } else if (input.startsWith('{') || input.startsWith('[')) {
+                    const data = JSON.parse(input);
+                    parsedData.push({ 
+                        name: 'Input', 
+                        data: data, 
+                        raw: isPrettyPrint ? JSON.stringify(data, null, 2) : JSON.stringify(data) 
+                    });
+                } else {
+                    throw new Error("Unable to detect format (must be JSON or XML)");
+                }
+                saveHistory();
+                renderTabs();
+                showFile(0);
+                updateTextarea();
+                statusDiv.textContent = '1 file processed—drop more to append';
+                exportSelect.disabled = false;
+                toggleCheckbox.disabled = false;
+                document.getElementById('compareBtn').disabled = parsedData.length < 2;
+            } catch (e) {
+                const lineNum = e.lineNumber ? ` at line ${e.lineNumber}` : '';
+                outputDiv.innerHTML = `<p style="color: #ff6b6b;">Parse Error: ${escapeHtml(e.message)}${lineNum}</p>`;
+                statusDiv.textContent = 'Error processing data';
+                statusDiv.style.color = '#ff6b6b';
+                exportSelect.disabled = true;
+                toggleCheckbox.disabled = true;
+                parsedData = [];
+            }
+        }
+
+        function validateData() {
+            if (!parsedData[currentFileIndex] || parsedData[currentFileIndex].error) {
+                document.getElementById('output').innerHTML = '<p style="color: #ff6b6b;">No valid data to validate</p>';
+                return;
+            }
+            const data = parsedData[currentFileIndex].data;
+            let errors = [];
+            if (!data.title) errors.push("Missing required field: title");
+            if (data.version && typeof data.version !== "number") errors.push("Version must be a number");
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = errors.length ? 
+                `<p style="color: #ff6b6b;">Validation Errors:<br>${errors.join('<br>')}</p>` : 
+                '<p style="color: #89c2d9;">Data is valid</p>';
+        }
+
+        function toggleCompare() {
+            compareMode = !compareMode;
+            const outputDiv = document.getElementById('output');
+            outputDiv.classList.toggle('compare-mode');
+            if (compareMode && parsedData.length >= 2) {
+                compareIndices = [currentFileIndex, (currentFileIndex + 1) % parsedData.length];
+                showCompare();
+            } else {
+                showFile(currentFileIndex);
+            }
+        }
+
+        function showCompare() {
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = '';
+            compareIndices.forEach(index => {
+                const item = parsedData[index];
+                const div = document.createElement('div');
+                div.innerHTML = item.error ? 
+                    `<p style="color: #ff6b6b;">Error in ${escapeHtml(item.name)}: ${escapeHtml(item.error)}</p>` :
+                    (isTableView ? renderTable(item.data) : renderJSON(item.data));
+                outputDiv.appendChild(div);
+            });
+        }
+
+        function xmlToJson(xml) {
+            const obj = {};
+            if (xml.nodeType === 1) {
+                if (xml.attributes.length > 0) {
+                    obj["@attributes"] = {};
+                    for (let j = 0; j < xml.attributes.length; j++) {
+                        const attribute = xml.attributes[j];
+                        obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
+                    }
+                }
+            } else if (xml.nodeType === 3) {
+                return xml.nodeValue.trim();
+            }
+            if (xml.hasChildNodes()) {
+                for (let i = 0; i < xml.childNodes.length; i++) {
+                    const item = xml.childNodes[i];
+                    const nodeName = item.nodeName;
+                    if (nodeName === "#text" && item.nodeValue.trim() === "") continue;
+                    const childValue = xmlToJson(item);
+                    if (typeof obj[nodeName] === "undefined") {
+                        obj[nodeName] = childValue;
+                    } else {
+                        if (!Array.isArray(obj[nodeName])) {
+                            obj[nodeName] = [obj[nodeName]];
+                        }
+                        obj[nodeName].push(childValue);
+                    }
+                }
+            }
+            return obj;
+        }
+
+        function clearInput() {
+            textarea.value = '';
+            document.getElementById('output').innerHTML = '';
+            document.getElementById('tabContainer').innerHTML = '';
+            document.getElementById('fileInfo').innerHTML = '';
+            parsedData = [];
+            history = [];
+            redoStack = [];
+            document.getElementById('exportSelect').disabled = true;
+            document.getElementById('toggleCheckbox').disabled = true;
+            document.getElementById('toggleCheckbox').checked = false;
+            document.getElementById('compareBtn').disabled = true;
+            isTableView = false;
+            isPrettyPrint = false;
+            document.getElementById('prettyPrintToggle').checked = false;
+            compareMode = false;
+            currentFileIndex = 0;
+            statusDiv.textContent = 'Ready to load files';
+            statusDiv.style.color = '#89c2d9';
+        }
+
+        function toggleView() {
+            isTableView = !isTableView;
+            document.getElementById('toggleCheckbox').checked = isTableView;
+            if (parsedData.length > 0 && parsedData[currentFileIndex] && !parsedData[currentFileIndex].error) {
+                compareMode ? showCompare() : showFile(currentFileIndex);
+            }
+        }
+
+        function saveHistory() {
+            history.push({ data: [...parsedData], text: textarea.value });
+            redoStack = [];
+        }
+
+        function undo() {
+            if (history.length > 1) {
+                redoStack.push(history.pop());
+                const state = history[history.length - 1];
+                parsedData = state.data;
+                textarea.value = state.text;
+                renderTabs();
+                showFile(currentFileIndex);
+            }
+        }
+
+        function redo() {
+            if (redoStack.length) {
+                const state = redoStack.pop();
+                history.push(state);
+                parsedData = state.data;
+                textarea.value = state.text;
+                renderTabs();
+                showFile(currentFileIndex);
+            }
+        }
+
+        function saveState() {
+            if (parsedData.length === 0) {
+                alert('No data to save.');
+                return;
+            }
+            const jsonString = JSON.stringify(parsedData, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'metadata-state.json';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function loadState(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    parsedData = JSON.parse(e.target.result);
+                    saveHistory();
+                    updateTextarea();
+                    renderTabs();
+                    showFile(0);
+                    statusDiv.textContent = `${parsedData.length} file(s) loaded—drop more to append`;
+                    document.getElementById('exportSelect').disabled = false;
+                    document.getElementById('toggleCheckbox').disabled = false;
+                    document.getElementById('compareBtn').disabled = parsedData.length < 2;
+                } catch (e) {
+                    document.getElementById('output').innerHTML = `<p style="color: #ff6b6b;">Load Error: ${escapeHtml(e.message)}</p>`;
+                    statusDiv.textContent = 'Load failed';
+                    statusDiv.style.color = '#ff6b6b';
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function renderTabs() {
+            const tabContainer = document.getElementById('tabContainer');
+            tabContainer.innerHTML = '';
+            parsedData.forEach((item, index) => {
+                const tab = document.createElement('div');
+                tab.className = `tab ${index === currentFileIndex ? 'active' : ''}`;
+                tab.innerHTML = `${escapeHtml(item.name)} <span class="tab-close" onclick="closeTab(${index}, event)">×</span>`;
+                tab.onclick = (e) => {
+                    if (e.target.className !== 'tab-close') showFile(index);
+                };
+                tabContainer.appendChild(tab);
+            });
+        }
+
+        function closeTab(index, event) {
+            event.stopPropagation();
+            saveHistory();
+            parsedData.splice(index, 1);
+            if (parsedData.length === 0) {
+                clearInput();
+            } else {
+                currentFileIndex = Math.min(index, parsedData.length - 1);
+                updateTextarea();
+                renderTabs();
+                showFile(currentFileIndex);
+                statusDiv.textContent = `${parsedData.length} file(s) loaded—drop more to append`;
+                document.getElementById('compareBtn').disabled = parsedData.length < 2;
+            }
+        }
+
+        function showFile(index) {
+            currentFileIndex = index;
+            const outputDiv = document.getElementById('output');
+            const item = parsedData[index];
+            outputDiv.classList.remove('compare-mode');
+            if (!item || item.error) {
+                outputDiv.innerHTML = `<p style="color: #ff6b6b;">${item ? 'Error in ' + escapeHtml(item.name) + ': ' + escapeHtml(item.error) : 'No data available'}</p>`;
+            } else {
+                outputDiv.innerHTML = isTableView ? renderTable(item.data) : renderJSON(item.data);
+            }
+            originalOutput = outputDiv.innerHTML;
+            renderTabs();
+            filterOutput();
+            updateFileInfo(item);
+        }
+
+        function renderJSON(data, level = 0) {
+            let html = '<div class="section">';
+            if (level === 0) html += '<h2>Data Structure</h2>';
+            for (const [key, value] of Object.entries(data)) {
+                if (key === '@attributes') {
+                    for (const [attrKey, attrValue] of Object.entries(value)) {
+                        html += `<div class="property"><label>${escapeHtml(attrKey)} (attr):</label> ${escapeHtml(String(attrValue))}</div>`;
+                    }
+                } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+                    html += `<div class="property"><label>${escapeHtml(key)}:</label> ${escapeHtml(String(value))}</div>`;
+                } else if (Array.isArray(value) || (typeof value === 'object' && value !== null)) {
+                    html += `<div class="property"><label>${escapeHtml(key)}:</label></div>`;
+                    html += '<div class="nested">';
+                    if (Array.isArray(value)) {
+                        value.forEach((item, index) => {
+                            html += `<h3>${escapeHtml(key)} [${index}]</h3>`;
+                            html += renderJSON(item, level + 1);
+                        });
+                    } else {
+                        html += renderJSON(value, level + 1);
+                    }
+                    html += '</div>';
+                }
+            }
+            html += '</div>';
+            return html;
+        }
+
+        function renderTable(data) {
+            let html = '<table><tr><th>Key</th><th>Value</th><th>Attributes</th></tr>';
+            const rows = [];
+            function flattenData(obj, parentKey = '') {
+                for (const [key, value] of Object.entries(obj)) {
+                    const fullKey = parentKey ? `${parentKey}.${key}` : key;
+                    let attrs = '';
+                    if (key === '@attributes') continue;
+                    if (obj['@attributes']) {
+                        attrs = Object.entries(obj['@attributes']).map(([k, v]) => `${escapeHtml(k)}=${escapeHtml(v)}`).join(', ');
+                    }
+                    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+                        rows.push([fullKey, String(value), attrs]);
+                    } else if (Array.isArray(value)) {
+                        value.forEach((item, index) => flattenData(item, `${fullKey}[${index}]`));
+                    } else if (typeof value === 'object' && value !== null) {
+                        flattenData(value, fullKey);
+                    }
+                }
+            }
+            flattenData(data);
+            rows.forEach(([key, value, attributes]) => {
+                html += `<tr><td>${escapeHtml(key)}</td><td>${escapeHtml(value)}</td><td>${escapeHtml(attributes)}</td></tr>`;
+            });
+            if (rows.length === 0) {
+                html += '<tr><td colspan="3">No data to display</td></tr>';
+            }
+            html += '</table>';
+            return html;
+        }
+
+        function escapeHtml(unsafe) {
+            if (unsafe === null || unsafe === undefined) return '';
+            return String(unsafe)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function exportData(format) {
+            if (parsedData.length === 0 || !parsedData[currentFileIndex] || parsedData[currentFileIndex].error) {
+                alert('No valid data to export.');
+                return;
+            }
+            const item = parsedData[currentFileIndex];
+            let content, type, extension;
+            switch (format) {
+                case 'csv':
+                    const rows = ['"Key","Value","Attributes"'];
+                    function flattenData(obj, parentKey = '') {
+                        for (const [key, value] of Object.entries(obj)) {
+                            const fullKey = parentKey ? `${parentKey}.${key}` : key;
+                            let attrs = '';
+                            if (key === '@attributes') continue;
+                            if (obj['@attributes']) {
+                                attrs = Object.entries(obj['@attributes']).map(([k, v]) => `${k}=${v}`).join(', ');
+                            }
+                            if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+                                rows.push(`"${fullKey.replace(/"/g, '""')}","${String(value).replace(/"/g, '""')}","${attrs.replace(/"/g, '""')}"`);
+                            } else if (Array.isArray(value)) {
+                                value.forEach((item, index) => flattenData(item, `${fullKey}[${index}]`));
+                            } else if (typeof value === 'object' && value !== null) {
+                                flattenData(value, fullKey);
+                            }
+                        }
+                    }
+                    flattenData(item.data);
+                    content = rows.join('\n');
+                    type = 'text/csv';
+                    extension = 'csv';
+                    break;
+                case 'json':
+                    content = isPrettyPrint ? JSON.stringify(item.data, null, 2) : JSON.stringify(item.data);
+                    type = 'application/json';
+                    extension = 'json';
+                    break;
+                case 'xml':
+                    content = jsonToXml(item.data);
+                    type = 'application/xml';
+                    extension = 'xml';
+                    break;
+                default:
+                    return;
+            }
+            const blob = new Blob([content], { type });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${item.name.split('.')[0] || 'metadata'}.${extension}`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.getElementById('exportSelect').value = '';
+        }
+
+        function jsonToXml(json) {
+            let xml = '';
+            function objToXml(obj, nodeName) {
+                let result = `<${nodeName}`;
+                if (obj['@attributes']) {
+                    for (const [key, value] of Object.entries(obj['@attributes'])) {
+                        result += ` ${key}="${escapeHtml(value)}"`;
+                    }
+                }
+                result += '>';
+                for (const [key, value] of Object.entries(obj)) {
+                    if (key === '@attributes') continue;
+                    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+                        result += `<${key}>${escapeHtml(String(value))}</${key}>`;
+                    } else if (Array.isArray(value)) {
+                        value.forEach(item => result += objToXml(item, key));
+                    } else if (typeof value === 'object' && value !== null) {
+                        result += objToXml(value, key);
+                    }
+                }
+                result += `</${nodeName}>`;
+                return result;
+            }
+            for (const [key, value] of Object.entries(json)) {
+                xml += objToXml(value, key);
+            }
+            return `<?xml version="1.0" encoding="UTF-8"?>\n${xml}`;
+        }
+
+        function applyTheme(theme) {
+            document.body.classList.remove('light-theme', 'high-contrast');
+            if (theme === 'light') document.body.classList.add('light-theme');
+            if (theme === 'high-contrast') document.body.classList.add('high-contrast');
+        }
+
+        function filterOutput() {
+            const searchTerm = document.getElementById('searchInput').value;
+            const caseSensitive = document.getElementById('caseSensitive').checked;
+            const outputDiv = document.getElementById('output');
+            if (!parsedData.length || !originalOutput) return;
+
+            const term = caseSensitive ? searchTerm : searchTerm.toLowerCase();
+            if (isTableView) {
+                const table = document.createElement('table');
+                table.innerHTML = originalOutput;
+                const rows = Array.from(table.getElementsByTagName('tr'));
+                const filteredRows = rows.filter(row => {
+                    const cells = row.getElementsByTagName('td');
+                    return Array.from(cells).some(cell => 
+                        caseSensitive ? cell.textContent.includes(term) : cell.textContent.toLowerCase().includes(term)
+                    );
+                });
+                outputDiv.innerHTML = '<table>' + filteredRows.map(row => row.outerHTML).join('') + '</table>';
+            } else {
+                outputDiv.innerHTML = originalOutput;
+                const properties = outputDiv.getElementsByClassName('property');
+                Array.from(properties).forEach(prop => {
+                    const text = caseSensitive ? prop.textContent : prop.textContent.toLowerCase();
+                    prop.style.display = text.includes(term) ? '' : 'none';
+                });
+            }
+        }
+
+        function updateFileInfo(item) {
+            const fileInfo = document.getElementById('fileInfo');
+            if (!item) {
+                fileInfo.innerHTML = '<h3>File Info</h3><p>No file selected</p>';
+                return;
+            }
+            const sizeKB = item.size ? (item.size / 1024).toFixed(2) + ' KB' : 'N/A';
+            const lastMod = item.lastModified ? new Date(item.lastModified).toLocaleString() : 'N/A';
+            const keyCount = item.data ? Object.keys(flattenObject(item.data)).length : 0;
+            fileInfo.innerHTML = `
+                <h3>File Info</h3>
+                <p><strong>Name:</strong> ${escapeHtml(item.name)}</p>
+                <p><strong>Size:</strong> ${sizeKB}</p>
+                <p><strong>Last Modified:</strong> ${lastMod}</p>
+                <p><strong>Keys:</strong> ${keyCount}</p>
+            `;
+        }
+
+        function flattenObject(obj, parent = '', res = {}) {
+            for (const [key, value] of Object.entries(obj)) {
+                const propName = parent ? `${parent}.${key}` : key;
+                if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                    flattenObject(value, propName, res);
+                } else {
+                    res[propName] = value;
+                }
+            }
+            return res;
+        }
+
+        updateFileInfo(null); // Initial state
+    </script>
+</body>
+</html>

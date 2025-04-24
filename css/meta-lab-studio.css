@@ -1,0 +1,271 @@
+/* File: /css/metastudio.css */
+
+/* --- General Setup --- */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 20px;
+    padding: 20px;
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+    transition: background-color 0.3s, color 0.3s;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  body.light-theme {
+    background-color: #f0f0f0;
+    color: #333;
+  }
+  
+  body.high-contrast {
+    background-color: #000;
+    color: #fff;
+  }
+  
+  /* --- Layout Containers --- */
+  .container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 20px;
+    width: 100%;
+    margin: 0 auto;
+  }
+  
+  .top-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .control-group {
+    flex: 1;
+    min-width: 250px;
+    background-color: #252525;
+    padding: 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+  }
+  
+  body.light-theme .control-group {
+    background-color: #ddd;
+  }
+  
+  body.high-contrast .control-group {
+    background-color: #333;
+  }
+  
+  /* --- Input and Output Sections --- */
+  .input-output-container {
+    display: flex;
+    flex: 1;
+    gap: 20px;
+    min-height: 400px;
+  }
+  
+  .input-section, .output-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .input-header, .output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+  
+  #inputContainer {
+    position: relative;
+    flex: 1;
+  }
+  
+  #inputData {
+    width: 100%;
+    height: 100%;
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+    border: 1px solid #404040;
+    padding: 10px;
+    box-sizing: border-box;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    resize: none;
+    white-space: pre-wrap;
+    transition: border-color 0.3s, background-color 0.3s;
+  }
+  
+  #inputData.dragover {
+    border-color: #4da8da;
+    background-color: #383838;
+  }
+  
+  /* Output Styling */
+  #output {
+    border: 1px solid #404040;
+    padding: 15px;
+    background-color: #252525;
+    transition: border-color 0.3s, background-color 0.3s;
+    flex: 1;
+    font-size: 14px;
+    line-height: 1.4;
+    overflow-x: auto;
+    overflow-y: auto;
+    white-space: pre-wrap;
+  }
+  
+  #output.compare-mode {
+    display: flex;
+    gap: 10px;
+  }
+  
+  #output.compare-mode > div {
+    flex: 1;
+    border: 1px solid #404040;
+    padding: 10px;
+    overflow-x: auto;
+  }
+  
+  /* --- Theme overrides --- */
+  body.light-theme #inputData, 
+  body.light-theme #output {
+    background-color: #fff;
+    color: #000;
+    border-color: #ccc;
+  }
+  
+  body.high-contrast #inputData,
+  body.high-contrast #output {
+    background-color: #222;
+    color: #fff;
+    border-color: #fff;
+  }
+  
+  /* --- Components --- */
+  button {
+    padding: 6px 15px;
+    cursor: pointer;
+    background-color: #4da8da;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 12px;
+  }
+  
+  button:hover:not(:disabled) {
+    background-color: #61dafb;
+    transform: scale(1.05);
+  }
+  
+  button:disabled {
+    background-color: #404040;
+    cursor: not-allowed;
+  }
+  
+  /* Toggle switch */
+  .toggle-container {
+    display: inline-flex;
+    align-items: center;
+  }
+  
+  .toggle-switch {
+    position: relative;
+    width: 50px;
+    height: 26px;
+    margin: 0 8px;
+  }
+  
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #404040;
+    transition: 0.4s;
+    border-radius: 26px;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #e0e0e0;
+    transition: 0.4s;
+    border-radius: 50%;
+  }
+  
+  input:checked + .slider {
+    background-color: #4da8da;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(24px);
+  }
+  
+  /* --- Misc --- */
+  .instructions {
+    background-color: #2d2d2d;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    margin-top: 20px;
+  }
+  
+  .section {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #303030;
+    border-radius: 5px;
+  }
+  
+  /* --- Tabs --- */
+  .tab-container {
+    margin: 10px 0;
+    background-color: #252525;
+    padding: 5px;
+    border-radius: 4px;
+  }
+  
+  .tab {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    margin-right: 5px;
+    background-color: #404040;
+    cursor: pointer;
+    border-radius: 4px 4px 0 0;
+    font-size: 12px;
+  }
+  
+  .tab.active {
+    background-color: #4da8da;
+  }
+  
+  .tab-close {
+    margin-left: 5px;
+    color: #ff6b6b;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .tab-close:hover {
+    color: #ff9999;
+  }
+  

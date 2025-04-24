@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="MetaLab Studio — JSON/XML Metadata QC Tool" />
+  <title>MetaLab Studio - Ambient Pixels Labs</title>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/meta-lab-studio.css" />
+</head>
+
+<body data-theme="dark" data-page="labs">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-flask banner-icon"></i>
+      <span>MetaLab Studio — Experimental Build</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
+
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/mini-hero/mini-hero-02-holo-terminal.jpg" alt="MetaLab Studio" class="mini-hero-img" loading="lazy">
+    <h1>MetaLab Studio — Metadata QC Tool</h1>
+  </section>
+
+  <main class="grid-container">
+    <section class="content-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-tools"></i> MetaLab Studio Build</h2>
+      </div>
+      <div class="content">
+        <div id="metastudio-app">
+          <div class="controls">
+            <button onclick="clearInput()">Clear All</button>
+            <button onclick="undo()">Undo</button>
+            <button onclick="redo()">Redo</button>
+            <select id="exportSelect" onchange="exportData(this.value)" disabled>
+              <option value="">Export as...</option>
+              <option value="json">JSON</option>
+              <option value="csv">CSV</option>
+              <option value="xml">XML</option>
+            </select>
+          </div>
+          <textarea id="inputData" placeholder="Paste JSON or XML here, or drag files..." rows="10"></textarea>
+          <div id="status">Ready to load files</div>
+          <div id="tabContainer" class="tab-container"></div>
+          <div id="output" class="output"></div>
+          <div id="fileInfo"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/meta-lab-studio.js" defer></script>
+</body>
+</html>
