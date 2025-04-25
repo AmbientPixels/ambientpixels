@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-04-24T13:28:06.169Z",
+  "updated": "2025-04-25T13:26:12.312Z",
   "root": [
     {
       "type": "folder",
@@ -179,6 +179,11 @@
         },
         {
           "type": "page",
+          "name": "meta-QC-tool.html",
+          "path": "lab/meta-QC-tool.html"
+        },
+        {
+          "type": "page",
           "name": "nova-ai-test.html",
           "path": "lab/nova-ai-test.html"
         }
@@ -270,6 +275,11 @@
               "type": "page",
               "name": "aura-logic.html",
               "path": "nova/lore/aura-logic.html"
+            },
+            {
+              "type": "page",
+              "name": "awareness-drift.html",
+              "path": "nova/lore/awareness-drift.html"
             },
             {
               "type": "page",
@@ -472,6 +482,11 @@
           "type": "page",
           "name": "index.html",
           "path": "tools/index.html"
+        },
+        {
+          "type": "page",
+          "name": "meta-lab-studio.html",
+          "path": "tools/meta-lab-studio.html"
         },
         {
           "type": "page",
