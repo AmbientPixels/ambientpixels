@@ -1,11 +1,12 @@
+<!-- File: /labs/metastudio.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="MetaLab Studio — JSON/XML Metadata QC Tool" />
-  <title>MetaLab Studio - Ambient Pixels Labs</title>
+  <meta name="description" content="Ambient Pixels Documentation Page Template" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Ambient Pixels Docs</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -17,56 +18,136 @@
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/meta-lab-studio.css" />
 </head>
-
-<body data-theme="dark" data-page="labs">
+<body data-theme="dark">
   <div class="banner-container" id="banner-container">
     <div class="banner">
-      <i class="fas fa-flask banner-icon"></i>
-      <span>MetaLab Studio — Experimental Build</span>
+      <i class="fas fa-wrench banner-icon"></i>
+      <span>Ambient Pixels - MetaLab Studio</span>
       <button class="banner-close" aria-label="Close Banner">×</button>
     </div>
   </div>
 
+  <!-- Dynamic Navigation Header -->
   <header id="nav-header"></header>
 
   <section class="mini-hero">
-    <img src="/images/mini-hero/mini-hero-02-holo-terminal.jpg" alt="MetaLab Studio" class="mini-hero-img" loading="lazy">
-    <h1>MetaLab Studio — Metadata QC Tool</h1>
+    <img src="/images/mini-hero/mini-hero-03-neon-pulse.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
+    <h1>Ambient Pixels - MetaLab Studio</h1>
   </section>
+<body class="meta-lab">
 
-  <main class="grid-container">
-    <section class="content-section grid-col-12">
-      <div class="section-header">
-        <h2><i class="fas fa-tools"></i> MetaLab Studio Build</h2>
-      </div>
-      <div class="content">
-        <div id="metastudio-app">
-          <div class="controls">
-            <button onclick="clearInput()">Clear All</button>
-            <button onclick="undo()">Undo</button>
-            <button onclick="redo()">Redo</button>
-            <select id="exportSelect" onchange="exportData(this.value)" disabled>
-              <option value="">Export as...</option>
-              <option value="json">JSON</option>
-              <option value="csv">CSV</option>
-              <option value="xml">XML</option>
-            </select>
-          </div>
-          <textarea id="inputData" placeholder="Paste JSON or XML here, or drag files..." rows="10"></textarea>
-          <div id="status">Ready to load files</div>
-          <div id="tabContainer" class="tab-container"></div>
-          <div id="output" class="output"></div>
-          <div id="fileInfo"></div>
-        </div>
-      </div>
+  <!-- Site Navigation -->
+  <div id="site-nav"></div>
+  
+  <main id="main-content">
+    <section class="nova-quote-intro">
+      <p class="tagline nova-quote col 12" id="lore-whisper">“Signal syncing…”</p>
     </section>
+
+    <!-- Your full wrapped tool UI is inserted below -->
+    <div id="meta-lab-app">
+        <div class="container">
+            <div class="top-controls">
+                <div class="control-group">
+                    <h3>Data Controls</h3>
+                    <div class="button-group">
+                        <button onclick="parseAuto()" title="Process the input data automatically">Process Data</button>
+                        <button onclick="validateData()" title="Validate the structure and rules of the current data">Validate</button>
+                        <button onclick="toggleCompare()" id="compareBtn" disabled title="Compare two files side-by-side (requires at least 2 files)">Compare</button>
+                        <button onclick="clearInput()" title="Clear all input and output data">Clear All</button>
+                        <button onclick="undo()" title="Undo the last action (Ctrl+Z)">Undo</button>
+                        <button onclick="redo()" title="Redo the last undone action (Ctrl+Y)">Redo</button>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <h3>File Options</h3>
+                    <div class="button-group">
+                        <button onclick="saveState()" title="Save the current data as a JSON file">Save Current Data</button>
+                        <button onclick="document.getElementById('loadInput').click()" title="Load a previously saved JSON file">Load Saved Data</button>
+                        <input type="file" id="loadInput" style="display: none;" accept=".json" onchange="loadState(event)">
+                        <select onchange="exportData(this.value)" id="exportSelect" disabled title="Export the current data in the selected format">
+                            <option value="">Export As...</option>
+                            <option value="csv">Export to CSV</option>
+                            <option value="json">Export to JSON</option>
+                            <option value="xml">Export to XML</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <h3>View Options</h3>
+                    <div class="button-group">
+                        <select onchange="applyTheme(this.value)" title="Switch between dark, light, or high-contrast themes">
+                            <option value="dark">Dark Theme</option>
+                            <option value="light">Light Theme</option>
+                            <option value="high-contrast">High Contrast</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group" id="fileInfo"></div>
+            </div>
+            <div id="status" class="status">Ready to load files</div>
+            <div class="tab-container" id="tabContainer"></div>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search..." oninput="filterOutput()" title="Search within the output data">
+                <input type="checkbox" id="caseSensitive" onchange="filterOutput()" title="Make the search case-sensitive"> Case Sensitive
+            </div>
+            <div class="input-output-container">
+                <div class="input-section">
+                    <div class="input-header">
+                        <label>Input Data</label>
+                        <div class="toggle-container">
+                            <span class="toggle-label-detail">Pretty Print</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="prettyPrintToggle" onchange="togglePrettyPrint()">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="inputContainer">
+                        <textarea id="inputData" placeholder="Drag JSON/XML files here or paste content..." title="Paste or drag JSON/XML files here to process"></textarea>
+                    </div>
+                </div>
+                <div class="output-section">
+                    <div class="output-header">
+                        <label>Output</label>
+                        <div class="toggle-container">
+                            <div class="toggle-labels">
+                                <span class="toggle-label-detail">Detailed View</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="toggleCheckbox" onchange="toggleView()" disabled title="Toggle between detailed and table views">
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="toggle-label-table">Table View</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="output" title="View the processed data or validation results here"></div>
+                </div>
+            </div>
+        </div>
+    </div>
   </main>
 
-  <div id="footer-container"></div>
+  <!-- Site Footer -->
+  <footer id="site-footer"></footer>
 
-  <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/theme.js" defer></script>
-  <script src="/js/nav.js" defer></script>
-  <script src="/js/meta-lab-studio.js" defer></script>
+  <!-- Scripts (Full Load for Dev Mode) -->
+<script src="/js/init-header-footer.js" defer></script>
+<script src="/js/dreamEngine.js" defer></script>
+<script src="/js/init-quotes.js" defer></script>
+<script src="/js/main.js" defer></script>
+<script src="/js/md-inject.js" defer></script>
+<script src="/js/modal-window.js" defer></script>
+<script src="/js/nav.js" defer></script>
+<script src="/js/nova-ai.js" defer></script>
+<script src="/js/nova-awareness-feed.js" defer></script>
+<script src="/js/nova-insights.js" defer></script>
+<script src="/js/nova-interaction-log.js" defer></script>
+<script src="/js/nova-quotes.js" defer></script>
+<script src="/js/nova-telemetry-logger.js" defer></script>
+<script src="/js/template.js" defer></script>
+<script src="/js/theme.js" defer></script>
+<script src="/js/nova-whispers.js" defer></script>
+<script src="/js/meta-lab-studio.js" defer></script>
 </body>
 </html>

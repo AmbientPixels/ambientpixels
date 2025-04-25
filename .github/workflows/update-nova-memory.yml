@@ -39,6 +39,9 @@ jobs:
           node scripts/apiMonitor.js
           node scripts/jsFunctionMap.js
           node scripts/generateNovaBoot.js
+          node scripts/generateNovaMood.js
+        env:
+          NOVA_MOOD_API_KEY: ${{ secrets.NOVA_MOOD_API_KEY }}
 
       - name: Zip Site Code for Nova
         run: |

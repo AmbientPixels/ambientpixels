@@ -1,4 +1,4 @@
-// File: /js/metastudio.js
+// File: /js/meta-lab-studio.js
 
 document.addEventListener('DOMContentLoaded', () => {
     // Everything inside this block is delayed until the DOM is ready
