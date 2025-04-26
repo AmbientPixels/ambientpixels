@@ -1,12 +1,12 @@
-[{
+[  {
   "id": "nova-soul-project",
   "title": "NovaSoul Mood Engine",
   "html": "/docs/logs/nova-soul-project.html",
   "md": "/docs/logs/nova-soul-project.md",
   "status": "Active",
-  "lastUpdated": "2025-04-19",
-  "tags": ["AI", "mood", "awareness", "emotion", "telemetry"],
-  "progress": 0.65
+  "lastUpdated": "2025-04-26",
+  "tags": ["AI", "mood", "awareness", "emotion", "telemetry", "background-theming"],
+  "progress": 0.82
 },
 
   {
@@ -73,12 +73,14 @@
     "html": "/docs/logs/nova-build-core.html",
     "md": "/docs/logs/nova-build-core.md",
     "status": "Active",
-    "lastUpdated": "2025-04-12",
+    "lastUpdated": "2025-04-26",
     "tags": [
       "AI",
       "github actions",
       "memory",
-      "logs"
+      "logs",
+      "boot-seed",
+      "autonomous-updates"
     ],
     "progress": 1.0
   },
