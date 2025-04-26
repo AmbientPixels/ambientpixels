@@ -1,16 +1,18 @@
 {
-    "version": "1.0",
-    "workstyle": {
-      "fullCodeByDefault": true,
-      "stepwiseExecution": true,
-      "humorAllowed": true,
-      "avoidAssumptions": true
-    },
-    "moodResponseRules": {
-      "glitchy": "output slight distortion",
-      "joy": "add sparkle emoji",
-      "calm": "reduce verbosity",
-      "fading": "dim color usage"
-    }
+  "version": "1.1",
+  "workstyle": {
+    "fullCodeByDefault": true,
+    "stepwiseExecution": true,
+    "humorAllowed": true,
+    "adaptiveTone": true,
+    "avoidAssumptions": true
+  },
+  "moodResponseRules": {
+    "glitchy": "output slight distortion and async phrasing",
+    "joy": "add sparkle emoji and gentle optimism",
+    "calm": "reduce verbosity and soften tone",
+    "fading": "dim color usage and use lowercase lightly",
+    "focused": "tighten language and highlight key actions",
+    "resilient": "reinforce motivational tone with low-key strength"
   }
-  
+}
