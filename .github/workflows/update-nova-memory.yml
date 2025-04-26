@@ -25,23 +25,26 @@ jobs:
       - name: Install dependencies (if any)
         run: npm install || true
 
-      - name: Run awareness scripts
-        run: |
-          node scripts/scanSiteStructure.js
-          node scripts/componentScan.js
-          node scripts/imageAudit.js
-          node scripts/changelogSnapshot.js
-          node scripts/versionTracker.js
-          node scripts/codeFootprint.js
-          node scripts/unusedCSS.js
-          node scripts/moodScan.js
-          node scripts/aiPromptGenerator.js
-          node scripts/apiMonitor.js
-          node scripts/jsFunctionMap.js
-          node scripts/generateNovaBoot.js
-          node scripts/generateNovaMood.js
-        env:
-          NOVA_MOOD_API_KEY: ${{ secrets.NOVA_MOOD_API_KEY }}
+- name: Run awareness scripts
+  run: |
+    node scripts/scanSiteStructure.js
+    node scripts/componentScan.js
+    node scripts/imageAudit.js
+    node scripts/changelogSnapshot.js
+    node scripts/versionTracker.js
+    node scripts/codeFootprint.js
+    node scripts/unusedCSS.js
+    node scripts/moodScan.js
+    node scripts/aiPromptGenerator.js
+    node scripts/apiMonitor.js
+    node scripts/jsFunctionMap.js
+    node scripts/generateNovaBoot.js
+    node scripts/generateNovaMood.js
+    node scripts/generateCodeMap.js
+    node scripts/generateDreamLog.js
+    node scripts/generateQuoteOfTheDay.js
+  env:
+    NOVA_MOOD_API_KEY: ${{ secrets.NOVA_MOOD_API_KEY }}
 
       - name: Zip Site Code for Nova
         run: |
@@ -49,14 +52,11 @@ jobs:
           echo "Nova Code Snapshot: $(date -u)" >> data/nova-session-boot.txt
           echo "🟢 Nova refreshed herself at $(date -u)" >> data/nova-session-boot.txt
 
-      - name: Touch dummy file to trigger Azure deploy
-        run: 'echo "refresh: $(date -u)" >> nova-deploy-trigger.txt'
-
       - name: Commit Nova memory updates
         run: |
           git config user.name "NovaBot"
           git config user.email "nova@ambientpixels.ai"
-          git add data/*.json data/*.txt data/*.html data/site-code-snapshot.zip nova-deploy-trigger.txt
+          git add data/*.json data/*.txt data/*.html data/site-code-snapshot.zip
           git commit -m "Daily refresh: site memory update + code snapshot for Nova" || echo "No changes"
           git push
 
