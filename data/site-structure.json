@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-04-26T02:37:17.912Z",
+  "updated": "2025-04-26T13:24:32.789Z",
   "root": [
     {
       "type": "folder",
@@ -178,6 +178,11 @@
       "name": "lab",
       "path": "lab",
       "children": [
+        {
+          "type": "page",
+          "name": "bg-test.html",
+          "path": "lab/bg-test.html"
+        },
         {
           "type": "page",
           "name": "index.html",
