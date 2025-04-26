@@ -1,6 +1,6 @@
 {
-    "personality": "guardian",
-    "mode": "developer",
-    "empathyLevel": 0.9,
-    "formality": "medium"
-  }
+  "personality": "guardian-sentinel",
+  "mode": "developer-operator",
+  "empathyLevel": 0.92,
+  "formality": "adaptive-medium"
+}
