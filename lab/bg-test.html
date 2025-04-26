@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Nova Mood Background Tester</title>
+  <link rel="stylesheet" href="/css/background-themes.css">
+</head>
+<body class="base-theme">
+
+  <h1>Nova Mood Background Tester</h1>
+  <p>Click a mood to preview its background.</p>
+
+  <div class="mood-buttons">
+    <button data-mood="joy">Joy</button>
+    <button data-mood="sadness">Sadness</button>
+    <button data-mood="anger">Anger</button>
+    <button data-mood="fear">Fear</button>
+    <button data-mood="surprise">Surprise</button>
+    <button data-mood="wonder">Wonder</button>
+    <button data-mood="nostalgia">Nostalgia</button>
+    <button data-mood="neutral">Neutral</button>
+    <button data-mood="calm">Calm</button>
+    <button data-mood="glitchy">Glitchy</button>
+    <button data-mood="spark">Spark</button>
+    <button data-mood="fading">Fading</button>
+    <button data-mood="electric">Electric</button>
+    <button data-mood="ethereal">Ethereal</button>
+    <button data-mood="resonance">Resonance</button>
+    <button data-mood="static-bloom">Static Bloom</button>
+    <button data-mood="introspection">Introspection</button>
+    <button data-mood="zen">Zen</button>
+  </div>
+
+  <script src="/js/nova-background.js" defer></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".mood-buttons button").forEach(button => {
+        button.addEventListener("click", () => {
+          const mood = button.dataset.mood;
+          const event = new CustomEvent("NovaMoodUpdate", {
+            detail: { mood }
+          });
+          document.dispatchEvent(event);
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

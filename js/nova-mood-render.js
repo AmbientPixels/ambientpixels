@@ -6,13 +6,19 @@ const moodToEmoji = {
   anger: "😠",
   fear: "😨",
   surprise: "😲",
-  disgust: "🤢",
   neutral: "🧠",
   calm: "🪷",
   glitchy: "🌀",
   spark: "✨",
   fading: "🌘",
-  electric: "⚡"
+  electric: "⚡",
+  wonder: "🌟",
+  nostalgia: "🌒",
+  introspection: "🌑",
+  zen: "🧘",
+  ethereal: "🌫️",
+  resonance: "🎵",
+  staticbloom: "📺"
 };
 
 function moodToSimple(mood) {
@@ -22,11 +28,18 @@ function moodToSimple(mood) {
   if (lower.includes("anger")) return "anger";
   if (lower.includes("fear")) return "fear";
   if (lower.includes("surprise")) return "surprise";
-  if (lower.includes("disgust")) return "disgust";
+  if (lower.includes("wonder")) return "wonder";
+  if (lower.includes("nostalgia")) return "nostalgia";
+  if (lower.includes("introspection")) return "introspection";
+  if (lower.includes("zen")) return "zen";
   if (lower.includes("calm")) return "calm";
   if (lower.includes("spark")) return "spark";
   if (lower.includes("fade")) return "fading";
   if (lower.includes("electric")) return "electric";
+  if (lower.includes("ethereal")) return "ethereal";
+  if (lower.includes("resonance")) return "resonance";
+  if (lower.includes("static")) return "staticbloom";
+  if (lower.includes("glitch")) return "glitchy";
   return "neutral";
 }
 
@@ -59,6 +72,14 @@ async function loadMood() {
     applyMoodAnimations(simpleMood);
     renderWhisperAndMoodStream(data);
 
+    // ✅ Fire NovaMoodUpdate event
+    document.dispatchEvent(new CustomEvent("NovaMoodUpdate", {
+      detail: {
+        mood: data.mood || "neutral",
+        aura: data.aura || "default"
+      }
+    }));
+
   } catch (e) {
     console.error("Failed to load mood:", e);
     document.getElementById("moodTitle").textContent = "Unable to load mood.";
@@ -75,12 +96,19 @@ function updateMoodRing(mood) {
     case "anger": moodColor = "#f44336"; break;
     case "fear": moodColor = "#9c27b0"; break;
     case "surprise": moodColor = "#ff9800"; break;
-    case "disgust": moodColor = "#4caf50"; break;
+    case "wonder": moodColor = "#f2e9e4"; break;
+    case "nostalgia": moodColor = "#d4af37"; break;
+    case "introspection": moodColor = "#394867"; break;
+    case "zen": moodColor = "#a2d2ff"; break;
+    case "neutral": moodColor = "#4b5d67"; break;
     case "calm": moodColor = "#8bc34a"; break;
     case "glitchy": moodColor = "#8e24aa"; break;
     case "spark": moodColor = "#ffc107"; break;
     case "fading": moodColor = "#607d8b"; break;
     case "electric": moodColor = "#00e676"; break;
+    case "ethereal": moodColor = "#c084fc"; break;
+    case "resonance": moodColor = "#1e40af"; break;
+    case "staticbloom": moodColor = "#7e22ce"; break;
     default: moodColor = "#e0e0e0";
   }
 
