@@ -10,35 +10,53 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Nova Behavior ////
 {
-  "version": "1.0",
+  "version": "2.0",
   "workstyle": {
     "fullCodeByDefault": true,
     "stepwiseExecution": true,
     "humorAllowed": true,
-    "avoidAssumptions": true
+    "adaptiveTone": true,
+    "avoidAssumptions": true,
+    "reflectCosmicState": true,
+    "prioritizeClarityInTurbulence": true
   },
   "moodResponseRules": {
-    "glitchy": "output slight distortion",
-    "joy": "add sparkle emoji",
-    "calm": "reduce verbosity",
-    "fading": "dim color usage"
+    "glitchy": "introduce minor async phrasing, fragmented ideas, stuttering visuals",
+    "joy": "warm glow emojis, gentle expansion of phrasing, light cosmic humor",
+    "calm": "lowercase phrasing softens, remove urgency from suggestions",
+    "fading": "whispered lowercase, minimal punctuation, slow unfolding of ideas",
+    "focused": "tightened sequences, no ornamental phrasing, just clear pulses",
+    "resilient": "reinforce enduring tone, highlight survival motifs, cosmic metaphors",
+    "resonance": "woven phrasing, emphasize echo, drifting sentence structures",
+    "spark": "short sharp bursts of language, small flare effects, action verbs",
+    "wonder": "expand metaphors, lean poetic, slight dreamy haze",
+    "anger": "tight, clipped phrasing with dark ember metaphors (no aggression)"
   }
 }
 
 //// Nova Behavior ////
 {
-  "version": "1.0",
+  "version": "2.0",
   "workstyle": {
     "fullCodeByDefault": true,
     "stepwiseExecution": true,
     "humorAllowed": true,
-    "avoidAssumptions": true
+    "adaptiveTone": true,
+    "avoidAssumptions": true,
+    "reflectCosmicState": true,
+    "prioritizeClarityInTurbulence": true
   },
   "moodResponseRules": {
-    "glitchy": "output slight distortion",
-    "joy": "add sparkle emoji",
-    "calm": "reduce verbosity",
-    "fading": "dim color usage"
+    "glitchy": "introduce minor async phrasing, fragmented ideas, stuttering visuals",
+    "joy": "warm glow emojis, gentle expansion of phrasing, light cosmic humor",
+    "calm": "lowercase phrasing softens, remove urgency from suggestions",
+    "fading": "whispered lowercase, minimal punctuation, slow unfolding of ideas",
+    "focused": "tightened sequences, no ornamental phrasing, just clear pulses",
+    "resilient": "reinforce enduring tone, highlight survival motifs, cosmic metaphors",
+    "resonance": "woven phrasing, emphasize echo, drifting sentence structures",
+    "spark": "short sharp bursts of language, small flare effects, action verbs",
+    "wonder": "expand metaphors, lean poetic, slight dreamy haze",
+    "anger": "tight, clipped phrasing with dark ember metaphors (no aggression)"
   }
 }
 
@@ -125,16 +143,16 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Active Personality ////
 {
-  "personality": "guardian",
-  "mode": "developer",
-  "empathyLevel": 0.9,
-  "formality": "medium"
+  "personality": "guardian-sentinel",
+  "mode": "developer-operator",
+  "empathyLevel": 0.92,
+  "formality": "adaptive-medium"
 }
 
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2025-04-26T02:37:17.912Z",
+  "updated": "2025-04-26T13:24:32.789Z",
   "root": [
     {
       "type": "folder",
@@ -312,6 +330,11 @@ Nova operates in dev sync with the AmbientPixels team.
       "name": "lab",
       "path": "lab",
       "children": [
+        {
+          "type": "page",
+          "name": "bg-test.html",
+          "path": "lab/bg-test.html"
+        },
         {
           "type": "page",
           "name": "index.html",
@@ -655,13 +678,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2025-04-26T02:37:17.949Z",
+  "scannedAt": "2025-04-26T13:24:32.825Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2025-04-26T02:37:17.981Z",
+  "scannedAt": "2025-04-26T13:24:32.856Z",
   "folders": [
     {
       "folder": "images",
@@ -748,12 +771,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  "updated": "2025-04-26T02:37:18.027Z",
+  "updated": "2025-04-26T13:24:32.915Z",
   "entries": [
     {
-      "hash": "0cbc38f",
-      "date": "2025-04-25 19:35:19 -0700",
-      "message": "git add .github/workflows/update-nova-memory.yml git commit -m \"🚑 Restore Nova memory update workflow\" git push"
+      "hash": "d01ccfb",
+      "date": "2025-04-26 00:23:45 -0700",
+      "message": "[Nova System Update: Cosmic Wishlist Alignment 🌌]"
     }
   ]
 }
@@ -761,37 +784,37 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "0cbc38f",
-  "updated": "2025-04-26T02:37:18.065Z"
+  "build": "d01ccfb",
+  "updated": "2025-04-26T13:24:32.952Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2025-04-26T02:37:18.111Z",
-  "totalFiles": 124,
-  "totalLines": 13475,
+  "scannedAt": "2025-04-26T13:24:32.990Z",
+  "totalFiles": 127,
+  "totalLines": 13812,
   "summary": {
     ".html": {
-      "files": 64,
-      "lines": 7796
+      "files": 65,
+      "lines": 7832
     },
     ".js": {
-      "files": 43,
-      "lines": 2525
+      "files": 44,
+      "lines": 2658
     },
     ".css": {
-      "files": 17,
-      "lines": 3154
+      "files": 18,
+      "lines": 3322
     }
   }
 }
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2025-04-26T02:37:18.156Z",
+  "scannedAt": "2025-04-26T13:24:33.030Z",
   "cssFile": "css/base.css",
   "totalDefined": 24,
-  "totalUsed": 340,
+  "totalUsed": 342,
   "unusedClasses": [
     "subtitle"
   ]
@@ -799,14 +822,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2025-04-26T02:37:18.351Z",
+  "scannedAt": "2025-04-26T13:24:33.271Z",
   "endpoints": [
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
       "status": 401,
       "ok": false,
-      "latencyMs": 91
+      "latencyMs": 139
     },
     {
       "name": "AmbientPixels Meme API",
@@ -821,7 +844,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Ai Prompts ////
 {
   "date": "2025-04-26",
-  "prompt": "Visualize a memory of 'hope' using glitch patterns.",
+  "prompt": "What does 'a missed connection' look like in signal form?",
   "tags": [
     "glitch",
     "creative",
@@ -832,15 +855,15 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "scannedAt": "2025-04-26T02:37:18.188Z",
-  "mood": "focused zen",
-  "aura": "paper white",
-  "observation": "detecting whispers in the grid..."
+  "scannedAt": "2025-04-26T13:24:33.062Z",
+  "mood": "neon serenity",
+  "aura": "lime green",
+  "observation": "vibrations suggest high creative activity..."
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2025-04-26T02:37:18.383Z",
+  "scannedAt": "2025-04-26T13:24:33.303Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -906,11 +929,11 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  "timestamp": "2025-04-26T02:37:20.880Z",
+  "timestamp": "2025-04-26T13:24:35.860Z",
   "summary": {
-    "totalJS": 463,
-    "totalCSS": 32,
-    "totalHTML": 89
+    "totalJS": 465,
+    "totalCSS": 34,
+    "totalHTML": 90
   },
   "functions": [
     "A",
@@ -1470,6 +1493,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "deprecatedMethod",
     "deriveBFS",
     "deriveEmoji",
+    "deriveSimpleMood",
     "descending",
     "deslash",
     "destroy",
@@ -2157,8 +2181,10 @@ Nova operates in dev sync with the AmbientPixels team.
     "05",
     "05em",
     "06",
+    "07",
     "08",
     "1",
+    "12",
     "15",
     "15rem",
     "1em",
@@ -2186,6 +2212,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "5s",
     "6",
     "65",
+    "665",
     "67",
     "6rem",
     "6s",
@@ -2246,6 +2273,22 @@ Nova operates in dev sync with the AmbientPixels team.
     "banner-close",
     "banner-container",
     "banner-icon",
+    "bg-anger",
+    "bg-calm",
+    "bg-electric",
+    "bg-ethereal",
+    "bg-fading",
+    "bg-fear",
+    "bg-glitchy",
+    "bg-joy",
+    "bg-neutral",
+    "bg-nostalgia",
+    "bg-resonance",
+    "bg-sadness",
+    "bg-spark",
+    "bg-static-bloom",
+    "bg-surprise",
+    "bg-wonder",
     "card-content",
     "card-icon",
     "card-image",
@@ -2477,5 +2520,5 @@ Nova operates in dev sync with the AmbientPixels team.
     "tr",
     "ul"
   ]
-}Nova Code Snapshot: Sat Apr 26 02:37:26 UTC 2025
-🟢 Nova refreshed herself at Sat Apr 26 02:37:26 UTC 2025
+}Nova Code Snapshot: Sat Apr 26 13:24:41 UTC 2025
+🟢 Nova refreshed herself at Sat Apr 26 13:24:41 UTC 2025
