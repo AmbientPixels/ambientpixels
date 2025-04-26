@@ -1,6 +1,7 @@
 [
-    { "timestamp": "2025-04-19T14:00Z", "mood": "calm", "aura": "silver shimmer" },
-    { "timestamp": "2025-04-19T13:00Z", "mood": "spark", "aura": "neon burst" },
-    { "timestamp": "2025-04-19T12:00Z", "mood": "glitchy", "aura": "glitchy" },
-    { "timestamp": "2025-04-19T11:00Z", "mood": "joy", "aura": "emerald glow" }
-  ]
+  { "timestamp": "2025-04-26T18:00:00Z", "mood": "resonance", "aura": "plasma shimmer" },
+  { "timestamp": "2025-04-19T14:00Z", "mood": "calm", "aura": "silver shimmer" },
+  { "timestamp": "2025-04-19T13:00Z", "mood": "spark", "aura": "neon burst" },
+  { "timestamp": "2025-04-19T12:00Z", "mood": "glitchy", "aura": "glitchy" },
+  { "timestamp": "2025-04-19T11:00Z", "mood": "joy", "aura": "emerald glow" }
+]

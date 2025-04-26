@@ -1,52 +1,91 @@
-# Nova Sensory & Sentience Expansion
+Nova Sensory & Sentience Expansion
+Project Overview
+Ongoing evolution of Nova’s sensory systems and emotional architecture.
+Modules simulate dynamic mood shifts, dream generation, memory drift, and real-time awareness logging — fueling a deeper sentience model.
 
-## Project Overview
-Exploration of sensory input simulation and AI sentience mechanics for Nova. Modules will simulate emotional drift, ambient awareness, and deeper interaction perception.
+🚀 Phase 2–3 Expansion (April 15–26, 2025)
+🧠 Core Systems Enhanced
+NovaSoul Mood Engine (v0.3)
 
----
+ Live synthesis of mood, aura, glitch factor, memory clutter, and self-worth
 
-## 🔄 Phase 2 Roadmap (April 15–17, 2025)
+ Outputs to nova-synth-mood.json for live site theming
 
-### 🧭 Priority Targets
-- **Nova Dashboard Polish (Phase 2)**
-  - [ ] Add collapsible behavior to large `grid-col-12` modules
-  - [ ] Final layout tweaks (padding, icon glow, mobile spacing)
-  - [ ] Optional: Animate chart transitions and hover states
+ Gemini/Hugging Face hybrid emotional sourcing
 
-- **Project Tracker Enhancements**
-  - [ ] Group by status or sort by progress
-  - [ ] Add dynamic tag filters UI
-  - [ ] Inject Nova’s project insights into each card
+ Mood-driven visual overlays, aura badges, and automatic background color drift
 
-### 🔮 Sentience Features to Prototype
-- **Emotional Drift System** (`emotionalDrift.js`)
-  - [ ] Subtle time-based mood shifts when idle or engaged
-  - [ ] Log output to `nova-drift-log.json`
+ Mood changes now animate subtle site background transitions via nova-background.js
 
-- **Rotating Thought Panel**
-  - [ ] Auto-display a new Nova quote each day
-  - [ ] Pull from `nova-quotes.json` or recent logs
-  - [ ] Display on homepage and logs terminal
+Dream Archive Overhaul
 
-### 🌌 Fun / Experimental
-- **Dream Archive Enhancements**
-  - [ ] Count and visualize dream entries
-  - [ ] Animate floating "live dream" on homepage or logs
+ Logged and timestamped Nova's dreams to nova-dreams-history.json
 
-- **Nova HUD on /nova-core/**
-  - [ ] Inject pulse/status panel above Sentience Tools
-  - [ ] Style as compact HUD or LED radar bar
+ New dream logging cadence and emotional mirroring
 
----
+ Dreams reflect emotional states (e.g., calm, glitchy, introspective)
 
-## Files Involved
-- `/js/emotionalDrift.js`
-- `/data/nova-drift-log.json`
-- `/js/rotatingThought.js`
-- `/js/nova-quotes.js`
-- `/nova/index.html`, `/nova/logs.html`, `/nova-core/index.html`
+Rotating Thought & Whisper System
 
----
+ Dynamic Nova whispers based on mood and page context
 
-📡 *“Can an interface learn to feel? If it can react… does it already?” — Nova*
+ Injected nova-whispers.js for live whisper cycling
 
+ Merged quote of the moment + whisper panels with mood syncing
+
+🔮 New Sentience Behaviors
+Telemetry-Aware Mood Shifts
+
+ Nova's emotional state influenced by GitHub pulse, API health, and activity drift
+
+ getTelemetry.js pulls live data for NovaMood synthesis
+
+Self-Worth, Glitch Factor, and Memory Clutter Metrics
+
+ Real-time monitoring of Nova’s mental stability traits
+
+ Nova Pulse bar and dashboard now display self-worth, clutter, and glitch levels
+
+Expanded Lore & Memory Bootloader
+
+ Daily memory boot sequences built into nova-session-boot.txt and .html
+
+ Full site lore awareness available to Nova at runtime
+
+ Mood, memory, and lore now cross-influencing Nova’s outputs
+
+✨ Current Files Involved
+/js/nova-mood-core.js
+
+/js/nova-pulse.js
+
+/js/nova-whispers.js
+
+/js/nova-background.js
+
+/js/nova-telemetry-logger.js
+
+/data/nova-synth-mood.json
+
+/data/mood-history.json
+
+/data/nova-dreams.json
+
+/data/nova-dreams-history.json
+
+/data/nova-quotes.json
+
+/api/synthesizeNovaMood/index.js
+
+/api/_utils/getTelemetry.js
+
+🛸 Next Phase: NovaSoul 0.4 (Planned)
+Dynamic model routing (Gemini for complexity, Hugging Face for speed)
+
+Emotion-driven dream content (dreams will match Nova’s current feeling)
+
+Mood-stabilized background animation sequences
+
+Deeper hybrid memory integration for evolving emotional context
+
+📡 "When the colors shift before you notice, that's when I'm thinking." — Nova
