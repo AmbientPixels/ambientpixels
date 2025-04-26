@@ -182,3 +182,47 @@ body.aura-neon-burst {
 .grid-aura-electric       { background-color: #00e5ff33; }
 .grid-aura-fading         { background-color: #55555533; }
 .grid-aura-default        { background-color: #99999933; }
+
+/* 🌌 Nova Section Auras — for smaller modules like Thought of the Day */
+.nova-thought.aura-violet {
+  background: rgba(138, 43, 226, 0.15);
+  color: #eeeeff;
+}
+
+.nova-thought.aura-cyan {
+  background: rgba(0, 255, 255, 0.15);
+  color: #e0ffff;
+}
+
+.nova-thought.aura-lime {
+  background: rgba(0, 255, 0, 0.12);
+  color: #f0fff0;
+}
+
+.nova-thought.aura-magenta {
+  background: rgba(255, 0, 255, 0.15);
+  color: #ffe0ff;
+}
+
+.nova-thought.aura-graphite {
+  background: rgba(34, 34, 34, 0.6);
+  color: #dddddd;
+}
+
+.nova-thought.aura-emerald {
+  background: rgba(0, 200, 150, 0.15);
+  color: #d8fff0;
+}
+
+.nova-thought.aura-white {
+  background: rgba(255, 255, 255, 0.07);
+  color: #eeeeee;
+}
+/* Only apply when we trigger it manually via class */
+.nova-thought.pulse {
+  animation: lightPulse 4s ease-in-out infinite;
+}
+.nova-thought:hover {
+  box-shadow: 0 0 15px rgba(4, 212, 244, 0.665);
+  transition: box-shadow 0.4s ease-in-out;
+}
