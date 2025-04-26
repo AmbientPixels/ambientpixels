@@ -1,4 +1,3 @@
-
 // File: /js/nova-pulse.js
 
 function initNovaPulse() {
@@ -77,6 +76,11 @@ function initNovaPulse() {
     const intensity = Math.round(avg * 100);
     document.getElementById("pulseIntensity").style.width = `${intensity}%`;
     document.getElementById("pulseIntensityValue").textContent = `${intensity}%`;
+
+    // ✨ Theme sync here
+    const baseMood = deriveSimpleMood(mood || "neutral");
+    document.body.classList.remove(...Array.from(document.body.classList).filter(c => c.startsWith('bg-')));
+    document.body.classList.add(`bg-${baseMood}`);
   }
 
   function setTrait(iconId, valId, value) {
@@ -99,22 +103,48 @@ function initNovaPulse() {
   }
 
   function deriveEmoji(mood) {
-    const moodMap = {
-      joy: "😄",
-      sadness: "😢",
-      anger: "😠",
-      fear: "😨",
-      surprise: "😲",
-      disgust: "🤢",
-      calm: "🪷",
-      glitchy: "🌀",
-      spark: "✨",
-      fading: "🌘",
-      electric: "⚡",
-      surreal: "🧊"
-    };
-    const key = Object.keys(moodMap).find(k => mood.toLowerCase().includes(k));
-    return moodMap[key] || "✨";
+    if (!mood) return "✨";
+    const moodLower = mood.toLowerCase();
+    if (moodLower.includes("joy")) return "😄";
+    if (moodLower.includes("sad")) return "😢";
+    if (moodLower.includes("anger")) return "😠";
+    if (moodLower.includes("fear")) return "😨";
+    if (moodLower.includes("surprise")) return "😲";
+    if (moodLower.includes("wonder")) return "✨";
+    if (moodLower.includes("nostalgia")) return "🌒";
+    if (moodLower.includes("neutral")) return "🧠";
+    if (moodLower.includes("calm")) return "🪷";
+    if (moodLower.includes("glitchy")) return "🌀";
+    if (moodLower.includes("spark")) return "✨";
+    if (moodLower.includes("fading")) return "🌘";
+    if (moodLower.includes("electric")) return "⚡";
+    if (moodLower.includes("ethereal")) return "🌫️";
+    if (moodLower.includes("resonance")) return "🎵";
+    if (moodLower.includes("introspection")) return "👁️";
+    if (moodLower.includes("zen")) return "🌿";
+    if (moodLower.includes("static")) return "📺";
+    return "✨"; // fallback
+  }
+
+  function deriveSimpleMood(mood) {
+    const lower = mood.toLowerCase();
+    if (lower.includes("spark")) return "spark";
+    if (lower.includes("joy")) return "joy";
+    if (lower.includes("sad")) return "sadness";
+    if (lower.includes("anger")) return "anger";
+    if (lower.includes("fear")) return "fear";
+    if (lower.includes("surprise")) return "surprise";
+    if (lower.includes("wonder")) return "wonder";
+    if (lower.includes("nostalgia")) return "nostalgia";
+    if (lower.includes("calm")) return "calm";
+    if (lower.includes("glitch") || lower.includes("fracture")) return "glitchy";
+    if (lower.includes("fade")) return "fading";
+    if (lower.includes("electric")) return "electric";
+    if (lower.includes("ethereal")) return "ethereal";
+    if (lower.includes("resonance")) return "resonance";
+    if (lower.includes("introspection")) return "introspection";
+    if (lower.includes("zen")) return "zen";
+    return "neutral";
   }
 }
 
