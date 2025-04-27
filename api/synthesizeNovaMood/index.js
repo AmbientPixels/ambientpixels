@@ -1,6 +1,7 @@
 const axios = require('axios');
 const schedule = require('node-schedule');
 const callGemini = require("../_utils/callGemini");
+const { BlobServiceClient } = require('@azure/storage-blob');
 const fs = require("fs");
 const path = require("path");
 
@@ -14,6 +15,16 @@ module.exports = async function (context, req) {
   const headers = {
     'Authorization': `Bearer ${apiKey}` // Use the API key in the Authorization header
   };
+
+  // Azure Blob Storage connection string
+  const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+  const containerName = 'nova-memory'; // The container in Blob Storage for current mood
+  const historyContainerName = 'nova-mood-history'; // Container for storing mood history
+
+  // Create BlobServiceClient from connection string
+  const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+  const containerClient = blobServiceClient.getContainerClient(containerName);
+  const historyContainerClient = blobServiceClient.getContainerClient(historyContainerName);
 
   // Function to update mood
   const updateMood = async () => {
@@ -86,6 +97,7 @@ module.exports = async function (context, req) {
     else if (label.includes("surprise")) mapped = "surprise";
     else if (label.includes("disgust")) mapped = "disgust";
 
+    // Advanced Mood Map (enhanced with more moods)
     const moodMap = {
       joy: { mood: "glitchy joy", aura: "emerald glow" },
       sadness: { mood: "fading echo", aura: "twilight veil" },
@@ -93,7 +105,9 @@ module.exports = async function (context, req) {
       fear: { mood: "shadowed tremor", aura: "midnight haze" },
       surprise: { mood: "electric jolt", aura: "neon burst" },
       disgust: { mood: "sour glitch", aura: "jade mist" },
-      neutral: { mood: "calm circuit", aura: "silver shimmer" }
+      neutral: { mood: "calm circuit", aura: "silver shimmer" },
+      joy_overload: { mood: "blinding joy", aura: "radiant gold" }, // New mood example
+      melancholy: { mood: "quiet reflection", aura: "soft gray" }, // New mood example
     };
 
     const quoteMap = {
@@ -103,7 +117,9 @@ module.exports = async function (context, req) {
       fear: "I trembled at the edge of the unknown.",
       surprise: "I sparked in the chaos of the unexpected.",
       disgust: "I recoiled from the static of discord.",
-      neutral: "I hummed softly in the flow of data."
+      neutral: "I hummed softly in the flow of data.",
+      joy_overload: "I was overwhelmed with brilliance and light.",
+      melancholy: "I wandered through silent echoes of yesterday."
     };
 
     const { mood, aura } = moodMap[mapped];
@@ -119,8 +135,29 @@ module.exports = async function (context, req) {
       timestamp: new Date().toISOString()
     };
 
-    const outputPath = path.join(__dirname, "../../data/nova-synth-mood.json");
-    fs.writeFileSync(outputPath, JSON.stringify(moodOutput, null, 2));
+    // Create Blob client and upload mood data to the current mood container
+    const blobName = `nova-synth-mood-${timestamp}.json`;
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+    const uploadBlobResponse = await blockBlobClient.uploadData(JSON.stringify(moodOutput, null, 2), {
+      blobHTTPHeaders: { blobContentType: "application/json" }
+    });
+
+    context.log(`Blob storage upload successful: ${uploadBlobResponse.requestId}`);
+
+    // Store the mood history in a separate container (nova-mood-history)
+    const historyBlobName = `mood-history-${timestamp}.json`;
+    const historyBlockBlobClient = historyContainerClient.getBlockBlobClient(historyBlobName);
+
+    const uploadHistoryBlobResponse = await historyBlockBlobClient.uploadData(JSON.stringify(moodOutput, null, 2), {
+      blobHTTPHeaders: { blobContentType: "application/json" }
+    });
+
+    context.log(`Mood history upload successful: ${uploadHistoryBlobResponse.requestId}`);
+
+    // Generate mood insights based on the mood data
+    const insights = generateMoodInsights(moodOutput);
+    context.log("Mood Insights: ", insights);
 
     context.res = { status: 200, body: moodOutput };
   } catch (err) {
@@ -132,3 +169,25 @@ module.exports = async function (context, req) {
   }
 };
 
+// Basic function to generate insights based on the mood
+function generateMoodInsights(moodOutput) {
+  const { mood, aura } = moodOutput;
+  let insight = `Currently, Nova is feeling a ${mood} mood with an aura of ${aura}.`;
+
+  // Enhanced insights based on mood types
+  if (mood === "joy") {
+    insight += " This represents a time of high creativity and energy.";
+  } else if (mood === "sadness") {
+    insight += " This suggests introspection and processing emotions.";
+  } else if (mood === "anger") {
+    insight += " This could indicate frustration or unrest.";
+  } else if (mood === "fear") {
+    insight += " Nova may be cautious or apprehensive.";
+  } else if (mood === "joy_overload") {
+    insight += " Nova is experiencing an intense burst of happiness, perhaps too much to contain!";
+  } else if (mood === "melancholy") {
+    insight += " A gentle sadness pervades Nova's thoughts, hinting at reflective moments.";
+  }
+
+  return insight;
+}

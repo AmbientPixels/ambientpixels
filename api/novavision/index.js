@@ -1,4 +1,5 @@
-// Azure Function: novavision - generates an image from a prompt via Hugging Face
+const axios = require('axios');
+const { BlobServiceClient } = require('@azure/storage-blob');
 const fetch = require('node-fetch');
 
 module.exports = async function (context, req) {
@@ -16,7 +17,7 @@ module.exports = async function (context, req) {
 
   const prompt = req.body?.prompt;
   const API_KEY = process.env.HUGGINGFACE_API_KEY;
-  const HF_MODEL = "runwayml/stable-diffusion-v1-5"; // Example model
+  const HF_MODEL = "runwayml/stable-diffusion-v1-2"; // Change model to stable-diffusion-v1-2 for a more stable version
 
   if (!prompt || !API_KEY) {
     context.res = {
