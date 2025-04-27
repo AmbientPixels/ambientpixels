@@ -1,0 +1,18 @@
+{
+    "bindings": [
+      {
+        "authLevel": "function",
+        "type": "timerTrigger",
+        "direction": "in",
+        "name": "myTimer",
+        "schedule": "0 0 12 * * *"
+      },
+      {
+        "type": "http",
+        "direction": "out",
+        "name": "res"
+      }
+    ],
+    "scriptFile": "index.js"
+  }
+  
