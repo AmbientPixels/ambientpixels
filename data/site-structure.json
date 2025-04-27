@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-04-26T13:24:32.789Z",
+  "updated": "2025-04-27T13:24:45.768Z",
   "root": [
     {
       "type": "folder",
@@ -48,6 +48,18 @@
       "name": "api",
       "path": "api",
       "children": [
+        {
+          "type": "folder",
+          "name": "FetchLatestMood",
+          "path": "api/FetchLatestMood",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "GenerateMoodInsights",
+          "path": "api/GenerateMoodInsights",
+          "children": []
+        },
         {
           "type": "folder",
           "name": "_utils",
