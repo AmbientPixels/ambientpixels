@@ -2,6 +2,7 @@
     "name": "ambientpixels-nova-api",
     "version": "1.0.0",
     "private": true,
+    "type": "module",
     "scripts": {
         "start": "func start",
         "test": "echo \"No tests specified\" && exit 0"
