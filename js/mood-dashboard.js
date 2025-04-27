@@ -1,30 +1,22 @@
-import axios from 'axios';
+// NO import here!
 
-export default async function (context, req) {
-  const functionKey = process.env.NOVA_API_KEY;
+document.addEventListener('DOMContentLoaded', function () {
+  const refreshButton = document.getElementById('refresh-btn');
 
-  if (!functionKey) {
-    context.log.error('Function key is missing.');
-    context.res = { status: 500, body: { error: 'Server configuration error.' } };
-    return;
+  refreshButton.addEventListener('click', refreshMood);
+
+  async function refreshMood() {
+    try {
+      const response = await axios.post('/api/yourProxyFunction', {
+        // any body data if needed
+      });
+      const data = response.data;
+      document.getElementById('mood').textContent = data.mood || 'Unknown';
+      document.getElementById('aura').textContent = data.aura || 'Unknown';
+      document.getElementById('quote').textContent = data.quote || 'No quote';
+      document.getElementById('timestamp').textContent = new Date().toLocaleTimeString();
+    } catch (error) {
+      console.error('Error refreshing mood:', error);
+    }
   }
-
-  const moodUrl = `https://ambientpixels-nova-api.azurewebsites.net/api/synthesizenovamood?code=${functionKey}`;
-
-  try {
-    const response = await axios.post(moodUrl, req.body, {
-      headers: { 'Content-Type': 'application/json' }
-    });
-
-    context.res = {
-      status: 200,
-      body: response.data
-    };
-  } catch (error) {
-    context.log.error('Proxy error:', error.message);
-    context.res = {
-      status: 500,
-      body: { error: 'Failed to fetch mood.' }
-    };
-  }
-}
+});
