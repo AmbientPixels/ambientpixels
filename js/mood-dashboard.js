@@ -7,9 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   async function refreshMood() {
     try {
-      const response = await axios.post('/api/yourProxyFunction', {
-        // any body data if needed
-      });
+      const response = await axios.post('/api/synthesizenovamood', {});
       const data = response.data;
       document.getElementById('mood').textContent = data.mood || 'Unknown';
       document.getElementById('aura').textContent = data.aura || 'Unknown';
