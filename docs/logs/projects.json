@@ -1,4 +1,16 @@
-[  {
+[  
+  
+{
+  "id": "genesis-project",
+  "title": "Genesis",
+  "html": "/docs/logs/genesis-project.html",
+  "md": "/docs/logs/genesis-project.md",
+  "status": "Active",
+  "lastUpdated": "2025-04-27",
+  "tags": ["creation", "evolution", "ambient", "ai", "architecture"],
+  "progress": 0.45
+},
+  {
   "id": "nova-soul-project",
   "title": "NovaSoul Mood Engine",
   "html": "/docs/logs/nova-soul-project.html",
