@@ -1,45 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nova Mood Dashboard</title>
-  <link rel="stylesheet" href="/css/nova-mood-dashboard.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/css/mood-dashboard.css">
 </head>
-<body data-theme="dark" class="aura-default">
-  <div class="mood-dashboard">
-    <!-- Mood Ring -->
-    <div class="mood-ring pulse" id="moodRing">
-      <div class="mood-emoji" id="moodHeart">💖</div>
-      <div class="mood-status" id="moodStatus">calm</div>
-    </div>
-
-    <!-- Timer -->
-    <div class="timer">
-      <div id="nextUpdateTime">Next update in 1 hour</div>
-    </div>
-
-    <!-- Graph -->
-    <div class="mood-history">
-      <h3>Mood Last 24 Hours</h3>
-      <div id="moodGraph"></div>
-    </div>
-
-    <!-- Influences -->
-    <div class="mood-info">
-      <h4>Recent Influences:</h4>
-      <ul id="moodInfluences"></ul>
-    </div>
-
-    <!-- Mode Buttons -->
-    <div class="mood-modes">
-      <button id="stealthButton">Stealth</button>
-      <button id="verboseButton">Verbose</button>
-      <button id="emojiButton">Emoji</button>
+<body>
+  <div class="container">
+    <h1 class="hero-headline aura-lime">Nova’s Mood Dashboard</h1>
+    <div class="mood-container">
+      <div class="mood-grid">
+        <div class="mood-grid-item">
+          <span class="mood-grid-label">Mood:</span>
+          <span id="mood" class="mood-title"></span>
+        </div>
+        <div class="mood-grid-item">
+          <span class="mood-grid-label">Aura:</span>
+          <span id="aura" class="mood-aura"></span>
+        </div>
+        <div class="mood-grid-item">
+          <span class="mood-grid-label">Quote:</span>
+          <span id="quote" class="mood-quote"></span>
+        </div>
+        <div class="mood-grid-item">
+          <span class="mood-grid-label">Time:</span>
+          <span id="timestamp" class="mood-grid-time"></span>
+        </div>
+      </div>
+      <button id="refresh-btn" class="refresh-button">Refresh Mood</button>
     </div>
   </div>
-
   <script src="/js/mood-dashboard.js"></script>
 </body>
 </html>

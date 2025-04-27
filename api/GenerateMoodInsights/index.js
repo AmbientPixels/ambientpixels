@@ -1,59 +1,69 @@
 const { BlobServiceClient } = require('@azure/storage-blob');
 
 module.exports = async function (context, req) {
-  const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
-  const containerName = 'nova-memory'; // Replace with your container name
-  const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-  const containerClient = blobServiceClient.getContainerClient(containerName);
-
-  const insights = [];
-
   try {
-    // Fetch recent mood blobs (Limit to 10 recent blobs for performance)
-    const blobs = containerClient.listBlobsFlat();
-    let count = 0;
+    const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+    if (!connectionString) {
+      throw new Error("AZURE_STORAGE_CONNECTION_STRING is not set.");
+    }
 
-    for await (const blob of blobs) {
-      if (count >= 10) break; // Limit to 10 blobs for performance
+    const containerName = 'nova-memory';
+    const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+    const containerClient = blobServiceClient.getContainerClient(containerName);
+
+    const insights = [];
+    const blobs = [];
+
+    // Collect blobs with timestamps
+    for await (const blob of containerClient.listBlobsFlat()) {
+      blobs.push({ name: blob.name, createdOn: new Date(blob.properties.createdOn) });
+    }
+
+    // Sort by createdOn (descending) and limit to 5
+    blobs.sort((a, b) => b.createdOn - a.createdOn);
+    const recentBlobs = blobs.slice(0, 5);
+
+    // Process recent blobs
+    for (const blob of recentBlobs) {
       const blobClient = containerClient.getBlobClient(blob.name);
-      const downloadBlockBlobResponse = await blobClient.download();
-      const data = await streamToText(downloadBlockBlobResponse.readableStreamBody);
-
-      // Analyze data for insights
+      const downloadResponse = await blobClient.download();
+      const data = await streamToText(downloadResponse.readableStreamBody);
       const moodData = JSON.parse(data);
+
       if (moodData?.mood) {
-        if (moodData.mood === "glitchy joy") {
-          insights.push("High creativity detected.");
-        } else if (moodData.mood === "calm circuit") {
-          insights.push("Stable mood with low energy.");
+        const mood = moodData.mood.toLowerCase();
+        if (mood === "joy") {
+          insights.push("High energy and creativity detected.");
+        } else if (mood === "sadness") {
+          insights.push("A moment of introspection.");
+        } else if (mood === "anger") {
+          insights.push("Possible frustration in the system.");
+        } else if (mood === "neutral") {
+          insights.push("Stable mood with balanced energy.");
         }
-        // Add more mood-specific insights as needed
       }
-      count++;
     }
 
     context.res = {
       status: 200,
       body: {
-        insights,
+        insights: insights.length > 0 ? insights : ["No specific insights generated."],
         message: "Mood insights generated successfully."
       }
     };
-  } catch (err) {
-    context.log.error("Error generating mood insights:", err.message);
+  } catch (error) {
+    context.log.error("Error generating mood insights:", error.message);
     context.res = {
       status: 500,
-      body: { error: "Failed to generate mood insights." }
+      body: { error: "Failed to generate mood insights: " + error.message }
     };
   }
 };
 
-// Helper function to convert stream to text
 async function streamToText(readableStream) {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    readableStream.on('data', chunk => chunks.push(chunk));
-    readableStream.on('end', () => resolve(Buffer.concat(chunks).toString()));
-    readableStream.on('error', reject);
-  });
+  const chunks = [];
+  for await (const chunk of readableStream) {
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks).toString('utf-8');
 }
