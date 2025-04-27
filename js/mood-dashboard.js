@@ -1,6 +1,6 @@
-const axios = require('axios');
+import axios from 'axios';
 
-module.exports = async function (context, req) {
+export default async function (context, req) {
   const functionKey = process.env.NOVA_API_KEY;
 
   if (!functionKey) {
@@ -27,4 +27,4 @@ module.exports = async function (context, req) {
       body: { error: 'Failed to fetch mood.' }
     };
   }
-};
+}
