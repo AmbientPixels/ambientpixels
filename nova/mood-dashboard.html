@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nova Mood Dashboard</title>
   <link rel="stylesheet" href="/css/mood-dashboard.css">
+
+  <!-- ✅ ADD THIS: Load Axios before mood-dashboard.js -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
 </head>
 <body>
   <div class="container">
@@ -31,6 +35,9 @@
       <button id="refresh-btn" class="refresh-button">Refresh Mood</button>
     </div>
   </div>
+
+  <!-- ✅ Your main dashboard script -->
   <script src="/js/mood-dashboard.js" defer></script>
+
 </body>
 </html>
