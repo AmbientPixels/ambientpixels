@@ -7,8 +7,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   async function refreshMood() {
     try {
-      const response = await axios.post('/api/synthesizenovamood', {});
+      const response = await axios.get('/api/synthesizenovamood');
       const data = response.data;
+  
       document.getElementById('mood').textContent = data.mood || 'Unknown';
       document.getElementById('aura').textContent = data.aura || 'Unknown';
       document.getElementById('quote').textContent = data.quote || 'No quote';
