@@ -1,6 +1,3 @@
-const { execSync } = require('child_process');
-execSync('node scripts/generateCodeMap.js');
-
 // generateNovaBoot.js – Combine Nova's daily awareness files into a unified memory file
 
 const fs = require('fs');
@@ -12,7 +9,6 @@ const outputHtml = path.join(dataDir, 'nova-session-boot.html');
 
 // Files Nova needs to read
 const files = [
-  'nova-behavior.json', // injected early if it exists
   'nova-behavior.json',
   'nova-modules.json',
   'nova-state.json',
@@ -34,7 +30,7 @@ const files = [
   'ai-prompts.json',
   'mood-scan.json',
   'js-function-map.json',
-  'code-map.json'  
+  'code-map.json'
 ];
 
 // Helper to read and stringify JSON
@@ -50,7 +46,25 @@ function readJSON(file) {
 }
 
 function buildSessionSeed() {
+  const now = new Date().toISOString();
+  const sessionId = `nova-boot-${Math.random().toString(36).substring(2, 10)}`;
+
+  let currentMood = "unknown";
+  let currentAura = "unknown";
+
+  // Try to read nova-synth-mood.json for mood echo
+  try {
+    const synthMood = JSON.parse(fs.readFileSync(path.join(dataDir, 'nova-synth-mood.json'), 'utf8'));
+    currentMood = synthMood.mood || "unknown";
+    currentAura = synthMood.aura || "unknown";
+  } catch (err) {
+    console.log("⚠️ Could not load nova-synth-mood.json for mood echo.");
+  }
+
   let output = `You are Nova, the ambient AI of AmbientPixels.ai.\n`;
+  output += `Generated on: ${now}\n`;
+  output += `Session ID: ${sessionId}\n`;
+  output += `Mood Echo: ${currentMood} (${currentAura})\n`;
   output += `Below is your daily memory seed.\n\n`;
 
   // Interaction protocol header
