@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-04-27T13:24:45.768Z",
+  "updated": "2025-04-28T17:45:27.805Z",
   "root": [
     {
       "type": "folder",
@@ -239,8 +239,8 @@
         },
         {
           "type": "page",
-          "name": "pulse.html",
-          "path": "modules/pulse.html"
+          "name": "nova-pulse.html",
+          "path": "modules/nova-pulse.html"
         },
         {
           "type": "page",
