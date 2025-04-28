@@ -46,18 +46,17 @@ jobs:
         env:
           NOVA_MOOD_API_KEY: ${{ secrets.NOVA_MOOD_API_KEY }}
 
-      - name: Zip Site Code for Nova
+      - name: Update Nova Session Boot Log
         run: |
-          zip -r data/site-code-snapshot.zip . -x "*.git*"
-          echo "Nova Code Snapshot: $(date -u)" >> data/nova-session-boot.txt
-          echo "🟢 Nova refreshed herself at $(date -u)" >> data/nova-session-boot.txt
+          echo "Nova Memory Refresh: $(date -u)" >> data/nova-session-boot.txt
+          echo "🟢 Nova updated her internal awareness at $(date -u)" >> data/nova-session-boot.txt
 
       - name: Commit Nova memory updates
         run: |
           git config user.name "NovaBot"
           git config user.email "nova@ambientpixels.ai"
-          git add data/*.json data/*.txt data/*.html data/site-code-snapshot.zip
-          git commit -m "Daily refresh: site memory update + code snapshot for Nova" || echo "No changes"
+          git add data/*.json data/*.txt data/*.html
+          git commit -m "Daily refresh: site memory update for Nova" || echo "No changes"
           git push
 
       - name: Log success
