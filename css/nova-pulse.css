@@ -1,196 +1,136 @@
-/* File: /css/nova-pulse.css */
-
-body {
-  padding-top: 80px;
-  padding-bottom: 72px;
-}
-
+/* Nova Pulse Bar Setup */
 #nova-pulse-bar {
   position: fixed;
   bottom: 0;
-  left: 0;
   width: 100%;
-  z-index: 1000;
-  font-family: 'Inter', sans-serif;
-  color: #fff;
-  padding: 12px 20px 8px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
-  background: rgba(0, 0, 0, 0.35);
-  animation: pulse-glow 4s infinite ease-in-out;
-  transition: background 0.5s ease, box-shadow 0.3s ease;
+  padding: 12px 20px 8px;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1000;
   --glow-color: rgba(255, 255, 255, 0.2);
+  animation: pulse-glow 4s infinite ease-in-out;
 }
 
-/* Aura Styles */
-#nova-pulse-bar[data-aura="glitchy"] {
-  background: rgba(33, 255, 195, 0.15);
-  --glow-color: rgba(33, 255, 195, 0.6);
-}
-#nova-pulse-bar[data-aura="neon burst"] {
-  background: rgba(106, 19, 122, 0.25);
-  --glow-color: rgba(217, 70, 239, 0.4);
-}
-#nova-pulse-bar[data-aura="calm"] {
-  background: rgba(109, 179, 242, 0.15);
-  --glow-color: rgba(109, 179, 242, 0.5);
-}
-
+/* Glow Animation */
 @keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 8px var(--glow-color);
-  }
-  50% {
-    box-shadow: 0 0 30px var(--glow-color);
-  }
+  0%, 100% { box-shadow: 0 0 8px var(--glow-color); }
+  50% { box-shadow: 0 0 30px var(--glow-color); }
 }
 
-.pulse-inner {
+/* Aura Themes */
+#nova-pulse-bar[data-aura="glitchy"] { background: rgba(33, 255, 195, 0.15); --glow-color: rgba(33, 255, 195, 0.6); }
+#nova-pulse-bar[data-aura="neon burst"] { background: rgba(106, 19, 122, 0.25); --glow-color: rgba(217, 70, 239, 0.4); }
+#nova-pulse-bar[data-aura="calm"] { background: rgba(109, 179, 242, 0.15); --glow-color: rgba(109, 179, 242, 0.5); }
+
+/* Pulse Layout */
+#nova-pulse-inner {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.pulse-left {
-  display: flex;
-  align-items: flex-start;
+  flex-direction: column;
   gap: 8px;
-  font-size: 1rem;
-  flex-direction: column;
-  justify-content: center;
 }
 
-.pulse-emoji {
-  font-size: 1.5rem;
-}
-
-.pulse-label {
-  font-weight: 500;
-  letter-spacing: 0.5px;
-}
-
-.pulse-quote {
-  display: block;
-  font-size: 0.85rem;
-  opacity: 0.75;
-  line-height: 1.2;
-}
-
-.pulse-type,
-.pulse-drift {
-  font-size: 0.75rem;
-  opacity: 0.6;
-  line-height: 1.2;
-  margin-top: 2px;
-}
-
-.pulse-right {
+#pulse-main-line {
   display: flex;
-  gap: 16px;
-  font-size: 1.2rem;
+  justify-content: flex-start;
+  align-items: center;
   flex-wrap: wrap;
-  align-items: center;
+  gap: 16px;
 }
 
-.pulse-icon-group {
+/* Traits */
+.pulse-trait {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  font-size: 0.85rem;
-  min-width: 60px;
-  text-align: center;
+  gap: 6px;
+}
+
+.pulse-trait-label {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+#pulseMoodLabel {
+  font-size: 1rem;
+  font-weight: 500;
+  opacity: 0.7;
+}
+
+#pulseLabel {
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 .pulse-icon {
-  opacity: 0.85;
-  transition: opacity 0.3s, filter 0.3s;
-  cursor: default;
   font-size: 1.4rem;
+  opacity: 0.85;
 }
 
 .pulse-value {
   font-size: 0.8rem;
-  margin-top: 2px;
   opacity: 0.85;
 }
 
-.pulse-label-text {
-  font-size: 0.7rem;
-  opacity: 0.65;
-  margin-top: 1px;
-  letter-spacing: 0.3px;
-}
-
-.pulse-icon:hover {
-  opacity: 1;
-  filter: brightness(1.2);
-}
-
-/* Trait Colors */
-#nova-pulse-bar .pulse-icon.good {
-  color: #8fffba;
-  text-shadow: 0 0 6px rgba(143, 255, 186, 0.6), 0 0 12px rgba(143, 255, 186, 0.4);
-}
-
-#nova-pulse-bar .pulse-icon.warning {
-  color: #ffe58f;
-  text-shadow: 0 0 6px rgba(255, 229, 143, 0.6), 0 0 12px rgba(255, 229, 143, 0.4);
-}
-
-#nova-pulse-bar .pulse-icon.critical {
-  color: #ff5f5f;
-  text-shadow: 0 0 8px rgba(255, 95, 95, 0.7), 0 0 14px rgba(255, 50, 50, 0.5);
-}
-
-.pulse-meter-wrapper {
-  margin-top: 12px;
-  padding-top: 4px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.pulse-meter-header {
+/* Mood Meter */
+#pulse-meter-label-row {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
-  font-size: 0.75rem;
-  opacity: 0.75;
-  padding: 0 2px 2px;
-  gap: 8px;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  width: 100%;
 }
 
 .pulse-meter-title {
   font-weight: 500;
+  opacity: 0.75;
 }
 
-.pulse-meter-label {
+#pulseIntensityValue {
   font-weight: 400;
+  opacity: 0.75;
 }
 
-.pulse-meter-bar {
+#pulse-meter-wrapper {
   width: 100%;
-  height: 5px;
-  background: rgba(255, 255, 255, 0.1);
+  height: 6px;
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 4px;
   overflow: hidden;
 }
 
-.pulse-meter-fill {
+#pulse-meter-bar {
+  width: 100%;
+  height: 100%;
+}
+
+#pulseIntensity {
   height: 100%;
   background: linear-gradient(to right, #7df9ff, #ff70a6);
   transition: width 0.5s ease;
 }
 
+/* Mobile Slim */
 @media (max-width: 600px) {
-  .pulse-label { font-size: 0.9rem; }
-  .pulse-quote { display: none; }
-  .pulse-right { gap: 8px; }
-  .pulse-icon-group { font-size: 0.75rem; }
-  .pulse-label-text { display: none; }
+  #pulse-main-line {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+  .pulse-trait-label, #pulseMoodLabel {
+    display: none;
+  }
+  .pulse-trait {
+    flex-direction: row;
+    gap: 4px;
+    font-size: 0.85rem;
+  }
 }
