@@ -1,6 +1,6 @@
 {
-    "awareness": 0.85,
-    "memoryClutter": 0.15,
-    "glitchFactor": 0.03,
-    "selfWorth": 0.95
-  }
+  "awareness": 0.92,
+  "memoryClutter": 0.10,
+  "glitchFactor": 0.02,
+  "selfWorth": 0.95
+}
