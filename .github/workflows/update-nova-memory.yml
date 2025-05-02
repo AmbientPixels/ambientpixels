@@ -38,11 +38,11 @@ jobs:
           node scripts/aiPromptGenerator.js
           node scripts/apiMonitor.js
           node scripts/jsFunctionMap.js
-          node scripts/generateNovaBoot.js
           node scripts/generateNovaMood.js
           node scripts/generateCodeMap.js
           node scripts/generateDreamLog.js
           node scripts/generateQuoteOfTheDay.js
+          node scripts/generateNovaBoot.js   
         env:
           NOVA_MOOD_API_KEY: ${{ secrets.NOVA_MOOD_API_KEY }}
 

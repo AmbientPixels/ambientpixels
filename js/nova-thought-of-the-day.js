@@ -17,7 +17,7 @@ async function loadNovaThought() {
     const heading = document.querySelector('.nova-thought h2');
     if (!container || !heading) return;
 
-    const date = new Date(promptData.date).toLocaleDateString();
+    const date = new Date(promptData.date + 'T00:00:00Z').toLocaleDateString();
 
     // Mood-based icon map
     const moodIconMap = {
