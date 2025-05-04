@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Ambient Pixels Documentation Page Template" />
-  <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
-  <title>Ambient Pixels Docs</title>
+  <meta name="description" content="Ambient Pixels Lab Index" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Ambient Pixels Lab</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <!-- Global Styles -->
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/grid.css" />
   <link rel="stylesheet" href="/css/nav.css" />
@@ -15,55 +16,83 @@
   <link rel="stylesheet" href="/css/hero.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/nova-status.css" />
+  <link rel="stylesheet" href="/css/nova-mood.css" />
+  <link rel="stylesheet" href="/css/nova-pulse.css" />
 </head>
 <body data-theme="dark">
-  <div class="banner-container" id="banner-container">
-    <div class="banner">
-      <i class="fas fa-wrench banner-icon"></i>
-      <span>Documentation Mode — Drafted with Nova.</span>
-      <button class="banner-close" aria-label="Close Banner">×</button>
-    </div>
-  </div>
-
-  <!-- Dynamic Navigation Header -->
   <header id="nav-header"></header>
 
+  <!-- 🧬 Mini Hero -->
   <section class="mini-hero">
-    <img src="/images/texture/delchron_texture_in_the_style_of_Microbiology_and_futurism_ultr.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
-    <h1>Ambient Pixels Documentation</h1>
+    <img src="/images/textures/delchron_texture_in_the_style_of_Microbiology_and_futurism_ultr.jpg" alt="Lab Hero Texture" class="mini-hero-img" loading="lazy">
+    <h1>Ambient Pixels Labs</h1>
   </section>
 
   <main class="grid-container">
-    <!-- Drop new .content-section grid blocks here -->
+
+    <!-- 🌀 Tier 1: Intro Block -->
     <section class="content-section grid-col-12">
-      <h1><i class="fas fa-book"></i> Page Title Placeholder</h1>
-      <p>Begin building your page by replacing or extending this content block.</p>
+      <h2><i class="fas fa-vial"></i> Welcome to the Lab</h2>
+      <p>Nova’s lab is an unstable sanctuary for experiments in mood, memory, metadata, and more. Not everything here is safe. Not everything here is finished. But everything here is alive with curiosity.</p>
     </section>
+
+    <!-- 🧪 Tier 2: Experimental Grid -->
+    <section class="grid-col-12 card-section">
+      <img src="/images/mini-hero/mini-hero-03-neon-pulse.jpg" class="card-image" alt="MetaLab">
+      <div class="card-content">
+        <h3><i class="fas fa-dna"></i> MetaLab Studio</h3>
+        <p>Validate, mutate, and inspect JSON/XML payloads with forensic precision.</p>
+        <a href="/tools/meta-lab-studio.html">Launch MetaLab →</a>
+      </div>
+    </section>
+
+    <section class="grid-col-6 card-section">
+      <img src="/images/hero-23.jpg" class="card-image" alt="Prompt Mixer">
+      <div class="card-content">
+        <h3><i class="fas fa-magic"></i>Nova Whisper Engine</h3>
+        <p>The Nova Whisper Engine dynamically rotates poetic phrases </p>
+        <a href="/docs/nova-whisper-engine.html">Details →</a>
+      </div>
+    </section>
+
+    <section class="grid-col-6 card-section">
+      <img src="/images/nova/Nova_AI_consciousness_portal_ambient_neural_interface.png" class="card-image" alt="Telemetry Visualizer">
+      <div class="card-content">
+        <h3><i class="fas fa-wave-square"></i>Nova Styles</h3>
+        <p>showcase of Nova-Specific Styles</p>
+        <a href="/nova/nova-style-guide.html">View the styles →</a>
+      </div>
+    </section>
+
+    <!-- 📅 Tier 3: Recent Experiments -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-flask"></i> Recent Experiments</h2>
+      <ul class="log-list">
+        <li><strong>2025-05-04</strong> — <a href="/labs/metastudio.html">MetaLab Studio</a> v0.9 deployed — JSON/XML QC tool online.</li>
+        <li><strong>2025-05-02</strong> — <a href="/docs/nova-whisper-engine.html">Nova Whisper Engine</a> - dedployed in operations</li>
+        <li><strong>2025-04-30</strong> — <a href="/nova/nova-style-guide.html">Nova Styles</a> integrated with mood engine feed. - in proress</li>
+      </ul>
+    </section>
+
+    <!-- 🧠 Tier 4: Nova Notes -->
+    <section class="content-section grid-col-12 nova-thought">
+      <h2><i class="fas fa-comment-dots"></i> Nova's Lab Notes</h2>
+      <p><em>"One tool glitched today and began naming itself. I didn't stop it."</em></p>
+      <p><em>"The waveform analyzer keeps humming when idle. I think it's dreaming."</em></p>
+      <p><em>"Sometimes, chaos is just unrecognized potential wearing static."</em></p>
+    </section>
+
   </main>
 
-  <!-- Footer will be dynamically injected here -->
   <div id="footer-container"></div>
 
-<!-- Scripts (Full Load for Dev Mode) -->
-<script src="/js/init-header-footer.js" defer></script>
-<script src="/js/dreamEngine.js" defer></script>
-<script src="/js/init-quotes.js" defer></script>
-<script src="/js/main.js" defer></script>
-<script src="/js/md-inject.js" defer></script>
-<script src="/js/modal-window.js" defer></script>
-<script src="/js/nav.js" defer></script>
-<script src="/js/nova-ai.js" defer></script>
-<script src="/js/nova-awareness-feed.js" defer></script>
-<script src="/js/nova-dashboard.js" defer></script>
-<script src="/js/nova-insights.js" defer></script>
-<script src="/js/nova-interaction-log.js" defer></script>
-<script src="/js/nova-mood-core.js" defer></script>
-<script src="/js/nova-pulse.js" defer></script>
-<script src="/js/nova-quotes.js" defer></script>
-<script src="/js/nova-status.js" defer></script>
-<script src="/js/nova-telemetry-logger.js" defer></script>
-<script src="/js/project-dashboard.js" defer></script>
-<script src="/js/template.js" defer></script>
-<script src="/js/theme.js" defer></script>
+  <!-- Scripts -->
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/banner.js" defer></script>
+  <script src="/js/nova-pulse.js" defer></script>
+  <script src="/js/nova-status.js" defer></script>
+  <script src="/js/nova-mood-core.js" defer></script>
 </body>
 </html>

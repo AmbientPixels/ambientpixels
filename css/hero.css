@@ -9,6 +9,7 @@
     align-items: center;
     text-align: center;
 }
+
 .hero-loading {
     position: absolute;
     top: 0;
@@ -22,32 +23,39 @@
     gap: 10px;
     z-index: 4;
 }
+
 .loading-icon {
     font-size: 2em;
     animation: spin 1s linear infinite;
 }
+
 @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
+
 .hero-loading p {
     margin: 0;
 }
+
 .loading-bar {
     width: 100vw;
     height: 8px;
     background: rgba(255, 255, 255, 0.1);
     overflow: hidden;
 }
+
 .loading-progress {
     height: 100%;
     width: 0;
     background: linear-gradient(to right, #2A577A, #4B3E8F);
     animation: loadBar 2s ease forwards;
 }
+
 @keyframes loadBar {
     to { width: 100%; }
 }
+
 .hero-slides {
     position: absolute;
     top: 0;
@@ -56,6 +64,7 @@
     height: 100%;
     z-index: 1;
 }
+
 .hero-slide {
     position: absolute;
     top: 0;
@@ -66,78 +75,91 @@
     opacity: 0;
     transition: opacity 1s ease-in-out;
 }
+
 .hero-slide.active {
     opacity: 1;
 }
+
 .hero-content {
     position: relative;
     z-index: 2;
 }
+
 .hero-headline,
 .hero-subheadline {
     opacity: 0;
     transform: translateY(10px);
     animation: fadeInUp 0.5s ease forwards 2s;
-    color: #fff !important; /* Force white, override theme */
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6); /* Dark shadow for dark theme */
+    color: #fff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
 }
+
 body[data-theme="light"] .hero-headline,
 body[data-theme="light"] .hero-subheadline {
-    color: #fff !important; /* Ensure white in light theme */
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4); /* Slightly lighter shadow for light theme */
+    color: #fff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
+
 .hero-subheadline {
-    animation-delay: 2.2s;
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: var(--text-soft);
+    margin-top: 0.5rem;
+    max-width: 60ch;
 }
-@keyframes fadeInUp {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+
 .hero h1 {
     font-size: 2.5em;
     margin: 0.2em 0;
 }
+
 .hero p {
     font-size: 1.2em;
 }
+
 /* Mini Hero Section */
 .mini-hero {
     position: relative;
     text-align: center;
     margin-top: 80px;
     width: 100%;
-    height: 220px; /* Adjusted height for a more compact mini-hero */
-  }
-  
-  .mini-hero-img {
+    height: 220px;
+}
+
+.mini-hero-img {
     width: 100%;
-    height: 100%; /* Ensure the image fills the height of the container */
-    object-fit: cover; /* Make sure the image maintains its aspect ratio and covers the space */
-    display: block; /* Prevent any unwanted space below the image */
-  }
-  
-  .mini-hero h1 {
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.mini-hero h1 {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 2em; /* Adjust font size for smaller text */
-    color: #fff; /* White text for contrast */
-    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.8); /* Hard shadow: smaller blur and stronger opacity */
+    font-size: 2em;
+    color: #fff;
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.8);
     margin: 0;
-  }
-  
-  .hero-headlines h1,
+}
+
+.hero-headlines h1,
 .hero-subheadlines p {
-  display: none;
-  opacity: 0;
-  transition: opacity 0.5s ease;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
 }
 
 .hero-headlines h1.active,
 .hero-subheadlines p.active {
-  display: block;
-  opacity: 1;
+    display: block;
+    opacity: 1;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
