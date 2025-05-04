@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-05-03T16:13:02.515Z",
+  "updated": "2025-05-04T13:26:09.388Z",
   "root": [
     {
       "type": "folder",
@@ -355,6 +355,11 @@
           "type": "page",
           "name": "mood-demo.html",
           "path": "nova/mood-demo.html"
+        },
+        {
+          "type": "page",
+          "name": "nova-style-guide.html",
+          "path": "nova/nova-style-guide.html"
         },
         {
           "type": "page",
