@@ -9,7 +9,7 @@ function initNovaPulse() {
     .then(res => res.text())
     .then(html => {
       pulseBar.innerHTML = html;
-      fetch("/data/nova-synth-mood.json")
+      fetch("/data/mood-scan.json")
         .then(res => res.json())
         .then(data => updatePulseBar(data))
         .catch(err => console.error("Failed to load Nova mood:", err));
@@ -17,15 +17,23 @@ function initNovaPulse() {
     .catch(err => console.error("Failed to load Nova Pulse HTML:", err));
 
   function updatePulseBar(data) {
-    const { mood, aura, emoji, quote, type, drift, selfWorth, glitchFactor, memoryClutter, internalState } = data;
+    const {
+      mood,
+      aura,
+      emoji,
+      quote,
+      selfWorth,
+      glitchFactor,
+      memoryClutter,
+      internalState
+    } = data;
+
     const finalEmoji = emoji || deriveEmoji(mood);
     const bar = document.getElementById("nova-pulse-bar");
 
     if (document.getElementById("pulseEmoji")) document.getElementById("pulseEmoji").textContent = finalEmoji;
     if (document.getElementById("pulseLabel")) document.getElementById("pulseLabel").textContent = mood || "Unknown Mood";
     if (document.getElementById("pulseQuote") && quote) document.getElementById("pulseQuote").textContent = quote;
-    if (document.getElementById("pulseType") && type) document.getElementById("pulseType").textContent = `Type: ${type}`;
-    if (document.getElementById("pulseDrift") && drift) document.getElementById("pulseDrift").textContent = `Drifting toward: ${drift}`;
 
     bar.setAttribute("data-aura", (aura || "unknown").toLowerCase());
 
