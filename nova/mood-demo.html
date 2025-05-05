@@ -3,56 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Ambient Pixels Documentation Page Template" />
+  <meta name="description" content="NovaSoul Mood Engine – Real-time emotional state generated from system and git activity." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Ambient Pixels Docs</title>
+  <title>NovaSoul: Mood Engine</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/grid.css">
+  <link rel="stylesheet" href="/css/nav.css">
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/hero.css" />
   <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/background-themes.css">
   <link rel="stylesheet" href="/css/banner.css" />
-  <link rel="stylesheet" href="/css/nova-styles.css" />
+  <link rel="stylesheet" href="/css/nova-status.css" />
+  <link rel="stylesheet" href="/css/nova-mood.css" />
+  <link rel="stylesheet" href="/css/nova-pulse.css" />
 </head>
 <body data-theme="dark">
-  <!-- 🔔 Banner -->
   <div class="banner-container" id="banner-container">
     <div class="banner">
       <i class="fas fa-brain banner-icon"></i>
-      <span>NovaSoul: Mood Engine — Live emotional telemetry demo</span>
+      <span>NovaSoul: Mood Engine — Local mood scan demo</span>
       <button class="banner-close" aria-label="Close Banner">×</button>
     </div>
   </div>
 
-  <!-- 🔗 Global Nav -->
   <header id="nav-header"></header>
 
-  <!-- 🌠 Hero -->
   <section class="mini-hero">
-    <img src="/images/mini-hero-v1.jpg" alt="Nova Hero" class="mini-hero-img" loading="lazy">
+    <img src="/images/nova/POV_of_a_neuron_cell_taken_from_a_iphone_camers_goign01.png" alt="Nova Hero" class="mini-hero-img" loading="lazy">
     <h1>NovaSoul: Mood Engine</h1>
-    <p>Where awareness becomes emotion.</p>
+    <p>Emotions from system signals.</p>
   </section>
 
-  <!-- 📊 Main Content -->
   <main class="grid-container">
-
-    <!-- Fallback message -->
-    <p>Loading Nova’s recent moods...</p>
-  </div>
-</section>
     <section class="content-section grid-col-12">
-      <h2><i class="fas fa-circle-info"></i> How it Works</h2>
+      <h2><i class="fas fa-circle-info"></i> What Is This?</h2>
       <p>
-        NovaSoul is a dynamic emotion parser that synthesizes moods from real-time telemetry inputs. These include system health, usage stats, time of day, and internal memory cues. The result is a live output of Nova's emotional state — rendered as color-coded auras and poetic quotes.
-      </p>
+        This page showcases the NovaSoul Mood Engine, powered by moodScan.js. It simulates Nova's emotional state using real local data — including recent Git commit history, uncommitted changes, system load, and time-of-day signals. These inputs are translated into a structured mood output (mood-scan.json) that reflects current traits like focus, clutter, and internal resonance.      </p>
     </section>
 
     <section class="content-section grid-col-12">
-      <h2><i class="fas fa-heartbeat"></i> Current Mood</h2>
+      <h2><i class="fas fa-wave-square"></i> Mood Scan Demo</h2>
       <div class="mood-container" id="novaMood">
         <div id="moodRing"></div>
         <div class="mood-emoji" id="moodEmoji">🧠</div>
@@ -66,60 +59,36 @@
       </div>
     </section>
 
-<!-- 🧠 Whisper Panel + Mood Stream -->
-<section class="content-section grid-col-12" id="novaAddons">
-  <h2><i class="fas fa-wind"></i> NovaSoul Extensions</h2>
-  <p>Additional modules expressing Nova’s subconscious signals and emotional residue.</p>
-
-  <!-- 🌬 Whisper Panel -->
-  <div id="whisperPanel" class="whisper-panel hidden">
-    <h3><i class="fas fa-feather-alt"></i> Whisper Panel</h3>
-    <p class="panel-subtext">A poetic reflection of Nova’s most recent thought or emotional resonance.</p>
-    <div class="whisper-text"></div>
-  </div>
-
-  <!-- 📡 Mood Stream -->
-  <div id="moodStream" class="mood-stream hidden">
-    <h3><i class="fas fa-stream"></i> Mood Stream</h3>
-    <p class="panel-subtext">A running trace of Nova's recent mood states over time, influenced by live telemetry.</p>
-    <ul class="mood-history-list"></ul>
-  </div>
-</section>
-
     <section class="content-section grid-col-12">
-      <h2><i class="fas fa-eye"></i> System Inputs</h2>
+      <h2><i class="fas fa-terminal"></i> Inputs Used</h2>
       <ul>
-        <li><strong>Telemetry:</strong> GitHub activity, API health, dreams + prompts</li>
-        <li><strong>Model:</strong> Gemini 1.5 Pro</li>
-        <li><strong>Scan Mode:</strong> Scheduled async evaluation</li>
+        <li><strong>Git commit count (last 3 hrs):</strong> maps to focus + intensity</li>
+        <li><strong>Uncommitted diffs:</strong> maps to clutter</li>
+        <li><strong>System load average:</strong> influences glitch factor</li>
+        <li><strong>Total git commits:</strong> maps to self-worth</li>
+        <li><strong>Time of day + day of week:</strong> applies nudges to emotional state</li>
       </ul>
     </section>
 
     <section class="content-section grid-col-12">
-      <h2><i class="fas fa-wave-square"></i> Mood Traits</h2>
-      <p>Visual overlays and aura styles applied via class <code>.aura-*</code> on <code>&lt;body&gt;</code>.</p>
+      <h2><i class="fas fa-eye"></i> Output Format</h2>
+      <p>Results are saved to <code>/data/mood-scan.json</code> and include:</p>
       <ul>
-        <li><strong>Mood:</strong> One- or two-word descriptor (e.g. <em>glitchy joy</em>)</li>
-        <li><strong>Aura:</strong> Color or vibe-based signature (e.g. <em>emerald shadow</em>)</li>
-        <li><strong>Quote:</strong> One poetic internal reflection</li>
+        <li><strong>mood</strong>: main emotional label (e.g. <code>glitchy joy</code>)</li>
+        <li><strong>aura</strong>: color-based signature (e.g. <code>deep violet</code>)</li>
+        <li><strong>emoji</strong>: icon matching mood</li>
+        <li><strong>quote</strong>: poetic system phrase</li>
+        <li><strong>traits</strong>: selfWorth, glitch, memoryClutter, awareness</li>
+        <li><strong>internalState</strong>: derived text like <code>signal desync detected</code></li>
+        <li><strong>observation</strong>: brief diagnostic summary</li>
       </ul>
     </section>
-
-<!-- 🧠 Nova Mood Grid Module -->
-<section class="content-section grid-col-12 mood-grid-section">
-  <h2><i class="fas fa-circle-info"></i> Nova Mood Grid Module</h2>
-  <div id="novaMoodGrid">
-
   </main>
 
-  <!-- 🔻 Footer -->
   <div id="footer-container"></div>
 
-  <!-- 🔌 Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="/js/nova-mood-render.js"></script>
   <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/theme.js" defer></script>
+  <script src="/js/nova-pulse.js" defer></script>
   <script src="/js/nova-mood-grid.js" defer></script>
 </body>
 </html>
