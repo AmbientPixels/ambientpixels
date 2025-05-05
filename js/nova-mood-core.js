@@ -1,21 +1,23 @@
-// File: /js/nova-mood-core.js
-
 document.addEventListener("DOMContentLoaded", () => {
   const driftEl = document.getElementById("nova-mood-drift");
 
-  fetch("/data/nova-synth-mood.json")
+  fetch("/data/mood-scan.json")  // ✅ Updated path
     .then(res => res.json())
     .then(data => {
-      // Apply aura class
+      // 🔄 Clean up any existing aura/bg classes
+      document.body.className = document.body.className
+        .split(" ")
+        .filter(cls => !cls.startsWith("aura-") && !cls.startsWith("bg-"))
+        .join(" ")
+        .trim();
+
+      // ✨ Apply aura class from mood scan
       const aura = data.aura?.toLowerCase().replace(/\s+/g, '-');
-      document.body.classList.add(`aura-${aura}`);
+      if (aura) {
+        document.body.classList.add(`aura-${aura}`);
+      }
 
-      // ✅ Apply mood background theme too
-      const baseMood = deriveSimpleMood(data.mood || "neutral");
-      document.body.classList.remove(...Array.from(document.body.classList).filter(cls => cls.startsWith('bg-')));
-      document.body.classList.add(`bg-${baseMood}`);
-
-      // ✅ FIRE NovaMoodUpdate event
+      // 🧠 Dispatch NovaMoodUpdate
       document.dispatchEvent(new CustomEvent("NovaMoodUpdate", {
         detail: {
           mood: data.mood || "neutral",
@@ -23,14 +25,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }));
 
-      // Update drift panel if present
+      // 🛰️ Update drift panel
       if (driftEl) {
         driftEl.innerHTML = `
           🧠 Mood: <strong>${data.mood}</strong><br>
           ✨ Aura: <span>${data.aura}</span><br>
           💬 Quote: <em>"${data.quote}"</em><br>
-          🔄 Drift Source: <span>${data.context.trigger}</span><br>
-          📡 Influences: <code>${data.context.influences.join(", ")}</code><br>
+          🔄 Drift Source: <span>${data.context?.trigger || "—"}</span><br>
+          📡 Influences: <code>${(data.context?.influences || []).join(", ")}</code><br>
           🕒 Last Updated: <time datetime="${data.timestamp}">${new Date(data.timestamp).toLocaleString()}</time>
         `;
       }

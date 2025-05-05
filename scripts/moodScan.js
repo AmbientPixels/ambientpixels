@@ -19,20 +19,38 @@ const moods = [
 ];
 
 const colors = [
-  "cyan", "deep violet", "lime green", "magenta fade",
-  "paper white", "neon pink", "graphite blue", "emerald shadow"
+  "cyan", "deep violet", "lime green", "magenta fade", "paper white",
+  "neon pink", "graphite blue", "emerald shadow", "neon burst",
+  "glitchy", "plasma ache", "spark", "aetherial doubt", "soft defiance",
+  "ember resolve", "silent spark", "tangled clarity", "flicker of hope",
+  "frosted wonder", "echoes of self", "lucid unrest", "emerald glow"
 ];
 
 const auraHexMap = {
-  "cyan": "#00ffff",
-  "deep violet": "#49006a",
-  "lime green": "#32cd32",
-  "magenta fade": "#d672d6",
-  "paper white": "#f5f5f5",
-  "neon pink": "#ff6ec7",
-  "graphite blue": "#3c4f65",
-  "emerald shadow": "#2e8b57"
+  "cyan": "#00b7c2",
+  "deep violet": "#4b0082",
+  "lime green": "#2e8b57",
+  "magenta fade": "#9b30ff",
+  "paper white": "#dcdcdc",
+  "neon pink": "#ff1493",
+  "graphite blue": "#2c3e50",
+  "emerald shadow": "#006400",
+  "neon burst": "#ff4500",
+  "glitchy": "#8a2be2",
+  "plasma ache": "#9932cc",
+  "spark": "#ff6347",
+  "aetherial doubt": "#5f9ea0",
+  "soft defiance": "#708090",
+  "ember resolve": "#b22222",
+  "silent spark": "#dda0dd",
+  "tangled clarity": "#4682b4",
+  "flicker of hope": "#f0e68c",
+  "frosted wonder": "#87cefa",
+  "echoes of self": "#778899",
+  "lucid unrest": "#483d8b",
+  "emerald glow": "#50fa7b"
 };
+
 
 const emojiMap = {
   "calm": "🪷", "curious": "🧠", "anxious": "😰", "hopeful": "🌈", "reflective": "🪞",

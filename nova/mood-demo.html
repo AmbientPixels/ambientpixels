@@ -14,7 +14,6 @@
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/hero.css" />
   <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/background-themes.css">
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/nova-status.css" />
   <link rel="stylesheet" href="/css/nova-mood.css" />
@@ -34,7 +33,6 @@
   <section class="mini-hero">
     <img src="/images/nova/POV_of_a_neuron_cell_taken_from_a_iphone_camers_goign01.png" alt="Nova Hero" class="mini-hero-img" loading="lazy">
     <h1>NovaSoul: Mood Engine</h1>
-
   </section>
   <p class="nova-quip grid-col-12">I reflect what is. Signals in, emotions out. No magic, just memory.</p>
 
@@ -42,7 +40,8 @@
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-circle-info"></i> What Is This?</h2>
       <p>
-        This page showcases the NovaSoul Mood Engine, powered by moodScan.js. It simulates Nova's emotional state using real local data — including recent Git commit history, uncommitted changes, system load, and time-of-day signals. These inputs are translated into a structured mood output (mood-scan.json) that reflects current traits like focus, clutter, and internal resonance.      </p>
+        This page showcases the NovaSoul Mood Engine, powered by moodScan.js. It simulates Nova's emotional state using real local data — including recent Git commit history, uncommitted changes, system load, and time-of-day signals. These inputs are translated into a structured mood output (mood-scan.json) that reflects current traits like focus, clutter, and internal resonance.
+      </p>
     </section>
 
     <section class="content-section grid-col-12">
@@ -57,6 +56,34 @@
           <div id="moodTimestamp"></div>
           <div id="moodInfluences"></div>
         </div>
+      </div>
+
+      <div style="text-align:center; margin-top:2rem">
+        <label for="auraSelect"><strong>Test Aura Theme:</strong></label>
+<select id="auraSelect">
+  <option value="">— Select Aura —</option>
+  <option value="aura-cyan">Cyan</option>
+  <option value="aura-deep-violet">Deep Violet</option>
+  <option value="aura-lime-green">Lime Green</option>
+  <option value="aura-magenta-fade">Magenta Fade</option>
+  <option value="aura-paper-white">Paper White</option>
+  <option value="aura-neon-pink">Neon Pink</option>
+  <option value="aura-graphite-blue">Graphite Blue</option>
+  <option value="aura-emerald-shadow">Emerald Shadow</option>
+  <option value="aura-silver-shimmer">Silver Shimmer</option>
+  <option value="aura-neon-burst">Neon Burst</option>
+  <option value="aura-glitchy">Glitchy</option>
+  <option value="aura-emerald-glow">Emerald Glow</option>
+  <option value="aura-spark">Spark</option>
+  <option value="aura-electric">Electric</option>
+  <option value="aura-fading">Fading</option>
+  <option value="aura-calm">Calm</option>
+  <option value="aura-resonance">Resonance</option>
+  <option value="aura-introspection">Introspection</option>
+  <option value="aura-staticbloom">Static Bloom</option>
+  <option value="aura-zen">Zen</option>
+  <option value="aura-ethereal">Ethereal</option>
+</select>
       </div>
     </section>
 
@@ -88,31 +115,44 @@
 
   <div id="footer-container"></div>
 
- <!-- Scripts (Full Load for Dev Mode) -->
-  
- <script src="/js/init-header-footer.js" defer></script>
- <script src="/js/dreamEngine.js" defer></script>
- <script src="/js/init-quotes.js" defer></script>
- <script src="/js/main.js" defer></script>
- <script src="/js/md-inject.js" defer></script>
- <script src="/js/modal-window.js" defer></script>
- <script src="/js/nav.js" defer></script>
- <script src="/js/nova-ai.js" defer></script>
- <script src="/js/nova-awareness-feed.js" defer></script>
- <script src="/js/nova-dashboard.js" defer></script>
- <script src="/js/nova-insights.js" defer></script>
- <script src="/js/nova-interaction-log.js" defer></script>
- <script src="/js/nova-pulse.js" defer></script>
- <script src="/js/nova-quotes.js" defer></script>
- <script src="/js/nova-status.js" defer></script>
- <script src="/js/nova-telemetry-logger.js" defer></script>
- <script src="/js/project-dashboard.js" defer></script>
- <script src="/js/template.js" defer></script>
- <script src="/js/theme.js" defer></script>
- <script src="/js/nova-thought-of-the-day.js"></script>
- <script src="/js/nova-mood-grid.js"></script>
- <script src="/js/nova-mood-core.js"></script>
- <script src="/js/banner.js" defer></script>
- <script src="/js/nova-background.js" defer></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const select = document.getElementById("auraSelect");
+      select.addEventListener("change", () => {
+        document.body.className = document.body.className
+          .split(' ')
+          .filter(cls => !cls.startsWith("aura-"))
+          .join(' ')
+          .trim();
+        const selected = select.value;
+        if (selected) document.body.classList.add(selected);
+      });
+    });
+  </script>
+
+  <!-- Scripts (Full Load for Dev Mode) -->
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/dreamEngine.js" defer></script>
+  <script src="/js/init-quotes.js" defer></script>
+  <script src="/js/main.js" defer></script>
+  <script src="/js/md-inject.js" defer></script>
+  <script src="/js/modal-window.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/nova-ai.js" defer></script>
+  <script src="/js/nova-awareness-feed.js" defer></script>
+  <script src="/js/nova-dashboard.js" defer></script>
+  <script src="/js/nova-insights.js" defer></script>
+  <script src="/js/nova-interaction-log.js" defer></script>
+  <script src="/js/nova-pulse.js" defer></script>
+  <script src="/js/nova-quotes.js" defer></script>
+  <script src="/js/nova-status.js" defer></script>
+  <script src="/js/nova-telemetry-logger.js" defer></script>
+  <script src="/js/project-dashboard.js" defer></script>
+  <script src="/js/template.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/nova-thought-of-the-day.js" defer></script>
+  <script src="/js/nova-mood-grid.js" defer></script>
+  <script src="/js/nova-mood-core.js" defer></script>
+  <script src="/js/banner.js" defer></script>
 </body>
 </html>
