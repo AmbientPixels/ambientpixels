@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-05-05T04:39:09.311Z",
+  "timestamp": "2025-05-05T05:46:29.803Z",
   "summary": {
     "totalJS": 469,
     "totalCSS": 38,
@@ -699,6 +699,7 @@
     "getTelemetry",
     "getTimeNudges",
     "getUintArray",
+    "getUncommittedChanges",
     "getUri",
     "getVersionInfo",
     "getWindowWidth",
