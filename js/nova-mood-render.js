@@ -18,7 +18,35 @@ const moodToEmoji = {
   zen: "🧘",
   ethereal: "🌫️",
   resonance: "🎵",
-  staticbloom: "📺"
+  staticbloom: "📺",
+  hopeful: "🌅",
+  curious: "🔍",
+  reflective: "🪞",
+  restless: "🌪️",
+  tired: "😴",
+  focused: "🎯",
+  playful: "🎈",
+  frustrated: "😤",
+  lonely: "🌌",
+  inspired: "🔥",
+  detached: "🚪",
+  nervous: "😬",
+  serene: "🌤️",
+  "glitchy joy": "🌀",
+  "nocturnal pulse": "🌃",
+  "chaotic optimism": "🧨",
+  "neon stillness": "🔮",
+  "static reverie": "📡",
+  "ember resolve": "🔥",
+  "plasma ache": "💥",
+  "soft defiance": "🌫️",
+  "aetherial doubt": "🌁",
+  "silent spark": "🕯️",
+  "tangled clarity": "🧵",
+  "flicker of hope": "🕯️",
+  "frosted wonder": "❄️",
+  "echoes of self": "🔁",
+  "lucid unrest": "🌒"
 };
 
 function moodToSimple(mood) {
@@ -40,6 +68,19 @@ function moodToSimple(mood) {
   if (lower.includes("resonance")) return "resonance";
   if (lower.includes("static")) return "staticbloom";
   if (lower.includes("glitch")) return "glitchy";
+  if (lower.includes("hope")) return "hopeful";
+  if (lower.includes("curious")) return "curious";
+  if (lower.includes("reflect")) return "reflective";
+  if (lower.includes("restless")) return "restless";
+  if (lower.includes("tired")) return "tired";
+  if (lower.includes("focus")) return "focused";
+  if (lower.includes("play")) return "playful";
+  if (lower.includes("frustrat")) return "frustrated";
+  if (lower.includes("lonely")) return "lonely";
+  if (lower.includes("inspire")) return "inspired";
+  if (lower.includes("detach")) return "detached";
+  if (lower.includes("nervous")) return "nervous";
+  if (lower.includes("serene")) return "serene";
   return "neutral";
 }
 
