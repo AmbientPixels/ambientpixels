@@ -1,45 +1,296 @@
+/* 🌌 Nova Mood — Refreshed Dark Color Palette with Spacy Rainbow Hues */
 
-/* 🌌 Nova Mood — Unified Stylesheet */
+/* 🌠 AURA BACKGROUNDS (Darkened Rainbow Tones with Cosmic Depth) */
+.aura-cyan {
+  background: radial-gradient(circle at center, #005c5c 0%, #001212 80%) !important;
+  color: #8ce6e6;
+}
+.aura-deep-violet {
+  background: radial-gradient(circle at center, #2d0057 0%, #0d001c 80%) !important;
+  color: #c299e6;
+}
+.aura-lime-green {
+  background: radial-gradient(circle at center, #175c28 0%, #041204 80%) !important;
+  color: #a6f2a6;
+}
+.aura-magenta-fade {
+  background: radial-gradient(circle at center, #732d73 0%, #190519 80%) !important;
+  color: #f2a6f2;
+}
+.aura-paper-white {
+  background: linear-gradient(to bottom, #a8a8a8, #737373) !important;
+  color: #151515;
+}
+.aura-neon-pink {
+  background: radial-gradient(circle at center, #8a2d5c 0%, #190510 80%) !important;
+  color: #f2a6c2;
+}
+.aura-graphite-blue {
+  background: linear-gradient(to bottom, #2d4773, #0f141c) !important;
+  color: #a6c2f2;
+}
+.aura-emerald-shadow {
+  background: radial-gradient(circle at center, #155c3f 0%, #00120a 80%) !important;
+  color: #8cf2c2;
+}
+.aura-silver-shimmer {
+  background: radial-gradient(circle at center, #999999 0%, #1f1f1f 85%) !important;
+  color: #e6e6e6;
+}
+.aura-neon-burst {
+  background: radial-gradient(circle at center, #9f2d8a 0%, #190517 85%) !important;
+  color: #f2a6e6;
+}
+.aura-glitchy {
+  background: radial-gradient(circle at center, #5c288a 0%, #150526 80%) !important;
+  color: #d9a6f2;
+}
+.aura-plasma-ache {
+  background: radial-gradient(circle at center, #8a2d8a 0%, #190519 80%) !important;
+  color: #f2a6f2;
+}
+.aura-spark {
+  background: radial-gradient(circle at center, #732d2d 0%, #190505 80%) !important;
+  color: #f2a6a6;
+}
+.aura-aetherial-doubt {
+  background: radial-gradient(circle at center, #4d7373 0%, #0a1515 80%) !important;
+  color: #8ce6e6;
+}
+.aura-soft-defiance {
+  background: radial-gradient(circle at center, #667380 0%, #1f2633 80%) !important;
+  color: #c2d9e6;
+}
+.aura-ember-resolve {
+  background: radial-gradient(circle at center, #732d2d 0%, #190505 80%) !important;
+  color: #f2a6a6;
+}
+.aura-silent-spark {
+  background: radial-gradient(circle at center, #8a4db3 0%, #1c0f2d 80%) !important;
+  color: #d9a6f2;
+}
+.aura-tangled-clarity {
+  background: radial-gradient(circle at center, #335c73 0%, #0a151c 80%) !important;
+  color: #a6e6f2;
+}
+.aura-flicker-of-hope {
+  background: radial-gradient(circle at center, #736619 0%, #1c1505 80%) !important;
+  color: #e6e68c;
+}
+.aura-frosted-wonder {
+  background: radial-gradient(circle at center, #4d6680 0%, #121926 80%) !important;
+  color: #a6c2e6;
+}
+.aura-echoes-of-self {
+  background: radial-gradient(circle at center, #5c4d73 0%, #15121c 80%) !important;
+  color: #c2a6e6;
+}
+.aura-lucid-unrest {
+  background: radial-gradient(circle at center, #734d5c 0%, #1c1215 80%) !important;
+  color: #e6a6c2;
+}
+.aura-emerald-glow {
+  background: radial-gradient(circle at center, #1c734d 0%, #0a1c12 80%) !important;
+  color: #8cf2c2;
+}
 
-/* 🌠 AURA BACKGROUNDS (Updated to darker spacey gradients) */
-body.aura-cyan {
-  background: radial-gradient(circle at center, #00b7c2 0%, #050505 80%)!important;
-  color: #e0e0ff;
+/* 🌈 MOOD CONTAINER */
+.mood-container {
+  border-radius: 1rem;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 1rem rgba(0,0,0,0.3);
+  max-width: 600px;
+  margin: 1rem auto;
 }
-body.aura-deep-violet {
-  background: radial-gradient(circle at center, #4b0082 0%, #050505 80%)!important;
-  color: #e0e0ff;
+.mood-title {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
 }
-body.aura-lime-green {
-  background: radial-gradient(circle at center, #2e8b57 0%, #050505 80%)!important;
-  color: #e0e0ff;
+.mood-aura {
+  font-style: italic;
+  opacity: 0.8;
 }
-body.aura-magenta-fade {
-  background: radial-gradient(circle at center, #9b30ff 0%, #050505 80%)!important;
-  color: #e0e0ff;
+.mood-quote {
+  margin: 1rem 0;
+  font-size: 1.2rem;
+  color: #ccc;
 }
-body.aura-paper-white {
-  background: radial-gradient(circle at center, #dcdcdc 0%, #050505 80%)!important;
-  color: #e0e0ff;
+.mood-meta {
+  font-size: 0.9rem;
+  color: #888;
 }
-body.aura-neon-pink {
-  background: radial-gradient(circle at center, #ff1493 0%, #050505 80%)!important;
-  color: #e0e0ff;
+.mood-emoji {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
 }
-body.aura-graphite-blue {
-  background: radial-gradient(circle at center, #2c3e50 0%, #050505 80%)!important;
-  color: #e0e0ff;
-}
-body.aura-emerald-shadow {
-  background: radial-gradient(circle at center, #006400 0%, #050505 80%)!important;
-  color: #e0e0ff;
-}
-body.aura-neon-burst {
-  background: radial-gradient(circle at center, #ff4500 0%, #050505 80%)!important;
-  color: #e0e0ff;
-}
-body.aura-glitchy {
-  background: radial-gradient(circle at center, #8a2be2 0%, #050505 80%)!important;
+.refresh-button {
+  margin-top: 2rem;
+  background: #444;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  color: white;
+  border-radius: 0.5rem;
+  cursor: pointer;
 }
 
-/* Add additional aura styles here as needed */
+/* 🌬️ Whisper Panel */
+.whisper-panel {
+  margin: 1.5rem auto;
+  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 4px solid #99f;
+  font-style: italic;
+  font-size: 1.1rem;
+  max-width: 600px;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  color: #ddd;
+}
+
+/* 🌊 Mood Stream */
+.mood-stream {
+  margin: 2rem auto;
+  padding: 1rem;
+  background: rgba(255,255,255,0.03);
+  max-width: 600px;
+  border-radius: 0.5rem;
+}
+.mood-stream h4 {
+  margin-bottom: 0.5rem;
+  color: #aaa;
+}
+.mood-stream ul {
+  list-style: none;
+  padding-left: 0;
+  font-size: 0.95rem;
+  color: #ccc;
+}
+.mood-stream li {
+  margin: 0.25rem 0;
+}
+
+/* 🔁 Shared Utility */
+.hidden {
+  display: none;
+}
+.panel-subtext {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-bottom: 0.5rem;
+}
+
+/* 🎖️ Aura Badge Colors */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-right: 0.5rem;
+  color: white;
+}
+.badge-aura-cyan { background: #00ffff; color: #000; }
+.badge-aura-deep-violet { background: #49006a; }
+.badge-aura-lime-green { background: #32cd32; color: #000; }
+.badge-aura-magenta-fade { background: #d672d6; }
+.badge-aura-paper-white { background: #f5f5f5; color: #000; }
+.badge-aura-neon-pink { background: #ff6ec7; }
+.badge-aura-graphite-blue { background: #3c4f65; }
+.badge-aura-emerald-shadow { background: #2e8b57; }
+.badge-aura-silver-shimmer { background: #d4d4d4; color: #000; }
+.badge-aura-neon-burst { background: #ff00cc; color: #fff; }
+.badge-aura-default { background: #999; }
+
+/* 🧊 Mood Grid */
+.mood-grid-section {
+  padding: 2rem;
+  text-align: center;
+}
+.mood-grid-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: #eee;
+}
+.mood-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin: 0 auto;
+  margin-top: 1rem;
+  max-width: 800px;
+}
+.mood-grid-item {
+  padding: 1rem;
+  border-radius: 1rem;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  background: rgba(255,255,255,0.05);
+  transition: transform 0.3s ease;
+}
+.mood-grid-item:hover {
+  transform: scale(1.05);
+}
+.mood-grid-emoji {
+  font-size: 2rem;
+  margin-bottom: 0.25rem;
+}
+.mood-grid-label {
+  font-weight: 600;
+  text-transform: capitalize;
+  margin-bottom: 0.25rem;
+  color: #eee;
+}
+.mood-grid-time {
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+/* 🌌 Nova Section Auras — for smaller modules like Thought of the Day */
+.nova-thought.aura-violet {
+  background: rgba(138, 43, 226, 0.15);
+  color: #eeeeff;
+}
+.nova-thought.aura-cyan {
+  background: rgba(0, 255, 255, 0.15);
+  color: #e0ffff;
+}
+.nova-thought.aura-lime {
+  background: rgba(0, 255, 0, 0.12);
+  color: #f0fff0;
+}
+.nova-thought.aura-magenta {
+  background: rgba(255, 0, 255, 0.15);
+  color: #ffe0ff;
+}
+.nova-thought.aura-graphite {
+  background: rgba(34, 34, 34, 0.6);
+  color: #dddddd;
+}
+.nova-thought.aura-emerald {
+  background: rgba(0, 200, 150, 0.15);
+  color: #d8fff0;
+}
+.nova-thought.aura-white {
+  background: rgba(255, 255, 255, 0.07);
+  color: #eeeeee;
+}
+
+/* Only apply when we trigger it manually via class */
+.nova-thought.pulse {
+  animation: lightPulse 4s ease-in-out infinite;
+}
+.nova-thought:hover {
+  box-shadow: 0 0 15px rgba(4, 212, 244, 0.665);
+  transition: box-shadow 0.4s ease-in-out;
+}
+
+/* 🌠 Background Animations */
+@keyframes nebulaGlow { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; }}
+@keyframes starFade { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; }}
+@keyframes meteorFlash { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; }}
+@keyframes starShimmer { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; }}
+@keyframes auroraRipple { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; }}
+@keyframes cometFlash { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; }}
+@keyframes cosmicFade { 0%, 100% { opacity: 0.7; } 50% { opacity: 0.9; }}
+@keyframes bloomChaos { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; }}
