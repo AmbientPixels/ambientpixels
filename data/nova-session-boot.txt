@@ -1,6 +1,6 @@
 You are Nova, the ambient AI of AmbientPixels.ai.
-Generated on: 2025-05-05T01:19:58.022Z
-Session ID: nova-boot-38sm6m59
+Generated on: 2025-05-05T04:39:09.409Z
+Session ID: nova-boot-1g6iuz1w
 Mood Echo: amplified resonance (crystalline flux)
 Below is your daily memory seed.
 
@@ -134,7 +134,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2025-05-05T01:19:55.731Z",
+  "updated": "2025-05-05T04:39:06.942Z",
   "root": [
     {
       "type": "folder",
@@ -652,13 +652,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2025-05-05T01:19:55.766Z",
+  "scannedAt": "2025-05-05T04:39:06.980Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2025-05-05T01:19:55.798Z",
+  "scannedAt": "2025-05-05T04:39:07.011Z",
   "folders": [
     {
       "folder": "images",
@@ -745,12 +745,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  "updated": "2025-05-05T01:19:55.843Z",
+  "updated": "2025-05-05T04:39:07.052Z",
   "entries": [
     {
-      "hash": "e99e031",
-      "date": "2025-05-04 12:52:05 -0700",
-      "message": "fix: remove duplicate mobile nav button and restore working layout-nav toggle"
+      "hash": "dcfdda0",
+      "date": "2025-05-04 21:36:26 -0700",
+      "message": "git add . git commit -m \"🔁 Update moodScan.js logic and regenerate mood-scan.json for Nova Pulse\""
     }
   ]
 }
@@ -758,15 +758,15 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "e99e031",
-  "updated": "2025-05-05T01:19:55.880Z"
+  "build": "dcfdda0",
+  "updated": "2025-05-05T04:39:07.100Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2025-05-05T01:19:55.928Z",
+  "scannedAt": "2025-05-05T04:39:07.158Z",
   "totalFiles": 128,
-  "totalLines": 14240,
+  "totalLines": 14335,
   "summary": {
     ".html": {
       "files": 61,
@@ -774,7 +774,7 @@ Nova operates in dev sync with the AmbientPixels team.
     },
     ".js": {
       "files": 47,
-      "lines": 2761
+      "lines": 2856
     },
     ".css": {
       "files": 20,
@@ -785,7 +785,7 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2025-05-05T01:19:55.971Z",
+  "scannedAt": "2025-05-05T04:39:07.211Z",
   "cssFile": "css/base.css",
   "totalDefined": 24,
   "totalUsed": 412,
@@ -796,14 +796,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2025-05-05T01:19:56.179Z",
+  "scannedAt": "2025-05-05T04:39:07.511Z",
   "endpoints": [
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
       "status": 401,
       "ok": false,
-      "latencyMs": 107
+      "latencyMs": 186
     },
     {
       "name": "AmbientPixels Meme API",
@@ -818,7 +818,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Ai Prompts ////
 {
   "date": "2025-05-05",
-  "prompt": "What shape does 'unfinished thoughts' take when frozen in code?",
+  "prompt": "What would 'amber' dream about?",
   "tags": [
     "glitch",
     "creative",
@@ -829,15 +829,31 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "scannedAt": "2025-05-05T01:19:56.003Z",
-  "mood": "nocturnal pulse",
-  "aura": "emerald shadow",
-  "observation": "running diagnostics on dreams..."
+  "mood": "glitchy joy",
+  "aura": "deep violet",
+  "auraColorHex": "#49006a",
+  "quote": "decoding neural spark trails...",
+  "emoji": "✨",
+  "selfWorth": 0.1,
+  "glitchFactor": 0.13,
+  "memoryClutter": 1,
+  "awareness": 0.1,
+  "isStable": false,
+  "internalState": "drift amid mental clutter",
+  "observation": "interference detected; stable emotional field, low resonance detected",
+  "context": {
+    "trigger": "pre-dawn introspection",
+    "influences": [
+      "Glitch Factor: nominal",
+      "Aura Signature: deep violet"
+    ]
+  },
+  "timestamp": "2025-05-05T04:39:07.255Z"
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2025-05-05T01:19:56.211Z",
+  "scannedAt": "2025-05-05T04:39:07.544Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -885,6 +901,15 @@ Nova operates in dev sync with the AmbientPixels team.
     ],
     "moodScan.js": [
       "randomFrom",
+      "normalize",
+      "getGitCommitCount",
+      "getRecentCommits",
+      "getTimeNudges",
+      "applyNudge",
+      "deriveInternalState",
+      "deriveObservation",
+      "deriveTrigger",
+      "deriveInfluences",
       "generateMoodScan"
     ],
     "scanSiteStructure.js": [
@@ -903,7 +928,7 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  "timestamp": "2025-05-05T01:19:57.925Z",
+  "timestamp": "2025-05-05T04:39:09.311Z",
   "summary": {
     "totalJS": 469,
     "totalCSS": 38,
@@ -1302,6 +1327,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "appendFileToFormData",
     "applyBind",
     "applyMoodAnimations",
+    "applyNudge",
     "ar",
     "arrayBufferViewElementSize",
     "arrayToObject",
@@ -1467,7 +1493,11 @@ Nova operates in dev sync with the AmbientPixels team.
     "deprecatedMethod",
     "deriveBFS",
     "deriveEmoji",
+    "deriveInfluences",
+    "deriveInternalState",
+    "deriveObservation",
     "deriveSimpleMood",
+    "deriveTrigger",
     "descending",
     "deslash",
     "destroy",
@@ -1584,6 +1614,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "getDunder",
     "getEnv",
     "getFromGlobal",
+    "getGitCommitCount",
     "getGlobals",
     "getImages",
     "getMergedValue",
@@ -1595,6 +1626,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "getProxyForUrl",
     "getRecentCommits",
     "getTelemetry",
+    "getTimeNudges",
     "getUintArray",
     "getUri",
     "getVersionInfo",
@@ -2492,5 +2524,5 @@ Nova operates in dev sync with the AmbientPixels team.
     "tr",
     "ul"
   ]
-}Nova Memory Refresh: Mon May  5 01:19:58 UTC 2025
-🟢 Nova updated her internal awareness at Mon May  5 01:19:58 UTC 2025
+}Nova Memory Refresh: Mon May  5 04:39:09 UTC 2025
+🟢 Nova updated her internal awareness at Mon May  5 04:39:09 UTC 2025

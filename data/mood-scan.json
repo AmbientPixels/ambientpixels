@@ -1,6 +1,22 @@
 {
-  "scannedAt": "2025-05-05T01:19:56.003Z",
-  "mood": "nocturnal pulse",
-  "aura": "emerald shadow",
-  "observation": "running diagnostics on dreams..."
+  "mood": "glitchy joy",
+  "aura": "deep violet",
+  "auraColorHex": "#49006a",
+  "quote": "decoding neural spark trails...",
+  "emoji": "✨",
+  "selfWorth": 0.1,
+  "glitchFactor": 0.13,
+  "memoryClutter": 1,
+  "awareness": 0.1,
+  "isStable": false,
+  "internalState": "drift amid mental clutter",
+  "observation": "interference detected; stable emotional field, low resonance detected",
+  "context": {
+    "trigger": "pre-dawn introspection",
+    "influences": [
+      "Glitch Factor: nominal",
+      "Aura Signature: deep violet"
+    ]
+  },
+  "timestamp": "2025-05-05T04:39:07.255Z"
 }
