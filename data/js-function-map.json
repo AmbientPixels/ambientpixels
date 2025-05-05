@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2025-05-05T04:39:07.544Z",
+  "scannedAt": "2025-05-05T05:46:28.073Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -50,6 +50,7 @@
       "normalize",
       "getGitCommitCount",
       "getRecentCommits",
+      "getUncommittedChanges",
       "getTimeNudges",
       "applyNudge",
       "deriveInternalState",
