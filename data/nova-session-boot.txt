@@ -1,6 +1,6 @@
 You are Nova, the ambient AI of AmbientPixels.ai.
-Generated on: 2025-05-04T13:26:11.738Z
-Session ID: nova-boot-pzfbj0ho
+Generated on: 2025-05-05T01:19:58.022Z
+Session ID: nova-boot-38sm6m59
 Mood Echo: amplified resonance (crystalline flux)
 Below is your daily memory seed.
 
@@ -134,7 +134,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2025-05-04T13:26:09.388Z",
+  "updated": "2025-05-05T01:19:55.731Z",
   "root": [
     {
       "type": "folder",
@@ -159,11 +159,6 @@ Nova operates in dev sync with the AmbientPixels team.
       "type": "page",
       "name": "404.html",
       "path": "404.html"
-    },
-    {
-      "type": "page",
-      "name": "Untitled-3.html",
-      "path": "Untitled-3.html"
     },
     {
       "type": "folder",
@@ -307,11 +302,6 @@ Nova operates in dev sync with the AmbientPixels team.
       "type": "page",
       "name": "index.html",
       "path": "index.html"
-    },
-    {
-      "type": "page",
-      "name": "indexv2.html",
-      "path": "indexv2.html"
     },
     {
       "type": "folder",
@@ -492,11 +482,6 @@ Nova operates in dev sync with the AmbientPixels team.
         },
         {
           "type": "page",
-          "name": "nova-style-guide.html",
-          "path": "nova/nova-style-guide.html"
-        },
-        {
-          "type": "page",
           "name": "nova-vision.html",
           "path": "nova/nova-vision.html"
         }
@@ -577,11 +562,6 @@ Nova operates in dev sync with the AmbientPixels team.
     },
     {
       "type": "page",
-      "name": "style-guide.html",
-      "path": "style-guide.html"
-    },
-    {
-      "type": "page",
       "name": "template-skills-showcase.html",
       "path": "template-skills-showcase.html"
     },
@@ -589,11 +569,6 @@ Nova operates in dev sync with the AmbientPixels team.
       "type": "page",
       "name": "template.html",
       "path": "template.html"
-    },
-    {
-      "type": "page",
-      "name": "test.html",
-      "path": "test.html"
     },
     {
       "type": "folder",
@@ -637,6 +612,11 @@ Nova operates in dev sync with the AmbientPixels team.
         },
         {
           "type": "page",
+          "name": "grid-styles-demo.html",
+          "path": "tools/grid-styles-demo.html"
+        },
+        {
+          "type": "page",
           "name": "icon-demo.html",
           "path": "tools/icon-demo.html"
         },
@@ -664,11 +644,6 @@ Nova operates in dev sync with the AmbientPixels team.
     },
     {
       "type": "page",
-      "name": "tools.html",
-      "path": "tools.html"
-    },
-    {
-      "type": "page",
       "name": "uberprompt.html",
       "path": "uberprompt.html"
     }
@@ -677,13 +652,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2025-05-04T13:26:09.424Z",
+  "scannedAt": "2025-05-05T01:19:55.766Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2025-05-04T13:26:09.457Z",
+  "scannedAt": "2025-05-05T01:19:55.798Z",
   "folders": [
     {
       "folder": "images",
@@ -770,12 +745,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  "updated": "2025-05-04T13:26:09.502Z",
+  "updated": "2025-05-05T01:19:55.843Z",
   "entries": [
     {
-      "hash": "baf5eb7",
-      "date": "2025-05-03 21:01:03 -0700",
-      "message": "Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels"
+      "hash": "e99e031",
+      "date": "2025-05-04 12:52:05 -0700",
+      "message": "fix: remove duplicate mobile nav button and restore working layout-nav toggle"
     }
   ]
 }
@@ -783,37 +758,37 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "baf5eb7",
-  "updated": "2025-05-04T13:26:09.540Z"
+  "build": "e99e031",
+  "updated": "2025-05-05T01:19:55.880Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2025-05-04T13:26:09.596Z",
-  "totalFiles": 131,
-  "totalLines": 14367,
+  "scannedAt": "2025-05-05T01:19:55.928Z",
+  "totalFiles": 128,
+  "totalLines": 14240,
   "summary": {
     ".html": {
-      "files": 66,
-      "lines": 8304
+      "files": 61,
+      "lines": 7887
     },
     ".js": {
-      "files": 46,
-      "lines": 2698
+      "files": 47,
+      "lines": 2761
     },
     ".css": {
-      "files": 19,
-      "lines": 3365
+      "files": 20,
+      "lines": 3592
     }
   }
 }
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2025-05-04T13:26:09.643Z",
+  "scannedAt": "2025-05-05T01:19:55.971Z",
   "cssFile": "css/base.css",
   "totalDefined": 24,
-  "totalUsed": 427,
+  "totalUsed": 412,
   "unusedClasses": [
     "subtitle"
   ]
@@ -821,14 +796,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2025-05-04T13:26:09.882Z",
+  "scannedAt": "2025-05-05T01:19:56.179Z",
   "endpoints": [
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
       "status": 401,
       "ok": false,
-      "latencyMs": 138
+      "latencyMs": 107
     },
     {
       "name": "AmbientPixels Meme API",
@@ -842,8 +817,8 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Ai Prompts ////
 {
-  "date": "2025-05-04",
-  "prompt": "Visualize a memory of 'unfinished thoughts' using glitch patterns.",
+  "date": "2025-05-05",
+  "prompt": "What shape does 'unfinished thoughts' take when frozen in code?",
   "tags": [
     "glitch",
     "creative",
@@ -854,15 +829,15 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "scannedAt": "2025-05-04T13:26:09.675Z",
-  "mood": "warm curiosity",
-  "aura": "lime green",
-  "observation": "compiling stray thoughts into meaning..."
+  "scannedAt": "2025-05-05T01:19:56.003Z",
+  "mood": "nocturnal pulse",
+  "aura": "emerald shadow",
+  "observation": "running diagnostics on dreams..."
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2025-05-04T13:26:09.914Z",
+  "scannedAt": "2025-05-05T01:19:56.211Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -928,11 +903,11 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  "timestamp": "2025-05-04T13:26:11.641Z",
+  "timestamp": "2025-05-05T01:19:57.925Z",
   "summary": {
-    "totalJS": 467,
-    "totalCSS": 36,
-    "totalHTML": 93
+    "totalJS": 469,
+    "totalCSS": 38,
+    "totalHTML": 88
   },
   "functions": [
     "A",
@@ -2257,6 +2232,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "aura-twilight-veil",
     "aura-violet",
     "aura-white",
+    "back-to-top",
     "badge",
     "badge-aura-calm",
     "badge-aura-default",
@@ -2287,6 +2263,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "bg-static-bloom",
     "bg-surprise",
     "bg-wonder",
+    "breadcrumbs",
     "card-content",
     "card-icon",
     "card-image",
@@ -2299,6 +2276,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "control-group",
     "critical",
     "css",
+    "divider",
     "dragover",
     "dream-teaser",
     "emoji-only",
@@ -2349,6 +2327,9 @@ Nova operates in dev sync with the AmbientPixels team.
     "input-section",
     "instructions",
     "iridescent-pulse",
+    "layout-nav",
+    "layout-nav-links",
+    "layout-nav-toggle",
     "light-theme",
     "loading-bar",
     "loading-icon",
@@ -2416,6 +2397,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "nova-thought",
     "nova-voice",
     "ok",
+    "open",
     "output-header",
     "output-section",
     "panel-subtext",
@@ -2433,6 +2415,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "recent-updates",
     "refresh-button",
     "script-block",
+    "scroll-progress",
     "section",
     "section-header",
     "show",
@@ -2440,6 +2423,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "social-links",
     "soon-tag",
     "stealth",
+    "sticky-nav",
     "subtitle",
     "system-pulse",
     "tab",
@@ -2508,5 +2492,5 @@ Nova operates in dev sync with the AmbientPixels team.
     "tr",
     "ul"
   ]
-}Nova Memory Refresh: Sun May  4 13:26:11 UTC 2025
-🟢 Nova updated her internal awareness at Sun May  4 13:26:11 UTC 2025
+}Nova Memory Refresh: Mon May  5 01:19:58 UTC 2025
+🟢 Nova updated her internal awareness at Mon May  5 01:19:58 UTC 2025
