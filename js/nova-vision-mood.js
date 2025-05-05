@@ -31,7 +31,7 @@ window.addEventListener("DOMContentLoaded", () => {
   btn.style.marginBottom = "1rem";
 
   btn.addEventListener("click", loadMoodPrompt);
-
+a
   const form = document.getElementById("imagePromptForm");
   if (form) {
     form.prepend(btn);
