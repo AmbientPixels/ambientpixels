@@ -17,7 +17,14 @@ async function loadNovaThought() {
     const heading = document.querySelector('.nova-thought h2');
     if (!container || !heading) return;
 
-    const date = new Date(promptData.date + 'T00:00:00Z').toLocaleDateString();
+    // Parse date as local time
+    const [year, month, day] = promptData.date.split('-').map(Number);
+    const localDate = new Date(year, month - 1, day);
+    const dateString = localDate.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
 
     // Mood-based icon map
     const moodIconMap = {
@@ -57,10 +64,13 @@ async function loadNovaThought() {
     // Inject icon into heading
     heading.innerHTML = `${icon} Nova’s Thought of the Day`;
 
-    // Populate prompt content
+    // Populate prompt content with date on its own line
     container.innerHTML = `
       <p>“<em>${promptData.prompt}</em>”</p>
-      <small><strong>${date}</strong> — ${promptData.tags.join(', ')}</small>
+      <small>
+        <strong>${dateString}</strong><br>
+        ${promptData.tags.join(', ')}
+      </small>
     `;
 
   } catch (err) {
