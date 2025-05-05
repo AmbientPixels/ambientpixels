@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-05-04T13:26:09.388Z",
+  "updated": "2025-05-05T01:19:55.731Z",
   "root": [
     {
       "type": "folder",
@@ -25,11 +25,6 @@
       "type": "page",
       "name": "404.html",
       "path": "404.html"
-    },
-    {
-      "type": "page",
-      "name": "Untitled-3.html",
-      "path": "Untitled-3.html"
     },
     {
       "type": "folder",
@@ -173,11 +168,6 @@
       "type": "page",
       "name": "index.html",
       "path": "index.html"
-    },
-    {
-      "type": "page",
-      "name": "indexv2.html",
-      "path": "indexv2.html"
     },
     {
       "type": "folder",
@@ -358,11 +348,6 @@
         },
         {
           "type": "page",
-          "name": "nova-style-guide.html",
-          "path": "nova/nova-style-guide.html"
-        },
-        {
-          "type": "page",
           "name": "nova-vision.html",
           "path": "nova/nova-vision.html"
         }
@@ -443,11 +428,6 @@
     },
     {
       "type": "page",
-      "name": "style-guide.html",
-      "path": "style-guide.html"
-    },
-    {
-      "type": "page",
       "name": "template-skills-showcase.html",
       "path": "template-skills-showcase.html"
     },
@@ -455,11 +435,6 @@
       "type": "page",
       "name": "template.html",
       "path": "template.html"
-    },
-    {
-      "type": "page",
-      "name": "test.html",
-      "path": "test.html"
     },
     {
       "type": "folder",
@@ -503,6 +478,11 @@
         },
         {
           "type": "page",
+          "name": "grid-styles-demo.html",
+          "path": "tools/grid-styles-demo.html"
+        },
+        {
+          "type": "page",
           "name": "icon-demo.html",
           "path": "tools/icon-demo.html"
         },
@@ -527,11 +507,6 @@
           "path": "tools/typography-demo.html"
         }
       ]
-    },
-    {
-      "type": "page",
-      "name": "tools.html",
-      "path": "tools.html"
     },
     {
       "type": "page",
