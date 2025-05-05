@@ -2,7 +2,7 @@
 
 async function loadMoodPrompt() {
   try {
-    const res = await fetch("/data/nova-synth-mood.json");
+    const res = await fetch("/data/mood-scan.json");
     const mood = await res.json();
 
     const quote = mood.quote?.trim() || "a dream of data";
