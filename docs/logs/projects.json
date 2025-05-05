@@ -98,17 +98,19 @@
   },
   {
     "id": "hal-video",
-    "title": "HAL",
+    "title": "HAL Studio Video",
     "html": "/docs/logs/hal-project-log.html",
     "md": "/docs/logs/hal-project-log.md",
     "status": "Embargoed",
-    "lastUpdated": "2025-04-24",
+    "lastUpdated": "2025-05-05",
     "tags": [
       "video",
-      "ID@Xbox",
-      "dark mode"
+      "embargo",
+      "dark mode",
+      "voiceover",
+      "aesthetic"
     ],
-    "progress": 0.8
+    "progress": 0.9
   },
   {
     "id": "nova-sensory-upgrade",
