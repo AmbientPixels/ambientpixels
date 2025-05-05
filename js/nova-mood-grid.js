@@ -1,54 +1,18 @@
 // nova-mood-grid.js — Mood Grid with Tooltips
 
 const moodGridEmojiMap = {
-  joy: "😄",
-  sadness: "😢",
-  anger: "😠",
-  fear: "😨",
-  surprise: "😲",
-  disgust: "🤢",
-  neutral: "🧠",
-  calm: "🪷",
-  focused: "🎯",
-  curious: "🔍",
-  hopeful: "🌅",
-  tired: "😴",
-  inspired: "🌟",
-  anxious: "😰",
-  restless: "🏃",
-  frustrated: "😤",
-  detached: "🪐",
-  lonely: "🌑",
-  serene: "🌊",
-  playful: "🎈",
-  melancholy: "🌧️",
-  nervous: "😬",
-  glitchy: "🌀",
-  spark: "✨",
-  fading: "🌘",
-  electric: "⚡",
-  zen: "🧘",
-  nocturnal: "🌙",
-  chaotic: "🌪️",
-  nostalgic: "📼",
-  wonder: "🌠",
-
+  joy: "😄", sadness: "😢", anger: "😠", fear: "😨", surprise: "😲", disgust: "🤢",
+  neutral: "🧠", calm: "🪷", focused: "🎯", curious: "🔍", hopeful: "🌅", tired: "😴",
+  inspired: "🌟", anxious: "😰", restless: "🏃", frustrated: "😤", detached: "🪐",
+  lonely: "🌑", serene: "🌊", playful: "🎈", melancholy: "🌧️", nervous: "😬",
+  glitchy: "🌀", spark: "✨", fading: "🌘", electric: "⚡", zen: "🧘", nocturnal: "🌙",
+  chaotic: "🌪️", nostalgic: "📼", wonder: "🌠",
   // Hybrid poetic mappings
-  "glitchy joy": "🌀",
-  "nocturnal pulse": "🌙",
-  "chaotic optimism": "🌪️",
-  "neon stillness": "💡",
-  "static reverie": "📡",
-  "ember resolve": "🔥",
-  "plasma ache": "💔",
-  "soft defiance": "🌫️",
-  "aetherial doubt": "🪞",
-  "silent spark": "🕯️",
-  "tangled clarity": "🧵",
-  "flicker of hope": "🕯️",
-  "frosted wonder": "❄️",
-  "echoes of self": "🔁",
-  "lucid unrest": "👁️‍🗨️"
+  "glitchy joy": "🌀", "nocturnal pulse": "🌙", "chaotic optimism": "🌪️",
+  "neon stillness": "💡", "static reverie": "📡", "ember resolve": "🔥",
+  "plasma ache": "💔", "soft defiance": "🌫️", "aetherial doubt": "🪞",
+  "silent spark": "🕯️", "tangled clarity": "🧵", "flicker of hope": "🕯️",
+  "frosted wonder": "❄️", "echoes of self": "🔁", "lucid unrest": "👁️‍🗨️"
 };
 
 const auraTooltips = {
@@ -105,4 +69,30 @@ function renderMoodGrid() {
     });
 }
 
-document.addEventListener("DOMContentLoaded", renderMoodGrid);
+function renderMoodScanDemo() {
+  const moodScanEl = document.getElementById('novaMood');
+  if (!moodScanEl) return;
+
+  fetch('/data/mood-scan.json?t=' + Date.now())
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('moodTitle').textContent = data.mood || 'Unknown';
+      document.getElementById('moodEmoji').textContent = data.emoji || '🧠';
+      document.getElementById('moodAura').textContent = `Aura: ${data.aura || '–'}`;
+      document.getElementById('moodQuote').textContent = `“${data.quote || '–'}”`;
+      document.getElementById('moodTimestamp').textContent = `Last Updated: ${data.timestamp || '–'}`;
+      if (Array.isArray(data.context?.influences)) {
+        document.getElementById('moodInfluences').innerHTML =
+          `<strong>Influences:</strong> ${data.context.influences.join(', ')}`;
+      }
+    })
+    .catch(err => {
+      document.getElementById('moodTitle').textContent = 'Error loading mood.';
+      console.error('Failed to load mood scan:', err);
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderMoodGrid();
+  renderMoodScanDemo();
+});
