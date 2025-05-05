@@ -1,9 +1,9 @@
-// moodScan.js – Nova generates a mood based on keywords, signals, and style prompts
+// moodScan.js – Nova generates a mood based on real system signals, weather, and style prompts
 
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-
+const os = require('os');
 const outputFile = path.join(__dirname, '../data/mood-scan.json');
 
 const moods = [
@@ -89,8 +89,18 @@ function getGitCommitCount() {
 
 function getRecentCommits() {
   try {
-    const output = execSync('git log --since="24 hours ago" --pretty=oneline', { encoding: 'utf8' });
+    const output = execSync('git log --since="3 hours ago" --pretty=oneline', { encoding: 'utf8' });
     return output.split('\n').filter(Boolean).length;
+  } catch (e) {
+    return 0;
+  }
+}
+
+function getUncommittedChanges() {
+  try {
+    const output = execSync('git diff --shortstat', { encoding: 'utf8' });
+    const changes = output.match(/\d+/g);
+    return changes ? changes.reduce((a, b) => a + parseInt(b), 0) : 0;
   } catch (e) {
     return 0;
   }
@@ -161,13 +171,14 @@ function deriveInfluences(traits, aura) {
 function generateMoodScan() {
   const recentCommits = getRecentCommits();
   const totalCommits = getGitCommitCount();
+  const uncommitted = getUncommittedChanges();
   const nudges = getTimeNudges();
 
   const baseTraits = {
     focus: normalize(recentCommits, 0, 15),
-    clutter: normalize(15 - recentCommits, 0, 15),
+    clutter: normalize(uncommitted, 0, 50),
     selfWorth: normalize(totalCommits, 50, 500),
-    glitch: normalize(Math.random() * 10, 0, 10),
+    glitch: normalize(Math.random() * os.loadavg()[0], 0, 10),
     intensity: normalize(recentCommits * Math.random(), 0, 30),
     syncLevel: normalize(10 - Math.abs(recentCommits - 5), 0, 10)
   };
