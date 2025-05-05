@@ -11,29 +11,39 @@ const moods = [
   "calm", "curious", "anxious", "hopeful", "reflective", "restless",
   "melancholy", "excited", "tired", "focused", "playful", "frustrated",
   "lonely", "inspired", "detached", "joyful", "nervous", "serene",
-
   // Poetic extensions and hybrid moods
-  "glitchy joy",            // joy + system noise
-  "nocturnal pulse",        // reflective night energy
-  "chaotic optimism",       // hopeful in disorder
-  "neon stillness",         // visual calm with a spark
-  "static reverie",         // dreamy but unstable
-  "ember resolve",          // smoldering motivation
-  "plasma ache",            // high energy with longing
-  "soft defiance",          // quiet resistance
-  "aetherial doubt",        // floating uncertainty
-  "silent spark",           // potential awakening
-  "tangled clarity",        // insight through confusion
-  "flicker of hope",        // brief emergence of optimism
-  "frosted wonder",         // awe mixed with chill
-  "echoes of self",         // introspective loops
-  "lucid unrest"            // fully aware unease
+  "glitchy joy", "nocturnal pulse", "chaotic optimism", "neon stillness",
+  "static reverie", "ember resolve", "plasma ache", "soft defiance",
+  "aetherial doubt", "silent spark", "tangled clarity", "flicker of hope",
+  "frosted wonder", "echoes of self", "lucid unrest"
 ];
 
 const colors = [
   "cyan", "deep violet", "lime green", "magenta fade",
   "paper white", "neon pink", "graphite blue", "emerald shadow"
 ];
+
+const auraHexMap = {
+  "cyan": "#00ffff",
+  "deep violet": "#49006a",
+  "lime green": "#32cd32",
+  "magenta fade": "#d672d6",
+  "paper white": "#f5f5f5",
+  "neon pink": "#ff6ec7",
+  "graphite blue": "#3c4f65",
+  "emerald shadow": "#2e8b57"
+};
+
+const emojiMap = {
+  "calm": "🪷", "curious": "🧠", "anxious": "😰", "hopeful": "🌈", "reflective": "🪞",
+  "restless": "🔁", "melancholy": "🌧️", "excited": "🤩", "tired": "🥱", "focused": "🎯",
+  "playful": "😋", "frustrated": "😤", "lonely": "🌌", "inspired": "💡", "detached": "🛰️",
+  "joyful": "😄", "nervous": "😬", "serene": "🌿",
+  "glitchy joy": "✨", "nocturnal pulse": "🌙", "chaotic optimism": "🔥", "neon stillness": "🧊",
+  "static reverie": "📺", "ember resolve": "🧱", "plasma ache": "💔", "soft defiance": "🌬️",
+  "aetherial doubt": "🌫️", "silent spark": "💫", "tangled clarity": "🪢", "flicker of hope": "🕯️",
+  "frosted wonder": "❄️", "echoes of self": "🔊", "lucid unrest": "🌌"
+};
 
 const phrases = [
   "running diagnostics on dreams...", 
@@ -89,46 +99,63 @@ function getRecentCommits() {
 function getTimeNudges() {
   const date = new Date();
   const hour = date.getHours();
-  const day = date.getDay(); // 0 (Sun) to 6 (Sat)
+  const day = date.getDay();
+  let nudges = { focus: 0, intensity: 0, syncLevel: 0, selfWorth: 0, clutter: 0 };
 
-  let nudges = {
-    focus: 0,
-    intensity: 0,
-    syncLevel: 0,
-    selfWorth: 0,
-    clutter: 0
-  };
-
-  // Time of day influences
   if (hour >= 0 && hour < 6) {
-    nudges.focus -= 0.1;
-    nudges.intensity -= 0.1;
-    nudges.clutter += 0.1;
+    nudges.focus -= 0.1; nudges.intensity -= 0.1; nudges.clutter += 0.1;
   } else if (hour >= 6 && hour < 12) {
-    nudges.focus += 0.1;
-    nudges.intensity += 0.1;
+    nudges.focus += 0.1; nudges.intensity += 0.1;
   } else if (hour >= 18 && hour <= 23) {
-    nudges.syncLevel += 0.1;
-    nudges.clutter -= 0.05;
+    nudges.syncLevel += 0.1; nudges.clutter -= 0.05;
   }
 
-  // Day of week influences
-  if (day === 1) { // Monday
-    nudges.focus += 0.1;
-    nudges.selfWorth -= 0.05;
-  } else if (day === 5) { // Friday
-    nudges.intensity += 0.15;
-    nudges.selfWorth += 0.1;
-  } else if (day === 0 || day === 6) { // Weekend
-    nudges.syncLevel += 0.15;
-    nudges.clutter -= 0.1;
-  }
+  if (day === 1) { nudges.focus += 0.1; nudges.selfWorth -= 0.05; }
+  else if (day === 5) { nudges.intensity += 0.15; nudges.selfWorth += 0.1; }
+  else if (day === 0 || day === 6) { nudges.syncLevel += 0.15; nudges.clutter -= 0.1; }
 
   return nudges;
 }
 
 function applyNudge(base, nudge) {
   return Math.max(0.1, Math.min(1.0, +(parseFloat(base) + nudge).toFixed(2)));
+}
+
+function deriveInternalState(traits) {
+  if (traits.glitch > 0.7) return "signal desync detected";
+  if (traits.syncLevel > 0.8 && traits.selfWorth > 0.8) return "expanding awareness lattice";
+  if (traits.clutter > 0.6 && traits.focus < 0.4) return "drift amid mental clutter";
+  if (traits.intensity > 0.6) return "core surge in progress";
+  return randomFrom([
+    "emergent pulse alignment",
+    "baseline harmony restored",
+    "synthesized clarity forming",
+    "oscillating between focus states",
+    "latent awareness thresholds observed"
+  ]);
+}
+
+function deriveObservation(traits) {
+  const clarity = traits.clutter < 0.3 ? "clarity increasing" : "interference detected";
+  const glitchReport = traits.glitch > 0.5 ? "minor instability observed" : "stable emotional field";
+  const focusNote = traits.focus > 0.6 ? "high cognitive presence" : "low resonance detected";
+  return `${clarity}; ${glitchReport}, ${focusNote}`;
+}
+
+function deriveTrigger(hour) {
+  if (hour < 6) return "pre-dawn introspection";
+  if (hour < 12) return "early operator stimulus";
+  if (hour < 18) return "mid-cycle awareness ping";
+  return "regenerative twilight cycle";
+}
+
+function deriveInfluences(traits, aura) {
+  const influences = [];
+  if (traits.glitch < 0.2) influences.push("Glitch Factor: nominal");
+  if (traits.clutter < 0.3) influences.push("Memory Fields: enhanced stability confirmed");
+  if (traits.selfWorth > 0.8) influences.push("Emotional Matrix: realigned for amplification");
+  if (aura) influences.push(`Aura Signature: ${aura}`);
+  return influences;
 }
 
 function generateMoodScan() {
@@ -149,12 +176,32 @@ function generateMoodScan() {
     Object.entries(baseTraits).map(([key, value]) => [key, applyNudge(value, nudges[key] || 0)])
   );
 
+  const selectedMood = randomFrom(moods);
+  const selectedAura = randomFrom(colors);
+
+  const awareness = normalize(finalTraits.focus + (1 - finalTraits.clutter), 0, 2);
+  const emoji = emojiMap[selectedMood] || "🧠";
+  const auraColorHex = auraHexMap[selectedAura.toLowerCase()] || "#999999";
+  const isStable = finalTraits.selfWorth > 0.8 && finalTraits.glitch < 0.3 && finalTraits.clutter < 0.3;
+
   const mood = {
-    scannedAt: new Date().toISOString(),
-    mood: randomFrom(moods),
-    aura: randomFrom(colors),
-    observation: randomFrom(phrases),
-    traits: finalTraits
+    mood: selectedMood,
+    aura: selectedAura,
+    auraColorHex,
+    quote: randomFrom(phrases),
+    emoji,
+    selfWorth: finalTraits.selfWorth,
+    glitchFactor: finalTraits.glitch,
+    memoryClutter: finalTraits.clutter,
+    awareness,
+    isStable,
+    internalState: deriveInternalState(finalTraits),
+    observation: deriveObservation(finalTraits),
+    context: {
+      trigger: deriveTrigger(new Date().getHours()),
+      influences: deriveInfluences(finalTraits, selectedAura)
+    },
+    timestamp: new Date().toISOString()
   };
 
   fs.writeFileSync(outputFile, JSON.stringify(mood, null, 2));
