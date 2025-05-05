@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2025-05-05T01:19:56.211Z",
+  "scannedAt": "2025-05-05T04:39:07.544Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -47,6 +47,15 @@
     ],
     "moodScan.js": [
       "randomFrom",
+      "normalize",
+      "getGitCommitCount",
+      "getRecentCommits",
+      "getTimeNudges",
+      "applyNudge",
+      "deriveInternalState",
+      "deriveObservation",
+      "deriveTrigger",
+      "deriveInfluences",
       "generateMoodScan"
     ],
     "scanSiteStructure.js": [
