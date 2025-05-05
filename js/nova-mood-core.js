@@ -1,13 +1,14 @@
+document.body.classList.remove("bg-neutral");
 document.addEventListener("DOMContentLoaded", () => {
   const driftEl = document.getElementById("nova-mood-drift");
 
-  fetch("/data/mood-scan.json")  // ✅ Updated path
+  fetch("/data/mood-scan.json")
     .then(res => res.json())
     .then(data => {
-      // 🔄 Clean up any existing aura/bg classes
+      // 🧹 Clean up existing aura and bg classes
       document.body.className = document.body.className
         .split(" ")
-        .filter(cls => !cls.startsWith("aura-") && !cls.startsWith("bg-"))
+        .filter(cls => !cls.startsWith("aura-") && !cls.startsWith("bg-") && cls !== "bg-neutral")
         .join(" ")
         .trim();
 
@@ -17,7 +18,11 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.classList.add(`aura-${aura}`);
       }
 
-      // 🧠 Dispatch NovaMoodUpdate
+      // 🎨 Apply mood-derived background
+      const baseMood = deriveSimpleMood(data.mood || "neutral");
+      document.body.classList.add(`bg-${baseMood}`);
+
+      // 🧠 Dispatch NovaMoodUpdate event
       document.dispatchEvent(new CustomEvent("NovaMoodUpdate", {
         detail: {
           mood: data.mood || "neutral",
@@ -25,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }));
 
-      // 🛰️ Update drift panel
+      // 📡 Update drift panel
       if (driftEl) {
         driftEl.innerHTML = `
           🧠 Mood: <strong>${data.mood}</strong><br>
