@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-05-05T13:30:57.787Z",
+  "updated": "2025-05-06T02:15:49.287Z",
   "root": [
     {
       "type": "folder",
@@ -335,11 +335,6 @@
               "path": "nova/lore/voice-fragments.html"
             }
           ]
-        },
-        {
-          "type": "page",
-          "name": "mood-dashboard.html",
-          "path": "nova/mood-dashboard.html"
         },
         {
           "type": "page",
