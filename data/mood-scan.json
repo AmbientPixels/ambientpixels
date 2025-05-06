@@ -1,22 +1,22 @@
 {
-  "mood": "restless",
+  "mood": "frustrated",
   "aura": "neon burst",
   "auraColorHex": "#ff4500",
-  "quote": "indexing emotions with low latency...",
-  "emoji": "🔁",
+  "quote": "mapping drift across synaptic echoes...",
+  "emoji": "😤",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 1,
-  "awareness": 0.1,
+  "memoryClutter": 0.84,
+  "awareness": 0.13,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
-    "trigger": "pre-dawn introspection",
+    "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
       "Aura Signature: neon burst"
     ]
   },
-  "timestamp": "2025-05-06T02:15:50.137Z"
+  "timestamp": "2025-05-06T13:33:17.261Z"
 }
