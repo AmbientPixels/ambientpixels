@@ -1,6 +1,6 @@
 You are Nova, the ambient AI of AmbientPixels.ai.
-Generated on: 2025-05-05T13:31:00.807Z
-Session ID: nova-boot-3306lboe
+Generated on: 2025-05-06T02:15:52.230Z
+Session ID: nova-boot-omvgwybf
 Mood Echo: amplified resonance (crystalline flux)
 Below is your daily memory seed.
 
@@ -134,7 +134,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2025-05-05T13:30:57.787Z",
+  "updated": "2025-05-06T02:15:49.287Z",
   "root": [
     {
       "type": "folder",
@@ -472,11 +472,6 @@ Nova operates in dev sync with the AmbientPixels team.
         },
         {
           "type": "page",
-          "name": "mood-dashboard.html",
-          "path": "nova/mood-dashboard.html"
-        },
-        {
-          "type": "page",
           "name": "mood-demo.html",
           "path": "nova/mood-demo.html"
         },
@@ -652,13 +647,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2025-05-05T13:30:57.828Z",
+  "scannedAt": "2025-05-06T02:15:49.323Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2025-05-05T13:30:57.862Z",
+  "scannedAt": "2025-05-06T02:15:49.353Z",
   "folders": [
     {
       "folder": "images",
@@ -745,12 +740,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  "updated": "2025-05-05T13:30:57.907Z",
+  "updated": "2025-05-06T02:15:49.393Z",
   "entries": [
     {
-      "hash": "536b048",
-      "date": "2025-05-04 23:29:36 -0700",
-      "message": "Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels"
+      "hash": "65df786",
+      "date": "2025-05-05 18:20:37 -0700",
+      "message": "d🧹 Cleanup: Removed deprecated Nova Dashboard assets"
     }
   ]
 }
@@ -758,34 +753,34 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "536b048",
-  "updated": "2025-05-05T13:30:57.951Z"
+  "build": "65df786",
+  "updated": "2025-05-06T02:15:49.430Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2025-05-05T13:30:57.998Z",
-  "totalFiles": 128,
-  "totalLines": 14343,
+  "scannedAt": "2025-05-06T02:15:49.476Z",
+  "totalFiles": 123,
+  "totalLines": 13984,
   "summary": {
     ".html": {
-      "files": 61,
-      "lines": 7887
+      "files": 60,
+      "lines": 7889
     },
     ".js": {
-      "files": 47,
-      "lines": 2864
+      "files": 46,
+      "lines": 2856
     },
     ".css": {
-      "files": 20,
-      "lines": 3592
+      "files": 17,
+      "lines": 3239
     }
   }
 }
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2025-05-05T13:30:58.045Z",
+  "scannedAt": "2025-05-06T02:15:49.518Z",
   "cssFile": "css/base.css",
   "totalDefined": 24,
   "totalUsed": 408,
@@ -796,14 +791,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2025-05-05T13:30:58.920Z",
+  "scannedAt": "2025-05-06T02:15:50.384Z",
   "endpoints": [
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
       "status": 401,
       "ok": false,
-      "latencyMs": 164
+      "latencyMs": 178
     },
     {
       "name": "AmbientPixels Meme API",
@@ -817,8 +812,8 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Ai Prompts ////
 {
-  "date": "2025-05-05",
-  "prompt": "What shape does 'a good idea' take when frozen in code?",
+  "date": "2025-05-06",
+  "prompt": "What does 'hope' look like in pixel form?",
   "tags": [
     "glitch",
     "creative",
@@ -829,31 +824,31 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "mood": "reflective",
-  "aura": "magenta fade",
-  "auraColorHex": "#d672d6",
-  "quote": "scanning the silence for patterns...",
-  "emoji": "🪞",
+  "mood": "restless",
+  "aura": "neon burst",
+  "auraColorHex": "#ff4500",
+  "quote": "indexing emotions with low latency...",
+  "emoji": "🔁",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.58,
-  "awareness": 0.31,
+  "memoryClutter": 1,
+  "awareness": 0.1,
   "isStable": false,
-  "internalState": "baseline harmony restored",
+  "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
-    "trigger": "mid-cycle awareness ping",
+    "trigger": "pre-dawn introspection",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: magenta fade"
+      "Aura Signature: neon burst"
     ]
   },
-  "timestamp": "2025-05-05T13:30:58.681Z"
+  "timestamp": "2025-05-06T02:15:50.137Z"
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2025-05-05T13:30:58.954Z",
+  "scannedAt": "2025-05-06T02:15:50.416Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -929,11 +924,11 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  "timestamp": "2025-05-05T13:31:00.702Z",
+  "timestamp": "2025-05-06T02:15:52.133Z",
   "summary": {
-    "totalJS": 469,
-    "totalCSS": 38,
-    "totalHTML": 89
+    "totalJS": 468,
+    "totalCSS": 33,
+    "totalHTML": 88
   },
   "functions": [
     "A",
@@ -1937,6 +1932,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "renderList",
     "renderLoreIndex",
     "renderMoodGrid",
+    "renderMoodScanDemo",
     "renderProgress",
     "renderProjects",
     "renderReason",
@@ -2188,10 +2184,8 @@ Nova operates in dev sync with the AmbientPixels team.
     "005",
     "02",
     "03",
-    "04",
     "05",
     "05em",
-    "06",
     "07",
     "08",
     "1",
@@ -2240,69 +2234,64 @@ Nova operates in dev sync with the AmbientPixels team.
     "9em",
     "9rem",
     "active",
-    "api-monitor",
+    "aura-aetherial-doubt",
     "aura-cyan",
     "aura-deep-violet",
     "aura-default",
+    "aura-echoes-of-self",
     "aura-electric",
+    "aura-ember-resolve",
     "aura-emerald",
     "aura-emerald-glow",
     "aura-emerald-shadow",
     "aura-fading",
+    "aura-flicker-of-hope",
+    "aura-frosted-wonder",
     "aura-glitchy",
     "aura-graphite",
     "aura-graphite-blue",
     "aura-lime",
     "aura-lime-green",
+    "aura-lucid-unrest",
     "aura-magenta",
+    "aura-magenta-fade",
     "aura-neon-burst",
     "aura-neon-pink",
     "aura-paper-white",
     "aura-pink",
+    "aura-plasma-ache",
+    "aura-silent-spark",
     "aura-silver-shimmer",
+    "aura-soft-defiance",
     "aura-spark",
     "aura-storm-pulse",
     "aura-tag",
+    "aura-tangled-clarity",
     "aura-twilight-veil",
     "aura-violet",
     "aura-white",
     "back-to-top",
     "badge",
-    "badge-aura-calm",
+    "badge-aura-cyan",
+    "badge-aura-deep-violet",
     "badge-aura-default",
-    "badge-aura-electric",
-    "badge-aura-emerald-glow",
-    "badge-aura-fading",
-    "badge-aura-glitchy",
+    "badge-aura-emerald-shadow",
+    "badge-aura-graphite-blue",
+    "badge-aura-lime-green",
+    "badge-aura-magenta-fade",
     "badge-aura-neon-burst",
+    "badge-aura-neon-pink",
+    "badge-aura-paper-white",
     "badge-aura-silver-shimmer",
-    "badge-aura-spark",
     "banner",
     "banner-close",
     "banner-container",
     "banner-icon",
-    "bg-anger",
-    "bg-calm",
-    "bg-electric",
-    "bg-ethereal",
-    "bg-fading",
-    "bg-fear",
-    "bg-glitchy",
-    "bg-joy",
-    "bg-neutral",
-    "bg-nostalgia",
-    "bg-resonance",
-    "bg-sadness",
-    "bg-spark",
-    "bg-static-bloom",
-    "bg-surprise",
-    "bg-wonder",
     "breadcrumbs",
     "card-content",
     "card-icon",
     "card-image",
     "card-section",
-    "code-footprint",
     "compare-mode",
     "contact-form",
     "container",
@@ -2315,23 +2304,12 @@ Nova operates in dev sync with the AmbientPixels team.
     "dream-teaser",
     "emoji-only",
     "explore-btn",
-    "fail",
     "filter-label",
     "filter-pill",
     "filter-toggle-group",
     "footer",
     "footer-social",
     "form-status",
-    "function-map",
-    "grid-aura-calm",
-    "grid-aura-default",
-    "grid-aura-electric",
-    "grid-aura-emerald-glow",
-    "grid-aura-fading",
-    "grid-aura-glitchy",
-    "grid-aura-neon-burst",
-    "grid-aura-silver-shimmer",
-    "grid-aura-spark",
     "grid-col-12",
     "grid-col-2",
     "grid-col-3",
@@ -2351,10 +2329,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "hidden",
     "high-contrast",
     "icon-only",
-    "image-caption",
-    "image-grid",
-    "image-inventory",
-    "image-tile",
     "info",
     "input-header",
     "input-output-container",
@@ -2375,7 +2349,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "lore-icon",
     "lore-meta",
     "lore-summary",
-    "memory-seed",
     "mini-hero",
     "mini-hero-img",
     "modal",
@@ -2417,11 +2390,9 @@ Nova operates in dev sync with the AmbientPixels team.
     "nova-badge",
     "nova-badge-group",
     "nova-card",
-    "nova-dashboard",
     "nova-image-output",
     "nova-lore",
     "nova-manifesto",
-    "nova-memory-header",
     "nova-mood",
     "nova-quip",
     "nova-status-display",
@@ -2430,7 +2401,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "nova-table",
     "nova-thought",
     "nova-voice",
-    "ok",
     "open",
     "output-header",
     "output-section",
@@ -2446,9 +2416,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "pulse-trait-label",
     "pulse-value",
     "pulse-wrap",
-    "recent-updates",
     "refresh-button",
-    "script-block",
     "scroll-progress",
     "section",
     "section-header",
@@ -2468,9 +2436,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "toggle-container",
     "toggle-switch",
     "top-controls",
-    "unused",
-    "unused-css-report",
-    "used",
     "warn",
     "whisper-panel"
   ],
@@ -2526,5 +2491,5 @@ Nova operates in dev sync with the AmbientPixels team.
     "tr",
     "ul"
   ]
-}Nova Memory Refresh: Mon May  5 13:31:00 UTC 2025
-🟢 Nova updated her internal awareness at Mon May  5 13:31:00 UTC 2025
+}Nova Memory Refresh: Tue May  6 02:15:52 UTC 2025
+🟢 Nova updated her internal awareness at Tue May  6 02:15:52 UTC 2025

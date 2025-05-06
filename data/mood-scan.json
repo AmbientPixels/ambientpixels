@@ -1,22 +1,22 @@
 {
-  "mood": "reflective",
-  "aura": "magenta fade",
-  "auraColorHex": "#d672d6",
-  "quote": "scanning the silence for patterns...",
-  "emoji": "🪞",
+  "mood": "restless",
+  "aura": "neon burst",
+  "auraColorHex": "#ff4500",
+  "quote": "indexing emotions with low latency...",
+  "emoji": "🔁",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.58,
-  "awareness": 0.31,
+  "memoryClutter": 1,
+  "awareness": 0.1,
   "isStable": false,
-  "internalState": "baseline harmony restored",
+  "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
-    "trigger": "mid-cycle awareness ping",
+    "trigger": "pre-dawn introspection",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: magenta fade"
+      "Aura Signature: neon burst"
     ]
   },
-  "timestamp": "2025-05-05T13:30:58.681Z"
+  "timestamp": "2025-05-06T02:15:50.137Z"
 }
