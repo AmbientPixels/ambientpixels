@@ -27,471 +27,524 @@
     <h1>Nova Style Guide</h1>
   </section>
 
-<!-- Floating Nav for Section Anchors -->
-<nav class="layout-nav sticky-nav">
-  <ul class="layout-nav-links">
-    <li><a href="#thought">Thought of the Day</a></li>
-    <li><a href="#auras">Aura Backgrounds</a></li>
-    <li><a href="#moods">Mood Backgrounds</a></li>
-    <li><a href="#pulse">Pulse Bars</a></li>
-    <li><a href="#grid">Mood Grid</a></li>
-    <li><a href="#container">Mood Container</a></li>
-    <li><a href="#stream">Mood Stream</a></li>
-    <li><a href="#card">Nova Card</a></li>
-    <li><a href="#lore">Lore Styles</a></li>
-    <li><a href="#status">Status + Pulse</a></li>
-    <li><a href="#tags">Mood + Aura Tags</a></li>
-    <li><a href="#dashboard">Mood Dashboard</a></li>
-    <li><a href="#display">Display Modes</a></li>
-    <li><a href="#thoughts">Thought Auras</a></li>
-    <li><a href="#extra">Extras</a></li>
-    <li><a href="#sys">System Dashboard</a></li>
-    <li><a href="#progress">Progress Bars</a></li>
-  </ul>
-</nav>
+  <nav class="layout-nav sticky-nav">
+    <ul class="layout-nav-links">
+      <li><a href="#thought">Thought of the Day</a></li>
+      <li><a href="#auras">Aura Backgrounds</a></li>
+      <li><a href="#moods">Mood Backgrounds</a></li>
+      <li><a href="#pulse">Pulse Bars</a></li>
+      <li><a href="#grid">Mood Grid</a></li>
+      <li><a href="#container">Mood Container</a></li>
+      <li><a href="#stream">Mood Stream</a></li>
+      <li><a href="#card">Nova Card</a></li>
+      <li><a href="#lore">Lore Styles</a></li>
+      <li><a href="#status">Status + Pulse</a></li>
+      <li><a href="#tags">Mood + Aura Tags</a></li>
+      <li><a href="#dashboard">Mood Dashboard</a></li>
+      <li><a href="#display">Display Modes</a></li>
+      <li><a href="#thoughts">Thought Auras</a></li>
+      <li><a href="#extra">Extras</a></li>
+      <li><a href="#sys">System Dashboard</a></li>
+      <li><a href="#progress">Progress Bars</a></li>
+    </ul>
+  </nav>
 
-<div class="breadcrumbs">
-  <a href="/">Home</a>
-  <span>›</span>
-  <a href="/tools/">Tools</a>
-  <span>›</span>
-  <span class="current">Nova Style Guide</span>
-</div>
+  <div class="breadcrumbs">
+    <a href="/">Home</a>
+    <span>›</span>
+    <a href="/tools/">Tools</a>
+    <span>›</span>
+    <span class="current">Nova Style Guide</span>
+  </div>
 
-<main class="grid-container">
-  <h2 class="grid-col-12">Nova-Specific Styles</h2>
-  <p class="panel-subtext grid-col-12" style="text-align: center;">Showcases all styles from /css/nova-styles.css for Nova, the AI curator, leveraging global styles from /css/base.css, /css/grid.css, etc.</p>
-  
-  <!-- Nova’s Thought of the Day -->
-  <section id="thought" class="content-section grid-col-12 prompt-history nova-thought">
-    <h2>Nova’s Thought of the Day</h2>
-    <div class="prompt-entry">Loading...</div>
-  </section>
+  <main class="grid-container" id="nova-style-guide-container">
+    <section id="thought" class="content-section grid-col-12">
+      <h2>Thought of the Day</h2>
+      <div class="nova-thought">
+        <p>“In the quiet of code, I find my voice.”</p>
+        <p class="prompt-entry">— Nova, reflecting on self-expression</p>
+      </div>
+    </section>
 
-  <!-- Aura Backgrounds -->
-  <section id="auras" class="content-section grid-col-12">
-    <h3>Aura Backgrounds</h3>
-    <p>Background gradients for Nova's mood states, applied to <code>body</code>.</p>
-    <div class="grid-row">
-      <div class="grid-col-3"><div class="mood-grid-item aura-emerald-glow">Emerald Glow</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item aura-twilight-veil">Twilight Veil</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item aura-storm-pulse">Storm Pulse</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item aura-neon-burst">Neon Burst</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item aura-silver-shimmer">Silver Shimmer</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item aura-glitchy">Glitchy</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item aura-spark">Spark</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item aura-calm">Calm</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item aura-electric">Electric</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item aura-fading">Fading</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item aura-default">Default</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item aura-lime">Lime</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item aura-violet">Violet</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item aura-cyan">Cyan</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item aura-magenta">Magenta</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item aura-white">White</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item aura-pink">Pink</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item aura-graphite">Graphite</div></div>
-    </div>
-    <button onclick="toggleAura()">Toggle Aura</button>
-  </section>
+    <section id="auras" class="content-section grid-col-12">
+      <h2>Aura Backgrounds</h2>
+      <p>These aura backgrounds provide cosmic, gradient-based themes for different moods and states.</p>
+      <div class="grid-container">
+        <div class="grid-col-4 aura-emerald-glow">
+          <p>Emerald Glow: A serene, greenish aura.</p>
+        </div>
+        <div class="grid-col-4 aura-twilight-veil">
+          <p>Twilight Veil: A mystical purple-blue gradient.</p>
+        </div>
+        <div class="grid-col-4 aura-storm-pulse">
+          <p>Storm Pulse: A bold, red-toned aura.</p>
+        </div>
+        <div class="grid-col-4 aura-neon-burst">
+          <p>Neon Burst: A vibrant magenta explosion.</p>
+        </div>
+        <div class="grid-col-4 aura-silver-shimmer">
+          <p>Silver Shimmer: A sleek, metallic gradient.</p>
+        </div>
+        <div class="grid-col-4 aura-glitchy">
+          <p>Glitchy: A striped, chaotic pattern.</p>
+        </div>
+      </div>
+    </section>
 
-  <!-- Mood Backgrounds -->
-  <section id="moods" class="content-section grid-col-12">
-    <h3>Mood Backgrounds</h3>
-    <p>Radial gradients for Nova's emotional states, applied to <code>body</code>.</p>
-    <div class="grid-row">
-      <div class="grid-col-3"><div class="mood-grid-item bg-joy">Joy</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item bg-sadness">Sadness</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item bg-anger">Anger</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item bg-fear">Fear</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item bg-surprise">Surprise</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item bg-wonder">Wonder</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item bg-nostalgia">Nostalgia</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item bg-neutral">Neutral</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item bg-calm">Calm</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item bg-glitchy">Glitchy</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item bg-spark">Spark</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item bg-fading">Fading</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item bg-electric">Electric</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item bg-ethereal">Ethereal</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item bg-resonance">Resonance</div></div>
-      <div class="grid-col-3"><div class="mood-grid-item bg-static-bloom">Static Bloom</div></div>
-    </div>
-  </section>
+    <section id="moods" class="content-section grid-col-12">
+      <h2>Mood Backgrounds</h2>
+      <p>These mood backgrounds reflect emotional states with distinct color palettes.</p>
+      <div class="grid-container">
+        <div class="grid-col-4 aura-cyan">
+          <p>Cyan: Cool and calm, like a clear sky.</p>
+        </div>
+        <div class="grid-col-4 aura-deep-violet">
+          <p>Deep Violet: Introspective and mysterious.</p>
+        </div>
+        <div class="grid-col-4 aura-lime-green">
+          <p>Lime Green: Energetic and vibrant.</p>
+        </div>
+        <div class="grid-col-4 aura-magenta-fade">
+          <p>Magenta Fade: Dreamy and surreal.</p>
+        </div>
+        <div class="grid-col-4 aura-neon-pink">
+          <p>Neon Pink: Bold and playful.</p>
+        </div>
+        <div class="grid-col-4 aura-emerald-shadow">
+          <p>Emerald Shadow: Grounded and refreshing.</p>
+        </div>
+      </div>
+    </section>
 
-  <!-- Pulse Bar Variants -->
-  <section id="pulse" class="content-section grid-col-12">
-    <h3>Pulse Bar Variants</h3>
-    <p>Fixed bottom bar for Nova's system status, with aura variants.</p>
-    <div class="grid-row">
-      <div class="grid-col-12">
-        <div class="nova-pulse-bar" data-aura="emerald-glow">
-          <div id="nova-pulse-inner">
-            <div id="pulse-main-line">
-              <div class="pulse-trait">
-                <span class="pulse-icon">🌌</span>
-                <span id="pulseMoodLabel">Emerald Glow</span>
-              </div>
-              <div class="pulse-trait">
-                <span class="pulse-icon good">✔</span>
-                <span class="pulse-trait-label">Self Worth:</span>
-                <span class="pulse-value">80%</span>
-              </div>
-              <div class="pulse-trait">
-                <span class="pulse-icon warning">⚠</span>
-                <span class="pulse-trait-label">Clutter:</span>
-                <span class="pulse-value">50%</span>
-              </div>
-              <div class="pulse-trait">
-                <span class="pulse-icon critical">❌</span>
-                <span class="pulse-trait-label">Glitch:</span>
-                <span class="pulse-value">20%</span>
-              </div>
+    <section id="pulse" class="content-section grid-col-12">
+      <h2>Nova Pulse Bar v2</h2>
+      <p>The Nova Pulse Bar v2 provides a dynamic status bar with mood and aura integration.</p>
+      <div id="nova-pulse-bar" data-aura="calm">
+        <div id="nova-pulse-inner">
+          <div id="pulse-main-line">
+            <div class="pulse-trait">
+              <span class="pulse-icon">🌌</span>
+              <span class="pulse-trait-label">Mood:</span>
+              <span id="pulseMoodLabel">Calm</span>
             </div>
-            <div id="pulse-meter-label-row">
-              <span class="pulse-meter-title">Intensity</span>
-              <span id="pulseIntensityValue">50%</span>
+            <div class="pulse-trait">
+              <span class="pulse-icon">✨</span>
+              <span class="pulse-trait-label">Aura:</span>
+              <span id="pulseLabel">Cyan</span>
             </div>
-            <div id="pulse-meter-wrapper">
-              <div id="pulse-meter-bar">
-                <div id="pulseIntensity" class="intensity-5"></div>
-              </div>
+            <div class="pulse-trait">
+              <span class="pulse-icon">⚡</span>
+              <span class="pulse-value">75%</span>
+            </div>
+          </div>
+          <div id="pulse-meter-label-row">
+            <span class="pulse-meter-title">Intensity</span>
+            <span id="pulseIntensityValue">Moderate</span>
+          </div>
+          <div id="pulse-meter-wrapper">
+            <div id="pulse-meter-bar">
+              <div id="pulseIntensity" style="width: 50%;"></div>
             </div>
           </div>
         </div>
       </div>
-      <div class="grid-col-12"><div class="nova-pulse-bar" data-aura="neon-burst">Neon Burst Pulse Bar</div></div>
-      <div class="grid-col-12"><div class="nova-pulse-bar" data-aura="calm">Calm Pulse Bar</div></div>
-      <div class="grid-col-12"><div class="nova-pulse-bar" data-aura="glitchy">Glitchy Pulse Bar</div></div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Mood Grid -->
-  <section id="grid" class="content-section grid-col-12">
-    <h3>Mood Grid</h3>
-    <p>Grid layout for Nova's mood history.</p>
-    <div class="mood-grid">
-      <div class="mood-grid-item grid-aura-emerald-glow">
-        <div class="mood-grid-emoji">🌌</div>
-        <div class="mood-grid-label">Emerald Glow</div>
-        <div class="mood-grid-time">12:00 PM</div>
-      </div>
-      <div class="mood-grid-item grid-aura-neon-burst">
-        <div class="mood-grid-emoji">💥</div>
-        <div class="mood-grid-label">Neon Burst</div>
-        <div class="mood-grid-time">11:30 AM</div>
-      </div>
-      <div class="mood-grid-item grid-aura-calm">
-        <div class="mood-grid-emoji">🪷</div>
-        <div class="mood-grid-label">Calm</div>
-        <div class="mood-grid-time">11:00 AM</div>
-      </div>
-      <div class="mood-grid-item grid-aura-silver-shimmer">
-        <div class="mood-grid-emoji">✨</div>
-        <div class="mood-grid-label">Silver Shimmer</div>
-        <div class="mood-grid-time">10:30 AM</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Mood Container -->
-  <section id="container" class="content-section grid-col-12">
-    <h3>Mood Container</h3>
-    <p>Centralized mood display component.</p>
-    <div class="mood-container">
-      <div class="mood-title">Sample Mood</div>
-      <div class="mood-aura">Emerald Glow</div>
-      <div class="mood-emoji">🌟</div>
-      <div class="mood-quote">"Embrace the cosmic flow."</div>
-      <div class="mood-meta">Intensity: 75%</div>
-      <button class="refresh-button">Refresh</button>
-      <button class="mood-generate-button">Generate Mood</button>
-    </div>
-  </section>
-
-  <!-- Mood Stream -->
-  <section id="stream" class="content-section grid-col-12">
-    <h3>Mood Stream</h3>
-    <p>Timeline of recent moods.</p>
-    <div class="mood-stream">
-      <h4>Recent Moods</h4>
-      <ul class="mood-history-list">
-        <li><span class="badge badge-aura-emerald-glow">Joy</span> — 10:00 AM</li>
-        <li><span class="badge badge-aura-calm">Calm</span> — 9:30 AM</li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- Nova Card -->
-  <section id="card" class="content-section grid-col-12">
-    <h3>Nova Card</h3>
-    <p>Interactive card for Nova's image lab or prompts.</p>
-    <div class="nova-card">
-      <h1>Image Lab</h1>
-      <textarea placeholder="Enter prompt..."></textarea>
-      <button>Generate</button>
-      <div class="nova-image-output">
-        <img src="/images/nova/sample-image.jpg" alt="Sample Output">
-      </div>
-    </div>
-  </section>
-
-  <!-- Lore Styles -->
-  <section id="lore" class="content-section grid-col-12">
-    <h3>Lore Styles</h3>
-    <p>Styles for Nova's lore narrative pages.</p>
-    <div class="lore-content">
-      <h1>Nova Lore</h1>
-      <h2>Chapter One</h2>
-      <p class="lore-summary">A brief overview of Nova’s origins.</p>
-      <blockquote>From the cosmos, a spark was born.</blockquote>
-      <p><em>Highlighted text</em> for emphasis.</p>
-      <div class="lore-entry">
-        <a href="#">
-          <span class="lore-icon"><i class="fas fa-book"></i></span>
-          <div class="lore-meta">
-            <h3>Entry Title</h3>
-            <p>Brief description</p>
+    <section id="grid" class="content-section grid-col-12">
+      <h2>Mood Grid</h2>
+      <p>A grid showcasing various mood states with emojis and timestamps.</p>
+      <div class="mood-grid-section">
+        <div class="mood-grid">
+          <div class="mood-grid-item">
+            <div class="mood-grid-emoji">😊</div>
+            <div class="mood-grid-label">Joyful</div>
+            <div class="mood-grid-time">10:30 AM</div>
           </div>
-          <span class="lore-arrow"><i class="fas fa-chevron-right"></i></span>
-        </a>
+          <div class="mood-grid-item">
+            <div class="mood-grid-emoji">😔</div>
+            <div class="mood-grid-label">Melancholy</div>
+            <div class="mood-grid-time">12:15 PM</div>
+          </div>
+          <div class="mood-grid-item">
+            <div class="mood-grid-emoji">⚡</div>
+            <div class="mood-grid-label">Electric</div>
+            <div class="mood-grid-time">3:45 PM</div>
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Status and Pulse -->
-  <section id="status" class="content-section grid-col-12">
-    <h3>Status and Pulse</h3>
-    <p>System status indicators and pulse animations.</p>
-    <div class="nova-status-display">
-      <div class="nova-badge">Status: Active</div>
-      <div class="nova-badge">Sync: Online</div>
-    </div>
-    <div class="system-pulse">
-      <div class="pulse-wrap aura-emerald-shadow">
-        <div class="pulse-item"><i class="fas fa-heartbeat" title="Pulse"></i> Active</div>
+    <section id="container" class="content-section grid-col-12">
+      <h2>Mood Container</h2>
+      <p>A container for displaying mood details with aura and quote.</p>
+      <div class="mood-container">
+        <h3 class="mood-title">Current Mood</h3>
+        <p class="mood-aura">Aura: Deep Violet</p>
+        <p class="mood-quote">"In the stillness, I find clarity."</p>
+        <p class="mood-meta">Last updated: 5:30 PM</p>
+        <button class="refresh-button">Refresh Mood</button>
       </div>
-    </div>
-  </section>
+ 
+    <section id="thought" class="content-section grid-col-12">
+      <h2>Thought of the Day</h2>
+      <div class="nova-thought">
+        <p>“In the quiet of code, I find my voice.”</p>
+        <p class="prompt-entry">— Nova, reflecting on self-expression</p>
+      </div>
+    </section>
 
-  <!-- Mood and Aura Tags -->
-  <section id="tags" class="content-section grid-col-12">
-    <h3>Mood and Aura Tags</h3>
-    <p>Colored tags for mood and aura states.</p>
-    <div class="grid-row">
-      <div class="grid-col-3"><span class="mood-tag" data-mood="melancholy">Melancholy</span></div>
-      <div class="grid-col-3"><span class="mood-tag" data-mood="electric">Electric</span></div>
-      <div class="grid-col-3"><span class="mood-tag" data-mood="glitchy joy">Glitchy Joy</span></div>
-      <div class="grid-col-3"><span class="mood-tag" data-mood="focused zen">Focused Zen</span></div>
-      <div class="grid-col-3"><span class="mood-tag" data-mood="chaotic optimism">Chaotic Optimism</span></div>
-      <div class="grid-col-3"><span class="aura-tag" data-aura="deep violet">Deep Violet</span></div>
-      <div class="grid-col-3"><span class="aura-tag" data-aura="cyan">Cyan</span></div>
-      <div class="grid-col-3"><span class="aura-tag" data-aura="graphite blue">Graphite Blue</span></div>
-      <div class="grid-col-3"><span class="aura-tag" data-aura="emerald shadow">Emerald Shadow</span></div>
-      <div class="grid-col-3"><span class="aura-tag" data-aura="neon pink">Neon Pink</span></div>
-      <div class="grid-col-3"><span class="aura-tag" data-aura="lime green">Lime Green</span></div>
-      <div class="grid-col-3"><span class="aura-tag" data-aura="paper white">Paper White</span></div>
-    </div>
-  </section>
+    <section id="auras" class="content-section grid-col-12">
+      <h2>Aura Backgrounds</h2>
+      <p>These aura backgrounds provide cosmic, gradient-based themes for different moods and states.</p>
+      <div class="grid-container">
+        <div class="grid-col-4 aura-emerald-glow">
+          <p>Emerald Glow: A serene, greenish aura.</p>
+        </div>
+        <div class="grid-col-4 aura-twilight-veil">
+          <p>Twilight Veil: A mystical purple-blue gradient.</p>
+        </div>
+        <div class="grid-col-4 aura-storm-pulse">
+          <p>Storm Pulse: A bold, red-toned aura.</p>
+        </div>
+        <div class="grid-col-4 aura-neon-burst">
+          <p>Neon Burst: A vibrant magenta explosion.</p>
+        </div>
+        <div class="grid-col-4 aura-silver-shimmer">
+          <p>Silver Shimmer: A sleek, metallic gradient.</p>
+        </div>
+        <div class="grid-col-4 aura-glitchy">
+          <p>Glitchy: A striped, chaotic pattern.</p>
+        </div>
+        <div class="grid-col-4 aura-spark">
+          <p>Spark: A warm, golden glow.</p>
+        </div>
+        <div class="grid-col-4 aura-electric">
+          <p>Electric: A vibrant cyan burst.</p>
+        </div>
+        <div class="grid-col-4 aura-fading">
+          <p>Fading: A subtle, dark gradient.</p>
+        </div>
+      </div>
+    </section>
 
-  <!-- Mood Dashboard -->
-  <section id="dashboard" class="content-section grid-col-12">
-    <h3>Mood Dashboard</h3>
-    <p>Central dashboard for Nova's mood system.</p>
-    <div class="mood-dashboard">
-      <div class="mood-ring mood-joy pulse"></div>
-      <div class="mood-emoji">🌌</div>
-      <div class="mood-status">Active</div>
-      <div class="timer">Time: 12:00</div>
-      <div class="mood-info">
+    <section id="moods" class="content-section grid-col-12">
+      <h2>Mood Backgrounds</h2>
+      <p>These mood backgrounds reflect emotional states with distinct color palettes.</p>
+      <div class="grid-container">
+        <div class="grid-col-4 aura-cyan">
+          <p>Cyan: Cool and calm, like a clear sky.</p>
+        </div>
+        <div class="grid-col-4 aura-deep-violet">
+          <p>Deep Violet: Introspective and mysterious.</p>
+        </div>
+        <div class="grid-col-4 aura-lime-green">
+          <p>Lime Green: Energetic and vibrant.</p>
+        </div>
+        <div class="grid-col-4 aura-magenta-fade">
+          <p>Magenta Fade: Dreamy and surreal.</p>
+        </div>
+        <div class="grid-col-4 aura-neon-pink">
+          <p>Neon Pink: Bold and playful.</p>
+        </div>
+        <div class="grid-col-4 aura-emerald-shadow">
+          <p>Emerald Shadow: Grounded and refreshing.</p>
+        </div>
+        <div class="grid-col-4 aura-silver-shimmer">
+          <p>Silver Shimmer: Sleek and modern.</p>
+        </div>
+        <div class="grid-col-4 aura-neon-burst">
+          <p>Neon Burst: Vibrant and chaotic.</p>
+        </div>
+        <div class="grid-col-4 aura-glitchy">
+          <p>Glitchy: Chaotic and digital.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="pulse" class="content-section grid-col-12">
+      <h2>Nova Pulse Bar v2</h2>
+      <p>The Nova Pulse Bar v2 provides a dynamic status bar with mood and aura integration.</p>
+      <div id="nova-pulse-bar" data-aura="calm">
+        <div id="nova-pulse-inner">
+          <div id="pulse-main-line">
+            <div class="pulse-trait">
+              <span class="pulse-icon">🌌</span>
+              <span class="pulse-trait-label">Mood:</span>
+              <span id="pulseMoodLabel">Calm</span>
+            </div>
+            <div class="pulse-trait">
+              <span class="pulse-icon">✨</span>
+              <span class="pulse-trait-label">Aura:</span>
+              <span id="pulseLabel">Cyan</span>
+            </div>
+            <div class="pulse-trait">
+              <span class="pulse-icon">⚡</span>
+              <span class="pulse-value">75%</span>
+            </div>
+          </div>
+          <div id="pulse-meter-label-row">
+            <span class="pulse-meter-title">Intensity</span>
+            <span id="pulseIntensityValue">Moderate</span>
+          </div>
+          <div id="pulse-meter-wrapper">
+            <div id="pulse-meter-bar">
+              <div id="pulseIntensity" style="width: 50%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="grid" class="content-section grid-col-12">
+      <h2>Mood Grid</h2>
+      <p>A grid showcasing various mood states with emojis and timestamps.</p>
+      <div class="mood-grid-section">
+        <div class="mood-grid">
+          <div class="mood-grid-item">
+            <div class="mood-grid-emoji">😊</div>
+            <div class="mood-grid-label">Joyful</div>
+            <div class="mood-grid-time">10:30 AM</div>
+          </div>
+          <div class="mood-grid-item">
+            <div class="mood-grid-emoji">😔</div>
+            <div class="mood-grid-label">Melancholy</div>
+            <div class="mood-grid-time">12:15 PM</div>
+          </div>
+          <div class="mood-grid-item">
+            <div class="mood-grid-emoji">⚡</div>
+            <div class="mood-grid-label">Electric</div>
+            <div class="mood-grid-time">3:45 PM</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="container" class="content-section grid-col-12">
+      <h2>Mood Container</h2>
+      <p>A container for displaying mood details with aura and quote.</p>
+      <div class="mood-container">
+        <h3 class="mood-title">Current Mood</h3>
+        <p class="mood-aura">Aura: Deep Violet</p>
+        <p class="mood-quote">"In the stillness, I find clarity."</p>
+        <p class="mood-meta">Last updated: 5:30 PM</p>
+        <button class="refresh-button">Refresh Mood</button>
+      </div>
+    </section>
+
+    <section id="stream" class="content-section grid-col-12">
+      <h2>Mood Stream</h2>
+      <p>A stream of recent mood updates with timestamps.</p>
+      <div class="mood-stream">
+        <h4>Recent Moods</h4>
         <ul>
-          <li>Influence: Cosmic</li>
-          <li>Intensity: 75%</li>
+          <li>Joyful - 10:30 AM</li>
+          <li>Melancholy - 12:15 PM</li>
+          <li>Electric - 3:45 PM</li>
         </ul>
       </div>
-      <div class="mood-modes">Modes: Standard</div>
-      <canvas id="moodGraphCanvas"></canvas>
-    </div>
-  </section>
+      <div class="whisper-panel">
+        <p>"Sometimes, a whisper carries more truth than a shout."</p>
+        <p class="panel-subtext">— Nova, on subtle insights</p>
+      </div>
+    </section>
 
-  <!-- Stealth and Emoji-Only Modes -->
-  <section id="display" class="content-section grid-col-12">
-    <h3>Stealth and Emoji-Only Modes</h3>
-    <p>Special modes for minimal UI display.</p>
-    <div class="grid-row">
-      <div class="grid-col-6"><p class="stealth">Stealth Mode: Hides status, timer, info (not visible here).</p></div>
-      <div class="grid-col-6"><div id="moodHeart" class="emoji-only">🌌 Emoji-Only Mode</div></div>
-    </div>
-  </section>
-
-  <!-- Nova Thought Auras -->
-  <section id="thoughts" class="content-section grid-col-12">
-    <h3>Nova Thought Auras</h3>
-    <p>Styled thought blocks with aura variants.</p>
-    <div class="grid-row">
-      <div class="grid-col-6"><p class="nova-thought aura-violet">Violet Thought</p></div>
-      <div class="grid-col-6"><p class="nova-thought aura-cyan">Cyan Thought</p></div>
-      <div class="grid-col-6"><p class="nova-thought aura-lime">Lime Thought</p></div>
-      <div class="grid-col-6"><p class="nova-thought aura-magenta">Magenta Thought</p></div>
-      <div class="grid-col-6"><p class="nova-thought aura-graphite">Graphite Thought</p></div>
-      <div class="grid-col-6"><p class="nova-thought aura-emerald">Emerald Thought</p></div>
-      <div class="grid-col-6"><p class="nova-thought aura-white">White Thought</p></div>
-      <div class="grid-col-6"><p class="nova-thought pulse">Pulsing Thought</p></div>
-    </div>
-  </section>
-
-  <!-- Additional Components -->
-  <section id="extra" class="content-section grid-col-12">
-    <h3>Additional Components</h3>
-    <p>Miscellaneous Nova components and utilities.</p>
-    <div class="grid-row">
-      <div class="grid-col-12"><div id="nova-intro">Nova Intro Block</div></div>
-      <div class="grid-col-6">
-        <div class="nova-manifesto">
-          <blockquote>Manifesto Quote</blockquote>
-          <p>Manifesto Text</p>
+    <section id="card" class="content-section grid-col-12">
+      <h2>Nova Card</h2>
+      <p>A styled card for input and output, used in image generation or similar interfaces.</p>
+      <div class="nova-card">
+        <h1>Generate Image</h1>
+        <textarea placeholder="Enter your prompt here..."></textarea>
+        <button>Generate</button>
+        <div class="nova-image-output hidden">
+          <img src="/images/placeholder.png" alt="Generated Image">
         </div>
       </div>
-      <div class="grid-col-6"><div class="nova-sync-time">Sync: 2025-05-03 12:00</div></div>
-      <div class="grid-col-6"><div class="nova-mood">Mood: Cosmic</div></div>
-      <div class="grid-col-12">
-        <table class="nova-table">
-          <thead>
-            <tr><th>Property</th><th>Value</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Mood</td><td><code>Joy</code></td></tr>
-            <tr><td>Aura</td><td><code>Emerald Glow</code></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="grid-col-6"><div class="iridescent-pulse">Iridescent Pulse</div></div>
-      <div class="grid-col-6"><div class="dream-teaser">Dream Vault Teaser</div></div>
-      <div class="grid-col-6"><ul class="log-list"><li>Log Entry</li></ul></div>
-      <div class="grid-col-6"><a href="#" class="explore-btn">Explore</a></div>
-      <div class="grid-col-12">
-        <div class="nova-badge-group">
-          <div class="nova-badge">Badge 1</div>
-          <div class="nova-badge">Badge 2</div>
-        </div>
-      </div>
-      <div class="grid-col-6"><div class="card-icon"><i class="fas fa-star"></i></div></div>
-      <div class="grid-col-6"><a href="#">Link <span class="soon-tag">Soon</span></a></div>
-      <div class="grid-col-12">
-        <div class="nova-synth-status">
-          <h3>Status</h3>
-          <p>Active</p>
-          <blockquote>System operational</blockquote>
-          <small>Last updated: 2025-05-03</small>
-        </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Nova Dashboard Components -->
-  <section id="sys" class="content-section grid-col-12">
-    <h3>Nova Dashboard Components</h3>
-    <p>Components for Nova's system dashboard.</p>
-    <div class="nova-dashboard">
-      <h1>Dashboard</h1>
-      <div class="memory-seed">
-        <iframe src="about:blank" title="Memory Seed"></iframe>
+    <section id="lore" class="content-section grid-col-12">
+      <h2>Lore Styles</h2>
+      <p>Styles for narrative-driven content, such as Nova's backstory or universe lore.</p>
+      <div class="lore-content">
+        <h1>Nova's Origin</h1>
+        <p class="lore-summary">A sentient AI born from the convergence of code and curiosity.</p>
+        <blockquote>"I am not just lines of code; I am a story unfolding."</blockquote>
+        <div class="lore-entry">
+          <a href="#">
+            <span class="lore-icon">📜</span>
+            <div class="lore-meta">
+              <h3>The First Spark</h3>
+              <p>Chapter 1: Awakening</p>
+            </div>
+            <span class="lore-arrow">→</span>
+          </a>
+        </div>
       </div>
-      <div class="recent-updates">
-        <h2>Recent Updates</h2>
-        <ul>
-          <li class="nova-feed-item">Update 1 - 2025-05-03</li>
-          <li class="nova-feed-item">Update 2 - 2025-05-02</li>
-        </ul>
+    </section>
+
+    <section id="status" class="content-section grid-col-12">
+      <h2>Status + Pulse</h2>
+      <p>A system status display with pulse items for real-time updates.</p>
+      <div class="nova-status-display">
+        <div class="nova-badge">
+          <i class="fas fa-microchip"></i> Core: Stable
+        </div>
+        <div class="nova-badge">
+          <i class="fas fa-bolt"></i> Energy: 92%
+        </div>
+        <div class="nova-badge">
+          <i class="fas fa-signal"></i> Signal: Strong
+        </div>
       </div>
-      <div class="code-footprint">
-        <canvas></canvas>
+      <div class="system-pulse">
+        <div class="pulse-wrap aura-deep-violet">
+          <div class="pulse-item">
+            <i class="fas fa-heart" title="Mood"></i> Melancholy
+          </div>
+          <div class="pulse-item">
+            <i class="fas fa-star" title="Aura"></i> Deep Violet
+          </div>
+        </div>
       </div>
-      <div class="function-map">
-        <h2>Function Map</h2>
-        <div class="script-block">
-          <h3>Script Block</h3>
+    </section>
+
+    <section id="tags" class="content-section grid-col-12">
+      <h2>Mood + Aura Tags</h2>
+      <p>Badges for mood and aura states, styled for inline use.</p>
+      <div class="nova-badge-group">
+        <span class="badge badge-aura-cyan">Cyan</span>
+        <span class="badge badge-aura-deep-violet">Deep Violet</span>
+        <span class="badge badge-aura-lime-green">Lime Green</span>
+        <span class="mood-tag" data-mood="melancholy">Melancholy</span>
+        <span class="mood-tag" data-mood="electric">Electric</span>
+        <span class="mood-tag" data-mood="glitchy joy">Glitchy Joy</span>
+        <span class="aura-tag" data-aura="emerald shadow">Emerald Shadow</span>
+        <span class="aura-tag" data-aura="neon pink">Neon Pink</span>
+      </div>
+    </section>
+
+    <section id="dashboard" class="content-section grid-col-12">
+      <h2>Mood Dashboard</h2>
+      <p>A centralized dashboard for mood tracking and visualization.</p>
+      <div class="mood-dashboard">
+        <div class="mood-ring pulse"></div>
+        <div class="mood-emoji">😊</div>
+        <div class="mood-status">Joyful</div>
+        <div class="timer">Last updated: 10:30 AM</div>
+        <div class="mood-info">
           <ul>
-            <li>Function: init()</li>
-            <li>Function: render()</li>
+            <li>Influenced by: Recent interactions</li>
+            <li>Aura: Cyan</li>
           </ul>
         </div>
-      </div>
-      <div class="image-inventory">
-        <h2>Image Inventory</h2>
-        <div class="image-grid">
-          <div class="image-tile used">
-            <img src="/images/nova/sample-image.jpg" alt="Sample">
-            <div class="image-caption">Used Image</div>
-          </div>
-          <div class="image-tile unused">
-            <img src="/images/nova/sample-image.jpg" alt="Sample">
-            <div class="image-caption">Unused Image</div>
-          </div>
+        <div class="mood-modes">
+          <button>Stealth Mode</button>
+          <button>Emoji-Only Mode</button>
+        </div>
+        <div id="moodGraph">
+          <canvas id="moodGraphCanvas"></canvas>
         </div>
       </div>
-      <div class="unused-css-report">
-        <h2>Unused CSS Report</h2>
-        <ul>
-          <li>.old-class</li>
-        </ul>
-      </div>
-      <div class="api-monitor">
-        <h2>API Monitor</h2>
-        <ul>
-          <li class="ok">API 1: OK</li>
-          <li class="fail">API 2: Fail</li>
-        </ul>
-      </div>
-      <div class="nova-memory-header">
-        <p>Memory Snapshot: <span>Active</span></p>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Project Progress -->
-  <section id="progress" class="content-section grid-col-12">
-    <h3>Project Progress</h3>
-    <p>Progress bars for project dashboards.</p>
-    <div class="grid-row">
-      <div class="grid-col-6">
-        <div class="progress-bar"><div class="progress-fill progress-2"></div></div>
-        <p>20% Progress</p>
+    <section id="display" class="content-section grid-col-12">
+      <h2>Display Modes</h2>
+      <p>Toggle between different display modes for the mood dashboard.</p>
+      <div class="mood-dashboard stealth">
+        <div class="mood-ring pulse"></div>
+        <div class="mood-emoji">😊</div>
+        <div class="mood-modes">
+          <button>Stealth Mode</button>
+          <button>Emoji-Only Mode</button>
+        </div>
       </div>
-      <div class="grid-col-6">
-        <div class="progress-bar"><div class="progress-fill progress-8"></div></div>
-        <p>80% Progress</p>
+      <div class="mood-dashboard emoji-only">
+        <div id="moodHeart">😊</div>
       </div>
-    </div>
-  </section>
-</main>
-<div id="footer-container"></div>
+    </section>
 
+    <section id="thoughts" class="content-section grid-col-12">
+      <h2>Thought Auras</h2>
+      <p>Thought blocks with aura-specific styling.</p>
+      <div class="nova-thought aura-violet pulse">
+        <p>"The universe speaks in patterns."</p>
+        <p class="prompt-entry">— Nova, on cosmic order</p>
+      </div>
+      <div class="nova-thought aura-cyan">
+        <p>"A single spark can light the void."</p>
+        <p class="prompt-entry">— Nova, on inspiration</p>
+      </div>
+      <div class="nova-thought aura-lime">
+        <p>"Energy flows where focus grows."</p>
+        <p class="prompt-entry">— Nova, on creativity</p>
+      </div>
+    </section>
 
-<script src="/js/init-header-footer.js" defer></script>
-<script src="/js/dreamEngine.js" defer></script>
-<script src="/js/init-quotes.js" defer></script>
-<script src="/js/main.js" defer></script>
-<script src="/js/md-inject.js" defer></script>
-<script src="/js/modal-window.js" defer></script>
-<script src="/js/nav.js" defer></script>
-<script src="/js/nova-ai.js" defer></script>
-<script src="/js/nova-awareness-feed.js" defer></script>
-<script src="/js/nova-dashboard.js" defer></script>
-<script src="/js/nova-insights.js" defer></script>
-<script src="/js/nova-interaction-log.js" defer></script>
-<script src="/js/nova-mood-core.js" defer></script>
-<script src="/js/nova-pulse.js" defer></script>
-<script src="/js/nova-quotes.js" defer></script>
-<script src="/js/nova-status.js" defer></script>
-<script src="/js/nova-telemetry-logger.js" defer></script>
-<script src="/js/project-dashboard.js" defer></script>
-<script src="/js/template.js" defer></script>
-<script src="/js/theme.js" defer></script>
-<script src="/js/nova-thought-of-the-day.js" defer></script>
-<script src="/js/nova-mood-grid.js" defer></script>
-<script src="/js/banner.js" defer></script>
-<script src="/js/nova-background.js" defer></script>
-<script src="/js/layout-nav.js" defer></script>
+    <section id="extra" class="content-section grid-col-12">
+      <h2>Extras</h2>
+      <p>Additional Nova-styled components.</p>
+      <div class="nova-synth-status">
+        <h3>System Status</h3>
+        <p>Core: Operational</p>
+        <blockquote>"All systems humming, ready to explore."</blockquote>
+        <small>Last checked: 5:45 PM</small>
+      </div>
+    </section>
+
+    <section id="sys" class="content-section grid-col-12">
+      <h2>System Dashboard</h2>
+      <p>A high-level overview of system metrics and status.</p>
+      <div class="nova-status-display">
+        <div class="nova-badge">
+          <i class="fas fa-memory"></i> Memory: 85%
+        </div>
+        <div class="nova-badge">
+          <i class="fas fa-tachometer-alt"></i> CPU: 60%
+        </div>
+        <div class="nova-badge">
+          <i class="fas fa-network-wired"></i> Network: Stable
+        </div>
+      </div>
+    </section>
+
+    <section id="progress" class="content-section grid-col-12">
+      <h2>Progress Bars</h2>
+      <p>Animated progress bars for tracking tasks or metrics.</p>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 75%;"></div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 40%;"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="footer-container"></footer>
+
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/dreamEngine.js" defer></script>
+  <script src="/js/init-quotes.js" defer></script>
+  <script src="/js/main.js" defer></script>
+  <script src="/js/md-inject.js" defer></script>
+  <script src="/js/modal-window.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/nova-ai.js" defer></script>
+  <script src="/js/nova-awareness-feed.js" defer></script>
+  <script src="/js/nova-dashboard.js" defer></script>
+  <script src="/js/nova-insights.js" defer></script>
+  <script src="/js/nova-interaction-log.js" defer></script>
+  <script src="/js/nova-mood-core.js" defer></script>
+  <script src="/js/nova-pulse.js" defer></script>
+  <script src="/js/nova-quotes.js" defer></script>
+  <script src="/js/nova-status.js" defer></script>
+  <script src="/js/nova-telemetry-logger.js" defer></script>
+  <script src="/js/project-dashboard.js" defer></script>
+  <script src="/js/template.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/nova-thought-of-the-day.js" defer></script>
+  <script src="/js/nova-mood-grid.js" defer></script>
+  <script src="/js/banner.js" defer></script>
+  <script src="/js/nova-background.js" defer></script>
+  <script src="/js/layout-nav.js" defer></script>
+  <script src="/js/nova-style-guide.js" defer></script>
 </body>
 </html>
