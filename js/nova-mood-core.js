@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // ✨ Apply aura class from mood scan
       const aura = data.aura?.toLowerCase().replace(/\s+/g, '-');
       if (aura) {
-        document.body.classList.add(`aura-${aura}`);
+
       }
 
       // 🎨 Apply mood-derived background

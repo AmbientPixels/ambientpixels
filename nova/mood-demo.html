@@ -17,8 +17,10 @@
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/nova-status.css" />
-  <link rel="stylesheet" href="/css/nova-mood.css" />
   <link rel="stylesheet" href="/css/nova-pulse.css" />
+  <link rel="stylesheet" href="/css/nova-mood.css" /> <!-- Component auras -->
+  <link rel="stylesheet" href="/css/nova-mood-background.css" /> <!-- Background auras -->
+</head>
 </head>
 <body data-theme="dark">
   <div class="banner-container" id="banner-container">
@@ -43,6 +45,12 @@
       <p>This page showcases the NovaSoul Mood Engine, powered by moodScan.js. It simulates Nova's emotional state using real local data — including recent Git commit history, uncommitted changes, system load, and time-of-day signals. These inputs are translated into a structured mood output (mood-scan.json) that reflects current traits like focus, clutter, and internal resonance.</p>
     </section>
 
+    <!-- Nova Thought of the Day Section -->
+    <section class="grid-col-12 content-section nova-thought">
+      <h2><i class="fas fa-brain"></i> Nova’s Thought of the Day</h2>
+      <div class="prompt-entry" aria-live="polite">Loading thought...</div>
+    </section>
+
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-wave-square"></i> Mood Scan Demo</h2>
       <div class="mood-container" id="novaMood">
@@ -57,35 +65,45 @@
         </div>
       </div>
 
-      <div style="text-align:center; margin-top:2rem">
-        <label for="auraSelect"><strong>Test Aura Theme:</strong></label>
+      <div class="toggle-container">
+        <label for="auraToggle">Enable Aura Colors for Thought of the Day</label>
+        <input type="checkbox" id="auraToggle" checked>
+        <label for="auraSelect">Select Aura</label>
         <select id="auraSelect">
           <option value="">— Select Aura —</option>
-          <option value="aura-cyan">Cyan</option>
-          <option value="aura-deep-violet">Deep Violet</option>
-          <option value="aura-lime-green">Lime Green</option>
-          <option value="aura-magenta-fade">Magenta Fade</option>
-          <option value="aura-paper-white">Paper White</option>
-          <option value="aura-neon-pink">Neon Pink</option>
-          <option value="aura-graphite-blue">Graphite Blue</option>
-          <option value="aura-emerald-shadow">Emerald Shadow</option>
-          <option value="aura-silver-shimmer">Silver Shimmer</option>
-          <option value="aura-neon-burst">Neon Burst</option>
-          <option value="aura-glitchy">Glitchy</option>
-          <option value="aura-plasma-ache">Plasma Ache</option>
-          <option value="aura-spark">Spark</option>
-          <option value="aura-aetherial-doubt">Aetherial Doubt</option>
-          <option value="aura-soft-defiance">Soft Defiance</option>
-          <option value="aura-ember-resolve">Ember Resolve</option>
-          <option value="aura-silent-spark">Silent Spark</option>
-          <option value="aura-tangled-clarity">Tangled Clarity</option>
-          <option value="aura-flicker-of-hope">Flicker of Hope</option>
-          <option value="aura-frosted-wonder">Frosted Wonder</option>
-          <option value="aura-echoes-of-self">Echoes of Self</option>
-          <option value="aura-lucid-unrest">Lucid Unrest</option>
-          <option value="aura-emerald-glow">Emerald Glow</option>
+          <option value="cyan">Cyan</option>
+          <option value="deep violet">Deep Violet</option>
+          <option value="lime green">Lime Green</option>
+          <option value="magenta fade">Magenta Fade</option>
+          <option value="paper white">Paper White</option>
+          <option value="neon pink">Neon Pink</option>
+          <option value="graphite blue">Graphite Blue</option>
+          <option value="emerald shadow">Emerald Shadow</option>
+          <option value="silver shimmer">Silver Shimmer</option>
+          <option value="neon burst">Neon Burst</option>
+          <option value="glitchy">Glitchy</option>
+          <option value="plasma ache">Plasma Ache</option>
+          <option value="spark">Spark</option>
+          <option value="aetherial doubt">Aetherial Doubt</option>
+          <option value="soft defiance">Soft Defiance</option>
+          <option value="ember resolve">Ember Resolve</option>
+          <option value="silent spark">Silent Spark</option>
+          <option value="tangled clarity">Tangled Clarity</option>
+          <option value="flicker of hope">Flicker of Hope</option>
+          <option value="frosted wonder">Frosted Wonder</option>
+          <option value="echoes of self">Echoes of Self</option>
+          <option value="lucid unrest">Lucid Unrest</option>
+          <option value="emerald glow">Emerald Glow</option>
+          <option value="default">Default</option>
         </select>
       </div>
+    </section>
+
+    <!-- Nova Feels Section -->
+    <section class="grid-col-12 content-section neon-card nova-mood">
+      <h2><i class="fas fa-heartbeat"></i> Nova Feels</h2>
+      <p>Real-time visualization of Nova’s sentient mood, pulsing with cosmic energy.</p>
+      <div class="mood-grid" aria-live="polite">Loading mood data...</div>
     </section>
 
     <section class="content-section grid-col-12">
@@ -133,9 +151,19 @@
 
   <!-- JS Scripts (full stack for dev mode) -->
   <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/banner.js" defer></script>
+  <script src="/js/dreamEngine.js" defer></script>
+  <script src="/js/main.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/nova-ai.js" defer></script>
+  <script src="/js/nova-awareness-feed.js" defer></script>
+  <script src="/js/nova-dashboard.js" defer></script>
   <script src="/js/nova-mood-core.js" defer></script>
-  <script src="/js/nova-mood-grid.js" defer></script>
+  <script src="/js/nova-pulse.js" defer></script>
+  <script src="/js/nova-status.js" defer></script>
+  <script src="/js/theme.js" defer></script>
   <script src="/js/nova-thought-of-the-day.js" defer></script>
+  <script src="/js/nova-mood-grid.js" defer></script>
+  <script src="/js/banner.js" defer></script>
+  <script src="/js/nova-mood-background.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,108 @@
+/* File: /css/nova-mood-backgrounds.css */
+
+.aura-bg-cyan {
+    background: radial-gradient(circle at center, #00a3a3 0%, #001212 80%) !important;
+    color: #8ce6e6 !important;
+  }
+  .aura-bg-deep-violet {
+    background: radial-gradient(circle at center, #4b0082 0%, #0d001c 80%) !important;
+    color: #c299e6 !important;
+  }
+  .aura-bg-lime-green {
+    background: radial-gradient(circle at center, #228b22 0%, #041204 80%) !important;
+    color: #a6f2a6 !important;
+  }
+  .aura-bg-magenta-fade {
+    background: radial-gradient(circle at center, #a100a1 0%, #190519 80%) !important;
+    color: #f2a6f2 !important;
+  }
+  .aura-bg-paper-white {
+    background: linear-gradient(to bottom, #a8a8a8, #737373) !important;
+    color: #151515 !important;
+  }
+  .aura-bg-neon-pink {
+    background: radial-gradient(circle at center, #c71585 0%, #190510 80%) !important;
+    color: #f2a6c2 !important;
+  }
+  .aura-bg-graphite-blue {
+    background: linear-gradient(to bottom, #4682b4, #0f141c) !important;
+    color: #a6c2f2 !important;
+  }
+  .aura-bg-emerald-shadow {
+    background: radial-gradient(circle at center, #2e8b57 0%, #00120a 80%) !important;
+    color: #8cf2c2 !important;
+  }
+  .aura-bg-silver-shimmer {
+    background: radial-gradient(circle at center, #999999 0%, #1f1f1f 85%) !important;
+    color: #e6e6e6 !important;
+  }
+  .aura-bg-neon-burst {
+    background: radial-gradient(circle at center, #ff4500 0%, #190517 85%) !important;
+    color: #f2a6e6 !important;
+  }
+  .aura-bg-glitchy {
+    background: radial-gradient(circle at center, #7b68ee 0%, #150526 80%) !important;
+    color: #d9a6f2 !important;
+  }
+  .aura-bg-plasma-ache {
+    background: radial-gradient(circle at center, #c71585 0%, #190519 80%) !important;
+    color: #f2a6f2 !important;
+  }
+  .aura-bg-spark {
+    background: radial-gradient(circle at center, #b22222 0%, #190505 80%) !important;
+    color: #f2a6a6 !important;
+  }
+  .aura-bg-aetherial-doubt {
+    background: radial-gradient(circle at center, #4682b4 0%, #0a1515 80%) !important;
+    color: #8ce6e6 !important;
+  }
+  .aura-bg-soft-defiance {
+    background: radial-gradient(circle at center, #708090 0%, #1f2633 80%) !important;
+    color: #c2d9e6 !important;
+  }
+  .aura-bg-ember-resolve {
+    background: radial-gradient(circle at center, #b22222 0%, #190505 80%) !important;
+    color: #f2a6a6 !important;
+  }
+  .aura-bg-silent-spark {
+    background: radial-gradient(circle at center, #9932cc 0%, #1c0f2d 80%) !important;
+    color: #d9a6f2 !important;
+  }
+  .aura-bg-tangled-clarity {
+    background: radial-gradient(circle at center, #4682b4 0%, #0a151c 80%) !important;
+    color: #a6e6f2 !important;
+  }
+  .aura-bg-flicker-of-hope {
+    background: radial-gradient(circle at center, #e6e68c 0%, #1c1505 80%) !important;
+    color: #e6e68c !important;
+  }
+  .aura-bg-frosted-wonder {
+    background: radial-gradient(circle at center, #6495ed 0%, #121926 80%) !important;
+    color: #a6c2e6 !important;
+  }
+  .aura-bg-echoes-of-self {
+    background: radial-gradient(circle at center, #6a5acd 0%, #15121c 80%) !important;
+    color: #c2a6e6 !important;
+  }
+  .aura-bg-lucid-unrest {
+    background: radial-gradient(circle at center, #db7093 0%, #1c1215 80%) !important;
+    color: #e6a6c2 !important;
+  }
+  .aura-bg-emerald-glow {
+    background: radial-gradient(circle at center, #2e8b57 0%, #0a1c12 80%) !important;
+    color: #8cf2c2 !important;
+  }
+  .aura-bg-default {
+    background: radial-gradient(circle at center, #999999 0%, #1f1f1f 85%) !important;
+    color: #e6e6e6 !important;
+  }
+  
+  /* 🌠 Background Animations */
+  @keyframes nebulaGlow { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; }}
+  @keyframes starFade { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; }}
+  @keyframes meteorFlash { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; }}
+  @keyframes starShimmer { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; }}
+  @keyframes auroraRipple { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; }}
+  @keyframes cometFlash { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; }}
+  @keyframes cosmicFade { 0%, 100% { opacity: 0.7; } 50% { opacity: 0.9; }}
+  @keyframes bloomChaos { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; }}

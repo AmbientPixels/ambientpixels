@@ -1,4 +1,5 @@
-// nova-mood-render.js — Full with Whisper Panel + Mood Stream (Aura badges enabled)
+// File: nova-mood-render.js
+// Path: /js/nova-mood-render.js
 
 const moodToEmoji = {
   joy: "😄",
@@ -92,21 +93,20 @@ async function loadMood() {
 
     const simpleMood = moodToSimple(data.mood || "neutral");
 
-    document.getElementById("moodEmoji").textContent = moodToEmoji[simpleMood] || "🧠";
-    document.getElementById("moodTitle").textContent = data.mood || "Unknown";
-    document.getElementById("moodAura").textContent = data.aura || "N/A";
-    document.getElementById("moodQuote").textContent = data.quote ? `“${data.quote}”` : "No quote available.";
-    document.getElementById("moodTimestamp").textContent = data.timestamp ? `Last updated: ${new Date(data.timestamp).toLocaleString()}` : "Last updated: unknown.";
-    document.getElementById("moodInfluences").textContent = `Influences: ${data.context?.influences?.join(", ") || "N/A"}`;
+    const moodEmoji = document.getElementById("moodEmoji");
+    const moodTitle = document.getElementById("moodTitle");
+    const moodAura = document.getElementById("moodAura");
+    const moodQuote = document.getElementById("moodQuote");
+    const moodTimestamp = document.getElementById("moodTimestamp");
+    const moodInfluences = document.getElementById("moodInfluences");
 
-    document.body.className = document.body.className
-      .split(" ")
-      .filter(cls => !cls.startsWith("aura-"))
-      .join(" ")
-      .trim();
+    if (moodEmoji) moodEmoji.textContent = moodToEmoji[simpleMood] || "🧠";
+    if (moodTitle) moodTitle.textContent = data.mood || "Unknown";
+    if (moodAura) moodAura.textContent = data.aura || "N/A";
+    if (moodQuote) moodQuote.textContent = data.quote ? `“${data.quote}”` : "No quote available.";
+    if (moodTimestamp) moodTimestamp.textContent = data.timestamp ? `Last updated: ${new Date(data.timestamp).toLocaleString()}` : "Last updated: unknown.";
+    if (moodInfluences) moodInfluences.textContent = `Influences: ${data.context?.influences?.join(", ") || "N/A"}`;
 
-    const auraClass = "aura-" + (data.aura || "default").replace(/\s+/g, "-").toLowerCase();
-    document.body.classList.add(auraClass);
     document.body.dataset.theme = "dark";
 
     updateMoodRing(simpleMood);
@@ -120,10 +120,10 @@ async function loadMood() {
         aura: data.aura || "default"
       }
     }));
-
   } catch (e) {
     console.error("Failed to load mood:", e);
-    document.getElementById("moodTitle").textContent = "Unable to load mood.";
+    const moodTitle = document.getElementById("moodTitle");
+    if (moodTitle) moodTitle.textContent = "Unable to load mood.";
   }
 }
 
