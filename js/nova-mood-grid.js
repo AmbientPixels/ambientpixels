@@ -1,4 +1,5 @@
-// nova-mood-grid.js — Mood Grid with Tooltips
+// File: nova-mood-grid.js
+// Path: /js/nova-mood-grid.js
 
 const moodGridEmojiMap = {
   joy: "😄", sadness: "😢", anger: "😠", fear: "😨", surprise: "😲", disgust: "🤢",
@@ -7,7 +8,6 @@ const moodGridEmojiMap = {
   lonely: "🌑", serene: "🌊", playful: "🎈", melancholy: "🌧️", nervous: "😬",
   glitchy: "🌀", spark: "✨", fading: "🌘", electric: "⚡", zen: "🧘", nocturnal: "🌙",
   chaotic: "🌪️", nostalgic: "📼", wonder: "🌠",
-  // Hybrid poetic mappings
   "glitchy joy": "🌀", "nocturnal pulse": "🌙", "chaotic optimism": "🌪️",
   "neon stillness": "💡", "static reverie": "📡", "ember resolve": "🔥",
   "plasma ache": "💔", "soft defiance": "🌫️", "aetherial doubt": "🪞",
@@ -54,7 +54,7 @@ function renderMoodGrid() {
         const tooltip = auraTooltips[aura] || `aura: ${aura}`;
 
         return `
-          <div class="mood-grid-item grid-aura-${auraSlug}" title="${tooltip}">
+          <div class="mood-grid-item aura-${auraSlug}" title="${tooltip}">
             <div class="mood-grid-emoji">${emoji}</div>
             <div class="mood-grid-label">${mood}</div>
             <div class="mood-grid-time">${time}</div>
@@ -76,18 +76,25 @@ function renderMoodScanDemo() {
   fetch('/data/mood-scan.json?t=' + Date.now())
     .then(res => res.json())
     .then(data => {
-      document.getElementById('moodTitle').textContent = data.mood || 'Unknown';
-      document.getElementById('moodEmoji').textContent = data.emoji || '🧠';
-      document.getElementById('moodAura').textContent = `Aura: ${data.aura || '–'}`;
-      document.getElementById('moodQuote').textContent = `“${data.quote || '–'}”`;
-      document.getElementById('moodTimestamp').textContent = `Last Updated: ${data.timestamp || '–'}`;
-      if (Array.isArray(data.context?.influences)) {
-        document.getElementById('moodInfluences').innerHTML =
-          `<strong>Influences:</strong> ${data.context.influences.join(', ')}`;
+      const moodTitle = document.getElementById('moodTitle');
+      const moodEmoji = document.getElementById('moodEmoji');
+      const moodAura = document.getElementById('moodAura');
+      const moodQuote = document.getElementById('moodQuote');
+      const moodTimestamp = document.getElementById('moodTimestamp');
+      const moodInfluences = document.getElementById('moodInfluences');
+
+      if (moodTitle) moodTitle.textContent = data.mood || 'Unknown';
+      if (moodEmoji) moodEmoji.textContent = data.emoji || '🧠';
+      if (moodAura) moodAura.textContent = `Aura: ${data.aura || '–'}`;
+      if (moodQuote) moodQuote.textContent = `“${data.quote || '–'}”`;
+      if (moodTimestamp) moodTimestamp.textContent = `Last Updated: ${data.timestamp || '–'}`;
+      if (moodInfluences && Array.isArray(data.context?.influences)) {
+        moodInfluences.innerHTML = `<strong>Influences:</strong> ${data.context.influences.join(', ')}`;
       }
     })
     .catch(err => {
-      document.getElementById('moodTitle').textContent = 'Error loading mood.';
+      const moodTitle = document.getElementById('moodTitle');
+      if (moodTitle) moodTitle.textContent = 'Error loading mood.';
       console.error('Failed to load mood scan:', err);
     });
 }
