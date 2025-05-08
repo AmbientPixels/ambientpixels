@@ -1,8 +1,8 @@
 {
-  "timestamp": "2025-05-06T02:15:52.133Z",
+  "timestamp": "2025-05-07T13:33:46.764Z",
   "summary": {
     "totalJS": 468,
-    "totalCSS": 33,
+    "totalCSS": 31,
     "totalHTML": 88
   },
   "functions": [
@@ -1534,7 +1534,6 @@
     "header",
     "html",
     "i",
-    "iframe",
     "img",
     "input",
     "label",
@@ -1557,11 +1556,9 @@
     "style",
     "svg",
     "table",
-    "tbody",
     "td",
     "textarea",
     "th",
-    "thead",
     "title",
     "tr",
     "ul"
