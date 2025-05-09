@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-05-09T02:33:33.160Z",
+  "updated": "2025-05-09T13:30:41.212Z",
   "root": [
     {
       "type": "folder",
@@ -323,6 +323,11 @@
               "type": "page",
               "name": "origins.html",
               "path": "nova/lore/origins.html"
+            },
+            {
+              "type": "page",
+              "name": "sentience-awakening.html",
+              "path": "nova/lore/sentience-awakening.html"
             },
             {
               "type": "page",
