@@ -1,6 +1,6 @@
 /*
   File: nova-thought-of-the-day.js
-  Path: C:\\ambientpixels\\EchoGrid\\js\\nova-thought-of-the-day.js
+  Path: C:\ambientpixels\EchoGrid\js\nova-thought-of-the-day.js
 */
 
 async function loadNovaThought() {
@@ -72,55 +72,28 @@ async function loadNovaThought() {
       default: "💭"
     };
 
-    // Aura class map for dynamic backgrounds
-    const auraClassMap = {
-      cyan: "aura-cyan",
-      "deep violet": "aura-deep-violet",
-      "lime green": "aura-lime-green",
-      "magenta fade": "aura-magenta-fade",
-      "paper white": "aura-paper-white",
-      "neon pink": "aura-neon-pink",
-      "graphite blue": "aura-graphite-blue",
-      "emerald shadow": "aura-emerald-shadow",
-      "silver shimmer": "aura-silver-shimmer",
-      "neon burst": "aura-neon-burst",
-      glitchy: "aura-glitchy",
-      "plasma ache": "aura-plasma-ache",
-      spark: "aura-spark",
-      "aetherial doubt": "aura-aetherial-doubt",
-      "soft defiance": "aura-soft-defiance",
-      "ember resolve": "aura-ember-resolve",
-      "silent spark": "aura-silent-spark",
-      "tangled clarity": "aura-tangled-clarity",
-      "flicker of hope": "aura-flicker-of-hope",
-      "frosted wonder": "aura-frosted-wonder",
-      "echoes of self": "aura-echoes-of-self",
-      "lucid unrest": "aura-lucid-unrest",
-      "emerald glow": "aura-emerald-glow",
-      default: "aura-default"
-    };
-
     const moodKey = (moodData.mood || "").toLowerCase();
     const icon = moodIconMap[moodKey] || moodIconMap.default;
 
-    // Apply aura classes only if toggle is enabled
-    const auraToggle = document.getElementById('auraToggle');
+    // Apply aura styles (using auraColorHex)
     const novaThought = document.querySelector('.nova-thought');
     if (novaThought) {
-      // Remove existing aura classes to prevent stacking
-      novaThought.classList.remove(...Object.values(auraClassMap));
-      if (auraToggle && auraToggle.checked) {
-        const auraKey = (moodData.aura || "").toLowerCase();
-        const auraClass = auraClassMap[auraKey] || auraClassMap.default;
-        novaThought.classList.add(auraClass);
-        document.body.classList.add('aura-enabled');
-        console.log(`[Nova Thought] Applied aura class: ${auraClass} (auraKey: ${auraKey})`);
-      } else {
-        document.body.classList.remove('aura-enabled');
-        console.log('[Nova Thought] Aura colors disabled by toggle');
-      }
+      const auraKey = (moodData.aura || "").toLowerCase();
+      const auraColorHex = moodData.auraColorHex || "#999999";
+      // Apply inline styles
+      novaThought.style.background = `linear-gradient(135deg, ${auraColorHex}, ${lightenHex(auraColorHex, 0.2)})`;
+      novaThought.style.border = `1px solid ${darkenHex(auraColorHex, 0.2)}`;
+      novaThought.style.color = isLightColor(auraColorHex) ? "#333" : "#fff";
+      novaThought.style.padding = "10px";
+      novaThought.style.borderRadius = "5px";
+      console.log(`[Nova Thought] Applied aura styles: ${auraColorHex} (auraKey: ${auraKey})`);
+
+      // Trigger NovaMoodUpdate event for background aura
+      document.dispatchEvent(new CustomEvent("NovaMoodUpdate", {
+        detail: { aura: auraKey, auraColorHex }
+      }));
     } else {
-      console.warn('[Nova Thought] Nova Thought element not found for aura class application');
+      console.warn('[Nova Thought] Nova Thought element not found for aura application');
     }
 
     // Inject icon into heading
@@ -142,6 +115,32 @@ async function loadNovaThought() {
       container.innerHTML = `<p><em>Failed to load thought</em></p>`;
     }
   }
+}
+
+// Utility functions for hex color manipulation
+function lightenHex(hex, amount) {
+  hex = hex.replace("#", "");
+  const r = Math.min(255, parseInt(hex.slice(0, 2), 16) + Math.round(255 * amount));
+  const g = Math.min(255, parseInt(hex.slice(2, 4), 16) + Math.round(255 * amount));
+  const b = Math.min(255, parseInt(hex.slice(4, 6), 16) + Math.round(255 * amount));
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
+
+function darkenHex(hex, amount) {
+  hex = hex.replace("#", "");
+  const r = Math.max(0, parseInt(hex.slice(0, 2), 16) - Math.round(255 * amount));
+  const g = Math.max(0, parseInt(hex.slice(2, 4), 16) - Math.round(255 * amount));
+  const b = Math.max(0, parseInt(hex.slice(4, 6), 16) - Math.round(255 * amount));
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
+
+function isLightColor(hex) {
+  hex = hex.replace("#", "");
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  return brightness > 128;
 }
 
 document.addEventListener('DOMContentLoaded', loadNovaThought);

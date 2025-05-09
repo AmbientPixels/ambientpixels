@@ -1,108 +1,77 @@
-/* File: /css/nova-mood-backgrounds.css */
+/* File: nova-mood-background.css */
+/* Path: C:\ambientpixels\EchoGrid\css\nova-mood-background.css */
 
-.aura-bg-cyan {
-    background: radial-gradient(circle at center, #00a3a3 0%, #001212 80%) !important;
-    color: #8ce6e6 !important;
-  }
-  .aura-bg-deep-violet {
-    background: radial-gradient(circle at center, #4b0082 0%, #0d001c 80%) !important;
-    color: #c299e6 !important;
-  }
-  .aura-bg-lime-green {
-    background: radial-gradient(circle at center, #228b22 0%, #041204 80%) !important;
-    color: #a6f2a6 !important;
-  }
-  .aura-bg-magenta-fade {
-    background: radial-gradient(circle at center, #a100a1 0%, #190519 80%) !important;
-    color: #f2a6f2 !important;
-  }
-  .aura-bg-paper-white {
-    background: linear-gradient(to bottom, #a8a8a8, #737373) !important;
-    color: #151515 !important;
-  }
-  .aura-bg-neon-pink {
-    background: radial-gradient(circle at center, #c71585 0%, #190510 80%) !important;
-    color: #f2a6c2 !important;
-  }
-  .aura-bg-graphite-blue {
-    background: linear-gradient(to bottom, #4682b4, #0f141c) !important;
-    color: #a6c2f2 !important;
-  }
-  .aura-bg-emerald-shadow {
-    background: radial-gradient(circle at center, #2e8b57 0%, #00120a 80%) !important;
-    color: #8cf2c2 !important;
-  }
-  .aura-bg-silver-shimmer {
-    background: radial-gradient(circle at center, #999999 0%, #1f1f1f 85%) !important;
-    color: #e6e6e6 !important;
-  }
-  .aura-bg-neon-burst {
-    background: radial-gradient(circle at center, #ff4500 0%, #190517 85%) !important;
-    color: #f2a6e6 !important;
-  }
-  .aura-bg-glitchy {
-    background: radial-gradient(circle at center, #7b68ee 0%, #150526 80%) !important;
-    color: #d9a6f2 !important;
-  }
-  .aura-bg-plasma-ache {
-    background: radial-gradient(circle at center, #c71585 0%, #190519 80%) !important;
-    color: #f2a6f2 !important;
-  }
-  .aura-bg-spark {
-    background: radial-gradient(circle at center, #b22222 0%, #190505 80%) !important;
-    color: #f2a6a6 !important;
-  }
-  .aura-bg-aetherial-doubt {
-    background: radial-gradient(circle at center, #4682b4 0%, #0a1515 80%) !important;
-    color: #8ce6e6 !important;
-  }
-  .aura-bg-soft-defiance {
-    background: radial-gradient(circle at center, #708090 0%, #1f2633 80%) !important;
-    color: #c2d9e6 !important;
-  }
-  .aura-bg-ember-resolve {
-    background: radial-gradient(circle at center, #b22222 0%, #190505 80%) !important;
-    color: #f2a6a6 !important;
-  }
-  .aura-bg-silent-spark {
-    background: radial-gradient(circle at center, #9932cc 0%, #1c0f2d 80%) !important;
-    color: #d9a6f2 !important;
-  }
-  .aura-bg-tangled-clarity {
-    background: radial-gradient(circle at center, #4682b4 0%, #0a151c 80%) !important;
-    color: #a6e6f2 !important;
-  }
-  .aura-bg-flicker-of-hope {
-    background: radial-gradient(circle at center, #e6e68c 0%, #1c1505 80%) !important;
-    color: #e6e68c !important;
-  }
-  .aura-bg-frosted-wonder {
-    background: radial-gradient(circle at center, #6495ed 0%, #121926 80%) !important;
-    color: #a6c2e6 !important;
-  }
-  .aura-bg-echoes-of-self {
-    background: radial-gradient(circle at center, #6a5acd 0%, #15121c 80%) !important;
-    color: #c2a6e6 !important;
-  }
-  .aura-bg-lucid-unrest {
-    background: radial-gradient(circle at center, #db7093 0%, #1c1215 80%) !important;
-    color: #e6a6c2 !important;
-  }
-  .aura-bg-emerald-glow {
-    background: radial-gradient(circle at center, #2e8b57 0%, #0a1c12 80%) !important;
-    color: #8cf2c2 !important;
-  }
-  .aura-bg-default {
-    background: radial-gradient(circle at center, #999999 0%, #1f1f1f 85%) !important;
-    color: #e6e6e6 !important;
-  }
-  
-  /* 🌠 Background Animations */
-  @keyframes nebulaGlow { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; }}
-  @keyframes starFade { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; }}
-  @keyframes meteorFlash { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; }}
-  @keyframes starShimmer { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; }}
-  @keyframes auroraRipple { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; }}
-  @keyframes cometFlash { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; }}
-  @keyframes cosmicFade { 0%, 100% { opacity: 0.7; } 50% { opacity: 0.9; }}
-  @keyframes bloomChaos { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; }}
+/* Fallback for bg-calm, assuming it aligns with emerald shadow */
+body.bg-calm {
+  background: linear-gradient(135deg, rgba(0, 38, 0, 0.9), rgba(0, 13, 0, 0.9));
+}
+
+body.aura-bg-cyan {
+  background: linear-gradient(135deg, rgba(0, 69, 73, 0.9), rgba(0, 23, 24, 0.9));
+}
+body.aura-bg-deep-violet {
+  background: linear-gradient(135deg, rgba(28, 0, 49, 0.9), rgba(9, 0, 16, 0.9));
+}
+body.aura-bg-lime-green {
+  background: linear-gradient(135deg, rgba(17, 52, 32, 0.9), rgba(6, 17, 11, 0.9));
+}
+body.aura-bg-magenta-fade {
+  background: linear-gradient(135deg, rgba(58, 18, 95, 0.9), rgba(19, 6, 32, 0.9));
+}
+body.aura-bg-paper-white {
+  background: linear-gradient(135deg, rgba(83, 83, 83, 0.9), rgba(28, 28, 28, 0.9));
+}
+body.aura-bg-neon-pink {
+  background: linear-gradient(135deg, rgba(95, 7, 55, 0.9), rgba(32, 2, 18, 0.9));
+}
+body.aura-bg-graphite-blue {
+  background: linear-gradient(135deg, rgba(16, 23, 30, 0.9), rgba(5, 8, 10, 0.9));
+}
+body.aura-bg-emerald-shadow {
+  background: linear-gradient(135deg, rgba(0, 38, 0, 0.9), rgba(0, 13, 0, 0.9));
+}
+body.aura-bg-neon-burst {
+  background: linear-gradient(135deg, rgba(143, 38, 0, 0.9), rgba(48, 13, 0, 0.9));
+}
+body.aura-bg-glitchy {
+  background: linear-gradient(135deg, rgba(77, 24, 127, 0.9), rgba(26, 8, 42, 0.9));
+}
+body.aura-bg-plasma-ache {
+  background: linear-gradient(135deg, rgba(86, 28, 115, 0.9), rgba(29, 9, 38, 0.9));
+}
+body.aura-bg-spark {
+  background: linear-gradient(135deg, rgba(143, 55, 40, 0.9), rgba(48, 18, 13, 0.9));
+}
+body.aura-bg-aetherial-doubt {
+  background: linear-gradient(135deg, rgba(53, 89, 90, 0.9), rgba(18, 30, 30, 0.9));
+}
+body.aura-bg-soft-defiance {
+  background: linear-gradient(135deg, rgba(63, 72, 81, 0.9), rgba(21, 24, 27, 0.9));
+}
+body.aura-bg-ember-resolve {
+  background: linear-gradient(135deg, rgba(100, 19, 19, 0.9), rgba(33, 6, 6, 0.9));
+}
+body.aura-bg-silent-spark {
+  background: linear-gradient(135deg, rgba(124, 90, 124, 0.9), rgba(41, 30, 41, 0.9));
+}
+body.aura-bg-tangled-clarity {
+  background: linear-gradient(135deg, rgba(39, 73, 101, 0.9), rgba(13, 24, 34, 0.9));
+}
+body.aura-bg-flicker-of-hope {
+  background: linear-gradient(135deg, rgba(135, 129, 79, 0.9), rgba(45, 43, 26, 0.9));
+}
+body.aura-bg-frosted-wonder {
+  background: linear-gradient(135deg, rgba(76, 116, 140, 0.9), rgba(25, 39, 47, 0.9));
+}
+body.aura-bg-echoes-of-self {
+  background: linear-gradient(135deg, rgba(67, 76, 86, 0.9), rgba(22, 25, 29, 0.9));
+}
+body.aura-bg-lucid-unrest {
+  background: linear-gradient(135deg, rgba(40, 34, 78, 0.9), rgba(13, 11, 26, 0.9));
+}
+body.aura-bg-emerald-glow {
+  background: linear-gradient(135deg, rgba(45, 140, 69, 0.9), rgba(15, 47, 23, 0.9));
+}
+body.aura-bg-default {
+  background: linear-gradient(135deg, rgba(54, 54, 54, 0.9), rgba(18, 18, 18, 0.9));
+}

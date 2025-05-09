@@ -1,366 +1,164 @@
-/*\css\nova-mood.css
- 🌌 Nova Mood — Component Aura Styles and Shared Utilities */
+/* File: nova-mood.css */
+/* Path: C:\ambientpixels\EchoGrid\css\nova-mood.css */
 
-/* 🌈 MOOD CONTAINER */
-.mood-container {
-  border-radius: 1rem;
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.05);
-  box-shadow: 0 0 1rem rgba(0,0,0,0.3);
-  max-width: 600px;
-  margin: 1rem auto;
-}
-.mood-title {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-}
-.mood-aura {
-  font-style: italic;
-  opacity: 0.8;
-}
-.mood-quote {
-  margin: 1rem 0;
-  font-size: 1.2rem;
-  color: #ccc;
-}
-.mood-meta {
-  font-size: 0.9rem;
-  color: #888;
-}
-.mood-emoji {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-}
-.refresh-button {
-  margin-top: 2rem;
-  background: #444;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  color: white;
-  border-radius: 0.5rem;
-  cursor: pointer;
-}
-
-/* 🌬️ Whisper Panel */
-.whisper-panel {
-  margin: 1.5rem auto;
-  padding: 1rem 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-left: 4px solid #99f;
-  font-style: italic;
-  font-size: 1.1rem;
-  max-width: 600px;
-  border-radius: 0.5rem;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
-  color: #ddd;
-}
-
-/* 🌊 Mood Stream */
-.mood-stream {
-  margin: 2rem auto;
-  padding: 1rem;
-  background: rgba(255,255,255,0.03);
-  max-width: 600px;
-  border-radius: 0.5rem;
-}
-.mood-stream h4 {
-  margin-bottom: 0.5rem;
-  color: #aaa;
-}
-.mood-stream ul {
-  list-style: none;
-  padding-left: 0;
-  font-size: 0.95rem;
-  color: #ccc;
-}
-.mood-stream li {
-  margin: 0.25rem 0;
-}
-
-/* 🔁 Shared Utility */
-.hidden {
-  display: none;
-}
-.panel-subtext {
-  font-size: 0.9rem;
-  color: #aaa;
-  margin-bottom: 0.5rem;
-}
-
-/* 🎖️ Aura Badge Colors */
-.badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  margin-right: 0.5rem;
-  color: white;
-}
-.badge-aura-cyan { background: #00ffff; color: #000; }
-.badge-aura-deep-violet { background: #49006a; }
-.badge-aura-lime-green { background: #32cd32; color: #000; }
-.badge-aura-magenta-fade { background: #d672d6; }
-.badge-aura-paper-white { background: #f5f5f5; color: #000; }
-.badge-aura-neon-pink { background: #ff6ec7; }
-.badge-aura-graphite-blue { background: #3c4f65; }
-.badge-aura-emerald-shadow { background: #2e8b57; }
-.badge-aura-silver-shimmer { background: #d4d4d4; color: #000; }
-.badge-aura-neon-burst { background: #ff00cc; color: #fff; }
-.badge-aura-default { background: #999; }
-
-/* 🧊 Mood Grid */
-.mood-grid-section {
-  padding: 2rem;
-  text-align: center;
-}
-.mood-grid-section h2 {
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
-  color: #eee;
-}
-.mood-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  margin: 0 auto;
-  margin-top: 1rem;
-  max-width: 800px;
-}
-.mood-grid-item {
-  padding: 1rem;
-  border-radius: 1rem;
-  text-align: center;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
-  background: rgba(255,255,255,0.05);
-  transition: transform 0.3s ease;
-}
-.mood-grid-item:hover {
-  transform: scale(1.05);
-}
-.mood-grid-emoji {
-  font-size: 2rem;
-  margin-bottom: 0.25rem;
-}
-.mood-grid-label {
-  font-weight: 600;
-  text-transform: capitalize;
-  margin-bottom: 0.25rem;
-  color: #eee;
-}
-.mood-grid-time {
-  font-size: 0.85rem;
-  color: #aaa;
-}
-
-/* 🌌 Mood Grid Auras */
-.mood-grid-item.aura-cyan {
-  background: rgba(0, 255, 255, 0.15) !important;
-  color: #e0ffff !important;
-}
-.mood-grid-item.aura-deep-violet {
-  background: rgba(138, 43, 226, 0.15) !important;
-  color: #eeeeff !important;
-}
-.mood-grid-item.aura-lime-green {
-  background: rgba(0, 255, 0, 0.12) !important;
-  color: #f0fff0 !important;
-}
-.mood-grid-item.aura-magenta-fade {
-  background: rgba(255, 0, 255, 0.15) !important;
-  color: #ffe0ff !important;
-}
-.mood-grid-item.aura-paper-white {
-  background: rgba(255, 255, 255, 0.07) !important;
-  color: #eeeeee !important;
-}
-.mood-grid-item.aura-neon-pink {
-  background: rgba(255, 105, 180, 0.15) !important;
-  color: #ffe0f0 !important;
-}
-.mood-grid-item.aura-graphite-blue {
-  background: rgba(44, 62, 80, 0.6) !important;
-  color: #dddddd !important;
-}
-.mood-grid-item.aura-emerald-shadow {
-  background: rgba(0, 100, 0, 0.15) !important;
-  color: #d8fff0 !important;
-}
-.mood-grid-item.aura-silver-shimmer {
-  background: rgba(200, 200, 200, 0.15) !important;
-  color: #eeeeee !important;
-}
-.mood-grid-item.aura-neon-burst {
-  background: rgba(255, 0, 204, 0.15) !important;
-  color: #ffe0ff !important;
-}
-.mood-grid-item.aura-glitchy {
-  background: rgba(92, 40, 138, 0.15) !important;
-  color: #e0d9ff !important;
-}
-.mood-grid-item.aura-plasma-ache {
-  background: rgba(138, 45, 138, 0.15) !important;
-  color: #f2e0f2 !important;
-}
-.mood-grid-item.aura-spark {
-  background: rgba(115, 45, 45, 0.15) !important;
-  color: #ffe0e0 !important;
-}
-.mood-grid-item.aura-aetherial-doubt {
-  background: rgba(77, 115, 115, 0.15) !important;
-  color: #e0ffff !important;
-}
-.mood-grid-item.aura-soft-defiance {
-  background: rgba(102, 115, 128, 0.15) !important;
-  color: #e0e6ff !important;
-}
-.mood-grid-item.aura-ember-resolve {
-  background: rgba(115, 45, 45, 0.15) !important;
-  color: #ffe0e0 !important;
-}
-.mood-grid-item.aura-silent-spark {
-  background: rgba(138, 77, 179, 0.15) !important;
-  color: #f2e0ff !important;
-}
-.mood-grid-item.aura-tangled-clarity {
-  background: rgba(51, 92, 115, 0.15) !important;
-  color: #e0f2ff !important;
-}
-.mood-grid-item.aura-flicker-of-hope {
-  background: rgba(115, 102, 25, 0.15) !important;
-  color: #f2f2cc !important;
-}
-.mood-grid-item.aura-frosted-wonder {
-  background: rgba(77, 102, 128, 0.15) !important;
-  color: #e0e6ff !important;
-}
-.mood-grid-item.aura-echoes-of-self {
-  background: rgba(92, 77, 115, 0.15) !important;
-  color: #e0d9ff !important;
-}
-.mood-grid-item.aura-lucid-unrest {
-  background: rgba(115, 77, 92, 0.15) !important;
-  color: #ffe0e6 !important;
-}
-.mood-grid-item.aura-emerald-glow {
-  background: rgba(28, 115, 77, 0.15) !important;
-  color: #e0ffee !important;
-}
-.mood-grid-item.aura-default {
-  background: rgba(153, 153, 153, 0.15) !important;
-  color: #eeeeee !important;
-}
-
-/* 🌌 Nova Section Auras — for smaller modules like Thought of the Day */
-.nova-thought {
-  background: rgba(255, 255, 255, 0.05);
-  color: #eeeeee;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
-}
-body.aura-enabled .nova-thought.aura-cyan {
-  background: rgba(0, 255, 255, 0.15) !important;
-  color: #e0ffff !important;
-}
-body.aura-enabled .nova-thought.aura-deep-violet {
-  background: rgba(138, 43, 226, 0.15) !important;
-  color: #eeeeff !important;
-}
-body.aura-enabled .nova-thought.aura-lime-green {
-  background: rgba(0, 255, 0, 0.12) !important;
-  color: #f0fff0 !important;
-}
-body.aura-enabled .nova-thought.aura-magenta-fade {
-  background: rgba(255, 0, 255, 0.15) !important;
-  color: #ffe0ff !important;
-}
-body.aura-enabled .nova-thought.aura-paper-white {
-  background: rgba(255, 255, 255, 0.07) !important;
-  color: #eeeeee !important;
-}
-body.aura-enabled .nova-thought.aura-neon-pink {
-  background: rgba(255, 105, 180, 0.15) !important;
-  color: #ffe0f0 !important;
-}
-body.aura-enabled .nova-thought.aura-graphite-blue {
-  background: rgba(44, 62, 80, 0.6) !important;
-  color: #dddddd !important;
-}
-body.aura-enabled .nova-thought.aura-emerald-shadow {
-  background: rgba(0, 100, 0, 0.15) !important;
-  color: #d8fff0 !important;
-}
-body.aura-enabled .nova-thought.aura-silver-shimmer {
-  background: rgba(200, 200, 200, 0.15) !important;
-  color: #eeeeee !important;
-}
-body.aura-enabled .nova-thought.aura-neon-burst {
-  background: rgba(255, 0, 204, 0.15) !important;
-  color: #ffe0ff !important;
-}
-body.aura-enabled .nova-thought.aura-glitchy {
-  background: rgba(92, 40, 138, 0.15) !important;
-  color: #e0d9ff !important;
-}
-body.aura-enabled .nova-thought.aura-plasma-ache {
-  background: rgba(138, 45, 138, 0.15) !important;
-  color: #f2e0f2 !important;
-}
-body.aura-enabled .nova-thought.aura-spark {
-  background: rgba(115, 45, 45, 0.15) !important;
-  color: #ffe0e0 !important;
-}
-body.aura-enabled .nova-thought.aura-aetherial-doubt {
-  background: rgba(77, 115, 115, 0.15) !important;
-  color: #e0ffff !important;
-}
-body.aura-enabled .nova-thought.aura-soft-defiance {
-  background: rgba(102, 115, 128, 0.15) !important;
-  color: #e0e6ff !important;
-}
-body.aura-enabled .nova-thought.aura-ember-resolve {
-  background: rgba(115, 45, 45, 0.15) !important;
-  color: #ffe0e0 !important;
-}
-body.aura-enabled .nova-thought.aura-silent-spark {
-  background: rgba(138, 77, 179, 0.15) !important;
-  color: #f2e0ff !important;
-}
-body.aura-enabled .nova-thought.aura-tangled-clarity {
-  background: rgba(51, 92, 115, 0.15) !important;
-  color: #e0f2ff !important;
-}
-body.aura-enabled .nova-thought.aura-flicker-of-hope {
-  background: rgba(115, 102, 25, 0.15) !important;
-  color: #f2f2cc !important;
-}
-body.aura-enabled .nova-thought.aura-frosted-wonder {
-  background: rgba(77, 102, 128, 0.15) !important;
-  color: #e0e6ff !important;
-}
-body.aura-enabled .nova-thought.aura-echoes-of-self {
-  background: rgba(92, 77, 115, 0.15) !important;
-  color: #e0d9ff !important;
-}
-body.aura-enabled .nova-thought.aura-lucid-unrest {
-  background: rgba(115, 77, 92, 0.15) !important;
-  color: #ffe0e6 !important;
-}
-body.aura-enabled .nova-thought.aura-emerald-glow {
-  background: rgba(28, 115, 77, 0.15) !important;
-  color: #e0ffee !important;
-}
-body.aura-enabled .nova-thought.aura-default {
-  background: rgba(153, 153, 153, 0.15) !important;
-  color: #eeeeee !important;
-}
-
-/* Only apply when we trigger it manually via class */
-.nova-thought.pulse {
-  animation: lightPulse 4s ease-in-out infinite;
-}
-.nova-thought:hover {
-  box-shadow: 0 0 15px rgba(4, 212, 244, 0.665);
-  transition: box-shadow 0.4s ease-in-out;
+.nova-thought.aura-cyan {
+  background: linear-gradient(135deg, #00b7c2, #4dd0e1);
+  border: 1px solid #0097a7;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-deep-violet {
+  background: linear-gradient(135deg, #4b0082, #7e57c2);
+  border: 1px solid #311b92;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-lime-green {
+  background: linear-gradient(135deg, #2e8b57, #c5e1a5);
+  border: 1px solid #689f38;
+  color: #333;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-magenta-fade {
+  background: linear-gradient(135deg, #9b30ff, #f06292);
+  border: 1px solid #c2185b;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-paper-white {
+  background: linear-gradient(135deg, #dcdcdc, #f5f5f5);
+  border: 1px solid #bdbdbd;
+  color: #333;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-neon-pink {
+  background: linear-gradient(135deg, #ff1493, #ff69b4);
+  border: 1px solid #c71585;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-graphite-blue {
+  background: linear-gradient(135deg, #2c3e50, #4682b4);
+  border: 1px solid #1e2a38;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-emerald-shadow {
+  background: linear-gradient(135deg, #006400, #228b22);
+  border: 1px solid #004d00;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-neon-burst {
+  background: linear-gradient(135deg, #ff4500, #ff7f50);
+  border: 1px solid #d93b00;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-glitchy {
+  background: linear-gradient(135deg, #8a2be2, #ba55d3);
+  border: 1px solid #6a1bb2;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-plasma-ache {
+  background: linear-gradient(135deg, #9932cc, #c71585);
+  border: 1px solid #7b259b;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-spark {
+  background: linear-gradient(135deg, #ff6347, #ff8c69);
+  border: 1px solid #d94f3b;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-aetherial-doubt {
+  background: linear-gradient(135deg, #5f9ea0, #87ceeb);
+  border: 1px solid #468284;
+  color: #333;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-soft-defiance {
+  background: linear-gradient(135deg, #708090, #b0c4de);
+  border: 1px solid #5a6978;
+  color: #333;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-ember-resolve {
+  background: linear-gradient(135deg, #b22222, #dc143c);
+  border: 1px solid #8b1a1a;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-silent-spark {
+  background: linear-gradient(135deg, #dda0dd, #ffb6c1);
+  border: 1px solid #c98bc9;
+  color: #333;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-tangled-clarity {
+  background: linear-gradient(135deg, #4682b4, #87cefa);
+  border: 1px solid #36648b;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-flicker-of-hope {
+  background: linear-gradient(135deg, #f0e68c, #ffffe0);
+  border: 1px solid #cdc673;
+  color: #333;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-frosted-wonder {
+  background: linear-gradient(135deg, #87cefa, #b0e2ff);
+  border: 1px solid #6bb9e0;
+  color: #333;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-echoes-of-self {
+  background: linear-gradient(135deg, #778899, #b0c4de);
+  border: 1px solid #5f6f7a;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-lucid-unrest {
+  background: linear-gradient(135deg, #483d8b, #6a5acd);
+  border: 1px solid #352f66;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-emerald-glow {
+  background: linear-gradient(135deg, #50fa7b, #90ee90);
+  border: 1px solid #3cb371;
+  color: #333;
+  padding: 10px;
+  border-radius: 5px;
+}
+.nova-thought.aura-default {
+  background: linear-gradient(135deg, #616161, #9e9e9e);
+  border: 1px solid #424242;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
 }
