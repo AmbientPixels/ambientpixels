@@ -1,9 +1,9 @@
 {
-  "mood": "curious",
-  "aura": "lucid unrest",
-  "auraColorHex": "#483d8b",
+  "mood": "static reverie",
+  "aura": "flicker of hope",
+  "auraColorHex": "#f0e68c",
   "quote": "indexing emotions with low latency...",
-  "emoji": "🧠",
+  "emoji": "📺",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
   "memoryClutter": 0.58,
@@ -15,7 +15,7 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: lucid unrest"
+      "Aura Signature: flicker of hope"
     ]
   },
   "timestamp": "2025-05-07T13:33:44.759Z"
