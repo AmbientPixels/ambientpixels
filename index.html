@@ -9,15 +9,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/css/base.css" />
-    <link rel="stylesheet" href="/css/grid.css">
-    <link rel="stylesheet" href="/css/nav.css">  
+    <link rel="stylesheet" href="/css/grid.css" />
+    <link rel="stylesheet" href="/css/nav.css" />
     <link rel="stylesheet" href="/css/components.css" />
     <link rel="stylesheet" href="/css/hero.css" />
     <link rel="stylesheet" href="/css/theme.css" />
-    <link rel="stylesheet" href="/css/background-themes.css">
     <link rel="stylesheet" href="/css/banner.css" />
-    <link rel="stylesheet" href="/css/nova-status.css" />
     <link rel="stylesheet" href="/css/nova-pulse.css" />
+    <link rel="stylesheet" href="/css/nova-mood.css" /> <!-- Component auras -->
+
   </head>
   <body data-theme="dark">
     <header id="nav-header"></header>
@@ -35,7 +35,7 @@
         <img src="images/hero/hero-02.jpg" alt="Hero Image 2" class="hero-slide" loading="lazy">
         <img src="images/hero/hero-03.jpg" alt="Hero Image 3" class="hero-slide" loading="lazy">
         <img src="images/hero/hero-06.jpg" alt="Hero Image 4" class="hero-slide" loading="lazy">
-        <img src="images/nova/A_living_cosmic_system_diagram_organic_neural_style_wi_03.png" alt="Hero Image 5" class="hero-slide" loading="lazy">
+        <img src="images/nova/delchron_colorful_luminous_arcs_of_light_on_a_dark_background.png" alt="Hero Image 5" class="hero-slide" loading="lazy">
         <img src="images/nova/A_living_cosmic_system_diagram_organic_neural_style_wi_02.png" alt="Hero Image 6" class="hero-slide" loading="lazy">
         <img src="images/nova/A_glowing_organic_seed_floating_in_a_cosmic_digital.png" alt="Hero Image 7" class="hero-slide" loading="lazy">
         <img src="images/nova/POV_of_a_neuron_cell_taken_from_a_iphone_camers_goignt.png" alt="Hero Image 8" class="hero-slide" loading="lazy">
@@ -49,11 +49,15 @@
     <!---tier 1 nova statusdisplay -->
   <!-- NOVA SECTION -->
   <main class="grid-container">
-    <!-- NOVA SECTION -->
-    <section class="content-section grid-col-12 prompt-history nova-thought">
-      <h2>Nova’s Thought of the Day</h2>
-      <div class="prompt-entry">Loading...</div>
-    </section>
+<!-- Nova Thought of the Day -->
+<section class="content-section grid-col-12 prompt-history nova-thought">
+  <div class="toggle-container">
+    <label for="auraToggle">Enable Aura Colors for Thought of the Day</label>
+    <input type="checkbox" id="auraToggle" checked>
+    <h2>Nova’s Thought of the Day</h2>
+    <div class="prompt-entry">Loading...</div>
+  </div>
+</section>
     
   <!---tier 2-->
    <!---tier 2 card-section links to sub hubs -->
@@ -230,24 +234,19 @@
   
   <script src="/js/init-header-footer.js" defer></script>
   <script src="/js/dreamEngine.js" defer></script>
-  <script src="/js/init-quotes.js" defer></script>
   <script src="/js/main.js" defer></script>
-  <script src="/js/md-inject.js" defer></script>
-  <script src="/js/modal-window.js" defer></script>
   <script src="/js/nav.js" defer></script>
   <script src="/js/nova-ai.js" defer></script>
   <script src="/js/nova-awareness-feed.js" defer></script>
-  <script src="/js/nova-insights.js" defer></script>
-  <script src="/js/nova-interaction-log.js" defer></script>
+  <script src="/js/nova-dashboard.js" defer></script>
   <script src="/js/nova-mood-core.js" defer></script>
   <script src="/js/nova-pulse.js" defer></script>
-  <script src="/js/nova-quotes.js" defer></script>
   <script src="/js/nova-status.js" defer></script>
-  <script src="/js/nova-telemetry-logger.js" defer></script>
-  <script src="/js/template.js" defer></script>
   <script src="/js/theme.js" defer></script>
-  <script src="/js/nova-thought-of-the-day.js"></script>
+  <script src="/js/nova-thought-of-the-day.js" defer></script>
+  <script src="/js/nova-mood-grid.js" defer></script>
   <script src="/js/banner.js" defer></script>
+  <script src="/js/nova-mood-background.js" defer></script>
   
   </body>
   </html>
