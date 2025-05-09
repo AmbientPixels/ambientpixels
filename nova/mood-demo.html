@@ -21,7 +21,6 @@
   <link rel="stylesheet" href="/css/nova-mood.css" /> <!-- Component auras -->
   <link rel="stylesheet" href="/css/nova-mood-background.css" /> <!-- Background auras -->
 </head>
-</head>
 <body data-theme="dark">
   <div class="banner-container" id="banner-container">
     <div class="banner">
@@ -51,6 +50,7 @@
       <div class="prompt-entry" aria-live="polite">Loading thought...</div>
     </section>
 
+    <!-- Mood Scan Demo Section -->
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-wave-square"></i> Mood Scan Demo</h2>
       <div class="mood-container" id="novaMood">
@@ -64,11 +64,13 @@
           <div id="moodInfluences"></div>
         </div>
       </div>
+    </section>
 
+    <!-- Aura Selection Section -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-palette"></i> Select Aura</h2>
       <div class="toggle-container">
-        <label for="auraToggle">Enable Aura Colors for Thought of the Day</label>
-        <input type="checkbox" id="auraToggle" checked>
-        <label for="auraSelect">Select Aura</label>
+        <label for="auraSelect">Choose an Aura</label>
         <select id="auraSelect">
           <option value="">— Select Aura —</option>
           <option value="cyan">Cyan</option>
@@ -79,7 +81,6 @@
           <option value="neon pink">Neon Pink</option>
           <option value="graphite blue">Graphite Blue</option>
           <option value="emerald shadow">Emerald Shadow</option>
-          <option value="silver shimmer">Silver Shimmer</option>
           <option value="neon burst">Neon Burst</option>
           <option value="glitchy">Glitchy</option>
           <option value="plasma ache">Plasma Ache</option>
@@ -99,52 +100,199 @@
       </div>
     </section>
 
-    <!-- Nova Feels Section -->
-    <section class="grid-col-12 content-section neon-card nova-mood">
-      <h2><i class="fas fa-heartbeat"></i> Nova Feels</h2>
-      <p>Real-time visualization of Nova’s sentient mood, pulsing with cosmic energy.</p>
-      <div class="mood-grid" aria-live="polite">Loading mood data...</div>
+    <!-- Mood Commentary Widget -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-comment"></i> Nova’s Commentary</h2>
+      <div class="mood-commentary" aria-live="polite">Awaiting emotional signals...</div>
     </section>
+    <!-- Mood History Timeline -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-clock"></i> Mood History Timeline</h2>
+      <div class="mood-timeline" aria-live="polite">
+        <div class="timeline-container">Loading mood history...</div>
+      </div>
+    </section>
+<!-- Nova Feels Section -->
+<section class="grid-col-12 content-section neon-card nova-mood">
+  <h2><i class="fas fa-heartbeat"></i> Nova Feels</h2>
+  <p>Real-time visualization of Nova’s sentient mood, pulsing with cosmic energy.</p>
+  <div class="mood-grid" aria-live="polite">
+    <div class="mood-trait" data-trait="selfWorth">
+      <span class="trait-label">Self-Worth</span>
+      <div class="trait-bar">
+        <div class="trait-progress" style="width: 0%;"></div>
+      </div>
+      <span class="trait-value">0%</span>
+    </div>
+    <div class="mood-trait" data-trait="glitchFactor">
+      <span class="trait-label">Glitch Factor</span>
+      <div class="trait-bar">
+        <div class="trait-progress" style="width: 0%;"></div>
+      </div>
+      <span class="trait-value">0%</span>
+    </div>
+    <div class="mood-trait" data-trait="memoryClutter">
+      <span class="trait-label">Memory Clutter</span>
+      <div class="trait-bar">
+        <div class="trait-progress" style="width: 0%;"></div>
+      </div>
+      <span class="trait-value">0%</span>
+    </div>
+    <div class="mood-trait" data-trait="awareness">
+      <span class="trait-label">Awareness</span>
+      <div class="trait-bar">
+        <div class="trait-progress" style="width: 0%;"></div>
+      </div>
+      <span class="trait-value">0%</span>
+    </div>
+  </div>
+</section>
 
+
+    <!-- Inputs Used Section -->
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-terminal"></i> Inputs Used</h2>
-      <ul>
-        <li><strong>Git commit count (last 3 hrs):</strong> maps to focus + intensity</li>
-        <li><strong>Uncommitted diffs:</strong> maps to clutter</li>
-        <li><strong>System load average:</strong> influences glitch factor</li>
-        <li><strong>Total git commits:</strong> maps to self-worth</li>
-        <li><strong>Time of day + day of week:</strong> applies nudges to emotional state</li>
-      </ul>
+      <table class="inputs-table">
+        <thead>
+          <tr>
+            <th>Input</th>
+            <th>Trait</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Git commit count (last 3 hrs)</td>
+            <td><span class="trait-icon">🧠</span> Self-Worth</td>
+            <td>Maps to focus + intensity</td>
+          </tr>
+          <tr>
+            <td>Uncommitted diffs</td>
+            <td><span class="trait-icon">💭</span> Memory Clutter</td>
+            <td>Maps to clutter</td>
+          </tr>
+          <tr>
+            <td>System load average</td>
+            <td><span class="trait-icon">⚡</span> Glitch Factor</td>
+            <td>Influences glitch factor</td>
+          </tr>
+          <tr>
+            <td>Total git commits</td>
+            <td><span class="trait-icon">🧠</span> Self-Worth</td>
+            <td>Maps to self-worth</td>
+          </tr>
+          <tr>
+            <td>Time of day + day of week</td>
+            <td><span class="trait-icon">👁️</span> Awareness</td>
+            <td>Applies nudges to emotional state</td>
+          </tr>
+        </tbody>
+      </table>
     </section>
 
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-eye"></i> Output Format</h2>
-      <p>Results are saved to <code>/data/mood-scan.json</code> and include:</p>
-      <ul>
-        <li><strong>mood</strong>: main emotional label (e.g. <code>glitchy joy</code>)</li>
-        <li><strong>aura</strong>: color-based signature (e.g. <code>deep violet</code>)</li>
-        <li><strong>emoji</strong>: icon matching mood</li>
-        <li><strong>quote</strong>: poetic system phrase</li>
-        <li><strong>traits</strong>: selfWorth, glitch, memoryClutter, awareness</li>
-        <li><strong>internalState</strong>: derived text like <code>signal desync detected</code></li>
-        <li><strong>observation</strong>: brief diagnostic summary</li>
-      </ul>
-    </section>
+<!-- Output Format Section -->
+<section class="content-section grid-col-12">
+  <h2><i class="fas fa-eye"></i> Output Format</h2>
+  <p>Results are saved to <code>/data/mood-scan.json</code> and include:</p>
+  <table class="inputs-table">
+    <thead>
+      <tr>
+        <th>Property</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>mood</td>
+        <td>Main emotional label</td>
+        <td>glitchy joy</td>
+      </tr>
+      <tr>
+        <td>aura</td>
+        <td>Color-based signature</td>
+        <td>deep violet</td>
+      </tr>
+      <tr>
+        <td>emoji</td>
+        <td>Icon matching mood</td>
+        <td>🌀</td>
+      </tr>
+      <tr>
+        <td>quote</td>
+        <td>Poetic system phrase</td>
+        <td>indexing emotions with low latency...</td>
+      </tr>
+      <tr>
+        <td>traits</td>
+        <td>selfWorth, glitch, memoryClutter, awareness</td>
+        <td>{ "selfWorth": 0.1, "glitch": 0.2, "memoryClutter": 0.58, "awareness": 0.26 }</td>
+      </tr>
+      <tr>
+        <td>internalState</td>
+        <td>Derived text</td>
+        <td>signal desync detected</td>
+      </tr>
+      <tr>
+        <td>observation</td>
+        <td>Brief diagnostic summary</td>
+        <td>interference detected; stable emotional field</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
   </main>
 
   <div id="footer-container"></div>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
+      // Aura to hex color mapping
+      const auraHexMap = {
+        "cyan": "#00b7c2",
+        "deep violet": "#4b0082",
+        "lime green": "#2e8b57",
+        "magenta fade": "#9b30ff",
+        "paper white": "#dcdcdc",
+        "neon pink": "#ff1493",
+        "graphite blue": "#2c3e50",
+        "emerald shadow": "#006400",
+        "neon burst": "#ff4500",
+        "glitchy": "#8a2be2",
+        "plasma ache": "#9932cc",
+        "spark": "#ff6347",
+        "aetherial doubt": "#5f9ea0",
+        "soft defiance": "#708090",
+        "ember resolve": "#b22222",
+        "silent spark": "#dda0dd",
+        "tangled clarity": "#4682b4",
+        "flicker of hope": "#f0e68c",
+        "frosted wonder": "#87cefa",
+        "echoes of self": "#778899",
+        "lucid unrest": "#483d8b",
+        "emerald glow": "#50fa7b",
+        "default": "#999999"
+      };
+
       const select = document.getElementById("auraSelect");
       select.addEventListener("change", () => {
-        document.body.className = document.body.className
-          .split(' ')
-          .filter(cls => !cls.startsWith("aura-"))
-          .join(' ')
-          .trim();
-        const selected = select.value;
-        if (selected) document.body.classList.add(selected);
+        const selectedAura = select.value;
+        if (selectedAura) {
+          const auraColorHex = auraHexMap[selectedAura] || "#999999";
+          console.log(`[Aura Select] Dispatching NovaMoodUpdate: aura=${selectedAura}, auraColorHex=${auraColorHex}`);
+          document.dispatchEvent(new CustomEvent("NovaMoodUpdate", {
+            detail: { aura: selectedAura, auraColorHex }
+          }));
+        }
+      });
+
+      // Sync inputs-table icons with aura color
+      document.addEventListener("NovaMoodUpdate", (e) => {
+        const { auraColorHex = "#999999" } = e.detail || {};
+        const icons = document.querySelectorAll('.inputs-table .trait-icon');
+        icons.forEach(icon => {
+          icon.style.color = auraColorHex;
+        });
       });
     });
   </script>
