@@ -27,30 +27,30 @@ const colors = [
 ];
 
 const auraHexMap = {
-  "cyan": "#00b7c2",
-  "deep violet": "#4b0082",
-  "lime green": "#2e8b57",
-  "magenta fade": "#9b30ff",
-  "paper white": "#dcdcdc",
-  "neon pink": "#ff1493",
-  "graphite blue": "#2c3e50",
-  "emerald shadow": "#006400",
-  "neon burst": "#ff4500",
-  "glitchy": "#8a2be2",
-  "plasma ache": "#9932cc",
-  "spark": "#ff6347",
-  "aetherial doubt": "#5f9ea0",
-  "soft defiance": "#708090",
-  "ember resolve": "#b22222",
-  "silent spark": "#dda0dd",
-  "tangled clarity": "#4682b4",
-  "flicker of hope": "#f0e68c",
-  "frosted wonder": "#87cefa",
-  "echoes of self": "#778899",
-  "lucid unrest": "#483d8b",
-  "emerald glow": "#50fa7b"
+  "cyan": "#00474b",
+  "deep violet": "#2a0047",
+  "lime green": "#1a3c29",
+  "magenta fade": "#4c1977",
+  "paper white": "#666666",
+  "neon pink": "#66033b",
+  "graphite blue": "#1a2630",
+  "emerald shadow": "#003200",
+  "neon burst": "#662200",
+  "glitchy": "#431571",
+  "plasma ache": "#4c1966",
+  "spark": "#661f15",
+  "aetherial doubt": "#2f4d50",
+  "soft defiance": "#394047",
+  "ember resolve": "#5c1111",
+  "silent spark": "#6e506e",
+  "tangled clarity": "#23415a",
+  "flicker of hope": "#787346",
+  "frosted wonder": "#43677d",
+  "echoes of self": "#3c454d",
+  "lucid unrest": "#241e45",
+  "emerald glow": "#287d3e",
+  "default": "#333333"
 };
-
 
 const emojiMap = {
   "calm": "🪷", "curious": "🧠", "anxious": "😰", "hopeful": "🌈", "reflective": "🪞",
@@ -210,7 +210,7 @@ function generateMoodScan() {
 
   const awareness = normalize(finalTraits.focus + (1 - finalTraits.clutter), 0, 2);
   const emoji = emojiMap[selectedMood] || "🧠";
-  const auraColorHex = auraHexMap[selectedAura.toLowerCase()] || "#999999";
+  const auraColorHex = auraHexMap[selectedAura.toLowerCase()] || "#333333";
   const isStable = finalTraits.selfWorth > 0.8 && finalTraits.glitch < 0.3 && finalTraits.clutter < 0.3;
 
   const mood = {
