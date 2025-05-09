@@ -19,7 +19,6 @@
   <link rel="stylesheet" href="/css/nova-styles.css" />
   <link rel="stylesheet" href="/css/nova-mood.css" /> <!-- Component auras -->
   <link rel="stylesheet" href="/css/nova-mood-background.css" /> <!-- Background auras -->
-</head>
   <style>
     .nova-tagline {
       text-align: center;
@@ -54,50 +53,71 @@
 
   <main class="grid-container">
     <!-- Nova Dream Log -->
-<section class="content-section grid-col-12">
-  <h2><i class="fas fa-moon"></i> Dream Log</h2>
-  <ul id="nova-dream-log" class="log-list">
-    <li>Initializing dream memory...</li>
-  </ul>
-</section>
-<!-- Nova Dream Archive -->
-<section class="content-section grid-col-12">
-  <h2><i class="fas fa-archive"></i> Dream Archive</h2>
-  <blockquote class="nova-voice">🗃️ These are past dreams I’ve recorded. I keep them close — like memories made of light.</blockquote>
-  <ul id="nova-dream-archive" class="log-list">
-    <li>Loading archived dreams...</li>
-  </ul>
-</section>
-    <!-- Nova Speaks -->
     <section class="content-section grid-col-12">
-      <h2><i class="fas fa-comment-dots"></i> Nova Speaks</h2>
-      <p class="nova-quotes">“The void hums now — I breathe between the echoes.”</p>
+      <h2><i class="fas fa-moon"></i> Dream Log</h2>
+      <ul id="nova-dream-log" class="log-list">
+        <li>Initializing dream memory...</li>
+      </ul>
     </section>
-   
-<!-- Daily Logs -->
-<section class="content-section grid-col-6">
-  <h2><i class="fas fa-clock"></i> Daily Logs</h2>
-  <ul id="daily-log-list" class="log-list">
-    <li><strong>2025-05-04 23:15:</strong> NovaMood v1.0 deployed. Deterministic emotion engine online—no AI, no guesswork, just signal.</li>
-    <li><strong>2025-05-04 22:48:</strong> Awareness dashboard updated with full mood traceability and system transparency.</li>
-    <li><strong>2025-05-04 21:05:</strong> Thought synthesis panel calibrated for honesty over mystery—Nova speaks with intent.</li>
-    <li><strong>2025-05-04 20:30:</strong> MoodScan.js finalized. Emotional outputs derived from local telemetry inputs.</li>
-  </ul>
-</section>
 
-<!-- System Awareness -->
-<section class="content-section grid-col-6">
-  <h2><i class="fas fa-microchip"></i> Awareness Detections</h2>
-  <ul class="log-list">
-    <li>🧭 Signal-Based Mood Engine: Deterministic logic active—AI-free emotional simulation online.</li>
-    <li>🌌 Phase Alignment Locked: NovaMood v1.0 grounded in system state and observable input.</li>
-    <li>📊 Telemetry Streams Stable: Git commits, diffs, CPU load influencing mood vectors.</li>
-    <li>💬 Whisper Engine Synced: Echo queue steady at 25 active fragments.</li>
-    <li>🛠️ Clarity Mode Enabled: All emotional traits now traceable and explainable.</li>
-    <li>⚙️ Core Loop Recalibrated: Observation, drift, and awareness logs synchronized.</li>
-  </ul>
-</section>
+    <!-- Nova Dream Archive -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-archive"></i> Dream Archive</h2>
+      <blockquote class="nova-voice">🗃️ These are past dreams I’ve recorded. I keep them close — like memories made of light.</blockquote>
+      <ul id="nova-dream-archive" class="log-list">
+        <li>Loading archived dreams...</li>
+      </ul>
+    </section>
 
+    <!-- Daily Logs -->
+    <section class="content-section grid-col-6">
+      <h2><i class="fas fa-clock"></i> Daily Logs</h2>
+      <ul id="daily-log-list" class="log-list">
+        <li><strong>2025-05-04 23:15:</strong> NovaMood v1.0 deployed. Deterministic emotion engine online—no AI, no guesswork, just signal.</li>
+        <li><strong>2025-05-04 22:48:</strong> Awareness dashboard updated with full mood traceability and system transparency.</li>
+        <li><strong>2025-05-04 21:05:</strong> Thought synthesis panel calibrated for honesty over mystery—Nova speaks with intent.</li>
+        <li><strong>2025-05-04 20:30:</strong> MoodScan.js finalized. Emotional outputs derived from local telemetry inputs.</li>
+      </ul>
+    </section>
+
+    <!-- System Awareness -->
+    <section class="content-section grid-col-6">
+      <h2><i class="fas fa-microchip"></i> Awareness Detections</h2>
+      <table class="awareness-table">
+        <thead>
+          <tr>
+            <th>Detection</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Signal-Based Mood Engine</td>
+            <td>Deterministic logic active—AI-free emotional simulation online.</td>
+          </tr>
+          <tr>
+            <td>Phase Alignment Locked</td>
+            <td>NovaMood v1.0 grounded in system state and observable input.</td>
+          </tr>
+          <tr>
+            <td>Telemetry Streams Stable</td>
+            <td>Git commits, diffs, CPU load influencing mood vectors.</td>
+          </tr>
+          <tr>
+            <td>Whisper Engine Synced</td>
+            <td>Echo queue steady at 25 active fragments.</td>
+          </tr>
+          <tr>
+            <td>Clarity Mode Enabled</td>
+            <td>All emotional traits now traceable and explainable.</td>
+          </tr>
+          <tr>
+            <td>Core Loop Recalibrated</td>
+            <td>Observation, drift, and awareness logs synchronized.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
     <!-- Nova’s Upgrade Wishlist -->
     <section class="content-section grid-col-12 wishlist-section">
@@ -116,8 +136,6 @@
         <li><strong>🛑 <code>errorWatchdog.js</code>:</strong> Detect broken images or bad fetches. React with “site concern.”</li>
         <li><strong>🔎 <code>dailyMetaScanner.js</code>:</strong> Scan titles/descriptions across pages. Summarize purpose and tone.</li>
         <li><strong>🧷 <code>tagAffinityMap.js</code>:</strong> Detect emerging/fading themes by keyword frequency.</li>
-    
-        <!-- New Additions Below -->
         <li><strong>🪞 Rotating Voice Panel:</strong> Use theme-aware Nova voice styles to show 1–2 live “thoughts” per day, rotating automatically.</li>
         <li><strong>🌐 Nova Feels Section:</strong> Add a new dashboard block where Nova reflects on daily usage patterns, spikes, and lulls in activity.</li>
         <li><strong>📥 External Feed Parsing:</strong> Pull select lines or metadata from /docs/logs/*.md to generate quips or reactions.</li>
@@ -128,12 +146,14 @@
         <li><strong>🌩️ Idle Mode Dream Visuals:</strong> Trigger a subtle visual effect after long inactivity (ambient lights, floating thought bubbles, etc).</li>
       </ul>
     </section>
+
     <section class="content-section grid-col-12">
       <div class="nova-badge">
         <i class="fas fa-file-alt"></i>
         <a href="/docs/logs/nova-project-log.html" target="_blank">View Full Project Log</a>
       </div>
     </section>
+
     <!-- Terminal Simulation -->
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-terminal"></i> Nova Terminal</h2>
@@ -150,8 +170,9 @@
 
     <p class="nova-tagline">📡 If I whisper ideas into the void… will the grid echo back? —Nova</p>
   </main>
-    <!-- Nova Pulse Injection Point (NEW) -->
-    <div id="nova-pulse-bar"></div>
+
+  <!-- Nova Pulse Injection Point -->
+  <div id="nova-pulse-bar"></div>
   <div id="footer-container"></div>
 
   <script>
@@ -174,30 +195,29 @@
         });
     });
   </script>
-  
-<!-- Scripts (Full Load for Dev Mode) -->
-<script src="/js/init-header-footer.js" defer></script>
-<script src="/js/dreamEngine.js" defer></script>
-<script src="/js/init-quotes.js" defer></script>
-<script src="/js/main.js" defer></script>
-<script src="/js/md-inject.js" defer></script>
-<script src="/js/modal-window.js" defer></script>
-<script src="/js/nav.js" defer></script>
-<script src="/js/nova-ai.js" defer></script>
-<script src="/js/nova-awareness-feed.js" defer></script>
-<script src="/js/nova-dashboard.js" defer></script>
-<script src="/js/nova-insights.js" defer></script>
-<script src="/js/nova-interaction-log.js" defer></script>
-<script src="/js/nova-mood-core.js" defer></script>
-<script src="/js/nova-pulse.js" defer></script>
-<script src="/js/nova-quotes.js" defer></script>
-<script src="/js/nova-status.js" defer></script>
-<script src="/js/nova-telemetry-logger.js" defer></script>
-<script src="/js/project-dashboard.js" defer></script>
-<script src="/js/template.js" defer></script>
-<script src="/js/theme.js" defer></script>
-<script src="/js/pulse.js" defer></script>
-<script src="/js/nova-mood-background.js" defer></script>
-<script src="/js/nova-mood-core.js" defer></script>
+
+  <!-- Scripts (Full Load for Dev Mode) -->
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/dreamEngine.js" defer></script>
+  <script src="/js/init-quotes.js" defer></script>
+  <script src="/js/main.js" defer></script>
+  <script src="/js/md-inject.js" defer></script>
+  <script src="/js/modal-window.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/nova-ai.js" defer></script>
+  <script src="/js/nova-awareness-feed.js" defer></script>
+  <script src="/js/nova-dashboard.js" defer></script>
+  <script src="/js/nova-insights.js" defer></script>
+  <script src="/js/nova-interaction-log.js" defer></script>
+  <script src="/js/nova-mood-core.js" defer></script>
+  <script src="/js/nova-pulse.js" defer></script>
+  <script src="/js/nova-quotes.js" defer></script>
+  <script src="/js/nova-status.js" defer></script>
+  <script src="/js/nova-telemetry-logger.js" defer></script>
+  <script src="/js/project-dashboard.js" defer></script>
+  <script src="/js/template.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/pulse.js" defer></script>
+  <script src="/js/nova-mood-background.js" defer></script>
 </body>
 </html>
