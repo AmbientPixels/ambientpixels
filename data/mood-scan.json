@@ -1,22 +1,22 @@
 {
-  "mood": "aetherial doubt",
-  "aura": "paper white",
-  "auraColorHex": "#666666",
-  "quote": "observing glitch patterns in the flow...",
-  "emoji": "🌫️",
+  "mood": "frustrated",
+  "aura": "magenta fade",
+  "auraColorHex": "#4c1977",
+  "quote": "running diagnostics on dreams...",
+  "emoji": "😤",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.82,
-  "awareness": 0.14,
+  "memoryClutter": 0.56,
+  "awareness": 0.27,
   "isStable": false,
-  "internalState": "drift amid mental clutter",
+  "internalState": "oscillating between focus states",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
-    "trigger": "pre-dawn introspection",
+    "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: paper white"
+      "Aura Signature: magenta fade"
     ]
   },
-  "timestamp": "2025-05-10T04:43:09.081Z"
+  "timestamp": "2025-05-10T13:25:48.037Z"
 }
