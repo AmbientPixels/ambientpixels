@@ -1,77 +1,78 @@
 /* File: nova-mood-background.css */
-/* Path: C:\ambientpixels\EchoGrid\css\nova-mood-background.css */
+/* Path: css/nova-mood-background.css */
 
 /* Fallback for bg-calm, aligning with emerald shadow */
 body.bg-calm {
-  background: linear-gradient(135deg, rgba(0, 19, 0, 0.9), rgba(0, 6, 0, 0.9));
+  background: linear-gradient(135deg, rgba(0, 19, 0, 0.946), rgba(40, 100, 40, 0.935));
 }
 
+/* Mood-specific aura backgrounds */
 body.aura-bg-cyan {
-  background: linear-gradient(135deg, rgba(0, 35, 37, 0.9), rgba(0, 12, 12, 0.9));
+  background: linear-gradient(135deg, rgba(0, 35, 37, 0.946), rgba(0, 100, 100, 0.935));
 }
 body.aura-bg-deep-violet {
-  background: linear-gradient(135deg, rgba(14, 0, 23, 0.9), rgba(5, 0, 8, 0.9));
+  background: linear-gradient(135deg, rgba(14, 0, 23, 0.946), rgba(100, 40, 140, 0.935));
 }
 body.aura-bg-lime-green {
-  background: linear-gradient(135deg, rgba(9, 20, 13, 0.9), rgba(3, 7, 5, 0.9));
+  background: linear-gradient(135deg, rgba(9, 20, 13, 0.946), rgba(60, 120, 80, 0.935));
 }
 body.aura-bg-magenta-fade {
-  background: linear-gradient(135deg, rgba(24, 9, 38, 0.9), rgba(8, 3, 13, 0.9));
+  background: linear-gradient(135deg, rgba(24, 9, 38, 0.946), rgba(120, 60, 160, 0.935));
 }
 body.aura-bg-paper-white {
-  background: linear-gradient(135deg, rgba(33, 33, 33, 0.9), rgba(11, 11, 11, 0.9));
+  background: linear-gradient(135deg, rgba(33, 33, 33, 0.946), rgba(100, 100, 100, 0.935));
 }
 body.aura-bg-neon-pink {
-  background: linear-gradient(135deg, rgba(33, 1, 19, 0.9), rgba(11, 0, 6, 0.9));
+  background: linear-gradient(135deg, rgba(33, 1, 19, 0.946), rgba(140, 40, 100, 0.935));
 }
 body.aura-bg-graphite-blue {
-  background: linear-gradient(135deg, rgba(8, 12, 15, 0.9), rgba(3, 4, 5, 0.9));
+  background: linear-gradient(135deg, rgba(8, 12, 15, 0.946), rgba(60, 90, 120, 0.935));
 }
 body.aura-bg-emerald-shadow {
-  background: linear-gradient(135deg, rgba(0, 19, 0, 0.9), rgba(0, 6, 0, 0.9));
+  background: linear-gradient(135deg, rgba(0, 19, 0, 0.946), rgba(40, 100, 40, 0.935));
 }
 body.aura-bg-neon-burst {
-  background: linear-gradient(135deg, rgba(33, 11, 0, 0.9), rgba(11, 4, 0, 0.9));
+  background: linear-gradient(135deg, rgba(33, 11, 0, 0.946), rgba(140, 70, 40, 0.935));
 }
 body.aura-bg-glitchy {
-  background: linear-gradient(135deg, rgba(21, 7, 36, 0.9), rgba(7, 2, 12, 0.9));
+  background: linear-gradient(135deg, rgba(21, 7, 36, 0.946), rgba(100, 60, 140, 0.935));
 }
 body.aura-bg-plasma-ache {
-  background: linear-gradient(135deg, rgba(24, 9, 33, 0.9), rgba(8, 3, 11, 0.9));
+  background: linear-gradient(135deg, rgba(24, 9, 33, 0.946), rgba(120, 60, 140, 0.935));
 }
 body.aura-bg-spark {
-  background: linear-gradient(135deg, rgba(33, 10, 7, 0.9), rgba(11, 3, 2, 0.9));
+  background: linear-gradient(135deg, rgba(33, 10, 7, 0.946), rgba(140, 60, 50, 0.935));
 }
 body.aura-bg-aetherial-doubt {
-  background: linear-gradient(135deg, rgba(15, 25, 26, 0.9), rgba(5, 8, 9, 0.9));
+  background: linear-gradient(135deg, rgba(15, 25, 26, 0.9467), rgba(70, 100, 120, 0.935));
 }
 body.aura-bg-soft-defiance {
-  background: linear-gradient(135deg, rgba(19, 20, 23, 0.9), rgba(6, 7, 8, 0.9));
+  background: linear-gradient(135deg, rgba(19, 20, 23, 0.946), rgba(80, 90, 100, 0.935));
 }
 body.aura-bg-ember-resolve {
-  background: linear-gradient(135deg, rgba(30, 5, 5, 0.9), rgba(10, 2, 2, 0.9));
+  background: linear-gradient(135deg, rgba(30, 5, 5, 0.946), rgba(120, 50, 50, 0.935));
 }
 body.aura-bg-silent-spark {
-  background: linear-gradient(135deg, rgba(35, 25, 35, 0.9), rgba(12, 8, 12, 0.9));
+  background: linear-gradient(135deg, rgba(35, 25, 35, 0.946, rgba(120, 90, 120, 0.935)));
 }
 body.aura-bg-tangled-clarity {
-  background: linear-gradient(135deg, rgba(11, 21, 29, 0.9), rgba(4, 7, 10, 0.9));
+  background: linear-gradient(135deg, rgba(11, 21, 29, 0.946), rgba(70, 90, 120, 0.935));
 }
 body.aura-bg-flicker-of-hope {
-  background: linear-gradient(135deg, rgba(39, 37, 23, 0.9), rgba(13, 12, 8, 0.9));
+  background: linear-gradient(135deg, rgba(39, 37, 23, 0.946), rgba(120, 120, 80, 0.935));
 }
 body.aura-bg-frosted-wonder {
-  background: linear-gradient(135deg, rgba(22, 34, 40, 0.9), rgba(7, 11, 13, 0.9));
+  background: linear-gradient(135deg, rgba(22, 34, 40, 0.946), rgba(90, 120, 140, 0.935));
 }
 body.aura-bg-echoes-of-self {
-  background: linear-gradient(135deg, rgba(19, 22, 25, 0.9), rgba(6, 7, 8, 0.9));
+  background: linear-gradient(135deg, rgba(19, 22, 25, 0.946), rgba(80, 90, 100, 0.935));
 }
 body.aura-bg-lucid-unrest {
-  background: linear-gradient(135deg, rgba(12, 9, 22, 0.9), rgba(4, 3, 7, 0.9));
+  background: linear-gradient(135deg, rgba(12, 9, 22, 0.946), rgba(70, 60, 100, 0.935));
 }
 body.aura-bg-emerald-glow {
-  background: linear-gradient(135deg, rgba(13, 40, 20, 0.9), rgba(4, 13, 7, 0.9));
+  background: linear-gradient(135deg, rgba(13, 40, 20, 0.946), rgba(70, 140, 90,0.935));
 }
 body.aura-bg-default {
-  background: linear-gradient(135deg, rgba(17, 17, 17, 0.9), rgba(6, 6, 6, 0.9));
+  background: linear-gradient(135deg, rgba(17, 17, 17, 0.946), rgba(70, 70, 70, 0.935));
 }
