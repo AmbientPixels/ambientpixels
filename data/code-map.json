@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-05-09T13:30:44.106Z",
+  "timestamp": "2025-05-09T22:54:54.040Z",
   "summary": {
     "totalJS": 468,
     "totalCSS": 33,
@@ -669,6 +669,7 @@
     "fulfill",
     "g",
     "ge",
+    "generateDreamArchive",
     "generateHTTPMethod",
     "generateMoodInsights",
     "generateMoodScan",
