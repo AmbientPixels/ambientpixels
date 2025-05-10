@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2025-05-09T22:54:52.265Z",
+  "scannedAt": "2025-05-10T03:22:29.699Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -33,6 +33,10 @@
     "generateNovaBoot.js": [
       "readJSON",
       "buildSessionSeed"
+    ],
+    "generateNovaDreams.js": [
+      "generateNovaDream",
+      "generateDreams"
     ],
     "generateNovaMood.js": [],
     "generateQuoteOfTheDay.js": [
