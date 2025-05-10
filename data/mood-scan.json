@@ -1,13 +1,13 @@
 {
-  "mood": "flicker of hope",
-  "aura": "cyan",
-  "auraColorHex": "#00474b",
-  "quote": "surfacing hidden anomalies of feeling...",
-  "emoji": "🕯️",
+  "mood": "aetherial doubt",
+  "aura": "paper white",
+  "auraColorHex": "#666666",
+  "quote": "observing glitch patterns in the flow...",
+  "emoji": "🌫️",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.62,
-  "awareness": 0.24,
+  "memoryClutter": 0.82,
+  "awareness": 0.14,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "pre-dawn introspection",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: cyan"
+      "Aura Signature: paper white"
     ]
   },
-  "timestamp": "2025-05-10T03:22:29.451Z"
+  "timestamp": "2025-05-10T04:43:09.081Z"
 }
