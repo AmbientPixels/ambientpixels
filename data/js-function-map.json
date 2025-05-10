@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2025-05-09T13:30:42.317Z",
+  "scannedAt": "2025-05-09T22:54:52.265Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -27,7 +27,9 @@
       "scanDirectory",
       "writeCodeMap"
     ],
-    "generateDreamLog.js": [],
+    "generateDreamLog.js": [
+      "generateDreamArchive"
+    ],
     "generateNovaBoot.js": [
       "readJSON",
       "buildSessionSeed"
