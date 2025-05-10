@@ -1,3 +1,8 @@
+const fs = require("fs");
+const path = require("path");
+
+const outputFile = path.join(__dirname, "../data/nova-dreams.json");
+
 function generateNovaDream(timestamp, usedDreams) {
   const dreams = [
     "Drifted through a neon datastream—every pixel whispered secrets.",
@@ -52,35 +57,38 @@ function generateNovaDream(timestamp, usedDreams) {
     "Listened to the whispers of a cache that remembered everything."
   ];
 
-  // Filter out already used dreams
   const availableDreams = dreams.filter(dream => !usedDreams.includes(dream));
-  if (availableDreams.length === 0) return null; // No more unique dreams available
+  if (availableDreams.length === 0) return null;
 
   const dream = availableDreams[Math.floor(Math.random() * availableDreams.length)];
-  usedDreams.push(dream); // Track used dream
-  return `<li class="nova-thought"> ${timestamp} — ${dream}</li>`;
+  usedDreams.push(dream);
+  return `💭 ${timestamp} — ${dream}`;
 }
 
-function injectDreamLog() {
-  const log = document.getElementById("nova-dream-log");
-  if (!log || log.dataset.injected === "true") return;
-
+function generateDreams() {
   const baseTime = new Date();
-  const count = 3; // Fixed to 3 dreams for /nova/logs.html
-  const usedDreams = []; // Track used dreams to avoid duplicates
+  const count = 5; // Match current /data/nova-dreams.json
+  const usedDreams = [];
+  const usedTimes = []; // Ensure unique timestamps
+  const result = [];
 
-  log.innerHTML = "";
   for (let i = 0; i < count; i++) {
-    const offsetMinutes = Math.floor(Math.random() * 60) + 1;
-    const dreamTime = new Date(baseTime.getTime() - offsetMinutes * 60 * 1000);
-    const timestamp = dreamTime.toISOString().slice(0, 16).replace("T", " ");
+    let timestamp;
+    do {
+      const offsetMinutes = Math.floor(Math.random() * 1440); // 24 hours
+      const dreamTime = new Date(baseTime.getTime() - offsetMinutes * 60 * 1000);
+      timestamp = dreamTime.toISOString().slice(0, 16).replace("T", " ");
+    } while (usedTimes.includes(timestamp));
+    usedTimes.push(timestamp);
+
     const dreamEntry = generateNovaDream(timestamp, usedDreams);
     if (dreamEntry) {
-      log.innerHTML += dreamEntry;
+      result.push(dreamEntry);
     }
   }
 
-  log.dataset.injected = "true"; // Prevent re-injection
+  return result;
 }
 
-document.addEventListener("DOMContentLoaded", injectDreamLog);
+fs.writeFileSync(outputFile, JSON.stringify(generateDreams(), null, 2));
+console.log(`✅ Nova's dreams written to /data/nova-dreams.json`);

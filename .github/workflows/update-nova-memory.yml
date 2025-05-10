@@ -42,7 +42,8 @@ jobs:
           node scripts/generateCodeMap.js
           node scripts/generateDreamLog.js
           node scripts/generateQuoteOfTheDay.js
-          node scripts/generateNovaBoot.js   
+          node scripts/generateNovaBoot.js
+          node scripts/generateNovaDreams.js
         env:
           NOVA_MOOD_API_KEY: ${{ secrets.NOVA_MOOD_API_KEY }}
 
