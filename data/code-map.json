@@ -1,7 +1,7 @@
 {
-  "timestamp": "2025-05-09T22:54:54.040Z",
+  "timestamp": "2025-05-10T03:22:31.512Z",
   "summary": {
-    "totalJS": 468,
+    "totalJS": 469,
     "totalCSS": 33,
     "totalHTML": 89
   },
@@ -670,6 +670,7 @@
     "g",
     "ge",
     "generateDreamArchive",
+    "generateDreams",
     "generateHTTPMethod",
     "generateMoodInsights",
     "generateMoodScan",
@@ -755,7 +756,6 @@
     "initNovaStatus",
     "initToggles",
     "initVersion",
-    "injectDreamLog",
     "injectMarkdown",
     "integerPart",
     "invoke",
