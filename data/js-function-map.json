@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2025-05-10T03:22:29.699Z",
+  "scannedAt": "2025-05-10T04:43:09.469Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -26,6 +26,12 @@
       "extractHTMLTags",
       "scanDirectory",
       "writeCodeMap"
+    ],
+    "generateDailyLogs.js": [
+      "getRecentCommits",
+      "getSystemEvents",
+      "getFileModifiedTime",
+      "generateDailyLogs"
     ],
     "generateDreamLog.js": [
       "generateDreamArchive"
