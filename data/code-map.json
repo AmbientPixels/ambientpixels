@@ -1,7 +1,7 @@
 {
-  "timestamp": "2025-05-10T03:22:31.512Z",
+  "timestamp": "2025-05-10T04:43:11.272Z",
   "summary": {
-    "totalJS": 469,
+    "totalJS": 472,
     "totalCSS": 33,
     "totalHTML": 89
   },
@@ -669,6 +669,7 @@
     "fulfill",
     "g",
     "ge",
+    "generateDailyLogs",
     "generateDreamArchive",
     "generateDreams",
     "generateHTTPMethod",
@@ -687,6 +688,7 @@
     "getBodyLength",
     "getDunder",
     "getEnv",
+    "getFileModifiedTime",
     "getFromGlobal",
     "getGitCommitCount",
     "getGlobals",
@@ -699,6 +701,7 @@
     "getProto",
     "getProxyForUrl",
     "getRecentCommits",
+    "getSystemEvents",
     "getTelemetry",
     "getTimeNudges",
     "getUintArray",
