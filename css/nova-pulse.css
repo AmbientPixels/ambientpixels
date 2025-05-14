@@ -47,10 +47,7 @@ main,
 
   --glow-color: rgba(255, 255, 255, 0.2);
   animation: pulse-glow 4s ease-in-out infinite;
-  box-shadow: 0 0 8px var(--glow-color);
-  position: sticky;
-
-  /* Use pseudo-element for semi-transparent bg that preserves blur */
+  box-shadow: 0 0 12px var(--glow-color), 0 0 20px var(--glow-color);
   background: transparent;
   overflow: hidden;
 }
@@ -59,7 +56,7 @@ main,
   content: "";
   position: absolute;
   inset: 0;
-  background: var(--aura-spine-bg, rgba(0, 0, 0, 0.35));
+  background: var(--aura-spine-bg, rgba(0, 0, 0, 0.3));
   opacity: 0.6;
   pointer-events: none;
   z-index: -1;
@@ -69,6 +66,14 @@ main,
   -webkit-backdrop-filter: blur(12px);
 }
 
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px var(--glow-color), 0 0 20px var(--glow-color);
+  }
+  50% {
+    box-shadow: 0 0 25px var(--glow-color), 0 0 50px var(--glow-color);
+  }
+}
 
 /* 🔸 Layout and Trait Styling */
 #nova-pulse-inner {
