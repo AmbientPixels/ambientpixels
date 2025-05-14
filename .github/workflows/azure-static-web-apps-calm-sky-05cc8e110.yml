@@ -3,12 +3,13 @@ name: Azure Static Web Apps CI/CD - ambientpixelsV2
 on:
   workflow_run:
     workflows: ["Update Nova Memory"]
+    types:
       - completed
 
 jobs:
   build_and_deploy_job:
-    runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
