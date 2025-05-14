@@ -1,13 +1,18 @@
 name: Azure Static Web Apps CI/CD - ambientpixelsV2
+
 on:
-  push:
-    branches: [ "master" ]
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Update Nova Memory"]  # <-- this must match the name in update-nova-memory.yml
+    types:
+      - completed
+
 jobs:
   build_and_deploy_job:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v4
+
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -15,7 +20,7 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_SKY_05CC8E110 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "/"         # Your index.html is here
-          output_location: ""       # No build folder, so leave this empty
-          api_location: ""          # No API
-          skip_app_build: "true"    # 💡 This is the key
+          app_location: "/"
+          output_location: ""
+          api_location: ""
+          skip_app_build: "true"
