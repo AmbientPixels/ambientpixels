@@ -2,8 +2,7 @@ name: Azure Static Web Apps CI/CD - ambientpixelsV2
 
 on:
   workflow_run:
-    workflows: ["Update Nova Memory"]  # <-- this must match the name in update-nova-memory.yml
-    types:
+    workflows: ["Update Nova Memory"]
       - completed
 
 jobs:
