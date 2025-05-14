@@ -842,3 +842,17 @@ body[data-theme="light"] .nova-quip {
   opacity: 0.6;
   font-size: 0.75rem;
 }
+/* 🔹 Nova Terminal Simulation */
+.nova-terminal {
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  background: #111;
+  color: #54b054;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 0 16px rgba(0, 255, 128, 0.1);
+  white-space: pre-wrap;
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
