@@ -1,0 +1,187 @@
+/* File: /css/projects.css - Ambient Pixels v2.3 - May 14, 2025 */
+/* Project-specific styles for sub-pages, aligned with nova-pulse aesthetic */
+
+.project-section {
+  background: rgba(255, 255, 255, 0.05); /* Frosted glass from content-section */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 0.3s ease;
+}
+
+.project-section:hover {
+  box-shadow: 0 4px 12px rgba(90, 228, 255, 0.2); /* Glitch Blue glow */
+}
+
+body[data-theme="light"] .project-section {
+  background: rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme="light"] .project-section:hover {
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.project-card {
+  background: var(--aura-spine-bg, linear-gradient(135deg, #333, #666)); /* Nova-pulse gradient */
+  color: var(--aura-spine-text, #fff);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  backdrop-filter: blur(4px);
+  --glow-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 12px var(--glow-color);
+}
+
+.project-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 20px rgba(90, 228, 255, 0.3); /* Glow from nova-pulse */
+}
+
+.project-card h3 {
+  font-size: 1.5rem;
+  color: #5ae4ff; /* Accent from theme */
+  margin-bottom: 1rem;
+}
+
+.project-card p {
+  font-size: 0.95rem;
+  color: var(--dark-text);
+  margin-bottom: 1rem;
+}
+
+.tech-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+  margin-bottom: 1rem;
+}
+
+.tech-stack li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border-left: 3px solid #5ae4ff; /* Nova badge style */
+}
+
+.media-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.media-gallery img {
+  width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.media-gallery img:hover {
+  transform: scale(1.05);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #7df9ff, #ff70a6); /* Nova-pulse gradient */
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-block;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #ff70a6, #7df9ff);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--dark-text);
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-block;
+  transition: border-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-secondary:hover {
+  border-color: #5ae4ff;
+  color: #5ae4ff;
+}
+
+.btn-large {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+}
+
+.cta-section {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.related-projects {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.related-project-card {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.related-project-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(90, 228, 255, 0.2);
+}
+
+.related-project-card a {
+  color: var(--dark-text);
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .project-card {
+    padding: 1rem;
+  }
+
+  .media-gallery {
+    grid-template-columns: 1fr;
+  }
+
+  .tech-stack li {
+    flex: 1 1 100%;
+  }
+
+  .related-projects {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .btn-primary, .btn-secondary {
+    width: 100%;
+    text-align: center;
+  }
+
+  .cta-section {
+    padding: 1.5rem 0;
+  }
+}

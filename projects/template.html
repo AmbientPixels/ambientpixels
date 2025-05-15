@@ -1,0 +1,111 @@
+<!-- File: /projects/template.html -->
+<!-- Template for project sub-pages. Replace placeholders (e.g., [Project Name]) with project-specific details. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="[Project Description] - Learn about [Project Name], a [project type] project." />
+  <meta property="og:title" content="[Project Name]" />
+  <meta property="og:description" content="[Short project description for social sharing]." />
+  <meta property="og:image" content="/images/[project-thumbnail].jpg" />
+  <meta property="og:url" content="https://your-site.com/projects/[project-slug]" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>[Project Name]</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/projects.css" />
+</head>
+<body data-theme="dark">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-wrench banner-icon"></i>
+      <span>[Banner Message, e.g., Project in Development]</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
+
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <!-- Replace with project-specific hero image -->
+    <img src="/images/hero/hero-13.jpg" alt="[Project Name] Hero Image" class="mini-hero-img" loading="lazy">
+    <h1>[Project Name]</h1>
+  </section>
+
+  <main class="grid-container">
+    <section class="project-section grid-col-12">
+      <h2>Introduction</h2>
+      <p>[Brief introduction to the project, e.g., This project showcases [key feature] and aims to [purpose].]</p>
+    </section>
+
+    <section class="project-section grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-cogs"></i> Project Overview</h2>
+        <button class="toggle-btn icon-only" aria-expanded="true"><i class="fas fa-chevron-down"></i></button>
+      </div>
+      <div class="content">
+        <div class="project-card">
+          <h3>[Project Name]</h3>
+          <p>[Detailed project description, e.g., A [type] project built to [purpose], featuring [key features].]</p>
+          <p><strong>Status:</strong> [e.g., Live, In Development, Prototype]</p>
+          <!-- Update href with project-specific URLs -->
+          <a href="[live-project-url]" class="btn btn-primary" target="_blank" aria-label="View live [Project Name] project">View Live Project</a>
+          <a href="[github-repo-url]" class="btn btn-secondary" target="_blank" aria-label="View [Project Name] GitHub repository">GitHub Repo</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="project-section grid-col-12">
+      <h2>Tech Stack</h2>
+      <ul class="tech-stack">
+        <!-- Add project-specific technologies -->
+        <li><i class="[icon-class]"></i> [Tech 1]</li>
+        <li><i class="[icon-class]"></i> [Tech 2]</li>
+        <li><i class="[icon-class]"></i> [Tech 3]</li>
+      </ul>
+    </section>
+
+    <section class="project-section grid-col-12">
+      <h2>Project Media</h2>
+      <div class="media-gallery">
+        <!-- Add project-specific images -->
+        <img src="/images/cards/card-09-synth-beat.jpg" alt="[Project Name] screenshot 1" loading="lazy">
+        <img src="/images/cards/card-03.jpg" alt="[Project Name] screenshot 2" loading="lazy">
+      </div>
+    </section>
+
+    <section class="project-section grid-col-12 cta-section">
+      <!-- Update href with project-specific URL -->
+      <a href="[live-project-url]" class="btn btn-primary btn-large" target="_blank" aria-label="Explore the live [Project Name] project">Explore the Live Project</a>
+    </section>
+
+    <section class="project-section grid-col-12">
+      <h2>Related Projects</h2>
+      <div class="related-projects">
+        <!-- Add related project links -->
+        <div class="related-project-card">
+          <a href="/projects/[related-project-slug]">[Related Project 1]</a>
+        </div>
+        <div class="related-project-card">
+          <a href="/projects/[related-project-slug]">[Related Project 2]</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <!-- Scripts (Optimized for Project Page) -->
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/projects.js" defer></script>
+</body>
+</html>
