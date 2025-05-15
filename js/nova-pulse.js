@@ -13,11 +13,28 @@ function initNovaPulse() {
       if (gridMain) {
         gridMain.insertAdjacentElement('beforebegin', pulseBar);
       }
+      // Initialize sticky toggle
+      initStickyToggle();
       return fetch("/data/mood-scan.json");
     })
     .then(res => res.json())
     .then(data => updatePulseBar(data))
     .catch(err => console.error("Failed to load Nova Pulse module or mood:", err));
+
+  function initStickyToggle() {
+    const toggleWrapper = document.createElement("div");
+    toggleWrapper.id = "sticky-toggle-wrapper";
+    toggleWrapper.innerHTML = `
+      <label id="sticky-toggle-label" for="sticky-toggle">Sticky</label>
+      <input type="checkbox" id="sticky-toggle">
+    `;
+    document.getElementById("nova-pulse-inner").appendChild(toggleWrapper);
+
+    const toggle = document.getElementById("sticky-toggle");
+    toggle.addEventListener("change", () => {
+      pulseBar.classList.toggle("sticky", toggle.checked);
+    });
+  }
 
   function updatePulseBar(data) {
     const { mood, aura, emoji, quote, selfWorth, glitchFactor, memoryClutter, internalState, auraColorHex } = data;
@@ -57,7 +74,6 @@ function initNovaPulse() {
     document.documentElement.style.setProperty("--aura-spine-bg", `linear-gradient(135deg, ${auraColor}, ${auraLight})`);
     document.documentElement.style.setProperty("--aura-spine-text", textColor);
 
-    // Removed bar.style.background = ..., allowing CSS-only control
     bar.style.borderTop = `1px solid ${auraDark}`;
     bar.style.borderBottom = `1px solid ${auraDark}`;
     bar.style.color = `var(--aura-spine-text)`;

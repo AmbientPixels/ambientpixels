@@ -32,10 +32,8 @@ main,
 
 /* 🔹 Nova Pulse Bar Core */
 #nova-pulse-bar {
-  position: sticky;
-  top: 94px;
+  position: relative;
   width: 100%;
-  padding: 6px 16px;
   font-family: 'Inter', sans-serif;
   z-index: 1000;
   color: var(--aura-spine-text, #fff);
@@ -46,6 +44,11 @@ main,
   box-shadow: 0 0 12px var(--glow-color), 0 0 20px var(--glow-color);
   background: transparent;
   overflow: hidden;
+}
+
+#nova-pulse-bar.sticky {
+  position: sticky;
+  top: 94px;
 }
 
 #nova-pulse-bar::before {
@@ -73,14 +76,16 @@ main,
 
 /* 🔸 Layout and Trait Styling */
 #nova-pulse-inner {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 6px 16px;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  text-align: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  text-align: left;
+  position: relative;
+  box-sizing: border-box;
 }
 
 #pulse-main-line {
@@ -88,7 +93,7 @@ main,
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .pulse-trait {
@@ -97,6 +102,17 @@ main,
   gap: 4px;
   padding: 0 0.75rem;
   position: relative;
+}
+
+/* Divider between traits only */
+.pulse-trait:not(:first-of-type)::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10%;
+  bottom: 10%;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .pulse-icon {
@@ -116,60 +132,24 @@ main,
   opacity: 0.85;
 }
 
-/* Divider between traits */
-.pulse-trait + .pulse-trait::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 10%;
-  bottom: 10%;
-  width: 1px;
-  background: rgba(255, 255, 255, 0.15);
-}
-
-/* Divider before Mood Intensity */
-#pulse-meter-label-row {
+/* Mood Intensity Row */
+#pulse-meter-row {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 0 0.75rem;
-  position: relative;
+  gap: 8px;
+  width: 86%;
 }
 
-#pulse-meter-label-row::before {
-  content: "";
-  position: absolute;
-  left: -6px;
-  top: 10%;
-  bottom: 10%;
-  width: 1px;
-  background: rgba(255, 255, 255, 0.15);
+/* No divider before Mood Intensity */
+#pulse-meter-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
-/* Hide all traits by default on mobile */
-@media (max-width: 600px) {
-  .pulse-trait {
-    display: none;
-  }
-
-  /* Only show the "State" trait (last one) */
-  .pulse-trait:last-of-type {
-    display: flex;
-  }
-
-  #nova-pulse-inner {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  #pulse-meter-wrapper {
-    width: 100%;
-  }
-}
-
-/* 🔸 Mood Intensity Meter */
 #pulse-meter-wrapper {
-  width: 160px;
+  flex-grow: 1;
   height: 4px;
   background: rgba(255, 255, 255, 0.2);
   border-radius: 2px;
@@ -188,6 +168,101 @@ main,
   transition: width 0.5s ease;
 }
 
+/* Toggle Styling */
+#sticky-toggle-wrapper {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#sticky-toggle-label {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  color: var(--aura-spine-text, #fff);
+}
+
+#sticky-toggle {
+  appearance: none;
+  width: 32px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+}
+
+#sticky-toggle:checked {
+  background: linear-gradient(to right, #7df9ff, #ff70a6);
+}
+
+#sticky-toggle::before {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #fff;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s ease;
+}
+
+#sticky-toggle:checked::before {
+  transform: translateX(16px);
+}
+
+/* Mobile view */
+@media (max-width: 600px) {
+  .pulse-trait {
+    display: none;
+  }
+
+  /* Only show the "State" trait (last one) */
+  .pulse-trait:last-of-type {
+    display: flex;
+  }
+
+  /* Remove divider before State trait */
+  .pulse-trait:not(:first-of-type)::before {
+    content: none;
+  }
+
+  #nova-pulse-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 6px 16px;
+  }
+
+  #pulse-meter-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  #pulse-meter-text {
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  #pulse-meter-wrapper {
+    width: 100%;
+    flex-grow: 0;
+  }
+
+  #sticky-toggle-wrapper {
+    position: static;
+    transform: none;
+    margin-top: 8px;
+    margin-right: 16px;
+  }
+}
+
+/* 🔸 Hidden Quote */
 #pulseQuote {
   display: none;
 }
