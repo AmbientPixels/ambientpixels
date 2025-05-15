@@ -1,5 +1,3 @@
-/* File: /css/nova-pulse.css */
-
 body,
 main,
 .grid-container {
@@ -41,10 +39,8 @@ main,
   font-family: 'Inter', sans-serif;
   z-index: 1000;
   color: var(--aura-spine-text, #fff);
-
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-
   --glow-color: rgba(255, 255, 255, 0.2);
   animation: pulse-glow 4s ease-in-out infinite;
   box-shadow: 0 0 12px var(--glow-color), 0 0 20px var(--glow-color);
@@ -80,10 +76,11 @@ main,
   max-width: 1400px;
   margin: 0 auto;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  text-align: center;
 }
 
 #pulse-main-line {
@@ -91,12 +88,15 @@ main,
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .pulse-trait {
   display: flex;
   align-items: center;
   gap: 4px;
+  padding: 0 0.75rem;
+  position: relative;
 }
 
 .pulse-icon {
@@ -114,6 +114,57 @@ main,
   font-size: 0.85rem;
   font-weight: 500;
   opacity: 0.85;
+}
+
+/* Divider between traits */
+.pulse-trait + .pulse-trait::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10%;
+  bottom: 10%;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Divider before Mood Intensity */
+#pulse-meter-label-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 0.75rem;
+  position: relative;
+}
+
+#pulse-meter-label-row::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 10%;
+  bottom: 10%;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Hide all traits by default on mobile */
+@media (max-width: 600px) {
+  .pulse-trait {
+    display: none;
+  }
+
+  /* Only show the "State" trait (last one) */
+  .pulse-trait:last-of-type {
+    display: flex;
+  }
+
+  #nova-pulse-inner {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #pulse-meter-wrapper {
+    width: 100%;
+  }
 }
 
 /* 🔸 Mood Intensity Meter */
@@ -139,16 +190,4 @@ main,
 
 #pulseQuote {
   display: none;
-}
-
-/* 🔸 Mobile Responsive */
-@media (max-width: 600px) {
-  #nova-pulse-inner {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  #pulse-meter-wrapper {
-    width: 100%;
-  }
 }
