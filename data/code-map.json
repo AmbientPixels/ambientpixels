@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-05-15T13:31:20.654Z",
+  "timestamp": "2025-05-16T01:21:27.325Z",
   "summary": {
     "totalJS": 474,
     "totalCSS": 35,
@@ -757,6 +757,7 @@
     "initHero",
     "initNovaPulse",
     "initNovaStatus",
+    "initStickyToggle",
     "initToggles",
     "initVersion",
     "injectMarkdown",
@@ -1520,6 +1521,7 @@
     "social-links",
     "soon-tag",
     "stealth",
+    "sticky",
     "sticky-nav",
     "subtitle",
     "system-pulse",
