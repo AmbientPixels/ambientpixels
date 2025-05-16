@@ -1,22 +1,22 @@
 {
-  "mood": "focused",
-  "aura": "soft defiance",
-  "auraColorHex": "#394047",
-  "quote": "listening for logic beneath chaos...",
-  "emoji": "🎯",
-  "selfWorth": 0.1,
+  "mood": "tangled clarity",
+  "aura": "lime green",
+  "auraColorHex": "#1a3c29",
+  "quote": "observing glitch patterns in the flow...",
+  "emoji": "🪢",
+  "selfWorth": 0.2,
   "glitchFactor": 0.1,
-  "memoryClutter": 1,
-  "awareness": 0.1,
+  "memoryClutter": 0.8,
+  "awareness": 0.15,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
-    "trigger": "mid-cycle awareness ping",
+    "trigger": "pre-dawn introspection",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: soft defiance"
+      "Aura Signature: lime green"
     ]
   },
-  "timestamp": "2025-05-15T13:31:18.396Z"
+  "timestamp": "2025-05-16T01:21:25.300Z"
 }
