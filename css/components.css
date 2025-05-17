@@ -270,8 +270,49 @@ body[data-theme="light"] #nova-intro {
   align-items: center;
   gap: 1rem;
   margin-bottom: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(90, 228, 255, 0.1);
 }
 
+.section-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #5ae4ff;
+  text-shadow: 0 0 3px rgba(90, 228, 255, 0.3);
+}
+
+.section-header h2 i {
+  margin-right: 0.5rem;
+  color: #5ae4ff;
+}
+
+.section-header p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-color);
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+}
+
+.section-header button {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: #5ae4ff;
+  transition: color 0.3s ease;
+  font-size: 1.2rem;
+}
+
+.section-header button:hover {
+  color: #9bf0ff;
+  transform: rotate(-90deg);
+  transition: transform 0.3s ease;
+}
+
+.section-header button[aria-expanded="false"] {
+  transform: rotate(0deg);
+}
 
 /* Base Toggle Button Styles */
 .toggle-btn {
@@ -728,6 +769,24 @@ blockquote footer {
 }
 
 .content ul li code {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+/* Ordered List Styles */
+.content ol {
+  padding-left: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.content ol li {
+  padding: 0.5rem 0;
+  color: var(--text-color);
+}
+
+.content ol li code {
   background: rgba(255, 255, 255, 0.05);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
