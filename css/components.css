@@ -611,17 +611,42 @@ details summary::before {
   color: #ccd6f6;
   opacity: 0.85;
   background: rgba(255, 255, 255, 0.005);
-  padding: 0.75rem 1rem;
-  margin: 1rem 0;
-  border-left: 3px solid #6aaedb;
+  padding: 1rem;
+  margin: 1rem 0 2rem;
+  position: relative;
   border-radius: 4px;
   box-shadow: 0 0 2px rgba(135, 206, 235, 0.05);
-  transition: background 0.4s ease, color 0.4s ease;
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+}
+
+.nova-thought::before {
+  content: "\201C"; /* Left double quote */
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  font-size: 2em;
+  color: #6aaedb;
+  opacity: 0.5;
+  z-index: 1;
+}
+
+.nova-thought::after {
+  content: "\201D"; /* Right double quote */
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  font-size: 2em;
+  color: #6aaedb;
+  opacity: 0.5;
+  z-index: 1;
 }
 
 .nova-thought .prompt-entry {
   font-style: italic;
   color: #98aecd;
+  padding-left: 1.75rem;
+  position: relative;
+  z-index: 2;
 }
 
 .nova-quip::before {
@@ -634,6 +659,107 @@ details summary::before {
 
 .nova-alert::before {
   content: "\26A0\FE0F ";
+}
+
+/* Blockquote Styles */
+blockquote {
+  font-family: 'Inter', sans-serif;
+  font-style: italic;
+  color: #ccd6f6;
+  opacity: 0.85;
+  background: rgba(255, 255, 255, 0.005);
+  padding: 1rem 1.5rem;
+  margin: 2rem 0;
+  border-left: 3px solid #6aaedb;
+  border-radius: 4px;
+  box-shadow: 0 0 2px rgba(135, 206, 235, 0.05);
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+}
+
+blockquote::before {
+  content: "\201C"; /* Left double quote */
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  font-size: 2em;
+  color: #6aaedb;
+  opacity: 0.5;
+  z-index: 1;
+}
+
+blockquote p {
+  font-style: italic;
+  color: #98aecd;
+  padding-left: 0.75rem;
+  position: relative;
+  z-index: 2;
+}
+
+blockquote footer {
+  font-size: 0.85rem;
+  color: #818cf8;
+  margin-top: 0.5rem;
+  text-align: right;
+  opacity: 0.8;
+}
+
+/* List Styles */
+.content ul {
+  list-style: none;
+  padding-left: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.content ul li {
+  padding: 0.5rem 0;
+  position: relative;
+  color: var(--text-color);
+}
+
+.content ul li::before {
+  content: "\2023"; /* Bullet point */
+  color: var(--accent-color);
+  position: absolute;
+  left: -1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  opacity: 0.8;
+}
+
+.content ul li code {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+/* MD Doc Tag */
+.md-doc-tag {
+  display: inline-block;
+  background: rgba(106, 173, 255, 0.1);
+  color: #6aaedf;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  font-weight: 500;
+}
+
+/* Image Styles */
+.content img {
+  max-width: 100%;
+  height: auto;
+  margin: 1.5rem 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  backdrop-filter: blur(2px);
+}
+
+.content img:hover {
+  transform: scale(1.02);
 }
 
 

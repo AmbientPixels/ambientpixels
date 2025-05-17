@@ -68,13 +68,23 @@ document.addEventListener("DOMContentLoaded", () => {
           });
           const tooltip = auraTooltips[aura] || `aura: ${aura}`;
 
-          return `
-            <div class="mood-grid-item aura-${auraSlug}" title="${tooltip}">
-              <div class="mood-grid-emoji">${emoji}</div>
-              <div class="mood-grid-label">${mood}</div>
-              <div class="mood-grid-time">${time}</div>
-            </div>
+          // Create mood grid item with default styling
+          const item = document.createElement('div');
+          item.className = `mood-grid-item aura-${auraSlug}`;
+          item.title = tooltip;
+          item.innerHTML = `
+            <div class="mood-grid-emoji">${emoji}</div>
+            <div class="mood-grid-label">${mood}</div>
+            <div class="mood-grid-time">${time}</div>
           `;
+          
+          // Store aura color for initial styling
+          item.dataset.auraColor = data.auraColorHex || "#999999";
+          
+          // Apply initial styling
+          applyMoodItemStyling(item, item.dataset.auraColor);
+          
+          return item.outerHTML;
         });
 
         container.innerHTML = `
@@ -90,6 +100,43 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
   }
+
+  // Update mood grid item styling based on aura
+  function applyMoodItemStyling(item, auraColorHex) {
+    item.style.background = `linear-gradient(135deg, ${auraColorHex}, ${lightenHex(auraColorHex, 0.2)})`;
+    item.style.border = `1px solid ${darkenHex(auraColorHex, 0.2)}`;
+    item.style.color = isLightColor(auraColorHex) ? "#333" : "#fff";
+    item.style.borderRadius = "6px";
+    item.style.padding = "8px";
+    item.style.transition = "all 0.3s ease";
+  }
+
+  // Update mood grid items when mood changes
+  document.addEventListener("NovaMoodUpdate", (e) => {
+    try {
+      const { auraColorHex = "#999999" } = e.detail || {};
+      
+      // Update mood grid items
+      document.querySelectorAll('.mood-grid-item').forEach(item => {
+        applyMoodItemStyling(item, auraColorHex);
+      });
+
+      // Update progress bars and commentary
+      const progressBars = document.querySelectorAll('.trait-progress');
+      const commentary = document.querySelector('.mood-commentary');
+
+      progressBars.forEach(bar => {
+        bar.style.background = `linear-gradient(90deg, ${auraColorHex} 0%, ${lightenHex(auraColorHex, 0.2)} 100%)`;
+        bar.style.border = `1px solid ${darkenHex(auraColorHex, 0.2)}`;
+      });
+
+      if (commentary) {
+        applyMoodItemStyling(commentary, auraColorHex);
+      }
+    } catch (err) {
+      console.error("[Nova Mood Grid] Failed to update colors:", err);
+    }
+  });
 
   // Render mood scan demo (#novaMood)
   function renderMoodScanDemo() {
@@ -249,28 +296,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   }
 
-  // Update progress bar and commentary colors based on aura
-  document.addEventListener("NovaMoodUpdate", (e) => {
-    try {
-      const { auraColorHex = "#999999" } = e.detail || {};
-      console.log(`[Nova Mood Grid] Received NovaMoodUpdate: auraColorHex=${auraColorHex}`);
-      
-      // Update progress bar colors
-      const progressBars = document.querySelectorAll('.mood-trait .trait-progress');
-      progressBars.forEach(bar => {
-        bar.style.background = auraColorHex;
-      });
-
-      // Update commentary background
-      const commentaryEl = document.querySelector('.mood-commentary');
-      if (commentaryEl) {
-        commentaryEl.style.background = `linear-gradient(135deg, ${auraColorHex}80, ${darkenHex(auraColorHex, 0.3)}80)`;
-      }
-    } catch (err) {
-      console.error('[Nova Mood Grid] Failed to update colors:', err);
-    }
-  });
-
   // Utility function for hex color manipulation
   function darkenHex(hex, amount) {
     hex = hex.replace("#", "");
@@ -278,6 +303,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const g = Math.max(0, parseInt(hex.slice(2, 4), 16) - Math.round(255 * amount));
     const b = Math.max(0, parseInt(hex.slice(4, 6), 16) - Math.round(255 * amount));
     return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  }
+
+  function lightenHex(hex, amount) {
+    hex = hex.replace("#", "");
+    const r = Math.min(255, parseInt(hex.slice(0, 2), 16) + Math.round(255 * amount));
+    const g = Math.min(255, parseInt(hex.slice(2, 4), 16) + Math.round(255 * amount));
+    const b = Math.min(255, parseInt(hex.slice(4, 6), 16) + Math.round(255 * amount));
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  }
+
+  function isLightColor(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    let r = parseInt(result[1], 16);
+    let g = parseInt(result[2], 16);
+    let b = parseInt(result[3], 16);
+    const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    return yiq >= 128;
   }
 
   // Initialize all render functions
