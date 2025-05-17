@@ -1,4 +1,51 @@
 document.body.classList.remove("bg-neutral");
+// Color manipulation utilities
+function lightenHex(hex, amount) {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const r = Math.min(255, Math.floor((num >> 16) * (1 + amount)));
+  const g = Math.min(255, Math.floor((num >> 8 & 0xFF) * (1 + amount)));
+  const b = Math.min(255, Math.floor((num & 0xFF) * (1 + amount)));
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
+
+function darkenHex(hex, amount) {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const r = Math.max(0, Math.floor((num >> 16) * (1 - amount)));
+  const g = Math.max(0, Math.floor((num >> 8 & 0xFF) * (1 - amount)));
+  const b = Math.max(0, Math.floor((num & 0xFF) * (1 - amount)));
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
+
+function isLightColor(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return (r * 0.299 + g * 0.587 + b * 0.114) > 186;
+}
+
+// Apply dynamic styling to mood-aware elements
+function applyMoodStyling(element, auraColorHex) {
+  if (!element) return;
+  
+  element.style.background = `linear-gradient(135deg, ${auraColorHex}, ${lightenHex(auraColorHex, 0.2)})`;
+  element.style.border = `1px solid ${darkenHex(auraColorHex, 0.2)}`;
+  element.style.color = isLightColor(auraColorHex) ? "#333" : "#fff";
+  element.style.padding = "15px";
+  element.style.borderRadius = "8px";
+  element.style.boxShadow = `0 2px 4px rgba(0,0,0,0.1)`;
+  element.style.transition = "all 0.3s ease";
+}
+
+// Handle NovaMoodUpdate events
+document.addEventListener("NovaMoodUpdate", (e) => {
+  const { auraColorHex = "#999999" } = e.detail || {};
+  
+  // Apply to all mood-aware elements
+  document.querySelectorAll(".dynamic-mood").forEach(el => {
+    applyMoodStyling(el, auraColorHex);
+  });
+});
+
 document.addEventListener("DOMContentLoaded", () => {
   const driftEl = document.getElementById("nova-mood-drift");
 
@@ -26,7 +73,8 @@ document.addEventListener("DOMContentLoaded", () => {
       document.dispatchEvent(new CustomEvent("NovaMoodUpdate", {
         detail: {
           mood: data.mood || "neutral",
-          aura: data.aura || "default"
+          aura: data.aura || "default",
+          auraColorHex: data.auraColorHex || "#999999"
         }
       }));
 
