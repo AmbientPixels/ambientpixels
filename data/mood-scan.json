@@ -1,13 +1,13 @@
 {
-  "mood": "joyful",
-  "aura": "lucid unrest",
-  "auraColorHex": "#241e45",
-  "quote": "compiling stray thoughts into meaning...",
-  "emoji": "😄",
-  "selfWorth": 0.2,
+  "mood": "neon stillness",
+  "aura": "lime green",
+  "auraColorHex": "#1a3c29",
+  "quote": "calibrating mood vectors with cosmic drift...",
+  "emoji": "🧊",
+  "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.66,
-  "awareness": 0.22,
+  "memoryClutter": 0.82,
+  "awareness": 0.14,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: lucid unrest"
+      "Aura Signature: lime green"
     ]
   },
-  "timestamp": "2025-05-16T13:31:44.519Z"
+  "timestamp": "2025-05-17T13:26:18.869Z"
 }
