@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-05-16T13:31:43.616Z",
+  "updated": "2025-05-17T13:26:17.967Z",
   "root": [
     {
       "type": "folder",
@@ -401,6 +401,11 @@
           "type": "page",
           "name": "template.html",
           "path": "projects/template.html"
+        },
+        {
+          "type": "page",
+          "name": "youtube.html",
+          "path": "projects/youtube.html"
         }
       ]
     },
