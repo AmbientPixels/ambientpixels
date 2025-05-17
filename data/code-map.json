@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-05-16T01:21:27.325Z",
+  "timestamp": "2025-05-16T13:31:46.545Z",
   "summary": {
     "totalJS": 474,
     "totalCSS": 35,
@@ -1508,7 +1508,9 @@
     "pulse",
     "pulse-icon",
     "pulse-item",
+    "pulse-meter-title",
     "pulse-trait",
+    "pulse-trait-label",
     "pulse-value",
     "pulse-wrap",
     "related-project-card",
