@@ -1,9 +1,9 @@
 {
-  "timestamp": "2025-05-17T13:26:20.907Z",
+  "timestamp": "2025-05-18T13:26:42.163Z",
   "summary": {
     "totalJS": 474,
     "totalCSS": 35,
-    "totalHTML": 91
+    "totalHTML": 94
   },
   "functions": [
     "A",
@@ -398,6 +398,8 @@
     "appendFileToFormData",
     "applyBind",
     "applyMoodAnimations",
+    "applyMoodItemStyling",
+    "applyMoodStyling",
     "applyNudge",
     "ar",
     "arrayBufferViewElementSize",
@@ -1404,6 +1406,7 @@
     "compare-mode",
     "contact-form",
     "container",
+    "content",
     "content-section",
     "control-group",
     "critical",
@@ -1461,6 +1464,7 @@
     "lore-icon",
     "lore-meta",
     "lore-summary",
+    "md-doc-tag",
     "media-caption",
     "media-gallery",
     "media-grid",
@@ -1574,6 +1578,7 @@
   ],
   "htmlTags": [
     "a",
+    "b",
     "blockquote",
     "body",
     "br",
