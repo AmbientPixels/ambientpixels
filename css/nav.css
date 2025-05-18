@@ -2,127 +2,153 @@
 
 /* --- General Nav Styles --- */
 .nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 2000;
-    background: rgba(7, 16, 25, 0.95);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  }
-  
-  .nav-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 15px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  
-  .nav-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .nav-logo img {
-    height: 40px;
-    width: auto;
-  }
-  
-  .nav-logo-text h1 {
-    font-size: 1.5em;
-    font-weight: 500;
-  }
-  
-  .nav-subheading {
-    font-size: 0.9em;
-    color: #aaa;
-  }
-  
-  .nav-content {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-  
-  .nav-links {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    list-style: none;
-  }
-  
-  .nav-utility {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  #theme-toggle {
-    background: none;
-    border: none;
-    font-size: 1.2em;
-    cursor: pointer;
-    color: inherit;
-  }
-  
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 2000;
+  background: rgba(7, 16, 25, 0.95);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-logo img {
+  height: 40px;
+  width: auto;
+}
+
+.nav-logo-text h1 {
+  font-size: 1.5em;
+  font-weight: 500;
+}
+
+.nav-subheading {
+  font-size: 0.9em;
+  color: #aaa;
+}
+
+.nav-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  list-style: none;
+}
+
+.nav-links a {
+  display: flex;
+  align-items: center;
+  color: #fff;
+  text-decoration: none;
+  font-size: 1em;
+}
+
+.nav-links .link-text {
+  display: none; /* Hide text in desktop view */
+}
+
+.nav-links i {
+  font-size: 1.2em;
+}
+
+.nav-utility {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#theme-toggle {
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  color: inherit;
+}
+
+.nav-toggle {
+  display: none;
+  font-size: 1.5em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+}
+
+/* --- Mobile Nav Overlay --- */
+.nav-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1999;
+}
+
+.nav-overlay.active {
+  display: block;
+}
+
+/* --- Mobile Styles --- */
+@media (max-width: 768px) {
   .nav-toggle {
-    display: none;
-    font-size: 1.5em;
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-  
-  /* --- Mobile Nav Overlay --- */
-  .nav-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1999;
-  }
-  
-  .nav-overlay.active {
     display: block;
   }
-  
-  /* --- Mobile Styles --- */
-  @media (max-width: 768px) {
-    .nav-toggle {
-      display: block;
-    }
-  
-    .nav-content {
-      flex-grow: 1;
-      justify-content: flex-end;
-    }
-  
-    .nav-links {
-      flex-direction: column;
-      position: fixed;
-      top: 60px;
-      left: -100%;
-      width: 70%;
-      height: 100vh;
-      background: rgba(7, 16, 25, 0.95);
-      padding: 30px 20px;
-      box-shadow: 4px 0 12px rgba(0, 0, 0, 0.4);
-      transition: left 0.3s ease;
-      z-index: 2001;
-    }
-  
-    .nav-links.active {
-      left: 0;
-    }
-  
-    .nav-links li {
-      margin: 15px 0;
-    }
+
+  .nav-content {
+    flex-grow: 1;
+    justify-content: flex-end;
   }
-  
+
+  .nav-links {
+    flex-direction: column;
+    position: fixed;
+    top: 60px;
+    left: -100%;
+    width: 100%; /* Full width for mobile */
+    height: calc(100vh - 60px);
+    background: rgba(7, 16, 25, 0.95);
+    padding: 30px 20px;
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.4);
+    transition: left 0.3s ease;
+    z-index: 2001;
+  }
+
+  .nav-links.active {
+    left: 0;
+  }
+
+  .nav-links li {
+    margin: 15px 0;
+  }
+
+  .nav-links a {
+    justify-content: flex-start;
+    gap: 10px;
+    font-size: 1.2em;
+  }
+
+  .nav-links .link-text {
+    display: inline; /* Show text in mobile view */
+  }
+}
