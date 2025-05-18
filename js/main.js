@@ -67,12 +67,17 @@ function initHero() {
 function initToggles() {
   const toggleButtons = document.querySelectorAll('.toggle-btn');
   toggleButtons.forEach(button => {
+    // Initialize content display based on aria-expanded
+    const section = button.closest('.content-section');
+    const content = section.querySelector('.content');
+    const isExpanded = button.getAttribute('aria-expanded') === 'true';
+    content.style.display = isExpanded ? 'block' : 'none';
+
+    // Set up click handler
     button.addEventListener('click', () => {
-      const section = button.closest('.content-section');
-      const content = section.querySelector('.content');
-      const isExpanded = button.getAttribute('aria-expanded') === 'true';
-      button.setAttribute('aria-expanded', !isExpanded);
-      content.style.display = isExpanded ? 'none' : 'block';
+      const newIsExpanded = !isExpanded;
+      button.setAttribute('aria-expanded', newIsExpanded);
+      content.style.display = newIsExpanded ? 'block' : 'none';
     });
   });
 }
