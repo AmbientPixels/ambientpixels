@@ -75,9 +75,12 @@ function initToggles() {
 
     // Set up click handler
     button.addEventListener('click', () => {
-      const newIsExpanded = !isExpanded;
+      const newIsExpanded = button.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
       button.setAttribute('aria-expanded', newIsExpanded);
-      content.style.display = newIsExpanded ? 'block' : 'none';
+      content.style.display = newIsExpanded === 'true' ? 'block' : 'none';
+      
+      // Add smooth transition
+      content.style.transition = 'display 0.3s ease-in-out';
     });
   });
 }
