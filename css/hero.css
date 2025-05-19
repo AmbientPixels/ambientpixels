@@ -111,6 +111,9 @@ body[data-theme="light"] .hero-subheadline {
 .hero h1 {
     font-size: 2.5em;
     margin: 0.2em 0;
+    max-width: 80ch;
+    line-height: 1.2;
+    word-break: break-word;
 }
 
 .hero p {
@@ -142,6 +145,10 @@ body[data-theme="light"] .hero-subheadline {
     color: #fff;
     text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.8);
     margin: 0;
+    min-width: 370px;
+    width: 90%;
+    max-width: 1000px;
+    text-align: center;
 }
 
 .hero-headlines h1,
