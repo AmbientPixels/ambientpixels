@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-05-18T13:26:42.163Z",
+  "timestamp": "2025-05-19T13:33:16.244Z",
   "summary": {
     "totalJS": 474,
     "totalCSS": 35,
@@ -1454,6 +1454,7 @@
     "layout-nav-links",
     "layout-nav-toggle",
     "light-theme",
+    "link-text",
     "loading-bar",
     "loading-icon",
     "loading-progress",
