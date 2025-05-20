@@ -5,7 +5,7 @@ const DEVART_CONFIG = {
     username: 'NovaAmbient',
     maxItems: 5,
     apiUrl: 'https://ambientpixels-nova-api.azurewebsites.net/api/deviantart-proxy/oauth2/gallery/all',
-    authEndpoint: 'https://www.deviantart.com/oauth2/authorize',
+    authEndpoint: 'https://ambientpixels-nova-api.azurewebsites.net/api/deviantart-proxy/oauth2/authorize',
     redirectUri: 'https://ambientpixels.ai/lab/deviantart-feed.html' // Static redirect URI that needs to be registered in DeviantArt settings
 };
 
