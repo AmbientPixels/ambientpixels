@@ -54,16 +54,16 @@ async function initializeOAuth() {
         const authCode = urlParams.get('code');
         
         if (authCode) {
-            // Exchange authorization code for access token using Azure Function App
-            const response = await fetch('https://ambientpixels-nova-api.azurewebsites.net/api/deviantart-proxy/oauth2/token', {
+            // Exchange authorization code for token using DeviantArt API
+            const response = await fetch(DEVART_CONFIG.tokenEndpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
                 body: new URLSearchParams({
-                    grant_type: 'authorization_code',
                     client_id: DEVART_CONFIG.clientId,
                     client_secret: DEVART_CONFIG.clientSecret,
+                    grant_type: 'authorization_code',
                     code: authCode,
                     redirect_uri: DEVART_CONFIG.redirectUri
                 })
@@ -202,10 +202,31 @@ async function initializeDeviantArtFeed() {
 
 // Initialize feed when DOM is ready
 document.addEventListener('DOMContentLoaded', async () => {
-    const container = document.getElementById('deviantart-feed-container');
-    if (container) {
-        container.appendChild(feedContainer);
+    feedContainer = document.getElementById('deviantart-feed-container');
+    if (!feedContainer) {
+        console.error('DeviantArt feed container not found');
+        return;
+    }
+    
+    // Show loading state
+    const loadingState = feedContainer.querySelector('.loading-state');
+    if (loadingState) {
+        loadingState.classList.remove('hidden');
+    }
+    
+    try {
+        await initializeOAuth();
         await initializeDeviantArtFeed();
+    } catch (error) {
+        console.error('Error initializing feed:', error);
+        const errorState = feedContainer.querySelector('.error-state');
+        if (errorState) {
+            errorState.classList.remove('hidden');
+            const errorMessage = errorState.querySelector('#error-message');
+            if (errorMessage) {
+                errorMessage.textContent = error.message || 'Error loading feed';
+            }
+        }
     }
 });
 
