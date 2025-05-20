@@ -34,7 +34,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const errorState = feedContainer.querySelector('.error-state');
         if (errorState) {
             errorState.classList.remove('hidden');
-            errorState.querySelector('#error-message').textContent = error.message || 'Error loading feed';
+            const errorMessage = errorState.querySelector('#error-message');
+            if (errorMessage) {
+                errorMessage.textContent = error.message || 'Error loading feed';
+            }
         }
     }
 });
@@ -59,7 +62,7 @@ async function initializeOAuth() {
                 },
                 body: new URLSearchParams({
                     grant_type: 'authorization_code',
-                    client_id: DEViantART_CONFIG.clientId,
+                    client_id: DEVART_CONFIG.clientId,
                     client_secret: DEVART_CONFIG.clientSecret,
                     code: authCode,
                     redirect_uri: DEVART_CONFIG.redirectUri
