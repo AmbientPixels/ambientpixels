@@ -51,15 +51,15 @@ async function initializeOAuth() {
         const authCode = urlParams.get('code');
         
         if (authCode) {
-            // Exchange authorization code for access token
-            const response = await fetch('https://www.deviantart.com/oauth2/token', {
+            // Exchange authorization code for access token using Azure Function App
+            const response = await fetch('https://ambientpixels-nova-api.azurewebsites.net/api/deviantart-proxy/oauth2/token', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
                 body: new URLSearchParams({
                     grant_type: 'authorization_code',
-                    client_id: DEVART_CONFIG.clientId,
+                    client_id: DEViantART_CONFIG.clientId,
                     client_secret: DEVART_CONFIG.clientSecret,
                     code: authCode,
                     redirect_uri: DEVART_CONFIG.redirectUri
