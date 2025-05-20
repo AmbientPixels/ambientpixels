@@ -15,24 +15,38 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('DeviantArt feed container not found');
         return;
     }
-    await initializeDeviantArtFeed();
-});
-
-// Initialize feed when DOM is ready
-document.addEventListener('DOMContentLoaded', async () => {
-    feedContainer = document.getElementById('deviantart-feed-container');
-    if (!feedContainer) {
-        console.error('DeviantArt feed container not found');
-        return;
+    
+    // Show loading state using Nova's existing styles
+    const loadingState = feedContainer.querySelector('.loading-state');
+    if (loadingState) {
+        loadingState.classList.remove('hidden');
     }
-    await initializeDeviantArtFeed();
+    
+    try {
+        // Initialize OAuth and fetch data
+        const token = await initializeOAuth();
+        if (!token) {
+            throw new Error('Authorization required');
+        }
+        await initializeDeviantArtFeed();
+    } catch (error) {
+        console.error('Error initializing feed:', error);
+        const errorState = feedContainer.querySelector('.error-state');
+        if (errorState) {
+            errorState.classList.remove('hidden');
+            errorState.querySelector('#error-message').textContent = error.message || 'Error loading feed';
+        }
+    }
 });
 
 // Initialize OAuth flow
 async function initializeOAuth() {
     try {
         // Check if we have a valid token
-        if (!accessToken || !tokenExpiration || Date.now() >= parseInt(tokenExpiration)) {
+        const token = localStorage.getItem('deviantart_access_token');
+        const expiration = localStorage.getItem('deviantart_token_expiration');
+        
+        if (!token || !expiration || Date.now() >= parseInt(expiration)) {
             // Token expired or doesn't exist, show authorization button
             const authButton = document.createElement('button');
             authButton.className = 'deviantart-auth-button nova-button';
@@ -41,15 +55,16 @@ async function initializeOAuth() {
                 const authUrl = `${DEVART_CONFIG.authEndpoint}?client_id=${DEVART_CONFIG.clientId}&response_type=code&redirect_uri=${encodeURIComponent(DEVART_CONFIG.redirectUri)}&scope=basic`;
                 window.location.href = authUrl;
             };
+            
+            // Clear any existing content
             feedContainer.innerHTML = '';
             feedContainer.appendChild(authButton);
             return null;
         }
-        return accessToken;
+        return token;
     } catch (error) {
         console.error('OAuth initialization error:', error);
-        feedContainer.innerHTML = '<p class="error">Error initializing OAuth: ' + error.message + '</p>';
-        return null;
+        throw error; // Let the main flow handle this error
     }
 }
 
