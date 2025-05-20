@@ -1,8 +1,8 @@
 {
-  "scannedAt": "2025-05-19T13:33:13.460Z",
+  "scannedAt": "2025-05-20T03:32:35.150Z",
   "cssFile": "css/base.css",
   "totalDefined": 24,
-  "totalUsed": 399,
+  "totalUsed": 404,
   "unusedClasses": [
     "grid-row",
     "subtitle"
