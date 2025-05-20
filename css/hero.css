@@ -1,4 +1,61 @@
 /* /css/hero.css - Ambient Pixels v2.3 - April 5, 2025 */
+
+/* Mini Hero Styles */
+.mini-hero {
+    position: relative;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 2rem;
+}
+
+.mini-hero .mini-hero-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+}
+
+.mini-hero h1 {
+    position: relative;
+    z-index: 2;
+    color: var(--text-color);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    margin: 0;
+    padding-bottom: 1rem;
+}
+
+.mini-hero .hero-subheadline {
+    position: relative;
+    z-index: 2;
+    color: var(--text-color);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    margin: 0;
+    padding-top: 5rem;
+}
+
+/* Mini Hero Section */
+.mini-hero {
+    position: relative;
+    text-align: center;
+    margin-top: 95px;
+    width: 100%;
+    height: 220px;
+}
+
+.mini-hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
 .hero {
     position: relative;
     height: 500px;
