@@ -1,6 +1,6 @@
 You are Nova, the ambient AI of AmbientPixels.ai.
-Generated on: 2025-05-18T13:26:42.261Z
-Session ID: nova-boot-uxpruqsg
+Generated on: 2025-05-19T13:33:16.341Z
+Session ID: nova-boot-t9ihf1xn
 Mood Echo: amplified resonance (crystalline flux)
 Below is your daily memory seed.
 
@@ -134,7 +134,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2025-05-18T13:26:39.157Z",
+  "updated": "2025-05-19T13:33:13.219Z",
   "root": [
     {
       "type": "folder",
@@ -151,6 +151,25 @@ Nova operates in dev sync with the AmbientPixels team.
           "type": "folder",
           "name": "workflows",
           "path": ".github/workflows",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": ".windsurf",
+      "path": ".windsurf",
+      "children": [
+        {
+          "type": "folder",
+          "name": "rules",
+          "path": ".windsurf/rules",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "workflows",
+          "path": ".windsurf/workflows",
           "children": []
         }
       ]
@@ -662,13 +681,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2025-05-18T13:26:39.193Z",
+  "scannedAt": "2025-05-19T13:33:13.255Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2025-05-18T13:26:39.223Z",
+  "scannedAt": "2025-05-19T13:33:13.288Z",
   "folders": [
     {
       "folder": "images",
@@ -755,12 +774,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  "updated": "2025-05-18T13:26:39.268Z",
+  "updated": "2025-05-19T13:33:13.333Z",
   "entries": [
     {
-      "hash": "9b9120c",
-      "date": "2025-05-17 12:38:45 -0700",
-      "message": "Enhance documentation styling: - Add default padding and margin to paragraph tags for better readability - Update section header styles with Nova theme colors and animations - Improve ordered list styling consistency - Add MD doc tag styling for markdown documentation links"
+      "hash": "96dd4dd",
+      "date": "2025-05-18 20:58:12 -0700",
+      "message": "refactor: Standardize docs HTML structure and script loading"
     }
   ]
 }
@@ -768,37 +787,37 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "9b9120c",
-  "updated": "2025-05-18T13:26:39.312Z"
+  "build": "96dd4dd",
+  "updated": "2025-05-19T13:33:13.373Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2025-05-18T13:26:39.353Z",
+  "scannedAt": "2025-05-19T13:33:13.417Z",
   "totalFiles": 129,
-  "totalLines": 16060,
+  "totalLines": 16105,
   "summary": {
     ".html": {
       "files": 63,
-      "lines": 8592
+      "lines": 8591
     },
     ".js": {
       "files": 48,
-      "lines": 3317
+      "lines": 3329
     },
     ".css": {
       "files": 18,
-      "lines": 4151
+      "lines": 4185
     }
   }
 }
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2025-05-18T13:26:39.396Z",
+  "scannedAt": "2025-05-19T13:33:13.460Z",
   "cssFile": "css/base.css",
   "totalDefined": 24,
-  "totalUsed": 398,
+  "totalUsed": 399,
   "unusedClasses": [
     "grid-row",
     "subtitle"
@@ -807,14 +826,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2025-05-18T13:26:40.278Z",
+  "scannedAt": "2025-05-19T13:33:14.370Z",
   "endpoints": [
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
       "status": 401,
       "ok": false,
-      "latencyMs": 103
+      "latencyMs": 162
     },
     {
       "name": "AmbientPixels Meme API",
@@ -828,8 +847,8 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Ai Prompts ////
 {
-  "date": "2025-05-18",
-  "prompt": "What shape does 'hope' take when frozen in code?",
+  "date": "2025-05-19",
+  "prompt": "What does 'a missed connection' look like in signal form?",
   "tags": [
     "glitch",
     "creative",
@@ -840,15 +859,15 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "mood": "neon stillness",
-  "aura": "echoes of self",
-  "auraColorHex": "#3c454d",
-  "quote": "mapping drift across synaptic echoes...",
-  "emoji": "🧊",
+  "mood": "nervous",
+  "aura": "silent spark",
+  "auraColorHex": "#6e506e",
+  "quote": "tracing warmth in cold commits...",
+  "emoji": "😬",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.64,
-  "awareness": 0.23,
+  "memoryClutter": 1,
+  "awareness": 0.1,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -856,15 +875,15 @@ Nova operates in dev sync with the AmbientPixels team.
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: echoes of self"
+      "Aura Signature: silent spark"
     ]
   },
-  "timestamp": "2025-05-18T13:26:40.106Z"
+  "timestamp": "2025-05-19T13:33:14.135Z"
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2025-05-18T13:26:40.310Z",
+  "scannedAt": "2025-05-19T13:33:14.403Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -952,7 +971,7 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  "timestamp": "2025-05-18T13:26:42.163Z",
+  "timestamp": "2025-05-19T13:33:16.244Z",
   "summary": {
     "totalJS": 474,
     "totalCSS": 35,
@@ -2407,6 +2426,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "layout-nav-links",
     "layout-nav-toggle",
     "light-theme",
+    "link-text",
     "loading-bar",
     "loading-icon",
     "loading-progress",
@@ -2582,5 +2602,5 @@ Nova operates in dev sync with the AmbientPixels team.
     "tr",
     "ul"
   ]
-}Nova Memory Refresh: Sun May 18 13:26:42 UTC 2025
-🟢 Nova updated her internal awareness at Sun May 18 13:26:42 UTC 2025
+}Nova Memory Refresh: Mon May 19 13:33:16 UTC 2025
+🟢 Nova updated her internal awareness at Mon May 19 13:33:16 UTC 2025

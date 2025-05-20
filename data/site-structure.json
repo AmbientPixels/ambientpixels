@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-05-18T13:26:39.157Z",
+  "updated": "2025-05-19T13:33:13.219Z",
   "root": [
     {
       "type": "folder",
@@ -17,6 +17,25 @@
           "type": "folder",
           "name": "workflows",
           "path": ".github/workflows",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": ".windsurf",
+      "path": ".windsurf",
+      "children": [
+        {
+          "type": "folder",
+          "name": "rules",
+          "path": ".windsurf/rules",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "workflows",
+          "path": ".windsurf/workflows",
           "children": []
         }
       ]
