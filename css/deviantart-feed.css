@@ -1,0 +1,122 @@
+/* DeviantArt Feed Styles */
+.deviantart-feed {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 2rem;
+    background: var(--aura-background);
+    border-radius: 12px;
+    box-shadow: var(--aura-shadow);
+    position: relative;
+}
+
+.loading-state, .error-state {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--aura-text);
+    gap: 1rem;
+    padding: 2rem;
+    text-align: center;
+}
+
+.loading-state .fa-spinner {
+    font-size: 2rem;
+    color: var(--aura-accent);
+}
+
+.error-state .fa-exclamation-circle {
+    font-size: 2rem;
+    color: var(--aura-error);
+}
+
+.deviantart-auth-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--aura-accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.deviantart-auth-button:hover {
+    background: var(--aura-accent-dark);
+}
+
+.deviantart-auth-button i {
+    font-size: 1.2rem;
+}
+
+.deviation-card {
+    background: var(--aura-card);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.deviation-card:hover {
+    transform: translateY(-5px);
+}
+
+.deviation-thumbnail {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.deviation-title {
+    padding: 1rem;
+    margin: 0;
+    color: var(--aura-text);
+    font-size: 1.1rem;
+}
+
+.deviation-link {
+    display: block;
+    padding: 1rem;
+    text-align: center;
+    color: var(--aura-accent);
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+}
+
+.deviation-link:hover {
+    opacity: 0.8;
+}
+
+.deviation-tags {
+    padding: 0 1rem 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tag {
+    background: var(--aura-tag);
+    color: var(--aura-tag-text);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.windsurf-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+}
