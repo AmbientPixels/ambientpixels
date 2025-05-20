@@ -17,14 +17,14 @@ if (!process.env.DEVART_CLIENT_ID || !process.env.DEVART_CLIENT_SECRET) {
     console.warn('DeviantArt credentials not found in environment variables. Using fallback configuration.');
 }
 
-// Initialize DOM elements
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize feed when DOM is ready
+document.addEventListener('DOMContentLoaded', async () => {
     feedContainer = document.getElementById('deviantart-feed-container');
     if (!feedContainer) {
         console.error('DeviantArt feed container not found');
         return;
     }
-    initializeDeviantArtFeed();
+    await initializeDeviantArtFeed();
 });
 
 // Initialize OAuth flow

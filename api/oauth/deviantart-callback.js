@@ -20,7 +20,7 @@ router.get('/callback', async (req, res) => {
                 client_id: process.env.DEVART_CLIENT_ID,
                 client_secret: process.env.DEVART_CLIENT_SECRET,
                 code: code,
-                redirect_uri: 'https://ambientpixels.ai/callback'
+                redirect_uri: process.env.DEVART_REDIRECT_URI || 'https://ambientpixels.ai/callback'
             })
         });
 
