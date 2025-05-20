@@ -1,21 +1,22 @@
 // DeviantArt Feed Module for Nova
 // Uses DeviantArt API v1.0
 
-// Configuration
-const DEVART_CONFIG = {
-    clientId: process.env.DEVART_CLIENT_ID || 'YOUR_CLIENT_ID', // Replace with actual client ID
-    clientSecret: process.env.DEVART_CLIENT_SECRET || 'YOUR_CLIENT_SECRET',
-    username: 'NovaAmbient',
-    maxItems: 5,
-    apiUrl: 'https://www.deviantart.com/api/v1/oauth2/gallery/all',
-    authEndpoint: 'https://www.deviantart.com/oauth2/authorize',
-    redirectUri: 'https://ambientpixels.ai/callback'
-};
+import DEVART_CONFIG from './deviantart-config.js';
 
-// Fallback configuration if environment variables aren't loaded
-if (!process.env.DEVART_CLIENT_ID || !process.env.DEVART_CLIENT_SECRET) {
-    console.warn('DeviantArt credentials not found in environment variables. Using fallback configuration.');
-}
+// DOM Elements and Authentication State
+let feedContainer;
+let accessToken = localStorage.getItem('deviantart_access_token');
+let tokenExpiration = localStorage.getItem('deviantart_token_expiration');
+
+// Initialize feed when DOM is ready
+document.addEventListener('DOMContentLoaded', async () => {
+    feedContainer = document.getElementById('deviantart-feed-container');
+    if (!feedContainer) {
+        console.error('DeviantArt feed container not found');
+        return;
+    }
+    await initializeDeviantArtFeed();
+});
 
 // Initialize feed when DOM is ready
 document.addEventListener('DOMContentLoaded', async () => {
