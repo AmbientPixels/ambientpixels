@@ -46,6 +46,46 @@ async function initializeOAuth() {
         const token = localStorage.getItem('deviantart_access_token');
         const expiration = localStorage.getItem('deviantart_token_expiration');
         
+        // Check if we have an authorization code in the URL (from DeviantArt redirect)
+        const urlParams = new URLSearchParams(window.location.search);
+        const authCode = urlParams.get('code');
+        
+        if (authCode) {
+            // Exchange authorization code for access token
+            const response = await fetch('https://www.deviantart.com/oauth2/token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({
+                    grant_type: 'authorization_code',
+                    client_id: DEVART_CONFIG.clientId,
+                    client_secret: DEVART_CONFIG.clientSecret,
+                    code: authCode,
+                    redirect_uri: DEVART_CONFIG.redirectUri
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to exchange authorization code for token');
+            }
+            
+            const tokenData = await response.json();
+            if (!tokenData.access_token) {
+                throw new Error('No access token received from DeviantArt');
+            }
+            
+            // Store the token and expiration
+            localStorage.setItem('deviantart_access_token', tokenData.access_token);
+            localStorage.setItem('deviantart_token_expiration', (Date.now() + tokenData.expires_in * 1000).toString());
+            
+            // Remove the code from URL to prevent resubmission
+            const newUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, '', newUrl);
+            
+            return tokenData.access_token;
+        }
+        
         if (!token || !expiration || Date.now() >= parseInt(expiration)) {
             // Token expired or doesn't exist, show authorization button
             const authButton = document.createElement('button');

@@ -6,7 +6,7 @@ const DEVART_CONFIG = {
     maxItems: 5,
     apiUrl: 'https://www.deviantart.com/api/v1/oauth2/gallery/all',
     authEndpoint: 'https://www.deviantart.com/oauth2/authorize',
-    redirectUri: 'https://ambientpixels.ai/callback'
+    redirectUri: window.location.origin + '/lab/deviantart-feed.html' // Use current origin to return to the same page
 };
 
 export default DEVART_CONFIG;
