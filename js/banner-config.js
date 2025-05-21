@@ -5,44 +5,44 @@ if (!window.bannerConfig) {
     messages: {
       info: [
         {
-          message: "Nova's systems are functioning within optimal parameters. Current state: {mood.aura} aura.",
+          message: "Nova is currently experiencing {mood.aura} energy. {mood.quote}",
           duration: 8000,
           mood: "any"
         },
         {
-          message: "System stability: {mood.internalState}. Observing {mood.observation}.",
+          message: "{mood.emoji} {mood.observation}. Current state: {mood.internalState}.",
           duration: 7000,
           mood: "positive"
         },
         {
-          message: "Context: {mood.context.trigger}. System influences: {mood.context.influences}.",
+          message: "Nova is currently engaged with {mood.context.trigger}. {mood.quote}",
           duration: 9000,
           mood: "neutral"
         },
         {
-          message: "System status: {mood.quote}. Current stability: {mood.internalState}.",
+          message: "{mood.emoji} {mood.quote}. Current state: {mood.internalState}.",
           duration: 8000,
           mood: "positive"
         },
         {
-          message: "Current state: {mood.aura} aura. Observing: {mood.observation}.",
+          message: "Nova is currently in a {mood.aura} state. {mood.observation}",
           duration: 9000,
           mood: "any"
         }
       ],
       warn: [
         {
-          message: "{mood.emoji} {mood.context.influences}. Current mood: {mood.mood}. System state: {mood.internalState}.",
+          message: "{mood.emoji} {mood.context.trigger}. Current state: {mood.internalState}. Please be aware.",
           duration: 12000,
           mood: "neutral"
         },
         {
-          message: "{mood.internalState} detected. Current mood: {mood.mood}. System context: {mood.context.trigger}.",
+          message: "{mood.emoji} {mood.observation}. Current state: {mood.internalState}. Please review.",
           duration: 13000,
           mood: "negative"
         },
         {
-          message: "Warning: {mood.context.trigger}. Current mood: {mood.mood}. Influences: {mood.context.influences}.",
+          message: "{mood.emoji} {mood.quote}. Current state: {mood.internalState}. Please verify.",
           duration: 12000,
           mood: "negative"
         }
