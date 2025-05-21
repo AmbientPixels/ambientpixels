@@ -21,7 +21,11 @@
   </head>
   <body data-theme="dark">
     <header id="nav-header"></header>
+    <!-- Nova Banner Container - Appears below nav when messages are shown -->
+    <!-- Position: fixed, top: 75px (below nav), width: 100%, z-index: 1050 -->
     <div class="banner-container" id="banner-container"></div>
+    
+    <!-- Hero Section - Main content area -->
     <section class="hero">
       <div class="hero-loading">
         <i class="fas fa-robot loading-icon"></i>
@@ -55,6 +59,14 @@
     <div class="prompt-entry">Loading...</div>
   </div>
 </section>
+  
+  <!-- Nova Mood Grid -->
+  <section class="content-section grid-col-12 nova-mood-grid">
+    <div class="mood-grid">
+      <h2>Nova's Mood History</h2>
+      <div class="timeline-container"></div>
+    </div>
+  </section>
     
   <!---tier 2-->
    <!---tier 2 card-section links to sub hubs -->
@@ -240,8 +252,10 @@
   <script src="/js/theme.js" defer></script>
   <script src="/js/nova-thought-of-the-day.js" defer></script>
   <script src="/js/nova-mood-grid.js" defer></script>
-  <script src="/js/banner.js" defer></script>
   <script src="/js/nova-mood-background.js" defer></script>
   
+  <!-- Banner System Scripts -->
+  <script src="/js/banner-config.js"></script>
+  <script src="/js/banner.js"></script>
   </body>
-  </html>
+</html>
