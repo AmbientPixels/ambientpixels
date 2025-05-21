@@ -1,10 +1,10 @@
-<!-- File: /docs/logs/banner-system-doc.html -->
+<!-- File: /docs/banners.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Nova Banner System — Modular Notification UI" />
+  <meta name="description" content="Nova Banner System — Mood-aware UI Notifications" />
   <title>Nova Banner System</title>
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
@@ -31,40 +31,175 @@
   <section class="mini-hero">
     <img src="/images/nova/Close-up_of_emotional_synapses_firing_inside_an_artifi.png" alt="Nova Banner UI" class="mini-hero-img" loading="lazy">
     <h1>Nova Banner System</h1>
-    <p class="nova-quip">A modular UI extension for alerts, status, and system awareness.</p>
+    <p class="nova-quip">A mood-aware UI notification system for real-time system status and awareness.</p>
   </section>
 
   <main class="grid-container">
     <section class="content-section grid-col-12">
       <div class="section-header">
-        <h2><i class="fas fa-cogs"></i> System Overview</h2>
-        <button class="toggle-btn icon-only" aria-expanded="true"><i class="fas fa-chevron-down"></i></button>
+        <h2><i class="fas fa-info-circle"></i> Overview</h2>
       </div>
-      <div class="content">
-        <ul>
-          <li><strong>Status:</strong> Complete</li>
-          <li><strong>Scope:</strong> Notifications, system alerts, runtime messages</li>
-          <li><strong>Module:</strong> <code>banner.js</code> + <code>banner.css</code></li>
-        </ul>
-      </div>
-    </section>
+      <p>The Nova Banner System is a modular UI component that provides mood-aware notifications and status updates. It integrates with Nova's mood engine to display contextually relevant messages that reflect Nova's current state and emotional awareness.</p>
 
-    <section class="content-section grid-col-12">
       <div class="section-header">
-        <h2><i class="fas fa-book"></i> Banner System Reference</h2>
-        <button class="toggle-btn icon-only" aria-expanded="true"><i class="fas fa-chevron-down"></i></button>
+        <h2><i class="fas fa-code"></i> Features</h2>
       </div>
-      <div class="content" id="md-content">
-        <p>Loading documentation...</p>
+      <ul>
+        <li><strong>Mood-aware Messaging:</strong> Displays messages that adapt to Nova's current mood state</li>
+        <li><strong>Dynamic Content:</strong> Messages are generated using Nova's current mood data</li>
+        <li><strong>Contextual Awareness:</strong> Shows relevant system status and observations</li>
+        <li><strong>Auto-hide:</strong> Messages automatically disappear after a set duration</li>
+        <li><strong>Closeable:</strong> Users can dismiss messages manually</li>
+      </ul>
+
+      <div class="section-header">
+        <h2><i class="fas fa-cogs"></i> Configuration</h2>
       </div>
+      <p>The banner system configuration is loaded from <code>window.bannerConfig</code> and supports the following options:</p>
+      
+      <div class="section-header">
+        <h3><i class="fas fa-check-circle"></i> Main Configuration Options</h3>
+      </div>
+      <ul>
+        <li>
+          <code>showOnLoad</code> - Boolean. Whether to show a banner when the page loads. Default: <code>false</code>
+        </li>
+        <li>
+          <code>autoHide</code> - Boolean. Whether banners automatically hide after their duration. Default: <code>true</code>
+        </li>
+        <li>
+          <code>closeable</code> - Boolean. Whether banners can be manually closed. Default: <code>true</code>
+        </li>
+        <li>
+          <code>randomize</code> - Boolean. Whether to randomly select messages from the available pool. Default: <code>true</code>
+        </li>
+      </ul>
+
+      <div class="section-header">
+        <h3><i class="fas fa-comment"></i> Message Configuration</h3>
+      </div>
+      <p>Messages are organized by type (info, warn) and each message object supports these properties:</p>
+      <ul>
+        <li>
+          <code>message</code> - String. The message template using mood variables (e.g., {mood.emoji}, {mood.quote})
+        </li>
+        <li>
+          <code>duration</code> - Number. Time in milliseconds before auto-hide. Default: 8000
+        </li>
+        <li>
+          <code>mood</code> - String. The mood type this message is associated with (any, positive, neutral, negative)
+        </li>
+      </ul>
+
+      <div class="section-header">
+        <h3><i class="fas fa-code"></i> Example Configuration</h3>
+      </div>
+      <pre><code class="language-javascript">window.bannerConfig = {
+  // Main configuration
+  showOnLoad: false,          // Show banner on page load
+  autoHide: true,            // Banners auto-hide after duration
+  closeable: true,           // Banners can be manually closed
+  randomize: true,           // Randomly select messages
+
+  // Mood message configuration
+  messages: {
+    // Info messages (normal system status)
+    info: [
+      {
+        message: "Nova is currently experiencing {mood.aura} energy. {mood.quote}",
+        duration: 8000,      // Display for 8 seconds
+        mood: "any"          // Can be shown for any mood
+      },
+      {
+        message: "{mood.emoji} {mood.observation}. Current state: {mood.internalState}.",
+        duration: 7000,      // Display for 7 seconds
+        mood: "positive"     // Only shown for positive moods
+      }
+    ],
+
+    // Warning messages (system alerts)
+    warn: [
+      {
+        message: "{mood.emoji} {mood.context.trigger}. Current state: {mood.internalState}. Please be aware.",
+        duration: 12000,     // Display for 12 seconds
+        mood: "neutral"      // Only shown for neutral moods
+      }
+    ]
+  },
+
+  // Mood mapping (optional)
+  moodMap: {
+    "frosted wonder": "info",    // Map specific moods to banner types
+    "crystalline flux": "info",
+    "glitchy resonance": "warn"
+  }
+};</code></pre>
+
+      <div class="section-header">
+        <h3><i class="fas fa-magic"></i> Mood Variables</h3>
+      </div>
+      <p>The banner system supports the following mood variables in message templates:</p>
+      <ul>
+        <li><code>{mood.emoji}</code> - Current mood emoji (e.g., ❄️ for frosted wonder)</li>
+        <li><code>{mood.quote}</code> - Current mood quote</li>
+        <li><code>{mood.aura}</code> - Current mood aura state</li>
+        <li><code>{mood.internalState}</code> - Current system state</li>
+        <li><code>{mood.observation}</code> - Current system observation</li>
+        <li><code>{mood.context.trigger}</code> - Current context trigger</li>
+        <li><code>{mood.context.influences}</code> - Current influences affecting mood</li>
+      </ul>
+
+      <div class="section-header">
+        <h3><i class="fas fa-cog"></i> Advanced Configuration</h3>
+      </div>
+      <p>For more advanced configuration, you can:</p>
+      <ul>
+        <li>Define custom mood types and their mappings</li>
+        <li>Create mood-specific message pools</li>
+        <li>Adjust duration and timing for different message types</li>
+        <li>Control when and how messages are displayed</li>
+      </ul>
+
+      <div class="section-header">
+        <h3><i class="fas fa-exclamation-circle"></i> Important Notes</h3>
+      </div>
+      <ul>
+        <li>Ensure <code>banner-config.js</code> is loaded before <code>banner.js</code></li>
+        <li>Messages are automatically sanitized for security</li>
+        <li>Fallback messages are used if mood data is unavailable</li>
+        <li>Configuration is cached for performance</li>
+      </ul>
+
+      <div class="section-header">
+        <h2><i class="fas fa-robot"></i> Mood Integration</h2>
+      </div>
+      <p>The banner system integrates with Nova's mood data to display contextually relevant messages. It uses the following mood properties:</p>
+      <ul>
+        <li><code>mood.emoji</code> - Current mood emoji</li>
+        <li><code>mood.quote</code> - Current mood quote</li>
+        <li><code>mood.aura</code> - Current mood aura state</li>
+        <li><code>mood.internalState</code> - Current system state</li>
+        <li><code>mood.observation</code> - Current system observation</li>
+        <li><code>mood.context.trigger</code> - Current context trigger</li>
+      </ul>
+
+      <div class="section-header">
+        <h2><i class="fas fa-link"></i> Related Systems</h2>
+      </div>
+      <ul>
+        <li><a href="/docs/nova-mood-engine.html">Nova Mood Engine</a></li>
+        <li><a href="/docs/nova-whisper-engine.html">Nova Whisper Engine</a></li>
+      </ul>
     </section>
   </main>
 
-  <div id="footer-container"></div>
+  <footer id="footer-container"></footer>
 
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/banner.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="/js/main.js"></script>
-  <script src="/js/nav.js"></script>
   <script src="/js/theme.js"></script>
   <script src="/js/modal-window.js"></script>
   <script src="/js/init-nav.js" defer></script>

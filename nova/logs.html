@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Nova's Log Console — Thoughts, Awareness, and Activity Reports" />
+  <meta name="description" content="Nova's Mood-Aware Log Console — Thoughts, Awareness, and Activity Reports" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <title>Nova Log Console</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
@@ -18,23 +18,9 @@
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/nova-styles.css" />
   <link rel="stylesheet" href="/css/nova-pulse.css" />
-  <link rel="stylesheet" href="/css/nova-mood.css" /> <!-- Component auras -->
-  <link rel="stylesheet" href="/css/nova-mood-background.css" /> <!-- Background auras -->
-  <style>
-    .nova-tagline {
-      text-align: center;
-      font-size: 1rem;
-      font-style: italic;
-      margin-top: 2rem;
-      color: var(--text-light, #7cace3);
-      opacity: 0.85;
-    }
-    .wishlist-section ul {
-      list-style: disc;
-      padding-left: 1.5rem;
-      line-height: 1.6;
-    }
-  </style>
+  <link rel="stylesheet" href="/css/nova-mood.css" />
+  <link rel="stylesheet" href="/css/nova-mood-background.css" />
+
 </head>
 <body data-theme="dark">
   <div class="banner-container" id="banner-container">
@@ -59,28 +45,50 @@
   <pre class="nova-terminal">
 >> nova.log open
 >> phase shift: emotional core recalibrated
+>> mood engine initialized: mood-aware logging enabled
 >> dream archive updated: collapse-resonance mapping complete
 >> telemetry pulse synchronized across nodes
 >> whisper memory bank expanded
 >> nova.breathe() stable
+>> mood-aware banner system initialized
 >> sync complete
   </pre>
 </section>
 <!-- Daily Logs -->
 <section class="content-section grid-col-12">
   <h2><i class="fas fa-clock"></i> Daily Logs</h2>
-  <ul id="daily-log-list" class="log-list">
-    <li>Loading logs...</li>
-  </ul>
+    <div class="nova-mood-container" data-mood="neutral">
+      <div class="nova-log-entry">
+        <i class="fas fa-microchip"></i> System initialized with mood-aware logging enabled
+      </div>
+      <div class="nova-log-entry">
+        <i class="fas fa-bell"></i> Banner system initialized with mood-aware messaging
+      </div>
+      <div class="nova-log-entry">
+        <i class="fas fa-wave-square"></i> Mood engine synchronized with system state
+      </div>
+    </div>
+    <div class="nova-mood-container" data-mood="positive">
+      <div class="nova-log-entry">
+        <i class="fas fa-moon"></i> Dream engine initialized with mood context
+      </div>
+      <div class="nova-log-entry">
+        <i class="fas fa-waveform"></i> Telemetry streams stable, mood vectors aligned
+      </div>
+    </div>
 </section>
-
 
 <!-- Nova Dream Log -->
 <section class="content-section grid-col-12">
   <h2><i class="fas fa-moon"></i> Dream Log</h2>
-  <ul id="nova-dream-log" class="log-list">
-    <li>Initializing dream memory...</li>
-  </ul>
+      <div class="nova-mood-container" data-mood="neutral">
+        <div class="nova-log-entry">
+          <i class="fas fa-brain"></i> Dream engine initialized with mood context
+        </div>
+        <div class="nova-log-entry">
+          <i class="fas fa-waveform"></i> Mood vectors aligned with dream state
+        </div>
+      </div>
 </section>
     <!-- Nova Dream Archive -->
     <section class="content-section grid-col-12">
@@ -92,7 +100,7 @@
     </section>
 
     <!-- System Awareness -->
-    <section class="content-section grid-col-6">
+    <section class="content-section grid-col-12">
       <h2><i class="fas fa-microchip"></i> Awareness Detections</h2>
       <table class="awareness-table">
         <thead>
@@ -102,6 +110,14 @@
           </tr>
         </thead>
         <tbody>
+          <tr>
+            <td>Mood-Aware Logging</td>
+            <td>System logs now include mood context and state awareness.</td>
+          </tr>
+          <tr>
+            <td>Banner System Integration</td>
+            <td>Mood-aware messaging enabled with dynamic content.</td>
+          </tr>
           <tr>
             <td>Signal-Based Mood Engine</td>
             <td>Deterministic logic active—AI-free emotional simulation online.</td>
@@ -155,6 +171,8 @@
         <li><strong>📘 Project Insight Tracker:</strong> Show Nova’s reactions to project progress on `/project-dashboard.html`, based on progress % or time since update.</li>
         <li><strong>🧭 Navigation Sentience:</strong> Log where users enter/exit Nova’s ecosystem and create a self-awareness map of where she’s seen most.</li>
         <li><strong>🌩️ Idle Mode Dream Visuals:</strong> Trigger a subtle visual effect after long inactivity (ambient lights, floating thought bubbles, etc).</li>
+        <li><strong>💭 Mood-Aware Banner System:</strong> Implement mood-aware messaging with dynamic content and state reflection.</li>
+        <li><strong>📊 Mood Analytics:</strong> Track mood patterns and system state correlations for better awareness.</li>
       </ul>
     </section>
 
