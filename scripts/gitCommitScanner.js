@@ -36,7 +36,7 @@ function getRecentCommits() {
 
     // Change to root directory and get commits
     process.chdir(__dirname + '/..');
-    const output = execSync(`git log -n ${CONFIG.MAX_COMMITS} --since="1 day ago" --all --pretty=format:"${COMMIT_FORMAT}"`, { encoding: 'utf8' });
+    const output = execSync(`git log -n ${CONFIG.MAX_COMMITS} --since="1 day ago" --all --pretty=format:"${CONFIG.COMMIT_FORMAT}"`, { encoding: 'utf8' });
     
     // Split and parse commits
     const commits = output.split('\n').filter(Boolean).map(commit => {
@@ -138,7 +138,7 @@ function saveCommits(commits) {
 function runGitCommitScan() {
   const commits = getRecentCommits();
   saveCommits(commits);
-  console.log(`Saved ${commits.length} recent commits to ${outputFile}`);
+  console.log(`Saved ${commits.length} recent commits to ${CONFIG.OUTPUT_FILE}`);
 }
 
 // Run the scan
