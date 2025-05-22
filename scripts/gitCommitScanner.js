@@ -53,7 +53,7 @@ function getRecentCommits() {
     }
 
     // Build git log command with filters
-    let gitCommand = `git log -n ${CONFIG.MAX_COMMITS} --since="1 day ago" --all --pretty=format:"%h - %s (%cr) %an <%ae>"`;
+    let gitCommand = `git log -n ${CONFIG.MAX_COMMITS} --since="7 days ago" --all --pretty=format:"%h - %s (%cr) %an <%ae>"`;
     
     // Add branch filters if specified
     if (CONFIG.FILTERS.branches.length > 0) {
