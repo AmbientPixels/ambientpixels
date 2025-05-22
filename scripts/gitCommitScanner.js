@@ -1,81 +1,158 @@
-// gitCommitScanner.js - Nova's git commit scanner with enhanced metadata and version control
-
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
-const { execSync } = require('child_process');
+const simpleGit = require('simple-git');
 const { v4: uuidv4 } = require('uuid');
 
 // Configuration
 const CONFIG = {
-  MAX_COMMITS: 10,
-  COMMIT_FORMAT: '%h - %s (%cr) <%an>',
+  MAX_COMMITS: parseInt(process.env.MAX_COMMITS) || 50,
+  GITHUB_REPO: process.env.GITHUB_REPO || 'AmbientPixels/ambientpixels',
+  FILTERS: {
+    branches: process.env.GIT_BRANCHES?.split(',') || [],
+    authors: process.env.GIT_AUTHORS?.split(',') || []
+  },
   VERSION: '1.0.0',
   ARCHIVE_DIR: path.join(__dirname, '../docs/git-commit-archives'),
   OUTPUT_FILE: path.join(__dirname, '../docs/git-commits.json'),
   WEB_ROOT_FILE: path.join(__dirname, '../git-commits.json')
 };
 
-// Ensure archive directory exists
-if (!fs.existsSync(CONFIG.ARCHIVE_DIR)) {
-  fs.mkdirSync(CONFIG.ARCHIVE_DIR, { recursive: true });
+// Validate configuration
+function validateConfig() {
+  if (!CONFIG.GITHUB_REPO) {
+    throw new Error('GITHUB_REPO is required');
+  }
+  if (CONFIG.MAX_COMMITS <= 0) {
+    throw new Error('MAX_COMMITS must be greater than 0');
+  }
+  if (!CONFIG.ARCHIVE_DIR) {
+    throw new Error('ARCHIVE_DIR is required');
+  }
+  if (!CONFIG.OUTPUT_FILE) {
+    throw new Error('OUTPUT_FILE is required');
+  }
+  if (!CONFIG.WEB_ROOT_FILE) {
+    throw new Error('WEB_ROOT_FILE is required');
+  }
 }
 
-// Get current version from package.json
-try {
-  const pkg = require('../package.json');
-  CONFIG.VERSION = pkg.version;
-} catch (e) {
-  console.warn('Could not read package.json version, using default');
-}
-
-function getRecentCommits() {
+// Initialize git with proper error handling
+async function initGit() {
   try {
-    // Check if we're in a git repository
-    const isGitRepo = execSync('git status', { encoding: 'utf8' });
-    console.log('Git repository status:', isGitRepo);
+    const git = simpleGit(path.join(__dirname, '..'));
+    await git.checkIsRepo();
+    return git;
+  } catch (error) {
+    console.error('Failed to initialize git:', error);
+    throw new Error('Failed to initialize git repository');
+  }
+}
 
-    // Change to root directory and get commits
-    process.chdir(__dirname + '/..');
-    const output = execSync(`git log -n ${CONFIG.MAX_COMMITS} --since="1 day ago" --all --pretty=format:"${CONFIG.COMMIT_FORMAT}"`, { encoding: 'utf8' });
-    
-    // Split and parse commits
-    const commits = output.split('\n').filter(Boolean).map(commit => {
-      const [hash, message, rest] = commit.split(' - ');
-      const author = rest.match(/<(.+)>/)[1];
-      const timestamp = rest.replace(/<.+>/, '').trim();
-      
-      // Get additional commit details
-      const commitDetails = execSync(`git show -s --format=%B ${hash}`, { encoding: 'utf8' }).trim();
-      const branch = execSync(`git branch --contains ${hash}`, { encoding: 'utf8' }).trim();
-      
-      return {
-        id: uuidv4(),
-        hash,
-        message,
-        timestamp,
-        author,
-        details: commitDetails,
-        branches: branch.split('\n').map(b => b.trim().replace('*', '').trim()),
-        version: CONFIG.VERSION,
-        scanTimestamp: new Date().toISOString()
-      };
-    });
-    
-    // Log detailed commit info
-    console.log('Found commits:', commits.length);
-    commits.forEach((commit, index) => {
-      console.log(`Commit ${index + 1}:`, commit);
-    });
-    
-    return commits;
-  } catch (e) {
-    console.error('Error fetching commits:', e);
-    console.error('Error details:', e.message);
+// Main execution
+(async () => {
+  try {
+    validateConfig();
+    const git = await initGit();
+    await runGitCommitScan(git);
+  } catch (error) {
+    console.error('Fatal error:', error);
+    process.exit(1);
+  }
+})();
+  ARCHIVE_DIR: path.join(__dirname, '../docs/git-commit-archives'),
+  OUTPUT_FILE: path.join(__dirname, '../docs/git-commits.json'),
+  WEB_ROOT_FILE: path.join(__dirname, '../git-commits.json')
+};
+
+// Initialize simple-git
+const git = simpleGit(path.join(__dirname, '..'));
+
+async function ensureArchiveDir() {
+  try {
+    await fs.mkdir(CONFIG.ARCHIVE_DIR, { recursive: true });
+  } catch (error) {
+    console.error('Error creating archive directory:', error);
+    throw error;
+  }
+}
+
+async function getPackageVersion() {
+  try {
+    const pkg = JSON.parse(await fs.readFile(path.join(__dirname, '../package.json'), 'utf8'));
+    CONFIG.VERSION = pkg.version;
+  } catch (error) {
+    console.warn('Could not read package.json version, using default:', error);
+  }
+}
+
+async function getRecentCommits() {
+  try {
+    // Check if in a git repository
+    await git.status();
+
+    // Get recent commits
+    const logOptions = {
+      maxCount: CONFIG.MAX_COMMITS,
+      from: 'HEAD',
+      '--since': '1 day ago',
+      '--all': true
+    };
+    if (CONFIG.FILTERS.branches.length) {
+      logOptions['--branches'] = CONFIG.FILTERS.branches.join(',');
+    }
+
+    const log = await git.log(logOptions);
+
+    const commits = await Promise.all(log.all.map(async (commit) => {
+      try {
+        // Sanitize hash
+        const hash = commit.hash.replace(/[^a-f0-9]/g, '').slice(0, 40);
+        if (!hash) throw new Error('Invalid commit hash');
+
+        // Apply author filter
+        if (CONFIG.FILTERS.authors.length && !CONFIG.FILTERS.authors.includes(commit.author_name)) {
+          return null;
+        }
+
+        // Get branches
+        const branches = (await git.raw(['branch', '--contains', hash]))
+          .split('\n')
+          .map(b => b.trim().replace('*', '').trim())
+          .filter(Boolean);
+
+        // Get commit details
+        const details = (await git.show([hash, '--stat'])).trim();
+
+        return {
+          id: uuidv4(),
+          hash,
+          message: commit.message,
+          timestamp: commit.date,
+          author: { name: commit.author_name, email: commit.author_email },
+          branches,
+          details,
+          version: CONFIG.VERSION,
+          scanTimestamp: new Date().toISOString(),
+          url: `https://github.com/${CONFIG.GITHUB_REPO}/commit/${hash}`
+        };
+      } catch (error) {
+        console.error(`Error parsing commit ${commit.hash}:`, error);
+        return null;
+      }
+    }));
+
+    const validCommits = commits.filter(Boolean);
+    console.log('Found commits:', validCommits.length);
+    validCommits.forEach((commit, index) => console.log(`Commit ${index + 1}:`, commit));
+
+    return validCommits;
+  } catch (error) {
+    console.error('Error fetching commits:', error.message);
     return [];
   }
 }
 
-function saveCommits(commits) {
+async function saveCommits(commits) {
   const data = {
     commits,
     timestamp: new Date().toISOString(),
@@ -85,32 +162,35 @@ function saveCommits(commits) {
     systemVersion: CONFIG.VERSION
   };
 
-  // Create archive filename
   const archiveFilename = path.join(
     CONFIG.ARCHIVE_DIR,
     `commits_${data.scanId}_${new Date().toISOString().replace(/[:.]/g, '-')}.json`
   );
 
   try {
-    // Write to data directory
-    fs.writeFileSync(CONFIG.OUTPUT_FILE, JSON.stringify(data, null, 2));
-    
-    // Also copy to web root
-    fs.writeFileSync(CONFIG.WEB_ROOT_FILE, JSON.stringify(data, null, 2));
-    
-    // Save to archive
-    fs.writeFileSync(archiveFilename, JSON.stringify(data, null, 2));
-    
+    await Promise.all([
+      fs.writeFile(CONFIG.OUTPUT_FILE, JSON.stringify(data, null, 2)),
+      fs.writeFile(CONFIG.WEB_ROOT_FILE, JSON.stringify(data, null, 2)),
+      fs.writeFile(archiveFilename, JSON.stringify(data, null, 2))
+    ]);
+
     // Clean up old archives (keep last 10)
-    const archives = fs.readdirSync(CONFIG.ARCHIVE_DIR)
-      .filter(file => file.endsWith('.json'))
-      .sort((a, b) => b.localeCompare(a));
-    
-    if (archives.length > 10) {
-      const filesToDelete = archives.slice(10);
-      for (const file of filesToDelete) {
-        fs.unlinkSync(path.join(CONFIG.ARCHIVE_DIR, file));
-      }
+    const archives = await fs.readdir(CONFIG.ARCHIVE_DIR);
+    const jsonArchives = archives.filter(file => file.endsWith('.json'));
+    const sortedArchives = await Promise.all(
+      jsonArchives.map(async (file) => {
+        const stats = await fs.stat(path.join(CONFIG.ARCHIVE_DIR, file));
+        return { file, mtime: stats.mtime };
+      })
+    );
+
+    sortedArchives.sort((a, b) => b.mtime - a.mtime);
+
+    if (sortedArchives.length > 10) {
+      const filesToDelete = sortedArchives.slice(10);
+      await Promise.all(
+        filesToDelete.map(({ file }) => fs.unlink(path.join(CONFIG.ARCHIVE_DIR, file)))
+      );
     }
   } catch (error) {
     console.error('Error saving commit data:', error);
@@ -118,15 +198,16 @@ function saveCommits(commits) {
   }
 }
 
-function runGitCommitScan() {
+async function runGitCommitScan() {
   try {
-    const commits = getRecentCommits();
-    saveCommits(commits);
+    await ensureArchiveDir();
+    await getPackageVersion();
+    const commits = await getRecentCommits();
+    await saveCommits(commits);
     console.log(`Saved ${commits.length} recent commits to ${CONFIG.OUTPUT_FILE}`);
   } catch (error) {
     console.error('Error running git commit scan:', error);
   }
 }
 
-// Run the scan
 runGitCommitScan();

@@ -7,7 +7,7 @@
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <title>Git Commit Display - Nova Lab</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Fira+Code:wght@400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/grid.css" />
   <link rel="stylesheet" href="/css/nav.css" />
@@ -16,30 +16,31 @@
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/nova-mood.css" />
   <link rel="stylesheet" href="/css/nova-mood-background.css" />
-  <link rel="stylesheet" href="/js/git-commits.js" />
 </head>
 <body data-theme="dark">
   <div class="banner-container" id="banner-container">
     <div class="banner">
       <i class="fas fa-code-branch banner-icon"></i>
       <span>Git Commit Display — Lab Mode</span>
-      <button class="banner-close" aria-label="Close Banner">×</button>
+      <button class="banner-close" aria-label="Close banner">
+        <span class="sr-only">Close</span>×
+      </button>
     </div>
   </div>
 
   <header id="nav-header"></header>
 
   <section class="mini-hero">
-    <img src="/images/hero-v10.jpg" alt="Git Commit Hero" class="mini-hero-img" loading="lazy">
+    <img src="/images/hero-v10.jpg" alt="Git Commit Hero" class="mini-hero-img" loading="lazy" onerror="this.src='/images/fallback.jpg'" />
     <h1>Git Commit Display</h1>
     <p class="hero-subheadline">Real-time display of git commit history and system updates</p>
   </section>
 
   <main class="grid-container">
-    <section class="grid-col-12">
+    <section class="grid-col-12" role="region" aria-labelledby="git-display-heading">
       <div class="card">
         <div class="card-content">
-          <h2><i class="fas fa-terminal"></i> Git Commit Display</h2>
+          <h2 id="git-display-heading"><i class="fas fa-terminal"></i> Git Commit Display</h2>
           <p class="nova-voice">This page displays git commit history, synchronized with Nova's memory refresh cycle.</p>
           <div class="card-list">
             <h3>Features</h3>
@@ -54,16 +55,11 @@
       </div>
     </section>
 
-    <section class="grid-col-12">
+    <section class="grid-col-12" role="region" aria-labelledby="recent-commits-heading">
       <div class="card">
         <div class="card-content">
-          <h2><i class="fas fa-history"></i> Recent Commits</h2>
-          <div id="git-history-container" class="git-history">
-            <div class="loading-state">
-              <i class="fas fa-spinner fa-spin"></i>
-              <span>Loading git history...</span>
-            </div>
-          </div>
+          <h2 id="recent-commits-heading"><i class="fas fa-history"></i> Recent Commits</h2>
+          <div id="git-history-container" class="git-history"></div>
         </div>
       </div>
     </section>
@@ -71,16 +67,26 @@
 
   <div id="footer-container"></div>
 
-  <script src="/js/nova-mood-background.js" defer></script>
-  <script src="/js/theme.js" defer></script>
-  <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/nav.js" defer></script>
-  <script src="/js/git-commits.js" defer></script>
+  <script src="/js/nova-mood-background.js"></script>
+  <script src="/js/theme.js"></script>
+  <script src="/js/init-header-footer.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/git-commits.js"></script>
   <script>
-    // Initialize git commits display when DOM is loaded
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log('DOM loaded, initializing git commits display');
-      initGitCommits();
+    // Add error handler for script loading
+    window.addEventListener('error', (event) => {
+      if (event.target?.src?.includes('git-commits.js')) {
+        console.error('Failed to load git-commits.js:', event.error);
+        const container = document.getElementById('git-history-container');
+        if (container) {
+          container.innerHTML = `
+            <div class="error-message">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span>Failed to load git commit display. Please refresh the page.</span>
+            </div>
+          `;
+        }
+      }
     });
   </script>
 </body>
