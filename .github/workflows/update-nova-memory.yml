@@ -35,6 +35,7 @@ jobs:
           node scripts/codeFootprint.js
           node scripts/unusedCSS.js
           node scripts/moodScan.js
+          node scripts/gitCommitScanner.js
           node scripts/aiPromptGenerator.js
           node scripts/apiMonitor.js
           node scripts/jsFunctionMap.js
