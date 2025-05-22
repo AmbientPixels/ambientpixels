@@ -12,9 +12,9 @@ const CONFIG = {
     branches: [], // Add specific branches to filter
     authors: []   // Add specific authors to filter
   },
-  ARCHIVE_DIR: path.join(__dirname, '../docs/git-commit-archives'),
-  OUTPUT_FILE: path.join(__dirname, '../docs/git-commits.json'),
-  WEB_ROOT_FILE: path.join(__dirname, '../git-commits.json')
+  ARCHIVE_DIR: path.join(__dirname, '../data/git-commit-archives'),
+  OUTPUT_FILE: path.join(__dirname, '../data/git-commits.json'),
+  WEB_ROOT_FILE: path.join(__dirname, '../data/git-commits.json')
 };
 
 async function ensureArchiveDir() {
