@@ -5,60 +5,13 @@ const { v4: uuidv4 } = require('uuid');
 
 // Configuration
 const CONFIG = {
-  MAX_COMMITS: parseInt(process.env.MAX_COMMITS) || 50,
-  GITHUB_REPO: process.env.GITHUB_REPO || 'AmbientPixels/ambientpixels',
-  FILTERS: {
-    branches: process.env.GIT_BRANCHES?.split(',') || [],
-    authors: process.env.GIT_AUTHORS?.split(',') || []
-  },
+  MAX_COMMITS: 50,
   VERSION: '1.0.0',
-  ARCHIVE_DIR: path.join(__dirname, '../docs/git-commit-archives'),
-  OUTPUT_FILE: path.join(__dirname, '../docs/git-commits.json'),
-  WEB_ROOT_FILE: path.join(__dirname, '../git-commits.json')
-};
-
-// Validate configuration
-function validateConfig() {
-  if (!CONFIG.GITHUB_REPO) {
-    throw new Error('GITHUB_REPO is required');
-  }
-  if (CONFIG.MAX_COMMITS <= 0) {
-    throw new Error('MAX_COMMITS must be greater than 0');
-  }
-  if (!CONFIG.ARCHIVE_DIR) {
-    throw new Error('ARCHIVE_DIR is required');
-  }
-  if (!CONFIG.OUTPUT_FILE) {
-    throw new Error('OUTPUT_FILE is required');
-  }
-  if (!CONFIG.WEB_ROOT_FILE) {
-    throw new Error('WEB_ROOT_FILE is required');
-  }
-}
-
-// Initialize git with proper error handling
-async function initGit() {
-  try {
-    const git = simpleGit(path.join(__dirname, '..'));
-    await git.checkIsRepo();
-    return git;
-  } catch (error) {
-    console.error('Failed to initialize git:', error);
-    throw new Error('Failed to initialize git repository');
-  }
-}
-
-// Main execution
-(async () => {
-  try {
-    validateConfig();
-    const git = await initGit();
-    await runGitCommitScan(git);
-  } catch (error) {
-    console.error('Fatal error:', error);
-    process.exit(1);
-  }
-})();
+  GITHUB_REPO: 'AmbientPixels/ambientpixels',
+  FILTERS: {
+    branches: [], // Add specific branches to filter
+    authors: []   // Add specific authors to filter
+  },
   ARCHIVE_DIR: path.join(__dirname, '../docs/git-commit-archives'),
   OUTPUT_FILE: path.join(__dirname, '../docs/git-commits.json'),
   WEB_ROOT_FILE: path.join(__dirname, '../git-commits.json')
