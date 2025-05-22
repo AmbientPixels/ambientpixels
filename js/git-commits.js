@@ -113,7 +113,7 @@ document.head.appendChild(styleSheet);
 
 async function fetchGitCommits(retries = 3) {
   try {
-    const response = await fetch('/git-commits.json');
+    const response = await fetch('/data/git-commits.json');
     if (!response.ok) {
       if (response.status === 404) {
         console.log('Local git-commits.json not found, trying remote...');
