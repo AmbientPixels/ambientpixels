@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2025-05-21T13:32:43.100Z",
+  "scannedAt": "2025-05-22T03:26:50.156Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -48,6 +48,11 @@
     "generateQuoteOfTheDay.js": [
       "pickRandomQuote",
       "run"
+    ],
+    "gitCommitScanner.js": [
+      "getRecentCommits",
+      "saveCommits",
+      "runGitCommitScan"
     ],
     "imageAudit.js": [
       "getImages",
