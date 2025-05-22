@@ -116,29 +116,16 @@ function saveCommits(commits) {
     console.error('Error saving commit data:', error);
     throw error;
   }
-  
-
-  
-  // Save to archive
-  fs.writeFileSync(archiveFilename, JSON.stringify(data, null, 2));
-  
-  // Clean up old archives (keep last 10)
-  const archives = fs.readdirSync(CONFIG.ARCHIVE_DIR)
-    .filter(file => file.endsWith('.json'))
-    .sort((a, b) => b.localeCompare(a));
-  
-  if (archives.length > 10) {
-    const filesToDelete = archives.slice(10);
-    for (const file of filesToDelete) {
-      fs.unlinkSync(path.join(CONFIG.ARCHIVE_DIR, file));
-    }
-  }
 }
 
 function runGitCommitScan() {
-  const commits = getRecentCommits();
-  saveCommits(commits);
-  console.log(`Saved ${commits.length} recent commits to ${CONFIG.OUTPUT_FILE}`);
+  try {
+    const commits = getRecentCommits();
+    saveCommits(commits);
+    console.log(`Saved ${commits.length} recent commits to ${CONFIG.OUTPUT_FILE}`);
+  } catch (error) {
+    console.error('Error running git commit scan:', error);
+  }
 }
 
 // Run the scan

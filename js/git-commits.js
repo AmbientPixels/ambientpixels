@@ -90,7 +90,7 @@ async function fetchGitCommits() {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    return data.commits;
+    return data;
   } catch (error) {
     console.error('Error fetching local git commits:', error);
     try {
@@ -100,15 +100,27 @@ async function fetchGitCommits() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      return data.commits;
+      return data;
     } catch (error) {
       console.error('Error fetching remote git commits:', error);
-      return [];
+      throw new Error('Failed to fetch commit data from both local and remote sources');
     }
   }
 }
 
-function updateGitCommitsDisplay(commits) {
+function updateGitCommitsDisplay(data) {
+  const commits = data?.commits || [];
+  
+  if (!commits.length) {
+    gitCommitsContainer.innerHTML = `
+      <div class="error-message">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>No commit history available. Please try again later.</span>
+      </div>
+    `;
+    return;
+  }
+
   gitCommitsContainer.innerHTML = commits.map(commit => {
     // Format timestamp
     const timestamp = new Date(commit.timestamp).toLocaleString('en-US', {
@@ -137,23 +149,16 @@ function updateGitCommitsDisplay(commits) {
 async function initGitCommits() {
   try {
     console.log('Starting git commits initialization...');
-    const response = await fetch('https://ambientpixels.ai/data/git-commits.json');
-    console.log('Response status:', response.status);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    const data = await response.json();
+    const data = await fetchGitCommits();
     console.log('Received data:', data);
-    updateGitCommitsDisplay(data.commits);
+    updateGitCommitsDisplay(data);
   } catch (error) {
     console.error('Error initializing git commits:', error);
     // Show error message in UI
     gitCommitsContainer.innerHTML = `
       <div class="error-message">
         <i class="fas fa-exclamation-triangle"></i>
-        <span>Failed to load commit history. Please try again later.</span>
+        <span>${error.message}</span>
       </div>
     `;
   }
