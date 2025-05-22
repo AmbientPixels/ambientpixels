@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Nova Git Info Display Test - Dynamic Git Commit Display" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Git Info Display Test - Nova Lab</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/nova-mood.css" />
+  <link rel="stylesheet" href="/css/nova-mood-background.css" />
+</head>
+<body data-theme="dark">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-code-branch banner-icon"></i>
+      <span>Git Info Test — Lab Mode</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
+
+  <!-- Dynamic Navigation Header -->
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/hero-v10.jpg" alt="Git Info Hero" class="mini-hero-img" loading="lazy">
+    <h1>Git Info Display Test</h1>
+    <p class="hero-subheadline">Real-time display of git commit history and system updates</p>
+  </section>
+
+  <main class="grid-container">
+    <section class="grid-col-12">
+      <div class="card">
+        <div class="card-content">
+          <h2><i class="fas fa-terminal"></i> Git Info Display</h2>
+          <p class="nova-voice">🤖 This page demonstrates Nova's git info display system, showing real-time git commit history and system updates.</p>
+          <div class="card-list">
+            <h3>Features</h3>
+            <ul>
+              <li>Real-time git commit display</li>
+              <li>Automatic updates every 30 seconds</li>
+              <li>Shows commit messages, authors, and timestamps</li>
+              <li>Integrated with Nova's aesthetic</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid-col-12">
+      <div class="card">
+        <div class="card-content">
+          <h2><i class="fas fa-history"></i> Git History</h2>
+          <div id="git-history-container" class="git-history">
+            <div class="loading-state">
+              <i class="fas fa-spinner fa-spin"></i>
+              <span>Loading git history...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/nova-mood-background.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/git-info.js" defer></script>
+</body>
+</html>
