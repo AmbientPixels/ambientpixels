@@ -11,7 +11,15 @@ const COMMIT_FORMAT = '%h - %s (%cr) <%an>';
 
 function getRecentCommits() {
   try {
-    const output = execSync(`git log -n ${MAX_COMMITS} --since="1 day ago" --pretty=format:"${COMMIT_FORMAT}"`, { encoding: 'utf8' });
+    // Check if we're in a git repository
+    const isGitRepo = execSync('git status', { encoding: 'utf8' });
+    console.log('Git repository status:', isGitRepo);
+
+    // Change to root directory and get commits
+    process.chdir(__dirname + '/..');
+    const output = execSync(`git log -n ${MAX_COMMITS} --since="1 day ago" --all --pretty=format:"${COMMIT_FORMAT}"`, { encoding: 'utf8' });
+    
+    // Split and parse commits
     const commits = output.split('\n').filter(Boolean).map(commit => {
       const [hash, message, rest] = commit.split(' - ');
       const author = rest.match(/<(.+)>/)[1];
@@ -24,11 +32,16 @@ function getRecentCommits() {
       };
     });
     
-    // Log the commits for debugging
-    console.log('Found commits:', commits);
+    // Log detailed commit info
+    console.log('Found commits:', commits.length);
+    commits.forEach((commit, index) => {
+      console.log(`Commit ${index + 1}:`, commit);
+    });
+    
     return commits;
   } catch (e) {
     console.error('Error fetching commits:', e);
+    console.error('Error details:', e.message);
     return [];
   }
 }
