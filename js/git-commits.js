@@ -50,6 +50,22 @@ const gitCommitsStyles = `
   font-size: 10px;
   margin-left: 5px;
 }
+
+.error-message {
+  color: #FF0000;
+  background: rgba(255, 0, 0, 0.1);
+  padding: 10px;
+  border-radius: 4px;
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.error-message i {
+  color: #FF0000;
+  font-size: 18px;
+}
 `;
 
 // Add styles to document
@@ -84,12 +100,29 @@ function updateGitCommitsDisplay(commits) {
 // Initialize
 async function initGitCommits() {
   try {
-    const commits = await fetchGitCommits();
-    updateGitCommitsDisplay(commits);
+    console.log('Starting git commits initialization...');
+    const response = await fetch('https://ambientpixels.ai/data/git-commits.json');
+    console.log('Response status:', response.status);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('Received data:', data);
+    updateGitCommitsDisplay(data.commits);
   } catch (error) {
     console.error('Error initializing git commits:', error);
+    // Show error message in UI
+    gitCommitsContainer.innerHTML = `
+      <div class="error-message">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>Failed to load commit history. Please try again later.</span>
+      </div>
+    `;
   }
 }
 
 // Start the display
+console.log('Initializing git commits display...');
 initGitCommits();
