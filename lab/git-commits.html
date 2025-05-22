@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/nova-mood.css" />
   <link rel="stylesheet" href="/css/nova-mood-background.css" />
+  <link rel="stylesheet" href="/js/git-commits.js" />
 </head>
 <body data-theme="dark">
   <div class="banner-container" id="banner-container">
@@ -75,5 +76,12 @@
   <script src="/js/init-header-footer.js" defer></script>
   <script src="/js/nav.js" defer></script>
   <script src="/js/git-commits.js" defer></script>
+  <script>
+    // Initialize git commits display when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM loaded, initializing git commits display');
+      initGitCommits();
+    });
+  </script>
 </body>
 </html>

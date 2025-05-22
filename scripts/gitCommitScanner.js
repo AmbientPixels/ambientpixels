@@ -1,13 +1,30 @@
-// gitCommitScanner.js - Nova's git commit scanner
+// gitCommitScanner.js - Nova's git commit scanner with enhanced metadata and version control
 
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const outputFile = path.join(__dirname, '../docs/git-commits.json');
+const { v4: uuidv4 } = require('uuid');
 
 // Configuration
-const MAX_COMMITS = 10;
-const COMMIT_FORMAT = '%h - %s (%cr) <%an>';
+const CONFIG = {
+  MAX_COMMITS: 10,
+  COMMIT_FORMAT: '%h - %s (%cr) <%an>',
+  VERSION: '1.0.0',
+  ARCHIVE_DIR: path.join(__dirname, '../docs/git-commit-archives')
+};
+
+// Ensure archive directory exists
+if (!fs.existsSync(CONFIG.ARCHIVE_DIR)) {
+  fs.mkdirSync(CONFIG.ARCHIVE_DIR, { recursive: true });
+}
+
+// Get current version from package.json
+try {
+  const pkg = require('../package.json');
+  CONFIG.VERSION = pkg.version;
+} catch (e) {
+  console.warn('Could not read package.json version, using default');
+}
 
 function getRecentCommits() {
   try {
@@ -24,11 +41,21 @@ function getRecentCommits() {
       const [hash, message, rest] = commit.split(' - ');
       const author = rest.match(/<(.+)>/)[1];
       const timestamp = rest.replace(/<.+>/, '').trim();
+      
+      // Get additional commit details
+      const commitDetails = execSync(`git show -s --format=%B ${hash}`, { encoding: 'utf8' }).trim();
+      const branch = execSync(`git branch --contains ${hash}`, { encoding: 'utf8' }).trim();
+      
       return {
+        id: uuidv4(),
         hash,
         message,
         timestamp,
-        author
+        author,
+        details: commitDetails,
+        branches: branch.split('\n').map(b => b.trim().replace('*', '').trim()),
+        version: CONFIG.VERSION,
+        scanTimestamp: new Date().toISOString()
       };
     });
     
@@ -50,8 +77,17 @@ function saveCommits(commits) {
   const data = {
     commits,
     timestamp: new Date().toISOString(),
-    count: commits.length
+    count: commits.length,
+    version: CONFIG.VERSION,
+    scanId: uuidv4(),
+    systemVersion: CONFIG.VERSION
   };
+
+  // Create archive filename
+  const archiveFilename = path.join(
+    CONFIG.ARCHIVE_DIR,
+    `commits_${data.scanId}_${new Date().toISOString().replace(/[:.]/g, '-')}.json`
+  );
   
   // Write to data directory
   fs.writeFileSync(outputFile, JSON.stringify(data, null, 2));
@@ -59,6 +95,21 @@ function saveCommits(commits) {
   // Also copy to web root
   const webRootFile = path.join(__dirname, '../git-commits.json');
   fs.writeFileSync(webRootFile, JSON.stringify(data, null, 2));
+  
+  // Save to archive
+  fs.writeFileSync(archiveFilename, JSON.stringify(data, null, 2));
+  
+  // Clean up old archives (keep last 10)
+  const archives = fs.readdirSync(CONFIG.ARCHIVE_DIR)
+    .filter(file => file.endsWith('.json'))
+    .sort((a, b) => b.localeCompare(a));
+  
+  if (archives.length > 10) {
+    const filesToDelete = archives.slice(10);
+    for (const file of filesToDelete) {
+      fs.unlinkSync(path.join(CONFIG.ARCHIVE_DIR, file));
+    }
+  }
 }
 
 function runGitCommitScan() {

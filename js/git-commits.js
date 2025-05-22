@@ -21,7 +21,7 @@ const gitCommitsStyles = `
   padding: 15px;
   border-radius: 8px;
   font-family: 'Courier New', monospace;
-  max-width: 300px;
+  max-width: 400px;
   z-index: 1000;
   transition: opacity 0.3s;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
@@ -32,6 +32,7 @@ const gitCommitsStyles = `
   font-size: 12px;
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 .git-commit-hash {
@@ -48,7 +49,12 @@ const gitCommitsStyles = `
 .git-commit-meta {
   color: #FFD700;
   font-size: 10px;
-  margin-left: 5px;
+}
+
+.git-commit-branches {
+  color: #90EE90;
+  font-size: 10px;
+  font-family: 'Inter', sans-serif;
 }
 
 .error-message {
@@ -78,23 +84,53 @@ document.body.appendChild(gitCommitsContainer);
 
 async function fetchGitCommits() {
   try {
-    const response = await fetch('https://ambientpixels.ai/data/git-commits.json');
+    // First try local file
+    const response = await fetch('/git-commits.json');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     const data = await response.json();
     return data.commits;
   } catch (error) {
-    console.error('Error fetching git commits:', error);
-    return [];
+    console.error('Error fetching local git commits:', error);
+    try {
+      // Fallback to remote if local fails
+      const response = await fetch('https://ambientpixels.ai/data/git-commits.json');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      return data.commits;
+    } catch (error) {
+      console.error('Error fetching remote git commits:', error);
+      return [];
+    }
   }
 }
 
 function updateGitCommitsDisplay(commits) {
-  gitCommitsContainer.innerHTML = commits.map(commit => `
+  gitCommitsContainer.innerHTML = commits.map(commit => {
+    // Format timestamp
+    const timestamp = new Date(commit.timestamp).toLocaleString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    // Format branches
+    const branches = commit.branches ? commit.branches.join(', ') : 'N/A';
+
+    return `
     <div class="git-commit-item">
       <span class="git-commit-hash">${commit.hash}</span>
       <span class="git-commit-message">${commit.message}</span>
-      <span class="git-commit-meta">${commit.author} • ${commit.timestamp}</span>
+      <span class="git-commit-meta">${commit.author} • ${timestamp}</span>
+      <span class="git-commit-branches">${branches}</span>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 // Initialize
