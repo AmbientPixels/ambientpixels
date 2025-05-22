@@ -17,9 +17,6 @@ const CONFIG = {
   WEB_ROOT_FILE: path.join(__dirname, '../git-commits.json')
 };
 
-// Initialize simple-git
-const git = simpleGit(path.join(__dirname, '..'));
-
 async function ensureArchiveDir() {
   try {
     await fs.mkdir(CONFIG.ARCHIVE_DIR, { recursive: true });
