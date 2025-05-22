@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const outputFile = path.join(__dirname, '../data/git-commits.json');
+const outputFile = path.join(__dirname, '../docs/git-commits.json');
 
 // Configuration
 const MAX_COMMITS = 10;
@@ -36,7 +36,12 @@ function saveCommits(commits) {
     count: commits.length
   };
   
+  // Write to data directory
   fs.writeFileSync(outputFile, JSON.stringify(data, null, 2));
+  
+  // Also copy to web root
+  const webRootFile = path.join(__dirname, '../git-commits.json');
+  fs.writeFileSync(webRootFile, JSON.stringify(data, null, 2));
 }
 
 function runGitCommitScan() {

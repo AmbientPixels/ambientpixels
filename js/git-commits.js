@@ -62,7 +62,7 @@ document.body.appendChild(gitCommitsContainer);
 
 async function fetchGitCommits() {
   try {
-    const response = await fetch('/data/git-commits.json');
+    const response = await fetch('https://ambientpixels.ai/data/git-commits.json');
     const data = await response.json();
     return data.commits;
   } catch (error) {
