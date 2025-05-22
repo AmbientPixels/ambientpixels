@@ -11,8 +11,8 @@ const COMMIT_FORMAT = '%h - %s (%cr) <%an>';
 
 function getRecentCommits() {
   try {
-    const output = execSync(`git log -n ${MAX_COMMITS} --pretty=format:"${COMMIT_FORMAT}"`, { encoding: 'utf8' });
-    return output.split('\n').filter(Boolean).map(commit => {
+    const output = execSync(`git log -n ${MAX_COMMITS} --since="1 day ago" --pretty=format:"${COMMIT_FORMAT}"`, { encoding: 'utf8' });
+    const commits = output.split('\n').filter(Boolean).map(commit => {
       const [hash, message, rest] = commit.split(' - ');
       const author = rest.match(/<(.+)>/)[1];
       const timestamp = rest.replace(/<.+>/, '').trim();
@@ -23,6 +23,10 @@ function getRecentCommits() {
         author
       };
     });
+    
+    // Log the commits for debugging
+    console.log('Found commits:', commits);
+    return commits;
   } catch (e) {
     console.error('Error fetching commits:', e);
     return [];
