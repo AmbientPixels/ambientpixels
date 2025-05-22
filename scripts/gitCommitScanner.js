@@ -10,7 +10,9 @@ const CONFIG = {
   MAX_COMMITS: 10,
   COMMIT_FORMAT: '%h - %s (%cr) <%an>',
   VERSION: '1.0.0',
-  ARCHIVE_DIR: path.join(__dirname, '../docs/git-commit-archives')
+  ARCHIVE_DIR: path.join(__dirname, '../docs/git-commit-archives'),
+  OUTPUT_FILE: path.join(__dirname, '../docs/git-commits.json'),
+  WEB_ROOT_FILE: path.join(__dirname, '../git-commits.json')
 };
 
 // Ensure archive directory exists
@@ -34,7 +36,7 @@ function getRecentCommits() {
 
     // Change to root directory and get commits
     process.chdir(__dirname + '/..');
-    const output = execSync(`git log -n ${MAX_COMMITS} --since="1 day ago" --all --pretty=format:"${COMMIT_FORMAT}"`, { encoding: 'utf8' });
+    const output = execSync(`git log -n ${CONFIG.MAX_COMMITS} --since="1 day ago" --all --pretty=format:"${COMMIT_FORMAT}"`, { encoding: 'utf8' });
     
     // Split and parse commits
     const commits = output.split('\n').filter(Boolean).map(commit => {
@@ -88,13 +90,34 @@ function saveCommits(commits) {
     CONFIG.ARCHIVE_DIR,
     `commits_${data.scanId}_${new Date().toISOString().replace(/[:.]/g, '-')}.json`
   );
+
+  try {
+    // Write to data directory
+    fs.writeFileSync(CONFIG.OUTPUT_FILE, JSON.stringify(data, null, 2));
+    
+    // Also copy to web root
+    fs.writeFileSync(CONFIG.WEB_ROOT_FILE, JSON.stringify(data, null, 2));
+    
+    // Save to archive
+    fs.writeFileSync(archiveFilename, JSON.stringify(data, null, 2));
+    
+    // Clean up old archives (keep last 10)
+    const archives = fs.readdirSync(CONFIG.ARCHIVE_DIR)
+      .filter(file => file.endsWith('.json'))
+      .sort((a, b) => b.localeCompare(a));
+    
+    if (archives.length > 10) {
+      const filesToDelete = archives.slice(10);
+      for (const file of filesToDelete) {
+        fs.unlinkSync(path.join(CONFIG.ARCHIVE_DIR, file));
+      }
+    }
+  } catch (error) {
+    console.error('Error saving commit data:', error);
+    throw error;
+  }
   
-  // Write to data directory
-  fs.writeFileSync(outputFile, JSON.stringify(data, null, 2));
-  
-  // Also copy to web root
-  const webRootFile = path.join(__dirname, '../git-commits.json');
-  fs.writeFileSync(webRootFile, JSON.stringify(data, null, 2));
+
   
   // Save to archive
   fs.writeFileSync(archiveFilename, JSON.stringify(data, null, 2));
