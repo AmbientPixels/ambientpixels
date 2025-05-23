@@ -69,7 +69,7 @@ function getRecentCommits() {
     }
 
     // Build git log command with filters
-    let gitCommand = `git log -n ${CONFIG.MAX_COMMITS} --all --pretty=format:"%h - %s (%cr)%an <%ae>"`;
+    let gitCommand = `git log -n ${CONFIG.MAX_COMMITS} --all --pretty=format:"%h|%s|%ci|%an|%ae|%D"`;
     
     // Add time filter as optional
     try {
@@ -108,45 +108,35 @@ function getRecentCommits() {
       const rawCommits = commitList.split('\n').filter(Boolean);
       console.log('Raw commits:', rawCommits);
       
-      const commits = rawCommits.map(commit => {
+      const commits = rawCommits.map(rawCommit => {
         try {
-          // Parse commit line
-          const [hash, commitMessage, authorInfo] = commit.split(' - ');
-          const authorMatch = authorInfo.match(/(.+) <(.+)>/);
-          if (!authorMatch) {
-            console.warn(`Failed to parse author info: ${authorInfo}`);
+          // Parse commit line using | as delimiter
+          const [hash, message, timestamp, authorName, authorEmail, branches] = rawCommit.split('|');
+          if (!hash || !message || !authorName || !authorEmail) {
+            console.warn(`Failed to parse commit: ${rawCommit}`);
             return null;
           }
-          const [_, authorName, authorEmail] = authorMatch;
           
           // Apply author filters if specified
           if (CONFIG.FILTERS.authors.length > 0 && !CONFIG.FILTERS.authors.includes(authorName)) {
             return null;
           }
 
-          // Get timestamp and branches in a single command
-          const commitDetails = execSync(`git show ${hash} --format="%ci%n%n%B%n%nBranches: %D" --stat`, { 
-            encoding: 'utf8',
-            cwd: repoPath
-          }).trim();
-
-          // Parse the commit details
-          const [timestamp, , message, , branches] = commitDetails.split('\n\n');
+          // Clean up branches string
           const branchList = branches
-            .replace('Branches: ', '')
-            .split(', ')
+            .split(',')
             .map(branch => branch.trim())
-            .filter(branch => branch);
+            .filter(branch => branch && branch !== 'HEAD')
+            .map(branch => branch.replace('origin/', ''));
 
           // Return structured commit data
           return {
             id: uuidv4(),
             hash,
-            message: message || commitMessage, // Use message from git show if available, otherwise fallback to commitMessage
+            message,
             timestamp,
             author: { name: authorName, email: authorEmail },
             branches: branchList,
-            details: commitDetails,
             version: CONFIG.VERSION,
             scanTimestamp: new Date().toISOString(),
             url: `https://github.com/${CONFIG.GITHUB_REPO}/commit/${hash}`
