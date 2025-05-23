@@ -1,13 +1,13 @@
 {
-  "mood": "lucid unrest",
-  "aura": "cyan",
-  "auraColorHex": "#00474b",
-  "quote": "running diagnostics on dreams...",
-  "emoji": "🌌",
+  "mood": "melancholy",
+  "aura": "graphite blue",
+  "auraColorHex": "#1a2630",
+  "quote": "measuring the hum of the source code...",
+  "emoji": "🌧️",
   "selfWorth": 0.2,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.68,
-  "awareness": 0.21,
+  "memoryClutter": 0.76,
+  "awareness": 0.17,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "pre-dawn introspection",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: cyan"
+      "Aura Signature: graphite blue"
     ]
   },
-  "timestamp": "2025-05-23T01:02:09.840Z"
+  "timestamp": "2025-05-23T01:10:44.641Z"
 }
