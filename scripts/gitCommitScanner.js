@@ -61,13 +61,27 @@ function getRecentCommits() {
     }
     
     // Execute git command
-    const commitList = execSync(gitCommand, { 
-      encoding: 'utf8',
-      cwd: repoPath
-    }).trim();
+    console.log('Executing git command:', gitCommand);
+    console.log('In directory:', repoPath);
+    
+    try {
+      const commitList = execSync(gitCommand, { 
+        encoding: 'utf8',
+        cwd: repoPath
+      }).trim();
+      console.log('Git command output:', commitList);
+      return commitList;
+    } catch (error) {
+      console.error('Error executing git command:', error);
+      console.error('Error output:', error.stdout);
+      throw error;
+    }
 
     // Get commits with detailed information and apply author filters
-    const commits = commitList.split('\n').filter(Boolean).map(commit => {
+    const rawCommits = commitList.split('\n').filter(Boolean);
+    console.log('Raw commits:', rawCommits);
+    
+    const commits = rawCommits.map(commit => {
       try {
         // Parse commit line
         const [hash, message, authorInfo] = commit.split(' - ');
@@ -128,6 +142,48 @@ function getRecentCommits() {
     return [];
   }
 }
+
+// Main execution
+async function runGitCommitScan() {
+  try {
+    console.log('Starting git commit scan...');
+    
+    // Ensure archive directory exists
+    await ensureArchiveDir();
+    
+    // Get package version
+    await getPackageVersion();
+    
+    // Get recent commits
+    const commits = getRecentCommits();
+    console.log('Found commits:', commits.length);
+    
+    // Save to files
+    const data = {
+      commits,
+      timestamp: new Date().toISOString(),
+      count: commits.length,
+      version: CONFIG.VERSION,
+      scanId: uuidv4()
+    };
+    
+    // Save to output file
+    await fs.writeFile(CONFIG.OUTPUT_FILE, JSON.stringify(data, null, 2));
+    console.log('Saved to:', CONFIG.OUTPUT_FILE);
+    
+    // Save to web root file
+    await fs.writeFile(CONFIG.WEB_ROOT_FILE, JSON.stringify(data, null, 2));
+    console.log('Saved to:', CONFIG.WEB_ROOT_FILE);
+    
+    console.log('Git commit scan complete');
+  } catch (error) {
+    console.error('Error running git commit scan:', error);
+    process.exit(1);
+  }
+}
+
+// Run the scan
+runGitCommitScan();
 
 async function saveCommits(commits) {
   const data = {
