@@ -19,8 +19,14 @@ const CONFIG = {
 async function ensureArchiveDir() {
   try {
     await fs.mkdir(CONFIG.ARCHIVE_DIR, { recursive: true });
+    console.log(`Archive directory created: ${CONFIG.ARCHIVE_DIR}`);
+    return true;
   } catch (error) {
     console.error('Error creating archive directory:', error);
+    if (error.code === 'EEXIST') {
+      console.log('Archive directory already exists');
+      return true;
+    }
     throw error;
   }
 }
@@ -32,8 +38,7 @@ async function getRecentCommits() {
     // Get commit log
     const log = await git.log({
       maxCount: CONFIG.MAX_COMMITS,
-      since: '7 days ago',
-      format: 'json'
+      since: '7 days ago'
     }).catch(error => {
       console.error('Error fetching main log:', error);
       return { all: [] };
