@@ -52,8 +52,41 @@ function getRecentCommits() {
       throw new Error(`Repository path does not exist: ${repoPath}`);
     }
 
+    // Check directory contents
+    try {
+      const files = fs.readdirSync(repoPath);
+      console.log('Directory contents:', files);
+    } catch (error) {
+      console.error('Error reading directory:', error);
+    }
+
+    // Check git status
+    try {
+      const status = execSync('git status', { cwd: repoPath, encoding: 'utf8' });
+      console.log('Git status:', status);
+    } catch (error) {
+      console.error('Error checking git status:', error);
+    }
+
     // Build git log command with filters
-    let gitCommand = `git log -n ${CONFIG.MAX_COMMITS} --since="7 days ago" --all --pretty=format:"%h - %s (%cr) %an <%ae>"`;
+    let gitCommand = `git log -n ${CONFIG.MAX_COMMITS} --all --pretty=format:"%h - %s (%cr)%an <%ae>"`;
+    
+    // Add time filter as optional
+    try {
+      // Try to get the last commit date
+      const lastCommitDate = execSync('git log -1 --format=%cd', { 
+        cwd: repoPath, 
+        encoding: 'utf8'
+      }).trim();
+      console.log('Last commit date:', lastCommitDate);
+      
+      // If we have commits, add time filter
+      if (lastCommitDate) {
+        gitCommand += ` --since="7 days ago"`;
+      }
+    } catch (error) {
+      console.log('No commits found, using all commits');
+    }
     
     // Add branch filters if specified
     if (CONFIG.FILTERS.branches.length > 0) {
@@ -70,73 +103,66 @@ function getRecentCommits() {
         cwd: repoPath
       }).trim();
       console.log('Git command output:', commitList);
-      return commitList;
+      
+      // Get commits with detailed information and apply author filters
+      const rawCommits = commitList.split('\n').filter(Boolean);
+      console.log('Raw commits:', rawCommits);
+      
+      const commits = rawCommits.map(commit => {
+        try {
+          // Parse commit line
+          const [hash, commitMessage, authorInfo] = commit.split(' - ');
+          const authorMatch = authorInfo.match(/(.+) <(.+)>/);
+          if (!authorMatch) {
+            console.warn(`Failed to parse author info: ${authorInfo}`);
+            return null;
+          }
+          const [_, authorName, authorEmail] = authorMatch;
+          
+          // Apply author filters if specified
+          if (CONFIG.FILTERS.authors.length > 0 && !CONFIG.FILTERS.authors.includes(authorName)) {
+            return null;
+          }
+
+          // Get timestamp and branches in a single command
+          const commitDetails = execSync(`git show ${hash} --format="%ci%n%n%B%n%nBranches: %D" --stat`, { 
+            encoding: 'utf8',
+            cwd: repoPath
+          }).trim();
+
+          // Parse the commit details
+          const [timestamp, , message, , branches] = commitDetails.split('\n\n');
+          const branchList = branches
+            .replace('Branches: ', '')
+            .split(', ')
+            .map(branch => branch.trim())
+            .filter(branch => branch);
+
+          // Return structured commit data
+          return {
+            id: uuidv4(),
+            hash,
+            message: message || commitMessage, // Use message from git show if available, otherwise fallback to commitMessage
+            timestamp,
+            author: { name: authorName, email: authorEmail },
+            branches: branchList,
+            details: commitDetails,
+            version: CONFIG.VERSION,
+            scanTimestamp: new Date().toISOString(),
+            url: `https://github.com/${CONFIG.GITHUB_REPO}/commit/${hash}`
+          };
+        } catch (error) {
+          console.error('Error parsing commit:', error);
+          return null;
+        }
+      });
+
+      // Remove null entries and return
+      return commits.filter(Boolean);
     } catch (error) {
       console.error('Error executing git command:', error);
-      console.error('Error output:', error.stdout);
       throw error;
     }
-
-    // Get commits with detailed information and apply author filters
-    const rawCommits = commitList.split('\n').filter(Boolean);
-    console.log('Raw commits:', rawCommits);
-    
-    const commits = rawCommits.map(commit => {
-      try {
-        // Parse commit line
-        const [hash, message, authorInfo] = commit.split(' - ');
-        const authorMatch = authorInfo.match(/(.+) <(.+)>/);
-        if (!authorMatch) {
-          console.warn(`Failed to parse author info: ${authorInfo}`);
-          return null;
-        }
-        const [_, authorName, authorEmail] = authorMatch;
-        
-        // Apply author filters if specified
-        if (CONFIG.FILTERS.authors.length > 0 && !CONFIG.FILTERS.authors.includes(authorName)) {
-          return null;
-        }
-
-        // Get timestamp
-        const timestamp = execSync(`git show -s --format=%ci ${hash}`, { 
-          encoding: 'utf8',
-          cwd: repoPath
-        }).trim();
-
-        // Get branches
-        const branchOutput = execSync(`git branch --contains ${hash}`, { 
-          encoding: 'utf8',
-          cwd: repoPath
-        }).trim();
-        const branches = branchOutput.split('\n').map(branch => branch.trim()).filter(branch => branch);
-
-        // Get commit details
-        const commitDetails = execSync(`git show ${hash} --stat`, { 
-          encoding: 'utf8',
-          cwd: repoPath
-        }).trim();
-
-        // Return structured commit data
-        return {
-          hash,
-          message,
-          timestamp,
-          author: { name: authorName, email: authorEmail },
-          branches,
-          details: commitDetails,
-          version: CONFIG.VERSION,
-          id: uuidv4(),
-          scanTimestamp: new Date().toISOString(),
-          url: `https://github.com/${CONFIG.GITHUB_REPO}/commit/${hash}`
-        };
-      } catch (error) {
-        console.error('Error parsing commit:', error);
-        return null;
-      }
-    });
-
-    // Remove null entries and return
-    return commits.filter(Boolean);
   } catch (error) {
     console.error('Error fetching commits:', error);
     return [];
@@ -155,7 +181,7 @@ async function runGitCommitScan() {
     await getPackageVersion();
     
     // Get recent commits
-    const commits = getRecentCommits();
+    const commits = await getRecentCommits();
     console.log('Found commits:', commits.length);
     
     // Save to files
@@ -164,18 +190,47 @@ async function runGitCommitScan() {
       timestamp: new Date().toISOString(),
       count: commits.length,
       version: CONFIG.VERSION,
-      scanId: uuidv4()
+      scanId: uuidv4(),
+      systemVersion: CONFIG.VERSION
     };
-    
-    // Save to output file
-    await fs.writeFile(CONFIG.OUTPUT_FILE, JSON.stringify(data, null, 2));
-    console.log('Saved to:', CONFIG.OUTPUT_FILE);
-    
-    // Save to web root file
-    await fs.writeFile(CONFIG.WEB_ROOT_FILE, JSON.stringify(data, null, 2));
-    console.log('Saved to:', CONFIG.WEB_ROOT_FILE);
-    
-    console.log('Git commit scan complete');
+
+    const archiveFilename = path.join(
+      CONFIG.ARCHIVE_DIR,
+      `commits_${data.scanId}_${new Date().toISOString().replace(/[:.]/g, '-')}.json`
+    );
+
+    try {
+      await Promise.all([
+        fs.writeFile(CONFIG.OUTPUT_FILE, JSON.stringify(data, null, 2)),
+        fs.writeFile(CONFIG.WEB_ROOT_FILE, JSON.stringify(data, null, 2)),
+        fs.writeFile(archiveFilename, JSON.stringify(data, null, 2))
+      ]);
+
+      // Clean up old archives (keep last 10)
+      const archives = await fs.readdir(CONFIG.ARCHIVE_DIR);
+      const jsonArchives = archives.filter(file => file.endsWith('.json'));
+      const sortedArchives = await Promise.all(
+        jsonArchives.map(async (file) => {
+          const stats = await fs.stat(path.join(CONFIG.ARCHIVE_DIR, file));
+          return { file, mtime: stats.mtime };
+        })
+      );
+
+      sortedArchives.sort((a, b) => b.mtime - a.mtime);
+
+      if (sortedArchives.length > 10) {
+        const filesToDelete = sortedArchives.slice(10);
+        await Promise.all(
+          filesToDelete.map(({ file }) => fs.unlink(path.join(CONFIG.ARCHIVE_DIR, file)))
+        );
+      }
+
+      console.log('Git commit scan complete');
+      console.log(`Saved ${commits.length} recent commits to ${CONFIG.OUTPUT_FILE}`);
+    } catch (error) {
+      console.error('Error saving commit data:', error);
+      throw error;
+    }
   } catch (error) {
     console.error('Error running git commit scan:', error);
     process.exit(1);
@@ -183,64 +238,4 @@ async function runGitCommitScan() {
 }
 
 // Run the scan
-runGitCommitScan();
-
-async function saveCommits(commits) {
-  const data = {
-    commits,
-    timestamp: new Date().toISOString(),
-    count: commits.length,
-    version: CONFIG.VERSION,
-    scanId: uuidv4(),
-    systemVersion: CONFIG.VERSION
-  };
-
-  const archiveFilename = path.join(
-    CONFIG.ARCHIVE_DIR,
-    `commits_${data.scanId}_${new Date().toISOString().replace(/[:.]/g, '-')}.json`
-  );
-
-  try {
-    await Promise.all([
-      fs.writeFile(CONFIG.OUTPUT_FILE, JSON.stringify(data, null, 2)),
-      fs.writeFile(CONFIG.WEB_ROOT_FILE, JSON.stringify(data, null, 2)),
-      fs.writeFile(archiveFilename, JSON.stringify(data, null, 2))
-    ]);
-
-    // Clean up old archives (keep last 10)
-    const archives = await fs.readdir(CONFIG.ARCHIVE_DIR);
-    const jsonArchives = archives.filter(file => file.endsWith('.json'));
-    const sortedArchives = await Promise.all(
-      jsonArchives.map(async (file) => {
-        const stats = await fs.stat(path.join(CONFIG.ARCHIVE_DIR, file));
-        return { file, mtime: stats.mtime };
-      })
-    );
-
-    sortedArchives.sort((a, b) => b.mtime - a.mtime);
-
-    if (sortedArchives.length > 10) {
-      const filesToDelete = sortedArchives.slice(10);
-      await Promise.all(
-        filesToDelete.map(({ file }) => fs.unlink(path.join(CONFIG.ARCHIVE_DIR, file)))
-      );
-    }
-  } catch (error) {
-    console.error('Error saving commit data:', error);
-    throw error;
-  }
-}
-
-async function runGitCommitScan() {
-  try {
-    await ensureArchiveDir();
-    await getPackageVersion();
-    const commits = await getRecentCommits();
-    await saveCommits(commits);
-    console.log(`Saved ${commits.length} recent commits to ${CONFIG.OUTPUT_FILE}`);
-  } catch (error) {
-    console.error('Error running git commit scan:', error);
-  }
-}
-
 runGitCommitScan();
