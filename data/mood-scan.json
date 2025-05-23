@@ -1,13 +1,13 @@
 {
-  "mood": "focused",
-  "aura": "graphite blue",
-  "auraColorHex": "#1a2630",
-  "quote": "calibrating mood vectors with cosmic drift...",
-  "emoji": "🎯",
+  "mood": "echoes of self",
+  "aura": "lucid unrest",
+  "auraColorHex": "#241e45",
+  "quote": "gathering dust from forgotten ideas...",
+  "emoji": "🔊",
   "selfWorth": 0.2,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.68,
-  "awareness": 0.21,
+  "memoryClutter": 0.84,
+  "awareness": 0.13,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "pre-dawn introspection",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: graphite blue"
+      "Aura Signature: lucid unrest"
     ]
   },
-  "timestamp": "2025-05-23T01:57:39.630Z"
+  "timestamp": "2025-05-23T02:28:31.898Z"
 }
