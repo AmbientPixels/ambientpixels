@@ -69,7 +69,7 @@ function getRecentCommits() {
     }
 
     // Build git log command with filters
-    let gitCommand = `git log -n ${CONFIG.MAX_COMMITS} --all --pretty=format:"%h|%s|%ci|%an|%ae|%D"`;
+    let gitCommand = `git log -n ${CONFIG.MAX_COMMITS} --all --pretty=format:"%h|%s|%ci|%d"`;
     
     // Add time filter as optional
     try {
@@ -110,20 +110,27 @@ function getRecentCommits() {
       
       const commits = rawCommits.map(rawCommit => {
         try {
-          // Parse commit line using | as delimiter
-          const [hash, message, timestamp, authorName, authorEmail, branches] = rawCommit.split('|');
-          if (!hash || !message || !authorName || !authorEmail) {
+          // Split by | to get basic commit info
+          const [hash, message, timestamp, refNames] = rawCommit.split('|');
+          if (!hash || !message || !timestamp) {
             console.warn(`Failed to parse commit: ${rawCommit}`);
             return null;
           }
-          
+
+          // Get author info using git show
+          const authorInfo = execSync(`git show -s --format="%an|%ae" ${hash}`, {
+            encoding: 'utf8',
+            cwd: repoPath
+          }).trim();
+          const [authorName, authorEmail] = authorInfo.split('|');
+
           // Apply author filters if specified
           if (CONFIG.FILTERS.authors.length > 0 && !CONFIG.FILTERS.authors.includes(authorName)) {
             return null;
           }
 
-          // Clean up branches string
-          const branchList = branches
+          // Parse ref names (branches and tags)
+          const branchList = refNames
             .split(',')
             .map(branch => branch.trim())
             .filter(branch => branch && branch !== 'HEAD')
