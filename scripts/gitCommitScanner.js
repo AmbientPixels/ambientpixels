@@ -34,6 +34,9 @@ async function getRecentCommits() {
       maxCount: CONFIG.MAX_COMMITS,
       since: '7 days ago',
       format: 'json'
+    }).catch(error => {
+      console.error('Error fetching main log:', error);
+      return { all: [] };
     });
 
     // Get list of all branches
@@ -47,6 +50,9 @@ async function getRecentCommits() {
           maxCount: CONFIG.MAX_COMMITS,
           since: '7 days ago',
           branch: branch
+        }).catch(error => {
+          console.error(`Error fetching branch ${branch} commits:`, error);
+          return { all: [] };
         });
         
         for (const commit of branchCommits.all) {
