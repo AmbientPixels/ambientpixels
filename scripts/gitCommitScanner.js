@@ -32,7 +32,7 @@ async function getRecentCommits() {
     // Get commit log
     const log = await git.log({
       maxCount: CONFIG.MAX_COMMITS,
-      from: '7 days ago',
+      since: '7 days ago',
       format: 'json'
     });
 
@@ -45,7 +45,7 @@ async function getRecentCommits() {
       if (branch !== 'HEAD') {
         const branchCommits = await git.log({
           maxCount: CONFIG.MAX_COMMITS,
-          from: '7 days ago',
+          since: '7 days ago',
           branch: branch
         });
         
