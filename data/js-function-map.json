@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2025-05-23T00:49:13.655Z",
+  "scannedAt": "2025-05-23T01:02:10.161Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -53,8 +53,6 @@
       "ensureArchiveDir",
       "getPackageVersion",
       "getRecentCommits",
-      "runGitCommitScan",
-      "saveCommits",
       "runGitCommitScan"
     ],
     "imageAudit.js": [

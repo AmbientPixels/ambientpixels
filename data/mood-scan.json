@@ -1,9 +1,9 @@
 {
-  "mood": "calm",
-  "aura": "neon pink",
-  "auraColorHex": "#66033b",
-  "quote": "indexing emotions with low latency...",
-  "emoji": "🪷",
+  "mood": "lucid unrest",
+  "aura": "cyan",
+  "auraColorHex": "#00474b",
+  "quote": "running diagnostics on dreams...",
+  "emoji": "🌌",
   "selfWorth": 0.2,
   "glitchFactor": 0.1,
   "memoryClutter": 0.68,
@@ -15,8 +15,8 @@
     "trigger": "pre-dawn introspection",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: neon pink"
+      "Aura Signature: cyan"
     ]
   },
-  "timestamp": "2025-05-23T00:49:13.346Z"
+  "timestamp": "2025-05-23T01:02:09.840Z"
 }
