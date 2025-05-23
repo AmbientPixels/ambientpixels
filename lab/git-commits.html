@@ -20,7 +20,7 @@
 <body data-theme="dark">
   <div class="banner-container" id="banner-container">
     <div class="banner">
-      <i class="fas fa-code-branch banner-icon"></i>
+      <i class="fas fa-code-branch banner-icon" aria-hidden="true"></i>
       <span>Git Commit Display — Lab Mode</span>
       <button class="banner-close" aria-label="Close banner">
         <span class="sr-only">Close</span>×
@@ -28,11 +28,11 @@
     </div>
   </div>
 
-  <header id="nav-header"></header>
+  <header id="nav-header" role="navigation"></header>
 
-  <section class="mini-hero">
+  <section class="mini-hero" aria-labelledby="hero-heading">
     <img src="/images/hero-v10.jpg" alt="Git Commit Hero" class="mini-hero-img" loading="lazy" onerror="this.src='/images/fallback.jpg'" />
-    <h1>Git Commit Display</h1>
+    <h1 id="hero-heading">Git Commit Display</h1>
     <p class="hero-subheadline">Real-time display of git commit history and system updates</p>
   </section>
 
@@ -40,7 +40,7 @@
     <section class="grid-col-12" role="region" aria-labelledby="git-display-heading">
       <div class="card">
         <div class="card-content">
-          <h2 id="git-display-heading"><i class="fas fa-terminal"></i> Git Commit Display</h2>
+          <h2 id="git-display-heading"><i class="fas fa-terminal" aria-hidden="true"></i> Git Commit Display</h2>
           <p class="nova-voice">This page displays git commit history, synchronized with Nova's memory refresh cycle.</p>
           <div class="card-list">
             <h3>Features</h3>
@@ -58,20 +58,21 @@
     <section class="grid-col-12" role="region" aria-labelledby="recent-commits-heading">
       <div class="card">
         <div class="card-content">
-          <h2 id="recent-commits-heading"><i class="fas fa-history"></i> Recent Commits</h2>
+          <h2 id="recent-commits-heading"><i class="fas fa-history" aria-hidden="true"></i> Recent Commits</h2>
           <div id="git-history-container" class="git-history"></div>
         </div>
       </div>
     </section>
   </main>
+
   <div id="footer-container"></div>
+
   <script src="/js/nova-mood-background.js"></script>
   <script src="/js/theme.js"></script>
   <script src="/js/init-header-footer.js"></script>
   <script src="/js/nav.js"></script>
   <script src="/js/git-commits.js"></script>
   <script>
-    // Add error handler for script loading
     window.addEventListener('error', (event) => {
       if (event.target?.src?.includes('git-commits.js')) {
         console.error('Failed to load git-commits.js:', event.error);
