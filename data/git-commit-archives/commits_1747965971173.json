@@ -1,7 +1,7 @@
 {
   "commits": [
     {
-      "id": "664dcc56-0595-452c-b5f8-8707d8e4ec3d",
+      "id": "e85caaec-5559-42bc-8a31-c4703b576cad",
       "hash": "86c571916d41cc023c4e2edd581145e0f7016d26",
       "message": "Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels",
       "timestamp": "2025-05-22 18:56:00 -0700",
@@ -16,7 +16,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/86c571916d41cc023c4e2edd581145e0f7016d26"
     },
     {
-      "id": "a26525ad-604b-4462-8e26-cd5e5e24708a",
+      "id": "81479f84-cff0-4e81-85d5-78d721f5ee54",
       "hash": "ec47a11371cb6879ab970c4fd92b12b22f4e1913",
       "message": "fix: improve git log format and archive handling",
       "timestamp": "2025-05-22 18:55:43 -0700",
@@ -28,7 +28,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/ec47a11371cb6879ab970c4fd92b12b22f4e1913"
     },
     {
-      "id": "997f29a2-719e-488d-9a5a-d86acaf14731",
+      "id": "aed0f1f1-8fef-4dc5-8d1f-0148b20afe91",
       "hash": "37857bdfd3bbacc79bacc725c0923c39def9e49e",
       "message": "Daily refresh: site memory update for Nova",
       "timestamp": "2025-05-23 01:50:20 +0000",
@@ -40,7 +40,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/37857bdfd3bbacc79bacc725c0923c39def9e49e"
     },
     {
-      "id": "9408a0c0-5fda-4298-aa45-6fad151c2cbb",
+      "id": "6c01cbdb-c197-42a5-8260-9c1944f4f9bf",
       "hash": "cdc12d2285617032e73dc6e997b0e5282ee26c00",
       "message": "fix: add error handling for git operations",
       "timestamp": "2025-05-22 18:47:33 -0700",
@@ -52,7 +52,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/cdc12d2285617032e73dc6e997b0e5282ee26c00"
     },
     {
-      "id": "4a1cd380-3f7f-4eb3-8ad6-54799e2925d4",
+      "id": "28ab8a13-03f9-4127-ae54-2de76d8c5e3b",
       "hash": "136e3601c6e503d00a35abb73a1a4e23c31db88a",
       "message": "fix: update git log parameters for simple-git",
       "timestamp": "2025-05-22 18:43:23 -0700",
@@ -64,7 +64,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/136e3601c6e503d00a35abb73a1a4e23c31db88a"
     },
     {
-      "id": "83205245-a4c8-4ed4-9deb-9678e4c1b843",
+      "id": "126980e9-115f-4662-822c-544478a7cc96",
       "hash": "8f876fbbe82cf5df8669c959cd7a637b94c7a8b4",
       "message": "refactor: enhance git commit scanner with simple-git",
       "timestamp": "2025-05-22 18:36:59 -0700",
@@ -76,7 +76,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/8f876fbbe82cf5df8669c959cd7a637b94c7a8b4"
     },
     {
-      "id": "150d3d78-6d21-45f0-802c-87cf5e4d45a3",
+      "id": "f6400cd3-5a5c-4fc9-8b6a-e204d9d8c33f",
       "hash": "3177cc76a6b151396c3dd78cfd045ffacd105ef0",
       "message": "Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels",
       "timestamp": "2025-05-22 18:28:04 -0700",
@@ -88,7 +88,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/3177cc76a6b151396c3dd78cfd045ffacd105ef0"
     },
     {
-      "id": "6711401f-5f1f-482e-a10c-3d741385ce98",
+      "id": "da73663c-c954-4f43-9ae0-044c62011c60",
       "hash": "fb5d44de34372e1393a6f22d85d620b572815be3",
       "message": "refactor: enhance git commit display system",
       "timestamp": "2025-05-22 18:27:55 -0700",
@@ -100,7 +100,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/fb5d44de34372e1393a6f22d85d620b572815be3"
     },
     {
-      "id": "dec5073b-5fa9-49ea-bb36-e61b6790b370",
+      "id": "35885ed4-ed89-4f4a-988f-196c6f909b58",
       "hash": "eaecc4ee75ce96024e978605e071a9972d1abd1f",
       "message": "Daily refresh: site memory update for Nova",
       "timestamp": "2025-05-23 01:16:22 +0000",
@@ -112,7 +112,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/eaecc4ee75ce96024e978605e071a9972d1abd1f"
     },
     {
-      "id": "3d843a7d-fef4-48b4-b962-2673a3fbc817",
+      "id": "56a9bab1-730e-4450-a5f8-dc385db9f7ac",
       "hash": "7d528a53e66bef866341bbcefcfed16929837d8c",
       "message": "Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels",
       "timestamp": "2025-05-22 18:14:42 -0700",
@@ -124,7 +124,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/7d528a53e66bef866341bbcefcfed16929837d8c"
     },
     {
-      "id": "2d70ad2d-1bdf-41a6-a807-14d3a9c5b63a",
+      "id": "25c4dfc4-8282-4f00-bcab-0b21c1789717",
       "hash": "d003b617751d5a0bcd0be2e409a11e827c2f6777",
       "message": "refactor: improve git log parsing reliability",
       "timestamp": "2025-05-22 18:14:21 -0700",
@@ -136,7 +136,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/d003b617751d5a0bcd0be2e409a11e827c2f6777"
     },
     {
-      "id": "510f76b1-3e41-45e3-9dad-86bdc062bf43",
+      "id": "b73d4330-2bfd-47c8-9bba-daee6e73c7ab",
       "hash": "61fcd532b84933818f2395a25dce9cdd0b8c4993",
       "message": "Daily refresh: site memory update for Nova",
       "timestamp": "2025-05-23 01:10:46 +0000",
@@ -148,7 +148,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/61fcd532b84933818f2395a25dce9cdd0b8c4993"
     },
     {
-      "id": "7b8b1951-e806-42b9-8a10-9e59271806d0",
+      "id": "551a1f09-3746-46a2-a308-1d41706933f6",
       "hash": "0fc07e16187a8507a17a2f76d419d685bc6e3996",
       "message": "Quick fix to git-commits.html",
       "timestamp": "2025-05-22 18:07:29 -0700",
@@ -160,7 +160,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/0fc07e16187a8507a17a2f76d419d685bc6e3996"
     },
     {
-      "id": "0547ab0b-820d-4be5-a960-7373298f85b5",
+      "id": "f0e85119-6ff2-4a22-81ff-36398f32d28e",
       "hash": "1eba3f3f39e7903d81ff2cf5c6356507bb299b16",
       "message": "Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels",
       "timestamp": "2025-05-22 18:06:32 -0700",
@@ -172,7 +172,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/1eba3f3f39e7903d81ff2cf5c6356507bb299b16"
     },
     {
-      "id": "f2caa7ae-61de-402d-bde3-1296ea1c8a3c",
+      "id": "48ab6817-76f9-4308-b0db-8808cea8fdf6",
       "hash": "61e9a013a400318b10dd3358668d239587e6e6db",
       "message": "refactor: enhance git commit parsing",
       "timestamp": "2025-05-22 18:06:23 -0700",
@@ -184,7 +184,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/61e9a013a400318b10dd3358668d239587e6e6db"
     },
     {
-      "id": "b1784bfe-4028-4e9d-ac27-56b66961d841",
+      "id": "33675348-17b3-49ca-9fd7-a2e43667df17",
       "hash": "73cb9a06c476ae21bac0aed9da4a89987d63609f",
       "message": "Daily refresh: site memory update for Nova",
       "timestamp": "2025-05-23 01:02:12 +0000",
@@ -196,7 +196,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/73cb9a06c476ae21bac0aed9da4a89987d63609f"
     },
     {
-      "id": "52bb52a2-407c-4e8d-83ad-15d46865a417",
+      "id": "8b9746f3-aed0-4c9d-a714-4d54982287d9",
       "hash": "d3d942c8fbe2a799caa2cfff052043f77caabd9f",
       "message": "Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels",
       "timestamp": "2025-05-22 18:00:22 -0700",
@@ -208,7 +208,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/d3d942c8fbe2a799caa2cfff052043f77caabd9f"
     },
     {
-      "id": "75f336b0-dcd2-49cc-9aa2-4b8675cb8fc1",
+      "id": "5873859b-ed78-44bd-8a3b-2b4bf733fd4b",
       "hash": "8c1e8567ab9e8ae7a5a3dda60160c39fddd199cc",
       "message": "refactor: enhance git commit scanner performance",
       "timestamp": "2025-05-22 18:00:14 -0700",
@@ -220,7 +220,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/8c1e8567ab9e8ae7a5a3dda60160c39fddd199cc"
     },
     {
-      "id": "fa80bce5-54fd-4527-8e8e-933df257b7a0",
+      "id": "959333ac-fd41-4ff9-8a94-2204ea7140bc",
       "hash": "eb72c6630a6601986ba13b825af334ec13d70bc1",
       "message": "Daily refresh: site memory update for Nova",
       "timestamp": "2025-05-23 00:49:15 +0000",
@@ -232,7 +232,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/eb72c6630a6601986ba13b825af334ec13d70bc1"
     },
     {
-      "id": "fdcc6a26-26e0-49bc-963f-55bee9f92c8e",
+      "id": "8be3dc8a-b22c-4b5a-8ab9-9cfd1562e99d",
       "hash": "6714ffb7c7eb909b5e138357f0a9ac1d326067fa",
       "message": "Daily refresh: site memory update for Nova",
       "timestamp": "2025-05-23 00:45:50 +0000",
@@ -244,7 +244,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/6714ffb7c7eb909b5e138357f0a9ac1d326067fa"
     },
     {
-      "id": "dc4645e3-6191-4145-9279-136556c16d04",
+      "id": "16024535-e931-4bbf-8bde-4ce3e754a452",
       "hash": "fbd807a1ef5555748d3fefaf240fbc258d6d79b7",
       "message": "Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels",
       "timestamp": "2025-05-22 17:42:48 -0700",
@@ -256,7 +256,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/fbd807a1ef5555748d3fefaf240fbc258d6d79b7"
     },
     {
-      "id": "af22ea5b-313c-4750-bb6f-01a4dce5ff68",
+      "id": "1ad83670-be7b-4a70-9df9-192549cf9dd5",
       "hash": "af37b4faa739a5a5dc7a77902671a98246c440cb",
       "message": "debug: add detailed logging and main execution flow",
       "timestamp": "2025-05-22 17:42:41 -0700",
@@ -268,7 +268,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/af37b4faa739a5a5dc7a77902671a98246c440cb"
     },
     {
-      "id": "c8c657cb-5095-4609-8aff-c41580e1032c",
+      "id": "fbd7265e-4da7-4951-95a4-3f207cfbeb13",
       "hash": "4176adb5dfb4e081d0affe2e70780343825159fb",
       "message": "Daily refresh: site memory update for Nova",
       "timestamp": "2025-05-22 13:32:53 +0000",
@@ -280,7 +280,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/4176adb5dfb4e081d0affe2e70780343825159fb"
     },
     {
-      "id": "a473003a-f804-4cf3-be14-a9b9bba42884",
+      "id": "0ea9a081-5567-4fbe-a7a6-f4ceab0d628a",
       "hash": "85ff036b9a2611a779a01bf9c84039fd8c51a6f3",
       "message": "Daily refresh: site memory update for Nova",
       "timestamp": "2025-05-22 05:45:25 +0000",
@@ -292,7 +292,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/85ff036b9a2611a779a01bf9c84039fd8c51a6f3"
     },
     {
-      "id": "ef5cb4d0-87af-4e58-95e0-fa7c6939b823",
+      "id": "360afc9e-a0b6-4822-9949-56267d310ef9",
       "hash": "62a0c955902bf0e5ae70f028d6ee6705794afa9a",
       "message": "Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels",
       "timestamp": "2025-05-21 22:43:35 -0700",
@@ -304,7 +304,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/62a0c955902bf0e5ae70f028d6ee6705794afa9a"
     },
     {
-      "id": "36bbd4da-6899-4dd5-b725-73417c8a34d5",
+      "id": "e96cd675-20c2-4a98-be45-8b215eaa75e2",
       "hash": "8f69591dbf2b60ac22ed54feff23c10410ec8eee",
       "message": "Still fixing",
       "timestamp": "2025-05-21 22:42:10 -0700",
@@ -316,7 +316,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/8f69591dbf2b60ac22ed54feff23c10410ec8eee"
     },
     {
-      "id": "d51c5195-7c3d-4d0a-951b-0aa833b8e4ff",
+      "id": "d666fcd9-206e-4adf-ae93-8f9ed7e8d875",
       "hash": "fba5da3818c656dc7369426b8e10a9c4de63fba9",
       "message": "Daily refresh: site memory update for Nova",
       "timestamp": "2025-05-22 05:32:28 +0000",
@@ -328,7 +328,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/fba5da3818c656dc7369426b8e10a9c4de63fba9"
     },
     {
-      "id": "d7e0499c-c903-468a-8e13-782140f2b671",
+      "id": "dc6dcaa5-5ac9-4cc6-8c4c-4ad005f14b0d",
       "hash": "e74c48545ab55cf8b1e553d6c2c7da97b83206f4",
       "message": "Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels",
       "timestamp": "2025-05-21 22:28:44 -0700",
@@ -340,7 +340,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/e74c48545ab55cf8b1e553d6c2c7da97b83206f4"
     },
     {
-      "id": "1022f80c-9d77-4aef-a208-6f5dde6977a7",
+      "id": "02238491-0b37-46b5-8e38-eea7982e81b8",
       "hash": "0afac33126e27c37ef3d87ea91b504205af77612",
       "message": "fix: update git commit scanner paths to /data/",
       "timestamp": "2025-05-21 22:28:34 -0700",
@@ -352,7 +352,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/0afac33126e27c37ef3d87ea91b504205af77612"
     },
     {
-      "id": "42a9fccf-452d-4b2b-970d-07b9d6fc00b8",
+      "id": "f002bad3-f5b8-4a72-ae62-a0310e825805",
       "hash": "b31495a49e81a37aef6afdd44b4da8a708ecc2db",
       "message": "Daily refresh: site memory update for Nova",
       "timestamp": "2025-05-22 05:24:15 +0000",
@@ -364,7 +364,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/b31495a49e81a37aef6afdd44b4da8a708ecc2db"
     },
     {
-      "id": "99bdbde1-6402-457c-900c-7a7cebffe4a7",
+      "id": "b2bf569b-6b93-4324-8739-5bf956041f9d",
       "hash": "abfe5a7dea7295dfe0fb1399f76babb7befe3567",
       "message": "fix: update git commit scanner paths to /data/",
       "timestamp": "2025-05-21 22:22:10 -0700",
@@ -376,7 +376,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/abfe5a7dea7295dfe0fb1399f76babb7befe3567"
     },
     {
-      "id": "9c4ccd53-1ad3-4575-9d8c-a5021b5b2c05",
+      "id": "b7cc4dfa-8f4a-4c48-bedf-a0e59309788d",
       "hash": "1b243d544f534633d5257f9442967ff859224cca",
       "message": "fix: remove simple-git dependency and use native git commands",
       "timestamp": "2025-05-21 22:19:10 -0700",
@@ -388,7 +388,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/1b243d544f534633d5257f9442967ff859224cca"
     },
     {
-      "id": "2a119b0e-7855-47f8-b29d-d612399ab737",
+      "id": "45f823b3-dcc3-4ec9-833e-7f30a8ab7510",
       "hash": "3cad940439bcd95c2ef97a56e1cdf422afe26e29",
       "message": "refactor: replace simple-git with native git commands",
       "timestamp": "2025-05-21 22:15:15 -0700",
@@ -400,7 +400,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/3cad940439bcd95c2ef97a56e1cdf422afe26e29"
     },
     {
-      "id": "c4f68c1c-d9fe-4e7f-82ad-8ab7c3f0f5d7",
+      "id": "9d5b117e-8d65-4409-9915-66a17b7e4da7",
       "hash": "95972fe69f6e54f8de700a6d5faf7ee7b69f6fa0",
       "message": "Manual fixes for linting errors",
       "timestamp": "2025-05-21 22:07:51 -0700",
@@ -412,7 +412,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/95972fe69f6e54f8de700a6d5faf7ee7b69f6fa0"
     },
     {
-      "id": "7744bb9b-4bb1-4541-88d5-4a0599654582",
+      "id": "45ca639e-f3ad-43b7-89f0-c4aa5fafd249",
       "hash": "e5c8a147d110c5aedb321b24b405c51854b2b15e",
       "message": "Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels",
       "timestamp": "2025-05-21 22:00:10 -0700",
@@ -424,7 +424,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/e5c8a147d110c5aedb321b24b405c51854b2b15e"
     },
     {
-      "id": "56f834c2-ff38-445b-affe-8717fc1e16bd",
+      "id": "f4d3a9bc-30ee-49e5-97f8-52840eb49d74",
       "hash": "9dedf7be4169d576c9f924fd56ca714b08d93a78",
       "message": "feat: enhance git commit scanner with improved error handling and validation",
       "timestamp": "2025-05-21 21:59:58 -0700",
@@ -436,7 +436,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/9dedf7be4169d576c9f924fd56ca714b08d93a78"
     },
     {
-      "id": "2c1e6bfd-7a85-4105-a879-eaab6ae18e3e",
+      "id": "977fc58d-69b5-4adf-813b-35de0f467c43",
       "hash": "23bdfbe48f5bff91b701ddea8caba3117f688d81",
       "message": "Daily refresh: site memory update for Nova",
       "timestamp": "2025-05-22 04:33:54 +0000",
@@ -448,7 +448,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/23bdfbe48f5bff91b701ddea8caba3117f688d81"
     },
     {
-      "id": "3a0910a9-e4d0-4584-ba63-6218e7701c6b",
+      "id": "9b82d410-8816-4c2c-9540-255c71bb2d83",
       "hash": "5fca0d467719b35491093078ea05ed5e9e9cb036",
       "message": "Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels",
       "timestamp": "2025-05-21 21:31:50 -0700",
@@ -460,7 +460,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/5fca0d467719b35491093078ea05ed5e9e9cb036"
     },
     {
-      "id": "d432c4f3-b9ff-4a97-8460-e1b4eb562ac4",
+      "id": "26023d0e-4a06-4cc0-bfb9-f87d3856236c",
       "hash": "f8834f12b1400471f06ab8d5e20f49845c33b990",
       "message": "fix: improve git commit display system",
       "timestamp": "2025-05-21 21:31:36 -0700",
@@ -472,7 +472,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/f8834f12b1400471f06ab8d5e20f49845c33b990"
     },
     {
-      "id": "2b4f1f3e-dabf-4ade-b1e2-2d11b0f3b5ea",
+      "id": "4cbfdd40-0f6c-42e3-8337-423e138df7f3",
       "hash": "8dbea92479786099d313ab711a044d71474bcddf",
       "message": "Daily refresh: site memory update for Nova",
       "timestamp": "2025-05-22 04:25:54 +0000",
@@ -484,7 +484,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/8dbea92479786099d313ab711a044d71474bcddf"
     },
     {
-      "id": "426c67da-bbde-445e-a2b9-22841461cbe8",
+      "id": "c64fb198-72a6-4c65-88e2-32fcd6685b10",
       "hash": "8b1223601ed5d8be07f38238a9696617eb6d411c",
       "message": "fix: resolve git commit scanner configuration references",
       "timestamp": "2025-05-21 21:24:00 -0700",
@@ -496,7 +496,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/8b1223601ed5d8be07f38238a9696617eb6d411c"
     },
     {
-      "id": "29b47a4d-55ab-4d3d-929d-f4eea0fc431c",
+      "id": "773d9c49-7abd-465c-891a-6cadbfbd2f58",
       "hash": "0740b0dfee5fe648c6ab1186b70dfd6b3da92bc1",
       "message": "fix: resolve git commit scanner configuration issues",
       "timestamp": "2025-05-21 21:19:58 -0700",
@@ -508,7 +508,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/0740b0dfee5fe648c6ab1186b70dfd6b3da92bc1"
     },
     {
-      "id": "e7fcb58d-497f-4cea-b050-3f3d224c6166",
+      "id": "9427c32e-7585-45c5-823b-5ceb51945150",
       "hash": "87a7f0c5382c8a5118edce181ffafb84a973f8aa",
       "message": "Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels",
       "timestamp": "2025-05-21 21:13:59 -0700",
@@ -520,7 +520,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/87a7f0c5382c8a5118edce181ffafb84a973f8aa"
     },
     {
-      "id": "6c6aee13-9a75-4998-86a6-4935781a9969",
+      "id": "c00e25ec-9c40-41ea-aa2b-ff975ea66da4",
       "hash": "4e0ca1888273491a1a113de7d3ce69a1f0aa1034",
       "message": "feat: enhance git commit display system",
       "timestamp": "2025-05-21 21:13:41 -0700",
@@ -532,7 +532,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/4e0ca1888273491a1a113de7d3ce69a1f0aa1034"
     },
     {
-      "id": "2c4ec713-7840-4f5f-a686-77474cbd953d",
+      "id": "8ef56c97-c1a2-4eaa-8049-5715f4277216",
       "hash": "71c26ecafd986637a7aa11fa5fc078b1364660e3",
       "message": "Daily refresh: site memory update for Nova",
       "timestamp": "2025-05-22 04:00:12 +0000",
@@ -544,7 +544,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/71c26ecafd986637a7aa11fa5fc078b1364660e3"
     },
     {
-      "id": "cbb8e2c2-b617-4878-93e2-e4e58b8d9146",
+      "id": "ea0c303a-eb4d-4d58-98de-6b317f970dc3",
       "hash": "7b11c51313511400fe1554a8b720e31ca546f7dd",
       "message": "fix: enhance git commit scanner with better repository handling",
       "timestamp": "2025-05-21 20:58:14 -0700",
@@ -556,7 +556,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/7b11c51313511400fe1554a8b720e31ca546f7dd"
     },
     {
-      "id": "ee132743-a735-4867-8272-a41df4f19865",
+      "id": "9e5152ee-26ae-4ab0-992c-8c8bb0718e78",
       "hash": "7bcb889bf4014e8cf3fd60e6b3b4b141d3906166",
       "message": "Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels",
       "timestamp": "2025-05-21 20:53:52 -0700",
@@ -568,7 +568,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/7bcb889bf4014e8cf3fd60e6b3b4b141d3906166"
     },
     {
-      "id": "ee9047c3-b68a-4b10-925d-2f606dc055c4",
+      "id": "4254c0b9-f668-4c26-98dd-48962d531965",
       "hash": "464f2d095d7ed6715956b9f364c7bd827a7e2704",
       "message": "Fix - quick fix to index.html",
       "timestamp": "2025-05-21 20:53:35 -0700",
@@ -580,7 +580,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/464f2d095d7ed6715956b9f364c7bd827a7e2704"
     },
     {
-      "id": "2f871fb0-11bc-41d8-a37b-44b9e3f2fe2e",
+      "id": "16960909-fd14-41ce-8755-4072be21d4f2",
       "hash": "abd3af171a563bd1b76c4e3ff1adc540d6f7f222",
       "message": "Daily refresh: site memory update for Nova",
       "timestamp": "2025-05-22 03:52:00 +0000",
@@ -592,7 +592,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/abd3af171a563bd1b76c4e3ff1adc540d6f7f222"
     },
     {
-      "id": "9359fe3a-52fe-4692-84f6-28a914d79844",
+      "id": "451276ca-384b-4d33-bcbe-03c3659fc240",
       "hash": "a3e43bf3990ebed05cb1e8e49efc0e54b3ae837d",
       "message": "fix: update git commit scanner to capture recent commits",
       "timestamp": "2025-05-21 20:39:40 -0700",
@@ -604,7 +604,7 @@
       "url": "https://github.com/AmbientPixels/ambientpixels/commit/a3e43bf3990ebed05cb1e8e49efc0e54b3ae837d"
     }
   ],
-  "timestamp": "2025-05-23T02:07:29.267Z",
+  "timestamp": "2025-05-23T02:06:11.172Z",
   "count": 50,
-  "scanId": 1747966049267
+  "scanId": 1747965971173
 }

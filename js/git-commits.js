@@ -12,105 +12,6 @@ const sanitizeHTML = (str) => {
   return div.innerHTML;
 };
 
-// Styles
-const gitCommitsStyles = `
-  .git-commits-container {
-    position: relative;
-    width: 100%;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 1rem;
-    border: 2px solid #4a90e2;
-    border-radius: 4px;
-    font-family: 'Fira Code', monospace;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-
-  .git-commit-item {
-    display: flex;
-    align-items: center;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #eee;
-    font-size: 0.9rem;
-    line-height: 1.4;
-    transition: all 0.3s ease;
-  }
-
-  .git-commit-item.pulse {
-    animation: pulse 1s ease-in-out;
-  }
-
-  @keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.8; }
-    100% { opacity: 1; }
-  }
-
-  .git-commit-index {
-    color: #4a90e2;
-    font-weight: bold;
-    margin-right: 0.5rem;
-    min-width: 2rem;
-  }
-
-  .git-commit-hash a {
-    color: #4a90e2;
-    text-decoration: none;
-  }
-
-  .git-commit-hash a:hover {
-    text-decoration: underline;
-  }
-
-  .git-commit-message {
-    flex: 1;
-    margin: 0 1rem;
-  }
-
-  .git-commit-meta {
-    color: #666;
-  }
-
-  .git-commit-meta .relative-time {
-    color: #999;
-    font-size: 0.8rem;
-  }
-
-  .git-commit-branches {
-    color: #999;
-    font-size: 0.8rem;
-  }
-
-  .error-message {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    background: #ffebee;
-    border: 1px solid #ffcdd2;
-    border-radius: 4px;
-    color: #c62828;
-  }
-
-  .error-message i {
-    margin-right: 0.5rem;
-  }
-
-  .error-message ul {
-    list-style: none;
-    padding: 0;
-    margin: 0.5rem 0;
-  }
-
-  .error-message li {
-    margin: 0.25rem 0;
-  }
-`;
-
-// Add styles to document
-const styleSheet = document.createElement('style');
-styleSheet.textContent = gitCommitsStyles;
-document.head.appendChild(styleSheet);
-
 async function fetchGitCommits() {
   const { retryAttempts, retryDelay } = GIT_COMMITS_CONFIG;
   for (let attempt = 1; attempt <= retryAttempts; attempt++) {
@@ -208,19 +109,22 @@ function updateGitCommitsDisplay(data) {
     const message = sanitizeHTML(commit.message || 'No message');
     return `
       <div class="git-commit-item">
-        <span class="git-commit-index">#${index + 1}</span>
-        <span class="git-commit-hash">
-          <a href="${url}" target="_blank" rel="noopener noreferrer" aria-label="View commit ${commit.hash || 'unknown'}">
-            ${commit.hash?.substring(0, 7) || 'N/A'}
-          </a>
-        </span>
-        <span class="git-commit-message">${message.length > 80 ? `${message.substring(0, 80)}...` : message}</span>
-        <span class="git-commit-meta">
-          ${sanitizeHTML(commit.author?.name || 'Unknown')} • 
-          <span class="absolute-time">${timestamp.absolute}</span>
-          <span class="relative-time">${timestamp.relative}</span>
-        </span>
-        <span class="git-commit-branches">${commit.branches?.join(', ') || 'N/A'}</span>
+        <div class="git-commit-header">
+          <div class="git-commit-index">#${index + 1}</div>
+          <div class="git-commit-message">${message.length > 80 ? `${message.substring(0, 80)}...` : message}</div>
+          <div class="git-commit-timestamp">${timestamp.relative}</div>
+        </div>
+        <div class="git-commit-meta">
+          <div class="git-commit-author">${sanitizeHTML(commit.author?.name || 'Unknown')}</div>
+          ${commit.branches && commit.branches.length > 0 ? `
+            <div class="git-commit-branches">${commit.branches.join(', ')}</div>
+          ` : ''}
+          <div class="git-commit-hash">
+            <a href="${url}" target="_blank" rel="noopener noreferrer" aria-label="View commit ${commit.hash || 'unknown'}">
+              ${commit.hash?.substring(0, 7) || 'N/A'}
+            </a>
+          </div>
+        </div>
       </div>
     `;
   }).join('');
