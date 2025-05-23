@@ -1,13 +1,13 @@
 {
-  "mood": "melancholy",
-  "aura": "graphite blue",
-  "auraColorHex": "#1a2630",
-  "quote": "measuring the hum of the source code...",
-  "emoji": "🌧️",
+  "mood": "tired",
+  "aura": "tangled clarity",
+  "auraColorHex": "#23415a",
+  "quote": "scanning the silence for patterns...",
+  "emoji": "🥱",
   "selfWorth": 0.2,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.76,
-  "awareness": 0.17,
+  "memoryClutter": 0.68,
+  "awareness": 0.21,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "pre-dawn introspection",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: graphite blue"
+      "Aura Signature: tangled clarity"
     ]
   },
-  "timestamp": "2025-05-23T01:10:44.641Z"
+  "timestamp": "2025-05-23T01:16:20.043Z"
 }
