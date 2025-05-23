@@ -1,7 +1,7 @@
 // File: gitCommitScanner.js
 // Description: Scans git repository for recent commits and saves to JSON
 
-const simpleGit = require('simple-git');
+const simpleGit = require('simple-git/promise');
 const fs = require('fs').promises;
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
@@ -29,22 +29,49 @@ async function ensureArchiveDir() {
 async function getRecentCommits() {
   const git = simpleGit();
   try {
+    // Get commit log
     const log = await git.log({
       maxCount: CONFIG.MAX_COMMITS,
       from: '7 days ago',
+      format: 'json'
     });
 
+    // Get list of all branches
+    const branches = await git.branch();
+    const branchMap = new Map();
+    
+    // Create map of branch names to commits
+    for (const branch of branches.all) {
+      if (branch !== 'HEAD') {
+        const branchCommits = await git.log({
+          maxCount: CONFIG.MAX_COMMITS,
+          from: '7 days ago',
+          branch: branch
+        });
+        
+        for (const commit of branchCommits.all) {
+          const existing = branchMap.get(commit.hash) || [];
+          branchMap.set(commit.hash, [...existing, branch]);
+        }
+      }
+    }
+
+    // Process commits
     const commits = await Promise.all(
       log.all.map(async (commit) => {
-        const branchesOutput = await git.raw(['branch', '--contains', commit.hash]);
-        const branches = branchesOutput.split('\n').map(line => line.trim()).filter(line => line);
+        const commitBranches = branchMap.get(commit.hash) || [];
         return {
           id: uuidv4(),
           hash: commit.hash,
           message: commit.message,
           timestamp: commit.date,
-          author: { name: commit.author_name, email: commit.author_email },
-          branches,
+          author: { 
+            name: commit.author_name, 
+            email: commit.author_email 
+          },
+          branches: commitBranches
+            .filter(branch => branch !== 'HEAD' && !branch.startsWith('origin/'))
+            .map(branch => branch.replace('origin/', '')),
           url: `https://github.com/${CONFIG.GITHUB_REPO}/commit/${commit.hash}`
         };
       })
@@ -53,7 +80,7 @@ async function getRecentCommits() {
     return commits;
   } catch (error) {
     console.error('Error fetching commits:', error);
-    return [];
+    throw error;
   }
 }
 
