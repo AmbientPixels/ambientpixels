@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-05-23T13:31:19.958Z",
+  "timestamp": "2025-05-24T13:27:41.896Z",
   "summary": {
     "totalJS": 498,
     "totalCSS": 37,
@@ -1739,6 +1739,7 @@
     "media-grid",
     "media-item",
     "mini-hero",
+    "mini-hero-content",
     "mini-hero-img",
     "modal",
     "modal-backdrop",
@@ -1844,6 +1845,7 @@
     "video-item",
     "video-title",
     "video-wrapper",
+    "visible",
     "warn",
     "windsurf-fade-in"
   ],
