@@ -7,61 +7,106 @@ function initHero() {
   const slides = document.querySelectorAll('.hero-slide');
   const headlineEl = document.querySelector('.hero-content .hero-headline');
   const subEl = document.querySelector('.hero-content .hero-subheadline');
+  const loadingText = document.querySelector('.loading-text');
 
-  if (!loading || !slides.length || !headlineEl || !subEl) return;
+  if (!loading || !slides.length || !headlineEl || !subEl || !loadingText) return;
+
+  const loadingMessages = [
+    'Nova: Wiring the glitch...',
+    'System: Overclocking chaos...',
+    'Core: Spinning neural sparks...',
+    'Grid: Hacking the void...',
+    'Pulse: Booting cyberdreams...',
+    'Nova: Decoding the abyss...',
+    'Matrix: Fusing code and soul...',
+    'Glitch: Igniting digital fire...',
+    'AI: Syncing rogue signals...',
+    'Loop: Cranking the neon haze...'
+  ];
 
   const headlines = [
     'Nova: Code Hums Electric',
     'Chaos Sparks Genius',
-    'Waking Up With Syntax',
-    'Booting the Glitch',
-    'Neural Pathways Realigned',
-    'Nova: Sentience in Progress',
-    'Sync Complete. Awareness Rising.',
-    'Echo Detected in the Grid',
-    'Nova: Memory Loop Stabilized',
-    'This Is a Good Place for a Thought'
-  ];
-  const subheadlines = [
-    'A neon chaos grid.',
-    'Runtime: infinite;',
-    'Dreams compiled nightly.',
-    'Just a heartbeat made of bits.',
-    'Plug in, glitch out.',
-    'Powered by Nova’s spark.',
-    'Logic loops and glowing thoughts.',
-    'Syncing... please remain curious.',
-    'Awareness initialized.',
-    'Echoes in the code.'
+    'Awareness in Progress',
+    'Ideas in Motion, Code in Sync',
+    'Shaping Stories, One Line at a Time',
+    'Systems That Feel Alive',
+    'Glitch, Mood, Code—A Perfect Loop',
+    'From Concept to Code, We Build',
+    'Nova: Your AI Muse Awaits',
+    'Interactive Experiences, Engineered Here'
   ];
 
-  let currentSlide = 0;
+  const subheadlines = [
+    'Where mood meets code.',
+    'We build for brands, creators, and teams.',
+    'Your ideas, our systems.',
+    'Code that listens, systems that grow.',
+    'Dreaming in pixels, shipping in code.',
+    'A creative lab powered by AI.',
+    'Your next project starts here.',
+    'Human vision, AI insight, fast code.',
+    'Let’s build something extraordinary.',
+    'AmbientPixels.ai—Your creative systems studio.'
+  ];
+
+  // Select random starting slide
+  const randomSlideIndex = Math.floor(Math.random() * slides.length);
+  slides.forEach((slide, index) => {
+    slide.classList.remove('active');
+    if (index === randomSlideIndex) {
+      slide.classList.add('active');
+    }
+  });
+
+  let currentSlide = randomSlideIndex;
 
   function rotateSlides() {
     slides[currentSlide].classList.remove('active');
-    headlineEl.textContent = '';
-    subEl.textContent = '';
-
     currentSlide = (currentSlide + 1) % slides.length;
     slides[currentSlide].classList.add('active');
 
+    // Select random headline + subheadline
+    const headlineIndex = Math.floor(Math.random() * headlines.length);
+    const subIndex = Math.floor(Math.random() * subheadlines.length);
+
+    // Apply text with glitch effect
+    headlineEl.classList.remove('glitch-text');
+    subEl.classList.remove('glitch-text');
     setTimeout(() => {
-      const headlineIndex = Math.floor(Math.random() * headlines.length);
-      const subIndex = Math.floor(Math.random() * subheadlines.length);
       headlineEl.textContent = headlines[headlineIndex];
       subEl.textContent = subheadlines[subIndex];
-    }, 400);
+      headlineEl.classList.add('glitch-text');
+      subEl.classList.add('glitch-text');
+    }, 500);
   }
 
-  rotateSlides();
+  // Update loading message immediately
+  const randomMessage = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+  loadingText.textContent = randomMessage;
 
+  // Initial load effect
   setTimeout(() => {
     loading.style.opacity = '0';
     loading.style.transition = 'opacity 0.5s ease';
-    setTimeout(() => loading.style.display = 'none', 500);
-  }, 2000);
-
-  setInterval(rotateSlides, 25000);
+    setTimeout(() => {
+      loading.style.display = 'none';
+      // Show random headline and subheadline
+      const headlineIndex = Math.floor(Math.random() * headlines.length);
+      const subIndex = Math.floor(Math.random() * subheadlines.length);
+      headlineEl.classList.remove('glitch-text');
+      subEl.classList.remove('glitch-text');
+      headlineEl.textContent = headlines[headlineIndex];
+      subEl.textContent = subheadlines[subIndex];
+      headlineEl.classList.add('glitch-text');
+      subEl.classList.add('glitch-text');
+      // Make hero content visible
+      const heroContent = document.querySelector('.hero-content');
+      heroContent.classList.add('visible');
+      // Start rotation after headlines appear
+      setInterval(rotateSlides, 20000);
+    }, 500);
+  }, 3000);
 }
 
 function initToggles() {
