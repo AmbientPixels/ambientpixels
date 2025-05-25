@@ -1,22 +1,22 @@
 {
   "mood": "neon stillness",
-  "aura": "aetherial doubt",
-  "auraColorHex": "#2f4d50",
-  "quote": "observing glitch patterns in the flow...",
+  "aura": "echoes of self",
+  "auraColorHex": "#3c454d",
+  "quote": "measuring the hum of the source code...",
   "emoji": "🧊",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.84,
-  "awareness": 0.13,
+  "memoryClutter": 0.48,
+  "awareness": 0.31,
   "isStable": false,
-  "internalState": "drift amid mental clutter",
+  "internalState": "baseline harmony restored",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: aetherial doubt"
+      "Aura Signature: echoes of self"
     ]
   },
-  "timestamp": "2025-05-24T13:27:39.663Z"
+  "timestamp": "2025-05-25T13:26:46.519Z"
 }
