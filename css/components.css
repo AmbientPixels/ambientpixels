@@ -527,23 +527,46 @@ body[data-theme="light"] .git-commit-item {
   font-size: 1.5rem;
   color: #5ae4ff;
   text-shadow: 0 0 3px rgba(90, 228, 255, 0.3);
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
   display: inline-block;
   vertical-align: middle;
+  cursor: pointer;
+  padding-left: 1.5rem;
+}
+
+.section-header h2 i {
+  margin-right: 0.5rem;
+}
+
+.section-header h2:hover {
+  color: #9bf0ff;
+  text-shadow: 0 0 5px rgba(90, 228, 255, 0.5);
+}
+
+.section-header {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.section-header:hover {
+  background: rgba(90, 228, 255, 0.05);
+  border-radius: 4px;
+}
+
+.section-header button {
+  pointer-events: none;
 }
 
 .section-header button {
   background: none;
-  border: 1px solid #5ae4ff;
-  padding: 0.5rem 1rem;
+  border: none;
+  padding: 0.5rem;
   cursor: pointer;
   color: #5ae4ff;
-  transition: all 0.3s ease;
   font-size: 1rem;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border-radius: 4px;
 }
 
 .section-header .toggle-all-btn {
