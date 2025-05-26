@@ -48,7 +48,22 @@ main,
 
 #nova-pulse-bar.sticky {
   position: sticky;
-  top: 94px;
+  top: 110px;
+  z-index: 9999;
+}
+
+/* Adjust sticky position for mobile view */
+@media (max-width: 768px) {
+  #nova-pulse-bar.sticky {
+    top: 85px;
+  }
+}
+
+/* Adjust for very small screens */
+@media (max-width: 350px) {
+  #nova-pulse-bar.sticky {
+    top: 130px;
+  }
 }
 
 #nova-pulse-bar::before {
