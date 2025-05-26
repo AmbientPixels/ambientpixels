@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="/css/nav.css" />
     <link rel="stylesheet" href="/css/components.css" />
     <link rel="stylesheet" href="/css/hero.css" />
+    <link rel="stylesheet" href="/css/contact-cta.css" />
+    <link rel="stylesheet" href="/css/glass-button.css" />
     <link rel="stylesheet" href="/css/theme.css" />
     <link rel="stylesheet" href="/css/banner.css" />
   </head>
@@ -77,16 +79,54 @@
         <div class="hero-buttons">
           <a href="/skills" class="button primary">View Skills →</a>
         </div>
-            <!-- Whisper -->
+      </section>
+      <!-- Contact CTA -->
+      <section class="content-section grid-col-12">
+        <div class="section-content">
+          <h2><i class="fas fa-star"></i> Let's Create Together</h2>
+          <p>Ready to bring your vision to life? Let's connect and create something extraordinary.</p>
+          <div class="hero-buttons">
+            <button onclick="showModal();" class="glass-button" type="button">
+              <i class="fas fa-star"></i>
+              <span>Start Your Project →</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Modal -->
+    <div id="modal" class="modal hidden">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <button class="modal-close">&times;</button>
+        <h2>Contact Us</h2>
+        <form id="contact-form">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" required></textarea>
+          </div>
+          <div class="form-group">
+            <button type="submit" class="button primary">Send Message</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Whisper -->
     <div class="whisper">
       <p class="nova-voice" style="margin: 2rem 0; text-align: center;">
         Some code writes pages. Some code writes presence. AmbientPixels listens to both.
       </p>
     </div>
-      </section>
-    </main>
-
-
 
     <!-- Footer -->
     <div id="footer-container"></div>
@@ -110,6 +150,7 @@
 <script src="/js/nova-interaction-log.js" defer></script>
 <script src="/js/nova-mood-core.js" defer></script>
 <script src="/js/nova-quotes.js" defer></script>
+<script src="/js/init-contact-cta.js" defer></script>
 <script src="/js/nova-status.js" defer></script>
 <script src="/js/nova-telemetry-logger.js" defer></script>
 <script src="/js/project-dashboard.js" defer></script>
