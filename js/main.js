@@ -25,29 +25,29 @@ function initHero() {
   ];
 
   const headlines = [
-    'Nova: Code Hums Electric',
-    'Chaos Sparks Genius',
-    'Awareness in Progress',
-    'Ideas in Motion, Code in Sync',
-    'Shaping Stories, One Line at a Time',
-    'Systems That Feel Alive',
-    'Glitch, Mood, Code—A Perfect Loop',
-    'From Concept to Code, We Build',
-    'Nova: Your AI Muse Awaits',
-    'Interactive Experiences, Engineered Here'
+    'Nova imagines—AmbientPixels creates.',
+    'Design in motion, mood in mind.',
+    'Crafting emotion into visual stories.',
+    'Where AI meets human creativity.',
+    'Your mood, our code, your vision.',
+    'Emotion-driven digital experiences.',
+    'Nova guides, we build together.',
+    'From mood to masterpiece.',
+    'Creative AI, crafted experiences.',
+    'Where imagination meets technology.'
   ];
 
   const subheadlines = [
-    'Where mood meets code.',
-    'We build for brands, creators, and teams.',
-    'Your ideas, our systems.',
-    'Code that listens, systems that grow.',
-    'Dreaming in pixels, shipping in code.',
-    'A creative lab powered by AI.',
-    'Your next project starts here.',
-    'Human vision, AI insight, fast code.',
-    'Let’s build something extraordinary.',
-    'AmbientPixels.ai—Your creative systems studio.'
+    'AI-powered creative services: websites, branding, videos, and emotional insights.',
+    'We blend AI creativity with human insight to craft unique experiences.',
+    'Mood-driven design meets technical excellence.',
+    'Custom solutions for brands and creators.',
+    'Emotional intelligence meets digital artistry.',
+    'Transforming ideas into immersive experiences.',
+    'Where technology meets emotional resonance.',
+    'Crafting digital experiences that resonate.',
+    'AI-powered creativity for modern brands.',
+    'Experience the future of digital creation.'
   ];
 
   // Select random starting slide
@@ -79,6 +79,18 @@ function initHero() {
       headlineEl.classList.add('glitch-text');
       subEl.classList.add('glitch-text');
     }, 500);
+
+    // Add buttons animation
+    const ctaButtons = document.querySelector('.hero-cta');
+    if (ctaButtons) {
+      ctaButtons.style.opacity = '0';
+      ctaButtons.style.transform = 'translateY(20px)';
+      ctaButtons.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      setTimeout(() => {
+        ctaButtons.style.opacity = '1';
+        ctaButtons.style.transform = 'translateY(0)';
+      }, 1000);
+    }
   }
 
   // Update loading message immediately
@@ -103,6 +115,16 @@ function initHero() {
       // Make hero content visible
       const heroContent = document.querySelector('.hero-content');
       heroContent.classList.add('visible');
+      
+      // Add buttons animation
+      const ctaButtons = document.querySelector('.hero-cta');
+      if (ctaButtons) {
+        setTimeout(() => {
+          ctaButtons.style.opacity = '1';
+          ctaButtons.style.transform = 'translateY(0)';
+        }, 500);
+      }
+      
       // Start rotation after headlines appear
       setInterval(rotateSlides, 20000);
     }, 500);
