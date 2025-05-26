@@ -132,24 +132,49 @@ function initHero() {
 }
 
 function initToggles() {
+  // Initialize individual toggle buttons
   const toggleButtons = document.querySelectorAll('.toggle-btn');
   toggleButtons.forEach(button => {
-    // Initialize content display based on aria-expanded
     const section = button.closest('.content-section');
     const content = section.querySelector('.content');
     const isExpanded = button.getAttribute('aria-expanded') === 'true';
+    
+    // Initialize content visibility
     content.style.display = isExpanded ? 'block' : 'none';
-
+    
     // Set up click handler
     button.addEventListener('click', () => {
       const newIsExpanded = button.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
       button.setAttribute('aria-expanded', newIsExpanded);
       content.style.display = newIsExpanded === 'true' ? 'block' : 'none';
-      
-      // Add smooth transition
-      content.style.transition = 'display 0.3s ease-in-out';
     });
   });
+
+  // Add toggle all button
+  const toggleAllBtn = document.createElement('button');
+  toggleAllBtn.className = 'toggle-all-btn';
+  toggleAllBtn.innerHTML = '<i class="fas fa-angle-double-down"></i> Expand All';
+  toggleAllBtn.addEventListener('click', () => {
+    const allButtons = document.querySelectorAll('.toggle-btn');
+    const allExpanded = Array.from(allButtons).every(btn => btn.getAttribute('aria-expanded') === 'true');
+    
+    allButtons.forEach(button => {
+      const newIsExpanded = !allExpanded;
+      button.setAttribute('aria-expanded', newIsExpanded);
+      const content = button.closest('.content-section').querySelector('.content');
+      content.style.display = newIsExpanded ? 'block' : 'none';
+    });
+    
+    // Update toggle all button text and icon
+    toggleAllBtn.classList.toggle('expanded');
+    toggleAllBtn.innerHTML = allExpanded ? '<i class="fas fa-angle-double-up"></i> Expand All' : '<i class="fas fa-angle-double-down"></i> Collapse All';
+  });
+
+  // Add toggle all button to the first section header
+  const firstSectionHeader = document.querySelector('.section-header');
+  if (firstSectionHeader) {
+    firstSectionHeader.appendChild(toggleAllBtn);
+  }
 }
 
 function initVersion() {

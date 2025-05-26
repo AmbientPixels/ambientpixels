@@ -527,30 +527,55 @@ body[data-theme="light"] .git-commit-item {
   font-size: 1.5rem;
   color: #5ae4ff;
   text-shadow: 0 0 3px rgba(90, 228, 255, 0.3);
-}
-
-.section-header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: #5ae4ff;
-  transform: rotate(-90deg);
-  transition: transform 0.3s ease;
+  transition: color 0.3s ease;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .section-header button {
   background: none;
-  border: none;
-  padding: 0.5rem;
+  border: 1px solid #5ae4ff;
+  padding: 0.5rem 1rem;
   cursor: pointer;
   color: #5ae4ff;
-  transition: color 0.3s ease;
-  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 4px;
+}
+
+.section-header .toggle-all-btn {
+  margin-left: 1rem;
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #5ae4ff;
+  background: rgba(90, 228, 255, 0.1);
+  color: #5ae4ff;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 4px;
+}
+
+.section-header .toggle-all-btn:hover {
+  background: rgba(90, 228, 255, 0.2);
+  color: #9bf0ff;
+}
+
+.section-header .toggle-all-btn i {
+  transition: transform 0.3s ease;
+}
+
+.section-header .toggle-all-btn.expanded i {
+  transform: rotate(180deg);
 }
 
 .section-header button:hover {
+  background: rgba(90, 228, 255, 0.1);
   color: #9bf0ff;
-  transform: rotate(-90deg);
-  transition: transform 0.3s ease;
 }
 
 .section-header button[aria-expanded="false"] {
