@@ -331,24 +331,77 @@ body[data-theme="light"] .project-section:hover {
   font-size: 1.5rem;
 }
 
+/* Video wrapper - consolidated styles */
 .video-wrapper {
   position: relative;
   width: 100%;
+  max-width: 800px;
   padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
   margin: 0 auto;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  background: rgba(0, 0, 0, 0.1);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-.video-wrapper video {
+.video-wrapper video,
+.video-wrapper iframe {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  border: none;
+  border-radius: inherit;
+  background-color: transparent;
+}
+
+.video-wrapper video {
   object-fit: cover;
-  border-radius: 8px;
+  background-color: transparent;
+}
+
+/* Video poster/thumbnail styles - adjusted to contain image */
+.video-wrapper video[poster] {
+  object-fit: contain;
+  object-position: center;
+  background-color: #0a0a0a;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(45deg, #0a0a0a 25%, #1a1a1a 25%, #1a1a1a 50%, #0a0a0a 50%, #0a0a0a 75%, #1a1a1a 75%);
+  background-size: 20px 20px;
+  transition: opacity 0.3s ease;
+}
+
+/* Show a subtle loading state while poster loads */
+.video-wrapper video[poster]:not([src]) {
+  opacity: 0.7;
+}
+
+/* Add a play button overlay for better UX */
+.video-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 64px;
+  background: rgba(0, 0, 0, 0.6) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M8 5v14l11-7z'/%3E%3C/svg%3E") no-repeat center center;
+  background-size: 24px 24px;
+  border-radius: 50%;
+  opacity: 0.8;
+  transition: all 0.2s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.video-wrapper:hover::before {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.1);
 }
 
 .video-grid {
@@ -373,23 +426,7 @@ body[data-theme="light"] .project-section:hover {
   padding: 0 1rem;
 }
 
-.video-wrapper {
-  position: relative;
-  padding-top: 56.25%; /* 16:9 aspect ratio */
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.video-wrapper iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-  border-radius: 12px;
-}
+/* Removed duplicate .video-wrapper styles - consolidated above */
 
 .tech-stack {
   display: flex;
@@ -713,6 +750,89 @@ body[data-theme="light"] .project-section:hover {
   .related-projects {
     grid-template-columns: 1fr;
   }
+}
+
+/* YouTube Channel Overview */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  border-color: rgba(75, 202, 255, 0.3);
+}
+
+.card-icon {
+  font-size: 2rem;
+  color: #4bcaff;
+  margin-bottom: 1rem;
+}
+
+.card h3 {
+  font-size: 1.25rem;
+  margin: 0 0 1rem 0;
+  color: #fff;
+}
+
+.card-links {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+}
+
+.card-links li {
+  margin-bottom: 0.5rem;
+}
+
+.card-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  color: #e0e0e0;
+  transition: color 0.2s ease;
+}
+
+.card-link:hover {
+  color: #4bcaff;
+  text-decoration: none;
+}
+
+.card-link i {
+  width: 1.25rem;
+  text-align: center;
+}
+
+.card-quote {
+  font-style: italic;
+  margin: 1rem 0 0 0;
+  opacity: 0.8;
+  font-size: 0.9rem;
+  color: #b0b0b0;
+}
+
+.section-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.section-subtitle {
+  color: #b0b0b0;
+  max-width: 700px;
+  margin: 0.5rem auto 0;
+  line-height: 1.6;
 }
 
 @media (max-width: 600px) {

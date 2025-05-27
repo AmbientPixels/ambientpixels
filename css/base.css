@@ -242,18 +242,6 @@ body[data-theme="light"] #nova-intro {
   padding: 20px;
 }
 
-.grid-col-12 {
-  grid-column: span 12; /* Full-width item */
-}
-
-.grid-col-6 {
-  grid-column: span 6; /* Half-width item */
-}
-
-.grid-col-4 {
-  grid-column: span 4; /* 33.33% width */
-}
-
 .grid-row {
   display: flex;
   flex-wrap: wrap;
@@ -261,10 +249,6 @@ body[data-theme="light"] #nova-intro {
 }
 
 @media (max-width: 768px) {
-  .grid-col-6 {
-    grid-column: span 12; /* Full width on mobile */
-  }
-
   .grid-container {
     grid-template-columns: 1fr; /* 1 column on small screens */
   }
