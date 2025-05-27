@@ -1,5 +1,218 @@
-/* File: /css/projects.css - Ambient Pixels v2.3 - May 14, 2025 */
+/* File: /css/projects.css - Ambient Pixels v2.3 - May 26, 2025 */
 /* Project-specific styles for sub-pages, aligned with nova-pulse aesthetic */
+
+/* ===== Base Reset ===== */
+button,
+[type="button"],
+[type="submit"],
+[type="reset"],
+[role="button"],
+.btn {
+  /* Reset button styles */
+  appearance: none;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  line-height: inherit;
+  margin: 0;
+  outline: none;
+  padding: 0;
+  text-align: left;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Remove all text decorations */
+a,
+button,
+[class*="btn"] {
+  text-decoration: none !important;
+}
+
+a:hover,
+a:focus,
+a:active,
+button:hover,
+button:focus,
+button:active,
+[class*="btn"]:hover,
+[class*="btn"]:focus,
+[class*="btn"]:active {
+  text-decoration: none !important;
+  outline: none !important;
+}
+
+/* Project-specific button overrides */
+.project-buttons a,
+.project-buttons button,
+.project-buttons .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  text-decoration: none !important;
+}
+
+/* Remove underline from all links within buttons */
+a.btn,
+a.btn:hover,
+a.btn:focus,
+a.btn:active,
+button a,
+button a:hover,
+button a:focus,
+button a:active,
+.project-buttons a,
+.project-buttons a:hover,
+.project-buttons a:focus,
+.project-buttons a:active {
+  text-decoration: none !important;
+  -webkit-text-decoration: none !important;
+  -moz-text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-underline-offset: 0 !important;
+  text-decoration-thickness: 0 !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border-bottom: none !important;
+}
+
+/* Reset any potential underline effects on pseudo-elements */
+a.btn::after,
+a.btn::before,
+button a::after,
+button a::before,
+.project-buttons a::after,
+.project-buttons a::before {
+  content: none !important;
+  display: none !important;
+}
+
+/* Ensure icons within buttons don't have underlines */
+.project-buttons a i,
+.project-buttons button i {
+  text-decoration: none !important;
+}
+
+/* Ensure no underlines on buttons */
+button,
+button:hover,
+button:focus,
+button:active,
+.btn,
+.btn:hover,
+.btn:focus,
+.btn:active,
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-secondary,
+.btn-secondary:hover,
+.btn-secondary:focus,
+.btn-secondary:active {
+  text-decoration: none !important;
+  -webkit-text-decoration: none !important;
+  -moz-text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-decoration-thickness: 0 !important;
+  text-underline-offset: 0 !important;
+  text-decoration-color: transparent !important;
+}
+
+/* Ensure primary button background is visible */
+.project-buttons > .btn-primary,
+.project-buttons > .btn-primary:hover {
+  background: linear-gradient(135deg, #3a7bd5, #8e44ad) !important;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  background-clip: padding-box !important;
+}
+
+.project-buttons > .btn-primary:hover {
+  background: linear-gradient(135deg, #2c6ecb, #7d3c98) !important;
+}
+
+/* More specific primary button hover */
+.project-buttons > .btn.btn-primary:hover,
+.project-buttons > .btn.btn-primary:focus,
+.project-buttons > .btn.btn-primary:active {
+  background: transparent !important;
+  background-image: none !important;
+  color: #4bcaff !important;
+  border: 1px solid #4bcaff !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Remove any text decoration on hover */
+.project-buttons > .btn.btn-primary:hover * {
+  text-decoration: none !important;
+}
+
+/* Content Sections */
+.content-section {
+  margin-bottom: 2.5rem;
+  background: var(--card-bg, #1e1e2e);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.content-section h2 {
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  color: var(--text-color, #fff);
+}
+
+/* Project Buttons */
+.project-buttons a,
+.project-card a,
+.btn-primary,
+.btn-secondary {
+  text-decoration: none !important;
+  -webkit-text-decoration: none !important;
+  text-decoration-line: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 4px !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.project-buttons a:hover,
+.project-card a:hover,
+.btn-primary:hover,
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Toggle Button Styles */
+.toggle-btn {
+  color: var(--text-color, #fff);
+  font-size: 1.2rem;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
 
 .project-section {
   background: rgba(255, 255, 255, 0.05); /* Frosted glass from content-section */
@@ -361,20 +574,37 @@ body[data-theme="light"] .project-section:hover {
   transform: scale(1.05);
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, #7df9ff, #ff70a6); /* Nova-pulse gradient */
-  color: #fff;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
+/* Primary Button */
+.btn {
+  font-weight: 400; /* Changed from 600 to 400 for normal weight */
   text-decoration: none;
-  font-weight: 500;
   display: inline-block;
-  transition: background 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 0.25rem;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, 
+              border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-.btn-primary:hover {
-  background: linear-gradient(135deg, #ff70a6, #7df9ff);
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+.btn-primary {
+  background: linear-gradient(135deg, #3a7bd5, #8e44ad) !important; /* Deeper blue to purple gradient */
+  color: #ffffff !important; /* White text */
+  font-weight: 400;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  text-decoration: none !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
 }
 
 .btn-secondary {

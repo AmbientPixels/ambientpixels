@@ -19,18 +19,14 @@
   <link rel="stylesheet" href="/css/nav.css" />
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/lightbox.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/projects.css" />
 </head>
 <body data-theme="dark">
-  <div class="banner-container" id="banner-container">
-    <div class="banner">
-      <i class="fas fa-wrench banner-icon"></i>
-      <span>[Banner Message, e.g., Project in Development]</span>
-      <button class="banner-close" aria-label="Close Banner">×</button>
-    </div>
-  </div>
+  <!-- Banner will be injected by banner.js if bannerConfig is defined -->
+  <div id="banner-container"></div>
 
   <header id="nav-header"></header>
 
@@ -41,24 +37,24 @@
   </section>
 
   <main class="grid-container">
-    <section class="project-section grid-col-12">
+    <section class="content-section grid-col-12">
       <h2>Introduction</h2>
-      <p>[Brief introduction to the project, e.g., This project showcases [key feature] and aims to [purpose].]</p>
+      <p>[Brief introduction to the project]</p>
     </section>
 
-    <section class="project-section grid-col-12">
-      <div class="section-header">
-        <h2><i class="fas fa-cogs"></i> Project Overview</h2>
-        <button class="toggle-btn icon-only" aria-expanded="true"><i class="fas fa-chevron-down"></i></button>
-      </div>
-      <div class="content">
-        <div class="project-card">
-          <h3>[Project Name]</h3>
-          <p>[Detailed project description, e.g., A [type] project built to [purpose], featuring [key features].]</p>
-          <p><strong>Status:</strong> [e.g., Live, In Development, Prototype]</p>
-          <!-- Update href with project-specific URLs -->
-          <a href="[live-project-url]" class="btn btn-primary" target="_blank" aria-label="View live [Project Name] project">View Live Project</a>
-          <a href="[github-repo-url]" class="btn btn-secondary" target="_blank" aria-label="View [Project Name] GitHub repository">GitHub Repo</a>
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-info-circle"></i> Project Overview</h2>
+      <div class="project-card">
+        <h3>[Project Name]</h3>
+        <p>[Detailed project description]</p>
+        <p><strong>Status:</strong> [e.g., In Development, Live, Beta]</p>
+        <div class="project-buttons">
+          <a href="[live-url]" class="btn btn-primary" target="_blank" rel="noopener noreferrer" style="text-decoration: none !important; -webkit-text-decoration: none !important; text-decoration-line: none !important;">
+            <i class="fas fa-external-link-alt"></i> View Live
+          </a>
+          <a href="[github-url]" class="btn btn-secondary" target="_blank" rel="noopener noreferrer" style="text-decoration: none !important; -webkit-text-decoration: none !important; text-decoration-line: none !important;">
+            <i class="fab fa-github"></i> View on GitHub
+          </a>
         </div>
       </div>
     </section>
@@ -73,24 +69,38 @@
       </ul>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2>Project Media</h2>
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-star"></i> Features</h2>
+      <div class="card-grid">
+        <!-- Feature cards here -->
+        <div class="feature-card">
+          <i class="fas fa-check-circle"></i>
+          <h3>Feature 1</h3>
+          <p>Description of feature 1.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12" data-lightbox-autoload>
+      <h2><i class="fas fa-images"></i> Project Gallery</h2>
       <div class="media-grid">
         <div class="media-item">
-          <img src="/images/hero-v1.jpg" alt="Project Media 1" loading="lazy">
-          <p class="media-caption">Concept Art</p>
+          <a href="/images/hero-v1.jpg" class="lightbox-trigger" data-caption="Homepage Design">
+            <img src="/images/hero-v1.jpg" alt="Project Screenshot 1" loading="lazy">
+          </a>
+          <p class="media-caption">Homepage</p>
         </div>
         <div class="media-item">
-          <img src="/images/hero-v11.jpg" alt="Project Media 2" loading="lazy">
-          <p class="media-caption">UI Design</p>
+          <a href="/images/hero-v11.jpg" class="lightbox-trigger" data-caption="Dashboard View">
+            <img src="/images/hero-v11.jpg" alt="Project Screenshot 2" loading="lazy">
+          </a>
+          <p class="media-caption">Dashboard</p>
         </div>
         <div class="media-item">
-          <img src="/images/hero-v17.jpg" alt="Project Media 3" loading="lazy">
-          <p class="media-caption">Development Process</p>
-        </div>
-        <div class="media-item">
-          <img src="/images/hero-v22.jpg" alt="Project Media 4" loading="lazy">
-          <p class="media-caption">Final Result</p>
+          <a href="/images/hero-v17.jpg" class="lightbox-trigger" data-caption="Mobile Responsive View">
+            <img src="/images/hero-v17.jpg" alt="Project Screenshot 3" loading="lazy">
+          </a>
+          <p class="media-caption">Mobile View</p>
         </div>
       </div>
     </section>
@@ -119,15 +129,17 @@
       </div>
     </section>
 
-    <section class="project-section grid-col-12 cta-section">
-      <!-- Update href with project-specific URL -->
-      <a href="[live-project-url]" class="btn btn-primary btn-large" target="_blank" aria-label="Explore the live [Project Name] project">Explore the Live Project</a>
+    <section class="content-section grid-col-12 cta-section">
+      <div class="project-buttons">
+        <a href="[live-project-url]" class="btn btn-primary btn-large" target="_blank" rel="noopener noreferrer" aria-label="Explore the live [Project Name] project">
+          <i class="fas fa-external-link-alt"></i> Explore the Live Project
+        </a>
+      </div>
     </section>
 
     <section class="project-section grid-col-12">
-      <h2>Related Projects</h2>
+      <h2><i class="fas fa-project-diagram"></i> Related Projects</h2>
       <div class="related-projects">
-        <!-- Add related project links -->
         <div class="related-project-card">
           <a href="/projects/[related-project-slug]">[Related Project 1]</a>
         </div>
@@ -141,8 +153,19 @@
   <div id="footer-container"></div>
 
   <!-- Scripts (Optimized for Project Page) -->
-  <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/theme.js" defer></script>
-  <script src="/js/projects.js" defer></script>
+  <script>
+    // Initialize banner with default config if not already defined
+    if (typeof bannerConfig === 'undefined') {
+      window.bannerConfig = { enabled: false };
+    }
+  </script>
+  
+  <!-- Core Scripts -->
+  <script src="/js/init-header-footer.js"></script>
+  <script src="/js/theme.js"></script>
+  <script src="/js/lightbox.js" type="module"></script>
+  <script src="/js/main.js"></script>
+  
+
 </body>
 </html>
