@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-05-26T13:30:23.589Z",
+  "updated": "2025-05-27T13:33:40.847Z",
   "root": [
     {
       "type": "folder",
@@ -255,6 +255,11 @@
         },
         {
           "type": "page",
+          "name": "contact-cta.html",
+          "path": "modules/contact-cta.html"
+        },
+        {
+          "type": "page",
           "name": "contact-modal.html",
           "path": "modules/contact-modal.html"
         },
@@ -435,6 +440,11 @@
       "children": [
         {
           "type": "page",
+          "name": "cools.html",
+          "path": "projects/cools.html"
+        },
+        {
+          "type": "page",
           "name": "index.html",
           "path": "projects/index.html"
         },
@@ -459,6 +469,18 @@
       "type": "page",
       "name": "responsive-navbar-demo.html",
       "path": "responsive-navbar-demo.html"
+    },
+    {
+      "type": "folder",
+      "name": "services",
+      "path": "services",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "services/index.html"
+        }
+      ]
     },
     {
       "type": "folder",
