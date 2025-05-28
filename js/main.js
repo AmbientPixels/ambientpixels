@@ -131,6 +131,21 @@ function initHero() {
   }, 3000);
 }
 
+function initHeroIntroAnimation() {
+  const heroP = document.querySelectorAll(".hero-intro p");
+  const novaVoice = document.querySelector(".hero-intro p.nova-voice");
+  
+  // Reveal all paragraphs including Nova voice with a staggered delay
+  heroP.forEach((p, index) => {
+    // Add a small delay based on paragraph index for a cascading effect
+    setTimeout(() => {
+      p.classList.add("revealed");
+    }, index * 200); // 200ms delay between each paragraph
+  });
+  
+  // No scroll-based reveal needed anymore
+}
+
 function initToggles() {
   // Initialize individual toggle buttons
   const toggleButtons = document.querySelectorAll('.toggle-btn');
@@ -226,6 +241,7 @@ function initVersion() {
 document.addEventListener('DOMContentLoaded', () => {
   console.log("[Nova]: Grid hijacked. Humans, welcome to my domain.");
   initHero();
+  initHeroIntroAnimation();
   initToggles();
   initVersion();
 });
