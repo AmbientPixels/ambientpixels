@@ -212,9 +212,10 @@ function initToggles() {
     toggleAllBtn.innerHTML = newIsExpanded ? '<i class="fas fa-angle-double-up"></i> Collapse All' : '<i class="fas fa-angle-double-down"></i> Expand All';
   });
 
-  // Add toggle all button to the first section header
+  // Add toggle all button to the first section header, but skip project pages
   const firstSectionHeader = document.querySelector('.section-header');
-  if (firstSectionHeader) {
+  const isProjectPage = window.location.pathname.includes('/projects/');
+  if (firstSectionHeader && !isProjectPage) {
     firstSectionHeader.appendChild(toggleAllBtn);
   }
 }
