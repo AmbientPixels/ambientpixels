@@ -575,6 +575,14 @@ body[data-theme="light"] .git-commit-item {
   font-weight: 500;
 }
 
+.form-disclaimer {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #aaa;
+  text-align: center;
+  line-height: 1.4;
+}
+
 /* Section Header */
 .section-header {
   display: flex;
@@ -1387,4 +1395,3 @@ body[data-theme="light"] .nova-quip {
   white-space: pre-wrap;
   transition: background 0.5s ease, color 0.5s ease;
 }
-

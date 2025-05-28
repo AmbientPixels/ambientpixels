@@ -1,21 +1,23 @@
 // File: /js/modal-window.js – Modal logic
 
-function showModal() {
+function showModal(modalId = "modal") {
   // Try to find the modal
-  let modal = document.getElementById("modal");
+  let modal = document.getElementById(modalId);
   
   // If modal doesn't exist yet (might be loading asynchronously)
   if (!modal) {
     // Check if it's in the modal container
-    const container = document.getElementById("modal-container");
-    if (container && container.querySelector(".modal")) {
-      modal = container.querySelector(".modal");
-      // Fix the ID to match what we expect
-      modal.id = "modal";
+    const container = document.getElementById("modal-container") || document.getElementById(modalId + "-container");
+    if (container && container.querySelector(`#${modalId}, .modal`)) {
+      modal = container.querySelector(`#${modalId}`) || container.querySelector(".modal");
+      // Fix the ID to match what we expect if needed
+      if (modalId === "modal" && modal.id !== "modal") {
+        modal.id = "modal";
+      }
     } else {
       // Modal might still be loading, try again in a moment
-      console.log("Modal not found, trying again in 100ms...");
-      setTimeout(showModal, 100);
+      console.log(`Modal ${modalId} not found, trying again in 100ms...`);
+      setTimeout(() => showModal(modalId), 100);
       return;
     }
   }
@@ -25,8 +27,10 @@ function showModal() {
   modal.classList.add("active");
 }
 
-function closeModal() {
-  const modal = document.getElementById("modal");
+function closeModal(modalId = "modal") {
+  // Try to find the specified modal or the default one
+  const modal = document.getElementById(modalId) || document.getElementById("modal");
+  
   if (modal) {
     // Remove active class first
     modal.classList.remove("active");
@@ -45,43 +49,47 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // For dynamically loaded modals, we need to check again after a short delay
   setTimeout(setupModalListeners, 500);
+  
+  // And check again after a longer delay for any modals loaded by scripts
+  setTimeout(setupModalListeners, 1500);
 });
 
 function setupModalListeners() {
-  const modal = document.getElementById("modal") || document.querySelector(".modal");
-  if (!modal) return; // Modal not found, might be loaded later
+  // Find all modals in the document
+  const modals = document.querySelectorAll(".modal");
   
-  const closeButtons = document.querySelectorAll(".modal-close");
-  const overlay = modal.querySelector(".modal-overlay") || modal.querySelector(".modal-backdrop");
-
-  if (!overlay) return; // Overlay not found
-
-  // Close when clicking the close button
-  closeButtons.forEach(button => {
-    // Remove existing listeners to prevent duplicates
-    button.removeEventListener("click", closeModal);
-    // Add new listener
-    button.addEventListener("click", closeModal);
+  modals.forEach(modal => {
+    const modalId = modal.id;
+    if (!modalId) return; // Skip modals without IDs
+    
+    const closeButtons = modal.querySelectorAll(".modal-close");
+    const overlay = modal.querySelector(".modal-backdrop, .modal-overlay");
+    
+    // Close when clicking the close button
+    closeButtons.forEach(button => {
+      button.onclick = function() {
+        closeModal(modalId);
+      };
+    });
+    
+    // Close when clicking the overlay/backdrop if it exists
+    if (overlay) {
+      overlay.onclick = function() {
+        closeModal(modalId);
+      };
+    }
   });
-
-  // Close when clicking the overlay
-  overlay.removeEventListener("click", closeModal);
-  overlay.addEventListener("click", closeModal);
-
+  
   // Close when pressing Escape (only add once)
   if (!window.escapeListenerAdded) {
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeModal();
+      if (e.key === "Escape") {
+        // Close all visible modals
+        document.querySelectorAll(".modal:not(.hidden)").forEach(modal => {
+          if (modal.id) closeModal(modal.id);
+        });
+      }
     });
     window.escapeListenerAdded = true;
-  }
-
-  // Close when submitting the form
-  const form = modal.querySelector("#contact-form");
-  if (form) {
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      closeModal();
-    });
   }
 }

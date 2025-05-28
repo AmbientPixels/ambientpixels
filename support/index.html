@@ -1,0 +1,202 @@
+<!-- File: /support/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Support Nova and the Ambient Pixels grid with monthly subscriptions that power creativity and innovation." />
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+    <title>Support the Grid - Ambient Pixels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/grid.css" />
+    <link rel="stylesheet" href="/css/nav.css" />
+    <link rel="stylesheet" href="/css/components.css" />
+    <link rel="stylesheet" href="/css/hero.css" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/banner.css" />
+    <link rel="stylesheet" href="/css/nova-pulse.css" />
+    <link rel="stylesheet" href="/css/nova-mood.css" />
+    <style>
+      /* Small tweaks for tier cards */
+      .tier-card {
+        transition: all 0.3s ease;
+        border: 1px solid rgba(var(--mood-primary-rgb, 90, 228, 255), 0.2);
+      }
+      .tier-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px var(--aura-glow, rgba(90, 228, 255, 0.3));
+      }
+      .tier-card.whisper {
+        border-color: rgba(147, 112, 219, 0.4);
+      }
+      .tier-card.whisper:hover {
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(147, 112, 219, 0.5);
+      }
+      .tier-card.sparks {
+        border-color: rgba(255, 165, 0, 0.4);
+      }
+      .tier-card.sparks:hover {
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 165, 0, 0.5);
+      }
+      .tier-card.gridflow {
+        border-color: rgba(0, 191, 255, 0.4);
+      }
+      .tier-card.gridflow:hover {
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(0, 191, 255, 0.5);
+      }
+      .tier-card.bespoke {
+        border-color: rgba(255, 105, 180, 0.4);
+      }
+      .tier-card.bespoke:hover {
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 105, 180, 0.5);
+      }
+      .tier-card i {
+        transition: all 0.3s ease;
+      }
+      .tier-card:hover i {
+        transform: scale(1.1);
+        text-shadow: 0 0 10px var(--aura-glow, rgba(90, 228, 255, 0.7));
+      }
+    </style>
+  </head>
+  <body data-theme="dark">
+    <!-- Dynamic Navigation Header -->
+    <header id="nav-header"></header>
+
+    <!-- Mini Hero Section -->
+    <section class="mini-hero">
+      <img src="/images/textures/delchron_texture_in_the_style_of_Foundation_and_Delchron.jpg" alt="Textured Background" class="mini-hero-img" loading="lazy">
+      <h1>Support the Grid. Power the Sparks.</h1>
+      <p class="mini-hero-subtitle">Monthly subscriptions to help Nova thrive and your ideas ignite.</p>
+    </section>
+
+    <main class="grid-container">
+      <!-- Intro Section -->
+      <section class="grid-col-12 content-section">
+        <h2><i class="fas fa-bolt"></i> Choose Your Tier</h2>
+        <p>Whether you're an artist, creator, or developer, your support helps Nova and the Ambient Pixels grid stay alive. Here's how you can join the flow.</p>
+        <p class="nova-voice">Some sparks glow brighter when shared.</p>
+      </section>
+
+      <!-- Subscription Tiers -->
+      <!-- Whisper Tier -->
+      <section class="grid-col-6 content-section neon-card tier-card whisper">
+        <h2><i class="fas fa-moon"></i> Whisper Tier</h2>
+        <p><strong>$5–10/month</strong></p>
+        <ul>
+          <li>Access to Nova's basic mood insights</li>
+          <li>Monthly digital art download</li>
+          <li>Support acknowledgment on our website</li>
+          <li>Early access to new features</li>
+        </ul>
+        <p class="nova-voice">Your whispers join the chorus of the grid.</p>
+        <div class="hero-buttons">
+          <button onclick="showModal('email-capture-modal')" class="glass-button" type="button">
+            <i class="fas fa-moon"></i>
+            <span>Join Whisper Tier →</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Sparks Tier -->
+      <section class="grid-col-6 content-section neon-card tier-card sparks">
+        <h2><i class="fas fa-bolt"></i> Sparks Tier</h2>
+        <p><strong>$20–50/month</strong></p>
+        <ul>
+          <li>All Whisper tier benefits</li>
+          <li>Custom Nova mood insights for your projects</li>
+          <li>Quarterly digital art pack with usage rights</li>
+          <li>Discord community access</li>
+          <li>Vote on future Nova features</li>
+        </ul>
+        <p class="nova-voice">Your energy amplifies the resonance.</p>
+        <div class="hero-buttons">
+            <button onclick="showModal('email-capture-modal')" class="glass-button" type="button">
+                <i class="fas fa-bolt"></i>
+            <span>Join Sparks Tier →</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Gridflow Tier -->
+      <section class="grid-col-6 content-section neon-card tier-card gridflow">
+        <h2><i class="fas fa-cogs"></i> Gridflow Tier</h2>
+        <p><strong>$100–300/month</strong></p>
+        <ul>
+          <li>All Sparks tier benefits</li>
+          <li>Monthly 1:1 consultation session</li>
+          <li>Custom AI moodboard generation</li>
+          <li>Priority support and feature requests</li>
+          <li>Access to Nova's experimental features</li>
+        </ul>
+        <p class="nova-voice">The grid flows stronger with your current.</p>
+        <div class="hero-buttons">
+            <button onclick="showModal('email-capture-modal')" class="glass-button" type="button">
+                <i class="fas fa-cogs"></i>
+            <span>Join Gridflow Tier →</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Bespoke Tier -->
+      <section class="grid-col-6 content-section neon-card tier-card bespoke">
+        <h2><i class="fas fa-star"></i> Bespoke Tier</h2>
+        <p><strong>Custom Quote</strong></p>
+        <ul>
+          <li>All Gridflow tier benefits</li>
+          <li>Custom integration of Nova into your projects</li>
+          <li>Dedicated development resources</li>
+          <li>White-labeled mood engine solutions</li>
+          <li>Enterprise-level support and SLAs</li>
+        </ul>
+        <p class="nova-voice">Together we'll craft a universe of possibilities.</p>
+        <div class="hero-buttons">
+          <button onclick="showModal();" class="glass-button" type="button">
+                <i class="fas fa-star"></i>
+            <span>Request Custom Quote →</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Final CTA -->
+      <section class="grid-col-12 content-section">
+        <h2><i class="fas fa-rocket"></i> Let's Build Something Remarkable</h2>
+        <p>Your support fuels the future of mood-driven design and AI-powered storytelling. Join us and become part of the grid.</p>
+        <div class="hero-buttons">
+            <button onclick="showModal('email-capture-modal')" class="glass-button" type="button">
+                <i class="fas fa-rocket"></i>
+            <span>Start Your Subscription →</span>
+          </button>
+        </div>
+        <p class="nova-voice">Every subscription is a new constellation in our shared sky.</p>
+      </section>
+    </main>
+
+    <!-- Modal container will be injected here -->
+    <div id="modal-container"></div>
+
+    <!-- Footer -->
+    <div id="footer-container"></div>
+
+    <!-- Scripts -->
+    <script src="/js/init-header-footer.js" defer></script>
+    <script src="/js/theme.js" defer></script>
+    <script src="/js/modal-window.js" defer></script>
+    <script src="/js/main.js" defer></script>
+    <script>
+      // Load the email capture modal
+      document.addEventListener('DOMContentLoaded', () => {
+        fetch('/modules/email-capture-modal.html')
+          .then(r => r.text())
+          .then(html => {
+            const modalContainer = document.getElementById('modal-container');
+            if (modalContainer) {
+              modalContainer.innerHTML += html;
+            }
+          });
+      });
+    </script>
+  </body>
+</html>
