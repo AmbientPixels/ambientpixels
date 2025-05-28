@@ -1,0 +1,131 @@
+<!-- File: /services/rates.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Rates & Packages - Transparent pricing for creative services that bring your vision to life." />
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+    <title>Rates & Packages - Ambient Pixels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/grid.css" />
+    <link rel="stylesheet" href="/css/nav.css" />
+    <link rel="stylesheet" href="/css/components.css" />
+    <link rel="stylesheet" href="/css/hero.css" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/banner.css" />
+    <link rel="stylesheet" href="/css/nova-pulse.css" />
+    <link rel="stylesheet" href="/css/nova-mood.css" />
+  </head>
+  <body data-theme="dark">
+    <!-- Dynamic Navigation Header -->
+    <header id="nav-header"></header>
+
+    <!-- Mini Hero Section -->
+    <section class="mini-hero">
+      <img src="/images/textures/creative_rates-02.png" alt="Textured Background" class="mini-hero-img" loading="lazy">
+      <h1>Rates & Packages</h1>
+      <p class="mini-hero-subtitle">Transparent pricing for creative services that bring your vision to life.</p>
+    </section>
+
+    <main class="grid-container">
+      <!-- Intro Section -->
+      <section class="grid-col-12 content-section">
+        <h2><i class="fas fa-tags"></i> Creative Service Packages</h2>
+        <p>Every project is unique, but here's a guide to our typical rates. Let's collaborate and find the right fit for your needs.</p>
+        <p class="nova-voice">The grid hums. Value flows. Let's build with intention.</p>
+      </section>
+
+      <!-- Rates Grid -->
+      <!-- Web Design -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-globe"></i> Web Design</h2>
+        <ul>
+          <li><strong>Basic Site:</strong> $1,500 - $3,000</li>
+          <li><strong>Interactive Portfolio:</strong> $3,000 - $5,000</li>
+          <li><strong>E-Commerce:</strong> $5,000 - $10,000+</li>
+          <li><strong>Custom Web App:</strong> $8,000 - $15,000+</li>
+        </ul>
+        <p><em>Includes responsive design, basic SEO, and content integration.</em></p>
+      </section>
+
+      <!-- Motion Graphics -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-video"></i> Motion Graphics</h2>
+        <ul>
+          <li><strong>Logo Animation:</strong> $500 - $1,200</li>
+          <li><strong>Explainer Video:</strong> $1,500 - $3,500</li>
+          <li><strong>Product Demo:</strong> $2,000 - $4,000</li>
+          <li><strong>Full Brand Package:</strong> $4,000 - $8,000</li>
+        </ul>
+        <p><em>Rates based on 30-90 second videos with custom graphics.</em></p>
+      </section>
+
+      <!-- Branding -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-paint-brush"></i> Branding</h2>
+        <ul>
+          <li><strong>Logo Design:</strong> $800 - $2,500</li>
+          <li><strong>Brand Identity:</strong> $2,500 - $5,000</li>
+          <li><strong>Style Guide:</strong> $1,500 - $3,000</li>
+          <li><strong>Brand Refresh:</strong> $1,800 - $4,000</li>
+        </ul>
+        <p><em>Includes research, concept development, and final deliverables.</em></p>
+      </section>
+
+      <!-- AI Moodboards -->
+      <section class="grid-col-6 content-section neon-card">
+        <h2><i class="fas fa-brain"></i> AI Moodboards</h2>
+        <ul>
+          <li><strong>Concept Exploration:</strong> $400 - $800</li>
+          <li><strong>Visual Direction:</strong> $600 - $1,200</li>
+          <li><strong>Full Brand Moodboard:</strong> $1,000 - $2,000</li>
+          <li><strong>Ambient Experience:</strong> $1,500 - $3,000</li>
+        </ul>
+        <p><em>AI-generated visuals with human curation and refinement.</em></p>
+      </section>
+
+      <!-- Custom Projects -->
+      <section class="grid-col-12 content-section neon-card">
+        <h2><i class="fas fa-lightbulb"></i> Custom Projects</h2>
+        <p>For projects that don't fit neatly into categories, we offer custom quotes based on:</p>
+        <ul>
+          <li><strong>Project Complexity:</strong> Scope, technical requirements, and creative challenges</li>
+          <li><strong>Timeline:</strong> Standard delivery vs. expedited timelines</li>
+          <li><strong>Usage Rights:</strong> Personal, commercial, or enterprise licensing</li>
+          <li><strong>Revisions:</strong> Standard revision cycles vs. extended collaboration</li>
+        </ul>
+        <p><em>Contact us for a personalized quote tailored to your specific needs.</em></p>
+        <p class="nova-voice">Some sparks are priceless. Let's craft a quote together.</p>
+      </section>
+
+      <!-- CTA Section -->
+      <section class="grid-col-12 content-section">
+        <h2><i class="fas fa-star"></i> Let's Create Something Amazing</h2>
+        <p>Have a vision? Let's bring it to life. Reach out for a custom quote or to start your project today.</p>
+        <div class="hero-buttons">
+          <button onclick="showModal();" class="glass-button" type="button">
+            <i class="fas fa-star"></i>
+            <span>Start Your Project →</span>
+          </button>
+        </div>
+        <p class="nova-voice">Every project is an echo waiting to resonate.</p>
+      </section>
+    </main>
+
+    <!-- Modal container will be injected here -->
+    <div id="modal-container"></div>
+
+    <!-- Footer -->
+    <div id="footer-container"></div>
+
+    <!-- Scripts -->
+    <script src="/js/init-header-footer.js" defer></script>
+    <script src="/js/theme.js" defer></script>
+    <script src="/js/modal-window.js" defer></script>
+    <script src="/js/init-contact-modal.js" defer></script>
+    <script src="/js/main.js" defer></script>
+  </body>
+</html>
