@@ -1,10 +1,10 @@
 {
-  "updated": "2025-05-27T13:33:40.957Z",
+  "updated": "2025-05-28T13:33:47.534Z",
   "entries": [
     {
-      "hash": "2b29826",
-      "date": "2025-05-26 22:59:47 -0700",
-      "message": "tweaks to cools.html layout"
+      "hash": "ebe5adb",
+      "date": "2025-05-27 21:59:05 -0700",
+      "message": "feat(nav): Show text labels alongside icons in all viewport sizes"
     }
   ]
 }

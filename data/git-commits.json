@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "40213772-ad04-4ca7-84e8-d80f4dc6717d",
-      "hash": "2b2982670e37ab437dc496551a7b5ca1624ff0b4",
-      "message": "tweaks to cools.html layout",
-      "timestamp": "2025-05-26 22:59:47 -0700",
+      "id": "fba30535-29fc-4216-9d15-3dd3a270ee86",
+      "hash": "ebe5adb0df4b711ca07d15747cbd64f2e0a57a98",
+      "message": "feat(nav): Show text labels alongside icons in all viewport sizes",
+      "timestamp": "2025-05-27 21:59:05 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/2b2982670e37ab437dc496551a7b5ca1624ff0b4"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/ebe5adb0df4b711ca07d15747cbd64f2e0a57a98"
     }
   ],
-  "timestamp": "2025-05-27T13:33:41.885Z",
+  "timestamp": "2025-05-28T13:33:48.039Z",
   "count": 1,
-  "scanId": 1748352821885
+  "scanId": 1748439228039
 }

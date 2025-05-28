@@ -1,9 +1,9 @@
 {
-  "timestamp": "2025-05-27T13:33:44.135Z",
+  "timestamp": "2025-05-28T13:33:50.355Z",
   "summary": {
-    "totalJS": 502,
+    "totalJS": 504,
     "totalCSS": 39,
-    "totalHTML": 99
+    "totalHTML": 102
   },
   "functions": [
     "A",
@@ -1289,6 +1289,7 @@
     "settle",
     "setup",
     "setupMobileNav",
+    "setupModalListeners",
     "setupThemeToggle",
     "sha1",
     "shouldProxy",
@@ -1645,8 +1646,12 @@
     "btn-secondary",
     "card",
     "card-content",
+    "card-grid",
     "card-icon",
     "card-image",
+    "card-link",
+    "card-links",
+    "card-quote",
     "card-section",
     "channel-avatar",
     "channel-buttons",
@@ -1688,6 +1693,7 @@
     "filter-toggle-group",
     "footer",
     "footer-social",
+    "form-disclaimer",
     "form-group",
     "form-status",
     "git-commit-branches",
@@ -1757,6 +1763,7 @@
     "mini-hero",
     "mini-hero-content",
     "mini-hero-img",
+    "mini-hero-subtitle",
     "modal",
     "modal-backdrop",
     "modal-body",
@@ -1833,6 +1840,7 @@
     "scroll-progress",
     "section",
     "section-header",
+    "section-subtitle",
     "show",
     "slider",
     "social-links",
