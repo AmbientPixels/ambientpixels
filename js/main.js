@@ -142,7 +142,7 @@ function initToggles() {
     
     // Set collapsed state
     button.setAttribute('aria-expanded', 'false');
-    content.style.display = 'none';
+    content.classList.add('collapsed');
     
     // Make the entire header clickable
     const header = button.closest('.section-header');
@@ -156,13 +156,12 @@ function initToggles() {
       
       // Update attributes and display
       button.setAttribute('aria-expanded', newIsExpanded);
-      content.style.display = newIsExpanded ? 'block' : 'none';
+      content.classList.toggle('collapsed', !newIsExpanded);
       
       // Update chevron icon
       const chevron = button.querySelector('i');
       if (chevron) {
-        chevron.style.transform = newIsExpanded ? 'rotate(0deg)' : 'rotate(-90deg)';
-        chevron.style.transition = 'transform 0.3s ease';
+        chevron.classList.toggle('rotated', newIsExpanded);
       }
     });
     
@@ -173,12 +172,11 @@ function initToggles() {
       const newIsExpanded = !isCurrentlyExpanded;
       
       button.setAttribute('aria-expanded', newIsExpanded);
-      content.style.display = newIsExpanded ? 'block' : 'none';
+      content.classList.toggle('collapsed', !newIsExpanded);
       
       const chevron = button.querySelector('i');
       if (chevron) {
-        chevron.style.transform = newIsExpanded ? 'rotate(0deg)' : 'rotate(-90deg)';
-        chevron.style.transition = 'transform 0.3s ease';
+        chevron.classList.toggle('rotated', newIsExpanded);
       }
     });
   });
@@ -204,7 +202,7 @@ function initToggles() {
     allButtons.forEach(button => {
       button.setAttribute('aria-expanded', newIsExpanded);
       const content = button.closest('.content-section').querySelector('.content');
-      content.style.display = newIsExpanded ? 'block' : 'none';
+      content.classList.toggle('collapsed', !newIsExpanded);
     });
     
     // Update button state

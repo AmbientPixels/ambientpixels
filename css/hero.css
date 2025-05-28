@@ -1,5 +1,10 @@
 /* /css/hero.css - Ambient Pixels v2.3 - April 5, 2025 */
 
+/* Define hero text shadow as a CSS variable for single source of truth */
+:root {
+  --hero-text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.8);
+}
+
 /* Hero CTA Buttons with improved visibility */
 .hero-cta {
   display: flex;
@@ -23,7 +28,7 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: var(--hero-text-shadow);
   text-decoration: none !important;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(5px);
@@ -62,7 +67,7 @@
   line-height: 1.2;
   margin: 0;
   color: #fff;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  text-shadow: var(--hero-text-shadow);
 }
 
 .hero-subheadline {
@@ -70,7 +75,7 @@
   line-height: 1.5;
   margin: 1rem 0;
   color: #fff;
-  text-shadow: 0 3px 8px rgba(0, 0, 0, 0.6);
+  text-shadow: var(--hero-text-shadow);
 }
 
 /* Mini Hero Section */
@@ -133,6 +138,11 @@
     align-items: center;
     gap: 10px;
     z-index: 4;
+    transition: opacity 0.5s ease;
+}
+
+.hero-loading.hidden {
+  opacity: 0;
 }
 
 .loading-icon {
@@ -202,13 +212,11 @@
     transform: translateY(10px);
     animation: fadeInUp 0.5s ease forwards 2s;
     color: #fff !important;
-    text-shadow: 1px 3px 1px var(--dark-shadow);
 }
 
-body[data-theme="light"] .hero-headline,
-body[data-theme="light"] .hero-subheadline {
+body[data-theme="light"] .hero .hero-headline,
+body[data-theme="light"] .hero .hero-subheadline {
     color: #fff !important;
-    text-shadow: 1px 3px 1px var(--dark-shadow);
 }
 
 .hero-subheadline {
@@ -254,7 +262,7 @@ body[data-theme="light"] .hero-subheadline {
     transform: translate(-50%, -50%);
     font-size: 2em;
     color: #fff;
-    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.8);
+    text-shadow: var(--hero-text-shadow);
     margin: 0;
     min-width: 370px;
     width: 90%;
@@ -315,4 +323,12 @@ body[data-theme="light"] .hero-subheadline {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Override theme.css text shadow with higher specificity */
+body[data-theme="dark"] .hero .hero-headline,
+body[data-theme="dark"] .hero .hero-subheadline,
+body[data-theme="light"] .hero .hero-headline,
+body[data-theme="light"] .hero .hero-subheadline {
+  text-shadow: var(--hero-text-shadow) !important;
 }
