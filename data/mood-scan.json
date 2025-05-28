@@ -1,9 +1,9 @@
 {
-  "mood": "echoes of self",
-  "aura": "emerald glow",
-  "auraColorHex": "#287d3e",
-  "quote": "vibrations suggest high creative activity...",
-  "emoji": "🔊",
+  "mood": "reflective",
+  "aura": "graphite blue",
+  "auraColorHex": "#1a2630",
+  "quote": "measuring the hum of the source code...",
+  "emoji": "🪞",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
   "memoryClutter": 1,
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: emerald glow"
+      "Aura Signature: graphite blue"
     ]
   },
-  "timestamp": "2025-05-27T13:33:41.809Z"
+  "timestamp": "2025-05-28T13:33:47.958Z"
 }

@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-05-27T13:33:40.847Z",
+  "updated": "2025-05-28T13:33:47.412Z",
   "root": [
     {
       "type": "folder",
@@ -265,6 +265,11 @@
         },
         {
           "type": "page",
+          "name": "email-capture-modal.html",
+          "path": "modules/email-capture-modal.html"
+        },
+        {
+          "type": "page",
           "name": "footer.html",
           "path": "modules/footer.html"
         },
@@ -479,6 +484,11 @@
           "type": "page",
           "name": "index.html",
           "path": "services/index.html"
+        },
+        {
+          "type": "page",
+          "name": "rates.html",
+          "path": "services/rates.html"
         }
       ]
     },
@@ -498,6 +508,18 @@
       "type": "page",
       "name": "soundlab.html",
       "path": "soundlab.html"
+    },
+    {
+      "type": "folder",
+      "name": "support",
+      "path": "support",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "support/index.html"
+        }
+      ]
     },
     {
       "type": "page",
