@@ -60,10 +60,11 @@
   color: #fff;
   text-decoration: none;
   font-size: 1em;
+  gap: 8px;
 }
 
 .nav-links .link-text {
-  display: none; /* Hide text in desktop view */
+  display: inline;
 }
 
 .nav-links i {
@@ -145,11 +146,6 @@
 
   .nav-links a {
     justify-content: flex-start;
-    gap: 10px;
     font-size: 1.2em;
-  }
-
-  .nav-links .link-text {
-    display: inline; /* Show text in mobile view */
   }
 }
