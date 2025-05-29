@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Chad Martin - Producer at Xbox | Microsoft">
+  <title>Chad Martin | Xbox Producer | Microsoft</title>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/grid.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/hero.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/banner.css">
+  <link rel="stylesheet" href="/css/nova-mood.css">
+  <link rel="stylesheet" href="/css/resume.css">
+      align-items: center;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid rgba(90, 228, 255, 0.1);
+      margin-bottom: 1rem;
+      cursor: pointer;
+    }
+    
+    .section-header h2 {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.25rem;
+      color: #5ae4ff;
+      margin: 0;
+    }
+
+    /* Default h2 styles */
+    h2 {
+      margin: 2rem 0 1rem;
+      color: #5ae4ff;
+      font-size: 1.5rem;
+    }
+    
+    .section-header h2 i {
+      color: #4682B4;
+      font-size: 1.5rem;
+    }
+    
+    .toggle-btn {
+      background: none;
+      border: 1px solid #4682B4;
+      padding: 8px 16px;
+      cursor: pointer;
+      color: inherit;
+      transition: all 0.3s ease;
+    }
+    
+    .toggle-btn:hover {
+      background: rgba(70, 130, 180, 0.1);
+    }
+    
+    .content {
+      padding: 1.5rem 0;
+      border-top: 1px solid rgba(90, 228, 255, 0.1);
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-file-alt banner-icon"></i>
+      <span>Chad Martin's Resume</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
+
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/textures/microscopic-texture_vibrant-detail_v5.jpg" alt="Microscopic Detail Texture" class="mini-hero-img" loading="lazy">
+    <h1>Chad Martin</h1>
+    <p class="tagline">Producer at <span class="highlight">Xbox</span> | <span class="highlight">Microsoft</span></p>
+  </section>
+
+  <main class="grid-container">
+    <section class="content-section grid-col-12 text-center">
+      <div class="hero-content">
+        <h1 class="glitch" data-text="Chad Martin">Chad Martin</h1>
+        <p class="tagline">I build worlds where pixels and players collide.</p>
+        <div class="hero-buttons">
+          <a href="https://linkedin.com/in/chad-martin" target="_blank" rel="noopener" class="button glass-button">
+            <i class="fab fa-linkedin-in"></i>
+            <span>Connect on LinkedIn</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-user"></i> About Me</h2>
+      <div class="neon-card">
+        <p>Seasoned Producer with over 15 years of experience in the gaming industry, specializing in programming, editorial content support, and user experience optimization. Passionate about creating immersive digital experiences that resonate with players worldwide. Expert in agile workflows, cross-functional team leadership, and delivering high-quality gaming content on time and within scope.</p>
+      </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-briefcase"></i> Experience</h2>
+      
+      <div class="nova-grid">
+        <!-- Experience Item 1 -->
+        <div class="grid-item neon-card">
+          <h3>Producer</h3>
+          <p class="company">Xbox | Microsoft</p>
+          <p class="date">2014 - Present</p>
+          <p>Leading production efforts for Xbox's digital content platform, managing cross-functional teams to deliver high-quality gaming experiences to millions of players worldwide.</p>
+        </div>
+
+          </div>
+
+          <div class="experience-item">
+            <h3 class="job-title">Web Producer</h3>
+            <span class="company">Xbox | Microsoft</span>
+            <span class="date">2010 - 2014</span>
+            <ul>
+              <li>Managed content strategy and production for Xbox.com, optimizing web performance and user experience across multiple platforms.</li>
+            </ul>
+          </div>
+
+          <div class="experience-item">
+            <h3 class="job-title">Web Producer</h3>
+            <span class="company">Microsoft</span>
+            <span class="date">2009 - 2010</span>
+            <ul>
+              <li>Produced and maintained web content for Microsoft's consumer products, ensuring brand consistency and implementing SEO best practices.</li>
+            </ul>
+          </div>
+
+          <div class="experience-item">
+            <h3 class="job-title">Digital Media Operations Supervisor</h3>
+            <span class="company">Muze</span>
+            <span class="date">2005 - 2008</span>
+            <ul>
+              <li>Led a team responsible for digital media asset management, developing workflows for content ingestion and distribution.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-code"></i> Skills</h2>
+        <button class="toggle-btn" aria-expanded="false" aria-controls="skills-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="skills-content" class="content">
+        <div class="resume-section">
+          <div class="skills-container">
+            <span class="skill-tag">Programming</span>
+            <span class="skill-tag">Content Development</span>
+            <span class="skill-tag">Troubleshooting</span>
+            <span class="skill-tag">User Experience</span>
+            <span class="skill-tag">Agile Methodologies</span>
+            <span class="skill-tag">Project Management</span>
+            <span class="skill-tag">Web Design</span>
+            <span class="skill-tag">Gaming Industry Trends</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Education Section -->
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-graduation-cap"></i> Education</h2>
+        <button class="toggle-btn" aria-expanded="false" aria-controls="education-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="education-content" class="content">
+        <div class="resume-section">
+          <div class="education-item">
+            <h3 class="school">Art Institute of Seattle</h3>
+            <p>Associate of Applied Arts, Video Production</p>
+            <span class="date">1995 - 1997</span>
+          </div>
+          <div class="education-item">
+            <h3 class="school">University of Alaska Fairbanks</h3>
+            <p>Broadcast Journalism</p>
+            <span class="date">1993 - 1995</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/init-quotes.js" defer></script>
+  <script src="/js/md-inject.js" defer></script>
+  <script src="/js/modal-window.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/nova-ai.js" defer></script>
+  <script src="/js/nova-awareness-feed.js" defer></script>
+  <script src="/js/nova-dashboard.js" defer></script>
+  <script src="/js/nova-insights.js" defer></script>
+  <script src="/js/nova-interaction-log.js" defer></script>
+  <script src="/js/nova-mood-core.js" defer></script>
+  <script src="/js/nova-quotes.js" defer></script>
+  <script src="/js/nova-status.js" defer></script>
+  <script src="/js/nova-telemetry-logger.js" defer></script>
+  <script src="/js/project-dashboard.js" defer></script>
+  <script src="/js/template.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>
+
+  <script src="/js/template.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>
+
+  <script src="/js/template.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>
+
+            <span class="date">1995 - 1997</span>
+          </div>
+          <div class="education-item">
+            <h3 class="school">University of Alaska Fairbanks</h3>
+            <p>Broadcast Journalism</p>
+            <span class="date">1993 - 1995</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/init-quotes.js" defer></script>
+  <script src="/js/md-inject.js" defer></script>
+  <script src="/js/modal-window.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/nova-ai.js" defer></script>
+  <script src="/js/nova-awareness-feed.js" defer></script>
+  <script src="/js/nova-dashboard.js" defer></script>
+  <script src="/js/nova-insights.js" defer></script>
+  <script src="/js/nova-interaction-log.js" defer></script>
+  <script src="/js/nova-mood-core.js" defer></script>
+  <script src="/js/nova-quotes.js" defer></script>
+  <script src="/js/nova-status.js" defer></script>
+  <script src="/js/nova-telemetry-logger.js" defer></script>
+  <script src="/js/project-dashboard.js" defer></script>
+  <script src="/js/template.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>
