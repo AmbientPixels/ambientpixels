@@ -1434,6 +1434,15 @@ body[data-theme="light"] .nova-quip {
   text-shadow: 0 0 6px rgba(0, 255, 170, 0.4);
   margin-top: 2rem;
   opacity: 0.8;
+  pointer-events: none;
+  transition: none !important;
+}
+
+.hero-intro .nova-voice:hover {
+  transform: none !important;
+  opacity: 0.8 !important;
+  color: var(--nova-glow-color, #00FFAA) !important;
+  text-shadow: 0 0 6px rgba(0, 255, 170, 0.4) !important;
 }
 
 /* Vibrant full-width divider */
@@ -1470,6 +1479,24 @@ body[data-theme="light"] .nova-quip {
   transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
+/* Prevent hover effects on hero-intro section */
+.hero-intro {
+  pointer-events: none;
+  transition: none !important;
+}
+
+.hero-intro * {
+  pointer-events: auto;
+  transition: none !important;
+}
+
+.hero-intro:hover, .hero-intro *:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  background: none !important;
+  border-color: none !important;
+}
+
 /* Collapsible Sections */
 .content-section {
   margin-bottom: 1.5rem;
@@ -1487,7 +1514,7 @@ body[data-theme="light"] .nova-quip {
   border-color: rgba(90, 228, 255, 0.2);
 }
 
-.content-section:hover {
+.content-section:not(.hero-intro):hover {
   border-color: rgba(90, 228, 255, 0.4);
   box-shadow: 0 4px 15px rgba(90, 228, 255, 0.1);
 }
@@ -1503,7 +1530,7 @@ body[data-theme="light"] .nova-quip {
   transition: all 0.3s ease;
 }
 
-.section-header:hover {
+.section-header:not(.hero-intro):hover {
   background: rgba(90, 228, 255, 0.05);
 }
 
