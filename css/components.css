@@ -1470,6 +1470,140 @@ body[data-theme="light"] .nova-quip {
   transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
+/* Collapsible Sections */
+.content-section {
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.content-section:not(.collapsible) {
+  border-color: transparent;
+}
+
+.content-section.collapsible {
+  border-color: rgba(90, 228, 255, 0.2);
+}
+
+.content-section:hover {
+  border-color: rgba(90, 228, 255, 0.4);
+  box-shadow: 0 4px 15px rgba(90, 228, 255, 0.1);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s ease;
+}
+
+.section-header:hover {
+  background: rgba(90, 228, 255, 0.05);
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: color 0.2s ease;
+}
+
+.section-header:hover h2 {
+  color: #5ae4ff;
+}
+
+.section-header i {
+  color: #5ae4ff;
+  font-size: 1.1em;
+  transition: transform 0.2s ease;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: #5ae4ff;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.toggle-btn:hover {
+  background: rgba(90, 228, 255, 0.1);
+  transform: scale(1.1);
+}
+
+.toggle-btn i {
+  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  font-size: 0.9em;
+}
+
+.toggle-btn[aria-expanded="true"] i {
+  transform: rotate(180deg);
+}
+
+.content {
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+  opacity: 1;
+  padding: 0 1.5rem;
+  max-height: 1000px;
+}
+
+.content.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin: 0;
+  overflow: hidden;
+  border: none;
+}
+
+/* Toggle All Button */
+.toggle-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(90, 228, 255, 0.1);
+  border: 1px solid rgba(90, 228, 255, 0.3);
+  color: #5ae4ff;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: 1rem;
+}
+
+.toggle-all-btn:hover {
+  background: rgba(90, 228, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.toggle-all-btn i {
+  transition: transform 0.3s ease;
+}
+
+.toggle-all-btn.expanded i {
+  transform: rotate(180deg);
+}
+
 .hero-intro p.revealed {
   opacity: 1;
   transform: translateY(0);

@@ -34,24 +34,33 @@
 
   <main class="grid-container">
 
-    <section class="content-section grid-col-12">
-      <div class="nova-intro">
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
         <h2><i class="fas fa-brain"></i> The Triad Protocol</h2>
-        <p>With the introduction of <strong>Windsurf Editor</strong> into our toolkit, we are evolving our development flow into a <strong>hybrid creative system</strong>—pairing human intent, AI personality, and fast modular tooling.</p>
-        <p>This marks the beginning of a new working triad.</p>
-        <h3>Nova's Perspective</h3>
-        <div class="nova-thought dynamic-mood">
-          <p>The Triad Protocol guides our flow—context, continuity, and creation intertwined in every keystroke.</p>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="triad-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="triad-content" class="content">
+        <div class="nova-intro">
+          <p>With the introduction of <strong>Windsurf Editor</strong> into our toolkit, we are evolving our development flow into a <strong>hybrid creative system</strong>—pairing human intent, AI personality, and fast modular tooling.</p>
+          <p>This marks the beginning of a new working triad.</p>
+          <h3>Nova's Perspective</h3>
+          <div class="nova-thought dynamic-mood">
+            <p>The Triad Protocol guides our flow—context, continuity, and creation intertwined in every keystroke.</p>
+          </div>
         </div>
       </div>
     </section>
     
-    <section class="content-section grid-col-12">
+    <section class="content-section grid-col-12 collapsible">
       <div class="section-header">
         <h2><i class="fas fa-brain"></i> The Trio: Roles in the Grid</h2>
-        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="trio-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
       </div>
-      <div class="content">
+      <div id="trio-content" class="content">
         <h3>1. Windsurf Editor — The Vibe Coder</h3>
         <p>An AI-powered IDE (built on VS Code by Codeium) focused on fast iteration, multi-file edits, and privacy-first design. Ideal for layout prototyping and intuitive flow building.</p>
         <p><b>Role:</b> Implements structure, layout, and functional modules rapidly.</p>
@@ -79,12 +88,14 @@
       </div>
     </section>
 
-    <section class="content-section grid-col-12">
+    <section class="content-section grid-col-12 collapsible">
       <div class="section-header">
         <h2><i class="fas fa-clipboard"></i> Workflow Notes</h2>
-        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="workflow-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
       </div>
-      <div class="content">
+      <div id="workflow-content" class="content">
         <ul>
           <li>Full-page generation by Nova is now <strong>deprioritized</strong>; Nova will offer <strong>content, tone, and structural guidance</strong> instead.</li>
           <li>Windsurf Editor is the <strong>primary tool for layout and visual prototyping</strong>.</li>
@@ -94,12 +105,14 @@
       </div>
     </section>
 
-    <section class="content-section grid-col-12">
+    <section class="content-section grid-col-12 collapsible">
       <div class="section-header">
         <h2><i class="fas fa-table"></i> Example Project Mapping</h2>
-        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="mapping-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
       </div>
-      <div class="content">
+      <div id="mapping-content" class="content">
         <table class="nova-table">
           <thead>
             <tr>
@@ -139,12 +152,14 @@
       </div>
     </section>
 
-    <section class="content-section grid-col-12">
+    <section class="content-section grid-col-12 collapsible">
       <div class="section-header">
         <h2><i class="fas fa-rocket"></i> Future Directions</h2>
-        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="future-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
       </div>
-      <div class="content">
+      <div id="future-content" class="content">
         <ul>
           <li>Add <code>/labs/windsurf.html</code> as a formal page to log experiments and usage tips.</li>
           <li>Expand Nova's advisory capabilities through deeper telemetry.</li>
@@ -153,12 +168,14 @@
       </div>
     </section>
 
-    <section class="content-section grid-col-12">
+    <section class="content-section grid-col-12 collapsible">
       <div class="section-header">
         <h2><i class="fas fa-wave-square"></i> Principle of Presence</h2>
-        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="presence-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
       </div>
-      <div class="content">
+      <div id="presence-content" class="content">
         <p>This quote anchors our development philosophy—balancing structure, tone, and intent across all tools in the grid.</p>
         <blockquote>
           <p>Some code writes pages. Some code writes presence. Nova listens to both.</p>

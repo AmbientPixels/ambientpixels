@@ -147,90 +147,67 @@ function initHeroIntroAnimation() {
 }
 
 function initToggles() {
-  // Initialize individual toggle buttons
-  const toggleButtons = document.querySelectorAll('.toggle-btn');
+  // Get all sections that have a toggle button
+  const sections = Array.from(document.querySelectorAll('.content-section')).filter(section => {
+    return section.querySelector('.toggle-btn') !== null;
+  });
   
-  // Initialize all sections as collapsed by default
-  toggleButtons.forEach(button => {
-    const section = button.closest('.content-section');
+  if (!sections.length) return;
+  
+  // Toggle a single section
+  function toggleSection(section) {
+    const button = section.querySelector('.toggle-btn');
     const content = section.querySelector('.content');
     
-    // Set collapsed state
-    button.setAttribute('aria-expanded', 'false');
-    content.classList.add('collapsed');
+    if (!button || !content) return;
     
-    // Make the entire header clickable
-    const header = button.closest('.section-header');
-    header.addEventListener('click', (e) => {
-      // Prevent click if toggle all button was clicked
-      if (e.target.closest('.toggle-all-btn')) return;
-      
-      // Toggle the expanded state
-      const isCurrentlyExpanded = button.getAttribute('aria-expanded') === 'true';
-      const newIsExpanded = !isCurrentlyExpanded;
-      
-      // Update attributes and display
-      button.setAttribute('aria-expanded', newIsExpanded);
-      content.classList.toggle('collapsed', !newIsExpanded);
-      
-      // Update chevron icon
-      const chevron = button.querySelector('i');
-      if (chevron) {
-        chevron.classList.toggle('rotated', newIsExpanded);
-      }
-    });
+    const isExpanding = button.getAttribute('aria-expanded') !== 'true';
     
-    // Also add click handler to the button itself
-    button.addEventListener('click', (e) => {
-      e.stopPropagation(); // Prevent double trigger
-      const isCurrentlyExpanded = button.getAttribute('aria-expanded') === 'true';
-      const newIsExpanded = !isCurrentlyExpanded;
-      
-      button.setAttribute('aria-expanded', newIsExpanded);
-      content.classList.toggle('collapsed', !newIsExpanded);
-      
-      const chevron = button.querySelector('i');
-      if (chevron) {
-        chevron.classList.toggle('rotated', newIsExpanded);
-      }
-    });
-  });
-
-  // Add toggle all button
-  const toggleAllBtn = document.createElement('button');
-  toggleAllBtn.className = 'toggle-all-btn';
-  
-  // Check initial state
-  const allButtons = Array.from(toggleButtons);
-  const allExpanded = allButtons.some(btn => btn.getAttribute('aria-expanded') === 'true');
-  
-  // Set initial button state
-  toggleAllBtn.innerHTML = '<i class="fas fa-angle-double-down"></i> Expand All';
-  toggleAllBtn.classList.toggle('expanded', allExpanded);
-
-  toggleAllBtn.addEventListener('click', () => {
-    // Get current state
-    const currentExpanded = allButtons.some(btn => btn.getAttribute('aria-expanded') === 'true');
-    const newIsExpanded = !currentExpanded;
+    // Update ARIA and classes
+    button.setAttribute('aria-expanded', isExpanding);
+    content.classList.toggle('collapsed', !isExpanding);
     
-    // Update all buttons
-    allButtons.forEach(button => {
-      button.setAttribute('aria-expanded', newIsExpanded);
-      const content = button.closest('.content-section').querySelector('.content');
-      content.classList.toggle('collapsed', !newIsExpanded);
-    });
+    // Update chevron rotation
+    const chevron = button.querySelector('i');
+    if (chevron) {
+      chevron.style.transform = isExpanding ? 'rotate(180deg)' : 'rotate(0)';
+    }
     
-    // Update button state
-    toggleAllBtn.classList.toggle('expanded', newIsExpanded);
-    toggleAllBtn.innerHTML = newIsExpanded ? '<i class="fas fa-angle-double-up"></i> Collapse All' : '<i class="fas fa-angle-double-down"></i> Expand All';
-  });
-
-  // Add toggle all button to the first section header, but skip project pages
-  const firstSectionHeader = document.querySelector('.section-header');
-  const isProjectPage = window.location.pathname.includes('/projects/');
-  if (firstSectionHeader && !isProjectPage) {
-    firstSectionHeader.appendChild(toggleAllBtn);
+    return isExpanding;
   }
+  
+  // Initialize sections
+  sections.forEach(section => {
+    // Set initial state (expanded)
+    const button = section.querySelector('.toggle-btn');
+    const content = section.querySelector('.content');
+    if (button && content) {
+      button.setAttribute('aria-expanded', 'true');
+      content.classList.remove('collapsed');
+      
+      // Initialize chevron
+      const chevron = button.querySelector('i');
+      if (chevron) {
+        chevron.style.transform = 'rotate(180deg)';
+      }
+    }
+    
+    // Add click handlers
+    if (button) {
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleSection(section);
+      });
+    }
+    
+    const header = section.querySelector('.section-header');
+    if (header) {
+      header.addEventListener('click', (e) => {
+        if (e.target.closest('.toggle-btn')) return;
+        toggleSection(section);
+      });
+    }
+  });
 }
 
 function initVersion() {
@@ -238,10 +215,18 @@ function initVersion() {
   if (versionEl) versionEl.textContent = VERSION;
 }
 
+// Make initToggles available globally
+window.initToggles = initToggles;
+
 document.addEventListener('DOMContentLoaded', () => {
   console.log("[Nova]: Grid hijacked. Humans, welcome to my domain.");
   initHero();
   initHeroIntroAnimation();
-  initToggles();
+  
+  // Initialize toggles for both main site and docs
+  if (document.querySelector('.content-section') || document.querySelector('.docs-layout')) {
+    initToggles();
+  }
+  
   initVersion();
 });
