@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "fba30535-29fc-4216-9d15-3dd3a270ee86",
-      "hash": "ebe5adb0df4b711ca07d15747cbd64f2e0a57a98",
-      "message": "feat(nav): Show text labels alongside icons in all viewport sizes",
-      "timestamp": "2025-05-27 21:59:05 -0700",
+      "id": "e3cde8f5-a532-4567-acb8-105be9081073",
+      "hash": "f00cf4e3984c092952d2841d7d35e77b058828d4",
+      "message": "refactor: update lab page navigation and content",
+      "timestamp": "2025-05-28 21:58:25 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/ebe5adb0df4b711ca07d15747cbd64f2e0a57a98"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/f00cf4e3984c092952d2841d7d35e77b058828d4"
     }
   ],
-  "timestamp": "2025-05-28T13:33:48.039Z",
+  "timestamp": "2025-05-29T13:32:07.520Z",
   "count": 1,
-  "scanId": 1748439228039
+  "scanId": 1748525527520
 }
