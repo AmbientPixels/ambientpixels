@@ -63,10 +63,8 @@
   <div id="footer-container"></div>
 
  
-  <script>
-    injectMarkdown("md-content", "/docs/logs/nova-system-memory.md");
-  </script>
-<!-- Scripts (Full Load for Dev Mode) -->
+  <!-- Scripts (Full Load for Dev Mode) -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="/js/init-header-footer.js" defer></script>
 <script src="/js/init-quotes.js" defer></script>
 <script src="/js/md-inject.js" defer></script>
@@ -85,5 +83,11 @@
 <script src="/js/template.js" defer></script>
 <script src="/js/theme.js" defer></script>
 <script src="/js/main.js"></script>
+<script>
+  // Inject markdown after all deferred scripts have loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    injectMarkdown("md-content", "/docs/logs/nova-system-memory.md");
+  });
+</script>
 </body>
 </html>

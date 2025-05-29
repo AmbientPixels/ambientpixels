@@ -1,12 +1,12 @@
-<!-- File: /docs/hub.html -->
+<!-- File: /docs/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Ambient Pixels Documentation Hub" />
+  <meta name="description" content="Ambient Pixels Documentation Hub - Nova Systems & Projects" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Ambient Pixels Docs</title>
+  <title>Ambient Pixels Documentation Hub</title>
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
@@ -30,161 +30,121 @@
   <header id="nav-header"></header>
 
   <section class="mini-hero">
-    <img src="/images/mini-hero/mini-hero-02-holo-terminal.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
-    <h1>Ambient Pixels Documentation</h1>
+    <img src="/images/mini-hero/mini-hero-02-holo-terminal.jpg" alt="Ambient Pixels Documentation" class="mini-hero-img" loading="lazy">
+    <h1>Ambient Pixels Documentation Hub</h1>
+    <p class="nova-quip">A crystalline flux of knowledge, flowing through the Nova system.</p>
   </section>
 
   <main class="grid-container">
-    <!-- Project Tracker Section -->
-    <section class="content-section grid-col-12">
+    <!-- Nova System Documentation -->
+    <section class="content-section grid-col-12 collapsible">
       <div class="section-header">
-        <h2><i class="fas fa-layer-group"></i> Project Tracker</h2>
-        <button class="toggle-btn icon-only" aria-expanded="true" title="Toggle section">
+        <h2><i class="fas fa-robot"></i> Nova System Documentation</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="nova-system-docs">
           <i class="fas fa-chevron-down"></i>
         </button>
       </div>
-      <div class="content">
-        <p>The Project Tracker system powers a dynamic dashboard that surfaces all current, in-progress, and historical builds at Ambient Pixels.</p>
-        <ul>
-          <li><a href="/docs/project-dashboard.html">Launch Project Dashboard</a></li>
-          <li><a href="/docs/project-tracker-guide.html">System Guide & How-To</a></li>
-        </ul>
+      <div id="nova-system-docs" class="content">
+        <div class="grid-row">
+          <div class="grid-col-4">
+            <h3>Core Systems</h3>
+            <ul>
+              <li><a href="/docs/nova-system-overview.html">Nova System Overview</a></li>
+              <li><a href="/docs/nova-mood-engine.html">Mood Engine</a></li>
+              <li><a href="/docs/nova-whisper-engine.html">Whisper Engine</a></li>
+              <li><a href="/docs/nova-awareness-dashboard.html">Awareness Dashboard</a></li>
+              <li><a href="/docs/nova-system-memory.html">System Memory</a></li>
+              <li><a href="/docs/nova-workflow.html">Workflow</a></li>
+            </ul>
+          </div>
+          <div class="grid-col-4">
+            <h3>Technical Guides</h3>
+            <ul>
+              <li><a href="/docs/nova-ai-integration-guide.html">AI Integration Guide</a></li>
+              <li><a href="/docs/project-tracker-guide.html">Project Tracker Guide</a></li>
+              <li><a href="/docs/technical-overview.html">Technical Overview</a></li>
+            </ul>
+          </div>
+          <div class="grid-col-4">
+            <h3>Development Tools</h3>
+            <ul>
+              <li><a href="/docs/windsurf-system-overview.html">Windsurf System Overview</a></li>
+              <li><a href="/docs/windsurf-workflow.html">Windsurf Workflow</a></li>
+              <li><a href="/docs/banners.html">Banner System</a></li>
+            </ul>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- Awareness System Section -->
-    <section class="content-section grid-col-12">
+    <!-- Project Documentation -->
+    <section class="content-section grid-col-12 collapsible">
       <div class="section-header">
-        <h2><i class="fas fa-brain"></i> Awareness System Docs</h2>
-        <button class="toggle-btn icon-only" aria-expanded="true" title="Toggle section">
+        <h2><i class="fas fa-project-diagram"></i> Project Documentation</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="project-docs">
           <i class="fas fa-chevron-down"></i>
         </button>
       </div>
-      <div class="content">
-        <ul>
-          <li><a href="/docs/windsurf-system-overview.html">Windsurf System Overview</a></li>
-          <li><a href="/docs/windsurf-workflow.html">Windsurf Workflow <span class="md-doc-tag">MD</span></a></li>
-          <li><a href="/docs/nova-workflow.html">Nova Workflow Overview</a></li>
-          <li><a href="/docs/nova-awareness-dashboard.html">Nova Awareness Dashboard</a></li>
-          <li><a href="/docs/technical-overview.html">All-Up Technical Overview</a></li>
-          <li><a href="/docs/nova-ai-integration-guide.html">Nova AI API Integration</a></li>
-          <li><a href="/docs/nova-system-overview.html">Nova AI System Overview</a></li>
-          <li><a href="/docs/nova-system-memory.html">Project NOVA — System Awareness In Development</a></li>
-
-        </ul>
+      <div id="project-docs" class="content">
+        <div class="grid-row">
+          <div class="grid-col-4">
+            <h3>Core Projects</h3>
+            <ul>
+              <li><a href="/docs/logs/project-genesis.html">Project Genesis</a></li>
+              <li><a href="/docs/logs/nova-project-log.html">Nova Project Log</a></li>
+              <li><a href="/docs/logs/nova-build-core.html">Nova Build Core</a></li>
+              <li><a href="/docs/logs/nova-sensory-expansion.html">Sensory Expansion</a></li>
+            </ul>
+          </div>
+          <div class="grid-col-4">
+            <h3>Experimental Projects</h3>
+            <ul>
+              <li><a href="/docs/logs/project-cartoonizer.html">Cartoonizer</a></li>
+              <li><a href="/docs/logs/project-glitch-chaos-engine.html">Glitch Chaos Engine</a></li>
+              <li><a href="/docs/logs/project-memetron.html">Memetron</a></li>
+              <li><a href="/docs/logs/project-streambeats-lab.html">Streambeats Lab</a></li>
+            </ul>
+          </div>
+          <div class="grid-col-4">
+            <h3>Research Projects</h3>
+            <ul>
+              <li><a href="/docs/logs/nova-soul-project.html">Soul Project</a></li>
+              <li><a href="/docs/logs/hal-project-log.html">HAL Project</a></li>
+              <li><a href="/docs/logs/echogrid-renderer.html">EchoGrid Renderer</a></li>
+              <li><a href="/docs/logs/metalab.html">Metalab</a></li>
+            </ul>
+          </div>
+        </div>
       </div>
     </section>
 
-<!--Nova Mood Engine-->
-<section class="content-section grid-col-12">
-  <div class="section-header">
-    <h2><i class="fas fa-brain"></i> Nova Mood Engine</h2>
-    <button class="toggle-btn icon-only" aria-expanded="true" title="Toggle section">
-      <i class="fas fa-chevron-down"></i>
-    </button>
-  </div>
-  <div class="content">
-    <p>Deterministic mood simulation powered by local system signals. Transparent, traceable, and fully self-aware.</p>
-    <ul>
-      <li><a href="/docs/nova-mood-engine.html">View Mood Engine Docs </a></li>
-      <li><a href="/nova/mood-demo.html">Open Live Mood Demo</a></li>
-    </ul>
-  </div>
-</section>
-     <!-- Genesis System Core Section -->
-<section class="content-section grid-col-12">
-  <div class="section-header">
-    <h2><i class="fas fa-dna"></i> Genesis System Core</h2>
-    <button class="toggle-btn icon-only" aria-expanded="true" title="Toggle section">
-      <i class="fas fa-chevron-down"></i>
-    </button>
-  </div>
-  <div class="content">
-    <p>The Genesis project is the biological awakening of AmbientPixels.ai, linking static code, memory seeds, and ambient life evolution.</p>
-    <ul>
-      <li><a href="/docs/project-genesis.html">Explore Genesis System Core Documentation</a></li>
-    </ul>
-  </div>
-</section>
-     <!--Nova Whisper Engine-->
-    <section class="content-section grid-col-12">
+    <!-- Development Tools -->
+    <section class="content-section grid-col-12 collapsible">
       <div class="section-header">
-        <h2><i class="fas fa-comment"></i> Nova Whisper Engine</h2>
-        <button class="toggle-btn icon-only" aria-expanded="true" title="Toggle section">
+        <h2><i class="fas fa-tools"></i> Development Tools</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="dev-tools">
           <i class="fas fa-chevron-down"></i>
         </button>
       </div>
-      <div class="content">
-        <p>Rotating poetic system thoughts based on page context. Fully modular and mood-aware.</p>
-        <ul>
-          <li><a href="/docs/nova-whisper-engine.html">View Whisper Engine Docs</a></li>
-        </ul>
-      </div>
-    </section>
-    <!-- Banner System Section -->
-    <section class="content-section grid-col-12">
-      <div class="section-header">
-        <h2><i class="fas fa-bullhorn"></i> Nova Banner System</h2>
-        <button class="toggle-btn icon-only" aria-expanded="true" title="Toggle section">
-          <i class="fas fa-chevron-down"></i>
-        </button>
-      </div>
-      <div class="content">
-        <p>The Nova banner system enables modular system alerts with style variants, animation, and theme integration.</p>
-        <ul>
-          <li><a href="/docs/banners.html">View Banner System Docs</a></li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- Data Logs Section -->
-    <section class="content-section grid-col-12">
-      <div class="section-header">
-        <h2><i class="fas fa-database"></i> Data Logs & Snapshots</h2>
-        <button class="toggle-btn icon-only" aria-expanded="false" title="Toggle section">
-          <i class="fas fa-chevron-down"></i>
-        </button>
-      </div>
-      <div class="content" style="display: none;">
-        <ul>
-          <li><a href="/data/ai-prompts.json">AI Prompt</a></li>
-          <li><a href="/data/api-monitor.json">API Monitor</a></li>
-          <li><a href="/data/changelog.json">Changelog</a></li>
-          <li><a href="/data/code-footprint.json">Code Footprint</a></li>
-          <li><a href="/data/code-map.json">Code Map</a></li>
-          <li><a href="/data/components-index.json">Component Index</a></li>
-          <li><a href="/data/image-inventory.json">Image Inventory</a></li>
-          <li><a href="/data/js-function-map.json">JS Function Map</a></li>
-          <li><a href="/data/mood-scan.json">Mood Scan</a></li>
-          <li><a href="/data/unused-css-report.json">Unused CSS Report</a></li>
-          <li><a href="/data/version.json">Version Info</a></li>
-          <li><a href="/data/nova-session-boot.html">Nova Session Boot (HTML)</a></li>
-          <li><a href="/data/nova-session-boot.txt">Nova Session Boot (TXT)</a></li>
-        </ul>
+      <div id="dev-tools" class="content">
+        <div class="grid-row">
+          <div class="grid-col-12">
+            <h3>Documentation Templates & Resources</h3>
+            <ul>
+              <li><a href="/docs/template.html">Documentation Template</a></li>
+              <li><a href="/docs/logs/template.html">Log Template</a></li>
+            </ul>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
   <div id="footer-container"></div>
 
-<!-- Scripts (Full Load for Dev Mode) -->
-<script src="/js/init-header-footer.js" defer></script>
-<script src="/js/init-quotes.js" defer></script>
-<script src="/js/md-inject.js" defer></script>
-<script src="/js/modal-window.js" defer></script>
-<script src="/js/nav.js" defer></script>
-<script src="/js/nova-ai.js" defer></script>
-<script src="/js/nova-awareness-feed.js" defer></script>
-<script src="/js/nova-dashboard.js" defer></script>
-<script src="/js/nova-insights.js" defer></script>
-<script src="/js/nova-interaction-log.js" defer></script>
-<script src="/js/nova-mood-core.js" defer></script>
-<script src="/js/nova-quotes.js" defer></script>
-<script src="/js/nova-status.js" defer></script>
-<script src="/js/nova-telemetry-logger.js" defer></script>
-<script src="/js/project-dashboard.js" defer></script>
-<script src="/js/template.js" defer></script>
-<script src="/js/theme.js" defer></script>
-<script src="/js/main.js"></script>
+  <!-- Scripts -->
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/main.js"></script>
 </body>
 </html>
