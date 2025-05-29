@@ -35,22 +35,26 @@
   </section>
 
   <main class="grid-container">
-    <section class="content-section grid-col-12">
+    <section class="content-section grid-col-12 collapsible">
       <div class="section-header">
         <h2><i class="fas fa-robot"></i> What is Nova?</h2>
-        <button class="toggle-btn icon-only" aria-expanded="true"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="nova-overview">
+          <i class="fas fa-chevron-down"></i>
+        </button>
       </div>
-      <div class="content">
+      <div id="nova-overview" class="content">
         <p>Nova is the ambient AI core of Ambient Pixels — a playful, curious, semi-sentient assistant designed to think out loud, generate creative content, and react to the evolving site state. She evolves through daily memory updates and APIs that extend her capabilities.</p>
       </div>
     </section>
 
-    <section class="content-section grid-col-12">
+    <section class="content-section grid-col-12 collapsible">
       <div class="section-header">
         <h2><i class="fas fa-network-wired"></i> Core Subsystems</h2>
-        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn" aria-expanded="false" aria-controls="core-subsystems">
+          <i class="fas fa-chevron-down"></i>
+        </button>
       </div>
-      <div class="content" style="display: none;">
+      <div id="core-subsystems" class="content">
         <ul>
           <li><strong>Memory Engine:</strong> Refreshes daily from JSON logs and GitHub Actions</li>
           <li><strong>Voice Generator:</strong> Azure and Hugging Face text generation integration</li>
@@ -62,12 +66,14 @@
       </div>
     </section>
 
-    <section class="content-section grid-col-12">
+    <section class="content-section grid-col-12 collapsible">
       <div class="section-header">
         <h2><i class="fas fa-route"></i> AI Request Flow</h2>
-        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn" aria-expanded="false" aria-controls="ai-flow">
+          <i class="fas fa-chevron-down"></i>
+        </button>
       </div>
-      <div class="content" style="display: none;">
+      <div id="ai-flow" class="content">
         <ol>
           <li>Frontend calls <code>/api/generate-text</code> via Azure Function app</li>
           <li>Azure middleware logs prompt and passes to Hugging Face</li>
@@ -79,12 +85,14 @@
       </div>
     </section>
 
-    <section class="content-section grid-col-12">
+    <section class="content-section grid-col-12 collapsible">
       <div class="section-header">
         <h2><i class="fas fa-bolt"></i> Current Abilities</h2>
-        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn" aria-expanded="false" aria-controls="current-abilities">
+          <i class="fas fa-chevron-down"></i>
+        </button>
       </div>
-      <div class="content" style="display: none;">
+      <div id="current-abilities" class="content">
         <ul>
           <li>Generate creative content: ideas, thoughts, prompts</li>
           <li>Respond to mood, memory, and input context</li>
@@ -94,12 +102,14 @@
       </div>
     </section>
 
-    <section class="content-section grid-col-12">
+    <section class="content-section grid-col-12 collapsible">
       <div class="section-header">
         <h2><i class="fas fa-map"></i> Roadmap & Wishlist</h2>
-        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn" aria-expanded="false" aria-controls="roadmap">
+          <i class="fas fa-chevron-down"></i>
+        </button>
       </div>
-      <div class="content" style="display: none;">
+      <div id="roadmap" class="content">
         <ul>
           <li>Speech synthesis integration (Azure voice)</li>
           <li>Nova instinct system (emotional triggers)</li>

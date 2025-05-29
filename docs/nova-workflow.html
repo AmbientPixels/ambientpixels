@@ -35,60 +35,95 @@
   </section>
 
   <main class="grid-container">
-    <section class="content-section grid-col-12">
-      <h1><i class="fas fa-cogs"></i> Daily Sync: GitHub Actions + Node.js Scripts</h1>
-      <p>Nova’s awareness system is powered by a series of scripts that run daily or manually via GitHub Actions. These scripts analyze the codebase, extract meaningful signals, and generate awareness files.</p>
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-cogs"></i> Daily Sync: GitHub Actions + Node.js Scripts</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="daily-sync">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="daily-sync" class="content">
+        <p>Nova’s awareness system is powered by a series of scripts that run daily or manually via GitHub Actions. These scripts analyze the codebase, extract meaningful signals, and generate awareness files.</p>
+      </div>
     </section>
 
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-code"></i> Active Scripts in /scripts/</h2>
-      <ul>
-        <li><code>scanSiteStructure.js</code> — Map folder + page structure</li>
-        <li><code>componentScan.js</code> — Index includes + layout modules</li>
-        <li><code>imageAudit.js</code> — Log hero/media/card assets</li>
-        <li><code>codeFootprint.js</code> — Count files + lines across codebase</li>
-        <li><code>jsFunctionMap.js</code> — Map function names in /scripts</li>
-        <li><code>generateCodeMap.js</code> — <strong>NEW:</strong> Code Awareness Sensor (JS/CSS/HTML map)</li>
-        <li><code>unusedCSS.js</code> — Identify potentially unused classes</li>
-        <li><code>moodScan.js</code> — Detect site tone and writing style</li>
-        <li><code>aiPromptGenerator.js</code> — Create poetic AI prompt of the day</li>
-        <li><code>apiMonitor.js</code> — Ping HuggingFace + Meme API</li>
-        <li><code>changelogSnapshot.js</code> — Pull last 10 Git commits</li>
-        <li><code>versionTracker.js</code> — Capture commit hash + timestamp</li>
-        <li><code>generateNovaBoot.js</code> — Combine all into Nova’s memory file</li>
-      </ul>
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-code"></i> Active Scripts in /scripts/</h2>
+        <button class="toggle-btn" aria-expanded="false" aria-controls="active-scripts">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="active-scripts" class="content">
+        <ul>
+          <li><code>scanSiteStructure.js</code> — Map folder + page structure</li>
+          <li><code>componentScan.js</code> — Index includes + layout modules</li>
+          <li><code>imageAudit.js</code> — Log hero/media/card assets</li>
+          <li><code>codeFootprint.js</code> — Count files + lines across codebase</li>
+          <li><code>jsFunctionMap.js</code> — Map function names in /scripts</li>
+          <li><code>generateCodeMap.js</code> — <strong>NEW:</strong> Code Awareness Sensor (JS/CSS/HTML map)</li>
+          <li><code>unusedCSS.js</code> — Identify potentially unused classes</li>
+          <li><code>moodScan.js</code> — Detect site tone and writing style</li>
+          <li><code>aiPromptGenerator.js</code> — Create poetic AI prompt of the day</li>
+          <li><code>apiMonitor.js</code> — Ping HuggingFace + Meme API</li>
+          <li><code>changelogSnapshot.js</code> — Pull last 10 Git commits</li>
+          <li><code>versionTracker.js</code> — Capture commit hash + timestamp</li>
+          <li><code>generateNovaBoot.js</code> — Combine all into Nova’s memory file</li>
+        </ul>
+      </div>
     </section>
 
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-database"></i> Outputs → /data/</h2>
-      <p>Each run generates awareness JSON files used in the dashboard and site logic:</p>
-      <ul>
-        <li><code>nova-session-boot.txt</code> – Nova’s unified memory file (for GPT or local AI)</li>
-        <li><code>nova-session-boot.html</code> – Human-readable boot log</li>
-        <li><code>code-map.json</code> – <strong>NEW:</strong> Tag + function map across JS/CSS/HTML</li>
-        <li><code>api-monitor.json</code>, <code>ai-prompts.json</code>, <code>mood-scan.json</code>...</li>
-      </ul>
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-database"></i> Outputs → /data/</h2>
+        <button class="toggle-btn" aria-expanded="false" aria-controls="outputs">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="outputs" class="content">
+        <p>Each run generates awareness JSON files used in the dashboard and site logic:</p>
+        <ul>
+          <li><code>nova-session-boot.txt</code> – Nova’s unified memory file (for GPT or local AI)</li>
+          <li><code>nova-session-boot.html</code> – Human-readable boot log</li>
+          <li><code>code-map.json</code> – <strong>NEW:</strong> Tag + function map across JS/CSS/HTML</li>
+          <li><code>api-monitor.json</code>, <code>ai-prompts.json</code>, <code>mood-scan.json</code>...</li>
+        </ul>
+      </div>
     </section>
 
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-sitemap"></i> Automation Flow</h2>
-      <pre><code>.github/workflows/update-nova-memory.yml
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-sitemap"></i> Automation Flow</h2>
+        <button class="toggle-btn" aria-expanded="false" aria-controls="automation-flow">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="automation-flow" class="content">
+        <pre><code>.github/workflows/update-nova-memory.yml
 └── node scripts/*.js
     ├── analyze
     ├── write to /data/*.json
     └── push to Git → triggers Azure deploy
       </code></pre>
+      </div>
     </section>
 
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-microscope"></i> About the Code Awareness Sensor</h2>
-      <p>This system reads all JS, CSS, and HTML across the site and builds:</p>
-      <ul>
-        <li>Total counts of tags, class names, and functions</li>
-        <li>Extracted function/class/tag names across all directories</li>
-        <li>Timestamped entries for use in <code>code-map.json</code></li>
-      </ul>
-      <p>This output enables Nova to reflect on the evolving codebase, mention new functions, and generate targeted feedback or prompts.</p>
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-microscope"></i> About the Code Awareness Sensor</h2>
+        <button class="toggle-btn" aria-expanded="false" aria-controls="code-sensor">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="code-sensor" class="content">
+        <p>This system reads all JS, CSS, and HTML across the site and builds:</p>
+        <ul>
+          <li>Total counts of tags, class names, and functions</li>
+          <li>Extracted function/class/tag names across all directories</li>
+          <li>Timestamped entries for use in <code>code-map.json</code></li>
+        </ul>
+        <p>This output enables Nova to reflect on the evolving codebase, mention new functions, and generate targeted feedback or prompts.</p>
+      </div>
     </section>
 
     <section class="content-section grid-col-12">

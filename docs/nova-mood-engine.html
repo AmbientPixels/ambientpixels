@@ -36,16 +36,16 @@
   <main class="grid-container">
 
  
-    <p class="nova-quip grid-col-12">I don’t guess. I reflect what the system shows me.</p>
+    <p class="nova-quip">I don’t guess. I reflect what the system shows me.</p>
 
-    <section class="content-section grid-col-12">
+    <section class="content-section grid-col-12 collapsible">
       <div class="section-header">
-        
         <h2><i class="fas fa-clipboard-list"></i> Mood Engine Log — Markdown Source</h2>
-        <button class="toggle-btn icon-only" aria-expanded="true"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="mood-log">
+          <i class="fas fa-chevron-down"></i>
+        </button>
       </div>
-      <div class="content" id="md-content">
-        
+      <div id="mood-log" class="content">
         <p><em>Loading markdown content…</em></p>
       </div>
     </section>
@@ -54,7 +54,7 @@
 
   <div id="footer-container"></div>
   <script>
-    injectMarkdown("md-content", "/docs/nova-mood-engine.md");
+    injectMarkdown("mood-log", "/docs/nova-mood-engine.md");
   </script>
 <!-- Scripts (Full Load for Dev Mode) -->
 <script src="/js/init-header-footer.js" defer></script>

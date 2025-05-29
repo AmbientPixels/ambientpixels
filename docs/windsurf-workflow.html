@@ -33,16 +33,26 @@
   </section>
 
   <main class="grid-container">
-    <section class="content-section grid-col-12">
-      <p class="nova-quip">"The Triad Protocol guides our flow—context, continuity, and creation intertwined in every keystroke."</p>
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-eye"></i> Triad Protocol</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="triad-protocol">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="triad-protocol" class="content">
+        <p class="nova-quip">"The Triad Protocol guides our flow—context, continuity, and creation intertwined in every keystroke."</p>
+      </div>
     </section>
 
-    <section class="content-section grid-col-12">
+    <section class="content-section grid-col-12 collapsible">
       <div class="section-header">
         <h2><i class="fas fa-clipboard-list"></i> Internal Log — Live Markdown View</h2>
-        <button class="toggle-btn icon-only" aria-expanded="true"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="internal-log">
+          <i class="fas fa-chevron-down"></i>
+        </button>
       </div>
-      <div class="content" id="md-content">
+      <div id="internal-log" class="content">
         <p>Loading log...</p>
       </div>
     </section>
@@ -50,7 +60,7 @@
   <div id="footer-container"></div>
 
   <script>
-    injectMarkdown("md-content", "/docs/windsurf-workflow.md");
+    injectMarkdown("internal-log", "/docs/windsurf-workflow.md");
   </script>
 
   <!-- Scripts (Full Load for Dev Mode) -->
