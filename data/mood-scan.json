@@ -1,13 +1,13 @@
 {
-  "mood": "reflective",
-  "aura": "graphite blue",
-  "auraColorHex": "#1a2630",
-  "quote": "measuring the hum of the source code...",
-  "emoji": "🪞",
+  "mood": "tangled clarity",
+  "aura": "silent spark",
+  "auraColorHex": "#6e506e",
+  "quote": "surfacing hidden anomalies of feeling...",
+  "emoji": "🪢",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 1,
-  "awareness": 0.1,
+  "memoryClutter": 0.78,
+  "awareness": 0.16,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: graphite blue"
+      "Aura Signature: silent spark"
     ]
   },
-  "timestamp": "2025-05-28T13:33:47.958Z"
+  "timestamp": "2025-05-29T13:32:07.446Z"
 }
