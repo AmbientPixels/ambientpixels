@@ -17,52 +17,6 @@
   <link rel="stylesheet" href="/css/banner.css">
   <link rel="stylesheet" href="/css/nova-mood.css">
   <link rel="stylesheet" href="/css/resume.css">
-      align-items: center;
-      padding: 1.5rem 0;
-      border-bottom: 1px solid rgba(90, 228, 255, 0.1);
-      margin-bottom: 1rem;
-      cursor: pointer;
-    }
-    
-    .section-header h2 {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-size: 1.25rem;
-      color: #5ae4ff;
-      margin: 0;
-    }
-
-    /* Default h2 styles */
-    h2 {
-      margin: 2rem 0 1rem;
-      color: #5ae4ff;
-      font-size: 1.5rem;
-    }
-    
-    .section-header h2 i {
-      color: #4682B4;
-      font-size: 1.5rem;
-    }
-    
-    .toggle-btn {
-      background: none;
-      border: 1px solid #4682B4;
-      padding: 8px 16px;
-      cursor: pointer;
-      color: inherit;
-      transition: all 0.3s ease;
-    }
-    
-    .toggle-btn:hover {
-      background: rgba(70, 130, 180, 0.1);
-    }
-    
-    .content {
-      padding: 1.5rem 0;
-      border-top: 1px solid rgba(90, 228, 255, 0.1);
-    }
-  </style>
 </head>
 <body data-theme="dark">
   <div class="banner-container" id="banner-container">
@@ -104,42 +58,41 @@
     </section>
 
     <!-- Experience Section -->
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-briefcase"></i> Experience</h2>
-      
-      <div class="nova-grid">
-        <!-- Experience Item 1 -->
-        <div class="grid-item neon-card">
-          <h3>Producer</h3>
-          <p class="company">Xbox | Microsoft</p>
-          <p class="date">2014 - Present</p>
-          <p>Leading production efforts for Xbox's digital content platform, managing cross-functional teams to deliver high-quality gaming experiences to millions of players worldwide.</p>
-        </div>
-
-          </div>
-
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-briefcase"></i> Experience</h2>
+        <button class="toggle-btn" aria-expanded="false" aria-controls="experience-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="experience-content" class="content">
+        <div class="resume-section">
           <div class="experience-item">
-            <h3 class="job-title">Web Producer</h3>
-            <span class="company">Xbox | Microsoft</span>
-            <span class="date">2010 - 2014</span>
+            <h3>Producer</h3>
+            <p class="company">Xbox | Microsoft</p>
+            <p class="date">2014 - Present</p>
+            <p>Leading production efforts for Xbox's digital content platform, managing cross-functional teams to deliver high-quality gaming experiences to millions of players worldwide.</p>
+          </div>
+          <div class="experience-item">
+            <h3>Web Producer</h3>
+            <p class="company">Xbox | Microsoft</p>
+            <p class="date">2010 - 2014</p>
             <ul>
               <li>Managed content strategy and production for Xbox.com, optimizing web performance and user experience across multiple platforms.</li>
             </ul>
           </div>
-
           <div class="experience-item">
-            <h3 class="job-title">Web Producer</h3>
-            <span class="company">Microsoft</span>
-            <span class="date">2009 - 2010</span>
+            <h3>Web Producer</h3>
+            <p class="company">Microsoft</p>
+            <p class="date">2009 - 2010</p>
             <ul>
               <li>Produced and maintained web content for Microsoft's consumer products, ensuring brand consistency and implementing SEO best practices.</li>
             </ul>
           </div>
-
           <div class="experience-item">
-            <h3 class="job-title">Digital Media Operations Supervisor</h3>
-            <span class="company">Muze</span>
-            <span class="date">2005 - 2008</span>
+            <h3>Digital Media Operations Supervisor</h3>
+            <p class="company">Muze</p>
+            <p class="date">2005 - 2008</p>
             <ul>
               <li>Led a team responsible for digital media asset management, developing workflows for content ingestion and distribution.</li>
             </ul>

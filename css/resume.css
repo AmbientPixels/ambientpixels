@@ -22,6 +22,11 @@
 
 /* Section Headers */
 .section-header {
+  align-items: center;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid rgba(90, 228, 255, 0.1);
+  margin-bottom: 1rem;
+  cursor: pointer;
   background: rgba(75, 202, 255, 0.05);
   transition: all 0.3s ease;
 }
@@ -31,12 +36,47 @@
   transform: translateY(-2px);
 }
 
+.section-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.25rem;
+  color: #5ae4ff;
+  margin: 0;
+}
+
+h2 {
+  margin: 2rem 0 1rem;
+  color: #5ae4ff;
+  font-size: 1.5rem;
+}
+
 .section-header h2 i {
+  color: #4682B4;
+  font-size: 1.5rem;
   transition: transform 0.3s ease;
 }
 
 .section-header:hover h2 i {
   transform: rotate(10deg);
+}
+
+.toggle-btn {
+  background: none;
+  border: 1px solid #4682B4;
+  padding: 8px 16px;
+  cursor: pointer;
+  color: inherit;
+  transition: all 0.3s ease;
+}
+
+.toggle-btn:hover {
+  background: rgba(70, 130, 180, 0.1);
+}
+
+.content {
+  padding: 1.5rem 0;
+  border-top: 1px solid rgba(90, 228, 255, 0.1);
 }
 
 /* Experience Items */
