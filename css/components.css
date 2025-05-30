@@ -1,5 +1,53 @@
 /* /css/components.css - Ambient Pixels v2.3 - April 11, 2025 */
 
+/* Card Grid - Universal card component */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.card {
+  position: relative;
+  background: rgba(30, 33, 54, 0.6);
+  border-left: 4px solid #5ae4ff;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0 8px 8px 0;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.card:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 15px rgba(75, 202, 255, 0.2);
+}
+
+.card h3 {
+  color: #4bcaff;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* Using default h3 size */
+}
+
+.card h3 i {
+  font-size: 1em;
+  color: #5ae4ff;
+}
+
+.card p {
+  margin: 0;
+  color: #ccd6f6;
+  line-height: 1.5;
+  /* Using default paragraph size */
+  opacity: 0.9;
+}
+
 /* Glass Button */
 .glass-button {
   display: inline-flex;
@@ -346,26 +394,78 @@ body[data-theme="light"] .git-commit-item {
     outline: none;
 }
 
-.modal .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(90, 228, 255, 0.3);
-    border-color: #4bcaff;
-    background: rgba(75, 202, 255, 0.1);
-    text-shadow: 0 0 5px rgba(135, 206, 235, 0.5);
+.modal .primary-button {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(90, 228, 255, 0.3);
+    background: linear-gradient(135deg, rgba(75, 202, 255, 0.1), rgba(90, 228, 255, 0.05));
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    color: #fff;
+    padding: 0.5rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modal .primary-button:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 15px rgba(90, 228, 255, 0.25), 0 0 15px rgba(75, 202, 255, 0.2);
+    border-color: #5ae4ff;
+    background: linear-gradient(135deg, rgba(75, 202, 255, 0.15), rgba(90, 228, 255, 0.1));
+    text-shadow: 0 0 8px rgba(135, 206, 235, 0.8);
+}
+
+.modal .primary-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: 0.5s;
+}
+
+.modal .primary-button:hover::before {
+    left: 100%;
 }
 
 .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
     background: none;
-    border: none;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
     color: #fff;
-    font-size: 1.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    padding: 0.5rem;
-    transition: color 0.3s ease;
+    padding: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
+}
+
+.modal-close i {
+    font-size: 1.2rem;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
     color: #87ceeb;
+    transform: rotate(90deg);
+}
+
+.modal-close:hover i {
+    transform: rotate(180deg);
 }
 
 .modal-body {

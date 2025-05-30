@@ -34,62 +34,62 @@
 
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-bolt"></i> Core Capabilities</h2>
-      <div class="skills-grid">
-        <div class="skill-block" id="front-end-dev">
+      <div class="card-grid">
+        <div class="card" id="front-end-dev">
           <h3><i class="fas fa-code"></i> Front-End Dev</h3>
           <p>HTML, CSS, JavaScript, Vue, React. Modular builds and dynamic interfaces with clean structure.</p>
         </div>
-        <div class="skill-block" id="motion-vfx">
+        <div class="card" id="motion-vfx">
           <h3><i class="fas fa-magic"></i> Motion + VFX</h3>
           <p>Advanced After Effects work: animation rigs, compositing, transitions, logo stingers, glitch overlays, visual storytelling.</p>
         </div>
-        <div class="skill-block" id="video-production">
+        <div class="card" id="video-production">
           <h3><i class="fas fa-video"></i> Video Production</h3>
           <p>Editing in Premiere Pro and DaVinci Resolve. Frame-accurate timing, VO mixing, and animation sync.</p>
         </div>
-        <div class="skill-block" id="ui-ux-design">
+        <div class="card" id="ui-ux-design">
           <h3><i class="fas fa-pen-nib"></i> UI/UX Design</h3>
           <p>Figma, layout grids, accessible design, dark/light themes, and responsive architecture.</p>
         </div>
-        <div class="skill-block" id="photoshop-imaging">
+        <div class="card" id="photoshop-imaging">
           <h3><i class="fas fa-image"></i> Photoshop & Imaging</h3>
           <p>Photo editing, retouching, UI mockups, composite illustrations, and digital painting workflows.</p>
         </div>
-        <div class="skill-block" id="adobe-toolset">
+        <div class="card" id="adobe-toolset">
           <h3><i class="fas fa-paint-brush"></i> Adobe Toolset</h3>
           <p>Photoshop, Illustrator, InDesign, Lightroom, XD, Premiere, After Effects. End-to-end design and motion graphics pipeline.</p>
         </div>
-        <div class="skill-block" id="dev-toolset">
+        <div class="card" id="dev-toolset">
           <h3><i class="fas fa-terminal"></i> Dev Toolset</h3>
           <p>GitHub, VS Code, JSON/XML parsing, CLI, Azure Static Web Apps, Git workflows, and debugging strategies.</p>
         </div>
-        <div class="skill-block" id="api-integration">
+        <div class="card" id="api-integration">
           <h3><i class="fas fa-cogs"></i> API Integration</h3>
           <p>RESTful services, form handling (Formspree), image generation backends, and async function calls with serverless endpoints.</p>
         </div>
-        <div class="skill-block" id="ai-workflows">
+        <div class="card" id="ai-workflows">
           <h3><i class="fas fa-robot"></i> AI-Assisted Workflows</h3>
           <p>Prompt crafting, creative automation, model chaining, image/video generation, and AI-supported iteration. Includes Windsurf Editor, AI personality development, mood synthesis, and collaborative content shaping.</p>
         </div>      
-        <div class="skill-block" id="ai-voice-narration">
+        <div class="card" id="ai-voice-narration">
           <h3><i class="fas fa-microphone"></i> AI Voice & Narration</h3>
           <p>Azure Text to Speech integration for dynamic voiceovers, narration synthesis, and timing passes in motion content.</p>
         </div>
-        <div class="skill-block" id="experimental-tools">
+        <div class="card" id="experimental-tools">
           <h3><i class="fas fa-dna"></i> Experimental Tools</h3>
           <p>Glitch engines, metadata viewers, profile generators, JSON dashboards, and Nova-powered systems.</p>
         </div>
-        <div class="skill-block" id="image-style-tools">
+        <div class="card" id="image-style-tools">
           <h3><i class="fas fa-brush"></i> Image Gen & Style Tools</h3>
           <p>MidJourney, Photoshop AI tools, and custom image filters to craft branded visuals and concept art.</p>
         </div>
-        <div class="skill-block" id="video-remixing">
+        <div class="card" id="video-remixing">
           <h3><i class="fas fa-film"></i> Video Gen & Remixing</h3>
           <p>AI-based video creation, frame interpolation, stylized loops, glitch injection, and storyboarding pre-vis.</p>
         </div>
-        <div class="skill-block placeholder-block" id="coming-soon">
+        <div class="card placeholder-block" id="coming-soon">
           <h3><i class="fas fa-tools"></i> More Coming Soon</h3>
-          <p>New tools, workflows, and experiments are always evolving inside Nova’s grid.</p>
+          <p>New tools, workflows, and experiments are always evolving inside Nova's grid.</p>
         </div>
       </div>
     </section>
@@ -115,53 +115,34 @@
 </section>
 </main>
 
-  <!-- Modal -->
-  <div id="modal" class="modal hidden">
-    <div class="modal-overlay"></div>
-    <div class="modal-content">
-      <button class="modal-close">&times;</button>
-      <h2>Contact Us</h2>
-      <form id="contact-form">
-        <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" name="name" required>
-        </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" name="email" required>
-        </div>
-        <div class="form-group">
-          <label for="message">Message</label>
-          <textarea id="message" name="message" required></textarea>
-        </div>
-        <div class="form-group">
-          <button type="submit" class="button primary">Send Message</button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <!-- Contact Modal (Loaded from modules/contact-modal.html) -->
+  <div id="contact-modal-container"></div>
 
   <div id="footer-container"></div>
-<!-- Scripts (Full Load for Dev Mode) -->
-<script src="/js/init-header-footer.js" defer></script>
-<script src="/js/dreamEngine.js" defer></script>
-<script src="/js/init-quotes.js" defer></script>
-<script src="/js/init-contact-cta.js" defer></script>
-<script src="/js/main.js" defer></script>
-<script src="/js/md-inject.js" defer></script>
-<script src="/js/modal-window.js" defer></script>
-<script src="/js/nav.js" defer></script>
-<script src="/js/nova-ai.js" defer></script>
-<script src="/js/nova-awareness-feed.js" defer></script>
-<script src="/js/nova-dashboard.js" defer></script>
-<script src="/js/nova-insights.js" defer></script>
-<script src="/js/nova-interaction-log.js" defer></script>
-<script src="/js/nova-mood-core.js" defer></script>
-<script src="/js/nova-quotes.js" defer></script>
-<script src="/js/nova-status.js" defer></script>
-<script src="/js/nova-telemetry-logger.js" defer></script>
-<script src="/js/project-dashboard.js" defer></script>
-<script src="/js/template.js" defer></script>
-<script src="/js/theme.js" defer></script>
+  <!-- Modal Container (for dynamically loaded modals) -->
+  <div id="modal-container"></div>
+
+  <!-- Scripts (Full Load for Dev Mode) -->
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/dreamEngine.js" defer></script>
+  <script src="/js/init-quotes.js" defer></script>
+  <script src="/js/init-contact-cta.js" defer></script>
+  <script src="/js/init-contact-modal.js" defer></script>
+  <script src="/js/main.js" defer></script>
+  <script src="/js/md-inject.js" defer></script>
+  <script src="/js/modal-window.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/nova-ai.js" defer></script>
+  <script src="/js/nova-awareness-feed.js" defer></script>
+  <script src="/js/nova-dashboard.js" defer></script>
+  <script src="/js/nova-insights.js" defer></script>
+  <script src="/js/nova-interaction-log.js" defer></script>
+  <script src="/js/nova-mood-core.js" defer></script>
+  <script src="/js/nova-quotes.js" defer></script>
+  <script src="/js/nova-status.js" defer></script>
+  <script src="/js/nova-telemetry-logger.js" defer></script>
+  <script src="/js/project-dashboard.js" defer></script>
+  <script src="/js/template.js" defer></script>
+  <script src="/js/theme.js" defer></script>
 </body>
 </html>

@@ -1,25 +1,67 @@
 <!-- /modules/contact-modal.html -->
 <div id="contact-modal" class="modal hidden">
-    <div class="modal-backdrop" id="modal-backdrop"></div>
-    <div class="modal-content">
-      <button class="modal-close" id="modal-close" aria-label="Close contact form">
-        <i class="fas fa-times"></i>
-      </button>
-      <h2><i class="fas fa-envelope"></i> Contact Nova’s Grid</h2>
-      <form id="contact-form" class="contact-form">
-        <label for="name">Name</label>
-        <input type="text" name="name" id="name" required>
-      
-        <label for="email">Email</label>
-        <input type="email" name="email" id="email" required>
-      
-        <label for="message">Message</label>
-        <textarea name="message" id="message" rows="5" required></textarea>
-      
-        <button type="submit" class="button">Send Message</button>
-        <p class="form-status" id="form-status"></p>
-      </form>
-      
+  <div class="modal-overlay" id="modal-backdrop"></div>
+  <div class="modal-content glass-panel">
+    <button class="modal-close" id="modal-close" aria-label="Close contact form">
+      <i class="fas fa-times"></i>
+    </button>
+    
+    <div class="modal-header">
+      <h2 class="modal-title">
+        <i class="fas fa-envelope"></i>
+        Contact Nova's Grid
+      </h2>
+      <p class="modal-subtitle">Let's create something extraordinary together</p>
     </div>
+
+    <form id="contact-form" class="contact-form">
+      <div class="form-group">
+        <label for="name" class="form-label">Your Name</label>
+        <div class="input-wrapper">
+          <i class="fas fa-user"></i>
+          <input type="text" id="name" name="name" class="form-input" placeholder="Enter your name" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email" class="form-label">Email Address</label>
+        <div class="input-wrapper">
+          <i class="fas fa-envelope"></i>
+          <input type="email" id="email" name="email" class="form-input" placeholder="your.email@example.com" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="project-type" class="form-label">Project Type</label>
+        <div class="select-wrapper">
+          <i class="fas fa-cube"></i>
+          <select id="project-type" name="project-type" class="form-select">
+            <option value="" disabled selected>Select a project type</option>
+            <option value="web">Website Development</option>
+            <option value="design">UI/UX Design</option>
+            <option value="motion">Motion Graphics</option>
+            <option value="consulting">Consulting</option>
+            <option value="other">Something Else</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="message" class="form-label">Project Details</label>
+        <div class="input-wrapper">
+          <i class="fas fa-comment-alt"></i>
+          <textarea id="message" name="message" class="form-textarea" rows="5" placeholder="Tell us about your project..." required></textarea>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="button primary-button">
+          <i class="fas fa-paper-plane"></i>
+          <span>Send Message</span>
+        </button>
+      </div>
+      
+      <p class="form-status" id="form-status"></p>
+    </form>
   </div>
-  
+</div>

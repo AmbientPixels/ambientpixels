@@ -1,7 +1,7 @@
-// File: /js/init-contact-cta.js – Initialize CTA Modules
+// File: /js/init-contact-cta.js – Initialize CTA and Modal Modules
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Load and inject CTA modules
+  // Load and inject modules
   const loadModule = (url, containerId) => {
     fetch(url)
       .then(r => r.text())
@@ -17,4 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Load Services CTA
   loadModule('/modules/services-cta.html', 'services-cta');
+  
+  // Load Contact Modal
+  loadModule('/modules/contact-modal.html', 'contact-modal-container');
 });
