@@ -1,8 +1,8 @@
 {
-  "scannedAt": "2025-05-29T13:32:06.689Z",
+  "scannedAt": "2025-05-30T02:08:37.868Z",
   "cssFile": "css/base.css",
   "totalDefined": 28,
-  "totalUsed": 460,
+  "totalUsed": 474,
   "unusedClasses": [
     "pulse-bar",
     "sticky-toggle-wrapper",
