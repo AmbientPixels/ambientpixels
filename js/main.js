@@ -132,10 +132,10 @@ function initHero() {
 }
 
 function initHeroIntroAnimation() {
+  // Get all paragraphs in hero-intro
   const heroP = document.querySelectorAll(".hero-intro p");
-  const novaVoice = document.querySelector(".hero-intro p.nova-voice");
   
-  // Reveal all paragraphs including Nova voice with a staggered delay
+  // Reveal all paragraphs with a staggered delay
   heroP.forEach((p, index) => {
     // Add a small delay based on paragraph index for a cascading effect
     setTimeout(() => {
@@ -143,7 +143,12 @@ function initHeroIntroAnimation() {
     }, index * 200); // 200ms delay between each paragraph
   });
   
-  // No scroll-based reveal needed anymore
+  // Ensure rainbow text maintains its style
+  const rainbowText = document.querySelector(".nova-voice-rainbow");
+  if (rainbowText) {
+    // The animation will be handled by the CSS class
+    rainbowText.classList.add("revealed");
+  }
 }
 
 function initToggles() {
