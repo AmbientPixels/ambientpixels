@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-05-30T02:08:37.639Z",
+  "updated": "2025-05-30T13:32:05.719Z",
   "root": [
     {
       "type": "folder",
@@ -282,6 +282,11 @@
           "type": "page",
           "name": "nova-pulse.html",
           "path": "modules/nova-pulse.html"
+        },
+        {
+          "type": "page",
+          "name": "services-cta.html",
+          "path": "modules/services-cta.html"
         },
         {
           "type": "page",
