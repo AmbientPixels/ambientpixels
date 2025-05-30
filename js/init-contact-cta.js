@@ -1,11 +1,20 @@
-// File: /js/init-contact-cta.js – Initialize Contact CTA Module
+// File: /js/init-contact-cta.js – Initialize CTA Modules
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Inject Contact CTA
-  fetch('/modules/contact-cta.html')
-    .then(r => r.text())
-    .then(html => {
-      const cta = document.getElementById('contact-cta');
-      if (cta) cta.innerHTML = html;
-    });
+  // Load and inject CTA modules
+  const loadModule = (url, containerId) => {
+    fetch(url)
+      .then(r => r.text())
+      .then(html => {
+        const container = document.getElementById(containerId);
+        if (container) container.innerHTML = html;
+      })
+      .catch(err => console.error(`Error loading ${url}:`, err));
+  };
+
+  // Load Contact CTA
+  loadModule('/modules/contact-cta.html', 'contact-cta');
+  
+  // Load Services CTA
+  loadModule('/modules/services-cta.html', 'services-cta');
 });

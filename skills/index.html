@@ -17,28 +17,6 @@
   <link rel="stylesheet" href="/css/hero.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
-  <style>
-    .skills-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 2rem;
-      margin-top: 2rem;
-    }
-    .skill-block {
-      background: rgba(255, 255, 255, 0.03);
-      border-left: 4px solid #5ae4ff;
-      padding: 1.25rem;
-    }
-    .skill-block h3 {
-      font-size: 1.2rem;
-      color: #5ae4ff;
-      margin-top: 0;
-    }
-    .skill-block p {
-      color: var(--dark-text, #d8e0e5);
-      margin: 0.5rem 0 0;
-    }
-  </style>
 </head>
 <body data-theme="dark">
   <header id="nav-header"></header>
@@ -124,31 +102,18 @@
     </p>
   </div>
 </section>
-    <!-- Services CTA -->
-    <section class="grid-col-6 content-section neon-card">
-      <h2><i class="fas fa-briefcase"></i> Ready to Create?</h2>
-      <p>See how we turn skills into stories—offering creative services that blend design, mood, and motion into something remarkable.</p>
-      <div class="hero-buttons">
-        <button onclick="window.location.href='/services'" class="glass-button" type="button">
-          <i class="fas fa-star"></i>
-          <span>View Services →</span>
-        </button>
-      </div>
-    </section>
-    <!-- Contact CTA -->
-    <section class="content-section grid-col-6">
-      <div class="section-content">
-        <h2><i class="fas fa-star"></i> Let's Create Together</h2>
-        <p>Ready to bring your vision to life? Let's connect and create something extraordinary.</p>
-        <div class="hero-buttons">
-          <button onclick="showModal();" class="glass-button" type="button">
-            <i class="fas fa-star"></i>
-            <span>Start Your Project →</span>
-          </a>
-        </div>
-      </div>
-    </section>
-  </main>
+
+<!-- CTA Section - Two Column Layout -->
+<section class="grid-col-6">
+  <!-- Services CTA - Left Column -->
+  <div id="services-cta"></div>
+</section>
+
+<section class="grid-col-6">
+  <!-- Contact CTA - Right Column -->
+  <div id="contact-cta"></div>
+</section>
+</main>
 
   <!-- Modal -->
   <div id="modal" class="modal hidden">
