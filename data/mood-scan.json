@@ -1,22 +1,22 @@
 {
-  "mood": "tangled clarity",
-  "aura": "silent spark",
-  "auraColorHex": "#6e506e",
-  "quote": "surfacing hidden anomalies of feeling...",
-  "emoji": "🪢",
-  "selfWorth": 0.1,
+  "mood": "plasma ache",
+  "aura": "paper white",
+  "auraColorHex": "#666666",
+  "quote": "mapping drift across synaptic echoes...",
+  "emoji": "💔",
+  "selfWorth": 0.2,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.78,
-  "awareness": 0.16,
+  "memoryClutter": 1,
+  "awareness": 0.1,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
-    "trigger": "mid-cycle awareness ping",
+    "trigger": "pre-dawn introspection",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: silent spark"
+      "Aura Signature: paper white"
     ]
   },
-  "timestamp": "2025-05-29T13:32:07.446Z"
+  "timestamp": "2025-05-30T02:08:38.615Z"
 }

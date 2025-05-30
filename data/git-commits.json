@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "e3cde8f5-a532-4567-acb8-105be9081073",
-      "hash": "f00cf4e3984c092952d2841d7d35e77b058828d4",
-      "message": "refactor: update lab page navigation and content",
-      "timestamp": "2025-05-28 21:58:25 -0700",
+      "id": "cd21a33e-c6ef-4f70-af2e-b046ce86acec",
+      "hash": "7a094551e3984c05e148843ffa3a0df8f4aa4ccf",
+      "message": "refactor: update resume layout and content",
+      "timestamp": "2025-05-29 16:12:06 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/f00cf4e3984c092952d2841d7d35e77b058828d4"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/7a094551e3984c05e148843ffa3a0df8f4aa4ccf"
     }
   ],
-  "timestamp": "2025-05-29T13:32:07.520Z",
+  "timestamp": "2025-05-30T02:08:38.690Z",
   "count": 1,
-  "scanId": 1748525527520
+  "scanId": 1748570918690
 }
