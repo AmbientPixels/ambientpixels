@@ -55,10 +55,19 @@ img {
 
 button {
     cursor: pointer;
-    border: none;
+    border: 1px solid transparent;
     background: none;
-    padding: 0;
+    padding: 0.6rem 1.2rem;
     margin: 0;
+    font: inherit;
+    border-radius: 4px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    line-height: 1.5;
+    font-weight: 500;
 }
 
 /* Very small screens optimization */
@@ -114,7 +123,11 @@ ul, ol {
     padding: 0;
 }
 
-html, body {
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px; /* Space for fixed header */
+}
+body {
   overflow-x: hidden;
   max-width: 100%;
 }
@@ -212,7 +225,13 @@ li {
   transition: color 0.3s ease;
 }
 
+/* Ensure content sections are always visible and properly spaced */
 .content-section {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  transition: none !important;
+  scroll-margin-top: 80px;
   background: rgba(255, 255, 255, 0.05);
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

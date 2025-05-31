@@ -79,7 +79,6 @@ button a:active,
   text-decoration-thickness: 0 !important;
   background-image: none !important;
   box-shadow: none !important;
-  border-bottom: none !important;
 }
 
 /* Reset any potential underline effects on pseudo-elements */
@@ -212,6 +211,71 @@ button:active,
 
 .toggle-btn:hover {
   background: rgba(255, 255, 255, 0.1);
+}
+
+/* Download Section */
+.download-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.download-card {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.download-card h3 {
+  color: #5ae4ff;
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+}
+
+.download-card p {
+  color: #ccd6f6;
+  margin: 0 0 1.5rem 0;
+}
+
+.download-card .btn-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid rgba(90, 228, 255, 0.3);
+  border-radius: 4px;
+  color: #ccd6f6;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(90, 228, 255, 0.05);
+  width: 100%;
+  max-width: 250px;
+  margin: 0 auto;
+}
+
+.download-card .btn-secondary:hover {
+  border-color: #5ae4ff;
+  background: rgba(90, 228, 255, 0.1);
+  color: #5ae4ff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(90, 228, 255, 0.15);
+}
+
+.download-card .file-info {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: rgba(204, 214, 246, 0.7);
+}
+
+.text-center {
+  text-align: center;
+  margin-top: 2rem;
+  opacity: 0.8;
+  font-size: 0.9em;
+  color: rgba(204, 214, 246, 0.7);
 }
 
 .project-section {
@@ -636,54 +700,47 @@ body[data-theme="light"] .project-section:hover {
   transform: scale(1.05);
 }
 
-/* Primary Button */
+/* Base Button Styles */
 .btn {
-  font-weight: 400; /* Changed from 600 to 400 for normal weight */
-  text-decoration: none;
-  display: inline-block;
-  text-align: center;
+  /* Inherits from base button styles */
+  position: relative;
   white-space: nowrap;
-  vertical-align: middle;
+  text-align: center;
   user-select: none;
-  border: 1px solid transparent;
-  padding: 0.5rem 1rem;
+  vertical-align: middle;
   font-size: 1rem;
-  line-height: 1.5;
-  border-radius: 0.25rem;
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, 
-              border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #3a7bd5, #8e44ad) !important; /* Deeper blue to purple gradient */
-  color: #ffffff !important; /* White text */
-  font-weight: 400;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
   text-decoration: none !important;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  transition: all 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 4px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Primary Button */
+.btn-primary {
+  background: linear-gradient(135deg, #3a7bd5, #8e44ad);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(90, 228, 255, 0.2);
+  border-color: rgba(90, 228, 255, 0.5);
+}
+
+/* Secondary Button */
 .btn-secondary {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: var(--dark-text);
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: 500;
-  display: inline-block;
-  transition: border-color 0.3s ease, color 0.3s ease;
+  background: rgba(90, 228, 255, 0.05);
+  border: 1px solid rgba(90, 228, 255, 0.3);
+  color: #ccd6f6;
 }
 
 .btn-secondary:hover {
+  background: rgba(90, 228, 255, 0.1);
   border-color: #5ae4ff;
   color: #5ae4ff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(90, 228, 255, 0.15);
 }
 
 .btn-large {
