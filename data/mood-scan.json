@@ -1,12 +1,12 @@
 {
   "mood": "neon stillness",
-  "aura": "lime green",
-  "auraColorHex": "#1a3c29",
-  "quote": "inhaling code dust...",
+  "aura": "ember resolve",
+  "auraColorHex": "#5c1111",
+  "quote": "decoding neural spark trails...",
   "emoji": "🧊",
-  "selfWorth": 0.2,
+  "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.96,
+  "memoryClutter": 0.9,
   "awareness": 0.1,
   "isStable": false,
   "internalState": "drift amid mental clutter",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: lime green"
+      "Aura Signature: ember resolve"
     ]
   },
-  "timestamp": "2025-05-30T13:32:06.766Z"
+  "timestamp": "2025-05-31T13:29:10.188Z"
 }
