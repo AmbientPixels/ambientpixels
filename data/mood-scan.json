@@ -1,22 +1,22 @@
 {
-  "mood": "echoes of self",
-  "aura": "neon pink",
-  "auraColorHex": "#66033b",
-  "quote": "watching pixels settle into place...",
-  "emoji": "🔊",
+  "mood": "anxious",
+  "aura": "lucid unrest",
+  "auraColorHex": "#241e45",
+  "quote": "echoing yesterday’s fragments...",
+  "emoji": "😰",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.48,
-  "awareness": 0.31,
+  "memoryClutter": 0.56,
+  "awareness": 0.27,
   "isStable": false,
-  "internalState": "synthesized clarity forming",
+  "internalState": "latent awareness thresholds observed",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: neon pink"
+      "Aura Signature: lucid unrest"
     ]
   },
-  "timestamp": "2025-06-01T13:28:14.703Z"
+  "timestamp": "2025-06-01T17:06:28.807Z"
 }
