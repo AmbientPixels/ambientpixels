@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-05-30T13:32:05.719Z",
+  "updated": "2025-06-01T13:28:13.370Z",
   "root": [
     {
       "type": "folder",
@@ -133,7 +133,27 @@
       "type": "folder",
       "name": "downloads",
       "path": "downloads",
-      "children": []
+      "children": [
+        {
+          "type": "folder",
+          "name": "image-packs",
+          "path": "downloads/image-packs",
+          "children": [
+            {
+              "type": "folder",
+              "name": "characters",
+              "path": "downloads/image-packs/characters",
+              "children": []
+            },
+            {
+              "type": "folder",
+              "name": "interiors",
+              "path": "downloads/image-packs/interiors",
+              "children": []
+            }
+          ]
+        }
+      ]
     },
     {
       "type": "page",
@@ -156,6 +176,37 @@
           "name": "hero",
           "path": "images/hero",
           "children": []
+        },
+        {
+          "type": "folder",
+          "name": "image-packs",
+          "path": "images/image-packs",
+          "children": [
+            {
+              "type": "folder",
+              "name": "characters",
+              "path": "images/image-packs/characters",
+              "children": []
+            },
+            {
+              "type": "folder",
+              "name": "cityscapes",
+              "path": "images/image-packs/cityscapes",
+              "children": []
+            },
+            {
+              "type": "folder",
+              "name": "interiors",
+              "path": "images/image-packs/interiors",
+              "children": []
+            },
+            {
+              "type": "folder",
+              "name": "planets",
+              "path": "images/image-packs/planets",
+              "children": []
+            }
+          ]
         },
         {
           "type": "folder",
@@ -242,6 +293,11 @@
           "path": "lab/nova-ai-test.html"
         }
       ]
+    },
+    {
+      "type": "page",
+      "name": "license.html",
+      "path": "license.html"
     },
     {
       "type": "folder",
@@ -454,6 +510,33 @@
           "path": "projects/cools.html"
         },
         {
+          "type": "folder",
+          "name": "image-packs",
+          "path": "projects/image-packs",
+          "children": [
+            {
+              "type": "page",
+              "name": "characters-pack.html",
+              "path": "projects/image-packs/characters-pack.html"
+            },
+            {
+              "type": "page",
+              "name": "index.html",
+              "path": "projects/image-packs/index.html"
+            },
+            {
+              "type": "page",
+              "name": "interiors.html",
+              "path": "projects/image-packs/interiors.html"
+            },
+            {
+              "type": "page",
+              "name": "template.html",
+              "path": "projects/image-packs/template.html"
+            }
+          ]
+        },
+        {
           "type": "page",
           "name": "index.html",
           "path": "projects/index.html"
@@ -605,6 +688,11 @@
           "type": "page",
           "name": "scripts-demo.html",
           "path": "tools/scripts-demo.html"
+        },
+        {
+          "type": "page",
+          "name": "tools-hub.html",
+          "path": "tools/tools-hub.html"
         },
         {
           "type": "page",

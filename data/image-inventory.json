@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2025-05-30T13:32:05.790Z",
+  "scannedAt": "2025-06-01T13:28:13.437Z",
   "folders": [
     {
       "folder": "images",
@@ -38,7 +38,7 @@
     },
     {
       "folder": "images/hero",
-      "count": 23,
+      "count": 25,
       "files": [
         "images/hero/hero-01.jpg",
         "images/hero/hero-02.jpg",
@@ -62,7 +62,9 @@
         "images/hero/hero-20.jpg",
         "images/hero/hero-21.jpg",
         "images/hero/hero-22.jpg",
-        "images/hero/hero-23.jpg"
+        "images/hero/hero-23.jpg",
+        "images/hero/ice.png",
+        "images/hero/sun.png"
       ]
     },
     {
