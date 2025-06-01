@@ -61,6 +61,7 @@
   text-decoration: none;
   font-size: 1em;
   gap: 8px;
+  white-space: nowrap;
 }
 
 .nav-links .link-text {
@@ -147,5 +148,18 @@
   .nav-links a {
     justify-content: flex-start;
     font-size: 1.2em;
+  }
+}
+
+/* --- Responsive Join the Grid Stack at 920px --- */
+@media (max-width: 920px) {
+  .nav-links a {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .nav-links .link-text {
+    font-size: 0.9em;
   }
 }
