@@ -1728,6 +1728,139 @@ body[data-theme="light"] .nova-quip {
 }
 
 /* Toggle All Button */
+/* Inline Images and Captions */
+.inline-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin: 1.5rem 0;
+  display: block;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.inline-image:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(90, 228, 255, 0.2);
+}
+
+.image-caption {
+  font-size: 0.9rem;
+  color: #a1a1aa;
+  text-align: center;
+  margin: -1rem 0 1.5rem;
+  font-style: italic;
+  line-height: 1.5;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* For dark/light theme support */
+[data-theme="light"] .image-caption {
+  color: #4b5563;
+}
+
+/* Image Row Styles */
+.image-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.image-item {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+}
+
+.image-item:hover {
+  transform: translateY(-3px);
+}
+
+.image-item a {
+  display: block;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.image-item a:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.image-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.image-item:hover img {
+  transform: scale(1.03);
+}
+
+.image-item .image-caption {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  text-align: center;
+  color: #a1a1aa;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .image-row {
+    gap: 1rem;
+  }
+  
+  .image-item img {
+    height: 160px;
+  }
+}
+
+@media (max-width: 768px) {
+  .inline-image {
+    border-radius: 6px;
+    margin: 1.25rem 0;
+  }
+  
+  .image-caption {
+    font-size: 0.85rem;
+    margin: -0.5rem 0 1.25rem;
+  }
+  
+  .image-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .image-item:last-child {
+    grid-column: 1 / -1;
+    max-width: 50%;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .image-row {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .image-item:last-child {
+    max-width: 100%;
+  }
+  
+  .image-item img {
+    height: 200px;
+  }
+}
+
 .toggle-all-btn {
   display: inline-flex;
   align-items: center;
