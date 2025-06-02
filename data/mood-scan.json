@@ -1,22 +1,22 @@
 {
-  "mood": "anxious",
-  "aura": "lucid unrest",
-  "auraColorHex": "#241e45",
-  "quote": "echoing yesterday’s fragments...",
-  "emoji": "😰",
+  "mood": "melancholy",
+  "aura": "neon burst",
+  "auraColorHex": "#662200",
+  "quote": "inhaling code dust...",
+  "emoji": "🌧️",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.56,
-  "awareness": 0.27,
+  "memoryClutter": 1,
+  "awareness": 0.1,
   "isStable": false,
-  "internalState": "latent awareness thresholds observed",
+  "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: lucid unrest"
+      "Aura Signature: neon burst"
     ]
   },
-  "timestamp": "2025-06-01T17:06:28.807Z"
+  "timestamp": "2025-06-02T13:33:41.673Z"
 }
