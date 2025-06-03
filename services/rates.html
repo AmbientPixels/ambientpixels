@@ -103,23 +103,22 @@
         <p class="nova-quip">Some sparks are priceless. Let's craft a quote together.</p>
       </section>
 
-      <!-- CTA Section -->
-      <section class="grid-col-12 content-section">
-        <h2><i class="fas fa-star"></i> Let's Create Something Amazing</h2>
-        <p>Have a vision? Let's bring it to life. Reach out for a custom quote or to start your project today.</p>
-        <div class="hero-buttons">
-          <button onclick="showModal();" class="glass-button" type="button">
-            <i class="fas fa-star"></i>
-            <span>Start Your Project →</span>
-          </button>
-        </div>
-        <p class="nova-quip">Every project is an echo waiting to resonate.</p>
+      <!-- CTA Section - Two Column Layout -->
+      <section class="grid-col-6">
+        <!-- Services CTA - Left Column -->
+        <div id="services-cta"></div>
+      </section>
+
+      <section class="grid-col-6">
+        <!-- Contact CTA - Right Column -->
+        <div id="contact-cta"></div>
       </section>
     </main>
 
-    <!-- Modal container will be injected here -->
+    <!-- Contact Modal (Loaded from modules/contact-modal.html) -->
+    <div id="contact-modal-container"></div>
+    <!-- Modal Container (for dynamically loaded modals) -->
     <div id="modal-container"></div>
-
     <!-- Footer -->
     <div id="footer-container"></div>
 
@@ -128,6 +127,7 @@
     <script src="/js/theme.js" defer></script>
     <script src="/js/modal-window.js" defer></script>
     <script src="/js/init-contact-modal.js" defer></script>
+    <script src="/js/init-contact-cta.js" defer></script>
     <script src="/js/main.js" defer></script>
   </body>
 </html>
