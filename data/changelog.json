@@ -1,10 +1,10 @@
 {
-  "updated": "2025-06-02T13:33:41.177Z",
+  "updated": "2025-06-03T13:34:42.438Z",
   "entries": [
     {
-      "hash": "8553bbb",
-      "date": "2025-06-01 21:57:41 -0700",
-      "message": "feat(services): add Merch to quick links and services grid"
+      "hash": "983b490",
+      "date": "2025-06-02 21:29:44 -0700",
+      "message": "feat(merch): implement lightbox for Redbubble product showcase"
     }
   ]
 }
