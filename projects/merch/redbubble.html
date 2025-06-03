@@ -1,17 +1,16 @@
 <!-- File: /projects/merch/template.html -->
-<!-- Merchandise Collection Template - Product Showcase and Details -->
 <!DOCTYPE html>
 <html lang="en" class="merch-project-page">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="[Collection Name] - A unique collection of [theme] designs available on various products." />
-  <meta property="og:title" content="[Collection Name] | AmbientPixels Merch" />
-  <meta property="og:description" content="Explore our [theme] collection featuring [key design elements]. Available on t-shirts, mugs, and more." />
+  <meta name="description" content="AmbientPixels - Where cosmic textures, glitch art, and abstract visions become wearable art and collectible designs." />
+  <meta property="og:title" content="AmbientPixels on Redbubble | AmbientPixels Merch" />
+  <meta property="og:description" content="Explore our unique collection of AI-inspired designs on t-shirts, mugs, posters, and more." />
   <meta property="og:image" content="/images/merch/collection-hero.jpg" />
-  <meta property="og:url" content="https://ambientpixels.github.io/projects/merch/[collection-name]" />
+  <meta property="og:url" content="https://ambientpixels.github.io/projects/merch/" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>[Collection Name] | AmbientPixels Merch</title>
+  <title>AmbientPixels on Redbubble | AmbientPixels Merch</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -30,7 +29,7 @@
 
   <!-- Mini Hero Section -->
   <section class="mini-hero">
-    <img src="/images/artwork/VW-van-in-the-northwest.jpg" alt="AmbientPixels on Redbubble" class="mini-hero-img" loading="lazy">
+    <img src="/images/hero-v23.png" alt="AmbientPixels on Redbubble" class="mini-hero-img" loading="lazy">
     <div class="mini-hero-content-wrapper">
       <h1>AmbientPixels on Redbubble</h1>
       <p class="subtitle">Where cosmic textures, glitch art, and abstract designs become wearable art</p>
@@ -38,10 +37,11 @@
   </section>
 
   <main class="grid-container">
-    <!-- Project Overview -->
+    <!-- Collection Overview -->
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-star"></i> Collection Overview</h2>
-      <p>Explore the official Ambient Pixels collection on Redbubble—where our designs transform into everyday items. From glitchy textures to dreamy cosmic gradients, our artwork comes alive on posters, mugs, t-shirts, stickers, and more. Perfect for creatives, fans of abstract design, and anyone who wants to carry a spark of Ambient Pixels with them.</p>
+      <p>Welcome to AmbientPixels—where our designs transform digital dreams into everyday art. From glitchy textures and cosmic gradients to bioluminescent creatures and surreal compositions, each piece reflects our passion for blending the organic with the digital. These artworks come alive on <strong>t-shirts, mugs, stickers, prints, and more</strong>, perfect for expressing your creative spark wherever you go.</p>
+      <p><strong>New arrivals, fan favorites, and cosmic curiosities—find your vibe in our gallery.</strong></p>
       <div class="project-buttons" style="margin-top: 1.5rem;">
         <a href="https://www.redbubble.com/people/AmbientPixels/shop" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
           <i class="fas fa-external-link-alt"></i> Visit Our Redbubble Shop
@@ -50,170 +50,56 @@
     </section>
 
     <!-- Featured Products -->
-    <section class="content-section grid-col-12">
+    <section class="content-section grid-col-12" data-lightbox-autoload>
       <h2><i class="fas fa-images"></i> Featured Products</h2>
       <div class="media-grid">
         <div class="media-item">
-          <a href="/images/artwork/carved01.jpg" class="lightbox-trigger" data-caption="Cosmic Drift Poster - A mesmerizing blend of cosmic textures and glitch effects">
-            <img src="/images/artwork/carved01.jpg" alt="Cosmic Drift Poster" loading="lazy">
+          <a href="/images/projects/merch/sunflower.jpg" class="lightbox-trigger" data-caption="Solar Bloom Art Print">
+            <img src="/images/projects/merch/sunflower.jpg" alt="Solar Bloom Art Print" loading="lazy">
           </a>
-          <p class="media-caption">Cosmic Drift Poster</p>
+          <p class="media-caption">Solar Bloom Art Print</p>
         </div>
         <div class="media-item">
-          <a href="/images/artwork/carved02.jpg" class="lightbox-trigger" data-caption="Neon Pulse Mug - Vibrant colors that energize your morning routine">
-            <img src="/images/artwork/carved02.jpg" alt="Neon Pulse Mug" loading="lazy">
+          <a href="/images/projects/merch/chameleon.jpg" class="lightbox-trigger" data-caption="Prismatic Chameleon Canvas">
+            <img src="/images/projects/merch/chameleon.jpg" alt="Prismatic Chameleon Canvas" loading="lazy">
           </a>
-          <p class="media-caption">Neon Pulse Mug</p>
+          <p class="media-caption">Prismatic Chameleon Canvas</p>
         </div>
         <div class="media-item">
-          <a href="/images/artwork/carved03.jpg" class="lightbox-trigger" data-caption="Nova Core T-shirt - Wear the essence of digital creation">
-            <img src="/images/artwork/carved03.jpg" alt="Nova Core T-shirt" loading="lazy">
+          <a href="/images/projects/merch/mushroom2.jpg" class="lightbox-trigger" data-caption="Luminous Jelly Bloom Poster">
+            <img src="/images/projects/merch/mushroom2.jpg" alt="Luminous Jelly Bloom Poster" loading="lazy">
           </a>
-          <p class="media-caption">Nova Core T-shirt</p>
+          <p class="media-caption">Luminous Jelly Bloom Poster</p>
         </div>
       </div>
     </section>
 
     <!-- Behind the Scenes -->
     <section class="content-section grid-col-12">
-      <h2><i class="fas fa-magic"></i> Behind the Designs</h2>
-      <p>Every design starts as a spark—whether it's a thought, a phrase, or a shape seen in a dream. We use AI tools like MidJourney to generate initial concepts, refine them in Photoshop, and craft them into usable products. Textures are layered, glitches are embraced, and colors are tuned for emotional impact.</p>
-      
-      <img src="/images/artwork/man-in-black.jpg" alt="Design process showing digital artwork evolution" class="inline-image" loading="lazy">
-      <p class="image-caption">The evolution of a design from initial concept to final product</p>
-      
-      <p>Redbubble makes it easy to share these creations with the world, handling printing, fulfillment, and shipping so we can focus on what we love most—creating unique digital art that inspires.</p>
-    </section>
+      <h2><i class="fas fa-magic"></i> Behind the Scenes</h2>
+      <p>Every design begins as a spark of inspiration—an idea, a mood, or an abstract form. We use <strong>AI-assisted tools like MidJourney</strong> to explore concepts, then refine these ideas through a detailed image editing process. Colors are tuned for emotional impact, textures are layered for depth, and compositions are adjusted to ensure clarity across different products and formats.</p>
 
-    <!-- Tech Stack -->
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-tools"></i> Tools & Process</h2>
-      <ul class="tech-stack">
-        <li><i class="fas fa-robot"></i> MidJourney for concept generation</li>
-        <li><i class="fas fa-paint-brush"></i> Photoshop for refinement and editing</li>
-        <li><i class="fas fa-vector-square"></i> Illustrator for vector elements</li>
-        <li><i class="fas fa-store"></i> Redbubble Platform Tools for product integration</li>
-      </ul>
-    </section>
+      <img src="/images/artwork/spaceman.jpg" alt="Early AI-Generated Concepts" class="inline-image" loading="lazy">
+      <p class="image-caption">Early AI-generated concept exploring bold colors, layered textures, and cosmic motifs—setting the tone for the final design.</p>
 
-    <!-- Related Projects -->
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-project-diagram"></i> Explore More</h2>
-      <div class="related-projects">
-        <div class="related-project-card">
-          <a href="/projects/merch/">
-            <i class="fas fa-home"></i> Merch Home
-          </a>
-          <p>Return to the main merchandise page</p>
-        </div>
-        <div class="related-project-card">
-          <a href="/projects">
-            <i class="fas fa-th-large"></i> All Projects
-          </a>
-          <p>Explore our complete portfolio</p>
-        </div>
-      </div>
-    </section>
+      <p>Our editing workflow ensures that each design maintains <strong>sharp details, vibrant colors, and high-quality resolution</strong>—whether it’s destined for a poster, a t-shirt, or a sticker. Subtle lighting effects, color grading, and creative adjustments are added to evoke mood and bring each concept to life.</p>
 
-    <!-- Visual Highlights -->
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-images"></i> Featured Products</h2>
-      <div class="media-grid">
-        <div class="media-item">
-          <a href="/images/merch/tshirt-mockup.jpg" class="lightbox-trigger" data-caption="Cosmic Drift T-Shirt">
-            <img src="/images/merch/tshirt-thumb.jpg" alt="Cosmic Drift T-Shirt" loading="lazy">
-          </a>
-          <p class="media-caption">Cosmic Drift T-Shirt</p>
-        </div>
-        <div class="media-item">
-          <a href="/images/merch/mug-mockup.jpg" class="lightbox-trigger" data-caption="Nebula Mug">
-            <img src="/images/merch/mug-thumb.jpg" alt="Nebula Mug" loading="lazy">
-          </a>
-          <p class="media-caption">Nebula Mug</p>
-        </div>
-        <div class="media-item">
-          <a href="/images/merch/poster-mockup.jpg" class="lightbox-trigger" data-caption="Glitch Horizon Poster">
-            <img src="/images/merch/poster-thumb.jpg" alt="Glitch Horizon Poster" loading="lazy">
-          </a>
-          <p class="media-caption">Glitch Horizon Poster</p>
-        </div>
-      </div>
-    </section>
+      <img src="/images/artwork/chameleon.jpg" alt="Visual Process Timeline" class="inline-image" loading="lazy">
+      <p class="image-caption">A refined AI-assisted concept, meticulously enhanced with vivid color grading, crisp detailing, and textural depth—showcasing nature’s surreal beauty through a digital lens.</p>
 
-    <section id="gallery" class="content-section grid-col-12" data-lightbox-autoload>
-      <h2><i class="fas fa-images"></i> Visual Highlights</h2>
-      <div class="media-grid">
-        <div class="media-item">
-          <a href="/images/image-packs/hero01.png" class="lightbox-trigger" data-caption="Scene 1: The Pulse Awakens">
-            <img src="/images/image-packs/hero01.png" alt="Scene 1 - The Pulse Awakens" loading="lazy">
-          </a>
-          <p class="media-caption">Scene 1: The Pulse Awakens</p>
-        </div>
+      <h3>Color Grading & Texture Work</h3>
+      <p>The final touches involve enhancing the visual tone through <strong>color grading techniques</strong> and adding layers of <strong>custom textures</strong>—from subtle glitches to cosmic gradients—infusing each design with atmosphere and energy.</p>
 
-        <div class="media-item">
-          <a href="/images/image-packs/hero04.png" class="lightbox-trigger" data-caption="Scene 2: Echoes in the Grid">
-            <img src="/images/image-packs/hero04.png" alt="Scene 2 - Echoes in the Grid" loading="lazy">
-          </a>
-          <p class="media-caption">Scene 2: Echoes in the Grid</p>
-        </div>
-
-        <div class="media-item">
-          <a href="/images/image-packs/hero03.png" class="lightbox-trigger" data-caption="Scene 3: Fractal Drift">
-            <img src="/images/image-packs/hero03.png" alt="Scene 3 - Fractal Drift" loading="lazy">
-          </a>
-          <p class="media-caption">Scene 3: Fractal Drift</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Behind the Scenes -->
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-magic"></i> Behind the Designs</h2>
-      <p>Each design in this collection began as an exploration of [theme/concept]. Using a combination of AI-generated elements and digital painting techniques, I crafted visuals that capture [specific mood/feeling]. The designs went through multiple iterations to ensure they work beautifully across different products and color schemes.</p>
-      
-      <img src="/images/merch/design-process.jpg" alt="Design Process" class="inline-image" loading="lazy">
-      <p class="image-caption">Early design concepts and iterations for the collection</p>
-      
-      <p>The final pieces were carefully prepared for print, with attention to color accuracy and detail preservation. The collection is printed on demand through Redbubble, using their high-quality materials and eco-friendly printing processes.</p>
-    </section>
-
-    <!-- Tech Stack -->
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-tools"></i> Tools & Process</h2>
-      <ul class="tech-stack">
-        <li><i class="fas fa-robot"></i> MidJourney AI for initial concept generation</li>
-        <li><i class="fas fa-paint-brush"></i> Adobe Photoshop for refinement and editing</li>
-        <li><i class="fas fa-palette"></i> Color theory and mood board development</li>
-        <li><i class="fas fa-tshirt"></i> Redbubble for printing and fulfillment</li>
-        <li><i class="fas fa-mobile-alt"></i> Responsive design for all product types</li>
-      </ul>
-    </section>
-
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-wrench"></i> Behind the Scenes</h2>
-      <p>From AI prompts to final render, this project unfolded through an iterative design process. Early MidJourney concepts sparked unexpected directions, which were refined in After Effects and enhanced with bespoke sound design.</p>
-
-      <img src="/images/image-packs/hero01.png" alt="Early AI-Generated Concepts" class="inline-image" loading="lazy">
-      <p class="image-caption">Early AI-generated concepts: textures, forms, and mood tests.</p>
-
-      <p>In After Effects, I layered visual effects and animated transitions, aligning visual pulses with soundscapes for maximum impact.</p>
-
-      <img src="/images/image-packs/hero06.png" alt="After Effects Timeline" class="inline-image" loading="lazy">
-      <p class="image-caption">After Effects timeline view: building the visual arc.</p>
-
-      <h3>Color Grading & Textures</h3>
-      <p>Final color grading and texture overlays were applied to enhance the visual depth and atmosphere of the project.</p>
-      
       <div class="image-row">
         <div class="image-item">
-          <a href="/images/image-packs/hero01.png" class="lightbox-trigger" data-caption="Color Grade: Teal & Orange">
-            <img src="/images/image-packs/hero01.png" alt="Teal & Orange Grade" loading="lazy">
+          <a href="/images/image-packs/hero03.png" class="lightbox-trigger" data-caption="Teal & Orange Grade">
+            <img src="/images/image-packs/hero03.png" alt="Teal & Orange Grade" loading="lazy">
           </a>
           <p class="image-caption">Teal & Orange Grade</p>
         </div>
         <div class="image-item">
-          <a href="/images/image-packs/hero03.png" class="lightbox-trigger" data-caption="Texture Overlay: Glitch Effect">
-            <img src="/images/image-packs/hero03.png" alt="Glitch Texture" loading="lazy">
+          <a href="/images/image-packs/hero02.jpg" class="lightbox-trigger" data-caption="Glitch Texture">
+            <img src="/images/image-packs/hero02.jpg" alt="Glitch Texture" loading="lazy">
           </a>
           <p class="image-caption">Glitch Texture</p>
         </div>
@@ -226,8 +112,18 @@
       </div>
     </section>
 
-    <!-- Related Projects -->
-    <section class="project-section grid-col-12">
+    <!-- Tools & Process -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-tools"></i> Tools & Process</h2>
+      <ul class="tech-stack">
+        <li><i class="fas fa-robot"></i> MidJourney AI for idea generation</li>
+        <li><i class="fas fa-paint-brush"></i> Advanced image editing for refinement and optimization</li>
+        <li><i class="fas fa-tshirt"></i> Redbubble for printing and fulfillment</li>
+      </ul>
+    </section>
+
+    <!-- Explore More -->
+    <section class="content-section grid-col-12">
       <h2><i class="fas fa-project-diagram"></i> Explore More</h2>
       <div class="related-projects">
         <div class="related-project-card">
@@ -240,7 +136,7 @@
           <a href="/projects">
             <i class="fas fa-th-large"></i> All Projects
           </a>
-          <p>Explore our complete portfolio</p>
+          <p>Explore our full creative portfolio</p>
         </div>
       </div>
     </section>
