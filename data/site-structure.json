@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-06-01T17:06:27.478Z",
+  "updated": "2025-06-02T13:33:41.071Z",
   "root": [
     {
       "type": "folder",
@@ -165,6 +165,12 @@
       "name": "images",
       "path": "images",
       "children": [
+        {
+          "type": "folder",
+          "name": "artwork",
+          "path": "images/artwork",
+          "children": []
+        },
         {
           "type": "folder",
           "name": "cards",
@@ -542,9 +548,36 @@
           "path": "projects/index.html"
         },
         {
+          "type": "folder",
+          "name": "merch",
+          "path": "projects/merch",
+          "children": [
+            {
+              "type": "page",
+              "name": "index.html",
+              "path": "projects/merch/index.html"
+            },
+            {
+              "type": "page",
+              "name": "redbubble.html",
+              "path": "projects/merch/redbubble.html"
+            },
+            {
+              "type": "page",
+              "name": "template.html",
+              "path": "projects/merch/template.html"
+            }
+          ]
+        },
+        {
           "type": "page",
           "name": "template.html",
           "path": "projects/template.html"
+        },
+        {
+          "type": "page",
+          "name": "video-template.html",
+          "path": "projects/video-template.html"
         },
         {
           "type": "page",

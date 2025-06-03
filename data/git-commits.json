@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "6da756d5-80bb-4e39-b47a-a4b081820cbe",
-      "hash": "426f7daf51ce3d84f0d599256cb0356bbd64eea3",
-      "message": "nova boot update",
-      "timestamp": "2025-06-01 10:04:13 -0700",
+      "id": "896de1f5-40d7-4485-b0f1-e70b77b6ba57",
+      "hash": "8553bbb08f66e10bdd1a1e8380c79fb39408bcd8",
+      "message": "feat(services): add Merch to quick links and services grid",
+      "timestamp": "2025-06-01 21:57:41 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/426f7daf51ce3d84f0d599256cb0356bbd64eea3"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/8553bbb08f66e10bdd1a1e8380c79fb39408bcd8"
     }
   ],
-  "timestamp": "2025-06-01T17:06:28.883Z",
+  "timestamp": "2025-06-02T13:33:41.748Z",
   "count": 1,
-  "scanId": 1748797588883
+  "scanId": 1748871221748
 }
