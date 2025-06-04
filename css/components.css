@@ -1095,7 +1095,7 @@ details summary::before {
 .nova-voice {
   background: rgba(18, 32, 42, 0.6);
   border-left: 4px solid #9bf00b;
-  padding: 1.5rem 1rem 1rem;
+  padding: 1rem 1rem 1rem 3rem;
   font-style: italic;
   font-weight: 500;
   color: #9bf0ff;
@@ -1214,10 +1214,11 @@ details summary::before {
 }
 
 .nova-voice::before {
-  content: "\1F916";
+  content: "🤖";
   position: absolute;
-  top: 0.5rem;
   left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 1.2em;
   opacity: 0.8;
 }
