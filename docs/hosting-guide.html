@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="From turnkey tools to full-stack control — explore your options and launch with confidence.">
-  <title>How to Host Your Static Site in 2025 | AmbientPixels</title>
+  <title>How to Launch Your Portfolio Fast (Without Losing Your Mind) | AmbientPixels</title>
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
@@ -79,6 +79,87 @@
     .hosting-level-3 h3 i {
       color: #9C27B0;
     }
+    
+    /* Comparison Table Styles */
+    .table-responsive {
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .hosting-comparison {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card-bg);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .hosting-comparison th,
+    .hosting-comparison td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .hosting-comparison th {
+      background: var(--accent-color);
+      color: white;
+      font-weight: 500;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+    
+    .hosting-comparison tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .hosting-comparison tbody tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    
+    .hosting-comparison td:first-child {
+      font-weight: 600;
+      color: var(--text-color);
+    }
+    
+    @media (max-width: 768px) {
+      .hosting-comparison {
+        display: block;
+      }
+      
+      .hosting-comparison thead {
+        display: none;
+      }
+      
+      .hosting-comparison tbody tr {
+        display: block;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      
+      .hosting-comparison tbody td {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border-color);
+      }
+      
+      .hosting-comparison tbody td:before {
+        content: attr(data-label);
+        font-weight: 600;
+        margin-right: 1rem;
+        color: var(--text-muted);
+      }
+      
+      .hosting-comparison tbody td:last-child {
+        border-bottom: none;
+      }
+    }
   </style>
 
 </head>
@@ -91,8 +172,8 @@
   <section class="mini-hero">
     <img src="/images/hero-v1.jpg" alt="Hosting Guide Background" class="mini-hero-img" loading="lazy">
     <div class="mini-hero-content-wrapper">
-      <h1>Carve Out Your Own Place on the Web</h1>
-      <p class="subtitle">From drag-and-drop simplicity to full-code deployment — this is your launch guide.</p>
+      <h1>How to Launch Your Portfolio Fast</h1>
+      <p class="subtitle">A quick-start guide to getting your work online—without losing your mind.</p>
     </div>
   </section>
 
@@ -127,6 +208,11 @@
             <li><a href="https://www.squarespace.com" target="_blank" rel="noopener noreferrer">Squarespace</a></li>
           </ul>
           <p class="nova-quip"> Best for: Small businesses, artists, personal pages</p>
+          <h4>Example Portfolios:</h4>
+          <ul>
+            <li><a href="https://alyssacorbet.com" target="_blank" rel="noopener noreferrer">Alyssa Corbet's Portfolio</a> - Clean, modern design</li>
+            <li><a href="https://alyssacorbet.com/summary" target="_blank" rel="noopener noreferrer">Alyssa's Professional Summary</a> - Resume and experience</li>
+          </ul>
           <h4>You get:</h4>
           <ul>
             <li>Domain + hosting + CMS</li>
@@ -162,7 +248,12 @@
             </li>
           </ol>
           <p class="nova-quip"> Best for: Designers, developers, and anyone comfortable managing files</p>
-
+          <h4>Example Portfolio:</h4>
+          <ul>
+            <li><a href="/work/" target="_blank" rel="noopener noreferrer">AmbientPixels Portfolio</a> - Professional work showcase and case studies
+              <p class="nova-quip">Nova's note: This is where I showcase my work and case studies. Built with love and attention to detail.</p>
+            </li>
+          </ul>
           <h4>You get:</h4>
           <ul>
             <li>Faster load times</li>
@@ -187,7 +278,11 @@
             <li>Serverless Functions — Extendable backend logic</li>
           </ul>
           <p class="nova-quip"> Best for: Developer teams, SaaS sites, scalable documentation</p>
-
+          <h4>Example Implementation:</h4>
+          <ul>
+            <li><a href="https://nextjs.org/showcase" target="_blank" rel="noopener noreferrer">Next.js Showcase</a> - Examples of production-grade applications</li>
+            <li><a href="https://vercel.com/solutions/nextjs" target="_blank" rel="noopener noreferrer">Vercel Enterprise Solutions</a> - Cloud deployment at scale</li>
+          </ul>
           <h4>You get:</h4>
           <ul>
             <li>Full stack control</li>
@@ -196,6 +291,46 @@
             <li>Scalable infrastructure</li>
           </ul>
         </div>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-table"></i> Hosting Options at a Glance</h2>
+      <div class="table-responsive">
+        <table class="hosting-comparison">
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Cost</th>
+              <th>Setup Time</th>
+              <th>Customization</th>
+              <th>Best For</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="Option"><strong>All-in-One Builders</strong></td>
+              <td data-label="Cost">$10-$50/month</td>
+              <td data-label="Setup Time">30-60 min</td>
+              <td data-label="Customization">Template-based</td>
+              <td data-label="Best For">Beginners, Quick Launches</td>
+            </tr>
+            <tr>
+              <td data-label="Option"><strong>Static Site Hosting</strong></td>
+              <td data-label="Cost">Free - $20/month</td>
+              <td data-label="Setup Time">1-2 hours</td>
+              <td data-label="Customization">Full Code Control</td>
+              <td data-label="Best For">Developers, Designers</td>
+            </tr>
+            <tr>
+              <td data-label="Option"><strong>Code + Cloud</strong></td>
+              <td data-label="Cost">$20-$500+/month</td>
+              <td data-label="Setup Time">2+ hours</td>
+              <td data-label="Customization">Complete Control</td>
+              <td data-label="Best For">Teams, Scalable Apps</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
