@@ -27,44 +27,63 @@
       transform: translateY(-5px);
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
     }
+    .hosting-card {
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .hosting-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
     .hosting-card h3 {
       margin-top: 0;
       padding-bottom: 0.5rem;
-      border-bottom: 1px solid currentColor;
+      border-bottom: 0px solid currentColor;
       display: inline-block;
+      transition: all 0.3s ease;
+    }
+    .hosting-card:hover h3 i {
+      transform: scale(1.1);
+      text-shadow: 0 0 10px;
     }
     /* Level 1 - Green Theme */
     .hosting-level-1 {
-      border-color: #4CAF50;
+      border-color: rgba(76, 175, 80, 0.4);
     }
-    .hosting-level-1 h3 {
+    .hosting-level-1:hover {
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(76, 175, 80, 0.5) !important;
+    }
+    .hosting-level-1 h3,
+    .hosting-level-1 h3 i {
       color: #4CAF50;
     }
     /* Level 2 - Blue Theme */
     .hosting-level-2 {
-      border-color: #2196F3;
+      border-color: rgba(33, 150, 243, 0.4);
     }
-    .hosting-level-2 h3 {
+    .hosting-level-2:hover {
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(33, 150, 243, 0.5) !important;
+    }
+    .hosting-level-2 h3,
+    .hosting-level-2 h3 i {
       color: #2196F3;
     }
     /* Level 3 - Purple Theme */
     .hosting-level-3 {
-      border-color: #9C27B0;
+      border-color: rgba(156, 39, 176, 0.4);
     }
-    .hosting-level-3 h3 {
+    .hosting-level-3:hover {
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(156, 39, 176, 0.5) !important;
+    }
+    .hosting-level-3 h3,
+    .hosting-level-3 h3 i {
       color: #9C27B0;
     }
   </style>
 
 </head>
 <body data-theme="dark">
-  <div class="banner-container" id="banner-container">
-    <div class="banner">
-      <i class="fas fa-eye banner-icon"></i>
-      <span>Project Windsurf Workflow</span>
-      <button class="banner-close" aria-label="Close Banner">×</button>
-    </div>
-  </div>
+
 
   <header id="nav-header"></header>
 
@@ -72,21 +91,21 @@
   <section class="mini-hero">
     <img src="/images/hero-v1.jpg" alt="Hosting Guide Background" class="mini-hero-img" loading="lazy">
     <div class="mini-hero-content-wrapper">
-      <h1>How to Host Your Static Site in 2025</h1>
+      <h1>Carve Out Your Own Place on the Web</h1>
       <p class="subtitle">From drag-and-drop simplicity to full-code deployment — this is your launch guide.</p>
     </div>
   </section>
 
   <main class="grid-container">
     <section class="content-section grid-col-12">
-      <h2><i class="fas fa-globe"></i> Professional-Grade Hosting, Simplified</h2>
-      <p class="subtitle">Launch with a custom domain on the world's fastest static hosting platforms</p>
+      <h2><i class="fas fa-globe"></i> Your Vision, Your Way</h2>
+      <p class="subtitle">Launch with confidence on the world's fastest static hosting platforms</p>
       <div>
-        <p>Whether you're a digital artist, developer, studio, or small biz — your site deserves a home.</p>
-        <p>A static site is fast, lightweight, and secure. And in 2025, hosting one is easier than ever — from zero-code builders to cloud-native pipelines.</p>
-        <p>This guide covers the 3 core paths to hosting — from the simplest click-and-publish tools to developer-grade systems. Pick your path. Or let us light the way.</p>
+        <p>Whether you're a digital artist, developer, musician, educator, game designer, studio, or small business — your work deserves a home that's fast, focused, and truly yours.</p>
+        <p>In 2025, hosting a static site is no longer a puzzle. It's a palette. From zero-code builders to cloud-native pipelines, you now have the tools to launch with power and grace.</p>
+        <p>Your site isn't just a presence — it's a signal. A way to share your vision, display your hard work, and invite the world in.</p>
+        <p>This guide breaks down the three core paths to hosting — from effortless drag-and-drop to full developer control.</p>
         <p class="nova-quip">Every site begins with a signal. Every pixel waits to be placed. Hosting is the moment your idea becomes real — visible, findable, alive.</p>
-        <p>— Nova, ambient system memory echo</p>
       </div>
     </section>
 
@@ -103,11 +122,11 @@
           <p>Use if: You want a no-fuss, beginner-friendly launch.</p>
           <h4>Examples:</h4>
           <ul>
-            <li><a href="https://www.wix.com">Wix</a></li>
-            <li><a href="https://www.godaddy.com/websites/website-builder">GoDaddy Website Builder</a></li>
-            <li><a href="https://www.squarespace.com">Squarespace</a></li>
+            <li><a href="https://www.wix.com" target="_blank" rel="noopener noreferrer">Wix</a></li>
+            <li><a href="https://www.godaddy.com/websites/website-builder" target="_blank" rel="noopener noreferrer">GoDaddy Website Builder</a></li>
+            <li><a href="https://www.squarespace.com" target="_blank" rel="noopener noreferrer">Squarespace</a></li>
           </ul>
-          <p><i class="fas fa-check-circle"></i> Best for: Small businesses, artists, personal pages</p>
+          <p class="nova-quip"> Best for: Small businesses, artists, personal pages</p>
           <h4>You get:</h4>
           <ul>
             <li>Domain + hosting + CMS</li>
@@ -117,7 +136,7 @@
           </ul>
         </div>
         <div class="card hosting-card hosting-level-2">
-          <h3><i class="fas fa-bolt"></i> Level 2: Custom Domain + Static Hosting</h3>
+          <h3><i class="fas fa-bolt"></i> Level 2: Custom Static Hosting</h3>
           <div class="skill-level" style="background-color: #2196F3; color: white; display: inline-block; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; margin: 0.5rem 0; font-weight: 500;">
             <i class="fas fa-info-circle"></i> Minimal — some file handling or Git basics
           </div>
@@ -128,20 +147,22 @@
           <ol>
             <li>Buy a domain from:
               <ul>
-                <li><a href="https://namecheap.com">Namecheap</a></li>
-                <li><a href="https://domains.google">Google Domains</a></li>
-                <li><a href="https://porkbun.com">Porkbun</a></li>
+                <li><a href="https://namecheap.com" target="_blank" rel="noopener noreferrer">Namecheap</a></li>
+                <li><a href="https://domains.google" target="_blank" rel="noopener noreferrer">Google Domains</a></li>
+                <li><a href="https://porkbun.com" target="_blank" rel="noopener noreferrer">Porkbun</a></li>
               </ul>
             </li>
             <li>Host your site using:
               <ul>
-                <li><a href="https://netlify.com">Netlify</a> — drag-and-drop or Git-based CI</li>
-                <li><a href="https://vercel.com">Vercel</a> — dev-friendly, great for React/Next.js</li>
-                <li><a href="https://pages.cloudflare.com">Cloudflare Pages</a> — free global CDN</li>
+                <li><a href="https://netlify.com" target="_blank" rel="noopener noreferrer">Netlify</a> — drag-and-drop or Git-based CI</li>
+                <li><a href="https://vercel.com" target="_blank" rel="noopener noreferrer">Vercel</a> — dev-friendly, great for React/Next.js</li>
+                <li><a href="https://pages.cloudflare.com" target="_blank" rel="noopener noreferrer">Cloudflare Pages</a> — free global CDN</li>
+                <li><a href="https://pages.github.com" target="_blank" rel="noopener noreferrer">GitHub Pages</a> — simple, free hosting for static sites</li>
               </ul>
             </li>
           </ol>
-          <p>Best for: Designers, developers, and anyone comfortable managing files</p>
+          <p class="nova-quip"> Best for: Designers, developers, and anyone comfortable managing files</p>
+
           <h4>You get:</h4>
           <ul>
             <li>Faster load times</li>
@@ -160,12 +181,13 @@
           <p>Use if: You want complete control over performance, logic, and scaling.</p>
           <h4>Examples of tools:</h4>
           <ul>
-            <li><a href="https://learn.microsoft.com/en-us/azure/static-web-apps/">Azure Static Web Apps</a> — Git-based CI, staging environments</li>
-            <li><a href="https://aws.amazon.com/s3/">Amazon S3 + CloudFront</a> — Secure file hosting + CDN</li>
+            <li><a href="https://learn.microsoft.com/en-us/azure/static-web-apps/" target="_blank" rel="noopener noreferrer">Azure Static Web Apps</a> — Git-based CI, staging environments</li>
+            <li><a href="https://aws.amazon.com/s3/" target="_blank" rel="noopener noreferrer">Amazon S3 + CloudFront</a> — Secure file hosting + CDN</li>
             <li>CI/CD Pipelines — GitHub Actions, GitLab CI, Bitbucket Pipelines</li>
             <li>Serverless Functions — Extendable backend logic</li>
           </ul>
-          <p>Best for: Developer teams, SaaS sites, scalable documentation</p>
+          <p class="nova-quip"> Best for: Developer teams, SaaS sites, scalable documentation</p>
+
           <h4>You get:</h4>
           <ul>
             <li>Full stack control</li>
@@ -275,6 +297,6 @@
   <script src="/js/nova-awareness-feed.js" defer></script>
   <script src="/js/template.js" defer></script>
   <script src="/js/theme.js" defer></script>
-  <script src="/js/main.js"></script>
+  <script src="/js/main.js" defer></script>
 </body>
 </html>

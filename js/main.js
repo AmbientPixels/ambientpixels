@@ -2,12 +2,74 @@
 
 const VERSION = 'v2.4';
 
+/**
+ * Detects the brightness of an image and applies appropriate text contrast
+ * @param {HTMLElement} imageEl - The image element to analyze
+ * @param {HTMLElement} textEl - The text element to apply contrast to
+ */
+function detectImageBrightness(imageEl, textEl) {
+  if (!imageEl.complete) {
+    // If image isn't loaded yet, wait for it
+    imageEl.addEventListener('load', function() {
+      detectImageBrightness(imageEl, textEl);
+    });
+    return;
+  }
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  
+  // Set canvas dimensions to match image
+  canvas.width = imageEl.naturalWidth;
+  canvas.height = imageEl.naturalHeight;
+  
+  // Draw image to canvas
+  ctx.drawImage(imageEl, 0, 0);
+  
+  // Get image data
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+  let colorSum = 0;
+  
+  // Calculate average brightness using perceived brightness formula
+  for (let i = 0; i < imageData.length; i += 4) {
+    const r = imageData[i];
+    const g = imageData[i + 1];
+    const b = imageData[i + 2];
+    const avg = (r * 0.299 + g * 0.587 + b * 0.114);
+    colorSum += avg;
+  }
+  
+  // Calculate average brightness (0-255)
+  const brightness = colorSum / (imageData.length / 4);
+  
+  // Apply appropriate class based on brightness
+  const isLight = brightness > 127;
+  
+  // Toggle classes on all text elements
+  const textElements = textEl.querySelectorAll('h1, .subtitle');
+  textElements.forEach(el => {
+    el.classList.toggle('light-bg', isLight);
+    el.classList.toggle('dark-bg', !isLight);
+  });
+}
+
 function initHero() {
   const loading = document.querySelector('.hero-loading');
   const slides = document.querySelectorAll('.hero-slide');
   const headlineEl = document.querySelector('.hero-content .hero-headline');
   const subEl = document.querySelector('.hero-content .hero-subheadline');
   const loadingText = document.querySelector('.loading-text');
+
+  // Initialize image brightness detection for mini-hero sections
+  const miniHeroes = document.querySelectorAll('.mini-hero');
+  miniHeroes.forEach(hero => {
+    const img = hero.querySelector('.mini-hero-img');
+    const content = hero.querySelector('.mini-hero-content-wrapper');
+    
+    if (img && content) {
+      detectImageBrightness(img, content);
+    }
+  });
 
   if (!loading || !slides.length || !headlineEl || !subEl || !loadingText) return;
 
