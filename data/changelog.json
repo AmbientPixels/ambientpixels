@@ -1,10 +1,10 @@
 {
-  "updated": "2025-06-03T13:34:42.438Z",
+  "updated": "2025-06-04T13:35:27.170Z",
   "entries": [
     {
-      "hash": "983b490",
-      "date": "2025-06-02 21:29:44 -0700",
-      "message": "feat(merch): implement lightbox for Redbubble product showcase"
+      "hash": "7462989",
+      "date": "2025-06-03 22:26:03 -0700",
+      "message": "Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels"
     }
   ]
 }

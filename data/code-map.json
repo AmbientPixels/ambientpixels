@@ -1,9 +1,9 @@
 {
-  "timestamp": "2025-06-03T13:34:47.244Z",
+  "timestamp": "2025-06-04T13:35:32.855Z",
   "summary": {
     "totalJS": 504,
     "totalCSS": 43,
-    "totalHTML": 114
+    "totalHTML": 115
   },
   "functions": [
     "A",
@@ -1529,6 +1529,7 @@
     "05em",
     "075em",
     "08",
+    "0rem",
     "1",
     "15",
     "15rem",
@@ -1547,6 +1548,7 @@
     "32",
     "33",
     "35",
+    "35em",
     "3rem",
     "3s",
     "4",
@@ -1827,6 +1829,7 @@
     "nav-utility",
     "neon-card",
     "next",
+    "no-bullets",
     "nova-alert",
     "nova-badge",
     "nova-badge-group",
