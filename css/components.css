@@ -91,6 +91,7 @@
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 0.0rem; /* Using rem for consistency with base.css */
 }
 
 .glass-button:hover {
@@ -125,6 +126,7 @@
 .glass-button i {
   font-size: 1.2rem;
   color: #fff;
+  margin-right: 0.5em;
 }
 
 body[data-theme="light"] .glass-button {
@@ -1093,15 +1095,21 @@ details summary::before {
 .nova-voice {
   background: rgba(18, 32, 42, 0.6);
   border-left: 4px solid #9bf00b;
-  padding: 1rem;
+  padding: 1.5rem 1rem 1rem;
   font-style: italic;
   font-weight: 500;
-  color: #9bf0ff; /* ← merged override */
+  color: #9bf0ff;
   text-shadow: 0 0 4px rgba(155, 240, 255, 0.3);
   border-radius: 0.5rem;
   box-shadow: 0 0 10px #87cefa33;
   animation: fadeIn 0.5s ease-in;
-  margin: 1.5rem 0; /* ← this is your margin fix */
+  margin: 1.5rem 0;
+  position: relative;
+}
+
+.nova-voice p {
+  margin: 0;
+  padding-top: 0.5rem;
 }
 
 .nova-voice-rainbow {
@@ -1206,7 +1214,12 @@ details summary::before {
 }
 
 .nova-voice::before {
-  content: "\1F916 ";
+  content: "\1F916";
+  position: absolute;
+  top: 0.5rem;
+  left: 1rem;
+  font-size: 1.2em;
+  opacity: 0.8;
 }
 
 .nova-alert::before {
@@ -1649,6 +1662,40 @@ body[data-theme="light"] .nova-quip {
 .hero-intro p.revealed {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* List with Checkmarks */
+.no-bullets,
+.no-bullets ul,
+.no-bullets ol {
+  list-style: none !important;
+  padding-left: 0 !important;
+  margin: 1em 0 1em 0 !important;
+}
+
+.no-bullets li {
+  position: relative;
+  padding: 0.2em 0 0.2em 2em !important;
+  margin: 0 0 0.5em 0 !important;
+  line-height: 1.6;
+  list-style: none !important;
+  min-height: 1.5em;
+}
+
+.no-bullets li::before {
+  display: none !important;
+  content: none !important;
+}
+
+.no-bullets li i {
+  position: absolute;
+  left: 0.2em;
+  top: 0.35em;
+  color: #5ae4ff;
+  width: 1.2em;
+  height: 1.2em;
+  text-align: center;
+  line-height: 1.2em;
 }
 
 /* Collapsible Sections */
