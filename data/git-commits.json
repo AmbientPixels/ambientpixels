@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "896de1f5-40d7-4485-b0f1-e70b77b6ba57",
-      "hash": "8553bbb08f66e10bdd1a1e8380c79fb39408bcd8",
-      "message": "feat(services): add Merch to quick links and services grid",
-      "timestamp": "2025-06-01 21:57:41 -0700",
+      "id": "2f9c7e71-6f1c-4355-8f4c-85b87dff1bbe",
+      "hash": "983b49076e42321467926258ee6bd5e827087b78",
+      "message": "feat(merch): implement lightbox for Redbubble product showcase",
+      "timestamp": "2025-06-02 21:29:44 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/8553bbb08f66e10bdd1a1e8380c79fb39408bcd8"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/983b49076e42321467926258ee6bd5e827087b78"
     }
   ],
-  "timestamp": "2025-06-02T13:33:41.748Z",
+  "timestamp": "2025-06-03T13:34:43.161Z",
   "count": 1,
-  "scanId": 1748871221748
+  "scanId": 1748957683161
 }
