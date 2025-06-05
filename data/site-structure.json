@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-06-04T13:35:27.056Z",
+  "updated": "2025-06-05T13:33:49.142Z",
   "root": [
     {
       "type": "folder",
@@ -241,6 +241,24 @@
               "type": "folder",
               "name": "merch",
               "path": "images/projects/merch",
+              "children": []
+            },
+            {
+              "type": "folder",
+              "name": "microsoft-casual-games",
+              "path": "images/projects/microsoft-casual-games",
+              "children": []
+            },
+            {
+              "type": "folder",
+              "name": "ninja-theroy",
+              "path": "images/projects/ninja-theroy",
+              "children": []
+            },
+            {
+              "type": "folder",
+              "name": "ninja-theroy-video",
+              "path": "images/projects/ninja-theroy-video",
               "children": []
             }
           ]
@@ -584,6 +602,23 @@
           "type": "page",
           "name": "video-template.html",
           "path": "projects/video-template.html"
+        },
+        {
+          "type": "folder",
+          "name": "websites",
+          "path": "projects/websites",
+          "children": [
+            {
+              "type": "page",
+              "name": "casual-games.html",
+              "path": "projects/websites/casual-games.html"
+            },
+            {
+              "type": "page",
+              "name": "ninjathrory.html",
+              "path": "projects/websites/ninjathrory.html"
+            }
+          ]
         },
         {
           "type": "page",
