@@ -98,6 +98,82 @@ button a::before,
   text-decoration: none !important;
 }
 
+/* Comparison Component */
+.comparison-header {
+  font-size: 1.5rem;
+  color: var(--aura-glow);
+  margin: 2.5rem 0 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.comparison-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  margin: 2rem 0 3rem;
+}
+
+.comparison-item {
+  flex: 1;
+  min-width: 300px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.comparison-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.comparison-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  color: var(--aura-glow);
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  width: 100%;
+  font-size: 1.1rem;
+}
+
+.comparison-label.new {
+  color: #4caf50;
+}
+
+.comparison-label i {
+  font-size: 0.9em;
+}
+
+.comparison-item img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  margin-bottom: 1rem;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.comparison-caption {
+  margin: 1rem 0 0;
+  color: #b3b3b3;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: center;
+  font-style: italic;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0 0 6px 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
 /* Ensure no underlines on buttons */
 button,
 button:hover,
