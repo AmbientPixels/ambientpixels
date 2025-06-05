@@ -1,5 +1,131 @@
-/* File: /css/projects.css - Ambient Pixels v2.3 - May 26, 2025 */
+/* File: /css/projects.css - Ambient Pixels v2.3 - June 5, 2025 */
 /* Project-specific styles for sub-pages, aligned with nova-pulse aesthetic */
+
+/* ===== NDA Protected Content ===== */
+.nda-tag {
+  display: inline-block;
+  background: rgba(255, 59, 48, 0.2);
+  color: #ff3b30;
+  font-size: 0.7em;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  vertical-align: middle;
+  margin-left: 10px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 59, 48, 0.3);
+}
+
+.nda-notice {
+  background: rgba(90, 200, 250, 0.1);
+  border-left: 3px solid #5ac8fa;
+  padding: 12px 15px;
+  border-radius: 0 4px 4px 0;
+  margin: 0 0 2rem 0;
+  font-size: 0.95em;
+  color: #a0a0a0;
+}
+
+.nda-notice i {
+  margin-right: 8px;
+  color: #5ac8fa;
+}
+
+.nda-protected {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.nda-protected:hover {
+  border-color: rgba(90, 200, 250, 0.3);
+  box-shadow: 0 4px 20px rgba(90, 200, 250, 0.1);
+}
+
+.blur-overlay {
+  position: relative;
+  overflow: hidden;
+}
+
+.blur-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: filter 0.3s ease;
+  filter: blur(8px);
+}
+
+.nda-protected:hover .blur-image {
+  filter: blur(5px);
+}
+
+.nda-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  z-index: 2;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 15px 25px;
+  border-radius: 30px;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nda-overlay i {
+  display: block;
+  font-size: 2em;
+  margin-bottom: 8px;
+  color: #5ac8fa;
+}
+
+.nda-overlay span {
+  display: block;
+  font-weight: 500;
+  font-size: 0.9em;
+  opacity: 0.9;
+}
+
+.nda-disclaimer {
+  margin-top: 2rem;
+  padding: 15px;
+  background: rgba(90, 200, 250, 0.05);
+  border-left: 3px solid #5ac8fa;
+  border-radius: 0 4px 4px 0;
+  font-size: 0.9em;
+  color: #909090;
+  line-height: 1.5;
+}
+
+.nda-disclaimer i {
+  color: #5ac8fa;
+  margin-right: 8px;
+}
+
+/* Light theme adjustments */
+[data-theme="light"] .nda-protected {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .nda-overlay {
+  color: #333;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="light"] .nda-disclaimer {
+  background: rgba(0, 0, 0, 0.02);
+  color: #666;
+}
+
+/* Ensure lightbox respects NDA protection */
+.pswp__img.pswp__img--blur {
+  filter: blur(15px) !important;
+}
 
 /* ===== Base Reset ===== */
 button,
