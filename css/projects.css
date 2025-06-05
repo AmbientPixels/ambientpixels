@@ -155,12 +155,63 @@ button:active,
 }
 
 /* Content Sections */
-.content-section {
-  margin-bottom: 2.5rem;
-  background: var(--card-bg, #1e1e2e);
-  border-radius: 8px;
-  padding: 1.5rem;
+/* Unified section styling */
+.content-section,
+.project-section {
+  background: rgba(30, 30, 46, 0.7);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(90, 228, 255, 0.1);
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
 }
+
+/* Light theme adjustments */
+body[data-theme="light"] .content-section,
+body[data-theme="light"] .project-section {
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Hover effects */
+.content-section:not(.hero-intro):hover,
+.project-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(90, 228, 255, 0.2);
+  border-color: rgba(90, 228, 255, 0.3);
+}
+
+body[data-theme="light"] .content-section:not(.hero-intro):hover,
+body[data-theme="light"] .project-section:hover {
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2);
+}
+
+/* Section headings */
+.content-section h2,
+.project-section h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  color: var(--heading-color, #fff);
+  position: relative;
+  padding-bottom: 0.75rem;
+}
+
+/* Removing underline from section headings */
+.content-section h2:after,
+.project-section h2:after {
+  display: none;
+}
+
+/* Remove duplicate project-section styles */
 
 .content-section h2 {
   margin-top: 0;
@@ -340,6 +391,15 @@ body[data-theme="light"] .project-section:hover {
   border-radius: 12px;
   overflow: hidden;
   transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.media-item a {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .media-item:hover {
@@ -350,6 +410,7 @@ body[data-theme="light"] .project-section:hover {
   width: 100%;
   height: 300px;
   object-fit: cover;
+  object-position: top;
   display: block;
   transition: transform 0.3s ease;
 }
@@ -370,6 +431,7 @@ body[data-theme="light"] .project-section:hover {
   text-align: center;
   transition: opacity 0.3s ease;
   opacity: 0;
+  margin-top: auto;
 }
 
 .media-item:hover .media-caption {
@@ -891,6 +953,182 @@ body[data-theme="light"] .project-section:hover {
   line-height: 1.6;
 }
 
+/* ===== Badge Styles ===== */
+.tech-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.tech-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(90, 228, 255, 0.1);
+  border: 1px solid rgba(90, 228, 255, 0.2);
+  border-radius: 20px;
+  color: var(--text-color, #fff);
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.tech-badge i {
+  color: #5ae4ff;
+  font-size: 0.9em;
+}
+
+.tech-badge:hover {
+  background: rgba(90, 228, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Impact Metrics */
+.impact-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.metric-card {
+  background: rgba(90, 228, 255, 0.05);
+  border: 1px solid rgba(90, 228, 255, 0.1);
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.metric-card i {
+  font-size: 2rem;
+  color: #5ae4ff;
+  margin-bottom: 1rem;
+}
+
+.metric-card h3 {
+  font-size: 2rem;
+  margin: 0.5rem 0;
+  color: #fff;
+  font-weight: 600;
+}
+
+.metric-card p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+}
+
+/* Learnings Grid */
+.learnings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.learning-card {
+  background: rgba(90, 228, 255, 0.05);
+  border: 1px solid rgba(90, 228, 255, 0.1);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.learning-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.learning-card i {
+  font-size: 1.5rem;
+  color: #5ae4ff;
+  margin-bottom: 1rem;
+  display: inline-block;
+}
+
+.learning-card h3 {
+  margin: 0.5rem 0 1rem;
+  color: #fff;
+  font-size: 1.25rem;
+}
+
+.learning-card p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+}
+
+/* Next Project Section */
+.next-project {
+  margin-top: 3rem;
+  padding-top: 3rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.next-project-card {
+  background: rgba(90, 228, 255, 0.05);
+  border: 1px solid rgba(90, 228, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.next-project-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.next-project-link {
+  display: block;
+  color: inherit;
+  text-decoration: none !important;
+}
+
+.next-project-content {
+  padding: 2rem;
+}
+
+.next-project-content h3 {
+  margin: 0 0 0.5rem;
+  color: #fff;
+  font-size: 1.5rem;
+}
+
+.next-project-content p {
+  margin: 0 0 1rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.next-project-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #5ae4ff;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.next-project-cta i {
+  transition: transform 0.3s ease;
+}
+
+.next-project-link:hover .next-project-cta {
+  gap: 0.75rem;
+}
+
+.next-project-link:hover .next-project-cta i {
+  transform: translateX(3px);
+}
+
 @media (max-width: 600px) {
   .btn-primary, .btn-secondary {
     width: 100%;
@@ -899,5 +1137,14 @@ body[data-theme="light"] .project-section:hover {
 
   .cta-section {
     padding: 1.5rem 0;
+  }
+  
+  .impact-metrics {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .learnings-grid {
+    grid-template-columns: 1fr;
   }
 }
