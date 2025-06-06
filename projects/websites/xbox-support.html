@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Explore Ambient Pixels' curated collection of high-quality image packs for designers and developers. Free downloads of sci-fi, cyberpunk, and futuristic assets." />
+  <meta name="description" content="Portfolio showcasing my work and projects at Xbox Support, including console support, desktop app development, and game support resources" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Image Packs | Ambient Pixels</title>
+  <title>My Xbox Support Portfolio - AmbientPixels</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -15,6 +15,48 @@
   <link rel="stylesheet" href="/css/hero.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
+  <style>
+    .role-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 0.75rem 0;
+    }
+    .role-tag {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .role-producer {
+      background-color: rgba(16, 124, 16, 0.2);
+      color: #a7f3a0;
+      border: 1px solid #2ecc40;
+    }
+    .role-devops {
+      background-color: rgba(0, 112, 243, 0.2);
+      color: #93c5fd;
+      border: 1px solid #60a5fa;
+    }
+    .role-experimental {
+      background-color: rgba(168, 85, 247, 0.2);
+      color: #d8b4fe;
+      border: 1px solid #a855f7;
+    }
+    .role-uiux {
+      background-color: rgba(217, 119, 6, 0.2);
+      color: #fcd34d;
+      border: 1px solid #f59e0b;
+    }
+    .role-training {
+      background-color: rgba(99, 102, 241, 0.2);
+      color: #a5b4fc;
+      border: 1px solid #818cf8;
+    }
+  </style>
 </head>
 <body data-theme="dark">
   <div class="banner-container" id="banner-container">
@@ -28,100 +70,170 @@
   <header id="nav-header"></header>
 
   <section class="mini-hero">
-    <img src="/images/image-packs/hero04.png" alt="Image Packs" class="mini-hero-img" loading="lazy">
+    <img src="/images/mini-hero-v3.jpg" alt="Xbox Support Portfolio" class="mini-hero-img" loading="lazy">
     <div class="mini-hero-content-wrapper">
-      <h1>Image Packs</h1>
-      <p class="subtitle">High-quality assets for designers and developers</p>
-    </div>
+<h1>Xbox Support Work & Projects</h1>
+<p class="subtitle">Highlights from Xbox Support work and initiatives</p>
+</div>
+</section>
+
+<main class="grid-container">
+  <section class="content-section grid-col-12">
+    <h2><i class="fas fa-gamepad"></i> Xbox Support Projects</h2>
+    <p>A curated selection of projects and initiatives developed within the Xbox Support ecosystem—spanning console tools, desktop applications, and game-related support systems.</p>
   </section>
 
-  <main class="grid-container">
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-th"></i> Featured Packs</h2>
-      <p>These images are yours to explore, remix, and make your own. Just follow the <a href="/license" class="text-link">CC BY 4.0 license</a>, and share the credit. Let’s build worlds together.</p>
-    </section>
-
-    <!-- Interiors Pack -->
+    <!-- Microsoft Casual Games Support -->
     <section class="grid-col-4 card-section">
-      <img src="/images/image-packs/interiors/compact-cosmos.jpg" alt="Cosmic & Cybernetic Interiors" class="card-image" loading="lazy">
+      <img src="/images/projects/microsoft-casual-games/hero-card.png" alt="Microsoft Casual Games Support" class="card-image" loading="lazy">
       <div class="card-content">
-        <h3><i class="fas fa-space-shuttle"></i> Cosmic & Cybernetic Interiors</h3>
-        <p>Explore AI-generated sci-fi and cyberpunk interior designs, from spacefarer habitats to neon-lit metropolises.</p>
-        <div class="card-meta">
-          <span><i class="fas fa-image"></i> 12 Images</span>
-          <span><i class="fas fa-download"></i> 2 Packs</span>
+        <h3><i class="fas fa-gamepad"></i> Casual Games Support</h3>
+        <div class="role-tags">
+          <span class="role-tag role-producer">Producer</span>
+          <span class="role-tag role-uiux">UI/UX</span>
         </div>
-        <a href="/projects/image-packs/interiors.html" class="btn btn-secondary" style="margin-top: 1rem;">
-          <i class="fas fa-eye"></i> View Pack
+        <p>Led the support migration from Zendesk to Xbox Support for Microsoft's Casual Games portfolio, ensuring a seamless transition for users.</p>
+        <a href="casual-games.html" class="btn btn-secondary" style="margin-top: 1rem;">
+          <i class="fas fa-external-link-alt"></i> View Project
         </a>
       </div>
     </section>
 
-    <!-- Characters Pack -->
+    <!-- Grand Central 3.0 -->
     <section class="grid-col-4 card-section">
-      <img src="/images/image-packs/characters/hero1.png" alt="Character Portraits Collection" class="card-image" loading="lazy">
+      <img src="/images/projects/grand-central/hero-03.png" alt="Grand Central 3.0" class="card-image" loading="lazy">
       <div class="card-content">
-        <h3><i class="fas fa-user-astronaut"></i> Character Portraits</h3>
-        <p>Discover 18 AI-generated characters, from mystical beings to cybernetic entities, each with unique backstories and stunning detail.</p>
-        <div class="card-meta">
-          <span><i class="fas fa-image"></i> 18 Portraits</span>
-          <span><i class="fas fa-download"></i> 1 Pack</span>
+        <h3><i class="fas fa-database"></i> Grand Central 3.0</h3>
+        <div class="role-tags">
+          <span class="role-tag role-producer">Producer</span>
+          <span class="role-tag role-devops">DevOps</span>
+          <span class="role-tag role-training">Training</span>
         </div>
-        <a href="/projects/image-packs/characters-pack.html" class="btn btn-secondary" style="margin-top: 1rem;">
-          <i class="fas fa-eye"></i> View Collection
+        <p>Custom-built data tool and Power BI pipeline for Xbox Support, designed from scratch using advanced Excel and Power Query methods.</p>
+        <a href="grand-central-power-bi.html" class="btn btn-secondary" style="margin-top: 1rem;">
+          <i class="fas fa-external-link-alt"></i> View Dashboard
         </a>
       </div>
     </section>
 
-    <!-- Cityscapes Pack -->
+    <!-- Ninja Theory Support -->
     <section class="grid-col-4 card-section">
-      <div class="coming-soon-overlay">Coming Soon</div>
-      <img src="/images/image-packs/cityscapes/hero01.jpg" alt="Futuristic Cityscapes" class="card-image" loading="lazy">
+      <img src="/images/projects/ninja-theroy/mini-hero-02.jpg" alt="Ninja Theory Support" class="card-image" loading="lazy">
       <div class="card-content">
-        <h3><i class="fas fa-city"></i> Futuristic Cityscapes</h3>
-        <p>Explore sprawling metropolises of the future with our upcoming collection of AI-generated cityscapes. Neon-lit streets, floating districts, and cyberpunk skylines await.</p>
-        <button class="btn btn-secondary" style="margin-top: 1rem;" disabled>
-          <i class="fas fa-bell"></i> Coming Soon
-        </button>
-      </div>
-    </section>
-
-    <!-- Planets Pack -->
-    <section class="grid-col-4 card-section">
-      <div class="coming-soon-overlay">Coming Soon</div>
-      <img src="/images/image-packs/planets/hero01.jpg" alt="Alien Worlds & Planets" class="card-image" loading="lazy">
-      <div class="card-content">
-        <h3><i class="fas fa-globe"></i> Alien Worlds & Planets</h3>
-        <p>Journey to distant worlds with our upcoming collection of exotic planets. From gas giants to desert worlds, each planet tells a story of cosmic wonder and discovery.</p>
-        <button class="btn btn-secondary" style="margin-top: 1rem;" disabled>
-          <i class="fas fa-bell"></i> Coming Soon
-        </button>
-      </div>
-    </section>
-
-    <!-- More Coming Soon -->
-    <section class="grid-col-4 card-section">
-      <div class="coming-soon-overlay">Coming Soon</div>
-      <img src="/images/textures/delchron_microscopic_ultra_close-up_of_futuristic_surface_textu.png" alt="More Coming Soon" class="card-image" loading="lazy">
-      <div class="card-content">
-        <h3><i class="fas fa-plus-circle"></i> More Collections</h3>
-        <p>We're constantly expanding our library. Have a suggestion? Let us know what you'd like to see in future updates!</p>
-        <button class="btn btn-secondary" style="margin-top: 1rem;" disabled>
-          <i class="fas fa-bell"></i> Coming Soon
-        </button>
-      </div>
-    </section>
-
-    <!-- Suggestion Pack -->
-    <section class="grid-col-4 card-section">
-      <div class="coming-soon-overlay">Your Ideas</div>
-      <img src="/images/textures/delchron_Deltron_3030_texture_microscopic_extreme_close_up_futu.jpg" alt="Your Suggestion" class="card-image" loading="lazy">
-      <div class="card-content">
-        <h3><i class="fas fa-plus-circle"></i> Your Suggestion</h3>
-        <p>Have an idea for an image pack? We'd love to hear your suggestions for future releases.</p>
-        <a href="#" onclick="showModal(); return false;" class="btn btn-primary" style="margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.5rem;">
-          <i class="fas fa-lightbulb"></i> Suggest a Pack
+        <h3><i class="fas fa-gamepad"></i> Hellblade Support</h3>
+        <div class="role-tags">
+          <span class="role-tag role-producer">Producer</span>
+          <span class="role-tag role-uiux">UI/UX</span>
+        </div>
+        <p>Producer role supporting Ninja Theory's Hellblade series with game-specific help content and support resources.</p>
+        <a href="ninjathrory.html" class="btn btn-secondary" style="margin-top: 1rem;">
+          <i class="fas fa-external-link-alt"></i> View Project
         </a>
+      </div>
+    </section>
+
+    <!-- Copilot Playground -->
+    <section class="grid-col-4 card-section">
+      <img src="/images/projects/co-pilot-playground/hero.png" alt="Copilot Playground" class="card-image" loading="lazy">
+      <div class="card-content">
+        <h3><i class="fas fa-robot"></i> Copilot Playground</h3>
+        <div class="role-tags">
+          <span class="role-tag role-experimental">Experimental</span>
+          <span class="role-tag role-devops">DevOps</span>
+          <span class="role-tag role-training">Training</span>
+        </div>
+        <p>AI-driven support prompt chains for gaming help, localization, and content enhancement across 40+ languages.</p>
+        <a href="../copilotplayground.html" class="btn btn-secondary" style="margin-top: 1rem;">
+          <i class="fas fa-external-link-alt"></i> View Tools
+        </a>
+      </div>
+    </section>
+
+    <!-- Coming Soon Sections -->
+    <!-- Gears of War -->
+    <section class="grid-col-4 card-section">
+      <div class="coming-soon-overlay">Coming Soon</div>
+      <img src="/images/hero/hero-03.jpg" alt="Gears of War" class="card-image" loading="lazy">
+      <div class="card-content">
+        <h3><i class="fas fa-gamepad"></i> Gears of War</h3>
+        <div class="role-tags">
+          <span class="role-tag role-producer">Producer</span>
+        </div>
+        <p>Support and resources for the Gears of War game series. Coming soon with guides and features.</p>
+        <button class="btn btn-secondary" style="margin-top: 1rem;" disabled>
+          <i class="fas fa-bell"></i> Coming Soon
+        </button>
+      </div>
+    </section>
+
+    <!-- South of Midnight -->
+    <section class="grid-col-4 card-section">
+      <div class="coming-soon-overlay">Coming Soon</div>
+      <img src="/images/hero/hero-07.jpg" alt="South of Midnight" class="card-image" loading="lazy">
+      <div class="card-content">
+        <h3><i class="fas fa-moon"></i> South of Midnight</h3>
+        <div class="role-tags">
+          <span class="role-tag role-producer">Producer</span>
+          <span class="role-tag role-uiux">UI/UX</span>
+        </div>
+        <p>Support and resources for the South of Midnight game. Coming soon with guides and features.</p>
+        <button class="btn btn-secondary" style="margin-top: 1rem;" disabled>
+          <i class="fas fa-bell"></i> Coming Soon
+        </button>
+      </div>
+    </section>
+
+    <!-- Figma Resources -->
+    <section class="grid-col-4 card-section">
+      <div class="coming-soon-overlay">Coming Soon</div>
+      <img src="/images/cards/card-06.jpg" alt="Figma Resources" class="card-image" loading="lazy">
+      <div class="card-content">
+        <h3><i class="fab fa-figma"></i> Figma Resources</h3>
+        <div class="role-tags">
+          <span class="role-tag role-uiux">UI/UX</span>
+          <span class="role-tag role-experimental">Experimental</span>
+          <span class="role-tag role-training">Training</span>
+        </div>
+        <p>Design resources and templates for Xbox projects. Coming soon with UI kits and components.</p>
+        <button class="btn btn-secondary" style="margin-top: 1rem;" disabled>
+          <i class="fas fa-bell"></i> Coming Soon
+        </button>
+      </div>
+    </section>
+
+    <!-- Figma Fleet -->
+    <section class="grid-col-4 card-section">
+      <div class="coming-soon-overlay">Coming Soon</div>
+      <img src="/images/hero-V13.jpg" alt="Figma Fleet" class="card-image" loading="lazy">
+      <div class="card-content">
+        <h3><i class="fas fa-ship"></i> Figma Fleet</h3>
+        <div class="role-tags">
+          <span class="role-tag role-uiux">UI/UX</span>
+          <span class="role-tag role-producer">Producer</span>
+          <span class="role-tag role-training">Training</span>
+        </div>
+        <p>Figma training and resources for Xbox design system. Coming soon with training materials.</p>
+        <button class="btn btn-secondary" style="margin-top: 1rem;" disabled>
+          <i class="fas fa-bell"></i> Coming Soon
+        </button>
+      </div>
+    </section>
+
+    <!-- Xbox Support Site -->
+    <section class="grid-col-4 card-section">
+      <div class="coming-soon-overlay">Coming Soon</div>
+      <img src="/images/hero/hero-12.jpg" alt="Xbox Support Site" class="card-image" loading="lazy">
+      <div class="card-content">
+        <h3><i class="fas fa-headset"></i> Xbox Support Site</h3>
+        <div class="role-tags">
+          <span class="role-tag role-producer">Producer</span>
+          <span class="role-tag role-uiux">UI/UX</span>
+          <span class="role-tag role-training">Training</span>
+        </div>
+        <p>Official Xbox Support website. Coming soon with details about the support portal, knowledge base, and community resources.</p>
+        <button class="btn btn-secondary" style="margin-top: 1rem;" disabled>
+          <i class="fas fa-bell"></i> Coming Soon
+        </button>
       </div>
     </section>
   </main>
