@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-06-05T13:33:49.142Z",
+  "updated": "2025-06-06T13:32:57.622Z",
   "root": [
     {
       "type": "folder",
@@ -233,8 +233,20 @@
           "children": [
             {
               "type": "folder",
+              "name": "co-pilot-playground",
+              "path": "images/projects/co-pilot-playground",
+              "children": []
+            },
+            {
+              "type": "folder",
               "name": "cools",
               "path": "images/projects/cools",
+              "children": []
+            },
+            {
+              "type": "folder",
+              "name": "grand-central",
+              "path": "images/projects/grand-central",
               "children": []
             },
             {
@@ -540,6 +552,11 @@
           "path": "projects/cools.html"
         },
         {
+          "type": "page",
+          "name": "copilotplayground.html",
+          "path": "projects/copilotplayground.html"
+        },
+        {
           "type": "folder",
           "name": "image-packs",
           "path": "projects/image-packs",
@@ -615,8 +632,18 @@
             },
             {
               "type": "page",
+              "name": "grand-central-power-bi.html",
+              "path": "projects/websites/grand-central-power-bi.html"
+            },
+            {
+              "type": "page",
               "name": "ninjathrory.html",
               "path": "projects/websites/ninjathrory.html"
+            },
+            {
+              "type": "page",
+              "name": "xbox-support.html",
+              "path": "projects/websites/xbox-support.html"
             }
           ]
         },

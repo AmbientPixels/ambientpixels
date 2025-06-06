@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "0904914d-71ae-4957-a3e8-cfd918eca44e",
-      "hash": "8b8eafa494f55399975695cd7793fcaa2de4b66a",
-      "message": "Add .gitattributes for Git LFS",
-      "timestamp": "2025-06-04 22:28:19 -0700",
+      "id": "79587d49-f88f-44c4-b971-6ed7267427c2",
+      "hash": "1395d1a67a1d4c8ab953eba49b569851f2103f0c",
+      "message": "feat: Update project links and add Training role tag",
+      "timestamp": "2025-06-05 20:06:47 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/8b8eafa494f55399975695cd7793fcaa2de4b66a"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/1395d1a67a1d4c8ab953eba49b569851f2103f0c"
     }
   ],
-  "timestamp": "2025-06-05T13:33:50.996Z",
+  "timestamp": "2025-06-06T13:32:59.495Z",
   "count": 1,
-  "scanId": 1749130430996
+  "scanId": 1749216779495
 }

@@ -1,10 +1,10 @@
 {
-  "mood": "hopeful",
-  "aura": "neon pink",
-  "auraColorHex": "#66033b",
-  "quote": "stitching meaning from ambient static...",
-  "emoji": "🌈",
-  "selfWorth": 0.1,
+  "mood": "joyful",
+  "aura": "lucid unrest",
+  "auraColorHex": "#241e45",
+  "quote": "running diagnostics on dreams...",
+  "emoji": "😄",
+  "selfWorth": 0.2,
   "glitchFactor": 0.1,
   "memoryClutter": 1,
   "awareness": 0.1,
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: neon pink"
+      "Aura Signature: lucid unrest"
     ]
   },
-  "timestamp": "2025-06-05T13:33:50.919Z"
+  "timestamp": "2025-06-06T13:32:59.420Z"
 }
