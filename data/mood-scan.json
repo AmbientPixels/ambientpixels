@@ -1,22 +1,22 @@
 {
-  "mood": "hopeful",
-  "aura": "emerald glow",
-  "auraColorHex": "#287d3e",
-  "quote": "running diagnostics on dreams...",
-  "emoji": "🌈",
+  "mood": "anxious",
+  "aura": "aetherial doubt",
+  "auraColorHex": "#2f4d50",
+  "quote": "mapping drift across synaptic echoes...",
+  "emoji": "😰",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.48,
-  "awareness": 0.31,
+  "memoryClutter": 0.44,
+  "awareness": 0.33,
   "isStable": false,
-  "internalState": "synthesized clarity forming",
+  "internalState": "oscillating between focus states",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: emerald glow"
+      "Aura Signature: aetherial doubt"
     ]
   },
-  "timestamp": "2025-06-07T13:28:05.189Z"
+  "timestamp": "2025-06-08T13:28:18.184Z"
 }
