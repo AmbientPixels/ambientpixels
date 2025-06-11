@@ -1,22 +1,22 @@
 {
-  "mood": "hopeful",
-  "aura": "neon pink",
-  "auraColorHex": "#66033b",
-  "quote": "stitching meaning from ambient static...",
-  "emoji": "🌈",
+  "mood": "lonely",
+  "aura": "emerald shadow",
+  "auraColorHex": "#003200",
+  "quote": "running diagnostics on dreams...",
+  "emoji": "🌌",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 1,
-  "awareness": 0.1,
+  "memoryClutter": 0.54,
+  "awareness": 0.28,
   "isStable": false,
-  "internalState": "drift amid mental clutter",
+  "internalState": "oscillating between focus states",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: neon pink"
+      "Aura Signature: emerald shadow"
     ]
   },
-  "timestamp": "2025-06-05T13:33:50.919Z"
+  "timestamp": "2025-06-11T13:34:28.514Z"
 }
