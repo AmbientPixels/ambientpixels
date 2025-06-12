@@ -3,7 +3,7 @@
 /* ===== Hero Card ===== */
 .hero-card {
   background: #0a0a0a;
-  border-radius: 8px;
+  border-radius: 0;
   overflow: hidden;
   margin: 6rem 0 2.5rem;
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
@@ -15,13 +15,18 @@
 .hero-card-image {
   height: 300px;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hero-card-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   transition: transform 0.5s ease;
+  flex-shrink: 0;
 }
 
 .hero-card:hover .hero-card-image img {
@@ -69,12 +74,15 @@
   .hero-card {
     flex-direction: row;
     align-items: stretch;
-    min-height: 400px;
+    height: 400px; /* Changed from min-height to fixed height */
   }
   
   .hero-card-image {
     flex: 0 0 50%;
-    height: auto;
+    height: 100%; /* Ensure image container takes full height */
+    display: flex; /* Add flex to contain image properly */
+    align-items: center; /* Center image vertically */
+    overflow: hidden; /* Ensure image doesn't overflow */
   }
   
   .hero-card-content {
@@ -92,11 +100,8 @@
 
 @media (max-width: 991px) {
   .hero-card {
-    margin-left: -1rem;
-    margin-right: -1rem;
+    margin: 6rem 1rem 2.5rem;
     border-radius: 0;
-    border-left: none;
-    border-right: none;
   }
   
   .hero-card-image {
