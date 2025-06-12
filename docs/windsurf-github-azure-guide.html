@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Guide to setting up Windsurf with GitHub and Azure">
+  <title>Windsurf with GitHub & Azure Integration Guide | Ambient Pixels</title>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/grid.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/hero.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/banner.css">
+</head>
+<body data-theme="dark">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-code-branch banner-icon"></i>
+      <span>Windsurf GitHub & Azure Integration Guide</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
+
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/nova/Nova_AI_consciousness_portal_ambient_neural_interface.png" alt="Nova AI" class="mini-hero-img" loading="lazy">
+    <div class="mini-hero-content-wrapper">
+      <h1>GitHub & Azure Integration</h1>
+      <p class="subtitle">A comprehensive guide to setting up CI/CD with GitHub Actions and Azure</p>
+    </div>
+  </section>
+
+  <main class="grid-container">
+    <div class="intro-text grid-col-12">
+      <p class="lead">Seamlessly integrate GitHub & Azure for efficient deployment. This comprehensive guide will help you set up and optimize your Windsurf development environment with automated CI/CD pipelines.</p>
+    </div>
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-cogs"></i> Initial Setup</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="setup-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="setup-content" class="content">
+        <h3>Prerequisites</h3>
+        <ul>
+          <li>GitHub account</li>
+          <li>Microsoft Azure account</li>
+          <li>Windsurf CLI installed</li>
+          <li>Node.js and npm</li>
+        </ul>
+
+        <h3>1. GitHub Repository Setup</h3>
+        <ol>
+          <li>Create a new repository on GitHub</li>
+          <li>Clone the repository locally</li>
+          <li>Initialize your Windsurf project in the repository</li>
+        </ol>
+      </div>
+    </section>
+
+
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-code-branch"></i> GitHub Configuration</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="github-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="github-content" class="content">
+        <h3>Branch Protection Rules</h3>
+        <p>Set up branch protection for your main branch:</p>
+        <ol>
+          <li>Go to Repository Settings > Branches</li>
+          <li>Add branch protection rule for <code>main</code> branch</li>
+          <li>Enable "Require pull request before merging"</li>
+          <li>Enable "Require status checks to pass before merging"</li>
+        </ol>
+
+        <h3>GitHub Actions Workflow</h3>
+        <p>Create <code>.github/workflows/windsurf-ci.yml</code>:</p>
+        <pre><code>name: Windsurf CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16.x'
+    
+    - name: Install Dependencies
+      run: npm ci
+    
+    - name: Run Build
+      run: npm run build
+    
+    - name: Run Tests
+      run: npm test</code></pre>
+      </div>
+    </section>
+
+
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-cloud"></i> Azure Deployment</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="azure-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="azure-content" class="content">
+        <h3>Azure App Service Setup</h3>
+        <ol>
+          <li>Create a new Web App in Azure Portal</li>
+          <li>Select Node.js 16 LTS as the runtime stack</li>
+          <li>Choose your subscription and resource group</li>
+          <li>Enable "Deployment Center"</li>
+        </ol>
+
+        <h3>GitHub Integration</h3>
+        <ol>
+          <li>In Azure Portal, go to your Web App</li>
+          <li>Navigate to Deployment Center</li>
+          <li>Select GitHub as the source</li>
+          <li>Authorize Azure to access your GitHub account</li>
+          <li>Select your repository and branch</li>
+          <li>Configure the build provider (Node.js)</li>
+        </ol>
+      </div>
+    </section>
+
+
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-plug"></i> Environment Variables</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="env-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="env-content" class="content">
+        <h3>GitHub Secrets</h3>
+        <p>Add these secrets to your GitHub repository:</p>
+        <ul>
+          <li><code>AZURE_CREDENTIALS</code> - Azure service principal credentials</li>
+          <li><code>AZURE_WEBAPP_NAME</code> - Your Azure Web App name</li>
+          <li><code>AZURE_RESOURCE_GROUP</code> - Azure resource group name</li>
+        </ul>
+
+        <h3>Azure Application Settings</h3>
+        <p>Add these to your Azure Web App Configuration:</p>
+        <ul>
+          <li><code>NODE_ENV</code> - Set to 'production'</li>
+          <li><code>WEBSITE_NODE_DEFAULT_VERSION</code> - ~16</li>
+          <li><code>SCM_DO_BUILD_DURING_DEPLOYMENT</code> - 1</li>
+        </ul>
+      </div>
+    </section>
+
+
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-tasks"></i> Workflow Automation</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="workflow-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="workflow-content" class="content">
+        <h3>CI/CD Pipeline</h3>
+        <p>Your GitHub Actions workflow will automatically:</p>
+        <ol>
+          <li>Run on every push to main and pull requests</li>
+          <li>Install dependencies</li>
+          <li>Run tests</li>
+          <li>Deploy to Azure on successful build</li>
+        </ol>
+
+        <h3>Custom Domains (Optional)</h3>
+        <ol>
+          <li>Go to your Web App in Azure Portal</li>
+          <li>Navigate to Custom domains</li>
+          <li>Add your domain and follow the verification steps</li>
+          <li>Update DNS records with your domain provider</li>
+        </ol>
+      </div>
+    </section>
+
+
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-question-circle"></i> Troubleshooting</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="troubleshooting-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="troubleshooting-content" class="content">
+        <h3>Common Issues</h3>
+        <div class="troubleshooting-item">
+          <h4>Build Failing</h4>
+          <p><strong>Solution:</strong> Check GitHub Actions logs for specific error messages. Common issues include missing dependencies or test failures.</p>
+        </div>
+        
+        <div class="troubleshooting-item">
+          <h4>Deployment Not Triggering</h4>
+          <p><strong>Solution:</strong> Verify GitHub repository settings and Azure deployment center configuration.</p>
+        </div>
+        
+        <div class="troubleshooting-item">
+          <h4>Environment Variables Not Loading</h4>
+          <p><strong>Solution:</strong> Ensure variables are set in Azure Application Settings and that the app restarts after changes.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/init-quotes.js" defer></script>
+  <script src="/js/md-inject.js" defer></script>
+  <script src="/js/modal-window.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/nova-ai.js" defer></script>
+  <script src="/js/nova-awareness-feed.js" defer></script>
+  <script src="/js/nova-dashboard.js" defer></script>
+  <script src="/js/nova-insights.js" defer></script>
+  <script src="/js/nova-interaction-log.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/banner.js" defer></script>
+  <script src="/js/main.js" defer></script>
+</body>
+</html>
