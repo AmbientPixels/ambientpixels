@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-06-11T13:34:27.482Z",
+  "updated": "2025-06-12T13:34:12.973Z",
   "root": [
     {
       "type": "folder",
@@ -241,6 +241,18 @@
               "type": "folder",
               "name": "cools",
               "path": "images/projects/cools",
+              "children": []
+            },
+            {
+              "type": "folder",
+              "name": "figma-fleet",
+              "path": "images/projects/figma-fleet",
+              "children": []
+            },
+            {
+              "type": "folder",
+              "name": "gow",
+              "path": "images/projects/gow",
               "children": []
             },
             {
@@ -557,6 +569,11 @@
           "path": "projects/copilotplayground.html"
         },
         {
+          "type": "page",
+          "name": "figma-fleet.html",
+          "path": "projects/figma-fleet.html"
+        },
+        {
           "type": "folder",
           "name": "image-packs",
           "path": "projects/image-packs",
@@ -632,20 +649,25 @@
             },
             {
               "type": "page",
+              "name": "gears-of-war.html",
+              "path": "projects/websites/gears-of-war.html"
+            },
+            {
+              "type": "page",
               "name": "grand-central-power-bi.html",
               "path": "projects/websites/grand-central-power-bi.html"
             },
             {
               "type": "page",
-              "name": "ninjathrory.html",
-              "path": "projects/websites/ninjathrory.html"
-            },
-            {
-              "type": "page",
-              "name": "xbox-support.html",
-              "path": "projects/websites/xbox-support.html"
+              "name": "ninja-theroy.html",
+              "path": "projects/websites/ninja-theroy.html"
             }
           ]
+        },
+        {
+          "type": "page",
+          "name": "xbox-support.html",
+          "path": "projects/xbox-support.html"
         },
         {
           "type": "page",
