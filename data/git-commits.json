@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "38a5b5df-5c88-4a20-ad14-2ed421531ce6",
-      "hash": "e3c79d3943e88468c1ec53ccd553695c7c75bc9f",
-      "message": "style: enhance Xbox Support Portfolio and card interactions",
-      "timestamp": "2025-06-11 22:40:08 -0700",
+      "id": "6605ab43-3d6c-4912-9c8a-80857109b0c3",
+      "hash": "808d6297d037b8f986a90a78f5856180d6e0ed31",
+      "message": "Xbox Video Content - Lead Producer, Creative Director, Motion Designer",
+      "timestamp": "2025-06-12 13:51:59 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/e3c79d3943e88468c1ec53ccd553695c7c75bc9f"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/808d6297d037b8f986a90a78f5856180d6e0ed31"
     }
   ],
-  "timestamp": "2025-06-12T13:34:14.762Z",
+  "timestamp": "2025-06-12T21:38:27.695Z",
   "count": 1,
-  "scanId": 1749735254762
+  "scanId": 1749764307695
 }
