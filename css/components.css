@@ -1942,11 +1942,16 @@ body[data-theme="light"] .nova-quip {
   transform: translateY(0);
 }
 
-/* Image Packs */
+/* Coming Soon Overlay - Only show on card hover */
+.card-section {
+  position: relative;
+  overflow: hidden;
+}
+
 .coming-soon-overlay {
   position: absolute;
   top: 1rem;
-  right: 1rem;
+  right: -100%;
   background: rgba(0, 0, 0, 0.7);
   color: #5ae4ff;
   padding: 0.25rem 0.75rem;
@@ -1955,6 +1960,11 @@ body[data-theme="light"] .nova-quip {
   font-weight: 500;
   z-index: 2;
   backdrop-filter: blur(2px);
+  transition: right 0.3s ease;
+}
+
+.card-section:hover .coming-soon-overlay {
+  right: 1rem;
 }
 
 .card-meta {
