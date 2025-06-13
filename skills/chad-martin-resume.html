@@ -95,9 +95,9 @@
           <a href="/skills/Chad-Martin-Resume.pdf" class="btn btn-primary" download="Chad-Martin-Resume">
             <i class="fas fa-download"></i> Download Resume (PDF)
           </a>
-          <a href="#contact" class="btn btn-secondary">
+          <button type="button" class="btn btn-secondary" onclick="showModal('contact-modal')">
             <i class="fas fa-paper-plane"></i> Get in Touch
-          </a>
+          </button>
           <a href="https://www.linkedin.com/in/chad-martin-b038496/" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
             <i class="fab fa-linkedin-in"></i> Connect on LinkedIn
           </a>
@@ -382,10 +382,25 @@
 
     
 
+    
+    <!-- Contact Form Modal Container -->
+    <div id="contact-form-container"></div>
   </main>
   <div id="footer-container"></div>
   <script src="/js/init-header-footer.js" defer></script>
   <script src="/js/nav.js" defer></script>
-  <script src="/js/theme.js" defer></script>
+  <script src="/js/theme.js"></script>
+  <script src="/js/modal-window.js"></script>
+  <script>
+    // Load contact form into modal container
+    document.addEventListener('DOMContentLoaded', function() {
+      fetch('/modules/contact-form.html')
+        .then(response => response.text())
+        .then(html => {
+          document.body.insertAdjacentHTML('beforeend', html);
+        })
+        .catch(error => console.error('Error loading contact form:', error));
+    });
+  </script>
 </body>
 </html>
