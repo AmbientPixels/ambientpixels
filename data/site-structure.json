@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-06-12T22:24:29.504Z",
+  "updated": "2025-06-13T13:32:51.976Z",
   "root": [
     {
       "type": "folder",
@@ -231,6 +231,12 @@
           "name": "projects",
           "path": "images/projects",
           "children": [
+            {
+              "type": "folder",
+              "name": "SoM",
+              "path": "images/projects/SoM",
+              "children": []
+            },
             {
               "type": "folder",
               "name": "co-pilot-playground",
@@ -644,13 +650,13 @@
           "children": [
             {
               "type": "page",
-              "name": "casual-games.html",
-              "path": "projects/websites/casual-games.html"
+              "name": "casual-games-support.html",
+              "path": "projects/websites/casual-games-support.html"
             },
             {
               "type": "page",
-              "name": "gears-of-war.html",
-              "path": "projects/websites/gears-of-war.html"
+              "name": "gears-of-war-support.html",
+              "path": "projects/websites/gears-of-war-support.html"
             },
             {
               "type": "page",
@@ -659,8 +665,13 @@
             },
             {
               "type": "page",
-              "name": "ninja-theroy.html",
-              "path": "projects/websites/ninja-theroy.html"
+              "name": "ninja-theroy-support.html",
+              "path": "projects/websites/ninja-theroy-support.html"
+            },
+            {
+              "type": "page",
+              "name": "south-of-midnight-support.html",
+              "path": "projects/websites/south-of-midnight-support.html"
             }
           ]
         },
