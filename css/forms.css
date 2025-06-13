@@ -1,0 +1,163 @@
+/* /css/forms.css - Form Styles for Ambient Pixels */
+
+/* Base Form Styles */
+.contact-form-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.contact-form h2 {
+  margin-bottom: 1rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-subtitle {
+  color: #a0a0a0;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Form Group */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+/* Label Wrapper (for icons and labels) */
+.form-group .label-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.form-group label {
+  color: #e0e0e0;
+  font-weight: 500;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* Icons */
+.form-group i {
+  color: #5ae4ff;
+  font-size: 1rem;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Input Wrappers */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+/* Form Inputs */
+.input-wrapper input,
+.input-wrapper textarea,
+.input-wrapper select {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.input-wrapper textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Focus States */
+.input-wrapper input:focus,
+.input-wrapper textarea:focus,
+.input-wrapper select:focus {
+  outline: none;
+  border-color: #5ae4ff;
+  box-shadow: 0 0 0 2px rgba(90, 228, 255, 0.2);
+}
+
+/* Form Actions */
+.form-actions {
+  margin-top: 2rem;
+  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+/* Form Status Messages */
+.form-status {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  text-align: left;
+  line-height: 1.5;
+}
+
+.form-status.success {
+  background: rgba(46, 213, 115, 0.15);
+  color: #2ed573;
+  border-left: 3px solid #2ed573;
+}
+
+.form-status.error {
+  background: rgba(255, 71, 87, 0.15);
+  color: #ff4757;
+  border-left: 3px solid #ff4757;
+}
+
+/* Loading Spinner */
+.fa-spinner {
+  animation: spin 1s linear infinite;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .contact-form-container {
+    padding: 1rem;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .form-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Dark/Light Theme Support */
+[data-theme="light"] .input-wrapper input,
+[data-theme="light"] .input-wrapper textarea,
+[data-theme="light"] .input-wrapper select {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+[data-theme="light"] .form-group label {
+  color: #444;
+}
+
+[data-theme="light"] .form-group i {
+  color: #3b82f6;
+}
