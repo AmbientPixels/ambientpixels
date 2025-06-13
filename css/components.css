@@ -1,4 +1,50 @@
-/* /css/components.css - Ambient Pixels v2.3 - April 11, 2025 */
+/* /css/components.css - Ambient Pixels v2.4 - June 12, 2025 */
+
+/* Gradient Heading - Reusable gradient text component */
+.gradient-heading {
+  background: linear-gradient(135deg, #5ae4ff 0%, #8a2be2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  margin: 0 0 1rem;
+  line-height: 1;
+  font-weight: 900;
+}
+
+/* Size variations */
+.gradient-heading--xl {
+  font-size: 8rem;
+}
+
+.gradient-heading--lg {
+  font-size: 4rem;
+}
+
+.gradient-heading--md {
+  font-size: 2.5rem;
+}
+
+.gradient-heading--sm {
+  font-size: 1.5rem;
+}
+
+/* Color variations */
+.gradient-heading--primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+}
+
+.gradient-heading--rainbow {
+  background: linear-gradient(270deg, #ff69b4, #ffa500, #ffff00, #00ff80, #00bfff, #ff69b4);
+  background-size: 400% 400%;
+  animation: rainbowFlow 12s ease infinite;
+}
+
+@keyframes rainbowFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 
 /* Card Grid - Universal card component */
 .card-grid {

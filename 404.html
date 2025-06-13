@@ -14,14 +14,91 @@
     <link rel="stylesheet" href="/css/components.css" />
     <link rel="stylesheet" href="/css/hero.css" />
     <link rel="stylesheet" href="/css/theme.css" />
-    <style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="/css/projects.css" />
+    <style id="button-override">
+    /* Button group layout only */
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 2rem;
+    }
       @keyframes nova-pulse {
         0%, 100% { opacity: 0.8; }
         50% { opacity: 1; text-shadow: 0 0 10px rgba(90, 228, 255, 0.5); }
       }
       
+      .mini-hero-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+        background: #0a0b1a;
+        overflow: hidden;
+      }
+      
+      .stars {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        background: transparent;
+      }
+      
+      .star {
+        position: absolute;
+        background: #fff;
+        border-radius: 50%;
+        animation: twinkle var(--duration, 5s) infinite ease-in-out;
+        opacity: 0;
+      }
+      
+      @keyframes twinkle {
+        0%, 100% { opacity: 0.2; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.5); }
+      }
+      
+      .mini-hero-content-wrapper {
+        position: relative;
+        z-index: 2;
+      }
+      
+      .mini-hero h1 {
+        margin-bottom: 1rem;
+        position: relative;
+      }
+      
+      .glitch {
+        position: relative;
+        animation: glitch 5s infinite;
+      }
+      
+      @keyframes glitch {
+        0% { text-shadow: 0.05em 0 0 rgba(255,0,0,0.75), -0.05em -0.025em 0 rgba(0,255,0,0.75), -0.025em 0.05em 0 rgba(0,0,255,0.75); }
+        14% { text-shadow: 0.05em 0 0 rgba(255,0,0,0.75), -0.05em -0.025em 0 rgba(0,255,0,0.75), -0.025em 0.05em 0 rgba(0,0,255,0.75); }
+        15% { text-shadow: -0.05em -0.025em 0 rgba(255,0,0,0.75), 0.025em 0.025em 0 rgba(0,255,0,0.75), -0.05em -0.05em 0 rgba(0,0,255,0.75); }
+        49% { text-shadow: -0.05em -0.025em 0 rgba(255,0,0,0.75), 0.025em 0.025em 0 rgba(0,255,0,0.75), -0.05em -0.05em 0 rgba(0,0,255,0.75); }
+        50% { text-shadow: 0.025em 0.05em 0 rgba(255,0,0,0.75), 0.05em 0 0 rgba(0,255,0,0.75), 0 -0.05em 0 rgba(0,0,255,0.75); }
+        99% { text-shadow: 0.025em 0.05em 0 rgba(255,0,0,0.75), 0.05em 0 0 rgba(0,255,0,0.75), 0 -0.05em 0 rgba(0,0,255,0.75); }
+        100% { text-shadow: -0.025em 0 0 rgba(255,0,0,0.75), -0.025em -0.025em 0 rgba(0,255,0,0.75), -0.025em -0.05em 0 rgba(0,0,255,0.75); }
+      }
+      
+      .mini-hero .subtitle {
+        font-size: 1.4rem;
+        opacity: 0.9;
+        margin: 0 auto;
+        max-width: 600px;
+        line-height: 1.6;
+      }
+      
       .error-container {
-        min-height: 70vh;
+        min-height: 50vh;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -29,27 +106,81 @@
         text-align: center;
         padding: 2rem;
         position: relative;
-      }
-      
-      .nova-whisper {
-        font-style: italic;
-        margin: 1.5rem 0;
-        font-size: 1rem;
-        color: var(--text-secondary);
-        animation: nova-pulse 4s ease-in-out infinite;
-        max-width: 500px;
+        z-index: 2;
       }
       
       .error-code {
         font-size: 8rem;
         font-weight: 900;
         margin: 0 0 1rem;
-        background: linear-gradient(135deg, #5ae4ff 0%, #8a2be2 100%);
+        background: linear-gradient(45deg, #5ae4ff, #8a2be2, #ff69b4);
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
-        line-height: 1;
+        animation: gradientShift 8s ease infinite;
+        background-size: 200% 200%;
       }
+      
+      @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      
+      .button-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 2rem;
+      }
+      
+      /* Button styles removed - using site defaults */
+      
+      .countdown {
+        margin-top: 2rem;
+        font-size: 0.9rem;
+        opacity: 0.7;
+      }
+      
+      @media (max-width: 768px) {
+        .error-code {
+          font-size: 5rem;
+        }
+        .button-group {
+          flex-direction: column;
+          width: 100%;
+          max-width: 300px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+        /* Button styles removed - using site defaults */
+      }
+      
+      .nova-whisper {
+        background: linear-gradient(270deg, #ff69b4, #ffa500, #ffff00, #00ff80, #00bfff, #ff69b4);
+        background-size: 400% 400%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: rainbowFlow 12s ease infinite, nova-pulse 4s ease-in-out infinite;
+        color: transparent;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        display: inline-block;
+        margin: 1.5rem 0;
+        max-width: 500px;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+      }
+      
+      @keyframes rainbowFlow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      
+      /* Error code uses the reusable gradient-heading class */
       
       .error-message {
         font-size: 1.5rem;
@@ -58,54 +189,51 @@
         color: var(--text-color);
       }
       
-      .home-button {
-        display: inline-flex;
-        align-items: center;
+      /* Home button styles removed - using site defaults */
+      
+      /* Button group styling */
+      .project-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
         justify-content: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1.5rem;
-        border-radius: 4px;
-        background: var(--primary);
-        color: #ffffff !important; /* White text by default */
-        text-decoration: none !important;
-        transition: all 0.3s ease;
-        font-weight: 500;
-        border: none;
-        cursor: pointer;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-family: inherit;
-        font-size: 1rem;
-        line-height: 1.5;
-      }
-      
-      /* Light theme button text */
-      [data-theme="light"] .home-button {
-        color: #000000 !important;
-      }
-      
-      .home-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(90, 228, 255, 0.3);
+        margin-top: 2rem;
       }
     </style>
+
   </head>
   <body data-theme="dark">
     <header id="nav-header"></header>
+    
+    <div class="mini-hero">
+      <div class="mini-hero-content-wrapper">
+        <h1 class="dark-bg">Lost in the Digital Cosmos</h1>
+        <p class="subtitle dark-bg">Don't worry, even stars sometimes lose their way</p>
+      </div>
+      <div class="mini-hero-bg" id="dynamic-bg">
+        <div class="stars" id="stars"></div>
+      </div>
+    </div>
 
     <main>
       <div class="error-container">
-        <h1 class="error-code">404</h1>
+        <h1 class="error-code glitch" aria-hidden="true">404</h1>
+        <span class="sr-only">404 - Page Not Found</span>
         <p class="error-message">
           The page you're looking for doesn't exist or has been moved.
         </p>
         <p class="nova-whisper">
-          <i class="fas fa-sparkles"></i> Nova whispers: "Even lost paths can lead to discovery. Let's find your way back."
+          <i class="fas fa-sparkles"></i> Nova: "Even lost paths can lead to discovery. Let's find your way back."
         </p>
-        <button onclick="window.location.href='/';" class="home-button">
-          <i class="fas fa-home"></i>
-          <span>Return Home</span>
-        </button>
+        <div class="project-buttons">
+          <a href="/" class="btn btn-primary" style="text-decoration: none !important; -webkit-text-decoration: none !important; text-decoration-line: none !important;">
+            <i class="fas fa-home"></i> Return Home
+          </a>
+          <a href="/projects" class="btn btn-secondary" style="text-decoration: none !important; -webkit-text-decoration: none !important; text-decoration-line: none !important;">
+            <i class="fas fa-rocket"></i> Explore Projects
+          </a>
+        </div>
+        <div class="countdown" id="countdown">Redirecting in <span id="countdown-number">30</span>s</div>
       </div>
     </main>
 
@@ -117,6 +245,97 @@
     <script>
       // Nova's subtle console greeting
       console.log('%cNova: Path not found, but I\'m here to help.', 'color: #5ae4ff; font-family: monospace;');
+      
+      // Create starfield
+      function createStars(container, count = 100) {
+        const starsContainer = document.getElementById(container);
+        const fragment = document.createDocumentFragment();
+        
+        for (let i = 0; i < count; i++) {
+          const star = document.createElement('div');
+          star.className = 'star';
+          
+          // Random size between 1 and 3px
+          const size = Math.random() * 2 + 1;
+          
+          // Random position
+          const posX = Math.random() * 100;
+          const posY = Math.random() * 100;
+          
+          // Random animation duration between 3 and 8s
+          const duration = Math.random() * 5 + 3;
+          
+          // Random delay for twinkling effect
+          const delay = Math.random() * 5;
+          
+          star.style.cssText = `
+            width: ${size}px;
+            height: ${size}px;
+            left: ${posX}%;
+            top: ${posY}%;
+            animation-delay: ${delay}s;
+            --duration: ${duration}s;
+          `;
+          
+          fragment.appendChild(star);
+        }
+        
+        starsContainer.appendChild(fragment);
+      }
+      
+      // Countdown and redirect
+      function startCountdown(seconds, targetUrl) {
+        const countdownElement = document.getElementById('countdown-number');
+        let remaining = seconds;
+        
+        const countdown = setInterval(() => {
+          remaining--;
+          if (countdownElement) {
+            countdownElement.textContent = remaining;
+          }
+          
+          if (remaining <= 0) {
+            clearInterval(countdown);
+            window.location.href = targetUrl;
+          }
+        }, 1000);
+        
+        // Clear countdown if user interacts with the page
+        window.addEventListener('click', function clearCountdown() {
+          clearInterval(countdown);
+          document.getElementById('countdown').style.opacity = '0.3';
+          window.removeEventListener('click', clearCountdown);
+        });
+      }
+      
+      // Set a single random background on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        createStars('stars', 100);
+        
+        const patterns = [
+          'radial-gradient(ellipse at 20% 30%, rgba(90, 228, 255, 0.2) 0%, transparent 40%), radial-gradient(ellipse at 80% 70%, rgba(138, 43, 226, 0.2) 0%, transparent 40%)',
+          'radial-gradient(ellipse at 30% 30%, rgba(90, 228, 255, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 70% 70%, rgba(138, 43, 226, 0.15) 0%, transparent 50%)',
+          'radial-gradient(ellipse at 50% 50%, rgba(90, 228, 255, 0.1) 0%, transparent 60%), radial-gradient(ellipse at 50% 50%, rgba(138, 43, 226, 0.1) 0%, transparent 60%)',
+          'radial-gradient(ellipse at 40% 40%, rgba(90, 228, 255, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 60% 60%, rgba(138, 43, 226, 0.15) 0%, transparent 50%)'
+        ];
+        
+        const overlays = [
+          'linear-gradient(135deg, rgba(16, 14, 41, 0.9) 0%, rgba(48, 43, 99, 0.9) 100%)',
+          'radial-gradient(ellipse at center, rgba(16, 14, 41, 0.9) 0%, rgba(48, 43, 99, 0.9) 100%)',
+          'linear-gradient(135deg, rgba(16, 14, 41, 0.9) 0%, rgba(30, 25, 80, 0.9) 100%)'
+        ];
+        
+        const hero = document.getElementById('dynamic-bg');
+        
+        // Set a single random background on load
+        const randomPattern = patterns[Math.floor(Math.random() * patterns.length)];
+        const randomOverlay = overlays[Math.floor(Math.random() * overlays.length)];
+        
+        hero.style.background = `${randomPattern}, ${randomOverlay}`;
+        
+        // Start countdown for auto-redirect (30 seconds)
+        startCountdown(30, '/');
+      });
     </script>
   </body>
 </html>
