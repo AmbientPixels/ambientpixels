@@ -18,7 +18,8 @@
 
 .grid-container {
   --grid-max-width: 100%;
-  padding: 0;
+  padding: 0 1rem;
+  padding-top: 80px; /* Add top padding to account for fixed header */
 }
 
 .mini-hero {
