@@ -17,213 +17,361 @@
   <link rel="stylesheet" href="/css/banner.css">
   <link rel="stylesheet" href="/css/nova-mood.css">
   <link rel="stylesheet" href="/css/resume.css">
+  <style>
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+    .skill-block {
+      background: var(--card-bg, rgba(255, 255, 255, 0.05));
+      border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+      padding: 1rem 1.25rem;
+      border-radius: 12px;
+      backdrop-filter: blur(6px);
+      transition: transform 0.3s ease;
+    }
+    .skill-block:hover {
+      transform: translateY(-4px);
+    }
+    .skill-block h4 {
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-bright, #ffffff);
+    }
+    .skill-block ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .skill-block ul li {
+      margin-bottom: 0.4rem;
+      font-size: 0.95rem;
+      color: var(--text-light, #ccc);
+    }
+  </style>
 </head>
 <body data-theme="dark">
-  <div class="banner-container" id="banner-container">
-    <div class="banner">
-      <i class="fas fa-file-alt banner-icon"></i>
-      <span>Chad Martin's Resume</span>
-      <button class="banner-close" aria-label="Close Banner">×</button>
-    </div>
-  </div>
-
-  <header id="nav-header"></header>
-
-  <section class="mini-hero">
-    <img src="/images/mini-hero-v1.jpg" alt="Chad Martin" class="mini-hero-img" loading="lazy">
-    <div class="mini-hero-content-wrapper">
-      <h1>Chad Martin</h1>
-      <p class="tagline">Producer at <span class="highlight">Xbox</span> | <span class="highlight">Microsoft</span></p>
-    </div>
-  </section>
-
   <main class="grid-container">
+    <!-- Mini Hero Section with Starfield - Exact 404 Implementation -->
+    <div class="mini-hero">
+      <div class="mini-hero-content-wrapper">
+        <h1 class="dark-bg">Senior Producer & Technical Strategist</h1>
+        <p class="subtitle dark-bg">Turning complexity into clarity—through design, intent, and systems that serve millions.</p>
+      </div>
+      <div class="mini-hero-bg" id="dynamic-bg">
+        <div class="stars" id="stars"></div>
+      </div>
+    </div>
+    <script>
+      // Starfield animation - Exact 404 Implementation
+      function createStars(container, count = 100) {
+        const starsContainer = document.getElementById(container);
+        if (!starsContainer) return;
+        
+        const fragment = document.createDocumentFragment();
+        
+        for (let i = 0; i < count; i++) {
+          const star = document.createElement('div');
+          star.className = 'star';
+          
+          // Random size between 1 and 3px
+          const size = Math.random() * 2 + 1;
+          
+          // Random position
+          const posX = Math.random() * 100;
+          const posY = Math.random() * 100;
+          
+          // Random animation duration between 3 and 8s
+          const duration = Math.random() * 5 + 3;
+          
+          // Random delay for twinkling effect
+          const delay = Math.random() * 5;
+          
+          star.style.cssText = `
+            width: ${size}px;
+            height: ${size}px;
+            left: ${posX}%;
+            top: ${posY}%;
+            animation-delay: ${delay}s;
+            --duration: ${duration}s;
+          `;
+          
+          fragment.appendChild(star);
+        }
+        
+        starsContainer.innerHTML = '';
+        starsContainer.appendChild(fragment);
+      }
+      
+      // Initialize starfield on load
+      document.addEventListener('DOMContentLoaded', function() {
+        createStars('stars', 100);
+      });
+    </script>
+    
     <section class="content-section grid-col-12 text-center">
       <div class="hero-content">
         <h1 class="glitch" data-text="Chad Martin">Chad Martin</h1>
-        <p class="tagline">I build worlds where pixels and players collide.</p>
+        <p class="tagline">Producer at <span class="highlight">Xbox</span> | <span class="highlight">Microsoft</span></p>
+        <p class="subtagline">Creative systems thinker. Builder of support ecosystems. Explorer of digital emotion.</p>
+        <!-- Brand Statement -->
+        <div class="brand-statement">
+          <i class="fas fa-quote-left"></i>
+          <p>Transforming complex challenges into elegant digital experiences through creative problem-solving and technical innovation.</p>
+          <i class="fas fa-quote-right"></i>
+        </div>
+        <!-- Download Button -->
+        <div class="resume-actions">
+          <a href="/resume.pdf" class="download-btn" download>
+            <i class="fas fa-file-pdf"></i> Download Resume (PDF)
+          </a>
+        </div>
         <div class="hero-buttons">
           <a href="https://linkedin.com/in/chad-martin" target="_blank" rel="noopener" class="button glass-button">
             <i class="fab fa-linkedin-in"></i>
             <span>Connect on LinkedIn</span>
           </a>
         </div>
-      </div>
+      </div>  
     </section>
+    
+      <!-- Featured Projects -->
+      <section class="content-section grid-col-12">
+        <h2><i class="fas fa-star"></i> Featured Projects</h2>
+        <div class="projects-grid">
+          <!-- Copilot Playground -->
+          <div class="project-card">
+            <div class="project-image" style="background: linear-gradient(135deg, rgba(0, 120, 212, 0.1), rgba(0, 120, 212, 0.2))">
+              <i class="fas fa-robot"></i>
+            </div>
+            <div class="project-content">
+              <h3>Copilot Playground</h3>
+              <p class="project-description">AI-powered support experience platform for Xbox, enhancing user assistance through natural language processing.</p>
+              <div class="project-tags">
+                <span>AI/ML</span>
+                <span>UX Design</span>
+                <span>Automation</span>
+              </div>
+              <a href="/projects/copilotplayground.html" class="project-link">View Project <i class="fas fa-arrow-right"></i></a>
+            </div>
+          </div>
+  
+          <!-- Hellblade II -->
+          <div class="project-card">
+            <div class="project-image" style="background: linear-gradient(135deg, rgba(138, 43, 226, 0.1), rgba(138, 43, 226, 0.2))">
+              <i class="fas fa-gamepad"></i>
+            </div>
+            <div class="project-content">
+              <h3>Hellblade II</h3>
+              <p class="project-description">Next-gen gaming support ecosystem with immersive help content and community engagement features.</p>
+              <div class="project-tags">
+                <span>Gaming</span>
+                <span>Community</span>
+                <span>Support</span>
+              </div>
+              <a href="/projects/hellblade-ii.html" class="project-link">View Project <i class="fas fa-arrow-right"></i></a>
+            </div>
+          </div>
+  
+          <!-- Xbox Support Hub -->
+          <div class="project-card">
+            <div class="project-image" style="background: linear-gradient(135deg, rgba(16, 124, 16, 0.1), rgba(16, 124, 16, 0.2))">
+              <i class="fab fa-xbox"></i>
+            </div>
+            <div class="project-content">
+              <h3>Xbox Support Hub</h3>
+              <p class="project-description">Unified support portal for Xbox users, integrating knowledge base, community, and live assistance.</p>
+              <div class="project-tags">
+                <span>Web</span>
+                <span>Support</span>
+                <span>UX</span>
+              </div>
+              <a href="/projects/xbox-support.html" class="project-link">View Project <i class="fas fa-arrow-right"></i></a>
+            </div>
+          </div>
+        </div>
+      </section>
+    
+    
+    
+ 
 
-    <!-- About Section -->
+
+
+
     <section class="content-section grid-col-12">
-      <h2><i class="fas fa-user"></i> About Me</h2>
-      <div class="neon-card">
-        <p>Seasoned Producer with over 15 years of experience in the gaming industry, specializing in programming, editorial content support, and user experience optimization. Passionate about creating immersive digital experiences that resonate with players worldwide. Expert in agile workflows, cross-functional team leadership, and delivering high-quality gaming content on time and within scope.</p>
-        <div class="hero-buttons">
-          <button onclick="window.location.href='/about/'" class="glass-button" type="button">
-            <i class="fas fa-user"></i>
-            <span>Learn More →</span>
-          </button>
+      <h2><i class="fas fa-briefcase"></i> Experience</h2>
+      <div class="resume-section">
+  <div class="experience-item">
+    <h3><i class="fas fa-cogs"></i>Producer – Xbox | Microsoft</h3>
+    <div class="role-tags">
+      <span class="role-tag role-producer"><i class="fas fa-cog"></i>Producer</span>
+      <span class="role-tag role-technical"><i class="fas fa-code"></i>Technical</span>
+      <span class="role-tag role-leadership"><i class="fas fa-users"></i>Leadership</span>
+      <span class="role-tag role-strategy"><i class="fas fa-chess"></i>Strategy</span>
+    </div>
+    <p class="company">Hanson Consulting Group · Full-time</p>
+    <p class="date">Jun 2014 – Present · Kirkland, WA</p>
+    <p>Producer and systems strategist for Xbox Support, contributing to CMS migrations, internal tooling, AI-powered editorial workflows, and multi-platform content delivery. Drove the Copilot Playground initiative, collaborated with engineering, localization, and UX to enhance support experiences, produced content for the Xbox Support app on console, and maintained support.xbox.com—Xbox’s global support site averaging 30 million users per month. Also supported launch readiness for major titles including Hellblade II, South of Midnight, and Microsoft Casual Games.</p>
+  </div>
+
+  <div class="experience-item">
+    <h3><i class="fas fa-laptop-code"></i>Web Producer – Xbox | Microsoft</h3>
+    <div class="role-tags">
+      <span class="role-tag role-technical"><i class="fas fa-code"></i>Web Development</span>
+      <span class="role-tag role-content"><i class="fas fa-edit"></i>Content</span>
+      <span class="role-tag role-strategy"><i class="fas fa-sitemap"></i>CMS</span>
+    </div>
+    <p class="company">Denny Mountain Media</p>
+    <p class="date">May 2010 – Jun 2014</p>
+    <p>Maintained Xbox web and console content with a proprietary CMS. Optimized assets, performed QA, and collaborated with global teams to launch key support pages during multiple product cycles.</p>
+  </div>
+
+  <div class="experience-item">
+    <h3><i class="fas fa-share-alt"></i>Web Producer – Microsoft</h3>
+    <div class="role-tags">
+      <span class="role-tag role-technical"><i class="fab fa-microsoft"></i>SharePoint</span>
+      <span class="role-tag role-content"><i class="fas fa-paint-brush"></i>Design</span>
+      <span class="role-tag role-strategy"><i class="fas fa-users"></i>Internal Tools</span>
+    </div>
+    <p class="company">Filter, A Merkle Company</p>
+    <p class="date">Feb 2009 – Jun 2010 · Seattle, WA</p>
+    <p>Built internal SharePoint sites and communication templates. Translated visual designs into responsive layouts. Supported outreach for 25,000+ internal users across Microsoft teams.</p>
+  </div>
+
+  <div class="experience-item">
+    <h3><i class="fas fa-layer-group"></i>Additional Roles</h3>
+    <div class="role-tags">
+      <span class="role-tag role-content"><i class="fas fa-photo-film"></i>Media</span>
+      <span class="role-tag role-technical"><i class="fas fa-tags"></i>Metadata</span>
+      <span class="role-tag role-leadership"><i class="fas fa-graduation-cap"></i>Training</span>
+    </div>
+    <p class="company">Microsoft, Muze, Loudeye, DiscoverMusic</p>
+    <p class="date">1998 – 2009</p>
+    <p>Held roles including Web Producer, Media Supervisor, Graphic Designer, and Content Technician. Responsibilities spanned metadata tagging, CMS publishing, CD archive management, digital delivery, QA, and team training across media and tech companies.</p>
+  </div>
+</div>
+</section>
+
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-code"></i> Skills</h2>
+        <div class="skills-grid">
+          <!-- Creative & Design -->
+          <div class="skill-block">
+            <h4><i class="fas fa-palette"></i>Creative & Design</h4>
+            <div class="skill-tags">
+              <span class="skill-pill" tabindex="0"><i class="fas fa-brush"></i>Graphic Design</span>
+              <span class="skill-pill" tabindex="0"><i class="fas fa-paint-brush"></i>Web Design</span>
+              <span class="skill-pill" tabindex="0"><i class="fas fa-film"></i>Motion Design</span>
+              <span class="skill-pill" tabindex="0"><i class="fab fa-adobe"></i>After Effects</span>
+              <span class="skill-pill" tabindex="0"><i class="fas fa-icons"></i>UI/UX</span>
+              <span class="skill-pill" tabindex="0"><i class="fas fa-paint-roller"></i>Visual Design</span>
+            </div>
+          </div>
+          
+          <!-- Technical Proficiency -->
+          <div class="skill-block">
+            <h4><i class="fas fa-code"></i>Technical Proficiency</h4>
+            <div class="skill-tags">
+              <span class="skill-pill" tabindex="0"><i class="fab fa-html5"></i>HTML5</span>
+              <span class="skill-pill" tabindex="0"><i class="fab fa-css3-alt"></i>CSS3</span>
+              <span class="skill-pill" tabindex="0"><i class="fab fa-js"></i>JavaScript</span>
+              <span class="skill-pill" tabindex="0"><i class="fas fa-code"></i>XML/ASMX</span>
+              <span class="skill-pill" tabindex="0"><i class="fab fa-microsoft"></i>SharePoint</span>
+              <span class="skill-pill" tabindex="0"><i class="fas fa-cogs"></i>CMS Development</span>
+              <span class="skill-pill" tabindex="0"><i class="fab fa-adobe"></i>Creative Suite</span>
+              <span class="skill-pill" tabindex="0"><i class="fas fa-bug"></i>QA & Debugging</span>
+              <span class="skill-pill" tabindex="0"><i class="fas fa-mobile-alt"></i>Responsive Design</span>
+            </div>
+          </div>
+          
+          <!-- AI & Systems -->
+          <div class="skill-block">
+            <h4><i class="fas fa-robot"></i>AI & Systems</h4>
+            <div class="skill-tags">
+              <span class="skill-pill" tabindex="0"><i class="fas fa-keyboard"></i>AI Prompt Design</span>
+              <span class="skill-pill" tabindex="0"><i class="fas fa-robot"></i>Editorial Automation</span>
+              <span class="skill-pill" tabindex="0"><i class="fas fa-tags"></i>Metadata Systems</span>
+              <span class="skill-pill" tabindex="0"><i class="fas fa-chart-line"></i>Data Visualization</span>
+              <span class="skill-pill" tabindex="0"><i class="fab fa-github"></i>GitHub</span>
+              <span class="skill-pill" tabindex="0"><i class="fab fa-microsoft"></i>Azure Pipelines</span>
+              <span class="skill-pill" tabindex="0"><i class="fas fa-server"></i>DevOps</span>
+              <span class="skill-pill" tabindex="0"><i class="fas fa-database"></i>Data Management</span>
+            </div>
+          </div>
+          
+          <!-- Collaboration & Strategy -->
+          <div class="skill-block">
+            <h4><i class="fas fa-users"></i>Collaboration & Strategy</h4>
+            <div class="skill-tags">
+              <span class="skill-pill" tabindex="0"><i class="fas fa-chess"></i>Content Strategy</span>
+              <span class="skill-pill" tabindex="0"><i class="fas fa-globe"></i>Localization</span>
+              <span class="skill-pill" tabindex="0"><i class="fas fa-people-arrows"></i>Cross-Functional Leadership</span>
+              <span class="skill-pill" tabindex="0"><i class="fas fa-universal-access"></i>WCAG 2.1 AA</span>
+              <span class="skill-pill" tabindex="0"><i class="fas fa-clipboard-check"></i>QA Processes</span>
+              <span class="skill-pill" tabindex="0">Delivery Pipelines</span>
+              <span class="skill-pill" tabindex="0">Team Mentorship</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Experience Section -->
-    <section class="content-section grid-col-12 collapsible">
-      <div class="section-header">
-        <h2><i class="fas fa-briefcase"></i> Experience</h2>
-        <button class="toggle-btn" aria-expanded="false" aria-controls="experience-content">
-          <i class="fas fa-chevron-down"></i>
-        </button>
-      </div>
-      <div id="experience-content" class="content">
-        <div class="resume-section">
-          <div class="experience-item">
-            <h3>Producer</h3>
-            <p class="company">Xbox | Microsoft</p>
-            <p class="date">2014 - Present</p>
-            <p>Leading production efforts for Xbox's digital content platform, managing cross-functional teams to deliver high-quality gaming experiences to millions of players worldwide.</p>
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-trophy"></i> Awards & Accolades</h2>
+      <div class="awards-container">
+        <div class="award-item">
+          <div class="award-icon">
+            <i class="fas fa-trophy"></i>
           </div>
-          <div class="experience-item">
-            <h3>Web Producer</h3>
-            <p class="company">Xbox | Microsoft</p>
-            <p class="date">2010 - 2014</p>
-            <ul>
-              <li>Managed content strategy and production for Xbox.com, optimizing web performance and user experience across multiple platforms.</li>
-            </ul>
+          <div class="award-content">
+            <h3>Microsoft Impact Award – UX & Platform Innovation</h3>
+            <p class="date">February 2024</p>
+            <p class="award-description">Awarded for leadership in the Compass-to-Campsite CMS migration powering Xbox Support, modernizing the editorial pipeline and improving global publishing efficiency.</p>
+            <div class="award-details">
+              <p>Recognized for:</p>
+              <ul>
+                <li>Transformational platform migration affecting millions of users</li>
+                <li>Significant improvements in content localization and publishing workflows</li>
+                <li>Cross-organization collaboration and innovation</li>
+                <li>Executive recognition signed by Microsoft CEO Satya Nadella</li>
+              </ul>
+            </div>
           </div>
-          <div class="experience-item">
-            <h3>Web Producer</h3>
-            <p class="company">Microsoft</p>
-            <p class="date">2009 - 2010</p>
-            <ul>
-              <li>Produced and maintained web content for Microsoft's consumer products, ensuring brand consistency and implementing SEO best practices.</li>
-            </ul>
+        </div>
+        <div class="award-item">
+          <div class="award-icon">
+            <i class="fas fa-award"></i>
           </div>
-          <div class="experience-item">
-            <h3>Digital Media Operations Supervisor</h3>
-            <p class="company">Muze</p>
-            <p class="date">2005 - 2008</p>
-            <ul>
-              <li>Led a team responsible for digital media asset management, developing workflows for content ingestion and distribution.</li>
-            </ul>
+          <div class="award-content">
+            <h3>Hanson Consulting Group – Superhero Award</h3>
+            <p class="date">December 2022</p>
+            <p class="award-description">Recognized for excellence in leadership, collaboration, and creative problem solving within Xbox Support content production pipelines.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Skills Section -->
-    <section class="content-section grid-col-12 collapsible">
-      <div class="section-header">
-        <h2><i class="fas fa-code"></i> Skills</h2>
-        <button class="toggle-btn" aria-expanded="false" aria-controls="skills-content">
-          <i class="fas fa-chevron-down"></i>
-        </button>
-      </div>
-      <div id="skills-content" class="content">
-        <div class="resume-section">
-          <div class="skills-container">
-            <span class="skill-tag">Programming</span>
-            <span class="skill-tag">Content Development</span>
-            <span class="skill-tag">Troubleshooting</span>
-            <span class="skill-tag">User Experience</span>
-            <span class="skill-tag">Agile Methodologies</span>
-            <span class="skill-tag">Project Management</span>
-            <span class="skill-tag">Web Design</span>
-            <span class="skill-tag">Gaming Industry Trends</span>
-          </div>
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-graduation-cap"></i> Education</h2>
+      <div class="resume-section">
+        <div class="education-item">
+          <h3 class="school">Art Institute of Seattle</h3>
+          <p>Associate of Applied Arts, Video Production</p>
+          <span class="date">1995 - 1997</span>
+        </div>
+        <div class="education-item">
+          <h3 class="school">University of Alaska Fairbanks</h3>
+          <p>Broadcast Journalism</p>
+          <span class="date">1993 - 1995</span>
         </div>
       </div>
     </section>
 
-    <!-- Education Section -->
-    <section class="content-section grid-col-12 collapsible">
-      <div class="section-header">
-        <h2><i class="fas fa-graduation-cap"></i> Education</h2>
-        <button class="toggle-btn" aria-expanded="false" aria-controls="education-content">
-          <i class="fas fa-chevron-down"></i>
-        </button>
-      </div>
-      <div id="education-content" class="content">
-        <div class="resume-section">
-          <div class="education-item">
-            <h3 class="school">Art Institute of Seattle</h3>
-            <p>Associate of Applied Arts, Video Production</p>
-            <span class="date">1995 - 1997</span>
-          </div>
-          <div class="education-item">
-            <h3 class="school">University of Alaska Fairbanks</h3>
-            <p>Broadcast Journalism</p>
-            <span class="date">1993 - 1995</span>
-          </div>
-        </div>
-      </div>
-    </section>
+    
+
   </main>
-
-  <div id="footer-container"></div>
-
-  <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/init-quotes.js" defer></script>
-  <script src="/js/md-inject.js" defer></script>
-  <script src="/js/modal-window.js" defer></script>
-  <script src="/js/nav.js" defer></script>
-  <script src="/js/nova-ai.js" defer></script>
-  <script src="/js/nova-awareness-feed.js" defer></script>
-  <script src="/js/nova-dashboard.js" defer></script>
-  <script src="/js/nova-insights.js" defer></script>
-  <script src="/js/nova-interaction-log.js" defer></script>
-  <script src="/js/nova-mood-core.js" defer></script>
-  <script src="/js/nova-quotes.js" defer></script>
-  <script src="/js/nova-status.js" defer></script>
-  <script src="/js/nova-telemetry-logger.js" defer></script>
-  <script src="/js/project-dashboard.js" defer></script>
-  <script src="/js/template.js" defer></script>
-  <script src="/js/theme.js" defer></script>
-  <script src="/js/main.js"></script>
-</body>
-</html>
-
-  <script src="/js/template.js" defer></script>
-  <script src="/js/theme.js" defer></script>
-  <script src="/js/main.js"></script>
-</body>
-</html>
-
-  <script src="/js/template.js" defer></script>
-  <script src="/js/theme.js" defer></script>
-  <script src="/js/main.js"></script>
-</body>
-</html>
-
-            <span class="date">1995 - 1997</span>
-          </div>
-          <div class="education-item">
-            <h3 class="school">University of Alaska Fairbanks</h3>
-            <p>Broadcast Journalism</p>
-            <span class="date">1993 - 1995</span>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <div id="footer-container"></div>
-
-  <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/init-quotes.js" defer></script>
-  <script src="/js/md-inject.js" defer></script>
-  <script src="/js/modal-window.js" defer></script>
-  <script src="/js/nav.js" defer></script>
-  <script src="/js/nova-ai.js" defer></script>
-  <script src="/js/nova-awareness-feed.js" defer></script>
-  <script src="/js/nova-dashboard.js" defer></script>
-  <script src="/js/nova-insights.js" defer></script>
-  <script src="/js/nova-interaction-log.js" defer></script>
-  <script src="/js/nova-mood-core.js" defer></script>
-  <script src="/js/nova-quotes.js" defer></script>
-  <script src="/js/nova-status.js" defer></script>
-  <script src="/js/nova-telemetry-logger.js" defer></script>
-  <script src="/js/project-dashboard.js" defer></script>
-  <script src="/js/template.js" defer></script>
-  <script src="/js/theme.js" defer></script>
-  <script src="/js/main.js"></script>
 </body>
 </html>
