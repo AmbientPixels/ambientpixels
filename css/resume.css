@@ -473,7 +473,177 @@ h2 {
   display: block;
 }
 
-/* Skills */
+/* Skills Section - Reset and Base Styles */
+.skills-section h2,
+.skills-section .section-header {
+  border-bottom: none !important;
+  background-image: none !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 1.5rem !important;
+  color: #5ae4ff !important;
+}
+
+/* Skills Grid Layout */
+.skills-grid {
+  /* Updated color variables for better contrast and theme matching */
+  --skill-color-1: #9c7cff; /* Brighter Purple */
+  --skill-color-2: #00e5af; /* Brighter Green */
+  --skill-color-3: #4dabff; /* Vibrant Blue */
+  --skill-color-4: #ffd166; /* Warm Yellow */
+  --skill-color-5: #ff6b9d; /* Vibrant Pink */
+  --skill-color-6: #00e5e5; /* Bright Teal */
+  gap: 1.5rem;
+  margin: 1.5rem 0 2.5rem 0;
+}
+
+/* Skill Block Styles */
+.skills-grid .skill-block {
+  background: rgba(30, 33, 54, 0.6);
+  border: 1px solid rgba(75, 202, 255, 0.1);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.skills-grid .skill-block:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(75, 202, 255, 0.1);
+}
+
+/* Skill Section Title Styles */
+/* Skill block headers - ensure consistent appearance */
+.skills-grid .skill-block h4 {
+  all: unset !important;
+  display: flex !important;
+  align-items: center !important;
+  margin: 0 0 1rem 0 !important;
+  padding: 0 !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  color: var(--skill-color) !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  position: relative;
+}
+
+.skills-grid .skill-block h4 i {
+  margin-right: 8px !important;
+  font-size: 1rem !important;
+  color: inherit !important;
+}
+
+/* Individual Skill Block Colors */
+/* Skill block specific colors - applied with high specificity */
+.skills-grid .skill-block:nth-child(1) h4,
+.skills-grid .skill-block:nth-child(1) h4 i {
+  color: #9c7cff !important; /* Purple */
+}
+
+.skills-grid .skill-block:nth-child(2) h4,
+.skills-grid .skill-block:nth-child(2) h4 i {
+  color: #00e5af !important; /* Green */
+}
+
+.skills-grid .skill-block:nth-child(3) h4,
+.skills-grid .skill-block:nth-child(3) h4 i {
+  color: #4dabff !important; /* Blue */
+}
+
+.skills-grid .skill-block:nth-child(4) h4,
+.skills-grid .skill-block:nth-child(4) h4 i {
+  color: #ffd166 !important; /* Yellow */
+}
+
+.skills-grid .skill-block:nth-child(5) h4,
+.skills-grid .skill-block:nth-child(5) h4 i {
+  color: #ff6b9d !important; /* Pink */
+}
+
+.skills-grid .skill-block:nth-child(6) h4,
+.skills-grid .skill-block:nth-child(6) h4 i {
+  color: #00e5e5 !important; /* Teal */
+}
+
+/* Ensure skill pills inherit the correct colors and have proper hover states */
+.skill-block:nth-child(1) .skill-pill { 
+  --skill-color: #9c7cff;
+  --skill-hover: rgba(156, 124, 255, 0.2);
+}
+.skill-block:nth-child(2) .skill-pill { 
+  --skill-color: #00e5af;
+  --skill-hover: rgba(0, 229, 175, 0.2);
+}
+.skill-block:nth-child(3) .skill-pill { 
+  --skill-color: #4dabff;
+  --skill-hover: rgba(77, 171, 255, 0.2);
+}
+.skill-block:nth-child(4) .skill-pill { 
+  --skill-color: #ffd166;
+  --skill-hover: rgba(255, 209, 102, 0.2);
+}
+.skill-block:nth-child(5) .skill-pill { 
+  --skill-color: #ff6b9d;
+  --skill-hover: rgba(255, 107, 157, 0.2);
+}
+.skill-block:nth-child(6) .skill-pill { 
+  --skill-color: #00e5e5;
+  --skill-hover: rgba(0, 229, 229, 0.2);
+}
+
+/* Skill Pills */
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.skill-pill {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 0.4rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s ease;
+  line-height: 1.2;
+}
+
+.skill-pill i {
+  margin-right: 5px;
+  font-size: 0.8em;
+  opacity: 0.8;
+}
+
+.skill-pill:hover {
+  background: var(--skill-hover, rgba(75, 202, 255, 0.2)) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 12px var(--skill-color, rgba(75, 202, 255, 0.3));
+  border-color: var(--skill-color, rgba(75, 202, 255, 0.4));
+}
+
+/* Section Header */
+.content-section h2 {
+  color: #5ae4ff;
+  margin: 2rem 0 1.5rem 0 !important;
+  padding: 0 0 0.5rem 0 !important;
+  border: none !important;
+  background: none !important;
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.content-section h2 i {
+  font-size: 1.25rem;
+}
+
 .skills-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -499,27 +669,25 @@ h2 {
   border-color: rgba(100, 200, 255, 0.15);
 }
 
+/* Consolidated skill block header styles */
 .skill-block h4 {
-  margin: 0 0 1.5rem 0;
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: var(--accent-color);
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  position: relative;
-  padding-bottom: 1rem;
+  margin: 0 0 1rem 0 !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  position: relative !important;
+  padding: 0 !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: none !important;
+  box-shadow: none !important;
 }
 
 .skill-block h4::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 50px;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent-color), transparent);
-  opacity: 0.7;
+  content: none !important; /* Remove gradient underline */
+  display: none !important;
 }
 
 .skill-block h4 i {

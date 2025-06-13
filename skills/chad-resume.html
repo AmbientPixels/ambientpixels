@@ -17,40 +17,6 @@
   <link rel="stylesheet" href="/css/banner.css">
   <link rel="stylesheet" href="/css/nova-mood.css">
   <link rel="stylesheet" href="/css/resume.css">
-  <style>
-    .skills-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      margin-top: 1rem;
-    }
-    .skill-block {
-      background: var(--card-bg, rgba(255, 255, 255, 0.05));
-      border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
-      padding: 1rem 1.25rem;
-      border-radius: 12px;
-      backdrop-filter: blur(6px);
-      transition: transform 0.3s ease;
-    }
-    .skill-block:hover {
-      transform: translateY(-4px);
-    }
-    .skill-block h4 {
-      margin-bottom: 0.5rem;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text-bright, #ffffff);
-    }
-    .skill-block ul {
-      list-style: none;
-      padding-left: 0;
-    }
-    .skill-block ul li {
-      margin-bottom: 0.4rem;
-      font-size: 0.95rem;
-      color: var(--text-light, #ccc);
-    }
-  </style>
 </head>
 <body data-theme="dark">
   <main class="grid-container">
@@ -255,65 +221,80 @@
 </div>
 </section>
 
-    <section class="content-section grid-col-12">
+    <section class="content-section grid-col-12 skills-section">
       <h2><i class="fas fa-code"></i> Skills</h2>
-        <div class="skills-grid">
-          <!-- Creative & Design -->
-          <div class="skill-block">
-            <h4><i class="fas fa-palette"></i>Creative & Design</h4>
-            <div class="skill-tags">
-              <span class="skill-pill" tabindex="0"><i class="fas fa-brush"></i>Graphic Design</span>
-              <span class="skill-pill" tabindex="0"><i class="fas fa-paint-brush"></i>Web Design</span>
-              <span class="skill-pill" tabindex="0"><i class="fas fa-film"></i>Motion Design</span>
-              <span class="skill-pill" tabindex="0"><i class="fab fa-adobe"></i>After Effects</span>
-              <span class="skill-pill" tabindex="0"><i class="fas fa-icons"></i>UI/UX</span>
-              <span class="skill-pill" tabindex="0"><i class="fas fa-paint-roller"></i>Visual Design</span>
-            </div>
+      <div class="skills-grid">
+        <!-- Creative Design -->
+        <div class="skill-block">
+          <h4><i class="fas fa-palette"></i>Creative Design</h4>
+          <div class="skill-tags">
+            <span class="skill-pill" tabindex="0"><i class="fas fa-brush"></i>Graphic Design</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-paint-brush"></i>Web Design</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-icons"></i>UX/UI</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-paint-roller"></i>Visual Design</span>
           </div>
-          
-          <!-- Technical Proficiency -->
-          <div class="skill-block">
-            <h4><i class="fas fa-code"></i>Technical Proficiency</h4>
-            <div class="skill-tags">
-              <span class="skill-pill" tabindex="0"><i class="fab fa-html5"></i>HTML5</span>
-              <span class="skill-pill" tabindex="0"><i class="fab fa-css3-alt"></i>CSS3</span>
-              <span class="skill-pill" tabindex="0"><i class="fab fa-js"></i>JavaScript</span>
-              <span class="skill-pill" tabindex="0"><i class="fas fa-code"></i>XML/ASMX</span>
-              <span class="skill-pill" tabindex="0"><i class="fab fa-microsoft"></i>SharePoint</span>
-              <span class="skill-pill" tabindex="0"><i class="fas fa-cogs"></i>CMS Development</span>
-              <span class="skill-pill" tabindex="0"><i class="fab fa-adobe"></i>Creative Suite</span>
-              <span class="skill-pill" tabindex="0"><i class="fas fa-bug"></i>QA & Debugging</span>
-              <span class="skill-pill" tabindex="0"><i class="fas fa-mobile-alt"></i>Responsive Design</span>
-            </div>
+        </div>
+        
+        <!-- Video & Motion -->
+        <div class="skill-block">
+          <h4><i class="fas fa-film"></i>Video & Motion</h4>
+          <div class="skill-tags">
+            <span class="skill-pill" tabindex="0"><i class="fab fa-adobe"></i>After Effects</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-film"></i>2D Animation</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-video"></i>Video Editing</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-paint-brush"></i>Character Design</span>
           </div>
-          
-          <!-- AI & Systems -->
-          <div class="skill-block">
-            <h4><i class="fas fa-robot"></i>AI & Systems</h4>
-            <div class="skill-tags">
-              <span class="skill-pill" tabindex="0"><i class="fas fa-keyboard"></i>AI Prompt Design</span>
-              <span class="skill-pill" tabindex="0"><i class="fas fa-robot"></i>Editorial Automation</span>
-              <span class="skill-pill" tabindex="0"><i class="fas fa-tags"></i>Metadata Systems</span>
-              <span class="skill-pill" tabindex="0"><i class="fas fa-chart-line"></i>Data Visualization</span>
-              <span class="skill-pill" tabindex="0"><i class="fab fa-github"></i>GitHub</span>
-              <span class="skill-pill" tabindex="0"><i class="fab fa-microsoft"></i>Azure Pipelines</span>
-              <span class="skill-pill" tabindex="0"><i class="fas fa-server"></i>DevOps</span>
-              <span class="skill-pill" tabindex="0"><i class="fas fa-database"></i>Data Management</span>
-            </div>
+        </div>
+        
+        <!-- Technical Web -->
+        <div class="skill-block">
+          <h4><i class="fas fa-laptop-code"></i>Technical Web</h4>
+          <div class="skill-tags">
+            <span class="skill-pill" tabindex="0"><i class="fab fa-html5"></i>HTML5 / CSS3 / JavaScript</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-code"></i>XML / ASMX</span>
+            <span class="skill-pill" tabindex="0"><i class="fab fa-microsoft"></i>SharePoint</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-cogs"></i>CMS Development</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-bug"></i>QA & Debugging</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-desktop"></i>Responsive Design</span>
           </div>
-          
-          <!-- Collaboration & Strategy -->
-          <div class="skill-block">
-            <h4><i class="fas fa-users"></i>Collaboration & Strategy</h4>
-            <div class="skill-tags">
-              <span class="skill-pill" tabindex="0"><i class="fas fa-chess"></i>Content Strategy</span>
-              <span class="skill-pill" tabindex="0"><i class="fas fa-globe"></i>Localization</span>
-              <span class="skill-pill" tabindex="0"><i class="fas fa-people-arrows"></i>Cross-Functional Leadership</span>
-              <span class="skill-pill" tabindex="0"><i class="fas fa-universal-access"></i>WCAG 2.1 AA</span>
-              <span class="skill-pill" tabindex="0"><i class="fas fa-clipboard-check"></i>QA Processes</span>
-              <span class="skill-pill" tabindex="0">Delivery Pipelines</span>
-              <span class="skill-pill" tabindex="0">Team Mentorship</span>
-            </div>
+        </div>
+        
+        <!-- Data & BI Tools -->
+        <div class="skill-block">
+          <h4><i class="fas fa-chart-bar"></i>Data & BI Tools</h4>
+          <div class="skill-tags">
+            <span class="skill-pill" tabindex="0"><i class="fas fa-table"></i>Advanced Excel Formulas</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-database"></i>Power Query</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-chart-bar"></i>Power BI Dashboards</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-sitemap"></i>Data Modeling & Visualization</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-project-diagram"></i>Power Pivot</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-robot"></i>Power Automate</span>
+          </div>
+        </div>
+        
+        <!-- AI & Systems -->
+        <div class="skill-block">
+          <h4><i class="fas fa-robot"></i>AI & Systems</h4>
+          <div class="skill-tags">
+            <span class="skill-pill" tabindex="0"><i class="fas fa-keyboard"></i>AI Prompt Design</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-robot"></i>Editorial Automation</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-tags"></i>Metadata Systems</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-project-diagram"></i>Data Pipelines</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-server"></i>DevOps</span>
+            <span class="skill-pill" tabindex="0"><i class="fab fa-github"></i>GitHub / Azure Pipelines</span>
+          </div>
+        </div>
+        
+        <!-- Collaboration & Strategy -->
+        <div class="skill-block">
+          <h4><i class="fas fa-handshake"></i>Collaboration & Strategy</h4>
+          <div class="skill-tags">
+            <span class="skill-pill" tabindex="0"><i class="fas fa-chess"></i>Content Strategy</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-globe"></i>Localization</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-people-arrows"></i>Cross-Functional Leadership</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-universal-access"></i>Accessibility (WCAG 2.1 AA)</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-clipboard-check"></i>QA Processes</span>
+            <span class="skill-pill" tabindex="0"><i class="fas fa-users"></i>Team Mentorship</span>
           </div>
         </div>
       </div>
