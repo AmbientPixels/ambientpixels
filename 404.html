@@ -1,12 +1,11 @@
-<!-- File: /404.html -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Ambient Pixels 404 - Page Not Found" />
+    <meta name="description" content="Page not found - Ambient Pixels" />
     <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-    <title>404 - Glitch Not Found - Ambient Pixels</title>
+    <title>404 - Page Not Found - Ambient Pixels</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/css/base.css" />
@@ -15,96 +14,109 @@
     <link rel="stylesheet" href="/css/components.css" />
     <link rel="stylesheet" href="/css/hero.css" />
     <link rel="stylesheet" href="/css/theme.css" />
-    <link rel="stylesheet" href="/css/banner.css" />
     <style>
-      /* Glitch effect for 404 text */
-      @keyframes glitch-404 {
-        0% { transform: translate(0); }
-        20% { transform: translate(-3px, 3px); }
-        40% { transform: translate(3px, -3px); }
-        60% { transform: translate(-3px, 0); }
-        80% { transform: translate(3px, 3px); }
-        100% { transform: translate(0); }
+      @keyframes nova-pulse {
+        0%, 100% { opacity: 0.8; }
+        50% { opacity: 1; text-shadow: 0 0 10px rgba(90, 228, 255, 0.5); }
       }
-      .glitch-404:hover {
-        animation: glitch-404 0.4s infinite;
-        color: #5ae4ff; /* Glitch Blue */
+      
+      .error-container {
+        min-height: 70vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 2rem;
+        position: relative;
+      }
+      
+      .nova-whisper {
+        font-style: italic;
+        margin: 1.5rem 0;
+        font-size: 1rem;
+        color: var(--text-secondary);
+        animation: nova-pulse 4s ease-in-out infinite;
+        max-width: 500px;
+      }
+      
+      .error-code {
+        font-size: 8rem;
+        font-weight: 900;
+        margin: 0 0 1rem;
+        background: linear-gradient(135deg, #5ae4ff 0%, #8a2be2 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1;
+      }
+      
+      .error-message {
+        font-size: 1.5rem;
+        margin: 1rem 0 2rem;
+        max-width: 600px;
+        color: var(--text-color);
+      }
+      
+      .home-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        background: var(--primary);
+        color: #ffffff !important; /* White text by default */
+        text-decoration: none !important;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-family: inherit;
+        font-size: 1rem;
+        line-height: 1.5;
+      }
+      
+      /* Light theme button text */
+      [data-theme="light"] .home-button {
+        color: #000000 !important;
+      }
+      
+      .home-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(90, 228, 255, 0.3);
       }
     </style>
   </head>
   <body data-theme="dark">
-    <!-- Dynamic Navigation Header -->
     <header id="nav-header"></header>
 
-    <!-- Mini Hero Section -->
-    <section class="mini-hero">
-      <img src="/images/mini-hero-v3.jpg" alt="Mini Hero Neon Pulse" class="mini-hero-img" loading="lazy">
-      <div class="mini-hero-content-wrapper">
-        <h1 class="glitch-404">404 - Glitch Not Found</h1>
-        <p class="subtitle">A playground for the curious—where code, art, and AI collide.</p>
+    <main>
+      <div class="error-container">
+        <h1 class="error-code">404</h1>
+        <p class="error-message">
+          The page you're looking for doesn't exist or has been moved.
+        </p>
+        <p class="nova-whisper">
+          <i class="fas fa-sparkles"></i> Nova whispers: "Even lost paths can lead to discovery. Let's find your way back."
+        </p>
+        <button onclick="window.location.href='/';" class="home-button">
+          <i class="fas fa-home"></i>
+          <span>Return Home</span>
+        </button>
       </div>
-    </section>
-
-    <main class="grid-container">
-      <!-- Error Section -->
-      <section class="grid-col-12 content-section neon-card">
-        <h2><i class="fas fa-bug"></i> You Glitched the Matrix!</h2>
-        <p>Oops! This page is lost in the neon chaos of AmbientPixels.ai. Maybe it’s hiding in a glitchy void, or Nova’s still dreaming it up.</p>
-        <p>I’m still humming, though—let’s get you back to the grid.</p>
-        <a href="/index.html" class="toggle-btn"><i class="fas fa-home"></i> Return Home</a>
-      </section>
-
-      <!-- Visual Section -->
-      <section class="grid-col-6 content-section neon-card">
-        <h2><i class="fas fa-image"></i> Glitchy Void</h2>
-        <p>A taste of the chaos—hover the image for a glitch effect.</p>
-        <img src="/images/card-01.jpg" alt="Glitch Art Void" class="glitch-404" style="width: 100%; height: 200px; object-fit: cover;" loading="lazy">
-      </section>
-
-      <!-- Navigation Help -->
-      <section class="grid-col-6 content-section neon-card">
-        <h2><i class="fas fa-compass"></i> Find Your Way</h2>
-        <p>Explore these neon paths to get back on track:</p>
-        <ul>
-          <li><a href="/tools/index.html">Tools Hub</a> - Demos galore</li>
-          <li><a href="/art.html">Art Gallery</a> - Glitchy visuals</li>
-          <li><a href="/projects.html">Projects</a> - Neon creations</li>
-        </ul>
-      </section>
-
-      <!-- Outro Section -->
-      <section class="grid-col-12 content-section neon-card">
-        <h2><i class="fas fa-star"></i> 404 Notes</h2>
-        <p>Every lost path is a chance to discover something new. Keep wandering, and Nova will light the way. Glitch on!</p>
-      </section>
     </main>
 
-    <!-- Footer -->
     <div id="footer-container"></div>
 
-    <!-- Scripts -->
+    <script src="/js/init-header-footer.js" defer></script>
+    <script src="/js/nav.js" defer></script>
+    <script src="/js/theme.js" defer></script>
     <script>
-      console.log('%cNova: 404 Glitch Detected! Lost in neon chaos at /404.html', 'color: #5ae4ff; font-family: monospace;');
+      // Nova's subtle console greeting
+      console.log('%cNova: Path not found, but I\'m here to help.', 'color: #5ae4ff; font-family: monospace;');
     </script>
-<!-- Scripts (Full Load for Dev Mode) -->
-<script src="/js/init-header-footer.js" defer></script>
-<script src="/js/dreamEngine.js" defer></script>
-<script src="/js/init-quotes.js" defer></script>
-<script src="/js/main.js" defer></script>
-<script src="/js/md-inject.js" defer></script>
-<script src="/js/modal-window.js" defer></script>
-<script src="/js/nav.js" defer></script>
-<script src="/js/nova-ai.js" defer></script>
-<script src="/js/nova-awareness-feed.js" defer></script>
-<script src="/js/nova-dashboard.js" defer></script>
-<script src="/js/nova-insights.js" defer></script>
-<script src="/js/nova-interaction-log.js" defer></script>
-<script src="/js/nova-mood-core.js" defer></script>
-<script src="/js/nova-quotes.js" defer></script>
-<script src="/js/nova-status.js" defer></script>
-<script src="/js/nova-telemetry-logger.js" defer></script>
-<script src="/js/project-dashboard.js" defer></script>
-<script src="/js/template.js" defer></script>
-<script src="/js/theme.js" defer></script>
   </body>
 </html>
