@@ -1,10 +1,10 @@
 {
-  "updated": "2025-06-12T22:24:29.613Z",
+  "updated": "2025-06-13T13:32:52.099Z",
   "entries": [
     {
-      "hash": "682c7c7",
-      "date": "2025-06-12 21:38:32 +0000",
-      "message": "Daily refresh: site memory update for Nova"
+      "hash": "dc2aec2",
+      "date": "2025-06-13 01:57:23 -0700",
+      "message": "feat(about): add resume CTA button"
     }
   ]
 }
