@@ -4,7 +4,8 @@
 const FORM_TYPES = {
   'contact': '/modules/contact-form.html',
   'modal': '/modules/contact-modal.html',
-  'email': '/modules/email-capture-modal.html'
+  'email': '/modules/email-capture-modal.html',
+  'get-in-touch': '/modules/get-in-touch.html'
 };
 
 /**

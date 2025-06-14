@@ -99,8 +99,9 @@
           <a href="/skills/Chad-Martin-Resume-2025.pdf" class="btn btn-primary" download="Chad-Martin-Resume">
             <i class="fas fa-download"></i> Download Resume (PDF)
           </a>
-          <button type="button" class="btn btn-secondary" onclick="showModal('contact-modal')">
-            <i class="fas fa-paper-plane"></i> Get in Touch
+          <button type="button" class="btn btn-secondary glass-button" onclick="showModal('contact-modal')">
+            <i class="fas fa-paper-plane"></i>
+            <span>Get in Touch</span>
           </button>
           <a href="https://www.linkedin.com/in/chad-martin-b038496/" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
             <i class="fab fa-linkedin-in"></i> Connect on LinkedIn
@@ -406,16 +407,14 @@
   <div id="footer-container"></div>
   
   <!-- Contact Form Modal (Loaded via init-contact-modal.js) -->
-  <div id="modal-container"></div>
+  <div id="modal-container" data-auto-form="get-in-touch"></div>
 
-  <!-- Scripts -->
-  <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/nav.js" defer></script>
-  <script src="/js/theme.js"></script>
-  <script src="/js/modal-window.js"></script>
-  
-  <!-- Form Handling -->
-  <script src="/js/init-contact-modal.js" defer></script>
+  <!-- Scripts (Order is important) -->
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/modal-window.js" defer></script>
   <script src="/js/forms.js" defer></script>
+  <script src="/js/init-contact-modal.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/init-header-footer.js" defer></script>
 </body>
 </html>
