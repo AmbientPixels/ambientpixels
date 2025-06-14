@@ -737,6 +737,31 @@ h2 {
   backdrop-filter: blur(5px);
 }
 
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.skills-grid .skill-block {
+  background: rgba(30, 30, 40, 0.7);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.skills-grid .skill-block h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  color: #4bcaff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .skills-grid .skill-block:hover {
   transform: translateY(-3px);
   box-shadow: 0 4px 15px rgba(75, 202, 255, 0.1);
