@@ -9,6 +9,55 @@ const FORM_TYPES = {
 };
 
 /**
+ * Shows a modal by ID
+ * @param {string} modalId - ID of the modal to show
+ */
+function showModal(modalId = 'modal') {
+  // Try to find the modal
+  let modal = document.getElementById(modalId);
+  
+  // If modal doesn't exist yet (might be loading asynchronously)
+  if (!modal) {
+    // Check if it's in the modal container
+    const container = document.getElementById('modal-container');
+    if (container && container.querySelector(`#${modalId}, .modal`)) {
+      modal = container.querySelector(`#${modalId}`) || container.querySelector('.modal');
+      // Fix the ID to match what we expect if needed
+      if (modalId === 'modal' && modal.id !== 'modal') {
+        modal.id = 'modal';
+      }
+    } else {
+      // Modal might still be loading, try again in a moment
+      console.log(`Modal ${modalId} not found, trying again in 100ms...`);
+      setTimeout(() => showModal(modalId), 100);
+      return;
+    }
+  }
+  
+  // Show the modal
+  document.body.classList.add('modal-open');
+  modal.classList.remove('hidden');
+  setTimeout(() => modal.classList.add('active'), 10);
+}
+
+/**
+ * Closes a modal by ID
+ * @param {string} modalId - ID of the modal to close
+ */
+function closeModal(modalId = 'modal') {
+  const modal = document.getElementById(modalId) || document.querySelector('.modal');
+  if (modal) {
+    // Remove active class first
+    modal.classList.remove('active');
+    // Add hidden class after a short delay for smooth transition
+    setTimeout(() => {
+      modal.classList.add('hidden');
+      document.body.classList.remove('modal-open');
+    }, 300);
+  }
+}
+
+/**
  * Loads a form into the specified container
  * @param {string} formType - Type of form to load (contact, modal, email)
  * @param {string} containerId - ID of the container to load the form into
@@ -84,8 +133,30 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error(`Failed to auto-load form ${formType} into #${containerId}:`, error);
     });
   });
+
+  // Close modal when clicking outside content
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal-overlay')) {
+      const modal = e.target.closest('.modal');
+      if (modal) {
+        closeModal(modal.id);
+      }
+    }
+  });
+
+  // Close modal with Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const activeModal = document.querySelector('.modal:not(.hidden)');
+      if (activeModal) {
+        closeModal(activeModal.id);
+      }
+    }
+  });
 });
 
 // Make functions available globally
 window.loadForm = loadForm;
 window.loadModalForm = loadModalForm;
+window.showModal = showModal;
+window.closeModal = closeModal;
