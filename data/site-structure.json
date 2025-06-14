@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-06-13T13:32:51.976Z",
+  "updated": "2025-06-14T13:28:19.942Z",
   "root": [
     {
       "type": "folder",
@@ -376,6 +376,11 @@
         },
         {
           "type": "page",
+          "name": "contact-form.html",
+          "path": "modules/contact-form.html"
+        },
+        {
+          "type": "page",
           "name": "contact-modal.html",
           "path": "modules/contact-modal.html"
         },
@@ -721,8 +726,8 @@
       "children": [
         {
           "type": "page",
-          "name": "chad-resume.html",
-          "path": "skills/chad-resume.html"
+          "name": "chad-martin-resume.html",
+          "path": "skills/chad-martin-resume.html"
         },
         {
           "type": "page",
