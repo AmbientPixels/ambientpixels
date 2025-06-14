@@ -1,37 +1,43 @@
 <!-- /modules/contact-modal.html -->
 <div id="contact-modal" class="modal hidden">
-  <div class="modal-overlay" id="modal-backdrop"></div>
+  <div class="modal-overlay" onclick="closeModal('contact-modal')"></div>
   <div class="modal-content glass-panel">
-    <button class="modal-close" id="modal-close" aria-label="Close contact form" onclick="closeModal('contact-modal')">
+    <button class="modal-close" onclick="closeModal('contact-modal')" aria-label="Close">
       <i class="fas fa-times"></i>
     </button>
     
     <div class="contact-form-container">
-      <h2><i class="fas fa-envelope"></i> Contact Nova's Grid</h2>
-      <p class="form-subtitle">Let's create something extraordinary together</p>
-    
-      <form id="contact-form" action="https://formspree.io/f/xanejjnz" method="POST" class="contact-form">
+      <h2><i class="fas fa-paper-plane"></i> Get in Touch</h2>
+      <p class="form-subtitle">Have a question or want to work together? Send me a message!</p>
+      
+      <form id="contact-form" action="https://formspree.io/f/xanejjnz" method="POST" class="contact-form js-form-handler">
         <div class="form-group">
-          <label for="name" class="form-label">Your Name</label>
-          <div class="input-wrapper">
+          <div class="label-wrapper">
             <i class="fas fa-user"></i>
-            <input type="text" id="name" name="name" class="form-input" placeholder="Enter your name" required>
+            <label for="name">Your Name</label>
           </div>
-        </div>
-
-        <div class="form-group">
-          <label for="email" class="form-label">Email Address</label>
           <div class="input-wrapper">
-            <i class="fas fa-envelope"></i>
-            <input type="email" id="email" name="email" class="form-input" placeholder="your.email@example.com" required>
+            <input type="text" id="name" name="name" required>
           </div>
         </div>
-
+        
         <div class="form-group">
-          <label for="project-type" class="form-label">Project Type</label>
-          <div class="select-wrapper">
+          <div class="label-wrapper">
+            <i class="fas fa-envelope"></i>
+            <label for="email">Your Email</label>
+          </div>
+          <div class="input-wrapper">
+            <input type="email" id="email" name="email" required>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <div class="label-wrapper">
             <i class="fas fa-cube"></i>
-            <select id="project-type" name="project-type" class="form-select">
+            <label for="project-type">Project Type</label>
+          </div>
+          <div class="input-wrapper">
+            <select id="project-type" name="project-type" required>
               <option value="" disabled selected>Select a project type</option>
               <option value="web">Website Development</option>
               <option value="design">UI/UX Design</option>
@@ -41,15 +47,17 @@
             </select>
           </div>
         </div>
-
+        
         <div class="form-group">
-          <label for="message" class="form-label">Project Details</label>
+          <div class="label-wrapper">
+            <i class="fas fa-comment"></i>
+            <label for="message">Your Message</label>
+          </div>
           <div class="input-wrapper">
-            <i class="fas fa-comment-alt"></i>
-            <textarea id="message" name="message" class="form-textarea" rows="5" placeholder="Tell us about your project..." required></textarea>
+            <textarea id="message" name="message" rows="5" required></textarea>
           </div>
         </div>
-
+        
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">
             <i class="fas fa-paper-plane"></i> Send Message
@@ -57,7 +65,7 @@
         </div>
         
         <!-- Form status message -->
-        <div id="form-status" class="form-status"></div>
+        <div class="form-status"></div>
       </form>
     </div>
   </div>
