@@ -54,8 +54,14 @@
         <h1 class="hero-headline"></h1>
         <p class="hero-subheadline"></p>
         <div class="hero-cta">
-          <a href="#" class="btn-primary" onclick="showModal(); return false;">Work With Us</a>
-          <a href="/projects" class="btn-secondary">See Our Work</a>
+          <button type="button" class="glass-button" onclick="showModal('contact-modal'); return false;">
+            <i class="fas fa-envelope"></i>
+            <span>Work With Us</span>
+          </button>
+          <a href="/projects" class="glass-button secondary">
+            <i class="fas fa-eye"></i>
+            <span>See Our Work</span>
+          </a>
         </div>
       </div>
     </section>
@@ -309,33 +315,21 @@
   <!-- Banner System Scripts -->
   <script src="/js/banner-config.js"></script>
   <script src="/js/banner.js"></script>
-      <!-- Contact Modal -->
-    <div id="modal" class="modal hidden">
-        <div class="modal-overlay"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Work With Us</h2>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="contact-form">
-                    <div class="form-group">
-                        <label for="name">Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="message">Message</label>
-                        <textarea id="message" name="message" required></textarea>
-                    </div>
-                    <button type="submit" class="btn-primary">Send Message</button>
-                </form>
-            </div>
-        </div>
-    </div>
-    <script src="/js/modal-window.js"></script>
+  
+  <!-- Modal Container -->
+  <div id="modal-container" data-auto-form="modal"></div>
+  
+  <!-- Modal and Form Scripts -->
+  <script src="/js/forms.js" defer></script>
+  <script src="/js/init-contact-modal.js" defer></script>
+  <script src="/js/modal-window.js" defer></script>
+  
+  <script>
+    // Initialize modal form when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // The form will be auto-loaded by init-contact-modal.js
+      // using the data-auto-form attribute on the container
+    });
+  </script>
 </body>
 </html>

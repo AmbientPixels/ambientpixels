@@ -1,48 +1,90 @@
 // File: /js/init-contact-modal.js – Initialize Contact Modal Module
 
+// Map of form types to their HTML paths
+const FORM_TYPES = {
+  'contact': '/modules/contact-form.html',
+  'modal': '/modules/contact-modal.html',
+  'email': '/modules/email-capture-modal.html'
+};
+
 /**
- * Loads the contact form modal into the page
+ * Loads a form into the specified container
+ * @param {string} formType - Type of form to load (contact, modal, email)
+ * @param {string} containerId - ID of the container to load the form into
  */
-function loadContactModal() {
-  // Check if the modal container exists
-  let modalContainer = document.getElementById('modal-container');
-  if (!modalContainer) {
-    console.error('Modal container not found. Make sure you have a <div id="modal-container"></div> in your HTML.');
-    return;
+function loadForm(formType = 'modal', containerId = 'modal-container') {
+  // Check if the container exists
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Container with ID "${containerId}" not found.`);
+    return Promise.reject(new Error(`Container "${containerId}" not found`));
   }
 
-  // Load the contact form HTML
-  fetch('/modules/get-in-touch.html')
+  // Get the form path from our types
+  const formPath = FORM_TYPES[formType];
+  if (!formPath) {
+    const errorMsg = `Unknown form type: ${formType}. Available types: ${Object.keys(FORM_TYPES).join(', ')}`;
+    console.error(errorMsg);
+    return Promise.reject(new Error(errorMsg));
+  }
+
+  // Show loading state if container is empty
+  if (container.children.length === 0) {
+    container.innerHTML = '<div class="loading-message">Loading form...</div>';
+  }
+
+  return fetch(formPath)
     .then(response => {
       if (!response.ok) {
-        throw new Error(`Failed to load contact form: ${response.status} ${response.statusText}`);
+        throw new Error(`Failed to load ${formType} form: ${response.status} ${response.statusText}`);
       }
       return response.text();
     })
     .then(html => {
-      // Insert the modal HTML
-      modalContainer.innerHTML = html;
+      // Insert the form HTML
+      container.innerHTML = html;
+      console.log(`Successfully loaded ${formType} form into #${containerId}`);
       
-      // Initialize any modal-specific JavaScript here if needed
-      console.log('Contact form modal loaded successfully');
-      
-      // Initialize forms after modal is loaded
-      if (window.initForms) {
+      // Initialize forms if the function is available
+      if (typeof window.initForms === 'function') {
         window.initForms();
       }
+      
+      // Return the container for chaining
+      return container;
     })
     .catch(error => {
-      console.error('Error loading contact form:', error);
-      modalContainer.innerHTML = `
+      console.error(`Error loading ${formType} form:`, error);
+      container.innerHTML = `
         <div class="error-message">
-          <p>Failed to load contact form. Please try again later or email directly.</p>
+          <p>Failed to load form. Please try again later or contact us directly.</p>
         </div>
       `;
+      throw error; // Re-throw to allow error handling by the caller
     });
 }
 
-// Initialize the modal when the page loads
-document.addEventListener('DOMContentLoaded', loadContactModal);
+/**
+ * Loads a modal form into the default modal container
+ * @param {string} formType - Type of form to load (contact, modal, email)
+ */
+function loadModalForm(formType = 'modal') {
+  return loadForm(formType, 'modal-container');
+}
 
-// Make the load function available globally for dynamic loading if needed
-window.loadContactModal = loadContactModal;
+// Initialize any auto-load forms when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+  // Auto-load forms with data-auto-form attribute
+  document.querySelectorAll('[data-auto-form]').forEach(element => {
+    const formType = element.dataset.autoForm;
+    const containerId = element.id || 'modal-container';
+    
+    loadForm(formType, containerId).catch(error => {
+      console.error(`Failed to auto-load form ${formType} into #${containerId}:`, error);
+    });
+  });
+});
+
+// Make functions available globally
+window.loadForm = loadForm;
+window.loadModalForm = loadModalForm;
