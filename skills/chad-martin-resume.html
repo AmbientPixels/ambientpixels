@@ -405,60 +405,8 @@
   <!-- Footer -->
   <div id="footer-container"></div>
   
-  <!-- Contact Form Modal -->
-  <div id="contact-modal" class="modal hidden">
-    <div class="modal-overlay" onclick="closeModal('contact-modal')"></div>
-    <div class="modal-content glass-panel">
-      <button class="modal-close" onclick="closeModal('contact-modal')" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-      
-      <div class="contact-form-container">
-        <h2><i class="fas fa-paper-plane"></i> Get in Touch</h2>
-        <p class="form-subtitle">Have a question or want to work together? Send me a message!</p>
-        
-        <form id="contact-form" action="https://formspree.io/f/mqabqvlz" method="POST" class="contact-form js-form-handler">
-          <div class="form-group">
-            <div class="label-wrapper">
-              <i class="fas fa-user"></i>
-              <label for="name">Your Name</label>
-            </div>
-            <div class="input-wrapper">
-              <input type="text" id="name" name="name" required>
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <div class="label-wrapper">
-              <i class="fas fa-envelope"></i>
-              <label for="email">Your Email</label>
-            </div>
-            <div class="input-wrapper">
-              <input type="email" id="email" name="email" required>
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <div class="label-wrapper">
-              <i class="fas fa-comment"></i>
-              <label for="message">Your Message</label>
-            </div>
-            <div class="input-wrapper">
-              <textarea id="message" name="message" rows="5" required></textarea>
-            </div>
-          </div>
-          
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary">
-              <i class="fas fa-paper-plane"></i> Send Message
-            </button>
-          </div>
-          
-          <div id="form-status" class="form-status"></div>
-        </form>
-      </div>
-    </div>
-  </div>
+  <!-- Contact Form Modal (Loaded via init-contact-modal.js) -->
+  <div id="modal-container"></div>
 
   <!-- Scripts -->
   <script src="/js/init-header-footer.js" defer></script>
@@ -467,6 +415,7 @@
   <script src="/js/modal-window.js"></script>
   
   <!-- Form Handling -->
+  <script src="/js/init-contact-modal.js" defer></script>
   <script src="/js/forms.js" defer></script>
 </body>
 </html>

@@ -1,12 +1,27 @@
 // Global form handler for all forms with class 'js-form-handler'
-document.addEventListener('DOMContentLoaded', function() {
+function initForms() {
+  console.log('Initializing forms...');
   // Initialize all forms with the js-form-handler class
   const forms = document.querySelectorAll('.js-form-handler');
   
-  forms.forEach(form => {
-    form.addEventListener('submit', handleFormSubmit);
+  console.log(`Found ${forms.length} forms to initialize`);
+  
+  forms.forEach((form, index) => {
+    // Remove any existing listeners to prevent duplicates
+    const newForm = form.cloneNode(true);
+    form.parentNode.replaceChild(newForm, form);
+    
+    // Add new listener
+    newForm.addEventListener('submit', handleFormSubmit);
+    console.log(`Form ${index} initialized:`, newForm.id || 'unnamed-form');
   });
-});
+}
+
+// Initialize on DOM ready
+document.addEventListener('DOMContentLoaded', initForms);
+
+// Also expose init function for dynamic content
+window.initForms = initForms;
 
 /**
  * Handles form submission for all forms
