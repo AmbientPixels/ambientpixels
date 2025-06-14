@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "62df970e-d3cd-4425-a2cd-cebc130a82f7",
-      "hash": "dc2aec2a5d0b8ac2dc07e6d8c9c0c50b3145601a",
-      "message": "feat(about): add resume CTA button",
-      "timestamp": "2025-06-13 01:57:23 -0700",
+      "id": "c1af1562-6964-4d57-b291-3ff7db077bd9",
+      "hash": "856e6ca433b42d656faf0988d64fad2522966601",
+      "message": "Resume Update   - fix links",
+      "timestamp": "2025-06-13 19:56:05 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/dc2aec2a5d0b8ac2dc07e6d8c9c0c50b3145601a"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/856e6ca433b42d656faf0988d64fad2522966601"
     }
   ],
-  "timestamp": "2025-06-13T13:32:53.034Z",
+  "timestamp": "2025-06-14T13:28:21.500Z",
   "count": 1,
-  "scanId": 1749821573034
+  "scanId": 1749907701500
 }
