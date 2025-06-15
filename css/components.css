@@ -2181,12 +2181,19 @@ body[data-theme="light"] .nova-quip {
   min-height: 300px;
 }
 
-.hero-ai-logo,
-.hero-gc-logo {
+.hero-ai-logo {
   opacity: 0;
   width: 1px;
   height: 1px;
   position: absolute;
+}
+
+.hero-gc-logo {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
 }
 
 /* Hero Card with Video Styling */
@@ -2234,14 +2241,21 @@ body[data-theme="light"] .nova-quip {
   background: linear-gradient(135deg, rgba(0, 120, 215, 0.25), rgba(0, 60, 120, 0.3)) !important;
 }
 
-.project-icon-gc {
-  color: #fff;
-  filter: drop-shadow(0 0 20px rgba(0, 174, 239, 0.8));
-  transition: all 0.3s ease;
+.hero-card-gc .hero-card-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0;
+  position: relative;
 }
 
-.hero-card-gc .hero-card-image {
-  padding: 2rem 0;
+.hero-card-gc .project-icon-gc {
+  position: absolute;
+  z-index: 2;
+  font-size: 8rem;
+  color: #fff;
+  filter: drop-shadow(0 0 15px rgba(0, 153, 255, 0.8));
+  transition: transform 0.5s ease, filter 0.3s ease;
 }
 
 /* Card Image Containers */
@@ -2274,17 +2288,41 @@ body[data-theme="light"] .nova-quip {
 }
 
 /* Specific styles for Xbox support pages */
+.hero-card-xbox .hero-card-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
 .hero-card-xbox .hero-card-image img {
   filter: brightness(0) invert(1) drop-shadow(0 0 20px rgba(16, 255, 16, 0.9));
-  width: auto;
-  max-width: 180px;
-  height: auto;
-  max-height: 180px;
+  width: 60px !important;
+  height: 60px !important;
   object-fit: contain;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+/* Specific class for Xbox support page icon */
+.hero-card-xbox .hero-card-image .xbox-support-icon {
+  width: 200px !important;
+  height: 200px !important;
+  min-width: 200px !important;
+  min-height: 200px !important;
+  max-width: 200px !important;
+  max-height: 200px !important;
+  object-fit: contain;
+  filter: brightness(0) invert(1) drop-shadow(0 0 15px rgba(16, 255, 16, 0.9));
+  transition: all 0.3s ease-in-out !important;
+}
+
+.hero-card-xbox:hover .hero-card-image .xbox-support-icon {
+  transform: scale(1.1) !important;
+  filter: brightness(1) invert(1) drop-shadow(0 0 25px rgba(16, 255, 16, 1)) !important;
 }
 
 .hero-card-xbox:hover .hero-card-image img {
-  filter: brightness(1) invert(1) drop-shadow(0 0 30px rgba(16, 255, 16, 0.8));
+  filter: brightness(1) invert(1) drop-shadow(0 0 25px rgba(16, 255, 16, 1));
   transform: scale(1.1);
 }
 
@@ -2357,9 +2395,10 @@ body[data-theme="light"] .nova-quip {
   font-size: 8rem;
   color: #fff;
   filter: drop-shadow(0 0 15px rgba(0, 153, 255, 0.8));
-  transition: transform 0.5s ease;
-  display: block;
-  margin: 0 auto;
+  transition: transform 0.5s ease, filter 0.3s ease;
+  position: relative;
+  z-index: 2;
+  margin: 0;
 }
 
 .hero-card:hover .project-icon-gc {
