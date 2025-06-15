@@ -2133,7 +2133,8 @@ body[data-theme="light"] .nova-quip {
   min-height: 300px;
 }
 
-.hero-ai-logo {
+.hero-ai-logo,
+.hero-gc-logo {
   opacity: 0;
   width: 1px;
   height: 1px;
@@ -2198,7 +2199,16 @@ body[data-theme="light"] .nova-quip {
 
 /* Project icon sizes */
 .project-icon-gc {
-  font-size: 6rem !important;
+  font-size: 8rem;
+  color: #fff;
+  filter: drop-shadow(0 0 15px rgba(0, 153, 255, 0.8));
+  transition: transform 0.5s ease;
+  display: block;
+  margin: 0 auto;
+}
+
+.hero-card:hover .project-icon-gc {
+  transform: scale(1.1);
 }
 
 /* Button margin utility */
