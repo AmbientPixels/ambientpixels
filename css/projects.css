@@ -93,6 +93,21 @@
 
 /* End Video Hero Card */
 
+/* Video Card Gradients */
+.video-gradient-1 { background: linear-gradient(135deg, #8e2de2, #4a00e0); }
+.video-gradient-2 { background: linear-gradient(135deg, #00b09b, #96c93d); }
+.video-gradient-3 { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
+.video-gradient-4 { background: linear-gradient(135deg, #654ea3, #eaafc8); --glow-color: rgba(234, 175, 200, 0.4); }
+.video-gradient-5 { background: linear-gradient(135deg, #11998e, #38ef7d); --glow-color: rgba(56, 239, 125, 0.4); }
+.video-gradient-6 { background: linear-gradient(135deg, #8E2DE2, #4A00E0); --glow-color: rgba(142, 45, 226, 0.4); }
+.video-gradient-7 { background: linear-gradient(135deg, #00c6ff, #0072ff); --glow-color: rgba(0, 198, 255, 0.4); }
+.video-gradient-8 { 
+  background: linear-gradient(135deg, #0a3a4a 0%, #0a1a26 100%); 
+  --glow-color: rgba(90, 228, 255, 0.4); 
+}
+.video-gradient-9 { background: linear-gradient(135deg, #7b4397, #dc2430); --glow-color: rgba(220, 36, 48, 0.4); }
+.video-gradient-10 { background: linear-gradient(135deg, #1a2980, #26d0ce); --glow-color: rgba(38, 208, 206, 0.4); }
+
 .hero-card {
   background: #0a0a0a;
   border-radius: 0;
@@ -445,6 +460,24 @@ button:active,
   background-color: rgba(99, 102, 241, 0.2);
   color: #a5b4fc;
   border: 1px solid #818cf8;
+}
+
+.role-animation {
+  background-color: rgba(236, 72, 153, 0.2);
+  color: #f9a8d4;
+  border: 1px solid #ec4899;
+}
+
+.role-voice {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+  border: 1px solid #3b82f6;
+}
+
+.role-branding {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+  border: 1px solid #f59e0b;
 }
 
 /* Project-specific button overrides */

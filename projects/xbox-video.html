@@ -17,80 +17,7 @@
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/projects.css" />
   <style>
-    /* Video Card Gradients */
-    .video-gradient-1 {
-      background: linear-gradient(135deg, #8e2de2, #4a00e0);
-    }
-    .video-gradient-2 {
-      background: linear-gradient(135deg, #00b09b, #96c93d);
-    }
-    .video-gradient-3 {
-      background: linear-gradient(135deg, #ff416c, #ff4b2b);
-    }
-    .video-gradient-4 {
-      background: linear-gradient(135deg, #654ea3, #eaafc8);
-      --glow-color: rgba(234, 175, 200, 0.4);
-    }
-    .video-gradient-5 {
-      background: linear-gradient(135deg, #11998e, #38ef7d);
-      --glow-color: rgba(56, 239, 125, 0.4);
-    }
-    .video-gradient-6 {
-      background: linear-gradient(135deg, #8E2DE2, #4A00E0);
-      --glow-color: rgba(142, 45, 226, 0.4);
-    }
-    .video-gradient-7 {
-      background: linear-gradient(135deg, #00c6ff, #0072ff);
-      --glow-color: rgba(0, 198, 255, 0.4);
-    }
-    .video-gradient-8 {
-      background: linear-gradient(135deg, #f46b45, #eea849);
-      --glow-color: rgba(244, 107, 69, 0.4);
-    }
-    .video-gradient-9 {
-      background: linear-gradient(135deg, #7b4397, #dc2430);
-      --glow-color: rgba(220, 36, 48, 0.4);
-    }
-    .video-gradient-10 {
-      background: linear-gradient(135deg, #1a2980, #26d0ce);
-      --glow-color: rgba(38, 208, 206, 0.4);
-    }
-    .project-icon {
-      font-size: 4.5rem;
-      color: white;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-shadow: 
-        0 0 2px rgba(255, 255, 255, 0.8),
-        0 0 4px rgba(255, 255, 255, 0.6),
-        0 0 10px var(--glow-color, rgba(0, 180, 255, 0.4));
-      filter: 
-        drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      will-change: transform, filter, text-shadow;
-      z-index: 2;
-      opacity: 0.9;
-    }
-    
-    .card-image:hover .project-icon {
-      transform: translate(-50%, -50%) scale(1.1);
-      text-shadow: 
-        0 0 3px rgba(255, 255, 255, 0.9),
-        0 0 6px rgba(255, 255, 255, 0.7),
-        0 0 15px var(--glow-color, rgba(0, 180, 255, 0.6));
-      filter: 
-        drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
-      opacity: 1;
-    }
-    .card-image {
-      position: relative;
-      height: 180px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    /* Project-specific styles */
   </style>
 </head>
 <body data-theme="dark">
@@ -117,9 +44,36 @@
 
 <main class="grid-container">
   <section class="content-section grid-col-12">
-    <h2><i class="fas fa-gamepad"></i> Xbox Support Projects</h2>
-    <p>A curated selection of projects and initiatives developed within the Xbox Support ecosystem—spanning console tools, desktop applications, and game-related support systems.</p>
+    <h2><i class="fas fa-gamepad"></i>Animated Videos</h2>
+    <p>Explore a collection of animated videos created to support Xbox players—highlighting in-console help tools, branded support hubs, and AI-enhanced service experiences.</p>
   </section>
+
+    <!-- Ninja Theory Help Center Video -->
+    <section class="grid-col-4 card-section">
+      <div class="card-image video-gradient-8 card-image-container" style="position: relative;">
+        <i class="fas fa-video project-icon" aria-hidden="true"></i>
+        <span class="video-duration-badge" style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 0.15rem 0.4rem; border-radius: 3px; font-size: 0.7rem; font-weight: 500; display: flex; align-items: center; gap: 0.2rem; backdrop-filter: blur(2px);">
+          <i class="far fa-clock" style="font-size: 0.7em;"></i> 3:42
+        </span>
+      </div>
+      <div class="card-content">
+        <h3><i class="fas fa-video" aria-hidden="true"></i> Ninja Theory Help Center</h3>
+        <div class="role-tags">
+          <span class="role-tag role-animation">Motion Design</span>
+          <span class="role-tag role-voice">AI Voiceover</span>
+          <span class="role-tag role-branding">Brand Integration</span>
+        </div>
+        <p>Animated showcase of the Ninja Theory Help Center, highlighting key support features and accessibility options.</p>
+        <div class="card-cta-container">
+          <button class="btn btn-primary" onclick="showVideoModal('ninja-theory-help-center')" aria-label="Watch Ninja Theory Help Center video">
+            <i class="fas fa-play" aria-hidden="true"></i> Watch Video
+          </button>
+          <a href="/projects/video/ninja-theory-help-center.html" class="btn btn-secondary" aria-label="View Ninja Theory Help Center case study">
+            <i class="fas fa-info-circle" aria-hidden="true"></i> Case Study
+          </a>
+        </div>
+      </div>
+    </section>
 
     <!-- Microsoft Casual Games Support -->
     <section class="grid-col-4 card-section">
@@ -144,58 +98,14 @@
       </div>
     </section>
 
-    <!-- Figma Fleet -->
-    <section class="grid-col-4 card-section">
-      <div class="coming-soon-overlay">Coming Soon</div>
-      <div class="card-image video-gradient-4 card-image-container">
-        <i class="fab fa-figma project-icon"></i>
-      </div>
-      <div class="card-content">
-        <h3><i class="fab fa-figma"></i> Figma Fleet</h3>
-        <div class="role-tags">
-          <span class="role-tag role-uiux">UI/UX</span>
-          <span class="role-tag role-training">Training</span>
-        </div>
-        <p>Comprehensive Figma resources including design systems and UI kits for Xbox projects. Streamline your workflow with battle-tested templates and components.</p>
-        <div class="card-cta-container">
-          <button class="btn btn-primary" disabled>
-            <i class="fas fa-play"></i> Watch Video
-          </button>
-          <a href="#" class="btn btn-secondary" disabled>
-            <i class="fas fa-book-open"></i> Case Study
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Ninja Theory Support -->
-    <section class="grid-col-4 card-section">
-      <div class="coming-soon-overlay">Coming Soon</div>
-      <div class="card-image video-gradient-5 card-image-container">
-        <i class="fas fa-ghost project-icon"></i>
-      </div>
-      <div class="card-content">
-        <h3><i class="fas fa-ghost"></i> Hellblade Support</h3>
-        <div class="role-tags">
-          <span class="role-tag role-producer">Producer</span>
-        </div>
-        <p>Support content and help center for Ninja Theory's Hellblade series, including game-specific troubleshooting and FAQs.</p>
-        <div class="card-cta-container">
-          <button class="btn btn-primary" disabled>
-            <i class="fas fa-play"></i> Watch Video
-          </button>
-          <a href="#" class="btn btn-secondary" disabled>
-            <i class="fas fa-book-open"></i> Case Study
-          </a>
-        </div>
-      </div>
-    </section>
-
     <!-- Copilot Playground -->
     <section class="grid-col-4 card-section">
       <div class="coming-soon-overlay">Coming Soon</div>
-      <div class="card-image video-gradient-6 card-image-container">
+      <div class="card-image video-gradient-6 card-image-container" style="position: relative;">
         <i class="fas fa-robot project-icon" aria-hidden="true"></i>
+        <span class="video-duration-badge" style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 0.15rem 0.4rem; border-radius: 3px; font-size: 0.7rem; font-weight: 500; display: flex; align-items: center; gap: 0.2rem; backdrop-filter: blur(2px);">
+          <i class="far fa-clock" style="font-size: 0.7em;"></i> 2:30
+        </span>
       </div>
       <div class="card-content">
         <h3><i class="fas fa-robot" aria-hidden="true"></i> Copilot Playground</h3>
@@ -210,54 +120,6 @@
             <i class="fas fa-play" aria-hidden="true"></i> Watch Video
           </button>
           <a href="/projects/copilot-playground-case-study.html" class="btn btn-secondary" aria-label="View Copilot Playground case study">
-            <i class="fas fa-info-circle" aria-hidden="true"></i> Case Study
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Xbox Support App -->
-    <section class="grid-col-4 card-section">
-      <div class="coming-soon-overlay">Coming Soon</div>
-      <div class="card-image video-gradient-7 card-image-container">
-        <i class="fas fa-headset project-icon" aria-hidden="true"></i>
-      </div>
-      <div class="card-content">
-        <h3><i class="fas fa-headset" aria-hidden="true"></i> Xbox Support App</h3>
-        <div class="role-tags">
-          <span class="role-tag role-producer">Producer</span>
-          <span class="role-tag role-uiux">UI/UX</span>
-        </div>
-        <p>Integrated support experience for Xbox console users with troubleshooting and help resources.</p>
-        <div class="card-cta-container">
-          <button class="btn btn-primary" disabled aria-label="Video coming soon">
-            <i class="fas fa-play" aria-hidden="true"></i> Watch Video
-          </button>
-          <a href="/projects/xbox-support-app-case-study.html" class="btn btn-secondary" aria-label="View Xbox Support App case study">
-            <i class="fas fa-info-circle" aria-hidden="true"></i> Case Study
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Hellblade Support -->
-    <section class="grid-col-4 card-section">
-      <div class="coming-soon-overlay">Coming Soon</div>
-      <div class="card-image video-gradient-5 card-image-container">
-        <i class="fas fa-ghost project-icon" aria-hidden="true"></i>
-      </div>
-      <div class="card-content">
-        <h3><i class="fas fa-ghost" aria-hidden="true"></i> Hellblade Support</h3>
-        <div class="role-tags">
-          <span class="role-tag role-producer">Producer</span>
-          <span class="role-tag role-uiux">UI/UX</span>
-        </div>
-        <p>Support content and help center for Ninja Theory's Hellblade series, including game-specific troubleshooting.</p>
-        <div class="card-cta-container">
-          <button class="btn btn-primary" disabled aria-label="Video coming soon">
-            <i class="fas fa-play" aria-hidden="true"></i> Watch Video
-          </button>
-          <a href="/projects/hellblade-support-case-study.html" class="btn btn-secondary" aria-label="View Hellblade Support case study">
             <i class="fas fa-info-circle" aria-hidden="true"></i> Case Study
           </a>
         </div>
@@ -279,40 +141,11 @@
   <script src="/js/init-quotes.js" defer></script>
   <script src="/js/modal-window.js" defer></script>
   <script src="/js/init-contact-modal.js" defer></script>
+  <script src="/js/video-modal.js" defer></script>
   <script>
-    /**
-     * Show video modal with the specified video ID
-     * @param {string} videoId - The ID of the video to display
-     */
-    function showVideoModal(videoId) {
-      // Check if modal container exists
-      let modalContainer = document.getElementById('video-modal-container');
-      if (!modalContainer) {
-        // Create modal container if it doesn't exist
-        modalContainer = document.createElement('div');
-        modalContainer.id = 'video-modal-container';
-        document.body.appendChild(modalContainer);
-      }
-      
-      // In a real implementation, you would load the video content here
-      // For now, we'll just show an alert
-      alert(`Video modal would show content for: ${videoId}`);
-      
-      // Example of how you might load a YouTube video:
-      // modalContainer.innerHTML = `
-      //   <div class="modal" id="video-modal">
-      //     <div class="modal-content">
-      //       <span class="close-btn" onclick="document.getElementById('video-modal').style.display='none'">&times;</span>
-      //       <iframe width="100%" height="500" src="https://www.youtube.com/embed/${videoId}" 
-      //         frameborder="0" allowfullscreen></iframe>
-      //     </div>
-      //   </div>`;
-      // document.getElementById('video-modal').style.display = 'block';
-    }
-
-    // Add click handler after DOM is loaded
+    // Initialize any additional event listeners after DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
-      // Initialize modal trigger buttons
+      // Handle contact modal trigger
       const suggestBtn = document.querySelector('a[onclick*="showModal"]');
       if (suggestBtn) {
         suggestBtn.addEventListener('click', function(e) {

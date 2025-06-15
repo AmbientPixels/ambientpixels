@@ -23,187 +23,24 @@
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/projects.css" />
-  <style>
-    .project-header {
-      background: linear-gradient(135deg, #0d47a1, #2196f3);
-      color: white;
-      padding: 4rem 2rem;
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-    
-    .project-tags {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin: 1.5rem 0;
-    }
-    
-    .project-tag {
-      background: rgba(255,255,255,0.2);
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      font-size: 0.9rem;
-    }
-    
-    .video-embed {
-      position: relative;
-      width: 100%;
-      padding-bottom: 56.25%;
-      margin: 2rem 0;
-      background: #000;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    
-    .video-embed iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-    
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
-      margin: 3rem 0;
-    }
-    
-    .feature-card {
-      background: var(--card-bg);
-      padding: 1.5rem;
-      border-radius: 8px;
-      border-left: 4px solid #2196f3;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    
-    .timeline {
-      position: relative;
-      padding-left: 2rem;
-      margin: 3rem 0;
-    }
-    
-    .timeline::before {
-      content: '';
-      position: absolute;
-      left: 7px;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: var(--border-color);
-    }
-    
-    .timeline-item {
-      position: relative;
-      padding-bottom: 2rem;
-    }
-    
-    .timeline-item::before {
-      content: '';
-      position: absolute;
-      left: -2rem;
-      top: 5px;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #2196f3;
-      border: 3px solid var(--bg-color);
-    }
-    
-    .timeline-time {
-      font-weight: 600;
-      color: #2196f3;
-      margin-bottom: 0.5rem;
-      display: block;
-    }
-    
-    .feature-item {
-      background: var(--card-bg);
-      padding: 1.5rem;
-      border-radius: 8px;
-      border-left: 4px solid #1976d2;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      margin-bottom: 2rem;
-    }
-    
-    .feature-item h3 {
-      margin-top: 0;
-      color: #1976d2;
-    }
-    
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
-      margin: 2rem 0;
-    }
-    
-    .stat-item {
-      text-align: center;
-      padding: 1.5rem;
-      background: var(--card-bg);
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    
-    .stat-number {
-      font-size: 2.5rem;
-      font-weight: bold;
-      color: #1976d2;
-      margin: 0 0 0.5rem;
-    }
-    
-    .stat-label {
-      font-size: 0.9rem;
-      opacity: 0.9;
-    }
-    
-    .content-section {
-      margin-bottom: 4rem;
-    }
-    
-    .related-projects {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
-      margin: 3rem 0;
-    }
-    
-    .related-project-card {
-      background: var(--card-bg);
-      padding: 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    
-    .related-project-card img {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
-      border-radius: 8px 8px 0 0;
-    }
-    
-    .related-project-card h4 {
-      margin-top: 1rem;
-    }
-  </style>
+  <link rel="stylesheet" href="/css/projects/xbox-support-app.css" />
 </head>
 <body data-theme="dark">
   <div id="banner-container"></div>
   <header id="nav-header"></header>
 
-  <section class="mini-hero">
-    <img src="/images/placeholder-hero.jpg" alt="Xbox Support App" class="mini-hero-img" loading="lazy">
-    <div class="mini-hero-content-wrapper">
-      <h1>Xbox Support App</h1>
-      <p class="subtitle">On-Console Support Experience</p>
+  <section class="hero-card hero-card-video">
+    <div class="hero-card-image project-bg-video card-image-container">
+      <i class="fas fa-headset project-icon" aria-hidden="true"></i>
+    </div>
+    <div class="hero-card-content">
+      <div class="hero-card-badge">Case Study</div>
+      <h1>Xbox Support <span class="video-glow">App</span></h1>
+      <p class="hero-card-description">On-Console Support Experience for Xbox Users</p>
       <div class="project-tags">
-        <span class="project-tag"><i class="fas fa-gamepad"></i> Console</span>
-        <span class="project-tag"><i class="fas fa-headset"></i> Support</span>
-        <span class="project-tag"><i class="fas fa-mobile-alt"></i> App</span>
+        <span class="project-tag"><i class="fas fa-gamepad" aria-hidden="true"></i> Console</span>
+        <span class="project-tag"><i class="fas fa-headset" aria-hidden="true"></i> Support</span>
+        <span class="project-tag"><i class="fas fa-mobile-alt" aria-hidden="true"></i> App</span>
       </div>
     </div>
   </section>
@@ -215,9 +52,9 @@
       
       <div class="video-embed">
         <!-- Replace with actual video embed code -->
-        <img src="/images/placeholder-video.jpg" alt="Xbox Support App Video" style="width:100%;height:100%;object-fit:cover;">
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);">
-          <i class="fas fa-play-circle" style="font-size:5rem;color:white;text-shadow:0 0 20px rgba(0,0,0,0.5);"></i>
+        <img src="/images/placeholder-video.jpg" alt="Xbox Support App Video" class="video-embed-placeholder">
+        <div class="video-embed-play-button-container">
+          <i class="fas fa-play-circle video-embed-play-button"></i>
         </div>
       </div>
     </section>
