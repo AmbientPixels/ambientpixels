@@ -132,8 +132,9 @@
   height: 100%;
   object-fit: cover;
   object-position: center;
-  transition: transform 0.5s ease;
-  flex-shrink: 0;
+  transition: transform 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+  will-change: transform;
+  transform-origin: center center;
 }
 
 .hero-card:hover .hero-card-image img {
