@@ -2149,6 +2149,21 @@ body[data-theme="light"] .nova-quip {
   background: linear-gradient(135deg, rgba(16, 124, 16, 0.1), rgba(16, 124, 16, 0.2)) !important;
 }
 
+/* Grand Central Styling */
+.project-bg-gc {
+  background: linear-gradient(135deg, rgba(0, 120, 215, 0.25), rgba(0, 60, 120, 0.3)) !important;
+}
+
+.project-icon-gc {
+  color: #fff;
+  filter: drop-shadow(0 0 20px rgba(0, 174, 239, 0.8));
+  transition: all 0.3s ease;
+}
+
+.hero-card-gc .hero-card-image {
+  padding: 2rem 0;
+}
+
 /* Card Image Containers */
 .card-image-container {
   display: flex;
