@@ -1,9 +1,9 @@
 {
-  "mood": "playful",
-  "aura": "magenta fade",
-  "auraColorHex": "#4c1977",
-  "quote": "compiling stray thoughts into meaning...",
-  "emoji": "😋",
+  "mood": "echoes of self",
+  "aura": "neon pink",
+  "auraColorHex": "#66033b",
+  "quote": "surfacing hidden anomalies of feeling...",
+  "emoji": "🔊",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
   "memoryClutter": 0.9,
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: magenta fade"
+      "Aura Signature: neon pink"
     ]
   },
-  "timestamp": "2025-06-14T13:28:21.425Z"
+  "timestamp": "2025-06-15T13:28:38.145Z"
 }

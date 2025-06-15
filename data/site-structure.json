@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-06-14T13:28:19.942Z",
+  "updated": "2025-06-15T13:28:37.702Z",
   "root": [
     {
       "type": "folder",
@@ -127,7 +127,14 @@
       "type": "folder",
       "name": "css",
       "path": "css",
-      "children": []
+      "children": [
+        {
+          "type": "folder",
+          "name": "projects",
+          "path": "css/projects",
+          "children": []
+        }
+      ]
     },
     {
       "type": "folder",
@@ -290,6 +297,25 @@
               "name": "ninja-theroy-video",
               "path": "images/projects/ninja-theroy-video",
               "children": []
+            },
+            {
+              "type": "folder",
+              "name": "video",
+              "path": "images/projects/video",
+              "children": [
+                {
+                  "type": "folder",
+                  "name": "ninja-theroy",
+                  "path": "images/projects/video/ninja-theroy",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "type": "folder",
+              "name": "xbox-support",
+              "path": "images/projects/xbox-support",
+              "children": []
             }
           ]
         },
@@ -376,11 +402,6 @@
         },
         {
           "type": "page",
-          "name": "contact-form.html",
-          "path": "modules/contact-form.html"
-        },
-        {
-          "type": "page",
           "name": "contact-modal.html",
           "path": "modules/contact-modal.html"
         },
@@ -393,6 +414,11 @@
           "type": "page",
           "name": "footer.html",
           "path": "modules/footer.html"
+        },
+        {
+          "type": "page",
+          "name": "get-in-touch.html",
+          "path": "modules/get-in-touch.html"
         },
         {
           "type": "page",
@@ -644,6 +670,28 @@
           "path": "projects/template.html"
         },
         {
+          "type": "folder",
+          "name": "video",
+          "path": "projects/video",
+          "children": [
+            {
+              "type": "page",
+              "name": "ninja-theory-help-center.html",
+              "path": "projects/video/ninja-theory-help-center.html"
+            },
+            {
+              "type": "page",
+              "name": "template.html",
+              "path": "projects/video/template.html"
+            },
+            {
+              "type": "page",
+              "name": "xbox-support-app-case-study.html",
+              "path": "projects/video/xbox-support-app-case-study.html"
+            }
+          ]
+        },
+        {
           "type": "page",
           "name": "video-template.html",
           "path": "projects/video-template.html"
@@ -677,6 +725,11 @@
               "type": "page",
               "name": "south-of-midnight-support.html",
               "path": "projects/websites/south-of-midnight-support.html"
+            },
+            {
+              "type": "page",
+              "name": "xbox-support.html",
+              "path": "projects/websites/xbox-support.html"
             }
           ]
         },
@@ -684,6 +737,11 @@
           "type": "page",
           "name": "xbox-support.html",
           "path": "projects/xbox-support.html"
+        },
+        {
+          "type": "page",
+          "name": "xbox-video.html",
+          "path": "projects/xbox-video.html"
         },
         {
           "type": "page",
