@@ -2179,6 +2179,21 @@ body[data-theme="light"] .nova-quip {
   min-height: 180px;
 }
 
+/* Card container for Grand Central */
+.card-image-container-gc {
+  min-height: 150px;
+}
+
+/* Project icon sizes */
+.project-icon-gc {
+  font-size: 6rem !important;
+}
+
+/* Button margin utility */
+.btn-margin-top-1 {
+  margin-top: 1rem;
+}
+
 /* Project Icons */
 .project-icon-ai {
   font-size: 5rem;
