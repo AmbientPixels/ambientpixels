@@ -2102,6 +2102,12 @@ body[data-theme="light"] .nova-quip {
 }
 
 /* Project Background Variants */
+.project-bg-xbox {
+  background: linear-gradient(135deg, rgba(16, 124, 16, 0.25), rgba(16, 16, 16, 0.35)) !important;
+  position: relative;
+  overflow: hidden;
+}
+
 .project-bg-ai {
   background: linear-gradient(135deg, rgba(157, 0, 255, 0.2), rgba(100, 43, 255, 0.3)) !important;
 }
