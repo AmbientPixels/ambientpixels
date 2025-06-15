@@ -145,9 +145,12 @@
 .hero-card-image {
   height: 300px;
   overflow: hidden;
+  padding: 0;
+  margin: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .hero-card-image img {
@@ -155,13 +158,28 @@
   height: 100%;
   object-fit: cover;
   object-position: center;
-  transition: transform 0.4s cubic-bezier(0.2, 0, 0.2, 1);
-  will-change: transform;
-  transform-origin: center center;
+  display: block;
+  margin: 0;
+  padding: 0;
+  min-width: 100%;
+  min-height: 100%;
 }
 
-.hero-card:hover .hero-card-image img {
-  transform: scale(1.03);
+/* Hover effect for the icon only */
+.hero-card-ai .project-icon-ai {
+  font-size: 12rem;
+  color: #fff;
+  filter: drop-shadow(0 0 25px rgba(157, 0, 255, 0.9));
+  transition: transform 0.5s ease, filter 0.3s ease;
+  opacity: 0.9;
+  position: absolute;
+  z-index: 2;
+}
+
+.hero-card-ai:hover .project-icon-ai {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 35px rgba(157, 0, 255, 1));
+  opacity: 1;
 }
 
 .hero-card-content {
