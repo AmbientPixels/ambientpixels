@@ -24,63 +24,7 @@
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/projects.css" />
   <link rel="stylesheet" href="/css/projects/xbox-support-app.css" />
-  <style>
-    /* Stats Grid */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
-      margin: 2rem 0;
-    }
-    
-    .stat-item {
-      text-align: center;
-      padding: 1.5rem;
-      background: var(--card-bg, #1e1e2d);
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .stat-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    }
-    
-    .stat-number {
-      font-size: 2.5rem;
-      font-weight: bold;
-      color: var(--accent-color, #5ae4ff);
-      margin: 0 0 0.5rem;
-      line-height: 1;
-    }
-    
-    .stat-label {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: var(--text-primary, #ffffff);
-    }
-    
-    .stat-item p {
-      font-size: 0.9rem;
-      opacity: 0.9;
-      margin: 0.5rem 0 0;
-      color: var(--text-secondary, #b3b3b3);
-    }
-    
-    @media (max-width: 768px) {
-      .stats-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="/css/projects/video-projects.css" />
 </head>
 <body data-theme="dark">
   <div id="banner-container"></div>
@@ -114,42 +58,56 @@
 
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-film"></i> Video Breakdown</h2>
-      <div class="timeline">
-        <div class="timeline-item">
-          <span class="timeline-time">0:00 – Introduction</span>
-          <p>Overview of the new Ninja Theory Help Center and what users can expect.</p>
-        </div>
+      <ul class="timeline">
+        <li class="timeline-item">
+          <div class="timeline-content">
+            <span class="timeline-time">0:00 – Introduction</span>
+            <p>Overview of the new Ninja Theory Help Center and what users can expect.</p>
+          </div>
+        </li>
         
-        <div class="timeline-item">
-          <span class="timeline-time">0:23 – Help Center Design</span>
-          <p>A walk-through of the streamlined, accessible UI with Ninja Theory branding and responsive layout.</p>
-        </div>
+        <li class="timeline-item">
+          <div class="timeline-content">
+            <span class="timeline-time">0:23 – Help Center Design</span>
+            <p>A walk-through of the streamlined, accessible UI with Ninja Theory branding and responsive layout.</p>
+          </div>
+        </li>
         
-        <div class="timeline-item">
-          <span class="timeline-time">1:14 – Content & Navigation</span>
-          <p>Details on how Xbox Support teams collaborated with Ninja Theory to write and maintain content, including links to contact and community tools.</p>
-        </div>
+        <li class="timeline-item">
+          <div class="timeline-content">
+            <span class="timeline-time">1:14 – Content & Navigation</span>
+            <p>Details on how Xbox Support teams collaborated with Ninja Theory to write and maintain content, including links to contact and community tools.</p>
+          </div>
+        </li>
         
-        <div class="timeline-item">
-          <span class="timeline-time">1:53 – Problem Resolution Rate (PRR)</span>
-          <p>A demonstration of the built-in feedback system used to track article success and improve support outcomes.</p>
-        </div>
+        <li class="timeline-item">
+          <div class="timeline-content">
+            <span class="timeline-time">1:53 – Problem Resolution Rate (PRR)</span>
+            <p>A demonstration of the built-in feedback system used to track article success and improve support outcomes.</p>
+          </div>
+        </li>
         
-        <div class="timeline-item">
-          <span class="timeline-time">2:14 – Search & Footer Customization</span>
-          <p>Showcase of header search for fast info access and a branded footer linking to relevant Xbox and Ninja Theory destinations.</p>
-        </div>
+        <li class="timeline-item">
+          <div class="timeline-content">
+            <span class="timeline-time">2:14 – Search & Footer Customization</span>
+            <p>Showcase of header search for fast info access and a branded footer linking to relevant Xbox and Ninja Theory destinations.</p>
+          </div>
+        </li>
         
-        <div class="timeline-item">
-          <span class="timeline-time">2:48 – Outage Notifications</span>
-          <p>How alerts notify players of maintenance or service issues on console, web, or mobile.</p>
-        </div>
+        <li class="timeline-item">
+          <div class="timeline-content">
+            <span class="timeline-time">2:48 – Outage Notifications</span>
+            <p>How alerts notify players of maintenance or service issues on console, web, or mobile.</p>
+          </div>
+        </li>
         
-        <div class="timeline-item">
-          <span class="timeline-time">3:04 – Closing Message</span>
-          <p>Encouragement to explore the Help Center and support its ongoing evolution.</p>
-        </div>
-      </div>
+        <li class="timeline-item">
+          <div class="timeline-content">
+            <span class="timeline-time">3:04 – Closing Message</span>
+            <p>Encouragement to explore the Help Center and support its ongoing evolution.</p>
+          </div>
+        </li>
+      </ul>
     </section>
 
     <section class="content-section grid-col-12">
@@ -383,7 +341,7 @@
         <a href="#" class="btn btn-primary" style="margin:0.5rem;">
           <i class="fas fa-play"></i> Watch Video
         </a>
-        <a href="/projects/video/" class="btn btn-secondary" style="margin:0.5rem;">
+        <a href="/projects/video/xbox-video.html" class="btn btn-secondary" style="margin:0.5rem;">
           <i class="fas fa-arrow-left"></i> Back to Videos
         </a>
       </div>
