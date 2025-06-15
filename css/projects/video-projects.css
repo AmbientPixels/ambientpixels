@@ -227,23 +227,27 @@
 
 .timeline-item {
   position: relative;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
   width: 50%;
-  padding: 0 1rem 1rem;
+  padding: 0 1rem 1.5rem;
   box-sizing: border-box;
   opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.6s ease;
+  transform: translateY(15px);
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+              transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   min-height: 1px;
   overflow: visible;
   list-style: none !important;
   clear: both;
   max-width: 100%;
+  will-change: opacity, transform;
+  backface-visibility: hidden;
 }
 
 .timeline-item.visible {
   opacity: 1;
   transform: translateY(0);
+  transition-delay: calc(var(--delay, 0) * 1.2);
 }
 
 .timeline-item:nth-child(odd) {
@@ -274,25 +278,25 @@
 
 .timeline-dot {
   position: absolute;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: var(--accent-color, #00d4ff);
   top: 50%;
   z-index: 2;
   border: 2px solid var(--card-bg, #1e1e2d);
   box-shadow: 0 0 0 1px var(--accent-color, #00d4ff), 
-              0 0 15px rgba(0, 212, 255, 0.8);
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+              0 0 15px rgba(0, 212, 255, 0.6);
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   list-style: none;
-  /* Center the dot perfectly */
-  transform: translateY(-50%) translateX(0) scale(1);
+  transform: translateY(-50%) scale(1);
   transform-origin: center center;
-  will-change: transform;
+  will-change: transform, box-shadow, background;
   backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 /* Position dots on the right side (odd items) */
@@ -340,24 +344,13 @@
   margin-left: 0 !important;
 }
 
-/* Hover effect - scale from center without shifting position */
+/* Hover effect - smooth scaling with glow */
 .timeline-dot:hover {
-  transform: translateY(-50%) scale(1.5);
+  transform: translateY(-50%) scale(1.4);
   box-shadow: 0 0 0 2px var(--accent-color, #00d4ff), 
-              0 0 25px rgba(0, 212, 255, 0.9);
-  background: #00f2ff;
-  z-index: 3; /* Ensure dot appears above other elements when hovered */
-  /* Force hardware acceleration */
-  -webkit-transform: translateY(-50%) scale(1.5);
-  transform: translateY(-50%) scale(1.5);
-  /* Ensure smooth scaling from center */
-  -webkit-transform-origin: center center;
-  transform-origin: center center;
-  will-change: transform;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  -webkit-perspective: 1000px;
-  perspective: 1000px;
+              0 0 25px rgba(0, 212, 255, 0.8);
+  background: #00e6ff;
+  z-index: 3;
 }
 
 .timeline-content {
@@ -391,10 +384,11 @@
   line-height: 1.6;
 }
 
-/* Hover Effects - Removed conflicting transform */
+/* Hover Effects - Enhanced with smooth transitions */
 .timeline-item:hover .timeline-dot {
-  /* Using only the scale transform from the main hover state */
-  box-shadow: 0 0 0 6px rgba(90, 228, 255, 0.2);
+  box-shadow: 0 0 0 4px rgba(90, 228, 255, 0.3);
+  transform: translateY(-50%) scale(1.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .timeline-item:hover .timeline-content {
