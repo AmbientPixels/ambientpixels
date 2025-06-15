@@ -2128,6 +2128,18 @@ body[data-theme="light"] .nova-quip {
   filter: drop-shadow(0 0 20px rgba(16, 255, 16, 0.9));
 }
 
+/* Hero Card Styling */
+.hero-card-ai .hero-card-image {
+  min-height: 300px;
+}
+
+.hero-ai-logo {
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  position: absolute;
+}
+
 /* Hero Card with Xbox Styling */
 .hero-card-xbox {
   --hero-padding: 4rem 0;
@@ -2196,9 +2208,16 @@ body[data-theme="light"] .nova-quip {
 
 /* Project Icons */
 .project-icon-ai {
-  font-size: 5rem;
+  font-size: 8rem;
   color: #fff;
   filter: drop-shadow(0 0 15px rgba(180, 70, 255, 0.8));
+  transition: transform 0.5s ease;
+  display: block;
+  margin: 0 auto;
+}
+
+.hero-card:hover .project-icon-ai {
+  transform: scale(1.1);
 }
 
 .project-icon-xbox {
