@@ -2340,6 +2340,11 @@ body[data-theme="light"] .nova-quip {
   transform: scale(1.1);
 }
 
+/* Handle missing images in hero cards */
+.hero-card-image img:not([src]) {
+  display: none; /* Hide if src is empty */
+}
+
 /* Game-specific hero cards - for logos and contained images */
 .hero-card .hero-card-image[class*="project-bg-"] {
   background-size: cover;
