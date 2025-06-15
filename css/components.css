@@ -2106,6 +2106,35 @@ body[data-theme="light"] .nova-quip {
   background: linear-gradient(135deg, rgba(16, 124, 16, 0.25), rgba(16, 16, 16, 0.35)) !important;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+/* Xbox Logo Styling */
+.xbox-logo {
+  width: 70%;
+  max-width: 300px;
+  height: auto;
+  filter: drop-shadow(0 0 18px rgba(16, 255, 16, 0.9));
+}
+
+/* Hero Xbox Logo Styling */
+.hero-xbox-logo {
+  width: 90%;
+  max-width: 600px;
+  height: auto;
+  filter: drop-shadow(0 0 20px rgba(16, 255, 16, 0.9));
+}
+
+/* Hero Card with Xbox Styling */
+.hero-card-xbox {
+  --hero-padding: 4rem 0;
+}
+
+.hero-card-xbox .hero-card-image {
+  padding: 3rem 0;
 }
 
 .project-bg-ai {
