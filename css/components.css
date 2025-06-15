@@ -1,4 +1,25 @@
-/* /css/components.css - Ambient Pixels v2.4 - June 12, 2025 */
+/* /css/components.css - Ambient Pixels v2.4 - June 14, 2025 */
+
+/* Video Duration Badge */
+.video-duration-badge {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  backdrop-filter: blur(2px);
+}
+
+.video-duration-badge .fa-clock {
+  font-size: 0.7em;
+}
 
 /* Gradient Heading - Reusable gradient text component */
 .gradient-heading {
@@ -2102,6 +2123,33 @@ body[data-theme="light"] .nova-quip {
 }
 
 /* Project Background Variants */
+.project-bg-video {
+  background: linear-gradient(135deg, rgba(180, 70, 255, 0.2), rgba(100, 43, 255, 0.3)) !important;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+}
+
+.project-icon-video {
+  font-size: 5rem;
+  color: #5ae4ff;
+  filter: drop-shadow(0 0 10px rgba(90, 228, 255, 0.6));
+  transition: all 0.3s ease;
+  opacity: 0.9;
+  position: relative;
+  z-index: 1;
+}
+
+.card-image-container:hover .project-icon-video {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 20px rgba(90, 228, 255, 0.9));
+  opacity: 1;
+}
+
+/* Project Background Variants */
 .project-bg-xbox {
   background: linear-gradient(135deg, rgba(16, 124, 16, 0.25), rgba(16, 16, 16, 0.35)) !important;
   position: relative;
@@ -2139,6 +2187,25 @@ body[data-theme="light"] .nova-quip {
   width: 1px;
   height: 1px;
   position: absolute;
+}
+
+/* Hero Card with Video Styling */
+.hero-card-video .hero-card-image {
+  padding: 3rem 0;
+}
+
+.hero-video-icon {
+  font-size: 12rem;
+  color: #fff;
+  filter: drop-shadow(0 0 25px rgba(180, 70, 255, 0.9));
+  transition: transform 0.5s ease, filter 0.3s ease;
+  opacity: 0.9;
+}
+
+.hero-card-video:hover .hero-video-icon {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 30px rgba(180, 70, 255, 1));
+  opacity: 1;
 }
 
 /* Hero Card with Xbox Styling */

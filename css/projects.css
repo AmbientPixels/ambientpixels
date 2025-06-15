@@ -1,4 +1,27 @@
-/* File: /css/projects.css - Ambient Pixels v2.3 - June 11, 2025 */
+/* File: /css/projects.css - Ambient Pixels v2.3 - June 14, 2025 */
+
+/* ===== Section Descriptions ===== */
+.section-description {
+  max-width: 800px;
+  margin: 0.5rem 0 2rem;
+  color: #b8c1ec;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+.content-section h2 {
+  margin-bottom: 0.5rem;
+  color: #4bcaff;
+}
+
+@media (max-width: 768px) {
+  .section-description {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+}
 
 /* ===== Hero Card ===== */
 

@@ -16,9 +16,8 @@
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/projects.css" />
-  <style>
-    /* Project-specific styles */
-  </style>
+  <link rel="stylesheet" href="/css/projects/xbox-support-app.css" />
+  <!-- Project-specific styles are in global CSS files -->
 </head>
 <body data-theme="dark">
   <div class="banner-container" id="banner-container">
@@ -32,14 +31,20 @@
   <header id="nav-header"></header>
 
   <section class="hero-card hero-card-video">
-    <div class="hero-card-image project-bg-video card-image-container">
-      <i class="fas fa-play-circle hero-video-icon"></i>
+    <div class="hero-card-image video-gradient-8 card-image-container">
+      <i class="fas fa-play-circle project-icon" aria-hidden="true"></i>
     </div>
     <div class="hero-card-content">
-      <div class="hero-card-badge">Video Portfolio</div>
-      <h1>Xbox Support <span class="video-glow">Video</span> Projects</h1>
+      <div class="hero-card-badge">Video Collection</div>
+      <h1>Xbox <span class="video-glow">Video</span> Content</h1>
       <p class="hero-card-description">A collection of video tutorials, walkthroughs, and support content</p>
+      <div class="project-tags">
+        <span class="project-tag"><i class="fas fa-gamepad" aria-hidden="true"></i> Xbox</span>
+        <span class="project-tag"><i class="fas fa-video" aria-hidden="true"></i> Tutorials</span>
+        <span class="project-tag"><i class="fas fa-headset" aria-hidden="true"></i> Support</span>
+      </div>
     </div>
+
   </section>
 
 <main class="grid-container">
@@ -50,10 +55,10 @@
 
     <!-- Ninja Theory Help Center Video -->
     <section class="grid-col-4 card-section">
-      <div class="card-image video-gradient-8 card-image-container" style="position: relative;">
+      <div class="card-image video-gradient-8 card-image-container">
         <i class="fas fa-video project-icon" aria-hidden="true"></i>
-        <span class="video-duration-badge" style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 0.15rem 0.4rem; border-radius: 3px; font-size: 0.7rem; font-weight: 500; display: flex; align-items: center; gap: 0.2rem; backdrop-filter: blur(2px);">
-          <i class="far fa-clock" style="font-size: 0.7em;"></i> 3:42
+        <span class="video-duration-badge">
+          <i class="far fa-clock"></i> 3:42
         </span>
       </div>
       <div class="card-content">
