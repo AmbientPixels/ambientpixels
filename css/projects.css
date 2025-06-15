@@ -249,8 +249,11 @@
 
 @media (max-width: 991px) {
   .hero-card {
-    margin: 6rem 1rem 2.5rem;
+    margin: 6rem 0 2.5rem;
     border-radius: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   
   .hero-card-image {
@@ -258,7 +261,9 @@
   }
   
   .hero-card-content {
-    padding: 2rem 1.5rem;
+    padding: 2rem;
+    width: 100%;
+    box-sizing: border-box;
   }
   
   .hero-card h1 {

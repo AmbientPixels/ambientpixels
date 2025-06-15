@@ -6,8 +6,11 @@
   grid-template-columns: repeat(12, 1fr); /* 12 equal-width columns */
   gap: 20px; /* Consistent spacing */
   max-width: 1200px; /* Matches nav-container */
+  width: 100%;
   margin: 0 auto;
-  padding: 20px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* Column Spans */
@@ -32,10 +35,12 @@
 }
 
 /* Responsive Breakpoints */
-@media (max-width: 1024px) {
+@media (min-width: 769px) and (max-width: 1024px) {
   /* Tablet: 8-column grid for flexibility */
   .grid-container {
     grid-template-columns: repeat(8, 1fr);
+    padding: 20px 15px;
+    width: calc(100% - 30px);
   }
 
   .grid-col-12 {
@@ -63,6 +68,9 @@
   /* Mobile: 1-column stack */
   .grid-container {
     grid-template-columns: 1fr;
+    padding: 0 15px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .grid-col-12,
@@ -71,6 +79,9 @@
   .grid-col-3,
   .grid-col-2 {
     grid-column: span 1; /* Full-width stack */
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 }
 
@@ -81,6 +92,18 @@
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   transition: box-shadow 0.3s ease;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+}
+
+@media (max-width: 480px) {
+  .content-section {
+    padding: 15px;
+    border-radius: 6px;
+  }
 }
 
 .content-section:hover {
