@@ -81,6 +81,108 @@
   border: none;
 }
 
+/* Technical Details Section */
+.technical-details {
+  padding: 2rem;
+}
+
+.technical-intro {
+  margin-bottom: 2rem;
+  color: var(--text-secondary);
+}
+
+.tech-category {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 1.5rem;
+  height: 100%;
+  border-left: 3px solid var(--accent-color, #5ae4ff);
+}
+
+.tech-category h3 {
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--accent-color, #5ae4ff);
+}
+
+.tech-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0 0;
+}
+
+.tech-list li {
+  padding: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.tech-list li:last-child {
+  border-bottom: none;
+}
+
+.tech-list i {
+  color: var(--accent-color, #5ae4ff);
+  font-size: 0.9em;
+}
+
+/* Impact & Metrics */
+.impact-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.metric-card {
+  text-align: center;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+}
+
+.metric-card i {
+  font-size: 2rem;
+  color: var(--accent-color, #5ae4ff);
+  margin-bottom: 1rem;
+}
+
+.metric-card h3 {
+  margin: 0.5rem 0;
+  font-size: 1.8rem;
+  color: var(--accent-color, #5ae4ff);
+}
+
+.metric-detail {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+.cta-section {
+  text-align: center;
+  margin: 3rem 0;
+}
+
+.cta-section .btn {
+  margin: 0.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .grid-col-6 {
+    grid-column: span 12;
+  }
+  
+  .tech-category {
+    margin-bottom: 1.5rem;
+  }
+}
+
 /* Timeline Styles */
 .timeline-container {
   position: relative;
