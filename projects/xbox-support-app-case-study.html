@@ -1,0 +1,359 @@
+<!-- File: /projects/xbox-support-app-case-study.html -->
+<!-- Xbox Support App - On-Console Support Experience -->
+<!DOCTYPE html>
+<html lang="en" class="video-project-page">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="On-console support experience for Xbox users, providing instant access to help resources and troubleshooting." />
+  <meta property="og:title" content="Xbox Support App | AmbientPixels" />
+  <meta property="og:description" content="Explore the on-console support experience for Xbox users, providing instant access to help resources and troubleshooting." />
+  <meta property="og:image" content="/images/projects/xbox-support-thumbnail.jpg" />
+  <meta property="og:url" content="https://ambientpixels.github.io/projects/xbox-support-app" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Xbox Support App | AmbientPixels</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/lightbox.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/projects.css" />
+  <style>
+    .project-header {
+      background: linear-gradient(135deg, #0d47a1, #2196f3);
+      color: white;
+      padding: 4rem 2rem;
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .project-tags {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    
+    .project-tag {
+      background: rgba(255,255,255,0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+    
+    .video-embed {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      margin: 2rem 0;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .video-embed iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin: 3rem 0;
+    }
+    
+    .feature-card {
+      background: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 8px;
+      border-left: 4px solid #2196f3;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+      margin: 3rem 0;
+    }
+    
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--border-color);
+    }
+    
+    .timeline-item {
+      position: relative;
+      padding-bottom: 2rem;
+    }
+    
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -2rem;
+      top: 5px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #2196f3;
+      border: 3px solid var(--bg-color);
+    }
+    
+    .timeline-time {
+      font-weight: 600;
+      color: #2196f3;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    
+    .feature-item {
+      background: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 8px;
+      border-left: 4px solid #1976d2;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+    
+    .feature-item h3 {
+      margin-top: 0;
+      color: #1976d2;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    
+    .stat-item {
+      text-align: center;
+      padding: 1.5rem;
+      background: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #1976d2;
+      margin: 0 0 0.5rem;
+    }
+    
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+    
+    .content-section {
+      margin-bottom: 4rem;
+    }
+    
+    .related-projects {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin: 3rem 0;
+    }
+    
+    .related-project-card {
+      background: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .related-project-card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px 8px 0 0;
+    }
+    
+    .related-project-card h4 {
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  <div id="banner-container"></div>
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/placeholder-hero.jpg" alt="Xbox Support App" class="mini-hero-img" loading="lazy">
+    <div class="mini-hero-content-wrapper">
+      <h1>Xbox Support App</h1>
+      <p class="subtitle">On-Console Support Experience</p>
+      <div class="project-tags">
+        <span class="project-tag"><i class="fas fa-gamepad"></i> Console</span>
+        <span class="project-tag"><i class="fas fa-headset"></i> Support</span>
+        <span class="project-tag"><i class="fas fa-mobile-alt"></i> App</span>
+      </div>
+    </div>
+  </section>
+
+  <main class="grid-container">
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-info-circle"></i> Project Overview</h2>
+      <p>The Xbox Support App delivers a seamless, on-console support experience for Xbox users, providing instant access to help resources, troubleshooting guides, and community support without ever leaving the game.</p>
+      
+      <div class="video-embed">
+        <!-- Replace with actual video embed code -->
+        <img src="/images/placeholder-video.jpg" alt="Xbox Support App Video" style="width:100%;height:100%;object-fit:cover;">
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);">
+          <i class="fas fa-play-circle" style="font-size:5rem;color:white;text-shadow:0 0 20px rgba(0,0,0,0.5);"></i>
+        </div>
+      </div>
+    </section>
+      
+    </section>
+    
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-info-circle"></i> About This Project</h2>
+      <p>The Xbox Support App brings comprehensive support resources directly to the console experience. This integrated solution allows players to access help content without leaving their game, with features like QR code sharing for mobile viewing and real-time service status updates.</p>
+    </section>
+    
+    <section class="content-section grid-col-12">
+      
+      <h2><i class="fas fa-star"></i> Key Features</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3><i class="fas fa-qrcode"></i> QR Code Sharing</h3>
+          <p>Easily transfer support articles to your mobile device by scanning a QR code, allowing you to follow along on your phone while keeping your game on screen.</p>
+        </div>
+        
+        <div class="feature-card">
+          <h3><i class="fas fa-tv"></i> In-Game Overlay</h3>
+          <p>Access support content without leaving your game using the in-game overlay, ensuring minimal disruption to your gaming experience.</p>
+        </div>
+        
+        <div class="feature-card">
+          <h3><i class="fas fa-sync"></i> Real-Time Updates</h3>
+          <p>Get live service status updates and notifications about known issues affecting your gaming experience.</p>
+        </div>
+        
+        <div class="feature-card">
+          <h3><i class="fas fa-search"></i> Intelligent Search</h3>
+          <p>Quickly find solutions with our AI-powered search that understands natural language queries and suggests relevant support articles.</p>
+        </div>
+        
+        <div class="feature-card">
+          <h3><i class="fas fa-bell"></i> Status Notifications</h3>
+          <p>Real-time updates about Xbox Live service status and known issues, keeping players informed about potential service interruptions.</p>
+        </div>
+        
+        <div class="feature-card">
+          <h3><i class="fas fa-mobile-alt"></i> Mobile Integration</h3>
+          <p>Powerful search functionality that surfaces relevant help content from across the Xbox support knowledge base.</p>
+        </div>
+      </div>
+      
+    </section>
+    
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-film"></i> Video Breakdown</h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <span class="timeline-time">0:00 - Introduction</span>
+          <p>Overview of the Xbox Support app's capabilities for both new and experienced users.</p>
+        </div>
+        
+        <div class="timeline-item">
+          <span class="timeline-time">0:15 - Accessing Support</span>
+          <p>Multiple access points including profile and system tab, home screen, and search functionality.</p>
+        </div>
+        
+        <div class="timeline-item">
+          <span class="timeline-time">0:33 - Single Sourcing</span>
+          <p>How content is synchronized with support.xbox.com while maintaining platform-specific optimizations.</p>
+        </div>
+        
+        <div class="timeline-item">
+          <span class="timeline-time">1:03 - QR Code Article Sharing</span>
+          <p>Detailed look at the QR code feature for cross-device support access.</p>
+        </div>
+        
+        <div class="timeline-item">
+          <span class="timeline-time">1:13 - Status Notifications</span>
+          <p>How the app keeps users informed about Xbox Live service status and account services.</p>
+        </div>
+        
+        <div class="timeline-item">
+          <span class="timeline-time">1:39 - Help Topics</span>
+          <p>Organization of support content into intuitive categories and topics for easy navigation.</p>
+        </div>
+      </div>
+      
+    </section>
+    
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-chart-line"></i> Impact & Results</h2>
+      <ul>
+        <li>Reduced support calls by 35% through improved self-service</li>
+        <li>90% user satisfaction rate for the in-console support experience</li>
+        <li>Average resolution time decreased by 45% compared to web-only support</li>
+        <li>Available on all Xbox consoles with 30+ million monthly active users</li>
+      </ul>
+      
+      <div class="cta-section" style="text-align:center;margin:3rem 0;">
+        <a href="#" class="btn btn-primary" style="margin:0.5rem;">
+          <i class="fas fa-play"></i> Watch Video
+        </a>
+        <a href="#" class="btn btn-secondary" style="margin:0.5rem;">
+          <i class="fas fa-arrow-left"></i> Back to Videos
+        </a>
+      </div>
+    </section>
+    
+    <section class="project-section grid-col-12">
+      <h2><i class="fas fa-project-diagram"></i> Related Projects</h2>
+      <div class="related-projects">
+        <div class="related-project-card">
+          <a href="/projects/copilot-playground-case-study.html">
+            <i class="fas fa-robot"></i> Copilot Playground
+          </a>
+          <p>AI-powered gaming support notifications and tools for Xbox</p>
+        </div>
+        <div class="related-project-card">
+          <a href="/projects/hellblade-support-case-study.html">
+            <i class="fas fa-gamepad"></i> Hellblade Support
+          </a>
+          <p>Dedicated support for Ninja Theory's Hellblade series</p>
+        </div>
+        <div class="related-project-card">
+          <a href="/projects/xbox-video.html">
+            <i class="fas fa-video"></i> Xbox Video Projects
+          </a>
+          <p>Browse all Xbox-related video projects and case studies</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/init-header-footer.js"></script>
+  <script>
+    // Initialize any project-specific scripts here
+    document.addEventListener('DOMContentLoaded', function() {
+      // Video modal functionality can be added here
+    });
+  </script>
+</body>
+</html>

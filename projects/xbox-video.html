@@ -16,6 +16,82 @@
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/projects.css" />
+  <style>
+    /* Video Card Gradients */
+    .video-gradient-1 {
+      background: linear-gradient(135deg, #8e2de2, #4a00e0);
+    }
+    .video-gradient-2 {
+      background: linear-gradient(135deg, #00b09b, #96c93d);
+    }
+    .video-gradient-3 {
+      background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    }
+    .video-gradient-4 {
+      background: linear-gradient(135deg, #654ea3, #eaafc8);
+      --glow-color: rgba(234, 175, 200, 0.4);
+    }
+    .video-gradient-5 {
+      background: linear-gradient(135deg, #11998e, #38ef7d);
+      --glow-color: rgba(56, 239, 125, 0.4);
+    }
+    .video-gradient-6 {
+      background: linear-gradient(135deg, #8E2DE2, #4A00E0);
+      --glow-color: rgba(142, 45, 226, 0.4);
+    }
+    .video-gradient-7 {
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      --glow-color: rgba(0, 198, 255, 0.4);
+    }
+    .video-gradient-8 {
+      background: linear-gradient(135deg, #f46b45, #eea849);
+      --glow-color: rgba(244, 107, 69, 0.4);
+    }
+    .video-gradient-9 {
+      background: linear-gradient(135deg, #7b4397, #dc2430);
+      --glow-color: rgba(220, 36, 48, 0.4);
+    }
+    .video-gradient-10 {
+      background: linear-gradient(135deg, #1a2980, #26d0ce);
+      --glow-color: rgba(38, 208, 206, 0.4);
+    }
+    .project-icon {
+      font-size: 4.5rem;
+      color: white;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-shadow: 
+        0 0 2px rgba(255, 255, 255, 0.8),
+        0 0 4px rgba(255, 255, 255, 0.6),
+        0 0 10px var(--glow-color, rgba(0, 180, 255, 0.4));
+      filter: 
+        drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform, filter, text-shadow;
+      z-index: 2;
+      opacity: 0.9;
+    }
+    
+    .card-image:hover .project-icon {
+      transform: translate(-50%, -50%) scale(1.1);
+      text-shadow: 
+        0 0 3px rgba(255, 255, 255, 0.9),
+        0 0 6px rgba(255, 255, 255, 0.7),
+        0 0 15px var(--glow-color, rgba(0, 180, 255, 0.6));
+      filter: 
+        drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
+      opacity: 1;
+    }
+    .card-image {
+      position: relative;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
 </head>
 <body data-theme="dark">
   <div class="banner-container" id="banner-container">
@@ -47,22 +123,33 @@
 
     <!-- Microsoft Casual Games Support -->
     <section class="grid-col-4 card-section">
-      <img src="/images/projects/microsoft-casual-games/hero-card.png" alt="Microsoft Casual Games Support" class="card-image" loading="lazy">
+      <div class="coming-soon-overlay">Coming Soon</div>
+      <div class="card-image video-gradient-3 card-image-container">
+        <i class="fas fa-gamepad project-icon"></i>
+      </div>
       <div class="card-content">
         <h3><i class="fas fa-gamepad"></i> Casual Games Support</h3>
         <div class="role-tags">
           <span class="role-tag role-producer">Producer</span>
         </div>
         <p>Led the support migration from Zendesk to Xbox Support for Microsoft's Casual Games portfolio, ensuring a seamless transition for users.</p>
-        <a href="websites/casual-games-support.html" class="btn btn-secondary btn-margin-top">
-          <i class="fas fa-external-link-alt"></i> View Project Details
-        </a>
+        <div class="card-cta-container">
+          <button class="btn btn-primary" disabled>
+            <i class="fas fa-play"></i> Watch Video
+          </button>
+          <a href="#" class="btn btn-secondary" disabled>
+            <i class="fas fa-book-open"></i> Case Study
+          </a>
+        </div>
       </div>
     </section>
 
     <!-- Figma Fleet -->
     <section class="grid-col-4 card-section">
-      <img src="/images/projects/figma-fleet/figma-fleet-1920-01a.jpg" alt="Figma Fleet" class="card-image" loading="lazy">
+      <div class="coming-soon-overlay">Coming Soon</div>
+      <div class="card-image video-gradient-4 card-image-container">
+        <i class="fab fa-figma project-icon"></i>
+      </div>
       <div class="card-content">
         <h3><i class="fab fa-figma"></i> Figma Fleet</h3>
         <div class="role-tags">
@@ -70,137 +157,113 @@
           <span class="role-tag role-training">Training</span>
         </div>
         <p>Comprehensive Figma resources including design systems and UI kits for Xbox projects. Streamline your workflow with battle-tested templates and components.</p>
-        <a href="figma-fleet.html" class="btn btn-secondary btn-margin-top">
-          <i class="fas fa-external-link-alt"></i> View Project Details
-        </a>
+        <div class="card-cta-container">
+          <button class="btn btn-primary" disabled>
+            <i class="fas fa-play"></i> Watch Video
+          </button>
+          <a href="#" class="btn btn-secondary" disabled>
+            <i class="fas fa-book-open"></i> Case Study
+          </a>
+        </div>
       </div>
     </section>
 
     <!-- Ninja Theory Support -->
     <section class="grid-col-4 card-section">
-      <img src="/images/projects/ninja-theroy/mini-hero.jpg" alt="Ninja Theory Support" class="card-image" loading="lazy">
+      <div class="coming-soon-overlay">Coming Soon</div>
+      <div class="card-image video-gradient-5 card-image-container">
+        <i class="fas fa-ghost project-icon"></i>
+      </div>
       <div class="card-content">
-        <h3><i class="fas fa-gamepad"></i> Hellblade Support</h3>
+        <h3><i class="fas fa-ghost"></i> Hellblade Support</h3>
         <div class="role-tags">
           <span class="role-tag role-producer">Producer</span>
         </div>
         <p>Support content and help center for Ninja Theory's Hellblade series, including game-specific troubleshooting and FAQs.</p>
-        <a href="websites/ninja-theroy-support.html" class="btn btn-secondary btn-margin-top">
-          <i class="fas fa-external-link-alt"></i> View Project Details
-        </a>
+        <div class="card-cta-container">
+          <button class="btn btn-primary" disabled>
+            <i class="fas fa-play"></i> Watch Video
+          </button>
+          <a href="#" class="btn btn-secondary" disabled>
+            <i class="fas fa-book-open"></i> Case Study
+          </a>
+        </div>
       </div>
     </section>
 
     <!-- Copilot Playground -->
     <section class="grid-col-4 card-section">
-      <div class="card-image project-bg-ai card-image-container card-image-container-ai">
-        <i class="fas fa-robot project-icon-ai"></i>
+      <div class="coming-soon-overlay">Coming Soon</div>
+      <div class="card-image video-gradient-6 card-image-container">
+        <i class="fas fa-robot project-icon" aria-hidden="true"></i>
       </div>
       <div class="card-content">
-        <h3><i class="fas fa-robot"></i> Copilot Playground</h3>
+        <h3><i class="fas fa-robot" aria-hidden="true"></i> Copilot Playground</h3>
         <div class="role-tags">
           <span class="role-tag role-experimental">Experimental</span>
           <span class="role-tag role-devops">DevOps</span>
           <span class="role-tag role-training">Training</span>
         </div>
         <p>AI-driven support prompt chains for gaming help, localization, and content enhancement across 40+ languages.</p>
-        <a href="copilotplayground.html" class="btn btn-secondary btn-margin-top">
-          <i class="fas fa-external-link-alt"></i> View Project Details
-        </a>
+        <div class="card-cta-container">
+          <button class="btn btn-primary" onclick="showVideoModal('copilot-playground')" aria-label="Watch Copilot Playground video">
+            <i class="fas fa-play" aria-hidden="true"></i> Watch Video
+          </button>
+          <a href="/projects/copilot-playground-case-study.html" class="btn btn-secondary" aria-label="View Copilot Playground case study">
+            <i class="fas fa-info-circle" aria-hidden="true"></i> Case Study
+          </a>
+        </div>
       </div>
     </section>
 
-    <!-- Grand Central 3.0 -->
+    <!-- Xbox Support App -->
     <section class="grid-col-4 card-section">
-      <div class="card-image project-bg-gc card-image-container card-image-container-gc">
-        <i class="fas fa-database project-icon-gc"></i>
+      <div class="coming-soon-overlay">Coming Soon</div>
+      <div class="card-image video-gradient-7 card-image-container">
+        <i class="fas fa-headset project-icon" aria-hidden="true"></i>
       </div>
       <div class="card-content">
-        <h3><i class="fas fa-database"></i> Grand Central 3.0</h3>
-        <div class="role-tags">
-          <span class="role-tag role-producer">Producer</span>
-          <span class="role-tag role-devops">DevOps</span>
-          <span class="role-tag role-training">Training</span>
-        </div>
-        <p>Custom-built data tool and Power BI pipeline for Xbox Support, designed from scratch using advanced Excel and Power Query methods.</p>
-        <a href="websites/grand-central-power-bi.html" class="btn btn-secondary btn-margin-top">
-          <i class="fas fa-external-link-alt"></i> View Project Details
-        </a>
-      </div>
-    </section>
-
-    <!-- Coming Soon Sections -->
-    <!-- Gears of War -->
-    <section class="grid-col-4 card-section">
-      <img src="/images/projects/gow/logo.png" alt="Gears of War" class="card-image" loading="lazy">
-      <div class="card-content">
-        <h3><i class="fas fa-gamepad"></i> Gears of War</h3>
-        <div class="role-tags">
-          <span class="role-tag role-producer">Producer</span>
-        </div>
-        <p>Producer role supporting the Gears of War series with game-specific help content and known issues tracking.</p>
-        <a href="websites/gears-of-war-support.html" class="btn btn-secondary btn-margin-top">
-          <i class="fas fa-external-link-alt"></i> View Project Details
-        </a>
-      </div>
-    </section>
-
-    <!-- South of Midnight -->
-    <section class="grid-col-4 card-section">
-      <a href="websites/south-of-midnight-support.html">
-        <img src="/images/projects/SoM/hero-01.png" alt="South of Midnight" class="card-image" loading="lazy">
-      </a>
-      <div class="card-content">
-        <h3><i class="fas fa-moon"></i> South of Midnight</h3>
-        <div class="role-tags">
-          <span class="role-tag role-producer">Producer</span>
-        </div>
-        <p>Support and resources for the South of Midnight game, including guides and features.</p>
-        <a href="websites/south-of-midnight-support.html" class="btn btn-secondary btn-margin-top">
-          <i class="fas fa-external-link-alt"></i> View Project Details
-        </a>
-      </div>
-    </section>
-
-
-
-    <!-- Xbox Support Site -->
-    <section class="grid-col-4 card-section">
-      <a href="websites/xbox-support.html">
-        <div class="card-image project-bg-xbox card-image-container card-image-container-xbox">
-          <img src="/images/projects/xbox-support/support-icon.svg" alt="Xbox Support Icon" class="project-icon-xbox">
-        </div>
-      </a>
-      <div class="card-content">
-        <h3><i class="fas fa-headset"></i> Xbox Support Site</h3>
+        <h3><i class="fas fa-headset" aria-hidden="true"></i> Xbox Support App</h3>
         <div class="role-tags">
           <span class="role-tag role-producer">Producer</span>
           <span class="role-tag role-uiux">UI/UX</span>
-          <span class="role-tag role-training">Training</span>
         </div>
-        <p>Producer-led work managing support content across Xbox platforms with 32M+ users monthly.</p>
-        <a href="websites/xbox-support.html" class="btn btn-secondary btn-margin-top">
-          <i class="fas fa-external-link-alt"></i> View Project
-        </a>
+        <p>Integrated support experience for Xbox console users with troubleshooting and help resources.</p>
+        <div class="card-cta-container">
+          <button class="btn btn-primary" disabled aria-label="Video coming soon">
+            <i class="fas fa-play" aria-hidden="true"></i> Watch Video
+          </button>
+          <a href="/projects/xbox-support-app-case-study.html" class="btn btn-secondary" aria-label="View Xbox Support App case study">
+            <i class="fas fa-info-circle" aria-hidden="true"></i> Case Study
+          </a>
+        </div>
       </div>
     </section>
-    <!-- Xbox Videos Section -->
+
+    <!-- Hellblade Support -->
     <section class="grid-col-4 card-section">
       <div class="coming-soon-overlay">Coming Soon</div>
-      <img src="/images/textures/delchron_extreme_close-up_of_a_holographic_digital_dashboard_in.jpg" alt="Xbox Video Content" class="card-image" loading="lazy">
+      <div class="card-image video-gradient-5 card-image-container">
+        <i class="fas fa-ghost project-icon" aria-hidden="true"></i>
+      </div>
       <div class="card-content">
-        <h3><i class="fas fa-video"></i> Xbox Video Content</h3>
+        <h3><i class="fas fa-ghost" aria-hidden="true"></i> Hellblade Support</h3>
         <div class="role-tags">
-          <span class="role-tag role-producer">Lead producer</span>
-          <span class="role-tag role-uiux">Creative director</span>
-          <span class="role-tag role-experimental">Motion designer</span>
+          <span class="role-tag role-producer">Producer</span>
+          <span class="role-tag role-uiux">UI/UX</span>
         </div>
-        <p>Collection of Xbox video content including showcases, training videos, and teasers.</p>
-        <button class="btn btn-secondary btn-margin-top" disabled>
-          <i class="fas fa-bell"></i> Coming Soon
-        </button>
+        <p>Support content and help center for Ninja Theory's Hellblade series, including game-specific troubleshooting.</p>
+        <div class="card-cta-container">
+          <button class="btn btn-primary" disabled aria-label="Video coming soon">
+            <i class="fas fa-play" aria-hidden="true"></i> Watch Video
+          </button>
+          <a href="/projects/hellblade-support-case-study.html" class="btn btn-secondary" aria-label="View Hellblade Support case study">
+            <i class="fas fa-info-circle" aria-hidden="true"></i> Case Study
+          </a>
+        </div>
       </div>
     </section>
+
   </main>
 
   <div id="footer-container"></div>
@@ -217,8 +280,39 @@
   <script src="/js/modal-window.js" defer></script>
   <script src="/js/init-contact-modal.js" defer></script>
   <script>
+    /**
+     * Show video modal with the specified video ID
+     * @param {string} videoId - The ID of the video to display
+     */
+    function showVideoModal(videoId) {
+      // Check if modal container exists
+      let modalContainer = document.getElementById('video-modal-container');
+      if (!modalContainer) {
+        // Create modal container if it doesn't exist
+        modalContainer = document.createElement('div');
+        modalContainer.id = 'video-modal-container';
+        document.body.appendChild(modalContainer);
+      }
+      
+      // In a real implementation, you would load the video content here
+      // For now, we'll just show an alert
+      alert(`Video modal would show content for: ${videoId}`);
+      
+      // Example of how you might load a YouTube video:
+      // modalContainer.innerHTML = `
+      //   <div class="modal" id="video-modal">
+      //     <div class="modal-content">
+      //       <span class="close-btn" onclick="document.getElementById('video-modal').style.display='none'">&times;</span>
+      //       <iframe width="100%" height="500" src="https://www.youtube.com/embed/${videoId}" 
+      //         frameborder="0" allowfullscreen></iframe>
+      //     </div>
+      //   </div>`;
+      // document.getElementById('video-modal').style.display = 'block';
+    }
+
     // Add click handler after DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
+      // Initialize modal trigger buttons
       const suggestBtn = document.querySelector('a[onclick*="showModal"]');
       if (suggestBtn) {
         suggestBtn.addEventListener('click', function(e) {
@@ -226,6 +320,15 @@
           showModal('contact-modal');
         });
       }
+
+      // Add ARIA attributes to all buttons with icons
+      document.querySelectorAll('button, a.btn').forEach(btn => {
+        const icon = btn.querySelector('i[class^="fas"]');
+        if (icon && !btn.getAttribute('aria-label')) {
+          const text = btn.textContent.trim();
+          btn.setAttribute('aria-label', text);
+        }
+      });
     });
   </script>
   <script src="/js/main.js" defer></script>
