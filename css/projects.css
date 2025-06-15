@@ -1,6 +1,98 @@
 /* File: /css/projects.css - Ambient Pixels v2.3 - June 11, 2025 */
 
 /* ===== Hero Card ===== */
+
+/* Video Hero Card */
+.hero-card-video .hero-card-image {
+  background: linear-gradient(135deg, #0a3a4a 0%, #0a1a26 100%);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.hero-video-icon {
+  font-size: 12rem;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 0 30px rgba(90, 228, 255, 0.7);
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0 15px rgba(90, 228, 255, 0.5));
+}
+
+.hero-card-video:hover .hero-video-icon {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 30px rgba(90, 228, 255, 0.9));
+  text-shadow: 0 0 40px rgba(90, 228, 255, 0.9);
+}
+
+.hero-card-video .hero-card-badge {
+  background: #0a3a4a;
+  color: white;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.hero-card-video h1 {
+  color: white;
+  font-weight: 700;
+  margin: 0.5rem 0 1rem;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.video-glow {
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(90, 228, 255, 0.5);
+  transition: all 0.3s ease;
+  display: inline-block;
+  position: relative;
+}
+
+.hero-card-video:hover .video-glow {
+  text-shadow: 0 0 15px rgba(90, 228, 255, 0.8);
+}
+
+.hero-card-video .hero-card-description {
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .hero-card-video .hero-card-image {
+    min-height: 250px;
+  }
+  
+  .hero-video-icon {
+    font-size: 10rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-video-icon {
+    font-size: 8rem;
+  }
+  
+  .hero-card-video h1 {
+    font-size: 1.8rem;
+    line-height: 1.3;
+  }
+}
+
+/* End Video Hero Card */
+
 .hero-card {
   background: #0a0a0a;
   border-radius: 0;
