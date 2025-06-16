@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-06-15T13:28:37.702Z",
+  "updated": "2025-06-16T13:35:18.935Z",
   "root": [
     {
       "type": "folder",
@@ -307,6 +307,12 @@
                   "type": "folder",
                   "name": "ninja-theroy",
                   "path": "images/projects/video/ninja-theroy",
+                  "children": []
+                },
+                {
+                  "type": "folder",
+                  "name": "xbox-support-app-on console",
+                  "path": "images/projects/video/xbox-support-app-on console",
                   "children": []
                 }
               ]
@@ -688,6 +694,11 @@
               "type": "page",
               "name": "xbox-support-app-case-study.html",
               "path": "projects/video/xbox-support-app-case-study.html"
+            },
+            {
+              "type": "page",
+              "name": "xbox-video.html",
+              "path": "projects/video/xbox-video.html"
             }
           ]
         },
@@ -737,11 +748,6 @@
           "type": "page",
           "name": "xbox-support.html",
           "path": "projects/xbox-support.html"
-        },
-        {
-          "type": "page",
-          "name": "xbox-video.html",
-          "path": "projects/xbox-video.html"
         },
         {
           "type": "page",
