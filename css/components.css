@@ -2280,20 +2280,50 @@ body[data-theme="light"] .nova-quip {
 /* Hero Card with Video Styling */
 .hero-card-video .hero-card-image {
   padding: 3rem 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-video-icon-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .hero-video-icon {
   font-size: 12rem;
-  color: #fff;
-  filter: drop-shadow(0 0 25px rgba(180, 70, 255, 0.9));
-  transition: transform 0.5s ease, filter 0.3s ease;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 0 30px rgba(90, 228, 255, 0.7);
+  filter: drop-shadow(0 0 15px rgba(90, 228, 255, 0.7));
+  transition: all 0.3s ease;
   opacity: 0.9;
+  transform-origin: center center;
+  will-change: transform, filter, opacity;
+  backface-visibility: hidden;
+  cursor: pointer;
 }
 
-.hero-card-video:hover .hero-video-icon {
-  transform: scale(1.05);
-  filter: drop-shadow(0 0 30px rgba(180, 70, 255, 1));
+.hero-card-video:hover .hero-video-icon,
+.hero-video-icon:hover {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 30px rgba(90, 228, 255, 1));
   opacity: 1;
+  color: #ffffff;
+  text-shadow: 0 0 40px rgba(90, 228, 255, 0.9);
+}
+
+.hero-video-icon:active {
+  transform: scale(1.1) !important;
+  filter: drop-shadow(0 0 25px rgba(90, 228, 255, 0.9)) !important;
 }
 
 /* Hero Card with Xbox Styling */
