@@ -3,9 +3,9 @@
 /* ===== Education Section ===== */
 .education-item {
   display: flex;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  padding: 1.5rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
   border: 1px solid rgba(90, 228, 255, 0.1);
@@ -19,34 +19,40 @@
 }
 
 .education-logo {
-  flex: 0 0 350px;
+  flex: 0 0 250px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 3.5rem 3rem;
+  padding: 1.5rem 2rem;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
+  border-radius: 12px;
   border: 1px solid rgba(90, 228, 255, 0.2);
-  margin-right: 3rem;
+  margin-right: 2rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   align-self: flex-start;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 
 .education-logo img {
   width: auto;
   height: auto;
-  max-height: 280px;
-  min-height: 200px;
+  max-height: 200px;
+  min-height: 120px;
   max-width: 100%;
   object-fit: contain;
   transition: all 0.3s ease;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+  filter: 
+    drop-shadow(0 0 2px rgba(0, 0, 0, 0.5))
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+  position: relative;
+  z-index: 1;
 }
 
 .education-logo:hover img {
   transform: scale(1.08);
-  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.25));
+  filter: 
+    drop-shadow(0 0 3px rgba(0, 0, 0, 0.6))
+    drop-shadow(0 3px 5px rgba(0, 0, 0, 0.4));
 }
 
 
