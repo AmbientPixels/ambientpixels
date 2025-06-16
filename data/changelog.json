@@ -1,10 +1,10 @@
 {
-  "updated": "2025-06-15T13:28:37.815Z",
+  "updated": "2025-06-16T13:35:19.043Z",
   "entries": [
     {
-      "hash": "6557188",
-      "date": "2025-06-15 02:05:51 -0700",
-      "message": "refactor: Move section description styles to global CSS and reorganize project cards"
+      "hash": "127a1b3",
+      "date": "2025-06-16 02:08:24 -0700",
+      "message": "feat: reorder featured projects and update resume layout"
     }
   ]
 }
