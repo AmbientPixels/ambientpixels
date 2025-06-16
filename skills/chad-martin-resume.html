@@ -18,24 +18,95 @@
   <link rel="stylesheet" href="/css/nova-mood.css">
   <link rel="stylesheet" href="/css/resume.css">
   <link rel="stylesheet" href="/css/forms.css">
-    
-
+  <link rel="stylesheet" href="/css/resume-hero.css">
   </style>
   <script src="/js/init-header-footer.js" defer></script>
+  <script>
+    // Particle effect for hero section
+    document.addEventListener('DOMContentLoaded', function() {
+      const container = document.getElementById('hero-particles');
+      if (!container) return;
+      
+      function createParticle() {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        // Random size between 1px and 4px
+        const size = Math.random() * 3 + 1;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // Random position
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = '100%';
+        
+        // Random animation duration between 10s and 25s
+        const duration = Math.random() * 15 + 10;
+        particle.style.animationDuration = `${duration}s`;
+        
+        // Random delay for staggered appearance
+        particle.style.animationDelay = `-${Math.random() * 10}s`;
+        
+        // Random opacity for depth
+        particle.style.opacity = Math.random() * 0.5 + 0.1;
+        
+        container.appendChild(particle);
+        
+        // Remove particle after animation completes
+        setTimeout(() => {
+          if (particle.parentNode === container) {
+            container.removeChild(particle);
+          }
+        }, duration * 1000);
+      }
+      
+      // Create initial particles
+      for (let i = 0; i < 30; i++) {
+        createParticle();
+      }
+      
+      // Add new particles periodically
+      setInterval(createParticle, 800);
+    });
+  </script>
 </head>
 <body data-theme="dark">
   <header id="nav-header"></header>
-  <main class="grid-container">
-    <!-- Mini Hero Section with Starfield - Exact 404 Implementation -->
-    <div class="mini-hero">
-      <div class="mini-hero-content-wrapper">
-        <h1 class="dark-bg">Senior Producer & Technical Strategist</h1>
-        <p class="subtitle dark-bg">Turning complexity into clarity—through design, intent, and systems that serve millions.</p>
+  <!-- Full Width Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="hero-badge">Resume</div>
+      <h1>Chad Martin</h1>
+      <p class="hero-subtitle">Senior Producer & Technical Strategist</p>
+      <p class="hero-job-title">Producer – Xbox | Microsoft (via Hanson Consulting Group)</p>
+      <p class="hero-description">Turning complexity into clarity—through design, intent, and systems that serve millions.</p>
+      
+      <!-- Role Tags -->
+      <div class="role-tags">
+        <span class="role-tag role-producer">Producer</span>
+        <span class="role-tag role-technical">Technical</span>
+        <span class="role-tag role-leadership">Leadership</span>
+        <span class="role-tag role-strategy">Strategy</span>
       </div>
-      <div class="mini-hero-bg" id="dynamic-bg">
-        <div class="stars" id="stars"></div>
+      
+      <!-- Action Buttons -->
+      <div class="project-buttons">
+        <a href="/skills/Chad-Martin-Resume-2025.pdf" class="btn btn-primary" download="Chad-Martin-Resume">
+          <i class="fas fa-download"></i> Download Resume (PDF)
+        </a>
+        <button type="button" class="btn btn-secondary glass-button" onclick="showModal('contact-modal')">
+          <i class="fas fa-paper-plane"></i>
+          <span>Get in Touch</span>
+        </button>
+        <a href="https://www.linkedin.com/in/chad-martin-b038496/" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
+          <i class="fab fa-linkedin-in"></i> Connect on LinkedIn
+        </a>
       </div>
     </div>
+    <div class="hero-particles" id="hero-particles"></div>
+  </section>
+  
+  <main class="grid-container">
     <script>
       // Starfield animation - Exact 404 Implementation
       function createStars(container, count = 100) {
@@ -83,32 +154,7 @@
       });
     </script>
     
-    <section class="content-section grid-col-12 text-center">
-      <div class="hero-content">
-        <h1 class="glitch" data-text="Chad Martin">Chad Martin</h1>
-        <p class="tagline">Producer – <span class="highlight">Xbox</span> | <span class="highlight">Microsoft</span> <span class="highlight">(via Hanson Consulting Group)</span></p>
-        <p class="subtagline">Creative systems thinker. Builder of support ecosystems. Explorer of digital emotion.</p>
-        <!-- Brand Statement -->
-        <div class="brand-statement">
-          <i class="fas fa-quote-left"></i>
-          <p>Transforming complex challenges into elegant digital experiences through creative problem-solving and technical innovation.</p>
-          <i class="fas fa-quote-right"></i>
-        </div>
-        <!-- Primary CTAs -->
-        <div class="project-buttons">
-          <a href="/skills/Chad-Martin-Resume-2025.pdf" class="btn btn-primary" download="Chad-Martin-Resume">
-            <i class="fas fa-download"></i> Download Resume (PDF)
-          </a>
-          <button type="button" class="btn btn-secondary glass-button" onclick="showModal('contact-modal')">
-            <i class="fas fa-paper-plane"></i>
-            <span>Get in Touch</span>
-          </button>
-          <a href="https://www.linkedin.com/in/chad-martin-b038496/" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
-            <i class="fab fa-linkedin-in"></i> Connect on LinkedIn
-          </a>
-        </div>
-      </div>  
-    </section>
+   
     
       <!-- Featured Projects -->
       <section class="content-section grid-col-12">
