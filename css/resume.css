@@ -148,7 +148,7 @@
   font-size: 0.9rem;
   font-weight: 600;
   margin-bottom: 1.5rem;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   letter-spacing: 0.1em;
   border: 1px solid rgba(90, 228, 255, 0.3);
 }
@@ -650,7 +650,7 @@
   padding: 3rem 1rem 2rem;
   position: relative;
   max-width: 900px;
-  margin: 0 auto;
+  margin: 45px auto;
 }
 
 /* Brand Statement */
@@ -1253,7 +1253,7 @@ h2 {
   border-radius: 50px;
   font-size: 0.8rem;
   font-weight: 600;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   letter-spacing: 0.5px;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid transparent;
