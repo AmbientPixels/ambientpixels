@@ -2674,6 +2674,13 @@ body[data-theme="light"] .nova-quip {
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  cursor: default;
+}
+
+.project-tags span:hover {
+  background-color: rgba(90, 200, 250, 0.2);
+  transform: translateY(-1px);
 }
 
 .project-link {
