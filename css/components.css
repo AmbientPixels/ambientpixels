@@ -2143,6 +2143,19 @@ body[data-theme="light"] .nova-quip {
   z-index: 1;
 }
 
+.hero-card-video .project-icon-video {
+  font-size: 12rem;
+  color: #ffffff;
+  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8));
+  opacity: 0.95;
+}
+
+.hero-card-video:hover .project-icon-video {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 25px rgba(255, 255, 255, 1));
+  opacity: 1;
+}
+
 .card-image-container:hover .project-icon-video {
   transform: scale(1.1);
   filter: drop-shadow(0 0 20px rgba(90, 228, 255, 0.9));

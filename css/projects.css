@@ -25,6 +25,55 @@
 
 /* ===== Hero Card ===== */
 
+/* Xbox Hero Card */
+.hero-card-xbox .hero-card-image,
+.card-image-container-xbox {
+  background: linear-gradient(135deg, #107C10 0%, #0a4b0a 100%);
+  position: relative;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-card-xbox .hero-card-image {
+  min-height: 300px;
+  background: linear-gradient(135deg, #107C10 0%, #0a4b0a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Xbox Logo Styles */
+.hero-card-xbox .xbox-logo {
+  width: 160px !important;
+  height: 160px !important;
+  object-fit: contain !important;
+  filter: drop-shadow(0 0 12px rgba(16, 200, 16, 0.6)) !important;
+  transition: transform 0.5s ease, filter 0.3s ease !important;
+  position: relative !important;
+  z-index: 2 !important;
+  opacity: 0.9 !important;
+  display: block !important;
+  transform-origin: center center;
+  will-change: transform, filter;
+  backface-visibility: hidden;
+}
+
+.hero-card-xbox:hover .xbox-logo {
+  filter: drop-shadow(0 0 25px rgba(16, 255, 16, 1)) !important;
+  transform: scale(1.05) !important;
+  opacity: 1 !important;
+}
+
+/* Ensure smooth hover state */
+.hero-card-xbox .hero-card-image {
+  overflow: visible !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Video Hero Card */
 .hero-card-video .hero-card-image {
   background: linear-gradient(135deg, #0a3a4a 0%, #0a1a26 100%);
