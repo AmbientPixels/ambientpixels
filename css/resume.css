@@ -1,5 +1,94 @@
 /* /css/resume.css - Ambient Pixels v2.4 - June 15, 2025 */
 
+/* ===== Education Section ===== */
+.education-item {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border: 1px solid rgba(90, 228, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.education-item:hover {
+  background: rgba(90, 228, 255, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.education-logo {
+  flex: 0 0 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 3rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  border: 1px solid rgba(90, 228, 255, 0.2);
+  margin-right: 3rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  align-self: flex-start;
+  margin-top: 1rem;
+}
+
+.education-logo img {
+  width: auto;
+  height: auto;
+  max-height: 280px;
+  min-height: 200px;
+  max-width: 100%;
+  object-fit: contain;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+}
+
+.education-logo:hover img {
+  transform: scale(1.08);
+  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.25));
+}
+
+
+.education-details {
+  flex: 1;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.education-item h3 {
+  margin: 0 0 0.5rem 0;
+  color: #5ae4ff;
+  font-size: 1.25rem;
+}
+
+.education-item p {
+  margin: 0 0 0.5rem 0;
+  color: #e0e7ff;
+  opacity: 0.9;
+}
+
+.education-item .date {
+  color: #a5b4fc;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .education-item {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .education-logo {
+    margin: 0 auto 1rem;
+    max-width: 80px;
+  }
+}
+
 /* ===== Hero Section ===== */
 /* Add margin to the first content section after hero */
 .hero-section + .grid-container > .content-section:first-child {
