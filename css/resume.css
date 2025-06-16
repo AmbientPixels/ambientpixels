@@ -501,7 +501,7 @@
 .grid-container {
   --grid-max-width: 100%;
   padding: 0 1rem;
-  padding-top: 80px; /* Add top padding to account for fixed header */
+  padding-top: 10px; /* Add top padding to account for fixed header */
 }
 
 .mini-hero {
@@ -1418,6 +1418,11 @@ h2 {
   justify-content: center;
   position: relative;
   overflow: hidden;
+}
+
+
+.project-image.video-gradient-3 {
+  background: linear-gradient(135deg, #535019 0%, #555318 100%) !important;
 }
 
 .project-image i {
