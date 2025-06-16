@@ -544,6 +544,44 @@
   padding: 2rem;
   position: relative;
   background: linear-gradient(135deg, rgba(16,124,16,0.03) 0%, rgba(0,0,0,0.3) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Adjust role tags in hero */
+.hero-card-content .role-tags {
+  margin: 1.25rem 0;
+}
+
+/* Style the resume link button */
+.hero-resume-link {
+  margin-top: 1.5rem;
+}
+
+.hero-resume-link .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  background: rgba(16, 124, 16, 0.8);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.hero-resume-link .btn:hover {
+  background: #107c10;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 124, 16, 0.3);
+}
+
+.hero-resume-link .btn i {
+  font-size: 1.1em;
 }
 
 .hero-card-badge {
