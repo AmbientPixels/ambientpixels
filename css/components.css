@@ -2175,10 +2175,52 @@ body[data-theme="light"] .nova-quip {
 
 /* Xbox Logo Styling */
 .xbox-logo {
-  width: 70%;
-  max-width: 300px;
-  height: auto;
-  filter: drop-shadow(0 0 18px rgba(16, 255, 16, 0.9));
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px rgba(16, 200, 16, 0.6));
+  transition: transform 0.5s ease, filter 0.3s ease;
+  position: relative;
+  z-index: 2;
+  opacity: 0.9;
+  display: block;
+  transform-origin: center center;
+  will-change: transform, filter;
+  backface-visibility: hidden;
+}
+
+.card-image-container-xbox {
+  height: 180px;
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #107C10 0%, #0a4b0a 100%);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.card-image-container-xbox .xbox-logo {
+  width: 280px;
+  height: 280px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 25px rgba(16, 255, 16, 0.9));
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+  will-change: transform, filter;
+  backface-visibility: hidden;
+  margin: 0;
+  position: relative;
+  top: 10px;
+}
+
+.card-image-container-xbox:hover .xbox-logo {
+  transform: scale(1.1) translateY(-5px);
+  filter: drop-shadow(0 0 30px rgba(16, 255, 16, 1.1));
 }
 
 /* Hero Xbox Logo Styling */
@@ -2243,7 +2285,11 @@ body[data-theme="light"] .nova-quip {
 }
 
 .hero-card-xbox .hero-card-image {
-  padding: 3rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0;
+  background: linear-gradient(135deg, #107C10 0%, #0a4b0a 100%) !important;
 }
 
 .project-bg-ai {
@@ -2415,6 +2461,7 @@ body[data-theme="light"] .nova-quip {
   padding: 15px;
   box-sizing: border-box;
   overflow: visible;
+  background: linear-gradient(135deg, #107C10 0%, #0a4b0a 100%) !important;
 }
 
 /* Card container for Grand Central */
@@ -2487,6 +2534,46 @@ body[data-theme="light"] .nova-quip {
 .card-image-container:hover .project-icon-xbox {
   transform: scale(1.1);
   filter: brightness(0) invert(1) drop-shadow(0 0 15px rgba(16, 255, 16, 1.2));
+}
+
+/* Xbox Project Card */
+.project-card-xbox {
+  height: 180px;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-card-xbox-link {
+  height: 100%;
+  display: block;
+  text-decoration: none;
+}
+
+.project-card-xbox-image {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #107C10 0%, #0a4b0a 100%);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.project-card-xbox-logo {
+  width: 300px;
+  height: 300px;
+  max-width: 150%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px rgba(16, 255, 16, 0.9));
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.project-card-xbox:hover .project-card-xbox-logo {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 20px rgba(16, 255, 16, 1.2));
 }
 
 /* Button Margins */
