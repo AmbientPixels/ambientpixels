@@ -3,22 +3,39 @@
 /* Video Duration Badge */
 .video-duration-badge {
   position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.7);
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.8);
   color: #fff;
-  padding: 0.15rem 0.4rem;
-  border-radius: 3px;
-  font-size: 0.7rem;
-  font-weight: 500;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 0.2rem;
-  backdrop-filter: blur(2px);
+  gap: 0.3rem;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  z-index: 2;
 }
 
 .video-duration-badge .fa-clock {
-  font-size: 0.7em;
+  font-size: 0.75em;
+  color: rgba(255, 255, 255, 0.9);
+  transition: transform 0.2s ease;
+}
+
+/* Hover effect on card */
+.card:hover .video-duration-badge {
+  background: rgba(0, 0, 0, 0.9);
+  transform: translateY(-2px);
+}
+
+.card:hover .video-duration-badge .fa-clock {
+  transform: scale(1.1);
+  color: #5ae4ff;
 }
 
 /* Gradient Heading - Reusable gradient text component */
