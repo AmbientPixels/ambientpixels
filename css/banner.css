@@ -1,71 +1,82 @@
 /* File: /css/banner.css – Nova Themed Glassy Banner System */
 
-.banner-container {
+/* Reset any conflicting styles */
+#banner-container,
+#banner-container *,
+#banner-container *:before,
+#banner-container *:after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Banner Container */
+#banner-container {
   position: fixed;
-  top: 75px; /* Just below nav */
+  top: 75px;
   left: 0;
-  width: 100%;
+  width: 100vw;
   z-index: 1050;
-  display: flex;
-  justify-content: center;
   font-family: 'Inter', sans-serif;
   pointer-events: none;
+  margin: 0;
+  padding: 0;
 }
 
 /* Base Banner Style */
-.banner {
+#banner-container .banner {
+  --banner-radius: 0 0 8px 8px;
+  
   pointer-events: auto;
   width: 100%;
-  max-width: 1200px;
   padding: 12px 24px;
-  background: rgba(75, 62, 143, 0.35); /* translucent dark purple */
-  color: var(--dark-text);
+  background: rgba(42, 87, 122, 0.4);
+  color: var(--dark-text, #D8E0E5);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.4s, transform 0.4s;
+  border-radius: var(--banner-radius);
+  -webkit-border-radius: var(--banner-radius);
+  -moz-border-radius: var(--banner-radius);
   align-items: center;
-  gap: 12px;
-  border-radius: 0;
-  margin-top: 19px; /* Align precisely under nav bar */
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 1.8s ease, transform 1.2s ease;
+  display: flex;
+  gap: 1rem;
+  margin: 0;
+  box-sizing: border-box;
 }
 
-/* Fade in */
-.banner.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Fade out */
-.banner.hidden {
+/* Show/Hide States */
+#banner-container .banner {
+  transform: translateY(-100%);
+  transition: transform 0.5s ease-out, opacity 0.3s ease-out;
   opacity: 0;
-  transform: translateY(-10px);
   pointer-events: none;
 }
 
-
-/* Fade in */
-.banner.show {
+#banner-container .banner.show {
   opacity: 1;
   transform: translateY(0);
+  pointer-events: auto;
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out;
 }
 
-/* Fade out */
-.banner.hidden {
+#banner-container .banner.hiding {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateY(-100%);
   pointer-events: none;
+  transition: transform 0.4s ease-in, opacity 0.3s ease-in;
 }
 
-.banner-icon {
+/* Banner Elements */
+#banner-container .banner-icon {
   font-size: 1.2em;
-  color: var(--dark-accent);
+  color: var(--dark-accent, #2A577A);
 }
 
-.banner-close {
+#banner-container .banner-close {
   background: none;
   border: none;
   color: inherit;
@@ -75,21 +86,35 @@
   transition: opacity 0.3s ease;
 }
 
-.banner-close:hover {
+#banner-container .banner-close:hover {
   opacity: 0.7;
 }
 
-.banner.info {
-  background: rgba(42, 87, 122, 0.4); /* dark glass blue */
-  color: var(--dark-text);
+/* Banner Variants */
+#banner-container .banner.info {
+  background: rgba(42, 87, 122, 0.4);
+  color: var(--dark-text, #D8E0E5);
+  border-radius: var(--banner-radius);
+  -webkit-border-radius: var(--banner-radius);
+  -moz-border-radius: var(--banner-radius);
 }
 
-.banner.warn {
+#banner-container .banner.warn {
   background: rgba(255, 213, 120, 0.35);
   color: #2c1e00;
 }
 
-.banner.critical {
+#banner-container .banner.critical {
   background: rgba(255, 90, 90, 0.35);
   color: #ffe5e5;
+}
+
+/* Ensure banner takes full width and has proper border radius */
+#banner-container,
+#banner-container .banner {
+  width: 100% !important;
+  max-width: 100% !important;
+  border-radius: var(--banner-radius) !important;
+  -webkit-border-radius: var(--banner-radius) !important;
+  -moz-border-radius: var(--banner-radius) !important;
 }
