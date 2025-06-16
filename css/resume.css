@@ -41,18 +41,17 @@
   max-width: 100%;
   object-fit: contain;
   transition: all 0.3s ease;
-  filter: 
-    drop-shadow(0 0 2px rgba(0, 0, 0, 0.5))
-    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+  /* Max crisp, solid shadow */
+  filter:
+    drop-shadow(0 2px 2px rgba(0,0,0,1));
   position: relative;
   z-index: 1;
 }
 
 .education-logo:hover img {
   transform: scale(1.08);
-  filter: 
-    drop-shadow(0 0 3px rgba(0, 0, 0, 0.6))
-    drop-shadow(0 3px 5px rgba(0, 0, 0, 0.4));
+  filter:
+    drop-shadow(0 2px 2px rgba(0,0,0,1));
 }
 
 
