@@ -929,10 +929,6 @@ h2 {
   transition: all 0.3s ease;
 }
 
-.experience-item {
-  /* Hover effect removed - using default styling */
-}
-
 .experience-item h3.job-title {
   color: #5ae4ff;
   margin-bottom: 0.75rem;
