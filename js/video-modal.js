@@ -12,6 +12,13 @@ const videoMap = {
     duration: '1:45',
     durationLabel: '1 min 45 sec'
   },
+  'xbox-support-app': {
+    title: 'Xbox Support App',
+    description: 'On-console support experience for Xbox users',
+    videoId: 'JwpnzA3LRkM',
+    duration: '3:42',
+    durationLabel: '3 min 42 sec'
+  },
   'copilot-playground': {
     title: 'Copilot Playground',
     description: 'AI-driven support prompt chains for gaming help',
