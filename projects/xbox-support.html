@@ -29,7 +29,8 @@
   <header id="nav-header"></header>
 
   <section class="hero-card hero-card-xbox">
-    <div class="hero-card-image project-bg-xbox">
+    <div class="hero-card-image project-bg-xbox hero-particles-container">
+      <div id="hero-particles" class="hero-particles"></div>
       <img id="xbox-logo-main" src="/images/projects/xbox-logo.png" alt="Xbox Support Portfolio" class="hero-xbox-logo" loading="lazy">
     </div>
     <div class="hero-card-content">
@@ -40,139 +41,132 @@
   </section>
 
 <main class="grid-container">
-  <section class="content-section grid-col-12">
-    <h2><i class="fas fa-gamepad"></i> Xbox Support Projects</h2>
-    <p>A curated selection of projects and initiatives developed within the Xbox Support ecosystem—spanning console tools, desktop applications, and game-related support systems.</p>
+  <!-- Xbox Support Projects Section -->
+  <section class="xbox-section grid-col-12">
+    <div class="xbox-section-header">
+      <i class="fas fa-gamepad"></i>
+      <h2 class="xbox-section-title">Xbox Support Projects</h2>
+    </div>
+    <p class="section-description">A curated selection of projects and initiatives developed within the Xbox Support ecosystem—spanning console tools, desktop applications, and game-related support systems.</p>
   </section>
 
   <!-- Xbox Tools & Systems Section -->
-  <section class="content-section grid-col-12">
-    <h2 class="section-header"><i class="fas fa-tools"></i> Xbox Tools & Systems</h2>
+  <section class="xbox-section grid-col-12">
+    <div class="xbox-section-header">
+      <i class="fas fa-tools"></i>
+      <h2 class="xbox-section-title">Xbox Tools & Systems</h2>
+    </div>
     <p class="section-description">Innovative platforms and systems powering the Xbox support experience, from AI-driven solutions to data analytics and content management tools.</p>
-  </section>
-
-    <!-- Copilot Playground -->
-    <section class="grid-col-12 card-section">
-      <a href="copilotplayground.html" class="card-image-link">
-        <div class="card-image project-bg-ai card-image-container card-image-container-ai">
-          <i class="fas fa-robot project-icon-ai"></i>
-        </div>
-      </a>
-      <div class="card-content">
-        <h3><i class="fas fa-robot"></i> Copilot Playground</h3>
-        <div class="role-tags">
-          <span class="role-tag role-experimental">Experimental</span>
-          <span class="role-tag role-devops">DevOps</span>
-          <span class="role-tag role-training">Training</span>
-        </div>
-        <p>AI-driven support prompt chains for gaming help, localization, and content enhancement across 40+ languages.</p>
-        <a href="copilotplayground.html" class="btn btn-secondary btn-margin-top">
-          <i class="fas fa-external-link-alt"></i> View Project Details
+    
+    <div class="projects-grid">
+      <!-- Copilot Playground -->
+      <section class="card-section coll grid-col-12">
+        <a href="copilotplayground.html" class="card-image-link">
+          <div class="card-image project-bg-ai card-image-container card-image-container-ai">
+            <i class="fas fa-robot project-icon-ai"></i>
+          </div>
         </a>
-      </div>
-    </section>
-    <!-- Xbox Videos Section -->
-    <section class="grid-col-4 card-section">
-      <a href="/projects/video/xbox-video.html" class="card-image-link">
-        <div class="card-image video-gradient-8 card-image-container">
-          <i class="fas fa-play-circle project-icon" aria-hidden="true"></i>
-          <span class="video-duration-badge">
-            <i class="far fa-clock"></i> 5:18
-          </span>
-        </div>
-      </a>
-      <div class="card-content">
-        <h3><i class="fas fa-video" aria-hidden="true"></i> Xbox Video Content</h3>
-        <div class="role-tags">
-          <span class="role-tag role-producer">Lead Producer</span>
-          <span class="role-tag role-uiux">Creative Director</span>
-          <span class="role-tag role-experimental">Motion Design</span>
-        </div>
-        <p>Collection of Xbox video content including showcases, training videos, and teasers.</p>
-        <div class="card-cta-container">
-          <a href="/projects/video/xbox-video.html" class="btn btn-primary">
-            <i class="fas fa-play" aria-hidden="true"></i> Watch Videos
+        <div class="card-content">
+          <h3><i class="fas fa-robot"></i> Copilot Playground</h3>
+          <div class="role-tags">
+            <span class="role-tag role-experimental">Experimental</span>
+            <span class="role-tag role-devops">DevOps</span>
+            <span class="role-tag role-training">Training</span>
+          </div>
+          <p>AI-driven support prompt chains for gaming help, localization, and content enhancement across 40+ languages.</p>
+          <a href="copilotplayground.html" class="btn btn-secondary btn-margin-top">
+            <i class="fas fa-external-link-alt"></i> View Project Details
           </a>
         </div>
-      </div>
-    </section>
-    <!-- Grand Central 3.0 -->
-    <section class="grid-col-4 card-section">
-      <a href="websites/grand-central-power-bi.html" class="card-image-link">
-        <div class="card-image project-bg-gc card-image-container card-image-container-gc">
-          <i class="fas fa-database project-icon-gc"></i>
-        </div>
-      </a>
-      <div class="card-content">
-        <h3><i class="fas fa-database"></i> Grand Central 3.0</h3>
-        <div class="role-tags">
-          <span class="role-tag role-producer">Producer</span>
-          <span class="role-tag role-devops">DevOps</span>
-          <span class="role-tag role-training">Training</span>
-        </div>
-        <p>Custom-built data tool and Power BI pipeline for Xbox Support, designed from scratch using advanced Excel and Power Query methods.</p>
-        <a href="websites/grand-central-power-bi.html" class="btn btn-secondary btn-margin-top">
-          <i class="fas fa-external-link-alt"></i> View Project Details
+      </section>
+      <!-- Xbox Videos Section -->
+      <section class="card-section grid-col-4">
+        <a href="/projects/video/xbox-video.html" class="card-image-link">
+          <div class="card-image video-gradient-8 card-image-container">
+            <i class="fas fa-play-circle project-icon" aria-hidden="true"></i>
+            <span class="video-duration-badge">
+              <i class="far fa-clock"></i> 5:18
+            </span>
+          </div>
         </a>
-      </div>
-    </section>
+        <div class="card-content">
+          <h3><i class="fas fa-video"></i> Xbox Video Content</h3>
+          <div class="role-tags">
+            <span class="role-tag role-producer">Lead Producer</span>
+            <span class="role-tag role-uiux">Creative Director</span>
+            <span class="role-tag role-experimental">Motion Design</span>
+          </div>
+          <p>Collection of Xbox video content including showcases, training videos, and teasers.</p>
+          <a href="/projects/video/xbox-video.html" class="btn btn-secondary btn-margin-top">
+            <i class="fas fa-external-link-alt"></i> View Project Details
+          </a>
+        </div>
+      </section>
 
-    <!-- Xbox Support Site -->
-    <section class="grid-col-4 card-section">
-      <a href="websites/xbox-support.html" class="card-image-link">
-        <div class="card-image card-image-container card-image-container-xbox">
-          <img src="https://img.icons8.com/color/512/xbox.png" 
-               alt="Xbox Logo" 
-               class="xbox-logo" 
-               loading="lazy"
-               style="width: 70%; max-width: 150px; height: auto;">
-        </div>
-      </a>
-      <div class="card-content">
-        <h3><i class="fas fa-headset"></i> Xbox Support Site</h3>
-        <div class="role-tags">
-          <span class="role-tag role-producer">Producer</span>
-          <span class="role-tag role-uiux">UI/UX</span>
-          <span class="role-tag role-training">Training</span>
-        </div>
-        <p>Producer-led work managing support content across Xbox platforms with 32M+ users monthly.</p>
-        <a href="websites/xbox-support.html" class="btn btn-secondary btn-margin-top">
-          <i class="fas fa-external-link-alt"></i> View Project
+      <!-- Grand Central 3.0 -->
+      <section class="card-section grid-col-4">
+        <a href="websites/grand-central-power-bi.html" class="card-image-link">
+          <div class="card-image project-bg-gc card-image-container card-image-container-gc">
+            <i class="fas fa-database project-icon-gc"></i>
+          </div>
         </a>
-      </div>
+        <div class="card-content">
+          <h3><i class="fas fa-database"></i> Grand Central 3.0</h3>
+          <div class="role-tags">
+            <span class="role-tag role-producer">Producer</span>
+            <span class="role-tag role-devops">DevOps</span>
+            <span class="role-tag role-training">Training</span>
+          </div>
+          <p>Custom-built data tool and Power BI pipeline for Xbox Support, designed from scratch using advanced Excel and Power Query methods.</p>
+          <a href="websites/grand-central-power-bi.html" class="btn btn-secondary btn-margin-top">
+            <i class="fas fa-external-link-alt"></i> View Project Details
+          </a>
+        </div>
     </section>
 
-
+      <!-- Xbox Support Site -->
+      <section class="card-section grid-col-4">
+        <a href="websites/xbox-support.html" class="card-image-link">
+          <div class="card-image card-image-container card-image-container-xbox">
+            <img src="https://img.icons8.com/color/512/xbox.png" 
+                 alt="Xbox Logo" 
+                 class="xbox-logo" 
+                 loading="lazy"
+                 style="width: 70%; max-width: 150px; height: auto;">
+          </div>
+        </a>
+        <div class="card-content">
+          <h3><i class="fas fa-headset"></i> Xbox Support Site</h3>
+          <div class="role-tags">
+            <span class="role-tag role-producer">Producer</span>
+            <span class="role-tag role-uiux">UI/UX</span>
+            <span class="role-tag role-training">Training</span>
+          </div>
+          <p>Producer-led work managing support content across Xbox platforms with 32M+ users monthly.</p>
+          <a href="websites/xbox-support.html" class="btn btn-secondary btn-margin-top">
+            <i class="fas fa-external-link-alt"></i> View Project Details
+          </a>
+        </div>
+      </section>
+    </div> <!-- Close projects-grid -->
+  </section> <!-- Close xbox-section -->
 
   <!-- Xbox Game Support Projects Section -->
-  <section class="content-section grid-col-12">
-    <h2 class="section-header"><i class="fas fa-gamepad"></i> Xbox Game Support Projects</h2>
+  <section class="xbox-section grid-col-12">
+    <div class="xbox-section-header">
+      <i class="fas fa-gamepad"></i>
+      <h2 class="xbox-section-title">Xbox Game Support Projects</h2>
+    </div>
     <p class="section-description">Dedicated support experiences for Xbox first-party titles, providing players with seamless assistance and resources for their favorite games.</p>
-  </section>
- 
-    <!-- Ninja Theory Help Center -->
-    <section class="grid-col-3 card-section">
-      <a href="websites/ninja-theroy-support.html" class="card-image-link">
-        <img src="/images/projects/ninja-theroy/mini-hero.jpg" alt="Ninja Theory Support" class="card-image" loading="lazy">
-      </a>
-      <div class="card-content">
-        <h3><i class="fas fa-gamepad"></i> Ninja Theory Help Center</h3>
-        <div class="role-tags">
-          <span class="role-tag role-producer">Producer</span>
-        </div>
-        <p>Support content and help center for Ninja Theory's games, including Hellblade series and other titles.</p>
-        <a href="websites/ninja-theroy-support.html" class="btn btn-secondary btn-margin-top">
-          <i class="fas fa-external-link-alt"></i> View Project Details
-        </a>
-      </div>
-    </section>
+    
+    <div class="projects-grid">
 
-    <!-- Microsoft Casual Games Support -->
-    <section class="grid-col-3 card-section">
+     <!-- Microsoft Casual Games Support -->
+     <section class="card-section grid-col-6">
       <a href="websites/casual-games-support.html" class="card-image-link">
         <img src="/images/projects/microsoft-casual-games/hero-card.png" alt="Microsoft Casual Games Support" class="card-image" loading="lazy">
       </a>
-      <div class="card-content">
+      <div class="card-content grid-col-1">
         <h3><i class="fas fa-gamepad"></i> Casual Games Support</h3>
         <div class="role-tags">
           <span class="role-tag role-producer">Producer</span>
@@ -184,58 +178,78 @@
       </div>
     </section>
 
-   
-
-    <!-- Gears of War -->
-    <section class="grid-col-3 card-section">
-      <a href="websites/gears-of-war-support.html" class="card-image-link">
-        <img src="/images/projects/gow/logo.png" alt="Gears of War" class="card-image" loading="lazy">
-      </a>
-      <div class="card-content">
-        <h3><i class="fas fa-gamepad"></i> Gears of War</h3>
-        <div class="role-tags">
-          <span class="role-tag role-producer">Producer</span>
-        </div>
-        <p>Producer role supporting the Gears of War series with game-specific help content and known issues tracking.</p>
-        <a href="websites/gears-of-war-support.html" class="btn btn-secondary btn-margin-top">
-          <i class="fas fa-external-link-alt"></i> View Project Details
+      <!-- Ninja Theory Help Center -->
+      <section class="card-section grid-col-6">
+        <a href="websites/ninja-theroy-support.html" class="card-image-link">
+          <img src="/images/projects/ninja-theroy/mini-hero.jpg" alt="Ninja Theory Support" class="card-image" loading="lazy">
         </a>
-      </div>
-    </section>
-
-    <!-- South of Midnight -->
-    <section class="grid-col-3 card-section">
-      <a href="websites/south-of-midnight-support.html">
-        <img src="/images/projects/SoM/hero-01.png" alt="South of Midnight" class="card-image" loading="lazy">
-      </a>
-      <div class="card-content">
-        <h3><i class="fas fa-moon"></i> South of Midnight</h3>
-        <div class="role-tags">
-          <span class="role-tag role-producer">Producer</span>
+        <div class="card-content">
+          <h3><i class="fas fa-gamepad"></i> Ninja Theory Help Center</h3>
+          <div class="role-tags">
+            <span class="role-tag role-producer">Producer</span>
+          </div>
+          <p>Support content and help center for Ninja Theory's games, including Hellblade series and other titles.</p>
+          <a href="websites/ninja-theroy-support.html" class="btn btn-secondary btn-margin-top">
+            <i class="fas fa-external-link-alt"></i> View Project Details
+          </a>
         </div>
-        <p>Support and resources for the South of Midnight game, including guides and features.</p>
-        <a href="websites/south-of-midnight-support.html" class="btn btn-secondary btn-margin-top">
-          <i class="fas fa-external-link-alt"></i> View Project Details
+      </section>
+
+ 
+
+      <!-- Gears of War -->
+      <section class="card-section grid-col-6">
+        <a href="websites/gears-of-war-support.html" class="card-image-link">
+          <img src="/images/projects/gow/logo.png" alt="Gears of War" class="card-image" loading="lazy">
         </a>
-      </div>
-    </section>
-    <!-- Figma Fleet -->
- <section class="grid-col-12 card-section">
-  <a href="figma-fleet.html" class="card-image-link">
-    <img src="/images/projects/figma-fleet/figma-fleet-1920-01a.jpg" alt="Figma Fleet" class="card-image" loading="lazy">
-  </a>
-  <div class="card-content">
-    <h3><i class="fab fa-figma"></i> Figma Fleet</h3>
-    <div class="role-tags">
-      <span class="role-tag role-uiux">UI/UX</span>
-      <span class="role-tag role-training">Training</span>
-    </div>
-    <p>Comprehensive Figma resources including design systems and UI kits for Xbox projects. Streamline your workflow with battle-tested templates and components.</p>
-    <a href="figma-fleet.html" class="btn btn-secondary btn-margin-top">
-      <i class="fas fa-external-link-alt"></i> View Project Details
-    </a>
-  </div>
-</section>
+        <div class="card-content">
+          <h3><i class="fas fa-gamepad"></i> Gears of War</h3>
+          <div class="role-tags">
+            <span class="role-tag role-producer">Producer</span>
+          </div>
+          <p>Producer role supporting the Gears of War series with game-specific help content and known issues tracking.</p>
+          <a href="websites/gears-of-war-support.html" class="btn btn-secondary btn-margin-top">
+            <i class="fas fa-external-link-alt"></i> View Project Details
+          </a>
+        </div>
+      </section>
+      
+      <!-- South of Midnight -->
+      <section class="card-section grid-col-6">
+        <a href="websites/south-of-midnight-support.html" class="card-image-link">
+          <img src="/images/projects/SoM/hero-01.png" alt="South of Midnight" class="card-image" loading="lazy">
+        </a>
+        <div class="card-content">
+          <h3><i class="fas fa-moon"></i> South of Midnight</h3>
+          <div class="role-tags">
+            <span class="role-tag role-producer">Producer</span>
+          </div>
+          <p>Support and resources for the South of Midnight game, including guides and features.</p>
+          <a href="websites/south-of-midnight-support.html" class="btn btn-secondary btn-margin-top">
+            <i class="fas fa-external-link-alt"></i> View Project Details
+          </a>
+        </div>
+      </section>
+      
+      <!-- Figma Fleet -->
+      <section class="card-section grid-col-12">
+        <a href="figma-fleet.html" class="card-image-link">
+          <img src="/images/projects/figma-fleet/figma-fleet-1920-01a.jpg" alt="Figma Fleet" class="card-image" loading="lazy">
+        </a>
+        <div class="card-content">
+          <h3><i class="fab fa-figma"></i> Figma Fleet</h3>
+          <div class="role-tags">
+            <span class="role-tag role-uiux">UI/UX</span>
+            <span class="role-tag role-training">Training</span>
+          </div>
+          <p>Comprehensive Figma resources including design systems and UI kits for Xbox projects. Streamline your workflow with battle-tested templates and components.</p>
+          <a href="figma-fleet.html" class="btn btn-secondary btn-margin-top">
+            <i class="fas fa-external-link-alt"></i> View Project Details
+          </a>
+        </div>
+      </section>
+    </div> <!-- Close projects-grid -->
+  </section> <!-- Close xbox-section -->
 
     <!-- Related Projects Section -->
     <section class="project-section grid-col-12">
@@ -271,11 +285,86 @@
     <!-- Contact modal will be loaded here by init-contact-modal.js -->
   </div>
 
+
+
   <script src="/js/init-header-footer.js" defer></script>
   <script src="/js/dreamEngine.js" defer></script>
   <script src="/js/init-quotes.js" defer></script>
   <script src="/js/modal-window.js" defer></script>
   <script src="/js/init-contact-modal.js" defer></script>
+  <style>
+    /* Simple particle effect */
+    .hero-particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 1;
+    }
+    
+    .particle {
+      position: absolute;
+      background: rgba(90, 228, 255, 0.6);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: float 15s infinite linear;
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(0) translateX(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-1000px) translateX(200px); opacity: 0; }
+    }
+  </style>
+  <script>
+    // Simple particle generator
+    document.addEventListener('DOMContentLoaded', function() {
+      const container = document.querySelector('.hero-particles');
+      if (!container) return;
+      
+      // Create particles
+      function createParticle() {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        // Random size between 2px and 6px
+        const size = Math.random() * 4 + 2;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // Random position
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = '100%';
+        
+        // Random animation duration
+        const duration = Math.random() * 15 + 10;
+        particle.style.animationDuration = `${duration}s`;
+        
+        // Random delay
+        particle.style.animationDelay = `-${Math.random() * 10}s`;
+        
+        container.appendChild(particle);
+        
+        // Remove particle after animation completes
+        setTimeout(() => {
+          if (particle.parentNode === container) {
+            container.removeChild(particle);
+          }
+        }, duration * 1000);
+      }
+      
+      // Initial particles
+      for (let i = 0; i < 40; i++) {
+        createParticle();
+      }
+      
+      // Add more particles periodically
+      setInterval(createParticle, 800);
+    });
+  </script>
   <script>
     // Add click handler after DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
