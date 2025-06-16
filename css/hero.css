@@ -21,14 +21,15 @@
   margin: 0;
 }
 
-/* Hero Text with improved visibility */
+/* Hero Content - Consolidated Styles */
 .hero-content {
   position: relative;
-  z-index: 1;
-  max-width: 800px;
+  z-index: 2;
+  max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
+  padding: 0 1.5rem;
   text-align: center;
-  top: 35px;
 }
 
 .hero-headline {
@@ -242,10 +243,7 @@
     opacity: 1;
 }
 
-.hero-content {
-    position: relative;
-    z-index: 2;
-}
+/* Removed duplicate .hero-content - use the consolidated style above */
 
 .hero-headline,
 .hero-subheadline {
