@@ -23,7 +23,13 @@
   <link rel="stylesheet" href="/css/projects.css" />
 </head>
 <body data-theme="dark">
-  <div id="banner-container"></div>
+  <div class="banner-container" id="banner-container">
+    <div class="banner info">
+      <i class="fas fa-sparkles banner-icon"></i>
+      <span>Polish Mode Active: Nova is refining this page! Expect frequent updates, new features, and crystalline improvements as we tune the experience.</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
   <header id="nav-header"></header>
 
   <section class="hero-card">
@@ -210,5 +216,51 @@
   <script src="/js/lightbox.js" type="module"></script>
   <script src="/js/nav.js"></script>
   <script src="/js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var banner = document.querySelector('#banner-container .banner');
+      var closeBtn = document.querySelector('#banner-container .banner-close');
+      var autoCloseTimer;
+      var displayDuration = 8000; // 8 seconds to read
+      var fadeOutDuration = 500; // 0.5 seconds to fade out
+      
+      function showBanner() {
+        if (!banner) return;
+        banner.classList.remove('hiding');
+        banner.classList.add('show');
+        
+        if (autoCloseTimer) clearTimeout(autoCloseTimer);
+        
+        autoCloseTimer = setTimeout(function() {
+          hideBanner();
+        }, displayDuration);
+      }
+      
+      function hideBanner() {
+        if (!banner) return;
+        
+        banner.classList.remove('show');
+        banner.classList.add('hiding');
+        
+        setTimeout(function() {
+          if (banner && banner.parentNode) {
+            banner.parentNode.removeChild(banner);
+          }
+        }, fadeOutDuration);
+      }
+      
+      if (banner) {
+        setTimeout(showBanner, 500);
+        
+        if (closeBtn) {
+          closeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            hideBanner();
+            if (autoCloseTimer) clearTimeout(autoCloseTimer);
+          });
+        }
+      }
+    });
+  </script>
 </body>
 </html>
