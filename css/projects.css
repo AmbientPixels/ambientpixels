@@ -1756,3 +1756,358 @@ body[data-theme="light"] .project-section:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== Hero Gradient Backgrounds ===== */
+/* Base hero gradient styles */
+.hero-gradient {
+  position: relative;
+  background-size: 200% 200%;
+  animation: gradientShift 15s ease infinite;
+  transition: all 0.5s ease;
+  overflow: hidden;
+}
+
+/* Gradient animation */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 1. Cosmic Nebula */
+.hero-gradient-cosmic {
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  --glow-color: rgba(138, 43, 226, 0.3);
+}
+
+/* 2. Deep Ocean */
+.hero-gradient-ocean {
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  --glow-color: rgba(64, 224, 208, 0.3);
+}
+
+/* 3. Sunset Glow */
+.hero-gradient-sunset {
+  background: linear-gradient(135deg, #ff6e7f, #bfe9ff);
+  --glow-color: rgba(255, 165, 0, 0.3);
+}
+
+/* 4. Electric Violet */
+.hero-gradient-violet {
+  background: linear-gradient(135deg, #4776E6, #8E54E9);
+  --glow-color: rgba(142, 84, 233, 0.4);
+}
+
+/* 5. Emerald Depths */
+.hero-gradient-emerald {
+  background: linear-gradient(135deg, #1a2980, #26D0CE);
+  --glow-color: rgba(38, 208, 206, 0.4);
+}
+
+/* 6. Crimson Dawn */
+.hero-gradient-crimson {
+  background: linear-gradient(135deg, #ED213A, #93291E);
+  --glow-color: rgba(237, 33, 58, 0.4);
+}
+
+/* 7. Midnight Express */
+.hero-gradient-midnight {
+  background: linear-gradient(135deg, #232526, #414345);
+  --glow-color: rgba(65, 67, 69, 0.3);
+}
+
+/* 8. Aurora Borealis */
+.hero-gradient-aurora {
+  background: linear-gradient(135deg, #00B4DB, #0083B0, #00F260);
+  --glow-color: rgba(0, 242, 96, 0.3);
+}
+
+/* 9. Royal Gold */
+.hero-gradient-royal {
+  background: linear-gradient(135deg, #1e130c, #9a8478);
+  --glow-color: rgba(218, 165, 32, 0.3);
+}
+
+/* 10. Mystic Purple */
+.hero-card.hero-card-video .hero-card-image.hero-gradient-mystic,
+.hero-gradient-mystic {
+  background: linear-gradient(135deg, #4b6cb7, #182848) !important;
+  --glow-color: rgba(75, 108, 183, 0.4);
+  background-size: 200% 200% !important;
+  animation: gradientShift 15s ease infinite !important;
+  position: relative;
+  z-index: 1;
+}
+
+/* Add glow effect */
+.hero-card.hero-card-video .hero-card-image.hero-gradient-mystic::before,
+.hero-gradient-mystic::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 70% 30%, rgba(75, 108, 183, 0.5), transparent 60%);
+  opacity: 0.7;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ===== Creative & Game Genre Gradients ===== */
+/* 11. Rainbow Explosion */
+.hero-gradient-rainbow {
+  background: linear-gradient(135deg, 
+    #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff
+  );
+  --glow-color: rgba(255, 255, 255, 0.3);
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease infinite;
+}
+
+/* 12. Action Game */
+.hero-gradient-action {
+  background: linear-gradient(135deg, #ff0000, #ff6b6b, #ff8c42);
+  --glow-color: rgba(255, 0, 0, 0.4);
+}
+
+/* 13. Fantasy */
+.hero-gradient-fantasy {
+  background: linear-gradient(135deg, #6a11cb, #2575fc, #8e2de2);
+  --glow-color: rgba(138, 43, 226, 0.4);
+}
+
+/* 14. Casual */
+.hero-gradient-casual {
+  background: linear-gradient(135deg, #6aedc7, #39c0c0, #00cec9);
+  --glow-color: rgba(129, 236, 236, 0.4);
+}
+
+/* 15. Sci-Fi */
+.hero-gradient-scifi {
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  --glow-color: rgba(100, 149, 237, 0.4);
+}
+
+/* 16. Horror/Dark */
+.hero-gradient-horror {
+  background: linear-gradient(135deg, #1e0000, #4b0000, #800020);
+  --glow-color: rgba(139, 0, 0, 0.4);
+}
+
+/* 17. Puzzle */
+.hero-gradient-puzzle {
+  background: linear-gradient(135deg, #00b4db, #0083b0, #00f260);
+  --glow-color: rgba(0, 242, 96, 0.4);
+}
+
+/* 18. RPG */
+.hero-gradient-rpg {
+  background: linear-gradient(135deg, #1e3c72, #2a5298, #7b4397);
+  --glow-color: rgba(147, 112, 219, 0.4);
+}
+
+/* 19. Sports */
+.hero-gradient-sports {
+  background: linear-gradient(135deg, #1d976c, #93f9b9, #f9c74f);
+  --glow-color: rgba(57, 255, 20, 0.3);
+}
+
+/* 20. Retro/8-bit */
+.hero-gradient-retro {
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4, #a18cd1);
+  --glow-color: rgba(255, 105, 180, 0.4);
+}
+
+/* 21. Adventure */
+.hero-gradient-adventure {
+  background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+  --glow-color: rgba(255, 215, 0, 0.3);
+}
+
+/* 22. Strategy */
+.hero-gradient-strategy {
+  background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+  --glow-color: rgba(0, 191, 255, 0.4);
+}
+
+/* 23. Arcade */
+/* Force gradient to show with !important and specific selector */
+.hero-card.hero-card-video .hero-card-image.hero-gradient-arcade,
+.hero-gradient-arcade {
+    background: linear-gradient(135deg, #ff416c, #ff4b2b) !important;
+    --glow-color: rgba(255, 0, 0, 0.4);
+    background-size: 200% 200% !important;
+    animation: gradientShift 15s ease infinite !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* Add glow effect */
+.hero-card.hero-card-video .hero-card-image.hero-gradient-arcade::before,
+.hero-gradient-arcade::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 70% 30%, rgba(255, 100, 100, 0.5), transparent 60%);
+    opacity: 0.7;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* 24. Simulation */
+.hero-gradient-simulation {
+  background: linear-gradient(135deg, #4ca1af, #c4e0e5);
+  --glow-color: rgba(100, 181, 246, 0.4);
+}
+
+/* 25. Party/MMO */
+.hero-gradient-party {
+  background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96e6a1);
+  --glow-color: rgba(255, 255, 255, 0.4);
+  background-size: 300% 300%;
+  animation: gradientShift 12s ease infinite;
+}
+
+/* ===== Solid Color & Brand Gradients ===== */
+/* 26. Xbox Green (Dark) */
+.hero-gradient-xbox-dark {
+  background: linear-gradient(135deg, #107c10, #0e700e);
+  --glow-color: rgba(16, 124, 16, 0.5);
+}
+
+/* 27. Xbox Green (Light) */
+.hero-gradient-xbox-light {
+  background: linear-gradient(135deg, #0f7b0f, #1db954);
+  --glow-color: rgba(29, 185, 84, 0.5);
+}
+
+/* 28. Solid Blue */
+.hero-gradient-solid-blue {
+  background: linear-gradient(135deg, #1e90ff, #1c86ee);
+  --glow-color: rgba(30, 144, 255, 0.5);
+}
+
+/* 29. Solid Red */
+.hero-gradient-solid-red {
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+  --glow-color: rgba(255, 68, 68, 0.5);
+}
+
+/* 30. Solid Purple */
+.hero-gradient-solid-purple {
+  background: linear-gradient(135deg, #9b59b6, #8e44ad);
+  --glow-color: rgba(155, 89, 182, 0.5);
+}
+
+/* 31. Solid Gold */
+.hero-gradient-solid-gold {
+  background: linear-gradient(135deg, #ffd700, #d4af37);
+  --glow-color: rgba(255, 215, 0, 0.5);
+}
+
+/* 32. Solid Orange */
+.hero-gradient-solid-orange {
+  background: linear-gradient(135deg, #ff8c00, #ff6b35);
+  --glow-color: rgba(255, 140, 0, 0.5);
+}
+
+/* 33. Solid Teal */
+.hero-gradient-solid-teal {
+  background: linear-gradient(135deg, #20b2aa, #008b8b);
+  --glow-color: rgba(32, 178, 170, 0.5);
+}
+
+/* 34. Solid Pink */
+.hero-gradient-solid-pink {
+  background: linear-gradient(135deg, #ff69b4, #ff1493);
+  --glow-color: rgba(255, 105, 180, 0.5);
+}
+
+/* 35. Solid Slate */
+.hero-gradient-solid-slate {
+  background: linear-gradient(135deg, #2f4f4f, #2d3436);
+  --glow-color: rgba(47, 79, 79, 0.5);
+}
+
+/* Hero Gradients - Consistent Application */
+.hero-card-image {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-card-image.hero-gradient-cosmic {
+  --gradient-start: #0f0c29;
+  --gradient-mid: #302b63;
+  --gradient-end: #24243e;
+  --gradient-glow: rgba(147, 112, 219, 0.6);
+  
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+  background-size: 200% 200%;
+  animation: gradientShift 15s ease infinite;
+}
+
+.hero-card-image.hero-gradient-cosmic::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 70% 30%, var(--gradient-glow), transparent 60%);
+  opacity: 0.7;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Ensure content stays above gradient */
+.hero-card-image > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Glow Effect */
+.hero-gradient::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle at center,
+    var(--glow-color, rgba(90, 228, 255, 0.3)) 0%,
+    transparent 70%
+  );
+  opacity: 0.7;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+.hero-gradient:hover::after {
+  opacity: 1;
+}
+
+/* Text styles for hero gradients */
+.hero-gradient .hero-headline,
+.hero-gradient .hero-subheadline,
+.hero-gradient .hero-cta {
+  position: relative;
+  z-index: 1;
+  text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.8);
+}
+
+/* Responsive adjustments for hero gradients */
+@media (max-width: 768px) {
+  .hero-gradient {
+    animation: gradientShift 20s ease infinite;
+  }
+  
+  .hero-gradient::after {
+    opacity: 0.5;
+  }
+}
