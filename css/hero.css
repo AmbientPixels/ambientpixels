@@ -52,7 +52,7 @@
 .mini-hero {
     position: relative;
     text-align: center;
-    margin-top: 83px; /* Adjusted to match visual alignment with navigation */
+    margin: 83px 0 20px 0; /* Added bottom margin for spacing with breadcrumb */
     width: 100%;
     min-height: 220px;
     display: flex;

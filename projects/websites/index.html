@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="/css/video-player.css" />
   <link rel="stylesheet" href="/css/nova-mood.css" />
   <link rel="stylesheet" href="/css/projects/xbox-video.css" />
+  <link rel="stylesheet" href="/modules/breadcrumb.css" />
   <!-- Project-specific styles are in global CSS files -->
 </head>
 <body data-theme="dark">
@@ -33,14 +34,14 @@
   <header id="nav-header"></header>
 
   <section class="hero-card hero-card-video hero-card-video-container">
-    <div class="hero-card-image video-gradient-8 card-image-container hero-particles-container">
+    <div class="hero-card-image hero-gradient-cosmic card-image-container hero-particles-container">
       <div id="hero-particles" class="hero-particles"></div>
       <div class="hero-video-icon-container xbox-video-icon-wrapper">
-        <i class="fas fa-play-circle hero-video-icon xbox-video-icon" aria-hidden="true"></i>
+        <i class="fas fa-globe-americas hero-video-icon xbox-video-icon" aria-hidden="true"></i>
       </div>
     </div>
     <div class="hero-card-content">
-      <div class="hero-card-badge">Web Development</div>
+      <div class="hero-card-badge badge-cosmic">Web Development</div>
       <h1>Web <span class="video-glow">Development</span> Projects</h1>
       <p class="hero-card-description">A showcase of responsive, user-focused web applications and support portals</p>
       <div class="project-tags">
@@ -53,6 +54,8 @@
   </section>
 
 <main class="grid-container">
+  <!-- Breadcrumb Navigation -->
+  <div class="breadcrumb-container grid-col-12"></div>
   <section class="content-section grid-col-12">
     <h2><i class="fas fa-laptop-code"></i> Web Development Projects</h2>
     <p>Explore a collection of web development projects showcasing support portals, interactive dashboards, and user experiences—each designed with a focus on usability, performance, and clean code.</p>
@@ -61,7 +64,7 @@
     <!-- Xbox Support Website -->
     <section class="grid-col-4 card-section">
       <a href="/projects/websites/xbox-support.html" class="card-image-link" aria-label="View Xbox Support Website">
-        <div class="card-image video-gradient-8 card-image-container">
+        <div class="card-image video-gradient-5 card-image-container">
           <i class="fas fa-laptop-code project-icon" aria-hidden="true"></i>
         </div>
       </a>
@@ -84,7 +87,7 @@
     <!-- Gears of War Support -->
     <section class="grid-col-4 card-section">
       <a href="/projects/websites/gears-of-war-support.html" class="card-image-link" aria-label="View Gears of War Support Website">
-        <div class="card-image hero-gradient-mystic card-image-container">
+        <div class="card-image video-gradient-7 card-image-container">
           <i class="fas fa-laptop-code project-icon" aria-hidden="true"></i>
         </div>
       </a>
@@ -107,7 +110,7 @@
     <!-- Ninja Theory Support -->
     <section class="grid-col-4 card-section">
       <a href="/projects/websites/ninja-theroy-support.html" class="card-image-link" aria-label="View Ninja Theory Support Website">
-        <div class="card-image hero-gradient-mystic card-image-container">
+        <div class="card-image video-gradient-1 card-image-container">
           <i class="fas fa-laptop-code project-icon" aria-hidden="true"></i>
         </div>
       </a>
@@ -130,7 +133,7 @@
     <!-- South of Midnight Support -->
     <section class="grid-col-4 card-section">
       <a href="/projects/websites/south-of-midnight-support.html" class="card-image-link" aria-label="View South of Midnight Support Website">
-        <div class="card-image hero-gradient-mystic card-image-container">
+        <div class="card-image video-gradient-4 card-image-container">
           <i class="fas fa-laptop-code project-icon" aria-hidden="true"></i>
         </div>
       </a>
@@ -153,7 +156,7 @@
     <!-- Microsoft Casual Games Support -->
     <section class="grid-col-4 card-section">
       <a href="/projects/websites/casual-games-support.html" class="card-image-link" aria-label="View Microsoft Casual Games Support Website">
-        <div class="card-image video-gradient-8 card-image-container">
+        <div class="card-image video-gradient-2 card-image-container">
           <i class="fas fa-laptop-code project-icon" aria-hidden="true"></i>
         </div>
       </a>
@@ -176,14 +179,14 @@
     <!-- Grand Central Power BI -->
     <section class="grid-col-4 card-section">
       <a href="/projects/websites/grand-central-power-bi.html" class="card-image-link" aria-label="View Grand Central Power BI Dashboard">
-        <div class="card-image video-gradient-6 card-image-container">
+        <div class="card-image video-gradient-10 card-image-container">
           <i class="fas fa-chart-line project-icon" aria-hidden="true"></i>
         </div>
       </a>
       <div class="card-content">
         <h3><i class="fas fa-database" aria-hidden="true"></i> Grand Central Power BI</h3>
         <div class="role-tags">
-          <span class="role-tag role-dashboard">Dashboard</span>
+          <span class="role-tag badge-ocean">Data</span>
           <span class="role-tag role-analytics">Analytics</span>
           <span class="role-tag role-data">Data Visualization</span>
         </div>
@@ -297,5 +300,7 @@
     });
   </script>
   <script src="/js/main.js" defer></script>
+  <!-- Breadcrumb Script -->
+  <script src="/modules/breadcrumb.js" defer></script>
 </body>
 </html>

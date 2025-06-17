@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/projects.css" />
+  <link rel="stylesheet" href="/modules/breadcrumb.css" />
 </head>
 <body data-theme="dark">
 <div class="banner-container" id="banner-container">
@@ -56,7 +57,10 @@
   </section>
 
 <main class="grid-container">
-  <!-- Xbox Support Projects Section -->
+    <!-- Breadcrumb Navigation -->
+    <div class="breadcrumb-container grid-col-12"></div>
+    
+    <!-- Xbox Support Projects Section -->
   <section class="xbox-section grid-col-12">
     <div class="xbox-section-header">
       <i class="fas fa-gamepad"></i>
@@ -302,7 +306,9 @@
 
 
 
-  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/init-header-footer.js"></script>
+  <!-- Breadcrumb Script -->
+  <script src="/modules/breadcrumb.js"></script>
   <script src="/js/dreamEngine.js" defer></script>
   <script src="/js/init-quotes.js" defer></script>
   <script src="/js/modal-window.js" defer></script>

@@ -247,19 +247,8 @@
 /* ===== Hero Card ===== */
 
 /* Xbox Hero Card */
-.hero-card-xbox .hero-card-image,
-.card-image-container-xbox {
-  background: linear-gradient(135deg, #107C10 0%, #0a4b0a 100%);
-  position: relative;
-  overflow: visible;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .hero-card-xbox .hero-card-image {
   min-height: 300px;
-  background: linear-gradient(135deg, #107C10 0%, #0a4b0a 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -334,14 +323,15 @@
   overflow: hidden;
 }
 
+/* Base hero card video styles - moved to be less specific */
 .hero-card-video .hero-card-image {
-  background: linear-gradient(135deg, #0a3a4a 0%, #0a1a26 100%);
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 300px;
+  /* Gradient is now controlled by hero-gradient-* classes */
 }
 
 .hero-video-icon {
@@ -402,21 +392,23 @@
   pointer-events: auto;
 }
 
+/* Base badge styles - keep only structural properties */
 .hero-card-video .hero-card-badge {
   position: relative;
   z-index: 3;
-  position: relative;
-  z-index: 3;
-  background: #0a3a4a;
-  color: white;
   font-weight: 600;
   letter-spacing: 0.05em;
-  /* text-transform: uppercase; */
   font-size: 0.8rem;
   padding: 0.35rem 0.8rem;
   border-radius: 4px;
   display: inline-block;
   margin-bottom: 1rem;
+}
+
+/* Default badge theme - can be overridden by theme classes */
+.hero-card-video .hero-card-badge:not([class*="badge-"]) {
+  background: #0a3a4a;
+  color: white;
   box-shadow: 0 2px 8px rgba(16,124,16,0.2);
 }
 
@@ -2273,9 +2265,14 @@ body[data-theme="light"] .project-section:hover {
 }
 
 /* 22. Strategy */
+.hero-card.hero-card-video .hero-card-image.hero-gradient-strategy,
 .hero-gradient-strategy {
-  background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+  background: linear-gradient(135deg, #3a7bd5, #00d2ff) !important;
   --glow-color: rgba(0, 191, 255, 0.4);
+  background-size: 200% 200% !important;
+  animation: gradientShift 15s ease infinite !important;
+  position: relative;
+  z-index: 1;
 }
 
 /* 23. Arcade */
@@ -2378,6 +2375,63 @@ body[data-theme="light"] .project-section:hover {
 .hero-gradient-solid-slate {
   background: linear-gradient(135deg, #2f4f4f, #2d3436);
   --glow-color: rgba(47, 79, 79, 0.5);
+}
+
+/* ===== Badge Color Variations ===== */
+.badge-cosmic { background-color: rgba(116, 0, 184, 0.12); color: #e2b3ff; border: 1px solid rgba(138, 43, 226, 0.3); }
+.badge-ocean { background-color: rgba(0, 105, 148, 0.12); color: #a3e0ff; border: 1px solid rgba(0, 191, 255, 0.3); }
+.badge-sunset { background-color: rgba(255, 107, 0, 0.12); color: #ffd1a4; border: 1px solid rgba(255, 165, 0, 0.3); }
+.badge-violet { background-color: rgba(147, 51, 234, 0.12); color: #d9b3ff; border: 1px solid rgba(186, 85, 211, 0.3); }
+.badge-emerald { background-color: rgba(16, 185, 129, 0.12); color: #a7f3d0; border: 1px solid rgba(46, 213, 115, 0.3); }
+.badge-crimson { background-color: rgba(220, 38, 38, 0.12); color: #fecaca; border: 1px solid rgba(248, 113, 113, 0.3); }
+.badge-midnight { background-color: rgba(30, 41, 59, 0.15); color: #cbd5e1; border: 1px solid #475569; }
+.badge-aurora { background-color: rgba(59, 130, 246, 0.12); color: #bfdbfe; border: 1px solid rgba(59, 130, 246, 0.3); }
+.badge-royal { background-color: rgba(79, 70, 229, 0.12); color: #c7d2fe; border: 1px solid rgba(99, 102, 241, 0.3); }
+.badge-mystic { background-color: rgba(139, 92, 246, 0.12); color: #ddd6fe; border: 1px solid rgba(139, 92, 246, 0.3); }
+.badge-rainbow { background-color: rgba(99, 102, 241, 0.12); color: #c7d2fe; border: 1px solid rgba(99, 102, 241, 0.3); }
+.badge-action { background-color: rgba(220, 38, 38, 0.12); color: #fecaca; border: 1px solid rgba(248, 113, 113, 0.3); }
+.badge-fantasy { background-color: rgba(139, 92, 246, 0.12); color: #e2d6ff; border: 1px solid rgba(167, 139, 250, 0.3); }
+.badge-casual { background-color: rgba(16, 185, 129, 0.12); color: #a7f3d0; border: 1px solid rgba(46, 213, 115, 0.3); }
+.badge-scifi { background-color: rgba(59, 130, 246, 0.12); color: #bfdbfe; border: 1px solid rgba(96, 165, 250, 0.3); }
+.badge-horror { background-color: rgba(220, 38, 38, 0.15); color: #fecaca; border: 1px solid rgba(220, 38, 38, 0.3); }
+.badge-puzzle { background-color: rgba(245, 158, 11, 0.12); color: #fed7aa; border: 1px solid rgba(251, 191, 36, 0.3); }
+.badge-rpg { background-color: rgba(139, 92, 246, 0.12); color: #e2d6ff; border: 1px solid rgba(167, 139, 250, 0.3); }
+.badge-sports { background-color: rgba(16, 185, 129, 0.12); color: #a7f3d0; border: 1px solid rgba(46, 213, 115, 0.3); }
+.badge-retro { background-color: rgba(245, 158, 11, 0.12); color: #fef08a; border: 1px solid rgba(251, 191, 36, 0.3); }
+.badge-adventure { background-color: rgba(5, 150, 105, 0.12); color: #a7f3d0; border: 1px solid rgba(16, 185, 129, 0.3); }
+.badge-strategy { background-color: rgba(59, 130, 246, 0.12); color: #bfdbfe; border: 1px solid rgba(96, 165, 250, 0.3); }
+.badge-arcade { background-color: rgba(245, 158, 11, 0.12); color: #fef08a; border: 1px solid rgba(251, 191, 36, 0.3); }
+.badge-simulation { background-color: rgba(59, 130, 246, 0.12); color: #bfdbfe; border: 1px solid rgba(96, 165, 250, 0.3); }
+.badge-party { background-color: rgba(236, 72, 153, 0.12); color: #fbcfe8; border: 1px solid rgba(236, 72, 153, 0.3); }
+.badge-xbox-dark { background-color: rgba(16, 124, 16, 0.15); color: #bbf7d0; border: 1px solid rgba(34, 197, 94, 0.3); }
+.badge-xbox-light { background-color: rgba(34, 197, 94, 0.12); color: #bbf7d0; border: 1px solid rgba(74, 222, 128, 0.3); }
+.badge-solid-blue { background-color: rgba(59, 130, 246, 0.12); color: #bfdbfe; border: 1px solid rgba(96, 165, 250, 0.3); }
+.badge-solid-red { background-color: rgba(220, 38, 38, 0.12); color: #fecaca; border: 1px solid rgba(248, 113, 113, 0.3); }
+.badge-solid-purple { background-color: rgba(139, 92, 246, 0.12); color: #e2d6ff; border: 1px solid rgba(167, 139, 250, 0.3); }
+.badge-solid-gold { background-color: rgba(245, 158, 11, 0.15); color: #fef08a; border: 1px solid rgba(251, 191, 36, 0.3); }
+.badge-solid-orange { background-color: rgba(249, 115, 22, 0.12); color: #fed7aa; border: 1px solid rgba(251, 146, 60, 0.3); }
+.badge-solid-teal { background-color: rgba(20, 184, 166, 0.12); color: #99f6e4; border: 1px solid rgba(45, 212, 191, 0.3); }
+.badge-solid-pink { background-color: rgba(236, 72, 153, 0.12); color: #fbcfe8; border: 1px solid rgba(244, 114, 182, 0.3); }
+.badge-solid-slate { background-color: rgba(100, 116, 139, 0.12); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, 0.3); }
+
+/* Hover effects for badges */
+[class^="badge-"]:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Base badge styles */
+.hero-card-badge {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  letter-spacing: 0.08em;
+  transition: all 0.2s ease-in-out;
 }
 
 /* Hero Gradients - Consistent Application */

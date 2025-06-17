@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/projects.css" />
+  <link rel="stylesheet" href="/modules/breadcrumb.css" />
   <!-- All styles moved to components.css -->
 </head>
 <body data-theme="dark">
@@ -38,6 +39,9 @@
   </section>
 
   <main class="grid-container">
+    <!-- Breadcrumb Navigation -->
+    <div class="breadcrumb-container grid-col-12"></div>
+    
     <section class="content-section grid-col-12">
       <h2>Mystical & Cybernetic Characters</h2>
       <p>Step into a gallery of extraordinary beings, where each character tells a story through their unique presence. This collection brings together 18 meticulously crafted AI-generated portraits, ranging from celestial deities to cybernetic entities, each rendered in stunning detail.</p>
@@ -260,6 +264,9 @@
       window.bannerConfig = { enabled: false };
     }
   </script>
+  
+  <!-- Breadcrumb Script -->
+  <script src="/modules/breadcrumb.js"></script>
   
   <script src="/js/init-header-footer.js"></script>
   <script src="/js/theme.js"></script>

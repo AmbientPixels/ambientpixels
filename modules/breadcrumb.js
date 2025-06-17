@@ -54,16 +54,27 @@ document.addEventListener('DOMContentLoaded', function() {
     currentPath += `/${segment}`;
     const isLast = index === segments.length - 1;
     
-    // Format display text (replace hyphens with spaces, capitalize words)
-    let displayText = segment
-      .replace(/-/g, ' ')
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
+    // Format display text
+    let displayText;
     
-    // Special case for 'video' to make it plural
-    if (segment === 'video') {
-      displayText = 'Videos';
+    // If this is the last segment and it's an index page, use the page title
+    if (isLast && (segment === 'index' || segment === '')) {
+      // Get the page title and clean it up
+      const pageTitle = document.querySelector('h1')?.textContent || 
+                      document.title.replace(/\s*\|.*$/, '').trim();
+      displayText = pageTitle;
+    } else {
+      // Format segment (replace hyphens with spaces, capitalize words)
+      displayText = segment
+        .replace(/-/g, ' ')
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+      
+      // Special case for 'video' to make it plural
+      if (segment === 'video') {
+        displayText = 'Videos';
+      }
     }
     
     // Create list item
