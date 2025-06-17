@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "0a0a82c4-0045-4307-8a90-6c92b2c3f0cc",
-      "hash": "127a1b372cd861fc56c293f1e0fc1c36181ba3d3",
-      "message": "feat: reorder featured projects and update resume layout",
-      "timestamp": "2025-06-16 02:08:24 -0700",
+      "id": "94061d15-715c-43f0-8d9e-fd794ef90cf9",
+      "hash": "c857e7c211a14bdca63b283da88f17b87dbd56f9",
+      "message": "fix: Update project card images and fix layout",
+      "timestamp": "2025-06-17 00:25:28 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/127a1b372cd861fc56c293f1e0fc1c36181ba3d3"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/c857e7c211a14bdca63b283da88f17b87dbd56f9"
     }
   ],
-  "timestamp": "2025-06-16T13:35:20.935Z",
+  "timestamp": "2025-06-17T13:33:55.368Z",
   "count": 1,
-  "scanId": 1750080920935
+  "scanId": 1750167235368
 }
