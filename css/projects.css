@@ -480,6 +480,79 @@
 }
 .video-gradient-9 { background: linear-gradient(135deg, #7b4397, #dc2430); --glow-color: rgba(220, 36, 48, 0.4); }
 .video-gradient-10 { background: linear-gradient(135deg, #1a2980, #26d0ce); --glow-color: rgba(38, 208, 206, 0.4); }
+.video-gradient-xbox { 
+  background: linear-gradient(135deg, #5dc21e, #107c10) !important; 
+  --glow-color: rgba(93, 194, 30, 0.4);
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+/* Card Image Container */
+.card-image {
+  height: 180px; /* Fixed height for all card images */
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Reset background for all card images */
+.card-image {
+  background: #000;
+}
+
+/* Gradient Backgrounds - Direct application */
+.video-gradient-1 { background: linear-gradient(135deg, #8e2de2, #4a00e0) !important; }
+.video-gradient-2 { background: linear-gradient(135deg, #00b09b, #96c93d) !important; }
+.video-gradient-3 { background: linear-gradient(135deg, #ff416c, #ff4b2b) !important; }
+.video-gradient-4 { background: linear-gradient(135deg, #654ea3, #eaafc8) !important; }
+.video-gradient-5 { background: linear-gradient(135deg, #11998e, #38ef7d) !important; }
+.video-gradient-6 { background: linear-gradient(135deg, #8E2DE2, #4A00E0) !important; }
+.video-gradient-7 { background: linear-gradient(135deg, #00c6ff, #0072ff) !important; }
+.video-gradient-8 { background: linear-gradient(135deg, #0a3a4a, #0a1a26) !important; }
+.video-gradient-9 { background: linear-gradient(135deg, #7b4397, #dc2430) !important; }
+.video-gradient-10 { background: linear-gradient(135deg, #1a2980, #26d0ce) !important; }
+.video-gradient-xbox { background: linear-gradient(135deg, #5dc21e, #107c10) !important; }
+
+/* Game Card with Logo */
+.game-card-image {
+  background: #000;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 180px; /* Match other card heights */
+  overflow: hidden;
+}
+
+.game-card-image img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+}
+
+/* Game Card with Hero Image */
+.game-hero-image {
+  background: #000;
+  padding: 0;
+}
+
+.game-hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+/* Project Icon */
+.project-icon {
+  font-size: 3rem;
+  color: rgba(255, 255, 255, 0.8);
+}
 
 .hero-card {
   background: #0a0a0a;
