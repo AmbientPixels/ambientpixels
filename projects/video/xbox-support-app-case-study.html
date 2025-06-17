@@ -25,6 +25,7 @@
   <link rel="stylesheet" href="/css/projects.css" />
   <link rel="stylesheet" href="/css/projects/xbox-support-app.css" />
   <link rel="stylesheet" href="/css/projects/video-projects.css" />
+  <link rel="stylesheet" href="/modules/breadcrumb.css" />
 </head>
 <body data-theme="dark">
   <div id="banner-container"></div>
@@ -47,6 +48,10 @@
   </section>
 
   <main class="grid-container">
+    <!-- Breadcrumb Navigation -->
+    <div class="breadcrumb-container grid-col-12">
+      <!-- Breadcrumb will be injected here by breadcrumb.js -->
+    </div>
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-info-circle"></i> Project Overview</h2>
       <p>The Xbox Support App brings comprehensive support resources directly to the console experience. This integrated solution allows players to access help content without leaving their game, with features like QR code sharing for mobile viewing, real-time service status updates, and intelligent topic organization.</p>
@@ -437,6 +442,8 @@
 
   <div id="footer-container"></div>
 
+  <!-- Breadcrumb Scripts -->
+  <script src="/modules/breadcrumb.js" defer></script>
   <script src="/js/init-header-footer.js"></script>
   <script src="/js/theme.js"></script>
   <script src="/js/lightbox.js" type="module"></script>

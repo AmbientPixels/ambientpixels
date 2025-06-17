@@ -1,0 +1,111 @@
+/* Breadcrumb Navigation */
+.breadcrumb-container {
+  grid-column: 1 / -1;
+  margin: 0 0 1rem;
+  padding: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.breadcrumb-nav {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.breadcrumb-list {
+  margin: 0;
+  padding: 0;
+}
+
+.breadcrumb-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  align-items: center;
+}
+
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.breadcrumb-item:not(:last-child)::after {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+  margin-left: 0.5rem;
+  border-style: dashed;
+  border-width: 0 0 1px 0;
+}
+
+.breadcrumb-link,
+.breadcrumb-current {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-secondary, #4a5568);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.breadcrumb-link:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--text-primary, #1a202c);
+  transform: translateY(-1px);
+}
+
+.breadcrumb-current {
+  background: var(--primary-color, #4f46e5);
+  color: white;
+  border-color: transparent;
+  font-weight: 500;
+}
+
+/* Light theme specific styles */
+[data-theme="light"] .breadcrumb-link {
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--text-secondary, #4a5568);
+}
+
+[data-theme="light"] .breadcrumb-link:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--text-primary, #1a202c);
+}
+
+/* Dark theme specific styles */
+[data-theme="dark"] .breadcrumb-link {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary, #a0aec0);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .breadcrumb-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary, #f7fafc);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .breadcrumb-nav {
+    padding: 0 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .breadcrumb-link,
+  .breadcrumb-current {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+}
