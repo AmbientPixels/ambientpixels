@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Video Portfolio - A curated collection of motion design, tutorials, and interactive media projects by AmbientPixels" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Video Hub | Motion & Interactive Media - AmbientPixels</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/projects.css" />
+  <link rel="stylesheet" href="/css/video-player.css" />
+  <link rel="stylesheet" href="/css/nova-mood.css" />
+  <link rel="stylesheet" href="/css/projects/xbox-video.css" />
+  <link rel="stylesheet" href="/modules/breadcrumb.css" />
+  <!-- Project-specific styles are in global CSS files -->
+</head>
+<body data-theme="dark">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-image banner-icon"></i>
+      <span>New image packs coming soon! Check back for updates.</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
+
+  <header id="nav-header"></header>
+
+  <section class="hero-card hero-card-video hero-card-video-container">
+    <div class="hero-card-image video-gradient-1 card-image-container hero-particles-container">
+      <div id="hero-particles" class="hero-particles"></div>
+      <div class="hero-video-icon-container xbox-video-icon-wrapper">
+        <i class="fas fa-play-circle hero-video-icon xbox-video-icon" aria-hidden="true"></i>
+      </div>
+    </div>
+    <div class="hero-card-content">
+      <div class="hero-card-badge" style="background: linear-gradient(135deg, #8e2de2, #4a00e0);"><i class="fas fa-play-circle"></i> Play Reel</div>
+      <h1>Video <span class="video-glow">Portfolio</span></h1>
+      <p class="hero-card-description">Telling stories through motion, interaction, and visual rhythm</p>
+      <div class="project-tags">
+        <span class="project-tag"><i class="fas fa-film" aria-hidden="true"></i> Motion Design</span>
+        <span class="project-tag"><i class="fas fa-gamepad" aria-hidden="true"></i> Game UI/UX</span>
+        <span class="project-tag"><i class="fas fa-code" aria-hidden="true"></i> Interactive</span>
+      </div>
+    </div>
+
+  </section>
+
+<main class="grid-container">
+    <!-- Breadcrumb Navigation -->
+    <div class="breadcrumb-container"></div>
+    
+    <section class="content-section grid-col-12 mb-4">
+      <h2><i class="fas fa-film"></i> Featured Projects</h2>
+      <p>Explore a curated selection of motion design and interactive media projects. Each piece combines technical expertise with creative vision to deliver engaging user experiences.</p>
+    </section>
+
+    <!-- Motion Design Projects -->
+    <section class="content-section grid-col-12 mb-4">
+      <h2><i class="fas fa-film"></i> Motion Design</h2>
+      <p>Animated content that brings concepts to life through fluid motion and engaging visuals.</p>
+    </section>
+
+    <!-- Ninja Theory Help Center Video -->
+    <section class="grid-col-4 card-section mb-3">
+      <a href="/projects/video/ninja-theory-help-center.html" class="card-image-link" aria-label="View Ninja Theory Help Center">
+        <div class="card-image video-gradient-8 card-image-container">
+          <i class="fas fa-video project-icon" aria-hidden="true"></i>
+          <span class="video-duration-badge">
+            <i class="far fa-clock"></i> 3:42
+          </span>
+        </div>
+      </a>
+      <div class="card-content">
+        <h3><i class="fas fa-video" aria-hidden="true"></i> Ninja Theory Help Center</h3>
+        <div class="role-tags">
+          <span class="role-tag role-animation"><i class="fas fa-film"></i> Motion</span>
+          <span class="role-tag role-voice"><i class="fas fa-robot"></i> AI Voice</span>
+          <span class="role-tag role-branding"><i class="fas fa-paint-brush"></i> Branding</span>
+        </div>
+        <p>Animated showcase of the Ninja Theory Help Center, highlighting key support features and accessibility options.</p>
+        <div class="card-cta-container">
+          <button class="btn btn-primary" onclick="showVideoModal('ninja-theory-help-center')" aria-label="Watch Ninja Theory Help Center video">
+            <i class="fas fa-play" aria-hidden="true"></i> Watch Video
+          </button>
+          <a href="/projects/video/ninja-theory-help-center.html" class="btn btn-secondary" aria-label="View Ninja Theory Help Center case study">
+            <i class="fas fa-info-circle" aria-hidden="true"></i> Case Study
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Xbox Support App Case Study -->
+    <section class="grid-col-4 card-section mb-3">
+      <a href="/projects/video/xbox-support-app-case-study.html" class="card-image-link" aria-label="View Xbox Support App Case Study">
+        <div class="card-image video-gradient-xbox card-image-container">
+          <i class="fas fa-mobile-alt project-icon" aria-hidden="true"></i>
+          <span class="video-duration-badge">
+            <i class="far fa-clock"></i> 2:50
+          </span>
+        </div>
+      </a>
+      <div class="card-content">
+        <h3><i class="fas fa-gamepad" aria-hidden="true"></i> Xbox Support App</h3>
+        <div class="role-tags">
+          <span class="role-tag role-animation"><i class="fas fa-film"></i> Motion</span>
+          <span class="role-tag role-uiux"><i class="fas fa-mobile-alt"></i> UI/UX</span>
+          <span class="role-tag role-voice"><i class="fas fa-robot"></i> AI Voice</span>
+          <span class="role-tag role-training"><i class="fas fa-graduation-cap"></i> Training</span>
+        </div>
+        <p>On-console support experience providing instant access to help resources and troubleshooting for Xbox users.</p>
+        <div class="card-cta-container">
+          <button class="btn btn-primary" onclick="showVideoModal('xbox-support-app')" aria-label="Watch Xbox Support App video">
+            <i class="fas fa-play" aria-hidden="true"></i> Watch Video
+          </button>
+          <a href="/projects/video/xbox-support-app-case-study.html" class="btn btn-secondary" aria-label="View Xbox Support App case study">
+            <i class="fas fa-info-circle" aria-hidden="true"></i> Case Study
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Copilot Playground -->
+    <section class="grid-col-4 card-section mb-3">
+      <div class="coming-soon-overlay">Coming Soon</div>
+      <div class="card-image video-gradient-6 card-image-container">
+        <i class="fas fa-robot project-icon" aria-hidden="true"></i>
+        <span class="video-duration-badge">
+          <i class="far fa-clock"></i> 2:30
+        </span>
+      </div>
+      <div class="card-content">
+        <h3><i class="fas fa-robot" aria-hidden="true"></i> Copilot Playground</h3>
+        <div class="role-tags">
+          <span class="role-tag role-experimental"><i class="fas fa-flask"></i> Experimental</span>
+          <span class="role-tag role-devops"><i class="fas fa-code-branch"></i> DevOps</span>
+          <span class="role-tag role-voice"><i class="fas fa-robot"></i> AI Voice</span>
+          <span class="role-tag role-uiux"><i class="fas fa-desktop"></i> UI/UX</span>
+          <span class="role-tag role-training"><i class="fas fa-graduation-cap"></i> Training</span>
+        </div>
+        <p>AI-driven support prompt chains for gaming help, localization, and content enhancement across 40+ languages.</p>
+        <div class="card-cta-container">
+          <button class="btn btn-primary" disabled aria-label="Video coming soon">
+            <i class="fas fa-play" aria-hidden="true"></i> Coming Soon
+          </button>
+          <button class="btn btn-secondary" disabled aria-label="Case study coming soon">
+            <i class="fas fa-info-circle" aria-hidden="true"></i> Coming Soon
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Note: Interactive Media section removed as it had no content after removing duplicate Xbox Support App -->
+
+    <!-- Related Projects Section -->
+    <section class="project-section grid-col-12">
+      <h2><i class="fas fa-link"></i> Related Projects</h2>
+      <div class="related-projects">
+        <div class="related-project-card">
+          <a href="/projects/websites/xbox-support.html">
+            <i class="fas fa-headset"></i> Xbox Support
+          </a>
+          <p>Comprehensive support portal for Xbox users and developers</p>
+        </div>
+        <div class="related-project-card">
+          <a href="/projects/websites/gears-of-war-support.html">
+            <i class="fas fa-gamepad"></i> Gears of War Support
+          </a>
+          <p>Dedicated support site for the Gears of War franchise</p>
+        </div>
+        <div class="related-project-card">
+          <a href="/projects/websites/ninja-theory-support.html">
+            <i class="fas fa-headset"></i> Ninja Theory Support
+          </a>
+          <p>Support hub for Ninja Theory's game titles and resources</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="project-section grid-col-12">
+      <h2><i class="fas fa-sitemap"></i> Project Hubs</h2>
+      <div class="related-projects">
+        <div class="related-project-card">
+          <a href="/projects/index.html">
+            <i class="fas fa-home"></i> Main Projects Hub
+          </a>
+          <p>Explore all projects and experiments from the studio</p>
+        </div>
+        <div class="related-project-card">
+          <a href="/projects/xbox-support.html">
+            <i class="fab fa-xbox"></i> Xbox Support Hub
+          </a>
+          <p>All Xbox-related support projects and resources</p>
+        </div>
+        <div class="related-project-card">
+          <a href="/about/index.html">
+            <i class="fas fa-user"></i> About Me
+          </a>
+          <p>Learn more about my background and experience</p>
+        </div>
+      </div>
+      
+      <!-- Nova Thought Quote -->
+      <section class="nova-quote-section content-section grid-col-12">
+        <div class="nova-thought aura-cyan">
+          <div class="nova-quote-content">
+            <p class="nova-quote-text">
+              "In motion, we find truth. Every frame, every transition, every interaction—each is a conversation between creator and viewer, a dance of intention and perception."
+            </p>
+            <p class="nova-signature">
+              <i class="fas fa-robot nova-robot-icon"></i> Nova, Ambient Intelligence
+            </p>
+          </div>
+          <div class="nova-aura-overlay"></div>
+        </div>
+      </section>
+      
+  </main>
+
+  <div id="footer-container"></div>
+  
+  <!-- Breadcrumb Script -->
+  <script src="/modules/breadcrumb.js"></script>
+  
+  <!-- Contact Modal Container -->
+  <!-- Modal Container -->
+  <div id="contact-modal-container">
+    <!-- Contact modal will be loaded here by init-contact-modal.js -->
+  </div>
+
+  <script src="/js/hero-particles.js" defer></script>
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/dreamEngine.js" defer></script>
+  <script src="/js/init-quotes.js" defer></script>
+  <script src="/js/modal-window.js" defer></script>
+  <script src="/js/init-contact-modal.js" defer></script>
+  <script src="/js/video-modal.js" defer></script>
+  <script>
+    // Initialize any additional event listeners after DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Handle contact modal trigger
+      const suggestBtn = document.querySelector('a[onclick*="showModal"]');
+      if (suggestBtn) {
+        suggestBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          showModal('contact-modal');
+        });
+      }
+
+      // Add ARIA attributes to all buttons with icons
+      document.querySelectorAll('button, a.btn').forEach(btn => {
+        const icon = btn.querySelector('i[class^="fas"]');
+        if (icon && !btn.getAttribute('aria-label')) {
+          const text = btn.textContent.trim();
+          btn.setAttribute('aria-label', text);
+        }
+      });
+    });
+  </script>
+  <script src="/js/main.js" defer></script>
+</body>
+</html>
