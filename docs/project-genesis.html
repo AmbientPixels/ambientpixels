@@ -74,8 +74,11 @@
 
   <div id="footer-container"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
-    injectMarkdown("md-content", "/docs/project-genesis.md");
+    document.addEventListener('DOMContentLoaded', function() {
+      injectMarkdown("md-content", "project-genesis.md");
+    });
   </script>
   <!-- Scripts (Full Load for Dev Mode) -->
   <script src="/js/init-header-footer.js" defer></script>
