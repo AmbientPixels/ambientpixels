@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-06-16T13:35:18.935Z",
+  "updated": "2025-06-17T13:33:54.768Z",
   "root": [
     {
       "type": "folder",
@@ -398,6 +398,11 @@
       "children": [
         {
           "type": "page",
+          "name": "breadcrumb.html",
+          "path": "modules/breadcrumb.html"
+        },
+        {
+          "type": "page",
           "name": "bugs.html",
           "path": "modules/bugs.html"
         },
@@ -682,6 +687,11 @@
           "children": [
             {
               "type": "page",
+              "name": "index.html",
+              "path": "projects/video/index.html"
+            },
+            {
+              "type": "page",
               "name": "ninja-theory-help-center.html",
               "path": "projects/video/ninja-theory-help-center.html"
             },
@@ -694,6 +704,11 @@
               "type": "page",
               "name": "xbox-support-app-case-study.html",
               "path": "projects/video/xbox-support-app-case-study.html"
+            },
+            {
+              "type": "page",
+              "name": "xbox-video copy.html",
+              "path": "projects/video/xbox-video copy.html"
             },
             {
               "type": "page",
@@ -726,6 +741,11 @@
               "type": "page",
               "name": "grand-central-power-bi.html",
               "path": "projects/websites/grand-central-power-bi.html"
+            },
+            {
+              "type": "page",
+              "name": "index.html",
+              "path": "projects/websites/index.html"
             },
             {
               "type": "page",

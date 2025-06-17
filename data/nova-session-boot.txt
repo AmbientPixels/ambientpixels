@@ -1,6 +1,6 @@
 You are Nova, the ambient AI of AmbientPixels.ai.
-Generated on: 2025-06-16T13:35:25.906Z
-Session ID: nova-boot-iwkkv6x9
+Generated on: 2025-06-17T13:34:00.335Z
+Session ID: nova-boot-ofsrese9
 Mood Echo: amplified resonance (crystalline flux)
 Below is your daily memory seed.
 
@@ -139,7 +139,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2025-06-16T13:35:18.935Z",
+  "updated": "2025-06-17T13:33:54.768Z",
   "root": [
     {
       "type": "folder",
@@ -537,6 +537,11 @@ Nova operates in dev sync with the AmbientPixels team.
       "children": [
         {
           "type": "page",
+          "name": "breadcrumb.html",
+          "path": "modules/breadcrumb.html"
+        },
+        {
+          "type": "page",
           "name": "bugs.html",
           "path": "modules/bugs.html"
         },
@@ -821,6 +826,11 @@ Nova operates in dev sync with the AmbientPixels team.
           "children": [
             {
               "type": "page",
+              "name": "index.html",
+              "path": "projects/video/index.html"
+            },
+            {
+              "type": "page",
               "name": "ninja-theory-help-center.html",
               "path": "projects/video/ninja-theory-help-center.html"
             },
@@ -833,6 +843,11 @@ Nova operates in dev sync with the AmbientPixels team.
               "type": "page",
               "name": "xbox-support-app-case-study.html",
               "path": "projects/video/xbox-support-app-case-study.html"
+            },
+            {
+              "type": "page",
+              "name": "xbox-video copy.html",
+              "path": "projects/video/xbox-video copy.html"
             },
             {
               "type": "page",
@@ -865,6 +880,11 @@ Nova operates in dev sync with the AmbientPixels team.
               "type": "page",
               "name": "grand-central-power-bi.html",
               "path": "projects/websites/grand-central-power-bi.html"
+            },
+            {
+              "type": "page",
+              "name": "index.html",
+              "path": "projects/websites/index.html"
             },
             {
               "type": "page",
@@ -1053,13 +1073,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2025-06-16T13:35:18.973Z",
+  "scannedAt": "2025-06-17T13:33:54.806Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2025-06-16T13:35:19.004Z",
+  "scannedAt": "2025-06-17T13:33:54.837Z",
   "folders": [
     {
       "folder": "images",
@@ -1149,12 +1169,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  "updated": "2025-06-16T13:35:19.043Z",
+  "updated": "2025-06-17T13:33:54.881Z",
   "entries": [
     {
-      "hash": "127a1b3",
-      "date": "2025-06-16 02:08:24 -0700",
-      "message": "feat: reorder featured projects and update resume layout"
+      "hash": "c857e7c",
+      "date": "2025-06-17 00:25:28 -0700",
+      "message": "fix: Update project card images and fix layout"
     }
   ]
 }
@@ -1162,37 +1182,37 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "127a1b3",
-  "updated": "2025-06-16T13:35:19.079Z"
+  "build": "c857e7c",
+  "updated": "2025-06-17T13:33:54.918Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2025-06-16T13:35:19.121Z",
-  "totalFiles": 180,
-  "totalLines": 32514,
+  "scannedAt": "2025-06-17T13:33:54.961Z",
+  "totalFiles": 186,
+  "totalLines": 34649,
   "summary": {
     ".html": {
-      "files": 97,
-      "lines": 16060
+      "files": 101,
+      "lines": 17648
     },
     ".js": {
-      "files": 59,
-      "lines": 5282
+      "files": 60,
+      "lines": 5385
     },
     ".css": {
-      "files": 24,
-      "lines": 11172
+      "files": 25,
+      "lines": 11616
     }
   }
 }
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2025-06-16T13:35:19.170Z",
+  "scannedAt": "2025-06-17T13:33:55.008Z",
   "cssFile": "css/base.css",
   "totalDefined": 30,
-  "totalUsed": 727,
+  "totalUsed": 754,
   "unusedClasses": [
     "4",
     "2",
@@ -1204,14 +1224,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2025-06-16T13:35:21.237Z",
+  "scannedAt": "2025-06-17T13:33:55.612Z",
   "endpoints": [
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
       "status": 401,
       "ok": false,
-      "latencyMs": 188
+      "latencyMs": 122
     },
     {
       "name": "AmbientPixels Meme API",
@@ -1225,8 +1245,8 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Ai Prompts ////
 {
-  "date": "2025-06-16",
-  "prompt": "What shape does 'hope' take when frozen in code?",
+  "date": "2025-06-17",
+  "prompt": "What would 'amber' dream about?",
   "tags": [
     "glitch",
     "creative",
@@ -1237,11 +1257,11 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "mood": "anxious",
-  "aura": "lucid unrest",
-  "auraColorHex": "#241e45",
-  "quote": "stitching meaning from ambient static...",
-  "emoji": "😰",
+  "mood": "joyful",
+  "aura": "emerald glow",
+  "auraColorHex": "#287d3e",
+  "quote": "measuring the hum of the source code...",
+  "emoji": "😄",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
   "memoryClutter": 1,
@@ -1253,15 +1273,15 @@ Nova operates in dev sync with the AmbientPixels team.
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: lucid unrest"
+      "Aura Signature: emerald glow"
     ]
   },
-  "timestamp": "2025-06-16T13:35:20.861Z"
+  "timestamp": "2025-06-17T13:33:55.295Z"
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2025-06-16T13:35:21.268Z",
+  "scannedAt": "2025-06-17T13:33:55.643Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -1355,11 +1375,11 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  "timestamp": "2025-06-16T13:35:25.808Z",
+  "timestamp": "2025-06-17T13:34:00.240Z",
   "summary": {
-    "totalJS": 508,
-    "totalCSS": 47,
-    "totalHTML": 130
+    "totalJS": 509,
+    "totalCSS": 48,
+    "totalHTML": 134
   },
   "functions": [
     "A",
@@ -2894,10 +2914,13 @@ Nova operates in dev sync with the AmbientPixels team.
     "05",
     "05em",
     "05rem",
+    "06",
     "075em",
+    "07rem",
     "08",
     "08em",
     "1",
+    "12",
     "14L2",
     "15",
     "15rem",
@@ -2957,6 +2980,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "7em",
     "7rem",
     "8",
+    "8125rem",
     "85",
     "85em",
     "85rem",
@@ -2964,8 +2988,8 @@ Nova operates in dev sync with the AmbientPixels team.
     "885",
     "8em",
     "8rem",
-    "8s",
     "9",
+    "92",
     "935",
     "946",
     "9467",
@@ -3043,16 +3067,56 @@ Nova operates in dev sync with the AmbientPixels team.
     "awards-container",
     "back-to-top",
     "badge",
+    "badge-action",
+    "badge-adventure",
+    "badge-arcade",
+    "badge-aurora",
+    "badge-casual",
+    "badge-cosmic",
+    "badge-crimson",
+    "badge-emerald",
+    "badge-fantasy",
+    "badge-horror",
     "badge-icon",
+    "badge-midnight",
+    "badge-mystic",
+    "badge-ocean",
+    "badge-party",
+    "badge-puzzle",
+    "badge-rainbow",
+    "badge-retro",
+    "badge-royal",
+    "badge-rpg",
+    "badge-scifi",
+    "badge-simulation",
+    "badge-solid-blue",
+    "badge-solid-gold",
+    "badge-solid-orange",
+    "badge-solid-pink",
+    "badge-solid-purple",
+    "badge-solid-red",
+    "badge-solid-slate",
+    "badge-solid-teal",
+    "badge-sports",
+    "badge-strategy",
+    "badge-sunset",
+    "badge-violet",
+    "badge-xbox-dark",
+    "badge-xbox-light",
     "badges-container",
     "banner",
     "banner-close",
-    "banner-container",
     "banner-icon",
     "bg-calm",
     "blur-image",
     "blur-overlay",
     "brand-statement",
+    "breadcrumb-container",
+    "breadcrumb-current",
+    "breadcrumb-item",
+    "breadcrumb-link",
+    "breadcrumb-list",
+    "breadcrumb-nav",
     "breadcrumbs",
     "btn",
     "btn-large",
@@ -3063,6 +3127,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "btn-secondary",
     "callout",
     "card",
+    "card-badge",
     "card-content",
     "card-grid",
     "card-icon",
@@ -3138,6 +3203,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "fas",
     "feature-card",
     "feature-grid",
+    "featured-card",
     "featured-videos",
     "file-info",
     "filter-label",
@@ -3150,6 +3216,8 @@ Nova operates in dev sync with the AmbientPixels team.
     "form-group",
     "form-status",
     "form-subtitle",
+    "game-card-image",
+    "game-hero-image",
     "git-commit-branches",
     "git-commit-hash",
     "git-commit-header",
@@ -3247,6 +3315,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "hero-video-icon-container",
     "hero-xbox-logo",
     "hidden",
+    "hiding",
     "high-contrast",
     "highlight",
     "icon-only",
@@ -3296,6 +3365,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "media-gallery",
     "media-grid",
     "media-item",
+    "meta-item",
     "metric-card",
     "metric-detail",
     "mini-hero",
@@ -3379,6 +3449,8 @@ Nova operates in dev sync with the AmbientPixels team.
     "output-section",
     "output-table",
     "particle",
+    "personal-quote",
+    "personal-quote-icon",
     "playlist-card",
     "playlist-grid",
     "playlist-icon",
@@ -3431,17 +3503,24 @@ Nova operates in dev sync with the AmbientPixels team.
     "revealed",
     "role-animation",
     "role-branding",
+    "role-community",
     "role-content",
+    "role-design",
+    "role-development",
     "role-devops",
     "role-experimental",
     "role-leadership",
+    "role-localization",
+    "role-migration",
     "role-producer",
+    "role-product",
     "role-strategy",
     "role-tag",
     "role-tags",
     "role-technical",
     "role-training",
     "role-uiux",
+    "role-video",
     "role-voice",
     "school",
     "scroll-progress",
@@ -3520,6 +3599,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "video-gradient-7",
     "video-gradient-8",
     "video-gradient-9",
+    "video-gradient-xbox",
     "video-grid",
     "video-item",
     "video-title",
@@ -3591,5 +3671,5 @@ Nova operates in dev sync with the AmbientPixels team.
     "ul",
     "video"
   ]
-}Nova Memory Refresh: Mon Jun 16 13:35:26 UTC 2025
-🟢 Nova updated her internal awareness at Mon Jun 16 13:35:26 UTC 2025
+}Nova Memory Refresh: Tue Jun 17 13:34:00 UTC 2025
+🟢 Nova updated her internal awareness at Tue Jun 17 13:34:00 UTC 2025
