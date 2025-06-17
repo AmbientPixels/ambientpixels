@@ -266,7 +266,7 @@
 }
 
 /* Xbox Video Icon Styles */
-.xbox-video-icon-wrapper {
+.hero-video-icon-container.xbox-video-icon-wrapper {
   position: absolute;
   top: 0;
   left: 0;
@@ -275,15 +275,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
+  z-index: 100;
   pointer-events: none;
   /* Create a new stacking context */
   transform: translateZ(0);
 }
 
-.xbox-video-icon {
+.hero-video-icon.xbox-video-icon {
   position: relative;
-  z-index: 11;
+  z-index: 101;
   pointer-events: auto;
   font-size: 12rem;
   color: rgba(255, 255, 255, 0.95);
