@@ -1289,6 +1289,17 @@ h2 {
   font-size: 0.9em;
 }
 
+/* AI Role Tag */
+.role-tag.role-ai {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.role-tag.role-ai:hover {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
 /* Video Role Tag */
 .role-tag.role-video {
   background: rgba(198, 120, 221, 0.1);
