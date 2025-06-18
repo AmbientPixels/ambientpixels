@@ -1,72 +1,333 @@
-/* File: /css/projects.css - Ambient Pixels v2.3 - June 14, 2025 */
+/* File: /css/projects.css - Ambient Pixels v2.3 - June 18, 2025 */
+/* ===== Section Divider ===== */
+.section-divider {
+  position: relative;
+  height: 2px;
+  width: 100vw;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  border: 0;
+  overflow: hidden;
+  background: transparent;
+  grid-column: 1 / -1;
+  margin-bottom: 1.4em;
+}
 
-/* ===== Bullet List Variants ===== */
+.section-divider::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    var(--accent-color, #4bcaff) 40%, 
+    var(--accent-color, #4bcaff) 60%, 
+    transparent 100%);
+  opacity: 0;
+  animation: dividerPulse 6s ease-in-out infinite;
+  filter: blur(1px);
+}
 
-/* Option A: Icon Bullets */
+.section-divider::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    var(--accent-color, #4bcaff) 45%, 
+    var(--accent-color, #4bcaff) 55%, 
+    transparent 100%);
+  opacity: 0;
+  animation: dividerGlow 4s ease-in-out infinite 0.5s;
+  filter: blur(2px);
+}
+
+@keyframes dividerPulse {
+  0%, 100% { 
+    opacity: 0;
+    transform: scaleX(0.8);
+  }
+  50% { 
+    opacity: 0.3;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes dividerGlow {
+  0%, 100% { 
+    opacity: 0;
+    transform: scaleX(0.9);
+  }
+  50% { 
+    opacity: 0.5;
+    transform: scaleX(1.1);
+  }
+}
+
+/* ===== List Style Reset ===== */
+ul, ol, li {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Remove any default list markers */
+ul, ol {
+  list-style-type: none !important;
+}
+
+ul li::before, ol li::before {
+  display: none !important;
+  content: "" !important;
+}
+
+/* ===== Bullet Cards ===== */
+.bullet-cards {
+  display: grid;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.bullet-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 3px solid var(--accent-color, #4bcaff);
+  border-radius: 0 6px 6px 0;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.bullet-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    rgba(75, 202, 255, 0.03) 0%, 
+    rgba(75, 202, 255, 0.01) 50%, 
+    transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.bullet-card:hover {
+  transform: translateX(4px);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.bullet-card:hover::before {
+  opacity: 1;
+}
+
+.bullet-icon {
+  color: var(--accent-color, #4bcaff);
+  font-size: 1.1em;
+  background: rgba(75, 202, 255, 0.1);
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.bullet-card:hover .bullet-icon {
+  transform: rotate(8deg) scale(1.1);
+  background: rgba(75, 202, 255, 0.15);
+}
+
+.bullet-content {
+  flex: 1;
+}
+
+.bullet-content strong {
+  display: block;
+  color: var(--accent-color, #4bcaff);
+  margin-bottom: 0.5rem;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.bullet-content p {
+  margin: 0;
+  color: #e0e0e0;
+  line-height: 1.6;
+  font-size: 0.98em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .bullet-cards {
+    gap: 0.85rem;
+    margin: 1.75rem 0;
+  }
+  
+  .bullet-card {
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 1.1rem;
+  }
+  
+  .bullet-icon {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1em;
+  }
+  
+  .bullet-content strong {
+    margin-bottom: 0.35rem;
+  }
+}
+
+/* ===== Option A: Icon Bullets ===== */
 .icon-bullets {
-  list-style: none;
+  margin: 1.5rem 0 1.75rem;
   padding: 0;
-  margin: 1.5rem 0 2.5rem;
 }
 
 .icon-bullets li {
   position: relative;
-  padding-left: 2.5rem;
-  margin-bottom: 1.25rem;
+  padding-left: 2.25rem;
+  margin-bottom: 1rem;
   line-height: 1.6;
-  color: var(--text-primary);
-  list-style-type: none; /* Ensure no default bullets */
+  list-style: none !important;
 }
 
 .icon-bullets li i {
   position: absolute;
   left: 0;
-  top: 0.25rem;
+  top: 0.15em;
   color: var(--accent-color, #4bcaff);
   width: 1.5rem;
   text-align: center;
   font-size: 1.1em;
-  transition: transform 0.3s ease, color 0.3s ease;
-  display: inline-block;
+  transition: all 0.25s ease;
+  opacity: 0.9;
 }
 
 .icon-bullets li:hover i {
-  transform: rotate(8deg) scale(1.1);
-  color: var(--accent-hover, #7ad4ff);
+  transform: rotate(5deg) scale(1.1);
+  opacity: 1;
 }
 
-/* Option B: Border Left Bullets */
+/* ===== Option B: Border Left Bullets ===== */
 .border-bullets {
-  list-style: none;
+  margin: 1.5rem 0 1.75rem;
   padding: 0;
-  margin: 1.5rem 0 2.5rem;
-}
-
-.border-bullets li {
-  list-style-type: none; /* Ensure no default bullets */
 }
 
 .border-bullets li {
   position: relative;
-  border-left: 4px solid var(--accent-color, #4bcaff);
-  padding-left: 1.25rem;
-  margin-bottom: 1rem;
-  line-height: 1.6;
-  color: var(--text-primary);
+  border-left: 3px solid var(--accent-color, #4bcaff);
+  padding: 0.6rem 1rem 0.6rem 1.25rem;
+  margin-bottom: 0.5rem;
   transition: all 0.3s ease;
+  list-style: none !important;
+  background: rgba(75, 202, 255, 0.03);
+  border-radius: 0 4px 4px 0;
 }
 
 .border-bullets li:hover {
-  border-left-width: 6px;
-  padding-left: 1.5rem;
-  background: rgba(var(--accent-rgb, 75, 202, 255), 0.05);
+  background: rgba(75, 202, 255, 0.08);
+  transform: translateX(2px);
 }
+
+/* ===== Option C: Grid Rows ===== */
+.grid-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.5rem 0 1.75rem;
+}
+
+.grid-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.85rem 1.1rem;
+  background: rgba(75, 202, 255, 0.04);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  margin: 0;
+}
+
+.grid-row:hover {
+  background: rgba(75, 202, 255, 0.08);
+  transform: translateX(3px);
+}
+
+.grid-icon {
+  color: var(--accent-color, #4bcaff);
+  font-size: 1.1em;
+  margin-top: 0.15em;
+  min-width: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.grid-row:hover .grid-icon {
+  transform: scale(1.15);
+}
+
+.grid-text {
+  flex: 1;
+  line-height: 1.6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .icon-bullets,
+  .border-bullets,
+  .grid-rows {
+    margin: 1.25rem 0 1.5rem;
+  }
+  
+  .icon-bullets li {
+    padding-left: 2rem;
+    margin-bottom: 0.85rem;
+  }
+  
+  .border-bullets li {
+    padding: 0.5rem 0.85rem 0.5rem 1.1rem;
+  }
+  
+  .grid-rows {
+    gap: 0.65rem;
+  }
+  
+  .grid-row {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+  }
+  
+  .grid-icon {
+    margin-bottom: 0.25rem;
+  }
+}
+
 
 /* Option C: Grid Rows */
 .grid-rows {
   display: grid;
-  gap: 1.25rem;
-  margin: 1.5rem 0 2.5rem;
+  gap: 1rem;
+  margin: 2rem 0;
 }
 
 .grid-row {
@@ -84,32 +345,23 @@
 .grid-row:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-color: rgba(var(--accent-rgb, 75, 202, 255), 0.3);
 }
 
 .grid-icon {
   color: var(--accent-color, #4bcaff);
   font-size: 1.25rem;
   padding-top: 0.2rem;
-  transition: transform 0.3s ease, color 0.3s ease;
-  display: inline-block;
+  transition: transform 0.3s ease;
 }
 
 .grid-row:hover .grid-icon {
   transform: rotate(8deg) scale(1.2);
-  color: var(--accent-hover, #7ad4ff);
-}
-
-.grid-text {
-  line-height: 1.6;
-  color: var(--text-primary);
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .grid-row {
     grid-template-columns: 1fr;
-    gap: 0.75rem;
   }
   
   .grid-icon {
@@ -294,7 +546,6 @@
   margin-bottom: 1.5rem;
   line-height: 1.75;
   color: var(--text-primary);
-  max-width: 75ch;
 }
 
 .project-overview ul {
