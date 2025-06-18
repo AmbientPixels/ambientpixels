@@ -23,7 +23,6 @@
   <link rel="stylesheet" href="/modules/breadcrumb.css" />
 </head>
 <body data-theme="dark">
-  <div id="banner-container"></div>
   <header id="nav-header"></header>
 
   <section class="hero-card">
@@ -223,38 +222,32 @@
   </main>
 
   <div id="footer-container"></div>
+  
+  <!-- Banner Container (must be before banner.js) -->
+  <div id="banner"></div>
+  
   <!-- Banner Styles -->
   <link rel="stylesheet" href="/css/banner.css">
   
+  <!-- Scripts -->
   <script src="/js/init-header-footer.js"></script>
   <script src="/js/theme.js"></script>
-  <script>
-    // Banner configuration - Loaded from /data/banners/banners.json
-    window.bannerConfig = {
-      showOnLoad: true,  // Will show the 'default' message on load
-      bannersPath: '/data/banners/banners.json'  // Path to banners JSON
-    };
-  </script>
-  <script src="/js/banner.js"></script>
-  <!-- Banner Container -->
-  <div id="banner"></div>
-  
-  <!-- Scripts -->
   <script src="/js/lightbox.js" type="module"></script>
   <script src="/js/nav.js"></script>
   <script src="/js/main.js"></script>
   <script src="/modules/breadcrumb.js"></script>
-  <script src="/js/banner.js"></script>
   
-  <!-- Banner Demo Controls (Optional - for testing) -->
-  <div class="banner-controls">
-    <button class="banner-btn info" onclick="window.banner.show('info')">Info</button>
-    <button class="banner-btn success" onclick="window.banner.show('success')">Success</button>
-    <button class="banner-btn warning" onclick="window.banner.show('warning')">Warning</button>
-    <button class="banner-btn error" onclick="window.banner.show('error')">Error</button>
-    <button class="banner-btn promo" onclick="window.banner.show('promo')">Promo</button>
-    <button class="banner-btn update" onclick="window.banner.show('update')">Update</button>
-    <button class="banner-btn maintenance" onclick="window.banner.show('maintenance')">Maintenance</button>
-  </div>
+  <!-- Banner Configuration -->
+  <script>
+    // Banner configuration - Loaded from /data/banners/banners-gow.json
+    window.bannerConfig = {
+      bannersPath: '/data/banners/banners-page-state.json',  // Path to banners JSON
+      debug: true  // Enable debug logging
+    };
+  </script>
+  
+  <!-- Banner Script (deferred) -->
+  <script src="/js/banner.js" defer></script>
+
 </body>
 </html>

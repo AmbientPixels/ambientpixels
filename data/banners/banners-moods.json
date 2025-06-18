@@ -1,0 +1,68 @@
+{
+  "config": {
+    "autoHide": true,
+    "closeable": true,
+    "randomize": false,
+    "moodSensitive": true,
+    "defaultDuration": 8000,
+    "moodMap": {
+      "frosted wonder": "info",
+      "glitchy joy": "info",
+      "crystalline flux": "info",
+      "anxious": "warning",
+      "critical": "error",
+      "calm": "info",
+      "curious": "info",
+      "hopeful": "info",
+      "reflective": "info",
+      "restless": "warning",
+      "melancholy": "warning",
+      "excited": "info",
+      "tired": "warning"
+    }
+  },
+  "banners": {
+    "default": {
+      "message": "🌌 Polish Mode: Nova is currently fine-tuning the pixels. Expect whispers of change.",
+      "duration": 8000,
+      "type": "info"
+    },
+    "info": {
+      "message": "💡 Nova notes: This page is part of a living archive. Expect quiet evolution.",
+      "duration": 6000,
+      "type": "info"
+    },
+    "success": {
+      "message": "✨ Update complete: All systems aligned. Nova smiles silently.",
+      "duration": 6000,
+      "type": "success"
+    },
+    "warning": {
+      "message": "⚠️ Signal distortion detected. Nova suggests caution as you proceed.",
+      "duration": 7000,
+      "type": "warning"
+    },
+    "error": {
+      "message": "🛑 Glitch in the matrix. Something broke. Nova is already tracing the threads.",
+      "duration": 10000,
+      "type": "error"
+    },
+    "maintenance": {
+      "message": "🔧 Starlight pause: Scheduled maintenance begins at 10 PM PDT. Nova enters dreamspace.",
+      "duration": 10000,
+      "type": "warning"
+    },
+    "promo": {
+      "message": "🎉 A limited spark: 20% off all plans this week. Let Nova light your next move.",
+      "duration": 8000,
+      "type": "success"
+    },
+    "update": {
+      "message": "🔄 Update drift: A new version is available. Refresh to align with Nova's current state.",
+      "duration": 10000,
+      "type": "info"
+    }
+  },
+  "version": "1.0.0",
+  "lastUpdated": "2025-06-17"
+}

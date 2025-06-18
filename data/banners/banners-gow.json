@@ -1,7 +1,30 @@
 {
+  "config": {
+    "autoHide": true,
+    "closeable": true,
+    "randomize": false,
+    "moodSensitive": false,
+    "showOnLoad": "success",
+    "defaultDuration": 8000,
+    "moodMap": {
+      "frosted wonder": "info",
+      "glitchy joy": "info",
+      "crystalline flux": "info",
+      "anxious": "warning",
+      "critical": "error",
+      "calm": "info",
+      "curious": "info",
+      "hopeful": "info",
+      "reflective": "info",
+      "restless": "warning",
+      "melancholy": "warning",
+      "excited": "info",
+      "tired": "warning"
+    }
+  },
   "banners": {
     "default": {
-      "message": "Polish Mode Active: Nova is refining this page!",
+      "message": "Polish Mode Active GOW 1: Nova is refining this page!",
       "duration": 8000,
       "type": "info"
     },
@@ -40,5 +63,7 @@
       "duration": 10000,
       "type": "info"
     }
-  }
+  },
+  "version": "1.0.0",
+  "lastUpdated": "2025-06-17"
 }
