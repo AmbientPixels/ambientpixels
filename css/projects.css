@@ -2772,15 +2772,8 @@ body[data-theme="light"] .project-section:hover {
 }
 
 .ap-quote__text::before {
-  content: "“";
-  position: absolute;
-  left: -1rem;
-  top: -1rem;
-  font-size: 4rem;
-  color: var(--accent-color, #4bcaff);
-  opacity: 0.2;
-  line-height: 1;
-  font-family: Georgia, serif;
+  content: "";
+  display: none;
 }
 
 .ap-quote__footer {
