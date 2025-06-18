@@ -1,5 +1,122 @@
 /* File: /css/projects.css - Ambient Pixels v2.3 - June 14, 2025 */
 
+/* ===== FAQ Section ===== */
+.ap-faq {
+  margin: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.faq-category {
+  background: rgba(30, 30, 46, 0.5);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(90, 200, 250, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.faq-category:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  border-color: rgba(90, 200, 250, 0.2);
+}
+
+.faq-category h3 {
+  color: var(--accent-color, #4bcaff);
+  margin: 0;
+  padding: 1.25rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: linear-gradient(90deg, rgba(90, 200, 250, 0.1) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(90, 200, 250, 0.1);
+}
+
+details.details-toggle {
+  border-radius: 0 0 8px 8px;
+  transition: all 0.3s ease;
+}
+
+details.details-toggle[open] {
+  background: rgba(10, 25, 35, 0.6);
+}
+
+details.details-toggle summary {
+  padding: 1.25rem 1.5rem;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 500;
+  color: #fff;
+  position: relative;
+  padding-right: 2.5rem;
+  list-style: none;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+details.details-toggle summary:hover {
+  background: rgba(90, 200, 250, 0.05);
+  color: var(--accent-color, #4bcaff);
+}
+
+details.details-toggle summary:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(90, 200, 250, 0.3);
+}
+
+details.details-toggle summary::-webkit-details-marker {
+  display: none;
+}
+
+details.details-toggle summary::after {
+  content: '\f078';
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  position: absolute;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%) rotate(0deg);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--accent-color, #4bcaff);
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+details.details-toggle[open] summary::after {
+  transform: translateY(-50%) rotate(180deg);
+  opacity: 1;
+}
+
+details.details-toggle div {
+  padding: 0 1.5rem 1.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+
+details.details-toggle p {
+  margin: 0;
+  padding: 0.5rem 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Animation for FAQ items */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.faq-category {
+  animation: fadeIn 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+.faq-category:nth-child(1) { animation-delay: 0.1s; }
+.faq-category:nth-child(2) { animation-delay: 0.2s; }
+.faq-category:nth-child(3) { animation-delay: 0.3s; }
+
 /* ===== Xbox Support Sections ===== */
 .xbox-section {
   margin-bottom: 3rem;
