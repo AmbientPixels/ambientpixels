@@ -1,5 +1,289 @@
 /* File: /css/projects.css - Ambient Pixels v2.3 - June 14, 2025 */
 
+/* ===== Bullet List Variants ===== */
+
+/* Option A: Icon Bullets */
+.icon-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 2.5rem;
+}
+
+.icon-bullets li {
+  position: relative;
+  padding-left: 2.5rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  list-style-type: none; /* Ensure no default bullets */
+}
+
+.icon-bullets li i {
+  position: absolute;
+  left: 0;
+  top: 0.25rem;
+  color: var(--accent-color, #4bcaff);
+  width: 1.5rem;
+  text-align: center;
+  font-size: 1.1em;
+  transition: transform 0.3s ease, color 0.3s ease;
+  display: inline-block;
+}
+
+.icon-bullets li:hover i {
+  transform: rotate(8deg) scale(1.1);
+  color: var(--accent-hover, #7ad4ff);
+}
+
+/* Option B: Border Left Bullets */
+.border-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 2.5rem;
+}
+
+.border-bullets li {
+  list-style-type: none; /* Ensure no default bullets */
+}
+
+.border-bullets li {
+  position: relative;
+  border-left: 4px solid var(--accent-color, #4bcaff);
+  padding-left: 1.25rem;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.border-bullets li:hover {
+  border-left-width: 6px;
+  padding-left: 1.5rem;
+  background: rgba(var(--accent-rgb, 75, 202, 255), 0.05);
+}
+
+/* Option C: Grid Rows */
+.grid-rows {
+  display: grid;
+  gap: 1.25rem;
+  margin: 1.5rem 0 2.5rem;
+}
+
+.grid-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: flex-start;
+  background: rgba(var(--accent-rgb, 75, 202, 255), 0.03);
+  border: 1px solid rgba(var(--accent-rgb, 75, 202, 255), 0.1);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.grid-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: rgba(var(--accent-rgb, 75, 202, 255), 0.3);
+}
+
+.grid-icon {
+  color: var(--accent-color, #4bcaff);
+  font-size: 1.25rem;
+  padding-top: 0.2rem;
+  transition: transform 0.3s ease, color 0.3s ease;
+  display: inline-block;
+}
+
+.grid-row:hover .grid-icon {
+  transform: rotate(8deg) scale(1.2);
+  color: var(--accent-hover, #7ad4ff);
+}
+
+.grid-text {
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .grid-row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .grid-icon {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* ===== Grid Bullets Variant ===== */
+.grid-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 2.5rem 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.grid-bullets .grid-bullet {
+  background: rgba(var(--accent-rgb, 75, 202, 255), 0.05);
+  border: 1px solid rgba(var(--accent-rgb, 75, 202, 255), 0.1);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.grid-bullets .grid-bullet:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  border-color: rgba(var(--accent-rgb, 75, 202, 255), 0.3);
+  background: rgba(var(--accent-rgb, 75, 202, 255), 0.08);
+}
+
+.grid-bullets .grid-bullet strong {
+  display: block;
+  color: var(--accent-color, #4bcaff);
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+  position: relative;
+  padding-left: 1.75rem;
+}
+
+.grid-bullets .grid-bullet strong::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  background: var(--accent-color, #4bcaff);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.grid-bullets .grid-bullet:hover strong::before {
+  transform: translateY(-50%) scale(1.5);
+  box-shadow: 0 0 0 2px rgba(var(--accent-rgb, 75, 202, 255), 0.2);
+}
+
+.grid-bullets .grid-bullet p {
+  margin: 0;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+/* ===== Minimalist Bullets Variant ===== */
+.minimalist-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 2.5rem 0;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.minimalist-bullets li {
+  position: relative;
+  padding-left: 2.5rem;
+  margin: 0;
+  line-height: 1.7;
+  color: var(--text-primary);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-left: 2px solid rgba(var(--accent-rgb, 75, 202, 255), 0.3);
+  padding-left: 1.5rem;
+  margin-left: 0.5rem;
+}
+
+.minimalist-bullets li:hover {
+  border-left-color: var(--accent-color, #4bcaff);
+  transform: translateX(4px);
+}
+
+.minimalist-bullets li::before {
+  content: '';
+  position: absolute;
+  left: -0.5rem;
+  top: 0.7em;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--accent-color, #4bcaff);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  transition: all 0.3s ease;
+}
+
+.minimalist-bullets li strong {
+  color: var(--accent-color, #4bcaff);
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+/* ===== Numbered Cards Variant =====
+.numbered-cards {
+  list-style: none;
+  padding: 0;
+  margin: 2.5rem 0;
+  display: grid;
+  gap: 1.5rem;
+  counter-reset: card-counter;
+}
+
+.numbered-cards .card-item {
+  position: relative;
+  background: rgba(var(--accent-rgb, 75, 202, 255), 0.03);
+  border: 1px solid rgba(var(--accent-rgb, 75, 202, 255), 0.1);
+  border-radius: 8px;
+  padding: 1.5rem 1.5rem 1.5rem 5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  counter-increment: card-counter;
+}
+
+.numbered-cards .card-item::before {
+  content: counter(card-counter);
+  position: absolute;
+  left: 1.5rem;
+  top: 1.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: var(--accent-color, #4bcaff);
+  color: #0a192f;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.numbered-cards .card-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  border-color: rgba(var(--accent-rgb, 75, 202, 255), 0.3);
+}
+
+.numbered-cards .card-item:hover::before {
+  transform: scale(1.1);
+  background: #fff;
+  color: var(--accent-color, #4bcaff);
+}
+
+.numbered-cards .card-item strong {
+  display: block;
+  color: var(--accent-color, #4bcaff);
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.numbered-cards .card-item p {
+  margin: 0;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
 /* ===== Project Overview Styles ===== */
 .project-overview {
   margin: 2.5rem 0;
