@@ -2730,3 +2730,102 @@ body[data-theme="light"] .project-section:hover {
     opacity: 0.5;
   }
 }
+
+/* ===== Enhanced Quote Styles ===== */
+.ap-quote {
+  position: relative;
+  padding: 2rem;
+  margin: 2rem 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+  border-left: 3px solid var(--accent-color, #4bcaff);
+  transition: all 0.3s ease;
+}
+
+.ap-quote--featured {
+  background: linear-gradient(135deg, rgba(90, 200, 250, 0.05) 0%, rgba(90, 200, 250, 0.02) 100%);
+  border-left: 3px solid var(--accent-color, #4bcaff);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.ap-quote-content {
+  position: relative;
+  z-index: 1;
+}
+
+.ap-quote__icon {
+  font-size: 2.5rem;
+  color: var(--accent-color, #4bcaff);
+  opacity: 0.2;
+  margin-bottom: 1rem;
+}
+
+.ap-quote__text {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: #fff;
+  margin: 0 0 1.5rem 0;
+  font-style: italic;
+  position: relative;
+  padding-left: 1.5rem;
+  border-left: 2px solid rgba(75, 202, 255, 0.3);
+}
+
+.ap-quote__text::before {
+  content: "“";
+  position: absolute;
+  left: -1rem;
+  top: -1rem;
+  font-size: 4rem;
+  color: var(--accent-color, #4bcaff);
+  opacity: 0.2;
+  line-height: 1;
+  font-family: Georgia, serif;
+}
+
+.ap-quote__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ap-quote__author {
+  font-weight: 600;
+  color: var(--accent-color, #4bcaff);
+  font-size: 1.1rem;
+}
+
+.ap-quote__role {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+/* Hover Effects */
+.ap-quote:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  border-left-color: var(--accent-color, #5ac8fa);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .ap-quote {
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  
+  .ap-quote__text {
+    font-size: 1.1rem;
+    padding-left: 1rem;
+  }
+  
+  .ap-quote__text::before {
+    font-size: 3rem;
+    left: -0.5rem;
+    top: -0.5rem;
+  }
+}
