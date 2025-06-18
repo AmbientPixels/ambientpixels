@@ -1767,11 +1767,120 @@ body[data-theme="light"] .project-section:hover {
   height: 100%;
 }
 
+/* Base hover effect for all media items */
+.media-item {
+  --hover-shadow-color: 0, 0, 0;
+  --hover-shadow-opacity: 0.25;
+  --hover-bg-color: 0, 0, 0;  /* Pure black background */
+  --hover-bg-opacity: 0.95;  /* Near-solid black */
+  --hover-text-color: #fff;  /* White text for maximum contrast */
+  transition: transform 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+}
+
+.media-item .media-caption {
+  color: var(--hover-text-color, #fff);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+  font-weight: 600;  /* Bolder text */
+  letter-spacing: 0.04em;
+  text-transform: uppercase;  /* More prominent text */
+  font-size: 0.9em;  /* Slightly smaller for better fit */
+}
+
 .media-item:hover {
-  transform: translateY(-4px) !important;
+  transform: translateY(-4px) scale(1.02) !important;  /* Slight scale for emphasis */
   margin-bottom: 0 !important;
   padding-bottom: 0 !important;
   border: none !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);  /* Deeper shadow */
+  z-index: 2;
+}
+
+.media-item:hover .media-caption {
+  background: linear-gradient(
+    to top,
+    rgba(var(--hover-bg-color), var(--hover-bg-opacity)),
+    transparent
+  );
+  transition: background 0.3s ease;
+}
+
+/* Hover Color Variations using CSS Custom Properties */
+.hover-cyan {
+  --hover-shadow-color: 0, 0, 0;
+  --hover-shadow-opacity: 0.5;
+  --hover-bg-color: 0, 40, 60;  /* Very dark cyan */
+  --hover-bg-opacity: 0.98;
+}
+
+.hover-purple {
+  --hover-shadow-color: 147, 112, 219;
+  --hover-shadow-opacity: 0.2;
+  --hover-bg-color: 147, 112, 219;
+}
+
+.hover-amber {
+  --hover-shadow-color: 0, 0, 0;
+  --hover-shadow-opacity: 0.5;
+  --hover-bg-color: 60, 40, 0;  /* Very dark amber */
+  --hover-bg-opacity: 0.98;
+  --hover-text-color: #fff;
+}
+
+.hover-rose {
+  --hover-shadow-color: 0, 0, 0;
+  --hover-shadow-opacity: 0.5;
+  --hover-bg-color: 80, 0, 20;  /* Very dark rose */
+  --hover-bg-opacity: 0.98;
+}
+
+.hover-emerald {
+  --hover-shadow-color: 16, 185, 129;
+  --hover-shadow-opacity: 0.2;
+  --hover-bg-color: 16, 185, 129;
+}
+
+.hover-indigo {
+  --hover-shadow-color: 69, 72, 211;  /* Darker shade of indigo */
+  --hover-shadow-opacity: 0.3;
+  --hover-bg-color: 49, 52, 191;  /* Much darker for better contrast */
+  --hover-bg-opacity: 0.85;
+}
+
+/* Primary Color - Deep Blue */
+.hover-primary {
+  --hover-shadow-color: 0, 0, 0;
+  --hover-shadow-opacity: 0.5;
+  --hover-bg-color: 0, 10, 30;  /* Very dark blue */
+  --hover-bg-opacity: 0.98;
+}
+
+/* Secondary Color - Deep Purple */
+.hover-secondary {
+  --hover-shadow-color: 0, 0, 0;
+  --hover-shadow-opacity: 0.5;
+  --hover-bg-color: 15, 5, 50;  /* Very dark purple */
+  --hover-bg-opacity: 0.98;
+}
+
+/* Accent Color - Light Blue */
+.hover-accent {
+  --hover-shadow-color: 0, 0, 0;
+  --hover-shadow-opacity: 0.5;
+  --hover-bg-color: 0, 30, 100;  /* Very dark blue */
+  --hover-bg-opacity: 0.98;
+}
+
+/* Success Color - Emerald Green */
+.hover-success {
+  --hover-shadow-color: 0, 0, 0;
+  --hover-shadow-opacity: 0.5;
+  --hover-bg-color: 0, 40, 20;  /* Very dark green */
+  --hover-bg-opacity: 0.98;
+}
+
+/* Custom hover effect using inline CSS variables */
+.media-item[style*="--hover-color"] {
+  --hover-shadow-opacity: 0.2;
 }
 
 .media-item img {
