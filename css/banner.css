@@ -1,51 +1,189 @@
-/* File: /css/banner.css – Nova Themed Glassy Banner System */
-
-/* Reset any conflicting styles */
-#banner-container,
-#banner-container *,
-#banner-container *:before,
-#banner-container *:after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-/* Banner Container */
-#banner-container {
-  position: fixed;
-  top: 75px;
-  left: 0;
-  width: 100vw;
-  z-index: 1050;
-  font-family: 'Inter', sans-serif;
-  pointer-events: none;
-  margin: 0;
-  padding: 0;
-}
-
-/* Base Banner Style */
-#banner-container .banner {
-  --banner-radius: 0 0 8px 8px;
+/* File: /css/banner.css – Nova Glass Banners */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  --glass-backdrop: blur(12px) saturate(180%);
+  --text-light: rgba(255, 255, 255, 0.95);
+  --text-dark: rgba(0, 0, 0, 0.9);
   
-  pointer-events: auto;
-  width: 100%;
-  padding: 12px 24px;
-  background: rgba(42, 87, 122, 0.4);
-  color: var(--dark-text, #D8E0E5);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  opacity: 1;
+  /* Nova color palette */
+  --nova-blue: #5e81f4;
+  --nova-green: #7ce7ac;
+  --nova-yellow: #f5d76e;
+  --nova-red: #ff6b6b;
+  --nova-purple: #b197fc;
+  --nova-cyan: #66d9e8;
+  --nova-pink: #f783ac;
+}
+
+/* Base Banner Styles with Glass Effect */
+#banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  transform: translateY(-100%);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+#banner.visible {
   transform: translateY(0);
-  transition: opacity 0.4s, transform 0.4s;
-  border-radius: var(--banner-radius);
-  -webkit-border-radius: var(--banner-radius);
-  -moz-border-radius: var(--banner-radius);
-  align-items: center;
+  pointer-events: auto;
+}
+
+.banner {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  box-shadow: var(--glass-shadow), 0 4px 30px -10px rgba(0, 0, 0, 0.1);
+  color: var(--text-light);
+  padding: 14px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Frosted glass overlay */
+.banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: inherit;
+  z-index: -1;
+  opacity: 0.6;
+}
+
+.banner-content {
   display: flex;
-  gap: 1rem;
-  margin: 0;
-  box-sizing: border-box;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.banner-message {
+  flex: 1;
+  padding: 4px 0;
+  line-height: 1.5;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.banner-close {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: var(--text-light);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  margin-left: 16px;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.banner-close:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.1);
+}
+
+/* Banner Types with Nova Colors */
+.banner {
+  --banner-accent: var(--nova-blue);
+  --banner-text: var(--text-light);
+  --banner-glow: rgba(94, 129, 244, 0.2);
+  border-left: 3px solid var(--banner-accent);
+  border-right: 3px solid var(--banner-accent);
+  border-bottom: 1px solid var(--banner-accent);
+  box-shadow: 0 0 20px var(--banner-glow), 0 4px 30px -10px rgba(0, 0, 0, 0.1);
+}
+
+.banner.info {
+  --banner-accent: var(--nova-blue);
+  --banner-glow: rgba(94, 129, 244, 0.2);
+}
+
+.banner.success {
+  --banner-accent: var(--nova-green);
+  --banner-glow: rgba(124, 231, 172, 0.2);
+}
+
+.banner.warning {
+  --banner-accent: var(--nova-yellow);
+  --banner-glow: rgba(245, 215, 110, 0.2);
+  --banner-text: var(--text-dark);
+}
+
+.banner.error {
+  --banner-accent: var(--nova-red);
+  --banner-glow: rgba(255, 107, 107, 0.2);
+}
+
+.banner.promo {
+  --banner-accent: var(--nova-purple);
+  --banner-glow: rgba(177, 151, 252, 0.2);
+}
+
+.banner.update {
+  --banner-accent: var(--nova-cyan);
+  --banner-glow: rgba(102, 217, 232, 0.2);
+}
+
+.banner.maintenance {
+  --banner-accent: var(--nova-pink);
+  --banner-glow: rgba(247, 131, 172, 0.2);
+}
+
+/* Animation for crystalline effect */
+@keyframes crystalShine {
+  0% { opacity: 0.3; transform: translateX(-100%) rotate(45deg); }
+  50% { opacity: 0.6; }
+  100% { opacity: 0.3; transform: translateX(100vw) rotate(45deg); }
+}
+
+.banner::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(45deg);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.banner:hover::after {
+  opacity: 1;
+  animation: crystalShine 2s ease-in-out infinite;
 }
 
 /* Show/Hide States */
