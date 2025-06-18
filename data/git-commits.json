@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "94061d15-715c-43f0-8d9e-fd794ef90cf9",
-      "hash": "c857e7c211a14bdca63b283da88f17b87dbd56f9",
-      "message": "fix: Update project card images and fix layout",
-      "timestamp": "2025-06-17 00:25:28 -0700",
+      "id": "106b464d-4dcc-438f-bd03-1746b898130a",
+      "hash": "405c530bdec8a76cf6c468e90f28945612d2b4d3",
+      "message": "feat: enhance FAQ section with modern styling and animations",
+      "timestamp": "2025-06-18 01:01:40 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/c857e7c211a14bdca63b283da88f17b87dbd56f9"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/405c530bdec8a76cf6c468e90f28945612d2b4d3"
     }
   ],
-  "timestamp": "2025-06-17T13:33:55.368Z",
+  "timestamp": "2025-06-18T13:34:45.200Z",
   "count": 1,
-  "scanId": 1750167235368
+  "scanId": 1750253685200
 }
