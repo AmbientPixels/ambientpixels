@@ -2471,6 +2471,42 @@ body[data-theme="light"] .project-section:hover {
   margin: 2rem 0;
 }
 
+.metric.ap-card {
+  background: rgba(90, 228, 255, 0.05);
+  border: 1px solid rgba(90, 228, 255, 0.1);
+  border-radius: 8px;
+  padding: 1.5rem;
+  height: 100%;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.ap-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.ap-card i {
+  font-size: 2rem;
+  color: #5ae4ff;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.ap-card h3 {
+  color: #fff;
+  margin: 0.5rem 0 1rem;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.ap-card p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
 .metric-card {
   background: rgba(90, 228, 255, 0.05);
   border: 1px solid rgba(90, 228, 255, 0.1);
