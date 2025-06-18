@@ -333,7 +333,10 @@ class Lightbox {
   }
 }
 
-// Auto-initialize if data-autoload is present
+// Export the Lightbox class
+export { Lightbox };
+
+// Auto-initialize if data-lightbox-autoload is present
 document.addEventListener('DOMContentLoaded', () => {
   if (document.querySelector('[data-lightbox-autoload]')) {
     window.lightbox = new Lightbox();

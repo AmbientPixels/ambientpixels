@@ -320,7 +320,15 @@
   <!-- Scripts -->
   <script src="/js/init-header-footer.js"></script>
   <script src="/js/theme.js"></script>
-  <script src="/js/lightbox.js" type="module"></script>
+  <script type="module">
+    import { Lightbox } from '/js/lightbox.js';
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      window.lightbox = new Lightbox({
+        // Custom options if needed
+      });
+    });
+  </script>
   <script src="/js/nav.js"></script>
   <script src="/js/main.js"></script>
   <script src="/modules/breadcrumb.js"></script>

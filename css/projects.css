@@ -1756,6 +1756,9 @@ body[data-theme="light"] .project-section:hover {
   display: flex;
   flex-direction: column;
   height: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
 }
 
 .media-item a {
@@ -1765,7 +1768,10 @@ body[data-theme="light"] .project-section:hover {
 }
 
 .media-item:hover {
-  transform: translateY(-4px);
+  transform: translateY(-4px) !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+  border: none !important;
 }
 
 .media-item img {
