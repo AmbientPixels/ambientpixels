@@ -42,18 +42,98 @@ details.details-toggle[open] {
   background: rgba(10, 25, 35, 0.6);
 }
 
+/* Collapsible Section Styling */
 details.details-toggle summary {
-  padding: 1.25rem 1.5rem;
-  background: transparent;
-  cursor: pointer;
-  font-weight: 500;
-  color: #fff;
-  position: relative;
-  padding-right: 2.5rem;
-  list-style: none;
-  transition: all 0.3s ease;
-  font-size: 1rem;
-  line-height: 1.5;
+  padding: 1.25rem 2.5rem 1.25rem 1.5rem !important;
+  background: transparent !important;
+  cursor: pointer !important;
+  font-weight: 500 !important;
+  color: #fff !important;
+  position: relative !important;
+  list-style: none !important;
+  transition: all 0.3s ease !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+  display: block !important;
+  margin: 0 !important;
+  width: 100% !important;
+  text-align: left !important;
+  border: none !important;
+  outline: none !important;
+}
+
+details.details-toggle summary:hover {
+  background: rgba(90, 200, 250, 0.05) !important;
+  color: var(--accent-color, #4bcaff) !important;
+}
+
+details.details-toggle summary:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(90, 200, 250, 0.3) !important;
+}
+
+/* Completely remove the default arrow/marker */
+details.details-toggle summary::-webkit-details-marker {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+details.details-toggle summary::marker {
+  display: none !important;
+  content: '' !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Ensure no content is shown before the summary */
+details.details-toggle summary::before {
+  display: none !important;
+  content: '' !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Keep the chevron icon on the right */
+details.details-toggle summary::after {
+  content: '\f078' !important; /* Font Awesome chevron down */
+  font-family: 'Font Awesome 5 Free' !important;
+  font-weight: 900 !important;
+  position: absolute !important;
+  right: 1.5rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) rotate(0deg) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  color: var(--accent-color, #4bcaff) !important;
+  font-size: 0.8rem !important;
+  opacity: 0.7 !important;
+  pointer-events: none !important;
+}
+
+details.details-toggle[open] summary::after {
+  transform: translateY(-50%) rotate(180deg) !important;
+  opacity: 1 !important;
+}
+
+details.details-toggle summary::-webkit-details-marker {
+  display: none;
+}
+
+details.details-toggle summary::marker {
+  display: none;
+  content: '';
+}
+
+details.details-toggle summary::before {
+  display: none;
 }
 
 details.details-toggle summary:hover {
