@@ -1908,11 +1908,13 @@ body[data-theme="light"] .project-section:hover {
   text-align: center;
   transition: opacity 0.3s ease;
   opacity: 0;
-  margin-top: auto;
+  margin: 0;
+  transform: translateY(100%);
 }
 
 .media-item:hover .media-caption {
   opacity: 1;
+  transform: translateY(0);
 }
 
 /* Video Grid Styles */
