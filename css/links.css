@@ -292,6 +292,372 @@ body .content-section a.text-link.muted:hover {
 }
 
 /* ==========================================================================
+   ADDITIONAL LINK VARIANTS
+   ========================================================================== */
+
+/* Warning Link - For important/cautionary actions */
+body a.text-link.warning,
+body p a.text-link.warning,
+body div a.text-link.warning,
+body section a.text-link.warning,
+body article a.text-link.warning,
+body .card-content a.text-link.warning,
+body .layout-nav-links a.text-link.warning,
+body #main-content a.text-link.warning,
+body .grid-container a.text-link.warning,
+body .content-section a.text-link.warning {
+  color: #ff6b6b !important; /* Soft red */
+  font-weight: 600 !important;
+}
+
+body a.text-link.warning:hover,
+body p a.text-link.warning:hover,
+body div a.text-link.warning:hover,
+body section a.text-link.warning:hover,
+body article a.text-link.warning:hover,
+body .card-content a.text-link.warning:hover,
+body .layout-nav-links a.text-link.warning:hover,
+body #main-content a.text-link.warning:hover,
+body .grid-container a.text-link.warning:hover,
+body .content-section a.text-link.warning:hover {
+  color: #ff8e8e !important;
+  text-shadow: 0 0 8px rgba(255, 107, 107, 0.4) !important;
+}
+
+/* Success Link - For positive/confirmation actions */
+body a.text-link.success,
+body p a.text-link.success,
+body div a.text-link.success,
+body section a.text-link.success,
+body article a.text-link.success,
+body .card-content a.text-link.success,
+body .layout-nav-links a.text-link.success,
+body #main-content a.text-link.success,
+body .grid-container a.text-link.success,
+body .content-section a.text-link.success {
+  color: #51cf66 !important; /* Soft green */
+  font-weight: 500 !important;
+}
+
+body a.text-link.success:hover,
+body p a.text-link.success:hover,
+body div a.text-link.success:hover,
+body section a.text-link.success:hover,
+body article a.text-link.success:hover,
+body .card-content a.text-link.success:hover,
+body .layout-nav-links a.text-link.success:hover,
+body #main-content a.text-link.success:hover,
+body .grid-container a.text-link.success:hover,
+body .content-section a.text-link.success:hover {
+  color: #69db7c !important;
+  text-shadow: 0 0 8px rgba(81, 207, 102, 0.3) !important;
+}
+
+/* Code Link - For links in code/documentation */
+body a.text-link.code,
+body p a.text-link.code,
+body div a.text-link.code,
+body section a.text-link.code,
+body article a.text-link.code,
+body .card-content a.text-link.code,
+body .layout-nav-links a.text-link.code,
+body #main-content a.text-link.code,
+body .grid-container a.text-link.code,
+body .content-section a.text-link.code {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace !important;
+  color: #a5d8ff !important;
+  background-color: rgba(90, 156, 255, 0.1) !important;
+  padding: 0.15em 0.4em !important;
+  border-radius: 3px !important;
+  font-size: 0.9em !important;
+  border: 1px solid rgba(90, 156, 255, 0.2) !important;
+}
+
+body a.text-link.code:hover,
+body p a.text-link.code:hover,
+body div a.text-link.code:hover,
+body section a.text-link.code:hover,
+body article a.text-link.code:hover,
+body .card-content a.text-link.code:hover,
+body .layout-nav-links a.text-link.code:hover,
+body #main-content a.text-link.code:hover,
+body .grid-container a.text-link.code:hover,
+body .content-section a.text-link.code:hover {
+  background-color: rgba(90, 156, 255, 0.15) !important;
+  border-color: rgba(90, 156, 255, 0.4) !important;
+}
+
+/* Icon Link - For links with icons */
+body a.text-link.icon,
+body p a.text-link.icon,
+body div a.text-link.icon,
+body section a.text-link.icon,
+body article a.text-link.icon,
+body .card-content a.text-link.icon,
+body .layout-nav-links a.text-link.icon,
+body #main-content a.text-link.icon,
+body .grid-container a.text-link.icon,
+body .content-section a.text-link.icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.4em !important;
+}
+
+body a.text-link.icon i,
+body p a.text-link.icon i,
+body div a.text-link.icon i,
+body section a.text-link.icon i,
+body article a.text-link.icon i,
+body .card-content a.text-link.icon i,
+body .layout-nav-links a.text-link.icon i,
+body #main-content a.text-link.icon i,
+body .grid-container a.text-link.icon i,
+body .content-section a.text-link.icon i {
+  transition: transform 0.2s ease !important;
+}
+
+body a.text-link.icon:hover i,
+body p a.text-link.icon:hover i,
+body div a.text-link.icon:hover i,
+body section a.text-link.icon:hover i,
+body article a.text-link.icon:hover i,
+body .card-content a.text-link.icon:hover i,
+body .layout-nav-links a.text-link.icon:hover i,
+body #main-content a.text-link.icon:hover i,
+body .grid-container a.text-link.icon:hover i,
+body .content-section a.text-link.icon:hover i {
+  transform: translateX(2px) !important;
+}
+
+/* Large Link - For prominent call-to-action links */
+body a.text-link.large,
+body p a.text-link.large,
+body div a.text-link.large,
+body section a.text-link.large,
+body article a.text-link.large,
+body .card-content a.text-link.large,
+body .layout-nav-links a.text-link.large,
+body #main-content a.text-link.large,
+body .grid-container a.text-link.large,
+body .content-section a.text-link.large {
+  font-size: 1.1em !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  padding: 0.5em 0 !important;
+  display: inline-block !important;
+}
+
+body a.text-link.large:hover,
+body p a.text-link.large:hover,
+body div a.text-link.large:hover,
+body section a.text-link.large:hover,
+body article a.text-link.large:hover,
+body .card-content a.text-link.large:hover,
+body .layout-nav-links a.text-link.large:hover,
+body #main-content a.text-link.large:hover,
+body .grid-container a.text-link.large:hover,
+body .content-section a.text-link.large:hover {
+  text-shadow: 0 0 10px rgba(90, 228, 255, 0.6) !important;
+}
+
+/* ==========================================================================
+   ANIMATED LINK VARIANTS
+   ========================================================================== */
+
+/* Underline Slide - Subtle underline that slides in from left */
+body a.text-link.underline-slide,
+body p a.text-link.underline-slide,
+body div a.text-link.underline-slide,
+body section a.text-link.underline-slide,
+body article a.text-link.underline-slide,
+body .card-content a.text-link.underline-slide,
+body .layout-nav-links a.text-link.underline-slide,
+body #main-content a.text-link.underline-slide,
+body .grid-container a.text-link.underline-slide,
+body .content-section a.text-link.underline-slide {
+  position: relative !important;
+  display: inline-block !important;
+  overflow: hidden !important;
+  padding-bottom: 2px !important;
+}
+
+body a.text-link.underline-slide::after,
+body p a.text-link.underline-slide::after,
+body div a.text-link.underline-slide::after,
+body section a.text-link.underline-slide::after,
+body article a.text-link.underline-slide::after,
+body .card-content a.text-link.underline-slide::after,
+body .layout-nav-links a.text-link.underline-slide::after,
+body #main-content a.text-link.underline-slide::after,
+body .grid-container a.text-link.underline-slide::after,
+body .content-section a.text-link.underline-slide::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 2px !important;
+  background: currentColor !important;
+  transform: scaleX(0) !important;
+  transform-origin: left center !important;
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+body a.text-link.underline-slide:hover::after,
+body p a.text-link.underline-slide:hover::after,
+body div a.text-link.underline-slide:hover::after,
+body section a.text-link.underline-slide:hover::after,
+body article a.text-link.underline-slide:hover::after,
+body .card-content a.text-link.underline-slide:hover::after,
+body .layout-nav-links a.text-link.underline-slide:hover::after,
+body #main-content a.text-link.underline-slide:hover::after,
+body .grid-container a.text-link.underline-slide:hover::after,
+body .content-section a.text-link.underline-slide:hover::after {
+  transform: scaleX(1) !important;
+}
+
+/* Glow Hover - Subtle glow effect on hover */
+body a.text-link.glow,
+body p a.text-link.glow,
+body div a.text-link.glow,
+body section a.text-link.glow,
+body article a.text-link.glow,
+body .card-content a.text-link.glow,
+body .layout-nav-links a.text-link.glow,
+body #main-content a.text-link.glow,
+body .grid-container a.text-link.glow,
+body .content-section a.text-link.glow {
+  transition: text-shadow 0.3s ease, transform 0.2s ease !important;
+  display: inline-block !important;
+}
+
+body a.text-link.glow:hover,
+body p a.text-link.glow:hover,
+body div a.text-link.glow:hover,
+body section a.text-link.glow:hover,
+body article a.text-link.glow:hover,
+body .card-content a.text-link.glow:hover,
+body .layout-nav-links a.text-link.glow:hover,
+body #main-content a.text-link.glow:hover,
+body .grid-container a.text-link.glow:hover,
+body .content-section a.text-link.glow:hover {
+  text-shadow: 0 0 15px currentColor !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Bounce - Subtle bounce animation on hover */
+body a.text-link.bounce,
+body p a.text-link.bounce,
+body div a.text-link.bounce,
+body section a.text-link.bounce,
+body article a.text-link.bounce,
+body .card-content a.text-link.bounce,
+body .layout-nav-links a.text-link.bounce,
+body #main-content a.text-link.bounce,
+body .grid-container a.text-link.bounce,
+body .content-section a.text-link.bounce {
+  display: inline-block !important;
+  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) !important;
+}
+
+body a.text-link.bounce:hover,
+body p a.text-link.bounce:hover,
+body div a.text-link.bounce:hover,
+body section a.text-link.bounce:hover,
+body article a.text-link.bounce:hover,
+body .card-content a.text-link.bounce:hover,
+body .layout-nav-links a.text-link.bounce:hover,
+body #main-content a.text-link.bounce:hover,
+body .grid-container a.text-link.bounce:hover,
+body .content-section a.text-link.bounce:hover {
+  transform: scale(1.05) !important;
+}
+
+/* Color Shift - Smooth color transition on hover */
+body a.text-link.color-shift,
+body p a.text-link.color-shift,
+body div a.text-link.color-shift,
+body section a.text-link.color-shift,
+body article a.text-link.color-shift,
+body .card-content a.text-link.color-shift,
+body .layout-nav-links a.text-link.color-shift,
+body #main-content a.text-link.color-shift,
+body .grid-container a.text-link.color-shift,
+body .content-section a.text-link.color-shift {
+  background: linear-gradient(90deg, currentColor 0%, currentColor 100%) !important;
+  background-size: 0% 1px !important;
+  background-position: 0 100% !important;
+  background-repeat: no-repeat !important;
+  transition: background-size 0.3s ease, color 0.3s ease !important;
+  padding-bottom: 2px !important;
+}
+
+body a.text-link.color-shift:hover,
+body p a.text-link.color-shift:hover,
+body div a.text-link.color-shift:hover,
+body section a.text-link.color-shift:hover,
+body article a.text-link.color-shift:hover,
+body .card-content a.text-link.color-shift:hover,
+body .layout-nav-links a.text-link.color-shift:hover,
+body #main-content a.text-link.color-shift:hover,
+body .grid-container a.text-link.color-shift:hover,
+body .content-section a.text-link.color-shift:hover {
+  background-size: 100% 1px !important;
+  color: #7fd1ff !important; /* Slightly lighter blue for hover */
+}
+
+/* Underline Fill - Animated underline that fills from center */
+body a.text-link.underline-fill,
+body p a.text-link.underline-fill,
+body div a.text-link.underline-fill,
+body section a.text-link.underline-fill,
+body article a.text-link.underline-fill,
+body .card-content a.text-link.underline-fill,
+body .layout-nav-links a.text-link.underline-fill,
+body #main-content a.text-link.underline-fill,
+body .grid-container a.text-link.underline-fill,
+body .content-section a.text-link.underline-fill {
+  position: relative !important;
+  display: inline-block !important;
+  overflow: hidden !important;
+  padding-bottom: 2px !important;
+}
+
+body a.text-link.underline-fill::after,
+body p a.text-link.underline-fill::after,
+body div a.text-link.underline-fill::after,
+body section a.text-link.underline-fill::after,
+body article a.text-link.underline-fill::after,
+body .card-content a.text-link.underline-fill::after,
+body .layout-nav-links a.text-link.underline-fill::after,
+body #main-content a.text-link.underline-fill::after,
+body .grid-container a.text-link.underline-fill::after,
+body .content-section a.text-link.underline-fill::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 50% !important;
+  width: 0 !important;
+  height: 2px !important;
+  background: currentColor !important;
+  transition: all 0.3s ease !important;
+  transform: translateX(-50%) !important;
+}
+
+body a.text-link.underline-fill:hover::after,
+body p a.text-link.underline-fill:hover::after,
+body div a.text-link.underline-fill:hover::after,
+body section a.text-link.underline-fill:hover::after,
+body article a.text-link.underline-fill:hover::after,
+body .card-content a.text-link.underline-fill:hover::after,
+body .layout-nav-links a.text-link.underline-fill:hover::after,
+body #main-content a.text-link.underline-fill:hover::after,
+body .grid-container a.text-link.underline-fill:hover::after,
+body .content-section a.text-link.underline-fill:hover::after {
+  width: 100% !important;
+}
+
+/* ==========================================================================
    RESPONSIVE ADJUSTMENTS
    ========================================================================== */
 

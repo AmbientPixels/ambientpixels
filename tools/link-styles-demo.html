@@ -1,0 +1,315 @@
+<!-- File: /tools/link-styles-demo.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Ambient Pixels Link Styles Demo" />
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+    <title>Link Styles Demo - Ambient Pixels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/grid.css" />
+    <link rel="stylesheet" href="/css/nav.css" />
+    <link rel="stylesheet" href="/css/components.css" />
+    <link rel="stylesheet" href="/css/hero.css" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/banner.css" />
+    <link rel="stylesheet" href="/css/links.css" />
+    <style>
+      /* Demo-specific styles */
+      .demo-section {
+        margin-bottom: 2.5rem;
+        padding: 1.5rem;
+        border-radius: 8px;
+        background: var(--card-bg);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .demo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+      }
+      .demo-card {
+        padding: 1.25rem;
+        border-radius: 6px;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+      }
+      .demo-card h4 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .demo-card pre {
+        background: var(--code-bg);
+        padding: 0.75rem;
+        border-radius: 4px;
+        overflow-x: auto;
+        font-size: 0.85em;
+        margin: 0.5rem 0;
+      }
+      .demo-card .link-example {
+        margin: 1rem 0;
+        padding: 0.5rem;
+        border-radius: 4px;
+        background: var(--bg-color);
+      }
+      .code-block {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        padding: 1rem;
+        border-radius: 4px;
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 0.9em;
+        overflow-x: auto;
+      }
+      .code-keyword { color: #569cd6; }
+      .code-tag { color: #569cd6; }
+      .code-attr { color: #9cdcfe; }
+      .code-string { color: #ce9178; }
+      .code-comment { color: #6a9955; }
+    </style>
+  </head>
+  <body data-theme="dark">
+    <!-- Dynamic Navigation Header -->
+    <header id="nav-header"></header>
+
+    <!-- Mini Hero Section -->
+    <section class="mini-hero">
+      <img src="/images/mini-hero-v3.jpg" alt="Link Styles Showcase" class="mini-hero-img" loading="lazy">
+      <div class="mini-hero-content-wrapper">
+        <h1>Link Styles Showcase</h1>
+        <p class="subtitle">Explore all available link styles in the Ambient Pixels design system</p>
+      </div>
+    </section>
+
+    <main class="grid-container">
+      <!-- Introduction -->
+      <section class="grid-col-12 content-section">
+        <h2><i class="fas fa-link"></i> Link Styles</h2>
+        <p>This page demonstrates all available link styles in the Ambient Pixels design system. Hover over each link to see its interactive states.</p>
+      </section>
+
+      <!-- Standard Links -->
+      <section class="grid-col-12 demo-section">
+        <h3>Standard Links</h3>
+        <p>Basic link styles for general use throughout the site.</p>
+        
+        <div class="demo-grid">
+          <div class="demo-card">
+            <h4>Default Link</h4>
+            <div class="link-example">
+              <a href="#" class="text-link">Default Link</a>
+            </div>
+            <pre><code>&lt;a href="#" class="text-link"&gt;Default Link&lt;/a&gt;</code></pre>
+          </div>
+
+          <div class="demo-card">
+            <h4>Navigation Link</h4>
+            <div class="link-example">
+              <a href="#" class="text-link nav">Navigation</a>
+            </div>
+            <pre><code>&lt;a href="#" class="text-link nav"&gt;Navigation&lt;/a&gt;</code></pre>
+          </div>
+
+          <div class="demo-card">
+            <h4>Button Link</h4>
+            <div class="link-example">
+              <a href="#" class="text-link button">Button Style</a>
+            </div>
+            <pre><code>&lt;a href="#" class="text-link button"&gt;Button Style&lt;/a&gt;</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contextual Links -->
+      <section class="grid-col-12 demo-section">
+        <h3>Contextual Links</h3>
+        <p>Links styled for specific contexts and purposes.</p>
+        
+        <div class="demo-grid">
+          <div class="demo-card">
+            <h4>Muted Link</h4>
+            <div class="link-example">
+              <a href="#" class="text-link muted">Muted Link</a>
+            </div>
+            <pre><code>&lt;a href="#" class="text-link muted"&gt;Muted Link&lt;/a&gt;</code></pre>
+          </div>
+
+          <div class="demo-card">
+            <h4>Documentation Link</h4>
+            <div class="link-example">
+              <a href="#" class="text-link doc">Documentation</a>
+            </div>
+            <pre><code>&lt;a href="#" class="text-link doc"&gt;Documentation&lt;/a&gt;</code></pre>
+          </div>
+
+          <div class="demo-card">
+            <h4>External Link</h4>
+            <div class="link-example">
+              <a href="#" class="text-link external">External Site</a>
+            </div>
+            <pre><code>&lt;a href="#" class="text-link external"&gt;External Site&lt;/a&gt;</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Status Links -->
+      <section class="grid-col-12 demo-section">
+        <h3>Status Links</h3>
+        <p>Links that indicate specific statuses or actions.</p>
+        
+        <div class="demo-grid">
+          <div class="demo-card">
+            <h4>Warning Link</h4>
+            <div class="link-example">
+              <a href="#" class="text-link warning">Delete Account</a>
+            </div>
+            <pre><code>&lt;a href="#" class="text-link warning"&gt;Delete Account&lt;/a&gt;</code></pre>
+          </div>
+
+          <div class="demo-card">
+            <h4>Success Link</h4>
+            <div class="link-example">
+              <a href="#" class="text-link success">Success</a>
+            </div>
+            <pre><code>&lt;a href="#" class="text-link success"&gt;Success&lt;/a&gt;</code></pre>
+          </div>
+
+          <div class="demo-card">
+            <h4>Code Link</h4>
+            <div class="link-example">
+              <a href="#" class="text-link code">function()</a>
+            </div>
+            <pre><code>&lt;a href="#" class="text-link code"&gt;function()&lt;/a&gt;</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Animated Links -->
+      <section class="grid-col-12 demo-section">
+        <h3>Animated Links</h3>
+        <p>Links with subtle animations on hover.</p>
+        
+        <div class="demo-grid">
+          <div class="demo-card">
+            <h4>Underline Slide</h4>
+            <div class="link-example">
+              <a href="#" class="text-link underline-slide">Hover Me</a>
+            </div>
+            <pre><code>&lt;a href="#" class="text-link underline-slide"&gt;Hover Me&lt;/a&gt;</code></pre>
+          </div>
+
+          <div class="demo-card">
+            <h4>Glow Hover</h4>
+            <div class="link-example">
+              <a href="#" class="text-link glow">Glow Effect</a>
+            </div>
+            <pre><code>&lt;a href="#" class="text-link glow"&gt;Glow Effect&lt;/a&gt;</code></pre>
+          </div>
+
+          <div class="demo-card">
+            <h4>Bounce</h4>
+            <div class="link-example">
+              <a href="#" class="text-link bounce">Bounce Me</a>
+            </div>
+            <pre><code>&lt;a href="#" class="text-link bounce"&gt;Bounce Me&lt;/a&gt;</code></pre>
+          </div>
+
+          <div class="demo-card">
+            <h4>Color Shift</h4>
+            <div class="link-example">
+              <a href="#" class="text-link color-shift">Color Shift</a>
+            </div>
+            <pre><code>&lt;a href="#" class="text-link color-shift"&gt;Color Shift&lt;/a&gt;</code></pre>
+          </div>
+
+          <div class="demo-card">
+            <h4>Underline Fill</h4>
+            <div class="link-example">
+              <a href="#" class="text-link underline-fill">Underline Fill</a>
+            </div>
+            <pre><code>&lt;a href="#" class="text-link underline-fill"&gt;Underline Fill&lt;/a&gt;</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Combination Links -->
+      <section class="grid-col-12 demo-section">
+        <h3>Combination Links</h3>
+        <p>Examples of combining multiple link styles.</p>
+        
+        <div class="demo-grid">
+          <div class="demo-card">
+            <h4>Icon + Text</h4>
+            <div class="link-example">
+              <a href="#" class="text-link icon">
+                <i class="fas fa-download"></i> Download Now
+              </a>
+            </div>
+            <div class="code-block">
+              &lt;<span class="code-tag">a</span> <span class="code-attr">href</span>="<span class="code-string">#</span>" <span class="code-attr">class</span>="<span class="code-string">text-link icon</span>"&gt;<br>
+              &nbsp;&nbsp;&lt;<span class="code-tag">i</span> <span class="code-attr">class</span>="<span class="code-string">fas fa-download</span>"&gt;&lt;/<span class="code-tag">i</span>&gt; Download Now<br>
+              &lt;/<span class="code-tag">a</span>&gt;
+            </div>
+          </div>
+
+          <div class="demo-card">
+            <h4>Large Button</h4>
+            <div class="link-example">
+              <a href="#" class="text-link large">Call to Action</a>
+            </div>
+            <pre><code>&lt;a href="#" class="text-link large"&gt;Call to Action&lt;/a&gt;</code></pre>
+          </div>
+
+          <div class="demo-card">
+            <h4>Animated + Status</h4>
+            <div class="link-example">
+              <a href="#" class="text-link warning underline-slide">
+                <i class="fas fa-exclamation-triangle"></i> Warning
+              </a>
+            </div>
+            <div class="code-block">
+              &lt;<span class="code-tag">a</span> <span class="code-attr">href</span>="<span class="code-string">#</span>" <span class="code-attr">class</span>="<span class="code-string">text-link warning underline-slide</span>"&gt;<br>
+              &nbsp;&nbsp;&lt;<span class="code-tag">i</span> <span class="code-attr">class</span>="<span class="code-string">fas fa-exclamation-triangle</span>"&gt;&lt;/<span class="code-tag">i</span>&gt; Warning<br>
+              &lt;/<span class="code-tag">a</span>&gt;
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="grid-container">
+      <div class="grid-col-12 content-section text-center">
+        <p>Ambient Pixels Design System &copy; 2025</p>
+      </div>
+    </footer>
+
+    <script>
+      // Navigation script would be loaded here
+      document.addEventListener('DOMContentLoaded', function() {
+        // Navigation initialization
+        const navHeader = document.getElementById('nav-header');
+        if (navHeader) {
+          fetch('/partials/nav.html')
+            .then(response => response.text())
+            .then(data => {
+              navHeader.innerHTML = data;
+            });
+        }
+
+        // Add active class to current nav item
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        document.querySelectorAll('nav a').forEach(link => {
+          if (link.getAttribute('href') === currentPage) {
+            link.classList.add('active');
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
