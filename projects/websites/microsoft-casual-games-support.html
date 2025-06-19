@@ -19,7 +19,8 @@
   <link rel="stylesheet" href="/css/hero.css" />
   <link rel="stylesheet" href="/css/lightbox.css" />
   <link rel="stylesheet" href="/css/theme.css" />
-<link rel="stylesheet" href="/css/projects.css" />
+  <link rel="stylesheet" href="/css/comparison-slider.css" />
+  <link rel="stylesheet" href="/css/projects.css" />
   <link rel="stylesheet" href="/modules/breadcrumb.css" />
 </head>
 <body data-theme="dark">
@@ -105,22 +106,42 @@
 
     <section class="project-section grid-col-12">
       <h2><i class="fas fa-magic"></i> Transformation in Motion</h2>
-      <p class="nova-voice">An interactive showcase of the UI redesign journey—highlighting key improvements.</p>
+      <p class="nova-voice">Experience the evolution—drag the slider to compare the interfaces.</p>
       
-      <div class="image-comparison">
+      <div class="nova-comparison-slider" role="region" aria-label="Before and after interface comparison">
         <div class="comparison-container">
+          <!-- Before Image (top layer, resizable) -->
           <div class="comparison-before">
-            <img src="/images/projects/microsoft-casual-games/zendesk01.jpeg" alt="Legacy Zendesk Interface">
+            <img src="/images/projects/microsoft-casual-games/zendesk01.jpeg" alt="Legacy Zendesk Interface" loading="lazy">
             <div class="comparison-label">
               <i class="fas fa-arrow-left"></i> Before: Legacy Zendesk
             </div>
           </div>
+          
+          <!-- After Image (bottom layer, static) -->
           <div class="comparison-after">
-            <img src="/images/projects/microsoft-casual-games/screen-01.jpeg" alt="New Xbox Support Interface">
+            <img src="/images/projects/microsoft-casual-games/screen-01.jpeg" alt="New Xbox Support Interface" loading="lazy">
             <div class="comparison-label right">
               After: New Xbox Support <i class="fas fa-arrow-right"></i>
             </div>
           </div>
+          
+          <!-- Slider Handle -->
+          <div class="slider-handle" 
+               role="slider" 
+               aria-valuemin="0" 
+               aria-valuemax="100" 
+               aria-valuenow="50"
+               aria-valuetext="50%"
+               tabindex="0">
+            <div class="slider-line"></div>
+          </div>
+        </div>
+        
+        <!-- Legend -->
+        <div class="comparison-legend">
+          <span class="legend-before">Legacy Zendesk</span>
+          <span class="legend-after">New Xbox Support</span>
         </div>
       </div>
       
@@ -226,14 +247,15 @@
 
   <div id="footer-container"></div>
 
-  <!-- Breadcrumb Script -->
-  <script src="/modules/breadcrumb.js"></script>
-  
-  <script src="/js/init-header-footer.js"></script>
-  <script src="/js/theme.js"></script>
-  <script src="/js/lightbox.js" type="module"></script>
-  <script src="/js/nav.js"></script>
+  <!-- Core Scripts -->
   <script src="/js/main.js"></script>
+  <script src="/js/theme.js"></script>
+  <script src="/js/init-header-footer.js"></script>
+  <script src="/modules/breadcrumb.js"></script>
+  <script src="/js/lightbox.js" type="module"></script>
+  
+  <!-- Component Scripts -->
+  <script src="../../js/comparison-slider.js"></script>
 
 </body>
 </html>
