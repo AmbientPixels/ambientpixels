@@ -1,6 +1,41 @@
 // Theme Dashboard - Main JavaScript
 import { themeManager } from './theme-manager.js';
 
+// Debug Utilities
+const debug = {
+  enabled: true,
+  log: function(...args) {
+    if (this.enabled) {
+      console.log('%c[Theme Dashboard]', 'color: #8e2de2; font-weight: bold;', ...args);
+    }
+  },
+  error: function(...args) {
+    console.error('%c[Theme Dashboard]', 'color: #ff3860; font-weight: bold;', ...args);
+  },
+  warn: function(...args) {
+    console.warn('%c[Theme Dashboard]', 'color: #ffdd57; font-weight: bold;', ...args);
+  },
+  time: function(label) {
+    if (this.enabled) console.time(`[Theme Dashboard] ${label}`);
+  },
+  timeEnd: function(label) {
+    if (this.enabled) console.timeEnd(`[Theme Dashboard] ${label}`);
+  }
+};
+
+// Convert RGBA to Hex (without alpha)
+function rgbaToHex(rgba) {
+  // Extract r, g, b values from rgba string
+  const rgbaValues = rgba.match(/\d+/g);
+  if (!rgbaValues || rgbaValues.length < 3) return '#000000';
+  
+  const [r, g, b] = rgbaValues.map(Number);
+  return '#' + [r, g, b].map(x => {
+    const hex = x.toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
+  }).join('');
+}
+
 class ThemeDashboard {
   constructor() {
     this.themeConfig = null;
@@ -25,6 +60,9 @@ class ThemeDashboard {
     this.addHeroStopBtn = document.getElementById('add-hero-stop');
     this.addParticleColorBtn = document.getElementById('add-particle-color');
     
+    // Preset Buttons
+    this.presetButtons = document.querySelectorAll('.preset-btn');
+    
     // Form Elements
     this.themeJsonTextarea = document.getElementById('theme-json');
     this.particlesEnabled = document.getElementById('particles-enabled');
@@ -47,6 +85,14 @@ class ThemeDashboard {
       link.addEventListener('click', (e) => {
         e.preventDefault();
         this.switchSection(link.dataset.section);
+      });
+    });
+    
+    // Preset Buttons
+    this.presetButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const preset = button.dataset.preset;
+        this.applyPreset(preset);
       });
     });
 
@@ -418,6 +464,187 @@ class ThemeDashboard {
     current[pathParts[pathParts.length - 1]] = value;
     this.updatePreview();
     this.updateThemeJson();
+  }
+
+  // Deep merge utility
+  deepMerge(target, source) {
+    debug.log('Merging objects:', { target, source });
+    const output = { ...target };
+    
+    if (this.isObject(target) && this.isObject(source)) {
+      Object.keys(source).forEach(key => {
+        if (this.isObject(source[key])) {
+          if (!(key in target)) {
+            Object.assign(output, { [key]: source[key] });
+          } else {
+            output[key] = this.deepMerge(target[key], source[key]);
+          }
+        } else {
+          Object.assign(output, { [key]: source[key] });
+        }
+      });
+    }
+    
+    return output;
+  }
+  
+  // Check if value is an object
+  isObject(item) {
+    return item && typeof item === 'object' && !Array.isArray(item);
+  }
+
+  // Preset Methods
+  applyPreset(presetName) {
+    debug.time(`Applying preset: ${presetName}`);
+    
+    const presets = {
+      default: {
+        gradients: {
+          hero: {
+            value: 'linear-gradient(135deg, #654ea3, #eaafc8)'
+          }
+        },
+        colors: {
+          primary: {
+            main: '#8e2de2',
+            light: '#b366ff',
+            dark: '#5c00b3'
+          },
+          secondary: {
+            main: '#eaafc8',
+            light: '#ffe1f0',
+            dark: '#b77f9e'
+          }
+        },
+        particles: {
+          colors: [
+            '#c87bff',
+            '#aa64ff',
+            '#8c3cff'
+          ]
+        }
+      },
+      ocean: {
+        gradients: {
+          hero: {
+            value: 'linear-gradient(135deg, #00c6ff, #0072ff)'
+          }
+        },
+        colors: {
+          primary: {
+            main: '#0072ff',
+            light: '#5aa2ff',
+            dark: '#0045b3'
+          },
+          secondary: {
+            main: '#00c6ff',
+            light: '#5dd9ff',
+            dark: '#0095cc'
+          }
+        },
+        particles: {
+          colors: [
+            '#00c6ff',
+            '#0072ff',
+            '#0050c8'
+          ]
+        }
+      },
+      sunset: {
+        gradients: {
+          hero: {
+            value: 'linear-gradient(135deg, #ff6b6b, #ffa3a3)'
+          }
+        },
+        colors: {
+          primary: {
+            main: '#ff6b6b',
+            light: '#ff9e9e',
+            dark: '#cc5656'
+          },
+          secondary: {
+            main: '#ffa3a3',
+            light: '#ffc4c4',
+            dark: '#cc8282'
+          }
+        },
+        particles: {
+          colors: [
+            '#ff6b6b',
+            '#ffa3a3',
+            '#ffc8c8'
+          ]
+        }
+      },
+      forest: {
+        gradients: {
+          hero: {
+            value: 'linear-gradient(135deg, #2ecc71, #27ae60)'
+          }
+        },
+        colors: {
+          primary: {
+            main: '#2ecc71',
+            light: '#5cdd94',
+            dark: '#25a35a'
+          },
+          secondary: {
+            main: '#27ae60',
+            light: '#4fc27d',
+            dark: '#1e8b4d'
+          }
+        },
+        particles: {
+          colors: [
+            '#2ecc71',
+            '#27ae60',
+            '#219653'
+          ]
+        }
+      }
+    };
+
+    if (presets[presetName]) {
+      try {
+        debug.log(`Applying preset: ${presetName}`, presets[presetName]);
+        
+        // Create a deep copy of the current config
+        const newConfig = JSON.parse(JSON.stringify(this.themeConfig));
+        
+        // Merge the preset
+        this.themeConfig = this.deepMerge(newConfig, presets[presetName]);
+        
+        debug.log('Merged config:', this.themeConfig);
+        
+        // Update the UI
+        this.updateUI();
+        this.updatePreview();
+        this.updateThemeJson();
+        
+        // Show feedback
+        const button = document.querySelector(`.preset-btn[data-preset="${presetName}"]`);
+        if (button) {
+          const span = button.querySelector('span');
+          if (span) {
+            const originalText = span.textContent;
+            span.textContent = '✓ Applied!';
+            
+            // Reset button text after delay
+            setTimeout(() => {
+              span.textContent = originalText;
+            }, 1500);
+          }
+        }
+        
+        debug.timeEnd(`Applying preset: ${presetName}`);
+      } catch (error) {
+        debug.error('Error applying preset:', error);
+        // Show error to user
+        alert(`Failed to apply preset: ${error.message}`);
+      }
+    } else {
+      debug.warn(`Preset not found: ${presetName}`);
+    }
   }
 
   // Helper Methods
