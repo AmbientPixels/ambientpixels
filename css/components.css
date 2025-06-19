@@ -1374,8 +1374,9 @@ blockquote {
   transition: background 0.4s ease, box-shadow 0.4s ease;
 }
 
+/* Blockquote icon removed - 2025-06-18
 blockquote::before {
-  content: "\201C"; /* Left double quote */
+  content: "\201C"; 
   position: absolute;
   top: 0.5rem;
   left: 0.5rem;
@@ -1384,6 +1385,7 @@ blockquote::before {
   opacity: 0.5;
   z-index: 1;
 }
+*/
 
 blockquote p {
   font-style: italic;
