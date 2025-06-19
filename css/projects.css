@@ -834,26 +834,40 @@ details.details-toggle p {
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid rgba(75, 202, 255, 0.2);
+  position: relative;
 }
 
 .xbox-section-header i {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   color: #4bcaff;
   background: rgba(75, 202, 255, 0.1);
-  width: 3rem;
-  height: 3rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  top: 0;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
 }
 
 .xbox-section-title {
   margin: 0;
+  padding: 0;
+  line-height: 1;
   color: #fff;
   font-size: 1.5rem;
   font-weight: 600;
   text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  height: 2.5rem;
 }
 
 /* Project Cards Section */
@@ -4124,19 +4138,54 @@ body[data-theme="light"] .project-section:hover {
 }
 
 /* Pipeline Container */
-.ai-pipeline-section h2 {
-  color: #f5d0fe;
-  font-size: 2.2rem;
-  text-align: center;
-  margin-bottom: 1rem;
-  text-shadow: 0 0 10px rgba(233, 78, 255, 0.3);
+.ai-pipeline-section .xbox-section-header {
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
   position: relative;
-  display: inline-block;
+  z-index: 1;
+}
+
+.ai-pipeline-section .xbox-section-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  padding: 0 2rem;
-  background: linear-gradient(90deg, transparent, rgba(147, 51, 234, 0.1), transparent);
-  padding-bottom: 1rem;
+  width: 200px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #8b5cf6, transparent);
+  opacity: 0.5;
+}
+
+.ai-pipeline-section .xbox-section-header i {
+  font-size: 1.8rem;
+  width: 2.8rem;
+  height: 2.8rem;
+  min-width: 2.8rem;
+  min-height: 2.8rem;
+  background: rgba(139, 92, 246, 0.15);
+  color: #c4b5fd;
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
+  margin: 0;
+  top: 0;
+}
+
+.ai-pipeline-section .xbox-section-header h2 {
+  color: #f5d0fe;
+  font-size: 2.2rem;
+  font-weight: 600;
+  text-shadow: 0 0 15px rgba(233, 78, 255, 0.4);
+  margin: 0;
+  padding: 0;
+  line-height: 1.2;
+  background: none;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: auto;
+  letter-spacing: -0.02em;
 }
 
 .ai-pipeline-section .section-description {
