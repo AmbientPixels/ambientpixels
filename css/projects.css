@@ -1374,7 +1374,7 @@ details.details-toggle p {
 .video-gradient-4 { background: linear-gradient(135deg, #654ea3, #eaafc8); --glow-color: rgba(234, 175, 200, 0.4); }
 .video-gradient-5 { background: linear-gradient(135deg, #11998e, #38ef7d); --glow-color: rgba(56, 239, 125, 0.4); }
 .video-gradient-6 { background: linear-gradient(135deg, #8E2DE2, #4A00E0); --glow-color: rgba(142, 45, 226, 0.4); }
-.video-gradient-7 { background: linear-gradient(135deg, #00c6ff, #0072ff); --glow-color: rgba(0, 198, 255, 0.4); }
+.video-gradient-7 { background: linear-gradient(135deg, #130F40 0%, #422680 50%, #E94EFF 100%); --glow-color: rgba(233, 78, 255, 0.4); }
 .video-gradient-8 { 
   background: linear-gradient(135deg, #0a3a4a 0%, #0a1a26 100%); 
   --glow-color: rgba(90, 228, 255, 0.4); 
@@ -1410,7 +1410,7 @@ details.details-toggle p {
 .video-gradient-4 { background: linear-gradient(135deg, #654ea3, #eaafc8) !important; }
 .video-gradient-5 { background: linear-gradient(135deg, #11998e, #38ef7d) !important; }
 .video-gradient-6 { background: linear-gradient(135deg, #8E2DE2, #4A00E0) !important; }
-.video-gradient-7 { background: linear-gradient(135deg, #00c6ff, #0072ff) !important; }
+.video-gradient-7 { background: linear-gradient(135deg, #130F40 0%, #422680 50%, #E94EFF 100%) !important; --glow-color: rgba(233, 78, 255, 0.4) !important; }
 .video-gradient-8 { background: linear-gradient(135deg, #0a3a4a, #0a1a26) !important; }
 .video-gradient-9 { background: linear-gradient(135deg, #7b4397, #dc2430) !important; }
 .video-gradient-10 { background: linear-gradient(135deg, #1a2980, #26d0ce) !important; }
@@ -3490,6 +3490,94 @@ body[data-theme="light"] .project-section:hover {
 
 /* Add glow effect */
 .hero-card.hero-card-video .hero-card-image.hero-gradient-arcade::before,
+/* Nova Quote Styling */
+.nova-quote-section {
+  margin: 3rem 0;
+  position: relative;
+  z-index: 1;
+}
+
+.nova-thought.aura-neon-burst {
+  background: linear-gradient(135deg, #3F0D78 0%, #8B5CF6 50%, #E94EFF 100%);
+  color: #fdf4ff;
+  border-radius: 16px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(186, 85, 211, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  transform: translateZ(0);
+  transition: all 0.3s ease;
+}
+
+.nova-thought.aura-neon-burst:hover {
+  transform: translateY(-4px) translateZ(0);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.nova-quote-content {
+  position: relative;
+  z-index: 2;
+}
+
+.nova-quote-text {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 15px rgba(233, 78, 255, 0.3);
+  position: relative;
+  z-index: 2;
+}
+
+.nova-signature {
+  font-family: 'Inter', sans-serif;
+  font-style: italic;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #f5d0fe;
+  text-shadow: 0 0 10px rgba(233, 78, 255, 0.4);
+  margin-top: 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.nova-robot-icon {
+  color: #e2a6ff;
+  filter: drop-shadow(0 0 6px rgba(233, 78, 255, 0.6));
+}
+
+.nova-aura-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 70% 30%, rgba(233, 78, 255, 0.15), transparent 50%),
+              radial-gradient(circle at 30% 70%, rgba(139, 92, 246, 0.15), transparent 50%);
+  pointer-events: none;
+  z-index: 1;
+  border-radius: 12px;
+}
+
+/* Animation */
+@keyframes auraPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.nova-thought.aura-neon-burst::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+  animation: auraPulse 8s ease-in-out infinite;
+  z-index: 1;
+  border-radius: 12px;
+}
+
 .hero-gradient-arcade::before {
     content: '';
     position: absolute;
@@ -3606,6 +3694,17 @@ body[data-theme="light"] .project-section:hover {
 .badge-party { background-color: rgba(236, 72, 153, 0.12); color: #fbcfe8; border: 1px solid rgba(236, 72, 153, 0.3); }
 .badge-xbox-dark { background-color: rgba(16, 124, 16, 0.15); color: #bbf7d0; border: 1px solid rgba(34, 197, 94, 0.3); }
 .badge-xbox-light { background-color: rgba(34, 197, 94, 0.12); color: #bbf7d0; border: 1px solid rgba(74, 222, 128, 0.3); }
+.badge-starlight { 
+  background: linear-gradient(135deg, rgba(65, 15, 128, 0.2), rgba(138, 43, 226, 0.15)); 
+  color: #f5d0fe; 
+  border: 1px solid rgba(186, 85, 211, 0.3);
+  backdrop-filter: blur(4px);
+  text-shadow: 0 0 8px rgba(233, 78, 255, 0.4);
+}
+.badge-starlight i {
+  color: #e2a6ff;
+  filter: drop-shadow(0 0 4px rgba(233, 78, 255, 0.5));
+}
 .badge-solid-blue { background-color: rgba(59, 130, 246, 0.12); color: #bfdbfe; border: 1px solid rgba(96, 165, 250, 0.3); }
 .badge-solid-red { background-color: rgba(220, 38, 38, 0.12); color: #fecaca; border: 1px solid rgba(248, 113, 113, 0.3); }
 .badge-solid-purple { background-color: rgba(139, 92, 246, 0.12); color: #e2d6ff; border: 1px solid rgba(167, 139, 250, 0.3); }
