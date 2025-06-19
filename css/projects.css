@@ -1,4 +1,552 @@
-/* File: /css/projects.css - Ambient Pixels v2.3 - June 18, 2025 */
+/* File: /css/projects.css - Ambient Pixels v2.4 - June 19, 2025 */
+
+/* ===== CoPilot Playground Specific Styles ===== */
+/* Story Elements */
+.story-intro, 
+.story-solution {
+  margin-bottom: 3rem;
+  position: relative;
+  padding-left: 2rem;
+  border-left: 3px solid var(--accent-color, #5ac8fa);
+}
+
+.story-intro h2,
+.story-solution h2 {
+  color: #fff;
+  margin-bottom: 1.25rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.story-intro p,
+.story-solution p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #e0e0e0;
+  max-width: 800px;
+}
+
+.impact-highlights {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.impact-item {
+  text-align: center;
+  flex: 1;
+  min-width: 120px;
+  background: rgba(90, 200, 250, 0.1);
+  padding: 1.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(90, 200, 250, 0.2);
+  transition: all 0.3s ease;
+}
+
+.impact-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(90, 200, 250, 0.15);
+  border-color: var(--accent-color, #5ac8fa);
+}
+
+.impact-number {
+  display: block;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--accent-color, #5ac8fa);
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 10px rgba(90, 200, 250, 0.5);
+}
+
+.impact-text {
+  display: block;
+  font-size: 0.95rem;
+  color: #bbb;
+  font-weight: 500;
+}
+
+/* Tech Showcase Styles */
+.tech-showcase {
+  background: rgba(30, 35, 45, 0.6);
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 2rem 0;
+  border: 1px solid rgba(90, 200, 250, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.tech-showcase-content {
+  display: flex;
+  gap: 2.5rem;
+  align-items: flex-start;
+}
+
+.tech-showcase-text {
+  flex: 1;
+}
+
+.tech-showcase h3 {
+  color: #fff;
+  font-size: 1.5rem;
+  margin-bottom: 1.25rem;
+  font-weight: 600;
+}
+
+.tech-showcase p {
+  color: #e0e0e0;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+.tech-features {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 0;
+}
+
+.tech-features li {
+  margin-bottom: 1rem;
+  padding-left: 2rem;
+  position: relative;
+  color: #e0e0e0;
+  line-height: 1.6;
+}
+
+.tech-features i {
+  position: absolute;
+  left: 0;
+  top: 0.2em;
+  color: var(--accent-color, #5ac8fa);
+  width: 1.5rem;
+  text-align: center;
+}
+
+.tech-showcase-visual {
+  flex: 1;
+  min-width: 0;
+}
+
+.code-snippet {
+  background: #1e1e2e;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.code-header {
+  background: #2a2a3a;
+  color: #a0a0c0;
+  padding: 0.6rem 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #3a3a4a;
+  display: flex;
+  align-items: center;
+}
+
+.code-header:before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ff5f56;
+  margin-right: 8px;
+  box-shadow: 20px 0 0 #ffbd2e, 40px 0 0 #27c93f;
+}
+
+.code-snippet pre {
+  margin: 0;
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.code-snippet code {
+  font-family: 'Fira Code', 'Consolas', monospace;
+  color: #e0e0e0;
+}
+
+/* Syntax highlighting */
+.code-snippet .keyword { color: #c586c0; }
+.code-snippet .string { color: #ce9178; }
+.code-snippet .comment { color: #6a9955; font-style: italic; }
+.code-snippet .function { color: #dcdcaa; }
+.code-snippet .param { color: #9cdcfe; }
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .tech-showcase-content {
+    flex-direction: column;
+  }
+  
+  .tech-showcase-visual {
+    width: 100%;
+    margin-top: 2rem;
+  }
+}
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.feature-card {
+  background: rgba(30, 30, 35, 0.8);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  border-color: var(--accent-color, #5ac8fa);
+}
+
+.feature-card i {
+  font-size: 1.8rem;
+  color: var(--accent-color, #5ac8fa);
+  margin-bottom: 1rem;
+}
+
+.feature-card h3, .feature-card h4 {
+  margin: 0.5rem 0;
+  color: #fff;
+  font-weight: 600;
+}
+
+.feature-card p {
+  color: #bbb;
+  margin: 0.5rem 0 0;
+  line-height: 1.6;
+}
+
+.sub-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sub-section h3 {
+  color: #fff;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+}
+
+.feature-list li {
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+  position: relative;
+  color: #bbb;
+  line-height: 1.5;
+}
+
+.feature-list li:before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--accent-color, #5ac8fa);
+}
+
+.feature-sublist {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+  padding-left: 1rem;
+}
+
+.feature-sublist li {
+  margin-bottom: 0.25rem;
+  color: #999;
+  font-size: 0.9em;
+  position: relative;
+  padding-left: 1rem;
+}
+
+.feature-sublist li:before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--accent-color, #5ac8fa);
+}
+
+.note-box {
+  background: rgba(90, 200, 250, 0.1);
+  border-left: 4px solid var(--accent-color, #5ac8fa);
+  border-radius: 4px;
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+  display: flex;
+  gap: 1rem;
+}
+
+.note-box i {
+  color: var(--accent-color, #5ac8fa);
+  font-size: 1.5rem;
+  margin-top: 0.2rem;
+}
+
+.note-box h3 {
+  margin-top: 0;
+  color: #fff;
+}
+
+.note-box .note {
+  margin: 1rem 0 0;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.note-box .note i {
+  font-size: 1rem;
+  margin-top: 0.2rem;
+}
+
+.text-link {
+  color: var(--accent-color, #5ac8fa);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.text-link:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.impact-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.metric-card {
+  text-align: center;
+  padding: 1.5rem;
+  background: rgba(30, 30, 35, 0.8);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.metric-card i {
+  font-size: 2rem;
+  color: var(--accent-color, #5ac8fa);
+  margin-bottom: 0.75rem;
+}
+
+.metric-card h3 {
+  font-size: 2.2rem;
+  margin: 0.5rem 0;
+  color: #fff;
+  font-weight: 700;
+}
+
+.metric-card p {
+  margin: 0;
+  color: #bbb;
+  font-size: 0.9rem;
+}
+
+.benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0 0;
+}
+
+.benefits-list li {
+  margin-bottom: 1rem;
+  padding-left: 2rem;
+  position: relative;
+  color: #ddd;
+  line-height: 1.6;
+}
+
+.benefits-list li:before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.learnings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.learning-card {
+  background: rgba(30, 30, 35, 0.8);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.learning-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.learning-card i {
+  font-size: 2rem;
+  color: var(--accent-color, #5ac8fa);
+  margin-bottom: 1rem;
+}
+
+.learning-card h3 {
+  color: #fff;
+  margin: 0.75rem 0;
+}
+
+.learning-card p {
+  color: #bbb;
+  margin: 0.5rem 0 0;
+  line-height: 1.6;
+}
+
+.related-projects {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.related-project-card {
+  background: rgba(30, 30, 35, 0.8);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.related-project-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  border-color: var(--accent-color, #5ac8fa);
+}
+
+.related-project-card a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  transition: color 0.2s ease;
+}
+
+.related-project-card a:hover {
+  color: var(--accent-color, #5ac8fa);
+}
+
+.related-project-card a i {
+  font-size: 1.25rem;
+}
+
+.related-project-card p {
+  color: #bbb;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* ===== Responsive Styles ===== */
+@media (max-width: 1024px) {
+  .feature-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+  
+  .impact-metrics {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .learnings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .impact-metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .learnings-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .note-box {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .note-box i {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .impact-metrics {
+    grid-template-columns: 1fr;
+  }
+  
+  .feature-card, 
+  .metric-card, 
+  .learning-card, 
+  .related-project-card {
+    padding: 1.25rem;
+  }
+  
+  .feature-card i, 
+  .metric-card i, 
+  .learning-card i {
+    font-size: 1.5rem;
+  }
+  
+  .metric-card h3 {
+    font-size: 1.8rem;
+  }
+}
+
+/* ===== Section Divider ===== */
 /* ===== Section Divider ===== */
 .section-divider {
   position: relative;
