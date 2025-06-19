@@ -15,9 +15,10 @@
   <link rel="stylesheet" href="/css/hero.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
-  <link rel="stylesheet" href="/css/video-player.css" />
-  <link rel="stylesheet" href="/css/nova-mood.css" />
+  <link rel="stylesheet" href="/css/projects.css">
+  <link rel="stylesheet" href="/css/portfolio.css">
+  <link rel="stylesheet" href="/css/nova-mood.css">
+  <link rel="stylesheet" href="/projects/css/theme-variables.css" />
   <link rel="stylesheet" href="/css/projects/xbox-video.css" />
   <link rel="stylesheet" href="/modules/breadcrumb.css" />
   <!-- Project-specific styles are in global CSS files -->
@@ -34,14 +35,14 @@
   <header id="nav-header"></header>
 
   <section class="hero-card hero-card-video hero-card-video-container">
-    <div class="hero-card-image video-gradient-1 card-image-container hero-particles-container">
+    <div class="hero-card-image video-gradient-4 card-image-container hero-particles-container">
       <div id="hero-particles" class="hero-particles"></div>
       <div class="hero-video-icon-container xbox-video-icon-wrapper">
         <i class="fas fa-play-circle hero-video-icon xbox-video-icon" aria-hidden="true"></i>
       </div>
     </div>
     <div class="hero-card-content">
-      <div class="hero-card-badge" style="background: linear-gradient(135deg, #8e2de2, #4a00e0);"><i class="fas fa-play-circle"></i> Play Reel</div>
+      <div class="hero-card-badge badge-royal"><i class="fas fa-play-circle"></i> Play Reel</div>
       <h1>Video <span class="video-glow">Portfolio</span></h1>
       <p class="hero-card-description">Telling stories through motion, interaction, and visual rhythm</p>
       <div class="project-tags">
@@ -209,10 +210,10 @@
       
       <!-- Nova Thought Quote -->
       <section class="nova-quote-section content-section grid-col-12">
-        <div class="nova-thought aura-cyan">
+        <div class="nova-thought aura-neon-burst">
           <div class="nova-quote-content">
             <p class="nova-quote-text">
-              "In motion, we find truth. Every frame, every transition, every interaction—each is a conversation between creator and viewer, a dance of intention and perception."
+              In motion, we find truth. Every frame, every transition, every interaction—each is a conversation between creator and viewer, a dance of intention and perception.
             </p>
             <p class="nova-signature">
               <i class="fas fa-robot nova-robot-icon"></i> Nova, Ambient Intelligence
@@ -235,7 +236,9 @@
     <!-- Contact modal will be loaded here by init-contact-modal.js -->
   </div>
 
-  <script src="/js/hero-particles.js" defer></script>
+  <!-- Theme Manager -->
+  <script src="/js/hero-particles.js"></script>
+  <script type="module" src="/projects/js/theme-manager.js"></script>
   <script src="/js/init-header-footer.js" defer></script>
   <script src="/js/dreamEngine.js" defer></script>
   <script src="/js/init-quotes.js" defer></script>

@@ -1306,6 +1306,13 @@ details.details-toggle p {
   box-shadow: 0 2px 8px rgba(16,124,16,0.2);
 }
 
+/* Video badge gradient theme */
+.hero-card-video .hero-card-badge.badge-video {
+  background: linear-gradient(135deg, #8e2de2, #4a00e0);
+  color: white;
+  box-shadow: 0 2px 12px rgba(138, 43, 226, 0.3);
+}
+
 .hero-card-video h1 {
   color: white;
   font-weight: 700;
