@@ -49,8 +49,17 @@ function initPipeline() {
   
   let currentStage = 0;
   const totalStages = stages.length;
-  const stageWidth = stages[0].offsetWidth + 24; // Width + gap
+  const stageElement = stages[0];
+  const stageStyle = window.getComputedStyle(stageElement);
+  const stageMargin = parseInt(stageStyle.marginLeft) + parseInt(stageStyle.marginRight);
+  const stageWidth = stageElement.offsetWidth + stageMargin;
   const maxScroll = (totalStages - 1) * stageWidth;
+  
+  // Calculate dynamic scroll behavior
+  const viewportWidth = window.innerWidth;
+  const isMobile = viewportWidth <= 768;
+  const scrollPeek = isMobile ? viewportWidth * 0.1 : viewportWidth * 0.15; // 10-15% of viewport for peeking
+  const scrollCenterOffset = (viewportWidth - stageWidth) / 2; // Center the stage
   
   console.log('Stage dimensions:', { stageWidth, maxScroll });
   
@@ -167,18 +176,38 @@ function initPipeline() {
       return;
     }
     
-    console.log('Going to stage:', stageIndex);
+    const direction = stageIndex > currentStage ? 1 : -1;
+    console.log(`Going to stage: ${stageIndex} (${direction > 0 ? 'next' : 'previous'})`);
     
     // Update current stage
     currentStage = stageIndex;
     
-    // Calculate scroll position
-    const scrollPosition = stageIndex * stageWidth;
+    // Calculate base scroll position
+    let scrollPosition = stageIndex * stageWidth;
     
-    console.log('Scrolling to position:', scrollPosition);
+    // Adjust scroll behavior based on position in pipeline
+    if (stageIndex === 0) {
+      // First stage - align to start
+      scrollPosition = 0;
+    } else if (stageIndex === totalStages - 1) {
+      // Last stage - align to end
+      scrollPosition = maxScroll;
+    } else if (direction > 0) {
+      // Moving right - show a bit of the next stage
+      scrollPosition = Math.max(0, scrollPosition - scrollPeek);
+    } else {
+      // Moving left - center the stage
+      scrollPosition = Math.max(0, scrollPosition - scrollCenterOffset);
+    }
     
-    // Animate to the new position
-    track.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+    // Ensure we don't scroll past the last stage
+    const maxPosition = Math.max(0, (totalStages * stageWidth) - viewportWidth);
+    scrollPosition = Math.min(scrollPosition, maxPosition);
+    
+    console.log('Scrolling to position:', scrollPosition, 'of max', maxPosition);
+    
+    // Animate to the new position with smooth easing
+    track.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1)';
     track.style.transform = `translateX(-${scrollPosition}px)`;
     
     console.log('Transform applied:', track.style.transform);
