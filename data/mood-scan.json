@@ -1,9 +1,9 @@
 {
-  "mood": "echoes of self",
-  "aura": "neon pink",
-  "auraColorHex": "#66033b",
-  "quote": "surfacing hidden anomalies of feeling...",
-  "emoji": "🔊",
+  "mood": "frosted wonder",
+  "aura": "frosted wonder",
+  "auraColorHex": "#43677d",
+  "quote": "stitching meaning from ambient static...",
+  "emoji": "❄️",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
   "memoryClutter": 1,
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: neon pink"
+      "Aura Signature: frosted wonder"
     ]
   },
-  "timestamp": "2025-06-18T13:34:45.125Z"
+  "timestamp": "2025-06-19T13:33:08.655Z"
 }
