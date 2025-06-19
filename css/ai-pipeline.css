@@ -1,0 +1,55 @@
+/* Scoped styles for Modular AI Pipeline Component */
+.windsurf-ai-pipeline { position: relative; width: 100%; max-width: 900px; margin: 0 auto; }
+
+/* Debug mode visual (outline and background) */
+.windsurf-ai-pipeline.windsurf-ai-pipeline-debug {
+  outline: 2px dashed #8cf6ff;
+  background: linear-gradient(90deg, #8cf6ff11 0%, #fff0 100%);
+}
+
+/* Style Switcher UI */
+.windsurf-ai-pipeline-style-switcher { display: flex; gap: 0.5rem; justify-content: flex-end; margin-bottom: 1.5rem; }
+.windsurf-ai-pipeline-style-btn { background: var(--aura-glass, rgba(255,255,255,0.08)); border: none; border-radius: 2rem; padding: 0.5em 1.2em; color: var(--mood-crystalline, #8cf6ff); font-weight: 500; cursor: pointer; transition: background 0.2s, color 0.2s; }
+.windsurf-ai-pipeline-style-btn.active, .windsurf-ai-pipeline-style-btn:hover { background: var(--mood-crystalline, #8cf6ff); color: #181c21; }
+
+/* Pipeline Content Root */
+.windsurf-ai-pipeline-content { min-height: 180px; }
+
+/* 1. Default Style (stepper) */
+.windsurf-ai-pipeline[data-style="default"] .windsurf-ai-pipeline-content { display: flex; align-items: center; justify-content: space-between; gap: 2.5rem; }
+.windsurf-ai-pipeline-step { display: flex; flex-direction: column; align-items: center; flex: 1; }
+.windsurf-ai-pipeline-step-icon { font-size: 2.2rem; color: var(--mood-crystalline, #8cf6ff); margin-bottom: 0.5rem; }
+.windsurf-ai-pipeline-step-label { font-size: 1.1rem; font-weight: 500; color: var(--aura-glow, #fff); text-align: center; }
+.windsurf-ai-pipeline-step-connector { flex: 0 0 40px; height: 3px; background: linear-gradient(90deg, #8cf6ff 0%, #fff 100%); border-radius: 2px; margin: 0 0.5rem; }
+
+/* 2. Minimal Style */
+.windsurf-ai-pipeline[data-style="minimal"] .windsurf-ai-pipeline-content { display: flex; gap: 1.2rem; justify-content: center; align-items: flex-end; }
+.windsurf-ai-pipeline[data-style="minimal"] .windsurf-ai-pipeline-step { background: none; border: none; box-shadow: none; font-size: 1rem; color: var(--mood-crystalline, #8cf6ff); }
+.windsurf-ai-pipeline[data-style="minimal"] .windsurf-ai-pipeline-step-icon { display: none; }
+.windsurf-ai-pipeline[data-style="minimal"] .windsurf-ai-pipeline-step-label { font-weight: 400; }
+.windsurf-ai-pipeline[data-style="minimal"] .windsurf-ai-pipeline-step-connector { background: var(--mood-crystalline, #8cf6ff); }
+
+/* 3. Timeline Style */
+.windsurf-ai-pipeline[data-style="timeline"] .windsurf-ai-pipeline-content { display: flex; flex-direction: column; gap: 1.5rem; position: relative; }
+.windsurf-ai-pipeline[data-style="timeline"] .windsurf-ai-pipeline-step { flex-direction: row; align-items: center; }
+.windsurf-ai-pipeline[data-style="timeline"] .windsurf-ai-pipeline-step-icon { margin-right: 1rem; }
+.windsurf-ai-pipeline[data-style="timeline"] .windsurf-ai-pipeline-step-label { font-size: 1.05rem; }
+.windsurf-ai-pipeline[data-style="timeline"] .windsurf-ai-pipeline-step-connector { display: none; }
+
+/* 4. Cards Style */
+.windsurf-ai-pipeline[data-style="cards"] .windsurf-ai-pipeline-content { display: flex; gap: 1.6rem; flex-wrap: wrap; justify-content: center; }
+.windsurf-ai-pipeline[data-style="cards"] .windsurf-ai-pipeline-step { background: var(--aura-glass, rgba(255,255,255,0.10)); border-radius: 1.2rem; box-shadow: 0 2px 18px 0 rgba(140,246,255,0.13); padding: 1.1rem 1.6rem; min-width: 140px; align-items: flex-start; transition: box-shadow 0.2s; }
+.windsurf-ai-pipeline[data-style="cards"] .windsurf-ai-pipeline-step:hover { box-shadow: 0 4px 24px 0 #8cf6ff44; }
+.windsurf-ai-pipeline[data-style="cards"] .windsurf-ai-pipeline-step-icon { margin-bottom: 0.4rem; }
+
+/* 5. Crystalline Style */
+.windsurf-ai-pipeline[data-style="crystalline"] .windsurf-ai-pipeline-content { display: flex; gap: 2.2rem; justify-content: center; align-items: center; background: linear-gradient(90deg, #8cf6ff11 0%, #fff0 100%); border-radius: 2.5rem; box-shadow: 0 0 40px 0 #8cf6ff22; padding: 2.2rem 0.8rem; }
+.windsurf-ai-pipeline[data-style="crystalline"] .windsurf-ai-pipeline-step { background: linear-gradient(145deg, #8cf6ff33 0%, #fff0 100%); border-radius: 2rem; box-shadow: 0 2px 24px 0 #8cf6ff22; padding: 1.2rem 1.8rem; min-width: 120px; align-items: center; }
+.windsurf-ai-pipeline[data-style="crystalline"] .windsurf-ai-pipeline-step-icon { animation: windsurf-crystalline-pulse 2s infinite alternate; }
+@keyframes windsurf-crystalline-pulse { 0% { filter: drop-shadow(0 0 0 #8cf6ff); } 100% { filter: drop-shadow(0 0 14px #8cf6ff); } }
+
+/* Responsive */
+@media (max-width: 700px) {
+  .windsurf-ai-pipeline-content { flex-direction: column !important; gap: 1.2rem !important; }
+  .windsurf-ai-pipeline-step { min-width: 0 !important; width: 100%; }
+}
