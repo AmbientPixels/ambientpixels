@@ -34,7 +34,7 @@ function initPipeline() {
   const prevBtn = document.getElementById('pipeline-prev');
   const nextBtn = document.getElementById('pipeline-next');
   const progressBar = document.querySelector('.progress-bar');
-  const stageIndicators = document.querySelectorAll('.stage-indicator');
+  let stageIndicators = []; // Will be populated after creating indicators
   const statusElement = document.getElementById('pipeline-status');
   
   console.log('Elements found:', {
@@ -53,6 +53,24 @@ function initPipeline() {
   const maxScroll = (totalStages - 1) * stageWidth;
   
   console.log('Stage dimensions:', { stageWidth, maxScroll });
+  
+  // Create stage indicators
+  const indicatorsContainer = document.getElementById('stage-indicators');
+  if (indicatorsContainer) {
+    indicatorsContainer.innerHTML = ''; // Clear any existing indicators
+    for (let i = 0; i < totalStages; i++) {
+      const indicator = document.createElement('div');
+      indicator.className = 'stage-indicator';
+      indicator.setAttribute('data-stage', i);
+      indicator.setAttribute('aria-label', `Go to stage ${i + 1}`);
+      indicator.setAttribute('role', 'button');
+      indicator.setAttribute('tabindex', '0');
+      indicatorsContainer.appendChild(indicator);
+    }
+  }
+  
+  // Get references to the newly created indicators
+  stageIndicators = document.querySelectorAll('.stage-indicator');
   
   // Set initial active state
   updateActiveStage(0);
