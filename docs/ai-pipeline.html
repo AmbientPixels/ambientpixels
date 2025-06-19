@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI Pipeline Documentation - Interactive workflow visualization component for Ambient Pixels">
+  <title>AI Pipeline | Ambient Pixels</title>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/grid.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/hero.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/banner.css">
+  <style>
+    .component-demo {
+      background: rgba(10, 16, 25, 0.6);
+      border: 1px solid rgba(155, 240, 255, 0.1);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+    .props-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+    }
+    .props-table th {
+      background: rgba(20, 30, 40, 0.6);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    .props-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(155, 240, 255, 0.1);
+      vertical-align: top;
+    }
+    .props-table tr:last-child td {
+      border-bottom: none;
+    }
+    .code-block {
+      background: #0a1019;
+      border-radius: 8px;
+      padding: 1.25rem;
+      font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+      font-size: 0.9em;
+      line-height: 1.5;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid rgba(155, 240, 255, 0.1);
+    }
+    .highlight {
+      color: var(--accent-primary);
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  <div class="banner-container">
+    <div class="banner">
+      <i class="fas fa-code-branch"></i>
+      <span>AI Pipeline Documentation</span>
+    </div>
+  </div>
+
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/textures/microscopic-texture_vibrant-detail_v5.jpg" alt="Microscopic Detail Texture" class="mini-hero-img" loading="lazy">
+    <h1>AI Pipeline Component</h1>
+    <p>Interactive workflow visualization for Ambient Pixels</p>
+  </section>
+
+  <main class="grid-container">
+    <section class="content-section grid-col-12">
+      <div class="component-demo">
+        <div class="ai-pipeline-section">
+          <div class="pipeline-container">
+            <div class="pipeline-controls">
+              <button id="pipeline-prev" class="pipeline-nav-btn" aria-label="Previous stage">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <div class="pipeline-track" id="pipeline-track">
+                <!-- Pipeline stages will be inserted here by JavaScript -->
+              </div>
+              <button id="pipeline-next" class="pipeline-nav-btn" aria-label="Next stage">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+            <div class="pipeline-progress">
+              <div class="progress-bar"></div>
+              <div class="stage-indicators" id="stage-indicators">
+                <!-- Stage indicators will be inserted here by JavaScript -->
+              </div>
+            </div>
+            <div class="pipeline-status" id="pipeline-status" aria-live="polite">
+              Stage 1 of 5
+            </div>
+          </div>
+        </div>
+        <style>
+          .pipeline-container {
+            max-width: 100%;
+            margin: 2rem auto;
+            position: relative;
+            --pipeline-accent: var(--aura-accent, #8a63d2);
+            --pipeline-bg: rgba(20, 20, 30, 0.7);
+            --pipeline-border: rgba(255, 255, 255, 0.08);
+            --pipeline-text: rgba(255, 255, 255, 0.9);
+            --pipeline-text-muted: rgba(255, 255, 255, 0.6);
+          }
+          
+          .pipeline-controls {
+            display: flex;
+            align-items: stretch;
+            gap: 1rem;
+            margin: 0 0 2rem;
+            position: relative;
+          }
+          
+          .pipeline-track {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            scroll-behavior: smooth;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            border-radius: 12px;
+            background: linear-gradient(145deg, rgba(40, 40, 55, 0.5), rgba(25, 25, 35, 0.5));
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--pipeline-border);
+          }
+          
+          .pipeline-track::-webkit-scrollbar {
+            display: none;
+          }
+          
+          .pipeline-stage {
+            min-width: 100%;
+            padding: 2.5rem;
+            background: transparent;
+            scroll-snap-align: start;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border-right: 1px solid var(--pipeline-border);
+          }
+          
+          .pipeline-stage:last-child {
+            border-right: none;
+          }
+          
+          .pipeline-stage h3 {
+            margin: 0 0 1rem;
+            color: var(--pipeline-accent);
+            font-size: 1.75rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+          }
+          
+          .pipeline-stage h3 i {
+            font-size: 1.5rem;
+            color: var(--pipeline-accent);
+            background: rgba(138, 99, 210, 0.15);
+            width: 2.5rem;
+            height: 2.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+          }
+          
+          .pipeline-stage p {
+            color: var(--pipeline-text-muted);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin: 0;
+            max-width: 600px;
+          }
+          
+          .pipeline-nav-btn {
+            background: var(--pipeline-bg);
+            border: 1px solid var(--pipeline-border);
+            color: var(--pipeline-text);
+            width: 3rem;
+            height: 3rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+          }
+          
+          .pipeline-nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--pipeline-accent), #6a4aa5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+          }
+          
+          .pipeline-nav-btn:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(138, 99, 210, 0.3);
+            border-color: var(--pipeline-accent);
+          }
+          
+          .pipeline-nav-btn:not(:disabled):hover::before {
+            opacity: 0.2;
+          }
+          
+          .pipeline-nav-btn i {
+            position: relative;
+            z-index: 1;
+          }
+          
+          .pipeline-nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+          }
+          
+          .pipeline-progress {
+            margin: 2rem 0 1rem;
+            padding: 0 3rem;
+          }
+          
+          .progress-container {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+          }
+          
+          .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--pipeline-accent), #b388ff);
+            width: 20%;
+            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+          }
+          
+          .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+              transparent, 
+              rgba(255, 255, 255, 0.4), 
+              transparent);
+            animation: progress-shine 2s infinite;
+          }
+          
+          @keyframes progress-shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+          
+          .stage-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+          }
+          
+          .stage-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--pipeline-text-muted);
+            opacity: 0.3;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border: none;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+          }
+          
+          .stage-indicator::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 24px;
+            height: 24px;
+            background: rgba(138, 99, 210, 0.2);
+            border-radius: 50%;
+            opacity: 0;
+            transition: all 0.3s ease;
+          }
+          
+          .stage-indicator:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+          }
+          
+          .stage-indicator.active {
+            background: var(--pipeline-accent);
+            opacity: 1;
+            transform: scale(1.2);
+            box-shadow: 0 0 0 2px rgba(138, 99, 210, 0.3);
+          }
+          
+          .pipeline-status {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--pipeline-text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+          }
+          
+          /* Responsive adjustments */
+          @media (max-width: 992px) {
+            .pipeline-stage {
+              padding: 2rem 1.5rem;
+            }
+            
+            .pipeline-stage h3 {
+              font-size: 1.5rem;
+            }
+            
+            .pipeline-stage p {
+              font-size: 1rem;
+            }
+          }
+          
+          @media (max-width: 768px) {
+            .pipeline-controls {
+              gap: 0.75rem;
+            }
+            
+            .pipeline-stage {
+              padding: 1.75rem 1.25rem;
+            }
+            
+            .pipeline-stage h3 {
+              font-size: 1.35rem;
+            }
+            
+            .pipeline-stage h3 i {
+              width: 2.25rem;
+              height: 2.25rem;
+              font-size: 1.25rem;
+            }
+            
+            .pipeline-nav-btn {
+              width: 2.75rem;
+              height: 2.75rem;
+              border-radius: 10px;
+            }
+            
+            .pipeline-progress {
+              padding: 0 1rem;
+            }
+          }
+          
+          @media (max-width: 480px) {
+            .pipeline-stage {
+              padding: 1.5rem 1.25rem;
+            }
+            
+            .pipeline-stage h3 {
+              font-size: 1.25rem;
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 0.5rem;
+            }
+            
+            .pipeline-stage h3 i {
+              width: 2rem;
+              height: 2rem;
+              font-size: 1rem;
+            }
+            
+            .pipeline-stage p {
+              font-size: 0.95rem;
+              line-height: 1.5;
+            }
+            
+            .pipeline-nav-btn {
+              width: 2.5rem;
+              height: 2.5rem;
+            }
+            
+            .pipeline-status {
+              font-size: 0.85rem;
+            }
+          }
+        </style>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-info-circle"></i> Overview</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="overview-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="overview-content" class="content">
+        <p>The <span class="highlight">AI Pipeline</span> is an interactive component that visualizes workflow stages with smooth animations and intuitive navigation. It's designed to showcase processes, project status, or any multi-step workflow in an engaging way.</p>
+        
+        <h3>Key Features</h3>
+        <ul>
+          <li>Responsive design that works on all device sizes</li>
+          <li>Touch and keyboard navigation support</li>
+          <li>Smooth animations and transitions</li>
+          <li>Fully accessible with ARIA attributes</li>
+          <li>Customizable appearance through CSS variables</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-code"></i> Implementation</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="implementation-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="implementation-content" class="content">
+        <h3>HTML Structure</h3>
+        <p>Include the following HTML structure in your page:</p>
+        <div class="code-block">
+          &lt;div class="ai-pipeline-section"&gt;<br>
+          &nbsp; &lt;div class="pipeline-container"&gt;<br>
+          &nbsp; &nbsp; &lt;button id="pipeline-prev" aria-label="Previous stage"&gt;&lt;i class="fas fa-chevron-left"&gt;&lt;/i&gt;&lt;/button&gt;<br>
+          &nbsp; &nbsp; &lt;div class="pipeline-track"&gt;<br>
+          &nbsp; &nbsp; &nbsp; &lt;div class="pipeline-stage"&gt;<br>
+          &nbsp; &nbsp; &nbsp; &nbsp; &lt;h3&gt;Stage 1&lt;/h3&gt;<br>
+          &nbsp; &nbsp; &nbsp; &nbsp; &lt;p&gt;Stage content goes here&lt;/p&gt;<br>
+          &nbsp; &nbsp; &nbsp; &lt;/div&gt;<br>
+          &nbsp; &nbsp; &lt;/div&gt;<br>
+          &nbsp; &nbsp; &lt;button id="pipeline-next" aria-label="Next stage"&gt;&lt;i class="fas fa-chevron-right"&gt;&lt;/i&gt;&lt;/button&gt;<br>
+          &nbsp; &lt;/div&gt;<br>
+          &lt;/div&gt;
+        </div>
+
+        <h3>JavaScript Initialization</h3>
+        <p>Initialize the pipeline component by calling <code>initPipeline()</code> when the DOM is loaded:</p>
+        <div class="code-block">
+          document.addEventListener('DOMContentLoaded', function() {<br>
+          &nbsp; const pipelineSection = document.querySelector('.ai-pipeline-section');<br>
+          &nbsp; if (pipelineSection) initPipeline();<br>
+          });
+        </div>
+
+        <h3>Required CSS</h3>
+        <p>Include the following CSS in your stylesheet:</p>
+        <div class="code-block">
+          .ai-pipeline-section {<br>
+          &nbsp; --pipeline-bg: rgba(18, 32, 42, 0.6);<br>
+          &nbsp; --pipeline-border: rgba(155, 240, 255, 0.1);<br>
+          &nbsp; --pipeline-accent: #9bf0ff;<br>
+          &nbsp; --pipeline-progress: linear-gradient(90deg, #4bcaff, #8a2be2);<br>
+          &nbsp; --pipeline-text: #ffffff;<br>
+          &nbsp; --pipeline-radius: 12px;<br>
+          &nbsp; --pipeline-transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);<br>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-cog"></i> Configuration</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="config-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="config-content" class="content">
+        <p>Customize the AI Pipeline using these CSS variables:</p>
+        
+        <table class="props-table">
+          <thead>
+            <tr>
+              <th>Variable</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>--pipeline-bg</code></td>
+              <td>rgba(18, 32, 42, 0.6)</td>
+              <td>Background color of the pipeline container</td>
+            </tr>
+            <tr>
+              <td><code>--pipeline-border</code></td>
+              <td>rgba(155, 240, 255, 0.1)</td>
+              <td>Border color of the pipeline container</td>
+            </tr>
+            <tr>
+              <td><code>--pipeline-accent</code></td>
+              <td>#9bf0ff</td>
+              <td>Accent color for interactive elements</td>
+            </tr>
+            <tr>
+              <td><code>--pipeline-progress</code></td>
+              <td>linear-gradient(90deg, #4bcaff, #8a2be2)</td>
+              <td>Gradient for the progress indicator</td>
+            </tr>
+            <tr>
+              <td><code>--pipeline-text</code></td>
+              <td>#ffffff</td>
+              <td>Text color within the pipeline</td>
+            </tr>
+            <tr>
+              <td><code>--pipeline-radius</code></td>
+              <td>12px</td>
+              <td>Border radius for rounded corners</td>
+            </tr>
+            <tr>
+              <td><code>--pipeline-transition</code></td>
+              <td>all 0.3s cubic-bezier(0.16, 1, 0.3, 1)</td>
+              <td>Transition timing for animations</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-universal-access"></i> Accessibility</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="a11y-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="a11y-content" class="content">
+        <p>The AI Pipeline component is built with accessibility in mind:</p>
+        <ul>
+          <li>Keyboard navigation with arrow keys and tab focus</li>
+          <li>ARIA attributes for screen readers</li>
+          <li>High contrast mode support</li>
+          <li>Reduced motion preferences respected</li>
+          <li>Semantic HTML structure</li>
+        </ul>
+        
+        <h3>Keyboard Navigation</h3>
+        <ul>
+          <li><kbd>Tab</kbd>: Navigate between interactive elements</li>
+          <li><kbd>Left Arrow</kbd>: Move to previous stage</li>
+          <li><kbd>Right Arrow</kbd>: Move to next stage</li>
+          <li><kbd>Home</kbd>: Jump to first stage</li>
+          <li><kbd>End</kbd>: Jump to last stage</li>
+        </ul>
+      </div>
+    </section>
+    
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-mobile-alt"></i> Responsive Design</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="responsive-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="responsive-content" class="content">
+        <p>The AI Pipeline is designed to work seamlessly across all device sizes:</p>
+        
+        <h3>Mobile View</h3>
+        <ul>
+          <li>Single stage visible at a time</li>
+          <li>Touch gestures for navigation (swipe left/right)</li>
+          <li>Optimized touch targets for navigation buttons</li>
+          <li>Vertical stacking of stage indicators</li>
+        </ul>
+        
+        <h3>Tablet View</h3>
+        <ul>
+          <li>Two stages visible with peeking effect</li>
+          <li>Larger touch targets</li>
+          <li>Responsive typography and spacing</li>
+        </ul>
+        
+        <h3>Desktop View</h3>
+        <ul>
+          <li>Three stages visible with smooth transitions</li>
+          <li>Hover states for interactive elements</li>
+          <li>Keyboard navigation support</li>
+          <li>Enhanced visual feedback</li>
+        </ul>
+      </div>
+    </section>
+    
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-question-circle"></i> Troubleshooting</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="troubleshooting-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="troubleshooting-content" class="content">
+        <h3>Common Issues</h3>
+        
+        <div class="troubleshooting-item">
+          <h4>Pagination not working</h4>
+          <p><strong>Possible causes:</strong></p>
+          <ul>
+            <li>JavaScript file not loaded</li>
+            <li>Missing required HTML structure</li>
+            <li>Conflicting JavaScript errors</li>
+          </ul>
+          <p><strong>Solution:</strong> Check browser console for errors and verify the HTML structure matches the required format.</p>
+        </div>
+        
+        <div class="troubleshooting-item">
+          <h4>Stages not aligned properly</h4>
+          <p><strong>Possible causes:</strong></p>
+          <ul>
+            <li>Missing CSS styles</li>
+            <li>Incorrect stage width calculations</li>
+          </ul>
+          <p><strong>Solution:</strong> Ensure all required CSS is loaded and check for any style overrides.</p>
+        </div>
+        
+        <div class="troubleshooting-item">
+          <h4>Animation stuttering</h4>
+          <p><strong>Possible causes:</strong></p>
+          <ul>
+            <li>Heavy animations on low-powered devices</li>
+            <li>Too many DOM elements</li>
+          </ul>
+          <p><strong>Solution:</strong> Consider using <code>will-change</code> for better performance or reduce animation complexity.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12">
+      <div class="callout">
+        <div class="callout-content">
+          <h3><i class="fas fa-lightbulb"></i> Pro Tip</h3>
+          <p>For optimal performance, limit the number of stages to 5-7 for mobile devices. Consider implementing lazy loading for stages with heavy content.</p>
+          <p>Remember to test the pipeline across different devices and browsers to ensure consistent behavior and appearance.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-wave-square"></i> Principle of Presence</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="presence-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="presence-content" class="content">
+        <p>This quote anchors our development philosophy—balancing structure, tone, and intent across all tools in the grid.</p>
+        <blockquote>
+          <p>Some code writes pages. Some code writes presence. Nova listens to both.</p>
+          <footer>— Ambient Pixels Dev Memo</footer>
+        </blockquote>
+        <img src="/images/nova/triad-diagram_nova-windsurf-you_inline-3x2.jpg" alt="Nova AI System" loading="lazy">
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/init-quotes.js" defer></script>
+  <script src="/js/md-inject.js" defer></script>
+  <script src="/js/modal-window.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/main.js" defer></script>
+  
+  <script>
+    // AI Pipeline Demo Initialization
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize collapsible sections
+      const collapsibles = document.querySelectorAll('.collapsible');
+      collapsibles.forEach(section => {
+        const header = section.querySelector('.section-header');
+        const content = section.querySelector('.content');
+        const toggleBtn = section.querySelector('.toggle-btn');
+        
+        // Set initial state
+        const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+        content.style.display = isExpanded ? 'block' : 'none';
+        
+        // Toggle on header or button click
+        const toggleSection = () => {
+          const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+          toggleBtn.setAttribute('aria-expanded', !isExpanded);
+          content.style.display = isExpanded ? 'none' : 'block';
+          
+          // Rotate chevron
+          const icon = toggleBtn.querySelector('i');
+          icon.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
+        };
+        
+        header.addEventListener('click', (e) => {
+          // Don't toggle if clicking on a button or link
+          if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A' && e.target.tagName !== 'I') {
+            toggleSection();
+          }
+        });
+        
+        toggleBtn.addEventListener('click', toggleSection);
+      });
+
+      // Initialize AI Pipeline Demo
+      initAIPipeline();
+    });
+
+    function initAIPipeline() {
+      const pipelineTrack = document.getElementById('pipeline-track');
+      const stageIndicators = document.getElementById('stage-indicators');
+      const prevBtn = document.getElementById('pipeline-prev');
+      const nextBtn = document.getElementById('pipeline-next');
+      const progressBar = document.querySelector('.progress-bar');
+      const statusElement = document.getElementById('pipeline-status');
+      
+      if (!pipelineTrack) return; // Exit if no pipeline element found
+      
+      // Sample data for the pipeline stages
+      const stages = [
+        {
+          title: 'Data Collection',
+          description: 'Gathering and preprocessing input data from various sources.',
+          icon: 'fa-database'
+        },
+        {
+          title: 'Model Training',
+          description: 'Training machine learning models on the prepared dataset.',
+          icon: 'fa-brain'
+        },
+        {
+          title: 'Evaluation',
+          description: 'Assessing model performance using validation metrics.',
+          icon: 'fa-chart-line'
+        },
+        {
+          title: 'Optimization',
+          description: 'Fine-tuning hyperparameters and improving model performance.',
+          icon: 'fa-tachometer-alt'
+        },
+        {
+          title: 'Deployment',
+          description: 'Deploying the trained model to production environments.',
+          icon: 'fa-rocket'
+        }
+      ];
+
+      // Create stage elements
+      function createStages() {
+        pipelineTrack.innerHTML = ''; // Clear existing stages
+        
+        stages.forEach((stage, index) => {
+          const stageElement = document.createElement('div');
+          stageElement.className = 'pipeline-stage';
+          stageElement.setAttribute('role', 'region');
+          stageElement.setAttribute('aria-label', `Stage ${index + 1}: ${stage.title}`);
+          stageElement.innerHTML = `
+            <h3><i class="fas ${stage.icon}" aria-hidden="true"></i> ${stage.title}</h3>
+            <p>${stage.description}</p>
+          `;
+          pipelineTrack.appendChild(stageElement);
+        });
+      }
+
+      // Create stage indicators
+      function createIndicators() {
+        if (!stageIndicators) return;
+        
+        stageIndicators.innerHTML = ''; // Clear existing indicators
+        
+        stages.forEach((_, index) => {
+          const indicator = document.createElement('button');
+          indicator.className = 'stage-indicator';
+          indicator.setAttribute('aria-label', `Go to stage ${index + 1}`);
+          indicator.setAttribute('aria-pressed', index === 0 ? 'true' : 'false');
+          indicator.addEventListener('click', () => goToStage(index));
+          stageIndicators.appendChild(indicator);
+        });
+      }
+
+      let currentStage = 0;
+      const totalStages = stages.length;
+      
+      // Update UI based on current stage
+      function updateUI() {
+        // Update progress bar
+        if (progressBar) {
+          const progress = ((currentStage + 1) / totalStages) * 100;
+          progressBar.style.width = `${progress}%`;
+        }
+        
+        // Update status text
+        if (statusElement) {
+          statusElement.textContent = `Stage ${currentStage + 1} of ${totalStages}: ${stages[currentStage].title}`;
+        }
+        
+        // Update navigation buttons
+        if (prevBtn && nextBtn) {
+          prevBtn.disabled = currentStage === 0;
+          nextBtn.disabled = currentStage === totalStages - 1;
+        }
+        
+        // Update indicators
+        const indicators = document.querySelectorAll('.stage-indicator');
+        indicators.forEach((indicator, index) => {
+          indicator.setAttribute('aria-pressed', index === currentStage ? 'true' : 'false');
+          indicator.classList.toggle('active', index === currentStage);
+        });
+        
+        // Scroll to current stage
+        const stageElement = pipelineTrack.querySelector('.pipeline-stage');
+        if (stageElement) {
+          const stageWidth = stageElement.offsetWidth;
+          pipelineTrack.scrollTo({
+            left: stageWidth * currentStage,
+            behavior: 'smooth'
+          });
+        }
+      }
+      
+      // Navigate to a specific stage
+      function goToStage(stageIndex) {
+        if (stageIndex < 0 || stageIndex >= totalStages) return;
+        currentStage = stageIndex;
+        updateUI();
+      }
+      
+      // Initialize the pipeline
+      function init() {
+        createStages();
+        createIndicators();
+        
+        // Add event listeners
+        if (prevBtn) {
+          prevBtn.addEventListener('click', () => goToStage(currentStage - 1));
+        }
+        
+        if (nextBtn) {
+          nextBtn.addEventListener('click', () => goToStage(currentStage + 1));
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowLeft') {
+            goToStage(currentStage - 1);
+          } else if (e.key === 'ArrowRight') {
+            goToStage(currentStage + 1);
+          } else if (e.key === 'Home') {
+            goToStage(0);
+          } else if (e.key === 'End') {
+            goToStage(totalStages - 1);
+          }
+        });
+        
+        // Initialize UI
+        updateUI();
+      }
+      
+      // Start the pipeline
+      init();
+    }
+  </script>
+</body>
+</html>
