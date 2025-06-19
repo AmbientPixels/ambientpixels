@@ -184,31 +184,10 @@
       </div>
     </section>
 
-    <section class="content-section project-section grid-col-12">
-      <h2><i class="fas fa-sitemap"></i> Project Hubs</h2>
-      <div class="related-projects">
-        <div class="related-project-card">
-          <a href="/projects/index.html">
-            <i class="fas fa-home"></i> Main Projects Hub
-          </a>
-          <p>Explore all projects and experiments from the studio</p>
-        </div>
-        <div class="related-project-card">
-          <a href="/projects/xbox-support.html">
-            <i class="fab fa-xbox"></i> Xbox Support Hub
-          </a>
-          <p>All Xbox-related support projects and resources</p>
-        </div>
-        <div class="related-project-card">
-          <a href="/about/index.html">
-            <i class="fas fa-user"></i> About Me
-          </a>
-          <p>Learn more about my background and experience</p>
-        </div>
-      </div>
-      
+    <!-- AI Workflow Section -->
+    <section class="grid-col-12 ai-workflow-section">
       <!-- AI Pipeline Section -->
-      <section class="content-section grid-col-12 ai-pipeline-section">
+      <div class="content-section ai-pipeline-section">
         <h2><i class="fas fa-project-diagram"></i> AI Production Pipeline</h2>
         <p class="section-description">End-to-end AI-powered workflow from concept to final render</p>
         
@@ -218,10 +197,10 @@
             <div class="step-number">1</div>
             <div class="step-content">
               <div class="step-icon">
-                <i class="fas fa-brain"></i>
+                <i class="fas fa-lightbulb"></i>
               </div>
-              <h3>Concept Generation</h3>
-              <p>AI analyzes trends and generates creative concepts based on your style and audience preferences.</p>
+              <h3>Creative Concepting</h3>
+              <p>Using ChatGPT, Claude, and Gemini to brainstorm ideas, draft scripts, and generate wireframe-level concepts. Rapidly exploring directions and refining tone before production begins.</p>
               <div class="step-connector"></div>
             </div>
           </div>
@@ -233,8 +212,8 @@
               <div class="step-icon">
                 <i class="fas fa-palette"></i>
               </div>
-              <h3>Visual Development</h3>
-              <p>Generate style frames, color palettes, and visual assets using AI-powered design tools.</p>
+              <h3>Asset Creation</h3>
+              <p>Leveraging Adobe Firefly, Agent Photoshop, and Midjourney for texture generation, image manipulation, and environment design, particularly for game-related content and visual assets.</p>
               <div class="step-connector"></div>
             </div>
           </div>
@@ -247,7 +226,7 @@
                 <i class="fas fa-film"></i>
               </div>
               <h3>Motion & Animation</h3>
-              <p>AI-assisted keyframing, physics simulation, and motion path generation for fluid animations.</p>
+              <p>Using AI-assisted plugins in After Effects (like Runway and Motion Design Agents) to automate transitions, generate motion templates, and sync animations with audio.</p>
               <div class="step-connector"></div>
             </div>
           </div>
@@ -257,10 +236,10 @@
             <div class="step-number">4</div>
             <div class="step-content">
               <div class="step-icon">
-                <i class="fas fa-magic"></i>
+                <i class="fas fa-microphone"></i>
               </div>
-              <h3>Enhancement</h3>
-              <p>AI-powered upscaling, noise reduction, and visual effects optimization.</p>
+              <h3>Voice & Audio</h3>
+              <p>Custom-tuned Azure Voice Studio for AI narration, combined with Premiere Pro's AI tools (Remix, Scene Edit Detection) for audio cleanup, music looping, and voiceover alignment.</p>
               <div class="step-connector"></div>
             </div>
           </div>
@@ -270,33 +249,59 @@
             <div class="step-number">5</div>
             <div class="step-content">
               <div class="step-icon">
-                <i class="fas fa-rocket"></i>
+                <i class="fas fa-tasks"></i>
               </div>
-              <h3>Delivery</h3>
-              <p>Automated format conversion, compression, and platform-specific optimization.</p>
+              <h3>Quality & Refinement</h3>
+              <p>AI-powered UI/UX evaluation, script refinement with ChatGPT, and automated testing to ensure consistent quality, accessibility, and brand alignment across all deliverables.</p>
             </div>
           </div>
         </div>
         
         <div class="pipeline-tech">
-          <span class="tech-tag"><i class="fab fa-python"></i> TensorFlow</span>
-          <span class="tech-tag"><i class="fas fa-network-wired"></i> Neural Networks</span>
-          <span class="tech-tag"><i class="fas fa-brain"></i> Deep Learning</span>
-          <span class="tech-tag"><i class="fas fa-cloud"></i> Cloud Processing</span>
+          <span class="tech-tag"><i class="fab fa-microsoft"></i> Azure AI</span>
+          <span class="tech-tag"><i class="fab fa-adobe"></i> Adobe Creative Cloud</span>
+          <span class="tech-tag"><i class="fas fa-robot"></i> ChatGPT/GPT-4</span>
+          <span class="tech-tag"><i class="fas fa-brain"></i> Claude/Gemini</span>
+          <span class="tech-tag"><i class="fas fa-magic"></i> Midjourney</span>
         </div>
-      </section>
-
+      </div>
+      
       <!-- Nova Thought Quote -->
-      <section class="content-section nova-quote-section grid-col-12">
-          <div class="nova-quote-content">
-            <p class="nova-quote-text">
-              In motion, we find truth. Every frame, every transition, every interaction—each is a conversation between creator and viewer, a dance of intention and perception.
-            </p>
-            <p class="nova-signature">
-              <i class="fas fa-robot nova-robot-icon"></i> Nova, Ambient Intelligence
-            </p>
+      <div class="content-section nova-quote-section">
+        <div class="nova-quote-content">
+          <p class="nova-quote-text">
+            In motion, we find truth. Every frame, every transition, every interaction—each is a conversation between creator and viewer, a dance of intention and perception.
+          </p>
+          <p class="nova-signature">
+            <i class="fas fa-robot nova-robot-icon"></i> Nova, Ambient Intelligence
+          </p>
+        </div>
+        <div class="nova-aura-overlay"></div>
+      </div>
+    </section>
+    
+    <!-- Project Hubs Section -->
+      <section class="content-section project-section grid-col-12">
+        <h2><i class="fas fa-sitemap"></i> Project Hubs</h2>
+        <div class="related-projects">
+          <div class="related-project-card">
+            <a href="/projects/index.html">
+              <i class="fas fa-home"></i> Main Projects Hub
+            </a>
+            <p>Explore all projects and experiments from the studio</p>
           </div>
-          <div class="nova-aura-overlay"></div>
+          <div class="related-project-card">
+            <a href="/projects/xbox-support.html">
+              <i class="fab fa-xbox"></i> Xbox Support Hub
+            </a>
+            <p>All Xbox-related support projects and resources</p>
+          </div>
+          <div class="related-project-card">
+            <a href="/about/index.html">
+              <i class="fas fa-user"></i> About Me
+            </a>
+            <p>Learn more about my background and experience</p>
+          </div>
         </div>
       </section>
       
