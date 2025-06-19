@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="The C.R.E.A.T.E. Method - A framework for crafting effective AI prompts and requests">
+  <title>The C.R.E.A.T.E. Method | Ambient Pixels</title>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/grid.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/hero.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/banner.css">
+  <style>
+    .method-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border-left: 4px solid var(--accent-color, #5ac8fa);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .method-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .method-letter {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      background: var(--accent-color, #5ac8fa);
+      color: #0f172a;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 40px;
+      font-weight: 700;
+      margin-right: 1rem;
+      font-size: 1.2rem;
+    }
+    
+    .method-title {
+      display: inline-block;
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      color: #fff;
+    }
+    
+    .example-box {
+      background: rgba(90, 200, 250, 0.1);
+      border-left: 3px solid var(--accent-color, #5ac8fa);
+      padding: 1.5rem;
+      margin: 2rem 0;
+      border-radius: 0 8px 8px 0;
+    }
+    
+    .example-title {
+      color: var(--accent-color, #5ac8fa);
+      margin-bottom: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+    }
+    
+    .example-title i {
+      margin-right: 0.5rem;
+    }
+    
+    .content-section {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    @media (max-width: 768px) {
+      .method-card {
+        padding: 1.5rem;
+      }
+      
+      .method-title {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  <div id="banner-container"></div>
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/hero/hero-13.jpg" alt="Creative Process" class="mini-hero-img" loading="lazy">
+    <div class="mini-hero-content-wrapper">
+      <h1>The C.R.E.A.T.E. Method</h1>
+      <p class="subtitle">A framework for crafting effective AI prompts and requests</p>
+    </div>
+  </section>
+
+  <main class="grid-container">
+    <section class="content-section grid-col-12">
+      <p class="lead">
+        The C.R.E.A.T.E. method provides a structured approach to designing clear, specific, 
+        and effective prompts for AI systems. This framework ensures your requests yield precise 
+        and relevant results across various applications.
+      </p>
+    </section>
+
+    <!-- C - Character -->
+    <section class="content-section grid-col-12">
+      <div class="method-card">
+        <div class="method-title">
+          <span class="method-letter">C</span>
+          <h2>Character: Define the Role</h2>
+        </div>
+        <div class="method-content">
+          <p><strong>Clarify</strong> the role and importance of any characters involved in your request. 
+          Whether for a narrative, a game, or a design, understanding who the characters are and their 
+          motivations can drastically influence the outcome.</p>
+          <p><strong>Context</strong> around the character's environment, relationships, and challenges 
+          they face adds depth and realism to the character's portrayal.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- R - Request -->
+    <section class="content-section grid-col-12">
+      <div class="method-card">
+        <div class="method-title">
+          <span class="method-letter">R</span>
+          <h2>Request: Create the Request and Be Specific</h2>
+        </div>
+        <div class="method-content">
+          <p><strong>Requirements</strong> should be clearly stated. What is the goal, and what specific 
+          elements must be included to achieve this goal?</p>
+          <p>Ensure your request is <strong>relevant</strong> to the intended audience or purpose. 
+          Tailor the details to match the needs of the project or objective.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- E - Examples -->
+    <section class="content-section grid-col-12">
+      <div class="method-card">
+        <div class="method-title">
+          <span class="method-letter">E</span>
+          <h2>Examples: Provide Examples for Precise Results</h2>
+        </div>
+        <div class="method-content">
+          <p>Offer <strong>examples</strong> or evidence of similar works or outcomes that align with your vision. 
+          This serves as a benchmark or inspiration for the task at hand.</p>
+          <p><strong>Explore</strong> different approaches by sharing a variety of examples to illustrate 
+          different interpretations of similar concepts.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- A - Adjustments -->
+    <section class="content-section grid-col-12">
+      <div class="method-card">
+        <div class="method-title">
+          <span class="method-letter">A</span>
+          <h2>Adjustments: Refine the Prompt</h2>
+        </div>
+        <div class="method-content">
+          <p>Specify any <strong>alterations</strong> from standard or expected norms in your request. 
+          What unique twists or changes do you want to see?</p>
+          <p>Clearly state what elements, themes, or approaches should be <strong>avoided</strong>. 
+          This helps narrow down the creative direction and ensures the output aligns with your vision.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- T - Types of Output -->
+    <section class="content-section grid-col-12">
+      <div class="method-card">
+        <div class="method-title">
+          <span class="method-letter">T</span>
+          <h2>Types of Output: Format Specifications</h2>
+        </div>
+        <div class="method-content">
+          <p>Describe the <strong>transformation</strong> of your ideas into the final output. 
+          What format should it take, and how should it be presented?</p>
+          <p>Specify any <strong>technical requirements</strong>, such as file formats, dimensions, 
+          or mediums, to ensure the output is usable in its intended context.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- E - Extras -->
+    <section class="content-section grid-col-12">
+      <div class="method-card">
+        <div class="method-title">
+          <span class="method-letter">E</span>
+          <h2>Extras: Provide Unique Instructions</h2>
+        </div>
+        <div class="method-content">
+          <p>Highlight any <strong>enhancements</strong> or unique features you'd like to see in the final product. 
+          This could include innovative ideas or elements that set your request apart.</p>
+          <p>Set clear <strong>expectations</strong> for any additional instructions or requirements 
+          that haven't been covered in the previous sections.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Example Section -->
+    <section class="content-section grid-col-12">
+      <div class="example-box">
+        <h3 class="example-title"><i class="fas fa-lightbulb"></i> C.R.E.A.T.E. Method in Action</h3>
+        <p><strong>Design an A5 flyer for 'Bean Bliss,' a new coffee shop, that captures its cozy atmosphere and unique offerings</strong> 
+        <em>(C - Character: Define the Role)</em>.</p>
+        
+        <p>It should include the logo, address, opening hours, a QR code, and highlight the shop's commitment to sustainability 
+        <em>(R - Request: Create the Request and Be Specific)</em>.</p>
+        
+        <p>Emulate the successful aspects of provided coffee shop flyer examples, especially in layout and font choices, while exploring warm, artisanal design elements 
+        <em>(E - Examples: Provide Examples for Precise Results)</em>.</p>
+        
+        <p>The flyer must avoid clutter, emphasize visual appeal 
+        <em>(A - Adjustments: Refine the Prompt. Include/Exclude)</em>, 
+        and be ready for both print (PDF) and online sharing (PNG) 
+        <em>(T - Types of Output: How Should the Output be Formatted)</em>.</p>
+        
+        <p>Incorporate a special opening week offer to encourage visits. Creative suggestions for making the flyer unique are welcome 
+        <em>(E - Extras: Provide Unique Instructions)</em>.</p>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/init-header-footer.js"></script>
+  <script src="/js/theme.js"></script>
+  <script src="/js/nav.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize any necessary components
+    });
+  </script>
+</body>
+</html>
