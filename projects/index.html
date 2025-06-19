@@ -53,6 +53,132 @@
       </div>
     </section>
 
+    <!-- AI Pipeline Section -->
+    <section class="xbox-section grid-col-12 ai-pipeline-section">
+      <div class="xbox-section-header">
+        <i class="fas fa-robot"></i>
+        <h2 class="xbox-section-title">Our AI Pipeline</h2>
+      </div>
+      <div class="section-content">
+        <p class="section-description">Creative collaboration—powered by agents, automation, and intent.</p>
+        
+        <div class="pipeline-controls">
+          <button id="pipeline-prev" class="pipeline-nav-btn" aria-label="Previous stage">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          
+          <div class="pipeline-container" id="pipeline-container">
+            <div class="pipeline-track" id="pipeline-track">
+              <!-- Pipeline Stage 1 -->
+              <div class="pipeline-stage" data-stage="1">
+                <div class="pipeline-icon">
+                  <div class="icon-inner">🧠</div>
+                  <div class="pulse-effect"></div>
+                </div>
+                <h3>Ideation & Concepts</h3>
+                <p>AI agents like ChatGPT and Claude help spark ideas, sketch flows, and co-author early scripts and strategies.</p>
+                <div class="stage-tools">
+                  <span class="tool-tag">ChatGPT</span>
+                  <span class="tool-tag">Claude</span>
+                  <span class="tool-tag">Miro</span>
+                </div>
+              </div>
+              
+              <!-- Pipeline Stage 2 -->
+              <div class="pipeline-stage" data-stage="2">
+                <div class="pipeline-icon">
+                  <div class="icon-inner">🎞️</div>
+                  <div class="pulse-effect"></div>
+                </div>
+                <h3>Motion & Design</h3>
+                <p>We use After Effects and Runway ML to animate scenes, automate transitions, and maintain visual rhythm.</p>
+                <div class="stage-tools">
+                  <span class="tool-tag">After Effects</span>
+                  <span class="tool-tag">Runway ML</span>
+                  <span class="tool-tag">Blender</span>
+                </div>
+              </div>
+              
+              <!-- Pipeline Stage 3 -->
+              <div class="pipeline-stage" data-stage="3">
+                <div class="pipeline-icon">
+                  <div class="icon-inner">🖼️</div>
+                  <div class="pulse-effect"></div>
+                </div>
+                <h3>Asset Generation</h3>
+                <p>Midjourney, Firefly, and Photoshop AI generate textures, visuals, and composite layers tuned to narrative.</p>
+                <div class="stage-tools">
+                  <span class="tool-tag">Midjourney</span>
+                  <span class="tool-tag">Firefly</span>
+                  <span class="tool-tag">Photoshop AI</span>
+                </div>
+              </div>
+              
+              <!-- Pipeline Stage 4 -->
+              <div class="pipeline-stage" data-stage="4">
+                <div class="pipeline-icon">
+                  <div class="icon-inner">🗣️</div>
+                  <div class="pulse-effect"></div>
+                </div>
+                <h3>Voice & Tone</h3>
+                <p>Azure AI and SSML scripting shape the narration—custom-fit for clarity, emotion, and brand voice.</p>
+                <div class="stage-tools">
+                  <span class="tool-tag">Azure AI</span>
+                  <span class="tool-tag">ElevenLabs</span>
+                  <span class="tool-tag">Descript</span>
+                </div>
+              </div>
+              
+              <!-- Pipeline Stage 5 -->
+              <div class="pipeline-stage" data-stage="5">
+                <div class="pipeline-icon">
+                  <div class="icon-inner">📋</div>
+                  <div class="pulse-effect"></div>
+                </div>
+                <h3>Project Management</h3>
+                <p>Nova, our custom GPT-powered assistant, helps track milestones, prioritize tasks, and offer creative check-ins.</p>
+                <div class="stage-tools">
+                  <span class="tool-tag">Nova AI</span>
+                  <span class="tool-tag">Notion</span>
+                  <span class="tool-tag">Linear</span>
+                </div>
+              </div>
+              
+              <!-- Pipeline Stage 6 -->
+              <div class="pipeline-stage" data-stage="6">
+                <div class="pipeline-icon">
+                  <div class="icon-inner">🔍</div>
+                  <div class="pulse-effect"></div>
+                </div>
+                <h3>Review & Polish</h3>
+                <p>AI tools help us rate screenshots, improve accessibility, and optimize layouts for global delivery.</p>
+                <div class="stage-tools">
+                  <span class="tool-tag">Figma AI</span>
+                  <span class="tool-tag">WebAIM</span>
+                  <span class="tool-tag">Lighthouse</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <button id="pipeline-next" class="pipeline-nav-btn" aria-label="Next stage">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+        
+        <div class="pipeline-progress">
+          <div class="progress-track">
+            <div class="progress-bar" id="pipeline-progress"></div>
+          </div>
+          <div class="stage-indicators" id="stage-indicators">
+            <!-- Indicators will be added by JavaScript -->
+          </div>
+        </div>
+        
+        <p class="nova-voice" id="pipeline-status">// Pipeline status: active. Agents syncing. Creative flow: optimal.</p>
+      </div>
+    </section>
+
     <!-- Featured Project -->
     <section class="xbox-section grid-col-12">
       <div class="xbox-section-header">
@@ -330,9 +456,9 @@
   <div id="footer-container"></div>
 
   <script src="/js/init-header-footer.js" defer></script>
-  <!-- Breadcrumb Script -->
-  <script src="/modules/breadcrumb.js" defer></script>
-  <script src="/js/main.js" defer></script>
+  <script src="/js/theme-switcher.js" defer></script>
+  <script src="/js/scroll-animations.js" defer></script>
+  <script src="/js/project-cards.js" defer></script>
+  <script src="/js/pipeline.js" defer></script>
 </body>
 </html>
-
