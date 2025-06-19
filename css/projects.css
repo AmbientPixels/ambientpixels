@@ -3865,16 +3865,30 @@ body[data-theme="light"] .project-section:hover {
 
 /* Tool Tags */
 .tool-tag {
-  padding: 0.25rem 0.75rem;
+  padding: 0.4rem 0.8rem;
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 500;
   border: 1px solid transparent;
   transition: all 0.3s ease;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin: 0.15rem;
   position: relative;
   overflow: hidden;
+  min-width: 36px;
+  height: 36px;
+  cursor: default;
+}
+
+.tool-tag i {
+  font-size: 1rem;
+  width: 1em;
+  height: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Different colored tool tags */
