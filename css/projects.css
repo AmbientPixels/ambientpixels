@@ -74,8 +74,6 @@
 /* ===== List Style Reset ===== */
 ul, ol, li {
   list-style: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
 }
 
 /* Remove any default list markers */
