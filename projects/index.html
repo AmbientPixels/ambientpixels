@@ -17,6 +17,355 @@
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/projects.css" />
   <link rel="stylesheet" href="/modules/breadcrumb.css" />
+  <style>
+    /* AI Pipeline Styles */
+    .pipeline-container {
+      --pipeline-accent: var(--aura-accent, #8a63d2);
+      --pipeline-bg: rgba(20, 20, 30, 0.7);
+      --pipeline-border: rgba(255, 255, 255, 0.08);
+      --pipeline-text: rgba(255, 255, 255, 0.9);
+      --pipeline-text-muted: rgba(255, 255, 255, 0.6);
+      max-width: 100%;
+      margin: 2rem auto;
+      position: relative;
+    }
+    
+    .pipeline-controls {
+      display: flex;
+      align-items: stretch;
+      gap: 1rem;
+      margin: 0 0 2rem;
+      position: relative;
+    }
+    
+    .pipeline-track {
+      flex: 1;
+      display: flex;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-behavior: smooth;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      border-radius: 12px;
+      background: linear-gradient(145deg, rgba(40, 40, 55, 0.5), rgba(25, 25, 35, 0.5));
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--pipeline-border);
+      padding: 0;
+      margin: 0;
+    }
+    
+    .pipeline-track::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .pipeline-stage {
+      flex: 0 0 100%;
+      width: 100%;
+      padding: 2.5rem;
+      background: transparent;
+      scroll-snap-align: start;
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      border-right: 1px solid var(--pipeline-border);
+      box-sizing: border-box;
+    }
+    
+    .pipeline-stage:last-child {
+      border-right: none;
+    }
+    
+    .pipeline-stage h3 {
+      margin: 0 0 1rem;
+      color: var(--pipeline-accent);
+      font-size: 1.75rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .pipeline-stage h3 i {
+      font-size: 1.5rem;
+      color: var(--pipeline-accent);
+      background: rgba(138, 99, 210, 0.15);
+      width: 2.5rem;
+      height: 2.5rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+    }
+    
+    .pipeline-stage p {
+      color: var(--pipeline-text-muted);
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin: 0 0 1.5rem;
+      max-width: 600px;
+    }
+    
+    .pipeline-nav-btn {
+      background: var(--pipeline-bg);
+      border: 1px solid var(--pipeline-border);
+      color: var(--pipeline-text);
+      width: 3rem;
+      height: 3rem;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .pipeline-nav-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, var(--pipeline-accent), #6a4aa5);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .pipeline-nav-btn:not(:disabled):hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(138, 99, 210, 0.3);
+      border-color: var(--pipeline-accent);
+    }
+    
+    .pipeline-nav-btn:not(:disabled):hover::before {
+      opacity: 0.2;
+    }
+    
+    .pipeline-nav-btn i {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .pipeline-nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+    
+    .pipeline-progress {
+      margin: 2rem 0 1rem;
+      padding: 0 3rem;
+    }
+    
+    .progress-container {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--pipeline-accent), #b388ff);
+      width: 20%;
+      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .progress-bar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.4), 
+        transparent);
+      animation: progress-shine 2s infinite;
+    }
+    
+    @keyframes progress-shine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    
+    .stage-indicators {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+    
+    .stage-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--pipeline-text-muted);
+      opacity: 0.3;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      border: none;
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .stage-indicator::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      width: 24px;
+      height: 24px;
+      background: rgba(138, 99, 210, 0.2);
+      border-radius: 50%;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .stage-indicator:hover::before {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+    
+    .stage-indicator.active {
+      background: var(--pipeline-accent);
+      opacity: 1;
+      transform: scale(1.2);
+      box-shadow: 0 0 0 2px rgba(138, 99, 210, 0.3);
+    }
+    
+    .pipeline-status {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: var(--pipeline-text-muted);
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    
+    .stage-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+    
+    .tool-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--pipeline-text-muted);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+    
+    .tool-tag:hover {
+      background: rgba(138, 99, 210, 0.15);
+      color: var(--pipeline-text);
+      border-color: var(--pipeline-accent);
+    }
+    
+    .tool-tag i {
+      color: var(--pipeline-accent);
+      font-size: 0.9em;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+      .pipeline-stage {
+        padding: 2rem 1.5rem;
+      }
+      
+      .pipeline-stage h3 {
+        font-size: 1.5rem;
+      }
+      
+      .pipeline-stage p {
+        font-size: 1rem;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .pipeline-controls {
+        gap: 0.75rem;
+      }
+      
+      .pipeline-stage {
+        padding: 1.75rem 1.25rem;
+      }
+      
+      .pipeline-stage h3 {
+        font-size: 1.35rem;
+      }
+      
+      .pipeline-stage h3 i {
+        width: 2.25rem;
+        height: 2.25rem;
+        font-size: 1.25rem;
+      }
+      
+      .pipeline-nav-btn {
+        width: 2.75rem;
+        height: 2.75rem;
+        border-radius: 10px;
+      }
+      
+      .pipeline-progress {
+        padding: 0 1rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .pipeline-stage {
+        padding: 1.5rem 1.25rem;
+      }
+      
+      .pipeline-stage h3 {
+        font-size: 1.25rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      
+      .pipeline-stage h3 i {
+        width: 2rem;
+        height: 2rem;
+        font-size: 1rem;
+      }
+      
+      .pipeline-stage p {
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+      
+      .pipeline-nav-btn {
+        width: 2.5rem;
+        height: 2.5rem;
+      }
+      
+      .pipeline-status {
+        font-size: 0.85rem;
+      }
+    }
+  </style>
 </head>
 <body data-theme="dark">
   <div class="banner-container" id="banner-container">
@@ -62,20 +411,16 @@
       <div class="section-content">
         <p class="section-description">Creative collaboration—powered by agents, automation, and intent.</p>
         
-        <div class="pipeline-controls">
-          <button id="pipeline-prev" class="pipeline-nav-btn" aria-label="Previous stage">
-            <i class="fas fa-chevron-left"></i>
-          </button>
-          
-          <div class="pipeline-container" id="pipeline-container">
+        <div class="pipeline-container">
+          <div class="pipeline-controls">
+            <button id="pipeline-prev" class="pipeline-nav-btn" aria-label="Previous stage">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            
             <div class="pipeline-track" id="pipeline-track">
               <!-- Pipeline Stage 1 -->
               <div class="pipeline-stage" data-stage="1">
-                <div class="pipeline-icon">
-                  <div class="icon-inner"><i class="fas fa-lightbulb"></i></div>
-                  <div class="pulse-effect"></div>
-                </div>
-                <h3>Ideation & Concepts</h3>
+                <h3><i class="fas fa-lightbulb"></i>Ideation & Concepts</h3>
                 <p>AI agents like ChatGPT and Claude help spark ideas, sketch flows, and co-author early scripts and strategies.</p>
                 <div class="stage-tools">
                   <span class="tool-tag" title="ChatGPT"><i class="fas fa-robot"></i>ChatGPT</span>
@@ -86,11 +431,7 @@
               
               <!-- Pipeline Stage 2 -->
               <div class="pipeline-stage" data-stage="2">
-                <div class="pipeline-icon">
-                  <div class="icon-inner"><i class="fas fa-film"></i></div>
-                  <div class="pulse-effect"></div>
-                </div>
-                <h3>Motion & Design</h3>
+                <h3><i class="fas fa-film"></i>Motion & Design</h3>
                 <p>We use After Effects and Runway ML to animate scenes, automate transitions, and maintain visual rhythm.</p>
                 <div class="stage-tools">
                   <span class="tool-tag" title="After Effects"><i class="fas fa-film"></i>After Effects</span>
@@ -101,11 +442,7 @@
               
               <!-- Pipeline Stage 3 -->
               <div class="pipeline-stage" data-stage="3">
-                <div class="pipeline-icon">
-                  <div class="icon-inner"><i class="fas fa-image"></i></div>
-                  <div class="pulse-effect"></div>
-                </div>
-                <h3>Asset Generation</h3>
+                <h3><i class="fas fa-image"></i>Asset Generation</h3>
                 <p>Midjourney, Firefly, and Photoshop AI generate textures, visuals, and composite layers tuned to narrative.</p>
                 <div class="stage-tools">
                   <span class="tool-tag" title="Midjourney"><i class="fas fa-paint-brush"></i>Midjourney</span>
@@ -116,11 +453,7 @@
               
               <!-- Pipeline Stage 4 -->
               <div class="pipeline-stage" data-stage="4">
-                <div class="pipeline-icon">
-                  <div class="icon-inner"><i class="fas fa-comment-dots"></i></div>
-                  <div class="pulse-effect"></div>
-                </div>
-                <h3>Voice & Tone</h3>
+                <h3><i class="fas fa-comment-dots"></i>Voice & Tone</h3>
                 <p>Azure AI and SSML scripting shape the narration—custom-fit for clarity, emotion, and brand voice.</p>
                 <div class="stage-tools">
                   <span class="tool-tag" title="Azure AI"><i class="fas fa-robot"></i>Azure AI</span>
@@ -131,11 +464,7 @@
               
               <!-- Pipeline Stage 5 -->
               <div class="pipeline-stage" data-stage="5">
-                <div class="pipeline-icon">
-                  <div class="icon-inner"><i class="fas fa-tasks"></i></div>
-                  <div class="pulse-effect"></div>
-                </div>
-                <h3>Project Management</h3>
+                <h3><i class="fas fa-tasks"></i>Project Management</h3>
                 <p>Nova, our custom GPT-powered assistant, helps track milestones, prioritize tasks, and offer creative check-ins.</p>
                 <div class="stage-tools">
                   <span class="tool-tag" title="Nova AI"><i class="fas fa-robot"></i>Nova AI</span>
@@ -146,11 +475,7 @@
               
               <!-- Pipeline Stage 6 -->
               <div class="pipeline-stage" data-stage="6">
-                <div class="pipeline-icon">
-                  <div class="icon-inner"><i class="fas fa-search"></i></div>
-                  <div class="pulse-effect"></div>
-                </div>
-                <h3>Review & Polish</h3>
+                <h3><i class="fas fa-search"></i>Review & Polish</h3>
                 <p>AI tools help us rate screenshots, improve accessibility, and optimize layouts for global delivery.</p>
                 <div class="stage-tools">
                   <span class="tool-tag" title="Figma AI"><i class="fab fa-figma"></i>Figma AI</span>
@@ -159,23 +484,24 @@
                 </div>
               </div>
             </div>
+            
+            <button id="pipeline-next" class="pipeline-nav-btn" aria-label="Next stage">
+              <i class="fas fa-chevron-right"></i>
+            </button>
           </div>
           
-          <button id="pipeline-next" class="pipeline-nav-btn" aria-label="Next stage">
-            <i class="fas fa-chevron-right"></i>
-          </button>
-        </div>
-        
-        <div class="pipeline-progress">
-          <div class="progress-track">
-            <div class="progress-bar" id="pipeline-progress"></div>
-          </div>
-          <div class="stage-indicators" id="stage-indicators">
-            <!-- Indicators will be added by JavaScript -->
+          <div class="pipeline-progress">
+            <div class="progress-container">
+              <div class="progress-bar" id="pipeline-progress"></div>
+            </div>
+            <div class="stage-indicators" id="stage-indicators">
+              <!-- Indicators will be added by JavaScript -->
+            </div>
+            <p class="pipeline-status" id="pipeline-status">Stage 1 of 6: Ideation & Concepts</p>
           </div>
         </div>
         
-        <p class="nova-voice" id="pipeline-status">// Pipeline status: active. Agents syncing. Creative flow: optimal.</p>
+        <p class="nova-voice" id="pipeline-status-voice">// Pipeline status: active. Agents syncing. Creative flow: optimal.</p>
       </div>
     </section>
 
@@ -456,9 +782,189 @@
   <div id="footer-container"></div>
 
   <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/theme-switcher.js" defer></script>
-  <script src="/js/scroll-animations.js" defer></script>
-  <script src="/js/project-cards.js" defer></script>
-  <script src="/js/pipeline.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/main.js" defer></script>
+  <script src="/modules/breadcrumb.js" defer></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize the AI Pipeline
+      initAIPipeline();
+      
+      // Initialize collapsible sections
+      initCollapsibleSections();
+    });
+    
+    function initAIPipeline() {
+      const track = document.getElementById('pipeline-track');
+      const prevBtn = document.getElementById('pipeline-prev');
+      const nextBtn = document.getElementById('pipeline-next');
+      const progressBar = document.getElementById('pipeline-progress');
+      const statusText = document.getElementById('pipeline-status');
+      const statusVoice = document.getElementById('pipeline-status-voice');
+      const indicatorsContainer = document.getElementById('stage-indicators');
+      
+      if (!track || !prevBtn || !nextBtn || !progressBar || !statusText || !statusVoice || !indicatorsContainer) {
+        console.warn('AI Pipeline: Required elements not found');
+        return;
+      }
+      
+      const stages = Array.from(track.querySelectorAll('.pipeline-stage'));
+      const totalStages = stages.length;
+      let currentStage = 0;
+      let isAnimating = false;
+      
+      // Create stage indicators
+      stages.forEach((_, index) => {
+        const indicator = document.createElement('button');
+        indicator.className = 'stage-indicator';
+        indicator.setAttribute('aria-label', `Go to stage ${index + 1}`);
+        indicator.addEventListener('click', () => goToStage(index));
+        indicatorsContainer.appendChild(indicator);
+      });
+      
+      const indicators = Array.from(indicatorsContainer.querySelectorAll('.stage-indicator'));
+      
+      // Update the UI based on current stage
+      function updateUI() {
+        // Update progress bar
+        const progress = ((currentStage + 1) / totalStages) * 100;
+        progressBar.style.width = `${progress}%`;
+        
+        // Update buttons
+        prevBtn.disabled = currentStage === 0;
+        nextBtn.disabled = currentStage === totalStages - 1;
+        
+        // Update indicators
+        indicators.forEach((indicator, index) => {
+          if (index === currentStage) {
+            indicator.classList.add('active');
+            indicator.setAttribute('aria-current', 'true');
+          } else {
+            indicator.classList.remove('active');
+            indicator.removeAttribute('aria-current');
+          }
+        });
+        
+        // Update status text
+        const stageTitles = stages.map(stage => stage.querySelector('h3').textContent.trim());
+        statusText.textContent = `Stage ${currentStage + 1} of ${totalStages}: ${stageTitles[currentStage]}`;
+        
+        // Update status voice (Nova voice)
+        const statusMessages = [
+          '// Pipeline status: active. Ideation phase initiated. Creative flow: optimal.',
+          '// Motion design systems engaged. Visual rhythm: synchronized.',
+          '// Asset generation in progress. Creative parameters: within spec.',
+          '// Voice synthesis active. Tone matrix: calibrated.',
+          '// Project management systems online. Task completion: 87%.',
+          '// Review cycle complete. Quality assurance: passed.'
+        ];
+        statusVoice.textContent = statusMessages[currentStage] || '// Pipeline status: active. Systems nominal.';
+      }
+      
+      // Navigate to a specific stage
+      function goToStage(stageIndex) {
+        if (stageIndex < 0 || stageIndex >= totalStages || isAnimating) return;
+        
+        isAnimating = true;
+        currentStage = stageIndex;
+        
+        // Get the target stage and its position
+        const stageElement = stages[stageIndex];
+        const containerWidth = track.offsetWidth;
+        const targetScroll = stageElement.offsetLeft - ((containerWidth - stageElement.offsetWidth) / 2);
+        
+        // Smooth scroll to the stage
+        track.scrollTo({
+          left: targetScroll,
+          behavior: 'smooth'
+        });
+        
+        // Update UI after scroll
+        setTimeout(() => {
+          updateUI();
+          isAnimating = false;
+        }, 300);
+      }
+      
+      // Event listeners
+      prevBtn.addEventListener('click', () => goToStage(currentStage - 1));
+      nextBtn.addEventListener('click', () => goToStage(currentStage + 1));
+      
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
+          return; // Don't interfere with form inputs
+        }
+        
+        switch (e.key) {
+          case 'ArrowLeft':
+            goToStage(currentStage - 1);
+            break;
+          case 'ArrowRight':
+            goToStage(currentStage + 1);
+            break;
+          case 'Home':
+            e.preventDefault();
+            goToStage(0);
+            break;
+          case 'End':
+            e.preventDefault();
+            goToStage(totalStages - 1);
+            break;
+        }
+      });
+      
+      // Touch/swipe support
+      let touchStartX = 0;
+      let touchEndX = 0;
+      
+      track.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+      }, { passive: true });
+      
+      track.addEventListener('touchend', (e) => {
+        if (!touchStartX) return;
+        
+        touchEndX = e.changedTouches[0].clientX;
+        const diff = touchStartX - touchEndX;
+        
+        // Minimum swipe distance (in pixels)
+        if (Math.abs(diff) > 50) {
+          if (diff > 0) {
+            // Swipe left - go to next
+            goToStage(Math.min(currentStage + 1, totalStages - 1));
+          } else {
+            // Swipe right - go to previous
+            goToStage(Math.max(currentStage - 1, 0));
+          }
+        }
+        
+        touchStartX = 0;
+        touchEndX = 0;
+      }, { passive: true });
+      
+      // Initial UI update
+      updateUI();
+    }
+    
+    function initCollapsibleSections() {
+      const collapsibleButtons = document.querySelectorAll('.collapsible-button');
+      
+      collapsibleButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const isExpanded = button.getAttribute('aria-expanded') === 'true';
+          button.setAttribute('aria-expanded', !isExpanded);
+          
+          // Toggle icon
+          const icon = button.querySelector('i');
+          if (icon) {
+            icon.className = isExpanded ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
+          }
+        });
+      });
+    }
+  </script>
 </body>
 </html>
