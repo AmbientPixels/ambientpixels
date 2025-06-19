@@ -3863,19 +3863,68 @@ body[data-theme="light"] .project-section:hover {
   border-top: 1px dashed rgba(75, 202, 255, 0.2);
 }
 
+/* Tool Tags */
 .tool-tag {
-  background: rgba(75, 202, 255, 0.1);
-  color: #a0d8ff;
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
   font-size: 0.8rem;
-  border: 1px solid rgba(75, 202, 255, 0.2);
-  transition: all 0.2s ease;
+  font-weight: 500;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+  display: inline-block;
+  margin: 0.15rem;
+  position: relative;
+  overflow: hidden;
 }
 
-.pipeline-stage:hover .tool-tag {
+/* Different colored tool tags */
+.tool-tag:nth-child(3n+1) {
+  background: rgba(75, 202, 255, 0.1);
+  color: #4bcaff;
+  border-color: rgba(75, 202, 255, 0.2);
+}
+
+.tool-tag:nth-child(3n+2) {
+  background: rgba(138, 43, 226, 0.1);
+  color: #b07aff;
+  border-color: rgba(138, 43, 226, 0.2);
+}
+
+.tool-tag:nth-child(3n+3) {
+  background: rgba(0, 255, 179, 0.1);
+  color: #00ffb3;
+  border-color: rgba(0, 255, 179, 0.2);
+}
+
+/* Hover effects */
+.pipeline-stage:hover .tool-tag:nth-child(3n+1) {
   background: rgba(75, 202, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(75, 202, 255, 0.2);
   transform: translateY(-2px);
+}
+
+.pipeline-stage:hover .tool-tag:nth-child(3n+2) {
+  background: rgba(138, 43, 226, 0.2);
+  box-shadow: 0 2px 8px rgba(138, 43, 226, 0.2);
+  transform: translateY(-2px);
+}
+
+.pipeline-stage:hover .tool-tag:nth-child(3n+3) {
+  background: rgba(0, 255, 179, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 255, 179, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Subtle pulse animation on hover */
+@keyframes tagPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.tool-tag:hover {
+  animation: tagPulse 0.5s ease;
+  z-index: 1;
 }
 
 /* Progress Bar */
