@@ -3674,6 +3674,370 @@ body[data-theme="light"] .project-section:hover {
 .badge-emerald { background-color: rgba(16, 185, 129, 0.12); color: #a7f3d0; border: 1px solid rgba(46, 213, 115, 0.3); }
 .badge-crimson { background-color: rgba(220, 38, 38, 0.12); color: #fecaca; border: 1px solid rgba(248, 113, 113, 0.3); }
 .badge-midnight { background-color: rgba(30, 41, 59, 0.15); color: #cbd5e1; border: 1px solid #475569; }
+/* AI Pipeline Section */
+.ai-pipeline-section {
+  margin: 4rem 0;
+  position: relative;
+  overflow: hidden;
+  padding: 2rem 0;
+  background: linear-gradient(135deg, rgba(25, 10, 40, 0.3), rgba(40, 10, 60, 0.2));
+  border-radius: 16px;
+  border: 1px solid rgba(186, 85, 211, 0.2);
+}
+
+.ai-pipeline-section h2 {
+  color: #f5d0fe;
+  font-size: 2.2rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 10px rgba(233, 78, 255, 0.3);
+  position: relative;
+  display: inline-block;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 2rem;
+  background: linear-gradient(90deg, transparent, rgba(147, 51, 234, 0.1), transparent);
+  padding-bottom: 1rem;
+}
+
+.ai-pipeline-section .section-description {
+  color: #c4b5fd;
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 3rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  padding: 0 1rem;
+}
+
+.pipeline-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: relative;
+}
+
+.pipeline-step {
+  display: flex;
+  margin-bottom: 2.5rem;
+  position: relative;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.pipeline-step.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #8b5cf6, #c084fc);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-right: 1.5rem;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.3);
+}
+
+.step-content {
+  background: rgba(65, 15, 128, 0.2);
+  border: 1px solid rgba(186, 85, 211, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  flex-grow: 1;
+  position: relative;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.step-content:hover {
+  transform: translateX(5px);
+  border-color: rgba(233, 78, 255, 0.4);
+  box-shadow: 0 5px 20px rgba(138, 43, 226, 0.2);
+}
+
+.step-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(192, 132, 252, 0.15));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  color: #e2a6ff;
+  box-shadow: 0 4px 15px rgba(138, 43, 226, 0.2);
+  float: left;
+  margin-right: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.step-content h3 {
+  color: #f5d0fe;
+  margin: 0 0 0.5rem 0;
+  font-size: 1.3rem;
+  padding-top: 0.5rem;
+}
+
+.step-content p {
+  color: #d8b4fe;
+  margin: 0;
+  line-height: 1.6;
+  clear: both;
+  padding-top: 0.5rem;
+}
+
+.step-connector {
+  position: absolute;
+  left: 20px;
+  top: 100%;
+  height: 2.5rem;
+  width: 2px;
+  background: linear-gradient(to bottom, #8b5cf6, #c084fc);
+  opacity: 0.5;
+  z-index: 1;
+}
+
+.pipeline-step:last-child .step-connector {
+  display: none;
+}
+
+.pipeline-tech {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 3rem;
+  padding: 0 1rem;
+}
+
+.tech-tag {
+  background: rgba(147, 51, 234, 0.15);
+  color: #d8b4fe;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid rgba(192, 132, 252, 0.2);
+  transition: all 0.3s ease;
+}
+
+.tech-tag:hover {
+  background: rgba(147, 51, 234, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(138, 43, 226, 0.2);
+}
+
+.tech-tag i {
+  color: #c084fc;
+}
+
+/* Animation for pipeline steps */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .pipeline-step {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .step-number {
+    margin-bottom: 1rem;
+    margin-left: 1.5rem;
+  }
+  
+  .step-connector {
+    left: 40px;
+    top: 40px;
+    height: calc(100% + 2.5rem);
+  }
+  
+  .step-icon {
+    float: none;
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+  
+  .step-content h3,
+  .step-content p {
+    clear: none;
+  }
+}
+
+/* AI Flow Section */
+.ai-flow-section {
+  margin: 4rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.ai-flow-section h2 {
+  color: #f5d0fe;
+  font-size: 2.2rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 10px rgba(233, 78, 255, 0.3);
+}
+
+.ai-flow-section .section-description {
+  color: #c4b5fd;
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 3rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+/* AI Flow Cards */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.card {
+  background: linear-gradient(135deg, rgba(65, 15, 128, 0.15), rgba(101, 40, 181, 0.2));
+  border: 1px solid rgba(186, 85, 211, 0.2);
+  border-radius: 12px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(138, 43, 226, 0.2);
+  border-color: rgba(233, 78, 255, 0.4);
+}
+
+.card-icon {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.2), rgba(192, 132, 252, 0.15));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  color: #e2a6ff;
+  box-shadow: 0 4px 15px rgba(138, 43, 226, 0.2);
+}
+
+.card h3 {
+  color: #f5d0fe;
+  margin: 0 0 1rem;
+  font-size: 1.4rem;
+}
+
+.card p {
+  color: #d8b4fe;
+  margin: 0 0 1.5rem;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.card-footer {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tag {
+  background: rgba(147, 51, 234, 0.15);
+  color: #d8b4fe;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid rgba(192, 132, 252, 0.2);
+  transition: all 0.2s ease;
+}
+
+.tag i {
+  font-size: 0.7em;
+  color: #c084fc;
+}
+
+/* Glow hover effect */
+.glow-hover {
+  position: relative;
+  z-index: 1;
+}
+
+.glow-hover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(233, 78, 255, 0.1), transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(147, 51, 234, 0.1), transparent 50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: -1;
+  border-radius: inherit;
+}
+
+.glow-hover:hover::after {
+  opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .ai-flow-section h2 {
+    font-size: 1.8rem;
+  }
+  
+  .card {
+    padding: 1.5rem;
+  }
+}
+
 .badge-aurora { background-color: rgba(59, 130, 246, 0.12); color: #bfdbfe; border: 1px solid rgba(59, 130, 246, 0.3); }
 .badge-royal { background-color: rgba(79, 70, 229, 0.12); color: #c7d2fe; border: 1px solid rgba(99, 102, 241, 0.3); }
 .badge-mystic { background-color: rgba(139, 92, 246, 0.12); color: #ddd6fe; border: 1px solid rgba(139, 92, 246, 0.3); }
