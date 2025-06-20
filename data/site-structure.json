@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-06-19T13:33:08.116Z",
+  "updated": "2025-06-20T13:32:15.061Z",
   "root": [
     {
       "type": "folder",
@@ -398,6 +398,11 @@
       "children": [
         {
           "type": "page",
+          "name": "ai-pipeline.html",
+          "path": "modules/ai-pipeline.html"
+        },
+        {
+          "type": "page",
           "name": "breadcrumb.html",
           "path": "modules/breadcrumb.html"
         },
@@ -630,6 +635,11 @@
         },
         {
           "type": "page",
+          "name": "demo.html",
+          "path": "projects/demo.html"
+        },
+        {
+          "type": "page",
           "name": "figma-fleet.html",
           "path": "projects/figma-fleet.html"
         },
@@ -715,6 +725,11 @@
           "name": "video",
           "path": "projects/video",
           "children": [
+            {
+              "type": "page",
+              "name": "demo.html",
+              "path": "projects/video/demo.html"
+            },
             {
               "type": "page",
               "name": "index.html",
@@ -889,6 +904,11 @@
       "children": [
         {
           "type": "page",
+          "name": "_default_template.html",
+          "path": "tools/_default_template.html"
+        },
+        {
+          "type": "page",
           "name": "accessibility-demo.html",
           "path": "tools/accessibility-demo.html"
         },
@@ -936,6 +956,11 @@
           "type": "page",
           "name": "index.html",
           "path": "tools/index.html"
+        },
+        {
+          "type": "page",
+          "name": "link-styles-demo.html",
+          "path": "tools/link-styles-demo.html"
         },
         {
           "type": "page",
