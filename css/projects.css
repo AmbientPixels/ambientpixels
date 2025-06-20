@@ -226,17 +226,25 @@
   border-bottom: 1px solid #3a3a4a;
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 
-.code-header:before {
-  content: '';
+.code-header-dots {
+  display: flex;
+  gap: 8px;
+  margin-right: 16px;
+}
+
+.code-dot {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #ff5f56;
-  margin-right: 8px;
-  box-shadow: 20px 0 0 #ffbd2e, 40px 0 0 #27c93f;
+  display: inline-block;
 }
+
+.code-dot.red { background: #ff5f56; }
+.code-dot.yellow { background: #ffbd2e; }
+.code-dot.green { background: #27c93f; }
 
 .code-snippet pre {
   margin: 0;
