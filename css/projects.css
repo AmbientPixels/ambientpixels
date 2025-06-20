@@ -4449,7 +4449,7 @@ body[data-theme="light"] .project-section:hover {
   display: flex;
   gap: 1.5rem;
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  padding: 0 1rem;
+  padding: 0.0rem;
   width: max-content;
 }
 
