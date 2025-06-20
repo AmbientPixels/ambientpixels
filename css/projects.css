@@ -4574,7 +4574,39 @@ body[data-theme="light"] .project-section:hover {
   cursor: default;
   line-height: 1;
   text-align: center;
+  background: unset;
+  color: unset;
+  border-color: unset;
 }
+
+.tool-tag[class*="badge-"] {
+  background: inherit;
+  color: inherit;
+  border-color: inherit;
+}
+
+[class^="badge-"] {
+  background-color: inherit;
+  color: inherit;
+  border-color: inherit;
+}
+
+.tool-tag.badge-solid-purple, .tool-tag.badge-solid-teal, .tool-tag.badge-solid-gold, .tool-tag.badge-solid-pink, .tool-tag.badge-solid-green, .tool-tag.badge-aurora, .tool-tag.badge-solid-orange, .tool-tag.badge-solid-slate, .tool-tag.badge-solid-red {
+  background-color: initial;
+  color: initial;
+  border-color: initial;
+}
+
+.tool-tag.badge-solid-purple { background-color: rgba(139, 92, 246, 0.12) !important; color: #e2d6ff !important; border: 1px solid rgba(167, 139, 250, 0.3) !important; }
+.tool-tag.badge-solid-teal { background-color: rgba(20, 184, 166, 0.12) !important; color: #99f6e4 !important; border: 1px solid rgba(45, 212, 191, 0.3) !important; }
+.tool-tag.badge-solid-gold { background-color: rgba(245, 158, 11, 0.15) !important; color: #fef08a !important; border: 1px solid rgba(251, 191, 36, 0.3) !important; }
+.tool-tag.badge-solid-pink { background-color: rgba(236, 72, 153, 0.12) !important; color: #fbcfe8 !important; border: 1px solid rgba(244, 114, 182, 0.3) !important; }
+.tool-tag.badge-solid-green { background-color: #22c55e1f !important; color: #bbf7d0 !important; border: 1px solid #22c55e4d !important; }
+.tool-tag.badge-aurora { background-color: rgba(59, 130, 246, 0.12) !important; color: #bfdbfe !important; border: 1px solid rgba(59, 130, 246, 0.3) !important; }
+.tool-tag.badge-solid-orange { background-color: rgba(249, 115, 22, 0.12) !important; color: #fed7aa !important; border: 1px solid rgba(251, 146, 60, 0.3) !important; }
+.tool-tag.badge-solid-slate { background-color: rgba(100, 116, 139, 0.12) !important; color: #e2e8f0 !important; border: 1px solid rgba(148, 163, 184, 0.3) !important; }
+.tool-tag.badge-solid-red { background-color: rgba(220, 38, 38, 0.12) !important; color: #fecaca !important; border: 1px solid rgba(248, 113, 113, 0.3) !important; }
+
 
 .tool-tag i {
   font-size: 1rem;
