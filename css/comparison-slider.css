@@ -1,2 +1,138 @@
-/* Nova Comparison Slider - Reset */
-/* All styles have been removed as requested */
+/* Nova Comparison Slider - Restored and Modernized */
+.nova-comparison-slider {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: 2rem auto;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--aura-bg, #181c24);
+}
+
+.comparison-container {
+  position: relative;
+  width: 100%;
+  height: 340px;
+  min-height: 200px;
+  background: var(--aura-bg, #181c24);
+  user-select: none;
+}
+
+.comparison-before,
+.comparison-after {
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.comparison-before {
+  z-index: 2;
+  border-right: 2px solid var(--mood-violet, #a18aff);
+  transition: width 0.25s cubic-bezier(.4,1.4,.7,1);
+}
+
+.comparison-after {
+  z-index: 1;
+}
+
+.comparison-before img,
+.comparison-after img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-drag: none;
+}
+
+.slider-handle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 10;
+  width: 32px;
+  height: 100%;
+  margin-left: -16px;
+  cursor: ew-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  background: none;
+  border: none;
+}
+
+.slider-line {
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--mood-violet, #a18aff) 0%, var(--aura-glow, #fff) 100%);
+  border-radius: 2px;
+  box-shadow: 0 0 12px 2px var(--mood-violet, #a18aff33);
+  transition: background 0.2s;
+}
+
+.slider-handle:focus .slider-line,
+.slider-handle:active .slider-line {
+  background: linear-gradient(180deg, var(--glow-accent, #5ac8fa) 0%, var(--mood-violet, #a18aff) 100%);
+  box-shadow: 0 0 0 3px var(--aura-glow, #fff5), 0 0 16px 2px var(--mood-violet, #a18aff55);
+}
+
+.comparison-label {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  z-index: 20;
+  padding: 0.25em 0.75em;
+  background: rgba(24,28,36,0.85);
+  color: var(--glow-accent, #fff);
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.comparison-label.right {
+  left: auto;
+  right: 1rem;
+  background: rgba(38, 30, 60, 0.85);
+}
+.comparison-label[aria-hidden="true"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.comparison-legend {
+  display: flex;
+  justify-content: space-between;
+  margin: 1rem 0 0 0;
+  font-size: 0.96rem;
+  color: var(--mood-violet, #a18aff);
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.legend-before, .legend-after {
+  padding: 0 0.5em;
+}
+
+@media (max-width: 600px) {
+  .comparison-container {
+    height: 180px;
+  }
+  .comparison-label, .comparison-label.right {
+    font-size: 0.92rem;
+    padding: 0.18em 0.6em;
+    bottom: 0.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
+  }
+  .slider-handle {
+    width: 24px;
+    margin-left: -12px;
+  }
+}
