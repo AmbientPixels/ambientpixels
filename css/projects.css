@@ -712,21 +712,6 @@
   }
 }
 
-/* ===== List Style Reset ===== */
-ul, ol, li {
-  list-style: none !important;
-}
-
-/* Remove any default list markers */
-ul, ol {
-  list-style-type: none !important;
-}
-
-ul li::before, ol li::before {
-  display: none !important;
-  content: "" !important;
-}
-
 /* ===== Bullet Cards ===== */
 .bullet-cards {
   display: grid;
