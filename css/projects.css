@@ -4269,6 +4269,29 @@ body[data-theme="light"] .project-section:hover {
   --glow-color: rgba(255, 68, 68, 0.5);
 }
 
+/* Multicolor Hero Gradient (matches badge-multicolor-hero) */
+.hero-gradient-multicolor-hero {
+  background: linear-gradient(135deg,
+    #0078D4 0%,   /* Word blue */
+    #107C10 18%,   /* Excel green */
+    #FFB900 36%,   /* PowerPoint yellow/orange */
+    #D13430 54%,   /* Red */
+    #8A2BE2 72%,   /* Purple */
+    #FF6EC4 100%   /* Magenta/Pink accent */
+  );
+  --glow-color: rgba(255, 110, 196, 0.22);
+  background-size: 300% 300%;
+  animation: gradientShift 16s ease-in-out infinite;
+}
+
+/* Solarflare Gradient (matches badge-solarflare) */
+.hero-gradient-solarflare {
+  background: linear-gradient(90deg, #EDD50C 0%, #EF5D16 100%);
+  --glow-color: rgba(239, 93, 22, 0.22);
+  background-size: 200% 200%;
+  animation: gradientShift 12s ease-in-out infinite;
+}
+
 /* 30. Solid Purple */
 .hero-gradient-solid-purple {
   background: linear-gradient(135deg, #9b59b6, #8e44ad);
@@ -5242,6 +5265,56 @@ body[data-theme="light"] .project-section:hover {
 }
 
 /* Base badge styles */
+
+/* Multi-color gradient badge for hero/title badges */
+.badge-multicolor-hero {
+  display: inline-block;
+  padding: 0.4rem 1.1rem;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  letter-spacing: 0.08em;
+  background: linear-gradient(135deg,
+    #0078D4 0%,   /* Word blue */
+    #107C10 18%,   /* Excel green */
+    #FFB900 36%,   /* PowerPoint yellow/orange */
+    #D13430 54%,   /* Red */
+    #8A2BE2 72%,   /* Purple */
+    #FF6EC4 100%   /* Magenta/Pink accent */
+  );
+  color: #fff;
+  border: none;
+  box-shadow: 0 2px 8px rgba(90, 228, 255, 0.07);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.badge-multicolor-hero:hover {
+  box-shadow: 0 4px 18px rgba(90, 228, 255, 0.14);
+  transform: translateY(-2px) scale(1.03);
+}
+
+/* Simple yellow-orange gradient badge */
+.badge-solarflare {
+  display: inline-block;
+  padding: 0.4rem 1.1rem;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  letter-spacing: 0.08em;
+  background: linear-gradient(90deg, #EDD50C 0%, #EF5D16 100%);
+  color: #2a1800;
+  border: none;
+  box-shadow: 0 2px 8px rgba(255, 184, 0, 0.08);
+  text-shadow: 0 1px 2px rgba(255,255,255,0.12);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.badge-solarflare:hover {
+  box-shadow: 0 4px 16px rgba(239, 93, 22, 0.14);
+  transform: translateY(-2px) scale(1.03);
+}
+
 .hero-card-badge {
   display: inline-block;
   padding: 0.4rem 1rem;
