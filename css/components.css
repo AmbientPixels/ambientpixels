@@ -1752,6 +1752,13 @@ body[data-theme="light"] .nova-quip {
   box-shadow: 0 0 3px #8a2be230;
 }
 
+/* Muted Violet Aura: darker, less saturated and less bright for subtle mood blocks */
+.aura-violet-muted {
+  background: linear-gradient(135deg, #13001a, #2d1740);
+  box-shadow: 0 0 2px #4b068c33, 0 1px 8px #1a002820;
+  /* Optionally, you can tune the shadow or add a slight border for more separation */
+}
+
 .aura-cyan {
   background: linear-gradient(135deg, #001c1c, #00aaaa);
   box-shadow: 0 0 3px #00cccc30;
@@ -2259,6 +2266,12 @@ body[data-theme="light"] .nova-quip {
 }
 
 /* ===== Project Card Styles ===== */
+
+/* Add margin below feature card descriptions for separation from tags */
+.feature-card-desc {
+  margin-bottom: 0.75rem;
+}
+
 .project-card {
   background: rgba(255, 255, 255, 0.03);
   border-radius: 10px;
