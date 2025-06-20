@@ -29,6 +29,18 @@
   pointer-events: none;
 }
 
+.comparison-mask {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 50%; /* default, will be updated by JS */
+  background: var(--aura-bg, #181c24);
+  z-index: 5;
+  transition: left 0.25s cubic-bezier(.4,1.4,.7,1);
+  pointer-events: none;
+}
+
 .comparison-before {
   z-index: 2;
   border-right: 2px solid var(--mood-violet, #a18aff);

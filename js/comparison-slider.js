@@ -127,11 +127,14 @@ class NovaComparisonSlider {
     const roundedPosition = Math.round(position);
     
     // Update DOM
-    this.before.style.width = `${position}%`;
+    // Instead of resizing .comparison-before, move the mask overlay
+    const mask = this.container.querySelector('.comparison-mask');
+    if (mask) {
+      mask.style.left = `${position}%`;
+    }
     this.handle.style.left = `${position}%`;
     this.handle.setAttribute('aria-valuenow', roundedPosition);
     this.handle.setAttribute('aria-valuetext', `${roundedPosition}%`);
-    
     // Update labels visibility
     this.updateLabels(position);
   }
