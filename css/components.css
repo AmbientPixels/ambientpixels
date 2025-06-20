@@ -2271,7 +2271,14 @@ body[data-theme="light"] .nova-quip {
 .feature-card-desc {
   margin-bottom: 0.75rem;
 }
-
+.tech-badge i,
+.project-tag i {
+  font-size: 1.1em;
+  margin-right: 0.4em;
+  color: inherit;
+  vertical-align: middle;
+  display: inline-block;
+}
 .project-card {
   background: rgba(255, 255, 255, 0.03);
   border-radius: 10px;

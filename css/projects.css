@@ -318,12 +318,6 @@
   border-color: var(--accent-color, #5ac8fa);
 }
 
-.feature-card i {
-  font-size: 1.8rem;
-  color: var(--accent-color, #5ac8fa);
-  margin-bottom: 1rem;
-}
-
 .feature-card h3, .feature-card h4 {
   margin: 0.5rem 0;
   color: #fff;
@@ -661,11 +655,7 @@
     padding: 1.25rem;
   }
   
-  .feature-card i, 
-  .metric-card i, 
-  .learning-card i {
-    font-size: 1.5rem;
-  }
+
   
   .metric-card h3 {
     font-size: 1.8rem;
@@ -2190,7 +2180,7 @@ details.details-toggle p {
 
 /* Adjust role tags in hero */
 .hero-card-content .role-tags {
-  margin: 1.25rem 0;
+  margin: 1.25rem 0 2rem 0;
 }
 
 /* Style the resume link button */
