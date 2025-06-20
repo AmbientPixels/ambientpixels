@@ -357,7 +357,6 @@
   border-radius: 4px;
   padding: 1.25rem;
   margin: 1.5rem 0;
-  display: flex;
   gap: 1rem;
 }
 
@@ -462,17 +461,8 @@
 }
   margin-bottom: 1rem;
   padding-left: 2rem;
-  position: relative;
-  color: #ddd;
-  line-height: 1.6;
-}
-
 .benefits-list li:before, ul.benefits-list > li:before {
-  content: '';
-  display: none;
-}
-  /* Use Font Awesome icon instead of ✓ */
-  font-family: 'Font Awesome 6 Free', 'Font Awesome 5 Free', 'FontAwesome', Arial, sans-serif;
+  font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", "FontAwesome", Arial, sans-serif;
   content: "\f058";
   font-weight: 900;
   font-size: 1.1em;
