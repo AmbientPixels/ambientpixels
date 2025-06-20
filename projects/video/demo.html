@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html lang="en" class="video-project-page">
 <head>
+  <link rel="stylesheet" href="/css/ai-pipeline.css" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Animated video showcase for the Ninja Theory Help Center on Xbox, highlighting key support features and accessibility options." />
@@ -221,7 +222,7 @@
 
   </main>
 
-  <div id="footer-container"></div>
+
   <script src="/js/init-header-footer.js"></script>
   <script src="/js/theme.js"></script>
   <script src="/js/lightbox.js" type="module"></script>
@@ -252,21 +253,6 @@
   <div id="banner-container"></div>
   <header id="nav-header"></header>
 
-  <section class="hero-card hero-card-video">
-    <div class="hero-card-image project-bg-video card-image-container">
-      <i class="fas fa-video project-icon" aria-hidden="true"></i>
-    </div>
-    <div class="hero-card-content">
-      <div class="hero-card-badge">Help Center Showcase Video</div>
-      <h1>Ninja Theory <span class="video-glow">Help Center</span></h1>
-      <p class="hero-card-description">Animated Video Showcase for Xbox Support</p>
-      <div class="project-tags">
-        <span class="project-tag"><i class="fas fa-gamepad" aria-hidden="true"></i> Xbox</span>
-        <span class="project-tag"><i class="fas fa-video" aria-hidden="true"></i> Animation</span>
-        <span class="project-tag"><i class="fas fa-headset" aria-hidden="true"></i> Support</span>
-      </div>
-    </div>
-  </section>
 
   <main class="grid-container">
     <section class="content-section grid-col-12">
@@ -346,6 +332,45 @@
       <div class="feature-grid">
         <div class="feature-card">
           <h3><i class="fas fa-layer-group"></i> Streamlined Layout</h3>
+        </div>
+      </div>
+    </section>
+
+    <!-- DEMO: Service Grid & Service Card -->
+    <section class="content-section grid-col-12" id="service-card-demo">
+      <h2><i class="fas fa-th-large"></i> .service-grid & .service-card</h2>
+      <div class="note-box" style="margin-bottom:1.5rem;">Below is a demo of the Nova-compliant <strong>.service-grid</strong> and <strong>.service-card</strong> layout. Use this section for design review and screenshotting. Each card demonstrates icon animation, elevation, and responsive layout.</div>
+      <div class="service-grid">
+        <div class="service-card">
+          <div class="service-icon"><i class="fas fa-bolt"></i></div>
+          <h3>Lightning-Fast API</h3>
+          <p>Deliver real-time results with a highly optimized, low-latency API layer, built for scale and reliability.</p>
+          <div class="service-card-footer">
+            <span class="tech-badge"><i class="fas fa-server"></i> Node.js</span>
+            <span class="tech-badge"><i class="fas fa-cloud"></i> Azure</span>
+          </div>
+        </div>
+        <div class="service-card">
+          <div class="service-icon"><i class="fas fa-shield-alt"></i></div>
+          <h3>Secure by Design</h3>
+          <p>All data and endpoints are protected by enterprise-grade security, with full GDPR and CCPA compliance.</p>
+          <div class="service-card-footer">
+            <span class="tech-badge"><i class="fas fa-lock"></i> OAuth2</span>
+            <span class="tech-badge"><i class="fas fa-user-shield"></i> Compliance</span>
+          </div>
+        </div>
+        <div class="service-card">
+          <div class="service-icon"><i class="fas fa-magic"></i></div>
+          <h3>AI-Powered Automation</h3>
+          <p>Automate workflows and enhance productivity with integrated AI and prompt engineering tools.</p>
+          <div class="service-card-footer">
+            <span class="tech-badge"><i class="fas fa-robot"></i> AI</span>
+            <span class="tech-badge"><i class="fas fa-brain"></i> PromptOps</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
           <p>Clean, responsive interface with game tiles and quick access to topics, designed for easy navigation and quick information access.</p>
         </div>
         
