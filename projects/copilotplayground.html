@@ -22,38 +22,40 @@
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/projects.css" />
   <link rel="stylesheet" href="/modules/breadcrumb.css" />
+
 </head>
 <body data-theme="dark">
-  <div class="banner-container" id="banner-container">
-    <div class="banner info">
-      <i class="fas fa-sparkles banner-icon"></i>
-      <span>Polish Mode Active: Nova is refining this page! Expect frequent updates, new features, and crystalline improvements as we tune the experience.</span>
-      <button class="banner-close" aria-label="Close Banner">×</button>
-    </div>
-  </div>
   <header id="nav-header"></header>
 
-  <section class="hero-card hero-card-ai">
+  
+<section class="hero-card hero-card-ai">
   <div class="hero-card-image project-bg-ai card-image-container">
     <i class="fas fa-robot project-icon-ai"></i>
   </div>
   <div class="hero-card-content">
     <div class="hero-card-badge badge-violet">AI prompt engineering</div>
-    <h1>Copilot Playground</h1>
+    <h1>
+      AI Tools for Xbox Support
+    </h1>
     <p class="hero-card-description">
-      Prompt engineer using Copilot Playground and Foundry Toolkit to build real AI solutions for gaming support—no hype, just results.
+      Prompt engineering toolkit designed to assist Microsoft support teams in creating scalable, AI-powered content solutions.
+    </p>
+    <p class="hero-card-intro" style="font-size:1.07rem; color:var(--aura-fg,#bfcfff); margin-top:0.7rem; margin-bottom:0;">
+      Built for Xbox support, this toolkit uses AI prompt chains and automation to deliver fast, high-quality content at scale.
     </p>
     <div class="role-tags">
-  <span class="role-tag role-terminal"><i class="fas fa-terminal"></i> Prompt Engineering</span>
-  <span class="role-tag role-fewshot"><i class="fas fa-magic"></i> Few-shot Learning</span>
-  <span class="role-tag role-chain"><i class="fas fa-link"></i> Chain-of-Thought</span>
-  <span class="role-tag role-validation"><i class="fas fa-shield-alt"></i> Validation</span>
-  <span class="role-tag role-localization"><i class="fas fa-language"></i> Localization</span>
-  <span class="role-tag role-instant"><i class="fas fa-bolt"></i> Instant Answers</span>
-  <span class="role-tag role-automation"><i class="fas fa-robot"></i> Automation</span>
-</div>
+      <span class="role-tag role-terminal"><i class="fas fa-terminal"></i> Prompt Engineering</span>
+      <span class="role-tag role-fewshot"><i class="fas fa-magic"></i> Few-shot Learning</span>
+      <span class="role-tag role-chain"><i class="fas fa-link"></i> Chain-of-Thought</span>
+      <span class="role-tag role-validation"><i class="fas fa-shield-alt"></i> Validation</span>
+      <span class="role-tag role-localization"><i class="fas fa-language"></i> Localization</span>
+      <span class="role-tag role-instant"><i class="fas fa-bolt"></i> Instant Answers</span>
+      <span class="role-tag role-automation"><i class="fas fa-robot"></i> Automation</span>
+    </div>
   </div>
 </section>
+
+
 
 <main class="grid-container">
   <!-- Breadcrumb Navigation -->
@@ -100,6 +102,10 @@
           </div>
           <blockquote class="note-box">“It used to take a day to publish across all locales. Now it’s 20 minutes.”</blockquote>
         </div>
+      <!-- Clarification Note: Copilot Playground is independent -->
+      <div class="copilot-clarifier" style="max-width: 820px; margin: 1.5rem auto 0; padding: 0.75rem 1.25rem; background: var(--aura-bg, #23233b); border-radius: 8px; color: var(--aura-fg, #bfcfff); font-size: 1rem; box-shadow: 0 2px 8px rgba(60,80,180,0.06); border-left: 4px solid #7f57ff;">
+        <strong>Note:</strong> “Copilot Playground” is an independently developed concept space for experimenting with prompt engineering workflows.
+      </div>
       </div>
     </section>
 
@@ -641,51 +647,12 @@
   <script type="module" src="/js/lightbox.js"></script>
   <script src="/js/nav.js"></script>
   <script src="/js/main.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var banner = document.querySelector('#banner-container .banner');
-      var closeBtn = document.querySelector('#banner-container .banner-close');
-      var autoCloseTimer;
-      var displayDuration = 8000; // 8 seconds to read
-      var fadeOutDuration = 500; // 0.5 seconds to fade out
-      
-      function showBanner() {
-        if (!banner) return;
-        banner.classList.remove('hiding');
-        banner.classList.add('show');
-        
-        if (autoCloseTimer) clearTimeout(autoCloseTimer);
-        
-        autoCloseTimer = setTimeout(function() {
-          hideBanner();
-        }, displayDuration);
-      }
-      
-      function hideBanner() {
-        if (!banner) return;
-        
-        banner.classList.remove('show');
-        banner.classList.add('hiding');
-        
-        setTimeout(function() {
-          if (banner && banner.parentNode) {
-            banner.parentNode.removeChild(banner);
-          }
-        }, fadeOutDuration);
-      }
-      
-      if (banner) {
-        setTimeout(showBanner, 500);
-        
-        if (closeBtn) {
-          closeBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            hideBanner();
-            if (autoCloseTimer) clearTimeout(autoCloseTimer);
-          });
-        }
-      }
-    });
-  </script>
+  <script src="/js/banner.js" defer></script>
+  
+  <!-- Footer Disclaimer: Branding and Independence Notice -->
+  <footer class="footer-disclaimer" style="max-width: 900px; margin: 2.5rem auto 1.5rem; padding: 1.25rem 1.5rem; background: var(--aura-bg, #23233b); border-radius: 8px; color: var(--aura-fg, #bfcfff); font-size: 0.98rem; box-shadow: 0 2px 8px rgba(60,80,180,0.05); border-left: 4px solid #7f57ff;">
+    <strong>Disclaimer:</strong> This page showcases independently developed tooling created for Microsoft Xbox support initiatives. It does not include proprietary assets or internal systems. “Copilot” references align with Microsoft’s public AI themes but are not affiliated with official product branding.
+  </footer>
+
 </body>
 </html>

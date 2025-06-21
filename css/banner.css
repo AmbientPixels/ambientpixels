@@ -236,7 +236,7 @@
 }
 
 /* Ensure banner takes full width and has proper border radius */
-#banner-container,
+#banner-container, 
 #banner-container .banner {
   width: 100% !important;
   max-width: 100% !important;
@@ -244,3 +244,44 @@
   -webkit-border-radius: var(--banner-radius) !important;
   -moz-border-radius: var(--banner-radius) !important;
 }
+
+/* Attach banner visually to hero section */
+.banner-below-hero {
+  position: fixed;
+  top: calc(64px + 2.5rem); /* adjust 64px if nav/hero height changes */
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  min-width: 320px;
+  max-width: 600px;
+  z-index: 1050;
+  margin: 0;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+}
+
+.banner-below-hero .banner {
+  border-radius: 0 0 14px 14px;
+  box-shadow: 0 8px 32px -8px rgba(90, 129, 244, 0.18), 0 2px 8px rgba(0,0,0,0.12), var(--glass-shadow);
+  margin: 0 auto;
+  pointer-events: auto;
+  background: linear-gradient(135deg, var(--glass-bg) 0%, rgba(25,25,40,0.85) 100%);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  color: var(--text-light);
+}
+
+@media (max-width: 700px) {
+  .banner-below-hero {
+    top: calc(48px + 1.2rem);
+    max-width: 98vw;
+    min-width: 0;
+  }
+  .banner-below-hero .banner {
+    border-radius: 0 0 10px 10px;
+    padding: 12px 10px;
+  }
+}
+

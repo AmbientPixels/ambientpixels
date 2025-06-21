@@ -1,0 +1,70 @@
+{
+    "config": {
+      "autoHide": true,
+      "closeable": true,
+      "randomize": false,
+      "moodSensitive": false,
+      "showOnLoad": "disclaimer1",
+      "defaultDuration": 10000,
+      "moodMap": {
+        "frosted wonder": "info",
+        "glitchy joy": "info",
+        "crystalline flux": "info",
+        "anxious": "warning",
+        "critical": "error",
+        "calm": "info",
+        "curious": "info",
+        "hopeful": "info",
+        "reflective": "info",
+        "restless": "warning",
+        "melancholy": "warning",
+        "excited": "info",
+        "tired": "warning"
+      }
+    },
+    "banners": {
+      "disclaimer1": {
+        "message": "⚠️ This project was developed for Microsoft, but no proprietary code or confidential data is shared.",
+        "duration": 10000,
+        "type": "info"
+      },
+      "disclaimer2": {
+        "message": "ℹ️ This page features independently built tools inspired by work done on Microsoft projects. All assets are original or public.",
+        "duration": 10000,
+        "type": "info"
+      },
+      "disclaimer3": {
+        "message": "🛡️ No internal Microsoft systems or unreleased content appear on this page. Portfolio use only.",
+        "duration": 10000,
+        "type": "info"
+      },
+      "disclaimer4": {
+        "message": "🔍 Copilot references are conceptual and not affiliated with Microsoft’s official Copilot product line.",
+        "duration": 10000,
+        "type": "info"
+      },
+      "disclaimer5": {
+        "message": "📁 All logos and trademarks remain property of their respective owners. Used here for illustrative purposes only.",
+        "duration": 10000,
+        "type": "info"
+      },
+      "disclaimer6": {
+        "message": "🧠 This case study reflects technical contributions made during Microsoft engagements, without exposing internal IP.",
+        "duration": 10000,
+        "type": "info"
+      },
+      "disclaimer7": {
+        "message": "📎 This is a creative representation of public-facing work. No confidential or contractual materials are displayed.",
+        "duration": 10000,
+        "type": "info"
+      },
+      "disclaimer8": {
+        "message": "🧪 This is an independent demo — designed with client goals in mind, but hosted and managed outside Microsoft systems.",
+        "duration": 10000,
+        "type": "info"
+      }
+    },
+    "version": "1.2.0",
+    "lastUpdated": "2025-06-20"
+  }
+  

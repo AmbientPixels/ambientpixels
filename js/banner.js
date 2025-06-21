@@ -3,7 +3,7 @@
 // Default configuration - can be overridden by window.bannerConfig
 const defaultConfig = {
   showOnLoad: true,
-  bannersPath: '/data/banners/banners.json',
+  bannersPath: '/data/banners/disclaimers.json',
   animationDuration: 500, // ms for slide animation
   messages: {}
 };
