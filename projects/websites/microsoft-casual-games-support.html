@@ -108,39 +108,43 @@
       <h2><i class="fas fa-magic"></i> Transformation in Motion</h2>
       <p class="nova-voice">Experience the evolution—drag the slider to compare the interfaces.</p>
 
-      <div class="grid-2col">
-        <div>
-          <h3>Before vs. After: Support UI Evolution</h3>
-<div class="img-compare-container" id="comparison-slider">
+      <div class="compare-3col">
+        <!-- Left: Before Pills -->
+        <div class="compare-left before-stack">
+          <h3 class="compare-col-title">Legacy UI</h3>
+          <ul class="compare-pill-stack">
+            <li class="compare-pill" data-key="text">Text Blocks</li>
+            <li class="compare-pill" data-key="nav">Manual Nav</li>
+            <li class="compare-pill" data-key="view">One View</li>
+            <li class="compare-pill" data-key="static">Static Pages</li>
+          </ul>
+        </div>
+
+        <!-- Middle: Compare Slider -->
+        <div class="compare-middle">
+          <div class="img-compare-container" id="comparison-slider">
+            <span class="compare-label compare-label-before" data-key="before">Before</span>
+            <span class="compare-label compare-label-after" data-key="after">After</span>
             <img class="img-compare-img after-img" src="/images/projects/microsoft-casual-games/screen-01-1200.png" alt="New Xbox Support Interface (after)">
             <img class="img-compare-img before-img" src="/images/projects/microsoft-casual-games/zendesk01-1200.png" alt="Legacy Zendesk Interface (before)">
             <div class="slider-handle"></div>
-         
-            <div class="windsurf-callout callout-accessibility">
-              <i class="fas fa-universal-access"></i>
-              Improved Accessibility
-            </div>
-            <div class="windsurf-callout callout-mobile">
-              <i class="fas fa-mobile-alt"></i>
-              Mobile Responsive Design
-            </div>
-            <div class="windsurf-callout callout-testing">
-              <i class="fas fa-vial"></i>
-              Automated Testing Added
-            </div>
-            <div class="windsurf-callout callout-chat">
-              <i class="fas fa-comments"></i>
-              Live Chat Integration
-            </div>
+            <!-- Overlay Callouts (appear/disappear with slider) -->
+
+            <!-- Aura ring for slider drag effect -->
+            <div class="compare-aura-ring" aria-hidden="true"></div>
+            <!-- Whisper quote for full right -->
+            <div class="compare-quote-whisper nova-voice" aria-hidden="true">“The transformation is complete.”</div>
           </div>
         </div>
-        <div>
-          <h3>What Changed</h3>
-          <ul class="pill-stack" style="--glow: #00e4ff;">
-            <li class="pill glow">Text Blocks &#x279D; <strong>Modular Cards</strong></li>
-            <li class="pill glow">Manual Nav &#x279D; <strong>Guided UX</strong></li>
-            <li class="pill glow">One View &#x279D; <strong>Contextual Flow</strong></li>
-            <li class="pill glow">Static Pages &#x279D; <strong>Dynamic Surfacing</strong></li>
+
+        <!-- Right: After Pills -->
+        <div class="compare-right after-stack">
+          <h3 class="compare-col-title">New UX</h3>
+          <ul class="compare-pill-stack">
+            <li class="compare-pill" data-key="text">Modular Cards</li>
+            <li class="compare-pill" data-key="nav">Guided UX</li>
+            <li class="compare-pill" data-key="view">Contextual Flow</li>
+            <li class="compare-pill" data-key="static">Dynamic Surfacing</li>
           </ul>
         </div>
       </div>

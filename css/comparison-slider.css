@@ -1,4 +1,140 @@
 /* Minimal, robust image comparison slider styles */
+
+/* --- 3-Column Compare Layout --- */
+.compare-3col {
+  display: grid;
+  grid-template-columns: 1.2fr 2fr 1.2fr;
+  gap: 2.5rem;
+  align-items: stretch;
+  margin: 2.5rem 0;
+}
+@media (max-width: 1100px) {
+  .compare-3col {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .compare-left, .compare-right, .compare-middle {
+    margin-bottom: 1.5rem;
+  }
+}
+.compare-left, .compare-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+.compare-col-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--mood-accent, #7cf3ff);
+  margin-bottom: 1.1rem;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 4px rgba(124,243,255,0.12);
+}
+.compare-pill-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.compare-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0.7em 1.4em;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 500;
+  background: rgba(124, 243, 255, 0.09);
+  color: var(--aura-glow, #7cf3ff);
+  border: 1.5px solid var(--aura-glow, #7cf3ff);
+  box-shadow: 0 0 0 0 rgba(124,243,255,0.0);
+  transition: box-shadow 0.2s, border-color 0.2s, color 0.2s, background 0.2s;
+  cursor: pointer;
+  position: relative;
+}
+.compare-pill.glow {
+  box-shadow: 0 0 16px 0 rgba(124,243,255,0.18), 0 1.5px 8px 0 rgba(0,0,0,0.08);
+  border-color: var(--glow, #00e4ff);
+  background: rgba(124,243,255,0.14);
+  color: var(--glow, #00e4ff);
+  z-index: 2;
+}
+.compare-pill.dim {
+  opacity: 0.5;
+  filter: blur(0.5px);
+  box-shadow: none;
+  background: rgba(124,243,255,0.05);
+  color: #8caab3;
+}
+
+/* --- Compare Slider Labels --- */
+.compare-label {
+  position: absolute;
+  top: 0.85em;
+  z-index: 5;
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 0.35em 1.1em;
+  border-radius: 999px;
+  background: rgba(34,34,34,0.92);
+  color: var(--aura-glow, #7cf3ff);
+  box-shadow: 0 2px 12px 0 rgba(124,243,255,0.08);
+  pointer-events: none;
+  user-select: none;
+  letter-spacing: 0.01em;
+  border: 1.5px solid var(--aura-glow, #7cf3ff);
+  transition: background 0.2s, color 0.2s;
+}
+.compare-label-before {
+  left: 1em;
+}
+.compare-label-after {
+  right: 1em;
+}
+
+/* --- Aura Ring for Slider Drag --- */
+.compare-aura-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 98%;
+  height: 98%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 3;
+  box-shadow: 0 0 32px 12px var(--aura-glow, #7cf3ff);
+  opacity: 0;
+  transition: opacity 0.3s, box-shadow 0.3s;
+}
+.compare-aura-ring.active {
+  opacity: 0.45;
+  box-shadow: 0 0 64px 24px var(--glow, #00e4ff);
+}
+
+/* --- Whisper Quote --- */
+.compare-quote-whisper {
+  position: absolute;
+  bottom: 2.3em;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.08rem;
+  color: var(--mood-accent, #7cf3ff);
+  background: rgba(34,34,34,0.82);
+  padding: 0.7em 2em;
+  border-radius: 999px;
+  box-shadow: 0 2px 12px 0 rgba(124,243,255,0.08);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s cubic-bezier(.4,0,.2,1);
+}
+.compare-quote-whisper.active {
+  opacity: 1;
+}
+
 .img-compare-container {
   position: relative;
   width: 100%;
