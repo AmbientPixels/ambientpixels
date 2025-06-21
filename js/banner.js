@@ -3,7 +3,7 @@
 // Default configuration - can be overridden by window.bannerConfig
 const defaultConfig = {
   showOnLoad: true,
-  bannersPath: '/data/banners/disclaimers.json',
+  bannersPath: '/data/banners/banners-default.json', // updated by Cascade 2025-06-21
   animationDuration: 500, // ms for slide animation
   messages: {}
 };
