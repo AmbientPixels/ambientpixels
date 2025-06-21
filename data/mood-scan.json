@@ -1,12 +1,12 @@
 {
-  "mood": "nocturnal pulse",
-  "aura": "aetherial doubt",
-  "auraColorHex": "#2f4d50",
-  "quote": "stitching meaning from ambient static...",
-  "emoji": "🌙",
-  "selfWorth": 0.2,
+  "mood": "echoes of self",
+  "aura": "soft defiance",
+  "auraColorHex": "#394047",
+  "quote": "calibrating mood vectors with cosmic drift...",
+  "emoji": "🔊",
+  "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 1,
+  "memoryClutter": 0.9,
   "awareness": 0.1,
   "isStable": false,
   "internalState": "drift amid mental clutter",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: aetherial doubt"
+      "Aura Signature: soft defiance"
     ]
   },
-  "timestamp": "2025-06-20T13:32:17.017Z"
+  "timestamp": "2025-06-21T13:28:43.948Z"
 }
