@@ -143,32 +143,57 @@
   margin-right: 0.6em;
 }
 
+.callout-accessibility,
+.callout-mobile,
+.callout-testing,
+.callout-chat {
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 180px;
+  max-width: 320px;
+  padding: 0.5em 1.2em;
+  font-size: 1.04rem;
+  background: rgba(255,255,255,0.32);
+  color: #17314b;
+  border-radius: 0.6em;
+  border-width: 2px;
+  border-style: solid;
+  box-shadow: 0 2px 14px 0 rgba(0,228,255,0.11), 0 0 0 2px rgba(255,255,255,0.06);
+  backdrop-filter: blur(8px) saturate(130%);
+  -webkit-backdrop-filter: blur(8px) saturate(130%);
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  gap: 0.65em;
+  font-weight: 600;
+  opacity: 0.96;
+  margin-bottom: 0.7em;
+  transition: border-color 0.2s, background 0.2s;
+}
 .callout-accessibility {
-  right: 1rem;
-  top: 3.5rem;
+  top: 32%;
+  border-color: #00aaff;
+  background: linear-gradient(90deg, rgba(0,170,255,0.10) 0%, rgba(255,255,255,0.32) 100%);
 }
 .callout-mobile {
-  right: 1rem;
-  top: 6rem;
+  top: 44%;
+  border-color: #22c55e;
+  background: linear-gradient(90deg, rgba(34,197,94,0.10) 0%, rgba(255,255,255,0.32) 100%);
 }
 .callout-testing {
-  right: 1rem;
-  top: 8.5rem;
-  background: rgba(124,243,255,0.80);
-  color: #193a3a;
-  border: 1.5px solid #0bb6c7;
-  font-size: 0.98rem;
-  box-shadow: 0 2px 10px 0 rgba(11,182,199,0.13);
+  top: 56%;
+  border-color: #a259e6;
+  background: linear-gradient(90deg, rgba(162,89,230,0.10) 0%, rgba(255,255,255,0.32) 100%);
 }
 .callout-chat {
-  right: 1rem;
-  top: 11rem;
-  background: rgba(124,243,255,0.80);
-  color: #193a3a;
-  border: 1.5px solid #0bb6c7;
-  font-size: 0.98rem;
-  box-shadow: 0 2px 10px 0 rgba(11,182,199,0.13);
+  top: 68%;
+  border-color: #fd7e14;
+  background: linear-gradient(90deg, rgba(253,126,20,0.10) 0%, rgba(255,255,255,0.32) 100%);
 }
+.callout-accessibility i { color: #00aaff; }
+.callout-mobile i { color: #22c55e; }
+.callout-testing i { color: #a259e6; }
+.callout-chat i { color: #fd7e14; }
 .callout-accessibility {
   right: 1rem;
   top: 3.5rem;

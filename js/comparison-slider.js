@@ -26,8 +26,8 @@
     // Cumulative reveal: each callout appears as you pass its threshold left, and disappears if you move right past its threshold
     const calloutTesting = container.querySelector('.callout-testing');
     const calloutChat = container.querySelector('.callout-chat');
-    if (calloutAccessibility) calloutAccessibility.style.opacity = (percent < 70 ? 1 : 0);
-    if (calloutMobile) calloutMobile.style.opacity = (percent < 50 ? 1 : 0);
+    if (calloutAccessibility) calloutAccessibility.style.opacity = (percent < 51 ? 1 : 0);
+    if (calloutMobile) calloutMobile.style.opacity = (percent < 40 ? 1 : 0);
     if (calloutTesting) calloutTesting.style.opacity = (percent < 30 ? 1 : 0);
     if (calloutChat) calloutChat.style.opacity = (percent < 15 ? 1 : 0);
     // Debug output
