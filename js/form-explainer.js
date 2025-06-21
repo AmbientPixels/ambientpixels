@@ -91,28 +91,87 @@ function initTimelineScrubber() {
   });
 }
 function showTooltip(target) {
-  let tooltip = document.createElement('div');
-  tooltip.className = 'form-explainer-tooltip';
-  tooltip.style.pointerEvents = 'none';
-  tooltip.style.userSelect = 'none';
-  tooltip.style.fontWeight = '500';
-  tooltip.style.letterSpacing = '0.01em';
-  tooltip.textContent = target.getAttribute('data-tooltip');
-  document.body.appendChild(tooltip);
+  let tooltip = document.querySelector('.tooltip-box');
+  if (!tooltip) {
+    tooltip = document.createElement('div');
+    tooltip.className = 'tooltip-box';
+    document.body.appendChild(tooltip);
+  }
+  tooltip.textContent = target.getAttribute('data-tooltip') || '';
+  tooltip.classList.add('active');
+
   const rect = target.getBoundingClientRect();
-  tooltip.style.left = `${rect.left + rect.width/2 - tooltip.offsetWidth/2}px`;
-  tooltip.style.top = `${rect.top - tooltip.offsetHeight - 12}px`;
+  const scrollY = window.scrollY || window.pageYOffset;
+  const scrollX = window.scrollX || window.pageXOffset;
+  // Center tooltip above overlay by default
+  let left = rect.left + scrollX + rect.width/2 - tooltip.offsetWidth/2;
+  let top = rect.top + scrollY - tooltip.offsetHeight - 8;
+  tooltip.style.left = `${left}px`;
+  tooltip.style.top = `${top}px`;
+  tooltip.classList.remove('tooltip-left');
+  // Edge/collision detection (right)
+  if (left + tooltip.offsetWidth > window.innerWidth - 8) {
+    tooltip.classList.add('tooltip-left');
+    tooltip.style.left = `${rect.right + scrollX - tooltip.offsetWidth}px`;
+  }
+  // Edge/collision detection (left)
+  if (left < 8) {
+    tooltip.style.left = `8px`;
+  }
   target._tooltip = tooltip;
 }
 
 function hideTooltip(target) {
-  if (target._tooltip) {
-    document.body.removeChild(target._tooltip);
-    target._tooltip = null;
+  const tooltip = document.querySelector('.tooltip-box');
+  if (tooltip) {
+    tooltip.classList.remove('active');
+    tooltip.classList.remove('tooltip-left');
+    tooltip.textContent = '';
+  }
+  target._tooltip = null;
+}
+
+let overlayMapData = null;
+
+async function loadOverlayMap() {
+  try {
+    const res = await fetch('/data/form-explainer-map.json');
+    overlayMapData = await res.json();
+  } catch (err) {
+    console.error('[Form Explainer] Failed to load overlay map JSON:', err);
+    overlayMapData = null;
   }
 }
 
+function positionOverlays() {
+  if (!overlayMapData) return;
+  const img = document.querySelector('.form-highlight-img');
+  if (!img) return;
+  document.querySelectorAll('.form-overlay').forEach(overlay => {
+    const part = overlay.getAttribute('data-part');
+    const map = overlayMapData.find(o => o.key === part);
+    if (!map) return;
+    // Calculate position/size based on image
+    const left = img.offsetLeft + map.left * img.width;
+    const top = img.offsetTop + map.top * img.height;
+    const width = map.width * img.width;
+    const height = map.height * img.height;
+    overlay.style.position = 'absolute';
+    overlay.style.left = `${left}px`;
+    overlay.style.top = `${top}px`;
+    overlay.style.width = `${width}px`;
+    overlay.style.height = `${height}px`;
+    overlay.setAttribute('data-tooltip', map.tooltip || '');
+  });
+}
+
 function initOverlays() {
+  positionOverlays();
+  window.addEventListener('resize', positionOverlays);
+  const img = document.querySelector('.form-highlight-img');
+  if (img) {
+    img.addEventListener('load', positionOverlays);
+  }
   document.querySelectorAll('.form-overlay').forEach((overlay, idx) => {
     overlay.addEventListener('mouseenter', () => {
       overlay.classList.add('active');
@@ -140,6 +199,19 @@ function initOverlays() {
     });
   });
 }
+
+// Patch main entry to load overlay map before initializing overlays
+const origInitFormExplainer = window.initFormExplainer || function(){};
+window.initFormExplainer = async function() {
+  await loadOverlayMap();
+  initTimelineScrubber();
+  initOverlays();
+  initReplay();
+  initDebug();
+  initGhost();
+};
+
+
 function initReplay() {
   const btn = document.querySelector('.replay-tour');
   if (!btn) return;
@@ -147,14 +219,27 @@ function initReplay() {
 }
 function initDebug() {
   const url = new URL(window.location.href);
-  if (url.searchParams.get('formdebug')) {
-    document.querySelectorAll('.form-overlay').forEach(el => {
-      el.style.outline = '2px dashed #7cf3ff';
-      el.style.background = 'rgba(124,243,255,0.07)';
-    });
-    console.log('Nova Form Explainer: debug mode enabled.');
+  const debug = url.searchParams.get('formdebug');
+  document.querySelectorAll('.form-overlay').forEach(el => {
+    if (debug) {
+      el.classList.add('debug-align');
+    } else {
+      el.classList.remove('debug-align');
+    }
+  });
+  const tooltip = document.querySelector('.tooltip-box');
+  if (tooltip) {
+    if (debug) {
+      tooltip.classList.add('debug-align');
+    } else {
+      tooltip.classList.remove('debug-align');
+    }
+  }
+  if (debug) {
+    console.log('Nova Form Explainer: debug alignment mode enabled.');
   }
 }
+
 function initGhost() {
   const observer = new window.IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -188,6 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(res => res.text())
     .then(html => {
       document.getElementById('form-explainer-embed').innerHTML = html;
+      window.initFormExplainer();
       initFormExplainer();
       // Fade-in for explainer image
       const img = document.querySelector('.form-highlight-img');

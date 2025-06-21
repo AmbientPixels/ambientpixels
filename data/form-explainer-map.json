@@ -1,0 +1,74 @@
+[
+  {
+    "key": "title",
+    "left": 0.08,
+    "top": 0.04,
+    "width": 0.84,
+    "height": 0.05,
+    "tooltip": "Subject / Title\n\nHelps Nova understand the user's intent at a glance. Clear, concise titles route requests to the right support team and speed up response time."
+  },
+  {
+    "key": "subtitle",
+    "left": 0.08,
+    "top": 0.10,
+    "width": 0.84,
+    "height": 0.04,
+    "tooltip": "Subtitle / Instructions\n\nProvides users with context or guidance for filling out the form, ensuring clarity and reducing errors."
+  },
+  {
+    "key": "dropdown",
+    "left": 0.08,
+    "top": 0.16,
+    "width": 0.40,
+    "height": 0.05,
+    "tooltip": "This dropdown routes issues to the right teams instantly. Behind it? A flow map designed to minimize confusion and get answers faster."
+  },
+  {
+    "key": "textarea",
+    "left": 0.08,
+    "top": 0.23,
+    "width": 0.84,
+    "height": 0.18,
+    "tooltip": "This field encourages storytelling. We optimized the character count, readability, and autosave logic to help users describe their issue without pressure."
+  },
+  {
+    "key": "upload",
+    "left": 0.08,
+    "top": 0.43,
+    "width": 0.50,
+    "height": 0.06,
+    "tooltip": "This custom uploader was tested across devices, browsers, and bandwidth states. Drag-and-drop or click—it works how the user wants it to."
+  },
+  {
+    "key": "privacy",
+    "left": 0.08,
+    "top": 0.51,
+    "width": 0.84,
+    "height": 0.04,
+    "tooltip": "Privacy Notice\n\nExplains how user data is handled, ensuring transparency and compliance with privacy standards."
+  },
+  {
+    "key": "help",
+    "left": 0.72,
+    "top": 0.16,
+    "width": 0.20,
+    "height": 0.05,
+    "tooltip": "Help / FAQ\n\nProvides quick access to help resources or frequently asked questions, supporting self-service and reducing support load."
+  },
+  {
+    "key": "captcha",
+    "left": 0.08,
+    "top": 0.57,
+    "width": 0.25,
+    "height": 0.05,
+    "tooltip": "A small guardian at the gate. This invisible checkpoint helps defend support channels from spam while respecting real players."
+  },
+  {
+    "key": "submit",
+    "left": 0.68,
+    "top": 0.57,
+    "width": 0.24,
+    "height": 0.05,
+    "tooltip": "A final click, styled for confidence. It’s more than just ‘submit’—it’s the moment support begins."
+  }
+]
