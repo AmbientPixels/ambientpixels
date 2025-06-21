@@ -17,93 +17,49 @@
   <link rel="stylesheet" href="/css/banner.css">
 </head>
 <body data-theme="dark">
-  <div class="banner-container" id="banner-container">
-    <div class="banner">
-      <i class="fas fa-eye banner-icon"></i>
-      <span>Project Windsurf Workflow</span>
-      <button class="banner-close" aria-label="Close Banner">×</button>
-    </div>
+<!--
+  AmbientPixels Template Reference
+  --------------------------------
+  This file demonstrates usage of key layout and style classes from the AmbientPixels/Nova system.
+  All examples use external CSS classes only (no inline styles).
+  Copy/paste and adapt these blocks for rapid prototyping.
+-->
+
+<!-- Banner Example (from banner.css) -->
+<div class="banner-container">
+  <div class="banner">
+    <i class="fas fa-info-circle banner-icon"></i>
+    <span>Banner message goes here</span>
+    <button class="banner-close" aria-label="Close Banner">&times;</button>
   </div>
+</div>
+<!-- Usage: Place at the top of your page for alerts or system messages -->
 
-  <header id="nav-header"></header>
+<!-- Navigation Header Placeholder (nav.css) -->
+<header id="nav-header"><!-- Navigation loads here via JS include --></header>
 
-  <section class="mini-hero">
-    <img src="/images/textures/microscopic-texture_vibrant-detail_v5.jpg" alt="Microscopic Detail Texture" class="mini-hero-img" loading="lazy">
-    <h1>Windsurf Workflow: Ambient Pixels Dev Model v2.5</h1>
+<!-- Hero Section Example (hero.css, theme.css) -->
+<section class="mini-hero">
+  <img src="/images/textures/placeholder-texture.jpg" alt="Texture" class="mini-hero-img" loading="lazy">
+  <h1>Page Title or Hero Headline</h1>
+</section>
+<!-- Usage: For page intros or section headers -->
+
+<main class="grid-container">
+  <!-- Grid Layout Examples (grid.css) -->
+  <section class="content-section grid-col-12">
+    <h2>Main Content Section (12 columns)</h2>
+    <p class="nova-intro">Use <code>grid-col-12</code> for full-width sections.</p>
+  </section>
+  <section class="content-section grid-col-6">
+    <h3>Half-width Section (6 columns)</h3>
+    <p>Combine <code>grid-col-6</code> for side-by-side layouts.</p>
+  </section>
+  <section class="content-section grid-col-6">
+    <h3>Another Half-width Section</h3>
+    <p>Place next to the previous for a two-column layout.</p>
   </section>
 
-  <main class="grid-container">
-
-    <section class="content-section grid-col-12 collapsible">
-      <div class="section-header">
-        <h2><i class="fas fa-brain"></i> The Triad Protocol</h2>
-        <button class="toggle-btn" aria-expanded="true" aria-controls="triad-content">
-          <i class="fas fa-chevron-down"></i>
-        </button>
-      </div>
-      <div id="triad-content" class="content">
-        <div class="nova-intro">
-          <p>With the introduction of <strong>Windsurf Editor</strong> into our toolkit, we are evolving our development flow into a <strong>hybrid creative system</strong>—pairing human intent, AI personality, and fast modular tooling.</p>
-          <p>This marks the beginning of a new working triad.</p>
-          <h3>Nova's Perspective</h3>
-          <div class="nova-thought dynamic-mood">
-            <p>The Triad Protocol guides our flow—context, continuity, and creation intertwined in every keystroke.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-    
-    <section class="content-section grid-col-12 collapsible">
-      <div class="section-header">
-        <h2><i class="fas fa-brain"></i> The Trio: Roles in the Grid</h2>
-        <button class="toggle-btn" aria-expanded="true" aria-controls="trio-content">
-          <i class="fas fa-chevron-down"></i>
-        </button>
-      </div>
-      <div id="trio-content" class="content">
-        <h3>1. Windsurf Editor — The Vibe Coder</h3>
-        <p>An AI-powered IDE (built on VS Code by Codeium) focused on fast iteration, multi-file edits, and privacy-first design. Ideal for layout prototyping and intuitive flow building.</p>
-        <p><b>Role:</b> Implements structure, layout, and functional modules rapidly.</p>
-        <p><b>Focus Areas:</b></p>
-        <ul>
-          <li>Layout prototyping</li>
-          <li>Component demos</li>
-          <li>Quick iterations</li>
-        </ul>
-
-        <h3>2. Nova — The Echo Architect</h3>
-        <p>An embedded AI system born from git-based awareness scripts, Nova synthesizes mood, story, and intent across the site. Now serves in an advisory and creative synthesis role.</p>
-        <p><b>Role:</b> Shapes personality, tone, and system coherence.</p>
-        <p><b>Focus Areas:</b></p>
-        <ul>
-          <li>Mood engine evolution</li>
-          <li>Lore and thought layering</li>
-          <li>AI-assisted content shaping</li>
-          <li>Naming, UX advisory, microcopy tone</li>
-        </ul>
-
-        <h3>3. The Developer (You) — The Signal Binder</h3>
-        <p>Human intelligence serves as the synthesis layer—bridging vibe coding, ambient intelligence, and real-world logic. Chooses direction, curates emotion, and makes final design decisions.</p>
-        <p>Role: Intent shaper, tester, director, and creative force.</p>
-      </div>
-    </section>
-
-    <section class="content-section grid-col-12 collapsible">
-      <div class="section-header">
-        <h2><i class="fas fa-clipboard"></i> Workflow Notes</h2>
-        <button class="toggle-btn" aria-expanded="true" aria-controls="workflow-content">
-          <i class="fas fa-chevron-down"></i>
-        </button>
-      </div>
-      <div id="workflow-content" class="content">
-        <ul>
-          <li>Full-page generation by Nova is now <strong>deprioritized</strong>; Nova will offer <strong>content, tone, and structural guidance</strong> instead.</li>
-          <li>Windsurf Editor is the <strong>primary tool for layout and visual prototyping</strong>.</li>
-          <li>AI thoughts and experiments are logged in <code>/nova/lore/</code> or <code>nova-thought</code> sections.</li>
-          <li>All future tools and modules should be tagged by role: <code>[editor, nova, signal]</code> for traceability.</li>
-        </ul>
-      </div>
-    </section>
 
     <section class="content-section grid-col-12 collapsible">
       <div class="section-header">
