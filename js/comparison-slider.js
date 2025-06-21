@@ -51,33 +51,44 @@
       }
     }
 
-    // Animate before/after pills
-    leftPills.forEach((pill) => {
-      const key = pill.dataset.key;
-      if (percent < pillThresholds[key]) {
+    // Animate before/after pills (fixed logic for label swap)
+    if (percent === 50) {
+      leftPills.forEach((pill) => {
         pill.classList.remove('dim');
         pill.classList.add('glow');
-      } else {
+      });
+      rightPills.forEach((pill) => {
         pill.classList.remove('glow');
         pill.classList.add('dim');
-      }
-    });
-    rightPills.forEach((pill) => {
-      const key = pill.dataset.key;
-      if (percent >= pillThresholds[key]) {
-        pill.classList.remove('dim');
-        pill.classList.add('glow');
-      } else {
-        pill.classList.remove('glow');
-        pill.classList.add('dim');
-      }
-    });
-    // Animate labels
+      });
+    } else {
+      leftPills.forEach((pill) => {
+        const key = pill.dataset.key;
+        if (percent > (100 - pillThresholds[key])) {
+          pill.classList.remove('dim');
+          pill.classList.add('glow');
+        } else {
+          pill.classList.remove('glow');
+          pill.classList.add('dim');
+        }
+      });
+      rightPills.forEach((pill) => {
+        const key = pill.dataset.key;
+        if (percent < pillThresholds[key]) {
+          pill.classList.remove('dim');
+          pill.classList.add('glow');
+        } else {
+          pill.classList.remove('glow');
+          pill.classList.add('dim');
+        }
+      });
+    }
+    // Animate labels (reversed effect)
     if (beforeLabel) {
-      beforeLabel.style.opacity = percent < 40 ? 1 : 0.4;
+      beforeLabel.style.opacity = percent > 60 ? 1 : 0.4;
     }
     if (afterLabel) {
-      afterLabel.style.opacity = percent > 60 ? 1 : 0.4;
+      afterLabel.style.opacity = percent < 40 ? 1 : 0.4;
     }
 
   }
