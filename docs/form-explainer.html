@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Form Explainer Module Documentation | AmbientPixels">
+  <title>Form Explainer Module | AmbientPixels Docs</title>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/grid.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/hero.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/banner.css">
+  <link rel="stylesheet" href="/css/form-explainer.css">
+</head>
+<body data-theme="dark">
+<!--
+  Form Explainer Documentation
+  ---------------------------
+  This page documents the usage and configuration of the Form Explainer module.
+  All examples use external CSS classes only (no inline styles).
+-->
+
+<!-- Banner Example (optional) -->
+<div class="banner-container">
+  <div class="banner">
+    <i class="fas fa-info-circle banner-icon"></i>
+    <span>Form Explainer is a reusable module for interactive form guidance.</span>
+    <button class="banner-close" aria-label="Close Banner">&times;</button>
+  </div>
+</div>
+
+<!-- Navigation Header Placeholder -->
+<header id="nav-header"></header>
+
+<!-- Hero Section -->
+<section class="mini-hero">
+  <img src="/images/textures/placeholder-texture.jpg" alt="Texture" class="mini-hero-img" loading="lazy">
+  <h1>Form Explainer Module</h1>
+</section>
+
+<main class="grid-container">
+  <!-- Overview -->
+  <section class="content-section grid-col-12">
+    <h2>Overview</h2>
+    <p class="nova-intro">
+      The <strong>Form Explainer</strong> module provides interactive, step-by-step guidance for complex forms. It supports dynamic images, JSON-driven configuration, and flexible layout within the AmbientPixels grid system.
+    </p>
+  </section>
+
+  <!-- Live Demo: Two-Column Layout (Reference Style) -->
+  <div class="grid-col-12 grid-row">
+    <div class="grid-col-6">
+      <h3>Live Demo</h3>
+      <div id="form-explainer-container"
+           class="form-explainer-container"
+           data-json-path="/data/form-explainer-map.json"
+           data-image-path="/images/projects/ninja-theroy/screen06-1600.png"
+           data-step-duration="3000">
+      </div>
+    </div>
+    <div class="grid-col-6">
+      <h3>How It Works</h3>
+      <p>This column demonstrates a two-column grid layout. You can use this space for documentation, configuration tips, or a second explainer instance.</p>
+    </div>
+  </div>
+
+  <!-- Usage Example -->
+  <section class="content-section grid-col-12">
+    <h3>Basic Usage</h3>
+    <p>To use the Form Explainer module, include the following markup in your page:</p>
+    <pre><code>&lt;div class="form-explainer" data-config="/data/form-explainer-map.json"&gt;
+  &lt;!-- Module will auto-initialize and render here --&gt;
+&lt;/div&gt;
+&lt;script src="/js/form-explainer.js" defer&gt;&lt;/script&gt;
+</code></pre>
+    <p>Make sure to load the required CSS and JS files, and provide a valid JSON config.</p>
+  </section>
+
+  <!-- Example Configuration -->
+  <section class="content-section grid-col-12">
+    <h3>Example JSON Configuration</h3>
+    <p>The module reads its steps and content from a JSON file. Example:</p>
+    <pre><code>{
+  "title": "Support Request",
+  "steps": [
+    { "label": "Your Name", "type": "text", "placeholder": "Enter your name" },
+    { "label": "Email", "type": "email", "placeholder": "Enter your email" },
+    { "label": "Describe your issue", "type": "textarea" }
+  ],
+  "image": "/images/support-form.jpg"
+}
+</code></pre>
+    <p>Place your config in <code>/data/form-explainer-map.json</code> or another path, and reference it via <code>data-config</code>.</p>
+  </section>
+
+  <!-- Live Demo Reference -->
+  <section class="content-section grid-col-12">
+    <h3>Live Demo</h3>
+    <p>See the <a href="/pages/form-explainer-demo.html" class="text-link">Form Explainer Demo</a> for real-world usage and advanced configuration examples.</p>
+  </section>
+
+  <!-- Integration in Site Grid -->
+  <section class="content-section grid-col-12">
+    <h3>Integrating with the Site Grid</h3>
+    <p>Use <code>grid-col-6</code>, <code>grid-col-12</code>, or other grid classes to position the module within your layout. Example:</p>
+    <pre><code>&lt;section class="content-section grid-col-6"&gt;
+  &lt;div class="form-explainer" data-config="/data/form-explainer-map.json"&gt;&lt;/div&gt;
+&lt;/section&gt;
+</code></pre>
+  </section>
+
+  <!-- Styling & Customization -->
+  <section class="content-section grid-col-12">
+    <h3>Styling & Customization</h3>
+    <ul>
+      <li>Customize appearance via <code>form-explainer.css</code> and global theme tokens (<code>--aura-*</code>, <code>--mood-*</code>).</li>
+      <li>Use existing utility classes for spacing, mood, and layout.</li>
+      <li>For advanced use, extend the module with custom JS and additional config options.</li>
+    </ul>
+  </section>
+
+  <!-- Related Files -->
+  <section class="content-section grid-col-12">
+    <h3>Related Files</h3>
+    <ul>
+      <li><code>/js/form-explainer.js</code> – Module logic</li>
+      <li><code>/css/form-explainer.css</code> – Module styles</li>
+      <li><code>/data/form-explainer-map.json</code> – Example configuration</li>
+      <li><code>/pages/form-explainer-demo.html</code> – Live demo page</li>
+    </ul>
+  </section>
+</main>
+
+<div id="footer-container"></div>
+<script src="/js/init-header-footer.js" defer></script>
+<script src="/js/form-explainer.js" defer></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof initFormExplainer === 'function') {
+      initFormExplainer();
+    }
+  });
+</script>
+</body>
+</html>
