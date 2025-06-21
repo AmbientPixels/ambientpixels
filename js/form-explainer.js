@@ -161,10 +161,10 @@ class FormExplainer {
    */
   setupDOM() {
     // Find or create the image container
-    this.imageContainer = this.container.querySelector('.form-highlight-container');
+    this.imageContainer = this.container.querySelector('.form-image-container');
     if (!this.imageContainer) {
       this.imageContainer = document.createElement('div');
-      this.imageContainer.className = 'form-highlight-container';
+      this.imageContainer.className = 'form-image-container';
       this.container.appendChild(this.imageContainer);
     }
     
@@ -172,7 +172,7 @@ class FormExplainer {
     this.imageElement = this.imageContainer.querySelector('img');
     if (!this.imageElement) {
       this.imageElement = document.createElement('img');
-      this.imageElement.className = 'form-highlight-img';
+      // No specific class needed, CSS targets the tag
       this.imageElement.alt = 'Form Screenshot';
       this.imageElement.loading = 'lazy';
       this.imageContainer.appendChild(this.imageElement);
@@ -182,20 +182,20 @@ class FormExplainer {
     this.imageElement.src = this.config.imagePath;
     
     // Find or create the whisper panel
-    this.whisperPanel = this.imageContainer.querySelector('.nova-whisper-panel');
+    this.whisperPanel = this.imageContainer.querySelector('.whisper-panel');
     if (!this.whisperPanel) {
       this.whisperPanel = document.createElement('div');
-      this.whisperPanel.className = 'nova-whisper-panel';
+      this.whisperPanel.className = 'whisper-panel';
       this.whisperPanel.setAttribute('aria-live', 'polite');
       this.whisperPanel.setAttribute('tabindex', '0');
       this.imageContainer.appendChild(this.whisperPanel);
     }
     
     // Find or create the field stack
-    this.fieldStack = this.container.querySelector('.field-explainer-stack');
+    this.fieldStack = this.container.querySelector('.field-stack-container');
     if (!this.fieldStack) {
       this.fieldStack = document.createElement('div');
-      this.fieldStack.className = 'field-explainer-stack';
+      this.fieldStack.className = 'field-stack-container';
       this.container.appendChild(this.fieldStack);
     }
     
@@ -208,10 +208,10 @@ class FormExplainer {
     }
     
     // Find or create the replay button
-    this.replayButton = this.fieldStack.querySelector('.replay-tour');
+    this.replayButton = this.fieldStack.querySelector('.replay-button');
     if (!this.replayButton) {
       this.replayButton = document.createElement('button');
-      this.replayButton.className = 'replay-tour';
+      this.replayButton.className = 'replay-button';
       this.replayButton.type = 'button';
       
       const icon = document.createElement('i');
