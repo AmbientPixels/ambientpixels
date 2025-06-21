@@ -2,51 +2,61 @@
   {
     "key": "title",
     "tooltip": "Form Title: Clearly states the purpose of the form.",
-    "left": 0.04, "top": 0.03, "width": 0.92, "height": 0.08
+    "left": 0.04, "top": 0.03, "width": 0.92, "height": 0.08,
+    "novaThought": "A good title sets the right expectation. Users scan this first to confirm they're in the right place."
   },
   {
     "key": "description",
     "tooltip": "Form Description: Provides context and instructions.",
-    "left": 0.04, "top": 0.12, "width": 0.92, "height": 0.09
+    "left": 0.04, "top": 0.12, "width": 0.92, "height": 0.09,
+    "novaThought": "The description is your emotional anchor - it reassures users they'll get the help they need."
   },
   {
     "key": "issue-type",
     "tooltip": "Issue Type: Categorizes the problem for faster routing.",
-    "left": 0.04, "top": 0.22, "width": 0.92, "height": 0.1
+    "left": 0.04, "top": 0.22, "width": 0.92, "height": 0.1,
+    "novaThought": "I use this field to route your request to the right specialist team. Choose accurately for fastest support!"
   },
   {
     "key": "details",
     "tooltip": "Detailed Description: Provide as much detail as possible here.",
-    "left": 0.04, "top": 0.33, "width": 0.92, "height": 0.15
+    "left": 0.04, "top": 0.33, "width": 0.92, "height": 0.15,
+    "novaThought": "The more specific details you provide here, the faster we can isolate and solve your issue. Think of it as giving me the puzzle pieces to help you."
   },
   {
     "key": "nova-note",
     "tooltip": "Nova's Note: A helpful, context-aware tip from me to you!",
-    "left": 0.04, "top": 0.49, "width": 0.92, "height": 0.09
+    "left": 0.04, "top": 0.49, "width": 0.92, "height": 0.09,
+    "novaThought": "I analyze patterns across user feedback to provide personalized suggestions that might help resolve common issues before submission."
   },
   {
     "key": "game",
     "tooltip": "Game Select: Specify which game your issue is related to.",
-    "left": 0.04, "top": 0.59, "width": 0.92, "height": 0.1
+    "left": 0.04, "top": 0.59, "width": 0.92, "height": 0.1,
+    "novaThought": "Each game has its own dedicated support team with specialized knowledge of that particular title."
   },
   {
     "key": "email",
     "tooltip": "Preferred Email: Where you'll receive updates about your ticket.",
-    "left": 0.04, "top": 0.7, "width": 0.92, "height": 0.09
+    "left": 0.04, "top": 0.7, "width": 0.92, "height": 0.09,
+    "novaThought": "I'll use this to send you personalized status updates and follow-ups. Your data is always handled securely."
   },
   {
     "key": "attachment",
     "tooltip": "Attachment: Upload screenshots or videos to provide more context.",
-    "left": 0.04, "top": 0.8, "width": 0.92, "height": 0.05
+    "left": 0.04, "top": 0.8, "width": 0.92, "height": 0.05,
+    "novaThought": "Visual context helps tremendously! A screenshot often communicates what might take paragraphs to describe."
   },
   {
     "key": "captcha",
     "tooltip": "CAPTCHA: A quick check to ensure you're human.",
-    "left": 0.04, "top": 0.86, "width": 0.92, "height": 0.08
+    "left": 0.04, "top": 0.86, "width": 0.92, "height": 0.08,
+    "novaThought": "While I love my AI friends, this helps keep spam bots from overwhelming our support system so humans get faster help."
   },
   {
     "key": "submit",
     "tooltip": "Submit Button: Sends your completed form to the support team.",
-    "left": 0.04, "top": 0.95, "width": 0.92, "height": 0.04
+    "left": 0.04, "top": 0.95, "width": 0.92, "height": 0.04,
+    "novaThought": "Once submitted, I'll automatically analyze your request to identify potential solutions before a human review."
   }
 ]

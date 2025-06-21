@@ -1,173 +1,358 @@
-/* Form Explainer Styles - Modular & Interactive */
+/**
+ * Form Explainer CSS Module
+ * Modern, clean implementation for the interactive form explainer
+ */
 
-.form-explainer-section .section-header {
-  margin-bottom: 1.5rem;
+:root {
+  /* Core colors */
+  --form-explainer-bg: rgba(18, 18, 24, 0.85);
+  --form-explainer-border: rgba(255, 255, 255, 0.12);
+  --form-explainer-text: rgba(255, 255, 255, 0.9);
+  --form-explainer-secondary-text: rgba(255, 255, 255, 0.7);
+  
+  /* Accent colors - Use Nova mood variables when available */
+  --form-explainer-accent: var(--mood-primary, #64a0ff);
+  --form-explainer-accent-glow: var(--glow-primary, rgba(100, 160, 255, 0.4));
+  --form-explainer-highlight: var(--mood-secondary, #ff64a0);
+  --form-explainer-highlight-glow: var(--glow-secondary, rgba(255, 100, 160, 0.4));
+  
+  /* Timing variables */
+  --form-explainer-transition: 0.25s ease-in-out;
+  --form-explainer-pulse-duration: 2s;
 }
 
-.form-explainer.neon-card {
-  padding: 0;
-  border: none;
-  background: none;
-  box-shadow: none;
-  max-width: 600px; /* Constrain width */
-  margin: 0 auto; /* Center it */
-}
-
-.form-highlight-container {
-  position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 
-    0 0 15px rgba(var(--aura-glow-rgb), 0.2),
-    0 0 30px rgba(var(--aura-glow-rgb), 0.15),
-    inset 0 0 8px rgba(var(--aura-glow-rgb), 0.1);
-  border: 1px solid var(--aura-glow);
-}
-
-.form-highlight-img {
-  display: block;
+/* Container Layout */
+.form-explainer-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
   width: 100%;
-  height: auto;
-  opacity: 0.8; /* Slightly dim image to make overlays pop */
+  padding: 1.5rem;
+  background: var(--form-explainer-bg);
+  border: 1px solid var(--form-explainer-border);
+  border-radius: 0.75rem;
+  color: var(--form-explainer-text);
+  margin: 2rem 0;
+  overflow: hidden;
 }
 
-/* Overlays */
-.form-overlay {
+@media (min-width: 768px) {
+  .form-explainer-container {
+    grid-template-columns: minmax(300px, 1fr) minmax(300px, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .form-explainer-container {
+    grid-template-columns: 5fr 4fr;
+  }
+}
+
+/* Left Column - Image Container */
+.form-image-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  aspect-ratio: 16 / 10;
+}
+
+.form-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top left;
+}
+
+.whisper-panel {
   position: absolute;
-  border-radius: 6px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0));
+  padding: 1.5rem 1rem 1rem;
+  color: white;
+  font-size: 0.9rem;
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.whisper-panel.active {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Overlay Positioning and Styling */
+.form-overlays {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.form-field-overlay {
+  position: absolute;
   border: 2px solid transparent;
-  background-color: rgba(var(--aura-glow-rgb), 0.1);
+  border-radius: 4px;
+  transition: all var(--form-explainer-transition);
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 5;
 }
 
-.form-overlay:hover, .form-overlay.active {
-  background-color: rgba(var(--aura-glow-rgb), 0.2);
-  border-color: var(--aura-glow);
-  box-shadow: 0 0 15px rgba(var(--aura-glow-rgb), 0.5);
+.form-field-overlay:hover,
+.form-field-overlay.active {
+  border-color: var(--form-explainer-accent);
+  box-shadow: 0 0 0 2px var(--form-explainer-accent-glow);
 }
 
-/* Ghost Pulse Effect */
+/* Ghost overlay animation for pulsing effect */
 .ghost-overlay {
   position: absolute;
-  border-radius: 6px;
-  transition: all 0.5s ease-out;
+  border: 2px solid var(--form-explainer-highlight);
+  border-radius: 4px;
   pointer-events: none;
-  border: 2px solid var(--aura-glow);
-  box-shadow: 0 0 15px var(--aura-glow);
   opacity: 0;
-  transform: scale(1.05);
+  transition: all var(--form-explainer-transition);
+  z-index: 3;
 }
 
 .ghost-overlay.pulsing {
-  opacity: 1;
-  transform: scale(1);
+  animation: pulse-border var(--form-explainer-pulse-duration) infinite;
+  opacity: 0.9;
 }
 
-/* Nova Whisper Panel */
-.nova-whisper-panel {
-  position: absolute;
-  bottom: 1rem;
-  left: 1rem;
-  right: 1rem;
-  background: rgba(0, 10, 20, 0.85);
-  backdrop-filter: blur(8px);
-  color: var(--nova-text-color-primary);
-  padding: 0.75rem 1.25rem;
-  border-radius: 8px;
-  border: 1px solid var(--nova-border-color-translucent);
-  font-style: italic;
-  font-size: 0.95rem;
+@keyframes pulse-border {
+  0% {
+    box-shadow: 0 0 0 0 var(--form-explainer-highlight-glow);
+    border-color: var(--form-explainer-highlight);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 100, 160, 0);
+    border-color: var(--form-explainer-accent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 var(--form-explainer-highlight-glow);
+    border-color: var(--form-explainer-highlight);
+  }
+}
+
+/* Right Column - Field Explainer Stack */
+.field-stack-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+}
+
+.field-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--form-explainer-border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  transition: all var(--form-explainer-transition);
+  cursor: pointer;
   opacity: 0;
   transform: translateY(10px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-  pointer-events: none;
-  text-align: center;
 }
 
-.nova-whisper-panel.active {
+.field-item.visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-/* Timeline Scrubber */
-.timeline-scrubber {
-  position: absolute;
-  bottom: -30px; /* Position below the container */
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 12px;
-  padding: 10px;
+.field-item:hover,
+.field-item.active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--form-explainer-accent);
+  box-shadow: 0 0 15px 0 var(--form-explainer-accent-glow);
 }
 
-.timeline-dot {
+.field-item-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.field-item-header i {
+  color: var(--form-explainer-accent);
+  font-size: 1.25rem;
+}
+
+.field-item-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.field-item-description {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--form-explainer-secondary-text);
+}
+
+.field-item-nova-thought {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(var(--aura-rgb, 100, 160, 255), 0.1);
+  border-left: 3px solid var(--form-explainer-highlight);
+  border-radius: 0 0.25rem 0.25rem 0;
+  font-style: italic;
+  font-size: 0.9rem;
+  position: relative;
+}
+
+.field-item-nova-thought::before {
+  content: '"';
+  position: absolute;
+  left: 0.5rem;
+  top: 0;
+  font-size: 1.5rem;
+  color: var(--form-explainer-highlight);
+  opacity: 0.5;
+}
+
+/* Timeline Controls */
+.timeline-scrubber {
+  position: relative;
+  height: 24px;
+  margin-top: 1rem;
+  padding: 0.5rem 0;
+  cursor: pointer;
+}
+
+.timeline-progress {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  background: var(--form-explainer-accent);
+  border-radius: 3px;
+  transform: translateY(-50%);
+  transition: width 0.3s ease-in-out;
+  z-index: 2;
+}
+
+.timeline-playhead {
+  position: absolute;
+  top: 50%;
+  left: 0%;
   width: 12px;
   height: 12px;
+  background: var(--form-explainer-accent);
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  cursor: pointer;
-  transition: all 0.3s ease;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  transition: left 0.3s ease-in-out;
+  box-shadow: 0 0 0 4px var(--form-explainer-accent-glow);
 }
 
-.timeline-dot:hover {
-  background-color: rgba(255, 255, 255, 0.5);
-  transform: scale(1.2);
-}
-
-.timeline-dot.active {
-  background-color: var(--aura-glow);
-  border-color: var(--aura-glow);
-  box-shadow: 0 0 10px var(--aura-glow);
-  transform: scale(1.3);
-}
-
-/* Replay Button */
-.replay-tour {
+.timeline-markers {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  opacity: 0;
-  transform: scale(0.8);
-  transition: all 0.4s ease;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-50%);
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
 }
 
-.replay-tour.active {
-  opacity: 1;
-  transform: scale(1);
+.timeline-marker {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  transition: all var(--form-explainer-transition);
 }
 
-/* Tooltip */
-.tooltip-box {
-  position: absolute;
-  background-color: rgba(0, 0, 0, 0.85);
-  color: #fff;
-  padding: 8px 12px;
-  border-radius: 6px;
+.timeline-marker.active {
+  background: var(--form-explainer-highlight);
+  box-shadow: 0 0 5px 0 var(--form-explainer-highlight-glow);
+}
+
+/* Replay button */
+.replay-button {
+  align-self: flex-end;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid var(--form-explainer-accent);
+  border-radius: 2rem;
+  color: var(--form-explainer-text);
   font-size: 0.9rem;
-  z-index: 1000;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 0.2s, transform 0.2s;
-  white-space: pre-wrap; /* Respect newlines */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all var(--form-explainer-transition);
 }
 
-.tooltip-box.active {
-  opacity: 1;
-  transform: translateY(0);
+.replay-button:hover {
+  background: var(--form-explainer-accent-glow);
 }
 
-.tooltip-box.tooltip-left {
-  transform-origin: right center;
+.replay-button.pulsing {
+  animation: pulse-button 2s infinite;
 }
 
-/* Dev Mode for debugging */
-.devmode .form-overlay {
-  outline: 1px dashed red;
-}
-.devmode .timeline-scrubber, .devmode .replay-tour {
-  outline: 1px dashed cyan;
+@keyframes pulse-button {
+  0% {
+    box-shadow: 0 0 0 0 var(--form-explainer-accent-glow);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(100, 160, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 var(--form-explainer-accent-glow);
+  }
 }
 
+/* Accessibility Enhancements */
+.form-explainer-container:focus {
+  outline: 2px solid var(--form-explainer-highlight);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus styles for keyboard navigation */
+.field-item:focus-visible,
+.timeline-marker:focus-visible,
+.replay-button:focus-visible {
+  outline: 2px solid var(--form-explainer-highlight);
+  outline-offset: 2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .form-explainer-container {
+    padding: 1rem;
+  }
+  
+  .field-item {
+    padding: 0.75rem;
+  }
+  
+  .field-item-header h3 {
+    font-size: 1rem;
+  }
+}

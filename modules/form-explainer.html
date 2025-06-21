@@ -1,19 +1,68 @@
 <section class="content-section grid-col-12">
-  <div class="form-explainer-section">
-    <div class="section-header"><h2><i class="fas fa-magic"></i> Interactive Form Explainer</h2></div>
-    <div class="form-explainer neon-card form-explainer-centered">
-      <div class="form-highlight-container">
-        <img src="/images/projects/ninja-theroy/screen06-1600.png" alt="Ninja Theory Support Form Screenshot – Cropped Form Card" class="form-highlight-img" loading="lazy" width="1600" height="2723">
-        <!-- Interactive overlays will be dynamically injected here by JS -->
-        <!-- Ghost overlay for animated pulse -->
-        <div class="ghost-overlay overlay-title"></div>
-        <!-- Nova Whisper Panel -->
-        <div class="nova-whisper-panel" aria-live="polite" tabindex="0"></div>
-        <!-- Timeline Scrubber -->
-        <div class="timeline-scrubber"></div>
-        <!-- Replay Tour Button -->
-        <button class="replay-tour" hidden type="button"><i class="fas fa-undo"></i><span>Replay Tour</span></button>
+  <div class="form-explainer-section grid-col-12">
+    <!-- Module Header with Customizable Title -->
+    <div class="section-header grid-col-12">
+      <h2><i class="fas fa-magic"></i> <span class="form-explainer-title">Interactive Form Explainer</span></h2>
+    </div>
+    
+    <!-- 
+      Form Explainer Container - Configurable via data attributes:
+      - data-json-path: Path to the JSON configuration file (default: /data/form-explainer-map.json)
+      - data-image-path: Path to the form screenshot image (default: /images/projects/ninja-theroy/screen06-1600.png)
+      - data-step-duration: Duration in ms for each step in the tour (default: 2800)
+      - data-title: Optional custom title for the module (replaces default title)
+    -->
+    <div id="form-explainer-container" 
+         class="form-explainer-container" 
+         data-json-path="/data/form-explainer-map.json"
+         data-image-path="/images/projects/ninja-theroy/screen06-1600.png"
+         data-step-duration="2800">
+      
+      <!-- Left Column: Form Visualization with Overlays -->
+      <div class="form-image-container">
+        <!-- Image will be dynamically inserted by the JS based on data-image-path -->
+        <div class="form-overlays">
+          <!-- Overlays will be dynamically created by JS -->
+        </div>
+        <!-- Ghost overlay for animated pulse effect -->
+        <div class="ghost-overlay"></div>
+        <!-- Whisper panel for tooltips/notes -->
+        <div class="whisper-panel" aria-live="polite"></div>
+      </div>
+      
+      <!-- Right Column: Field Stack Container -->
+      <div class="field-stack-container">
+        <!-- Field items will be dynamically created here -->
+        
+        <!-- Timeline scrubber for navigation -->
+        <div class="timeline-scrubber">
+          <!-- Timeline elements created by JS -->
+        </div>
+        
+        <!-- Replay Button for restarting tour -->
+        <button class="replay-button" type="button">
+          <i class="fas fa-redo-alt"></i>
+          <span>Replay Tour</span>
+        </button>
       </div>
     </div>
   </div>
 </section>
+
+<!-- 
+  Usage Instructions:
+  1. Include this module using loadModule("/modules/form-explainer.html", "target-container-id")
+  2. Configure the explainer using data attributes on the container
+  3. Initialize with initFormExplainer() after module is loaded
+  4. For custom configurations, call initFormExplainer({ jsonPath, imagePath, stepDuration }) with options
+  
+  Example usage on another page:
+  <div id="custom-form-explainer" data-json-path="/data/custom-form-map.json" data-image-path="/images/custom-form.png"></div>
+  <script>
+    loadModule("/modules/form-explainer.html", "custom-form-explainer");
+    document.addEventListener("DOMContentLoaded", function() {
+      initFormExplainer();
+    });
+  </script>
+-->
+

@@ -102,25 +102,7 @@
       </div>
     <p>This project reflects the kind of detailed, collaborative, and standards-driven work I thrive on—bridging design, engineering, and content to create scalable solutions.</p>
 </section>
-    <section class="content-section grid-col-12">
-  <div class="form-explainer-section">
-    <div class="section-header"><h2><i class="fas fa-magic"></i> Interactive Form Explainer</h2></div>
-        <div id="form-explainer-container" class="form-explainer neon-card form-explainer-centered">
-      <div class="form-highlight-container">
-        <img src="/images/projects/ninja-theroy/screen06-1600.png" alt="Ninja Theory Support Form Screenshot – Cropped Form Card" class="form-highlight-img" loading="lazy" width="1600" height="2723">
-        <!-- Interactive overlays will be dynamically injected here by JS -->
-        <!-- Ghost overlay for animated pulse -->
-        <div class="ghost-overlay overlay-title"></div>
-        <!-- Nova Whisper Panel -->
-        <div class="nova-whisper-panel" aria-live="polite" tabindex="0"></div>
-        <!-- Timeline Scrubber -->
-        <div class="timeline-scrubber"></div>
-        <!-- Replay Tour Button -->
-        <button class="replay-tour" hidden type="button"><i class="fas fa-undo"></i><span>Replay Tour</span></button>
-      </div>
-    </div>
-  </div>
-</section>
+ 
 
 
         <!-- Breadcrumb Navigation End -->
@@ -132,9 +114,51 @@
   <p>I also managed the image asset pipeline—capturing, editing, optimizing, and tagging screenshots for clarity, context, and localization readiness. I verified UI accuracy, ensured branding consistency, and structured filenames and alt text to support SEO and accessibility.</p>
   <p>This work sat at the intersection of UX and production—balancing quality, standards, and the needs of a global audience across the Xbox support platform.</p>
 </section>
-
-<!-- Form Explainer Interactive Module -->
-<section id="form-explainer-embed" class="content-section grid-col-12"></section>
+   <!-- Form Explainer Module Container -->
+   <div id="form-explainer-module-container" class="grid-col-12">
+     <h2><i class="fas fa-lightbulb"></i> Interactive Form Walkthrough</h2>
+     <p>Below is an interactive guide to the Ninja Theory support form, highlighting key elements and explaining how each field contributes to an effective support request. Follow along with the guided tour or explore specific sections by clicking on them.</p>
+     
+     <!-- The module will be loaded here via JS -->
+     <div id="form-explainer-container" 
+          class="form-explainer-container" 
+          data-json-path="/data/form-explainer-map.json"
+          data-image-path="/images/projects/ninja-theroy/screen06-1600.png"
+          data-step-duration="3000">
+     </div>
+   </div>
+   
+   <!-- Load the form explainer module -->
+   <script>
+     document.addEventListener("DOMContentLoaded", function() {
+       // First ensure required CSS is loaded
+       if (!document.querySelector('link[href*="form-explainer.css"]')) {
+         const cssLink = document.createElement('link');
+         cssLink.rel = 'stylesheet';
+         cssLink.href = '/css/form-explainer.css';
+         document.head.appendChild(cssLink);
+       }
+       
+       // Load the form explainer script if not already loaded
+       if (typeof initFormExplainer !== 'function') {
+         const script = document.createElement('script');
+         script.src = '/js/form-explainer.js';
+         script.onload = function() {
+           // Initialize the form explainer after script loads
+           initFormExplainer({
+             containerId: 'form-explainer-container',
+             jsonPath: '/data/form-explainer-map.json',
+             imagePath: '/images/projects/ninja-theroy/screen06-1600.png',
+             stepDuration: 3000
+           });
+         };
+         document.body.appendChild(script);
+       } else {
+         // Script already loaded, just initialize
+         initFormExplainer();
+       }
+     });
+   </script>
 
 <section class="project-section grid-col-12">
   <h2><i class="fas fa-tools"></i> Tools & Technologies</h2>
