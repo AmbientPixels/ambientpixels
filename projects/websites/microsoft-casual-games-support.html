@@ -39,7 +39,7 @@
   </section>
 
   <main class="grid-container">
-    <!-- Breadcrumb Navigation -->
+
     <div class="breadcrumb-container"></div>
     
     <section class="content-section grid-col-12">
@@ -107,47 +107,13 @@
     <section class="project-section grid-col-12">
       <h2><i class="fas fa-magic"></i> Transformation in Motion</h2>
       <p class="nova-voice">Experience the evolution—drag the slider to compare the interfaces.</p>
-      
-      <div class="nova-comparison-slider" role="region" aria-label="Before and after interface comparison">
-        <div class="comparison-container">
-          <!-- Before Image (top layer, resizable) -->
-          <div class="comparison-before">
-            <img src="/images/projects/microsoft-casual-games/zendesk01-1200.png" alt="Legacy Zendesk Interface (above the fold)" loading="lazy">
-            <div class="comparison-label">
-              <i class="fas fa-arrow-left"></i> Before: Legacy Zendesk
-            </div>
-          </div>
-          
-          <!-- After Image (bottom layer, static) -->
-          <div class="comparison-after">
-            <img src="/images/projects/microsoft-casual-games/screen-01-1200.png" alt="New Xbox Support Interface (above the fold)" loading="lazy">
-            <div class="comparison-label right">
-              After: New Xbox Support <i class="fas fa-arrow-right"></i>
-            </div>
-          </div>
 
-          <!-- Mask Overlay for Before Image -->
-          <div class="comparison-mask"></div>
-          
-          <!-- Slider Handle -->
-          <div class="slider-handle" 
-               role="slider" 
-               aria-valuemin="0" 
-               aria-valuemax="100" 
-               aria-valuenow="50"
-               aria-valuetext="50%"
-               tabindex="0">
-            <div class="slider-line"></div>
-          </div>
-        </div>
-        
-        <!-- Legend -->
-        <div class="comparison-legend">
-          <span class="legend-before">Legacy Zendesk</span>
-          <span class="legend-after">New Xbox Support</span>
-        </div>
+      <div class="img-compare-container" id="comparison-slider">
+        <img class="img-compare-img after-img" src="/images/projects/microsoft-casual-games/screen-01-1200.png" alt="New Xbox Support Interface (after)">
+        <img class="img-compare-img before-img" src="/images/projects/microsoft-casual-games/zendesk01-1200.png" alt="Legacy Zendesk Interface (before)">
+        <div class="slider-handle"></div>
       </div>
-      
+
       <p class="impact-note">The redesigned interface offers a more intuitive and streamlined experience for users.</p>
     </section>
 
