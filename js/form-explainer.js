@@ -1,20 +1,17 @@
 // Nova Form Explainer Interactive Module – Full Sequence
 // Handles overlays, ghost, whisper, timeline, replay, debug, accessibility
 
-const whispers = {
-  title: "This field routes their intent—Nova listens for clarity, not just keywords.",
-  dropdown: "Routing logic adapts per game. Each selection opens a new path for support.",
-  upload: "We filtered what matters. Screenshots help surface the real issue, fast.",
-  submit: "The final click. It speaks for them—Nova ensures every detail is carried home."
-};
-const sequenceKeys = ["title", "dropdown", "upload", "submit"];
+let overlayMapData = null;
+let sequenceKeys = [];
+let whispers = {};
 const stepTimeout = 2500, buffer = 800;
 let currentStep = 0, sequenceActive = false, sequenceTimer = null, userInterrupted = false;
 
 function setWhisper(step) {
   const panel = document.querySelector('.nova-whisper-panel');
-  if (!panel) return;
-  panel.textContent = whispers[sequenceKeys[step]] || '';
+  if (!panel || !sequenceKeys[step]) return;
+  const key = sequenceKeys[step];
+  panel.textContent = whispers[key] || (overlayMapData?.find(o => o.key === key)?.tooltip?.split('\n')[0] || '');
   panel.classList.add('active');
 }
 function clearWhisper() {
@@ -22,11 +19,16 @@ function clearWhisper() {
   if (panel) panel.classList.remove('active');
 }
 function setOverlay(step) {
-  document.querySelectorAll('.form-overlay').forEach((el, idx) => {
-    el.classList.toggle('active', idx === step);
+  // Remove active from all overlays
+  document.querySelectorAll('.form-overlay').forEach(el => el.classList.remove('active'));
+  // Activate the overlay matching the current step's key
+  const key = sequenceKeys[step];
+  const el = document.querySelector(`.form-overlay[data-part="${key}"]`);
+  if (el) {
+    el.classList.add('active');
     el.setAttribute('tabindex', 0);
     el.setAttribute('aria-label', el.getAttribute('data-tooltip'));
-  });
+  }
 }
 function clearOverlays() {
   document.querySelectorAll('.form-overlay').forEach(el => el.classList.remove('active'));
@@ -38,8 +40,10 @@ function setTimeline(step) {
 }
 function showReplay(show) {
   const btn = document.querySelector('.replay-tour');
-  if (btn) btn.style.display = show ? 'block' : 'none';
-  if (btn) btn.classList.toggle('active', show);
+  if (!btn) return;
+  btn.removeAttribute('hidden');
+  btn.style.display = 'flex';
+  btn.classList.add('active');
 }
 function runSequence(startStep=0) {
   sequenceActive = true; userInterrupted = false; currentStep = startStep;
@@ -51,17 +55,11 @@ function stepNext() {
   setOverlay(currentStep);
   setWhisper(currentStep);
   setTimeline(currentStep);
-  if (currentStep < sequenceKeys.length - 1) {
-    sequenceTimer = setTimeout(() => { currentStep++; stepNext(); }, stepTimeout+buffer);
-  } else {
-    sequenceTimer = setTimeout(() => {
-      clearOverlays();
-      clearWhisper();
-      setTimeline(-1);
-      showReplay(true);
-      sequenceActive = false;
-    }, stepTimeout);
-  }
+  if (sequenceKeys.length === 0) return;
+  sequenceTimer = setTimeout(() => {
+    currentStep = (currentStep + 1) % sequenceKeys.length;
+    stepNext();
+  }, stepTimeout + buffer);
 }
 function cancelSequence() {
   sequenceActive = false; userInterrupted = true;
@@ -78,7 +76,7 @@ function jumpToStep(idx) {
 }
 function initTimelineScrubber() {
   const scrubber = document.querySelector('.timeline-scrubber');
-  if (!scrubber) return;
+  if (!scrubber || !Array.isArray(sequenceKeys)) return;
   scrubber.innerHTML = '';
   sequenceKeys.forEach((key, idx) => {
     const dot = document.createElement('div');
@@ -131,15 +129,35 @@ function hideTooltip(target) {
   target._tooltip = null;
 }
 
-let overlayMapData = null;
 
 async function loadOverlayMap() {
   try {
     const res = await fetch('/data/form-explainer-map.json');
     overlayMapData = await res.json();
+    if (Array.isArray(overlayMapData)) {
+      sequenceKeys = overlayMapData.map(o => o.key);
+      whispers = {};
+      overlayMapData.forEach(o => {
+        whispers[o.key] = o.tooltip?.split('\n')[0] || '';
+      });
+      // Dynamically inject overlays
+      const container = document.querySelector('.form-highlight-container');
+      if (container) {
+        // Remove any old overlays
+        container.querySelectorAll('.form-overlay').forEach(el => el.remove());
+        overlayMapData.forEach(o => {
+          const overlay = document.createElement('div');
+          overlay.className = `form-overlay overlay-${o.key}`;
+          overlay.setAttribute('data-part', o.key);
+          container.insertBefore(overlay, container.querySelector('.ghost-overlay'));
+        });
+      }
+    }
   } catch (err) {
     console.error('[Form Explainer] Failed to load overlay map JSON:', err);
     overlayMapData = null;
+    sequenceKeys = [];
+    whispers = {};
   }
 }
 
@@ -172,7 +190,9 @@ function initOverlays() {
   if (img) {
     img.addEventListener('load', positionOverlays);
   }
-  document.querySelectorAll('.form-overlay').forEach((overlay, idx) => {
+  document.querySelectorAll('.form-overlay').forEach((overlay) => {
+    const key = overlay.getAttribute('data-part');
+    const idx = sequenceKeys.indexOf(key);
     overlay.addEventListener('mouseenter', () => {
       overlay.classList.add('active');
       setWhisper(idx);
@@ -269,12 +289,28 @@ function initFormExplainer() {
   initGhost();
 }
 document.addEventListener('DOMContentLoaded', () => {
+  // DEV MODE: Enable .devmode on body if ?devmode=1
+  if (window.location.search.includes('devmode=1')) {
+    document.body.classList.add('devmode');
+    console.warn('[Form Explainer] DEV MODE ENABLED: overlays and controls are visually outlined.');
+  }
+
   fetch('/modules/form-explainer.html')
     .then(res => res.text())
     .then(html => {
       document.getElementById('form-explainer-embed').innerHTML = html;
       window.initFormExplainer();
       initFormExplainer();
+      // DEV MODE: After injection, force Replay Tour button visible for troubleshooting
+      if (document.body.classList.contains('devmode')) {
+        const replayBtn = document.querySelector('.replay-tour');
+        if (replayBtn) {
+          replayBtn.removeAttribute('hidden');
+          replayBtn.style.display = 'flex';
+          replayBtn.classList.add('active');
+        }
+      }
+
       // Fade-in for explainer image
       const img = document.querySelector('.form-highlight-img');
       if (img) {

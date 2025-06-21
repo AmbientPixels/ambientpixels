@@ -1,5 +1,33 @@
 /* Nova Form Explainer Styles */
 
+/* === DEV MODE DEBUGGING === */
+body.devmode .form-explainer,
+body.devmode .form-highlight-container {
+  outline: 3px dashed #ff00cc !important;
+  background: rgba(255,0,204,0.04) !important;
+  z-index: 1001 !important;
+}
+body.devmode .form-overlay {
+  outline: 2px solid #00ffea !important;
+  background: rgba(0,255,234,0.12) !important;
+  z-index: 1002 !important;
+}
+body.devmode .replay-tour {
+  outline: 2px solid #ffb300 !important;
+  background: rgba(255,179,0,0.12) !important;
+  z-index: 1010 !important;
+}
+body.devmode .nova-whisper-panel {
+  outline: 2px solid #00ff00 !important;
+  background: rgba(0,255,0,0.08) !important;
+  z-index: 1010 !important;
+}
+body.devmode .timeline-scrubber {
+  outline: 2px solid #0055ff !important;
+  background: rgba(0,85,255,0.10) !important;
+  z-index: 1005 !important;
+}
+
 /* OVERRIDES for full-width scaling */
 .form-highlight-container { max-width: none !important; }
 .form-highlight-img { max-width: 100% !important; }
@@ -242,25 +270,53 @@
 
 }
 
-.replay-tour.cta {
-  display: block;
+.form-highlight-container > button[type="button"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.9rem 1.8rem;
+  font-weight: 600;
+  letter-spacing: 0.075em;
+  border-radius: 8px;
+  background: rgba(90, 228, 255, 0.13);
+  color: #fff;
+  text-shadow: 2px 2px 3px rgba(0,0,0,0.8);
+  border: 1.5px solid rgba(90,228,255,0.18);
+  box-shadow: 0 2px 12px 0 rgba(90,228,255,0.13);
   margin-top: 2rem;
   align-self: center;
-  padding: 1em 2.5em;
-  font-size: 1.15rem;
-  font-weight: 700;
-  border-radius: 999px;
-  box-shadow: 0 0 0 2.5px var(--glow, #7cf3ff), 0 0 32px 8px var(--glow, #7cf3ff);
-  opacity: 0.72;
-  animation: ghostPulse 1.2s infinite alternate;
   z-index: 3;
-  left: 7.5%;
-  top: 7.5%;
-  width: 30%;
-  height: 13%;
-  background: rgba(24, 40, 64, 0.10);
-  transition: opacity 0.6s;
+  gap: 0.7em;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(.4,0,.2,1);
+  font-size: 1.09rem;
+  line-height: 1.4;
+  outline: none;
 }
+.form-highlight-container > button[type="button"]:hover,
+.form-highlight-container > button[type="button"]:focus {
+  background: rgba(90, 228, 255, 0.23);
+  border-color: #5ae4ff;
+  color: #9bf0ff;
+  box-shadow: 0 4px 18px 0 rgba(90,228,255,0.18);
+  text-shadow: 0 0 8px #7cf3ff;
+}
+.form-highlight-container > button[type="button"] i {
+  font-size: 1.2rem;
+  margin-right: 0.5em;
+  color: #fff;
+  transition: color 0.22s cubic-bezier(.4,0,.2,1);
+}
+.form-highlight-container > button[type="button"]:hover i,
+.form-highlight-container > button[type="button"]:focus i {
+  color: #9bf0ff;
+}
+.form-highlight-container > button[type="button"]:active {
+  background: rgba(90, 228, 255, 0.18);
+  color: #5ae4ff;
+  box-shadow: 0 1px 5px 0 rgba(90,228,255,0.11);
+}
+
 
 .ghost-overlay.fade-out {
   opacity: 0;
