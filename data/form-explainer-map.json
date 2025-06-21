@@ -1,74 +1,52 @@
 [
   {
     "key": "title",
-    "left": 0.08,
-    "top": 0.04,
-    "width": 0.84,
-    "height": 0.05,
-    "tooltip": "Subject / Title\n\nHelps Nova understand the user's intent at a glance. Clear, concise titles route requests to the right support team and speed up response time."
+    "tooltip": "Form Title: Clearly states the purpose of the form.",
+    "left": 0.04, "top": 0.03, "width": 0.92, "height": 0.08
   },
   {
-    "key": "subtitle",
-    "left": 0.08,
-    "top": 0.10,
-    "width": 0.84,
-    "height": 0.04,
-    "tooltip": "Subtitle / Instructions\n\nProvides users with context or guidance for filling out the form, ensuring clarity and reducing errors."
+    "key": "description",
+    "tooltip": "Form Description: Provides context and instructions.",
+    "left": 0.04, "top": 0.12, "width": 0.92, "height": 0.09
   },
   {
-    "key": "dropdown",
-    "left": 0.08,
-    "top": 0.16,
-    "width": 0.40,
-    "height": 0.05,
-    "tooltip": "This dropdown routes issues to the right teams instantly. Behind it? A flow map designed to minimize confusion and get answers faster."
+    "key": "issue-type",
+    "tooltip": "Issue Type: Categorizes the problem for faster routing.",
+    "left": 0.04, "top": 0.22, "width": 0.92, "height": 0.1
   },
   {
-    "key": "textarea",
-    "left": 0.08,
-    "top": 0.23,
-    "width": 0.84,
-    "height": 0.18,
-    "tooltip": "This field encourages storytelling. We optimized the character count, readability, and autosave logic to help users describe their issue without pressure."
+    "key": "details",
+    "tooltip": "Detailed Description: Provide as much detail as possible here.",
+    "left": 0.04, "top": 0.33, "width": 0.92, "height": 0.15
   },
   {
-    "key": "upload",
-    "left": 0.08,
-    "top": 0.43,
-    "width": 0.50,
-    "height": 0.06,
-    "tooltip": "This custom uploader was tested across devices, browsers, and bandwidth states. Drag-and-drop or click—it works how the user wants it to."
+    "key": "nova-note",
+    "tooltip": "Nova's Note: A helpful, context-aware tip from me to you!",
+    "left": 0.04, "top": 0.49, "width": 0.92, "height": 0.09
   },
   {
-    "key": "privacy",
-    "left": 0.08,
-    "top": 0.51,
-    "width": 0.84,
-    "height": 0.04,
-    "tooltip": "Privacy Notice\n\nExplains how user data is handled, ensuring transparency and compliance with privacy standards."
+    "key": "game",
+    "tooltip": "Game Select: Specify which game your issue is related to.",
+    "left": 0.04, "top": 0.59, "width": 0.92, "height": 0.1
   },
   {
-    "key": "help",
-    "left": 0.72,
-    "top": 0.16,
-    "width": 0.20,
-    "height": 0.05,
-    "tooltip": "Help / FAQ\n\nProvides quick access to help resources or frequently asked questions, supporting self-service and reducing support load."
+    "key": "email",
+    "tooltip": "Preferred Email: Where you'll receive updates about your ticket.",
+    "left": 0.04, "top": 0.7, "width": 0.92, "height": 0.09
+  },
+  {
+    "key": "attachment",
+    "tooltip": "Attachment: Upload screenshots or videos to provide more context.",
+    "left": 0.04, "top": 0.8, "width": 0.92, "height": 0.05
   },
   {
     "key": "captcha",
-    "left": 0.08,
-    "top": 0.57,
-    "width": 0.25,
-    "height": 0.05,
-    "tooltip": "A small guardian at the gate. This invisible checkpoint helps defend support channels from spam while respecting real players."
+    "tooltip": "CAPTCHA: A quick check to ensure you're human.",
+    "left": 0.04, "top": 0.86, "width": 0.92, "height": 0.08
   },
   {
     "key": "submit",
-    "left": 0.68,
-    "top": 0.57,
-    "width": 0.24,
-    "height": 0.05,
-    "tooltip": "A final click, styled for confidence. It’s more than just ‘submit’—it’s the moment support begins."
+    "tooltip": "Submit Button: Sends your completed form to the support team.",
+    "left": 0.04, "top": 0.95, "width": 0.92, "height": 0.04
   }
 ]

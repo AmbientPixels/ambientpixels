@@ -1,5 +1,10 @@
 /* /css/components.css - Ambient Pixels v2.4 - June 14, 2025 */
 
+/* --- Utility Classes --- */
+.no-underline {
+  text-decoration: none !important;
+}
+
 /* --- Nova Grid 2 Column Layout --- */
 .grid-2col {
   display: grid;

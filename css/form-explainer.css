@@ -1,346 +1,173 @@
-/* Nova Form Explainer Styles */
+/* Form Explainer Styles - Modular & Interactive */
 
-/* === DEV MODE DEBUGGING === */
-body.devmode .form-explainer,
-body.devmode .form-highlight-container {
-  outline: 3px dashed #ff00cc !important;
-  background: rgba(255,0,204,0.04) !important;
-  z-index: 1001 !important;
-}
-body.devmode .form-overlay {
-  outline: 2px solid #00ffea !important;
-  background: rgba(0,255,234,0.12) !important;
-  z-index: 1002 !important;
-}
-body.devmode .replay-tour {
-  outline: 2px solid #ffb300 !important;
-  background: rgba(255,179,0,0.12) !important;
-  z-index: 1010 !important;
-}
-body.devmode .nova-whisper-panel {
-  outline: 2px solid #00ff00 !important;
-  background: rgba(0,255,0,0.08) !important;
-  z-index: 1010 !important;
-}
-body.devmode .timeline-scrubber {
-  outline: 2px solid #0055ff !important;
-  background: rgba(0,85,255,0.10) !important;
-  z-index: 1005 !important;
-}
-
-/* OVERRIDES for full-width scaling */
-.form-highlight-container { max-width: none !important; }
-.form-highlight-img { max-width: 100% !important; }
-
-.form-explainer-section {
-  background: rgba(255,255,255,0.05);
-  border-radius: 14px;
-  box-shadow: 0 2px 12px 0 rgba(90,228,255,0.10);
-  padding: 2.5rem 1.5rem 2.5rem 1.5rem;
-  margin: 2.5rem 0 3.5rem 0;
-}
-
-.section-header {
+.form-explainer-section .section-header {
   margin-bottom: 1.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(90,228,255,0.12);
-}
-.section-header h2 {
-  font-size: 1.65rem;
-  color: #5ae4ff;
-  text-shadow: 0 0 3px rgba(90,228,255,0.25);
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
 }
 
-.form-explainer {
-  background: rgba(24,40,64,0.18);
-  border-radius: 14px;
-  box-shadow: 0 6px 48px 0 rgba(124,243,255,0.09);
-  padding: 2.5rem 2rem 2.5rem 2rem;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  z-index: 1;
-}
-
-.form-explainer-centered {
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-
-.neon-card {
-  background: rgba(30,40,60,0.22);
-  border-radius: 14px;
-  box-shadow: 0 2px 24px 0 rgba(90,228,255,0.13), 0 0 0 2px rgba(90,228,255,0.07);
+.form-explainer.neon-card {
   padding: 0;
+  border: none;
+  background: none;
+  box-shadow: none;
+  max-width: 600px; /* Constrain width */
+  margin: 0 auto; /* Center it */
 }
 
 .form-highlight-container {
   position: relative;
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-  overflow: visible;
-  z-index: 1;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 
+    0 0 15px rgba(var(--aura-glow-rgb), 0.2),
+    0 0 30px rgba(var(--aura-glow-rgb), 0.15),
+    inset 0 0 8px rgba(var(--aura-glow-rgb), 0.1);
+  border: 1px solid var(--aura-glow);
 }
-
-.form-explainer,
-.form-overlay {
-  overflow: visible;
-}
-
-/* Floating tooltip box for JS-injected tooltips */
-.tooltip-box {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: translate(0, -100%);
-  z-index: 99;
-  min-width: 220px;
-  max-width: 320px;
-  background: var(--card-bg, rgba(18,32,48,0.97));
-  color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 18px 0 rgba(90,228,255,0.18);
-  padding: 0.9em 1.2em;
-  font-size: 1.04rem;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.18s;
-}
-.tooltip-box.active {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* Debug overlay/tooltip alignment mode */
-.form-overlay.debug-align {
-  background: rgba(255, 0, 0, 0.08) !important;
-  border: 1.5px dashed red !important;
-}
-.tooltip-box.debug-align {
-  background: rgba(0, 0, 255, 0.08) !important;
-  border: 1.5px dashed blue !important;
-}
-.tooltip-left {
-  transform: translateX(-100%);
-  left: auto;
-  right: 0;
-}
-/* Dev mode: always show tooltip */
-.form-overlay:hover::after,
-.form-overlay.always-show::after {
-  opacity: 1 !important;
-  display: block !important;
-}
-/* Native tooltip via ::after (hidden by default) */
-.form-overlay::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  top: -2.5rem;
-  left: 0;
-  min-width: 220px;
-  max-width: 320px;
-  background: var(--card-bg, rgba(18,32,48,0.97));
-  color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 18px 0 rgba(90,228,255,0.18);
-  padding: 0.9em 1.2em;
-  font-size: 1.04rem;
-  opacity: 0;
-  pointer-events: none;
-  white-space: pre-line;
-  z-index: 99;
-  transition: opacity 0.18s;
-}
-
 
 .form-highlight-img {
   display: block;
   width: 100%;
-  max-width: 1440px;
   height: auto;
-  margin: 0 auto;
-  border-radius: 18px;
-  box-shadow: 0 6px 48px 0 rgba(0,0,0,0.42), 0 4px 48px 0 rgba(124,243,255,0.09);
-  background: #101c2b;
-  opacity: 0;
-  object-fit: contain;
-  transition: opacity 0.7s cubic-bezier(.22,.68,.54,1.01);
-}
-.form-highlight-img[data-loaded="true"] {
-  opacity: 1;
+  opacity: 0.8; /* Slightly dim image to make overlays pop */
 }
 
-/* Field highlight style for overlays (not card style) */
+/* Overlays */
 .form-overlay {
   position: absolute;
-  border-radius: 10px;
-  opacity: 0.98;
-  background: rgba(24, 40, 64, 0.18);
-  box-shadow: 0 0 0 2px var(--glow, #7cf3ff), 0 0 16px 2px var(--glow, #7cf3ff);
-  border: 1.5px solid var(--glow, #7cf3ff);
+  border-radius: 6px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  transition: opacity 0.5s cubic-bezier(.22,.68,.54,1.01), transform 0.32s cubic-bezier(.22,.68,.54,1.01), box-shadow 0.18s, background 0.2s;
-  z-index: 3;
-}
-.overlay-title { top: 7%; left: 5%; width: 52%; height: 16%; }
-.overlay-subtitle { top: 24%; left: 5%; width: 52%; height: 10%; }
-.overlay-dropdown { top: 22%; left: 60%; width: 34%; height: 12%; }
-.overlay-textarea { top: 36%; left: 5%; width: 89%; height: 18%; }
-.overlay-upload { top: 62%; left: 5%; width: 65%; height: 16%; }
-.overlay-privacy { top: 80%; left: 5%; width: 40%; height: 8%; }
-.overlay-help { top: 80%; left: 47%; width: 28%; height: 8%; }
-.overlay-captcha { bottom: 16%; left: 35%; width: 30%; height: 9%; }
-.overlay-submit { bottom: 7%; right: 5%; width: 30%; height: 13%; }
-.form-overlay.active, .form-overlay:focus, .form-overlay:hover {
-  opacity: 1 !important;
-  transform: scale(1.03);
-  background: rgba(18, 32, 48, 0.38);
-  box-shadow: 0 0 0 3px var(--glow, #7cf3ff), 0 0 32px 8px var(--glow, #7cf3ff);
-  z-index: 5;
+  border: 2px solid transparent;
+  background-color: rgba(var(--aura-glow-rgb), 0.1);
 }
 
-.overlay-title, .overlay-subtitle, .overlay-dropdown, .overlay-textarea, .overlay-upload, .overlay-privacy, .overlay-help, .overlay-submit {
-  left: 30%;
-  width: 40%;
+.form-overlay:hover, .form-overlay.active {
+  background-color: rgba(var(--aura-glow-rgb), 0.2);
+  border-color: var(--aura-glow);
+  box-shadow: 0 0 15px rgba(var(--aura-glow-rgb), 0.5);
 }
 
-/* Additional overlay positioning rules ... (not shown here for brevity) */
-
+/* Ghost Pulse Effect */
 .ghost-overlay {
   position: absolute;
+  border-radius: 6px;
+  transition: all 0.5s ease-out;
   pointer-events: none;
-  border-radius: 0.7em;
-  background: linear-gradient(90deg, rgba(90,228,255,0.13) 0%, rgba(124,243,255,0.09) 100%);
-  box-shadow: 0 0 0 2px var(--glow, #7cf3ff), 0 0 24px 6px var(--glow, #7cf3ff);
-  opacity: 0.5;
-  z-index: 3;
-  transition: opacity 0.5s;
+  border: 2px solid var(--aura-glow);
+  box-shadow: 0 0 15px var(--aura-glow);
+  opacity: 0;
+  transform: scale(1.05);
 }
 
-/* Use global neon-card/modal-content for panel style */
+.ghost-overlay.pulsing {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Nova Whisper Panel */
 .nova-whisper-panel {
-  position: fixed;
-  bottom: 2.5rem;
-  left: 2.5rem;
-  background: var(--card-bg, rgba(18,32,48,0.90));
-  border-radius: 10px;
-  box-shadow: 0 0 30px rgba(90, 228, 255, 0.2);
-  color: #fff;
-  font-size: 1.08rem;
-  padding: 1.1em 1.5em;
-  max-width: 340px;
-  z-index: 100;
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  right: 1rem;
+  background: rgba(0, 10, 20, 0.85);
+  backdrop-filter: blur(8px);
+  color: var(--nova-text-color-primary);
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  border: 1px solid var(--nova-border-color-translucent);
+  font-style: italic;
+  font-size: 0.95rem;
   opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
   pointer-events: none;
-  transition: opacity 0.4s cubic-bezier(.4,0,.2,1);
-  user-select: text;
-  outline: none;
+  text-align: center;
 }
 
 .nova-whisper-panel.active {
   opacity: 1;
-  pointer-events: auto;
+  transform: translateY(0);
 }
 
+/* Timeline Scrubber */
 .timeline-scrubber {
   position: absolute;
-  bottom: 1.2rem;
+  bottom: -30px; /* Position below the container */
   left: 50%;
   transform: translateX(-50%);
-  width: 60%;
-  height: 4px;
-  background: linear-gradient(90deg, #5ae4ff 0%, #7cf3ff 100%);
-  border-radius: 2px;
-  box-shadow: 0 1px 6px 0 rgba(90,228,255,0.12);
-  z-index: 10;
+  display: flex;
+  gap: 12px;
+  padding: 10px;
 }
 
-}
-
-.form-highlight-container > button[type="button"] {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.9rem 1.8rem;
-  font-weight: 600;
-  letter-spacing: 0.075em;
-  border-radius: 8px;
-  background: rgba(90, 228, 255, 0.13);
-  color: #fff;
-  text-shadow: 2px 2px 3px rgba(0,0,0,0.8);
-  border: 1.5px solid rgba(90,228,255,0.18);
-  box-shadow: 0 2px 12px 0 rgba(90,228,255,0.13);
-  margin-top: 2rem;
-  align-self: center;
-  z-index: 3;
-  gap: 0.7em;
+.timeline-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   cursor: pointer;
-  transition: all 0.22s cubic-bezier(.4,0,.2,1);
-  font-size: 1.09rem;
-  line-height: 1.4;
-  outline: none;
-}
-.form-highlight-container > button[type="button"]:hover,
-.form-highlight-container > button[type="button"]:focus {
-  background: rgba(90, 228, 255, 0.23);
-  border-color: #5ae4ff;
-  color: #9bf0ff;
-  box-shadow: 0 4px 18px 0 rgba(90,228,255,0.18);
-  text-shadow: 0 0 8px #7cf3ff;
-}
-.form-highlight-container > button[type="button"] i {
-  font-size: 1.2rem;
-  margin-right: 0.5em;
-  color: #fff;
-  transition: color 0.22s cubic-bezier(.4,0,.2,1);
-}
-.form-highlight-container > button[type="button"]:hover i,
-.form-highlight-container > button[type="button"]:focus i {
-  color: #9bf0ff;
-}
-.form-highlight-container > button[type="button"]:active {
-  background: rgba(90, 228, 255, 0.18);
-  color: #5ae4ff;
-  box-shadow: 0 1px 5px 0 rgba(90,228,255,0.11);
+  transition: all 0.3s ease;
 }
 
+.timeline-dot:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.2);
+}
 
-.ghost-overlay.fade-out {
+.timeline-dot.active {
+  background-color: var(--aura-glow);
+  border-color: var(--aura-glow);
+  box-shadow: 0 0 10px var(--aura-glow);
+  transform: scale(1.3);
+}
+
+/* Replay Button */
+.replay-tour {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
   opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.4s ease;
+}
+
+.replay-tour.active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Tooltip */
+.tooltip-box {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  z-index: 1000;
   pointer-events: none;
-  animation: none;
-  transition: opacity 0.6s;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.2s, transform 0.2s;
+  white-space: pre-wrap; /* Respect newlines */
 }
 
-@keyframes ghostPulse {
-  from {
-    box-shadow: 0 0 0 2.5px var(--glow, #7cf3ff), 0 0 32px 8px var(--glow, #7cf3ff);
-    opacity: 0.72;
-  }
-  to {
-    box-shadow: 0 0 0 4px var(--glow, #7cf3ff), 0 0 48px 16px var(--glow, #7cf3ff);
-    opacity: 0.92;
-  }
+.tooltip-box.active {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-@media (max-width: 900px) {
-  .form-highlight-container { min-height: 40vh; }
-  .form-highlight-img { max-width: 98vw; max-height: 60vh; }
-  .overlay-title, .ghost-overlay { left: 5%; top: 7%; width: 52%; height: 16%; }
-  .overlay-dropdown { left: 60%; top: 22%; width: 34%; height: 12%; }
-  .overlay-upload { left: 5%; top: 62%; width: 65%; height: 16%; }
-  .overlay-submit { right: 5%; bottom: 7%; width: 30%; height: 13%; }
+.tooltip-box.tooltip-left {
+  transform-origin: right center;
 }
+
+/* Dev Mode for debugging */
+.devmode .form-overlay {
+  outline: 1px dashed red;
+}
+.devmode .timeline-scrubber, .devmode .replay-tour {
+  outline: 1px dashed cyan;
+}
+
