@@ -15,6 +15,11 @@
   function setSlider(percent) {
     beforeImg.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
     slider.style.left = `${percent}%`;
+    // Overlay logic
+    const calloutBefore = container.querySelector('.callout-before');
+    const calloutAfter = container.querySelector('.callout-after');
+    if (calloutBefore) calloutBefore.style.opacity = (percent > 10 ? 1 : 0);
+    if (calloutAfter) calloutAfter.style.opacity = (percent < 90 ? 1 : 0);
   }
   function onPointerDown(e) { dragging = true; document.body.style.userSelect = 'none'; }
   function onPointerMove(e) {

@@ -2,8 +2,10 @@
 .img-compare-container {
   position: relative;
   width: 100%;
-  max-width: 900px;
+  max-width: 480px;
   aspect-ratio: 826 / 1200;
+  margin: 2rem auto;
+
   margin: 2rem auto;
   overflow: hidden;
   border-radius: 8px;
@@ -79,4 +81,55 @@
   box-shadow: 0 2px 10px 0 rgba(124,243,255,0.18);
   opacity: 0.96;
   pointer-events: none;
+}
+
+/* Nova-style callout overlays for slider improvements */
+.windsurf-callout {
+  position: absolute;
+  padding: 0.35em 0.9em;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: rgba(124,243,255,0.90);
+  color: #1a2a33;
+  border-radius: 1.5em;
+  box-shadow: 0 1px 6px 0 rgba(124,243,255,0.12);
+  border: 1.2px solid #3ad6e7;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  opacity: 0.96;
+  z-index: 30;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  font-family: inherit;
+  letter-spacing: 0.01em;
+  animation: windsurf-fadein 1s cubic-bezier(0.4,0.2,0.2,1);
+}
+.windsurf-callout i {
+  font-size: 1.1em;
+  opacity: 0.85;
+}
+.callout-before {
+  left: 1rem;
+  top: 1rem;
+}
+.callout-after {
+  right: 1rem;
+  top: 1rem;
+}
+.callout-center {
+  left: 50%;
+  top: 12%;
+  transform: translateX(-50%);
+  background: rgba(124,243,255,0.98);
+  font-size: 1.04rem;
+  padding: 0.4em 1.2em;
+  border-radius: 2em;
+  box-shadow: 0 2px 10px 0 rgba(124,243,255,0.18);
+}
+
+@keyframes windsurf-fadein {
+  from { opacity: 0; transform: translateY(-10px);}
+  to   { opacity: 0.98; transform: none;}
 }
