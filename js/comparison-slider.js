@@ -18,8 +18,28 @@
     // Overlay logic
     const calloutBefore = container.querySelector('.callout-before');
     const calloutAfter = container.querySelector('.callout-after');
-    if (calloutBefore) calloutBefore.style.opacity = (percent > 10 ? 1 : 0);
-    if (calloutAfter) calloutAfter.style.opacity = (percent < 90 ? 1 : 0);
+    const calloutAccessibility = container.querySelector('.callout-accessibility');
+    const calloutMobile = container.querySelector('.callout-mobile');
+    if (calloutBefore) calloutBefore.style.opacity = 1;
+    if (calloutAfter) calloutAfter.style.opacity = 1;
+    // Callouts appear as slider moves left, disappear as you move right
+    // Cumulative reveal: each callout appears as you pass its threshold left, and disappears if you move right past its threshold
+    const calloutTesting = container.querySelector('.callout-testing');
+    const calloutChat = container.querySelector('.callout-chat');
+    if (calloutAccessibility) calloutAccessibility.style.opacity = (percent < 70 ? 1 : 0);
+    if (calloutMobile) calloutMobile.style.opacity = (percent < 50 ? 1 : 0);
+    if (calloutTesting) calloutTesting.style.opacity = (percent < 30 ? 1 : 0);
+    if (calloutChat) calloutChat.style.opacity = (percent < 15 ? 1 : 0);
+    // Debug output
+    console.log('[Slider Debug]', {
+      percent: percent.toFixed(2),
+      calloutBefore: calloutBefore ? calloutBefore.style.opacity : 'none',
+      calloutAfter: calloutAfter ? calloutAfter.style.opacity : 'none',
+      calloutAccessibility: calloutAccessibility ? calloutAccessibility.style.opacity : 'none',
+      calloutMobile: calloutMobile ? calloutMobile.style.opacity : 'none',
+      calloutTesting: calloutTesting ? calloutTesting.style.opacity : 'none',
+      calloutChat: calloutChat ? calloutChat.style.opacity : 'none'
+    });
   }
   function onPointerDown(e) { dragging = true; document.body.style.userSelect = 'none'; }
   function onPointerMove(e) {
