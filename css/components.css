@@ -1,5 +1,57 @@
 /* /css/components.css - Ambient Pixels v2.4 - June 14, 2025 */
 
+/* --- Nova Grid 2 Column Layout --- */
+.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+@media (max-width: 800px) {
+  .grid-2col {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* --- Nova Pill Stack + Glow --- */
+.pill-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.7em 1.4em;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 500;
+  background: rgba(90, 228, 255, 0.09);
+  color: var(--aura-glow, #5ae4ff);
+  border: 1.5px solid var(--aura-glow, #5ae4ff);
+  box-shadow: 0 0 0 0 rgba(90, 228, 255, 0.0);
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.pill.glow {
+  box-shadow: 0 0 16px 0 rgba(90, 228, 255, 0.18), 0 1.5px 8px 0 rgba(0,0,0,0.08);
+  border-color: var(--glow, #9bf00b);
+  background: rgba(90, 228, 255, 0.13);
+  color: var(--glow, #9bf00b);
+}
+@media (max-width: 600px) {
+  .pill-stack {
+    gap: 0.75rem;
+  }
+  .grid-2col {
+    gap: 1.2rem;
+  }
+}
+
+
 /* Video Duration Badge */
 .video-duration-badge {
   position: absolute;
