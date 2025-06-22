@@ -597,43 +597,9 @@
         });
       });
       
-      // Initialize Nebulight slideshow for Team Achievements
-      const teamAchievements = new Nebulight('#team-achievements-showcase', {
-        slides: [
-          {
-            image: '/images/projects/xbox/xbox-support-app.jpg',
-            title: 'Xbox Support App Redesign',
-            caption: 'Complete redesign of the Xbox Support mobile app, resulting in 87% increase in user satisfaction'
-          },
-          {
-            image: '/images/projects/xbox/localization-pipeline.jpg',
-            title: 'Advanced Localization Pipeline',
-            caption: 'Development of a streamlined localization system that reduced translation time by 60%'
-          },
-          {
-            image: '/images/projects/xbox/accessibility-showcase.jpg',
-            title: 'Accessibility Excellence',
-            caption: 'Implementation of WCAG 2.1 AA standards across all support content'
-          },
-          {
-            image: '/images/projects/xbox/game-pass-support.jpg',
-            title: 'Game Pass Support Framework',
-            caption: 'Specialized support system for Xbox Game Pass subscribers across 40+ markets'
-          },
-          {
-            image: '/images/projects/xbox/ninja-theory-help.jpg',
-            title: 'Ninja Theory Help Center',
-            caption: 'Custom support portal for Hellblade and other Ninja Theory titles'
-          }
-        ],
-        settings: {
-          autoplay: true,
-          interval: 5000,
-          transition: 'fade',
-          theme: 'dark',
-          aspectRatio: '16:9'
-        }
-      });
+      // Initialize Nebulight slideshow for Team Achievements from JSON config
+      // (matches Nebulight demo pattern)
+      const teamAchievements = new Nebulight('#team-achievements-showcase', '/data/xbox-support-achievements.json');
       
       // Initialize timeline animations
       const timelineItems = document.querySelectorAll('.timeline-item');
@@ -909,125 +875,6 @@
       </div>
     </section>
 
-    <!-- DEMO: All Styled Bulleted List Options -->
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-list-ul"></i> All Styled Bulleted List Options</h2>
-      <div class="note-box" style="margin-bottom:2rem;">Each list below demonstrates a different bullet/list style available in the AmbientPixels system. Use these as reference for content presentation and screenshotting.</div>
-
-      <h3>.icon-bullets</h3>
-      <ul class="icon-bullets">
-        <li><i class="fas fa-check-circle"></i> Icon bullet with check</li>
-        <li><i class="fas fa-magic"></i> Icon bullet with magic</li>
-        <li><i class="fas fa-bolt"></i> Icon bullet with bolt</li>
-      </ul>
-
-      <h3>.border-bullets</h3>
-      <ul class="border-bullets">
-        <li>Border bullet one</li>
-        <li>Border bullet two</li>
-        <li>Border bullet three</li>
-      </ul>
-
-      <h3>.grid-bullets</h3>
-      <ul class="grid-bullets">
-        <li class="grid-bullet"><strong>Grid Bullet 1</strong><p>Extra details for grid bullet one.</p></li>
-        <li class="grid-bullet"><strong>Grid Bullet 2</strong><p>Extra details for grid bullet two.</p></li>
-        <li class="grid-bullet"><strong>Grid Bullet 3</strong><p>Extra details for grid bullet three.</p></li>
-      </ul>
-
-      <h3>.minimalist-bullets</h3>
-      <ul class="minimalist-bullets">
-        <li><strong>Minimalist</strong> bullet one</li>
-        <li><strong>Minimalist</strong> bullet two</li>
-        <li><strong>Minimalist</strong> bullet three</li>
-      </ul>
-
-      <h3>.benefits-list</h3>
-      <ul class="benefits-list">
-        <li><i class="fa-solid fa-circle-check"></i> Benefit bullet one</li>
-        <li><i class="fa-solid fa-circle-check"></i> Benefit bullet two</li>
-        <li><i class="fa-solid fa-circle-check"></i> Benefit bullet three</li>
-      </ul>
-
-      <h3>.tech-list</h3>
-      <ul class="tech-list">
-        <li><i class="fas fa-check-circle"></i> Tech list bullet one</li>
-        <li><i class="fas fa-check-circle"></i> Tech list bullet two</li>
-        <li><i class="fas fa-check-circle"></i> Tech list bullet three</li>
-      </ul>
-
-      <h3>.check-list</h3>
-      <ul class="check-list">
-  <li><i class="fa-solid fa-circle-check"></i> Check-list bullet one</li>
-  <li><i class="fa-solid fa-circle-check"></i> Check-list bullet two</li>
-  <li><i class="fa-solid fa-circle-check"></i> Check-list bullet three</li>
-</ul>
-
-      <h3>.no-bullets</h3>
-      <ul class="no-bullets">
-        <li>No-bullets style one</li>
-        <li>No-bullets style two</li>
-        <li>No-bullets style three</li>
-      </ul>
-
-      <h3>ul in .content-section (default custom bullet)</h3>
-      <ul>
-        <li>Default content-section bullet one</li>
-        <li>Default content-section bullet two</li>
-        <li>Default content-section bullet three</li>
-      </ul>
-      <ol>
-        <li>Default content-section ordered one</li>
-        <li>Default content-section ordered two</li>
-        <li>Default content-section ordered three</li>
-      </ol>
-
-      <h3>.bullet-cards</h3>
-      <div class="bullet-cards">
-        <div class="bullet-card"><span class="bullet-icon"><i class="fas fa-star"></i></span><span class="bullet-content"><strong>Bullet Card 1</strong><p>Extra info for bullet card one.</p></span></div>
-        <div class="bullet-card"><span class="bullet-icon"><i class="fas fa-bolt"></i></span><span class="bullet-content"><strong>Bullet Card 2</strong><p>Extra info for bullet card two.</p></span></div>
-        <div class="bullet-card"><span class="bullet-icon"><i class="fas fa-magic"></i></span><span class="bullet-content"><strong>Bullet Card 3</strong><p>Extra info for bullet card three.</p></span></div>
-      </div>
-
-      <h3>.numbered-cards</h3>
-      <div class="numbered-cards">
-  <div class="card-item"><strong>Numbered card one</strong><p>Extra info for card one.</p></div>
-  <div class="card-item"><strong>Numbered card two</strong><p>Extra info for card two.</p></div>
-  <div class="card-item"><strong>Numbered card three</strong><p>Extra info for card three.</p></div>
-</div>
-
-      <h3>.neon-card ul</h3>
-      <div class="neon-card">
-        <ul>
-          <li>Neon card bullet one</li>
-          <li>Neon card bullet two</li>
-          <li>Neon card bullet three</li>
-        </ul>
-      </div>
-
-      <h3>.log-list</h3>
-      <ul class="log-list">
-        <li>Log entry one</li>
-        <li>Log entry two</li>
-        <li>Log entry three</li>
-      </ul>
-
-      <h3>.feature-list</h3>
-      <ul class="feature-list">
-        <li>Feature list bullet one</li>
-        <li>Feature list bullet two</li>
-        <li>Feature list bullet three</li>
-      </ul>
-
-      <h3>.feature-sublist</h3>
-      <ul class="feature-sublist">
-        <li>Feature sublist bullet one</li>
-        <li>Feature sublist bullet two</li>
-        <li>Feature sublist bullet three</li>
-      </ul>
-
-    </section>
-
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-chart-line"></i> Impact & Results</h2>
       
@@ -1111,16 +958,7 @@
     </div>
   </section>
 
-  <footer class="site-footer">
-    <div class="footer-content">
-      <p>&copy; 2025 AmbientPixels | Xbox Support Content Team</p>
-      <div class="footer-links">
-        <a href="/projects/xbox-support-app-case-study.html">Case Study</a> | 
-        <a href="/projects/xbox-accessibility.html">Accessibility</a> | 
-        <a href="/contact.html">Contact</a>
-      </div>
-    </div>
-  </footer>
+  <div id="footer-container"></div>   
 
   <script src="/js/theme-toggle.js"></script>
   <script src="/js/nav.js"></script>

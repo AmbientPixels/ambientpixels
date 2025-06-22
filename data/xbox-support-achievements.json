@@ -1,0 +1,145 @@
+{
+    "version": "1.0.0",
+    "slideshowId": "nebulight-demo",
+    "title": "Nebulight Interactive Slideshow",
+    "description": "A showcase of the Nebulight component capabilities with various configuration options.",
+    "settings": {
+      "autoplay": true,
+      "interval": 5000,
+      "loop": true,
+      "transition": "fade",
+      "transitionDuration": 800,
+      "showCaptions": true,
+      "showControls": true,
+      "showProgress": true,
+      "showCounter": true,
+      "showThumbnails": true,
+      "allowFullscreen": true,
+      "theme": "dark",
+      "aspectRatio": "16:9",
+      "height": "auto"
+    },
+    "security": {
+      "disableRightClick": false,
+      "obfuscateImageUrls": false,
+      "preventDownload": false
+    },
+    "slides": [
+      {
+        "id": "slide-1",
+        "image": "/images/projects/xbox-support/screen-01.jpeg",
+        "thumbnail": "/images/projects/xbox-support/screen-01.jpeg",
+        "alt": "Xbox Support Team - Main dashboard interface screenshot",
+        "title": "Main Dashboard Launch",
+        "caption": "The new Xbox Support dashboard launches with streamlined navigation.",
+        "description": "A milestone moment: the redesigned dashboard for Xbox Support goes live, improving user journeys and efficiency.",
+        "tags": ["dashboard", "launch", "milestone"],
+        "overlay": { "enabled": false },
+        "security": { "disableRightClick": false, "preventDownload": false, "obfuscateImageUrl": false }
+      },
+      {
+        "id": "slide-2",
+        "image": "/images/projects/xbox-support/screen-02.jpeg",
+        "thumbnail": "/images/projects/xbox-support/screen-02.jpeg",
+        "alt": "Xbox Support Team - Localization workflow screenshot",
+        "title": "Localization Workflow",
+        "caption": "Automated translation and localization for 40+ languages.",
+        "description": "Showcasing the advanced localization pipeline that powers Xbox Support content worldwide.",
+        "tags": ["localization", "workflow", "global"],
+        "overlay": { "enabled": false },
+        "security": { "disableRightClick": false, "preventDownload": false, "obfuscateImageUrl": false }
+      },
+      {
+        "id": "slide-3",
+        "image": "/images/projects/xbox-support/screen-03.png",
+        "thumbnail": "/images/projects/xbox-support/screen-03.png",
+        "alt": "Xbox Support Team - Accessibility features screenshot",
+        "title": "Accessibility Features",
+        "caption": "WCAG 2.1 AA accessibility across all support content.",
+        "description": "Accessibility and inclusivity are core to the Xbox Support experience.",
+        "tags": ["accessibility", "inclusion", "features"],
+        "overlay": { "enabled": false },
+        "security": { "disableRightClick": false, "preventDownload": false, "obfuscateImageUrl": false }
+      },
+      {
+        "id": "slide-4",
+        "image": "/images/projects/xbox-support/screen-04.jpeg",
+        "thumbnail": "/images/projects/xbox-support/screen-04.jpeg",
+        "alt": "Xbox Support Team - Publishing pipeline screenshot",
+        "title": "Publishing Pipeline",
+        "caption": "End-to-end publishing pipeline for global content.",
+        "description": "Overview of the team’s cloud publishing workflow and rapid deployment tools.",
+        "tags": ["publishing", "pipeline", "cloud"],
+        "overlay": { "enabled": false },
+        "security": { "disableRightClick": false, "preventDownload": false, "obfuscateImageUrl": false }
+      },
+      {
+        "id": "slide-5",
+        "image": "/images/projects/xbox-support/screen-05.jpeg",
+        "thumbnail": "/images/projects/xbox-support/screen-05.jpeg",
+        "alt": "Xbox Support Team - Analytics dashboard screenshot",
+        "title": "Analytics Dashboard",
+        "caption": "Real-time analytics for support performance.",
+        "description": "Performance tracking and analytics tools drive continuous improvement.",
+        "tags": ["analytics", "dashboard", "performance"],
+        "overlay": { "enabled": false },
+        "security": { "disableRightClick": false, "preventDownload": false, "obfuscateImageUrl": false }
+      },
+      {
+        "id": "slide-6",
+        "image": "/images/projects/xbox-support/screen-06.jpeg",
+        "thumbnail": "/images/projects/xbox-support/screen-06.jpeg",
+        "alt": "Xbox Support Team - Cloud publishing screenshot",
+        "title": "Cloud Publishing",
+        "caption": "Multi-platform publishing and support infrastructure.",
+        "description": "Cloud publishing enables rapid, reliable support content updates across platforms.",
+        "tags": ["cloud", "publishing", "infrastructure"],
+        "overlay": { "enabled": false },
+        "security": { "disableRightClick": false, "preventDownload": false, "obfuscateImageUrl": false }
+      },
+      {
+        "id": "slide-7",
+        "image": "/images/projects/xbox-support/screen-07.jpeg",
+        "thumbnail": "/images/projects/xbox-support/screen-07.jpeg",
+        "alt": "Xbox Support Team - AI-powered tools screenshot",
+        "title": "AI-Powered Tools (Confidential)",
+        "caption": "AI-driven content generation and support automation.",
+        "description": "Confidential: Advanced AI tools for content and support—protected by NDA.",
+        "tags": ["ai", "tools", "confidential"],
+        "overlay": {
+          "enabled": true,
+          "type": "nda-red",
+          "blur": 20,
+          "message": "NDA Protected Content",
+          "icon": "fas fa-lock"
+        },
+        "security": {
+          "disableRightClick": true,
+          "preventDownload": true,
+          "obfuscateImageUrl": true
+        }
+      },
+      {
+        "id": "slide-8",
+        "image": "/images/projects/xbox-support/support-icon.svg",
+        "thumbnail": "/images/projects/xbox-support/support-icon.svg",
+        "alt": "Xbox Support Team - Official support icon",
+        "title": "Support Icon",
+        "caption": "The official emblem of the Xbox Support Team.",
+        "description": "Branding: The Xbox Support Team’s official icon and mark.",
+        "tags": ["icon", "branding", "team"],
+        "overlay": { "enabled": false },
+        "security": { "disableRightClick": false, "preventDownload": false, "obfuscateImageUrl": false }
+      }
+    ],
+    "i18n": {
+      "nextSlide": "Next slide",
+      "previousSlide": "Previous slide",
+      "playSlideshow": "Play slideshow",
+      "pauseSlideshow": "Pause slideshow",
+      "fullscreen": "Toggle fullscreen",
+      "exitFullscreen": "Exit fullscreen",
+      "slideCounter": "Slide {current} of {total}"
+    }
+  }
+  
