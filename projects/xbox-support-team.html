@@ -84,20 +84,60 @@
       </blockquote>
     </section>
     
-    <!-- EchoGrid Avatar Section -->
-    <section class="content-section grid-col-12">
-      <h2 class="section-title">Meet The Team</h2>
-      <p class="section-intro">
-        Our diverse team brings together expertise in technical writing, design, development, localization, and accessibility 
-        to create support content that helps millions of Xbox users around the world.
-      </p>
+    <!-- Superhero Team Section with EchoGrid Avatars -->
+    <section class="content-section grid-col-12" id="superhero-team">
+      <div class="grid-container">
+        <div class="grid-col-12">
+          <h2 class="section-title"><i class="fas fa-mask"></i> The Superhero Team</h2>
+          <p class="section-intro">
+            Meet the extraordinary individuals behind Xbox Support content. Each team member brings unique superpowers and expertise 
+            to create world-class support materials that help millions of players around the globe.
+          </p>
+          
+          <div class="note-box">
+            <i class="fas fa-info-circle"></i> <strong>Team Powers:</strong> Hover over or tap each team member's card to reveal their special abilities, stats, and role details.
+          </div>
+        </div>
+      </div>
+      
+      <!-- Team Stats Overview -->
+      <div class="team-stats-overview grid-container">
+        <div class="grid-col-3">
+          <div class="stat-card stat-card-mythic">
+            <div class="stat-icon"><i class="fas fa-pen-fancy"></i></div>
+            <div class="stat-number">1,500+</div>
+            <div class="stat-label">Support Articles</div>
+          </div>
+        </div>
+        <div class="grid-col-3">
+          <div class="stat-card stat-card-legendary">
+            <div class="stat-icon"><i class="fas fa-globe"></i></div>
+            <div class="stat-number">40+</div>
+            <div class="stat-label">Languages</div>
+          </div>
+        </div>
+        <div class="grid-col-3">
+          <div class="stat-card stat-card-epic">
+            <div class="stat-icon"><i class="fas fa-gamepad"></i></div>
+            <div class="stat-number">100+</div>
+            <div class="stat-label">Game Titles</div>
+          </div>
+        </div>
+        <div class="grid-col-3">
+          <div class="stat-card stat-card-rare">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-number">Millions</div>
+            <div class="stat-label">Players Supported</div>
+          </div>
+        </div>
+      </div>
       
       <!-- EchoGrid Avatar Container -->
       <div id="team-avatars" class="echogrid-avatar-container" data-echogrid-avatar-container data-data-url="/data/xbox-support-team.json" data-clear-on-load="true">
         <!-- Avatar cards will be dynamically loaded here -->
         <div class="echogrid-avatar-loading">
           <i class="fas fa-spinner fa-pulse"></i>
-          <p>Loading team members...</p>
+          <p>Loading superhero team members...</p>
         </div>
       </div>
     </section>
@@ -111,7 +151,7 @@
       </p>
       
       <div class="pipeline-container grid-container">
-        <div class="pipeline-step grid-col-3">
+        <div class="pipeline-stage grid-col-3">
           <div class="pipeline-icon">
             <i class="fas fa-lightbulb"></i>
           </div>
@@ -119,7 +159,7 @@
           <p>Research, audience analysis, and content strategy development</p>
         </div>
         
-        <div class="pipeline-step grid-col-3">
+        <div class="pipeline-stage grid-col-3">
           <div class="pipeline-icon">
             <i class="fas fa-pen-fancy"></i>
           </div>
@@ -127,7 +167,7 @@
           <p>Writing, editing, and localization preparation</p>
         </div>
         
-        <div class="pipeline-step grid-col-3">
+        <div class="pipeline-stage grid-col-3">
           <div class="pipeline-icon">
             <i class="fas fa-check-double"></i>
           </div>
@@ -135,7 +175,7 @@
           <p>Accuracy verification by subject matter experts</p>
         </div>
         
-        <div class="pipeline-step grid-col-3">
+        <div class="pipeline-stage grid-col-3">
           <div class="pipeline-icon">
             <i class="fas fa-universal-access"></i>
           </div>
@@ -143,7 +183,7 @@
           <p>Ensuring content meets WCAG standards</p>
         </div>
         
-        <div class="pipeline-step grid-col-3">
+        <div class="pipeline-stage grid-col-3">
           <div class="pipeline-icon">
             <i class="fas fa-language"></i>
           </div>
@@ -151,7 +191,7 @@
           <p>Translation and cultural adaptation for 40+ markets</p>
         </div>
         
-        <div class="pipeline-step grid-col-3">
+        <div class="pipeline-stage grid-col-3">
           <div class="pipeline-icon">
             <i class="fas fa-upload"></i>
           </div>
@@ -159,7 +199,7 @@
           <p>Multi-platform deployment with version control</p>
         </div>
         
-        <div class="pipeline-step grid-col-3">
+        <div class="pipeline-stage grid-col-3">
           <div class="pipeline-icon">
             <i class="fas fa-chart-line"></i>
           </div>
@@ -167,7 +207,7 @@
           <p>Performance tracking and content optimization</p>
         </div>
         
-        <div class="pipeline-step grid-col-3">
+        <div class="pipeline-stage grid-col-3">
           <div class="pipeline-icon">
             <i class="fas fa-sync-alt"></i>
           </div>
@@ -176,17 +216,262 @@
         </div>
       </div>
     </section>
-
-    <!-- DEMO: Content Section & Note Box -->
-    <section class="content-section grid-col-12">
-      <h2>.content-section & .note-box</h2>
-      <div class="note-box"><i class="fas fa-info-circle"></i> This is a <strong>.note-box</strong> for callouts, stats, or warnings.</div>
+    
+    <!-- AI-Powered Support Section -->
+    <section class="content-section grid-col-12" id="ai-powered-support">
+      <h2 class="section-title"><i class="fas fa-robot"></i> AI-Powered Support</h2>
+      <p class="section-intro">
+        The Xbox Support Content Team leverages cutting-edge AI technologies to enhance content creation, 
+        delivery, and personalization for millions of users worldwide.
+      </p>
+      
+      <div class="service-grid">
+        <div class="service-card">
+          <div class="service-icon"><i class="fas fa-bolt"></i></div>
+          <h3>Real-Time Content Generation</h3>
+          <p>AI-assisted content creation tools help our team rapidly produce accurate support materials for new features and updates.</p>
+          <div class="service-card-footer">
+            <span class="tech-badge"><i class="fas fa-server"></i> Azure OpenAI</span>
+            <span class="tech-badge"><i class="fas fa-cloud"></i> Content API</span>
+          </div>
+        </div>
+        
+        <div class="service-card">
+          <div class="service-icon"><i class="fas fa-shield-alt"></i></div>
+          <h3>Intelligent Content Security</h3>
+          <p>AI-powered content validation ensures all support materials meet Xbox's quality standards and security requirements.</p>
+          <div class="service-card-footer">
+            <span class="tech-badge"><i class="fas fa-lock"></i> Content Shield</span>
+            <span class="tech-badge"><i class="fas fa-user-shield"></i> Compliance AI</span>
+          </div>
+        </div>
+        
+        <div class="service-card">
+          <div class="service-icon"><i class="fas fa-magic"></i></div>
+          <h3>Personalized Support Experience</h3>
+          <p>Machine learning algorithms deliver tailored support content based on user history, device context, and usage patterns.</p>
+          <div class="service-card-footer">
+            <span class="tech-badge"><i class="fas fa-robot"></i> Adaptive AI</span>
+            <span class="tech-badge"><i class="fas fa-brain"></i> User Insights</span>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <!-- DEMO: Feature Grid & Feature Card -->
-    <section class="content-section grid-col-12">
-      <h2>.feature-grid & .feature-card</h2>
+    <!-- FAQ Section -->
+    <section class="content-section grid-col-12" id="team-faq">
+      <div class="grid-container">
+        <div class="grid-col-12">
+          <h2 class="section-title"><i class="fas fa-question-circle"></i> Frequently Asked Questions</h2>
+          <p class="section-intro">Learn more about the Xbox Support Content Team's approach to creating world-class support materials and the unique challenges of supporting a global gaming ecosystem.</p>
+        </div>
+        
+        <div class="grid-col-6">
+          <div class="ap-faq">
+            <div class="faq-category">
+              <h3>Content Strategy</h3>
+              <details class="details-toggle" open>
+                <summary>How does the team approach content for different Xbox platforms?</summary>
+                <div>
+                  <p>Our content strategy is platform-aware but user-focused. We create modular content blocks that can be adapted for console, PC, mobile, and web experiences while maintaining a consistent voice and quality standard. This approach allows us to efficiently support the entire Xbox ecosystem while optimizing for each platform's unique characteristics.</p>
+                </div>
+              </details>
+              
+              <details class="details-toggle">
+                <summary>What makes the Xbox Support Content Team unique?</summary>
+                <div>
+                  <p>The Xbox Support Content Team functions as a specialized content studio with superhero-like capabilities. Each team member brings unique expertise—from technical writing to localization to accessibility—creating a powerful collective that can tackle complex support challenges across 40+ languages while maintaining Xbox's distinctive voice and brand standards.</p>
+                </div>
+              </details>
+              
+              <details class="details-toggle">
+                <summary>How do you balance technical accuracy with user-friendly language?</summary>
+                <div>
+                  <p>We employ a multi-layered review process where technical experts verify accuracy while content specialists ensure readability. Our content follows progressive disclosure principles—presenting essential information upfront with deeper technical details available for users who need them. This approach serves both casual gamers and power users effectively.</p>
+                </div>
+              </details>
+            </div>
+
+            <div class="faq-category">
+              <h3>Localization Excellence</h3>
+              <details class="details-toggle">
+                <summary>How do you manage content across 40+ languages?</summary>
+                <div>
+                  <p>Our localization pipeline combines advanced translation memory systems, cultural adaptation specialists, and regional reviewers. Content is architected with internationalization in mind from the start, using variables for region-specific elements and avoiding idioms that don't translate well. This approach reduces localization time by 60% while maintaining high quality across all languages.</p>
+                </div>
+              </details>
+              
+              <details class="details-toggle">
+                <summary>What challenges arise with gaming terminology localization?</summary>
+                <div>
+                  <p>Gaming terminology presents unique localization challenges as it often combines technical concepts, cultural references, and invented terms. We maintain comprehensive terminology databases for each language and work closely with game studios to ensure consistent translation of game-specific terms across all support materials and in-game text.</p>
+                </div>
+              </details>
+            </div>
+          </div>
+        </div>
+        
+        <div class="grid-col-6">
+          <div class="ap-faq">
+            <div class="faq-category">
+              <h3>Accessibility Commitment</h3>
+              <details class="details-toggle" open>
+                <summary>How do you ensure content is accessible to all users?</summary>
+                <div>
+                  <p>Accessibility is built into our content creation process, not added afterward. All team members receive accessibility training, and we follow WCAG 2.1 AA standards as a minimum requirement. We regularly test with screen readers, keyboard navigation, and various assistive technologies. Our content undergoes accessibility reviews before publication, and we continuously improve based on user feedback.</p>
+                </div>
+              </details>
+              
+              <details class="details-toggle">
+                <summary>What accessibility features are included in your content?</summary>
+                <div>
+                  <p>Our content incorporates proper heading structures, descriptive alt text for images, captions for videos, keyboard-navigable interfaces, sufficient color contrast, and clear instructions that don't rely solely on visual cues. We also provide alternative formats for complex information, such as both visual and text-based troubleshooting guides.</p>
+                </div>
+              </details>
+            </div>
+
+            <div class="faq-category">
+              <h3>Team Collaboration</h3>
+              <details class="details-toggle">
+                <summary>How does the team collaborate with game studios?</summary>
+                <div>
+                  <p>We establish early partnerships with game studios, embedding support content specialists during development to identify potential support needs proactively. This collaboration ensures accurate documentation of features and known issues before release. For major titles, we create dedicated support content plans aligned with game milestones and participate in beta testing to refine support materials based on real user experiences.</p>
+                </div>
+              </details>
+              
+              <details class="details-toggle">
+                <summary>What's the team's approach to continuous improvement?</summary>
+                <div>
+                  <p>We embrace a data-driven approach to content improvement, analyzing user feedback, search patterns, and support ticket data to identify opportunities. Our content undergoes regular reviews using the Problem Resolution Rate (PRR) methodology to measure effectiveness. This systematic approach allows us to continuously refine our content library, prioritizing updates where they'll have the greatest impact on user experience.</p>
+                </div>
+              </details>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Team Journey Timeline Section -->
+    <section class="content-section grid-col-12" id="team-timeline">
+      <h2 class="section-title"><i class="fas fa-history"></i> Team Journey</h2>
+      <p class="section-intro">The Xbox Support Content Team has evolved significantly over the years, continuously adapting to new technologies, platforms, and user needs. Explore our journey from traditional documentation to an integrated, multi-platform content ecosystem.</p>
+      
+      <div class="timeline-container">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-time">2015 – Team Formation</span>
+              <h4>The Hanson Team Assembles</h4>
+              <p>The specialized Xbox Support Content Team forms under the Hanson contract, bringing together experts in technical writing, UX design, and game documentation.</p>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-time">2016 – Multi-Platform Strategy</span>
+              <h4>Beyond the Console</h4>
+              <p>With Xbox expanding to Windows 10, the team develops a cross-platform content strategy to support users across console, PC, and mobile experiences.</p>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-time">2017 – Localization Pipeline</span>
+              <h4>Global Reach</h4>
+              <p>Implementation of the advanced localization pipeline enables simultaneous content delivery across 40+ languages, reducing localization time by 60%.</p>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-time">2018 – Accessibility Initiative</span>
+              <h4>Gaming for Everyone</h4>
+              <p>Launch of comprehensive accessibility standards for all support content, aligning with Microsoft's Gaming for Everyone initiative and WCAG guidelines.</p>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-time">2019 – AI Integration</span>
+              <h4>Smart Support Solutions</h4>
+              <p>Integration of AI-powered content recommendations and search optimization, creating a more personalized support experience for users.</p>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-time">2020 – Remote Transformation</span>
+              <h4>Distributed Team Excellence</h4>
+              <p>Transition to a fully distributed team model while maintaining quality and efficiency during global pandemic challenges.</p>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-time">2021 – Next-Gen Support</span>
+              <h4>Xbox Series X|S Era</h4>
+              <p>Launch of next-generation support content ecosystem for Xbox Series X|S, featuring interactive troubleshooters and video guides.</p>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-time">2022 – Game Pass Integration</span>
+              <h4>Supporting the Subscription Era</h4>
+              <p>Development of specialized support frameworks for Xbox Game Pass, cloud gaming, and subscription services.</p>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-time">2023 – Studio Partnerships</span>
+              <h4>Developer Collaboration</h4>
+              <p>Expansion of studio partnership program, embedding content specialists with development teams at Bethesda, Ninja Theory, and other Xbox Game Studios.</p>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-time">2024 – Content Intelligence</span>
+              <h4>Data-Driven Support</h4>
+              <p>Implementation of advanced analytics and content intelligence systems to proactively identify user needs and optimize support resources.</p>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-time">2025 – Present & Future</span>
+              <h4>The Superhero Team</h4>
+              <p>Today's Xbox Support Content Team combines specialized expertise, innovative technology, and superhero-like dedication to support millions of players around the world.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Related Projects Section -->
+    <section class="content-section grid-col-12" id="related-projects">
+      <h2 class="section-title"><i class="fas fa-project-diagram"></i> Related Projects</h2>
+      <p class="section-intro">
+        Explore these related projects to learn more about our work with Xbox Support content, 
+        accessibility initiatives, and specialized publishing pipelines.
+      </p>
+      
       <div class="feature-grid">
+        <div class="card">
+          <div class="card-image">
+            <img src="/images/projects/xbox/xbox-support-app.jpg" alt="Xbox Support App" loading="lazy">
           </div>
           <div class="card-content">
             <h3>Xbox Support App</h3>
@@ -219,124 +504,66 @@
       </div>
     </section>
     
-    <!-- Nebulight Module Integration -->
-    <section class="content-section grid-col-12">
-      <h2 class="section-title">Global Support Network</h2>
+    <!-- Nebulight Module Integration: Team Achievements Showcase -->
+    <section class="content-section grid-col-12" id="team-achievements">
+      <h2 class="section-title"><i class="fas fa-award"></i> Team Achievements</h2>
       <p class="section-intro">
-        The Xbox Support Content Team works with partners across the globe to deliver localized, culturally-relevant support content.
-        This network visualization shows our global collaboration structure.
+        The Xbox Support Content Team has delivered exceptional results across multiple projects and platforms.
+        Explore our key achievements and project highlights through this interactive showcase.
       </p>
       
-      <div class="nebulight-container" data-nebulight-module="global-network">
-        <!-- Nebulight module will be loaded here -->
-        <div class="nebulight-loading">
-          <div class="nebulight-pulse"></div>
-          <p>Loading network visualization...</p>
-        </div>
+      <div id="team-achievements-showcase" class="nebulight-container">
+        <!-- Nebulight slideshow will be rendered here -->
       </div>
     </section>
 
-    <!-- DEMO: Impact Highlights / Metrics -->
-    <section class="content-section grid-col-12">
-      <h2>.impact-highlights & .impact-item / .impact-metrics & .metric-card</h2>
+    <!-- Team Impact Section -->
+    <section class="content-section grid-col-12" id="team-impact">
+      <h2 class="section-title"><i class="fas fa-chart-line"></i> Team Impact</h2>
+      <p class="section-intro">
+        The Xbox Support Content Team has made significant contributions to the Xbox ecosystem, 
+        improving user experience and content quality across multiple platforms.
+      </p>
+      
       <div class="impact-highlights">
-        <div class="impact-item"><span class="impact-number">10x</span><span class="impact-text">Faster</span></div>
+        <div class="impact-item"><span class="impact-number">10x</span><span class="impact-text">Faster Publishing</span></div>
         <div class="impact-item"><span class="impact-number">40+</span><span class="impact-text">Languages</span></div>
-        <div class="impact-item"><span class="impact-number">98.9%</span><span class="impact-text">Accuracy</span></div>
+        <div class="impact-item"><span class="impact-number">98.9%</span><span class="impact-text">Accuracy Rate</span></div>
       </div>
-      <div class="impact-metrics" style="margin-top:1.5rem;">
-        <div class="metric-card"><i class="fas fa-users"></i><h3>+85%</h3><p>Awareness</p></div>
-        <div class="metric-card"><i class="fas fa-comment-alt"></i><h3>3.5x</h3><p>Feedback</p></div>
-      </div>
-    </section>
-
-    <!-- DEMO: Service Grid & Service Card -->
-    <section class="content-section grid-col-12">
-      <h2>.service-grid & .service-card</h2>
-      <div class="service-grid">
-        <div class="service-card"><i class="fas fa-cogs"></i><h3>Service Card 1</h3><p>Animated border, icon, and elevation.</p></div>
-        <div class="service-card"><i class="fas fa-wrench"></i><h3>Service Card 2</h3><p>Mobile-first responsive layout.</p></div>
+      
+      <div class="impact-metrics">
+        <div class="metric-card"><i class="fas fa-users"></i><h3>+85%</h3><p>User Satisfaction</p></div>
+        <div class="metric-card"><i class="fas fa-comment-alt"></i><h3>3.5x</h3><p>Positive Feedback</p></div>
+        <div class="metric-card"><i class="fas fa-search"></i><h3>-42%</h3><p>Support Tickets</p></div>
+        <div class="metric-card"><i class="fas fa-universal-access"></i><h3>100%</h3><p>WCAG Compliance</p></div>
       </div>
     </section>
 
-    <!-- DEMO: Project Card & Tech Badge -->
-    <section class="content-section grid-col-12">
-      <h2>.project-card & .tech-badge</h2>
-      <div class="project-card">
-        <h3>Project Card Title</h3>
-        <p>Project card for summary/overview.</p>
-        <div class="project-buttons"><a href="#" class="btn btn-primary"><i class="fab fa-github"></i> GitHub</a></div>
-        <div class="project-tags">
-          <span class="tech-badge"><i class="fas fa-terminal"></i> Prompt Engineering</span>
-          <span class="tech-badge"><i class="fas fa-magic"></i> Few-shot</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- DEMO: Collapsible Section (Documentation) -->
-    <section class="content-section grid-col-12">
-      <h2>Collapsible Section (.collapsible-section, .collapsible-header, .collapsible-content)</h2>
-      <div class="collapsible-section">
-        <div class="collapsible-header"><i class="fas fa-chevron-right"></i> Click to Expand</div>
-        <div class="collapsible-content" style="display:none;">This is collapsible content, shown when expanded.</div>
-      </div>
-    </section>
-
-    <!-- DEMO: Modal Button (glass-button) -->
-    <section class="content-section grid-col-12">
-      <h2>.glass-button (modal trigger)</h2>
-      <button onclick="showModal('contact-modal')" class="glass-button" type="button"><i class="fas fa-envelope"></i> Contact Modal</button>
-    </section>
-
-    <!-- DEMO: Sub-section, Breadcrumb, Misc -->
-    <section class="content-section grid-col-12">
-      <h2>.sub-section, .breadcrumb-container, .media-caption, .nda-tag</h2>
-      <div class="breadcrumb-container grid-col-12">Home / Demo / Reference</div>
-      <div class="sub-section"><h4>Sub-section Title</h4><p>Sub-section content for grouping related info.</p></div>
-      <span class="nda-tag">NDA</span>
-      <span class="media-caption">Media Caption Example</span>
-    </section>
-
-    <!-- DEMO: Related Projects (project-section, related-projects, related-project-card) -->
-    <section class="project-section grid-col-12">
-      <h2>.project-section, .related-projects & .related-project-card</h2>
-      <div class="related-projects">
-        <div class="related-project-card"><i class="fas fa-robot"></i> Copilot Playground</div>
-        <div class="related-project-card"><i class="fas fa-gamepad"></i> Hellblade Support</div>
-        <div class="related-project-card"><i class="fas fa-video"></i> Xbox Video Projects</div>
-      </div>
-    </section>
-
-    <!-- DEMO: Tech Stack List -->
-    <section class="project-section grid-col-12">
-      <h2>.tech-stack (project tech list)</h2>
+    <!-- Technology Stack Section -->
+    <section class="project-section grid-col-12" id="tech-stack">
+      <h2 class="section-title"><i class="fas fa-layer-group"></i> Technology Stack</h2>
+      <p class="section-intro">The Xbox Support Content Team leverages a modern technology stack to create, manage, and deliver support content.</p>
+      
       <ul class="tech-stack">
-        <li><i class="fab fa-react"></i> React</li>
-        <li><i class="fab fa-js"></i> JavaScript</li>
-        <li><i class="fab fa-css3"></i> CSS3</li>
+        <li><i class="fas fa-code-branch"></i> Git-based Content Management</li>
+        <li><i class="fas fa-database"></i> Structured Content Repository</li>
+        <li><i class="fas fa-language"></i> Translation Memory Systems</li>
+        <li><i class="fas fa-universal-access"></i> Accessibility Testing Tools</li>
+        <li><i class="fas fa-chart-bar"></i> Analytics Dashboard</li>
+        <li><i class="fas fa-robot"></i> AI-assisted Content Generation</li>
+        <li><i class="fas fa-mobile-alt"></i> Responsive Design Framework</li>
+        <li><i class="fas fa-cloud"></i> Cloud Publishing Pipeline</li>
       </ul>
     </section>
-
-    <!-- DEMO: Aura/Mood/Nova Classes (from nova-mood.css) -->
-    <section class="content-section grid-col-12">
-      <h2>.nova-thought.aura-neon-burst (mood/aura demo)</h2>
-      <div class="nova-thought aura-neon-burst" style="padding:2rem;text-align:center;">Nova Mood/Aura Demo Block</div>
-    </section>
-
-    <!-- DEMO: Custom Pipeline (windsurf-ai-pipeline) FUTURE EXPANSION
-    <section class="content-section grid-col-12">
-      <h2>.windsurf-ai-pipeline (Custom Pipeline Demo)</h2>
-      <div class="windsurf-ai-pipeline" data-style="crystalline">
-        <div class="windsurf-ai-pipeline-content">
-          <div class="windsurf-ai-pipeline-step"><span class="windsurf-ai-pipeline-step-icon"><i class="fas fa-rocket"></i></span><span class="windsurf-ai-pipeline-step-label">Step 1</span></div>
-          <div class="windsurf-ai-pipeline-step-connector"></div>
-          <div class="windsurf-ai-pipeline-step"><span class="windsurf-ai-pipeline-step-icon"><i class="fas fa-brain"></i></span><span class="windsurf-ai-pipeline-step-label">Step 2</span></div>
-          <div class="windsurf-ai-pipeline-step-connector"></div>
-          <div class="windsurf-ai-pipeline-step"><span class="windsurf-ai-pipeline-step-icon"><i class="fas fa-check"></i></span><span class="windsurf-ai-pipeline-step-label">Step 3</span></div>
-        </div>
+    
+    <!-- Call to Action Section -->
+    <section class="content-section grid-col-12" id="cta-section">
+      <div class="cta-container">
+        <h2>Join the Xbox Support Content Team</h2>
+        <p>We're always looking for talented writers, editors, designers, and developers to join our superhero team.</p>
+        <button onclick="showModal('contact-modal')" class="glass-button" type="button"><i class="fas fa-envelope"></i> Contact Us</button>
       </div>
     </section>
--->
   </main>
 
 
@@ -346,9 +573,14 @@
   <script src="/js/nav.js"></script>
   <script src="/js/modal-window.js" defer></script>
   <script src="/js/init-contact-modal.js" defer></script>
+  <script src="/js/nebulight.js"></script>
+  <script src="/js/nebulight-methods.js"></script>
+  <script src="/js/echogrid-avatar.js"></script>
+  
   <script>
-    // Collapsible section demo interaction
+    // Initialize page components when DOM is fully loaded
     document.addEventListener('DOMContentLoaded', function() {
+      // Initialize collapsible sections
       var headers = document.querySelectorAll('.collapsible-header');
       headers.forEach(function(header) {
         header.addEventListener('click', function() {
@@ -363,6 +595,58 @@
             header.querySelector('i').classList.add('fa-chevron-down');
           }
         });
+      });
+      
+      // Initialize Nebulight slideshow for Team Achievements
+      const teamAchievements = new Nebulight('#team-achievements-showcase', {
+        slides: [
+          {
+            image: '/images/projects/xbox/xbox-support-app.jpg',
+            title: 'Xbox Support App Redesign',
+            caption: 'Complete redesign of the Xbox Support mobile app, resulting in 87% increase in user satisfaction'
+          },
+          {
+            image: '/images/projects/xbox/localization-pipeline.jpg',
+            title: 'Advanced Localization Pipeline',
+            caption: 'Development of a streamlined localization system that reduced translation time by 60%'
+          },
+          {
+            image: '/images/projects/xbox/accessibility-showcase.jpg',
+            title: 'Accessibility Excellence',
+            caption: 'Implementation of WCAG 2.1 AA standards across all support content'
+          },
+          {
+            image: '/images/projects/xbox/game-pass-support.jpg',
+            title: 'Game Pass Support Framework',
+            caption: 'Specialized support system for Xbox Game Pass subscribers across 40+ markets'
+          },
+          {
+            image: '/images/projects/xbox/ninja-theory-help.jpg',
+            title: 'Ninja Theory Help Center',
+            caption: 'Custom support portal for Hellblade and other Ninja Theory titles'
+          }
+        ],
+        settings: {
+          autoplay: true,
+          interval: 5000,
+          transition: 'fade',
+          theme: 'dark',
+          aspectRatio: '16:9'
+        }
+      });
+      
+      // Initialize timeline animations
+      const timelineItems = document.querySelectorAll('.timeline-item');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate');
+          }
+        });
+      }, { threshold: 0.2 });
+      
+      timelineItems.forEach(item => {
+        observer.observe(item);
       });
     });
   </script>
@@ -455,7 +739,7 @@
 
     <!-- DEMO: Service Grid & Service Card -->
     <section class="content-section grid-col-12" id="service-card-demo">
-      <h2><i class="fas fa-th-large"></i> .service-grid & .service-card</h2>
+      <h2><i class="fas fa-th-large"></i>AI-Powered Support</h2>
       <div class="note-box" style="margin-bottom:1.5rem;">Below is a demo of the Nova-compliant <strong>.service-grid</strong> and <strong>.service-card</strong> layout. Use this section for design review and screenshotting. Each card demonstrates icon animation, elevation, and responsive layout.</div>
       <div class="service-grid">
         <div class="service-card">
