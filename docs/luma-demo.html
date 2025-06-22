@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Luma Guidance Module Demo | AmbientPixels">
+  <title>Luma Guidance Module Demo | AmbientPixels</title>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/grid.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/hero.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/banner.css">
+  <link rel="stylesheet" href="/css/luma.css"> <!-- Luma V1 -->
+  <style>
+    .version-badge {
+      display: inline-block;
+      background-color: var(--luma-highlight, #007bff);
+      color: #fff;
+      padding: 0.25rem 0.6rem;
+      border-radius: 1rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+<!--
+  Luma Guidance Demo Page
+  ----------------------
+  This page demonstrates the usage and configuration of the Luma Guidance module.
+-->
+<div class="banner-container">
+  <div class="banner">
+    <i class="fas fa-info-circle banner-icon"></i>
+    <span>Luma is a reusable, mood-aware guidance module for interactive form support.</span>
+    <button class="banner-close" aria-label="Close Banner">&times;</button>
+  </div>
+</div>
+<header id="nav-header"></header>
+<section class="mini-hero">
+  <img src="/images/hero-V12.jpg" alt="Texture" class="mini-hero-img" loading="lazy">
+  <h1>Luma Guidance Module</h1>
+</section>
+<main class="grid-container">
+  <section class="content-section grid-col-12">
+    <h2>Overview &amp; Release Notes</h2>
+    <div class="version-badge">Luma V1.0</div>
+    <p class="nova-intro">
+      The <strong>Luma</strong> module provides interactive, mood-aware, step-by-step guidance for complex forms. It supports dynamic images, JSON-driven configuration, mood/aura styling, and flexible layout within the AmbientPixels grid system.
+    </p>
+  </section>
+  <div class="grid-col-12 grid-row">
+    <div class="grid-col-6">
+      <h3>Live Demo</h3>
+      <div id="luma-container"
+           class="luma-container"
+           data-module="luma"
+           data-json-path="/data/luma-data.json"
+           data-image-path="/images/projects/ninja-theroy/screen06-1600.png"
+           data-step-duration="3000">
+      </div>
+    </div>
+    <div class="grid-col-6">
+      <h3>Component Breakdown</h3>
+      <ul class="bullet-list">
+        <li><strong>Image Container:</strong> The left column holds the form image, which serves as the backdrop for the interactive overlays.</li>
+        <li><strong>Field Stack:</strong> The right column displays a list of all form fields, driven by your JSON configuration.</li>
+        <li><strong>Three-Part Text:</strong> Each step shows a Title, Description, and a custom Tooltip on hover.</li>
+        <li><strong>Whisper Panel:</strong> Displays "Nova's Thought" for the active step, providing contextual AI insights.</li>
+        <li><strong>Automated Tour:</strong> The module automatically cycles through each step, highlighting the corresponding field and overlay.</li>
+        <li><strong>Responsive Design:</strong> The layout adapts seamlessly from a two-column view on desktops to a single-column stack on mobile devices.</li>
+      </ul>
+    </div>
+  </div>
+</main>
+<div id="footer-container"></div>
+<script src="/js/init-header-footer.js" defer></script>
+<script src="/js/luma.js" defer></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof initLuma === 'function') {
+      initLuma();
+    }
+  });
+</script>
+</body>
+</html>

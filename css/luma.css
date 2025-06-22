@@ -1,0 +1,397 @@
+/* Luma CSS Module - migrated and refactored from form-explainer.css */
+/* Mood-reactive styles and aura glow for Luma V1 */
+/* updated by Cascade */
+
+:root {
+  /* Core colors */
+  --luma-bg: rgba(18, 18, 24, 0.85);
+  --luma-border: rgba(255, 255, 255, 0.12);
+  --luma-text: rgba(255, 255, 255, 0.9);
+  --luma-secondary-text: rgba(255, 255, 255, 0.7);
+  /* Accent colors - Use Nova mood variables when available */
+  --luma-accent: var(--mood-primary, #64a0ff);
+  --luma-accent-glow: var(--glow-primary, rgba(100, 160, 255, 0.4));
+  --luma-highlight: var(--mood-secondary, #ff64a0);
+  --luma-highlight-glow: var(--glow-secondary, rgba(255, 100, 160, 0.4));
+  /* Timing variables */
+  --luma-transition: 0.25s ease-in-out;
+  --luma-pulse-duration: 2s;
+}
+
+/* Container Layout */
+.luma-container[data-module="luma"] {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  padding: 1.5rem;
+  background: var(--luma-bg);
+  border: 1px solid var(--luma-border);
+  border-radius: 0.75rem;
+  color: var(--luma-text);
+  margin: 2rem 0;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .luma-container[data-module="luma"] {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+/* Left Column - Image Container */
+.form-image-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--border-radius-lg, 12px);
+  flex: 1 1 55%;
+  min-width: 0;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 768px) {
+  .form-image-container {
+    flex: 5;
+    min-width: 300px;
+  }
+}
+
+.form-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: top left;
+}
+
+.whisper-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0));
+  padding: 1.5rem 1rem 1rem;
+  color: white;
+  font-size: 0.9rem;
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.whisper-panel.active {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Overlay Positioning and Styling */
+.form-overlays {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.form-field-overlay {
+  position: absolute;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  transition: all var(--luma-transition);
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 5;
+}
+
+.form-field-overlay:hover,
+.form-field-overlay.active {
+  border-color: var(--luma-accent);
+  box-shadow: 0 0 0 2px var(--luma-accent-glow);
+}
+
+/* Ghost overlay animation for pulsing effect */
+.ghost-overlay {
+  position: absolute;
+  border: 2px solid var(--luma-highlight);
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transition: all var(--luma-transition);
+  z-index: 3;
+}
+
+.ghost-overlay.pulsing {
+  animation: pulse-border var(--luma-pulse-duration) infinite;
+  opacity: 0.9;
+}
+
+@keyframes pulse-border {
+  0% {
+    box-shadow: 0 0 0 0 var(--luma-highlight-glow);
+    border-color: var(--luma-highlight);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 100, 160, 0);
+    border-color: var(--luma-accent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 var(--luma-highlight-glow);
+    border-color: var(--luma-highlight);
+  }
+}
+
+/* Right Column - Field Explainer Stack */
+.field-stack-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .field-stack-container {
+    flex: 4;
+    min-width: 300px;
+  }
+}
+
+.field-item {
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--luma-border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  transition: all var(--luma-transition);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.field-item.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.field-item:hover,
+.field-item.active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--luma-accent);
+  box-shadow: 0 0 15px 0 var(--luma-accent-glow);
+}
+
+.field-item-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.field-item-header i {
+  color: var(--luma-accent);
+  font-size: 1.25rem;
+}
+
+.field-item-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.field-item-description {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--luma-secondary-text);
+  margin-bottom: 0.5rem;
+}
+
+/* Custom Tooltip Styling */
+.field-item-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--luma-highlight);
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.field-item-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--luma-highlight) transparent transparent transparent;
+}
+
+.form-field-overlay:hover .field-item-tooltip,
+.form-field-overlay:focus .field-item-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-5px);
+}
+
+/* Timeline Controls - Completely revised for perfect alignment */
+.timeline-scrubber {
+  position: relative;
+  height: 60px;
+  margin-top: 1.5rem;
+  padding: 0;
+  cursor: pointer;
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Base timeline line */
+.timeline-markers {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+/* Timeline progress bar */
+.timeline-progress {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  background: var(--luma-accent);
+  border-radius: 3px;
+  transform: translateY(-50%);
+  transition: width 0.3s ease-in-out;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Fixed position markers - absolute positioning for perfect alignment */
+.timeline-marker {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 3;
+  border-radius: 50%;
+  background: transparent;
+}
+
+/* Playhead - absolute positioning for perfect alignment */
+.timeline-playhead {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 34px;
+  height: 34px;
+  transform: translate(0%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  pointer-events: none;
+  transition: left 0.3s ease-out;
+  box-shadow: 0 0 0 4px var(--luma-highlight-glow);
+  border-radius: 50%;
+}
+
+/* Icon styling for both markers and playhead */
+.timeline-dot-icon {
+  font-size: 1.5rem;
+  color: var(--luma-accent, #64a0ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+/* Active states */
+.timeline-marker.active .timeline-dot-icon,
+.timeline-playhead .timeline-dot-icon {
+  color: var(--luma-highlight, #ff64a0);
+  text-shadow: 0 0 8px var(--luma-highlight-glow, rgba(255,100,160,0.4));
+}
+
+/* Remove default dot backgrounds */
+.timeline-marker::before, 
+.timeline-playhead::before {
+  display: none !important;
+}
+
+.timeline-marker.active {
+  background: none;
+  box-shadow: 0 0 0 4px var(--luma-accent-glow);
+  border-radius: 50%;
+}
+
+/* Replay button */
+.replay-button {
+  align-self: flex-end;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid var(--luma-accent);
+  border-radius: 2rem;
+  color: var(--luma-text);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all var(--luma-transition);
+}
+
+.replay-button:hover {
+  background: var(--luma-accent-glow);
+}
+
+.replay-button.pulsing {
+  animation: pulse-button 2s infinite;
+}
+
+@keyframes pulse-button {
+  0% {
+    box-shadow: 0 0 0 0 var(--luma-accent-glow);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(100, 160, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 var(--luma-accent-glow);
+  }
+}
+
+/* Accessibility Enhancements */
+.luma-container[data-module="luma"]:focus {
+  outline: 2px solid var(--luma-highlight);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}

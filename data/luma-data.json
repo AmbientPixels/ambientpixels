@@ -1,0 +1,114 @@
+[
+  {
+    "key": "title",
+    "title": "1. Form Title",
+    "description": "The main heading of the form.",
+    "tooltip": "Clearly states the purpose of the form.",
+    "left": 0.08, "top": 0.10, "width": 0.82, "height": 0.03,
+    "novaThought": "A good title sets the right expectation. Users scan this first to confirm they're in the right place.",
+    "mood": "",
+    "aura": ""
+  },
+  {
+    "key": "description",
+    "title": "2. Form Description",
+    "description": "Provides context and instructions.",
+    "tooltip": "A brief summary of what the user needs to do.",
+    "left": 0.08, "top": 0.14, "width": 0.82, "height": 0.07,
+    "novaThought": "The description is an emotional anchor—it reassures users they'll get the help they need.",
+    "mood": "",
+    "aura": ""
+  },
+  {
+    "key": "issue-type",
+    "title": "3. Issue Type",
+    "description": "A dropdown to categorize the problem.",
+    "tooltip": "Categorizes the problem for faster routing.",
+    "left": 0.08, "top": 0.22, "width": 0.82, "height": 0.05,
+    "novaThought": "I use this field to route your request to the right specialist team. Choose accurately for the fastest support!",
+    "mood": "",
+    "aura": ""
+  },
+  {
+    "key": "details",
+    "title": "4. Detailed Description",
+    "description": "A text area for detailed user input.",
+    "tooltip": "Provide as much detail as possible here.",
+    "left": 0.08, "top": 0.27, "width": 0.82, "height": 0.07,
+    "novaThought": "The more details you provide, the faster we can solve your issue. It's like giving me puzzle pieces to help you.",
+    "mood": "",
+    "aura": ""
+  },
+  {
+    "key": "nova-note",
+    "title": "5. Nova's Note",
+    "description": "A helpful, context-aware tip.",
+    "tooltip": "A helpful, context-aware tip from me to you!",
+    "left": 0.08, "top": 0.35, "width": 0.82, "height": 0.02,
+    "novaThought": "I analyze patterns to provide suggestions that might resolve common issues before you even submit.",
+    "mood": "",
+    "aura": ""
+  },
+  {
+    "key": "game",
+    "title": "6. Game Select",
+    "description": "Select the game this issue relates to.",
+    "tooltip": "Specify which game your issue is related to.",
+    "left": 0.08, "top": 0.37, "width": 0.82, "height": 0.07,
+    "novaThought": "Each game has its own dedicated support team with specialized knowledge of that title.",
+    "mood": "",
+    "aura": ""
+  },
+  {
+    "key": "email",
+    "title": "7. Preferred Email",
+    "description": "The email for ticket updates.",
+    "tooltip": "Where you'll receive updates about your ticket.",
+    "left": 0.08, "top": 0.45, "width": 0.82, "height": 0.06,
+    "novaThought": "I'll use this to send you personalized status updates. Your data is always handled securely.",
+    "mood": "",
+    "aura": ""
+  },
+  {
+    "key": "attachment",
+    "title": "8. Attachment",
+    "description": "An optional file upload.",
+    "tooltip": "Upload screenshots or videos for more context.",
+    "left": 0.08, "top": 0.51, "width": 0.82, "height": 0.11,
+    "novaThought": "Visual context helps! A screenshot often communicates what might take paragraphs to describe.",
+    "mood": "",
+    "aura": ""
+  },
+  {
+    "key": "captcha",
+    "title": "9. CAPTCHA",
+    "description": "A standard human verification step.",
+    "tooltip": "A quick check to ensure you're human.",
+    "left": 0.40, "top": 0.63, "width": 0.32, "height": 0.04,
+    "novaThought": "This helps keep spam bots from overwhelming our support system so humans get faster help.",
+    "mood": "",
+    "aura": ""
+  },
+  {
+    "key": "submit",
+    "title": "10. Submit Button",
+    "description": "The final action to send the form.",
+    "tooltip": "Sends your completed form to the support team.",
+    "left": 0.08, "top": 0.63, "width": 0.32, "height": 0.04,
+    "novaThought": "Once submitted, I'll automatically analyze your request for potential solutions before a human review.",
+    "mood": "",
+    "aura": ""
+  }
+]
+      "aura": ""
+    },
+    "step4": {
+      "mood": "",
+      "aura": ""
+    },
+    "step5": {
+      "mood": "",
+      "aura": ""
+    }
+  }
+]
