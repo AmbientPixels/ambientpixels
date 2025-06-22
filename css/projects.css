@@ -79,6 +79,65 @@
 
 
 /* ===== CoPilot Playground Specific Styles ===== */
+
+/* === Timeline Styles for Team Journey Section (added by Cascade, 2025-06-22) === */
+.timeline-container {
+  width: 100%;
+  padding: 2rem 0 1.5rem 0;
+}
+.timeline {
+  position: relative;
+  margin: 0 auto;
+  padding-left: 1.2rem;
+  border-left: 3px solid rgba(90, 200, 250, 0.2);
+  max-width: 900px;
+}
+.timeline-item {
+  position: relative;
+  margin-bottom: 2.5rem;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.6s cubic-bezier(0.4,0,0.2,1) var(--delay,0s), transform 0.6s cubic-bezier(0.4,0,0.2,1) var(--delay,0s);
+}
+.timeline-item.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.timeline-dot {
+  position: absolute;
+  left: -1.45rem;
+  top: 0.5rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  background: linear-gradient(135deg, #5ae4ff, #4bcaff 80%);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(90, 200, 250, 0.12);
+  border: 2.5px solid #fff;
+  z-index: 2;
+}
+.timeline-content {
+  background: rgba(30, 35, 45, 0.96);
+  border-radius: 10px;
+  padding: 1.2rem 1.5rem;
+  box-shadow: 0 2px 12px rgba(90, 200, 250, 0.08);
+  border: 1.5px solid rgba(90, 200, 250, 0.13);
+  position: relative;
+}
+.timeline-time {
+  display: block;
+  font-size: 1rem;
+  color: var(--accent-color,#5ae4ff);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.02em;
+}
+@media (max-width: 700px) {
+  .timeline-content { padding: 1rem 0.7rem; }
+  .timeline { padding-left: 0.8rem; }
+  .timeline-dot { left: -1.1rem; }
+}
+/* === End Timeline Styles === */
+
 /* Story Elements */
 .story-intro, 
 .story-solution {

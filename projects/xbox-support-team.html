@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/projects.css" />
+<link rel="stylesheet" href="/css/projects/video-projects.css" />
   <link rel="stylesheet" href="/css/luma.css" />
   <link rel="stylesheet" href="/css/nebulight.css" />
   <link rel="stylesheet" href="/css/echogrid-avatar.css" />
@@ -70,13 +71,7 @@
 </div>
     </section>
     
-    <!-- Team Quote Section -->
-    <section class="content-section grid-col-12">
-      <blockquote class="team-quote">
-        <p>"Great support content doesn't just solve problems—it empowers players and builds trust in the Xbox ecosystem."</p>
-        <cite>— Xbox Support Content Team</cite>
-      </blockquote>
-    </section>
+   
     
     <!-- Superhero Team Section with EchoGrid Avatars -->
     <section class="content-section grid-col-12" id="superhero-team">
@@ -135,7 +130,13 @@
         </div>
       </div>
     </section>
-
+ <!-- Team Quote Section -->
+ <section class="content-section grid-col-12">
+  <blockquote class="team-quote">
+    <p>"Great support content doesn't just solve problems—it empowers players and builds trust in the Xbox ecosystem."</p>
+    <cite>— Xbox Support Content Team</cite>
+  </blockquote>
+</section>
     <!-- Publishing Pipeline Section -->
     <section class="content-section grid-col-12">
       <h2 class="section-title">Publishing Pipeline</h2>
@@ -350,62 +351,75 @@
       <h2 class="section-title"><i class="fas fa-history"></i> Team Journey</h2>
       <p class="section-intro">The Xbox Support Content Team has evolved significantly over the years, continuously adapting to new technologies, platforms, and user needs. Explore our journey from traditional documentation to an integrated, multi-platform content ecosystem.</p>
       
-      <div class="timeline-container">
-        <div class="timeline">
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <span class="timeline-time">2015 – Team Formation</span>
-              <h4>The Hanson Team Assembles</h4>
-              <p>The specialized Xbox Support Content Team forms under the Hanson contract, bringing together experts in technical writing, UX design, and game documentation.</p>
-            </div>
-          </div>
-          
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <span class="timeline-time">2016 – Multi-Platform Strategy</span>
-              <h4>Beyond the Console</h4>
-              <p>With Xbox expanding to Windows 10, the team develops a cross-platform content strategy to support users across console, PC, and mobile experiences.</p>
-            </div>
-          </div>
-          
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <span class="timeline-time">2017 – Localization Pipeline</span>
-              <h4>Global Reach</h4>
-              <p>Implementation of the advanced localization pipeline enables simultaneous content delivery across 40+ languages, reducing localization time by 60%.</p>
-            </div>
-          </div>
-          
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <span class="timeline-time">2018 – Accessibility Initiative</span>
-              <h4>Gaming for Everyone</h4>
-              <p>Launch of comprehensive accessibility standards for all support content, aligning with Microsoft's Gaming for Everyone initiative and WCAG guidelines.</p>
-            </div>
-          </div>
-          
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <span class="timeline-time">2019 – AI Integration</span>
-              <h4>Smart Support Solutions</h4>
-              <p>Integration of AI-powered content recommendations and search optimization, creating a more personalized support experience for users.</p>
-            </div>
-          </div>
-          
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <span class="timeline-time">2020 – Remote Transformation</span>
-              <h4>Distributed Team Excellence</h4>
-              <p>Transition to a fully distributed team model while maintaining quality and efficiency during global pandemic challenges.</p>
-            </div>
-          </div>
-          
+      <!-- Classic Vertical Timeline Markup (commented out for revert)
+<div class="timeline-container">
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <span class="timeline-time">2015 – Team Formation</span>
+        <h4>The Hanson Team Assembles</h4>
+        <p>The specialized Xbox Support Content Team forms under the Hanson contract, bringing together experts in technical writing, UX design, and game documentation.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <span class="timeline-time">2016 – Multi-Platform Strategy</span>
+        <h4>Beyond the Console</h4>
+        <p>With Xbox expanding to Windows 10, the team develops a cross-platform content strategy to support users across console, PC, and mobile experiences.</p>
+      </div>
+    </div>
+  </div>
+</div>
+-->
+<!-- Alternating Vertical Timeline Demo (video-projects.css) -->
+<div class="timeline-container">
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <span class="timeline-time">2015 – Team Formation</span>
+        <h4>The Hanson Team Assembles</h4>
+        <p>The specialized Xbox Support Content Team forms under the Hanson contract, bringing together experts in technical writing, UX design, and game documentation.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <span class="timeline-time">2016 – Multi-Platform Strategy</span>
+        <h4>Beyond the Console</h4>
+        <p>With Xbox expanding to Windows 10, the team develops a cross-platform content strategy to support users across console, PC, and mobile experiences.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <span class="timeline-time">2017 – Web Expansion</span>
+        <h4>Support for Xbox.com</h4>
+        <p>The team launches integrated support for Xbox.com, expanding reach to millions of users globally.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <span class="timeline-time">2019 – AI/BI</span>
+        <h4>Automated Content Pipelines</h4>
+        <p>Automation and business intelligence tools are introduced to streamline content updates and analytics.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <span class="timeline-time">2022 – Next Gen</span>
+        <h4>Omnichannel Publishing</h4>
+        <p>The team implements omnichannel publishing, enabling seamless support across Xbox, PC, and mobile platforms.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Alternating Vertical Timeline Demo -->
+
           <div class="timeline-item">
             <div class="timeline-dot"></div>
             <div class="timeline-content">
