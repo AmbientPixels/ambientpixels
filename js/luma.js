@@ -98,6 +98,183 @@ class Luma {
     this.fetchData();
   }
 
+  /* updated by Cascade - interactive methods (Form Explainer style) */
+  updateUIForStep(idx) {
+    this.currentStep = idx;
+    // Highlight overlays
+    const overlays = this.overlayContainer.querySelectorAll('.form-field-overlay');
+    overlays.forEach((el, i) => el.classList.toggle('active', i === idx));
+    // Highlight fields
+    const fields = this.fieldStack.querySelectorAll('.field-item');
+    fields.forEach((el, i) => el.classList.toggle('active', i === idx));
+    // Update ghost overlay
+    const step = this.overlayData[idx];
+    if (step && this.ghostOverlay) {
+      this.ghostOverlay.style.left = `${step.left * 100}%`;
+      this.ghostOverlay.style.top = `${step.top * 100}%`;
+      this.ghostOverlay.style.width = `${step.width * 100}%`;
+      this.ghostOverlay.style.height = `${step.height * 100}%`;
+      this.ghostOverlay.classList.add('pulsing');
+    } else if (this.ghostOverlay) {
+      this.ghostOverlay.classList.remove('pulsing');
+    }
+    // Update whisper panel
+    if (this.whisperPanel) {
+      if (step && step.novaThought) {
+        this.whisperPanel.textContent = step.novaThought;
+        this.whisperPanel.classList.add('active');
+      } else {
+        this.whisperPanel.classList.remove('active');
+      }
+    }
+    // Update timeline/playhead if present
+    if (this._timelinePlayheadIcon && step && this.fieldIcons[step.key]) {
+      this._timelinePlayheadIcon.className = `fa-solid ${this.fieldIcons[step.key]} timeline-dot-icon`;
+    }
+    // Scroll field into view if needed
+    const field = fields[idx];
+    if (field) field.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    // updated by Cascade: update timeline progress
+    this.updateTimelineProgress(idx);
+  }
+
+  // updated by Cascade: update timeline progress like Form Explainer
+  updateTimelineProgress(idx) {
+    if (!this.timelineScrubber) return;
+    const progress = this.timelineScrubber.querySelector('.timeline-progress');
+    const playhead = this.timelineScrubber.querySelector('.timeline-playhead');
+    const markers = this.timelineScrubber.querySelectorAll('.timeline-marker');
+    // Reset all markers
+    markers.forEach((marker, i) => {
+      marker.classList.toggle('active', i === idx);
+    });
+    if (!progress || !playhead) return;
+    if (idx < 0 || idx >= this.overlayData.length) {
+      progress.style.width = '0%';
+      playhead.style.left = '0%';
+      return;
+    }
+    // Find the active marker and get its position
+    const activeMarker = this.timelineScrubber.querySelector(`.timeline-marker[data-index="${idx}"]`);
+    if (activeMarker) {
+      const markerPosition = activeMarker.style.left;
+      playhead.style.left = markerPosition;
+      progress.style.width = markerPosition;
+    } else {
+      const totalSteps = this.overlayData.length - 1;
+      const progressPercent = totalSteps > 0 ? (idx / totalSteps) * 100 : 100;
+      progress.style.width = `${progressPercent}%`;
+      playhead.style.left = `${progressPercent}%`;
+    }
+    // Update playhead icon to match current step
+    if (this._timelinePlayheadIcon && idx >= 0 && idx < this.overlayData.length) {
+      const stepData = this.overlayData[idx] || {};
+      const iconClass = this.fieldIcons?.[stepData.key] || 'fa-circle-info';
+      this._timelinePlayheadIcon.className = `fa-solid ${iconClass} timeline-dot-icon`;
+    }
+  }
+
+  advanceTour() {
+    if (!this.isTourActive || this.isPausedByUser) return;
+    this.currentStep++;
+    if (this.currentStep >= this.overlayData.length) {
+      this.endTour();
+      return;
+    }
+    this.updateUIForStep(this.currentStep);
+    // Duration increases slightly for steps with novaThought
+    const step = this.overlayData[this.currentStep];
+    const hasNovaThought = step && step.novaThought;
+    const stepDuration = hasNovaThought ? 3200 : (this.config.stepDuration || 3000);
+    this.tourTimer = setTimeout(() => this.advanceTour(), stepDuration);
+  }
+
+  startTour(isAutoStart = false) {
+    clearTimeout(this.tourTimer);
+    this.userHasInteracted = !isAutoStart;
+    this.isTourActive = true;
+    this.isPausedByUser = false;
+    this.currentStep = -1;
+    // Ensure all field items are visible before starting tour
+    this.fieldStack.querySelectorAll('.field-item:not(.visible)').forEach(item => {
+      item.classList.add('visible');
+    });
+    this.advanceTour();
+  }
+
+  pauseTour() {
+    if (!this.isTourActive) return;
+    this.isPausedByUser = true;
+    clearTimeout(this.tourTimer);
+  }
+
+  resumeTour() {
+    if (!this.isTourActive || !this.isPausedByUser) return;
+    this.isPausedByUser = false;
+    this.advanceTour();
+  }
+
+  endTour() {
+    this.isTourActive = false;
+    clearTimeout(this.tourTimer);
+    this.updateUIForStep(-1);
+    if (this.whisperPanel) {
+      setTimeout(() => {
+        if (!this.isTourActive) {
+          this.whisperPanel.textContent = "Use the timeline or hover over fields to explore more";
+          this.whisperPanel.classList.add('active');
+        }
+      }, 500);
+    }
+  }
+
+  stopTour() {
+    if (!this.isTourActive) return;
+    this.isTourActive = false;
+    this.userHasInteracted = true;
+    clearTimeout(this.tourTimer);
+  }
+
+  setupEventListeners() {
+    // Overlay click/hover
+    const overlays = this.overlayContainer.querySelectorAll('.form-field-overlay');
+    overlays.forEach((el, idx) => {
+      el.addEventListener('mouseenter', () => {
+        this.stopTour();
+        this.updateUIForStep(idx);
+      });
+      el.addEventListener('click', () => {
+        this.stopTour();
+        this.updateUIForStep(idx);
+      });
+    });
+    // Field stack click/hover
+    const fields = this.fieldStack.querySelectorAll('.field-item');
+    fields.forEach((el, idx) => {
+      el.addEventListener('mouseenter', () => {
+        this.stopTour();
+        this.updateUIForStep(idx);
+      });
+      el.addEventListener('click', () => {
+        this.stopTour();
+        this.updateUIForStep(idx);
+      });
+    });
+    // Replay button
+    if (this.replayButton) {
+      this.replayButton.addEventListener('click', () => {
+        this.currentStep = -1;
+        this.startTour();
+      });
+    }
+    // updated by Cascade: fix stopTour binding for container
+    if (this.container) {
+      this.container.addEventListener('mouseenter', () => {
+        if (typeof this.stopTour === 'function') this.stopTour();
+      });
+    }
+  }
+
   /**
    * Fetch overlay data from JSON file
    */
@@ -128,8 +305,10 @@ class Luma {
     this.createFieldExplainers();
     this.createTimelineProgress();
     this.setupEventListeners && this.setupEventListeners();
-    this.container.addEventListener('mouseenter', () => { this.stopTour(); });
+    /* updated by Cascade: start tour and show first step */
+    this.updateUIForStep(0);
     if (this.config.autoStart) {
+      this.startTour(true);
       this.setupIntersectionObserver && this.setupIntersectionObserver();
     }
   }
@@ -267,6 +446,52 @@ class Luma {
   }
 
   /* --- The rest of the Luma logic is identical to the original FormExplainer, with class/selector/config naming updated --- */
+
+  /**
+   * Creates timeline progress bar, markers, and playhead with absolute positioning
+   * Adapted from Form Explainer
+   * updated by Cascade
+   */
+  createTimelineProgress() {
+    if (!this.timelineScrubber) return;
+    this.timelineScrubber.innerHTML = '';
+    const markers = document.createElement('div');
+    markers.className = 'timeline-markers';
+    this.timelineScrubber.appendChild(markers);
+    const progress = document.createElement('div');
+    progress.className = 'timeline-progress';
+    this.timelineScrubber.appendChild(progress);
+    const playhead = document.createElement('div');
+    playhead.className = 'timeline-playhead';
+    const playheadIcon = document.createElement('i');
+    const firstStep = this.overlayData[0] || {};
+    const firstIconClass = this.fieldIcons?.[firstStep.key] || 'fa-circle-info';
+    playheadIcon.className = `fa-solid ${firstIconClass} timeline-dot-icon`;
+    playhead.appendChild(playheadIcon);
+    this.timelineScrubber.appendChild(playhead);
+    this._timelinePlayheadIcon = playheadIcon;
+    const totalSteps = this.sequence.length;
+    this.sequence.forEach((_, index) => {
+      const marker = document.createElement('div');
+      marker.className = 'timeline-marker';
+      marker.dataset.index = index;
+      const paddingPercent = 5;
+      const usableWidth = 100 - (paddingPercent * 2);
+      let position;
+      if (totalSteps > 1) {
+        position = paddingPercent + (index / (totalSteps - 1)) * usableWidth;
+      } else {
+        position = 50;
+      }
+      marker.style.left = `${position}%`;
+      const stepData = this.overlayData[index] || {};
+      const iconClass = this.fieldIcons?.[stepData.key] || 'fa-circle-info';
+      const markerIcon = document.createElement('i');
+      markerIcon.className = `fa-solid ${iconClass} timeline-dot-icon`;
+      marker.appendChild(markerIcon);
+      this.timelineScrubber.appendChild(marker);
+    });
+  }
 }
 
 // updated by Cascade
