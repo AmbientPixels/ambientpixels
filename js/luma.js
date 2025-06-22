@@ -133,7 +133,8 @@ class Luma {
     }
     // Scroll field into view if needed
     const field = fields[idx];
-    if (field) field.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    // (scroll disabled by Cascade per user request)
+    // if (field) field.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     // updated by Cascade: update timeline progress
     this.updateTimelineProgress(idx);
   }

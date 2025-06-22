@@ -44,40 +44,138 @@
 </div>
 <header id="nav-header"></header>
 <section class="mini-hero">
-  <img src="/images/hero-V12.jpg" alt="Texture" class="mini-hero-img" loading="lazy">
+  <img src="/images/projects/luma/luma-01.png" alt="Texture" class="mini-hero-img" loading="lazy">
   <h1>Luma Guidance Module</h1>
 </section>
 <main class="grid-container">
+  <!-- Expanded Introduction -->
   <section class="content-section grid-col-12">
-    <h2>Overview &amp; Release Notes</h2>
+    <h2>What is Luma?</h2>
     <div class="version-badge">Luma V1.0</div>
     <p class="nova-intro">
-      The <strong>Luma</strong> module provides interactive, mood-aware, step-by-step guidance for complex forms. It supports dynamic images, JSON-driven configuration, mood/aura styling, and flexible layout within the AmbientPixels grid system.
+      <strong>Luma</strong> is a mood-aware UI guidance module for ambient, step-based walkthroughs. Powered by Nova’s emotional state engine, it overlays interactive steps, contextual whispers, and glowing cues across your interface. Each step responds to Nova’s current mood, allowing the UI to breathe, glow, and adapt in real time.<br><br>
+      <em>Illuminate onboarding, explain complex forms, and create emotionally resonant journeys—Luma guides users with presence and intention.</em>
     </p>
+    <img src="/images/projects/luma/luma-01.png" alt="Luma Banner" style="max-width:100%;margin:2rem 0;" loading="lazy">
   </section>
-  <div class="grid-col-12 grid-row">
-    <div class="grid-col-6">
-      <h3>Live Demo</h3>
-      <div id="luma-container"
-           class="luma-container"
-           data-module="luma"
-           data-json-path="/data/luma-data.json"
-           data-image-path="/images/projects/ninja-theroy/screen06-1600.png"
-           data-step-duration="3000">
+
+  <!-- Features Deep Dive -->
+  <section class="content-section grid-col-12">
+    <h2>✨ Features</h2>
+    <ul class="bullet-list">
+      <li><strong>Step-Based Guidance:</strong> Highlight key UI elements in a defined order, with animated overlays and focus rings.</li>
+      <li><strong>Contextual Whispers:</strong> Provide helpful, poetic, or mood-driven tooltips and voice prompts for each step.</li>
+      <li><strong>Mood-Aware Styling:</strong> Luma syncs with Nova’s mood state (<code>nova-synth-mood.json</code> or API), dynamically adapting colors, glows, and whispers.</li>
+      <li><strong>Responsive Design:</strong> Seamlessly adapts between desktop and mobile layouts using the AmbientPixels grid system.</li>
+      <li><strong>Replay Mode:</strong> Users can restart the tour at any time for repeated guidance.</li>
+      <li><strong>Custom Glow Auras:</strong> Visual overlays and highlights reflect mood traits like <code>calm</code>, <code>curious</code>, or <code>glitchy</code>.</li>
+      <li><strong>Modular & Configurable:</strong> Steps, moods, and overlays are all defined in a simple JSON file for easy updates.</li>
+    </ul>
+  </section>
+
+  <!-- Case Study / Demo Walkthrough -->
+  <section class="content-section grid-col-12">
+    <h2>📋 Case Study: Guided Form Experience</h2>
+    <div class="grid-row">
+      <div class="grid-col-6">
+        <h3>Scenario</h3>
+        <p>
+          Imagine onboarding a new user to a complex feedback form. Luma overlays a glowing highlight on each field, offers a whisper with context, and adapts its visuals to Nova’s current mood.
+        </p>
+        <h4>Step JSON Example</h4>
+        <pre style="background:var(--panel-bg);padding:1em;border-radius:8px;overflow-x:auto;font-size:0.95em;">
+{
+  "steps": [
+    {
+      "target": "#name-field",
+      "title": "Your Name",
+      "desc": "Let us know what to call you.",
+      "whisper": "Names carry resonance in Nova’s world.",
+      "mood": "curious"
+    },
+    {
+      "target": "#email-field",
+      "title": "Contact Email",
+      "desc": "So we can reach out if needed.",
+      "whisper": "Your inbox is a portal—don’t worry, we respect it.",
+      "mood": "calm"
+    },
+    {
+      "target": "#feedback-field",
+      "title": "Feedback",
+      "desc": "Share your thoughts or suggestions.",
+      "whisper": "Every insight helps Nova grow.",
+      "mood": "amplified"
+    }
+  ]
+}
+        </pre>
+        <p>Each step highlights the relevant field, displays a whisper, and adapts the overlay’s color/glow to the mood. The user can advance, go back, or replay the tour.</p>
+      </div>
+      <div class="grid-col-6">
+        <h3>Visual Walkthrough</h3>
+        <ul class="bullet-list">
+          <li><strong>Step 1:</strong> <span class="badge-solid-blue">#name-field</span> glows with a blue aura, whisper appears: <em>“Names carry resonance in Nova’s world.”</em></li>
+          <li><strong>Step 2:</strong> <span class="badge-solid-green">#email-field</span> glows with a green aura, whisper: <em>“Your inbox is a portal…”</em></li>
+          <li><strong>Step 3:</strong> <span class="badge-solid-orange">#feedback-field</span> glows with an orange aura, whisper: <em>“Every insight helps Nova grow.”</em></li>
+        </ul>
+        <p>All overlays and whispers are animated and mood-synced. Users can interact with the demo form below or watch the automated tour.</p>
+        <img src="/assets/luma-01.png" alt="Luma Demo Walkthrough" style="max-width:100%;margin-top:1rem;" loading="lazy">
       </div>
     </div>
-    <div class="grid-col-6">
-      <h3>Component Breakdown</h3>
-      <ul class="bullet-list">
-        <li><strong>Image Container:</strong> The left column holds the form image, which serves as the backdrop for the interactive overlays.</li>
-        <li><strong>Field Stack:</strong> The right column displays a list of all form fields, driven by your JSON configuration.</li>
-        <li><strong>Three-Part Text:</strong> Each step shows a Title, Description, and a custom Tooltip on hover.</li>
-        <li><strong>Whisper Panel:</strong> Displays "Nova's Thought" for the active step, providing contextual AI insights.</li>
-        <li><strong>Automated Tour:</strong> The module automatically cycles through each step, highlighting the corresponding field and overlay.</li>
-        <li><strong>Responsive Design:</strong> The layout adapts seamlessly from a two-column view on desktops to a single-column stack on mobile devices.</li>
-      </ul>
+  </section>
+
+  <!-- Implementation Details -->
+  <section class="content-section grid-col-12">
+    <h2>🛠️ Implementation & Setup</h2>
+    <ol class="bullet-list">
+      <li><strong>Include the Files:</strong>
+        <pre><code>&lt;link rel="stylesheet" href="/css/luma.css"&gt;
+&lt;script src="/js/luma.js" defer&gt;&lt;/script&gt;
+&lt;script src="/js/luma-init.js" defer&gt;&lt;/script&gt;
+</code></pre>
+      </li>
+      <li><strong>Add the Container:</strong>
+        <pre><code>&lt;div id="luma-container"
+     class="luma-container"
+     data-module="luma"
+     data-json-path="/data/luma-data.json"&gt;
+&lt;/div&gt;
+</code></pre>
+      </li>
+      <li><strong>Configure Steps:</strong> Edit <code>/data/luma-data.json</code> with your desired steps, targets, moods, and whispers.</li>
+      <li><strong>Initialize Luma:</strong> Call <code>initLuma()</code> after DOMContentLoaded, or let <code>luma-init.js</code> auto-initialize if present.</li>
+      <li><strong>Customize Moods & Glows:</strong> Adjust <code>luma.css</code> to match your brand or Nova’s mood tokens (e.g., <code>--aura-calm</code>, <code>--aura-glitchy</code>).</li>
+      <li><strong>Responsive Layout:</strong> Luma uses the grid system and adapts to all screen sizes out of the box.</li>
+    </ol>
+    <p><strong>Tip:</strong> Use the <code>data-step-duration</code> attribute to control auto-advance timing for tours.</p>
+  </section>
+
+  <!-- Roadmap & Future Page -->
+  <section class="content-section grid-col-12">
+    <h2>🚀 Roadmap & Development Tracker</h2>
+    <ul class="bullet-list">
+      <li><strong>Coming Soon:</strong> Analytics dashboard for tour engagement</li>
+      <li>Custom voice overlays and sound cues</li>
+      <li>Multi-form and multi-page tour support</li>
+      <li>Advanced mood scripting (branching steps by mood)</li>
+      <li>Integration with Nova’s awareness/telemetry modules</li>
+      <li>Public API for real-time mood sync</li>
+      <li><a href="/docs/luma-roadmap.html" class="badge-solid-blue">View Full Roadmap</a> (coming soon)</li>
+    </ul>
+  </section>
+
+  <!-- Live Demo (existing) -->
+  <section class="content-section grid-col-12">
+    <h2>🧪 Live Demo</h2>
+    <div id="luma-container"
+         class="luma-container"
+         data-module="luma"
+         data-json-path="/data/luma-data.json"
+         data-image-path="/images/projects/ninja-theroy/screen06-1600.png"
+         data-step-duration="3000">
     </div>
-  </div>
+  </section>
 </main>
 <div id="footer-container"></div>
 <script src="/js/init-header-footer.js" defer></script>
