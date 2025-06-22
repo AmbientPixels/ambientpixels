@@ -1,0 +1,39 @@
+<!-- 
+  EchoGrid Avatar Module
+  A modular component for displaying interactive team member cards
+  
+  Usage:
+  1. Include the CSS and JS files:
+     <link rel="stylesheet" href="/css/echogrid-avatar.css">
+     <script src="/js/echogrid-avatar.js"></script>
+  
+  2. Add this module to your page:
+     <div id="your-container-id" class="echogrid-avatar-container" 
+          data-echogrid-avatar-container 
+          data-data-url="/data/your-team-data.json" 
+          data-clear-on-load="true">
+     </div>
+  
+  3. The component will auto-initialize on page load
+-->
+
+<div class="echogrid-avatar-container" data-echogrid-avatar-container data-data-url="/data/xbox-support-team.json" data-clear-on-load="true">
+  <!-- Avatar cards will be dynamically loaded here -->
+  <div class="echogrid-avatar-loading">
+    <i class="fas fa-spinner fa-pulse"></i>
+    <p>Loading team members...</p>
+  </div>
+</div>
+
+<!-- 
+  Optional: Manual initialization
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      new EchoGridAvatar({
+        containerSelector: '#your-container-id',
+        dataUrl: '/data/your-team-data.json',
+        clearOnLoad: true
+      });
+    });
+  </script>
+-->

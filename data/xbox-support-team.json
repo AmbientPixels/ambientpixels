@@ -1,0 +1,163 @@
+{
+  "team": {
+    "name": "Xbox Support Content Team",
+    "description": "A specialized team of content creators, editors, and designers responsible for crafting support content across the Xbox ecosystem.",
+    "stats": {
+      "Articles": "1500+",
+      "Languages": "40+",
+      "Satisfaction": "96%"
+    },
+    "pipeline": [
+      {
+        "name": "Content Planning",
+        "description": "Research, audience analysis, and content strategy development"
+      },
+      {
+        "name": "Content Creation",
+        "description": "Writing, editing, and localization preparation"
+      },
+      {
+        "name": "Technical Review",
+        "description": "Accuracy verification by subject matter experts"
+      },
+      {
+        "name": "Accessibility Check",
+        "description": "Ensuring content meets WCAG standards"
+      },
+      {
+        "name": "Localization",
+        "description": "Translation and cultural adaptation for 40+ markets"
+      },
+      {
+        "name": "Publishing",
+        "description": "Multi-platform deployment with version control"
+      },
+      {
+        "name": "Analytics",
+        "description": "Performance tracking and content optimization"
+      }
+    ]
+  },
+  "members": [
+    {
+      "name": "Alex Rivera",
+      "role": "Manager",
+      "specialty": "Content Strategy & Team Leadership",
+      "bio": "With over 12 years in technical documentation and content strategy, Alex leads the Xbox Support Content Team with a focus on accessibility and global reach. Previously worked at Microsoft Documentation and Azure teams.",
+      "image": "/images/team/alex-rivera.jpg",
+      "rarity": "Legendary",
+      "tooltip": "Content strategy mastermind",
+      "quote": "Great support content doesn't just solve problems—it empowers players and builds trust in the Xbox ecosystem.",
+      "stats": {
+        "XP": "12y",
+        "Articles": "320",
+        "Languages": "5"
+      }
+    },
+    {
+      "name": "Morgan Chen",
+      "role": "Writer",
+      "specialty": "Technical Documentation & UX Writing",
+      "bio": "Morgan specializes in creating clear, concise technical documentation for complex features. Expert in information architecture and user-centered content design with a background in game development.",
+      "image": "/images/team/morgan-chen.jpg",
+      "rarity": "Epic",
+      "tooltip": "Documentation specialist",
+      "quote": "The best technical writing is the kind you don't notice—it just helps you solve your problem and get back to gaming.",
+      "stats": {
+        "XP": "8y",
+        "Articles": "450+",
+        "Languages": "3"
+      }
+    },
+    {
+      "name": "Jordan Taylor",
+      "role": "Designer",
+      "specialty": "Visual Communication & Instructional Design",
+      "bio": "Jordan creates visual guides, infographics, and UI mockups that simplify complex procedures. Specializes in creating visuals that work across languages and cultural contexts.",
+      "image": "/images/team/jordan-taylor.jpg",
+      "rarity": "Epic",
+      "tooltip": "Visual storyteller",
+      "quote": "A well-designed visual can explain in seconds what might take paragraphs of text—and it works in any language.",
+      "stats": {
+        "XP": "7y",
+        "Graphics": "600+",
+        "Tools": "8"
+      }
+    },
+    {
+      "name": "Sam Washington",
+      "role": "Editor",
+      "specialty": "Content Quality & Style Guide Management",
+      "bio": "Sam ensures consistency and clarity across all Xbox support content. Maintains the team's style guide and editorial standards while optimizing content for search and readability.",
+      "image": "/images/team/sam-washington.jpg",
+      "rarity": "Rare",
+      "tooltip": "Guardian of clarity",
+      "quote": "Consistency isn't just about grammar—it's about creating a trustworthy voice that players recognize across every touchpoint.",
+      "stats": {
+        "XP": "9y",
+        "Edits": "2000+",
+        "Style Guides": "12"
+      }
+    },
+    {
+      "name": "Taylor Rodriguez",
+      "role": "Developer",
+      "specialty": "Content Systems & Publishing Automation",
+      "bio": "Taylor builds and maintains the team's publishing tools and automation systems. Expert in content APIs, single-source publishing, and creating developer documentation.",
+      "image": "/images/team/taylor-rodriguez.jpg",
+      "rarity": "Mythic",
+      "tooltip": "Automation wizard",
+      "quote": "Great content systems should be invisible to the end user but transformative for content creators.",
+      "stats": {
+        "XP": "6y",
+        "Systems": "4",
+        "Languages": "5"
+      }
+    },
+    {
+      "name": "Jamie Patel",
+      "role": "Localization",
+      "specialty": "Global Content Strategy & Cultural Adaptation",
+      "bio": "Jamie coordinates the localization of Xbox support content into 40+ languages. Expert in creating globally-friendly source content and managing translation workflows.",
+      "image": "/images/team/jamie-patel.jpg",
+      "rarity": "Rare",
+      "tooltip": "Global content ambassador",
+      "quote": "True localization isn't just translation—it's making content feel native to each market while maintaining the Xbox voice.",
+      "stats": {
+        "XP": "10y",
+        "Languages": "40+",
+        "Markets": "65+"
+      }
+    },
+    {
+      "name": "Casey Kim",
+      "role": "Specialist",
+      "specialty": "Accessibility & Inclusive Design",
+      "bio": "Casey ensures all Xbox support content meets or exceeds accessibility standards. Expert in screen reader optimization, plain language, and creating content for users with diverse needs.",
+      "image": "/images/team/casey-kim.jpg",
+      "rarity": "Epic",
+      "tooltip": "Accessibility champion",
+      "quote": "Accessible content isn't a checkbox—it's a commitment to ensuring everyone can get the help they need, regardless of ability.",
+      "stats": {
+        "XP": "8y",
+        "Standards": "WCAG 2.1",
+        "Audits": "200+"
+      }
+    },
+    {
+      "name": "Riley Johnson",
+      "role": "QA",
+      "specialty": "Content Testing & User Research",
+      "bio": "Riley tests support content for accuracy, clarity, and effectiveness. Conducts user research and A/B testing to continuously improve the help experience.",
+      "image": "/images/team/riley-johnson.jpg",
+      "rarity": "Uncommon",
+      "tooltip": "Quality guardian",
+      "quote": "The true measure of support content quality isn't what we think of it—it's whether it actually helps users solve their problems.",
+      "stats": {
+        "XP": "5y",
+        "Tests": "1000+",
+        "Feedback": "96%+"
+      }
+    }
+  ]
+}
