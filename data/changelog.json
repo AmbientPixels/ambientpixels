@@ -1,10 +1,10 @@
 {
-  "updated": "2025-06-21T13:28:42.087Z",
+  "updated": "2025-06-22T13:28:25.166Z",
   "entries": [
     {
-      "hash": "ff784f0",
-      "date": "2025-06-21 00:05:37 -0700",
-      "message": "Refactor form explainer to use external JSON for overlay mapping and tooltips"
+      "hash": "8a6ff3f",
+      "date": "2025-06-22 02:14:58 -0700",
+      "message": "feat(UI): Add breadcrumb navigation across documentation pages"
     }
   ]
 }

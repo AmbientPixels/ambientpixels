@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-06-21T13:28:41.970Z",
+  "updated": "2025-06-22T13:28:25.048Z",
   "root": [
     {
       "type": "folder",
@@ -276,6 +276,12 @@
             },
             {
               "type": "folder",
+              "name": "luma",
+              "path": "images/projects/luma",
+              "children": []
+            },
+            {
+              "type": "folder",
               "name": "merch",
               "path": "images/projects/merch",
               "children": []
@@ -321,6 +327,19 @@
               "type": "folder",
               "name": "xbox-support",
               "path": "images/projects/xbox-support",
+              "children": []
+            }
+          ]
+        },
+        {
+          "type": "folder",
+          "name": "slides",
+          "path": "images/slides",
+          "children": [
+            {
+              "type": "folder",
+              "name": "thumbs",
+              "path": "images/slides/thumbs",
               "children": []
             }
           ]
@@ -586,6 +605,18 @@
           "type": "page",
           "name": "index.html",
           "path": "nova-core/index.html"
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": "pages",
+      "path": "pages",
+      "children": [
+        {
+          "type": "page",
+          "name": "form-explainer-demo.html",
+          "path": "pages/form-explainer-demo.html"
         }
       ]
     },
