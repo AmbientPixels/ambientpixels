@@ -16,6 +16,41 @@
   <link rel="stylesheet" href="/css/theme.css">
   <link rel="stylesheet" href="/css/banner.css">
   <link rel="stylesheet" href="/css/form-explainer.css">
+  <style>
+    .version-badge {
+      display: inline-block;
+      background-color: var(--form-explainer-highlight, #007bff);
+      color: #fff;
+      padding: 0.25rem 0.6rem;
+      border-radius: 1rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+    .styled-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+    }
+    .styled-table th, .styled-table td {
+      border: 1px solid var(--form-explainer-border, #444);
+      padding: 0.75rem 1rem;
+      text-align: left;
+    }
+    .styled-table th {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    .styled-table code {
+      background-color: rgba(var(--aura-rgb, 100, 160, 255), 0.15);
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-family: var(--font-mono);
+    }
+    .h4-spacing-top {
+        margin-top: 2rem;
+    }
+  </style>
 </head>
 <body data-theme="dark">
 <!--
@@ -46,10 +81,17 @@
 <main class="grid-container">
   <!-- Overview -->
   <section class="content-section grid-col-12">
-    <h2>Overview</h2>
+    <h2>Overview &amp; Release Notes</h2>
+    <div class="version-badge">Version 0.1</div>
     <p class="nova-intro">
-      The <strong>Form Explainer</strong> module provides interactive, step-by-step guidance for complex forms. It supports dynamic images, JSON-driven configuration, and flexible layout within the AmbientPixels grid system.
+      The <strong>Form Explainer</strong> module provides interactive, step-by-step guidance for complex forms. It supports dynamic images, JSON-driven configuration, and flexible layout within the AmbientPixels grid system. This version introduces a three-part text layout and custom tooltips to enhance clarity.
     </p>
+    
+    <h4>What's Next (Upcoming v0.2)</h4>
+    <ul class="bullet-list">
+        <li>Further "dialing in" of animations and timing for a smoother user experience.</li>
+        <li>Packaging the component as a fully independent, deployable module for wider use.</li>
+    </ul>
   </section>
 
   <!-- Live Demo: Two-Column Layout (Reference Style) -->
@@ -68,7 +110,8 @@
       <ul class="bullet-list">
         <li><strong>Image Container:</strong> The left column holds the form image, which serves as the backdrop for the interactive overlays.</li>
         <li><strong>Field Stack:</strong> The right column displays a list of all form fields, driven by your JSON configuration.</li>
-        <li><strong>Numbered Headlines:</strong> Each step's title is dynamically updated with a number and content from the JSON map.</li>
+        <li><strong>Three-Part Text:</strong> Each step shows a Title, Description, and a custom Tooltip on hover.</li>
+        <li><strong>Whisper Panel:</strong> Displays "Nova's Thought" for the active step, providing contextual AI insights.</li>
         <li><strong>Automated Tour:</strong> The module automatically cycles through each step, highlighting the corresponding field and overlay.</li>
         <li><strong>Responsive Design:</strong> The layout adapts seamlessly from a two-column view on desktops to a single-column stack on mobile devices.</li>
       </ul>
@@ -77,46 +120,95 @@
 
   <!-- Usage Example -->
   <section class="content-section grid-col-12">
-    <h3>Basic Usage</h3>
-    <p>To use the Form Explainer module, include the following markup in your page:</p>
-    <pre><code>&lt;div class="form-explainer" data-config="/data/form-explainer-map.json"&gt;
-  &lt;!-- Module will auto-initialize and render here --&gt;
+    <h3>Implementation Guide</h3>
+    <p>To use the Form Explainer module, include the following markup in your page. The script will automatically initialize any element with the class <code>form-explainer-container</code>.</p>
+    <pre><code>&lt;!-- The container requires data attributes to specify the JSON path and image --&gt;
+&lt;div id="form-explainer-container"
+     class="form-explainer-container"
+     data-json-path="/data/form-explainer-map.json"
+     data-image-path="/images/your-form-screenshot.png"
+     data-step-duration="3000"&gt;
+     &lt;!-- Module will auto-initialize and render here --&gt;
 &lt;/div&gt;
+
+&lt;!-- Ensure the script is included --&gt;
 &lt;script src="/js/form-explainer.js" defer&gt;&lt;/script&gt;
 </code></pre>
-    <p>Make sure to load the required CSS and JS files, and provide a valid JSON config.</p>
+    <p>Make sure to load the required CSS (<code>form-explainer.css</code>) and provide a valid JSON configuration file.</p>
   </section>
 
   <!-- Example Configuration -->
   <section class="content-section grid-col-12">
-    <h3>Example JSON Configuration</h3>
-    <p>The module reads its steps and content from a JSON file. Example:</p>
-    <pre><code>{
-  "title": "Support Request",
-  "steps": [
-    { "label": "Your Name", "type": "text", "placeholder": "Enter your name" },
-    { "label": "Email", "type": "email", "placeholder": "Enter your email" },
-    { "label": "Describe your issue", "type": "textarea" }
-  ],
-  "image": "/images/support-form.jpg"
-}
-</code></pre>
-    <p>Place your config in <code>/data/form-explainer-map.json</code> or another path, and reference it via <code>data-config</code>.</p>
-  </section>
+    <h3>JSON Configuration (<code>data/form-explainer-map.json</code>)</h3>
+    <p>The module is driven entirely by a JSON file, which is an array of objects. Each object defines a step in the tour. Below is a detailed breakdown of the keys for each step object:</p>
+    
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>Key</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>key</code></td>
+          <td>String</td>
+          <td>A unique identifier for the step. Used for internal mapping and data attributes.</td>
+        </tr>
+        <tr>
+          <td><code>title</code></td>
+          <td>String</td>
+          <td>The main heading displayed for the step in the right-hand column.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>String</td>
+          <td>The sub-heading text displayed below the title. Provides brief context.</td>
+        </tr>
+        <tr>
+          <td><code>tooltip</code></td>
+          <td>String</td>
+          <td>The text that appears in the custom tooltip when the user hovers over the step item.</td>
+        </tr>
+        <tr>
+          <td><code>novaThought</code></td>
+          <td>String</td>
+          <td>The detailed AI insight that appears in the whisper panel below the screenshot.</td>
+        </tr>
+        <tr>
+          <td><code>left</code>, <code>top</code></td>
+          <td>Number (Float)</td>
+          <td>The X and Y coordinates for the top-left corner of the overlay. Values are percentages (0.0 to 1.0) of the image container's dimensions.</td>
+        </tr>
+        <tr>
+          <td><code>width</code>, <code>height</code></td>
+          <td>Number (Float)</td>
+          <td>The width and height of the overlay. Values are percentages (0.0 to 1.0) of the image container's dimensions.</td>
+        </tr>
+      </tbody>
+    </table>
 
-  <!-- Live Demo Reference -->
-  <section class="content-section grid-col-12">
-    <h3>Live Demo</h3>
-    <p>See the <a href="/pages/form-explainer-demo.html" class="text-link">Form Explainer Demo</a> for real-world usage and advanced configuration examples.</p>
-  </section>
-
-  <!-- Integration in Site Grid -->
-  <section class="content-section grid-col-12">
-    <h3>Integrating with the Site Grid</h3>
-    <p>Use <code>grid-col-6</code>, <code>grid-col-12</code>, or other grid classes to position the module within your layout. Example:</p>
-    <pre><code>&lt;section class="content-section grid-col-6"&gt;
-  &lt;div class="form-explainer" data-config="/data/form-explainer-map.json"&gt;&lt;/div&gt;
-&lt;/section&gt;
+    <h4 class="h4-spacing-top">Example JSON Entry</h4>
+    <pre><code>[
+  {
+    "key": "title",
+    "title": "1. Form Title",
+    "description": "The main heading of the form.",
+    "tooltip": "Clearly states the purpose of the form.",
+    "left": 0.04, "top": 0.03, "width": 0.92, "height": 0.08,
+    "novaThought": "A good title sets the right expectation. Users scan this first to confirm they're in the right place."
+  },
+  {
+    "key": "description",
+    "title": "2. Form Description",
+    "description": "Provides context and instructions.",
+    "tooltip": "A brief summary of what the user needs to do.",
+    "left": 0.04, "top": 0.12, "width": 0.92, "height": 0.09,
+    "novaThought": "The description is an emotional anchor—it reassures users they'll get the help they need."
+  }
+  // ... more steps
+]
 </code></pre>
   </section>
 
@@ -124,20 +216,9 @@
   <section class="content-section grid-col-12">
     <h3>Styling & Customization</h3>
     <ul>
-      <li>Customize appearance via <code>form-explainer.css</code> and global theme tokens (<code>--aura-*</code>, <code>--mood-*</code>).</li>
-      <li>Use existing utility classes for spacing, mood, and layout.</li>
-      <li>For advanced use, extend the module with custom JS and additional config options.</li>
-    </ul>
-  </section>
-
-  <!-- Related Files -->
-  <section class="content-section grid-col-12">
-    <h3>Related Files</h3>
-    <ul>
-      <li><code>/js/form-explainer.js</code> – Module logic</li>
-      <li><code>/css/form-explainer.css</code> – Module styles</li>
-      <li><code>/data/form-explainer-map.json</code> – Example configuration</li>
-      <li><code>/pages/form-explainer-demo.html</code> – Live demo page</li>
+      <li>Customize appearance via <code>/css/form-explainer.css</code> and global theme tokens (e.g., <code>--aura-primary</code>, <code>--mood-highlight</code>).</li>
+      <li>The component is built with Flexbox and is fully responsive.</li>
+      <li>For advanced use, extend the module with custom JS and additional config options in <code>/js/form-explainer.js</code>.</li>
     </ul>
   </section>
 </main>
