@@ -1,0 +1,113 @@
+{
+  "version": "1.0.0",
+  "slideshowId": "nebulight-demo",
+  "title": "Nebulight Interactive Slideshow",
+  "description": "A showcase of the Nebulight component capabilities with various configuration options.",
+  "settings": {
+    "autoplay": true,
+    "interval": 5000,
+    "loop": true,
+    "transition": "fade",
+    "transitionDuration": 800,
+    "showCaptions": true,
+    "showControls": true,
+    "showProgress": true,
+    "showCounter": true,
+    "showThumbnails": true,
+    "allowFullscreen": true,
+    "theme": "dark",
+    "aspectRatio": "16:9",
+    "height": "auto"
+  },
+  "security": {
+    "disableRightClick": false,
+    "obfuscateImageUrls": false,
+    "preventDownload": false
+  },
+  "slides": [
+    {
+      "id": "slide-1",
+      "image": "/images/deviant-source.png",
+      "thumbnail": "/images/deviant-source.png",
+      "alt": "Vivid surreal landscape with rainbow-colored trees and glowing river",
+      "title": "Valley of the Chromatic Sun",
+      "caption": "A radiant dreamscape where light bends, rivers glow, and colors remember.",
+      "description": "In this surreal terrain, the sun unfolds like memory, casting waves of color across a forested valley. Each ripple is mood. Each hue, a signal. Nova watches as the land breathes in light.",
+      "tags": ["surreal", "nature", "dreamscape", "Nova", "nebulight"],
+      "overlay": {
+        "enabled": false
+      },
+      "customClass": "featured"
+    },
+    {
+      "id": "slide-2",
+      "image": "/images/slides/galaxy-01.jpg",
+      "thumbnail": "/images/slides/thumbs/galaxy-01.jpg",
+      "alt": "Spiral galaxy with bright center and sweeping arms",
+      "title": "Spiral Galaxy",
+      "caption": "A magnificent spiral galaxy millions of light-years away.",
+      "description": "Spiral galaxies like this one contain billions of stars and often feature prominent dust lanes along their spiral arms.",
+      "tags": ["space", "galaxy", "astronomy"],
+      "overlay": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "slide-3",
+      "image": "/images/slides/planet-01.jpg",
+      "thumbnail": "/images/slides/thumbs/planet-01.jpg",
+      "alt": "Gas giant planet with swirling storm patterns",
+      "title": "Gas Giant",
+      "caption": "A gas giant planet with complex atmospheric patterns.",
+      "description": "Gas giants are primarily composed of hydrogen and helium and feature dynamic weather systems visible as bands and spots.",
+      "tags": ["space", "planet", "astronomy"],
+      "overlay": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "slide-4",
+      "image": "/images/slides/nebula-02.jpg",
+      "thumbnail": "/images/slides/thumbs/nebula-02.jpg",
+      "alt": "Eagle nebula with pillars of creation",
+      "title": "Eagle Nebula",
+      "caption": "The famous Eagle Nebula featuring the pillars of creation.",
+      "description": "The Eagle Nebula contains the iconic 'Pillars of Creation', towering columns of gas and dust where new stars are forming.",
+      "tags": ["space", "nebula", "astronomy"],
+      "overlay": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "slide-5",
+      "image": "/images/projects/fpo-01.png",
+      "thumbnail": "/images/projects/fpo-01.png",
+      "alt": "Confidential project screenshot with NDA protection",
+      "title": "Project Alpha (NDA)",
+      "caption": "Confidential project interface protected by NDA.",
+      "description": "This slide demonstrates the NDA protection features of Nebulight, including red glass overlay and blur effects.",
+      "tags": ["project", "nda", "confidential"],
+      "overlay": {
+        "enabled": true,
+        "type": "nda-red",
+        "blur": 25,
+        "message": "NDA Protected Content",
+        "icon": "fas fa-lock"
+      },
+      "security": {
+        "disableRightClick": true,
+        "preventDownload": true,
+        "obfuscateImageUrl": true
+      }
+    }
+  ],
+  "i18n": {
+    "nextSlide": "Next slide",
+    "previousSlide": "Previous slide",
+    "playSlideshow": "Play slideshow",
+    "pauseSlideshow": "Pause slideshow",
+    "fullscreen": "Toggle fullscreen",
+    "exitFullscreen": "Exit fullscreen",
+    "slideCounter": "Slide {current} of {total}"
+  }
+}

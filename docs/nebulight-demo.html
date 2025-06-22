@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Nebulight: Interactive Slideshow Component - AmbientPixels">
+  <title>Nebulight: Interactive Slideshow Component - AmbientPixels</title>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/grid.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/hero.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/banner.css">
+  <!-- Nebulight CSS -->
+  <link rel="stylesheet" href="/css/nebulight.css">
+</head>
+<body data-theme="dark">
+<!--
+  AmbientPixels Template Reference
+  --------------------------------
+  This file demonstrates usage of key layout and style classes from the AmbientPixels/Nova system.
+  All examples use external CSS classes only (no inline styles).
+  Copy/paste and adapt these blocks for rapid prototyping.
+-->
+
+<!-- Banner Example (from banner.css) -->
+<div class="banner-container">
+  <div class="banner">
+    <i class="fas fa-star banner-icon"></i>
+    <span>Nebulight v1.0.0 - Interactive Slideshow Component</span>
+    <button class="banner-close" aria-label="Close Banner">&times;</button>
+  </div>
+</div>
+
+<!-- Navigation Header Placeholder (nav.css) -->
+<header id="nav-header"><!-- Navigation loads here via JS include --></header>
+
+<!-- Hero Section Example (hero.css, theme.css) -->
+<section class="mini-hero">
+  <img src="/images/slides/fpo-01.jpg" alt="Nebula Texture" class="mini-hero-img">
+  <h1>Nebulight <span class="accent-text">Interactive Slideshow</span></h1>
+</section>
+
+<main class="grid-container">
+  <!-- Introduction Section -->
+  <section class="content-section grid-col-12">
+    <h2><i class="fas fa-star"></i> Nebulight Interactive Slideshow</h2>
+    <p class="nova-intro">A modern, responsive, and accessible slideshow component for AmbientPixels projects. Fully configurable via JSON with support for NDA protection, custom overlays, and advanced navigation.</p>
+    
+    <div class="feature-highlights">
+      <div class="feature-card">
+        <i class="fas fa-mobile-alt"></i>
+        <h4>Responsive</h4>
+        <p>Adapts to any screen size with touch support</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-universal-access"></i>
+        <h4>Accessible</h4>
+        <p>ARIA roles, keyboard navigation, screen reader friendly</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-shield-alt"></i>
+        <h4>Secure</h4>
+        <p>NDA protection features for confidential content</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-paint-brush"></i>
+        <h4>Themable</h4>
+        <p>Customizable with Nova system tokens</p>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Demo Slideshow -->
+  <section class="content-section grid-col-12">
+    <h2><i class="fas fa-play-circle"></i> Live Demo</h2>
+    <p>This demo showcases the Nebulight component with various configuration options. The last slide demonstrates NDA protection features.</p>
+    
+    <!-- Nebulight Component Container -->
+    <div id="nebulight-demo" class="demo-container">
+      <!-- Slideshow will be rendered here -->
+    </div>
+  </section>
+
+
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-code"></i> Implementation Guide</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="implementation-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="implementation-content" class="content">
+        <h3>Basic Setup</h3>
+        <p>Include the required CSS and JavaScript files in your HTML:</p>
+        <pre><code class="language-html">&lt;!-- In the head --&gt;
+&lt;link rel="stylesheet" href="/css/nebulight.css"&gt;
+
+&lt;!-- Before closing body tag --&gt;
+&lt;script src="/js/nebulight.js"&gt;&lt;/script&gt;
+&lt;script src="/js/nebulight-methods.js"&gt;&lt;/script&gt;</code></pre>
+        
+        <h3>HTML Structure</h3>
+        <p>Create a container element for your slideshow:</p>
+        <pre><code class="language-html">&lt;div id="my-slideshow" class="my-slideshow-container"&gt;
+  &lt;!-- Slideshow will be rendered here --&gt;
+&lt;/div&gt;</code></pre>
+        
+        <h3>JavaScript Initialization</h3>
+        <p>Initialize the slideshow with configuration:</p>
+        <pre><code class="language-javascript">// Method 1: Direct configuration
+const mySlideshow = new Nebulight('#my-slideshow', {
+  slides: [
+    {
+      image: '/path/to/image1.jpg',
+      title: 'Slide Title',
+      caption: 'Slide caption text'
+    },
+    // More slides...
+  ],
+  settings: {
+    autoplay: true,
+    interval: 5000
+  }
+});
+
+// Method 2: Load from JSON file
+const jsonSlideshow = new Nebulight('#json-slideshow', '/data/nebulight.json');</code></pre>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-sliders-h"></i> Configuration Options</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="config-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="config-content" class="content">
+        <table class="nova-table">
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>autoplay</code></td>
+              <td>Boolean</td>
+              <td>true</td>
+              <td>Automatically advance slides</td>
+            </tr>
+            <tr>
+              <td><code>interval</code></td>
+              <td>Number</td>
+              <td>5000</td>
+              <td>Time between slides in milliseconds</td>
+            </tr>
+            <tr>
+              <td><code>transition</code></td>
+              <td>String</td>
+              <td>"fade"</td>
+              <td>Transition effect ("fade", "slide", "zoom")</td>
+            </tr>
+            <tr>
+              <td><code>theme</code></td>
+              <td>String</td>
+              <td>"dark"</td>
+              <td>Color theme ("dark", "light")</td>
+            </tr>
+            <tr>
+              <td><code>aspectRatio</code></td>
+              <td>String</td>
+              <td>"16:9"</td>
+              <td>Aspect ratio ("16:9", "4:3", "1:1", "21:9")</td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <h3>JSON Schema</h3>
+        <p>View the complete JSON schema in <code>/data/nebulight.json</code> for all available options.</p>
+      </div>
+    </section>
+
+    <section class="content-section grid-col-12 collapsible">
+      <div class="section-header">
+        <h2><i class="fas fa-shield-alt"></i> NDA Protection Features</h2>
+        <button class="toggle-btn" aria-expanded="true" aria-controls="nda-content">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      </div>
+      <div id="nda-content" class="content">
+        <p>Nebulight includes several features to protect confidential content:</p>
+        
+        <ul>
+          <li><strong>Red Glass Overlay:</strong> Apply a transparent red overlay to visually mark NDA content</li>
+          <li><strong>Blur Effects:</strong> Configurable blur intensity (15px, 25px, or 45px)</li>
+          <li><strong>Watermarks:</strong> Add custom text and icon watermarks to protected slides</li>
+          <li><strong>Right-Click Prevention:</strong> Disable context menu on protected images</li>
+          <li><strong>Download Prevention:</strong> Block common download methods and keyboard shortcuts</li>
+          <li><strong>Source Obfuscation:</strong> Hide actual image URLs from the DOM</li>
+        </ul>
+        
+        <h3>NDA Configuration Example</h3>
+        <pre><code class="language-json">{
+  "id": "slide-5",
+  "image": "/images/confidential-project.jpg",
+  "title": "Project Alpha (NDA)",
+  "caption": "Confidential project interface",
+  "overlay": {
+    "enabled": true,
+    "type": "nda-red",
+    "blur": 25,
+    "message": "NDA Protected Content",
+    "icon": "fas fa-lock"
+  },
+  "security": {
+    "disableRightClick": true,
+    "preventDownload": true,
+    "obfuscateImageUrl": true
+  }
+}</code></pre>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <!-- Core site scripts -->
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/init-quotes.js" defer></script>
+  <script src="/js/md-inject.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/template.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/main.js"></script>
+  
+  <!-- Nebulight scripts -->
+  <script src="/js/nebulight.js"></script>
+  <script src="/js/nebulight-methods.js"></script>
+  
+  <!-- Initialize Nebulight slideshow -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize Nebulight slideshow from JSON config
+      const nebulightDemo = new Nebulight('#nebulight-demo', '/data/nebulight.json');
+      
+      // Add event listeners for demo controls (if needed)
+      document.querySelectorAll('.demo-control').forEach(control => {
+        control.addEventListener('click', (e) => {
+          const action = e.currentTarget.dataset.action;
+          
+          switch(action) {
+            case 'toggle-theme':
+              nebulightDemo.toggleTheme();
+              break;
+            case 'toggle-transition':
+              const transition = e.currentTarget.dataset.value;
+              nebulightDemo.setTransition(transition);
+              break;
+            // Add more custom demo controls as needed
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

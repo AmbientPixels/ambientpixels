@@ -1,0 +1,522 @@
+/**
+ * Nebulight Interactive Slideshow - Methods
+ * Additional methods for the Nebulight class
+ */
+
+// Extend the Nebulight class with these methods
+(function() {
+  // Make sure Nebulight class exists
+  if (typeof Nebulight !== 'function') {
+    console.error('Nebulight class not found. Make sure to load nebulight.js before nebulight-methods.js');
+    return;
+  }
+  
+  // Add methods to Nebulight prototype
+  Nebulight.prototype.loadSlides = function() {
+    if (!this.config.slides || !this.config.slides.length) {
+      console.warn('Nebulight: No slides found in configuration');
+      return;
+    }
+    
+    // Create slide elements
+    this.config.slides.forEach((slide, index) => {
+      // Create slide element
+      const slideEl = document.createElement('div');
+      slideEl.className = 'nebulight-slide';
+      slideEl.setAttribute('data-id', slide.id || `slide-${index}`);
+      slideEl.setAttribute('tabindex', '0');
+      
+      // Add custom class if provided
+      if (slide.customClass) {
+        slideEl.classList.add(slide.customClass);
+      }
+      
+      // Set overlay attributes if enabled
+      if (slide.overlay && slide.overlay.enabled) {
+        slideEl.setAttribute('data-overlay', 'true');
+        slideEl.setAttribute('data-overlay-type', slide.overlay.type || 'default');
+        
+        if (slide.overlay.blur) {
+          slideEl.setAttribute('data-blur', slide.overlay.blur);
+        }
+        
+        // Create overlay message if provided
+        if (slide.overlay.message) {
+          const message = document.createElement('div');
+          message.className = 'nebulight-overlay-message';
+          
+          if (slide.overlay.icon) {
+            message.innerHTML = `<i class="${slide.overlay.icon}"></i>${slide.overlay.message}`;
+          } else {
+            message.textContent = slide.overlay.message;
+          }
+          
+          slideEl.appendChild(message);
+        }
+      }
+      
+      // Create image element
+      const img = document.createElement('img');
+      img.src = slide.image;
+      img.alt = slide.alt || '';
+      img.loading = 'lazy';
+      
+      // Apply security measures for individual slide
+      if (slide.security) {
+        if (slide.security.disableRightClick) {
+          img.addEventListener('contextmenu', e => e.preventDefault());
+        }
+        
+        if (slide.security.preventDownload) {
+          img.setAttribute('draggable', 'false');
+          img.style.pointerEvents = 'none';
+          img.style.userSelect = 'none';
+        }
+        
+        if (slide.security.obfuscateImageUrl) {
+          // This is a simple obfuscation technique
+          // A more robust solution would involve server-side processing
+          setTimeout(() => {
+            img.setAttribute('data-src', img.src);
+            img.removeAttribute('src');
+          }, 100);
+        }
+      }
+      
+      slideEl.appendChild(img);
+      
+      // Create caption if enabled
+      if (this.config.settings.showCaptions && (slide.title || slide.caption)) {
+        const caption = document.createElement('div');
+        caption.className = 'nebulight-caption';
+        
+        if (slide.title) {
+          const title = document.createElement('h3');
+          title.className = 'nebulight-caption-title';
+          title.textContent = slide.title;
+          caption.appendChild(title);
+        }
+        
+        if (slide.caption) {
+          const text = document.createElement('p');
+          text.className = 'nebulight-caption-text';
+          text.textContent = slide.caption;
+          caption.appendChild(text);
+        }
+        
+        slideEl.appendChild(caption);
+      }
+      
+      // Add slide to container
+      this.slidesContainer.appendChild(slideEl);
+      this.slides.push(slideEl);
+      
+      // Create thumbnail if enabled
+      if (this.config.settings.showThumbnails && this.thumbnails) {
+        const thumb = document.createElement('div');
+        thumb.className = 'nebulight-thumbnail';
+        thumb.setAttribute('data-index', index);
+        thumb.setAttribute('tabindex', '0');
+        thumb.setAttribute('role', 'button');
+        thumb.setAttribute('aria-label', `Go to slide ${index + 1}`);
+        
+        const thumbImg = document.createElement('img');
+        thumbImg.src = slide.thumbnail || slide.image;
+        thumbImg.alt = '';
+        thumbImg.loading = 'lazy';
+        
+        thumb.appendChild(thumbImg);
+        this.thumbnails.appendChild(thumb);
+      }
+    });
+    
+    // Show first slide
+    this.goToSlide(0);
+    this.updateCounter();
+  };
+  
+  /**
+   * Set up event listeners
+   */
+  Nebulight.prototype.setupEventListeners = function() {
+    // Navigation buttons
+    if (this.prevButton) {
+      this.prevButton.addEventListener('click', () => this.prev());
+    }
+    
+    if (this.nextButton) {
+      this.nextButton.addEventListener('click', () => this.next());
+    }
+    
+    // Play/pause button
+    if (this.playButton) {
+      this.playButton.addEventListener('click', () => {
+        if (this.isPlaying) {
+          this.pause();
+        } else {
+          this.play();
+        }
+      });
+    }
+    
+    // Fullscreen button
+    if (this.fullscreenButton) {
+      this.fullscreenButton.addEventListener('click', () => this.toggleFullscreen());
+    }
+    
+    // Thumbnail navigation
+    if (this.thumbnails) {
+      this.thumbnails.addEventListener('click', (e) => {
+        const thumb = e.target.closest('.nebulight-thumbnail');
+        if (thumb) {
+          const index = parseInt(thumb.getAttribute('data-index'), 10);
+          this.goToSlide(index);
+        }
+      });
+    }
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      // Only handle keyboard events if the slideshow is focused or in fullscreen mode
+      const isFocused = this.container.contains(document.activeElement) || this.isFullscreen;
+      
+      if (isFocused) {
+        switch (e.key) {
+          case 'ArrowLeft':
+            this.prev();
+            break;
+          case 'ArrowRight':
+            this.next();
+            break;
+          case ' ':
+            e.preventDefault();
+            if (this.isPlaying) {
+              this.pause();
+            } else {
+              this.play();
+            }
+            break;
+          case 'Escape':
+            if (this.isFullscreen) {
+              this.exitFullscreen();
+            }
+            break;
+        }
+      }
+    });
+    
+    // Touch navigation
+    this.stage.addEventListener('touchstart', (e) => {
+      this.touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    
+    this.stage.addEventListener('touchend', (e) => {
+      this.touchEndX = e.changedTouches[0].screenX;
+      this.handleSwipe();
+    }, { passive: true });
+    
+    // Window resize
+    window.addEventListener('resize', () => {
+      this.updateLayout();
+    });
+    
+    // Fullscreen change
+    document.addEventListener('fullscreenchange', () => {
+      this.isFullscreen = !!document.fullscreenElement;
+      this.updateFullscreenButton();
+    });
+  };
+  
+  /**
+   * Handle swipe gestures
+   */
+  Nebulight.prototype.handleSwipe = function() {
+    const swipeThreshold = 50;
+    const diff = this.touchEndX - this.touchStartX;
+    
+    if (diff > swipeThreshold) {
+      // Swipe right, go to previous slide
+      this.prev();
+    } else if (diff < -swipeThreshold) {
+      // Swipe left, go to next slide
+      this.next();
+    }
+  };
+  
+  /**
+   * Update layout on resize
+   */
+  Nebulight.prototype.updateLayout = function() {
+    // Adjust height if needed
+    if (this.config.settings.height !== 'auto') {
+      this.stage.style.height = this.config.settings.height;
+      this.stage.style.paddingBottom = '0';
+    }
+  };
+  
+  /**
+   * Go to a specific slide
+   * @param {number} index - Slide index
+   */
+  Nebulight.prototype.goToSlide = function(index) {
+    // Validate index
+    if (index < 0) {
+      index = this.config.settings.loop ? this.slides.length - 1 : 0;
+    } else if (index >= this.slides.length) {
+      index = this.config.settings.loop ? 0 : this.slides.length - 1;
+    }
+    
+    // Update current index
+    this.currentIndex = index;
+    
+    // Update slide classes
+    this.slides.forEach((slide, i) => {
+      if (i === index) {
+        slide.classList.add('active');
+      } else {
+        slide.classList.remove('active');
+      }
+    });
+    
+    // Update thumbnails
+    if (this.thumbnails) {
+      const thumbs = this.thumbnails.querySelectorAll('.nebulight-thumbnail');
+      thumbs.forEach((thumb, i) => {
+        if (i === index) {
+          thumb.classList.add('active');
+        } else {
+          thumb.classList.remove('active');
+        }
+      });
+    }
+    
+    // Update counter
+    this.updateCounter();
+    
+    // Reset progress
+    this.resetProgress();
+    
+    // Emit change event
+    this.container.dispatchEvent(new CustomEvent('nebulight:change', {
+      detail: { index, slide: this.slides[index] }
+    }));
+  };
+  
+  /**
+   * Go to the next slide
+   */
+  Nebulight.prototype.next = function() {
+    this.goToSlide(this.currentIndex + 1);
+  };
+  
+  /**
+   * Go to the previous slide
+   */
+  Nebulight.prototype.prev = function() {
+    this.goToSlide(this.currentIndex - 1);
+  };
+  
+  /**
+   * Start autoplay
+   */
+  Nebulight.prototype.play = function() {
+    if (this.isPlaying) return;
+    
+    this.isPlaying = true;
+    this.autoplayTimer = setInterval(() => {
+      this.next();
+    }, this.config.settings.interval);
+    
+    // Start progress bar animation
+    this.startProgress();
+    
+    // Update play button
+    if (this.playButton) {
+      this.playButton.innerHTML = '<i class="fas fa-pause"></i>';
+      this.playButton.setAttribute('aria-label', this.config.i18n.pauseSlideshow);
+    }
+    
+    // Emit play event
+    this.container.dispatchEvent(new CustomEvent('nebulight:play'));
+  };
+  
+  /**
+   * Pause autoplay
+   */
+  Nebulight.prototype.pause = function() {
+    if (!this.isPlaying) return;
+    
+    this.isPlaying = false;
+    clearInterval(this.autoplayTimer);
+    
+    // Stop progress bar animation
+    this.stopProgress();
+    
+    // Update play button
+    if (this.playButton) {
+      this.playButton.innerHTML = '<i class="fas fa-play"></i>';
+      this.playButton.setAttribute('aria-label', this.config.i18n.playSlideshow);
+    }
+    
+    // Emit pause event
+    this.container.dispatchEvent(new CustomEvent('nebulight:pause'));
+  };
+  
+  /**
+   * Start progress bar animation
+   */
+  Nebulight.prototype.startProgress = function() {
+    if (!this.config.settings.showProgress || !this.progressBar) return;
+    
+    this.progressValue = 0;
+    this.stopProgress();
+    
+    const interval = 16; // ~60fps
+    const step = (interval / this.config.settings.interval) * 100;
+    
+    this.progressTimer = setInterval(() => {
+      this.progressValue += step;
+      if (this.progressValue >= 100) {
+        this.progressValue = 100;
+      }
+      
+      this.progressBar.style.width = `${this.progressValue}%`;
+    }, interval);
+  };
+  
+  /**
+   * Stop progress bar animation
+   */
+  Nebulight.prototype.stopProgress = function() {
+    if (this.progressTimer) {
+      clearInterval(this.progressTimer);
+      this.progressTimer = null;
+    }
+  };
+  
+  /**
+   * Reset progress bar
+   */
+  Nebulight.prototype.resetProgress = function() {
+    this.progressValue = 0;
+    if (this.progressBar) {
+      this.progressBar.style.width = '0%';
+    }
+    
+    // Restart progress if playing
+    if (this.isPlaying) {
+      this.stopProgress();
+      this.startProgress();
+    }
+  };
+  
+  /**
+   * Update slide counter
+   */
+  Nebulight.prototype.updateCounter = function() {
+    if (!this.counter) return;
+    
+    const current = this.currentIndex + 1;
+    const total = this.slides.length;
+    
+    this.counter.textContent = this.config.i18n.slideCounter
+      .replace('{current}', current)
+      .replace('{total}', total);
+  };
+  
+  /**
+   * Toggle fullscreen mode
+   */
+  Nebulight.prototype.toggleFullscreen = function() {
+    if (this.isFullscreen) {
+      this.exitFullscreen();
+    } else {
+      this.enterFullscreen();
+    }
+  };
+  
+  /**
+   * Enter fullscreen mode
+   */
+  Nebulight.prototype.enterFullscreen = function() {
+    if (!document.fullscreenEnabled) {
+      console.warn('Nebulight: Fullscreen API not supported');
+      return;
+    }
+    
+    this.container.requestFullscreen().catch(err => {
+      console.error('Nebulight: Error attempting to enable fullscreen', err);
+    });
+  };
+  
+  /**
+   * Exit fullscreen mode
+   */
+  Nebulight.prototype.exitFullscreen = function() {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  };
+  
+  /**
+   * Update fullscreen button
+   */
+  Nebulight.prototype.updateFullscreenButton = function() {
+    if (!this.fullscreenButton) return;
+    
+    if (this.isFullscreen) {
+      this.fullscreenButton.innerHTML = '<i class="fas fa-compress"></i>';
+      this.fullscreenButton.setAttribute('aria-label', this.config.i18n.exitFullscreen);
+      this.container.classList.add('fullscreen');
+    } else {
+      this.fullscreenButton.innerHTML = '<i class="fas fa-expand"></i>';
+      this.fullscreenButton.setAttribute('aria-label', this.config.i18n.fullscreen);
+      this.container.classList.remove('fullscreen');
+    }
+  };
+  
+  /**
+   * Apply security measures
+   */
+  Nebulight.prototype.applySecurity = function() {
+    if (!this.config.security) return;
+    
+    // Disable right-click on container
+    if (this.config.security.disableRightClick) {
+      this.container.addEventListener('contextmenu', e => e.preventDefault());
+    }
+    
+    // Prevent download
+    if (this.config.security.preventDownload) {
+      // Disable dragging
+      this.container.addEventListener('dragstart', e => e.preventDefault());
+      
+      // Disable keyboard shortcuts
+      document.addEventListener('keydown', e => {
+        if (this.container.contains(document.activeElement) || this.isFullscreen) {
+          // Ctrl+S, Ctrl+P
+          if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'p')) {
+            e.preventDefault();
+          }
+        }
+      });
+    }
+  };
+  
+  /**
+   * Destroy the slideshow instance
+   */
+  Nebulight.prototype.destroy = function() {
+    // Stop autoplay
+    this.pause();
+    
+    // Remove event listeners
+    window.removeEventListener('resize', this.updateLayout);
+    
+    // Clear container
+    this.container.innerHTML = '';
+    
+    // Emit destroy event
+    this.container.dispatchEvent(new CustomEvent('nebulight:destroy'));
+  };
+})();
