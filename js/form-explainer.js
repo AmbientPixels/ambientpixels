@@ -282,7 +282,7 @@ class FormExplainer {
       icon.className = `fas ${this.fieldIcons[item.key] || 'fa-circle-info'}`;
       
       const title = document.createElement('h3');
-      title.textContent = item.key.charAt(0).toUpperCase() + item.key.slice(1).replace(/-/g, ' ');
+      title.textContent = item.title || (item.key.charAt(0).toUpperCase() + item.key.slice(1).replace(/-/g, ' '));
       
       const description = document.createElement('div');
       description.className = 'field-item-description';
