@@ -162,6 +162,7 @@
 }
 
 .field-item {
+  position: relative; /* Needed for tooltip positioning */
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--form-explainer-border);
   border-radius: 0.5rem;
@@ -206,27 +207,41 @@
   font-size: 0.9rem;
   line-height: 1.5;
   color: var(--form-explainer-secondary-text);
+  margin-bottom: 0.5rem; /* Add space below description */
 }
 
-.field-item-nova-thought {
-  margin-top: 0.75rem;
-  padding: 0.75rem;
-  background: rgba(var(--aura-rgb, 100, 160, 255), 0.1);
-  border-left: 3px solid var(--form-explainer-highlight);
-  border-radius: 0 0.25rem 0.25rem 0;
-  font-style: italic;
-  font-size: 0.9rem;
-  position: relative;
-}
-
-.field-item-nova-thought::before {
-  content: '"';
+/* Custom Tooltip Styling */
+.field-item-tooltip {
   position: absolute;
-  left: 0.5rem;
-  top: 0;
-  font-size: 1.5rem;
-  color: var(--form-explainer-highlight);
-  opacity: 0.5;
+  bottom: calc(100% + 8px); /* Position above the item */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--form-explainer-highlight);
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.field-item-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--form-explainer-highlight) transparent transparent transparent;
+}
+
+.field-item:hover .field-item-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-5px);
 }
 
 /* Timeline Controls */

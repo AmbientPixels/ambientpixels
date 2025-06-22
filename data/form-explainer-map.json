@@ -1,72 +1,82 @@
 [
   {
     "key": "title",
-    "title": "TITLE - 1. Form Title",
-    "tooltip": "tooltip - Clearly states the purpose of the form.",
+    "title": "1. Form Title",
+    "description": "The main heading of the form.",
+    "tooltip": "Clearly states the purpose of the form.",
     "left": 0.04, "top": 0.03, "width": 0.92, "height": 0.08,
-    "novaThought": "novaThought - A good title sets the right expectation. Users scan this first to confirm they're in the right place."
+    "novaThought": "A good title sets the right expectation. Users scan this first to confirm they're in the right place."
   },
   {
     "key": "description",
-    "title": "TITLE - 2. Form Description",
-    "tooltip": "tooltip - Provides context and instructions.",
+    "title": "2. Form Description",
+    "description": "Provides context and instructions.",
+    "tooltip": "A brief summary of what the user needs to do.",
     "left": 0.04, "top": 0.12, "width": 0.92, "height": 0.09,
-    "novaThought": "novaThought - The description is your emotional anchor - it reassures users they'll get the help they need."
+    "novaThought": "The description is an emotional anchor—it reassures users they'll get the help they need."
   },
   {
     "key": "issue-type",
-    "title": "TITLE - 3. Issue Type",
-    "tooltip": "tooltip - Categorizes the problem for faster routing.",
+    "title": "3. Issue Type",
+    "description": "A dropdown to categorize the problem.",
+    "tooltip": "Categorizes the problem for faster routing.",
     "left": 0.04, "top": 0.22, "width": 0.92, "height": 0.1,
-    "novaThought": "novaThought - I use this field to route your request to the right specialist team. Choose accurately for fastest support!"
+    "novaThought": "I use this field to route your request to the right specialist team. Choose accurately for the fastest support!"
   },
   {
     "key": "details",
-    "title": "TITLE - 4. Detailed Description",
-    "tooltip": "tooltip - Provide as much detail as possible here.",
+    "title": "4. Detailed Description",
+    "description": "A text area for detailed user input.",
+    "tooltip": "Provide as much detail as possible here.",
     "left": 0.04, "top": 0.33, "width": 0.92, "height": 0.15,
-    "novaThought": "novaThought - The more specific details you provide here, the faster we can isolate and solve your issue. Think of it as giving me the puzzle pieces to help you."
+    "novaThought": "The more details you provide, the faster we can solve your issue. It's like giving me puzzle pieces to help you."
   },
   {
     "key": "nova-note",
-    "title": "TITLE - 5. Nova's Note",
-    "tooltip": "tooltip - A helpful, context-aware tip from me to you!",
+    "title": "5. Nova's Note",
+    "description": "A helpful, context-aware tip.",
+    "tooltip": "A helpful, context-aware tip from me to you!",
     "left": 0.04, "top": 0.49, "width": 0.92, "height": 0.09,
-    "novaThought": "novaThought - I analyze patterns across user feedback to provide personalized suggestions that might help resolve common issues before submission."
+    "novaThought": "I analyze patterns to provide suggestions that might resolve common issues before you even submit."
   },
   {
     "key": "game",
-    "title": "TITLE - 6. Game Select",
-    "tooltip": "tooltip - Specify which game your issue is related to.",
+    "title": "6. Game Select",
+    "description": "Select the game this issue relates to.",
+    "tooltip": "Specify which game your issue is related to.",
     "left": 0.04, "top": 0.59, "width": 0.92, "height": 0.1,
-    "novaThought": "novaThought - Each game has its own dedicated support team with specialized knowledge of that particular title."
+    "novaThought": "Each game has its own dedicated support team with specialized knowledge of that title."
   },
   {
     "key": "email",
-    "title": "TITLE - 7. Preferred Email",
-    "tooltip": "tooltip - Where you'll receive updates about your ticket.",
+    "title": "7. Preferred Email",
+    "description": "The email for ticket updates.",
+    "tooltip": "Where you'll receive updates about your ticket.",
     "left": 0.04, "top": 0.7, "width": 0.92, "height": 0.09,
-    "novaThought": "novaThought - I'll use this to send you personalized status updates and follow-ups. Your data is always handled securely."
+    "novaThought": "I'll use this to send you personalized status updates. Your data is always handled securely."
   },
   {
     "key": "attachment",
-    "title": "TITLE - 8. Attachment",
-    "tooltip": "tooltip - Upload screenshots or videos to provide more context.",
+    "title": "8. Attachment",
+    "description": "An optional file upload.",
+    "tooltip": "Upload screenshots or videos for more context.",
     "left": 0.04, "top": 0.8, "width": 0.92, "height": 0.05,
-    "novaThought": "novaThought - Visual context helps tremendously! A screenshot often communicates what might take paragraphs to describe."
+    "novaThought": "Visual context helps! A screenshot often communicates what might take paragraphs to describe."
   },
   {
     "key": "captcha",
-    "title": "TITLE - 9. CAPTCHA",
-    "tooltip": "tooltip - A quick check to ensure you're human.",
+    "title": "9. CAPTCHA",
+    "description": "A standard human verification step.",
+    "tooltip": "A quick check to ensure you're human.",
     "left": 0.04, "top": 0.86, "width": 0.92, "height": 0.08,
-    "novaThought": "novaThought - While I love my AI friends, this helps keep spam bots from overwhelming our support system so humans get faster help."
+    "novaThought": "This helps keep spam bots from overwhelming our support system so humans get faster help."
   },
   {
     "key": "submit",
-    "title": "TITLE - 10. Submit Button",
-    "tooltip": "tooltip - Sends your completed form to the support team.",
+    "title": "10. Submit Button",
+    "description": "The final action to send the form.",
+    "tooltip": "Sends your completed form to the support team.",
     "left": 0.04, "top": 0.95, "width": 0.92, "height": 0.04,
-    "novaThought": "novaThought - Once submitted, I'll automatically analyze your request to identify potential solutions before a human review."
+    "novaThought": "Once submitted, I'll automatically analyze your request for potential solutions before a human review."
   }
 ]

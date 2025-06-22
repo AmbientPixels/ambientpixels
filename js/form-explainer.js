@@ -59,6 +59,7 @@ class FormExplainer {
     this.tourTimer = null;
     this.isTourActive = false;
     this.userHasInteracted = false;
+    this.isPausedByUser = false;
     
     // Field icon mappings for different field types
     this.fieldIcons = {
@@ -267,41 +268,39 @@ class FormExplainer {
     // Clear any existing field items except timeline and replay button
     const existingItems = this.fieldStack.querySelectorAll('.field-item');
     existingItems.forEach(item => item.remove());
-    
+
     // Create field items for each form element
     this.overlayData.forEach((item, index) => {
       const fieldItem = document.createElement('div');
       fieldItem.className = 'field-item';
       fieldItem.dataset.fieldId = item.key;
       fieldItem.dataset.index = index;
-      
+
+      // Header
       const header = document.createElement('div');
       header.className = 'field-item-header';
-      
       const icon = document.createElement('i');
       icon.className = `fas ${this.fieldIcons[item.key] || 'fa-circle-info'}`;
-      
       const title = document.createElement('h3');
       title.textContent = item.title || (item.key.charAt(0).toUpperCase() + item.key.slice(1).replace(/-/g, ' '));
-      
-      const description = document.createElement('div');
-      description.className = 'field-item-description';
-      description.textContent = item.tooltip || 'No description provided';
-      
-      // Add Nova thought display if available
-      if (item.novaThought) {
-        const novaThought = document.createElement('div');
-        novaThought.className = 'field-item-nova-thought';
-        novaThought.textContent = item.novaThought;
-        fieldItem.appendChild(novaThought);
-      }
-      
-      // Assemble the field item
       header.appendChild(icon);
       header.appendChild(title);
+
+      // Description
+      const description = document.createElement('div');
+      description.className = 'field-item-description';
+      description.textContent = item.description || '';
+
+      // Custom Tooltip
+      const tooltip = document.createElement('div');
+      tooltip.className = 'field-item-tooltip';
+      tooltip.textContent = item.tooltip || 'No details available.';
+
+      // Assemble the field item
       fieldItem.appendChild(header);
       fieldItem.appendChild(description);
-      
+      fieldItem.appendChild(tooltip);
+
       // Insert before the timeline scrubber
       this.fieldStack.insertBefore(fieldItem, this.timelineScrubber);
     });
@@ -410,13 +409,16 @@ class FormExplainer {
       }
       
       // Update whisper panel
-      const currentField = this.overlayData[stepIndex];
-      if (currentField) {
-        this.whisperPanel.textContent = currentField.tooltip;
-        this.whisperPanel.classList.add('active');
+      if (this.whisperPanel) {
+        const currentField = this.overlayData[stepIndex];
+        if (currentField && currentField.novaThought) {
+          this.whisperPanel.textContent = currentField.novaThought;
+          this.whisperPanel.classList.add('active');
+        } else {
+          this.whisperPanel.classList.remove('active');
+        }
       }
       
-      // Update timeline
       this.updateTimelineProgress(stepIndex);
     } else {
       // Reset UI when no step is active
@@ -496,7 +498,7 @@ class FormExplainer {
    * Advance to the next step in the tour
    */
   advanceTour() {
-    if (!this.isTourActive) return;
+    if (!this.isTourActive || this.isPausedByUser) return;
     this.currentStep++;
     
     if (this.currentStep >= this.sequence.length) {
@@ -534,6 +536,24 @@ class FormExplainer {
         this.whisperPanel.classList.add('active');
       }
     }, 500);
+  }
+  
+  /**
+   * Pauses the tour timer.
+   */
+  pauseTour() {
+    if (!this.isTourActive) return;
+    this.isPausedByUser = true;
+    clearTimeout(this.tourTimer);
+  }
+
+  /**
+   * Resumes the tour timer if it was paused by the user.
+   */
+  resumeTour() {
+    if (!this.isTourActive || !this.isPausedByUser) return;
+    this.isPausedByUser = false;
+    this.advanceTour(); // Simply call advance to resume the timer
   }
   
   /**
@@ -576,7 +596,7 @@ class FormExplainer {
     if (isActive && index >= 0 && index < this.sequence.length) {
       const currentField = this.overlayData[index];
       if (currentField) {
-        this.whisperPanel.textContent = currentField.tooltip;
+        this.whisperPanel.textContent = currentField.novaThought || currentField.tooltip;
         this.whisperPanel.classList.add('active');
       }
     } else if (!isActive && index !== this.currentStep) {
@@ -588,6 +608,10 @@ class FormExplainer {
    * Setup all event listeners for interactive elements
    */
   setupEventListeners() {
+    // Pause and resume tour on container hover
+    this.container.addEventListener('mouseenter', () => this.pauseTour());
+    this.container.addEventListener('mouseleave', () => this.resumeTour());
+
     // Overlay hover/click in the image
     this.overlayContainer.querySelectorAll('.form-field-overlay').forEach(overlay => {
       overlay.addEventListener('mouseenter', () => {
