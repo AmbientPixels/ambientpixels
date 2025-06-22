@@ -2847,16 +2847,13 @@ body[data-theme="light"] .nova-quip {
 }
 
 .project-icon-xbox {
-  width: 100%;
-  height: 100%;
-  max-width: 120px;
-  max-height: 120px;
-  object-fit: contain;
-  filter: brightness(0) invert(1) drop-shadow(0 0 12px rgba(16, 255, 16, 0.9));
+  font-size: 8rem;
+  color: #fff;
+  filter: drop-shadow(0 0 15px rgba(16, 255, 16, 0.8));
   transition: transform 0.5s cubic-bezier(0.2, 0, 0.2, 1), filter 0.3s ease;
   margin: 0 auto;
   display: block;
-  padding: 5px;
+  padding: 0;
   box-sizing: border-box;
 }
 
