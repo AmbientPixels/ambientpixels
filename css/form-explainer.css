@@ -296,6 +296,8 @@
   justify-content: center;
   cursor: pointer;
   z-index: 3;
+  border-radius: 50%; /* Add circular shape */
+  background: transparent; /* Keep background transparent */
 }
 
 /* Playhead - absolute positioning for perfect alignment */
@@ -342,6 +344,7 @@
 .timeline-marker.active {
   background: none;
   box-shadow: 0 0 0 4px var(--form-explainer-accent-glow);
+  border-radius: 50%;
 }
 
 /* Replay button */
