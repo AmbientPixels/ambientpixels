@@ -1,5 +1,16 @@
 /* /css/components.css - Ambient Pixels v2.4 - June 14, 2025 */
 
+/* --- Footer Divider --- */
+.footer-divider {
+  border: none;
+  height: 1.5px;
+  width: 100%;
+  margin: 1.5rem 0 0.5rem 0;
+  background: linear-gradient(90deg, rgba(155,191,255,0.08) 0%, var(--aura-glow,#5ae4ff) 50%, rgba(155,191,255,0.08) 100%);
+  opacity: 0.7;
+  border-radius: 2px;
+}
+
 /* --- Nova Whisper Small --- */
 .nova-quip-small {
   font-size: 0.85em;
