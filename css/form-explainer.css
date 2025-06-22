@@ -49,9 +49,10 @@
 .form-image-container {
   position: relative;
   overflow: hidden;
-  border-radius: 0.5rem;
-  aspect-ratio: 16 / 10;
-  width: 100%; /* Default width for mobile */
+  border-radius: var(--border-radius-lg, 12px);
+  flex: 1 1 55%; /* Let it take up more space */
+  min-width: 0; /* Prevent flexbox overflow */
+  background: rgba(0, 0, 0, 0.2);
 }
 
 @media (min-width: 768px) {
@@ -64,7 +65,7 @@
 .form-image-container img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: top left;
 }
 

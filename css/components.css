@@ -399,6 +399,37 @@ body[data-theme="light"] #nova-intro {
   padding: 1rem;
 }
 
+/* --- Bullet List --- */
+.bullet-list {
+  list-style: none;
+  padding-left: 1.2rem;
+  margin-top: 1rem;
+}
+
+.bullet-list li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+  color: var(--text-secondary, #ccd6f6);
+}
+
+.bullet-list li::before {
+  content: '»';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--aura-glow, #5ae4ff);
+  font-weight: bold;
+  font-size: 1.2em;
+  line-height: 1;
+}
+
+.bullet-list li strong {
+  color: var(--text-primary, #e6f1ff);
+  font-weight: 600;
+}
+
 .git-commit-item {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
