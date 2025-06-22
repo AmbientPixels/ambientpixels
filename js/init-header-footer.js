@@ -18,6 +18,13 @@ fetch('/modules/footer.html')
   .then(html => {
     const footer = document.getElementById('footer-container');
     if (footer) footer.innerHTML = html;
+  })
+  .then(() => {
+    // Dynamically load nova-whispers.js after the footer is injected
+    const script = document.createElement('script');
+    script.src = '/js/nova-whispers.js';
+    script.defer = true;
+    document.body.appendChild(script);
   });
 
 // Mobile Nav
