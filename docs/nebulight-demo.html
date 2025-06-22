@@ -15,8 +15,10 @@
   <link rel="stylesheet" href="/css/hero.css">
   <link rel="stylesheet" href="/css/theme.css">
   <link rel="stylesheet" href="/css/banner.css">
+  <link rel="stylesheet" href="/modules/breadcrumb.css">
   <!-- Nebulight CSS -->
   <link rel="stylesheet" href="/css/nebulight.css">
+  <!-- Using global badge styles from components.css -->
 </head>
 <body data-theme="dark">
 <!--
@@ -46,10 +48,17 @@
 </section>
 
 <main class="grid-container">
+  <!-- Breadcrumb Navigation -->
+  <div class="breadcrumb-container grid-col-12"></div>
+  
   <!-- Introduction Section -->
   <section class="content-section grid-col-12">
-    <h2><i class="fas fa-star"></i> Nebulight Interactive Slideshow</h2>
-    <p class="nova-intro">A modern, responsive, and accessible slideshow component for AmbientPixels projects. Fully configurable via JSON with support for NDA protection, custom overlays, and advanced navigation.</p>
+    <h2>What is Nebulight?</h2>
+    <div class="badge badge-nebulight">Nebulight v1.0.0</div>
+    <p class="nova-intro">
+      <strong>Nebulight</strong> is an interactive slideshow component designed for showcasing high-value visual content with advanced security features. Built for AmbientPixels projects, it combines responsive design with NDA protection capabilities, allowing controlled presentation of sensitive imagery.<br><br>
+      <em>Present portfolios, protect confidential designs, and create immersive visual experiences—Nebulight showcases your content with security and style.</em>
+    </p>
     
     <div class="feature-highlights">
       <div class="feature-card">
@@ -245,6 +254,9 @@ const jsonSlideshow = new Nebulight('#json-slideshow', '/data/nebulight.json');<
   <!-- Nebulight scripts -->
   <script src="/js/nebulight.js"></script>
   <script src="/js/nebulight-methods.js"></script>
+  
+  <!-- Breadcrumb Script -->
+  <script src="/modules/breadcrumb.js" defer></script>
   
   <!-- Initialize Nebulight slideshow -->
   <script>

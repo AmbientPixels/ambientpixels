@@ -24,6 +24,25 @@
   text-decoration: none !important;
 }
 
+/* --- Badge Classes --- */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+.badge-nebulight {
+  background-color: var(--nebulight-accent, #6a11cb);
+}
+
+.badge-luma {
+  background-color: var(--luma-highlight, #007bff);
+}
+
 /* --- Nova Grid 2 Column Layout --- */
 .grid-2col {
   display: grid;

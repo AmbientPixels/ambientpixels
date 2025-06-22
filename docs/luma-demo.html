@@ -15,19 +15,9 @@
   <link rel="stylesheet" href="/css/hero.css">
   <link rel="stylesheet" href="/css/theme.css">
   <link rel="stylesheet" href="/css/banner.css">
+  <link rel="stylesheet" href="/modules/breadcrumb.css">
   <link rel="stylesheet" href="/css/luma.css"> <!-- Luma V1 -->
-  <style>
-    .version-badge {
-      display: inline-block;
-      background-color: var(--luma-highlight, #007bff);
-      color: #fff;
-      padding: 0.25rem 0.6rem;
-      border-radius: 1rem;
-      font-size: 0.8rem;
-      font-weight: 500;
-      margin-bottom: 1rem;
-    }
-  </style>
+  <!-- Using global badge styles from components.css -->
 </head>
 <body data-theme="dark">
 <!--
@@ -48,10 +38,12 @@
   <h1>Luma Guidance Module</h1>
 </section>
 <main class="grid-container">
+  <!-- Breadcrumb Navigation -->
+  <div class="breadcrumb-container grid-col-12"></div>
   <!-- Expanded Introduction -->
   <section class="content-section grid-col-12">
     <h2>What is Luma?</h2>
-    <div class="version-badge">Luma V1.0</div>
+    <div class="badge badge-luma">Luma V1.0</div>
     <p class="nova-intro">
       <strong>Luma</strong> is a mood-aware UI guidance module for ambient, step-based walkthroughs. Powered by Nova’s emotional state engine, it overlays interactive steps, contextual whispers, and glowing cues across your interface. Each step responds to Nova’s current mood, allowing the UI to breathe, glow, and adapt in real time.<br><br>
       <em>Illuminate onboarding, explain complex forms, and create emotionally resonant journeys—Luma guides users with presence and intention.</em>
@@ -194,6 +186,7 @@
 </main>
 <div id="footer-container"></div>
 <script src="/js/init-header-footer.js" defer></script>
+<script src="/modules/breadcrumb.js" defer></script>
 <script src="/js/luma.js" defer></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
