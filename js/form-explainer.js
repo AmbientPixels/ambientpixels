@@ -470,8 +470,13 @@ class FormExplainer {
       return;
     }
     
-    // Calculate progress percentage
-    const progressPercent = ((stepIndex + 1) / this.sequence.length) * 100;
+    // Calculate progress percentage (fix alignment)
+    let progressPercent = 0;
+    if (this.sequence.length === 1) {
+      progressPercent = 100;
+    } else if (stepIndex >= 0 && stepIndex < this.sequence.length) {
+      progressPercent = (stepIndex / (this.sequence.length - 1)) * 100;
+    }
     progress.style.width = `${progressPercent}%`;
     playhead.style.left = `${progressPercent}%`;
   }
@@ -679,6 +684,8 @@ class FormExplainer {
     // Replay button
     if (this.replayButton) {
       this.replayButton.addEventListener('click', () => {
+        this.stopTour();
+        this.updateUIForStep(0);
         this.startTour(false);
       });
     }
