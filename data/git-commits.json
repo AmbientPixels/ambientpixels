@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "6f04f7ad-88a6-4f30-8559-8f5f4186b246",
-      "hash": "ff784f0f348ecaf5a27a2704250aa64771d71837",
-      "message": "Refactor form explainer to use external JSON for overlay mapping and tooltips",
-      "timestamp": "2025-06-21 00:05:37 -0700",
+      "id": "a8e08393-5dbe-476a-891f-c359394135a4",
+      "hash": "8a6ff3fd2c08cfafc6dc244577350181b614f469",
+      "message": "feat(UI): Add breadcrumb navigation across documentation pages",
+      "timestamp": "2025-06-22 02:14:58 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/ff784f0f348ecaf5a27a2704250aa64771d71837"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/8a6ff3fd2c08cfafc6dc244577350181b614f469"
     }
   ],
-  "timestamp": "2025-06-21T13:28:44.024Z",
+  "timestamp": "2025-06-22T13:28:27.159Z",
   "count": 1,
-  "scanId": 1750512524024
+  "scanId": 1750598907159
 }
