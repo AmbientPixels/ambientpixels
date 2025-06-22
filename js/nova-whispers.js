@@ -62,10 +62,15 @@ function rotateWhispers(targetId, context) {
   }, 9000);
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-  // Lore whisper (context from body)
+function initWhispers() {
   const loreContext = document.body.dataset.page || 'default';
   rotateWhispers('lore-whisper', whisperSets[loreContext] ? loreContext : 'default');
-  // Footer whisper (always use footer context)
   rotateWhispers('footer-whisper', 'footer');
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initWhispers);
+} else {
+  initWhispers();
+}
+

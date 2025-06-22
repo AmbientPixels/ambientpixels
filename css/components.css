@@ -1,5 +1,13 @@
 /* /css/components.css - Ambient Pixels v2.4 - June 14, 2025 */
 
+/* --- Nova Whisper Small --- */
+.nova-quip-small {
+  font-size: 0.85em;
+  font-weight: 400;
+  opacity: 0.82;
+  letter-spacing: 0.01em;
+}
+
 /* --- Utility Classes --- */
 .no-underline {
   text-decoration: none !important;
