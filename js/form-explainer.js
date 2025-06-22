@@ -252,6 +252,11 @@ class FormExplainer {
       overlay.style.top = `${item.top * 100}%`;
       overlay.style.width = `${item.width * 100}%`;
       overlay.style.height = `${item.height * 100}%`;
+      // Tooltip for overlay (left panel only)
+      const tooltip = document.createElement('div');
+      tooltip.className = 'field-item-tooltip';
+      tooltip.textContent = item.tooltip || 'No details available.';
+      overlay.appendChild(tooltip);
       this.overlayContainer.appendChild(overlay);
     });
     
@@ -291,15 +296,9 @@ class FormExplainer {
       description.className = 'field-item-description';
       description.textContent = item.description || '';
 
-      // Custom Tooltip
-      const tooltip = document.createElement('div');
-      tooltip.className = 'field-item-tooltip';
-      tooltip.textContent = item.tooltip || 'No details available.';
-
       // Assemble the field item
       fieldItem.appendChild(header);
       fieldItem.appendChild(description);
-      fieldItem.appendChild(tooltip);
 
       // Insert before the timeline scrubber
       this.fieldStack.insertBefore(fieldItem, this.timelineScrubber);

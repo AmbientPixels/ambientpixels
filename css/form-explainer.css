@@ -239,7 +239,8 @@
   border-color: var(--form-explainer-highlight) transparent transparent transparent;
 }
 
-.field-item:hover .field-item-tooltip {
+.form-field-overlay:hover .field-item-tooltip,
+.form-field-overlay:focus .field-item-tooltip {
   opacity: 1;
   transform: translateX(-50%) translateY(-5px);
 }
