@@ -150,7 +150,11 @@ class FormExplainer {
     this.createFieldExplainers();
     this.createTimelineProgress();
     this.setupEventListeners();
-
+    // Add mouse hover to stop tour
+    this.container.addEventListener('mouseenter', () => {
+      this.stopTour();
+    });
+    
     // Add intersection observer to auto-start tour when in viewport
     if (this.config.autoStart) {
       this.setupIntersectionObserver();
@@ -257,6 +261,10 @@ class FormExplainer {
       tooltip.className = 'field-item-tooltip';
       tooltip.textContent = item.tooltip || 'No details available.';
       overlay.appendChild(tooltip);
+      // Stop tour on mouse hover over overlay
+      overlay.addEventListener('mouseenter', () => {
+        this.stopTour();
+      });
       this.overlayContainer.appendChild(overlay);
     });
     
