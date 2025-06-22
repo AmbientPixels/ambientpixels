@@ -314,11 +314,16 @@ class FormExplainer {
   }
   
   /**
-   * Creates timeline progress bar and markers
+   * Creates timeline progress bar and markers with absolute positioning
    */
   createTimelineProgress() {
     // Clear timeline scrubber
     this.timelineScrubber.innerHTML = '';
+    
+    // Create base timeline line
+    const markers = document.createElement('div');
+    markers.className = 'timeline-markers';
+    this.timelineScrubber.appendChild(markers);
     
     // Create progress bar
     const progress = document.createElement('div');
@@ -336,23 +341,38 @@ class FormExplainer {
     playhead.appendChild(playheadIcon);
     this.timelineScrubber.appendChild(playhead);
     this._timelinePlayheadIcon = playheadIcon; // Save for later updates
-
-    // Create markers
-    const markers = document.createElement('div');
-    markers.className = 'timeline-markers';
-    this.timelineScrubber.appendChild(markers);
-
-    // Create markers for each step
+    
+    // Create markers for each step with absolute positioning
+    const totalSteps = this.sequence.length;
     this.sequence.forEach((_, index) => {
       const marker = document.createElement('div');
       marker.className = 'timeline-marker';
       marker.dataset.index = index;
+      
+      // Calculate exact position percentage with padding for first and last markers
+      // Add 5% padding on each side to prevent edge clipping
+      const paddingPercent = 5;
+      const usableWidth = 100 - (paddingPercent * 2);
+      let position;
+      
+      if (totalSteps > 1) {
+        // For multiple steps, distribute evenly within the usable width
+        position = paddingPercent + (index / (totalSteps - 1)) * usableWidth;
+      } else {
+        // For a single step, center it
+        position = 50;
+      }
+      
+      marker.style.left = `${position}%`;
+      
+      // Add icon
       const stepData = this.overlayData[index] || {};
       const iconClass = this.fieldIcons?.[stepData.key] || 'fa-circle-info';
       const markerIcon = document.createElement('i');
       markerIcon.className = `fa-solid ${iconClass} timeline-dot-icon`;
       marker.appendChild(markerIcon);
-      markers.appendChild(marker);
+      
+      this.timelineScrubber.appendChild(marker);
     });
   }
   
@@ -472,6 +492,7 @@ class FormExplainer {
     const playhead = this.timelineScrubber.querySelector('.timeline-playhead');
     const markers = this.timelineScrubber.querySelectorAll('.timeline-marker');
     
+    // Reset all markers
     markers.forEach((marker, index) => {
       marker.classList.toggle('active', index === stepIndex);
     });
@@ -482,16 +503,25 @@ class FormExplainer {
       return;
     }
     
-    // Calculate progress percentage (fix alignment)
-    let progressPercent = 0;
-    if (this.sequence.length === 1) {
-      progressPercent = 100;
-    } else if (stepIndex >= 0 && stepIndex < this.sequence.length) {
-      progressPercent = (stepIndex / (this.sequence.length - 1)) * 100;
+    // Find the active marker and get its position
+    const activeMarker = this.timelineScrubber.querySelector(`.timeline-marker[data-index="${stepIndex}"]`);
+    if (activeMarker) {
+      // Get the exact position from the marker's inline style
+      const markerPosition = activeMarker.style.left;
+      
+      // Set playhead to exact same position as the marker
+      playhead.style.left = markerPosition;
+      
+      // Set progress bar width to the same position
+      progress.style.width = markerPosition;
+    } else {
+      // Fallback to calculated position if marker not found
+      const totalSteps = this.sequence.length - 1;
+      const progressPercent = totalSteps > 0 ? (stepIndex / totalSteps) * 100 : 100;
+      progress.style.width = `${progressPercent}%`;
+      playhead.style.left = `${progressPercent}%`;
     }
-    progress.style.width = `${progressPercent}%`;
-    playhead.style.left = `${progressPercent}%`;
-
+    
     // Update playhead icon to match current step
     if (this._timelinePlayheadIcon && stepIndex >= 0 && stepIndex < this.overlayData.length) {
       const stepData = this.overlayData[stepIndex] || {};
@@ -635,6 +665,8 @@ class FormExplainer {
     }
   }
   
+  // Removed calculateMarkerPositions method - using fixed positions instead
+  
   /**
    * Setup all event listeners for interactive elements
    */
@@ -642,6 +674,8 @@ class FormExplainer {
     // Pause and resume tour on container hover
     this.container.addEventListener('mouseenter', () => this.pauseTour());
     this.container.addEventListener('mouseleave', () => this.resumeTour());
+    
+    // No need for resize handler with fixed positioning
 
     // Overlay hover/click in the image
     this.overlayContainer.querySelectorAll('.form-field-overlay').forEach(overlay => {

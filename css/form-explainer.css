@@ -245,25 +245,37 @@
   transform: translateX(-50%) translateY(-5px);
 }
 
-/* Timeline Controls */
+/* Timeline Controls - Completely revised for perfect alignment */
 .timeline-scrubber {
   position: relative;
-  height: 48px; /* Increased for better vertical centering */
+  height: 60px;
   margin-top: 1.5rem;
   padding: 0;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 95%; /* Reduce width to prevent right side clipping */
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.timeline-progress {
+/* Base timeline line */
+.timeline-markers {
   position: absolute;
   top: 50%;
   left: 0;
   right: 0;
-  height: 4px;
-  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+/* Timeline progress bar */
+.timeline-progress {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 3px;
+  width: 0%;
   background: var(--form-explainer-accent);
   border-radius: 3px;
   transform: translateY(-50%);
@@ -272,21 +284,49 @@
   pointer-events: none;
 }
 
-.timeline-dot-icon {
-  font-size: 1.65rem;
-  color: var(--form-explainer-accent, #64a0ff);
-  background: none;
-  border-radius: 50%;
+/* Fixed position markers - absolute positioning for perfect alignment */
+.timeline-marker {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: none;
-  width: 2.2em;
-  height: 2.2em;
-  line-height: 1;
-  transition: color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  z-index: 3;
 }
 
+/* Playhead - absolute positioning for perfect alignment */
+.timeline-playhead {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 34px;
+  height: 34px;
+  transform: translate(0%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  pointer-events: none;
+  transition: left 0.3s ease-out;
+  box-shadow: 0 0 0 4px var(--form-explainer-highlight-glow);
+  border-radius: 50%;
+}
+
+/* Icon styling for both markers and playhead */
+.timeline-dot-icon {
+  font-size: 1.5rem;
+  color: var(--form-explainer-accent, #64a0ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+/* Active states */
 .timeline-marker.active .timeline-dot-icon,
 .timeline-playhead .timeline-dot-icon {
   color: var(--form-explainer-highlight, #ff64a0);
@@ -294,60 +334,9 @@
 }
 
 /* Remove default dot backgrounds */
-.timeline-marker::before, .timeline-playhead::before {
+.timeline-marker::before, 
+.timeline-playhead::before {
   display: none !important;
-}
-
-.timeline-playhead {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 44px;
-  height: 44px;
-  background: none;
-  border-radius: 50%;
-  box-shadow: 0 0 0 8px var(--form-explainer-highlight-glow);
-  transform: translate(-50%, -50%);
-  z-index: 5;
-  pointer-events: none;
-  transition: left 0.3s, box-shadow 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.timeline-markers {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.12);
-  transform: translateY(-50%);
-  z-index: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  pointer-events: none;
-}
-
-.timeline-marker {
-  pointer-events: auto;
-}
-
-.timeline-marker {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  margin: 0 2px;
-  border-radius: 50%;
-  background: none;
-  cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s;
-  z-index: 4;
 }
 
 .timeline-marker.active {
