@@ -30,22 +30,25 @@
   <header id="nav-header"></header>
 
   <!-- Hero Section -->
-  <section class="hero-card hero-card-xbox">
-    <div class="hero-card-image project-bg-xbox card-image-container">
-      <i class="fas fa-gamepad project-icon-xbox"></i>
+  <section class="hero-card hero-card-video hero-card-xbox">
+  <div class="hero-card-image video-gradient-8 card-image-container hero-particles-container" style="background: linear-gradient(135deg, #5dc21e, #107c10) !important;">
+    <div id="hero-particles" class="hero-particles"></div>
+    <div class="hero-video-icon-container xbox-video-icon-wrapper" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100;">
+      <i class="fas fa-gamepad project-icon-xbox" style="position: relative; z-index: 101;" aria-hidden="true"></i>
     </div>
-    <div class="hero-card-content">
-      <div class="hero-card-badge">Team Showcase</div>
-      <h1>Xbox Support Content Team</h1>
-      <p class="hero-card-description">Meet the specialized team creating world-class support content across the Xbox ecosystem.</p>
-      <div class="project-tags">
-        <span class="tech-badge"><i class="fas fa-pen"></i> Content Creation</span>
-        <span class="tech-badge"><i class="fas fa-globe"></i> 40+ Languages</span>
-        <span class="tech-badge"><i class="fas fa-universal-access"></i> Accessibility</span>
-        <span class="tech-badge"><i class="fas fa-code"></i> Publishing Pipeline</span>
-      </div>
+  </div>
+  <div class="hero-card-content">
+    <div class="hero-card-badge badge-solid-blue">Team Showcase</div>
+    <h1>Xbox Support Content Team</h1>
+    <p class="hero-card-description">Meet the specialized team creating world-class support content across the Xbox ecosystem.</p>
+    <div class="project-tags">
+      <span class="tech-badge"><i class="fas fa-pen"></i> Content Creation</span>
+      <span class="tech-badge"><i class="fas fa-globe"></i> 40+ Languages</span>
+      <span class="tech-badge"><i class="fas fa-universal-access"></i> Accessibility</span>
+      <span class="tech-badge"><i class="fas fa-code"></i> Publishing Pipeline</span>
     </div>
-  </section>
+  </div>
+</section>
 
   <main class="grid-container">
     <!-- Team Overview Section -->
@@ -1005,5 +1008,6 @@
     });
   </script>
   <script src="/js/main.js"></script>
+  <script src="/js/hero-particles.js" defer></script>
 </body>
 </html>

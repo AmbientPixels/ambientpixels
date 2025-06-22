@@ -2098,8 +2098,8 @@ details.details-toggle p {
 .video-gradient-6 { background: linear-gradient(135deg, #8E2DE2, #4A00E0); --glow-color: rgba(142, 45, 226, 0.4); }
 .video-gradient-7 { background: linear-gradient(135deg, #130F40 0%, #422680 50%, #E94EFF 100%); --glow-color: rgba(233, 78, 255, 0.4); }
 .video-gradient-8 { 
-  background: linear-gradient(135deg, #0a3a4a 0%, #0a1a26 100%); 
-  --glow-color: rgba(90, 228, 255, 0.4); 
+  background: linear-gradient(135deg, #5dc21e 0%, #107c10 100%); 
+  --glow-color: rgba(93, 194, 30, 0.4); 
 }
 .video-gradient-9 { background: linear-gradient(135deg, #7b4397, #dc2430); --glow-color: rgba(220, 36, 48, 0.4); }
 .video-gradient-10 { background: linear-gradient(135deg, #1a2980, #26d0ce); --glow-color: rgba(38, 208, 206, 0.4); }
@@ -2133,7 +2133,7 @@ details.details-toggle p {
 .video-gradient-5 { background: linear-gradient(135deg, #11998e, #38ef7d) !important; }
 .video-gradient-6 { background: linear-gradient(135deg, #8E2DE2, #4A00E0) !important; }
 .video-gradient-7 { background: linear-gradient(135deg, #130F40 0%, #422680 50%, #E94EFF 100%) !important; --glow-color: rgba(233, 78, 255, 0.4) !important; }
-.video-gradient-8 { background: linear-gradient(135deg, #0a3a4a, #0a1a26) !important; }
+.video-gradient-8 { background: linear-gradient(135deg, #5dc21e, #107c10) !important; }
 .video-gradient-9 { background: linear-gradient(135deg, #7b4397, #dc2430) !important; }
 .video-gradient-10 { background: linear-gradient(135deg, #1a2980, #26d0ce) !important; }
 .video-gradient-xbox { background: linear-gradient(135deg, #5dc21e, #107c10) !important; }

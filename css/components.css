@@ -2623,7 +2623,7 @@ body[data-theme="light"] .nova-quip {
   align-items: center;
   justify-content: center;
   padding: 2rem 0;
-  background: linear-gradient(135deg, #107C10 0%, #0a4b0a 100%) !important;
+  background: linear-gradient(135deg, #5dc21e, #107c10) !important;
 }
 
 .project-bg-ai {
@@ -2719,7 +2719,7 @@ body[data-theme="light"] .nova-quip {
   max-width: 200px !important;
   max-height: 200px !important;
   object-fit: contain;
-  filter: brightness(0) invert(1) drop-shadow(0 0 15px rgba(16, 255, 16, 0.9));
+  filter: brightness(0) invert(1) drop-shadow(0 0 22px #00aaaa); /* updated by Cascade: aura-cyan effect for Xbox hero icon */
   transition: all 0.3s ease-in-out !important;
 }
 
