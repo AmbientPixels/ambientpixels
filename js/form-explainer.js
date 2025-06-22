@@ -328,18 +328,30 @@ class FormExplainer {
     // Create playhead
     const playhead = document.createElement('div');
     playhead.className = 'timeline-playhead';
+    const playheadIcon = document.createElement('i');
+    // Use the icon for the first step initially
+    const firstStep = this.overlayData[0] || {};
+    const firstIconClass = this.fieldIcons?.[firstStep.key] || 'fa-circle-info';
+    playheadIcon.className = `fa-solid ${firstIconClass} timeline-dot-icon`;
+    playhead.appendChild(playheadIcon);
     this.timelineScrubber.appendChild(playhead);
-    
+    this._timelinePlayheadIcon = playheadIcon; // Save for later updates
+
     // Create markers
     const markers = document.createElement('div');
     markers.className = 'timeline-markers';
     this.timelineScrubber.appendChild(markers);
-    
+
     // Create markers for each step
     this.sequence.forEach((_, index) => {
       const marker = document.createElement('div');
       marker.className = 'timeline-marker';
       marker.dataset.index = index;
+      const stepData = this.overlayData[index] || {};
+      const iconClass = this.fieldIcons?.[stepData.key] || 'fa-circle-info';
+      const markerIcon = document.createElement('i');
+      markerIcon.className = `fa-solid ${iconClass} timeline-dot-icon`;
+      marker.appendChild(markerIcon);
       markers.appendChild(marker);
     });
   }
@@ -479,6 +491,13 @@ class FormExplainer {
     }
     progress.style.width = `${progressPercent}%`;
     playhead.style.left = `${progressPercent}%`;
+
+    // Update playhead icon to match current step
+    if (this._timelinePlayheadIcon && stepIndex >= 0 && stepIndex < this.overlayData.length) {
+      const stepData = this.overlayData[stepIndex] || {};
+      const iconClass = this.fieldIcons?.[stepData.key] || 'fa-circle-info';
+      this._timelinePlayheadIcon.className = `fa-solid ${iconClass} timeline-dot-icon`;
+    }
   }
   
   /**
