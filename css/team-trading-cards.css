@@ -1,0 +1,175 @@
+/* Team Trading Cards CSS */
+/* Path: css/team-trading-cards.css */
+
+.team-trading-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.team-trading-card {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 1.5rem;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  background-color: rgba(20, 20, 30, 0.7);
+}
+
+.team-trading-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.4;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+.team-trading-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+}
+
+.team-trading-card:hover::before {
+  opacity: 0.6;
+}
+
+.team-trading-card .card-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 0 10px var(--glow-color, rgba(90, 228, 255, 0.8)));
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.team-trading-card:hover .card-icon {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 20px var(--glow-color, rgba(90, 228, 255, 1)));
+}
+
+.team-trading-card .card-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 0.5rem 0;
+  background: linear-gradient(to right, #fff, var(--highlight-color, #5ae4ff));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+}
+
+.team-trading-card .card-label {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 0.5rem;
+}
+
+/* Card variants with Nova mood colors */
+.team-trading-card.aura-cyan {
+  --glow-color: rgba(90, 228, 255, 0.8);
+  --highlight-color: #5ae4ff;
+  background: linear-gradient(135deg, rgba(0, 71, 75, 0.8), rgba(0, 115, 119, 0.8));
+  border: 1px solid #00474b;
+}
+
+.team-trading-card.aura-deep-violet {
+  --glow-color: rgba(157, 78, 221, 0.8);
+  --highlight-color: #9d4edd;
+  background: linear-gradient(135deg, rgba(42, 0, 71, 0.8), rgba(75, 0, 130, 0.8));
+  border: 1px solid #2a0047;
+}
+
+.team-trading-card.aura-lime-green {
+  --glow-color: rgba(46, 213, 115, 0.8);
+  --highlight-color: #2ed573;
+  background: linear-gradient(135deg, rgba(26, 60, 41, 0.8), rgba(46, 139, 87, 0.8));
+  border: 1px solid #1a3c29;
+}
+
+.team-trading-card.aura-magenta-fade {
+  --glow-color: rgba(233, 78, 255, 0.8);
+  --highlight-color: #e94eff;
+  background: linear-gradient(135deg, rgba(76, 25, 119, 0.8), rgba(123, 48, 179, 0.8));
+  border: 1px solid #4c1977;
+}
+
+/* Texture backgrounds */
+.team-trading-card.texture-nebula::before {
+  background-image: url('/images/textures/nebula.png');
+}
+
+.team-trading-card.texture-interface::before {
+  background-image: url('/images/textures/interface.png');
+}
+
+.team-trading-card.texture-stars::before {
+  background-image: url('/images/textures/stars.png');
+}
+
+.team-trading-card.texture-waves::before {
+  background-image: url('/images/textures/waves.png');
+}
+
+/* Holographic effect */
+.team-trading-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.03) 40%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.03) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-50%) translateY(-50%);
+  transition: transform 0.5s ease;
+  pointer-events: none;
+}
+
+.team-trading-card:hover::after {
+  transform: translateX(-30%) translateY(-30%) rotate(10deg);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .team-trading-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .team-trading-card .card-value {
+    font-size: 2rem;
+  }
+  
+  .team-trading-card .card-label {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .team-trading-cards {
+    grid-template-columns: 1fr;
+  }
+}
