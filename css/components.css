@@ -3226,7 +3226,7 @@ body[data-theme="light"] .nova-quip {
 }
 
 .team-trading-card.texture-interface::before {
-  background-image: url('/images/textures/interface.png');
+  background-image: url('/images/textures/waves.png');
 }
 
 .team-trading-card.texture-stars::before {
