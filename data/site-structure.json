@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-06-22T13:28:25.048Z",
+  "updated": "2025-06-23T13:36:11.633Z",
   "root": [
     {
       "type": "folder",
@@ -199,6 +199,12 @@
               "type": "folder",
               "name": "characters",
               "path": "images/image-packs/characters",
+              "children": []
+            },
+            {
+              "type": "folder",
+              "name": "characters-02",
+              "path": "images/image-packs/characters-02",
               "children": []
             },
             {
@@ -439,6 +445,11 @@
           "type": "page",
           "name": "contact-modal.html",
           "path": "modules/contact-modal.html"
+        },
+        {
+          "type": "page",
+          "name": "echogrid-avatar.html",
+          "path": "modules/echogrid-avatar.html"
         },
         {
           "type": "page",
@@ -849,6 +860,11 @@
               "path": "projects/websites/xbox-support.html"
             }
           ]
+        },
+        {
+          "type": "page",
+          "name": "xbox-support-team.html",
+          "path": "projects/xbox-support-team.html"
         },
         {
           "type": "page",

@@ -1,12 +1,12 @@
 {
-  "mood": "focused",
-  "aura": "emerald glow",
-  "auraColorHex": "#287d3e",
-  "quote": "vibrations suggest high creative activity...",
-  "emoji": "🎯",
+  "mood": "reflective",
+  "aura": "lime green",
+  "auraColorHex": "#1a3c29",
+  "quote": "watching pixels settle into place...",
+  "emoji": "🪞",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.9,
+  "memoryClutter": 1,
   "awareness": 0.1,
   "isStable": false,
   "internalState": "drift amid mental clutter",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: emerald glow"
+      "Aura Signature: lime green"
     ]
   },
-  "timestamp": "2025-06-22T13:28:27.085Z"
+  "timestamp": "2025-06-23T13:36:12.764Z"
 }
