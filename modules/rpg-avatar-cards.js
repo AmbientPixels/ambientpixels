@@ -44,28 +44,13 @@ const RPG_MODE_ENABLED = true;
     // Front of card
     const front = document.createElement('div');
     front.className = 'rpg-avatar-front';
-    // Avatar image with slot machine effect
+    // Avatar image (static)
     const img = document.createElement('img');
     img.className = 'rpg-avatar-img';
     img.alt = `${card.name} avatar`;
     img.src = `/images/image-packs/characters-03-super-heroes/${card.avatarCategory}/${avatarImg}`;
     front.appendChild(img);
-    // Slot machine effect
-    if (card.slotMachine !== false && images.length > 1) {
-      img.classList.add('slot-animating');
-      let idx = 0, cycles = 0, maxCycles = 10 + Math.floor(Math.random()*6);
-      const slotAnim = setInterval(() => {
-        img.src = `/images/image-packs/characters-03-super-heroes/${card.avatarCategory}/${images[idx % images.length]}`;
-        idx++; cycles++;
-        if (cycles > maxCycles) {
-          clearInterval(slotAnim);
-          img.classList.remove('slot-animating');
-          // Land on random
-          const final = images[Math.floor(Math.random()*images.length)];
-          img.src = `/images/image-packs/characters-03-super-heroes/${card.avatarCategory}/${final}`;
-        }
-      }, 90);
-    }
+
     // Header
     const header = document.createElement('div');
     header.className = 'rpg-avatar-header';

@@ -186,11 +186,7 @@
   background: var(--mood-glow, #00f0ff);
   color: #181b22;
 }
-/* Slot machine effect */
-.rpg-avatar-card .rpg-avatar-img.slot-animating {
-  filter: blur(3px) brightness(0.9);
-  transition: filter 0.25s;
-}
+
 @media (max-width: 600px) {
   .rpg-avatar-grid {
     grid-template-columns: 1fr;

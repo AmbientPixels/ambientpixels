@@ -4,7 +4,7 @@
   },
   {
     "active": true,
-    "slotMachine": true,
+    
     "avatarCategory": "female",
     "name": "Sam",
     "alias": "The Debugger",
@@ -57,7 +57,7 @@
   },
   {
     "active": true,
-    "slotMachine": true,
+    
     "avatarCategory": "male",
     "name": "Matt",
     "alias": "The Architect",
@@ -100,7 +100,7 @@
   },
   {
     "active": true,
-    "slotMachine": true,
+    
     "avatarCategory": "female",
     "name": "Tanya",
     "alias": "The Strategist",
