@@ -1,0 +1,40 @@
+[
+  {
+    "name": "Nova Rivera",
+    "avatar": "/images/image-packs/characters-03-super-heroes/nova-rivera.png",
+    "cardImage": "/images/image-packs/characters-03-super-heroes/nova-rivera.png",
+    "role": "Creative Director",
+    "bio": "Dreamer. Builder. Believer in crystalline flux.",
+    "stats": [
+      { "label": "Creativity", "value": 95, "icon": "fas fa-magic" },
+      { "label": "Empathy", "value": 90, "icon": "fas fa-heart" },
+      { "label": "Tech", "value": 85, "icon": "fas fa-microchip" }
+    ],
+    "superpower": "Crystalline Imagination", 
+    "tags": ["Creative", "Leader"],
+    "links": [
+      { "label": "Website", "url": "https://novarivera.com", "icon": "fas fa-globe" },
+      { "label": "Resume", "url": "/resumes/nova.pdf", "icon": "fas fa-file-alt" },
+      { "label": "LinkedIn", "url": "https://linkedin.com/in/novarivera", "icon": "fab fa-linkedin" }
+    ]
+  },
+  {
+    "name": "Jax Lin",
+    "avatar": "/images/image-packs/characters-03-super-heroes/jax-lin.png",
+    "cardImage": "/images/image-packs/characters-03-super-heroes/jax-lin.png",
+    "role": "Pipeline Engineer",
+    "bio": "Turning chaos into clarity, one build at a time.",
+    "stats": [
+      { "label": "Engineering", "value": 93, "icon": "fas fa-cogs" },
+      { "label": "Automation", "value": 89, "icon": "fas fa-robot" },
+      { "label": "QA", "value": 86, "icon": "fas fa-shield-alt" }
+    ],
+    "superpower": "Automated Harmony", 
+    "tags": ["Engineer", "Automation"],
+    "links": [
+      { "label": "Website", "url": "https://jaxlin.dev", "icon": "fas fa-globe" },
+      { "label": "Resume", "url": "/resumes/jax.pdf", "icon": "fas fa-file-alt" },
+      { "label": "LinkedIn", "url": "https://linkedin.com/in/jaxlin", "icon": "fab fa-linkedin" }
+    ]
+  }
+]

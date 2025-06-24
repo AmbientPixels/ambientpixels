@@ -1,0 +1,38 @@
+<!-- Avatar Trading Card Module (Nova crystalline flux style) -->
+<template id="avatar-trading-card-template">
+  <div class="avatar-card">
+    <div class="avatar-card-inner" tabindex="0" aria-label="Flip card for more info">
+      <!-- Front Side -->
+      <div class="avatar-card-front">
+
+        <div class="avatar-art-box">
+          <div class="avatar-art-tags" aria-hidden="true">
+            <!-- Tags will be injected here -->
+          </div>
+          <img class="avatar-art-img" src="{{avatar}}" alt="{{name}}'s artwork">
+        </div>
+        <h3 class="avatar-name">{{name}}</h3>
+        <p class="avatar-role">{{role}}</p>
+        <div class="avatar-superpower">
+          <!-- Superpower will be injected here -->
+        </div>
+        <div class="avatar-stats">
+          <!-- Inject stat bars here -->
+        </div>
+        <div class="avatar-microstats-bar">
+          <div class="avatar-microstats">
+            <!-- Microstats/icons will be injected here -->
+          </div>
+        </div>
+      </div>
+      <!-- Back Side -->
+      <div class="avatar-card-back">
+        <div class="avatar-bio">{{bio}}</div>
+        <div class="avatar-links">
+          <!-- Inject links here -->
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<!-- End Avatar Trading Card Module -->
