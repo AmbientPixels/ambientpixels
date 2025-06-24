@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="card-content">
               <h3>
                 ${renderStatusLED(project.status)}
-                ${project.title} <span class="filter-pill size-${(project.size || '').toLowerCase()}">${project.size || ''}</span> // colored by size
+                ${project.title} <span class="filter-pill size-${(project.size || '').toLowerCase()}">${project.size || ''}</span>
               </h3>
               ${renderProgress(project.progress)}
               <p class="nova-mood">${project.status} • Updated: ${project.lastUpdated}</p>
