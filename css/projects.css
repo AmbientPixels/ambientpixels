@@ -305,6 +305,60 @@
 .code-dot.yellow { background: #ffbd2e; }
 .code-dot.green { background: #27c93f; }
 
+/* updated by Cascade: Achievement Section Styles */
+.achievement-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+.achievement-card {
+  background: rgba(30, 40, 60, 0.8);
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 16px 0 rgba(90,228,255,0.08);
+  border: 1.5px solid var(--aura-glow, #5ae4ff);
+  padding: 2rem 1.2rem 1.5rem 1.2rem;
+  text-align: center;
+  transition: box-shadow 0.3s, transform 0.3s, border-color 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.achievement-card:hover, .achievement-card:focus-within {
+  box-shadow: 0 4px 32px 0 rgba(90,228,255,0.18);
+  border-color: var(--mood-blue, #9bf0ff);
+  transform: translateY(-4px) scale(1.03);
+}
+.achievement-icon {
+  font-size: 2.5rem;
+  color: var(--aura-glow, #5ae4ff);
+  margin-bottom: 1rem;
+  transition: filter 0.3s, transform 0.3s;
+  filter: drop-shadow(0 0 8px var(--aura-glow, #5ae4ff));
+}
+.achievement-card:hover .achievement-icon,
+.achievement-card:focus-within .achievement-icon {
+  animation: achievement-pulse 0.8s;
+  filter: drop-shadow(0 0 16px var(--mood-blue, #9bf0ff));
+  transform: scale(1.15) rotate(-6deg);
+}
+@keyframes achievement-pulse {
+  0%   { transform: scale(1) rotate(0); }
+  50%  { transform: scale(1.2) rotate(-8deg); }
+  100% { transform: scale(1.15) rotate(-6deg); }
+}
+.achievement-title {
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin-bottom: 0.4rem;
+  color: var(--mood-blue, #9bf0ff);
+  letter-spacing: 0.01em;
+}
+.achievement-desc {
+  font-size: 0.97rem;
+  color: #c3d1e3;
+  opacity: 0.93;
+}
+
 .code-snippet pre {
   margin: 0;
   padding: 1.25rem 1.5rem;
@@ -760,10 +814,6 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
     var(--accent-color, #4bcaff) 45%, 
     var(--accent-color, #4bcaff) 55%, 
     transparent 100%);
