@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-06-23T13:36:11.633Z",
+  "updated": "2025-06-24T13:35:05.295Z",
   "root": [
     {
       "type": "folder",
@@ -205,6 +205,12 @@
               "type": "folder",
               "name": "characters-02",
               "path": "images/image-packs/characters-02",
+              "children": []
+            },
+            {
+              "type": "folder",
+              "name": "characters-03-super-heroes",
+              "path": "images/image-packs/characters-03-super-heroes",
               "children": []
             },
             {
@@ -425,6 +431,11 @@
           "type": "page",
           "name": "ai-pipeline.html",
           "path": "modules/ai-pipeline.html"
+        },
+        {
+          "type": "page",
+          "name": "avatar-trading-card.html",
+          "path": "modules/avatar-trading-card.html"
         },
         {
           "type": "page",
