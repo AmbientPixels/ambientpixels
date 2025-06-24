@@ -45,8 +45,7 @@
       "resume": "/resumes/sam.pdf",
       "twitter": "https://twitter.com/sam"
     },
-    "imageOverride": "michelle.png",
-    "imageOptions": ["jen.png", "michelle.png"],
+    "image": "/images/image-packs/characters-03-super-heroes/female/michelle.png",
     "order": 1,
     "animationStyle": "flip",
     "theme": "legendary",
@@ -96,6 +95,7 @@
       "github": "https://github.com/matt",
       "resume": "/resumes/matt.pdf"
     },
+    "image": "/images/image-packs/characters-03-super-heroes/male/matt.png",
     "order": 2
   },
   {
@@ -140,6 +140,7 @@
       "github": "https://github.com/tanya",
       "resume": "/resumes/tanya.pdf"
     },
+    "image": "/images/image-packs/characters-03-super-heroes/female/tanya.png",
     "order": 3
   }
 ]

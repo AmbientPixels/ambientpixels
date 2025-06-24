@@ -17,26 +17,10 @@ const RPG_MODE_ENABLED = true;
   }
   grid.classList.add(`rpg-grid-cols-${layout}`);
 
-  // Utility: Get all images for a category
-  function getImageList(category) {
-    // For demo: hardcoded, in production fetch from server or manifest
-    const imageMap = {
-      female: [
-        'jen.png', 'michelle.png', 'tanya.png', 'taryn.png'
-      ],
-      male: [
-        'matt.png', 'tod.png'
-      ]
-    };
-    return imageMap[category] || [];
-  }
-
   // Render each card
   // If layout property exists as first element, skip it for cards
   const cards = (Array.isArray(data) && typeof data[0] === 'object' && 'layout' in data[0]) ? data.slice(1) : data;
   cards.filter(card => card.active).sort((a, b) => (a.order||0)-(b.order||0)).forEach(card => {
-    const images = card.imageOptions || getImageList(card.avatarCategory);
-    const avatarImg = card.imageOverride || images[0] || '';
     // Card container
     const cardDiv = document.createElement('div');
     cardDiv.className = 'rpg-avatar-card';
@@ -44,11 +28,11 @@ const RPG_MODE_ENABLED = true;
     // Front of card
     const front = document.createElement('div');
     front.className = 'rpg-avatar-front';
-    // Avatar image (static)
+    // Avatar image (from JSON)
     const img = document.createElement('img');
     img.className = 'rpg-avatar-img';
     img.alt = `${card.name} avatar`;
-    img.src = `/images/image-packs/characters-03-super-heroes/${card.avatarCategory}/${avatarImg}`;
+    img.src = card.image || '';
     front.appendChild(img);
 
     // Header
