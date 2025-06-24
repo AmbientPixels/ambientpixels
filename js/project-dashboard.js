@@ -1,5 +1,65 @@
 // File: /js/project-dashboard.js (Fixed Version)
 
+// Tag to badge class mapping (expand as needed, only use existing classes)
+const TAG_BADGE_MAP = {
+  'AI': 'badge-solid-blue',
+  'ai': 'badge-solid-blue',
+  'tools': 'badge-solid-green',
+  'tool': 'badge-solid-green',
+  'dashboard': 'badge-solid-orange',
+  'system': 'badge-solid-blue',
+  'memory': 'badge-solid-purple',
+  'video': 'badge-solid-orange',
+  'audio': 'badge-solid-pink',
+  'experimental': 'badge-solid-pink',
+  'fun': 'badge-solid-green',
+  'persona': 'badge-solid-purple',
+  'layout': 'badge-solid-slate',
+  'css': 'badge-solid-slate',
+  'theme': 'badge-solid-slate',
+  'json': 'badge-solid-green',
+  'xml': 'badge-solid-green',
+  'render': 'badge-solid-gold',
+  'UI': 'badge-solid-gold',
+  'core': 'badge-solid-blue',
+  'creation': 'badge-solid-gold',
+  'evolution': 'badge-solid-gold',
+  'ambient': 'badge-solid-blue',
+  'architecture': 'badge-solid-purple',
+  'mood': 'badge-solid-blue',
+  'awareness': 'badge-solid-blue',
+  'emotion': 'badge-solid-pink',
+  'telemetry': 'badge-solid-orange',
+  'background-theming': 'badge-solid-slate',
+  'dark-palette': 'badge-solid-slate',
+  'table-ui': 'badge-solid-slate',
+  'github actions': 'badge-solid-green',
+  'logs': 'badge-solid-orange',
+  'boot-seed': 'badge-solid-orange',
+  'autonomous-updates': 'badge-solid-orange',
+  'embargo': 'badge-solid-red',
+  'voiceover': 'badge-solid-pink',
+  'aesthetic': 'badge-solid-pink',
+  'concept': 'badge-solid-gold',
+  'future': 'badge-solid-gold',
+  'sfx': 'badge-solid-orange',
+  'image': 'badge-solid-pink',
+  'cartoon': 'badge-solid-pink',
+  'sentience': 'badge-solid-purple',
+  'senses': 'badge-solid-purple',
+  'expansion': 'badge-solid-purple',
+  'dream-engine': 'badge-solid-purple',
+  'design': 'badge-solid-gold',
+  'docs': 'badge-solid-slate',
+  // fallback
+  'default': 'badge-solid-blue'
+};
+
+function mapTagToBadge(tag) {
+  const cls = TAG_BADGE_MAP[tag.trim().toLowerCase()] || TAG_BADGE_MAP['default'];
+  return `<span class="tool-tag ${cls}">${tag}</span>`;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const codeEl = document.getElementById("code-footprint");
   if (codeEl) {
@@ -47,12 +107,12 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="card-content">
               <h3>
                 ${renderStatusLED(project.status)}
-                ${project.title}
+                ${project.title} <span class="filter-pill size-${(project.size || '').toLowerCase()}">${project.size || ''}</span> // colored by size
               </h3>
               ${renderProgress(project.progress)}
               <p class="nova-mood">${project.status} • Updated: ${project.lastUpdated}</p>
               <div class="nova-badge-group">
-                ${(project.tags || []).map(tag => `<span class="nova-badge">${tag}</span>`).join('')}
+                ${(project.tags || []).map(tag => mapTagToBadge(tag)).join('')}
               </div>
               <p class="nova-quip">${insight}</p>
               <a href="${project.html}" class="btn-link">View Log →</a>

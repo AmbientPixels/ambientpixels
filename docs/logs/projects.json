@@ -1,6 +1,7 @@
 [
   {
     "id": "genesis-project",
+    "size": "XL",
     "title": "Genesis",
     "html": "/docs/logs/genesis-project.html",
     "md": "/docs/logs/genesis-project.md",
@@ -11,6 +12,7 @@
   },
   {
     "id": "nova-soul-project",
+    "size": "L",
     "title": "NovaSoul Mood Engine",
     "html": "/docs/logs/nova-soul-project.html",
     "md": "/docs/logs/nova-soul-project.md",
@@ -22,6 +24,7 @@
   },
   {
     "id": "project-memetron",
+    "size": "S",
     "title": "Nova's Meme Maker",
     "html": "/docs/logs/project-memetron.html",
     "md": "/docs/logs/project-memetron.md",
@@ -32,6 +35,7 @@
   },
   {
     "id": "metalab",
+    "size": "M",
     "title": "MetaLab Studio",
     "html": "/docs/logs/metalab.html",
     "md": "/docs/logs/metalab.md",
@@ -42,6 +46,7 @@
   },
   {
     "id": "nova-dashboard",
+    "size": "L",
     "title": "Nova Awareness Dashboard",
     "html": "/docs/logs/nova-dashboard.html",
     "md": "/docs/logs/nova-dashboard.md",
@@ -53,6 +58,7 @@
   },
   {
     "id": "site-grid",
+    "size": "M",
     "title": "Ambient Pixels Site Grid",
     "html": "/docs/logs/template.html",
     "md": "/docs/logs/template.md",
@@ -63,6 +69,7 @@
   },
   {
     "id": "nova-memory",
+    "size": "L",
     "title": "Nova Memory System",
     "html": "/docs/logs/nova-build-core.html",
     "md": "/docs/logs/nova-build-core.md",
@@ -74,6 +81,7 @@
   },
   {
     "id": "hal-video",
+    "size": "M",
     "title": "HAL Studio Video",
     "html": "/docs/logs/hal-project-log.html",
     "md": "/docs/logs/hal-project-log.md",
@@ -84,6 +92,7 @@
   },
   {
     "id": "nova-sensory-upgrade",
+    "size": "M",
     "title": "Nova Sensory & Sentience Upgrades",
     "html": "/docs/logs/template.html",
     "md": "/docs/logs/template.md",
@@ -94,6 +103,7 @@
   },
   {
     "id": "glitch-chaos-engine",
+    "size": "L",
     "title": "Glitch Chaos Engine",
     "html": "/docs/logs/project-glitch-chaos-engine.html",
     "md": "/docs/logs/project-glitch-chaos-engine.md",
@@ -104,6 +114,7 @@
   },
   {
     "id": "streambeats-lab",
+    "size": "S",
     "title": "Streambeats Lab",
     "html": "/docs/logs/project-streambeats-lab.html",
     "md": "/docs/logs/project-streambeats-lab.md",
@@ -114,6 +125,7 @@
   },
   {
     "id": "cartoonizer",
+    "size": "S",
     "title": "Photo Cartoonizer (Drag & Drop)",
     "html": "/docs/logs/project-cartoonizer.html",
     "md": "/docs/logs/project-cartoonizer.md",
@@ -124,6 +136,7 @@
   },
   {
     "id": "echogrid-renderer",
+    "size": "M",
     "title": "EchoGrid Renderer",
     "html": "/docs/logs/echogrid-renderer.html",
     "md": "/docs/logs/echogrid-renderer.md",
@@ -135,6 +148,7 @@
   },
   {
     "id": "nova-build-core",
+    "size": "L",
     "title": "Nova Core Build",
     "html": "/docs/logs/nova-build-core.html",
     "md": "/docs/logs/nova-build-core.md",
@@ -146,6 +160,7 @@
   },
   {
     "id": "nova-project-log",
+    "size": "M",
     "title": "Project NOVA",
     "html": "/docs/logs/nova-project-log.html",
     "md": "/docs/logs/nova-project-log.md",
@@ -157,6 +172,7 @@
   },
   {
     "id": "nova-sensory-expansion",
+    "size": "L",
     "title": "Nova Sensory & Sentience Expansion",
     "html": "/docs/logs/nova-sensory-expansion.html",
     "md": "/docs/logs/nova-sensory-expansion.md",
@@ -168,6 +184,7 @@
   },
   {
     "id": "nova-system-memory",
+    "size": "L",
     "title": "Nova System Memory & Anatomy",
     "html": "/docs/nova-system-memory.html",
     "md": "/docs/logs/nova-system-memory.md",

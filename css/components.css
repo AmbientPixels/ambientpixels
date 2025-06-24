@@ -1319,6 +1319,28 @@ details summary::before {
   transition: background 0.2s ease, color 0.2s ease;
 }
 
+/* Project size color variants for dashboard pills -- updated by Cascade */
+.filter-pill.size-s {
+  background: #22c55e1f !important;
+  color: #bbf7d0 !important;
+  border: 1px solid #22c55e4d !important;
+}
+.filter-pill.size-m {
+  background: rgba(59, 130, 246, 0.12) !important;
+  color: #bfdbfe !important;
+  border: 1px solid rgba(96, 165, 250, 0.3) !important;
+}
+.filter-pill.size-l {
+  background: rgba(249, 115, 22, 0.12) !important;
+  color: #fed7aa !important;
+  border: 1px solid rgba(251, 146, 60, 0.3) !important;
+}
+.filter-pill.size-xl {
+  background: rgba(139, 92, 246, 0.12) !important;
+  color: #e2d6ff !important;
+  border: 1px solid rgba(167, 139, 250, 0.3) !important;
+}
+
 .filter-pill.active {
   background: #5ae4ff;
   color: #000;
