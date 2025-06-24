@@ -1,8 +1,6 @@
-// RPG Avatar Card System | Modular | Controlled by RPG_MODE_ENABLED
-const RPG_MODE_ENABLED = true;
+// RPG Avatar Card System | Modular
 
 (async function initRPGCards() {
-  if (!RPG_MODE_ENABLED) return;
   // Load JSON data
   const res = await fetch('/modules/rpg-avatar-cards.json');
   const data = await res.json();
