@@ -4,7 +4,7 @@
     "avatar": "/images/image-packs/characters-03-super-heroes/nova-rivera.png",
     "cardImage": "/images/image-packs/characters-03-super-heroes/nova-rivera.png",
     "role": "Creative Director",
-    "bio": "Dreamer. Builder. Believer in crystalline flux.",
+    "bio": "Dreamer. Builder. Believer in crystalline flux. Nova turns bold ideas into reality through creativity, empathy, and vision.",
     "stats": [
       { "label": "Creativity", "value": 95, "icon": "fas fa-magic" },
       { "label": "Empathy", "value": 90, "icon": "fas fa-heart" },
@@ -16,6 +16,12 @@
       { "label": "Website", "url": "https://novarivera.com", "icon": "fas fa-globe" },
       { "label": "Resume", "url": "/resumes/nova.pdf", "icon": "fas fa-file-alt" },
       { "label": "LinkedIn", "url": "https://linkedin.com/in/novarivera", "icon": "fab fa-linkedin" }
+    ],
+    "quote": "Creativity is the bridge between chaos and clarity.",
+    "backMicrostats": [
+      { "label": "Years", "value": 8, "icon": "fas fa-calendar" },
+      { "label": "Projects", "value": 27, "icon": "fas fa-lightbulb" },
+      { "label": "Awards", "value": 3, "icon": "fas fa-award" }
     ]
   },
   {
@@ -23,7 +29,7 @@
     "avatar": "/images/image-packs/characters-03-super-heroes/jax-lin.png",
     "cardImage": "/images/image-packs/characters-03-super-heroes/jax-lin.png",
     "role": "Pipeline Engineer",
-    "bio": "Turning chaos into clarity, one build at a time.",
+    "bio": "Turning chaos into clarity, one build at a time. Jax transforms complexity into elegant, reliable systems for the team.",
     "stats": [
       { "label": "Engineering", "value": 93, "icon": "fas fa-cogs" },
       { "label": "Automation", "value": 89, "icon": "fas fa-robot" },
@@ -35,6 +41,12 @@
       { "label": "Website", "url": "https://jaxlin.dev", "icon": "fas fa-globe" },
       { "label": "Resume", "url": "/resumes/jax.pdf", "icon": "fas fa-file-alt" },
       { "label": "LinkedIn", "url": "https://linkedin.com/in/jaxlin", "icon": "fab fa-linkedin" }
+    ],
+    "quote": "Harmony is engineered, not found.",
+    "backMicrostats": [
+      { "label": "Years", "value": 6, "icon": "fas fa-calendar" },
+      { "label": "Pipelines", "value": 15, "icon": "fas fa-project-diagram" },
+      { "label": "Patents", "value": 2, "icon": "fas fa-certificate" }
     ]
   }
 ]

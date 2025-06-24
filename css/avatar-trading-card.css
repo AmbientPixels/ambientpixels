@@ -34,31 +34,59 @@
   justify-content: flex-start;
   border: 1.5px solid var(--mood-glow, #3b82f6);
 }
+/* updated by Cascade 2025-06-23: ensure link icons never clipped and always inside footer */
 .avatar-microstats-bar {
-  width: 100%;
-  min-height: 2.2em;
-  margin: 0 auto 0.2rem auto;
-  border-radius: 0 0 1.1em 1.1em;
-  background: linear-gradient(100deg, rgba(255,255,255,0.10) 60%, rgba(165,180,252,0.15) 100%);
-  border-top: 1.5px solid var(--mood-glow, #a5b4fc);
-  box-shadow: 0 -2px 8px #a5b4fc22;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: absolute;
   left: 0;
   bottom: 0;
-  z-index: 2;
-  padding: 0.18em 0.5em 0.28em 0.5em;
-}
-.avatar-microstats {
+  width: 100%;
+  min-height: 4.4em;
+  border-radius: 0 0 1.1em 1.1em;
+  background: linear-gradient(100deg, rgba(165,180,252,0.12) 60%, rgba(244,114,182,0.09) 100%);
+  border-top: 2px solid var(--mood-glow, #a5b4fc);
+  box-shadow: 0 -2px 12px #a5b4fc22;
   display: flex;
-  gap: 0.5em;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  min-height: 2em;
+  flex-direction: row;
+  padding: 0.7em 1.6em 1.1em 1.6em;
+  z-index: 2;
+  overflow: hidden;
 }
+/* updated by Cascade 2025-06-23: user-aligned .avatar-links for perfect icon centering */
+/* updated by Cascade 2025-06-23: deduped .avatar-links, .avatar-link for Windsurf compliance */
+/* updated by Cascade 2025-06-23: FINAL deduplication and lint fix for avatar-links and avatar-link */
+/* removed duplicate .avatar-links and .avatar-link blocks by Cascade 2025-06-23 */
+.avatar-microstats {
+  display: flex;
+  flex: 1 1 100%;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 2.6em;
+  width: 100%;
+  min-height: 2.6em;
+}
+.avatar-microstat {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  font-size: 1.18em;
+  padding: 0.38em 1.25em;
+  border-radius: 1.2em;
+  background: rgba(165,180,252,0.13);
+  box-shadow: 0 1px 6px #a5b4fc17;
+  color: var(--mood-glow, #a5b4fc);
+  transition: background 0.18s;
+}
+.avatar-microstat i {
+  font-size: 1.32em;
+  margin-right: 0.22em;
+}
+.avatar-microstat span {
+  font-size: 1em;
+}
+
 
 .avatar-card-front {
   z-index: 2;
@@ -86,11 +114,18 @@
   justify-content: center;
   position: relative;
 }
+/* updated by Cascade 2025-06-23: zoom image on hover/focus */
 .avatar-art-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 0.38s cubic-bezier(.4,2,.6,1);
+}
+.avatar-art-box:hover .avatar-art-img,
+.avatar-art-box:focus-within .avatar-art-img {
+  transform: scale(1.13);
+  z-index: 2;
 }
 
 
@@ -250,27 +285,102 @@
   background: linear-gradient(90deg, var(--mood-glow, #38bdf8), var(--aura-glow, #a5b4fc));
   transition: width 1.2s cubic-bezier(.5,1.5,.5,1);
 }
-.avatar-card-back .avatar-bio {
-  font-size: 1.05rem;
-  color: var(--aura-text, #e0e7ef);
-  margin-bottom: 1.5rem;
-  text-align: center;
+/* updated by Cascade 2025-06-23: quote and mini-stats for card back */
+/* updated by Cascade 2025-06-23: anchor footer to bottom */
+.avatar-card-back {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100%;
+  padding: 2rem 1.5rem 2.5em 1.5rem; /* extra bottom padding for footer */
+  position: relative;
 }
+/* updated by Cascade 2025-06-23: bio more prominent and centered */
+.avatar-card-back .avatar-bio {
+  font-size: 1.22rem;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--aura-text, #e0e7ef);
+  margin-top: 0.5em;
+  margin-bottom: 1.7em;
+  text-align: center;
+  letter-spacing: 0.01em;
+  padding: 0 0.5em;
+  text-shadow: 0 2px 8px #111a, 0 1px 2px #0005;
+}
+/* updated by Cascade 2025-06-23: deduped .avatar-links, .avatar-link for Windsurf compliance */
+/* updated by Cascade 2025-06-23: single deduped .avatar-links and .avatar-link block, lint clean */
+/* updated by Cascade 2025-06-23: ensure perfect horizontal alignment of footer icons */
 .avatar-links {
   display: flex;
-  gap: 1.1rem;
+  flex-direction: row;
+  align-items: center;
   justify-content: center;
-  margin-top: 1.2rem;
+  gap: 1.1rem;
+  flex-wrap: nowrap;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  height: 100%;
 }
+
 .avatar-link {
-  color: var(--mood-glow, #60a5fa);
-  font-size: 1.45rem;
-  transition: color 0.18s;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.65em;
+  color: var(--mood-glow, #a5b4fc);
+  background: none;
+  border: none;
+  padding: 0.17em 0.4em;
+  border-radius: 0.7em;
+  transition: background 0.18s, color 0.18s;
   text-decoration: none;
+  box-sizing: border-box;
+}
+.avatar-link i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1em;
+  height: 1em;
+  line-height: 1;
+  vertical-align: middle;
 }
 .avatar-link:hover,
 .avatar-link:focus {
-  color: var(--aura-glow, #f472b6);
+  background: rgba(165,180,252,0.13);
+  color: var(--aura-accent, #f472b6);
+  outline: none;
+}
+
+.avatar-quote {
+  font-size: 1.01rem;
+  color: var(--mood-glow, #a5b4fc);
+  font-style: italic;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  opacity: 0.88;
+  padding: 0 0.5em;
+}
+/* updated by Cascade 2025-06-23: larger footer bar */
+.avatar-back-microstats {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.2em;
+  padding: 0.95em 1.4em 1.15em 1.4em; /* much more breathing room */
+  min-height: 4.2em;
+  border-radius: 0 0 1.1em 1.1em;
+  background: linear-gradient(100deg, rgba(255,255,255,0.07) 60%, rgba(165,180,252,0.10) 100%);
+  border-top: 1.5px solid var(--mood-glow, #a5b4fc);
+  box-shadow: 0 -2px 8px #a5b4fc11;
 }
 
 @media (max-width: 600px) {

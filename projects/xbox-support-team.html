@@ -302,7 +302,7 @@ In a world moving at the speed of play, we stood side by side—trusted, resilie
 <!-- updated by Cascade: Lessons Learned Section -->
 <section class="content-section grid-col-12" id="lessons-learned">
   <h2 class="section-title"><i class="fas fa-lightbulb"></i> What We Unlocked</h2>
-  <ul class="feature-bullets">
+  <ul class="check-list">
     <li>Empathy at every scale—no player left behind</li>
     <li>Turned complexity into clarity, chaos into calm</li>
     <li>Made learning and onboarding a shared adventure</li>
@@ -482,6 +482,55 @@ In a world moving at the speed of play, we stood side by side—trusted, resilie
 </div>
 </div>
 </section>
+
+<!-- Avatar Trading Card Template Include - inserted by Cascade 2025-06-23 -->
+<div style="display:none;">
+  <!-- Trading card template inlined for JS access -->
+  <template id="avatar-trading-card-template">
+    <div class="avatar-card">
+      <div class="avatar-card-inner" tabindex="0" aria-label="Flip card for more info">
+        <!-- Front Side -->
+        <div class="avatar-card-front">
+          <div class="avatar-art-box">
+            <div class="avatar-art-tags" aria-hidden="true">
+              <!-- Tags will be injected here -->
+            </div>
+            <img class="avatar-art-img" src="{{avatar}}" alt="{{name}}'s artwork">
+          </div>
+          <h3 class="avatar-name">{{name}}</h3>
+          <p class="avatar-role">{{role}}</p>
+          <div class="avatar-superpower">
+            <!-- Superpower will be injected here -->
+          </div>
+          <div class="avatar-stats">
+            <!-- Inject stat bars here -->
+          </div>
+          <!-- Linked icons moved to front by Cascade 2025-06-23 -->
+          <div class="avatar-links">
+            <!-- Inject links here -->
+          </div>
+          <div class="avatar-microstats-bar">
+            <div class="avatar-microstats">
+              <!-- Microstats/icons will be injected here -->
+            </div>
+          </div>
+        </div>
+        <!-- Back Side -->
+        <div class="avatar-card-back">
+          <!-- Bio restored to back by Cascade 2025-06-23 -->
+          <div class="avatar-bio">{{bio}}</div>
+          <!-- Quote section added by Cascade 2025-06-23 -->
+          <div class="avatar-quote">“{{quote}}”</div>
+          <!-- Mini stats/icons bar added by Cascade 2025-06-23 -->
+          <div class="avatar-back-microstats">
+            <!-- Mini stats/icons will be injected here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+</div>
+
      <!-- Key Features Section -->
 <section class="content-section grid-col-12" id="key-features">
   <h2 class="section-title"><i class="fas fa-star"></i> Key Features</h2>
@@ -580,46 +629,53 @@ In a world moving at the speed of play, we stood side by side—trusted, resilie
       </div>
     </div>
 
-    <!-- Legendary Tools We Built -->
-    <h3 class="section-subtitle">Legendary Tools We Built</h3>
-    <ul class="tech-list">
-      <li><i class="fas fa-star"></i> <strong>Grand Central:</strong> Custom BI analytics pipeline built from the ground up</li>
-      <li><i class="fas fa-star"></i> <strong>Copilot Playground:</strong> Internal LLM testbed with prompt chaining and templates</li>
-      <li><i class="fas fa-star"></i> <strong>Azure DevOps Dashboards:</strong> Custom task and bug tracking visualization</li>
-      <li><i class="fas fa-star"></i> <strong>Xbox Single-Source Publishing:</strong> One-click global deployment system</li>
-    </ul>
-    <div class="feature-card-footer">
-      <a href="/projects/websites/grand-central-power-bi.html" class="btn btn-sm">Grand Central Project</a>
-      <a href="/projects/copilotplayground.html" class="btn btn-sm">Copilot Playground</a>
-    </div>
 
-    <!-- Tech Details Grids -->
+
+    <!-- Legendary Tools Section -->
+    <h2 class="section-title"><i class="fas fa-star"></i> Legendary Tools We Built</h2>
     <div class="tech-details-grid">
       <div class="tech-category">
-        <h3><i class="fas fa-robot"></i> Content Automation</h3>
-        <ul class="tech-list">
-          <li><i class="fas fa-sync"></i> Automated Content Scheduling & Deployment</li>
-          <li><i class="fas fa-language"></i> Real-time Language Detection & Auto-Translation</li>
-          <li><i class="fas fa-bolt"></i> Smart Tagging & Metadata Extraction</li>
-        </ul>
-      </div>
+  <h3><i class="fas fa-star"></i> Grand Central</h3>
+  <ul class="tech-list">
+    <li><i class="fas fa-database"></i> Custom BI analytics pipeline built from the ground up</li>
+    <li><i class="fas fa-chart-pie"></i> Real-time global content analytics</li>
+    <li><i class="fas fa-bolt"></i> Automated insights & anomaly detection</li>
+    <li><i class="fas fa-link"></i> Power BI, Teams, and SharePoint integration</li>
+  </ul>
+  <div class="feature-card-footer">
+    <a href="/projects/websites/grand-central-power-bi.html" class="btn btn-sm">Grand Central Project</a>
+  </div>
+</div>
       <div class="tech-category">
-        <h3><i class="fas fa-layer-group"></i> Design Systems</h3>
-        <ul class="tech-list">
-          <li><i class="fas fa-palette"></i> Modular UI Kit for Rapid Prototyping</li>
-          <li><i class="fas fa-mobile-alt"></i> Responsive Design Frameworks</li>
-          <li><i class="fas fa-eye"></i> Accessibility-First Component Library</li>
-        </ul>
-      </div>
+  <h3><i class="fas fa-star"></i> Copilot Playground</h3>
+  <ul class="tech-list">
+    <li><i class="fas fa-robot"></i> AI-powered gaming support platform</li>
+    <li><i class="fas fa-terminal"></i> Advanced prompt engineering tools</li>
+    <li><i class="fas fa-comments"></i> Natural language Q&A and chat</li>
+    <li><i class="fas fa-wrench"></i> Customizable Copilot integrations</li>
+  </ul>
+  <div class="feature-card-footer">
+    <a href="/projects/copilotplayground.html" class="btn btn-sm">Copilot Playground</a>
+  </div>
+</div>
       <div class="tech-category">
-        <h3><i class="fas fa-chart-bar"></i> Analytics & Insights</h3>
-        <ul class="tech-list">
-          <li><i class="fas fa-chart-line"></i> Real-Time Usage Dashboards</li>
-          <li><i class="fas fa-search"></i> Deep Content Performance Analysis</li>
-          <li><i class="fas fa-bug"></i> Automated Error Tracking & Reporting</li>
-          <li><i class="fas fa-lightbulb"></i> Predictive Insights Engine</li>
-        </ul>
-      </div>
+  <h3><i class="fas fa-star"></i> Azure DevOps Dashboards</h3>
+  <ul class="tech-list">
+    <li><i class="fas fa-tasks"></i> Custom task and bug tracking visualization</li>
+    <li><i class="fas fa-chart-bar"></i> Real-time sprint & backlog metrics</li>
+    <li><i class="fas fa-sync"></i> Automated status updates & reporting</li>
+    <li><i class="fas fa-users"></i> Team collaboration dashboards</li>
+  </ul>
+</div>
+      <div class="tech-category">
+  <h3><i class="fas fa-star"></i> Xbox Single-Source Publishing</h3>
+  <ul class="tech-list">
+    <li><i class="fas fa-rocket"></i> One-click global deployment system</li>
+    <li><i class="fas fa-globe"></i> Multi-platform content propagation</li>
+    <li><i class="fas fa-shield-alt"></i> Secure, zero-leak publishing</li>
+    <li><i class="fas fa-language"></i> 40+ languages, instant updates</li>
+  </ul>
+</div>
     </div>
 
     <!-- Technical Highlights -->

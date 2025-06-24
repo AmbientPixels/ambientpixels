@@ -27,16 +27,30 @@ fetch('/data/avatar-trading-card.json')
           tagsDiv.appendChild(tagEl);
         });
       }
-      // Inject microstats into bottom microstats bar
-      const microstatsBar = clone.querySelector('.avatar-microstats');
-      if (microstatsBar && Array.isArray(member.stats)) {
-        microstatsBar.innerHTML = '';
-        member.stats.slice(0,2).forEach(stat => {
-          const statClass = 'tag-' + stat.label.toLowerCase().replace(/\s+/g, '-');
-          const statEl = document.createElement('span');
-          statEl.className = 'avatar-microstat ' + statClass;
-          statEl.innerHTML = `<i class='${stat.icon}' aria-hidden='true'></i> <span>${stat.value}</span>`;
-          microstatsBar.appendChild(statEl);
+      // Inject stat bars into main card area
+      const frontStatsDiv = clone.querySelector('.avatar-stats');
+      if (frontStatsDiv && Array.isArray(member.stats)) {
+        frontStatsDiv.innerHTML = '';
+        member.stats.forEach(stat => {
+          const statBar = document.createElement('div');
+          statBar.className = 'avatar-stat-bar';
+          statBar.innerHTML = `<i class='${stat.icon}' aria-hidden='true'></i> <span class='stat-label'>${stat.label}</span> <div class='stat-bar-bg'><div class='stat-bar-fill' style='width:${stat.value}%'></div></div> <span class='stat-value'>${stat.value}</span>`;
+          frontStatsDiv.appendChild(statBar);
+        });
+      }
+      // Inject links into footer
+      const frontLinksDiv = clone.querySelector('.avatar-microstats-bar .avatar-links');
+      if (frontLinksDiv && Array.isArray(member.links)) {
+        frontLinksDiv.innerHTML = '';
+        member.links.forEach(link => {
+          const a = document.createElement('a');
+          a.href = link.url;
+          a.className = 'avatar-link';
+          a.title = link.label;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.innerHTML = `<i class='${link.icon}' aria-hidden='true'></i>`;
+          frontLinksDiv.appendChild(a);
         });
       }
       const nameEl = clone.querySelector('.avatar-name');
@@ -50,6 +64,16 @@ fetch('/data/avatar-trading-card.json')
       }
       const bioEl = clone.querySelector('.avatar-bio');
       if (bioEl) bioEl.textContent = member.bio;
+      // updated by Cascade 2025-06-23: inject quote and backMicrostats
+      const quoteEl = clone.querySelector('.avatar-quote');
+      if (quoteEl && member.quote) quoteEl.textContent = `“${member.quote}”`;
+      const backMicrostatsEl = clone.querySelector('.avatar-back-microstats');
+      if (backMicrostatsEl && Array.isArray(member.backMicrostats)) {
+        backMicrostatsEl.innerHTML = '';
+        member.backMicrostats.forEach(stat => {
+          backMicrostatsEl.innerHTML += `<span class='avatar-microstat' title='${stat.label}'><i class='${stat.icon}' aria-hidden='true'></i> <span>${stat.value}</span></span>`;
+        });
+      }
       // Stats
       const statsDiv = clone.querySelector('.avatar-stats');
       statsDiv.innerHTML = '';
