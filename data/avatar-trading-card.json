@@ -1,8 +1,8 @@
 [
   {
     "name": "Nova Rivera",
-    "avatar": "/images/image-packs/characters-03-super-heroes/nova-rivera.png",
-    "cardImage": "/images/image-packs/characters-03-super-heroes/nova-rivera.png",
+    "avatar": "/images/image-packs/characters-03-super-heroes/alyssa.png",
+    "cardImage": "/images/image-packs/characters-03-super-heroes/alyssa.png",
     "role": "Creative Director",
     "bio": "Dreamer. Builder. Believer in crystalline flux. Nova turns bold ideas into reality through creativity, empathy, and vision.",
     "stats": [
@@ -26,8 +26,8 @@
   },
   {
     "name": "Jax Lin",
-    "avatar": "/images/image-packs/characters-03-super-heroes/jax-lin.png",
-    "cardImage": "/images/image-packs/characters-03-super-heroes/jax-lin.png",
+    "avatar": "/images/image-packs/characters-03-super-heroes/keith.png",
+    "cardImage": "/images/image-packs/characters-03-super-heroes/keith.png",
     "role": "Pipeline Engineer",
     "bio": "Turning chaos into clarity, one build at a time. Jax transforms complexity into elegant, reliable systems for the team.",
     "stats": [

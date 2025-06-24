@@ -283,33 +283,18 @@ In a world moving at the speed of play, we stood side by side—trusted, resilie
 </div>
 </section>
 
-<!-- updated by Cascade: Avatar Trading Card Section -->
-<section class="content-section grid-col-12" id="team-trading-cards">
-  <h2 class="section-title"><i class="fas fa-id-badge"></i> Meet the Team</h2>
-  <div id="avatar-trading-card-container"></div>
-</section>
-<link rel="stylesheet" href="/css/avatar-trading-card.css">
-<script type="module">
-  fetch('/modules/avatar-trading-card.html')
-    .then(res => res.text())
-    .then(html => {
-      const temp = document.createElement('div');
-      temp.innerHTML = html;
-      document.body.appendChild(temp.firstElementChild);
-    });
-</script>
-<script src="/js/avatar-trading-card.js" defer></script>
+
 <!-- updated by Cascade: Lessons Learned Section -->
 <section class="content-section grid-col-12" id="lessons-learned">
   <h2 class="section-title"><i class="fas fa-lightbulb"></i> What We Unlocked</h2>
   <ul class="check-list">
-    <li>Empathy at every scale—no player left behind</li>
-    <li>Turned complexity into clarity, chaos into calm</li>
-    <li>Made learning and onboarding a shared adventure</li>
-    <li>Built trust with every update, every answer</li>
-    <li>Transformed data into action, and action into impact</li>
-    <li>Proved that support is a team sport—and a human one</li>
-  </ul>
+  <li>Empathy at every scale—no player left behind</li>
+  <li>Turned complexity into clarity, chaos into calm</li>
+  <li>Made learning and onboarding a shared adventure</li>
+  <li>Built trust with every update, every answer</li>
+  <li>Transformed data into action, and action into impact</li>
+  <li>Proved that support is a team sport—and a human one</li>
+</ul>
 </section>
 
 <!-- cleaned by Cascade: all obsolete narrative/feature sections between new narrative and FAQ removed for clarity. FAQ and all required sections retained. -->
@@ -483,53 +468,6 @@ In a world moving at the speed of play, we stood side by side—trusted, resilie
 </div>
 </section>
 
-<!-- Avatar Trading Card Template Include - inserted by Cascade 2025-06-23 -->
-<div style="display:none;">
-  <!-- Trading card template inlined for JS access -->
-  <template id="avatar-trading-card-template">
-    <div class="avatar-card">
-      <div class="avatar-card-inner" tabindex="0" aria-label="Flip card for more info">
-        <!-- Front Side -->
-        <div class="avatar-card-front">
-          <div class="avatar-art-box">
-            <div class="avatar-art-tags" aria-hidden="true">
-              <!-- Tags will be injected here -->
-            </div>
-            <img class="avatar-art-img" src="{{avatar}}" alt="{{name}}'s artwork">
-          </div>
-          <h3 class="avatar-name">{{name}}</h3>
-          <p class="avatar-role">{{role}}</p>
-          <div class="avatar-superpower">
-            <!-- Superpower will be injected here -->
-          </div>
-          <div class="avatar-stats">
-            <!-- Inject stat bars here -->
-          </div>
-          <!-- Linked icons moved to front by Cascade 2025-06-23 -->
-          <div class="avatar-links">
-            <!-- Inject links here -->
-          </div>
-          <div class="avatar-microstats-bar">
-            <div class="avatar-microstats">
-              <!-- Microstats/icons will be injected here -->
-            </div>
-          </div>
-        </div>
-        <!-- Back Side -->
-        <div class="avatar-card-back">
-          <!-- Bio restored to back by Cascade 2025-06-23 -->
-          <div class="avatar-bio">{{bio}}</div>
-          <!-- Quote section added by Cascade 2025-06-23 -->
-          <div class="avatar-quote">“{{quote}}”</div>
-          <!-- Mini stats/icons bar added by Cascade 2025-06-23 -->
-          <div class="avatar-back-microstats">
-            <!-- Mini stats/icons will be injected here -->
-          </div>
-        </div>
-      </div>
-    </div>
-  </template>
-</div>
 
      <!-- Key Features Section -->
 <section class="content-section grid-col-12" id="key-features">
@@ -780,7 +718,7 @@ In a world moving at the speed of play, we stood side by side—trusted, resilie
   <script src="/js/nav.js"></script>
   <script src="/js/main.js"></script>
   <script src="/js/nebulight-methods.js"></script>
-  <script src="/js/echogrid-avatar.js"></script>
+
   <script src="/modules/breadcrumb.js"></script>
 </body>
 </html>
