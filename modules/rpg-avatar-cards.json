@@ -1,0 +1,145 @@
+[
+  {
+    "layout": 3
+  },
+  {
+    "active": true,
+    "slotMachine": true,
+    "avatarCategory": "female",
+    "name": "Sam",
+    "alias": "The Debugger",
+    "roleClass": "Support Mage",
+    "hometown": "Redmond",
+    "tagline": "No bug survives the night!",
+    "level": 5,
+    "miniStats": {
+      "energy": 95,
+      "creativity": 88,
+      "teamSpirit": 100,
+      "wisdom": 90,
+      "luck": 70
+    },
+    "power": "Localization Mastery",
+    "favoriteTool": "Figma Blade",
+    "bio": "Sam joined the team in 2020 and quickly became the go-to for all things troubleshooting. She brings empathy and precision to every player interaction.",
+    "skills": [
+      "Empathy Aura",
+      "Speedrun Debugging",
+      "Knowledge Sharing"
+    ],
+    "ultimateMove": "Support Unleashed",
+    "team": "Xbox Support Guild",
+    "badges": [
+      "docs-master",
+      "team-player",
+      "mvp"
+    ],
+    "achievements": [
+      "1000 Tickets",
+      "Docs Champion"
+    ],
+    "links": {
+      "website": "https://sam.dev",
+      "linkedin": "https://linkedin.com/in/sam",
+      "github": "https://github.com/sam",
+      "resume": "/resumes/sam.pdf",
+      "twitter": "https://twitter.com/sam"
+    },
+    "imageOverride": "michelle.png",
+    "imageOptions": ["jen.png", "michelle.png"],
+    "order": 1,
+    "animationStyle": "flip",
+    "theme": "legendary",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {
+      "mvp": "/images/badges/mvp-custom.svg"
+    }
+  },
+  {
+    "active": true,
+    "slotMachine": true,
+    "avatarCategory": "male",
+    "name": "Matt",
+    "alias": "The Architect",
+    "roleClass": "Automation Paladin",
+    "hometown": "Seattle",
+    "tagline": "Build it, break it, make it better!",
+    "level": 7,
+    "miniStats": {
+      "energy": 85,
+      "creativity": 92,
+      "teamSpirit": 98,
+      "wisdom": 95,
+      "luck": 80
+    },
+    "power": "System Integration",
+    "favoriteTool": "SharePoint Shield",
+    "bio": "Matt is the backbone of our automation efforts, always ready to streamline a process or squash a bug.",
+    "skills": [
+      "Process Automation",
+      "Data Migration",
+      "System Design"
+    ],
+    "ultimateMove": "One-Click Deploy",
+    "team": "Xbox Support Guild",
+    "badges": [
+      "automation-champion",
+      "team-player"
+    ],
+    "achievements": [
+      "500 Deployments",
+      "Automation Hero"
+    ],
+    "links": {
+      "website": "https://matt.dev",
+      "linkedin": "https://linkedin.com/in/matt",
+      "github": "https://github.com/matt",
+      "resume": "/resumes/matt.pdf"
+    },
+    "order": 2
+  },
+  {
+    "active": true,
+    "slotMachine": true,
+    "avatarCategory": "female",
+    "name": "Tanya",
+    "alias": "The Strategist",
+    "roleClass": "Tactics Bard",
+    "hometown": "Austin",
+    "tagline": "Plans within plans.",
+    "level": 6,
+    "miniStats": {
+      "energy": 90,
+      "creativity": 85,
+      "teamSpirit": 99,
+      "wisdom": 97,
+      "luck": 75
+    },
+    "power": "Content Strategy",
+    "favoriteTool": "Notion Lute",
+    "bio": "Tanya orchestrates the team's big wins with careful planning and creative flair. She keeps everyone inspired and on track.",
+    "skills": [
+      "Story Mapping",
+      "Team Rally",
+      "Cross-Platform Sync"
+    ],
+    "ultimateMove": "Strategy Surge",
+    "team": "Xbox Support Guild",
+    "badges": [
+      "strategy-master",
+      "team-player",
+      "creative-spark"
+    ],
+    "achievements": [
+      "100 Campaigns",
+      "Strategy Guru"
+    ],
+    "links": {
+      "website": "https://tanya.dev",
+      "linkedin": "https://linkedin.com/in/tanya",
+      "github": "https://github.com/tanya",
+      "resume": "/resumes/tanya.pdf"
+    },
+    "order": 3
+  }
+]
