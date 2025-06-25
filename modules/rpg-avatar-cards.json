@@ -9,7 +9,7 @@
     "name": "Taryn",
     "alias": "The Voice",
     "roleClass": "Team Rep",
-    "hometown": "Redmond",
+    "hometown": "Redmond, Washington, USA",
     "tagline": "Voice of the Stakeholders",
     "level": 6,
     "miniStats": {
@@ -40,11 +40,8 @@
       "Stakeholder Summit Speaker"
     ],
     "links": {
-      "website": "",
-      "linkedin": "",
-      "github": "",
-      "resume": "",
-      "twitter": ""
+      "website": "https://hansonconsulting.com/",
+      "linkedin": "https://www.linkedin.com/in/taryn-anderson/"
     },
     "image": "/images/image-packs/characters-03-super-heroes/taryn.png",
     "order": 2,
@@ -59,7 +56,7 @@
     "name": "Rob",
     "alias": "The Guardian Leader",
     "roleClass": "Operations",
-    "hometown": "Seattle",
+    "hometown": "Seattle, Washington, USA",
     "tagline": "Unity in motion.",
     "level": 7,
     "miniStats": {
@@ -90,11 +87,7 @@
       "Crisis Navigation"
     ],
     "links": {
-      "website": "https://rob.dev",
-      "linkedin": "https://linkedin.com/in/rob",
-      "github": "https://github.com/rob",
-      "resume": "/resumes/rob.pdf",
-      "twitter": "https://twitter.com/rob"
+      "linkedin": "https://www.linkedin.com/in/robert-hernandez-b4718a1aa/"
     },
     "image": "/images/image-packs/characters-03-super-heroes/rob.png",
     "order": 3,
@@ -110,7 +103,7 @@
     "name": "Tania",
     "alias": "The Strategist",
     "roleClass": "Tactics Bard",
-    "hometown": "Austin",
+    "hometown": "Seattle, Washington, USA",
     "tagline": "Plans within plans.",
     "level": 6,
     "miniStats": {
@@ -142,10 +135,7 @@
       "Strategy Guru"
     ],
     "links": {
-      "website": "https://tanya.dev",
-      "linkedin": "https://linkedin.com/in/tanya",
-      "github": "https://github.com/tanya",
-      "resume": "/resumes/tanya.pdf"
+      "linkedin": "https://www.linkedin.com/in/tania-jimenez-o/"
     },
     "image": "/images/image-packs/characters-03-super-heroes/female/tanya.png",
     "order": 3,
@@ -160,7 +150,7 @@
     "name": "Jacob",
     "alias": "The Analytical Mind",
     "roleClass": "Operations",
-    "hometown": "Seattle",
+    "hometown": "Seattle, Washington, USA",
     "tagline": "Logic is the best defense.",
     "level": 6,
     "miniStats": {
@@ -191,11 +181,7 @@
       "Idea of the Year"
     ],
     "links": {
-      "website": "https://jacob.dev",
-      "linkedin": "https://linkedin.com/in/jacob",
-      "github": "https://github.com/jacob",
-      "resume": "/resumes/jacob.pdf",
-      "twitter": "https://twitter.com/jacob"
+      "linkedin": "https://www.linkedin.com/in/jacob-dobler-973472168/"
     },
     "image": "/images/image-packs/characters-03-super-heroes/jacob.png",
     "order": 4,
@@ -210,7 +196,7 @@
     "name": "Keith",
     "alias": "The Master Coordinator",
     "roleClass": "Work Trafficer",
-    "hometown": "New York",
+    "hometown": "New York, New York, USA",
     "tagline": "No task left behind.",
     "level": 5,
     "miniStats": {
@@ -241,11 +227,7 @@
       "Ops MVP"
     ],
     "links": {
-      "website": "https://keith.dev",
-      "linkedin": "https://linkedin.com/in/keith",
-      "github": "https://github.com/keith",
-      "resume": "/resumes/keith.pdf",
-      "twitter": "https://twitter.com/keith"
+      "linkedin": "https://www.linkedin.com/in/humphreyskeith/"
     },
     "image": "/images/image-packs/characters-03-super-heroes/keith.png",
     "order": 5,
@@ -260,7 +242,7 @@
     "name": "Jon",
     "alias": "The Conductor",
     "roleClass": "Production Lead",
-    "hometown": "Bellevue",
+    "hometown": "Seattle, Washington, USA",
     "tagline": "Harmony in action.",
     "level": 7,
     "miniStats": {
@@ -291,11 +273,7 @@
       "Coordination Hero"
     ],
     "links": {
-      "website": "https://jon.dev",
-      "linkedin": "https://linkedin.com/in/jon",
-      "github": "https://github.com/jon",
-      "resume": "/resumes/jon.pdf",
-      "twitter": "https://twitter.com/jon"
+      "linkedin": "https://www.linkedin.com/in/jonbostwick/"
     },
     "image": "/images/image-packs/characters-03-super-heroes/jon.png",
     "order": 6,
@@ -310,7 +288,7 @@
     "name": "Chad",
     "alias": "The Pixel Wizard",
     "roleClass": "Production & AI",
-    "hometown": "Shoreline, WA",
+    "hometown": "Shoreline, Washington, USA",
     "tagline": "Crafting pixels since '95.",
     "level": 8,
     "miniStats": {
@@ -341,10 +319,10 @@
       "Masterclass Instructor"
     ],
     "links": {
-      "website": "https://ambientpixels.ai/skills/chad-martin-resume.html",
+      "website": "https://ambientpixels.ai/",
       "linkedin": "https://www.linkedin.com/in/chad-martin-b038496/",
       "github": "https://github.com/chad",
-      "resume": "/resumes/chad.pdf",
+      "resume": "https://ambientpixels.ai/skills/chad-martin-resume.html",
       "twitter": "https://x.com/AIAmbientPixels"
     },
     "image": "/images/image-packs/characters-03-super-heroes/chad.png",
@@ -360,7 +338,7 @@
     "name": "Felix",
     "alias": "The Synchronizer",
     "roleClass": "Production",
-    "hometown": "Portland",
+    "hometown": "Seattle, Washington, USA",
     "tagline": "Teamwork in sync.",
     "level": 6,
     "miniStats": {
@@ -391,11 +369,7 @@
       "Top Sync Rating"
     ],
     "links": {
-      "website": "https://felix.dev",
-      "linkedin": "https://linkedin.com/in/felix",
-      "github": "https://github.com/felix",
-      "resume": "/resumes/felix.pdf",
-      "twitter": "https://twitter.com/felix"
+       "linkedin": "https://www.linkedin.com/in/felix-lifson-leu/"
     },
     "image": "/images/image-packs/characters-03-super-heroes/felix.png",
     "order": 8,
@@ -410,7 +384,7 @@
     "name": "Joel",
     "alias": "The Language Master",
     "roleClass": "Localization Specialist",
-    "hometown": "Buenos Aires",
+    "hometown": "Seattle, Washington, USA",
     "tagline": "Translation with soul.",
     "level": 5,
     "miniStats": {
@@ -441,11 +415,7 @@
       "Translation Hero"
     ],
     "links": {
-      "website": "https://joel.dev",
-      "linkedin": "https://linkedin.com/in/joel",
-      "github": "https://github.com/joel",
-      "resume": "/resumes/joel.pdf",
-      "twitter": "https://twitter.com/joel"
+      "linkedin": "https://www.linkedin.com/in/joel-vald%C3%A9s-beneyto-33092452/"
     },
     "image": "/images/image-packs/characters-03-super-heroes/joel.png",
     "order": 9,
@@ -460,7 +430,7 @@
     "name": "Martina",
     "alias": "The Wrangler",
     "roleClass": "PM Leader",
-    "hometown": "Munich",
+    "hometown": "Seattle, Washington, USA",
     "tagline": "Lead the flow.",
     "level": 7,
     "miniStats": {
@@ -491,11 +461,7 @@
       "PM Champion"
     ],
     "links": {
-      "website": "https://martina.dev",
-      "linkedin": "https://linkedin.com/in/martina",
-      "github": "https://github.com/martina",
-      "resume": "/resumes/martina.pdf",
-      "twitter": "https://twitter.com/martina"
+      "linkedin": "https://www.linkedin.com/in/martina-kohlus-82a34b14/"
     },
     "image": "/images/image-packs/characters-03-super-heroes/martina.png",
     "order": 10,
@@ -510,7 +476,7 @@
     "name": "Alyssa",
     "alias": "The Quick Adapter",
     "roleClass": "PM",
-    "hometown": "Chicago",
+    "hometown": "Seattle, Washington, USA",
     "tagline": "New doesn’t mean green.",
     "level": 4,
     "miniStats": {
@@ -541,11 +507,7 @@
       "Project Save"
     ],
     "links": {
-      "website": "https://alyssa.dev",
-      "linkedin": "https://linkedin.com/in/alyssa",
-      "github": "https://github.com/alyssa",
-      "resume": "/resumes/alyssa.pdf",
-      "twitter": "https://twitter.com/alyssa"
+      "linkedin": "https://www.linkedin.com/in/alyssa-corbett/"
     },
     "image": "/images/image-packs/characters-03-super-heroes/alyssa.png",
     "order": 11,
@@ -560,7 +522,7 @@
     "name": "Michelle",
     "alias": "The Global Orchestrator",
     "roleClass": "PM",
-    "hometown": "Toronto",
+    "hometown": "Seattle, Washington, USA",
     "tagline": "Deliver globally, think locally.",
     "level": 6,
     "miniStats": {
@@ -591,11 +553,7 @@
       "Pipeline Hero"
     ],
     "links": {
-      "website": "https://michelle.dev",
-      "linkedin": "https://linkedin.com/in/michelle",
-      "github": "https://github.com/michelle",
-      "resume": "/resumes/michelle.pdf",
-      "twitter": "https://twitter.com/michelle"
+       "linkedin": "https://www.linkedin.com/in/michellen-martin/"
     },
     "image": "/images/image-packs/characters-03-super-heroes/michelle.png",
     "order": 12,
@@ -610,7 +568,7 @@
     "name": "Kerry",
     "alias": "The AI Visionary",
     "roleClass": "PM",
-    "hometown": "New York",
+    "hometown": "Seattle, Washington, USA",
     "tagline": "Glitches are just hidden doors.",
     "level": 7,
     "miniStats": {
@@ -641,11 +599,7 @@
       "Innovation Catalyst"
     ],
     "links": {
-      "website": "https://kerry.dev",
-      "linkedin": "https://linkedin.com/in/kerry",
-      "github": "https://github.com/kerry",
-      "resume": "/resumes/kerry.pdf",
-      "twitter": "https://twitter.com/kerry"
+      "linkedin": "https://www.linkedin.com/in/kerry-huss/"
     },
     "image": "/images/image-packs/characters-03-super-heroes/kerry-01.png",
     "order": 13,
@@ -660,7 +614,7 @@
     "name": "Emily",
     "alias": "The Efficient Coordinator",
     "roleClass": "PM",
-    "hometown": "Denver",
+    "hometown": "Alajuela, Costa Rica",
     "tagline": "Coordination made invisible.",
     "level": 5,
     "miniStats": {
@@ -691,11 +645,7 @@
       "Bilingual Delivery"
     ],
     "links": {
-      "website": "https://emily.dev",
-      "linkedin": "https://linkedin.com/in/emily",
-      "github": "https://github.com/emily",
-      "resume": "/resumes/emily.pdf",
-      "twitter": "https://twitter.com/emily"
+       "linkedin": "https://www.linkedin.com/in/emilybaltodano/"
     },
     "image": "/images/image-packs/characters-03-super-heroes/emily.png",
     "order": 14,
@@ -710,7 +660,7 @@
     "name": "Laura",
     "alias": "The Process Master",
     "roleClass": "PM",
-    "hometown": "Miami",
+    "hometown": "San Jose, Costa Rica",
     "tagline": "Every great result begins with process.",
     "level": 5,
     "miniStats": {
@@ -741,11 +691,7 @@
       "PM Hero"
     ],
     "links": {
-      "website": "https://laura.dev",
-      "linkedin": "https://linkedin.com/in/laura",
-      "github": "https://github.com/laura",
-      "resume": "/resumes/laura.pdf",
-      "twitter": "https://twitter.com/laura"
+      "linkedin": "https://www.linkedin.com/in/laura-sagot-morales/"
     },
     "image": "/images/image-packs/characters-03-super-heroes/female/Laura.png",
     "order": 15,
@@ -760,7 +706,7 @@
     "name": "Jen",
     "alias": "The Complexity Tamer",
     "roleClass": "Writer",
-    "hometown": "Seattle",
+    "hometown": "Seattle, Washington, USA",
     "tagline": "Complex doesn't have to mean complicated.",
     "level": 5,
     "miniStats": {
@@ -791,11 +737,7 @@
       "Master of Consistency"
     ],
     "links": {
-      "website": "",
-      "linkedin": "",
-      "github": "",
-      "resume": "",
-      "twitter": ""
+      "linkedin": "https://www.linkedin.com/in/jennifersheffieldsea/"
     },
     "image": "/images/image-packs/characters-03-super-heroes/jen.png",
     "order": 16,
@@ -810,7 +752,7 @@
     "name": "Matt",
     "alias": "The Word Master",
     "roleClass": "Lead Writer",
-    "hometown": "Brooklyn",
+    "hometown": "Seattle, Washington, USA",
     "tagline": "Every word counts when clarity is the goal.",
     "level": 6,
     "miniStats": {
@@ -841,11 +783,7 @@
       "Publishing Perfectionist"
     ],
     "links": {
-      "website": "",
-      "linkedin": "",
-      "github": "",
-      "resume": "",
-      "twitter": ""
+       "linkedin": "https://www.linkedin.com/in/matt-bohlmann/"
     },
     "image": "/images/image-packs/characters-03-super-heroes/matt-02.png",
     "order": 17,
@@ -860,7 +798,7 @@
     "name": "Tod",
     "alias": "The Style Shifter",
     "roleClass": "Writer",
-    "hometown": "Austin",
+    "hometown": "Lolo, Montana, USA",
     "tagline": "Tone is a tool—and I wield it well.",
     "level": 5,
     "miniStats": {
@@ -892,11 +830,8 @@
     ],
     "links": {
       "website": "",
-      "linkedin": "",
-      "github": "",
-      "resume": "",
-      "twitter": ""
-    },
+      "linkedin": "https://www.linkedin.com/in/tod-mccoy/"
+     },
     "image": "/images/image-packs/characters-03-super-heroes/male/Tod.png",
     "order": 18,
     "animationStyle": "flip",
