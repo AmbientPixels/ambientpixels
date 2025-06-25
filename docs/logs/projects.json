@@ -1,5 +1,16 @@
 [
   {
+    "id": "project-card-forge",
+    "size": "L",
+    "title": "Project: Card Forge",
+    "html": "/docs/logs/project-card-forge.html",
+    "md": "/docs/logs/project-card-forge.md",
+    "status": "Active",
+    "lastUpdated": "2025-06-25",
+    "tags": ["cards", "identity", "json", "ui-system", "team-tools"],
+    "progress": 0.10
+  },
+  {
     "id": "genesis-project",
     "size": "XL",
     "title": "Genesis",
