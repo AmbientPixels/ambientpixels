@@ -49,7 +49,7 @@
         'Operations': 'badge-solid-blue',
         'Production': 'badge-solid-orange',
         'Leadership': 'badge-solid-gold',
-        'Program Management': 'badge-solid-green',
+        'Project Management': 'badge-solid-green',
         'Localization': 'badge-solid-purple',
         'Dev Ops': 'badge-solid-teal',
         'Support': 'badge-solid-slate'
