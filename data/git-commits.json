@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "1ce0223a-a390-4cf6-84e3-48f0a5325715",
-      "hash": "6fd1954026128fab4b7dc5aaa1069a7d5e50edab",
-      "message": "fix player cards",
-      "timestamp": "2025-06-24 01:24:59 -0700",
+      "id": "8695a225-76cf-4a1d-90cc-8f105f4d45b2",
+      "hash": "47085b41b9312ff51401efcbdeee62a28f52c40e",
+      "message": "fix(rpg-avatar): Fix card flip mirroring issue with proper 3D transform",
+      "timestamp": "2025-06-25 00:55:38 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/6fd1954026128fab4b7dc5aaa1069a7d5e50edab"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/47085b41b9312ff51401efcbdeee62a28f52c40e"
     }
   ],
-  "timestamp": "2025-06-24T13:35:05.951Z",
+  "timestamp": "2025-06-25T13:35:55.970Z",
   "count": 1,
-  "scanId": 1750772105951
+  "scanId": 1750858555970
 }

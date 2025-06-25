@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-06-24T13:35:05.295Z",
+  "updated": "2025-06-25T13:35:53.803Z",
   "root": [
     {
       "type": "folder",
@@ -211,7 +211,20 @@
               "type": "folder",
               "name": "characters-03-super-heroes",
               "path": "images/image-packs/characters-03-super-heroes",
-              "children": []
+              "children": [
+                {
+                  "type": "folder",
+                  "name": "female",
+                  "path": "images/image-packs/characters-03-super-heroes/female",
+                  "children": []
+                },
+                {
+                  "type": "folder",
+                  "name": "male",
+                  "path": "images/image-packs/characters-03-super-heroes/male",
+                  "children": []
+                }
+              ]
             },
             {
               "type": "folder",
@@ -720,6 +733,11 @@
               "type": "page",
               "name": "interiors.html",
               "path": "projects/image-packs/interiors.html"
+            },
+            {
+              "type": "page",
+              "name": "super-heroes.html",
+              "path": "projects/image-packs/super-heroes.html"
             },
             {
               "type": "page",
