@@ -23,6 +23,12 @@
     const cardDiv = document.createElement('div');
     cardDiv.className = 'rpg-avatar-card';
     if (card.theme) cardDiv.setAttribute('data-theme', card.theme);
+    
+    // Card inner container for 3D flip effect
+    const cardInner = document.createElement('div');
+    cardInner.className = 'rpg-avatar-card-inner';
+    cardDiv.appendChild(cardInner);
+    
     // Front of card (reordered layout by Cascade)
     const front = document.createElement('div');
     front.className = 'rpg-avatar-front';
@@ -156,25 +162,20 @@
     }
 
 
-    // Flip button
+    // Flip button - attach to the card div, not the inner container
     const flipBtn = document.createElement('button');
     flipBtn.className = 'rpg-flip-btn';
     flipBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
     flipBtn.title = 'Flip card';
     flipBtn.onclick = () => cardDiv.classList.toggle('flipped');
-
+    cardDiv.appendChild(flipBtn);
+    
     // updated by Cascade: enable card-wide flip on click (except on links/buttons)
     cardDiv.addEventListener('click', function(e) {
       // Prevent flip if click is on a link or button inside the card
       if (e.target.closest('a,button')) return;
       cardDiv.classList.toggle('flipped');
     });
-    cardDiv.appendChild(flipBtn);
-
-    // Flip inner wrapper
-    const inner = document.createElement('div');
-    inner.className = 'rpg-avatar-inner';
-    inner.appendChild(front);
 
     // Back of card
     const back = document.createElement('div');
@@ -225,9 +226,11 @@
         back.appendChild(linksDiv);
       }
     }
-    inner.appendChild(back);
-    cardDiv.appendChild(inner);
-
+    // Append both faces to the inner container instead of directly to the card
+    cardInner.appendChild(front);
+    cardInner.appendChild(back);
     grid.appendChild(cardDiv);
+
+
   });
 })();
