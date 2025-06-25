@@ -107,7 +107,7 @@
     "active": true,
     
     "avatarCategory": "female",
-    "name": "Tanya",
+    "name": "Tania",
     "alias": "The Strategist",
     "roleClass": "Tactics Bard",
     "hometown": "Austin",
@@ -341,11 +341,11 @@
       "Masterclass Instructor"
     ],
     "links": {
-      "website": "https://chad.dev",
-      "linkedin": "https://linkedin.com/in/chad",
+      "website": "https://ambientpixels.ai/skills/chad-martin-resume.html",
+      "linkedin": "https://www.linkedin.com/in/chad-martin-b038496/",
       "github": "https://github.com/chad",
       "resume": "/resumes/chad.pdf",
-      "twitter": "https://twitter.com/chad"
+      "twitter": "https://x.com/AIAmbientPixels"
     },
     "image": "/images/image-packs/characters-03-super-heroes/chad.png",
     "order": 7,
