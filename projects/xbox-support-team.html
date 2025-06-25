@@ -28,6 +28,7 @@
   <link rel="stylesheet" href="/modules/breadcrumb.css" />
   <!-- RPG Avatar Card Module CSS (RPG Test Section) -->
   <link rel="stylesheet" href="/modules/rpg-avatar-cards.css">
+  <link rel="stylesheet" href="/css/lightbox.css">
 </head>
 <body data-theme="dark">
   <div id="banner-container"></div>
@@ -689,31 +690,35 @@ In a world moving at the speed of play, we stood side by side—trusted, resilie
       </div>
     </div>
    
-    <section id="gallery" class="content-section grid-col-12" data-lightbox-autoload>
-      <h2><i class="fas fa-images"></i> Visual Highlights</h2>
-      <div class="media-grid">
-        <div class="media-item">
-          <a href="/images/projects/xbox-support/screen-04.jpeg" class="lightbox-trigger" data-caption="Scene 1: The Pulse Awakens">
-            <img src="/images/projects/xbox-support/screen-04.jpeg" alt="Scene 1 - The Pulse Awakens" loading="lazy">
-          </a>
-          <p class="media-caption">Scene 1: The Pulse Awakens</p>
-        </div>
+<!-- Visual Highlights Section -->
+<section id="gallery" class="content-section grid-col-12" data-lightbox-autoload>
+  <h2 class="section-title"><i class="fas fa-images"></i> Visual Highlights</h2>
+  <div class="media-grid">
 
-        <div class="media-item">
-          <a href="/images/projects/som/screen-01.jpeg" class="lightbox-trigger" data-caption="Scene 2: Echoes in the Grid">
-            <img src="/images/projects/som/screen-01.jpeg" alt="Scene 2 - Echoes in the Grid" loading="lazy">
-          </a>
-          <p class="media-caption">Scene 2: Echoes in the Grid</p>
-        </div>
+    <div class="media-item">
+      <a href="/images/projects/xbox-support/screen-04.jpeg" class="lightbox-trigger" data-caption="Scene 1: Xbox Support Hub Homepage">
+        <img src="/images/projects/xbox-support/screen-04.jpeg" alt="Scene 1 - Xbox Support Hub Homepage" loading="lazy">
+      </a>
+      <p class="media-caption">Xbox Support Hub Homepage</p>
+    </div>
 
-        <div class="media-item">
-          <a href="/images/projects/ninja-theroy/screen01.jpeg" class="lightbox-trigger" data-caption="Scene 3: Fractal Drift">
-            <img src="/images/projects/ninja-theroy/screen01.jpeg" alt="Scene 3 - Fractal Drift" loading="lazy">
-          </a>
-          <p class="media-caption">Scene 3: Fractal Drift</p>
-        </div>
-      </div>
-    </section>
+    <div class="media-item">
+      <a href="/images/projects/gow/screen-01.jpeg" class="lightbox-trigger" data-caption="Scene 2: South of Midnight Game Page">
+        <img src="/images/projects/gow/screen-01.jpeg" alt="Scene 2 - South of Midnight Game Page" loading="lazy">
+      </a>
+      <p class="media-caption">South of Midnight Game Page</p>
+    </div>
+
+    <div class="media-item">
+      <a href="/images/projects/ninja-theroy/screen01.jpeg" class="lightbox-trigger" data-caption="Scene 3: Ninja Theory Support Hub">
+        <img src="/images/projects/ninja-theroy/screen01.jpeg" alt="Ninja Theory Support Hub" loading="lazy">
+      </a>
+      <p class="media-caption">Ninja Theory Support Hub</p>
+    </div>
+
+  </div>
+</section>
+<!-- Visual Highlights Section -->
 
 
 
@@ -800,6 +805,7 @@ In a world moving at the speed of play, we stood side by side—trusted, resilie
 
   <div id="footer-container"></div>
 
+  <script src="/js/lightbox.js" type="module"></script>
   <script src="/js/init-header-footer.js"></script>
   <script src="/js/theme.js"></script>
   <script src="/js/nebulight.js"></script>

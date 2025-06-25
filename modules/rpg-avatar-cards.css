@@ -10,8 +10,8 @@
   box-shadow: 0 0 24px 4px rgba(139,92,246,0.35); /* Stronger purple glow */
 }
 .rpg-avatar-card.theme-rare {
-  border: 4px solid rgba(34,197,94,0.85); /* Green, wider */
-  box-shadow: 0 0 24px 4px rgba(34,197,94,0.32); /* Stronger green glow */
+  border: 4px solid rgba(59,130,246,0.85); /* Blue, wider */
+  box-shadow: 0 0 24px 4px rgba(59,130,246,0.35); /* Stronger blue glow */
 }
 
 
