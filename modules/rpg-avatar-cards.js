@@ -142,13 +142,25 @@
       <div class="rpg-avatar-header"></div>
       <div class="rpg-avatar-bio">${card.bio||''}</div>
       ${card.quote ? `<div class='rpg-avatar-quote'>&ldquo;${card.quote}&rdquo;</div>` : ''}
-      ${card.skills && card.skills.length ? `<div class='rpg-avatar-skills'><b>Skills:</b> ${card.skills.join(', ')}</div>` : ''}
-      ${card.achievements && card.achievements.length ? `<div class='rpg-avatar-achievements'><b>Achievements:</b> ${card.achievements.join(', ')}</div>` : ''}
-      ${card.ultimateMove ? `<div class='rpg-avatar-ultimate'><b>Ultimate:</b> ${card.ultimateMove}</div>` : ''}
-      <div class="rpg-avatar-team"><b>Team:</b> ${card.team||''}</div>
-      <!-- Social links row moved strictly after team -->
-      ${card.ultimateMove ? `<div class='rpg-avatar-ultimate'><b>Ultimate:</b> ${card.ultimateMove}</div>` : ''}
-      <div class="rpg-avatar-team"><b>Team:</b> ${card.team||''}</div>
+      <ul class="rpg-avatar-details-list">
+        ${card.skills && card.skills.length ? `<li><span class='rpg-details-icon'><i class='fas fa-hat-wizard'></i></span><b>Skills:</b><div class='rpg-skills-list'>${card.skills.map(skill => `<span class='rpg-badge rpg-skill-badge' data-tooltip='${skill}'><i class='fas fa-hat-wizard'></i></span>`).join('')}</div></li>` : ''}
+        ${card.achievements && card.achievements.length ? `<li><span class='rpg-details-icon'><i class='fas fa-trophy'></i></span><b>Achievements:</b><div class='rpg-achievements-list'>${card.achievements.map(ach => `<span class='rpg-badge rpg-achievement-badge' data-tooltip='${ach}'><i class='fas fa-trophy'></i></span>`).join('')}</div></li>` : ''}
+        ${card.badges && card.badges.length ? `<li><span class='rpg-details-icon'><i class='fas fa-award'></i></span><b>Badges:</b><div class='rpg-badges-list'>${card.badges.map(b => {
+          let badgeIcon = {
+            'docs-master': 'fa-pen-fancy',
+            'team-player': 'fa-hands-helping',
+            'mvp': 'fa-medal',
+            'automation-champion': 'fa-robot',
+          }[b] || 'fa-star';
+          if (card.customBadgeIcons && card.customBadgeIcons[b]) {
+            return `<span class='rpg-badge' data-tooltip='${b}'><img src='${card.customBadgeIcons[b]}' class='rpg-badge-custom-icon' alt='${b}'></span>`;
+          }
+          return `<span class='rpg-badge' data-tooltip='${b}'><i class='fas ${badgeIcon}'></i></span>`;
+        }).join('')}</div></li>` : ''}
+        ${card.ultimateMove ? `<li><span class='rpg-details-icon'><i class='fas fa-bolt'></i></span><b>Ultimate:</b> ${card.ultimateMove}</li>` : ''}
+        ${card.department ? `<li><b>Department:</b> ${card.department}</li>` : ''}
+        ${card.team ? `<li><b>Team:</b> ${card.team}</li>` : ''}
+      </ul>
     `;
 
     // Insert social links row at the end of the back face

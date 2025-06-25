@@ -1,5 +1,137 @@
 /* RPG Avatar Card Theme - Modular Styles */
 
+.rpg-avatar-details-list {
+  margin: 1.2em 0 0 0;
+  padding: 0 0 0 0.4em;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8em;
+}
+.rpg-avatar-details-list > li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7em;
+  font-size: 1.07em;
+  color: #b5e4fa;
+  margin-bottom: 0.15em;
+}
+.rpg-avatar-details-list .rpg-details-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6em;
+  min-width: 1.6em;
+  height: 1.6em;
+  font-size: 1.18em;
+  color: var(--mood-glow, #7ad6e6);
+  margin-right: 0.18em;
+}
+.rpg-avatar-details-list .rpg-skills-list,
+.rpg-avatar-details-list .rpg-achievements-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6em;
+  list-style: none;
+  margin: 0.25em 0 0 0;
+  padding: 0;
+  color: #e0e6f8;
+  font-size: 0.97em;
+}
+.rpg-skill-badge,
+.rpg-achievement-badge {
+  /* Inherit badge look */
+  display: inline-block;
+  background: #1e2632;
+  border-radius: 50%;
+  width: 1.7em;
+  height: 1.7em;
+  color: #7ad6e6;
+  font-size: 1.13em;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  text-align: center;
+  vertical-align: middle;
+}
+.rpg-skill-badge:hover,
+.rpg-achievement-badge:hover {
+  background: var(--mood-glow, #00f0ff);
+  color: #181b22;
+}
+.rpg-skill-badge[data-tooltip]:hover::after,
+.rpg-achievement-badge[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -2.1em;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #232b39;
+  color: #fff;
+  padding: 0.4em 0.8em;
+  border-radius: 0.5em;
+  font-size: 0.95em;
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 1;
+}
+
+.rpg-avatar-details-list .rpg-skills-list li,
+.rpg-avatar-details-list .rpg-achievements-list li {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(90deg, #232b39 0%, #2a3347 100%);
+  border-radius: 0.55em;
+  padding: 0.36em 0.9em 0.36em 0.9em;
+  color: #e0e6f8;
+  font-size: 0.98em;
+  border: 1px solid #29354b;
+  transition: background 0.18s, border 0.18s;
+  margin-bottom: 0;
+}
+.rpg-avatar-details-list .rpg-skills-list li:hover,
+.rpg-avatar-details-list .rpg-achievements-list li:hover {
+  background: linear-gradient(90deg, #29354b 0%, #3f51b5 100%);
+  border-color: var(--mood-glow, #7ad6e6);
+  color: #b5e4fa;
+}
+
+.rpg-avatar-details-list ul li {
+  margin-bottom: 0.15em;
+  background: linear-gradient(90deg, #232b39 0%, #2a3347 100%);
+  border-radius: 0.55em;
+  padding: 0.36em 0.9em 0.36em 0.9em;
+  color: #e0e6f8;
+  font-size: 0.98em;
+  border: 1px solid #29354b;
+  transition: background 0.18s, border 0.18s;
+}
+.rpg-avatar-details-list ul li:hover {
+  background: linear-gradient(90deg, #29354b 0%, #3f51b5 100%);
+  border-color: var(--mood-glow, #7ad6e6);
+  color: #b5e4fa;
+}
+
+.rpg-avatar-details-list .rpg-badges-list {
+  display: flex;
+  gap: 0.5em;
+  align-items: center;
+  margin-left: 0.6em;
+}
+.rpg-avatar-details-list .rpg-badge {
+  /* Reuse existing .rpg-badge styles for visual consistency */
+  /* No override needed, but ensure size fits list */
+  width: 1.7em;
+  height: 1.7em;
+  font-size: 1.06em;
+}
+.rpg-avatar-details-list b {
+  color: #7ad6e6;
+  font-weight: 600;
+  margin-right: 0.18em;
+}
+
 /* Stat Bars */
 .rpg-mini-stats {
   display: flex;
