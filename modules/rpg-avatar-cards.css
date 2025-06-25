@@ -126,13 +126,16 @@
   box-shadow: 0 0 24px 4px gold;
 }
 .rpg-avatar-card .rpg-avatar-img {
+  /* updated by Cascade: enhanced visual style */
   width: 100%;
-  height: 220px; /* updated by Cascade: reduced height for shorter avatar image */
+  height: 270px;
   object-fit: cover;
   background: #222c38;
   border-bottom: 2px solid var(--mood-glow, #00f0ff);
+  border-top-left-radius: 1.25rem;
+  border-top-right-radius: 1.25rem;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.13);
   transition: filter 0.3s;
-  /* aspect-ratio removed for precise height control */
 }
 .rpg-avatar-card .rpg-avatar-header {
   padding: 1rem 1.2rem 0.5rem 1.2rem;
@@ -178,22 +181,24 @@
   text-align: center;
 }
 .rpg-avatar-card .rpg-power {
+  /* updated by Cascade: restrict width and center */
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 0.36em;
   background: linear-gradient(90deg, #232b39 0%, #ffe082 100%);
   border-radius: 0.8em;
-  border: 1.5px solid #ffe082;
-  box-shadow: 0 0 10px 1px #ffe08244, 0 0 0 1.5px var(--mood-glow, #00f0ff) inset;
-  padding: 0.18em 0.7em 0.18em 0.6em;
-  margin: 0.5em auto 0.6em auto;
-  font-weight: 700;
+  padding: 0.15em 0.6em;
+  font-weight: 800;
   color: #232b39;
   font-size: 0.92em;
   letter-spacing: 0.01em;
   position: relative;
   transition: box-shadow 0.2s;
+  margin: 1.1em auto 0.7em auto;
+  max-width: 70%;
+  width: fit-content;
+  text-align: center;
 }
 .rpg-power::before {
   content: '\26A1'; /* ⚡ */
@@ -203,16 +208,20 @@
   filter: drop-shadow(0 0 2px #ffe08288);
 }
 .rpg-avatar-card .rpg-favorite-tool {
+  /* updated by Cascade: restrict width and center */
   display: flex;
   justify-content: center;
   align-items: center;
   background: #7ad6e6;
   border-radius: 0.8em;
-  padding: 0.15em 0.7em 0.15em 0.6em;
+  padding: 0.15em 1.2em 0.15em 1.2em;
   font-weight: 800;
   font-size: 0.89em;
   letter-spacing: 0.01em;
-  margin: 0.8em auto 0.5em auto;
+  margin: 1.1em auto 0.7em auto;
+  max-width: 70%;
+  width: fit-content;
+  text-align: center;
   color: #232b39;
   position: relative;
 }
@@ -307,6 +316,18 @@
 .rpg-avatar-back {
   z-index: 1;
   transform: rotateY(180deg);
+  /* updated by Cascade: add padding for text readability */
+  padding: 1.3em 1.5em 0.5em 1.5em;
+}
+
+.rpg-avatar-back .rpg-avatar-header,
+.rpg-avatar-back .rpg-avatar-bio,
+.rpg-avatar-back .rpg-avatar-skills,
+.rpg-avatar-back .rpg-avatar-ultimate,
+.rpg-avatar-back .rpg-avatar-team,
+.rpg-avatar-back .rpg-avatar-achievements {
+  padding-bottom: 0.5em;
+  word-break: break-word;
 }
 
 .rpg-avatar-card .rpg-flip-btn {
