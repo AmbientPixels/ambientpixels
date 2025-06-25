@@ -115,12 +115,13 @@
     const back = document.createElement('div');
     back.className = 'rpg-avatar-back';
     back.innerHTML = `
-      <div class="rpg-avatar-header">
+      <div class="rpg-avatar-header">${card.name}
         <div class="rpg-avatar-name">${card.name}</div>
         <div class="rpg-avatar-alias">${card.alias||''}</div>
         <div class="rpg-avatar-role">${card.roleClass||''}</div>
       </div>
       <div class="rpg-avatar-bio">${card.bio||''}</div>
+      ${card.quote ? `<div class='rpg-avatar-quote'>&ldquo;${card.quote}&rdquo;</div>` : ''}
       <div class="rpg-avatar-skills"><b>Skills:</b> ${card.skills ? card.skills.join(', ') : ''}</div>
       <div class="rpg-avatar-ultimate"><b>Ultimate:</b> ${card.ultimateMove||''}</div>
       <div class="rpg-avatar-team"><b>Team:</b> ${card.team||''}</div>

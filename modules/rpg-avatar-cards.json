@@ -22,6 +22,7 @@
     "power": "Localization Mastery",
     "favoriteTool": "Figma Blade",
     "bio": "Sam joined the team in 2020 and quickly became the go-to for all things troubleshooting. She brings empathy and precision to every player interaction.",
+    "quote": "Personal quote goes here",
     "skills": [
       "Empathy Aura",
       "Speedrun Debugging",
@@ -74,6 +75,7 @@
     "power": "System Integration",
     "favoriteTool": "SharePoint Shield",
     "bio": "Matt is the backbone of our automation efforts, always ready to streamline a process or squash a bug.",
+    "quote": "Build it once, make it right.",
     "skills": [
       "Process Automation",
       "Data Migration",
@@ -118,6 +120,7 @@
     "power": "Content Strategy",
     "favoriteTool": "Notion Lute",
     "bio": "Tanya orchestrates the team's big wins with careful planning and creative flair. She keeps everyone inspired and on track.",
+    "quote": "Personal quote goes here",
     "skills": [
       "Story Mapping",
       "Team Rally",
