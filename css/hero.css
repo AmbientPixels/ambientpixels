@@ -52,7 +52,7 @@
 .mini-hero {
     position: relative;
     text-align: center;
-    margin: 0px 0 20px 0; /* fixed by removeing top margin */
+    margin: 0px 0 20px 0;
     width: 100%;
     min-height: 220px;
     display: flex;
@@ -68,7 +68,21 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    z-index: 1;
+    z-index: 1; /* Keep image behind content */
+}
+
+.mini-hero h1,
+.mini-hero .subtitle {
+    position: relative;
+    z-index: 2; /* Ensure text is above the image */
+    color: #fff !important;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.9), 0 0 5px rgba(0, 0, 0, 0.8) !important;
+    margin: 0 0 15px 0;
+    padding: 0 20px;
+    line-height: 1.3;
+    width: 100%;
+    max-width: 1000px;
+    text-align: center;
 }
 
 .mini-hero-content-wrapper {
@@ -83,45 +97,6 @@
     align-items: center;
     justify-content: center;
     min-height: 220px;
-}
-
-.mini-hero h1,
-.mini-hero .subtitle {
-  /* Default dark text shadow for backward compatibility */
-  text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.8);
-  transition: color 0.3s ease, text-shadow 0.3s ease;
-}
-
-/* Light background variant */
-.mini-hero h1.light-bg,
-.mini-hero .subtitle.light-bg {
-  color: #1A2A44;
-  text-shadow: 0 0.1em 0.3em rgba(255, 255, 255, 0.5);
-}
-
-/* Dark background variant (default) */
-.mini-hero .mini-hero-content-wrapper h1.dark-bg,
-.mini-hero .mini-hero-content-wrapper .subtitle.dark-bg {
-  color: #F5F7FA !important;
-  text-shadow: 0 0 10px rgba(0, 0, 0, 0.9), 0 0 5px rgba(0, 0, 0, 0.8) !important;
-  position: relative;
-  z-index: 2;
-}
-
-.mini-hero .mini-hero-content-wrapper h1 {
-    font-size: 2.5em;
-    margin: 0 0 15px 0;
-    padding: 0 20px;
-    color: #fff;
-    text-shadow: 0 0 10px rgba(0, 0, 0, 0.9), 0 0 5px rgba(0, 0, 0, 0.8) !important;
-    line-height: 1.3;
-    width: 100%;
-    max-width: 1000px;
-    text-align: center;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    position: relative;
-    z-index: 2;
 }
 
 .mini-hero .subtitle {

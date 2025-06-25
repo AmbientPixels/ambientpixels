@@ -1,12 +1,11 @@
-<!-- File: /docs/logs/echogrid-renderer.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="EchoGrid Renderer - Project Log" />
+  <title>EchoGrid Renderer - Ambient Pixels</title>
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>EchoGrid Renderer - Project Log</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -61,7 +60,7 @@
           </li>
           <li><strong>2025-04-10</strong>
             <ul>
-              <li>🧠 Concept finalized after successful prototype with Nova’s system pulse maps</li>
+              <li>🧠 Concept finalized after successful prototype with Nova's system pulse maps</li>
               <li>🎨 Designed glitch-inspired texture palette</li>
               <li>⚡ First round of canvas render tests completed</li>
             </ul>
@@ -73,9 +72,9 @@
     <section class="content-section grid-col-12">
       <div class="section-header">
         <h2><i class="fas fa-code"></i> Usage</h2>
-        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn icon-only" aria-expanded="true"><i class="fas fa-chevron-down"></i></button>
       </div>
-      <div class="content" style="display: none;">
+      <div class="content">
         <pre><code>&lt;div class="echogrid-renderer" data-layer="glitch"&gt;&lt;/div&gt;</code></pre>
         <p>Render logic is powered via JavaScript canvas layers and can be extended with async animations.</p>
       </div>
@@ -84,11 +83,11 @@
     <section class="content-section grid-col-12">
       <div class="section-header">
         <h2><i class="fas fa-lightbulb"></i> Future Plans</h2>
-        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn icon-only" aria-expanded="true"><i class="fas fa-chevron-down"></i></button>
       </div>
-      <div class="content" style="display: none;">
+      <div class="content">
         <ul>
-          <li>Add adaptive color scheme support (based on Nova’s current mood state)</li>
+          <li>Add adaptive color scheme support (based on Nova's current mood state)</li>
           <li>Enable keyboard interaction for developers</li>
           <li>Create standalone demo with toggleable themes</li>
           <li>Possibly open-source components for community experimentation</li>
@@ -99,10 +98,25 @@
 
   <div id="footer-container"></div>
 
-  <script src="/js/main.js"></script>
-  <script src="/js/nav.js"></script>
-  <script src="/js/theme.js"></script>
-  <script src="/js/modal-window.js"></script>
-  <script src="/js/init-nav.js" defer></script>
+  <!-- Scripts (Full Load for Dev Mode) -->
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/dreamEngine.js" defer></script>
+  <script src="/js/init-quotes.js" defer></script>
+  <script src="/js/main.js" defer></script>
+  <script src="/js/md-inject.js" defer></script>
+  <script src="/js/modal-window.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/nova-ai.js" defer></script>
+  <script src="/js/nova-awareness-feed.js" defer></script>
+  <script src="/js/nova-dashboard.js" defer></script>
+  <script src="/js/nova-insights.js" defer></script>
+  <script src="/js/nova-interaction-log.js" defer></script>
+  <script src="/js/nova-mood-core.js" defer></script>
+  <script src="/js/nova-quotes.js" defer></script>
+  <script src="/js/nova-status.js" defer></script>
+  <script src="/js/nova-telemetry-logger.js" defer></script>
+  <script src="/js/project-dashboard.js" defer></script>
+  <script src="/js/template.js" defer></script>
+  <script src="/js/theme.js" defer></script>
 </body>
 </html>
