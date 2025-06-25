@@ -294,7 +294,7 @@
 .rpg-avatar-img-container {
   position: relative;
   width: 100%;
-  height: 400px; /* updated by Cascade: even taller hero image */
+  height: 350px; /* updated manually temp fix to tiil tip issue */
   overflow: hidden;
   margin-top: 0;
   padding-top: 0;
