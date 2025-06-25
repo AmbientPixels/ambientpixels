@@ -249,7 +249,19 @@
   height: 800px;
   transition: box-shadow 0.2s, border-color 0.2s, transform 0.3s;
   font-family: var(--font-ui, 'Segoe UI', Arial, sans-serif);
+  cursor: pointer; /* updated by Cascade: show pointer for interactivity */
 }
+
+/* updated by Cascade: card-wide hover for image zoom and glow */
+.rpg-avatar-card:hover {
+  box-shadow: 0 8px 48px 0 rgba(0,255,255,0.25), 0 2.5px 0 0 var(--mood-glow, #00f0ff);
+  border-color: var(--mood-glow, #7ad6e6);
+}
+.rpg-avatar-card:hover .rpg-avatar-img {
+  transform: scale(1.08);
+  filter: brightness(1.08) saturate(1.1);
+}
+
 .rpg-avatar-grid {
   max-width: 1440px;
   margin: 0 auto;
@@ -268,8 +280,9 @@
   border-top-left-radius: 1.25rem;
   border-top-right-radius: 1.25rem;
   box-shadow: 0 4px 24px 0 rgba(0,0,0,0.13);
-  transition: filter 0.3s;
+  transition: filter 0.3s, transform 0.35s cubic-bezier(.4,.2,.2,1);
 }
+
 
 .rpg-avatar-img-container {
   position: relative;
@@ -285,11 +298,8 @@
   opacity: 0;
   min-width: 120px;
   padding: 0.45em 1.1em 0.45em 1.1em;
-  background: linear-gradient(90deg, #181b22 0%, var(--mood-glow, #00f0ff) 100%);
-  color: #fff;
+  /* updated by Cascade: allow badge-solid-* color classes to fully style the department tag */
   border-radius: 1.1em;
-  border: 2px solid var(--mood-glow, #00f0ff);
-  box-shadow: 0 0 12px 2px var(--mood-glow, #00f0ff33);
   font-size: 1.09em;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -298,6 +308,9 @@
   z-index: 3;
   transition: opacity 0.32s cubic-bezier(.4,.2,.2,1), transform 0.38s cubic-bezier(.4,.2,.2,1);
 }
+
+
+
 .rpg-avatar-img-container:hover .rpg-avatar-department-tag,
 .rpg-avatar-img:focus + .rpg-avatar-department-tag {
   opacity: 1;
@@ -305,6 +318,50 @@
   pointer-events: auto;
   transition: opacity 0.32s cubic-bezier(.4,.2,.2,1), transform 0.38s cubic-bezier(.4,.2,.2,1);
 }
+
+/* updated by Cascade: make department badge backgrounds more opaque and borders bolder */
+.rpg-avatar-department-tag.badge-solid-blue {
+  background-color: rgba(59,130,246,0.5) !important;
+  color: #bfdbfe !important;
+  border: 1.5px solid rgba(96,165,250,0.7) !important;
+}
+.rpg-avatar-department-tag.badge-solid-orange {
+  background-color: rgba(249,115,22,0.5) !important;
+  color: #fed7aa !important;
+  border: 1.5px solid rgba(251,146,60,0.7) !important;
+}
+.rpg-avatar-department-tag.badge-solid-gold {
+  background-color: rgba(245,158,11,0.5) !important;
+  color: #fef08a !important;
+  border: 1.5px solid rgba(251,191,36,0.7) !important;
+}
+.rpg-avatar-department-tag.badge-solid-green {
+  background-color: rgba(34,197,94,0.5) !important;
+  color: #bbf7d0 !important;
+  border: 1.5px solid rgba(34,197,94,0.7) !important;
+}
+.rpg-avatar-department-tag.badge-solid-purple {
+  background-color: rgba(139,92,246,0.5) !important;
+  color: #e2d6ff !important;
+  border: 1.5px solid rgba(167,139,250,0.7) !important;
+}
+.rpg-avatar-department-tag.badge-solid-teal {
+  background-color: rgba(20,184,166,0.5) !important;
+  color: #99f6e4 !important;
+  border: 1.5px solid rgba(45,212,191,0.7) !important;
+}
+.rpg-avatar-department-tag.badge-solid-slate {
+  background-color: rgba(100,116,139,0.5) !important;
+  color: #e2e8f0 !important;
+  border: 1.5px solid rgba(148,163,184,0.7) !important;
+}
+.rpg-avatar-department-tag.badge-solid-pink {
+  background-color: rgba(236,72,153,0.5) !important;
+  color: #fbcfe8 !important;
+  border: 1.5px solid rgba(244,114,182,0.7) !important;
+}
+
+
 
 .rpg-avatar-card .rpg-avatar-header {
   padding: 1rem 1.2rem 0.5rem 1.2rem;

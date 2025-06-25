@@ -38,8 +38,19 @@
     img.src = card.image || '';
     imgContainer.appendChild(img);
     if (card.department) {
+      // updated by Cascade: department-specific badge color using existing badge-solid-* classes
+      const deptClassMap = {
+        'Operations': 'badge-solid-blue',
+        'Production': 'badge-solid-orange',
+        'Leadership': 'badge-solid-gold',
+        'Program Management': 'badge-solid-green',
+        'Localization': 'badge-solid-purple',
+        'Dev Ops': 'badge-solid-teal',
+        'Support': 'badge-solid-slate'
+      };
+      const badgeClass = deptClassMap[card.department] || 'badge-solid-pink';
       const deptTag = document.createElement('div');
-      deptTag.className = 'rpg-avatar-department-tag';
+      deptTag.className = `rpg-avatar-department-tag ${badgeClass}`;
       deptTag.textContent = card.department;
       imgContainer.appendChild(deptTag);
     }
@@ -128,6 +139,13 @@
     flipBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
     flipBtn.title = 'Flip card';
     flipBtn.onclick = () => cardDiv.classList.toggle('flipped');
+
+    // updated by Cascade: enable card-wide flip on click (except on links/buttons)
+    cardDiv.addEventListener('click', function(e) {
+      // Prevent flip if click is on a link or button inside the card
+      if (e.target.closest('a,button')) return;
+      cardDiv.classList.toggle('flipped');
+    });
     cardDiv.appendChild(flipBtn);
 
     // Flip inner wrapper
