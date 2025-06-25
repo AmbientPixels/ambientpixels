@@ -28,12 +28,22 @@
     front.className = 'rpg-avatar-front';
 
     // --- TOP SECTION ---
-    // Avatar image
+    // Avatar image & department tag container
+    const imgContainer = document.createElement('div');
+    imgContainer.className = 'rpg-avatar-img-container';
+    imgContainer.style.position = 'relative';
     const img = document.createElement('img');
     img.className = 'rpg-avatar-img';
     img.alt = `${card.name} avatar`;
     img.src = card.image || '';
-    front.appendChild(img);
+    imgContainer.appendChild(img);
+    if (card.department) {
+      const deptTag = document.createElement('div');
+      deptTag.className = 'rpg-avatar-department-tag';
+      deptTag.textContent = card.department;
+      imgContainer.appendChild(deptTag);
+    }
+    front.appendChild(imgContainer);
 
     // Name, Alias, Role, Hometown
     const header = document.createElement('div');
@@ -110,31 +120,7 @@
       });
       front.appendChild(badges);
     }
-    // Achievements
-    if (card.achievements && card.achievements.length) {
-      front.innerHTML += `<div class="rpg-avatar-achievements"><b>Achievements:</b> ${card.achievements.join(', ')}</div>`;
-    }
-    // Links (website, linkedin, github, twitter, resume)
-    if (card.links) {
-      const linkKeys = ['website', 'linkedin', 'github', 'twitter', 'resume'];
-      const links = Object.entries(card.links).filter(([key]) => linkKeys.includes(key));
-      if (links.length) {
-        const linksDiv = document.createElement('div');
-        linksDiv.className = 'rpg-links';
-        linksDiv.innerHTML = links.map(([key, url]) => {
-          const icon = {
-            website: 'fa-globe',
-            linkedin: 'fa-linkedin',
-            github: 'fa-github',
-            twitter: 'fa-x-twitter',
-            resume: 'fa-file-alt',
-          }[key] || 'fa-link';
-          const iconClass = key === 'resume' ? 'fas' : 'fab';
-          return `<a class='rpg-link' href='${url}' target='_blank' title='${key}'><i class='${iconClass} ${icon}'></i></a>`;
-        }).join('');
-        front.appendChild(linksDiv);
-      }
-    }
+
 
     // Flip button
     const flipBtn = document.createElement('button');
@@ -153,15 +139,29 @@
     const back = document.createElement('div');
     back.className = 'rpg-avatar-back';
     back.innerHTML = `
-      <div class="rpg-avatar-header">${card.name}
-        <div class="rpg-avatar-name">${card.name}</div>
-        <div class="rpg-avatar-alias">${card.alias||''}</div>
-        <div class="rpg-avatar-role">${card.roleClass||''}</div>
-      </div>
+      <div class="rpg-avatar-header"></div>
       <div class="rpg-avatar-bio">${card.bio||''}</div>
       ${card.quote ? `<div class='rpg-avatar-quote'>&ldquo;${card.quote}&rdquo;</div>` : ''}
       ${card.skills && card.skills.length ? `<div class='rpg-avatar-skills'><b>Skills:</b> ${card.skills.join(', ')}</div>` : ''}
       ${card.achievements && card.achievements.length ? `<div class='rpg-avatar-achievements'><b>Achievements:</b> ${card.achievements.join(', ')}</div>` : ''}
+      ${card.links ? (() => {
+        const linkKeys = ['website', 'linkedin', 'github', 'twitter', 'resume'];
+        const links = Object.entries(card.links).filter(([key]) => linkKeys.includes(key));
+        if (links.length) {
+          return `<div class='rpg-links'>${links.map(([key, url]) => {
+            const icon = {
+              website: 'fa-globe',
+              linkedin: 'fa-linkedin',
+              github: 'fa-github',
+              twitter: 'fa-x-twitter',
+              resume: 'fa-file-alt',
+            }[key] || 'fa-link';
+            const iconClass = key === 'resume' ? 'fas' : 'fab';
+            return `<a class='rpg-link' href='${url}' target='_blank' title='${key}'><i class='${iconClass} ${icon}'></i></a>`;
+          }).join('')}</div>`;
+        }
+        return '';
+      })() : ''}
       ${card.ultimateMove ? `<div class='rpg-avatar-ultimate'><b>Ultimate:</b> ${card.ultimateMove}</div>` : ''}
       <div class="rpg-avatar-team"><b>Team:</b> ${card.team||''}</div>
     `;
