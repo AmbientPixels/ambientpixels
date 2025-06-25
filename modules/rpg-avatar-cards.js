@@ -99,7 +99,11 @@
     flipBtn.title = 'Flip card';
     flipBtn.onclick = () => cardDiv.classList.toggle('flipped');
     cardDiv.appendChild(flipBtn);
-    cardDiv.appendChild(front);
+
+    // Flip inner wrapper
+    const inner = document.createElement('div');
+    inner.className = 'rpg-avatar-inner';
+    inner.appendChild(front);
 
     // Back of card
     const back = document.createElement('div');
@@ -116,7 +120,8 @@
       <div class="rpg-avatar-team"><b>Team:</b> ${card.team||''}</div>
       <div class="rpg-avatar-achievements"><b>Achievements:</b> ${card.achievements ? card.achievements.join(', ') : ''}</div>
     `;
-    cardDiv.appendChild(back);
+    inner.appendChild(back);
+    cardDiv.appendChild(inner);
 
     grid.appendChild(cardDiv);
   });

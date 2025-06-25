@@ -33,10 +33,13 @@
   border: 3px solid var(--mood-glow, #00f0ff);
   overflow: hidden;
   position: relative;
-  min-width: 300px;
-  max-width: 350px;
+  width: 100%;
   transition: box-shadow 0.2s, border-color 0.2s, transform 0.3s;
   font-family: var(--font-ui, 'Segoe UI', Arial, sans-serif);
+}
+.rpg-avatar-grid {
+  max-width: 1440px;
+  margin: 0 auto;
 }
 .rpg-avatar-card[data-theme="legendary"] {
   border-color: gold;
@@ -159,15 +162,37 @@
   z-index: 10;
   pointer-events: none;
 }
-.rpg-avatar-card .rpg-avatar-back {
-  display: none;
+.rpg-avatar-inner {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s cubic-bezier(0.4,0.2,0.2,1);
+  transform-style: preserve-3d;
+  position: relative;
+  min-height: 750px;
 }
-.rpg-avatar-card.flipped .rpg-avatar-front {
-  display: none;
+.rpg-avatar-card.flipped .rpg-avatar-inner {
+  transform: rotateY(180deg);
 }
-.rpg-avatar-card.flipped .rpg-avatar-back {
-  display: block;
+.rpg-avatar-front, .rpg-avatar-back {
+  width: 100%;
+  min-height: 340px;
+  backface-visibility: hidden;
+  border-radius: inherit;
+  box-sizing: border-box;
+  background: inherit;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
+.rpg-avatar-front {
+  z-index: 2;
+  transform: rotateY(0deg);
+}
+.rpg-avatar-back {
+  z-index: 1;
+  transform: rotateY(180deg);
+}
+
 .rpg-avatar-card .rpg-flip-btn {
   position: absolute;
   top: 0.7em;
