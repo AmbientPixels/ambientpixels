@@ -1,4 +1,83 @@
 /* RPG Avatar Card Theme - Modular Styles */
+
+/* Stat Bars */
+.rpg-mini-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7em;
+  margin: 1.2em 0 0.5em 0;
+  padding: 0 1.2rem;
+}
+.rpg-mini-stat-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  font-size: 1em;
+}
+.rpg-mini-stat-icon {
+  width: 1.7em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mood-glow, #7ad6e6);
+  font-size: 1.25em;
+}
+.rpg-mini-stat-label {
+  min-width: 4.2em;
+  font-weight: 600;
+  color: #b5b9c9;
+  letter-spacing: 0.01em;
+}
+.rpg-mini-stat-bar-bg {
+  flex: 1 1 0%;
+  background: #232b39;
+  border-radius: 1em;
+  height: 0.42em;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.13);
+}
+.rpg-mini-stat-bar-fill {
+  height: 100%;
+  border-radius: 1em;
+  background: linear-gradient(90deg, var(--mood-glow, #00f0ff) 0%, var(--aura-bg, #7ad6e6) 100%);
+  box-shadow: 0 0 6px 0 var(--mood-glow, #00f0ff);
+  width: 0;
+  animation: stat-bar-fill-animate 1.2s cubic-bezier(0.4,0.2,0.2,1) forwards;
+}
+@keyframes stat-bar-fill-animate {
+  from { width: 0; }
+  to { width: 100%; }
+}
+.rpg-mini-stat-bar[data-stat="energy"] .rpg-mini-stat-bar-fill {
+  background: linear-gradient(90deg, #ffe082 0%, #ffd54f 100%);
+  box-shadow: 0 0 6px 0 #ffe082;
+}
+.rpg-mini-stat-bar[data-stat="creativity"] .rpg-mini-stat-bar-fill {
+  background: linear-gradient(90deg, #7ad6e6 0%, #3f51b5 100%);
+  box-shadow: 0 0 6px 0 #7ad6e6;
+}
+.rpg-mini-stat-bar[data-stat="teamSpirit"] .rpg-mini-stat-bar-fill {
+  background: linear-gradient(90deg, #81c784 0%, #388e3c 100%);
+  box-shadow: 0 0 6px 0 #81c784;
+}
+.rpg-mini-stat-bar[data-stat="wisdom"] .rpg-mini-stat-bar-fill {
+  background: linear-gradient(90deg, #ffd180 0%, #ffab40 100%);
+  box-shadow: 0 0 6px 0 #ffd180;
+}
+.rpg-mini-stat-bar[data-stat="luck"] .rpg-mini-stat-bar-fill {
+  background: linear-gradient(90deg, #b388ff 0%, #7c4dff 100%);
+  box-shadow: 0 0 6px 0 #b388ff;
+}
+.rpg-mini-stat-value {
+  margin-left: 0.6em;
+  font-weight: 700;
+  color: #fff7b2;
+  min-width: 2.5em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 .rpg-avatar-section {
   margin: 2rem 0;
   padding: 1rem 0;

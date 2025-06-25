@@ -33,6 +33,33 @@
     img.src = card.image || '';
     front.appendChild(img);
 
+    // Mini stats as horizontal bars with icons
+    if (card.miniStats) {
+      const mini = document.createElement('div');
+      mini.className = 'rpg-mini-stats';
+      const statIcons = {
+        energy: 'fa-bolt',
+        creativity: 'fa-paint-brush',
+        teamSpirit: 'fa-users',
+        wisdom: 'fa-brain',
+        luck: 'fa-clover'
+      };
+      Object.entries(card.miniStats).forEach(([k, v]) => {
+        const stat = document.createElement('div');
+        stat.className = 'rpg-mini-stat-bar';
+        stat.innerHTML = `
+          <span class='rpg-mini-stat-icon'><i class='fas ${statIcons[k]||'fa-star'}'></i></span>
+          <span class='rpg-mini-stat-label'>${k.charAt(0).toUpperCase()+k.slice(1)}</span>
+          <div class='rpg-mini-stat-bar-bg'>
+            <div class='rpg-mini-stat-bar-fill' style='width:${Math.min(100,v)}%'></div>
+          </div>
+          <span class='rpg-mini-stat-value'>${v}</span>
+        `;
+        mini.appendChild(stat);
+      });
+      front.appendChild(mini);
+    }
+
     // Header
     const header = document.createElement('div');
     header.className = 'rpg-avatar-header';
@@ -44,33 +71,11 @@
       <div class="rpg-avatar-tagline">${card.tagline||''}</div>
     `;
     front.appendChild(header);
-    // Mini stats
-    if (card.miniStats) {
-      const mini = document.createElement('div');
-      mini.className = 'rpg-mini-stats';
-      Object.entries(card.miniStats).forEach(([k, v]) => {
-        const stat = document.createElement('div');
-        stat.className = 'rpg-mini-stat';
-        stat.innerHTML = `<span>${k.charAt(0).toUpperCase()+k.slice(1)}:</span> <b>${v}</b>`;
-        mini.appendChild(stat);
-      });
-      front.appendChild(mini);
-    }
+
     // Power & tool
     if (card.power) front.innerHTML += `<div class="rpg-power">Power: ${card.power}</div>`;
     if (card.favoriteTool) front.innerHTML += `<div class="rpg-favorite-tool">Tool: ${card.favoriteTool}</div>`;
-    // Links
-    if (card.links) {
-      const links = document.createElement('div');
-      links.className = 'rpg-links';
-      for (const [key, url] of Object.entries(card.links)) {
-        const icon = {
-          website: 'fa-globe', linkedin: 'fa-linkedin', github: 'fa-github', resume: 'fa-file-alt', twitter: 'fa-x-twitter', email: 'fa-envelope'
-        }[key] || 'fa-link';
-        links.innerHTML += `<a class="rpg-link" href="${url}" target="_blank" title="${key}"><i class="fab ${icon}"></i></a>`;
-      }
-      front.appendChild(links);
-    }
+
     // Badges
     if (card.badges && card.badges.length) {
       const badges = document.createElement('div');
@@ -92,6 +97,7 @@
       });
       front.appendChild(badges);
     }
+
     // Flip button
     const flipBtn = document.createElement('button');
     flipBtn.className = 'rpg-flip-btn';
@@ -120,6 +126,17 @@
       <div class="rpg-avatar-team"><b>Team:</b> ${card.team||''}</div>
       <div class="rpg-avatar-achievements"><b>Achievements:</b> ${card.achievements ? card.achievements.join(', ') : ''}</div>
     `;
+    if (card.links) {
+      const links = document.createElement('div');
+      links.className = 'rpg-links';
+      links.innerHTML = Object.entries(card.links).map(([key, url]) => {
+        const icon = {
+          website: 'fa-globe', linkedin: 'fa-linkedin', github: 'fa-github', resume: 'fa-file-alt', twitter: 'fa-x-twitter', email: 'fa-envelope'
+        }[key] || 'fa-link';
+        return `<a class='rpg-link' href='${url}' target='_blank' title='${key}'><i class='fab ${icon}'></i></a>`;
+      }).join('');
+      back.appendChild(links);
+    }
     inner.appendChild(back);
     cardDiv.appendChild(inner);
 
