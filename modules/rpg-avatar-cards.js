@@ -144,46 +144,32 @@
       ${card.quote ? `<div class='rpg-avatar-quote'>&ldquo;${card.quote}&rdquo;</div>` : ''}
       ${card.skills && card.skills.length ? `<div class='rpg-avatar-skills'><b>Skills:</b> ${card.skills.join(', ')}</div>` : ''}
       ${card.achievements && card.achievements.length ? `<div class='rpg-avatar-achievements'><b>Achievements:</b> ${card.achievements.join(', ')}</div>` : ''}
-      ${card.links ? (() => {
-        const linkKeys = ['website', 'linkedin', 'github', 'twitter', 'resume'];
-        const links = Object.entries(card.links).filter(([key]) => linkKeys.includes(key));
-        if (links.length) {
-          return `<div class='rpg-links'>${links.map(([key, url]) => {
-            const icon = {
-              website: 'fa-globe',
-              linkedin: 'fa-linkedin',
-              github: 'fa-github',
-              twitter: 'fa-x-twitter',
-              resume: 'fa-file-alt',
-            }[key] || 'fa-link';
-            const iconClass = key === 'resume' ? 'fas' : 'fab';
-            return `<a class='rpg-link' href='${url}' target='_blank' title='${key}'><i class='${iconClass} ${icon}'></i></a>`;
-          }).join('')}</div>`;
-        }
-        return '';
-      })() : ''}
+      ${card.ultimateMove ? `<div class='rpg-avatar-ultimate'><b>Ultimate:</b> ${card.ultimateMove}</div>` : ''}
+      <div class="rpg-avatar-team"><b>Team:</b> ${card.team||''}</div>
+      <!-- Social links row moved strictly after team -->
       ${card.ultimateMove ? `<div class='rpg-avatar-ultimate'><b>Ultimate:</b> ${card.ultimateMove}</div>` : ''}
       <div class="rpg-avatar-team"><b>Team:</b> ${card.team||''}</div>
     `;
-    // Back footer for social links (linkedin, github, twitter, email)
+
+    // Insert social links row at the end of the back face
     if (card.links) {
-      const socialKeys = ['linkedin', 'github', 'twitter', 'email'];
-      const socialLinks = Object.entries(card.links).filter(([key]) => socialKeys.includes(key));
-      if (socialLinks.length) {
-        const footer = document.createElement('div');
-        footer.className = 'rpg-avatar-footer';
-        const links = document.createElement('div');
-        links.className = 'rpg-links';
-        links.innerHTML = socialLinks.map(([key, url]) => {
+      const linkKeys = ['website', 'linkedin', 'github', 'twitter', 'resume'];
+      const links = Object.entries(card.links).filter(([key]) => linkKeys.includes(key));
+      if (links.length) {
+        const linksDiv = document.createElement('div');
+        linksDiv.className = 'rpg-links';
+        linksDiv.innerHTML = links.map(([key, url]) => {
           const icon = {
-            linkedin: 'fa-linkedin', github: 'fa-github', twitter: 'fa-x-twitter', email: 'fa-envelope'
+            website: 'fa-globe',
+            linkedin: 'fa-linkedin',
+            github: 'fa-github',
+            twitter: 'fa-x-twitter',
+            resume: 'fa-file-alt',
           }[key] || 'fa-link';
-          // Use fab for brands, fas for envelope
-          const iconClass = key === 'email' ? 'fas' : 'fab';
+          const iconClass = key === 'resume' ? 'fas' : 'fab';
           return `<a class='rpg-link' href='${url}' target='_blank' title='${key}'><i class='${iconClass} ${icon}'></i></a>`;
         }).join('');
-        footer.appendChild(links);
-        back.appendChild(footer);
+        back.appendChild(linksDiv);
       }
     }
     inner.appendChild(back);
