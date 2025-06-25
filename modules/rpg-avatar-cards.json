@@ -481,7 +481,7 @@
     ],
     "ultimateMove": "Wrangle Storm",
     "team": "Xbox Support Content Team",
-    "department": "Program Management",
+    "department": "Project Management",
     "badges": [
       "localization-lead",
       "pm-strategist"
@@ -531,7 +531,7 @@
     ],
     "ultimateMove": "Instant Uplift",
     "team": "Xbox Support Content Team",
-    "department": "Program Management",
+    "department": "Project Management",
     "badges": [
       "adaptation-badge",
       "rookie-star"
@@ -581,7 +581,7 @@
     ],
     "ultimateMove": "World Sync",
     "team": "Xbox Support Content Team",
-    "department": "Program Management",
+    "department": "Project Management",
     "badges": [
       "global-lead",
       "pipeline-pro"
@@ -631,7 +631,7 @@
     ],
     "ultimateMove": "Singularity Sync",
     "team": "Xbox Support Content Team",
-    "department": "Program Management",
+    "department": "Project Management",
     "badges": [
       "ai-leader",
       "visionary-award"
@@ -681,7 +681,7 @@
     ],
     "ultimateMove": "Project Flow Surge",
     "team": "Xbox Support Content Team",
-    "department": "Program Management",
+    "department": "Project Management",
     "badges": [
       "coordination-star",
       "localization-support"
@@ -731,7 +731,7 @@
     ],
     "ultimateMove": "Perfect Delivery",
     "team": "Xbox Support Content Team",
-    "department": "Program Management",
+    "department": "Project Management",
     "badges": [
       "process-star",
       "team-alignment"
@@ -747,7 +747,7 @@
       "resume": "/resumes/laura.pdf",
       "twitter": "https://twitter.com/laura"
     },
-    "image": "/images/image-packs/characters-03-super-heroes/laura.png",
+    "image": "/images/image-packs/characters-03-super-heroes/laura-01.png",
     "order": 15,
     "animationStyle": "flip",
     "theme": "plain",
@@ -847,7 +847,7 @@
       "resume": "",
       "twitter": ""
     },
-    "image": "/images/image-packs/characters-03-super-heroes/matt.png",
+    "image": "/images/image-packs/characters-03-super-heroes/matt-02.png",
     "order": 17,
     "animationStyle": "flip",
     "theme": "epic",
@@ -897,7 +897,7 @@
       "resume": "",
       "twitter": ""
     },
-    "image": "/images/image-packs/characters-03-super-heroes/tod.png",
+    "image": "/images/image-packs/characters-03-super-heroes/tod-01.png",
     "order": 18,
     "animationStyle": "flip",
     "theme": "plain",
