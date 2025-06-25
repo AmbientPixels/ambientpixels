@@ -22,7 +22,10 @@
     // Card container
     const cardDiv = document.createElement('div');
     cardDiv.className = 'rpg-avatar-card';
-    if (card.theme) cardDiv.setAttribute('data-theme', card.theme);
+    if (card.theme) {
+      cardDiv.setAttribute('data-theme', card.theme);
+      cardDiv.classList.add(`theme-${card.theme.toLowerCase()}`);
+    }
     
     // Card inner container for 3D flip effect
     const cardInner = document.createElement('div');

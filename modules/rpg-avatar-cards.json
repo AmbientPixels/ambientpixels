@@ -49,7 +49,7 @@
     "image": "/images/image-packs/characters-03-super-heroes/taryn.png",
     "order": 2,
     "animationStyle": "flip",
-    "theme": "legendary",
+    "theme": "Legendary",
     "hiddenFields": ["bio"],
     "customBadgeIcons": {}
   },
@@ -99,7 +99,7 @@
     "image": "/images/image-packs/characters-03-super-heroes/rob.png",
     "order": 3,
     "animationStyle": "flip",
-    "theme": "legendary",
+    "theme": "Legendary",
     "hiddenFields": ["bio"],
     "customBadgeIcons": {}
   },
@@ -150,7 +150,7 @@
     "image": "/images/image-packs/characters-03-super-heroes/female/tanya.png",
     "order": 3,
     "animationStyle": "flip",
-    "theme": "mythic",
+    "theme": "rare",
     "hiddenFields": ["bio"],
     "customBadgeIcons": {}
   },
@@ -210,7 +210,7 @@
     "name": "Keith",
     "alias": "The Master Coordinator",
     "roleClass": "Work Trafficer",
-    "hometown": "Portland",
+    "hometown": "New York",
     "tagline": "No task left behind.",
     "level": 5,
     "miniStats": {
@@ -350,7 +350,7 @@
     "image": "/images/image-packs/characters-03-super-heroes/chad.png",
     "order": 7,
     "animationStyle": "flip",
-    "theme": "mythic",
+    "theme": "rare",
     "hiddenFields": ["bio"],
     "customBadgeIcons": {}
   },

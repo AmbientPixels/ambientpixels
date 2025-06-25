@@ -1,5 +1,20 @@
 /* RPG Avatar Card Theme - Modular Styles */
 
+/* Card theme borders - updated by Cascade */
+.rpg-avatar-card.theme-legendary {
+  border: 4px solid rgba(251,191,36,0.85); /* Gold, wider */
+  box-shadow: 0 0 24px 4px rgba(251,191,36,0.35); /* Stronger gold glow */
+}
+.rpg-avatar-card.theme-epic {
+  border: 4px solid rgba(139,92,246,0.85); /* Purple, wider */
+  box-shadow: 0 0 24px 4px rgba(139,92,246,0.35); /* Stronger purple glow */
+}
+.rpg-avatar-card.theme-rare {
+  border: 4px solid rgba(34,197,94,0.85); /* Green, wider */
+  box-shadow: 0 0 24px 4px rgba(34,197,94,0.32); /* Stronger green glow */
+}
+
+
 .rpg-avatar-details-list {
   margin: 1.2em 0 0 0;
   padding: 0 0 0 0.4em;
