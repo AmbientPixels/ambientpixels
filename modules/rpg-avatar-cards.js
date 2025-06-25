@@ -68,6 +68,7 @@
     front.appendChild(header);
 
     // --- MID SECTION ---
+    // Only insert divider after header, not at top (fixes white line above image)
     front.innerHTML += '<hr class="rpg-divider">';
     if (card.tagline) front.innerHTML += `<div class="rpg-avatar-tagline">${card.tagline}</div>`;
 
@@ -87,24 +88,37 @@
         luck: 'fa-clover'
       };
       Object.entries(card.miniStats).forEach(([k, v]) => {
-        const stat = document.createElement('div');
-        stat.className = 'rpg-mini-stat-bar';
-        stat.innerHTML = `
-          <span class='rpg-mini-stat-icon'><i class='fas ${statIcons[k]||'fa-star'}'></i></span>
-          <span class='rpg-mini-stat-label'>${k.charAt(0).toUpperCase()+k.slice(1)}</span>
-          <div class='rpg-mini-stat-bar-bg'>
-            <div class='rpg-mini-stat-bar-fill' style='width:${Math.min(100,v)}%'></div>
-          </div>
-          <span class='rpg-mini-stat-value'>${v}</span>
-        `;
-        mini.appendChild(stat);
-      });
+  const stat = document.createElement('div');
+  stat.className = 'rpg-mini-stat-bar';
+  stat.setAttribute('data-stat', k); // for CSS targeting
+  stat.innerHTML = `
+    <span class='rpg-mini-stat-icon'><i class='fas ${statIcons[k]||'fa-star'}'></i></span>
+    <span class='rpg-mini-stat-label'>${k.charAt(0).toUpperCase()+k.slice(1)}</span>
+    <div class='rpg-mini-stat-bar-bg'>
+      <div class='rpg-mini-stat-bar-fill' style='width:${Math.max(6,Math.min(100,v))}%'></div>
+    </div>
+    <span class='rpg-mini-stat-value'>${v}</span>
+  `;
+  mini.appendChild(stat);
+});
       front.appendChild(mini);
     }
 
     // --- BOTTOM SECTION ---
     front.innerHTML += '<hr class="rpg-divider">';
-    // Badges (with custom icon support)
+    // Wrap card content for sticky footer
+    const cardBody = document.createElement('div');
+    cardBody.className = 'rpg-card-body';
+    // Move all children except the divider to cardBody
+    while (front.firstChild && front.childNodes.length > 1) {
+      if (!front.firstChild.classList || !front.firstChild.classList.contains('rpg-badges')) {
+        cardBody.appendChild(front.firstChild);
+      } else {
+        break;
+      }
+    }
+    front.appendChild(cardBody);
+    // Badges sticky footer
     if (card.badges && card.badges.length) {
       const badges = document.createElement('div');
       badges.className = 'rpg-badges';
@@ -129,6 +143,15 @@
           ? `<span class="rpg-badge" data-tooltip="${badgeTooltip}"><i class="fas ${badgeIcon}"></i></span>`
           : `<span class="rpg-badge" data-tooltip="${badgeTooltip}"><img src="${card.customBadgeIcons[b]}" class="rpg-badge-custom-icon" alt="${b}"></span>`;
       });
+      badges.style.position = 'sticky';
+      badges.style.bottom = '0';
+      badges.style.left = '0';
+      badges.style.width = '100%';
+      badges.style.background = 'rgba(24,27,34,0.97)';
+      badges.style.zIndex = '2';
+      badges.style.display = 'flex';
+      badges.style.justifyContent = 'center';
+      badges.style.padding = '0.65em 0 0.65em 0';
       front.appendChild(badges);
     }
 

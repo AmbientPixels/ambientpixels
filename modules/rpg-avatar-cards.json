@@ -99,7 +99,7 @@
     "image": "/images/image-packs/characters-03-super-heroes/rob.png",
     "order": 3,
     "animationStyle": "flip",
-    "theme": "mythic",
+    "theme": "legendary",
     "hiddenFields": ["bio"],
     "customBadgeIcons": {}
   },
@@ -148,7 +148,11 @@
       "resume": "/resumes/tanya.pdf"
     },
     "image": "/images/image-packs/characters-03-super-heroes/female/tanya.png",
-    "order": 3
+    "order": 3,
+    "animationStyle": "flip",
+    "theme": "mythic",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
   },
   {
     "active": true,
@@ -196,7 +200,7 @@
     "image": "/images/image-packs/characters-03-super-heroes/jacob.png",
     "order": 4,
     "animationStyle": "flip",
-    "theme": "mythic",
+    "theme": "plain",
     "hiddenFields": ["bio"],
     "customBadgeIcons": {}
   },
@@ -246,7 +250,7 @@
     "image": "/images/image-packs/characters-03-super-heroes/keith.png",
     "order": 5,
     "animationStyle": "flip",
-    "theme": "mythic",
+    "theme": "plain",
     "hiddenFields": ["bio"],
     "customBadgeIcons": {}
   },
@@ -296,7 +300,7 @@
     "image": "/images/image-packs/characters-03-super-heroes/jon.png",
     "order": 6,
     "animationStyle": "flip",
-    "theme": "mythic",
+    "theme": "epic",
     "hiddenFields": ["bio"],
     "customBadgeIcons": {}
   },
@@ -306,15 +310,15 @@
     "name": "Chad",
     "alias": "The Pixel Wizard",
     "roleClass": "Production & AI",
-    "hometown": "Tacoma",
+    "hometown": "Shoreline, WA",
     "tagline": "Crafting pixels since '95.",
     "level": 8,
     "miniStats": {
-      "energy": 95,
+      "energy": 85,
       "creativity": 98,
       "teamSpirit": 90,
-      "wisdom": 94,
-      "luck": 89
+      "wisdom": 75,
+      "luck": 30
     },
     "power": "Digital Alchemy",
     "favoriteTool": "Pixel Forge",
@@ -396,7 +400,7 @@
     "image": "/images/image-packs/characters-03-super-heroes/felix.png",
     "order": 8,
     "animationStyle": "flip",
-    "theme": "mythic",
+    "theme": "plain",
     "hiddenFields": ["bio"],
     "customBadgeIcons": {}
   },
@@ -496,7 +500,7 @@
     "image": "/images/image-packs/characters-03-super-heroes/martina.png",
     "order": 10,
     "animationStyle": "flip",
-    "theme": "mythic",
+    "theme": "epic",
     "hiddenFields": ["bio"],
     "customBadgeIcons": {}
   },
@@ -546,7 +550,7 @@
     "image": "/images/image-packs/characters-03-super-heroes/alyssa.png",
     "order": 11,
     "animationStyle": "flip",
-    "theme": "mythic",
+    "theme": "plain",
     "hiddenFields": ["bio"],
     "customBadgeIcons": {}
   },
@@ -596,7 +600,7 @@
     "image": "/images/image-packs/characters-03-super-heroes/michelle.png",
     "order": 12,
     "animationStyle": "flip",
-    "theme": "mythic",
+    "theme": "plain",
     "hiddenFields": ["bio"],
     "customBadgeIcons": {}
   },
@@ -646,7 +650,7 @@
     "image": "/images/image-packs/characters-03-super-heroes/kerry.png",
     "order": 13,
     "animationStyle": "flip",
-    "theme": "mythic",
+    "theme": "plain",
     "hiddenFields": ["bio"],
     "customBadgeIcons": {}
   },
@@ -696,7 +700,7 @@
     "image": "/images/image-packs/characters-03-super-heroes/emily.png",
     "order": 14,
     "animationStyle": "flip",
-    "theme": "mythic",
+    "theme": "plain",
     "hiddenFields": ["bio"],
     "customBadgeIcons": {}
   },
@@ -746,7 +750,157 @@
     "image": "/images/image-packs/characters-03-super-heroes/laura.png",
     "order": 15,
     "animationStyle": "flip",
-    "theme": "mythic",
+    "theme": "plain",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
+  },
+  {
+    "active": true,
+    "avatarCategory": "female",
+    "name": "Jen",
+    "alias": "The Complexity Tamer",
+    "roleClass": "Writer",
+    "hometown": "Seattle",
+    "tagline": "Complex doesn't have to mean complicated.",
+    "level": 5,
+    "miniStats": {
+      "energy": 79,
+      "creativity": 85,
+      "teamSpirit": 83,
+      "wisdom": 90,
+      "luck": 85
+    },
+    "power": "Complexity Simplification",
+    "favoriteTool": "Structure Quill",
+    "bio": "Makes complex content clear and accessible for users through masterful writing and structured thinking.",
+    "quote": "Complex content doesn't have to be complicated for users—that's where great writing makes all the difference.",
+    "skills": [
+      "Structured Thinking",
+      "Tone Harmonization",
+      "Framework Building"
+    ],
+    "ultimateMove": "Clarity Cascade",
+    "team": "Xbox Support Content Team",
+    "department": "Content Writing",
+    "badges": [
+      "clarity-mage",
+      "framework-champion"
+    ],
+    "achievements": [
+      "Docs Overhaul Lead",
+      "Master of Consistency"
+    ],
+    "links": {
+      "website": "",
+      "linkedin": "",
+      "github": "",
+      "resume": "",
+      "twitter": ""
+    },
+    "image": "/images/image-packs/characters-03-super-heroes/jen.png",
+    "order": 16,
+    "animationStyle": "flip",
+    "theme": "plain",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
+  },
+  {
+    "active": true,
+    "avatarCategory": "male",
+    "name": "Matt",
+    "alias": "The Word Master",
+    "roleClass": "Lead Writer",
+    "hometown": "Brooklyn",
+    "tagline": "Every word counts when clarity is the goal.",
+    "level": 6,
+    "miniStats": {
+      "energy": 82,
+      "creativity": 88,
+      "teamSpirit": 84,
+      "wisdom": 91,
+      "luck": 86
+    },
+    "power": "Clarity Conjuring",
+    "favoriteTool": "Insight Pen",
+    "bio": "Leads the writing team with a focus on clarity, empathy, and delivering what users truly need.",
+    "quote": "Great writing isn't just about words—it's about clarity, empathy, and understanding what users truly need.",
+    "skills": [
+      "Content Leadership",
+      "Messaging Calibration",
+      "UX Tone Guidance"
+    ],
+    "ultimateMove": "Precision Pulse",
+    "team": "Xbox Support Content Team",
+    "department": "Content Writing",
+    "badges": [
+      "clarity-strike",
+      "editorial-expert"
+    ],
+    "achievements": [
+      "5-Year Narrative Lead",
+      "Publishing Perfectionist"
+    ],
+    "links": {
+      "website": "",
+      "linkedin": "",
+      "github": "",
+      "resume": "",
+      "twitter": ""
+    },
+    "image": "/images/image-packs/characters-03-super-heroes/matt.png",
+    "order": 17,
+    "animationStyle": "flip",
+    "theme": "epic",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
+  },
+  {
+    "active": true,
+    "avatarCategory": "male",
+    "name": "Tod",
+    "alias": "The Style Shifter",
+    "roleClass": "Writer",
+    "hometown": "Austin",
+    "tagline": "Tone is a tool—and I wield it well.",
+    "level": 5,
+    "miniStats": {
+      "energy": 78,
+      "creativity": 87,
+      "teamSpirit": 82,
+      "wisdom": 88,
+      "luck": 84
+    },
+    "power": "Style Morphing",
+    "favoriteTool": "Adaptive Pen",
+    "bio": "Adapts writing style and tone to fit any platform, audience, or purpose with chameleon-like skill.",
+    "quote": "The best writers are chameleons—able to adapt their voice to the audience, platform, and purpose.",
+    "skills": [
+      "Tone Switching",
+      "Voice Matching",
+      "Format Fluidity"
+    ],
+    "ultimateMove": "Narrative Transmutation",
+    "team": "Xbox Support Content Team",
+    "department": "Content Writing",
+    "badges": [
+      "style-morph",
+      "voice-adapt"
+    ],
+    "achievements": [
+      "Multi-Platform Author",
+      "Tone Champion"
+    ],
+    "links": {
+      "website": "",
+      "linkedin": "",
+      "github": "",
+      "resume": "",
+      "twitter": ""
+    },
+    "image": "/images/image-packs/characters-03-super-heroes/tod.png",
+    "order": 18,
+    "animationStyle": "flip",
+    "theme": "plain",
     "hiddenFields": ["bio"],
     "customBadgeIcons": {}
   }

@@ -174,8 +174,8 @@
   border-radius: 1em;
   background: linear-gradient(90deg, var(--mood-glow, #00f0ff) 0%, var(--aura-bg, #7ad6e6) 100%);
   box-shadow: 0 0 6px 0 var(--mood-glow, #00f0ff);
-  width: 0;
-  animation: stat-bar-fill-animate 1.2s cubic-bezier(0.4,0.2,0.2,1) forwards;
+  transition: width 0.9s cubic-bezier(0.4,0.2,0.2,1);
+  /* updated by Cascade: width set by inline style */
 }
 @keyframes stat-bar-fill-animate {
   from { width: 0; }
@@ -238,58 +238,64 @@
   grid-template-columns: repeat(6, 1fr);
 }
 .rpg-avatar-card {
-  background: var(--aura-bg, #181b22);
+  background: linear-gradient(180deg, #181b22 0%, #232b39 100%);
   border-radius: 1.25rem;
-  box-shadow: 0 4px 32px 0 rgba(0,0,0,0.18), 0 1.5px 0 0 var(--mood-glow, #00f0ff);
+  box-shadow: 0 4px 40px 0 rgba(0,0,0,0.22), 0 2.5px 0 0 var(--mood-glow, #00f0ff);
   border: 3px solid var(--mood-glow, #00f0ff);
-  /* updated by Cascade: allow badge hover to overflow for tooltips */
   overflow: visible;
   position: relative;
   width: 100%;
-  height: 800px;
+  max-width: 460px;
+  min-width: 320px;
+  height: 900px;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   transition: box-shadow 0.2s, border-color 0.2s, transform 0.3s;
   font-family: var(--font-ui, 'Segoe UI', Arial, sans-serif);
-  cursor: pointer; /* updated by Cascade: show pointer for interactivity */
+  cursor: pointer;
+  /* updated by Cascade: beautiful dark gradient background */
 }
 
-/* updated by Cascade: card-wide hover for image zoom and glow */
-.rpg-avatar-card:hover {
-  box-shadow: 0 8px 48px 0 rgba(0,255,255,0.25), 0 2.5px 0 0 var(--mood-glow, #00f0ff);
-  border-color: var(--mood-glow, #7ad6e6);
-}
-.rpg-avatar-card:hover .rpg-avatar-img {
-  transform: scale(1.08);
-  filter: brightness(1.08) saturate(1.1);
-}
 
-.rpg-avatar-grid {
-  max-width: 1440px;
-  margin: 0 auto;
+/* DEBUG: Diagnostic rule to hide all hr and .rpg-divider elements inside the card */
+.rpg-avatar-card hr, .rpg-avatar-card .rpg-divider {
+  display: none !important;
 }
-.rpg-avatar-card[data-theme="legendary"] {
-  border-color: gold;
-  box-shadow: 0 0 24px 4px gold;
-}
-.rpg-avatar-card .rpg-avatar-img {
-  /* updated by Cascade: enhanced visual style */
-  width: 100%;
-  height: 270px;
-  object-fit: cover;
-  background: #222c38;
-  border-bottom: 2px solid var(--mood-glow, #00f0ff);
-  border-top-left-radius: 1.25rem;
-  border-top-right-radius: 1.25rem;
-  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.13);
-  transition: filter 0.3s, transform 0.35s cubic-bezier(.4,.2,.2,1);
-}
-
 
 .rpg-avatar-img-container {
   position: relative;
   width: 100%;
   height: 270px;
   overflow: hidden;
+  margin-top: 0;
+  padding-top: 0;
+  background: linear-gradient(180deg, #232b39 0%, #181b22 100%);
+  border-top-left-radius: 1.25rem;
+  border-top-right-radius: 1.25rem;
+  border-top: none;
+  outline: none;
+  /* updated by Cascade: beautiful dark gradient background for image container */
 }
+
+.rpg-avatar-img-container {
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.13);
+  transition: filter 0.3s, transform 0.35s cubic-bezier(.4,.2,.2,1);
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+  outline: none;
+}
+
+
+.rpg-avatar-header {
+  margin-top: 0;
+  padding-top: 0.7em;
+  border-top: none;
+  background: none;
+}
+
 .rpg-avatar-department-tag {
   position: absolute;
   left: 50%;
@@ -535,25 +541,47 @@
 .rpg-avatar-inner {
   width: 100%;
   height: 100%;
-  transition: transform 0.6s cubic-bezier(0.4,0.2,0.2,1);
   transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4,0.2,0.2,1);
   position: relative;
   min-height: 750px;
+  /* updated by Cascade: removed border-radius/overflow, now set on .rpg-avatar-card */
 }
+
+.rpg-avatar-card {
+  border-radius: 1.25rem;
+  overflow: hidden;
+  /* updated by Cascade: outer card now clips both faces with rounded corners */
+}
+
 .rpg-avatar-card.flipped .rpg-avatar-inner {
   transform: rotateY(180deg);
 }
+
 .rpg-avatar-front, .rpg-avatar-back {
   width: 100%;
   min-height: 340px;
   backface-visibility: hidden;
   border-radius: inherit;
   box-sizing: border-box;
-  background: inherit;
   position: absolute;
   top: 0;
   left: 0;
 }
+.rpg-avatar-front {
+  background: none;
+  transform: rotateY(0deg);
+  z-index: 2;
+}
+.rpg-avatar-back {
+  background: linear-gradient(180deg, #232b39 0%, #181b22 100%);
+  transform: rotateY(180deg);
+  z-index: 1;
+  padding: 1.3em 1.5em 0.5em 1.5em;
+  box-sizing: border-box;
+  /* updated by Cascade: readable back face */
+}
+
 .rpg-avatar-front {
   z-index: 2;
   transform: rotateY(0deg);
