@@ -320,6 +320,19 @@
 }
 
 /* updated by Cascade: make department badge backgrounds more opaque and borders bolder */
+
+/* updated by Cascade: remove hero-card-badges-row and hero-card-badge pill/flex styles for classic badge look */
+
+.badge-solid-cyan {
+  background-color: rgba(34,211,238,0.5) !important;
+  color: #cffafe !important;
+  border: 1.5px solid rgba(34,211,238,0.7) !important;
+}
+.badge-solid-cyan:hover, .badge-solid-cyan:focus {
+  box-shadow: 0 0 0 4px #67e8f933, 0 2px 12px 0 rgba(0,0,0,0.15);
+  outline: none;
+}
+
 .rpg-avatar-department-tag.badge-solid-blue {
   background-color: rgba(59,130,246,0.5) !important;
   color: #bfdbfe !important;

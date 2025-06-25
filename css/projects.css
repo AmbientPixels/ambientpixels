@@ -3793,6 +3793,24 @@ body[data-theme="light"] .project-section:hover {
 }
 
 /* ===== Badge Styles ===== */
+
+.impact-badges-centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin: 1.3rem 0 1.7rem 0;
+}
+
+.impact-badges-centered .badge-impact-lg {
+  font-size: 1.25rem;
+  padding: 0.6em 1.7em;
+  border-radius: 6px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  box-shadow: 0 2px 14px 0 rgba(139,92,246,0.08);
+}
+
 .tech-badges {
   display: flex;
   flex-wrap: wrap;
