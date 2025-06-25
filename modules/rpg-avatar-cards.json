@@ -6,101 +6,102 @@
     "active": true,
     
     "avatarCategory": "female",
-    "name": "Sam",
-    "alias": "The Debugger",
-    "roleClass": "Support Mage",
+    "name": "Taryn",
+    "alias": "The Voice",
+    "roleClass": "Team Rep",
     "hometown": "Redmond",
-    "tagline": "No bug survives the night!",
-    "level": 5,
+    "tagline": "Voice of the Stakeholders",
+    "level": 6,
     "miniStats": {
-      "energy": 95,
-      "creativity": 88,
-      "teamSpirit": 100,
-      "wisdom": 90,
-      "luck": 70
+      "energy": 80,
+      "creativity": 80,
+      "teamSpirit": 80,
+      "wisdom": 80,
+      "luck": 80
     },
-    "power": "Localization Mastery",
-    "favoriteTool": "Figma Blade",
-    "bio": "Sam joined the team in 2020 and quickly became the go-to for all things troubleshooting. She brings empathy and precision to every player interaction.",
-    "quote": "Personal quote goes here",
+    "power": "Stakeholder Whisperer",
+    "favoriteTool": "PowerPoint Scroll",
+    "bio": "Represents the team to Microsoft stakeholders and crafts impactful quarterly reports.",
+    "quote": "Our success is measured not just in metrics, but in the trust we build with our stakeholders.",
     "skills": [
-      "Empathy Aura",
-      "Speedrun Debugging",
-      "Knowledge Sharing"
+      "Report Crafting",
+      "Stakeholder Sync",
+      "Diplomacy Aura"
     ],
-    "ultimateMove": "Support Unleashed",
-    "team": "Xbox Support Guild",
-    "department": "Dev Ops",
+    "ultimateMove": "Quarterly Clarity",
+    "team": "Xbox Support Content Team",
+    "department": "Leadership",
     "badges": [
-      "docs-master",
-      "team-player",
-      "mvp"
+      "team-voice",
+      "report-master"
     ],
     "achievements": [
-      "1000 Tickets",
-      "Docs Champion"
+      "40+ Reports",
+      "Stakeholder Summit Speaker"
     ],
     "links": {
-      "website": "https://sam.dev",
-      "linkedin": "https://linkedin.com/in/sam",
-      "github": "https://github.com/sam",
-      "resume": "/resumes/sam.pdf",
-      "twitter": "https://twitter.com/sam"
+      "website": "",
+      "linkedin": "",
+      "github": "",
+      "resume": "",
+      "twitter": ""
     },
-    "image": "/images/image-packs/characters-03-super-heroes/female/michelle.png",
-    "order": 1,
+    "image": "/images/image-packs/characters-03-super-heroes/taryn.png",
+    "order": 2,
     "animationStyle": "flip",
     "theme": "legendary",
     "hiddenFields": ["bio"],
-    "customBadgeIcons": {
-      "mvp": "/images/badges/mvp-custom.svg"
-    }
+    "customBadgeIcons": {}
   },
   {
     "active": true,
-    
     "avatarCategory": "male",
-    "name": "Matt",
-    "alias": "The Architect",
-    "roleClass": "Automation Paladin",
+    "name": "Rob",
+    "alias": "The Guardian Leader",
+    "roleClass": "Operations",
     "hometown": "Seattle",
-    "tagline": "Build it, break it, make it better!",
+    "tagline": "Unity in motion.",
     "level": 7,
     "miniStats": {
-      "energy": 85,
-      "creativity": 92,
-      "teamSpirit": 98,
-      "wisdom": 95,
-      "luck": 80
+      "energy": 88,
+      "creativity": 85,
+      "teamSpirit": 99,
+      "wisdom": 90,
+      "luck": 85
     },
-    "power": "System Integration",
-    "favoriteTool": "SharePoint Shield",
-    "bio": "Matt is the backbone of our automation efforts, always ready to streamline a process or squash a bug.",
-    "quote": "Build it once, make it right.",
+    "power": "Tactical Command",
+    "favoriteTool": "Team Compass",
+    "bio": "Leads operations and ensures smooth team coordination with strategic vision.",
+    "quote": "A team that operates as one can overcome any challenge the gaming world throws at us.",
     "skills": [
-      "Process Automation",
-      "Data Migration",
-      "System Design"
+      "Operational Flow",
+      "Strategic Insight",
+      "Calm Aura"
     ],
-    "ultimateMove": "One-Click Deploy",
-    "team": "Xbox Support Guild",
-    "department": "Dev Ops",
+    "ultimateMove": "Unified Push",
+    "team": "Xbox Support Content Team",
+    "department": "Operations",
     "badges": [
-      "automation-champion",
-      "team-player"
+      "leadership-badge",
+      "ops-master"
     ],
     "achievements": [
-      "500 Deployments",
-      "Automation Hero"
+      "Cross-Team Sync",
+      "Crisis Navigation"
     ],
     "links": {
-      "website": "https://matt.dev",
-      "linkedin": "https://linkedin.com/in/matt",
-      "github": "https://github.com/matt",
-      "resume": "/resumes/matt.pdf"
+      "website": "https://rob.dev",
+      "linkedin": "https://linkedin.com/in/rob",
+      "github": "https://github.com/rob",
+      "resume": "/resumes/rob.pdf",
+      "twitter": "https://twitter.com/rob"
     },
-    "image": "/images/image-packs/characters-03-super-heroes/male/matt.png",
-    "order": 2
+    "image": "/images/image-packs/characters-03-super-heroes/rob.png",
+    "order": 3,
+    "animationStyle": "flip",
+    "theme": "mythic",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
   },
   {
     "active": true,
@@ -148,5 +149,605 @@
     },
     "image": "/images/image-packs/characters-03-super-heroes/female/tanya.png",
     "order": 3
+  },
+  {
+    "active": true,
+    "avatarCategory": "male",
+    "name": "Jacob",
+    "alias": "The Analytical Mind",
+    "roleClass": "Operations",
+    "hometown": "Seattle",
+    "tagline": "Logic is the best defense.",
+    "level": 6,
+    "miniStats": {
+      "energy": 82,
+      "creativity": 88,
+      "teamSpirit": 90,
+      "wisdom": 92,
+      "luck": 80
+    },
+    "power": "Pattern Recognition",
+    "favoriteTool": "Ops Matrix",
+    "bio": "Solves complex problems and drives innovation in team operations.",
+    "quote": "Every operational problem has a solution—you just need to see the patterns that others miss.",
+    "skills": [
+      "Smart Solutions",
+      "System Sync",
+      "Workflow Clarity"
+    ],
+    "ultimateMove": "Strategic Decryption",
+    "team": "Xbox Support Content Team",
+    "department": "Operations",
+    "badges": [
+      "solutioneer",
+      "innovation-award"
+    ],
+    "achievements": [
+      "System Overhaul",
+      "Idea of the Year"
+    ],
+    "links": {
+      "website": "https://jacob.dev",
+      "linkedin": "https://linkedin.com/in/jacob",
+      "github": "https://github.com/jacob",
+      "resume": "/resumes/jacob.pdf",
+      "twitter": "https://twitter.com/jacob"
+    },
+    "image": "/images/image-packs/characters-03-super-heroes/jacob.png",
+    "order": 4,
+    "animationStyle": "flip",
+    "theme": "mythic",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
+  },
+  {
+    "active": true,
+    "avatarCategory": "male",
+    "name": "Keith",
+    "alias": "The Master Coordinator",
+    "roleClass": "Work Trafficer",
+    "hometown": "Portland",
+    "tagline": "No task left behind.",
+    "level": 5,
+    "miniStats": {
+      "energy": 80,
+      "creativity": 78,
+      "teamSpirit": 92,
+      "wisdom": 86,
+      "luck": 83
+    },
+    "power": "Traffic Control",
+    "favoriteTool": "Task Beacon",
+    "bio": "Coordinates stakeholder tasks and manages complex team workflows.",
+    "quote": "In the flow of tasks and deadlines, I am the one who ensures everything reaches its destination.",
+    "skills": [
+      "Task Flow",
+      "Deadline Shield",
+      "Priority Pulse"
+    ],
+    "ultimateMove": "Hyper Coordination",
+    "team": "Xbox Support Content Team",
+    "department": "Operations",
+    "badges": [
+      "taskmaster",
+      "efficiency-star"
+    ],
+    "achievements": [
+      "Zero Backlog Week",
+      "Ops MVP"
+    ],
+    "links": {
+      "website": "https://keith.dev",
+      "linkedin": "https://linkedin.com/in/keith",
+      "github": "https://github.com/keith",
+      "resume": "/resumes/keith.pdf",
+      "twitter": "https://twitter.com/keith"
+    },
+    "image": "/images/image-packs/characters-03-super-heroes/keith.png",
+    "order": 5,
+    "animationStyle": "flip",
+    "theme": "mythic",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
+  },
+  {
+    "active": true,
+    "avatarCategory": "male",
+    "name": "Jon",
+    "alias": "The Conductor",
+    "roleClass": "Production Lead",
+    "hometown": "Bellevue",
+    "tagline": "Harmony in action.",
+    "level": 7,
+    "miniStats": {
+      "energy": 90,
+      "creativity": 91,
+      "teamSpirit": 95,
+      "wisdom": 92,
+      "luck": 87
+    },
+    "power": "Symphonic Coordination",
+    "favoriteTool": "Harmony Helm",
+    "bio": "Leads production, connects stakeholders, and directs the publishing team.",
+    "quote": "Production isn't just about making things—it's about orchestrating people, processes, and passion into perfect harmony.",
+    "skills": [
+      "Publishing Flow",
+      "Stakeholder Sync",
+      "Team Baton"
+    ],
+    "ultimateMove": "Orchestrated Launch",
+    "team": "Xbox Support Content Team",
+    "department": "Production",
+    "badges": [
+      "publishing-lead",
+      "team-maestro"
+    ],
+    "achievements": [
+      "30+ Launches",
+      "Coordination Hero"
+    ],
+    "links": {
+      "website": "https://jon.dev",
+      "linkedin": "https://linkedin.com/in/jon",
+      "github": "https://github.com/jon",
+      "resume": "/resumes/jon.pdf",
+      "twitter": "https://twitter.com/jon"
+    },
+    "image": "/images/image-packs/characters-03-super-heroes/jon.png",
+    "order": 6,
+    "animationStyle": "flip",
+    "theme": "mythic",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
+  },
+  {
+    "active": true,
+    "avatarCategory": "male",
+    "name": "Chad",
+    "alias": "The Pixel Wizard",
+    "roleClass": "Production & AI",
+    "hometown": "Tacoma",
+    "tagline": "Crafting pixels since '95.",
+    "level": 8,
+    "miniStats": {
+      "energy": 95,
+      "creativity": 98,
+      "teamSpirit": 90,
+      "wisdom": 94,
+      "luck": 89
+    },
+    "power": "Digital Alchemy",
+    "favoriteTool": "Pixel Forge",
+    "bio": "Publishes, produces, and manages digital projects with 30+ years of experience.",
+    "quote": "Every digital experience is about connecting humans through technology.",
+    "skills": [
+      "Pixel Mastery",
+      "Experience Crafting",
+      "Legacy Support"
+    ],
+    "ultimateMove": "Omnidimensional Publish",
+    "team": "Xbox Support Content Team",
+    "department": "Production",
+    "badges": [
+      "pixel-perfection",
+      "ai-mentor"
+    ],
+    "achievements": [
+      "30-Year Pixel Run",
+      "Masterclass Instructor"
+    ],
+    "links": {
+      "website": "https://chad.dev",
+      "linkedin": "https://linkedin.com/in/chad",
+      "github": "https://github.com/chad",
+      "resume": "/resumes/chad.pdf",
+      "twitter": "https://twitter.com/chad"
+    },
+    "image": "/images/image-packs/characters-03-super-heroes/chad.png",
+    "order": 7,
+    "animationStyle": "flip",
+    "theme": "mythic",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
+  },
+  {
+    "active": true,
+    "avatarCategory": "male",
+    "name": "Felix",
+    "alias": "The Synchronizer",
+    "roleClass": "Production",
+    "hometown": "Portland",
+    "tagline": "Teamwork in sync.",
+    "level": 6,
+    "miniStats": {
+      "energy": 85,
+      "creativity": 84,
+      "teamSpirit": 95,
+      "wisdom": 89,
+      "luck": 86
+    },
+    "power": "Clockwork Precision",
+    "favoriteTool": "Sync Rod",
+    "bio": "Co-leads publishing with precise coordination and teamwork.",
+    "quote": "Great publishing is about perfect synchronization.",
+    "skills": [
+      "Timing Mastery",
+      "Publishing Sync",
+      "Team Harmony"
+    ],
+    "ultimateMove": "Perfect Release",
+    "team": "Xbox Support Content Team",
+    "department": "Production",
+    "badges": [
+      "sync-star",
+      "publish-pro"
+    ],
+    "achievements": [
+      "100 Launches",
+      "Top Sync Rating"
+    ],
+    "links": {
+      "website": "https://felix.dev",
+      "linkedin": "https://linkedin.com/in/felix",
+      "github": "https://github.com/felix",
+      "resume": "/resumes/felix.pdf",
+      "twitter": "https://twitter.com/felix"
+    },
+    "image": "/images/image-packs/characters-03-super-heroes/felix.png",
+    "order": 8,
+    "animationStyle": "flip",
+    "theme": "mythic",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
+  },
+  {
+    "active": true,
+    "avatarCategory": "male",
+    "name": "Joel",
+    "alias": "The Language Master",
+    "roleClass": "Localization Specialist",
+    "hometown": "Buenos Aires",
+    "tagline": "Translation with soul.",
+    "level": 5,
+    "miniStats": {
+      "energy": 78,
+      "creativity": 88,
+      "teamSpirit": 87,
+      "wisdom": 90,
+      "luck": 82
+    },
+    "power": "Cultural Resonance",
+    "favoriteTool": "Language Lens",
+    "bio": "Specializes in Spanish and Portuguese localization for Xbox content.",
+    "quote": "Language is cultural connection.",
+    "skills": [
+      "Language Tuning",
+      "Cultural Insight",
+      "Regional Harmony"
+    ],
+    "ultimateMove": "Dual-Locale Blast",
+    "team": "Xbox Support Content Team",
+    "department": "Production",
+    "badges": [
+      "localization-pro",
+      "culture-hero"
+    ],
+    "achievements": [
+      "Multi-Lingual Excellence",
+      "Translation Hero"
+    ],
+    "links": {
+      "website": "https://joel.dev",
+      "linkedin": "https://linkedin.com/in/joel",
+      "github": "https://github.com/joel",
+      "resume": "/resumes/joel.pdf",
+      "twitter": "https://twitter.com/joel"
+    },
+    "image": "/images/image-packs/characters-03-super-heroes/joel.png",
+    "order": 9,
+    "animationStyle": "flip",
+    "theme": "mythic",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
+  },
+  {
+    "active": true,
+    "avatarCategory": "female",
+    "name": "Martina",
+    "alias": "The Wrangler",
+    "roleClass": "PM Leader",
+    "hometown": "Munich",
+    "tagline": "Lead the flow.",
+    "level": 7,
+    "miniStats": {
+      "energy": 89,
+      "creativity": 87,
+      "teamSpirit": 96,
+      "wisdom": 93,
+      "luck": 85
+    },
+    "power": "Project Magnetism",
+    "favoriteTool": "Wrangle Whistle",
+    "bio": "Leads PMs and manages German and French localization projects.",
+    "quote": "Leadership isn't about being in the spotlight—it's about creating the conditions for your team to shine.",
+    "skills": [
+      "Team Empower",
+      "Language Sync",
+      "PM Calibration"
+    ],
+    "ultimateMove": "Wrangle Storm",
+    "team": "Xbox Support Content Team",
+    "department": "Program Management",
+    "badges": [
+      "localization-lead",
+      "pm-strategist"
+    ],
+    "achievements": [
+      "Localization Lead Summit",
+      "PM Champion"
+    ],
+    "links": {
+      "website": "https://martina.dev",
+      "linkedin": "https://linkedin.com/in/martina",
+      "github": "https://github.com/martina",
+      "resume": "/resumes/martina.pdf",
+      "twitter": "https://twitter.com/martina"
+    },
+    "image": "/images/image-packs/characters-03-super-heroes/martina.png",
+    "order": 10,
+    "animationStyle": "flip",
+    "theme": "mythic",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
+  },
+  {
+    "active": true,
+    "avatarCategory": "female",
+    "name": "Alyssa",
+    "alias": "The Quick Adapter",
+    "roleClass": "PM",
+    "hometown": "Chicago",
+    "tagline": "New doesn’t mean green.",
+    "level": 4,
+    "miniStats": {
+      "energy": 80,
+      "creativity": 83,
+      "teamSpirit": 88,
+      "wisdom": 79,
+      "luck": 90
+    },
+    "power": "Rapid Integration",
+    "favoriteTool": "Adaptation Scroll",
+    "bio": "Adapts quickly and contributes to ongoing projects as a strong new member.",
+    "quote": "Being new doesn't mean starting from zero—it means bringing fresh perspectives to established challenges.",
+    "skills": [
+      "Quick Study",
+      "Fresh Perspective",
+      "Agile Moves"
+    ],
+    "ultimateMove": "Instant Uplift",
+    "team": "Xbox Support Content Team",
+    "department": "Program Management",
+    "badges": [
+      "adaptation-badge",
+      "rookie-star"
+    ],
+    "achievements": [
+      "Fastest Onboard",
+      "Project Save"
+    ],
+    "links": {
+      "website": "https://alyssa.dev",
+      "linkedin": "https://linkedin.com/in/alyssa",
+      "github": "https://github.com/alyssa",
+      "resume": "/resumes/alyssa.pdf",
+      "twitter": "https://twitter.com/alyssa"
+    },
+    "image": "/images/image-packs/characters-03-super-heroes/alyssa.png",
+    "order": 11,
+    "animationStyle": "flip",
+    "theme": "mythic",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
+  },
+  {
+    "active": true,
+    "avatarCategory": "female",
+    "name": "Michelle",
+    "alias": "The Global Orchestrator",
+    "roleClass": "PM",
+    "hometown": "Toronto",
+    "tagline": "Deliver globally, think locally.",
+    "level": 6,
+    "miniStats": {
+      "energy": 86,
+      "creativity": 89,
+      "teamSpirit": 91,
+      "wisdom": 90,
+      "luck": 84
+    },
+    "power": "Global Resonance",
+    "favoriteTool": "Pipeline Baton",
+    "bio": "Manages the localization pipeline and delivers content globally.",
+    "quote": "Localization is the bridge that connects our content to millions of players around the world.",
+    "skills": [
+      "Pipeline Design",
+      "Language Logistics",
+      "Global Focus"
+    ],
+    "ultimateMove": "World Sync",
+    "team": "Xbox Support Content Team",
+    "department": "Program Management",
+    "badges": [
+      "global-lead",
+      "pipeline-pro"
+    ],
+    "achievements": [
+      "Localization Launches",
+      "Pipeline Hero"
+    ],
+    "links": {
+      "website": "https://michelle.dev",
+      "linkedin": "https://linkedin.com/in/michelle",
+      "github": "https://github.com/michelle",
+      "resume": "/resumes/michelle.pdf",
+      "twitter": "https://twitter.com/michelle"
+    },
+    "image": "/images/image-packs/characters-03-super-heroes/michelle.png",
+    "order": 12,
+    "animationStyle": "flip",
+    "theme": "mythic",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
+  },
+  {
+    "active": true,
+    "avatarCategory": "female",
+    "name": "Kerry",
+    "alias": "The AI Visionary",
+    "roleClass": "PM",
+    "hometown": "New York",
+    "tagline": "Glitches are just hidden doors.",
+    "level": 7,
+    "miniStats": {
+      "energy": 92,
+      "creativity": 97,
+      "teamSpirit": 93,
+      "wisdom": 91,
+      "luck": 88
+    },
+    "power": "Future Sight",
+    "favoriteTool": "Vision Lens",
+    "bio": "Leads AI projects and transforms team workflows with innovative tools.",
+    "quote": "AI isn't replacing our creativity—it's amplifying it and opening doors we never knew existed.",
+    "skills": [
+      "AI Mapping",
+      "Workflow Hacking",
+      "Toolsmithing"
+    ],
+    "ultimateMove": "Singularity Sync",
+    "team": "Xbox Support Content Team",
+    "department": "Program Management",
+    "badges": [
+      "ai-leader",
+      "visionary-award"
+    ],
+    "achievements": [
+      "AI Rollout",
+      "Innovation Catalyst"
+    ],
+    "links": {
+      "website": "https://kerry.dev",
+      "linkedin": "https://linkedin.com/in/kerry",
+      "github": "https://github.com/kerry",
+      "resume": "/resumes/kerry.pdf",
+      "twitter": "https://twitter.com/kerry"
+    },
+    "image": "/images/image-packs/characters-03-super-heroes/kerry.png",
+    "order": 13,
+    "animationStyle": "flip",
+    "theme": "mythic",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
+  },
+  {
+    "active": true,
+    "avatarCategory": "female",
+    "name": "Emily",
+    "alias": "The Efficient Coordinator",
+    "roleClass": "PM",
+    "hometown": "Denver",
+    "tagline": "Coordination made invisible.",
+    "level": 5,
+    "miniStats": {
+      "energy": 84,
+      "creativity": 80,
+      "teamSpirit": 89,
+      "wisdom": 86,
+      "luck": 87
+    },
+    "power": "Workflow Optimization",
+    "favoriteTool": "CoordiOrb",
+    "bio": "Coordinates projects efficiently and supports Spanish localization.",
+    "quote": "Great project coordination is invisible—you only notice it when it's missing.",
+    "skills": [
+      "Spanish Sync",
+      "Deadline Mastery",
+      "Workflow Balance"
+    ],
+    "ultimateMove": "Project Flow Surge",
+    "team": "Xbox Support Content Team",
+    "department": "Program Management",
+    "badges": [
+      "coordination-star",
+      "localization-support"
+    ],
+    "achievements": [
+      "Project Efficiency Award",
+      "Bilingual Delivery"
+    ],
+    "links": {
+      "website": "https://emily.dev",
+      "linkedin": "https://linkedin.com/in/emily",
+      "github": "https://github.com/emily",
+      "resume": "/resumes/emily.pdf",
+      "twitter": "https://twitter.com/emily"
+    },
+    "image": "/images/image-packs/characters-03-super-heroes/emily.png",
+    "order": 14,
+    "animationStyle": "flip",
+    "theme": "mythic",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
+  },
+  {
+    "active": true,
+    "avatarCategory": "female",
+    "name": "Laura",
+    "alias": "The Process Master",
+    "roleClass": "PM",
+    "hometown": "Miami",
+    "tagline": "Every great result begins with process.",
+    "level": 5,
+    "miniStats": {
+      "energy": 81,
+      "creativity": 82,
+      "teamSpirit": 87,
+      "wisdom": 84,
+      "luck": 88
+    },
+    "power": "Process Perfection",
+    "favoriteTool": "Flow Chart Wand",
+    "bio": "Ensures smooth project coordination and supports Spanish localization.",
+    "quote": "Behind every successful project is a well-designed process and a team committed to following it.",
+    "skills": [
+      "Process Mapping",
+      "Localization Check",
+      "Timely Sync"
+    ],
+    "ultimateMove": "Perfect Delivery",
+    "team": "Xbox Support Content Team",
+    "department": "Program Management",
+    "badges": [
+      "process-star",
+      "team-alignment"
+    ],
+    "achievements": [
+      "Zero Delay Quarter",
+      "PM Hero"
+    ],
+    "links": {
+      "website": "https://laura.dev",
+      "linkedin": "https://linkedin.com/in/laura",
+      "github": "https://github.com/laura",
+      "resume": "/resumes/laura.pdf",
+      "twitter": "https://twitter.com/laura"
+    },
+    "image": "/images/image-packs/characters-03-super-heroes/laura.png",
+    "order": 15,
+    "animationStyle": "flip",
+    "theme": "mythic",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
   }
 ]
