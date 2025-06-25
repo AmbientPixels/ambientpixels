@@ -3794,6 +3794,21 @@ body[data-theme="light"] .project-section:hover {
 
 /* ===== Badge Styles ===== */
 
+
+
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.3rem;
+  margin: 2.2rem 0 2.2rem 0;
+  padding: 1.1rem 1.7rem;
+  justify-content: center;
+  background: rgba(36,40,56,0.12);
+  border-radius: 12px;
+  box-shadow: 0 2px 10px 0 rgba(80,80,120,0.07);
+}
+
+
 .impact-badges-centered {
   display: flex;
   justify-content: center;

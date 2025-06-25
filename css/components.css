@@ -25,6 +25,18 @@
 }
 
 /* --- Badge Classes --- */
+
+/* Utility spacing classes (margin-top, padding) */
+.mt-1 { margin-top: 0.5rem !important; }
+.mt-2 { margin-top: 1rem !important; }
+.mt-3 { margin-top: 1.5rem !important; }
+.mt-4 { margin-top: 2.5rem !important; }
+
+.p-1 { padding: 0.5rem !important; }
+.p-2 { padding: 1rem !important; }
+.p-3 { padding: 1.5rem !important; }
+.p-4 { padding: 2.5rem !important; }
+
 .badge {
   display: inline-block;
   padding: 0.25rem 0.6rem;
