@@ -127,11 +127,12 @@
 }
 .rpg-avatar-card .rpg-avatar-img {
   width: 100%;
-  aspect-ratio: 1/1;
+  height: 220px; /* updated by Cascade: reduced height for shorter avatar image */
   object-fit: cover;
   background: #222c38;
   border-bottom: 2px solid var(--mood-glow, #00f0ff);
   transition: filter 0.3s;
+  /* aspect-ratio removed for precise height control */
 }
 .rpg-avatar-card .rpg-avatar-header {
   padding: 1rem 1.2rem 0.5rem 1.2rem;

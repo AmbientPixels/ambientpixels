@@ -126,16 +126,26 @@
       <div class="rpg-avatar-team"><b>Team:</b> ${card.team||''}</div>
       <div class="rpg-avatar-achievements"><b>Achievements:</b> ${card.achievements ? card.achievements.join(', ') : ''}</div>
     `;
+    // Back footer for social links (linkedin, github, twitter, email)
     if (card.links) {
-      const links = document.createElement('div');
-      links.className = 'rpg-links';
-      links.innerHTML = Object.entries(card.links).map(([key, url]) => {
-        const icon = {
-          website: 'fa-globe', linkedin: 'fa-linkedin', github: 'fa-github', resume: 'fa-file-alt', twitter: 'fa-x-twitter', email: 'fa-envelope'
-        }[key] || 'fa-link';
-        return `<a class='rpg-link' href='${url}' target='_blank' title='${key}'><i class='fab ${icon}'></i></a>`;
-      }).join('');
-      back.appendChild(links);
+      const socialKeys = ['linkedin', 'github', 'twitter', 'email'];
+      const socialLinks = Object.entries(card.links).filter(([key]) => socialKeys.includes(key));
+      if (socialLinks.length) {
+        const footer = document.createElement('div');
+        footer.className = 'rpg-avatar-footer';
+        const links = document.createElement('div');
+        links.className = 'rpg-links';
+        links.innerHTML = socialLinks.map(([key, url]) => {
+          const icon = {
+            linkedin: 'fa-linkedin', github: 'fa-github', twitter: 'fa-x-twitter', email: 'fa-envelope'
+          }[key] || 'fa-link';
+          // Use fab for brands, fas for envelope
+          const iconClass = key === 'email' ? 'fas' : 'fab';
+          return `<a class='rpg-link' href='${url}' target='_blank' title='${key}'><i class='${iconClass} ${icon}'></i></a>`;
+        }).join('');
+        footer.appendChild(links);
+        back.appendChild(footer);
+      }
     }
     inner.appendChild(back);
     cardDiv.appendChild(inner);
