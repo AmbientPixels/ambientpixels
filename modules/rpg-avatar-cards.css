@@ -161,10 +161,14 @@
   margin-bottom: 0.5em;
 }
 .rpg-avatar-card .rpg-avatar-tagline {
+  /* updated by Cascade: centered tagline */
+  text-align: center;
+  margin: 0.7em 0 0.5em 0;
   font-style: italic;
   color: #e0e6f8;
   margin-bottom: 0.7em;
 }
+
 .rpg-avatar-card .rpg-mini-stats {
   display: flex;
   justify-content: space-between;
@@ -324,7 +328,12 @@
 .rpg-avatar-back .rpg-avatar-header,
 .rpg-avatar-back .rpg-avatar-bio,
 .rpg-avatar-back .rpg-avatar-skills,
-.rpg-avatar-back .rpg-avatar-ultimate,
+.rpg-avatar-back .rpg-avatar-ultimate {
+  /* updated by Cascade: centered ultimate move */
+  text-align: center;
+  margin: 0.7em 0 0.5em 0;
+  font-weight: 600;
+}
 .rpg-avatar-back .rpg-avatar-team,
 .rpg-avatar-back .rpg-avatar-achievements {
   padding-bottom: 0.5em;

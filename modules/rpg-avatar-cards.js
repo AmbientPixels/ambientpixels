@@ -23,17 +23,38 @@
     const cardDiv = document.createElement('div');
     cardDiv.className = 'rpg-avatar-card';
     if (card.theme) cardDiv.setAttribute('data-theme', card.theme);
-    // Front of card
+    // Front of card (reordered layout by Cascade)
     const front = document.createElement('div');
     front.className = 'rpg-avatar-front';
-    // Avatar image (from JSON)
+
+    // --- TOP SECTION ---
+    // Avatar image
     const img = document.createElement('img');
     img.className = 'rpg-avatar-img';
     img.alt = `${card.name} avatar`;
     img.src = card.image || '';
     front.appendChild(img);
 
-    // Mini stats as horizontal bars with icons
+    // Name, Alias, Role, Hometown
+    const header = document.createElement('div');
+    header.className = 'rpg-avatar-header';
+    header.innerHTML = `
+      <div class="rpg-avatar-name">${card.name}</div>
+      <div class="rpg-avatar-alias">${card.alias||''}</div>
+      <div class="rpg-avatar-role">${card.roleClass||''}</div>
+      <div class="rpg-avatar-hometown">${card.hometown||''}</div>
+    `;
+    front.appendChild(header);
+
+    // --- MID SECTION ---
+    front.innerHTML += '<hr class="rpg-divider">';
+    if (card.tagline) front.innerHTML += `<div class="rpg-avatar-tagline">${card.tagline}</div>`;
+
+    if (card.power) front.innerHTML += `<div class="rpg-power"><b>Power:</b> ${card.power}</div>`;
+    if (card.favoriteTool) front.innerHTML += `<div class="rpg-favorite-tool"><b>Tool:</b> ${card.favoriteTool}</div>`;
+
+    // --- STATS BLOCK ---
+    front.innerHTML += '<hr class="rpg-divider">';
     if (card.miniStats) {
       const mini = document.createElement('div');
       mini.className = 'rpg-mini-stats';
@@ -60,42 +81,59 @@
       front.appendChild(mini);
     }
 
-    // Header
-    const header = document.createElement('div');
-    header.className = 'rpg-avatar-header';
-    header.innerHTML = `
-      <div class="rpg-avatar-name">${card.name}</div>
-      <div class="rpg-avatar-alias">${card.alias||''}</div>
-      <div class="rpg-avatar-role">${card.roleClass||''}</div>
-      <div class="rpg-avatar-hometown">${card.hometown||''}</div>
-      <div class="rpg-avatar-tagline">${card.tagline||''}</div>
-    `;
-    front.appendChild(header);
-
-    // Power & tool
-    if (card.power) front.innerHTML += `<div class="rpg-power">Power: ${card.power}</div>`;
-    if (card.favoriteTool) front.innerHTML += `<div class="rpg-favorite-tool">Tool: ${card.favoriteTool}</div>`;
-
-    // Badges
+    // --- BOTTOM SECTION ---
+    front.innerHTML += '<hr class="rpg-divider">';
+    // Badges (with custom icon support)
     if (card.badges && card.badges.length) {
       const badges = document.createElement('div');
       badges.className = 'rpg-badges';
       card.badges.forEach(b => {
-        const badgeIcon = {
+        let badgeIcon = {
           'docs-master': 'fa-pen-fancy',
           'team-player': 'fa-hands-helping',
           'mvp': 'fa-medal',
           'automation-champion': 'fa-robot',
         }[b] || 'fa-star';
+        // Custom badge icon from JSON
+        if (card.customBadgeIcons && card.customBadgeIcons[b]) {
+          badgeIcon = null;
+        }
         const badgeTooltip = {
           'docs-master': 'Docs Master: Authored 100+ articles',
           'team-player': 'Team Player: Collaboration & support',
           'mvp': 'MVP: Most Valuable Player',
           'automation-champion': 'Automation Champion',
         }[b] || b;
-        badges.innerHTML += `<span class="rpg-badge" data-tooltip="${badgeTooltip}"><i class="fas ${badgeIcon}"></i></span>`;
+        badges.innerHTML += badgeIcon
+          ? `<span class="rpg-badge" data-tooltip="${badgeTooltip}"><i class="fas ${badgeIcon}"></i></span>`
+          : `<span class="rpg-badge" data-tooltip="${badgeTooltip}"><img src="${card.customBadgeIcons[b]}" class="rpg-badge-custom-icon" alt="${b}"></span>`;
       });
       front.appendChild(badges);
+    }
+    // Achievements
+    if (card.achievements && card.achievements.length) {
+      front.innerHTML += `<div class="rpg-avatar-achievements"><b>Achievements:</b> ${card.achievements.join(', ')}</div>`;
+    }
+    // Links (website, linkedin, github, twitter, resume)
+    if (card.links) {
+      const linkKeys = ['website', 'linkedin', 'github', 'twitter', 'resume'];
+      const links = Object.entries(card.links).filter(([key]) => linkKeys.includes(key));
+      if (links.length) {
+        const linksDiv = document.createElement('div');
+        linksDiv.className = 'rpg-links';
+        linksDiv.innerHTML = links.map(([key, url]) => {
+          const icon = {
+            website: 'fa-globe',
+            linkedin: 'fa-linkedin',
+            github: 'fa-github',
+            twitter: 'fa-x-twitter',
+            resume: 'fa-file-alt',
+          }[key] || 'fa-link';
+          const iconClass = key === 'resume' ? 'fas' : 'fab';
+          return `<a class='rpg-link' href='${url}' target='_blank' title='${key}'><i class='${iconClass} ${icon}'></i></a>`;
+        }).join('');
+        front.appendChild(linksDiv);
+      }
     }
 
     // Flip button
@@ -122,10 +160,10 @@
       </div>
       <div class="rpg-avatar-bio">${card.bio||''}</div>
       ${card.quote ? `<div class='rpg-avatar-quote'>&ldquo;${card.quote}&rdquo;</div>` : ''}
-      <div class="rpg-avatar-skills"><b>Skills:</b> ${card.skills ? card.skills.join(', ') : ''}</div>
-      <div class="rpg-avatar-ultimate"><b>Ultimate:</b> ${card.ultimateMove||''}</div>
+      ${card.skills && card.skills.length ? `<div class='rpg-avatar-skills'><b>Skills:</b> ${card.skills.join(', ')}</div>` : ''}
+      ${card.achievements && card.achievements.length ? `<div class='rpg-avatar-achievements'><b>Achievements:</b> ${card.achievements.join(', ')}</div>` : ''}
+      ${card.ultimateMove ? `<div class='rpg-avatar-ultimate'><b>Ultimate:</b> ${card.ultimateMove}</div>` : ''}
       <div class="rpg-avatar-team"><b>Team:</b> ${card.team||''}</div>
-      <div class="rpg-avatar-achievements"><b>Achievements:</b> ${card.achievements ? card.achievements.join(', ') : ''}</div>
     `;
     // Back footer for social links (linkedin, github, twitter, email)
     if (card.links) {
