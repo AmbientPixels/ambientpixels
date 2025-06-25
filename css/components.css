@@ -2727,6 +2727,16 @@ body[data-theme="light"] .nova-quip {
   overflow: hidden;
 }
 
+/* Cascade: Zoom only the icon inside project card image on card hover */
+.card-gradient-icon i {
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card:hover .card-gradient-icon i {
+  transform: scale(1.13);
+  z-index: 2;
+}
+
+
 /* Hero card image hover effect for all support pages */
 .hero-card .hero-card-image {
   position: relative;

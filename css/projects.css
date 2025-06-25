@@ -2160,6 +2160,33 @@ details.details-toggle p {
   background-position: center !important;
 }
 
+/* Card Gradient Icon Utility for Related Projects */
+.card-gradient-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 180px;
+  width: 100%;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); /* fallback cosmic gradient */
+  box-shadow: 0 4px 18px rgba(90, 228, 255, 0.09);
+  margin-bottom: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.card-gradient-icon.hero-gradient-xbox {
+  background: linear-gradient(135deg, #107C10 0%, #0a4b0a 100%);
+}
+.card-gradient-icon.hero-gradient-cosmic {
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+}
+.card-gradient-icon i {
+  font-size: 3.5rem;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(90, 228, 255, 0.16), 0 1px 2px #0006;
+  z-index: 1;
+}
+
 /* Card Image Container */
 .card-image {
   height: 180px; /* Fixed height for all card images */
