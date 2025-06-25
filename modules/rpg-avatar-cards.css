@@ -242,7 +242,8 @@
   border-radius: 1.25rem;
   box-shadow: 0 4px 32px 0 rgba(0,0,0,0.18), 0 1.5px 0 0 var(--mood-glow, #00f0ff);
   border: 3px solid var(--mood-glow, #00f0ff);
-  overflow: hidden;
+  /* updated by Cascade: allow badge hover to overflow for tooltips */
+  overflow: visible;
   position: relative;
   width: 100%;
   height: 800px;
@@ -431,6 +432,8 @@
   gap: 0.5em;
   justify-content: center;
   margin-bottom: 0.7em;
+  /* updated by Cascade: allow badge hover to overflow for tooltips */
+  overflow: visible;
 }
 .rpg-avatar-card .rpg-badge {
   display: inline-block;
