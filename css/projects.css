@@ -814,6 +814,10 @@
   position: absolute;
   top: 0;
   left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%,
     var(--accent-color, #4bcaff) 45%, 
     var(--accent-color, #4bcaff) 55%, 
     transparent 100%);
