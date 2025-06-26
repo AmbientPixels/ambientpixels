@@ -25,6 +25,7 @@ module.exports = async function (context, req) {
 
     context.res = { status: 200, body: { success: true, message: "Card data saved to Azure." } };
   } catch (err) {
-    context.res = { status: 500, body: `Error saving card data: ${err.message}` };
+    context.log.error("Error details:", err);
+    context.res = { status: 500, body: `Error saving card data: ${err.message}\n${err.stack}` };
   }
 };
