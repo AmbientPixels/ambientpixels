@@ -92,6 +92,52 @@ window.addEventListener('DOMContentLoaded', function() {
   const statsInput = document.getElementById('card-stats');
   const badgesSelect = document.getElementById('card-badges');
   const preview = document.querySelector('.card-forge-preview');
+  // Tab controls and panels
+  const tabFront = document.getElementById('tab-front');
+  const tabBack = document.getElementById('tab-back');
+  const frontPanel = document.getElementById('front-panel');
+  const backPanel = document.getElementById('back-panel');
+  // /* updated by Cascade */
+
+  // --- Tab switching logic for Front/Back panels ---
+  function switchTab(isFront) {
+    if (!tabFront || !tabBack || !frontPanel || !backPanel) return;
+    if (isFront) {
+      tabFront.setAttribute('aria-selected', 'true');
+      tabFront.tabIndex = 0;
+      tabBack.setAttribute('aria-selected', 'false');
+      tabBack.tabIndex = -1;
+      frontPanel.hidden = false;
+      backPanel.hidden = true;
+    } else {
+      tabFront.setAttribute('aria-selected', 'false');
+      tabFront.tabIndex = -1;
+      tabBack.setAttribute('aria-selected', 'true');
+      tabBack.tabIndex = 0;
+      frontPanel.hidden = true;
+      backPanel.hidden = false;
+    }
+    // Optionally focus the active tab for accessibility
+    (isFront ? tabFront : tabBack).focus();
+    // Repopulate form to sync fields
+    populateForm(currentCard);
+  }
+  if (tabFront && tabBack) {
+    tabFront.addEventListener('click', function() { switchTab(true); });
+    tabBack.addEventListener('click', function() { switchTab(false); });
+    // Keyboard accessibility: left/right arrow keys
+    [tabFront, tabBack].forEach(btn => {
+      btn.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+          const nextIsFront = (btn === tabBack && e.key === 'ArrowLeft') || (btn === tabFront && e.key === 'ArrowRight');
+          switchTab(nextIsFront);
+        }
+      });
+    });
+  }
+  // Show front tab by default on load
+  switchTab(true);
+  // /* updated by Cascade */
 
   // --- Helper: render preview ---
   // --- Helper: render 3D flip preview (front+back) ---
