@@ -1,19 +1,19 @@
 {
-  "scannedAt": "2025-06-25T13:35:53.997Z",
-  "totalFiles": 229,
-  "totalLines": 54003,
+  "scannedAt": "2025-06-26T13:34:15.618Z",
+  "totalFiles": 233,
+  "totalLines": 56724,
   "summary": {
     ".html": {
-      "files": 114,
-      "lines": 23398
+      "files": 115,
+      "lines": 23536
     },
     ".js": {
-      "files": 77,
-      "lines": 9978
+      "files": 79,
+      "lines": 10609
     },
     ".css": {
-      "files": 38,
-      "lines": 20627
+      "files": 39,
+      "lines": 22579
     }
   }
 }

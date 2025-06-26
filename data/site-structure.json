@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-06-25T13:35:53.803Z",
+  "updated": "2025-06-26T13:34:15.406Z",
   "root": [
     {
       "type": "folder",
@@ -402,6 +402,18 @@
           "type": "page",
           "name": "bg-test.html",
           "path": "lab/bg-test.html"
+        },
+        {
+          "type": "folder",
+          "name": "card-forge",
+          "path": "lab/card-forge",
+          "children": [
+            {
+              "type": "page",
+              "name": "index.html",
+              "path": "lab/card-forge/index.html"
+            }
+          ]
         },
         {
           "type": "page",

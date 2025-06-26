@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "8695a225-76cf-4a1d-90cc-8f105f4d45b2",
-      "hash": "47085b41b9312ff51401efcbdeee62a28f52c40e",
-      "message": "fix(rpg-avatar): Fix card flip mirroring issue with proper 3D transform",
-      "timestamp": "2025-06-25 00:55:38 -0700",
+      "id": "44b2a6a5-5477-484b-8fe9-c685fa9d0e9b",
+      "hash": "fc39fd9b0813bd2074e62bed83b967241196f348",
+      "message": "Card Forge docs and index: highlight as flagship (#1), update progress to 35%, add prominent links and status tags. Remove NDA gallery from Grand Central Power BI page.",
+      "timestamp": "2025-06-25 23:27:28 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/47085b41b9312ff51401efcbdeee62a28f52c40e"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/fc39fd9b0813bd2074e62bed83b967241196f348"
     }
   ],
-  "timestamp": "2025-06-25T13:35:55.970Z",
+  "timestamp": "2025-06-26T13:34:16.225Z",
   "count": 1,
-  "scanId": 1750858555970
+  "scanId": 1750944856225
 }

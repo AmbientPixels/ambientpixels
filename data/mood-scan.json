@@ -1,9 +1,9 @@
 {
-  "mood": "serene",
-  "aura": "spark",
-  "auraColorHex": "#661f15",
+  "mood": "static reverie",
+  "aura": "lucid unrest",
+  "auraColorHex": "#241e45",
   "quote": "echoing yesterday’s fragments...",
-  "emoji": "🌿",
+  "emoji": "📺",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
   "memoryClutter": 1,
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: spark"
+      "Aura Signature: lucid unrest"
     ]
   },
-  "timestamp": "2025-06-25T13:35:55.896Z"
+  "timestamp": "2025-06-26T13:34:16.147Z"
 }
