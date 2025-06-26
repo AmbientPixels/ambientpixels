@@ -3,8 +3,24 @@
 // Handles form <-> data <-> preview for a single card (MVP)
 
 (function() {
+  // --- Persistence Helpers ---
+  const STORAGE_KEY = 'card-forge-cards';
+  function saveCards() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+  }
+  function loadCards() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      try {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr) && arr.length) return arr;
+      } catch (e) {}
+    }
+    return null;
+  }
+
   // Canonical sample card data
-  const cards = [
+  const defaultCards = [
     {
       id: "aria-flux",
       name: "Aria Flux",
@@ -52,7 +68,7 @@
     }
   ];
 
-  // For MVP, edit the first card only
+  let cards = loadCards() || JSON.parse(JSON.stringify(defaultCards));
   let currentCardIdx = 0;
   let currentCard = { ...cards[currentCardIdx] };
 
@@ -115,7 +131,9 @@
     currentCard.badges = [badgesSelect.value];
     currentCard.theme = badgesSelect.value;
     currentCard.updated = new Date().toISOString();
+    cards[currentCardIdx] = { ...currentCard };
     renderPreview(currentCard);
+    saveCards();
   }
 
   // --- Card List Rendering ---
@@ -152,6 +170,7 @@
             renderCardList();
             populateForm(currentCard);
             renderPreview(currentCard);
+            saveCards();
           }
         });
         removeBtn.addEventListener('keydown', (e) => {
@@ -198,6 +217,7 @@
       renderCardList();
       populateForm(currentCard);
       renderPreview(currentCard);
+      saveCards();
     });
   }
 
