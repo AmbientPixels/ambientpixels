@@ -87,10 +87,49 @@ window.addEventListener('DOMContentLoaded', function() {
   // /* updated by Cascade */
 
   // DOM refs
-  const form = document.querySelector('.nova-form');
+  // Remove duplicate avatar selects if present (from old HTML)
+  // Remove duplicate avatar selects if present (from old HTML)
+  let avatarSelects = document.querySelectorAll('#card-avatar');
+  if (avatarSelects.length > 1) {
+    for (let i = 1; i < avatarSelects.length; i++) {
+      avatarSelects[i].parentElement.removeChild(avatarSelects[i]);
+    }
+  }
+  // Always re-query avatarSelect after cleanup
+  let avatarSelect = document.getElementById('card-avatar');
+  const form = document.getElementById('front-form');
+  const backForm = document.getElementById('back-form');
+  // /* updated by Cascade: avatarSelect lint fix */
+  // Custom Reset Button Logic
+  document.querySelectorAll('.glass-button[type="reset"]').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      // Only one debug log per reset
+      debugLog('[CardForge] Reset triggered for card:', cards[currentCardIdx]);
+      // Always show front tab and panel
+      if (typeof switchTab === 'function') switchTab(true);
+      // Reset currentCard to last saved state
+      currentCard = { ...cards[currentCardIdx] };
+      // Repopulate form fields from the saved card (guaranteed fresh DOM refs)
+      if (typeof populateForm === 'function') populateForm(currentCard);
+      // Always re-query avatarSelect after populateForm
+      avatarSelect = document.getElementById('card-avatar');
+      if (avatarSelect) avatarSelect.value = currentCard.avatar || '';
+      // Flip preview to front
+      showingBack = false;
+      if (typeof renderPreview === 'function') renderPreview(currentCard);
+      // If backForm exists, also reset its fields
+      if (backForm && typeof ensureBackFields === 'function') {
+        ensureBackFields(currentCard);
+        backForm.reset();
+        // No need to call populateForm or set avatarSelect again; already done above
+      } // updated by Cascade: reset logic simplified
+    });
+  });
+  // /* updated by Cascade: custom reset button logic */
   const nameInput = document.getElementById('card-name');
   const styleSelect = document.getElementById('card-style');
-  const avatarSelect = document.getElementById('card-avatar');
+  
   const descInput = document.getElementById('card-desc');
   const statsInput = document.getElementById('card-stats');
   const badgesSelect = document.getElementById('card-badges');
@@ -292,7 +331,7 @@ window.addEventListener('DOMContentLoaded', function() {
       currentCard.back.socials.github = document.getElementById('card-back-github').value;
       currentCard.updated = new Date().toISOString();
       cards[currentCardIdx] = { ...currentCard };
-      renderPreviewBack(currentCard);
+      renderPreview(currentCard); // updated by Cascade
       saveCards();
       return;
     }
@@ -339,7 +378,7 @@ window.addEventListener('DOMContentLoaded', function() {
       currentCard.back.socials.github = document.getElementById('card-back-github').value;
       currentCard.updated = new Date().toISOString();
       cards[currentCardIdx] = { ...currentCard };
-      renderPreviewBack(currentCard);
+      renderPreview(currentCard); // updated by Cascade
       saveCards();
     });
   }
