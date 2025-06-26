@@ -120,6 +120,63 @@
   </section>
 
   <section class="content-section grid-col-12">
+    <h2>Next Steps: Card Forge Card Editor UI</h2>
+    <h3>Core Features</h3>
+    <ul class="nova-list">
+      <li><b>Card List & Selection:</b> Sidebar/grid of cards, add new, search/filter.</li>
+      <li><b>Card Edit Form:</b> Name, avatar, description, stats, badges, links, theme selector, badge picker.</li>
+      <li><b>Live Preview:</b> Real-time card rendering using current form values.</li>
+      <li><b>Add/Remove/Reorder:</b> Add, remove, reorder cards with drag/drop or controls.</li>
+      <li><b>Import/Export:</b> Download/upload JSON, schema validation, preview before commit.</li>
+      <li><b>Save & Reset:</b> Save to JSON/localStorage, reset to last saved state.</li>
+      <li><b>Accessibility & Responsiveness:</b> Keyboard/ARIA support, mobile layout.</li>
+    </ul>
+
+    <h3>UI Structure (Wireframe Outline)</h3>
+    <pre><code>-----------------------------------------------------
+|  Sidebar/List      |  Card Editor Form   | Preview |
+|--------------------|--------------------|---------|
+| [Card 1]           | Name: [______]     | [Card]  |
+| [Card 2]           | Avatar: [url/up]   |         |
+| [+ Add Card]       | ...                |         |
+| [Import/Export]    | [Save] [Reset]     |         |
+-----------------------------------------------------
+</code></pre>
+    <ul class="nova-list">
+      <li>On mobile, sidebar collapses to dropdown or modal.</li>
+    </ul>
+
+    <h3>Technical Approach</h3>
+    <ul class="nova-list">
+      <li>Reuse existing CSS: Nova/AmbientPixels classes, no new color/badge styles.</li>
+      <li>No inline styles: All styles in card-forge.css or existing CSS.</li>
+      <li>Componentized JS: Editor logic in <code>card-forge-editor.js</code>, rendering in <code>card-forge.js</code>.</li>
+      <li>Data: Edits operate on a JS object mirroring <code>card-forge.json</code>.</li>
+      <li>Persistence: Save to localStorage and/or allow download/upload of JSON.</li>
+    </ul>
+
+    <h3>Steps to Implement</h3>
+    <ul class="nova-list">
+      <li>Design UI skeleton in <code>/lab/card-forge/index.html</code>.</li>
+      <li>Create <code>card-forge-editor.js</code> for editor logic and events.</li>
+      <li>Wire up live preview using <code>renderCardForge</code>.</li>
+      <li>Implement add/edit/remove/reorder logic for card data.</li>
+      <li>Add import/export functionality (JSON validation, error handling).</li>
+      <li>Polish accessibility and mobile layout.</li>
+      <li>Update documentation to include editor usage and extension points.</li>
+      <li>(Optional) Add test cases for schema validation and UI interactions.</li>
+    </ul>
+
+    <h3>Stretch Goals</h3>
+    <ul class="nova-list">
+      <li>Image upload/preview with drag-and-drop support.</li>
+      <li>Undo/redo for edits.</li>
+      <li>Multi-user collaboration (future backend).</li>
+      <li>Theme preview switcher for instant card restyling.</li>
+    </ul>
+  </section>
+
+  <section class="content-section grid-col-12">
     <h2>References & Links</h2>
     <ul class="nova-list">
       <li><a href="/lab/card-forge/index.html">Card Forge Dev Sandbox</a></li>
