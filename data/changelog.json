@@ -1,10 +1,10 @@
 {
-  "updated": "2025-06-25T13:35:53.913Z",
+  "updated": "2025-06-26T13:34:15.527Z",
   "entries": [
     {
-      "hash": "47085b4",
-      "date": "2025-06-25 00:55:38 -0700",
-      "message": "fix(rpg-avatar): Fix card flip mirroring issue with proper 3D transform"
+      "hash": "fc39fd9",
+      "date": "2025-06-25 23:27:28 -0700",
+      "message": "Card Forge docs and index: highlight as flagship (#1), update progress to 35%, add prominent links and status tags. Remove NDA gallery from Grand Central Power BI page."
     }
   ]
 }
