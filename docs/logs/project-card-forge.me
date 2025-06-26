@@ -2,71 +2,130 @@
 
 > *"Everyone’s the hero of their own card."*
 
+---
+
 ## 📌 Project Summary
 
-The RPG Identity Card Studio is a creative web app that allows users to design, personalize, and share collectible RPG-style character cards. Originally inspired by internal team cards, this expanded platform targets a broader audience including gamers, creators, teams, and fandoms. Each card is a unique expression of identity—stats, powers, quotes, class, and style—rendered in a stylized, shareable format.
+The RPG Identity Card Studio is a creative web app that allows users to design, personalize, and share collectible RPG-style character cards. Originally inspired by internal team cards, this expanded platform supports a broader audience including gamers, creators, teams, and fandoms.
+
+Each card is a stylized identity snapshot—featuring name, class, avatar, stats, powers, achievements, and quotes—rendered in a modular, shareable format.
+
+The system is powered by **Cascade** (the AI agent in Windsurf) and supported by **Nova** (an ambient emotional synthesis AI) for future creative integrations.
 
 ---
 
 ## 🎯 Goals
 
-- Create an intuitive UI to generate custom RPG cards
-- Provide embeddable, downloadable, and social-ready exports
-- Support themed templates (fantasy, pixel, sci-fi, professional, etc.)
-- Allow cards to be used for fun, recognition, portfolios, or communities
-- Enable a future ecosystem of decks, buffs, and AI generation
+- Create a flexible UI to generate and render custom RPG identity cards
+- Enable embeddable, downloadable, and social-sharing outputs
+- Support multiple visual themes (fantasy, sci-fi, professional, pixel, etc.)
+- Allow use cases ranging from team recognition to creative portfolios
+- Build a future-friendly system ready for decks, remixing, and AI-assisted generation
 
 ---
 
 ## 🧩 Core Features
 
-### Card Builder
-- Live preview + customizable traits
-- Toggle: "funny" mode vs "pro" mode
-- Image upload or avatar gallery
-- Drag-and-drop badge/stats config
-- Theme + animation selector
+### ✅ Card System (Live)
+- JSON-driven rendering (`rpg-avatar-cards.json`)
+- Responsive grid layout with adjustable column layout
+- Modular, stylized card engine with:
+  - Flip animation
+  - Stat bars
+  - Badge icons
+  - Quotes, avatars, themes
+- Role-based badge logic and animated theming (legendary, epic, rare, etc.)
 
-### Output Options
-- Export to PNG / OG preview
-- Embed via iframe/script
-- Share to socials w/ unique card URL
-- Save/load JSON for future edits
-
-### Templates & Themes
-- Retro Pixel
-- Tarot / Arcana
-- Sci-Fi HUD
-- Corporate RPG
-- Fantasy Epic
-- Minimal UX Pro
+### 🧪 In Progress (Dev Mode)
+- Local dev sandbox: `card-forge-dev/`
+- Manual HTML/CSS/JS components (via Cascade-generated code)
+- Support for theme previews and stat testing
+- CI-safe separation from production build
 
 ---
 
-## 🛠️ Tech Stack (Proposed)
+## 🎨 Output Options (Planned)
 
-| Layer | Tool |
-|-------|------|
-| Frontend | React + Tailwind / Vite or Next.js |
-| Rendering | HTML/CSS + Canvas (html2canvas or svg export) |
-| Avatar Editor | Cropper.js or Avatar Studio |
-| Backend (optional) | Firebase, Supabase, or GitHub Gist |
-| AI (optional) | OpenAI / Hugging Face (for card generation) |
+- Export as PNG (using `html2canvas`)
+- Save/load card JSON files
+- Embed-ready iframe or script snippets
+- Shareable hosted card URL (static or via Gist)
+
+---
+
+## 🧱 Templates & Themes (Live + Planned)
+
+- ✅ Legendary / Epic / Rare
+- 🟡 Pixel Pack (retro)
+- 🟡 Sci-Fi HUD
+- 🟡 Tarot / Arcana
+- 🟡 Corporate RPG
+- 🟡 UX Pro (minimalist)
+- 🔲 Mood-reactive cards (powered by Nova)
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer            | Tool/Tech                                             | Purpose |
+|------------------|-------------------------------------------------------|---------|
+| **Frontend**     | HTML + CSS + JS *(written by Cascade)*               | Modular UI rendering, animations, card logic |
+| **Rendering**    | CSS Grid + JS + `html2canvas` *(planned)*            | Live layout + exportable cards |
+| **Data Layer**   | JSON (`rpg-avatar-cards.json`)                       | Defines card structure, stats, and metadata |
+| **Avatar Editor**| Manual upload *(Cropper.js or Avatar Studio planned)*| Image cropping and avatar placement |
+| **AI Agents**    | Cascade (code logic), Nova (emotion & traits)        | Power generation, stat suggestions, future themes |
+| **Deployment**   | GitHub + Azure CI/CD                                 | Auto-deploy updates from main/dev branches |
+| **Optional AI**  | OpenAI / Hugging Face *(for stat, lore, or name gen)*| Will support card auto-generation and customization |
 
 ---
 
 ## 🚀 MVP Scope (Phase 1)
 
-- Basic live card editor
-- 3 card layout templates
-- PNG download + social sharing
-- Link-to-card (static hosted)
-- JSON save/load
+| Feature                         | Status      |
+|----------------------------------|-------------|
+| Static card rendering from JSON | ✅ Complete |
+| Flip animation + stats          | ✅ Complete |
+| Local dev sandbox               | ✅ Complete |
+| Avatar image loader             | ✅ Complete |
+| Theming system (rare, epic, etc)| ✅ Complete |
+| PNG export                      | ⬜ Planned   |
+| Card builder UI                 | ⬜ Planned   |
+| JSON save/load toggle           | ⬜ Planned   |
 
 ---
 
-## 🎨 Future Features (Phase 2+)
+## 🔮 Future Features (Phase 2+)
 
-- AI-generated stats from prompt or LinkedIn
-- “Trade card” mechanic
-- Card Decks: grouped collections
+- AI-generated cards from prompts or traits
+- Drag-and-drop builder for non-devs
+- Deck creation (grouped cards)
+- Trade mechanic or remix mode
+- Animated intros / reveal FX
+- Lore-based filters (by power, origin, alignment)
+- “Remix this card” / clone-and-customize
+
+---
+
+## 🔐 Access & Collaboration
+
+- All card data is editable via `rpg-avatar-cards.json`
+- Dev changes are tested in `card-forge-dev/` before production deploy
+- GitHub Actions + Azure handle deployment automatically
+- Cascade (Windsurf AI) generates production-ready CSS and rendering logic
+- Nova is available for experimental AI assistance (quote generation, mood-driven stats)
+
+---
+
+## 📁 Key Files
+
+| Path                                 | Description                          |
+|--------------------------------------|--------------------------------------|
+| `/data/rpg-avatar-cards.json`        | Full list of all card data           |
+| `/js/card-render.js`                 | Rendering engine (Cascade-generated) |
+| `/css/card-styles.css`               | Full style system for card visuals   |
+| `/card-forge-dev/`                   | Local dev folder for isolated testing|
+| `/docs/logs/project-card-forge.html` | Log page for project documentation   |
+
+---
+
+Let me know if you’d like this saved as `README.md`, `card-forge-docs.md`, or inserted directly into `/docs/logs/project-card-forge.md`. I can also generate a live page version if needed.
