@@ -17,6 +17,7 @@
       badges: ["legendary"],
       links: [],
       theme: "legendary",
+      style: "rpg",
       updated: new Date().toISOString()
     },
     {
@@ -31,6 +32,7 @@
       badges: ["epic"],
       links: [],
       theme: "epic",
+      style: "nova",
       updated: new Date().toISOString()
     },
     {
@@ -45,6 +47,7 @@
       badges: ["rare"],
       links: [],
       theme: "rare",
+      style: "futuristic-id",
       updated: new Date().toISOString()
     }
   ];
@@ -56,6 +59,7 @@
   // DOM refs
   const form = document.querySelector('.nova-form');
   const nameInput = document.getElementById('card-name');
+  const styleSelect = document.getElementById('card-style');
   const avatarSelect = document.getElementById('card-avatar');
   const descInput = document.getElementById('card-desc');
   const statsInput = document.getElementById('card-stats');
@@ -65,6 +69,11 @@
   // --- Helper: render preview ---
   function renderPreview(card) {
     if (!preview) return;
+    // Remove any previous style modifier classes
+    preview.className = 'card-forge-preview';
+    if (card.style) {
+      preview.classList.add(`card-forge-preview--${card.style}`);
+    }
     preview.innerHTML = `
       <img src="/images/image-packs/characters/${card.avatar}" alt="Preview Avatar" class="avatar-lg" />
       <h4>${card.name || ''}</h4>
@@ -89,6 +98,7 @@
   // --- Populate form with card data ---
   function populateForm(card) {
     nameInput.value = card.name || '';
+    if (styleSelect) styleSelect.value = card.style || 'rpg';
     avatarSelect.value = card.avatar || '';
     descInput.value = card.description || '';
     statsInput.value = (card.stats||[]).map(s => `${s.label}: ${s.value}`).join(', ');
@@ -98,6 +108,7 @@
   // --- Update card from form ---
   function updateCardFromForm() {
     currentCard.name = nameInput.value;
+    if (styleSelect) currentCard.style = styleSelect.value;
     currentCard.avatar = avatarSelect.value;
     currentCard.description = descInput.value;
     currentCard.stats = parseStats(statsInput.value);
@@ -105,6 +116,60 @@
     currentCard.theme = badgesSelect.value;
     currentCard.updated = new Date().toISOString();
     renderPreview(currentCard);
+  }
+
+  // --- Card List Rendering ---
+  const cardList = document.getElementById('card-list');
+  const addCardBtn = document.querySelector('.glass-button i.fa-plus')?.parentElement;
+
+  function renderCardList() {
+    if (!cardList) return;
+    cardList.innerHTML = '';
+    cards.forEach((card, idx) => {
+      const li = document.createElement('li');
+      li.tabIndex = 0;
+      li.className = idx === currentCardIdx ? 'active' : '';
+      li.setAttribute('role', 'button');
+      li.setAttribute('aria-label', card.name);
+      li.innerHTML = `<img src="/images/image-packs/characters/${card.avatar}" alt="${card.name}" class="avatar-sm" /> ${card.name}`;
+      li.addEventListener('click', () => {
+        currentCardIdx = idx;
+        currentCard = { ...cards[currentCardIdx] };
+        populateForm(currentCard);
+        renderPreview(currentCard);
+        renderCardList();
+      });
+      li.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          li.click();
+        }
+      });
+      cardList.appendChild(li);
+    });
+  }
+
+  // --- Add Card Handler ---
+  if (addCardBtn) {
+    addCardBtn.addEventListener('click', () => {
+      const newCard = {
+        id: `card-${Date.now()}`,
+        name: 'New Card',
+        avatar: 'autumnus-majestus.jpg',
+        description: '',
+        stats: [],
+        badges: ['legendary'],
+        links: [],
+        theme: 'legendary',
+        style: 'rpg',
+        updated: new Date().toISOString()
+      };
+      cards.push(newCard);
+      currentCardIdx = cards.length - 1;
+      currentCard = { ...newCard };
+      renderCardList();
+      populateForm(currentCard);
+      renderPreview(currentCard);
+    });
   }
 
   // --- Event listeners ---
@@ -119,7 +184,8 @@
     });
   }
 
-  // Initial setup
+  // --- Initial setup ---
+  renderCardList();
   populateForm(currentCard);
   renderPreview(currentCard);
 })();
