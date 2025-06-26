@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Card Forge - Nova Lab">
+  <title>Card Forge - Nova Lab</title>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/grid.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/hero.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/banner.css">
+</head>
+<body data-theme="dark">
+<!--
+  AmbientPixels Template Reference
+  --------------------------------
+    📄 Internal Documentation Template
+  ----------------------------------
+  This page is a structured documentation template used for writing system guides,
+  feature specs, component breakdowns, or usage notes across the site.
+  This file demonstrates usage of key layout and style classes from the AmbientPixels/Nova system.
+  All examples use external CSS classes only (no inline styles).
+  Copy/paste and adapt these blocks for rapid prototyping.
+-->
+
+<!-- Banner Example (from banner.css) -->
+<div class="banner-container">
+  <div class="banner">
+    <i class="fas fa-info-circle banner-icon"></i>
+    <span>Card Forge — Lab Mode</span>
+    <button class="banner-close" aria-label="Close Banner">&times;</button>
+  </div>
+</div>
+<!-- Usage: Place at the top of your page for alerts or system messages -->
+
+<!-- Navigation Header Placeholder (nav.css) -->
+<header id="nav-header"><!-- Navigation loads here via JS include --></header>
+
+<!-- Hero Section Example (hero.css, theme.css) -->
+<section class="mini-hero">
+  <img src="/images/textures/placeholder-texture.jpg" alt="Texture" class="mini-hero-img" loading="lazy">
+  <h1>Card Forge</h1>
+</section>
+<!-- Usage: For page intros or section headers -->
+
+<main class="grid-container">
+  <!-- Grid Layout Examples (grid.css) -->
+  <!-- Collapsible: Card Forge Overview (H2 collapsible) -->
+  <section class="content-section grid-col-12">
+    <div class="section-header">
+      <h2>Card Forge Overview</h2>
+      <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+    </div>
+    <div class="content collapsed">
+      <p class="nova-intro">Card Forge is a modular system for creating and managing digital identity cards—avatars, stats, and badges—for the AmbientPixels/Nova ecosystem. It is designed for easy extension, theming, and integration with Nova's mood-driven UI.</p>
+    </div>
+  </section>
+
+  <section class="content-section grid-col-12">
+    <h2>Dev/Test Environment</h2>
+    <ul class="nova-list">
+      <li>Isolated dev sandbox: <code>/lab/card-forge/</code></li>
+      <li>Live test page: <code>lab/card-forge/index.html</code></li>
+      <li>All assets (JS, CSS, JSON) are local and hot-reloadable</li>
+      <li>Safe for rapid prototyping and CI/CD</li>
+    </ul>
+  </section>
+
+  <section class="content-section grid-col-12">
+    <h2>File Structure</h2>
+    <ul class="nova-list">
+      <li><code>lab/card-forge/index.html</code> — Dev/test harness for Card Forge</li>
+      <li><code>lab/card-forge/card-forge.js</code> — Main rendering logic (exports <code>window.renderRpgAvatarCards</code>)</li>
+      <li><code>lab/card-forge/card-forge.css</code> — All card-specific styles</li>
+      <li><code>lab/card-forge/card-forge.json</code> — Card data (avatars, stats, badges, etc.)</li>
+      <li><code>docs/project-card-forge.html</code> — This documentation page</li>
+      <li><code>docs/logs/project-card-forge.me</code> — Markdown changelog/spec</li>
+    </ul>
+  </section>
+
+  <section class="content-section grid-col-12">
+    <h2>Features</h2>
+    <ul class="nova-list">
+      <li>Avatar card rendering with flip animation</li>
+      <li>Stats, badges, achievements, and links</li>
+      <li>Theming (legendary, epic, rare, etc.)</li>
+      <li>Role-based badge logic</li>
+      <li>Responsive grid layout</li>
+      <li>Isolated dev/test mode with <code>devMode</code> flag</li>
+      <li>Integrated with Nova's crystalline aesthetic</li>
+    </ul>
+  </section>
+
+  <section class="content-section grid-col-12">
+    <h2>Technical Architecture</h2>
+    <ul class="nova-list">
+      <li>Frontend: HTML + CSS + JS (modular, no inline styles)</li>
+      <li>Rendering: CSS Grid, card-forge.js, future export support</li>
+      <li>Data: JSON-driven (card-forge.json)</li>
+      <li>Dev Agent: Cascade (Windsurf AI) for code logic</li>
+      <li>Deployment: GitHub + Azure CI/CD</li>
+    </ul>
+  </section>
+
+  <section class="content-section grid-col-12">
+    <h2>How to Extend</h2>
+    <ul class="nova-list">
+      <li>Add or edit cards in <code>card-forge.json</code></li>
+      <li>Customize rendering in <code>card-forge.js</code> (see <code>renderRpgAvatarCards</code>)</li>
+      <li>Update or extend styles in <code>card-forge.css</code></li>
+      <li>Use <code>devMode</code> for test features and debugging</li>
+      <li>Document changes in <code>project-card-forge.me</code></li>
+    </ul>
+  </section>
+
+  <section class="content-section grid-col-12">
+    <h2>References & Links</h2>
+    <ul class="nova-list">
+      <li><a href="/lab/card-forge/index.html">Card Forge Dev Sandbox</a></li>
+      <li><a href="/docs/logs/project-card-forge.me">Changelog & Spec (Markdown)</a></li>
+      <li><a href="/docs/template.html">Documentation Template</a></li>
+    </ul>
+  </section>
+
+  </section>
+  <section class="content-section grid-col-6">
+    <h3>Half-width Section (6 columns)</h3>
+    <p>Combine <code>grid-col-6</code> for side-by-side layouts.</p>
+  </section>
+  <section class="content-section grid-col-6">
+    <h3>Another Half-width Section</h3>
+    <p>Place next to the previous for a two-column layout.</p>
+  </section>
+
+  
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/init-quotes.js" defer></script>
+  <script src="/js/md-inject.js" defer></script>
+  <script src="/js/modal-window.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/nova-ai.js" defer></script>
+  <script src="/js/nova-awareness-feed.js" defer></script>
+  <script src="/js/nova-dashboard.js" defer></script>
+  <script src="/js/nova-insights.js" defer></script>
+  <script src="/js/nova-interaction-log.js" defer></script>
+  <script src="/js/nova-mood-core.js" defer></script>
+  <script src="/js/nova-quotes.js" defer></script>
+  <script src="/js/nova-status.js" defer></script>
+  <script src="/js/nova-telemetry-logger.js" defer></script>
+  <script src="/js/project-dashboard.js" defer></script>
+  <script src="/js/template.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

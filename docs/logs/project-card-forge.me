@@ -36,11 +36,11 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
   - Quotes, avatars, themes
 - Role-based badge logic and animated theming (legendary, epic, rare, etc.)
 
-### 🧪 In Progress (Dev Mode)
+### ✅ Dev Environment (Complete)
 - Local dev sandbox: `card-forge-dev/`
 - Manual HTML/CSS/JS components (via Cascade-generated code)
-- Support for theme previews and stat testing
-- CI-safe separation from production build
+- Live reload via local server or VS Code
+- Git-safe isolation from production branch
 
 ---
 
@@ -70,12 +70,12 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
 | Layer            | Tool/Tech                                             | Purpose |
 |------------------|-------------------------------------------------------|---------|
 | **Frontend**     | HTML + CSS + JS *(written by Cascade)*               | Modular UI rendering, animations, card logic |
-| **Rendering**    | CSS Grid + JS + `html2canvas` *(planned)*            | Live layout + exportable cards |
+| **Rendering**    | CSS Grid + JS + `html2canvas` *(planned)*            | Live layout and future image export |
 | **Data Layer**   | JSON (`rpg-avatar-cards.json`)                       | Defines card structure, stats, and metadata |
 | **Avatar Editor**| Manual upload *(Cropper.js or Avatar Studio planned)*| Image cropping and avatar placement |
-| **AI Agents**    | Cascade (code logic), Nova (emotion & traits)        | Power generation, stat suggestions, future themes |
+| **Dev Agent**    | Cascade (Windsurf AI)                                | Code generation + style logic |
 | **Deployment**   | GitHub + Azure CI/CD                                 | Auto-deploy updates from main/dev branches |
-| **Optional AI**  | OpenAI / Hugging Face *(for stat, lore, or name gen)*| Will support card auto-generation and customization |
+| **Optional AI**  | Nova / OpenAI / Hugging Face *(future)*             | Will support stat generation, names, lore, etc. |
 
 ---
 
@@ -128,4 +128,3 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
 
 ---
 
-Let me know if you’d like this saved as `README.md`, `card-forge-docs.md`, or inserted directly into `/docs/logs/project-card-forge.md`. I can also generate a live page version if needed.
