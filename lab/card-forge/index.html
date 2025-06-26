@@ -57,6 +57,12 @@
         <button class="glass-button" type="button"><i class="fas fa-upload"></i> Import</button>
         <button class="glass-button" type="button"><i class="fas fa-download"></i> Export</button>
       </div>
+      <!-- updated by Cascade: moved Save/Reset/Azure buttons to sidebar -->
+      <div class="mt-2" id="sidebar-save-btns">
+        <button class="glass-button" type="button" id="sidebar-save-btn"><i class="fas fa-save"></i> Save</button>
+        <button class="glass-button" type="reset" id="sidebar-reset-btn"><i class="fas fa-undo"></i> Reset</button>
+        <button class="glass-button" type="button" id="save-to-azure-btn"><i class="fas fa-cloud-upload-alt"></i> Save to Azure</button>
+      </div>
     </section>
     <!-- 2. Live Preview -->
     <section class="grid-col-4 card-forge-preview-area" style="background:rgba(0,255,0,0.06);border:1px solid #8e8;">
@@ -148,10 +154,6 @@
                 <option value="rare">Rare</option>
               </select>
 
-              <div class="mt-2">
-                <button class="glass-button" type="button"><i class="fas fa-save"></i> Save</button>
-                <button class="glass-button" type="reset"><i class="fas fa-undo"></i> Reset</button>
-              </div>
             </div>
           </form>
             </div>
@@ -182,10 +184,7 @@
                 <input id="card-back-github" name="card-back-github" type="text" placeholder="GitHub URL..." class="input" />
               </fieldset>
             </div>
-            <div class="mt-2">
-              <button class="glass-button" type="button"><i class="fas fa-save"></i> Save</button>
-              <button class="glass-button" type="reset"><i class="fas fa-undo"></i> Reset</button>
-            </div>
+
           </form>
         </div>
 

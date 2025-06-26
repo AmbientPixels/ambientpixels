@@ -128,6 +128,61 @@ window.addEventListener('DOMContentLoaded', function() {
   });
   // /* updated by Cascade: custom reset button logic */
   const nameInput = document.getElementById('card-name');
+
+  // Sidebar Save, Reset, and Azure button handlers (updated by Cascade)
+  const sidebarSaveBtn = document.getElementById('sidebar-save-btn');
+  const sidebarResetBtn = document.getElementById('sidebar-reset-btn');
+  const saveToAzureBtn = document.getElementById('save-to-azure-btn');
+
+  if (sidebarSaveBtn) {
+    sidebarSaveBtn.addEventListener('click', function() {
+      updateCardFromForm();
+      saveCards();
+      alert('Cards saved locally.');
+    });
+  }
+  if (sidebarResetBtn) {
+    sidebarResetBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      // Use same logic as custom reset button
+      if (typeof switchTab === 'function') switchTab(true);
+      currentCard = { ...cards[currentCardIdx] };
+      if (typeof populateForm === 'function') populateForm(currentCard);
+      avatarSelect = document.getElementById('card-avatar');
+      if (avatarSelect) avatarSelect.value = currentCard.avatar || '';
+      showingBack = false;
+      if (typeof renderPreview === 'function') renderPreview(currentCard);
+      if (backForm && typeof ensureBackFields === 'function') {
+        ensureBackFields(currentCard);
+        backForm.reset();
+      }
+    });
+  }
+  if (saveToAzureBtn) {
+    saveToAzureBtn.addEventListener('click', async function() {
+      saveToAzureBtn.disabled = true;
+      saveToAzureBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+      try {
+        const response = await fetch('/api/saveCardData', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(cards)
+        });
+        const result = await response.json();
+        if (response.ok) {
+          alert(result.message || 'Cards saved to Azure!');
+        } else {
+          alert(result.message || 'Error saving to Azure.');
+        }
+      } catch (err) {
+        alert('Network error: ' + err.message);
+      } finally {
+        saveToAzureBtn.disabled = false;
+        saveToAzureBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Save to Azure';
+      }
+    });
+  }
+  // /* updated by Cascade: sidebar Save/Reset/Azure logic */
   const styleSelect = document.getElementById('card-style');
   
   const descInput = document.getElementById('card-desc');
