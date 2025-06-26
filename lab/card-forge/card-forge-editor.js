@@ -2,6 +2,7 @@
 // Modular, no inline styles, Nova/AmbientPixels conventions only
 // Handles form <-> data <-> preview for a single card (MVP)
 
+
 window.addEventListener('DOMContentLoaded', function() {
   console.log('[CardForge] card-forge-editor.js loaded and DOMContentLoaded fired');
   // --- Debugging ---
@@ -82,6 +83,8 @@ window.addEventListener('DOMContentLoaded', function() {
   let cards = loadCards() || JSON.parse(JSON.stringify(defaultCards));
   let currentCardIdx = 0;
   let currentCard = { ...cards[currentCardIdx] };
+  let showingBack = false; // Track preview flip state
+  // /* updated by Cascade */
 
   // DOM refs
   const form = document.querySelector('.nova-form');
@@ -117,10 +120,14 @@ window.addEventListener('DOMContentLoaded', function() {
       frontPanel.hidden = true;
       backPanel.hidden = false;
     }
+    // Flip the preview to match the selected tab
+    showingBack = !isFront;
+    renderPreview(currentCard);
     // Optionally focus the active tab for accessibility
     (isFront ? tabFront : tabBack).focus();
     // Repopulate form to sync fields
     populateForm(currentCard);
+    // /* updated by Cascade */
   }
   if (tabFront && tabBack) {
     tabFront.addEventListener('click', function() { switchTab(true); });
@@ -192,7 +199,6 @@ window.addEventListener('DOMContentLoaded', function() {
   }
 
   // --- Card Back Support ---
-  let showingBack = false;
   function ensureBackFields(card) {
     if (!card.back) card.back = {
       bio: '',
