@@ -1,3 +1,68 @@
+/* Card Forge Editor UI Styles -- added by Cascade */
+.card-forge-preview {
+  background: var(--mood-bg, #181b22);
+  border-radius: 1.2em;
+  box-shadow: 0 2px 16px 0 rgba(30,38,50,0.18);
+  padding: 2em 1.2em 1.6em 1.2em;
+  margin: 1.2em 0 0 0;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.7em;
+}
+.avatar-lg {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 3px var(--mood-glow, #7ad6e6), 0 2px 8px 0 rgba(0,0,0,0.14);
+  margin-bottom: 0.5em;
+}
+.avatar-sm {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 0.6em;
+  vertical-align: middle;
+  box-shadow: 0 0 0 2px var(--mood-glow, #7ad6e6);
+}
+.card-forge-preview h4 {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: var(--mood-glow, #7ad6e6);
+  margin: 0.1em 0 0.2em 0;
+}
+.card-forge-preview .card-desc {
+  font-size: 1em;
+  color: #b5e4fa;
+  margin: 0 0 0.3em 0;
+  text-align: center;
+}
+.card-forge-preview .card-stats {
+  display: flex;
+  gap: 1.2em;
+  justify-content: center;
+  margin: 0.3em 0 0.2em 0;
+  padding: 0;
+  list-style: none;
+}
+.card-forge-preview .badge {
+  display: inline-block;
+  padding: 0.28em 0.85em;
+  border-radius: 1em;
+  font-size: 0.97em;
+  font-weight: 500;
+  background: var(--mood-glow, #7ad6e6);
+  color: #181b22;
+  margin: 0.15em 0 0 0;
+  box-shadow: 0 1px 6px 0 rgba(0,0,0,0.09);
+}
+
+/* End Card Forge Editor UI Styles */
+
 /* RPG Avatar Card Theme - Modular Styles */
 
 /* Card theme borders - updated by Cascade */

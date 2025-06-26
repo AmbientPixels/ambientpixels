@@ -42,6 +42,74 @@
   
 
   <main class="grid-container">
+    <!-- Card Forge Editor UI Skeleton (Nova/AmbientPixels style) -->
+    <section class="content-section grid-col-12" aria-labelledby="card-editor-heading">
+      <h2 id="card-editor-heading"><i class="fas fa-edit"></i> Card Forge Editor <span class="soon-tag">Alpha</span></h2>
+      <div class="grid-row">
+        <!-- Sidebar/List -->
+        <aside class="grid-col-3" aria-label="Card List">
+          <h3 class="section-header">Your Cards</h3>
+          <ul class="nova-list">
+            <li><img src="/images/image-packs/characters/autumnus-majestus.jpg" alt="Autumnus Majestus" class="avatar-sm" /> Aria Flux</li>
+            <li><img src="/images/image-packs/characters/cyber-erenity.jpg" alt="Cyber Erenity" class="avatar-sm" /> Cypher Nova</li>
+            <li><img src="/images/image-packs/characters/regal-radiance.jpg" alt="Regal Radiance" class="avatar-sm" /> Echo Prism</li>
+          </ul>
+          <button class="glass-button" type="button"><i class="fas fa-plus"></i> Add Card</button>
+          <div class="mt-2">
+            <button class="glass-button" type="button"><i class="fas fa-upload"></i> Import</button>
+            <button class="glass-button" type="button"><i class="fas fa-download"></i> Export</button>
+          </div>
+        </aside>
+        <!-- Editor Form -->
+        <section class="grid-col-5" aria-label="Card Editor Form">
+          <h3 class="section-header">Edit Card</h3>
+          <form class="nova-form" autocomplete="off">
+            <label for="card-name">Name</label>
+            <input id="card-name" name="card-name" type="text" placeholder="Enter name..." class="input" />
+
+            <label for="card-avatar">Avatar Image</label>
+            <select id="card-avatar" name="card-avatar" class="input">
+              <option value="autumnus-majestus.jpg">Aria Flux</option>
+              <option value="cyber-erenity.jpg">Cypher Nova</option>
+              <option value="regal-radiance.jpg">Echo Prism</option>
+            </select>
+
+            <label for="card-desc">Description</label>
+            <textarea id="card-desc" name="card-desc" rows="2" class="input" placeholder="Card description..."></textarea>
+
+            <label for="card-stats">Stats</label>
+            <input id="card-stats" name="card-stats" type="text" placeholder="e.g. Power: 8, Agility: 6" class="input" />
+
+            <label for="card-badges">Badges</label>
+            <select id="card-badges" name="card-badges" class="input">
+              <option value="legendary">Legendary</option>
+              <option value="epic">Epic</option>
+              <option value="rare">Rare</option>
+            </select>
+
+            <div class="mt-2">
+              <button class="glass-button" type="button"><i class="fas fa-save"></i> Save</button>
+              <button class="glass-button" type="reset"><i class="fas fa-undo"></i> Reset</button>
+            </div>
+          </form>
+        </section>
+        <!-- Live Preview -->
+        <section class="grid-col-4" aria-label="Card Preview">
+          <h3 class="section-header">Live Preview</h3>
+          <div class="card-forge-preview">
+            <img src="/images/image-packs/characters/avatar1.png" alt="Preview Avatar" class="avatar-lg" />
+            <h4>Aria Flux</h4>
+            <p class="card-desc">Nova test pilot and moodstreamer.</p>
+            <ul class="nova-list card-stats">
+              <li>Power: 8</li>
+              <li>Agility: 6</li>
+            </ul>
+            <span class="badge legendary">Legendary</span>
+          </div>
+        </section>
+      </div>
+    </section>
+
     <section class="grid-col-12" role="region" aria-labelledby="git-display-heading">
       <div class="card">
         <div class="card-content">
@@ -51,22 +119,7 @@
   </div>
 </section>
 
-<!-- RPG Avatar Cards Dev Mount Point -->
-<section class="grid-col-12" id="rpg-avatar-cards-dev-section">
-  <div id="rpg-avatar-cards-dev"></div>
-</section>
-          <div class="card-list">
-            <h3>Features</h3>
-            <ul>
-              <li>Card Forge integrated with Nova's memory system</li>
-              <li>Updates synchronized with Nova's memory refresh cycle</li>
-              <li>Shows card details, authors, and timestamps</li>
-              <li>Integrated with Nova's aesthetic</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
+
 
     
   </main>
@@ -78,7 +131,8 @@
   <script src="/js/init-header-footer.js"></script>
   <script src="/js/nav.js"></script>
    <!-- Card Forge module script (local/dev) -->
-  <script src="./card-forge.js"></script>
+  <script src="./card-forge.js" defer></script>
+  <script src="./card-forge-editor.js" defer></script>
   <script>
     // Load Card Forge JSON and initialize the module in dev mode (local)
     fetch('./card-forge.json')
