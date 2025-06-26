@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="/css/nova-mood.css" />
   <link rel="stylesheet" href="/css/nova-mood-background.css" />
   <!-- Card Forge module styles (local/dev) -->
-  <link rel="stylesheet" href="./card-forge.css" />
+  <link rel="stylesheet" href="/lab/card-forge/card-forge.css" />
 
 </head>
 <body data-theme="dark">
@@ -200,11 +200,11 @@
   <script src="/js/init-header-footer.js"></script>
   <script src="/js/nav.js"></script>
    <!-- Card Forge module script (local/dev) -->
-  <script src="./card-forge.js" defer></script>
-  <script src="./card-forge-editor.js" defer></script>
+  <script src="/lab/card-forge/card-forge.js" defer></script>
+  <script src="/lab/card-forge/card-forge-editor.js" defer></script>
   <script>
     // Load Card Forge JSON and initialize the module in dev mode (local)
-    fetch('./card-forge.json')
+    fetch('/lab/card-forge/card-forge.json')
       .then(res => res.json())
       .then(data => {
         if (window.renderRpgAvatarCards) {
