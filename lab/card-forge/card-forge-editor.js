@@ -2,7 +2,14 @@
 // Modular, no inline styles, Nova/AmbientPixels conventions only
 // Handles form <-> data <-> preview for a single card (MVP)
 
-(function() {
+window.addEventListener('DOMContentLoaded', function() {
+  console.log('[CardForge] card-forge-editor.js loaded and DOMContentLoaded fired');
+  // --- Debugging ---
+  const DEBUG = true;
+  function debugLog(...args) { if (DEBUG) console.log('[CardForge]', ...args); }
+  function debugWarn(...args) { if (DEBUG) console.warn('[CardForge]', ...args); }
+  function debugError(...args) { if (DEBUG) console.error('[CardForge]', ...args); }
+
   // DOM references for tabbed editor fields
   const frontFields = document.getElementById('front-fields');
   const backFields = document.getElementById('back-fields');
@@ -87,6 +94,7 @@
   const preview = document.querySelector('.card-forge-preview');
 
   // --- Helper: render preview ---
+  // --- Helper: render 3D flip preview (front+back) ---
   function renderPreview(card) {
     if (!preview) return;
     // Remove any previous style modifier classes
@@ -96,17 +104,45 @@
     }
     // Animate style change
     preview.classList.remove('windsurf-style-animate');
-    void preview.offsetWidth; // Force reflow to restart animation
+    void preview.offsetWidth;
     preview.classList.add('windsurf-style-animate');
+
+    // Build front face
+    const frontHTML = `
+      <div class="rpg-avatar-front">
+        <img src="/images/image-packs/characters/${card.avatar}" alt="Preview Avatar" class="avatar-lg" />
+        <h4>${card.name || ''}</h4>
+        <p class="card-desc">${card.description || ''}</p>
+        <ul class="nova-list card-stats">
+          ${(card.stats||[]).map(stat => `<li>${stat.label}: ${stat.value}</li>`).join('')}
+        </ul>
+        <span class="badge ${card.theme}">${card.badges && card.badges[0] ? card.badges[0][0].toUpperCase() + card.badges[0].slice(1) : ''}</span>
+      </div>`;
+
+    // Build back face
+    ensureBackFields(card);
+    const backHTML = `
+      <div class="rpg-avatar-back">
+        <div class="card-back-socials">
+          ${Object.entries(card.back.socials).map(([net, url]) =>
+            url ? `<a href="${url}" target="_blank" rel="noopener" aria-label="${net}"><i class="fab fa-${net}"></i></a>` : `<span class="disabled"><i class="fab fa-${net}"></i></span>`
+          ).join(' ')}
+        </div>
+        <div class="card-back-bio">${card.back.bio ? card.back.bio : '<em>No bio set.</em>'}</div>
+        ${card.back.image ? `<img src="${card.back.image}" alt="Back Image" class="card-back-img" />` : ''}
+        ${card.back.qr ? `<img src="${card.back.qr}" alt="QR Code" class="card-back-qr" />` : ''}
+      </div>`;
+
+    // Compose the card structure
     preview.innerHTML = `
-      <img src="/images/image-packs/characters/${card.avatar}" alt="Preview Avatar" class="avatar-lg" />
-      <h4>${card.name || ''}</h4>
-      <p class="card-desc">${card.description || ''}</p>
-      <ul class="nova-list card-stats">
-        ${(card.stats||[]).map(stat => `<li>${stat.label}: ${stat.value}</li>`).join('')}
-      </ul>
-      <span class="badge ${card.theme}">${card.badges && card.badges[0] ? card.badges[0][0].toUpperCase() + card.badges[0].slice(1) : ''}</span>
+      <div class="rpg-avatar-card${showingBack ? ' flipped' : ''}">
+        <div class="rpg-avatar-card-inner">
+          ${frontHTML}
+          ${backHTML}
+        </div>
+      </div>
     `;
+    // /* updated by Cascade */
   }
 
   // --- Card Back Support ---
@@ -126,31 +162,21 @@
     };
   }
 
-  function renderPreviewBack(card) {
-    ensureBackFields(card);
-    preview.className = 'card-forge-preview card-forge-preview--back';
-    preview.classList.remove('windsurf-style-animate');
-    void preview.offsetWidth;
-    preview.classList.add('windsurf-style-animate');
-    preview.innerHTML = `
-      <div class="card-back-socials">
-        ${Object.entries(card.back.socials).map(([net, url]) =>
-          url ? `<a href="${url}" target="_blank" rel="noopener" aria-label="${net}"><i class="fab fa-${net}"></i></a>` : `<span class="disabled"><i class="fab fa-${net}"></i></span>`
-        ).join(' ')}
-      </div>
-      <div class="card-back-bio">${card.back.bio ? card.back.bio : '<em>No bio set.</em>'}</div>
-      ${card.back.image ? `<img src="${card.back.image}" alt="Back Image" class="card-back-img" />` : ''}
-      ${card.back.qr ? `<img src="${card.back.qr}" alt="QR Code" class="card-back-qr" />` : ''}
-    `;
-  }
+  // --- No longer needed: renderPreviewBack is merged into renderPreview (see above) ---
+  // function renderPreviewBack(card) { ... } /* removed by Cascade */
 
   function flipCard() {
     showingBack = !showingBack;
-    if (showingBack) {
-      renderPreviewBack(currentCard);
-    } else {
-      renderPreview(currentCard);
+    // Toggle the flipped class on the .rpg-avatar-card inside preview
+    const cardEl = preview.querySelector('.rpg-avatar-card');
+    if (cardEl) {
+      cardEl.classList.toggle('flipped', showingBack);
     }
+    // Update aria-pressed on the flip button
+    if (flipBtn) {
+      flipBtn.setAttribute('aria-pressed', showingBack ? 'true' : 'false');
+    }
+    // /* updated by Cascade */
   }
 
   // Add Flip button
@@ -163,11 +189,13 @@
     flipBtn.innerHTML = '<i class="fas fa-retweet"></i> Flip Card';
     flipBtn.setAttribute('aria-pressed', 'false');
     preview.parentElement.insertBefore(flipBtn, preview.nextSibling);
+  }
+  if (flipBtn) {
     flipBtn.addEventListener('click', () => {
-      flipBtn.setAttribute('aria-pressed', showingBack ? 'false' : 'true');
       flipCard();
     });
   }
+  // /* updated by Cascade */
 
   // --- Helper: parse stats string to array ---
   function parseStats(str) {
@@ -272,6 +300,47 @@
   const exportBtn = document.querySelector('.glass-button i.fa-download')?.parentElement;
   const importBtn = document.querySelector('.glass-button i.fa-upload')?.parentElement;
 
+  // --- Add Card Handler (added by Cascade) ---
+  if (addCardBtn) {
+    addCardBtn.addEventListener('click', () => {
+      debugLog('Add Card button clicked');
+      // Create a new card with default values
+      const newId = `card-${Date.now()}`;
+      const newCard = {
+        id: newId,
+        name: 'New Card',
+        avatar: 'autumnus-majestus.jpg',
+        description: '',
+        stats: [],
+        badges: ['legendary'],
+        links: [],
+        theme: 'legendary',
+        style: 'rpg',
+        updated: new Date().toISOString(),
+        back: {
+          bio: '',
+          image: '',
+          qr: '',
+          socials: {
+            facebook: '',
+            twitter: '',
+            instagram: '',
+            linkedin: '',
+            github: ''
+          }
+        }
+      };
+      cards.push(newCard);
+      currentCardIdx = cards.length - 1;
+      currentCard = { ...newCard };
+      renderCardList();
+      populateForm(currentCard);
+      renderPreview(currentCard);
+      saveCards();
+      debugLog('New card added:', newCard);
+    });
+  } // --- End Add Card Handler --- //
+
   // --- Export Handler ---
   if (exportBtn) {
     exportBtn.addEventListener('click', () => {
@@ -326,8 +395,12 @@
   }
 
   function renderCardList() {
-    if (!cardList) return;
+    if (!cardList) {
+      debugWarn('Card list element not found in DOM.');
+      return;
+    }
     cardList.innerHTML = '';
+    debugLog('Rendering card list. cards:', cards, 'currentCardIdx:', currentCardIdx);
     cards.forEach((card, idx) => {
       const li = document.createElement('li');
       li.tabIndex = 0;
@@ -365,7 +438,11 @@
         });
         li.appendChild(removeBtn);
       }
+      // --- Fix: actually append li to cardList (by Cascade) ---
+      cardList.appendChild(li);
+      // --- End Cascade fix ---
       li.addEventListener('click', () => {
+        debugLog('Card selected from list:', card, 'idx:', idx);
         currentCardIdx = idx;
         currentCard = { ...cards[currentCardIdx] };
         populateForm(currentCard);
@@ -381,4 +458,12 @@
   } // End renderCardList
 
   renderPreview(currentCard);
-})();
+  // --- Ensure card list is rendered on load (added by Cascade) ---
+  renderCardList();
+  debugLog('Initial card list rendered after DOMContentLoaded');
+  // Ensure flip button state is in sync
+  if (flipBtn) {
+    flipBtn.setAttribute('aria-pressed', showingBack ? 'true' : 'false');
+  }
+  // /* updated by Cascade */
+});
