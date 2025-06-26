@@ -208,8 +208,7 @@ window.addEventListener('DOMContentLoaded', function() {
     };
   }
 
-  // --- No longer needed: renderPreviewBack is merged into renderPreview (see above) ---
-  // function renderPreviewBack(card) { ... } /* removed by Cascade */
+  // --- No longer needed: renderPreviewBack is merged into renderPreview (see above) --- // cleaned by Cascade
 
   function flipCard() {
     showingBack = !showingBack;
@@ -297,8 +296,8 @@ window.addEventListener('DOMContentLoaded', function() {
     currentCard.description = descInput.value;
     currentCard.stats = parseStats(statsInput.value);
     currentCard.badges = [badgesSelect.value];
-    currentCard.theme = badgesSelect.value;
-    currentCard.updated = new Date().toISOString();
+    // theme assignment handled in one place only (see below)
+    currentCard.updated = new Date().toISOString(); // updated by Cascade
     cards[currentCardIdx] = { ...currentCard };
     renderPreview(currentCard);
     saveCards();
@@ -314,7 +313,6 @@ window.addEventListener('DOMContentLoaded', function() {
       currentCard.description = descInput.value;
       currentCard.stats = parseStats(statsInput.value);
       currentCard.badges = [badgesSelect.value];
-      currentCard.theme = badgesSelect.value;
       currentCard.updated = new Date().toISOString();
       cards[currentCardIdx] = { ...currentCard };
       renderPreview(currentCard);
