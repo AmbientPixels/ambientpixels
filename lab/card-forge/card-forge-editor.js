@@ -132,6 +132,35 @@
       li.setAttribute('role', 'button');
       li.setAttribute('aria-label', card.name);
       li.innerHTML = `<img src="/images/image-packs/characters/${card.avatar}" alt="${card.name}" class="avatar-sm" /> ${card.name}`;
+      // Remove button (if more than 1 card)
+      if (cards.length > 1) {
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'remove-card-btn';
+        removeBtn.setAttribute('aria-label', `Remove ${card.name}`);
+        removeBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        removeBtn.tabIndex = 0;
+        removeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (confirm(`Remove card '${card.name}'? This cannot be undone.`)) {
+            cards.splice(idx, 1);
+            // Adjust current selection
+            if (currentCardIdx >= cards.length) {
+              currentCardIdx = cards.length - 1;
+            }
+            currentCard = { ...cards[currentCardIdx] };
+            renderCardList();
+            populateForm(currentCard);
+            renderPreview(currentCard);
+          }
+        });
+        removeBtn.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            removeBtn.click();
+          }
+        });
+        li.appendChild(removeBtn);
+      }
       li.addEventListener('click', () => {
         currentCardIdx = idx;
         currentCard = { ...cards[currentCardIdx] };

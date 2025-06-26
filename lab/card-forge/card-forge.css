@@ -1,4 +1,48 @@
 /* Card Forge Editor UI Styles -- added by Cascade */
+
+/* Remove Card Button (sidebar) -- added by Cascade */
+.remove-card-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.8em;
+  height: 1.8em;
+  margin-left: 0.5em;
+  border: none;
+  border-radius: 50%;
+  background: rgba(90, 228, 255, 0.07);
+  color: #7ad6e6;
+  opacity: 0.0;
+  transition: opacity 0.18s, background 0.18s, color 0.18s, box-shadow 0.18s;
+  cursor: pointer;
+  outline: none;
+  box-shadow: none;
+  font-size: 1em;
+}
+
+.nova-list li:hover .remove-card-btn,
+.nova-list li:focus-within .remove-card-btn {
+  opacity: 1.0;
+}
+
+.remove-card-btn:focus {
+  outline: 2px solid var(--mood-glow, #7ad6e6);
+  outline-offset: 1px;
+  background: rgba(90, 228, 255, 0.18);
+  color: #fff;
+  box-shadow: 0 0 0 2px var(--mood-glow, #7ad6e6);
+}
+
+.remove-card-btn:hover {
+  background: rgba(90, 228, 255, 0.22);
+  color: #fff;
+}
+
+.remove-card-btn i {
+  pointer-events: none;
+  font-size: 1em;
+  line-height: 1;
+}
 .card-forge-preview {
   background: var(--mood-bg, #181b22);
   border-radius: 1.2em;
