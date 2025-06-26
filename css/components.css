@@ -975,23 +975,34 @@ body[data-theme="light"] .git-commit-item {
   top: 1rem;
   right: 1rem;
   background: none;
-  border: none;
-  font-size: 1.25rem;
-  color: #888;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: #fff;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  padding: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
 }
 
-.form-status {
-  margin-top: 1rem;
-  font-weight: 500;
+.modal-close i {
+    font-size: 1.2rem;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.form-disclaimer {
-  margin-top: 1rem;
-  font-size: 0.9rem;
-  color: #aaa;
-  text-align: center;
-  line-height: 1.4;
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #87ceeb;
+    transform: rotate(90deg);
+}
+
+.modal-close:hover i {
+    transform: rotate(180deg);
 }
 
 /* Section Header */
@@ -2105,129 +2116,1116 @@ body[data-theme="light"] .nova-quip {
   transform: translateY(0);
 }
 
-/* reverted by Cascade 2025-06-24: Nova cyan crystalline style for .check-list */
-.check-list {
-  list-style: none;
-  padding: 0;
-  margin: 2rem 0 1.5rem 0;
-  background: rgba(40, 60, 90, 0.12);
-  border-radius: 1rem;
-  box-shadow: 0 2px 24px 0 rgba(90, 228, 255, 0.07);
+/* Coming Soon Overlay - Only show on card hover */
+.card-section {
+  position: relative;
   overflow: hidden;
 }
 
-.check-list li {
-  position: relative;
-  padding: 1rem 1.5rem 1rem 3rem;
-  margin: 0;
-  font-size: 1.08em;
-  color: #e6f8ff;
-  border-left: 4px solid var(--aura-cyan, #5ae4ff);
-  background: linear-gradient(90deg, rgba(90,228,255,0.04) 0%, rgba(40,60,90,0.10) 100%);
-  transition: background 0.25s, border-color 0.25s;
-}
-
-.check-list li:not(:last-child) {
-  border-bottom: 1px solid rgba(90, 228, 255, 0.08);
-}
-
-.check-list li::before {
-  content: '\272A'; /* Sparkle/star for crystalline vibe */
+.coming-soon-overlay {
   position: absolute;
-  left: 1.2rem;
-  top: 1.1rem;
-  font-size: 1.1em;
-  color: var(--aura-cyan, #5ae4ff);
-  text-shadow: 0 0 6px #5ae4ff99, 0 0 12px #fff2;
-  opacity: 0.88;
-  animation: windsurf-crystal-pulse 2.4s infinite ease-in-out;
-}
-
-@keyframes windsurf-crystal-pulse {
-  0%, 100% { opacity: 0.88; text-shadow: 0 0 6px #5ae4ff99, 0 0 12px #fff2; }
-  50% { opacity: 1; text-shadow: 0 0 12px #5ae4ffcc, 0 0 18px #fff4; }
-}
-
-.check-list li:hover {
-  background: linear-gradient(90deg, rgba(90,228,255,0.09) 0%, rgba(40,60,90,0.16) 100%);
-  border-left-color: var(--glow-blue, #9bf0ff);
-}
-
-.no-bullets li i {
-  position: absolute;
-  left: 0.2em;
-  top: 0.35em;
+  top: 1rem;
+  right: -100%;
+  background: rgba(0, 0, 0, 0.7);
   color: #5ae4ff;
-  width: 1.2em;
-  height: 1.2em;
-  text-align: center;
-  line-height: 1.2em;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  z-index: 2;
+  backdrop-filter: blur(2px);
+  transition: right 0.3s ease;
 }
 
-/* Collapsible Sections */
-.content-section {
-  margin-bottom: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.card-section:hover .coming-soon-overlay {
+  right: 1rem;
+}
+
+.card-meta {
+  display: flex;
+  gap: 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+  color: #8a94b8;
+}
+
+.card-meta span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-meta i {
+  color: #5ae4ff;
+}
+
+/* ===== Project Card Styles ===== */
+
+/* Add margin below feature card descriptions for separation from tags */
+.feature-card-desc {
+  margin-bottom: 0.75rem;
+}
+.tech-badge i,
+.project-tag i {
+  font-size: 1.1em;
+  margin-right: 0.4em;
+  color: inherit;
+  vertical-align: middle;
+  display: inline-block;
+}
+.project-card {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.project-image {
+  position: relative;
   border-radius: 8px;
   overflow: hidden;
   transition: all 0.3s ease;
-}
-
-.content-section:not(.collapsible) {
-  border-color: transparent;
-}
-
-.content-section.collapsible {
-  border-color: rgba(90, 228, 255, 0.2);
-}
-
-.content-section:not(.hero-intro):hover {
-  border-color: rgba(90, 228, 255, 0.4);
-  box-shadow: 0 4px 15px rgba(90, 228, 255, 0.1);
-}
-
-.section-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 1.25rem 1.5rem;
-  background: rgba(255, 255, 255, 0.03);
+  justify-content: center;
+  aspect-ratio: 16/9;
+}
+
+/* Project Background Variants */
+.project-bg-video {
+  background: linear-gradient(135deg, rgba(180, 70, 255, 0.2), rgba(100, 43, 255, 0.3)) !important;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+}
+
+.project-icon-video {
+  font-size: 5rem;
+  color: #5ae4ff;
+  filter: drop-shadow(0 0 10px rgba(90, 228, 255, 0.6));
+  transition: all 0.3s ease;
+  opacity: 0.9;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-card-video .project-icon-video {
+  font-size: 12rem;
+  color: #ffffff;
+  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8));
+  opacity: 0.95;
+}
+
+.hero-card-video:hover .project-icon-video {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 25px rgba(255, 255, 255, 1));
+  opacity: 1;
+}
+
+.card-image-container:hover .project-icon-video {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 20px rgba(90, 228, 255, 0.9));
+  opacity: 1;
+}
+
+/* Project Background Variants */
+.project-bg-xbox {
+  background: linear-gradient(135deg, rgba(16, 124, 16, 0.25), rgba(16, 16, 16, 0.35)) !important;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+/* Xbox Logo Styling */
+.xbox-logo {
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px rgba(16, 200, 16, 0.6));
+  transition: transform 0.5s ease, filter 0.3s ease;
+  position: relative;
+  z-index: 2;
+  opacity: 0.9;
+  display: block;
+  transform-origin: center center;
+  will-change: transform, filter;
+  backface-visibility: hidden;
+}
+
+.card-image-container-xbox {
+  height: 180px;
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #107C10 0%, #0a4b0a 100%);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.card-image-container-xbox .xbox-logo {
+  width: 280px;
+  height: 280px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 25px rgba(16, 255, 16, 0.9));
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+  will-change: transform, filter;
+  backface-visibility: hidden;
+  margin: 0;
+  position: relative;
+  top: 10px;
+}
+
+.card-image-container-xbox:hover .xbox-logo {
+  transform: scale(1.1) translateY(-5px);
+  filter: drop-shadow(0 0 30px rgba(16, 255, 16, 1.1));
+}
+
+/* Hero Xbox Logo Styling */
+#xbox-logo-main {
+  width: 90% !important;
+  max-width: 600px !important;
+  height: auto !important;
+  filter: drop-shadow(0 0 20px rgba(16, 255, 16, 0.9)) !important;
+  transition: all 0.3s ease-in-out !important;
+  object-fit: contain !important;
+  display: block !important;
+  margin: 0 auto !important;
+}
+
+.hero-card-xbox:hover #xbox-logo-main {
+  filter: drop-shadow(0 0 30px rgba(16, 255, 16, 1)) !important;
+  transform: scale(1.05) !important;
+}
+
+/* Hero Card Styling */
+.hero-card-ai .hero-card-image {
+  min-height: 300px;
+}
+
+.hero-ai-logo {
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  position: absolute;
+}
+
+.hero-gc-logo {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+}
+
+/* Hero Card with Video Styling */
+.hero-card-video .hero-card-image {
+  padding: 3rem 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-video-icon-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.hero-video-icon {
+  font-size: 12rem;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 0 30px rgba(90, 228, 255, 0.7);
+  filter: drop-shadow(0 0 15px rgba(90, 228, 255, 0.7));
+  transition: all 0.3s ease;
+  opacity: 0.9;
+  transform-origin: center center;
+  will-change: transform, filter, opacity;
+  backface-visibility: hidden;
   cursor: pointer;
-  user-select: none;
+}
+
+.hero-card-video:hover .hero-video-icon,
+.hero-video-icon:hover {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 30px rgba(90, 228, 255, 1));
+  opacity: 1;
+  color: #ffffff;
+  text-shadow: 0 0 40px rgba(90, 228, 255, 0.9);
+}
+
+.hero-video-icon:active {
+  transform: scale(1.1) !important;
+  filter: drop-shadow(0 0 25px rgba(90, 228, 255, 0.9)) !important;
+}
+
+/* Hero Card with Xbox Styling */
+.hero-card-xbox {
+  --hero-padding: 4rem 0;
+}
+
+.hero-card-xbox .hero-card-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0;
+  background: linear-gradient(135deg, #5dc21e, #107c10) !important;
+}
+
+.project-bg-ai {
+  background: linear-gradient(135deg, rgba(157, 0, 255, 0.2), rgba(100, 43, 255, 0.3)) !important;
+}
+
+.project-bg-gaming {
+  background: linear-gradient(135deg, rgba(0, 120, 212, 0.1), rgba(0, 120, 212, 0.2)) !important;
+}
+
+.project-bg-web {
+  background: linear-gradient(135deg, rgba(16, 124, 16, 0.1), rgba(16, 124, 16, 0.2)) !important;
+}
+
+/* Grand Central Styling */
+.project-bg-gc {
+  background: linear-gradient(135deg, rgba(0, 120, 215, 0.25), rgba(0, 60, 120, 0.3)) !important;
+}
+
+.hero-card-gc .hero-card-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0;
+  position: relative;
+}
+
+.hero-card-gc .project-icon-gc {
+  position: absolute;
+  z-index: 2;
+  font-size: 8rem;
+  color: #fff;
+  filter: drop-shadow(0 0 15px rgba(0, 153, 255, 0.8));
+  transition: transform 0.5s ease, filter 0.3s ease;
+}
+
+/* Card Image Containers */
+.card-image-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Cascade: Zoom only the icon inside project card image on card hover */
+.card-gradient-icon i {
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card:hover .card-gradient-icon i {
+  transform: scale(1.13);
+  z-index: 2;
+}
+
+
+/* Hero card image hover effect for all support pages */
+.hero-card .hero-card-image {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-card .hero-card-image img {
+  transition: transform 0.4s cubic-bezier(0.2, 0, 0.2, 1), 
+              filter 0.3s ease;
+  will-change: transform, filter;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.hero-card:not(.hero-card-xbox):hover .hero-card-image img {
+  transform: scale(1.05);
+  filter: brightness(1.1) drop-shadow(0 0 15px rgba(255, 255, 255, 0.4));
+}
+
+.hero-card-xbox:hover .hero-card-image img {
+  filter: brightness(0) invert(1) drop-shadow(0 0 25px rgba(16, 255, 16, 1));
+  transform: scale(1.05);
+}
+
+/* Specific styles for Xbox support pages */
+.hero-card-xbox .hero-card-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.hero-card-xbox .hero-card-image img {
+  filter: brightness(0) invert(1) drop-shadow(0 0 20px rgba(16, 255, 16, 0.9));
+  width: 60px !important;
+  height: 60px !important;
+  object-fit: contain;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+/* Specific class for Xbox support page icon */
+.hero-card-xbox .hero-card-image .xbox-support-icon {
+  width: 200px !important;
+  height: 200px !important;
+  min-width: 200px !important;
+  min-height: 200px !important;
+  max-width: 200px !important;
+  max-height: 200px !important;
+  object-fit: contain;
+  filter: brightness(0) invert(1) drop-shadow(0 0 22px #00aaaa); /* updated by Cascade: aura-cyan effect for Xbox hero icon */
+  transition: all 0.3s ease-in-out !important;
+}
+
+.hero-card-xbox:hover .hero-card-image .xbox-support-icon {
+  transform: scale(1.1) !important;
+  filter: brightness(1) invert(1) drop-shadow(0 0 25px rgba(16, 255, 16, 1)) !important;
+}
+
+.hero-card-xbox:hover .hero-card-image img {
+  filter: brightness(1) invert(1) drop-shadow(0 0 25px rgba(16, 255, 16, 1));
+  transform: scale(1.1);
+}
+
+/* Handle missing images in hero cards */
+.hero-card-image img:not([src]) {
+  display: none; /* Hide if src is empty */
+}
+
+/* Game-specific hero cards - for logos and contained images */
+.hero-card .hero-card-image[class*="project-bg-"] {
+  background-size: cover;
+  background-position: center;
+  padding: 0;
+  margin: 0;
+}
+
+.hero-card .hero-card-image[class*="project-bg-"] img {
+  width: auto;
+  height: 60%;
+  max-width: 80%;
+  object-fit: contain;
+  object-position: center;
+  margin: 0 auto;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+/* Full-bleed hero images */
+.hero-card .hero-card-image:not([class*="project-bg-"]) {
+  padding: 0;
+  margin: 0;
+}
+
+.hero-card .hero-card-image:not([class*="project-bg-"]) img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Hover effects */
+.hero-card:hover .hero-card-image[class*="project-bg-"] img {
+  transform: scale(1.05);
+  filter: brightness(1.1) drop-shadow(0 0 15px rgba(255, 255, 255, 0.4));
+}
+
+.hero-card:hover .hero-card-image:not([class*="project-bg-"]) img {
+  transform: scale(1.03);
+  filter: brightness(1.05);
+}
+
+.card-image-container-ai {
+  min-height: 150px;
+}
+
+.card-image-container-xbox {
+  min-height: 150px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  box-sizing: border-box;
+  overflow: visible;
+  background: linear-gradient(135deg, #107C10 0%, #0a4b0a 100%) !important;
+}
+
+/* Card container for Grand Central */
+.card-image-container-gc {
+  min-height: 150px;
+}
+
+/* Project icon sizes */
+.project-icon-gc {
+  font-size: 8rem;
+  color: #fff;
+  filter: drop-shadow(0 0 15px rgba(0, 153, 255, 0.8));
+  transition: transform 0.5s ease, filter 0.3s ease;
+  position: relative;
+  z-index: 2;
+  margin: 0;
+}
+
+.hero-card:hover .project-icon-gc {
+  transform: scale(1.1);
+}
+
+/* Button margin utility */
+.btn-margin-top-1 {
+  margin-top: 1rem;
+}
+
+/* Project Icons */
+.project-icon-ai {
+  font-size: 8rem;
+  color: #fff;
+  filter: drop-shadow(0 0 15px rgba(180, 70, 255, 0.8));
+  transition: transform 0.5s ease;
+  display: block;
+  margin: 0 auto;
+}
+
+.hero-card:hover .project-icon-ai {
+  transform: scale(1.1);
+}
+
+.project-icon-xbox-icon {
+  font-size: 8rem;
+  color: #fff;
+  filter: drop-shadow(0 0 15px rgba(16, 255, 16, 0.8));
+  transition: transform 0.5s ease;
+  display: block;
+  margin: 0 auto;
+}
+
+.project-icon-xbox {
+  font-size: 8rem;
+  color: #fff;
+  filter: drop-shadow(0 0 15px rgba(16, 255, 16, 0.8));
+  transition: transform 0.5s cubic-bezier(0.2, 0, 0.2, 1), filter 0.3s ease;
+  margin: 0 auto;
+  display: block;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.hero-card:hover .project-icon-xbox {
+  transform: scale(1.1);
+  filter: brightness(0) invert(1) drop-shadow(0 0 15px rgba(16, 255, 16, 1.2));
+}
+
+.card-image-container:hover .project-icon-xbox {
+  transform: scale(1.1);
+  filter: brightness(0) invert(1) drop-shadow(0 0 15px rgba(16, 255, 16, 1.2));
+}
+
+/* Xbox Project Card */
+.project-card-xbox {
+  height: 180px;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-card-xbox-link {
+  height: 100%;
+  display: block;
+  text-decoration: none;
+}
+
+.project-card-xbox-image {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #107C10 0%, #0a4b0a 100%);
+  overflow: hidden;
   transition: all 0.3s ease;
 }
 
-.section-header:not(.hero-intro):hover {
-  background: rgba(90, 228, 255, 0.05);
+.project-card-xbox-logo {
+  width: 300px;
+  height: 300px;
+  max-width: 150%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px rgba(16, 255, 16, 0.9));
+  transition: transform 0.3s ease, filter 0.3s ease;
 }
 
-.section-header h2 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
+.project-card-xbox:hover .project-card-xbox-logo {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 20px rgba(16, 255, 16, 1.2));
+}
+
+/* Button Margins */
+.btn-margin-top {
+  margin-top: 1rem;
+}
+
+/* Card Image Styles */
+.card-image {
+  position: relative;
+  height: 180px;
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  transition: color 0.2s ease;
+  justify-content: center;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.2, 0, 0.2, 1);
 }
 
-.section-header:hover h2 {
-  color: #5ae4ff;
+.card-image:hover {
+  transform: scale(1.05);
 }
 
-.section-header i {
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.card-image:hover img {
+  transform: scale(1.1);
+}
+
+.card-image .project-icon {
+  font-size: 4.5rem;
+  color: white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-shadow: 
+    0 0 2px rgba(255, 255, 255, 0.8),
+    0 0 4px rgba(255, 255, 255, 0.6),
+    0 0 10px var(--glow-color, rgba(0, 180, 255, 0.4));
+  filter: 
+    drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, filter, text-shadow;
+  z-index: 2;
+  opacity: 0.9;
+}
+
+.card-image:hover .project-icon {
+  transform: translate(-50%, -50%) scale(1.1);
+  text-shadow: 
+    0 0 3px rgba(255, 255, 255, 0.9),
+    0 0 6px rgba(255, 255, 255, 0.7),
+    0 0 15px var(--glow-color, rgba(0, 180, 255, 0.6));
+  filter: 
+    drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
+  opacity: 1;
+}
+
+/* Project Icons */
+.project-image i {
+  font-size: 2.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+/* Project Content */
+.project-content {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.project-content h3 {
+  margin: 0 0 0.75rem 0;
+  color: #fff;
+  font-size: 1.25rem;
+}
+
+.project-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+
+.project-tags span {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e0f7ff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  cursor: default;
+}
+
+.project-tags span:hover {
+  background-color: rgba(90, 200, 250, 0.2);
+  transform: translateY(-1px);
+}
+
+.project-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   color: #5ae4ff;
-  font-size: 1.1em;
+  text-decoration: none;
+  margin-top: auto;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.project-link:hover {
+  color: #8a2be2;
+  transform: translateX(4px);
+}
+
+.project-link i {
+  transition: transform 0.3s ease;
+}
+
+.project-link:hover i {
+  transform: translateX(4px);
+}
+
+/* Hover Effects */
+.project-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.project-card:hover .project-image {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.project-card:hover .project-image i {
+  transform: scale(1.1);
+  filter: brightness(1.1);
+}
+
+/* Video Embeds */
+.video-embed {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  line-height: 0;
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  margin: 2rem 0;
+  background: #000;
+}
+
+.video-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Team Trading Cards */
+.team-trading-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.team-trading-card {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 1.5rem;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  background-color: rgba(20, 20, 30, 0.7);
+}
+
+.team-trading-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.4;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+.team-trading-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+}
+
+.team-trading-card:hover::before {
+  opacity: 0.6;
+}
+
+.team-trading-card .card-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 0 10px var(--glow-color, rgba(90, 228, 255, 0.8)));
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.team-trading-card:hover .card-icon {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 20px var(--glow-color, rgba(90, 228, 255, 1)));
+}
+
+.team-trading-card .card-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 0.5rem 0;
+  background: linear-gradient(to right, #fff, var(--highlight-color, #5ae4ff));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+}
+
+.team-trading-card .card-label {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 0.5rem;
+}
+
+.team-trading-card .card-stats {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.team-trading-card .stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.3rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.team-trading-card .stat-row:last-child {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.team-trading-card .stat-label {
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+}
+
+.team-trading-card .stat-value {
+  font-weight: 600;
+  color: var(--highlight-color, #5ae4ff);
+}
+
+/* Card variants with Nova mood colors */
+.team-trading-card.aura-cyan {
+  --glow-color: rgba(90, 228, 255, 0.8);
+  --highlight-color: #5ae4ff;
+  background: linear-gradient(135deg, rgba(0, 71, 75, 0.8), rgba(0, 115, 119, 0.8));
+  border: 1px solid #00474b;
+}
+
+.team-trading-card.aura-deep-violet {
+  --glow-color: rgba(157, 78, 221, 0.8);
+  --highlight-color: #9d4edd;
+  background: linear-gradient(135deg, rgba(42, 0, 71, 0.8), rgba(75, 0, 130, 0.8));
+  border: 1px solid #2a0047;
+}
+
+.team-trading-card.aura-lime-green {
+  --glow-color: rgba(46, 213, 115, 0.8);
+  --highlight-color: #2ed573;
+  background: linear-gradient(135deg, rgba(26, 60, 41, 0.8), rgba(46, 139, 87, 0.8));
+  border: 1px solid #1a3c29;
+}
+
+.team-trading-card.aura-magenta-fade {
+  --glow-color: rgba(233, 78, 255, 0.8);
+  --highlight-color: #e94eff;
+  background: linear-gradient(135deg, rgba(76, 25, 119, 0.8), rgba(123, 48, 179, 0.8));
+  border: 1px solid #4c1977;
+}
+
+/* Texture backgrounds */
+.team-trading-card.texture-nebula::before {
+  background-image: url('/images/textures/nebula.png');
+}
+
+.team-trading-card.texture-interface::before {
+  background-image: url('/images/textures/waves.png');
+}
+
+.team-trading-card.texture-stars::before {
+  background-image: url('/images/textures/stars.png');
+}
+
+.team-trading-card.texture-waves::before {
+  background-image: url('/images/textures/waves.png');
+}
+
+/* Holographic effect */
+.team-trading-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.03) 40%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.03) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-50%) translateY(-50%);
+  transition: transform 0.5s ease;
+  pointer-events: none;
+}
+
+.team-trading-card:hover::after {
+  transform: translateX(-30%) translateY(-30%) rotate(10deg);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .team-trading-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .team-trading-card .card-value {
+    font-size: 2rem;
+  }
+  
+  .team-trading-card .card-label {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .team-trading-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Xbox Navigation Styles */
+.xbox-nav-container {
+  background: linear-gradient(90deg, rgba(16, 22, 35, 0.85) 0%, rgba(32, 43, 67, 0.85) 100%);
+  border-radius: 12px;
+  padding: 0.75rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(107, 114, 142, 0.15);
+}
+
+.xbox-nav-container .nav-list {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.xbox-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.xbox-nav-link i {
+  font-size: 1rem;
+  color: #5ae4ff;
   transition: transform 0.2s ease;
 }
 
+.xbox-nav-link:hover {
+  background-color: rgba(90, 228, 255, 0.1);
+  color: #ffffff;
+}
+
+.xbox-nav-link:hover i {
+  transform: translateY(-2px);
+  color: #ffffff;
+}
+
+.xbox-nav-link:active {
+  transform: translateY(1px);
+}
+
+@media (max-width: 768px) {
+  .xbox-nav-container .nav-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .xbox-nav-link {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* AI Agents & Tools Section */
+.agent-tools-section {
+  background: #101623;
+  background: radial-gradient(circle at center, #141c2e 0%, #101623 100%);
+  padding: 0rem 2rem;
+  border-radius: 8px;
+  margin: 2rem 0;
+}
+
+.agent-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.tool-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: #1a2135;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tool-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 12px rgba(62, 207, 142, 0.2);
+}
+
+.tool-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: #3ecf8e;
+  opacity: 0.7;
+}
+
+.tool-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.tool-icon {
+  font-size: 1.25rem;
+  color: #3ecf8e;
+  margin-right: 0.75rem;
+}
+
+.tool-title {
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.5px;
+}
+
+.tool-description {
+  font-size: 0.9rem;
+  color: #c3d1e3;
+  line-height: 1.5;
+}
+
+.tool-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  background: rgba(62, 207, 142, 0.15);
+  color: #3ecf8e;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  margin-top: 0.75rem;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .agent-tools-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .agent-tools-section {
+    padding: 3rem 1.5rem;
+  }
+}
 
 .content {
-  overflow: hidden;
+  overflow: visible;
   transition: all 0.4s cubic-bezier(0.65, 0, 0.35, 1);
   opacity: 1;
   padding: 0 1.5rem;
-  max-height: 1000px;
+  max-height: none;
+  word-wrap: break-word;
 }
 
 .content.collapsed {
@@ -2238,140 +3236,6 @@ body[data-theme="light"] .nova-quip {
   margin: 0;
   overflow: hidden;
   border: none;
-}
-
-/* Toggle All Button */
-/* Inline Images and Captions */
-.inline-image {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  margin: 1.5rem 0;
-  display: block;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.inline-image:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(90, 228, 255, 0.2);
-}
-
-.image-caption {
-  font-size: 0.9rem;
-  color: #a1a1aa;
-  text-align: center;
-  margin: -1rem 0 1.5rem;
-  font-style: italic;
-  line-height: 1.5;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* For dark/light theme support */
-[data-theme="light"] .image-caption {
-  color: #4b5563;
-}
-
-/* Image Row Styles */
-.image-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  margin: 2rem 0;
-}
-
-.image-item {
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.3s ease;
-}
-
-.image-item:hover {
-  transform: translateY(-3px);
-}
-
-.image-item a {
-  display: block;
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
-}
-
-.image-item a:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
-.image-item img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.3s ease;
-}
-
-.image-item:hover img {
-  transform: scale(1.03);
-}
-
-.image-item .image-caption {
-  margin: 0.75rem 0 0;
-  font-size: 0.85rem;
-  text-align: center;
-  color: #a1a1aa;
-}
-
-/* Responsive adjustments */
-@media (max-width: 992px) {
-  .image-row {
-    gap: 1rem;
-  }
-  
-  .image-item img {
-    height: 160px;
-  }
-}
-
-@media (max-width: 768px) {
-  .inline-image {
-    border-radius: 6px;
-    margin: 1.25rem 0;
-  }
-  
-  .image-caption {
-    font-size: 0.85rem;
-    margin: -0.5rem 0 1.25rem;
-  }
-  
-  .image-row {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .image-item:last-child {
-    grid-column: 1 / -1;
-    max-width: 50%;
-    margin: 0 auto;
-  }
-}
-
-@media (max-width: 480px) {
-  .image-row {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-  
-  .image-item:last-child {
-    max-width: 100%;
-  }
-  
-  .image-item img {
-    height: 200px;
-  }
 }
 
 .toggle-all-btn {

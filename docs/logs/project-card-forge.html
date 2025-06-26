@@ -1,4 +1,4 @@
-<!-- File: /docs/card-forge.html -->
+<!-- File: /docs/logs/project-card-forge.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,6 +16,20 @@
   <link rel="stylesheet" href="/css/hero.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
+  <style>
+    /* Markdown content styles */
+    #md-content {
+      overflow: visible;
+      max-width: 100%;
+      word-wrap: break-word;
+    }
+    #md-content > *:first-child {
+      margin-top: 0;
+    }
+    #md-content > *:last-child {
+      margin-bottom: 0;
+    }
+  </style>
 </head>
 <body data-theme="dark">
   <div class="banner-container" id="banner-container">
@@ -63,16 +77,20 @@
   <div id="footer-container"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="/js/md-inject.js"></script>
-  <script src="/js/main.js" defer></script>
-  <script src="/js/nav.js" defer></script>
-  <script src="/js/theme.js" defer></script>
-  <script src="/js/modal-window.js" defer></script>
-  <script src="/js/init-nav.js" defer></script>
+  <script src="../../js/md-inject.js"></script>
+  <script src="../../js/main.js" defer></script>
+  <script src="../../js/nav.js" defer></script>
+  <script src="../../js/theme.js" defer></script>
+  <script src="../../js/init-header-footer.js" defer></script>
   <script>
     // Load the .me file when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
-      injectMarkdown("md-content", "./project-card-forge.me");
+      // Load markdown content
+      if (window.injectMarkdown) {
+        injectMarkdown("md-content", "./project-card-forge.me");
+      } else {
+        console.error('Markdown injection function not found');
+      }
     });
   </script>
 </body>
