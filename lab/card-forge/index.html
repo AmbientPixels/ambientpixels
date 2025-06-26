@@ -16,8 +16,8 @@
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/nova-mood.css" />
   <link rel="stylesheet" href="/css/nova-mood-background.css" />
-  <!-- RPG Avatar Cards module styles (local/dev) -->
-  <link rel="stylesheet" href="./rpg-avatar-cards.css" />
+  <!-- Card Forge module styles (local/dev) -->
+  <link rel="stylesheet" href="./card-forge.css" />
 
 </head>
 <body data-theme="dark">
@@ -77,11 +77,11 @@
   <script src="/js/theme.js"></script>
   <script src="/js/init-header-footer.js"></script>
   <script src="/js/nav.js"></script>
-   <!-- RPG Avatar Cards module script (local/dev) -->
-  <script src="./rpg-avatar-cards.js"></script>
+   <!-- Card Forge module script (local/dev) -->
+  <script src="./card-forge.js"></script>
   <script>
-    // Load RPG Avatar Cards JSON and initialize the module in dev mode (local)
-    fetch('./rpg-avatar-cards.json')
+    // Load Card Forge JSON and initialize the module in dev mode (local)
+    fetch('./card-forge.json')
       .then(res => res.json())
       .then(data => {
         if (window.renderRpgAvatarCards) {
