@@ -107,6 +107,148 @@
 
 /* End Card Forge Editor UI Styles */
 
+/* --- Card Forge Preview Style Variants (by Cascade) --- */
+.card-forge-preview--rpg {
+  background: linear-gradient(135deg, #2a1e13 0%, #3d2b16 100%);
+  border: 3px solid #fbbf24;
+  box-shadow: 0 0 24px 0 rgba(251,191,36,0.18), 0 2px 16px 0 rgba(30,38,50,0.14);
+}
+.card-forge-preview--nova {
+  background: linear-gradient(135deg, #1a2b36 0%, #21344a 100%);
+  border: 3px solid var(--mood-glow, #7ad6e6);
+  box-shadow: 0 0 24px 0 rgba(122,214,230,0.18), 0 2px 16px 0 rgba(30,38,50,0.14);
+}
+.card-forge-preview--futuristic-id {
+  background: linear-gradient(120deg, #232849 0%, #2a2e5e 100%);
+  border: 3px solid #aee8fa;
+  box-shadow: 0 0 24px 0 rgba(174,232,250,0.18), 0 2px 16px 0 rgba(30,38,50,0.14);
+}
+/* --- End Card Forge Preview Style Variants --- */
+
+/* --- Card Forge Preview: All Style Variants (by Cascade) --- */
+.card-forge-preview--trading-card {
+  background: linear-gradient(120deg, #2e2b1a 0%, #4d3b23 100%);
+  border: 3px solid #ffd700;
+  box-shadow: 0 0 16px 0 rgba(255,215,0,0.12);
+}
+.card-forge-preview--fantasy-guild {
+  background: linear-gradient(135deg, #35312f 0%, #5a4232 100%);
+  border: 3px solid #a67c52;
+  box-shadow: 0 0 16px 0 rgba(166,124,82,0.14);
+}
+.card-forge-preview--hero {
+  background: linear-gradient(135deg, #1e2636 0%, #3c3b6e 100%);
+  border: 3px solid #e63946;
+  box-shadow: 0 0 16px 0 rgba(230,57,70,0.14);
+}
+.card-forge-preview--achievement {
+  background: linear-gradient(135deg, #2a2d34 0%, #ffd166 100%);
+  border: 3px solid #ffd166;
+  box-shadow: 0 0 16px 0 rgba(255,209,102,0.12);
+}
+.card-forge-preview--nova-enhanced {
+  background: linear-gradient(135deg, #1a1a40 0%, #4e54c8 100%);
+  border: 3px solid #7ad6e6;
+  box-shadow: 0 0 24px 0 rgba(122,214,230,0.22);
+}
+.card-forge-preview--cyberpunk-passport {
+  background: linear-gradient(120deg, #2f003e 0%, #ff00c8 100%);
+  border: 3px solid #ff00c8;
+  box-shadow: 0 0 24px 0 rgba(255,0,200,0.14);
+}
+.card-forge-preview--ai-companion {
+  background: linear-gradient(135deg, #1b2b34 0%, #3a6073 100%);
+  border: 3px solid #00e0ff;
+  box-shadow: 0 0 20px 0 rgba(0,224,255,0.12);
+}
+.card-forge-preview--holographic {
+  background: linear-gradient(135deg, #d1faff 0%, #b2a4ff 100%);
+  border: 3px solid #b2a4ff;
+  box-shadow: 0 0 24px 0 rgba(178,164,255,0.14);
+}
+.card-forge-preview--glitch-neon {
+  background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
+  border: 3px dashed #39ff14;
+  box-shadow: 0 0 24px 0 rgba(57,255,20,0.15);
+}
+.card-forge-preview--corporate-access {
+  background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+  border: 3px solid #4a90e2;
+  box-shadow: 0 0 12px 0 rgba(74,144,226,0.10);
+}
+.card-forge-preview--professional {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border: 3px solid #495867;
+  box-shadow: 0 0 10px 0 rgba(73,88,103,0.08);
+}
+.card-forge-preview--social-profile {
+  background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+  border: 3px solid #ffd200;
+  box-shadow: 0 0 16px 0 rgba(255,210,0,0.13);
+}
+.card-forge-preview--classic-business-card {
+  background: linear-gradient(135deg, #fff 0%, #eaeaea 100%);
+  border: 2px solid #222;
+  box-shadow: 0 0 8px 0 rgba(34,34,34,0.06);
+}
+.card-forge-preview--education-certificate {
+  background: linear-gradient(135deg, #fffbe7 0%, #f7e7ce 100%);
+  border: 3px solid #eab676;
+  box-shadow: 0 0 12px 0 rgba(234,182,118,0.10);
+}
+.card-forge-preview--event-pass {
+  background: linear-gradient(135deg, #232526 0%, #414345 100%);
+  border: 3px solid #ff5e62;
+  box-shadow: 0 0 14px 0 rgba(255,94,98,0.12);
+}
+.card-forge-preview--event-ticket {
+  background: linear-gradient(135deg, #fcf6ba 0%, #f7b42c 100%);
+  border: 3px dashed #f7b42c;
+  box-shadow: 0 0 14px 0 rgba(247,180,44,0.12);
+}
+.card-forge-preview--pixel-art {
+  background: repeating-linear-gradient(45deg, #222 0 8px, #444 8px 16px);
+  border: 3px solid #ffe066;
+  box-shadow: 0 0 12px 0 rgba(255,224,102,0.11);
+}
+.card-forge-preview--meme {
+  background: linear-gradient(135deg, #fafafa 0%, #ffe066 100%);
+  border: 3px solid #222;
+  box-shadow: 0 0 8px 0 rgba(34,34,34,0.08);
+}
+.card-forge-preview--anime-profile {
+  background: linear-gradient(135deg, #f857a6 0%, #ff5858 100%);
+  border: 3px solid #fff;
+  box-shadow: 0 0 16px 0 rgba(248,87,166,0.13);
+}
+.card-forge-preview--digital-pet {
+  background: linear-gradient(135deg, #b2fefa 0%, #e6e6fa 100%);
+  border: 3px solid #ffb6b9;
+  box-shadow: 0 0 12px 0 rgba(255,182,185,0.10);
+}
+.card-forge-preview--streamer-creator {
+  background: linear-gradient(135deg, #232526 0%, #ff512f 100%);
+  border: 3px solid #ff512f;
+  box-shadow: 0 0 14px 0 rgba(255,81,47,0.12);
+}
+/* --- End Card Forge Preview: All Style Variants --- */
+
+/* --- Card Forge Preview Animation (by Cascade) --- */
+.windsurf-style-animate {
+  animation: windsurf-style-fade-in 0.55s cubic-bezier(.7,.2,.2,1);
+}
+@keyframes windsurf-style-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* --- End Card Forge Preview Animation --- */
+
 /* RPG Avatar Card Theme - Modular Styles */
 
 /* Card theme borders - updated by Cascade */

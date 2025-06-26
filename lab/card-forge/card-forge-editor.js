@@ -90,6 +90,10 @@
     if (card.style) {
       preview.classList.add(`card-forge-preview--${card.style}`);
     }
+    // Animate style change
+    preview.classList.remove('windsurf-style-animate');
+    void preview.offsetWidth; // Force reflow to restart animation
+    preview.classList.add('windsurf-style-animate');
     preview.innerHTML = `
       <img src="/images/image-packs/characters/${card.avatar}" alt="Preview Avatar" class="avatar-lg" />
       <h4>${card.name || ''}</h4>
@@ -139,6 +143,61 @@
   // --- Card List Rendering ---
   const cardList = document.getElementById('card-list');
   const addCardBtn = document.querySelector('.glass-button i.fa-plus')?.parentElement;
+  const exportBtn = document.querySelector('.glass-button i.fa-download')?.parentElement;
+  const importBtn = document.querySelector('.glass-button i.fa-upload')?.parentElement;
+
+  // --- Export Handler ---
+  if (exportBtn) {
+    exportBtn.addEventListener('click', () => {
+      const dataStr = JSON.stringify(cards, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'card-forge-cards.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+  }
+
+  // --- Import Handler ---
+  if (importBtn) {
+    importBtn.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json,application/json';
+      input.style.display = 'none';
+      input.addEventListener('change', (e) => {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          try {
+            const arr = JSON.parse(evt.target.result);
+            if (!Array.isArray(arr) || !arr.length) throw new Error('File must be a non-empty array.');
+            if (!arr.every(card => card.name && card.avatar)) throw new Error('Each card must have a name and avatar.');
+            if (confirm('Importing will replace all your current cards. Continue?')) {
+              cards = arr;
+              currentCardIdx = 0;
+              currentCard = { ...cards[0] };
+              saveCards();
+              renderCardList();
+              populateForm(currentCard);
+              renderPreview(currentCard);
+            }
+          } catch (err) {
+            alert('Import failed: ' + (err.message || 'Invalid file.'));
+          }
+        };
+        reader.readAsText(file);
+      });
+      document.body.appendChild(input);
+      input.click();
+      setTimeout(() => document.body.removeChild(input), 2000);
+    });
+  }
 
   function renderCardList() {
     if (!cardList) return;
