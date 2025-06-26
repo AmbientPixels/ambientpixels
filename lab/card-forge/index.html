@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Nova's Card Forge - Real-time git commit history" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Card Forge - Nova Lab</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Fira+Code:wght@400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/nova-mood.css" />
+  <link rel="stylesheet" href="/css/nova-mood-background.css" />
+  <!-- RPG Avatar Cards module styles (local/dev) -->
+  <link rel="stylesheet" href="./rpg-avatar-cards.css" />
+
+</head>
+<body data-theme="dark">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-code-branch banner-icon" aria-hidden="true"></i>
+      <span>Card Forge — Lab Mode</span>
+      <button class="banner-close" aria-label="Close banner">
+        <span class="sr-only">Close</span>×
+      </button>
+    </div>
+  </div>
+
+  <header id="nav-header" role="navigation"></header>
+  <section class="mini-hero" aria-labelledby="hero-heading">
+    <img src="/images/hero-v10.jpg" alt="Git Commit Hero" class="mini-hero-img" loading="lazy" onerror="this.src='/images/fallback.jpg'" />
+    <div class="mini-hero-content-wrapper">
+      <h1 id="hero-heading">Card Forge</h1>
+      <p class="subtitle">Crafting digital identity cards with a touch of magic.</p>
+    </div>
+  </section>
+  
+
+  <main class="grid-container">
+    <section class="grid-col-12" role="region" aria-labelledby="git-display-heading">
+      <div class="card">
+        <div class="card-content">
+          <h2 id="git-display-heading"><i class="fas fa-magic" aria-hidden="true"></i> Card Forge</h2>
+          <p class="nova-voice">This page allows you to create and manage digital identity cards, synchronized with Nova's memory refresh cycle.</p>
+    </div>
+  </div>
+</section>
+
+<!-- RPG Avatar Cards Dev Mount Point -->
+<section class="grid-col-12" id="rpg-avatar-cards-dev-section">
+  <div id="rpg-avatar-cards-dev"></div>
+</section>
+          <div class="card-list">
+            <h3>Features</h3>
+            <ul>
+              <li>Card Forge integrated with Nova's memory system</li>
+              <li>Updates synchronized with Nova's memory refresh cycle</li>
+              <li>Shows card details, authors, and timestamps</li>
+              <li>Integrated with Nova's aesthetic</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/nova-mood-background.js"></script>
+  <script src="/js/theme.js"></script>
+  <script src="/js/init-header-footer.js"></script>
+  <script src="/js/nav.js"></script>
+   <!-- RPG Avatar Cards module script (local/dev) -->
+  <script src="./rpg-avatar-cards.js"></script>
+  <script>
+    // Load RPG Avatar Cards JSON and initialize the module in dev mode (local)
+    fetch('./rpg-avatar-cards.json')
+      .then(res => res.json())
+      .then(data => {
+        if (window.renderRpgAvatarCards) {
+          window.renderRpgAvatarCards({
+            target: document.getElementById('rpg-avatar-cards-dev'),
+            data: data,
+            devMode: true // Set devMode if supported by the module
+          });
+        } else {
+          document.getElementById('rpg-avatar-cards-dev').innerHTML = '<div class="error">RPG Avatar Cards module not loaded.</div>';
+          console.error('RPG Avatar Cards module not loaded');
+        }
+      })
+      .catch(err => {
+        document.getElementById('rpg-avatar-cards-dev').innerHTML = '<div class="error">Failed to load RPG Avatar Cards data.</div>';
+        console.error(err);
+      });
+  </script>
+</body>
+
+</html>

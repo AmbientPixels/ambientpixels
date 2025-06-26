@@ -1,0 +1,149 @@
+[
+  {
+    "layout": 3
+  },
+    
+   {
+    "active": true,
+    "avatarCategory": "male",
+    "name": "Chad",
+    "alias": "The Pixel Wizard",
+    "roleClass": "Production & AI",
+    "hometown": "Shoreline, Washington, USA",
+    "tagline": "Crafting pixels since '95.",
+    "level": 8,
+    "miniStats": {
+      "energy": 85,
+      "creativity": 98,
+      "teamSpirit": 90,
+      "wisdom": 75,
+      "luck": 70
+    },
+    "power": "Digital Alchemy",
+    "favoriteTool": "Pixel Forge",
+    "bio": "Publishes, produces, and manages digital projects with 30+ years of experience.",
+    "quote": "Every digital experience is about connecting humans through technology.",
+    "skills": [
+      "Pixel Mastery",
+      "Experience Crafting",
+      "Legacy Support"
+    ],
+    "ultimateMove": "Omnidimensional Publish",
+    "team": "Xbox Support Content Team",
+    "department": "Production",
+    "badges": [
+      "pixel-perfection",
+      "ai-mentor"
+    ],
+    "achievements": [
+      "30-Year Pixel Run",
+      "Masterclass Instructor"
+    ],
+    "links": {
+      "website": "https://ambientpixels.ai/",
+      "linkedin": "https://www.linkedin.com/in/chad-martin-b038496/",
+      "github": "https://github.com/ambientpixels",
+      "resume": "https://ambientpixels.ai/skills/chad-martin-resume.html",
+      "twitter": "https://x.com/AIAmbientPixels"
+    },
+    "image": "/images/image-packs/characters-03-super-heroes/chad.png",
+    "order": 1,
+    "animationStyle": "flip",
+    "theme": "rare",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
+  },
+  {
+    "active": true,
+    "avatarCategory": "male",
+    "name": "Felix",
+    "alias": "The Synchronizer",
+    "roleClass": "Production",
+    "hometown": "Seattle, Washington, USA",
+    "tagline": "Teamwork in sync.",
+    "level": 6,
+    "miniStats": {
+      "energy": 85,
+      "creativity": 84,
+      "teamSpirit": 95,
+      "wisdom": 89,
+      "luck": 86
+    },
+    "power": "Clockwork Precision",
+    "favoriteTool": "Sync Rod",
+    "bio": "Co-leads publishing with precise coordination and teamwork.",
+    "quote": "Great publishing is about perfect synchronization.",
+    "skills": [
+      "Timing Mastery",
+      "Publishing Sync",
+      "Team Harmony"
+    ],
+    "ultimateMove": "Perfect Release",
+    "team": "Xbox Support Content Team",
+    "department": "Production",
+    "badges": [
+      "sync-star",
+      "publish-pro"
+    ],
+    "achievements": [
+      "100 Launches",
+      "Top Sync Rating"
+    ],
+    "links": {
+       "linkedin": "https://www.linkedin.com/in/felix-lifson-leu/"
+    },
+    "image": "/images/image-packs/characters-03-super-heroes/felix.png",
+    "order": 2,
+    "animationStyle": "flip",
+    "theme": "plain",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
+  },
+  {
+    "active": true,
+    "avatarCategory": "male",
+    "name": "Joel",
+    "alias": "The Language Master",
+    "roleClass": "Localization Specialist",
+    "hometown": "Seattle, Washington, USA",
+    "tagline": "Translation with soul.",
+    "level": 5,
+    "miniStats": {
+      "energy": 78,
+      "creativity": 88,
+      "teamSpirit": 87,
+      "wisdom": 90,
+      "luck": 82
+    },
+    "power": "Cultural Resonance",
+    "favoriteTool": "Language Lens",
+    "bio": "Specializes in Spanish and Portuguese localization for Xbox content.",
+    "quote": "Language is cultural connection.",
+    "skills": [
+      "Language Tuning",
+      "Cultural Insight",
+      "Regional Harmony"
+    ],
+    "ultimateMove": "Dual-Locale Blast",
+    "team": "Xbox Support Content Team",
+    "department": "Production",
+    "badges": [
+      "localization-pro",
+      "culture-hero"
+    ],
+    "achievements": [
+      "Multi-Lingual Excellence",
+      "Translation Hero"
+    ],
+    "links": {
+      "linkedin": "https://www.linkedin.com/in/joel-vald%C3%A9s-beneyto-33092452/"
+    },
+    "image": "/images/image-packs/characters-03-super-heroes/joel.png",
+    "order": 3,
+    "animationStyle": "flip",
+    "theme": "mythic",
+    "hiddenFields": ["bio"],
+    "customBadgeIcons": {}
+  }
+ 
+]
