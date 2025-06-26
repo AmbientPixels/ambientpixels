@@ -121,18 +121,24 @@
 
   <section class="content-section grid-col-12">
     <h2>Next Steps: Card Forge Card Editor UI</h2>
-    <h3>Core Features</h3>
+    <h3>Current Status (as of 2025-06-25)</h3>
     <ul class="nova-list">
-      <li><b>Card List & Selection:</b> Sidebar/grid of cards, add new, search/filter.</li>
-      <li><b>Card Edit Form:</b> Name, avatar, description, stats, badges, links, theme selector, badge picker.</li>
-      <li><b>Live Preview:</b> Real-time card rendering using current form values.</li>
-      <li><b>Add/Remove/Reorder:</b> Add, remove, reorder cards with drag/drop or controls.</li>
-      <li><b>Import/Export:</b> Download/upload JSON, schema validation, preview before commit.</li>
-      <li><b>Save & Reset:</b> Save to JSON/localStorage, reset to last saved state.</li>
-      <li><b>Accessibility & Responsiveness:</b> Keyboard/ARIA support, mobile layout.</li>
+      <li><b>✅ 3-column grid layout complete:</b> Sidebar, live preview, and tabbed forms are fully aligned and responsive.</li>
+      <li><b>⚠️ Most interactive features non-functional:</b> Add/Remove Card, Import/Export, Save/Reset, and tab switching currently do not work. Card style selector and live preview update are functional.</li>
+      <li><b>🛠️ JavaScript event handling and state logic pending:</b> UI is ready for JS wiring and further UX polish.</li>
     </ul>
 
-    <h3>UI Structure (Wireframe Outline)</h3>
+    <h3>Next Steps</h3>
+    <ul class="nova-list">
+      <li>Debug and restore all button and form event handlers (Add, Remove, Import, Export, Save, Reset, Flip, etc.)</li>
+      <li>Fix tab switching logic for Front/Back panels</li>
+      <li>Ensure all form inputs update the live preview and card data</li>
+      <li>Restore card list interactivity and persistent storage</li>
+      <li>Add user feedback and error handling</li>
+      <li>Update documentation, logs, and project JSON as features are restored</li>
+    </ul>
+
+    <h3>Core Features</h3>
     <pre><code>-----------------------------------------------------
 |  Sidebar/List      |  Card Editor Form   | Preview |
 |--------------------|--------------------|---------|
