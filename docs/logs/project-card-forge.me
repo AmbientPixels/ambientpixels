@@ -94,11 +94,17 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
 
 ---
 
-## 📝 Progress Update (2025-06-25)
+## 📝 Progress Update (2025-06-26)
 
-- **3-column grid layout:** ✅ Complete and fully aligned (sidebar, live preview, tabbed forms)
-- **Live preview & style selector:** ✅ Working
-- **All other interactive features (Add/Remove Card, Import/Export, Save/Reset, tab switching, etc.):** ⬜ Not working (pending JS event wiring)
+- **Azure Function Save Integration:** ✅ Card Forge now saves card data to Azure Blob Storage via `/api/saveCardData`.
+- **Asset Loading Fixed:** ✅ All Card Forge assets use absolute paths, resolving 404/MIME errors on custom domains.
+- **Backend Debugging:** ✅ 500 error resolved by:
+  - Setting `api_location` in Azure Static Web Apps workflow
+  - Ensuring `/api/package.json` exists and removing `"type": "module"` for CommonJS compatibility
+  - Adding detailed error logging (stack trace in dev only)
+- **Connection String Checks:** ✅ Ensured `AZURE_STORAGE_CONNECTION_STRING` is set in Azure portal
+- **Blob Container:** ✅ `cardforge` container created automatically if missing
+- **Frontend Save Flow:** ✅ UI now receives 200 success on save; backend errors return detailed stack trace for debugging
 
 **Next Steps:**
 - [ ] Restore button and form event handlers (Add, Remove, Import, Export, Save, Reset, Flip)
@@ -107,6 +113,33 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
 - [ ] Restore card list interactivity and persistent storage
 - [ ] Add user feedback and error handling
 - [ ] Update documentation and project JSON as features are restored
+
+---
+
+## 🧭 Reference Sheet (for future dev sessions)
+
+### Architecture & Key Files
+- **Frontend:** `/lab/card-forge/index.html`, `card-forge.js`, `card-forge.css`, `card-forge-editor.js`
+- **Data:** `/lab/card-forge/card-forge.json` (card data), `/data/rpg-avatar-cards.json` (main deck)
+- **Backend:** `/api/saveCardData/index.js` (Azure Function, CommonJS, saves JSON to Blob Storage)
+- **API Config:** `/api/package.json` (must have `@azure/storage-blob` dep, no `type: module`)
+- **CI/CD:** `.github/workflows/azure-static-web-apps-*.yml` (must set `api_location: "api"`)
+- **Logs/Docs:** `/docs/logs/project-card-forge.me` (this file), `/docs/project-card-forge.html` (feature/tech doc)
+
+### Azure Integration & Troubleshooting
+- **Connection String:** Set `AZURE_STORAGE_CONNECTION_STRING` in Azure portal (full string, not just key)
+- **Blob Container:** Function creates `cardforge` container if missing
+- **Error Logging:** Stack traces included in dev, remove for production
+- **Common Issues:**
+  - 500 error + blank response: usually missing dep or module type mismatch
+  - 405 error: missing `api_location` in workflow
+  - 404/MIME errors: use absolute asset paths
+
+### Dev Protocols
+- No inline styles; reuse Nova/AmbientPixels CSS classes
+- All JS modularized, no global leaks
+- Document all changes here and in `/docs/project-card-forge.html`
+- Use this log as your reference if memory is lost—summarize blockers, breakthroughs, and key config
 
 ---
 

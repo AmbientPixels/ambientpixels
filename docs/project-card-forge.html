@@ -121,9 +121,12 @@
 
   <section class="content-section grid-col-12">
     <h2>Next Steps: Card Forge Card Editor UI</h2>
-    <h3>Current Status (as of 2025-06-25)</h3>
+    <h3>Current Status (as of 2025-06-26)</h3>
     <ul class="nova-list">
       <li><b>✅ 3-column grid layout complete:</b> Sidebar, live preview, and tabbed forms are fully aligned and responsive.</li>
+      <li><b>✅ Azure Function Save Integration:</b> Card Forge now saves card data to Azure Blob Storage via <code>/api/saveCardData</code>.</li>
+      <li><b>✅ Asset Loading Fixed:</b> All Card Forge assets use absolute paths, resolving 404/MIME errors on custom domains.</li>
+      <li><b>✅ Backend Debugging:</b> 500 error resolved by setting <code>api_location</code> in workflow, fixing <code>package.json</code>, and adding error logging.</li>
       <li><b>⚠️ Most interactive features non-functional:</b> Add/Remove Card, Import/Export, Save/Reset, and tab switching currently do not work. Card style selector and live preview update are functional.</li>
       <li><b>🛠️ JavaScript event handling and state logic pending:</b> UI is ready for JS wiring and further UX polish.</li>
     </ul>
@@ -136,6 +139,21 @@
       <li>Restore card list interactivity and persistent storage</li>
       <li>Add user feedback and error handling</li>
       <li>Update documentation, logs, and project JSON as features are restored</li>
+    </ul>
+
+    <h3>Reference Sheet (Persistent)</h3>
+    <ul class="nova-list">
+      <li><b>Frontend:</b> <code>/lab/card-forge/index.html</code>, <code>card-forge.js</code>, <code>card-forge.css</code>, <code>card-forge-editor.js</code></li>
+      <li><b>Data:</b> <code>/lab/card-forge/card-forge.json</code> (card data), <code>/data/rpg-avatar-cards.json</code> (main deck)</li>
+      <li><b>Backend:</b> <code>/api/saveCardData/index.js</code> (Azure Function, CommonJS, saves JSON to Blob Storage)</li>
+      <li><b>API Config:</b> <code>/api/package.json</code> (must have <code>@azure/storage-blob</code> dep, no <code>type: module</code>)</li>
+      <li><b>CI/CD:</b> <code>.github/workflows/azure-static-web-apps-*.yml</code> (must set <code>api_location: "api"</code>)</li>
+      <li><b>Logs/Docs:</b> <code>/docs/logs/project-card-forge.me</code> (log), <code>/docs/project-card-forge.html</code> (feature/tech doc)</li>
+      <li><b>Azure:</b> Set <code>AZURE_STORAGE_CONNECTION_STRING</code> in Azure portal (full string, not just key). Function creates <code>cardforge</code> container if missing.</li>
+      <li><b>Error Logging:</b> Stack traces included in dev, remove for production.</li>
+      <li><b>Common Issues:</b> 500 error + blank response: usually missing dep or module type mismatch. 405 error: missing <code>api_location</code> in workflow. 404/MIME errors: use absolute asset paths.</li>
+      <li><b>Dev Protocols:</b> No inline styles; reuse Nova/AmbientPixels CSS classes. All JS modularized, no global leaks. Document all changes here and in <code>/docs/project-card-forge.me</code>.</li>
+      <li>Use this sheet as your persistent reference if memory is lost—summarize blockers, breakthroughs, and key config.</li>
     </ul>
 
     <h3>Core Features</h3>
