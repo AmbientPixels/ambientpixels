@@ -1,5 +1,106 @@
 /* Card Forge Editor UI Styles -- added by Cascade */
 
+/* --- Tabbed Card Editor Layout (Modern, Mobile-Friendly) --- */
+.card-editor-tabs {
+  display: flex;
+  gap: 0.5em;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 1.2em;
+  border-bottom: 2px solid var(--mood-border, #2e3340);
+  /* updated by Cascade */
+}
+.tab-btn {
+  background: none;
+  border: none;
+  color: var(--mood-txt, #b7eaff);
+  font-size: 1.08em;
+  font-weight: 600;
+  padding: 0.7em 1.6em 0.7em 1.2em;
+  border-radius: 1.2em 1.2em 0 0;
+  cursor: pointer;
+  outline: none;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  position: relative;
+  /* updated by Cascade */
+}
+.tab-btn[aria-selected="true"] {
+  background: var(--mood-glow, #212b3a);
+  color: var(--mood-accent, #62e8fa);
+  box-shadow: 0 2px 8px 0 rgba(98,232,250,0.08);
+  z-index: 2;
+}
+.tab-btn:focus {
+  box-shadow: 0 0 0 2px var(--mood-accent, #62e8fa);
+  color: var(--mood-accent, #62e8fa);
+}
+.tab-btn:hover:not([aria-selected="true"]) {
+  background: rgba(98,232,250,0.08);
+  color: var(--mood-accent, #62e8fa);
+}
+.tab-panel {
+  display: none;
+  padding: 1.2em 0 0 0;
+  /* updated by Cascade */
+}
+.tab-panel[hidden] {
+  display: none !important;
+}
+.tab-panel:not([hidden]) {
+  display: block;
+}
+
+/* Preview area below tabs, always centered */
+.card-forge-preview-area {
+  margin-top: 2.2em;
+  /* grid fix: removed flex and width to allow grid-col-4 to work properly */
+  /* updated by Cascade */
+}
+
+@media (max-width: 900px) {
+  .card-forge-editor {
+    width: 100%;
+    min-width: 0;
+    padding: 0 0.5em;
+  }
+  .card-editor-tabs {
+    flex-direction: row;
+    justify-content: stretch;
+    font-size: 1em;
+  }
+  .tab-btn {
+    flex: 1 1 50%;
+    min-width: 0;
+    font-size: 1em;
+    padding: 0.6em 0.2em;
+  }
+  .card-forge-preview-area {
+    margin-top: 1.2em;
+    padding: 0 0.1em;
+  }
+}
+
+@media (max-width: 600px) {
+  .card-forge-editor {
+    width: 100%;
+    min-width: 0;
+    padding: 0 0.1em;
+  }
+  .card-editor-tabs {
+    font-size: 0.98em;
+    gap: 0.15em;
+  }
+  .tab-btn {
+    padding: 0.5em 0.1em;
+    font-size: 0.98em;
+  }
+  .card-forge-preview-area {
+    margin-top: 0.7em;
+    padding: 0 0.05em;
+  }
+}
+
+
 /* Remove Card Button (sidebar) -- added by Cascade */
 .remove-card-btn {
   display: inline-flex;

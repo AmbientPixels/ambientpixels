@@ -3,6 +3,10 @@
 // Handles form <-> data <-> preview for a single card (MVP)
 
 (function() {
+  // DOM references for tabbed editor fields
+  const frontFields = document.getElementById('front-fields');
+  const backFields = document.getElementById('back-fields');
+
   // --- Persistence Helpers ---
   const STORAGE_KEY = 'card-forge-cards';
   function saveCards() {
@@ -105,6 +109,66 @@
     `;
   }
 
+  // --- Card Back Support ---
+  let showingBack = false;
+  function ensureBackFields(card) {
+    if (!card.back) card.back = {
+      bio: '',
+      image: '',
+      qr: '',
+      socials: {
+        facebook: '',
+        twitter: '',
+        instagram: '',
+        linkedin: '',
+        github: ''
+      }
+    };
+  }
+
+  function renderPreviewBack(card) {
+    ensureBackFields(card);
+    preview.className = 'card-forge-preview card-forge-preview--back';
+    preview.classList.remove('windsurf-style-animate');
+    void preview.offsetWidth;
+    preview.classList.add('windsurf-style-animate');
+    preview.innerHTML = `
+      <div class="card-back-socials">
+        ${Object.entries(card.back.socials).map(([net, url]) =>
+          url ? `<a href="${url}" target="_blank" rel="noopener" aria-label="${net}"><i class="fab fa-${net}"></i></a>` : `<span class="disabled"><i class="fab fa-${net}"></i></span>`
+        ).join(' ')}
+      </div>
+      <div class="card-back-bio">${card.back.bio ? card.back.bio : '<em>No bio set.</em>'}</div>
+      ${card.back.image ? `<img src="${card.back.image}" alt="Back Image" class="card-back-img" />` : ''}
+      ${card.back.qr ? `<img src="${card.back.qr}" alt="QR Code" class="card-back-qr" />` : ''}
+    `;
+  }
+
+  function flipCard() {
+    showingBack = !showingBack;
+    if (showingBack) {
+      renderPreviewBack(currentCard);
+    } else {
+      renderPreview(currentCard);
+    }
+  }
+
+  // Add Flip button
+  let flipBtn = document.getElementById('card-flip-btn');
+  if (!flipBtn && preview && preview.parentElement) {
+    flipBtn = document.createElement('button');
+    flipBtn.type = 'button';
+    flipBtn.id = 'card-flip-btn';
+    flipBtn.className = 'glass-button mt-1';
+    flipBtn.innerHTML = '<i class="fas fa-retweet"></i> Flip Card';
+    flipBtn.setAttribute('aria-pressed', 'false');
+    preview.parentElement.insertBefore(flipBtn, preview.nextSibling);
+    flipBtn.addEventListener('click', () => {
+      flipBtn.setAttribute('aria-pressed', showingBack ? 'false' : 'true');
+      flipCard();
+    });
+  }
+
   // --- Helper: parse stats string to array ---
   function parseStats(str) {
     // e.g. "Power: 8, Agility: 6"
@@ -123,10 +187,36 @@
     descInput.value = card.description || '';
     statsInput.value = (card.stats||[]).map(s => `${s.label}: ${s.value}`).join(', ');
     badgesSelect.value = card.badges && card.badges[0] || '';
+    // Populate back fields
+    ensureBackFields(card);
+    document.getElementById('card-back-bio').value = card.back.bio || '';
+    document.getElementById('card-back-image').value = card.back.image || '';
+    document.getElementById('card-back-qr').value = card.back.qr || '';
+    document.getElementById('card-back-facebook').value = card.back.socials.facebook || '';
+    document.getElementById('card-back-twitter').value = card.back.socials.twitter || '';
+    document.getElementById('card-back-instagram').value = card.back.socials.instagram || '';
+    document.getElementById('card-back-linkedin').value = card.back.socials.linkedin || '';
+    document.getElementById('card-back-github').value = card.back.socials.github || '';
   }
 
   // --- Update card from form ---
   function updateCardFromForm() {
+    if (showingBack) {
+      ensureBackFields(currentCard);
+      currentCard.back.bio = document.getElementById('card-back-bio').value;
+      currentCard.back.image = document.getElementById('card-back-image').value;
+      currentCard.back.qr = document.getElementById('card-back-qr').value;
+      currentCard.back.socials.facebook = document.getElementById('card-back-facebook').value;
+      currentCard.back.socials.twitter = document.getElementById('card-back-twitter').value;
+      currentCard.back.socials.instagram = document.getElementById('card-back-instagram').value;
+      currentCard.back.socials.linkedin = document.getElementById('card-back-linkedin').value;
+      currentCard.back.socials.github = document.getElementById('card-back-github').value;
+      currentCard.updated = new Date().toISOString();
+      cards[currentCardIdx] = { ...currentCard };
+      renderPreviewBack(currentCard);
+      saveCards();
+      return;
+    }
     currentCard.name = nameInput.value;
     if (styleSelect) currentCard.style = styleSelect.value;
     currentCard.avatar = avatarSelect.value;
@@ -138,6 +228,42 @@
     cards[currentCardIdx] = { ...currentCard };
     renderPreview(currentCard);
     saveCards();
+  }
+
+  // --- Card Form Wiring: Flanked Layout ---
+  // Save front fields
+  if (frontFields) {
+    frontFields.addEventListener('input', function(e) {
+      currentCard.name = nameInput.value;
+      if (styleSelect) currentCard.style = styleSelect.value;
+      currentCard.avatar = avatarSelect.value;
+      currentCard.description = descInput.value;
+      currentCard.stats = parseStats(statsInput.value);
+      currentCard.badges = [badgesSelect.value];
+      currentCard.theme = badgesSelect.value;
+      currentCard.updated = new Date().toISOString();
+      cards[currentCardIdx] = { ...currentCard };
+      renderPreview(currentCard);
+      saveCards();
+    });
+  }
+  // Save back fields
+  if (backFields) {
+    backFields.addEventListener('input', function(e) {
+      ensureBackFields(currentCard);
+      currentCard.back.bio = document.getElementById('card-back-bio').value;
+      currentCard.back.image = document.getElementById('card-back-image').value;
+      currentCard.back.qr = document.getElementById('card-back-qr').value;
+      currentCard.back.socials.facebook = document.getElementById('card-back-facebook').value;
+      currentCard.back.socials.twitter = document.getElementById('card-back-twitter').value;
+      currentCard.back.socials.instagram = document.getElementById('card-back-instagram').value;
+      currentCard.back.socials.linkedin = document.getElementById('card-back-linkedin').value;
+      currentCard.back.socials.github = document.getElementById('card-back-github').value;
+      currentCard.updated = new Date().toISOString();
+      cards[currentCardIdx] = { ...currentCard };
+      renderPreviewBack(currentCard);
+      saveCards();
+    });
   }
 
   // --- Card List Rendering ---
@@ -251,49 +377,8 @@
           li.click();
         }
       });
-      cardList.appendChild(li);
-    });
-  }
+    }); // End cards.forEach
+  } // End renderCardList
 
-  // --- Add Card Handler ---
-  if (addCardBtn) {
-    addCardBtn.addEventListener('click', () => {
-      const newCard = {
-        id: `card-${Date.now()}`,
-        name: 'New Card',
-        avatar: 'autumnus-majestus.jpg',
-        description: '',
-        stats: [],
-        badges: ['legendary'],
-        links: [],
-        theme: 'legendary',
-        style: 'rpg',
-        updated: new Date().toISOString()
-      };
-      cards.push(newCard);
-      currentCardIdx = cards.length - 1;
-      currentCard = { ...newCard };
-      renderCardList();
-      populateForm(currentCard);
-      renderPreview(currentCard);
-      saveCards();
-    });
-  }
-
-  // --- Event listeners ---
-  if (form) {
-    form.addEventListener('input', updateCardFromForm);
-    form.addEventListener('change', updateCardFromForm);
-    form.addEventListener('reset', (e) => {
-      e.preventDefault();
-      currentCard = { ...cards[currentCardIdx] };
-      populateForm(currentCard);
-      renderPreview(currentCard);
-    });
-  }
-
-  // --- Initial setup ---
-  renderCardList();
-  populateForm(currentCard);
   renderPreview(currentCard);
 })();
