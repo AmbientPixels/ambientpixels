@@ -14,18 +14,27 @@ Implement a unified authentication and user identity system for AmbientPixels us
 ---
 
 ## Status
-**Phase:** Planning  
+**Phase:** Platform Shift (Azure AD B2C → Microsoft Entra External ID)  
 **Created:** 2025-06-27  
 **Lead:** Cascade (with Nova oversight)
 
 ---
 
-## Initial Steps
-1. Create Azure AD B2C tenant and register main AmbientPixels web app
-2. Configure user flows (sign up/in, profile edit, password reset)
-3. Add login/logout UI to global site navigation
-4. Integrate MSAL.js for authentication
-5. Propagate user state to all modules
+> **⚠️ Platform Update (2025-06-27):**
+> As of May 1, 2025, Azure AD B2C is no longer available for new tenants. Microsoft now recommends all new external identity projects use **Microsoft Entra External ID**. This project will migrate to Entra External ID for all authentication and user management features.
+>
+> - [Entra External ID Overview](https://aka.ms/EEIDOverview)
+> - [FAQ for Customers](https://learn.microsoft.com/en-us/entra/external-id/customers/faq-customers)
+
+---
+
+## Next Steps (Entra External ID)
+1. Review Microsoft Entra External ID documentation and architecture
+2. Register AmbientPixels as an Entra External ID application
+3. Configure user flows (sign up/in, profile edit, password reset) in Entra
+4. Add login/logout UI to global site navigation
+5. Integrate Entra External ID with frontend authentication
+6. Propagate user state to all modules
 
 ---
 
