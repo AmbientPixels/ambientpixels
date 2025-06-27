@@ -122,6 +122,27 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
 - **Frontend:** `/lab/card-forge/index.html`, `card-forge.js`, `card-forge.css`, `card-forge-editor.js`
 - **Data:** `/lab/card-forge/card-forge.json` (card data), `/data/rpg-avatar-cards.json` (main deck)
 - **Backend:** `/api/saveCardData/index.js` (Azure Function, CommonJS, saves JSON to Blob Storage)
+
+---
+
+### 🛠️ UI Tweaks & Next Steps (2025-06-26)
+
+- Further UI refinement is needed for Card Forge preview and editor.
+- Goals:
+  - Polish spacing, padding, and card alignment for a more balanced look.
+  - Ensure card preview and grid cards scale smoothly across device sizes.
+  - Review badge/tag color usage to strictly reuse existing classes for visual consistency.
+  - Audit for any remaining redundant or conflicting CSS rules.
+  - Test 3D flip and interactive elements for accessibility and responsiveness.
+
+**Next Actions:**
+- [ ] Adjust card and preview container padding/margins for optimal balance.
+- [ ] Review mobile breakpoints and scaling.
+- [ ] Fine-tune badge/tag styling to match Nova/utility classes.
+- [ ] Clean up any legacy or duplicate CSS.
+- [ ] Continue documenting all visual and functional changes.
+
+---
 - **API Config:** `/api/package.json` (must have `@azure/storage-blob` dep, no `type: module`)
 - **CI/CD:** `.github/workflows/azure-static-web-apps-*.yml` (must set `api_location: "api"`)
 - **Logs/Docs:** `/docs/logs/project-card-forge.me` (this file), `/docs/project-card-forge.html` (feature/tech doc)
