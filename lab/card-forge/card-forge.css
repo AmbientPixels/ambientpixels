@@ -108,28 +108,21 @@
   box-shadow: 0 2px 16px 0 rgba(30, 38, 50, 0.18);
   padding: 2em 1.2em 1.6em 1.2em;
   margin: 1.2em 0 0 0;
-  min-height: 260px; /* updated by Cascade: more compact preview area */
-  /* removed max-height for natural scaling */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   gap: 0.7em;
-  overflow: visible; /* prevent card clipping */
+  overflow: visible;
+  height: 400px;
+  /* updated by Cascade: fixed preview height for consistent layout */
 }
 .rpg-avatar-card {
-  width: 100%;
-  height: 100%;
-  max-width: none;
-  max-height: none;
-  aspect-ratio: unset;
-  min-height: unset;
-  margin: 0 auto;
-  perspective: 1200px;
-  background: none;
-  border: none;
-  box-shadow: none;
+  border-radius: 1.25rem;
+  overflow: hidden;
   position: relative;
+  perspective: 1000px;
+  /* updated by Cascade: Nova-style card border and 3D setup */
 }
 
 .rpg-avatar-card-inner {
@@ -1029,16 +1022,7 @@
   pointer-events: none;
 }
 
-.rpg-avatar-card {
-  border-radius: 1.25rem;
-  overflow: hidden;
-  position: relative;
-  min-height: 750px;
-  perspective: 1000px;
-  /* card is the container for both faces */
-}
 
-/* Card inner container for 3D flip effect */
 .rpg-avatar-card-inner {
   position: relative;
   width: 100%;
