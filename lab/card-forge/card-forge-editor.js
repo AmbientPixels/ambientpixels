@@ -256,7 +256,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
     // Build Nova-compliant front face (harmonized by Cascade)
     const frontHTML = `
-      <div class=\"team-trading-card card-forge-card flex flex-col align-center justify-center p-3\">
+      <div class=\"card-forge-card flex flex-col align-center justify-center p-3\"> <!-- removed .team-trading-card, updated by Cascade -->
         <img src=\"/images/image-packs/characters/${card.avatar}\" alt=\"Preview Avatar\" class=\"avatar-lg mb-2\">
         <h4 class=\"text-bold mb-1\">${card.name || ''}</h4>
         <p class=\"card-desc text-muted mb-2\">${card.description || ''}</p>
@@ -267,7 +267,7 @@ window.addEventListener('DOMContentLoaded', function() {
     // Build Nova-compliant back face (harmonized by Cascade)
     ensureBackFields(card);
     const backHTML = `
-      <div class=\"team-trading-card card-forge-card flex flex-col align-center justify-center p-3\">
+      <div class=\"card-forge-card flex flex-col align-center justify-center p-3\"> <!-- removed .team-trading-card, updated by Cascade -->
         <div class=\"card-back-socials mb-2\">
           ${Object.entries(card.back.socials).map(([net, url]) =>
             url ? `<a href=\"${url}\" target=\"_blank\" rel=\"noopener\" aria-label=\"${net}\"><i class=\"fab fa-${net}\"></i></a>` : `<span class=\"disabled\"><i class=\"fab fa-${net}\"></i></span>`

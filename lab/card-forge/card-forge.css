@@ -102,18 +102,36 @@
 
 
 /* Card Forge 3D flip card structure by Cascade */
+.card-forge-preview {
+  background: var(--mood-bg, #181b22);
+  border-radius: 1.2em;
+  box-shadow: 0 2px 16px 0 rgba(30, 38, 50, 0.18);
+  padding: 2em 1.2em 1.6em 1.2em;
+  margin: 1.2em 0 0 0;
+  min-height: 260px; /* updated by Cascade: more compact preview area */
+  /* removed max-height for natural scaling */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.7em;
+  overflow: visible; /* prevent card clipping */
+}
 .rpg-avatar-card {
   width: 100%;
-  max-width: 380px;
-  aspect-ratio: 5 / 7;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  aspect-ratio: unset;
+  min-height: unset;
   margin: 0 auto;
   perspective: 1200px;
   background: none;
   border: none;
   box-shadow: none;
   position: relative;
-  min-height: 420px;
 }
+
 .rpg-avatar-card-inner {
   position: relative;
   width: 100%;
@@ -140,8 +158,11 @@
 
 /* Card Forge card polish by Cascade */
 .card-forge-card {
-  max-width: 380px;
-  aspect-ratio: 5 / 7;
+  width: 100%;
+  min-height: 320px; /* updated by Cascade: ensure card background is never too short */
+  max-width: none;
+  max-height: none;
+  aspect-ratio: unset;
   margin: 0 auto;
   background: var(--mood-bg-card, rgba(24,26,36,0.93));
   box-shadow: 0 0 32px 0 var(--aura-glow-md, #5ae4ff33), 0 2px 16px 0 #000a;
@@ -154,6 +175,7 @@
   justify-content: flex-start;
   transition: box-shadow 0.22s, border 0.18s;
 }
+
 
 .card-forge-card:hover {
   box-shadow: 0 0 48px 0 var(--aura-glow-lg, #5ae4ff77), 0 8px 32px 0 #000c;
@@ -668,8 +690,9 @@
   width: 100%;
   max-width: 460px;
   min-width: 320px;
-  height: 900px;
-  min-height: 600px;
+  /* updated by Cascade: removed fixed height/min-height for responsive scaling */
+  height: 100%;
+  min-height: unset;
   perspective: 1500px; /* Establishes the 3D space */
   border: none;
   box-shadow: none;
