@@ -72,14 +72,8 @@
     <!-- 2. Live Preview -->
     <section class="grid-col-4 card-forge-preview-area" style="background:rgba(0,255,0,0.06);border:1px solid #8e8;">
       <h3 class="section-header">Live Preview</h3>
-      <!-- Card preview: Nova trading card polish by Cascade -->
-      <div class="team-trading-card card-forge-card flex flex-col align-center justify-center p-3">
-        <img src="/images/image-packs/characters/autumnus-majestus.jpg" alt="Preview Avatar" class="avatar-lg mb-2">
-        <h4 class="text-bold mb-1">Card Name</h4>
-        <p class="card-desc text-muted mb-2">Description goes here.</p>
-        <ul class="nova-list card-stats mb-2"></ul>
-        <span class="badge legendary">Legendary</span>
-      </div>
+      <!-- Card preview rendered dynamically by card-forge-editor.js -->
+      <div class="card-forge-preview" id="card-preview"></div>
       <button type="button" id="card-flip-btn" class="glass-button mt-1" aria-pressed="false"><i class="fas fa-retweet"></i> Flip Card</button>
     </section>
     <!-- 3. Tab panels (form) -->

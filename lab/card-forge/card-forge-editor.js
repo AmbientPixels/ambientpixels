@@ -254,38 +254,36 @@ window.addEventListener('DOMContentLoaded', function() {
     void preview.offsetWidth;
     preview.classList.add('windsurf-style-animate');
 
-    // Build front face
+    // Build Nova-compliant front face (harmonized by Cascade)
     const frontHTML = `
-      <div class="rpg-avatar-front">
-        <img src="/images/image-packs/characters/${card.avatar}" alt="Preview Avatar" class="avatar-lg" />
-        <h4>${card.name || ''}</h4>
-        <p class="card-desc">${card.description || ''}</p>
-        <ul class="nova-list card-stats">
-          ${(card.stats||[]).map(stat => `<li>${stat.label}: ${stat.value}</li>`).join('')}
-        </ul>
-        <span class="badge ${card.theme}">${card.badges && card.badges[0] ? card.badges[0][0].toUpperCase() + card.badges[0].slice(1) : ''}</span>
+      <div class=\"team-trading-card card-forge-card flex flex-col align-center justify-center p-3\">
+        <img src=\"/images/image-packs/characters/${card.avatar}\" alt=\"Preview Avatar\" class=\"avatar-lg mb-2\">
+        <h4 class=\"text-bold mb-1\">${card.name || ''}</h4>
+        <p class=\"card-desc text-muted mb-2\">${card.description || ''}</p>
+        <ul class=\"nova-list card-stats mb-2\">${(card.stats||[]).map(stat => `<li>${stat.label}: ${stat.value}</li>`).join('')}</ul>
+        <span class=\"badge ${card.theme}\">${card.badges && card.badges[0] ? card.badges[0][0].toUpperCase() + card.badges[0].slice(1) : ''}</span>
       </div>`;
 
-    // Build back face
+    // Build Nova-compliant back face (harmonized by Cascade)
     ensureBackFields(card);
     const backHTML = `
-      <div class="rpg-avatar-back">
-        <div class="card-back-socials">
+      <div class=\"team-trading-card card-forge-card flex flex-col align-center justify-center p-3\">
+        <div class=\"card-back-socials mb-2\">
           ${Object.entries(card.back.socials).map(([net, url]) =>
-            url ? `<a href="${url}" target="_blank" rel="noopener" aria-label="${net}"><i class="fab fa-${net}"></i></a>` : `<span class="disabled"><i class="fab fa-${net}"></i></span>`
+            url ? `<a href=\"${url}\" target=\"_blank\" rel=\"noopener\" aria-label=\"${net}\"><i class=\"fab fa-${net}\"></i></a>` : `<span class=\"disabled\"><i class=\"fab fa-${net}\"></i></span>`
           ).join(' ')}
         </div>
-        <div class="card-back-bio">${card.back.bio ? card.back.bio : '<em>No bio set.</em>'}</div>
-        ${card.back.image ? `<img src="${card.back.image}" alt="Back Image" class="card-back-img" />` : ''}
-        ${card.back.qr ? `<img src="${card.back.qr}" alt="QR Code" class="card-back-qr" />` : ''}
+        <div class=\"card-back-bio mb-2\">${card.back.bio ? card.back.bio : '<em>No bio set.</em>'}</div>
+        ${card.back.image ? `<img src=\"${card.back.image}\" alt=\"Back Image\" class=\"card-back-img mb-2\" />` : ''}
+        ${card.back.qr ? `<img src=\"${card.back.qr}\" alt=\"QR Code\" class=\"card-back-qr mb-2\" />` : ''}
       </div>`;
 
-    // Compose the card structure
+    // Compose the harmonized card structure (Nova + flip, updated by Cascade)
     preview.innerHTML = `
-      <div class="rpg-avatar-card${showingBack ? ' flipped' : ''}">
-        <div class="rpg-avatar-card-inner">
-          ${frontHTML}
-          ${backHTML}
+      <div class=\"rpg-avatar-card${showingBack ? ' flipped' : ''}\">
+        <div class=\"rpg-avatar-card-inner\">
+          <div class=\"rpg-avatar-card-front\">${frontHTML}</div>
+          <div class=\"rpg-avatar-card-back\">${backHTML}</div>
         </div>
       </div>
     `;
