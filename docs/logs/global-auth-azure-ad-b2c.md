@@ -48,5 +48,14 @@ Tenant successfully created and switched to in Azure Portal.
 
 ---
 
+### 2025-06-27: AmbientPixels Web App Registered in Azure AD B2C
+- **Display name:** AmbientPixels Web
+- **Application (client) ID:** 40d939e3-1ce0-45c3-9562-c1acfaf0aa92
+- **Directory (tenant) ID:** 96bfe658-4094-4192-88f8-5b0874471c7e
+- **Supported account types:** My organization only
+- **Redirect URIs:** (to be updated after adding web URI)
+
+---
+
 ## Log
 - **2025-06-27:** Project initialized, planning phase started.
