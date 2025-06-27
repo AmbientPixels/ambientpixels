@@ -66,6 +66,13 @@ Tenant successfully created and switched to in Azure Portal.
 
 ---
 
+### 2025-06-27: SignUpSignIn User Flow Created in Microsoft Entra External ID
+- **User flow name:** SignUpSignIn
+- **Identity provider:** Email with password (local accounts)
+- **User attributes collected:** Given Name, Surname, Email
+
+---
+
 ### 2025-06-27: AmbientPixels Web App Registered in Azure AD B2C
 - **Display name:** AmbientPixels Web
 - **Application (client) ID:** 40d939e3-1ce0-45c3-9562-c1acfaf0aa92
