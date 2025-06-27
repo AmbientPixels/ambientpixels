@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "44b2a6a5-5477-484b-8fe9-c685fa9d0e9b",
-      "hash": "fc39fd9b0813bd2074e62bed83b967241196f348",
-      "message": "Card Forge docs and index: highlight as flagship (#1), update progress to 35%, add prominent links and status tags. Remove NDA gallery from Grand Central Power BI page.",
-      "timestamp": "2025-06-25 23:27:28 -0700",
+      "id": "db62a3c8-41cf-4a45-8a06-d7efbaaaa8ed",
+      "hash": "9d2dbac80a710f984b94f9a62de6d4b8ad9d034c",
+      "message": "Revamp Card Forge UI, update Lab grid and logs",
+      "timestamp": "2025-06-26 22:22:45 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/fc39fd9b0813bd2074e62bed83b967241196f348"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/9d2dbac80a710f984b94f9a62de6d4b8ad9d034c"
     }
   ],
-  "timestamp": "2025-06-26T13:34:16.225Z",
+  "timestamp": "2025-06-27T13:32:22.600Z",
   "count": 1,
-  "scanId": 1750944856225
+  "scanId": 1751031142600
 }
