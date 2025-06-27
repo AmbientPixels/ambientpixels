@@ -18,6 +18,8 @@
   <link rel="stylesheet" href="/css/nova-mood-background.css" />
   <!-- Card Forge module styles (local/dev) -->
   <link rel="stylesheet" href="/lab/card-forge/card-forge.css" />
+  <!-- updated by Cascade: utility classes applied -->
+  <link rel="stylesheet" href="/css/utility.css" />
 
 </head>
 <body data-theme="dark">
@@ -49,15 +51,18 @@
     <!-- 1. Sidebar/List -->
     <section class="grid-col-4" aria-label="Card List" style="background:rgba(255,0,0,0.06);border:1px solid #e88;">
       <h3 class="section-header">Your Cards</h3>
-      <ul class="nova-list" id="card-list">
+      <!-- updated by Cascade: utility classes applied -->
+      <ul class="nova-list mb-2" id="card-list">
         <!-- Card list rendered by card-forge-editor.js -->
       </ul>
-      <button class="glass-button" type="button"><i class="fas fa-plus"></i> Add Card</button>
-      <div class="mt-2">
-        <button class="glass-button" type="button"><i class="fas fa-upload"></i> Import</button>
-        <button class="glass-button" type="button"><i class="fas fa-download"></i> Export</button>
+      <button class="glass-button mb-2" type="button"><i class="fas fa-plus"></i> Add Card</button>
+      <div class="mb-2">
+        <button class="glass-button mb-2" type="button"><i class="fas fa-upload"></i> Import</button>
+        <button class="glass-button mb-2" type="button"><i class="fas fa-download"></i> Export</button>
       </div>
-      <!-- updated by Cascade: moved Save/Reset/Azure buttons to sidebar -->
+      <div class="mt-2 mb-2">
+        <!-- cleaned up duplicate button group by Cascade -->
+      </div>
       <div class="mt-2" id="sidebar-save-btns">
         <button class="glass-button" type="button" id="sidebar-save-btn"><i class="fas fa-save"></i> Save</button>
         <button class="glass-button" type="reset" id="sidebar-reset-btn"><i class="fas fa-undo"></i> Reset</button>
@@ -67,111 +72,125 @@
     <!-- 2. Live Preview -->
     <section class="grid-col-4 card-forge-preview-area" style="background:rgba(0,255,0,0.06);border:1px solid #8e8;">
       <h3 class="section-header">Live Preview</h3>
-      <div class="card-forge-preview card-forge-preview--fantasy-guild windsurf-style-animate">
-        <img src="/images/image-packs/characters/autumnus-majestus.jpg" alt="Preview Avatar" class="avatar-lg">
-        <h4></h4>
-        <p class="card-desc"></p>
-        <ul class="nova-list card-stats"></ul>
+      <!-- Card preview: Nova trading card polish by Cascade -->
+      <div class="team-trading-card card-forge-card flex flex-col align-center justify-center p-3">
+        <img src="/images/image-packs/characters/autumnus-majestus.jpg" alt="Preview Avatar" class="avatar-lg mb-2">
+        <h4 class="text-bold mb-1">Card Name</h4>
+        <p class="card-desc text-muted mb-2">Description goes here.</p>
+        <ul class="nova-list card-stats mb-2"></ul>
         <span class="badge legendary">Legendary</span>
       </div>
       <button type="button" id="card-flip-btn" class="glass-button mt-1" aria-pressed="false"><i class="fas fa-retweet"></i> Flip Card</button>
     </section>
     <!-- 3. Tab panels (form) -->
+    <!-- restored tab structure, safe spacing only by Cascade -->
     <section class="grid-col-4" style="background:rgba(0,0,255,0.06);border:1px solid #88e;">
-      <!-- updated by Cascade: tabs and tab panels are now both inside column 3 -->
       <div class="card-editor-tabs" role="tablist" aria-label="Card Sides">
         <button class="tab-btn" id="tab-front" role="tab" aria-selected="true" aria-controls="front-panel" tabindex="0">Front</button>
         <button class="tab-btn" id="tab-back" role="tab" aria-selected="false" aria-controls="back-panel" tabindex="-1">Back</button>
       </div>
+      <div class="mb-2"></div>
       <div id="front-panel" class="tab-panel" role="tabpanel" aria-labelledby="tab-front">
         <h3 class="section-header">Front of Card</h3>
         <form class="nova-form" id="front-form" autocomplete="off">
           <div id="front-fields">
-            <label for="card-name">Name</label>
-            <input id="card-name" name="card-name" type="text" placeholder="Enter name..." class="input" />
+            <div class="mb-2">
+              <label for="card-name">Name</label>
+              <input id="card-name" name="card-name" type="text" placeholder="Enter name..." class="input" />
+            </div>
 
-            <label for="card-style">Card Style</label>
-            <select id="card-style" name="card-style" class="input">
-              <optgroup label="Classic & Game Styles">
-                <option value="rpg">RPG Card</option>
-                <option value="trading-card">Trading Card Game (Pokémon/Magic)</option>
-                <option value="fantasy-guild">Fantasy Guild Membership</option>
-                <option value="hero">Hero Card (Marvel/DC)</option>
-                <option value="achievement">Achievement Card</option>
-              </optgroup>
-              <optgroup label="Futuristic & Tech">
-                <option value="futuristic-id">Futuristic ID</option>
-                <option value="nova">Nova Style</option>
-                <option value="nova-enhanced">Nova Enhanced</option>
-                <option value="cyberpunk-passport">Cyberpunk Passport</option>
-                <option value="ai-companion">AI Companion</option>
-                <option value="holographic">Holographic</option>
-                <option value="glitch-neon">Glitch/Neon</option>
-              </optgroup>
-              <optgroup label="Professional & Social">
-                <option value="corporate-access">Corporate Access</option>
-                <option value="professional">Professional (LinkedIn/Business)</option>
-                <option value="social-profile">Social Profile</option>
-                <option value="classic-business-card">Classic Business Card</option>
-                <option value="education-certificate">Education/Certificate Card</option>
-                <option value="event-pass">Event Pass</option>
-                <option value="event-ticket">Event Ticket (with QR/barcode)</option>
-              </optgroup>
-              <optgroup label="Fun & Creative">
-                <option value="pixel-art">Pixel Art</option>
-                <option value="meme">Meme Mode</option>
-                <option value="anime-profile">Anime Profile</option>
-                <option value="digital-pet">Digital Pet/Companion Card</option>
-                <option value="streamer-creator">Streamer/Creator Card</option>
-                <option value="holiday">Holiday/Special Occasion</option>
-                <option value="custom">Custom/Blank</option>
-              </optgroup>
-            </select>
-            <label for="card-avatar">Avatar Image</label>
-            <select id="card-avatar" name="card-avatar" class="input">
-              <option value="autumnus-majestus.jpg">Aria Flux</option>
-              <option value="cyber-erenity.jpg">Cypher Nova</option>
-              <option value="regal-radiance.jpg">Echo Prism</option>
-            </select>
-            <!-- duplicate card-style select removed by Cascade -->
+            <div class="mb-2">
+              <label for="card-style">Card Style</label>
+              <select id="card-style" name="card-style" class="input">
+                <optgroup label="Classic & Game Styles">
+                  <option value="rpg">RPG Card</option>
+                  <option value="trading-card">Trading Card Game (Pokémon/Magic)</option>
+                  <option value="fantasy-guild">Fantasy Guild Membership</option>
+                  <option value="hero">Hero Card (Marvel/DC)</option>
+                  <option value="achievement">Achievement Card</option>
+                </optgroup>
+                <optgroup label="Futuristic & Tech">
+                  <option value="futuristic-id">Futuristic ID</option>
+                  <option value="nova">Nova Style</option>
+                  <option value="nova-enhanced">Nova Enhanced</option>
+                  <option value="cyberpunk-passport">Cyberpunk Passport</option>
+                  <option value="ai-companion">AI Companion</option>
+                  <option value="holographic">Holographic</option>
+                  <option value="glitch-neon">Glitch/Neon</option>
+                </optgroup>
+                <optgroup label="Professional & Social">
+                  <option value="corporate-access">Corporate Access</option>
+                  <option value="professional">Professional (LinkedIn/Business)</option>
+                  <option value="social-profile">Social Profile</option>
+                  <option value="classic-business-card">Classic Business Card</option>
+                  <option value="education-certificate">Education/Certificate Card</option>
+                  <option value="event-pass">Event Pass</option>
+                  <option value="event-ticket">Event Ticket (with QR/barcode)</option>
+                </optgroup>
+                <optgroup label="Fun & Creative">
+                  <option value="pixel-art">Pixel Art</option>
+                  <option value="meme">Meme Mode</option>
+                  <option value="anime-profile">Anime Profile</option>
+                  <option value="digital-pet">Digital Pet/Companion Card</option>
+                  <option value="streamer-creator">Streamer/Creator Card</option>
+                  <option value="holiday">Holiday/Special Occasion</option>
+                  <option value="custom">Custom/Blank</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="mb-2">
               <label for="card-avatar">Avatar Image</label>
               <select id="card-avatar" name="card-avatar" class="input">
                 <option value="autumnus-majestus.jpg">Aria Flux</option>
                 <option value="cyber-erenity.jpg">Cypher Nova</option>
                 <option value="regal-radiance.jpg">Echo Prism</option>
               </select>
+            </div>
 
+            <div class="mb-2">
               <label for="card-desc">Description</label>
               <textarea id="card-desc" name="card-desc" rows="2" class="input" placeholder="Card description..."></textarea>
+            </div>
 
+            <div class="mb-2 mt-2">
               <label for="card-stats">Stats</label>
               <input id="card-stats" name="card-stats" type="text" placeholder="e.g. Power: 8, Agility: 6" class="input" />
+            </div>
 
+            <div class="mb-2">
               <label for="card-badges">Badges</label>
               <select id="card-badges" name="card-badges" class="input">
                 <option value="legendary">Legendary</option>
                 <option value="epic">Epic</option>
                 <option value="rare">Rare</option>
               </select>
+            </div>
 
-            </div>
-          </form>
-            </div>
-            <div id="back-panel" class="tab-panel" role="tabpanel" aria-labelledby="tab-back" hidden>
-              <h3 class="section-header">Back of Card</h3>
-              <form class="nova-form" id="back-form" autocomplete="off">
-                <div id="back-fields">
+          </div>
+        </form>
+      </div>
+      <div id="back-panel" class="tab-panel" role="tabpanel" aria-labelledby="tab-back" hidden>
+        <h3 class="section-header">Back of Card</h3>
+        <form class="nova-form" id="back-form" autocomplete="off">
+          <div id="back-fields">
+            <div class="mb-2">
               <label for="card-back-bio">Bio/Description</label>
               <textarea id="card-back-bio" name="card-back-bio" rows="2" class="input" placeholder="Bio or description..."></textarea>
+            </div>
 
+            <div class="mb-2">
               <label for="card-back-image">Back Image URL</label>
               <input id="card-back-image" name="card-back-image" type="text" placeholder="Image URL..." class="input" />
+            </div>
 
+            <div class="mb-2">
               <label for="card-back-qr">QR Code URL</label>
               <input id="card-back-qr" name="card-back-qr" type="text" placeholder="QR code image URL..." class="input" />
+            </div>
 
-              <fieldset class="card-back-socials-fieldset">
-                <legend>Social Links</legend>
+            <fieldset class="card-back-socials-fieldset">
+              <legend>Social Links</legend>
+              <div class="mb-2">
                 <label for="card-back-facebook"><i class="fab fa-facebook"></i> Facebook</label>
                 <input id="card-back-facebook" name="card-back-facebook" type="text" placeholder="Facebook URL..." class="input" />
                 <label for="card-back-twitter"><i class="fab fa-twitter"></i> Twitter</label>

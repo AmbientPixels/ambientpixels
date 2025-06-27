@@ -101,6 +101,28 @@
 }
 
 
+/* Card Forge card polish by Cascade */
+.card-forge-card {
+  max-width: 380px;
+  aspect-ratio: 5 / 7;
+  margin: 0 auto;
+  background: var(--mood-bg-card, rgba(24,26,36,0.93));
+  box-shadow: 0 0 32px 0 var(--aura-glow-md, #5ae4ff33), 0 2px 16px 0 #000a;
+  border-radius: var(--aura-radius-lg, 1.2em);
+  border: 1.5px solid var(--mood-glow, #5ae4ff);
+  padding: 2.2em 1.2em 1.2em 1.2em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  transition: box-shadow 0.22s, border 0.18s;
+}
+
+.card-forge-card:hover {
+  box-shadow: 0 0 48px 0 var(--aura-glow-lg, #5ae4ff77), 0 8px 32px 0 #000c;
+  border-color: var(--aura-glow, #9bf00b);
+}
+
 /* Remove Card Button (sidebar) -- added by Cascade */
 .remove-card-btn {
   display: inline-flex;
