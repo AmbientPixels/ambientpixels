@@ -126,20 +126,16 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
 - **CI/CD:** `.github/workflows/azure-static-web-apps-*.yml` (must set `api_location: "api"`)
 - **Logs/Docs:** `/docs/logs/project-card-forge.me` (this file), `/docs/project-card-forge.html` (feature/tech doc)
 
-### Azure Integration & Troubleshooting
-- **Connection String:** Set `AZURE_STORAGE_CONNECTION_STRING` in Azure portal (full string, not just key)
-- **Blob Container:** Function creates `cardforge` container if missing
-- **Error Logging:** Stack traces included in dev, remove for production
-- **Common Issues:**
-  - 500 error + blank response: usually missing dep or module type mismatch
-  - 405 error: missing `api_location` in workflow
-  - 404/MIME errors: use absolute asset paths
+### Onboarding & Dev Handoff Reference
 
-### Dev Protocols
-- No inline styles; reuse Nova/AmbientPixels CSS classes
-- All JS modularized, no global leaks
-- Document all changes here and in `/docs/project-card-forge.html`
-- Use this log as your reference if memory is lost—summarize blockers, breakthroughs, and key config
+For onboarding, troubleshooting, and contribution protocols, see [`project-card-forge.html`](../project-card-forge.html).
+
+**This `.me` file is your living session log:**
+- Use it for real-time blockers, breakthroughs, TODOs, and session handoff notes.
+- Fill out the handoff template at the end of each session.
+- Summarize what changed, what’s next, and any open issues.
+
+Keep this log focused on session continuity and dev communication. All canonical onboarding and contribution steps live in the HTML doc.
 
 ---
 

@@ -63,6 +63,53 @@
   </section>
 
   <section class="content-section grid-col-12">
+    <h2>🚀 Quick Start</h2>
+    <ul class="nova-list">
+      <li><b>1. Prerequisites:</b> Node.js 18+, VS Code, Azure account (for blob storage).</li>
+      <li><b>2. Clone & Install:</b> <code>git clone ...</code>, <code>npm install</code> in project root.</li>
+      <li><b>3. Run Dev Server:</b> <code>npx serve lab/card-forge/</code> or use VS Code Live Server.</li>
+      <li><b>4. Test Blob Storage:</b> Ensure <code>AZURE_STORAGE_CONNECTION_STRING</code> is set (see <a href="/docs/logs/project-card-forge.me">project-card-forge.me</a> for details).</li>
+      <li><b>5. Edit & Preview:</b> Open <code>lab/card-forge/index.html</code> and start editing cards.</li>
+      <li><b>6. Reference:</b> See <a href="/docs/logs/project-card-forge.me">Session Log & Reference Sheet</a> for troubleshooting and config tips.</li>
+    </ul>
+  </section>
+
+  <section class="content-section grid-col-12">
+    <h2>🔄 Session Restart / Handoff Checklist</h2>
+    <ul class="nova-list">
+      <li>Check <a href="/docs/logs/project-card-forge.me">project-card-forge.me</a> for the latest blockers, TODOs, and breakthroughs.</li>
+      <li>Review the "Reference Sheet" and "Next Steps" in this doc and the .me log.</li>
+      <li>Resume work in <code>lab/card-forge/index.html</code> and <code>card-forge.js</code> (or as noted in the log).</li>
+      <li>Test blob save/load via the UI; check Azure logs if errors occur.</li>
+      <li>Document any changes or issues in both this HTML doc and the .me log.</li>
+    </ul>
+  </section>
+
+  <section class="content-section grid-col-12">
+    <h2>🛠️ Troubleshooting & FAQ</h2>
+    <ul class="nova-list">
+      <li><b>Blob upload fails:</b> Check <code>AZURE_STORAGE_CONNECTION_STRING</code> in Azure portal; must be full connection string.</li>
+      <li><b>500 error + blank response:</b> Usually missing dependency or module type mismatch in <code>/api/package.json</code>.</li>
+      <li><b>405 error:</b> Ensure <code>api_location: "api"</code> is set in GitHub workflow YAML.</li>
+      <li><b>404/MIME errors:</b> Use absolute asset paths for all JS/CSS/images.</li>
+      <li><b>UI not updating:</b> Make sure you’re editing the correct files and that browser cache is cleared.</li>
+      <li>See more common issues and fixes in the "Reference Sheet" in <a href="/docs/logs/project-card-forge.me">project-card-forge.me</a>.</li>
+    </ul>
+  </section>
+
+  <section class="content-section grid-col-12">
+    <h2>🤝 Contribution & Style Guide</h2>
+    <ul class="nova-list">
+      <li>Reuse existing Nova/AmbientPixels CSS classes (see <code>components.css</code>, <code>nova.css</code>, <code>nova-mood.css</code>).</li>
+      <li>No inline styles; all new styles go in <code>card-forge.css</code> and must be scoped.</li>
+      <li>JS: Modularize logic, no global leaks; main logic in <code>card-forge.js</code> and <code>card-forge-editor.js</code>.</li>
+      <li>Document all changes here and in <a href="/docs/logs/project-card-forge.me">project-card-forge.me</a>.</li>
+      <li>Follow Windsurf dev protocols: no duplicate blocks, always replace with precision.</li>
+      <li>Reference <a href="/docs/template.html">Documentation Template</a> for new feature docs.</li>
+    </ul>
+  </section>
+
+  <section class="content-section grid-col-12">
     <h2>Dev/Test Environment</h2>
     <ul class="nova-list">
       <li>Isolated dev sandbox: <code>/lab/card-forge/</code></li>
