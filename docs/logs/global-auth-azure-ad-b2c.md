@@ -36,4 +36,17 @@ Implement a unified authentication and user identity system for AmbientPixels us
 ---
 
 ## Log
+
+### 2025-06-27: Azure AD B2C Tenant Created
+- **Organization name:** ambientpixels auth
+- **Initial domain name:** ambientpixels.onmicrosoft.com
+- **Country/Region:** United States
+- **Resource group:** ambientpixelsV2
+- **Reference:** [Microsoft Docs – Create a B2C tenant](https://learn.microsoft.com/en-us/azure/active-directory-b2c/tutorial-create-tenant)
+
+Tenant successfully created and switched to in Azure Portal.
+
+---
+
+## Log
 - **2025-06-27:** Project initialized, planning phase started.
