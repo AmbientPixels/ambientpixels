@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Global Azure AD B2C Authentication – Project Log | AmbientPixels">
+  <title>Global Azure AD B2C Authentication – Project Log</title>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/grid.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/hero.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/banner.css">
+</head>
+<body data-theme="dark">
+
+<!-- Banner Example -->
+<div class="banner-container">
+  <div class="banner">
+    <i class="fas fa-info-circle banner-icon"></i>
+    <span>Global Auth Project – Azure AD B2C</span>
+    <button class="banner-close" aria-label="Close Banner">&times;</button>
+  </div>
+</div>
+
+<header id="nav-header"><!-- Navigation loads here via JS include --></header>
+
+<section class="mini-hero">
+  <img src="/images/textures/color-rock.png" alt="Texture" class="mini-hero-img" loading="lazy">
+  <h1>Global Azure AD B2C Authentication</h1>
+</section>
+
+<main class="grid-container">
+  <section class="content-section grid-col-12">
+    <div class="section-header">
+      <h2><i class="fas fa-tools"></i> Project Status</h2>
+      <button class="toggle-btn icon-only" aria-expanded="true"><i class="fas fa-chevron-down"></i></button>
+    </div>
+    <div class="content">
+      <ul>
+        <li><strong>Status:</strong> Planning</li>
+        <li><strong>Tags:</strong> auth, azure, b2c, global, user, sso</li>
+        <li><strong>Last Updated:</strong> 2025-06-27</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="content-section grid-col-12">
+    <div class="section-header">
+      <h2><i class="fas fa-clipboard-list"></i> Documentation</h2>
+      <button class="toggle-btn icon-only" aria-expanded="true"><i class="fas fa-chevron-down"></i></button>
+    </div>
+    <div class="content" id="md-content">
+      <p>Loading documentation...</p>
+    </div>
+  </section>
+</main>
+
+<div id="footer-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="../../js/md-inject.js"></script>
+<script src="../../js/main.js" defer></script>
+<script src="../../js/nav.js" defer></script>
+<script src="../../js/theme.js" defer></script>
+<script src="../../js/init-header-footer.js" defer></script>
+<script>
+  // Load the .md file when DOM is ready
+  document.addEventListener('DOMContentLoaded', function() {
+    if (window.injectMarkdown) {
+      injectMarkdown("md-content", "./global-auth-azure-ad-b2c.md");
+    } else {
+      console.error('Markdown injection function not found');
+    }
+  });
+</script>
+</body>
+</html>
