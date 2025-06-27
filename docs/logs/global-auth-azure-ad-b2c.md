@@ -57,6 +57,15 @@ Tenant successfully created and switched to in Azure Portal.
 
 ---
 
+### 2025-06-27: AmbientPixels Web App Registered in Microsoft Entra External ID
+- **Display name:** AmbientPixels Web
+- **Application (client) ID:** cc50167c-846e-4ed2-b4fe-48ab831615d2
+- **Directory (tenant) ID:** 0450b3ca-5138-4391-9c98-bda7ad24118f
+- **Supported account types:** My organization only
+- **Redirect URIs:** 1 web (http://localhost:3000/), 0 spa, 0 public client
+
+---
+
 ### 2025-06-27: AmbientPixels Web App Registered in Azure AD B2C
 - **Display name:** AmbientPixels Web
 - **Application (client) ID:** 40d939e3-1ce0-45c3-9562-c1acfaf0aa92
