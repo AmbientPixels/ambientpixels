@@ -39,8 +39,20 @@ async function initAuth() {
     debugLog("Accounts found:", accounts);
     return accounts.length > 0 ? accounts[0] : null;
   }
+  function isInteractionInProgress() {
+    return sessionStorage.getItem('msal.interaction.status') === 'interaction_in_progress';
+  }
   function login() {
     debugLog("Login button clicked");
+    if (isInteractionInProgress()) {
+      debugLog("Login aborted: interaction already in progress.");
+      const loginBtn = document.getElementById("login-btn");
+      if (loginBtn) loginBtn.disabled = true;
+      return;
+    } else {
+      const loginBtn = document.getElementById("login-btn");
+      if (loginBtn) loginBtn.disabled = false;
+    }
     try {
       msalInstance.loginRedirect({
         scopes: ["openid", "profile", "email"]
