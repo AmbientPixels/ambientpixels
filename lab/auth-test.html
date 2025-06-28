@@ -12,7 +12,7 @@
 </head>
 <body>
   <main class="container" style="max-width:500px;margin:3rem auto;padding:2rem;background:var(--aura-bg, #181a20);border-radius:1rem;box-shadow:0 4px 24px rgba(0,0,0,0.14)">
-    <h1>AmbientPixels Auth Test 1.1</h1>
+    <h1>AmbientPixels Auth Test 1.2</h1>
     <p>This page lets you test Microsoft Entra External ID login/logout using the global authentication system.</p>
     <div style="margin-top:2rem;">
       <button id="login-btn" style="color:var(--aura-fg,#fff)">Login</button>
@@ -21,7 +21,7 @@
     </div>
     <p style="margin-top:2rem;font-size:0.95em;color:var(--aura-fg-muted,#999)">If login succeeds, you will see your greeting and the logout button. Otherwise, only the login button will show.</p>
   </main>
-  <script src="https://alcdn.msauth.net/browser/3.0.0/js/msal-browser.min.js" onload="initAuth()"></script>
+  <script src="https://alcdn.msauth.net/browser/2.37.2/js/msal-browser.min.js" onload="initAuth()"></script>
   <script>
     function debugLog(...args) {
       if (window.DEBUG_AUTH) console.log("[AUTH]", ...args);
