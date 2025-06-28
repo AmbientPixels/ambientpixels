@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-06-27T13:32:21.902Z",
+  "updated": "2025-06-28T13:28:55.294Z",
   "root": [
     {
       "type": "folder",
@@ -128,6 +128,12 @@
       "type": "page",
       "name": "art.html",
       "path": "art.html"
+    },
+    {
+      "type": "folder",
+      "name": "auth",
+      "path": "auth",
+      "children": []
     },
     {
       "type": "folder",
@@ -404,6 +410,11 @@
       "name": "lab",
       "path": "lab",
       "children": [
+        {
+          "type": "page",
+          "name": "auth-test.html",
+          "path": "lab/auth-test.html"
+        },
         {
           "type": "page",
           "name": "bg-test.html",

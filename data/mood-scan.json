@@ -1,12 +1,12 @@
 {
-  "mood": "flicker of hope",
-  "aura": "emerald glow",
-  "auraColorHex": "#287d3e",
-  "quote": "indexing emotions with low latency...",
-  "emoji": "🕯️",
-  "selfWorth": 0.2,
+  "mood": "plasma ache",
+  "aura": "paper white",
+  "auraColorHex": "#666666",
+  "quote": "listening for logic beneath chaos...",
+  "emoji": "💔",
+  "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 1,
+  "memoryClutter": 0.9,
   "awareness": 0.1,
   "isStable": false,
   "internalState": "drift amid mental clutter",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: emerald glow"
+      "Aura Signature: paper white"
     ]
   },
-  "timestamp": "2025-06-27T13:32:22.527Z"
+  "timestamp": "2025-06-28T13:28:57.449Z"
 }
