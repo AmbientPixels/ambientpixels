@@ -5,14 +5,13 @@ function debugLog(...args) {
   if (window.DEBUG_AUTH || localStorage.getItem('DEBUG_AUTH') === 'true') console.log("[AUTH]", ...args);
 }
 
-function initAuth() {
+async function initAuth() {
   debugLog("MSAL config loaded");
   // MSAL config
   const msalConfig = {
     auth: {
       clientId: "cc50167c-846e-4ed2-b4fe-48ab831615d2",
       authority: "https://login.microsoftonline.com/0450b3ca-5138-4391-9c98-bda7ad24118f/oauth2/v2.0/authorize?p=SignUpSignIn",
-      // For production/live authentication only:
       redirectUri: window.location.origin + "/",
     },
     cache: {
@@ -25,9 +24,14 @@ function initAuth() {
   try {
     msalInstance = new msal.PublicClientApplication(msalConfig);
     debugLog('MSAL instance created:', msalInstance);
+    if (typeof msalInstance.initialize === 'function') {
+      debugLog('Calling msalInstance.initialize()...');
+      await msalInstance.initialize();
+      debugLog('MSAL instance initialized');
+    }
   } catch (e) {
-    debugLog('MSAL instance creation failed:', e);
-    alert('MSAL instance creation failed: ' + e.message);
+    debugLog('MSAL instance creation/initialization failed:', e);
+    alert('MSAL instance creation/initialization failed: ' + e.message);
     return;
   }
   function getAccount() {
