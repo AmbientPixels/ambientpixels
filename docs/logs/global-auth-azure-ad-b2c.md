@@ -1,3 +1,113 @@
+# 🛡️ AmbientPixels Global Authentication – Onboarding & AI Training Guide
+
+## Overview
+AmbientPixels uses Microsoft Entra External ID (formerly Azure AD B2C) with MSAL.js for unified, secure authentication across all modules and user flows. This system supports SSO, multiple identity providers, and is designed for CSP compliance and modular global integration.
+
+---
+
+## 1. System Architecture & Flow
+- **Frontend:** Static HTML/JS/CSS, no build tools required
+- **Auth Logic:** Modularized in `/lab/global-auth.js` (rename/move as needed for production)
+- **Library:** Self-hosted `msal-browser.min.js` (avoid CDN reliability issues)
+- **Config:** All MSAL config (clientId, authority, redirectUri, etc.) is in `global-auth.js`
+- **User Flow:**
+  1. User clicks Login → triggers MSAL loginRedirect
+  2. Redirects to Entra External ID user flow (SignUpSignIn)
+  3. On success, user is returned to `redirectUri` (must be registered in Azure)
+  4. Session/account state is managed via MSAL and localStorage
+  5. Logout triggers MSAL logoutRedirect and cleans up session
+
+---
+
+## 2. File & Module Locations
+- **/lab/global-auth.js** – Main authentication logic (modular, CSP-compliant)
+- **/auth/msal-browser.min.js** – Self-hosted MSAL.js library
+- **/lab/auth-test.html** – Test page for isolated auth flow validation
+- **/css/** – Uses existing Nova/ambient global theme tokens for styling
+- **/docs/logs/global-auth-azure-ad-b2c.md** – This documentation and project log
+
+---
+
+## 3. Configuration & Best Practices
+- **MSAL Config:**
+  - Always embed the user flow name (e.g., `SignUpSignIn`) in the `authority` URL
+  - Use `window.location.origin + "/"` for `redirectUri` to support both local and live
+  - Register all possible redirect URIs in the Azure portal
+  - Never hardcode secrets or sensitive info in frontend code
+- **CSP Compliance:**
+  - No inline JS – all logic in external files
+  - Only reference trusted, self-hosted script sources
+- **Naming:**
+  - Use lowercase, kebab-case for all new modules/scripts
+  - Scope new logic under `/lab/`, `/modules/`, or `/nova/` as appropriate
+- **Styling:**
+  - Use existing Nova/ambient CSS tokens (`--aura-*`, etc.)
+  - Never use inline styles unless explicitly approved (Windsurf Rule #1)
+
+---
+
+## 4. Debugging & Troubleshooting
+- **Enable persistent debug logging:**
+  - In browser console: `localStorage.setItem('DEBUG_AUTH', 'true')`
+  - Logs will appear on every page load and button click
+  - To disable: `localStorage.removeItem('DEBUG_AUTH')`
+- **Common errors:**
+  - `uninitialized_public_client_application` – Call and await `msalInstance.initialize()` before any MSAL API usage (required for MSAL.js v3+)
+  - CSP/blocked script errors – Ensure all JS is external, not inline
+  - 404 on MSAL.js – Always self-host, do not rely on CDN
+- **Testing:**
+  - Use `/lab/auth-test.html` for isolated flow validation before global rollout
+  - Check Network tab for script load errors
+  - Use `[AUTH]` logs to trace flow and button bindings
+
+---
+
+## 5. Onboarding Steps for Developers & AI Agents
+1. **Read this document and review `/lab/global-auth.js`**
+2. **Verify MSAL.js and global-auth.js are loaded in your HTML in this order:**
+   ```html
+   <script src="/auth/msal-browser.min.js"></script>
+   <script src="/lab/global-auth.js"></script>
+   ```
+3. **Set up Azure app registration:**
+   - Register app in Microsoft Entra External ID portal
+   - Add all redirect URIs (local, staging, production)
+   - Configure user flows (SignUpSignIn, etc.)
+4. **Test the login/logout flow using `/lab/auth-test.html`**
+5. **Integrate logic into global navigation or modules as needed**
+6. **Keep all logic modular and CSP-compliant**
+
+---
+
+## 6. Common Pitfalls & How to Avoid Them
+- **Inline JS:** Will be blocked by CSP on live; always use external scripts
+- **Forgot to await `initialize()`:** Required for MSAL.js v3+; otherwise, login will fail
+- **Missing redirect URI:** Must be registered in Azure or login will error
+- **CDN/MSAL.js 404:** Always self-host MSAL.js
+- **Duplicate CSS/JS:** Always check for existing modules before creating new ones (Windsurf Rule #1)
+
+---
+
+## 7. Extending & Integrating Globally
+- Move `/lab/global-auth.js` to `/modules/` or `/nova/` for production/global use
+- Import and call `initAuth()` in your main layout or navigation
+- Use global CSS tokens for styling any new UI elements
+- For multi-provider support, extend MSAL config and Azure user flows
+- Document any changes in this log for future devs and AI agents
+
+---
+
+## 8. Key References
+- **Azure Portal:** [Microsoft Entra External ID Portal](https://entra.microsoft.com/)
+- **MSAL.js Docs:** [MSAL.js Browser Docs](https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-overview)
+- **AmbientPixels Config Files:**
+  - `/lab/global-auth.js` – Auth logic
+  - `/auth/msal-browser.min.js` – Library
+  - `/data/identity-core.json` – (if used for user mapping)
+  - `/docs/logs/global-auth-azure-ad-b2c.md` – This documentation
+
+---
+
 # 🌐 Global Azure AD B2C Authentication
 
 ## Project Overview
@@ -26,7 +136,7 @@ Implement a unified authentication and user identity system for AmbientPixels us
 > - [Entra External ID Overview](https://aka.ms/EEIDOverview)
 > - [FAQ for Customers](https://learn.microsoft.com/en-us/entra/external-id/customers/faq-customers)
 
----
+--- nice
 
 ## Next Steps (Entra External ID)
 1. Review Microsoft Entra External ID documentation and architecture
