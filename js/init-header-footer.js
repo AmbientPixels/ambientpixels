@@ -9,6 +9,7 @@ fetch('/modules/header.html')
       header.innerHTML = html;
       setupMobileNav();
       setupThemeToggle();
+      if (window.bindAuthButtons) window.bindAuthButtons();
     }
   });
 

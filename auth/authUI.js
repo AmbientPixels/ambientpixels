@@ -117,6 +117,7 @@ async function initAuth() {
   } else {
     bindAuthButtons();
   }
+  window.bindAuthButtons = bindAuthButtons;
   // Expose for other scripts if needed
   window.login = login;
   window.logout = logout;
