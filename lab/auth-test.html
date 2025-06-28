@@ -21,7 +21,7 @@
     </div>
     <p style="margin-top:2rem;font-size:0.95em;color:var(--aura-fg-muted,#999)">If login succeeds, you will see your greeting and the logout button. Otherwise, only the login button will show.</p>
   </main>
-  <script src="/auth/msal-browser.min.js" onload="initAuth()"></script>
+  <script src="/auth/msal-browser.min.js"></script>
   <script>
     function debugLog(...args) {
       if (window.DEBUG_AUTH) console.log("[AUTH]", ...args);
@@ -44,6 +44,11 @@
       debugLog("redirectUri:", msalConfig.auth.redirectUri);
       const msalInstance = new msal.PublicClientApplication(msalConfig);
       function getAccount() {
+
+    // Call initAuth after DOM is loaded and MSAL is present
+    window.addEventListener('DOMContentLoaded', function() {
+      initAuth();
+    });
         const accounts = msalInstance.getAllAccounts();
         debugLog("Accounts found:", accounts);
         return accounts.length > 0 ? accounts[0] : null;
