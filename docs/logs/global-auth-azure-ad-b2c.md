@@ -9,12 +9,17 @@ Contact: winds.dev@ambientpixels.ai
 1. Clone the repo and open in your editor.
 2. Ensure `/auth/msal-browser.min.js`, `/auth/global-auth.js`, `/auth/authConfig.js`, and `/auth/authUI.js` are present.
 3. Register your app and redirect URIs in Azure portal (see config below).
-4. Add the script tags below to your HTML **before** any login buttons.
-5. Open `/auth/auth-test.html` and test login/logout. Check browser console for `[AUTH]` logs.
+4. **Include the script tags below in every page’s HTML _before_ any login buttons or header injection.**
+5. The site header (with login/logout buttons) is injected via JS (`init-header-footer.js`). Button event handlers are bound automatically by `authUI.js` after header injection.
+6. Open `/auth/auth-test.html` or the main site and test login/logout. Check browser console for `[AUTH]` logs.
 
 ---
 
-## Minimal Example HTML
+## Minimal Example HTML (for local test only)
+> **Production Note:**  
+> In production, login/logout buttons are included in the injected header. Do not add duplicate buttons to your main HTML.  
+> Button event handlers are attached by `authUI.js` after header injection—no need for inline `onclick` attributes.
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -24,14 +29,47 @@ Contact: winds.dev@ambientpixels.ai
   <script src="/auth/msal-browser.min.js"></script>
   <script src="/auth/authConfig.js"></script>
   <script src="/auth/authUI.js"></script>
+  <script src="/js/init-header-footer.js"></script>
 </head>
 <body>
-  <button onclick="login()">Login</button>
-  <button onclick="logout()">Logout</button>
+  <!-- Header will be injected here -->
+  <header id="nav-header"></header>
+  <!-- Main content -->
 </body>
 </html>
 ```
-<!-- updated by Cascade: Minimal HTML snippet for onboarding -->
+<!-- updated by Cascade: Minimal HTML snippet for onboarding and header injection -->
+
+---
+
+## Authentication Flow & UI Binding
+
+- The login and logout buttons are part of the header module (`modules/header.html`), injected into each page by `init-header-footer.js`.
+- `authUI.js` exposes `bindAuthButtons()` which is called after header injection to attach event handlers and update UI state.
+- No inline event handlers or duplicate buttons should be added to page HTML.
+
+---
+
+## Security & Compliance
+
+- **No secrets or sensitive info** are present in frontend code.
+- **All scripts are external**; no inline JS or inline event handlers (CSP-compliant).
+- **Redirect URI** is hardcoded to the production domain in MSAL config for security.
+- **HTTPS is required** for all authentication flows.
+- **Tokens** are managed by MSAL.js and stored in `localStorage`.
+
+---
+
+## Testing & Debugging
+
+- Test login/logout on any page; the login prompt should appear in the same tab on first click.
+- After login, the UI updates to show the user greeting and logout button.
+- To enable debug logs, run in the browser console:
+  ```js
+  localStorage.setItem('DEBUG_AUTH', 'true');
+  ```
+- Check the browser console for `[AUTH]` logs.
+- If you encounter issues, clear browser cache/localStorage and retry.
 
 ---
 
