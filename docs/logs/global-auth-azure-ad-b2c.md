@@ -6,7 +6,7 @@ Contact: winds.dev@ambientpixels.ai
 -->
 
 > **Deprecation Notice:**
-> As of May 1, 2025, Microsoft Azure AD B2C is no longer available for new tenants. All new authentication projects must use **Microsoft Entra External ID**. Existing B2C tenants are still supported, but new development and onboarding should use Entra External ID. This guide has been updated accordingly.
+> As of May 1, 2025, Microsoft Microsoft Entra External ID is no longer available for new tenants. All new authentication projects must use **Microsoft Entra External ID**. Existing B2C tenants are still supported, but new development and onboarding should use Entra External ID. This guide has been updated accordingly.
 
 ## 🚀 Quick Start (Entra External ID)
 1. Clone the repo and open in your editor.
@@ -42,7 +42,7 @@ My organization only (AmbientPixels External ID tenant)
 const msalConfig = {
   auth: {
     clientId: "043b76d8-143d-45e8-9481-5097c508b14e",
-    authority: "https://ambientpixelsai.ciamlogin.com/e1b17060-5ec1-49f8-b981-d3ae7207e25d/<user-journey-name>", // Replace <user-journey-name> with your user journey (e.g., SignUpSignIn)
+    authority: "https://ambientpixelsai.ciamlogin.com/e1b17060-5ec1-49f8-b981-d3ae7207e25d/ambientpixelslogin", // User journey: ambientpixelslogin (case-sensitive)
     redirectUri: "https://ambientpixels.ai/",
   },
   cache: {
@@ -61,8 +61,8 @@ const msalConfig = {
    - Add Microsoft, Google, Facebook, or other providers as needed.
 2. **Create a User Journey (User Flow):**
    - Go to Identity > External Identities > User journeys.
-   - Create a new journey (e.g., SignUpSignIn) and enable the desired providers.
-   - Copy the user journey name for use in your MSAL config.
+   - Create a new journey named **ambientpixelslogin** (case-sensitive) and enable the desired providers.
+   - Copy the user journey name exactly as shown in Azure for your MSAL config.
 3. **Test Authentication:**
    - Deploy your updated config and test login/signup flows.
 
@@ -170,25 +170,25 @@ AmbientPixels App (session starts)
 - **MSAL:** Microsoft Authentication Library for JS
 - **Authority:** Azure endpoint for authentication (includes tenant & user flow)
 - **Redirect URI:** Where Azure sends users after login/logout
-- **User Flow:** Predefined Azure B2C authentication journey (e.g., SignUpSignIn)
+- **User Flow:** Predefined Microsoft Entra External ID authentication journey (e.g., ambientpixelslogin)
 - **CSP:** Content Security Policy (browser security, blocks inline JS)
 - **SSO:** Single Sign-On
 
 ---
 
 ## Overview
-AmbientPixels uses Microsoft Entra External ID (formerly Azure AD B2C) with MSAL.js for unified, secure authentication across all modules and user flows. This system supports SSO, multiple identity providers, and is designed for CSP compliance and modular global integration.
+AmbientPixels uses Microsoft Entra External ID with MSAL.js for unified, secure authentication across all modules and user flows. This system supports SSO, multiple identity providers, and is designed for CSP compliance and modular global integration.
 
 ---
 
 ## 1. System Architecture & Flow
 - **Frontend:** Static HTML/JS/CSS, no build tools required
-- **Auth Logic:** Modularized in `/auth/global-auth.js  /* updated by Cascade: migrated from /lab/ */` (rename/move as needed for production)
+- **Auth Logic:** Modularized in `/auth/global-auth.js` (rename/move as needed for production)
 - **Library:** Self-hosted `msal-browser.min.js` (avoid CDN reliability issues)
 - **Config:** All MSAL config (clientId, authority, redirectUri, etc.) is in `global-auth.js`
 - **User Flow:**
   1. User clicks Login → triggers MSAL loginRedirect
-  2. Redirects to Entra External ID user flow (SignUpSignIn)
+  2. Redirects to Entra External ID user flow (ambientpixelslogin)
   3. On success, user is returned to `redirectUri` (must be registered in Azure)
   4. Session/account state is managed via MSAL and localStorage
   5. Logout triggers MSAL logoutRedirect and cleans up session
@@ -196,28 +196,20 @@ AmbientPixels uses Microsoft Entra External ID (formerly Azure AD B2C) with MSAL
 ---
 
 ## 2. File & Module Locations
-- **/auth/global-auth.js  /* updated by Cascade: migrated from /lab/ */** – Main authentication logic (modular, CSP-compliant)
+- **/auth/authUI.js** – Main authentication logic (modular, CSP-compliant, Entra External ID)
 - **/auth/msal-browser.min.js** – Self-hosted MSAL.js library
-- **/auth/auth-test.html  /* updated by Cascade: migrated from /lab/ */** – Test page for isolated auth flow validation
+- **/auth/auth-test.html** – Test page for isolated auth flow validation
 - **/auth/authConfig.js** – Authentication configuration (client ID, authority, redirect URI) isolated for modularity and easy reuse
 - **/auth/authUI.js** – UI and global authentication logic for MSAL.js, handles login/logout flows and interaction bug fixes
-- **/auth/msalAuth.js** – UMD build for exposing global login/logout functions, useful for legacy or framework-agnostic integration
+- **/auth/msal-browser.min.js** – Self-hosted MSAL.js library (required for Entra External ID)
 - **/css/** – Uses existing Nova/ambient global theme tokens for styling
-- **/docs/logs/global-auth-azure-ad-b2c.md** – This documentation and project log
-
-<!-- updated by Cascade: rationale for multiple JS files -->
-> **Note:** Multiple JavaScript files are used in `/auth/` to ensure separation of concerns, modularity, and maintainability. 
-> - `authConfig.js` isolates configuration for easy updates and reuse.
-> - `authUI.js` handles UI logic and MSAL integration.
-> - `msalAuth.js` provides global login/logout functions for legacy or global use.
-> - `msal-browser.min.js` is the self-hosted MSAL library.
-> This structure is CSP-compliant, prevents code duplication, and makes the system easier to maintain and extend.
+- **/docs/logs/global-auth-azure-ad-Entra External ID.md** – This documentation and project log
 
 ---
 
 ## 3. Configuration & Best Practices
 - **MSAL Config:**
-  - Always embed the user flow name (e.g., `SignUpSignIn`) in the `authority` URL
+  - Always embed the user flow name (e.g., `ambientpixelslogin`) in the `authority` URL
   - Use `window.location.origin + "/"` for `redirectUri` to support both local and live
   - Register all possible redirect URIs in the Azure portal
   - Never hardcode secrets or sensitive info in frontend code
@@ -243,24 +235,24 @@ AmbientPixels uses Microsoft Entra External ID (formerly Azure AD B2C) with MSAL
   - CSP/blocked script errors – Ensure all JS is external, not inline
   - 404 on MSAL.js – Always self-host, do not rely on CDN
 - **Testing:**
-  - Use `/auth/auth-test.html  /* updated by Cascade: migrated from /lab/ */` for isolated flow validation before global rollout
+  - Use `/auth/auth-test.html` for isolated flow validation before global rollout
   - Check Network tab for script load errors
   - Use `[AUTH]` logs to trace flow and button bindings
 
 ---
 
 ## 5. Onboarding Steps for Developers & AI Agents
-1. **Read this document and review `/auth/global-auth.js  /* updated by Cascade: migrated from /lab/ */`**
+1. **Read this document and review `/auth/global-auth.js`**
 2. **Verify MSAL.js and global-auth.js are loaded in your HTML in this order:**
    ```html
    <script src="/auth/msal-browser.min.js"></script>
-   <script src="/auth/global-auth.js  /* updated by Cascade: migrated from /lab/ */"></script>
+   <script src="/auth/global-auth.js"></script>
    ```
 3. **Set up Azure app registration:**
    - Register app in Microsoft Entra External ID portal
    - Add all redirect URIs (local, staging, production)
-   - Configure user flows (SignUpSignIn, etc.)
-4. **Test the login/logout flow using `/auth/auth-test.html  /* updated by Cascade: migrated from /lab/ */`**
+   - Configure user flows (ambientpixelslogin, etc.)
+4. **Test the login/logout flow using `/auth/auth-test.html`**
 5. **Integrate logic into global navigation or modules as needed**
 6. **Keep all logic modular and CSP-compliant**
 
@@ -276,7 +268,7 @@ AmbientPixels uses Microsoft Entra External ID (formerly Azure AD B2C) with MSAL
 ---
 
 ## 7. Extending & Integrating Globally
-- Move `/auth/global-auth.js  /* updated by Cascade: migrated from /lab/ */` to `/modules/` or `/nova/` for production/global use
+- Move `/auth/global-auth.js` to `/modules/` or `/nova/` for production/global use
 - Import and call `initAuth()` in your main layout or navigation
 - Use global CSS tokens for styling any new UI elements
 - For multi-provider support, extend MSAL config and Azure user flows
@@ -288,17 +280,17 @@ AmbientPixels uses Microsoft Entra External ID (formerly Azure AD B2C) with MSAL
 - **Azure Portal:** [Microsoft Entra External ID Portal](https://entra.microsoft.com/)
 - **MSAL.js Docs:** [MSAL.js Browser Docs](https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-overview)
 - **AmbientPixels Config Files:**
-  - `/auth/global-auth.js  /* updated by Cascade: migrated from /lab/ */` – Auth logic
+  - `/auth/global-auth.js` – Auth logic
   - `/auth/msal-browser.min.js` – Library
   - `/data/identity-core.json` – (if used for user mapping)
-  - `/docs/logs/global-auth-azure-ad-b2c.md` – This documentation
+  - `/docs/logs/global-auth-azure-ad-Entra External ID.md` – This documentation
 
 ---
 
-# 🌐 Global Azure AD B2C Authentication
+# 🌐 Global Microsoft Entra External ID Authentication
 
 ## Project Overview
-Implement a unified authentication and user identity system for AmbientPixels using Azure AD B2C. This will provide single sign-on (SSO) across all site modules (Card Forge, Pixel Forge, etc.), supporting multiple identity providers and future user personalization.
+Implement a unified authentication and user identity system for AmbientPixels using Microsoft Entra External ID. This will provide single sign-on (SSO) across all site modules (Card Forge, Pixel Forge, etc.), supporting multiple identity providers and future user personalization.
 
 ---
 
@@ -311,24 +303,24 @@ Implement a unified authentication and user identity system for AmbientPixels us
 ---
 
 ## Status
-**Phase:** Platform Shift (Azure AD B2C → Microsoft Entra External ID)  
+**Phase:** Platform Shift (Microsoft Entra External ID → Microsoft Entra External ID)  
 **Created:** 2025-06-27  
 **Lead:** Cascade (with Nova oversight)
 
 ---
 
 > **⚠️ Platform Update (2025-06-27):**
-> As of May 1, 2025, Azure AD B2C is no longer available for new tenants. Microsoft now recommends all new external identity projects use **Microsoft Entra External ID**. This project will migrate to Entra External ID for all authentication and user management features.
+> As of May 1, 2025, Microsoft Entra External ID is no longer available for new tenants. Microsoft now recommends all new external identity projects use **Microsoft Entra External ID**. This project will migrate to Entra External ID for all authentication and user management features.
 >
 > - [Entra External ID Overview](https://aka.ms/EEIDOverview)
 > - [FAQ for Customers](https://learn.microsoft.com/en-us/entra/external-id/customers/faq-customers)
 
---- nice
+---
 
 ## Next Steps (Entra External ID)
 1. Review Microsoft Entra External ID documentation and architecture
 2. Register AmbientPixels as an Entra External ID application
-3. Configure user flows (sign up/in, profile edit, password reset) in Entra
+3. Configure user flows (ambientpixelslogin, etc.) in Entra
 4. Add login/logout UI to global site navigation
 5. Integrate Entra External ID with frontend authentication
 6. Propagate user state to all modules
@@ -336,19 +328,19 @@ Implement a unified authentication and user identity system for AmbientPixels us
 ---
 
 ## References
-- [Azure AD B2C Documentation](https://learn.microsoft.com/en-us/azure/active-directory-b2c/)
+- [Microsoft Entra External ID Documentation](https://learn.microsoft.com/en-us/azure/active-directory-Entra External ID/)
 - [MSAL.js Library](https://github.com/AzureAD/microsoft-authentication-library-for-js)
 
 ---
 
 ## Log
 
-### 2025-06-27: Azure AD B2C Tenant Created
+### 2025-06-27: Microsoft Entra External ID Tenant Created
 - **Organization name:** ambientpixels auth
 - **Initial domain name:** ambientpixels.onmicrosoft.com
 - **Country/Region:** United States
 - **Resource group:** ambientpixelsV2
-- **Reference:** [Microsoft Docs – Create a B2C tenant](https://learn.microsoft.com/en-us/azure/active-directory-b2c/tutorial-create-tenant)
+- **Reference:** [Microsoft Docs – Create a B2C tenant](https://learn.microsoft.com/en-us/azure/active-directory-Entra External ID/tutorial-create-tenant)
 
 Tenant successfully created and switched to in Azure Portal.
 
@@ -356,21 +348,22 @@ Tenant successfully created and switched to in Azure Portal.
 
 ### 2025-06-27: AmbientPixels Web App Registered in Microsoft Entra External ID
 - **Display name:** AmbientPixels Web
-- **Application (client) ID:** cc50167c-846e-4ed2-b4fe-48ab831615d2
-- **Directory (tenant) ID:** 0450b3ca-5138-4391-9c98-bda7ad24118f
+- **Application (client) ID:** 043b76d8-143d-45e8-9481-5097c508b14e
+- **Directory (tenant) ID:** e1b17060-5ec1-49f8-b981-d3ae7207e25d
 - **Supported account types:** My organization only
 - **Redirect URIs:** 1 web (http://localhost:3000/), 0 spa, 0 public client
 
 ---
 
-### 2025-06-27: SignUpSignIn User Flow Created in Microsoft Entra External ID
-- **User flow name:** SignUpSignIn
+### 2025-06-27: ambientpixelslogin User Flow Created in Microsoft Entra External ID
+- **User flow name:** ambientpixelslogin
 - **Identity provider:** Email with password (local accounts)
 - **User attributes collected:** Given Name, Surname, Email
 
 ---
 
-### 2025-06-27: AmbientPixels Web App Registered in Azure AD B2C
+## Migration Note
+This project was migrated from Azure AD B2C to Microsoft Entra External ID on 2025-06-27. All references to Azure AD B2C and 'SignUpSignIn' have been updated to use Entra External ID and 'ambientpixelslogin' respectively.
 - **Display name:** AmbientPixels Web
 - **Application (client) ID:** 40d939e3-1ce0-45c3-9562-c1acfaf0aa92
 - **Directory (tenant) ID:** 96bfe658-4094-4192-88f8-5b0874471c7e
