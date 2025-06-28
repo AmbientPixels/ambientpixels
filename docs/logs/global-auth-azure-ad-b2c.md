@@ -5,10 +5,13 @@ Last updated: 2025-06-28 by Cascade AI
 Contact: winds.dev@ambientpixels.ai
 -->
 
-## 🚀 Quick Start (TL;DR)
+> **Deprecation Notice:**
+> As of May 1, 2025, Microsoft Azure AD B2C is no longer available for new tenants. All new authentication projects must use **Microsoft Entra External ID**. Existing B2C tenants are still supported, but new development and onboarding should use Entra External ID. This guide has been updated accordingly.
+
+## 🚀 Quick Start (Entra External ID)
 1. Clone the repo and open in your editor.
 2. Ensure `/auth/msal-browser.min.js`, `/auth/global-auth.js`, `/auth/authConfig.js`, and `/auth/authUI.js` are present.
-3. Register your app and redirect URIs in Azure portal (see config below).
+3. Register your app and redirect URIs in the **Microsoft Entra External ID** portal (see config below).
 4. **Include the script tags below in every page’s HTML _before_ any login buttons or header injection.**
 5. The site header (with login/logout buttons) is injected via JS (`init-header-footer.js`). Button event handlers are bound automatically by `authUI.js` after header injection.
 6. Open `/auth/auth-test.html` or the main site and test login/logout. Check browser console for `[AUTH]` logs.
@@ -43,6 +46,10 @@ Contact: winds.dev@ambientpixels.ai
 ---
 
 ## Authentication Flow & UI Binding
+
+> **Note:**
+> For legacy B2C tenants, follow the previous onboarding steps below. For all new projects, use Entra External ID setup as described above.
+
 
 - The login and logout buttons are part of the header module (`modules/header.html`), injected into each page by `init-header-footer.js`.
 - `authUI.js` exposes `bindAuthButtons()` which is called after header injection to attach event handlers and update UI state.
