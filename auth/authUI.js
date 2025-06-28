@@ -73,7 +73,7 @@ async function initAuth() {
       alert('Logout error: ' + e.message);
     }
   }
-  document.addEventListener("DOMContentLoaded", function() {
+  function bindAuthButtons() {
     const loginBtn = document.getElementById("login-btn");
     const logoutBtn = document.getElementById("logout-btn");
     const userGreeting = document.getElementById("user-greeting");
@@ -105,7 +105,12 @@ async function initAuth() {
       debugLog('logoutBtn not found');
     }
     updateUI();
-  });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bindAuthButtons);
+  } else {
+    bindAuthButtons();
+  }
   // Expose for other scripts if needed
   window.login = login;
   window.logout = logout;
