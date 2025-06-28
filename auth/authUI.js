@@ -1,6 +1,25 @@
 // /auth/authUI.js
 // Unified global authentication logic for AmbientPixels using MSAL.js (Microsoft Entra External ID)
 
+// MSAL interaction_in_progress bug workaround: clear stuck flag if not in redirect
+(function() {
+  if (
+    sessionStorage.getItem('msal.interaction.status') === 'interaction_in_progress' &&
+    !window.location.hash.includes('id_token') &&
+    !window.location.hash.includes('access_token') &&
+    !window.location.hash.includes('error')
+  ) {
+    sessionStorage.removeItem('msal.interaction.status');
+    if (typeof showBanner === 'function') {
+      showBanner({
+        message: 'Recovered from a stuck login state. You may now try logging in again.',
+        type: 'info',
+        duration: 5000
+      });
+    }
+  }
+})();
+
 function debugLog(...args) {
   if (window.DEBUG_AUTH || localStorage.getItem('DEBUG_AUTH') === 'true') console.log("[AUTH]", ...args);
 }
