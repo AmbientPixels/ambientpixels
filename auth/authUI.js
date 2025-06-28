@@ -31,7 +31,9 @@ async function initAuth() {
     auth: {
       clientId: "cc50167c-846e-4ed2-b4fe-48ab831615d2",
       authority: "https://login.microsoftonline.com/0450b3ca-5138-4391-9c98-bda7ad24118f/oauth2/v2.0/authorize?p=SignUpSignIn",
-      redirectUri: window.location.origin + "/",
+      // Force redirectUri to live production domain to avoid local dev issues
+      redirectUri: "https://ambientpixels.ai/", // updated by Cascade: always use live domain
+
     },
     cache: {
       cacheLocation: "localStorage",
