@@ -66,7 +66,7 @@ async function initAuth() {
     debugLog("Logout button clicked");
     try {
       msalInstance.logoutRedirect({
-        postLogoutRedirectUri: msalConfig.auth.redirectUri,
+        postLogoutRedirectUri: msalConfig.auth.redirectUri + '?postlogout=true',
       });
     } catch (e) {
       debugLog('logoutRedirect error:', e);

@@ -92,6 +92,28 @@
   color: inherit;
 }
 
+/* Auth Buttons: Login/Logout */
+.nav-auth-btn {
+  color: #fff !important;
+  background: none;
+  border: none;
+  font-size: 1em;
+  font-family: inherit;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.nav-auth-btn:hover, .nav-auth-btn:focus {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  outline: none;
+}
+
+
 /* --- Mobile Toggle Button --- */
 .nav-toggle {
   display: none;
