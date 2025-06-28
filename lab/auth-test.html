@@ -32,7 +32,7 @@
       const msalConfig = {
         auth: {
           clientId: "cc50167c-846e-4ed2-b4fe-48ab831615d2",
-          authority: "https://login.microsoftonline.com/0450b3ca-5138-4391-9c98-bda7ad24118f",
+          authority: "https://login.microsoftonline.com/0450b3ca-5138-4391-9c98-bda7ad24118f/oauth2/v2.0/authorize?p=SignUpSignIn",
           // For production/live authentication only:
           redirectUri: window.location.origin + "/",
         },
@@ -56,8 +56,7 @@
       function login() {
         debugLog("Login button clicked");
         msalInstance.loginRedirect({
-          scopes: ["openid", "profile", "email"],
-          authority: msalConfig.auth.authority + "/oauth2/v2.0/authorize?p=SignUpSignIn",
+          scopes: ["openid", "profile", "email"]
         });
       }
       function logout() {
