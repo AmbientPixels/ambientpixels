@@ -81,15 +81,17 @@ async function initAuth() {
     function updateUI() {
       const user = getAccount();
       debugLog('updateUI user:', user);
-      if (user) {
-        loginBtn.style.display = "none";
-        logoutBtn.style.display = "";
-        userGreeting.style.display = "";
-        userGreeting.textContent = `Welcome, ${user.name || user.username || user.localAccountId}`;
-      } else {
-        loginBtn.style.display = "";
-        logoutBtn.style.display = "none";
-        userGreeting.style.display = "none";
+      if (loginBtn && logoutBtn && userGreeting) {
+        if (user) {
+          loginBtn.style.display = "none";
+          logoutBtn.style.display = "";
+          userGreeting.style.display = "";
+          userGreeting.textContent = `Welcome, ${user.name || user.username || user.localAccountId}`;
+        } else {
+          loginBtn.style.display = "";
+          logoutBtn.style.display = "none";
+          userGreeting.style.display = "none";
+        }
       }
     }
     if (loginBtn) {
@@ -104,7 +106,11 @@ async function initAuth() {
     } else {
       debugLog('logoutBtn not found');
     }
-    updateUI();
+    // Only call updateUI if all elements exist
+    if (loginBtn && logoutBtn && userGreeting) {
+      updateUI();
+    }
+
   }
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", bindAuthButtons);
