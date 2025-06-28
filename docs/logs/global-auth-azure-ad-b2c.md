@@ -18,6 +18,56 @@ Contact: winds.dev@ambientpixels.ai
 
 ---
 
+## 🌐 Microsoft Entra External ID – App Registration Details
+
+**Display name:**  
+AmbientPixels Web
+
+**Application (client) ID:**  
+043b76d8-143d-45e8-9481-5097c508b14e
+
+**Directory (tenant) ID:**  
+e1b17060-5ec1-49f8-b981-d3ae7207e25d
+
+**Supported account types:**  
+My organization only (AmbientPixels External ID tenant)
+
+**Redirect URIs:**  
+- https://ambientpixels.ai/
+
+---
+
+### Sample `authConfig.js` for MSAL.js
+```js
+const msalConfig = {
+  auth: {
+    clientId: "043b76d8-143d-45e8-9481-5097c508b14e",
+    authority: "https://ambientpixelsai.ciamlogin.com/e1b17060-5ec1-49f8-b981-d3ae7207e25d/<user-journey-name>", // Replace <user-journey-name> with your user journey (e.g., SignUpSignIn)
+    redirectUri: "https://ambientpixels.ai/",
+  },
+  cache: {
+    cacheLocation: "localStorage",
+    storeAuthStateInCookie: false,
+  },
+};
+```
+
+---
+
+### Next Steps
+
+1. **Configure Identity Providers:**
+   - In the Entra External ID portal, go to Identity > External Identities > All identity providers.
+   - Add Microsoft, Google, Facebook, or other providers as needed.
+2. **Create a User Journey (User Flow):**
+   - Go to Identity > External Identities > User journeys.
+   - Create a new journey (e.g., SignUpSignIn) and enable the desired providers.
+   - Copy the user journey name for use in your MSAL config.
+3. **Test Authentication:**
+   - Deploy your updated config and test login/signup flows.
+
+---
+
 ## Minimal Example HTML (for local test only)
 > **Production Note:**  
 > In production, login/logout buttons are included in the injected header. Do not add duplicate buttons to your main HTML.  
