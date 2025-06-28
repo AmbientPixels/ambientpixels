@@ -1,5 +1,86 @@
 # 🛡️ AmbientPixels Global Authentication – Onboarding & AI Training Guide
 
+<!--
+Last updated: 2025-06-28 by Cascade AI
+Contact: winds.dev@ambientpixels.ai
+-->
+
+## 🚀 Quick Start (TL;DR)
+1. Clone the repo and open in your editor.
+2. Ensure `/auth/msal-browser.min.js`, `/auth/global-auth.js`, `/auth/authConfig.js`, and `/auth/authUI.js` are present.
+3. Register your app and redirect URIs in Azure portal (see config below).
+4. Add the script tags below to your HTML **before** any login buttons.
+5. Open `/auth/auth-test.html` and test login/logout. Check browser console for `[AUTH]` logs.
+
+---
+
+## Minimal Example HTML
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AmbientPixels Auth Example</title>
+  <script src="/auth/msal-browser.min.js"></script>
+  <script src="/auth/authConfig.js"></script>
+  <script src="/auth/authUI.js"></script>
+</head>
+<body>
+  <button onclick="login()">Login</button>
+  <button onclick="logout()">Logout</button>
+</body>
+</html>
+```
+<!-- updated by Cascade: Minimal HTML snippet for onboarding -->
+
+---
+
+## Auth Flow Diagram
+```
+User
+ │
+ │ clicks Login
+ ▼
+[login() / MSAL.js]
+ │
+ │ loginRedirect
+ ▼
+[Azure Entra External ID (B2C)]
+ │
+ │ user authenticates
+ ▼
+[redirectUri]
+ │
+ │ MSAL handles tokens
+ ▼
+AmbientPixels App (session starts)
+```
+<!-- updated by Cascade: Simple ASCII diagram -->
+
+---
+
+## Troubleshooting Table
+| Error                                 | Cause                                         | Fix                                                      |
+|---------------------------------------|-----------------------------------------------|----------------------------------------------------------|
+| uninitialized_public_client_application| Did not await msalInstance.initialize()       | Always await initialize() before calling MSAL APIs        |
+| CSP/blocked script errors             | Inline JS or untrusted scripts                | Move all JS to external files, self-host MSAL.js          |
+| 404 on MSAL.js                        | CDN or wrong path                             | Always self-host msal-browser.min.js in /auth/            |
+| Login fails, no redirect              | Redirect URI not registered in Azure          | Add all URIs to Azure portal app registration             |
+| Stuck login state                     | MSAL interaction_in_progress bug              | Use provided workaround in authUI.js                      |
+| No [AUTH] logs                        | Debug logging not enabled                     | Run localStorage.setItem('DEBUG_AUTH', 'true') in console |
+
+---
+
+## Glossary
+- **MSAL:** Microsoft Authentication Library for JS
+- **Authority:** Azure endpoint for authentication (includes tenant & user flow)
+- **Redirect URI:** Where Azure sends users after login/logout
+- **User Flow:** Predefined Azure B2C authentication journey (e.g., SignUpSignIn)
+- **CSP:** Content Security Policy (browser security, blocks inline JS)
+- **SSO:** Single Sign-On
+
+---
+
 ## Overview
 AmbientPixels uses Microsoft Entra External ID (formerly Azure AD B2C) with MSAL.js for unified, secure authentication across all modules and user flows. This system supports SSO, multiple identity providers, and is designed for CSP compliance and modular global integration.
 
@@ -7,7 +88,7 @@ AmbientPixels uses Microsoft Entra External ID (formerly Azure AD B2C) with MSAL
 
 ## 1. System Architecture & Flow
 - **Frontend:** Static HTML/JS/CSS, no build tools required
-- **Auth Logic:** Modularized in `/lab/global-auth.js` (rename/move as needed for production)
+- **Auth Logic:** Modularized in `/auth/global-auth.js  /* updated by Cascade: migrated from /lab/ */` (rename/move as needed for production)
 - **Library:** Self-hosted `msal-browser.min.js` (avoid CDN reliability issues)
 - **Config:** All MSAL config (clientId, authority, redirectUri, etc.) is in `global-auth.js`
 - **User Flow:**
@@ -20,11 +101,22 @@ AmbientPixels uses Microsoft Entra External ID (formerly Azure AD B2C) with MSAL
 ---
 
 ## 2. File & Module Locations
-- **/lab/global-auth.js** – Main authentication logic (modular, CSP-compliant)
+- **/auth/global-auth.js  /* updated by Cascade: migrated from /lab/ */** – Main authentication logic (modular, CSP-compliant)
 - **/auth/msal-browser.min.js** – Self-hosted MSAL.js library
-- **/lab/auth-test.html** – Test page for isolated auth flow validation
+- **/auth/auth-test.html  /* updated by Cascade: migrated from /lab/ */** – Test page for isolated auth flow validation
+- **/auth/authConfig.js** – Authentication configuration (client ID, authority, redirect URI) isolated for modularity and easy reuse
+- **/auth/authUI.js** – UI and global authentication logic for MSAL.js, handles login/logout flows and interaction bug fixes
+- **/auth/msalAuth.js** – UMD build for exposing global login/logout functions, useful for legacy or framework-agnostic integration
 - **/css/** – Uses existing Nova/ambient global theme tokens for styling
 - **/docs/logs/global-auth-azure-ad-b2c.md** – This documentation and project log
+
+<!-- updated by Cascade: rationale for multiple JS files -->
+> **Note:** Multiple JavaScript files are used in `/auth/` to ensure separation of concerns, modularity, and maintainability. 
+> - `authConfig.js` isolates configuration for easy updates and reuse.
+> - `authUI.js` handles UI logic and MSAL integration.
+> - `msalAuth.js` provides global login/logout functions for legacy or global use.
+> - `msal-browser.min.js` is the self-hosted MSAL library.
+> This structure is CSP-compliant, prevents code duplication, and makes the system easier to maintain and extend.
 
 ---
 
@@ -56,24 +148,24 @@ AmbientPixels uses Microsoft Entra External ID (formerly Azure AD B2C) with MSAL
   - CSP/blocked script errors – Ensure all JS is external, not inline
   - 404 on MSAL.js – Always self-host, do not rely on CDN
 - **Testing:**
-  - Use `/lab/auth-test.html` for isolated flow validation before global rollout
+  - Use `/auth/auth-test.html  /* updated by Cascade: migrated from /lab/ */` for isolated flow validation before global rollout
   - Check Network tab for script load errors
   - Use `[AUTH]` logs to trace flow and button bindings
 
 ---
 
 ## 5. Onboarding Steps for Developers & AI Agents
-1. **Read this document and review `/lab/global-auth.js`**
+1. **Read this document and review `/auth/global-auth.js  /* updated by Cascade: migrated from /lab/ */`**
 2. **Verify MSAL.js and global-auth.js are loaded in your HTML in this order:**
    ```html
    <script src="/auth/msal-browser.min.js"></script>
-   <script src="/lab/global-auth.js"></script>
+   <script src="/auth/global-auth.js  /* updated by Cascade: migrated from /lab/ */"></script>
    ```
 3. **Set up Azure app registration:**
    - Register app in Microsoft Entra External ID portal
    - Add all redirect URIs (local, staging, production)
    - Configure user flows (SignUpSignIn, etc.)
-4. **Test the login/logout flow using `/lab/auth-test.html`**
+4. **Test the login/logout flow using `/auth/auth-test.html  /* updated by Cascade: migrated from /lab/ */`**
 5. **Integrate logic into global navigation or modules as needed**
 6. **Keep all logic modular and CSP-compliant**
 
@@ -89,7 +181,7 @@ AmbientPixels uses Microsoft Entra External ID (formerly Azure AD B2C) with MSAL
 ---
 
 ## 7. Extending & Integrating Globally
-- Move `/lab/global-auth.js` to `/modules/` or `/nova/` for production/global use
+- Move `/auth/global-auth.js  /* updated by Cascade: migrated from /lab/ */` to `/modules/` or `/nova/` for production/global use
 - Import and call `initAuth()` in your main layout or navigation
 - Use global CSS tokens for styling any new UI elements
 - For multi-provider support, extend MSAL config and Azure user flows
@@ -101,7 +193,7 @@ AmbientPixels uses Microsoft Entra External ID (formerly Azure AD B2C) with MSAL
 - **Azure Portal:** [Microsoft Entra External ID Portal](https://entra.microsoft.com/)
 - **MSAL.js Docs:** [MSAL.js Browser Docs](https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-overview)
 - **AmbientPixels Config Files:**
-  - `/lab/global-auth.js` – Auth logic
+  - `/auth/global-auth.js  /* updated by Cascade: migrated from /lab/ */` – Auth logic
   - `/auth/msal-browser.min.js` – Library
   - `/data/identity-core.json` – (if used for user mapping)
   - `/docs/logs/global-auth-azure-ad-b2c.md` – This documentation
