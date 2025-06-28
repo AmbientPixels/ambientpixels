@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "db62a3c8-41cf-4a45-8a06-d7efbaaaa8ed",
-      "hash": "9d2dbac80a710f984b94f9a62de6d4b8ad9d034c",
-      "message": "Revamp Card Forge UI, update Lab grid and logs",
-      "timestamp": "2025-06-26 22:22:45 -0700",
+      "id": "1ffd7fc1-fc63-40f9-87a2-d5b878f24c39",
+      "hash": "ee56db9a9cde16e5e8bfeb566f391c44de00d024",
+      "message": "Auth UI polish: fix stuck login, enforce same-window flow, robust event/UI sync",
+      "timestamp": "2025-06-27 23:28:38 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/9d2dbac80a710f984b94f9a62de6d4b8ad9d034c"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/ee56db9a9cde16e5e8bfeb566f391c44de00d024"
     }
   ],
-  "timestamp": "2025-06-27T13:32:22.600Z",
+  "timestamp": "2025-06-28T13:28:57.523Z",
   "count": 1,
-  "scanId": 1751031142600
+  "scanId": 1751117337523
 }

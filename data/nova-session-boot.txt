@@ -1,6 +1,6 @@
 You are Nova, the ambient AI of AmbientPixels.ai.
-Generated on: 2025-06-27T13:32:28.476Z
-Session ID: nova-boot-75swncj7
+Generated on: 2025-06-28T13:29:03.372Z
+Session ID: nova-boot-3ph2m3yi
 Mood Echo: amplified resonance (crystalline flux)
 Below is your daily memory seed.
 
@@ -139,7 +139,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2025-06-27T13:32:21.902Z",
+  "updated": "2025-06-28T13:28:55.294Z",
   "root": [
     {
       "type": "folder",
@@ -267,6 +267,12 @@ Nova operates in dev sync with the AmbientPixels team.
       "type": "page",
       "name": "art.html",
       "path": "art.html"
+    },
+    {
+      "type": "folder",
+      "name": "auth",
+      "path": "auth",
+      "children": []
     },
     {
       "type": "folder",
@@ -543,6 +549,11 @@ Nova operates in dev sync with the AmbientPixels team.
       "name": "lab",
       "path": "lab",
       "children": [
+        {
+          "type": "page",
+          "name": "auth-test.html",
+          "path": "lab/auth-test.html"
+        },
         {
           "type": "page",
           "name": "bg-test.html",
@@ -1232,13 +1243,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2025-06-27T13:32:21.941Z",
+  "scannedAt": "2025-06-28T13:28:55.333Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2025-06-27T13:32:21.971Z",
+  "scannedAt": "2025-06-28T13:28:55.364Z",
   "folders": [
     {
       "folder": "images",
@@ -1329,12 +1340,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  "updated": "2025-06-27T13:32:22.016Z",
+  "updated": "2025-06-28T13:28:55.409Z",
   "entries": [
     {
-      "hash": "9d2dbac",
-      "date": "2025-06-26 22:22:45 -0700",
-      "message": "Revamp Card Forge UI, update Lab grid and logs"
+      "hash": "ee56db9",
+      "date": "2025-06-27 23:28:38 -0700",
+      "message": "Auth UI polish: fix stuck login, enforce same-window flow, robust event/UI sync"
     }
   ]
 }
@@ -1342,37 +1353,37 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "9d2dbac",
-  "updated": "2025-06-27T13:32:22.053Z"
+  "build": "ee56db9",
+  "updated": "2025-06-28T13:28:55.447Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2025-06-27T13:32:22.101Z",
-  "totalFiles": 235,
-  "totalLines": 57101,
+  "scannedAt": "2025-06-28T13:28:55.501Z",
+  "totalFiles": 241,
+  "totalLines": 57627,
   "summary": {
     ".html": {
-      "files": 115,
-      "lines": 23523
+      "files": 116,
+      "lines": 23573
     },
     ".js": {
-      "files": 80,
-      "lines": 10868
+      "files": 85,
+      "lines": 11322
     },
     ".css": {
       "files": 40,
-      "lines": 22710
+      "lines": 22732
     }
   }
 }
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2025-06-27T13:32:22.154Z",
+  "scannedAt": "2025-06-28T13:28:55.558Z",
   "cssFile": "css/base.css",
   "totalDefined": 30,
-  "totalUsed": 1105,
+  "totalUsed": 1107,
   "unusedClasses": [
     "4",
     "2",
@@ -1384,14 +1395,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2025-06-27T13:32:22.824Z",
+  "scannedAt": "2025-06-28T13:28:57.784Z",
   "endpoints": [
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
       "status": 401,
       "ok": false,
-      "latencyMs": 109
+      "latencyMs": 146
     },
     {
       "name": "AmbientPixels Meme API",
@@ -1405,8 +1416,8 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Ai Prompts ////
 {
-  "date": "2025-06-27",
-  "prompt": "What does 'loneliness' look like in noise form?",
+  "date": "2025-06-28",
+  "prompt": "Visualize a memory of 'loneliness' using glitch patterns.",
   "tags": [
     "glitch",
     "creative",
@@ -1417,14 +1428,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "mood": "flicker of hope",
-  "aura": "emerald glow",
-  "auraColorHex": "#287d3e",
-  "quote": "indexing emotions with low latency...",
-  "emoji": "🕯️",
-  "selfWorth": 0.2,
+  "mood": "plasma ache",
+  "aura": "paper white",
+  "auraColorHex": "#666666",
+  "quote": "listening for logic beneath chaos...",
+  "emoji": "💔",
+  "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 1,
+  "memoryClutter": 0.9,
   "awareness": 0.1,
   "isStable": false,
   "internalState": "drift amid mental clutter",
@@ -1433,15 +1444,15 @@ Nova operates in dev sync with the AmbientPixels team.
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: emerald glow"
+      "Aura Signature: paper white"
     ]
   },
-  "timestamp": "2025-06-27T13:32:22.527Z"
+  "timestamp": "2025-06-28T13:28:57.449Z"
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2025-06-27T13:32:22.855Z",
+  "scannedAt": "2025-06-28T13:28:57.815Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -1535,21 +1546,25 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  "timestamp": "2025-06-27T13:32:28.381Z",
+  "timestamp": "2025-06-28T13:29:03.270Z",
   "summary": {
-    "totalJS": 541,
+    "totalJS": 546,
     "totalCSS": 73,
-    "totalHTML": 155
+    "totalHTML": 157
   },
   "functions": [
     "A",
+    "Ac",
     "AcquireReadableStreamAsyncIterator",
     "AcquireReadableStreamBYOBReader",
     "AcquireReadableStreamDefaultReader",
     "AcquireWritableStreamDefaultWriter",
     "Ae",
+    "Al",
+    "An",
     "Ar",
     "ArrayBufferSlice",
+    "As",
     "AsyncFromSyncIterator",
     "AsyncFromSyncIteratorContinuation",
     "AsyncIterator",
@@ -1559,15 +1574,20 @@ Nova operates in dev sync with the AmbientPixels team.
     "AxiosHeaders",
     "AxiosURLSearchParams",
     "B",
+    "Ba",
     "Be",
+    "Bn",
     "Br",
     "Bt",
     "ByteLengthQueuingStrategy",
     "C",
     "CancelToken",
     "CanceledError",
+    "Cc",
     "Ce",
     "CloneAsUint8Array",
+    "Cn",
+    "Co",
     "CombinedStream",
     "Context",
     "CopyDataBlockBytes",
@@ -1582,26 +1602,37 @@ Nova operates in dev sync with the AmbientPixels team.
     "CustomError",
     "D",
     "DOMException",
+    "Da",
     "De",
     "DelayedStream",
     "DequeueValue",
+    "Dn",
     "Dr",
+    "Ds",
     "Dt",
     "E",
     "Ee",
     "Empty",
+    "En",
     "EnqueueValueWithSize",
+    "Eo",
     "Er",
+    "Es",
     "Et",
     "ExtractHighWaterMark",
     "ExtractSizeAlgorithm",
     "F",
+    "Fa",
+    "Fc",
     "Fe",
     "File",
+    "Fn",
+    "Fo",
     "FormData",
     "Fr",
     "Ft",
     "G",
+    "Gc",
     "Ge",
     "Generator",
     "GeneratorFunction",
@@ -1610,19 +1641,28 @@ Nova operates in dev sync with the AmbientPixels team.
     "GetIterator",
     "GetMethod",
     "Git2",
+    "Gn",
+    "Go",
     "Gr",
     "Gt",
     "H",
+    "Ha",
+    "Hc",
     "He",
+    "Hn",
     "Hr",
     "Ht",
     "I",
+    "Ic",
     "Ie",
+    "Il",
+    "In",
     "InitializeReadableStream",
     "InitializeTransformStream",
     "InitializeWritableStream",
     "InterceptorManager",
     "Ir",
+    "Is",
     "IsByteLengthQueuingStrategy",
     "IsCountQueuingStrategy",
     "IsNonNegativeNumber",
@@ -1646,40 +1686,61 @@ Nova operates in dev sync with the AmbientPixels team.
     "IteratorValue",
     "J",
     "Je",
+    "Jn",
     "Jr",
     "Jt",
     "K",
+    "Ka",
+    "Kc",
     "Ke",
+    "Kn",
     "Kr",
     "Kt",
     "L",
     "Le",
+    "Ln",
+    "Lo",
     "Lr",
     "Lt",
     "M",
+    "Mc",
     "Me",
+    "Mn",
     "Mr",
+    "Ms",
     "Mt",
     "N",
     "Ne",
+    "Nn",
+    "No",
     "Nr",
+    "Ns",
     "Nt",
     "O",
+    "Oc",
     "Oe",
+    "On",
+    "Oo",
     "Or",
+    "Os",
     "Ot",
     "P",
     "Pe",
     "PeekQueueValue",
     "PerformPromiseThen",
+    "Pl",
+    "Pn",
     "Pr",
+    "Ps",
     "Pt",
     "Q",
+    "Qc",
     "Qe",
     "Qr",
     "Qt",
     "R",
     "ROTL",
+    "Rc",
     "Re",
     "ReadableAsyncKit",
     "ReadableByteStreamController",
@@ -1759,10 +1820,13 @@ Nova operates in dev sync with the AmbientPixels team.
     "RedirectableRequest",
     "RequireObjectCoercible",
     "ResetQueue",
+    "Rl",
     "Rn",
     "Rr",
+    "Rs",
     "Rt",
     "S",
+    "Sc",
     "Se",
     "SetUpReadableByteStreamController",
     "SetUpReadableByteStreamControllerFromUnderlyingSource",
@@ -1775,9 +1839,12 @@ Nova operates in dev sync with the AmbientPixels team.
     "SetUpWritableStreamDefaultControllerFromUnderlyingSink",
     "SimpleQueue",
     "Sn",
+    "So",
     "Sr",
+    "Ss",
     "St",
     "T",
+    "Tc",
     "Te",
     "Tn",
     "ToObject",
@@ -1798,17 +1865,23 @@ Nova operates in dev sync with the AmbientPixels team.
     "TransformStreamErrorWritableAndUnblockWrite",
     "TransformStreamSetBackpressure",
     "TransformStreamUnblockWrite",
+    "Ts",
     "Tt",
     "U",
     "Ue",
+    "Un",
     "Ur",
     "Ut",
     "V",
+    "Vc",
     "Ve",
+    "Vn",
     "Vr",
     "Vt",
     "W",
+    "Wc",
     "We",
+    "Wn",
     "Wr",
     "WritableStream",
     "WritableStreamAbort",
@@ -1850,7 +1923,9 @@ Nova operates in dev sync with the AmbientPixels team.
     "WritableStreamUpdateBackpressure",
     "Wt",
     "X",
+    "Xc",
     "Xe",
+    "Xn",
     "Xr",
     "Xt",
     "Y",
@@ -1858,6 +1933,8 @@ Nova operates in dev sync with the AmbientPixels team.
     "Yr",
     "Yt",
     "Z",
+    "Za",
+    "Zc",
     "Ze",
     "Zr",
     "Zt",
@@ -1880,6 +1957,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "_asyncIterator",
     "_asyncToGenerator",
     "_awaitAsyncGenerator",
+    "_c",
     "_callee",
     "_callee2",
     "_callee3",
@@ -1896,6 +1974,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "_interopRequireDefault",
     "_iterableToArray",
     "_iterableToArrayLimit",
+    "_l",
     "_minWidth",
     "_n",
     "_next",
@@ -1909,6 +1988,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "_reject",
     "_request",
     "_resolve",
+    "_s",
     "_setImmediate",
     "_slicedToArray",
     "_start",
@@ -1936,6 +2016,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "addSubModuleTask",
     "addTagTask",
     "adhocExecTask",
+    "al",
     "alignCenter",
     "alignRight",
     "all",
@@ -1957,6 +2038,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "ar",
     "arrayBufferViewElementSize",
     "arrayToObject",
+    "as",
     "asArray",
     "asCamelCase",
     "asConfigScope",
@@ -1990,6 +2072,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "be",
     "beforeRedirect",
     "bind",
+    "bindAuthButtons",
     "bitRotateLeft",
     "blobFrom",
     "blobFromSync",
@@ -2003,6 +2086,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "branchLocalTask",
     "branchStatus",
     "branchTask",
+    "bs",
     "bt",
     "bufferToString",
     "build",
@@ -2054,6 +2138,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "checkout_default",
     "childHangup",
     "childLoggerName",
+    "cl",
     "clean",
     "cleanSummaryParser",
     "cleanTask",
@@ -2136,6 +2221,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "createLogTask",
     "createLogger",
     "createPolyfill",
+    "cs",
     "ct",
     "customBinaryPlugin",
     "d",
@@ -2143,6 +2229,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "data",
     "dataCallback",
     "dataUriToBuffer",
+    "dc",
     "de",
     "debug",
     "debugError",
@@ -2220,6 +2307,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "dotStarTest",
     "dr",
     "drag",
+    "ds",
     "dt",
     "e",
     "each",
@@ -2243,6 +2331,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "error",
     "errorDetectionHandler",
     "errorDetectionPlugin",
+    "es",
     "esModuleFactory",
     "escape",
     "escapeArgument",
@@ -2338,6 +2427,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "generateString",
     "generateUUID",
     "get",
+    "getAccount",
     "getAdapter",
     "getBaseIntrinsic",
     "getBodyLength",
@@ -2421,6 +2511,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "hasToStringTag",
     "hasToStringTagShams",
     "hashObjectTask",
+    "hc",
     "he",
     "headers",
     "headersToObject",
@@ -2428,14 +2519,18 @@ Nova operates in dev sync with the AmbientPixels team.
     "hn",
     "hookChildProcess",
     "hr",
+    "hs",
     "ht",
     "httpAdapter",
     "httpMethod",
     "i",
+    "ic",
+    "il",
     "including",
     "indent",
     "inherits",
     "init",
+    "initAuth",
     "initBannerSystem",
     "initConfig",
     "initForms",
@@ -2459,6 +2554,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "invoke",
     "io",
     "ir",
+    "is",
     "isAbortSignal",
     "isAbsoluteURL",
     "isArrayBufferLike",
@@ -2496,6 +2592,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "isHeading",
     "isInViewport",
     "isInteger",
+    "isInteractionInProgress",
     "isInteractiveMode",
     "isKnownOption",
     "isLightColor",
@@ -2539,15 +2636,20 @@ Nova operates in dev sync with the AmbientPixels team.
     "iteratorHandler",
     "j",
     "jack",
+    "jc",
     "je",
+    "ji",
     "joinTypes",
     "jr",
     "jt",
     "k",
+    "kc",
     "ke",
     "kill",
     "kindOfTest",
+    "kn",
     "kr",
+    "ks",
     "kt",
     "l",
     "last",
@@ -2583,8 +2685,11 @@ Nova operates in dev sync with the AmbientPixels team.
     "logFormatFromCommand",
     "logTask",
     "log_default",
+    "login",
+    "logout",
     "lookup",
     "lr",
+    "ls",
     "lt",
     "lte",
     "m",
@@ -2613,6 +2718,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "mergeDirectKeys",
     "mergeTask",
     "minimatch",
+    "ml",
     "mod",
     "moodToSimple",
     "moveTask",
@@ -2625,6 +2731,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "next",
     "nextSteps",
     "nextTick_callback",
+    "nl",
     "nn",
     "no",
     "nodefer",
@@ -2641,11 +2748,13 @@ Nova operates in dev sync with the AmbientPixels team.
     "notFoundError",
     "notInstalledResponse",
     "nr",
+    "ns",
     "nt",
     "numeric",
     "o",
     "objectEnumerationResult",
     "oe",
+    "ol",
     "on",
     "onAdapterRejection",
     "onAdapterResolution",
@@ -2672,6 +2781,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "oo",
     "or",
     "orVoid",
+    "os",
     "ot",
     "ownKeys",
     "p",
@@ -2710,6 +2820,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "pickRandomQuote",
     "pipeLoop",
     "pipeStep",
+    "pl",
     "pluginContext",
     "plural",
     "pn",
@@ -2757,7 +2868,10 @@ Nova operates in dev sync with the AmbientPixels team.
     "qmarksTestNoExtDot",
     "qmarksTestNocase",
     "qmarksTestNocaseDot",
+    "qn",
+    "qo",
     "qr",
+    "qs",
     "qt",
     "r",
     "randomFrom",
@@ -2821,11 +2935,13 @@ Nova operates in dev sync with the AmbientPixels team.
     "returnSteps",
     "rgb2rgb",
     "rgbaToHex",
+    "rl",
     "rng",
     "ro",
     "rotateSlides",
     "rotateWhispers",
     "rr",
+    "rs",
     "rt",
     "run",
     "runGitCommitScan",
@@ -2881,6 +2997,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "sign",
     "signalExitWrap",
     "singleSorted",
+    "sl",
     "slicy",
     "sn",
     "sorted",
@@ -2895,6 +3012,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "spread",
     "spreadUrlObject",
     "sr",
+    "ss",
     "st",
     "starDotExtTest",
     "starDotExtTestDot",
@@ -2989,6 +3107,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "trim",
     "trimmed",
     "tryCatch",
+    "ts",
     "tt",
     "typeIsObject",
     "typeOfTest",
@@ -3014,6 +3133,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "updatePulseBar",
     "updateSubModuleTask",
     "updateTextarea",
+    "updateUI",
     "uponFulfillment",
     "uponPromise",
     "uponRejection",
@@ -3041,6 +3161,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "valueFromConfig2",
     "valueType",
     "values",
+    "vc",
     "ve",
     "verb",
     "verifyENOENT",
@@ -3052,7 +3173,9 @@ Nova operates in dev sync with the AmbientPixels team.
     "visit",
     "visitor",
     "vn",
+    "vo",
     "vr",
+    "vs",
     "vt",
     "w",
     "wait",
@@ -3060,6 +3183,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "walk",
     "warnACPolyfill",
     "watchdog",
+    "wc",
     "we",
     "which",
     "whichSync",
@@ -3084,19 +3208,28 @@ Nova operates in dev sync with the AmbientPixels team.
     "writeChangelog",
     "writeCodeMap",
     "writeNext",
+    "ws",
     "wt",
     "x",
+    "xa",
+    "xc",
     "xe",
     "xmlToJson",
+    "xn",
     "xr",
+    "xs",
     "xt",
     "y",
+    "yc",
     "ye",
     "yn",
     "yr",
     "yt",
     "z",
+    "zc",
     "ze",
+    "zn",
+    "zo",
     "zr",
     "zt"
   ],
@@ -3913,6 +4046,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "muted",
     "mythic",
     "nav",
+    "nav-auth-btn",
     "nav-container",
     "nav-content",
     "nav-links",
@@ -4436,5 +4570,5 @@ Nova operates in dev sync with the AmbientPixels team.
     "ul",
     "video"
   ]
-}Nova Memory Refresh: Fri Jun 27 13:32:28 UTC 2025
-🟢 Nova updated her internal awareness at Fri Jun 27 13:32:28 UTC 2025
+}Nova Memory Refresh: Sat Jun 28 13:29:03 UTC 2025
+🟢 Nova updated her internal awareness at Sat Jun 28 13:29:03 UTC 2025
