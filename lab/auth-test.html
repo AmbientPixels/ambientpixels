@@ -31,7 +31,7 @@
   <script src="/auth/msal-browser.min.js"></script>
   <script>
     function debugLog(...args) {
-      if (window.DEBUG_AUTH) console.log("[AUTH]", ...args);
+      if (window.DEBUG_AUTH || localStorage.getItem('DEBUG_AUTH') === 'true') console.log("[AUTH]", ...args);
     }
     function initAuth() {
       debugLog("MSAL config loaded");
