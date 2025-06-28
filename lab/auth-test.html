@@ -1,0 +1,88 @@
+<!-- /lab/auth-test.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AmbientPixels Auth Test</title>
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+</head>
+<body>
+  <main class="container" style="max-width:500px;margin:3rem auto;padding:2rem;background:var(--aura-bg, #181a20);border-radius:1rem;box-shadow:0 4px 24px rgba(0,0,0,0.14)">
+    <h1>AmbientPixels Auth Test</h1>
+    <p>This page lets you test Microsoft Entra External ID login/logout using the global authentication system.</p>
+    <div style="margin-top:2rem;">
+      <button id="login-btn" style="color:var(--aura-fg,#fff)">Login</button>
+      <button id="logout-btn" style="display:none;color:var(--aura-fg,#fff)">Logout</button>
+      <span id="user-greeting" style="display:none"></span>
+    </div>
+    <p style="margin-top:2rem;font-size:0.95em;color:var(--aura-fg-muted,#999)">If login succeeds, you will see your greeting and the logout button. Otherwise, only the login button will show.</p>
+  </main>
+  <script src="https://alcdn.msauth.net/browser/3.8.0/js/msal-browser.min.js" onload="initAuth()"></script>
+  <script>
+    function debugLog(...args) {
+      if (window.DEBUG_AUTH) console.log("[AUTH]", ...args);
+    }
+    function initAuth() {
+      debugLog("MSAL config loaded");
+      // MSAL config
+      const msalConfig = {
+        auth: {
+          clientId: "cc50167c-846e-4ed2-b4fe-48ab831615d2",
+          authority: "https://login.microsoftonline.com/0450b3ca-5138-4391-9c98-bda7ad24118f",
+          // For production/live authentication only:
+          redirectUri: window.location.origin + "/",
+        },
+        cache: {
+          cacheLocation: "localStorage",
+          storeAuthStateInCookie: false,
+        },
+      };
+      debugLog("redirectUri:", msalConfig.auth.redirectUri);
+      const msalInstance = new msal.PublicClientApplication(msalConfig);
+      function getAccount() {
+        const accounts = msalInstance.getAllAccounts();
+        debugLog("Accounts found:", accounts);
+        return accounts.length > 0 ? accounts[0] : null;
+      }
+      function login() {
+        debugLog("Login button clicked");
+        msalInstance.loginRedirect({
+          scopes: ["openid", "profile", "email"],
+          authority: msalConfig.auth.authority + "/oauth2/v2.0/authorize?p=SignUpSignIn",
+        });
+      }
+      function logout() {
+        debugLog("Logout button clicked");
+        msalInstance.logoutRedirect({
+          postLogoutRedirectUri: msalConfig.auth.redirectUri,
+        });
+      }
+      document.addEventListener("DOMContentLoaded", function() {
+        const loginBtn = document.getElementById("login-btn");
+        const logoutBtn = document.getElementById("logout-btn");
+        const userGreeting = document.getElementById("user-greeting");
+        function updateUI() {
+          const user = getAccount();
+          if (user) {
+            loginBtn.style.display = "none";
+            logoutBtn.style.display = "";
+            userGreeting.style.display = "";
+            userGreeting.textContent = `Welcome, ${user.name || user.username || user.localAccountId}`;
+          } else {
+            loginBtn.style.display = "";
+            logoutBtn.style.display = "none";
+            userGreeting.style.display = "none";
+          }
+        }
+        if (loginBtn) loginBtn.onclick = login;
+        if (logoutBtn) logoutBtn.onclick = logout;
+        updateUI();
+      });
+    }
+  </script>
+</body>
+</html>
