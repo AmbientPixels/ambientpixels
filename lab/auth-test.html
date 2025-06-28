@@ -19,7 +19,7 @@
 </head>
 <body class="auth-dark">
   <main class="container" style="max-width:500px;margin:3rem auto;padding:2rem;background:var(--aura-bg, #181a20);border-radius:1rem;box-shadow:0 4px 24px rgba(0,0,0,0.14)">
-    <h1>AmbientPixels Auth Test 1.3</h1>
+    <h1>AmbientPixels Auth Test 1.4</h1>
     <p>This page lets you test Microsoft Entra External ID login/logout using the global authentication system.</p>
     <div style="margin-top:2rem;">
       <button id="login-btn" style="color:var(--aura-fg,#fff)">Login</button>
@@ -29,101 +29,7 @@
     <p style="margin-top:2rem;font-size:0.95em;color:var(--aura-fg-muted,#999)">If login succeeds, you will see your greeting and the logout button. Otherwise, only the login button will show.</p>
   </main>
   <script src="/auth/msal-browser.min.js"></script>
-  <script>
-    function debugLog(...args) {
-      if (window.DEBUG_AUTH || localStorage.getItem('DEBUG_AUTH') === 'true') console.log("[AUTH]", ...args);
-    }
-    function initAuth() {
-      debugLog("MSAL config loaded");
-      // MSAL config
-      const msalConfig = {
-        auth: {
-          clientId: "cc50167c-846e-4ed2-b4fe-48ab831615d2",
-          authority: "https://login.microsoftonline.com/0450b3ca-5138-4391-9c98-bda7ad24118f/oauth2/v2.0/authorize?p=SignUpSignIn",
-          // For production/live authentication only:
-          redirectUri: window.location.origin + "/",
-        },
-        cache: {
-          cacheLocation: "localStorage",
-          storeAuthStateInCookie: false,
-        },
-      };
-      debugLog("redirectUri:", msalConfig.auth.redirectUri);
-      let msalInstance;
-      try {
-        msalInstance = new msal.PublicClientApplication(msalConfig);
-        debugLog('MSAL instance created:', msalInstance);
-      } catch (e) {
-        debugLog('MSAL instance creation failed:', e);
-        alert('MSAL instance creation failed: ' + e.message);
-        return;
-      }
-      function getAccount() {
+  <script src="/lab/global-auth.js"></script>
 
-    // Call initAuth after DOM is loaded and MSAL is present
-    window.addEventListener('DOMContentLoaded', function() {
-      initAuth();
-    });
-        const accounts = msalInstance.getAllAccounts();
-        debugLog("Accounts found:", accounts);
-        return accounts.length > 0 ? accounts[0] : null;
-      }
-      function login() {
-        debugLog("Login button clicked");
-        try {
-          msalInstance.loginRedirect({
-            scopes: ["openid", "profile", "email"]
-          });
-        } catch (e) {
-          debugLog('loginRedirect error:', e);
-          alert('Login error: ' + e.message);
-        }
-      }
-      function logout() {
-        debugLog("Logout button clicked");
-        try {
-          msalInstance.logoutRedirect({
-            postLogoutRedirectUri: msalConfig.auth.redirectUri,
-          });
-        } catch (e) {
-          debugLog('logoutRedirect error:', e);
-          alert('Logout error: ' + e.message);
-        }
-      }
-      document.addEventListener("DOMContentLoaded", function() {
-        const loginBtn = document.getElementById("login-btn");
-        const logoutBtn = document.getElementById("logout-btn");
-        const userGreeting = document.getElementById("user-greeting");
-        debugLog('Binding button events:', {loginBtn, logoutBtn, userGreeting});
-        function updateUI() {
-          const user = getAccount();
-          debugLog('updateUI user:', user);
-          if (user) {
-            loginBtn.style.display = "none";
-            logoutBtn.style.display = "";
-            userGreeting.style.display = "";
-            userGreeting.textContent = `Welcome, ${user.name || user.username || user.localAccountId}`;
-          } else {
-            loginBtn.style.display = "";
-            logoutBtn.style.display = "none";
-            userGreeting.style.display = "none";
-          }
-        }
-        if (loginBtn) {
-          loginBtn.onclick = login;
-          debugLog('loginBtn.onclick set');
-        } else {
-          debugLog('loginBtn not found');
-        }
-        if (logoutBtn) {
-          logoutBtn.onclick = logout;
-          debugLog('logoutBtn.onclick set');
-        } else {
-          debugLog('logoutBtn not found');
-        }
-        updateUI();
-      });
-    }
-  </script>
 </body>
 </html>
