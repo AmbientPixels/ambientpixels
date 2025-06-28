@@ -59,7 +59,11 @@ async function initAuth() {
       });
     } catch (e) {
       debugLog('loginRedirect error:', e);
-      alert('Login error: ' + e.message);
+      if (typeof showBanner === 'function') {
+        showBanner({ message: 'Login failed: ' + (e.message || e), type: 'error', duration: 6000 });
+      } else {
+        alert('Login error: ' + e.message);
+      }
     }
   }
   function logout() {
@@ -70,13 +74,28 @@ async function initAuth() {
       });
     } catch (e) {
       debugLog('logoutRedirect error:', e);
-      alert('Logout error: ' + e.message);
+      if (typeof showBanner === 'function') {
+        showBanner({ message: 'Logout failed: ' + (e.message || e), type: 'error', duration: 6000 });
+      } else {
+        alert('Logout error: ' + e.message);
+      }
     }
   }
   function bindAuthButtons() {
     const loginBtn = document.getElementById("login-btn");
     const logoutBtn = document.getElementById("logout-btn");
     const userGreeting = document.getElementById("user-greeting");
+    // Accessibility improvements
+    if (loginBtn) {
+      loginBtn.setAttribute('aria-label', 'Log in to Ambient Pixels');
+      loginBtn.setAttribute('tabindex', '0');
+      loginBtn.setAttribute('role', 'button');
+    }
+    if (logoutBtn) {
+      logoutBtn.setAttribute('aria-label', 'Log out of Ambient Pixels');
+      logoutBtn.setAttribute('tabindex', '0');
+      logoutBtn.setAttribute('role', 'button');
+    }
     debugLog('Binding button events:', {loginBtn, logoutBtn, userGreeting});
     function updateUI() {
       const user = getAccount();
@@ -91,6 +110,16 @@ async function initAuth() {
           loginBtn.style.display = "";
           logoutBtn.style.display = "none";
           userGreeting.style.display = "none";
+        }
+      }
+      // Always disable login button if interaction is in progress
+      if (loginBtn) {
+        if (isInteractionInProgress()) {
+          loginBtn.disabled = true;
+          loginBtn.textContent = "Logging in...";
+        } else {
+          loginBtn.disabled = false;
+          loginBtn.textContent = "Login";
         }
       }
     }
@@ -110,7 +139,9 @@ async function initAuth() {
     if (loginBtn && logoutBtn && userGreeting) {
       updateUI();
     }
-
+    // Also update on page load and after navigation
+    window.addEventListener('focus', updateUI);
+    window.addEventListener('pageshow', updateUI);
   }
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", bindAuthButtons);
@@ -122,6 +153,24 @@ async function initAuth() {
   window.login = login;
   window.logout = logout;
   window.getAccount = getAccount;
+
+  // Listen for MSAL events to update UI on auth state changes
+  if (msalInstance && typeof msalInstance.addEventCallback === 'function') {
+    msalInstance.addEventCallback((event) => {
+      debugLog('MSAL event:', event);
+      if (event.eventType === 'msal:loginSuccess' || event.eventType === 'msal:acquireTokenSuccess' || event.eventType === 'msal:logoutSuccess') {
+        setTimeout(() => { bindAuthButtons(); }, 100); // update UI after state change
+      } else if (event.eventType === 'msal:loginFailure' || event.eventType === 'msal:acquireTokenFailure' || event.eventType === 'msal:logoutFailure') {
+        if (typeof showBanner === 'function') {
+          showBanner({
+            message: 'Authentication error: ' + (event.error?.message || event.error || 'Unknown error'),
+            type: 'error',
+            duration: 6000
+          });
+        }
+      }
+    });
+  }
 }
 
 // Ensure MSAL is loaded before calling initAuth
