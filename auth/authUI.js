@@ -50,6 +50,8 @@ async function initAuth() {
       await msalInstance.initialize();
       debugLog('MSAL instance initialized');
     }
+    // Always handle redirect response after MSAL is initialized
+    await handleRedirectResponse();
   } catch (e) {
     debugLog('MSAL instance creation/initialization failed:', e);
     alert('MSAL instance creation/initialization failed: ' + e.message);
@@ -63,13 +65,13 @@ async function initAuth() {
   function isInteractionInProgress() {
     return sessionStorage.getItem('msal.interaction.status') === 'interaction_in_progress';
   }
-  function login() {
+  function login(event) {
     debugLog("Login button clicked");
+    if (event) event.preventDefault();
     if (isInteractionInProgress()) {
       debugLog("Login aborted: interaction already in progress.");
       const loginBtn = document.getElementById("login-btn");
       if (loginBtn) loginBtn.disabled = true;
-      return;
     } else {
       const loginBtn = document.getElementById("login-btn");
       if (loginBtn) loginBtn.disabled = false;
@@ -78,6 +80,7 @@ async function initAuth() {
       msalInstance.loginRedirect({
         scopes: ["openid", "profile", "email"]
       });
+      // handleRedirectResponse() should be called after MSAL init, not here
     } catch (e) {
       debugLog('loginRedirect error:', e);
       if (typeof showBanner === 'function') {
@@ -85,6 +88,22 @@ async function initAuth() {
       } else {
         alert('Login error: ' + e.message);
       }
+    }
+  }
+  async function handleRedirectResponse() {
+    try {
+      const response = await msalInstance.handleRedirectPromise();
+      debugLog("handleRedirectPromise response:", response);
+      if (response && response.account) {
+        msalInstance.setActiveAccount(response.account);
+        debugLog("Active account set after redirect:", response.account);
+        updateUI(); // Ensure UI is updated after login
+      } else {
+        updateUI(); // Also update UI if no response, to cover all cases
+      }
+    } catch (e) {
+      debugLog("handleRedirectPromise error:", e);
+      updateUI();
     }
   }
   function logout() {
@@ -104,7 +123,15 @@ async function initAuth() {
   }
   function bindAuthButtons() {
     const loginBtn = document.getElementById("login-btn");
+    if (loginBtn) {
+      loginBtn.onclick = null; // Remove any previous handler
+      loginBtn.addEventListener('click', login, {capture: false});
+    }
     const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+      logoutBtn.onclick = null;
+      logoutBtn.addEventListener('click', logout, {capture: false});
+    }
     const userGreeting = document.getElementById("user-greeting");
     // Accessibility improvements
     if (loginBtn) {
