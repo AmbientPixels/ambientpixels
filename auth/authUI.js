@@ -95,11 +95,12 @@
   // Main MSAL logic
   async function initAuth() {
     debugLog("MSAL config loaded");
+    // MSAL config updated for Microsoft Entra External ID (see authConfig.js for source of truth)
     const msalConfig = {
       auth: {
-        clientId: "cc50167c-846e-4ed2-b4fe-48ab831615d2",
-        authority: "https://login.microsoftonline.com/0450b3ca-5138-4391-9c98-bda7ad24118f/oauth2/v2.0/authorize?p=SignUpSignIn",
-        redirectUri: "https://ambientpixels.ai/",
+        clientId: "043b76d8-143d-45e8-9481-5097c508b14e", // Entra External ID App (client) ID
+        authority: "https://ambientpixelsai.ciamlogin.com/e1b17060-5ec1-49f8-b981-d3ae7207e25d/SignUpSignIn2025", // User journey: SignUpSignIn2025
+        redirectUri: "https://ambientpixels.ai/", // Production/live domain
       },
       cache: { cacheLocation: "localStorage", storeAuthStateInCookie: false },
     };
