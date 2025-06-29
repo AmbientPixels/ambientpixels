@@ -12,7 +12,7 @@ Contact: winds.dev@ambientpixels.ai
 1. Clone the repo and open in your editor.
 2. Ensure `/auth/msal-browser.min.js`, `/auth/global-auth.js`, `/auth/authConfig.js`, and `/auth/authUI.js` are present.
 3. Register your app and redirect URIs in the **Microsoft Entra External ID** portal (see config below).
-4. **Include the script tags below in every page’s HTML _before_ any login buttons or header injection.**
+4. **Include the authentication script tags in every page's HTML _before_ the header injection script.**
 5. The site header (with login/logout buttons) is injected via JS (`init-header-footer.js`). Button event handlers are bound automatically by `authUI.js` after header injection.
 6. Open `/auth/auth-test.html` or the main site and test login/logout. Check browser console for `[AUTH]` logs.
 
@@ -42,7 +42,7 @@ My organization only (AmbientPixels External ID tenant)
 const msalConfig = {
   auth: {
     clientId: "043b76d8-143d-45e8-9481-5097c508b14e",
-    authority: "https://ambientpixelsai.ciamlogin.com/e1b17060-5ec1-49f8-b981-d3ae7207e25d/ambientpixelslogin", // User journey: ambientpixelslogin (case-sensitive)
+    authority: "https://ambientpixelsai.ciamlogin.com/e1b17060-5ec1-49f8-b981-d3ae7207e25d/v2.0/", // Base authority URL with v2.0 endpoint
     redirectUri: "https://ambientpixels.ai/",
   },
   cache: {
@@ -50,6 +50,9 @@ const msalConfig = {
     storeAuthStateInCookie: false,
   },
 };
+
+// Expose msalConfig to the global window object
+window.msalConfig = msalConfig;
 ```
 
 ---
@@ -72,6 +75,7 @@ const msalConfig = {
 > **Production Note:**  
 > In production, login/logout buttons are included in the injected header. Do not add duplicate buttons to your main HTML.  
 > Button event handlers are attached by `authUI.js` after header injection—no need for inline `onclick` attributes.
+> **IMPORTANT:** Authentication scripts MUST be loaded BEFORE the header injection script to ensure proper button functionality.
 
 ```html
 <!DOCTYPE html>
@@ -79,10 +83,12 @@ const msalConfig = {
 <head>
   <meta charset="UTF-8">
   <title>AmbientPixels Auth Example</title>
+  <!-- Authentication scripts must be loaded first -->
   <script src="/auth/msal-browser.min.js"></script>
   <script src="/auth/authConfig.js"></script>
   <script src="/auth/authUI.js"></script>
-  <script src="/js/init-header-footer.js"></script>
+  <!-- Header injection script loads after auth scripts -->
+  <script src="/js/init-header-footer.js" defer></script>
 </head>
 <body>
   <!-- Header will be injected here -->
@@ -91,7 +97,7 @@ const msalConfig = {
 </body>
 </html>
 ```
-<!-- updated by Cascade: Minimal HTML snippet for onboarding and header injection -->
+<!-- updated by Cascade: Minimal HTML snippet with correct script loading order -->
 
 ---
 
@@ -163,6 +169,11 @@ AmbientPixels App (session starts)
 | Login fails, no redirect              | Redirect URI not registered in Azure          | Add all URIs to Azure portal app registration             |
 | Stuck login state                     | MSAL interaction_in_progress bug              | Use provided workaround in authUI.js                      |
 | No [AUTH] logs                        | Debug logging not enabled                     | Run localStorage.setItem('DEBUG_AUTH', 'true') in console |
+| endpoints_resolution_error            | Incorrect authority URL format                | Ensure authority URL includes `/v2.0/` segment           |
+| CORS errors on authentication         | Double `/v2.0/` in authority URL              | Use correct format: `https://<tenant>.ciamlogin.com/<tenant_id>/v2.0/` |
+| Identifier has already been declared  | Multiple loads of nova-whispers.js            | Use IIFE pattern with initialization guard               |
+| Login/logout buttons not working      | Incorrect script loading order                | Load auth scripts BEFORE header injection script          |
+| Logout button not appearing           | Auth scripts loaded after header injection    | Ensure auth scripts are loaded before init-header-footer.js |
 
 ---
 
@@ -365,6 +376,9 @@ Tenant successfully created and switched to in Azure Portal.
 - No secrets or sensitive data in frontend code. No inline JS for auth.
 - Header and login/logout UI are injected via JS; no duplicate buttons in HTML.
 - OpenID config endpoint returns valid JSON; authority URL is for MSAL only (not for direct navigation).
+- MSAL authority URL correctly includes `/v2.0/` segment without duplicating it.
+- `msalConfig` is properly exposed to the global window object.
+- `nova-whispers.js` uses a robust IIFE pattern with initialization guard to prevent duplicate declarations.
 
 ### Authority vs. OpenID Endpoint
 - **Authority URL:** Used by MSAL.js and OpenID clients for authentication flow. Not meant for direct browser navigation.
@@ -378,6 +392,67 @@ Tenant successfully created and switched to in Azure Portal.
 - [x] No inline JS or duplicate login/logout buttons
 - [x] Documentation updated with troubleshooting and best practices
 - [x] Live test and onboarding checklist complete
+
+---
+
+### Script Loading & Multi-Page Best Practices
+
+#### nova-whispers.js Module Pattern
+The `nova-whispers.js` script uses a robust singleton pattern to prevent duplicate declarations when loaded across multiple pages or contexts:
+
+```js
+// nova-whispers.js
+// Updated by Cascade: Implemented robust module pattern to prevent duplicate declarations
+
+(function() {
+  // Only initialize once
+  if (window.novaWhispersInitialized) {
+    return;
+  }
+  
+  // Mark as initialized
+  window.novaWhispersInitialized = true;
+  
+  // Define whisper sets only if not already defined
+  window.whisperSets = window.whisperSets || {
+    // whisper sets here
+  };
+
+  // All functions properly scoped inside the IIFE
+  function rotateWhispers(targetId, context) {
+    // implementation
+  }
+
+  function initWhispers() {
+    // implementation
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initWhispers);
+  } else {
+    initWhispers();
+  }
+})(); // Close the IIFE
+```
+
+#### Best Practices for Script Loading
+- **Use IIFE Pattern**: Wrap scripts in Immediately Invoked Function Expressions to avoid polluting the global namespace
+- **Implement Guards**: Use initialization flags (e.g., `window.novaWhispersInitialized`) to prevent duplicate execution
+- **Expose Selectively**: Only expose what's needed to the global scope (e.g., `window.whisperSets`)
+- **Proper Scoping**: Keep functions and variables inside the IIFE to prevent conflicts
+- **DOM Ready Check**: Use `document.readyState` to safely initialize DOM-dependent code
+
+#### Authority URL Format for Microsoft Entra External ID
+The correct format for the authority URL in MSAL configuration is:
+```
+https://<tenant-name>.ciamlogin.com/<tenant_id>/v2.0/
+```
+
+Important notes:
+- The `/v2.0/` segment is required for Microsoft Entra External ID to use the OpenID Connect v2.0 protocol endpoints
+- Do not include the user flow name in the authority URL - this is handled by MSAL internally
+- Ensure `msalConfig` is exposed globally via `window.msalConfig = msalConfig;` for proper initialization
 
 ---
 <!-- updated by Cascade: Final code review, authority/OpenID clarification, and commit checklist added 2025-06-28 -->

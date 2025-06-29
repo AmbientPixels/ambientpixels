@@ -300,8 +300,12 @@
   
     <footer id="footer-container"></footer>
   
-  <!-- Scripts (Full Load for Dev Mode) -->
+  <!-- Authentication Scripts (fixed by Cascade 2025-06-28) -->
+  <script src="/auth/msal-browser.min.js"></script>
+  <script src="/auth/authConfig.js"></script>
+  <script src="/auth/authUI.js"></script>
   
+  <!-- Scripts (Full Load for Dev Mode) -->
   <script src="/js/init-header-footer.js" defer></script>
   <script src="/js/main.js" defer></script>
   <script src="/js/nav.js" defer></script>
@@ -332,11 +336,6 @@
       // using the data-auto-form attribute on the container
     });
   </script>
-  <!-- Authentication Scripts (fixed by Cascade 2025-06-28) -->
-  <script src="/auth/msal-browser.min.js"></script>
-  <script src="/auth/authConfig.js"></script>
-  <script src="/auth/authUI.js"></script>
-  <script src="/js/init-header-footer.js"></script>
 </body>
 </html>
 <!-- updated by Cascade: Auth scripts fixed to resolve CORS issues and duplicate script loading -->
