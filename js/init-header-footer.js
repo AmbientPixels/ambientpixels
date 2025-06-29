@@ -17,8 +17,33 @@ fetch('/modules/header.html')
 fetch('/modules/footer.html')
   .then(r => r.text())
   .then(html => {
-    const footer = document.getElementById('footer-container');
-    if (footer) footer.innerHTML = html;
+    const footerContainer = document.getElementById('footer-container');
+    if (!footerContainer) return;
+
+    // Use a DOMParser for safe and efficient parsing
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    
+    // Get all scripts from the parsed document
+    const scripts = Array.from(doc.querySelectorAll('script'));
+    
+    // Append the HTML content from the parsed doc's body to the footer container
+    // This adds the structure without executing scripts
+    footerContainer.append(...doc.body.childNodes);
+
+    // Now, append the scripts to the document's body to trigger execution
+    scripts.forEach(script => {
+      const newScript = document.createElement('script');
+      // Copy attributes (src, defer, etc.)
+      for (const { name, value } of script.attributes) {
+        newScript.setAttribute(name, value);
+      }
+      // Copy inline script content
+      if (script.innerHTML) {
+        newScript.innerHTML = script.innerHTML;
+      }
+      document.body.appendChild(newScript);
+    });
   })
   .then(() => {
     // Dynamically load nova-whispers.js after the footer is injected

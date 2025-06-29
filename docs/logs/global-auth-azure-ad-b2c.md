@@ -12,7 +12,7 @@ Contact: winds.dev@ambientpixels.ai
 1. Clone the repo and open in your editor.
 2. Ensure `/auth/msal-browser.min.js`, `/auth/global-auth.js`, `/auth/authConfig.js`, and `/auth/authUI.js` are present.
 3. Register your app and redirect URIs in the **Microsoft Entra External ID** portal (see config below).
-4. **Include the authentication script tags in every page's HTML _before_ the header injection script.**
+4. **Verify Authentication Scripts are in the Footer Module:** The authentication scripts are now centrally managed in `/modules/footer.html` and loaded dynamically by `/js/init-header-footer.js`. No manual script inclusion is needed on individual pages.
 5. The site header (with login/logout buttons) is injected via JS (`init-header-footer.js`). Button event handlers are bound automatically by `authUI.js` after header injection.
 6. Open `/auth/auth-test.html` or the main site and test login/logout. Check browser console for `[AUTH]` logs.
 
@@ -63,16 +63,15 @@ window.msalConfig = msalConfig;
 
 ---
 
-### Working Example: index.html Script Order
-```html
-<!-- Authentication Scripts: Must be loaded BEFORE header injection -->
-<script src="/auth/msal-browser.min.js"></script>
-<script src="/auth/authConfig.js"></script>
-<script src="/auth/authUI.js"></script>
-<!-- Header and Main Scripts -->
-<script src="/js/init-header-footer.js" defer></script>
-<!-- ...other scripts... -->
-```
+### Centralized Script Loading via Footer Module
+To ensure consistency and simplify maintenance, the authentication scripts are no longer added to individual HTML files. Instead, they are loaded dynamically on every page via the shared footer module.
+
+**How it works:**
+1.  The three core authentication scripts (`msal-browser.min.js`, `authConfig.js`, `authUI.js`) are placed at the end of `/modules/footer.html`.
+2.  The global `/js/init-header-footer.js` script fetches the content of `footer.html`.
+3.  It then intelligently parses this content, injects the HTML structure into the `<footer id="footer-container"></footer>` element, and dynamically creates and appends the `<script>` tags to the document. This process ensures the browser executes the scripts correctly.
+
+This approach means any page with the standard footer automatically receives the authentication functionality.
 
 ---
 
@@ -94,7 +93,7 @@ window.msalConfig = msalConfig;
 > **Production Note:**  
 > In production, login/logout buttons are included in the injected header. Do not add duplicate buttons to your main HTML.  
 > Button event handlers are attached by `authUI.js` after header injection—no need for inline `onclick` attributes.
-> **IMPORTANT:** Authentication scripts MUST be loaded BEFORE the header injection script to ensure proper button functionality.
+> **IMPORTANT:** With the new centralized loading method, you no longer need to add authentication scripts to individual pages. The `init-header-footer.js` script handles loading them from the shared footer module.
 
 ```html
 <!DOCTYPE html>
@@ -102,21 +101,21 @@ window.msalConfig = msalConfig;
 <head>
   <meta charset="UTF-8">
   <title>AmbientPixels Auth Example</title>
-  <!-- Authentication scripts must be loaded first -->
-  <script src="/auth/msal-browser.min.js"></script>
-  <script src="/auth/authConfig.js"></script>
-  <script src="/auth/authUI.js"></script>
-  <!-- Header injection script loads after auth scripts -->
+  <!-- init-header-footer.js will dynamically load the header, footer, and all required auth scripts -->
   <script src="/js/init-header-footer.js" defer></script>
 </head>
 <body>
   <!-- Header will be injected here -->
   <header id="nav-header"></header>
+  
   <!-- Main content -->
+
+  <!-- Footer (and auth scripts) will be injected here -->
+  <footer id="footer-container"></footer>
 </body>
 </html>
 ```
-<!-- updated by Cascade: Minimal HTML snippet with correct script loading order -->
+<!-- updated by Cascade: Minimal HTML snippet for centralized script loading -->
 
 ---
 
@@ -191,8 +190,8 @@ AmbientPixels App (session starts)
 | endpoints_resolution_error            | Incorrect authority URL format                | Ensure authority URL includes `/v2.0/` segment           |
 | CORS errors on authentication         | Double `/v2.0/` in authority URL              | Use correct format: `https://<tenant>.ciamlogin.com/<tenant_id>/v2.0/` |
 | Identifier has already been declared  | Multiple loads of nova-whispers.js            | Use IIFE pattern with initialization guard               |
-| Login/logout buttons not working      | Incorrect script loading order                | Load auth scripts BEFORE header injection script          |
-| Logout button not appearing           | Auth scripts loaded after header injection    | Ensure auth scripts are loaded before init-header-footer.js |
+| Login/logout buttons not working      | Scripts not loading from footer module        | Check browser's Network tab to ensure auth scripts are being loaded. Verify `init-header-footer.js` is executing correctly and the footer module contains the scripts. |
+| Logout button not appearing           | Scripts not loading or executing correctly    | Check the browser console for errors. Ensure `init-header-footer.js` is correctly parsing and appending the auth scripts. |
 
 ---
 
