@@ -117,8 +117,22 @@
       greeting.style.display = isSignedIn ? '' : 'none';
       let displayName = '';
       if (isSignedIn && account) {
-        // Try name, then username, then email from idTokenClaims, then fallback
-        displayName = account.name || account.username || account.idTokenClaims?.email || account.idTokenClaims?.preferred_username || account.homeAccountId || 'User';
+        // Determine the best display name to use
+        let displayName = account.name;
+
+        // Fallback if name is not useful (null, empty, or "unknown")
+        if (!displayName || displayName.trim().toLowerCase() === 'unknown' || displayName.trim() === '') {
+          displayName = account.username;
+        }
+        
+        // If the name is an email, extract the part before the @
+        if (displayName && displayName.includes('@')) {
+          displayName = displayName.split('@')[0];
+        }
+
+        // Final fallback if no name could be determined
+        displayName = displayName || 'Grid Visitor';
+
         greeting.textContent = `Welcome, ${displayName}`;
         debugLog('Greeting displayName:', displayName);
         debugLog('Account object:', account);
