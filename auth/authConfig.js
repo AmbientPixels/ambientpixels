@@ -1,9 +1,8 @@
 // /auth/authConfig.js
-export function debugLog(...args) {
+function debugLog(...args) {
   if (window.DEBUG_AUTH) console.log("[AUTH]", ...args);
 }
-debugLog("MSAL config loaded");
-debugLog("redirectUri:", msalConfig.auth.redirectUri);
+// updated by Cascade: removed 'export' keyword for browser compatibility
 // MSAL config for Microsoft Entra External ID (AmbientPixels)
 const msalConfig = {
   auth: {
@@ -16,3 +15,6 @@ const msalConfig = {
     storeAuthStateInCookie: false,
   },
 };
+debugLog("MSAL config loaded");
+debugLog("redirectUri:", msalConfig.auth.redirectUri);
+// updated by Cascade: fixed msalConfig duplication and lint errors
