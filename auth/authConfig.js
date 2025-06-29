@@ -15,6 +15,10 @@ const msalConfig = {
     storeAuthStateInCookie: false,
   },
 };
+
+// Expose msalConfig to the global window object
+window.msalConfig = msalConfig;
+
 debugLog("MSAL config loaded");
 debugLog("redirectUri:", msalConfig.auth.redirectUri);
 // updated by Cascade: fixed msalConfig duplication and lint errors
