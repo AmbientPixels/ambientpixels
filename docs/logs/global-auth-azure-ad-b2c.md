@@ -37,12 +37,13 @@ My organization only (AmbientPixels External ID tenant)
 
 ---
 
-### Sample `authConfig.js` for MSAL.js
+### Sample `authConfig.js` for MSAL.js (Working Configuration)
 ```js
 const msalConfig = {
   auth: {
     clientId: "043b76d8-143d-45e8-9481-5097c508b14e",
-    authority: "https://ambientpixelsai.ciamlogin.com/e1b17060-5ec1-49f8-b981-d3ae7207e25d/v2.0/", // Base authority URL with v2.0 endpoint
+    authority: "https://ambientpixelsai.ciamlogin.com/e1b17060-5ec1-49f8-b981-d3ae7207e25d/v2.0/", // Use /v2.0/ endpoint (do NOT include user flow name)
+    knownAuthorities: ["ambientpixelsai.ciamlogin.com"],
     redirectUri: "https://ambientpixels.ai/",
   },
   cache: {
@@ -53,6 +54,24 @@ const msalConfig = {
 
 // Expose msalConfig to the global window object
 window.msalConfig = msalConfig;
+```
+
+**Important:**
+- The `/v2.0/` segment is required for Microsoft Entra External ID to use the OpenID Connect v2.0 protocol endpoints.
+- **Do NOT include the user flow name** in the authority URL. MSAL.js handles user flows internally for Entra External ID.
+- Make sure `msalConfig` is exposed globally for use by the UI logic.
+
+---
+
+### Working Example: index.html Script Order
+```html
+<!-- Authentication Scripts: Must be loaded BEFORE header injection -->
+<script src="/auth/msal-browser.min.js"></script>
+<script src="/auth/authConfig.js"></script>
+<script src="/auth/authUI.js"></script>
+<!-- Header and Main Scripts -->
+<script src="/js/init-header-footer.js" defer></script>
+<!-- ...other scripts... -->
 ```
 
 ---
