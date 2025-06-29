@@ -19,17 +19,54 @@ This project expands the AmbientPixels authentication experience with modern use
 ## Milestones
 - [x] Header profile dropdown with avatar
 - [ ] Avatar picker modal and persistence
-- [ ] Account/settings page
+- [x] Account/settings page
 - [ ] Banner integration for auth events
 - [ ] Documentation and onboarding update
 
 ## Progress Log
+- **2025-06-29:** Created the account settings page at `/account/`. Implemented dynamic user data display, placeholder sections for avatar/account management, and integrated the site's dynamic breadcrumb module.
 - **2025-06-29:** Implemented the user profile dropdown in the header. Added HTML, CSS, and JS to manage UI and user interaction. Updated documentation.
 - **2025-06-29:** Project created and initialized. Planning and requirements defined.
 
 ---
 
 ## Implementation Details
+
+This document provides a technical overview of the auth expansion features for onboarding and future development.
+
+### Account Settings Page
+
+The account settings page provides users with a centralized location to manage their profile.
+
+#### 1. File Architecture
+
+The feature is self-contained within the `/account/` directory:
+
+-   **`/account/index.html`**: The main HTML structure for the page, including placeholders for user data.
+-   **`/account/settings.css`**: Contains all custom styles for the settings page, including the layout and form elements.
+-   **`/account/settings.js`**: Handles the dynamic logic, such as fetching user data and binding event listeners.
+-   **`/modules/breadcrumb.js` & `/modules/breadcrumb.css`**: These shared modules are used to dynamically generate the breadcrumb navigation trail.
+
+#### 2. Component Breakdown: `index.html`
+
+The page is structured into several key sections:
+
+-   **`.mini-hero`**: The standard hero banner for the page title.
+-   **`.breadcrumb-container`**: A placeholder div that is dynamically populated by `breadcrumb.js`.
+-   **`.neon-card`**: A styled container that wraps all the settings sections.
+-   **Profile Information**: Displays the user's name and email in `readonly` input fields.
+-   **Avatar Settings**: Shows the current avatar and includes a "Change Avatar" button (placeholder functionality).
+-   **Account Management**: A "danger zone" section with a "Delete My Account" button (placeholder functionality).
+
+#### 3. JavaScript Logic: `settings.js`
+
+The script waits for the DOM to load, then:
+
+1.  Calls `auth.getAccountInfo()` to retrieve the current user's data from MSAL.
+2.  Populates the display name and email fields, using the same robust fallback logic found in `authUI.js`.
+3.  Attaches placeholder `click` event listeners to the "Change Avatar" and "Delete My Account" buttons, which currently log a message to the console.
+
+### User Profile Dropdown
 
 This section provides a technical overview of the user profile dropdown feature for onboarding and future development.
 
