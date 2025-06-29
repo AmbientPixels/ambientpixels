@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Ambient Pixels Account Settings">
+  <title>Account Settings - Ambient Pixels</title>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/grid.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/hero.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/banner.css">
+  <link rel="stylesheet" href="/account/settings.css"> <!-- New CSS for this page -->
+  <link rel="stylesheet" href="/modules/breadcrumb.css">
+</head>
+<body data-theme="dark">
+
+<!-- Navigation Header Placeholder -->
+<header id="nav-header"><!-- Navigation loads here via JS include --></header>
+
+<!-- Hero Section -->
+<section class="mini-hero">
+  <img src="/images/textures/delchron_Deltron_3030_texture_cockpit_panel_microscopic_extreme.jpg" alt="Texture" class="mini-hero-img" loading="lazy">
+  <h1>Account Settings</h1>
+</section>
+
+<main class="grid-container grid-col-12">
+    <div class="breadcrumb-container grid-col-12"></div>
+
+    <section class="grid-col-12 content-section neon-card"> 
+    <!-- Profile Information Section -->
+    <section class="content-section settings-section grid-col-6">
+      <div class="section-header">
+        <h2><i class="fas fa-user-circle"></i> Profile Information</h2>
+      </div>
+      <div class="content">
+        <div class="form-group">
+          <label for="displayName">Display Name</label>
+          <input type="text" id="displayName" name="displayName" class="form-control" readonly>
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" class="form-control" readonly>
+        </div>
+        <p class="form-text">Your display name and email are managed by your identity provider and cannot be changed here.</p>
+      </div>
+    </section>
+
+    <!-- Avatar Settings Section -->
+    <section class="content-section settings-section grid-col-6">
+      <div class="section-header">
+        <h2><i class="fas fa-portrait"></i> Avatar Settings</h2>
+      </div>
+      <div class="content avatar-settings">
+        <div class="current-avatar">
+          <img src="/images/avatars/default.png" alt="Current Avatar" id="current-avatar-img">
+        </div>
+        <div class="avatar-controls">
+          <p>Personalize your profile by selecting a new avatar.</p>
+          <button id="change-avatar-btn" class="btn btn-primary"><i class="fas fa-camera"></i> Change Avatar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Account Management Section -->
+    <section class="content-section settings-section danger-zone grid-col-12">
+      <div class="section-header">
+        <h2><i class="fas fa-exclamation-triangle"></i> Account Management</h2>
+      </div>
+      <div class="content">
+        <p>Deleting your account is a permanent action and cannot be undone. All your data will be removed from our systems.</p>
+        <button id="delete-account-btn" class="btn btn-danger">Delete My Account</button>
+      </div>
+    </section>
+</section>
+</main>
+
+<div id="footer-container"></div>
+
+<!-- Core Scripts -->
+<script src="/js/init-header-footer.js" defer></script>
+<script src="/js/theme.js" defer></script>
+
+<!-- Auth Scripts -->
+<script src="https://alcdn.msauth.net/browser/2.32.2/js/msal-browser.min.js"></script>
+<script src="/auth/authConfig.js" defer></script>
+<script src="/auth/authUI.js" defer></script>
+
+<!-- Page-specific Scripts -->
+<script src="/modules/breadcrumb.js" defer></script>
+<script src="/account/settings.js" defer></script>
+
+</body>
+</html>

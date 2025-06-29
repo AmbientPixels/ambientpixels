@@ -1,0 +1,137 @@
+/* Account Settings Page Styles */
+
+.settings-container {
+  margin-top: 2rem;
+  margin-bottom: 4rem;
+}
+
+.settings-section {
+  background-color: var(--nova-panel-bg);
+  border: 1px solid var(--nova-border-color);
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* Ensures child elements conform to border-radius */
+}
+
+.settings-section .section-header {
+  background-color: var(--nova-header-bg);
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--nova-border-color);
+  display: flex;
+  align-items: center;
+}
+
+.settings-section .section-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--nova-text-color-strong);
+}
+
+.settings-section .section-header h2 .fas {
+  margin-right: 0.75rem;
+  color: var(--nova-accent-color);
+}
+
+.settings-section .content {
+  padding: 1.5rem;
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--nova-text-color-medium);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: var(--nova-input-bg);
+  border: 1px solid var(--nova-border-color);
+  border-radius: 6px;
+  color: var(--nova-text-color);
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:read-only {
+  background-color: var(--nova-input-bg-disabled);
+  cursor: not-allowed;
+}
+
+.form-text {
+  font-size: 0.9rem;
+  color: var(--nova-text-color-soft);
+  margin-top: 0.5rem;
+}
+
+/* Avatar Settings */
+.avatar-settings {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.current-avatar img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid var(--nova-border-color-strong);
+  object-fit: cover;
+}
+
+.avatar-controls p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+/* Danger Zone */
+.danger-zone .section-header h2 .fas {
+  color: var(--nova-danger-color);
+}
+
+.danger-zone .content {
+  background-color: rgba(255, 82, 82, 0.05);
+  border-top: 1px solid var(--nova-danger-color-translucent);
+}
+
+.btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+    border: 1px solid transparent;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background-color: var(--nova-accent-color);
+    color: #fff;
+    border-color: var(--nova-accent-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--nova-accent-color-hover);
+    border-color: var(--nova-accent-color-hover);
+}
+
+.btn-danger {
+    background-color: var(--nova-danger-color);
+    color: #fff;
+    border-color: var(--nova-danger-color);
+}
+
+.btn-danger:hover {
+    background-color: var(--nova-danger-color-hover);
+    border-color: var(--nova-danger-color-hover);
+}
