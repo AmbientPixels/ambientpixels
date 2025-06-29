@@ -7,7 +7,7 @@ function debugLog(...args) {
 const msalConfig = {
   auth: {
     clientId: "043b76d8-143d-45e8-9481-5097c508b14e", // Entra External ID App (client) ID
-    authority: "https://ambientpixelsai.ciamlogin.com/e1b17060-5ec1-49f8-b981-d3ae7207e25d/v2.0/", // Base authority URL with v2.0 endpoint
+    authority: "https://ambientpixelsai.ciamlogin.com/e1b17060-5ec1-49f8-b981-d3ae7207e25d/v2.0/ambientpixelslogin", // Authority URL with v2.0 endpoint and user flow name
     redirectUri: "https://ambientpixels.ai/", // Production/live domain
   },
   cache: {

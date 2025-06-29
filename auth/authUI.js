@@ -190,9 +190,9 @@
         sessionStorage.setItem('ambientPixels_isAuthenticated', 'true');
         
         // Show welcome banner
-        if (typeof window.showBanner === 'function') {
+        if (window.banner && typeof window.banner.show === 'function') {
           const userName = response.account.name || response.account.username || 'User';
-          window.showBanner({
+          window.banner.show({
             message: `Welcome, ${userName}! You are now logged in.`,
             type: 'success',
             duration: 5000,
@@ -289,8 +289,8 @@
     }
     
     // Show logout banner
-    if (typeof window.showBanner === 'function') {
-      window.showBanner({
+    if (window.banner && typeof window.banner.show === 'function') {
+      window.banner.show({
         message: `Goodbye, ${userName}! You have been logged out.`,
         type: 'info',
         duration: 4000,
@@ -306,8 +306,9 @@
       sessionStorage.removeItem('ambientPixels_isAuthenticated');
       
       window.msalInstance.logoutRedirect({ 
-        postLogoutRedirectUri: window.msalConfig.auth.redirectUri + "?postlogout=true" 
+        postLogoutRedirectUri: "https://ambientpixels.ai/" 
       });
+      // Note: Update Azure portal front-channel logout URL to match this
     } catch (e) {
       debugLog('logoutRedirect error:', e);
       showButtonLoading(logoutBtn, false);
