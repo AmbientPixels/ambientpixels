@@ -7,13 +7,8 @@ function debugLog(...args) {
 const msalConfig = {
   auth: {
     clientId: "043b76d8-143d-45e8-9481-5097c508b14e", // Entra External ID App (client) ID
-    authority: "https://ambientpixelsai.ciamlogin.com/e1b17060-5ec1-49f8-b981-d3ae7207e25d", // Base authority URL from Azure portal
+    authority: "https://ambientpixelsai.ciamlogin.com/e1b17060-5ec1-49f8-b981-d3ae7207e25d/v2.0/ambientpixelslogin", // Authority URL with v2.0 endpoint and user flow
     knownAuthorities: ["ambientpixelsai.ciamlogin.com"],
-    authorityMetadata: {
-      "token_endpoint": "https://ambientpixelsai.ciamlogin.com/e1b17060-5ec1-49f8-b981-d3ae7207e25d/oauth2/v2.0/token",
-      "authorization_endpoint": "https://ambientpixelsai.ciamlogin.com/e1b17060-5ec1-49f8-b981-d3ae7207e25d/oauth2/v2.0/authorize",
-      "end_session_endpoint": "https://ambientpixelsai.ciamlogin.com/e1b17060-5ec1-49f8-b981-d3ae7207e25d/oauth2/v2.0/logout"
-    },
     redirectUri: "https://ambientpixels.ai/", // Production/live domain
   },
   cache: {
