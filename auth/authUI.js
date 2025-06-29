@@ -115,7 +115,16 @@
     }
     if (greeting) {
       greeting.style.display = isSignedIn ? '' : 'none';
-      greeting.textContent = isSignedIn && account ? `Welcome, ${account.name || account.username}` : '';
+      let displayName = '';
+      if (isSignedIn && account) {
+        // Try name, then username, then email from idTokenClaims, then fallback
+        displayName = account.name || account.username || account.idTokenClaims?.email || account.idTokenClaims?.preferred_username || account.homeAccountId || 'User';
+        greeting.textContent = `Welcome, ${displayName}`;
+        debugLog('Greeting displayName:', displayName);
+        debugLog('Account object:', account);
+      } else {
+        greeting.textContent = '';
+      }
     }
     debugLog('UI updated. Signed in:', isSignedIn, 'Account:', account);
   }
