@@ -1,0 +1,25 @@
+<!-- project-auth-expansion.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Project: Global Auth UX Expansion</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/nova-mood.css">
+  <link rel="stylesheet" href="/css/banner.css">
+</head>
+<body class="project-log-page">
+  <main class="project-log-container">
+    <div id="md-inject-container"></div>
+  </main>
+  <script src="/js/md-inject.js"></script>
+  <script>
+    // Inject the markdown file into the container
+    window.addEventListener('DOMContentLoaded', function() {
+      injectMarkdown('/docs/logs/project-auth-expansion.md', document.getElementById('md-inject-container'));
+    });
+  </script>
+</body>
+</html>
