@@ -189,6 +189,20 @@
         isAuthenticated = true;
         sessionStorage.setItem('ambientPixels_isAuthenticated', 'true');
         
+        // Show welcome banner
+        if (typeof window.showBanner === 'function') {
+          const userName = response.account.name || response.account.username || 'User';
+          window.showBanner({
+            message: `Welcome, ${userName}! You are now logged in.`,
+            type: 'success',
+            duration: 5000,
+            icon: 'fas fa-user-check'
+          });
+          debugLog("Displayed welcome banner for user:", userName);
+        } else {
+          debugLog("Banner system not available for login notification");
+        }
+        
         // Force UI update with a small delay to ensure DOM is ready
         setTimeout(() => {
           debugLog("Delayed UI update after successful login");
@@ -262,8 +276,35 @@
     debugLog("Logout button clicked");
     const logoutBtn = document.getElementById("logout-btn");
     if (event) event.preventDefault();
+    
+    // Get account info before logout for banner
+    let userName = 'User';
+    try {
+      const account = getAccount();
+      if (account) {
+        userName = account.name || account.username || 'User';
+      }
+    } catch (e) {
+      debugLog('Error getting account info for logout banner:', e);
+    }
+    
+    // Show logout banner
+    if (typeof window.showBanner === 'function') {
+      window.showBanner({
+        message: `Goodbye, ${userName}! You have been logged out.`,
+        type: 'info',
+        duration: 4000,
+        icon: 'fas fa-sign-out-alt'
+      });
+      debugLog("Displayed logout banner for user:", userName);
+    }
+    
     showButtonLoading(logoutBtn, true);
     try {
+      // Clear authentication state before redirect
+      isAuthenticated = false;
+      sessionStorage.removeItem('ambientPixels_isAuthenticated');
+      
       window.msalInstance.logoutRedirect({ 
         postLogoutRedirectUri: window.msalConfig.auth.redirectUri + "?postlogout=true" 
       });
