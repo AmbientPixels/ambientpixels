@@ -7,6 +7,9 @@
   function debugLog(...args) {
     if (window.DEBUG_AUTH || localStorage.getItem('DEBUG_AUTH') === 'true') console.log("[AUTH]", ...args);
   }
+  
+  // Set a flag to track if we're authenticated
+  let isAuthenticated = false;
 
   // UI helpers
   function setAuthStateAttr(isSignedIn) {
@@ -48,6 +51,14 @@
     const loginBtn = document.getElementById('login-btn');
     const logoutBtn = document.getElementById('logout-btn');
     const greeting = document.getElementById('user-greeting');
+    
+    // Log DOM elements for debugging
+    debugLog('updateUI DOM elements:', { 
+      loginBtn: loginBtn ? 'found' : 'missing', 
+      logoutBtn: logoutBtn ? 'found' : 'missing',
+      greeting: greeting ? 'found' : 'missing'
+    });
+    
     let isSignedIn = false;
     let account = null;
     try {
@@ -55,18 +66,52 @@
         const accounts = window.msalInstance.getAllAccounts();
         account = accounts && accounts[0];
         isSignedIn = !!account;
+        
+        // Store authentication state for future reference
+        isAuthenticated = isSignedIn;
+        
+        // Persist authentication state in sessionStorage for page reloads
+        if (isSignedIn) {
+          sessionStorage.setItem('ambientPixels_isAuthenticated', 'true');
+        } else if (!isSignedIn && sessionStorage.getItem('ambientPixels_isAuthenticated') === 'true') {
+          // Only clear if we're explicitly not signed in
+          sessionStorage.removeItem('ambientPixels_isAuthenticated');
+        }
+        
+        debugLog('updateUI account check:', { 
+          msalInstanceExists: !!window.msalInstance,
+          accountsFound: accounts ? accounts.length : 0,
+          isSignedIn: isSignedIn,
+          accountDetails: account ? {
+            name: account.name,
+            username: account.username,
+            localAccountId: account.localAccountId
+          } : 'none'
+        });
+      } else {
+        debugLog('updateUI: msalInstance or getAllAccounts not available');
+        
+        // Check if we have a persisted authentication state
+        if (sessionStorage.getItem('ambientPixels_isAuthenticated') === 'true') {
+          debugLog('Using persisted authentication state from sessionStorage');
+          isSignedIn = true;
+          isAuthenticated = true;
+        }
       }
     } catch (e) { debugLog('updateUI account check error:', e); }
+    
     setAuthStateAttr(isSignedIn);
     if (loginBtn) {
       loginBtn.style.display = isSignedIn ? 'none' : '';
       showButtonLoading(loginBtn, false);
       loginBtn.setAttribute('aria-hidden', isSignedIn ? 'true' : 'false');
+      debugLog('loginBtn visibility set to:', isSignedIn ? 'hidden' : 'visible');
     }
     if (logoutBtn) {
       logoutBtn.style.display = isSignedIn ? '' : 'none';
       showButtonLoading(logoutBtn, false);
       logoutBtn.setAttribute('aria-hidden', isSignedIn ? 'false' : 'true');
+      debugLog('logoutBtn visibility set to:', isSignedIn ? 'visible' : 'hidden');
     }
     if (greeting) {
       greeting.style.display = isSignedIn ? '' : 'none';
@@ -123,18 +168,66 @@
   }
 
   async function handleRedirectResponse() {
+    debugLog("Starting handleRedirectPromise...");
     try {
+      // Check if we're on a post-login redirect
+      const isRedirectCallback = window.location.hash && 
+        (window.location.hash.includes('id_token') || 
+         window.location.hash.includes('access_token') || 
+         window.location.hash.includes('error'));
+      
+      debugLog("Is redirect callback:", isRedirectCallback, "Hash:", window.location.hash);
+      
       const response = await window.msalInstance.handleRedirectPromise();
-      debugLog("handleRedirectPromise response:", response);
+      debugLog("handleRedirectPromise completed, response:", response);
+      
       if (response && response.account) {
         window.msalInstance.setActiveAccount(response.account);
         debugLog("Active account set after redirect:", response.account);
+        
+        // Mark as authenticated
+        isAuthenticated = true;
+        sessionStorage.setItem('ambientPixels_isAuthenticated', 'true');
+        
+        // Force UI update with a small delay to ensure DOM is ready
+        setTimeout(() => {
+          debugLog("Delayed UI update after successful login");
+          updateUI();
+          
+          // Force a re-binding of auth buttons after successful login
+          setTimeout(() => {
+            debugLog("Re-binding auth buttons after successful login");
+            bindAuthButtons();
+          }, 100);
+        }, 100);
+      } else {
+        // No response from redirect, check if we have an account anyway
+        const accounts = window.msalInstance.getAllAccounts();
+        debugLog("No redirect response, checking existing accounts:", accounts);
+        if (accounts && accounts.length > 0) {
+          window.msalInstance.setActiveAccount(accounts[0]);
+          debugLog("Set active account from existing accounts:", accounts[0]);
+          isAuthenticated = true;
+          sessionStorage.setItem('ambientPixels_isAuthenticated', 'true');
+        }
       }
     } catch (e) {
       debugLog("handleRedirectPromise error:", e);
       showFallback('Authentication error. Please refresh or contact support.');
     }
+    
+    // Always update UI regardless of redirect response
     updateUI();
+    
+    // Log final auth state
+    const finalAccount = getAccount();
+    debugLog("Final auth state after handleRedirectResponse:", {
+      hasAccount: !!finalAccount,
+      accountDetails: finalAccount ? {
+        name: finalAccount.name,
+        username: finalAccount.username
+      } : 'none'
+    });
   }
 
   function getAccount() {
@@ -181,6 +274,8 @@
     }
   }
   function bindAuthButtons() {
+    debugLog('bindAuthButtons called - binding auth buttons and updating UI');
+    
     const loginBtn = document.getElementById("login-btn");
     if (loginBtn) {
       loginBtn.onclick = null;
@@ -189,6 +284,9 @@
       loginBtn.setAttribute('aria-label', 'Log in to Ambient Pixels');
       loginBtn.setAttribute('tabindex', '0');
       loginBtn.setAttribute('role', 'button');
+      debugLog('Login button bound successfully');
+    } else {
+      debugLog('WARNING: Login button not found in DOM');
     }
     
     const logoutBtn = document.getElementById("logout-btn");
@@ -199,9 +297,23 @@
       logoutBtn.setAttribute('aria-label', 'Log out of Ambient Pixels');
       logoutBtn.setAttribute('tabindex', '0');
       logoutBtn.setAttribute('role', 'button');
+      debugLog('Logout button bound successfully');
+    } else {
+      debugLog('WARNING: Logout button not found in DOM');
     }
     
+    // Force a UI update with the current authentication state
     updateUI();
+    
+    // If we know we're authenticated, make sure logout button is visible
+    if (isAuthenticated) {
+      const refreshedLogoutBtn = document.getElementById("logout-btn");
+      if (refreshedLogoutBtn) {
+        refreshedLogoutBtn.style.display = '';
+        debugLog('Forced logout button visibility due to known authenticated state');
+      }
+    }
+    
     debugLog('Auth buttons bound:', {loginBtn, logoutBtn});
   }
 

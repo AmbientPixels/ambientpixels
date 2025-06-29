@@ -454,6 +454,53 @@ Important notes:
 - Do not include the user flow name in the authority URL - this is handled by MSAL internally
 - Ensure `msalConfig` is exposed globally via `window.msalConfig = msalConfig;` for proper initialization
 
+#### Authentication System: Future Improvements
+The following improvements are recommended for future development once the basic login/logout functionality is stable:
+
+1. **Token Refresh Logic**: Implement automatic token refresh for long-running sessions to prevent session timeouts
+   ```js
+   // Example token refresh implementation
+   function setupTokenRefresh(tokenExpiryTime) {
+     const refreshBuffer = 5 * 60 * 1000; // 5 minutes before expiry
+     const refreshTime = tokenExpiryTime - refreshBuffer;
+     setTimeout(() => {
+       msalInstance.acquireTokenSilent({...});
+     }, refreshTime);
+   }
+   ```
+
+2. **Enhanced Caching Strategy**: Optimize token caching for better performance
+   ```js
+   // In authConfig.js
+   const msalConfig = {
+     cache: {
+       cacheLocation: "localStorage",
+       storeAuthStateInCookie: true, // Enable for IE/Edge
+       secureCookies: true
+     }
+   };
+   ```
+
+3. **Robust Error Recovery**: Add more detailed error handling and recovery mechanisms
+   ```js
+   try {
+     await msalInstance.handleRedirectPromise();
+   } catch (error) {
+     if (error instanceof msal.InteractionRequiredAuthError) {
+       // Specific handling for interaction required
+     } else if (error instanceof msal.ServerError) {
+       // Handle server errors
+     } else {
+       // Generic error handling
+     }
+   }
+   ```
+
+4. **User Profile Enhancement**: Expand user profile information display
+5. **Logout Confirmation**: Add a confirmation dialog before logout for better UX
+6. **Session Timeout Notification**: Implement a notification system for impending session timeouts
+7. **Multi-Tab Support**: Improve handling of authentication across multiple browser tabs using the Storage event
+
 ---
 <!-- updated by Cascade: Final code review, authority/OpenID clarification, and commit checklist added 2025-06-28 -->
 - **Redirect URIs:** 1 web (http://localhost:3000/), 0 spa, 0 public client
