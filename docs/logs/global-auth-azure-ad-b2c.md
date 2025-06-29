@@ -351,6 +351,36 @@ Tenant successfully created and switched to in Azure Portal.
 - **Application (client) ID:** 043b76d8-143d-45e8-9481-5097c508b14e
 - **Directory (tenant) ID:** e1b17060-5ec1-49f8-b981-d3ae7207e25d
 - **Supported account types:** My organization only
+
+---
+
+## ✅ 2025-06-28: Production-Ready Authentication – Final Code Review & Checklist
+
+### Summary
+- All Azure Entra External ID (B2C) settings are aligned with code.
+- User flow `ambientpixelslogin` is active and case-correct.
+- App registration, client ID, and tenant ID match code and portal.
+- Redirect URI `https://ambientpixels.ai/` is registered for SPA and Web.
+- All frontend auth scripts are loaded at the end of `<body>` in `index.html`.
+- No secrets or sensitive data in frontend code. No inline JS for auth.
+- Header and login/logout UI are injected via JS; no duplicate buttons in HTML.
+- OpenID config endpoint returns valid JSON; authority URL is for MSAL only (not for direct navigation).
+
+### Authority vs. OpenID Endpoint
+- **Authority URL:** Used by MSAL.js and OpenID clients for authentication flow. Not meant for direct browser navigation.
+- **OpenID Configuration Endpoint:** Used for debugging/discovery. Returns JSON at:
+  `https://ambientpixelsai.ciamlogin.com/e1b17060-5ec1-49f8-b981-d3ae7207e25d/ambientpixelslogin/v2.0/.well-known/openid-configuration`
+
+### Ready-to-Commit Checklist
+- [x] Azure user flow and app registration confirmed
+- [x] `authConfig.js` and `authUI.js` match Azure settings
+- [x] All scripts loaded externally in `index.html`
+- [x] No inline JS or duplicate login/logout buttons
+- [x] Documentation updated with troubleshooting and best practices
+- [x] Live test and onboarding checklist complete
+
+---
+<!-- updated by Cascade: Final code review, authority/OpenID clarification, and commit checklist added 2025-06-28 -->
 - **Redirect URIs:** 1 web (http://localhost:3000/), 0 spa, 0 public client
 
 ---
