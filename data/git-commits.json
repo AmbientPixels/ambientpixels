@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "1ffd7fc1-fc63-40f9-87a2-d5b878f24c39",
-      "hash": "ee56db9a9cde16e5e8bfeb566f391c44de00d024",
-      "message": "Auth UI polish: fix stuck login, enforce same-window flow, robust event/UI sync",
-      "timestamp": "2025-06-27 23:28:38 -0700",
+      "id": "485cc7ea-76a6-4cdc-927c-e1b8421a46b4",
+      "hash": "f09997c7844d198a1fd6fd34a5085c36c87e3e73",
+      "message": "Set MSAL authority to production Azure B2C user flow endpoint",
+      "timestamp": "2025-06-28 23:18:32 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/ee56db9a9cde16e5e8bfeb566f391c44de00d024"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/f09997c7844d198a1fd6fd34a5085c36c87e3e73"
     }
   ],
-  "timestamp": "2025-06-28T13:28:57.523Z",
+  "timestamp": "2025-06-29T13:29:37.297Z",
   "count": 1,
-  "scanId": 1751117337523
+  "scanId": 1751203777297
 }
