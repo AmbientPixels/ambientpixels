@@ -1,7 +1,17 @@
 // nova-whispers.js
+// Updated by Cascade: Implemented robust module pattern to prevent duplicate declarations
 
-if (!window.whisperSets) {
-  window.whisperSets = {
+(function() {
+  // Only initialize once
+  if (window.novaWhispersInitialized) {
+    return;
+  }
+  
+  // Mark as initialized
+  window.novaWhispersInitialized = true;
+  
+  // Define whisper sets only if not already defined
+  window.whisperSets = window.whisperSets || {
     footer: [
       "Ambient awareness, perpetual growth—Nova listens, learns, and guides anew.",
       "Every ending is a new signal—Nova’s learning never sleeps.",
@@ -42,30 +52,30 @@ if (!window.whisperSets) {
     ]
     // ... keep the rest of your sets here ...
   };
-}
-const whisperSets = window.whisperSets;
-// updated by Cascade: removed duplicate object definition and fixed all lint errors
 
-function rotateWhispers(targetId, context) {
-  const el = document.getElementById(targetId);
-  if (!el) return;
-  const whispers = whisperSets[context] || whisperSets['default'];
-  let i = 0;
-  el.textContent = whispers[0];
-  setInterval(() => {
-    el.textContent = whispers[++i % whispers.length];
-  }, 9000);
-}
+  const whisperSets = window.whisperSets;
+  // updated by Cascade: removed duplicate object definition and fixed all lint errors
 
-function initWhispers() {
-  const loreContext = document.body.dataset.page || 'default';
-  rotateWhispers('lore-whisper', whisperSets[loreContext] ? loreContext : 'default');
-  rotateWhispers('footer-whisper', 'footer');
-}
+  function rotateWhispers(targetId, context) {
+    const el = document.getElementById(targetId);
+    if (!el) return;
+    const whispers = whisperSets[context] || whisperSets['default'];
+    let i = 0;
+    el.textContent = whispers[0];
+    setInterval(() => {
+      el.textContent = whispers[++i % whispers.length];
+    }, 9000);
+  }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initWhispers);
-} else {
-  initWhispers();
-}
+  function initWhispers() {
+    const loreContext = document.body.dataset.page || 'default';
+    rotateWhispers('lore-whisper', whisperSets[loreContext] ? loreContext : 'default');
+    rotateWhispers('footer-whisper', 'footer');
+  }
 
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initWhispers);
+  } else {
+    initWhispers();
+  }
+})(); // Close the IIFE
