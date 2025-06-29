@@ -465,19 +465,32 @@
   window.bindAuthButtons = bindAuthButtons;
   window.updateAuthUI = updateUI;
 
-  // Ensure MSAL is loaded before calling initAuth
-  if (window.msal && typeof msal.PublicClientApplication === 'function') {
-    // Check if we have authConfig.js loaded
-    if (window.msalConfig) {
-      debugLog('MSAL and config loaded, initializing auth');
-      initAuth();
-    } else {
-      debugLog('MSAL loaded but config missing');
-      showFallback('Authentication configuration missing. Please contact support.');
-    }
+  // --- Initialization Guard ---
+  // This robustly waits for dependencies to be ready before initializing,
+  // preventing race conditions with dynamically loaded scripts.
+  function initializeWhenReady() {
+    const startTime = Date.now();
+    const checkInterval = setInterval(() => {
+      const msalReady = typeof msal !== 'undefined' && msal.PublicClientApplication;
+      const configReady = typeof msalConfig !== 'undefined';
+
+      if (msalReady && configReady) {
+        clearInterval(checkInterval);
+        debugLog('Auth dependencies ready, initializing...');
+        initAuth();
+      } else if (Date.now() - startTime > 5000) { // 5-second timeout
+        clearInterval(checkInterval);
+        debugLog('ERROR: Auth dependencies did not load in time.');
+        showFallback('Authentication system unavailable. Please refresh or contact support.');
+      }
+    }, 100);
+  }
+
+  // Start the initialization check once the DOM is ready.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeWhenReady);
   } else {
-    debugLog('MSAL library not loaded');
-    showFallback('Authentication system unavailable. Please refresh or contact support.');
+    initializeWhenReady();
   }
 
 })();

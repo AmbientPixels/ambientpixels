@@ -212,3 +212,23 @@
     font-size: 0.9em;
   }
 }
+
+/* --- Desktop Styles (921px and above) --- */
+@media (min-width: 921px) {
+  .nav-links .link-text {
+    display: none; /* Hide text on wide screens by default */
+  }
+
+  .nav-links a {
+    gap: 0; /* Remove gap when text is hidden */
+    padding: 6px 10px; /* Adjust padding for icon-only view */
+  }
+
+  .nav-links a:hover .link-text {
+    display: inline; /* Show text on hover */
+  }
+
+  .nav-links a:hover {
+    gap: 8px; /* Restore gap on hover */
+  }
+}
