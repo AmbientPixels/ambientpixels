@@ -4402,3 +4402,134 @@ body[data-theme="light"] .nova-quip {
     padding: 3rem 1.5rem;
   }
 }
+
+/* --- User Profile Dropdown (added by Cascade, June 2025) --- */
+.user-profile-container {
+  position: relative;
+  display: inline-block;
+}
+
+.user-profile-button {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: transparent;
+  border: none;
+  color: var(--nav-link-color, #ccd6f6);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.user-profile-button:hover,
+.user-profile-button[aria-expanded="true"] {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 8px rgba(90, 228, 255, 0.2);
+}
+
+.user-avatar {
+  font-size: 1.8rem;
+  color: var(--aura-glow, #5ae4ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-avatar img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-display-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.dropdown-caret {
+  font-size: 0.8rem;
+  transition: transform 0.2s ease-in-out;
+}
+
+.user-profile-button[aria-expanded="true"] .dropdown-caret {
+  transform: rotate(180deg);
+}
+
+.user-profile-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 260px;
+  background: var(--nav-bg, #10121a);
+  border: 1px solid var(--nav-border-color, rgba(255, 255, 255, 0.1));
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.user-profile-dropdown.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--nav-border-color, rgba(255, 255, 255, 0.1));
+  line-height: 1.3;
+}
+
+.dropdown-user-name {
+  display: block;
+  font-weight: 700;
+  color: #fff;
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-user-email {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-color-secondary, #a8b2d1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.75rem 1rem;
+  color: var(--nav-link-color, #ccd6f6);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(90, 228, 255, 0.1);
+  color: #fff;
+}
+
+.dropdown-item i {
+  width: 20px;
+  text-align: center;
+  font-size: 1rem;
+  color: var(--aura-glow, #5ae4ff);
+}
+
+.dropdown-item:last-child {
+  border-top: 1px solid var(--nav-border-color, rgba(255, 255, 255, 0.1));
+}

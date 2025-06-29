@@ -26,8 +26,30 @@
           <i class="fas fa-moon"></i>
         </button>
         <button id="login-btn" class="nav-auth-btn" type="button">Login</button>
-        <button id="logout-btn" class="nav-auth-btn" style="display:none" type="button">Logout</button>
-        <span id="user-greeting" style="display:none" aria-live="polite"></span>
+        
+        <!-- User Profile Dropdown (replaces old greeting and logout button) -->
+        <div id="user-profile-container" class="user-profile-container" style="display: none;">
+          <button id="user-profile-button" class="user-profile-button" aria-haspopup="true" aria-expanded="false">
+            <span id="user-avatar" class="user-avatar"><i class="fas fa-user-circle"></i></span>
+            <span id="user-display-name" class="user-display-name"></span>
+            <i class="fas fa-chevron-down dropdown-caret"></i>
+          </button>
+          <div id="user-profile-dropdown" class="user-profile-dropdown">
+            <div class="dropdown-header">
+              <span class="dropdown-user-name"></span>
+              <span class="dropdown-user-email"></span>
+            </div>
+            <a href="/account/" class="dropdown-item">
+              <i class="fas fa-cog fa-fw"></i>
+              <span>Account Settings</span>
+            </a>
+            <a href="#" id="dropdown-logout-btn" class="dropdown-item">
+              <i class="fas fa-sign-out-alt fa-fw"></i>
+              <span>Logout</span>
+            </a>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>

@@ -49,6 +49,10 @@
   // Main UI update function
   function updateUI() {
     const loginBtn = document.getElementById('login-btn');
+    const userProfileContainer = document.getElementById('user-profile-container');
+    const userDisplayName = document.getElementById('user-display-name');
+    const dropdownUserName = document.querySelector('.dropdown-user-name');
+    const dropdownUserEmail = document.querySelector('.dropdown-user-email');
     const logoutBtn = document.getElementById('logout-btn');
     const greeting = document.getElementById('user-greeting');
     
@@ -56,7 +60,8 @@
     debugLog('updateUI DOM elements:', { 
       loginBtn: loginBtn ? 'found' : 'missing', 
       logoutBtn: logoutBtn ? 'found' : 'missing',
-      greeting: greeting ? 'found' : 'missing'
+      greeting: greeting ? 'found' : 'missing',
+      userProfileContainer: userProfileContainer ? 'found' : 'missing'
     });
     
     let isSignedIn = false;
@@ -139,6 +144,35 @@
       } else {
         greeting.textContent = '';
       }
+    }
+    if (userProfileContainer) {
+      userProfileContainer.style.display = isSignedIn ? '' : 'none';
+      if (isSignedIn && account) {
+        // Determine the best display name to use
+        let displayName = account.name;
+
+        // Fallback if name is not useful (null, empty, or "unknown")
+        if (!displayName || displayName.trim().toLowerCase() === 'unknown' || displayName.trim() === '') {
+          displayName = account.username;
+        }
+        
+        // If the name is an email, extract the part before the @
+        if (displayName && displayName.includes('@')) {
+          displayName = displayName.split('@')[0];
+        }
+
+        // Final fallback if no name could be determined
+        displayName = displayName || 'Grid Visitor';
+
+        const userEmail = account.username || account.idTokenClaims?.email || 'No email available';
+
+        if(userDisplayName) userDisplayName.textContent = displayName;
+        if(dropdownUserName) dropdownUserName.textContent = displayName;
+        if(dropdownUserEmail) dropdownUserEmail.textContent = userEmail;
+
+        debugLog('Profile dropdown updated:', { displayName, userEmail });
+        debugLog('Account object:', account);
+      } 
     }
     debugLog('UI updated. Signed in:', isSignedIn, 'Account:', account);
   }
@@ -367,6 +401,40 @@
       debugLog('WARNING: Logout button not found in DOM');
     }
     
+    // Bind new profile dropdown elements
+    const userProfileButton = document.getElementById('user-profile-button');
+    const userProfileDropdown = document.getElementById('user-profile-dropdown');
+    const dropdownLogoutBtn = document.getElementById('dropdown-logout-btn');
+
+    if (userProfileButton && userProfileDropdown) {
+      userProfileButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isVisible = userProfileDropdown.classList.toggle('visible');
+        userProfileButton.setAttribute('aria-expanded', isVisible);
+        debugLog('Profile dropdown toggled, visible:', isVisible);
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!userProfileDropdown.contains(e.target) && userProfileDropdown.classList.contains('visible')) {
+          userProfileDropdown.classList.remove('visible');
+          userProfileButton.setAttribute('aria-expanded', 'false');
+          debugLog('Profile dropdown closed due to outside click');
+        }
+      });
+
+      debugLog('User profile dropdown button bound successfully');
+    } else {
+      debugLog('WARNING: User profile button or dropdown not found in DOM');
+    }
+
+    if (dropdownLogoutBtn) {
+      dropdownLogoutBtn.addEventListener('click', logout, {capture: false});
+      debugLog('Dropdown logout button bound successfully');
+    } else {
+      debugLog('WARNING: Dropdown logout button not found in DOM');
+    }
+    
     // Force a UI update with the current authentication state
     updateUI();
     
@@ -379,7 +447,14 @@
       }
     }
     
-    debugLog('Auth buttons bound:', {loginBtn, logoutBtn});
+    // If we know we're authenticated, make sure profile container is visible
+    const userProfileContainer = document.getElementById('user-profile-container');
+    if (isAuthenticated && userProfileContainer) {
+        userProfileContainer.style.display = '';
+        debugLog('Forced profile container visibility due to known authenticated state');
+    }
+    
+    debugLog('Auth elements bound:', {loginBtn, userProfileButton, dropdownLogoutBtn});
   }
 
   // Expose needed globals
