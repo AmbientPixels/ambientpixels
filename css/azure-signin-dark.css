@@ -1,115 +1,184 @@
-/* azure-signin-dark.css - Nova/AmbientPixels Auth Form Styling */
+/* AmbientPixels Nova Dark Theme for Azure/Entra Login */
 
-:root {
-  --aura-bg: #10131a;
-  --aura-fg: #e6eaf3;
-  --aura-fg-muted: #b8c1d6;
-  --aura-glow: #64d3ff88;
-  --mood-glow: #00ffd088;
-  --border-radius-medium: 10px;
-  --border-radius-large: 18px;
-  --accent-color: #64d3ff;
-  --accent-color-glow: #00ffd0;
-  --input-bg: #23263a;
-  --input-border: #31344a;
-  --input-focus: #64d3ff;
-  --error-bg: #3d1a1a;
-  --error-fg: #ff6464;
-}
-
-body, html {
-  background: var(--aura-bg) !important;
-  color: var(--aura-fg) !important;
-  font-family: 'Inter', 'Segoe UI', Arial, sans-serif !important;
+body {
+  background: #10131a !important;
+  color: #e6eaf3 !important;
+  font-family: 'Segoe UI', Arial, sans-serif !important;
   letter-spacing: 0.01em;
 }
 
-a, a:visited {
-  color: var(--accent-color) !important;
+a, a:link {
+  color: #64d3ff !important;
   transition: color 0.2s;
 }
 
-a:hover, a:focus {
-  color: var(--accent-color-glow) !important;
+a:hover, a:focus, a:focus:hover {
+  color: #00ffd0 !important;
   text-decoration: underline !important;
 }
 
-div#api, .panel, .panel-default, .panel-body, .panel-heading {
+a:active {
+  color: #64d3ff !important;
+}
+
+.ext-background-image {
+  filter: brightness(0.7) !important;
+}
+
+.ext-background-overlay {
+  background: rgba(16,19,26,0.75) !important;
+}
+
+.ext-header {
+  background: transparent !important;
+  border-bottom: none !important;
+}
+
+.ext-header-logo {
+  max-height: 60px !important;
+  filter: drop-shadow(0 2px 24px #64d3ff88) !important;
+}
+
+.ext-middle {
+  min-height: 100vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.ext-sign-in-box {
   background: #181b23 !important;
-  border-radius: var(--border-radius-large) !important;
-  box-shadow: 0 2px 24px var(--aura-glow) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 2px 24px #64d3ff88 !important;
   border: 1px solid #23263a !important;
   padding: 2.5em 2em 2em 2em !important;
 }
 
-label {
-  color: var(--aura-fg-muted) !important;
-  font-weight: 500 !important;
-  margin-bottom: 0.5em !important;
-  letter-spacing: 0.01em;
+.ext-banner-logo {
+  max-width: 180px !important;
+  margin-bottom: 1.5em !important;
 }
 
-input[type="text"], input[type="email"], input[type="password"], select, textarea {
-  background: var(--input-bg) !important;
-  color: var(--aura-fg) !important;
-  border: 1.5px solid var(--input-border) !important;
-  border-radius: var(--border-radius-medium) !important;
-  padding: 0.85em 1.1em !important;
-  margin-bottom: 1.2em !important;
-  font-size: 1.08em !important;
-  font-family: inherit !important;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  box-shadow: 0 0 0 0 transparent;
+.ext-title {
+  color: #64d3ff !important;
+  font-size: 2em !important;
+  font-weight: 700 !important;
+  margin-bottom: 0.25em !important;
 }
 
-input:focus, select:focus, textarea:focus {
-  border-color: var(--input-focus) !important;
-  box-shadow: 0 0 0 3px var(--mood-glow) !important;
+.ext-subtitle, .ext-header-description {
+  color: #b8c1d6 !important;
+  font-size: 1.1em !important;
+  margin-bottom: 1em !important;
+}
+
+.ext-error {
+  background: #3d1a1a !important;
+  color: #ff6464 !important;
+  border-radius: 10px !important;
+  padding: 0.75em 1em !important;
+  margin-bottom: 1em !important;
+}
+
+.ext-input.ext-text-box {
+  background: #23263a !important;
+  color: #e6eaf3 !important;
+  border: 1px solid #31344a !important;
+  border-radius: 10px !important;
+  padding: 0.75em 1em !important;
+  font-size: 1em !important;
+  transition: border-color 0.2s;
+}
+
+.ext-input.ext-text-box.ext-has-error {
+  border-color: #ff6464 !important;
+  background: #3d1a1a !important;
+}
+
+.ext-input.ext-text-box:hover,
+.ext-input.ext-text-box:focus,
+.ext-input.ext-text-box:focus:hover {
+  border-color: #64d3ff !important;
   outline: none !important;
 }
 
-button, input[type="submit"] {
-  background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-color-glow) 100%) !important;
-  color: var(--aura-bg) !important;
+.ext-password-reset-links-container {
+  text-align: center !important;
+  margin-top: 1em !important;
+}
+
+.ext-button-field-container {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 1em !important;
+}
+
+.ext-button-item {
+  width: 100% !important;
+}
+
+.ext-button.ext-primary {
+  background: linear-gradient(90deg, #64d3ff 0%, #00ffd0 100%) !important;
+  color: #10131a !important;
+  border-radius: 10px !important;
   border: none !important;
-  border-radius: var(--border-radius-medium) !important;
   font-weight: 600 !important;
-  font-family: inherit !important;
-  padding: 0.85em 2.2em !important;
-  font-size: 1.08em !important;
-  box-shadow: 0 2px 8px var(--mood-glow) !important;
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-  margin-top: 0.5em;
+  box-shadow: 0 1px 8px #00ffd088 !important;
+  transition: background 0.2s, box-shadow 0.2s;
 }
 
-button:hover, input[type="submit"]:hover {
-  background: linear-gradient(90deg, var(--accent-color-glow) 0%, var(--accent-color) 100%) !important;
-  color: var(--aura-bg) !important;
-  box-shadow: 0 4px 16px var(--accent-color-glow) !important;
+.ext-button.ext-primary:hover,
+.ext-button.ext-primary:focus,
+.ext-button.ext-primary:focus:hover,
+.ext-button.ext-primary:active {
+  background: linear-gradient(90deg, #00ffd0 0%, #64d3ff 100%) !important;
+  box-shadow: 0 2px 16px #00ffd088 !important;
 }
 
-input::placeholder, textarea::placeholder {
-  color: #7e8ba3 !important;
-  opacity: 1 !important;
+.ext-button.ext-secondary,
+.ext-button.ext-secondary:hover,
+.ext-button.ext-secondary:focus,
+.ext-button.ext-secondary:focus:hover,
+.ext-button.ext-secondary:active {
+  background: #23263a !important;
+  color: #64d3ff !important;
+  border-radius: 10px !important;
+  border: 1px solid #64d3ff !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
 }
 
-.error, .alert, .alert-danger, .has-error .form-control {
-  background: var(--error-bg) !important;
-  color: var(--error-fg) !important;
-  border-color: var(--error-fg) !important;
-  border-radius: var(--border-radius-medium) !important;
+.ext-boilerplate-text {
+  color: #b8c1d6 !important;
+  font-size: 0.95em !important;
+  margin-top: 2em !important;
+}
+
+.ext-promoted-fed-cred-box {
+  background: #23263a !important;
+  color: #e6eaf3 !important;
+  border-radius: 10px !important;
   padding: 1em !important;
+  margin-bottom: 1em !important;
 }
 
-hr {
+.ext-footer, .ext-footer.ext-has-background {
+  background: transparent !important;
+  color: #b8c1d6 !important;
   border-top: 1px solid #23263a !important;
-  margin: 2em 0 !important;
+  padding: 1.5em 0 0 0 !important;
 }
 
-@media (max-width: 600px) {
-  .panel, .panel-default, .panel-body, .panel-heading {
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    padding: 1.2em 0.5em !important;
-  }
+.ext-footer-links {
+  text-align: center !important;
+}
+
+.ext-footer-content.ext-footer-item {
+  color: #64d3ff !important;
+  margin: 0 0.5em !important;
+}
+
+.ext-footer-content.ext-footer-item.ext-debug-item {
+  color: #ff6464 !important;
 }

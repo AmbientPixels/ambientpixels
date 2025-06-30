@@ -24,6 +24,7 @@ This project expands the AmbientPixels authentication experience with modern use
 - [ ] Documentation and onboarding update
 
 ## Progress Log
+- **2025-06-29:** Updated Azure/Entra login branding to use the Nova/AmbientPixels dark theme. Rewrote `css/azure-signin-dark.css` to use only selectors supported by Microsoft's official company branding CSS template. Removed CSS variables and unsupported rules for maximum compatibility. Uploaded to Azure portal and verified propagation.
 - **2025-06-29:** Created the account settings page at `/account/`. Implemented dynamic user data display, placeholder sections for avatar/account management, and integrated the site's dynamic breadcrumb module.
 - **2025-06-29:** Implemented the user profile dropdown in the header. Added HTML, CSS, and JS to manage UI and user interaction. Updated documentation.
 - **2025-06-29:** Project created and initialized. Planning and requirements defined.
@@ -31,6 +32,13 @@ This project expands the AmbientPixels authentication experience with modern use
 ---
 
 ## Implementation Details
+
+### Azure/Entra Login Branding (Nova Dark Theme)
+
+- **Selector Compliance:** Only selectors from the [Microsoft reference template](https://learn.microsoft.com/en-us/entra/fundamentals/reference-company-branding-css-template) are used (e.g., `.ext-sign-in-box`, `.ext-button.ext-primary`, `.ext-footer`). No CSS variables or custom fonts.
+- **Theme:** Applies Nova/AmbientPixels dark palette, accent gradients, and rounded corners to all major login UI elements.
+- **Testing:** CSS uploaded via Azure portal Company Branding, then verified in incognito/private window for correct propagation and appearance.
+- **File:** `css/azure-signin-dark.css`
 
 This document provides a technical overview of the auth expansion features for onboarding and future development.
 
