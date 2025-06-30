@@ -327,3 +327,25 @@ input:focus, button:focus {
 .ext-footer-content.ext-footer-item.ext-debug-item {
   color: #ff6464 !important;
 }
+
+/* Placeholder text styling for all text boxes */
+.ext-input.ext-text-box::placeholder {
+  color: #b8c1d6 !important;
+  opacity: 1 !important;
+}
+
+/* Autofill fix (Chrome/Edge) */
+.ext-input.ext-text-box:-webkit-autofill,
+.ext-input.ext-text-box:-webkit-autofill:focus {
+  background: #23263a !important;
+  color: #e6eaf3 !important;
+  -webkit-text-fill-color: #e6eaf3 !important;
+  box-shadow: 0 0 0 1000px #23263a inset !important;
+}
+
+/* Disabled state */
+.ext-input.ext-text-box:disabled {
+  background: #23263a !important;
+  color: #7a8199 !important;
+  opacity: 0.7 !important;
+}
