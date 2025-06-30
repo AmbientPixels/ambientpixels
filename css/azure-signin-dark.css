@@ -132,10 +132,19 @@ a:active {
   font-size: 1em !important;
   transition: border-color 0.2s;
 }
+
+/* Fix for white text on white background in text inputs */
+.ext-input.ext-text-box[type="email"],
+.ext-input.ext-text-box[type="text"] {
+  color: #e6eaf3 !important;
+  background-color: #23263a !important;
+}
+
 .ext-input.ext-text-box.ext-has-error {
   border-color: #ff6464 !important;
   background: #3d1a1a !important;
 }
+
 .ext-input.ext-text-box:hover,
 .ext-input.ext-text-box:focus,
 .ext-input.ext-text-box:focus:hover {
@@ -169,6 +178,9 @@ a:active {
   color: #b8c1d6 !important;
   border-top: 1px solid #23263a !important;
   padding: 1.5em 0 0 0 !important;
+  position: relative !important;
+  margin-top: 1.5em !important;
+  clear: both !important;
 }
 
 .ext-footer-links {
@@ -202,7 +214,8 @@ input:focus, button:focus {
   flex-direction: column !important;
   align-items: center !important;
   gap: 1em !important;
-  margin-bottom: 2em !important; /* Added breathing room above footer */
+  margin-bottom: 2.5em !important; /* Increased breathing room above footer */
+  position: relative !important; /* Ensure proper positioning */
 }
 
 .ext-button-item {
@@ -224,6 +237,19 @@ input:focus, button:focus {
   opacity: 1 !important;
 }
 
+/* Fix for back button and other navigation elements */
+[class*="back-button"],
+[aria-label*="Back"],
+.ext-back-button {
+  background-color: #23263a !important;
+  color: #64d3ff !important;
+  border: 1px solid #31344a !important;
+  border-radius: 10px !important;
+  padding: 0.5em !important;
+  position: static !important; /* Prevent absolute positioning issues */
+  margin: 0.5em 0 !important;
+}
+
 /* Autofill fix (Chrome/Edge) */
 .ext-input.ext-text-box:-webkit-autofill,
 .ext-input.ext-text-box:-webkit-autofill:focus {
@@ -231,6 +257,7 @@ input:focus, button:focus {
   color: #e6eaf3 !important;
   -webkit-text-fill-color: #e6eaf3 !important;
   box-shadow: 0 0 0 1000px #23263a inset !important;
+  caret-color: #e6eaf3 !important;
 }
 
 /* Disabled state */
