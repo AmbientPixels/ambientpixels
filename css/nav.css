@@ -215,17 +215,36 @@
 
 /* --- Desktop Styles (921px and above) --- */
 @media (min-width: 921px) {
+  .nav-links {
+    position: relative;
+    transition: transform 0.3s cubic-bezier(.6,.2,.2,1);
+  }
+
+
   .nav-links .link-text {
-    display: none; /* Hide text on wide screens by default */
+    display: inline-block;
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    vertical-align: middle;
+    transition: max-width 0.35s cubic-bezier(.6,.2,.2,1), opacity 0.3s cubic-bezier(.6,.2,.2,1);
+    white-space: nowrap;
   }
 
   .nav-links a {
     gap: 0; /* Remove gap when text is hidden */
     padding: 6px 10px; /* Adjust padding for icon-only view */
+    transition: padding 0.35s cubic-bezier(.6,.2,.2,1);
+    padding-right: 10px;
   }
 
-  .nav-links a:hover .link-text {
-    display: inline; /* Show text on hover */
+  .nav-links a:hover .link-text, .nav-links a:focus .link-text {
+    max-width: 160px;
+    opacity: 1;
+  }
+
+  .nav-links a:hover, .nav-links a:focus {
+    padding-right: 18px;
   }
 
   .nav-links a:hover {

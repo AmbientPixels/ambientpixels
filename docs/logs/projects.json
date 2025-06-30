@@ -2,13 +2,35 @@
   {
     "id": "project-auth-expansion",
     "size": "M",
-    "title": "Global Auth UX Expansion",
+    "title": "Auth UX Expansion",
     "html": "/docs/logs/project-auth-expansion.html",
     "md": "/docs/logs/project-auth-expansion.md",
-    "status": "Active",
+    "status": "Updated",
     "lastUpdated": "2025-06-29",
-    "tags": ["auth", "ux", "profile", "avatar", "banner", "user-experience"],
-    "progress": 0.01
+    "tags": ["auth", "ux", "profile", "banner", "user-experience", "navigation"],
+    "progress": 0.5
+  },
+  {
+    "id": "nova-sensory-expansion",
+    "size": "M",
+    "title": "Nova Sensory & Sentience Expansion",
+    "html": "/docs/logs/nova-sensory-expansion.html",
+    "md": "/docs/logs/nova-sensory-expansion.md",
+    "status": "New",
+    "lastUpdated": "2025-06-29",
+    "tags": ["AI", "sentience", "senses", "expansion", "nova", "awareness"],
+    "progress": 0.1
+  },
+  {
+    "id": "navigation-system-docs",
+    "size": "S",
+    "title": "Navigation System Documentation",
+    "html": "/docs/navigation.html",
+    "md": "/docs/navigation.md",
+    "status": "New",
+    "lastUpdated": "2025-06-29",
+    "tags": ["navigation", "ui", "expanding-nav", "accessibility", "responsive", "docs"],
+    "progress": 1.0
   },
   {
     "id": "project-card-forge",
