@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-06-29T13:29:35.426Z",
+  "updated": "2025-06-30T13:34:34.030Z",
   "root": [
     {
       "type": "folder",
@@ -54,6 +54,18 @@
           "type": "page",
           "name": "index.html",
           "path": "about/index.html"
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": "account",
+      "path": "account",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "account/index.html"
         }
       ]
     },
@@ -178,6 +190,18 @@
       "type": "page",
       "name": "glitchlab.html",
       "path": "glitchlab.html"
+    },
+    {
+      "type": "folder",
+      "name": "help",
+      "path": "help",
+      "children": [
+        {
+          "type": "page",
+          "name": "password-reset.html",
+          "path": "help/password-reset.html"
+        }
+      ]
     },
     {
       "type": "folder",
@@ -657,6 +681,11 @@
           "type": "page",
           "name": "nova-vision.html",
           "path": "nova/nova-vision.html"
+        },
+        {
+          "type": "page",
+          "name": "pulse-bar.html",
+          "path": "nova/pulse-bar.html"
         }
       ]
     },
@@ -705,6 +734,11 @@
           "path": "playground/hero.html"
         }
       ]
+    },
+    {
+      "type": "page",
+      "name": "privacy.html",
+      "path": "privacy.html"
     },
     {
       "type": "folder",
@@ -1008,6 +1042,11 @@
       "path": "template.html"
     },
     {
+      "type": "page",
+      "name": "terms.html",
+      "path": "terms.html"
+    },
+    {
       "type": "folder",
       "name": "tools",
       "path": "tools",
@@ -1098,6 +1137,12 @@
       "type": "page",
       "name": "uberprompt.html",
       "path": "uberprompt.html"
+    },
+    {
+      "type": "folder",
+      "name": "video",
+      "path": "video",
+      "children": []
     }
   ]
 }
