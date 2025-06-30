@@ -1,0 +1,115 @@
+/* azure-signin-dark.css - Nova/AmbientPixels Auth Form Styling */
+
+:root {
+  --aura-bg: #10131a;
+  --aura-fg: #e6eaf3;
+  --aura-fg-muted: #b8c1d6;
+  --aura-glow: #64d3ff88;
+  --mood-glow: #00ffd088;
+  --border-radius-medium: 10px;
+  --border-radius-large: 18px;
+  --accent-color: #64d3ff;
+  --accent-color-glow: #00ffd0;
+  --input-bg: #23263a;
+  --input-border: #31344a;
+  --input-focus: #64d3ff;
+  --error-bg: #3d1a1a;
+  --error-fg: #ff6464;
+}
+
+body, html {
+  background: var(--aura-bg) !important;
+  color: var(--aura-fg) !important;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif !important;
+  letter-spacing: 0.01em;
+}
+
+a, a:visited {
+  color: var(--accent-color) !important;
+  transition: color 0.2s;
+}
+
+a:hover, a:focus {
+  color: var(--accent-color-glow) !important;
+  text-decoration: underline !important;
+}
+
+div#api, .panel, .panel-default, .panel-body, .panel-heading {
+  background: #181b23 !important;
+  border-radius: var(--border-radius-large) !important;
+  box-shadow: 0 2px 24px var(--aura-glow) !important;
+  border: 1px solid #23263a !important;
+  padding: 2.5em 2em 2em 2em !important;
+}
+
+label {
+  color: var(--aura-fg-muted) !important;
+  font-weight: 500 !important;
+  margin-bottom: 0.5em !important;
+  letter-spacing: 0.01em;
+}
+
+input[type="text"], input[type="email"], input[type="password"], select, textarea {
+  background: var(--input-bg) !important;
+  color: var(--aura-fg) !important;
+  border: 1.5px solid var(--input-border) !important;
+  border-radius: var(--border-radius-medium) !important;
+  padding: 0.85em 1.1em !important;
+  margin-bottom: 1.2em !important;
+  font-size: 1.08em !important;
+  font-family: inherit !important;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 0 0 0 transparent;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--input-focus) !important;
+  box-shadow: 0 0 0 3px var(--mood-glow) !important;
+  outline: none !important;
+}
+
+button, input[type="submit"] {
+  background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-color-glow) 100%) !important;
+  color: var(--aura-bg) !important;
+  border: none !important;
+  border-radius: var(--border-radius-medium) !important;
+  font-weight: 600 !important;
+  font-family: inherit !important;
+  padding: 0.85em 2.2em !important;
+  font-size: 1.08em !important;
+  box-shadow: 0 2px 8px var(--mood-glow) !important;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  margin-top: 0.5em;
+}
+
+button:hover, input[type="submit"]:hover {
+  background: linear-gradient(90deg, var(--accent-color-glow) 0%, var(--accent-color) 100%) !important;
+  color: var(--aura-bg) !important;
+  box-shadow: 0 4px 16px var(--accent-color-glow) !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #7e8ba3 !important;
+  opacity: 1 !important;
+}
+
+.error, .alert, .alert-danger, .has-error .form-control {
+  background: var(--error-bg) !important;
+  color: var(--error-fg) !important;
+  border-color: var(--error-fg) !important;
+  border-radius: var(--border-radius-medium) !important;
+  padding: 1em !important;
+}
+
+hr {
+  border-top: 1px solid #23263a !important;
+  margin: 2em 0 !important;
+}
+
+@media (max-width: 600px) {
+  .panel, .panel-default, .panel-body, .panel-heading {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 1.2em 0.5em !important;
+  }
+}
