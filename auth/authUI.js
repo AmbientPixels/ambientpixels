@@ -282,13 +282,25 @@
         
         // Show welcome banner
         if (window.banner && typeof window.banner.show === 'function') {
-          const userName = response.account.name || response.account.username || 'User';
-          window.banner.show({
-            message: `Welcome, ${userName}! You are now logged in.`,
-            type: 'success',
-            duration: 5000,
-            icon: 'fas fa-user-check'
-          });
+          let displayName = response.account.name;
+// Fallback if name is not useful (null, empty, or "unknown")
+if (!displayName || displayName.trim().toLowerCase() === 'unknown' || displayName.trim() === '') {
+  displayName = response.account.username;
+}
+// If the name is an email, extract the part before the @
+if (displayName && displayName.includes('@')) {
+  displayName = displayName.split('@')[0];
+}
+// Final fallback if no name could be determined
+if (!displayName || displayName.trim() === '') {
+  displayName = response.account.idTokenClaims?.email ? response.account.idTokenClaims.email.split('@')[0] : 'Grid Visitor';
+}
+window.banner.show({
+  message: `Welcome, ${displayName}! You are now logged in.`,
+  type: 'success',
+  duration: 5000,
+  icon: 'fas fa-user-check'
+});
           debugLog("Displayed welcome banner for user:", userName);
         } else {
           debugLog("Banner system not available for login notification");

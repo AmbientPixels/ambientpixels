@@ -24,6 +24,7 @@ This project expands the AmbientPixels authentication experience with modern use
 - [ ] Documentation and onboarding update
 
 ## Progress Log
+- **2025-06-29:** Updated the login event banner logic in `/auth/authUI.js` (handleRedirectResponse) to use robust fallback logic for user display name. The welcome banner now always shows a meaningful name (display name, username, email prefix, or 'Grid Visitor'), never 'unknown', matching the UI logic elsewhere.
 - **2025-06-29:** Updated Azure/Entra login branding to use the Nova/AmbientPixels dark theme. Rewrote `css/azure-signin-dark.css` to use only selectors supported by Microsoft's official company branding CSS template. Removed CSS variables and unsupported rules for maximum compatibility. Uploaded to Azure portal and verified propagation.
 - **2025-06-29:** Created the account settings page at `/account/`. Implemented dynamic user data display, placeholder sections for avatar/account management, and integrated the site's dynamic breadcrumb module.
 - **2025-06-29:** Implemented the user profile dropdown in the header. Added HTML, CSS, and JS to manage UI and user interaction. Updated documentation.
