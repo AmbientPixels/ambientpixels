@@ -190,62 +190,7 @@ input:focus, button:focus {
   outline-offset: 2px !important;
 }
 
-
-.ext-sign-in-box {
-  background: #181b23 !important;
-  border-radius: 18px !important;
-  box-shadow: 0 2px 24px #64d3ff88 !important;
-  border: 1px solid #23263a !important;
-  padding: 2.5em 2em 2em 2em !important;
-}
-
-.ext-banner-logo {
-  max-width: 180px !important;
-  margin-bottom: 1.5em !important;
-}
-
-.ext-title {
-  color: #64d3ff !important;
-  font-size: 2em !important;
-  font-weight: 700 !important;
-  margin-bottom: 0.25em !important;
-}
-
-.ext-subtitle, .ext-header-description {
-  color: #b8c1d6 !important;
-  font-size: 1.1em !important;
-  margin-bottom: 1em !important;
-}
-
-.ext-error {
-  background: #3d1a1a !important;
-  color: #ff6464 !important;
-  border-radius: 10px !important;
-  padding: 0.75em 1em !important;
-  margin-bottom: 1em !important;
-}
-
-.ext-input.ext-text-box {
-  background: #23263a !important;
-  color: #e6eaf3 !important;
-  border: 1px solid #31344a !important;
-  border-radius: 10px !important;
-  padding: 0.75em 1em !important;
-  font-size: 1em !important;
-  transition: border-color 0.2s;
-}
-
-.ext-input.ext-text-box.ext-has-error {
-  border-color: #ff6464 !important;
-  background: #3d1a1a !important;
-}
-
-.ext-input.ext-text-box:hover,
-.ext-input.ext-text-box:focus,
-.ext-input.ext-text-box:focus:hover {
-  border-color: #64d3ff !important;
-  outline: none !important;
-}
+/* Multiple duplicate style blocks removed by Cascade, June 2025 */
 
 .ext-password-reset-links-container {
   text-align: center !important;
@@ -257,66 +202,11 @@ input:focus, button:focus {
   flex-direction: column !important;
   align-items: center !important;
   gap: 1em !important;
+  margin-bottom: 2em !important; /* Added breathing room above footer */
 }
 
 .ext-button-item {
   width: 100% !important;
-}
-
-.ext-button.ext-primary {
-  background: linear-gradient(90deg, #64d3ff 0%, #00ffd0 100%) !important;
-  color: #10131a !important;
-  border-radius: 10px !important;
-  border: none !important;
-  font-weight: 600 !important;
-  box-shadow: 0 1px 8px #00ffd088 !important;
-  transition: background 0.2s, box-shadow 0.2s;
-}
-
-.ext-button.ext-primary:hover,
-.ext-button.ext-primary:focus,
-.ext-button.ext-primary:focus:hover,
-.ext-button.ext-primary:active {
-  background: linear-gradient(90deg, #00ffd0 0%, #64d3ff 100%) !important;
-  box-shadow: 0 2px 16px #00ffd088 !important;
-}
-
-.ext-button.ext-secondary,
-.ext-button.ext-secondary:hover,
-.ext-button.ext-secondary:focus,
-.ext-button.ext-secondary:focus:hover,
-.ext-button.ext-secondary:active {
-  background: #23263a !important;
-  color: #64d3ff !important;
-  border-radius: 10px !important;
-  border: 1px solid #64d3ff !important;
-  font-weight: 600 !important;
-  box-shadow: none !important;
-}
-
-.ext-boilerplate-text {
-  color: #b8c1d6 !important;
-  font-size: 0.95em !important;
-  margin-top: 2em !important;
-}
-
-.ext-promoted-fed-cred-box {
-  background: #23263a !important;
-  color: #e6eaf3 !important;
-  border-radius: 10px !important;
-  padding: 1em !important;
-  margin-bottom: 1em !important;
-}
-
-.ext-footer, .ext-footer.ext-has-background {
-  background: transparent !important;
-  color: #b8c1d6 !important;
-  border-top: 1px solid #23263a !important;
-  padding: 1.5em 0 0 0 !important;
-}
-
-.ext-footer-links {
-  text-align: center !important;
 }
 
 .ext-footer-content.ext-footer-item {
