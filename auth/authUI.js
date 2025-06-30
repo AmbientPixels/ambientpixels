@@ -46,6 +46,40 @@
     debugLog('Fallback message shown:', fallback.textContent);
   }
 
+  // Dedicated dropdown event binding (modular, idempotent)
+  function bindDropdownEvents() {
+    const userProfileButton = document.getElementById('user-profile-button');
+    const userProfileDropdown = document.getElementById('user-profile-dropdown');
+    if (!userProfileButton || !userProfileDropdown) {
+      debugLog('bindDropdownEvents: dropdown elements not found');
+      return;
+    }
+    // Remove previous listeners to avoid stacking
+    userProfileButton.onclick = null;
+    userProfileButton.removeEventListener('click', userProfileButton._dropdownClickHandler || (()=>{}));
+    document.removeEventListener('click', userProfileDropdown._outsideClickHandler || (()=>{}));
+    // Toggle handler
+    const dropdownClickHandler = (e) => {
+      e.stopPropagation();
+      const isVisible = userProfileDropdown.classList.toggle('visible');
+      userProfileButton.setAttribute('aria-expanded', isVisible);
+      debugLog('Profile dropdown toggled, visible:', isVisible);
+    };
+    userProfileButton.addEventListener('click', dropdownClickHandler);
+    userProfileButton._dropdownClickHandler = dropdownClickHandler;
+    // Outside click handler
+    const outsideClickHandler = (e) => {
+      if (!userProfileDropdown.contains(e.target) && userProfileDropdown.classList.contains('visible')) {
+        userProfileDropdown.classList.remove('visible');
+        userProfileButton.setAttribute('aria-expanded', 'false');
+        debugLog('Profile dropdown closed due to outside click');
+      }
+    };
+    document.addEventListener('click', outsideClickHandler);
+    userProfileDropdown._outsideClickHandler = outsideClickHandler;
+    debugLog('bindDropdownEvents: dropdown handlers bound');
+  }
+
   // Main UI update function
   function updateUI() {
     const loginBtn = document.getElementById('login-btn');
@@ -269,7 +303,9 @@
           setTimeout(() => {
             debugLog("Re-binding auth buttons after successful login");
             bindAuthButtons();
-          }, 100);
+            // Explicitly re-bind dropdown events after login redirect
+            bindDropdownEvents(); 
+          }, 100); 
         }, 100);
       } else {
         // No response from redirect, check if we have an account anyway
@@ -401,39 +437,19 @@
       debugLog('WARNING: Logout button not found in DOM');
     }
     
-    // Bind new profile dropdown elements
-    const userProfileButton = document.getElementById('user-profile-button');
-    const userProfileDropdown = document.getElementById('user-profile-dropdown');
+    // Bind dropdown events using dedicated function (modular, robust)
+    bindDropdownEvents(); // updated by Cascade
+
+    // Bind dropdown logout button (still needed here for direct access)
     const dropdownLogoutBtn = document.getElementById('dropdown-logout-btn');
-
-    if (userProfileButton && userProfileDropdown) {
-      userProfileButton.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const isVisible = userProfileDropdown.classList.toggle('visible');
-        userProfileButton.setAttribute('aria-expanded', isVisible);
-        debugLog('Profile dropdown toggled, visible:', isVisible);
-      });
-
-      // Close dropdown when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!userProfileDropdown.contains(e.target) && userProfileDropdown.classList.contains('visible')) {
-          userProfileDropdown.classList.remove('visible');
-          userProfileButton.setAttribute('aria-expanded', 'false');
-          debugLog('Profile dropdown closed due to outside click');
-        }
-      });
-
-      debugLog('User profile dropdown button bound successfully');
-    } else {
-      debugLog('WARNING: User profile button or dropdown not found in DOM');
-    }
-
     if (dropdownLogoutBtn) {
       dropdownLogoutBtn.addEventListener('click', logout, {capture: false});
       debugLog('Dropdown logout button bound successfully');
     } else {
       debugLog('WARNING: Dropdown logout button not found in DOM');
     }
+
+    /* updated by Cascade: dropdown event binding now handled by bindDropdownEvents() */
     
     // Force a UI update with the current authentication state
     updateUI();
