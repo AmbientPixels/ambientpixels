@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A real-time view of Nova's emotional and cognitive state via the Pulse Bar." />
+  <title>Ambient Pixels - Nova Pulse</title>
+  
+  <!-- Core Styles -->
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <!-- Banner CSS removed for isolated view -->
+  
+  <!-- Component Styles -->
+  <link rel="stylesheet" href="/css/nova-pulse.css" />
+  <link rel="stylesheet" href="/css/nova-mood-background.css" />
+
+  <style>
+    body {
+      background-color: #1a1a1a; /* Dark grey background */
+      /* padding-top removed as header is no longer present */
+    }
+    /* Ensure the pulse bar is visible and styled correctly at the top */
+    #nova-pulse-bar {
+        position: relative;
+        top: 0;
+        width: 100%;
+        z-index: 100;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  <!-- Nova Pulse Bar Module -->
+  <div id="nova-pulse-bar">
+    <div id="nova-pulse-inner">
+      <div id="pulse-main-line">
+        <div id="pulse-mood-group">
+          <span id="pulseMoodLabel">Mood:</span>
+          <span id="pulseEmoji">✨</span>
+          <span id="pulseLabel">Loading...</span>
+        </div>
+  
+        <span class="pulse-trait">
+          <span class="pulse-trait-label">Self-Worth:</span>
+          <span id="iconSelfWorth" aria-label="Self-Worth">🧠</span>
+          <span id="valSelfWorth" aria-label="Self-Worth Level">–</span>
+        </span>
+  
+        <span class="pulse-trait">
+          <span class="pulse-trait-label">Clutter:</span>
+          <span id="iconClutter" aria-label="Clutter">💭</span>
+          <span id="valClutter" aria-label="Clutter Level">–</span>
+        </span>
+  
+        <span class="pulse-trait">
+          <span class="pulse-trait-label">Glitch:</span>
+          <span id="iconGlitch" aria-label="Glitch">⚡</span>
+          <span id="valGlitch" aria-label="Glitch Level">–</span>
+        </span>
+  
+        <span class="pulse-trait">
+          <span class="pulse-trait-label">State:</span>
+          <span id="iconInternalState" aria-label="Internal State">👁️</span>
+          <span id="valInternal" aria-label="Internal State Value">–</span>
+        </span>
+  
+        <div id="pulse-meter-group">
+          <div id="pulse-meter-text">
+            <span class="pulse-meter-title">Mood Intensity:</span>
+            <span id="pulseIntensityValue">–%</span>
+          </div>
+          <div id="pulse-meter-wrapper">
+            <div id="pulse-meter-bar">
+              <div id="pulseIntensity"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/theme.js" defer></script>
+  <!-- Banner JS removed for isolated view -->
+
+  <!-- Component Scripts -->
+  <script src="/js/nova-mood-core.js" defer></script>
+  <script src="/js/nova-pulse.js" defer></script>
+  <script src="/js/nova-mood-background.js" defer></script>
+</body>
+</html>
