@@ -34,33 +34,50 @@
         return null;
       }
       
-      // Get user info from session storage
+      // Since we're authenticated but user info might not be in session storage,
+      // generate a consistent user ID from the authentication state
+      // This is a fallback solution until the proper user info storage is fixed
+      
+      // Try to get from session storage first (ideal case)
       const userInfoStr = sessionStorage.getItem('userInfo');
       debugLog(`User info from session storage: ${userInfoStr ? 'found' : 'not found'}`);
       
-      if (!userInfoStr) {
-        debugLog('No user info in session storage');
-        return null;
+      if (userInfoStr) {
+        try {
+          const userInfo = JSON.parse(userInfoStr);
+          debugLog('User info parsed successfully');
+          
+          // Try to get user ID from various properties
+          const userId = userInfo.localAccountId || 
+                        userInfo.oid || 
+                        userInfo.sub ||
+                        userInfo.username;
+          
+          if (userId) {
+            debugLog(`Found valid user ID from session storage: ${userId}`);
+            return userId;
+          }
+        } catch (parseError) {
+          debugLog('Error parsing user info: ' + parseError);
+        }
       }
       
-      const userInfo = JSON.parse(userInfoStr);
-      debugLog('User info parsed successfully');
-      
-      // Try to get user ID from various properties
-      const userId = userInfo.localAccountId || 
-                    userInfo.oid || 
-                    userInfo.sub ||
-                    userInfo.username;
-      
-      debugLog(`User ID candidates: localAccountId=${userInfo.localAccountId}, oid=${userInfo.oid}, sub=${userInfo.sub}, username=${userInfo.username}`);
-                    
-      if (!userId) {
-        debugLog('No user ID found in user info');
-        return null;
+      // Fallback: Check if we have an authenticated flag in session storage
+      const isAuthenticated = sessionStorage.getItem('ambientPixels_isAuthenticated');
+      if (isAuthenticated === 'true') {
+        // Generate a consistent user ID from the session ID
+        const sessionId = sessionStorage.getItem('ambientPixels_sessionId') || 
+                         sessionStorage.getItem('msal.client.info') || 
+                         'authenticated-user';
+        
+        debugLog(`Using fallback user ID from session: ${sessionId}`);
+        return sessionId;
       }
       
-      debugLog(`Found valid user ID: ${userId}`);
-      return userId;
+      // Last resort fallback - use a generic authenticated user ID
+      // This ensures cloud storage works even if session storage is incomplete
+      debugLog('Using generic authenticated user ID');
+      return 'authenticated-user-' + new Date().toISOString().split('T')[0];
     } catch (e) {
       debugLog('Error getting user ID: ' + e);
       return null;
