@@ -1,0 +1,313 @@
+/* AmbientPixels Nova Dark Theme for Azure/Entra Login */
+/* Based on official Microsoft template */
+
+body {
+    background: #10131a !important;
+    color: #e6eaf3 !important;
+    font-family: 'Segoe UI', Arial, sans-serif !important;
+    letter-spacing: 0.01em !important;
+}
+
+a, a:link {
+    color: #64d3ff !important;
+    transition: color 0.2s !important;
+}
+
+a:hover, a:focus, a:focus:hover {
+    color: #00ffd0 !important;
+    text-decoration: underline !important;
+}
+
+a:active {
+    color: #64d3ff !important;
+}
+
+.ext-background-image {
+    filter: brightness(0.7) !important;
+}
+
+.ext-background-overlay {
+    background: rgba(16,19,26,0.75) !important;
+}
+
+.ext-header {
+    background: transparent !important;
+    border-bottom: none !important;
+}
+
+.ext-header-logo {
+    max-height: 60px !important;
+    filter: drop-shadow(0 2px 24px #64d3ff88) !important;
+}
+
+.ext-middle {
+    min-height: 100vh !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.ext-vertical-split-main-section {
+    background: #10131a !important;
+}
+
+.ext-vertical-split-background-image-container {
+    background: rgba(16,19,26,0.85) !important;
+    border-radius: 18px !important;
+}
+
+.ext-sign-in-box {
+    background: #181b23 !important;
+    border-radius: 18px !important;
+    box-shadow: 0 2px 24px #64d3ff88 !important;
+    border: 1px solid #23263a !important;
+    padding: 2.5em 2em 2em 2em !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.ext-banner-logo {
+    max-width: 180px !important;
+    margin-bottom: 1.5em !important;
+    display: block !important;
+}
+
+.ext-title {
+    color: #64d3ff !important;
+    font-size: 2em !important;
+    font-weight: 700 !important;
+    margin-bottom: 0.25em !important;
+    text-align: left !important;
+}
+
+.ext-subtitle, .ext-header-description {
+    color: #b8c1d6 !important;
+    font-size: 1.1em !important;
+    margin-bottom: 1em !important;
+    text-align: left !important;
+}
+
+.ext-error {
+    background: #3d1a1a !important;
+    color: #ff6464 !important;
+    border-radius: 10px !important;
+    padding: 0.75em 1em !important;
+    margin-bottom: 1em !important;
+    text-align: left !important;
+}
+
+/* Input field fixes for white-on-white issues */
+.ext-input.ext-text-box {
+    background-color: #23263a !important;
+    color: #e6eaf3 !important;
+    border: 1px solid #31344a !important;
+    border-radius: 10px !important;
+    padding: 0.75em 1em !important;
+    font-size: 1em !important;
+    transition: border-color 0.2s !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Make sure all inputs with type attributes have correct styling */
+input[type="text"].ext-input.ext-text-box,
+input[type="email"].ext-input.ext-text-box,
+input[type="password"].ext-input.ext-text-box {
+    background-color: #23263a !important;
+    color: #e6eaf3 !important;
+    -webkit-text-fill-color: #e6eaf3 !important;
+}
+
+.ext-input.ext-text-box.ext-has-error {
+    border-color: #ff6464 !important;
+    background: #3d1a1a !important;
+}
+
+.ext-input.ext-text-box:hover,
+.ext-input.ext-text-box:focus,
+.ext-input.ext-text-box:focus:hover {
+    border-color: #64d3ff !important;
+    outline: none !important;
+}
+
+.ext-password-reset-links-container {
+    text-align: center !important;
+    margin-top: 1em !important;
+}
+
+.ext-button-field-container {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 1em !important;
+    margin-bottom: 3em !important; /* Extra breathing room above footer */
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.ext-button-item {
+    width: 100% !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+/* Primary button styles */
+.ext-button.ext-primary {
+    background: linear-gradient(90deg, #64d3ff 0%, #00ffd0 100%) !important;
+    color: #10131a !important;
+    border-radius: 10px !important;
+    border: none !important;
+    font-weight: 600 !important;
+    box-shadow: 0 1px 8px #00ffd088 !important;
+    transition: background 0.2s, box-shadow 0.2s !important;
+    padding: 0.75em 1em !important;
+    width: 100% !important;
+    text-align: center !important;
+}
+
+.ext-button.ext-primary:hover,
+.ext-button.ext-primary:focus,
+.ext-button.ext-primary:focus:hover,
+.ext-button.ext-primary:active {
+    background: linear-gradient(90deg, #00ffd0 0%, #64d3ff 100%) !important;
+    box-shadow: 0 2px 16px #00ffd088 !important;
+    color: #10131a !important;
+}
+
+/* Secondary button styles */
+.ext-button.ext-secondary,
+.ext-button.ext-secondary:hover,
+.ext-button.ext-secondary:focus,
+.ext-button.ext-secondary:focus:hover,
+.ext-button.ext-secondary:active {
+    background: #23263a !important;
+    color: #64d3ff !important;
+    border-radius: 10px !important;
+    border: 1px solid #64d3ff !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+    padding: 0.75em 1em !important;
+    width: 100% !important;
+    text-align: center !important;
+}
+
+.ext-boilerplate-text {
+    color: #b8c1d6 !important;
+    font-size: 0.95em !important;
+    margin-top: 1em !important;
+    text-align: center !important;
+    padding: 1em !important;
+    background: rgba(16,19,26,0.5) !important;
+    border-radius: 0 0 18px 18px !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.ext-promoted-fed-cred-box {
+    background: #23263a !important;
+    color: #e6eaf3 !important;
+    border-radius: 10px !important;
+    padding: 1em !important;
+    margin-bottom: 1em !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* Footer styles - fixed positioning */
+.ext-footer, .ext-footer.ext-has-background {
+    background: transparent !important;
+    color: #b8c1d6 !important;
+    border-top: 1px solid #23263a !important;
+    padding: 1.5em 0 !important;
+    margin-top: 2em !important;
+    position: relative !important;
+    z-index: 0 !important;
+    width: 100% !important;
+    display: block !important;
+    clear: both !important;
+}
+
+.ext-footer-links {
+    text-align: center !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+.ext-footer-item, 
+.ext-footer-content.ext-footer-item {
+    color: #64d3ff !important;
+    margin: 0 0.5em !important;
+    text-align: center !important;
+}
+
+.ext-debug-item,
+.ext-footer-content.ext-footer-item.ext-debug-item {
+    color: #ff6464 !important;
+}
+
+/* Placeholder text styling for all text boxes */
+.ext-input.ext-text-box::placeholder {
+    color: #b8c1d6 !important;
+    opacity: 1 !important;
+}
+
+/* Fix for back button and other navigation elements */
+[class*="back-button"],
+[aria-label*="Back"],
+[role="button"],
+button[class*="back"],
+a[class*="back"] {
+    background-color: #23263a !important;
+    color: #64d3ff !important;
+    border: 1px solid #31344a !important;
+    border-radius: 10px !important;
+    padding: 0.5em !important;
+    position: static !important;
+    margin: 0.5em 0 !important;
+    display: inline-block !important;
+    z-index: 2 !important;
+    text-decoration: none !important;
+}
+
+/* Autofill fix (Chrome/Edge) */
+.ext-input.ext-text-box:-webkit-autofill,
+.ext-input.ext-text-box:-webkit-autofill:hover,
+.ext-input.ext-text-box:-webkit-autofill:focus {
+    background-color: #23263a !important;
+    color: #e6eaf3 !important;
+    -webkit-text-fill-color: #e6eaf3 !important;
+    box-shadow: 0 0 0 1000px #23263a inset !important;
+    caret-color: #e6eaf3 !important;
+    border-color: #31344a !important;
+}
+
+/* Disabled state */
+.ext-input.ext-text-box:disabled {
+    background: #23263a !important;
+    color: #7a8199 !important;
+    opacity: 0.7 !important;
+}
+
+/* Fix email field display in the header of screens */
+input[readonly],
+.ext-emailaddress-view {
+    background-color: #23263a !important;
+    color: #e6eaf3 !important;
+    border-color: #31344a !important;
+}
+
+/* Accessibility and focus */
+input:focus, button:focus {
+    outline: 2px solid #64d3ff !important;
+    outline-offset: 2px !important;
+}
+
+/* Checkbox styling */
+input[type="checkbox"] {
+    accent-color: #64d3ff !important;
+}
+
+/* Keep UI message content visible */
+.ui-message-content {
+    color: #e6eaf3 !important;
+}
