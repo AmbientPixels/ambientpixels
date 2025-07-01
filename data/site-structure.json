@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-06-30T13:34:34.030Z",
+  "updated": "2025-07-01T13:34:42.102Z",
   "root": [
     {
       "type": "folder",
@@ -108,6 +108,12 @@
           "type": "folder",
           "name": "generate-text",
           "path": "api/generate-text",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "loadCardData",
+          "path": "api/loadCardData",
           "children": []
         },
         {

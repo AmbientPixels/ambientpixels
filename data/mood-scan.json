@@ -1,9 +1,9 @@
 {
-  "mood": "joyful",
-  "aura": "neon burst",
-  "auraColorHex": "#662200",
-  "quote": "decoding neural spark trails...",
-  "emoji": "😄",
+  "mood": "chaotic optimism",
+  "aura": "tangled clarity",
+  "auraColorHex": "#23415a",
+  "quote": "surfacing hidden anomalies of feeling...",
+  "emoji": "🔥",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
   "memoryClutter": 1,
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: neon burst"
+      "Aura Signature: tangled clarity"
     ]
   },
-  "timestamp": "2025-06-30T13:34:36.335Z"
+  "timestamp": "2025-07-01T13:34:44.414Z"
 }
