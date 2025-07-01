@@ -482,6 +482,8 @@ window.banner.show({
         debugLog('Forced profile container visibility due to known authenticated state');
     }
     
+    // Get user profile button reference if it exists
+    const userProfileButton = document.getElementById('user-profile-button');
     debugLog('Auth elements bound:', {loginBtn, userProfileButton, dropdownLogoutBtn});
   }
 
