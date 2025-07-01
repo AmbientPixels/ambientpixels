@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="/css/nova-mood-background.css" />
   <!-- Card Forge module styles (local/dev) -->
   <link rel="stylesheet" href="/lab/card-forge/card-forge.css" />
+  <link rel="stylesheet" href="/lab/card-forge/card-forge-auth.css" />
   <!-- updated by Cascade: utility classes applied -->
   <link rel="stylesheet" href="/css/utility.css" />
 
@@ -47,6 +48,44 @@
     <!-- Card Forge Editor UI Skeleton (Nova/AmbientPixels style) -->
     <section class="content-section grid-col-12" aria-labelledby="card-editor-heading">
       <h2 id="card-editor-heading"><i class="fas fa-edit"></i> Card Forge Editor <span class="soon-tag">Alpha</span></h2>
+    </section>
+    <!-- Auth-aware section: My Cards / Sign In Prompt -->
+    <section class="grid-col-12 auth-aware-section mb-2" id="auth-cards-section">
+      <!-- This content will be dynamically updated based on auth state -->
+      <div class="auth-signed-out" style="display: none;">
+        <div class="card-forge-auth-prompt">
+          <h3><i class="fas fa-lock"></i> Sign in to access your personal cards</h3>
+          <p>Create, save, and manage your own collection of custom cards with your Ambient Pixels account.</p>
+          <button class="glass-button" id="card-forge-login-btn" type="button">
+            <i class="fas fa-sign-in-alt"></i> Sign In
+          </button>
+        </div>
+      </div>
+      <div class="auth-signed-in" style="display: none;">
+        <div class="card-forge-my-cards">
+          <h3><i class="fas fa-id-card"></i> My Cards <span id="user-name-display"></span></h3>
+          <div class="card-forge-dashboard">
+            <div class="card-forge-dashboard-stats">
+              <div class="stat-card">
+                <span class="stat-number" id="my-cards-count">0</span>
+                <span class="stat-label">My Cards</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-number" id="shared-cards-count">0</span>
+                <span class="stat-label">Shared</span>
+              </div>
+            </div>
+            <div class="card-forge-actions">
+              <button class="glass-button" id="load-my-cards-btn" type="button">
+                <i class="fas fa-cloud-download-alt"></i> Load My Cards
+              </button>
+              <button class="glass-button" id="save-to-my-account-btn" type="button">
+                <i class="fas fa-cloud-upload-alt"></i> Save to My Account
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
     <!-- 1. Sidebar/List -->
     <section class="grid-col-4" aria-label="Card List" style="background:rgba(255,0,0,0.06);border:1px solid #e88;">
@@ -212,6 +251,13 @@
   <script src="/js/theme.js"></script>
   <script src="/js/init-header-footer.js"></script>
   <script src="/js/nav.js"></script>
+  
+  <!-- Auth integration scripts -->
+  <script src="/auth/msal-browser.min.js"></script>
+  <script src="/auth/authConfig.js"></script>
+  <script src="/auth/authUI.js"></script>
+  <script src="/lab/card-forge/card-forge-auth.js"></script>
+  
    <!-- Card Forge module script (local/dev) -->
   <script src="/lab/card-forge/card-forge.js" defer></script>
   <script src="/lab/card-forge/card-forge-editor.js" defer></script>

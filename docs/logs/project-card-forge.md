@@ -238,6 +238,21 @@ Keep this log focused on session continuity and dev communication. All canonical
 
 ---
 
+## 🆕 Card Forge + Azure AD B2C Integration (Planned)
+
+> These features will guide the next phase of Card Forge development with authentication and user accounts.
+
+- **User-Specific Card Decks:** Authenticated users can have their own private/public card sets. "My Cards" dashboard for managing creations. Public/private/shareable options.
+- **Save/Load to Cloud:** Save card decks to Azure Blob Storage or user-specific cloud. "Save to My Account" and "Load My Cards" for signed-in users.
+- **Profile Avatars & Identity:** Pull user info from Azure AD (name, avatar, email) to pre-fill cards and personalize UI. "Create Card from My Profile" quick action.
+- **Social & Collaboration:** Allow remixing cards by others, with attribution. Enable commenting, likes, or sharing (future community features).
+- **Card Ownership & Attribution:** Show "Created by [username]" and track edits/versions. Add badges for authenticated users.
+- **Access Control:** Restrict advanced features to authenticated users. Admin/special roles can moderate or feature cards.
+- **Seamless Onboarding:** Prompt sign-in to unlock full features. Onboarding modal explaining benefits of signing in.
+- **Activity Feed/History:** Show recent edits, creations, or remix activity for each user.
+
+---
+
 ## 🔐 Access & Collaboration
 
 - All card data is editable via `rpg-avatar-cards.json`
