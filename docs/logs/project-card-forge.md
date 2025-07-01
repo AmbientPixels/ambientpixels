@@ -219,8 +219,10 @@ Keep this log focused on session continuity and dev communication. All canonical
 
 - **Dev server not updating:** Try hard-refresh or restart Live Server.
 - **Azure save errors:** Check `AZURE_STORAGE_CONNECTION_STRING` and `/api/package.json` dependencies. Verify Azure Blob Storage container 'cardforge' exists at https://cardforgeblobdata.blob.core.windows.net/cardforge.
+- **API 404 errors:** The `/api/loadCardData` endpoint may not be deployed to production yet. Verify the endpoint is accessible at https://ambientpixels.ai/api/loadCardData. The client will fall back to localStorage if the API is unavailable.
+- **Authentication detection:** If user info is not stored in session storage, the cloud storage service now uses fallback mechanisms to ensure authenticated users can still save/load cards. Check browser console logs for detailed authentication state information.
 - **Card not rendering:** Validate your JSON structure in `card-forge.json` or `rpg-avatar-cards.json`.
-- **CSS/Theme issues:** Ensure you’re reusing existing badge/tag classes to avoid conflicts.
+- **CSS/Theme issues:** Ensure you're reusing existing badge/tag classes to avoid conflicts.
 
 ---
 
