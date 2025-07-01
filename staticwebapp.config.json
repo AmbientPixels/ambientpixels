@@ -7,7 +7,14 @@
     {
       "route": "/api/loadCardData",
       "methods": ["GET"],
-      "allowedRoles": ["anonymous", "authenticated"]
+      "allowedRoles": ["anonymous", "authenticated"],
+      "rewrite": "/api/loadCardData"
+    },
+    {
+      "route": "/api/loadCardData/*",
+      "methods": ["GET"],
+      "allowedRoles": ["anonymous", "authenticated"],
+      "rewrite": "/api/loadCardData"
     },
     {
       "route": "/api/saveCardData",
