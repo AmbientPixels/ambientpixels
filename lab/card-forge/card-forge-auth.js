@@ -107,8 +107,39 @@
     if (loadMyCardsBtn) {
       loadMyCardsBtn.addEventListener('click', function() {
         debugLog('Load my cards button clicked');
-        // This will be implemented in the next phase
-        alert('Loading your cards... (Coming soon)');
+        
+        // Check if cloud service is available
+        if (!window.CardForgeCloud || !window.CardForgeCloud.isAvailable()) {
+          alert('Cloud storage is not available. Please sign in first.');
+          return;
+        }
+        
+        // Show loading indicator
+        loadMyCardsBtn.disabled = true;
+        loadMyCardsBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+        
+        // Load cards from cloud
+        window.CardForgeCloud.loadCards()
+          .then(cards => {
+            debugLog(`Loaded ${cards.length} cards from cloud`);
+            
+            // Check if we have a global card manager to update
+            if (window.cardForge && window.cardForge.loadCards) {
+              window.cardForge.loadCards(cards);
+              alert(`Successfully loaded ${cards.length} cards from your Ambient Pixels account`);
+            } else {
+              alert(`Loaded ${cards.length} cards, but couldn't update the UI. Please refresh the page.`);
+            }
+          })
+          .catch(error => {
+            debugLog('Error loading cards: ' + error);
+            alert('Error loading cards: ' + error.message);
+          })
+          .finally(() => {
+            // Reset button
+            loadMyCardsBtn.disabled = false;
+            loadMyCardsBtn.innerHTML = '<i class="fas fa-cloud-download-alt"></i> Load My Cards';
+          });
       });
     }
     
@@ -117,8 +148,46 @@
     if (saveToMyAccountBtn) {
       saveToMyAccountBtn.addEventListener('click', function() {
         debugLog('Save to my account button clicked');
-        // This will be implemented in the next phase
-        alert('Saving to your account... (Coming soon)');
+        
+        // Check if cloud service is available
+        if (!window.CardForgeCloud || !window.CardForgeCloud.isAvailable()) {
+          alert('Cloud storage is not available. Please sign in first.');
+          return;
+        }
+        
+        // Get cards from the card manager
+        let cards = [];
+        if (window.cardForge && window.cardForge.getCards) {
+          cards = window.cardForge.getCards();
+        } else {
+          alert('Could not access cards. Please refresh the page.');
+          return;
+        }
+        
+        if (!cards || cards.length === 0) {
+          alert('No cards to save. Create some cards first!');
+          return;
+        }
+        
+        // Show loading indicator
+        saveToMyAccountBtn.disabled = true;
+        saveToMyAccountBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        
+        // Save cards to cloud
+        window.CardForgeCloud.saveCards(cards)
+          .then(result => {
+            debugLog('Save result:', result);
+            alert(result.message || `Saved ${result.count} cards to your Ambient Pixels account`);
+          })
+          .catch(error => {
+            debugLog('Error saving cards: ' + error);
+            alert('Error saving cards: ' + error.message);
+          })
+          .finally(() => {
+            // Reset button
+            saveToMyAccountBtn.disabled = false;
+            saveToMyAccountBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Save to My Account';
+          });
       });
     }
   }

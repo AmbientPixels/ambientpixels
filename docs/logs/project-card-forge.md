@@ -250,7 +250,15 @@ Keep this log focused on session continuity and dev communication. All canonical
 - **User Identity:** Display user's name from Ambient Pixels account in the Card Forge UI
 - **Action Buttons:** Placeholder buttons for cloud save/load functionality
 
-### 🚧 Phase 2: Cloud Features (In Development)
+### ✅ Phase 2: Cloud Storage (Completed June 30, 2025)
+
+- **Cloud Save/Load:** Implemented cloud storage service for user-specific card data
+- **User-Specific Storage:** Cards are saved with user ID to isolate data per user
+- **Unified Card Management:** Refactored "Your Cards" section to become auth-aware "My Cards"
+- **Card Stats:** Added card count tracking for personal and shared cards
+- **Loading States:** Added loading indicators and error handling for cloud operations
+
+### 🚧 Phase 3: Enhanced Features (In Development)
 
 - **User-Specific Card Decks:** Authenticated users can have their own private/public card sets. "My Cards" dashboard for managing creations. Public/private/shareable options.
 - **Save/Load to Cloud:** Save card decks to Ambient Pixels cloud storage. "Save to My Account" and "Load My Cards" for signed-in users.
