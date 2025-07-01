@@ -12,7 +12,7 @@
     {
       "route": "/api/saveCardData",
       "methods": ["POST"],
-      "allowedRoles": ["authenticated"]
+      "allowedRoles": ["anonymous", "authenticated"]
     }
   ],
   "mimeTypes": {
