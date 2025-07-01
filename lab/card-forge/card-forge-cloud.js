@@ -89,10 +89,20 @@
         body: JSON.stringify(cardsWithMetadata)
       });
       
-      const result = await response.json();
+      debugLog(`API response status: ${response.status} ${response.statusText}`);
+      
+      // Try to parse the response as JSON
+      let result;
+      try {
+        result = await response.json();
+        debugLog('API response body:', result);
+      } catch (jsonError) {
+        debugLog('Failed to parse response as JSON:', jsonError);
+        throw new Error(`API returned non-JSON response: ${response.statusText}`);
+      }
       
       if (!response.ok) {
-        throw new Error(result.message || 'Error saving to Ambient Pixels cloud');
+        throw new Error(result.message || `Error saving to Ambient Pixels cloud: ${response.status} ${response.statusText}`);
       }
       
       // Update card counts
@@ -138,12 +148,23 @@
         }
       });
       
-      if (!response.ok) {
-        const result = await response.json();
-        throw new Error(result.message || 'Error loading from Ambient Pixels cloud');
-      }
+      debugLog(`API response status: ${response.status} ${response.statusText}`);
       
-      const cards = await response.json();
+      // Try to parse the response as JSON
+      let cards;
+      try {
+        if (!response.ok) {
+          const errorResult = await response.json();
+          debugLog('Error response body:', errorResult);
+          throw new Error(errorResult.message || `Error loading from Ambient Pixels cloud: ${response.status} ${response.statusText}`);
+        }
+        
+        cards = await response.json();
+        debugLog('API response body:', cards);
+      } catch (jsonError) {
+        debugLog('Failed to parse response as JSON:', jsonError);
+        throw new Error(`API returned non-JSON response: ${response.statusText}`);
+      }
       
       // Update card counts
       updateCardCounts(cards);

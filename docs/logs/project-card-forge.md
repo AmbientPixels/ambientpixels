@@ -218,7 +218,7 @@ Keep this log focused on session continuity and dev communication. All canonical
 ## 🛠️ Troubleshooting / Known Issues
 
 - **Dev server not updating:** Try hard-refresh or restart Live Server.
-- **Azure save errors:** Check `AZURE_STORAGE_CONNECTION_STRING` and `/api/package.json` dependencies.
+- **Azure save errors:** Check `AZURE_STORAGE_CONNECTION_STRING` and `/api/package.json` dependencies. Verify Azure Blob Storage container 'cardforge' exists at https://cardforgeblobdata.blob.core.windows.net/cardforge.
 - **Card not rendering:** Validate your JSON structure in `card-forge.json` or `rpg-avatar-cards.json`.
 - **CSS/Theme issues:** Ensure you’re reusing existing badge/tag classes to avoid conflicts.
 
@@ -284,6 +284,44 @@ Keep this log focused on session continuity and dev communication. All canonical
 - Nova is available for experimental AI assistance (quote generation, mood-driven stats)
 
 ---
+
+## 🌥️ Cloud Storage Integration Details
+
+### Azure Blob Storage Configuration
+
+- **Container Name:** `cardforge`
+- **Blob Storage URL:** `https://cardforgeblobdata.blob.core.windows.net/cardforge`
+- **Blob File Name:** `card-forge.json` (stores user card data)
+- **Environment Variable:** `AZURE_STORAGE_CONNECTION_STRING` (required for API access)
+- **Authentication:** User ID passed via `X-User-ID` header
+- **Encryption:** Account-encryption-key enabled
+
+### API Endpoints
+
+#### Save Card Data
+- **Endpoint:** `/api/saveCardData`
+- **Method:** POST
+- **Headers:** 
+  - `Content-Type: application/json`
+  - `X-User-ID: [user-id]`
+- **Body:** JSON array of card objects
+- **Response:** Success/error message
+- **Implementation:** Azure Function using Blob Storage SDK
+
+#### Load Card Data
+- **Endpoint:** `/api/loadCardData`
+- **Method:** GET
+- **Headers:** `X-User-ID: [user-id]`
+- **Query Params:** `userId=[user-id]` (optional, can use header instead)
+- **Response:** JSON array of card objects
+- **Implementation:** Azure Function using Blob Storage SDK
+
+### Client Integration
+
+- **Authentication Check:** `getUserId()` function verifies user is signed in
+- **Error Handling:** Detailed error logging in `card-forge-cloud.js`
+- **Fallback Mechanism:** Falls back to localStorage if API calls fail
+- **Card Metadata:** Adds user ID and timestamp to saved cards
 
 ## 📁 Key Files
 
