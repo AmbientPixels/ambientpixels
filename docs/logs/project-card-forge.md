@@ -20,6 +20,8 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
 - Enable embeddable, downloadable, and social-sharing outputs
 - Support multiple visual themes (fantasy, sci-fi, professional, pixel, etc.)
 - Allow use cases ranging from team recognition to creative portfolios
+- Build a community gallery of user-created cards with attribution
+- Provide distinct signed-in and signed-out experiences
 - Build a future-friendly system ready for decks, remixing, and AI-assisted generation
 
 ---
@@ -35,6 +37,13 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
   - Badge icons
   - Quotes, avatars, themes
 - Role-based badge logic and animated theming (legendary, epic, rare, etc.)
+
+### 🔄 Card Gallery (Planned)
+- Public gallery of user-created cards for inspiration
+- Card attribution to creators
+- Category filtering and discovery tools
+- Different experiences for signed-in vs. signed-out users
+- Social features including card publishing and favorites
 
 ### ✅ Dev Environment (Complete)
 - Local dev sandbox: `card-forge-dev/`
@@ -219,10 +228,11 @@ Keep this log focused on session continuity and dev communication. All canonical
 
 - **Dev server not updating:** Try hard-refresh or restart Live Server.
 - **Azure save errors:** Check `AZURE_STORAGE_CONNECTION_STRING` and `/api/package.json` dependencies. Verify Azure Blob Storage container 'cardforge' exists at https://cardforgeblobdata.blob.core.windows.net/cardforge.
-- **API 404 errors:** The `/api/loadCardData` endpoint may not be deployed to production yet. Verify the endpoint is accessible at https://ambientpixels.ai/api/loadCardData. The client will fall back to localStorage if the API is unavailable.
-- **Authentication detection:** If user info is not stored in session storage, the cloud storage service now uses fallback mechanisms to ensure authenticated users can still save/load cards. Check browser console logs for detailed authentication state information.
+- **API 404 errors:** The `/api/loadCardData` endpoint may not be deployed to production yet. Try using POST method instead of GET for this endpoint. The client will fall back to localStorage if the API is unavailable.
+- **Authentication detection:** If user info is not stored in session storage, the cloud storage service uses persistent browser fingerprinting IDs to ensure authenticated users can still save/load cards. Check browser console logs for detailed authentication state information.
 - **Card not rendering:** Validate your JSON structure in `card-forge.json` or `rpg-avatar-cards.json`.
 - **CSS/Theme issues:** Ensure you're reusing existing badge/tag classes to avoid conflicts.
+- **Gallery vs. Library:** The gallery displays public cards while the library contains private user cards. Different components appear based on authentication state.
 
 ---
 
@@ -312,32 +322,71 @@ Keep this log focused on session continuity and dev communication. All canonical
 
 #### Load Card Data
 - **Endpoint:** `/api/loadCardData`
+- **Method:** GET/POST
+- **Headers:** `X-User-ID: [user-id]`
+- **Query Params:** `userId=[user-id]` (if using GET)
+- **Body:** `{"userId": "[user-id]"}` (if using POST)
+- **Response:** JSON array of card objects
+- **Implementation:** Azure Function using Blob Storage SDK
+
+#### Gallery Cards (Planned)
+- **Endpoint:** `/api/cards`
+- **Method:** GET
+- **Query Params:** `category=[category]`, `limit=[number]` (optional)
+- **Response:** JSON array of public gallery cards
+- **Implementation:** Azure Function using Blob Storage SDK
+
+#### User Cards (Planned)
+- **Endpoint:** `/api/myCards`
 - **Method:** GET
 - **Headers:** `X-User-ID: [user-id]`
-- **Query Params:** `userId=[user-id]` (optional, can use header instead)
-- **Response:** JSON array of card objects
+- **Response:** JSON array of user's private cards
+- **Implementation:** Azure Function using Blob Storage SDK
+
+#### Publish Card (Planned)
+- **Endpoint:** `/api/cards/publish/:id`
+- **Method:** POST
+- **Headers:** `X-User-ID: [user-id]`
+- **Body:** `{"isPublic": true, "category": "[category]"}`
+- **Response:** Success/error message
 - **Implementation:** Azure Function using Blob Storage SDK
 
 ### Client Integration
 
 - **Authentication Check:** `getUserId()` function verifies user is signed in
 - **Error Handling:** Detailed error logging in `card-forge-cloud.js`
-- **Fallback Mechanism:** Falls back to localStorage if API calls fail
-- **Card Metadata:** Adds user ID and timestamp to saved cards
+- **Authentication-Driven UI:** Dynamic UI elements based on signed-in state
+- **Card Metadata:** Adds user ID, creator name, and timestamps to saved cards
+
+### User Experience
+
+#### Signed-Out Experience
+- Access to card editor with all design features
+- View public gallery of community-created cards
+- Can create cards but cannot save to cloud
+- Authentication prompts to save creations
+
+#### Signed-In Experience
+- Full card editor functionality
+- Private card library for personal creations
+- Options to publish cards to public gallery
+- Additional customization features
 
 ## 📁 Key Files
 
-| Path                                 | Description                          |
-|--------------------------------------|--------------------------------------|
-| `/data/rpg-avatar-cards.json`        | Full list of all card data           |
-| `/js/card-render.js`                 | Rendering engine (Cascade-generated) |
-| `/css/card-styles.css`               | Full style system for card visuals   |
-| `/lab/card-forge/card-forge-cloud.js`| Cloud storage service for user cards |
-| `/lab/card-forge/card-forge-auth.js` | Authentication integration           |
-| `/api/saveCardData/index.js`         | API endpoint for saving cards        |
-| `/api/loadCardData/index.js`         | API endpoint for loading cards       |
-| `/card-forge-dev/`                   | Local dev folder for isolated testing|
-| `/docs/logs/project-card-forge.html` | Log page for project documentation   |
+| Path                                   | Description                          |
+|----------------------------------------|---------------------------------------|
+| `/data/rpg-avatar-cards.json`          | Full list of all card data           |
+| `/js/card-render.js`                   | Rendering engine (Cascade-generated) |
+| `/css/card-styles.css`                 | Full style system for card visuals   |
+| `/lab/card-forge/card-forge-cloud.js`  | Cloud storage service for user cards |
+| `/lab/card-forge/card-forge-auth.js`   | Authentication integration           |
+| `/lab/card-forge/card-forge-gallery.js`| Gallery display and filtering (planned)|
+| `/api/saveCardData/index.js`           | API endpoint for saving cards        |
+| `/api/loadCardData/index.js`           | API endpoint for loading cards       |
+| `/api/cards/index.js`                  | API endpoint for gallery cards (planned)|
+| `/api/myCards/index.js`                | API endpoint for user cards (planned) |
+| `/card-forge-dev/`                     | Local dev folder for isolated testing|
+| `/docs/logs/project-card-forge.html`   | Log page for project documentation   |
 
 ---
-
