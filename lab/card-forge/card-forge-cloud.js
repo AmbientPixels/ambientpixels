@@ -27,29 +27,39 @@
     try {
       // Check if authenticated
       const authState = document.body.getAttribute('data-auth-state');
+      debugLog(`Auth state from body attribute: ${authState}`);
+      
       if (authState !== 'signed-in') {
+        debugLog('Not signed in according to data-auth-state attribute');
         return null;
       }
       
       // Get user info from session storage
       const userInfoStr = sessionStorage.getItem('userInfo');
+      debugLog(`User info from session storage: ${userInfoStr ? 'found' : 'not found'}`);
+      
       if (!userInfoStr) {
+        debugLog('No user info in session storage');
         return null;
       }
       
       const userInfo = JSON.parse(userInfoStr);
+      debugLog('User info parsed successfully');
       
       // Try to get user ID from various properties
       const userId = userInfo.localAccountId || 
                     userInfo.oid || 
                     userInfo.sub ||
                     userInfo.username;
+      
+      debugLog(`User ID candidates: localAccountId=${userInfo.localAccountId}, oid=${userInfo.oid}, sub=${userInfo.sub}, username=${userInfo.username}`);
                     
       if (!userId) {
         debugLog('No user ID found in user info');
         return null;
       }
       
+      debugLog(`Found valid user ID: ${userId}`);
       return userId;
     } catch (e) {
       debugLog('Error getting user ID: ' + e);
