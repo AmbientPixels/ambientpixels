@@ -85,6 +85,29 @@ window.addEventListener('DOMContentLoaded', function() {
   let currentCard = { ...cards[currentCardIdx] };
   let showingBack = false; // Track preview flip state
   // /* updated by Cascade */
+  
+  // Expose card management functions to global scope for cloud storage integration
+  window.cardForge = {
+    getCards: function() {
+      return cards;
+    },
+    loadCards: function(newCards) {
+      if (Array.isArray(newCards) && newCards.length > 0) {
+        cards = newCards;
+        currentCardIdx = 0;
+        currentCard = { ...cards[currentCardIdx] };
+        populateForm(currentCard);
+        renderPreview(currentCard);
+        renderCardList();
+        saveCards(); // Save to localStorage as backup
+        debugLog('Loaded cards from cloud:', newCards.length);
+        return true;
+      } else {
+        debugWarn('Attempted to load invalid cards data:', newCards);
+        return false;
+      }
+    }
+  };
 
   // DOM refs
   // Remove duplicate avatar selects if present (from old HTML)
