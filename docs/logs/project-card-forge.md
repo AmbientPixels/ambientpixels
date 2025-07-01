@@ -160,6 +160,72 @@ Keep this log focused on session continuity and dev communication. All canonical
 
 ---
 
+## 🚦 Quickstart
+
+1. **Clone the Repo**
+   ```sh
+   git clone https://github.com/your-org/ambientpixels.git
+   cd ambientpixels/EchoGrid/lab/card-forge-dev
+   ```
+2. **Open the Dev Sandbox**
+   - Open `index.html` in your browser, or use VS Code Live Server for hot reload.
+   - All development happens in `/lab/card-forge/` (HTML/CSS/JS).
+3. **Edit & Preview**
+   - Modify `card-forge.js`, `card-forge.css`, or `card-forge-editor.js`.
+   - Card data: edit `/lab/card-forge/card-forge.json` or `/data/rpg-avatar-cards.json`.
+4. **Commit Workflow**
+   - Work in a feature branch.
+   - PRs should target the `dev` branch.
+   - Use session logs in `/docs/logs/` for handoff notes.
+
+---
+
+## 🗺️ Codebase Map
+
+| Path/Folder                        | Purpose                                      |
+|------------------------------------|----------------------------------------------|
+| `/lab/card-forge/index.html`       | Main entry point for Card Forge UI           |
+| `/lab/card-forge/card-forge.js`    | Core card rendering logic                    |
+| `/lab/card-forge/card-forge.css`   | All card styling and themes                  |
+| `/lab/card-forge/card-forge-editor.js` | Card builder/editor UI logic             |
+| `/lab/card-forge/card-forge.json`  | Example card data for dev/testing            |
+| `/data/rpg-avatar-cards.json`      | Main deck of cards (JSON-driven)             |
+| `/api/saveCardData/index.js`       | Azure Function for saving cards (backend)    |
+| `/docs/project-card-forge.html`    | Canonical onboarding, contribution, and tech doc |
+| `/docs/logs/project-card-forge.md` | Session log, TODOs, handoff notes            |
+
+---
+
+## 🤝 Contribution Guide
+
+- **Branches:** Work in feature branches, PR to `dev`.
+- **Commits:** Use clear, descriptive messages.
+- **Session Logs:** Update `/docs/logs/project-card-forge.md` with blockers, breakthroughs, and TODOs.
+- **Onboarding:** See `/docs/project-card-forge.html` for full protocols.
+- **Code Style:** Follow existing patterns in JS/CSS; reuse utility classes for badges/tags.
+- **Review:** All PRs require at least one review before merge.
+
+---
+
+## 🖼️ Visuals
+
+- Add screenshots or GIFs of the UI/card editor to this doc or `/docs/project-card-forge.html` for instant visual context.
+- Example:  
+  `![Card Forge UI Screenshot](../assets/card-forge-ui.png)`
+
+---
+
+## 🛠️ Troubleshooting / Known Issues
+
+- **Dev server not updating:** Try hard-refresh or restart Live Server.
+- **Azure save errors:** Check `AZURE_STORAGE_CONNECTION_STRING` and `/api/package.json` dependencies.
+- **Card not rendering:** Validate your JSON structure in `card-forge.json` or `rpg-avatar-cards.json`.
+- **CSS/Theme issues:** Ensure you’re reusing existing badge/tag classes to avoid conflicts.
+
+---
+
+---
+
 ## 🔮 Future Features (Phase 2+)
 
 - AI-generated cards from prompts or traits
