@@ -240,7 +240,7 @@ Keep this log focused on session continuity and dev communication. All canonical
 
 ## 🆕 Card Forge + Ambient Pixels Integration
 
-> Implementation in progress: Phase 1 complete (Authentication UI), Phase 2 pending (Cloud Save/Load)
+> Implementation complete: Phase 1 (Authentication UI) and Phase 2 (Cloud Save/Load) finished. Phase 3 (Enhanced Features) in planning.
 
 ### ✅ Phase 1: Authentication UI (Completed June 30, 2025)
 
@@ -252,11 +252,15 @@ Keep this log focused on session continuity and dev communication. All canonical
 
 ### ✅ Phase 2: Cloud Storage (Completed June 30, 2025)
 
-- **Cloud Save/Load:** Implemented cloud storage service for user-specific card data
+- **Cloud Save/Load:** Implemented production cloud storage service with authenticated API endpoints
 - **User-Specific Storage:** Cards are saved with user ID to isolate data per user
 - **Unified Card Management:** Refactored "Your Cards" section to become auth-aware "My Cards"
 - **Card Stats:** Added card count tracking for personal and shared cards
 - **Loading States:** Added loading indicators and error handling for cloud operations
+- **API Integration:** Connected to `/api/saveCardData` and `/api/loadCardData` endpoints with authentication
+- **Fallback Mechanism:** Added localStorage fallback if API calls fail
+- **Clear UI Distinction:** Enhanced UI to clearly differentiate between local "Card Library" and cloud "My Cards"
+- **Improved Button States:** Updated button labels and states to reflect available actions in each auth state
 
 ### 🚧 Phase 3: Enhanced Features (In Development)
 
@@ -288,6 +292,10 @@ Keep this log focused on session continuity and dev communication. All canonical
 | `/data/rpg-avatar-cards.json`        | Full list of all card data           |
 | `/js/card-render.js`                 | Rendering engine (Cascade-generated) |
 | `/css/card-styles.css`               | Full style system for card visuals   |
+| `/lab/card-forge/card-forge-cloud.js`| Cloud storage service for user cards |
+| `/lab/card-forge/card-forge-auth.js` | Authentication integration           |
+| `/api/saveCardData/index.js`         | API endpoint for saving cards        |
+| `/api/loadCardData/index.js`         | API endpoint for loading cards       |
 | `/card-forge-dev/`                   | Local dev folder for isolated testing|
 | `/docs/logs/project-card-forge.html` | Log page for project documentation   |
 

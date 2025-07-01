@@ -62,9 +62,20 @@
     <!-- 1. Sidebar/List -->
     <section class="grid-col-4" aria-label="Card List" style="background:rgba(255,0,0,0.06);border:1px solid #e88;">
       <h3 class="section-header auth-aware-title">
-        <span class="auth-signed-out" style="display: none;">Card Library</span>
-        <span class="auth-signed-in" style="display: none;">My Cards <span id="user-name-display"></span></span>
+        <span class="auth-signed-out" style="display: none;">Card Library <i class="fas fa-info-circle" title="Cards created here are stored locally and will be lost if you clear your browser data"></i></span>
+        <span class="auth-signed-in" style="display: none;">My Cards <span id="user-name-display"></span> <i class="fas fa-cloud" title="Cards are saved to your Ambient Pixels account"></i></span>
       </h3>
+      <!-- Card Library/My Cards explanation -->
+      <div class="auth-signed-out mb-2" style="display: none;">
+        <div class="card-forge-info-box">
+          <p><small><i class="fas fa-exclamation-circle"></i> Cards created in the library are stored locally in your browser. <a href="#" id="sign-in-to-save-link">Sign in</a> to save cards to your Ambient Pixels account.</small></p>
+        </div>
+      </div>
+      <div class="auth-signed-in mb-2" style="display: none;">
+        <div class="card-forge-info-box success">
+          <p><small><i class="fas fa-check-circle"></i> Your cards are saved to your Ambient Pixels account and available on any device.</small></p>
+        </div>
+      </div>
       <!-- updated by Cascade: utility classes applied -->
       <ul class="nova-list mb-2" id="card-list">
         <!-- Card list rendered by card-forge-editor.js -->
@@ -78,14 +89,20 @@
         <!-- cleaned up duplicate button group by Cascade -->
       </div>
       <div class="mt-2" id="sidebar-save-btns">
-        <button class="glass-button" type="button" id="sidebar-save-btn"><i class="fas fa-save"></i> Save</button>
+        <!-- Local save buttons (shown in both states but with different labels) -->
+        <button class="glass-button auth-signed-out" type="button" id="sidebar-save-btn-local" style="display: none;">
+          <i class="fas fa-save"></i> Save to Browser
+        </button>
+        <button class="glass-button auth-signed-in" type="button" id="sidebar-save-btn" style="display: none;">
+          <i class="fas fa-save"></i> Save Draft
+        </button>
         <button class="glass-button" type="reset" id="sidebar-reset-btn"><i class="fas fa-undo"></i> Reset</button>
         
         <!-- Cloud save buttons (conditionally shown based on auth state) -->
-        <button class="glass-button auth-signed-out" type="button" id="save-to-azure-btn" style="display: none;">
-          <i class="fas fa-cloud-upload-alt"></i> Save to Cloud
+        <button class="glass-button auth-signed-out primary-action" type="button" id="sign-in-to-save-cloud-btn" style="display: none;">
+          <i class="fas fa-sign-in-alt"></i> Sign In to Save to Cloud
         </button>
-        <button class="glass-button auth-signed-in" type="button" id="save-to-my-account-btn" style="display: none;">
+        <button class="glass-button auth-signed-in primary-action" type="button" id="save-to-my-account-btn" style="display: none;">
           <i class="fas fa-cloud-upload-alt"></i> Save to My Account
         </button>
         

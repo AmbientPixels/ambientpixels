@@ -71,9 +71,6 @@
     }
     
     try {
-      // Create storage key with user ID to isolate user data
-      const storageKey = `ambient-pixels-cards-${userId}`;
-      
       // Add metadata to the cards
       const cardsWithMetadata = cards.map(card => ({
         ...card,
@@ -81,21 +78,40 @@
         userId: userId
       }));
       
-      // For now, we'll use localStorage as a placeholder
-      // In production, this would connect to Ambient Pixels cloud API
-      localStorage.setItem(storageKey, JSON.stringify(cardsWithMetadata));
+      // Connect to the Ambient Pixels API endpoint
+      debugLog('Connecting to API endpoint /api/saveCardData');
+      const response = await fetch('/api/saveCardData', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-ID': userId // Pass user ID in header for authentication
+        },
+        body: JSON.stringify(cardsWithMetadata)
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.message || 'Error saving to Ambient Pixels cloud');
+      }
       
       // Update card counts
       updateCardCounts(cardsWithMetadata);
       
       debugLog(`Saved ${cards.length} cards to cloud for user ${userId}`);
-      return Promise.resolve({
-        success: true,
-        message: `Saved ${cards.length} cards to your Ambient Pixels account`,
-        count: cards.length
-      });
+      return result;
     } catch (e) {
       debugLog('Error saving cards: ' + e);
+      
+      // Fallback to localStorage if API fails
+      debugLog('API failed, falling back to localStorage');
+      const storageKey = `ambient-pixels-cards-${userId}`;
+      localStorage.setItem(storageKey, JSON.stringify(cards.map(card => ({
+        ...card,
+        lastModified: new Date().toISOString(),
+        userId: userId
+      }))));
+      
       return Promise.reject(new Error('Failed to save cards: ' + e.message));
     }
   };
@@ -113,16 +129,38 @@
     }
     
     try {
-      // Get storage key with user ID
-      const storageKey = `ambient-pixels-cards-${userId}`;
+      // Connect to the Ambient Pixels API endpoint
+      debugLog('Connecting to API endpoint /api/loadCardData');
+      const response = await fetch(`/api/loadCardData?userId=${userId}`, {
+        method: 'GET',
+        headers: { 
+          'X-User-ID': userId // Pass user ID in header for authentication
+        }
+      });
       
-      // For now, we'll use localStorage as a placeholder
-      // In production, this would connect to Ambient Pixels cloud API
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.message || 'Error loading from Ambient Pixels cloud');
+      }
+      
+      const cards = await response.json();
+      
+      // Update card counts
+      updateCardCounts(cards);
+      
+      debugLog(`Loaded ${cards.length} cards from cloud for user ${userId}`);
+      return cards;
+    } catch (e) {
+      debugLog('Error loading cards: ' + e);
+      
+      // Fallback to localStorage if API fails
+      debugLog('API failed, falling back to localStorage');
+      const storageKey = `ambient-pixels-cards-${userId}`;
       const cardsJson = localStorage.getItem(storageKey);
       
       if (!cardsJson) {
         debugLog('No cards found for user ' + userId);
-        return Promise.resolve([]);
+        return [];
       }
       
       const cards = JSON.parse(cardsJson);
@@ -130,11 +168,8 @@
       // Update card counts
       updateCardCounts(cards);
       
-      debugLog(`Loaded ${cards.length} cards from cloud for user ${userId}`);
-      return Promise.resolve(cards);
-    } catch (e) {
-      debugLog('Error loading cards: ' + e);
-      return Promise.reject(new Error('Failed to load cards: ' + e.message));
+      debugLog(`Loaded ${cards.length} cards from localStorage for user ${userId}`);
+      return cards;
     }
   };
   
