@@ -3,6 +3,18 @@
     "rewrite": "/404.html",
     "exclude": ["/images/*", "/*.css", "/*.js", "/*.json", "/*.svg", "/*.png", "/*.ico", "/*.jpg", "/*.jpeg", "/*.gif"]
   },
+  "routes": [
+    {
+      "route": "/api/loadCardData",
+      "methods": ["GET"],
+      "allowedRoles": ["anonymous", "authenticated"]
+    },
+    {
+      "route": "/api/saveCardData",
+      "methods": ["POST"],
+      "allowedRoles": ["authenticated"]
+    }
+  ],
   "mimeTypes": {
     ".json": "text/json"
   },
