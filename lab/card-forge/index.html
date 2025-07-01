@@ -49,47 +49,22 @@
     <section class="content-section grid-col-12" aria-labelledby="card-editor-heading">
       <h2 id="card-editor-heading"><i class="fas fa-edit"></i> Card Forge Editor <span class="soon-tag">Alpha</span></h2>
     </section>
-    <!-- Auth-aware section: My Cards / Sign In Prompt -->
-    <section class="grid-col-12 auth-aware-section mb-2" id="auth-cards-section">
-      <!-- This content will be dynamically updated based on auth state -->
-      <div class="auth-signed-out" style="display: none;">
-        <div class="card-forge-auth-prompt">
-          <h3><i class="fas fa-lock"></i> Sign in to access your personal cards</h3>
-          <p>Create, save, and manage your own collection of custom cards with your Ambient Pixels account.</p>
-          <button class="glass-button" id="card-forge-login-btn" type="button">
-            <i class="fas fa-sign-in-alt"></i> Sign In
-          </button>
-        </div>
-      </div>
-      <div class="auth-signed-in" style="display: none;">
-        <div class="card-forge-my-cards">
-          <h3><i class="fas fa-id-card"></i> My Cards <span id="user-name-display"></span></h3>
-          <div class="card-forge-dashboard">
-            <div class="card-forge-dashboard-stats">
-              <div class="stat-card">
-                <span class="stat-number" id="my-cards-count">0</span>
-                <span class="stat-label">My Cards</span>
-              </div>
-              <div class="stat-card">
-                <span class="stat-number" id="shared-cards-count">0</span>
-                <span class="stat-label">Shared</span>
-              </div>
-            </div>
-            <div class="card-forge-actions">
-              <button class="glass-button" id="load-my-cards-btn" type="button">
-                <i class="fas fa-cloud-download-alt"></i> Load My Cards
-              </button>
-              <button class="glass-button" id="save-to-my-account-btn" type="button">
-                <i class="fas fa-cloud-upload-alt"></i> Save to My Account
-              </button>
-            </div>
-          </div>
-        </div>
+    <!-- Auth-aware sign-in prompt (only shown when not authenticated) -->
+    <section class="grid-col-12 auth-aware-section mb-2 auth-signed-out" id="auth-sign-in-prompt" style="display: none;">
+      <div class="card-forge-auth-prompt">
+        <h3><i class="fas fa-lock"></i> Sign in to access your personal cards</h3>
+        <p>Create, save, and manage your own collection of custom cards with your Ambient Pixels account.</p>
+        <button class="glass-button" id="card-forge-login-btn" type="button">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
       </div>
     </section>
     <!-- 1. Sidebar/List -->
     <section class="grid-col-4" aria-label="Card List" style="background:rgba(255,0,0,0.06);border:1px solid #e88;">
-      <h3 class="section-header">Your Cards</h3>
+      <h3 class="section-header auth-aware-title">
+        <span class="auth-signed-out" style="display: none;">Card Library</span>
+        <span class="auth-signed-in" style="display: none;">My Cards <span id="user-name-display"></span></span>
+      </h3>
       <!-- updated by Cascade: utility classes applied -->
       <ul class="nova-list mb-2" id="card-list">
         <!-- Card list rendered by card-forge-editor.js -->
@@ -105,7 +80,31 @@
       <div class="mt-2" id="sidebar-save-btns">
         <button class="glass-button" type="button" id="sidebar-save-btn"><i class="fas fa-save"></i> Save</button>
         <button class="glass-button" type="reset" id="sidebar-reset-btn"><i class="fas fa-undo"></i> Reset</button>
-        <button class="glass-button" type="button" id="save-to-azure-btn"><i class="fas fa-cloud-upload-alt"></i> Save to Azure</button>
+        
+        <!-- Cloud save buttons (conditionally shown based on auth state) -->
+        <button class="glass-button auth-signed-out" type="button" id="save-to-azure-btn" style="display: none;">
+          <i class="fas fa-cloud-upload-alt"></i> Save to Cloud
+        </button>
+        <button class="glass-button auth-signed-in" type="button" id="save-to-my-account-btn" style="display: none;">
+          <i class="fas fa-cloud-upload-alt"></i> Save to My Account
+        </button>
+        
+        <!-- Cloud load button (only shown when authenticated) -->
+        <button class="glass-button auth-signed-in mt-2" type="button" id="load-my-cards-btn" style="display: none;">
+          <i class="fas fa-cloud-download-alt"></i> Load My Cards
+        </button>
+        
+        <!-- Stats display (only shown when authenticated) -->
+        <div class="card-stats auth-signed-in mt-3" style="display: none;">
+          <div class="stat-card">
+            <span class="stat-number" id="my-cards-count">0</span>
+            <span class="stat-label">My Cards</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number" id="shared-cards-count">0</span>
+            <span class="stat-label">Shared</span>
+          </div>
+        </div>
       </div>
     </section>
     <!-- 2. Live Preview -->

@@ -238,13 +238,23 @@ Keep this log focused on session continuity and dev communication. All canonical
 
 ---
 
-## 🆕 Card Forge + Azure AD B2C Integration (Planned)
+## 🆕 Card Forge + Ambient Pixels Integration
 
-> These features will guide the next phase of Card Forge development with authentication and user accounts.
+> Implementation in progress: Phase 1 complete (Authentication UI), Phase 2 pending (Cloud Save/Load)
+
+### ✅ Phase 1: Authentication UI (Completed June 30, 2025)
+
+- **Auth-Aware Interface:** Conditional UI that changes based on authentication state
+- **Sign-In Prompt:** Clean prompt for unauthenticated users explaining benefits of Ambient Pixels account
+- **My Cards Dashboard:** Dashboard UI for authenticated users showing stats and personal collection
+- **User Identity:** Display user's name from Ambient Pixels account in the Card Forge UI
+- **Action Buttons:** Placeholder buttons for cloud save/load functionality
+
+### 🚧 Phase 2: Cloud Features (In Development)
 
 - **User-Specific Card Decks:** Authenticated users can have their own private/public card sets. "My Cards" dashboard for managing creations. Public/private/shareable options.
-- **Save/Load to Cloud:** Save card decks to Azure Blob Storage or user-specific cloud. "Save to My Account" and "Load My Cards" for signed-in users.
-- **Profile Avatars & Identity:** Pull user info from Azure AD (name, avatar, email) to pre-fill cards and personalize UI. "Create Card from My Profile" quick action.
+- **Save/Load to Cloud:** Save card decks to Ambient Pixels cloud storage. "Save to My Account" and "Load My Cards" for signed-in users.
+- **Profile Avatars & Identity:** Pull user info from Ambient Pixels (name, avatar, email) to pre-fill cards and personalize UI. "Create Card from My Profile" quick action.
 - **Social & Collaboration:** Allow remixing cards by others, with attribution. Enable commenting, likes, or sharing (future community features).
 - **Card Ownership & Attribution:** Show "Created by [username]" and track edits/versions. Add badges for authenticated users.
 - **Access Control:** Restrict advanced features to authenticated users. Admin/special roles can moderate or feature cards.

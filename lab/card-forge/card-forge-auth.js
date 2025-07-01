@@ -1,99 +1,99 @@
-// Card Forge + Ambient Pixels Integration
-// Handles authentication state and user-specific features
+/**
+ * Card Forge + Ambient Pixels Authentication Integration
+ * Handles authentication state detection and UI updates for Card Forge
+ */
 
 (function() {
-  // Debug logging
-  function debugLog(...args) {
-    if (window.DEBUG_AUTH || localStorage.getItem('DEBUG_AUTH') === 'true') console.log("[CARD-FORGE-AUTH]", ...args);
-  }
-
-  // DOM elements
-  const authCardsSection = document.getElementById('auth-cards-section');
-  const signedOutSection = authCardsSection?.querySelector('.auth-signed-out');
-  const signedInSection = authCardsSection?.querySelector('.auth-signed-in');
-  const userNameDisplay = document.getElementById('user-name-display');
-  const cardForgeLoginBtn = document.getElementById('card-forge-login-btn');
-  const loadMyCardsBtn = document.getElementById('load-my-cards-btn');
-  const saveToMyAccountBtn = document.getElementById('save-to-my-account-btn');
-  const saveToAzureBtn = document.getElementById('save-to-azure-btn'); // Existing button
+  'use strict';
   
-  // Stats elements
-  const myCardsCount = document.getElementById('my-cards-count');
-  const sharedCardsCount = document.getElementById('shared-cards-count');
-
-  // Check if auth elements exist
-  if (!authCardsSection) {
-    debugLog('Auth cards section not found');
-    return;
+  // Debug mode flag
+  const DEBUG = true;
+  
+  // Debug logger
+  function debugLog(message) {
+    if (DEBUG) {
+      console.log(`[Card Forge Auth] ${message}`);
+    }
   }
-
-  // Initialize auth state
+  
+  // Get auth state from body attribute (set by authUI.js)
+  function isAuthenticated() {
+    const authState = document.body.getAttribute('data-auth-state');
+    return authState === 'signed-in';
+  }
+  
+  // Get user info from sessionStorage (set by authUI.js)
+  function getUserInfo() {
+    try {
+      const userInfoStr = sessionStorage.getItem('userInfo');
+      if (userInfoStr) {
+        return JSON.parse(userInfoStr);
+      }
+    } catch (e) {
+      debugLog('Error parsing user info: ' + e);
+    }
+    return null;
+  }
+  
+  // Get user's display name
+  function getUserDisplayName() {
+    const userInfo = getUserInfo();
+    if (userInfo) {
+      // Try to get name from various properties
+      return userInfo.name || 
+             userInfo.displayName || 
+             userInfo.givenName || 
+             userInfo.username ||
+             'User';
+    }
+    return 'User';
+  }
+  
+  // Update UI based on authentication state
   function updateAuthUI() {
-    debugLog('Updating Card Forge auth UI');
+    debugLog('Updating auth UI');
     
-    // Check if we're authenticated
-    const isSignedIn = document.body.getAttribute('data-auth-state') === 'signed-in' || 
-                       sessionStorage.getItem('ambientPixels_isAuthenticated') === 'true';
+    const authenticated = isAuthenticated();
+    debugLog('Auth state: ' + (authenticated ? 'signed in' : 'signed out'));
     
-    debugLog('Auth state:', isSignedIn ? 'signed in' : 'signed out');
+    // Show/hide elements based on auth state
+    const signedInElements = document.querySelectorAll('.auth-signed-in');
+    const signedOutElements = document.querySelectorAll('.auth-signed-out');
     
-    // Update UI based on auth state
-    if (signedOutSection) signedOutSection.style.display = isSignedIn ? 'none' : 'block';
-    if (signedInSection) signedInSection.style.display = isSignedIn ? 'block' : 'none';
+    signedInElements.forEach(el => {
+      el.style.display = authenticated ? '' : 'none';
+    });
     
-    // If signed in, update user info
-    if (isSignedIn && window.msalInstance) {
-      try {
-        const accounts = window.msalInstance.getAllAccounts();
-        const account = accounts && accounts[0];
-        
-        if (account) {
-          // Get display name (similar logic to authUI.js)
-          let displayName = account.name;
-          
-          // Fallback if name is not useful
-          if (!displayName || displayName.trim().toLowerCase() === 'unknown' || displayName.trim() === '') {
-            displayName = account.username;
-          }
-          
-          // If the name is an email, extract the part before the @
-          if (displayName && displayName.includes('@')) {
-            displayName = displayName.split('@')[0];
-          }
-          
-          // Final fallback
-          displayName = displayName || 'Card Creator';
-          
-          // Update UI with user info
-          if (userNameDisplay) userNameDisplay.textContent = `(${displayName})`;
-          
-          // Store user ID for cloud operations
-          window.cardForgeUserId = account.localAccountId || account.username;
-          debugLog('User ID for cloud operations:', window.cardForgeUserId);
-        }
-      } catch (e) {
-        debugLog('Error getting account info:', e);
+    signedOutElements.forEach(el => {
+      el.style.display = authenticated ? 'none' : '';
+    });
+    
+    // Update user name if authenticated
+    if (authenticated) {
+      const userNameDisplay = document.getElementById('user-name-display');
+      if (userNameDisplay) {
+        userNameDisplay.textContent = `(${getUserDisplayName()})`;
       }
-    }
-    
-    // Update cloud save buttons
-    if (saveToAzureBtn) {
-      // If we have the original "Save to Azure" button, update its text when signed in
-      if (isSignedIn) {
-        saveToAzureBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Save to My Account';
-      } else {
-        saveToAzureBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Save to Azure';
-      }
+      
+      // Update card counts (placeholder for now)
+      const myCardsCount = document.getElementById('my-cards-count');
+      const sharedCardsCount = document.getElementById('shared-cards-count');
+      
+      if (myCardsCount) myCardsCount.textContent = '0';
+      if (sharedCardsCount) sharedCardsCount.textContent = '0';
     }
   }
-
-  // Bind events
+  
+  // Bind event handlers to auth-related buttons
   function bindAuthEvents() {
+    debugLog('Binding auth events');
+    
     // Login button
-    if (cardForgeLoginBtn) {
-      cardForgeLoginBtn.addEventListener('click', function() {
+    const loginBtn = document.getElementById('card-forge-login-btn');
+    if (loginBtn) {
+      loginBtn.addEventListener('click', function() {
         debugLog('Login button clicked');
-        // Call the login function from authUI.js if available
+        // Try to use the global login function from authUI.js
         if (window.login) {
           window.login();
         } else {
@@ -103,6 +103,7 @@
     }
     
     // Load my cards button
+    const loadMyCardsBtn = document.getElementById('load-my-cards-btn');
     if (loadMyCardsBtn) {
       loadMyCardsBtn.addEventListener('click', function() {
         debugLog('Load my cards button clicked');
@@ -112,18 +113,13 @@
     }
     
     // Save to my account button
+    const saveToMyAccountBtn = document.getElementById('save-to-my-account-btn');
     if (saveToMyAccountBtn) {
       saveToMyAccountBtn.addEventListener('click', function() {
         debugLog('Save to my account button clicked');
         // This will be implemented in the next phase
         alert('Saving to your account... (Coming soon)');
       });
-    }
-    
-    // Override existing save to Azure button if needed
-    if (saveToAzureBtn) {
-      // We'll keep the original functionality for now
-      // but could override it in the future to include user ID
     }
   }
 
