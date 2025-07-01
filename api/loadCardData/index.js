@@ -27,7 +27,7 @@ module.exports = async function (context, req) {
     }
 
     // Get the blob client for the card data
-    const blockBlobClient = containerClient.getBlockBlobClient('card-forge.json');
+    const blockBlobClient = containerClient.getBlockBlobClient(`${userId}.json`);
     
     // Check if blob exists
     const blobExists = await blockBlobClient.exists();

@@ -19,7 +19,14 @@ module.exports = async function (context, req) {
     const containerClient = blobServiceClient.getContainerClient('cardforge');
     await containerClient.createIfNotExists();
 
-    const blockBlobClient = containerClient.getBlockBlobClient('card-forge.json');
+    // Get user ID from body or headers
+    const userId = cardData[0]?.userId || req.headers['x-user-id'];
+    if (!userId) {
+      context.res = { status: 400, body: "No user ID found in card data or headers." };
+      return;
+    }
+
+    const blockBlobClient = containerClient.getBlockBlobClient(`${userId}.json`);
     const content = JSON.stringify(cardData, null, 2);
     await blockBlobClient.upload(content, Buffer.byteLength(content), { overwrite: true });
 
