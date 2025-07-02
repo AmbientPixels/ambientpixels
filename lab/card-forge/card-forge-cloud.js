@@ -427,6 +427,12 @@
       debugLog(`API response status: ${response.status} ${response.statusText}`);
       
       if (!response.ok) {
+        // Handle 404 errors gracefully during deployment phase
+        if (response.status === 404) {
+          debugLog('Gallery API returned 404, likely still deploying. Returning empty dataset.');
+          return { cards: [], pagination: { total: 0, page: 1 } };
+        }
+        
         const errorResult = await response.json().catch(() => ({}));
         throw new Error(errorResult.message || `Error loading gallery: ${response.status} ${response.statusText}`);
       }
@@ -436,9 +442,10 @@
       return cards;
     } catch (e) {
       debugLog('Error loading gallery cards:', e);
-      return [];
+      // Return properly formatted empty result for graceful degradation
+      return { cards: [], pagination: { total: 0, page: 1 } };
     }
-  };
+  }; /* updated by Cascade - Added graceful error handling for deployment phase */
   
   /**
    * Load personal cards (authenticated)
@@ -471,6 +478,12 @@
       debugLog(`API response status: ${response.status} ${response.statusText}`);
       
       if (!response.ok) {
+        // Handle 404 errors gracefully during deployment phase
+        if (response.status === 404) {
+          debugLog('Personal cards API returned 404, likely still deploying. Returning empty dataset.');
+          return { cards: [], pagination: { total: 0, page: 1 } };
+        }
+        
         const errorResult = await response.json().catch(() => ({}));
         throw new Error(errorResult.message || `Error loading personal cards: ${response.status} ${response.statusText}`);
       }
@@ -480,9 +493,10 @@
       return cards;
     } catch (e) {
       debugLog('Error loading personal cards:', e);
-      return [];
+      // Return properly formatted empty result for graceful degradation
+      return { cards: [], pagination: { total: 0, page: 1 } };
     }
-  };
+  }; /* updated by Cascade - Added graceful error handling for deployment phase */
   
   // Initialize when the script loads
   debugLog('Cloud storage service initialized');

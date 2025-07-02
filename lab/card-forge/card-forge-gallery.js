@@ -431,6 +431,7 @@ window.CardForgeGallery = (function() {
   return {
     init,
     loadGalleryCards,
+    loadPersonalCards: loadUserLibrary, // Alias for test compatibility
     loadUserLibrary,
     refreshGallery
   };

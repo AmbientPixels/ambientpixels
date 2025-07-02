@@ -71,6 +71,13 @@
         btn.removeAttribute('disabled');
         btn.setAttribute('title', 'Publish this card to the gallery');
       });
+      
+      // Update test visibility elements
+      const signedInElements = document.querySelectorAll('.signed-in-content');
+      const signedOutElements = document.querySelectorAll('.signed-out-content');
+      
+      signedInElements.forEach(el => el.style.display = 'block');
+      signedOutElements.forEach(el => el.style.display = 'none');
     } else {
       // Signed out: load public gallery
       debugLog('Loading public gallery');
@@ -83,6 +90,13 @@
         btn.setAttribute('disabled', 'disabled');
         btn.setAttribute('title', 'Sign in to publish cards');
       });
+      
+      // Update test visibility elements
+      const signedInElements = document.querySelectorAll('.signed-in-content');
+      const signedOutElements = document.querySelectorAll('.signed-out-content');
+      
+      signedInElements.forEach(el => el.style.display = 'none');
+      signedOutElements.forEach(el => el.style.display = 'block');
     }
   }
   
