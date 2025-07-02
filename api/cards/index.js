@@ -2,6 +2,27 @@ const { BlobServiceClient } = require('@azure/storage-blob');
 
 module.exports = async function (context, req) {
     context.log('Processing request for public gallery cards');
+    context.log('Request URL:', req.originalUrl || req.url);
+    context.log('Request method:', req.method);
+    
+    // Add explicit CORS headers
+    const responseHeaders = {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, X-User-ID, Authorization'
+    };
+    
+    // Handle OPTIONS request for CORS preflight
+    if (req.method === 'OPTIONS') {
+        context.log('Handling CORS preflight request');
+        context.res = {
+            status: 204,
+            headers: responseHeaders,
+            body: ''
+        };
+        return;
+    }
     
     try {
         // Parse query parameters
@@ -142,12 +163,25 @@ module.exports = async function (context, req) {
         };
     } catch (error) {
         context.log.error('Error in public gallery cards endpoint:', error);
+        // Log the full error for server-side debugging
+        context.log.error('Full error object:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+        
+        // Check connection string status for troubleshooting
+        const connStringStatus = process.env.AZURE_STORAGE_CONNECTION_STRING 
+            ? `Connection string exists (starts with: ${process.env.AZURE_STORAGE_CONNECTION_STRING.substring(0, 5)}...)` 
+            : 'Connection string is missing';
+            
+        context.log.error('Connection string status:', connStringStatus);
+        
         context.res = {
             status: 500,
-            headers: { 'Content-Type': 'application/json' },
+            headers: responseHeaders,
             body: { 
                 message: 'Error retrieving gallery cards', 
-                error: error.message 
+                error: error.message,
+                connectionStatus: connStringStatus,
+                timestamp: new Date().toISOString(),
+                requestPath: req.originalUrl || req.url
             }
         };
     }
