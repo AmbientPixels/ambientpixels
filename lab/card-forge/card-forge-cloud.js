@@ -9,11 +9,75 @@
   // Debug mode flag
   const DEBUG = true;
   
+  // API Configuration
+  const API_CONFIG = {
+    // Set to true to use production API endpoints, false for local development
+    production: true,
+    
+    // Base URLs
+    baseUrl: {
+      development: '',  // Empty for relative paths in development
+      production: 'https://ambientpixels.ai'  // Production API base URL
+    },
+    
+    // API endpoints
+    endpoints: {
+      saveCards: '/api/saveCardData',
+      loadCards: '/api/loadCardData',
+      publishCard: '/api/cards/publish',
+      gallery: '/api/cards',
+      myCards: '/api/myCards'
+    }
+  };
+  
   // Debug logger
   function debugLog(message) {
     if (DEBUG) {
       console.log(`[Card Forge Cloud] ${message}`);
     }
+  }
+  
+  /**
+   * Get the base API URL based on current environment
+   * @returns {string} The base URL for API requests
+   */
+  function getApiBaseUrl() {
+    return API_CONFIG.production ? 
+      API_CONFIG.baseUrl.production : 
+      API_CONFIG.baseUrl.development;
+  }
+  
+  /**
+   * Get the full API URL for a specific endpoint
+   * @param {string} endpoint - The API endpoint path from API_CONFIG.endpoints
+   * @param {Object} params - Optional query parameters
+   * @returns {string} The complete API URL
+   */
+  function getApiUrl(endpoint, params = {}) {
+    const baseUrl = getApiBaseUrl();
+    const path = API_CONFIG.endpoints[endpoint];
+    
+    if (!path) {
+      console.error(`[Card Forge Cloud] Invalid endpoint: ${endpoint}`);
+      return '';
+    }
+    
+    // Add query parameters if provided
+    let url = `${baseUrl}${path}`;
+    const queryParams = new URLSearchParams();
+    
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== null && value !== undefined) {
+        queryParams.append(key, value);
+      }
+    }
+    
+    const queryString = queryParams.toString();
+    if (queryString) {
+      url += `?${queryString}`;
+    }
+    
+    return url;
   }
   
   // Cloud storage namespace
@@ -142,10 +206,11 @@
       }));
       
       // Connect to the Ambient Pixels API endpoint
-      const apiUrl = '/api/saveCardData';
+      const apiUrl = getApiUrl('saveCards');
       debugLog(`Connecting to API endpoint ${apiUrl}`);
       debugLog(`Using user ID: ${userId} (from ${getUserId === null ? 'null' : 'valid'} source)`);
       debugLog(`Auth state attributes: ${document.body.getAttribute('data-auth-state')}`);
+      debugLog(`API environment: ${API_CONFIG.production ? 'Production' : 'Development'}`);
       
       // Ensure the first card has the userId property
       if (cards.length > 0) {
@@ -207,9 +272,10 @@
     
     try {
       // Connect to the Ambient Pixels API endpoint
-      const apiUrl = `/api/loadCardData?userId=${userId}`;
+      const apiUrl = getApiUrl('loadCards', { userId });
       debugLog(`Connecting to API endpoint ${apiUrl}`);
       debugLog(`Using user ID: ${userId} (from ${getUserId === null ? 'null' : 'valid'} source)`);
+      debugLog(`API environment: ${API_CONFIG.production ? 'Production' : 'Development'}`);
       
       const response = await fetch(apiUrl, {
         method: 'GET',
@@ -255,7 +321,6 @@
       
       // Return empty array since we couldn't load from cloud
       return [];
-      return cards;
     }
   };
   
@@ -286,7 +351,141 @@
     return getUserId() !== null;
   };
   
+  /**
+   * Publish a card to the public gallery
+   * @param {string} cardId - ID of the card to publish
+   * @returns {Promise} Promise that resolves with publish result
+   */
+  CardForgeCloud.publishCard = async function(cardId) {
+    debugLog(`Publishing card with ID: ${cardId}`);
+    
+    const userId = getUserId();
+    if (!userId) {
+      return Promise.reject(new Error('User not authenticated'));
+    }
+    
+    try {
+      // Connect to the Ambient Pixels API endpoint
+      const apiUrl = `${getApiUrl('publishCard')}/${cardId}`;
+      debugLog(`Connecting to publish API endpoint ${apiUrl}`);
+      debugLog(`Using user ID: ${userId}`);
+      debugLog(`API environment: ${API_CONFIG.production ? 'Production' : 'Development'}`);
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-ID': userId // Pass user ID in header for authentication
+        }
+      });
+      
+      debugLog(`API response status: ${response.status} ${response.statusText}`);
+      
+      // Try to parse the response as JSON
+      let result;
+      try {
+        result = await response.json();
+        debugLog('API response body:', result);
+      } catch (jsonError) {
+        debugLog('Failed to parse response as JSON:', jsonError);
+        throw new Error(`API returned non-JSON response: ${response.statusText}`);
+      }
+      
+      if (!response.ok) {
+        throw new Error(result.message || `Error publishing card: ${response.status} ${response.statusText}`);
+      }
+      
+      debugLog(`Published card ${cardId} successfully`);
+      return result;
+    } catch (e) {
+      debugLog('Error publishing card:', e);
+      return Promise.reject(new Error('Failed to publish card: ' + e.message));
+    }
+  };
+  
+  /**
+   * Load gallery cards (public)
+   * @param {Object} options - Options including filter, sort, page
+   * @returns {Promise} Promise that resolves with gallery cards
+   */
+  CardForgeCloud.loadGalleryCards = async function(options = {}) {
+    debugLog('Loading gallery cards');
+    
+    try {
+      // Connect to the Ambient Pixels API endpoint
+      const apiUrl = getApiUrl('gallery', options);
+      debugLog(`Connecting to gallery API endpoint ${apiUrl}`);
+      debugLog(`API environment: ${API_CONFIG.production ? 'Production' : 'Development'}`);
+      
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      debugLog(`API response status: ${response.status} ${response.statusText}`);
+      
+      if (!response.ok) {
+        const errorResult = await response.json().catch(() => ({}));
+        throw new Error(errorResult.message || `Error loading gallery: ${response.status} ${response.statusText}`);
+      }
+      
+      const cards = await response.json();
+      debugLog(`Loaded ${cards.length} gallery cards`);
+      return cards;
+    } catch (e) {
+      debugLog('Error loading gallery cards:', e);
+      return [];
+    }
+  };
+  
+  /**
+   * Load personal cards (authenticated)
+   * @param {Object} options - Options including filter, sort, page
+   * @returns {Promise} Promise that resolves with personal cards
+   */
+  CardForgeCloud.loadPersonalCards = async function(options = {}) {
+    debugLog('Loading personal cards');
+    
+    const userId = getUserId();
+    if (!userId) {
+      return Promise.reject(new Error('User not authenticated'));
+    }
+    
+    try {
+      // Connect to the Ambient Pixels API endpoint
+      const apiUrl = getApiUrl('myCards', { ...options, userId });
+      debugLog(`Connecting to personal cards API endpoint ${apiUrl}`);
+      debugLog(`Using user ID: ${userId}`);
+      debugLog(`API environment: ${API_CONFIG.production ? 'Production' : 'Development'}`);
+      
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-ID': userId // Pass user ID in header for authentication
+        }
+      });
+      
+      debugLog(`API response status: ${response.status} ${response.statusText}`);
+      
+      if (!response.ok) {
+        const errorResult = await response.json().catch(() => ({}));
+        throw new Error(errorResult.message || `Error loading personal cards: ${response.status} ${response.statusText}`);
+      }
+      
+      const cards = await response.json();
+      debugLog(`Loaded ${cards.length} personal cards`);
+      return cards;
+    } catch (e) {
+      debugLog('Error loading personal cards:', e);
+      return [];
+    }
+  };
+  
   // Initialize when the script loads
   debugLog('Cloud storage service initialized');
+  debugLog(`API environment: ${API_CONFIG.production ? 'Production' : 'Development'}`);
   
 })();
