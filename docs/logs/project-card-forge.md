@@ -54,6 +54,30 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
 
 ---
 
+## 🚀 Quickstart
+
+- **To run locally:** Open `lab/card-forge/index.html` with a local web server (e.g., VS Code Live Server, Python's `http.server`, or `npx serve`).
+- **To test the gallery:** Open the browser console and run `CardForgeTests.runAll()` to check both signed-in and signed-out experiences. Use `CardForgeTests.testLoadGallery()` or `CardForgeTests.testLoadPersonalLibrary()` for targeted tests.
+- **API requirements:** Ensure Azure Blob Storage is set up and `AZURE_STORAGE_CONNECTION_STRING` is configured in your environment for API endpoints to work.
+- **Authentication:** Ambient Pixels authentication scripts must be loaded (see `/auth/authUI.js`).
+- **Endpoints:**
+  - `/api/cards` — public gallery (GET)
+  - `/api/myCards` — personal library (GET, authenticated)
+  - `/api/cards/publish/:id` — publish card (POST, authenticated)
+
+---
+
+## 🐛 Known Issues & Open Questions
+
+- Some API endpoints require Azure credentials and may not work offline or without correct environment variables.
+- User profile avatars and display names in the gallery require `user-profiles.json` to be populated in Blob Storage.
+- If a user signs out while editing a card, unsaved changes may be lost.
+- Gallery and API endpoints may fail if Blob container permissions are not set correctly (check CORS and access policies).
+- Activity feed, advanced social features, and card remixing are planned for future phases but not yet implemented.
+- If gallery cards fail to load, check browser console for CORS or authentication errors.
+
+---
+
 ## 🎨 Output Options (Planned)
 
 - Export as PNG (using `html2canvas`)
