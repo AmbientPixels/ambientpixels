@@ -1,0 +1,264 @@
+/* Card Forge Gallery Styles 
+   Follows AmbientPixels design system */
+
+/* Main gallery container */
+.card-forge-gallery-section {
+  margin: 2rem 0;
+  padding: 1rem 0;
+  border-top: 1px solid var(--aura-border, #444);
+}
+
+/* Gallery header and controls */
+.gallery-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.gallery-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.gallery-filter-container,
+.gallery-sort-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Card grid layout */
+.gallery-cards-container,
+.personal-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+/* Gallery card */
+.gallery-card {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--mood-card-bg, rgba(30, 30, 40, 0.7));
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 320px;
+  cursor: pointer;
+}
+
+.gallery-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.gallery-card-inner {
+  height: 280px;
+  overflow: hidden;
+}
+
+.gallery-card-front {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  text-align: center;
+  background: var(--mood-glass, rgba(40, 40, 60, 0.3));
+  backdrop-filter: blur(10px);
+}
+
+.gallery-card .card-avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--aura-accent, #8a5cf5);
+  margin-bottom: 0.5rem;
+}
+
+.gallery-card .card-name {
+  font-size: 1.2rem;
+  margin: 0.5rem 0;
+  color: var(--aura-text, #fff);
+}
+
+.gallery-card .card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.gallery-card .badge {
+  font-size: 0.8rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  text-transform: capitalize;
+}
+
+.gallery-card .badge.legendary {
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  color: #000;
+}
+
+.gallery-card .badge.epic {
+  background: linear-gradient(135deg, #9400d3, #4b0082);
+  color: #fff;
+}
+
+.gallery-card .badge.rare {
+  background: linear-gradient(135deg, #0077be, #4682b4);
+  color: #fff;
+}
+
+/* Card footer */
+.gallery-card-footer {
+  height: 40px;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--mood-glass-dark, rgba(25, 25, 35, 0.8));
+  backdrop-filter: blur(5px);
+}
+
+.gallery-card .card-creator {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+}
+
+.gallery-card .card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.card-action-btn {
+  background: none;
+  border: none;
+  color: var(--aura-text-muted, #aaa);
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.card-action-btn:hover {
+  color: var(--aura-accent, #8a5cf5);
+}
+
+.card-action-btn.published {
+  color: var(--aura-success, #4caf50);
+}
+
+/* Gallery states */
+.loading-state,
+.empty-state,
+.error-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--aura-text-muted, #aaa);
+  grid-column: 1 / -1;
+}
+
+.loading-state i,
+.empty-state i,
+.error-state i {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.error-state {
+  color: var(--aura-error, #f44336);
+}
+
+.empty-state {
+  color: var(--aura-info, #2196f3);
+}
+
+/* Load more button */
+.load-more-container {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+/* Filters and sorting */
+.gallery-select {
+  background: var(--mood-glass-dark, rgba(25, 25, 35, 0.8));
+  border: 1px solid var(--aura-border, #444);
+  color: var(--aura-text, #fff);
+  padding: 0.5rem;
+  border-radius: 4px;
+  min-width: 140px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .gallery-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .gallery-controls {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  
+  .gallery-cards-container,
+  .personal-cards-container {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+  
+  .gallery-card {
+    height: 280px;
+  }
+  
+  .gallery-card-inner {
+    height: 240px;
+  }
+  
+  .gallery-card .card-avatar {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+/* Authentication-dependent display */
+.auth-dependent-content .signed-in-content,
+.auth-dependent-content .signed-out-content {
+  display: none;
+}
+
+.auth-signed-in .signed-in-content {
+  display: block;
+}
+
+.auth-signed-out .signed-out-content {
+  display: block;
+}
+
+/* Sign-in prompt inside gallery */
+.gallery-sign-in-prompt {
+  background: var(--mood-glass, rgba(40, 40, 60, 0.6));
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  padding: 1.5rem;
+  text-align: center;
+  margin: 1rem 0;
+  border: 1px solid var(--aura-border, #444);
+}
+
+.gallery-sign-in-prompt h3 {
+  margin-top: 0;
+}

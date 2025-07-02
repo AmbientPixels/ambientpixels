@@ -19,6 +19,7 @@
   <!-- Card Forge module styles (local/dev) -->
   <link rel="stylesheet" href="/lab/card-forge/card-forge.css" />
   <link rel="stylesheet" href="/lab/card-forge/card-forge-auth.css" />
+  <link rel="stylesheet" href="/lab/card-forge/card-forge-gallery.css" />
   <!-- updated by Cascade: utility classes applied -->
   <link rel="stylesheet" href="/css/utility.css" />
 
@@ -251,6 +252,104 @@
 
         </section>
 
+      <!-- Gallery Section - Authentication-dependent display -->
+      <section class="content-section grid-col-12 card-forge-gallery-section" aria-labelledby="gallery-heading">
+        <h2 id="gallery-heading"><i class="fas fa-images"></i> Card Gallery</h2>
+        
+        <!-- Auth-dependent content container -->
+        <div class="auth-dependent-content" id="card-forge-gallery">
+          
+          <!-- Signed-out view: Public Gallery -->
+          <div class="signed-out-content">
+            <div class="gallery-header">
+              <h3>Community Creations</h3>
+              <div class="gallery-controls">
+                <div class="gallery-filter-container">
+                  <label for="gallery-filter">Filter:</label>
+                  <select id="gallery-filter" class="gallery-select">
+                    <option value="all">All Categories</option>
+                    <option value="fantasy">Fantasy</option>
+                    <option value="sci-fi">Sci-Fi</option>
+                    <option value="business">Business</option>
+                    <option value="gaming">Gaming</option>
+                  </select>
+                </div>
+                <div class="gallery-sort-container">
+                  <label for="gallery-sort">Sort:</label>
+                  <select id="gallery-sort" class="gallery-select">
+                    <option value="newest">Newest</option>
+                    <option value="popular">Most Popular</option>
+                    <option value="staff-picks">Staff Picks</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Gallery Cards Container -->
+            <div class="gallery-cards-container" id="gallery-cards">
+              <!-- Cards will be populated by card-forge-gallery.js -->
+            </div>
+            
+            <div class="load-more-container">
+              <button class="glass-button" id="load-more-gallery" type="button">
+                <i class="fas fa-plus"></i> Load More
+              </button>
+            </div>
+            
+            <!-- Sign-in prompt at bottom of gallery -->
+            <div class="gallery-sign-in-prompt mt-4">
+              <h3><i class="fas fa-star"></i> Create Your Own Collection</h3>
+              <p>Sign in to create, save, and publish your own cards to the community gallery.</p>
+              <button class="glass-button primary-action" id="gallery-login-btn" type="button">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+              </button>
+            </div>
+          </div>
+          
+          <!-- Signed-in view: Personal Library -->
+          <div class="signed-in-content" id="card-forge-personal-library">
+            <div class="gallery-header">
+              <h3>My Card Collection</h3>
+              <div class="gallery-controls">
+                <div class="gallery-filter-container">
+                  <label for="personal-filter">Filter:</label>
+                  <select id="personal-filter" class="gallery-select">
+                    <option value="all">All Cards</option>
+                    <option value="published">Published</option>
+                    <option value="drafts">Drafts</option>
+                  </select>
+                </div>
+                <div class="gallery-sort-container">
+                  <label for="personal-sort">Sort:</label>
+                  <select id="personal-sort" class="gallery-select">
+                    <option value="newest">Newest</option>
+                    <option value="oldest">Oldest</option>
+                    <option value="az">A-Z</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Personal Cards Container -->
+            <div class="personal-cards-container" id="personal-cards">
+              <!-- Personal cards will be populated by card-forge-gallery.js -->
+            </div>
+            
+            <div class="load-more-container">
+              <button class="glass-button" id="load-more-personal" type="button">
+                <i class="fas fa-plus"></i> Load More
+              </button>
+            </div>
+            
+            <!-- Publishing guidance -->
+            <div class="gallery-sign-in-prompt mt-4 publish-info">
+              <h3><i class="fas fa-lightbulb"></i> Share Your Creations</h3>
+              <p>Publish your cards to the community gallery by clicking the cloud icon on any card.</p>
+              <p><small>Published cards will be visible to all Card Forge users with proper attribution.</small></p>
+            </div>
+          </div>
+        </div>
+      </section>
       </main>
  
    <div id="footer-container"></div>
@@ -270,6 +369,11 @@
   <script src="/lab/card-forge/card-forge-editor.js"></script>
   <script src="/lab/card-forge/card-forge-cloud.js"></script>
   <script src="/lab/card-forge/card-forge-auth.js"></script>
+  <script src="/lab/card-forge/card-forge-gallery.js"></script>
+  <script src="/lab/card-forge/card-forge-gallery-auth.js"></script>
+  
+  <!-- Testing utilities (remove in production) -->
+  <script src="/lab/card-forge/test-gallery.js"></script>
   
   <!-- Card Forge module script (local/dev) -->
   <script src="/lab/card-forge/card-forge.js" defer></script>

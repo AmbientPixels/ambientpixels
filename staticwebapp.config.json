@@ -6,13 +6,13 @@
   "routes": [
     {
       "route": "/api/loadCardData",
-      "methods": ["GET"],
+      "methods": ["GET", "POST"],
       "allowedRoles": ["anonymous", "authenticated"],
       "rewrite": "/api/loadCardData"
     },
     {
       "route": "/api/loadCardData/*",
-      "methods": ["GET"],
+      "methods": ["GET", "POST"],
       "allowedRoles": ["anonymous", "authenticated"],
       "rewrite": "/api/loadCardData"
     },
@@ -20,6 +20,23 @@
       "route": "/api/saveCardData",
       "methods": ["POST"],
       "allowedRoles": ["anonymous", "authenticated"]
+    },
+    {
+      "route": "/api/cards",
+      "methods": ["GET"],
+      "allowedRoles": ["anonymous", "authenticated"],
+      "rewrite": "/api/cards"
+    },
+    {
+      "route": "/api/myCards",
+      "methods": ["GET"],
+      "allowedRoles": ["authenticated"]
+    },
+    {
+      "route": "/api/cards/publish/*",
+      "methods": ["POST"],
+      "allowedRoles": ["authenticated"],
+      "rewrite": "/api/cards/publish"
     }
   ],
   "mimeTypes": {

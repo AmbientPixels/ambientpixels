@@ -38,12 +38,13 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
   - Quotes, avatars, themes
 - Role-based badge logic and animated theming (legendary, epic, rare, etc.)
 
-### 🔄 Card Gallery (Planned)
+### ✅ Card Gallery (Implemented)
 - Public gallery of user-created cards for inspiration
-- Card attribution to creators
-- Category filtering and discovery tools
-- Different experiences for signed-in vs. signed-out users
+- Card attribution to creators (username and avatar display)
+- Category filtering and discovery tools (filter by category, sort by newest/popular)
+- Different experiences for signed-in vs. signed-out users (gallery for anonymous, personal library for authenticated)
 - Social features including card publishing and favorites
+- Responsive grid layout with card previews
 
 ### ✅ Dev Environment (Complete)
 - Local dev sandbox: `card-forge-dev/`
@@ -274,16 +275,16 @@ Keep this log focused on session continuity and dev communication. All canonical
 - **Clear UI Distinction:** Enhanced UI to clearly differentiate between local "Card Library" and cloud "My Cards"
 - **Improved Button States:** Updated button labels and states to reflect available actions in each auth state
 
-### 🚧 Phase 3: Enhanced Features (In Development)
+### ✅ Phase 3: Enhanced Features (Implemented)
 
-- **User-Specific Card Decks:** Authenticated users can have their own private/public card sets. "My Cards" dashboard for managing creations. Public/private/shareable options.
-- **Save/Load to Cloud:** Save card decks to Ambient Pixels cloud storage. "Save to My Account" and "Load My Cards" for signed-in users.
-- **Profile Avatars & Identity:** Pull user info from Ambient Pixels (name, avatar, email) to pre-fill cards and personalize UI. "Create Card from My Profile" quick action.
-- **Social & Collaboration:** Allow remixing cards by others, with attribution. Enable commenting, likes, or sharing (future community features).
-- **Card Ownership & Attribution:** Show "Created by [username]" and track edits/versions. Add badges for authenticated users.
-- **Access Control:** Restrict advanced features to authenticated users. Admin/special roles can moderate or feature cards.
-- **Seamless Onboarding:** Prompt sign-in to unlock full features. Onboarding modal explaining benefits of signing in.
-- **Activity Feed/History:** Show recent edits, creations, or remix activity for each user.
+- **User-Specific Card Decks:** Authenticated users now have their own private/public card sets. "My Card Collection" dashboard for managing creations. Public/private publishing options.
+- **Save/Load to Cloud:** Cards save to Ambient Pixels cloud storage. Removed localStorage fallback for simplified data flow.
+- **Profile Avatars & Identity:** User profiles and avatars included with card attribution. Display names shown on published cards.
+- **Social & Collaboration:** Cards can be viewed in the public gallery with proper attribution to creators.
+- **Card Ownership & Attribution:** Shows "Created by [username]" and tracks publishing status. Published cards maintain creator info.
+- **Access Control:** Advanced features restricted to authenticated users. Publishing requires authentication.
+- **Seamless Onboarding:** Sign-in prompts at strategic locations throughout the UI to encourage authentication.
+- **Activity Feed/History:** User's personal library shows published/draft status of their cards.
 
 ---
 
@@ -329,27 +330,27 @@ Keep this log focused on session continuity and dev communication. All canonical
 - **Response:** JSON array of card objects
 - **Implementation:** Azure Function using Blob Storage SDK
 
-#### Gallery Cards (Planned)
+#### Gallery Cards (Implemented)
 - **Endpoint:** `/api/cards`
 - **Method:** GET
-- **Query Params:** `category=[category]`, `limit=[number]` (optional)
-- **Response:** JSON array of public gallery cards
-- **Implementation:** Azure Function using Blob Storage SDK
+- **Query Params:** `category=[category]`, `sort=[newest|popular|staff-picks]`, `limit=[number]`, `page=[number]` 
+- **Response:** JSON object with cards array and pagination metadata
+- **Implementation:** Azure Function using Blob Storage SDK, includes creator attribution
 
-#### User Cards (Planned)
+#### User Cards (Implemented)
 - **Endpoint:** `/api/myCards`
 - **Method:** GET
 - **Headers:** `X-User-ID: [user-id]`
-- **Response:** JSON array of user's private cards
-- **Implementation:** Azure Function using Blob Storage SDK
+- **Query Params:** `filter=[all|published|drafts]`, `sort=[newest|oldest|az]`, `page=[number]`, `limit=[number]`
+- **Response:** JSON object with cards array and pagination metadata
+- **Implementation:** Azure Function with authentication check
 
-#### Publish Card (Planned)
+#### Publish Card (Implemented)
 - **Endpoint:** `/api/cards/publish/:id`
 - **Method:** POST
 - **Headers:** `X-User-ID: [user-id]`
-- **Body:** `{"isPublic": true, "category": "[category]"}`
-- **Response:** Success/error message
-- **Implementation:** Azure Function using Blob Storage SDK
+- **Response:** JSON with published card details and success message
+- **Implementation:** Adds card to public gallery with creator attribution
 
 ### Client Integration
 

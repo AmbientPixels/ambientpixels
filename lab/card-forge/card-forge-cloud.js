@@ -186,14 +186,8 @@
     } catch (e) {
       debugLog('Error saving cards: ' + e);
       
-      // Fallback to localStorage if API fails
-      debugLog('API failed, falling back to localStorage');
-      const storageKey = `ambient-pixels-cards-${userId}`;
-      localStorage.setItem(storageKey, JSON.stringify(cards.map(card => ({
-        ...card,
-        lastModified: new Date().toISOString(),
-        userId: userId
-      }))));
+      // API failed but no fallback - cloud storage only
+      debugLog('API failed, cloud storage is required');
       
       return Promise.reject(new Error('Failed to save cards: ' + e.message));
     }
@@ -256,22 +250,11 @@
     } catch (e) {
       debugLog('Error loading cards: ' + e);
       
-      // Fallback to localStorage if API fails
-      debugLog('API failed, falling back to localStorage');
-      const storageKey = `ambient-pixels-cards-${userId}`;
-      const cardsJson = localStorage.getItem(storageKey);
+      // API failed but no fallback to localStorage - cloud storage only
+      debugLog('API failed, cloud storage is required');
       
-      if (!cardsJson) {
-        debugLog('No cards found for user ' + userId);
-        return [];
-      }
-      
-      const cards = JSON.parse(cardsJson);
-      
-      // Update card counts
-      updateCardCounts(cards);
-      
-      debugLog(`Loaded ${cards.length} cards from localStorage for user ${userId}`);
+      // Return empty array since we couldn't load from cloud
+      return [];
       return cards;
     }
   };
