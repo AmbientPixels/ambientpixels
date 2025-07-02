@@ -3,6 +3,11 @@
     "rewrite": "/404.html",
     "exclude": ["/images/*", "/*.css", "/*.js", "/*.json", "/*.svg", "/*.png", "/*.ico", "/*.jpg", "/*.jpeg", "/*.gif"]
   },
+  "globalHeaders": {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "X-User-ID, Content-Type, Authorization"
+  },
   "routes": [
     {
       "route": "/api/loadCardData",
