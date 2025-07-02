@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "7b73320d-3049-4cea-ad2c-74a066cedf19",
-      "hash": "5ba6675135c3eaad57f2020ab922ce8042af805e",
-      "message": "fix(cloud-storage): Improve authentication detection for cloud storage",
-      "timestamp": "2025-06-30 22:52:33 -0700",
+      "id": "757f383f-7944-4938-8b12-4e094db69c7b",
+      "hash": "5e48c19de848504b9b00ec9ed6cf9adf6b6ca846",
+      "message": "Last committ for th enight  - update cardforge docs. need to debug more.",
+      "timestamp": "2025-07-01 22:45:30 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/5ba6675135c3eaad57f2020ab922ce8042af805e"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/5e48c19de848504b9b00ec9ed6cf9adf6b6ca846"
     }
   ],
-  "timestamp": "2025-07-01T13:34:44.493Z",
+  "timestamp": "2025-07-02T13:34:02.139Z",
   "count": 1,
-  "scanId": 1751376884493
+  "scanId": 1751463242139
 }

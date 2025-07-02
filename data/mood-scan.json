@@ -1,9 +1,9 @@
 {
-  "mood": "chaotic optimism",
-  "aura": "tangled clarity",
-  "auraColorHex": "#23415a",
-  "quote": "surfacing hidden anomalies of feeling...",
-  "emoji": "🔥",
+  "mood": "ember resolve",
+  "aura": "cyan",
+  "auraColorHex": "#00474b",
+  "quote": "observing glitch patterns in the flow...",
+  "emoji": "🧱",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
   "memoryClutter": 1,
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: tangled clarity"
+      "Aura Signature: cyan"
     ]
   },
-  "timestamp": "2025-07-01T13:34:44.414Z"
+  "timestamp": "2025-07-02T13:34:02.055Z"
 }
