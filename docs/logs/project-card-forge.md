@@ -67,14 +67,43 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
 
 ---
 
-## 🐛 Known Issues & Open Questions
+## 🐛 Known Issues & API Debugging (2025-07-01 Update)
 
-- Some API endpoints require Azure credentials and may not work offline or without correct environment variables.
-- User profile avatars and display names in the gallery require `user-profiles.json` to be populated in Blob Storage.
-- If a user signs out while editing a card, unsaved changes may be lost.
-- Gallery and API endpoints may fail if Blob container permissions are not set correctly (check CORS and access policies).
-- Activity feed, advanced social features, and card remixing are planned for future phases but not yet implemented.
-- If gallery cards fail to load, check browser console for CORS or authentication errors.
+### API Deployment Status
+- 404 errors observed for `/api/cards` endpoint on both production and Azure domains
+- Authentication works for `/api/myCards` (returns 401 when not authenticated)
+- CORS issues identified between ambientpixels.ai and Azure Static Web Apps domain
+
+### Debugging Steps Taken
+- Created new `/api/debug` endpoint to check environment variables and connection strings
+- Enhanced `/api/cards` endpoint with explicit CORS headers and OPTIONS request handling
+- Improved error logging for Azure Storage connection string validation
+- Added response headers for cross-domain access
+
+### API Structure
+- Azure Static Web Apps doesn't require function.json files (unlike standard Azure Functions)
+- CORS configuration exists in both host.json and can be added to individual API responses
+- Connection string validation shows environment variables are properly set
+
+### Open Issues
+- Some API endpoints require Azure credentials and may not work offline or without correct environment variables
+- User profile avatars and display names in the gallery require `user-profiles.json` to be populated in Blob Storage
+- If a user signs out while editing a card, unsaved changes may be lost
+- Activity feed, advanced social features, and card remixing are planned for future phases
+
+### Next Steps (2025-07-02)
+- Test `/api/debug` endpoint after GitHub Actions deployment completes
+- Check if Azure Storage container "cardforge" exists and is accessible
+- Verify published-cards.json is properly initialized in the container
+- Review GitHub Actions logs for deployment errors
+- Test direct API access via browser to isolate CORS vs endpoint issues
+
+### API Function Status
+| Endpoint | Status | Notes |
+|----------|--------|-------|
+| `/api/cards` | 404 Not Found | Public gallery endpoint - Debugging enhanced |
+| `/api/myCards` | 401 Unauthorized | Authentication working correctly |
+| `/api/debug` | New diagnostic | Added for environment variable checking |
 
 ---
 
