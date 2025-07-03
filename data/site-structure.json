@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-07-01T13:34:42.102Z",
+  "updated": "2025-07-02T13:33:59.844Z",
   "root": [
     {
       "type": "folder",
@@ -20,6 +20,12 @@
           "children": []
         }
       ]
+    },
+    {
+      "type": "folder",
+      "name": ".vscode",
+      "path": ".vscode",
+      "children": []
     },
     {
       "type": "folder",
@@ -94,6 +100,18 @@
         },
         {
           "type": "folder",
+          "name": "cards",
+          "path": "api/cards",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "debug",
+          "path": "api/debug",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "deviantart-proxy",
           "path": "api/deviantart-proxy",
           "children": []
@@ -114,6 +132,12 @@
           "type": "folder",
           "name": "loadCardData",
           "path": "api/loadCardData",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "myCards",
+          "path": "api/myCards",
           "children": []
         },
         {
