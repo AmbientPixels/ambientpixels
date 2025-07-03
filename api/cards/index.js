@@ -70,8 +70,11 @@ module.exports = async function (context, req) {
                 context.log('DEBUG: Download response received:', downloadResponse.contentLength, 'bytes');
                 const publishedCardsData = await streamToString(downloadResponse.readableStreamBody);
                 context.log('DEBUG: Stream converted to string, length:', publishedCardsData.length);
-                publishedCards = JSON.parse(publishedCardsData);
+                const publishedCardsObj = JSON.parse(publishedCardsData);
+                // Extract the cards array from the object structure
+                publishedCards = publishedCardsObj.cards || [];
                 context.log(`Found ${publishedCards.length} published cards`);
+                context.log('DEBUG: Published cards data structure:', JSON.stringify(publishedCardsObj).substring(0, 100) + '...');
             } else {
                 context.log('No published cards metadata found, creating empty list');
                 // Initialize empty published cards metadata
