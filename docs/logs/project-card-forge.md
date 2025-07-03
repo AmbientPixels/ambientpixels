@@ -101,9 +101,12 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
 ### API Function Status
 | Endpoint | Status | Notes |
 |----------|--------|-------|
-| `/api/cards` | 404 Not Found | Public gallery endpoint - Debugging enhanced |
-| `/api/myCards` | 401 Unauthorized | Authentication working correctly |
-| `/api/debug` | New diagnostic | Added for environment variable checking |
+| `/api/cards` | ✅ Working | Public gallery endpoint - Returns empty array initially |
+| `/api/myCards` | ✅ Working | Requires authentication (401 when unauthenticated) |
+| `/api/saveCardData` | ✅ Working | Saves cards to blob storage |
+| `/api/loadCardData` | ✅ Working | Loads cards from blob storage |
+| `/api/cards/publish` | ✅ Working | Publishes cards to gallery |
+| `/api/debug` | ✅ Working | Diagnostic endpoint for blob storage access |
 
 ---
 
@@ -131,14 +134,48 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
 ## 🛠️ Tech Stack
 
 | Layer            | Tool/Tech                                             | Purpose |
-|------------------|-------------------------------------------------------|---------|
+|------------------|-------------------------------------------------------|--------|
 | **Frontend**     | HTML + CSS + JS *(written by Cascade)*               | Modular UI rendering, animations, card logic |
 | **Rendering**    | CSS Grid + JS + `html2canvas` *(planned)*            | Live layout and future image export |
 | **Data Layer**   | JSON (`rpg-avatar-cards.json`)                       | Defines card structure, stats, and metadata |
 | **Avatar Editor**| Manual upload *(Cropper.js or Avatar Studio planned)*| Image cropping and avatar placement |
 | **Dev Agent**    | Cascade (Windsurf AI)                                | Code generation + style logic |
 | **Deployment**   | GitHub + Azure CI/CD                                 | Auto-deploy updates from main/dev branches |
+| **Backend**      | Azure Functions (JavaScript)                         | API endpoints for data storage and retrieval |
+| **Storage**      | Azure Blob Storage                                   | Card data persistence and gallery management |
+| **Authentication**| Azure Static Web Apps authentication                | User identity and access control |
 | **Optional AI**  | Nova / OpenAI / Hugging Face *(future)*             | Will support stat generation, names, lore, etc. |
+
+### Azure Infrastructure Setup
+
+#### Azure Static Web Apps
+- **Resource Type**: Azure Static Web Apps
+- **URL**: https://ambientpixels.ai/
+- **Authentication**: Managed by Azure Static Web Apps
+- **Managed Identity**: System-assigned managed identity enabled
+- **Deployment**: Integrated GitHub Actions workflow
+
+#### Azure Functions
+- **Hosting**: Integrated with Azure Static Web Apps
+- **Runtime**: Node.js v16
+- **Deployment**: Part of Static Web Apps GitHub Actions workflow
+- **Configuration**: 
+  - `AZURE_STORAGE_CONNECTION_STRING`: Points to `cardforgeblobdata` storage account
+  - `WEBSITE_RUN_FROM_PACKAGE=1`: Set for inline ZIP deployment
+
+#### Azure Blob Storage
+- **Storage Account**: cardforgeblobdata
+- **Container**: cardforge
+- **Key Files**:
+  - `published-cards.json`: Public gallery cards (schema: `{cards: [], metadata: {...}}`)
+  - `user-profiles.json`: User profile data
+  - `user/<userId>/cards.json`: Individual user card collections
+
+#### Identity & Permissions
+- **Authentication**: Azure Static Web Apps built-in auth
+- **Storage Access**: System-assigned managed identity with roles:
+  - Storage Blob Data Reader: Read access to blob container
+  - Storage Blob Data Contributor: Write access to blob container
 
 ---
 

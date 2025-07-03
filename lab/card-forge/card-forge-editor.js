@@ -573,6 +573,23 @@ window.addEventListener('DOMContentLoaded', function() {
       li.setAttribute('role', 'button');
       li.setAttribute('aria-label', card.name);
       li.innerHTML = `<img src="/images/image-packs/characters/${card.avatar}" alt="${card.name}" class="avatar-sm" /> ${card.name}`;
+
+      // Action buttons container
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'card-list-actions';
+      
+      // Publish button
+      const publishBtn = document.createElement('button');
+      publishBtn.type = 'button';
+      publishBtn.className = 'card-action-btn publish-btn';
+      publishBtn.title = card.isPublic ? 'Published' : 'Publish to Gallery';
+      publishBtn.innerHTML = `<i class="fas fa-${card.isPublic ? 'check-circle' : 'cloud-upload-alt'}"></i>`;
+      publishBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        publishCardToGallery(card);
+      });
+      actionsDiv.appendChild(publishBtn);
+      
       // Remove button (if more than 1 card)
       if (cards.length > 1) {
         const removeBtn = document.createElement('button');
@@ -601,8 +618,12 @@ window.addEventListener('DOMContentLoaded', function() {
             removeBtn.click();
           }
         });
-        li.appendChild(removeBtn);
+        actionsDiv.appendChild(removeBtn);
       }
+      
+      // Add actions div to list item
+      li.appendChild(actionsDiv);
+      
       // --- Fix: actually append li to cardList (by Cascade) ---
       cardList.appendChild(li);
       // --- End Cascade fix ---
