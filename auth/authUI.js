@@ -370,7 +370,15 @@ window.banner.show({
     }
     showButtonLoading(loginBtn, true);
     try {
-      window.msalInstance.loginRedirect({ scopes: ["openid", "profile", "email"] });
+      // Save current URL to return after login
+      sessionStorage.setItem('login-redirect', window.location.href);
+      debugLog("Saved return URL:", window.location.href);
+      
+      // Use redirect request with custom redirect URI
+      window.msalInstance.loginRedirect({ 
+        scopes: ["openid", "profile", "email"],
+        redirectUri: window.location.href // Return to current page
+      });
     } catch (e) {
       debugLog('loginRedirect error:', e);
       showButtonLoading(loginBtn, false);

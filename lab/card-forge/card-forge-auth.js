@@ -214,4 +214,17 @@
   } else {
     init();
   }
+  
+  // Expose the global CardForgeAuth object
+  window.CardForgeAuth = {
+    isSignedIn: isAuthenticated,
+    getUserId: function() {
+      const userInfo = getUserInfo();
+      return userInfo ? (userInfo.id || userInfo.userId || userInfo.user_id || 'unknown') : 'unknown';
+    },
+    getUserName: getUserDisplayName,
+    getUserInfo: getUserInfo
+  };
+  
+  debugLog('CardForgeAuth global object created and exposed');
 })();
