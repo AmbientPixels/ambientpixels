@@ -25,10 +25,10 @@
       background-color: #1a1a1a; /* Dark grey background */
       /* padding-top removed as header is no longer present */
     }
-    /* Ensure the pulse bar is visible and styled correctly at the top */
+    /* Ensure the pulse bar is visible and styled correctly at the bottom */
     #nova-pulse-bar {
-        position: relative;
-        top: 0;
+        position: fixed;
+        bottom: 0;
         width: 100%;
         z-index: 100;
     }
@@ -50,7 +50,7 @@
 <body data-theme="dark">
   <!-- Fullscreen Background Video -->
   <video autoplay loop muted playsinline id="bg-video">
-    <source src="/video/signafragment-V2.mp4" type="video/mp4">
+    <source src="/video/floaty.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
 
