@@ -663,7 +663,8 @@ window.addEventListener('DOMContentLoaded', function() {
     fetch(`/api/cards/publish/${card.id}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'x-user-id': userId
       },
       body: JSON.stringify({
         cardId: card.id,
