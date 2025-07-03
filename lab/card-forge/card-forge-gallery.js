@@ -146,7 +146,10 @@ window.CardForgeGallery = (function() {
         return response.json();
       })
       .then(data => {
-        state.galleryCards = data;
+        // Extract the cards array from the response data structure
+        state.galleryCards = data.cards || [];
+        // Store pagination information if needed
+        state.galleryPagination = data.pagination || { total: 0, page: 1, limit: 20, pages: 0 };
         renderGalleryCards();
       })
       .catch(error => {
