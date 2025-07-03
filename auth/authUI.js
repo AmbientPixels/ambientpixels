@@ -112,9 +112,23 @@
         // Persist authentication state in sessionStorage for page reloads
         if (isSignedIn) {
           sessionStorage.setItem('ambientPixels_isAuthenticated', 'true');
+          
+          // Store complete user info in sessionStorage for other components
+          if (account) {
+            const userInfo = {
+              id: account.localAccountId || account.homeAccountId,
+              userId: account.localAccountId || account.homeAccountId,
+              name: account.name || '',
+              email: account.username || '',
+              displayName: account.name || account.username || 'User'
+            };
+            sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
+            debugLog('Stored user info in sessionStorage:', userInfo);
+          }
         } else if (!isSignedIn && sessionStorage.getItem('ambientPixels_isAuthenticated') === 'true') {
           // Only clear if we're explicitly not signed in
           sessionStorage.removeItem('ambientPixels_isAuthenticated');
+          sessionStorage.removeItem('userInfo');
         }
         
         debugLog('updateUI account check:', { 
