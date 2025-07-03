@@ -58,23 +58,30 @@ module.exports = async function (context, req) {
         
         let publishedCards = [];
         try {
+            context.log('DEBUG: About to check if published cards metadata exists');
             // Check if the published cards metadata exists
             const exists = await publishedCardsClient.exists();
+            context.log('DEBUG: publishedCardsClient.exists() result:', exists);
             
             if (exists) {
+                context.log('DEBUG: Published cards exists, attempting to download');
                 // Download and parse the published cards metadata
                 const downloadResponse = await publishedCardsClient.download(0);
+                context.log('DEBUG: Download response received:', downloadResponse.contentLength, 'bytes');
                 const publishedCardsData = await streamToString(downloadResponse.readableStreamBody);
+                context.log('DEBUG: Stream converted to string, length:', publishedCardsData.length);
                 publishedCards = JSON.parse(publishedCardsData);
                 context.log(`Found ${publishedCards.length} published cards`);
             } else {
                 context.log('No published cards metadata found, creating empty list');
                 // Initialize empty published cards metadata
                 publishedCards = [];
+                context.log('DEBUG: About to upload empty published cards array');
                 await publishedCardsClient.upload(
                     JSON.stringify(publishedCards),
                     JSON.stringify(publishedCards).length
                 );
+                context.log('DEBUG: Empty published cards array uploaded successfully');
             }
             
             // Fetch user profiles for attribution
@@ -106,6 +113,36 @@ module.exports = async function (context, req) {
             });
         } catch (error) {
             context.log.error('Error accessing published cards:', error);
+            context.log.error('Error details:', {
+                errorName: error.name, 
+                errorCode: error.code,
+                errorMessage: error.message,
+                blobName: publishedCardsBlobName,
+                containerName: containerName,
+                requestId: error.requestId,
+                errorStack: error.stack
+            });
+            
+            // Test container access to narrow down the issue
+            try {
+                context.log.error('DEBUG: Testing container existence after error');
+                const containerExists = await containerClient.exists();
+                context.log.error('DEBUG: Container exists check:', containerExists);
+                
+                if (containerExists) {
+                    context.log.error('DEBUG: Listing first few blobs to check permissions');
+                    let i = 0;
+                    let blobList = [];
+                    for await (const blob of containerClient.listBlobsFlat()) {
+                        blobList.push(blob.name);
+                        if (++i >= 5) break;
+                    }
+                    context.log.error('DEBUG: Found blobs:', blobList);
+                }
+            } catch (testError) {
+                context.log.error('DEBUG: Additional container test failed:', testError.message);
+            }
+            
             throw new Error('Failed to access published cards metadata');
         }
         
@@ -180,6 +217,8 @@ module.exports = async function (context, req) {
                 message: 'Error retrieving gallery cards', 
                 error: error.message,
                 connectionStatus: connStringStatus,
+                errorType: error.name || 'Unknown',
+                errorCode: error.code || 'None',
                 timestamp: new Date().toISOString(),
                 requestPath: req.originalUrl || req.url
             }
