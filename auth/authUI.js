@@ -315,7 +315,7 @@ window.banner.show({
   duration: 5000,
   icon: 'fas fa-user-check'
 });
-          debugLog("Displayed welcome banner for user:", userName);
+          debugLog("Displayed welcome banner for user:", displayName);
         } else {
           debugLog("Banner system not available for login notification");
         }
@@ -388,10 +388,10 @@ window.banner.show({
       sessionStorage.setItem('login-redirect', window.location.href);
       debugLog("Saved return URL:", window.location.href);
       
-      // Use redirect request with custom redirect URI
+      // Use redirect request with state parameter instead of custom redirect URI
       window.msalInstance.loginRedirect({ 
         scopes: ["openid", "profile", "email"],
-        redirectUri: window.location.href // Return to current page
+        state: encodeURIComponent(window.location.pathname + window.location.search)
       });
     } catch (e) {
       debugLog('loginRedirect error:', e);
