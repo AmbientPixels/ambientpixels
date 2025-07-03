@@ -643,6 +643,55 @@ window.addEventListener('DOMContentLoaded', function() {
     }); // End cards.forEach
   } // End renderCardList
 
+  // Function to publish a card to the gallery
+  function publishCardToGallery(card) {
+    debugLog('Publishing card to gallery:', card);
+    
+    if (!window.CardForgeAuth || !window.CardForgeAuth.isSignedIn()) {
+      alert('You need to be signed in to publish cards to the gallery');
+      return;
+    }
+    
+    if (!confirm(`Are you sure you want to publish "${card.name}" to the public gallery?`)) {
+      return;
+    }
+    
+    const userId = window.CardForgeAuth.getUserId();
+    
+    debugLog('Publishing card with ID:', card.id, 'User ID:', userId);
+    
+    fetch(`/api/cards/publish/${card.id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        cardId: card.id,
+        userId: userId
+      })
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      debugLog('Card published successfully:', data);
+      // Update UI to show published status
+      card.isPublic = true;
+      // Save the updated card status
+      saveCards();
+      // Refresh the card list to show updated status
+      renderCardList();
+      alert('Your card has been published to the gallery!');
+    })
+    .catch(error => {
+      debugError('Error publishing card:', error);
+      alert(`Failed to publish card: ${error.message}`);
+    });
+  }
+  
   renderPreview(currentCard);
   // --- Ensure card list is rendered on load (added by Cascade) ---
   renderCardList();
