@@ -33,7 +33,7 @@
         z-index: 100;
     }
 
-    #bg-video {
+    .bg-video {
       position: fixed;
       right: 0;
       bottom: 0;
@@ -43,16 +43,41 @@
       height: auto;
       z-index: -1;
       background-size: cover;
-      opacity: 0.70; /* Make it subtle */
+      opacity: 0; /* Start with opacity 0 */
+      transition: opacity 1.5s ease-in-out; /* Smooth transition for opacity */
+    }
+    
+    .bg-video.active {
+      opacity: 0.7; /* Active video opacity */
+    }
+    
+    #video-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: -1;
     }
   </style>
 </head>
 <body data-theme="dark">
-  <!-- Fullscreen Background Video -->
-  <video autoplay loop muted playsinline id="bg-video">
-    <source src="/video/floaty.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
+  <!-- Fullscreen Background Video Container -->
+  <div id="video-container">
+    <video autoplay loop muted playsinline id="bg-video-1" class="bg-video active">
+      <source src="/video/floaty.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <video loop muted playsinline id="bg-video-2" class="bg-video">
+      <source src="/video/glow-board.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <video loop muted playsinline id="bg-video-3" class="bg-video">
+      <source src="/video/signafragment-V2.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
 
   <!-- Nova Pulse Bar Module -->
   <div id="nova-pulse-bar">
@@ -110,5 +135,45 @@
   <script src="/js/nova-mood-core.js" defer></script>
   <script src="/js/nova-pulse.js" defer></script>
   <script src="/js/nova-mood-background.js" defer></script>
+  
+  <!-- Video Cycling Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const videos = [
+        document.getElementById('bg-video-1'),
+        document.getElementById('bg-video-2'),
+        document.getElementById('bg-video-3')
+      ];
+      
+      let currentVideoIndex = 0;
+      
+      // Start only the first video
+      videos[0].play();
+      
+      // Function to cycle to the next video with fade transition
+      function cycleVideo() {
+        // Get current and next video indexes
+        const currentVideo = videos[currentVideoIndex];
+        currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+        const nextVideo = videos[currentVideoIndex];
+        
+        // Prepare next video for playback
+        nextVideo.currentTime = 0;
+        nextVideo.play();
+        
+        // Add active class to next video (fade in)
+        nextVideo.classList.add('active');
+        
+        // Remove active class from current video (fade out)
+        currentVideo.classList.remove('active');
+        
+        // Schedule next cycle
+        setTimeout(cycleVideo, 29000); // 29 seconds
+      }
+      
+      // Start cycling after 29 seconds
+      setTimeout(cycleVideo, 29000);
+    });
+  </script>
 </body>
 </html>
