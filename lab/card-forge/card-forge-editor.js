@@ -186,7 +186,7 @@ window.addEventListener('DOMContentLoaded', function() {
       saveToAzureBtn.disabled = true;
       saveToAzureBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
       try {
-        const response = await fetch('/api/saveCardData', {
+        const response = await fetch('/api/cardforge/savecards', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(cards)
@@ -719,7 +719,8 @@ window.addEventListener('DOMContentLoaded', function() {
       'x-user-id': userId
     };
 
-    fetch(`/api/cardtopublish/${card.id}`, {
+    // Use the correct cardforge API path structure
+    fetch(`/api/cardforge/cardpublish/${card.id}`, {
       method: 'POST',
       headers: headers,
       body: JSON.stringify({
