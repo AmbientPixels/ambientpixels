@@ -60,10 +60,13 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
 - **To test the gallery:** Open the browser console and run `CardForgeTests.runAll()` to check both signed-in and signed-out experiences. Use `CardForgeTests.testLoadGallery()` or `CardForgeTests.testLoadPersonalLibrary()` for targeted tests.
 - **API requirements:** Ensure Azure Blob Storage is set up and `AZURE_STORAGE_CONNECTION_STRING` is configured in your environment for API endpoints to work.
 - **Authentication:** Ambient Pixels authentication scripts must be loaded (see `/auth/authUI.js`).
-- **Endpoints:**
-  - `/api/cards` — public gallery (GET)
-  - `/api/myCards` — personal library (GET, authenticated)
-  - `/api/cards/publish/:id` — publish card (POST, authenticated)
+- **Endpoints:** (Updated July 4, 2025)
+  - `/api/cardforge/cards` — public gallery (GET)
+  - `/api/cardforge/mycards` — personal library (GET, authenticated)
+  - `/api/cardforge/cardpublish/:id` — publish card (POST, authenticated)
+  - `/api/cardforge/loadcards` — load user cards (GET)
+  - `/api/cardforge/savecards` — save user cards (POST)
+  - `/api/cardforge/gallery` — gallery view (GET)
 
 ---
 
@@ -98,9 +101,18 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
 - Review GitHub Actions logs for deployment errors
 - Test direct API access via browser to isolate CORS vs endpoint issues
 
-## 🔄 Latest Debug Progress (2025-07-03 Update)
+## 🔄 Latest Debug Progress (2025-07-04 Update)
 
-### Fixed Issues
+### API Structure Migration (July 4, 2025)
+- ✅ Complete API restructuring to standardize naming and improve maintainability
+- ✅ All CardForge API endpoints now consolidated under `/api/cardforge/` parent folder
+- ✅ Standardized all API folder names to lowercase for Azure compatibility
+- ✅ Fixed publish endpoint issues by replacing problematic "publish" folder with "cardpublish"
+- ✅ Updated all frontend references and staticwebapp.config.json to use new API paths
+- ✅ Removed unused test files and legacy code to clean up codebase
+- ✅ Full code review performed to ensure all paths and references are updated
+
+### Fixed Issues (July 3, 2025)
 - ✅ Card replacement bug has been fixed - new cards now correctly persist and don't replace existing cards
 - ✅ Card saving to cloud storage is working properly (both automatic saves and manual "Save to My Account")
 - ✅ Loading cards from cloud storage works correctly
@@ -129,15 +141,65 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
 - Add more detailed logging to the backend function for the publish endpoint
 - Consider investigating any environment variable issues specific to the publish function
 
-### API Function Status
+### API Function Status (Updated July 4, 2025)
 | Endpoint | Status | Notes |
 |----------|--------|-------|
-| `/api/cards` | ✅ Working | Public gallery endpoint - Returns empty array initially |
-| `/api/myCards` | ✅ Working | Requires authentication (401 when unauthenticated) |
-| `/api/saveCardData` | ✅ Working | Saves cards to blob storage |
-| `/api/loadCardData` | ✅ Working | Loads cards from blob storage |
-| `/api/cards/publish` | ✅ Working | Publishes cards to gallery |
-| `/api/debug` | ✅ Working | Diagnostic endpoint for blob storage access |
+| `/api/cardforge/cards` | ✅ Working | Public gallery endpoint - Returns empty array initially |
+| `/api/cardforge/mycards` | ✅ Working | Personal library - Requires authentication (401 when unauthenticated) |
+| `/api/cardforge/savecards` | ✅ Working | Saves cards to blob storage |
+| `/api/cardforge/loadcards` | ✅ Working | Loads cards from blob storage |
+| `/api/cardforge/cardpublish` | ✅ Working | Publishes cards to gallery |
+| `/api/cardforge/gallery` | ✅ Working | Gallery view endpoint |
+| `/api/debug` | ✅ Working | Diagnostic endpoint for blob storage access (legacy)
+
+### CardForge API Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────┐
+│                   Client Browser                    │
+└───────────────────────────┬─────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────┐
+│               Azure Static Web Apps                 │
+│                                                     │
+│   ┌─────────────────┐         ┌─────────────────┐   │
+│   │  Authentication │◄────────┤   Frontend JS   │   │
+│   └────────┬────────┘         └─────────────────┘   │
+│            │                                        │
+│            ▼                                        │
+│   ┌─────────────────────────────────────────────┐   │
+│   │              /api/cardforge/                │   │
+│   │                                             │   │
+│   │  ┌──────────┐  ┌──────────┐  ┌──────────┐  │   │
+│   │  │ loadcards│  │savecards │  │  cards   │  │   │
+│   │  └────┬─────┘  └─────┬────┘  └────┬─────┘  │   │
+│   │       │             │             │        │   │
+│   │       │             │             │        │   │
+│   │  ┌────▼─────┐  ┌────▼─────┐  ┌────▼─────┐  │   │
+│   │  │  mycards │  │cardpublish│  │ gallery  │  │   │
+│   │  └──────────┘  └──────────┘  └──────────┘  │   │
+│   └─────────────────────┬───────────────────────┘   │
+│                         │                           │
+└─────────────────────────┼───────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────┐
+│                Azure Blob Storage                   │
+│                                                     │
+│  ┌──────────────┐   ┌──────────────┐   ┌─────────┐  │
+│  │  User Cards  │   │Published Cards│   │User Data│  │
+│  └──────────────┘   └──────────────┘   └─────────┘  │
+└─────────────────────────────────────────────────────┘
+```
+
+#### Endpoint Relationships:
+- **loadcards**: Retrieves user's cards from blob storage
+- **savecards**: Saves user's cards to blob storage
+- **cards**: Public gallery API to fetch all published cards
+- **mycards**: Personal library - requires authentication
+- **cardpublish**: Updates card status to published
+- **gallery**: Provides gallery view with filtering options
 
 ---
 
@@ -503,11 +565,12 @@ Keep this log focused on session continuity and dev communication. All canonical
 | `/css/card-styles.css`                 | Full style system for card visuals   |
 | `/lab/card-forge/card-forge-cloud.js`  | Cloud storage service for user cards |
 | `/lab/card-forge/card-forge-auth.js`   | Authentication integration           |
-| `/lab/card-forge/card-forge-gallery.js`| Gallery display and filtering (planned)|
-| `/api/saveCardData/index.js`           | API endpoint for saving cards        |
-| `/api/loadCardData/index.js`           | API endpoint for loading cards       |
-| `/api/cards/index.js`                  | API endpoint for gallery cards (planned)|
-| `/api/myCards/index.js`                | API endpoint for user cards (planned) |
+| `/lab/card-forge/card-forge-gallery.js`| Gallery display and filtering        |
+| `/api/cardforge/savecards/index.js`    | API endpoint for saving cards        |
+| `/api/cardforge/loadcards/index.js`    | API endpoint for loading cards       |
+| `/api/cardforge/cards/index.js`        | API endpoint for gallery cards       |
+| `/api/cardforge/cardpublish/index.js`  | API endpoint for publishing cards    |
+| `/api/cardforge/mycards/index.js`      | API endpoint for user cards          |
 | `/card-forge-dev/`                     | Local dev folder for isolated testing|
 | `/docs/logs/project-card-forge.html`   | Log page for project documentation   |
 
