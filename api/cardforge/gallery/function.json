@@ -6,7 +6,7 @@
       "direction": "in",
       "name": "req",
       "methods": [ "get", "options" ],
-      "route": "cardforge/gallery"
+      "route": "api/cardforge/gallery"
     },
     {
       "type": "http",
