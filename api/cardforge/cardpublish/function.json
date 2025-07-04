@@ -6,7 +6,7 @@
       "direction": "in",
       "name": "req",
       "methods": [ "post" ],
-      "route": "api/cardforge/cardpublish/{id}"
+      "route": "cardforge/cardpublish/{id}"
     },
     {
       "type": "http",
