@@ -1,10 +1,10 @@
 {
-  "updated": "2025-07-03T13:33:10.630Z",
+  "updated": "2025-07-04T13:32:39.391Z",
   "entries": [
     {
-      "hash": "1af6260",
-      "date": "2025-07-02 22:09:56 -0700",
-      "message": "Add video cycling with smooth transitions to pulse-bar"
+      "hash": "689fffb",
+      "date": "2025-07-03 20:02:06 -0700",
+      "message": "fix(card-forge): troubleshoot publish endpoint 401 errors"
     }
   ]
 }
