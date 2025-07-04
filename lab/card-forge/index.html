@@ -39,8 +39,16 @@
 
   <main class="grid-container">
     <!-- Test Authentication visibility elements (required for tests) -->
-    <div class="signed-in-content" style="display: none;">This content is only visible when signed in</div>
-    <div class="signed-out-content">This content is only visible when signed out V1</div>
+    <div class="signed-in-content" style="display: none;">
+      <div class="auth-status-indicator success">
+        <i class="fas fa-user-check"></i> Authentication Active - User is signed in
+      </div>
+    </div>
+    <div class="signed-out-content">
+      <div class="auth-status-indicator warning">
+        <i class="fas fa-user-slash"></i> Authentication Inactive - User is signed out
+      </div>
+    </div>
     
     <!-- Card Forge Editor UI Skeleton (Nova/AmbientPixels style) -->
     <section class="content-section grid-col-12" aria-labelledby="card-editor-heading">
