@@ -5,35 +5,32 @@
   },
   "routes": [
     {
-      "route": "/api/loadCardData",
-      "methods": ["GET", "POST"],
-      "allowedRoles": ["anonymous", "authenticated"],
-      "rewrite": "/api/loadCardData"
+      "route": "/api/cardforge/loadcards",
+      "methods": ["GET"],
+      "allowedRoles": ["anonymous", "authenticated"]
     },
     {
-      "route": "/api/loadCardData/*",
-      "methods": ["GET", "POST"],
-      "allowedRoles": ["anonymous", "authenticated"],
-      "rewrite": "/api/loadCardData"
-    },
-    {
-      "route": "/api/saveCardData",
+      "route": "/api/cardforge/savecards",
       "methods": ["POST"],
       "allowedRoles": ["anonymous", "authenticated"]
     },
     {
-      "route": "/api/cards",
-      "methods": ["GET"],
-      "allowedRoles": ["anonymous", "authenticated"],
-      "rewrite": "/api/cards"
+      "route": "/api/cardforge/cards",
+      "methods": ["GET", "OPTIONS"],
+      "allowedRoles": ["anonymous", "authenticated"]
     },
     {
-      "route": "/api/myCards",
+      "route": "/api/cardforge/gallery",
+      "methods": ["GET", "OPTIONS"],
+      "allowedRoles": ["anonymous", "authenticated"]
+    },
+    {
+      "route": "/api/cardforge/mycards",
       "methods": ["GET"],
       "allowedRoles": ["authenticated"]
     },
     {
-      "route": "/api/cards/publish/*",
+      "route": "/api/cardforge/cardpublish/*",
       "methods": ["POST"],
       "allowedRoles": ["anonymous", "authenticated"]
     }

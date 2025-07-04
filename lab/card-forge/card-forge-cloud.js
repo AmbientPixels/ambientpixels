@@ -22,11 +22,11 @@
     
     // API endpoints
     endpoints: {
-      saveCards: '/api/saveCardData',
-      loadCards: '/api/loadCardData',
-      publishCard: '/api/cards/publish',
-      gallery: '/api/cards',
-      myCards: '/api/myCards'
+      saveCards: '/api/cardforge/savecards',
+      loadCards: '/api/cardforge/loadcards',
+      publishCard: '/api/cardforge/cardpublish',
+      gallery: '/api/cardforge/gallery',
+      myCards: '/api/cardforge/mycards'
     }
   };
   

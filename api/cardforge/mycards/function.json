@@ -6,7 +6,7 @@
       "direction": "in",
       "name": "req",
       "methods": [ "get" ],
-      "route": "myCards"
+      "route": "cardforge/mycards"
     },
     {
       "type": "http",
