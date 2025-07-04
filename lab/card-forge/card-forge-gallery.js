@@ -8,8 +8,8 @@ window.CardForgeGallery = (function() {
   // Configuration
   const config = {
     apiEndpoints: {
-      gallery: '/api/cards',
-      userCards: '/api/myCards'
+      gallery: '/api/cardforge/cards',
+      userCards: '/api/cardforge/mycards'
     },
     defaultLimit: 12,
     defaultCategory: 'all'
@@ -344,7 +344,7 @@ window.CardForgeGallery = (function() {
     
     const userId = window.CardForgeAuth.getUserId();
     
-    fetch(`${config.apiEndpoints.gallery}/publish/${card.id}`, {
+    fetch(`/api/cardforge/cardpublish/${card.id}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
