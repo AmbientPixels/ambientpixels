@@ -1,38 +1,80 @@
 {
   "navigationFallback": {
     "rewrite": "/404.html",
-    "exclude": ["/images/*", "/*.css", "/*.js", "/*.json", "/*.svg", "/*.png", "/*.ico", "/*.jpg", "/*.jpeg", "/*.gif"]
+    "exclude": [
+      "/images/*",
+      "/*.css",
+      "/*.js",
+      "/*.json",
+      "/*.svg",
+      "/*.png",
+      "/*.ico",
+      "/*.jpg",
+      "/*.jpeg",
+      "/*.gif"
+    ]
   },
   "routes": [
     {
-      "route": "/api/cardforge/loadcards",
-      "methods": ["GET"],
-      "allowedRoles": ["anonymous", "authenticated"]
+      "route": "/cardforge/loadcards",
+      "methods": [
+        "GET"
+      ],
+      "allowedRoles": [
+        "anonymous",
+        "authenticated"
+      ]
     },
     {
-      "route": "/api/cardforge/savecards",
-      "methods": ["POST"],
-      "allowedRoles": ["anonymous", "authenticated"]
+      "route": "/cardforge/savecards",
+      "methods": [
+        "POST"
+      ],
+      "allowedRoles": [
+        "anonymous",
+        "authenticated"
+      ]
     },
     {
-      "route": "/api/cardforge/cards",
-      "methods": ["GET", "OPTIONS"],
-      "allowedRoles": ["anonymous", "authenticated"]
+      "route": "/cardforge/cards",
+      "methods": [
+        "GET",
+        "OPTIONS"
+      ],
+      "allowedRoles": [
+        "anonymous",
+        "authenticated"
+      ]
     },
     {
-      "route": "/api/cardforge/gallery",
-      "methods": ["GET", "OPTIONS"],
-      "allowedRoles": ["anonymous", "authenticated"]
+      "route": "/cardforge/gallery",
+      "methods": [
+        "GET",
+        "OPTIONS"
+      ],
+      "allowedRoles": [
+        "anonymous",
+        "authenticated"
+      ]
     },
     {
-      "route": "/api/cardforge/mycards",
-      "methods": ["GET"],
-      "allowedRoles": ["authenticated"]
+      "route": "/cardforge/mycards",
+      "methods": [
+        "GET"
+      ],
+      "allowedRoles": [
+        "authenticated"
+      ]
     },
     {
-      "route": "/api/cardforge/cardpublish/*",
-      "methods": ["POST"],
-      "allowedRoles": ["anonymous", "authenticated"]
+      "route": "/cardforge/cardpublish/*",
+      "methods": [
+        "POST"
+      ],
+      "allowedRoles": [
+        "anonymous",
+        "authenticated"
+      ]
     }
   ],
   "mimeTypes": {
