@@ -97,8 +97,19 @@
         debugLog('Not signed in according to data-auth-state attribute');
         return null;
       }
+
+      // PRIORITY 0: Use CardForgeAuth if available (recommended approach)
+      if (window.CardForgeAuth && typeof window.CardForgeAuth.getUserId === 'function') {
+        const cardForgeAuthId = window.CardForgeAuth.getUserId();
+        if (cardForgeAuthId && cardForgeAuthId !== 'unknown') {
+          debugLog(`Using authenticated user ID from CardForgeAuth: ${cardForgeAuthId}`);
+          // Store this ID for consistent access
+          localStorage.setItem('cardforge_persistent_user_id', cardForgeAuthId);
+          return cardForgeAuthId;
+        }
+      }
       
-      // Try to get from session storage first (ideal case)
+      // PRIORITY 1: Try to get from session storage
       const userInfoStr = sessionStorage.getItem('userInfo');
       debugLog(`User info from session storage: ${userInfoStr ? 'found' : 'not found'}`);
       
@@ -108,28 +119,30 @@
           debugLog('User info parsed successfully');
           
           // Try to get user ID from various properties
-          const userId = userInfo.localAccountId || 
-                        userInfo.oid || 
-                        userInfo.sub ||
-                        userInfo.username;
+          const possibleIdFields = ['id', 'userId', 'user_id', 'localAccountId', 'oid', 'sub', 'objectId', 'username'];
           
-          if (userId) {
-            debugLog(`Found valid user ID from session storage: ${userId}`);
-            return userId;
+          for (const field of possibleIdFields) {
+            if (userInfo[field]) {
+              const userId = userInfo[field];
+              debugLog(`Found valid user ID from session storage (${field}): ${userId}`);
+              // Store this ID for consistent access
+              localStorage.setItem('cardforge_persistent_user_id', userId);
+              return userId;
+            }
           }
         } catch (parseError) {
           debugLog('Error parsing user info: ' + parseError);
         }
       }
       
-      // Check if we already have a stored consistent user ID
+      // PRIORITY 2: Check if we already have a stored consistent user ID
       const storedUserId = localStorage.getItem('cardforge_persistent_user_id');
       if (storedUserId) {
         debugLog(`Using previously generated persistent user ID: ${storedUserId}`);
         return storedUserId;
       }
       
-      // Try additional known locations for user information
+      // PRIORITY 3: Try additional known locations for user information (MSAL)
       const msalAccount = sessionStorage.getItem('msal.account.keys');
       if (msalAccount) {
         try {
@@ -139,13 +152,25 @@
             const accountData = sessionStorage.getItem(`msal.account.${accountKey}`);
             if (accountData) {
               const account = JSON.parse(accountData);
-              if (account && account.idTokenClaims && account.idTokenClaims.oid) {
-                const userId = account.idTokenClaims.oid;
-                debugLog(`Found user ID from MSAL account data: ${userId}`);
+              if (account && account.idTokenClaims) {
+                // Try multiple potential ID fields from MSAL
+                const potentialIds = [
+                  account.idTokenClaims.oid,
+                  account.idTokenClaims.sub,
+                  account.idTokenClaims.uid,
+                  account.idTokenClaims.id,
+                  account.localAccountId,
+                  account.homeAccountId
+                ];
                 
-                // Store for future use
-                localStorage.setItem('cardforge_persistent_user_id', userId);
-                return userId;
+                for (const potentialId of potentialIds) {
+                  if (potentialId) {
+                    debugLog(`Found user ID from MSAL account data: ${potentialId}`);
+                    // Store for future use
+                    localStorage.setItem('cardforge_persistent_user_id', potentialId);
+                    return potentialId;
+                  }
+                }
               }
             }
           }
@@ -154,13 +179,18 @@
         }
       }
       
-      // Generate a browser fingerprint-based ID that's consistent
+      // PRIORITY 4 (LAST RESORT): Generate a browser fingerprint-based ID that's consistent
       // This ensures each browser gets its own storage even without formal authentication
+      // NOTE: This should only be used if no auth-based ID is available
+      debugLog('No authentication-based ID found, generating browser fingerprint ID');
+      
       const browserInfo = [
         navigator.userAgent,
         navigator.language,
         window.screen.colorDepth,
-        window.screen.width + 'x' + window.screen.height
+        window.screen.width + 'x' + window.screen.height,
+        navigator.platform || 'unknown',
+        (navigator.doNotTrack ? 'DNT' : 'no-DNT')
       ].join('|');
       
       // Create a simple hash of the browser info
@@ -177,6 +207,7 @@
       localStorage.setItem('cardforge_persistent_user_id', generatedUserId);
       
       debugLog(`Generated and stored persistent user ID: ${generatedUserId}`);
+      debugLog(`WARNING: Using browser-generated ID instead of authenticated ID may cause issues with publishing`);
       return generatedUserId;
     } catch (e) {
       debugLog('Error getting user ID: ' + e);
@@ -192,9 +223,24 @@
   CardForgeCloud.saveCards = async function(cards) {
     debugLog('Saving cards to cloud');
     
+    // Try to get the most reliable user ID possible
     const userId = getUserId();
     if (!userId) {
       return Promise.reject(new Error('User not authenticated'));
+    }
+    
+    // Double-check with CardForgeAuth for the most accurate ID when possible
+    let authUserId = userId;
+    if (window.CardForgeAuth && typeof window.CardForgeAuth.getUserId === 'function') {
+      const cardForgeAuthId = window.CardForgeAuth.getUserId();
+      if (cardForgeAuthId && cardForgeAuthId !== 'unknown') {
+        authUserId = cardForgeAuthId;
+        // Update the persistent ID if it's not matching
+        if (authUserId !== userId) {
+          debugLog(`Updating persistent user ID from ${userId} to authenticated ID ${authUserId}`);
+          localStorage.setItem('cardforge_persistent_user_id', authUserId);
+        }
+      }
     }
     
     try {
@@ -208,21 +254,21 @@
       // Connect to the Ambient Pixels API endpoint
       const apiUrl = getApiUrl('saveCards');
       debugLog(`Connecting to API endpoint ${apiUrl}`);
-      debugLog(`Using user ID: ${userId} (from ${getUserId === null ? 'null' : 'valid'} source)`);
+      debugLog(`Using user ID: ${authUserId} (from authenticated source)`); 
       debugLog(`Auth state attributes: ${document.body.getAttribute('data-auth-state')}`);
       debugLog(`API environment: ${API_CONFIG.production ? 'Production' : 'Development'}`);
       
-      // Ensure the first card has the userId property
+      // Add userId to first card for debugging
       if (cards.length > 0) {
-        cards[0].userId = userId;
+        cards[0] = { ...cards[0], userId: authUserId };
         debugLog(`Added userId to first card: ${JSON.stringify(cards[0])}`);
       }
       
       const response = await fetch(apiUrl, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'X-User-ID': userId // Pass user ID in header for authentication
+          'x-user-id': authUserId
         },
         body: JSON.stringify(cardsWithMetadata)
       });
