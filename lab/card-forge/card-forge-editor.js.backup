@@ -501,22 +501,7 @@ window.addEventListener('DOMContentLoaded', function() {
       renderCardList();
       populateForm(currentCard);
       renderPreview(currentCard);
-      
-      // Local save first to ensure we don't lose the new card
       saveCards();
-      
-      // Then try cloud save, but don't overwrite local state if it fails
-      if (window.CardForgeCloud && typeof window.CardForgeCloud.saveCards === 'function') {
-        window.CardForgeCloud.saveCards([...cards])
-          .then(() => {
-            debugLog('New card saved to cloud successfully');
-          })
-          .catch(err => {
-            debugLog('Failed to save new card to cloud, but local save succeeded', err);
-            // Don't revert local state, we want to keep the new card locally even if cloud save failed
-          });
-      }
-      
       debugLog('New card added:', newCard);
     });
   } // --- End Add Card Handler --- //

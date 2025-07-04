@@ -405,9 +405,42 @@
   CardForgeCloud.publishCard = async function(cardId) {
     debugLog(`Publishing card with ID: ${cardId}`);
     
-    const userId = getUserId();
-    if (!userId) {
-      return Promise.reject(new Error('User not authenticated'));
+    // Check if we're authenticated
+    let userId = null;
+    
+    // PRIORITY: Use CardForgeAuth if available (most reliable)
+    if (window.CardForgeAuth && typeof window.CardForgeAuth.getUserId === 'function') {
+      userId = window.CardForgeAuth.getUserId();
+      
+      if (!userId || userId === 'unknown') {
+        debugLog('CardForgeAuth.getUserId() returned empty or unknown user ID');
+        
+        // Fall back to other methods
+        userId = getUserId();
+      } else {
+        debugLog(`Using authenticated user ID from CardForgeAuth: ${userId}`);
+      }
+    } else {
+      // Fall back to general getUserId function
+      userId = getUserId();
+      debugLog(`CardForgeAuth not available, using general getUserId: ${userId}`);
+    }
+    
+    if (!userId || userId === 'unknown') {
+      return Promise.reject(new Error('User not authenticated. Please sign in to publish cards.'));
+    }
+    
+    // Find the card in local storage before attempting to publish
+    let foundCard = null;
+    if (window.cardForge && typeof window.cardForge.getCards === 'function') {
+      const localCards = window.cardForge.getCards();
+      foundCard = localCards.find(card => card.id === cardId);
+      
+      if (foundCard) {
+        debugLog(`Found card in local storage: ${foundCard.name}`);
+      } else {
+        debugLog(`Card with ID ${cardId} not found in local storage`);
+      }
     }
     
     try {
@@ -417,12 +450,20 @@
       debugLog(`Using user ID: ${userId}`);
       debugLog(`API environment: ${API_CONFIG.production ? 'Production' : 'Development'}`);
       
+      // Add card data for publishing in case the backend can't find it
+      const requestBody = {};
+      if (foundCard) {
+        requestBody.card = foundCard;
+        debugLog('Including card data in publish request for reliability');
+      }
+      
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'X-User-ID': userId // Pass user ID in header for authentication
-        }
+        },
+        body: Object.keys(requestBody).length > 0 ? JSON.stringify(requestBody) : null
       });
       
       debugLog(`API response status: ${response.status} ${response.statusText}`);
@@ -438,10 +479,34 @@
       }
       
       if (!response.ok) {
-        throw new Error(result.message || `Error publishing card: ${response.status} ${response.statusText}`);
+        if (response.status === 401) {
+          throw new Error('Authentication error: ' + (result.message || 'Please sign in again to publish cards.'));
+        } else if (response.status === 404) {
+          throw new Error('Card not found: ' + (result.message || 'The selected card could not be found.'));
+        } else {
+          throw new Error(result.message || `Error publishing card: ${response.status} ${response.statusText}`);
+        }
       }
       
       debugLog(`Published card ${cardId} successfully`);
+      
+      // Update the local card to show it's published
+      if (foundCard && window.cardForge && typeof window.cardForge.getCards === 'function') {
+        const localCards = window.cardForge.getCards();
+        const cardIndex = localCards.findIndex(card => card.id === cardId);
+        
+        if (cardIndex >= 0) {
+          localCards[cardIndex].isPublic = true;
+          
+          // Update the UI if possible
+          if (typeof window.renderCardList === 'function') {
+            window.renderCardList();
+          }
+          
+          debugLog('Updated local card to show published status');
+        }
+      }
+      
       return result;
     } catch (e) {
       debugLog('Error publishing card:', e);
