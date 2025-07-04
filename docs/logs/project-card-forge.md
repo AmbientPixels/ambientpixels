@@ -98,6 +98,37 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
 - Review GitHub Actions logs for deployment errors
 - Test direct API access via browser to isolate CORS vs endpoint issues
 
+## 🔄 Latest Debug Progress (2025-07-03 Update)
+
+### Fixed Issues
+- ✅ Card replacement bug has been fixed - new cards now correctly persist and don't replace existing cards
+- ✅ Card saving to cloud storage is working properly (both automatic saves and manual "Save to My Account")
+- ✅ Loading cards from cloud storage works correctly
+- ✅ Frontend auth state detection is working correctly (signed-in state is properly detected)
+- ✅ CardForgeAuth global object is now properly exposed and accessible from all modules
+- ✅ User ID propagation from session storage to auth system is functioning correctly
+- ✅ Login redirect now correctly preserves the current page instead of always redirecting to home
+
+### Remaining Issues
+- ❌ 401 Unauthorized error still occurs when attempting to publish cards to the gallery
+- The publish API endpoint (`/api/cards/publish/:id`) is receiving the request but returning 401
+- Frontend properly sends user ID in both header (`X-User-ID`) and request body
+- Full card data is now included in the request body
+
+### Latest Debugging Steps
+- Enhanced error logging for publishing flow in both frontend and backend
+- Modified publishCardToGallery function to include full card data in the request
+- Ensured case-sensitivity of headers matches backend expectations (`X-User-ID`)
+- Verified user ID is correctly extracted from CardForgeAuth
+- Console logs show correct auth state and user ID before sending publish request
+
+### Next Debug Steps
+- Investigate backend API authentication handling for the publish endpoint
+- Check if the publish API endpoint is correctly validating the user ID
+- Verify that the `/api/cards/publish/:id` function is properly deployed
+- Add more detailed logging to the backend function for the publish endpoint
+- Consider investigating any environment variable issues specific to the publish function
+
 ### API Function Status
 | Endpoint | Status | Notes |
 |----------|--------|-------|
