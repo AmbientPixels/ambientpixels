@@ -719,7 +719,7 @@ window.addEventListener('DOMContentLoaded', function() {
       'x-user-id': userId
     };
 
-    fetch(`/api/cards/publish/${card.id}`, {
+    fetch(`/api/cardtopublish/${card.id}`, {
       method: 'POST',
       headers: headers,
       body: JSON.stringify({
