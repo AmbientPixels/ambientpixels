@@ -60,11 +60,24 @@
     const signedInElements = document.querySelectorAll('.auth-signed-in');
     const signedOutElements = document.querySelectorAll('.auth-signed-out');
     
+    // Also handle the global signed-in-content and signed-out-content classes
+    const globalSignedInElements = document.querySelectorAll('.signed-in-content');
+    const globalSignedOutElements = document.querySelectorAll('.signed-out-content');
+    
     signedInElements.forEach(el => {
       el.style.display = authenticated ? '' : 'none';
     });
     
     signedOutElements.forEach(el => {
+      el.style.display = authenticated ? 'none' : '';
+    });
+    
+    // Update global elements too
+    globalSignedInElements.forEach(el => {
+      el.style.display = authenticated ? '' : 'none';
+    });
+    
+    globalSignedOutElements.forEach(el => {
       el.style.display = authenticated ? 'none' : '';
     });
     
@@ -75,13 +88,35 @@
         userNameDisplay.textContent = `(${getUserDisplayName()})`;
       }
       
-      // Update card counts (placeholder for now)
-      const myCardsCount = document.getElementById('my-cards-count');
-      const sharedCardsCount = document.getElementById('shared-cards-count');
+      // Update card counts from actual card data
+      updateCardCounts();
+    }
+  }
+  
+  // Update card counts in the UI
+  function updateCardCounts() {
+    const myCardsCount = document.getElementById('my-cards-count');
+    const sharedCardsCount = document.getElementById('shared-cards-count');
+    
+    // Get actual card counts from cardForge if available
+    if (window.cardForge && typeof window.cardForge.getCards === 'function') {
+      const cards = window.cardForge.getCards();
+      if (myCardsCount && Array.isArray(cards)) {
+        myCardsCount.textContent = cards.length.toString();
+      }
       
+      // Count shared/published cards
+      if (sharedCardsCount && Array.isArray(cards)) {
+        const sharedCards = cards.filter(card => card.isPublic === true);
+        sharedCardsCount.textContent = sharedCards.length.toString();
+      }
+    } else {
+      // Fallback if cardForge is not available
       if (myCardsCount) myCardsCount.textContent = '0';
       if (sharedCardsCount) sharedCardsCount.textContent = '0';
     }
+    
+    debugLog('Updated card counts');
   }
   
   // Bind event handlers to auth-related buttons
@@ -220,7 +255,29 @@
     isSignedIn: isAuthenticated,
     getUserId: function() {
       const userInfo = getUserInfo();
-      return userInfo ? (userInfo.id || userInfo.userId || userInfo.user_id || 'unknown') : 'unknown';
+      if (!userInfo) {
+        debugLog('getUserId: No userInfo found in session');
+        return 'unknown';
+      }
+      
+      // Try all possible ID properties and log what we find for debugging
+      const possibleIds = ['id', 'userId', 'user_id', 'objectId', 'oid'];
+      let userId = 'unknown';
+      
+      for (const idProp of possibleIds) {
+        if (userInfo[idProp]) {
+          userId = userInfo[idProp];
+          debugLog(`getUserId: Found user ID in ${idProp} property: ${userId}`);
+          break;
+        }
+      }
+      
+      // If we still don't have an ID, log the entire userInfo object for debugging
+      if (userId === 'unknown') {
+        debugLog('getUserId: Could not find user ID in any expected property. UserInfo:', userInfo);
+      }
+      
+      return userId;
     },
     getUserName: getUserDisplayName,
     getUserInfo: getUserInfo
