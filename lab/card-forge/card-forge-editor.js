@@ -679,11 +679,12 @@ window.addEventListener('DOMContentLoaded', function() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-user-id': userId
+        'X-User-ID': userId // Make sure case matches what backend expects
       },
       body: JSON.stringify({
         cardId: card.id,
-        userId: userId
+        userId: userId,
+        card: card // Send the full card data for the backend
       })
     })
     .then(response => {
