@@ -674,12 +674,22 @@ window.addEventListener('DOMContentLoaded', function() {
     const userId = window.CardForgeAuth.getUserId();
     
     debugLog('Publishing card with ID:', card.id, 'User ID:', userId);
+    debugLog('Auth state:', window.CardForgeAuth.isSignedIn() ? 'Signed in' : 'Not signed in');
+    
+    // Ensure we have a valid user ID
+    if (!userId || userId === 'unknown') {
+      debugError('Invalid user ID for publishing:', userId);
+      alert('Authentication error: Could not determine your user ID. Please sign in again.');
+      return;
+    }
     
     fetch(`/api/cards/publish/${card.id}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-User-ID': userId // Make sure case matches what backend expects
+        // Send user ID in both lowercase and original case for maximum compatibility
+        'x-user-id': userId,
+        'X-User-ID': userId
       },
       body: JSON.stringify({
         cardId: card.id,
@@ -688,8 +698,16 @@ window.addEventListener('DOMContentLoaded', function() {
       })
     })
     .then(response => {
+      debugLog('Publish response status:', response.status);
       if (!response.ok) {
-        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        return response.json().then(errorData => {
+          throw new Error(`Server returned ${response.status}: ${errorData.message || response.statusText}`);
+        }).catch(err => {
+          if (err.message.includes('JSON')) {
+            throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+          }
+          throw err;
+        });
       }
       return response.json();
     })

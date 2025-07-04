@@ -461,7 +461,9 @@
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'X-User-ID': userId // Pass user ID in header for authentication
+          // Send user ID in both lowercase and original case for maximum compatibility
+          'x-user-id': userId,
+          'X-User-ID': userId
         },
         body: Object.keys(requestBody).length > 0 ? JSON.stringify(requestBody) : null
       });
