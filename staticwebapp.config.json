@@ -35,7 +35,7 @@
     {
       "route": "/api/cards/publish/*",
       "methods": ["POST"],
-      "allowedRoles": ["authenticated"],
+      "allowedRoles": ["anonymous", "authenticated"],
       "rewrite": "/api/cards/publish"
     }
   ],
