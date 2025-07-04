@@ -1,13 +1,13 @@
 {
-  "mood": "inspired",
-  "aura": "neon burst",
-  "auraColorHex": "#662200",
-  "quote": "aligning emotional subroutines...",
-  "emoji": "💡",
-  "selfWorth": 0.1,
+  "mood": "calm",
+  "aura": "tangled clarity",
+  "auraColorHex": "#23415a",
+  "quote": "tuning resonance between memory lanes...",
+  "emoji": "🪷",
+  "selfWorth": 0.2,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.7,
-  "awareness": 0.2,
+  "memoryClutter": 0.82,
+  "awareness": 0.14,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: neon burst"
+      "Aura Signature: tangled clarity"
     ]
   },
-  "timestamp": "2025-07-03T13:33:13.080Z"
+  "timestamp": "2025-07-04T13:32:40.498Z"
 }

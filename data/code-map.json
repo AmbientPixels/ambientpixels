@@ -1,7 +1,7 @@
 {
-  "timestamp": "2025-07-03T13:33:20.004Z",
+  "timestamp": "2025-07-04T13:32:47.551Z",
   "summary": {
-    "totalJS": 556,
+    "totalJS": 557,
     "totalCSS": 84,
     "totalHTML": 164
   },
@@ -680,6 +680,7 @@
     "createLogTask",
     "createLogger",
     "createPolyfill",
+    "createTestUI",
     "cs",
     "ct",
     "customBinaryPlugin",
@@ -891,6 +892,7 @@
     "getAdapter",
     "getApiBaseUrl",
     "getApiUrl",
+    "getAuthData",
     "getBaseIntrinsic",
     "getBodyLength",
     "getCleanOptions",
@@ -1098,6 +1100,7 @@
     "isUrlPotentiallyTrustworthy",
     "isUserFunction",
     "isValidHeaderName",
+    "isValidJson",
     "isValidOption",
     "isValidResetMode",
     "isValidValue",
@@ -1554,6 +1557,7 @@
     "testDreamAPI",
     "testEndpoint",
     "testProxyUrl",
+    "testPublish",
     "testQuoteAPI",
     "throttle",
     "throttled",

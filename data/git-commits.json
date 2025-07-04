@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "39de61e9-6896-4e97-83ae-3a0a33726e73",
-      "hash": "1af626094d90fa7a5fb3237d664f06d4e1c9bdaf",
-      "message": "Add video cycling with smooth transitions to pulse-bar",
-      "timestamp": "2025-07-02 22:09:56 -0700",
+      "id": "a0e5626f-c4dc-4dbe-a6ca-23142defc89c",
+      "hash": "689fffbb6563b09af36cbbcfc62dcdd677273ece",
+      "message": "fix(card-forge): troubleshoot publish endpoint 401 errors",
+      "timestamp": "2025-07-03 20:02:06 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/1af626094d90fa7a5fb3237d664f06d4e1c9bdaf"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/689fffbb6563b09af36cbbcfc62dcdd677273ece"
     }
   ],
-  "timestamp": "2025-07-03T13:33:13.154Z",
+  "timestamp": "2025-07-04T13:32:40.572Z",
   "count": 1,
-  "scanId": 1751549593154
+  "scanId": 1751635960572
 }
