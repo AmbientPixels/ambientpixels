@@ -190,18 +190,42 @@ window.addEventListener('DOMContentLoaded', function() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(cards)
+        }).then(response => {
+          debugLog('Publish response status:', response.status);
+          debugLog('Publish response headers:', JSON.stringify(Array.from(response.headers.entries())));
+          
+          // Get response text first to debug any JSON parsing issues
+          return response.text().then(text => {
+            debugLog('Publish response text:', text);
+            
+            if (!response.ok) {
+              // Try to parse as JSON if possible
+              try {
+                const errorData = JSON.parse(text);
+                debugError('Parsed error response:', errorData);
+                throw new Error(`Server returned ${response.status}: ${errorData.message || errorData.error || response.statusText}`);
+              } catch (parseError) {
+                debugError('Failed to parse error response as JSON:', parseError);
+                throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+              }
+            }
+            
+            // Try to parse success response as JSON
+            try {
+              const data = JSON.parse(text);
+              debugLog('Card published successfully:', data);
+              return data;
+            } catch (parseError) {
+              debugError('Failed to parse success response as JSON:', parseError);
+              throw new Error('Invalid JSON response from server');
+            }
+          });
         });
-        const result = await response.json();
-        if (response.ok) {
-          alert(result.message || 'Cards saved to Azure!');
-        } else {
-          alert(result.message || 'Error saving to Azure.');
-        }
+        saveToAzureBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Save to Azure';
       } catch (err) {
         alert('Network error: ' + err.message);
       } finally {
         saveToAzureBtn.disabled = false;
-        saveToAzureBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Save to Azure';
       }
     });
   }
@@ -660,59 +684,81 @@ window.addEventListener('DOMContentLoaded', function() {
 
   // Function to publish a card to the gallery
   function publishCardToGallery(card) {
+    if (!card || !card.id) {
+      debugError('Cannot publish card: Invalid card data');
+      return;
+    }
+
+    // Get user confirmation
+    if (!confirm(`Publish card "${card.name}" to the public gallery?\n\nThis will make it visible to everyone.`)) {
+      return;
+    }
+
     debugLog('Publishing card to gallery:', card);
     
-    if (!window.CardForgeAuth || !window.CardForgeAuth.isSignedIn()) {
-      alert('You need to be signed in to publish cards to the gallery');
+    // Check if user is signed in
+    const userId = CardForgeAuth.getUserId();
+    if (!userId) {
+      alert('You must be signed in to publish cards.');
       return;
     }
-    
-    if (!confirm(`Are you sure you want to publish "${card.name}" to the public gallery?`)) {
-      return;
-    }
-    
-    const userId = window.CardForgeAuth.getUserId();
-    
+
     debugLog('Publishing card with ID:', card.id, 'User ID:', userId);
-    debugLog('Auth state:', window.CardForgeAuth.isSignedIn() ? 'Signed in' : 'Not signed in');
+    debugLog('Auth state:', document.body.getAttribute('data-auth-state'));
     
-    // Ensure we have a valid user ID
-    if (!userId || userId === 'unknown') {
-      debugError('Invalid user ID for publishing:', userId);
-      alert('Authentication error: Could not determine your user ID. Please sign in again.');
-      return;
+    // Remove private notes before publishing
+    const cardToPublish = { ...card };
+    if (cardToPublish.privateNotes) {
+      delete cardToPublish.privateNotes;
     }
-    
+
+    // Send both lowercase and original case headers for maximum compatibility
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-User-ID': userId,
+      'x-user-id': userId
+    };
+
     fetch(`/api/cards/publish/${card.id}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // Send user ID in both lowercase and original case for maximum compatibility
-        'x-user-id': userId,
-        'X-User-ID': userId
-      },
+      headers: headers,
       body: JSON.stringify({
-        cardId: card.id,
         userId: userId,
         card: card // Send the full card data for the backend
       })
     })
     .then(response => {
       debugLog('Publish response status:', response.status);
-      if (!response.ok) {
-        return response.json().then(errorData => {
-          throw new Error(`Server returned ${response.status}: ${errorData.message || response.statusText}`);
-        }).catch(err => {
-          if (err.message.includes('JSON')) {
+      debugLog('Publish response headers:', JSON.stringify(Array.from(response.headers.entries())));
+      
+      // Get response text first to debug any JSON parsing issues
+      return response.text().then(text => {
+        debugLog('Publish response text:', text);
+        
+        if (!response.ok) {
+          // Try to parse as JSON if possible
+          try {
+            const errorData = JSON.parse(text);
+            debugError('Parsed error response:', errorData);
+            throw new Error(`Server returned ${response.status}: ${errorData.message || errorData.error || response.statusText}`);
+          } catch (parseError) {
+            debugError('Failed to parse error response as JSON:', parseError);
             throw new Error(`Server returned ${response.status}: ${response.statusText}`);
           }
-          throw err;
-        });
-      }
-      return response.json();
+        }
+        
+        // Try to parse success response as JSON
+        try {
+          const data = JSON.parse(text);
+          debugLog('Card published successfully:', data);
+          return data;
+        } catch (parseError) {
+          debugError('Failed to parse success response as JSON:', parseError);
+          throw new Error('Invalid JSON response from server');
+        }
+      });
     })
     .then(data => {
-      debugLog('Card published successfully:', data);
       // Update UI to show published status
       card.isPublic = true;
       // Save the updated card status
