@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-07-04T13:32:39.277Z",
+  "updated": "2025-07-05T13:29:11.144Z",
   "root": [
     {
       "type": "folder",
@@ -100,12 +100,6 @@
         },
         {
           "type": "folder",
-          "name": "cards",
-          "path": "api/cards",
-          "children": []
-        },
-        {
-          "type": "folder",
           "name": "debug",
           "path": "api/debug",
           "children": []
@@ -130,18 +124,6 @@
         },
         {
           "type": "folder",
-          "name": "loadCardData",
-          "path": "api/loadCardData",
-          "children": []
-        },
-        {
-          "type": "folder",
-          "name": "myCards",
-          "path": "api/myCards",
-          "children": []
-        },
-        {
-          "type": "folder",
           "name": "novavision",
           "path": "api/novavision",
           "children": []
@@ -150,12 +132,6 @@
           "type": "folder",
           "name": "oauth",
           "path": "api/oauth",
-          "children": []
-        },
-        {
-          "type": "folder",
-          "name": "saveCardData",
-          "path": "api/saveCardData",
           "children": []
         },
         {
@@ -473,18 +449,6 @@
           "type": "page",
           "name": "bg-test.html",
           "path": "lab/bg-test.html"
-        },
-        {
-          "type": "folder",
-          "name": "card-forge",
-          "path": "lab/card-forge",
-          "children": [
-            {
-              "type": "page",
-              "name": "index.html",
-              "path": "lab/card-forge/index.html"
-            }
-          ]
         },
         {
           "type": "page",
