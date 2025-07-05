@@ -43,12 +43,16 @@
     // Secondary check: session storage user info
     const hasUserInfo = !!getUserInfo();
     
+    // Additional check: ambientPixels_isAuthenticated in sessionStorage (set by authUI.js)
+    const ambientPixelsAuthState = sessionStorage.getItem('ambientPixels_isAuthenticated') === 'true';
+    
     // Log authentication state for debugging
     debugLog(`Auth state check: ${isAuthFromState ? 'Authenticated' : 'Not authenticated'} (by attribute)`); 
     debugLog(`User info check: ${hasUserInfo ? 'Present' : 'Missing'} (from session storage)`);
+    debugLog(`AmbientPixels auth check: ${ambientPixelsAuthState ? 'Authenticated' : 'Not authenticated'} (from ambientPixels_isAuthenticated)`);
     
-    // Return combined check (both should be true for proper auth)
-    return isAuthFromState && hasUserInfo;
+    // Return combined check (any of the methods indicate auth is valid)
+    return (isAuthFromState && hasUserInfo) || ambientPixelsAuthState;
   }
   
   /**

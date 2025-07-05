@@ -12,7 +12,8 @@
   // API Configuration
   const API_CONFIG = {
     // Set to true to use production API endpoints, false for local development
-    production: true,
+    // Can be toggled via localStorage for easier testing
+    production: localStorage.getItem('cardForgeUseProductionAPI') !== 'false',
     
     // Base URLs
     baseUrl: {

@@ -137,35 +137,89 @@ window.CardForgeGallery = (function() {
       limit: config.defaultLimit
     });
     
-    // Fetch gallery cards
-    fetch(`${config.apiEndpoints.gallery}?${params.toString()}`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to load gallery cards');
-        }
-        return response.json();
+    // Log API details for debugging
+    console.log(`Fetching gallery cards from: ${config.apiEndpoints.gallery}?${params.toString()}`);
+    
+    // Add a timeout to abort if request takes too long
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+    
+    // Fetch gallery cards with retry logic
+    let retryCount = 0;
+    const maxRetries = 2;
+    
+    const attemptFetch = () => {
+      fetch(`${config.apiEndpoints.gallery}?${params.toString()}`, {
+        signal: controller.signal,
+        headers: { 'Cache-Control': 'no-cache' } // Prevent caching issues
       })
-      .then(data => {
-        // Extract the cards array from the response data structure
-        state.galleryCards = data.cards || [];
-        // Store pagination information if needed
-        state.galleryPagination = data.pagination || { total: 0, page: 1, limit: 20, pages: 0 };
-        renderGalleryCards();
-      })
-      .catch(error => {
-        console.error('Error loading gallery cards:', error);
-        showErrorState(elements.galleryCards, 'Failed to load gallery cards');
-      })
-      .finally(() => {
-        state.isLoading = false;
-      });
+        .then(response => {
+          // Clear the timeout since we got a response
+          clearTimeout(timeoutId);
+          
+          console.log(`Gallery API response: ${response.status} ${response.statusText}`);
+          
+          if (!response.ok) {
+            if (response.status === 404) {
+              console.error('API endpoint not found (404). Check if the API is deployed properly.');
+            }
+            throw new Error(`Failed to load gallery cards: ${response.status} ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Extract the cards array from the response data structure
+          console.log('Gallery data received:', data ? 'has data' : 'no data');
+          state.galleryCards = data.cards || [];
+          // Store pagination information if needed
+          state.galleryPagination = data.pagination || { total: 0, page: 1, limit: 20, pages: 0 };
+          renderGalleryCards();
+        })
+        .catch(error => {
+          console.error('Error loading gallery cards:', error);
+          
+          // Retry logic for network errors or timeouts
+          if (retryCount < maxRetries && (error.name === 'AbortError' || error.name === 'TypeError')) {
+            console.log(`Retrying gallery fetch (attempt ${retryCount + 1} of ${maxRetries})...`);
+            retryCount++;
+            setTimeout(attemptFetch, 1000 * retryCount); // Exponential backoff
+          } else {
+            // Show error state with details
+            const errorMessage = error.message || 'Failed to load gallery cards';
+            showErrorState(elements.galleryCards, errorMessage);
+            
+            // Add fallback content for better UX
+            const fallbackEl = document.createElement('div');
+            fallbackEl.className = 'gallery-fallback';
+            fallbackEl.innerHTML = `
+              <h3>Gallery temporarily unavailable</h3>
+              <p>We're experiencing issues connecting to our servers. Please try again later.</p>
+              <button id="gallery-retry-btn" class="btn btn-primary">Retry</button>
+            `;
+            elements.galleryCards.appendChild(fallbackEl);
+            
+            // Bind retry button
+            document.getElementById('gallery-retry-btn')?.addEventListener('click', () => {
+              loadGalleryCards();
+            });
+          }
+        })
+        .finally(() => {
+          if (retryCount === 0 || retryCount >= maxRetries) {
+            state.isLoading = false;
+          }
+        });
+    };
+    
+    // Initial fetch attempt
+    attemptFetch();
   }
 
   /**
    * Fetch user's personal cards
    */
   function loadUserLibrary() {
-    if (!window.CardForgeAuth || !window.CardForgeAuth.isSignedIn()) return;
+    if (!window.CardForgeAuth || !window.CardForgeAuth.isAuthenticated()) return;
     if (state.isLoading) return;
     
     state.isLoading = true;
