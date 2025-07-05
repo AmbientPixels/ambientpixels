@@ -565,6 +565,93 @@ Keep this log focused on session continuity and dev communication. All canonical
 | `/css/card-styles.css`                 | Full style system for card visuals   |
 | `/lab/card-forge/card-forge-cloud.js`  | Cloud storage service for user cards |
 | `/lab/card-forge/card-forge-auth.js`   | Authentication integration           |
+
+---
+
+## 🔄 CardForge 2025 Rebuild Project
+
+> *"Building the future of digital identity cards."*
+
+### Project Status
+- **Current Phase**: Complete rebuild from ground up (July 2025)
+- **Previous Status**: Legacy system retired due to structural issues
+- **Goal**: Create a modular, maintainable system with next-generation features
+
+### 🚀 Next-Level Features
+
+#### AI Integration
+- **Nova-Powered Themes**: Mood-reactive card styling using Nova's emotional synthesis
+- **AI-Generated Content**: Character backstories and power descriptions
+- **Style Transfer**: Transform user photos into themed avatar styles
+
+#### Enhanced Interaction
+- **Dynamic Animations**: Interactive cards with hover/click effects
+- **3D Cards**: CSS-based 3D rotation and perspective
+- **Progressive Reveal**: Staged disclosure of card details
+
+#### Collections & Teams
+- **Deck Building**: Group cards into themed collections
+- **Team Libraries**: Shared card access for organizations
+- **Collaborative Creation**: Multi-user card design
+
+#### Social & Community
+- **Card Battles**: Competitive card interaction system
+- **Community Gallery**: Enhanced voting, comments, and sharing
+- **Social Integration**: Direct posting to social platforms
+
+#### Advanced Customization
+- **Custom Templates**: User-definable card layouts and structures
+- **Animation Editor**: Custom effect creation
+- **Theme Designer**: Color palette and style customization
+
+#### Publishing & Export
+- **Embeddable Cards**: Website widgets and embeds
+- **QR Integration**: Physical-to-digital card linking
+- **Enhanced Export**: Print-ready and animated formats
+
+#### Gamification
+- **Creator Achievements**: Recognition for creative milestones
+- **Seasonal Events**: Themed contests and limited editions
+- **Progression System**: Unlockable features and templates
+
+#### Collaboration Tools
+- **Real-Time Co-Editing**: Simultaneous card creation
+- **Version History**: Card evolution tracking
+- **Activity Notifications**: Team updates and changes
+
+#### Modern Web Features
+- **Progressive Web App**: Offline capabilities
+- **Background Sync**: Reliable data persistence
+- **Mobile-First Design**: Responsive across all devices
+
+### 🏗️ Architecture Priorities
+
+1. **Modularity & Maintainability**
+   - Clear separation of concerns
+   - Reusable component architecture
+   - Consistent coding patterns
+
+2. **Security & Authentication**
+   - Robust session management
+   - Proper authorization checks
+   - Secure data handling
+
+3. **Nova/Windsurf Alignment**
+   - Adherence to style conventions
+   - Integration with ambient mood system
+   - Following Windsurf development protocol
+
+4. **Performance Optimization**
+   - Efficient rendering pipelines
+   - Strategic caching
+   - Lazy loading and progressive enhancement
+
+### 🔍 Additional Considerations
+
+- **Accessibility**: WCAG compliance and inclusive design
+- **Scalability**: Support for large card collections and user bases
+- **Testing**: Comprehensive unit and integration tests
+- **Documentation**: Clear developer and user guides
 | `/lab/card-forge/card-forge-gallery.js`| Gallery display and filtering        |
 | `/api/cardforge/savecards/index.js`    | API endpoint for saving cards        |
 | `/api/cardforge/loadcards/index.js`    | API endpoint for loading cards       |
