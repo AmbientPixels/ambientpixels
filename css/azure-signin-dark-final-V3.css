@@ -1,7 +1,8 @@
-/* AmbientPixels Nova Dark Theme - Updated with Azure Entra Login Workarounds */
+/* AmbientPixels Nova Dark Theme - Fully Regenerated for Universal Readability */
 
 body {
     background: #10131a !important;
+    color: #8ea1c2 !important;
     font-family: 'Segoe UI', Arial, sans-serif !important;
     letter-spacing: 0.01em !important;
 }
@@ -88,19 +89,15 @@ a:hover, a:focus, a:focus:hover {
 
 .ext-boilerplate-text, .boilerplate-text {
     background-color: #1b2331 !important;
-    color: #e6eaf3 !important;
-    padding: 24px 44px 36px 44px;
-    margin: 76px -44px -44px -44px;
+    color: #8ea1c2 !important;
+    padding: 24px 44px 36px 44px !important;
+    margin: 76px -44px -44px -44px !important;
 }
 
-/* Workaround for identityBanner (remove forced color) */
-.identityBanner, .identityBanner * {
-    color: initial !important;
-    background: initial !important;
-}
-
+/* Identity Banner Neutral Readability */
+.identityBanner, .identityBanner *,
 #displayName, div[id*="displayName"] {
-    color: initial !important;
+    color: #8ea1c2 !important;
     background-color: transparent !important;
 }
 
@@ -112,10 +109,10 @@ button[class*="backButton"], [aria-label*="Back"] {
     border-radius: 8px !important;
 }
 
-/* Footer fix to ensure readability */
+/* Universal Footer fix */
 .ext-footer, .ext-footer.ext-has-background {
     background-color: #10131a !important;
-    color: #b8c1d6 !important;
+    color: #8ea1c2 !important;
     border-top: 1px solid #23263a !important;
 }
 
