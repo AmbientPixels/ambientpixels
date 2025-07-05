@@ -97,6 +97,21 @@ function showMessage(message, type = 'info') {
 
 // loadCards() will retrieve the current user's cards (mock for now)
 
+// Helper to determine API base URL based on environment
+function getApiBaseUrl() {
+    // Check if we're running locally
+    const isLocalDev = window.location.hostname === 'localhost' || 
+                      window.location.hostname === '127.0.0.1';
+    
+    // For local development, use the local API
+    if (isLocalDev) {
+        return 'http://localhost:7071'; // Azure Functions default port
+    }
+    
+    // In production, use relative paths (will be handled by SWA)
+    return '';
+}
+
 async function loadCards() {
     const listEl = document.getElementById('my-cards-list');
     const listTitle = document.querySelector('.cardforge-sidebar h2');
@@ -106,15 +121,18 @@ async function loadCards() {
     const account = window.authModule?.getCurrentUser();
 
     let cards = [];
-    let endpoint = '/api/cardforge/gallery';
+    const apiBase = getApiBaseUrl();
+    let endpoint = `${apiBase}/api/cardforge/gallery`;
     let title = 'Public Gallery';
     let isAuthenticated = false;
 
     if (account) {
-        endpoint = '/api/cardforge/mycards';
+        endpoint = `${apiBase}/api/cardforge/mycards`;
         title = 'My Cards';
         isAuthenticated = true;
     }
+    
+    console.log(`[CardForge] Fetching cards from: ${endpoint}`);
 
     if (listTitle) listTitle.textContent = title;
     if (saveBtn) saveBtn.disabled = !isAuthenticated;
@@ -179,91 +197,111 @@ document.addEventListener('cardforge:select', e => {
 });
 
 async function saveCard() {
+  const form = document.getElementById('card-form');
+  if (!form) return;
+
+  clearValidationErrors();
+
+  // Get form values
   const nameInput = document.getElementById('card-name');
   const classInput = document.getElementById('card-class');
-  const quoteInput = document.getElementById('card-quote');
   const avatarInput = document.getElementById('card-avatar');
+  const quoteInput = document.getElementById('card-quote');
+  const achievementInput = document.getElementById('card-achievement');
 
-  // Create card object for validation
-  const cardToValidate = {
-    name: nameInput.value.trim(),
-    class: classInput.value.trim(),
-    quote: quoteInput.value.trim(),
-    avatar: avatarInput.value.trim()
-  };
+  // Get the validation module
+  const validator = window.validationUtils;
 
-  // Use shared validation utilities
-  const errors = ValidationUtils.validateCard(cardToValidate);
-  
-  // Reset UI error indicators
-  nameInput.classList.toggle('error', !ValidationUtils.isNonEmptyString(cardToValidate.name));
-  classInput.classList.toggle('error', !ValidationUtils.isNonEmptyString(cardToValidate.class));
-  avatarInput.classList.toggle('error', cardToValidate.avatar && !ValidationUtils.isValidImageUrl(cardToValidate.avatar));
-
-  // If there are validation errors, show them and abort save
-  if (errors.length > 0) {
-    showValidationErrors(errors);
-    return;
+  // Validate input values
+  const errors = [];
+  if (!validator.isValidString(nameInput.value, 2, 30)) {
+      errors.push('Name must be between 2 and 30 characters');
   }
+  if (!validator.isValidString(classInput.value, 2, 20)) {
+      errors.push('Class must be between 2 and 20 characters');
+  }
+  if (!validator.isValidImageUrl(avatarInput.value)) {
+      errors.push('Avatar must be a valid image URL');
+  }
+  if (!validator.isValidString(quoteInput.value, 0, 100)) {
+      errors.push('Quote must be less than 100 characters');
+  }
+  if (!validator.isValidString(achievementInput.value, 0, 50)) {
+      errors.push('Achievement must be less than 50 characters');
+  }
+
+  // If there are validation errors, display them and return
+  if (errors.length > 0) {
+      showValidationErrors(errors);
+      return;
+  }
+  
+  // Get API base URL
+  const apiBase = getApiBaseUrl();
 
   // Clear any previous validation messages
   clearValidationErrors();
   
   // Sanitize using shared utilities and prepare the card data
   const card = {
-    id: `v2-${Date.now()}`,
-    ...ValidationUtils.sanitizeCard(cardToValidate)
+      id: `v2-${Date.now()}`,
+      name: nameInput.value.trim(),
+      class: classInput.value.trim(),
+      quote: quoteInput.value.trim(),
+      avatar: avatarInput.value.trim(),
+      achievement: achievementInput.value.trim()
   };
 
   try {
-    // Show saving indicator
-    const saveBtn = document.getElementById('save-btn');
-    if (saveBtn) {
-      saveBtn.disabled = true;
-      saveBtn.textContent = 'Saving...';
-    }
-
-    // Add CSRF token if available
-    const headers = { 'Content-Type': 'application/json' };
-    const csrfToken = document.querySelector('meta[name="csrf-token"]');
-    if (csrfToken) {
-      headers['X-CSRF-Token'] = csrfToken.getAttribute('content');
-    }
-
-    const res = await fetch('/api/cardforge/savecards', {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify(card)
-    });
-
-    if (!res.ok) {
-      // Check content type to handle non-JSON errors
-      const contentType = res.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || `HTTP ${res.status}`);
-      } else {
-        throw new Error(`HTTP ${res.status}`);
+      // Show saving indicator
+      const saveBtn = document.getElementById('save-btn');
+      if (saveBtn) {
+          saveBtn.disabled = true;
+          saveBtn.textContent = 'Saving...';
       }
-    }
-
-    const data = await res.json();
-    console.log('[CardForge] Saved', data);
-    
-    // Show success message
-    showMessage('Card saved successfully!', 'success');
-    
-    // Reload list with new card
-    loadCards();
-  } catch (err) {
-    console.error('Failed to save card', err);
-    showMessage(`Failed to save card: ${err.message}`, 'error');
+      
+      // This function needs to be exposed by the auth scripts
+      const account = window.authModule?.getCurrentUser();
+      
+      // Send the card data to the server
+      const response = await fetch(`${apiBase}/api/cardforge/savecards`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-User-Id': account?.id || 'anonymous',
+              'X-CSRF-Token': window.csrfToken
+          },
+          body: JSON.stringify(card)
+      });
+      
+      if (!response.ok) {
+          // Check content type to handle non-JSON errors
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+              const errorData = await response.json();
+              throw new Error(errorData.message || `HTTP ${response.status}`);
+          } else {
+              throw new Error(`HTTP ${response.status}`);
+          }
+      }
+      
+      const result = await response.json();
+      console.log('[CardForge] Card saved:', result);
+      
+      // Show success message
+      showMessage('Card saved successfully!', 'success');
+      
+      // Reload cards to show the updated list
+      loadCards();
+  } catch (error) {
+      console.error('Failed to save card:', error);
+      showMessage(`Error: ${error.message}`, 'error');
   } finally {
-    // Reset button state
-    const saveBtn = document.getElementById('save-btn');
-    if (saveBtn) {
-      saveBtn.disabled = false;
-      saveBtn.textContent = 'Save';
-    }
+      // Reset save button
+      const saveBtn = document.getElementById('save-btn');
+      if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save';
+      }
   }
 }
