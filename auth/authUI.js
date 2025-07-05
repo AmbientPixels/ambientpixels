@@ -517,6 +517,59 @@ window.banner.show({
   window.bindAuthButtons = bindAuthButtons;
   window.updateAuthUI = updateUI;
 
+  // Expose auth module for CardForge integration
+  window.authModule = {
+    // Returns the current user account if authenticated, null otherwise
+    getCurrentUser: function() {
+      // Check if we're authenticated
+      if (!isAuthenticated) return null;
+      
+      // Try to get account directly from MSAL first
+      let account = null;
+      try {
+        if (window.msalInstance && typeof window.msalInstance.getAllAccounts === 'function') {
+          const accounts = window.msalInstance.getAllAccounts();
+          account = accounts && accounts.length > 0 ? accounts[0] : null;
+          
+          if (account) {
+            return {
+              id: account.localAccountId || account.homeAccountId,
+              userId: account.localAccountId || account.homeAccountId,
+              name: account.name || '',
+              email: account.username || '',
+              displayName: account.name || account.username || 'User'
+            };
+          }
+        }
+      } catch (e) {
+        debugLog('getCurrentUser MSAL error:', e);
+      }
+      
+      // Fall back to sessionStorage if direct MSAL access failed
+      try {
+        const userInfoStr = sessionStorage.getItem('userInfo');
+        if (userInfoStr) {
+          return JSON.parse(userInfoStr);
+        }
+      } catch (e) {
+        debugLog('getCurrentUser sessionStorage error:', e);
+      }
+      
+      // If we got this far but we think we're authenticated, return a minimal user object
+      if (sessionStorage.getItem('ambientPixels_isAuthenticated') === 'true') {
+        return { id: 'unknown', userId: 'unknown', name: 'Authenticated User' };
+      }
+      
+      // Not authenticated or no user info available
+      return null;
+    },
+    isAuthenticated: function() {
+      return isAuthenticated || sessionStorage.getItem('ambientPixels_isAuthenticated') === 'true';
+    }
+  };
+  
+  debugLog('Auth module exposed globally:', !!window.authModule);
+
   // --- Initialization Guard ---
   // This robustly waits for dependencies to be ready before initializing,
   // preventing race conditions with dynamically loaded scripts.

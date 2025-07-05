@@ -1,2 +1,19 @@
-// Refer to docs/logs/project-card-forge.md → 7/4/2025 – launch of V2 for details.
-{}
+{
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "get"
+      ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
+    }
+  ],
+  "scriptFile": "index.js"
+}

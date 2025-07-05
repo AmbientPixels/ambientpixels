@@ -1,0 +1,16 @@
+[
+  {
+    "id": "v2-0001",
+    "name": "Navigator Kairo",
+    "class": "Chrononaut",
+    "quote": "Chrono-hop voyager of 3055, master of the temporal currents.",
+    "avatar": "https://ambientpixels.ai/images/image-packs/characters/navigator-kairo.jpg"
+  },
+  {
+    "id": "v2-0002",
+    "name": "Ethereal Enigma",
+    "class": "Cyber Siren",
+    "quote": "A cybernetic, biomechanical beauty shimmering with secrets.",
+    "avatar": "https://ambientpixels.ai/images/image-packs/characters/ethereal-enigma.jpg"
+  }
+]

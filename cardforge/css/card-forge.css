@@ -1,1 +1,124 @@
 /* Refer to docs/logs/project-card-forge.md → 7/4/2025 – launch of V2 for details. */
+
+/* CardForge Editor Layout */
+.cardforge-container {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.cardforge-editor {
+  background: var(--surface-2, rgba(255,255,255,0.05));
+  padding: 1.5rem;
+  border-radius: 8px;
+  -webkit-backdrop-filter: blur(6px); /* Safari */
+  backdrop-filter: blur(6px);
+}
+
+.cardforge-editor h2 {
+  margin-top: 0;
+}
+
+.cardforge-form label {
+  display: block;
+  font-weight: 500;
+  margin-top: 1rem;
+}
+
+.cardforge-form input,
+.cardforge-form textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-1, rgba(255,255,255,0.2));
+  border-radius: 4px;
+  background: var(--surface-1, rgba(0,0,0,0.2));
+  color: inherit;
+}
+
+.cardforge-form button {
+  margin-top: 1.25rem;
+}
+
+/* Preview */
+.cardforge-preview {
+  background: var(--surface-2, rgba(255,255,255,0.05));
+  padding: 1.5rem;
+  border-radius: 8px;
+  flex: 1;
+}
+
+/* updated by Cascade 2025-07-05: enhanced card style */
+.cardforge-card {
+  position: relative;
+  width: 260px;
+  margin: 0 auto;
+  background: var(--surface-3, rgba(255,255,255,0.02));
+  border: 1.5px solid var(--border-1, rgba(255,255,255,0.2));
+  border-radius: 1rem;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.3);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  text-align: center;
+}
+.cardforge-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+}
+.cardforge-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(99,102,241,0.35), rgba(236,72,153,0.35));
+  opacity: 0.28;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* updated by Cascade 2025-07-05: larger avatar & glow */
+.cardforge-avatar {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.12), 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.cardforge-name {
+  font-size: 1.5rem;
+  margin: 0.25rem 0;
+}
+
+.cardforge-class {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin: 0;
+}
+
+.cardforge-quote {
+  font-style: italic;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  opacity: 0.88;
+}
+
+/* === Additional CardForge V2 helpers === */
+.cardforge-card-content {
+  padding: 1.25rem 1rem 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.cardforge-class-badge {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+}
+
+/* Selected state for My Cards list */
+.cardforge-list li.selected {
+  background: rgba(99,102,241,0.15);
+  border-radius: 4px;
+}
+
