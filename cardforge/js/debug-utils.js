@@ -356,6 +356,63 @@ const CardForgeDebug = (() => {
     }
   }
   
+  /**
+   * Test Azure SWA specific auth endpoints
+   */
+  async function testSwaAuthEndpoints() {
+    clearPanel();
+    logToPanel('Testing Azure Static Web Apps auth endpoints...', 'info');
+    
+    // Test endpoints
+    const endpoints = [
+      '/.auth/me',
+      '/.auth/login/aad',
+      '/.auth/login/github'
+    ];
+    
+    for (const endpoint of endpoints) {
+      try {
+        logToPanel(`Testing endpoint: ${endpoint}`, 'info');
+        
+        const res = await fetch(endpoint, {
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        
+        if (res.ok) {
+          logToPanel(`✅ ${endpoint} - ${res.status} ${res.statusText}`, 'success');
+          
+          // For .auth/me, show the response
+          if (endpoint === '/.auth/me') {
+            try {
+              const data = await res.json();
+              if (data.clientPrincipal) {
+                logToPanel(`Authenticated as: ${data.clientPrincipal.userDetails} (${data.clientPrincipal.userId})`, 'success');
+                logToPanel(`User roles: ${data.clientPrincipal.userRoles.join(', ')}`, 'info');
+                logToPanel(`Identity provider: ${data.clientPrincipal.identityProvider}`, 'info');
+              } else {
+                logToPanel('Not authenticated', 'warning');
+              }
+            } catch (e) {
+              logToPanel('Error parsing auth data: ' + e.message, 'error');
+            }
+          }
+        } else {
+          logToPanel(`❌ ${endpoint} - ${res.status} ${res.statusText}`, 'error');
+        }
+      } catch (e) {
+        logToPanel(`❌ ${endpoint} - Network error: ${e.message}`, 'error');
+      }
+    }
+    
+    // Also check if we're in an iframe, which can cause auth issues
+    if (window !== window.parent) {
+      logToPanel('⚠️ Page is loaded in an iframe, which can cause auth issues with SWA', 'warning');
+    }
+  }
+
   // Initialize on load
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

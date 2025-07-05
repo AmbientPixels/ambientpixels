@@ -100,17 +100,14 @@
   <!-- Configuration - MUST be before other scripts -->
   <script>
   window._config = {
-    // Set to correct API path if your Azure Functions are deployed to a different path
-    // Try these options by uncommenting one at a time:
+    // Try simple, direct API path matching Azure SWA defaults
+    apiBasePath: '/api',
     
-    // Default: Standard Azure SWA API path
-    apiBasePath: '',
-    
-    // Option 1: If API is deployed at root level
-    // apiBasePath: '/cardforge',
-    
-    // Option 2: If API doesn't include 'cardforge' in path
-    // apiBasePath: '/api',
+    // Previously tried options:
+    // apiBasePath: ''              // Default - 404 errors
+    // apiBasePath: '/api-cardforge' // Custom attempt
+    // apiBasePath: '/cardforge'     // Returns HTML, not JSON
+    // apiBasePath: '/functions/api' // Returns HTML, not JSON
     
     // Debug settings
     debug: true,
