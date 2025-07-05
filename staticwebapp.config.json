@@ -16,7 +16,7 @@
   },
   "routes": [
     {
-      "route": "/cardforge/loadcards",
+      "route": "/api/cardforge/loadcards",
       "methods": [
         "GET"
       ],
@@ -26,7 +26,7 @@
       ]
     },
     {
-      "route": "/cardforge/savecards",
+      "route": "/api/cardforge/savecards",
       "methods": [
         "POST"
       ],
@@ -36,7 +36,7 @@
       ]
     },
     {
-      "route": "/cardforge/cards",
+      "route": "/api/cardforge/cards",
       "methods": [
         "GET",
         "OPTIONS"
@@ -47,7 +47,7 @@
       ]
     },
     {
-      "route": "/cardforge/gallery",
+      "route": "/api/cardforge/gallery",
       "methods": [
         "GET",
         "OPTIONS"
@@ -58,7 +58,7 @@
       ]
     },
     {
-      "route": "/cardforge/mycards",
+      "route": "/api/cardforge/mycards",
       "methods": [
         "GET"
       ],
@@ -67,7 +67,7 @@
       ]
     },
     {
-      "route": "/cardforge/cardpublish/*",
+      "route": "/api/cardforge/cardpublish/*",
       "methods": [
         "POST"
       ],
