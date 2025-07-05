@@ -399,6 +399,105 @@
   
   /**
    * Publish a card to the public gallery
+   * @param {Object} card - Card object to publish
+   * @returns {Promise<Object>} Promise resolving to the publish result
+   */
+  CardForgeCloud.publishCard = async function(card) {
+    debugLog('Publishing card to gallery');
+    
+    // Get authenticated user ID
+    const userId = getUserId();
+    if (!userId) {
+      return Promise.reject(new Error('Authentication required to publish cards'));
+    }
+    
+    // Validate card object
+    if (!card || !card.id) {
+      return Promise.reject(new Error('Invalid card data'));
+    }
+    
+    try {
+      // Create a clean copy of the card for publishing
+      const publishableCard = { ...card };
+      
+      // Remove sensitive data
+      delete publishableCard.privateNotes;
+      delete publishableCard.personalInfo;
+      delete publishableCard.email;
+      delete publishableCard.secretNotes;
+      
+      // Add metadata
+      publishableCard.userId = userId;
+      publishableCard.publishRequestTime = new Date().toISOString();
+      
+      // Connect to the API
+      const apiUrl = getApiUrl('publishCard') + '/' + card.id;
+      debugLog(`Connecting to publish API endpoint ${apiUrl}`);
+      debugLog(`Using user ID: ${userId}`);
+      debugLog(`API environment: ${API_CONFIG.production ? 'Production' : 'Development'}`);
+      
+      // Send request with authentication headers
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': userId
+        },
+        body: JSON.stringify({
+          userId: userId,
+          card: publishableCard
+        })
+      });
+      
+      debugLog(`API response status: ${response.status} ${response.statusText}`);
+      
+      // Handle non-OK responses
+      if (!response.ok) {
+        let errorMessage = `Error publishing to gallery: ${response.status} ${response.statusText}`;
+        
+        // Try to get more detailed error message
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+          debugLog('Error details:', errorData);
+        } catch (parseError) {
+          debugLog('Failed to parse error response');
+        }
+        
+        throw new Error(errorMessage);
+      }
+      
+      // Parse successful response
+      const result = await response.json();
+      debugLog('Publish response:', result);
+      
+      // Update the local card with published status
+      if (window.cardForge && typeof window.cardForge.getCards === 'function') {
+        const cards = window.cardForge.getCards();
+        const cardIndex = cards.findIndex(c => c.id === card.id);
+        
+        if (cardIndex >= 0) {
+          cards[cardIndex].isPublic = true;
+          cards[cardIndex].isPublished = true;
+          cards[cardIndex].publishedAt = result.publishedAt || new Date().toISOString();
+          
+          // Save the updated cards
+          if (typeof window.cardForge.saveCards === 'function') {
+            window.cardForge.saveCards();
+            debugLog('Updated local card with published status');
+          }
+        }
+      }
+      
+      return result;
+    } catch (error) {
+      debugLog(`Error publishing card: ${error.message}`);
+      return Promise.reject(new Error(`Failed to publish card: ${error.message}`));
+    }
+  };
+  
+  /**
+   * Load gallery cards (public)
    * @param {string} cardId - ID of the card to publish
    * @returns {Promise} Promise that resolves with publish result
    */

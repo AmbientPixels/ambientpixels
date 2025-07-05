@@ -331,49 +331,104 @@ window.CardForgeGallery = (function() {
 
   /**
    * Publish a card to the gallery
+   * @param {Object} card - The card to publish
    */
   function publishCardToGallery(card) {
-    if (!window.CardForgeAuth || !window.CardForgeAuth.isSignedIn()) {
+    // Check authentication using our updated auth module
+    if (!window.CardForgeAuth || !window.CardForgeAuth.isAuthenticated()) {
       alert('You need to be signed in to publish cards to the gallery');
       return;
     }
     
-    if (!window.confirm('Are you sure you want to publish this card to the public gallery?')) {
+    // Get user ID using our improved auth module
+    const userId = window.CardForgeAuth.getUserId();
+    if (!userId) {
+      console.error('Cannot publish: Missing user ID');
+      alert('Authentication error: Cannot identify your account. Please sign in again.');
       return;
     }
     
-    const userId = window.CardForgeAuth.getUserId();
+    // Get confirmation with clearer messaging
+    if (!window.confirm(`Are you sure you want to publish "${card.name || 'this card'}" to the public gallery? Anyone will be able to view it.`)) {
+      return;
+    }
     
+    // Show loading state if possible
+    const publishBtn = document.querySelector(`[data-action="publish"][data-card-id="${card.id}"]`);
+    if (publishBtn) {
+      publishBtn.disabled = true;
+      publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    }
+    
+    // Create a clean copy for publishing (remove sensitive data)
+    const publishableCard = { ...card };
+    delete publishableCard.privateNotes;
+    delete publishableCard.personalInfo;
+    delete publishableCard.email;
+    
+    // Use the auth module to get proper headers
+    const headers = window.CardForgeAuth.getAuthHeaders();
+    
+    // Call the API with improved error handling
     fetch(`/api/cardforge/cardpublish/${card.id}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-User-ID': userId
-      },
+      headers: headers,
       body: JSON.stringify({
-        isPublic: true,
-        category: 'general' // Default category
+        userId: userId,
+        card: publishableCard
       })
     })
-      .then(response => {
+    .then(response => {
+      // Get text first for better error handling
+      return response.text().then(text => {
+        // Try to parse as JSON
+        let data;
+        try {
+          data = text ? JSON.parse(text) : {};
+        } catch (e) {
+          console.error('Failed to parse response', e);
+          data = {};
+        }
+        
+        // Check if response was successful
         if (!response.ok) {
-          throw new Error('Failed to publish card');
+          const errorMessage = data.message || data.error || `Error ${response.status}: ${response.statusText}`;
+          throw new Error(errorMessage);
         }
-        return response.json();
-      })
-      .then(() => {
-        // Update local state
-        const cardIndex = state.userCards.findIndex(c => c.id === card.id);
-        if (cardIndex >= 0) {
-          state.userCards[cardIndex].isPublic = true;
-          renderUserCards();
-        }
-        alert('Card published to gallery successfully!');
-      })
-      .catch(error => {
-        console.error('Error publishing card:', error);
-        alert('Failed to publish card. Please try again.');
+        
+        return data;
       });
+    })
+    .then(data => {
+      console.log('Publish successful:', data);
+      
+      // Update local state
+      const cardIndex = state.userCards.findIndex(c => c.id === card.id);
+      if (cardIndex >= 0) {
+        state.userCards[cardIndex].isPublic = true;
+        state.userCards[cardIndex].publishedAt = data.publishedAt || new Date().toISOString();
+        renderUserCards();
+      }
+      
+      // Load gallery to show the newly published card
+      loadGalleryCards();
+      
+      // Show success message
+      alert('Card published to gallery successfully!');
+    })
+    .catch(error => {
+      console.error('Error publishing card:', error);
+      alert(`Failed to publish card: ${error.message}`);
+    })
+    .finally(() => {
+      // Reset UI state
+      if (publishBtn) {
+        publishBtn.disabled = false;
+        publishBtn.innerHTML = card.isPublic ? 
+          '<i class="fas fa-check-circle"></i> Published' : 
+          '<i class="fas fa-cloud-upload-alt"></i> Publish';
+      }
+    });
   }
 
   /**

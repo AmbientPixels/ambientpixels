@@ -1,52 +1,137 @@
 /**
  * Card Forge + Ambient Pixels Authentication Integration
  * Handles authentication state detection and UI updates for Card Forge
+ * Version 2.0 - Fully rebuilt for improved reliability and publishing support
  */
 
 (function() {
   'use strict';
   
-  // Debug mode flag
-  const DEBUG = true;
+  // Configuration
+  const CONFIG = {
+    debug: true,                // Enable debug logging
+    checkInterval: 5000,        // Auth state polling interval (ms)
+    sessionInfoKey: 'userInfo', // Session storage key for user info
+    persistentIdKey: 'cardforge_user_id', // Local storage key for persistent ID
+    authStateAttribute: 'data-auth-state' // Body attribute that tracks auth state
+  };
   
-  // Debug logger
-  function debugLog(message) {
-    if (DEBUG) {
-      console.log(`[Card Forge Auth] ${message}`);
+  // Debug logger with timestamps and context
+  function debugLog(...args) {
+    if (CONFIG.debug) {
+      const timestamp = new Date().toISOString().split('T')[1].split('.')[0]; // HH:MM:SS
+      console.log(`[Card Forge Auth][${timestamp}]`, ...args);
     }
   }
   
-  // Get auth state from body attribute (set by authUI.js)
-  function isAuthenticated() {
-    const authState = document.body.getAttribute('data-auth-state');
-    return authState === 'signed-in';
+  // Error logger with stack traces when available
+  function debugError(message, error) {
+    if (CONFIG.debug) {
+      console.error(`[Card Forge Auth] ${message}`, error?.stack || error || '');
+    }
   }
   
-  // Get user info from sessionStorage (set by authUI.js)
+  /**
+   * Check if the user is authenticated
+   * @returns {boolean} True if authenticated, false otherwise
+   */
+  function isAuthenticated() {
+    // Primary check: body attribute set by authUI.js
+    const authState = document.body.getAttribute(CONFIG.authStateAttribute);
+    const isAuthFromState = authState === 'signed-in';
+    
+    // Secondary check: session storage user info
+    const hasUserInfo = !!getUserInfo();
+    
+    // Log authentication state for debugging
+    debugLog(`Auth state check: ${isAuthFromState ? 'Authenticated' : 'Not authenticated'} (by attribute)`); 
+    debugLog(`User info check: ${hasUserInfo ? 'Present' : 'Missing'} (from session storage)`);
+    
+    // Return combined check (both should be true for proper auth)
+    return isAuthFromState && hasUserInfo;
+  }
+  
+  /**
+   * Get user info from sessionStorage
+   * @returns {Object|null} User info object or null if not available
+   */
   function getUserInfo() {
     try {
-      const userInfoStr = sessionStorage.getItem('userInfo');
+      // Get from session storage (primary source)
+      const userInfoStr = sessionStorage.getItem(CONFIG.sessionInfoKey);
       if (userInfoStr) {
-        return JSON.parse(userInfoStr);
+        const userInfo = JSON.parse(userInfoStr);
+        // Validate we have something useful
+        if (userInfo && typeof userInfo === 'object') {
+          return userInfo;
+        }
       }
-    } catch (e) {
-      debugLog('Error parsing user info: ' + e);
+    } catch (error) {
+      debugError('Error retrieving or parsing user info', error);
     }
     return null;
   }
   
-  // Get user's display name
+  /**
+   * Get the authenticated user's ID from various possible sources
+   * @returns {string|null} User ID or null if not authenticated
+   */
+  function getUserId() {
+    // First check authentication
+    if (!isAuthenticated()) {
+      debugLog('getUserId: Not authenticated');
+      return null;
+    }
+    
+    // Try to get from user info
+    const userInfo = getUserInfo();
+    if (!userInfo) {
+      debugLog('getUserId: No user info found');
+      return null;
+    }
+    
+    // Check all possible ID properties in order of preference
+    const possibleIdFields = ['id', 'userId', 'user_id', 'objectId', 'oid', 'sub', 'localAccountId'];
+    
+    for (const field of possibleIdFields) {
+      if (userInfo[field]) {
+        const userId = userInfo[field];
+        debugLog(`getUserId: Found ID in ${field} property: ${userId}`);
+        
+        // Cache for consistency
+        localStorage.setItem(CONFIG.persistentIdKey, userId);
+        
+        return userId;
+      }
+    }
+    
+    // Fallback to previously stored ID (for session consistency)
+    const storedId = localStorage.getItem(CONFIG.persistentIdKey);
+    if (storedId) {
+      debugLog(`getUserId: Using cached ID: ${storedId}`);
+      return storedId;
+    }
+    
+    debugLog('getUserId: Could not find user ID in any property', userInfo);
+    return null;
+  }
+  
+  /**
+   * Get user's display name for UI
+   * @returns {string} User's display name or fallback
+   */
   function getUserDisplayName() {
     const userInfo = getUserInfo();
     if (userInfo) {
-      // Try to get name from various properties
+      // Try multiple possible name properties in order of preference
       return userInfo.name || 
              userInfo.displayName || 
              userInfo.givenName || 
+             userInfo.preferredUsername ||
              userInfo.username ||
-             'User';
+             'Card Designer'; // Friendly default
     }
-    return 'User';
+    return 'Card Designer'; // Fallback
   }
   
   // Update UI based on authentication state
@@ -54,47 +139,51 @@
     debugLog('Updating auth UI');
     
     const authenticated = isAuthenticated();
-    debugLog('Auth state: ' + (authenticated ? 'signed in' : 'signed out'));
+    const userId = authenticated ? getUserId() : null;
+    const userName = authenticated ? getUserDisplayName() : 'Guest';
     
-    // Show/hide elements based on auth state
-    const signedInElements = document.querySelectorAll('.auth-signed-in');
-    const signedOutElements = document.querySelectorAll('.auth-signed-out');
+    debugLog(`Updating UI for auth state: ${authenticated ? 'Authenticated' : 'Not Authenticated'}`);
+    debugLog(`User ID for UI: ${userId || 'None'}`);
+    debugLog(`Display name for UI: ${userName}`);
     
-    // Also handle the global signed-in-content and signed-out-content classes
-    const globalSignedInElements = document.querySelectorAll('.signed-in-content');
-    const globalSignedOutElements = document.querySelectorAll('.signed-out-content');
-    
-    signedInElements.forEach(el => {
+    // Update elements that require authentication to be visible
+    document.querySelectorAll('.needs-auth, [data-needs-auth="true"]').forEach(el => {
       el.style.display = authenticated ? '' : 'none';
     });
     
-    signedOutElements.forEach(el => {
+    // Update elements that should only be visible when not authenticated
+    document.querySelectorAll('.needs-no-auth, [data-needs-auth="false"]').forEach(el => {
       el.style.display = authenticated ? 'none' : '';
     });
     
-    // Update global elements too
-    globalSignedInElements.forEach(el => {
-      el.style.display = authenticated ? '' : 'none';
+    // Update user name display in various locations
+    document.querySelectorAll('.user-display-name, [data-user-name]').forEach(el => {
+      el.textContent = userName;
     });
     
-    globalSignedOutElements.forEach(el => {
-      el.style.display = authenticated ? 'none' : '';
+    // Update any user ID displays
+    document.querySelectorAll('[data-user-id]').forEach(el => {
+      el.textContent = userId || 'Not signed in';
     });
     
-    // Update user name if authenticated
-    if (authenticated) {
-      const userNameDisplay = document.getElementById('user-name-display');
-      if (userNameDisplay) {
-        userNameDisplay.textContent = `(${getUserDisplayName()})`;
+    // Update publish buttons based on auth state
+    document.querySelectorAll('.publish-btn, [data-action="publish"]').forEach(el => {
+      if (authenticated) {
+        el.removeAttribute('disabled');
+        el.title = 'Publish card to gallery';
+      } else {
+        el.setAttribute('disabled', 'disabled');
+        el.title = 'Sign in to publish cards';
       }
-      
-      // Update card counts from actual card data
-      updateCardCounts();
-    }
+    });
+    
+    // Set data attributes for styling
+    document.body.setAttribute('data-is-authenticated', authenticated ? 'true' : 'false');
   }
-  
+    
   // Update card counts in the UI
   function updateCardCounts() {
+    debugLog('Updating card counts');
     const myCardsCount = document.getElementById('my-cards-count');
     const sharedCardsCount = document.getElementById('shared-cards-count');
     
@@ -243,6 +332,54 @@
     setInterval(updateAuthUI, 5000);
   }
 
+  // Expose the global CardForgeAuth object with public API methods
+  window.CardForgeAuth = {
+    // Core authentication functions
+    isAuthenticated,
+    getUserInfo,
+    getUserId,
+    getUserDisplayName,
+    
+    // UI management functions
+    updateUIForAuthState: updateAuthUI,
+    updateCardCounts,
+    
+    // Helper functions for card publish workflow
+    canPublishCards() {
+      return isAuthenticated() && !!getUserId();
+    },
+    
+    getAuthHeaders() {
+      const userId = getUserId();
+      if (!userId) return {};
+      
+      return {
+        'Content-Type': 'application/json',
+        'X-User-ID': userId,
+        'x-user-id': userId // Lowercase version for compatibility
+      };
+    },
+    
+    addAuthToRequest(requestOptions = {}) {
+      const userId = getUserId();
+      if (!userId) return requestOptions;
+      
+      // Clone the request options to avoid modifying the original
+      const options = { ...requestOptions };
+      
+      // Initialize headers if not present
+      if (!options.headers) {
+        options.headers = {};
+      }
+      
+      // Add auth headers
+      options.headers['X-User-ID'] = userId;
+      options.headers['x-user-id'] = userId; // Lowercase version for compatibility
+      
+      return options;
+    }
+  };
+  
   // Run when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
@@ -250,38 +387,5 @@
     init();
   }
   
-  // Expose the global CardForgeAuth object
-  window.CardForgeAuth = {
-    isSignedIn: isAuthenticated,
-    getUserId: function() {
-      const userInfo = getUserInfo();
-      if (!userInfo) {
-        debugLog('getUserId: No userInfo found in session');
-        return 'unknown';
-      }
-      
-      // Try all possible ID properties and log what we find for debugging
-      const possibleIds = ['id', 'userId', 'user_id', 'objectId', 'oid'];
-      let userId = 'unknown';
-      
-      for (const idProp of possibleIds) {
-        if (userInfo[idProp]) {
-          userId = userInfo[idProp];
-          debugLog(`getUserId: Found user ID in ${idProp} property: ${userId}`);
-          break;
-        }
-      }
-      
-      // If we still don't have an ID, log the entire userInfo object for debugging
-      if (userId === 'unknown') {
-        debugLog('getUserId: Could not find user ID in any expected property. UserInfo:', userInfo);
-      }
-      
-      return userId;
-    },
-    getUserName: getUserDisplayName,
-    getUserInfo: getUserInfo
-  };
-  
-  debugLog('CardForgeAuth global object created and exposed');
+  debugLog('CardForgeAuth module initialized and exported');
 })();

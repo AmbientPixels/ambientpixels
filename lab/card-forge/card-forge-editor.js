@@ -682,95 +682,172 @@ window.addEventListener('DOMContentLoaded', function() {
     }); // End cards.forEach
   } // End renderCardList
 
-  // Function to publish a card to the gallery
+  /**
+   * Publish a card to the public gallery
+   * @param {Object} card - The card object to publish
+   */
   function publishCardToGallery(card) {
+    // Input validation
     if (!card || !card.id) {
       debugError('Cannot publish card: Invalid card data');
+      alert('Cannot publish card: Invalid or incomplete card data');
       return;
     }
 
-    // Get user confirmation
-    if (!confirm(`Publish card "${card.name}" to the public gallery?\n\nThis will make it visible to everyone.`)) {
+    // Get user confirmation with clear details
+    const confirmMessage = `Publish card "${card.name}" to the public gallery?\n\nThis will make it visible to everyone on AmbientPixels.`;
+    if (!confirm(confirmMessage)) {
       return;
     }
 
     debugLog('Publishing card to gallery:', card);
     
-    // Check if user is signed in
+    // Authentication check
     const userId = CardForgeAuth.getUserId();
-    if (!userId) {
-      alert('You must be signed in to publish cards.');
+    const authState = document.body.getAttribute('data-auth-state');
+    
+    if (!userId || authState !== 'signed-in') {
+      debugError('Publish failed: Not authenticated');
+      alert('You must be signed in to publish cards to the gallery.');
       return;
     }
 
     debugLog('Publishing card with ID:', card.id, 'User ID:', userId);
-    debugLog('Auth state:', document.body.getAttribute('data-auth-state'));
+    debugLog('Auth state:', authState);
     
-    // Remove private notes before publishing
-    const cardToPublish = { ...card };
-    if (cardToPublish.privateNotes) {
-      delete cardToPublish.privateNotes;
+    // Show loading state in UI
+    const publishBtn = document.querySelector(`.card-list-actions .publish-btn[data-card-id="${card.id}"]`);
+    if (publishBtn) {
+      publishBtn.disabled = true;
+      publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     }
-
-    // Send both lowercase and original case headers for maximum compatibility
+    
+    // Create a clean copy of the card for publishing
+    // Remove any sensitive or private data
+    const cardToPublish = { ...card };
+    delete cardToPublish.privateNotes;
+    delete cardToPublish.personalInfo;
+    delete cardToPublish.email;
+    delete cardToPublish.secretNotes;
+    
+    // Ensure published flag is set
+    cardToPublish.isPublic = true;
+    cardToPublish.publishRequestTime = new Date().toISOString();
+    
+    // Set up robust headers with authentication
     const headers = {
       'Content-Type': 'application/json',
       'X-User-ID': userId,
-      'x-user-id': userId
+      'x-user-id': userId  // Add lowercase version for maximum compatibility
     };
 
-    // Use the correct cardforge API path structure
+    // Make API call to publish endpoint with proper error handling
     fetch(`/api/cardforge/cardpublish/${card.id}`, {
       method: 'POST',
       headers: headers,
       body: JSON.stringify({
         userId: userId,
-        card: card // Send the full card data for the backend
+        card: cardToPublish
       })
     })
     .then(response => {
-      debugLog('Publish response status:', response.status);
-      debugLog('Publish response headers:', JSON.stringify(Array.from(response.headers.entries())));
+      debugLog('Publish API response status:', response.status);
       
-      // Get response text first to debug any JSON parsing issues
+      // Get full response text for debugging and proper parsing
       return response.text().then(text => {
-        debugLog('Publish response text:', text);
+        let parsedData;
+        let errorMessage;
         
-        if (!response.ok) {
-          // Try to parse as JSON if possible
-          try {
-            const errorData = JSON.parse(text);
-            debugError('Parsed error response:', errorData);
-            throw new Error(`Server returned ${response.status}: ${errorData.message || errorData.error || response.statusText}`);
-          } catch (parseError) {
-            debugError('Failed to parse error response as JSON:', parseError);
-            throw new Error(`Server returned ${response.status}: ${response.statusText}`);
-          }
-        }
-        
-        // Try to parse success response as JSON
+        // Try to parse response as JSON regardless of status
         try {
-          const data = JSON.parse(text);
-          debugLog('Card published successfully:', data);
-          return data;
+          if (text) {
+            parsedData = JSON.parse(text);
+            debugLog('Parsed API response:', parsedData);
+          } else {
+            debugLog('Empty response body');
+          }
         } catch (parseError) {
-          debugError('Failed to parse success response as JSON:', parseError);
-          throw new Error('Invalid JSON response from server');
+          debugError('Failed to parse response as JSON:', parseError, 'Raw text:', text);
         }
+        
+        // Handle unsuccessful responses
+        if (!response.ok) {
+          if (parsedData) {
+            // Use structured error from API if available
+            errorMessage = parsedData.message || 
+                          parsedData.error || 
+                          `Server returned ${response.status}: ${response.statusText}`;
+            
+            debugError('API error:', parsedData);
+          } else {
+            // Fallback error handling
+            switch (response.status) {
+              case 401:
+                errorMessage = 'Authentication failed. Please sign in again.';
+                break;
+              case 403:
+                errorMessage = 'You don\'t have permission to publish this card.';
+                break;
+              case 404:
+                errorMessage = 'Publishing endpoint not found. Contact support.';
+                break;
+              case 429:
+                errorMessage = 'Too many publishing requests. Please try again later.';
+                break;
+              case 500:
+              case 502:
+              case 503:
+                errorMessage = 'Server error. Please try again later.';
+                break;
+              default:
+                errorMessage = `Server returned ${response.status}: ${response.statusText}`;
+            }
+          }
+          
+          throw new Error(errorMessage);
+        }
+        
+        // Return successful response data
+        return parsedData || { success: true, message: 'Card published successfully' };
       });
     })
     .then(data => {
-      // Update UI to show published status
+      debugLog('Card published successfully:', data);
+      
+      // Update card with published status and any returned data
       card.isPublic = true;
-      // Save the updated card status
+      card.isPublished = true;
+      card.publishedAt = data.publishedAt || new Date().toISOString();
+      
+      // If the API returned any updated card data, merge it
+      if (data.card) {
+        // Update only safe fields from the returned card
+        card.publishedUrl = data.card.publishedUrl;
+        card.viewCount = data.card.viewCount;
+        card.likeCount = data.card.likeCount;
+      }
+      
+      // Save the updated card status locally
       saveCards();
-      // Refresh the card list to show updated status
+      
+      // Refresh the UI
       renderCardList();
-      alert('Your card has been published to the gallery!');
+      renderPreview(currentCard);
+      
+      // Show success message
+      alert(`Success! "${card.name}" has been published to the gallery.`);
     })
     .catch(error => {
       debugError('Error publishing card:', error);
       alert(`Failed to publish card: ${error.message}`);
+    })
+    .finally(() => {
+      // Reset UI state
+      if (publishBtn) {
+        publishBtn.disabled = false;
+        publishBtn.innerHTML = `<i class="fas fa-${card.isPublic ? 'check-circle' : 'cloud-upload-alt'}"></i>`;
+        publishBtn.title = card.isPublic ? 'Published' : 'Publish to Gallery';
+      }
     });
   }
   
