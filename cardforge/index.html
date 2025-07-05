@@ -97,9 +97,31 @@
 
   <div id="footer-container"></div>
 
+  <!-- Configuration - MUST be before other scripts -->
+  <script>
+  window._config = {
+    // Set to correct API path if your Azure Functions are deployed to a different path
+    // Try these options by uncommenting one at a time:
+    
+    // Default: Standard Azure SWA API path
+    apiBasePath: '',
+    
+    // Option 1: If API is deployed at root level
+    // apiBasePath: '/cardforge',
+    
+    // Option 2: If API doesn't include 'cardforge' in path
+    // apiBasePath: '/api',
+    
+    // Debug settings
+    debug: true,
+    version: 'v2.0'
+  };
+  </script>
+  
   <!-- CSRF Protection and validation utilities - load before other scripts -->
   <script src="/cardforge/js/csrf-protection.js"></script>
   <script src="/cardforge/js/validation-utils.js"></script>
+  <script src="/cardforge/js/debug-utils.js"></script>
   <script src="/js/init-header-footer.js" defer></script>
   <script src="/js/init-quotes.js" defer></script>
   <script src="/js/md-inject.js" defer></script>

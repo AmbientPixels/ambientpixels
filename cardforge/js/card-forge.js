@@ -108,7 +108,12 @@ function getApiBaseUrl() {
         return 'http://localhost:7071'; // Azure Functions default port
     }
     
-    // In production, use relative paths (will be handled by SWA)
+    // In production, check if window._config exists (for custom API paths)
+    if (window._config && window._config.apiBasePath) {
+        return window._config.apiBasePath;
+    }
+    
+    // Default: use relative paths (will be handled by SWA)
     return '';
 }
 
@@ -132,20 +137,48 @@ async function loadCards() {
         isAuthenticated = true;
     }
     
-    console.log(`[CardForge] Fetching cards from: ${endpoint}`);
-
+    // Enable debugging for API calls
+    if (window._config?.debug) {
+        console.log(`[CardForge] Configuration:`, window._config);
+        console.log(`[CardForge] API Base URL: ${apiBase}`);
+        console.log(`[CardForge] Full endpoint: ${endpoint}`);
+        console.log(`[CardForge] Authentication status: ${isAuthenticated ? 'Authenticated' : 'Anonymous'}`);
+    }
+    
     if (listTitle) listTitle.textContent = title;
     if (saveBtn) saveBtn.disabled = !isAuthenticated;
 
     try {
-        const res = await fetch(endpoint);
+        console.log(`[CardForge] Fetching cards from: ${endpoint}`);
+        const res = await fetch(endpoint, {
+            // Add credentials to send cookies
+            credentials: 'include',
+            // Add proper headers
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        
+        // Log detailed response info
+        if (window._config?.debug) {
+            console.log(`[CardForge] Response status: ${res.status} ${res.statusText}`);
+            console.log(`[CardForge] Response headers:`, Object.fromEntries([...res.headers]));
+        }
+        
         if (res.ok) {
             cards = await res.json();
+            console.log(`[CardForge] Loaded ${cards.length} cards from ${endpoint}`);
         } else if (res.status !== 401) { // Ignore 401s for anonymous users
-            throw new Error(`HTTP ${res.status}`);
+            // Try to get more error details
+            let errorDetails = `HTTP ${res.status}`;
+            try {
+                const errorData = await res.text();
+                if (errorData) {
+                    errorDetails += ` - ${errorData}`;
+                }
+            } catch (e) { /* ignore */ }
+            throw new Error(errorDetails);
         }
-
-        console.log(`[CardForge] Loaded ${cards.length} cards from ${endpoint}`);
 
         // If there's a container for listing cards, render them.
         if (listEl) {
