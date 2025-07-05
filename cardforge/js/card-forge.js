@@ -127,12 +127,12 @@ async function loadCards() {
 
     let cards = [];
     const apiBase = getApiBaseUrl();
-    let endpoint = `${apiBase}/api/cardforge/gallery`;
+    let endpoint = `${apiBase}/api/cardforgegallery`;
     let title = 'Public Gallery';
     let isAuthenticated = false;
 
     if (account) {
-        endpoint = `${apiBase}/api/cardforge/mycards`;
+        endpoint = `${apiBase}/api/cardforgemycards`;
         title = 'My Cards';
         isAuthenticated = true;
     }
@@ -297,7 +297,7 @@ async function saveCard() {
       const account = window.authModule?.getCurrentUser();
       
       // Send the card data to the server
-      const response = await fetch(`${apiBase}/api/cardforge/savecards`, {
+      const response = await fetch(`${apiBase}/api/cardforgesavecards`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',

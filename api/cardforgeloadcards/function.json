@@ -6,8 +6,9 @@
       "direction": "in",
       "name": "req",
       "methods": [
-        "post"
-      ]
+        "get"
+      ],
+      "route": "cardforgeloadcards"
     },
     {
       "type": "http",
@@ -16,10 +17,10 @@
     },
     {
       "type": "blob",
-      "name": "outputBlob",
+      "name": "inputBlob",
       "path": "cardforge/user/{headers.x-ms-client-principal-id}/cards.json",
       "connection": "AZURE_STORAGE_CONNECTION_STRING",
-      "direction": "out"
+      "direction": "in"
     }
   ],
   "scriptFile": "index.js"

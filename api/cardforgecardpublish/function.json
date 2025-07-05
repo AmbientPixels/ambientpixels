@@ -6,8 +6,9 @@
       "direction": "in",
       "name": "req",
       "methods": [
-        "get"
-      ]
+        "post"
+      ],
+      "route": "cardforgecardpublish/{id}"
     },
     {
       "type": "http",
@@ -16,10 +17,17 @@
     },
     {
       "type": "blob",
-      "name": "inputBlob",
+      "name": "galleryBlob",
       "path": "cardforge/published-cards.json",
       "connection": "AZURE_STORAGE_CONNECTION_STRING",
       "direction": "in"
+    },
+    {
+      "type": "blob",
+      "name": "outputBlob",
+      "path": "cardforge/published-cards.json",
+      "connection": "AZURE_STORAGE_CONNECTION_STRING",
+      "direction": "out"
     }
   ],
   "scriptFile": "index.js"

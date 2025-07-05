@@ -7,19 +7,13 @@
       "name": "req",
       "methods": [
         "get"
-      ]
+      ],
+      "route": "cardforgedebug"
     },
     {
       "type": "http",
       "direction": "out",
       "name": "res"
-    },
-    {
-      "type": "blob",
-      "name": "inputBlob",
-      "path": "cardforge/user/{headers.x-ms-client-principal-id}/cards.json",
-      "connection": "AZURE_STORAGE_CONNECTION_STRING",
-      "direction": "in"
     }
   ],
   "scriptFile": "index.js"

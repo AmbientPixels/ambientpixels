@@ -7,7 +7,8 @@
       "name": "req",
       "methods": [
         "get"
-      ]
+      ],
+      "route": "cardforgemycards"
     },
     {
       "type": "http",
@@ -17,7 +18,7 @@
     {
       "type": "blob",
       "name": "inputBlob",
-      "path": "cardforge/published-cards.json",
+      "path": "cardforge/user/{headers.x-ms-client-principal-id}/cards.json",
       "connection": "AZURE_STORAGE_CONNECTION_STRING",
       "direction": "in"
     }

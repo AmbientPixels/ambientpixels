@@ -25,32 +25,32 @@
   },
   "routes": [
     {
-      "route": "/api/cardforge/gallery",
+      "route": "/api/cardforgegallery",
       "methods": ["GET"],
       "allowedRoles": ["anonymous", "authenticated"]
     },
     {
-      "route": "/api/cardforge/cards",
+      "route": "/api/cardforgecards",
       "methods": ["GET"],
       "allowedRoles": ["anonymous", "authenticated"]
     },
     {
-      "route": "/api/cardforge/mycards",
+      "route": "/api/cardforgemycards",
       "methods": ["GET"],
       "allowedRoles": ["authenticated"]
     },
     {
-      "route": "/api/cardforge/loadcards",
+      "route": "/api/cardforgeloadcards",
       "methods": ["GET"],
       "allowedRoles": ["authenticated"]
     },
     {
-      "route": "/api/cardforge/savecards",
+      "route": "/api/cardforgesavecards",
       "methods": ["POST"],
       "allowedRoles": ["authenticated"]
     },
     {
-      "route": "/api/cardforge/cardpublish",
+      "route": "/api/cardforgecardpublish",
       "methods": ["POST"],
       "allowedRoles": ["authenticated"]
     }

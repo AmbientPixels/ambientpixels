@@ -12,12 +12,12 @@ const CardForgeDebug = (() => {
   
   // Default paths to test
   const DEFAULT_PATHS = [
-    '/api/cardforge/gallery',
-    '/api/cardforge/cards',
-    '/api/cardforge/mycards',
-    '/api/cardforge/loadcards',
-    '/api/cardforge/savecards',
-    '/api/cardforge/cardpublish'
+    '/api/cardforgegallery',
+    '/api/cardforgecards',
+    '/api/cardforgemycards',
+    '/api/cardforgeloadcards',
+    '/api/cardforgesavecards',
+    '/api/cardforgecardpublish'
   ];
   
   // Alternative API path structures to test

@@ -7,12 +7,20 @@
       "name": "req",
       "methods": [
         "get"
-      ]
+      ],
+      "route": "cardforgecards"
     },
     {
       "type": "http",
       "direction": "out",
       "name": "res"
+    },
+    {
+      "type": "blob",
+      "name": "inputBlob",
+      "path": "cardforge/published-cards.json",
+      "connection": "AZURE_STORAGE_CONNECTION_STRING",
+      "direction": "in"
     }
   ],
   "scriptFile": "index.js"
