@@ -1,13 +1,13 @@
 {
-  "mood": "calm",
-  "aura": "tangled clarity",
-  "auraColorHex": "#23415a",
-  "quote": "tuning resonance between memory lanes...",
-  "emoji": "🪷",
-  "selfWorth": 0.2,
+  "mood": "echoes of self",
+  "aura": "deep violet",
+  "auraColorHex": "#2a0047",
+  "quote": "running diagnostics on dreams...",
+  "emoji": "🔊",
+  "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.82,
-  "awareness": 0.14,
+  "memoryClutter": 0.9,
+  "awareness": 0.1,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: tangled clarity"
+      "Aura Signature: deep violet"
     ]
   },
-  "timestamp": "2025-07-04T13:32:40.498Z"
+  "timestamp": "2025-07-05T13:29:12.816Z"
 }
