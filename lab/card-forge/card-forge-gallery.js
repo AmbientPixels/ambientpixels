@@ -39,7 +39,7 @@ window.CardForgeGallery = (function() {
     updateUIForAuthState();
     
     // Load the appropriate content based on auth state
-    if (window.CardForgeAuth && window.CardForgeAuth.isSignedIn()) {
+    if (window.CardForgeAuth && window.CardForgeAuth.isAuthenticated()) {
       loadUserLibrary();
     } else {
       loadGalleryCards();
@@ -99,7 +99,7 @@ window.CardForgeGallery = (function() {
    * Update UI based on authentication state
    */
   function updateUIForAuthState() {
-    const isSignedIn = window.CardForgeAuth && window.CardForgeAuth.isSignedIn();
+    const isSignedIn = window.CardForgeAuth && window.CardForgeAuth.isAuthenticated();
     
     if (elements.galleryContainer) {
       elements.galleryContainer.classList.toggle('signed-out', !isSignedIn);
