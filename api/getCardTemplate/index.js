@@ -1,0 +1,88 @@
+module.exports = async function (context, req) {
+  context.log('JavaScript HTTP trigger function processed a request for card template.');
+
+  try {
+    // Get template type from query parameter (default to "character")
+    const templateType = (req.query.type || "character").toLowerCase();
+    
+    // Define different card templates
+    const templates = {
+      "character": {
+        id: "template-character",
+        name: "Character Card",
+        fields: {
+          name: "",
+          title: "",
+          description: "",
+          attributes: {
+            strength: 0,
+            intelligence: 0,
+            charisma: 0,
+            agility: 0
+          },
+          backstory: "",
+          imageUrl: "/images/placeholders/character-default.jpg"
+        },
+        theme: "nova-crystalline",
+        version: "1.0.0"
+      },
+      "location": {
+        id: "template-location",
+        name: "Location Card",
+        fields: {
+          name: "",
+          region: "",
+          description: "",
+          features: [],
+          history: "",
+          imageUrl: "/images/placeholders/location-default.jpg"
+        },
+        theme: "nova-ambient",
+        version: "1.0.0"
+      },
+      "item": {
+        id: "template-item",
+        name: "Item Card",
+        fields: {
+          name: "",
+          type: "",
+          description: "",
+          properties: {
+            rarity: "common",
+            value: 0,
+            weight: 0
+          },
+          lore: "",
+          imageUrl: "/images/placeholders/item-default.jpg"
+        },
+        theme: "nova-flux",
+        version: "1.0.0"
+      }
+    };
+
+    // Return the requested template or a 404 if not found
+    if (templates[templateType]) {
+      context.res = {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: templates[templateType]
+      };
+    } else {
+      context.res = {
+        status: 404,
+        body: { 
+          error: "Template not found", 
+          availableTemplates: Object.keys(templates)
+        }
+      };
+    }
+  } catch (error) {
+    context.log.error("Error in getCardTemplate function:", error);
+    context.res = {
+      status: 500,
+      body: { error: "Internal server error: " + error.message }
+    };
+  }
+};

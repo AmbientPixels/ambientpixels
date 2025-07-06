@@ -12,6 +12,7 @@ const CardForgeDebug = (() => {
   
   // Default paths to test
   const DEFAULT_PATHS = [
+    '/api/getCardTemplate',
     '/api/cardforgegallery',
     '/api/cardforgecards',
     '/api/cardforgemycards',
