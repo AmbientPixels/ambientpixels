@@ -1,0 +1,26 @@
+{
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "get"
+      ],
+      "route": "cardforgemycards/{userId}"
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
+    },
+    {
+      "type": "blob",
+      "direction": "in",
+      "name": "userCardsBlob",
+      "path": "cardforge/users/{userId}/cards.json",
+      "connection": "AZURE_STORAGE_CONNECTION_STRING"
+    }
+  ]
+}

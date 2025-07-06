@@ -1,0 +1,33 @@
+{
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "post"
+      ],
+      "route": "cardforgecardpublish"
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
+    },
+    {
+      "type": "blob",
+      "direction": "in",
+      "name": "galleryBlob",
+      "path": "cardforge/gallery.json",
+      "connection": "AZURE_STORAGE_CONNECTION_STRING"
+    },
+    {
+      "type": "blob",
+      "direction": "out",
+      "name": "outputGalleryBlob",
+      "path": "cardforge/gallery.json",
+      "connection": "AZURE_STORAGE_CONNECTION_STRING"
+    }
+  ]
+}
