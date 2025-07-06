@@ -1,4 +1,73 @@
 const { BlobServiceClient } = require('@azure/storage-blob');
+const { DefaultAzureCredential } = require('@azure/identity');
+
+/* updated by Cascade */
+
+// Configuration constants
+const STORAGE_ACCOUNT_NAME = 'cardforgeblobdata';
+const CONTAINER_NAME = 'cardforge';
+
+/**
+ * Creates an authenticated BlobServiceClient using managed identity
+ * @returns {BlobServiceClient} - Authenticated blob service client
+ */
+async function createBlobServiceClient() {
+  // Use DefaultAzureCredential which supports managed identities
+  // This works in Azure Functions, Azure App Service, and other Azure services
+  const credential = new DefaultAzureCredential();
+  
+  // Create blob service client with credential
+  const blobServiceClient = new BlobServiceClient(
+    `https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net`,
+    credential
+  );
+  
+  return blobServiceClient;
+}
+
+/**
+ * Performs a blob operation with retry logic
+ * @param {Function} operation - The operation to perform
+ * @param {string} operationName - Name of the operation for logging
+ * @param {object} context - Azure Function context for logging
+ * @param {number} maxRetries - Maximum number of retries
+ * @returns {Promise<any>} - Result of the operation
+ */
+async function withRetry(operation, operationName, context, maxRetries = 3) {
+  let lastError;
+  
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      if (attempt > 0) {
+        context.log(`Retry attempt ${attempt + 1}/${maxRetries} for ${operationName}`);
+      }
+      
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      const retryableErrors = ['ECONNRESET', 'ETIMEDOUT', 'ESOCKETTIMEDOUT', 'EPIPE', 'REQUEST_SEND_ERROR'];
+      
+      // Check if this is a retryable error
+      const isRetryable = 
+        error.code && retryableErrors.includes(error.code) ||
+        error.statusCode && (error.statusCode === 429 || (error.statusCode >= 500 && error.statusCode < 600));
+      
+      if (!isRetryable) {
+        context.log.error(`Non-retryable error in ${operationName}: ${error.message}`);
+        throw error;
+      }
+      
+      // Use exponential backoff with jitter
+      const delay = Math.min(Math.pow(2, attempt) * 100 + Math.random() * 100, 3000);
+      context.log.warn(`Retryable error in ${operationName}: ${error.message}. Retrying in ${delay}ms`);
+      
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  context.log.error(`Operation ${operationName} failed after ${maxRetries} attempts`);
+  throw lastError;
+}
 
 module.exports = async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request for cardforgesavecards');
@@ -56,41 +125,82 @@ module.exports = async function (context, req) {
       return;
     }
 
-    // Get connection string from environment variable
-    const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
-    if (!connectionString) {
-      throw new Error("AZURE_STORAGE_CONNECTION_STRING is not set.");
-    }
-
-    // Create blob service client
-    const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-    const containerName = 'cardforge';
+    // Create authenticated blob service client with managed identity
+    context.log('Creating authenticated blob service client with managed identity');
+    const blobServiceClient = await createBlobServiceClient();
+    context.log(`Connected to Blob Storage account: ${STORAGE_ACCOUNT_NAME}`);
     
-    // Try to get container client, create if it doesn't exist
-    const containerClient = blobServiceClient.getContainerClient(containerName);
+    // Get container client
+    const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
+    context.log(`Using container: ${CONTAINER_NAME}`);
+    
+    // Verify container exists (with retry logic)
     try {
-      await containerClient.createIfNotExists();
-      context.log(`Container '${containerName}' created or already exists.`);
+      const containerExists = await withRetry(
+        () => containerClient.exists(),
+        `check if container exists (${CONTAINER_NAME})`,
+        context
+      );
+      
+      if (!containerExists) {
+        throw new Error(`Container ${CONTAINER_NAME} does not exist`);
+      }
+      
+      context.log(`Container '${CONTAINER_NAME}' verified.`);
     } catch (error) {
-      context.log.error(`Error creating container: ${error.message}`);
-      throw new Error(`Failed to create container: ${error.message}`);
+      context.log.error(`Error verifying container: ${error.message}`);
+      throw new Error(`Failed to access container: ${error.message}`);
     }
 
     // Path to user's cards file
     const userBlobPath = `user/${userId}/cards.json`;
-    const blobClient = containerClient.getBlobClient(userBlobPath);
+    // Use BlockBlobClient for all operations to be consistent
+    const userBlobClient = containerClient.getBlockBlobClient(userBlobPath);
+    let userCards = { cards: [] };
     
-    // Check if the user's cards file exists
-    let userCards = { cards: [], lastUpdated: new Date().toISOString() };
-    const exists = await blobClient.exists();
-    
-    if (exists) {
-      // Download and parse the user's cards
-      const downloadResponse = await blobClient.download();
-      const content = await streamToText(downloadResponse.readableStreamBody);
-      userCards = JSON.parse(content);
+    try {
+      // Check if blob exists with retry
+      const userBlobExists = await withRetry(
+        () => userBlobClient.exists(),
+        `check if user blob exists (${userBlobPath})`,
+        context
+      );
+      
+      if (userBlobExists) {
+        // Download the existing cards with retry
+        const downloadResponse = await withRetry(
+          () => userBlobClient.download(),
+          `download user blob (${userBlobPath})`,
+          context
+        );
+        
+        const blobContents = await streamToText(downloadResponse.readableStreamBody);
+        
+        try {
+          // Parse and validate the JSON structure
+          userCards = JSON.parse(blobContents);
+          
+          // Validate the structure
+          if (!userCards || !userCards.cards || !Array.isArray(userCards.cards)) {
+            context.log.warn(`Invalid user cards format for ${userId}, resetting to empty array`);
+            userCards = { cards: [] };
+          }
+          
+          context.log(`Downloaded existing cards for user ${userId}, found ${userCards.cards.length} cards.`);
+        } catch (parseError) {
+          context.log.error(`Error parsing user cards JSON: ${parseError.message}`);
+          context.log.warn(`Creating new cards structure for user ${userId} due to parsing error`);
+          userCards = { cards: [] };
+        }
+      } else {
+        context.log(`No existing cards for user ${userId}, will create new cards file.`);
+      }
+    } catch (error) {
+      context.log.error(`Error checking or downloading user cards: ${error.message}`);
+      // Continue with empty cards array
+      userCards = { cards: [] };
     }
-    
+
     // Check if the card already exists (update) or is new (add)
     const existingCardIndex = userCards.cards.findIndex(c => c.id === card.id);
     
@@ -116,10 +226,17 @@ module.exports = async function (context, req) {
     // Update the lastUpdated timestamp
     userCards.lastUpdated = new Date().toISOString();
     
-    // Upload the updated cards file
-    const blockBlobClient = containerClient.getBlockBlobClient(userBlobPath);
+    // Upload the updated cards file with retry logic
     const data = JSON.stringify(userCards);
-    await blockBlobClient.upload(data, data.length);
+    await withRetry(
+      () => userBlobClient.upload(data, data.length, {
+        blobHTTPHeaders: { blobContentType: 'application/json' }
+      }),
+      `upload user cards (${userBlobPath})`,
+      context
+    );
+    
+    context.log(`Successfully saved card data for user ${userId}`);
     
     // Return success response
     context.res = {

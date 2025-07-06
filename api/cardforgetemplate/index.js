@@ -1,3 +1,9 @@
+/* updated by Cascade */
+
+/**
+ * CardForge Template API
+ * Returns card templates based on requested type
+ */
 module.exports = async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request for cardforgetemplate');
 
