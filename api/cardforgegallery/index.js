@@ -1,4 +1,18 @@
-const responseFormatter = require('../shared/response-formatter');
+// Simple response formatter function
+function formatResponse(statusCode, body) {
+    return {
+        status: statusCode,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: body
+    };
+}
+
+// Simple error formatter function
+function formatError(statusCode, message) {
+    return formatResponse(statusCode, { error: message });
+}
 
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request to gallery.');
@@ -13,7 +27,7 @@ module.exports = async function (context, req) {
 
         // Validate parameters
         if (page < 1 || pageSize < 1 || pageSize > 100) {
-            context.res = responseFormatter.formatError(400, 'Invalid pagination parameters. Page must be >= 1 and pageSize must be between 1 and 100.');
+            context.res = formatError(400, 'Invalid pagination parameters. Page must be >= 1 and pageSize must be between 1 and 100.');
             return;
         }
 
@@ -52,7 +66,7 @@ module.exports = async function (context, req) {
         const paginatedCards = filteredCards.slice(startIndex, startIndex + pageSize);
 
         // Return paginated results with metadata
-        context.res = responseFormatter.formatSuccess({
+        context.res = formatResponse(200, {
             cards: paginatedCards,
             pagination: {
                 page,
@@ -66,6 +80,6 @@ module.exports = async function (context, req) {
     } catch (error) {
         context.log.error('Error retrieving gallery cards:', error);
         const details = process.env.NODE_ENV === 'development' ? { message: error.message } : null;
-        context.res = responseFormatter.formatError(500, 'Failed to retrieve gallery cards', details);
+        context.res = formatError(500, 'Failed to retrieve gallery cards', details);
     }
 };

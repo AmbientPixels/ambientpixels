@@ -1,20 +1,37 @@
-const responseFormatter = require('../shared/response-formatter');
-const authValidator = require('../shared/auth-validator');
+// Simple response formatter function
+function formatResponse(statusCode, body) {
+    return {
+        status: statusCode,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: body
+    };
+}
+
+// Simple error formatter function
+function formatError(statusCode, message) {
+    return formatResponse(statusCode, { error: message });
+}
 
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request to mycards.');
 
     try {
-        // Enhanced authentication check
-        const authError = authValidator.requireAuthentication(context, req);
-        if (authError) {
-            context.res = authError;
-            return;
+        // Simple authentication using headers if available
+        const userHeader = req.headers['x-ms-client-principal'];
+        let username = 'anonymous';
+        
+        if (userHeader) {
+            try {
+                const userInfo = JSON.parse(Buffer.from(userHeader, 'base64').toString('ascii'));
+                username = userInfo.userDetails || 'anonymous';
+                context.log('User identified:', username);
+            } catch (error) {
+                context.log.warn('Failed to parse user info:', error.message);
+            }
         }
-
-        // Get user info
-        const userInfo = authValidator.getUserInfo(req, context);
-        context.log('User authenticated:', userInfo.userDetails);
+        context.log('User identified:', username);
 
         // Get pagination parameters from query string
         const page = parseInt(req.query.page) || 1;
@@ -31,7 +48,7 @@ module.exports = async function (context, req) {
 
         // Validate pagination parameters
         if (page < 1 || pageSize < 1 || pageSize > 100) {
-            context.res = responseFormatter.formatError(400, 'Invalid pagination parameters. Page must be >= 1 and pageSize must be between 1 and 100.');
+            context.res = formatError(400, 'Invalid pagination parameters. Page must be >= 1 and pageSize must be between 1 and 100.');
             return;
         }
 
@@ -70,7 +87,7 @@ module.exports = async function (context, req) {
         const paginatedCards = filteredCards.slice(startIndex, startIndex + pageSize);
 
         // Return paginated results with metadata
-        context.res = responseFormatter.formatSuccess({
+        context.res = formatResponse(200, {
             cards: paginatedCards,
             pagination: {
                 page,
@@ -84,7 +101,7 @@ module.exports = async function (context, req) {
     } catch (error) {
         context.log.error('Error retrieving user cards:', error);
         const details = process.env.NODE_ENV === 'development' ? { message: error.message } : null;
-        context.res = responseFormatter.formatError(500, 'Failed to retrieve user cards', details);
+        context.res = formatError(500, 'Failed to retrieve user cards', details);
     }
 };
 
@@ -94,7 +111,7 @@ module.exports = async function (context, req) {
  * @param {object} userInfo - User information from authentication
  * @param {string} cardId - ID of the card to retrieve
  */
-function handleSingleCardAccess(context, userInfo, cardId) {
+function handleSingleCardAccess(context, username, cardId) {
     // Get all user cards
     const allCards = context.bindings.inputBlob || [];
     
@@ -102,21 +119,21 @@ function handleSingleCardAccess(context, userInfo, cardId) {
     const card = allCards.find(c => c.id === cardId);
     
     if (!card) {
-        context.res = responseFormatter.formatNotFoundError('Card not found');
+        context.res = formatError(404, 'Card not found');
         return;
     }
     
     // Verify card belongs to authenticated user
-    if (card.userId && card.userId !== userInfo.userId && card.userId !== userInfo.userDetails) {
+    if (card.userId && card.userId !== userInfo.userId && card.userId !== username) {
         context.log.warn('Card ownership mismatch:', {
             cardUserId: card.userId,
             requestUserId: userInfo.userId,
             requestUserDetails: userInfo.userDetails
         });
-        context.res = responseFormatter.formatForbiddenError("You don't have permission to access this card");
+        context.res = formatError(403, "You don't have permission to access this card");
         return;
     }
     
     // Return the card
-    context.res = responseFormatter.formatSuccess({ card });
+    context.res = formatResponse(200, { card });
 }
