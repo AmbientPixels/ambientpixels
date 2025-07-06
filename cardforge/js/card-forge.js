@@ -121,7 +121,9 @@ async function loadCards() {
 
     let cards = [];
     const apiBase = getApiBaseUrl();
-    let endpoint = `${apiBase}/api/cardforgeloadcards`;
+    // Avoid double /api paths by checking if apiBase already ends with /api
+    const apiPath = apiBase.endsWith('/api') ? '' : '/api';
+    let endpoint = `${apiBase}${apiPath}/cardforgeloadcards`;
     let title = 'Public Gallery';
     let isAuthenticated = false;
 
@@ -310,8 +312,11 @@ async function saveCard() {
       // This function needs to be exposed by the auth scripts
       const account = window.authModule?.getCurrentUser();
       
+      // Avoid double /api paths by checking if apiBase already ends with /api
+      const apiPath = apiBase.endsWith('/api') ? '' : '/api';
+      
       // Send the card data to the server
-      const response = await fetch(`${apiBase}/api/cardforgesavecards`, {
+      const response = await fetch(`${apiBase}${apiPath}/cardforgesavecards`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',

@@ -47,8 +47,11 @@
       // Get API base URL
       const apiBase = getApiBaseUrl();
       
+      // Avoid double /api paths by checking if apiBase already ends with /api
+      const apiPath = apiBase.endsWith('/api') ? '' : '/api';
+      
       // Fetch template from API
-      const response = await fetch(`${apiBase}/api/cardforgetemplate?type=${templateType}`);
+      const response = await fetch(`${apiBase}${apiPath}/cardforgetemplate?type=${templateType}`);
       
       if (!response.ok) {
         throw new Error(`Failed to load template: ${response.status}`);

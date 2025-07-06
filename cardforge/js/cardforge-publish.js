@@ -24,6 +24,9 @@ async function publishCard() {
     // Get API base URL - uses the shared getApiBaseUrl() function from card-forge.js
     const apiBase = getApiBaseUrl();
     
+    // Avoid double /api paths by checking if apiBase already ends with /api
+    const apiPath = apiBase.endsWith('/api') ? '' : '/api';
+    
     // Show publishing indicator
     const publishBtn = document.getElementById('publish-btn');
     if (publishBtn) {
@@ -32,7 +35,7 @@ async function publishCard() {
     }
     
     // Call the cardforgepublish API
-    const response = await fetch(`${apiBase}/api/cardforgepublish`, {
+    const response = await fetch(`${apiBase}${apiPath}/cardforgepublish`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
