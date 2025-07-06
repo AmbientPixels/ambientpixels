@@ -60,13 +60,15 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
 - **To test the gallery:** Open the browser console and run `CardForgeTests.runAll()` to check both signed-in and signed-out experiences. Use `CardForgeTests.testLoadGallery()` or `CardForgeTests.testLoadPersonalLibrary()` for targeted tests.
 - **API requirements:** Ensure Azure Blob Storage is set up and `AZURE_STORAGE_CONNECTION_STRING` is configured in your environment for API endpoints to work.
 - **Authentication:** Ambient Pixels authentication scripts must be loaded (see `/auth/authUI.js`).
-- **Endpoints:** (Updated July 4, 2025)
-  - `/api/cardforge/cards` — public gallery (GET)
-  - `/api/cardforge/mycards` — personal library (GET, authenticated)
-  - `/api/cardforge/cardpublish/:id` — publish card (POST, authenticated)
-  - `/api/cardforge/loadcards` — load user cards (GET)
-  - `/api/cardforge/savecards` — save user cards (POST)
-  - `/api/cardforge/gallery` — gallery view (GET)
+- **Data Storage:** (Updated July 6, 2025)
+  - `default-cards.json` — Example cards for logged-out users
+  - `published-cards.json` — Public gallery cards
+  - `user/{userId}/cards.json` — Personal cards for each authenticated user
+- **Endpoints:** (Updated July 6, 2025)
+  - `/api/cardforgetemplate` — Get card template by type (GET)
+  - `/api/cardforgeloadcards` — Load user cards and gallery (GET)
+  - `/api/cardforgesavecards` — Save user cards (POST, authenticated)
+  - `/api/cardforgepublish` — Publish card to gallery (POST, authenticated)
 
 ---
 

@@ -11,6 +11,13 @@ All CardForge APIs follow a consistent naming convention:
 - Case: all lowercase
 - Example: `cardforgetemplate`, `cardforgeloadcards`, `cardforgesavecards`
 
+## Data Storage
+
+CardForge uses Azure Blob Storage for data persistence:
+- **Default Cards**: `default-cards.json` - Contains example cards for logged-out users
+- **Published Cards**: `published-cards.json` - Contains cards for the public gallery
+- **User Cards**: `user/{userId}/cards.json` - Contains cards for each authenticated user
+
 ## API Endpoints
 
 ### GET `/api/cardforgetemplate`
@@ -48,28 +55,50 @@ Returns a template for creating cards based on the specified type.
 
 ### GET `/api/cardforgeloadcards`
 
-Loads cards based on the user's authentication status. For signed-in users, returns their personal cards. For anonymous users, returns public gallery cards.
+Loads cards based on the user's authentication status. For signed-in users, returns their personal cards from Blob Storage. For anonymous users, returns default cards. In both cases, also returns the public gallery cards.
 
 **Headers:**
 - `X-User-ID` (string): The user's ID for authentication. If not provided or "anonymous", user is treated as anonymous.
 
 **Response:**
 ```json
-[
-  {
-    "id": "card-123456",
-    "name": "Card Name",
-    "class": "Card Class",
-    "quote": "Card Quote",
-    "avatar": "https://example.com/image.jpg",
-    "achievement": "Card Achievement",
-    "createdAt": "2025-07-06T12:00:00Z",
-    "lastModified": "2025-07-06T12:30:00Z",
-    "userId": "user-123"
-  }
-  // Additional cards...
-]
+{
+  "userCards": [
+    {
+      "id": "card-123456",
+      "name": "Card Name",
+      "class": "Card Class",
+      "quote": "Card Quote",
+      "avatar": "https://example.com/image.jpg",
+      "achievement": "Card Achievement",
+      "createdAt": "2025-07-06T12:00:00Z",
+      "lastModified": "2025-07-06T12:30:00Z",
+      "userId": "user-123"
+    }
+    // Additional user cards...
+  ],
+  "galleryCards": [
+    {
+      "id": "gallery-123456",
+      "name": "Gallery Card",
+      "class": "Gallery Class",
+      "quote": "Gallery Quote",
+      "avatar": "https://example.com/gallery-image.jpg",
+      "achievement": "Gallery Achievement",
+      "createdAt": "2025-07-05T10:00:00Z",
+      "lastModified": "2025-07-05T10:30:00Z",
+      "userId": "publisher-123",
+      "publishedAt": "2025-07-05T11:00:00Z"
+    }
+    // Additional gallery cards...
+  ]
+}
 ```
+
+**Data Sources:**
+- For authenticated users: `user/{userId}/cards.json` in Blob Storage
+- For anonymous users: `default-cards.json` in Blob Storage
+- Gallery cards: `published-cards.json` in Blob Storage
 
 **Status Codes:**
 - 200: Success
