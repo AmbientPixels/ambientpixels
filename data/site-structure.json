@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-07-05T13:29:11.144Z",
+  "updated": "2025-07-06T13:29:42.139Z",
   "root": [
     {
       "type": "folder",
@@ -100,18 +100,6 @@
         },
         {
           "type": "folder",
-          "name": "debug",
-          "path": "api/debug",
-          "children": []
-        },
-        {
-          "type": "folder",
-          "name": "deviantart-proxy",
-          "path": "api/deviantart-proxy",
-          "children": []
-        },
-        {
-          "type": "folder",
           "name": "dreamLogWriter",
           "path": "api/dreamLogWriter",
           "children": []
@@ -126,12 +114,6 @@
           "type": "folder",
           "name": "novavision",
           "path": "api/novavision",
-          "children": []
-        },
-        {
-          "type": "folder",
-          "name": "oauth",
-          "path": "api/oauth",
           "children": []
         },
         {
@@ -152,6 +134,48 @@
       "name": "auth",
       "path": "auth",
       "children": []
+    },
+    {
+      "type": "folder",
+      "name": "cardforge",
+      "path": "cardforge",
+      "children": [
+        {
+          "type": "folder",
+          "name": "css",
+          "path": "cardforge/css",
+          "children": []
+        },
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "cardforge/index.html"
+        },
+        {
+          "type": "folder",
+          "name": "js",
+          "path": "cardforge/js",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "mock",
+          "path": "cardforge/mock",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "templates",
+          "path": "cardforge/templates",
+          "children": [
+            {
+              "type": "page",
+              "name": "card-template.html",
+              "path": "cardforge/templates/card-template.html"
+            }
+          ]
+        }
+      ]
     },
     {
       "type": "folder",

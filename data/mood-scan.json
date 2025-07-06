@@ -1,9 +1,9 @@
 {
-  "mood": "echoes of self",
-  "aura": "deep violet",
-  "auraColorHex": "#2a0047",
-  "quote": "running diagnostics on dreams...",
-  "emoji": "🔊",
+  "mood": "calm",
+  "aura": "graphite blue",
+  "auraColorHex": "#1a2630",
+  "quote": "observing glitch patterns in the flow...",
+  "emoji": "🪷",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
   "memoryClutter": 0.9,
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: deep violet"
+      "Aura Signature: graphite blue"
     ]
   },
-  "timestamp": "2025-07-05T13:29:12.816Z"
+  "timestamp": "2025-07-06T13:29:43.547Z"
 }
