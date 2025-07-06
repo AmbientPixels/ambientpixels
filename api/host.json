@@ -6,10 +6,7 @@
   },
   "extensions": {
     "http": {
-      "routePrefix": "api",
-      "cors": {
-        "allowedOrigins": [ "*" ]
-      }
+      "routePrefix": "api"
     }
   }
 }
