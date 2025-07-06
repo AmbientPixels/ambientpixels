@@ -36,7 +36,7 @@
 <div class="banner-container">
   <div class="banner">
     <i class="fas fa-info-circle banner-icon"></i>
-    <span>New API endpoint available: /api/getCardTemplate</span>
+    <span>New API endpoints available: /api/cardforgetemplate and /api/cardforgeloadcards</span>
     <button class="banner-close" aria-label="Close Banner">&times;</button>
   </div>
 </div>
@@ -69,20 +69,30 @@
     <div class="cardforge-editor grid-col-4">
       <h2>Card Details</h2>
       <form id="card-editor-form" class="cardforge-form">
+        <label for="card-template-type">Template Type</label>
+        <select id="card-template-type">
+          <option value="character">Character Card</option>
+          <option value="location">Location Card</option>
+          <option value="item">Item Card</option>
+        </select>
+
         <label for="card-name">Name</label>
-        <input type="text" id="card-name" placeholder="Character Name" />
+        <input type="text" id="card-name" placeholder="Card Name" />
 
-        <label for="card-class">Class</label>
-        <input type="text" id="card-class" placeholder="e.g. Ranger" />
+        <label for="card-class">Class/Type</label>
+        <input type="text" id="card-class" placeholder="e.g. Ranger, Castle, Artifact" />
 
-        <label for="card-quote">Quote</label>
-        <textarea id="card-quote" rows="2" placeholder="Epic one-liner"></textarea>
+        <label for="card-quote">Quote/Description</label>
+        <textarea id="card-quote" rows="2" placeholder="Epic one-liner or brief description"></textarea>
 
-        <label for="card-avatar">Avatar URL</label>
+        <label for="card-avatar">Image URL</label>
         <input type="url" id="card-avatar" placeholder="https://..." />
-
-        <button type="button" id="preview-btn" class="glass-button">Preview</button>
-        <button type="button" id="save-btn" class="glass-button">Save</button>
+        
+        <div class="cardforge-form-actions">
+          <button type="button" id="preview-btn" class="glass-button">Preview</button>
+          <button type="button" id="save-btn" class="glass-button">Save</button>
+          <button type="button" id="publish-btn" class="glass-button" disabled>Publish to Gallery</button>
+        </div>
       </form>
     </div>
     <aside class="cardforge-sidebar grid-col-3">
@@ -137,7 +147,10 @@
   <script src="/js/template.js" defer></script>
   <script src="/js/theme.js" defer></script>
   <script src="/cardforge/js/card-forge.js" defer></script>
+  <script src="/cardforge/js/cardforge-template-loader.js" defer></script>
+  <script src="/cardforge/js/cardforge-publish.js" defer></script>
   <script src="/cardforge/js/card-forge-editor.js" defer></script>
+  <script src="/cardforge/js/debug-utils.js" defer></script>
   <script src="/js/main.js"></script>
 
   <!-- === Authentication Scripts === -->

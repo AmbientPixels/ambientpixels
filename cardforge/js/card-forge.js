@@ -99,21 +99,12 @@ function showMessage(message, type = 'info') {
 
 // Helper to determine API base URL based on environment
 function getApiBaseUrl() {
-    // Check if we're running locally
-    const isLocalDev = window.location.hostname === 'localhost' || 
-                      window.location.hostname === '127.0.0.1';
-    
-    // For local development, use the local API
-    if (isLocalDev) {
-        return 'http://localhost:7071'; // Azure Functions default port
-    }
-    
-    // In production, check if window._config exists (for custom API paths)
+    // Check if window._config exists (for custom API paths)
     if (window._config && window._config.apiBasePath) {
         return window._config.apiBasePath;
     }
     
-    // Default: use relative paths (will be handled by SWA)
+    // Default: use relative paths (will be handled by Azure Static Web Apps)
     return '';
 }
 
@@ -121,20 +112,40 @@ async function loadCards() {
     const listEl = document.getElementById('my-cards-list');
     const listTitle = document.querySelector('.cardforge-sidebar h2');
     const saveBtn = document.getElementById('save-btn');
+    const previewBtn = document.getElementById('preview-btn');
+    const cardEditorForm = document.getElementById('card-editor-form');
+    const templateSelector = document.getElementById('card-template-type');
 
     // This function needs to be exposed by the auth scripts
     const account = window.authModule?.getCurrentUser();
 
     let cards = [];
     const apiBase = getApiBaseUrl();
-    let endpoint = `${apiBase}/api/cardforgegallery`;
+    let endpoint = `${apiBase}/api/cardforgeloadcards`;
     let title = 'Public Gallery';
     let isAuthenticated = false;
 
     if (account) {
-        endpoint = `${apiBase}/api/cardforgemycards`;
         title = 'My Cards';
         isAuthenticated = true;
+    }
+    
+    // Update UI based on authentication status
+    if (saveBtn) saveBtn.disabled = !isAuthenticated;
+    if (cardEditorForm) {
+        const authMessage = document.getElementById('auth-message') || document.createElement('div');
+        if (!document.getElementById('auth-message')) {
+            authMessage.id = 'auth-message';
+            authMessage.className = 'cardforge-auth-message';
+            cardEditorForm.insertAdjacentElement('beforebegin', authMessage);
+        }
+        
+        if (!isAuthenticated) {
+            authMessage.innerHTML = '<p><i class="fas fa-info-circle"></i> <strong>Sign in</strong> to save your cards and publish to the gallery.</p>';
+            authMessage.style.display = 'block';
+        } else {
+            authMessage.style.display = 'none';
+        }
     }
     
     // Enable debugging for API calls
@@ -210,6 +221,9 @@ document.addEventListener('DOMContentLoaded', () => {
   loadCards();
   const saveBtn = document.getElementById('save-btn');
   if (saveBtn) saveBtn.addEventListener('click', saveCard);
+  
+  const publishBtn = document.getElementById('publish-btn');
+  if (publishBtn) publishBtn.addEventListener('click', publishCard);
 });
 
 // Handle card selection to fill form (if editor loaded earlier)

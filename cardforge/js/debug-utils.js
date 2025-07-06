@@ -12,13 +12,13 @@ const CardForgeDebug = (() => {
   
   // Default paths to test
   const DEFAULT_PATHS = [
-    '/api/getCardTemplate',
+    '/api/cardforgetemplate',
     '/api/cardforgegallery',
     '/api/cardforgecards',
     '/api/cardforgemycards',
     '/api/cardforgeloadcards',
     '/api/cardforgesavecards',
-    '/api/cardforgecardpublish'
+    '/api/cardforgepublish'
   ];
   
   // Alternative API path structures to test
