@@ -14,13 +14,6 @@
       "type": "http",
       "direction": "out",
       "name": "res"
-    },
-    {
-      "type": "blob",
-      "direction": "in",
-      "name": "cardBlob",
-      "path": "cardforge/cards.json",
-      "connection": "AZURE_STORAGE_CONNECTION_STRING"
     }
   ]
 }
