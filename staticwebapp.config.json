@@ -22,37 +22,5 @@
       "rewrite": "/404.html",
       "statusCode": 404
     }
-  },
-  "routes": [
-    {
-      "route": "/api/cardforgegallery",
-      "methods": ["GET"],
-      "allowedRoles": ["anonymous", "authenticated"]
-    },
-    {
-      "route": "/api/cardforgecards",
-      "methods": ["GET"],
-      "allowedRoles": ["anonymous", "authenticated"]
-    },
-    {
-      "route": "/api/cardforgemycards",
-      "methods": ["GET"],
-      "allowedRoles": ["authenticated"]
-    },
-    {
-      "route": "/api/cardforgeloadcards",
-      "methods": ["GET"],
-      "allowedRoles": ["authenticated"]
-    },
-    {
-      "route": "/api/cardforgesavecards",
-      "methods": ["POST"],
-      "allowedRoles": ["authenticated"]
-    },
-    {
-      "route": "/api/cardforgecardpublish",
-      "methods": ["POST"],
-      "allowedRoles": ["authenticated"]
-    }
-  ]
+  }
 }
