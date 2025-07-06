@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="/css/theme.css">
   <link rel="stylesheet" href="/css/banner.css">
   <link rel="stylesheet" href="/cardforge/css/card-forge.css">
+  <link rel="stylesheet" href="/cardforge/css/cardforge-ui.css">
 </head>
 <body data-theme="dark">
 <!--
@@ -65,10 +66,13 @@
     </ul>
   </section>
   <!-- CardForge Editor UI -->
-  <section class="cardforge-container grid-col-12">
+  <section class="cardforge-container grid-col-12" id="cardforge-main-container">
     <div class="cardforge-editor grid-col-4">
       <h2>Card Details</h2>
       <form id="card-editor-form" class="cardforge-form">
+        <!-- Hidden field for card ID when editing existing cards -->
+        <input type="hidden" id="card-id" value="" />
+        
         <label for="card-template-type">Template Type</label>
         <select id="card-template-type">
           <option value="character">Character Card</option>
@@ -88,6 +92,9 @@
         <label for="card-avatar">Image URL</label>
         <input type="url" id="card-avatar" placeholder="https://..." />
         
+        <label for="card-achievement">Achievement/Badge</label>
+        <input type="text" id="card-achievement" placeholder="Optional achievement or badge" />
+        
         <div class="cardforge-form-actions">
           <button type="button" id="preview-btn" class="glass-button">Preview</button>
           <button type="button" id="save-btn" class="glass-button">Save</button>
@@ -95,15 +102,40 @@
         </div>
       </form>
     </div>
-    <aside class="cardforge-sidebar grid-col-3">
-      <h2>My Cards</h2>
+    <!-- User cards sidebar - only visible when signed in -->
+    <aside class="cardforge-sidebar grid-col-3" id="user-cards-sidebar">
+      <h2 id="cards-list-title">My Cards</h2>
       <ul id="my-cards-list" class="cardforge-list"></ul>
     </aside>
-    <div class="cardforge-preview grid-col-5">
-      <h2>Preview</h2>
+    <!-- Unified card preview section -->
+    <div class="cardforge-preview grid-col-5" id="card-preview-container">
+      <h2>Card Preview</h2>
+      <div id="auth-status-message" class="cardforge-auth-message"></div>
       <div id="card-preview" class="card-preview-canvas">Your card preview will appear here</div>
     </div>
   </section>
+  
+  <!-- Separate Gallery Section -->
+  <section class="cardforge-gallery-container grid-col-12">
+    <h2>Public Gallery</h2>
+    <p class="gallery-description">Browse cards published by the community. Sign in to publish your own creations!</p>
+    <div class="cardforge-gallery-grid" id="gallery-cards-grid">
+      <!-- Gallery cards will be loaded here -->
+      <div class="gallery-loading">Loading gallery cards...</div>
+    </div>
+  </section>
+  
+  <!-- Confirmation Dialog -->
+  <div id="cardforge-dialog" class="cardforge-dialog">
+    <div class="cardforge-dialog-content">
+      <h3 id="dialog-title">Confirmation</h3>
+      <p id="dialog-message">Are you sure you want to proceed?</p>
+      <div class="dialog-buttons">
+        <button id="dialog-confirm" class="glass-button">Confirm</button>
+        <button id="dialog-cancel" class="glass-button">Cancel</button>
+      </div>
+    </div>
+  </div>
 </main>
 
   <div id="footer-container"></div>

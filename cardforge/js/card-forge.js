@@ -49,6 +49,88 @@ function clearValidationErrors() {
 }
 
 /**
+ * Shows a message popup to the user
+ * @param {string} message - The message to display
+ * @param {string} type - The type of message (success, error, info)
+ */
+function showMessage(message, type = 'info') {
+  // Create message container if it doesn't exist
+  let messageContainer = document.getElementById('cardforge-messages');
+  if (!messageContainer) {
+    messageContainer = document.createElement('div');
+    messageContainer.id = 'cardforge-messages';
+    messageContainer.className = 'cardforge-message-container';
+    document.body.appendChild(messageContainer);
+  }
+  
+  // Create message element
+  const messageElement = document.createElement('div');
+  messageElement.className = `cardforge-message cardforge-message-${type}`;
+  messageElement.innerHTML = `
+    <span class="message-icon">
+      ${type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ'}
+    </span>
+    <span class="message-text">${message}</span>
+  `;
+  
+  // Add to container
+  messageContainer.appendChild(messageElement);
+  
+  // Remove after delay
+  setTimeout(() => {
+    messageElement.classList.add('fade-out');
+    setTimeout(() => {
+      messageContainer.removeChild(messageElement);
+    }, 500);
+  }, 3000);
+}
+
+/**
+ * Shows a confirmation dialog
+ * @param {string} title - Dialog title
+ * @param {string} message - Dialog message
+ * @param {Function} onConfirm - Function to call when confirmed
+ */
+function showConfirmDialog(title, message, onConfirm) {
+  const dialog = document.getElementById('cardforge-dialog');
+  const dialogTitle = document.getElementById('dialog-title');
+  const dialogMessage = document.getElementById('dialog-message');
+  const confirmBtn = document.getElementById('dialog-confirm');
+  const cancelBtn = document.getElementById('dialog-cancel');
+  
+  if (!dialog || !dialogTitle || !dialogMessage || !confirmBtn || !cancelBtn) {
+    console.error('Dialog elements not found');
+    return;
+  }
+  
+  // Set dialog content
+  dialogTitle.textContent = title;
+  dialogMessage.textContent = message;
+  
+  // Show dialog
+  dialog.classList.add('active');
+  
+  // Handle confirm button
+  const handleConfirm = () => {
+    dialog.classList.remove('active');
+    confirmBtn.removeEventListener('click', handleConfirm);
+    cancelBtn.removeEventListener('click', handleCancel);
+    onConfirm();
+  };
+  
+  // Handle cancel button
+  const handleCancel = () => {
+    dialog.classList.remove('active');
+    confirmBtn.removeEventListener('click', handleConfirm);
+    cancelBtn.removeEventListener('click', handleCancel);
+  };
+  
+  // Add event listeners
+  confirmBtn.addEventListener('click', handleConfirm);
+  cancelBtn.addEventListener('click', handleCancel);
+}
+
+/**
  * Shows a message to the user
  * @param {string} message - The message to display
  * @param {string} type - The type of message ('success', 'error', 'info')
@@ -108,80 +190,94 @@ function getApiBaseUrl() {
     return '';
 }
 
+/**
+ * Load user cards and gallery cards
+ */
 async function loadCards() {
-    const listEl = document.getElementById('my-cards-list');
-    const listTitle = document.querySelector('.cardforge-sidebar h2');
+    // Get DOM elements
+    const myCardsList = document.getElementById('my-cards-list');
+    const userCardsSidebar = document.getElementById('user-cards-sidebar');
+    const cardPreviewContainer = document.getElementById('card-preview-container');
+    const mainContainer = document.getElementById('cardforge-main-container');
+    const authStatusMessage = document.getElementById('auth-status-message');
+    const galleryGrid = document.getElementById('gallery-cards-grid');
     const saveBtn = document.getElementById('save-btn');
-    const previewBtn = document.getElementById('preview-btn');
-    const cardEditorForm = document.getElementById('card-editor-form');
-    const templateSelector = document.getElementById('card-template-type');
-
-    // This function needs to be exposed by the auth scripts
+    const publishBtn = document.getElementById('publish-btn');
+    
+    // Check authentication status
     const account = window.authModule?.getCurrentUser();
-
-    let cards = [];
+    const isAuthenticated = !!account;
+    
+    // API configuration
     const apiBase = getApiBaseUrl();
-    // Avoid double /api paths by checking if apiBase already ends with /api
     const apiPath = apiBase.endsWith('/api') ? '' : '/api';
-    let endpoint = `${apiBase}${apiPath}/cardforgeloadcards`;
-    let title = 'Public Gallery';
-    let isAuthenticated = false;
-
-    if (account) {
-        title = 'My Cards';
-        isAuthenticated = true;
-    }
+    const endpoint = `${apiBase}${apiPath}/cardforgeloadcards`;
     
     // Update UI based on authentication status
     if (saveBtn) saveBtn.disabled = !isAuthenticated;
-    if (cardEditorForm) {
-        const authMessage = document.getElementById('auth-message') || document.createElement('div');
-        if (!document.getElementById('auth-message')) {
-            authMessage.id = 'auth-message';
-            authMessage.className = 'cardforge-auth-message';
-            cardEditorForm.insertAdjacentElement('beforebegin', authMessage);
-        }
-        
-        if (!isAuthenticated) {
-            authMessage.innerHTML = '<p><i class="fas fa-info-circle"></i> <strong>Sign in</strong> to save your cards and publish to the gallery.</p>';
-            authMessage.style.display = 'block';
+    if (publishBtn) publishBtn.disabled = true; // Always disabled until a card is saved
+    
+    // Update layout based on authentication status
+    if (mainContainer && userCardsSidebar && cardPreviewContainer) {
+        if (isAuthenticated) {
+            // Three-column layout for authenticated users
+            userCardsSidebar.style.display = 'block';
+            cardPreviewContainer.classList.remove('grid-col-8');
+            cardPreviewContainer.classList.add('grid-col-5');
         } else {
-            authMessage.style.display = 'none';
+            // Two-column layout for anonymous users
+            userCardsSidebar.style.display = 'none';
+            cardPreviewContainer.classList.remove('grid-col-5');
+            cardPreviewContainer.classList.add('grid-col-8');
         }
     }
     
-    // Enable debugging for API calls
+    // Update authentication status message
+    if (authStatusMessage) {
+        if (!isAuthenticated) {
+            authStatusMessage.innerHTML = `
+                <div class="auth-message-box">
+                    <i class="fas fa-info-circle"></i>
+                    <div class="auth-message-content">
+                        <h3>Sign in to save your creations</h3>
+                        <p>Create an account or sign in to save your cards and publish to the gallery.</p>
+                        <button class="glass-button login-button" onclick="window.location.href='/login'">Sign In</button>
+                    </div>
+                </div>
+            `;
+            authStatusMessage.style.display = 'block';
+        } else {
+            authStatusMessage.innerHTML = `<p><i class="fas fa-user-check"></i> Signed in as <strong>${account.name || account.id}</strong></p>`;
+            authStatusMessage.style.display = 'block';
+        }
+    }
+    
+    // Debug logging
     if (window._config?.debug) {
         console.log(`[CardForge] Configuration:`, window._config);
         console.log(`[CardForge] API Base URL: ${apiBase}`);
         console.log(`[CardForge] Full endpoint: ${endpoint}`);
         console.log(`[CardForge] Authentication status: ${isAuthenticated ? 'Authenticated' : 'Anonymous'}`);
+        console.log(`[CardForge] Layout mode: ${isAuthenticated ? '3-column' : '2-column'}`);
     }
     
-    if (listTitle) listTitle.textContent = title;
-    if (saveBtn) saveBtn.disabled = !isAuthenticated;
-
     try {
+        // Fetch cards from API
         console.log(`[CardForge] Fetching cards from: ${endpoint}`);
         const res = await fetch(endpoint, {
-            // Add credentials to send cookies
             credentials: 'include',
-            // Add proper headers
             headers: {
                 'Accept': 'application/json'
             }
         });
         
-        // Log detailed response info
+        // Debug response info
         if (window._config?.debug) {
             console.log(`[CardForge] Response status: ${res.status} ${res.statusText}`);
             console.log(`[CardForge] Response headers:`, Object.fromEntries([...res.headers]));
         }
         
-        if (res.ok) {
-            cards = await res.json();
-            console.log(`[CardForge] Loaded ${cards.length} cards from ${endpoint}`);
-        } else if (res.status !== 401) { // Ignore 401s for anonymous users
+        if (!res.ok && res.status !== 401) { // Ignore 401s for anonymous users
             // Try to get more error details
             let errorDetails = `HTTP ${res.status}`;
             try {
@@ -192,29 +288,95 @@ async function loadCards() {
             } catch (e) { /* ignore */ }
             throw new Error(errorDetails);
         }
-
-        // If there's a container for listing cards, render them.
-        if (listEl) {
-            listEl.innerHTML = '';
-            cards.forEach(card => {
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>${card.name}</strong> <em>${card.class}</em>`;
-                li.dataset.cardId = card.id;
-                li.addEventListener('click', () => {
-                    // highlight selection
-                    document.querySelectorAll('#my-cards-list li.selected').forEach(el => el.classList.remove('selected'));
-                    li.classList.add('selected');
-                    // populate editor fields when clicking card
-                    const evt = new CustomEvent('cardforge:select', { detail: card });
-                    document.dispatchEvent(evt);
+        
+        // Process API response
+        const data = res.ok ? await res.json() : { userCards: [], galleryCards: [] };
+        const userCards = data.userCards || [];
+        const galleryCards = data.galleryCards || [];
+        
+        console.log(`[CardForge] Loaded ${userCards.length} user cards and ${galleryCards.length} gallery cards`);
+        
+        // Render user cards (only if authenticated)
+        if (myCardsList && isAuthenticated) {
+            myCardsList.innerHTML = '';
+            
+            if (userCards.length > 0) {
+                userCards.forEach(card => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <img class="card-list-thumbnail" src="${card.avatar || '/images/card-placeholder.png'}" alt="${card.name}" onerror="this.src='/images/card-placeholder.png'">
+                        <div class="card-list-info">
+                            <h4 class="card-list-title">${card.name}</h4>
+                            <p class="card-list-subtitle">${card.class}</p>
+                        </div>
+                    `;
+                    li.dataset.cardId = card.id;
+                    li.addEventListener('click', () => {
+                        // Highlight selection
+                        document.querySelectorAll('#my-cards-list li.selected').forEach(el => el.classList.remove('selected'));
+                        li.classList.add('selected');
+                        
+                        // Update hidden card ID field
+                        const cardIdInput = document.getElementById('card-id');
+                        if (cardIdInput) cardIdInput.value = card.id;
+                        
+                        // Enable publish button if card is saved
+                        if (publishBtn) publishBtn.disabled = false;
+                        
+                        // Populate editor fields
+                        const evt = new CustomEvent('cardforge:select', { detail: card });
+                        document.dispatchEvent(evt);
+                    });
+                    myCardsList.appendChild(li);
                 });
-                listEl.appendChild(li);
-            });
+            } else {
+                const emptyMsg = document.createElement('li');
+                emptyMsg.className = 'empty-message';
+                emptyMsg.textContent = 'No cards yet. Create your first card!';
+                myCardsList.appendChild(emptyMsg);
+            }
         }
-    } catch (err) {
-        console.error('Failed to load cards', err.message);
-        if (listEl) {
-            listEl.innerHTML = '<li><em>Failed to load cards</em></li>';
+        
+        // Render gallery cards
+        if (galleryGrid) {
+            galleryGrid.innerHTML = '';
+            
+            if (galleryCards.length > 0) {
+                galleryCards.forEach(card => {
+                    const cardElement = document.createElement('div');
+                    cardElement.className = 'gallery-card';
+                    cardElement.innerHTML = `
+                        <img class="gallery-card-image" src="${card.avatar || '/images/card-placeholder.png'}" alt="${card.name}" onerror="this.src='/images/card-placeholder.png'">
+                        <div class="gallery-card-content">
+                            <h4 class="gallery-card-title">${card.name}</h4>
+                            <p class="gallery-card-subtitle">${card.class}</p>
+                        </div>
+                    `;
+                    cardElement.addEventListener('click', () => {
+                        // Populate editor fields when clicking gallery card
+                        const evt = new CustomEvent('cardforge:select', { detail: card });
+                        document.dispatchEvent(evt);
+                    });
+                    galleryGrid.appendChild(cardElement);
+                });
+            } else {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.className = 'gallery-empty-message';
+                emptyMsg.textContent = 'No published cards yet. Be the first to publish!';
+                galleryGrid.appendChild(emptyMsg);
+            }
+        }
+    } catch (error) {
+        console.error(`[CardForge] Error loading cards:`, error);
+        
+        // Show error in user cards list
+        if (myCardsList && isAuthenticated) {
+            myCardsList.innerHTML = `<li class="error-message">Error loading cards: ${error.message}</li>`;
+        }
+        
+        // Show error in gallery
+        if (galleryGrid) {
+            galleryGrid.innerHTML = `<div class="error-message">Error loading gallery: ${error.message}</div>`;
         }
     }
 }
@@ -246,8 +408,11 @@ document.addEventListener('cardforge:select', e => {
 });
 
 async function saveCard() {
-  const form = document.getElementById('card-form');
-  if (!form) return;
+  const form = document.getElementById('card-editor-form');
+  if (!form) {
+    console.error('Card editor form not found');
+    return;
+  }
 
   clearValidationErrors();
 
@@ -257,6 +422,7 @@ async function saveCard() {
   const avatarInput = document.getElementById('card-avatar');
   const quoteInput = document.getElementById('card-quote');
   const achievementInput = document.getElementById('card-achievement');
+  const cardIdInput = document.getElementById('card-id');
 
   // Get the validation module
   const validator = window.validationUtils;
@@ -264,96 +430,118 @@ async function saveCard() {
   // Validate input values
   const errors = [];
   if (!validator.isValidString(nameInput.value, 2, 30)) {
-      errors.push('Name must be between 2 and 30 characters');
+    errors.push('Name must be between 2 and 30 characters');
   }
   if (!validator.isValidString(classInput.value, 2, 20)) {
-      errors.push('Class must be between 2 and 20 characters');
+    errors.push('Class must be between 2 and 20 characters');
   }
   if (!validator.isValidImageUrl(avatarInput.value)) {
-      errors.push('Avatar must be a valid image URL');
+    errors.push('Avatar must be a valid image URL');
   }
   if (!validator.isValidString(quoteInput.value, 0, 100)) {
-      errors.push('Quote must be less than 100 characters');
+    errors.push('Quote must be less than 100 characters');
   }
   if (!validator.isValidString(achievementInput.value, 0, 50)) {
-      errors.push('Achievement must be less than 50 characters');
+    errors.push('Achievement must be less than 50 characters');
   }
 
   // If there are validation errors, display them and return
   if (errors.length > 0) {
-      showValidationErrors(errors);
-      return;
+    showValidationErrors(errors);
+    return;
   }
   
-  // Get API base URL
-  const apiBase = getApiBaseUrl();
-
-  // Clear any previous validation messages
-  clearValidationErrors();
+  // Check if user is signed in
+  const account = window.authModule?.getCurrentUser();
+  const isSignedIn = !!account;
   
-  // Sanitize using shared utilities and prepare the card data
+  if (!isSignedIn) {
+    showMessage('Please sign in to save cards', 'error');
+    return;
+  }
+  
+  // Prepare the card data
   const card = {
-      id: `v2-${Date.now()}`,
-      name: nameInput.value.trim(),
-      class: classInput.value.trim(),
-      quote: quoteInput.value.trim(),
-      avatar: avatarInput.value.trim(),
-      achievement: achievementInput.value.trim()
+    id: cardIdInput.value || `v2-${Date.now()}`,
+    name: nameInput.value.trim(),
+    class: classInput.value.trim(),
+    quote: quoteInput.value.trim(),
+    avatar: avatarInput.value.trim(),
+    achievement: achievementInput.value.trim(),
+    templateType: document.getElementById('card-template-type').value
   };
-
-  try {
-      // Show saving indicator
-      const saveBtn = document.getElementById('save-btn');
-      if (saveBtn) {
+  
+  // Show confirmation dialog
+  showConfirmDialog(
+    'Save Card', 
+    'Do you want to save this card to your collection?',
+    async () => {
+      try {
+        // Show saving indicator
+        const saveBtn = document.getElementById('save-btn');
+        if (saveBtn) {
           saveBtn.disabled = true;
           saveBtn.textContent = 'Saving...';
-      }
-      
-      // This function needs to be exposed by the auth scripts
-      const account = window.authModule?.getCurrentUser();
-      
-      // Avoid double /api paths by checking if apiBase already ends with /api
-      const apiPath = apiBase.endsWith('/api') ? '' : '/api';
-      
-      // Send the card data to the server
-      const response = await fetch(`${apiBase}${apiPath}/cardforgesavecards`, {
+        }
+        
+        // Get API base URL
+        const apiBase = getApiBaseUrl();
+        
+        // Avoid double /api paths by checking if apiBase already ends with /api
+        const apiPath = apiBase.endsWith('/api') ? '' : '/api';
+        
+        // Send the card data to the server
+        const response = await fetch(`${apiBase}${apiPath}/cardforgesavecards`, {
           method: 'POST',
           headers: {
-              'Content-Type': 'application/json',
-              'X-User-Id': account?.id || 'anonymous',
-              'X-CSRF-Token': window.csrfToken
+            'Content-Type': 'application/json',
+            'X-User-Id': account?.id || 'anonymous',
+            'X-CSRF-Token': window.csrfToken
           },
           body: JSON.stringify(card)
-      });
-      
-      if (!response.ok) {
+        });
+        
+        if (!response.ok) {
           // Check content type to handle non-JSON errors
           const contentType = response.headers.get('content-type');
           if (contentType && contentType.includes('application/json')) {
-              const errorData = await response.json();
-              throw new Error(errorData.message || `HTTP ${response.status}`);
+            const errorData = await response.json();
+            throw new Error(errorData.message || `HTTP ${response.status}`);
           } else {
-              throw new Error(`HTTP ${response.status}`);
+            throw new Error(`HTTP ${response.status}`);
           }
-      }
-      
-      const result = await response.json();
-      console.log('[CardForge] Card saved:', result);
-      
-      // Show success message
-      showMessage('Card saved successfully!', 'success');
-      
-      // Reload cards to show the updated list
-      loadCards();
-  } catch (error) {
-      console.error('Failed to save card:', error);
-      showMessage(`Error: ${error.message}`, 'error');
-  } finally {
-      // Reset save button
-      const saveBtn = document.getElementById('save-btn');
-      if (saveBtn) {
+        }
+        
+        const result = await response.json();
+        console.log('[CardForge] Card saved:', result);
+        
+        // Update the card ID in the form
+        if (cardIdInput && result.id) {
+          cardIdInput.value = result.id;
+        }
+        
+        // Enable publish button after successful save
+        const publishBtn = document.getElementById('publish-btn');
+        if (publishBtn) {
+          publishBtn.disabled = false;
+        }
+        
+        // Show success message
+        showMessage('Card saved successfully!', 'success');
+        
+        // Reload cards to show the updated list
+        loadCards();
+      } catch (error) {
+        console.error('Failed to save card:', error);
+        showMessage(`Error: ${error.message}`, 'error');
+      } finally {
+        // Reset button state
+        const saveBtn = document.getElementById('save-btn');
+        if (saveBtn) {
           saveBtn.disabled = false;
           saveBtn.textContent = 'Save';
+        }
       }
-  }
+    }
+  );
 }

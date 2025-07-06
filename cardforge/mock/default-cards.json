@@ -1,0 +1,38 @@
+{
+    "defaultCards": [
+      {
+        "id": "default-card-1",
+        "name": "Navigator Kairo",
+        "class": "Wayfinder",
+        "quote": "Through digital seas and quantum storms, I chart the path unseen.",
+        "avatar": "https://ambientpixels.ai/images/image-packs/characters/navigator-kairo.jpg",
+        "achievement": "Stellar Cartographer",
+        "template": "character",
+        "createdAt": "2025-07-06T14:22:00-07:00",
+        "isDefault": true
+      },
+      {
+        "id": "default-card-2",
+        "name": "Eyes of the Storm",
+        "class": "Sentinel",
+        "quote": "In the heart of chaos, I find perfect clarity.",
+        "avatar": "https://ambientpixels.ai/images/image-packs/characters/eyes-of-the-storm.jpg",
+        "achievement": "Tempest Watcher",
+        "template": "character",
+        "createdAt": "2025-07-06T14:22:10-07:00",
+        "isDefault": true
+      },
+      {
+        "id": "default-card-3",
+        "name": "Regal Radiance",
+        "class": "Luminary",
+        "quote": "My light guides those who seek wisdom in darkness.",
+        "avatar": "https://ambientpixels.ai/images/image-packs/characters/regal-radiance.jpg",
+        "achievement": "Crown of Illumination",
+        "template": "character",
+        "createdAt": "2025-07-06T14:22:20-07:00",
+        "isDefault": true
+      }
+    ],
+    "lastUpdated": "2025-07-06T14:22:20-07:00"
+  }
