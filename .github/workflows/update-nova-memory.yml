@@ -5,6 +5,9 @@ on:
     - cron: '0 13 * * *'  # Every day at 6:00 AM PT (13:00 UTC)
   workflow_dispatch:
 
+permissions:
+  contents: write  # Needed for git push
+
 jobs:
   build-nova-memory:
     runs-on: ubuntu-latest
