@@ -76,13 +76,28 @@ module.exports = async function (context, req) {
           cards = JSON.parse(content).cards || [];
           context.log(`Loaded ${cards.length} cards from public gallery`);
         } else {
-          // If the gallery doesn't exist yet, create an empty gallery
-          context.log('No public gallery found, returning empty array');
-          cards = [];
+          // If the gallery doesn't exist yet, create a gallery with a sample card
+          context.log('No public gallery found, initializing with sample card');
           
-          // Initialize the gallery with an empty array
+          // Create a sample card for the gallery
+          const sampleCard = {
+            id: `sample-${Date.now()}`,
+            name: "Nova",
+            class: "AI Assistant",
+            avatar: "https://ambientpixels.ai/images/nova-avatar.png",
+            quote: "Welcome to CardForge! Create your own cards and publish them to the gallery.",
+            achievement: "First Card",
+            createdAt: new Date().toISOString(),
+            publishedAt: new Date().toISOString(),
+            publishedBy: "system",
+            publishId: `pub-sample-${Date.now()}`
+          };
+          
+          cards = [sampleCard];
+          
+          // Initialize the gallery with the sample card
           const initialData = JSON.stringify({ 
-            cards: [], 
+            cards: [sampleCard], 
             metadata: { 
               lastUpdated: new Date().toISOString(),
               description: "CardForge public gallery"
