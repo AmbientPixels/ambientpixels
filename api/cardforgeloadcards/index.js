@@ -50,6 +50,12 @@ module.exports = async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request for cardforgeloadcards');
 
   try {
+    // Log request details for debugging
+    context.log('========== CARDFORGELOADCARDS DEBUG START ==========');
+    context.log(`Request headers: ${JSON.stringify(req.headers)}`);
+    context.log(`Request method: ${req.method}`);
+    context.log(`Request URL: ${req.url}`);
+    
     // Get user information from the request
     const userId = req.headers['x-user-id'] || 'anonymous';
     const isAuthenticated = userId !== 'anonymous';
@@ -57,13 +63,21 @@ module.exports = async function (context, req) {
 
     // Get connection string from environment variable
     const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+    context.log(`Connection string exists: ${!!connectionString}`);
     if (!connectionString) {
       context.log.error("AZURE_STORAGE_CONNECTION_STRING is not set.");
       throw new Error("Storage connection string is not configured. Please contact the administrator.");
     }
     
+    // Log available environment variables (without exposing sensitive values)
+    context.log('Available environment variables:');
+    Object.keys(process.env).forEach(key => {
+      context.log(`  - ${key}: ${key.includes('CONNECTION') ? '[REDACTED]' : process.env[key]}`);
+    });
+    
     // Extract account name from connection string
     const accountNameMatch = connectionString.match(/AccountName=([^;]+)/i);
+    context.log(`Account name match: ${JSON.stringify(accountNameMatch)}`);
     const accountName = accountNameMatch ? accountNameMatch[1] : 'cardforgeblobdata';
     context.log(`Using storage account: ${accountName}`);
     
@@ -162,6 +176,15 @@ module.exports = async function (context, req) {
     };
   } catch (error) {
     context.log.error(`Error in cardforgeloadcards: ${error.message}`);
+    context.log.error(`Error stack: ${error.stack}`);
+    
+    // Log detailed error information
+    if (error.code) context.log.error(`Error code: ${error.code}`);
+    if (error.statusCode) context.log.error(`Error status code: ${error.statusCode}`);
+    if (error.details) context.log.error(`Error details: ${JSON.stringify(error.details)}`);
+    
+    context.log('========== CARDFORGELOADCARDS DEBUG END ==========');
+    
     context.res = {
       status: 500,
       headers: {
@@ -171,8 +194,18 @@ module.exports = async function (context, req) {
         'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID'
       },
       body: {
-        error: `Failed to load cards: ${error.message}`
+        error: `Failed to load cards: ${error.message}`,
+        errorDetails: {
+          message: error.message,
+          code: error.code || 'unknown',
+          stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        }
       }
     };
+  }
+  
+  // Log completion
+  if (!context.res) {
+    context.log('========== CARDFORGELOADCARDS DEBUG END ==========');
   }
 };
