@@ -382,10 +382,7 @@ async function loadCards() {
             'Accept': 'application/json'
         };
         
-        // Add user ID header if authenticated
-        if (isAuthenticated && account && account.id) {
-            headers['x-user-id'] = account.id;
-        }
+        // No user ID header needed; authentication via credentials
         
         const res = await fetch(endpoint, {
             credentials: 'include',
@@ -686,11 +683,11 @@ async function saveCard() {
         
         // Send the card data to the server
         const response = await fetch(endpoint, {
-          method: 'POST',
+            method: 'POST',
+            credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
-            'x-user-id': account?.id || 'anonymous',
-            'X-CSRF-Token': window.csrfToken
+            'X-CSRF-Token': window.csrfProtection.getToken()
           },
           body: JSON.stringify(card)
         });

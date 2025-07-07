@@ -56,19 +56,20 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
 
 ## 🚀 Quickstart
 
-- **To run locally:** Open `lab/card-forge/index.html` with a local web server (e.g., VS Code Live Server, Python's `http.server`, or `npx serve`).
+- **To run locally:** Open `cardforge/index.html` with a local web server (e.g., VS Code Live Server, Python's `http.server`, or `npx serve`).
 - **To test the gallery:** Open the browser console and run `CardForgeTests.runAll()` to check both signed-in and signed-out experiences. Use `CardForgeTests.testLoadGallery()` or `CardForgeTests.testLoadPersonalLibrary()` for targeted tests.
-- **API requirements:** Ensure Azure Blob Storage is set up and `AZURE_STORAGE_CONNECTION_STRING` is configured in your environment for API endpoints to work.
-- **Authentication:** Ambient Pixels authentication scripts must be loaded (see `/auth/authUI.js`).
+- **API requirements:** Start the backend API by running `func start` in the `/api` folder with `AzureWebJobsStorage` set in `local.settings.json` (or using `AZURE_STORAGE_CONNECTION_STRING`).
+- **Authentication:** Front-end fetch calls must include credentials (`credentials: 'include'`) so Azure Static Web Apps EasyAuth can forward the user principal.
+- **CSRF Protection:** Use `window.csrfProtection.getToken()` to retrieve a CSRF token and include it in the `X-CSRF-Token` header for all POST requests.
 - **Data Storage:** (Updated July 6, 2025)
   - `default-cards.json` — Example cards for logged-out users
   - `published-cards.json` — Public gallery cards
   - `user/{userId}/cards.json` — Personal cards for each authenticated user
-- **Endpoints:** (Updated July 6, 2025)
-  - `/api/cardforgetemplate` — Get card template by type (GET)
-  - `/api/cardforgeloadcards` — Load user cards and gallery (GET)
-  - `/api/cardforgesavecards` — Save user cards (POST, authenticated)
-  - `/api/cardforgepublish` — Publish card to gallery (POST, authenticated)
+- **Endpoints:** (Updated July 7, 2025)
+  - `/api/cardforgetemplate` — GET — Retrieve a card template by type (no auth required).
+  - `/api/cardforgeloadcards` — GET — Load userCards, galleryCards, defaultCards, and diagnostics; include `credentials: 'include`.
+  - `/api/cardforgesavecards` — POST — Save user cards; include `credentials: 'include'` and `X-CSRF-Token` header.
+  - `/api/cardforgepublish` — POST — Publish a card to the public gallery; include `credentials: 'include'` and `X-CSRF-Token` header.
 
 ---
 
@@ -114,14 +115,11 @@ The system is powered by **Cascade** (the AI agent in Windsurf) and supported by
   - `/cardforge/assets/.gitkeep`
   - `/cardforge/staticwebapp.config.json`
   - `/cardforge/README.md`
-- Scaffolded backend API stubs under `/api/cardforge/`:
-  - `loadcards/function.json`, `loadcards/index.js`
-  - `mycards/function.json`, `mycards/index.js`
-  - `savecards/function.json`, `savecards/index.js`
-  - `cardpublish/function.json`, `cardpublish/index.js`
-  - `cards/function.json`, `cards/index.js`
-  - `gallery/function.json`, `gallery/index.js`
-  - `debug/function.json`, `debug/index.js`
+- Scaffolded backend API stubs under `/api`:
+  - `cardforgetemplate/function.json` & `index.js`
+  - `cardforgeloadcards/function.json` & `index.js`
+  - `cardforgesavecards/function.json` & `index.js`
+  - `cardforgepublish/function.json` & `index.js`
 
 
 ### API Structure Migration (July 4, 2025)

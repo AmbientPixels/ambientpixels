@@ -55,43 +55,31 @@ Returns a template for creating cards based on the specified type.
 
 ### GET `/api/cardforgeloadcards`
 
-Loads cards based on the user's authentication status. For signed-in users, returns their personal cards from Blob Storage. For anonymous users, returns default cards. In both cases, also returns the public gallery cards.
+Loads cards based on the user's authentication status. For signed-in users, returns their personal cards; for anonymous users, returns default cards. Always includes public gallery cards. The response includes `userCards`, `galleryCards`, `defaultCards`, and `diagnostics` information.
 
 **Headers:**
-- `X-User-ID` (string): The user's ID for authentication. If not provided or "anonymous", user is treated as anonymous.
+- None required. For authenticated users, ensure requests include credentials (e.g., add `credentials: 'include'` to `fetch` calls) so Azure Static Web Apps EasyAuth can forward the user principal.
 
 **Response:**
 ```json
 {
-  "userCards": [
-    {
-      "id": "card-123456",
-      "name": "Card Name",
-      "class": "Card Class",
-      "quote": "Card Quote",
-      "avatar": "https://example.com/image.jpg",
-      "achievement": "Card Achievement",
-      "createdAt": "2025-07-06T12:00:00Z",
-      "lastModified": "2025-07-06T12:30:00Z",
-      "userId": "user-123"
-    }
-    // Additional user cards...
-  ],
-  "galleryCards": [
-    {
-      "id": "gallery-123456",
-      "name": "Gallery Card",
-      "class": "Gallery Class",
-      "quote": "Gallery Quote",
-      "avatar": "https://example.com/gallery-image.jpg",
-      "achievement": "Gallery Achievement",
-      "createdAt": "2025-07-05T10:00:00Z",
-      "lastModified": "2025-07-05T10:30:00Z",
-      "userId": "publisher-123",
-      "publishedAt": "2025-07-05T11:00:00Z"
-    }
-    // Additional gallery cards...
-  ]
+  "userCards": [ /* array of user card objects */ ],
+  "galleryCards": [ /* array of gallery card objects */ ],
+  "defaultCards": [ /* array of default card objects for anonymous users */ ],
+  "diagnostics": {
+    "requestId": "req_1625566400_xk3a4b2",
+    "timestamp": "2025-07-07T13:34:40-07:00",
+    "authenticated": true,
+    "userCardsCount": 2,
+    "galleryCardsCount": 5,
+    "defaultCardsCount": 3,
+    "environment": "Development",
+    "storageAccount": "cardforgeblobdata",
+    "containerName": "cardforge",
+    "defaultCardsPath": "default-cards.json",
+    "publishedCardsPath": "published-cards.json",
+    "userCardsPath": "user/user-123/cards.json"
+  }
 }
 ```
 
@@ -109,8 +97,8 @@ Loads cards based on the user's authentication status. For signed-in users, retu
 Saves a card to the user's personal collection. Requires authentication.
 
 **Headers:**
-- `X-User-ID` (string): The user's ID for authentication. Required.
 - `Content-Type`: `application/json`
+- `X-CSRF-Token` (string): Required for authenticated requests; obtain via `window.authModule.getCsrfToken()`. Ensure `fetch` includes credentials (`credentials: 'include'`).
 
 **Request Body:**
 ```json
@@ -144,8 +132,8 @@ Saves a card to the user's personal collection. Requires authentication.
 Publishes a card to the public gallery. Requires authentication.
 
 **Headers:**
-- `X-User-ID` (string): The user's ID for authentication. Required.
 - `Content-Type`: `application/json`
+- `X-CSRF-Token` (string): Required for authenticated requests; obtain via `window.authModule.getCsrfToken()`. Ensure `fetch` includes credentials (`credentials: 'include'`).
 
 **Request Body:**
 ```json
@@ -158,8 +146,11 @@ Publishes a card to the public gallery. Requires authentication.
 ```json
 {
   "success": true,
-  "message": "Card published successfully",
-  "publishId": "pub-123456"
+  "message": "Card card-123456 published successfully",
+  "data": {
+    "cardId": "card-123456",
+    "publishedAt": "2025-07-07T12:00:00Z"
+  }
 }
 ```
 

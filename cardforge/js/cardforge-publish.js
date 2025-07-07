@@ -10,7 +10,9 @@ async function publishCard() {
   }
   
   const account = window.authModule.getCurrentUser();
-  console.log('[CardForge] Current user account:', account);
+  if (window._config.debug) {
+    console.log('[CardForge] Current user account:', account);
+  }
   
   if (!account || !account.id) {
     console.error('[CardForge] User not authenticated or missing ID');
@@ -48,9 +50,7 @@ async function publishCard() {
         // to handle any case sensitivity issues in the backend
         const headers = {
           'Content-Type': 'application/json',
-          'x-user-id': account.id,
-          'X-User-ID': account.id,  // Add uppercase version for case-sensitive servers
-          'X-CSRF-Token': window.csrfToken || ''
+          'X-CSRF-Token': window.csrfProtection.getToken()
         };
         
         console.log('[CardForge] Request headers:', headers);

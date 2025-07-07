@@ -90,6 +90,7 @@ async function withRetry(operation, operationName, context, maxRetries = 3) {
 
 module.exports = async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request for cardforgesavecards');
+  context.log(`Request headers: ${JSON.stringify(req.headers)}`);
 
   try {
     // Check if the request has a body
@@ -100,7 +101,7 @@ module.exports = async function (context, req) {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID, X-CSRF-Token'
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
         },
         body: { error: 'Request body is required' }
       };
@@ -109,6 +110,7 @@ module.exports = async function (context, req) {
 
     // Extract user information from EasyAuth header
     const { userId, isAuthenticated } = extractUserInfo(req, context);
+  context.log(`Extracted user info: userId=${userId}, isAuthenticated=${isAuthenticated}`);
     
     // Check if user is authenticated
     if (!isAuthenticated) {
@@ -118,7 +120,7 @@ module.exports = async function (context, req) {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID, X-CSRF-Token'
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
         },
         body: { error: 'Authentication required to save cards' }
       };
@@ -137,7 +139,7 @@ module.exports = async function (context, req) {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID, X-CSRF-Token'
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
         },
         body: { error: 'Invalid card data', validationErrors }
       };
@@ -376,7 +378,7 @@ module.exports = async function (context, req) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID, X-CSRF-Token'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
       },
       body: {
         success: true,
@@ -392,7 +394,7 @@ module.exports = async function (context, req) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID, X-CSRF-Token'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
       },
       body: { error: error.message }
     };

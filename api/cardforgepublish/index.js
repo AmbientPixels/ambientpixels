@@ -119,7 +119,7 @@ module.exports = async function (context, req) {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID, X-CSRF-Token'
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
         },
         body: { error: 'Card ID is required' }
       };
@@ -128,6 +128,7 @@ module.exports = async function (context, req) {
 
     // Extract user information from EasyAuth header
     const { userId, isAuthenticated } = extractUserInfo(req, context);
+    context.log(`Extracted user info: userId=${userId}, isAuthenticated=${isAuthenticated}`);
     
     // Check if user is authenticated
     if (!isAuthenticated) {
@@ -137,7 +138,7 @@ module.exports = async function (context, req) {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID, X-CSRF-Token'
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
         },
         body: { error: 'Authentication required to publish cards' }
       };
@@ -175,7 +176,7 @@ module.exports = async function (context, req) {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID, X-CSRF-Token'
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
         },
         body: { error: 'No cards found for this user' }
       };
@@ -215,7 +216,7 @@ module.exports = async function (context, req) {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID, X-CSRF-Token'
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
           },
           body: { error: `Card with ID ${cardId} not found` }
         };
@@ -332,7 +333,7 @@ module.exports = async function (context, req) {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID, X-CSRF-Token'
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
         },
         body: {
           success: true,
@@ -365,7 +366,7 @@ module.exports = async function (context, req) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID, X-CSRF-Token'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
       },
       body: {
         error: `Failed to publish card: ${error.message}`,
