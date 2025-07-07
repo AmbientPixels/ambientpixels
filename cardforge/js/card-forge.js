@@ -301,6 +301,18 @@ async function loadCards() {
     
     // Apply button visibility
     updateButtonVisibility();
+    // Debug: show test auth state
+    const testAuthEl = document.getElementById('test-auth-state');
+    if (testAuthEl) {
+        testAuthEl.textContent = 'Auth: ' + (isAuthenticated ? 'SIGNED IN' : 'ANONYMOUS');
+    }
+    // Toggle gallery messages
+    const galleryAnon = document.getElementById('gallery-msg-anon');
+    const galleryUser = document.getElementById('gallery-msg-user');
+    if (galleryAnon && galleryUser) {
+        galleryAnon.style.display = isAuthenticated ? 'none' : 'block';
+        galleryUser.style.display = isAuthenticated ? 'block' : 'none';
+    }
     
     // Update layout based on authentication status
     if (mainContainer && userCardsSidebar && cardPreviewContainer) {
