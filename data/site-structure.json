@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-07-06T13:29:42.139Z",
+  "updated": "2025-07-07T13:34:53.675Z",
   "root": [
     {
       "type": "folder",
@@ -100,6 +100,30 @@
         },
         {
           "type": "folder",
+          "name": "cardforgeloadcards",
+          "path": "api/cardforgeloadcards",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardforgepublish",
+          "path": "api/cardforgepublish",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardforgesavecards",
+          "path": "api/cardforgesavecards",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardforgetemplate",
+          "path": "api/cardforgetemplate",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "dreamLogWriter",
           "path": "api/dreamLogWriter",
           "children": []
@@ -108,6 +132,12 @@
           "type": "folder",
           "name": "generate-text",
           "path": "api/generate-text",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "getCardTemplate",
+          "path": "api/getCardTemplate",
           "children": []
         },
         {
@@ -133,6 +163,12 @@
       "type": "folder",
       "name": "auth",
       "path": "auth",
+      "children": []
+    },
+    {
+      "type": "folder",
+      "name": "build",
+      "path": "build",
       "children": []
     },
     {
@@ -174,6 +210,11 @@
               "path": "cardforge/templates/card-template.html"
             }
           ]
+        },
+        {
+          "type": "page",
+          "name": "test-cardforge.html",
+          "path": "cardforge/test-cardforge.html"
         }
       ]
     },
@@ -987,11 +1028,6 @@
           "path": "projects/youtube.html"
         }
       ]
-    },
-    {
-      "type": "page",
-      "name": "raw-demos.html",
-      "path": "raw-demos.html"
     },
     {
       "type": "page",
