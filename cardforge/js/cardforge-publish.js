@@ -61,7 +61,7 @@ async function publishCard() {
           }
         }
         
-        console.log('[CardForge] Request headers:', headers);
+        console.log('[CardForge] Request headers:', publishHeaders);
         
         const response = await fetch(endpoint, {
           method: 'POST',

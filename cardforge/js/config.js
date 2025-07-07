@@ -9,13 +9,13 @@ window._config = {
   apiBasePath: '/api',
   
   // Environment settings
-  environment: window.location.hostname === 'ambientpixels.ai' ? 'production' : 'development',
+  environment: (window.location.hostname === 'ambientpixels.ai' || window.location.hostname.endsWith('.azurestaticapps.net')) ? 'production' : 'development',
   
   // Application Insights
   appInsightsConnectionString: 'InstrumentationKey=0339ebd7-6d1c-424f-a495-8ddb052a57b0;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/',
-  enableAppInsights: window.location.hostname === 'ambientpixels.ai',
+  enableAppInsights: window.location.hostname === 'ambientpixels.ai' || window.location.hostname.endsWith('.azurestaticapps.net'),
   
   // Debug settings
-  debug: window.location.hostname !== 'ambientpixels.ai',
+  debug: !(window.location.hostname === 'ambientpixels.ai' || window.location.hostname.endsWith('.azurestaticapps.net')),
   version: 'v2.1'
 };
