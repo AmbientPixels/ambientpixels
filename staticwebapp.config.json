@@ -1,6 +1,6 @@
 {
   "navigationFallback": {
-    "rewrite": "/404.html",
+    "rewrite": "/index.html",
     "exclude": [
       "/images/*",
       "/*.css",
@@ -19,7 +19,7 @@
   },
   "responseOverrides": {
     "404": {
-      "rewrite": "/404.html",
+      "rewrite": "/index.html",
       "statusCode": 404
     }
   },
