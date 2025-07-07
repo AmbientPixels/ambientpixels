@@ -227,6 +227,22 @@ async function loadCards() {
     const saveBtn = document.getElementById('save-btn');
     const publishBtn = document.getElementById('publish-btn');
     
+    // Method 0: Check Static Web Apps EasyAuth via .auth/me
+    try {
+      const meRes = await fetch('/.auth/me', { credentials: 'include' });
+      if (meRes.ok) {
+        const meData = await meRes.json();
+        const cp = meData.clientPrincipal;
+        if (cp && cp.userId && cp.userId !== 'anonymous') {
+          account = { id: cp.userId, name: cp.userDetails || cp.userId };
+          isAuthenticated = true;
+          console.log('[CardForge] Authentication detected via EasyAuth .auth/me');
+        }
+      }
+    } catch (e) {
+      console.warn('[CardForge] .auth/me error', e);
+    }
+    
     // Check authentication status
     // Try multiple ways to detect authentication
     let account = null;

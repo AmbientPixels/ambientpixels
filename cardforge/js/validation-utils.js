@@ -70,6 +70,21 @@ function isValidLength(value, maxLength) {
 }
 
 /**
+ * Validates a string length between min and max (inclusive)
+ * @param {string} value - The string to validate
+ * @param {number} minLength - Minimum allowed length
+ * @param {number} maxLength - Maximum allowed length
+ * @returns {boolean} - True if within specified length range after trimming
+ */
+function isValidString(value, minLength, maxLength) {
+  if (typeof value !== 'string') return false;
+  const len = value.trim().length;
+  if (len < minLength) return false;
+  if (len > maxLength) return false;
+  return true;
+}
+
+/**
  * Sanitizes user input to prevent XSS
  * @param {string} input - The user input to sanitize
  * @returns {string} - Sanitized input
@@ -143,6 +158,7 @@ const ValidationUtils = {
   isValidImageUrl,
   isNonEmptyString,
   isValidLength,
+  isValidString,
   sanitizeString,
   validateCard,
   sanitizeCard
