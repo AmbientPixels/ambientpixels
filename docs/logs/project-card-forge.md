@@ -941,6 +941,44 @@ As part of preparing CardForge V2 for production, the following critical securit
 - **User Feedback**: Enhanced frontend with clear validation messages and operation status
 
 These enhancements ensure CardForge is production-ready with industry-standard security practices. Future updates will focus on rate limiting, enhanced logging, and advanced monitoring.
-Marketing Momentum: Don’t treat marketing as an afterthought. Use the soft launch to build a repository of content (screenshots, user testimonials, example cards) that will be gold for the full launch marketing. Plan a bit ahead for launch so that you’re not scrambling when the time comes to publicize widely.
+
+---
+
+## 🔍 Windsurf Development Protocol (July 2025 Update)
+
+To ensure consistent high-quality development and compliance with Windsurf rules, all contributors must follow this structured approach when working on CardForge:
+
+### 📋 Session Startup Protocol
+
+1. **Rules Review Command**
+   - Begin each development session with `/windsurf-rules` to display and acknowledge rules
+   - Explicitly confirm understanding before any code changes
+
+2. **Pre-Implementation Checklist**
+   - Before any code change, list the specific Windsurf rules that apply:
+     - Rule #1: No inline styles, no duplicate functions/classes, check before coding
+     - Rule #2: Replace with precision, never append by default
+   - Document compliance approach for each planned edit
+
+3. **Regular Validation Points**
+   - At key milestones (before commits, after feature completion), prompt rules validation
+   - Explicitly confirm: "This change complies with Windsurf Rule #1 and #2"
+   - Document any deviations and justify if absolutely necessary
+
+4. **Structured Change Proposals**
+   - All proposed changes must include:
+     - List of existing files checked for similar functionality
+     - Confirmation that no inline styles are being added
+     - How the change complies with "replace with precision" (Rule #2)
+     - Which existing utility classes or functions were evaluated for reuse
+
+5. **Rules-First Implementation**
+   - For UI work: Check existing CSS files first and reference specific files examined
+   - For JS work: Document which existing functions were evaluated for potential reuse
+   - Follow the pattern: Search → Evaluate → Reuse → Create (only if necessary)
+
+This protocol helps maintain consistency across all CardForge components and prevents technical debt from accumulating through duplicated styles, functions, or structural blocks.
+
+Marketing Momentum: Don't treat marketing as an afterthought. Use the soft launch to build a repository of content (screenshots, user testimonials, example cards) that will be gold for the full launch marketing. Plan a bit ahead for launch so that you're not scrambling when the time comes to publicize widely.
 Next Steps: Immediately, focus on resolving the known issues (that publish 401 error, any remaining front-end polish tasks). Run a full end-to-end test as if you were a new user: create account -> make card -> save -> publish -> view gallery -> log out -> log in -> etc., to catch any sequence issues. Once confident, roll out to your first testers.
 As you proceed, keep the communication open within your team: regularly review what’s working and what’s not. Given the short development time so far, be proud of what you’ve accomplished – the documentation shows huge progress in just a week. With careful execution of this plan and the recommendations above, CardForge is poised to be a successful product that users will love, and one that can be showcased as a hallmark of what Ambient Pixels and Nova can do together. Good luck with the soft launch! You have a great concept and a solid plan – now it’s all about fine-tuning and execution. If you maintain this level of thoughtfulness in development and keep user experience front-and-center, CardForge will surely level up from an internal experiment to a real, marketable product. 🚀🃏

@@ -205,8 +205,46 @@ async function loadCards() {
     const publishBtn = document.getElementById('publish-btn');
     
     // Check authentication status
-    const account = window.authModule?.getCurrentUser();
-    const isAuthenticated = !!account;
+    // Try multiple ways to detect authentication
+    let account = null;
+    let isAuthenticated = false;
+    
+    // Method 1: Check window.authModule (SWA)
+    if (window.authModule && typeof window.authModule.getCurrentUser === 'function') {
+        account = window.authModule.getCurrentUser();
+        if (account) {
+            isAuthenticated = true;
+            console.log('[CardForge] Authentication detected via authModule');
+        }
+    }
+    
+    // Method 2: Check window.authClient (AAD)
+    if (!isAuthenticated && window.authClient && typeof window.authClient.getAccount === 'function') {
+        account = window.authClient.getAccount();
+        if (account) {
+            isAuthenticated = true;
+            console.log('[CardForge] Authentication detected via authClient');
+        }
+    }
+    
+    // Method 3: Check localStorage for testing/development
+    if (!isAuthenticated && localStorage.getItem('cardforge_dev_auth')) {
+        try {
+            account = JSON.parse(localStorage.getItem('cardforge_dev_auth'));
+            isAuthenticated = true;
+            console.log('[CardForge] Authentication detected via localStorage (dev mode)');
+        } catch (e) {
+            console.warn('[CardForge] Invalid dev auth data in localStorage');
+        }
+    }
+    
+    // For testing: enable mock authentication
+    if (!isAuthenticated && window.location.search.includes('mockAuth=true')) {
+        account = { id: 'test-user', name: 'Test User', roles: ['user'] };
+        isAuthenticated = true;
+        console.log('[CardForge] Using mock authentication for testing');
+        localStorage.setItem('cardforge_dev_auth', JSON.stringify(account));
+    }
     
     // API configuration
     const apiBase = getApiBaseUrl();
@@ -311,8 +349,20 @@ async function loadCards() {
         const data = res.ok ? await res.json() : { userCards: [], galleryCards: [] };
         console.log(`[CardForge] Full API response:`, JSON.stringify(data, null, 2));
         
-        const userCards = data.userCards || [];
-        const galleryCards = data.galleryCards || [];
+        let userCards = data.userCards || [];
+        let galleryCards = data.galleryCards || [];
+        
+        // If no gallery cards were found but we got published cards, use those instead
+        if (galleryCards.length === 0 && Array.isArray(data.publishedCards) && data.publishedCards.length > 0) {
+            console.log(`[CardForge] Using publishedCards array (${data.publishedCards.length} cards) as gallery cards`);
+            galleryCards = data.publishedCards;
+        }
+        
+        // For anonymous users, if no user cards are loaded, use default cards if available
+        if (!isAuthenticated && userCards.length === 0 && Array.isArray(data.defaultCards) && data.defaultCards.length > 0) {
+            console.log(`[CardForge] Using defaultCards array (${data.defaultCards.length} cards) for anonymous user`);
+            userCards = data.defaultCards;
+        }
         
         console.log(`[CardForge] Loaded ${userCards.length} user cards and ${galleryCards.length} gallery cards`);
         console.log(`[CardForge] API diagnostics:`, data.diagnostics || 'No diagnostics available');
@@ -529,7 +579,7 @@ async function saveCard() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-User-Id': account?.id || 'anonymous',
+            'x-user-id': account?.id || 'anonymous',
             'X-CSRF-Token': window.csrfToken
           },
           body: JSON.stringify(card)

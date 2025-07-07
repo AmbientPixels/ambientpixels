@@ -152,9 +152,16 @@
     // apiBasePath: '/cardforge'     // Returns HTML, not JSON
     // apiBasePath: '/functions/api' // Returns HTML, not JSON
     
+    // Environment settings
+    environment: window.location.hostname === 'ambientpixels.ai' ? 'production' : 'development',
+    
+    // Application Insights
+    appInsightsConnectionString: 'InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/',
+    enableAppInsights: window.location.hostname === 'ambientpixels.ai',
+    
     // Debug settings
-    debug: true,
-    version: 'v2.0'
+    debug: window.location.hostname !== 'ambientpixels.ai',
+    version: 'v2.1'
   };
   </script>
   
@@ -187,6 +194,10 @@
 
   <!-- === Authentication Scripts === -->
   <!-- Auth scripts are loaded via the footer module -->
+
+  <!-- === Application Insights (Production Only) === -->
+  <script src="https://js.monitor.azure.com/scripts/b/ai.2.min.js" crossorigin="anonymous"></script>
+  <script src="/cardforge/js/app-insights.js"></script>
 
 </body>
 </html>

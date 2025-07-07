@@ -1,14 +1,23 @@
 // CardForge API Debugging Utilities
 // Created: 2025-07-05
 // Purpose: Help debug API connectivity and authentication issues
+// Updated: 2025-07-06: Added production safeguards to disable debug tools in production
 
 /**
  * CardForge Debug Utilities 
  * Provides tools to diagnose API connectivity, authentication, and path issues
  */
 const CardForgeDebug = (() => {
-  const VERSION = '1.0.0';
+  const VERSION = '1.0.1';
   const logPrefix = '[CardForge Debug]';
+  
+  // Check if we're in production environment
+  const isProduction = () => {
+    // Check for production environment flags
+    return window.location.hostname === 'ambientpixels.ai' && 
+           !window.location.search.includes('debug=true') &&
+           (!window._config || window._config.environment === 'production');
+  };
   
   // Default paths to test
   const DEFAULT_PATHS = [
@@ -36,6 +45,19 @@ const CardForgeDebug = (() => {
    * Initialize the debugging panel
    */
   function init() {
+    // Safety check - do not initialize in production unless explicitly enabled
+    if (isProduction()) {
+      console.log(`${logPrefix} Debug tools disabled in production environment`);
+      // Create a dummy interface that does nothing
+      window.CardForgeDebug = {
+        testAllEndpoints: () => console.warn('Debug tools disabled in production'),
+        checkAuth: () => console.warn('Debug tools disabled in production'),
+        showConfig: () => console.warn('Debug tools disabled in production'),
+        testEndpoint: () => console.warn('Debug tools disabled in production')
+      };
+      return;
+    }
+    
     console.log(`${logPrefix} Initializing debug tools v${VERSION}`);
     
     // Create debug panel if it doesn't exist

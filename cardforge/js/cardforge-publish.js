@@ -44,7 +44,7 @@ async function publishCard() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-User-Id': account?.id || 'anonymous',
+            'x-user-id': account?.id || 'anonymous',
             'X-CSRF-Token': window.csrfToken
           },
           body: JSON.stringify({ cardId })
