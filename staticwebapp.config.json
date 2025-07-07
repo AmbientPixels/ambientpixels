@@ -39,6 +39,10 @@
       "allowedRoles": ["authenticated"]
     },
     {
+      "route": "/api/cardforgeloadcards",
+      "allowedRoles": ["anonymous", "authenticated"]
+    },
+    {
       "route": "/api/*",
       "allowedRoles": ["anonymous"]
     },
