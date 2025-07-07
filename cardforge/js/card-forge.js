@@ -605,7 +605,7 @@ async function saveCard() {
   const cardIdInput = document.getElementById('card-id');
 
   // Get the validation module
-  const validator = window.validationUtils;
+  const validator = window.ValidationUtils || window.validationUtils;
 
   // Validate input values
   const errors = [];
