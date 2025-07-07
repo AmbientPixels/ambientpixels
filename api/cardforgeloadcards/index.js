@@ -1,4 +1,5 @@
-const fetch = require('node-fetch');
+const { BlobServiceClient } = require('@azure/storage-blob');
+const { DefaultAzureCredential } = require('@azure/identity');
 
 /**
  * CardForge Load Cards API
@@ -7,47 +8,59 @@ const fetch = require('node-fetch');
  * For anonymous users: Returns default cards + gallery cards
  */
 
-// Direct URLs to Blob Storage files
-const BLOB_BASE_URL = "https://cardforgeblobdata.blob.core.windows.net/cardforge";
-const DEFAULT_CARDS_URL = `${BLOB_BASE_URL}/default-cards.json`;
-const PUBLISHED_CARDS_URL = `${BLOB_BASE_URL}/published-cards.json`;
+// Azure Storage configuration
+const STORAGE_ACCOUNT_NAME = "cardforgeblobdata";
+const CONTAINER_NAME = "cardforge";
+const DEFAULT_CARDS_PATH = "default-cards.json";
+const PUBLISHED_CARDS_PATH = "published-cards.json";
 
-// Helper function to get user-specific blob URL
-function getUserCardsUrl(userId) {
-  return `${BLOB_BASE_URL}/user/${userId}/cards.json`;
+// Helper function to get user-specific blob path
+function getUserCardsPath(userId) {
+  return `user/${userId}/cards.json`;
 }
 
-// Helper function to safely fetch JSON from a URL with retry logic
-async function fetchJsonWithRetry(url, context, maxRetries = 3) {
+// Helper function to safely download JSON blob with retry logic
+async function downloadJsonBlobWithRetry(containerClient, blobName, context, maxRetries = 3) {
   let lastError;
   
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       if (attempt > 0) {
-        context.log(`Retry attempt ${attempt + 1}/${maxRetries} for ${url}`);
+        context.log(`Retry attempt ${attempt + 1}/${maxRetries} for blob ${blobName}`);
       }
       
-      const response = await fetch(url, { 
-        timeout: 10000,
-        headers: {
-          'Accept': 'application/json',
-          'Cache-Control': 'no-cache'
-        }
+      // Get a reference to the blob
+      const blobClient = containerClient.getBlockBlobClient(blobName);
+      
+      // Check if the blob exists
+      const exists = await blobClient.exists();
+      if (!exists) {
+        const error = new Error(`Blob ${blobName} not found`);
+        error.code = 'BlobNotFound';
+        throw error;
+      }
+      
+      // Download the blob content with timeout
+      const downloadResponse = await blobClient.download(0, undefined, {
+        abortSignal: AbortSignal.timeout(10000)
       });
       
-      if (!response.ok) {
-        const responseText = await response.text();
-        context.log.warn(`HTTP error ${response.status} for ${url}: ${responseText.substring(0, 200)}`);
-        throw new Error(`HTTP error ${response.status}`);
+      // Read the blob content as text
+      const chunks = [];
+      const stream = await downloadResponse.readableStreamBody;
+      
+      for await (const chunk of stream) {
+        chunks.push(chunk);
       }
       
-      const text = await response.text();
+      const text = Buffer.concat(chunks).toString('utf8');
+      
       try {
         return JSON.parse(text);
       } catch (parseError) {
-        context.log.error(`JSON parse error for ${url}: ${parseError.message}`);
-        context.log.error(`Invalid JSON response (first 200 chars): ${text.substring(0, 200)}`);
-        throw new Error(`Invalid JSON response: ${parseError.message}`);
+        context.log.error(`JSON parse error for blob ${blobName}: ${parseError.message}`);
+        context.log.error(`Invalid JSON content (first 200 chars): ${text.substring(0, 200)}`);
+        throw new Error(`Invalid JSON content: ${parseError.message}`);
       }
     } catch (error) {
       lastError = error;
@@ -60,7 +73,7 @@ async function fetchJsonWithRetry(url, context, maxRetries = 3) {
         (error.name === 'AbortError');
       
       if (!isRetryable && attempt === maxRetries - 1) {
-        context.log.error(`Non-retryable error fetching ${url}: ${error.message}`);
+        context.log.error(`Non-retryable error fetching blob ${blobName}: ${error.message}`);
         throw error;
       }
       
@@ -72,61 +85,121 @@ async function fetchJsonWithRetry(url, context, maxRetries = 3) {
     }
   }
   
-  context.log.error(`Failed to fetch ${url} after ${maxRetries} attempts`);
+  context.log.error(`Failed to fetch blob ${blobName} after ${maxRetries} attempts`);
   throw lastError;
 }
 
 module.exports = async function (context, req) {
   try {
+    const requestId = `req_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    context.log(`[${requestId}] CardForge LoadCards API request received`);
+    
+    // Log request details in development/staging
+    if (process.env.AZURE_FUNCTIONS_ENVIRONMENT !== 'Production') {
+      context.log(`[${requestId}] Request headers: ${JSON.stringify(req.headers)}`);
+      context.log(`[${requestId}] Request query: ${JSON.stringify(req.query)}`);
+    }
+    
     context.log('JavaScript HTTP trigger function processed a request for cardforgeloadcards');
     
     // Get user information from the request
     const userId = req.headers['x-user-id'] || 'anonymous';
     const isAuthenticated = userId !== 'anonymous';
-    context.log(`User ID: ${userId}, Authenticated: ${isAuthenticated}`);
+    context.log(`[${requestId}] User ID: ${userId}, Authenticated: ${isAuthenticated}`);
+    
+    // Check for required auth headers for authenticated requests
+    if (isAuthenticated) {
+      const authHeader = req.headers['authorization'];
+      const csrfToken = req.headers['x-csrf-token'];
+      context.log(`[${requestId}] Auth header present: ${!!authHeader}, CSRF token present: ${!!csrfToken}`);
+    }
+    
+    // Initialize Azure storage client with managed identity
+    let blobServiceClient;
+    try {
+      // Log available environment variables for debugging (no secrets)
+      context.log(`[${requestId}] Environment: ${process.env.AZURE_FUNCTIONS_ENVIRONMENT || 'unknown'}`); 
+      context.log(`[${requestId}] Region: ${process.env.REGION_NAME || 'unknown'}`); 
+      
+      // Create a BlobServiceClient using DefaultAzureCredential (Managed Identity)
+      context.log(`[${requestId}] Creating BlobServiceClient with DefaultAzureCredential for ${STORAGE_ACCOUNT_NAME}`);
+      const credential = new DefaultAzureCredential();
+      const accountUrl = `https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net`;
+      blobServiceClient = new BlobServiceClient(accountUrl, credential);
+      context.log(`[${requestId}] Successfully created BlobServiceClient with DefaultAzureCredential`);
+    } catch (error) {
+      context.log.error(`Failed to create BlobServiceClient: ${error.message}`);
+      throw new Error(`Storage authentication failed: ${error.message}`);
+    }
+
+    // Get container client
+    const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
     
     let userCards = [];
     let galleryCards = [];
 
     // Load gallery cards
     try {
-      const galleryData = await fetchJsonWithRetry(PUBLISHED_CARDS_URL, context);
+      const galleryData = await downloadJsonBlobWithRetry(containerClient, PUBLISHED_CARDS_PATH, context);
       galleryCards = galleryData.publishedCards || [];
       context.log(`Loaded ${galleryCards.length} gallery cards`);
     } catch (error) {
-      context.log.error(`Error loading published cards: ${error.message}`);
+      if (error.code === 'BlobNotFound') {
+        context.log.warn(`Published cards blob not found: ${PUBLISHED_CARDS_PATH}`);
+      } else {
+        context.log.error(`Error loading published cards: ${error.message}`);
+      }
       galleryCards = [];
     }
 
     if (isAuthenticated) {
       // For authenticated users, load their personal cards
-      const userCardsUrl = getUserCardsUrl(userId);
+      const userCardsPath = getUserCardsPath(userId);
       
       try {
-        const userData = await fetchJsonWithRetry(userCardsUrl, context);
+        const userData = await downloadJsonBlobWithRetry(containerClient, userCardsPath, context);
         userCards = userData.cards || [];
-        context.log(`Loaded ${userCards.length} user cards`);
+        context.log(`Loaded ${userCards.length} user cards for user ${userId}`);
       } catch (error) {
         // Handle 404 specially (user doesn't have cards yet)
-        if (error.message && error.message.includes('HTTP error 404')) {
+        if (error.code === 'BlobNotFound') {
           context.log(`No cards found for user ${userId}`);
           userCards = [];
         } else {
-          context.log.error(`Error loading user cards: ${error.message}`);
+          context.log.error(`Error loading user cards for ${userId}: ${error.message}`);
           userCards = [];
         }
       }
     } else {
       // For anonymous users, load default cards
       try {
-        const defaultData = await fetchJsonWithRetry(DEFAULT_CARDS_URL, context);
+        const defaultData = await downloadJsonBlobWithRetry(containerClient, DEFAULT_CARDS_PATH, context);
         userCards = defaultData.defaultCards || [];
         context.log(`Loaded ${userCards.length} default cards`);
       } catch (error) {
-        context.log.error(`Error loading default cards: ${error.message}`);
+        if (error.code === 'BlobNotFound') {
+          context.log.warn(`Default cards blob not found: ${DEFAULT_CARDS_PATH}`);
+        } else {
+          context.log.error(`Error loading default cards: ${error.message}`);
+        }
         userCards = [];
       }
     }
+    
+    // Add diagnostic information in development
+    const diagnostics = {
+      requestId: requestId,
+      timestamp: new Date().toISOString(),
+      authenticated: isAuthenticated,
+      userCardsCount: userCards.length,
+      galleryCardsCount: galleryCards.length,
+      storageEndpoint: `https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net`,
+      containerName: CONTAINER_NAME,
+      environment: process.env.AZURE_FUNCTIONS_ENVIRONMENT || 'unknown',
+      region: process.env.REGION_NAME || 'unknown'
+    };
+    
+    context.log(`[${requestId}] Successfully completed request. User cards: ${userCards.length}, Gallery cards: ${galleryCards.length}`);
     
     // Return both user cards and gallery cards
     context.res = {
@@ -139,11 +212,24 @@ module.exports = async function (context, req) {
       },
       body: {
         userCards,
-        galleryCards
+        galleryCards,
+        diagnostics
       }
     };
   } catch (error) {
-    context.log.error(`Error in cardforgeloadcards: ${error.message}`);
+    // Generate a consistent error ID for tracking
+    const errorId = `err_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    context.log.error(`[${errorId}] Error in cardforgeloadcards: ${error.message}`);
+    context.log.error(`[${errorId}] Stack trace: ${error.stack}`);
+    
+    // Add more detailed error diagnostics
+    let errorType = 'unknown';
+    if (error.name === 'AuthenticationRequiredError') errorType = 'auth';
+    else if (error.code === 'BlobNotFound') errorType = 'not_found';
+    else if (error.code && error.code.includes('ETIMEDOUT')) errorType = 'timeout';
+    else if (error.name === 'AbortError') errorType = 'timeout';
+    
+    context.log.error(`[${errorId}] Error type: ${errorType}`); 
     
     context.res = {
       status: 500,
@@ -154,7 +240,10 @@ module.exports = async function (context, req) {
         'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID'
       },
       body: {
-        error: `Failed to load cards: ${error.message}`
+        error: `Failed to load cards: ${error.message}`,
+        errorId: errorId,
+        errorType: errorType,
+        timestamp: new Date().toISOString()
       }
     };
   }

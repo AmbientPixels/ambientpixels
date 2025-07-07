@@ -210,8 +210,11 @@ async function loadCards() {
     
     // API configuration
     const apiBase = getApiBaseUrl();
-    const apiPath = apiBase.endsWith('/api') ? '' : '/api';
-    const endpoint = `${apiBase}${apiPath}/cardforgeloadcards`;
+    // Prevent double /api/ prefix by checking if apiBase already contains /api anywhere
+    const apiPath = apiBase.includes('/api') ? '' : '/api';
+    // Ensure we have a clean path with no double slashes
+    const cleanBase = apiBase.endsWith('/') ? apiBase.slice(0, -1) : apiBase;
+    const endpoint = `${cleanBase}${apiPath}/cardforgeloadcards`;
     
     // Update UI based on authentication status
     if (saveBtn) saveBtn.disabled = !isAuthenticated;
