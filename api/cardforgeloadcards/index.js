@@ -17,20 +17,25 @@ const PUBLISHED_CARDS_PATH = "published-cards.json";
 // Helper to extract authenticated user information from Static Web Apps EasyAuth header
 function extractUserInfo(req, context) {
   const principalHeader = req.headers['x-ms-client-principal'];
-  if (!principalHeader) {
-    return { userId: 'anonymous', isAuthenticated: false };
-  }
-  try {
-    const decoded = Buffer.from(principalHeader, 'base64').toString('utf8');
-    const clientPrincipal = JSON.parse(decoded);
-    const userId = clientPrincipal.userId || 'anonymous';
-    return { userId, isAuthenticated: userId !== 'anonymous' };
-  } catch (err) {
-    if (context && context.log && typeof context.log.warn === 'function') {
-      context.log.warn(`Failed to parse client principal: ${err.message}`);
+  if (principalHeader) {
+    try {
+      const decoded = Buffer.from(principalHeader, 'base64').toString('utf8');
+      const clientPrincipal = JSON.parse(decoded);
+      const userId = clientPrincipal.userId || 'anonymous';
+      return { userId, isAuthenticated: userId !== 'anonymous' };
+    } catch (err) {
+      if (context && context.log && typeof context.log.warn === 'function') {
+        context.log.warn(`Failed to parse client principal: ${err.message}`);
+      }
+      // fall through to fallback logic
     }
-    return { userId: 'anonymous', isAuthenticated: false };
   }
+  // Fallback to client principal ID header
+  const principalId = req.headers['x-ms-client-principal-id'];
+  if (principalId && principalId !== 'anonymous') {
+    return { userId: principalId, isAuthenticated: true };
+  }
+  return { userId: 'anonymous', isAuthenticated: false };
 }
 
 // Helper function to get user-specific blob path
