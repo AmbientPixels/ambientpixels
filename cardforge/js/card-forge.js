@@ -217,8 +217,23 @@ async function loadCards() {
     const endpoint = `${cleanBase}${apiPath}/cardforgeloadcards`;
     
     // Update UI based on authentication status
-    if (saveBtn) saveBtn.disabled = !isAuthenticated;
-    if (publishBtn) publishBtn.disabled = true; // Always disabled until a card is saved
+    if (saveBtn) {
+        if (isAuthenticated) {
+            saveBtn.disabled = false;
+            saveBtn.style.display = 'inline-block';
+        } else {
+            saveBtn.style.display = 'none'; // Hide save button when not authenticated
+        }
+    }
+    
+    if (publishBtn) {
+        if (isAuthenticated) {
+            publishBtn.disabled = true; // Only enabled when a card is selected
+            publishBtn.style.display = 'inline-block';
+        } else {
+            publishBtn.style.display = 'none'; // Hide publish button when not authenticated
+        }
+    }
     
     // Update layout based on authentication status
     if (mainContainer && userCardsSidebar && cardPreviewContainer) {
@@ -235,33 +250,33 @@ async function loadCards() {
         }
     }
     
-    // Update authentication status message
+    // Update auth status message
     if (authStatusMessage) {
-        if (!isAuthenticated) {
-            authStatusMessage.innerHTML = `
-                <div class="auth-message-box">
-                    <i class="fas fa-info-circle"></i>
-                    <div class="auth-message-content">
-                        <h3>Sign in to save your creations</h3>
-                        <p>Create an account or sign in to save your cards and publish to the gallery.</p>
-                        <button class="glass-button login-button" onclick="window.location.href='/login'">Sign In</button>
-                    </div>
-                </div>
-            `;
-            authStatusMessage.style.display = 'block';
+        if (isAuthenticated) {
+            authStatusMessage.textContent = `Signed in as ${account.name || account.username || 'User'}. Your cards will be saved.`;
+            authStatusMessage.className = 'cardforge-auth-message authenticated';
+            // Hide sign-in message when authenticated
+            document.querySelectorAll('.sign-in-prompt').forEach(el => {
+                el.style.display = 'none';
+            });
         } else {
-            authStatusMessage.innerHTML = `<p><i class="fas fa-user-check"></i> Signed in as <strong>${account.name || account.id}</strong></p>`;
-            authStatusMessage.style.display = 'block';
+            authStatusMessage.textContent = 'Sign in to save your cards and publish to the gallery.';
+            authStatusMessage.className = 'cardforge-auth-message unauthenticated';
+            // Show sign-in message when not authenticated
+            document.querySelectorAll('.sign-in-prompt').forEach(el => {
+                el.style.display = 'block';
+            });
         }
     }
     
     // Debug logging
     if (window._config?.debug) {
-        console.log(`[CardForge] Configuration:`, window._config);
+        console.log(`[CardForge] Configuration:`, window._config || {});
         console.log(`[CardForge] API Base URL: ${apiBase}`);
         console.log(`[CardForge] Full endpoint: ${endpoint}`);
         console.log(`[CardForge] Authentication status: ${isAuthenticated ? 'Authenticated' : 'Anonymous'}`);
         console.log(`[CardForge] Layout mode: ${isAuthenticated ? '3-column' : '2-column'}`);
+        console.log(`[CardForge] User account:`, account || 'Not signed in');
     }
     
     try {
@@ -294,10 +309,26 @@ async function loadCards() {
         
         // Process API response
         const data = res.ok ? await res.json() : { userCards: [], galleryCards: [] };
+        console.log(`[CardForge] Full API response:`, JSON.stringify(data, null, 2));
+        
         const userCards = data.userCards || [];
         const galleryCards = data.galleryCards || [];
         
         console.log(`[CardForge] Loaded ${userCards.length} user cards and ${galleryCards.length} gallery cards`);
+        console.log(`[CardForge] API diagnostics:`, data.diagnostics || 'No diagnostics available');
+        
+        // Check for misnamed properties in the response
+        const possibleCardArrays = ['galleryCards', 'publishedCards', 'gallery', 'cards', 'published'];
+        for (const prop of possibleCardArrays) {
+            if (data[prop] && Array.isArray(data[prop]) && data[prop].length > 0) {
+                console.log(`[CardForge] Found potential gallery cards in property '${prop}': ${data[prop].length} cards`);
+                // If we found cards in a property other than galleryCards, use those instead
+                if (prop !== 'galleryCards' && galleryCards.length === 0) {
+                    console.log(`[CardForge] Using '${prop}' as gallery cards source`);
+                    galleryCards = data[prop];
+                }
+            }
+        }
         
         // Render user cards (only if authenticated)
         if (myCardsList && isAuthenticated) {

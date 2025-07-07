@@ -140,14 +140,32 @@ module.exports = async function (context, req) {
 
     // Load gallery cards
     try {
+      context.log(`[${requestId}] Attempting to load gallery cards from blob path: ${PUBLISHED_CARDS_PATH}`);
+      const blobClient = containerClient.getBlobClient(PUBLISHED_CARDS_PATH);
+      context.log(`[${requestId}] Full blob URL: ${blobClient.url}`);
+      
       const galleryData = await downloadJsonBlobWithRetry(containerClient, PUBLISHED_CARDS_PATH, context);
-      galleryCards = galleryData.publishedCards || [];
-      context.log(`Loaded ${galleryCards.length} gallery cards`);
+      
+      if (!galleryData) {
+        context.log.warn(`[${requestId}] Gallery data is null or undefined`);
+        galleryCards = [];
+      } else if (!galleryData.publishedCards) {
+        context.log.warn(`[${requestId}] Gallery data does not contain publishedCards property: ${JSON.stringify(Object.keys(galleryData))}`);
+        galleryCards = [];
+      } else {
+        galleryCards = galleryData.publishedCards;
+        context.log(`[${requestId}] Successfully loaded ${galleryCards.length} gallery cards`);
+      }
     } catch (error) {
       if (error.code === 'BlobNotFound') {
-        context.log.warn(`Published cards blob not found: ${PUBLISHED_CARDS_PATH}`);
+        context.log.warn(`[${requestId}] Published cards blob not found: ${PUBLISHED_CARDS_PATH}`);
+        context.log.warn(`[${requestId}] This is expected for new deployments or if gallery is empty`);
+      } else if (error.code === 'AuthorizationPermissionMismatch') {
+        context.log.error(`[${requestId}] Authorization error: The managed identity does not have permission to read the blob`);
+        context.log.error(`[${requestId}] Ensure the managed identity has the 'Storage Blob Data Reader' role`);
       } else {
-        context.log.error(`Error loading published cards: ${error.message}`);
+        context.log.error(`[${requestId}] Error loading published cards: ${error.message}`);
+        context.log.error(`[${requestId}] Error code: ${error.code}, Error details:`, error);
       }
       galleryCards = [];
     }
@@ -159,14 +177,14 @@ module.exports = async function (context, req) {
       try {
         const userData = await downloadJsonBlobWithRetry(containerClient, userCardsPath, context);
         userCards = userData.cards || [];
-        context.log(`Loaded ${userCards.length} user cards for user ${userId}`);
+        context.log(`[${requestId}] Loaded ${userCards.length} user cards for user ${userId}`);
       } catch (error) {
         // Handle 404 specially (user doesn't have cards yet)
         if (error.code === 'BlobNotFound') {
-          context.log(`No cards found for user ${userId}`);
+          context.log(`[${requestId}] No cards found for user ${userId}`);
           userCards = [];
         } else {
-          context.log.error(`Error loading user cards for ${userId}: ${error.message}`);
+          context.log.error(`[${requestId}] Error loading user cards for ${userId}: ${error.message}`);
           userCards = [];
         }
       }
@@ -175,12 +193,12 @@ module.exports = async function (context, req) {
       try {
         const defaultData = await downloadJsonBlobWithRetry(containerClient, DEFAULT_CARDS_PATH, context);
         userCards = defaultData.defaultCards || [];
-        context.log(`Loaded ${userCards.length} default cards`);
+        context.log(`[${requestId}] Loaded ${userCards.length} default cards`);
       } catch (error) {
         if (error.code === 'BlobNotFound') {
-          context.log.warn(`Default cards blob not found: ${DEFAULT_CARDS_PATH}`);
+          context.log.warn(`[${requestId}] Default cards blob not found: ${DEFAULT_CARDS_PATH}`);
         } else {
-          context.log.error(`Error loading default cards: ${error.message}`);
+          context.log.error(`[${requestId}] Error loading default cards: ${error.message}`);
         }
         userCards = [];
       }
@@ -188,15 +206,17 @@ module.exports = async function (context, req) {
     
     // Add diagnostic information in development
     const diagnostics = {
-      requestId: requestId,
+      requestId,
       timestamp: new Date().toISOString(),
       authenticated: isAuthenticated,
       userCardsCount: userCards.length,
       galleryCardsCount: galleryCards.length,
-      storageEndpoint: `https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net`,
-      containerName: CONTAINER_NAME,
       environment: process.env.AZURE_FUNCTIONS_ENVIRONMENT || 'unknown',
-      region: process.env.REGION_NAME || 'unknown'
+      storageAccount: STORAGE_ACCOUNT_NAME,
+      containerName: CONTAINER_NAME,
+      defaultCardsPath: DEFAULT_CARDS_PATH,
+      publishedCardsPath: PUBLISHED_CARDS_PATH,
+      userCardsPath: isAuthenticated ? getUserCardsPath(userId) : null
     };
     
     context.log(`[${requestId}] Successfully completed request. User cards: ${userCards.length}, Gallery cards: ${galleryCards.length}`);
