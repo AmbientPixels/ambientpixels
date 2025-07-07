@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "bf293291-80c1-4d7b-92b7-788a8363131a",
-      "hash": "9ec6b2542dd1a04336ac7f5ed8d4ebd8a2678505",
-      "message": "delete cardforge fnctions",
-      "timestamp": "2025-07-05 22:13:27 -0700",
+      "id": "1d1bf085-5906-4074-84eb-57eeebd3be64",
+      "hash": "1f474ee9c4928fa63aa3834bb7a1e909ca740457",
+      "message": "nightly 7",
+      "timestamp": "2025-07-06 23:48:19 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/9ec6b2542dd1a04336ac7f5ed8d4ebd8a2678505"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/1f474ee9c4928fa63aa3834bb7a1e909ca740457"
     }
   ],
-  "timestamp": "2025-07-06T13:29:43.621Z",
+  "timestamp": "2025-07-07T13:34:56.371Z",
   "count": 1,
-  "scanId": 1751808583621
+  "scanId": 1751895296371
 }
