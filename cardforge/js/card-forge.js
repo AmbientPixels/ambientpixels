@@ -435,6 +435,31 @@ async function loadCards() {
         console.log(`[CardForge] Loaded ${userCards.length} user cards and ${galleryCards.length} gallery cards`);
         console.log(`[CardForge] API diagnostics:`, data.diagnostics || 'No diagnostics available');
         
+        // Override client-side detection with API diagnostics
+        if (data.diagnostics?.authenticated && !isAuthenticated) {
+            isAuthenticated = true;
+            console.log('[CardForge] Authentication detected via API diagnostics');
+            updateButtonVisibility();
+            if (authStatusMessage) {
+                authStatusMessage.textContent = 'Signed in. Your cards will be saved.';
+                authStatusMessage.className = 'cardforge-auth-message authenticated';
+                document.querySelectorAll('.sign-in-prompt').forEach(el => el.style.display = 'none');
+            }
+            const testAuthEl2 = document.getElementById('test-auth-state');
+            if (testAuthEl2) testAuthEl2.textContent = 'Auth: SIGNED IN';
+            const galleryAnon2 = document.getElementById('gallery-msg-anon');
+            const galleryUser2 = document.getElementById('gallery-msg-user');
+            if (galleryAnon2 && galleryUser2) {
+                galleryAnon2.classList.add('hidden');
+                galleryUser2.classList.remove('hidden');
+            }
+            if (mainContainer && userCardsSidebar && cardPreviewContainer) {
+                userCardsSidebar.style.display = 'block';
+                cardPreviewContainer.classList.remove('grid-col-8');
+                cardPreviewContainer.classList.add('grid-col-5');
+            }
+        }
+        
         // Check for misnamed properties in the response
         const possibleCardArrays = ['galleryCards', 'publishedCards', 'gallery', 'cards', 'published'];
         for (const prop of possibleCardArrays) {
