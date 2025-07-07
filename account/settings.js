@@ -14,6 +14,8 @@ function initializeAccountSettings() {
     const account = accounts && accounts[0];
 
     if (account) {
+        // Expose account data for client-side utilities
+        window.currentAccount = account;
         populateProfileData(account);
         bindActionButtons();
     } else {

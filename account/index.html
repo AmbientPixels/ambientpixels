@@ -48,6 +48,12 @@
           <input type="email" id="email" name="email" class="form-control" readonly>
         </div>
         <p class="form-text">Your display name and email are managed by your identity provider and cannot be changed here.</p>
+        <div class="form-group mt-2">
+          <button id="copy-email-btn" class="btn btn-primary"><i class="fas fa-copy"></i> Copy Email</button>
+          <button id="download-profile-btn" class="btn btn-primary"><i class="fas fa-download"></i> Download Profile JSON</button>
+          <button id="toggle-raw-btn" class="btn btn-primary">Show Raw Data</button>
+        </div>
+        <pre id="raw-profile" class="form-control mt-2" hidden></pre>
       </div>
     </section>
 
