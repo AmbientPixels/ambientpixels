@@ -339,7 +339,7 @@ async function loadCards() {
     // Debug logging
     if (window._config?.debug) {
         console.log(`[CardForge] Configuration:`, window._config || {});
-        console.log(`[CardForge] API Base URL: ${apiBase}`);
+        console.log(`[CardForge] API Base URL: ${getApiBaseUrl()}`);
         console.log(`[CardForge] Full endpoint: ${endpoint}`);
         console.log(`[CardForge] Authentication status: ${isAuthenticated ? 'Authenticated' : 'Anonymous'}`);
         console.log(`[CardForge] Layout mode: ${isAuthenticated ? '3-column' : '2-column'}`);
@@ -348,6 +348,7 @@ async function loadCards() {
     
     try {
         // Fetch cards from API
+        const apiStartTime = performance.now();
         console.log(`[CardForge] Fetching cards from: ${endpoint}`);
         const headers = {
             'Accept': 'application/json'
@@ -367,6 +368,10 @@ async function loadCards() {
         if (window._config?.debug) {
             console.log(`[CardForge] Response status: ${res.status} ${res.statusText}`);
             console.log(`[CardForge] Response headers:`, Object.fromEntries([...res.headers]));
+            const apiDuration = performance.now() - apiStartTime;
+            if (window.AppInsightsService?.isInitialized()) {
+                AppInsightsService.trackApiRequest(endpoint, apiDuration, res.status.toString(), res.ok);
+            }
         }
         
         if (!res.ok) { // Handle all error responses
@@ -502,6 +507,9 @@ async function loadCards() {
             }
         }
     } catch (error) {
+        if (window.AppInsightsService?.isInitialized()) {
+            AppInsightsService.trackException(error, { source: 'cardforge.loadCards' });
+        }
         console.error(`[CardForge] Error loading cards:`, error);
         
         // Show error in user cards list
