@@ -7,6 +7,25 @@ const { DefaultAzureCredential } = require('@azure/identity');
 const STORAGE_ACCOUNT_NAME = 'cardforgeblobdata';
 const CONTAINER_NAME = 'cardforge';
 
+// Helper to extract authenticated user information from Static Web Apps EasyAuth header
+function extractUserInfo(req, context) {
+  const principalHeader = req.headers['x-ms-client-principal'];
+  if (!principalHeader) {
+    return { userId: 'anonymous', isAuthenticated: false };
+  }
+  try {
+    const decoded = Buffer.from(principalHeader, 'base64').toString('utf8');
+    const clientPrincipal = JSON.parse(decoded);
+    const userId = clientPrincipal.userId || 'anonymous';
+    return { userId, isAuthenticated: userId !== 'anonymous' };
+  } catch (err) {
+    if (context && context.log && typeof context.log.warn === 'function') {
+      context.log.warn(`Failed to parse client principal: ${err.message}`);
+    }
+    return { userId: 'anonymous', isAuthenticated: false };
+  }
+}
+
 /**
  * Creates an authenticated BlobServiceClient using managed identity
  * @returns {BlobServiceClient} - Authenticated blob service client
@@ -88,11 +107,11 @@ module.exports = async function (context, req) {
       return;
     }
 
-    // Get user information from the request
-    const userId = req.headers['x-user-id'] || 'anonymous';
+    // Extract user information from EasyAuth header
+    const { userId, isAuthenticated } = extractUserInfo(req, context);
     
     // Check if user is authenticated
-    if (userId === 'anonymous') {
+    if (!isAuthenticated) {
       context.res = {
         status: 401,
         headers: {
@@ -226,17 +245,129 @@ module.exports = async function (context, req) {
     // Update the lastUpdated timestamp
     userCards.lastUpdated = new Date().toISOString();
     
-    // Upload the updated cards file with retry logic
+    // Upload the updated cards file with optimistic concurrency control using ETags
     const data = JSON.stringify(userCards);
-    await withRetry(
-      () => userBlobClient.upload(data, data.length, {
-        blobHTTPHeaders: { blobContentType: 'application/json' }
-      }),
-      `upload user cards (${userBlobPath})`,
-      context
-    );
     
-    context.log(`Successfully saved card data for user ${userId}`);
+    // Maximum number of attempts for optimistic concurrency
+    const maxConcurrencyAttempts = 5;
+    let attempt = 0;
+    let success = false;
+    let lastError = null;
+    let eTag = null;
+    
+    // If we downloaded an existing blob, get its ETag for optimistic concurrency
+    if (userBlobExists) {
+      try {
+        const properties = await withRetry(
+          () => userBlobClient.getProperties(),
+          `get blob properties (${userBlobPath})`,
+          context
+        );
+        eTag = properties.etag;
+        context.log(`Retrieved ETag ${eTag} for optimistic concurrency control`);
+      } catch (error) {
+        context.log.warn(`Could not retrieve ETag, will proceed without optimistic concurrency: ${error.message}`);
+      }
+    }
+    
+    // Attempt upload with optimistic concurrency
+    while (!success && attempt < maxConcurrencyAttempts) {
+      try {
+        attempt++;
+        if (attempt > 1) {
+          context.log(`Optimistic concurrency attempt ${attempt}/${maxConcurrencyAttempts}`);
+          
+          // On retry, re-download the latest version and merge our changes
+          try {
+            const latestProperties = await withRetry(
+              () => userBlobClient.getProperties(),
+              `get latest blob properties (${userBlobPath})`,
+              context
+            );
+            
+            // Download the latest version
+            const downloadResponse = await withRetry(
+              () => userBlobClient.download(),
+              `download latest user blob (${userBlobPath})`,
+              context
+            );
+            
+            const latestBlobContents = await streamToText(downloadResponse.readableStreamBody);
+            const latestUserCards = JSON.parse(latestBlobContents);
+            
+            // Update our ETag for the next attempt
+            eTag = latestProperties.etag;
+            
+            // Merge our changes with the latest version
+            // Strategy: Keep our updated/new card but preserve all other cards
+            const ourCardId = existingCardIndex >= 0 ? card.id : userCards.cards[userCards.cards.length - 1].id;
+            const ourCardData = userCards.cards.find(c => c.id === ourCardId);
+            
+            // Find if our card exists in the latest version
+            const latestCardIndex = latestUserCards.cards.findIndex(c => c.id === ourCardId);
+            
+            if (latestCardIndex >= 0) {
+              // Update existing card in the latest version
+              latestUserCards.cards[latestCardIndex] = ourCardData;
+            } else {
+              // Add our new card to the latest version
+              latestUserCards.cards.push(ourCardData);
+            }
+            
+            // Use the merged data for the next upload attempt
+            userCards = latestUserCards;
+            userCards.lastUpdated = new Date().toISOString();
+            data = JSON.stringify(userCards);
+            
+            context.log(`Merged our changes with the latest version for retry attempt`);
+          } catch (mergeError) {
+            context.log.error(`Error merging changes: ${mergeError.message}`);
+            // Continue with our original data if merge fails
+          }
+        }
+        
+        // Upload with conditional request using ETag if available
+        const uploadOptions = {
+          blobHTTPHeaders: { blobContentType: 'application/json' }
+        };
+        
+        // Only add conditions if we have an ETag
+        if (eTag) {
+          uploadOptions.conditions = { ifMatch: eTag };
+          context.log(`Using ETag ${eTag} for conditional upload`);
+        }
+        
+        await withRetry(
+          () => userBlobClient.upload(data, data.length, uploadOptions),
+          `upload user cards with optimistic concurrency (${userBlobPath})`,
+          context
+        );
+        
+        success = true;
+        context.log(`Successfully saved card data for user ${userId} on attempt ${attempt}`);
+      } catch (error) {
+        lastError = error;
+        
+        // Check if this is a concurrency conflict (412 Precondition Failed)
+        if (error.statusCode === 412) {
+          context.log.warn(`Optimistic concurrency conflict detected on attempt ${attempt}`);
+          // Will retry with updated ETag
+        } else {
+          // For other errors, don't retry the concurrency loop
+          context.log.error(`Non-concurrency error during upload: ${error.message}`);
+          break;
+        }
+      }
+    }
+    
+    // If all attempts failed, throw the last error
+    if (!success) {
+      if (lastError) {
+        throw new Error(`Failed to save card after ${attempt} attempts: ${lastError.message}`);
+      } else {
+        throw new Error(`Failed to save card after ${attempt} attempts`);
+      }
+    }
     
     // Return success response
     context.res = {

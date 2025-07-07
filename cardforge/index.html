@@ -141,34 +141,11 @@
   <div id="footer-container"></div>
 
   <!-- Configuration - MUST be before other scripts -->
-  <script>
-  window._config = {
-    // Try simple, direct API path matching Azure SWA defaults
-    apiBasePath: '/api',
-    
-    // Previously tried options:
-    // apiBasePath: ''              // Default - 404 errors
-    // apiBasePath: '/api-cardforge' // Custom attempt
-    // apiBasePath: '/cardforge'     // Returns HTML, not JSON
-    // apiBasePath: '/functions/api' // Returns HTML, not JSON
-    
-    // Environment settings
-    environment: window.location.hostname === 'ambientpixels.ai' ? 'production' : 'development',
-    
-    // Application Insights
-    appInsightsConnectionString: 'InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/',
-    enableAppInsights: window.location.hostname === 'ambientpixels.ai',
-    
-    // Debug settings
-    debug: window.location.hostname !== 'ambientpixels.ai',
-    version: 'v2.1'
-  };
-  </script>
+  <script src="/cardforge/js/config.js"></script>
   
   <!-- CSRF Protection and validation utilities - load before other scripts -->
   <script src="/cardforge/js/csrf-protection.js"></script>
   <script src="/cardforge/js/validation-utils.js"></script>
-  <script src="/cardforge/js/debug-utils.js"></script>
   <script src="/js/init-header-footer.js" defer></script>
   <script src="/js/init-quotes.js" defer></script>
   <script src="/js/md-inject.js" defer></script>

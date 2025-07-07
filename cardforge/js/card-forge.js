@@ -180,15 +180,38 @@ function showMessage(message, type = 'info') {
 // loadCards() will retrieve the current user's cards (mock for now)
 
 // Helper to determine API base URL based on environment
+// Returns normalized API base URL without trailing slashes
 function getApiBaseUrl() {
     // Check if window._config exists (for custom API paths)
     if (window._config && window._config.apiBasePath) {
-        return window._config.apiBasePath;
+        const base = window._config.apiBasePath;
+        // Normalize: remove trailing slash if present
+        return base.endsWith('/') ? base.slice(0, -1) : base;
     }
     
     // Default: use relative paths (will be handled by Azure Static Web Apps)
     return '';
 }
+
+// Helper function to construct API endpoint paths correctly
+// Prevents double /api/ prefixes
+function buildApiPath(endpoint) {
+    const base = getApiBaseUrl();
+    
+    // If the endpoint already starts with a slash, remove it
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+    
+    // If base is '/api' and endpoint starts with 'api/', prevent duplication
+    if (base === '/api' && cleanEndpoint.startsWith('api/')) {
+        return `${base}/${cleanEndpoint.substring(4)}`;
+    }
+    
+    // Otherwise join them normally with a slash
+    return base ? `${base}/${cleanEndpoint}` : `/${cleanEndpoint}`;
+}
+
+// Expose buildApiPath globally so other scripts can use it
+window.buildApiPath = buildApiPath;
 
 /**
  * Load user cards and gallery cards
@@ -246,32 +269,38 @@ async function loadCards() {
         localStorage.setItem('cardforge_dev_auth', JSON.stringify(account));
     }
     
-    // API configuration
-    const apiBase = getApiBaseUrl();
-    // Prevent double /api/ prefix by checking if apiBase already contains /api anywhere
-    const apiPath = apiBase.includes('/api') ? '' : '/api';
-    // Ensure we have a clean path with no double slashes
-    const cleanBase = apiBase.endsWith('/') ? apiBase.slice(0, -1) : apiBase;
-    const endpoint = `${cleanBase}${apiPath}/cardforgeloadcards`;
+    // API configuration - use the new buildApiPath helper for correct path construction
+    const endpoint = buildApiPath('api/cardforgeloadcards');
+    console.log('[CardForge] Using API endpoint:', endpoint);
     
     // Update UI based on authentication status
-    if (saveBtn) {
-        if (isAuthenticated) {
-            saveBtn.disabled = false;
-            saveBtn.style.display = 'inline-block';
-        } else {
-            saveBtn.style.display = 'none'; // Hide save button when not authenticated
+    // Use a function for more reliable button visibility updates
+    function updateButtonVisibility() {
+        if (saveBtn) {
+            if (isAuthenticated) {
+                saveBtn.disabled = false;
+                saveBtn.style.display = 'inline-block';
+                console.log('[CardForge] Save button enabled and visible');
+            } else {
+                saveBtn.style.display = 'none'; // Hide save button when not authenticated
+                console.log('[CardForge] Save button hidden (not authenticated)');
+            }
+        }
+        
+        if (publishBtn) {
+            if (isAuthenticated) {
+                publishBtn.disabled = true; // Only enabled when a card is selected
+                publishBtn.style.display = 'inline-block';
+                console.log('[CardForge] Publish button visible but disabled');
+            } else {
+                publishBtn.style.display = 'none'; // Hide publish button when not authenticated
+                console.log('[CardForge] Publish button hidden (not authenticated)');
+            }
         }
     }
     
-    if (publishBtn) {
-        if (isAuthenticated) {
-            publishBtn.disabled = true; // Only enabled when a card is selected
-            publishBtn.style.display = 'inline-block';
-        } else {
-            publishBtn.style.display = 'none'; // Hide publish button when not authenticated
-        }
-    }
+    // Apply button visibility
+    updateButtonVisibility();
     
     // Update layout based on authentication status
     if (mainContainer && userCardsSidebar && cardPreviewContainer) {
@@ -320,11 +349,18 @@ async function loadCards() {
     try {
         // Fetch cards from API
         console.log(`[CardForge] Fetching cards from: ${endpoint}`);
+        const headers = {
+            'Accept': 'application/json'
+        };
+        
+        // Add user ID header if authenticated
+        if (isAuthenticated && account && account.id) {
+            headers['x-user-id'] = account.id;
+        }
+        
         const res = await fetch(endpoint, {
             credentials: 'include',
-            headers: {
-                'Accept': 'application/json'
-            }
+            headers: headers
         });
         
         // Debug response info
@@ -333,7 +369,7 @@ async function loadCards() {
             console.log(`[CardForge] Response headers:`, Object.fromEntries([...res.headers]));
         }
         
-        if (!res.ok && res.status !== 401) { // Ignore 401s for anonymous users
+        if (!res.ok) { // Handle all error responses
             // Try to get more error details
             let errorDetails = `HTTP ${res.status}`;
             try {
@@ -346,8 +382,23 @@ async function loadCards() {
         }
         
         // Process API response
-        const data = res.ok ? await res.json() : { userCards: [], galleryCards: [] };
-        console.log(`[CardForge] Full API response:`, JSON.stringify(data, null, 2));
+        const rawData = res.ok ? await res.json() : { userCards: [], galleryCards: [] };
+        console.log(`[CardForge] Full API response:`, JSON.stringify(rawData, null, 2));
+        
+        // Fix for array response: convert array to object if needed
+        let data = rawData;
+        if (Array.isArray(rawData)) {
+            console.warn(`[CardForge] API returned array instead of object. Converting to object format...`);
+            // Array response with numeric indices - reconstruct proper object
+            data = {};
+            Object.values(rawData).forEach(item => {
+                // Copy each array's contents to the main object
+                if (item && typeof item === 'object') {
+                    Object.assign(data, item);
+                }
+            });
+            console.log(`[CardForge] Converted data:`, data);
+        }
         
         let userCards = data.userCards || [];
         let galleryCards = data.galleryCards || [];
@@ -568,14 +619,12 @@ async function saveCard() {
           saveBtn.textContent = 'Saving...';
         }
         
-        // Get API base URL
-        const apiBase = getApiBaseUrl();
-        
-        // Avoid double /api paths by checking if apiBase already ends with /api
-        const apiPath = apiBase.endsWith('/api') ? '' : '/api';
+        // Use buildApiPath helper for proper API endpoint construction
+        const endpoint = buildApiPath('api/cardforgesavecards');
+        console.log(`[CardForge] Saving card to endpoint: ${endpoint}`);
         
         // Send the card data to the server
-        const response = await fetch(`${apiBase}${apiPath}/cardforgesavecards`, {
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

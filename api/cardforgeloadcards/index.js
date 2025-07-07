@@ -14,6 +14,25 @@ const CONTAINER_NAME = "cardforge";
 const DEFAULT_CARDS_PATH = "default-cards.json";
 const PUBLISHED_CARDS_PATH = "published-cards.json";
 
+// Helper to extract authenticated user information from Static Web Apps EasyAuth header
+function extractUserInfo(req, context) {
+  const principalHeader = req.headers['x-ms-client-principal'];
+  if (!principalHeader) {
+    return { userId: 'anonymous', isAuthenticated: false };
+  }
+  try {
+    const decoded = Buffer.from(principalHeader, 'base64').toString('utf8');
+    const clientPrincipal = JSON.parse(decoded);
+    const userId = clientPrincipal.userId || 'anonymous';
+    return { userId, isAuthenticated: userId !== 'anonymous' };
+  } catch (err) {
+    if (context && context.log && typeof context.log.warn === 'function') {
+      context.log.warn(`Failed to parse client principal: ${err.message}`);
+    }
+    return { userId: 'anonymous', isAuthenticated: false };
+  }
+}
+
 // Helper function to get user-specific blob path
 function getUserCardsPath(userId) {
   return `user/${userId}/cards.json`;
@@ -102,9 +121,8 @@ module.exports = async function (context, req) {
     
     context.log('JavaScript HTTP trigger function processed a request for cardforgeloadcards');
     
-    // Get user information from the request
-    const userId = req.headers['x-user-id'] || 'anonymous';
-    const isAuthenticated = userId !== 'anonymous';
+    // Extract user information from EasyAuth header
+    const { userId, isAuthenticated } = extractUserInfo(req, context);
     context.log(`[${requestId}] User ID: ${userId}, Authenticated: ${isAuthenticated}`);
     
     // Check for required auth headers for authenticated requests
@@ -204,6 +222,20 @@ module.exports = async function (context, req) {
       }
     }
     
+    // Get default cards for anonymous users
+    let defaultCards = [];
+    if (!isAuthenticated) {
+      try {
+        context.log(`[${requestId}] Attempting to load default cards for anonymous user`);
+        const defaultCardsData = await downloadJsonBlobWithRetry(containerClient, DEFAULT_CARDS_PATH, context);
+        defaultCards = Array.isArray(defaultCardsData) ? defaultCardsData : [];
+        context.log(`[${requestId}] Loaded ${defaultCards.length} default cards for anonymous user`);
+      } catch (error) {
+        context.log.warn(`[${requestId}] Could not load default cards: ${error.message}`);
+        // Continue with empty defaultCards array
+      }
+    }
+
     // Add diagnostic information in development
     const diagnostics = {
       requestId,
@@ -211,6 +243,7 @@ module.exports = async function (context, req) {
       authenticated: isAuthenticated,
       userCardsCount: userCards.length,
       galleryCardsCount: galleryCards.length,
+      defaultCardsCount: defaultCards.length,
       environment: process.env.AZURE_FUNCTIONS_ENVIRONMENT || 'unknown',
       storageAccount: STORAGE_ACCOUNT_NAME,
       containerName: CONTAINER_NAME,
@@ -219,9 +252,22 @@ module.exports = async function (context, req) {
       userCardsPath: isAuthenticated ? getUserCardsPath(userId) : null
     };
     
-    context.log(`[${requestId}] Successfully completed request. User cards: ${userCards.length}, Gallery cards: ${galleryCards.length}`);
+    context.log(`[${requestId}] Successfully completed request. User cards: ${userCards.length}, Gallery cards: ${galleryCards.length}, Default cards: ${defaultCards.length}`);
     
-    // Return both user cards and gallery cards
+    // Return all card arrays in the response
+    // Ensure the response body is explicitly a non-array object with named card arrays
+    const responseBody = {
+      userCards: userCards || [],
+      galleryCards: galleryCards || [],
+      defaultCards: defaultCards || [], // Added defaultCards to match frontend expectations
+      diagnostics: diagnostics || {}
+    };
+    
+    // Force serialize to ensure object format is preserved
+    const serializedBody = JSON.stringify(responseBody);
+    
+    context.log(`[${requestId}] Response structure: ${serializedBody.substring(0, 200)}...`);
+    
     context.res = {
       status: 200,
       headers: {
@@ -230,11 +276,7 @@ module.exports = async function (context, req) {
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID'
       },
-      body: {
-        userCards,
-        galleryCards,
-        diagnostics
-      }
+      body: responseBody
     };
   } catch (error) {
     // Generate a consistent error ID for tracking

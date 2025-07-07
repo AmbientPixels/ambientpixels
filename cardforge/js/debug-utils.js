@@ -19,24 +19,28 @@ const CardForgeDebug = (() => {
            (!window._config || window._config.environment === 'production');
   };
   
-  // Default paths to test
-  const DEFAULT_PATHS = [
-    '/api/cardforgetemplate',
-    '/api/cardforgegallery',
-    '/api/cardforgecards',
-    '/api/cardforgemycards',
-    '/api/cardforgeloadcards',
-    '/api/cardforgesavecards',
-    '/api/cardforgepublish'
+  // Endpoint names without /api/ prefix - updated to match API documentation
+  const API_ENDPOINTS = [
+    'cardforgetemplate',
+    'cardforgeloadcards',  // This loads both user and gallery cards
+    'cardforgesavecards',
+    'cardforgepublish'
   ];
   
-  // Alternative API path structures to test
+  // Valid API base paths to test
   const API_PATH_OPTIONS = [
+    '/api' // This is the only valid production base path
+  ];
+  
+  // For debugging - you can uncomment these to test other configurations
+  // but they should not be used in production
+  /*
+  const DEBUG_API_PATH_OPTIONS = [
     '', // default (relative)
-    '/api',
     '/cardforge',
     '/functions/api'
   ];
+  */
   
   // Output container for debug results
   let outputContainer = null;
@@ -271,23 +275,27 @@ const CardForgeDebug = (() => {
   }
   
   /**
-   * Test all API endpoints with different base paths
+   * Test all API endpoints with the correct API base path
    */
   async function testAllEndpoints() {
     clearPanel();
-    logToPanel('Testing all API endpoints with different base paths...', 'info');
+    logToPanel('Testing API endpoints...', 'info');
     
     // Current config
     const currentBase = window._config?.apiBasePath || '';
     logToPanel(`Current API base path: "${currentBase}"`, 'info');
     
-    // Test each API path option
+    // Test each API path option (only /api in production)
     for (const basePath of API_PATH_OPTIONS) {
       logToPanel(`Testing with base path: "${basePath}"`, 'info');
       
       // Only test GET endpoints to avoid data mutations
-      for (const endpoint of DEFAULT_PATHS.filter(p => !p.includes('savecards') && !p.includes('cardpublish'))) {
-        await testEndpoint(`${basePath}${endpoint}`);
+      for (const endpointName of API_ENDPOINTS.filter(p => 
+        !p.includes('savecards') && !p.includes('publish')
+      )) {
+        // Construct proper path with no duplicate /api/
+        const finalEndpoint = `${basePath}/${endpointName}`;
+        await testEndpoint(finalEndpoint);
       }
       
       logToPanel('---', 'info');
@@ -307,7 +315,8 @@ const CardForgeDebug = (() => {
       const res = await fetch(endpoint, {
         credentials: 'include',
         headers: {
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'X-User-ID': window.authModule?.getCurrentUser()?.id || ''
         }
       });
       const endTime = performance.now();
@@ -319,7 +328,37 @@ const CardForgeDebug = (() => {
         // Try to get the data
         try {
           const data = await res.json();
-          logToPanel(`Received ${Array.isArray(data) ? data.length + ' items' : 'data'}`, 'success');
+          logToPanel(`Received data structure: ${JSON.stringify(Object.keys(data))}`, 'info');
+          
+          if (endpoint.includes('loadcards')) {
+            // Check for specific card data structure
+            // Note: API might return nested structure or top-level arrays depending on response format
+            const responseData = data;
+            
+            // Get card arrays, accounting for possible nesting in response
+            const userCards = responseData.userCards || [];
+            const galleryCards = responseData.galleryCards || [];
+            const defaultCards = responseData.defaultCards || [];
+            
+            // Log card counts
+            logToPanel(`User cards: ${userCards.length || 0}`, 'success');
+            logToPanel(`Gallery cards: ${galleryCards.length || 0}`, 'success');
+            logToPanel(`Default cards: ${defaultCards.length || 0}`, 'success');
+            
+            // Check if any card arrays are missing
+            const missingArrays = [];
+            if (!responseData.userCards) missingArrays.push('userCards');
+            if (!responseData.galleryCards) missingArrays.push('galleryCards');
+            if (!responseData.defaultCards) missingArrays.push('defaultCards');
+            
+            if (missingArrays.length > 0) {
+              logToPanel(`⚠️ Missing expected card arrays: ${missingArrays.join(', ')}`, 'warning');
+              // Log the actual structure received
+              logToPanel(`Actual API response keys: ${JSON.stringify(Object.keys(responseData))}`, 'info');
+            }
+          } else {
+            logToPanel(`Received ${Array.isArray(data) ? data.length + ' items' : 'data'}`, 'success');
+          }
         } catch (e) {
           logToPanel('Response is not JSON: ' + e.message, 'warning');
         }

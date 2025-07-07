@@ -8,6 +8,25 @@ const fetch = require('node-fetch');
 const STORAGE_ACCOUNT_NAME = 'cardforgeblobdata';
 const CONTAINER_NAME = 'cardforge';
 
+// Helper to extract authenticated user information from Static Web Apps EasyAuth header
+function extractUserInfo(req, context) {
+  const principalHeader = req.headers['x-ms-client-principal'];
+  if (!principalHeader) {
+    return { userId: 'anonymous', isAuthenticated: false };
+  }
+  try {
+    const decoded = Buffer.from(principalHeader, 'base64').toString('utf8');
+    const clientPrincipal = JSON.parse(decoded);
+    const userId = clientPrincipal.userId || 'anonymous';
+    return { userId, isAuthenticated: userId !== 'anonymous' };
+  } catch (err) {
+    if (context && context.log && typeof context.log.warn === 'function') {
+      context.log.warn(`Failed to parse client principal: ${err.message}`);
+    }
+    return { userId: 'anonymous', isAuthenticated: false };
+  }
+}
+
 // Helper function to convert stream to text
 async function streamToText(readableStream) {
   return new Promise((resolve, reject) => {
@@ -107,11 +126,11 @@ module.exports = async function (context, req) {
       return;
     }
 
-    // Get user information from the request
-    const userId = req.headers['x-user-id'] || 'anonymous';
+    // Extract user information from EasyAuth header
+    const { userId, isAuthenticated } = extractUserInfo(req, context);
     
     // Check if user is authenticated
-    if (userId === 'anonymous') {
+    if (!isAuthenticated) {
       context.res = {
         status: 401,
         headers: {

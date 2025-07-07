@@ -2,11 +2,18 @@
  * Publish a card to the public gallery
  */
 async function publishCard() {
-  // Check if user is signed in
-  const account = window.authModule?.getCurrentUser();
-  const isSignedIn = !!account;
+  // Check if user is signed in - ensure authModule is fully initialized
+  if (!window.authModule) {
+    console.error('[CardForge] Authentication module not initialized');
+    showMessage('Authentication system not ready. Please refresh the page and try again.', 'error');
+    return;
+  }
   
-  if (!isSignedIn) {
+  const account = window.authModule.getCurrentUser();
+  console.log('[CardForge] Current user account:', account);
+  
+  if (!account || !account.id) {
+    console.error('[CardForge] User not authenticated or missing ID');
     showMessage('Please sign in to publish cards', 'error');
     return;
   }
@@ -26,12 +33,6 @@ async function publishCard() {
     'Do you want to publish this card to the public gallery? Published cards will be visible to everyone.',
     async () => {
       try {
-        // Get API base URL - uses the shared getApiBaseUrl() function from card-forge.js
-        const apiBase = getApiBaseUrl();
-        
-        // Avoid double /api paths by checking if apiBase already ends with /api
-        const apiPath = apiBase.endsWith('/api') ? '' : '/api';
-        
         // Show publishing indicator
         const publishBtn = document.getElementById('publish-btn');
         if (publishBtn) {
@@ -39,26 +40,50 @@ async function publishCard() {
           publishBtn.textContent = 'Publishing...';
         }
         
-        // Call the cardforgepublish API
-        const response = await fetch(`${apiBase}${apiPath}/cardforgepublish`, {
+        // Call the cardforgepublish API with corrected path construction
+        const endpoint = window.buildApiPath('api/cardforgepublish');
+        console.log('[CardForge] Publishing to endpoint:', endpoint);
+        
+        // Ensure we send both upper and lowercase versions of the user ID header
+        // to handle any case sensitivity issues in the backend
+        const headers = {
+          'Content-Type': 'application/json',
+          'x-user-id': account.id,
+          'X-User-ID': account.id,  // Add uppercase version for case-sensitive servers
+          'X-CSRF-Token': window.csrfToken || ''
+        };
+        
+        console.log('[CardForge] Request headers:', headers);
+        
+        const response = await fetch(endpoint, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-user-id': account?.id || 'anonymous',
-            'X-CSRF-Token': window.csrfToken
-          },
-          body: JSON.stringify({ cardId })
+          headers: headers,
+          body: JSON.stringify({ cardId }),
+          credentials: 'include'  // Include cookies for any session-based auth
         });
+        
+        console.log('[CardForge] Publish response status:', response.status);
+        console.log('[CardForge] Publish response headers:', [...response.headers.entries()]);
         
         if (!response.ok) {
           // Check content type to handle non-JSON errors
           const contentType = response.headers.get('content-type');
-          if (contentType && contentType.includes('application/json')) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || `HTTP ${response.status}`);
-          } else {
-            throw new Error(`HTTP ${response.status}`);
+          let errorMessage = `HTTP ${response.status}`;
+          
+          try {
+            if (contentType && contentType.includes('application/json')) {
+              const errorData = await response.json();
+              console.error('[CardForge] Error response:', errorData);
+              errorMessage = errorData.error || errorData.message || errorMessage;
+            } else {
+              const textResponse = await response.text();
+              console.error('[CardForge] Error response text:', textResponse);
+            }
+          } catch (parseError) {
+            console.error('[CardForge] Error parsing error response:', parseError);
           }
+          
+          throw new Error(errorMessage);
         }
         
         const result = await response.json();
@@ -78,8 +103,8 @@ async function publishCard() {
           }
         }
       } catch (error) {
-        console.error('Failed to publish card:', error);
-        showMessage(`Error: ${error.message}`, 'error');
+        console.error('[CardForge] Failed to publish card:', error);
+        showMessage(`Error publishing card: ${error.message}`, 'error');
       } finally {
         // Reset button state
         const publishBtn = document.getElementById('publish-btn');

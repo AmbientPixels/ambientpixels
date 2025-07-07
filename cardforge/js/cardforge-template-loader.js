@@ -21,16 +21,8 @@
     }
   }
 
-  // Helper to determine API base URL based on environment
-  function getApiBaseUrl() {
-    // Check if window._config exists (for custom API paths)
-    if (window._config && window._config.apiBasePath) {
-        return window._config.apiBasePath;
-    }
-    
-    // Default: use relative paths (will be handled by Azure Static Web Apps)
-    return '';
-  }
+  // We now use the global buildApiPath helper from card-forge.js
+  // No need for a local getApiBaseUrl duplicate
 
   /**
    * Loads a template for the specified card type and updates the form
@@ -44,14 +36,13 @@
         form.classList.add('loading');
       }
       
-      // Get API base URL
-      const apiBase = getApiBaseUrl();
+      // Use global buildApiPath helper for proper path construction
+      // This prevents double /api/ issues and ensures consistent API paths
+      const endpoint = window.buildApiPath(`api/cardforgetemplate?type=${templateType}`);
+      console.log(`[CardForge] Loading template from endpoint: ${endpoint}`);
       
-      // Avoid double /api paths by checking if apiBase already ends with /api
-      const apiPath = apiBase.endsWith('/api') ? '' : '/api';
-      
-      // Fetch template from API
-      const response = await fetch(`${apiBase}${apiPath}/cardforgetemplate?type=${templateType}`);
+      // Fetch template from API with corrected path
+      const response = await fetch(endpoint);
       
       if (!response.ok) {
         throw new Error(`Failed to load template: ${response.status}`);
