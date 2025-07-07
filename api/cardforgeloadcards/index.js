@@ -35,6 +35,14 @@ function extractUserInfo(req, context) {
   if (principalId && principalId !== 'anonymous') {
     return { userId: principalId, isAuthenticated: true };
   }
+  // Development fallback: use X-User-ID header to simulate auth
+  if (process.env.AZURE_FUNCTIONS_ENVIRONMENT !== 'Production') {
+    const devUserId = req.headers['x-user-id'];
+    if (devUserId) {
+      context.log(`[DEV AUTH] Falling back to X-User-ID: ${devUserId}`);
+      return { userId: devUserId, isAuthenticated: true };
+    }
+  }
   return { userId: 'anonymous', isAuthenticated: false };
 }
 

@@ -48,16 +48,24 @@ async function publishCard() {
         
         // Ensure we send both upper and lowercase versions of the user ID header
         // to handle any case sensitivity issues in the backend
-        const headers = {
+        const publishHeaders = {
           'Content-Type': 'application/json',
           'X-CSRF-Token': window.csrfProtection.getToken()
         };
+        if (window._config.environment !== 'production') {
+          const devAuth = localStorage.getItem('cardforge_dev_auth');
+          if (devAuth) {
+            const { id: devUserId } = JSON.parse(devAuth);
+            publishHeaders['X-User-ID'] = devUserId;
+            if (window._config.debug) console.log(`[DEV] Added X-User-ID header for publish: ${devUserId}`);
+          }
+        }
         
         console.log('[CardForge] Request headers:', headers);
         
         const response = await fetch(endpoint, {
           method: 'POST',
-          headers: headers,
+          headers: publishHeaders,
           body: JSON.stringify({ cardId }),
           credentials: 'include'  // Include cookies for any session-based auth
         });

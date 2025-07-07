@@ -381,8 +381,14 @@ async function loadCards() {
         const headers = {
             'Accept': 'application/json'
         };
-        
-        // No user ID header needed; authentication via credentials
+        if (window._config.environment !== 'production') {
+            const devAuth = localStorage.getItem('cardforge_dev_auth');
+            if (devAuth) {
+                const { id: devUserId } = JSON.parse(devAuth);
+                headers['X-User-ID'] = devUserId;
+                if (window._config.debug) console.log(`[DEV] Added X-User-ID header for load: ${devUserId}`);
+            }
+        }
         
         const res = await fetch(endpoint, {
             credentials: 'include',
@@ -682,14 +688,23 @@ async function saveCard() {
         console.log(`[CardForge] Saving card to endpoint: ${endpoint}`);
         
         // Send the card data to the server
+        const saveHeaders = {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': window.csrfProtection.getToken()
+        };
+        if (window._config.environment !== 'production') {
+            const devAuth = localStorage.getItem('cardforge_dev_auth');
+            if (devAuth) {
+                const { id: devUserId } = JSON.parse(devAuth);
+                saveHeaders['X-User-ID'] = devUserId;
+                if (window._config.debug) console.log(`[DEV] Added X-User-ID header for save: ${devUserId}`);
+            }
+        }
         const response = await fetch(endpoint, {
             method: 'POST',
             credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': window.csrfProtection.getToken()
-          },
-          body: JSON.stringify(card)
+            headers: saveHeaders,
+            body: JSON.stringify(card)
         });
         
         if (!response.ok) {
