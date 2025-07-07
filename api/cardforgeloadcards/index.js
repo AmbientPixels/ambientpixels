@@ -17,22 +17,7 @@ function getUserCardsUrl(userId) {
   return `${BLOB_BASE_URL}/user/${userId}/cards.json`;
 }
 
-// Helper function to convert stream to text
-async function streamToText(readableStream) {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    readableStream.on('data', (data) => {
-      chunks.push(data.toString());
-    });
-    readableStream.on('end', () => {
-      resolve(chunks.join(''));
-    });
-    readableStream.on('error', reject);
-  });
-}
-
-/* updated by Cascade */
-// Helper function to safely fetch JSON from a URL with improved retry logic
+// Helper function to safely fetch JSON from a URL with retry logic
 async function fetchJsonWithRetry(url, context, maxRetries = 3) {
   let lastError;
   
@@ -43,7 +28,6 @@ async function fetchJsonWithRetry(url, context, maxRetries = 3) {
       }
       
       const response = await fetch(url, { 
-        // Add timeout to avoid hanging requests
         timeout: 10000,
         headers: {
           'Accept': 'application/json',
@@ -69,11 +53,10 @@ async function fetchJsonWithRetry(url, context, maxRetries = 3) {
       lastError = error;
       
       // Check if this is a retryable error
-      const retryableErrors = ['ECONNRESET', 'ETIMEDOUT', 'ESOCKETTIMEDOUT', 'EPIPE', 'REQUEST_SEND_ERROR'];
+      const retryableErrors = ['ECONNRESET', 'ETIMEDOUT', 'ESOCKETTIMEDOUT', 'EPIPE'];
       const isRetryable = 
         (error.code && retryableErrors.includes(error.code)) ||
         (error.message && error.message.includes('network')) ||
-        (error.type === 'system' && error.code === 'ETIMEDOUT') ||
         (error.name === 'AbortError');
       
       if (!isRetryable && attempt === maxRetries - 1) {
@@ -83,43 +66,33 @@ async function fetchJsonWithRetry(url, context, maxRetries = 3) {
       
       // Use exponential backoff with jitter
       const delay = Math.min(Math.pow(2, attempt) * 100 + Math.random() * 100, 3000);
-      context.log.warn(`Retryable error fetching ${url}: ${error.message}. Retrying in ${delay}ms`);
+      context.log.warn(`Retrying in ${delay}ms`);
       
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
   
-  context.log.error(`Failed to fetch ${url} after ${maxRetries} attempts: ${lastError.message}`);
+  context.log.error(`Failed to fetch ${url} after ${maxRetries} attempts`);
   throw lastError;
 }
 
 module.exports = async function (context, req) {
-  context.log('JavaScript HTTP trigger function processed a request for cardforgeloadcards');
-
   try {
-    // Log request details for debugging
-    context.log('========== CARDFORGELOADCARDS DEBUG START ==========');
-    context.log(`Request headers: ${JSON.stringify(req.headers)}`);
-    context.log(`Request method: ${req.method}`);
-    context.log(`Request URL: ${req.url}`);
+    context.log('JavaScript HTTP trigger function processed a request for cardforgeloadcards');
     
     // Get user information from the request
     const userId = req.headers['x-user-id'] || 'anonymous';
     const isAuthenticated = userId !== 'anonymous';
     context.log(`User ID: ${userId}, Authenticated: ${isAuthenticated}`);
     
-    context.log(`Default cards URL: ${DEFAULT_CARDS_URL}`);
-    context.log(`Published cards URL: ${PUBLISHED_CARDS_URL}`);
-
     let userCards = [];
     let galleryCards = [];
 
-    // Load gallery cards from the published cards URL with enhanced retry logic
+    // Load gallery cards
     try {
-      context.log(`Fetching published cards from ${PUBLISHED_CARDS_URL}`);
       const galleryData = await fetchJsonWithRetry(PUBLISHED_CARDS_URL, context);
       galleryCards = galleryData.publishedCards || [];
-      context.log(`Loaded ${galleryCards.length} cards from public gallery`);
+      context.log(`Loaded ${galleryCards.length} gallery cards`);
     } catch (error) {
       context.log.error(`Error loading published cards: ${error.message}`);
       galleryCards = [];
@@ -128,21 +101,16 @@ module.exports = async function (context, req) {
     if (isAuthenticated) {
       // For authenticated users, load their personal cards
       const userCardsUrl = getUserCardsUrl(userId);
-      context.log(`Fetching user cards from ${userCardsUrl}`);
       
       try {
-        // Use improved retry logic for fetching user cards
-        context.log(`Fetching user cards with retry logic from ${userCardsUrl}`);
         const userData = await fetchJsonWithRetry(userCardsUrl, context);
         userCards = userData.cards || [];
-        context.log(`Loaded ${userCards.length} cards for user ${userId}`);
+        context.log(`Loaded ${userCards.length} user cards`);
       } catch (error) {
-        // Handle 404 case specially (user doesn't have cards yet)
+        // Handle 404 specially (user doesn't have cards yet)
         if (error.message && error.message.includes('HTTP error 404')) {
-          context.log(`No cards found for user ${userId}, returning empty array`);
+          context.log(`No cards found for user ${userId}`);
           userCards = [];
-          // Note: Creating an empty cards file would require a POST request,
-          // which we're not implementing here to keep it simple
         } else {
           context.log.error(`Error loading user cards: ${error.message}`);
           userCards = [];
@@ -151,13 +119,11 @@ module.exports = async function (context, req) {
     } else {
       // For anonymous users, load default cards
       try {
-        context.log(`Fetching default cards from ${DEFAULT_CARDS_URL}`);
         const defaultData = await fetchJsonWithRetry(DEFAULT_CARDS_URL, context);
         userCards = defaultData.defaultCards || [];
-        context.log(`Loaded ${userCards.length} default cards for anonymous user`);
+        context.log(`Loaded ${userCards.length} default cards`);
       } catch (error) {
         context.log.error(`Error loading default cards: ${error.message}`);
-        context.log.warn('Returning empty default cards array due to fetch error');
         userCards = [];
       }
     }
@@ -178,14 +144,6 @@ module.exports = async function (context, req) {
     };
   } catch (error) {
     context.log.error(`Error in cardforgeloadcards: ${error.message}`);
-    context.log.error(`Error stack: ${error.stack}`);
-    
-    // Log detailed error information
-    if (error.code) context.log.error(`Error code: ${error.code}`);
-    if (error.statusCode) context.log.error(`Error status code: ${error.statusCode}`);
-    if (error.details) context.log.error(`Error details: ${JSON.stringify(error.details)}`);
-    
-    context.log('========== CARDFORGELOADCARDS DEBUG END ==========');
     
     context.res = {
       status: 500,
@@ -196,18 +154,8 @@ module.exports = async function (context, req) {
         'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID'
       },
       body: {
-        error: `Failed to load cards: ${error.message}`,
-        errorDetails: {
-          message: error.message,
-          code: error.code || 'unknown',
-          stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-        }
+        error: `Failed to load cards: ${error.message}`
       }
     };
-  }
-  
-  // Log completion
-  if (!context.res) {
-    context.log('========== CARDFORGELOADCARDS DEBUG END ==========');
   }
 };
