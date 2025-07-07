@@ -26,7 +26,7 @@ jobs:
       - name: Build Static Artifacts
         run: |
           mkdir app_build
-          rsync -av cardforge/ app_build/
+          rsync -av --exclude='api' --exclude='node_modules' --exclude='.git' --exclude='.github' --exclude='.windsurf' ./ app_build/
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
