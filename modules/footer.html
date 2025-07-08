@@ -27,6 +27,20 @@
       </div>
     </div>
   <!-- Auth Scripts -->
-  <script src="/auth/authUI.js" defer></script>
+  <script>
+    // Wait for the DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load auth script
+      const script = document.createElement('script');
+      script.src = '/auth/authUI.js';
+      script.onload = function() {
+        console.log('Auth UI script loaded successfully');
+      };
+      script.onerror = function() {
+        console.error('Failed to load auth UI script');
+      };
+      document.body.appendChild(script);
+    });
+  </script>
 
 </footer>

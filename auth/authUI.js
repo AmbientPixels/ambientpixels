@@ -91,20 +91,30 @@
 
   // Trigger Azure SWA B2C login
   function login(e) {
+    console.log('Login function called');
+    
     if (e) {
+      console.log('Preventing default behavior');
       e.preventDefault();
       e.stopPropagation();
     }
     
-    // Get current URL without hash/fragment
-    const currentPath = window.location.pathname + window.location.search;
-    const redirectUri = window.location.origin + '/.auth/login/aad/callback';
-    
-    // Build the login URL
-    const loginUrl = `/.auth/login/aad?p=SignUpSignIn&post_login_redirect_uri=${encodeURIComponent(currentPath)}&redirect_uri=${encodeURIComponent(redirectUri)}`;
-    
-    debugLog('Redirecting to:', loginUrl);
-    window.location.href = loginUrl;
+    try {
+      // Get current URL without hash/fragment
+      const currentPath = window.location.pathname + window.location.search;
+      const redirectUri = window.location.origin + '/.auth/login/aad/callback';
+      
+      // Build the login URL
+      const loginUrl = `/.auth/login/aad?p=SignUpSignIn&post_login_redirect_uri=${encodeURIComponent(currentPath)}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+      
+      console.log('Login URL:', loginUrl);
+      debugLog('Redirecting to:', loginUrl);
+      
+      // Force a hard redirect
+      window.location.replace(loginUrl);
+    } catch (error) {
+      console.error('Error in login function:', error);
+    }
   }
 
   // Trigger logout
@@ -120,11 +130,22 @@
     const loginBtn = document.getElementById('login-btn');
     const logoutBtn = document.getElementById('dropdown-logout-btn');
     
+    // Remove existing event listeners
     if (loginBtn) {
-      // Remove existing event listeners to prevent duplicates
-      loginBtn.replaceWith(loginBtn.cloneNode(true));
-      const newLoginBtn = document.getElementById('login-btn');
-      newLoginBtn.addEventListener('click', login);
+      const newLoginBtn = loginBtn.cloneNode(true);
+      loginBtn.parentNode.replaceChild(newLoginBtn, loginBtn);
+      
+      // Add new event listener
+      newLoginBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        login(e);
+      });
+      
+      // For debugging
+      newLoginBtn.addEventListener('click', (e) => {
+        console.log('Login button clicked');
+      }, { once: true });
     }
     
     if (logoutBtn) {
@@ -133,11 +154,6 @@
         e.stopPropagation();
         logout(e);
       };
-      logoutBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        logout(e);
-      });
     }
     
     // Bind dropdown events
@@ -145,6 +161,9 @@
     
     // Update UI state
     updateUI();
+    
+    // Debug log
+    console.log('Auth buttons bound');
   }
 
   // Expose globals for other modules
@@ -206,9 +225,38 @@
     }
   }
 
-  // Initialize on load: first load auth state, then bind buttons
-  document.addEventListener('DOMContentLoaded', async () => {
-    await loadAuthState();
+  // Initialize auth system
+  async function initializeAuth() {
+    console.log('Initializing auth system...');
+    
+    // First load auth state
+    const isAuthenticated = await loadAuthState();
+    console.log('Auth state loaded, isAuthenticated:', isAuthenticated);
+    
+    // Then bind all auth-related buttons
     bindAuthButtons();
-  });
+    
+    // Expose auth functions globally
+    window.ambientAuth = {
+      login,
+      logout,
+      isAuthenticated: () => sessionStorage.getItem('ambientPixels_isAuthenticated') === 'true',
+      getUser: () => {
+        try {
+          return JSON.parse(sessionStorage.getItem('userInfo') || 'null');
+        } catch (e) {
+          return null;
+        }
+      }
+    };
+    
+    console.log('Auth system initialized');
+  }
+  
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeAuth);
+  } else {
+    initializeAuth();
+  }
 })();
