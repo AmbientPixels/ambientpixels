@@ -81,14 +81,27 @@ async function checkAuthAndLoadProfile() {
     try {
         const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         
-        // For local development with SWA CLI
-        if (isLocalhost && window.location.port === '4280') {
-            // Continue with normal auth flow
-        } 
-        // For production or local development without SWA CLI
-        else {
-            // In production, we'll proceed with the auth check
-            // The actual auth check happens in the try-catch below
+        // For local development without SWA CLI
+        if (isLocalhost && !window.location.port.includes('4280')) {
+            debugLog('Running in local development mode with mock user');
+            const mockUser = {
+                userId: 'local-dev-user',
+                userDetails: 'dev@ambientpixels.local',
+                identityProvider: 'local-dev',
+                userRoles: ['authenticated', 'anonymous']
+            };
+            
+            // Add a small delay to simulate network request
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            window.currentUser = mockUser;
+            populateProfileData(mockUser);
+            bindActionButtons();
+            document.body.classList.remove('loading');
+            document.body.classList.add('authenticated');
+            
+            showStatusMessage('Running in local development mode with mock user data', 'info', 5000);
+            return;
         }
         
         // Normal auth flow for production or SWA CLI
