@@ -32,6 +32,13 @@
 <main class="grid-container grid-col-12">
     <div class="breadcrumb-container grid-col-12"></div>
 
+    <!-- Status Message Area -->
+    <div id="status-message" class="status-message" role="alert" aria-live="polite" hidden>
+        <span class="status-icon"></span>
+        <span class="status-text"></span>
+        <button class="status-close" aria-label="Dismiss message">&times;</button>
+    </div>
+
     <section class="grid-col-12 content-section neon-card"> 
     <!-- Profile Information Section -->
     <section class="content-section settings-section grid-col-6">
@@ -49,9 +56,9 @@
         </div>
         <p class="form-text">Your display name and email are managed by your identity provider and cannot be changed here.</p>
         <div class="form-group mt-2">
-          <button id="copy-email-btn" class="btn btn-primary"><i class="fas fa-copy"></i> Copy Email</button>
-          <button id="download-profile-btn" class="btn btn-primary"><i class="fas fa-download"></i> Download Profile JSON</button>
-          <button id="toggle-raw-btn" class="btn btn-primary">Show Raw Data</button>
+          <button id="copy-email-btn" class="glass-button"><i class="fas fa-copy"></i> Copy Email</button>
+          <button id="download-profile-btn" class="glass-button"><i class="fas fa-download"></i> Download Profile JSON</button>
+          <button id="toggle-raw-btn" class="glass-button">Show Raw Data</button>
         </div>
         <pre id="raw-profile" class="form-control mt-2" hidden></pre>
       </div>
@@ -68,7 +75,7 @@
         </div>
         <div class="avatar-controls">
           <p>Personalize your profile by selecting a new avatar.</p>
-          <button id="change-avatar-btn" class="btn btn-primary"><i class="fas fa-camera"></i> Change Avatar</button>
+          <button id="change-avatar-btn" class="glass-button"><i class="fas fa-camera"></i> Change Avatar</button>
         </div>
       </div>
     </section>
@@ -80,7 +87,7 @@
       </div>
       <div class="content">
         <p>Deleting your account is a permanent action and cannot be undone. All your data will be removed from our systems.</p>
-        <button id="delete-account-btn" class="btn btn-danger">Delete My Account</button>
+        <button id="delete-account-btn" class="glass-button danger-button">Delete My Account</button>
       </div>
     </section>
 </section>
