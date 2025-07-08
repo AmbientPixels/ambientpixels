@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "1d1bf085-5906-4074-84eb-57eeebd3be64",
-      "hash": "1f474ee9c4928fa63aa3834bb7a1e909ca740457",
-      "message": "nightly 7",
-      "timestamp": "2025-07-06 23:48:19 -0700",
+      "id": "40225c2a-2e1f-49f7-a61a-ebc25b8cdbeb",
+      "hash": "d2f833f0405677a105b0fc233eb2f09a3f41d31e",
+      "message": "nightly lats last",
+      "timestamp": "2025-07-07 22:53:41 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -15,10 +15,10 @@
         "master",
         "HEAD"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/1f474ee9c4928fa63aa3834bb7a1e909ca740457"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/d2f833f0405677a105b0fc233eb2f09a3f41d31e"
     }
   ],
-  "timestamp": "2025-07-07T13:34:56.371Z",
+  "timestamp": "2025-07-08T13:35:48.925Z",
   "count": 1,
-  "scanId": 1751895296371
+  "scanId": 1751981748925
 }
