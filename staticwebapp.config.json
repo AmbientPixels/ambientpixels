@@ -82,7 +82,7 @@
         "login": {
           "loginParameters": [
             "p=SignUpSignIn",
-            "scope=openid offline_access",
+            "scope=openid profile",
             "response_type=id_token"
           ],
           "nameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
