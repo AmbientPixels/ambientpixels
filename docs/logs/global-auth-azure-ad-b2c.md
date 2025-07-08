@@ -1,91 +1,117 @@
-# 🛡️ AmbientPixels Global Authentication – Onboarding & AI Training Guide
+# 🛡️ AmbientPixels Authentication with Azure AD B2C CIAM
 
 <!--
-Last updated: 2025-06-28 by Cascade AI
+Last updated: 2025-07-07 by Cascade AI
 Contact: winds.dev@ambientpixels.ai
 -->
 
-> **Deprecation Notice:**
-> As of May 1, 2025, Microsoft Microsoft Entra External ID is no longer available for new tenants. All new authentication projects must use **Microsoft Entra External ID**. Existing B2C tenants are still supported, but new development and onboarding should use Entra External ID. This guide has been updated accordingly.
+## 🚀 Quick Start
+1. **Configuration**:
+   - Update `staticwebapp.config.json` with your B2C tenant and client ID
+   - Ensure redirect URI is registered in Azure AD B2C:
+     ```
+     https://www.ambientpixels.ai/.auth/login/aad/callback
+     ```
 
-## 🚀 Quick Start (Entra External ID)
-1. Clone the repo and open in your editor.
-2. Ensure `/auth/msal-browser.min.js`, `/auth/global-auth.js`, `/auth/authConfig.js`, and `/auth/authUI.js` are present.
-3. Register your app and redirect URIs in the **Microsoft Entra External ID** portal (see config below).
-4. **Verify Authentication Scripts are in the Footer Module:** The authentication scripts are now centrally managed in `/modules/footer.html` and loaded dynamically by `/js/init-header-footer.js`. No manual script inclusion is needed on individual pages.
-5. The site header (with login/logout buttons) is injected via JS (`init-header-footer.js`). Button event handlers are bound automatically by `authUI.js` after header injection.
-6. Open `/auth/auth-test.html` or the main site and test login/logout. Check browser console for `[AUTH]` logs.
+2. **Implementation**:
+   - Login button URL is configured in `/modules/header.html`
+   - Auth state management in `/auth/authUI.js`
+   - SWA handles the OAuth flow automatically
+
+3. **Testing**:
+   - Click login to be redirected to B2C
+   - Check browser console for `[AUTH]` debug logs
+   - Verify user session with `sessionStorage.getItem('ambientPixels_isAuthenticated')`
 
 ---
 
-## 🌐 Microsoft Entra External ID – App Registration Details
+## 🌐 Azure AD B2C CIAM Configuration
 
-**Display name:**  
+**Display name**:  
 AmbientPixels Web
 
-**Application (client) ID:**  
-043b76d8-143d-45e8-9481-5097c508b14e
+**Application (client) ID**:  
+d0685388-9f8e-4a5f-918f-7070a8b41cb5
 
-**Directory (tenant) ID:**  
-e1b17060-5ec1-49f8-b981-d3ae7207e25d
+**Tenant name**:  
+ambientpixelsid
 
-**Supported account types:**  
-My organization only (AmbientPixels External ID tenant)
+**Supported account types**:  
+Accounts in any identity provider or organizational directory
 
-**Redirect URIs:**  
-- https://ambientpixels.ai/
+**Redirect URIs**:  
+- `https://www.ambientpixels.ai/.auth/login/aad/callback`
+- `https://ambientpixels.ai/.auth/login/aad/callback`
 
----
+**Required Permissions**:
+- OpenID Connect: `openid`
+- Offline Access: `offline_access`
 
-### Sample `authConfig.js` for MSAL.js (Working Configuration)
-```js
-const msalConfig = {
-  auth: {
-    clientId: "043b76d8-143d-45e8-9481-5097c508b14e",
-    authority: "https://ambientpixelsai.ciamlogin.com/e1b17060-5ec1-49f8-b981-d3ae7207e25d/v2.0/", // Use /v2.0/ endpoint (do NOT include user flow name)
-    knownAuthorities: ["ambientpixelsai.ciamlogin.com"],
-    redirectUri: "https://ambientpixels.ai/",
-  },
-  cache: {
-    cacheLocation: "localStorage",
-    storeAuthStateInCookie: false,
-  },
-};
-
-// Expose msalConfig to the global window object
-window.msalConfig = msalConfig;
+### `staticwebapp.config.json` Snippet
+```json
+"auth": {
+  "identityProviders": {
+    "azureActiveDirectory": {
+      "registration": {
+        "openIdIssuer": "https://ambientpixelsid.ciamlogin.com/ambientpixelsid.onmicrosoft.com/v2.0/",
+        "clientIdSettingName": "B2C_CLIENT_ID"
+      },
+      "login": {
+        "loginParameters": [
+          "p=B2C_1_SignUpSignIn",
+          "scope=openid offline_access",
+          "response_type=id_token"
+        ],
+        "nameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
+      }
+    }
+  }
+}
 ```
 
-**Important:**
-- The `/v2.0/` segment is required for Microsoft Entra External ID to use the OpenID Connect v2.0 protocol endpoints.
-- **Do NOT include the user flow name** in the authority URL. MSAL.js handles user flows internally for Entra External ID.
-- Make sure `msalConfig` is exposed globally for use by the UI logic.
+**Important Notes**:
+- The `openIdIssuer` must match your B2C tenant's issuer URL
+- `B2C_CLIENT_ID` is set in Azure Static Web App configuration
+- The login policy `B2C_1_SignUpSignIn` must exist in your B2C tenant
 
 ---
 
-### Centralized Script Loading via Footer Module
-To ensure consistency and simplify maintenance, the authentication scripts are no longer added to individual HTML files. Instead, they are loaded dynamically on every page via the shared footer module.
+### Authentication Flow
+1. User clicks login button in header
+2. Redirects to B2C login page
+3. After successful authentication, user is redirected back to `/.auth/login/aad/callback`
+4. SWA validates the token and sets authentication cookies
+5. The page reloads with authenticated state
 
-**How it works:**
-1.  The three core authentication scripts (`msal-browser.min.js`, `authConfig.js`, `authUI.js`) are placed at the end of `/modules/footer.html`.
-2.  The global `/js/init-header-footer.js` script fetches the content of `footer.html`.
-3.  It then intelligently parses this content, injects the HTML structure into the `<footer id="footer-container"></footer>` element, and dynamically creates and appends the `<script>` tags to the document. This process ensures the browser executes the scripts correctly.
-
-This approach means any page with the standard footer automatically receives the authentication functionality.
+### Session Management
+- Authentication state is stored in `sessionStorage`
+- User info is available via `sessionStorage.getItem('userInfo')`
+- The `authUI.js` script handles UI updates based on auth state
 
 ---
 
-### Next Steps
+### Troubleshooting
 
-1. **Configure Identity Providers:**
-   - In the Entra External ID portal, go to Identity > External Identities > All identity providers.
-   - Add Microsoft, Google, Facebook, or other providers as needed.
-2. **Create a User Journey (User Flow):**
-   - Go to Identity > External Identities > User journeys.
-   - Create a new journey named **ambientpixelslogin** (case-sensitive) and enable the desired providers.
-   - Copy the user journey name exactly as shown in Azure for your MSAL config.
-3. **Test Authentication:**
-   - Deploy your updated config and test login/signup flows.
+#### Common Issues
+1. **401 Unauthorized**
+   - Verify redirect URI in B2C app registration matches exactly
+   - Check that the B2C policy name is correct
+   - Ensure `B2C_CLIENT_ID` is set in SWA configuration
+
+2. **Login Redirect Loop**
+   - Clear browser cookies and sessionStorage
+   - Verify `openIdIssuer` URL is correct
+   - Check CORS settings in B2C
+
+3. **User Info Not Loading**
+   - Check browser console for errors
+   - Verify `/.auth/me` endpoint returns expected user data
+   - Ensure `nameClaimType` matches your token claims
+
+### Development Tips
+- Use browser's developer tools to monitor network requests
+- Check console for `[AUTH]` debug logs
+- Test in incognito mode to avoid cached sessions
 
 ---
 
