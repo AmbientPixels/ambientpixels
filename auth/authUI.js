@@ -45,20 +45,47 @@
     setAuthStateAttr(isSignedIn);
 
     const loginBtn = document.getElementById('login-btn');
-    const logoutBtn = document.getElementById('logout-btn');
-    const display = document.getElementById('user-display-name');
+    const userProfileContainer = document.getElementById('user-profile-container');
+    const displayName = document.getElementById('user-display-name');
+    const dropdownName = document.querySelector('.dropdown-user-name');
+    const dropdownEmail = document.querySelector('.dropdown-user-email');
 
-    if (loginBtn) loginBtn.style.display = isSignedIn ? 'none' : '';
-    if (logoutBtn) logoutBtn.style.display = isSignedIn ? '' : 'none';
-    if (display) {
-      if (isSignedIn) {
-        try {
-          const info = JSON.parse(sessionStorage.getItem('userInfo'));
-          display.textContent = info.displayName || info.name || '';
-        } catch {}
-      } else {
-        display.textContent = '';
+    if (loginBtn) loginBtn.style.display = isSignedIn ? 'none' : 'inline-block';
+    if (userProfileContainer) userProfileContainer.style.display = isSignedIn ? 'block' : 'none';
+    
+    if (isSignedIn) {
+      try {
+        const info = JSON.parse(sessionStorage.getItem('userInfo')) || {};
+        const name = info.displayName || info.name || 'User';
+        const email = info.email || '';
+        
+        // Update display name in header
+        if (displayName) displayName.textContent = name;
+        
+        // Update dropdown info
+        if (dropdownName) dropdownName.textContent = name;
+        if (dropdownEmail) dropdownEmail.textContent = email;
+        
+        // Update avatar if available
+        const avatar = document.getElementById('user-avatar');
+        if (avatar) {
+          const avatarImg = avatar.querySelector('img');
+          if (avatarImg) {
+            avatarImg.src = info.photoURL || '/images/avatars/default.png';
+            avatarImg.alt = `${name}'s avatar`;
+          } else {
+            const icon = avatar.querySelector('i');
+            if (icon) icon.className = info.photoURL ? 'fas fa-user-circle' : 'fas fa-user-circle';
+          }
+        }
+      } catch (e) {
+        debugLog('Error updating UI:', e);
       }
+    } else {
+      // Clear user info if not signed in
+      if (displayName) displayName.textContent = '';
+      if (dropdownName) dropdownName.textContent = '';
+      if (dropdownEmail) dropdownEmail.textContent = '';
     }
   }
 
@@ -78,11 +105,29 @@
 
   // Attach click handlers to auth buttons
   function bindAuthButtons() {
-    const lb = document.getElementById('login-btn');
-    const lo = document.getElementById('logout-btn');
-    if (lb) lb.onclick = login;
-    if (lo) lo.onclick = logout;
+    const loginBtn = document.getElementById('login-btn');
+    const logoutBtn = document.getElementById('dropdown-logout-btn');
+    
+    if (loginBtn) {
+      loginBtn.onclick = login;
+      loginBtn.addEventListener('click', login);
+    }
+    
+    if (logoutBtn) {
+      logoutBtn.onclick = (e) => {
+        e.preventDefault();
+        logout(e);
+      };
+      logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        logout(e);
+      });
+    }
+    
+    // Bind dropdown events
     bindDropdownEvents();
+    
+    // Update UI state
     updateUI();
   }
 
@@ -107,16 +152,26 @@
         debugLog('Auth response:', data);
         if (data && data.clientPrincipal) {
           const user = data.clientPrincipal;
-          sessionStorage.setItem('ambientPixels_isAuthenticated', 'true');
+          const claims = user.userClaims || [];
+          const emailClaim = claims.find(c => c.typ === 'emails' || c.typ === 'preferred_username');
+          const nameClaim = claims.find(c => c.typ === 'name' || c.typ === 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name');
+          
           const userInfo = {
-            displayName: user.userDetails || user.userId || 'User',
-            name: user.userDetails || '',
-            email: user.userDetails.includes('@') ? user.userDetails : '',
+            displayName: nameClaim?.val || user.userDetails.split('@')[0] || 'User',
+            name: nameClaim?.val || user.userDetails.split('@')[0] || '',
+            email: emailClaim?.val || (user.userDetails.includes('@') ? user.userDetails : ''),
             userId: user.userId || '',
-            identityProvider: user.identityProvider || ''
+            identityProvider: user.identityProvider || '',
+            photoURL: '' // Will be populated from user's profile if available
           };
+          
+          sessionStorage.setItem('ambientPixels_isAuthenticated', 'true');
           sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
+          
+          // Update UI and bind events
           updateUI();
+          bindDropdownEvents();
+          
           return true;
         } else {
           // Clear auth state if not authenticated
