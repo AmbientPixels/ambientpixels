@@ -134,51 +134,108 @@ The page implements the following authentication flow:
 
 ### User Profile Enhancements
 - [ ] **Profile Picture Upload**
-  - Allow users to upload and crop profile pictures
-  - Support for webcam capture
-  - Integration with Azure Blob Storage for image hosting
+  - **Challenge Level**: Medium
+  - **Dependencies**:
+    - Azure Blob Storage client SDK
+    - Image processing library (e.g., Cropper.js)
+    - WebRTC for webcam access
+  - **Implementation Notes**:
+    - Client-side image compression before upload
+    - Support for drag-and-drop interface
+    - Fallback to URL-based image upload
 
 - [ ] **Profile Customization**
-  - Customizable profile URL
-  - Bio/About section
-  - Social media links
-  - Theme preferences (light/dark mode)
+  - **Challenge Level**: Low-Medium
+  - **Dependencies**:
+    - Form validation library
+    - Database schema updates
+  - **Implementation Notes**:
+    - URL slug generation and validation
+    - Rich text editor for bio section
+    - Theme preference persistence
 
 ### Security & Privacy
 - [ ] **Two-Factor Authentication (2FA)**
-  - Integration with authenticator apps
-  - Backup codes
-  - SMS/Email verification options
+  - **Challenge Level**: High
+  - **Dependencies**:
+    - Authenticator libraries (e.g., speakeasy, otplib)
+    - SMS gateway service
+    - Email service provider
+  - **Implementation Notes**:
+    - TOTP/HOTP implementation
+    - Rate limiting for verification attempts
+    - Backup code generation and storage
 
 - [ ] **Login Activity**
-  - View recent login history
-  - Device management
-  - Session timeout controls
+  - **Challenge Level**: Medium
+  - **Dependencies**:
+    - Session management system
+    - Device fingerprinting library
+  - **Implementation Notes**:
+    - IP geolocation
+    - Suspicious activity detection
+    - Session invalidation API
 
 ### Account Management
 - [ ] **Account Export**
-  - Full data export in standard formats (JSON, PDF)
-  - Selective data export options
+  - **Challenge Level**: Medium
+  - **Dependencies**:
+    - Data serialization libraries
+    - PDF generation library
+  - **Implementation Notes**:
+    - Data anonymization for privacy
+    - Asynchronous export generation
+    - Download link expiration
 
 - [ ] **Account Recovery**
-  - Enhanced recovery options
-  - Security question setup
-  - Trusted contacts
+  - **Challenge Level**: High
+  - **Dependencies**:
+    - Secure question/answer hashing
+    - Notification service
+  - **Implementation Notes**:
+    - Time-based recovery restrictions
+    - Multi-step verification
+    - Audit logging
 
 ### Integration
 - [ ] **Third-party Connections**
-  - OAuth provider connections (Google, GitHub, etc.)
-  - Application integrations
-  - API key management
+  - **Challenge Level**: Medium-High
+  - **Dependencies**:
+    - OAuth client libraries
+    - Secure credential storage
+  - **Implementation Notes**:
+    - Token refresh flow
+    - Permission scoping
+    - Connection status monitoring
 
 ### Performance & Accessibility
 - [ ] **Progressive Enhancement**
-  - Offline support for basic profile viewing
-  - Improved loading states
-  - Better error handling
+  - **Challenge Level**: Medium
+  - **Dependencies**:
+    - Service Worker API
+    - IndexedDB for offline storage
+  - **Implementation Notes**:
+    - Cache-first strategy for static assets
+    - Graceful degradation
+    - Screen reader compatibility testing
 
 ## Related Documentation
 
+### Authentication & Security
+- [Global Auth with Azure AD B2C](./logs/global-auth-azure-ad-b2c.md)
+- [NOVA System Memory](./logs/nova-system-memory.md)
+- [Project Auth Expansion](./logs/project-auth-expansion.md)
+
+### System Architecture
+- [NOVA System Overview](./NOVA_SYSTEM_OVERVIEW.md)
+- [NOVA Memory System](./NOVA_MEMORY.md)
+- [NOVA Mood Engine](./nova-mood-engine.md)
+
+### Development Workflows
+- [WINDSURF Workflow](./windsurf-workflow.md)
+- [Project Genesis](./project-genesis.md)
+- [Navigation Structure](./navigation.md)
+
+### External Resources
 - [Azure Static Web Apps Authentication](https://docs.microsoft.com/en-us/azure/static-web-apps/authentication-authorization)
-- [Azure AD Integration](https://docs.microsoft.com/en-us/azure/static-web-apps/authentication-custom?tabs=aad)
-- [Project Style Guide](./STYLE-GUIDE.md)
+- [Azure AD B2C Documentation](https://docs.microsoft.com/en-us/azure/active-directory-b2c/)
