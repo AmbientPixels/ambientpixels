@@ -25,16 +25,25 @@
         <button id="theme-toggle" aria-label="Toggle Theme">
           <i class="fas fa-moon"></i>
         </button>
-        <a id="login-btn" class="nav-auth-btn" href="#" role="button" aria-label="Sign in">
+        <a id="login-btn" class="nav-auth-btn" href="/.auth/login/aad?p=SignUpSignIn" aria-label="Sign in">
           <i class="fas fa-sign-in-alt"></i> Login
         </a>
         
         <!-- User Profile Dropdown (replaces old greeting and logout button) -->
-        <div id="user-profile-container" class="user-profile-container" style="display: none;">
-          <button id="user-profile-button" class="user-profile-button" aria-haspopup="true" aria-expanded="false">
-            <span id="user-avatar" class="user-avatar"><i class="fas fa-user-circle"></i></span>
+        <div id="user-profile-container" class="user-profile-container">
+          <button 
+            id="user-profile-button" 
+            class="user-profile-button" 
+            aria-haspopup="true" 
+            aria-expanded="false"
+            aria-label="User profile menu"
+            title="User profile"
+          >
+            <span id="user-avatar" class="user-avatar" aria-hidden="true">
+              <i class="fas fa-user-circle"></i>
+            </span>
             <span id="user-display-name" class="user-display-name"></span>
-            <i class="fas fa-chevron-down dropdown-caret"></i>
+            <i class="fas fa-caret-down" aria-hidden="true"></i>
           </button>
           <div id="user-profile-dropdown" class="user-profile-dropdown">
             <div class="dropdown-header">
