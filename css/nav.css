@@ -195,7 +195,7 @@
     background: rgba(255, 255, 255, 0.1);
   }
   
-  /* User Profile Dropdown */
+  /* User Profile Dropdown - Mobile */
   .user-profile-container {
     position: relative;
     display: none; /* Hidden by default, shown via JS when authenticated */
@@ -310,6 +310,118 @@
   .nav-links .link-text {
     font-size: 0.9em;
   }
+}
+
+/* --- User Profile Dropdown (Global) --- */
+.user-profile-container {
+  position: relative;
+  display: none; /* Hidden by default, shown via JS when authenticated */
+}
+
+.user-profile-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 20px;
+  transition: background 0.2s;
+}
+
+.user-profile-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.user-avatar i {
+  font-size: 1.5em;
+  color: #fff;
+}
+
+.user-display-name {
+  font-size: 0.9em;
+  font-weight: 500;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-profile-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  margin-top: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+  z-index: 1000;
+}
+
+.user-profile-dropdown:not(.dropdown-hidden) {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-hidden {
+  display: none !important;
+}
+
+.dropdown-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.dropdown-user-name {
+  display: block;
+  font-weight: 600;
+  color: #333;
+}
+
+.dropdown-user-email {
+  display: block;
+  font-size: 0.8em;
+  color: #666;
+  margin-top: 2px;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  color: #333;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+  background: #f5f5f5;
+}
+
+.dropdown-item i {
+  width: 20px;
+  text-align: center;
+  color: #666;
 }
 
 /* --- Desktop Styles (921px and above) --- */

@@ -9,13 +9,21 @@
 
   // Update body attribute for auth state
   function setAuthState(isSignedIn) {
+    debugLog('Setting auth state:', isSignedIn ? 'signed-in' : 'signed-out');
     document.body?.setAttribute('data-auth-state', isSignedIn ? 'signed-in' : 'signed-out');
     
     const loginBtn = document.getElementById('login-btn');
     const userProfile = document.getElementById('user-profile-container');
     
-    if (loginBtn) loginBtn.style.display = isSignedIn ? 'none' : 'inline-block';
-    if (userProfile) userProfile.style.display = isSignedIn ? 'block' : 'none';
+    if (loginBtn) {
+      loginBtn.style.display = isSignedIn ? 'none' : 'inline-block';
+      debugLog('Login button visibility:', isSignedIn ? 'hidden' : 'visible');
+    }
+    
+    if (userProfile) {
+      userProfile.style.display = isSignedIn ? 'block' : 'none';
+      debugLog('User profile visibility:', isSignedIn ? 'visible' : 'hidden');
+    }
   }
 
   // Update user info in the UI
@@ -93,32 +101,55 @@
     const dropdown = document.getElementById('user-profile-dropdown');
     
     if (profileBtn && dropdown) {
-      // Initialize dropdown as hidden
-      dropdown.style.display = 'none';
+      debugLog('Initializing dropdown menu');
+      
+      // Ensure dropdown is hidden initially using a class
+      dropdown.classList.add('dropdown-hidden');
       
       // Toggle dropdown on button click
-      profileBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const isVisible = dropdown.style.display === 'block';
-        dropdown.style.display = isVisible ? 'none' : 'block';
-        profileBtn.setAttribute('aria-expanded', !isVisible);
-      });
+      const toggleDropdown = (e) => {
+        if (e) e.stopPropagation();
+        const isVisible = !dropdown.classList.contains('dropdown-hidden');
+        
+        if (isVisible) {
+          dropdown.classList.add('dropdown-hidden');
+          profileBtn.setAttribute('aria-expanded', 'false');
+        } else {
+          dropdown.classList.remove('dropdown-hidden');
+          profileBtn.setAttribute('aria-expanded', 'true');
+        }
+        debugLog('Dropdown toggled, visible:', !isVisible);
+      };
+      
+      // Initialize click handler
+      profileBtn.addEventListener('click', toggleDropdown);
       
       // Close dropdown when clicking outside
       document.addEventListener('click', (e) => {
         if (!profileBtn.contains(e.target) && !dropdown.contains(e.target)) {
-          dropdown.style.display = 'none';
+          dropdown.classList.add('dropdown-hidden');
           profileBtn.setAttribute('aria-expanded', 'false');
         }
       });
       
       // Close dropdown when pressing Escape key
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && dropdown.style.display === 'block') {
-          dropdown.style.display = 'none';
-          profileBtn.setAttribute('aria-expanded', 'false');
+        if (e.key === 'Escape' && !dropdown.classList.contains('dropdown-hidden')) {
+          toggleDropdown();
           profileBtn.focus();
         }
+      });
+      
+      // Log dropdown state for debugging
+      debugLog('Dropdown initialized', { 
+        profileBtn: !!profileBtn, 
+        dropdown: !!dropdown,
+        isAuthenticated: sessionStorage.getItem('isAuthenticated')
+      });
+    } else {
+      debugLog('Dropdown elements not found', { 
+        profileBtn: !!profileBtn, 
+        dropdown: !!dropdown 
       });
     }
     
