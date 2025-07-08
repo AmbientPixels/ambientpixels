@@ -104,20 +104,34 @@
       const resp = await fetch('/.auth/me');
       if (resp.ok) {
         const data = await resp.json();
-        if (Array.isArray(data) && data.length > 0) {
+        debugLog('Auth response:', data);
+        if (data && data.clientPrincipal) {
+          const user = data.clientPrincipal;
           sessionStorage.setItem('ambientPixels_isAuthenticated', 'true');
-          const user = data[0];
           const userInfo = {
-            displayName: user.userDetails || '',
+            displayName: user.userDetails || user.userId || 'User',
             name: user.userDetails || '',
-            email: user.userDetails || '',
-            userId: user.userId || ''
+            email: user.userDetails.includes('@') ? user.userDetails : '',
+            userId: user.userId || '',
+            identityProvider: user.identityProvider || ''
           };
           sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
+          updateUI();
+          return true;
+        } else {
+          // Clear auth state if not authenticated
+          sessionStorage.removeItem('ambientPixels_isAuthenticated');
+          sessionStorage.removeItem('userInfo');
+          updateUI();
+          return false;
         }
       }
     } catch (e) {
       debugLog('loadAuthState error:', e);
+      sessionStorage.removeItem('ambientPixels_isAuthenticated');
+      sessionStorage.removeItem('userInfo');
+      updateUI();
+      return false;
     }
   }
 
