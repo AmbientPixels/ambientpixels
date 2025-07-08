@@ -76,7 +76,7 @@
     "identityProviders": {
       "azureActiveDirectory": {
         "registration": {
-          "openIdIssuer": "https://ambientpixelsai.b2clogin.com/5e8db895-96f8-43ed-ad90-05fc041f771b/v2.0/.well-known/openid-configuration?p=SignUpSignIn",
+          "openIdIssuer": "https://ambientpixelsai.b2clogin.com/5e8db895-96f8-43ed-ad90-05fc041f771b/SignUpSignIn/v2.0/",
           "clientIdSettingName": "B2C_CLIENT_ID",
           "clientSecretSettingName": "B2C_CLIENT_SECRET"
         },
