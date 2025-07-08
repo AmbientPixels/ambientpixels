@@ -93,15 +93,32 @@
     const dropdown = document.getElementById('user-profile-dropdown');
     
     if (profileBtn && dropdown) {
-      profileBtn.onclick = (e) => {
+      // Initialize dropdown as hidden
+      dropdown.style.display = 'none';
+      
+      // Toggle dropdown on button click
+      profileBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         const isVisible = dropdown.style.display === 'block';
         dropdown.style.display = isVisible ? 'none' : 'block';
-      };
+        profileBtn.setAttribute('aria-expanded', !isVisible);
+      });
       
       // Close dropdown when clicking outside
-      document.addEventListener('click', () => {
-        dropdown.style.display = 'none';
+      document.addEventListener('click', (e) => {
+        if (!profileBtn.contains(e.target) && !dropdown.contains(e.target)) {
+          dropdown.style.display = 'none';
+          profileBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+      
+      // Close dropdown when pressing Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && dropdown.style.display === 'block') {
+          dropdown.style.display = 'none';
+          profileBtn.setAttribute('aria-expanded', 'false');
+          profileBtn.focus();
+        }
       });
     }
     

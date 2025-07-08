@@ -1,7 +1,7 @@
 # 🛡️ AmbientPixels Authentication with Azure AD B2C CIAM
 
 <!--
-Last updated: 2025-07-07 by Cascade AI
+Last updated: 2025-07-08 by Cascade AI
 Contact: winds.dev@ambientpixels.ai
 -->
 
@@ -11,17 +11,20 @@ Contact: winds.dev@ambientpixels.ai
    - Ensure redirect URI is registered in Azure AD B2C:
      ```
      https://www.ambientpixels.ai/.auth/login/aad/callback
+     https://ambientpixels.ai/.auth/login/aad/callback
      ```
 
 2. **Implementation**:
-   - Login button URL is configured in `/modules/header.html`
-   - Auth state management in `/auth/authUI.js`
-   - SWA handles the OAuth flow automatically
+   - Login button and user profile dropdown in `/modules/header.html`
+   - Auth state management and UI updates in `/auth/authUI.js`
+   - Azure Static Web Apps handles the OAuth flow automatically
 
 3. **Testing**:
    - Click login to be redirected to B2C
+   - After login, click the user avatar to access the dropdown menu
    - Check browser console for `[AUTH]` debug logs
-   - Verify user session with `sessionStorage.getItem('ambientPixels_isAuthenticated')`
+   - Verify user session with `sessionStorage.getItem('isAuthenticated')`
+   - User info is available in `sessionStorage.getItem('userInfo')`
 
 ---
 
