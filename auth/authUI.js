@@ -91,8 +91,20 @@
 
   // Trigger Azure SWA B2C login
   function login(e) {
-    e?.preventDefault();
-    window.location.href = '/.auth/login/aadB2C?p=SignUpSignIn';
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    // Get current URL without hash/fragment
+    const currentPath = window.location.pathname + window.location.search;
+    const redirectUri = window.location.origin + '/.auth/login/aad/callback';
+    
+    // Build the login URL
+    const loginUrl = `/.auth/login/aad?p=SignUpSignIn&post_login_redirect_uri=${encodeURIComponent(currentPath)}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+    
+    debugLog('Redirecting to:', loginUrl);
+    window.location.href = loginUrl;
   }
 
   // Trigger logout
@@ -109,17 +121,21 @@
     const logoutBtn = document.getElementById('dropdown-logout-btn');
     
     if (loginBtn) {
-      loginBtn.onclick = login;
-      loginBtn.addEventListener('click', login);
+      // Remove existing event listeners to prevent duplicates
+      loginBtn.replaceWith(loginBtn.cloneNode(true));
+      const newLoginBtn = document.getElementById('login-btn');
+      newLoginBtn.addEventListener('click', login);
     }
     
     if (logoutBtn) {
       logoutBtn.onclick = (e) => {
         e.preventDefault();
+        e.stopPropagation();
         logout(e);
       };
       logoutBtn.addEventListener('click', (e) => {
         e.preventDefault();
+        e.stopPropagation();
         logout(e);
       });
     }

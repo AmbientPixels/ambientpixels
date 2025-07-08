@@ -83,10 +83,24 @@
           "loginParameters": [
             "p=SignUpSignIn",
             "scope=openid profile",
-            "response_type=id_token"
+            "response_type=id_token",
+            "response_mode=form_post"
           ],
           "nameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
+        },
+        "redirectToProvider": "azureActiveDirectory",
+        "redirectToProviderOptions": {
+          "postLoginRedirectUri": "/.auth/login/aad/callback"
         }
+      }
+    },
+    "login": {
+      "externalUrl": "/.auth/login/aad"
+    },
+    "responseOverrides": {
+      "401": {
+        "redirect": "/.auth/login/aad?post_login_redirect_uri=/",
+        "statusCode": 302
       }
     }
   }
