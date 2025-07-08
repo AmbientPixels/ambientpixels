@@ -1,601 +1,129 @@
 // /auth/authUI.js
-// Unified, robust authentication logic for AmbientPixels using MSAL.js
-// Implements: updateUI, data-auth-state, button loading, fallback guard, modular binding
+// Auth UI using Azure Static Web Apps /.auth endpoints (no MSAL)
 
 (function() {
   // Debug logging
   function debugLog(...args) {
-    if (window.DEBUG_AUTH || localStorage.getItem('DEBUG_AUTH') === 'true') console.log("[AUTH]", ...args);
+    if (window.DEBUG_AUTH || localStorage.getItem('DEBUG_AUTH') === 'true') console.log('[AUTH]', ...args);
   }
-  
-  // Set a flag to track if we're authenticated
-  let isAuthenticated = false;
 
-  // UI helpers
+  // Update body attribute for auth state
   function setAuthStateAttr(isSignedIn) {
-    document.body && document.body.setAttribute('data-auth-state', isSignedIn ? 'signed-in' : 'signed-out');
-  }
-  function showButtonLoading(btn, isLoading) {
-    if (!btn) return;
-    if (isLoading) {
-      btn.classList.add('loading');
-      btn.disabled = true;
-      if (!btn.querySelector('.auth-spinner')) {
-        const spinner = document.createElement('span');
-        spinner.className = 'auth-spinner';
-        spinner.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        btn.appendChild(spinner);
-      }
-    } else {
-      btn.classList.remove('loading');
-      btn.disabled = false;
-      const spinner = btn.querySelector('.auth-spinner');
-      if (spinner) btn.removeChild(spinner);
-    }
-  }
-  function showFallback(message) {
-    let fallback = document.getElementById('auth-fallback-message');
-    if (!fallback) {
-      fallback = document.createElement('div');
-      fallback.id = 'auth-fallback-message';
-      fallback.style = 'color: #fff; background: #c00; padding: 1em; margin: 1em 0; border-radius: 6px; text-align:center;';
-      document.body.prepend(fallback);
-    }
-    fallback.textContent = message || 'Authentication system unavailable. Please try again later.';
-    setAuthStateAttr(false);
-    debugLog('Fallback message shown:', fallback.textContent);
+    document.body?.setAttribute('data-auth-state', isSignedIn ? 'signed-in' : 'signed-out');
   }
 
-  // Dedicated dropdown event binding (modular, idempotent)
+  // Bind user profile dropdown events
   function bindDropdownEvents() {
-    const userProfileButton = document.getElementById('user-profile-button');
-    const userProfileDropdown = document.getElementById('user-profile-dropdown');
-    if (!userProfileButton || !userProfileDropdown) {
-      debugLog('bindDropdownEvents: dropdown elements not found');
-      return;
-    }
-    // Remove previous listeners to avoid stacking
-    userProfileButton.onclick = null;
-    userProfileButton.removeEventListener('click', userProfileButton._dropdownClickHandler || (()=>{}));
-    document.removeEventListener('click', userProfileDropdown._outsideClickHandler || (()=>{}));
+    const btn = document.getElementById('user-profile-button');
+    const menu = document.getElementById('user-profile-dropdown');
+    if (!btn || !menu) return;
+    // Cleanup
+    btn.onclick = null;
+    document.removeEventListener('click', menu._outsideHandler);
     // Toggle handler
-    const dropdownClickHandler = (e) => {
+    const toggle = e => {
       e.stopPropagation();
-      const isVisible = userProfileDropdown.classList.toggle('visible');
-      userProfileButton.setAttribute('aria-expanded', isVisible);
-      debugLog('Profile dropdown toggled, visible:', isVisible);
+      const vis = menu.classList.toggle('visible');
+      btn.setAttribute('aria-expanded', vis);
     };
-    userProfileButton.addEventListener('click', dropdownClickHandler);
-    userProfileButton._dropdownClickHandler = dropdownClickHandler;
-    // Outside click handler
-    const outsideClickHandler = (e) => {
-      if (!userProfileDropdown.contains(e.target) && userProfileDropdown.classList.contains('visible')) {
-        userProfileDropdown.classList.remove('visible');
-        userProfileButton.setAttribute('aria-expanded', 'false');
-        debugLog('Profile dropdown closed due to outside click');
+    btn.addEventListener('click', toggle);
+    btn._toggleHandler = toggle;
+    // Outside click
+    const outside = e => {
+      if (!menu.contains(e.target) && menu.classList.contains('visible')) {
+        menu.classList.remove('visible');
+        btn.setAttribute('aria-expanded','false');
       }
     };
-    document.addEventListener('click', outsideClickHandler);
-    userProfileDropdown._outsideClickHandler = outsideClickHandler;
-    debugLog('bindDropdownEvents: dropdown handlers bound');
+    document.addEventListener('click', outside);
+    menu._outsideHandler = outside;
   }
 
-  // Main UI update function
+  // Update UI based on sessionStorage auth state
   function updateUI() {
-    const loginBtn = document.getElementById('login-btn');
-    const userProfileContainer = document.getElementById('user-profile-container');
-    const userDisplayName = document.getElementById('user-display-name');
-    const dropdownUserName = document.querySelector('.dropdown-user-name');
-    const dropdownUserEmail = document.querySelector('.dropdown-user-email');
-    const logoutBtn = document.getElementById('logout-btn');
-    const greeting = document.getElementById('user-greeting');
-    
-    // Log DOM elements for debugging
-    debugLog('updateUI DOM elements:', { 
-      loginBtn: loginBtn ? 'found' : 'missing', 
-      logoutBtn: logoutBtn ? 'found' : 'missing',
-      greeting: greeting ? 'found' : 'missing',
-      userProfileContainer: userProfileContainer ? 'found' : 'missing'
-    });
-    
-    let isSignedIn = false;
-    let account = null;
-    try {
-      if (window.msalInstance && typeof window.msalInstance.getAllAccounts === 'function') {
-        const accounts = window.msalInstance.getAllAccounts();
-        account = accounts && accounts[0];
-        isSignedIn = !!account;
-        
-        // Store authentication state for future reference
-        isAuthenticated = isSignedIn;
-        
-        // Persist authentication state in sessionStorage for page reloads
-        if (isSignedIn) {
-          sessionStorage.setItem('ambientPixels_isAuthenticated', 'true');
-          
-          // Store complete user info in sessionStorage for other components
-          if (account) {
-            const userInfo = {
-              id: account.localAccountId || account.homeAccountId,
-              userId: account.localAccountId || account.homeAccountId,
-              name: account.name || '',
-              email: account.username || '',
-              displayName: account.name || account.username || 'User'
-            };
-            sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
-            debugLog('Stored user info in sessionStorage:', userInfo);
-          }
-        } else if (!isSignedIn && sessionStorage.getItem('ambientPixels_isAuthenticated') === 'true') {
-          // Only clear if we're explicitly not signed in
-          sessionStorage.removeItem('ambientPixels_isAuthenticated');
-          sessionStorage.removeItem('userInfo');
-        }
-        
-        debugLog('updateUI account check:', { 
-          msalInstanceExists: !!window.msalInstance,
-          accountsFound: accounts ? accounts.length : 0,
-          isSignedIn: isSignedIn,
-          accountDetails: account ? {
-            name: account.name,
-            username: account.username,
-            localAccountId: account.localAccountId
-          } : 'none'
-        });
-      } else {
-        debugLog('updateUI: msalInstance or getAllAccounts not available');
-        
-        // Check if we have a persisted authentication state
-        if (sessionStorage.getItem('ambientPixels_isAuthenticated') === 'true') {
-          debugLog('Using persisted authentication state from sessionStorage');
-          isSignedIn = true;
-          isAuthenticated = true;
-        }
-      }
-    } catch (e) { debugLog('updateUI account check error:', e); }
-    
+    const isSignedIn = sessionStorage.getItem('ambientPixels_isAuthenticated') === 'true';
     setAuthStateAttr(isSignedIn);
-    if (loginBtn) {
-      loginBtn.style.display = isSignedIn ? 'none' : '';
-      showButtonLoading(loginBtn, false);
-      loginBtn.setAttribute('aria-hidden', isSignedIn ? 'true' : 'false');
-      debugLog('loginBtn visibility set to:', isSignedIn ? 'hidden' : 'visible');
-    }
-    if (logoutBtn) {
-      logoutBtn.style.display = isSignedIn ? '' : 'none';
-      showButtonLoading(logoutBtn, false);
-      logoutBtn.setAttribute('aria-hidden', isSignedIn ? 'false' : 'true');
-      debugLog('logoutBtn visibility set to:', isSignedIn ? 'visible' : 'hidden');
-    }
-    if (greeting) {
-      greeting.style.display = isSignedIn ? '' : 'none';
-      let displayName = '';
-      if (isSignedIn && account) {
-        // Determine the best display name to use
-        let displayName = account.name;
 
-        // Fallback if name is not useful (null, empty, or "unknown")
-        if (!displayName || displayName.trim().toLowerCase() === 'unknown' || displayName.trim() === '') {
-          displayName = account.username;
-        }
-        
-        // If the name is an email, extract the part before the @
-        if (displayName && displayName.includes('@')) {
-          displayName = displayName.split('@')[0];
-        }
+    const loginBtn = document.getElementById('login-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const display = document.getElementById('user-display-name');
 
-        // Final fallback if no name could be determined
-        displayName = displayName || 'Grid Visitor';
-
-        greeting.textContent = `Welcome, ${displayName}`;
-        debugLog('Greeting displayName:', displayName);
-        debugLog('Account object:', account);
+    if (loginBtn) loginBtn.style.display = isSignedIn ? 'none' : '';
+    if (logoutBtn) logoutBtn.style.display = isSignedIn ? '' : 'none';
+    if (display) {
+      if (isSignedIn) {
+        try {
+          const info = JSON.parse(sessionStorage.getItem('userInfo'));
+          display.textContent = info.displayName || info.name || '';
+        } catch {}
       } else {
-        greeting.textContent = '';
+        display.textContent = '';
       }
     }
-    if (userProfileContainer) {
-      userProfileContainer.style.display = isSignedIn ? '' : 'none';
-      if (isSignedIn && account) {
-        // Determine the best display name to use
-        let displayName = account.name;
-
-        // Fallback if name is not useful (null, empty, or "unknown")
-        if (!displayName || displayName.trim().toLowerCase() === 'unknown' || displayName.trim() === '') {
-          displayName = account.username;
-        }
-        
-        // If the name is an email, extract the part before the @
-        if (displayName && displayName.includes('@')) {
-          displayName = displayName.split('@')[0];
-        }
-
-        // Final fallback if no name could be determined
-        displayName = displayName || 'Grid Visitor';
-
-        const userEmail = account.username || account.idTokenClaims?.email || 'No email available';
-
-        if(userDisplayName) userDisplayName.textContent = displayName;
-        if(dropdownUserName) dropdownUserName.textContent = displayName;
-        if(dropdownUserEmail) dropdownUserEmail.textContent = userEmail;
-
-        debugLog('Profile dropdown updated:', { displayName, userEmail });
-        debugLog('Account object:', account);
-      } 
-    }
-    debugLog('UI updated. Signed in:', isSignedIn, 'Account:', account);
   }
 
-  // MSAL interaction_in_progress bug workaround
-  if (
-    sessionStorage.getItem('msal.interaction.status') === 'interaction_in_progress' &&
-    !window.location.hash.includes('id_token') &&
-    !window.location.hash.includes('access_token') &&
-    !window.location.hash.includes('error')
-  ) {
-    sessionStorage.removeItem('msal.interaction.status');
-    if (typeof showBanner === 'function') {
-      showBanner({
-        message: 'Recovered from a stuck login state. You may now try logging in again.',
-        type: 'info',
-        duration: 5000
-      });
-    }
+  // Trigger Azure SWA B2C login
+  function login(e) {
+    e?.preventDefault();
+    window.location.href = '/.auth/login/aadB2C?p=SignUpSignIn';
   }
 
-  // Main MSAL logic
-  async function initAuth() {
-    debugLog("Initializing MSAL authentication");
-    // Get MSAL config from authConfig.js (imported separately)
-    if (!window.msalConfig) {
-      debugLog('ERROR: msalConfig not found. Make sure authConfig.js is loaded before authUI.js');
-      showFallback('Authentication configuration missing. Please contact support.');
-      return;
-    }
-    
-    let msalInstance;
-    try {
-      msalInstance = new msal.PublicClientApplication(window.msalConfig);
-      window.msalInstance = msalInstance; // expose for UI helpers
-      debugLog('MSAL instance created:', msalInstance);
-      if (typeof msalInstance.initialize === 'function') {
-        debugLog('Calling msalInstance.initialize()...');
-        await msalInstance.initialize();
-        debugLog('MSAL instance initialized');
-      }
-      await handleRedirectResponse();
-    } catch (e) {
-      debugLog('MSAL instance creation/initialization failed:', e);
-      showFallback('Authentication system unavailable. Please refresh or contact support.');
-      return;
-    }
-    bindAuthButtons();
-    updateUI();
+  // Trigger logout
+  function logout(e) {
+    e?.preventDefault();
+    sessionStorage.removeItem('ambientPixels_isAuthenticated');
+    sessionStorage.removeItem('userInfo');
+    window.location.href = '/.auth/logout';
   }
 
-  async function handleRedirectResponse() {
-    debugLog("Starting handleRedirectPromise...");
-    try {
-      // Check if we're on a post-login redirect
-      const isRedirectCallback = window.location.hash && 
-        (window.location.hash.includes('id_token') || 
-         window.location.hash.includes('access_token') || 
-         window.location.hash.includes('error'));
-      
-      debugLog("Is redirect callback:", isRedirectCallback, "Hash:", window.location.hash);
-      
-      const response = await window.msalInstance.handleRedirectPromise();
-      debugLog("handleRedirectPromise completed, response:", response);
-      
-      if (response && response.account) {
-        window.msalInstance.setActiveAccount(response.account);
-        debugLog("Active account set after redirect:", response.account);
-        
-        // Mark as authenticated
-        isAuthenticated = true;
-        sessionStorage.setItem('ambientPixels_isAuthenticated', 'true');
-        
-        // Show welcome banner
-        if (window.banner && typeof window.banner.show === 'function') {
-          let displayName = response.account.name;
-// Fallback if name is not useful (null, empty, or "unknown")
-if (!displayName || displayName.trim().toLowerCase() === 'unknown' || displayName.trim() === '') {
-  displayName = response.account.username;
-}
-// If the name is an email, extract the part before the @
-if (displayName && displayName.includes('@')) {
-  displayName = displayName.split('@')[0];
-}
-// Final fallback if no name could be determined
-if (!displayName || displayName.trim() === '') {
-  displayName = response.account.idTokenClaims?.email ? response.account.idTokenClaims.email.split('@')[0] : 'Grid Visitor';
-}
-window.banner.show({
-  message: `Welcome, ${displayName}! You are now logged in.`,
-  type: 'success',
-  duration: 5000,
-  icon: 'fas fa-user-check'
-});
-          debugLog("Displayed welcome banner for user:", displayName);
-        } else {
-          debugLog("Banner system not available for login notification");
-        }
-        
-        // Force UI update with a small delay to ensure DOM is ready
-        setTimeout(() => {
-          debugLog("Delayed UI update after successful login");
-          updateUI();
-          
-          // Force a re-binding of auth buttons after successful login
-          setTimeout(() => {
-            debugLog("Re-binding auth buttons after successful login");
-            bindAuthButtons();
-            // Explicitly re-bind dropdown events after login redirect
-            bindDropdownEvents(); 
-          }, 100); 
-        }, 100);
-      } else {
-        // No response from redirect, check if we have an account anyway
-        const accounts = window.msalInstance.getAllAccounts();
-        debugLog("No redirect response, checking existing accounts:", accounts);
-        if (accounts && accounts.length > 0) {
-          window.msalInstance.setActiveAccount(accounts[0]);
-          debugLog("Set active account from existing accounts:", accounts[0]);
-          isAuthenticated = true;
-          sessionStorage.setItem('ambientPixels_isAuthenticated', 'true');
-        }
-      }
-    } catch (e) {
-      debugLog("handleRedirectPromise error:", e);
-      showFallback('Authentication error. Please refresh or contact support.');
-    }
-    
-    // Always update UI regardless of redirect response
-    updateUI();
-    
-    // Log final auth state
-    const finalAccount = getAccount();
-    debugLog("Final auth state after handleRedirectResponse:", {
-      hasAccount: !!finalAccount,
-      accountDetails: finalAccount ? {
-        name: finalAccount.name,
-        username: finalAccount.username
-      } : 'none'
-    });
-  }
-
-  function getAccount() {
-    try {
-      const accounts = window.msalInstance.getAllAccounts();
-      debugLog("Accounts found:", accounts);
-      return accounts.length > 0 ? accounts[0] : null;
-    } catch (e) { return null; }
-  }
-  function isInteractionInProgress() {
-    return sessionStorage.getItem('msal.interaction.status') === 'interaction_in_progress';
-  }
-  function login(event) {
-    debugLog("Login button clicked");
-    const loginBtn = document.getElementById("login-btn");
-    if (event) event.preventDefault();
-    if (isInteractionInProgress()) {
-      debugLog("Login aborted: interaction already in progress.");
-      showButtonLoading(loginBtn, true);
-      return;
-    }
-    showButtonLoading(loginBtn, true);
-    try {
-      // Save current URL to return after login
-      sessionStorage.setItem('login-redirect', window.location.href);
-      debugLog("Saved return URL:", window.location.href);
-      
-      // Use redirect request with state parameter instead of custom redirect URI
-      window.msalInstance.loginRedirect({ 
-        scopes: ["openid", "profile", "email"],
-        state: encodeURIComponent(window.location.pathname + window.location.search)
-      });
-    } catch (e) {
-      debugLog('loginRedirect error:', e);
-      showButtonLoading(loginBtn, false);
-      showFallback('Login failed. Please try again.');
-    }
-  }
-  function logout(event) {
-    debugLog("Logout button clicked");
-    const logoutBtn = document.getElementById("logout-btn");
-    if (event) event.preventDefault();
-    
-    // Get account info before logout for banner
-    let userName = 'User';
-    try {
-      const account = getAccount();
-      if (account) {
-        userName = account.name || account.username || 'User';
-      }
-    } catch (e) {
-      debugLog('Error getting account info for logout banner:', e);
-    }
-    
-    // Show logout banner
-    if (window.banner && typeof window.banner.show === 'function') {
-      window.banner.show({
-        message: `Goodbye, ${userName}! You have been logged out.`,
-        type: 'info',
-        duration: 4000,
-        icon: 'fas fa-sign-out-alt'
-      });
-      debugLog("Displayed logout banner for user:", userName);
-    }
-    
-    showButtonLoading(logoutBtn, true);
-    try {
-      // Clear authentication state before redirect
-      isAuthenticated = false;
-      sessionStorage.removeItem('ambientPixels_isAuthenticated');
-      
-      window.msalInstance.logoutRedirect({ 
-        postLogoutRedirectUri: "https://ambientpixels.ai/" 
-      });
-      // Note: Update Azure portal front-channel logout URL to match this
-    } catch (e) {
-      debugLog('logoutRedirect error:', e);
-      showButtonLoading(logoutBtn, false);
-      showFallback('Logout failed. Please try again.');
-    }
-  }
+  // Attach click handlers to auth buttons
   function bindAuthButtons() {
-    debugLog('bindAuthButtons called - binding auth buttons and updating UI');
-    
-    const loginBtn = document.getElementById("login-btn");
-    if (loginBtn) {
-      loginBtn.onclick = null;
-      loginBtn.removeEventListener('click', login);
-      loginBtn.addEventListener('click', login, {capture: false});
-      loginBtn.setAttribute('aria-label', 'Log in to Ambient Pixels');
-      loginBtn.setAttribute('tabindex', '0');
-      loginBtn.setAttribute('role', 'button');
-      debugLog('Login button bound successfully');
-    } else {
-      debugLog('WARNING: Login button not found in DOM');
-    }
-    
-    const logoutBtn = document.getElementById("logout-btn");
-    if (logoutBtn) {
-      logoutBtn.onclick = null;
-      logoutBtn.removeEventListener('click', logout);
-      logoutBtn.addEventListener('click', logout, {capture: false});
-      logoutBtn.setAttribute('aria-label', 'Log out of Ambient Pixels');
-      logoutBtn.setAttribute('tabindex', '0');
-      logoutBtn.setAttribute('role', 'button');
-      debugLog('Logout button bound successfully');
-    } else {
-      debugLog('WARNING: Logout button not found in DOM');
-    }
-    
-    // Bind dropdown events using dedicated function (modular, robust)
-    bindDropdownEvents(); // updated by Cascade
-
-    // Bind dropdown logout button (still needed here for direct access)
-    const dropdownLogoutBtn = document.getElementById('dropdown-logout-btn');
-    if (dropdownLogoutBtn) {
-      dropdownLogoutBtn.addEventListener('click', logout, {capture: false});
-      debugLog('Dropdown logout button bound successfully');
-    } else {
-      debugLog('WARNING: Dropdown logout button not found in DOM');
-    }
-
-    /* updated by Cascade: dropdown event binding now handled by bindDropdownEvents() */
-    
-    // Force a UI update with the current authentication state
+    const lb = document.getElementById('login-btn');
+    const lo = document.getElementById('logout-btn');
+    if (lb) lb.onclick = login;
+    if (lo) lo.onclick = logout;
+    bindDropdownEvents();
     updateUI();
-    
-    // If we know we're authenticated, make sure logout button is visible
-    if (isAuthenticated) {
-      const refreshedLogoutBtn = document.getElementById("logout-btn");
-      if (refreshedLogoutBtn) {
-        refreshedLogoutBtn.style.display = '';
-        debugLog('Forced logout button visibility due to known authenticated state');
-      }
-    }
-    
-    // If we know we're authenticated, make sure profile container is visible
-    const userProfileContainer = document.getElementById('user-profile-container');
-    if (isAuthenticated && userProfileContainer) {
-        userProfileContainer.style.display = '';
-        debugLog('Forced profile container visibility due to known authenticated state');
-    }
-    
-    // Get user profile button reference if it exists
-    const userProfileButton = document.getElementById('user-profile-button');
-    debugLog('Auth elements bound:', {loginBtn, userProfileButton, dropdownLogoutBtn});
   }
 
-  // Expose needed globals
-  window.initAuth = initAuth;
+  // Expose globals for other modules
   window.login = login;
   window.logout = logout;
-  window.getAccount = getAccount;
   window.bindAuthButtons = bindAuthButtons;
   window.updateAuthUI = updateUI;
-
-  // Expose auth module for CardForge integration
   window.authModule = {
-    // Returns the current user account if authenticated, null otherwise
-    getCurrentUser: function() {
-      // Check if we're authenticated
-      if (!isAuthenticated) return null;
-      
-      // Try to get account directly from MSAL first
-      let account = null;
-      try {
-        if (window.msalInstance && typeof window.msalInstance.getAllAccounts === 'function') {
-          const accounts = window.msalInstance.getAllAccounts();
-          account = accounts && accounts.length > 0 ? accounts[0] : null;
-          
-          if (account) {
-            return {
-              id: account.localAccountId || account.homeAccountId,
-              userId: account.localAccountId || account.homeAccountId,
-              name: account.name || '',
-              email: account.username || '',
-              displayName: account.name || account.username || 'User'
-            };
-          }
-        }
-      } catch (e) {
-        debugLog('getCurrentUser MSAL error:', e);
-      }
-      
-      // Fall back to sessionStorage if direct MSAL access failed
-      try {
-        const userInfoStr = sessionStorage.getItem('userInfo');
-        if (userInfoStr) {
-          return JSON.parse(userInfoStr);
-        }
-      } catch (e) {
-        debugLog('getCurrentUser sessionStorage error:', e);
-      }
-      
-      // If we got this far but we think we're authenticated, return a minimal user object
-      if (sessionStorage.getItem('ambientPixels_isAuthenticated') === 'true') {
-        return { id: 'unknown', userId: 'unknown', name: 'Authenticated User' };
-      }
-      
-      // Not authenticated or no user info available
-      return null;
-    },
-    isAuthenticated: function() {
-      return isAuthenticated || sessionStorage.getItem('ambientPixels_isAuthenticated') === 'true';
+    getCurrentUser: () => {
+      if (sessionStorage.getItem('ambientPixels_isAuthenticated') !== 'true') return null;
+      try { return JSON.parse(sessionStorage.getItem('userInfo')); } catch { return null; }
     }
   };
-  
-  debugLog('Auth module exposed globally:', !!window.authModule);
 
-  // --- Initialization Guard ---
-  // This robustly waits for dependencies to be ready before initializing,
-  // preventing race conditions with dynamically loaded scripts.
-  function initializeWhenReady() {
-    const startTime = Date.now();
-    const checkInterval = setInterval(() => {
-      const msalReady = typeof msal !== 'undefined' && msal.PublicClientApplication;
-      const configReady = typeof msalConfig !== 'undefined';
-
-      if (msalReady && configReady) {
-        clearInterval(checkInterval);
-        debugLog('Auth dependencies ready, initializing...');
-        initAuth();
-      } else if (Date.now() - startTime > 5000) { // 5-second timeout
-        clearInterval(checkInterval);
-        debugLog('ERROR: Auth dependencies did not load in time.');
-        showFallback('Authentication system unavailable. Please refresh or contact support.');
+  // Fetch SWA auth info and populate sessionStorage
+  async function loadAuthState() {
+    try {
+      const resp = await fetch('/.auth/me');
+      if (resp.ok) {
+        const data = await resp.json();
+        if (Array.isArray(data) && data.length > 0) {
+          sessionStorage.setItem('ambientPixels_isAuthenticated', 'true');
+          const user = data[0];
+          const userInfo = {
+            displayName: user.userDetails || '',
+            name: user.userDetails || '',
+            email: user.userDetails || '',
+            userId: user.userId || ''
+          };
+          sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
+        }
       }
-    }, 100);
+    } catch (e) {
+      debugLog('loadAuthState error:', e);
+    }
   }
 
-  // Start the initialization check once the DOM is ready.
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeWhenReady);
-  } else {
-    initializeWhenReady();
-  }
-
+  // Initialize on load: first load auth state, then bind buttons
+  document.addEventListener('DOMContentLoaded', async () => {
+    await loadAuthState();
+    bindAuthButtons();
+  });
 })();

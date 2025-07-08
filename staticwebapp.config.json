@@ -71,5 +71,18 @@
         "Cache-Control": "public, max-age=604800"
       }
     }
-  ]
+  ],
+  "auth": {
+    "identityProviders": {
+      "azureActiveDirectoryB2C": {
+        "registration": {
+          "clientId": "d0685388-9f8e-4a5f-918f-7070a8b41cb5",
+          "tenantId": "5e8db895-96f8-43ed-ad90-05fc041f771b",
+          "loginParameters": [
+            "p=SignUpSignIn"
+          ]
+        }
+      }
+    }
+  }
 }
