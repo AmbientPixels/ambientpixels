@@ -81,7 +81,7 @@
         },
         "login": {
           "loginParameters": [
-            "p=B2C_1_SignUpSignIn",
+            "p=SignUpSignIn",
             "scope=openid offline_access",
             "response_type=id_token"
           ],
