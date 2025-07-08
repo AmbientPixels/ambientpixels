@@ -76,12 +76,13 @@
     "identityProviders": {
       "azureActiveDirectory": {
         "registration": {
-          "openIdIssuer": "https://ambientpixelsai.b2clogin.com/5e8db895-96f8-43ed-ad90-05fc041f771b/v2.0/",
+          "openIdIssuer": "https://ambientpixelsid.ciamlogin.com/ambientpixelsid.onmicrosoft.com/v2.0/",
           "clientIdSettingName": "B2C_CLIENT_ID"
         },
         "login": {
           "loginParameters": [
-            "p=b2c_1_signupsignin1"
+            "scope=openid offline_access",
+            "response_type=id_token"
           ],
           "nameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
         }
