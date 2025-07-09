@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-// Directory containing the HTML files
-const docsDir = path.join(__dirname, 'docs');
+// Directory to process
+const targetDir = path.join(__dirname, 'projects');
 
 // Pattern to match the banner container and its contents
 const bannerPattern = /\s*<div class="banner-container"[\s\S]*?<\/div>\s*<\/div>\s*/g;
@@ -62,8 +62,9 @@ function processDirectory(directory) {
 }
 
 // Run the script
-console.log('Starting to process HTML files in docs directory...');
-const { filesProcessed, filesModified } = processDirectory(docsDir);
+// Run the script
+console.log(`Starting to process HTML files in: ${targetDir}`);
+const { filesProcessed, filesModified } = processDirectory(targetDir);
 console.log(`\nProcess completed!`);
 console.log(`Total files processed: ${filesProcessed}`);
 console.log(`Files modified: ${filesModified}`);
