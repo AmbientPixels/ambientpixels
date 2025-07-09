@@ -43,9 +43,12 @@
 .hero-subheadline {
   font-size: 1.5rem;
   line-height: 1.5;
-  margin: 1rem 0;
+  margin: 1rem auto;
   color: #fff;
   text-shadow: var(--hero-text-shadow);
+  text-align: center;
+  max-width: 80%;
+  width: 100%;
 }
 
 /* Mini Hero Section */
