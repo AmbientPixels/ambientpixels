@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="/css/hero.css">
   <link rel="stylesheet" href="/css/theme.css">
   <link rel="stylesheet" href="/css/banner.css">
+  <link rel="stylesheet" href="/modules/breadcrumb.css">
 </head>
 <body data-theme="dark">
 
@@ -27,8 +28,14 @@
     <img src="/images/nova/Nova_AI_consciousness_portal_ambient_neural_interface_02.png" alt="Mini Hero" class="mini-hero-img" loading="lazy">
     <h1>Project Tracker Dashboard</h1>
     <p class="nova-quip grid-col-12" >Monitoring all systems... surfacing insights from the grid.</p>
-  </section><main class="grid-container">
+  </section>  <main class="grid-container">
+    <!-- Breadcrumb Navigation -->
+    <div class="breadcrumb-container grid-col-12"></div>
+    
     <section class="content-section grid-col-12">
+      <div class="intro-text">
+        <p>Welcome to the Project Dashboard, our central hub for tracking all active and in-progress initiatives. This interactive dashboard provides real-time visibility into project status, priorities, and key metrics. Use the filters below to sort projects by category or status.</p>
+      </div>
       <h2 class="section-title"><i class="fas fa-layer-group"></i> All Active & In-Progress Projects</h2>
       <div id="project-filters" class="filter-toggle-group">
         <button class="filter-pill" data-filter="video">Video</button>
@@ -63,4 +70,5 @@
 <script src="/js/theme.js" defer></script>
 <script src="/js/main.js"></script>
 <script src="/js/banner.js"></script>
+<script src="/modules/breadcrumb.js" defer></script>
 </html>
