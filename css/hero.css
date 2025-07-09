@@ -59,6 +59,7 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    margin-top: 85px;
 }
 
 .mini-hero-img {
@@ -114,6 +115,7 @@
 @media (max-width: 768px) {
     .mini-hero {
         min-height: 180px;
+        margin-top: 140px;
     }
     
     .mini-hero-content-wrapper {
