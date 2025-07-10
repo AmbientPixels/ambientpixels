@@ -19,6 +19,7 @@
   <!-- Component Styles -->
   <link rel="stylesheet" href="/css/nova-pulse.css" />
   <link rel="stylesheet" href="/css/nova-mood-background.css" />
+  <link rel="stylesheet" href="/css/nova-dashboard.css" /> <!-- added by Cascade -->
 
   <style>
     body {
@@ -78,6 +79,52 @@
       Your browser does not support the video tag.
     </video>
   </div>
+
+  <!-- Nova Dashboard (Step 1 Scaffold) -->
+  <main class="nova-dashboard" aria-label="Nova Dashboard">
+    <section class="dashboard-section" id="nova-status-section">
+      <h2 class="dashboard-title">Nova Status</h2>
+      <div class="dashboard-row">
+        <div class="dashboard-stat">
+          <span class="dashboard-label">Mood:</span>
+          <span id="dashboardMood">Loading...</span>
+        </div>
+        <div class="dashboard-stat">
+          <span class="dashboard-label">Awareness:</span>
+          <span id="dashboardAwareness">–</span>
+        </div>
+        <div class="dashboard-stat">
+          <span class="dashboard-label">Glitch Factor:</span>
+          <span id="dashboardGlitch">–</span>
+        </div>
+        <div class="dashboard-stat">
+          <span class="dashboard-label">Memory Clutter:</span>
+          <span id="dashboardClutter">–</span>
+        </div>
+      </div>
+    </section>
+    <section class="dashboard-section" id="gemini-diagnostics-section">
+      <h2 class="dashboard-title">Gemini API Diagnostics</h2>
+      <div class="dashboard-row">
+        <div class="dashboard-stat">
+          <span class="dashboard-label">Last Prompt:</span>
+          <span id="dashboardGeminiPrompt">–</span>
+        </div>
+        <div class="dashboard-stat">
+          <span class="dashboard-label">Last Response:</span>
+          <span id="dashboardGeminiResponse">–</span>
+        </div>
+        <div class="dashboard-stat">
+          <span class="dashboard-label">Latency:</span>
+          <span id="dashboardGeminiLatency">–</span>
+        </div>
+        <div class="dashboard-stat">
+          <span class="dashboard-label">Error:</span>
+          <span id="dashboardGeminiError">–</span>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <!-- Nova Pulse Bar Module -->
   <div id="nova-pulse-bar">
@@ -175,5 +222,6 @@
       setTimeout(cycleVideo, 29000);
     });
   </script>
+  <script type="module" src="/js/pulse-bar-dashboard.js"></script>
 </body>
 </html>

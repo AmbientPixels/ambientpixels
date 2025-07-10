@@ -1,0 +1,64 @@
+/* nova-dashboard.css  */
+
+.nova-dashboard {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto 80px auto;
+  padding: 32px 24px 0 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.dashboard-section {
+  background: var(--aura-panel-bg, #23243a);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.18);
+  padding: 24px 20px;
+  margin-bottom: 0;
+}
+
+.dashboard-title {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--aura-glow, #aaf6ff);
+  margin-bottom: 18px;
+  letter-spacing: 0.02em;
+}
+
+.dashboard-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px 40px;
+  align-items: flex-end;
+}
+
+.dashboard-stat {
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  font-size: 1.1rem;
+  background: transparent;
+  color: var(--aura-text, #eaf6ff);
+}
+
+.dashboard-label {
+  font-size: 0.93rem;
+  color: var(--aura-label, #b6c9d8);
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+@media (max-width: 800px) {
+  .nova-dashboard {
+    padding: 18px 6px 0 6px;
+    gap: 18px;
+  }
+  .dashboard-row {
+    gap: 14px 8px;
+  }
+  .dashboard-section {
+    padding: 14px 7px;
+  }
+}
