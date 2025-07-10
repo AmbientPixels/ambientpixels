@@ -132,6 +132,61 @@
       <h2><i class="fas fa-brain"></i> Nova’s Thought of the Day</h2>
       <div class="prompt-entry" aria-live="polite">Loading thought...</div>
     </section>
+      <!-- API Test Section -->
+<section class="dashboard-section api-test-section">
+  <h2 class="dashboard-title">API Test</h2>
+  <div class="api-test-grid">
+    <button class="glass-button api-test-btn" data-endpoint="_utils/callGemini.js"><span class="api-label">_utils/callGemini.js</span><span class="api-indicator" data-status="untested"></span></button>
+    <button class="glass-button api-test-btn" data-endpoint="_utils/getTelemetry.js"><span class="api-label">_utils/getTelemetry.js</span><span class="api-indicator" data-status="untested"></span></button>
+    <button class="glass-button api-test-btn" data-endpoint="cardforgeloadcards/index.js"><span class="api-label">cardforgeloadcards/index.js</span><span class="api-indicator" data-status="untested"></span></button>
+    <button class="glass-button api-test-btn" data-endpoint="cardforgepublish/index.js"><span class="api-label">cardforgepublish/index.js</span><span class="api-indicator" data-status="untested"></span></button>
+    <button class="glass-button api-test-btn" data-endpoint="cardforgesavecards/index.js"><span class="api-label">cardforgesavecards/index.js</span><span class="api-indicator" data-status="untested"></span></button>
+    <button class="glass-button api-test-btn" data-endpoint="cardforgetemplate/index.js"><span class="api-label">cardforgetemplate/index.js</span><span class="api-indicator" data-status="untested"></span></button>
+    <button class="glass-button api-test-btn" data-endpoint="dreamlogwriter/index.js"><span class="api-label">dreamlogwriter/index.js</span><span class="api-indicator" data-status="untested"></span></button>
+    <button class="glass-button api-test-btn" data-endpoint="fetchlatestmood/index.js"><span class="api-label">fetchlatestmood/index.js</span><span class="api-indicator" data-status="untested"></span></button>
+    <button class="glass-button api-test-btn" data-endpoint="gemini-proxy/index.js"><span class="api-label">gemini-proxy/index.js</span><span class="api-indicator" data-status="untested"></span></button>
+    <button class="glass-button api-test-btn" data-endpoint="generate-text/index.js"><span class="api-label">generate-text/index.js</span><span class="api-indicator" data-status="untested"></span></button>
+    <button class="glass-button api-test-btn" data-endpoint="generatemoodinsights/index.js"><span class="api-label">generatemoodinsights/index.js</span><span class="api-indicator" data-status="untested"></span></button>
+    <button class="glass-button api-test-btn" data-endpoint="getCardTemplate/index.js"><span class="api-label">getCardTemplate/index.js</span><span class="api-indicator" data-status="untested"></span></button>
+    <button class="glass-button api-test-btn" data-endpoint="novavision/index.js"><span class="api-label">novavision/index.js</span><span class="api-indicator" data-status="untested"></span></button>
+    <button class="glass-button api-test-btn" data-endpoint="synthesizenovamood/index.js"><span class="api-label">synthesizenovamood/index.js</span><span class="api-indicator" data-status="untested"></span></button>
+    <button class="glass-button api-test-btn" data-endpoint="testGeminiDirect.js"><span class="api-label">testGeminiDirect.js</span><span class="api-indicator" data-status="untested"></span></button>
+  </div>
+</section>
+<script>
+// API Test logic: run all tests on load and on click, using deployed Azure Functions URLs for all endpoints
+const PROD_API_BASE = 'https://ambientpixels-nova-api.azurewebsites.net/api/';
+function getProdApiUrl(endpoint) {
+  // Remove trailing .js or /index.js
+  let clean = endpoint;
+  if (clean.endsWith('/index.js')) clean = clean.slice(0, -9);
+  else if (clean.endsWith('.js')) clean = clean.slice(0, -3);
+  return PROD_API_BASE + clean;
+}
+function runApiTest(btn) {
+  const endpoint = btn.getAttribute('data-endpoint');
+  const indicator = btn.querySelector('.api-indicator');
+  indicator.setAttribute('data-status', 'loading');
+  const url = getProdApiUrl(endpoint);
+  fetch(url)
+    .then(res => {
+      indicator.setAttribute('data-status', res.ok ? 'ok' : 'fail');
+    })
+    .catch(() => {
+      indicator.setAttribute('data-status', 'fail');
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const buttons = [...document.querySelectorAll('.api-test-btn')];
+  buttons.forEach(btn => {
+    // Run test on load
+    runApiTest(btn);
+    // Allow manual retest on click
+    btn.addEventListener('click', () => runApiTest(btn));
+  });
+});
+</script>
   </main>
 
   <!-- Nova Pulse Bar Module -->
