@@ -9,7 +9,7 @@
  * @returns {Promise<object>} Gemini API response JSON
  */
 export async function sendGeminiPrompt(prompt, options = {}) {
-  const endpoint = '/api/gemini-proxy'; // Always use proxy for production
+  const endpoint = 'https://ambientpixels-nova-api.azurewebsites.net/api/gemini-proxy'; // Updated to Azure Functions endpoint
   const payload = {
     prompt,
     ...options
