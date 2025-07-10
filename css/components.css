@@ -26,6 +26,50 @@
 
 /* --- Badge Classes --- */
 
+.project-status-badge {
+  display: inline-block;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: 0.5rem;
+  box-shadow: 0 0 8px rgba(90, 228, 255, 0.2);
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.soon-tag,
+.updated-tag {
+  padding: unset;
+  border-radius: unset;
+  font-size: unset;
+  font-weight: unset;
+  text-transform: unset;
+  letter-spacing: unset;
+  margin-left: unset;
+  display: unset;
+  box-shadow: unset;
+  transition: unset;
+}
+
+.badge-solid-orange { background-color: rgba(249, 115, 22, 0.12); color: #fed7aa; border: 1px solid rgba(251, 146, 60, 0.3); }
+.badge-solid-blue { background-color: rgba(59, 130, 246, 0.12); color: #bfdbfe; border: 1px solid rgba(59, 130, 246, 0.3); }
+.badge-solid-slate { background-color: rgba(100, 116, 139, 0.12); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, 0.3); }
+.badge-solid-red { background-color: rgba(220, 38, 38, 0.12); color: #fecaca; border: 1px solid rgba(248, 113, 113, 0.3); }
+.badge-solid-pink { background-color: rgba(236, 72, 153, 0.12); color: #fbcfe8; border: 1px solid rgba(244, 114, 182, 0.3); }
+.badge-solid-teal { background-color: rgba(20, 184, 166, 0.12); color: #99f6e4; border: 1px solid rgba(45, 212, 191, 0.3); }
+.badge-solid-gold { background-color: rgba(245, 158, 11, 0.15); color: #fef08a; border: 1px solid rgba(251, 191, 36, 0.3); }
+.badge-solid-purple { background-color: rgba(139, 92, 246, 0.12); color: #e2d6ff; border: 1px solid rgba(167, 139, 250, 0.3); }
+
+[class^="badge-"]:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease-in-out;
+}
+
 /* --- Auth Button Loading State (added by Cascade, June 2025) --- */
 .nav-auth-btn.loading {
   position: relative;
@@ -99,6 +143,14 @@
 }
 
 /* --- Nova Pill Stack + Glow --- */
+
+#clear-filters {
+  display: none;
+}
+#clear-filters.active {
+  display: inline-block;
+}
+
 .pill-stack {
   display: flex;
   flex-direction: column;

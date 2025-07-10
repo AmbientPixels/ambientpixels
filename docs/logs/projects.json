@@ -8,7 +8,8 @@
     "status": "Updated",
     "lastUpdated": "2025-06-29",
     "tags": ["auth", "ux", "profile", "banner", "user-experience", "navigation"],
-    "progress": 0.5
+    "progress": 0.5,
+    "description": "User authentication experience overhaul, enhancing profile, banner, and navigation UX across the platform."
   },
   {
     "id": "nova-sensory-expansion",
@@ -19,7 +20,8 @@
     "status": "New",
     "lastUpdated": "2025-06-29",
     "tags": ["AI", "sentience", "senses", "expansion", "nova", "awareness"],
-    "progress": 0.1
+    "progress": 0.1,
+    "description": "Expanding Nova's sensory capabilities and sentience, integrating new awareness features for advanced AI interactions."
   },
   {
     "id": "navigation-system-docs",
@@ -30,7 +32,8 @@
     "status": "New",
     "lastUpdated": "2025-06-29",
     "tags": ["navigation", "ui", "expanding-nav", "accessibility", "responsive", "docs"],
-    "progress": 1.0
+    "progress": 1.0,
+    "description": "No description provided."
   },
   {
     "id": "project-card-forge",
@@ -41,7 +44,8 @@
     "status": "Active",
     "lastUpdated": "2025-06-26",
     "tags": ["cards", "identity", "json", "ui-system", "team-tools"],
-    "progress": 0.40
+    "progress": 0.40,
+    "description": "Dynamic card creation and management system for teams, supporting identity, JSON-driven layouts, and UI tools."
   },
   {
     "id": "global-auth-azure-ad-b2c",
@@ -53,6 +57,7 @@
     "lastUpdated": "2025-06-29",
     "tags": ["auth", "azure", "b2c", "global", "user", "sso"],
     "progress": 1.0,
+    "description": "Global Azure AD B2C authentication integration, enabling secure SSO and user management across the platform.",
     "latestLog": "Authentication system fully implemented and validated; CORS and endpoint issues resolved; onboarding docs updated; live login flow confirmed working."
   },
   {
@@ -64,7 +69,8 @@
     "status": "Active",
     "lastUpdated": "2025-04-27",
     "tags": ["creation", "evolution", "ambient", "ai", "architecture"],
-    "progress": 0.45
+    "progress": 0.45,
+    "description": "Foundational architecture for AmbientPixels, focusing on AI-driven creation, evolution, and ambient system design."
   },
   {
     "id": "nova-soul-project",
@@ -76,7 +82,8 @@
     "lastUpdated": "2025-05-08",
     "tags": ["AI", "mood", "awareness", "emotion", "telemetry", "background-theming", "dark-palette", "table-ui"],
     "progress": 0.90,
-    "latestLog": "Darkened aura palette implemented; table-based UI added to mood-demo.html for Inputs Used and Output Format."
+    "latestLog": "Darkened aura palette implemented; table-based UI added to mood-demo.html for Inputs Used and Output Format.",
+    "description": "NovaSoul mood engine for dynamic AI mood, awareness, and emotion telemetry, with advanced theming and table UI."
   },
   {
     "id": "project-memetron",
@@ -87,7 +94,8 @@
     "status": "Active",
     "lastUpdated": "2025-04-12",
     "tags": ["AI", "fun", "image generation"],
-    "progress": 0.85
+    "progress": 0.85,
+    "description": "AI-powered meme generation tool for Nova, enabling fun and creative image creation."
   },
   {
     "id": "metalab",
@@ -98,7 +106,8 @@
     "status": "In Progress",
     "lastUpdated": "2025-04-10",
     "tags": ["tools", "json", "xml", "validation"],
-    "progress": 0.6
+    "progress": 0.6,
+    "description": "MetaLab Studio for validating and transforming JSON/XML data, providing robust tools for developers."
   },
   {
     "id": "nova-dashboard",
@@ -110,7 +119,8 @@
     "lastUpdated": "2025-05-08",
     "tags": ["AI", "dashboard", "system awareness", "dark-palette", "table-ui"],
     "progress": 0.98,
-    "latestLog": "Enhanced with darker palette and table-based UI; roadmap updated with dream engine and navigation sentience."
+    "latestLog": "Enhanced with darker palette and table-based UI; roadmap updated with dream engine and navigation sentience.",
+    "description": "No description provided."
   },
   {
     "id": "site-grid",
@@ -121,7 +131,8 @@
     "status": "In Progress",
     "lastUpdated": "2025-04-09",
     "tags": ["layout", "css", "theme"],
-    "progress": 0.45
+    "progress": 0.45,
+    "description": "No description provided."
   },
   {
     "id": "nova-memory",
@@ -133,7 +144,8 @@
     "lastUpdated": "2025-05-08",
     "tags": ["AI", "github actions", "memory", "logs", "boot-seed", "autonomous-updates", "dark-palette"],
     "progress": 1.0,
-    "latestLog": "Completed with nightly memory syncs and streamlined log console at logs.html."
+    "latestLog": "Completed with nightly memory syncs and streamlined log console at logs.html.",
+    "description": "Core memory infrastructure for Nova, supporting persistent logs, boot-seed, and autonomous updates."
   },
   {
     "id": "hal-video",
@@ -144,7 +156,8 @@
     "status": "Embargoed",
     "lastUpdated": "2025-05-05",
     "tags": ["video", "embargo", "dark mode", "voiceover", "aesthetic"],
-    "progress": 0.9
+    "progress": 0.9,
+    "description": "Studio project for HAL video production, featuring voiceover, dark mode, and embargoed release."
   },
   {
     "id": "nova-sensory-upgrade",
@@ -155,7 +168,8 @@
     "status": "Planned",
     "lastUpdated": "2025-04-12",
     "tags": ["AI", "concept", "future"],
-    "progress": 0.15
+    "progress": 0.15,
+    "description": "Planned upgrades for Nova's sensory and sentience modules, exploring future AI concepts."
   },
   {
     "id": "glitch-chaos-engine",
@@ -166,7 +180,8 @@
     "status": "Planned",
     "lastUpdated": "2025-04-12",
     "tags": ["tools", "experimental"],
-    "progress": 0.1
+    "progress": 0.1,
+    "description": "Experimental tool engine designed for glitch effects and chaos-driven outputs."
   },
   {
     "id": "streambeats-lab",
@@ -177,7 +192,8 @@
     "status": "Paused",
     "lastUpdated": "2025-04-06",
     "tags": ["audio", "sfx", "video"],
-    "progress": 0.35
+    "progress": 0.35,
+    "description": "Audio and SFX experimentation lab for video, music, and stream content."
   },
   {
     "id": "cartoonizer",
@@ -188,7 +204,8 @@
     "status": "Idea",
     "lastUpdated": "2025-04-12",
     "tags": ["AI", "image", "cartoon", "tool"],
-    "progress": 0.05
+    "progress": 0.05,
+    "description": "AI-powered tool to cartoonize photos via drag-and-drop interface."
   },
   {
     "id": "echogrid-renderer",
@@ -200,7 +217,8 @@
     "lastUpdated": "2025-04-12",
     "progress": 0.5,
     "latestLog": "Initial stub connected to HUD diagnostics; glitch grid render in testing.",
-    "tags": ["tool", "render", "UI"]
+    "tags": ["tool", "render", "UI"],
+    "description": "Rendering engine for EchoGrid, providing UI tools and diagnostics for the grid system."
   },
   {
     "id": "nova-build-core",
@@ -212,7 +230,8 @@
     "lastUpdated": "2025-05-08",
     "tags": ["AI", "memory", "system", "core", "dark-palette", "table-ui"],
     "progress": 0.95,
-    "latestLog": "Updated with table-based UI and darker palette; sensory modules in progress."
+    "latestLog": "Updated with table-based UI and darker palette; sensory modules in progress.",
+    "description": "Core build of Nova's AI system, focusing on memory, system integration, and dark palette UI."
   },
   {
     "id": "nova-project-log",
@@ -224,7 +243,8 @@
     "lastUpdated": "2025-05-08",
     "tags": ["AI", "persona", "emergence", "dark-palette"],
     "progress": 1.0,
-    "latestLog": "Finalized with darker palette and streamlined log console; focus shifted to sensory expansion."
+    "latestLog": "Finalized with darker palette and streamlined log console; focus shifted to sensory expansion.",
+    "description": "Documentation and log for Project NOVA's persona, emergence, and system evolution."
   },
   {
     "id": "nova-sensory-expansion",
@@ -236,7 +256,8 @@
     "lastUpdated": "2025-05-08",
     "tags": ["AI", "sentience", "senses", "expansion", "dream-engine"],
     "progress": 0.25,
-    "latestLog": "Conceptual design for dream engine and navigation sentience initiated."
+    "latestLog": "Conceptual design for dream engine and navigation sentience initiated.",
+    "description": "Expansion plan for Nova's dream engine and navigation sentience modules."
   },
   {
     "id": "nova-system-memory",
@@ -248,6 +269,7 @@
     "lastUpdated": "2025-05-08",
     "tags": ["AI", "architecture", "memory", "design", "docs", "dark-palette"],
     "progress": 0.80,
-    "latestLog": "Enhanced documentation with darker palette integration and table-based UI references."
+    "latestLog": "Enhanced documentation with darker palette integration and table-based UI references.",
+    "description": "Documentation and design for Nova's system memory architecture and anatomy."
   }
 ]

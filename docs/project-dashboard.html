@@ -17,7 +17,9 @@
   <link rel="stylesheet" href="/css/hero.css">
   <link rel="stylesheet" href="/css/theme.css">
   <link rel="stylesheet" href="/css/banner.css">
+  <link rel="stylesheet" href="/css/nova-dashboard.css">
   <link rel="stylesheet" href="/modules/breadcrumb.css">
+
 </head>
 <body data-theme="dark">
 
@@ -33,17 +35,68 @@
     <div class="breadcrumb-container grid-col-12"></div>
     <p class="nova-quip grid-col-12">Monitoring all systems... surfacing insights from the grid.</p>
 
+    <section class="dashboard-all-up-stats grid-col-12"></section>
+
     <section class="content-section grid-col-12">
       <div class="intro-text">
         <p>Welcome to the Project Dashboard, our central hub for tracking all active and in-progress initiatives. This interactive dashboard provides real-time visibility into project status, priorities, and key metrics. Use the filters below to sort projects by category or status.</p>
       </div>
       <h2 class="section-title"><i class="fas fa-layer-group"></i> All Active & In-Progress Projects</h2>
-      <div id="project-filters" class="filter-toggle-group">
-        <button class="filter-pill" data-filter="video">Video</button>
-        <button class="filter-pill" data-filter="tool">Tool</button>
-        <button class="filter-pill" data-filter="dashboard">Dashboard</button>
-        <button class="filter-pill" data-filter="ai">AI</button>
-        <button class="filter-pill" data-filter="concept">Concept</button>
+      <div class="dashboard-filter-bar" aria-label="Project Filters Bar">
+  <!-- Section 1: Search -->
+  <div class="dashboard-filter-section filter-section-search">
+    <div class="dashboard-filter-group">
+      <label for="project-search" class="filter-label">Search:</label>
+      <input id="project-search" type="search" class="dashboard-search-box" placeholder="Search by name, tag, or description..." autocomplete="off" aria-label="Search Projects" />
+    </div>
+  </div>
+  <!-- Section 2: Status/Size -->
+  <div class="dashboard-filter-section filter-section-status-size">
+    <div class="dashboard-filter-row">
+      <div class="dashboard-filter-group">
+        <label for="status-filter" class="filter-label">Status:</label>
+        <div class="input-wrapper">
+          <select id="status-filter" class="styled-select windsurf-sort-dropdown" aria-label="Filter by Status">
+            <option value="">All</option>
+            <option value="Active">Active</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Paused">Paused</option>
+            <option value="Planned">Planned</option>
+            <option value="Embargoed">Embargoed</option>
+            <option value="Idea">Idea</option>
+            <option value="New">New</option>
+            <option value="Updated">Updated</option>
+          </select>
+        </div>
+      </div>
+      <div class="dashboard-filter-group">
+        <label for="size-filter" class="filter-label">Size:</label>
+        <div class="input-wrapper">
+          <select id="size-filter" class="styled-select windsurf-sort-dropdown" aria-label="Filter by Size">
+            <option value="">All</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Section 3: Tags -->
+  <div class="dashboard-filter-section filter-section-tags">
+    <div class="dashboard-filter-group">
+      <label for="tag-filter" class="filter-label">Tags:</label>
+      <div class="input-wrapper">
+        <select id="tag-filter" class="styled-select windsurf-sort-dropdown" aria-label="Filter by Tag" multiple size="5">
+          <!-- Tag options will be populated dynamically by JS -->
+        </select>
+      </div>
+    </div>
+  </div>
+        </div>
+        <div class="dashboard-filter-group">
+          <button id="clear-filters" class="filter-pill" type="button" style="display:none;">Reset Filters</button>
+        </div>
       </div>
       <div id="project-list" class="grid-row"></div>
     </section>

@@ -1,5 +1,31 @@
 /* nova-dashboard.css  */
 
+/* Dashboard Filter Dropdowns - unified pill style */
+.dashboard-filter-group .styled-select:not([multiple]) {
+  border-radius: 999px;
+  border: 1.5px solid var(--mood-glow, #5ae4ff);
+  background: rgba(255,255,255,0.07);
+  color: #5ae4ff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.4rem 1.2rem;
+}
+
+/* Fix for dropdown options in pill selects (dark mode) */
+.dashboard-filter-group .styled-select option {
+  background: var(--aura-bg-3, #23283a);
+  color: #eaf6ff;
+}
+
+
+.dashboard-filter-group .styled-select:not([multiple]):focus,
+.dashboard-filter-group .styled-select:not([multiple]):hover {
+  background: rgba(90, 228, 255, 0.13);
+  border-color: #5ae4ff;
+  color: #fff;
+}
+/* updated by Cascade: all dashboard dropdowns now use pill style; removed .size-pill */
+
 .nova-dashboard {
   width: 100%;
   max-width: 1200px;
@@ -11,6 +37,9 @@
   gap: 32px;
 }
 
+
+
+
 .dashboard-section {
   background: var(--aura-panel-bg, #23243a);
   border-radius: 18px;
@@ -18,6 +47,9 @@
   padding: 24px 20px;
   margin-bottom: 0;
 }
+
+
+
 
 .dashboard-title {
   font-size: 1.4rem;
@@ -27,12 +59,18 @@
   letter-spacing: 0.02em;
 }
 
+
+
+
 .dashboard-row {
   display: flex;
   flex-wrap: wrap;
   gap: 24px 40px;
   align-items: flex-end;
 }
+
+
+
 
 .dashboard-stat {
   display: flex;
@@ -43,6 +81,9 @@
   color: var(--aura-text, #eaf6ff);
 }
 
+
+
+
 .dashboard-label {
   font-size: 0.93rem;
   color: var(--aura-label, #b6c9d8);
@@ -50,15 +91,369 @@
   font-weight: 500;
 }
 
+
+
+
+/* Unified Status+Progress Bar for Project Cards (added by Cascade 2025-07-09) */
+
+.dashboard-all-up-stats {
+  margin: 0 0 18px 0;
+  padding: 0 0 8px 0;
+}
+.dashboard-stats-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 32px;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+.dashboard-stat-card {
+  background: var(--aura-panel-bg, #23243a);
+  border-radius: 10px;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.11);
+  padding: 14px 22px 10px 22px;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.stat-label {
+  font-size: 0.96em;
+  color: var(--aura-label, #b6c9d8);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.stat-value {
+  font-size: 1.42em;
+  color: var(--aura-glow, #aaf6ff);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+}
+
+
+.mini-stats {
+  font-size: 0.92em;
+  color: var(--aura-label, #b6c9d8);
+  font-weight: 500;
+  margin-left: 0.6em;
+  opacity: 0.82;
+  letter-spacing: 0.01em;
+  vertical-align: middle;
+}
+
+.status-progress-bar {
+  position: relative;
+  width: 100%;
+  min-height: 2.1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  /* color and background come from badge class */
+}
+.status-progress-bar .status-label {
+  position: relative;
+  z-index: 2;
+  padding: 0 0.5em;
+  color: inherit;
+  font-weight: 700;
+}
+.status-progress-bar .progress-text {
+  position: relative;
+  z-index: 2;
+  margin-left: 0.6em;
+  font-weight: 600;
+  opacity: 0.85;
+  font-size: 0.95em;
+}
+.status-progress-bar .status-progress-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  z-index: 1;
+  background: linear-gradient(90deg, rgba(255,255,255,0.12) 0%, rgba(90,228,255,0.18) 100%);
+  border-radius: 6px;
+  pointer-events: none;
+  transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+
 @media (max-width: 800px) {
   .nova-dashboard {
     padding: 18px 6px 0 6px;
     gap: 18px;
   }
+
+
+
   .dashboard-row {
     gap: 14px 8px;
   }
+
+
+
   .dashboard-section {
     padding: 14px 7px;
   }
+
+
+
 }
+
+
+
+/* === Dashboard Filter Sectioned Layout (scoped) === */
+.dashboard-filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  background: var(--aura-bg-1, rgba(24,28,38,0.92));
+  border-radius: 12px;
+  border: 1.5px solid var(--mood-glow, #5ae4ff20);
+  padding: 1.1rem 1.2rem 1.3rem 1.2rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 1px 8px 0 rgba(40,80,120,0.04);
+}
+
+
+
+.dashboard-filter-section {
+  margin-bottom: 0.2rem;
+  padding: 0;
+}
+
+
+
+.dashboard-filter-section:last-child {
+  margin-bottom: 0;
+}
+
+
+
+.dashboard-filter-row {
+  display: flex;
+  flex-direction: row;
+  gap: 1.2rem;
+  align-items: flex-end;
+}
+
+
+
+.dashboard-filter-row > .dashboard-filter-group {
+  flex: 1 1 120px;
+  min-width: 90px;
+  max-width: 180px;
+}
+
+
+
+.dashboard-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.20rem;
+}
+
+
+
+.dashboard-filter-group label {
+  font-size: 0.98rem;
+  margin-bottom: 0.1rem;
+  color: var(--aura-label, #b6c9d8);
+  font-weight: 500;
+}
+
+
+
+.dashboard-search-box,
+.styled-select {
+  height: 38px;
+  min-width: 0;
+}
+
+
+
+.dashboard-search-box {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--aura-bg-2, rgba(30,34,44,0.92));
+  border: 1.5px solid var(--mood-glow, #5ae4ff30);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+  box-shadow: 0 2px 12px 0 rgba(40,80,120,0.08);
+  outline: none;
+}
+
+
+
+.dashboard-search-box:focus {
+  border-color: var(--mood-glow, #5ae4ff);
+  box-shadow: 0 0 0 2px var(--mood-glow, #5ae4ff40);
+  background: var(--aura-bg-3, #23283a);
+}
+
+
+
+.dashboard-search-box::placeholder {
+  color: #b4c6d6;
+  opacity: 0.8;
+  font-style: italic;
+}
+
+
+
+.filter-pill {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  border: 1px solid #5ae4ff;
+  background: rgba(255, 255, 255, 0.05);
+  color: #5ae4ff;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-left: 0.5rem;
+  margin-right: 0;
+  vertical-align: middle;
+  transition: background 0.2s, color 0.2s;
+}
+
+
+
+@media (max-width: 900px) {
+  .dashboard-filter-row {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+
+
+}
+
+
+
+@media (max-width: 700px) {
+  .dashboard-filter-bar {
+    padding: 0.7rem 0.25rem;
+    gap: 0.7rem;
+  }
+
+
+
+  .dashboard-filter-section {
+    margin-bottom: 0.5rem;
+  }
+
+
+
+  .dashboard-filter-row {
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+
+
+  .dashboard-filter-group,
+  .dashboard-filter-row > .dashboard-filter-group {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    align-items: stretch;
+  }
+
+
+
+  .filter-pill {
+    margin: 0.5rem 0 0 0;
+    width: 100%;
+  }
+
+
+
+}
+
+
+
+/* Dashboard Filter Dropdowns */
+.dashboard-filter-group .styled-select {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--aura-bg-2, rgba(30,34,44,0.92));
+  border: 1.5px solid var(--mood-glow, #5ae4ff30);
+  border-radius: 8px;
+  color: #eaf6ff;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+  box-shadow: 0 1px 8px 0 rgba(40,80,120,0.06);
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+
+
+
+.dashboard-filter-group .styled-select:focus,
+.dashboard-filter-group .styled-select:hover {
+  border-color: var(--mood-glow, #5ae4ff);
+  background: var(--aura-bg-3, #23283a);
+}
+
+
+
+
+.dashboard-filter-group select[multiple] {
+  min-height: 110px;
+  background: var(--aura-bg-2, rgba(30,34,44,0.96));
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #eaf6ff;
+  padding: 10px 14px;
+  box-shadow: 0 1px 8px 0 rgba(40,80,120,0.10);
+}
+
+
+
+
+.dashboard-filter-group select[multiple]:focus {
+  border-color: var(--mood-glow, #5ae4ff);
+  background: var(--aura-bg-3, #23283a);
+}
+
+
+
+
+.dashboard-filter-row > .dashboard-filter-group {
+  margin-right: 0.5rem;
+}
+
+
+
+
+.dashboard-filter-group:last-child {
+  margin-right: 0;
+}
+
+
+
+
+@media (max-width: 900px) {
+  .dashboard-filter-row > .dashboard-filter-group {
+    margin-right: 0;
+    margin-bottom: 0.5rem;
+  }
+
+}
+
