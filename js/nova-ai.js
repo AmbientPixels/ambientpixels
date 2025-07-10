@@ -2,7 +2,7 @@
 
 async function generateNovaText(prompt) {
   try {
-    const res = await fetch('https://ambientpixels-nova-api.azurewebsites.net/api/generate-text', { // Updated to Azure Functions endpoint
+    const res = await fetch('/api/generate-text', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt })

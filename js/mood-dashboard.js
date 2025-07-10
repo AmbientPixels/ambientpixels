@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log("🔁 Refreshing mood...");
 
     try {
-      const response = await axios.get('https://ambientpixels-nova-api.azurewebsites.net/api/fetchLatestMood/'); // Updated to Azure Functions endpoint
+      const response = await axios.get('/api/fetchLatestMood/');
       const data = response.data;
       console.log("✅ Mood data received:", data);
 
