@@ -28,20 +28,32 @@ jobs:
         run: |
           mkdir app_build
           rsync -av --exclude='api' --exclude='node_modules' --exclude='.git' --exclude='.github' --exclude='.windsurf' ./ app_build/
-      - name: Build And Deploy
-        id: builddeploy
+      - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_SKY_05CC8E110 }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "app_build" # Prebuilt static artifacts location
-          api_location: "/api" # Api source code path - set to /api folder
-          
-          skip_app_build: true # Skip app build since this is primarily an API
-          ###### End of Repository/Build Configurations ######
+          app_location: "app_build" # Only static files
+          skip_app_build: true
+
+      # Deploy /api to Azure Function App (standalone)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+
+      - name: Install dependencies for API
+        run: |
+          cd api
+          npm install
+
+      - name: Deploy to Azure Functions App
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ambientpixels-nova-api
+          package: ./api
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
