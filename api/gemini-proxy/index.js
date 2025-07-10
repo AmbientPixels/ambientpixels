@@ -1,16 +1,7 @@
-// gemini-proxy Azure Static Web Apps HTTP function
-// Place in /api/gemini-proxy/index.js with function.json for route config
-
+// gemini-proxy Azure Static Web Apps HTTP function (diagnostic version)
 const fetch = require('node-fetch');
 
-// Load Gemini API key from environment variable or Azure secret
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-
-if (!GEMINI_API_KEY) {
-  console.error('Gemini API key not set. Please set GEMINI_API_KEY in your environment.');
-}
-
-// Gemini endpoint, adjust model/version as needed
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' + GEMINI_API_KEY;
 
 module.exports = async function (context, req) {
@@ -21,8 +12,18 @@ module.exports = async function (context, req) {
     };
     return;
   }
+  if (!GEMINI_API_KEY) {
+    context.log.error('Gemini API key not set.');
+    context.res = {
+      status: 500,
+      body: { error: 'Gemini API key not set in environment.' }
+    };
+    return;
+  }
   try {
-    const { prompt, ...options } = req.body || {};
+    // Defensive: ensure req.body is parsed
+    const body = req.body || {};
+    const { prompt, ...options } = body;
     if (!prompt) {
       context.res = {
         status: 400,
@@ -30,26 +31,47 @@ module.exports = async function (context, req) {
       };
       return;
     }
-    // Build request body for Gemini API
+
+    // Build Gemini API request body
     const geminiBody = {
       contents: [{ parts: [{ text: prompt }] }],
       ...options
     };
+
+    context.log('[Gemini Proxy] Outgoing request:', JSON.stringify(geminiBody));
+
     const apiRes = await fetch(GEMINI_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(geminiBody)
     });
+
     const data = await apiRes.json();
+
+    if (!apiRes.ok) {
+      context.log.error('[Gemini Proxy] Gemini API error:', apiRes.status, data);
+      context.res = {
+        status: apiRes.status,
+        body: {
+          error: 'Gemini API error',
+          status: apiRes.status,
+          geminiError: data
+        }
+      };
+      return;
+    }
+
+    context.log('[Gemini Proxy] Gemini API success:', data);
+
     context.res = {
-      status: apiRes.status,
+      status: 200,
       body: data
     };
   } catch (error) {
-    console.error('Gemini Proxy Error:', error);
+    context.log.error('[Gemini Proxy] Internal error:', error);
     context.res = {
       status: 500,
-      body: { error: 'Internal server error' }
+      body: { error: 'Internal server error', details: error.message }
     };
   }
 };
