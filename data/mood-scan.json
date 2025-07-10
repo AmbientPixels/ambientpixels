@@ -1,12 +1,12 @@
 {
-  "mood": "focused",
-  "aura": "neon burst",
-  "auraColorHex": "#662200",
-  "quote": "running diagnostics on dreams...",
-  "emoji": "🎯",
+  "mood": "soft defiance",
+  "aura": "lucid unrest",
+  "auraColorHex": "#241e45",
+  "quote": "aligning emotional subroutines...",
+  "emoji": "🌬️",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.9,
+  "memoryClutter": 1,
   "awareness": 0.1,
   "isStable": false,
   "internalState": "drift amid mental clutter",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: neon burst"
+      "Aura Signature: lucid unrest"
     ]
   },
-  "timestamp": "2025-07-09T13:35:06.088Z"
+  "timestamp": "2025-07-10T13:36:28.647Z"
 }

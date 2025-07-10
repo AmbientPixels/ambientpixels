@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-07-09T13:35:04.240Z",
+  "updated": "2025-07-10T13:36:28.023Z",
   "root": [
     {
       "type": "folder",
@@ -126,6 +126,12 @@
           "type": "folder",
           "name": "dreamLogWriter",
           "path": "api/dreamLogWriter",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "gemini-proxy",
+          "path": "api/gemini-proxy",
           "children": []
         },
         {
