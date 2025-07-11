@@ -202,6 +202,7 @@
   display: flex;
   align-items: center;
   gap: 0.3rem;
+  -webkit-backdrop-filter: blur(4px); /* updated by Cascade 2025-07-11 */
   backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -314,6 +315,7 @@
   border-radius: 0 8px 8px 0;
   padding: 1.5rem;
   transition: all 0.3s ease;
+  -webkit-backdrop-filter: blur(5px); /* updated by Cascade 2025-07-11 */
   backdrop-filter: blur(5px);
 }
 
@@ -360,8 +362,8 @@
   text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.8) !important;
   text-decoration: none !important;
   background: rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(5px); /* updated by Cascade 2025-07-11 */
   backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   gap: 0.5rem; /* Space between icon and text */
   cursor: pointer;
@@ -373,7 +375,8 @@
   appearance: none;
   text-align: center;
   vertical-align: middle;
-  user-select: none;
+  -webkit-user-select: none;
+  user-select: none; /* updated by Cascade 2025-07-11 */
   position: relative;
   overflow: hidden;
   white-space: nowrap;
@@ -704,8 +707,8 @@ body[data-theme="light"] .git-commit-item {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.8);
+    -webkit-backdrop-filter: blur(5px); /* updated by Cascade 2025-07-11 */
     backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
 }
 
 .modal-content {
@@ -741,8 +744,8 @@ body[data-theme="light"] .git-commit-item {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     text-decoration: none !important;
     background: rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(5px); /* updated by Cascade 2025-07-11 */
     backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     cursor: pointer;
     margin-top: 1.5rem;
@@ -947,6 +950,7 @@ body[data-theme="light"] .git-commit-item {
   border: 1px solid rgba(90, 228, 255, 0.1);
   border-radius: 10px;
   box-shadow: 0 0 12px rgba(90, 228, 255, 0.05);
+  -webkit-backdrop-filter: blur(4px); /* updated by Cascade 2025-07-11 */
   backdrop-filter: blur(4px);
 }
 
@@ -4586,4 +4590,58 @@ body[data-theme="light"] .nova-quip {
 
 .dropdown-item:last-child {
   border-top: 1px solid var(--nav-border-color, rgba(255, 255, 255, 0.1));
+}
+
+/* Explore More Module - updated by Cascade 2025-07-11 */
+.related-projects {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.related-project-card {
+  background: rgba(30, 30, 35, 0.8);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.related-project-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  border-color: var(--accent-color, #5ac8fa);
+}
+
+.related-project-card a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  transition: color 0.2s ease;
+}
+
+.related-project-card a:hover {
+  color: var(--accent-color, #5ac8fa);
+}
+
+.related-project-card a i {
+  font-size: 1.25rem;
+}
+
+.related-project-card p {
+  color: #bbb;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .related-projects {
+    grid-template-columns: 1fr;
+  }
 }

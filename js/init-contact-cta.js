@@ -1,4 +1,5 @@
 // File: /js/init-contact-cta.js – Initialize CTA and Modal Modules
+/* updated by Cascade 2025-07-11 */
 
 document.addEventListener('DOMContentLoaded', () => {
   // Load and inject modules
@@ -17,6 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Load Services CTA
   loadModule('/modules/services-cta.html', 'services-cta');
+  
+  // Load Explore More module
+  loadModule('/modules/explore-more.html', 'explore-more-container');
   
   // Load Contact Modal
   loadModule('/modules/contact-modal.html', 'contact-modal-container');
