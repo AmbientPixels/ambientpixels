@@ -1614,6 +1614,8 @@ details summary::before {
   padding-left: 1.75rem;
   position: relative;
   z-index: 2;
+  padding-right: 15px;
+  /* updated by Cascade 2025-07-10 */
 }
 
 .nova-quip::before {

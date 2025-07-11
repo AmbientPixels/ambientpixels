@@ -1,25 +1,15 @@
- 
-/* nova-dashboard.css — creative, modern dashboard grid */
+/* nova-dashboard.css — updated by Cascade 2025-07-10 */
 
 .nova-dashboard {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  grid-template-rows: auto auto;
-  grid-template-areas:
-    "status diagnostics"
-    "thought api";
-  gap: 18px 22px;
-  width: 100vw;
-  max-width: 100vw;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
   padding: 18px 3vw 0 3vw;
   box-sizing: border-box;
 }
-
-#nova-status-section { grid-area: status; }
-#gemini-diagnostics-section { grid-area: diagnostics; }
-#thought-section { grid-area: thought; }
-.api-test-section { grid-area: api; }
 
 .dashboard-section {
   background: var(--aura-panel-bg, #23243a);
@@ -31,6 +21,7 @@
   flex-direction: column;
   gap: 8px;
   border: 1.5px solid var(--aura-glow, #3af2ff20);
+  width: 100%;
 }
 
 .dashboard-title {
@@ -66,77 +57,14 @@
   font-weight: 500;
 }
 
-/* Compact API Test Section Styles */
-.api-test-section {
-  padding: 10px 8px 8px 8px;
-  min-width: 0;
-}
-.api-test-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 6px;
-  margin: 0;
-  padding: 0;
-}
-.api-test-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.96em;
-  padding: 0.15em 0.7em 0.15em 0.7em;
-  min-width: 0;
-  border-radius: 999px;
-  margin: 0;
-  background: var(--aura-panel-bg, #23243a);
-  color: var(--aura-glow, #aaf6ff);
-  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.09);
-  transition: background 0.18s, color 0.18s;
-  height: 28px;
-  line-height: 1.1;
-}
-.api-test-btn:hover {
-  background: var(--aura-glow, #aaf6ff);
-  color: #23243a;
-}
-.api-label {
-  white-space: nowrap;
-  font-size: 0.95em;
-}
-.api-indicator {
-  display: inline-block;
-  width: 0.7em;
-  height: 0.7em;
-  border-radius: 50%;
-  margin-left: 1px;
-  margin-right: 0;
-  background: #888;
-  vertical-align: middle;
-  transition: background 0.18s;
-}
-.api-indicator[data-status="untested"] { background: #888; }
-.api-indicator[data-status="loading"] {
-  background: transparent;
-  border: 2px solid #3af;
-  border-top: 2px solid #fff;
-  animation: windsurf-spin 0.7s linear infinite;
-  box-shadow: none;
-  transform: none;
-}
-.api-indicator[data-status="ok"] { background: #1ec773; border: none; animation: none; }
-.api-indicator[data-status="fail"] { background: #f44; border: none; animation: none; }
-@keyframes windsurf-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 /* API Form Layout - updated by Cascade 2025-07-10 */
 .api-form-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  width: 100%;
+  gap: 10px;
   margin-bottom: 12px;
-  align-items: flex-end;
+  align-items: flex-start;
+  width: 100%;
 }
 
 .api-endpoint-container {
@@ -148,6 +76,8 @@
   display: flex;
   gap: 4px;
   align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
 }
 
 .api-endpoint-select {
@@ -230,9 +160,62 @@ body.pulse-page {
   display: none;
 }
 
+/* API Method Buttons - updated by Cascade 2025-07-10 */
 .api-method-buttons {
   flex: 0 0 auto;
   min-width: 130px;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+/* Method buttons row spacing */
+.api-method-row {
+  margin-top: -5px;
+}
+
+/* Dashboard flex layout - updated by Cascade 2025-07-10 */
+.dashboard-flex-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  width: 100%;
+  min-height: 500px;
+}
+
+.dashboard-flex-item {
+  flex: 1 1 calc(50% - 10px);
+  min-width: 300px;
+}
+
+
+
+/* API Method Button Styling - updated by Cascade 2025-07-10 */
+.api-method-button {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Active button is green */
+.api-method-button[aria-pressed="true"] {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
+  font-weight: bold;
+}
+
+/* Inactive button is red */
+.api-method-button[aria-pressed="false"] {
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  color: #ef4444;
+  box-shadow: 0 0 8px rgba(220, 38, 38, 0.2);
 }
 
 .api-body-container {
@@ -243,6 +226,72 @@ body.pulse-page {
 
 .api-body-hidden {
   display: none;
+}
+
+/* Nova Quote Styling - updated by Cascade 2025-07-10 */
+.nova-quote {
+  padding: 10px 16px;
+  background: var(--aura-panel-bg, #23243a);
+  border-left: 3px solid var(--mood-primary, #3af2ff);
+  transition: all 0.3s ease;
+}
+
+.nova-quote.mood-loaded {
+  background: linear-gradient(135deg, var(--mood-primary, #3af2ff10), var(--mood-secondary, #3af2ff05));
+  border-left: 3px solid var(--mood-primary, #3af2ff);
+  border-bottom: 1px solid var(--mood-border, #3af2ff40);
+}
+
+.nova-quote .dashboard-title {
+  font-size: 1rem;
+  margin-bottom: 4px;
+  color: var(--aura-glow, #aaf6ff);
+}
+
+.nova-quote.light-mood .dashboard-title,
+.nova-quote.light-mood .quote-text {
+  color: var(--aura-dark-text, #333);
+}
+
+.nova-quote .fa-quote-left {
+  color: var(--mood-primary, #3af2ff);
+  opacity: 0.8;
+  margin-right: 6px;
+}
+
+.quote-text {
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--aura-text, #eaf6ff);
+  padding-left: 8px;
+  font-size: 0.95rem;
+  position: relative;
+  margin-bottom: 0;
+}
+
+.quote-text::before {
+  content: '"';
+  position: absolute;
+  left: -2px;
+  top: -2px;
+  color: var(--mood-secondary, #a0f0ff);
+  opacity: 0.6;
+}
+
+.quote-text::after {
+  content: '"';
+  color: var(--mood-secondary, #a0f0ff);
+  opacity: 0.6;
+}
+
+.quote-date {
+  display: block;
+  font-size: 0.8rem;
+  margin-top: 6px;
+  color: var(--aura-label, #b6c9d8);
+  opacity: 0.9;
+  text-align: right;
+  font-style: normal;
 }
 
 /* API Status Dashboard - added by Cascade 2025-07-10 */
@@ -332,11 +381,31 @@ body.pulse-page {
   box-shadow: 0 -2px 16px 0 rgba(0,0,0,0.13);
 }
 
+@keyframes windsurf-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Side-by-side dashboard sections - added by Cascade 2025-07-10 */
+.dashboard-flex-row {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+}
+
+.dashboard-flex-item {
+  flex: 1;
+  min-width: 0; /* Prevents flex items from overflowing */
+}
+
 @media (max-width: 900px) {
   .nova-dashboard {
-    display: flex;
-    flex-direction: column;
     gap: 12px;
     padding: 10px 2vw 0 2vw;
+  }
+  
+  /* Stack sections vertically on mobile */
+  .dashboard-flex-row {
+    flex-direction: column;
   }
 }

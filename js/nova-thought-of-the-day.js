@@ -75,37 +75,37 @@ async function loadNovaThought() {
     const moodKey = (moodData.mood || "").toLowerCase();
     const icon = moodIconMap[moodKey] || moodIconMap.default;
 
-    // Apply aura styles (using auraColorHex)
+    // Apply aura styles using CSS variables - updated by Cascade 2025-07-10
     const novaThought = document.querySelector('.nova-thought');
     if (novaThought) {
       const auraKey = (moodData.aura || "").toLowerCase();
       const auraColorHex = moodData.auraColorHex || "#999999";
-      // Apply inline styles
-      novaThought.style.background = `linear-gradient(135deg, ${auraColorHex}, ${lightenHex(auraColorHex, 0.2)})`;
-      novaThought.style.border = `1px solid ${darkenHex(auraColorHex, 0.2)}`;
-      novaThought.style.color = isLightColor(auraColorHex) ? "#333" : "#fff";
-      novaThought.style.padding = "10px";
-      novaThought.style.borderRadius = "5px";
-      console.log(`[Nova Thought] Applied aura styles: ${auraColorHex} (auraKey: ${auraKey})`);
-
-      // Trigger NovaMoodUpdate event for background aura
-      document.dispatchEvent(new CustomEvent("NovaMoodUpdate", {
-        detail: { aura: auraKey, auraColorHex }
-      }));
-    } else {
-      console.warn('[Nova Thought] Nova Thought element not found for aura application');
+      
+      // Set CSS variables instead of inline styles
+      novaThought.style.setProperty('--mood-primary', auraColorHex);
+      novaThought.style.setProperty('--mood-secondary', lightenHex(auraColorHex, 0.2));
+      novaThought.style.setProperty('--mood-border', darkenHex(auraColorHex, 0.2));
+      
+      // Add a class to indicate the mood is loaded
+      novaThought.classList.add('mood-loaded');
+      
+      // Set text color based on background brightness
+      if (isLightColor(auraColorHex)) {
+        novaThought.classList.add('light-mood');
+      } else {
+        novaThought.classList.remove('light-mood');
+      }
+      
+      console.log(`[Nova Thought] Applied mood variables: ${auraColorHex} (auraKey: ${auraKey})`);
     }
 
-    // Inject icon into heading
-    heading.innerHTML = `${icon} Nova’s Thought of the Day`;
+    // Inject icon into heading - updated by Cascade 2025-07-10
+    heading.innerHTML = `<i class="fas fa-quote-left"></i> Nova's Thought`;
 
-    // Populate prompt content with date on its own line
+    // Simplify prompt content to be more like a quip or quote with date - updated by Cascade 2025-07-10
     container.innerHTML = `
-      <p>“<em>${promptData.prompt || 'No thought available'}</em>”</p>
-      <small>
-        <strong>${dateString}</strong><br>
-        ${(promptData.tags || []).join(', ') || 'No tags'}
-      </small>
+      "${promptData.prompt || 'No thought available'}"
+      <small class="quote-date">${dateString}</small>
     `;
 
   } catch (err) {
