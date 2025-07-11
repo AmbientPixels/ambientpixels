@@ -191,6 +191,12 @@ body.pulse-page {
 
 
 
+/* Header styling - updated by Cascade 2025-07-10 */
+.title-centered {
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
 /* API Method Button Styling - updated by Cascade 2025-07-10 */
 .api-method-button {
   display: inline-block;
