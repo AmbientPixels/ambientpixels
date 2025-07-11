@@ -416,8 +416,8 @@ a.glass-button.secondary:hover svg {
 /* Prevent underline on hover */
 .glass-button, 
 .glass-button * {
+  -webkit-text-decoration: none !important; /* updated by Cascade 2025-07-11 */
   text-decoration: none !important;
-  -webkit-text-decoration: none !important;
   text-decoration-line: none !important;
 }
 
@@ -426,9 +426,9 @@ a.glass-button.secondary:hover svg {
 .glass-button a *, 
 .glass-button span, 
 .glass-button i {
-  text-decoration: none;
   -webkit-text-decoration: none;
-  -moz-text-decoration: none;
+  -moz-text-decoration: none; /* updated by Cascade 2025-07-11 */
+  text-decoration: none;
   text-decoration-line: none;
   pointer-events: none;
 }
@@ -1015,7 +1015,8 @@ body[data-theme="light"] .git-commit-item {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px); /* added for Safari compatibility */
+   backdrop-filter: blur(2px);
 }
 
 .modal-content {
@@ -1262,6 +1263,8 @@ body[data-theme="light"] .git-commit-item {
   margin-bottom: 1rem;
   border-top: 1px solid rgba(90, 228, 255, 0.05);
   border-bottom: 1px solid rgba(90, 228, 255, 0.05);
+  -webkit-backdrop-filter: blur(2px); /* added for Safari compatibility */
+  -webkit-backdrop-filter: blur(2px); /* added for Safari compatibility */
   backdrop-filter: blur(2px);
 }
 
@@ -1870,6 +1873,8 @@ blockquote footer {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
+  -webkit-backdrop-filter: blur(2px); /* added for Safari compatibility */
+  -webkit-backdrop-filter: blur(2px); /* added for Safari compatibility */
   backdrop-filter: blur(2px);
 }
 
@@ -2061,6 +2066,7 @@ body[data-theme="light"] .nova-quip {
   border-radius: 8px;
   font-family: 'Inter', sans-serif;
   color: #fff;
+  -webkit-backdrop-filter: blur(6px); /* added for Safari compatibility */
   backdrop-filter: blur(6px);
 }
 .nova-synth-status h3 {
@@ -2220,6 +2226,7 @@ body[data-theme="light"] .nova-quip {
   font-size: 0.8rem;
   font-weight: 500;
   z-index: 2;
+  -webkit-backdrop-filter: blur(2px); /* added for Safari compatibility */
   backdrop-filter: blur(2px);
   transition: right 0.3s ease;
 }
@@ -3008,8 +3015,8 @@ body[data-theme="light"] .nova-quip {
   font-weight: bold;
   margin: 0.5rem 0;
   background: linear-gradient(to right, #fff, var(--highlight-color, #5ae4ff));
+  -webkit-background-clip: text; /* updated by Cascade 2025-07-11 */
   background-clip: text;
-  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
 }
@@ -3375,6 +3382,7 @@ body[data-theme="light"] .nova-quip {
   font-size: 0.8rem;
   font-weight: 500;
   z-index: 2;
+  -webkit-backdrop-filter: blur(2px); /* added for Safari compatibility */
   backdrop-filter: blur(2px);
   transition: right 0.3s ease;
 }
@@ -4163,8 +4171,8 @@ body[data-theme="light"] .nova-quip {
   font-weight: bold;
   margin: 0.5rem 0;
   background: linear-gradient(to right, #fff, var(--highlight-color, #5ae4ff));
+  -webkit-background-clip: text; /* updated by Cascade 2025-07-11 */
   background-clip: text;
-  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
 }
@@ -4530,8 +4538,8 @@ body[data-theme="light"] .nova-quip {
   visibility: hidden;
   transform: translateY(-10px);
   transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+  -webkit-backdrop-filter: blur(10px); /* updated by Cascade 2025-07-11 */
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 .user-profile-dropdown.visible {
