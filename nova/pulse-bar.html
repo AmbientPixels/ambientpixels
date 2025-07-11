@@ -21,51 +21,11 @@
   <link rel="stylesheet" href="/css/nova-mood-background.css" />
   <link rel="stylesheet" href="/css/nova-dashboard.css" /> <!-- added by Cascade -->
 
-  <style>
-    body {
-      background-color: #1a1a1a; /* Dark grey background */
-      /* padding-top removed as header is no longer present */
-    }
-    /* Ensure the pulse bar is visible and styled correctly at the bottom */
-    #nova-pulse-bar {
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-        z-index: 100;
-    }
-
-    .bg-video {
-      position: fixed;
-      right: 0;
-      bottom: 0;
-      min-width: 100%;
-      min-height: 100%;
-      width: auto;
-      height: auto;
-      z-index: -1;
-      background-size: cover;
-      opacity: 0; /* Start with opacity 0 */
-      transition: opacity 1.5s ease-in-out; /* Smooth transition for opacity */
-    }
-    
-    .bg-video.active {
-      opacity: 0.7; /* Active video opacity */
-    }
-    
-    #video-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      z-index: -1;
-    }
-  </style>
+  <!-- All styles moved to nova-dashboard.css by Cascade 2025-07-10 -->
 </head>
-<body data-theme="dark">
+<body class="pulse-page" data-theme="dark">
   <header>
-    <h1>Nova Pulse &amp; Gemini Diagnostics <span style="font-size:0.65em;font-weight:400;opacity:0.8;">v1.0.0</span></h1>
+    <h1>Nova Pulse &amp; Gemini Diagnostics <span class="version-label">v1.0.0</span></h1>
   </header>
   <!-- Fullscreen Background Video Container -->
   <div id="video-container">
@@ -106,87 +66,76 @@
         </div>
       </div>
     </section>
-    <section class="dashboard-section" id="gemini-diagnostics-section">
-      <h2 class="dashboard-title">Gemini API Diagnostics</h2>
-      <div class="dashboard-row">
-        <div class="dashboard-stat">
-          <span class="dashboard-label">Last Prompt:</span>
-          <span id="dashboardGeminiPrompt">–</span>
-        </div>
-        <div class="dashboard-stat">
-          <span class="dashboard-label">Last Response:</span>
-          <span id="dashboardGeminiResponse">–</span>
-        </div>
-        <div class="dashboard-stat">
-          <span class="dashboard-label">Latency:</span>
-          <span id="dashboardGeminiLatency">–</span>
-        </div>
-        <div class="dashboard-stat">
-          <span class="dashboard-label">Error:</span>
-          <span id="dashboardGeminiError">–</span>
-        </div>
-      </div>
-    </section>
+    <!-- Gemini API Diagnostics section removed by Cascade 2025-07-10 per user request -->
     <!-- Nova Thought of the Day Section (added by Cascade) -->
     <section class="grid-col-12 content-section nova-thought">
       <h2><i class="fas fa-brain"></i> Nova’s Thought of the Day</h2>
       <div class="prompt-entry" aria-live="polite">Loading thought...</div>
     </section>
-      <!-- API Test Section -->
-<section class="dashboard-section api-test-section">
-  <h2 class="dashboard-title">API Test</h2>
-  <div class="api-test-grid">
-    <button class="glass-button api-test-btn" data-endpoint="_utils/callGemini.js"><span class="api-label">_utils/callGemini.js</span><span class="api-indicator" data-status="untested"></span></button>
-    <button class="glass-button api-test-btn" data-endpoint="_utils/getTelemetry.js"><span class="api-label">_utils/getTelemetry.js</span><span class="api-indicator" data-status="untested"></span></button>
-    <button class="glass-button api-test-btn" data-endpoint="cardforgeloadcards/index.js"><span class="api-label">cardforgeloadcards/index.js</span><span class="api-indicator" data-status="untested"></span></button>
-    <button class="glass-button api-test-btn" data-endpoint="cardforgepublish/index.js"><span class="api-label">cardforgepublish/index.js</span><span class="api-indicator" data-status="untested"></span></button>
-    <button class="glass-button api-test-btn" data-endpoint="cardforgesavecards/index.js"><span class="api-label">cardforgesavecards/index.js</span><span class="api-indicator" data-status="untested"></span></button>
-    <button class="glass-button api-test-btn" data-endpoint="cardforgetemplate/index.js"><span class="api-label">cardforgetemplate/index.js</span><span class="api-indicator" data-status="untested"></span></button>
-    <button class="glass-button api-test-btn" data-endpoint="dreamlogwriter/index.js"><span class="api-label">dreamlogwriter/index.js</span><span class="api-indicator" data-status="untested"></span></button>
-    <button class="glass-button api-test-btn" data-endpoint="fetchlatestmood/index.js"><span class="api-label">fetchlatestmood/index.js</span><span class="api-indicator" data-status="untested"></span></button>
-    <button class="glass-button api-test-btn" data-endpoint="gemini-proxy/index.js"><span class="api-label">gemini-proxy/index.js</span><span class="api-indicator" data-status="untested"></span></button>
-    <button class="glass-button api-test-btn" data-endpoint="generate-text/index.js"><span class="api-label">generate-text/index.js</span><span class="api-indicator" data-status="untested"></span></button>
-    <button class="glass-button api-test-btn" data-endpoint="generatemoodinsights/index.js"><span class="api-label">generatemoodinsights/index.js</span><span class="api-indicator" data-status="untested"></span></button>
-    <button class="glass-button api-test-btn" data-endpoint="getCardTemplate/index.js"><span class="api-label">getCardTemplate/index.js</span><span class="api-indicator" data-status="untested"></span></button>
-    <button class="glass-button api-test-btn" data-endpoint="novavision/index.js"><span class="api-label">novavision/index.js</span><span class="api-indicator" data-status="untested"></span></button>
-    <button class="glass-button api-test-btn" data-endpoint="synthesizenovamood/index.js"><span class="api-label">synthesizenovamood/index.js</span><span class="api-indicator" data-status="untested"></span></button>
-    <button class="glass-button api-test-btn" data-endpoint="testGeminiDirect.js"><span class="api-label">testGeminiDirect.js</span><span class="api-indicator" data-status="untested"></span></button>
-  </div>
-</section>
-<script>
-// API Test logic: run all tests on load and on click, using deployed Azure Functions URLs for all endpoints
-const PROD_API_BASE = 'https://ambientpixels-nova-api.azurewebsites.net/api/';
-function getProdApiUrl(endpoint) {
-  // Remove trailing .js or /index.js
-  let clean = endpoint;
-  if (clean.endsWith('/index.js')) clean = clean.slice(0, -9);
-  else if (clean.endsWith('.js')) clean = clean.slice(0, -3);
-  return PROD_API_BASE + clean;
-}
-function runApiTest(btn) {
-  const endpoint = btn.getAttribute('data-endpoint');
-  const indicator = btn.querySelector('.api-indicator');
-  indicator.setAttribute('data-status', 'loading');
-  const url = getProdApiUrl(endpoint);
-  fetch(url)
-    .then(res => {
-      indicator.setAttribute('data-status', res.ok ? 'ok' : 'fail');
-    })
-    .catch(() => {
-      indicator.setAttribute('data-status', 'fail');
-    });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const buttons = [...document.querySelectorAll('.api-test-btn')];
-  buttons.forEach(btn => {
-    // Run test on load
-    runApiTest(btn);
-    // Allow manual retest on click
-    btn.addEventListener('click', () => runApiTest(btn));
-  });
-});
-</script>
+    <!-- API Test Section -->
+    <!-- updated by Cascade 2025-07-10: Graphical API Function Tester -->
+    <!-- updated by Cascade 2025-07-10: API Function Tester now full-width grid-col-12 -->
+<section class="dashboard-section grid-col-12">
+      <h2 class="dashboard-title">API Function Tester</h2>
+      <form id="api-tester-form" autocomplete="off">
+        <!-- First row: Endpoint and Method buttons -->
+        <div class="api-form-row">
+          <label class="api-endpoint-container">
+            Endpoint:
+            <div class="api-endpoint-selector-container">
+              <select id="api-endpoint-select" class="input api-endpoint-select">
+                <option value="">Custom...</option>
+                <option value="gemini-proxy">gemini-proxy</option>
+                <option value="cardforgeloadcards">cardforgeloadcards</option>
+                <option value="cardforgepublish">cardforgepublish</option>
+                <option value="fetchlatestmood">fetchlatestmood</option>
+                <option value="dreamlogwriter">dreamlogwriter</option>
+                <option value="generatemoodinsights">generatemoodinsights</option>
+                <option value="synthesizenovamood">synthesizenovamood</option>
+              </select>
+              <input type="text" id="api-endpoint" class="input api-endpoint-input" placeholder="e.g. gemini-proxy" required />
+            </div>
+          </label>
+          <div class="api-method-buttons">
+            <button type="button" id="api-method-get" class="glass-button filter-pill" aria-pressed="true">GET</button>
+            <button type="button" id="api-method-post" class="glass-button filter-pill" aria-pressed="false">POST</button>
+            <input type="hidden" id="api-method" value="GET" />
+          </div>
+          <button type="submit" class="glass-button api-send-button">
+            <i class="fas fa-play"></i> Send
+          </button>
+        </div>
+        
+        <!-- Second row: JSON body (hidden by default) -->
+        <div class="api-form-row">
+          <label id="api-body-label" class="api-body-container api-body-hidden">
+            Body (JSON):
+            <textarea id="api-body" class="input" rows="2" placeholder="{ }"></textarea>
+          </label>
+        </div>
+      </form>
+      <div id="api-test-status" class="dashboard-row api-test-status-row">
+        <span id="api-status-dot" class="soon-tag api-status-dot"></span>
+        <span id="api-status-text"></span>
+        <span id="api-latency"></span>
+      </div>
+      <div id="api-test-result" class="dashboard-row content-section api-result-pre" aria-live="polite"></div>
+    </section>
+    
+    <!-- API Status Dashboard - added by Cascade 2025-07-10 -->
+    <section class="dashboard-section grid-col-12">
+      <h2 class="dashboard-title">API Status Dashboard</h2>
+      <div class="dashboard-row">
+        <button id="refresh-api-status" class="glass-button filter-pill">
+          <i class="fas fa-sync-alt"></i> Refresh Status
+        </button>
+        <span id="last-check-time" class="dashboard-label api-status-timestamp">Last check: Never</span>
+      </div>
+      <div class="api-status-grid" id="api-status-grid">
+        <!-- API status cards will be dynamically inserted here -->
+      </div>
+    </section>
+    <!-- API Tester and Dashboard Script - updated by Cascade 2025-07-10 -->
   </main>
 
   <!-- Nova Pulse Bar Module -->
@@ -247,45 +196,11 @@ document.addEventListener('DOMContentLoaded', () => {
   <script src="/js/nova-mood-background.js" defer></script>
   <script src="/js/nova-thought-of-the-day.js" defer></script>
   
-  <!-- Video Cycling Script -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const videos = [
-        document.getElementById('bg-video-1'),
-        document.getElementById('bg-video-2'),
-        document.getElementById('bg-video-3')
-      ];
-      
-      let currentVideoIndex = 0;
-      
-      // Start only the first video
-      videos[0].play();
-      
-      // Function to cycle to the next video with fade transition
-      function cycleVideo() {
-        // Get current and next video indexes
-        const currentVideo = videos[currentVideoIndex];
-        currentVideoIndex = (currentVideoIndex + 1) % videos.length;
-        const nextVideo = videos[currentVideoIndex];
-        
-        // Prepare next video for playback
-        nextVideo.currentTime = 0;
-        nextVideo.play();
-        
-        // Add active class to next video (fade in)
-        nextVideo.classList.add('active');
-        
-        // Remove active class from current video (fade out)
-        currentVideo.classList.remove('active');
-        
-        // Schedule next cycle
-        setTimeout(cycleVideo, 180000); // 3 minutes
-      }
-      
-      // Start cycling after 3 minutes
-      setTimeout(cycleVideo, 180000); // 3 minutes
-    });
-  </script>
+  <!-- Background Video Controller - moved to external file by Cascade 2025-07-10 -->
+  <script src="/js/nova-background-video.js" defer></script>
   <script type="module" src="/js/pulse-bar-dashboard.js"></script>
+  
+  <!-- API Status Dashboard Script - added by Cascade 2025-07-10 -->
+  <script src="/js/api-status-dashboard.js"></script>
 </body>
 </html>

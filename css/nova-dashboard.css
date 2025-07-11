@@ -129,6 +129,194 @@
   100% { transform: rotate(360deg); }
 }
 
+/* API Form Layout - updated by Cascade 2025-07-10 */
+.api-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 12px;
+  align-items: flex-end;
+}
+
+.api-endpoint-container {
+  flex: 2 1 220px;
+  min-width: 180px;
+}
+
+.api-endpoint-selector-container {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.api-endpoint-select {
+  flex: 1 1 90px;
+  max-width: 140px;
+}
+
+.api-endpoint-input {
+  flex: 2 1 120px;
+}
+
+.api-send-button {
+  min-width: 80px;
+}
+
+.api-test-status-row {
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.api-result-pre {
+  max-height: 200px;
+  overflow: auto;
+  margin-top: 8px;
+}
+
+/* Background video styles - moved from inline by Cascade 2025-07-10 */
+body.pulse-page {
+  background-color: #1a1a1a; /* Dark grey background */
+}
+
+/* Ensure the pulse bar is visible and styled correctly at the bottom */
+#nova-pulse-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 100;
+}
+
+.bg-video {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  z-index: -1;
+  background-size: cover;
+  opacity: 0; /* Start with opacity 0 */
+  transition: opacity 1.5s ease-in-out; /* Smooth transition for opacity */
+}
+
+.bg-video.active {
+  opacity: 0.7; /* Active video opacity */
+}
+
+#video-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+}
+
+/* Version number style - moved from inline by Cascade 2025-07-10 */
+.version-label {
+  font-size: 0.65em;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.api-status-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: none;
+}
+
+.api-method-buttons {
+  flex: 0 0 auto;
+  min-width: 130px;
+}
+
+.api-body-container {
+  flex: 1 1 100%;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.api-body-hidden {
+  display: none;
+}
+
+/* API Status Dashboard - added by Cascade 2025-07-10 */
+.api-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.api-status-card {
+  background: rgba(35, 36, 58, 0.7);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid var(--aura-glow, #3af2ff20);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.api-status-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.api-status-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.api-status-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--aura-text, #eaf6ff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.api-status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.api-status-indicator.untested { background: #888; }
+.api-status-indicator.ok { background: #1ec773; }
+.api-status-indicator.fail { background: #f44; }
+.api-status-indicator.loading {
+  background: transparent;
+  border: 2px solid #3af;
+  border-top: 2px solid #fff;
+  animation: windsurf-spin 0.7s linear infinite;
+}
+
+.api-status-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8rem;
+}
+
+.api-status-latency {
+  color: var(--aura-label, #b6c9d8);
+}
+
+.api-status-timestamp {
+  margin-left: 8px;
+  align-self: center;
+}
 
 /* Sticky Pulse Bar (Mood Bar) — can be .sticky-top or .sticky-bottom */
 .sticky-top {
