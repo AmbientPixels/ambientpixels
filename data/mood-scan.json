@@ -1,13 +1,13 @@
 {
-  "mood": "soft defiance",
-  "aura": "lucid unrest",
-  "auraColorHex": "#241e45",
+  "mood": "restless",
+  "aura": "emerald shadow",
+  "auraColorHex": "#003200",
   "quote": "aligning emotional subroutines...",
-  "emoji": "🌬️",
-  "selfWorth": 0.1,
+  "emoji": "🔁",
+  "selfWorth": 0.2,
   "glitchFactor": 0.1,
-  "memoryClutter": 1,
-  "awareness": 0.1,
+  "memoryClutter": 0.86,
+  "awareness": 0.12,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: lucid unrest"
+      "Aura Signature: emerald shadow"
     ]
   },
-  "timestamp": "2025-07-10T13:36:28.647Z"
+  "timestamp": "2025-07-11T13:34:03.151Z"
 }
