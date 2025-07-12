@@ -1,6 +1,21 @@
 const { BlobServiceClient } = require('@azure/storage-blob');
 
+// CORS support added by Cascade 2025-07-12
 module.exports = async function (context, req) {
+  // CORS preflight
+  if (req.method === 'OPTIONS') {
+    context.res = {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, api-key',
+        'Access-Control-Max-Age': '86400'
+      },
+      body: ''
+    };
+    return;
+  }
   try {
     const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
     if (!connectionString) {

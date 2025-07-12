@@ -1,6 +1,21 @@
 const { BlobServiceClient } = require('@azure/storage-blob');
 
+// CORS support added by Cascade 2025-07-12
 module.exports = async function (context, req) {
+  // CORS preflight
+  if (req.method === 'OPTIONS') {
+    context.res = {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, api-key',
+        'Access-Control-Max-Age': '86400'
+      },
+      body: ''
+    };
+    return;
+  }
   try {
     const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
     if (!connectionString) {
@@ -24,8 +39,14 @@ module.exports = async function (context, req) {
     }
 
     if (!latestBlob) {
+      // Robust CORS support added by Windsurf 2025-07-12
       context.res = {
         status: 404,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, api-key'
+        },
         body: { error: "No mood data found in nova-memory." }
       };
       return;
@@ -37,14 +58,26 @@ module.exports = async function (context, req) {
     const data = await streamToText(downloadResponse.readableStreamBody);
     const moodData = JSON.parse(data);
 
+    // Robust CORS support added by Windsurf 2025-07-12
     context.res = {
       status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, api-key'
+      },
       body: moodData
     };
   } catch (error) {
     context.log.error("Error fetching mood:", error.message);
+    // Robust CORS support added by Windsurf 2025-07-12
     context.res = {
       status: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, api-key'
+      },
       body: { error: "Failed to fetch mood: " + error.message }
     };
   }

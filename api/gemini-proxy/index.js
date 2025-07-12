@@ -4,7 +4,22 @@ const fetch = require('node-fetch');
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' + GEMINI_API_KEY;
 
+// CORS support added by Cascade 2025-07-12
 module.exports = async function (context, req) {
+  // CORS preflight
+  if (req.method === 'OPTIONS') {
+    context.res = {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, api-key',
+        'Access-Control-Max-Age': '86400'
+      },
+      body: ''
+    };
+    return;
+  }
   if (req.method !== 'POST') {
     context.res = {
       status: 405,

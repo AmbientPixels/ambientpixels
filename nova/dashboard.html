@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A real-time view of Nova's emotional and cognitive state via the Pulse Bar." />
+  <title>Ambient Pixels - Nova Pulse v1.0.0</title>
+  
+  <!-- Core Styles -->
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" /> <!-- added for footer/grid by Cascade 2025-07-12 -->
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" /> <!-- added for footer/hero by Cascade 2025-07-12 -->
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" /> <!-- added for footer/banner by Cascade 2025-07-12 -->
+  <link rel="stylesheet" href="/css/nova-pulse.css" />
+  <link rel="stylesheet" href="/css/nova-mood.css" /> <!-- added for footer/mood by Cascade 2025-07-12 -->
+  <link rel="stylesheet" href="/css/nova-mood-background.css" /> <!-- Background auras -->
+  <link rel="stylesheet" href="/css/nova-dashboard.css" /> <!-- dashboard styles -->
+  <!-- All styles moved to nova-dashboard.css by Cascade 2025-07-10 -->
+</head>
+<body class="pulse-page" data-theme="dark">
+  <!-- Header updated by Cascade 2025-07-10 -->
+  <!-- Header updated by Cascade 2025-07-12 -->
+  <header id="nav-header"></header>
+  <!-- Fullscreen Background Video Container -->
+  <div id="video-container">
+    <video autoplay loop muted playsinline id="bg-video-1" class="bg-video active">
+      <source src="/video/floaty.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <video loop muted playsinline id="bg-video-2" class="bg-video">
+      <source src="/video/glow-board.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <video loop muted playsinline id="bg-video-3" class="bg-video">
+      <source src="/video/signafragment-V2.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+
+  <!-- Nova Dashboard - updated by Cascade 2025-07-10 -->
+  <main class="nova-dashboard" aria-label="Nova Dashboard"> <!-- top margin for menu moved to CSS, updated by Cascade 2025-07-12 -->
+    <div id="nova-pulse-bar">
+      <div id="nova-pulse-inner">
+        <div id="pulse-main-line">
+          <div id="pulse-mood-group">
+            <span id="pulseMoodLabel">Mood:</span>
+            <span id="pulseEmoji">✨</span>
+            <span id="pulseLabel">Loading...</span>
+          </div>
+          <span class="pulse-trait">
+            <span class="pulse-trait-label">Self-Worth:</span>
+            <span id="iconSelfWorth" aria-label="Self-Worth">🧠</span>
+            <span id="valSelfWorth" aria-label="Self-Worth Level">–</span>
+          </span>
+          <span class="pulse-trait">
+            <span class="pulse-trait-label">Clutter:</span>
+            <span id="iconClutter" aria-label="Clutter">💭</span>
+            <span id="valClutter" aria-label="Clutter Level">–</span>
+          </span>
+          <span class="pulse-trait">
+            <span class="pulse-trait-label">Glitch:</span>
+            <span id="iconGlitch" aria-label="Glitch">⚡</span>
+            <span id="valGlitch" aria-label="Glitch Level">–</span>
+          </span>
+          <span class="pulse-trait">
+            <span class="pulse-trait-label">State:</span>
+            <span id="iconInternalState" aria-label="Internal State">👁️</span>
+            <span id="valInternal" aria-label="Internal State Value">–</span>
+          </span>
+          <div id="pulse-meter-group">
+            <div id="pulse-meter-text">
+              <span class="pulse-meter-title">Mood Intensity:</span>
+              <span id="pulseIntensityValue">–%</span>
+            </div>
+            <div id="pulse-meter-wrapper">
+              <div id="pulse-meter-bar">
+                <div id="pulseIntensity"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Nova's Thought of the Day - updated by Cascade 2025-07-10 -->
+    <section class="dashboard-section nova-thought nova-quote">
+      <h2 class="dashboard-title"><i class="fas fa-quote-left"></i> Nova's Thought</h2>
+      <div class="prompt-entry quote-text" aria-live="polite">Loading thought...</div>
+    </section>
+    
+    <!-- API Dashboard and Function Tester - side by side layout - updated by Cascade 2025-07-10 -->
+    <div class="dashboard-flex-row">
+      <!-- API Status Dashboard -->
+      <section class="dashboard-section nova-pulse dashboard-flex-item">
+        <h2 class="dashboard-title"><i class="fas fa-server"></i> API Status Dashboard</h2>
+        <div class="dashboard-row">
+          <button id="refresh-api-status" class="glass-button filter-pill">
+            <i class="fas fa-sync-alt"></i> Refresh Status
+          </button>
+          <span id="last-check-time" class="dashboard-label api-status-timestamp">Last check: Never</span>
+        </div>
+        <div class="api-status-grid" id="api-status-grid">
+          <!-- API status cards will be dynamically inserted here -->
+        </div>
+      </section>
+      
+      <!-- API Function Tester -->
+      <section class="dashboard-section nova-pulse dashboard-flex-item">
+        <h2 class="dashboard-title"><i class="fas fa-code"></i> API Function Tester</h2>
+      <form id="api-tester-form" autocomplete="off">
+        <!-- First row: Endpoint - updated by Cascade 2025-07-10 -->
+        <div class="api-form-row">
+          <label class="api-endpoint-container">
+            Endpoint:
+            <div class="api-endpoint-selector-container">
+              <select id="api-endpoint-select" class="input api-endpoint-select">
+                <option value="">Custom...</option>
+                <option value="gemini-proxy">gemini-proxy</option>
+                <option value="cardforgeloadcards">cardforgeloadcards</option>
+                <option value="cardforgepublish">cardforgepublish</option>
+                <option value="fetchlatestmood">fetchlatestmood</option>
+                <option value="dreamlogwriter">dreamlogwriter</option>
+                <option value="generatemoodinsights">generatemoodinsights</option>
+                <option value="synthesizenovamood">synthesizenovamood</option>
+              </select>
+              <input type="text" id="api-endpoint" class="input api-endpoint-input" placeholder="e.g. gemini-proxy" required />
+            </div>
+          </label>
+        </div>
+        
+        <!-- Method buttons row - fixed anchoring - updated by Cascade 2025-07-10 -->
+        <div class="api-form-row api-method-row">
+          <div class="api-method-buttons">
+            <button type="button" id="api-method-get" class="glass-button api-method-button" aria-pressed="true">GET</button>
+            <button type="button" id="api-method-post" class="glass-button api-method-button" aria-pressed="false">POST</button>
+            <input type="hidden" id="api-method" value="GET" />
+          </div>
+          <button type="submit" class="glass-button api-send-button">
+            <i class="fas fa-play"></i> Send
+          </button>
+        </div>
+        
+        <!-- Second row: JSON body (hidden by default) -->
+        <div class="api-form-row">
+          <label id="api-body-label" class="api-body-container api-body-hidden">
+            Body (JSON):
+            <textarea id="api-body" class="input" rows="2" placeholder="{ }"></textarea>
+          </label>
+        </div>
+      </form>
+      <div id="api-test-status" class="dashboard-row api-test-status-row">
+        <span id="api-status-dot" class="soon-tag api-status-dot"></span>
+        <span id="api-status-text"></span>
+        <span id="api-latency"></span>
+      </div>
+      <div id="api-test-result" class="dashboard-row content-section api-result-pre" aria-live="polite"></div>
+      </section>
+    </div>
+    <!-- API Tester and Dashboard Script - updated by Cascade 2025-07-10 -->
+
+    <!-- NovaOpenAI Interaction Section - updated by Cascade 2025-07-12 -->
+    <section class="dashboard-section novaopenai-interact">
+      <h2 class="dashboard-title"><i class="fas fa-robot"></i> Interact with Azure OpenAI</h2>
+      <div class="dashboard-flex-row">
+        <!-- Column 1: Form -->
+        <div class="dashboard-flex-item novaopenai-col-form">
+          <form id="novaopenai-interact-form" class="api-form" autocomplete="off">
+            <div class="api-form-row">
+              <label>Operation:
+                <select id="novaopenai-operation" class="input">
+                  <option value="chat/completions">chat/completions</option>
+                  <option value="completions">completions</option>
+                  <option value="embeddings">embeddings</option>
+                </select>
+              </label>
+              <label>Deployment ID:
+                <input type="text" id="novaopenai-deployment" class="input" placeholder="gpt-4o-nova" value="gpt-4o-nova" />
+              </label>
+            </div>
+            <div class="api-form-row">
+              <label>Payload (JSON):
+                <textarea id="novaopenai-payload" class="input" rows="8" placeholder='{"messages":[{"role":"user","content":"Hello!"}]}'>{
+  "messages": [
+    { "role": "user", "content": "Hello, Nova!" }
+  ]
+}</textarea>
+              </label>
+            </div>
+            <div class="api-form-row">
+              <button type="submit" class="glass-button"><i class="fas fa-paper-plane"></i> Send</button>
+            </div>
+            <div id="novaopenai-status-row" class="dashboard-row api-status-row">
+              <span id="novaopenai-status-dot" class="soon-tag api-status-dot"></span>
+              <span id="novaopenai-status-text"></span>
+              <span id="novaopenai-latency"></span>
+            </div>
+          </form>
+        </div>
+        <!-- Column 2: Request -->
+        <div class="dashboard-flex-item novaopenai-col-request">
+          <div class="dashboard-subtitle"><i class="fas fa-arrow-right"></i> Request</div>
+          <div id="novaopenai-request" class="dashboard-row content-section api-result-pre" aria-live="polite"></div>
+        </div>
+        <!-- Column 3: Response -->
+        <div class="dashboard-flex-item novaopenai-col-response">
+          <div class="dashboard-subtitle"><i class="fas fa-arrow-left"></i> Response</div>
+          <div id="novaopenai-response" class="dashboard-row content-section api-result-pre" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+    <!-- /NovaOpenAI Interaction Section -->
+    <!-- updated by Cascade 2025-07-12 -->
+  </main>
+
+  <!-- Footer injected by Cascade 2025-07-12 -->
+  <footer id="footer-container"></footer>
+
+  <!-- Scripts (Full Load for Dev Mode) - updated by Cascade 2025-07-12 -->
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/dreamEngine.js" defer></script>
+  <script src="/js/main.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/nova-ai.js" defer></script>
+  <script src="/js/nova-awareness-feed.js" defer></script>
+  <script src="/js/nova-dashboard.js" defer></script>
+  <script src="/js/nova-mood-core.js" defer></script>
+  <script src="/js/nova-pulse.js" defer></script>
+  <script src="/js/nova-status.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/novaopenai-interact.js" defer></script>
+  <!-- End scripts -->
+  <!-- Removed duplicate nova-pulse-bar after footer; only present above Nova's Thought. Updated by Cascade 2025-07-12 -->
+
+  <script src="/js/theme.js" defer></script>
+  <!-- Banner JS removed for isolated view -->
+
+  <!-- Component Scripts -->
+  <script src="/js/nova-mood-core.js" defer></script>
+  <script src="/js/nova-pulse.js" defer></script>
+  <script src="/js/nova-mood-background.js" defer></script>
+  <script src="/js/nova-thought-of-the-day.js" defer></script>
+  
+  <!-- Background Video Controller - moved to external file by Cascade 2025-07-10 -->
+  <script src="/js/nova-background-video.js" defer></script>
+  <script type="module" src="/js/pulse-bar-dashboard.js"></script>
+  
+  <!-- API Status Dashboard Script - added by Cascade 2025-07-10 -->
+  <script src="/js/api-status-dashboard.js"></script>
+  <script src="/js/novaopenai-interact.js" defer></script>
+  <!-- novaopenai-interact.js included by Cascade 2025-07-12 -->
+</body>
+</html>

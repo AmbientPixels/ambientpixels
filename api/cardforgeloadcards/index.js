@@ -121,7 +121,22 @@ async function downloadJsonBlobWithRetry(containerClient, blobName, context, max
   throw lastError;
 }
 
-module.exports = async function (context, req) {
+module.// CORS support added by Cascade 2025-07-12
+exports = async function (context, req) {
+  // CORS preflight
+  if (req.method === 'OPTIONS') {
+    context.res = {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, api-key',
+        'Access-Control-Max-Age': '86400'
+      },
+      body: ''
+    };
+    return;
+  }
   try {
     const requestId = `req_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     context.log(`[${requestId}] CardForge LoadCards API request received`);

@@ -1,6 +1,7 @@
 /* nova-dashboard.css — updated by Cascade 2025-07-10 */
 
 .nova-dashboard {
+  margin-top: 60px; /* top margin for menu, updated by Cascade 2025-07-12 */
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -112,10 +113,9 @@ body.pulse-page {
 
 /* Ensure the pulse bar is visible and styled correctly at the bottom */
 #nova-pulse-bar {
-  position: fixed;
-  bottom: 0;
+  position: relative; /* now in normal flow, updated by Cascade 2025-07-12 */
   width: 100%;
-  z-index: 100;
+  z-index: 1;
 }
 
 .bg-video {
@@ -174,6 +174,22 @@ body.pulse-page {
 .api-method-row {
   margin-top: -5px;
 }
+
+/* dashboard styles */
+
+.nova-dashboard > #nova-pulse-bar {
+  margin-top: 60px;
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  max-width: 100vw;
+  box-sizing: border-box;
+  /* space below nav/header, dashboard-only, full-bleed */
+}
+
 
 /* Dashboard flex layout - updated by Cascade 2025-07-10 */
 .dashboard-flex-row {
@@ -414,4 +430,43 @@ body.pulse-page {
   .dashboard-flex-row {
     flex-direction: column;
   }
+  .novaopenai-col-form,
+  .novaopenai-col-request,
+  .novaopenai-col-response {
+    min-width: 0;
+    padding: 0;
+  }
 }
+
+/* NovaOpenAI 3-column layout styles - updated by Cascade 2025-07-12 */
+.novaopenai-col-form {
+  min-width: 270px;
+  max-width: 420px;
+  flex: 1.2 1 320px;
+  padding-right: 18px;
+  border-right: 1.5px solid var(--aura-glow, #3af2ff30);
+}
+.novaopenai-col-request {
+  min-width: 200px;
+  max-width: 420px;
+  flex: 1 1 280px;
+  padding: 0 16px;
+  border-right: 1.5px solid var(--aura-glow, #3af2ff20);
+}
+.novaopenai-col-response {
+  min-width: 200px;
+  max-width: 420px;
+  flex: 1 1 280px;
+  padding-left: 16px;
+}
+
+@media (max-width: 1100px) {
+  .novaopenai-col-form,
+  .novaopenai-col-request,
+  .novaopenai-col-response {
+    max-width: 100%;
+    padding: 0 !important;
+    border-right: none !important;
+  }
+}
+/* End NovaOpenAI 3-column layout styles */
