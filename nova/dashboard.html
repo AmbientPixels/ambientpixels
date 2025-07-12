@@ -184,7 +184,17 @@
             </div>
             <div class="api-form-row">
               <label>Payload (JSON):
-                <textarea id="novaopenai-payload" class="input" rows="8" placeholder='{"messages":[{"role":"user","content":"Hello!"}]}'>{
+                <textarea id="novaopenai-payload" class="input" rows="8" placeholder='{
+  "operation": "chat/completions",
+  "payload": {
+    "messages": [
+      { "role": "system", "content": "You are Nova, the crystalline AI." },
+      { "role": "user", "content": "Hello Nova!" }
+    ],
+    "max_tokens": 32
+  }
+}
+<!-- updated by Cascade 2025-07-12 -->'>{
   "messages": [
     { "role": "user", "content": "Hello, Nova!" }
   ]

@@ -50,12 +50,21 @@ document.addEventListener('DOMContentLoaded', () => {
       latencyEl.textContent = `Latency: ${(t1 - t0).toFixed(0)}ms`;
       statusDot.style.background = res.ok ? '#27ae60' : '#e67e22';
       statusText.textContent = res.status + ' ' + res.statusText;
-      const data = await res.json();
-      responseEl.textContent = 'Response: ' + JSON.stringify(data, null, 2);
+      let data;
+      try {
+        data = await res.json();
+        responseEl.textContent = 'Response: ' + JSON.stringify(data, null, 2);
+      } catch (jsonErr) {
+        // Fallback: try to read as text (handles non-JSON backend errors)
+        const text = await res.text();
+        responseEl.textContent = 'Error: ' + text;
+      }
+      // updated by Cascade 2025-07-12
     } catch (err) {
       statusDot.style.background = '#e74c3c';
       statusText.textContent = 'Error';
       responseEl.textContent = err.toString();
+      // updated by Cascade 2025-07-12
     }
   });
 });
