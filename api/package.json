@@ -11,6 +11,8 @@
         "@azure/functions": "^3.5.1",
         "@azure/storage-blob": "^12.27.0",
         "@azure/identity": "^4.0.0",
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "axios": "^1.6.8",
+    "@azure/openai": "^1.0.0"
     }
 }
