@@ -53,31 +53,22 @@ module.exports = async function (context, req) {
     return;
   }
 
-  // Build Azure OpenAI URL
-  const depId = deploymentId || DEFAULT_DEPLOYMENT_ID;
-  const url = `${OPENAI_API_ENDPOINT}openai/deployments/${depId}/${operation}?api-version=2024-02-15-preview`;
-
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'api-key': apiKey
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await response.json();
-    context.res = {
-      status: response.status,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, api-key'
-      },
-      body: data
-    };
-  } catch (err) {
+  // ECHO TEST: Just return the received payload and operation for debugging
+  context.res = {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, api-key'
+    },
+    body: {
+      debug: 'Echo test successful',
+      operation,
+      deploymentId: depId,
+      payload
+    }
+  };
+  return;
     context.res = {
       status: 500,
       headers: {
