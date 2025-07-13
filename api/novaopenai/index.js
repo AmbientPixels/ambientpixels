@@ -69,16 +69,6 @@ module.exports = async function (context, req) {
     }
   };
   return;
-    context.res = {
-      status: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, api-key'
-      },
-      body: { error: 'Request to Azure OpenAI failed', details: err.message }
-    };
-  }
 };
 
 // Example request body:
