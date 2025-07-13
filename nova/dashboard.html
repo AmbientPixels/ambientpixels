@@ -163,69 +163,55 @@
     </div>
     <!-- API Tester and Dashboard Script - updated by Cascade 2025-07-10 -->
 
-    <!-- NovaOpenAI Interaction Section - updated by Cascade 2025-07-12 -->
+    <!-- /NovaOpenAI Interaction Section -->
+    <!-- updated by Cascade 2025-07-12 -->
+    <!-- NovaOpenAI Minimal API Test Section (rebuilt from scratch 2025-07-12) -->
     <section class="dashboard-section novaopenai-interact">
-      <h2 class="dashboard-title"><i class="fas fa-robot"></i> Interact with Azure OpenAI</h2>
-      <div class="dashboard-flex-row">
-        <!-- Column 1: Form -->
-        <div class="dashboard-flex-item novaopenai-col-form">
-          <form id="novaopenai-interact-form" class="api-form" autocomplete="off">
-            <div class="api-form-row">
-              <label>Operation:
-                <select id="novaopenai-operation" class="input">
-                  <option value="chat/completions">chat/completions</option>
-                  <option value="completions">completions</option>
-                  <option value="embeddings">embeddings</option>
-                </select>
-              </label>
-              <label>Deployment ID:
-                <input type="text" id="novaopenai-deployment" class="input" placeholder="gpt-4o-nova" value="gpt-4o-nova" />
-              </label>
-            </div>
-            <div class="api-form-row">
-              <label>Payload (JSON):
-                <textarea id="novaopenai-payload" class="input" rows="8" placeholder='{
-  "messages": [
-    { "role": "system", "content": "You are Nova, the crystalline AI." },
-    { "role": "user", "content": "Hello Nova!" }
-  ],
-  "max_tokens": 32
-}'>
-{
-  "messages": [
-    { "role": "system", "content": "You are Nova, the crystalline AI." },
-    { "role": "user", "content": "Hello Nova!" }
-  ],
-  "max_tokens": 32
-}
-</textarea>
-<!-- updated by Cascade 2025-07-12 -->
-              </label>
-            </div>
-            <div class="api-form-row">
-              <button type="submit" class="glass-button"><i class="fas fa-paper-plane"></i> Send</button>
-            </div>
-            <div id="novaopenai-status-row" class="dashboard-row api-status-row">
-              <span id="novaopenai-status-dot" class="soon-tag api-status-dot"></span>
-              <span id="novaopenai-status-text"></span>
-              <span id="novaopenai-latency"></span>
-            </div>
-          </form>
+      <h2 class="dashboard-title"><i class="fas fa-robot"></i> Azure OpenAI API Test</h2>
+      <form id="novaopenai-interact-form" class="api-form" autocomplete="off">
+        <div class="api-form-row">
+          <label>Operation:
+            <select id="novaopenai-operation" class="input">
+              <option value="chat/completions">chat/completions</option>
+              <option value="completions">completions</option>
+              <option value="embeddings">embeddings</option>
+            </select>
+          </label>
+          <label>Deployment ID:
+            <input type="text" id="novaopenai-deployment" class="input" placeholder="gpt-4o-nova" value="gpt-4o-nova" />
+          </label>
         </div>
-        <!-- Column 2: Request -->
+        <div class="api-form-row">
+          <label>Payload (JSON):
+            <textarea id="novaopenai-payload" class="input" rows="7">{
+  "messages": [
+    { "role": "system", "content": "You are Nova." },
+    { "role": "user", "content": "Hello Nova!" }
+  ],
+  "max_tokens": 32
+}</textarea>
+          </label>
+        </div>
+        <div class="api-form-row">
+          <button type="submit" class="glass-button"><i class="fas fa-paper-plane"></i> Send</button>
+        </div>
+        <div id="novaopenai-status-row" class="dashboard-row api-status-row">
+          <span id="novaopenai-status-dot" class="soon-tag api-status-dot"></span>
+          <span id="novaopenai-status-text"></span>
+          <span id="novaopenai-latency"></span>
+        </div>
+      </form>
+      <div class="dashboard-flex-row">
         <div class="dashboard-flex-item novaopenai-col-request">
           <div class="dashboard-subtitle"><i class="fas fa-arrow-right"></i> Request</div>
           <div id="novaopenai-request" class="dashboard-row content-section api-result-pre" aria-live="polite"></div>
         </div>
-        <!-- Column 3: Response -->
         <div class="dashboard-flex-item novaopenai-col-response">
           <div class="dashboard-subtitle"><i class="fas fa-arrow-left"></i> Response</div>
           <div id="novaopenai-response" class="dashboard-row content-section api-result-pre" aria-live="polite"></div>
         </div>
       </div>
     </section>
-    <!-- /NovaOpenAI Interaction Section -->
-    <!-- updated by Cascade 2025-07-12 -->
   </main>
 
   <!-- Footer injected by Cascade 2025-07-12 -->
