@@ -1,9 +1,9 @@
 {
-  "timestamp": "2025-07-11T13:34:11.025Z",
+  "timestamp": "2025-07-13T13:31:06.706Z",
   "summary": {
-    "totalJS": 1924,
+    "totalJS": 1927,
     "totalCSS": 86,
-    "totalHTML": 168
+    "totalHTML": 170
   },
   "functions": [
     "A",
@@ -3817,6 +3817,9 @@
     "nova-thought-content",
     "nova-voice",
     "nova-voice-rainbow",
+    "novaopenai-col-form",
+    "novaopenai-col-request",
+    "novaopenai-col-response",
     "numbered-cards",
     "ok",
     "open",
