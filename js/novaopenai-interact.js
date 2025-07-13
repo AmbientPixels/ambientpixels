@@ -22,14 +22,22 @@ document.addEventListener('DOMContentLoaded', () => {
     latencyEl.textContent = '';
     requestEl.textContent = '';
     responseEl.textContent = '';
-
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalBtnHTML = submitBtn.innerHTML;
+    submitBtn.disabled = true; // Disable submit during request
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...'; // Show loading spinner
+    // updated by Cascade 2025-07-12
     let payload;
     try {
-      payload = JSON.parse(payloadInput.value);
+      payload = JSON.parse(payloadInput.value.trim()); // Trim whitespace before parsing
+      // updated by Cascade 2025-07-12
     } catch (err) {
       statusDot.style.background = '#e74c3c';
       statusText.textContent = 'Invalid JSON in payload.';
       responseEl.textContent = err.toString();
+      submitBtn.disabled = false; // Re-enable submit on error
+      submitBtn.innerHTML = originalBtnHTML; // Restore original button content
+      // updated by Cascade 2025-07-12
       return;
     }
 
@@ -50,15 +58,14 @@ document.addEventListener('DOMContentLoaded', () => {
       latencyEl.textContent = `Latency: ${(t1 - t0).toFixed(0)}ms`;
       statusDot.style.background = res.ok ? '#27ae60' : '#e67e22';
       statusText.textContent = res.status + ' ' + res.statusText;
-      let data;
+      const raw = await res.text();
       try {
-        data = await res.json();
+        const data = JSON.parse(raw);
         responseEl.textContent = 'Response: ' + JSON.stringify(data, null, 2);
       } catch (jsonErr) {
-        // Fallback: try to read as text (handles non-JSON backend errors)
-        const text = await res.text();
-        responseEl.textContent = 'Error: ' + text;
+        responseEl.textContent = 'Error: ' + raw;
       }
+      // updated by Cascade 2025-07-12
       // updated by Cascade 2025-07-12
     } catch (err) {
       statusDot.style.background = '#e74c3c';
@@ -66,6 +73,9 @@ document.addEventListener('DOMContentLoaded', () => {
       responseEl.textContent = err.toString();
       // updated by Cascade 2025-07-12
     }
+    submitBtn.disabled = false; // Re-enable submit after request
+    submitBtn.innerHTML = originalBtnHTML; // Restore original button content
+    // updated by Cascade 2025-07-12
   });
 });
 // updated by Cascade 2025-07-12
