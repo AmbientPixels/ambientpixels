@@ -79,4 +79,4 @@ module.exports = async function (context, req) {
       }
     };
   }
-};
+}; // updated by Cascade 2025-07-12: syntax fix, only one closing brace
