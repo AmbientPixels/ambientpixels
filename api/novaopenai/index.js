@@ -1,4 +1,6 @@
 // Azure Function: NovaOpenAI Proxy Handler
+// Redeploy trigger: 2025-07-12
+
 // updated by Cascade 2025-07-12
 
 const axios = require('axios');
