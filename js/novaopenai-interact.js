@@ -61,10 +61,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const raw = await res.text();
       try {
         const data = JSON.parse(raw);
-        responseEl.textContent = 'Response: ' + JSON.stringify(data, null, 2);
+        if (data.error) {
+          responseEl.textContent = 'API Error: ' + JSON.stringify(data, null, 2);
+          statusDot.style.background = '#e74c3c';
+          statusText.textContent = 'API Error';
+        } else {
+          responseEl.textContent = 'Response: ' + JSON.stringify(data, null, 2);
+        }
       } catch (jsonErr) {
         responseEl.textContent = 'Error: ' + raw;
+        statusDot.style.background = '#e74c3c';
+        statusText.textContent = 'Invalid Response';
       }
+      // updated by Cascade 2025-07-12
       // updated by Cascade 2025-07-12
       // updated by Cascade 2025-07-12
     } catch (err) {
