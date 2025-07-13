@@ -48,7 +48,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // Build request body
     const body = {
       operation: opSelect.value,
-      deploymentId: depInput.value || 'gpt-4o-nova',
+      deployment: depInput.value || 'gpt-4o-nova', // updated by Cascade 2025-07-12
       payload
     };
     requestEl.textContent = JSON.stringify(body, null, 2);
