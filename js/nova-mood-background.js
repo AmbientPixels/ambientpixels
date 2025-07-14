@@ -46,8 +46,11 @@ document.addEventListener("DOMContentLoaded", () => {
 // Utility function for hex color manipulation
 function darkenHex(hex, amount) {
   hex = hex.replace("#", "");
-  const r = Math.max(0, parseInt(hex.slice(0, 2), 16) - Math.round(255 * amount));
-  const g = Math.max(0, parseInt(hex.slice(2, 4), 16) - Math.round(255 * amount));
-  const b = Math.max(0, parseInt(hex.slice(4, 6), 16) - Math.round(255 * amount));
-  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-}
+  const min = 32; // Prevents pure black, ensures visible background
+  const r = Math.max(min, parseInt(hex.slice(0, 2), 16) - Math.round(255 * amount));
+  const g = Math.max(min, parseInt(hex.slice(2, 4), 16) - Math.round(255 * amount));
+  const b = Math.max(min, parseInt(hex.slice(4, 6), 16) - Math.round(255 * amount));
+  const hexStr = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  console.log(`[Nova Background] darkenHex result: ${hexStr}`);
+  return hexStr;
+} // updated by Cascade 2025-07-14

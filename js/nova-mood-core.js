@@ -60,10 +60,12 @@ document.addEventListener("DOMContentLoaded", () => {
         .trim();
 
       // ✨ Apply aura class from mood scan
-      const aura = data.aura?.toLowerCase().replace(/\s+/g, '-');
-      if (aura) {
-
-      }
+      let aura = data.aura || "default";
+      // Remove any accidental class prefix (defensive)
+      aura = aura.replace(/^aura-bg-/, '').toLowerCase().replace(/\s+/g, '-');
+      // No-op: aura class is handled by nova-mood-background.js
+      // (left here for future extension)
+      // updated by Cascade 2025-07-14
 
       // 🎨 Apply mood-derived background
       const baseMood = deriveSimpleMood(data.mood || "neutral");
@@ -73,10 +75,10 @@ document.addEventListener("DOMContentLoaded", () => {
       document.dispatchEvent(new CustomEvent("NovaMoodUpdate", {
         detail: {
           mood: data.mood || "neutral",
-          aura: data.aura || "default",
+          aura: aura, // Use cleaned aura value
           auraColorHex: data.auraColorHex || "#999999"
         }
-      }));
+      })); // updated by Cascade 2025-07-14
 
       // 📡 Update drift panel
       if (driftEl) {
