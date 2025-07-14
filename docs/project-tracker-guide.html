@@ -26,10 +26,23 @@
   </section>
 
   <main class="grid-container">
+    <section class="intro-section grid-col-12">
+      <div class="nova-card">
+        <div class="card-content">
+          <h2><i class="fas fa-info-circle"></i> Welcome to the Project Tracker System</h2>
+          <p>The AmbientPixels Project Tracker is a centralized system for monitoring, documenting, and collaborating on all active and archived projects. This guide will help you understand how the system works, how to add new projects, and best practices for maintaining project documentation.</p>
+          <p>Whether you're adding a new project, updating an existing one, or just exploring what's in development, this guide provides everything you need to effectively use the Project Tracker Dashboard.</p>
+          <div class="info-box">
+            <p><strong>Quick Start:</strong> To add a new project, create a markdown file in <code>/docs/logs/</code>, then register it in <code>projects.json</code>. See the "How to Add a Project" section below for details.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="content-section grid-col-12">
       <div class="section-header">
         <h2><i class="fas fa-cogs"></i> System Overview</h2>
-        <button class="toggle-btn icon-only" aria-expanded="true"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn icon-only" aria-expanded="true" title="Toggle section"><i class="fas fa-chevron-down"></i></button>
       </div>
       <div class="content">
         <p>The Project Tracker Dashboard is a dynamic, filterable view powered by a central <code>projects.json</code> file, markdown logs, and a live dashboard UI.</p>
@@ -46,9 +59,9 @@
     <section class="content-section grid-col-12">
       <div class="section-header">
         <h2><i class="fas fa-plus-circle"></i> How to Add a Project</h2>
-        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn icon-only" aria-expanded="false" title="Toggle section"><i class="fas fa-chevron-down"></i></button>
       </div>
-      <div class="content" style="display: none;">
+      <div class="content collapsed">
         <ol>
           <li>Create a log in <code>/docs/logs/[project].md</code></li>
           <li>Convert to HTML (optional)</li>
@@ -61,9 +74,9 @@
     <section class="content-section grid-col-12">
       <div class="section-header">
         <h2><i class="fas fa-database"></i> JSON Entry Format</h2>
-        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn icon-only" aria-expanded="false" title="Toggle section"><i class="fas fa-chevron-down"></i></button>
       </div>
-      <div class="content" style="display: none;">
+      <div class="content collapsed">
         <pre><code>{
   "title": "Nova Memory Dashboard",
   "html": "/docs/logs/nova-memory-dashboard.html",
@@ -79,9 +92,9 @@
     <section class="content-section grid-col-12">
       <div class="section-header">
         <h2><i class="fas fa-brush"></i> Styling & Behavior</h2>
-        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn icon-only" aria-expanded="false" title="Toggle section"><i class="fas fa-chevron-down"></i></button>
       </div>
-      <div class="content" style="display: none;">
+      <div class="content collapsed">
         <ul>
           <li>Uses <code>.filter-pill</code> for interactive filters</li>
           <li>Grid layout via <code>.grid-row</code></li>
@@ -94,9 +107,9 @@
     <section class="content-section grid-col-12">
       <div class="section-header">
         <h2><i class="fas fa-tools"></i> Maintenance Tips</h2>
-        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn icon-only" aria-expanded="false" title="Toggle section"><i class="fas fa-chevron-down"></i></button>
       </div>
-      <div class="content" style="display: none;">
+      <div class="content collapsed">
         <ul>
           <li>Use ISO dates <code>YYYY-MM-DD</code></li>
           <li>Keep tags consistent (no casing mismatches)</li>
@@ -109,9 +122,9 @@
     <section class="content-section grid-col-12">
       <div class="section-header">
         <h2><i class="fas fa-lightbulb"></i> Future Ideas</h2>
-        <button class="toggle-btn icon-only" aria-expanded="false"><i class="fas fa-chevron-down"></i></button>
+        <button class="toggle-btn icon-only" aria-expanded="false" title="Toggle section"><i class="fas fa-chevron-down"></i></button>
       </div>
-      <div class="content" style="display: none;">
+      <div class="content collapsed">
         <ul>
           <li>Sidebar filter layout</li>
           <li>Search by title/log content</li>

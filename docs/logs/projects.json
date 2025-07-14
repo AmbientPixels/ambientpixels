@@ -1,5 +1,17 @@
 [
   {
+    "id": "project-nova-nexus-api",
+    "size": "M",
+    "title": "Nova Nexus API Dashboard",
+    "html": "",
+    "md": "/docs/logs/project-nova-nexus-api.md",
+    "status": "New",
+    "lastUpdated": "2025-07-14",
+    "tags": ["api", "nova", "dashboard", "integration", "azure", "endpoints"],
+    "progress": 0.15,
+    "description": "API integration layer for Nova's dynamic presence, providing a dashboard for monitoring, testing, and documenting Nova's growing API ecosystem."
+  },
+  {
     "id": "project-auth-expansion",
     "size": "M",
     "title": "Auth UX Expansion",
