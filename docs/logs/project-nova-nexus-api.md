@@ -15,17 +15,17 @@ The API Dashboard serves as both a development tool and a monitoring system for 
 | API Endpoint | Status | Description | Response Example |
 |-------------|--------|-------------|-----------------|
 | fetchlatestmood | ✅ Working | Retrieves Nova's most recent mood state from Azure Blob Storage | `{ "mood": "neutral", "timestamp": "2025-04-27T06:31:28.172Z", "githubStatus": "green", "confidence": 0.9, "insights": "Nova is feeling neutral. Stable mood with balanced energy." }` |
-| gemini-proxy | ⚠️ Testing | Proxy for Google Gemini AI API interactions | *Varies based on prompt* |
+| geminiproxy | ⚠️ Testing | Proxy for Google Gemini AI API interactions | *Varies based on prompt* |
 | cardforgeloadcards | ⚠️ Testing | Loads card data for the CardForge project | *JSON array of card objects* |
 | cardforgepublish | ⚠️ Testing | Publishes card data to the CardForge system | *Success/failure response* |
 | dreamlogwriter | ⚠️ Testing | Writes entries to Nova's dream log | *Confirmation response* |
 | generatemoodinsights | ⚠️ Testing | Generates insights based on Nova's mood data | *Insight text response* |
 | synthesizenovamood | ⚠️ Testing | Creates a synthesized mood state for Nova | *Synthesized mood object* |
 | fetchquoteoftheday | ⚠️ Testing | Retrieves the current quote of the day | *Quote object* |
-| nova-memory-recall | 🚫 Not Working | Recalls specific memories from Nova's memory system | *Memory object* |
-| nova-sentiment-analysis | 🚫 Not Working | Analyzes sentiment in text using Nova's perception | *Sentiment analysis object* |
-| nova-thought-generation | 🚫 Not Working | Generates Nova's thoughts based on current context | *Thought object* |
-| nova-image-synthesis | 🚫 Not Working | Creates images based on Nova's current state | *Image URL or data* |
+| novamemoryrecall | 🚫 Not Working | Recalls specific memories from Nova's memory system | *Memory object* |
+| novasentimentanalysis | 🚫 Not Working | Analyzes sentiment in text using Nova's perception | *Sentiment analysis object* |
+| novathoughtgeneration | 🚫 Not Working | Generates Nova's thoughts based on current context | *Thought object* |
+| novaimagesynthesis | 🚫 Not Working | Creates images based on Nova's current state | *Image URL or data* |
 
 ## 🛠️ API Implementation Details
 

@@ -2,7 +2,7 @@
 
 async function generateNovaText(prompt) {
   try {
-    const res = await fetch('/api/generate-text', {
+    const res = await fetch('/api/generatetext', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt })

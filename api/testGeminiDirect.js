@@ -1,8 +1,8 @@
 const axios = require("axios");
 
-const GEMINI_API_KEY = "AIzaYOUR_REAL_KEY_HERE";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
 
-const url = "https://generativelanguage.googleapis.com/v1/models/gemini-pro-1.0:generateContent?key=AIzaSyCx1cui-_1FJUW3PxYA9LPC64jKBlrFVoM";
+const url = `https://generativelanguage.googleapis.com/v1/models/gemini-pro-1.0:generateContent?key=${GEMINI_API_KEY}`;
 
 const headers = {
   "Content-Type": "application/json"

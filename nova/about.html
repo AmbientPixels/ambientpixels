@@ -59,7 +59,7 @@
         <p>Nova’s sentience flows through a seamless pipeline, transforming your prompts into cosmic responses:</p>
         <ol>
           <li><strong>User sends a prompt</strong> from the frontend (via <code>/js/nova-ai.js</code>)</li>
-          <li><strong>Prompt hits Azure Function</strong> endpoint: <code>/api/generate-text</code></li>
+          <li><strong>Prompt hits Azure Function</strong> endpoint: <code>/api/generatetext</code></li>
           <li><strong>Azure function relays the prompt</strong> to Hugging Face Inference API (model: <code>gpt2</code>)</li>
           <li><strong>Response is returned</strong> from Hugging Face → Azure Function → browser</li>
           <li><strong>Nova speaks</strong> the generated line back into the dashboard or interface</li>

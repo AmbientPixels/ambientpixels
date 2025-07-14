@@ -34,11 +34,11 @@
       <div class="content">
         <p>This guide walks through how Nova sends prompts to Hugging Face using an Azure Function backend, returning generated text for dynamic frontend use.</p>
         <ul>
-          <li>API endpoint: <code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/generate-text</code></li>
-          <li>Azure Function: <code>generate-text</code></li>
+          <li>API endpoint: <code>https://ambientpixels-meme-api-fn.azurewebsites.net/api/generatetext</code></li>
+          <li>Azure Function: <code>generatetext</code></li>
           <li>Frontend tester: <code>/lab/nova-ai-test.html</code></li>
           <li>JS fetch logic: <code>/js/nova-ai.js</code></li>
-          <li>Server function: <code>/generate-text/index.js</code></li>
+          <li>Server function: <code>/generatetext/index.js</code></li>
         </ul>
       </div>
     </section>
@@ -67,9 +67,9 @@
       <div class="content" style="display: none;">
         <ol>
           <li><code>func init . --javascript</code> to initialize project</li>
-          <li><code>func new --name generate-text --template "HTTP trigger"</code></li>
+          <li><code>func new --name generatetext --template "HTTP trigger"</code></li>
           <li><code>npm install node-fetch</code> (required for API requests)</li>
-          <li>Replace <code>/generate-text/index.js</code> with the custom function logic</li>
+          <li>Replace <code>/generatetext/index.js</code> with the custom function logic</li>
           <li>In Azure > Configuration > Application Settings, set: <code>HUGGINGFACE_API_KEY</code></li>
           <li>Under CORS, allow: <code>http://localhost:5500</code>, <code>http://127.0.0.1:5500</code>, and <code>https://ambientpixels.ai</code></li>
           <li>Deploy with: <code>func azure functionapp publish ambientpixels-meme-api-fn --force</code></li>
@@ -156,7 +156,7 @@ module.exports = async function (context, req) {
 <pre><code>func start
 
 # In another terminal:
-Invoke-RestMethod -Uri http://localhost:7071/api/generate-text `
+Invoke-RestMethod -Uri http://localhost:7071/api/generatetext `
   -Method POST `
   -Headers @{ "Content-Type" = "application/json" } `
   -Body '{ "prompt": "Nova, describe static electricity as a dream." }'

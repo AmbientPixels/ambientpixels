@@ -9,7 +9,7 @@
  * @returns {Promise<object>} Gemini API response JSON
  */
 export async function sendGeminiPrompt(prompt, options = {}) {
-  const endpoint = '/api/gemini-proxy'; // Always use proxy for production
+  const endpoint = '/api/geminiproxy'; // Always use proxy for production
   const payload = {
     prompt,
     ...options

@@ -120,7 +120,7 @@
             <div class="api-endpoint-selector-container">
               <select id="api-endpoint-select" class="input api-endpoint-select">
                 <option value="">Custom...</option>
-                <option value="gemini-proxy">gemini-proxy</option>
+                <option value="geminiproxy">geminiproxy</option>
                 <option value="cardforgeloadcards">cardforgeloadcards</option>
                 <option value="cardforgepublish">cardforgepublish</option>
                 <option value="fetchlatestmood">fetchlatestmood</option>
@@ -128,7 +128,7 @@
                 <option value="generatemoodinsights">generatemoodinsights</option>
                 <option value="synthesizenovamood">synthesizenovamood</option>
               </select>
-              <input type="text" id="api-endpoint" class="input api-endpoint-input" placeholder="e.g. gemini-proxy" required />
+              <input type="text" id="api-endpoint" class="input api-endpoint-input" placeholder="e.g. geminiproxy" required />
             </div>
           </label>
         </div>
@@ -217,38 +217,35 @@
   <!-- Footer injected by Cascade 2025-07-12 -->
   <footer id="footer-container"></footer>
 
-  <!-- Scripts (Full Load for Dev Mode) - updated by Cascade 2025-07-12 -->
+  <!-- Core Scripts (Load First) - updated by Cascade 2025-07-14 -->
   <script src="/js/init-header-footer.js" defer></script>
-  <!-- Removed missing dreamEngine.js reference by Cascade 2025-07-12 -->
   <script src="/js/main.js" defer></script>
   <script src="/js/nav.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  
+  <!-- CardForge Scripts (Load in dependency order) -->
+  <script src="/cardforge/js/csrf-protection.js" defer></script>
+  <script src="/cardforge/js/card-forge.js" defer></script>
+  <script src="/cardforge/js/cardforge-publish.js" defer></script>
+  
+  <!-- Nova Core Scripts -->
   <script src="/js/nova-ai.js" defer></script>
   <script src="/js/nova-awareness-feed.js" defer></script>
   <script src="/js/nova-dashboard.js" defer></script>
   <script src="/js/nova-mood-core.js" defer></script>
+  <script src="/js/nova-mood-background.js" defer></script>
   <script src="/js/nova-pulse.js" defer></script>
   <script src="/js/nova-status.js" defer></script>
-  <script src="/js/theme.js" defer></script>
-  <script src="/js/novaopenai-interact.js" defer></script>
-  <!-- End scripts -->
-  <!-- Removed duplicate nova-pulse-bar after footer; only present above Nova's Thought. Updated by Cascade 2025-07-12 -->
-
-  <script src="/js/theme.js" defer></script>
-  <!-- Banner JS removed for isolated view -->
-
-  <!-- Component Scripts -->
-  <script src="/js/nova-mood-core.js" defer></script>
-  <script src="/js/nova-pulse.js" defer></script>
-  <script src="/js/nova-mood-background.js" defer></script>
   <script src="/js/nova-thought-of-the-day.js" defer></script>
-  
-  <!-- Background Video Controller - moved to external file by Cascade 2025-07-10 -->
   <script src="/js/nova-background-video.js" defer></script>
-  <script type="module" src="/js/pulse-bar-dashboard.js"></script>
   
-  <!-- API Status Dashboard Script - added by Cascade 2025-07-10 -->
-  <script src="/js/api-status-dashboard.js"></script>
+  <!-- API Scripts (Load after dependencies) -->
+  <script src="/js/gemini-api.js" defer></script>
+  <script src="/js/api-status-dashboard.js" defer></script>
   <script src="/js/novaopenai-interact.js" defer></script>
-  <!-- novaopenai-interact.js included by Cascade 2025-07-12 -->
+  
+  <!-- Dashboard Specific -->
+  <script type="module" src="/js/pulse-bar-dashboard.js"></script>
+  <!-- End scripts -->
 </body>
 </html>

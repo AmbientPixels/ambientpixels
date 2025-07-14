@@ -135,10 +135,10 @@ function initApiStatusDashboard() {
     'generatemoodinsights',
     'synthesizenovamood',
     'fetchquoteoftheday',
-    'nova-memory-recall',
-    'nova-sentiment-analysis',
-    'nova-thought-generation',
-    'nova-image-synthesis'
+    'novamemoryrecall',
+    'novasentimentanalysis',
+    'novathoughtgeneration',
+    'novaimagesynthesis'
   ];
   
   const apiStatusGrid = document.getElementById('api-status-grid');
