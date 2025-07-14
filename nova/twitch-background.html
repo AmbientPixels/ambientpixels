@@ -55,6 +55,17 @@
 
   </main>
 
+  <!-- Nova Pulse Bar Module -->
+  <!-- Inline style for bottom pinning added by Cascade 2025-07-12 per user exception -->
+<!-- Inline style for bottom pinning restored by Cascade 2025-07-12 (margin-top reverted) -->
+<div id="nova-pulse-bar" style="position:fixed;left:0;right:0;bottom:0;width:100vw;z-index:1000;">
+    <div id="nova-pulse-inner">
+      <div id="pulse-main-line">
+        <div id="pulse-mood-group">
+          <span id="pulseMoodLabel">Mood:</span>
+          <span id="pulseEmoji">✨</span>
+          <span id="pulseLabel">Loading...</span>
+        </div>
   
         <span class="pulse-trait">
           <span class="pulse-trait-label">Self-Worth:</span>
@@ -106,6 +117,7 @@
   
   <!-- Background Video Controller - moved to external file by Cascade 2025-07-10 -->
   <script src="/js/nova-background-video.js" defer></script>
+  <script type="module" src="/js/pulse-bar-dashboard.js"></script>
   
   <!-- API Status Dashboard Script - added by Cascade 2025-07-10 -->
   <script src="/js/api-status-dashboard.js"></script>
