@@ -227,6 +227,12 @@ async function loadCards() {
     const saveBtn = document.getElementById('save-btn');
     const publishBtn = document.getElementById('publish-btn');
     
+    // Check authentication status
+    // Try multiple ways to detect authentication
+    /* updated by Cascade 2025-07-14 - fixed variable declaration order */
+    let account = null;
+    let isAuthenticated = false;
+    
     // Method 0: Check Static Web Apps EasyAuth via .auth/me
     try {
       const meRes = await fetch('/.auth/me', { credentials: 'include' });
@@ -242,11 +248,6 @@ async function loadCards() {
     } catch (e) {
       console.warn('[CardForge] .auth/me error', e);
     }
-    
-    // Check authentication status
-    // Try multiple ways to detect authentication
-    let account = null;
-    let isAuthenticated = false;
     
     // Method 1: Check window.authModule (SWA)
     if (window.authModule && typeof window.authModule.getCurrentUser === 'function') {
@@ -365,7 +366,8 @@ async function loadCards() {
     }
     
     // Debug logging
-    if (window._config?.debug) {
+    /* updated by Cascade 2025-07-14 - added null check for window._config */
+    if (window._config && window._config.debug) {
         console.log(`[CardForge] Configuration:`, window._config || {});
         console.log(`[CardForge] API Base URL: ${getApiBaseUrl()}`);
         console.log(`[CardForge] Full endpoint: ${endpoint}`);
@@ -381,12 +383,13 @@ async function loadCards() {
         const headers = {
             'Accept': 'application/json'
         };
-        if (window._config.environment !== 'production') {
+        /* updated by Cascade 2025-07-14 - added null checks for window._config */
+        if (window._config && window._config.environment !== 'production') {
             const devAuth = localStorage.getItem('cardforge_dev_auth');
             if (devAuth) {
                 const { id: devUserId } = JSON.parse(devAuth);
                 headers['X-User-ID'] = devUserId;
-                if (window._config.debug) console.log(`[DEV] Added X-User-ID header for load: ${devUserId}`);
+                if (window._config && window._config.debug) console.log(`[DEV] Added X-User-ID header for load: ${devUserId}`);
             }
         }
         
@@ -396,7 +399,8 @@ async function loadCards() {
         });
         
         // Debug response info
-        if (window._config?.debug) {
+        /* updated by Cascade 2025-07-14 - added null check for window._config */
+        if (window._config && window._config.debug) {
             console.log(`[CardForge] Response status: ${res.status} ${res.statusText}`);
             console.log(`[CardForge] Response headers:`, Object.fromEntries([...res.headers]));
             const apiDuration = performance.now() - apiStartTime;
