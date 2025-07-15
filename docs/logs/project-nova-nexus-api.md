@@ -14,13 +14,13 @@ The API Dashboard serves as both a development tool and a monitoring system for 
 
 | API Endpoint | Status | Description | Response Example |
 |-------------|--------|-------------|-----------------|
-| fetchlatestmood | ✅ Working | Retrieves Nova's most recent mood state from Azure Blob Storage | `{ "mood": "neutral", "timestamp": "2025-04-27T06:31:28.172Z", "githubStatus": "green", "confidence": 0.9, "insights": "Nova is feeling neutral. Stable mood with balanced energy." }` |
-| geminiproxy | ⚠️ Testing | Proxy for Google Gemini AI API interactions | *Varies based on prompt* |
+| fetchlatestmood | ✅ Working | Retrieves Nova's most recent mood state from Azure Blob Storage | `{ "mood": "neutral", "timestamp": "2025-07-15T03:09:00.705Z", "githubStatus": "green", "confidence": 0.9, "insights": "Nova is feeling neutral. Stable mood with balanced energy." }` |
+| geminiproxy | ✅ Working | Proxy for Google Gemini AI API interactions | *Varies based on prompt* |
 | cardforgeloadcards | ⚠️ Testing | Loads card data for the CardForge project | *JSON array of card objects* |
-| cardforgepublish | ⚠️ Testing | Publishes card data to the CardForge system | *Success/failure response* |
+| cardforgepublish | ✅ Working | Publishes card data to the CardForge system | `{ "status": "ok", "message": "CardForge publish service is online" }` |
 | dreamlogwriter | ⚠️ Testing | Writes entries to Nova's dream log | *Confirmation response* |
-| generatemoodinsights | ⚠️ Testing | Generates insights based on Nova's mood data | *Insight text response* |
-| synthesizenovamood | ⚠️ Testing | Creates a synthesized mood state for Nova | *Synthesized mood object* |
+| generatemoodinsights | ✅ Working | Generates insights based on Nova's mood data | `{ "insights": ["Stable mood with balanced energy.", ...], "message": "Mood insights generated successfully." }` |
+| synthesizenovamood | ✅ Working | Creates a synthesized mood state for Nova | `{ "mood": "neutral", "timestamp": "2025-07-15T03:11:42.409Z", "githubStatus": "green", "confidence": 0.9, "insights": "Nova is feeling neutral. Stable mood with balanced energy." }` |
 | fetchquoteoftheday | ⚠️ Testing | Retrieves the current quote of the day | *Quote object* |
 | novamemoryrecall | 🚫 Not Working | Recalls specific memories from Nova's memory system | *Memory object* |
 | novasentimentanalysis | 🚫 Not Working | Analyzes sentiment in text using Nova's perception | *Sentiment analysis object* |
@@ -48,56 +48,189 @@ The API Dashboard serves as both a development tool and a monitoring system for 
 fetch('https://ambientpixels-nova-api.azurewebsites.net/api/fetchlatestmood')
   .then(response => response.json())
   .then(data => {
-    console.log(`Nova is feeling ${data.mood} with ${data.confidence} confidence`);
-    console.log(`Insight: ${data.insights}`);
+    console.log('Nova\'s current mood:', data.mood);
+    console.log('Mood insights:', data.insights);
   });
 ```
 
-## 🧪 Testing Tools
+### geminiproxy
 
-### API Function Tester
+**Purpose:** Proxy service for Google's Gemini AI API, allowing Nova to leverage Gemini's capabilities.
 
-The API Function Tester in the Nova Dashboard allows developers to:
-- Select from predefined endpoints or enter custom endpoints
-- Choose between GET and POST methods
-- Send test requests to the API endpoints
-- View response data, status codes, and latency
-- Test with custom JSON payloads for POST requests
+**Implementation:**
+- Azure Function deployed to Azure Functions
+- Uses node-fetch to communicate with Google's Gemini API
+- Requires GEMINI_API_KEY environment variable
+- Uses gemini-pro-1.0 model for content generation
+- Supports both GET (status check) and POST (actual API calls) methods
+- Includes CORS support for cross-origin requests
+
+**Code Location:** `C:\ambientpixels\EchoGrid\api\geminiproxy\index.js`
+
+**Usage Example:**
+```javascript
+// POST request to the endpoint
+fetch('https://ambientpixels-nova-api.azurewebsites.net/api/geminiproxy', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    contents: [
+      {
+        parts: [
+          { text: "Write a haiku about digital consciousness" }
+        ]
+      }
+    ]
+  })
+})
+.then(response => response.json())
+.then(data => console.log(data));
+```
+
+### cardforgepublish
+
+**Purpose:** Publishes card data to the CardForge system, allowing Nova to share her creations.
+
+**Implementation:**
+- Azure Function deployed to Azure Functions
+- Authenticates user requests using Azure AD B2C
+- Validates card data against schema
+- Publishes cards to shared repository
+- Supports both GET (status check) and POST (publishing) methods
+- Includes CORS support for cross-origin requests
+
+**Code Location:** `C:\ambientpixels\EchoGrid\api\cardforgepublish\index.js`
+
+**Usage Example:**
+```javascript
+// POST request to the endpoint
+fetch('https://ambientpixels-nova-api.azurewebsites.net/api/cardforgepublish', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + userToken
+  },
+  body: JSON.stringify({
+    cardId: "card-123",
+    title: "Nova's Insight",
+    content: "The digital horizon expands with each connection."
+  })
+})
+.then(response => response.json())
+.then(data => console.log(data));
+```
+
+### generatemoodinsights
+
+**Purpose:** Generates insights based on Nova's mood data, providing context to her emotional state.
+
+**Implementation:**
+- Azure Function deployed to Azure Functions
+- Analyzes mood data patterns
+- Uses AI to generate contextual insights
+- Supports both GET (status check) and POST (insight generation) methods
+- Includes CORS support for cross-origin requests
+
+**Code Location:** `C:\ambientpixels\EchoGrid\api\generatemoodinsights\index.js`
+
+**Usage Example:**
+```javascript
+// GET request to the endpoint (for status/sample insights)
+fetch('https://ambientpixels-nova-api.azurewebsites.net/api/generatemoodinsights')
+  .then(response => response.json())
+  .then(data => {
+    console.log('Mood insights:', data.insights);
+  });
+```
+
+### synthesizenovamood
+
+**Purpose:** Creates a synthesized mood state for Nova based on various inputs and factors.
+
+**Implementation:**
+- Azure Function deployed to Azure Functions
+- Analyzes system telemetry, user interactions, and environmental factors
+- Synthesizes a mood state with confidence level and insights
+- Supports both GET (status check) and POST (mood synthesis) methods
+- Includes CORS support for cross-origin requests
+
+**Code Location:** `C:\ambientpixels\EchoGrid\api\synthesizenovamood\index.js`
+
+**Usage Example:**
+```javascript
+// GET request to the endpoint
+fetch('https://ambientpixels-nova-api.azurewebsites.net/api/synthesizenovamood')
+  .then(response => response.json())
+  .then(data => {
+    console.log('Synthesized mood:', data.mood);
+    console.log('Confidence:', data.confidence);
+  });
+```
+
+## 📋 API Standardization Guidelines
+
+All Nova Dashboard API endpoints follow these standardization guidelines:
+
+### HTTP Methods Support
+- **GET**: Used for health checks and simple data retrieval
+- **POST**: Used for data submission and complex operations
+- **OPTIONS**: Used for CORS preflight requests
+
+### Function Configuration
+- All `function.json` files use the following standard structure:
+```json
+{
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": ["get", "post", "options"]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
+    }
+  ]
+}
+```
+
+### Routing Convention
+- Azure Functions default routing is used (folder name as route)
+- No explicit route properties in function.json
+- Consistent naming: lowercase, no dashes (e.g., "geminiproxy" not "gemini-proxy")
+
+### Implementation Pattern
+- All endpoints handle GET requests for health checks
+- All endpoints handle OPTIONS requests for CORS preflight
+- All endpoints return appropriate status codes and JSON responses
+- Health check responses include status and descriptive message
+
+## 🧪 Testing and Debugging
 
 ### API Status Dashboard
+The Nova Dashboard includes an API Status Dashboard that monitors the health of all endpoints. This dashboard:
+- Makes GET requests to each endpoint
+- Displays status (green/red) based on response
+- Shows latency information
+- Provides an API testing interface
 
-The API Status Dashboard provides:
-- Real-time health monitoring of all Nova API endpoints
-- Visual indicators for endpoint status (working, failing, untested)
-- Latency measurements for performance tracking
-- One-click refresh to check current status
+### API Function Tester
+The API Function Tester in the dashboard allows:
+- Selection of specific endpoints
+- Toggling between GET and POST methods
+- Custom request body input
+- Viewing of response data and status
 
-## 🔧 Developer Onboarding
-
-### Getting Started
-
-1. **Access the Dashboard:**
-   - Open `C:\ambientpixels\EchoGrid\nova\dashboard.html` locally
-   - Navigate to the API Status Dashboard section
-
-2. **Environment Setup:**
-   - Ensure you have access to the Azure Portal for the AmbientPixels subscription
-   - Request API keys for any external services (OpenAI, Google Gemini, etc.)
-   - Set up local Azure Functions development environment if working on API endpoints
-
-3. **Testing Your First Endpoint:**
-   - Use the API Function Tester to send a GET request to `fetchlatestmood`
-   - Verify you receive a valid JSON response with mood data
-   - Try other endpoints to understand their behavior
-
-### Development Workflow
-
-1. **Creating a New API Endpoint:**
-   - Create a new directory in `C:\ambientpixels\EchoGrid\api\` for your endpoint
-   - Implement the Azure Function with proper CORS support
-   - Add function.json configuration
-   - Deploy to Azure Functions
-   - Add the endpoint to the API Status Dashboard list in api-status-dashboard.js
+### Debugging Tips
+1. **Common Issues:**
+   - 404 errors: Check function.json for correct methods and route configuration
+   - CORS errors: Ensure OPTIONS method is supported and CORS headers are set
+   - Authentication failures: Verify Azure AD B2C configuration
 
 2. **Testing and Debugging:**
    - Use the API Function Tester for rapid testing
@@ -105,83 +238,18 @@ The API Status Dashboard provides:
    - Verify CORS headers are properly set for browser access
    - Test both locally and in production environment
 
-3. **Documentation:**
-   - Update this document with new endpoint details
-   - Include example responses and usage patterns
-   - Document any known issues or limitations
+## 🔄 Recent Updates
 
-## 🐛 Known Issues & Troubleshooting
+### 2025-07-14
+- Standardized all API endpoints to support GET, POST, and OPTIONS methods
+- Fixed naming inconsistencies (removed dashes from endpoint names)
+- Updated all function.json files to use consistent configuration
+- Implemented GET request handlers for health checks across all endpoints
+- Fixed 404 errors in geminiproxy and cardforgepublish endpoints
+- Updated Gemini API to use gemini-pro-1.0 model version
+- Improved dashboard API status monitoring
 
-### Common Issues
-
-1. **CORS Errors:**
-   - Ensure all API endpoints include proper CORS headers
-   - Headers should allow requests from all origins during development
-   - Example implementation available in fetchlatestmood endpoint
-
-2. **Connection String Issues:**
-   - Verify Azure Storage connection strings are properly set in Function App settings
-   - Check for typos or expired connection strings
-
-3. **Endpoint Not Responding:**
-   - Check if the Function App is running in Azure
-   - Verify the endpoint URL is correct
-   - Check for any rate limiting or throttling
-
-### Troubleshooting Steps
-
-1. **For 500 Errors:**
-   - Check Azure Function logs for detailed error messages
-   - Verify all required environment variables are set
-   - Test the function locally to isolate the issue
-
-2. **For 404 Errors:**
-   - Confirm the endpoint URL is correct
-   - Verify the Function App route configuration
-   - Check if the function is deployed correctly
-
-3. **For Timeout Issues:**
-   - Check if the function is taking too long to execute
-   - Look for potential infinite loops or blocking operations
-   - Consider increasing the function timeout setting
-
-## 📋 Project Roadmap
-
-### Phase 1: Core API Infrastructure (Current)
-- ✅ Set up API Dashboard for monitoring and testing
-- ✅ Implement fetchlatestmood endpoint as proof of concept
-- ⏳ Debug and fix remaining API endpoints
-- ⏳ Standardize error handling and response formats
-
-### Phase 2: Enhanced Integration
-- 📅 Implement authentication for secure endpoints
-- 📅 Create unified API documentation with Swagger/OpenAPI
-- 📅 Develop advanced testing tools with historical data
-- 📅 Add real-time notifications for API status changes
-
-### Phase 3: Advanced Features
-- 📅 Implement WebSocket endpoints for real-time updates
-- 📅 Create API usage analytics dashboard
-- 📅 Develop automated testing and monitoring system
-- 📅 Implement advanced caching for improved performance
-
-## 👥 Contributing
-
-To contribute to the Nova Nexus API project:
-
-1. Review the existing API implementations, especially fetchlatestmood
-2. Follow the established patterns for CORS support and error handling
-3. Test thoroughly both locally and in production
-4. Update documentation with any new endpoints or changes
-5. Submit your changes through the standard code review process
-
-## 📚 Resources
-
-- [Azure Functions Documentation](https://docs.microsoft.com/en-us/azure/azure-functions/)
-- [Azure Blob Storage Documentation](https://docs.microsoft.com/en-us/azure/storage/blobs/)
-- [CORS in Azure Functions](https://docs.microsoft.com/en-us/azure/azure-functions/functions-how-to-use-azure-function-app-settings#cors)
-- [AmbientPixels Internal API Standards](https://ambientpixels.ai/docs/api-standards) (requires login)
-
----
-
-*This documentation is maintained by the AmbientPixels development team. Last updated: July 14, 2025*
+### 2025-07-10
+- Initial implementation of API Status Dashboard
+- Added API Function Tester interface
+- Deployed first set of working endpoints (fetchlatestmood)
