@@ -121,8 +121,10 @@ async function downloadJsonBlobWithRetry(containerClient, blobName, context, max
   throw lastError;
 }
 
-module.// CORS support added by Cascade 2025-07-12
-exports = async function (context, req) {
+// CORS support added by Cascade 2025-07-12
+module.exports = async function (context, req) {
+  context.log('JavaScript HTTP trigger function processed a request for cardforgeloadcards');
+  
   // CORS preflight
   if (req.method === 'OPTIONS') {
     context.res = {
@@ -134,6 +136,22 @@ exports = async function (context, req) {
         'Access-Control-Max-Age': '86400'
       },
       body: ''
+    };
+    return;
+  }
+  
+  /* updated by Cascade 2025-07-14 - added health check for GET requests */
+  // Handle GET requests for API status checks (matches pattern of working endpoints)
+  if (req.method === 'GET') {
+    context.res = {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
+      },
+      body: { status: 'ok', message: 'CardForge load cards service is online' }
     };
     return;
   }

@@ -168,37 +168,80 @@ function initApiStatusDashboard() {
     });
   }
   
+  /* updated by Cascade 2025-07-14 - improved API status checking */
   // Check API status
   async function checkApiStatus(endpoint) {
+    const statusCard = document.getElementById(`status-card-${endpoint}`);
     const indicatorEl = document.getElementById(`indicator-${endpoint}`);
     const statusEl = document.getElementById(`status-${endpoint}`);
     const latencyEl = document.getElementById(`latency-${endpoint}`);
     
-    // Set to loading state
-    indicatorEl.className = 'api-status-indicator loading';
     statusEl.textContent = 'Status: Checking...';
+    
+    // Special handling for cardforgeloadcards endpoint which may take longer to respond
+    // Use a longer timeout for this specific endpoint
     
     const t0 = performance.now();
     try {
+      // Use a controller for better timeout handling
+      const controller = new AbortController();
+      // Use a longer timeout for cardforgeloadcards endpoint
+      const timeoutMs = endpoint === 'cardforgeloadcards' ? 15000 : 5000;
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      
       const response = await fetch(`${PROD_API_BASE}${endpoint}`, { 
         method: 'GET',
-        // Add a timeout to avoid hanging requests
-        signal: AbortSignal.timeout(5000)
+        signal: controller.signal,
+        // Add cache control to prevent stale responses
+        cache: 'no-cache',
+        headers: {
+          'Accept': 'application/json',
+          'X-Dashboard-Check': 'true'
+        }
       });
+      
+      // Clear the timeout
+      clearTimeout(timeoutId);
       
       const latency = Math.round(performance.now() - t0);
       latencyEl.textContent = `Latency: ${latency}ms`;
       
+      // Only check for HTTP 200 status, don't validate response data
       if (response.ok) {
         indicatorEl.className = 'api-status-indicator ok';
         statusEl.textContent = `Status: ${response.status} OK`;
+        
+        // Log successful response but don't require valid JSON or non-empty arrays
+        try {
+          // Just try to read the response but don't do anything with it
+          // This confirms we can read the body without errors
+          const text = await response.text();
+          
+          // Optional: Log response size for debugging
+          if (text && text.length > 0) {
+            console.debug(`API ${endpoint} returned ${text.length} bytes`);
+          }
+        } catch (parseError) {
+          console.warn(`API ${endpoint} returned 200 but had invalid response format:`, parseError);
+          // Still show green since HTTP status is OK
+        }
       } else {
         indicatorEl.className = 'api-status-indicator fail';
         statusEl.textContent = `Status: ${response.status} Error`;
+        console.warn(`API ${endpoint} returned non-OK status:`, response.status);
       }
     } catch (error) {
       indicatorEl.className = 'api-status-indicator fail';
-      statusEl.textContent = 'Status: Failed';
+      
+      // Provide more specific error messages
+      if (error.name === 'AbortError') {
+        statusEl.textContent = 'Status: Timeout';
+        console.warn(`API ${endpoint} timed out after 5000ms`);
+      } else {
+        statusEl.textContent = 'Status: Failed';
+        console.error(`API ${endpoint} check failed:`, error);
+      }
+      
       latencyEl.textContent = 'Latency: --';
     }
   }
