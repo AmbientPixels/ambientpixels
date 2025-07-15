@@ -216,6 +216,7 @@ exports = async function (context, req) {
       galleryCards = [];
     }
 
+    /* updated by Cascade 2025-07-14 - fixed duplicate code for loading default cards */
     if (isAuthenticated) {
       // For authenticated users, load their personal cards
       const userCardsPath = getUserCardsPath(userId);
@@ -250,16 +251,17 @@ exports = async function (context, req) {
       }
     }
     
-    // Get default cards for anonymous users
+    // Get default cards for display in the gallery section
     let defaultCards = [];
-    if (!isAuthenticated) {
+    // Only load default cards for gallery if we're authenticated (anonymous users already have default cards as their userCards)
+    if (isAuthenticated) {
       try {
-        context.log(`[${requestId}] Attempting to load default cards for anonymous user`);
+        context.log(`[${requestId}] Attempting to load default cards for gallery display`);
         const defaultCardsData = await downloadJsonBlobWithRetry(containerClient, DEFAULT_CARDS_PATH, context);
-        defaultCards = Array.isArray(defaultCardsData) ? defaultCardsData : [];
-        context.log(`[${requestId}] Loaded ${defaultCards.length} default cards for anonymous user`);
+        defaultCards = defaultCardsData.defaultCards || [];
+        context.log(`[${requestId}] Loaded ${defaultCards.length} default cards for gallery display`);
       } catch (error) {
-        context.log.warn(`[${requestId}] Could not load default cards: ${error.message}`);
+        context.log.warn(`[${requestId}] Could not load default cards for gallery: ${error.message}`);
         // Continue with empty defaultCards array
       }
     }
@@ -296,15 +298,16 @@ exports = async function (context, req) {
     
     context.log(`[${requestId}] Response structure: ${serializedBody.substring(0, 200)}...`);
     
+    /* updated by Cascade 2025-07-14 - fixed response format */
     context.res = {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID, X-CSRF-Token'
       },
-      body: responseBody
+      body: responseBody // Using the object directly, not serialized
     };
   } catch (error) {
     // Generate a consistent error ID for tracking
