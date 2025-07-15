@@ -5,8 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["post"],
-      "route": "cardforgepublish"
+      "methods": ["get", "post", "options"]
     },
     {
       "type": "http",

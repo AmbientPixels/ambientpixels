@@ -127,7 +127,7 @@ function initApiTester() {
 function initApiStatusDashboard() {
   // API endpoints to monitor
   const apiEndpoints = [
-    'gemini-proxy',
+    'geminiproxy', // Updated by Cascade 2025-07-14: removed dash for consistency with folder name
     'cardforgeloadcards',
     'cardforgepublish',
     'fetchlatestmood',

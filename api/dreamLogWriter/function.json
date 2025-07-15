@@ -5,8 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["post"],
-      "route": "dreamLogWriter"
+      "methods": ["get", "post", "options"]
     },
     {
       "type": "http",

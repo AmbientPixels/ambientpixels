@@ -269,8 +269,8 @@ Nova operates in dev sync with the AmbientPixels team.
         },
         {
           "type": "folder",
-          "name": "gemini-proxy",
-          "path": "api/gemini-proxy",
+          "name": "geminiproxy",
+          "path": "api/geminiproxy",
           "children": []
         },
         {

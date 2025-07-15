@@ -1,6 +1,6 @@
 // gemini-api.js
 // Modular utility for interacting with Gemini API via backend proxy or direct (dev only)
-// Usage: import { sendGeminiPrompt } from './gemini-api.js';
+// Updated by Cascade 2025-07-14
 
 /**
  * Sends a prompt to Gemini API via backend proxy.
@@ -8,7 +8,7 @@
  * @param {object} [options] - Optional parameters (model, temperature, etc.)
  * @returns {Promise<object>} Gemini API response JSON
  */
-export async function sendGeminiPrompt(prompt, options = {}) {
+async function sendGeminiPrompt(prompt, options = {}) {
   const endpoint = '/api/geminiproxy'; // Always use proxy for production
   const payload = {
     prompt,
@@ -32,7 +32,7 @@ export async function sendGeminiPrompt(prompt, options = {}) {
 
 // For local/dev direct calls (not recommended for production, exposes API key!)
 // Uncomment and configure if needed:
-// export async function sendGeminiPromptDirect(prompt, options = {}) {
+// function sendGeminiPromptDirect(prompt, options = {}) {
 //   const endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=YOUR_API_KEY';
 //   // ...rest of fetch logic
 // }

@@ -5,8 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["get"],
-      "route": "cardforgetemplate"
+      "methods": ["get", "post", "options"]
     },
     {
       "type": "http",

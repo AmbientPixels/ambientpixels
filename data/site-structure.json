@@ -130,8 +130,8 @@
         },
         {
           "type": "folder",
-          "name": "gemini-proxy",
-          "path": "api/gemini-proxy",
+          "name": "geminiproxy",
+          "path": "api/geminiproxy",
           "children": []
         },
         {

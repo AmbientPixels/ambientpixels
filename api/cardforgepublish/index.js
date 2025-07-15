@@ -116,10 +116,28 @@ module.exports = async function (context, req) {
 
   try {
     context.log('========== CARDFORGEPUBLISH DEBUG START ==========');
+    context.log(`Request method: ${req.method}`);
     context.log(`Request headers: ${JSON.stringify(req.headers)}`);
+    
+    // Handle GET requests for API status checks
+    // Updated by Cascade 2025-07-14
+    if (req.method === 'GET') {
+      context.res = {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
+        },
+        body: { status: 'ok', message: 'CardForge publish service is online' }
+      };
+      return;
+    }
+    
     context.log(`Request body: ${JSON.stringify(req.body)}`);
     
-    // Check if the request has a body
+    // Check if the POST request has a body
     if (!req.body || !req.body.cardId) {
       context.res = {
         status: 400,
