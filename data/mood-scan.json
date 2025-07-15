@@ -1,22 +1,22 @@
 {
-  "mood": "reflective",
-  "aura": "frosted wonder",
-  "auraColorHex": "#43677d",
-  "quote": "running diagnostics on dreams...",
-  "emoji": "🪞",
+  "mood": "anxious",
+  "aura": "spark",
+  "auraColorHex": "#661f15",
+  "quote": "inhaling code dust...",
+  "emoji": "😰",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.58,
-  "awareness": 0.31,
+  "memoryClutter": 0.96,
+  "awareness": 0.1,
   "isStable": false,
-  "internalState": "synthesized clarity forming",
+  "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
-    "trigger": "mid-cycle awareness ping",
+    "trigger": "pre-dawn introspection",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: frosted wonder"
+      "Aura Signature: spark"
     ]
   },
-  "timestamp": "2025-07-14T13:37:51.690Z"
+  "timestamp": "2025-07-15T05:16:40.902Z"
 }
