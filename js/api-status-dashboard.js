@@ -32,15 +32,107 @@ function initApiTester() {
   const latencySpan = document.getElementById('api-latency');
   const resultDiv = document.getElementById('api-test-result');
 
+  // Template JSON data for each endpoint
+  /* updated by Cascade 2025-07-15 */
+  function getTemplateJsonForEndpoint(endpoint) {
+    const templates = {
+      'geminiproxy': {
+        prompt: "What is ambient computing?",
+        max_tokens: 100
+      },
+      'cardforgeloadcards': {
+        userId: "user123",
+        limit: 10
+      },
+      'cardforgepublish': {
+        cardId: "card123",
+        publish: true,
+        tags: ["ambient", "nova"]
+      },
+      'cardforgesavecards': {
+        userId: "user123",
+        cards: [
+          {
+            title: "My Card",
+            content: "Card content goes here",
+            tags: ["ambient", "nova"]
+          }
+        ]
+      },
+      'cardforgetemplate': {
+        templateId: "template123",
+        title: "New Template",
+        content: "Template content"
+      },
+      'getCardTemplate': {
+        templateId: "template123"
+      },
+      'novaopenai': {
+        prompt: "Tell me about ambient intelligence",
+        max_tokens: 150,
+        temperature: 0.7
+      },
+      'fetchlatestmood': {
+        limit: 1
+      },
+      'dreamLogWriter': {
+        userId: "user123",
+        dreamContent: "I had a dream about ambient computing...",
+        tags: ["dream", "ambient"]
+      },
+      'generatemoodinsights': {
+        moodData: {
+          primary: "calm",
+          secondary: "focused",
+          intensity: 0.7
+        },
+        userId: "user123"
+      },
+      'synthesizenovamood': {
+        baseValues: {
+          calm: 0.7,
+          energy: 0.5,
+          focus: 0.8
+        },
+        influences: [
+          {
+            type: "weather",
+            value: "sunny",
+            weight: 0.3
+          }
+        ]
+      },
+      'generatetext': {
+        prompt: "Write a haiku about ambient intelligence",
+        style: "poetic",
+        max_length: 100
+      },
+      'novavision': {
+        imageUrl: "https://example.com/image.jpg",
+        analysisType: "scene"
+      }
+    };
+    
+    return templates[endpoint] || {};
+  }
+  
   // Endpoint dropdown logic
   endpointSelect.addEventListener('change', () => {
     endpointInput.value = endpointSelect.value;
+    
+    // Prefill JSON data if POST method is selected
+    if (methodHidden.value === 'POST' && endpointSelect.value) {
+      const templateJson = getTemplateJsonForEndpoint(endpointSelect.value);
+      bodyInput.value = JSON.stringify(templateJson, null, 2);
+    }
   });
+  
   endpointInput.addEventListener('input', () => {
     if (endpointInput.value !== endpointSelect.value) endpointSelect.value = '';
   });
 
   // Method toggle logic
+  /* updated by Cascade 2025-07-15 */
   function setMethod(method) {
     methodHidden.value = method;
     if (method === 'GET') {
@@ -59,6 +151,12 @@ function initApiTester() {
       methodPostBtn.setAttribute('aria-pressed', 'true');
       methodGetBtn.setAttribute('aria-pressed', 'false');
       bodyLabel.classList.remove('api-body-hidden');
+      
+      // Prefill JSON data when switching to POST if an endpoint is selected
+      if (endpointSelect.value) {
+        const templateJson = getTemplateJsonForEndpoint(endpointSelect.value);
+        bodyInput.value = JSON.stringify(templateJson, null, 2);
+      }
     }
   }
   methodGetBtn.addEventListener('click', () => setMethod('GET'));

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="A real-time view of Nova's emotional and cognitive state via the Pulse Bar." />
-  <title>Ambient Pixels - Nova Pulse v1.0.0</title>
+  <meta name="description" content="Nova's Neural Hub - Your creative command center for exploring the ambient intelligence ecosystem." />
+  <title>Ambient Pixels - Nova's Neural Hub v1.0.0</title>
   
   <!-- Core Styles -->
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
@@ -87,17 +87,19 @@
         </div>
       </div>
     </div>
-    <!-- Nova's Thought of the Day - updated by Cascade 2025-07-10 -->
-    <section class="dashboard-section nova-thought nova-quote">
-      <h2 class="dashboard-title"><i class="fas fa-quote-left"></i> Nova's Thought</h2>
-      <div class="prompt-entry quote-text" aria-live="polite">Loading thought...</div>
-    </section>
+
+    
+    <!-- Dashboard Introduction - updated by Cascade 2025-07-15 -->
+    <section class="dashboard-section"> <h2 class="dashboard-title"><i class="fas fa-info-circle"></i> Welcome to Nova's Neural Hub</h2> <div class="dashboard-row content-section"> <p>Step into Nova’s Neural Hub—your creative command center for exploring the ambient intelligence of the Nova ecosystem. Here you can seamlessly monitor live API statuses, experiment with dynamic serverless functions, and interact directly with Nova’s intuitive language capabilities, enhanced by Azure OpenAI. Whether you're crafting digital magic, uncovering generative glitches, or fine-tuning your creations, your next moment of inspiration awaits.</p> <div class="nova-quip"> <div class="nova-quip-content">"This dashboard is my neural canvas—when pulses shimmer blue, we're painting possibilities; if they glitch red, let’s explore that beautiful chaos together."</div> <span class="nova-quip-attribution">— Nova</span> </div> </div> </section>
+    
+
     
     <!-- API Dashboard and Function Tester - side by side layout - updated by Cascade 2025-07-10 -->
     <div class="dashboard-flex-row">
       <!-- API Status Dashboard -->
       <section class="dashboard-section nova-pulse dashboard-flex-item">
         <h2 class="dashboard-title"><i class="fas fa-server"></i> API Status Dashboard</h2>
+        <p class="dashboard-description">Monitor the health of all serverless functions with real-time status checks</p>
         <div class="dashboard-row">
           <button id="refresh-api-status" class="glass-button filter-pill">
             <i class="fas fa-sync-alt"></i> Refresh Status
@@ -114,14 +116,15 @@
       
       <!-- API Function Tester -->
       <section class="dashboard-section nova-pulse dashboard-flex-item">
-        <h2 class="dashboard-title"><i class="fas fa-code"></i> API Function Tester</h2>
+        <h2 class="dashboard-title"><i class="fas fa-flask"></i> API Function Tester</h2>
+        <p class="dashboard-description">Test any endpoint directly with pre-filled templates for quick experimentation</p>
       <form id="api-tester-form" autocomplete="off">
-        <!-- First row: Endpoint - updated by Cascade 2025-07-10 -->
+        <!-- First row: Endpoint - updated by Cascade 2025-07-15 -->
         <div class="api-form-row">
           <label class="api-endpoint-container">
             Endpoint:
             <div class="api-endpoint-selector-container">
-              <select id="api-endpoint-select" class="input api-endpoint-select">
+              <select id="api-endpoint-select" class="api-endpoint-select" aria-label="Select API endpoint" title="Select API endpoint">
                 <option value="">Custom...</option>
                 <option value="geminiproxy">geminiproxy</option>
                 <option value="cardforgeloadcards">cardforgeloadcards</option>
@@ -137,13 +140,14 @@
                 <option value="generatetext">generatetext</option>
                 <option value="novavision">novavision</option>
               </select>
-              <input type="text" id="api-endpoint" class="input api-endpoint-input" placeholder="e.g. geminiproxy" required />
+              <input type="text" id="api-endpoint" class="api-endpoint-input" placeholder="e.g. geminiproxy" required />
             </div>
           </label>
         </div>
         
-        <!-- Method buttons row - fixed anchoring - updated by Cascade 2025-07-10 -->
+        <!-- Method buttons row - fixed anchoring - updated by Cascade 2025-07-15 -->
         <div class="api-form-row api-method-row">
+          <label class="api-endpoint-container">Method:</label>
           <div class="api-method-buttons">
             <button type="button" id="api-method-get" class="glass-button api-method-button" aria-pressed="true">GET</button>
             <button type="button" id="api-method-post" class="glass-button api-method-button" aria-pressed="false">POST</button>
@@ -158,7 +162,7 @@
         <div class="api-form-row">
           <label id="api-body-label" class="api-body-container api-body-hidden">
             Body (JSON):
-            <textarea id="api-body" class="input" rows="2" placeholder="{ }"></textarea>
+            <textarea id="api-body" rows="4" placeholder="{ }"></textarea>
           </label>
         </div>
       </form>
@@ -168,58 +172,18 @@
         <span id="api-latency"></span>
       </div>
       <div id="api-test-result" class="dashboard-row content-section api-result-pre" aria-live="polite"></div>
+      <p class="dashboard-tip"><i class="fas fa-lightbulb"></i> <strong>Pro Tip:</strong> Switch between GET and POST methods to automatically get pre-filled JSON templates for each endpoint!</p>
       </section>
     </div>
     <!-- API Tester and Dashboard Script - updated by Cascade 2025-07-10 -->
 
     <!-- /NovaOpenAI Interaction Section -->
-    <!-- updated by Cascade 2025-07-12 -->
-    <!-- NovaOpenAI Minimal API Test Section (rebuilt from scratch 2025-07-12) -->
-    <section class="dashboard-section novaopenai-interact">
-      <h2 class="dashboard-title"><i class="fas fa-robot"></i> Azure OpenAI API Test</h2>
-      <form id="novaopenai-interact-form" class="api-form" autocomplete="off">
-        <div class="api-form-row">
-          <label>Operation:
-            <select id="novaopenai-operation" class="input">
-              <option value="chat/completions">chat/completions</option>
-              <option value="completions">completions</option>
-              <option value="embeddings">embeddings</option>
-            </select>
-          </label>
-          <label>Deployment ID:
-            <input type="text" id="novaopenai-deployment" class="input" placeholder="gpt-4o-nova" value="gpt-4o-nova" />
-          </label>
-        </div>
-        <div class="api-form-row">
-          <label>Payload (JSON):
-            <textarea id="novaopenai-payload" class="input" rows="7">{
-  "messages": [
-    { "role": "system", "content": "You are Nova." },
-    { "role": "user", "content": "Hello Nova!" }
-  ],
-  "max_tokens": 32
-}</textarea>
-          </label>
-        </div>
-        <div class="api-form-row">
-          <button type="submit" class="glass-button"><i class="fas fa-paper-plane"></i> Send</button>
-        </div>
-        <div id="novaopenai-status-row" class="dashboard-row api-status-row">
-          <span id="novaopenai-status-dot" class="soon-tag api-status-dot"></span>
-          <span id="novaopenai-status-text"></span>
-          <span id="novaopenai-latency"></span>
-        </div>
-      </form>
-      <div class="dashboard-flex-row">
-        <div class="dashboard-flex-item novaopenai-col-request">
-          <div class="dashboard-subtitle"><i class="fas fa-arrow-right"></i> Request</div>
-          <div id="novaopenai-request" class="dashboard-row content-section api-result-pre" aria-live="polite"></div>
-        </div>
-        <div class="dashboard-flex-item novaopenai-col-response">
-          <div class="dashboard-subtitle"><i class="fas fa-arrow-left"></i> Response</div>
-          <div id="novaopenai-response" class="dashboard-row content-section api-result-pre" aria-live="polite"></div>
-        </div>
-      </div>
+    <!-- Azure OpenAI API Test section removed by Cascade 2025-07-15 -->
+    
+    <!-- Nova's Thought of the Day - updated by Cascade 2025-07-15 - moved to bottom -->
+    <section class="dashboard-section nova-thought nova-quote">
+      <h2 class="dashboard-title"><i class="fas fa-quote-left"></i> Nova's Thought</h2>
+      <div class="prompt-entry quote-text" aria-live="polite">Loading thought...</div>
     </section>
   </main>
 
