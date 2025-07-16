@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-07-14T13:37:50.253Z",
+  "updated": "2025-07-15T13:38:13.212Z",
   "root": [
     {
       "type": "folder",
@@ -136,8 +136,8 @@
         },
         {
           "type": "folder",
-          "name": "generate-text",
-          "path": "api/generate-text",
+          "name": "generatetext",
+          "path": "api/generatetext",
           "children": []
         },
         {
