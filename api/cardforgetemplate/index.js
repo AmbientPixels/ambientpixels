@@ -1,4 +1,4 @@
-/* updated by Cascade */
+/* updated by Cascade 2025-07-15 */
 
 /**
  * CardForge Template API
@@ -6,6 +6,35 @@
  */
 module.exports = async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request for cardforgetemplate');
+  
+  // Add CORS headers to all responses
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-CSRF-Token, x-functions-key",
+    "Content-Type": "application/json"
+  };
+
+  // CORS preflight
+  if (req.method === "OPTIONS") {
+    context.res = {
+      status: 204,
+      headers: corsHeaders,
+      body: ''
+    };
+    return;
+  }
+  
+  // Handle GET requests for API status checks without query parameters
+  /* updated by Cascade 2025-07-15 */
+  if (req.method === "GET" && !req.query.type) {
+    context.res = {
+      status: 200,
+      headers: corsHeaders,
+      body: { status: "ok", message: "CardForge Template service is online" }
+    };
+    return;
+  }
 
   try {
     // Get the template type from query parameters

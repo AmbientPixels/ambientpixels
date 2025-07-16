@@ -24,8 +24,9 @@ The API Dashboard serves as both a development tool and a monitoring system for 
 | generatetext | ✅ Working | Generates and stores text in Azure Blob Storage | `{ "status": "ok", "message": "Generate Text service is online" }` |
 | novamemoryrecall | ⚠️ Placeholder | Placeholder that redirects to novavision | See novavision response |
 | cardforgesavecards | ✅ Working | Saves card data to the CardForge system | `{ "status": "ok", "message": "CardForge Save Cards service is online" }` |
-| novathoughtgeneration | 🚫 Not Working | Generates Nova's thoughts based on current context | *Thought object* |
-| novaimagesynthesis | 🚫 Not Working | Creates images based on Nova's current state | *Image URL or data* |
+| novaopenai | ✅ Working | Provides access to OpenAI API with authentication | *Requires API key* |
+| cardforgetemplate | ✅ Working | Returns card templates based on requested type | `{ "status": "ok", "message": "CardForge Template service is online" }` |
+| getCardTemplate | ✅ Working | Returns card templates for the CardForge system | `{ "status": "ok", "message": "Get Card Template service is online" }` |
 
 ## 🛠️ API Implementation Details
 

@@ -137,8 +137,9 @@ function initApiStatusDashboard() {
     'generatetext', // Updated by Cascade 2025-07-15: replaced fetchquoteoftheday with generatetext
     'novavision', // Updated by Cascade 2025-07-15: replaced novamemoryrecall with novavision
     'cardforgesavecards', // Updated by Cascade 2025-07-15: replaced novasentimentanalysis with cardforgesavecards
-    'novathoughtgeneration',
-    'novaimagesynthesis'
+    'novaopenai', // Updated by Cascade 2025-07-15: replaced novathoughtgeneration with novaopenai
+    'cardforgetemplate', // Updated by Cascade 2025-07-15: replaced novaimagesynthesis with cardforgetemplate
+    'getCardTemplate' // Added by Cascade 2025-07-15: new endpoint
   ];
   
   const apiStatusGrid = document.getElementById('api-status-grid');

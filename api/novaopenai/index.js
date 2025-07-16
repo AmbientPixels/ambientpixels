@@ -14,11 +14,25 @@ module.exports = async function (context, req) {
       status: 204,
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Max-Age': '86400',
       },
       body: ''
+    };
+    return;
+  }
+
+  // Handle GET requests for API status dashboard health checks
+  /* updated by Cascade 2025-07-15 */
+  if (req.method === 'GET') {
+    context.res = {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
+      },
+      body: { status: "ok", message: "Nova OpenAI service is online" }
     };
     return;
   }

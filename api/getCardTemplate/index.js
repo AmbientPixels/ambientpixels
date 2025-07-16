@@ -14,6 +14,26 @@ module.exports = async function (context, req) {
     };
     return;
   }
+  
+  // Add CORS headers to all responses
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, api-key',
+    'Content-Type': 'application/json'
+  };
+  
+  // Handle GET requests for API status checks without query parameters
+  /* updated by Cascade 2025-07-15 */
+  if (req.method === 'GET' && !req.query.type) {
+    context.res = {
+      status: 200,
+      headers: corsHeaders,
+      body: { status: "ok", message: "Get Card Template service is online" }
+    };
+    return;
+  }
+  
   context.log('JavaScript HTTP trigger function processed a request for card template.');
 
   try {

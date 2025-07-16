@@ -104,8 +104,11 @@
           </button>
           <span id="last-check-time" class="dashboard-label api-status-timestamp">Last check: Never</span>
         </div>
-        <div class="api-status-grid" id="api-status-grid">
-          <!-- API status cards will be dynamically inserted here -->
+        <div class="dashboard-section" id="api-status-section">
+          <h3>Azure Serverless Functions API Health Status Dashboard</h3>
+          <div class="api-status-grid" id="api-status-grid">
+            <!-- API status cards will be dynamically inserted here -->
+          </div>
         </div>
       </section>
       
@@ -124,6 +127,9 @@
                 <option value="cardforgeloadcards">cardforgeloadcards</option>
                 <option value="cardforgepublish">cardforgepublish</option>
                 <option value="cardforgesavecards">cardforgesavecards</option>
+                <option value="cardforgetemplate">cardforgetemplate</option>
+                <option value="getCardTemplate">getCardTemplate</option>
+                <option value="novaopenai">novaopenai</option>
                 <option value="fetchlatestmood">fetchlatestmood</option>
                 <option value="dreamlogwriter">dreamlogwriter</option>
                 <option value="generatemoodinsights">generatemoodinsights</option>
