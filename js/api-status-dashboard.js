@@ -134,7 +134,7 @@ function initApiStatusDashboard() {
     'dreamLogWriter', // Updated by Cascade 2025-07-15: using correct camelCase name
     'generatemoodinsights',
     'synthesizenovamood',
-    'fetchquoteoftheday',
+    'generatetext', // Updated by Cascade 2025-07-15: replaced fetchquoteoftheday with generatetext
     'novamemoryrecall',
     'novasentimentanalysis',
     'novathoughtgeneration',

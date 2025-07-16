@@ -2,15 +2,33 @@ const { BlobServiceClient } = require('@azure/storage-blob');
 const fs = require("fs");
 const path = require("path");
 
+/* updated by Cascade 2025-07-15 */
 module.exports = async function (context, req) {
+  // Add CORS headers to all responses
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Content-Type": "application/json"
+  };
+
+  // CORS preflight
   if (req.method === "OPTIONS") {
     context.res = {
       status: 204,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type"
-      }
+      headers: corsHeaders,
+      body: ''
+    };
+    return;
+  }
+  
+  // Handle GET requests for API status checks
+  /* updated by Cascade 2025-07-15 */
+  if (req.method === "GET") {
+    context.res = {
+      status: 200,
+      headers: corsHeaders,
+      body: { status: "ok", message: "Generate Text service is online" }
     };
     return;
   }

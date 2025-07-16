@@ -21,7 +21,7 @@ The API Dashboard serves as both a development tool and a monitoring system for 
 | dreamLogWriter | ✅ Working | Writes entries to Nova's dream log | `{ "status": "ok", "message": "Dream Log Writer service is online" }` |
 | generatemoodinsights | ✅ Working | Generates insights based on Nova's mood data | `{ "insights": ["Stable mood with balanced energy.", ...], "message": "Mood insights generated successfully." }` |
 | synthesizenovamood | ✅ Working | Creates a synthesized mood state for Nova | `{ "mood": "neutral", "timestamp": "2025-07-15T03:11:42.409Z", "githubStatus": "green", "confidence": 0.9, "insights": "Nova is feeling neutral. Stable mood with balanced energy." }` |
-| fetchquoteoftheday | ⚠️ Testing | Retrieves the current quote of the day | *Quote object* |
+| generatetext | ✅ Working | Generates and stores text in Azure Blob Storage | `{ "status": "ok", "message": "Generate Text service is online" }` |
 | novamemoryrecall | 🚫 Not Working | Recalls specific memories from Nova's memory system | *Memory object* |
 | novasentimentanalysis | 🚫 Not Working | Analyzes sentiment in text using Nova's perception | *Sentiment analysis object* |
 | novathoughtgeneration | 🚫 Not Working | Generates Nova's thoughts based on current context | *Thought object* |
