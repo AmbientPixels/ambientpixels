@@ -15,10 +15,10 @@ The API Dashboard serves as both a development tool and a monitoring system for 
 | API Endpoint | Status | Description | Response Example |
 |-------------|--------|-------------|-----------------|
 | fetchlatestmood | ✅ Working | Retrieves Nova's most recent mood state from Azure Blob Storage | `{ "mood": "neutral", "timestamp": "2025-07-15T03:09:00.705Z", "githubStatus": "green", "confidence": 0.9, "insights": "Nova is feeling neutral. Stable mood with balanced energy." }` |
-| geminiproxy | ✅ Working | Proxy for Google Gemini AI API interactions | *Varies based on prompt* |
+| geminiproxy | ✅ Working | Proxy for Google Gemini AI API interactions | `{ "status": "ok", "message": "Gemini Proxy service is online" }` |
 | cardforgeloadcards | ⚠️ Testing | Loads card data for the CardForge project | *JSON array of card objects* |
 | cardforgepublish | ✅ Working | Publishes card data to the CardForge system | `{ "status": "ok", "message": "CardForge publish service is online" }` |
-| dreamlogwriter | ⚠️ Testing | Writes entries to Nova's dream log | *Confirmation response* |
+| dreamLogWriter | ✅ Working | Writes entries to Nova's dream log | `{ "status": "ok", "message": "Dream Log Writer service is online" }` |
 | generatemoodinsights | ✅ Working | Generates insights based on Nova's mood data | `{ "insights": ["Stable mood with balanced energy.", ...], "message": "Mood insights generated successfully." }` |
 | synthesizenovamood | ✅ Working | Creates a synthesized mood state for Nova | `{ "mood": "neutral", "timestamp": "2025-07-15T03:11:42.409Z", "githubStatus": "green", "confidence": 0.9, "insights": "Nova is feeling neutral. Stable mood with balanced energy." }` |
 | fetchquoteoftheday | ⚠️ Testing | Retrieves the current quote of the day | *Quote object* |
