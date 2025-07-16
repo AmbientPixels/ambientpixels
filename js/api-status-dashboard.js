@@ -131,7 +131,7 @@ function initApiStatusDashboard() {
     'cardforgeloadcards',
     'cardforgepublish',
     'fetchlatestmood',
-    'dreamlogwriter',
+    'dreamLogWriter', // Updated by Cascade 2025-07-15: using correct camelCase name
     'generatemoodinsights',
     'synthesizenovamood',
     'fetchquoteoftheday',
@@ -189,7 +189,14 @@ function initApiStatusDashboard() {
       const timeoutMs = endpoint === 'cardforgeloadcards' ? 15000 : 5000;
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
       
-      const response = await fetch(`${PROD_API_BASE}${endpoint}`, { 
+      // Special handling for dreamLogWriter endpoint which uses camelCase in Azure
+      /* updated by Cascade 2025-07-15 */
+      let apiEndpoint = endpoint;
+      if (endpoint === 'dreamlogwriter') {
+        apiEndpoint = 'dreamLogWriter'; // Use camelCase for the actual API call
+      }
+      
+      const response = await fetch(`${PROD_API_BASE}${apiEndpoint}`, { 
         method: 'GET',
         signal: controller.signal,
         // Add cache control to prevent stale responses
