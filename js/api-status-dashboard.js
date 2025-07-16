@@ -157,7 +157,9 @@ function initApiStatusDashboard() {
       card.innerHTML = `
         <div class="api-status-header">
           <div class="api-status-name">${endpoint}</div>
-          <div class="api-status-indicator untested" id="indicator-${endpoint}"></div>
+          <div class="api-status-indicator untested" id="indicator-${endpoint}">
+            <i class="fas fa-bolt" aria-hidden="true"></i>
+          </div>
         </div>
         <div class="api-status-details">
           <div id="status-${endpoint}">Status: Untested</div>

@@ -513,19 +513,23 @@ body.pulse-page {
 }
 
 .api-status-indicator {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
 }
 
-.api-status-indicator.untested { background: #888; }
-.api-status-indicator.ok { background: #1ec773; }
-.api-status-indicator.fail { background: #f44; }
-.api-status-indicator.loading {
-  background: transparent;
-  border: 2px solid #3af;
-  border-top: 2px solid #fff;
+.api-status-indicator i {
+  font-size: 16px;
+}
+
+.api-status-indicator.untested i { color: #888; }
+.api-status-indicator.ok i { color: #1ec773; }
+.api-status-indicator.fail i { color: #f44; }
+.api-status-indicator.loading i {
+  color: #3af;
   animation: windsurf-spin 0.7s linear infinite;
 }
 
