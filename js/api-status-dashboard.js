@@ -136,7 +136,7 @@ function initApiStatusDashboard() {
     'synthesizenovamood',
     'generatetext', // Updated by Cascade 2025-07-15: replaced fetchquoteoftheday with generatetext
     'novavision', // Updated by Cascade 2025-07-15: replaced novamemoryrecall with novavision
-    'novasentimentanalysis',
+    'cardforgesavecards', // Updated by Cascade 2025-07-15: replaced novasentimentanalysis with cardforgesavecards
     'novathoughtgeneration',
     'novaimagesynthesis'
   ];

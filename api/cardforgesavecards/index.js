@@ -96,9 +96,39 @@ async function withRetry(operation, operationName, context, maxRetries = 3) {
   throw lastError;
 }
 
+/* updated by Cascade 2025-07-15 */
 module.exports = async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request for cardforgesavecards');
   context.log(`Request headers: ${JSON.stringify(req.headers)}`);
+
+  // Add CORS headers to all responses
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-CSRF-Token, x-functions-key",
+    "Content-Type": "application/json"
+  };
+
+  // CORS preflight
+  if (req.method === "OPTIONS") {
+    context.res = {
+      status: 204,
+      headers: corsHeaders,
+      body: ''
+    };
+    return;
+  }
+  
+  // Handle GET requests for API status checks
+  /* updated by Cascade 2025-07-15 */
+  if (req.method === "GET") {
+    context.res = {
+      status: 200,
+      headers: corsHeaders,
+      body: { status: "ok", message: "CardForge Save Cards service is online" }
+    };
+    return;
+  }
 
   try {
     // Check if the request has a body

@@ -23,7 +23,7 @@ The API Dashboard serves as both a development tool and a monitoring system for 
 | synthesizenovamood | ✅ Working | Creates a synthesized mood state for Nova | `{ "mood": "neutral", "timestamp": "2025-07-15T03:11:42.409Z", "githubStatus": "green", "confidence": 0.9, "insights": "Nova is feeling neutral. Stable mood with balanced energy." }` |
 | generatetext | ✅ Working | Generates and stores text in Azure Blob Storage | `{ "status": "ok", "message": "Generate Text service is online" }` |
 | novamemoryrecall | ⚠️ Placeholder | Placeholder that redirects to novavision | See novavision response |
-| novasentimentanalysis | 🚫 Not Working | Analyzes sentiment in text using Nova's perception | *Sentiment analysis object* |
+| cardforgesavecards | ✅ Working | Saves card data to the CardForge system | `{ "status": "ok", "message": "CardForge Save Cards service is online" }` |
 | novathoughtgeneration | 🚫 Not Working | Generates Nova's thoughts based on current context | *Thought object* |
 | novaimagesynthesis | 🚫 Not Working | Creates images based on Nova's current state | *Image URL or data* |
 
