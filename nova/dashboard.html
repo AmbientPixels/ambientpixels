@@ -231,7 +231,27 @@
       <section class="dashboard-section dashboard-flex-item">
         <h2 class="dashboard-title">🧼 Unused CSS Report</h2>
         <p id="unused-css-summary">Loading...</p>
-        <ul id="unused-css-list"></ul>
+        <div class="css-usage-visualization">
+          <canvas id="cssUsageChart" width="250" height="250"></canvas>
+          <div id="css-stats-container" class="css-stats-container">
+            <div class="css-stat-item">
+              <span class="stat-label">Total Classes</span>
+              <span id="total-css-classes" class="stat-value">-</span>
+            </div>
+            <div class="css-stat-item">
+              <span class="stat-label">Used</span>
+              <span id="used-css-classes" class="stat-value">-</span>
+            </div>
+            <div class="css-stat-item">
+              <span class="stat-label">Unused</span>
+              <span id="unused-css-classes" class="stat-value">-</span>
+            </div>
+          </div>
+        </div>
+        <div class="unused-classes-container">
+          <h3>Unused Classes</h3>
+          <ul id="unused-css-list" class="tag-cloud"></ul>
+        </div>
       </section>
     </div>
     

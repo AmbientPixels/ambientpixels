@@ -282,13 +282,83 @@ async function loadUnusedCSSReport() {
     const data = await res.json();
     const summary = document.getElementById('unused-css-summary');
     const list = document.getElementById('unused-css-list');
+    const totalClassesEl = document.getElementById('total-css-classes');
+    const usedClassesEl = document.getElementById('used-css-classes');
+    const unusedClassesEl = document.getElementById('unused-css-classes');
+    const chartCanvas = document.getElementById('cssUsageChart');
+    
     if (!summary || !list) return;
-
-    if (data.unusedClasses.length === 0) {
-      summary.textContent = `🎉 All ${data.totalUsed} CSS classes in ${data.cssFile} are used.`;
+    
+    // Calculate stats
+    const totalClasses = data.totalDefined;
+    const usedClasses = totalClasses - data.unusedClasses.length;
+    const unusedClasses = data.unusedClasses.length;
+    const usagePercentage = ((usedClasses / totalClasses) * 100).toFixed(1);
+    
+    // Update summary text
+    if (unusedClasses === 0) {
+      summary.textContent = `🎉 All ${totalClasses} CSS classes in ${data.cssFile} are used.`;
     } else {
-      summary.textContent = `Found ${data.unusedClasses.length} unused CSS classes in ${data.cssFile}:`;
-      list.innerHTML = data.unusedClasses.map(cls => `<li><code>${cls}</code></li>`).join('');
+      summary.textContent = `CSS usage analysis for ${data.cssFile} (${usagePercentage}% utilized)`;
+    }
+    
+    // Update stats display
+    if (totalClassesEl) totalClassesEl.textContent = totalClasses;
+    if (usedClassesEl) usedClassesEl.textContent = usedClasses;
+    if (unusedClassesEl) unusedClassesEl.textContent = unusedClasses;
+    
+    // Create tag cloud for unused classes
+    list.innerHTML = data.unusedClasses
+      .map(cls => `<li>${cls}</li>`)
+      .join('');
+    
+    // Create donut chart
+    if (chartCanvas && typeof Chart !== 'undefined') {
+      new Chart(chartCanvas.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Used Classes', 'Unused Classes'],
+          datasets: [{
+            data: [usedClasses, unusedClasses],
+            backgroundColor: [
+              'rgba(58, 242, 255, 0.7)',  // Nova blue/teal
+              'rgba(255, 107, 107, 0.7)'   // Red for unused
+            ],
+            borderColor: [
+              'rgba(58, 242, 255, 1)',
+              'rgba(255, 107, 107, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          cutout: '70%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: 'rgba(182, 201, 216, 0.9)',  // var(--aura-label)
+                font: {
+                  size: 12
+                }
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.raw || 0;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = ((value / total) * 100).toFixed(1);
+                  return `${label}: ${value} (${percentage}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
     }
   } catch (err) {
     console.error('⚠️ Failed to load unused CSS report:', err);

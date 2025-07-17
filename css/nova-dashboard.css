@@ -760,6 +760,74 @@ body.pulse-page {
   margin-bottom: 4px;
 }
 
+/* CSS Usage Visualization - added by Cascade 2025-07-16 */
+.css-usage-visualization {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 1rem 0;
+  background: var(--aura-panel-bg-alt, #2a2c4a);
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid var(--aura-glow, #3af2ff20);
+}
+
+.css-stats-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-left: 1rem;
+  flex: 1;
+}
+
+.css-stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: var(--aura-panel-bg, #1e1f36);
+  border-radius: 6px;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--aura-label, #b6c9d8);
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--aura-text-primary, #ffffff);
+}
+
+.unused-classes-container {
+  margin-top: 1rem;
+}
+
+.unused-classes-container h3 {
+  font-size: 1rem;
+  color: var(--aura-label, #b6c9d8);
+  margin-bottom: 0.75rem;
+}
+
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+}
+
+.tag-cloud li {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  background: var(--aura-panel-bg, #1e1f36);
+  border: 1px solid var(--aura-border, #3af2ff20);
+  color: var(--aura-text-secondary, #b6c9d8);
+}
+
 #total-images, #total-folders, #file-types, #common-type {
   font-size: 1rem;
   font-weight: 500;
