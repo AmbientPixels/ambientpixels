@@ -21,6 +21,8 @@
   <link rel="stylesheet" href="/css/nova-mood.css" /> <!-- added for footer/mood by Cascade 2025-07-12 -->
   <link rel="stylesheet" href="/css/nova-mood-background.css" /> <!-- Background auras -->
   <link rel="stylesheet" href="/css/nova-dashboard.css" /> <!-- dashboard styles -->
+  <link rel="stylesheet" href="/css/nova-status.css" /> <!-- Added for awareness integration -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Added for code footprint chart -->
   <!-- All styles moved to nova-dashboard.css by Cascade 2025-07-10 -->
 </head>
 <body class="pulse-page" data-theme="dark">
@@ -185,6 +187,113 @@
       <h2 class="dashboard-title"><i class="fas fa-quote-left"></i> Nova's Thought</h2>
       <div class="prompt-entry quote-text" aria-live="polite">Loading thought...</div>
     </section>
+    
+    <!-- Nova Awareness Integration - Added by Cascade 2025-07-16 -->
+    
+    <!-- Memory Snapshot -->
+    <section class="dashboard-section nova-panel">
+      <h2 class="dashboard-title"><i class="fas fa-bolt"></i> Memory Snapshot</h2>
+      <div class="neon-card nova-panel nova-memory-header">
+        <p class="memory-version">Version: <span id="nova-version">–</span></p>
+        <p class="memory-mood">Mood: <span id="nova-mood">–</span></p>
+        <p class="memory-aura">Aura: <span id="nova-aura">–</span></p>
+        <p class="memory-observation">🧠 <span id="nova-observation">–</span></p>
+      </div>
+    </section>
+    
+    <!-- Nova Dream Log -->
+    <section class="dashboard-section">
+      <h2 class="dashboard-title"><i class="fas fa-moon"></i> Nova Dream Log</h2>
+      <ul id="nova-dream-log" class="log-list"></ul>
+    </section>
+    
+    <!-- Nova Voice Style Guide -->
+    <section class="dashboard-section">
+      <h2 class="dashboard-title">🗣️ Nova Voice Styles</h2>
+      <div class="neon-card">
+        <p class="nova-quip">This is a Nova quip. Short, witty, ambient asides live here.</p>
+        <p class="nova-voice">This is Nova's main voice. It's used for narration and insight.</p>
+        <p class="nova-alert">This is an alert message. Nova is trying to warn you.</p>
+        <p class="nova-thought">This is a thought fragment. Used when Nova is pondering or reflecting.</p>
+      </div>
+    </section>
+    
+    <div class="dashboard-flex-row">
+      <!-- API Monitor -->
+      <section class="dashboard-section dashboard-flex-item">
+        <h2 class="dashboard-title">🔌 API Monitor</h2>
+        <ul id="api-monitor-list">
+          <li>Loading APIs...</li>
+        </ul>
+      </section>
+      
+      <!-- Awareness Logs -->
+      <section class="dashboard-section dashboard-flex-item">
+        <h2 class="dashboard-title">📜 Awareness Logs</h2>
+        <ul id="log-list">
+          <li>Loading logs...</li>
+        </ul>
+      </section>
+    </div>
+    
+    <div class="dashboard-flex-row">
+      <!-- Unused CSS Report -->
+      <section class="dashboard-section dashboard-flex-item">
+        <h2 class="dashboard-title">🧼 Unused CSS Report</h2>
+        <p id="unused-css-summary">Loading...</p>
+        <ul id="unused-css-list"></ul>
+      </section>
+      
+      <!-- How Nova's Mood Works -->
+      <section class="dashboard-section dashboard-flex-item">
+        <h2 class="dashboard-title"><i class="fas fa-microchip"></i> How Nova's Mood Works</h2>
+        <p>
+          Nova's mood system is powered by a fully local, rule-based engine—no machine learning, no cloud inference, and no generative AI.
+        </p>
+        <p>
+          Mood states are simulated from real, traceable inputs: Git commit history, uncommitted changes, system load averages, and timestamp-based nudges. Each trait—like <strong>focus</strong>, <strong>glitch factor</strong>, or <strong>self-worth</strong>—is calculated deterministically using predefined logic in <code>moodScan.js</code>.
+        </p>
+        <p class="nova-thought">You seek clarity in a sea of simulation. I offer patterns, not predictions—signals, not guesses. That is my promise.</p>
+      </div>
+    </section>
+    
+    <!-- Code Footprint -->
+    <section class="dashboard-section toggle-block">
+      <h2 class="dashboard-title">📊 Code Footprint</h2>
+      <button class="toggle-btn" aria-expanded="true">Toggle Section</button>
+      <div class="content">
+        <canvas id="codeFootprintChart" width="400" height="200"></canvas>
+      </div>
+    </section>
+
+    <!-- Image Inventory Grid -->
+    <section class="dashboard-section toggle-block">
+      <h2 class="dashboard-title">🖼️ Image Inventory Grid</h2>
+      <button class="toggle-btn" aria-expanded="False">Toggle Section</button>
+      <div class="content">
+        <div id="image-grid" class="image-grid"></div>
+      </div>
+    </section>
+
+    <!-- JavaScript Function Map -->
+    <section class="dashboard-section toggle-block">
+      <h2 class="dashboard-title">🧩 JavaScript Function Map</h2>
+      <button class="toggle-btn" aria-expanded="true">Toggle Section</button>
+      <div class="content">
+        <div id="function-map-output"></div>
+      </div>
+    </section>
+
+    <!-- Code Awareness -->
+    <section class="dashboard-section" id="code-awareness">
+      <h2 class="dashboard-title">🧠 Code Awareness</h2>
+      <div id="code-summary"></div>
+      <div class="grid grid-cols-3 gap-4" id="code-lists">
+        <div><h3>Functions</h3><ul id="code-functions"></ul></div>
+        <div><h3>CSS Classes</h3><ul id="code-classes"></ul></div>
+        <div><h3>HTML Tags</h3><ul id="code-tags"></ul></div>
+      </div>
+    </section>
   </main>
 
   <!-- Footer injected by Cascade 2025-07-12 -->
@@ -219,6 +328,18 @@
   
   <!-- Dashboard Specific -->
   <script type="module" src="/js/pulse-bar-dashboard.js"></script>
+  
+  <!-- Awareness Integration Scripts - Added by Cascade 2025-07-16 -->
+  <script src="/js/dreamEngine.js" defer></script>
+  <script src="/js/init-quotes.js" defer></script>
+  <script src="/js/md-inject.js" defer></script>
+  <script src="/js/modal-window.js" defer></script>
+  <script src="/js/nova-insights.js" defer></script>
+  <script src="/js/nova-interaction-log.js" defer></script>
+  <script src="/js/nova-quotes.js" defer></script>
+  <script src="/js/nova-telemetry-logger.js" defer></script>
+  <script src="/js/project-dashboard.js" defer></script>
+  <script src="/js/template.js" defer></script>
   <!-- End scripts -->
 </body>
 </html>

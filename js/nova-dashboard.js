@@ -67,19 +67,53 @@ async function renderCodeFootprintChart() {
     if (!ctx) return;
     const chartCtx = ctx.getContext('2d');
 
+    // Create more visually distinct colors for the pie chart
+    const colorPalette = [
+      'rgba(71, 158, 245, 0.8)',  // Blue for HTML
+      'rgba(255, 200, 16, 0.8)',   // Yellow for JS
+      'rgba(84, 176, 84, 0.8)'     // Green for CSS
+    ];
+
+    // Get file extensions and their line counts
+    const labels = Object.keys(data.summary);
+    const lineData = Object.values(data.summary).map(val => val.lines);
+    
+    // Create a pie chart instead of a bar chart
     new Chart(chartCtx, {
-      type: 'bar',
+      type: 'pie',
       data: {
-        labels: Object.keys(data.summary),
+        labels: labels.map(ext => `${ext} (${((data.summary[ext].lines / data.totalLines) * 100).toFixed(1)}%)`),
         datasets: [{
-          label: 'Lines of Code',
-          data: Object.values(data.summary).map(val => val.lines),
-          backgroundColor: ['#479ef5', '#ffc810', '#54b054']
+          data: lineData,
+          backgroundColor: colorPalette,
+          borderColor: colorPalette.map(color => color.replace('0.8', '1')),
+          borderWidth: 1
         }]
       },
       options: {
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, ticks: { stepSize: 100 } } }
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              color: '#ccc',
+              font: {
+                family: 'Inter, sans-serif'
+              }
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.raw || 0;
+                const total = context.chart.getDatasetMeta(0).total;
+                const percentage = ((value / total) * 100).toFixed(1);
+                return `${label.split(' ')[0]}: ${value.toLocaleString()} lines (${percentage}%)`;
+              }
+            }
+          }
+        }
       }
     });
   } catch (err) {
