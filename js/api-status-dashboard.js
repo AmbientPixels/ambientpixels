@@ -237,8 +237,14 @@ function initApiStatusDashboard() {
     'cardforgesavecards', // Updated by Cascade 2025-07-15: replaced novasentimentanalysis with cardforgesavecards
     'novaopenai', // Updated by Cascade 2025-07-15: replaced novathoughtgeneration with novaopenai
     'cardforgetemplate', // Updated by Cascade 2025-07-15: replaced novaimagesynthesis with cardforgetemplate
-    'getCardTemplate' // Added by Cascade 2025-07-15: new endpoint
+    'getCardTemplate', // Added by Cascade 2025-07-15: new endpoint
+    'huggingface' // Added by Cascade 2025-07-16: HuggingFace API
   ];
+  
+  // External API endpoints that don't use the PROD_API_BASE
+  const externalApiEndpoints = {
+    'huggingface': 'https://api-inference.huggingface.co/models/bert-base-uncased'
+  };
   
   const apiStatusGrid = document.getElementById('api-status-grid');
   const refreshButton = document.getElementById('refresh-api-status');
@@ -297,7 +303,10 @@ function initApiStatusDashboard() {
         apiEndpoint = 'dreamLogWriter'; // Use camelCase for the actual API call
       }
       
-      const response = await fetch(`${PROD_API_BASE}${apiEndpoint}`, { 
+      // Determine the API URL - use external URL if defined, otherwise use PROD_API_BASE
+      const apiUrl = externalApiEndpoints[endpoint] || `${PROD_API_BASE}${apiEndpoint}`;
+      
+      const response = await fetch(apiUrl, { 
         method: 'GET',
         signal: controller.signal,
         // Add cache control to prevent stale responses
