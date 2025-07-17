@@ -163,25 +163,116 @@ async function loadPromptHistory() {
 
 async function loadImageInventoryGrid() {
   const gridContainer = document.getElementById('image-grid');
-  if (!gridContainer) return;
-
+  const prevButton = document.getElementById('prev-page');
+  const nextButton = document.getElementById('next-page');
+  const pageIndicator = document.getElementById('page-indicator');
+  
+  // Image stats elements
+  const totalImagesEl = document.getElementById('total-images');
+  const totalFoldersEl = document.getElementById('total-folders');
+  const fileTypesEl = document.getElementById('file-types');
+  const commonTypeEl = document.getElementById('common-type');
+  
+  if (!gridContainer || !prevButton || !nextButton || !pageIndicator) return;
+  
+  // Pagination state
+  const state = {
+    images: [],
+    currentPage: 0,
+    imagesPerPage: 12,
+    totalPages: 1
+  };
+  
   try {
     const res = await fetch('/data/image-inventory.json?t=' + Date.now());
     const data = await res.json();
+    
+    // Flatten all images from all folders into a single array
     data.folders.forEach(folder => {
       folder.files.forEach(filePath => {
-        const fileName = filePath.split('/').pop();
-        const tile = document.createElement('div');
-        tile.className = 'image-tile unused';
-        tile.innerHTML = `
-          <img src="/${filePath}" alt="${fileName}" loading="lazy">
-          <div class="image-caption">${fileName}</div>
-        `;
-        gridContainer.appendChild(tile);
+        state.images.push({
+          path: filePath,
+          name: filePath.split('/').pop(),
+          folder: folder.folder
+        });
       });
     });
+    
+    // Calculate total pages
+    state.totalPages = Math.ceil(state.images.length / state.imagesPerPage);
+    updatePageIndicator();
+    
+    // Initial render
+    renderCurrentPage();
+    
+    // Set up event listeners for pagination
+    prevButton.addEventListener('click', () => {
+      if (state.currentPage > 0) {
+        state.currentPage--;
+        renderCurrentPage();
+        updatePageIndicator();
+        updateButtonStates();
+      }
+    });
+    
+    nextButton.addEventListener('click', () => {
+      if (state.currentPage < state.totalPages - 1) {
+        state.currentPage++;
+        renderCurrentPage();
+        updatePageIndicator();
+        updateButtonStates();
+      }
+    });
+    
+    // Initial button state
+    updateButtonStates();
+    
+    // Update image statistics
+    updateImageStats(data);
+    
   } catch (err) {
     console.error('⚠️ Failed to load image inventory:', err);
+    gridContainer.innerHTML = '<div class="error-message">Failed to load image inventory</div>';
+    
+    // Show error in stats
+    if (totalImagesEl) totalImagesEl.textContent = 'Error';
+    if (totalFoldersEl) totalFoldersEl.textContent = 'Error';
+    if (fileTypesEl) fileTypesEl.textContent = 'Error';
+    if (commonTypeEl) commonTypeEl.textContent = 'Error';
+  }
+  
+  // Helper functions
+  function renderCurrentPage() {
+    gridContainer.innerHTML = '';
+    
+    const start = state.currentPage * state.imagesPerPage;
+    const end = Math.min(start + state.imagesPerPage, state.images.length);
+    
+    const pageImages = state.images.slice(start, end);
+    
+    if (pageImages.length === 0) {
+      gridContainer.innerHTML = '<div class="empty-message">No images to display</div>';
+      return;
+    }
+    
+    pageImages.forEach(image => {
+      const tile = document.createElement('div');
+      tile.className = 'image-tile';
+      tile.innerHTML = `
+        <img src="/${image.path}" alt="${image.name}" loading="lazy">
+        <div class="image-caption">${image.name}</div>
+      `;
+      gridContainer.appendChild(tile);
+    });
+  }
+  
+  function updatePageIndicator() {
+    pageIndicator.textContent = `Page ${state.currentPage + 1} of ${state.totalPages}`;
+  }
+  
+  function updateButtonStates() {
+    prevButton.disabled = state.currentPage === 0;
+    nextButton.disabled = state.currentPage >= state.totalPages - 1;
   }
 }
 
@@ -261,4 +352,50 @@ function renderList(id, items) {
     li.textContent = item;
     el.appendChild(li);
   });
+}
+
+// Added by Cascade 2025-07-16
+function updateImageStats(data) {
+  const totalImagesEl = document.getElementById('total-images');
+  const totalFoldersEl = document.getElementById('total-folders');
+  const fileTypesEl = document.getElementById('file-types');
+  const commonTypeEl = document.getElementById('common-type');
+  
+  if (!totalImagesEl || !totalFoldersEl || !fileTypesEl || !commonTypeEl) return;
+  
+  // Use totalImages from JSON if available, otherwise calculate from folders
+  let totalImages = data.totalImages;
+  if (!totalImages) {
+    totalImages = 0;
+    data.folders.forEach(folder => {
+      // Use the count property provided in the JSON
+      totalImages += folder.count;
+    });
+  }
+  
+  // Count file types
+  const fileTypes = {};
+  data.folders.forEach(folder => {
+    folder.files.forEach(filePath => {
+      const extension = filePath.split('.').pop().toLowerCase();
+      fileTypes[extension] = (fileTypes[extension] || 0) + 1;
+    });
+  });
+  
+  // Find most common type
+  let mostCommonType = '';
+  let mostCommonCount = 0;
+  
+  Object.entries(fileTypes).forEach(([type, count]) => {
+    if (count > mostCommonCount) {
+      mostCommonType = type;
+      mostCommonCount = count;
+    }
+  });
+  
+  // Update stats display with accurate counts
+  totalImagesEl.textContent = totalImages;
+  totalFoldersEl.textContent = data.folders.length;
+  fileTypesEl.textContent = Object.keys(fileTypes).join(', ');
+  commonTypeEl.textContent = `${mostCommonType} (${mostCommonCount})`;
 }

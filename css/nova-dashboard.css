@@ -724,6 +724,158 @@ body.pulse-page {
   align-self: center;
 }
 
+/* Image Inventory Grid - added by Cascade 2025-07-16 */
+.image-grid-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Image Stats Dashboard - added by Cascade 2025-07-16 */
+.image-stats-dashboard {
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--aura-panel-bg-alt, #2a2c4a);
+  border: 1px solid var(--aura-glow, #3af2ff20);
+}
+
+.dashboard-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.dashboard-stat {
+  padding: 10px;
+  border-radius: 6px;
+  background: var(--aura-panel-bg, #1e1f36);
+  text-align: center;
+}
+
+.dashboard-label {
+  font-size: 0.8rem;
+  color: var(--aura-label, #b6c9d8);
+  margin-bottom: 4px;
+}
+
+#total-images, #total-folders, #file-types, #common-type {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--aura-text, #eaf6ff);
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+
+.image-tile {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  aspect-ratio: 1/1;
+  background: var(--aura-panel-bg-alt, #2a2c4a);
+}
+
+.image-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.image-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.2s ease;
+}
+
+.image-tile:hover .image-caption {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.image-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  color: var(--aura-text, #eaf6ff);
+  padding: 6px;
+  font-size: 0.8rem;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Pagination Controls - added by Cascade 2025-07-16 */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+  padding: 8px 0;
+}
+
+.pagination-controls .nova-btn {
+  background: var(--aura-panel-bg-alt, #2a2c4a);
+  color: var(--aura-text, #eaf6ff);
+  border: 1px solid var(--aura-glow, #3af2ff20);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pagination-controls .nova-btn:hover:not(:disabled) {
+  background: var(--aura-panel-highlight, #343760);
+  border-color: var(--aura-glow, #3af2ff40);
+}
+
+.pagination-controls .nova-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#page-indicator {
+  color: var(--aura-label, #b6c9d8);
+  font-size: 0.9rem;
+}
+
+/* Error and empty state messages - added by Cascade 2025-07-16 */
+.error-message, .empty-message {
+  width: 100%;
+  padding: 16px;
+  text-align: center;
+  color: var(--aura-text, #eaf6ff);
+  background: var(--aura-panel-bg-alt, #2a2c4a);
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.error-message {
+  border-left: 3px solid var(--mood-error, #ff5252);
+}
+
+.empty-message {
+  border-left: 3px solid var(--mood-secondary, #a0f0ff);
+}
+
 /* Sticky Pulse Bar (Mood Bar) — can be .sticky-top or .sticky-bottom */
 .sticky-top {
   position: sticky;

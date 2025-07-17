@@ -247,11 +247,36 @@
     </section>
 
     <!-- Image Inventory Grid -->
-    <section class="dashboard-section toggle-block">
+    <section class="dashboard-section">
       <h2 class="dashboard-title">🖼️ Image Inventory Grid</h2>
-      <button class="toggle-btn" aria-expanded="False">Toggle Section</button>
-      <div class="content">
+      <!-- Image Stats Dashboard -->
+      <div class="image-stats-dashboard">
+        <div class="dashboard-row">
+          <div class="dashboard-stat">
+            <div class="dashboard-label">Total Images</div>
+            <div id="total-images">Loading...</div>
+          </div>
+          <div class="dashboard-stat">
+            <div class="dashboard-label">Folders</div>
+            <div id="total-folders">Loading...</div>
+          </div>
+          <div class="dashboard-stat">
+            <div class="dashboard-label">File Types</div>
+            <div id="file-types">Loading...</div>
+          </div>
+          <div class="dashboard-stat">
+            <div class="dashboard-label">Most Common Type</div>
+            <div id="common-type">Loading...</div>
+          </div>
+        </div>
+      </div>
+      <div class="image-grid-container">
         <div id="image-grid" class="image-grid"></div>
+        <div class="pagination-controls">
+          <button id="prev-page" class="nova-btn" disabled><i class="fas fa-chevron-left"></i> Previous</button>
+          <span id="page-indicator">Page 1 of 1</span>
+          <button id="next-page" class="nova-btn">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
       </div>
     </section>
 
