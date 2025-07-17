@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadUnusedCSSReport();
   loadApiMonitor();
   loadCodeMap();
+  loadCodeAuditReport(); // Added by Cascade 2025-07-16
 });
 
 async function loadVersionAndMood() {
@@ -595,6 +596,172 @@ function createCodeCategory(title, items, countId) {
   
   block.appendChild(header);
   block.appendChild(tagCloud);
+  return block;
+}
+
+// Code Audit Report - Added by Cascade 2025-07-16
+async function loadCodeAuditReport() {
+  try {
+    const res = await fetch('/data/code-map.json?t=' + Date.now());
+    const data = await res.json();
+    const container = document.getElementById('code-audit-container');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    // Find duplicates in functions and CSS classes
+    const duplicateFunctions = findDuplicates(data.functions);
+    const duplicateClasses = findDuplicates(data.cssClasses);
+    
+    // Create stats cards
+    const statsContainer = document.createElement('div');
+    statsContainer.className = 'function-map-stats';
+    statsContainer.innerHTML = `
+      <div class="dashboard-stat">
+        <div class="dashboard-label">Duplicate Functions</div>
+        <div class="dashboard-value">${Object.keys(duplicateFunctions).length}</div>
+        <div class="dashboard-subtext">unique names</div>
+      </div>
+      <div class="dashboard-stat">
+        <div class="dashboard-label">Function Instances</div>
+        <div class="dashboard-value">${Object.values(duplicateFunctions).reduce((sum, count) => sum + count, 0)}</div>
+        <div class="dashboard-subtext">total duplicates</div>
+      </div>
+      <div class="dashboard-stat">
+        <div class="dashboard-label">Duplicate Classes</div>
+        <div class="dashboard-value">${Object.keys(duplicateClasses).length}</div>
+        <div class="dashboard-subtext">unique names</div>
+      </div>
+      <div class="dashboard-stat">
+        <div class="dashboard-label">Class Instances</div>
+        <div class="dashboard-value">${Object.values(duplicateClasses).reduce((sum, count) => sum + count, 0)}</div>
+        <div class="dashboard-subtext">total duplicates</div>
+      </div>
+    `;
+    container.appendChild(statsContainer);
+    
+    // Create filter input
+    const filterContainer = document.createElement('div');
+    filterContainer.className = 'function-map-filter';
+    filterContainer.innerHTML = `
+      <input type="text" id="audit-filter" placeholder="Filter duplicates..." class="filter-input">
+    `;
+    container.appendChild(filterContainer);
+    
+    // Create accordion for audit categories
+    const accordion = document.createElement('div');
+    accordion.className = 'function-map-accordion';
+    container.appendChild(accordion);
+    
+    // Create duplicate functions section
+    const functionsBlock = createDuplicateCategory('Duplicate Functions', duplicateFunctions);
+    accordion.appendChild(functionsBlock);
+    
+    // Create duplicate classes section
+    const classesBlock = createDuplicateCategory('Duplicate CSS Classes', duplicateClasses);
+    accordion.appendChild(classesBlock);
+    
+    // Add filter functionality
+    const filterInput = document.getElementById('audit-filter');
+    if (filterInput) {
+      filterInput.addEventListener('input', (e) => {
+        const value = e.target.value.toLowerCase();
+        document.querySelectorAll('.duplicate-item').forEach(item => {
+          const matches = item.querySelector('.duplicate-name').textContent.toLowerCase().includes(value);
+          item.style.display = matches || value === '' ? 'flex' : 'none';
+        });
+        
+        document.querySelectorAll('.audit-category').forEach(block => {
+          const visibleItems = block.querySelectorAll('.duplicate-item[style="display: flex"]').length;
+          if (visibleItems > 0 || value === '') {
+            block.style.display = 'block';
+            block.classList.add('expanded');
+          } else {
+            block.style.display = 'block';
+            block.classList.remove('expanded');
+          }
+        });
+      });
+    }
+  } catch (err) {
+    console.error('⚠️ Failed to load code audit report:', err);
+    const container = document.getElementById('code-audit-container');
+    if (container) container.innerHTML = '<div class="error-message">⚠️ Could not load code audit data.</div>';
+  }
+}
+
+// Helper function to find duplicates in an array - Added by Cascade 2025-07-16
+function findDuplicates(items) {
+  const counts = {};
+  const duplicates = {};
+  
+  // Count occurrences of each item
+  items.forEach(item => {
+    counts[item] = (counts[item] || 0) + 1;
+  });
+  
+  // Filter only items that appear more than once
+  Object.entries(counts).forEach(([item, count]) => {
+    if (count > 1) {
+      duplicates[item] = count;
+    }
+  });
+  
+  return duplicates;
+}
+
+// Helper function to create duplicate category blocks - Added by Cascade 2025-07-16
+function createDuplicateCategory(title, duplicates) {
+  const block = document.createElement('div');
+  block.className = 'audit-category';
+  
+  const header = document.createElement('div');
+  header.className = 'code-header';
+  header.innerHTML = `
+    <h3>${title}</h3>
+    <span class="code-count">${Object.keys(duplicates).length}</span>
+  `;
+  header.addEventListener('click', () => {
+    block.classList.toggle('expanded');
+  });
+  
+  const duplicatesList = document.createElement('div');
+  duplicatesList.className = 'duplicates-list';
+  
+  // Sort duplicates by count (highest first)
+  const sortedDuplicates = Object.entries(duplicates)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 100); // Limit to 100 items for performance
+  
+  sortedDuplicates.forEach(([name, count]) => {
+    const item = document.createElement('div');
+    item.className = 'duplicate-item';
+    
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'duplicate-name';
+    nameSpan.textContent = name;
+    
+    // Use existing tag styles from the codebase
+    const countBadge = document.createElement('span');
+    // Use updated-tag for CSS classes and soon-tag for functions
+    countBadge.className = title.includes('CSS') ? 'updated-tag' : 'soon-tag';
+    countBadge.textContent = count;
+    countBadge.style.margin = '0'; // Remove margin to fit with our layout
+    
+    item.appendChild(nameSpan);
+    item.appendChild(countBadge);
+    duplicatesList.appendChild(item);
+  });
+  
+  // Add a count indicator if there are more items
+  if (Object.keys(duplicates).length > 100) {
+    const more = document.createElement('div');
+    more.className = 'more-duplicates';
+    more.textContent = `+${Object.keys(duplicates).length - 100} more duplicates not shown`;
+    duplicatesList.appendChild(more);
+  }
+  
+  block.appendChild(header);
+  block.appendChild(duplicatesList);
   return block;
 }
 
