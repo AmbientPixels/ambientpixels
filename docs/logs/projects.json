@@ -1,14 +1,26 @@
 [
   {
+    "id": "nova-dashboard-expansion",
+    "size": "L",
+    "title": "Nova Dashboard Expansion",
+    "html": "",
+    "md": "/docs/logs/nova-dashboard-expansion.md",
+    "status": "New",
+    "lastUpdated": "2025-07-16",
+    "tags": ["dashboard", "nova", "visualization", "charts", "monitoring", "ambient"],
+    "progress": 0.25,
+    "description": "Enhanced visualization components for Nova's dashboard including API response time charts, health score timelines, and content distribution analytics."
+  },
+  {
     "id": "project-nova-nexus-api",
     "size": "M",
     "title": "Nova Nexus API Dashboard",
     "html": "",
     "md": "/docs/logs/project-nova-nexus-api.md",
-    "status": "New",
-    "lastUpdated": "2025-07-14",
+    "status": "Completed",
+    "lastUpdated": "2025-07-16",
     "tags": ["api", "nova", "dashboard", "integration", "azure", "endpoints"],
-    "progress": 0.15,
+    "progress": 1.0,
     "description": "API integration layer for Nova's dynamic presence, providing a dashboard for monitoring, testing, and documenting Nova's growing API ecosystem."
   },
   {
