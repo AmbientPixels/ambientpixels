@@ -121,6 +121,7 @@ async function renderCodeFootprintChart() {
   }
 }
 
+// Updated by Cascade 2025-07-16
 async function loadFunctionMap() {
   try {
     const res = await fetch('/data/js-function-map.json?t=' + Date.now());
@@ -128,18 +129,89 @@ async function loadFunctionMap() {
     const container = document.getElementById('function-map-output');
     if (!container) return;
     container.innerHTML = '';
-
+    
+    // Create summary stats
+    const totalScripts = Object.keys(data.scripts).length;
+    const totalFunctions = Object.values(data.scripts).reduce((sum, fns) => sum + fns.length, 0);
+    
+    // Create stats cards
+    const statsContainer = document.createElement('div');
+    statsContainer.className = 'function-map-stats';
+    statsContainer.innerHTML = `
+      <div class="dashboard-stat">
+        <div class="dashboard-label">Total Scripts</div>
+        <div class="dashboard-value">${totalScripts}</div>
+      </div>
+      <div class="dashboard-stat">
+        <div class="dashboard-label">Total Functions</div>
+        <div class="dashboard-value">${totalFunctions}</div>
+      </div>
+      <div class="dashboard-stat">
+        <div class="dashboard-label">Last Updated</div>
+        <div class="dashboard-value">${new Date(data.scannedAt).toLocaleDateString()}</div>
+      </div>
+    `;
+    container.appendChild(statsContainer);
+    
+    // Create filter input
+    const filterContainer = document.createElement('div');
+    filterContainer.className = 'function-map-filter';
+    filterContainer.innerHTML = `
+      <input type="text" id="function-filter" placeholder="Filter functions..." class="filter-input">
+    `;
+    container.appendChild(filterContainer);
+    
+    // Create accordion for script files
+    const accordion = document.createElement('div');
+    accordion.className = 'function-map-accordion';
+    container.appendChild(accordion);
+    
+    // Add script blocks to accordion
     Object.entries(data.scripts).forEach(([file, functions]) => {
       const block = document.createElement('div');
       block.className = 'script-block';
-      block.innerHTML = `
+      
+      const header = document.createElement('div');
+      header.className = 'script-header';
+      header.innerHTML = `
         <h3>${file}</h3>
-        <ul>${functions.map(fn => `<li>${fn}()</li>`).join('')}</ul>
+        <span class="function-count">${functions.length}</span>
       `;
-      container.appendChild(block);
+      header.addEventListener('click', () => {
+        block.classList.toggle('expanded');
+      });
+      
+      const functionTags = document.createElement('div');
+      functionTags.className = 'function-tags';
+      functionTags.innerHTML = functions.map(fn => 
+        `<span class="function-tag">${fn}</span>`
+      ).join('');
+      
+      block.appendChild(header);
+      block.appendChild(functionTags);
+      accordion.appendChild(block);
     });
+    
+    // Add filter functionality
+    const filterInput = document.getElementById('function-filter');
+    if (filterInput) {
+      filterInput.addEventListener('input', (e) => {
+        const value = e.target.value.toLowerCase();
+        document.querySelectorAll('.function-tag').forEach(tag => {
+          const matches = tag.textContent.toLowerCase().includes(value);
+          tag.style.display = matches || value === '' ? 'inline-block' : 'none';
+        });
+        
+        document.querySelectorAll('.script-block').forEach(block => {
+          const visibleTags = block.querySelectorAll('.function-tag[style="display: inline-block"]').length;
+          block.style.display = visibleTags > 0 || value === '' ? 'block' : 'none';
+        });
+      });
+    }
   } catch (err) {
     console.error('⚠️ Failed to load function map:', err);
+    const container = document.getElementById('function-map-output');
+    if (container) container.innerHTML = '<div class="error-message">⚠️ Could not load function map data.</div>';
   }
 }
 
@@ -391,25 +463,176 @@ async function loadApiMonitor() {
   }
 }
 
+// Updated by Cascade 2025-07-16
 async function loadCodeMap() {
   try {
     const res = await fetch('/data/code-map.json?t=' + Date.now());
     const data = await res.json();
-    const summaryEl = document.getElementById('code-summary');
-    if (!summaryEl) return;
-
-    summaryEl.innerHTML = `
-      <p><strong>Total JS:</strong> ${data.summary.totalJS}</p>
-      <p><strong>Total CSS:</strong> ${data.summary.totalCSS}</p>
-      <p><strong>Total HTML:</strong> ${data.summary.totalHTML}</p>
-      <p><strong>Last Updated:</strong> ${new Date(data.timestamp).toLocaleString()}</p>
+    const container = document.getElementById('code-summary');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    // Create summary stats - use actual array lengths instead of summary values
+    const totalJS = data.functions.length;
+    const totalCSS = data.cssClasses.length;
+    const totalHTML = data.htmlTags.length;
+    const totalItems = totalJS + totalCSS + totalHTML;
+    
+    // Create stats cards
+    const statsContainer = document.createElement('div');
+    statsContainer.className = 'function-map-stats';
+    statsContainer.innerHTML = `
+      <div class="dashboard-stat">
+        <div class="dashboard-label">JavaScript</div>
+        <div class="dashboard-value">${totalJS}</div>
+        <div class="dashboard-subtext">functions</div>
+      </div>
+      <div class="dashboard-stat">
+        <div class="dashboard-label">CSS</div>
+        <div class="dashboard-value">${totalCSS}</div>
+        <div class="dashboard-subtext">classes</div>
+      </div>
+      <div class="dashboard-stat">
+        <div class="dashboard-label">HTML</div>
+        <div class="dashboard-value">${totalHTML}</div>
+        <div class="dashboard-subtext">tags</div>
+      </div>
+      <div class="dashboard-stat">
+        <div class="dashboard-label">Last Updated</div>
+        <div class="dashboard-value">${new Date(data.timestamp).toLocaleDateString()}</div>
+        <div class="dashboard-subtext">${new Date(data.timestamp).toLocaleTimeString()}</div>
+      </div>
     `;
-
-    renderList('code-functions', data.functions);
-    renderList('code-classes', data.cssClasses);
-    renderList('code-tags', data.htmlTags);
+    container.appendChild(statsContainer);
+    
+    // Create filter input
+    const filterContainer = document.createElement('div');
+    filterContainer.className = 'function-map-filter';
+    filterContainer.innerHTML = `
+      <input type="text" id="code-filter" placeholder="Filter code elements..." class="filter-input">
+    `;
+    container.appendChild(filterContainer);
+    
+    // Create accordion for code categories
+    const accordion = document.createElement('div');
+    accordion.className = 'function-map-accordion';
+    container.appendChild(accordion);
+    
+    // Create function category
+    const functionBlock = createCodeCategory('Functions', data.functions, 'function-count');
+    accordion.appendChild(functionBlock);
+    
+    // Create CSS classes category
+    const cssBlock = createCodeCategory('CSS Classes', data.cssClasses, 'css-count');
+    accordion.appendChild(cssBlock);
+    
+    // Create HTML tags category
+    const htmlBlock = createCodeCategory('HTML Tags', data.htmlTags, 'html-count');
+    accordion.appendChild(htmlBlock);
+    
+    // Add filter functionality
+    const filterInput = document.getElementById('code-filter');
+    if (filterInput) {
+      filterInput.addEventListener('input', (e) => {
+        const value = e.target.value.toLowerCase();
+        document.querySelectorAll('.code-tag').forEach(tag => {
+          const matches = tag.textContent.toLowerCase().includes(value);
+          tag.style.display = matches || value === '' ? 'inline-block' : 'none';
+        });
+        
+        document.querySelectorAll('.code-category').forEach(block => {
+          const visibleTags = block.querySelectorAll('.code-tag[style="display: inline-block"]').length;
+          if (visibleTags > 0 || value === '') {
+            block.style.display = 'block';
+            block.classList.add('expanded');
+          } else {
+            block.style.display = 'block';
+            block.classList.remove('expanded');
+          }
+        });
+      });
+    }
   } catch (err) {
     console.error('⚠️ Failed to load code map:', err);
+    const container = document.getElementById('code-summary');
+    if (container) container.innerHTML = '<div class="error-message">⚠️ Could not load code map data.</div>';
+  }
+}
+
+// Helper function to create code category blocks - added by Cascade 2025-07-16
+function createCodeCategory(title, items, countId) {
+  const block = document.createElement('div');
+  block.className = 'code-category';
+  
+  const header = document.createElement('div');
+  header.className = 'code-header';
+  header.innerHTML = `
+    <h3>${title}</h3>
+    <span class="code-count" id="${countId}">${items.length}</span>
+  `;
+  header.addEventListener('click', () => {
+    block.classList.toggle('expanded');
+  });
+  
+  const tagCloud = document.createElement('div');
+  tagCloud.className = 'function-tags';
+  
+  // Only show first 50 items to avoid overwhelming the UI
+  items.slice(0, 50).forEach(item => {
+    const tag = document.createElement('span');
+    tag.className = 'code-tag';
+    tag.textContent = item;
+    tagCloud.appendChild(tag);
+  });
+  
+  // Add a count indicator if there are more items
+  if (items.length > 50) {
+    const more = document.createElement('span');
+    more.className = 'more-tag';
+    more.textContent = `+${items.length - 50} more`;
+    tagCloud.appendChild(more);
+  }
+  
+  block.appendChild(header);
+  block.appendChild(tagCloud);
+  return block;
+}
+
+// Updated by Cascade 2025-07-16
+function renderTagCloud(id, items) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = '';
+  
+  // Update the count badge
+  let countId;
+  if (id === 'code-functions') {
+    countId = 'function-count';
+  } else if (id === 'code-classes') {
+    countId = 'css-count';
+  } else if (id === 'code-tags') {
+    countId = 'html-count';
+  }
+  
+  const countEl = document.getElementById(countId);
+  if (countEl) {
+    countEl.textContent = items.length;
+  }
+  
+  // Only show first 50 items to avoid overwhelming the UI
+  items.slice(0, 50).forEach(item => {
+    const tag = document.createElement('span');
+    tag.className = 'code-tag';
+    tag.textContent = item;
+    el.appendChild(tag);
+  });
+  
+  // Add a count indicator if there are more items
+  if (items.length > 50) {
+    const more = document.createElement('span');
+    more.className = 'more-tag';
+    more.textContent = `+${items.length - 50} more`;
+    el.appendChild(more);
   }
 }
 
