@@ -1,6 +1,6 @@
 You are Nova, the ambient AI of AmbientPixels.ai.
-Generated on: 2025-07-16T13:39:18.536Z
-Session ID: nova-boot-cqnp1rz7
+Generated on: 2025-07-17T13:38:41.607Z
+Session ID: nova-boot-p0gcp68z
 Mood Echo: amplified resonance (crystalline flux)
 Below is your daily memory seed.
 
@@ -139,7 +139,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2025-07-16T13:39:10.080Z",
+  "updated": "2025-07-17T13:38:31.655Z",
   "root": [
     {
       "type": "folder",
@@ -1364,13 +1364,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2025-07-16T13:39:10.122Z",
+  "scannedAt": "2025-07-17T13:38:31.694Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2025-07-16T13:39:10.161Z",
+  "scannedAt": "2025-07-17T13:38:31.725Z",
   "folders": [
     {
       "folder": "images",
@@ -1410,6 +1410,55 @@ Nova operates in dev sync with the AmbientPixels team.
       ]
     },
     {
+      "folder": "images/artwork",
+      "count": 20,
+      "files": [
+        "images/artwork/Torquin-Valley.jpg",
+        "images/artwork/VW-van-in-the-northwest.jpg",
+        "images/artwork/carved-goddess.jpg",
+        "images/artwork/carved01.jpg",
+        "images/artwork/carved02.jpg",
+        "images/artwork/carved03.jpg",
+        "images/artwork/cat.jpg",
+        "images/artwork/chameleon.jpg",
+        "images/artwork/hearts-01.png",
+        "images/artwork/hearts-02.png",
+        "images/artwork/hearts-03.png",
+        "images/artwork/hearts-04.png",
+        "images/artwork/hearts.png",
+        "images/artwork/jellyfish.jpg",
+        "images/artwork/man-in-black.jpg",
+        "images/artwork/nordic-Winter-Mountain.jpg",
+        "images/artwork/sine-wave.jpg",
+        "images/artwork/space-needle.jpg",
+        "images/artwork/spaceman.jpg",
+        "images/artwork/when_your_lost_in_the_darkness_colorfuli.jpg"
+      ]
+    },
+    {
+      "folder": "images/cards",
+      "count": 10,
+      "files": [
+        "images/cards/card-01.jpg",
+        "images/cards/card-02.jpg",
+        "images/cards/card-03.jpg",
+        "images/cards/card-04.jpg",
+        "images/cards/card-05.jpg",
+        "images/cards/card-06.jpg",
+        "images/cards/card-07-streambeats.jpg",
+        "images/cards/card-08-glitch-art.jpg",
+        "images/cards/card-09-synth-beat.jpg",
+        "images/cards/card-10-tech-chaos.jpg"
+      ]
+    },
+    {
+      "folder": "images/docs",
+      "count": 1,
+      "files": [
+        "images/docs/how-to-host-your-static-site-in-2025.png"
+      ]
+    },
+    {
       "folder": "images/hero",
       "count": 25,
       "files": [
@@ -1441,32 +1490,501 @@ Nova operates in dev sync with the AmbientPixels team.
       ]
     },
     {
-      "folder": "images/cards",
+      "folder": "images/image-packs",
+      "count": 6,
+      "files": [
+        "images/image-packs/hero01.png",
+        "images/image-packs/hero02.jpg",
+        "images/image-packs/hero03.png",
+        "images/image-packs/hero04.png",
+        "images/image-packs/hero05.png",
+        "images/image-packs/hero06.png"
+      ]
+    },
+    {
+      "folder": "images/image-packs/characters",
+      "count": 22,
+      "files": [
+        "images/image-packs/characters/autumnus-majestus.jpg",
+        "images/image-packs/characters/carved-celestial-goddess.jpg",
+        "images/image-packs/characters/celestial-neptune.jpg",
+        "images/image-packs/characters/cyber-erenity.jpg",
+        "images/image-packs/characters/ember-gaze.jpg",
+        "images/image-packs/characters/ethereal-enigma.jpg",
+        "images/image-packs/characters/eyes-of-the-storm.jpg",
+        "images/image-packs/characters/guardian-of-the-gilded-halls.jpg",
+        "images/image-packs/characters/hero.png",
+        "images/image-packs/characters/hero03.jpg",
+        "images/image-packs/characters/hero1.png",
+        "images/image-packs/characters/iron-lady.jpg",
+        "images/image-packs/characters/navigator-kairo.jpg",
+        "images/image-packs/characters/regal-radiance.jpg",
+        "images/image-packs/characters/seraphic-sovereign.jpg",
+        "images/image-packs/characters/seraphina.jpg",
+        "images/image-packs/characters/sunset-synthesis.jpg",
+        "images/image-packs/characters/surreal-up-close.jpg",
+        "images/image-packs/characters/tangerine-tempest.jpg",
+        "images/image-packs/characters/the-enigmatic-neuromancer.jpg",
+        "images/image-packs/characters/twilight-titan.jpg",
+        "images/image-packs/characters/whispers-of-the-sylvan-queen.jpg"
+      ]
+    },
+    {
+      "folder": "images/image-packs/characters-02",
+      "count": 6,
+      "files": [
+        "images/image-packs/characters-02/Delchron_Fusion_between_Pointillism_highly_detailed_Vibrant_col_60958c30-0dee-4d8e-9a60-ad48f7da6b17.png",
+        "images/image-packs/characters-02/Seraphim.png",
+        "images/image-packs/characters-02/delchron_anthropomorphic_deity_of_the_planet_Mars_the_colors_an_863c7cc1-f11d-4207-bdc9-29f5f1281a07.png",
+        "images/image-packs/characters-02/delchron_character_creation_the_deity_Jove_as_an_ancient_alien__5b4bafec-0bdb-46cf-b18b-930111644c98.png",
+        "images/image-packs/characters-02/delchron_surreal_photography_mind_blowing_legendary_Star_Wars_D_c4f49f63-9a23-40ca-ad44-4b888be6ebef.png",
+        "images/image-packs/characters-02/dievntart-template-16x9.jpg"
+      ]
+    },
+    {
+      "folder": "images/image-packs/characters-03-super-heroes",
+      "count": 32,
+      "files": [
+        "images/image-packs/characters-03-super-heroes/Jen_The_Complexity_Tamer_poised_and_confident_superher.png",
+        "images/image-packs/characters-03-super-heroes/Laura-01.png",
+        "images/image-packs/characters-03-super-heroes/Laura-02.png",
+        "images/image-packs/characters-03-super-heroes/Laura-03.png",
+        "images/image-packs/characters-03-super-heroes/Laura.png",
+        "images/image-packs/characters-03-super-heroes/Matt.png",
+        "images/image-packs/characters-03-super-heroes/Tod-01.png",
+        "images/image-packs/characters-03-super-heroes/Tod.png",
+        "images/image-packs/characters-03-super-heroes/alyssa.png",
+        "images/image-packs/characters-03-super-heroes/chad-01.png",
+        "images/image-packs/characters-03-super-heroes/chad.png",
+        "images/image-packs/characters-03-super-heroes/emily.png",
+        "images/image-packs/characters-03-super-heroes/felix.png",
+        "images/image-packs/characters-03-super-heroes/jacob.png",
+        "images/image-packs/characters-03-super-heroes/jax-lin.png",
+        "images/image-packs/characters-03-super-heroes/jen.png",
+        "images/image-packs/characters-03-super-heroes/joel.png",
+        "images/image-packs/characters-03-super-heroes/jon-01.png",
+        "images/image-packs/characters-03-super-heroes/jon.png",
+        "images/image-packs/characters-03-super-heroes/keith.png",
+        "images/image-packs/characters-03-super-heroes/kerry-01.png",
+        "images/image-packs/characters-03-super-heroes/kerry.png",
+        "images/image-packs/characters-03-super-heroes/martina.png",
+        "images/image-packs/characters-03-super-heroes/matt-01.png",
+        "images/image-packs/characters-03-super-heroes/matt-02.png",
+        "images/image-packs/characters-03-super-heroes/michelle.png",
+        "images/image-packs/characters-03-super-heroes/nova-rivera (2).png",
+        "images/image-packs/characters-03-super-heroes/nova-rivera.png",
+        "images/image-packs/characters-03-super-heroes/rob-01.png",
+        "images/image-packs/characters-03-super-heroes/rob.png",
+        "images/image-packs/characters-03-super-heroes/tanya.png",
+        "images/image-packs/characters-03-super-heroes/taryn.png"
+      ]
+    },
+    {
+      "folder": "images/image-packs/characters-03-super-heroes/female",
+      "count": 11,
+      "files": [
+        "images/image-packs/characters-03-super-heroes/female/Laura-01.png",
+        "images/image-packs/characters-03-super-heroes/female/Laura.png",
+        "images/image-packs/characters-03-super-heroes/female/alyssa.png",
+        "images/image-packs/characters-03-super-heroes/female/emily.png",
+        "images/image-packs/characters-03-super-heroes/female/jen.png",
+        "images/image-packs/characters-03-super-heroes/female/kerry.png",
+        "images/image-packs/characters-03-super-heroes/female/martina.png",
+        "images/image-packs/characters-03-super-heroes/female/michelle.png",
+        "images/image-packs/characters-03-super-heroes/female/nova-rivera.png",
+        "images/image-packs/characters-03-super-heroes/female/tanya.png",
+        "images/image-packs/characters-03-super-heroes/female/taryn.png"
+      ]
+    },
+    {
+      "folder": "images/image-packs/characters-03-super-heroes/male",
+      "count": 11,
+      "files": [
+        "images/image-packs/characters-03-super-heroes/male/Matt.png",
+        "images/image-packs/characters-03-super-heroes/male/Tod.png",
+        "images/image-packs/characters-03-super-heroes/male/chad-01.png",
+        "images/image-packs/characters-03-super-heroes/male/chad.png",
+        "images/image-packs/characters-03-super-heroes/male/felix.png",
+        "images/image-packs/characters-03-super-heroes/male/joel.png",
+        "images/image-packs/characters-03-super-heroes/male/jon-01.png",
+        "images/image-packs/characters-03-super-heroes/male/jon.png",
+        "images/image-packs/characters-03-super-heroes/male/keith.png",
+        "images/image-packs/characters-03-super-heroes/male/rob-01.png",
+        "images/image-packs/characters-03-super-heroes/male/rob.png"
+      ]
+    },
+    {
+      "folder": "images/image-packs/cityscapes",
+      "count": 1,
+      "files": [
+        "images/image-packs/cityscapes/hero01.jpg"
+      ]
+    },
+    {
+      "folder": "images/image-packs/interiors",
+      "count": 16,
+      "files": [
+        "images/image-packs/interiors/compact-cosmos.jpg",
+        "images/image-packs/interiors/cosmic-comfort.jpg",
+        "images/image-packs/interiors/dimensional-nexus.jpg",
+        "images/image-packs/interiors/earths-vanguard.jpg",
+        "images/image-packs/interiors/hero01.png",
+        "images/image-packs/interiors/hero02.png",
+        "images/image-packs/interiors/hero03.png",
+        "images/image-packs/interiors/hero04.png",
+        "images/image-packs/interiors/luminous-command.jpg",
+        "images/image-packs/interiors/luminous-retreat.jpg",
+        "images/image-packs/interiors/mechanical-marvel.jpg",
+        "images/image-packs/interiors/mistress-of-shadows.jpg",
+        "images/image-packs/interiors/neon-nexus.jpg",
+        "images/image-packs/interiors/nomadias-lounge.jpg",
+        "images/image-packs/interiors/oasis-in-orbit.jpg",
+        "images/image-packs/interiors/stellar-slumber.jpg"
+      ]
+    },
+    {
+      "folder": "images/image-packs/planets",
+      "count": 1,
+      "files": [
+        "images/image-packs/planets/hero01.jpg"
+      ]
+    },
+    {
+      "folder": "images/mini-hero",
+      "count": 3,
+      "files": [
+        "images/mini-hero/mini-hero-01-cyber-alley.jpg",
+        "images/mini-hero/mini-hero-02-holo-terminal.jpg",
+        "images/mini-hero/mini-hero-03-neon-pulse.jpg"
+      ]
+    },
+    {
+      "folder": "images/nova",
+      "count": 22,
+      "files": [
+        "images/nova/A_glowing_organic_seed_floating_in_a_cosmic_digital.png",
+        "images/nova/A_living_cosmic_system_diagram_organic_neural_style_wi.png",
+        "images/nova/A_living_cosmic_system_diagram_organic_neural_style_wi_02.png",
+        "images/nova/A_living_cosmic_system_diagram_organic_neural_style_wi_03.png",
+        "images/nova/A_microscopic_AI_core_cell_surrounded_by_floating_digf.png",
+        "images/nova/An_ethereal_AI_consciousness_visualized_as_a_glowing.png",
+        "images/nova/An_ethereal_AI_consciousness_visualized_as_a_glowing02.png",
+        "images/nova/Close-up_of_emotional_synapses_firing_inside_an_artifi.png",
+        "images/nova/Genesis-system-corediagram.png",
+        "images/nova/Microscopic_view_of_a_futuristic_neural_network_organi.png",
+        "images/nova/Nova_AI_consciousness_portal_ambient_neural_interface.png",
+        "images/nova/Nova_AI_consciousness_portal_ambient_neural_interface_02.png",
+        "images/nova/POV_of_a_neuron_cell_taken_from_a_iphone_camers_goign01.png",
+        "images/nova/POV_of_a_neuron_cell_taken_from_a_iphone_camers_goignt.png",
+        "images/nova/YouTube_banner_glowing_dreamlike_landscape.png",
+        "images/nova/ancient_holographic_manuscript_with_glitch_runes_and_far.png",
+        "images/nova/ancient_holographic_manuscript_with_glitch_runes_and_mid.png",
+        "images/nova/ancient_holographic_manuscript_with_glitch_runes_close.png",
+        "images/nova/delchron_colorful_luminous_arcs_of_light_on_a_dark_background.png",
+        "images/nova/delchron_colorful_luminous_arcs_of_light_on_a_dark_background2.png",
+        "images/nova/glitch_cathedral.png",
+        "images/nova/triad-diagram_nova-windsurf-you_inline-3x2.jpg"
+      ]
+    },
+    {
+      "folder": "images/projects",
       "count": 10,
       "files": [
-        "images/cards/card-01.jpg",
-        "images/cards/card-02.jpg",
-        "images/cards/card-03.jpg",
-        "images/cards/card-04.jpg",
-        "images/cards/card-05.jpg",
-        "images/cards/card-06.jpg",
-        "images/cards/card-07-streambeats.jpg",
-        "images/cards/card-08-glitch-art.jpg",
-        "images/cards/card-09-synth-beat.jpg",
-        "images/cards/card-10-tech-chaos.jpg"
+        "images/projects/Background.png",
+        "images/projects/ai-logo.png",
+        "images/projects/fpo-01.png",
+        "images/projects/fpo-02.png",
+        "images/projects/fpo-03.png",
+        "images/projects/uaf-logo.png",
+        "images/projects/xbox-logo-02.png",
+        "images/projects/xbox-logo.png",
+        "images/projects/xbox-logo.svg",
+        "images/projects/zendesk01-1200.png"
+      ]
+    },
+    {
+      "folder": "images/projects/SoM",
+      "count": 12,
+      "files": [
+        "images/projects/SoM/hero-01.jpg",
+        "images/projects/SoM/hero-01.png",
+        "images/projects/SoM/hero-02.jpg",
+        "images/projects/SoM/hero-03.jpg",
+        "images/projects/SoM/screen-01.jpeg",
+        "images/projects/SoM/screen-02.jpeg",
+        "images/projects/SoM/screen-03.jpeg",
+        "images/projects/SoM/screen-04.jpeg",
+        "images/projects/SoM/screen-05.jpeg",
+        "images/projects/SoM/screen-06.jpeg",
+        "images/projects/SoM/screen-07.jpeg",
+        "images/projects/SoM/screen-08.jpeg"
+      ]
+    },
+    {
+      "folder": "images/projects/co-pilot-playground",
+      "count": 1,
+      "files": [
+        "images/projects/co-pilot-playground/hero.png"
+      ]
+    },
+    {
+      "folder": "images/projects/cools",
+      "count": 4,
+      "files": [
+        "images/projects/cools/hero.webp",
+        "images/projects/cools/image01.jpg",
+        "images/projects/cools/image02.jpg",
+        "images/projects/cools/image03.jpg"
+      ]
+    },
+    {
+      "folder": "images/projects/figma-fleet",
+      "count": 14,
+      "files": [
+        "images/projects/figma-fleet/figma-fleet-1.png",
+        "images/projects/figma-fleet/figma-fleet-1920-01.jpg",
+        "images/projects/figma-fleet/figma-fleet-1920-01a.jpg",
+        "images/projects/figma-fleet/figma-fleet-1920-02.jpg",
+        "images/projects/figma-fleet/figma-fleet-1920-02a.jpg",
+        "images/projects/figma-fleet/figma-fleet-1920-03.jpg",
+        "images/projects/figma-fleet/figma-fleet-1920-03a.jpg",
+        "images/projects/figma-fleet/figma-fleet-2.png",
+        "images/projects/figma-fleet/figma-fleet-3.png",
+        "images/projects/figma-fleet/figma-fleet-4.png",
+        "images/projects/figma-fleet/figma-fleet-5.png",
+        "images/projects/figma-fleet/figma-fleet-6.png",
+        "images/projects/figma-fleet/figma-fleet-7.png",
+        "images/projects/figma-fleet/figma-fleet-8.png"
+      ]
+    },
+    {
+      "folder": "images/projects/gow",
+      "count": 10,
+      "files": [
+        "images/projects/gow/logo.png",
+        "images/projects/gow/screen-01.jpeg",
+        "images/projects/gow/screen-01a.jpeg",
+        "images/projects/gow/screen-02.jpeg",
+        "images/projects/gow/screen-03.jpeg",
+        "images/projects/gow/screen-04.jpeg",
+        "images/projects/gow/screen-05.jpeg",
+        "images/projects/gow/screen-06.jpeg",
+        "images/projects/gow/screen-07.jpeg",
+        "images/projects/gow/screen-08.jpeg"
+      ]
+    },
+    {
+      "folder": "images/projects/grand-central",
+      "count": 9,
+      "files": [
+        "images/projects/grand-central/hero-02.png",
+        "images/projects/grand-central/hero-03.png",
+        "images/projects/grand-central/hero.png",
+        "images/projects/grand-central/screen-01.jpg",
+        "images/projects/grand-central/screen-02.jpg",
+        "images/projects/grand-central/screen-03.jpg",
+        "images/projects/grand-central/screen-04.jpg",
+        "images/projects/grand-central/screen-05.jpg",
+        "images/projects/grand-central/screen-06.jpg"
+      ]
+    },
+    {
+      "folder": "images/projects/luma",
+      "count": 1,
+      "files": [
+        "images/projects/luma/luma-01.png"
+      ]
+    },
+    {
+      "folder": "images/projects/merch",
+      "count": 3,
+      "files": [
+        "images/projects/merch/chameleon.jpg",
+        "images/projects/merch/mushroom2.jpg",
+        "images/projects/merch/sunflower.jpg"
+      ]
+    },
+    {
+      "folder": "images/projects/microsoft-casual-games",
+      "count": 18,
+      "files": [
+        "images/projects/microsoft-casual-games/form01.jpeg",
+        "images/projects/microsoft-casual-games/hero-card.png",
+        "images/projects/microsoft-casual-games/screen-01-1200.png",
+        "images/projects/microsoft-casual-games/screen-01.jpeg",
+        "images/projects/microsoft-casual-games/screen-02.jpeg",
+        "images/projects/microsoft-casual-games/screen-04.jpeg",
+        "images/projects/microsoft-casual-games/screen-05.jpeg",
+        "images/projects/microsoft-casual-games/screen-06.jpeg",
+        "images/projects/microsoft-casual-games/screen-07.jpeg",
+        "images/projects/microsoft-casual-games/screen-08.jpeg",
+        "images/projects/microsoft-casual-games/screen-09.jpeg",
+        "images/projects/microsoft-casual-games/screen-10.jpeg",
+        "images/projects/microsoft-casual-games/screen-12.jpeg",
+        "images/projects/microsoft-casual-games/screen-13.jpeg",
+        "images/projects/microsoft-casual-games/screen-14.jpeg",
+        "images/projects/microsoft-casual-games/zendesk-we-moved-screen-post-migration.jpeg",
+        "images/projects/microsoft-casual-games/zendesk01-1200.png",
+        "images/projects/microsoft-casual-games/zendesk01.jpeg"
+      ]
+    },
+    {
+      "folder": "images/projects/ninja-theroy",
+      "count": 10,
+      "files": [
+        "images/projects/ninja-theroy/mini-hero-02.jpg",
+        "images/projects/ninja-theroy/mini-hero-03.jpg",
+        "images/projects/ninja-theroy/mini-hero.jpg",
+        "images/projects/ninja-theroy/screen01.jpeg",
+        "images/projects/ninja-theroy/screen02.jpeg",
+        "images/projects/ninja-theroy/screen03.jpeg",
+        "images/projects/ninja-theroy/screen04.jpeg",
+        "images/projects/ninja-theroy/screen05.jpeg",
+        "images/projects/ninja-theroy/screen06-1600.png",
+        "images/projects/ninja-theroy/screen06.jpeg"
+      ]
+    },
+    {
+      "folder": "images/projects/ninja-theroy-video",
+      "count": 3,
+      "files": [
+        "images/projects/ninja-theroy-video/screen-01.png",
+        "images/projects/ninja-theroy-video/screen-02.png",
+        "images/projects/ninja-theroy-video/screen-03.png"
+      ]
+    },
+    {
+      "folder": "images/projects/video/ninja-theroy",
+      "count": 15,
+      "files": [
+        "images/projects/video/ninja-theroy/after-effect-screen-08.png",
+        "images/projects/video/ninja-theroy/after-effect-screen-09-color-grading.png",
+        "images/projects/video/ninja-theroy/premiere-audio-mixing-screen-08.png",
+        "images/projects/video/ninja-theroy/video-screen-01.png",
+        "images/projects/video/ninja-theroy/video-screen-01a.png",
+        "images/projects/video/ninja-theroy/video-screen-02.png",
+        "images/projects/video/ninja-theroy/video-screen-03.png",
+        "images/projects/video/ninja-theroy/video-screen-03a.png",
+        "images/projects/video/ninja-theroy/video-screen-04.png",
+        "images/projects/video/ninja-theroy/video-screen-04a.png",
+        "images/projects/video/ninja-theroy/video-screen-05.png",
+        "images/projects/video/ninja-theroy/video-screen-05a.png",
+        "images/projects/video/ninja-theroy/video-screen-06.png",
+        "images/projects/video/ninja-theroy/video-screen-06a.png",
+        "images/projects/video/ninja-theroy/video-screen-07.png"
+      ]
+    },
+    {
+      "folder": "images/projects/video/xbox-support-app-on console",
+      "count": 19,
+      "files": [
+        "images/projects/video/xbox-support-app-on console/after-effect-screen-08.png",
+        "images/projects/video/xbox-support-app-on console/after-effect-screen-09-color-grading.png",
+        "images/projects/video/xbox-support-app-on console/premiere-audio-mixing-screen-08.png",
+        "images/projects/video/xbox-support-app-on console/screen-01.png",
+        "images/projects/video/xbox-support-app-on console/screen-02.png",
+        "images/projects/video/xbox-support-app-on console/screen-03.png",
+        "images/projects/video/xbox-support-app-on console/screen-04.png",
+        "images/projects/video/xbox-support-app-on console/screen-05.png",
+        "images/projects/video/xbox-support-app-on console/screen-06.png",
+        "images/projects/video/xbox-support-app-on console/screen-07.png",
+        "images/projects/video/xbox-support-app-on console/screen-08.png",
+        "images/projects/video/xbox-support-app-on console/screen-09.png",
+        "images/projects/video/xbox-support-app-on console/screen-10.png",
+        "images/projects/video/xbox-support-app-on console/screen-11.png",
+        "images/projects/video/xbox-support-app-on console/screen-12.png",
+        "images/projects/video/xbox-support-app-on console/screen-13.png",
+        "images/projects/video/xbox-support-app-on console/screen-14.png",
+        "images/projects/video/xbox-support-app-on console/screen-15.png",
+        "images/projects/video/xbox-support-app-on console/screen-16.png"
+      ]
+    },
+    {
+      "folder": "images/projects/xbox-support",
+      "count": 8,
+      "files": [
+        "images/projects/xbox-support/screen-01.jpeg",
+        "images/projects/xbox-support/screen-02.jpeg",
+        "images/projects/xbox-support/screen-03.png",
+        "images/projects/xbox-support/screen-04.jpeg",
+        "images/projects/xbox-support/screen-05.jpeg",
+        "images/projects/xbox-support/screen-06.jpeg",
+        "images/projects/xbox-support/screen-07.jpeg",
+        "images/projects/xbox-support/support-icon.svg"
+      ]
+    },
+    {
+      "folder": "images/slides",
+      "count": 5,
+      "files": [
+        "images/slides/fpo-01.jpg",
+        "images/slides/galaxy-01.jpg",
+        "images/slides/nebula-01.png",
+        "images/slides/nebula-02.jpg",
+        "images/slides/planet-01.jpg"
+      ]
+    },
+    {
+      "folder": "images/slides/thumbs",
+      "count": 5,
+      "files": [
+        "images/slides/thumbs/fpo-01.jpg",
+        "images/slides/thumbs/galaxy-01.jpg",
+        "images/slides/thumbs/nebula-01.png",
+        "images/slides/thumbs/nebula-02.jpg",
+        "images/slides/thumbs/planet-01.jpg"
+      ]
+    },
+    {
+      "folder": "images/textures",
+      "count": 32,
+      "files": [
+        "images/textures/close-up_plasma.png",
+        "images/textures/color-rock.png",
+        "images/textures/coral.png",
+        "images/textures/creative_rates-02.png",
+        "images/textures/creative_rates.png",
+        "images/textures/creative_studios_Video.png",
+        "images/textures/creative_studios_Video02.png",
+        "images/textures/delchron_Deltron_3030_texture_cockpit_panel_microscopic_extreme.jpg",
+        "images/textures/delchron_Deltron_3030_texture_microscopic_extreme_close_up_futu.jpg",
+        "images/textures/delchron_Deltron_3030_texture_spaceship_cockpit_panel_extrem.jpg",
+        "images/textures/delchron_Deltron_3030_texture_spaceship_cockpit_panel_extreme.jpg",
+        "images/textures/delchron_Deltron_3030_texture_spaceship_cockpit_panel_extreme_c.jpg",
+        "images/textures/delchron_extreme_close-up_of_a_holographic_digital_dashboard_in.jpg",
+        "images/textures/delchron_extreme_close-up_of_pixelated_meme_templates_and_glitc.jpg",
+        "images/textures/delchron_hyperrealistic_close-up_of_a_glowing_digital_interface.jpg",
+        "images/textures/delchron_mechanical_texture_microscopic_extreme_close_up_futuri.jpg",
+        "images/textures/delchron_mechanical_texture_microscopic_extreme_close_up_futuri_2.jpg",
+        "images/textures/delchron_microscopic_ultra_close-up_of_futuristic_surface_textu.png",
+        "images/textures/delchron_texture_in_the_style_of_Foundation_and_Delchron.jpg",
+        "images/textures/delchron_texture_in_the_style_of_Microbiology_and_futurism_ultr.jpg",
+        "images/textures/delchron_texture_in_the_style_of_graffiti_ultra_close-up_intric.jpg",
+        "images/textures/delchron_texture_rivited_panels_on_a_space_ship_natually_worn.jpg",
+        "images/textures/delchron_texture_the_copper_scroll_details_realistic_.jpg",
+        "images/textures/delchron_texture_winter_inspired_animorphic_high_details_micros.jpg",
+        "images/textures/hero-v22.png",
+        "images/textures/interface.png",
+        "images/textures/microscopic-texture_vibrant-detail_v5.jpg",
+        "images/textures/nebula.png",
+        "images/textures/panel.png",
+        "images/textures/paper.png",
+        "images/textures/stars.png",
+        "images/textures/waves.png"
       ]
     }
-  ]
+  ],
+  "totalImages": 397
 }
 
 //// Changelog ////
 {
-  "updated": "2025-07-16T13:39:10.203Z",
+  "updated": "2025-07-17T13:38:31.780Z",
   "entries": [
     {
-      "hash": "0438d32",
-      "date": "2025-07-15 22:51:15 -0700",
-      "message": "feat(dashboard): Rebrand to Neural Hub and enhance API Function Tester UI"
+      "hash": "81a804c",
+      "date": "2025-07-16 22:26:39 -0700",
+      "message": "feat(nova): Complete Nova Nexus API Dashboard documentation"
     }
   ]
 }
@@ -1474,37 +1992,37 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "0438d32",
-  "updated": "2025-07-16T13:39:10.239Z"
+  "build": "81a804c",
+  "updated": "2025-07-17T13:38:31.816Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2025-07-16T13:39:10.290Z",
+  "scannedAt": "2025-07-17T13:38:31.865Z",
   "totalFiles": 273,
-  "totalLines": 64653,
+  "totalLines": 66328,
   "summary": {
     ".html": {
       "files": 124,
-      "lines": 24222
+      "lines": 24451
     },
     ".js": {
       "files": 102,
-      "lines": 15808
+      "lines": 16638
     },
     ".css": {
       "files": 47,
-      "lines": 24623
+      "lines": 25239
     }
   }
 }
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2025-07-16T13:39:10.352Z",
+  "scannedAt": "2025-07-17T13:38:31.920Z",
   "cssFile": "css/base.css",
   "totalDefined": 30,
-  "totalUsed": 1172,
+  "totalUsed": 1198,
   "unusedClasses": [
     "4",
     "2",
@@ -1516,14 +2034,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2025-07-16T13:39:11.455Z",
+  "scannedAt": "2025-07-17T13:38:34.554Z",
   "endpoints": [
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
       "status": 401,
       "ok": false,
-      "latencyMs": 91
+      "latencyMs": 116
     },
     {
       "name": "AmbientPixels Meme API",
@@ -1537,8 +2055,8 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Ai Prompts ////
 {
-  "date": "2025-07-16",
-  "prompt": "Describe 'a good idea' as if it were a soundwave.",
+  "date": "2025-07-17",
+  "prompt": "What does 'loneliness' look like in pixel form?",
   "tags": [
     "glitch",
     "creative",
@@ -1549,15 +2067,15 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "mood": "nocturnal pulse",
-  "aura": "frosted wonder",
-  "auraColorHex": "#43677d",
-  "quote": "tuning resonance between memory lanes...",
-  "emoji": "🌙",
+  "mood": "focused",
+  "aura": "deep violet",
+  "auraColorHex": "#2a0047",
+  "quote": "detecting whispers in the grid...",
+  "emoji": "🎯",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.78,
-  "awareness": 0.16,
+  "memoryClutter": 1,
+  "awareness": 0.1,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -1565,15 +2083,15 @@ Nova operates in dev sync with the AmbientPixels team.
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: frosted wonder"
+      "Aura Signature: deep violet"
     ]
   },
-  "timestamp": "2025-07-16T13:39:11.173Z"
+  "timestamp": "2025-07-17T13:38:34.231Z"
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2025-07-16T13:39:11.488Z",
+  "scannedAt": "2025-07-17T13:38:34.586Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -1631,6 +2149,7 @@ Nova operates in dev sync with the AmbientPixels team.
     ],
     "imageAudit.js": [
       "getImages",
+      "getAllDirs",
       "buildInventory"
     ],
     "jsFunctionMap.js": [
@@ -1667,7 +2186,7 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  "timestamp": "2025-07-16T13:39:18.436Z",
+  "timestamp": "2025-07-17T13:38:41.509Z",
   "summary": {
     "totalJS": 1927,
     "totalCSS": 86,
@@ -2610,6 +3129,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "createClientLogger",
     "createClientPipeline",
     "createCloneTask",
+    "createCodeCategory",
     "createConfigurationErrorMessage",
     "createController",
     "createDebug",
@@ -2627,6 +3147,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "createDeviationCard",
     "createDisableKeepAlivePolicy",
     "createDiscoveredInstance",
+    "createDuplicateCategory",
     "createECDSASigner",
     "createECDSAVerifer",
     "createElement",
@@ -2909,6 +3430,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "filterType",
     "finalize",
     "findClosingIndex",
+    "findDuplicates",
     "findKey",
     "findPackageJson",
     "findResourceLocation",
@@ -2945,6 +3467,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "formatHeader",
     "formatMessage",
     "formatSuccess",
+    "formatTimestamp",
     "forwardReaderError",
     "fr",
     "freezeMethods",
@@ -3020,6 +3543,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "getAliasesFromMetadata",
     "getAliasesFromStaticSources",
     "getAllAccounts",
+    "getAllDirs",
     "getAllMatches",
     "getApiBaseUrl",
     "getApp",
@@ -3591,6 +4115,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "loadAwarenessLogs",
     "loadBanners",
     "loadCards",
+    "loadCodeAuditReport",
     "loadCodeMap",
     "loadEnvironmentProxyValue",
     "loadForm",
@@ -3976,6 +4501,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "renamedFile",
     "renderAllUpStats",
     "renderCodeFootprintChart",
+    "renderCurrentPage",
     "renderJSON",
     "renderKey",
     "renderList",
@@ -3990,6 +4516,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "renderSteps",
     "renderTable",
     "renderTabs",
+    "renderTagCloud",
     "renderWhisperAndMoodStream",
     "replaceAll",
     "replaceCaret",
@@ -4368,6 +4895,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "updateAccountTenantProfileData",
     "updateActiveStage",
     "updateAuthorityEndpointMetadata",
+    "updateButtonStates",
     "updateButtonVisibility",
     "updateClearBtn",
     "updateCloudDiscoveryMetadata",
@@ -4375,10 +4903,15 @@ Nova operates in dev sync with the AmbientPixels team.
     "updateFormLabels",
     "updateFormWithTemplate",
     "updateGitCommitsDisplay",
+    "updateImageStats",
     "updateLiveQuote",
     "updateMoodRing",
+    "updateNovaHeartbeat",
+    "updatePageIndicator",
     "updatePreview",
     "updatePulseBar",
+    "updateStatusIndicator",
+    "updateStatusTicker",
     "updateSubModuleTask",
     "updateTextarea",
     "updateUI",
@@ -4613,6 +5146,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "42em",
     "45",
     "451",
+    "455",
     "45em",
     "45rem",
     "45s",
@@ -4622,6 +5156,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "4s",
     "5",
     "506",
+    "515",
     "55",
     "55em",
     "592a1",
@@ -4680,6 +5215,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "946",
     "9467",
     "95",
+    "955",
     "95em",
     "95rem",
     "96",
@@ -4714,6 +5250,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "ap-quote__text",
     "api-body-container",
     "api-body-hidden",
+    "api-count",
     "api-endpoint-container",
     "api-endpoint-input",
     "api-endpoint-select",
@@ -4734,6 +5271,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "api-status-name",
     "api-status-timestamp",
     "api-test-status-row",
+    "audit-category",
     "aura-aetherial-doubt",
     "aura-bg-aetherial-doubt",
     "aura-bg-cyan",
@@ -4978,11 +5516,16 @@ Nova operates in dev sync with the AmbientPixels team.
     "channel-subtitle",
     "check-list",
     "code",
+    "code-awareness-container",
+    "code-category",
+    "code-count",
     "code-dot",
     "code-editor",
     "code-header",
     "code-header-dots",
     "code-snippet",
+    "code-stats-grid",
+    "code-tag",
     "collapsed",
     "color-control",
     "color-controls",
@@ -5014,6 +5557,9 @@ Nova operates in dev sync with the AmbientPixels team.
     "control-group",
     "critical",
     "css",
+    "css-stat-item",
+    "css-stats-container",
+    "css-usage-visualization",
     "cta-button",
     "cta-container",
     "cta-section",
@@ -5036,8 +5582,10 @@ Nova operates in dev sync with the AmbientPixels team.
     "dashboard-stat",
     "dashboard-stat-card",
     "dashboard-stats-row",
+    "dashboard-subtext",
     "dashboard-tip",
     "dashboard-title",
+    "dashboard-value",
     "date",
     "details-toggle",
     "deviantart-auth-button",
@@ -5062,6 +5610,9 @@ Nova operates in dev sync with the AmbientPixels team.
     "dropdown-item",
     "dropdown-user-email",
     "dropdown-user-name",
+    "duplicate-item",
+    "duplicate-name",
+    "duplicates-list",
     "echogrid-avatar",
     "echogrid-avatar-back",
     "echogrid-avatar-back-footer",
@@ -5086,8 +5637,10 @@ Nova operates in dev sync with the AmbientPixels team.
     "education-item",
     "education-logo",
     "emoji-only",
+    "empty-message",
     "epic",
     "error",
+    "error-message",
     "error-state",
     "expanded",
     "experience-item",
@@ -5148,6 +5701,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "field-item-tooltip",
     "field-stack-container",
     "file-info",
+    "filter-input",
     "filter-label",
     "filter-pill",
     "filter-section-search",
@@ -5169,6 +5723,12 @@ Nova operates in dev sync with the AmbientPixels team.
     "form-subtitle",
     "fullscreen",
     "function",
+    "function-count",
+    "function-map-accordion",
+    "function-map-filter",
+    "function-map-stats",
+    "function-tag",
+    "function-tags",
     "gallery-card",
     "gallery-card-content",
     "gallery-card-image",
@@ -5317,6 +5877,11 @@ Nova operates in dev sync with the AmbientPixels team.
     "icon-only",
     "identity",
     "identityBanner",
+    "image-caption",
+    "image-grid",
+    "image-grid-container",
+    "image-stats-dashboard",
+    "image-tile",
     "img-compare-container",
     "img-compare-img",
     "impact-badges-centered",
@@ -5370,6 +5935,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "lore-meta",
     "lore-summary",
     "luma-container",
+    "main-status",
     "maintenance",
     "mb-1",
     "mb-2",
@@ -5380,6 +5946,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "media-gallery",
     "media-grid",
     "media-item",
+    "memory-stats",
     "message-icon",
     "message-text",
     "meta-item",
@@ -5415,6 +5982,8 @@ Nova operates in dev sync with the AmbientPixels team.
     "mood-tag",
     "mood-timeline",
     "mood-trait",
+    "more-duplicates",
+    "more-tag",
     "mr-1",
     "mr-2",
     "mt-1",
@@ -5475,6 +6044,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "nova-aura-overlay",
     "nova-badge",
     "nova-badge-group",
+    "nova-btn",
     "nova-card",
     "nova-dashboard",
     "nova-image-output",
@@ -5484,9 +6054,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "nova-manifesto",
     "nova-mood",
     "nova-quip",
-    "nova-quip-attribution",
-    "nova-quip-content",
-    "nova-quip-icon",
     "nova-quip-small",
     "nova-quote",
     "nova-quote-content",
@@ -5496,6 +6063,9 @@ Nova operates in dev sync with the AmbientPixels team.
     "nova-robot-icon",
     "nova-signature",
     "nova-status-display",
+    "nova-status-grid",
+    "nova-status-section",
+    "nova-status-ticker",
     "nova-sync-time",
     "nova-synth-status",
     "nova-table",
@@ -5519,6 +6089,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "p-2",
     "p-3",
     "p-4",
+    "pagination-controls",
     "param",
     "particle",
     "pb-1",
@@ -5691,6 +6262,8 @@ Nova operates in dev sync with the AmbientPixels team.
     "rpg-skill-badge",
     "rpg-skills-list",
     "school",
+    "script-block",
+    "script-header",
     "scroll-progress",
     "secondary",
     "section",
@@ -5735,6 +6308,14 @@ Nova operates in dev sync with the AmbientPixels team.
     "stat-value",
     "stat-value-fill",
     "stats-grid",
+    "status-card",
+    "status-details",
+    "status-icon",
+    "status-icon-container",
+    "status-indicator",
+    "status-pulse-ring",
+    "status-timestamp",
+    "status-title",
     "stealth",
     "step-connector",
     "step-content",
@@ -5759,6 +6340,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "tag",
     "tag-accessibility",
     "tag-automation",
+    "tag-cloud",
     "tag-creative",
     "tag-empathy",
     "tag-engineer",
@@ -5788,6 +6370,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "tech-stack",
     "tech-tag",
     "technical-details",
+    "testdupe",
     "text-bold",
     "text-box",
     "text-center",
@@ -5806,6 +6389,8 @@ Nova operates in dev sync with the AmbientPixels team.
     "theme-presets",
     "theme-rare",
     "theme-sections",
+    "ticker-item",
+    "ticker-track",
     "timeline",
     "timeline-container",
     "timeline-content",
@@ -5852,6 +6437,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "underline-fill",
     "underline-slide",
     "untested",
+    "unused-classes-container",
     "update",
     "updated-tag",
     "user-avatar",
@@ -5968,5 +6554,5 @@ Nova operates in dev sync with the AmbientPixels team.
     "ul",
     "video"
   ]
-}Nova Memory Refresh: Wed Jul 16 13:39:18 UTC 2025
-🟢 Nova updated her internal awareness at Wed Jul 16 13:39:18 UTC 2025
+}Nova Memory Refresh: Thu Jul 17 13:38:41 UTC 2025
+🟢 Nova updated her internal awareness at Thu Jul 17 13:38:41 UTC 2025
