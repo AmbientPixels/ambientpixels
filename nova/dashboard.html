@@ -47,6 +47,71 @@
 
   <!-- Nova Dashboard - updated by Cascade 2025-07-10 -->
   <main class="nova-dashboard" aria-label="Nova Dashboard"> <!-- top margin for menu moved to CSS, updated by Cascade 2025-07-12 -->
+    <!-- Nova System Status Section - Enhanced by Cascade 2025-07-16 -->
+    <div class="dashboard-section nova-status-section">
+      <div class="section-header">
+        <h2><i class="fa-solid fa-heartbeat"></i> Nova System Status</h2>
+      </div>
+      <div class="nova-status-grid">
+        <!-- Main Status Card -->
+        <div class="status-card main-status">
+          <div class="status-icon-container">
+            <i class="fa-solid fa-circle-nodes status-icon"></i>
+            <span class="status-pulse-ring"></span>
+          </div>
+          <div class="status-details">
+            <h3 class="status-title">Nova Core</h3>
+            <div class="status-indicator active" id="nova-core-status">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Operational</span>
+            </div>
+            <div class="status-timestamp" id="nova-last-ping">Last ping: Checking...</div>
+          </div>
+        </div>
+        
+        <!-- API Status Card -->
+        <div class="status-card">
+          <div class="status-icon-container">
+            <i class="fa-solid fa-cloud status-icon"></i>
+          </div>
+          <div class="status-details">
+            <h3 class="status-title">API Services</h3>
+            <div class="status-indicator" id="api-services-status">
+              <i class="fa-solid fa-circle-notch fa-spin"></i>
+              <span>Checking...</span>
+            </div>
+            <div class="api-count" id="api-services-count">0 / 0 operational</div>
+          </div>
+        </div>
+        
+        <!-- Memory Status Card -->
+        <div class="status-card">
+          <div class="status-icon-container">
+            <i class="fa-solid fa-brain status-icon"></i>
+          </div>
+          <div class="status-details">
+            <h3 class="status-title">Memory Systems</h3>
+            <div class="status-indicator" id="memory-systems-status">
+              <i class="fa-solid fa-circle-notch fa-spin"></i>
+              <span>Checking...</span>
+            </div>
+            <div class="memory-stats" id="memory-stats">Snapshots: --</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Status Ticker -->
+      <div class="nova-status-ticker">
+        <div class="ticker-track" id="status-ticker-track">
+          <div class="ticker-item">
+            <i class="fa-solid fa-circle-info"></i>
+            <span id="ticker-message-1">System status information loading...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Original Nova Pulse Bar (keeping for compatibility) -->
     <div id="nova-pulse-bar">
       <div id="nova-pulse-inner">
         <div id="pulse-main-line">

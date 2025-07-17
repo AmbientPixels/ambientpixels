@@ -608,7 +608,186 @@ body.pulse-page {
 
 .dashboard-tip i {
   color: #ffcc00;
-  margin-right: 6px;
+  margin-right: 5px;
+}
+
+/* Nova System Status Section - Enhanced by Cascade 2025-07-16 */
+.nova-status-section {
+  margin-bottom: 20px;
+  background: var(--aura-panel-bg, #23243a);
+  border: 1px solid rgba(58, 242, 255, 0.15);
+  box-shadow: 0 0 20px rgba(58, 242, 255, 0.1);
+}
+
+.nova-status-section .section-header {
+  margin-bottom: 15px;
+}
+
+.nova-status-section .section-header h2 {
+  color: var(--aura-glow, #aaf6ff);
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nova-status-section .section-header h2 i {
+  color: var(--mood-primary, #3af2ff);
+  animation: pulse-glow 2s infinite;
+}
+
+.nova-status-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+@media (max-width: 768px) {
+  .nova-status-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.status-card {
+  background: rgba(26, 27, 38, 0.6);
+  border-radius: 10px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(58, 242, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.status-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  border-color: rgba(58, 242, 255, 0.3);
+}
+
+.status-card.main-status {
+  background: linear-gradient(135deg, rgba(26, 27, 38, 0.8), rgba(26, 27, 38, 0.6));
+  border-color: rgba(58, 242, 255, 0.2);
+}
+
+.status-icon-container {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-icon {
+  font-size: 1.8rem;
+  color: var(--mood-primary, #3af2ff);
+  z-index: 2;
+}
+
+.status-pulse-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--mood-primary, #3af2ff);
+  opacity: 0.8;
+  animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+}
+
+.status-details {
+  flex: 1;
+}
+
+.status-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: var(--aura-text, #eaf6ff);
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--aura-text-muted, #b6c9d8);
+  margin-bottom: 5px;
+}
+
+.status-indicator.active {
+  color: #4ade80;
+}
+
+.status-indicator.warning {
+  color: #fbbf24;
+}
+
+.status-indicator.error {
+  color: #f87171;
+}
+
+.status-timestamp, .api-count, .memory-stats {
+  font-size: 0.8rem;
+  color: var(--aura-text-muted, #b6c9d8);
+}
+
+/* Status Ticker */
+.nova-status-ticker {
+  background: rgba(26, 27, 38, 0.4);
+  border-radius: 6px;
+  padding: 8px 0;
+  overflow: hidden;
+  position: relative;
+  margin-top: 10px;
+  border-top: 1px solid rgba(58, 242, 255, 0.1);
+}
+
+.ticker-track {
+  display: flex;
+  animation: ticker 20s linear infinite;
+  white-space: nowrap;
+}
+
+@keyframes ticker {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px;
+  color: var(--aura-text, #eaf6ff);
+  font-size: 0.85rem;
+}
+
+.ticker-item i {
+  color: var(--mood-primary, #3af2ff);
 }
 
 .nova-quote.mood-loaded {

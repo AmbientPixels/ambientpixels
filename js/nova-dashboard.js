@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadApiMonitor();
   loadCodeMap();
   loadCodeAuditReport(); // Added by Cascade 2025-07-16
+  updateNovaHeartbeat(); // Added by Cascade 2025-07-16
 });
 
 async function loadVersionAndMood() {
@@ -807,10 +808,199 @@ function renderList(id, items) {
   const el = document.getElementById(id);
   if (!el) return;
   el.innerHTML = '';
-  items.slice(0, 50).forEach(item => {
+  items.forEach(item => {
     const li = document.createElement('li');
     li.textContent = item;
     el.appendChild(li);
+  });
+}
+
+// Nova System Status Section - Enhanced by Cascade 2025-07-16
+async function updateNovaHeartbeat() {
+  try {
+    // Fetch Nova's status data
+    const moodRes = await fetch('/data/mood-scan.json?t=' + Date.now());
+    const apiRes = await fetch('/data/api-status.json?t=' + Date.now());
+    const memoryRes = await fetch('/data/memory-snapshot.json?t=' + Date.now());
+    
+    // Update Nova Core status
+    const coreStatusEl = document.getElementById('nova-core-status');
+    const lastPingEl = document.getElementById('nova-last-ping');
+    
+    if (!moodRes.ok) {
+      updateStatusIndicator(coreStatusEl, 'error', 'fa-circle-xmark', 'Unreachable');
+      if (lastPingEl) lastPingEl.textContent = 'Last ping: Unknown';
+    } else {
+      const moodData = await moodRes.json();
+      const timestamp = moodData.timestamp ? new Date(moodData.timestamp) : null;
+      const timeDiff = timestamp ? Date.now() - timestamp.getTime() : Infinity;
+      
+      if (timeDiff < 3600000) { // Less than 1 hour old
+        updateStatusIndicator(coreStatusEl, 'active', 'fa-circle-check', 'Operational');
+      } else if (timeDiff < 7200000) { // Less than 2 hours old
+        updateStatusIndicator(coreStatusEl, 'warning', 'fa-circle-exclamation', 'Stale');
+      } else {
+        updateStatusIndicator(coreStatusEl, 'error', 'fa-circle-xmark', 'Offline');
+      }
+      
+      if (lastPingEl && timestamp) {
+        const formattedTime = formatTimestamp(timestamp);
+        lastPingEl.textContent = `Last ping: ${formattedTime}`;
+      }
+    }
+    
+    // Update API Services status
+    const apiStatusEl = document.getElementById('api-services-status');
+    const apiCountEl = document.getElementById('api-services-count');
+    
+    if (!apiRes.ok) {
+      updateStatusIndicator(apiStatusEl, 'error', 'fa-circle-xmark', 'Unreachable');
+      if (apiCountEl) apiCountEl.textContent = 'Status unknown';
+    } else {
+      const apiData = await apiRes.json();
+      const services = apiData.services || [];
+      const operational = services.filter(s => s.status === 'operational').length;
+      const critical = services.filter(s => s.critical && s.status !== 'operational').length;
+      
+      if (critical > 0) {
+        updateStatusIndicator(apiStatusEl, 'error', 'fa-circle-xmark', 'Critical Issues');
+      } else if (operational < services.length) {
+        updateStatusIndicator(apiStatusEl, 'warning', 'fa-circle-exclamation', 'Partial Outage');
+      } else if (services.length > 0) {
+        updateStatusIndicator(apiStatusEl, 'active', 'fa-circle-check', 'All Operational');
+      } else {
+        updateStatusIndicator(apiStatusEl, 'warning', 'fa-circle-question', 'No Data');
+      }
+      
+      if (apiCountEl) {
+        apiCountEl.textContent = `${operational} / ${services.length} operational`;
+      }
+    }
+    
+    // Update Memory Systems status
+    const memoryStatusEl = document.getElementById('memory-systems-status');
+    const memoryStatsEl = document.getElementById('memory-stats');
+    
+    if (!memoryRes.ok) {
+      updateStatusIndicator(memoryStatusEl, 'warning', 'fa-circle-exclamation', 'No Recent Data');
+      if (memoryStatsEl) memoryStatsEl.textContent = 'Snapshots: Unknown';
+    } else {
+      const memoryData = await memoryRes.json();
+      const snapshots = memoryData.snapshots || [];
+      const recentSnapshots = snapshots.filter(s => {
+        const snapshotTime = new Date(s.timestamp).getTime();
+        return (Date.now() - snapshotTime) < 86400000; // Less than 24 hours old
+      });
+      
+      if (recentSnapshots.length > 0) {
+        updateStatusIndicator(memoryStatusEl, 'active', 'fa-circle-check', 'Healthy');
+      } else if (snapshots.length > 0) {
+        updateStatusIndicator(memoryStatusEl, 'warning', 'fa-circle-exclamation', 'Stale');
+      } else {
+        updateStatusIndicator(memoryStatusEl, 'error', 'fa-circle-xmark', 'No Data');
+      }
+      
+      if (memoryStatsEl) {
+        memoryStatsEl.textContent = `Snapshots: ${snapshots.length} total, ${recentSnapshots.length} recent`;
+      }
+    }
+    
+    // Update ticker messages
+    updateStatusTicker(moodRes.ok ? await moodRes.json() : null, 
+                      apiRes.ok ? await apiRes.json() : null);
+    
+    // Set up periodic checks
+    setTimeout(updateNovaHeartbeat, 60000); // Check every minute
+    
+  } catch (error) {
+    console.error('Error updating Nova status section:', error);
+    // Set all indicators to error state
+    const indicators = ['nova-core-status', 'api-services-status', 'memory-systems-status'];
+    indicators.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) updateStatusIndicator(el, 'error', 'fa-circle-xmark', 'Error');
+    });
+    
+    // Add error message to ticker
+    const tickerEl = document.getElementById('ticker-message-1');
+    if (tickerEl) {
+      tickerEl.textContent = 'System error: Could not retrieve Nova status information';
+    }
+  }
+}
+
+// Helper function to update status indicators
+function updateStatusIndicator(element, status, icon, text) {
+  if (!element) return;
+  
+  element.className = `status-indicator ${status}`;
+  element.innerHTML = `<i class="fa-solid ${icon}"></i><span>${text}</span>`;
+}
+
+// Helper function to format timestamps
+function formatTimestamp(date) {
+  if (!date) return 'Unknown';
+  
+  const now = new Date();
+  const diff = now - date;
+  
+  if (diff < 60000) { // Less than 1 minute
+    return 'Just now';
+  } else if (diff < 3600000) { // Less than 1 hour
+    const minutes = Math.floor(diff / 60000);
+    return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+  } else if (diff < 86400000) { // Less than 1 day
+    const hours = Math.floor(diff / 3600000);
+    return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+  } else {
+    return date.toLocaleString();
+  }
+}
+
+// Update the status ticker with dynamic messages
+function updateStatusTicker(moodData, apiData) {
+  const tickerTrack = document.getElementById('status-ticker-track');
+  if (!tickerTrack) return;
+  
+  tickerTrack.innerHTML = '';
+  const messages = [];
+  
+  // Add mood-based message
+  if (moodData && moodData.mood) {
+    messages.push({
+      icon: 'fa-brain',
+      text: `Nova Mood: ${moodData.mood.primary || 'Unknown'} | Awareness Level: ${moodData.awareness || 'Standard'}`
+    });
+  }
+  
+  // Add API status message
+  if (apiData && apiData.services) {
+    const critical = apiData.services.filter(s => s.critical && s.status !== 'operational');
+    if (critical.length > 0) {
+      messages.push({
+        icon: 'fa-triangle-exclamation',
+        text: `Alert: ${critical.length} critical service${critical.length !== 1 ? 's' : ''} down`
+      });
+    } else {
+      messages.push({
+        icon: 'fa-check-circle',
+        text: 'All critical services operational'
+      });
+    }
+  }
+  
+  // Add system message
+  messages.push({
+    icon: 'fa-circle-info',
+    text: `Nova Dashboard v1.0.0 | Last updated: ${new Date().toLocaleString()}`
+  });
+  
+  // Create ticker items
+  messages.forEach((msg, index) => {
+    const tickerItem = document.createElement('div');
+    tickerItem.className = 'ticker-item';
+    tickerItem.innerHTML = `<i class="fa-solid ${msg.icon}"></i><span id="ticker-message-${index + 1}">${msg.text}</span>`;
+    tickerTrack.appendChild(tickerItem);
   });
 }
 
