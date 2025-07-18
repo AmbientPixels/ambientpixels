@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-07-17T13:38:41.509Z",
+  "timestamp": "2025-07-18T13:38:32.822Z",
   "summary": {
     "totalJS": 1927,
     "totalCSS": 86,
@@ -2313,7 +2313,9 @@
     "removeRemoteTask",
     "renamedFile",
     "renderAllUpStats",
+    "renderApiResponseTimeChart",
     "renderCodeFootprintChart",
+    "renderContentTypeDistribution",
     "renderCurrentPage",
     "renderJSON",
     "renderKey",
@@ -2327,6 +2329,7 @@
     "renderProjects",
     "renderReason",
     "renderSteps",
+    "renderSystemHealthTimeline",
     "renderTable",
     "renderTabs",
     "renderTagCloud",
