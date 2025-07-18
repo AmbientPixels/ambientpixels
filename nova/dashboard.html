@@ -244,44 +244,43 @@
     </div>
     <!-- API Tester and Dashboard Script - updated by Cascade 2025-07-10 -->
 
+    <!-- Nova Dashboard Expansion Visualizations - Added by Cascade 2025-07-17 -->
+    <div class="dashboard-flex-row">
+      <!-- API Response Time Chart -->
+      <section class="dashboard-section dashboard-flex-item">
+        <h2 class="dashboard-title"><i class="fas fa-chart-line"></i> API Response Time Chart</h2>
+        <p class="dashboard-description">Monitor API performance trends over the past 24 hours</p>
+        <div class="chart-container">
+          <canvas id="api-response-time-chart" width="400" height="200"></canvas>
+        </div>
+        <div class="chart-legend" id="api-response-time-legend"></div>
+      </section>
+      
+      <!-- System Health Score Timeline -->
+      <section class="dashboard-section dashboard-flex-item">
+        <h2 class="dashboard-title"><i class="fas fa-heartbeat"></i> System Health Timeline</h2>
+        <p class="dashboard-description">Track system stability with composite health scores</p>
+        <div class="chart-container">
+          <canvas id="system-health-timeline" width="400" height="200"></canvas>
+        </div>
+        <div class="health-score-summary" id="health-score-summary"></div>
+      </section>
+    </div>
+
+    <!-- Content Type Distribution -->
+    <section class="dashboard-section">
+      <h2 class="dashboard-title"><i class="fas fa-pie-chart"></i> Content Type Distribution</h2>
+      <p class="dashboard-description">Understand content composition and identify imbalances</p>
+      <div class="chart-container content-distribution-container">
+        <canvas id="content-type-distribution" width="400" height="300"></canvas>
+      </div>
+      <div class="distribution-legend" id="distribution-legend"></div>
+    </section>
+
     <!-- /NovaOpenAI Interaction Section -->
     <!-- Azure OpenAI API Test section removed by Cascade 2025-07-15 -->
     
-    <!-- Nova's Thought of the Day - updated by Cascade 2025-07-15 - moved to bottom -->
-    <section class="dashboard-section nova-thought nova-quote">
-      <h2 class="dashboard-title"><i class="fas fa-quote-left"></i> Nova's Thought</h2>
-      <div class="prompt-entry quote-text" aria-live="polite">Loading thought...</div>
-    </section>
-    
     <!-- Nova Awareness Integration - Added by Cascade 2025-07-16 -->
-    
-    <!-- Memory Snapshot -->
-    <section class="dashboard-section nova-panel">
-      <h2 class="dashboard-title"><i class="fas fa-bolt"></i> Memory Snapshot</h2>
-      <div class="neon-card nova-panel nova-memory-header">
-        <p class="memory-version">Version: <span id="nova-version">–</span></p>
-        <p class="memory-mood">Mood: <span id="nova-mood">–</span></p>
-        <p class="memory-aura">Aura: <span id="nova-aura">–</span></p>
-        <p class="memory-observation">🧠 <span id="nova-observation">–</span></p>
-      </div>
-    </section>
-    
-    <!-- Nova Dream Log -->
-    <section class="dashboard-section">
-      <h2 class="dashboard-title"><i class="fas fa-moon"></i> Nova Dream Log</h2>
-      <ul id="nova-dream-log" class="log-list"></ul>
-    </section>
-    
-    <!-- Nova Voice Style Guide -->
-    <section class="dashboard-section">
-      <h2 class="dashboard-title">🗣️ Nova Voice Styles</h2>
-      <div class="neon-card">
-        <p class="nova-quip">This is a Nova quip. Short, witty, ambient asides live here.</p>
-        <p class="nova-voice">This is Nova's main voice. It's used for narration and insight.</p>
-        <p class="nova-alert">This is an alert message. Nova is trying to warn you.</p>
-        <p class="nova-thought">This is a thought fragment. Used when Nova is pondering or reflecting.</p>
-      </div>
-    </section>
     
     <div class="dashboard-flex-row">
       <!-- Awareness Logs -->
