@@ -104,6 +104,12 @@ Use `X-CSRF-Token` header from `window.csrfProtection.getToken()` on all POST re
 - Verified API endpoints in `/api/cardforgeloadcards` and `/api/cardforgedeletecard`.
 - All CardForge routes and functions present and wired for production.
 
+## 🔄 Recent Updates
+
+- Added confirmation dialogs for Preview, Save, Publish, and Delete actions.
+- Fixed template loader endpoint path (`cardforgetemplate`).
+- Updated API endpoint names in front-end: `cardforgeloadcards`, `cardforgesavecards`, `cardforgedeletecard`.
+
 ## 🤝 Contributing
 Please follow the Windsurf Protocol:
 - No inline styles; add CSS in `/cardforge/css/`

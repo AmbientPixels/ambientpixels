@@ -235,7 +235,7 @@ async function deleteCard() {
         deleteBtn.textContent = 'Deleting...';
       }
       try {
-        const endpoint = buildApiPath('cardforge/deletecard');
+        const endpoint = buildApiPath('cardforgedeletecard');
         const headers = {
           'Content-Type': 'application/json',
           'X-CSRF-Token': window.csrfProtection.getToken()
@@ -337,7 +337,7 @@ async function loadCards() {
     }
     
     // API configuration - use the new buildApiPath helper for correct path construction
-    const endpoint = buildApiPath('cardforge/loadcards');
+    const endpoint = buildApiPath('cardforgeloadcards');
     console.log('[CardForge] Using API endpoint:', endpoint);
     
     // Update UI based on authentication status
@@ -760,7 +760,7 @@ async function saveCard() {
         }
         
         // Use buildApiPath helper for proper API endpoint construction
-        const endpoint = buildApiPath('cardforge/savecards');
+        const endpoint = buildApiPath('cardforgesavecards');
         console.log(`[CardForge] Saving card to endpoint: ${endpoint}`);
         
         // Send the card data to the server

@@ -38,7 +38,7 @@
       
       // Use global buildApiPath helper for proper path construction
       // This prevents double /api/ issues and ensures consistent API paths
-      const endpoint = window.buildApiPath(`api/cardforgetemplate?type=${templateType}`);
+      const endpoint = window.buildApiPath(`cardforgetemplate?type=${templateType}`);
       console.log(`[CardForge] Loading template from endpoint: ${endpoint}`);
       
       // Fetch template from API with corrected path

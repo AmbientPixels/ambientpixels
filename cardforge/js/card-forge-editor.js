@@ -13,7 +13,13 @@
   window.addEventListener('DOMContentLoaded', () => {
     const previewBtn = document.getElementById('preview-btn');
     if (previewBtn) {
-      previewBtn.addEventListener('click', updatePreview);
+      previewBtn.addEventListener('click', () => {
+        showConfirmDialog(
+          'Preview Card',
+          'Do you want to preview this card?',
+          updatePreview
+        );
+      });
     }
   });
 
