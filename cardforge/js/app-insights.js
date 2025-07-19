@@ -52,7 +52,8 @@ const AppInsightsService = (() => {
       
       // Initialize SDK
       const applicationInsightsSDK = window.Microsoft.ApplicationInsights;
-      appInsights = applicationInsightsSDK.ApplicationInsights.initialize({
+      // v2 API: instantiate and load
+      const aiInstance = new applicationInsightsSDK.ApplicationInsights({
         config: {
           connectionString: config.connectionString,
           enableDebug: config.enableDebug,
@@ -62,6 +63,8 @@ const AppInsightsService = (() => {
           enableResponseHeaderTracking: config.enableResponseHeaderTracking
         }
       });
+      aiInstance.loadAppInsights();
+      appInsights = aiInstance;
       
       // Add authentication context if available
       if (window.authModule?.getCurrentUser) {

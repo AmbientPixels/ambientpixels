@@ -102,6 +102,7 @@ Use `X-CSRF-Token` header from `window.csrfProtection.getToken()` on all POST re
 - No duplicate CSS selectors found in `/cardforge/css`.
 - No duplicate JS function names found in `/cardforge/js`.
 - Verified API endpoints in `/api/cardforgeloadcards` and `/api/cardforgedeletecard`.
+- Locked down delete endpoint in SWA routes: `/api/cardforgedeletecard` now requires authenticated access.
 - All CardForge routes and functions present and wired for production.
 
 ## 🔄 Recent Updates
@@ -109,6 +110,7 @@ Use `X-CSRF-Token` header from `window.csrfProtection.getToken()` on all POST re
 - Added confirmation dialogs for Preview, Save, Publish, and Delete actions.
 - Fixed template loader endpoint path (`cardforgetemplate`).
 - Updated API endpoint names in front-end: `cardforgeloadcards`, `cardforgesavecards`, `cardforgedeletecard`.
+- Locked down delete endpoint in SWA config (`staticwebapp.config.json`).
 
 ## 🤝 Contributing
 Please follow the Windsurf Protocol:

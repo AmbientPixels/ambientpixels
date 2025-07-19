@@ -126,6 +126,8 @@ async function downloadJsonBlobWithRetry(containerClient, blobName, context, max
 // CORS support added by Cascade 2025-07-12
 module.exports = async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request for cardforgeloadcards');
+  // Debug: log incoming request details
+  context.log(`[DEBUG] method=${req.method} query=${JSON.stringify(req.query)} headers=${JSON.stringify(req.headers)}`);
   
   // CORS preflight
   if (req.method === 'OPTIONS') {

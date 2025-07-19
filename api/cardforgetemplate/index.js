@@ -6,6 +6,8 @@
  */
 module.exports = async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request for cardforgetemplate');
+  // Debug: log incoming request details
+  context.log(`[DEBUG] method=${req.method} query=${JSON.stringify(req.query)} headers=${JSON.stringify(req.headers)}`);
   
   // Add CORS headers to all responses
   const corsHeaders = {

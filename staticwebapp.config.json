@@ -43,6 +43,10 @@
       "allowedRoles": ["authenticated"]
     },
     {
+      "route": "/api/cardforgedeletecard",
+      "allowedRoles": ["authenticated"]
+    },
+    {
       "route": "/api/cardforgeloadcards",
       "allowedRoles": ["anonymous", "authenticated"]
     },
