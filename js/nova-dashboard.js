@@ -823,10 +823,16 @@ function renderList(id, items) {
 // Nova System Status Section - Enhanced by Cascade 2025-07-16
 async function updateNovaHeartbeat() {
   try {
-    // Fetch Nova's status data
+    // Fetch Nova's status data (debugging live)
     const moodRes = await fetch('/data/mood-scan.json?t=' + Date.now());
     const apiRes = await fetch('/data/api-status.json?t=' + Date.now());
     const memoryRes = await fetch('/data/memory-snapshot.json?t=' + Date.now());
+    // Log HTTP statuses to console for live debugging
+    console.log('[NovaHeartbeat] status codes:', {
+      mood: moodRes.status,
+      api: apiRes.status,
+      memory: memoryRes.status
+    });
     
     // Update Nova Core status
     const coreStatusEl = document.getElementById('nova-core-status');
@@ -836,7 +842,7 @@ async function updateNovaHeartbeat() {
       updateStatusIndicator(coreStatusEl, 'error', 'fa-circle-xmark', 'Unreachable');
       if (lastPingEl) lastPingEl.textContent = 'Last ping: Unknown';
     } else {
-      const moodData = await moodRes.json();
+      const moodData = moodRes.ok ? await moodRes.json() : { timestamp: null };
       const timestamp = moodData.timestamp ? new Date(moodData.timestamp) : null;
       const timeDiff = timestamp ? Date.now() - timestamp.getTime() : Infinity;
       
@@ -859,26 +865,23 @@ async function updateNovaHeartbeat() {
     const apiCountEl = document.getElementById('api-services-count');
     
     if (!apiRes.ok) {
+      console.warn('[NovaHeartbeat] api-status.json returned', apiRes.status);
       updateStatusIndicator(apiStatusEl, 'error', 'fa-circle-xmark', 'Unreachable');
       if (apiCountEl) apiCountEl.textContent = 'Status unknown';
     } else {
       const apiData = await apiRes.json();
-      const services = apiData.services || [];
-      const operational = services.filter(s => s.status === 'operational').length;
-      const critical = services.filter(s => s.critical && s.status !== 'operational').length;
-      
-      if (critical > 0) {
-        updateStatusIndicator(apiStatusEl, 'error', 'fa-circle-xmark', 'Critical Issues');
-      } else if (operational < services.length) {
+      const services = apiData.endpoints || [];
+      const operational = services.filter(s => s.ok).length;
+      const total = services.length;
+      if (total > 0 && operational === total) {
+        updateStatusIndicator(apiStatusEl, 'active', 'fa-circle-check', 'All Responsive');
+      } else if (operational < total) {
         updateStatusIndicator(apiStatusEl, 'warning', 'fa-circle-exclamation', 'Partial Outage');
-      } else if (services.length > 0) {
-        updateStatusIndicator(apiStatusEl, 'active', 'fa-circle-check', 'All Operational');
       } else {
         updateStatusIndicator(apiStatusEl, 'warning', 'fa-circle-question', 'No Data');
       }
-      
       if (apiCountEl) {
-        apiCountEl.textContent = `${operational} / ${services.length} operational`;
+        apiCountEl.textContent = `${operational} / ${total} responsive`;
       }
     }
     
@@ -887,26 +890,24 @@ async function updateNovaHeartbeat() {
     const memoryStatsEl = document.getElementById('memory-stats');
     
     if (!memoryRes.ok) {
+      console.warn('[NovaHeartbeat] memory-snapshot.json returned', memoryRes.status);
       updateStatusIndicator(memoryStatusEl, 'warning', 'fa-circle-exclamation', 'No Recent Data');
       if (memoryStatsEl) memoryStatsEl.textContent = 'Snapshots: Unknown';
     } else {
       const memoryData = await memoryRes.json();
-      const snapshots = memoryData.snapshots || [];
-      const recentSnapshots = snapshots.filter(s => {
-        const snapshotTime = new Date(s.timestamp).getTime();
-        return (Date.now() - snapshotTime) < 86400000; // Less than 24 hours old
-      });
-      
-      if (recentSnapshots.length > 0) {
-        updateStatusIndicator(memoryStatusEl, 'active', 'fa-circle-check', 'Healthy');
-      } else if (snapshots.length > 0) {
-        updateStatusIndicator(memoryStatusEl, 'warning', 'fa-circle-exclamation', 'Stale');
+      const uptime = memoryData.uptimePercentage;
+      if (typeof uptime === 'number') {
+        if (uptime >= 99) {
+          updateStatusIndicator(memoryStatusEl, 'active', 'fa-circle-check', 'Healthy');
+        } else if (uptime >= 90) {
+          updateStatusIndicator(memoryStatusEl, 'warning', 'fa-circle-exclamation', 'Degraded');
+        } else {
+          updateStatusIndicator(memoryStatusEl, 'error', 'fa-circle-xmark', 'Critical');
+        }
+        if (memoryStatsEl) memoryStatsEl.textContent = `Uptime: ${uptime}%`;
       } else {
-        updateStatusIndicator(memoryStatusEl, 'error', 'fa-circle-xmark', 'No Data');
-      }
-      
-      if (memoryStatsEl) {
-        memoryStatsEl.textContent = `Snapshots: ${snapshots.length} total, ${recentSnapshots.length} recent`;
+        updateStatusIndicator(memoryStatusEl, 'warning', 'fa-circle-question', 'No Data');
+        if (memoryStatsEl) memoryStatsEl.textContent = 'Uptime: --';
       }
     }
     
@@ -979,17 +980,17 @@ function updateStatusTicker(moodData, apiData) {
   }
   
   // Add API status message
-  if (apiData && apiData.services) {
-    const critical = apiData.services.filter(s => s.critical && s.status !== 'operational');
+  if (apiData && apiData.endpoints) {
+    const critical = apiData.endpoints.filter(s => !s.ok);
     if (critical.length > 0) {
       messages.push({
         icon: 'fa-triangle-exclamation',
-        text: `Alert: ${critical.length} critical service${critical.length !== 1 ? 's' : ''} down`
+        text: `Alert: ${critical.length} endpoint${critical.length !== 1 ? 's' : ''} down`
       });
     } else {
       messages.push({
         icon: 'fa-check-circle',
-        text: 'All critical services operational'
+        text: 'All endpoints operational'
       });
     }
   }
