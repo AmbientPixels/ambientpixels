@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-07-18T22:01:46.157Z",
+  "updated": "2025-07-19T13:31:36.192Z",
   "root": [
     {
       "type": "folder",
@@ -96,6 +96,12 @@
           "type": "folder",
           "name": "_utils",
           "path": "api/_utils",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardforgedeletecard",
+          "path": "api/cardforgedeletecard",
           "children": []
         },
         {

@@ -1,7 +1,7 @@
 {
-  "timestamp": "2025-07-18T22:01:56.024Z",
+  "timestamp": "2025-07-19T13:31:45.925Z",
   "summary": {
-    "totalJS": 1927,
+    "totalJS": 1928,
     "totalCSS": 86,
     "totalHTML": 171
   },
@@ -1089,6 +1089,7 @@
     "delay",
     "deleteBranchTask",
     "deleteBranchesTask",
+    "deleteCard",
     "deleteHeader",
     "deprecatedMethod",
     "derToJose",
@@ -2732,6 +2733,7 @@
     "updateTextarea",
     "updateUI",
     "updateUserInfo",
+    "uploadJsonBlob",
     "uponFulfillment",
     "uponPromise",
     "uponRejection",

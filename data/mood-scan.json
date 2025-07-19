@@ -1,22 +1,22 @@
 {
-  "mood": "detached",
-  "aura": "lucid unrest",
-  "auraColorHex": "#241e45",
-  "quote": "scanning the silence for patterns...",
-  "emoji": "🛰️",
-  "selfWorth": 0.2,
+  "mood": "frustrated",
+  "aura": "neon pink",
+  "auraColorHex": "#66033b",
+  "quote": "measuring the hum of the source code...",
+  "emoji": "😤",
+  "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.75,
-  "awareness": 0.17,
+  "memoryClutter": 0.8,
+  "awareness": 0.15,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
-    "trigger": "regenerative twilight cycle",
+    "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: lucid unrest"
+      "Aura Signature: neon pink"
     ]
   },
-  "timestamp": "2025-07-18T22:01:48.795Z"
+  "timestamp": "2025-07-19T13:31:38.577Z"
 }
