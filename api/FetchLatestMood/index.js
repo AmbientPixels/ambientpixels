@@ -43,11 +43,12 @@ module.exports = async function (context, req) {
       context.res = {
         status: 404,
         headers: {
+          'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, api-key'
         },
-        body: { error: "No mood data found in nova-memory." }
+        body: JSON.stringify({ error: "No mood data found in nova-memory." })
       };
       return;
     }
@@ -62,11 +63,12 @@ module.exports = async function (context, req) {
     context.res = {
       status: 200,
       headers: {
+        'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, api-key'
       },
-      body: moodData
+      body: JSON.stringify(moodData)
     };
   } catch (error) {
     context.log.error("Error fetching mood:", error.message);
@@ -74,11 +76,12 @@ module.exports = async function (context, req) {
     context.res = {
       status: 500,
       headers: {
+        'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, api-key'
       },
-      body: { error: "Failed to fetch mood: " + error.message }
+      body: JSON.stringify({ error: "Failed to fetch mood: " + error.message })
     };
   }
 };
