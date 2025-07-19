@@ -22,10 +22,14 @@ async function fetchNovaSessionState() {
       const clutter = /Memory Clutter:\s*([^\n]+)/i.exec(raw); if (clutter) data.clutter = clutter[1];
       const glitch = /Glitch Factor:\s*([^\n]+)/i.exec(raw); if (glitch) data.glitch = glitch[1];
     }
-    document.getElementById('dashboardMood').textContent = data.mood || '—';
-    document.getElementById('dashboardAwareness').textContent = data.awareness || '—';
-    document.getElementById('dashboardClutter').textContent = data.clutter || '—';
-    document.getElementById('dashboardGlitch').textContent = data.glitch || '—';
+    const moodEl = document.getElementById('dashboardMood');
+    if (moodEl) moodEl.textContent = data.mood || '—'; else console.warn('[PulseBar] #dashboardMood not found');
+    const awareEl = document.getElementById('dashboardAwareness');
+    if (awareEl) awareEl.textContent = data.awareness || '—'; else console.warn('[PulseBar] #dashboardAwareness not found');
+    const clutterEl = document.getElementById('dashboardClutter');
+    if (clutterEl) clutterEl.textContent = data.clutter || '—'; else console.warn('[PulseBar] #dashboardClutter not found');
+    const glitchEl = document.getElementById('dashboardGlitch');
+    if (glitchEl) glitchEl.textContent = data.glitch || '—'; else console.warn('[PulseBar] #dashboardGlitch not found');
   } catch (err) {
     document.getElementById('dashboardMood').textContent = 'Error';
     document.getElementById('dashboardAwareness').textContent = '—';
@@ -37,19 +41,22 @@ async function fetchNovaSessionState() {
 // --- Gemini Diagnostics ---
 async function testGeminiAPI() {
   const prompt = 'Nova system ping.';
-  document.getElementById('dashboardGeminiPrompt').textContent = prompt;
+  const promptEl = document.getElementById('dashboardGeminiPrompt');
+    if (promptEl) promptEl.textContent = prompt; else console.warn('[PulseBar] #dashboardGeminiPrompt not found');
   const t0 = performance.now();
   try {
     const resp = await sendGeminiPrompt(prompt);
     const t1 = performance.now();
-    document.getElementById('dashboardGeminiResponse').textContent = resp.candidates?.[0]?.content?.parts?.[0]?.text || '[No response]';
+    const respEl = document.getElementById('dashboardGeminiResponse');
+    if (respEl) respEl.textContent = resp.candidates?.[0]?.content?.parts?.[0]?.text || '[No response]'; else console.warn('[PulseBar] #dashboardGeminiResponse not found');
     document.getElementById('dashboardGeminiLatency').textContent = ((t1-t0).toFixed(0)) + ' ms';
     document.getElementById('dashboardGeminiError').textContent = '—';
   } catch (err) {
     const t1 = performance.now();
     document.getElementById('dashboardGeminiResponse').textContent = '[Error]';
     document.getElementById('dashboardGeminiLatency').textContent = ((t1-t0).toFixed(0)) + ' ms';
-    document.getElementById('dashboardGeminiError').textContent = err.message || 'Unknown error';
+    const errEl = document.getElementById('dashboardGeminiError');
+    if (errEl) errEl.textContent = err.message || 'Unknown error'; else console.warn('[PulseBar] #dashboardGeminiError not found');
   }
 }
 
