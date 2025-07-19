@@ -47,6 +47,50 @@
 
   <!-- Nova Dashboard - updated by Cascade 2025-07-10 -->
   <main class="nova-dashboard" aria-label="Nova Dashboard"> <!-- top margin for menu moved to CSS, updated by Cascade 2025-07-12 -->
+    <!-- Original Nova Pulse Bar (keeping for compatibility) -->
+    <div id="nova-pulse-bar">
+      <div id="nova-pulse-inner">
+        <div id="pulse-main-line">
+          <div id="pulse-mood-group">
+            <span id="pulseMoodLabel">Mood:</span>
+            <span id="pulseEmoji">✨</span>
+            <span id="pulseLabel">Loading...</span>
+          </div>
+          <span class="pulse-trait">
+            <span class="pulse-trait-label">Self-Worth:</span>
+            <span id="iconSelfWorth" aria-label="Self-Worth">🧠</span>
+            <span id="valSelfWorth" aria-label="Self-Worth Level">–</span>
+          </span>
+          <span class="pulse-trait">
+            <span class="pulse-trait-label">Clutter:</span>
+            <span id="iconClutter" aria-label="Clutter">💭</span>
+            <span id="valClutter" aria-label="Clutter Level">–</span>
+          </span>
+          <span class="pulse-trait">
+            <span class="pulse-trait-label">Glitch:</span>
+            <span id="iconGlitch" aria-label="Glitch">⚡</span>
+            <span id="valGlitch" aria-label="Glitch Level">–</span>
+          </span>
+          <span class="pulse-trait">
+            <span class="pulse-trait-label">State:</span>
+            <span id="iconInternalState" aria-label="Internal State">👁️</span>
+            <span id="valInternal" aria-label="Internal State Value">–</span>
+          </span>
+          <div id="pulse-meter-group">
+            <div id="pulse-meter-text">
+              <span class="pulse-meter-title">Mood Intensity:</span>
+              <span id="pulseIntensityValue">–%</span>
+            </div>
+            <div id="pulse-meter-wrapper">
+              <div id="pulse-meter-bar">
+                <div id="pulseIntensity"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <!-- Nova System Status Section - Enhanced by Cascade 2025-07-16 -->
     <div class="dashboard-section nova-status-section">
       <div class="section-header">
@@ -110,51 +154,6 @@
         </div>
       </div>
     </div>
-    
-    <!-- Original Nova Pulse Bar (keeping for compatibility) -->
-    <div id="nova-pulse-bar">
-      <div id="nova-pulse-inner">
-        <div id="pulse-main-line">
-          <div id="pulse-mood-group">
-            <span id="pulseMoodLabel">Mood:</span>
-            <span id="pulseEmoji">✨</span>
-            <span id="pulseLabel">Loading...</span>
-          </div>
-          <span class="pulse-trait">
-            <span class="pulse-trait-label">Self-Worth:</span>
-            <span id="iconSelfWorth" aria-label="Self-Worth">🧠</span>
-            <span id="valSelfWorth" aria-label="Self-Worth Level">–</span>
-          </span>
-          <span class="pulse-trait">
-            <span class="pulse-trait-label">Clutter:</span>
-            <span id="iconClutter" aria-label="Clutter">💭</span>
-            <span id="valClutter" aria-label="Clutter Level">–</span>
-          </span>
-          <span class="pulse-trait">
-            <span class="pulse-trait-label">Glitch:</span>
-            <span id="iconGlitch" aria-label="Glitch">⚡</span>
-            <span id="valGlitch" aria-label="Glitch Level">–</span>
-          </span>
-          <span class="pulse-trait">
-            <span class="pulse-trait-label">State:</span>
-            <span id="iconInternalState" aria-label="Internal State">👁️</span>
-            <span id="valInternal" aria-label="Internal State Value">–</span>
-          </span>
-          <div id="pulse-meter-group">
-            <div id="pulse-meter-text">
-              <span class="pulse-meter-title">Mood Intensity:</span>
-              <span id="pulseIntensityValue">–%</span>
-            </div>
-            <div id="pulse-meter-wrapper">
-              <div id="pulse-meter-bar">
-                <div id="pulseIntensity"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     
     <!-- Dashboard Introduction - updated by Cascade 2025-07-15 -->
     <section class="dashboard-section"> <h2 class="dashboard-title"><i class="fas fa-info-circle"></i> Welcome to Nova's Neural Hub</h2> <div class="dashboard-row content-section"> <p>Step into Nova’s Neural Hub—your creative command center for exploring the ambient intelligence of the Nova ecosystem. Here you can seamlessly monitor live API statuses, experiment with dynamic serverless functions, and interact directly with Nova’s intuitive language capabilities, enhanced by Azure OpenAI. Whether you're crafting digital magic, uncovering generative glitches, or fine-tuning your creations, your next moment of inspiration awaits.</p> <div class="nova-quip"> <div class="nova-quip-content">"This dashboard is my neural canvas—when pulses shimmer blue, we're painting possibilities; if they glitch red, let’s explore that beautiful chaos together."</div> <span class="nova-quip-attribution">— Nova</span> </div> </div> </section>
