@@ -16,7 +16,10 @@ function initListeners() {
 
 async function loadMood() {
   try {
-    const res = await fetch('/api/fetchlatestmood');
+    const endpoint = window.location.hostname.includes('ambientpixels.ai')
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api/FetchLatestMood'
+      : '/api/fetchlatestmood';
+    const res = await fetch(endpoint);
     const data = await res.json();
     updateMoodPanel(data);
     // Only update traits and history if those fields exist
