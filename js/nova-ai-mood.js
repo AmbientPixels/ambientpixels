@@ -19,8 +19,9 @@ async function loadMood() {
     const res = await fetch('/api/fetchlatestmood');
     const data = await res.json();
     updateMoodPanel(data);
-    updateTraitRadials(data);
-    updateHistory([], data);
+    // Only update traits and history if those fields exist
+    if ('selfWorth' in data) updateTraitRadials(data);
+    if (Array.isArray(data.history)) updateHistory(data.history, data);
     updateBadges();
     updateStatusWidgets();
     updateTrainingProgress();
@@ -30,21 +31,25 @@ async function loadMood() {
 }
 
 function updateMoodPanel(data) {
+  // Map mood to emojis or default icon
   const emojiMap = {
-    joy: '😄', sadness: '😢', anger: '😠', neutral: '🧠'
+    neutral: '😐',
+    happy: '😊',
+    frustrated: '😤',
+    content: '🙂',
+    sad: '😢'
   };
-  let key = Object.keys(emojiMap).find(k => data.mood.toLowerCase().includes(k)) || 'neutral';
-
-  document.getElementById('moodEmoji').textContent = emojiMap[key];
+  document.getElementById('moodEmoji').textContent = emojiMap[data.mood] || '🤖';
   document.getElementById('moodTitle').textContent = data.mood;
-  document.getElementById('moodAura').textContent = data.aura;
-  document.getElementById('moodQuote').textContent = data.insights || data.quote;
-  document.getElementById('moodTimestamp').textContent = new Date(data.timestamp).toLocaleString();
+  // Display GitHub status in place of aura
+  document.getElementById('moodAura').textContent = data.githubStatus || '';
+  document.getElementById('moodAura').style.color = '#ffffff';
+  // Show insights instead of quote
+  document.getElementById('moodQuote').textContent = data.insights || '';
+  // Format timestamp
+  const ts = new Date(data.timestamp);
+  document.getElementById('moodTimestamp').textContent = isNaN(ts) ? '' : ts.toLocaleString();
   document.getElementById('moodConfidence').textContent = `Confidence: ${Math.round(data.confidence * 100)}%`;
-
-  // Mood ring color
-  const ring = document.getElementById('moodRing');
-  ring.style.background = data.auraColorHex || '#4b5d67';
 }
 
 function updateTraitRadials(data) {
