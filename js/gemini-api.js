@@ -8,7 +8,7 @@
  * @param {object} [options] - Optional parameters (model, temperature, etc.)
  * @returns {Promise<object>} Gemini API response JSON
  */
-async function sendGeminiPrompt(prompt, options = {}) {
+export async function sendGeminiPrompt(prompt, options = {}) {
   const endpoint = '/api/geminiproxy'; // Always use proxy for production
   const payload = {
     prompt,

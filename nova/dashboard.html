@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="" />
   <meta name="description" content="Nova's Neural Hub - Your creative command center for exploring the ambient intelligence ecosystem." />
   <title>Ambient Pixels - Nova's Neural Hub v1.0.0</title>
   
@@ -22,7 +23,7 @@
   <link rel="stylesheet" href="/css/nova-mood-background.css" /> <!-- Background auras -->
   <link rel="stylesheet" href="/css/nova-dashboard.css" /> <!-- dashboard styles -->
   <link rel="stylesheet" href="/css/nova-status.css" /> <!-- Added for awareness integration -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Added for code footprint chart -->
+  <script src="/js/chart.umd.min.js" defer></script> <!-- Local Chart.js for CSP compliance -->
   <!-- All styles moved to nova-dashboard.css by Cascade 2025-07-10 -->
 </head>
 <body class="pulse-page" data-theme="dark">
@@ -408,7 +409,7 @@
   <script src="/js/nova-background-video.js" defer></script>
   
   <!-- API Scripts (Load after dependencies) -->
-  <script src="/js/gemini-api.js" defer></script>
+  <script type="module" src="/js/gemini-api.js" defer></script>
   <script src="/js/api-status-dashboard.js" defer></script>
   <script src="/js/novaopenai-interact.js" defer></script>
   
@@ -427,5 +428,7 @@
   <script src="/js/project-dashboard.js" defer></script>
   <script src="/js/template.js" defer></script>
   <!-- End scripts -->
+  <script src="/js/dreamEngine.js" defer></script>
+  <script src="/js/modal-window.js" defer></script>
 </body>
 </html>
