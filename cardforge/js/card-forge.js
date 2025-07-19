@@ -214,6 +214,56 @@ function buildApiPath(endpoint) {
 window.buildApiPath = buildApiPath;
 
 /**
+ * Delete a saved card
+ */
+async function deleteCard() {
+  const cardIdInput = document.getElementById('card-id');
+  const cardId = cardIdInput && cardIdInput.value;
+  if (!cardId) {
+    showMessage('Select a saved card before deleting', 'error');
+    return;
+  }
+
+  showConfirmDialog(
+    'Delete Card',
+    'Are you sure you want to delete this card? This action cannot be undone.',
+    async () => {
+      const deleteBtn = document.getElementById('delete-btn');
+      const publishBtn = document.getElementById('publish-btn');
+      if (deleteBtn) {
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = 'Deleting...';
+      }
+      try {
+        const endpoint = buildApiPath('cardforge/deletecard');
+        const headers = {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': window.csrfProtection.getToken()
+        };
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers,
+          credentials: 'include',
+          body: JSON.stringify({ id: cardId })
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        await response.json();
+        showMessage('Card deleted successfully!', 'success');
+        loadCards();
+        // Clear form
+        const form = document.getElementById('card-editor-form');
+        if (form) form.reset();
+        if (publishBtn) publishBtn.disabled = true;
+        if (deleteBtn) deleteBtn.textContent = 'Delete';
+      } catch (error) {
+        console.error('Delete card failed:', error);
+        showMessage(`Error deleting card: ${error.message}`, 'error');
+      }
+    }
+  );
+}
+
+/**
  * Load user cards and gallery cards
  */
 async function loadCards() {
@@ -287,7 +337,7 @@ async function loadCards() {
     }
     
     // API configuration - use the new buildApiPath helper for correct path construction
-    const endpoint = buildApiPath('api/cardforgeloadcards');
+    const endpoint = buildApiPath('cardforge/loadcards');
     console.log('[CardForge] Using API endpoint:', endpoint);
     
     // Update UI based on authentication status
@@ -455,6 +505,23 @@ async function loadCards() {
             userCards = data.defaultCards;
         }
         
+        // Fallback: fetch default cards from blob storage if none loaded
+        else if (!isAuthenticated && userCards.length === 0) {
+            console.log('[CardForge] Fetching default cards from blob storage');
+            try {
+                const blobRes = await fetch('https://cardforgeblobdata.blob.core.windows.net/cardforge/default-cards.json');
+                if (blobRes.ok) {
+                    const blobData = await blobRes.json();
+                    if (Array.isArray(blobData.defaultCards)) {
+                        userCards = blobData.defaultCards;
+                        console.log(`[CardForge] Loaded default cards from blob storage (${userCards.length} cards)`);
+                    }
+                }
+            } catch (e) {
+                console.warn('[CardForge] Error loading default cards from blob storage', e);
+            }
+        }
+        
         console.log(`[CardForge] Loaded ${userCards.length} user cards and ${galleryCards.length} gallery cards`);
         console.log(`[CardForge] API diagnostics:`, data.diagnostics || 'No diagnostics available');
         
@@ -504,7 +571,7 @@ async function loadCards() {
                 userCards.forEach(card => {
                     const li = document.createElement('li');
                     li.innerHTML = `
-                        <img class="card-list-thumbnail" src="${card.avatar || '/images/card-placeholder.png'}" alt="${card.name}" onerror="this.src='/images/card-placeholder.png'">
+                        <img class="card-list-thumbnail" src="${card.avatar || '/images/image-packs/characters/hero.png'}" alt="${card.name}" onerror="this.src='/images/image-packs/characters/hero.png'">
                         <div class="card-list-info">
                             <h4 class="card-list-title">${card.name}</h4>
                             <p class="card-list-subtitle">${card.class}</p>
@@ -546,7 +613,7 @@ async function loadCards() {
                     const cardElement = document.createElement('div');
                     cardElement.className = 'gallery-card';
                     cardElement.innerHTML = `
-                        <img class="gallery-card-image" src="${card.avatar || '/images/card-placeholder.png'}" alt="${card.name}" onerror="this.src='/images/card-placeholder.png'">
+                        <img class="gallery-card-image" src="${card.avatar || '/images/image-packs/characters/hero.png'}" alt="${card.name}" onerror="this.src='/images/image-packs/characters/hero.png'">
                         <div class="gallery-card-content">
                             <h4 class="gallery-card-title">${card.name}</h4>
                             <p class="gallery-card-subtitle">${card.class}</p>
@@ -591,6 +658,8 @@ document.addEventListener('DOMContentLoaded', () => {
   
   const publishBtn = document.getElementById('publish-btn');
   if (publishBtn) publishBtn.addEventListener('click', publishCard);
+  const deleteBtn = document.getElementById('delete-btn');
+  if (deleteBtn) deleteBtn.addEventListener('click', deleteCard);
 });
 
 // Handle card selection to fill form (if editor loaded earlier)
@@ -607,6 +676,9 @@ document.addEventListener('cardforge:select', e => {
 
   // Trigger preview update if button exists
   const previewBtn = document.getElementById('preview-btn');
+  // Enable delete button when a card is selected
+  const deleteBtn = document.getElementById('delete-btn');
+  if (deleteBtn) deleteBtn.disabled = false;
   if (previewBtn) previewBtn.click();
 });
 
@@ -688,7 +760,7 @@ async function saveCard() {
         }
         
         // Use buildApiPath helper for proper API endpoint construction
-        const endpoint = buildApiPath('api/cardforgesavecards');
+        const endpoint = buildApiPath('cardforge/savecards');
         console.log(`[CardForge] Saving card to endpoint: ${endpoint}`);
         
         // Send the card data to the server
@@ -701,7 +773,7 @@ async function saveCard() {
             if (devAuth) {
                 const { id: devUserId } = JSON.parse(devAuth);
                 saveHeaders['X-User-ID'] = devUserId;
-                if (window._config.debug) console.log(`[DEV] Added X-User-ID header for save: ${devUserId}`);
+                if (window._config && window._config.debug) console.log(`[DEV] Added X-User-ID header for save: ${devUserId}`);
             }
         }
         const response = await fetch(endpoint, {

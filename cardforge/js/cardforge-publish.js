@@ -43,7 +43,7 @@ async function publishCard() {
         }
         
         // Call the cardforgepublish API with corrected path construction
-        const endpoint = window.buildApiPath('api/cardforgepublish');
+        const endpoint = window.buildApiPath('cardforge/cardpublish');
         console.log('[CardForge] Publishing to endpoint:', endpoint);
         
         // Ensure we send both upper and lowercase versions of the user ID header
