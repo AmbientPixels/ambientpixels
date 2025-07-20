@@ -35,7 +35,9 @@
     }
 
     try {
-      const endpoint = window.buildApiPath(`cardforgetemplate?type=${encodeURIComponent(templateType)}`);
+      // Use the configured API endpoint
+      const endpoint = window.buildApiPath('template', { type: templateType });
+      
       console.log(`[CardForge] Loading template from endpoint: ${endpoint}`);
       
       const response = await fetch(endpoint, {

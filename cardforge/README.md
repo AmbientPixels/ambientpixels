@@ -55,6 +55,22 @@ CardForge V2 is a production-ready, browser-based toolkit for designing, editing
 
 ---
 
+
+## endpoints
+
+https://ambientpixels-nova-api.azurewebsites.net/api/cardforgedeletecard?
+
+https://ambientpixels-nova-api.azurewebsites.net/api/cardforgeloadcards?
+
+https://ambientpixels-nova-api.azurewebsites.net/api/cardforgepublish?
+
+https://ambientpixels-nova-api.azurewebsites.net/api/cardforgesavecards?
+
+https://ambientpixels-nova-api.azurewebsites.net/api/cardforgetemplate?
+
+https://ambientpixels-nova-api.azurewebsites.net/api/getCardTemplate?
+
+
 ## 🚀 Quickstart
 
 ### Prerequisites

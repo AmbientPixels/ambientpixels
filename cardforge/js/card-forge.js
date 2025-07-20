@@ -21,7 +21,9 @@ async function saveCard() {
   const templateTypeInput = document.getElementById('card-template-type');
 
   // Clear previous errors
-  clearValidationErrors();
+  if (window.UIUtils) {
+    window.UIUtils.clearValidationErrors();
+  }
 
   // Simple validation
   const errors = [];
@@ -30,7 +32,11 @@ async function saveCard() {
   if (!avatarInput?.value?.trim()) errors.push('Avatar URL is required');
 
   if (errors.length > 0) {
-    showValidationErrors(errors);
+    if (window.UIUtils) {
+      window.UIUtils.showValidationErrors(errors);
+    } else {
+      console.error('Validation errors:', errors);
+    }
     return;
   }
 
@@ -46,59 +52,59 @@ async function saveCard() {
   };
 
   // Show confirmation dialog
-  showConfirmDialog(
-    'Save Card', 
-    'Do you want to save this card to your collection?',
-    async () => {
-      const saveBtn = document.getElementById('save-btn');
-      try {
-        // Set loading state
-        if (saveBtn) {
-          saveBtn.disabled = true;
-          saveBtn.textContent = 'Saving...';
-        }
-
-        // Use buildApiPath helper for proper API endpoint construction
-        const endpoint = buildApiPath('cardforgesavecards');
-        console.log(`[CardForge] Saving card to endpoint: ${endpoint}`);
-
-        // Prepare headers
-        const headers = {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': window.csrfProtection?.getToken?.() || ''
-        };
-
-        // Add dev user ID in non-production
-        if (window._config?.environment !== 'production') {
-          const devAuth = localStorage.getItem('cardforge_dev_auth');
-          if (devAuth) {
-            try {
-              const { id: devUserId } = JSON.parse(devAuth);
-              headers['X-User-ID'] = devUserId;
-              if (window._config?.debug) {
-                console.log(`[DEV] Added X-User-ID header for save: ${devUserId}`);
-              }
-            } catch (e) {
-              console.warn('Failed to parse dev auth data', e);
-            }
+  const showDialog = window.UIUtils?.showConfirmDialog || window.confirm;
+  
+  if (typeof showDialog === 'function') {
+    showDialog(
+      'Save Card', 
+      'Do you want to save this card to your collection?',
+      async () => {
+        const saveBtn = document.getElementById('save-btn');
+        try {
+          // Set loading state
+          if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
           }
-        }
 
-        // Make API request
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          credentials: 'include',
-          headers,
-          body: JSON.stringify(card)
-        });
+          // Prepare the card data
+          const cardData = {
+            id: card.id,
+            name: card.name,
+            class: card.class,
+            quote: card.quote,
+            avatar: card.avatar,
+            achievement: card.achievement,
+            templateType: card.templateType
+          };
 
-        if (!response.ok) {
-          const error = await response.text().catch(() => null);
-          throw new Error(error || `HTTP ${response.status}`);
-        }
+          // Use buildApiPath helper for proper API endpoint construction
+          const endpoint = window.buildApiPath('saveCard');
+          console.log(`[CardForge] Saving card to endpoint: ${endpoint}`);
 
-        const result = await response.json();
-        console.log('[CardForge] Card saved:', result);
+          // Prepare headers
+          const headers = {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': window.csrfProtection?.getToken?.() || '',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          };
+
+          // Save the card using the API
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            credentials: 'include',
+            headers,
+            body: JSON.stringify(cardData)
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `HTTP ${response.status}`);
+          }
+
+          const result = await response.json();
+          console.log('[CardForge] Card saved:', result);
 
         // Update card ID if this is a new card
         if (cardIdInput && result.id) {
@@ -125,6 +131,7 @@ async function saveCard() {
       }
     }
   );
+  } // Close the if (typeof showDialog === 'function') block
 }
 
 /**
@@ -140,37 +147,48 @@ async function loadCards() {
     
     // Try API first
     try {
-      const response = await fetch(buildApiPath('cardforgeloadcards'), {
+      const endpoint = window.buildApiPath('loadCards');
+      console.log(`[CardForge] Loading cards from: ${endpoint}`);
+      
+      const response = await fetch(endpoint, {
         credentials: 'include',
         headers: {
           'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
+          'Pragma': 'no-cache',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
         }
       });
       
-      if (response.ok) {
-        const cards = await response.json();
-        renderCards(cardList, cards);
-        return;
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP ${response.status}`);
       }
-      throw new Error(`HTTP ${response.status}`);
+      
+      const cards = await response.json();
+      renderCards(cardList, cards);
+      return;
     } catch (apiError) {
       console.warn('API load failed, trying mock data', apiError);
       // Fall through to mock data
     }
 
-    // Fallback to mock data
-    try {
-      const [defaultCards, publishedCards] = await Promise.all([
-        fetch('/cardforge/mock/default-cards.json').then(r => r.json()),
-        fetch('/cardforge/mock/published-cards.json').then(r => r.json())
-      ]);
-      
-      renderCards(cardList, [...(defaultCards || []), ...(publishedCards || [])]);
-    } catch (mockError) {
-      console.error('Failed to load mock data:', mockError);
-      throw new Error('Failed to load cards. Please try again later.');
+    // Fallback to mock data if in development
+    if (window._config?.environment === 'development') {
+      try {
+        const mockResponse = await fetch('/cardforge/mock/cards.json');
+        if (mockResponse.ok) {
+          const mockData = await mockResponse.json();
+          renderCards(cardList, mockData);
+          console.warn('[CardForge] Using mock data');
+          return;
+        }
+      } catch (mockError) {
+        console.error('Failed to load mock data:', mockError);
+      }
     }
+    
+    throw new Error('Failed to load cards. Please check your connection and try again.');
   } catch (error) {
     console.error('Failed to load cards:', error);
     cardList.innerHTML = `

@@ -1,33 +1,62 @@
 /**
  * CardForge Configuration
  * Central configuration file for all CardForge settings
- * Extracted from index.html per Windsurf Rule #1: No inline scripts
+ * Updated 2025-07-19: Added production API endpoints and improved environment detection
  */
 
 window._config = {
-  // API base path for all endpoint calls
-  apiBasePath: '/api',
-  
   // Environment settings
   environment: (window.location.hostname === 'ambientpixels.ai' || window.location.hostname.endsWith('.azurestaticapps.net')) ? 'production' : 'development',
   
-  // Application Insights
-  appInsightsConnectionString: 'InstrumentationKey=0339ebd7-6d1c-424f-a495-8ddb052a57b0;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/',
-  enableAppInsights: window.location.hostname === 'ambientpixels.ai' || window.location.hostname.endsWith('.azurestaticapps.net'),
+  // API Configuration
+  apiEndpoints: {
+    base: 'https://ambientpixels-nova-api.azurewebsites.net/api',
+    loadCards: 'cardforgeloadcards',
+    saveCard: 'cardforgesavecards',
+    deleteCard: 'cardforgedeletecard',
+    publish: 'cardforgepublish',
+    template: 'cardforgetemplate'
+  },
   
-  // Debug settings
-  debug: !(window.location.hostname === 'ambientpixels.ai' || window.location.hostname.endsWith('.azurestaticapps.net')),
-  version: 'v2.1'
+  // Application Insights - Disabled in production until 400 errors are resolved
+  appInsightsConnectionString: '',
+  enableAppInsights: false,
+  
+  // Debug settings - Always off in production
+  debug: false,
+  version: 'v2.2',
+  
+  // Feature flags - Optimized for production
+  features: {
+    useMockData: false,  // Always use real API in production
+    enableOfflineMode: false  // Disable offline mode in production
+  }
 };
 
 /**
- * Builds a properly formatted API path
- * @param {string} path - The API endpoint path
- * @returns {string} Formatted API path
+ * Builds a properly formatted API URL
+ * @param {string} endpoint - The API endpoint name (e.g., 'loadCards', 'saveCard')
+ * @param {Object} [params={}] - Query parameters as key-value pairs
+ * @returns {string} Full API URL with parameters
  */
-window.buildApiPath = function(path) {
-  // Remove any leading/trailing slashes
-  const cleanPath = path.replace(/^\/|\/$/g, '');
-  // Ensure we don't get double slashes
-  return `/${cleanPath}`;
+window.buildApiPath = function(endpoint, params = {}) {
+  const baseUrl = window._config.apiEndpoints.base;
+  const path = window._config.apiEndpoints[endpoint];
+  
+  if (!path) {
+    console.error(`[Config] Unknown endpoint: ${endpoint}`);
+    return '';
+  }
+  
+  // Build query string from params
+  const queryString = Object.entries(params)
+    .filter(([_, value]) => value !== undefined && value !== null)
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+    .join('&');
+  
+  return `${baseUrl}/${path}${queryString ? '?' + queryString : ''}`;
 };
+
+// Log environment info
+console.log(`[CardForge] Environment: ${window._config.environment}`);
+console.log(`[CardForge] Debug mode: ${window._config.debug ? 'ON' : 'OFF'}`);
