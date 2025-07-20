@@ -106,7 +106,12 @@ async function saveCard() {
           const result = await response.json();
           console.log('[CardForge] Card saved:', result);
 
-        // Update card ID if this is a new card
+          if (window.UIUtils && typeof window.UIUtils.showMessage === 'function') {
+            window.UIUtils.showMessage('Card saved successfully!', 'success');
+          } else {
+            console.log('Card saved successfully!');
+          }
+          // Update card ID if this is a new card
         if (cardIdInput && result.id) {
           cardIdInput.value = result.id;
         }
@@ -121,7 +126,11 @@ async function saveCard() {
         loadCards(); // Refresh the card list
       } catch (error) {
         console.error('Failed to save card:', error);
-        showMessage(`Error: ${error.message}`, 'error');
+        if (window.UIUtils && typeof window.UIUtils.showMessage === 'function') {
+          window.UIUtils.showMessage(`Error: ${error.message}`, 'error');
+        } else {
+          console.error('Failed to save card:', error.message);
+        }
       } finally {
         // Reset button state
         if (saveBtn) {

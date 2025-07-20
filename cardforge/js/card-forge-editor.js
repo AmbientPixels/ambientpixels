@@ -14,11 +14,17 @@
     const previewBtn = document.getElementById('preview-btn');
     if (previewBtn) {
       previewBtn.addEventListener('click', () => {
-        showConfirmDialog(
-          'Preview Card',
-          'Do you want to preview this card?',
-          updatePreview
-        );
+        if (typeof UIUtils !== 'undefined' && typeof UIUtils.showConfirmDialog === 'function') {
+          UIUtils.showConfirmDialog(
+            'Preview Card',
+            'Do you want to preview this card?',
+            updatePreview
+          );
+        } else {
+          // Fallback to direct preview if UIUtils is not available
+          console.warn('UIUtils not available, showing preview directly');
+          updatePreview();
+        }
       });
     }
   });
