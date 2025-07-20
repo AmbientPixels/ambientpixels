@@ -159,6 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Helper: Get selected tags
   function getSelectedTags() {
+    if (!tagDropdown || !tagDropdown.selectedOptions) return [];
     return Array.from(tagDropdown.selectedOptions).map(opt => opt.value);
   }
 

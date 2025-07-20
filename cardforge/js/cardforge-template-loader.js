@@ -42,20 +42,44 @@
         credentials: 'include',
         headers: {
           'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
+          'Pragma': 'no-cache',
+          'Accept': 'application/json'  // Explicitly request JSON
         }
       });
       
+      const contentType = response.headers.get('content-type') || '';
+      let template;
+      
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Failed to load template: HTTP ${response.status}`);
+        // Try to parse error response as JSON, fallback to text if not JSON
+        const errorText = await response.text();
+        try {
+          const errorData = JSON.parse(errorText);
+          throw new Error(errorData.message || `Failed to load template: HTTP ${response.status}`);
+        } catch (e) {
+          // If response is HTML, it might be a login page or error page
+          if (contentType.includes('text/html')) {
+            throw new Error('Authentication required or server error. Please check your login status.');
+          }
+          throw new Error(`Failed to load template: ${errorText || `HTTP ${response.status}`}`);
+        }
       }
       
-      const template = await response.json();
-      updateFormWithTemplate(template);
+      // Check if response is JSON
+      if (!contentType.includes('application/json')) {
+        const responseText = await response.text();
+        console.warn(`[CardForge] Expected JSON but got:`, responseText.substring(0, 100));
+        throw new Error('Invalid response format from server');
+      }
       
-      // Log success
-      console.log(`[CardForge] Loaded template for ${templateType}`);
+      template = await response.json();
+      
+      if (!template || typeof template !== 'object') {
+        throw new Error('Invalid template data received');
+      }
+      
+      updateFormWithTemplate(template);
+      console.log(`[CardForge] Loaded template for ${templateType}`, template);
       
       // Trigger preview update if button exists
       const previewBtn = document.getElementById('preview-btn');
