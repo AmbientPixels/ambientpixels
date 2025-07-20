@@ -43,11 +43,21 @@
         headers: {
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache',
-          'Accept': 'application/json'  // Explicitly request JSON
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'  // Helps identify AJAX requests
         }
       });
       
       const contentType = response.headers.get('content-type') || '';
+      
+      // Check if response is HTML (indicating a redirect to login or error page)
+      if (contentType.includes('text/html')) {
+        const text = await response.text();
+        if (text.includes('signin') || text.includes('login')) {
+          throw new Error('Authentication required. Please sign in.');
+        }
+        throw new Error('Unexpected HTML response from server');
+      }
       let template;
       
       if (!response.ok) {

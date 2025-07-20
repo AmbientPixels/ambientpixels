@@ -194,16 +194,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Helper: Update clear button
   function updateClearBtn() {
+    if (!clearBtn) return; // Exit if clear button doesn't exist
+    
     const hasFilters = getSelectedTags().length > 0 ||
       (statusDropdown && statusDropdown.value) ||
       (sizeDropdown && sizeDropdown.value) ||
       (searchInput && searchInput.value.trim().length > 0);
+      
     if (hasFilters) {
       clearBtn.classList.add('active');
       clearBtn.style.display = '';
     } else {
       clearBtn.classList.remove('active');
-      clearBtn.style.display = '';
+      clearBtn.style.display = 'none';
     }
   }
 

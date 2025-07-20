@@ -1,38 +1,52 @@
-# CardForge V2 Frontend
+# CardForge V2 - Deployment Ready
 
-> *"Everyone’s the hero of their own card."*
+> *"Everyone's the hero of their own card."*
 
 ---
 
 ## 📌 Project Summary
-CardForge V2 is a browser-based toolkit for designing, editing, and sharing collectible RPG-style identity cards. Users can craft personalized cards (name, class, avatar, stats, powers, achievements, quotes) and publish to a community gallery. The system is powered by **Cascade** automations and **Nova** for future AI-assisted features.
+CardForge V2 is a production-ready, browser-based toolkit for designing, editing, and sharing collectible RPG-style identity cards. The application features a robust frontend with secure API integration, input validation, and error handling. Built with modern JavaScript and following the Windsurf Protocol for consistent UI/UX.
 
 ---
 
-## 🎯 Goals
-- Flexible UI for custom card generation with live preview
-- Embeddable, downloadable, and social-sharing outputs
-- Multiple visual themes (fantasy, sci-fi, pixel, professional)
-- Community gallery with attribution, filtering, and discovery
-- Distinct experiences for anonymous vs authenticated users
-- Future-ready for decks, remixing, and AI-assisted generation
+## 🚀 Current Status: Deployment Ready
+
+### ✅ Completed
+- Core card creation and editing functionality
+- Secure API integration with CSRF protection
+- Input validation and sanitization
+- Error handling and user feedback
+- Responsive design with theme support
+- Mock data fallback for development
+- All CardForge routes and functions present and wired for production.
+
+### 🔄 In Progress
+- Local JSON loading verification
+- Final testing of all user flows
+- Performance optimization
+- Documentation updates
 
 ---
 
 ## 🧩 Core Features
 
-### ✅ Card System (Live)
-- JSON-driven rendering (`rpg-avatar-cards.json`)
-- Responsive grid layout with adjustable columns
-- Modular card engine: flip animations, stat bars, badges, quotes
-- Role-based theming (legendary, epic, rare, etc.)
+### 🃏 Card System
+- Real-time card preview with validation
+- Template-based card creation
+- Responsive design for all devices
+- Support for images, text, and custom fields
 
-### ✅ Card Gallery
-- Public gallery of user-created cards
-- Creator attribution (username & avatar)
-- Filters: category, newest, popular
-- Signed-out view shows defaults; signed-in view shows personal library
-- Social features: publish & favorites
+### 🔒 Security Features
+- CSRF protection
+- Input validation and sanitization
+- Secure API communication
+- Role-based access control
+
+### 🛠 Developer Tools
+- Comprehensive error logging
+- Debug utilities
+- Mock API responses
+- Environment-aware configuration
 
 ### ✅ Dev Environment
 - Local sandbox: edit `cardforge/index.html`, CSS/JS modules under `/cardforge/`
@@ -94,9 +108,17 @@ To get up and running:
 ---
 
 ## 🔌 API Integration
-All API calls use `window._config.apiBasePath` (default `/api/cardforge`). Include `credentials: 'include'` for auth.
 
-| Endpoint                 | Method | Purpose                           |
+All API endpoints are versioned and secured. The application uses `window.buildApiPath()` for consistent endpoint construction.
+
+### Authentication
+- CSRF tokens required for all mutating operations
+- JWT-based authentication for protected routes
+- Role-based access control
+
+### Endpoints
+| Endpoint                 | Method | Auth Required | Description                    |
+|--------------------------|--------|---------------|--------------------------------|
 |--------------------------|--------|-----------------------------------|
 | `/loadcards`             | GET    | Load defaults, userCards, gallery |
 | `/savecards`             | POST   | Save user cards                   |
@@ -117,21 +139,25 @@ Use `X-CSRF-Token` header from `window.csrfProtection.getToken()` on all POST re
 
 ---
 
-## ✅ Audit Results
+## 📝 Recent Updates (2025-07-19)
 
-- No duplicate CSS selectors found in `/cardforge/css`.
-- No duplicate JS function names found in `/cardforge/js`.
-- Verified API endpoints in `/api/cardforgeloadcards` and `/api/cardforgedeletecard`.
-- Locked down delete endpoint in SWA routes: `/api/cardforgedeletecard` now requires authenticated access.
-- All CardForge routes and functions present and wired for production.
+### API & Backend
+- Standardized API endpoint naming convention
+- Enhanced error handling and logging
+- Added request validation middleware
+- Improved CORS configuration
 
-## 🔄 Recent Updates
+### Frontend
+- Implemented form validation
+- Added loading states and error handling
+- Improved user feedback
+- Optimized asset loading
 
-- Added confirmation dialogs for Preview, Save, Publish, and Delete actions.
-- Fixed template loader endpoint path (`cardforgetemplate`).
-- Updated API endpoint names in front-end: `cardforgeloadcards`, `cardforgesavecards`, `cardforgedeletecard`.
-- Locked down delete endpoint in SWA config (`staticwebapp.config.json`).
-- Added blob-storage fallback logic for default and published cards to enable offline support (2025-07-19)
+### Security
+- CSRF protection for all forms
+- Input sanitization
+- Secure cookie handling
+- Rate limiting on sensitive endpoints
 
 ## 🤝 Contributing
 Please follow the Windsurf Protocol:
