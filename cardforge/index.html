@@ -147,28 +147,40 @@
   <!-- CSRF Protection and validation utilities - load before other scripts -->
   <script src="/cardforge/js/csrf-protection.js"></script>
   <script src="/cardforge/js/validation-utils.js"></script>
+  <!-- Core Framework -->
   <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/init-quotes.js" defer></script>
-  <script src="/js/md-inject.js" defer></script>
-  <script src="/js/nav.js" defer></script>
-  <script src="/js/nova-ai.js" defer></script>
-  <script src="/js/nova-awareness-feed.js" defer></script>
-  <script src="/js/nova-dashboard.js" defer></script>
-  <script src="/js/nova-insights.js" defer></script>
-  <script src="/js/nova-interaction-log.js" defer></script>
-  <script src="/js/nova-mood-core.js" defer></script>
-  <script src="/js/nova-quotes.js" defer></script>
-  <script src="/js/nova-status.js" defer></script>
-  <script src="/js/nova-telemetry-logger.js" defer></script>
-  <script src="/js/project-dashboard.js" defer></script>
-  <script src="/js/template.js" defer></script>
   <script src="/js/theme.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  
+  <!-- Nova Core -->
+  <script src="/js/nova-mood-core.js" defer></script>
+  <script src="/js/nova-status.js" defer></script>
+  
+  <!-- CardForge Core -->
+  <script src="/cardforge/js/config.js" defer></script>
+  <script src="/cardforge/js/csrf-protection.js" defer></script>
+  <script src="/cardforge/js/validation-utils.js" defer></script>
+  <script src="/cardforge/js/debug-utils.js" defer></script>
   <script src="/cardforge/js/card-forge.js" defer></script>
   <script src="/cardforge/js/cardforge-template-loader.js" defer></script>
-  <script src="/cardforge/js/cardforge-publish.js" defer></script>
   <script src="/cardforge/js/card-forge-editor.js" defer></script>
-  <script src="/cardforge/js/debug-utils.js" defer></script>
-  <script src="/js/main.js"></script>
+  <script src="/cardforge/js/cardforge-publish.js" defer></script>
+  
+  <!-- Nova Extensions -->
+  <script src="/js/nova-ai.js" defer></script>
+  <script src="/js/nova-insights.js" defer></script>
+  <script src="/js/nova-interaction-log.js" defer></script>
+  <script src="/js/nova-telemetry-logger.js" defer></script>
+  
+  <!-- Other Scripts -->
+  <script src="/js/init-quotes.js" defer></script>
+  <script src="/js/md-inject.js" defer></script>
+  <script src="/js/nova-awareness-feed.js" defer></script>
+  <script src="/js/nova-dashboard.js" defer></script>
+  <script src="/js/nova-quotes.js" defer></script>
+  <script src="/js/project-dashboard.js" defer></script>
+  <script src="/js/template.js" defer></script>
+  <script src="/js/main.js" defer></script>
 
   <!-- === Authentication Scripts === -->
   <!-- Auth scripts are loaded via the footer module -->
@@ -180,11 +192,11 @@
   <!-- Confirmation Dialog -->
   <div id="cardforge-dialog" class="cardforge-dialog">
     <div class="cardforge-dialog-content">
-      <h3 id="dialog-title"></h3>
-      <p id="dialog-message"></p>
+      <h3 id="cardforge-dialog-title"></h3>
+      <p id="cardforge-dialog-message"></p>
       <div class="dialog-buttons">
-        <button id="dialog-confirm" class="filter-pill">Confirm</button>
-        <button id="dialog-cancel" class="filter-pill">Cancel</button>
+        <button id="cardforge-dialog-confirm" class="filter-pill">Confirm</button>
+        <button id="cardforge-dialog-cancel" class="filter-pill">Cancel</button>
       </div>
     </div>
   </div>

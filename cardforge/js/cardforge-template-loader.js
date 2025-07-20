@@ -29,28 +29,29 @@
    * @param {string} templateType - The type of template to load (character, location, item)
    */
   async function loadTemplateForType(templateType) {
+    const form = document.getElementById('card-editor-form');
+    if (form) {
+      form.classList.add('loading');
+    }
+
     try {
-      // Show loading state
-      const form = document.getElementById('card-editor-form');
-      if (form) {
-        form.classList.add('loading');
-      }
-      
-      // Use global buildApiPath helper for proper path construction
-      // This prevents double /api/ issues and ensures consistent API paths
-      const endpoint = window.buildApiPath(`cardforgetemplate?type=${templateType}`);
+      const endpoint = window.buildApiPath(`cardforgetemplate?type=${encodeURIComponent(templateType)}`);
       console.log(`[CardForge] Loading template from endpoint: ${endpoint}`);
       
-      // Fetch template from API with corrected path
-      const response = await fetch(endpoint);
+      const response = await fetch(endpoint, {
+        credentials: 'include',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
       
       if (!response.ok) {
-        throw new Error(`Failed to load template: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to load template: HTTP ${response.status}`);
       }
       
       const template = await response.json();
-      
-      // Update form placeholders and help text based on template
       updateFormWithTemplate(template);
       
       // Log success

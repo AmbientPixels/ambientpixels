@@ -2,934 +2,7 @@
 // Updated 2025-07-05: Added input validation, sanitization, and improved error handling
 // Updated 2025-07-05: Using shared validation utilities module
 
-// Helper functions for UI feedback
-// Note: validation and sanitization functions now use shared ValidationUtils module
-
-/**
- * Shows validation errors in the UI
- * @param {Array} errors - Array of error messages
- */
-function showValidationErrors(errors) {
-  // Remove any existing error messages
-  clearValidationErrors();
-  
-  // Create error container if it doesn't exist
-  let errorContainer = document.getElementById('cardforge-errors');
-  if (!errorContainer) {
-    errorContainer = document.createElement('div');
-    errorContainer.id = 'cardforge-errors';
-    errorContainer.className = 'cardforge-error-container';
-    
-    // Insert after the form
-    const form = document.getElementById('card-editor-form');
-    if (form) {
-      form.insertAdjacentElement('afterend', errorContainer);
-    }
-  }
-  
-  // Add each error
-  const errorList = document.createElement('ul');
-  errors.forEach(error => {
-    const errorItem = document.createElement('li');
-    errorItem.textContent = error;
-    errorList.appendChild(errorItem);
-  });
-  
-  errorContainer.appendChild(errorList);
-}
-
-/**
- * Clears validation errors from the UI
- */
-function clearValidationErrors() {
-  const errorContainer = document.getElementById('cardforge-errors');
-  if (errorContainer) {
-    errorContainer.innerHTML = '';
-  }
-}
-
-/**
- * Shows a message popup to the user
- * @param {string} message - The message to display
- * @param {string} type - The type of message (success, error, info)
- */
-function showMessage(message, type = 'info') {
-  // Create message container if it doesn't exist
-  let messageContainer = document.getElementById('cardforge-messages');
-  if (!messageContainer) {
-    messageContainer = document.createElement('div');
-    messageContainer.id = 'cardforge-messages';
-    messageContainer.className = 'cardforge-message-container';
-    
-    // Insert at the top of the editor section
-    const editorSection = document.querySelector('.cardforge-editor');
-    if (editorSection) {
-      editorSection.insertAdjacentElement('afterbegin', messageContainer);
-    } else {
-      document.body.insertAdjacentElement('afterbegin', messageContainer);
-    }
-  }
-  
-  // Create the message element
-  const messageElement = document.createElement('div');
-  messageElement.className = `cardforge-message cardforge-message-${type}`;
-  messageElement.textContent = message;
-  
-  // Add close button
-  const closeButton = document.createElement('button');
-  closeButton.className = 'cardforge-message-close';
-  closeButton.innerHTML = '&times;';
-  closeButton.onclick = function() {
-    messageElement.remove();
-  };
-  messageElement.appendChild(closeButton);
-  
-  // Add to container
-  messageContainer.appendChild(messageElement);
-  
-  // Auto-remove after 5 seconds if it's a success message
-  if (type === 'success') {
-    setTimeout(() => {
-      messageElement.remove();
-    }, 5000);
-  }
-}
-
-/**
- * Shows a confirmation dialog
- * @param {string} title - Dialog title
- * @param {string} message - Dialog message
- * @param {Function} onConfirm - Function to call when confirmed
- */
-function showConfirmDialog(title, message, onConfirm) {
-  const dialog = document.getElementById('cardforge-dialog');
-  const dialogTitle = document.getElementById('dialog-title');
-  const dialogMessage = document.getElementById('dialog-message');
-  const confirmBtn = document.getElementById('dialog-confirm');
-  const cancelBtn = document.getElementById('dialog-cancel');
-  
-  if (!dialog || !dialogTitle || !dialogMessage || !confirmBtn || !cancelBtn) {
-    console.error('Dialog elements not found');
-    return;
-  }
-  
-  // Set dialog content
-  dialogTitle.textContent = title;
-  dialogMessage.textContent = message;
-  
-  // Show dialog
-  dialog.classList.add('active');
-  
-  // Handle confirm button
-  const handleConfirm = () => {
-    dialog.classList.remove('active');
-    confirmBtn.removeEventListener('click', handleConfirm);
-    cancelBtn.removeEventListener('click', handleCancel);
-    onConfirm();
-  };
-  
-  // Handle cancel button
-  const handleCancel = () => {
-    dialog.classList.remove('active');
-    confirmBtn.removeEventListener('click', handleConfirm);
-    cancelBtn.removeEventListener('click', handleCancel);
-  };
-  
-  // Add event listeners
-  confirmBtn.addEventListener('click', handleConfirm);
-  cancelBtn.addEventListener('click', handleCancel);
-}
-
-/**
- * Shows a message to the user
- * @param {string} message - The message to display
- * @param {string} type - The type of message ('success', 'error', 'info')
- */
-function showMessage(message, type = 'info') {
-  // Create message container if it doesn't exist
-  let messageContainer = document.getElementById('cardforge-messages');
-  if (!messageContainer) {
-    messageContainer = document.createElement('div');
-    messageContainer.id = 'cardforge-messages';
-    messageContainer.className = 'cardforge-message-container';
-    
-    // Insert at the top of the editor section
-    const editorSection = document.querySelector('.cardforge-editor');
-    if (editorSection) {
-      editorSection.insertAdjacentElement('afterbegin', messageContainer);
-    } else {
-      document.body.insertAdjacentElement('afterbegin', messageContainer);
-    }
-  }
-  
-  // Create the message element
-  const messageElement = document.createElement('div');
-  messageElement.className = `cardforge-message cardforge-message-${type}`;
-  messageElement.textContent = message;
-  
-  // Add close button
-  const closeButton = document.createElement('button');
-  closeButton.className = 'cardforge-message-close';
-  closeButton.innerHTML = '&times;';
-  closeButton.onclick = function() {
-    messageElement.remove();
-  };
-  messageElement.appendChild(closeButton);
-  
-  // Add to container
-  messageContainer.appendChild(messageElement);
-  
-  // Auto-remove after 5 seconds if it's a success message
-  if (type === 'success') {
-    setTimeout(() => {
-      messageElement.remove();
-    }, 5000);
-  }
-}
-
-// loadCards() will retrieve the current user's cards (mock for now)
-
-// Helper to determine API base URL based on environment
-// Returns normalized API base URL without trailing slashes
-function getApiBaseUrl() {
-    // Check if window._config exists (for custom API paths)
-    if (window._config && window._config.apiBasePath) {
-        const base = window._config.apiBasePath;
-        // Normalize: remove trailing slash if present
-        return base.endsWith('/') ? base.slice(0, -1) : base;
-    }
-    
-    // Default: use relative paths (will be handled by Azure Static Web Apps)
-    return '';
-}
-
-// Helper function to construct API endpoint paths correctly
-// Prevents double /api/ prefixes
-function buildApiPath(endpoint) {
-    const base = getApiBaseUrl();
-    
-    // If the endpoint already starts with a slash, remove it
-    const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
-    
-    // If base is '/api' and endpoint starts with 'api/', prevent duplication
-    if (base === '/api' && cleanEndpoint.startsWith('api/')) {
-        return `${base}/${cleanEndpoint.substring(4)}`;
-    }
-    
-    // Otherwise join them normally with a slash
-    return base ? `${base}/${cleanEndpoint}` : `/${cleanEndpoint}`;
-}
-
-// Expose buildApiPath globally so other scripts can use it
-window.buildApiPath = buildApiPath;
-
-/**
- * Delete a saved card
- */
-async function deleteCard() {
-  const cardIdInput = document.getElementById('card-id');
-  const cardId = cardIdInput && cardIdInput.value;
-  if (!cardId) {
-    showMessage('Select a saved card before deleting', 'error');
-    return;
-  }
-
-  showConfirmDialog(
-    'Delete Card',
-    'Are you sure you want to delete this card? This action cannot be undone.',
-    async () => {
-      const deleteBtn = document.getElementById('delete-btn');
-      const publishBtn = document.getElementById('publish-btn');
-      if (deleteBtn) {
-        deleteBtn.disabled = true;
-        deleteBtn.textContent = 'Deleting...';
-      }
-      try {
-        const endpoint = buildApiPath('cardforgedeletecard');
-        const headers = {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': window.csrfProtection.getToken()
-        };
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers,
-          credentials: 'include',
-          body: JSON.stringify({ id: cardId })
-        });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        await response.json();
-        showMessage('Card deleted successfully!', 'success');
-        loadCards();
-        // Clear form
-        const form = document.getElementById('card-editor-form');
-        if (form) form.reset();
-        if (publishBtn) publishBtn.disabled = true;
-        if (deleteBtn) deleteBtn.textContent = 'Delete';
-      } catch (error) {
-        console.error('Delete card failed:', error);
-        showMessage(`Error deleting card: ${error.message}`, 'error');
-      }
-    }
-  );
-}
-
-/**
- * Load user cards and gallery cards
- */
-async function loadCards() {
-    // DOM refs
-    const myCardsList = document.getElementById('my-cards-list');
-    const galleryGrid = document.getElementById('gallery-cards-grid');
-    const saveBtn = document.getElementById('save-btn');
-    const publishBtn = document.getElementById('publish-btn');
-    // Auth detection omitted for brevity (unchanged)
-    try {
-        const endpoint = buildApiPath('cardforgeloadcards');
-        const res = await fetch(endpoint, {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (window._config?.debug) console.log('[CardForge] loadCards data', data);
-        // Prepare card arrays
-        const userCards = isAuthenticated ? (data.userCards || []) : [];
-        const galleryCards = data.galleryCards?.length ? data.galleryCards : data.publishedCards || [];
-        // Render user cards
-        if (myCardsList) {
-            const frag = document.createDocumentFragment();
-            const list = isAuthenticated ? userCards : [];
-            if (list.length) {
-                list.forEach(card => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <img class="card-list-thumbnail" src="${card.avatar}" alt="${card.name}" />
-                        <div class="card-list-info"><h4>${card.name}</h4><p>${card.class}</p></div>`;
-                    frag.appendChild(li);
-                });
-            } else {
-                const li = document.createElement('li'); li.textContent = isAuthenticated ? 'No saved cards yet.' : '';
-                frag.appendChild(li);
-            }
-            myCardsList.innerHTML = '';
-            myCardsList.appendChild(frag);
-        }
-        // Render gallery cards
-        if (galleryGrid) {
-            const frag = document.createDocumentFragment();
-            if (galleryCards.length) {
-                galleryCards.forEach(card => {
-                    const div = document.createElement('div');
-                    div.className = 'gallery-card';
-                    div.innerHTML = `
-                        <img src="${card.avatar}" alt="${card.name}" />
-                        <div><h4>${card.name}</h4><p>${card.class}</p></div>`;
-                    frag.appendChild(div);
-                });
-            } else {
-                const div = document.createElement('div'); div.textContent = 'No published cards yet.';
-                frag.appendChild(div);
-            }
-            galleryGrid.innerHTML = '';
-            galleryGrid.appendChild(frag);
-        }
-    } catch (error) {
-        if (window.AppInsightsService?.isInitialized()) AppInsightsService.trackException(error, { source: 'cardforge.loadCards' });
-        console.error('[CardForge] loadCards error:', error);
-        if (myCardsList) myCardsList.innerHTML = `<li class=\"error-message\">Error: ${error.message}</li>`;
-        if (galleryGrid) galleryGrid.innerHTML = `<div class=\"error-message\">Error: ${error.message}</div>`;
-    }
-}
-
-
-let account = null;
-let isAuthenticated = false;
-
-// Initialize authentication status
-async function initAuth() {
-    // Method 0: Static Web Apps EasyAuth via .auth/me
-    try {
-        const meRes = await fetch('/.auth/me', { credentials: 'include' });
-        if (meRes.ok) {
-            const meData = await meRes.json();
-            const cp = meData.clientPrincipal;
-            if (cp && cp.userId && cp.userId !== 'anonymous') {
-                account = { id: cp.userId, name: cp.userDetails || cp.userId };
-                isAuthenticated = true;
-                console.log('[CardForge] Auth via EasyAuth');
-            }
-        }
-    } catch (e) {
-        console.warn('[CardForge] .auth/me error', e);
-    }
-
-    // Method 1: SWA authModule
-    if (window.authModule?.getCurrentUser) {
-        const user = window.authModule.getCurrentUser();
-        if (user) {
-            account = user;
-            isAuthenticated = true;
-            console.log('[CardForge] Auth via authModule');
-        }
-    }
-
-    // Method 2: AAD authClient
-    if (!isAuthenticated && window.authClient?.getAccount) {
-        const user = window.authClient.getAccount();
-        if (user) {
-            account = user;
-            isAuthenticated = true;
-            console.log('[CardForge] Auth via authClient');
-        }
-    }
-
-    // Method 3: localStorage dev auth fallback
-    if (!isAuthenticated && localStorage.getItem('cardforge_dev_auth')) {
-        try {
-            const dev = JSON.parse(localStorage.getItem('cardforge_dev_auth'));
-            account = dev;
-            isAuthenticated = true;
-            console.log('[CardForge] Auth via localStorage (dev)');
-        } catch {}
-    }
-}
-
-
-// Method 0: Check Static Web Apps EasyAuth via .auth/me
-try {
-  const meRes = await fetch('/.auth/me', { credentials: 'include' });
-  if (meRes.ok) {
-    const meData = await meRes.json();
-    const cp = meData.clientPrincipal;
-    if (cp && cp.userId && cp.userId !== 'anonymous') {
-      account = { id: cp.userId, name: cp.userDetails || cp.userId };
-      isAuthenticated = true;
-      console.log('[CardForge] Authentication detected via EasyAuth .auth/me');
-    }
-  }
-} catch (e) {
-  console.warn('[CardForge] .auth/me error', e);
-}
-
-// Method 1: Check window.authModule (SWA)
-if (window.authModule && typeof window.authModule.getCurrentUser === 'function') {
-    account = window.authModule.getCurrentUser();
-    if (account) {
-        isAuthenticated = true;
-        console.log('[CardForge] Authentication detected via authModule');
-    }
-}
-
-// Method 2: Check window.authClient (AAD)
-if (!isAuthenticated && window.authClient && typeof window.authClient.getAccount === 'function') {
-    account = window.authClient.getAccount();
-    if (account) {
-        isAuthenticated = true;
-        console.log('[CardForge] Authentication detected via authClient');
-    }
-}
-
-// Method 3: Check localStorage for testing/development
-if (!isAuthenticated && localStorage.getItem('cardforge_dev_auth')) {
-    const galleryGrid = document.getElementById('gallery-cards-grid');
-    const saveBtn = document.getElementById('save-btn');
-    const publishBtn = document.getElementById('publish-btn');
-    
-    // Check authentication status
-    // Try multiple ways to detect authentication
-    /* updated by Cascade 2025-07-14 - fixed variable declaration order */
-    let account = null;
-    let isAuthenticated = false;
-    
-    // Method 0: Check Static Web Apps EasyAuth via .auth/me
-    try {
-      const meRes = await fetch('/.auth/me', { credentials: 'include' });
-      if (meRes.ok) {
-        const meData = await meRes.json();
-        const cp = meData.clientPrincipal;
-        if (cp && cp.userId && cp.userId !== 'anonymous') {
-          account = { id: cp.userId, name: cp.userDetails || cp.userId };
-          isAuthenticated = true;
-          console.log('[CardForge] Authentication detected via EasyAuth .auth/me');
-        }
-      }
-    } catch (e) {
-      console.warn('[CardForge] .auth/me error', e);
-    }
-    
-    // Method 1: Check window.authModule (SWA)
-    if (window.authModule && typeof window.authModule.getCurrentUser === 'function') {
-        account = window.authModule.getCurrentUser();
-        if (account) {
-            isAuthenticated = true;
-            console.log('[CardForge] Authentication detected via authModule');
-        }
-    }
-    
-    // Method 2: Check window.authClient (AAD)
-    if (!isAuthenticated && window.authClient && typeof window.authClient.getAccount === 'function') {
-        account = window.authClient.getAccount();
-        if (account) {
-            isAuthenticated = true;
-            console.log('[CardForge] Authentication detected via authClient');
-        }
-    }
-    
-    // Method 3: Check localStorage for testing/development
-    if (!isAuthenticated && localStorage.getItem('cardforge_dev_auth')) {
-        try {
-            account = JSON.parse(localStorage.getItem('cardforge_dev_auth'));
-            isAuthenticated = true;
-            console.log('[CardForge] Authentication detected via localStorage (dev mode)');
-        } catch (e) {
-            console.warn('[CardForge] Invalid dev auth data in localStorage');
-        }
-    }
-    
-    // For testing: enable mock authentication
-    if (!isAuthenticated && window.location.search.includes('mockAuth=true')) {
-        account = { id: 'test-user', name: 'Test User', roles: ['user'] };
-        isAuthenticated = true;
-        console.log('[CardForge] Using mock authentication for testing');
-        localStorage.setItem('cardforge_dev_auth', JSON.stringify(account));
-    }
-    
-    // API configuration - use the new buildApiPath helper for correct path construction
-    const endpoint = buildApiPath('cardforgeloadcards');
-    console.log('[CardForge] Using API endpoint:', endpoint);
-    
-    // Update UI based on authentication status
-    // Use a function for more reliable button visibility updates
-    function updateButtonVisibility() {
-        if (saveBtn) {
-            if (isAuthenticated) {
-                saveBtn.disabled = false;
-                saveBtn.style.display = 'inline-block';
-                console.log('[CardForge] Save button enabled and visible');
-            } else {
-                saveBtn.style.display = 'none'; // Hide save button when not authenticated
-                console.log('[CardForge] Save button hidden (not authenticated)');
-            }
-        }
-        
-        if (publishBtn) {
-            if (isAuthenticated) {
-                publishBtn.disabled = true; // Only enabled when a card is selected
-                publishBtn.style.display = 'inline-block';
-                console.log('[CardForge] Publish button visible but disabled');
-            } else {
-                publishBtn.style.display = 'none'; // Hide publish button when not authenticated
-                console.log('[CardForge] Publish button hidden (not authenticated)');
-            }
-        }
-    }
-    
-    // Apply button visibility
-    updateButtonVisibility();
-    // Debug: show test auth state
-    const testAuthEl = document.getElementById('test-auth-state');
-    if (testAuthEl) {
-        testAuthEl.textContent = 'Auth: ' + (isAuthenticated ? 'SIGNED IN' : 'ANONYMOUS');
-    }
-    // Toggle gallery messages
-    const galleryAnon = document.getElementById('gallery-msg-anon');
-    const galleryUser = document.getElementById('gallery-msg-user');
-    if (galleryAnon && galleryUser) {
-        galleryAnon.style.display = isAuthenticated ? 'none' : 'block';
-        galleryUser.style.display = isAuthenticated ? 'block' : 'none';
-    }
-    
-    // Update layout based on authentication status
-    if (mainContainer && userCardsSidebar && cardPreviewContainer) {
-        if (isAuthenticated) {
-            // Three-column layout for authenticated users
-            userCardsSidebar.style.display = 'block';
-            cardPreviewContainer.classList.remove('grid-col-8');
-            cardPreviewContainer.classList.add('grid-col-5');
-        } else {
-            // Two-column layout for anonymous users
-            userCardsSidebar.style.display = 'none';
-            cardPreviewContainer.classList.remove('grid-col-5');
-            cardPreviewContainer.classList.add('grid-col-8');
-        }
-    }
-    
-    // Update auth status message
-    if (authStatusMessage) {
-        if (isAuthenticated) {
-            authStatusMessage.textContent = `Signed in as ${account.name || account.username || 'User'}. Your cards will be saved.`;
-            authStatusMessage.className = 'cardforge-auth-message authenticated';
-            // Hide sign-in message when authenticated
-            document.querySelectorAll('.sign-in-prompt').forEach(el => {
-                el.style.display = 'none';
-            });
-        } else {
-            authStatusMessage.textContent = 'Sign in to save your cards and publish to the gallery.';
-            authStatusMessage.className = 'cardforge-auth-message unauthenticated';
-            // Show sign-in message when not authenticated
-            document.querySelectorAll('.sign-in-prompt').forEach(el => {
-                el.style.display = 'block';
-            });
-        }
-    }
-    
-    // Debug logging
-    /* updated by Cascade 2025-07-14 - added null check for window._config */
-    if (window._config && window._config.debug) {
-        console.log(`[CardForge] Configuration:`, window._config || {});
-        console.log(`[CardForge] API Base URL: ${getApiBaseUrl()}`);
-        console.log(`[CardForge] Full endpoint: ${endpoint}`);
-        console.log(`[CardForge] Authentication status: ${isAuthenticated ? 'Authenticated' : 'Anonymous'}`);
-        console.log(`[CardForge] Layout mode: ${isAuthenticated ? '3-column' : '2-column'}`);
-        console.log(`[CardForge] User account:`, account || 'Not signed in');
-    }
-    
-    try {
-        // Fetch cards from API
-        const apiStartTime = performance.now();
-        console.log(`[CardForge] Fetching cards from: ${endpoint}`);
-        const headers = {
-            'Accept': 'application/json'
-        };
-        /* updated by Cascade 2025-07-14 - added null checks for window._config */
-        if (window._config && window._config.environment !== 'production') {
-            const devAuth = localStorage.getItem('cardforge_dev_auth');
-            if (devAuth) {
-                const { id: devUserId } = JSON.parse(devAuth);
-                headers['X-User-ID'] = devUserId;
-                if (window._config && window._config.debug) console.log(`[DEV] Added X-User-ID header for load: ${devUserId}`);
-            }
-        }
-        
-        const res = await fetch(endpoint, {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                ...headers,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        // Debug response info
-        /* updated by Cascade 2025-07-14 - added null check for window._config */
-        if (window._config && window._config.debug) {
-            console.log(`[CardForge] Response status: ${res.status} ${res.statusText}`);
-            console.log(`[CardForge] Response headers:`, Object.fromEntries([...res.headers]));
-            const apiDuration = performance.now() - apiStartTime;
-            if (window.AppInsightsService?.isInitialized()) {
-                AppInsightsService.trackApiRequest(endpoint, apiDuration, res.status.toString(), res.ok);
-            }
-        }
-        
-        if (!res.ok) { // Handle all error responses
-            // Try to get more error details
-            let errorDetails = `HTTP ${res.status}`;
-            try {
-                const errorData = await res.text();
-                if (errorData) {
-                    errorDetails += ` - ${errorData}`;
-                }
-            } catch (e) { /* ignore */ }
-            throw new Error(errorDetails);
-        }
-        
-        // Process API response
-        const rawData = res.ok ? await res.json() : { userCards: [], galleryCards: [] };
-        if (window._config?.debug) {
-    console.log(`[CardForge] Full API response:`, rawData);
-}
-        
-        // Fix for array response: convert array to object if needed
-        let data = rawData;
-        if (Array.isArray(rawData)) {
-            console.warn(`[CardForge] API returned array instead of object. Converting to object format...`);
-            // Array response with numeric indices - reconstruct proper object
-            data = {};
-            Object.values(rawData).forEach(item => {
-                // Copy each array's contents to the main object
-                if (item && typeof item === 'object') {
-                    Object.assign(data, item);
-                }
-            });
-            console.log(`[CardForge] Converted data:`, data);
-        }
-        
-        let userCards = data.userCards || [];
-        let galleryCards = data.galleryCards || [];
-        
-        // If no gallery cards were found but we got published cards, use those instead
-        if (galleryCards.length === 0 && Array.isArray(data.publishedCards) && data.publishedCards.length > 0) {
-            console.log(`[CardForge] Using publishedCards array (${data.publishedCards.length} cards) as gallery cards`);
-            galleryCards = data.publishedCards;
-        }
-        
-        // For anonymous users, if no user cards are loaded, use default cards if available
-        if (!isAuthenticated && userCards.length === 0 && Array.isArray(data.defaultCards) && data.defaultCards.length > 0) {
-            console.log(`[CardForge] Using defaultCards array (${data.defaultCards.length} cards) for anonymous user`);
-            userCards = data.defaultCards;
-        }
-        
-        // Fallback: fetch default cards from blob storage if none loaded
-        else if (!isAuthenticated && userCards.length === 0) {
-            console.log('[CardForge] Fetching default cards from blob storage');
-            try {
-                const blobRes = await fetch('https://cardforgeblobdata.blob.core.windows.net/cardforge/default-cards.json');
-                if (blobRes.ok) {
-                    const blobData = await blobRes.json();
-                    if (Array.isArray(blobData.defaultCards)) {
-                        userCards = blobData.defaultCards;
-                        console.log(`[CardForge] Loaded default cards from blob storage (${userCards.length} cards)`);
-                    }
-                }
-            } catch (e) {
-                console.warn('[CardForge] Error loading default cards from blob storage', e);
-                // Local mock fallback for default cards
-                try {
-                    const mockDefRes = await fetch('mock/default-cards.json');
-                    if (mockDefRes.ok) {
-                        const mockDefData = await mockDefRes.json();
-                        userCards = mockDefData.defaultCards || mockDefData;
-                        console.log(`[CardForge] Loaded default cards from mock (${userCards.length} cards)`);
-                    }
-                } catch (mockErr) {
-                    console.warn('[CardForge] Error loading default cards from mock', mockErr);
-                }
-            }
-        }
-        // Final fallback: load default cards from local mock
-        if (!isAuthenticated && userCards.length === 0) {
-            console.log('[CardForge] Final fallback: loading default cards from local mock');
-            try {
-                const mockRes = await fetch('mock/default-cards.json');
-                if (mockRes.ok) {
-                    const mockData = await mockRes.json();
-                    userCards = mockData.defaultCards || mockData;
-                    console.log(`[CardForge] Loaded default cards from mock (${userCards.length} cards)`);
-                } else {
-                    console.warn('[CardForge] Final mock default fetch returned status', mockRes.status);
-                }
-            } catch (err) {
-                console.warn('[CardForge] Final mock default fetch error', err);
-            }
-        }
-        
-        // Insert fallback to load published cards from blob storage if galleryCards is empty
-        if (galleryCards.length === 0) {
-            console.log('[CardForge] Fetching published cards from blob storage');
-            try {
-                const pubRes = await fetch('https://cardforgeblobdata.blob.core.windows.net/cardforge/published-cards.json');
-                if (pubRes.ok) {
-                    const pubData = await pubRes.json();
-                    if (Array.isArray(pubData.publishedCards)) {
-                        galleryCards = pubData.publishedCards;
-                        console.log(`[CardForge] Loaded published cards from blob storage (${galleryCards.length} cards)`);
-                    }
-                }
-            } catch (e) {
-                console.warn('[CardForge] Error loading published cards from blob storage', e);
-                // Local mock fallback for published cards
-                try {
-                    const mockPubRes = await fetch('mock/published-cards.json');
-                    if (mockPubRes.ok) {
-                        const mockPubData = await mockPubRes.json();
-                        galleryCards = mockPubData.publishedCards || mockPubData;
-                        console.log(`[CardForge] Loaded published cards from mock (${galleryCards.length} cards)`);
-                    }
-                } catch (mockErr) {
-                    console.warn('[CardForge] Error loading published cards from mock', mockErr);
-                }
-            }
-        }
-        
-        console.log(`[CardForge] Loaded ${userCards.length} user cards and ${galleryCards.length} gallery cards`);
-        console.log(`[CardForge] API diagnostics:`, data.diagnostics || 'No diagnostics available');
-        
-        // Override client-side detection with API diagnostics
-        if (data.diagnostics?.authenticated && !isAuthenticated) {
-            isAuthenticated = true;
-            console.log('[CardForge] Authentication detected via API diagnostics');
-            updateButtonVisibility();
-            if (authStatusMessage) {
-                authStatusMessage.textContent = 'Signed in. Your cards will be saved.';
-                authStatusMessage.className = 'cardforge-auth-message authenticated';
-                document.querySelectorAll('.sign-in-prompt').forEach(el => el.style.display = 'none');
-            }
-            const testAuthEl2 = document.getElementById('test-auth-state');
-            if (testAuthEl2) testAuthEl2.textContent = 'Auth: SIGNED IN';
-            const galleryAnon2 = document.getElementById('gallery-msg-anon');
-            const galleryUser2 = document.getElementById('gallery-msg-user');
-            if (galleryAnon2 && galleryUser2) {
-                galleryAnon2.classList.add('hidden');
-                galleryUser2.classList.remove('hidden');
-            }
-            if (mainContainer && userCardsSidebar && cardPreviewContainer) {
-                userCardsSidebar.style.display = 'block';
-                cardPreviewContainer.classList.remove('grid-col-8');
-                cardPreviewContainer.classList.add('grid-col-5');
-            }
-        }
-        
-        // Check for misnamed properties in the response
-        const possibleCardArrays = ['galleryCards', 'publishedCards', 'gallery', 'cards', 'published'];
-        for (const prop of possibleCardArrays) {
-            if (data[prop] && Array.isArray(data[prop]) && data[prop].length > 0) {
-                console.log(`[CardForge] Found potential gallery cards in property '${prop}': ${data[prop].length} cards`);
-                // If we found cards in a property other than galleryCards, use those instead
-                if (prop !== 'galleryCards' && galleryCards.length === 0) {
-                    console.log(`[CardForge] Using '${prop}' as gallery cards source`);
-                    galleryCards = data[prop];
-                }
-            }
-        }
-        
-        // Render user cards (only if authenticated)
-        if (myCardsList && isAuthenticated) {
-    myCardsList.innerHTML = '';
-    if (userCards.length > 0) {
-        const frag = document.createDocumentFragment();
-        userCards.forEach(card => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <img class="card-list-thumbnail" src="${card.avatar || '/images/image-packs/characters/hero.png'}" alt="${card.name}" onerror="this.src='/images/image-packs/characters/hero.png'">
-                        <div class="card-list-info">
-                            <h4 class="card-list-title">${card.name}</h4>
-                            <p class="card-list-subtitle">${card.class}</p>
-                        </div>
-                    `;
-                    li.dataset.cardId = card.id;
-                    li.addEventListener('click', () => {
-                        // Highlight selection
-                        document.querySelectorAll('#my-cards-list li.selected').forEach(el => el.classList.remove('selected'));
-                        li.classList.add('selected');
-                        
-                        // Update hidden card ID field
-                        const cardIdInput = document.getElementById('card-id');
-                        if (cardIdInput) cardIdInput.value = card.id;
-                        
-                        // Enable publish button if card is saved
-                        if (publishBtn) publishBtn.disabled = false;
-                        
-                        // Populate editor fields
-                        const evt = new CustomEvent('cardforge:select', { detail: card });
-                        document.dispatchEvent(evt);
-                    });
-                    frag.appendChild(li);
-                });
-            } else {
-                const emptyMsg = document.createElement('li');
-                emptyMsg.textContent = 'No saved cards yet.';
-                myCardsList.appendChild(emptyMsg);
-            }
-        }
-        
-        // Render gallery cards
-        if (galleryGrid) {
-    galleryGrid.innerHTML = '';
-    if (galleryCards.length > 0) {
-        const frag = document.createDocumentFragment();
-        galleryCards.forEach(card => {
-                    const cardElement = document.createElement('div');
-                    cardElement.className = 'gallery-card';
-                    cardElement.innerHTML = `
-                        <img class="gallery-card-image" src="${card.avatar || '/images/image-packs/characters/hero.png'}" alt="${card.name}" onerror="this.src='/images/image-packs/characters/hero.png'">
-                        <div class="gallery-card-content">
-                            <h4 class="gallery-card-title">${card.name}</h4>
-                            <p class="gallery-card-subtitle">${card.class}</p>
-                        </div>
-                    `;
-                    cardElement.addEventListener('click', () => {
-                        const evt = new CustomEvent('cardforge:select', { detail: card });
-                        document.dispatchEvent(evt);
-                    });
-                    galleryGrid.appendChild(cardElement);
-                });
-            } else {
-                const emptyMsg = document.createElement('div');
-                emptyMsg.className = 'gallery-empty-message';
-                emptyMsg.textContent = 'No published cards yet. Be the first to publish!';
-                galleryGrid.appendChild(emptyMsg);
-            }
-        }
-                
-    } catch (error) {
-        if (window.AppInsightsService?.isInitialized()) {
-            AppInsightsService.trackException(error, { source: 'cardforge.loadCards' });
-        }
-        console.error(`[CardForge] Error loading cards:`, error);
-
-        // Show error in user cards list
-        if (myCardsList && isAuthenticated) {
-            myCardsList.innerHTML = `<li class="error-message">Error loading cards: ${error.message}</li>`;
-        }
-
-        // Show error in gallery
-        if (galleryGrid) {
-            galleryGrid.innerHTML = `<div class="error-message">Error loading gallery: ${error.message}</div>`;
-        }
-    }
-}
-
-async function loadCardsFromBlob() {
-    const userCards = [];
-    const galleryCards = [];
-    try {
-        const [defRes, pubRes] = await Promise.all([
-            fetch('https://cardforgeblobdata.blob.core.windows.net/cardforge/default-cards.json'),
-            fetch('https://cardforgeblobdata.blob.core.windows.net/cardforge/published-cards.json')
-        ]);
-        if (defRes.ok) {
-            const defData = await defRes.json();
-            userCards.push(...(defData.defaultCards || []));
-        }
-        if (pubRes.ok) {
-            const pubData = await pubRes.json();
-            galleryCards.push(...(pubData.publishedCards || []));
-        }
-    } catch (e) {
-        console.error('[CardForge] Direct blob fetch error', e);
-    }
-    return { userCards, galleryCards };
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  // Initialize authentication, then load cards
-  initAuth()
-    .then(() => loadCards())
-    .catch(async () => {
-      console.warn('[CardForge] Falling back to direct blob JSON load');
-      const { userCards, galleryCards } = await loadCardsFromBlob();
-      // existing rendering logic
-    });
-  const saveBtn = document.getElementById('save-btn');
-  if (saveBtn) saveBtn.addEventListener('click', saveCard);
-  
-  const publishBtn = document.getElementById('publish-btn');
-  if (publishBtn) publishBtn.addEventListener('click', publishCard);
-  const deleteBtn = document.getElementById('delete-btn');
-  if (deleteBtn) deleteBtn.addEventListener('click', deleteCard);
-});
-
-// Handle card selection to fill form (if editor loaded earlier)
-document.addEventListener('cardforge:select', e => {
-  const card = e.detail;
-  const nameInput = document.getElementById('card-name');
-  const classInput = document.getElementById('card-class');
-  const quoteInput = document.getElementById('card-quote');
-  const avatarInput = document.getElementById('card-avatar');
-  if (nameInput) nameInput.value = card.name;
-  if (classInput) classInput.value = card.class;
-  if (quoteInput) quoteInput.value = card.quote;
-  if (avatarInput) avatarInput.value = card.avatar;
-
-  // Enable delete button when a card is selected
-  const deleteBtn = document.getElementById('delete-btn');
-  if (deleteBtn) deleteBtn.disabled = false;
-  // Directly update preview without confirmation modal
-  if (typeof window.updatePreview === 'function') {
-    window.updatePreview();
-  }
-});
+// [Previous code remains the same until the saveCard function]
 
 async function saveCard() {
   const form = document.getElementById('card-editor-form');
@@ -938,136 +11,113 @@ async function saveCard() {
     return;
   }
 
-  clearValidationErrors();
-
-  // Get form values
+  // Get form elements
   const nameInput = document.getElementById('card-name');
   const classInput = document.getElementById('card-class');
-  const avatarInput = document.getElementById('card-avatar');
   const quoteInput = document.getElementById('card-quote');
+  const avatarInput = document.getElementById('card-avatar');
   const achievementInput = document.getElementById('card-achievement');
   const cardIdInput = document.getElementById('card-id');
+  const templateTypeInput = document.getElementById('card-template-type');
 
-  // Get the validation module
-  const validator = window.ValidationUtils || window.validationUtils;
+  // Clear previous errors
+  clearValidationErrors();
 
-  // Validate input values
+  // Simple validation
   const errors = [];
-  if (!validator.isValidString(nameInput.value, 2, 30)) {
-    errors.push('Name must be between 2 and 30 characters');
-  }
-  if (!validator.isValidString(classInput.value, 2, 20)) {
-    errors.push('Class must be between 2 and 20 characters');
-  }
-  if (!validator.isValidImageUrl(avatarInput.value)) {
-    errors.push('Avatar must be a valid image URL');
-  }
-  if (!validator.isValidString(quoteInput.value, 0, 100)) {
-    errors.push('Quote must be less than 100 characters');
-  }
-  if (!validator.isValidString(achievementInput.value, 0, 50)) {
-    errors.push('Achievement must be less than 50 characters');
-  }
+  if (!nameInput?.value?.trim()) errors.push('Name is required');
+  if (!classInput?.value?.trim()) errors.push('Class is required');
+  if (!avatarInput?.value?.trim()) errors.push('Avatar URL is required');
 
-  // If there are validation errors, display them and return
   if (errors.length > 0) {
     showValidationErrors(errors);
     return;
   }
-  
-  // Check if user is signed in
-  const account = window.authModule?.getCurrentUser();
-  const isSignedIn = !!account;
-  
-  if (!isSignedIn) {
-    showMessage('Please sign in to save cards', 'error');
-    return;
-  }
-  
-  // Prepare the card data
+
+  // Prepare card data
   const card = {
-    id: cardIdInput.value || `v2-${Date.now()}`,
+    id: cardIdInput?.value || `v2-${Date.now()}`,
     name: nameInput.value.trim(),
     class: classInput.value.trim(),
-    quote: quoteInput.value.trim(),
+    quote: quoteInput?.value?.trim() || '',
     avatar: avatarInput.value.trim(),
-    achievement: achievementInput.value.trim(),
-    templateType: document.getElementById('card-template-type').value
+    achievement: achievementInput?.value?.trim() || '',
+    templateType: templateTypeInput?.value || 'default'
   };
-  
+
   // Show confirmation dialog
   showConfirmDialog(
     'Save Card', 
     'Do you want to save this card to your collection?',
     async () => {
+      const saveBtn = document.getElementById('save-btn');
       try {
-        // Show saving indicator
-        const saveBtn = document.getElementById('save-btn');
+        // Set loading state
         if (saveBtn) {
           saveBtn.disabled = true;
           saveBtn.textContent = 'Saving...';
         }
-        
+
         // Use buildApiPath helper for proper API endpoint construction
         const endpoint = buildApiPath('cardforgesavecards');
         console.log(`[CardForge] Saving card to endpoint: ${endpoint}`);
-        
-        // Send the card data to the server
-        const saveHeaders = {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': window.csrfProtection.getToken()
+
+        // Prepare headers
+        const headers = {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': window.csrfProtection?.getToken?.() || ''
         };
-        if (window._config.environment !== 'production') {
-            const devAuth = localStorage.getItem('cardforge_dev_auth');
-            if (devAuth) {
-                const { id: devUserId } = JSON.parse(devAuth);
-                saveHeaders['X-User-ID'] = devUserId;
-                if (window._config && window._config.debug) console.log(`[DEV] Added X-User-ID header for save: ${devUserId}`);
+
+        // Add dev user ID in non-production
+        if (window._config?.environment !== 'production') {
+          const devAuth = localStorage.getItem('cardforge_dev_auth');
+          if (devAuth) {
+            try {
+              const { id: devUserId } = JSON.parse(devAuth);
+              headers['X-User-ID'] = devUserId;
+              if (window._config?.debug) {
+                console.log(`[DEV] Added X-User-ID header for save: ${devUserId}`);
+              }
+            } catch (e) {
+              console.warn('Failed to parse dev auth data', e);
             }
-        }
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            credentials: 'include',
-            headers: saveHeaders,
-            body: JSON.stringify(card)
-        });
-        
-        if (!response.ok) {
-          // Check content type to handle non-JSON errors
-          const contentType = response.headers.get('content-type');
-          if (contentType && contentType.includes('application/json')) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || `HTTP ${response.status}`);
-          } else {
-            throw new Error(`HTTP ${response.status}`);
           }
         }
-        
+
+        // Make API request
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          credentials: 'include',
+          headers,
+          body: JSON.stringify(card)
+        });
+
+        if (!response.ok) {
+          const error = await response.text().catch(() => null);
+          throw new Error(error || `HTTP ${response.status}`);
+        }
+
         const result = await response.json();
         console.log('[CardForge] Card saved:', result);
-        
-        // Update the card ID in the form
+
+        // Update card ID if this is a new card
         if (cardIdInput && result.id) {
           cardIdInput.value = result.id;
         }
-        
+
         // Enable publish button after successful save
         const publishBtn = document.getElementById('publish-btn');
         if (publishBtn) {
           publishBtn.disabled = false;
         }
-        
-        // Show success message
+
         showMessage('Card saved successfully!', 'success');
-        
-        // Reload cards to show the updated list
-        loadCards();
+        loadCards(); // Refresh the card list
       } catch (error) {
         console.error('Failed to save card:', error);
         showMessage(`Error: ${error.message}`, 'error');
       } finally {
         // Reset button state
-        const saveBtn = document.getElementById('save-btn');
         if (saveBtn) {
           saveBtn.disabled = false;
           saveBtn.textContent = 'Save';
@@ -1076,3 +126,118 @@ async function saveCard() {
     }
   );
 }
+
+/**
+ * Load cards from the API and update the UI
+ */
+async function loadCards() {
+  const cardList = document.getElementById('card-list');
+  if (!cardList) return;
+
+  try {
+    // Show loading state
+    cardList.innerHTML = '<div class="loading">Loading cards...</div>';
+    
+    // Try API first
+    try {
+      const response = await fetch(buildApiPath('cardforgeloadcards'), {
+        credentials: 'include',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      
+      if (response.ok) {
+        const cards = await response.json();
+        renderCards(cardList, cards);
+        return;
+      }
+      throw new Error(`HTTP ${response.status}`);
+    } catch (apiError) {
+      console.warn('API load failed, trying mock data', apiError);
+      // Fall through to mock data
+    }
+
+    // Fallback to mock data
+    try {
+      const [defaultCards, publishedCards] = await Promise.all([
+        fetch('/cardforge/mock/default-cards.json').then(r => r.json()),
+        fetch('/cardforge/mock/published-cards.json').then(r => r.json())
+      ]);
+      
+      renderCards(cardList, [...(defaultCards || []), ...(publishedCards || [])]);
+    } catch (mockError) {
+      console.error('Failed to load mock data:', mockError);
+      throw new Error('Failed to load cards. Please try again later.');
+    }
+  } catch (error) {
+    console.error('Failed to load cards:', error);
+    cardList.innerHTML = `
+      <div class="error">
+        <p>Failed to load cards. ${error.message}</p>
+        <button onclick="loadCards()" class="btn btn-retry">Retry</button>
+      </div>
+    `;
+  }
+}
+
+/**
+ * Render cards to the DOM
+ * @param {HTMLElement} container - The container element
+ * @param {Array} cards - Array of card objects
+ */
+function renderCards(container, cards) {
+  if (!container) return;
+  
+  if (!cards || !Array.isArray(cards) || cards.length === 0) {
+    container.innerHTML = '<div class="no-cards">No cards found. Create your first card!</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  cards.forEach(card => {
+    try {
+      const cardElement = createCardElement(card);
+      container.appendChild(cardElement);
+    } catch (error) {
+      console.error('Error rendering card:', card, error);
+    }
+  });
+}
+
+/**
+ * Create a card element from card data
+ */
+function createCardElement(card) {
+  const cardElement = document.createElement('div');
+  cardElement.className = 'card';
+  cardElement.innerHTML = `
+    <div class="card-header">
+      <img src="${card.avatar || 'https://via.placeholder.com/50'}" alt="${card.name}" class="card-avatar">
+      <h3>${card.name || 'Unnamed Card'}</h3>
+      <span class="card-class">${card.class || 'No Class'}</span>
+    </div>
+    <div class="card-body">
+      <blockquote>${card.quote || 'No quote provided'}</blockquote>
+      ${card.achievement ? `<div class="achievement">🏆 ${card.achievement}</div>` : ''}
+    </div>
+    <div class="card-actions">
+      <button onclick="editCard('${card.id}')" class="btn btn-edit">Edit</button>
+      <button onclick="deleteCard('${card.id}')" class="btn btn-delete">Delete</button>
+    </div>
+  `;
+  return cardElement;
+}
+
+// Initialize cards when the page loads
+document.addEventListener('DOMContentLoaded', async () => {
+  // Load cards when the page loads
+  await loadCards();
+  
+  // Set up event listeners for the save button
+  const saveBtn = document.getElementById('save-btn');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', saveCard);
+  }
+});

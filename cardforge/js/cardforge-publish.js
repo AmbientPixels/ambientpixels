@@ -42,12 +42,20 @@ async function publishCard() {
           publishBtn.textContent = 'Publishing...';
         }
         
-        // Call the cardforgepublish API with corrected path construction
-        const endpoint = window.buildApiPath('cardforge/cardpublish');
+        // Call the cardforgepublish API with correct path
+        const endpoint = window.buildApiPath('cardforgepublish');
         console.log('[CardForge] Publishing to endpoint:', endpoint);
         
-        // Ensure we send both upper and lowercase versions of the user ID header
-        // to handle any case sensitivity issues in the backend
+        // Prepare headers with CSRF token and user ID
+        const headers = {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': window.csrfProtection?.getToken?.() || ''
+        };
+        
+        // Add user ID for authentication
+        if (account?.id) {
+          headers['X-User-ID'] = account.id;
+        }
         const publishHeaders = {
           'Content-Type': 'application/json',
           'X-CSRF-Token': window.csrfProtection.getToken()

@@ -19,3 +19,15 @@ window._config = {
   debug: !(window.location.hostname === 'ambientpixels.ai' || window.location.hostname.endsWith('.azurestaticapps.net')),
   version: 'v2.1'
 };
+
+/**
+ * Builds a properly formatted API path
+ * @param {string} path - The API endpoint path
+ * @returns {string} Formatted API path
+ */
+window.buildApiPath = function(path) {
+  // Remove any leading/trailing slashes
+  const cleanPath = path.replace(/^\/|\/$/g, '');
+  // Ensure we don't get double slashes
+  return `/${cleanPath}`;
+};
