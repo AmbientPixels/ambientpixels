@@ -522,6 +522,23 @@ async function loadCards() {
             }
         }
         
+        // Insert fallback to load published cards from blob storage if galleryCards is empty
+        if (galleryCards.length === 0) {
+            console.log('[CardForge] Fetching published cards from blob storage');
+            try {
+                const pubRes = await fetch('https://cardforgeblobdata.blob.core.windows.net/cardforge/published-cards.json');
+                if (pubRes.ok) {
+                    const pubData = await pubRes.json();
+                    if (Array.isArray(pubData.publishedCards)) {
+                        galleryCards = pubData.publishedCards;
+                        console.log(`[CardForge] Loaded published cards from blob storage (${galleryCards.length} cards)`);
+                    }
+                }
+            } catch (e) {
+                console.warn('[CardForge] Error loading published cards from blob storage', e);
+            }
+        }
+        
         console.log(`[CardForge] Loaded ${userCards.length} user cards and ${galleryCards.length} gallery cards`);
         console.log(`[CardForge] API diagnostics:`, data.diagnostics || 'No diagnostics available');
         
@@ -651,8 +668,103 @@ async function loadCards() {
     }
 }
 
+async function loadCardsFromBlob() {
+    const userCards = [];
+    const galleryCards = [];
+    try {
+        const [defRes, pubRes] = await Promise.all([
+            fetch('https://cardforgeblobdata.blob.core.windows.net/cardforge/default-cards.json'),
+            fetch('https://cardforgeblobdata.blob.core.windows.net/cardforge/published-cards.json')
+        ]);
+        if (defRes.ok) {
+            const defData = await defRes.json();
+            userCards.push(...(defData.defaultCards || []));
+        }
+        if (pubRes.ok) {
+            const pubData = await pubRes.json();
+            galleryCards.push(...(pubData.publishedCards || []));
+        }
+    } catch (e) {
+        console.error('[CardForge] Direct blob fetch error', e);
+    }
+    return { userCards, galleryCards };
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  loadCards();
+  loadCards().catch(async () => {
+    console.warn('[CardForge] Falling back to direct blob JSON load');
+    const { userCards, galleryCards } = await loadCardsFromBlob();
+    // render user cards
+    const myCardsList = document.getElementById('my-cards-list');
+    if (myCardsList) {
+        myCardsList.innerHTML = '';
+        if (userCards.length > 0) {
+            userCards.forEach(card => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <img class="card-list-thumbnail" src="${card.avatar || '/images/image-packs/characters/hero.png'}" alt="${card.name}" onerror="this.src='/images/image-packs/characters/hero.png'">
+                    <div class="card-list-info">
+                        <h4 class="card-list-title">${card.name}</h4>
+                        <p class="card-list-subtitle">${card.class}</p>
+                    </div>
+                `;
+                li.dataset.cardId = card.id;
+                li.addEventListener('click', () => {
+                    // Highlight selection
+                    document.querySelectorAll('#my-cards-list li.selected').forEach(el => el.classList.remove('selected'));
+                    li.classList.add('selected');
+                    
+                    // Update hidden card ID field
+                    const cardIdInput = document.getElementById('card-id');
+                    if (cardIdInput) cardIdInput.value = card.id;
+                    
+                    // Enable publish button if card is saved
+                    const publishBtn = document.getElementById('publish-btn');
+                    if (publishBtn) publishBtn.disabled = false;
+                    
+                    // Populate editor fields
+                    const evt = new CustomEvent('cardforge:select', { detail: card });
+                    document.dispatchEvent(evt);
+                });
+                myCardsList.appendChild(li);
+            });
+        } else {
+            const emptyMsg = document.createElement('li');
+            emptyMsg.className = 'empty-message';
+            emptyMsg.textContent = 'No cards yet. Create your first card!';
+            myCardsList.appendChild(emptyMsg);
+        }
+    }
+    // render gallery cards
+    const galleryGrid = document.getElementById('gallery-cards-grid');
+    if (galleryGrid) {
+        galleryGrid.innerHTML = '';
+        if (galleryCards.length > 0) {
+            galleryCards.forEach(card => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'gallery-card';
+                cardElement.innerHTML = `
+                    <img class="gallery-card-image" src="${card.avatar || '/images/image-packs/characters/hero.png'}" alt="${card.name}" onerror="this.src='/images/image-packs/characters/hero.png'">
+                    <div class="gallery-card-content">
+                        <h4 class="gallery-card-title">${card.name}</h4>
+                        <p class="gallery-card-subtitle">${card.class}</p>
+                    </div>
+                `;
+                cardElement.addEventListener('click', () => {
+                    // Populate editor fields when clicking gallery card
+                    const evt = new CustomEvent('cardforge:select', { detail: card });
+                    document.dispatchEvent(evt);
+                });
+                galleryGrid.appendChild(cardElement);
+            });
+        } else {
+            const emptyMsg = document.createElement('div');
+            emptyMsg.className = 'gallery-empty-message';
+            emptyMsg.textContent = 'No published cards yet. Be the first to publish!';
+            galleryGrid.appendChild(emptyMsg);
+        }
+    }
+  });
   const saveBtn = document.getElementById('save-btn');
   if (saveBtn) saveBtn.addEventListener('click', saveCard);
   
