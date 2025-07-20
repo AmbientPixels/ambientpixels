@@ -6,7 +6,7 @@ const msalConfig = {
   auth: {
     clientId: '232e176a-71f6-4a55-af28-6271300a1d0a', // ambientpixels-nova-api App Registration
     authority: 'https://login.microsoftonline.com/common', // Multi-tenant
-    redirectUri: window.location.origin
+    redirectUri: window.location.origin + '/cardforge/'
   }
 };
 
