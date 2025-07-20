@@ -20,8 +20,12 @@ CardForge V2 is a production-ready, browser-based toolkit for designing, editing
 - Mock data fallback for development
 - All CardForge routes and functions present and wired for production
 - Fixed modal dialog system with proper event handling and accessibility
+- **Microsoft Entra ID (MSAL.js) authentication integrated for secure API access**
+- **Content Security Policy updated to allow MSAL.js CDN (https://alcdn.msauth.net)**
+- **Live deployment ready and tested**
 
 ### 🔄 In Progress
+- Local development environment setup for authentication
 - Local JSON loading verification
 - Final testing of all user flows
 - Performance optimization
