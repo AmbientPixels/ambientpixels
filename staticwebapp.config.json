@@ -39,6 +39,10 @@
       "allowedRoles": ["authenticated"]
     },
     {
+      "route": "/api/cardforgetemplate",
+      "allowedRoles": ["anonymous", "authenticated"]
+    },
+    {
       "route": "/api/cardforgepublish",
       "allowedRoles": ["authenticated"]
     },
