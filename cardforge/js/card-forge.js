@@ -82,31 +82,6 @@ async function saveCard() {
           const endpoint = window.buildApiPath('saveCard');
           console.log(`[CardForge] Saving card to endpoint: ${endpoint}`);
 
-          // Get auth token from session
-          const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || 'null');
-          const isAuthenticated = sessionStorage.getItem('isAuthenticated') === 'true';
-          
-          if (!isAuthenticated || !userInfo) {
-            if (window.UIUtils && typeof window.UIUtils.showMessage === 'function') {
-              window.UIUtils.showMessage('You must be signed in to save cards.', 'error');
-            } else {
-              alert('Authentication failed. Please sign in with Microsoft.');
-            }
-            return;
-          }
-
-          // Acquire MSAL token for API
-          let token = null;
-          if (window.CardForgeAuth && typeof window.CardForgeAuth.getAccessToken === 'function') {
-            try {
-              token = await window.CardForgeAuth.getAccessToken();
-            } catch (err) {
-              token = null;
-              console.error('[CardForge] Failed to get MSAL token:', err);
-            }
-          }
-          if (!token) {
-            if (window.UIUtils && typeof window.UIUtils.showMessage === 'function') {
           // Prepare headers for anonymous access
           const headers = {
             'Content-Type': 'application/json',
@@ -144,44 +119,57 @@ async function saveCard() {
           
           const responseText = await response.text();
           console.log('[CardForge] Response body:', responseText);
-          
-          if (!response.ok) {
-            try {
-              const errorData = JSON.parse(responseText);
-              console.error('[CardForge] Error response:', errorData);
-              throw new Error(errorData.message || `HTTP ${response.status}`);
-            } catch (e) {
-              console.error('[CardForge] Non-JSON error response:', responseText);
-              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+
+          try {
+            if (!response.ok) {
+              try {
+                const errorData = JSON.parse(responseText);
+                console.error('[CardForge] Error response:', errorData);
+                throw new Error(errorData.message || `HTTP ${response.status}`);
+              } catch (e) {
+                console.error('[CardForge] Non-JSON error response:', responseText);
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+              }
+            }
+
+            const result = await response.json();
+            console.log('[CardForge] Card saved:', result);
+
+            if (window.UIUtils?.showMessage) {
+              window.UIUtils.showMessage('Card saved successfully!', 'success');
+            } else {
+              console.log('Card saved successfully!');
+            }
+            
+            if (cardIdInput && result.id) {
+              cardIdInput.value = result.id;
+            }
+
+            const publishBtn = document.getElementById('publish-btn');
+            if (publishBtn) {
+              publishBtn.disabled = false;
+            }
+
+            if (window.showMessage) {
+              window.showMessage('Card saved successfully!', 'success');
+            }
+            
+            if (window.loadCards) {
+              window.loadCards();
+            }
+          } catch (error) {
+            console.error('Failed to save card:', error);
+            if (window.UIUtils?.showMessage) {
+              window.UIUtils.showMessage(`Error: ${error.message}`, 'error');
+            } else {
+              console.error('Error:', error.message);
+            }
+          } finally {
+            if (saveBtn) {
+              saveBtn.disabled = false;
+              saveBtn.textContent = 'Save';
             }
           }
-
-          const result = await response.json();
-          console.log('[CardForge] Card saved:', result);
-
-          if (window.UIUtils?.showMessage) {
-            window.UIUtils.showMessage('Card saved successfully!', 'success');
-          } else {
-            console.log('Card saved successfully!');
-          }
-          
-          if (cardIdInput && result.id) {
-            cardIdInput.value = result.id;
-          }
-
-          const publishBtn = document.getElementById('publish-btn');
-          if (publishBtn) {
-            publishBtn.disabled = false;
-          }
-
-          if (window.showMessage) {
-            window.showMessage('Card saved successfully!', 'success');
-          }
-          
-          if (window.loadCards) {
-            window.loadCards();
-          }
-
         } catch (error) {
           console.error('Failed to save card:', error);
           if (window.UIUtils?.showMessage) {
