@@ -38,6 +38,7 @@ module.exports = async function (context, req) {
     return;
   }
 
+  // No authentication required; all users (including anonymous) allowed
   try {
     // Get the template type from query parameters
     const type = req.query.type || 'character';

@@ -150,20 +150,9 @@ module.exports = async function (context, req) {
     const { userId, isAuthenticated } = extractUserInfo(req, context);
   context.log(`Extracted user info: userId=${userId}, isAuthenticated=${isAuthenticated}`);
     
-    // Check if user is authenticated
-    if (!isAuthenticated) {
-      context.res = {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
-        },
-        body: { error: 'Authentication required to save cards' }
-      };
-      return;
-    }
+    // Allow anonymous access: set userId to 'anonymous' if not authenticated
+    // (No blocking, no 401 response)
+    // userId is already set by extractUserInfo; proceed with save
 
     // Get the card data from the request body
     const card = req.body;
