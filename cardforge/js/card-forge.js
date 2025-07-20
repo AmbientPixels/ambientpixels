@@ -100,8 +100,8 @@ async function saveCard() {
             'Content-Type': 'application/json',
             'X-CSRF-Token': window.csrfProtection?.getToken?.() || '',
             'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-            // Authorization header removed: rely on Azure SWA cookie auth
+            'X-Requested-With': 'XMLHttpRequest',
+            'Authorization': `Bearer ${userInfo.accessToken || ''}`
           };
 
           console.log('[CardForge] Using browser cookie handling for authentication');
