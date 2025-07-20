@@ -36,42 +36,44 @@
   "routes": [
     {
       "route": "/api/cardforgesavecards",
-      "allowedRoles": ["authenticated"]
-    },
-    {
-      "route": "/api/cardforgetemplate",
-      "allowedRoles": ["anonymous", "authenticated"]
-    },
-    {
-      "route": "/api/cardforgepublish",
-      "allowedRoles": ["authenticated"]
-    },
-    {
-      "route": "/api/cardforgedeletecard",
-      "allowedRoles": ["authenticated"]
-    },
-    {
-      "route": "/api/cardforgeloadcards",
-      "allowedRoles": ["anonymous", "authenticated"]
-    },
-    {
-      "route": "/api/*",
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/cardforgetemplate",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/cardforgepublish",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/cardforgedeletecard",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/cardforgeloadcards",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/*"
+    },
+    {
       "route": "/cardforge/*.css",
+      "allowedRoles": ["anonymous"],
       "headers": {
         "Cache-Control": "public, max-age=604800, immutable"
       }
     },
     {
       "route": "/cardforge/*.js",
+      "allowedRoles": ["anonymous"],
       "headers": {
         "Cache-Control": "public, max-age=86400"
       }
     },
     {
       "route": "/cardforge/images/*",
+      "allowedRoles": ["anonymous"],
       "headers": {
         "Cache-Control": "public, max-age=604800"
       }

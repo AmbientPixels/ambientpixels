@@ -44,22 +44,13 @@ const TemplateLoader = {
       const endpoint = window.buildApiPath('template', { type: templateType });
       console.log(`[CardForge] Loading template: ${endpoint}`);
       
-      // Try to get MSAL Bearer token if auth is available
+      // Always use anonymous access
       let headers = {
         'Accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
         'Cache-Control': 'no-cache',
         'Pragma': 'no-cache'
       };
-      let token = null;
-      if (window.CardForgeAuth && typeof window.CardForgeAuth.getAccessToken === 'function') {
-        try {
-          token = await window.CardForgeAuth.getAccessToken();
-          headers['Authorization'] = `Bearer ${token}`;
-        } catch (err) {
-          console.warn('[CardForge] Could not get MSAL token, attempting anonymous access:', err);
-        }
-      }
       const response = await fetch(endpoint, {
         headers
       });

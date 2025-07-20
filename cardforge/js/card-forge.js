@@ -107,35 +107,20 @@ async function saveCard() {
           }
           if (!token) {
             if (window.UIUtils && typeof window.UIUtils.showMessage === 'function') {
-              window.UIUtils.showMessage('Authentication failed: Unable to acquire Microsoft token. Please sign in again.', 'error');
-            } else {
-              alert('Authentication failed. Please sign in with Microsoft.');
-            }
-            if (saveBtn) {
-              saveBtn.disabled = false;
-              saveBtn.textContent = 'Save';
-            }
-            return;
-          }
-
-          // Prepare headers with MSAL token
+          // Prepare headers for anonymous access
           const headers = {
             'Content-Type': 'application/json',
             'X-CSRF-Token': window.csrfProtection?.getToken?.() || '',
             'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-            'Authorization': `Bearer ${token}`
+            'X-Requested-With': 'XMLHttpRequest'
           };
 
-          console.log('[CardForge] Using MSAL Bearer token for authentication');
-          
           console.log('[CardForge] Request details:', {
             url: endpoint,
             method: 'POST',
             headers: {
               ...headers,
-              'X-CSRF-Token': headers['X-CSRF-Token'] ? '[REDACTED]' : 'MISSING',
-              'Authorization': '[REDACTED]'
+              'X-CSRF-Token': headers['X-CSRF-Token'] ? '[REDACTED]' : 'MISSING'
             },
             body: {
               ...cardData,
