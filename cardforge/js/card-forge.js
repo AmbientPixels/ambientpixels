@@ -105,15 +105,24 @@ async function saveCard() {
           };
 
           // Save the card using the API with authentication
+          console.log('[CardForge] User info:', userInfo);
+          console.log('[CardForge] Is authenticated:', isAuthenticated);
+          
+          // For Azure Static Web Apps, the authentication cookie is handled automatically
+          // by the browser when credentials: 'include' is set
+          console.log('[CardForge] Using browser cookie handling for authentication');
+          
           const response = await fetch(endpoint, {
             method: 'POST',
-            credentials: 'include',  // This ensures cookies (including auth token) are sent
+            credentials: 'include',  // This ensures cookies are sent with the request
             headers,
             body: JSON.stringify({
               ...cardData,
               userId: userInfo?.userId || 'anonymous'  // Include userId in the request body
             })
           });
+          
+          console.log('[CardForge] Response status:', response.status);
           
           if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
