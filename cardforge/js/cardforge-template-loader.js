@@ -59,6 +59,8 @@
       // Trigger preview update if button exists
       const previewBtn = document.getElementById('preview-btn');
       if (previewBtn) {
+        // Bypass confirmation modal when auto-loading template
+        window.__cardforgeSkipConfirm = true;
         previewBtn.click();
       }
     } catch (error) {

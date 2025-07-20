@@ -67,10 +67,26 @@ module.exports = async function (context, req) {
       status: 204,
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
       },
       body: ''
+    };
+    return;
+  }
+
+  // Health-check for DELETE API
+  /* updated by Cascade 2025-07-19 */
+  if (req.method === 'GET') {
+    context.res = {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
+      },
+      body: { status: 'ok', message: 'CardForge Delete Card service is online' }
     };
     return;
   }

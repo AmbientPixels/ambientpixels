@@ -73,6 +73,26 @@ CardForge V2 is a browser-based toolkit for designing, editing, and sharing coll
 
 ---
 
+## 🏁 Developer Onboarding
+To get up and running:
+
+1. Clone the repo to `C:\ambientpixels\EchoGrid\cardforge`.
+2. Review key files:
+   - `index.html` (entry point)
+   - `/js/card-forge.js` (main app logic)
+   - `/js/cardforge-template-loader.js` (template loading)
+   - `/js/cardforge-editor.js` (form handling)
+   - `/mock/` (offline JSON fallback data)
+   - `/api/` (Azure Functions endpoints)
+3. Serve static files locally (see Quickstart).
+4. Start backend API (Azure Static Web Apps CLI or `func start`).
+5. Understand auth flow in `initAuth()` and `loadCards()` (DOMContentLoaded bootstrap).
+6. Run tests via `CardForgeTests.runAll()` and targeted tests.
+7. Follow Windsurf Protocol: no inline CSS; use existing CSS under `/cardforge/css/`.
+8. Consult this README and `docs/logs/project-card-forge.md` for architecture details.
+
+---
+
 ## 🔌 API Integration
 All API calls use `window._config.apiBasePath` (default `/api/cardforge`). Include `credentials: 'include'` for auth.
 
@@ -111,6 +131,7 @@ Use `X-CSRF-Token` header from `window.csrfProtection.getToken()` on all POST re
 - Fixed template loader endpoint path (`cardforgetemplate`).
 - Updated API endpoint names in front-end: `cardforgeloadcards`, `cardforgesavecards`, `cardforgedeletecard`.
 - Locked down delete endpoint in SWA config (`staticwebapp.config.json`).
+- Added blob-storage fallback logic for default and published cards to enable offline support (2025-07-19)
 
 ## 🤝 Contributing
 Please follow the Windsurf Protocol:

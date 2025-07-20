@@ -112,6 +112,19 @@ async function withRetry(operation, operationName, context, maxRetries = 3) {
 }
 
 module.exports = async function (context, req) {
+  // CORS preflight
+  if (req.method === 'OPTIONS') {
+    context.res = {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
+      },
+      body: ''
+    };
+    return;
+  }
   context.log('JavaScript HTTP trigger function processed a request for cardforgepublish');
 
   try {
