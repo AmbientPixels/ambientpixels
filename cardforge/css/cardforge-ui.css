@@ -5,16 +5,19 @@
 
 /* Dialog Styling */
 .cardforge-dialog {
-  display: none;
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0;
+  bottom: 0;
   background-color: rgba(0, 0, 0, 0.7);
-  z-index: 1000;
+  z-index: 10000;
+  display: none;
   justify-content: center;
   align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .cardforge-dialog.active {
@@ -25,10 +28,18 @@
   background-color: var(--aura-bg-color, #1a1a2e);
   border: 1px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 8px;
-  padding: 20px;
-  width: 400px;
-  max-width: 90%;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+  transform: translateY(-20px);
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.cardforge-dialog.active .cardforge-dialog-content {
+  transform: translateY(0);
+  opacity: 1;
 }
 
 .cardforge-dialog h3 {

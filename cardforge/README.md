@@ -18,7 +18,8 @@ CardForge V2 is a production-ready, browser-based toolkit for designing, editing
 - Error handling and user feedback
 - Responsive design with theme support
 - Mock data fallback for development
-- All CardForge routes and functions present and wired for production.
+- All CardForge routes and functions present and wired for production
+- Fixed modal dialog system with proper event handling and accessibility
 
 ### 🔄 In Progress
 - Local JSON loading verification
@@ -47,6 +48,8 @@ CardForge V2 is a production-ready, browser-based toolkit for designing, editing
 - Debug utilities
 - Mock API responses
 - Environment-aware configuration
+- Enhanced modal dialog utilities with keyboard navigation
+- Event cleanup and memory management
 
 ### ✅ Dev Environment
 - Local sandbox: edit `cardforge/index.html`, CSS/JS modules under `/cardforge/`

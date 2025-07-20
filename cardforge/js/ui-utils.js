@@ -25,44 +25,65 @@
     const dialog = document.getElementById('cardforge-dialog');
     if (!dialog) {
       console.error('Dialog element not found');
-      onConfirm();
+      // Fallback to native confirm if dialog element is missing
+      if (confirm(`${title}\n\n${message}`)) {
+        onConfirm && onConfirm();
+      } else {
+        onCancel && onCancel();
+      }
       return;
     }
 
     // Set dialog content
-    const titleEl = dialog.querySelector('#dialog-title');
-    const messageEl = dialog.querySelector('#dialog-message');
-    const confirmBtn = dialog.querySelector('#dialog-confirm');
-    const cancelBtn = dialog.querySelector('#dialog-cancel');
+    const titleEl = dialog.querySelector('#cardforge-dialog-title');
+    const messageEl = dialog.querySelector('#cardforge-dialog-message');
+    const confirmBtn = dialog.querySelector('#cardforge-dialog-confirm');
+    const cancelBtn = dialog.querySelector('#cardforge-dialog-cancel');
 
     if (titleEl) titleEl.textContent = title;
     if (messageEl) messageEl.textContent = message;
 
-    // Remove previous event listeners
+    // Clone buttons to remove any existing event listeners
     const newConfirmBtn = confirmBtn.cloneNode(true);
     const newCancelBtn = cancelBtn.cloneNode(true);
-    
+
     confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
     cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
 
-    // Show dialog
-    dialog.style.display = 'block';
-
-    // Setup confirm handler
-    newConfirmBtn.onclick = () => {
-      dialog.style.display = 'none';
-      if (typeof onConfirm === 'function') {
-        onConfirm();
-      }
+    // Set up new event listeners
+    const handleConfirm = () => {
+      dialog.classList.remove('active');
+      onConfirm && onConfirm();
+      // Clean up event listeners
+      newConfirmBtn.removeEventListener('click', handleConfirm);
+      newCancelBtn.removeEventListener('click', handleCancel);
     };
 
-    // Setup cancel handler
-    newCancelBtn.onclick = () => {
-      dialog.style.display = 'none';
-      if (typeof onCancel === 'function') {
-        onCancel();
+    const handleCancel = () => {
+      dialog.classList.remove('active');
+      onCancel && onCancel();
+      // Clean up event listeners
+      newConfirmBtn.removeEventListener('click', handleConfirm);
+      newCancelBtn.removeEventListener('click', handleCancel);
+    };
+
+    newConfirmBtn.addEventListener('click', handleConfirm);
+    newCancelBtn.addEventListener('click', handleCancel);
+
+    // Add escape key handler
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        handleCancel();
+        document.removeEventListener('keydown', handleEscape);
       }
     };
+    document.addEventListener('keydown', handleEscape);
+
+    // Show dialog by adding 'active' class
+    dialog.classList.add('active');
+    
+    // Focus the confirm button for better keyboard navigation
+    setTimeout(() => newConfirmBtn.focus(), 100);
   }
 
   /**
