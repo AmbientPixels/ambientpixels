@@ -90,21 +90,21 @@ async function saveCard() {
             if (window.UIUtils && typeof window.UIUtils.showMessage === 'function') {
               window.UIUtils.showMessage('You must be signed in to save cards.', 'error');
             } else {
-              alert('You must be signed in to save cards.');
+              alert('Authentication failed. Please sign in with Microsoft.');
             }
             return;
           }
 
-          // Prepare headers with auth
+          // Prepare headers with MSAL token
           const headers = {
             'Content-Type': 'application/json',
             'X-CSRF-Token': window.csrfProtection?.getToken?.() || '',
             'Accept': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
-            'Authorization': `Bearer ${userInfo.accessToken || ''}`
+            'Authorization': `Bearer ${token}`
           };
 
-          console.log('[CardForge] Using browser cookie handling for authentication');
+          console.log('[CardForge] Using MSAL Bearer token for authentication');
           
           console.log('[CardForge] Request details:', {
             url: endpoint,
@@ -112,22 +112,22 @@ async function saveCard() {
             headers: {
               ...headers,
               'X-CSRF-Token': headers['X-CSRF-Token'] ? '[REDACTED]' : 'MISSING',
+              'Authorization': '[REDACTED]'
             },
             body: {
               ...cardData,
-              userId: userInfo?.userId || 'anonymous',
+              userId: 'anonymous',
               cardData: '[...truncated]'
             }
           });
           
           const response = await fetch(endpoint, {
             method: 'POST',
-            credentials: 'include',
             headers,
             body: JSON.stringify({
               ...cardData,
-              userId: userInfo?.userId || 'anonymous',
-              authToken: 'included-in-cookie'
+              userId: 'anonymous',
+              authToken: 'included-in-header'
             })
           });
           
