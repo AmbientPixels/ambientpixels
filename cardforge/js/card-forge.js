@@ -95,6 +95,29 @@ async function saveCard() {
             return;
           }
 
+          // Acquire MSAL token for API
+          let token = null;
+          if (window.CardForgeAuth && typeof window.CardForgeAuth.getAccessToken === 'function') {
+            try {
+              token = await window.CardForgeAuth.getAccessToken();
+            } catch (err) {
+              token = null;
+              console.error('[CardForge] Failed to get MSAL token:', err);
+            }
+          }
+          if (!token) {
+            if (window.UIUtils && typeof window.UIUtils.showMessage === 'function') {
+              window.UIUtils.showMessage('Authentication failed: Unable to acquire Microsoft token. Please sign in again.', 'error');
+            } else {
+              alert('Authentication failed. Please sign in with Microsoft.');
+            }
+            if (saveBtn) {
+              saveBtn.disabled = false;
+              saveBtn.textContent = 'Save';
+            }
+            return;
+          }
+
           // Prepare headers with MSAL token
           const headers = {
             'Content-Type': 'application/json',
