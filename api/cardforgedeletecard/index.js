@@ -97,10 +97,10 @@ module.exports = async function (context, req) {
   }
 
   const { userId, isAuthenticated } = extractUserInfo(req, context);
-  if (!isAuthenticated) {
-    context.res = { status: 401, body: 'Unauthorized' };
-    return;
-  }
+  // Allow anonymous access: set userId to 'anonymous' if not authenticated
+  // (No blocking, no 401 response)
+  // userId is already set by extractUserInfo; proceed with delete
+
 
   const cardId = req.body && req.body.id;
   if (!cardId) {

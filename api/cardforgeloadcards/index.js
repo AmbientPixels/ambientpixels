@@ -175,12 +175,14 @@ module.exports = async function (context, req) {
     const { userId, isAuthenticated } = extractUserInfo(req, context);
     context.log(`[${requestId}] User ID: ${userId}, Authenticated: ${isAuthenticated}`);
     
-    // Check for required auth headers for authenticated requests
+    // If authenticated, log auth headers (for debugging only)
     if (isAuthenticated) {
       const authHeader = req.headers['authorization'];
       const csrfToken = req.headers['x-csrf-token'];
       context.log(`[${requestId}] Auth header present: ${!!authHeader}, CSRF token present: ${!!csrfToken}`);
     }
+    // Always allow anonymous users to load cards (default/gallery); never block or return 401/403
+
     
     // Initialize Azure storage client with managed identity
     let blobServiceClient;
