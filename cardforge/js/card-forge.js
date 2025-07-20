@@ -104,70 +104,97 @@ async function saveCard() {
             'Authorization': `Bearer ${userInfo.accessToken || ''}`
           };
 
-          // Save the card using the API with authentication
-          console.log('[CardForge] User info:', userInfo);
-          console.log('[CardForge] Is authenticated:', isAuthenticated);
-          
-          // For Azure Static Web Apps, the authentication cookie is handled automatically
-          // by the browser when credentials: 'include' is set
+          // For Azure Static Web Apps, we need to include the authentication token in the request
           console.log('[CardForge] Using browser cookie handling for authentication');
           
-          const response = await fetch(endpoint, {
+          // Log the full request details
+          console.log('[CardForge] Request details:', {
+            url: endpoint,
             method: 'POST',
-            credentials: 'include',  // This ensures cookies are sent with the request
-            headers,
-            body: JSON.stringify({
+            headers: {
+              ...headers,
+              // Don't log sensitive data
+              'X-CSRF-Token': headers['X-CSRF-Token'] ? '[REDACTED]' : 'MISSING',
+            },
+            body: {
               ...cardData,
-              userId: userInfo?.userId || 'anonymous'  // Include userId in the request body
-            })
+              userId: userInfo?.userId || 'anonymous',
+              // Don't log entire card data to avoid cluttering the console
+              cardData: '[...truncated]'
+            }
           });
           
-          console.log('[CardForge] Response status:', response.status);
-          
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || `HTTP ${response.status}`);
+          try {
+            const response = await fetch(endpoint, {
+              method: 'POST',
+              credentials: 'include',  // This ensures cookies are sent with the request
+              headers,
+              body: JSON.stringify({
+                ...cardData,
+                userId: userInfo?.userId || 'anonymous',
+                // Include the authentication token in the body as well
+                authToken: 'included-in-cookie'
+              })
+            });
+            
+            console.log('[CardForge] Response status:', response.status);
+            console.log('[CardForge] Response headers:', [...response.headers.entries()]);
+            
+            // Log the response text for debugging
+            const responseText = await response.text();
+            console.log('[CardForge] Response body:', responseText);
+            
+            if (!response.ok) {
+              // Try to parse as JSON if possible
+              try {
+                const errorData = JSON.parse(responseText);
+                console.error('[CardForge] Error response:', errorData);
+                throw new Error(errorData.message || `HTTP ${response.status}`);
+              } catch (e) {
+                console.error('[CardForge] Non-JSON error response:', responseText);
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+              }
+            }
+
+            const result = await response.json();
+            console.log('[CardForge] Card saved:', result);
+
+            if (window.UIUtils && typeof window.UIUtils.showMessage === 'function') {
+              window.UIUtils.showMessage('Card saved successfully!', 'success');
+            } else {
+              console.log('Card saved successfully!');
+            }
+            // Update card ID if this is a new card
+            if (cardIdInput && result.id) {
+              cardIdInput.value = result.id;
+            }
+
+            // Enable publish button after successful save
+            const publishBtn = document.getElementById('publish-btn');
+            if (publishBtn) {
+              publishBtn.disabled = false;
+            }
+
+            showMessage('Card saved successfully!', 'success');
+            loadCards(); // Refresh the card list
+          } catch (error) {
+            console.error('Failed to save card:', error);
+            if (window.UIUtils && typeof window.UIUtils.showMessage === 'function') {
+              window.UIUtils.showMessage(`Error: ${error.message}`, 'error');
+            } else {
+              console.error('Failed to save card:', error.message);
+            }
+          } finally {
+            // Reset button state
+            if (saveBtn) {
+              saveBtn.disabled = false;
+              saveBtn.textContent = 'Save';
+            }
           }
-
-          const result = await response.json();
-          console.log('[CardForge] Card saved:', result);
-
-          if (window.UIUtils && typeof window.UIUtils.showMessage === 'function') {
-            window.UIUtils.showMessage('Card saved successfully!', 'success');
-          } else {
-            console.log('Card saved successfully!');
-          }
-          // Update card ID if this is a new card
-        if (cardIdInput && result.id) {
-          cardIdInput.value = result.id;
         }
-
-        // Enable publish button after successful save
-        const publishBtn = document.getElementById('publish-btn');
-        if (publishBtn) {
-          publishBtn.disabled = false;
-        }
-
-        showMessage('Card saved successfully!', 'success');
-        loadCards(); // Refresh the card list
-      } catch (error) {
-        console.error('Failed to save card:', error);
-        if (window.UIUtils && typeof window.UIUtils.showMessage === 'function') {
-          window.UIUtils.showMessage(`Error: ${error.message}`, 'error');
-        } else {
-          console.error('Failed to save card:', error.message);
-        }
-      } finally {
-        // Reset button state
-        if (saveBtn) {
-          saveBtn.disabled = false;
-          saveBtn.textContent = 'Save';
-        }
-      }
-    }
-  );
-  } // Close the if (typeof showDialog === 'function') block
-}
+      );
+    } // Close the if (typeof showDialog === 'function') block
+  }
 
 /**
  * Load cards from the API and update the UI
