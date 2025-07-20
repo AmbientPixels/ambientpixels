@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "510bb349-3322-490b-aed6-8fb7a4da6f10",
-      "hash": "54627e739cad7169aced51147d34e4c75912ca21",
-      "message": "chore(cardforge): prep production deployment",
-      "timestamp": "2025-07-18 21:24:09 -0700",
+      "id": "8629923e-864f-43ec-bfbe-60685f1b0fc9",
+      "hash": "e5cddfb6f2db0c06746f456758d1c1a8d7a38704",
+      "message": "fix: resolve duplicate dialog and enhance modal functionality",
+      "timestamp": "2025-07-19 23:16:57 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/54627e739cad7169aced51147d34e4c75912ca21"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/e5cddfb6f2db0c06746f456758d1c1a8d7a38704"
     }
   ],
-  "timestamp": "2025-07-19T13:31:38.651Z",
+  "timestamp": "2025-07-20T13:32:24.144Z",
   "count": 1,
-  "scanId": 1752931898651
+  "scanId": 1753018344144
 }

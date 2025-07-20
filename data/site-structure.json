@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-07-19T13:31:36.192Z",
+  "updated": "2025-07-20T13:32:23.275Z",
   "root": [
     {
       "type": "folder",
@@ -228,11 +228,6 @@
               "path": "cardforge/templates/card-template.html"
             }
           ]
-        },
-        {
-          "type": "page",
-          "name": "test-cardforge.html",
-          "path": "cardforge/test-cardforge.html"
         }
       ]
     },
@@ -666,6 +661,11 @@
           "type": "page",
           "name": "about.html",
           "path": "nova/about.html"
+        },
+        {
+          "type": "page",
+          "name": "ai-mood-demo.html",
+          "path": "nova/ai-mood-demo.html"
         },
         {
           "type": "page",
