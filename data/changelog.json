@@ -1,10 +1,10 @@
 {
-  "updated": "2025-07-19T13:31:36.318Z",
+  "updated": "2025-07-20T13:32:23.408Z",
   "entries": [
     {
-      "hash": "54627e7",
-      "date": "2025-07-18 21:24:09 -0700",
-      "message": "chore(cardforge): prep production deployment"
+      "hash": "e5cddfb",
+      "date": "2025-07-19 23:16:57 -0700",
+      "message": "fix: resolve duplicate dialog and enhance modal functionality"
     }
   ]
 }
