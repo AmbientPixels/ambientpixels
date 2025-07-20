@@ -82,20 +82,37 @@ async function saveCard() {
           const endpoint = window.buildApiPath('saveCard');
           console.log(`[CardForge] Saving card to endpoint: ${endpoint}`);
 
-          // Prepare headers
+          // Get auth token from session
+          const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || 'null');
+          const isAuthenticated = sessionStorage.getItem('isAuthenticated') === 'true';
+          
+          if (!isAuthenticated || !userInfo) {
+            if (window.UIUtils && typeof window.UIUtils.showMessage === 'function') {
+              window.UIUtils.showMessage('You must be signed in to save cards.', 'error');
+            } else {
+              alert('You must be signed in to save cards.');
+            }
+            return;
+          }
+
+          // Prepare headers with auth
           const headers = {
             'Content-Type': 'application/json',
             'X-CSRF-Token': window.csrfProtection?.getToken?.() || '',
             'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
+            'X-Requested-With': 'XMLHttpRequest',
+            'Authorization': `Bearer ${userInfo.accessToken || ''}`
           };
 
-          // Save the card using the API
+          // Save the card using the API with authentication
           const response = await fetch(endpoint, {
             method: 'POST',
-            credentials: 'include',
+            credentials: 'include',  // This ensures cookies (including auth token) are sent
             headers,
-            body: JSON.stringify(cardData)
+            body: JSON.stringify({
+              ...cardData,
+              userId: userInfo?.userId || 'anonymous'  // Include userId in the request body
+            })
           });
           
           if (!response.ok) {

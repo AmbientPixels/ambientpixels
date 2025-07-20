@@ -46,28 +46,22 @@ async function publishCard() {
         const endpoint = window.buildApiPath('cardforgepublish');
         console.log('[CardForge] Publishing to endpoint:', endpoint);
         
-        // Prepare headers with CSRF token and user ID
-        const headers = {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': window.csrfProtection?.getToken?.() || ''
-        };
+        // Get auth token from session
+        const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || 'null');
+        const isAuthenticated = sessionStorage.getItem('isAuthenticated') === 'true';
         
-        // Add user ID for authentication
-        if (account?.id) {
-          headers['X-User-ID'] = account.id;
+        if (!isAuthenticated || !userInfo) {
+          showMessage('You must be signed in to publish cards.', 'error');
+          return;
         }
+
+        // Prepare headers with auth
         const publishHeaders = {
           'Content-Type': 'application/json',
-          'X-CSRF-Token': window.csrfProtection.getToken()
+          'X-CSRF-Token': window.csrfProtection?.getToken?.() || '',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
         };
-        if (window._config.environment !== 'production') {
-          const devAuth = localStorage.getItem('cardforge_dev_auth');
-          if (devAuth) {
-            const { id: devUserId } = JSON.parse(devAuth);
-            publishHeaders['X-User-ID'] = devUserId;
-            if (window._config.debug) console.log(`[DEV] Added X-User-ID header for publish: ${devUserId}`);
-          }
-        }
         
         console.log('[CardForge] Request headers:', publishHeaders);
         
