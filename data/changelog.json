@@ -1,10 +1,10 @@
 {
-  "updated": "2025-07-20T13:32:23.408Z",
+  "updated": "2025-07-21T13:40:28.833Z",
   "entries": [
     {
-      "hash": "e5cddfb",
-      "date": "2025-07-19 23:16:57 -0700",
-      "message": "fix: resolve duplicate dialog and enhance modal functionality"
+      "hash": "dd04355",
+      "date": "2025-07-20 19:23:28 -0700",
+      "message": "Fix CardForge gallery loader to support publishedCards property"
     }
   ]
 }
