@@ -117,42 +117,42 @@ async function saveCard() {
           console.log('[CardForge] Response status:', response.status);
           console.log('[CardForge] Response headers:', [...response.headers.entries()]);
           
+          // updated by Cascade 2025-07-20: fix double-read of response body
           const responseText = await response.text();
           console.log('[CardForge] Response body:', responseText);
 
+          let result;
           try {
-            if (!response.ok) {
-              try {
-                const errorData = JSON.parse(responseText);
-                console.error('[CardForge] Error response:', errorData);
-                throw new Error(errorData.message || `HTTP ${response.status}`);
-              } catch (e) {
-                console.error('[CardForge] Non-JSON error response:', responseText);
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-              }
-            }
+            result = JSON.parse(responseText);
+          } catch (e) {
+            result = null;
+          }
 
-            const result = await response.json();
-            console.log('[CardForge] Card saved:', result);
+          if (!response.ok) {
+            console.error('[CardForge] Error response:', result || responseText);
+            throw new Error((result && result.message) || `HTTP ${response.status}: ${response.statusText}`);
+          }
 
-            if (window.UIUtils?.showMessage) {
-              window.UIUtils.showMessage('Card saved successfully!', 'success');
-            } else {
-              console.log('Card saved successfully!');
-            }
-            
-            if (cardIdInput && result.id) {
-              cardIdInput.value = result.id;
-            }
+          console.log('[CardForge] Card saved:', result);
 
-            const publishBtn = document.getElementById('publish-btn');
-            if (publishBtn) {
-              publishBtn.disabled = false;
-            }
+          if (window.UIUtils?.showMessage) {
+            window.UIUtils.showMessage('Card saved successfully!', 'success');
+          } else {
+            console.log('Card saved successfully!');
+          }
+          
+          if (cardIdInput && result && result.id) {
+            cardIdInput.value = result.id;
+          }
 
-            if (window.showMessage) {
-              window.showMessage('Card saved successfully!', 'success');
-            }
+          const publishBtn = document.getElementById('publish-btn');
+          if (publishBtn) {
+            publishBtn.disabled = false;
+          }
+
+          if (window.showMessage) {
+            window.showMessage('Card saved successfully!', 'success');
+          }
             
             if (window.loadCards) {
               window.loadCards();

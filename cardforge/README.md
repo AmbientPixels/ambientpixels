@@ -9,27 +9,24 @@ CardForge V2 is a production-ready, browser-based toolkit for designing, editing
 
 ---
 
-## 🚀 Current Status: Deployment Ready
+## 🚀 Current Status: Production-Ready & Anonymous Access (July 20, 2025)
 
 ### ✅ Completed
-- Core card creation and editing functionality
-- Secure API integration with CSRF protection
-- Input validation and sanitization
-- Error handling and user feedback
-- Responsive design with theme support
-- Mock data fallback for development
-- All CardForge routes and functions present and wired for production
-- Fixed modal dialog system with proper event handling and accessibility
-- **Microsoft Entra ID (MSAL.js) authentication integrated for secure API access**
-- **Content Security Policy updated to allow MSAL.js CDN (https://alcdn.msauth.net)**
-- **Live deployment ready and tested**
+- Core card creation, editing, and publishing functionality
+- All CardForge API endpoints now allow anonymous access—no authentication required
+- Secure API integration with CSRF protection (not tied to authentication)
+- Input validation, sanitization, and robust error handling throughout
+- Responsive design with Nova/Windsurf Protocol compliance
+- All CardForge frontend JS and CSS fully reviewed for auth remnants—none remain
+- Staticwebapp.config.json routes explicitly allow ["anonymous"] for all CardForge endpoints
+- Managed Identity and Storage Blob Data Contributor role configured for backend
+- Fixed modal dialog system with accessibility and event cleanup
+- Live deployment tested and verified for anonymous users (no login prompts or errors)
 
 ### 🔄 In Progress
-- Local development environment setup for authentication
-- Local JSON loading verification
-- Final testing of all user flows
+- Final production smoke testing of all user flows
 - Performance optimization
-- Documentation updates
+- Documentation and onboarding updates
 
 ---
 
@@ -42,10 +39,10 @@ CardForge V2 is a production-ready, browser-based toolkit for designing, editing
 - Support for images, text, and custom fields
 
 ### 🔒 Security Features
-- CSRF protection
+- CSRF protection (active for all POST requests, not tied to login)
 - Input validation and sanitization
-- Secure API communication
-- Role-based access control
+- Secure API communication (HTTPS enforced)
+- No authentication required for CardForge APIs; rest of site remains protected as configured
 
 ### 🛠 Developer Tools
 - Comprehensive error logging
