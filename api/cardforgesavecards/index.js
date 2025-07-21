@@ -205,6 +205,7 @@ module.exports = async function (context, req) {
     // Use BlockBlobClient for all operations to be consistent
     const userBlobClient = containerClient.getBlockBlobClient(userBlobPath);
     let userCards = { cards: [] };
+    let userBlobExists = false;
     
     try {
       // Check if blob exists with retry
