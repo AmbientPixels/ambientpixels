@@ -31,7 +31,7 @@
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "X-XSS-Protection": "1; mode=block",
-    "Content-Security-Policy": "default-src 'self'; script-src 'self' https://js.monitor.azure.com https://cdnjs.cloudflare.com https://alcdn.msauth.net 'unsafe-inline' 'unsafe-eval'; style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://*.ambientpixels.ai; connect-src 'self' https://*.ambientpixels.ai https://ambientpixels-nova-api.azurewebsites.net https://*.azure.com https://*.applicationinsights.azure.com https://ambientpixelsai.ciamlogin.com https://login.microsoftonline.com https://*.login.microsoftonline.com"
+    "Content-Security-Policy": "default-src 'self'; script-src 'self' https://js.monitor.azure.com https://cdnjs.cloudflare.com https://alcdn.msauth.net 'unsafe-inline' 'unsafe-eval'; style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://*.ambientpixels.ai; connect-src 'self' https://*.ambientpixels.ai https://ambientpixels-nova-api.azurewebsites.net https://*.azure.com https://*.applicationinsights.azure.com https://ambientpixelsai.ciamlogin.com https://login.microsoftonline.com https://*.login.microsoftonline.com https://cardforgeblobdata.blob.core.windows.net;"
   },
   "routes": [
     {
