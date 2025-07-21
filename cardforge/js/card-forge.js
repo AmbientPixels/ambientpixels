@@ -290,11 +290,33 @@ function createCardElement(card) {
   return cardElement;
 }
 
-// Initialize cards when the page loads
+// Load and render published gallery cards
+async function loadGallery() {
+  const galleryGrid = document.getElementById('gallery-cards-grid');
+  if (!galleryGrid) return;
+
+  galleryGrid.innerHTML = '<div class="gallery-loading">Loading gallery cards...</div>';
+
+  try {
+    const response = await fetch('https://cardforgeblobdata.blob.core.windows.net/cardforge/published-cards.json', {
+      cache: 'no-cache'
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const cards = await response.json();
+    renderCards(galleryGrid, cards);
+  } catch (error) {
+    galleryGrid.innerHTML = `<div class="error">Failed to load gallery: ${error.message}</div>`;
+  }
+}
+
+// Initialize cards and gallery when the page loads
 document.addEventListener('DOMContentLoaded', async () => {
   // Load cards when the page loads
   await loadCards();
-  
+
+  // Load published gallery cards
+  await loadGallery();
+
   // Set up event listeners for the save button
   const saveBtn = document.getElementById('save-btn');
   if (saveBtn) {
