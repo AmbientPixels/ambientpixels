@@ -170,19 +170,7 @@ async function saveCard() {
               saveBtn.textContent = 'Save';
             }
           }
-        } catch (error) {
-          console.error('Failed to save card:', error);
-          if (window.UIUtils?.showMessage) {
-            window.UIUtils.showMessage(`Error: ${error.message}`, 'error');
-          } else {
-            console.error('Error:', error.message);
-          }
-        } finally {
-          if (saveBtn) {
-            saveBtn.disabled = false;
-            saveBtn.textContent = 'Save';
-          }
-        }
+
       }
     );
   }
