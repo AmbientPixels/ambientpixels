@@ -302,7 +302,9 @@ async function loadGallery() {
       cache: 'no-cache'
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const cards = await response.json();
+    const data = await response.json();
+    // Support both array and {publishedCards: array}
+    const cards = Array.isArray(data) ? data : (Array.isArray(data.publishedCards) ? data.publishedCards : []);
     renderCards(galleryGrid, cards);
   } catch (error) {
     galleryGrid.innerHTML = `<div class="error">Failed to load gallery: ${error.message}</div>`;
