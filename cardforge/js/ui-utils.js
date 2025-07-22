@@ -130,8 +130,52 @@
   }
 
   // Create the UIUtils object
+  /**
+   * Shows a single-button alert dialog (OK only)
+   * @param {string} title - Dialog title
+   * @param {string} message - Dialog message
+   * @param {Function} [onClose] - Optional callback when closed
+   */
+  function showAlertDialog(title, message, onClose) {
+    const dialog = document.getElementById('cardforge-dialog');
+    if (!dialog) {
+      alert(`${title}\n\n${message}`);
+      onClose && onClose();
+      return;
+    }
+    const titleEl = dialog.querySelector('#cardforge-dialog-title');
+    const messageEl = dialog.querySelector('#cardforge-dialog-message');
+    const confirmBtn = dialog.querySelector('#cardforge-dialog-confirm');
+    const cancelBtn = dialog.querySelector('#cardforge-dialog-cancel');
+    if (titleEl) titleEl.textContent = title;
+    if (messageEl) messageEl.textContent = message;
+    // Hide cancel, relabel confirm
+    if (cancelBtn) cancelBtn.style.display = 'none';
+    if (confirmBtn) confirmBtn.textContent = 'OK';
+    // Clone confirm to remove prior listeners
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    // Show dialog
+    dialog.classList.add('active');
+    newConfirmBtn.focus();
+    const handleClose = () => {
+      dialog.classList.remove('active');
+      if (cancelBtn) cancelBtn.style.display = '';
+      if (newConfirmBtn) newConfirmBtn.textContent = 'Confirm';
+      onClose && onClose();
+      newConfirmBtn.removeEventListener('click', handleClose);
+      document.removeEventListener('keydown', escListener);
+    };
+    const escListener = (e) => {
+      if (e.key === 'Escape') handleClose();
+    };
+    newConfirmBtn.addEventListener('click', handleClose);
+    document.addEventListener('keydown', escListener);
+  }
+
   const UIUtils = {
     showConfirmDialog,
+    showAlertDialog,
     clearValidationErrors,
     showValidationErrors
   };

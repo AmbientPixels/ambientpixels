@@ -2,23 +2,7 @@
  * Publish a card to the public gallery
  */
 async function publishCard() {
-  // Check if user is signed in - ensure authModule is fully initialized
-  if (!window.authModule) {
-    console.error('[CardForge] Authentication module not initialized');
-    showMessage('Authentication system not ready. Please refresh the page and try again.', 'error');
-    return;
-  }
-  
-  const account = window.authModule.getCurrentUser();
-  if (window._config.debug) {
-    console.log('[CardForge] Current user account:', account);
-  }
-  
-  if (!account || !account.id) {
-    console.error('[CardForge] User not authenticated or missing ID');
-    showMessage('Please sign in to publish cards', 'error');
-    return;
-  }
+  // Allow anonymous publishing: skip all authentication checks
 
   // Get the card ID from the form
   const cardIdInput = document.getElementById('card-id');
@@ -46,16 +30,7 @@ async function publishCard() {
         const endpoint = window.buildApiPath('cardforgepublish');
         console.log('[CardForge] Publishing to endpoint:', endpoint);
         
-        // Get auth token from session
-        const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || 'null');
-        const isAuthenticated = sessionStorage.getItem('isAuthenticated') === 'true';
-        
-        if (!isAuthenticated || !userInfo) {
-          showMessage('You must be signed in to publish cards.', 'error');
-          return;
-        }
-
-        // Prepare headers with auth
+        // Prepare headers (no auth required for anonymous publish)
         const publishHeaders = {
           'Content-Type': 'application/json',
           'X-CSRF-Token': window.csrfProtection?.getToken?.() || '',

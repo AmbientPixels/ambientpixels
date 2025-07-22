@@ -135,7 +135,13 @@ async function saveCard() {
 
           console.log('[CardForge] Card saved:', result);
 
-          if (window.UIUtils?.showMessage) {
+          if (window.UIUtils?.showAlertDialog) {
+            window.UIUtils.showAlertDialog('Card Saved', 'Your card was successfully saved!', () => {
+              // Optional: focus the publish button or do any follow-up
+              const publishBtn = document.getElementById('publish-btn');
+              if (publishBtn) publishBtn.focus();
+            });
+          } else if (window.UIUtils?.showMessage) {
             window.UIUtils.showMessage('Card saved successfully!', 'success');
           } else {
             console.log('Card saved successfully!');
