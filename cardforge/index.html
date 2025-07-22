@@ -143,8 +143,15 @@
 <label for="card-badge">Badge</label>
 <input type="text" id="card-badge" placeholder="e.g. Cycle I — Genesis" />
 
-<label for="card-stats">Stats (JSON)</label>
-<textarea id="card-stats" rows="4" placeholder='{"Experience":100,"Creativity":95,"CodeFusion":90}'></textarea>
+<label for="card-stats">Stats</label>
+<div id="stats-editor">
+  <div class="stat-row">
+    <input type="text" name="stat-name" placeholder="Stat name" />
+    <input type="number" name="stat-value" placeholder="Value" />
+    <button type="button" class="remove-stat">&times;</button>
+  </div>
+</div>
+<button type="button" id="add-stat-btn" class="add-stat-btn">Add Stat</button>
 
         
         <div class="cardforge-form-actions">

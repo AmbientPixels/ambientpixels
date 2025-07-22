@@ -36,7 +36,32 @@
 
   // Initial preview on load
   updatePreview();
-  // Fallback: listen on form for any input/change to catch all fields
+          // Stats Editor Logic
+        const statsEditor = document.getElementById('stats-editor');
+        const addStatBtn = document.getElementById('add-stat-btn');
+
+        function createStatRow(name = '', value = '') {
+          const row = document.createElement('div');
+          row.className = 'stat-row';
+          row.innerHTML = `
+            <input type="text" name="stat-name" placeholder="Stat name" value="${name}" />
+            <input type="number" name="stat-value" placeholder="Value" value="${value}" />
+            <button type="button" class="remove-stat">&times;</button>
+          `;
+          row.querySelector('.remove-stat').addEventListener('click', () => { row.remove(); updatePreview(); });
+          row.querySelector('input[name="stat-name"]').addEventListener('input', updatePreview);
+          row.querySelector('input[name="stat-value"]').addEventListener('input', updatePreview);
+          return row;
+        }
+
+        addStatBtn?.addEventListener('click', () => {
+          statsEditor?.appendChild(createStatRow());
+          updatePreview();
+        });
+
+        statsEditor?.addEventListener('input', updatePreview);
+
+        // Fallback: listen on form for any input/change to catch all fields
   const formEl = document.getElementById('card-editor-form');
   if (formEl) {
     formEl.addEventListener('input', updatePreview);
@@ -118,8 +143,16 @@
     const origin = document.getElementById('card-origin').value;
     const faction = document.getElementById('card-faction').value;
     const badge = document.getElementById('card-badge').value;
+    // Collect stats from dynamic editor
     let statsObj = {};
-    try { statsObj = JSON.parse(document.getElementById('card-stats').value || '{}'); } catch(e) { console.warn('Invalid stats JSON'); }
+    const statRows = document.querySelectorAll('#stats-editor .stat-row');
+    statRows.forEach(row => {
+      const nameInput = row.querySelector('input[name="stat-name"]');
+      const valueInput = row.querySelector('input[name="stat-value"]');
+      const name = nameInput?.value.trim();
+      const val = parseInt(valueInput?.value, 10);
+      if (name) statsObj[name] = isNaN(val) ? 0 : val;
+    });
 
     // Front face
     const variant = document.getElementById('card-template-type')?.value || 'default';
@@ -132,7 +165,7 @@
       const previewContent = createElement('div', { class: 'card-preview-content' });
       // Avatar & name
       const header = createElement('div', { class: 'card-header' });
-      if (avatar && ValidationUtils.isValidImageUrl(avatar)) {
+      if (avatar && (ValidationUtils.isValidImageUrl(avatar) || avatar.startsWith('/'))) {
         header.appendChild(createElement('img', { src: avatar, class: 'card-avatar', alt: name }));
       }
       header.appendChild(createElement('h3', {}, name || 'Card Name'));
@@ -204,10 +237,35 @@
   function loadImages(page) {
     if (!imageGrid) return;
     imageGrid.textContent = 'Loading images...';
-    // Stub: show no images available
-    setTimeout(() => {
-      imageGrid.innerHTML = '<p class="modal-message">No local images loaded. Ensure server serves /images/</p>';
-    }, 500);
+    fetch('/cardforge/image-manifest.json')
+      .then(res => res.json())
+      .then(images => {
+        imageGrid.innerHTML = '';
+        const start = (page - 1) * imagesPerPage;
+        const pageImages = images.slice(start, start + imagesPerPage);
+        if (!pageImages.length) {
+          imageGrid.innerHTML = '<p class="modal-message">No images available.</p>';
+        } else {
+          pageImages.forEach(url => {
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = '';
+            img.addEventListener('click', () => {
+              const avatarInput = document.getElementById('card-avatar');
+              if (avatarInput) {
+                avatarInput.value = url;
+                updatePreview();
+              }
+              closeImageModal();
+            });
+            imageGrid.appendChild(img);
+          });
+        }
+      })
+      .catch(err => {
+        console.error('Error loading image manifest:', err);
+        imageGrid.innerHTML = '<p class="modal-message">Failed to load images.</p>';
+      });
   }
 
   chooseImageBtn?.addEventListener('click', openImageModal);

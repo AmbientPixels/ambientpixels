@@ -670,3 +670,43 @@
   text-shadow: 0 0 4px #00fff0;
 }
 
+/* Stats Editor Styles */
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.stat-row input[name="stat-name"],
+.stat-row input[name="stat-value"] {
+  padding: 6px;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 4px;
+  background: var(--aura-bg-color, #1a1a2e);
+  color: var(--mood-primary-color, #e1e1ff);
+  font-family: inherit;
+}
+.remove-stat {
+  background: transparent;
+  border: none;
+  color: var(--mood-secondary-color, #a0a0c0);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+.remove-stat:hover {
+  color: var(--mood-primary-color, #e1e1ff);
+}
+.add-stat-btn {
+  background: var(--mood-accent-color, #4a4a6a);
+  color: var(--aura-bg-color, #1a1a2e);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 8px;
+}
+.add-stat-btn:hover {
+  background: var(--mood-primary-color, #e1e1ff);
+}
+
