@@ -256,13 +256,7 @@
 }
 
 /* Front face styling */
-.card-front .card-preview-content {
-  background: var(--card-bg, #fff);
-  color: var(--card-text, #000);
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
+
 .card-header {
   display: flex;
   align-items: center;
@@ -319,3 +313,236 @@
 .card-list-actions button:hover {
   color: var(--mood-primary-color);
 }
+
+/* Theme-specific card styles */
+/* High-specificity overrides */
+.card-preview-canvas.theme-neofantasy .card-preview-content,
+#card-back.theme-neofantasy .card-back-content {
+  background: linear-gradient(135deg, #f3e8ff 0%, #e0d4ff 100%) !important;
+  color: #4a2e83 !important;
+}
+.card-preview-canvas.theme-synthwavehacker .card-preview-content,
+#card-back.theme-synthwavehacker .card-back-content {
+  background: #0f0f1e !important;
+  background-image: radial-gradient(circle at bottom left, #ff007a, #00fff0 70%) !important;
+  color: #00fff0 !important;
+}
+.card-preview-canvas.theme-propersona .card-preview-content,
+#card-back.theme-propersona .card-back-content {
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  color: #1f2937 !important;
+}
+.theme-neofantasy .card-preview-content,
+.theme-neofantasy .card-back-content {
+  background: linear-gradient(135deg, #f3e8ff 0%, #e0d4ff 100%);
+  color: #4a2e83;
+}
+
+.theme-synthwavehacker .card-preview-content,
+.theme-synthwavehacker .card-back-content {
+  background: #0f0f1e;
+  background-image: radial-gradient(circle at bottom left, #ff007a, #00fff0 70%);
+  color: #00fff0;
+}
+
+.theme-propersona .card-preview-content,
+.theme-propersona .card-back-content {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #1f2937;
+}
+
+/* NeoFantasy theme - parchment scroll */
+.theme-neofantasy .card-preview-content,
+.theme-neofantasy .card-back-content {
+  background: #f7efd6 url('/cardforge/assets/parchment-texture.png') repeat;
+  border: 4px solid #d4af37;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+}
+.theme-neofantasy .card-header h3,
+.theme-neofantasy .card-header h3 {
+  font-family: 'Cinzel', serif;
+  text-shadow: 1px 1px 2px rgba(214,175,55,0.7);
+}
+.theme-neofantasy .stat-progress {
+  background: linear-gradient(90deg, #a67c52, #f9d570);
+  border: 1px solid #8c6239;
+  box-shadow: 0 0 4px rgba(249,213,112,0.8);
+}
+
+/* SynthwaveHacker theme - retro neon */
+.theme-synthwavehacker .card-preview-content,
+.theme-synthwavehacker .card-back-content {
+  background: #0f0f1e;
+  background-image:
+    radial-gradient(circle at bottom left, #ff007a, #00fff0 70%),
+    repeating-linear-gradient(
+      0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px
+    );
+  border: 2px solid #ff007a;
+}
+.theme-synthwavehacker .card-header h3 {
+  font-family: 'Press Start 2P', monospace;
+  color: #ff82a7;
+  text-shadow: 0 0 6px #ff007a;
+}
+.theme-synthwavehacker .stat-progress {
+  background: #00fff0;
+  box-shadow: inset 0 0 6px #00fff0;
+}
+
+/* ProPersona theme - modern minimal */
+.theme-propersona .card-avatar:hover {
+  box-shadow: 0 0 15px rgba(74,222,128,0.6);
+}
+.theme-propersona .card-preview-content,
+.theme-propersona .card-back-content {
+  background: radial-gradient(circle, #fafafa, #e5e7eb);
+}
+.theme-propersona .card-header h3 {
+  font-family: 'Inter', sans-serif;
+  font-weight: bold;
+}
+.theme-propersona .stat-progress {
+  background: #4ade80;
+  border-radius: 4px;
+}
+
+/* Enhanced NeoFantasy styling */
+.theme-neofantasy .card-preview-content,
+.theme-neofantasy .card-back-content {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 24px;
+  border-radius: 12px;
+}
+.theme-neofantasy .card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.theme-neofantasy .card-avatar {
+  width: 80px;
+  height: 80px;
+  border: 3px solid #d4af37;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(212,175,55,0.8);
+}
+.theme-neofantasy .card-header h3,
+.theme-neofantasy .card-header span {
+  font-family: 'Cinzel', serif;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  color: #4a2e83;
+}
+.theme-neofantasy .card-quote,
+.theme-neofantasy .card-back-content p {
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  color: #3a2b1f;
+  margin: 12px 0;
+}
+.theme-neofantasy .card-badge,
+.theme-neofantasy .card-rarity {
+  background: rgba(214,175,55,0.9);
+  color: #fff;
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin-right: 6px;
+}
+
+/* Enhanced ProPersona styling */
+.theme-propersona .card-preview-content,
+.theme-propersona .card-back-content {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 16px;
+  padding: 16px;
+  align-items: center;
+}
+.theme-propersona .card-avatar {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.theme-propersona .card-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+.theme-propersona .card-header h3,
+.theme-propersona .card-header span {
+  font-family: 'Inter', sans-serif;
+  color: #1f2937;
+}
+.theme-propersona .card-quote,
+.theme-propersona .card-back-content p {
+  font-family: 'Inter', sans-serif;
+  font-style: italic;
+  color: #374151;
+  margin-top: 8px;
+}
+.theme-propersona .card-badge,
+.theme-propersona .card-rarity {
+  background: #4ade80;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+/* Enhanced SynthwaveHacker styling */
+.theme-synthwavehacker .card-preview-content,
+.theme-synthwavehacker .card-back-content {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 12px;
+  padding: 16px;
+  align-items: center;
+}
+.theme-synthwavehacker .card-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 2px solid #ff007a;
+  box-shadow: 0 0 10px rgba(255,0,122,0.8);
+}
+.theme-synthwavehacker .card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.theme-synthwavehacker .card-header h3,
+.theme-synthwavehacker .card-header span {
+  font-family: 'Press Start 2P', monospace;
+  text-shadow: 0 0 6px #ff007a, 0 0 4px #00fff0;
+  color: #fff;
+}
+.theme-synthwavehacker .card-quote,
+.theme-synthwavehacker .card-back-content p {
+  font-family: 'Orbitron', sans-serif;
+  color: #f8f8f8;
+  text-shadow: 0 0 4px #00fff0;
+  margin: 8px 0;
+}
+.theme-synthwavehacker .stat-progress {
+  height: 10px;
+  background: linear-gradient(90deg, #ff007a, #00fff0);
+  border: 1px solid #ff007a;
+  box-shadow: inset 0 0 6px #00fff0, inset 0 0 6px #ff007a;
+}
+.theme-synthwavehacker .card-badge,
+.theme-synthwavehacker .card-rarity {
+  background: #ff007a;
+  color: #fff;
+  padding: 4px 6px;
+  border-radius: 2px;
+  font-size: 0.75rem;
+  text-shadow: 0 0 4px #00fff0;
+}
+

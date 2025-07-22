@@ -15,7 +15,17 @@
     document.getElementById('card-name'),
     document.getElementById('card-class'),
     document.getElementById('card-quote'),
-    document.getElementById('card-avatar')
+    document.getElementById('card-avatar'),
+    document.getElementById('card-achievement'),
+    document.getElementById('card-rarity'),
+    document.getElementById('card-bio'),
+    document.getElementById('card-superpower'),
+    document.getElementById('card-alignment'),
+    document.getElementById('card-origin'),
+    document.getElementById('card-faction'),
+    document.getElementById('card-badge'),
+    document.getElementById('card-stats'),
+    document.getElementById('card-theme')
   ].filter(Boolean);
 
   // Live preview on input/change
@@ -25,6 +35,13 @@
   });
 
   // Initial preview on load
+  updatePreview();
+  // Fallback: listen on form for any input/change to catch all fields
+  const formEl = document.getElementById('card-editor-form');
+  if (formEl) {
+    formEl.addEventListener('input', updatePreview);
+    formEl.addEventListener('change', updatePreview);
+  }
   updatePreview();
 });
 
@@ -68,7 +85,27 @@
   }
 
   function updatePreview() {
+    console.debug('updatePreview triggered', {
+      name: nameInput?.value,
+      class: classInput?.value,
+      quote: quoteInput?.value,
+      avatar: avatarInput?.value,
+      achievement: document.getElementById('card-achievement')?.value,
+      rarity: document.getElementById('card-rarity')?.value,
+      bio: document.getElementById('card-bio')?.value,
+      superpower: document.getElementById('card-superpower')?.value,
+      alignment: document.getElementById('card-alignment')?.value,
+      origin: document.getElementById('card-origin')?.value,
+      faction: document.getElementById('card-faction')?.value,
+      badge: document.getElementById('card-badge')?.value,
+      stats: document.getElementById('card-stats')?.value,
+      theme: document.getElementById('card-theme')?.value
+    });
     // Gather fields
+    const name = nameInput?.value || '';
+    const cardClass = classInput?.value || '';
+    const quote = quoteInput?.value || '';
+    const avatar = avatarInput?.value || '';
     
     
     
@@ -119,6 +156,8 @@
     }
     // Back face
     const back = document.getElementById('card-back');
+    // Apply theme class to back face
+    if (back) back.className = `card-preview-canvas card-back theme-${theme.toLowerCase()}`;
     if (back) {
       back.innerHTML = '';
       const backContent = createElement('div', { class: 'card-back-content' });
@@ -127,6 +166,7 @@
       if (alignment) backContent.appendChild(createElement('p', {}, 'Alignment: ' + alignment));
       if (origin) backContent.appendChild(createElement('p', {}, 'Origin: ' + origin));
       if (faction) backContent.appendChild(createElement('p', {}, 'Faction: ' + faction));
+      if (badge) backContent.appendChild(createElement('p', {}, 'Badge: ' + badge));
       back.appendChild(backContent);
     }
   }
