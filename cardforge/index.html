@@ -100,6 +100,24 @@
 
         <label for="card-avatar">Image URL</label>
         <input type="url" id="card-avatar" placeholder="https://..." />
+        <button type="button" id="choose-image-btn" class="choose-image-btn">Choose Image</button>
+
+        <!-- Image Picker Modal -->
+        <div id="image-modal" class="image-modal">
+          <div class="image-modal-content">
+            <span class="modal-close" id="modal-close">&times;</span>
+            <div class="image-grid" id="image-grid">Loading images...</div>
+            <div class="modal-pagination">
+              <button type="button" id="modal-prev">« Prev</button>
+              <button type="button" id="modal-next">Next »</button>
+            </div>
+            <div class="custom-url">
+              <label for="modal-url-input">Or enter URL:</label>
+              <input type="url" id="modal-url-input" placeholder="https://..." />
+              <button type="button" id="modal-url-submit">Use URL</button>
+            </div>
+          </div>
+        </div>
         
         <label for="card-achievement">Achievement/Badge</label>
 <input type="text" id="card-achievement" placeholder="Optional achievement or badge" />

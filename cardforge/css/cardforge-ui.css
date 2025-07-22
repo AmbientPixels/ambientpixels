@@ -495,6 +495,118 @@
   font-size: 0.85rem;
 }
 
+/* Image Picker Modal Styles */
+
+/* Choose Image Button */
+.choose-image-btn {
+  background: var(--mood-accent-color, #4a4a6a);
+  color: var(--aura-bg-color, #1a1a2e);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 8px;
+  display: inline-block;
+}
+.choose-image-btn:hover {
+  background: var(--mood-primary-color, #e1e1ff);
+}
+
+/* Modal Message */
+.modal-message {
+  color: var(--mood-primary-color, #e1e1ff);
+  font-size: 0.9rem;
+  margin: 16px 0;
+  text-align: center;
+}
+
+/* Image Picker Modal Styles */
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.8);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.image-modal .image-modal-content {
+  background: var(--aura-bg-color, #1a1a2e);
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 8px;
+  padding: 16px;
+  width: 90%;
+  max-width: 600px;
+  color: var(--mood-primary-color, #e1e1ff);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.image-modal .modal-close {
+  align-self: flex-end;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--mood-secondary-color, #a0a0c0);
+}
+.image-modal .image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+  overflow-y: auto;
+  max-height: 300px;
+}
+.image-modal .image-grid img {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+.image-modal .image-grid img:hover {
+  border-color: var(--mood-primary-color, #e1e1ff);
+}
+.image-modal .modal-pagination {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.image-modal .modal-pagination button {
+  background: var(--mood-accent-color, #4a4a6a);
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.image-modal .custom-url {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.image-modal .custom-url input {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 4px;
+  background: var(--aura-bg-color, #1a1a2e);
+  color: var(--mood-primary-color, #e1e1ff);
+}
+.image-modal .custom-url button {
+  align-self: flex-start;
+  background: var(--mood-primary-color, #e1e1ff);
+  color: var(--aura-bg-color, #1a1a2e);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
 /* Variant styles */
 
 .variant-dark.card-preview-canvas {

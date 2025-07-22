@@ -171,7 +171,59 @@
       back.appendChild(backContent);
     }
   }
-  // Flip card view handler
+  // Image Picker Modal Logic
+  const imageModal = document.getElementById('image-modal');
+  const chooseImageBtn = document.getElementById('choose-image-btn');
+  const modalClose = document.getElementById('modal-close');
+  const imageGrid = document.getElementById('image-grid');
+  const prevBtn = document.getElementById('modal-prev');
+  const nextBtn = document.getElementById('modal-next');
+  const urlInput = document.getElementById('modal-url-input');
+  const urlSubmit = document.getElementById('modal-url-submit');
+
+  // Default state
+  let currentPage = 1;
+  // TODO: Replace with actual image lists or API
+  const imageDirs = [
+    '/images/image-packs/characters',
+    '/images/image-packs/characters-02',
+    '/images/image-packs/characters-03-super-heroes/male',
+    '/images/image-packs/characters-03-super-heroes/female'
+  ];
+  const imagesPerPage = 20;
+
+  function openImageModal() {
+    if (imageModal) {
+      imageModal.style.display = 'flex';
+      loadImages(currentPage);
+    }
+  }
+  function closeImageModal() {
+    if (imageModal) imageModal.style.display = 'none';
+  }
+  function loadImages(page) {
+    if (!imageGrid) return;
+    imageGrid.textContent = 'Loading images...';
+    // Stub: show no images available
+    setTimeout(() => {
+      imageGrid.innerHTML = '<p class="modal-message">No local images loaded. Ensure server serves /images/</p>';
+    }, 500);
+  }
+
+  chooseImageBtn?.addEventListener('click', openImageModal);
+  modalClose?.addEventListener('click', closeImageModal);
+  window.addEventListener('click', e => {
+    if (e.target === imageModal) closeImageModal();
+  });
+  prevBtn?.addEventListener('click', () => { if (currentPage>1) { currentPage--; loadImages(currentPage);} });
+  nextBtn?.addEventListener('click', () => { currentPage++; loadImages(currentPage); });
+  urlSubmit?.addEventListener('click', () => {
+    const avatarInput = document.getElementById('card-avatar');
+    if (avatarInput && urlInput) avatarInput.value = urlInput.value;
+    closeImageModal();
+  });
+
+// Flip card view handler
   const flipBtn = document.getElementById('flip-btn');
   const cardInner = document.querySelector('.card-inner');
   if (flipBtn && cardInner) {
