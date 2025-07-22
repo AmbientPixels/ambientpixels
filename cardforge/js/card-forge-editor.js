@@ -122,10 +122,11 @@
     try { statsObj = JSON.parse(document.getElementById('card-stats').value || '{}'); } catch(e) { console.warn('Invalid stats JSON'); }
 
     // Front face
+    const variant = document.getElementById('card-template-type')?.value || 'default';
     const theme = document.getElementById('card-theme')?.value || '';
     const front = document.getElementById('card-preview');
     // Apply theme class
-    if (front) front.className = `card-preview-canvas card-front theme-${theme.toLowerCase()}`;
+    if (front) front.className = `card-preview-canvas card-front theme-${theme.toLowerCase()} variant-${variant}`;
     if (front) {
       front.innerHTML = '';
       const previewContent = createElement('div', { class: 'card-preview-content' });
@@ -156,8 +157,8 @@
     }
     // Back face
     const back = document.getElementById('card-back');
-    // Apply theme class to back face
-    if (back) back.className = `card-preview-canvas card-back theme-${theme.toLowerCase()}`;
+    // Apply theme and variant classes to back face
+    if (back) back.className = `card-preview-canvas card-back theme-${theme.toLowerCase()} variant-${variant}`;
     if (back) {
       back.innerHTML = '';
       const backContent = createElement('div', { class: 'card-back-content' });

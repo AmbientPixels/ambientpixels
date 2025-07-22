@@ -137,5 +137,5 @@ document.addEventListener('DOMContentLoaded', () => {
   window.CardForge.TemplateLoader = TemplateLoader;
   
   // Initialize the template loader
-  TemplateLoader.init();
+    // TemplateLoader.init(); // Disabled to repurpose template-type as variant, avoid HTTP 400 errors
 });
