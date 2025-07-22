@@ -1,10 +1,10 @@
 {
-  "updated": "2025-07-21T13:40:28.833Z",
+  "updated": "2025-07-22T13:40:03.383Z",
   "entries": [
     {
-      "hash": "dd04355",
-      "date": "2025-07-20 19:23:28 -0700",
-      "message": "Fix CardForge gallery loader to support publishedCards property"
+      "hash": "447af45",
+      "date": "2025-07-21 23:16:27 -0700",
+      "message": "feat(cardforge): replace SimpleIcons SVGs with Font Awesome icons"
     }
   ]
 }
