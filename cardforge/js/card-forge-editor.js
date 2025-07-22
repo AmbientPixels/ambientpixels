@@ -60,6 +60,79 @@
         });
 
         statsEditor?.addEventListener('input', updatePreview);
+        // Template defaults logic
+        const themeSelect = document.getElementById('card-theme');
+        const defaultData = {
+          NeoFantasy: {
+            name: 'Aria Silverleaf',
+            class: 'Druid',
+            quote: 'Nature\'s arcane embrace.',
+            avatar: '/images/image-packs/characters/ember-gaze.jpg',
+            achievement: 'Forest Guardian',
+            rarity: 'Epic',
+            bio: 'Warden of the ancient woods.',
+            superpower: 'Earthshaping',
+            alignment: 'Neutral Good',
+            origin: 'Emerald Grove',
+            faction: 'Circle of Sylvan',
+            badge: 'Mythic Verdant',
+            stats: [{ name: 'Nature', value: 85 }, { name: 'Magic', value: 70 }, { name: 'Resilience', value: 60 }]
+          },
+          SynthwaveHacker: {
+            name: 'Nyx Byte',
+            class: 'Hacker',
+            quote: 'Code is my neon blood.',
+            avatar: '/images/image-packs/characters-02/Seraphim.png',
+            achievement: 'Cyber Legend',
+            rarity: 'Rare',
+            bio: 'Lives in the digital frontier.',
+            superpower: 'Data Surge',
+            alignment: 'Chaotic Neutral',
+            origin: 'Neon City',
+            faction: 'Glitch Society',
+            badge: 'Binary Badge',
+            stats: [{ name: 'Tech', value: 95 }, { name: 'Speed', value: 80 }, { name: 'Stealth', value: 75 }]
+          },
+          ProPersona: {
+            name: 'Alex Mercer',
+            class: 'Agent',
+            quote: 'Profession is my identity.',
+            avatar: '/images/image-packs/characters-03-super-heroes/Chad-01.png',
+            achievement: 'Top Performer',
+            rarity: 'Common',
+            bio: 'Executive strategist and leader.',
+            superpower: 'Tactical Mastery',
+            alignment: 'Lawful Neutral',
+            origin: 'Metro HQ',
+            faction: 'Persona Corp',
+            badge: 'Employee of the Month',
+            stats: [{ name: 'Leadership', value: 90 }, { name: 'Charisma', value: 80 }, { name: 'Intelligence', value: 85 }]
+          }
+        };
+        function applyDefaults(theme) {
+          const data = defaultData[theme];
+          if (!data) return;
+          const setInput = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+          setInput('card-name', data.name);
+          setInput('card-class', data.class);
+          setInput('card-quote', data.quote);
+          setInput('card-avatar', data.avatar);
+          setInput('card-achievement', data.achievement);
+          setInput('card-rarity', data.rarity);
+          setInput('card-bio', data.bio);
+          setInput('card-superpower', data.superpower);
+          setInput('card-alignment', data.alignment);
+          setInput('card-origin', data.origin);
+          setInput('card-faction', data.faction);
+          setInput('card-badge', data.badge);
+          // Stats: reset rows
+          statsEditor.innerHTML = '';
+          data.stats.forEach(stat => statsEditor.appendChild(createStatRow(stat.name, stat.value)));
+        }
+        // Apply defaults on load
+        applyDefaults(themeSelect?.value);
+        // Reapply on theme change
+        themeSelect?.addEventListener('change', () => applyDefaults(themeSelect.value));
 
         // Fallback: listen on form for any input/change to catch all fields
   const formEl = document.getElementById('card-editor-form');
