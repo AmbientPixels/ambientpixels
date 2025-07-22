@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "8629923e-864f-43ec-bfbe-60685f1b0fc9",
-      "hash": "e5cddfb6f2db0c06746f456758d1c1a8d7a38704",
-      "message": "fix: resolve duplicate dialog and enhance modal functionality",
-      "timestamp": "2025-07-19 23:16:57 -0700",
+      "id": "87a2d85c-00cc-4270-b71b-b29e881be3b6",
+      "hash": "dd043559df4ff6677950c75b232ed08b7c3f76cc",
+      "message": "Fix CardForge gallery loader to support publishedCards property",
+      "timestamp": "2025-07-20 19:23:28 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/e5cddfb6f2db0c06746f456758d1c1a8d7a38704"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/dd043559df4ff6677950c75b232ed08b7c3f76cc"
     }
   ],
-  "timestamp": "2025-07-20T13:32:24.144Z",
+  "timestamp": "2025-07-21T13:40:29.909Z",
   "count": 1,
-  "scanId": 1753018344144
+  "scanId": 1753105229909
 }
