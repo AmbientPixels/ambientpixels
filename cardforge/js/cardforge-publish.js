@@ -73,7 +73,7 @@ async function publishCard() {
           publishBtn.disabled = true;
 
 
-          publishBtn.textContent = 'Publishing...';
+          publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...';
 
 
         }
@@ -289,7 +289,7 @@ async function publishCard() {
           publishBtn.disabled = false;
 
 
-          publishBtn.textContent = 'Publish to Gallery';
+          publishBtn.innerHTML = 'Publish to Gallery';
 
 
         }
@@ -302,6 +302,8 @@ async function publishCard() {
 
 
   );
+}
+
 
 // Attach publish button event listener after DOM is loaded
 // Ensures publishCard is bound and button is interactive (Windsurf Protocol)
@@ -311,6 +313,3 @@ document.addEventListener('DOMContentLoaded', () => {
     publishBtn.addEventListener('click', publishCard);
   }
 });
-
-
-}

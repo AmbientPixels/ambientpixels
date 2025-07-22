@@ -72,11 +72,19 @@
         <input type="hidden" id="card-id" value="" />
         
         <label for="card-template-type">Template Type</label>
-        <select id="card-template-type">
-          <option value="character">Character Card</option>
-          <option value="location">Location Card</option>
-          <option value="item">Item Card</option>
-        </select>
+<select id="card-template-type">
+  <option value="character">Character Card</option>
+  <option value="location">Location Card</option>
+  <option value="item">Item Card</option>
+</select>
+
+<label for="card-theme">Theme</label>
+<select id="card-theme">
+  <option value="NeoFantasy">NeoFantasy</option>
+  <option value="SynthwaveHacker">SynthwaveHacker</option>
+  <option value="ProPersona">ProPersona</option>
+</select>
+        
 
         <label for="card-name">Name</label>
         <input type="text" id="card-name" placeholder="Card Name" />
@@ -91,13 +99,38 @@
         <input type="url" id="card-avatar" placeholder="https://..." />
         
         <label for="card-achievement">Achievement/Badge</label>
-        <input type="text" id="card-achievement" placeholder="Optional achievement or badge" />
+<input type="text" id="card-achievement" placeholder="Optional achievement or badge" />
+
+<label for="card-rarity">Rarity</label>
+<input type="text" id="card-rarity" placeholder="e.g. Common, Rare, Legendary" />
+
+<label for="card-bio">Bio</label>
+<textarea id="card-bio" rows="3" placeholder="Character biography"></textarea>
+
+<label for="card-superpower">Superpower</label>
+<input type="text" id="card-superpower" placeholder="e.g. Digital Alchemy" />
+
+<label for="card-alignment">Alignment</label>
+<input type="text" id="card-alignment" placeholder="e.g. Chaotic Creative" />
+
+<label for="card-origin">Origin</label>
+<input type="text" id="card-origin" placeholder="e.g. Core Layer 7" />
+
+<label for="card-faction">Faction</label>
+<input type="text" id="card-faction" placeholder="e.g. Order of the Nova Grid" />
+
+<label for="card-badge">Badge</label>
+<input type="text" id="card-badge" placeholder="e.g. Cycle I — Genesis" />
+
+<label for="card-stats">Stats (JSON)</label>
+<textarea id="card-stats" rows="4" placeholder='{"Experience":100,"Creativity":95,"CodeFusion":90}'></textarea>
+
         
         <div class="cardforge-form-actions">
-          <button type="button" id="preview-btn" class="glass-button">Preview</button>
+          
           <button type="button" id="save-btn" class="glass-button">Save</button>
           <button type="button" id="publish-btn" class="glass-button" disabled>Publish to Gallery</button>
-           <button type="button" id="delete-btn" class="glass-button" disabled>Delete</button>
+           
         </div>
       </form>
     </div>
@@ -111,7 +144,13 @@
       <h2>Card Preview</h2>
       <div id="auth-status-message" class="cardforge-auth-message"></div>
       <p id="test-auth-state">Auth: <em>unknown</em></p>
-      <div id="card-preview" class="card-preview-canvas">Your card preview will appear here</div>
+      <button type="button" id="flip-btn" class="glass-button">Flip Card</button>
+<div class="card-container">
+  <div class="card-inner">
+    <div id="card-preview" class="card-preview-canvas card-front"></div>
+    <div id="card-back" class="card-preview-canvas card-back">Back of card</div>
+  </div>
+</div>
     </div>
   </section>
   

@@ -11,23 +11,22 @@
   // Updated 2025-07-05: Added XSS protection with sanitization
 
   window.addEventListener('DOMContentLoaded', () => {
-    const previewBtn = document.getElementById('preview-btn');
-    if (previewBtn) {
-      previewBtn.addEventListener('click', () => {
-        if (typeof UIUtils !== 'undefined' && typeof UIUtils.showConfirmDialog === 'function') {
-          UIUtils.showConfirmDialog(
-            'Preview Card',
-            'Do you want to preview this card?',
-            updatePreview
-          );
-        } else {
-          // Fallback to direct preview if UIUtils is not available
-          console.warn('UIUtils not available, showing preview directly');
-          updatePreview();
-        }
-      });
-    }
+  const inputs = [
+    document.getElementById('card-name'),
+    document.getElementById('card-class'),
+    document.getElementById('card-quote'),
+    document.getElementById('card-avatar')
+  ].filter(Boolean);
+
+  // Live preview on input/change
+  inputs.forEach(input => {
+    input.addEventListener('input', updatePreview);
+    input.addEventListener('change', updatePreview);
   });
+
+  // Initial preview on load
+  updatePreview();
+});
 
   // We now use the shared ValidationUtils.sanitizeString method instead of a local sanitizeHtml function
 
@@ -69,61 +68,74 @@
   }
 
   function updatePreview() {
-    const name = document.getElementById('card-name').value;
-    const cardClass = document.getElementById('card-class').value;
-    const quote = document.getElementById('card-quote').value;
-    const avatar = document.getElementById('card-avatar').value;
+    // Gather fields
     
-    const preview = document.getElementById('card-preview');
-    if (!preview) return;
     
-    // Clear existing preview
-    preview.innerHTML = '';
     
-    // Create card preview content container
-    const previewContent = createElement('div', { class: 'card-preview-content' });
     
-    // Create card header with avatar and name
-    const cardHeader = createElement('div', { class: 'card-header' });
-    
-    // Add avatar if provided
-    if (avatar) {
-      // Validate URL using our shared validation utility
-      if (ValidationUtils.isValidImageUrl(avatar)) {
-        const avatarImg = createElement('img', { 
-          src: avatar,
-          class: 'card-avatar', 
-          alt: `${ValidationUtils.sanitizeString(name)}'s Avatar` 
-        });
-        cardHeader.appendChild(avatarImg);
-      } else {
-        console.warn('Invalid avatar URL');
-        // Create placeholder for invalid URL
-        const placeholderDiv = createElement('div', { 
-          class: 'card-avatar card-avatar-placeholder' 
-        }, '?');
-        cardHeader.appendChild(placeholderDiv);
+    const achievement = document.getElementById('card-achievement').value;
+    const rarity = document.getElementById('card-rarity').value;
+    const bio = document.getElementById('card-bio').value;
+    const superpower = document.getElementById('card-superpower').value;
+    const alignment = document.getElementById('card-alignment').value;
+    const origin = document.getElementById('card-origin').value;
+    const faction = document.getElementById('card-faction').value;
+    const badge = document.getElementById('card-badge').value;
+    let statsObj = {};
+    try { statsObj = JSON.parse(document.getElementById('card-stats').value || '{}'); } catch(e) { console.warn('Invalid stats JSON'); }
+
+    // Front face
+    const theme = document.getElementById('card-theme')?.value || '';
+    const front = document.getElementById('card-preview');
+    // Apply theme class
+    if (front) front.className = `card-preview-canvas card-front theme-${theme.toLowerCase()}`;
+    if (front) {
+      front.innerHTML = '';
+      const previewContent = createElement('div', { class: 'card-preview-content' });
+      // Avatar & name
+      const header = createElement('div', { class: 'card-header' });
+      if (avatar && ValidationUtils.isValidImageUrl(avatar)) {
+        header.appendChild(createElement('img', { src: avatar, class: 'card-avatar', alt: name }));
       }
+      header.appendChild(createElement('h3', {}, name || 'Card Name'));
+      previewContent.appendChild(header);
+      // Class & rarity
+      if (cardClass) previewContent.appendChild(createElement('div', { class: 'card-badge' }, cardClass));
+      if (rarity) previewContent.appendChild(createElement('div', { class: 'card-rarity' }, rarity));
+      // Quote
+      if (quote) previewContent.appendChild(createElement('blockquote', { class: 'card-quote' }, quote));
+      // Achievement
+      if (achievement) previewContent.appendChild(createElement('div', { class: 'card-achievement' }, achievement));
+      // Stat bars
+      Object.entries(statsObj).forEach(([key, val]) => {
+        const barContainer = createElement('div', { class: 'stat-bar' });
+        barContainer.appendChild(createElement('span', { class: 'stat-label' }, key));
+        const progress = createElement('div', { class: 'stat-progress' });
+        progress.style.width = val + '%';
+        barContainer.appendChild(progress);
+        previewContent.appendChild(barContainer);
+      });
+      front.appendChild(previewContent);
     }
-    
-    // Add name
-    const nameHeader = createElement('h3', {}, name || 'Card Name');
-    cardHeader.appendChild(nameHeader);
-    previewContent.appendChild(cardHeader);
-    
-    // Add class badge if provided
-    if (cardClass) {
-      const badgeDiv = createElement('div', { class: 'card-badge' }, cardClass);
-      previewContent.appendChild(badgeDiv);
+    // Back face
+    const back = document.getElementById('card-back');
+    if (back) {
+      back.innerHTML = '';
+      const backContent = createElement('div', { class: 'card-back-content' });
+      if (bio) backContent.appendChild(createElement('p', {}, bio));
+      if (superpower) backContent.appendChild(createElement('p', {}, 'Superpower: ' + superpower));
+      if (alignment) backContent.appendChild(createElement('p', {}, 'Alignment: ' + alignment));
+      if (origin) backContent.appendChild(createElement('p', {}, 'Origin: ' + origin));
+      if (faction) backContent.appendChild(createElement('p', {}, 'Faction: ' + faction));
+      back.appendChild(backContent);
     }
-    
-    // Add quote if provided
-    if (quote) {
-      const quoteBlock = createElement('blockquote', { class: 'card-quote' }, quote);
-      previewContent.appendChild(quoteBlock);
-    }
-    
-    // Add the constructed preview to the container
-    preview.appendChild(previewContent);
+  }
+  // Flip card view handler
+  const flipBtn = document.getElementById('flip-btn');
+  const cardInner = document.querySelector('.card-inner');
+  if (flipBtn && cardInner) {
+    flipBtn.addEventListener('click', () => {
+      cardInner.classList.toggle('flipped');
+    });
   }
 })();

@@ -4,6 +4,29 @@
 
 // [Previous code remains the same until the saveCard function]
 
+// Dynamic form validation and button state management
+window.addEventListener('DOMContentLoaded', () => {
+  const nameInput = document.getElementById('card-name');
+  const classInput = document.getElementById('card-class');
+  const avatarInput = document.getElementById('card-avatar');
+  const saveBtn = document.getElementById('save-btn');
+  const publishBtn = document.getElementById('publish-btn');
+  
+
+  function validateForm() {
+    const valid = nameInput?.value.trim() && classInput?.value.trim() && avatarInput?.value.trim();
+    if (saveBtn) saveBtn.disabled = !valid;
+  }
+
+  [nameInput, classInput, avatarInput].forEach(input => input?.addEventListener('input', validateForm));
+  validateForm();
+
+  // Ensure Publish and Delete disabled until after a successful save
+  if (publishBtn) publishBtn.disabled = true;
+  
+});
+
+
 async function saveCard() {
   const form = document.getElementById('card-editor-form');
   if (!form) {
@@ -63,7 +86,7 @@ async function saveCard() {
         // Set loading state
         if (saveBtn) {
           saveBtn.disabled = true;
-          saveBtn.textContent = 'Saving...';
+          saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         }
 
         try {
@@ -173,7 +196,7 @@ async function saveCard() {
           } finally {
             if (saveBtn) {
               saveBtn.disabled = false;
-              saveBtn.textContent = 'Save';
+              saveBtn.innerHTML = 'Save';
             }
           }
 
@@ -186,73 +209,33 @@ async function saveCard() {
  * Load cards from the API and update the UI
  */
 async function loadCards() {
-  const cardList = document.getElementById('card-list');
+  const cardList = document.getElementById('my-cards-list'); // user cards sidebar
   if (!cardList) return;
 
   try {
     // Show loading state
-    cardList.innerHTML = '<div class="loading">Loading cards...</div>';
-    
-    // Try API first
-    try {
-      const endpoint = window.buildApiPath('loadCards');
-      console.log(`[CardForge] Loading cards from: ${endpoint}`);
-      
-      const response = await fetch(endpoint, {
-        credentials: 'include',
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache',
-          'Accept': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP ${response.status}`);
-      }
-      
-      const cards = await response.json();
-      renderCards(cardList, cards);
-      return;
-    } catch (apiError) {
-      console.warn('API load failed, trying mock data', apiError);
-      // Fall through to mock data
-    }
+    cardList.innerHTML = '<li class="loading">Loading cards...</li>';
 
-    // Fallback to mock data if in development
-    if (window._config?.environment === 'development') {
-      try {
-        const mockResponse = await fetch('/cardforge/mock/cards.json');
-        if (mockResponse.ok) {
-          const mockData = await mockResponse.json();
-          renderCards(cardList, mockData);
-          console.warn('[CardForge] Using mock data');
-          return;
-        }
-      } catch (mockError) {
-        console.error('Failed to load mock data:', mockError);
-      }
-    }
-    
-    throw new Error('Failed to load cards. Please check your connection and try again.');
-  } catch (error) {
-    console.error('Failed to load cards:', error);
-    cardList.innerHTML = `
-      <div class="error">
-        <p>Failed to load cards. ${error.message}</p>
-        <button onclick="loadCards()" class="btn btn-retry">Retry</button>
-      </div>
-    `;
+    // Fetch cards
+    const endpoint = window.buildApiPath('loadCards');
+    const response = await fetch(endpoint, { credentials: 'include', headers: { 'Cache-Control':'no-cache','Pragma':'no-cache','Accept':'application/json','X-Requested-With':'XMLHttpRequest' } });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const cards = await response.json();
+    window._userCards = cards;
+    renderUserCards(cardList, cards);
+  } catch (e) {
+    console.error('Failed to load user cards:', e);
+    cardList.innerHTML = '<li class="error">Failed to load cards.</li>';
   }
-}
+} // end loadCards
+  
 
 /**
  * Render cards to the DOM
  * @param {HTMLElement} container - The container element
  * @param {Array} cards - Array of card objects
  */
+// Render public gallery cards (unchanged)
 function renderCards(container, cards) {
   if (!container) return;
   
@@ -317,10 +300,92 @@ async function loadGallery() {
   }
 }
 
+
+/**
+ * Render items in 'My Cards' sidebar
+ */
+function renderUserCards(container, cards) {
+  container.innerHTML = '';
+  if (!cards || !cards.length) {
+    const li = document.createElement('li');
+    li.textContent = 'No cards found. Create your first card!';
+    container.appendChild(li);
+    return;
+  }
+  cards.forEach(card => {
+    const li = document.createElement('li');
+    li.className = 'cardforge-list-item';
+    li.innerHTML = `
+      <span class="card-list-title">${ValidationUtils.sanitizeString(card.name)}</span>
+      <div class="card-list-actions">
+        <button class="btn btn-edit"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-delete"><i class="fas fa-trash"></i></button>
+      </div>
+    `;
+    const editBtn = li.querySelector('.btn-edit');
+    editBtn.addEventListener('click', () => editCard(card.id));
+    const delBtn = li.querySelector('.btn-delete');
+    delBtn.addEventListener('click', () => deleteCard(card.id));
+    container.appendChild(li);
+  });
+}
+
+/** Load a card into the editor form for editing */
+function editCard(id) {
+  const card = window._userCards?.find(c => c.id === id);
+  if (!card) return;
+  document.getElementById('card-id').value = card.id;
+  document.getElementById('card-name').value = card.name;
+  document.getElementById('card-class').value = card.class;
+  document.getElementById('card-quote').value = card.quote;
+  document.getElementById('card-avatar').value = card.avatar;
+  document.getElementById('card-achievement').value = card.achievement || '';
+  document.getElementById('card-template-type').value = card.templateType;
+  updatePreview();
+  const saveBtn = document.getElementById('save-btn'); if (saveBtn) saveBtn.disabled = false;
+  const publishBtn = document.getElementById('publish-btn'); if (publishBtn) publishBtn.disabled = false;
+  // Scroll to editor
+  document.getElementById('cardforge-main-container').scrollIntoView({behavior:'smooth'});
+}
+
+/** Delete a user card */
+function deleteCard(id) {
+  const msg = 'Are you sure you want to delete this card? This cannot be undone.';
+  const confirmFn = UIUtils.showConfirmDialog || ((t,m,cb)=>{ if(confirm(m)) cb(); });
+  confirmFn('Delete Card', msg, async () => {
+    // find button
+    const selector = `li .btn-delete`;
+    // Disable UI
+    try {
+      // call delete API
+      const btn = document.querySelector(`.btn-delete`);
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; }
+      const endpoint = window.buildApiPath('deleteCard');
+      const response = await fetch(endpoint, {
+        method: 'DELETE',
+        headers: {'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},
+        credentials: 'include',
+        body: JSON.stringify({ id })
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      UIUtils.showMessage('Card deleted', 'success');
+      await loadCards();
+    } catch (e) {
+      console.error('Delete failed', e);
+      UIUtils.showMessage(`Delete error: ${e.message}`, 'error');
+    }
+  });
+}
+
 // Initialize cards and gallery when the page loads
 document.addEventListener('DOMContentLoaded', async () => {
   // Load cards when the page loads
   await loadCards();
+
+  // Load first saved card by default if available
+  if (window._userCards && window._userCards.length) {
+    editCard(window._userCards[0].id);
+  }
 
   // Load published gallery cards
   await loadGallery();

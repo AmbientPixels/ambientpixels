@@ -17,6 +17,20 @@ CardForge V2 is a production-ready, browser-based toolkit for designing, editing
 - Secure API integration with CSRF protection (not tied to authentication)
 - Input validation, sanitization, and robust error handling throughout
 - Responsive design with Nova/Windsurf Protocol compliance
+- Live Preview: real-time front/back flip with toggle button (CSS 3D flip effect)
+- Extended attributes: rarity, bio, superpower, alignment, origin, faction, badge, and JSON-based stats
+- Visual stat bars: progress-based bars for stats objects, animated on update
+- Theme selector: NeoFantasy, SynthwaveHacker, ProPersona wired to preview via theme classes
+- Removed legacy preview & delete buttons; clean editor and sidebar UI
+- All CardForge frontend JS and CSS fully reviewed for auth remnants—none remain
+- Staticwebapp.config.json routes explicitly allow ["anonymous"] for all CardForge endpoints
+- Managed Identity and Storage Blob Data Contributor role configured for backend
+- Fixed modal dialog system with accessibility and event cleanup
+- Core card creation, editing, and publishing functionality
+- All CardForge API endpoints now allow anonymous access—no authentication required
+- Secure API integration with CSRF protection (not tied to authentication)
+- Input validation, sanitization, and robust error handling throughout
+- Responsive design with Nova/Windsurf Protocol compliance
 - All CardForge frontend JS and CSS fully reviewed for auth remnants—none remain
 - Staticwebapp.config.json routes explicitly allow ["anonymous"] for all CardForge endpoints
 - Managed Identity and Storage Blob Data Contributor role configured for backend
@@ -24,6 +38,12 @@ CardForge V2 is a production-ready, browser-based toolkit for designing, editing
 - Live deployment tested and verified for anonymous users (no login prompts or errors)
 
 ### 🔄 In Progress
+- Finalizing theme preset designs and CSS for NeoFantasy, SynthwaveHacker, and ProPersona
+- Styling back face content and layout (lore, bio, powers, alignment, achievements)
+- Polishing stat bar animations and responsive behavior
+- Resolving live preview lint errors in card-forge-editor.js (duplicate declarations)
+- Performance optimizations and code cleanup for editor scripts
+- Documentation updates and developer onboarding refinements
 - Final production smoke testing of all user flows
 - Performance optimization
 - Documentation and onboarding updates
@@ -159,7 +179,16 @@ Use `X-CSRF-Token` header from `window.csrfProtection.getToken()` on all POST re
 
 ---
 
-## 📝 Recent Updates (2025-07-19)
+## 📝 Recent Updates (2025-07-21)
+
+- Implemented front/back flip view with CSS 3D transform and Flip Card button
+- Added theme selection dropdown and wired preview to theme-{name} classes
+- Extended preview to render new character fields and visual stat bars
+- Updated index.html form to include rarity, bio, superpower, alignment, origin, faction, badge, and stats JSON textarea
+- Added CSS for front face styling, stat bars, and flip container
+- Began cleanup of legacy preview code; live preview now fails on lint but will be addressed
+
+
 
 ### API & Backend
 - Standardized API endpoint naming convention

@@ -224,3 +224,98 @@
   color: var(--mood-secondary-color, #a0a0c0);
   margin: 0;
 }
+
+/* My Cards sidebar styling */
+
+/* Flip card 3D effect */
+.card-container {
+  position: relative;
+  width: 100%;
+  height: auto;
+  perspective: 1000px;
+}
+.card-inner {
+  position: relative;
+  width: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
+.card-inner.flipped {
+  transform: rotateY(180deg);
+}
+.card-front, .card-back {
+  backface-visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.card-back {
+  transform: rotateY(180deg);
+}
+
+/* Front face styling */
+.card-front .card-preview-content {
+  background: var(--card-bg, #fff);
+  color: var(--card-text, #000);
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.card-badge, .card-rarity, .card-achievement {
+  display: inline-block;
+  padding: 2px 6px;
+  margin: 4px 4px 4px 0;
+  background: var(--mood-primary-color);
+  color: #fff;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+.stat-bar {
+  display: flex;
+  align-items: center;
+  margin: 6px 0;
+}
+.stat-label {
+  flex: 1;
+  font-size: 0.8rem;
+  color: var(--mood-secondary-color);
+}
+.stat-progress {
+  flex: 3;
+  height: 8px;
+  background: var(--mood-primary-color);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* My Cards sidebar styling */
+.cardforge-list-item {
+  justify-content: space-between;
+}
+.card-list-actions {
+  display: flex;
+  gap: 8px;
+}
+.card-list-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--mood-secondary-color);
+}
+.card-list-actions button:hover {
+  color: var(--mood-primary-color);
+}
