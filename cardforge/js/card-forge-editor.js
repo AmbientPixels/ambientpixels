@@ -412,13 +412,12 @@
           const url  = row.querySelector('input[name="social-url"]')?.value.trim();
           if (name && url) {
             const slug = name.toLowerCase().replace(/\s+/g, '-');
-            const img  = createElement('img', {
-              src: `https://cdn.simpleicons.org/${slug}`,
-              class: 'social-icon',
-              alt: name
+            const iconEl  = createElement('i', {
+              class: `fab fa-${slug} social-icon`,
+              'aria-label': name
             });
             socialContainer.appendChild(
-              createElement('a', { href: url, target: '_blank', class: 'social-link' }, img)
+              createElement('a', { href: url, target: '_blank', class: 'social-link' }, iconEl)
             );
           }
         });
@@ -434,13 +433,12 @@
           const desc = row.querySelector('input[name="micro-desc"]')?.value.trim();
           if (icon) {
             const slug = icon.replace(/\s+/g, '-');
-            const img  = createElement('img', {
-              src: `https://cdn.simpleicons.org/${slug}`,
-              class: 'micro-icon',
+            const iconEl  = createElement('i', {
+              class: `fas fa-${slug} micro-icon`,
               title: desc
             });
             microContainer.appendChild(
-              createElement('div', { class: 'micro-badge', title: desc }, img)
+              createElement('div', { class: 'micro-badge', title: desc }, iconEl)
             );
           }
         });
