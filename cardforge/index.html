@@ -3,6 +3,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-pdM4mZgAtLWUoz2jOzYh6Ct3sJ1FT+rFUtq6TWOD4OVNJXBmoFxk7a+7fJ8vdBGMuU8MPZBB+Y0P/Kk5QXZhZg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="CardForge V2: Browser-based RPG card creation, editing, and sharing platform">
@@ -152,6 +154,36 @@
   </div>
 </div>
 <button type="button" id="add-stat-btn" class="add-stat-btn">Add Stat</button>
+
+        <!-- Social Links Editor -->
+        <label for="card-social">Social Links</label>
+        <div id="social-editor">
+          <div class="social-row">
+            <input type="text" name="social-name" placeholder="Platform (e.g. Twitter)" />
+            <input type="url" name="social-url" placeholder="https://..." />
+            <button type="button" class="remove-social">&times;</button>
+          </div>
+        </div>
+        <button type="button" id="add-social-btn" class="add-social-btn">Add Social Link</button>
+
+        <!-- Micro Badges Editor -->
+        <label for="micro-editor">Micro Badges</label>
+        <div id="micro-editor">
+          <div class="micro-row">
+            <input type="text" name="micro-category" placeholder="Category (e.g. Skill)" />
+            <select name="micro-icon" aria-label="Badge icon">
+              <option value="star">star</option>
+              <option value="heart">heart</option>
+              <option value="bolt">bolt</option>
+              <option value="trophy">trophy</option>
+              <option value="leaf">leaf</option>
+              <option value="gear">gear</option>
+            </select>
+            <input type="text" name="micro-desc" placeholder="Description" />
+            <button type="button" class="remove-micro">&times;</button>
+          </div>
+        </div>
+        <button type="button" id="add-micro-btn" class="add-micro-btn">Add Micro Badge</button>
 
         
         <div class="cardforge-form-actions">

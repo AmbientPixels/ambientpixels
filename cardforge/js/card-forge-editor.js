@@ -60,6 +60,59 @@
         });
 
         statsEditor?.addEventListener('input', updatePreview);
+        // Social Links Editor Logic
+        const socialEditor = document.getElementById('social-editor');
+        const addSocialBtn = document.getElementById('add-social-btn');
+        function createSocialRow(name = '', url = '') {
+          const row = document.createElement('div');
+          row.className = 'social-row';
+          row.innerHTML = `
+            <input type="text" name="social-name" placeholder="Platform (e.g. Twitter)" value="${name}" />
+            <input type="url" name="social-url" placeholder="https://${url}" value="${url}" />
+            <button type="button" class="remove-social">&times;</button>
+          `;
+          row.querySelector('.remove-social').addEventListener('click', () => { row.remove(); updatePreview(); });
+          row.querySelector('input[name="social-name"]').addEventListener('input', updatePreview);
+          row.querySelector('input[name="social-url"]').addEventListener('input', updatePreview);
+          return row;
+        }
+        addSocialBtn?.addEventListener('click', () => {
+          socialEditor?.appendChild(createSocialRow());
+          updatePreview();
+        });
+        socialEditor?.addEventListener('input', updatePreview);
+        // Micro Badges Editor Logic
+        const microEditor = document.getElementById('micro-editor');
+        const addMicroBtn = document.getElementById('add-micro-btn');
+        function createMicroRow(category = '', icon = '', desc = '') {
+          const options = ['star','heart','bolt','trophy','leaf','gear'];
+          const row = document.createElement('div');
+          row.className = 'micro-row';
+          row.innerHTML = `
+            <input type="text" name="micro-category" placeholder="Category (e.g. Skill)" value="${category}" />
+            <select name="micro-icon" aria-label="Select icon">
+              ${options.map(option => `<option value="${option}" ${icon === option ? 'selected' : ''}>${option}</option>`).join('')}
+            </select>
+            <input type="text" name="micro-desc" placeholder="Description" value="${desc}" />
+            <button type="button" class="remove-micro">&times;</button>
+          `;
+          row.querySelector('.remove-micro').addEventListener('click', () => { row.remove(); updatePreview(); });
+          row.querySelector('input[name="micro-category"]').addEventListener('input', updatePreview);
+          row.querySelector('select[name="micro-icon"]')?.addEventListener('change', updatePreview);
+          row.querySelector('input[name="micro-desc"]').addEventListener('input', updatePreview);
+          return row;
+        }
+        addMicroBtn?.addEventListener('click', () => {
+          const count = microEditor?.querySelectorAll('.micro-row').length || 0;
+          if (count >= 6) return;
+          microEditor?.appendChild(createMicroRow());
+          updatePreview();
+          addMicroBtn.disabled = (microEditor?.querySelectorAll('.micro-row').length || 0) >= 6;
+        });
+        microEditor?.addEventListener('input', () => {
+          updatePreview();
+          addMicroBtn.disabled = (microEditor?.querySelectorAll('.micro-row').length || 0) >= 6;
+        });
         // Template defaults logic
         const themeSelect = document.getElementById('card-theme');
         const defaultData = {
@@ -76,7 +129,15 @@
             origin: 'Emerald Grove',
             faction: 'Circle of Sylvan',
             badge: 'Mythic Verdant',
-            stats: [{ name: 'Nature', value: 85 }, { name: 'Magic', value: 70 }, { name: 'Resilience', value: 60 }]
+            stats: [{ name: 'Nature', value: 85 }, { name: 'Magic', value: 70 }, { name: 'Resilience', value: 60 }],
+            social: [
+               { name: 'Twitter', url: 'https://twitter.com/aria_silverleaf' },
+               { name: 'LinkedIn', url: 'https://linkedin.com/in/ariasilverleaf' }
+             ],
+             micro: [
+               { category: 'Skill', icon: 'star', desc: 'Arcane skill' },
+               { category: 'Nature', icon: 'leaf', desc: 'Earth magic' }
+             ]
           },
           SynthwaveHacker: {
             name: 'Nyx Byte',
@@ -91,7 +152,15 @@
             origin: 'Neon City',
             faction: 'Glitch Society',
             badge: 'Binary Badge',
-            stats: [{ name: 'Tech', value: 95 }, { name: 'Speed', value: 80 }, { name: 'Stealth', value: 75 }]
+            stats: [{ name: 'Tech', value: 95 }, { name: 'Speed', value: 80 }, { name: 'Stealth', value: 75 }],
+            social: [
+               { name: 'GitHub', url: 'https://github.com/nyxbyte' },
+               { name: 'Discord', url: 'https://discord.gg/glitchsociety' }
+             ],
+             micro: [
+               { category: 'Hack', icon: 'terminal', desc: 'System infiltration' },
+               { category: 'Speed', icon: 'bolt', desc: 'Quick response' }
+             ]
           },
           ProPersona: {
             name: 'Alex Mercer',
@@ -106,7 +175,14 @@
             origin: 'Metro HQ',
             faction: 'Persona Corp',
             badge: 'Employee of the Month',
-            stats: [{ name: 'Leadership', value: 90 }, { name: 'Charisma', value: 80 }, { name: 'Intelligence', value: 85 }]
+            stats: [{ name: 'Leadership', value: 90 }, { name: 'Charisma', value: 80 }, { name: 'Intelligence', value: 85 }],
+            social: [
+               { name: 'LinkedIn', url: 'https://linkedin.com/in/alexmercer' },
+               { name: 'Twitter', url: 'https://twitter.com/alexmercer' }
+             ],
+             micro: [
+               { category: 'Leadership', icon: 'star', desc: 'Pinnacle leader' }
+             ]
           }
         };
         function applyDefaults(theme) {
@@ -128,12 +204,64 @@
           // Stats: reset rows
           statsEditor.innerHTML = '';
           data.stats.forEach(stat => statsEditor.appendChild(createStatRow(stat.name, stat.value)));
+          // Social: reset rows
+          socialEditor.innerHTML = '';
+           // Micro: reset rows
+           microEditor.innerHTML = '';
+           (data.micro || []).forEach(m => microEditor.appendChild(createMicroRow(m.category, m.icon, m.desc)));
+           // Update addMicroBtn state
+           addMicroBtn.disabled = (microEditor.querySelectorAll('.micro-row').length >= 6);
+           
+          (data.social || []).forEach(s => socialEditor.appendChild(createSocialRow(s.name, s.url)));
         }
         // Apply defaults on load
         applyDefaults(themeSelect?.value);
         // Reapply on theme change
         themeSelect?.addEventListener('change', () => applyDefaults(themeSelect.value));
 
+        // Initialize and render My Cards
+        function renderMyCards() {
+          const list = document.getElementById('my-cards-list');
+          if (!list) return;
+          list.innerHTML = '';
+          const cards = JSON.parse(localStorage.getItem('myCards') || '[]');
+          cards.forEach(card => {
+            const li = document.createElement('li');
+            li.className = 'my-card-item';
+            li.innerHTML = `<img src="${card.avatar}" alt="${card.name}" class="my-card-thumb"/><span>${card.name}</span>`;
+            list.appendChild(li);
+          });
+        }
+        
+        // Save button logic
+        const saveBtn = document.getElementById('save-btn');
+        saveBtn?.addEventListener('click', () => {
+          const cardData = {};
+          const fields = ['card-name','card-class','card-quote','card-avatar','card-achievement','card-rarity','card-bio','card-superpower','card-alignment','card-origin','card-faction','card-badge'];
+          fields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) cardData[id.replace('card-','')] = el.value;
+          });
+          // Stats
+          cardData.stats = [];
+          document.querySelectorAll('#stats-editor .stat-row').forEach(row => {
+            const name = row.querySelector('input[name="stat-name"]')?.value;
+            const value = row.querySelector('input[name="stat-value"]')?.value;
+            if (name) cardData.stats.push({ name, value: Number(value) });
+          });
+          // Theme and variant
+          cardData.theme = document.getElementById('card-theme')?.value;
+          cardData.variant = document.getElementById('card-template-type')?.value;
+          
+          const cards = JSON.parse(localStorage.getItem('myCards') || '[]');
+          cards.push(cardData);
+          localStorage.setItem('myCards', JSON.stringify(cards));
+          renderMyCards();
+        });
+        
+        // Render on load
+        renderMyCards();
+        
         // Fallback: listen on form for any input/change to catch all fields
   const formEl = document.getElementById('card-editor-form');
   if (formEl) {
@@ -274,6 +402,50 @@
       if (origin) backContent.appendChild(createElement('p', {}, 'Origin: ' + origin));
       if (faction) backContent.appendChild(createElement('p', {}, 'Faction: ' + faction));
       if (badge) backContent.appendChild(createElement('p', {}, 'Badge: ' + badge));
+
+      // Social links display
+      const socialRows = document.querySelectorAll('#social-editor .social-row');
+      if (socialRows.length) {
+        const socialContainer = createElement('div', { class: 'social-links' });
+        socialRows.forEach(row => {
+          const name = row.querySelector('input[name="social-name"]')?.value.trim();
+          const url  = row.querySelector('input[name="social-url"]')?.value.trim();
+          if (name && url) {
+            const slug = name.toLowerCase().replace(/\s+/g, '-');
+            const img  = createElement('img', {
+              src: `https://cdn.simpleicons.org/${slug}`,
+              class: 'social-icon',
+              alt: name
+            });
+            socialContainer.appendChild(
+              createElement('a', { href: url, target: '_blank', class: 'social-link' }, img)
+            );
+          }
+        });
+        backContent.appendChild(socialContainer);
+      }
+
+      // Micro badges display
+      const microRows = document.querySelectorAll('#micro-editor .micro-row');
+      if (microRows.length) {
+        const microContainer = createElement('div', { class: 'micro-badges' });
+        microRows.forEach(row => {
+          const icon = row.querySelector('select[name="micro-icon"]')?.value.trim().toLowerCase();
+          const desc = row.querySelector('input[name="micro-desc"]')?.value.trim();
+          if (icon) {
+            const slug = icon.replace(/\s+/g, '-');
+            const img  = createElement('img', {
+              src: `https://cdn.simpleicons.org/${slug}`,
+              class: 'micro-icon',
+              title: desc
+            });
+            microContainer.appendChild(
+              createElement('div', { class: 'micro-badge', title: desc }, img)
+            );
+          }
+        });
+        backContent.appendChild(microContainer);
+      }
       back.appendChild(backContent);
     }
   }
