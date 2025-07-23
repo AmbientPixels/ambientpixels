@@ -176,6 +176,10 @@ Use `X-CSRF-Token` header from `window.csrfProtection.getToken()` on all POST re
 - CORS errors between domains: inspect network requests for misconfigured headers
 - Unsaved edits lost on sign-out: warn users or auto-save drafts
 - Use `/debug` to validate environment variables and storage connectivity
+- Styling needed for micro badges in editor and preview
+- Dynamic add/remove for multiple micro badges not fully implemented
+- Save feature currently broken: localStorage and API save behavior failing
+- Publish feature broken: publishing integration and UI feedback issues
 
 ---
 
@@ -187,6 +191,12 @@ Use `X-CSRF-Token` header from `window.csrfProtection.getToken()` on all POST re
 - Updated index.html form to include rarity, bio, superpower, alignment, origin, faction, badge, and stats JSON textarea
 - Added CSS for front face styling, stat bars, and flip container
 - Began cleanup of legacy preview code; live preview now fails on lint but will be addressed
+- Added Micro Badges editor section: category, icon dropdown, and description with live preview on back face
+- Enforced max 6 micro badges and prefilled defaults per theme
+- Added Social Links editor with input fields and live preview of icons and clickable links
+- Consolidated icon rendering to SimpleIcons CDN using <img> tags and slug normalization (spaces→dashes)
+- Enhanced accessibility: aria-labels on selects, alt and title attributes on icon images
+- Removed duplicate icon loops and fixed updatePreview syntax errors
 
 
 

@@ -609,6 +609,26 @@
 
 /* Variant styles */
 
+/* Alternate variant animations */
+.variant-alternate.card-preview-canvas {
+  animation: glow 3s infinite alternate, bounce 4s infinite ease-in-out;
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 10px var(--mood-accent-color); }
+  to { box-shadow: 0 0 20px var(--mood-accent-color); }
+}
+
+@keyframes bounce {
+  0%, 100% { margin-top: 0; }
+  50% { margin-top: -5px; }
+}
+
+/* Gallery card hover glow */
+.gallery-card:hover {
+  animation: glow 2s infinite alternate;
+}
+
 .variant-dark.card-preview-canvas {
   filter: brightness(0.8) contrast(1.2);
 }

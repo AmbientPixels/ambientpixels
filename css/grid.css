@@ -22,6 +22,10 @@
   grid-column: span 6; /* Half-width (50%) */
 }
 
+.grid-col-8 {
+  grid-column: span 8; /* Two-thirds width (~66.67%) */
+}
+
 .grid-col-4 {
   grid-column: span 4; /* One-third width (~33.33%) */
 }

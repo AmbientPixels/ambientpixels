@@ -1,10 +1,16 @@
 /* Refer to docs/logs/project-card-forge.md → 7/4/2025 – launch of V2 for details. */
 
 /* CardForge Editor Layout */
+.cf-left-column {
+  grid-column: span 8;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
 .cardforge-container {
-  display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
   margin-top: 2rem;
 }
 

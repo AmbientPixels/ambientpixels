@@ -67,7 +67,8 @@
   </section>
   <!-- CardForge Editor UI -->
   <section class="cardforge-container grid-col-12" id="cardforge-main-container">
-    <div class="cardforge-editor grid-col-4">
+  <div class="cf-left-column grid-col-8">
+      <div class="cardforge-editor">
       <h2>Card Details</h2>
       <form id="card-editor-form" class="cardforge-form">
         <!-- Hidden field for card ID when editing existing cards -->
@@ -195,12 +196,13 @@
       </form>
     </div>
     <!-- User cards sidebar - only visible when signed in -->
-    <aside class="cardforge-sidebar grid-col-3" id="user-cards-sidebar">
+      <aside class="cardforge-sidebar" id="user-cards-sidebar">
       <h2 id="cards-list-title">My Cards</h2>
       <ul id="my-cards-list" class="cardforge-list"></ul>
     </aside>
+  </div>
     <!-- Unified card preview section -->
-    <div class="cardforge-preview grid-col-5" id="card-preview-container">
+    <div class="cardforge-preview grid-col-4" id="card-preview-container">
       <h2>Card Preview</h2>
       <div id="auth-status-message" class="cardforge-auth-message"></div>
       <p id="test-auth-state">Auth: <em>unknown</em></p>
