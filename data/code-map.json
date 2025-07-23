@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-07-22T13:40:12.321Z",
+  "timestamp": "2025-07-23T13:40:12.636Z",
   "summary": {
     "totalJS": 1941,
     "totalCSS": 86,
@@ -3689,6 +3689,7 @@
     "cardforge-preview",
     "cardforge-quote",
     "cardforge-sidebar",
+    "cf-left-column",
     "channel-avatar",
     "channel-buttons",
     "channel-cta",
@@ -3960,6 +3961,7 @@
     "grid-col-3",
     "grid-col-4",
     "grid-col-6",
+    "grid-col-8",
     "grid-container",
     "grid-icon",
     "grid-row",
