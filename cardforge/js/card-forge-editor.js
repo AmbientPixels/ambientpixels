@@ -404,7 +404,7 @@
     if (back) back.className = `card-preview-canvas card-back theme-${theme.toLowerCase()} variant-${variant}`;
     if (back) {
       back.innerHTML = '';
-      const backContent = createElement('div', { class: 'card-back-content' });
+      const backContent = createElement('div', { class: 'card-preview-content' });
       if (bio) backContent.appendChild(createElement('p', {}, bio));
       if (superpower) backContent.appendChild(createElement('p', {}, 'Superpower: ' + superpower));
       if (alignment) backContent.appendChild(createElement('p', {}, 'Alignment: ' + alignment));

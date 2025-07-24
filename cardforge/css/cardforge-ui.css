@@ -257,33 +257,12 @@
 
 /* My Cards sidebar styling */
 
-/* Flip card 3D effect */
-.card-container {
-  position: relative;
-  width: 100%;
-  height: auto;
-  perspective: 1000px;
-}
-.card-inner {
-  position: relative;
-  width: 100%;
-  transform-style: preserve-3d;
-  transition: transform 0.6s;
-}
-.card-inner.flipped {
-  transform: rotateY(180deg);
-}
-.card-front, .card-back {
-  backface-visibility: hidden;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-.card-back {
-  transform: rotateY(180deg);
-}
+/* === Card flip 3D effect – authoritative block === */
+.card-container{width:260px;height:260px;margin:0 auto;position:relative;perspective:1000px}
+.card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s}
+.card-inner.flipped{transform:rotateY(180deg)}
+.card-front,.card-back{position:absolute !important;inset:0;width:100% !important;height:100% !important;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.card-back{transform:rotateY(180deg)}
 
 /* Front face styling */
 
@@ -347,113 +326,14 @@
 
 .cf-section.active { display:block; }
 
-/* Theme-specific card styles */
+/* Legacy card theme styles removed; see cardforge-card.css for updated variants */
 /* High-specificity overrides */
-.card-preview-canvas.theme-neofantasy .card-preview-content,
-#card-back.theme-neofantasy .card-back-content {
-  background: linear-gradient(135deg, #f3e8ff 0%, #e0d4ff 100%) !important;
-  color: #4a2e83 !important;
-}
-.card-preview-canvas.theme-synthwavehacker .card-preview-content,
-#card-back.theme-synthwavehacker .card-back-content {
-  background: #0f0f1e !important;
-  background-image: radial-gradient(circle at bottom left, #ff007a, #00fff0 70%) !important;
-  color: #00fff0 !important;
-}
-.card-preview-canvas.theme-propersona .card-preview-content,
-#card-back.theme-propersona .card-back-content {
-  background: #ffffff !important;
-  border: 1px solid #d1d5db !important;
-  color: #1f2937 !important;
-}
-.theme-neofantasy .card-preview-content,
-.theme-neofantasy .card-back-content {
-  background: linear-gradient(135deg, #f3e8ff 0%, #e0d4ff 100%);
-  color: #4a2e83;
-}
 
-.theme-synthwavehacker .card-preview-content,
-.theme-synthwavehacker .card-back-content {
-  background: #0f0f1e;
-  background-image: radial-gradient(circle at bottom left, #ff007a, #00fff0 70%);
-  color: #00fff0;
-}
 
-.theme-propersona .card-preview-content,
-.theme-propersona .card-back-content {
-  background: #ffffff;
-  border: 1px solid #d1d5db;
-  color: #1f2937;
-}
 
-/* NeoFantasy theme - parchment scroll */
-.theme-neofantasy .card-preview-content,
-.theme-neofantasy .card-back-content {
-  background: #f7efd6 url('/cardforge/assets/parchment-texture.png') repeat;
-  border: 4px solid #d4af37;
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-}
-.theme-neofantasy .card-header h3,
-.theme-neofantasy .card-header h3 {
-  font-family: 'Cinzel', serif;
-  text-shadow: 1px 1px 2px rgba(214,175,55,0.7);
-}
-.theme-neofantasy .stat-progress {
-  background: linear-gradient(90deg, #a67c52, #f9d570);
-  border: 1px solid #8c6239;
-  box-shadow: 0 0 4px rgba(249,213,112,0.8);
-}
 
-/* Enhanced SynthwaveHacker styling */
-.theme-synthwavehacker .card-preview-content,
-.theme-synthwavehacker .card-back-content {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 12px;
-  padding: 16px;
-  align-items: center;
-}
-.theme-synthwavehacker .card-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 4px;
-  object-fit: cover;
-  border: 2px solid #ff007a;
-  box-shadow: 0 0 10px rgba(255,0,122,0.8);
-}
-.theme-synthwavehacker .card-header {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.theme-synthwavehacker .card-header h3,
-.theme-synthwavehacker .card-header span {
-  font-family: 'Press Start 2P', monospace;
-  text-shadow: 0 0 6px #ff007a, 0 0 4px #00fff0;
-  color: #fff;
-}
-.theme-synthwavehacker .card-quote,
-.theme-synthwavehacker .card-back-content p {
-  font-family: 'Orbitron', sans-serif;
-  color: #f8f8f8;
-  text-shadow: 0 0 4px #00fff0;
-  margin: 8px 0;
-}
-.theme-synthwavehacker .stat-progress {
-  height: 10px;
-  background: linear-gradient(90deg, #ff007a, #00fff0);
-  border: 1px solid #ff007a;
-  box-shadow: inset 0 0 6px #00fff0, inset 0 0 6px #ff007a;
-}
-.theme-synthwavehacker .card-badge,
-.theme-synthwavehacker .card-rarity {
-  background: #ff007a;
-  color: #fff;
-  padding: 4px 6px;
-  border-radius: 2px;
-  font-size: 0.75rem;
-  text-shadow: 0 0 4px #00fff0;
-}
+
+
 
 /* Stats Editor Styles */
 
@@ -660,92 +540,7 @@
   border-radius: 4px;
   cursor: pointer;
 }
-
-/* Variant styles */
-
-/* Alternate variant animations */
-.variant-alternate.card-preview-canvas {
-  animation: glow 3s infinite alternate, bounce 4s infinite ease-in-out;
-}
-
-@keyframes glow {
-  from { box-shadow: 0 0 10px var(--mood-accent-color); }
-  to { box-shadow: 0 0 20px var(--mood-accent-color); }
-}
-
-@keyframes bounce {
-  0%, 100% { margin-top: 0; }
-  50% { margin-top: -5px; }
-}
-
-/* Gallery card hover glow */
-.gallery-card:hover {
-  animation: glow 2s infinite alternate;
-}
-
-.variant-dark.card-preview-canvas {
-  filter: brightness(0.8) contrast(1.2);
-}
-.variant-light.card-preview-canvas {
-  filter: brightness(1.2) contrast(1);
-}
-.variant-alternate.card-preview-canvas {
-  border: 2px dashed var(--mood-accent-color, #4a4a6a);
-}
-
-/* Enhanced SynthwaveHacker styling */
-.theme-synthwavehacker .card-preview-content,
-.theme-synthwavehacker .card-back-content {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 12px;
-  padding: 16px;
-  align-items: center;
-}
-.theme-synthwavehacker .card-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 4px;
-  object-fit: cover;
-  border: 2px solid #ff007a;
-  box-shadow: 0 0 10px rgba(255,0,122,0.8);
-}
-.theme-synthwavehacker .card-header {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.theme-synthwavehacker .card-header h3,
-.theme-synthwavehacker .card-header span {
-  font-family: 'Press Start 2P', monospace;
-  text-shadow: 0 0 6px #ff007a, 0 0 4px #00fff0;
-  color: #fff;
-}
-.theme-synthwavehacker .card-quote,
-.theme-synthwavehacker .card-back-content p {
-  font-family: 'Orbitron', sans-serif;
-  color: #f8f8f8;
-  text-shadow: 0 0 4px #00fff0;
-  margin: 8px 0;
-}
-.theme-synthwavehacker .stat-progress {
-  height: 10px;
-  background: linear-gradient(90deg, #ff007a, #00fff0);
-  border: 1px solid #ff007a;
-  box-shadow: inset 0 0 6px #00fff0, inset 0 0 6px #ff007a;
-}
-.theme-synthwavehacker .card-badge,
-.theme-synthwavehacker .card-rarity {
-  background: #ff007a;
-  color: #fff;
-  padding: 4px 6px;
-  border-radius: 2px;
-  font-size: 0.75rem;
-  text-shadow: 0 0 4px #00fff0;
-}
-
 /* Stats Editor Styles */
-
 /* My Cards Sidebar Styles */
 .my-card-item {
   display: flex;
