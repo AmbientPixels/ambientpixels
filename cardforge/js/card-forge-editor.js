@@ -16,14 +16,9 @@
     document.getElementById('card-class'),
     document.getElementById('card-quote'),
     document.getElementById('card-avatar'),
-    document.getElementById('card-achievement'),
     document.getElementById('card-rarity'),
     document.getElementById('card-bio'),
-    document.getElementById('card-superpower'),
-    document.getElementById('card-alignment'),
-    document.getElementById('card-origin'),
-    document.getElementById('card-faction'),
-    document.getElementById('card-badge'),
+
     document.getElementById('card-stats'),
     document.getElementById('card-theme')
   ].filter(Boolean);
@@ -113,6 +108,32 @@
           updatePreview();
           addMicroBtn.disabled = (microEditor?.querySelectorAll('.micro-row').length || 0) >= 6;
         });
+        
+        // Attribute Editor Logic
+        const attributeEditor = document.getElementById('attribute-editor');
+        const addAttributeBtn = document.getElementById('add-attribute-btn');
+        
+        function createAttributeRow(name = '', value = '') {
+          const row = document.createElement('div');
+          row.className = 'attribute-row';
+          row.innerHTML = `
+            <input type="text" name="attribute-name" placeholder="Attribute (e.g. Alignment)" value="${name}" />
+            <input type="text" name="attribute-value" placeholder="Value (e.g. Chaotic Creative)" value="${value}" />
+            <button type="button" class="remove-attribute">&times;</button>
+          `;
+          row.querySelector('.remove-attribute').addEventListener('click', () => { row.remove(); updatePreview(); });
+          row.querySelector('input[name="attribute-name"]').addEventListener('input', updatePreview);
+          row.querySelector('input[name="attribute-value"]').addEventListener('input', updatePreview);
+          return row;
+        }
+        
+        addAttributeBtn?.addEventListener('click', () => {
+          attributeEditor?.appendChild(createAttributeRow());
+          updatePreview();
+        });
+        
+        attributeEditor?.addEventListener('input', updatePreview);
+        
         // Template defaults logic
         const themeSelect = document.getElementById('card-theme');
         const defaultData = {
@@ -193,14 +214,17 @@
           setInput('card-class', data.class);
           setInput('card-quote', data.quote);
           setInput('card-avatar', data.avatar);
-          setInput('card-achievement', data.achievement);
           setInput('card-rarity', data.rarity);
           setInput('card-bio', data.bio);
-          setInput('card-superpower', data.superpower);
-          setInput('card-alignment', data.alignment);
-          setInput('card-origin', data.origin);
-          setInput('card-faction', data.faction);
-          setInput('card-badge', data.badge);
+          
+          // Attributes: reset rows and add defaults
+          attributeEditor.innerHTML = '';
+          if (data.achievement) attributeEditor.appendChild(createAttributeRow('Achievement', data.achievement));
+          if (data.superpower) attributeEditor.appendChild(createAttributeRow('Superpower', data.superpower));
+          if (data.alignment) attributeEditor.appendChild(createAttributeRow('Alignment', data.alignment));
+          if (data.origin) attributeEditor.appendChild(createAttributeRow('Origin', data.origin));
+          if (data.faction) attributeEditor.appendChild(createAttributeRow('Faction', data.faction));
+          if (data.badge) attributeEditor.appendChild(createAttributeRow('Badge', data.badge));
           // Stats: reset rows
           statsEditor.innerHTML = '';
           data.stats.forEach(stat => statsEditor.appendChild(createStatRow(stat.name, stat.value)));
@@ -237,7 +261,7 @@
         const saveBtn = document.getElementById('save-btn');
         saveBtn?.addEventListener('click', () => {
           const cardData = {};
-          const fields = ['card-name','card-class','card-quote','card-avatar','card-achievement','card-rarity','card-bio','card-superpower','card-alignment','card-origin','card-faction','card-badge'];
+          const fields = ['card-name','card-class','card-quote','card-avatar','card-rarity','card-bio'];
           fields.forEach(id => {
             const el = document.getElementById(id);
             if (el) cardData[id.replace('card-','')] = el.value;
@@ -315,17 +339,7 @@
       name: nameInput?.value,
       class: classInput?.value,
       quote: quoteInput?.value,
-      avatar: avatarInput?.value,
-      achievement: document.getElementById('card-achievement')?.value,
-      rarity: document.getElementById('card-rarity')?.value,
-      bio: document.getElementById('card-bio')?.value,
-      superpower: document.getElementById('card-superpower')?.value,
-      alignment: document.getElementById('card-alignment')?.value,
-      origin: document.getElementById('card-origin')?.value,
-      faction: document.getElementById('card-faction')?.value,
-      badge: document.getElementById('card-badge')?.value,
-      stats: document.getElementById('card-stats')?.value,
-      theme: document.getElementById('card-theme')?.value
+      avatar: avatarInput?.value
     });
     // Gather fields
     const name = nameInput?.value || '';
@@ -336,23 +350,11 @@
     
     
     
-    const achievementEl = document.getElementById('card-achievement');
     const rarityEl = document.getElementById('card-rarity');
     const bioEl = document.getElementById('card-bio');
-    const superpowerEl = document.getElementById('card-superpower');
-    const alignmentEl = document.getElementById('card-alignment');
-    const originEl = document.getElementById('card-origin');
-    const factionEl = document.getElementById('card-faction');
-    const badgeEl = document.getElementById('card-badge');
 
-    const achievement = achievementEl?.value || '';
     const rarity = rarityEl?.value || '';
     const bio = bioEl?.value || '';
-    const superpower = superpowerEl?.value || '';
-    const alignment = alignmentEl?.value || '';
-    const origin = originEl?.value || '';
-    const faction = factionEl?.value || '';
-    const badge = badgeEl?.value || '';
     // Collect stats from dynamic editor
     let statsObj = {};
     const statRows = document.querySelectorAll('#stats-editor .stat-row');
@@ -362,6 +364,17 @@
       const name = nameInput?.value.trim();
       const val = parseInt(valueInput?.value, 10);
       if (name) statsObj[name] = isNaN(val) ? 0 : val;
+    });
+
+    // Collect attributes from dynamic editor
+    let attributesObj = {};
+    const attributeRows = document.querySelectorAll('#attribute-editor .attribute-row');
+    attributeRows.forEach(row => {
+      const nameInput = row.querySelector('input[name="attribute-name"]');
+      const valueInput = row.querySelector('input[name="attribute-value"]');
+      const name = nameInput?.value.trim();
+      const value = valueInput?.value.trim();
+      if (name && value) attributesObj[name] = value;
     });
 
     // Front face
@@ -385,8 +398,6 @@
       if (rarity) previewContent.appendChild(createElement('div', { class: 'card-rarity' }, rarity));
       // Quote
       if (quote) previewContent.appendChild(createElement('blockquote', { class: 'card-quote' }, quote));
-      // Achievement
-      if (achievement) previewContent.appendChild(createElement('div', { class: 'card-achievement' }, achievement));
       // Stat bars
       Object.entries(statsObj).forEach(([key, val]) => {
         const barContainer = createElement('div', { class: 'stat-bar' });
@@ -406,11 +417,6 @@
       back.innerHTML = '';
       const backContent = createElement('div', { class: 'card-preview-content' });
       if (bio) backContent.appendChild(createElement('p', {}, bio));
-      if (superpower) backContent.appendChild(createElement('p', {}, 'Superpower: ' + superpower));
-      if (alignment) backContent.appendChild(createElement('p', {}, 'Alignment: ' + alignment));
-      if (origin) backContent.appendChild(createElement('p', {}, 'Origin: ' + origin));
-      if (faction) backContent.appendChild(createElement('p', {}, 'Faction: ' + faction));
-      if (badge) backContent.appendChild(createElement('p', {}, 'Badge: ' + badge));
 
       // Social links display
       const socialRows = document.querySelectorAll('#social-editor .social-row');
@@ -453,6 +459,21 @@
         });
         backContent.appendChild(microContainer);
       }
+
+      // Attributes display
+      if (Object.keys(attributesObj).length > 0) {
+        const attributesContainer = createElement('div', { class: 'card-attributes' });
+        Object.entries(attributesObj).forEach(([name, value]) => {
+          const attrEl = createElement('div', { class: 'card-attribute' });
+          attrEl.appendChild(createElement('span', { class: 'attr-name' }, name + ':'));
+          attrEl.appendChild(createElement('span', { class: 'attr-value' }, value));
+          attributesContainer.appendChild(attrEl);
+        });
+        backContent.appendChild(attributesContainer);
+      }
+
+
+
       back.appendChild(backContent);
       // Adjust container height to fit content
       const container = document.querySelector('.card-container');

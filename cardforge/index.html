@@ -122,15 +122,16 @@
     <input type="number" name="stat-value" placeholder="Value" />
     <button type="button" class="remove-stat">&times;</button>
   </div>
+</div>
+<button type="button" id="add-stat-btn" class="add-stat-btn">Add Stat</button>
+
+        <label for="card-bio">Biography</label>
 <textarea id="card-bio" rows="3" placeholder="Character biography"></textarea>
 
         <label for="card-rarity">Rarity</label>
         <input type="text" id="card-rarity" placeholder="e.g. Common, Rare, Legendary" />
-
-
-
-</div>
-    </div>
+      </div>
+      
       <div class="cf-section" data-step-section="3">
         <h3 class="cf-section-title"><span class="step-index">3</span> Artwork</h3>
         <!-- Artwork fields could be moved here; placeholder -->
@@ -167,29 +168,8 @@
           </div>
         </div>
         <button type="button" id="add-social-btn" class="add-social-btn">Add Social Link</button>
-
-        <!-- Micro Badges Editor -->
-        </div>
-      <div class="cf-section" data-step-section="6">
-        <h3 class="cf-section-title"><span class="step-index">6</span> Attributes</h3>
-        <label for="card-achievement">Achievement/Badge</label>
-        <input type="text" id="card-achievement" placeholder="Optional achievement or badge" />
-
-        <label for="card-superpower">Superpower</label>
-        <input type="text" id="card-superpower" placeholder="e.g. Digital Alchemy" />
-
-        <label for="card-alignment">Alignment</label>
-        <input type="text" id="card-alignment" placeholder="e.g. Chaotic Creative" />
-
-        <label for="card-origin">Origin</label>
-        <input type="text" id="card-origin" placeholder="e.g. Core Layer 7" />
-
-        <label for="card-faction">Faction</label>
-        <input type="text" id="card-faction" placeholder="e.g. Order of the Nova Grid" />
-
-        <label for="card-badge">Badge</label>
-        <input type="text" id="card-badge" placeholder="e.g. Cycle I — Genesis" />
       </div>
+      
       <div class="cf-section" data-step-section="5">
         <h3 class="cf-section-title"><span class="step-index">5</span> Badges</h3>
         <label for="micro-editor">Micro Badges</label>
@@ -208,10 +188,22 @@
             <button type="button" class="remove-micro">&times;</button>
           </div>
         </div>
-        <button type="button" id="add-micro-btn" class="add-micro-btn">Add Micro Badge</button>
-
+        <button type="button" id="add-micro-btn" class="add-micro-btn">Add Badge</button>
+      </div>
+      
+      <div class="cf-section" data-step-section="6">
+        <h3 class="cf-section-title"><span class="step-index">6</span> Attributes</h3>
         
+        <label for="attribute-editor">Attributes</label>
+        <div id="attribute-editor">
+          <div class="attribute-row">
+            <input type="text" name="attribute-name" placeholder="Attribute (e.g. Alignment)" />
+            <input type="text" name="attribute-value" placeholder="Value (e.g. Chaotic Creative)" />
+            <button type="button" class="remove-attribute">&times;</button>
+          </div>
         </div>
+        <button type="button" id="add-attribute-btn" class="add-attribute-btn">Add Attribute</button>
+      </div>
       <div class="cardforge-form-actions">
           
           <button type="button" id="save-btn" class="glass-button">Save</button>
@@ -219,12 +211,13 @@
            
         </div>
       </form>
-    </div>
-    <!-- User cards sidebar - only visible when signed in -->
+      
+      <!-- User cards sidebar - only visible when signed in -->
       <aside class="cardforge-sidebar" id="user-cards-sidebar">
-      <h2 id="cards-list-title">My Cards</h2>
-      <ul id="my-cards-list" class="cardforge-list"></ul>
-    </aside>
+        <h2 id="cards-list-title">My Cards</h2>
+        <ul id="my-cards-list" class="cardforge-list"></ul>
+      </aside>
+    </div>
   </div>
     <!-- Unified card preview section -->
     <div class="drag-divider" aria-label="Resize panes"></div>

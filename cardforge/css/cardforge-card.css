@@ -335,3 +335,26 @@
   --card-text: #1e293b;
   --card-glow: conic-gradient(from 180deg, #3b82f6, #1d4ed8, #60a5fa, #3b82f6);
 }
+
+/* Card attributes styling */
+.card-attributes {
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.card-attribute {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.attr-name {
+  font-weight: 500;
+  color: var(--mood-secondary-color, #a0a0c0);
+}
+
+.attr-value {
+  color: var(--mood-primary-color, #e1e1ff);
+}

@@ -30,20 +30,249 @@
   display: block;
   font-weight: 500;
   margin-top: 1rem;
+  color: var(--mood-primary-color, #e1e1ff);
 }
 
 .cardforge-form input,
-.cardforge-form textarea {
+.cardforge-form textarea,
+.cardforge-form select {
   width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border-1, rgba(255,255,255,0.2));
+  padding: 8px 12px;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 4px;
-  background: var(--surface-1, rgba(0,0,0,0.2));
-  color: inherit;
+  background: var(--aura-bg-color, #1a1a2e);
+  color: var(--mood-primary-color, #e1e1ff);
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.cardforge-form button {
-  margin-top: 1.25rem;
+.cardforge-form input:focus,
+.cardforge-form textarea:focus,
+.cardforge-form select:focus {
+  outline: none;
+  border-color: var(--mood-primary-color, #e1e1ff);
+  box-shadow: 0 0 0 2px rgba(225, 225, 255, 0.1);
+}
+
+.cardforge-form button,
+.add-stat-btn,
+.add-social-btn,
+.add-micro-btn,
+.add-attribute-btn {
+  background: var(--mood-accent-color, #4a4a6a);
+  color: var(--aura-bg-color, #1a1a2e);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  margin-top: 12px;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.cardforge-form button:hover,
+.add-stat-btn:hover,
+.add-social-btn:hover,
+.add-micro-btn:hover,
+.add-attribute-btn:hover {
+  background: var(--mood-primary-color, #e1e1ff);
+  transform: translateY(-1px);
+}
+
+.cardforge-form button:active,
+.add-stat-btn:active,
+.add-social-btn:active,
+.add-micro-btn:active,
+.add-attribute-btn:active {
+  transform: translateY(0);
+}
+
+/* Remove buttons consistent styling */
+.remove-stat,
+.remove-social,
+.remove-micro,
+.remove-attribute,
+.clear-achievement,
+.clear-superpower {
+  background: transparent;
+  border: none;
+  color: var(--mood-secondary-color, #a0a0c0);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: color 0.2s ease, background-color 0.2s ease;
+  line-height: 1;
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-stat:hover,
+.remove-social:hover,
+.remove-micro:hover,
+.remove-attribute:hover,
+.clear-achievement:hover,
+.clear-superpower:hover {
+  color: var(--mood-primary-color, #e1e1ff);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Row containers for consistent layout */
+.stat-row,
+.social-row,
+.micro-row,
+.attribute-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+/* Input sizing within rows */
+.stat-row input,
+.social-row input,
+.micro-row input,
+.micro-row select,
+.attribute-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 4px;
+  background: var(--aura-bg-color, #1a1a2e);
+  color: var(--mood-primary-color, #e1e1ff);
+  font-family: inherit;
+}
+
+/* Special button styling */
+.choose-image-btn {
+  background: var(--mood-accent-color, #4a4a6a);
+  color: var(--aura-bg-color, #1a1a2e);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  margin-top: 8px;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.choose-image-btn:hover {
+  background: var(--mood-primary-color, #e1e1ff);
+  transform: translateY(-1px);
+}
+
+/* Section consistency */
+.cf-section {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--surface-2, rgba(255,255,255,0.02));
+  border-radius: 8px;
+  border: 1px solid var(--mood-accent-color, rgba(255,255,255,0.1));
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.cf-section-title {
+  margin-bottom: 1rem;
+  color: var(--mood-primary-color, #e1e1ff);
+}
+
+/* Prevent layout blowout without forcing grid structure */
+.cf-left-column {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.cardforge-preview {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Section constraints for proper containment */
+.cf-section[data-step-section="4"],
+.cf-section[data-step-section="5"],
+.cf-section[data-step-section="6"] {
+  max-width: 100%;
+  overflow: hidden;
+  width: 100%;
+}
+
+.cf-section[data-step-section="4"] input,
+.cf-section[data-step-section="4"] select,
+.cf-section[data-step-section="5"] input,
+.cf-section[data-step-section="5"] select,
+.cf-section[data-step-section="6"] input {
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cf-section[data-step-section="4"] label,
+.cf-section[data-step-section="5"] label,
+.cf-section[data-step-section="6"] label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--mood-primary-color, #e1e1ff);
+  font-weight: 500;
+}
+
+#social-editor,
+#micro-editor,
+#attribute-editor {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Override any conflicting styles with specificity */
+.cardforge-form .stat-row,
+.cardforge-form .social-row,
+.cardforge-form .micro-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-bottom: 8px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.cardforge-form .stat-row input,
+.cardforge-form .social-row input,
+.cardforge-form .micro-row input,
+.cardforge-form .micro-row select {
+  flex: 1 !important;
+  min-width: 0 !important;
+  padding: 6px 8px !important;
+  border: 1px solid var(--mood-accent-color, #4a4a6a) !important;
+  border-radius: 4px !important;
+  background: var(--aura-bg-color, #1a1a2e) !important;
+  color: var(--mood-primary-color, #e1e1ff) !important;
+  font-family: inherit !important;
+}
+
+/* Ensure remove buttons are properly styled */
+.cardforge-form .remove-stat,
+.cardforge-form .remove-social,
+.cardforge-form .remove-micro {
+  background: transparent !important;
+  border: none !important;
+  color: var(--mood-secondary-color, #a0a0c0) !important;
+  font-size: 1.2rem !important;
+  cursor: pointer !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  transition: color 0.2s ease, background-color 0.2s ease !important;
+  line-height: 1 !important;
+  min-width: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
 }
 
 /* Preview */
