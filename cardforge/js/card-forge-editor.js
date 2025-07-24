@@ -487,15 +487,15 @@
       }
     }
   }
-  // Image Picker Modal Logic
-  const imageModal = document.getElementById('image-modal');
-  const chooseImageBtn = document.getElementById('choose-image-btn');
-  const modalClose = document.getElementById('modal-close');
-  const imageGrid = document.getElementById('image-grid');
-  const prevBtn = document.getElementById('modal-prev');
-  const nextBtn = document.getElementById('modal-next');
-  const urlInput = document.getElementById('modal-url-input');
-  const urlSubmit = document.getElementById('modal-url-submit');
+  // Inline Image Chooser Logic
+  const inlineImageGrid = document.getElementById('inline-image-grid');
+  const prevPageBtn = document.getElementById('prev-page');
+  const nextPageBtn = document.getElementById('next-page');
+  const pageInfo = document.getElementById('page-info');
+  const customUrlInput = document.getElementById('custom-url-input');
+  const useCustomUrlBtn = document.getElementById('use-custom-url');
+  const imagePagination = document.querySelector('.image-pagination');
+  const cardAvatarInput = document.getElementById('card-avatar');
 
   // Default state
   let currentPage = 1;
@@ -508,60 +508,86 @@
   ];
   const imagesPerPage = 20;
 
-  function openImageModal() {
-    if (imageModal) {
-      imageModal.style.display = 'flex';
-      loadImages(currentPage);
-    }
-  }
-  function closeImageModal() {
-    if (imageModal) imageModal.style.display = 'none';
-  }
-  function loadImages(page) {
-    if (!imageGrid) return;
-    imageGrid.textContent = 'Loading images...';
+  function loadInlineImages(page) {
+    if (!inlineImageGrid) return;
+    inlineImageGrid.textContent = 'Loading images...';
     fetch('/cardforge/image-manifest.json')
       .then(res => res.json())
       .then(images => {
-        imageGrid.innerHTML = '';
+        inlineImageGrid.innerHTML = '';
         const start = (page - 1) * imagesPerPage;
         const pageImages = images.slice(start, start + imagesPerPage);
         if (!pageImages.length) {
-          imageGrid.innerHTML = '<p class="modal-message">No images available.</p>';
+          inlineImageGrid.innerHTML = '<p class="no-images-message">No images available.</p>';
         } else {
-          pageImages.forEach(url => {
+          pageImages.forEach((url, index) => {
             const img = document.createElement('img');
             img.src = url;
             img.alt = '';
+            
+            // Auto-select first image on page 1 if no image is currently selected
+            if (page === 1 && index === 0 && (!cardAvatarInput.value || cardAvatarInput.value === '')) {
+              img.classList.add('selected');
+              cardAvatarInput.value = url;
+              updatePreview();
+            }
+            
+            // Check if this image is currently selected
+            if (cardAvatarInput.value === url) {
+              img.classList.add('selected');
+            }
+            
             img.addEventListener('click', () => {
-              const avatarInput = document.getElementById('card-avatar');
-              if (avatarInput) {
-                avatarInput.value = url;
+              // Remove previous selection
+              inlineImageGrid.querySelectorAll('img').forEach(i => i.classList.remove('selected'));
+              // Mark as selected
+              img.classList.add('selected');
+              // Update avatar input
+              if (cardAvatarInput) {
+                cardAvatarInput.value = url;
                 updatePreview();
               }
-              closeImageModal();
             });
-            imageGrid.appendChild(img);
+            inlineImageGrid.appendChild(img);
           });
+        }
+        
+        // Update pagination info
+        const totalPages = Math.ceil(images.length / imagesPerPage);
+        if (pageInfo) {
+          pageInfo.textContent = `Page ${page} of ${totalPages}`;
+        }
+        if (prevPageBtn) {
+          prevPageBtn.disabled = page <= 1;
+        }
+        if (nextPageBtn) {
+          nextPageBtn.disabled = page >= totalPages;
         }
       })
       .catch(err => {
         console.error('Error loading image manifest:', err);
-        imageGrid.innerHTML = '<p class="modal-message">Failed to load images.</p>';
+        inlineImageGrid.innerHTML = '<p class="error-message">Failed to load images.</p>';
       });
   }
 
-  chooseImageBtn?.addEventListener('click', openImageModal);
-  modalClose?.addEventListener('click', closeImageModal);
-  window.addEventListener('click', e => {
-    if (e.target === imageModal) closeImageModal();
-  });
-  prevBtn?.addEventListener('click', () => { if (currentPage>1) { currentPage--; loadImages(currentPage);} });
-  nextBtn?.addEventListener('click', () => { currentPage++; loadImages(currentPage); });
-  urlSubmit?.addEventListener('click', () => {
-    const avatarInput = document.getElementById('card-avatar');
-    if (avatarInput && urlInput) avatarInput.value = urlInput.value;
-    closeImageModal();
+  // Auto-load images on initialization
+  if (inlineImageGrid) {
+    loadInlineImages(currentPage);
+  }
+  
+  prevPageBtn?.addEventListener('click', () => { if (currentPage>1) { currentPage--; loadInlineImages(currentPage);} });
+  nextPageBtn?.addEventListener('click', () => { currentPage++; loadInlineImages(currentPage); });
+  useCustomUrlBtn?.addEventListener('click', () => {
+    if (cardAvatarInput && customUrlInput && customUrlInput.value.trim()) {
+      // Clear any gallery selections
+      if (inlineImageGrid) {
+        inlineImageGrid.querySelectorAll('img').forEach(img => img.classList.remove('selected'));
+      }
+      // Set custom URL
+      cardAvatarInput.value = customUrlInput.value.trim();
+      customUrlInput.value = '';
+      updatePreview();
+    }
   });
 
 // Flip card view handler
