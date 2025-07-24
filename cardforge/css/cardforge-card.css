@@ -365,6 +365,66 @@
   color: var(--mood-primary-color, #e1e1ff);
 }
 
+/* Enhanced Badge Styles */
+.micro-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.micro-badge-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 0.5rem;
+  transition: all 0.2s ease;
+  min-width: 60px;
+}
+
+.micro-badge-container:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.badge-name {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--mood-secondary-color, #a0a0c0);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  padding: 0 0.25rem;
+}
+
+.badge-icons {
+  display: flex;
+  gap: 0.15rem;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.micro-icon {
+  font-size: 1rem;
+  color: var(--mood-primary-color, #e1e1ff);
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+  opacity: 0.9;
+}
+
+.badge-counter {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--mood-primary-color, #e1e1ff);
+  margin-left: 0.25rem;
+  opacity: 0.8;
+}
+
 /* Image Style Variants */
 /* Masked Styles */
 .image-masked-circle {

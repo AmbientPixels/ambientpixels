@@ -132,6 +132,38 @@
   width: 100%;
 }
 
+/* Badges tab - simple fix */
+#micro-editor {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.micro-row {
+  display: grid;
+  grid-template-columns: 120px 100px 1fr 32px;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.micro-row > * {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.micro-row input,
+.micro-row select {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Input sizing within rows */
 .stat-row input,
 .social-row input,
@@ -169,6 +201,8 @@
 
 /* Section consistency */
 .cf-section {
+  container-type: inline-size;
+  container-name: section;
   margin-bottom: 1.5rem;
   padding: 1rem;
   background: var(--surface-2, rgba(255,255,255,0.02));

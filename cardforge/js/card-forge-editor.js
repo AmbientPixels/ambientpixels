@@ -80,21 +80,23 @@
         // Micro Badges Editor Logic
         const microEditor = document.getElementById('micro-editor');
         const addMicroBtn = document.getElementById('add-micro-btn');
-        function createMicroRow(category = '', icon = '', desc = '') {
+        function createMicroRow(category = '', icon = 'star', desc = '', quantity = 1) {
           const options = ['star','heart','bolt','trophy','leaf','gear'];
           const row = document.createElement('div');
           row.className = 'micro-row';
           row.innerHTML = `
-            <input type="text" name="micro-category" placeholder="Category (e.g. Skill)" value="${category}" />
+            <input type="text" name="micro-category" placeholder="Badge Name" value="${category}" class="badge-name" />
             <select name="micro-icon" aria-label="Select icon">
               ${options.map(option => `<option value="${option}" ${icon === option ? 'selected' : ''}>${option}</option>`).join('')}
             </select>
-            <input type="text" name="micro-desc" placeholder="Description" value="${desc}" />
-            <button type="button" class="remove-micro">&times;</button>
+            <input type="number" name="micro-quantity" min="1" max="99" value="${quantity}" class="badge-quantity" />
+            <input type="text" name="micro-desc" placeholder="Description (optional)" value="${desc}" />
+            <button type="button" class="remove-micro" aria-label="Remove badge">&times;</button>
           `;
           row.querySelector('.remove-micro').addEventListener('click', () => { row.remove(); updatePreview(); });
           row.querySelector('input[name="micro-category"]').addEventListener('input', updatePreview);
           row.querySelector('select[name="micro-icon"]')?.addEventListener('change', updatePreview);
+          row.querySelector('input[name="micro-quantity"]').addEventListener('change', updatePreview);
           row.querySelector('input[name="micro-desc"]').addEventListener('input', updatePreview);
           return row;
         }
@@ -498,17 +500,43 @@
       if (microRows.length) {
         const microContainer = createElement('div', { class: 'micro-badges' });
         microRows.forEach(row => {
+          const name = row.querySelector('input[name="micro-category"]')?.value.trim() || 'Badge';
           const icon = row.querySelector('select[name="micro-icon"]')?.value.trim().toLowerCase();
           const desc = row.querySelector('input[name="micro-desc"]')?.value.trim();
+          const quantity = parseInt(row.querySelector('input[name="micro-quantity"]')?.value) || 1;
+          
           if (icon) {
             const slug = icon.replace(/\s+/g, '-');
-            const iconEl  = createElement('i', {
-              class: `fas fa-${slug} micro-icon`,
-              title: desc
+            const badgeContainer = createElement('div', { 
+              class: 'micro-badge-container',
+              title: desc || name
             });
-            microContainer.appendChild(
-              createElement('div', { class: 'micro-badge', title: desc }, iconEl)
-            );
+            
+            // Add badge name
+            const nameEl = createElement('span', { class: 'badge-name' }, name);
+            badgeContainer.appendChild(nameEl);
+            
+            // Add badge icons (multiple based on quantity)
+            const iconsContainer = createElement('div', { class: 'badge-icons' });
+            for (let i = 0; i < Math.min(quantity, 10); i++) { // Limit to 10 for display
+              const iconEl = createElement('i', {
+                class: `fas fa-${slug} micro-icon`,
+                'aria-hidden': 'true'
+              });
+              iconsContainer.appendChild(iconEl);
+            }
+            
+            // If we have more than 10, show a counter
+            if (quantity > 10) {
+              const counterEl = createElement('span', { 
+                class: 'badge-counter',
+                'aria-label': `${quantity} total`
+              }, `×${quantity}`);
+              iconsContainer.appendChild(counterEl);
+            }
+            
+            badgeContainer.appendChild(iconsContainer);
+            microContainer.appendChild(badgeContainer);
           }
         });
         backContent.appendChild(microContainer);
