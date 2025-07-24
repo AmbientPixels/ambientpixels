@@ -3,7 +3,37 @@
    Updated: 2025-07-06
 */
 
-/* Dialog Styling */
+/* Tabbed Sections */
+
+/* Stepper Tabs */
+.cf-stepper {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--mood-accent-color, #4a4a6a);
+  margin-bottom: 1rem;
+  position: sticky;
+  top: 0;
+  background: var(--aura-bg-color, #1a1a2e);
+  z-index: 5;
+  padding-top: 0.25rem;
+}
+.step-btn {
+  background: transparent;
+  border: none;
+  padding: 0.5rem 1rem;
+  color: var(--mood-secondary-color, #a0a0c0);
+  font-family: inherit;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.step-btn:hover {
+  color: var(--mood-primary-color, #e1e1ff);
+}
+.step-btn.active {
+  color: var(--mood-primary-color, #e1e1ff);
+  border-color: var(--mood-primary-color, #e1e1ff);
+}
 .cardforge-dialog {
   position: fixed;
   top: 0;
@@ -299,6 +329,7 @@
 .cardforge-list-item {
   justify-content: space-between;
 }
+.card-list.cf-section { display:none; }
 .card-list-actions {
   display: flex;
   gap: 8px;
@@ -313,6 +344,8 @@
 .card-list-actions button:hover {
   color: var(--mood-primary-color);
 }
+
+.cf-section.active { display:block; }
 
 /* Theme-specific card styles */
 /* High-specificity overrides */
@@ -371,128 +404,149 @@
   box-shadow: 0 0 4px rgba(249,213,112,0.8);
 }
 
-/* SynthwaveHacker theme - retro neon */
+/* Enhanced SynthwaveHacker styling */
 .theme-synthwavehacker .card-preview-content,
 .theme-synthwavehacker .card-back-content {
-  background: #0f0f1e;
-  background-image:
-    radial-gradient(circle at bottom left, #ff007a, #00fff0 70%),
-    repeating-linear-gradient(
-      0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px
-    );
-  border: 2px solid #ff007a;
-}
-.theme-synthwavehacker .card-header h3 {
-  font-family: 'Press Start 2P', monospace;
-  color: #ff82a7;
-  text-shadow: 0 0 6px #ff007a;
-}
-.theme-synthwavehacker .stat-progress {
-  background: #00fff0;
-  box-shadow: inset 0 0 6px #00fff0;
-}
-
-/* ProPersona theme - modern minimal */
-.theme-propersona .card-avatar:hover {
-  box-shadow: 0 0 15px rgba(74,222,128,0.6);
-}
-.theme-propersona .card-preview-content,
-.theme-propersona .card-back-content {
-  background: radial-gradient(circle, #fafafa, #e5e7eb);
-}
-.theme-propersona .card-header h3 {
-  font-family: 'Inter', sans-serif;
-  font-weight: bold;
-}
-.theme-propersona .stat-progress {
-  background: #4ade80;
-  border-radius: 4px;
-}
-
-/* Enhanced NeoFantasy styling */
-.theme-neofantasy .card-preview-content,
-.theme-neofantasy .card-back-content {
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  padding: 24px;
-  border-radius: 12px;
-}
-.theme-neofantasy .card-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.theme-neofantasy .card-avatar {
-  width: 80px;
-  height: 80px;
-  border: 3px solid #d4af37;
-  border-radius: 50%;
-  box-shadow: 0 0 8px rgba(212,175,55,0.8);
-}
-.theme-neofantasy .card-header h3,
-.theme-neofantasy .card-header span {
-  font-family: 'Cinzel', serif;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-  color: #4a2e83;
-}
-.theme-neofantasy .card-quote,
-.theme-neofantasy .card-back-content p {
-  font-family: 'IM Fell English', serif;
-  font-style: italic;
-  color: #3a2b1f;
-  margin: 12px 0;
-}
-.theme-neofantasy .card-badge,
-.theme-neofantasy .card-rarity {
-  background: rgba(214,175,55,0.9);
-  color: #fff;
-  border-radius: 4px;
-  padding: 4px 8px;
-  margin-right: 6px;
-}
-
-/* Enhanced ProPersona styling */
-.theme-propersona .card-preview-content,
-.theme-propersona .card-back-content {
   display: grid;
   grid-template-columns: 1fr 2fr;
-  gap: 16px;
+  gap: 12px;
   padding: 16px;
   align-items: center;
 }
-.theme-propersona .card-avatar {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
+.theme-synthwavehacker .card-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 4px;
   object-fit: cover;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  border: 2px solid #ff007a;
+  box-shadow: 0 0 10px rgba(255,0,122,0.8);
 }
-.theme-propersona .card-header {
+.theme-synthwavehacker .card-header {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   gap: 4px;
 }
-.theme-propersona .card-header h3,
-.theme-propersona .card-header span {
-  font-family: 'Inter', sans-serif;
-  color: #1f2937;
+.theme-synthwavehacker .card-header h3,
+.theme-synthwavehacker .card-header span {
+  font-family: 'Press Start 2P', monospace;
+  text-shadow: 0 0 6px #ff007a, 0 0 4px #00fff0;
+  color: #fff;
 }
-.theme-propersona .card-quote,
-.theme-propersona .card-back-content p {
-  font-family: 'Inter', sans-serif;
-  font-style: italic;
-  color: #374151;
+.theme-synthwavehacker .card-quote,
+.theme-synthwavehacker .card-back-content p {
+  font-family: 'Orbitron', sans-serif;
+  color: #f8f8f8;
+  text-shadow: 0 0 4px #00fff0;
+  margin: 8px 0;
+}
+.theme-synthwavehacker .stat-progress {
+  height: 10px;
+  background: linear-gradient(90deg, #ff007a, #00fff0);
+  border: 1px solid #ff007a;
+  box-shadow: inset 0 0 6px #00fff0, inset 0 0 6px #ff007a;
+}
+.theme-synthwavehacker .card-badge,
+.theme-synthwavehacker .card-rarity {
+  background: #ff007a;
+  color: #fff;
+  padding: 4px 6px;
+  border-radius: 2px;
+  font-size: 0.75rem;
+  text-shadow: 0 0 4px #00fff0;
+}
+
+/* Stats Editor Styles */
+
+/* My Cards Sidebar Styles */
+.my-card-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+.my-card-thumb {
+  width: 40px;
+  height: auto;
+  border-radius: 4px;
+  object-fit: cover;
+}
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.stat-row input[name="stat-name"],
+.stat-row input[name="stat-value"] {
+  padding: 6px;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 4px;
+  background: var(--aura-bg-color, #1a1a2e);
+  color: var(--mood-primary-color, #e1e1ff);
+  font-family: inherit;
+}
+.remove-stat {
+  background: transparent;
+  border: none;
+  color: var(--mood-secondary-color, #a0a0c0);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+.remove-stat:hover {
+  color: var(--mood-primary-color, #e1e1ff);
+}
+.add-stat-btn {
+  background: var(--mood-accent-color, #4a4a6a);
+  color: var(--aura-bg-color, #1a1a2e);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
   margin-top: 8px;
 }
-.theme-propersona .card-badge,
-.theme-propersona .card-rarity {
-  background: #4ade80;
-  color: #fff;
-  padding: 4px 8px;
+.add-stat-btn:hover {
+  background: var(--mood-primary-color, #e1e1ff);
+}
+
+/* Social Links Editor Styles */
+.social-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.social-row input[name="social-name"],
+.social-row input[name="social-url"] {
+  padding: 6px;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 4px;
-  font-size: 0.85rem;
+  background: var(--aura-bg-color, #1a1a2e);
+  color: var(--mood-primary-color, #e1e1ff);
+  font-family: inherit;
+}
+.remove-social {
+  background: transparent;
+  border: none;
+  color: var(--mood-secondary-color, #a0a0c0);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+.remove-social:hover {
+  color: var(--mood-primary-color, #e1e1ff);
+}
+.add-social-btn {
+  background: var(--mood-accent-color, #4a4a6a);
+  color: var(--aura-bg-color, #1a1a2e);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 8px;
+}
+.add-social-btn:hover {
+  background: var(--mood-primary-color, #e1e1ff);
 }
 
 /* Image Picker Modal Styles */

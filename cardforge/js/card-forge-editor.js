@@ -336,14 +336,23 @@
     
     
     
-    const achievement = document.getElementById('card-achievement').value;
-    const rarity = document.getElementById('card-rarity').value;
-    const bio = document.getElementById('card-bio').value;
-    const superpower = document.getElementById('card-superpower').value;
-    const alignment = document.getElementById('card-alignment').value;
-    const origin = document.getElementById('card-origin').value;
-    const faction = document.getElementById('card-faction').value;
-    const badge = document.getElementById('card-badge').value;
+    const achievementEl = document.getElementById('card-achievement');
+    const rarityEl = document.getElementById('card-rarity');
+    const bioEl = document.getElementById('card-bio');
+    const superpowerEl = document.getElementById('card-superpower');
+    const alignmentEl = document.getElementById('card-alignment');
+    const originEl = document.getElementById('card-origin');
+    const factionEl = document.getElementById('card-faction');
+    const badgeEl = document.getElementById('card-badge');
+
+    const achievement = achievementEl?.value || '';
+    const rarity = rarityEl?.value || '';
+    const bio = bioEl?.value || '';
+    const superpower = superpowerEl?.value || '';
+    const alignment = alignmentEl?.value || '';
+    const origin = originEl?.value || '';
+    const faction = factionEl?.value || '';
+    const badge = badgeEl?.value || '';
     // Collect stats from dynamic editor
     let statsObj = {};
     const statRows = document.querySelectorAll('#stats-editor .stat-row');

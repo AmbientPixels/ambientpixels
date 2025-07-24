@@ -66,11 +66,21 @@
     </ul>
   </section>
   <!-- CardForge Editor UI -->
-  <section class="cardforge-container grid-col-12" id="cardforge-main-container">
-  <div class="cf-left-column grid-col-8">
+  <section class="cardforge-container grid-col-12 split-pane" id="cardforge-main-container">
+  <div class="cf-left-column grid-col-8 form-pane">
       <div class="cardforge-editor">
+      <nav class="cf-stepper">
+        <button data-step="1" class="step-btn active">Basics</button>
+        <button data-step="2" class="step-btn">Stats</button>
+        <button data-step="3" class="step-btn">Artwork</button>
+        <button data-step="4" class="step-btn">Social</button>
+        <button data-step="5" class="step-btn">Badges</button>
+        <button data-step="6" class="step-btn">Attributes</button>
+      </nav>
       <h2>Card Details</h2>
       <form id="card-editor-form" class="cardforge-form">
+      <div class="cf-section active" data-step-section="1">
+        <h3 class="cf-section-title"><span class="step-index">1</span> Basics</h3>
         <!-- Hidden field for card ID when editing existing cards -->
         <input type="hidden" id="card-id" value="" />
         
@@ -101,6 +111,28 @@
         <label for="card-quote">Quote/Description</label>
         <textarea id="card-quote" rows="2" placeholder="Epic one-liner or brief description"></textarea>
 
+      </div>
+      <div class="cf-section" data-step-section="2">
+        <h3 class="cf-section-title"><span class="step-index">2</span> Stats</h3>
+        <label for="card-stats">Stats</label>
+<div id="stats-editor">
+  <div class="stat-row">
+    <input type="text" name="stat-name" placeholder="Stat name" />
+    <input type="number" name="stat-value" placeholder="Value" />
+    <button type="button" class="remove-stat">&times;</button>
+  </div>
+<textarea id="card-bio" rows="3" placeholder="Character biography"></textarea>
+
+        <label for="card-rarity">Rarity</label>
+        <input type="text" id="card-rarity" placeholder="e.g. Common, Rare, Legendary" />
+
+
+
+</div>
+    </div>
+      <div class="cf-section" data-step-section="3">
+        <h3 class="cf-section-title"><span class="step-index">3</span> Artwork</h3>
+        <!-- Artwork fields could be moved here; placeholder -->
         <label for="card-avatar">Image URL</label>
         <input type="url" id="card-avatar" placeholder="https://..." />
         <button type="button" id="choose-image-btn" class="choose-image-btn">Choose Image</button>
@@ -119,44 +151,12 @@
               <input type="url" id="modal-url-input" placeholder="https://..." />
               <button type="button" id="modal-url-submit">Use URL</button>
             </div>
+            <p class="coming-soon">Upload your own image with filters—coming soon!</p>
           </div>
         </div>
-        
-        <label for="card-achievement">Achievement/Badge</label>
-<input type="text" id="card-achievement" placeholder="Optional achievement or badge" />
-
-<label for="card-rarity">Rarity</label>
-<input type="text" id="card-rarity" placeholder="e.g. Common, Rare, Legendary" />
-
-<label for="card-bio">Bio</label>
-<textarea id="card-bio" rows="3" placeholder="Character biography"></textarea>
-
-<label for="card-superpower">Superpower</label>
-<input type="text" id="card-superpower" placeholder="e.g. Digital Alchemy" />
-
-<label for="card-alignment">Alignment</label>
-<input type="text" id="card-alignment" placeholder="e.g. Chaotic Creative" />
-
-<label for="card-origin">Origin</label>
-<input type="text" id="card-origin" placeholder="e.g. Core Layer 7" />
-
-<label for="card-faction">Faction</label>
-<input type="text" id="card-faction" placeholder="e.g. Order of the Nova Grid" />
-
-<label for="card-badge">Badge</label>
-<input type="text" id="card-badge" placeholder="e.g. Cycle I — Genesis" />
-
-<label for="card-stats">Stats</label>
-<div id="stats-editor">
-  <div class="stat-row">
-    <input type="text" name="stat-name" placeholder="Stat name" />
-    <input type="number" name="stat-value" placeholder="Value" />
-    <button type="button" class="remove-stat">&times;</button>
-  </div>
-</div>
-<button type="button" id="add-stat-btn" class="add-stat-btn">Add Stat</button>
-
-        <!-- Social Links Editor -->
+      </div>
+      <div class="cf-section" data-step-section="4">
+        <h3 class="cf-section-title"><span class="step-index">4</span> Social Links</h3>
         <label for="card-social">Social Links</label>
         <div id="social-editor">
           <div class="social-row">
@@ -168,6 +168,29 @@
         <button type="button" id="add-social-btn" class="add-social-btn">Add Social Link</button>
 
         <!-- Micro Badges Editor -->
+        </div>
+      <div class="cf-section" data-step-section="6">
+        <h3 class="cf-section-title"><span class="step-index">6</span> Attributes</h3>
+        <label for="card-achievement">Achievement/Badge</label>
+        <input type="text" id="card-achievement" placeholder="Optional achievement or badge" />
+
+        <label for="card-superpower">Superpower</label>
+        <input type="text" id="card-superpower" placeholder="e.g. Digital Alchemy" />
+
+        <label for="card-alignment">Alignment</label>
+        <input type="text" id="card-alignment" placeholder="e.g. Chaotic Creative" />
+
+        <label for="card-origin">Origin</label>
+        <input type="text" id="card-origin" placeholder="e.g. Core Layer 7" />
+
+        <label for="card-faction">Faction</label>
+        <input type="text" id="card-faction" placeholder="e.g. Order of the Nova Grid" />
+
+        <label for="card-badge">Badge</label>
+        <input type="text" id="card-badge" placeholder="e.g. Cycle I — Genesis" />
+      </div>
+      <div class="cf-section" data-step-section="5">
+        <h3 class="cf-section-title"><span class="step-index">5</span> Badges</h3>
         <label for="micro-editor">Micro Badges</label>
         <div id="micro-editor">
           <div class="micro-row">
@@ -187,7 +210,8 @@
         <button type="button" id="add-micro-btn" class="add-micro-btn">Add Micro Badge</button>
 
         
-        <div class="cardforge-form-actions">
+        </div>
+      <div class="cardforge-form-actions">
           
           <button type="button" id="save-btn" class="glass-button">Save</button>
           <button type="button" id="publish-btn" class="glass-button" disabled>Publish to Gallery</button>
@@ -202,7 +226,8 @@
     </aside>
   </div>
     <!-- Unified card preview section -->
-    <div class="cardforge-preview grid-col-4" id="card-preview-container">
+    <div class="drag-divider" aria-label="Resize panes"></div>
+    <div class="cardforge-preview grid-col-4 preview-pane" id="card-preview-container">
       <h2>Card Preview</h2>
       <div id="auth-status-message" class="cardforge-auth-message"></div>
       <p id="test-auth-state">Auth: <em>unknown</em></p>
@@ -260,6 +285,7 @@
 
   <!-- === Application Insights (Production Only) === -->
   <script src="https://js.monitor.azure.com/scripts/b/ai.2.min.js" crossorigin="anonymous"></script>
+  <script src="/cardforge/js/cardforge-layout.js" defer></script>
   <script src="/cardforge/js/app-insights.js"></script>
 
   <!-- Confirmation Dialog -->
