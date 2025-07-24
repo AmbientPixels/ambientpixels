@@ -211,16 +211,22 @@
 
 .card-preview-canvas.card-front,
 .card-preview-canvas.card-back {
-  position: absolute;
   width: 100%;
-  height: 100%;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  top: 0;
-  left: 0;
+}
+
+.card-preview-canvas.card-front {
+  position: relative;
+  z-index: 2;
 }
 
 .card-preview-canvas.card-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
   transform: rotateY(180deg);
 }
 
