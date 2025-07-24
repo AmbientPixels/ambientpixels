@@ -18,7 +18,8 @@
     document.getElementById('card-avatar'),
     document.getElementById('card-rarity'),
     document.getElementById('card-bio'),
-
+    document.getElementById('image-style'),
+    document.getElementById('image-variant'),
     document.getElementById('card-stats'),
     document.getElementById('card-theme')
   ].filter(Boolean);
@@ -158,7 +159,9 @@
              micro: [
                { category: 'Skill', icon: 'star', desc: 'Arcane skill' },
                { category: 'Nature', icon: 'leaf', desc: 'Earth magic' }
-             ]
+             ],
+             imageStyle: 'masked',
+             imageVariant: 'circle'
           },
           SynthwaveHacker: {
             name: 'Nyx Byte',
@@ -181,7 +184,9 @@
              micro: [
                { category: 'Hack', icon: 'terminal', desc: 'System infiltration' },
                { category: 'Speed', icon: 'bolt', desc: 'Quick response' }
-             ]
+             ],
+             imageStyle: 'hero',
+             imageVariant: 'centered'
           },
           ProPersona: {
             name: 'Alex Mercer',
@@ -203,7 +208,9 @@
              ],
              micro: [
                { category: 'Leadership', icon: 'star', desc: 'Pinnacle leader' }
-             ]
+             ],
+             imageStyle: 'full-bleed',
+             imageVariant: 'ambient'
           }
         };
         function applyDefaults(theme) {
@@ -216,6 +223,17 @@
           setInput('card-avatar', data.avatar);
           setInput('card-rarity', data.rarity);
           setInput('card-bio', data.bio);
+          
+          // Image Style: set defaults
+          if (data.imageStyle) {
+            setInput('image-style', data.imageStyle);
+            if (imageStyleSelect) {
+              updateVariantOptions(data.imageStyle);
+              if (data.imageVariant) {
+                setInput('image-variant', data.imageVariant);
+              }
+            }
+          }
           
           // Attributes: reset rows and add defaults
           attributeEditor.innerHTML = '';
@@ -377,19 +395,30 @@
       if (name && value) attributesObj[name] = value;
     });
 
+    // Get image style data
+    const imageStyleData = getImageStyleData();
+    
     // Front face
     const variant = document.getElementById('card-template-type')?.value || 'default';
     const theme = document.getElementById('card-theme')?.value || '';
     const front = document.getElementById('card-preview');
-    // Apply theme class
-    if (front) front.className = `card-preview-canvas card-front theme-${theme.toLowerCase()} variant-${variant}`;
+    // Apply theme and image style classes
+    if (front) front.className = `card-preview-canvas card-front theme-${theme.toLowerCase()} variant-${variant} image-style-${imageStyleData.style}`;
     if (front) {
       front.innerHTML = '';
       const previewContent = createElement('div', { class: 'card-preview-content' });
       // Avatar & name
       const header = createElement('div', { class: 'card-header' });
       if (avatar && (ValidationUtils.isValidImageUrl(avatar) || avatar.startsWith('/'))) {
-        header.appendChild(createElement('img', { src: avatar, class: 'card-avatar', alt: name }));
+        const avatarClasses = `card-avatar image-${imageStyleData.style}-${imageStyleData.variant}`;
+        const avatarImg = createElement('img', { 
+          src: avatar, 
+          class: avatarClasses, 
+          alt: name,
+          'data-image-style': imageStyleData.style,
+          'data-image-variant': imageStyleData.variant
+        });
+        header.appendChild(avatarImg);
       }
       header.appendChild(createElement('h3', {}, name || 'Card Name'));
       previewContent.appendChild(header);
@@ -411,8 +440,8 @@
     }
     // Back face
     const back = document.getElementById('card-back');
-    // Apply theme and variant classes to back face
-    if (back) back.className = `card-preview-canvas card-back theme-${theme.toLowerCase()} variant-${variant}`;
+    // Apply theme, variant, and image style classes to back face
+    if (back) back.className = `card-preview-canvas card-back theme-${theme.toLowerCase()} variant-${variant} image-style-${imageStyleData.style}`;
     if (back) {
       back.innerHTML = '';
       const backContent = createElement('div', { class: 'card-preview-content' });
@@ -487,6 +516,85 @@
       }
     }
   }
+  // Image Style System Logic
+  const imageStyleSelect = document.getElementById('image-style');
+  const imageVariantSelect = document.getElementById('image-variant');
+  const imageVariantLabel = document.getElementById('image-variant-label');
+  
+  // Style variant mapping
+  const styleVariants = {
+    'masked': [
+      { value: 'circle', label: 'Circle' },
+      { value: 'hex', label: 'Hex' },
+      { value: 'blob', label: 'Blob' },
+      { value: 'tear-drop', label: 'Tear Drop' }
+    ],
+    'hero': [
+      { value: 'centered', label: 'Centered' },
+      { value: 'left-aligned', label: 'Left-Aligned' }
+    ],
+    'full-bleed': [
+      { value: 'ambient', label: 'Ambient' },
+      { value: 'overlay-safe', label: 'Overlay Safe' }
+    ]
+  };
+  
+  // Default variants for each style
+  const defaultVariants = {
+    'masked': 'circle',
+    'hero': 'centered',
+    'full-bleed': 'ambient'
+  };
+  
+  function updateVariantOptions(selectedStyle) {
+    const variants = styleVariants[selectedStyle] || [];
+    const defaultVariant = defaultVariants[selectedStyle] || variants[0]?.value;
+    
+    // Clear existing options
+    imageVariantSelect.innerHTML = '';
+    
+    // Add new options
+    variants.forEach(variant => {
+      const option = document.createElement('option');
+      option.value = variant.value;
+      option.textContent = variant.label;
+      if (variant.value === defaultVariant) {
+        option.selected = true;
+      }
+      imageVariantSelect.appendChild(option);
+    });
+    
+    // Update preview when variant changes
+    updatePreview();
+  }
+  
+  function getImageStyleData() {
+    const style = imageStyleSelect?.value || 'masked';
+    const variant = imageVariantSelect?.value || defaultVariants[style];
+    return { style, variant };
+  }
+  
+  function generateStylePrompt(style, variant) {
+    const prompts = {
+      'masked': {
+        'circle': 'Render this artwork in Masked Style with a circular subject container. Central subject with clean edges. Minimal background. Optimized for circular masking.',
+        'hex': 'Render this artwork in Masked Style with a hex-shaped subject container. Central subject with clean edges. Minimal background. Optimized for geometric masking.',
+        'blob': 'Render this artwork in Masked Style with an organic blob-shaped subject container. Central subject with soft, flowing edges. Minimal background. Optimized for organic masking.',
+        'tear-drop': 'Render this artwork in Masked Style with a tear-drop shaped subject container. Central subject with elegant curved edges. Minimal background. Optimized for tear-drop masking.'
+      },
+      'hero': {
+        'centered': 'Render this artwork in Hero Style with centered composition. Bold, prominent subject placement. Dynamic background that complements the central focus.',
+        'left-aligned': 'Render this artwork in Hero Style with left-aligned composition. Subject positioned to the left with negative space for text overlay. Balanced asymmetrical layout.'
+      },
+      'full-bleed': {
+        'ambient': 'Render this artwork in Full Bleed Style with ambient composition. Edge-to-edge coverage with atmospheric depth. Seamless background integration.',
+        'overlay-safe': 'Render this artwork in Full Bleed Style with overlay-safe composition. Full coverage with text-safe areas. High contrast zones for content overlay.'
+      }
+    };
+    
+    return prompts[style]?.[variant] || prompts['masked']['circle'];
+  }
+  
   // Inline Image Chooser Logic
   const inlineImageGrid = document.getElementById('inline-image-grid');
   const prevPageBtn = document.getElementById('prev-page');
@@ -570,6 +678,20 @@
       });
   }
 
+  // Initialize image style system
+  if (imageStyleSelect && imageVariantSelect) {
+    // Set default style to masked
+    imageStyleSelect.value = 'masked';
+    updateVariantOptions('masked');
+    
+    // Add event listeners
+    imageStyleSelect.addEventListener('change', (e) => {
+      updateVariantOptions(e.target.value);
+    });
+    
+    imageVariantSelect.addEventListener('change', updatePreview);
+  }
+  
   // Auto-load images on initialization
   if (inlineImageGrid) {
     loadInlineImages(currentPage);

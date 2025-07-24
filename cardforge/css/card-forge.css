@@ -229,6 +229,35 @@
   overflow: hidden;
 }
 
+/* Image Style Controls */
+.image-style-controls {
+  margin: 1rem 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.image-style-controls label {
+  margin-bottom: 4px;
+  font-weight: 500;
+  color: var(--mood-primary-color, #e1e1ff);
+}
+
+.image-style-controls select {
+  padding: 8px 12px;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 4px;
+  background: var(--aura-bg-color, #1a1a2e);
+  color: var(--mood-primary-color, #e1e1ff);
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.image-style-controls select:focus {
+  outline: none;
+  border-color: var(--mood-primary-color, #e1e1ff);
+}
+
 /* Inline Image Chooser Styling */
 .custom-url-section {
   margin: 1rem 0;

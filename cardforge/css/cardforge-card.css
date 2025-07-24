@@ -358,3 +358,79 @@
 .attr-value {
   color: var(--mood-primary-color, #e1e1ff);
 }
+
+/* Image Style Variants */
+/* Masked Styles */
+.image-masked-circle {
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--mood-accent-color, rgba(255, 255, 255, 0.2));
+}
+
+.image-masked-hex {
+  clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
+  object-fit: cover;
+}
+
+.image-masked-blob {
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  object-fit: cover;
+}
+
+.image-masked-tear-drop {
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  object-fit: cover;
+}
+
+/* Hero Styles */
+.image-hero-centered {
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--mood-accent-color, rgba(255, 255, 255, 0.1));
+}
+
+.image-hero-left-aligned {
+  border-radius: 8px 0 0 8px;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--mood-accent-color, rgba(255, 255, 255, 0.1));
+}
+
+/* Full Bleed Styles */
+.image-full-bleed-ambient {
+  border-radius: 4px;
+  object-fit: cover;
+  opacity: 0.9;
+  filter: blur(0.5px);
+}
+
+.image-full-bleed-overlay-safe {
+  border-radius: 4px;
+  object-fit: cover;
+  filter: contrast(1.1) brightness(0.9);
+}
+
+/* Style-specific card modifications */
+.image-style-hero .card-header {
+  position: relative;
+  z-index: 2;
+}
+
+.image-style-full-bleed .card-avatar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.image-style-full-bleed .card-preview-content {
+  position: relative;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.3);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}

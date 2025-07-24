@@ -134,6 +134,25 @@
       
       <div class="cf-section" data-step-section="3">
         <h3 class="cf-section-title"><span class="step-index">3</span> Artwork</h3>
+        
+        <!-- Image Style Controls -->
+        <div class="image-style-controls">
+          <label for="image-style">Image Style</label>
+          <select id="image-style">
+            <option value="masked">Masked</option>
+            <option value="hero">Hero</option>
+            <option value="full-bleed">Full Bleed</option>
+          </select>
+          
+          <label for="image-variant" id="image-variant-label">Style Variant</label>
+          <select id="image-variant">
+            <option value="circle">Circle</option>
+            <option value="hex">Hex</option>
+            <option value="blob">Blob</option>
+            <option value="tear-drop">Tear Drop</option>
+          </select>
+        </div>
+        
         <!-- Hidden field to store selected image URL -->
         <input type="hidden" id="card-avatar" value="" />
         
