@@ -1,4 +1,15 @@
 /* CardForge Neon Glass Card Styles */
+
+/* Disable any hover transitions on back face */
+.card-preview-canvas.card-back {
+  transition: none !important;
+}
+
+/* Ensure back stays flipped on hover */
+.card-preview-canvas.card-back:hover {
+  transform: rotateY(180deg) !important;
+  box-shadow: none !important;
+}
 .card-preview-canvas {
   position: relative;
   width: 100%;

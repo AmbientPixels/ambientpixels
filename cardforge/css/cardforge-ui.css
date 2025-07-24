@@ -260,7 +260,7 @@
 /* === Card flip 3D effect – authoritative block === */
 .card-container {
   width: 360px;
-  min-height: 380px;
+  
   height: auto;
   margin: 0 auto;
   position: relative;
