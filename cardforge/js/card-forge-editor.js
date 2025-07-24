@@ -454,6 +454,16 @@
         backContent.appendChild(microContainer);
       }
       back.appendChild(backContent);
+      // Adjust container height to fit content
+      const container = document.querySelector('.card-container');
+      if (container) {
+        const frontEl = document.querySelector('.card-front');
+        const backEl = document.querySelector('.card-back');
+        const heights = [];
+        if (frontEl) heights.push(frontEl.scrollHeight);
+        if (backEl) heights.push(backEl.scrollHeight);
+        container.style.height = Math.max(...heights) + 'px';
+      }
     }
   }
   // Image Picker Modal Logic
