@@ -1,15 +1,5 @@
 /* CardForge Neon Glass Card Styles */
 
-/* Disable any hover transitions on back face */
-.card-preview-canvas.card-back {
-  transition: none !important;
-}
-
-/* Ensure back stays flipped on hover */
-.card-preview-canvas.card-back:hover {
-  transform: rotateY(180deg) !important;
-  box-shadow: none !important;
-}
 .card-preview-canvas {
   position: relative;
   width: 100%;
@@ -17,8 +7,8 @@
   height: auto;
   border-radius: 12px;
   background: rgba(18,22,34,0.8);
-  backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   overflow: visible;
   display: flex;
   flex-direction: column;
@@ -37,10 +27,10 @@
   background-size: 200% 200%;
   animation: neonShift 5s linear infinite;
   pointer-events: none;
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
+  mask-composite: exclude;
 }
 
 @keyframes neonShift {
@@ -146,12 +136,6 @@
   color: #cbe8ff;
 }
 
-/* Disable hover glitch on back face */
-.card-preview-canvas.card-back {
-  transform: rotateY(180deg) !important;
-  box-shadow: none !important;
-  transition: transform 0s !important, box-shadow 0s !important;
-}
 
 /* Theme & Variant Styles */
 .card-preview-canvas.theme-neofantasy.variant-default {
