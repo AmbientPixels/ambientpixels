@@ -186,7 +186,7 @@
                { category: 'Speed', icon: 'bolt', desc: 'Quick response' }
              ],
              imageStyle: 'hero',
-             imageVariant: 'centered'
+             imageVariant: 'large'
           },
           ProPersona: {
             name: 'Alex Mercer',
@@ -403,7 +403,11 @@
     const theme = document.getElementById('card-theme')?.value || '';
     const front = document.getElementById('card-preview');
     // Apply theme and image style classes
-    if (front) front.className = `card-preview-canvas card-front theme-${theme.toLowerCase()} variant-${variant} image-style-${imageStyleData.style}`;
+    if (front) {
+      front.className = `card-preview-canvas card-front theme-${theme.toLowerCase()} variant-${variant} image-style-${imageStyleData.style}`;
+      front.setAttribute('data-image-style', imageStyleData.style);
+      front.setAttribute('data-image-variant', imageStyleData.variant);
+    }
     if (front) {
       front.innerHTML = '';
       const previewContent = createElement('div', { class: 'card-preview-content' });
@@ -451,7 +455,11 @@
     // Back face
     const back = document.getElementById('card-back');
     // Apply theme, variant, and image style classes to back face
-    if (back) back.className = `card-preview-canvas card-back theme-${theme.toLowerCase()} variant-${variant} image-style-${imageStyleData.style}`;
+    if (back) {
+      back.className = `card-preview-canvas card-back theme-${theme.toLowerCase()} variant-${variant} image-style-${imageStyleData.style}`;
+      back.setAttribute('data-image-style', imageStyleData.style);
+      back.setAttribute('data-image-variant', imageStyleData.variant);
+    }
     if (back) {
       back.innerHTML = '';
       const backContent = createElement('div', { class: 'card-preview-content' });
@@ -540,8 +548,8 @@
       { value: 'tear-drop', label: 'Tear Drop' }
     ],
     'hero': [
-      { value: 'centered', label: 'Centered' },
-      { value: 'left-aligned', label: 'Left-Aligned' }
+      { value: 'large', label: 'Large' },
+      { value: 'small', label: 'Small' }
     ],
     'full-bleed': [
       { value: 'ambient', label: 'Ambient' },
@@ -552,7 +560,7 @@
   // Default variants for each style
   const defaultVariants = {
     'masked': 'circle',
-    'hero': 'centered',
+    'hero': 'large',
     'full-bleed': 'ambient'
   };
   
@@ -593,8 +601,8 @@
         'tear-drop': 'Render this artwork in Masked Style with a tear-drop shaped subject container. Central subject with elegant curved edges. Minimal background. Optimized for tear-drop masking.'
       },
       'hero': {
-        'centered': 'Render this artwork in Hero Style with centered composition. Bold, prominent subject placement. Dynamic background that complements the central focus.',
-        'left-aligned': 'Render this artwork in Hero Style with left-aligned composition. Subject positioned to the left with negative space for text overlay. Balanced asymmetrical layout.'
+        'large': 'Render this artwork in Hero Style with large cinematic composition. Full-width image at top with 3:1 aspect ratio. Subject prominently featured for maximum visual impact. Clean rectangular format optimized for hero layout.',
+        'small': 'Render this artwork in Hero Style with compact composition. Full-width image at top with 2:1 aspect ratio. Subject clearly visible but more space-efficient. Clean rectangular format optimized for hero layout.'
       },
       'full-bleed': {
         'ambient': 'Render this artwork in Full Bleed Style with ambient composition. Edge-to-edge coverage with atmospheric depth. Seamless background integration.',

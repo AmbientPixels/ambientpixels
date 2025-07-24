@@ -390,15 +390,15 @@
 }
 
 /* Hero Styles */
-.image-hero-centered {
+.image-hero-large {
   border-radius: 8px;
   object-fit: cover;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   border: 1px solid var(--mood-accent-color, rgba(255, 255, 255, 0.1));
 }
 
-.image-hero-left-aligned {
-  border-radius: 8px 0 0 8px;
+.image-hero-small {
+  border-radius: 8px;
   object-fit: cover;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   border: 1px solid var(--mood-accent-color, rgba(255, 255, 255, 0.1));
@@ -437,12 +437,31 @@
 .image-style-hero .card-avatar {
   width: 100%;
   height: auto;
-  aspect-ratio: 3 / 1;
+  aspect-ratio: 3 / 1; /* Default for Large variant */
   border-radius: 0;
   border: none;
   box-shadow: none;
   object-fit: cover;
   display: block;
+}
+
+/* Hero Large Variant - Full cinematic experience */
+.image-style-hero[data-image-variant="large"] .card-avatar {
+  aspect-ratio: 2 / 1;
+}
+
+/* Hero Small Variant - More compact image */
+.image-style-hero[data-image-variant="small"] .card-avatar {
+  aspect-ratio: 3 / 1;
+}
+
+.image-style-hero[data-image-variant="small"] .card-header h3 {
+  font-size: 1.25rem;
+  padding: 12px 16px;
+}
+
+.image-style-hero[data-image-variant="small"] .card-body {
+  padding: 16px;
 }
 
 .image-style-hero .card-header h3 {
@@ -478,8 +497,12 @@
 
 /* Hero Style Responsive Adjustments */
 @media (max-width: 480px) {
-  .image-style-hero .card-avatar {
-    aspect-ratio: 2 / 1;
+  .image-style-hero[data-image-variant="large"] .card-avatar {
+    aspect-ratio: 2 / 1; /* Shift to 2:1 on mobile for Large variant */
+  }
+  
+  .image-style-hero[data-image-variant="small"] .card-avatar {
+    aspect-ratio: 3 / 2; /* Even more compact on mobile for Small variant */
   }
   
   .image-style-hero .card-header h3 {
