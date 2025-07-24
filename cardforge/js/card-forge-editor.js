@@ -425,11 +425,18 @@
         header.appendChild(avatarImg);
       }
       header.appendChild(createElement('h3', {}, name || 'Card Name'));
+    
+    // Create card body wrapper for Hero style only
+    const isHeroStyle = imageStyleData.style === 'hero';
+    
+    let bodyContainer;
+    if (isHeroStyle) {
       previewContent.appendChild(header);
-      
-      // Create card body wrapper for Hero style only
-      const isHeroStyle = imageStyleData.style === 'hero';
-      const bodyContainer = isHeroStyle ? createElement('div', { class: 'card-body' }) : previewContent;
+      bodyContainer = createElement('div', { class: 'card-body' });
+    } else {
+      previewContent.appendChild(header);
+      bodyContainer = previewContent;
+    }
       
       // Class & rarity
       if (cardClass) bodyContainer.appendChild(createElement('div', { class: 'card-badge' }, cardClass));
