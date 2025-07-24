@@ -422,11 +422,16 @@
       }
       header.appendChild(createElement('h3', {}, name || 'Card Name'));
       previewContent.appendChild(header);
+      
+      // Create card body wrapper for Hero style only
+      const isHeroStyle = imageStyleData.style === 'hero';
+      const bodyContainer = isHeroStyle ? createElement('div', { class: 'card-body' }) : previewContent;
+      
       // Class & rarity
-      if (cardClass) previewContent.appendChild(createElement('div', { class: 'card-badge' }, cardClass));
-      if (rarity) previewContent.appendChild(createElement('div', { class: 'card-rarity' }, rarity));
+      if (cardClass) bodyContainer.appendChild(createElement('div', { class: 'card-badge' }, cardClass));
+      if (rarity) bodyContainer.appendChild(createElement('div', { class: 'card-rarity' }, rarity));
       // Quote
-      if (quote) previewContent.appendChild(createElement('blockquote', { class: 'card-quote' }, quote));
+      if (quote) bodyContainer.appendChild(createElement('blockquote', { class: 'card-quote' }, quote));
       // Stat bars
       Object.entries(statsObj).forEach(([key, val]) => {
         const barContainer = createElement('div', { class: 'stat-bar' });
@@ -434,8 +439,13 @@
         const progress = createElement('div', { class: 'stat-progress' });
         progress.style.width = val + '%';
         barContainer.appendChild(progress);
-        previewContent.appendChild(barContainer);
+        bodyContainer.appendChild(barContainer);
       });
+      
+      // Append bodyContainer to previewContent for Hero style
+      if (isHeroStyle) {
+        previewContent.appendChild(bodyContainer);
+      }
       front.appendChild(previewContent);
     }
     // Back face
