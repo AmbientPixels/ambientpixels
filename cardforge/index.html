@@ -179,9 +179,23 @@
         <label for="card-social">Social Links</label>
         <div id="social-editor">
           <div class="social-row">
-            <input type="text" name="social-name" placeholder="Platform (e.g. Twitter)" />
-            <input type="url" name="social-url" placeholder="https://..." />
-            <button type="button" class="remove-social">&times;</button>
+            <label>Platform
+              <select name="social-name" class="social-platform" aria-label="Platform">
+                <option value="twitter">🐦 Twitter</option>
+              <option value="instagram">📷 Instagram</option>
+              <option value="linkedin">🔗 LinkedIn</option>
+              <option value="x">❌ X</option>
+              <option value="deviantart">🖼️ DeviantArt</option>
+              <option value="github">🐙 GitHub</option>
+              <option value="facebook">📘 Facebook</option>
+              <option value="discord">🎮 Discord</option>
+              <option value="tiktok">🎵 TikTok</option>
+            </select>
+            </label>
+            <label>Link (URL)
+              <input type="url" name="social-url" placeholder="https://..." />
+            </label>
+            <button type="button" class="remove-attribute">&times;</button>
           </div>
         </div>
         <button type="button" id="add-social-btn" class="add-social-btn">Add Social Link</button>

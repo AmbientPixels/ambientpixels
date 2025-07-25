@@ -86,12 +86,27 @@
           const row = document.createElement('div');
           row.className = 'social-row';
           row.innerHTML = `
-            <input type="text" name="social-name" placeholder="Platform (e.g. Twitter)" value="${name}" />
-            <input type="url" name="social-url" placeholder="https://${url}" value="${url}" />
-            <button type="button" class="remove-social">&times;</button>
-          `;
-          row.querySelector('.remove-social').addEventListener('click', () => { row.remove(); updatePreview(); });
-          row.querySelector('input[name="social-name"]').addEventListener('input', updatePreview);
+              <label>Platform
+                <select name="social-name" class="social-platform" aria-label="Platform">
+                  <option value="" disabled ${!name?'selected':''}>Platform</option>
+                  <option value="twitter" ${name==='twitter'?'selected':''}>🐦 Twitter</option>
+                  <option value="instagram" ${name==='instagram'?'selected':''}>📷 Instagram</option>
+                  <option value="linkedin" ${name==='linkedin'?'selected':''}>🔗 LinkedIn</option>
+                  <option value="x" ${name==='x'?'selected':''}>❌ X</option>
+                  <option value="deviantart" ${name==='deviantart'?'selected':''}>🖼️ DeviantArt</option>
+                  <option value="github" ${name==='github'?'selected':''}>🐙 GitHub</option>
+                  <option value="facebook" ${name==='facebook'?'selected':''}>📘 Facebook</option>
+                  <option value="discord" ${name==='discord'?'selected':''}>🎮 Discord</option>
+                  <option value="tiktok" ${name==='tiktok'?'selected':''}>🎵 TikTok</option>
+                </select>
+              </label>
+              <label>Link (URL)
+                <input type="url" name="social-url" placeholder="https://..." value="${url}" />
+              </label>
+              <button type="button" class="remove-attribute" aria-label="Remove social link">&times;</button>
+            `;
+          row.querySelector('.remove-attribute').addEventListener('click', () => { row.remove(); updatePreview(); });
+          row.querySelector('select[name="social-name"]').addEventListener('change', updatePreview);
           row.querySelector('input[name="social-url"]').addEventListener('input', updatePreview);
           return row;
         }
@@ -514,7 +529,7 @@ const specialGroup = attributeEditor.querySelector('.attribute-special');;
       if (socialRows.length) {
         const socialContainer = createElement('div', { class: 'social-links' });
         socialRows.forEach(row => {
-          const name = row.querySelector('input[name="social-name"]')?.value.trim();
+          const name = row.querySelector('select[name="social-name"]')?.value.trim();
           const url  = row.querySelector('input[name="social-url"]')?.value.trim();
           if (name && url) {
             const slug = name.toLowerCase().replace(/\s+/g, '-');
