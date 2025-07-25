@@ -32,6 +32,18 @@
 
   // Initial preview on load
   updatePreview();
+    // Bind static stat slider displays
+    document.querySelectorAll('.stat-row').forEach(row => {
+      const slider = row.querySelector('.stat-slider');
+      const display = row.querySelector('.stat-value-display');
+      if (slider && display) {
+        display.textContent = slider.value;
+        slider.addEventListener('input', () => {
+          display.textContent = slider.value;
+          updatePreview();
+        });
+      }
+    });
           // Stats Editor Logic
         const statsEditor = document.getElementById('stats-editor');
         const addStatBtn = document.getElementById('add-stat-btn');
@@ -41,12 +53,23 @@
           row.className = 'stat-row';
           row.innerHTML = `
             <input type="text" name="stat-name" placeholder="Stat name" value="${name}" />
-            <input type="number" name="stat-value" placeholder="Value" value="${value}" />
-            <button type="button" class="remove-stat">&times;</button>
+            <input type="range" name="stat-value" min="0" max="100" value="${value || 0}" class="stat-slider" aria-label="Stat value" />
+            <span class="stat-value-display">${value || 0}</span>
+            <button type="button" class="remove-attribute">&times;</button>
           `;
-          row.querySelector('.remove-stat').addEventListener('click', () => { row.remove(); updatePreview(); });
+          row.querySelector('.remove-attribute').addEventListener('click', () => { row.remove(); updatePreview(); });
           row.querySelector('input[name="stat-name"]').addEventListener('input', updatePreview);
           row.querySelector('input[name="stat-value"]').addEventListener('input', updatePreview);
+            // Update displayed value
+            const slider = row.querySelector('.stat-slider');
+            const display = row.querySelector('.stat-value-display');
+            if (slider && display) {
+              display.textContent = slider.value;
+              slider.addEventListener('input', () => {
+                display.textContent = slider.value;
+                updatePreview();
+              });
+            }
           return row;
         }
 
@@ -238,13 +261,18 @@
           }
           
           // Attributes: reset rows and add defaults
-          attributeEditor.innerHTML = '';
-          if (data.achievement) attributeEditor.appendChild(createAttributeRow('Achievement', data.achievement));
-          if (data.superpower) attributeEditor.appendChild(createAttributeRow('Superpower', data.superpower));
-          if (data.alignment) attributeEditor.appendChild(createAttributeRow('Alignment', data.alignment));
-          if (data.origin) attributeEditor.appendChild(createAttributeRow('Origin', data.origin));
-          if (data.faction) attributeEditor.appendChild(createAttributeRow('Faction', data.faction));
-          if (data.badge) attributeEditor.appendChild(createAttributeRow('Badge', data.badge));
+          attributeEditor.innerHTML = `
+  <div class="attribute-group attribute-basic"><h4>Origin / Alignment / Faction</h4></div>
+  <div class="attribute-group attribute-special"><h4>Achievement / Superpower / Badge</h4></div>
+`;
+const basicGroup = attributeEditor.querySelector('.attribute-basic');
+const specialGroup = attributeEditor.querySelector('.attribute-special');;
+          if (data.achievement) specialGroup.appendChild(createAttributeRow('Achievement', data.achievement));
+          if (data.superpower) specialGroup.appendChild(createAttributeRow('Superpower', data.superpower));
+          if (data.alignment) basicGroup.appendChild(createAttributeRow('Alignment', data.alignment));
+          if (data.origin) basicGroup.appendChild(createAttributeRow('Origin', data.origin));
+          if (data.faction) basicGroup.appendChild(createAttributeRow('Faction', data.faction));
+          if (data.badge) specialGroup.appendChild(createAttributeRow('Badge', data.badge));
           // Stats: reset rows
           statsEditor.innerHTML = '';
           data.stats.forEach(stat => statsEditor.appendChild(createStatRow(stat.name, stat.value)));
@@ -381,8 +409,11 @@
     statRows.forEach(row => {
       const nameInput = row.querySelector('input[name="stat-name"]');
       const valueInput = row.querySelector('input[name="stat-value"]');
+      
+      
       const name = nameInput?.value.trim();
       const val = parseInt(valueInput?.value, 10);
+
       if (name) statsObj[name] = isNaN(val) ? 0 : val;
     });
 
@@ -447,13 +478,17 @@
       if (quote) bodyContainer.appendChild(createElement('blockquote', { class: 'card-quote' }, quote));
       // Stat bars
       Object.entries(statsObj).forEach(([key, val]) => {
-        const barContainer = createElement('div', { class: 'stat-bar' });
-        barContainer.appendChild(createElement('span', { class: 'stat-label' }, key));
-        const progress = createElement('div', { class: 'stat-progress' });
-        progress.style.width = val + '%';
-        barContainer.appendChild(progress);
-        bodyContainer.appendChild(barContainer);
-      });
+          const rowWrapper = createElement('div', { class: 'stat-row-preview' });
+          // Label on left
+          rowWrapper.appendChild(createElement('span', { class: 'stat-label' }, key));
+          // Bar track
+          const barContainer = createElement('div', { class: 'stat-bar' });
+          const progress = createElement('div', { class: 'stat-progress' });
+          progress.style.width = val + '%';
+          barContainer.appendChild(progress);
+          rowWrapper.appendChild(barContainer);
+          bodyContainer.appendChild(rowWrapper);
+        });
       
       // Append bodyContainer to previewContent for Hero style
       if (isHeroStyle) {
@@ -472,7 +507,7 @@
     if (back) {
       back.innerHTML = '';
       const backContent = createElement('div', { class: 'card-preview-content' });
-      if (bio) backContent.appendChild(createElement('p', {}, bio));
+      if (bio) backContent.appendChild(createElement('p', { class: 'card-bio' }, bio));
 
       // Social links display
       const socialRows = document.querySelectorAll('#social-editor .social-row');

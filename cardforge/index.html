@@ -118,8 +118,8 @@
         <div id="stats-editor">
           <div class="stat-row">
             <input type="text" name="stat-name" placeholder="Stat name" />
-            <input type="number" name="stat-value" placeholder="Value" />
-            <button type="button" class="remove-stat ap-remove-btn">&times;</button>
+            <input type="range" name="stat-value" min="0" max="100" value="0" class="stat-slider" aria-label="Stat value" /><span class="stat-value-display">0</span>
+            <button type="button" class="remove-attribute">&times;</button>
           </div>
         </div>
         <button type="button" id="add-stat-btn" class="add-stat-btn">Add Stat</button>
@@ -210,9 +210,17 @@
       
       <div class="cf-section" data-step-section="6">
         <h3 class="cf-section-title"><span class="step-index">6</span> Attributes</h3>
+<label for="card-bio">Biography</label>
+<textarea id="card-bio" name="card-bio" rows="3" placeholder="Enter biography or background"></textarea>
         
         <label for="attribute-editor">Attributes</label>
         <div id="attribute-editor">
+  <div class="attribute-group attribute-basic">
+    <h4>Origin / Alignment / Faction</h4>
+  </div>
+  <div class="attribute-group attribute-special">
+    <h4>Achievement / Superpower / Badge</h4>
+  </div>
           <div class="attribute-row">
             <input type="text" name="attribute-name" placeholder="Attribute (e.g. Alignment)" />
             <input type="text" name="attribute-value" placeholder="Value (e.g. Chaotic Creative)" />

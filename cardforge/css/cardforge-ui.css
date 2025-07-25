@@ -304,8 +304,9 @@
   font-size: 0.8rem;
   color: var(--mood-secondary-color);
 }
-.stat-progress {
-  flex: 3;
+.stat-progress { /* updated by Cascade: honor width */
+    flex: 0 0 auto; /* override default flex-grow */
+  
   height: 8px;
   background: var(--mood-primary-color);
   border-radius: 4px;
