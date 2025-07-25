@@ -67,6 +67,12 @@
         }
         stepButtons.forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
+        // auto-flip card on section change: flip for sections > 3 (Social, Badges, Attributes)
+        const cardInner = document.querySelector('.card-inner');
+        if (cardInner) {
+          if (parseInt(step, 10) > 3) cardInner.classList.add('flipped');
+          else cardInner.classList.remove('flipped');
+        }
       });
     });
   }
