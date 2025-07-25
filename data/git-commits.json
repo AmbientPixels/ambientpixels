@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "98db3c75-bd97-40d7-9497-60d2d765db6b",
-      "hash": "9604cadbb0bcd0909692145dacc015b4433a14b7",
-      "message": "fix(cardforge-css): resolve syntax errors & address lint warnings",
-      "timestamp": "2025-07-23 23:24:27 -0700",
+      "id": "a7c8a7e6-cc60-4d96-8bbe-9667c5103a2a",
+      "hash": "208648df010c85a0e8d536e813a1d15246547344",
+      "message": "feat(layout): auto-flip card on Social, Badges, Attributes tabs",
+      "timestamp": "2025-07-24 20:59:10 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/9604cadbb0bcd0909692145dacc015b4433a14b7"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/208648df010c85a0e8d536e813a1d15246547344"
     }
   ],
-  "timestamp": "2025-07-24T13:39:53.132Z",
+  "timestamp": "2025-07-25T13:37:52.876Z",
   "count": 1,
-  "scanId": 1753364393132
+  "scanId": 1753450672876
 }
