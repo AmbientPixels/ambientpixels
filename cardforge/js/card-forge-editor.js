@@ -119,25 +119,48 @@
         const microEditor = document.getElementById('micro-editor');
         const addMicroBtn = document.getElementById('add-micro-btn');
         function createMicroRow(category = '', icon = 'star', desc = '', quantity = 1) {
-          const options = ['star','heart','bolt','trophy','leaf','gear'];
-          const row = document.createElement('div');
-          row.className = 'micro-row';
-          row.innerHTML = `
-            <input type="text" name="micro-category" placeholder="Badge Name" value="${category}" class="badge-name" />
-            <select name="micro-icon" aria-label="Select icon">
-              ${options.map(option => `<option value="${option}" ${icon === option ? 'selected' : ''}>${option}</option>`).join('')}
-            </select>
-            <input type="number" name="micro-quantity" min="1" max="99" value="${quantity}" class="badge-quantity" />
-            <input type="text" name="micro-desc" placeholder="Description (optional)" value="${desc}" />
-            <button type="button" class="remove-micro" aria-label="Remove badge">&times;</button>
-          `;
-          row.querySelector('.remove-micro').addEventListener('click', () => { row.remove(); updatePreview(); });
-          row.querySelector('input[name="micro-category"]').addEventListener('input', updatePreview);
-          row.querySelector('select[name="micro-icon"]')?.addEventListener('change', updatePreview);
-          row.querySelector('input[name="micro-quantity"]').addEventListener('change', updatePreview);
-          row.querySelector('input[name="micro-desc"]').addEventListener('input', updatePreview);
-          return row;
-        }
+  const icons = ['star','heart','bolt','trophy','leaf','gear','book','lightbulb','medal','certificate'];
+  const row = document.createElement('div');
+  row.className = 'micro-row';
+  row.innerHTML = `
+    <label>Category
+      <input type="text" name="micro-category" placeholder="Category (e.g. Skill)" value="${category}" />
+    </label>
+    <label>Symbol/Icon
+      <div class="icon-picker" aria-label="Select badge icon">
+        <input type="hidden" name="micro-icon" value="${icon}" />
+        ${icons.map(ic => `<button type="button" class="icon-option ${icon===ic?'active':''}" data-icon="${ic}"><i class="fas fa-${ic}"></i></button>`).join('')}
+      </div>
+    </label>
+    <label>Description
+      <input type="text" name="micro-desc" placeholder="Description" value="${desc}" />
+    </label>
+    <label>Count
+      <input type="range" name="micro-quantity" min="1" max="5" value="${quantity}" class="badge-slider" />
+      <span class="slider-value">${quantity}</span>
+    </label>
+    <button type="button" class="remove-attribute" aria-label="Remove badge">&times;</button>
+  `;
+  row.querySelector('.remove-attribute').addEventListener('click', () => { row.remove(); updatePreview(); });
+  row.querySelector('input[name="micro-category"]').addEventListener('input', updatePreview);
+  row.querySelector('input[name="micro-desc"]').addEventListener('input', updatePreview);
+  const hiddenIconInput = row.querySelector('input[name="micro-icon"]');
+  row.querySelectorAll('.icon-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const ic = btn.dataset.icon;
+      hiddenIconInput.value = ic;
+      row.querySelectorAll('.icon-option').forEach(b => b.classList.toggle('active', b===btn));
+      updatePreview();
+    });
+  });
+  const slider = row.querySelector('.badge-slider');
+  const display = row.querySelector('.slider-value');
+  slider.addEventListener('input', () => {
+    display.textContent = slider.value;
+    updatePreview();
+  });
+  return row;
+}
         addMicroBtn?.addEventListener('click', () => {
           const count = microEditor?.querySelectorAll('.micro-row').length || 0;
           if (count >= 6) return;
@@ -551,7 +574,7 @@ const specialGroup = attributeEditor.querySelector('.attribute-special');;
         const microContainer = createElement('div', { class: 'micro-badges' });
         microRows.forEach(row => {
           const name = row.querySelector('input[name="micro-category"]')?.value.trim() || 'Badge';
-          const icon = row.querySelector('select[name="micro-icon"]')?.value.trim().toLowerCase();
+          const icon = row.querySelector('input[name="micro-icon"]')?.value.trim().toLowerCase();
           const desc = row.querySelector('input[name="micro-desc"]')?.value.trim();
           const quantity = parseInt(row.querySelector('input[name="micro-quantity"]')?.value) || 1;
           

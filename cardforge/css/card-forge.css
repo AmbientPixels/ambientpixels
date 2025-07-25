@@ -180,6 +180,59 @@
   font-family: inherit;
 }
 
+/* Icon picker buttons */
+.icon-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.icon-option {
+  background: transparent;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  padding: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--mood-primary-color, #e1e1ff);
+}
+.icon-option.active {
+  background: var(--mood-primary-color, #e1e1ff);
+  color: var(--aura-bg-color, #1a1a2e);
+}
+.icon-option i {
+  pointer-events: none;
+}
+
+/* Badge slider and value label */
+.badge-slider {
+  flex: 1;
+  margin-right: 8px;
+}
+.slider-value {
+  width: 24px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--mood-primary-color, #e1e1ff);
+}
+
+/* Micro badges display grid */
+.micro-badges {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+.micro-badge-container {
+  background: var(--surface-2, rgba(255,255,255,0.05));
+  padding: 8px;
+  border-radius: 6px;
+  text-align: center;
+}
+.micro-badge-container .badge-name {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+  color: var(--mood-primary-color, #e1e1ff);
+}
 /* Special button styling */
 .choose-image-btn {
   background: var(--mood-accent-color, #4a4a6a);
