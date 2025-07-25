@@ -233,6 +233,10 @@
   font-weight: 500;
   color: var(--mood-primary-color, #e1e1ff);
 }
+/* Remove margin from Card Preview header */
+.cardforge-preview h2 {
+  margin: 0;
+}
 /* Special button styling */
 .choose-image-btn {
   background: var(--mood-accent-color, #4a4a6a);
