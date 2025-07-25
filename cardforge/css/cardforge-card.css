@@ -14,6 +14,11 @@
   overflow: hidden;
   display: block;
   padding: 24px 20px 32px;
+  /* NeoFantasy theme overrides */
+  --card-bg: var(--nf-bg, #0E0B1C);
+  --card-border: var(--nf-border, rgba(255,255,255,0.08));
+  --card-glow: linear-gradient(135deg, var(--nf-accent-glow1, #5AE4FF), var(--nf-accent-glow2, #C375FF));
+  --card-text: var(--nf-text-primary, #D8E0E5);
   box-sizing: border-box;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -37,6 +42,42 @@
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   transition: opacity 0.3s ease;
+}
+
+/* Shared utility classes for NeoFantasy theme */
+.ap-card-badge {
+  display: inline-block;
+  padding: 0.25em 0.5em;
+  border-radius: 0.5rem;
+  background-color: var(--nf-accent-glow2, #C375FF);
+  color: var(--nf-bg, #0E0B1C);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.ap-glow-tier {
+  box-shadow: 0 0 8px var(--nf-accent-glow1, #5AE4FF);
+}
+
+.ap-social-footer {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  border-top: 1px solid var(--nf-border, rgba(255,255,255,0.08));
+  padding-top: 0.75em;
+  margin-top: 1em;
+}
+
+.ap-stat-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.ap-card-container {
+  padding: 1.25em 1em 1.5em;
+  position: relative;
 }
 
 @keyframes cardGlow {

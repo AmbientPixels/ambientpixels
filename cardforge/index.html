@@ -72,19 +72,90 @@
       <div class="cardforge-editor">
       <h2>Card Details</h2>
       <nav class="cf-stepper">
-        <button data-step="1" class="step-btn active">Basics</button>
-        <button data-step="2" class="step-btn">Stats</button>
-        <button data-step="3" class="step-btn">Artwork</button>
+        <button data-step="1" class="step-btn active">Card Design</button>
+        <button data-step="2" class="step-btn">Basics</button>
+        <button data-step="3" class="step-btn">Stats</button>
         <button data-step="4" class="step-btn">Social</button>
         <button data-step="5" class="step-btn">Badges</button>
         <button data-step="6" class="step-btn">Attributes</button>
       </nav>
       <form id="card-editor-form" class="cardforge-form">
       <div class="cf-section active" data-step-section="1">
-        <h3 class="cf-section-title"><span class="step-index">1</span> Basics</h3>
+        <h3 class="cf-section-title"><span class="step-index">1</span> Card Design</h3>
         <!-- Hidden field for card ID when editing existing cards -->
         <input type="hidden" id="card-id" value="" />
 
+        <div class="design-options">
+          <div class="design-group">
+            <label for="card-theme">Theme</label>
+            <select id="card-theme">
+              <option value="NeoFantasy">NeoFantasy</option>
+              <option value="SynthwaveHacker">SynthwaveHacker</option>
+              <option value="ProPersona">ProPersona</option>
+            </select>
+          </div>
+
+          <div class="design-group">
+            <label for="card-template-type">Variant</label>
+            <select id="card-template-type">
+              <option value="default">Default</option>
+              <option value="dark">Dark</option>
+              <option value="light">Light</option>
+              <option value="alternate">Alternate</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="artwork-section">
+          <h4>Artwork</h4>
+          <!-- Image Style Controls -->
+          <div class="image-style-controls">
+            <label for="image-style">Image Style</label>
+            <select id="image-style">
+              <option value="masked">Masked</option>
+              <option value="hero">Hero</option>
+              <option value="full-bleed">Full Bleed</option>
+            </select>
+            
+            <label for="image-variant" id="image-variant-label">Style Variant</label>
+            <select id="image-variant">
+              <option value="circle">Circle</option>
+              <option value="hex">Hex</option>
+              <option value="blob">Blob</option>
+              <option value="tear-drop">Tear Drop</option>
+            </select>
+          </div>
+          
+          <!-- Hidden field to store selected image URL -->
+          <input type="hidden" id="card-avatar" value="" />
+          
+          <div class="image-chooser-section">
+            <label>Choose from Gallery:</label>
+            <div class="image-chooser-controls">
+              <div class="image-pagination">
+                <button type="button" id="prev-page">« Prev</button>
+                <span id="page-info">Page 1</span>
+                <button type="button" id="next-page">Next »</button>
+              </div>
+            </div>
+            <div id="inline-image-grid" class="inline-image-grid">
+              Loading images...
+            </div>
+          </div>
+          
+          <div class="custom-url-section">
+            <label for="custom-url-input">Or enter custom URL:</label>
+            <div class="url-input-group">
+              <input type="url" id="custom-url-input" placeholder="https://..." />
+              <button type="button" id="use-custom-url" class="use-url-btn">Use URL</button>
+            </div>
+          </div>
+          
+          <p class="coming-soon">Upload your own image with filters—coming soon!</p>
+        </div>
+      </div>
+      <div class="cf-section" data-step-section="2">
+        <h3 class="cf-section-title"><span class="step-index">2</span> Basics</h3>
         <label for="card-name">Name</label>
         <input type="text" id="card-name" placeholder="Card Name" />
 
@@ -94,26 +165,12 @@
         <label for="card-rarity">Rarity</label>
         <input type="text" id="card-rarity" placeholder="e.g. Common, Rare, Legendary" />
 
-        <label for="card-theme">Theme</label>
-        <select id="card-theme">
-          <option value="NeoFantasy">NeoFantasy</option>
-          <option value="SynthwaveHacker">SynthwaveHacker</option>
-          <option value="ProPersona">ProPersona</option>
-        </select>
-
-        <label for="card-template-type">Variant</label>
-        <select id="card-template-type">
-          <option value="default">Default</option>
-          <option value="dark">Dark</option>
-          <option value="light">Light</option>
-          <option value="alternate">Alternate</option>
-        </select>
-
         <label for="card-quote">Quote/Description</label>
         <textarea id="card-quote" rows="2" placeholder="Epic one-liner or brief description"></textarea>
       </div>
-      <div class="cf-section" data-step-section="2">
-        <h3 class="cf-section-title"><span class="step-index">2</span> Stats</h3>
+      
+      <div class="cf-section" data-step-section="3">
+        <h3 class="cf-section-title"><span class="step-index">3</span> Stats</h3>
         <label for="card-stats">Stats</label>
         <div id="stats-editor">
           <div class="stat-row">
@@ -126,54 +183,7 @@
 
       </div>
       
-      <div class="cf-section" data-step-section="3">
-        <h3 class="cf-section-title"><span class="step-index">3</span> Artwork</h3>
-        
-        <!-- Image Style Controls -->
-        <div class="image-style-controls">
-          <label for="image-style">Image Style</label>
-          <select id="image-style">
-            <option value="masked">Masked</option>
-            <option value="hero">Hero</option>
-            <option value="full-bleed">Full Bleed</option>
-          </select>
-          
-          <label for="image-variant" id="image-variant-label">Style Variant</label>
-          <select id="image-variant">
-            <option value="circle">Circle</option>
-            <option value="hex">Hex</option>
-            <option value="blob">Blob</option>
-            <option value="tear-drop">Tear Drop</option>
-          </select>
-        </div>
-        
-        <!-- Hidden field to store selected image URL -->
-        <input type="hidden" id="card-avatar" value="" />
-        
-        <div class="image-chooser-section">
-          <label>Choose from Gallery:</label>
-          <div class="image-chooser-controls">
-            <div class="image-pagination">
-              <button type="button" id="prev-page">« Prev</button>
-              <span id="page-info">Page 1</span>
-              <button type="button" id="next-page">Next »</button>
-            </div>
-          </div>
-          <div id="inline-image-grid" class="inline-image-grid">
-            Loading images...
-          </div>
-        </div>
-        
-        <div class="custom-url-section">
-          <label for="custom-url-input">Or enter custom URL:</label>
-          <div class="url-input-group">
-            <input type="url" id="custom-url-input" placeholder="https://..." />
-            <button type="button" id="use-custom-url" class="use-url-btn">Use URL</button>
-          </div>
-        </div>
-        
-        <p class="coming-soon">Upload your own image with filters—coming soon!</p>
-      </div>
+
       <div class="cf-section" data-step-section="4">
         <h3 class="cf-section-title"><span class="step-index">4</span> Social Links</h3>
         <label for="card-social">Social Links</label>
