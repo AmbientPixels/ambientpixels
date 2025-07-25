@@ -84,15 +84,22 @@
         <h3 class="cf-section-title"><span class="step-index">1</span> Basics</h3>
         <!-- Hidden field for card ID when editing existing cards -->
         <input type="hidden" id="card-id" value="" />
-        
-        
 
-<label for="card-theme">Theme</label>
-<select id="card-theme">
-  <option value="NeoFantasy">NeoFantasy</option>
-  <option value="SynthwaveHacker">SynthwaveHacker</option>
-  <option value="ProPersona">ProPersona</option>
-</select>
+        <label for="card-name">Name</label>
+        <input type="text" id="card-name" placeholder="Card Name" />
+
+        <label for="card-class">Class/Type</label>
+        <input type="text" id="card-class" placeholder="e.g. Ranger, Castle, Artifact" />
+
+        <label for="card-rarity">Rarity</label>
+        <input type="text" id="card-rarity" placeholder="e.g. Common, Rare, Legendary" />
+
+        <label for="card-theme">Theme</label>
+        <select id="card-theme">
+          <option value="NeoFantasy">NeoFantasy</option>
+          <option value="SynthwaveHacker">SynthwaveHacker</option>
+          <option value="ProPersona">ProPersona</option>
+        </select>
 
         <label for="card-template-type">Variant</label>
         <select id="card-template-type">
@@ -101,35 +108,22 @@
           <option value="light">Light</option>
           <option value="alternate">Alternate</option>
         </select>
-        
-
-        <label for="card-name">Name</label>
-        <input type="text" id="card-name" placeholder="Card Name" />
-
-        <label for="card-class">Class/Type</label>
-        <input type="text" id="card-class" placeholder="e.g. Ranger, Castle, Artifact" />
 
         <label for="card-quote">Quote/Description</label>
         <textarea id="card-quote" rows="2" placeholder="Epic one-liner or brief description"></textarea>
-
       </div>
       <div class="cf-section" data-step-section="2">
         <h3 class="cf-section-title"><span class="step-index">2</span> Stats</h3>
         <label for="card-stats">Stats</label>
-<div id="stats-editor">
-  <div class="stat-row">
-    <input type="text" name="stat-name" placeholder="Stat name" />
-    <input type="number" name="stat-value" placeholder="Value" />
-    <button type="button" class="remove-stat">&times;</button>
-  </div>
-</div>
-<button type="button" id="add-stat-btn" class="add-stat-btn">Add Stat</button>
+        <div id="stats-editor">
+          <div class="stat-row">
+            <input type="text" name="stat-name" placeholder="Stat name" />
+            <input type="number" name="stat-value" placeholder="Value" />
+            <button type="button" class="remove-stat ap-remove-btn">&times;</button>
+          </div>
+        </div>
+        <button type="button" id="add-stat-btn" class="add-stat-btn">Add Stat</button>
 
-        <label for="card-bio">Biography</label>
-<textarea id="card-bio" rows="3" placeholder="Character biography"></textarea>
-
-        <label for="card-rarity">Rarity</label>
-        <input type="text" id="card-rarity" placeholder="e.g. Common, Rare, Legendary" />
       </div>
       
       <div class="cf-section" data-step-section="3">
