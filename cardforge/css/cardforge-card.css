@@ -807,56 +807,73 @@
 
 /* Style-specific card modifications */
 
+/* Full Bleed Image Styles - Works with flip */
 .image-style-full-bleed .card-avatar {
-  object-fit: cover;
-  width: 100%;
-  height: 100%;
   position: absolute;
   top: 0;
   left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   z-index: 1;
   border-radius: 0;
   border: none;
   box-shadow: none;
 }
 
+/* Content container for full bleed */
 .image-style-full-bleed .card-preview-content {
   position: relative;
   z-index: 2;
-  padding: 2rem;
-  margin: 1rem auto;
-  border-radius: 12px;
-  width: calc(100% - 3rem);
+  padding: 1.5rem;
   color: #fff;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   background: rgba(0,0,0,0.6);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  margin: 1rem;
+  border-radius: 8px;
+  width: calc(100% - 2rem);
 }
 
+/* Ambient Variant - Text on image */
+.image-style-full-bleed[data-image-variant="ambient"] .card-preview-content {
+  background: none;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  padding: 1.5rem;
+  margin: 0;
+  width: 100%;
+}
+
+/* Overlay Safe Variant - Glass container */
 .image-style-full-bleed[data-image-variant="overlay-safe"] .card-preview-content {
-  background: rgba(255, 255, 255, 0.95);
-  color: #2d3748;
-  text-shadow: none;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background: rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Ensure the avatar image respects the overlay-safe variant */
-.image-style-full-bleed[data-image-variant="overlay-safe"] .card-avatar,
-.image-full-bleed-overlay-safe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 1;
+.image-style-full-bleed[data-image-variant="overlay-safe"] .card-avatar {
   opacity: 1;
-  border-radius: 12px;
+  border-radius: 0;
   pointer-events: none;
 }
 
-/* Make sure content is above the background image */
-.image-style-full-bleed[data-image-variant="overlay-safe"] .card-preview-content > * {
+/* Card back specific styles */
+.card-back .card-preview-content {
+  background: var(--card-bg, #1a1a2e);
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  padding: 1.5rem;
+}
+
+/* Ensure content stays above background */
+.card-preview-content > * {
   position: relative;
   z-index: 3;
 }
