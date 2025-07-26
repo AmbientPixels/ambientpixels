@@ -103,15 +103,15 @@
               <label>Platform
                 <select name="social-name" class="social-platform" aria-label="Platform">
                   <option value="" disabled ${!name?'selected':''}>Platform</option>
-                  <option value="twitter" ${name==='twitter'?'selected':''}>🐦 Twitter</option>
-                  <option value="instagram" ${name==='instagram'?'selected':''}>📷 Instagram</option>
-                  <option value="linkedin" ${name==='linkedin'?'selected':''}>🔗 LinkedIn</option>
-                  <option value="x" ${name==='x'?'selected':''}>❌ X</option>
-                  <option value="deviantart" ${name==='deviantart'?'selected':''}>🖼️ DeviantArt</option>
-                  <option value="github" ${name==='github'?'selected':''}>🐙 GitHub</option>
-                  <option value="facebook" ${name==='facebook'?'selected':''}>📘 Facebook</option>
-                  <option value="discord" ${name==='discord'?'selected':''}>🎮 Discord</option>
-                  <option value="tiktok" ${name==='tiktok'?'selected':''}>🎵 TikTok</option>
+                  <option value="twitter" ${name==='twitter'?'selected':''}>Twitter</option>
+                  <option value="instagram" ${name==='instagram'?'selected':''}>Instagram</option>
+                  <option value="linkedin" ${name==='linkedin'?'selected':''}>LinkedIn</option>
+                  <option value="x" ${name==='x'?'selected':''}>X</option>
+                  <option value="deviantart" ${name==='deviantart'?'selected':''}>DeviantArt</option>
+                  <option value="github" ${name==='github'?'selected':''}>GitHub</option>
+                  <option value="facebook" ${name==='facebook'?'selected':''}>Facebook</option>
+                  <option value="discord" ${name==='discord'?'selected':''}>Discord</option>
+                  <option value="tiktok" ${name==='tiktok'?'selected':''}>TikTok</option>
                 </select>
               </label>
               <label>Link (URL)
