@@ -9,8 +9,6 @@
   border-radius: 1rem;
   background: var(--card-bg, rgba(18,22,34,0.85));
   border: 1px solid var(--card-border, rgba(255,255,255,0.15));
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
   overflow: hidden;
   display: block;
   padding: 24px 20px 32px;
@@ -243,6 +241,9 @@
 }
 
 .stat-progress {
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: growStat 1s ease-out forwards;
   height: 6px;
   background: var(--card-stat-fill, linear-gradient(90deg, #35f5ff 0%, #9dff5c 100%));
   border-radius: 3px;
@@ -255,16 +256,12 @@
   overflow: hidden;
 }
 
+@keyframes growStat {
+  to { transform: scaleX(1); }
+}
+
 .stat-progress::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
-  animation: statShimmer 2s ease-in-out infinite;
-  opacity: 0.7;
+  display: none !important;
 }
 
 /* Default/Masked Style */
@@ -352,18 +349,6 @@
   border-radius: 3px;
   border: 1px solid rgba(0, 0, 0, 0.05);
   box-shadow: none;
-}
-@keyframes statShimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-/* Stat Value Display */
-.stat-value {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--card-stat-value, #fff);
-  opacity: 0.9;
 }
 
 /* Responsive Adjustments */
@@ -633,7 +618,6 @@
   border-radius: 4px;
   object-fit: cover;
   opacity: 0.9;
-  filter: blur(0.5px);
 }
 
 .image-full-bleed-overlay-safe {
@@ -824,38 +808,36 @@
 /* Style-specific card modifications */
 
 .image-style-full-bleed .card-avatar {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
   z-index: 1;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
 }
 
 .image-style-full-bleed .card-preview-content {
   position: relative;
   z-index: 2;
-  background: rgba(0, 0, 0, 0.3);
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
+  padding: 2rem;
+  margin: 1rem auto;
+  border-radius: 12px;
+  width: calc(100% - 3rem);
+  color: #fff;
+  background: rgba(0,0,0,0.6);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
 
-/* Full Bleed - Overlay Safe Variant */
 .image-style-full-bleed[data-image-variant="overlay-safe"] .card-preview-content {
-  background: rgba(0, 0, 0, 0.7);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 16px;
-  padding: 30px;
-  margin: 20px auto;
-  width: 80%;
-  color: white;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-  position: relative;
-  z-index: 2;
-  min-height: 200px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
+  background: rgba(255, 255, 255, 0.95);
+  color: #2d3748;
+  text-shadow: none;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 /* Ensure the avatar image respects the overlay-safe variant */
@@ -877,4 +859,21 @@
 .image-style-full-bleed[data-image-variant="overlay-safe"] .card-preview-content > * {
   position: relative;
   z-index: 3;
+}
+
+/* Disable blur */
+.card-preview-canvas,
+.card-preview-canvas *,
+.card-overlay,
+.image-style-full-bleed .card-preview-content {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .image-style-full-bleed .card-preview-content {
+    padding: 1rem;
+    width: calc(100% - 2rem);
+  }
 }

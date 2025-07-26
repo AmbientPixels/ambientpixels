@@ -78,6 +78,75 @@ CardForge V2 is a production-ready, browser-based toolkit for designing, editing
 
 ---
 
+## 🎨 Design System
+
+### Theme System
+CardForge V3 features a flexible theming system built with CSS custom properties for consistent styling and easy customization.
+
+#### Base Theme Variables
+```css
+:root {
+  --card-bg: rgba(18, 22, 34, 0.85);
+  --card-border: rgba(255, 255, 255, 0.15);
+  --card-text: #e1faff;
+  --card-name-color: #e1faff;
+  --card-class-color: rgba(225, 250, 255, 0.7);
+  --card-glow: linear-gradient(135deg, #35f5ff, #9dff5c);
+  --card-glow-opacity: 0.6;
+  --card-hover-shadow: 0 16px 32px rgba(79, 248, 255, 0.3);
+}
+```
+
+#### Light Theme Variants
+- **NeoFantasy Light**: Soft purple gradient with dark text
+- **SynthwaveHacker Light**: Bright theme with pink accents
+- **ProPersona Light**: Clean, professional look with blue accents
+
+### Image Styles & Variants
+
+#### 1. Masked Style
+- **Circle**: Classic circular crop
+- **Hex**: Hexagonal mask for fantasy themes
+- **Blob**: Organic, fluid shape
+- **Tear Drop**: Unique teardrop shape
+
+#### 2. Hero Style
+- **Large**: Cinematic 3:1 aspect ratio (shifts to 2:1 on mobile)
+- **Small**: Compact 2:1 aspect ratio (shifts to 3:2 on mobile)
+
+#### 3. Full Bleed
+- **Ambient**: Art-first with text overlaid directly on image
+- **Overlay Safe**: UI-first with semi-transparent container for readability
+
+### Card Components
+
+#### Badges & Rarity
+- Customizable badges with icon support
+- Rarity indicators with visual distinction
+- Theme-aware styling for light/dark modes
+
+#### Stats Bars
+- Animated progress bars
+- Responsive layout
+- Theme-consistent colors
+
+### Responsive Design
+- Mobile-first approach
+- Adaptive layouts for all screen sizes
+- Touch-friendly controls
+
+### JavaScript Integration
+```javascript
+// Apply theme
+document.querySelector('.card-preview-canvas').classList.add('theme-neofantasy', 'variant-light');
+
+// Update image style
+document.querySelector('.card-preview-canvas').classList.add('image-style-hero', 'image-hero-large');
+```
+
+For detailed CSS implementation and customization options, refer to `css/cardforge-card.css`.
+
+---
 
 ## endpoints
 

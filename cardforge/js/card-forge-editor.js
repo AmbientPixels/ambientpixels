@@ -46,18 +46,59 @@
 
   // Initial preview on load
   updatePreview();
-    // Bind static stat slider displays
-    document.querySelectorAll('.stat-row').forEach(row => {
-      const slider = row.querySelector('.stat-slider');
-      const display = row.querySelector('.stat-value-display');
-      if (slider && display) {
-        display.textContent = slider.value;
-        slider.addEventListener('input', () => {
-          display.textContent = slider.value;
-          updatePreview();
-        });
+  
+  // Initialize stat bar animations
+  function animateStatBars() {
+    document.querySelectorAll('.stat-progress').forEach(bar => {
+      // Force reflow to reset animation
+      bar.style.animation = 'none';
+      bar.offsetHeight;
+      // Re-enable animation
+      bar.style.animation = 'growStat 1s ease-out forwards';
+    });
+  }
+
+  // Observe preview container for card changes
+  const preview = document.getElementById('card-preview');
+  if (preview) {
+    // Initial animation on load
+    animateStatBars();
+    
+    // Set up mutation observer to re-trigger animations on card changes
+    const observer = new MutationObserver((mutations) => {
+      // Only re-animate if the card content actually changed
+      const shouldAnimate = mutations.some(mutation => 
+        mutation.type === 'childList' || 
+        (mutation.type === 'attributes' && mutation.attributeName === 'class')
+      );
+      
+      if (shouldAnimate) {
+        // Small delay to ensure DOM is ready
+        setTimeout(animateStatBars, 50);
       }
     });
+    
+    // Start observing the preview container for changes
+    observer.observe(preview, { 
+      childList: true, 
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class']
+    });
+  }
+
+  // Bind static stat slider displays
+  document.querySelectorAll('.stat-row').forEach(row => {
+    const slider = row.querySelector('.stat-slider');
+    const display = row.querySelector('.stat-value-display');
+    if (slider && display) {
+      display.textContent = slider.value;
+      slider.addEventListener('input', () => {
+        display.textContent = slider.value;
+        updatePreview();
+      });
+    }
+  });
           // Stats Editor Logic
         const statsEditor = document.getElementById('stats-editor');
         const addStatBtn = document.getElementById('add-stat-btn');
@@ -371,8 +412,13 @@ const specialGroup = attributeEditor.querySelector('.attribute-special');;
           document.querySelectorAll('#stats-editor .stat-row').forEach(row => {
             const name = row.querySelector('input[name="stat-name"]')?.value;
             const value = row.querySelector('input[name="stat-value"]')?.value;
-            if (name) cardData.stats.push({ name, value: Number(value) });
+            
+            
+            const val = parseInt(value, 10);
+
+            if (name) cardData.stats.push({ name, value: isNaN(val) ? 0 : val });
           });
+
           // Theme and variant
           cardData.theme = document.getElementById('card-theme')?.value;
           cardData.variant = document.getElementById('card-template-type')?.value;
