@@ -684,18 +684,19 @@ const specialGroup = attributeEditor.querySelector('.attribute-special');;
       { value: 'teardrop', label: 'Tear Drop' }
     ],
     'hero': [
-      { value: 'centered', label: 'Centered' },
-      { value: 'left', label: 'Left-Aligned' }
+      { value: 'large', label: 'Large' },
+      { value: 'small', label: 'Small' }
     ],
     'full-bleed': [
-      { value: 'ambient', label: 'Ambient' }
+      { value: 'ambient', label: 'Ambient' },
+      { value: 'overlay-safe', label: 'Overlay Safe' }
     ]
   };
   
   // Default variants for each style
   const defaultVariants = {
     'masked': 'circle',
-    'hero': 'centered',
+    'hero': 'large',
     'full-bleed': 'ambient'
   };
   
@@ -736,11 +737,12 @@ const specialGroup = attributeEditor.querySelector('.attribute-special');;
         'teardrop': 'Render this artwork in Masked Style with teardrop framing. The subject should be composed within a teardrop shape, with the focal point at the wider end. The background should be transparent or blurred to emphasize the teardrop silhouette.'
       },
       'hero': {
-        'centered': 'Render this artwork in Hero Style with centered composition. The main subject should be prominently featured in the center of the frame with ample negative space around it. Use dramatic lighting and perspective to create a sense of importance and scale.',
-        'left': 'Render this artwork in Hero Style with left-aligned composition. The main subject should be positioned on the left side of the frame with negative space to the right. Use directional lighting and perspective to create visual interest and movement across the composition.'
+        'large': 'Render this artwork in Hero Style with large composition. The main subject should be prominently featured with ample negative space around it. Use dramatic lighting and perspective to create a sense of importance and scale (3:1 aspect ratio).',
+        'small': 'Render this artwork in Hero Style with small composition. The subject should be clearly visible but in a more compact space (2:1 aspect ratio). Use efficient composition to maximize impact in the smaller space.'
       },
       'full-bleed': {
-        'ambient': 'Render this artwork in Full Bleed Style with ambient composition. The image should extend to all edges without any framing or borders. Use atmospheric effects, lighting, and composition to create an immersive, expansive feel. The entire canvas should be filled with visual interest.'
+        'ambient': 'Render this artwork in Full Bleed Style with ambient composition. The image should extend to all edges without any framing or borders. Use atmospheric effects, lighting, and composition to create an immersive, expansive feel. The entire canvas should be filled with visual interest.',
+        'overlay-safe': 'Render this artwork in Full Bleed Style with overlay-safe composition. The image should extend to all edges, but leave space for UI elements. Use high contrast and clear composition to ensure text and UI elements remain readable when overlaid on the image.'
       }
     };
     
