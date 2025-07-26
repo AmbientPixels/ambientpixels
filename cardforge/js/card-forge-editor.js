@@ -681,22 +681,21 @@ const specialGroup = attributeEditor.querySelector('.attribute-special');;
       { value: 'circle', label: 'Circle' },
       { value: 'hex', label: 'Hex' },
       { value: 'blob', label: 'Blob' },
-      { value: 'tear-drop', label: 'Tear Drop' }
+      { value: 'teardrop', label: 'Tear Drop' }
     ],
     'hero': [
-      { value: 'large', label: 'Large' },
-      { value: 'small', label: 'Small' }
+      { value: 'centered', label: 'Centered' },
+      { value: 'left', label: 'Left-Aligned' }
     ],
     'full-bleed': [
-      { value: 'ambient', label: 'Ambient' },
-      { value: 'overlay-safe', label: 'Overlay Safe' }
+      { value: 'ambient', label: 'Ambient' }
     ]
   };
   
   // Default variants for each style
   const defaultVariants = {
     'masked': 'circle',
-    'hero': 'large',
+    'hero': 'centered',
     'full-bleed': 'ambient'
   };
   
@@ -731,18 +730,17 @@ const specialGroup = attributeEditor.querySelector('.attribute-special');;
   function generateStylePrompt(style, variant) {
     const prompts = {
       'masked': {
-        'circle': 'Render this artwork in Masked Style with a circular subject container. Central subject with clean edges. Minimal background. Optimized for circular masking.',
-        'hex': 'Render this artwork in Masked Style with a hex-shaped subject container. Central subject with clean edges. Minimal background. Optimized for geometric masking.',
-        'blob': 'Render this artwork in Masked Style with an organic blob-shaped subject container. Central subject with soft, flowing edges. Minimal background. Optimized for organic masking.',
-        'tear-drop': 'Render this artwork in Masked Style with a tear-drop shaped subject container. Central subject with elegant curved edges. Minimal background. Optimized for tear-drop masking.'
+        'circle': 'Render this artwork in Masked Style with circular framing. The subject should be centered within a perfect circle with soft edges. The background should be transparent or blurred to focus attention on the central circular composition.',
+        'hex': 'Render this artwork in Masked Style with hexagonal framing. The subject should be centered within a hexagon with clean, geometric edges. The background should be transparent or blurred to create contrast with the hexagonal frame.',
+        'blob': 'Render this artwork in Masked Style with organic blob framing. The subject should be contained within an irregular, flowing shape with soft, natural curves. The background should be transparent or blurred to highlight the organic shape.',
+        'teardrop': 'Render this artwork in Masked Style with teardrop framing. The subject should be composed within a teardrop shape, with the focal point at the wider end. The background should be transparent or blurred to emphasize the teardrop silhouette.'
       },
       'hero': {
-        'large': 'Render this artwork in Hero Style with large cinematic composition. Full-width image at top with 3:1 aspect ratio. Subject prominently featured for maximum visual impact. Clean rectangular format optimized for hero layout.',
-        'small': 'Render this artwork in Hero Style with compact composition. Full-width image at top with 2:1 aspect ratio. Subject clearly visible but more space-efficient. Clean rectangular format optimized for hero layout.'
+        'centered': 'Render this artwork in Hero Style with centered composition. The main subject should be prominently featured in the center of the frame with ample negative space around it. Use dramatic lighting and perspective to create a sense of importance and scale.',
+        'left': 'Render this artwork in Hero Style with left-aligned composition. The main subject should be positioned on the left side of the frame with negative space to the right. Use directional lighting and perspective to create visual interest and movement across the composition.'
       },
       'full-bleed': {
-        'ambient': 'Render this artwork in Full Bleed Style with ambient composition. Edge-to-edge coverage with atmospheric depth. Seamless background integration.',
-        'overlay-safe': 'Render this artwork in Full Bleed Style with overlay-safe composition. Full coverage with text-safe areas. High contrast zones for content overlay.'
+        'ambient': 'Render this artwork in Full Bleed Style with ambient composition. The image should extend to all edges without any framing or borders. Use atmospheric effects, lighting, and composition to create an immersive, expansive feel. The entire canvas should be filled with visual interest.'
       }
     };
     
