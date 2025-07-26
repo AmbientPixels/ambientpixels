@@ -1,10 +1,10 @@
 {
-  "updated": "2025-07-25T13:37:51.646Z",
+  "updated": "2025-07-26T13:33:05.026Z",
   "entries": [
     {
-      "hash": "208648d",
-      "date": "2025-07-24 20:59:10 -0700",
-      "message": "feat(layout): auto-flip card on Social, Badges, Attributes tabs"
+      "hash": "a3fa645",
+      "date": "2025-07-26 00:31:59 -0700",
+      "message": "fix: resolve social links preview update issue"
     }
   ]
 }
