@@ -523,7 +523,10 @@ const specialGroup = attributeEditor.querySelector('.attribute-special');;
       bodyContainer = previewContent;
     }
       
-      // Class & rarity with dynamic icons
+      // Create badge container for class and rarity
+      const badgeContainer = createElement('div', { class: 'badge-container' });
+      
+      // Class/Type badge
       if (cardClass) {
         const badge = createElement('div', { class: 'card-badge' });
         const classLower = cardClass.toLowerCase();
@@ -553,12 +556,13 @@ const specialGroup = attributeEditor.querySelector('.attribute-special');;
         }
         
         const icon = createElement('i', { class: `fas ${iconClass}`, 'aria-hidden': 'true' });
-        const text = document.createTextNode(` ${cardClass}`);
+        const text = document.createTextNode(cardClass);
         badge.appendChild(icon);
         badge.appendChild(text);
-        bodyContainer.appendChild(badge);
+        badgeContainer.appendChild(badge);
       }
       
+      // Rarity badge
       if (rarity) {
         const rarityEl = createElement('div', { class: 'card-rarity' });
         const rarityLower = rarity.toLowerCase();
@@ -578,23 +582,44 @@ const specialGroup = attributeEditor.querySelector('.attribute-special');;
         }
         
         const starIcon = createElement('i', { class: `fas ${iconClass}`, 'aria-hidden': 'true' });
-        const text = document.createTextNode(` ${rarity}`);
+        const text = document.createTextNode(rarity);
         rarityEl.appendChild(starIcon);
         rarityEl.appendChild(text);
-        bodyContainer.appendChild(rarityEl);
+        badgeContainer.appendChild(rarityEl);
+      }
+      
+      // Only add badge container if it has children
+      if (badgeContainer.hasChildNodes()) {
+        bodyContainer.appendChild(badgeContainer);
       }
       // Quote
       if (quote) bodyContainer.appendChild(createElement('blockquote', { class: 'card-quote' }, quote));
       // Stat bars
       Object.entries(statsObj).forEach(([key, val]) => {
           const rowWrapper = createElement('div', { class: 'stat-row-preview' });
-          // Label on left
-          rowWrapper.appendChild(createElement('span', { class: 'stat-label' }, key));
+          
+          // Create stat label with value
+          const labelContainer = createElement('div', { class: 'stat-label' });
+          labelContainer.appendChild(document.createTextNode(key));
+          
+          // Add value as a separate span
+          const valueSpan = createElement('span', { class: 'stat-value' }, `${val}%`);
+          labelContainer.appendChild(valueSpan);
+          
           // Bar track
           const barContainer = createElement('div', { class: 'stat-bar' });
           const progress = createElement('div', { class: 'stat-progress' });
           progress.style.width = val + '%';
+          
+          // Set aria attributes for accessibility
+          progress.setAttribute('role', 'progressbar');
+          progress.setAttribute('aria-valuenow', val);
+          progress.setAttribute('aria-valuemin', '0');
+          progress.setAttribute('aria-valuemax', '100');
+          progress.setAttribute('aria-label', `${key} level`);
+          
           barContainer.appendChild(progress);
+          rowWrapper.appendChild(labelContainer);
           rowWrapper.appendChild(barContainer);
           bodyContainer.appendChild(rowWrapper);
         });
