@@ -524,8 +524,22 @@ const specialGroup = attributeEditor.querySelector('.attribute-special');;
     }
       
       // Class & rarity
-      if (cardClass) bodyContainer.appendChild(createElement('div', { class: 'card-badge' }, cardClass));
-      if (rarity) bodyContainer.appendChild(createElement('div', { class: 'card-rarity' }, rarity));
+      if (cardClass) {
+        const badge = createElement('div', { class: 'card-badge' });
+        const icon = createElement('i', { class: 'fab fa-cloudflare' });
+        const text = document.createTextNode(` ${cardClass}`);
+        badge.appendChild(icon);
+        badge.appendChild(text);
+        bodyContainer.appendChild(badge);
+      }
+      if (rarity) {
+        const rarityEl = createElement('div', { class: 'card-rarity' });
+        const starIcon = createElement('i', { class: 'fas fa-star' });
+        const text = document.createTextNode(` ${rarity}`);
+        rarityEl.appendChild(starIcon);
+        rarityEl.appendChild(text);
+        bodyContainer.appendChild(rarityEl);
+      }
       // Quote
       if (quote) bodyContainer.appendChild(createElement('blockquote', { class: 'card-quote' }, quote));
       // Stat bars

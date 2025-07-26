@@ -661,11 +661,55 @@
 .social-links {
   display: flex;
   gap: 12px;
-  margin-top: 12px;
+  margin: 16px 0 8px;
+  justify-content: center;
+  flex-wrap: wrap;
 }
+
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.social-link:hover {
+  background: var(--mood-primary-color, #5AE4FF);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(90, 228, 255, 0.3);
+}
+
 .social-link .social-icon {
-  width: 24px;
-  height: auto;
-  filter: invert(1) opacity(0.8);
+  width: 16px;
+  height: 16px;
+  filter: brightness(0) invert(1);
+  transition: all 0.2s ease;
+}
+
+/* Theme-specific adjustments */
+.theme-neofantasy .social-link {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.theme-neofantasy .social-link:hover {
+  background: var(--mood-accent-color, #8b5cf6);
+  box-shadow: 0 0 15px var(--mood-accent-color, #8b5cf6);
+}
+
+/* Full bleed variant adjustments */
+.image-style-full-bleed .social-links {
+  margin: 20px 0 10px;
+}
+
+.image-style-full-bleed .social-link {
+  background: rgba(255, 255, 255, 0.15);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
 }
 

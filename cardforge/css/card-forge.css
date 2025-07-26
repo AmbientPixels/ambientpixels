@@ -18,8 +18,7 @@
   background: var(--surface-2, rgba(255,255,255,0.05));
   padding: 1.5rem;
   border-radius: 8px;
-  -webkit-backdrop-filter: blur(6px); /* Safari */
-  backdrop-filter: blur(6px);
+  /* Blur effects removed */
 }
 
 .cardforge-editor h2 {
@@ -265,8 +264,7 @@
   background: var(--surface-2, rgba(255,255,255,0.02));
   border-radius: 8px;
   border: 1px solid var(--mood-accent-color, rgba(255,255,255,0.1));
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
+  /* Blur effects removed */
 }
 
 .cf-section-title {
