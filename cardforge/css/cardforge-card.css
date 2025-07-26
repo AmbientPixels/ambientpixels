@@ -44,11 +44,18 @@
   50% { background-position: 100% 50%; opacity: 0.8; }
 }
 
+.card-preview-canvas {
+  /* Keep the glow effect on hover */
+  transition: box-shadow 0.2s ease;
+}
+
 .card-preview-canvas:hover {
-  transform: translateY(-8px) scale(1.02);
+  /* Keep the glow effect but remove the zoom */
   box-shadow: var(--card-hover-shadow, 0 16px 32px rgba(79,248,255,0.3));
 }
+
 .card-preview-canvas:hover::before {
+  /* Keep the glow effect on hover */
   opacity: var(--card-glow-hover-opacity, 1);
 }
 
@@ -108,13 +115,27 @@
 .card-badge,
 .card-rarity,
 .card-achievement {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   border-radius: 6px;
   padding: 4px 8px;
   font-size: 0.75rem;
   color: #181b22;
   background: #fff36b;
   margin: 2px 0;
+  line-height: 1;
+}
+
+.card-badge i,
+.card-rarity i {
+  font-size: 0.9em;
+  color: inherit;
+}
+
+.card-rarity {
+  background: #ffd700;
+  margin-left: 6px;
 }
 
 .stat-bar {

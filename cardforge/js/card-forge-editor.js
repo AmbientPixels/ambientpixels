@@ -523,18 +523,61 @@ const specialGroup = attributeEditor.querySelector('.attribute-special');;
       bodyContainer = previewContent;
     }
       
-      // Class & rarity
+      // Class & rarity with dynamic icons
       if (cardClass) {
         const badge = createElement('div', { class: 'card-badge' });
-        const icon = createElement('i', { class: 'fab fa-cloudflare' });
+        const classLower = cardClass.toLowerCase();
+        let iconClass = 'fa-user'; // Default to a simple user icon
+        
+        // Map class names to appropriate icons
+        if (classLower.includes('mage') || classLower.includes('wizard') || classLower.includes('sorcerer')) {
+          iconClass = 'fa-hat-wizard';
+        } else if (classLower.includes('warrior') || classLower.includes('fighter') || classLower.includes('knight')) {
+          iconClass = 'fa-sword';
+        } else if (classLower.includes('ranger') || classLower.includes('archer') || classLower.includes('hunter')) {
+          iconClass = 'fa-bow-arrow';
+        } else if (classLower.includes('rogue') || classLower.includes('thief') || classLower.includes('assassin')) {
+          iconClass = 'fa-mask';
+        } else if (classLower.includes('cleric') || classLower.includes('priest') || classLower.includes('healer')) {
+          iconClass = 'fa-hand-holding-medical';
+        } else if (classLower.includes('monk') || classLower.includes('martial') || classLower.includes('brawler')) {
+          iconClass = 'fa-hand-fist';
+        } else if (classLower.includes('paladin') || classLower.includes('crusader') || classLower.includes('templar')) {
+          iconClass = 'fa-shield-halved';
+        } else if (classLower.includes('druid') || classLower.includes('shaman') || classLower.includes('elemental')) {
+          iconClass = 'fa-leaf';
+        } else if (classLower.includes('necromancer') || classLower.includes('warlock') || classLower.includes('dark')) {
+          iconClass = 'fa-skull';
+        } else if (classLower.includes('bard') || classLower.includes('performer') || classLower.includes('entertainer')) {
+          iconClass = 'fa-music';
+        }
+        
+        const icon = createElement('i', { class: `fas ${iconClass}`, 'aria-hidden': 'true' });
         const text = document.createTextNode(` ${cardClass}`);
         badge.appendChild(icon);
         badge.appendChild(text);
         bodyContainer.appendChild(badge);
       }
+      
       if (rarity) {
         const rarityEl = createElement('div', { class: 'card-rarity' });
-        const starIcon = createElement('i', { class: 'fas fa-star' });
+        const rarityLower = rarity.toLowerCase();
+        let iconClass = 'fa-star';
+        
+        // Map rarity levels to appropriate icons
+        if (rarityLower.includes('common') || rarityLower.includes('basic')) {
+          iconClass = 'fa-circle';
+        } else if (rarityLower.includes('uncommon') || rarityLower.includes('rare')) {
+          iconClass = 'fa-star';
+        } else if (rarityLower.includes('epic') || rarityLower.includes('legendary') || rarityLower.includes('mythic')) {
+          iconClass = 'fa-crown';
+        } else if (rarityLower.includes('unique') || rarityLower.includes('artifact')) {
+          iconClass = 'fa-gem';
+        } else if (rarityLower.includes('divine') || rarityLower.includes('godly')) {
+          iconClass = 'fa-sun';
+        }
+        
+        const starIcon = createElement('i', { class: `fas ${iconClass}`, 'aria-hidden': 'true' });
         const text = document.createTextNode(` ${rarity}`);
         rarityEl.appendChild(starIcon);
         rarityEl.appendChild(text);
