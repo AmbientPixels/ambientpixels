@@ -7,16 +7,13 @@
   height: auto;
   min-height: fit-content;
   border-radius: 1rem;
-  background: var(--card-bg, rgba(18,22,34,0.95));
+  background: var(--card-bg, rgba(18,22,34,0.85));
   border: 1px solid var(--card-border, rgba(255,255,255,0.15));
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
   overflow: hidden;
   display: block;
   padding: 24px 20px 32px;
-  /* NeoFantasy theme overrides */
-  --card-bg: var(--nf-bg, #0E0B1C);
-  --card-border: var(--nf-border, rgba(255,255,255,0.08));
-  --card-glow: linear-gradient(135deg, var(--nf-accent-glow1, #5AE4FF), var(--nf-accent-glow2, #C375FF));
-  --card-text: var(--nf-text-primary, #D8E0E5);
   box-sizing: border-box;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -40,46 +37,6 @@
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   transition: opacity 0.3s ease;
-  /* Explicitly disable any blur */
-  filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
-
-/* Shared utility classes for NeoFantasy theme */
-.ap-card-badge {
-  display: inline-block;
-  padding: 0.25em 0.5em;
-  border-radius: 0.5rem;
-  background-color: var(--nf-accent-glow2, #C375FF);
-  color: var(--nf-bg, #0E0B1C);
-  font-size: 0.85rem;
-  font-weight: 500;
-  text-transform: uppercase;
-}
-
-.ap-glow-tier {
-  box-shadow: 0 0 8px var(--nf-accent-glow1, #5AE4FF);
-}
-
-.ap-social-footer {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  border-top: 1px solid var(--nf-border, rgba(255,255,255,0.08));
-  padding-top: 0.75em;
-  margin-top: 1em;
-}
-
-.ap-stat-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-}
-
-.ap-card-container {
-  padding: 1.25em 1em 1.5em;
-  position: relative;
 }
 
 @keyframes cardGlow {
@@ -87,23 +44,12 @@
   50% { background-position: 100% 50%; opacity: 0.8; }
 }
 
-/* Hover effects - original NeoFantasy glow, no zoom/blur */
 .card-preview-canvas:hover {
-  /* Original NeoFantasy glow effect */
-  box-shadow: 0 20px 40px rgba(147, 51, 234, 0.3);
-  /* Remove any transform/scale effects */
-  transform: none;
-  /* Ensure no blur effects */
-  filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--card-hover-shadow, 0 16px 32px rgba(79,248,255,0.3));
 }
 .card-preview-canvas:hover::before {
   opacity: var(--card-glow-hover-opacity, 1);
-  /* Ensure no blur on pseudo-elements */
-  filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
 }
 
 .card-preview-content {
@@ -135,12 +81,9 @@
   transition: all 0.3s ease;
   flex-shrink: 0;
 }
-/* Avatar hover - glow only, no scale */
 .card-avatar:hover {
-  /* Keep the glow effect */
-  box-shadow: var(--card-avatar-hover-shadow, 0 0 24px rgba(79, 248, 255, 0.6));
-  /* Remove the scale effect */
-  transform: none;
+  transform: scale(1.1);
+  box-shadow: var(--card-avatar-hover-shadow, 0 0 24px rgba(79,248,255,0.6));
 }
 
 .card-header h3,
@@ -162,118 +105,16 @@
   letter-spacing: 0.05em;
 }
 
-/* Modern pill container for badges and rarity */
 .card-badge,
-.card-rarity {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 100px;
-  padding: 4px 12px 4px 8px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 2px auto;
-  white-space: nowrap;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-  transition: all 0.15s ease;
-  line-height: 1.2;
-  width: fit-content;
-  min-width: 80px;
-  text-align: center;
-  box-sizing: border-box;
-}
-
-/* Ensure badge and rarity are on separate lines */
-.card-badge {
-  display: block;
-}
-
-.card-rarity {
-  display: block;
-}
-
-/* Specific styles for badge */
-.card-badge {
-  background: var(--card-badge-bg, #8b5cf6);
-  color: white;
-  border: 1px solid var(--card-badge-border, #6d28d9);
-}
-
-/* Add Cloudflare icon to badge */
-.card-badge {
-  position: relative;
-  padding-left: 8px;
-  transform: translateY(-50%);
-  font-size: 0.9em;
-  font-weight: 400;
-}
-
-/* Specific styles for rarity */
-.card-rarity {
-  background: var(--card-rarity-bg, #f59e0b);
-  color: #1e1b2e;
-  border: 1px solid var(--card-rarity-border, #d97706);
-  font-weight: 700;
-  padding: 4px 10px;
-}
-
-/* Hover effects */
-.card-badge:hover,
-.card-rarity:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-}
-
-/* Container for stacking badges */
-.card-badges-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  margin: 6px 0;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* Ensure proper stacking in card preview */
-.card-preview-content > .card-badge,
-.card-preview-content > .card-rarity {
-  display: block;
-  margin: 2px auto;
-  text-align: center;
-  width: fit-content;
-}
-
-/* Style icons in badges and rarity */
-.card-badge i.fa-cloudflare,
-.card-rarity i.fas {
-  margin-right: 4px;
-  font-size: 0.9em;
-  vertical-align: middle;
-  color: inherit; /* Inherit text color from parent */
-}
-
-/* Ensure no duplicate icons */
-.card-badge i ~ i,
-.card-rarity i ~ i {
-  display: none;
-}
-
-/* Fix for full bleed variant */
-.image-style-full-bleed .card-badge,
-.image-style-full-bleed .card-rarity {
-  margin: 2px auto;
-}
-
-/* Make sure the container doesn't force full width */
-.card-badge-container {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+.card-rarity,
+.card-achievement {
+  display: inline-block;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  color: #181b22;
+  background: #fff36b;
+  margin: 2px 0;
 }
 
 .stat-bar {
@@ -281,30 +122,7 @@
   margin: 6px 0;
   position: relative;
   z-index: 1;
-  background: var(--card-stat-bg, rgba(255,255,255,0.1));
-  border-radius: 4px;
-  overflow: hidden;
-  height: 8px;
 }
-
-/* stat-row-preview layout */
-.stat-row-preview {
-  display: flex;
-  align-items: center;
-  margin: 6px 0;
-  gap: 8px;
-}
-.stat-row-preview .stat-label {
-  flex: 0 0 auto;
-  margin: 0;
-  width: 80px;
-  text-align: right;
-}
-.stat-row-preview .stat-bar {
-  flex: 1 1 auto;
-  margin: 0;
-}
-
 
 .stat-label {
   font-size: 0.75rem;
@@ -317,14 +135,31 @@
 }
 
 .stat-progress {
+  height: 8px;
   background: var(--card-stat-fill, linear-gradient(90deg, #35f5ff 0%, #9dff5c 100%));
+  border-radius: 4px;
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  /* Create background track using box-shadow */
+  box-shadow: inset 0 0 0 200px var(--card-stat-bg, rgba(255,255,255,0.1));
+  background-clip: content-box;
+  border: 1px solid transparent;
+  max-width: 100%;
+  overflow: hidden;
+}
+.stat-progress::after {
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
+  right: 0;
   bottom: 0;
-  height: 100%;
-  border-radius: 4px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+  animation: statShimmer 2s ease-in-out infinite;
+}
+@keyframes statShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .card-back blockquote {
@@ -530,66 +365,6 @@
   color: var(--mood-primary-color, #e1e1ff);
 }
 
-/* Enhanced Badge Styles */
-.micro-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin: 1rem 0;
-}
-
-.micro-badge-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 1rem;
-  padding: 0.5rem;
-  transition: all 0.2s ease;
-  min-width: 60px;
-}
-
-.micro-badge-container:hover {
-  background: rgba(255, 255, 255, 0.15);
-  transform: translateY(-2px);
-}
-
-.badge-name {
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: var(--mood-secondary-color, #a0a0c0);
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-  padding: 0 0.25rem;
-}
-
-.badge-icons {
-  display: flex;
-  gap: 0.15rem;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.micro-icon {
-  font-size: 1rem;
-  color: var(--mood-primary-color, #e1e1ff);
-  text-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
-  opacity: 0.9;
-}
-
-.badge-counter {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--mood-primary-color, #e1e1ff);
-  margin-left: 0.25rem;
-  opacity: 0.8;
-}
-
 /* Image Style Variants */
 /* Masked Styles */
 .image-masked-circle {
@@ -634,14 +409,13 @@
   border-radius: 4px;
   object-fit: cover;
   opacity: 0.9;
-  /* Blur effect removed */
+  filter: blur(0.5px);
 }
 
 .image-full-bleed-overlay-safe {
   border-radius: 4px;
   object-fit: cover;
-  /* Remove filter that might cause blur-like effects */
-  filter: none !important;
+  filter: contrast(1.1) brightness(0.9);
 }
 
 /* Hero Style Layout */
@@ -743,13 +517,6 @@
 
 /* Style-specific card modifications */
 
-/* Full Bleed Style Layout - Updated */
-.image-style-full-bleed {
-  position: relative;
-  overflow: hidden;
-  /* Force refresh - v2.1 */
-}
-
 .image-style-full-bleed .card-avatar {
   position: absolute;
   top: 0;
@@ -759,24 +526,10 @@
   z-index: 1;
 }
 
-/* Base card preview content styles */
 .image-style-full-bleed .card-preview-content {
   position: relative;
   z-index: 2;
-  padding: 20px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-
-/* Full Bleed - Ambient Variant */
-.card-preview-canvas.image-style-full-bleed[data-image-variant="ambient"] .card-preview-content {
-  background: none;
-}
-
-.card-preview-canvas.image-style-full-bleed[data-image-variant="ambient"] * {
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
-  color: white;
+  background: rgba(0, 0, 0, 0.3);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
 }
