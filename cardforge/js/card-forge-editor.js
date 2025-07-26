@@ -645,23 +645,35 @@ const specialGroup = attributeEditor.querySelector('.attribute-special');;
 
       // Social links display
       const socialRows = document.querySelectorAll('#social-editor .social-row');
-      if (socialRows.length) {
+      const existingSocialContainer = backContent.querySelector('.social-links');
+      if (existingSocialContainer) {
+        existingSocialContainer.remove();
+      }
+      
+      if (socialRows.length > 0) {
         const socialContainer = createElement('div', { class: 'social-links' });
         socialRows.forEach(row => {
           const name = row.querySelector('select[name="social-name"]')?.value.trim();
-          const url  = row.querySelector('input[name="social-url"]')?.value.trim();
+          const url = row.querySelector('input[name="social-url"]')?.value.trim();
           if (name && url) {
             const slug = name.toLowerCase().replace(/\s+/g, '-');
-            const iconEl  = createElement('i', {
+            const iconEl = createElement('i', {
               class: `fab fa-${slug} social-icon`,
               'aria-label': name
             });
-            socialContainer.appendChild(
-              createElement('a', { href: url, target: '_blank', class: 'social-link' }, iconEl)
-            );
+            const link = createElement('a', { 
+              href: url, 
+              target: '_blank', 
+              class: 'social-link',
+              'aria-label': `${name} profile`
+            }, iconEl);
+            socialContainer.appendChild(link);
           }
         });
-        backContent.appendChild(socialContainer);
+        
+        if (socialContainer.hasChildNodes()) {
+          backContent.appendChild(socialContainer);
+        }
       }
 
       // Micro badges display
