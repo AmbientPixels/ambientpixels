@@ -160,10 +160,16 @@
         <input type="text" id="card-name" placeholder="Card Name" />
 
         <label for="card-class">Class/Type</label>
-        <input type="text" id="card-class" placeholder="e.g. Ranger, Castle, Artifact" />
+        <div class="stat-row">
+          <input type="text" id="card-class" placeholder="e.g. Ranger, Castle, Artifact" />
+          <button type="button" class="remove-attribute" data-target="card-class">&times;</button>
+        </div>
 
         <label for="card-rarity">Rarity</label>
-        <input type="text" id="card-rarity" placeholder="e.g. Common, Rare, Legendary" />
+        <div class="stat-row">
+          <input type="text" id="card-rarity" placeholder="e.g. Common, Rare, Legendary" />
+          <button type="button" class="remove-attribute" data-target="card-rarity">&times;</button>
+        </div>
 
         <label for="card-quote">Quote/Description</label>
         <textarea id="card-quote" rows="2" placeholder="Epic one-liner or brief description"></textarea>

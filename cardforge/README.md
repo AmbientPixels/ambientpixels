@@ -9,10 +9,15 @@ CardForge V2 is a production-ready, browser-based toolkit for designing, editing
 
 ---
 
-## 🚀 Current Status: Production-Ready & Anonymous Access (July 20, 2025)
+## 🚀 Current Status: Production-Ready & Anonymous Access (July 25, 2025)
 
 ### ✅ Completed
 - Core card creation, editing, and publishing functionality
+- New Card Design tab created as first tab — combines Theme, Variant, and Artwork tools into a unified layout
+- Renamed former "Artwork" tab and repositioned it to improve UX flow
+- Grouped visual controls (style variant, image picker, custom image URL) under Card Design for consistency
+- Improved real-time card preview response to visual changes
+- Structured tab flow to begin with card appearance, followed by Basics, Stats, Social, Badges, and Attributes
 - All CardForge API endpoints now allow anonymous access—no authentication required
 - Secure API integration with CSRF protection (not tied to authentication)
 - Input validation, sanitization, and robust error handling throughout
@@ -26,37 +31,31 @@ CardForge V2 is a production-ready, browser-based toolkit for designing, editing
 - Staticwebapp.config.json routes explicitly allow ["anonymous"] for all CardForge endpoints
 - Managed Identity and Storage Blob Data Contributor role configured for backend
 - Fixed modal dialog system with accessibility and event cleanup
-- Core card creation, editing, and publishing functionality
-- All CardForge API endpoints now allow anonymous access—no authentication required
-- Secure API integration with CSRF protection (not tied to authentication)
-- Input validation, sanitization, and robust error handling throughout
-- Responsive design with Nova/Windsurf Protocol compliance
-- All CardForge frontend JS and CSS fully reviewed for auth remnants—none remain
-- Staticwebapp.config.json routes explicitly allow ["anonymous"] for all CardForge endpoints
-- Managed Identity and Storage Blob Data Contributor role configured for backend
-- Fixed modal dialog system with accessibility and event cleanup
 - Live deployment tested and verified for anonymous users (no login prompts or errors)
 
 ### 🔄 In Progress
 - Finalizing theme preset designs and CSS for NeoFantasy, SynthwaveHacker, and ProPersona
 - Styling back face content and layout (lore, bio, powers, alignment, achievements)
 - Polishing stat bar animations and responsive behavior
-- Resolving live preview lint errors in card-forge-editor.js (duplicate declarations)
 - Performance optimizations and code cleanup for editor scripts
 - Documentation updates and developer onboarding refinements
 - Final production smoke testing of all user flows
-- Performance optimization
+- Performance optimization and bundle size reduction
 - Documentation and onboarding updates
 
 ---
 
-## 🧩 Core Features
+## 🎨 Core Features
 
-### 🃏 Card System
-- Real-time card preview with validation
-- Template-based card creation
-- Responsive design for all devices
-- Support for images, text, and custom fields
+### Card System
+- **Card Design Tab**: Unified interface for visual customization including theme, variant, and artwork selection
+- **Gallery Integration**: Browse and select from a paginated image gallery or use custom URLs
+- **Visual Customization**: Choose from multiple image styles (Masked, Hero, Full Bleed) with variant options
+- **Theme System**: Multiple visual themes (NeoFantasy, SynthwaveHacker, ProPersona) with consistent styling
+- **Responsive Design**: Fully responsive layout that works across desktop and mobile devices
+- **Live Preview**: Real-time preview updates as you modify card properties
+- **Export Options**: Save as image or JSON for integration with other tools
+- **Modular Visual System**: Foundation for future enhancements like foil effects, filters, and 3D variants
 
 ### 🔒 Security Features
 - CSRF protection (active for all POST requests, not tied to login)
@@ -240,9 +239,16 @@ Development paused for the night. Tomorrow's priorities:
 - Address remaining lint warnings and finalize CSS ordering
 - Validate all theme/variant combinations visually
 
-## 📅 Session Update (2025-07-24)
+## 📅 Session Updates
 
-### Card Layout Progress ✅
+### UX Refactor: Card Design Tab Introduced (2025-07-25)
+- Introduced new `Card Design` tab as first in flow
+- Migrated Theme + Variant controls into design tab alongside artwork tools
+- Updated tab navigation to follow creation narrative: Visual → Identity → Stats → Social
+- Improved card preview responsiveness to visual selections
+- Laid foundation for future visual FX tools (foil, filters, layout variants)
+
+### Card Layout Progress (2025-07-24) ✅
 - **Dynamic height scaling**: Cards now properly expand based on content amount
 - **Stat bar containment**: All three stat bars display correctly within card boundaries
 - **Badges tab stability**: Fixed width inconsistency in badges tab when adding multiple badges

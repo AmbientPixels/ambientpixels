@@ -30,6 +30,20 @@
     input.addEventListener('change', updatePreview);
   });
 
+  // Add click handlers for delete buttons in Basics tab
+  document.querySelectorAll('.cf-section[data-step-section="2"] .remove-attribute').forEach(button => {
+    button.addEventListener('click', (e) => {
+      const row = e.target.closest('.stat-row');
+      if (row) {
+        const input = row.querySelector('input[type="text"]');
+        if (input) {
+          input.value = '';
+          updatePreview();
+        }
+      }
+    });
+  });
+
   // Initial preview on load
   updatePreview();
     // Bind static stat slider displays
