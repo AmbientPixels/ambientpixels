@@ -894,3 +894,31 @@
     width: calc(100% - 2rem);
   }
 }
+
+/* Badge Style variants */
+.image-style-badge .card-avatar {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto;
+}
+.image-style-badge[data-image-variant="standard"] .card-avatar {
+  border: 2px solid var(--card-border);
+}
+.image-style-badge[data-image-variant="glow"] .card-avatar {
+  box-shadow: 0 0 8px var(--card-glow);
+}
+.image-style-badge[data-image-variant="holographic"] .card-avatar {
+  background: linear-gradient(135deg, #aaf, #eef);
+}
+.image-style-badge[data-image-variant="metallic"] .card-avatar {
+  background: linear-gradient(145deg, #ccc, #eee);
+}
+
+/* Full Bleed Grid variant */
+.image-style-full-bleed[data-image-variant="grid"] .card-preview-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}

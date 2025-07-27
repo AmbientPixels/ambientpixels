@@ -256,128 +256,244 @@
         // Template defaults logic
         const themeSelect = document.getElementById('card-theme');
         const defaultData = {
-          NeoFantasy: {
-            name: 'Aria Silverleaf',
-            class: 'Druid',
-            quote: 'Nature\'s arcane embrace.',
-            avatar: '/images/image-packs/characters/ember-gaze.jpg',
-            achievement: 'Forest Guardian',
-            rarity: 'Epic',
-            bio: 'Warden of the ancient woods.',
-            superpower: 'Earthshaping',
-            alignment: 'Neutral Good',
-            origin: 'Emerald Grove',
-            faction: 'Circle of Sylvan',
-            badge: 'Mythic Verdant',
-            stats: [{ name: 'Nature', value: 85 }, { name: 'Magic', value: 70 }, { name: 'Resilience', value: 60 }],
-            social: [
-               { name: 'Twitter', url: 'https://twitter.com/aria_silverleaf' },
-               { name: 'LinkedIn', url: 'https://linkedin.com/in/ariasilverleaf' }
-             ],
-             micro: [
-               { category: 'Skill', icon: 'star', desc: 'Arcane skill' },
-               { category: 'Nature', icon: 'leaf', desc: 'Earth magic' }
-             ],
-             imageStyle: 'masked',
-             imageVariant: 'circle'
-          },
-          SynthwaveHacker: {
-            name: 'Nyx Byte',
-            class: 'Hacker',
-            quote: 'Code is my neon blood.',
-            avatar: '/images/image-packs/characters-02/Seraphim.png',
-            achievement: 'Cyber Legend',
-            rarity: 'Rare',
-            bio: 'Lives in the digital frontier.',
-            superpower: 'Data Surge',
-            alignment: 'Chaotic Neutral',
-            origin: 'Neon City',
-            faction: 'Glitch Society',
-            badge: 'Binary Badge',
-            stats: [{ name: 'Tech', value: 95 }, { name: 'Speed', value: 80 }, { name: 'Stealth', value: 75 }],
-            social: [
-               { name: 'GitHub', url: 'https://github.com/nyxbyte' },
-               { name: 'Discord', url: 'https://discord.gg/glitchsociety' }
-             ],
-             micro: [
-               { category: 'Hack', icon: 'terminal', desc: 'System infiltration' },
-               { category: 'Speed', icon: 'bolt', desc: 'Quick response' }
-             ],
-             imageStyle: 'hero',
-             imageVariant: 'large'
-          },
-          ProPersona: {
-            name: 'Alex Mercer',
-            class: 'Agent',
-            quote: 'Profession is my identity.',
-            avatar: '/images/image-packs/characters-03-super-heroes/Chad-01.png',
-            achievement: 'Top Performer',
-            rarity: 'Common',
-            bio: 'Executive strategist and leader.',
-            superpower: 'Tactical Mastery',
-            alignment: 'Lawful Neutral',
-            origin: 'Metro HQ',
-            faction: 'Persona Corp',
-            badge: 'Employee of the Month',
-            stats: [{ name: 'Leadership', value: 90 }, { name: 'Charisma', value: 80 }, { name: 'Intelligence', value: 85 }],
-            social: [
-               { name: 'LinkedIn', url: 'https://linkedin.com/in/alexmercer' },
-               { name: 'Twitter', url: 'https://twitter.com/alexmercer' }
-             ],
-             micro: [
-               { category: 'Leadership', icon: 'star', desc: 'Pinnacle leader' }
-             ],
-             imageStyle: 'full-bleed',
-             imageVariant: 'ambient'
-          }
-        };
-        function applyDefaults(theme) {
-          const data = defaultData[theme];
-          if (!data) return;
-          const setInput = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
-          setInput('card-name', data.name);
-          setInput('card-class', data.class);
-          setInput('card-quote', data.quote);
-          setInput('card-avatar', data.avatar);
-          setInput('card-rarity', data.rarity);
-          setInput('card-bio', data.bio);
-          
-          // Image Style: set defaults
-          if (data.imageStyle) {
-            setInput('image-style', data.imageStyle);
-            if (imageStyleSelect) {
-              updateVariantOptions(data.imageStyle);
-              if (data.imageVariant) {
-                setInput('image-variant', data.imageVariant);
-              }
+            NeoFantasy: {
+                name: 'Aria Silverleaf',
+                class: 'Druid',
+                quote: 'Nature\'s arcane embrace.',
+                avatar: '/images/image-packs/characters/ember-gaze.jpg',
+                achievement: 'Forest Guardian',
+                rarity: 'Epic',
+                bio: 'Warden of the ancient woods.',
+                superpower: 'Earthshaping',
+                alignment: 'Neutral Good',
+                origin: 'Emerald Grove',
+                faction: 'Circle of Sylvan',
+                badge: 'Mythic Verdant',
+                stats: [
+                    { name: 'Nature', value: 85 },
+                    { name: 'Magic', value: 70 },
+                    { name: 'Resilience', value: 60 }
+                ],
+                social: [
+                    { name: 'Twitter', url: 'https://twitter.com/aria_silverleaf' },
+                    { name: 'LinkedIn', url: 'https://linkedin.com/in/ariasilverleaf' }
+                ],
+                micro: [
+                    { category: 'Skill', icon: 'star', desc: 'Arcane skill' },
+                    { category: 'Nature', icon: 'leaf', desc: 'Earth magic' }
+                ],
+                imageStyle: 'masked',
+                imageVariant: 'circle'
+            },
+            SynthwaveHacker: {
+                name: 'Nyx Byte',
+                class: 'Hacker',
+                quote: 'Code is my neon blood.',
+                avatar: '/images/image-packs/characters-02/Seraphim.png',
+                achievement: 'Cyber Legend',
+                rarity: 'Rare',
+                bio: 'Lives in the digital frontier.',
+                superpower: 'Data Surge',
+                alignment: 'Chaotic Neutral',
+                origin: 'Neon City',
+                faction: 'Glitch Society',
+                badge: 'Binary Badge',
+                stats: [
+                    { name: 'Tech', value: 95 },
+                    { name: 'Speed', value: 80 },
+                    { name: 'Stealth', value: 75 }
+                ],
+                social: [
+                    { name: 'GitHub', url: 'https://github.com/nyxbyte' },
+                    { name: 'Discord', url: 'https://discord.gg/glitchsociety' }
+                ],
+                micro: [
+                    { category: 'Hack', icon: 'terminal', desc: 'System infiltration' },
+                    { category: 'Speed', icon: 'bolt', desc: 'Quick response' }
+                ],
+                imageStyle: 'hero',
+                imageVariant: 'large'
+            },
+            ProPersona: {
+                name: 'Alex Mercer',
+                class: 'Agent',
+                quote: 'Profession is my identity.',
+                avatar: '/images/image-packs/characters-03-super-heroes/Chad-01.png',
+                achievement: 'Top Performer',
+                rarity: 'Common',
+                bio: 'Executive strategist and leader.',
+                superpower: 'Tactical Mastery',
+                alignment: 'Lawful Neutral',
+                origin: 'Metro HQ',
+                faction: 'Persona Corp',
+                badge: 'Employee of the Month',
+                stats: [
+                    { name: 'Leadership', value: 90 },
+                    { name: 'Charisma', value: 80 },
+                    { name: 'Intelligence', value: 85 }
+                ],
+                social: [
+                    { name: 'LinkedIn', url: 'https://linkedin.com/in/alexmercer' },
+                    { name: 'Twitter', url: 'https://twitter.com/alexmercer' }
+                ],
+                micro: [
+                    { category: 'Leadership', icon: 'star', desc: 'Pinnacle leader' }
+                ],
+                imageStyle: 'badge',
+                imageVariant: 'standard'
+            },
+            NovaCore: {
+                name: 'Luna Radiant',
+                class: 'Oracle',
+                quote: 'Guided by the celestial glow.',
+                avatar: '/images/image-packs/characters/carved-celestial-goddess.jpg',
+                achievement: 'Moon Seer',
+                rarity: 'Legendary',
+                bio: 'A mystic who channels lunar power.',
+                superpower: 'Moonlight Infusion',
+                alignment: 'Chaotic Good',
+                origin: 'Silver Crescent Isle',
+                faction: 'Celestial Order',
+                badge: 'Eclipse Emblem',
+                stats: [
+                    { name: 'Mysticism', value: 95 },
+                    { name: 'Insight', value: 85 },
+                    { name: 'Grace', value: 80 }
+                ],
+                social: [
+                    { name: 'Twitter', url: 'https://twitter.com/lunaradiant' }
+                ],
+                micro: [
+                    { category: 'Mystic Sigil', icon: 'star', desc: 'Lunar wisdom' }
+                ],
+                imageStyle: 'full-bleed',
+                imageVariant: 'ambient'
+            },
+            Scientist: {
+                name: 'Nova Snow',
+                class: 'Scientist',
+                quote: 'Science is my passion.',
+                avatar: '/images/image-packs/characters-04-scientists/Scientist-01.png',
+                achievement: 'Breakthrough Discovery',
+                rarity: 'Uncommon',
+                bio: 'Researcher and inventor.',
+                superpower: 'Genius Mind',
+                alignment: 'Neutral Good',
+                origin: 'Research Facility',
+                faction: 'Science Guild',
+                badge: 'Researcher Badge',
+                stats: [
+                    { name: 'Intelligence', value: 95 },
+                    { name: 'Science', value: 90 },
+                    { name: 'Experimentation', value: 80 }
+                ],
+                social: [
+                    { name: 'GitHub', url: 'https://github.com/novasnow' },
+                    { name: 'Twitter', url: 'https://twitter.com/novasnow' }
+                ],
+                micro: [
+                    { category: 'Experiment', icon: 'flask', desc: 'Lab experiment' },
+                    { category: 'Science', icon: 'atom', desc: 'Scientific knowledge' }
+                ],
+                imageStyle: 'full-bleed',
+                imageVariant: 'ambient'
             }
-          }
-          
-          // Attributes: reset rows and add defaults
-          attributeEditor.innerHTML = `
-  <div class="attribute-group attribute-basic"><h4>Origin / Alignment / Faction</h4></div>
-  <div class="attribute-group attribute-special"><h4>Achievement / Superpower / Badge</h4></div>
-`;
-const basicGroup = attributeEditor.querySelector('.attribute-basic');
-const specialGroup = attributeEditor.querySelector('.attribute-special');;
-          if (data.achievement) specialGroup.appendChild(createAttributeRow('Achievement', data.achievement));
-          if (data.superpower) specialGroup.appendChild(createAttributeRow('Superpower', data.superpower));
-          if (data.alignment) basicGroup.appendChild(createAttributeRow('Alignment', data.alignment));
-          if (data.origin) basicGroup.appendChild(createAttributeRow('Origin', data.origin));
-          if (data.faction) basicGroup.appendChild(createAttributeRow('Faction', data.faction));
-          if (data.badge) specialGroup.appendChild(createAttributeRow('Badge', data.badge));
-          // Stats: reset rows
-          statsEditor.innerHTML = '';
-          data.stats.forEach(stat => statsEditor.appendChild(createStatRow(stat.name, stat.value)));
-          // Social: reset rows
-          socialEditor.innerHTML = '';
-           // Micro: reset rows
-           microEditor.innerHTML = '';
-           (data.micro || []).forEach(m => microEditor.appendChild(createMicroRow(m.category, m.icon, m.desc)));
-           // Update addMicroBtn state
-           addMicroBtn.disabled = (microEditor.querySelectorAll('.micro-row').length >= 6);
-           
-          (data.social || []).forEach(s => socialEditor.appendChild(createSocialRow(s.name, s.url)));
+        };
+
+        function applyDefaults(theme) {
+            const data = defaultData[theme];
+            if (!data) return;
+
+            // Override ProPersona to Badge style defaults
+            if (theme === 'ProPersona') { 
+                data.imageStyle = 'badge'; 
+                data.imageVariant = 'standard'; 
+            }
+
+            const setInput = (id, val) => { 
+                const el = document.getElementById(id); 
+                if (el) el.value = val; 
+            };
+
+            // Set basic fields
+            setInput('card-name', data.name);
+            setInput('card-class', data.class);
+            setInput('card-quote', data.quote);
+            setInput('card-avatar', data.avatar);
+            setInput('card-rarity', data.rarity);
+            setInput('card-bio', data.bio);
+            
+            // Set image style and variant
+            const styleSelect = document.getElementById('image-style');
+            const variantSelect = document.getElementById('image-variant');
+            
+            if (styleSelect && variantSelect) {
+                const style = data.imageStyle || 'masked';
+                const variant = data.imageVariant || 'circle';
+                
+                // Set the style first
+                styleSelect.value = style;
+                
+                // Update variant options based on the selected style
+                updateVariantOptions(style);
+                
+                // Set the variant after a small delay to ensure options are populated
+                setTimeout(() => {
+                    if (variantSelect.querySelector(`option[value="${variant}"]`)) {
+                        variantSelect.value = variant;
+                    } else if (variantSelect.options.length > 0) {
+                        // If the specified variant doesn't exist, use the first available
+                        variantSelect.value = variantSelect.options[0].value;
+                    }
+                    // Trigger preview update to reflect the changes
+                    updatePreview();
+                }, 50);
+            }
+            
+            // Set up attribute groups
+            if (attributeEditor) {
+                attributeEditor.innerHTML = `
+                    <div class="attribute-group attribute-basic"><h4>Origin / Alignment / Faction</h4></div>
+                    <div class="attribute-group attribute-special"><h4>Achievement / Superpower / Badge</h4></div>
+                `;
+                
+                const basicGroup = attributeEditor.querySelector('.attribute-basic');
+                const specialGroup = attributeEditor.querySelector('.attribute-special');
+                
+                // Add attributes to their respective groups
+                if (data.achievement) specialGroup.appendChild(createAttributeRow('Achievement', data.achievement));
+                if (data.superpower) specialGroup.appendChild(createAttributeRow('Superpower', data.superpower));
+                if (data.alignment) basicGroup.appendChild(createAttributeRow('Alignment', data.alignment));
+                if (data.origin) basicGroup.appendChild(createAttributeRow('Origin', data.origin));
+                if (data.faction) basicGroup.appendChild(createAttributeRow('Faction', data.faction));
+                if (data.badge) specialGroup.appendChild(createAttributeRow('Badge', data.badge));
+            }
+            
+            // Set up stats
+            if (statsEditor) {
+                statsEditor.innerHTML = '';
+                data.stats.forEach(stat => statsEditor.appendChild(createStatRow(stat.name, stat.value)));
+            }
+            
+            // Set up social links
+            if (socialEditor) {
+                socialEditor.innerHTML = '';
+                (data.social || []).forEach(s => socialEditor.appendChild(createSocialRow(s.name, s.url)));
+            }
+            
+            // Set up micro badges
+            if (microEditor) {
+                microEditor.innerHTML = '';
+                (data.micro || []).forEach(m => microEditor.appendChild(createMicroRow(m.category, m.icon, m.desc)));
+                
+                // Update addMicroBtn state
+                if (addMicroBtn) {
+                    addMicroBtn.disabled = (microEditor.querySelectorAll('.micro-row').length >= 6);
+                }
+            }
+            
+            // Trigger preview update
+            updatePreview();
         }
         // Apply defaults on load
         applyDefaults(themeSelect?.value);
@@ -813,9 +929,16 @@ const specialGroup = attributeEditor.querySelector('.attribute-special');;
       { value: 'large', label: 'Large' },
       { value: 'small', label: 'Small' }
     ],
+    'badge': [
+      { value: 'standard', label: 'Standard' },
+      { value: 'glow', label: 'Glow' },
+      { value: 'holographic', label: 'Holographic' },
+      { value: 'metallic', label: 'Metallic' }
+    ],
     'full-bleed': [
       { value: 'ambient', label: 'Ambient' },
-      { value: 'overlay-safe', label: 'Overlay Safe' }
+      { value: 'overlay-safe', label: 'Overlay Safe' },
+      { value: 'grid', label: 'Grid' }
     ]
   };
   
@@ -823,6 +946,7 @@ const specialGroup = attributeEditor.querySelector('.attribute-special');;
   const defaultVariants = {
     'masked': 'circle',
     'hero': 'large',
+    'badge': 'standard',
     'full-bleed': 'ambient'
   };
   
@@ -866,9 +990,16 @@ const specialGroup = attributeEditor.querySelector('.attribute-special');;
         'large': 'Render this artwork in Hero Style with large composition. The main subject should be prominently featured with ample negative space around it. Use dramatic lighting and perspective to create a sense of importance and scale (3:1 aspect ratio).',
         'small': 'Render this artwork in Hero Style with small composition. The subject should be clearly visible but in a more compact space (2:1 aspect ratio). Use efficient composition to maximize impact in the smaller space.'
       },
+      'badge': {
+        'standard': 'Render this artwork as a Badge Style with a clean circular frame and subtle border. The image should fit within a small circular badge, with the background either transparent or matching the card theme.',
+        'glow': 'Render this artwork as a Badge Style with a neon glow effect. The circular badge should have a soft animated glow around the edges to create a futuristic look.',
+        'holographic': 'Render this artwork as a Badge Style with a holographic sheen. The badge should display iridescent colors and light refractions for a high-tech, dynamic appearance.',
+        'metallic': 'Render this artwork as a Badge Style with a metallic texture. The badge frame should have a brushed metal finish with subtle embossing and reflective highlights.'
+      },
       'full-bleed': {
         'ambient': 'Render this artwork in Full Bleed Style with ambient composition. The image should extend to all edges without any framing or borders. Use atmospheric effects, lighting, and composition to create an immersive, expansive feel. The entire canvas should be filled with visual interest.',
-        'overlay-safe': 'Render this artwork in Full Bleed Style with overlay-safe composition. The image should extend to all edges, but leave space for UI elements. Use high contrast and clear composition to ensure text and UI elements remain readable when overlaid on the image.'
+        'overlay-safe': 'Render this artwork in Full Bleed Style with overlay-safe composition. The image should extend to all edges, but leave space for UI elements. Use high contrast and clear composition to ensure text and UI elements remain readable when overlaid on the image.',
+        'grid': 'Render this artwork in Full Bleed Style with grid composition. Split the canvas into defined panels or grid sections, pairing segments of the image with content panels for a dynamic, modular layout.'
       }
     };
     
@@ -960,9 +1091,25 @@ const specialGroup = attributeEditor.querySelector('.attribute-special');;
 
   // Initialize image style system
   if (imageStyleSelect && imageVariantSelect) {
-    // Set default style to masked
-    imageStyleSelect.value = 'masked';
-    updateVariantOptions('masked');
+    // Get current theme and set appropriate defaults
+    const currentTheme = themeSelect?.value || 'NeoFantasy';
+    const themeData = defaultData[currentTheme] || {};
+    
+    // Set default style based on theme, fallback to masked
+    const defaultStyle = themeData.imageStyle || 'masked';
+    const defaultVariant = themeData.imageVariant || 'circle';
+    
+    // Apply the style and variant
+    imageStyleSelect.value = defaultStyle;
+    updateVariantOptions(defaultStyle);
+    
+    // Set the variant after a small delay to ensure options are populated
+    setTimeout(() => {
+      if (imageVariantSelect.querySelector(`option[value="${defaultVariant}"]`)) {
+        imageVariantSelect.value = defaultVariant;
+      }
+      updatePreview();
+    }, 50);
     
     // Add event listeners
     imageStyleSelect.addEventListener('change', (e) => {
