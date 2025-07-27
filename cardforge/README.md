@@ -44,7 +44,64 @@ CardForge V2 is a production-ready, browser-based toolkit for designing, editing
 - Documentation and onboarding updates
 
 ---
+## 🔮 Next Phase: CardForge v2.5 – Modular Expression Update
 
+"Every card a signature. Every detail a choice."
+
+### 🌟 Major Features & Enhancements
+
+1. **Visual Design Selectors (UI Upgrade)**
+   - **Theme (Layout)**: Mini-card thumbnail grid for layout previews (Left-Aligned, Stacked Portrait, Grid, etc.)
+   - **Color Variant (Palette)**: Live swatch selectors showing core palettes; hover to expand, click to apply.
+   - **Image Style**: Masked shape preview selector (Circle, Hexagon, Blob, Full Bleed, Hero).
+   - **Image Variant**: Effect filter strip with live thumbnails (Glow Aura, Vintage Filter, Pixel Mask, Sketch Overlay).
+
+2. **Back of Card Customization**
+   - Upload or select a separate back image with live flip preview.
+   - Toggle option: "Use same image as front" for mirrored designs.
+
+3. **Border Customization**
+   - Toggle border on/off with style options (None, Thin, Bold, Etched, Glow).
+   - Choose border color from system palette or enter custom HEX.
+
+4. **Background Effects (FX Layer)**
+   - Ambient background effects: Particles, Nebula Drift, Noise Texture, Flux Lines.
+   - Adjustable intensity: None, Subtle, Bold.
+
+5. **Section Toggle Controls**
+   - Show/Hide toggles for Class, Rarity, Stats, Social, Badges, Attributes.
+   - Name and Bio/Quote remain required and always visible.
+   - Live checklist panel for modular visibility controls.
+
+6. **Smart Height Sync**
+   - Measure front/back content heights and set container to the greater height.
+   - Smooth CSS transition (`transition: height 0.3s ease-in-out`) to avoid flicker on flip.
+
+7. **Updated Card JSON Schema**
+```json
+{
+  "design": {
+    "theme": "left-align",
+    "colorVariant": "nova",
+    "imageStyle": "masked",
+    "imageVariant": "glow",
+    "backImage": "<url_or_id>",
+    "fx": { "background": "particles", "intensity": "subtle" },
+    "border": { "enabled": true, "style": "etched", "color": "#9dff5c" }
+  },
+  "sections": {
+    "class": true,
+    "rarity": true,
+    "stats": false,
+    "social": true,
+    "badges": false,
+    "attributes": true
+  }
+}
+```
+
+These enhancements lay the foundation for a truly modular, expressive CardForge experience in v2.5.
+---
 ## 🎨 Core Features
 
 ### Card System
