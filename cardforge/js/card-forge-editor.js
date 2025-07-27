@@ -719,7 +719,14 @@
       
       // Create and append the avatar/image
       if (avatar && (ValidationUtils.isValidImageUrl(avatar) || avatar.startsWith('/'))) {
-        const avatarClasses = `card-avatar image-${imageStyleData.style}`;
+        const isMasked = imageStyleData.style === 'masked';
+        
+        // Determine the appropriate class based on style and variant
+        const imageStyleClass = isMasked 
+          ? `image-${imageStyleData.style}-${imageStyleData.variant}`
+          : `image-${imageStyleData.style}`;
+          
+        const avatarClasses = `card-avatar ${imageStyleClass}`;
         const avatarImg = createElement('img', { 
           src: avatar, 
           class: avatarClasses, 
@@ -731,20 +738,35 @@
         if (isFullBleed) {
           // For full-bleed, add the image directly to the front
           front.insertBefore(avatarImg, front.firstChild);
+        } else if (imageStyleData.style === 'hero') {
+          // For hero style, create a header and add the image to it
+          const header = createElement('div', { class: 'card-header' });
+          header.appendChild(avatarImg);
+          
+          // Add name to the header overlay
+          if (name) {
+            const nameEl = createElement('h3', { class: 'card-name' }, name);
+            header.appendChild(nameEl);
+          }
+          
+          // Add the header to the preview content
+          previewContent.appendChild(header);
         } else {
-          // For other styles, add to the header
+          // For other styles, add to the header without overlay
           const header = createElement('div', { class: 'card-header' });
           header.appendChild(avatarImg);
           previewContent.appendChild(header);
         }
       }
       
-      // Add name and class
-      if (!isFullBleed || isOverlaySafe) {
+      // Add name and class - only if not already added in hero style
+      if ((!isFullBleed || isOverlaySafe) && imageStyleData.style !== 'hero') {
         const header = isFullBleed ? previewContent : createElement('div', { class: 'card-header' });
         if (!isFullBleed) previewContent.appendChild(header);
         
-        header.appendChild(createElement('h3', { class: 'card-name' }, name || 'Card Name'));
+        if (name) {
+          header.appendChild(createElement('h3', { class: 'card-name' }, name));
+        }
         if (cardClass) {
           header.appendChild(createElement('p', { class: 'card-class' }, cardClass));
         }
