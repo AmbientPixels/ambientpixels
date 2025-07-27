@@ -3,6 +3,56 @@
 // Updated 2025-07-05: Now using shared validation utilities
 
 (function(){
+  // Simple and reliable flip functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM fully loaded, setting up flip button...');
+    
+    // Function to handle flip
+    function flipCard() {
+      console.log('Flipping card...');
+      const cardInner = document.querySelector('.card-container .card-inner');
+      if (cardInner) {
+        cardInner.classList.toggle('flipped');
+        console.log('Card flipped:', cardInner.classList.contains('flipped'));
+      } else {
+        console.error('Card inner element not found');
+      }
+    }
+    
+    // Set up flip button
+    const flipBtn = document.getElementById('flip-btn');
+    if (flipBtn) {
+      console.log('Flip button found, adding click handler');
+      flipBtn.onclick = function(e) {
+        e.preventDefault();
+        flipCard();
+        return false;
+      };
+    } else {
+      console.error('Flip button not found in DOM');
+    }
+    
+    // Handle tab changes for auto-flip
+    document.addEventListener('click', function(e) {
+      const tabButton = e.target.closest('.tab-button');
+      if (tabButton) {
+        const section = tabButton.getAttribute('data-section');
+        const cardInner = document.querySelector('.card-container .card-inner');
+        if (cardInner) {
+          if (section && ['social', 'badges', 'attributes'].includes(section)) {
+            cardInner.classList.add('flipped');
+          } else {
+            cardInner.classList.remove('flipped');
+          }
+        }
+      }
+    });
+    
+    // Add flip method to window for testing
+    window.flipCard = flipCard;
+    console.log('Flip functionality initialized');
+  });
+
   const nameInput = document.getElementById('card-name');
   const classInput = document.getElementById('card-class');
   const quoteInput = document.getElementById('card-quote');
@@ -1139,12 +1189,5 @@
     }
   });
 
-// Flip card view handler
-  const flipBtn = document.getElementById('flip-btn');
-  const cardInner = document.querySelector('.card-inner');
-  if (flipBtn && cardInner) {
-    flipBtn.addEventListener('click', () => {
-      cardInner.classList.toggle('flipped');
-    });
-  }
+// Flip functionality is now handled at the top of the file
 })();
