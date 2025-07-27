@@ -576,11 +576,12 @@
           // Stats
           cardData.stats = [];
           document.querySelectorAll('#stats-editor .stat-row').forEach(row => {
-            const name = row.querySelector('input[name="stat-name"]')?.value;
-            const value = row.querySelector('input[name="stat-value"]')?.value;
+            const nameInput = row.querySelector('input[name="stat-name"]');
+            const valueInput = row.querySelector('input[name="stat-value"]');
             
             
-            const val = parseInt(value, 10);
+            const name = nameInput?.value.trim();
+            const val = parseInt(valueInput?.value, 10);
 
             if (name) cardData.stats.push({ name, value: isNaN(val) ? 0 : val });
           });
@@ -659,21 +660,12 @@
     const quote = quoteInput?.value || '';
     const avatar = avatarInput?.value || '';
     
-    
-    
-    
-    const rarityEl = document.getElementById('card-rarity');
-    const bioEl = document.getElementById('card-bio');
-
-    const rarity = rarityEl?.value || '';
-    const bio = bioEl?.value || '';
     // Collect stats from dynamic editor
     let statsObj = {};
     const statRows = document.querySelectorAll('#stats-editor .stat-row');
     statRows.forEach(row => {
       const nameInput = row.querySelector('input[name="stat-name"]');
       const valueInput = row.querySelector('input[name="stat-value"]');
-      
       
       const name = nameInput?.value.trim();
       const val = parseInt(valueInput?.value, 10);
@@ -699,19 +691,35 @@
     const variant = document.getElementById('card-template-type')?.value || 'default';
     const theme = document.getElementById('card-theme')?.value || '';
     const front = document.getElementById('card-preview');
+    
+    // Get image style data
+    const isFullBleed = imageStyleData.style === 'full-bleed';
+    const isOverlaySafe = isFullBleed && imageStyleData.variant === 'overlay-safe';
+    
     // Apply theme and image style classes
     if (front) {
       front.className = `card-preview-canvas card-front theme-${theme.toLowerCase()} variant-${variant} image-style-${imageStyleData.style}`;
       front.setAttribute('data-image-style', imageStyleData.style);
       front.setAttribute('data-image-variant', imageStyleData.variant);
-    }
-    if (front) {
+      
+      // Clear existing content
       front.innerHTML = '';
-      const previewContent = createElement('div', { class: 'card-preview-content' });
-      // Avatar & name
-      const header = createElement('div', { class: 'card-header' });
+      
+      // Create the main preview content container
+      let previewContent = createElement('div', { class: 'card-preview-content' });
+      
+      // For overlay-safe variant, wrap content in an overlay container
+      if (isOverlaySafe) {
+        const overlay = createElement('div', { class: 'card-overlay' });
+        front.appendChild(overlay);
+        overlay.appendChild(previewContent);
+      } else {
+        front.appendChild(previewContent);
+      }
+      
+      // Create and append the avatar/image
       if (avatar && (ValidationUtils.isValidImageUrl(avatar) || avatar.startsWith('/'))) {
-        const avatarClasses = `card-avatar image-${imageStyleData.style}-${imageStyleData.variant}`;
+        const avatarClasses = `card-avatar image-${imageStyleData.style}`;
         const avatarImg = createElement('img', { 
           src: avatar, 
           class: avatarClasses, 
@@ -719,22 +727,30 @@
           'data-image-style': imageStyleData.style,
           'data-image-variant': imageStyleData.variant
         });
-        header.appendChild(avatarImg);
+        
+        if (isFullBleed) {
+          // For full-bleed, add the image directly to the front
+          front.insertBefore(avatarImg, front.firstChild);
+        } else {
+          // For other styles, add to the header
+          const header = createElement('div', { class: 'card-header' });
+          header.appendChild(avatarImg);
+          previewContent.appendChild(header);
+        }
       }
-      header.appendChild(createElement('h3', {}, name || 'Card Name'));
-    
-    // Create card body wrapper for Hero style only
-    const isHeroStyle = imageStyleData.style === 'hero';
-    
-    let bodyContainer;
-    if (isHeroStyle) {
-      previewContent.appendChild(header);
-      bodyContainer = createElement('div', { class: 'card-body' });
-    } else {
-      previewContent.appendChild(header);
-      bodyContainer = previewContent;
-    }
       
+      // Add name and class
+      if (!isFullBleed || isOverlaySafe) {
+        const header = isFullBleed ? previewContent : createElement('div', { class: 'card-header' });
+        if (!isFullBleed) previewContent.appendChild(header);
+        
+        header.appendChild(createElement('h3', { class: 'card-name' }, name || 'Card Name'));
+        if (cardClass) {
+          header.appendChild(createElement('p', { class: 'card-class' }, cardClass));
+        }
+      }
+      
+      // Rest of the content (badges, stats, etc.)
       // Create badge container for class and rarity
       const badgeContainer = createElement('div', { class: 'badge-container' });
       
@@ -775,6 +791,8 @@
       }
       
       // Rarity badge
+      const rarityEl = document.getElementById('card-rarity');
+      const rarity = rarityEl?.value || '';
       if (rarity) {
         const rarityEl = createElement('div', { class: 'card-rarity' });
         const rarityLower = rarity.toLowerCase();
@@ -802,10 +820,10 @@
       
       // Only add badge container if it has children
       if (badgeContainer.hasChildNodes()) {
-        bodyContainer.appendChild(badgeContainer);
+        previewContent.appendChild(badgeContainer);
       }
       // Quote
-      if (quote) bodyContainer.appendChild(createElement('blockquote', { class: 'card-quote' }, quote));
+      if (quote) previewContent.appendChild(createElement('blockquote', { class: 'card-quote' }, quote));
       // Stat bars
       Object.entries(statsObj).forEach(([key, val]) => {
           const rowWrapper = createElement('div', { class: 'stat-row-preview' });
@@ -833,12 +851,12 @@
           barContainer.appendChild(progress);
           rowWrapper.appendChild(labelContainer);
           rowWrapper.appendChild(barContainer);
-          bodyContainer.appendChild(rowWrapper);
+          previewContent.appendChild(rowWrapper);
         });
       
       // Append bodyContainer to previewContent for Hero style
-      if (isHeroStyle) {
-        previewContent.appendChild(bodyContainer);
+      if (isFullBleed) {
+        previewContent.appendChild(badgeContainer);
       }
       front.appendChild(previewContent);
     }
@@ -853,6 +871,8 @@
     if (back) {
       back.innerHTML = '';
       const backContent = createElement('div', { class: 'card-preview-content' });
+      const bioEl = document.getElementById('card-bio');
+      const bio = bioEl?.value || '';
       if (bio) backContent.appendChild(createElement('p', { class: 'card-bio' }, bio));
 
       // Social links display
@@ -967,31 +987,6 @@
   const imageVariantSelect = document.getElementById('image-variant');
   const imageVariantLabel = document.getElementById('image-variant-label');
   
-  // Style variant mapping
-  const styleVariants = {
-    'masked': [
-      { value: 'circle', label: 'Circle' },
-      { value: 'hex', label: 'Hex' },
-      { value: 'blob', label: 'Blob' },
-      { value: 'teardrop', label: 'Tear Drop' }
-    ],
-    'hero': [
-      { value: 'large', label: 'Large' },
-      { value: 'small', label: 'Small' }
-    ],
-    'badge': [
-      { value: 'standard', label: 'Standard' },
-      { value: 'glow', label: 'Glow' },
-      { value: 'holographic', label: 'Holographic' },
-      { value: 'metallic', label: 'Metallic' }
-    ],
-    'full-bleed': [
-      { value: 'ambient', label: 'Ambient' },
-      { value: 'overlay-safe', label: 'Overlay Safe' },
-      { value: 'grid', label: 'Grid' }
-    ]
-  };
-  
   // Default variants for each style
   const defaultVariants = {
     'masked': 'circle',
@@ -1000,60 +995,61 @@
     'full-bleed': 'ambient'
   };
   
+  // Label text for each style
+  const variantLabels = {
+    'masked': 'Mask Shape',
+    'hero': 'Hero Size',
+    'badge': 'Badge Style',
+    'full-bleed': 'Overlay Style'
+  };
+  
   function updateVariantOptions(selectedStyle) {
-    const variants = styleVariants[selectedStyle] || [];
-    const defaultVariant = defaultVariants[selectedStyle] || variants[0]?.value;
-    
-    // Clear existing options
-    imageVariantSelect.innerHTML = '';
-    
-    // Add new options
-    variants.forEach(variant => {
-      const option = document.createElement('option');
-      option.value = variant.value;
-      option.textContent = variant.label;
-      if (variant.value === defaultVariant) {
-        option.selected = true;
-      }
-      imageVariantSelect.appendChild(option);
+    // Hide all variant options first
+    const allVariantOptions = imageVariantSelect.querySelectorAll('option');
+    allVariantOptions.forEach(option => {
+      option.style.display = 'none';
     });
     
-    // Update preview when variant changes
+    // Show only the relevant options for the selected style
+    const relevantOptions = imageVariantSelect.querySelectorAll(`.style-${selectedStyle}`);
+    relevantOptions.forEach(option => {
+      option.style.display = '';
+    });
+    
+    // Set the default variant for this style
+    const defaultVariant = defaultVariants[selectedStyle];
+    if (defaultVariant && imageVariantSelect.querySelector(`option[value="${defaultVariant}"]`)) {
+      imageVariantSelect.value = defaultVariant;
+    } else if (relevantOptions.length > 0) {
+      // Fallback to first available option if default not found
+      imageVariantSelect.value = relevantOptions[0].value;
+    }
+    
+    // Update the label text
+    if (imageVariantLabel) {
+      imageVariantLabel.textContent = variantLabels[selectedStyle] || 'Style Variant';
+    }
+    
+    // Update the preview
     updatePreview();
   }
   
+  // Initialize the variant options when the page loads
+  if (imageStyleSelect && imageVariantSelect) {
+    // Set up the change event listener
+    imageStyleSelect.addEventListener('change', (e) => {
+      updateVariantOptions(e.target.value);
+    });
+    
+    // Initialize with the current style
+    updateVariantOptions(imageStyleSelect.value);
+  }
+  
+  // Function to get the current image style data
   function getImageStyleData() {
     const style = imageStyleSelect?.value || 'masked';
     const variant = imageVariantSelect?.value || defaultVariants[style];
     return { style, variant };
-  }
-  
-  function generateStylePrompt(style, variant) {
-    const prompts = {
-      'masked': {
-        'circle': 'Render this artwork in Masked Style with circular framing. The subject should be centered within a perfect circle with soft edges. The background should be transparent or blurred to focus attention on the central circular composition.',
-        'hex': 'Render this artwork in Masked Style with hexagonal framing. The subject should be centered within a hexagon with clean, geometric edges. The background should be transparent or blurred to create contrast with the hexagonal frame.',
-        'blob': 'Render this artwork in Masked Style with organic blob framing. The subject should be contained within an irregular, flowing shape with soft, natural curves. The background should be transparent or blurred to highlight the organic shape.',
-        'teardrop': 'Render this artwork in Masked Style with teardrop framing. The subject should be composed within a teardrop shape, with the focal point at the wider end. The background should be transparent or blurred to emphasize the teardrop silhouette.'
-      },
-      'hero': {
-        'large': 'Render this artwork in Hero Style with large composition. The main subject should be prominently featured with ample negative space around it. Use dramatic lighting and perspective to create a sense of importance and scale (3:1 aspect ratio).',
-        'small': 'Render this artwork in Hero Style with small composition. The subject should be clearly visible but in a more compact space (2:1 aspect ratio). Use efficient composition to maximize impact in the smaller space.'
-      },
-      'badge': {
-        'standard': 'Render this artwork as a Badge Style with a clean circular frame and subtle border. The image should fit within a small circular badge, with the background either transparent or matching the card theme.',
-        'glow': 'Render this artwork as a Badge Style with a neon glow effect. The circular badge should have a soft animated glow around the edges to create a futuristic look.',
-        'holographic': 'Render this artwork as a Badge Style with a holographic sheen. The badge should display iridescent colors and light refractions for a high-tech, dynamic appearance.',
-        'metallic': 'Render this artwork as a Badge Style with a metallic texture. The badge frame should have a brushed metal finish with subtle embossing and reflective highlights.'
-      },
-      'full-bleed': {
-        'ambient': 'Render this artwork in Full Bleed Style with ambient composition. The image should extend to all edges without any framing or borders. Use atmospheric effects, lighting, and composition to create an immersive, expansive feel. The entire canvas should be filled with visual interest.',
-        'overlay-safe': 'Render this artwork in Full Bleed Style with overlay-safe composition. The image should extend to all edges, but leave space for UI elements. Use high contrast and clear composition to ensure text and UI elements remain readable when overlaid on the image.',
-        'grid': 'Render this artwork in Full Bleed Style with grid composition. Split the canvas into defined panels or grid sections, pairing segments of the image with content panels for a dynamic, modular layout.'
-      }
-    };
-    
-    return prompts[style]?.[variant] || prompts['masked']['circle'];
   }
   
   // Inline Image Chooser Logic

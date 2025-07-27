@@ -878,13 +878,43 @@
   z-index: 3;
 }
 
-/* Disable blur */
+/* Disable blur for most elements */
 .card-preview-canvas,
 .card-preview-canvas *,
 .card-overlay,
 .image-style-full-bleed .card-preview-content {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+}
+
+/* Enable backdrop-filter specifically for overlay-safe variant */
+.image-style-full-bleed[data-image-variant="overlay-safe"] .card-overlay {
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  border-radius: 12px;
+}
+
+/* Ensure content inside overlay is properly positioned */
+.image-style-full-bleed[data-image-variant="overlay-safe"] .card-preview-content {
+  width: 100%;
+  max-width: 85%;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive adjustments */
