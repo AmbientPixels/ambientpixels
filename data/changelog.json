@@ -1,10 +1,10 @@
 {
-  "updated": "2025-07-26T13:33:05.026Z",
+  "updated": "2025-07-27T13:32:25.121Z",
   "entries": [
     {
-      "hash": "a3fa645",
-      "date": "2025-07-26 00:31:59 -0700",
-      "message": "fix: resolve social links preview update issue"
+      "hash": "a98d8f6",
+      "date": "2025-07-27 00:07:29 -0700",
+      "message": "fix(editor): resolve image picker loading and initialization issues"
     }
   ]
 }
