@@ -722,11 +722,14 @@
         const isMasked = imageStyleData.style === 'masked';
         
         // Determine the appropriate class based on style and variant
-        const imageStyleClass = isMasked 
-          ? `image-${imageStyleData.style}-${imageStyleData.variant}`
-          : `image-${imageStyleData.style}`;
-          
-        const avatarClasses = `card-avatar ${imageStyleClass}`;
+        let imageStyleClass = `image-${imageStyleData.style}`;
+        
+        // Add variant class for full-bleed and masked styles
+        if (isFullBleed || isMasked) {
+          imageStyleClass += ` image-${imageStyleData.style}-${imageStyleData.variant}`;
+        }
+        
+        const avatarClasses = `card-avatar ${imageStyleClass}`.trim();
         const avatarImg = createElement('img', { 
           src: avatar, 
           class: avatarClasses, 
@@ -759,15 +762,35 @@
         }
       }
       
-      // Add name and class - only if not already added in hero style
-      if ((!isFullBleed || isOverlaySafe) && imageStyleData.style !== 'hero') {
-        const header = isFullBleed ? previewContent : createElement('div', { class: 'card-header' });
-        if (!isFullBleed) previewContent.appendChild(header);
+      // Always add name for full-bleed variants, or if not in hero style
+      if (isFullBleed || imageStyleData.style !== 'hero') {
+        // For full-bleed, add directly to previewContent with proper classes
+        const nameContainer = isFullBleed ? previewContent : createElement('div', { class: 'card-header' });
+        
+        if (!isFullBleed) {
+          previewContent.appendChild(nameContainer);
+        }
         
         if (name) {
-          header.appendChild(createElement('h3', { class: 'card-name' }, name));
+          // Create name element with appropriate classes based on variant
+          const nameClasses = ['card-name'];
+          if (isFullBleed) {
+            nameClasses.push('full-bleed-name');
+          }
+          
+          const nameEl = createElement('h3', { 
+            class: nameClasses.join(' '),
+            'data-full-bleed': isFullBleed ? 'true' : 'false',
+            'data-variant': isFullBleed ? imageStyleData.variant : 'default'
+          }, name);
+          
+          // For full-bleed ambient, prepend to ensure it stays above other content
+          if (isFullBleed && imageStyleData.variant === 'ambient') {
+            nameContainer.insertBefore(nameEl, nameContainer.firstChild);
+          } else {
+            nameContainer.appendChild(nameEl);
+          }
         }
-        // Remove the class text since we'll show it as a badge below
       }
       
       // Rest of the content (badges, stats, etc.)
@@ -1158,38 +1181,70 @@
   }
 
   // Initialize image style system
-  if (imageStyleSelect && imageVariantSelect) {
-    // Get current theme and set appropriate defaults
-    const currentTheme = themeSelect?.value || 'NeoFantasy';
-    const themeData = defaultData[currentTheme] || {};
-    
-    // Set default style based on theme, fallback to masked
-    const defaultStyle = themeData.imageStyle || 'masked';
-    const defaultVariant = themeData.imageVariant || 'circle';
-    
-    // Apply the style and variant
-    imageStyleSelect.value = defaultStyle;
-    updateVariantOptions(defaultStyle);
-    
-    // Set the variant after a small delay to ensure options are populated
-    setTimeout(() => {
-      if (imageVariantSelect.querySelector(`option[value="${defaultVariant}"]`)) {
-        imageVariantSelect.value = defaultVariant;
-      }
-      updatePreview();
-    }, 50);
-    
-    // Add event listeners
-    imageStyleSelect.addEventListener('change', (e) => {
-      updateVariantOptions(e.target.value);
-    });
-    
-    imageVariantSelect.addEventListener('change', updatePreview);
+  function initializeImageStyleSystem() {
+    if (imageStyleSelect && imageVariantSelect) {
+      // Get current theme and set appropriate defaults
+      const themeSelect = document.getElementById('theme');
+      const currentTheme = (themeSelect && themeSelect.value) || 'NeoFantasy';
+      
+      // Define default theme data if not already defined
+      const defaultData = window.defaultData || {
+        NeoFantasy: {
+          imageStyle: 'masked',
+          imageVariant: 'circle'
+        }
+      };
+      
+      const themeData = defaultData[currentTheme] || defaultData.NeoFantasy;
+      
+      // Set default style based on theme, fallback to masked
+      const defaultStyle = themeData.imageStyle || 'masked';
+      const defaultVariant = themeData.imageVariant || 'circle';
+      
+      // Apply the style and variant
+      imageStyleSelect.value = defaultStyle;
+      updateVariantOptions(defaultStyle);
+      
+      // Set the variant after a small delay to ensure options are populated
+      setTimeout(() => {
+        if (imageVariantSelect.querySelector(`option[value="${defaultVariant}"]`)) {
+          imageVariantSelect.value = defaultVariant;
+        }
+        updatePreview();
+      }, 50);
+      
+      // Add event listeners
+      imageStyleSelect.addEventListener('change', (e) => {
+        updateVariantOptions(e.target.value);
+      });
+      
+      imageVariantSelect.addEventListener('change', updatePreview);
+    }
+  }
+  
+  // Initialize the image style system when the DOM is loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeImageStyleSystem);
+  } else {
+    initializeImageStyleSystem();
   }
   
   // Auto-load images on initialization
-  if (inlineImageGrid) {
-    loadInlineImages(currentPage);
+  function initializeImageGallery() {
+    if (inlineImageGrid) {
+      console.log('Initializing image gallery...');
+      loadInlineImages(currentPage);
+    } else {
+      console.error('inlineImageGrid element not found for image gallery');
+    }
+  }
+  
+  // Initialize the image gallery when the DOM is fully loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeImageGallery);
+  } else {
+    // DOM is already loaded, initialize immediately
+    setTimeout(initializeImageGallery, 0);
   }
   
   prevPageBtn?.addEventListener('click', () => { if (currentPage>1) { currentPage--; loadInlineImages(currentPage);} });

@@ -179,38 +179,211 @@
 }
 
 /* Full Bleed - Ambient Variant */
-.image-style-full-bleed[data-image-variant="ambient"] .badge-container {
-  position: absolute;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2;
+.image-full-bleed[data-image-variant="ambient"] ~ .card-preview-content,
+.image-full-bleed-ambient ~ .card-preview-content {
+  background: none;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  padding: 1.5rem;
   margin: 0;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 100%;
+  box-sizing: border-box;
 }
 
-.image-style-full-bleed[data-image-variant="ambient"] .card-badge,
-.image-style-full-bleed[data-image-variant="ambient"] .card-rarity {
+.image-full-bleed[data-image-variant="ambient"] ~ .card-preview-content .card-name,
+.image-full-bleed-ambient ~ .card-preview-content .card-name,
+.image-full-bleed[data-image-variant="ambient"] ~ .card-preview-content .card-class,
+.image-full-bleed-ambient ~ .card-preview-content .card-class {
+  color: white;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  margin: 0.5rem 0;
+}
+
+.image-full-bleed[data-image-variant="ambient"] ~ .card-preview-content .card-name,
+.image-full-bleed-ambient ~ .card-preview-content .card-name {
+  font-family: 'Roboto', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  color: #ffffff !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9), 
+               0 0 16px rgba(0, 0, 0, 0.7),
+               0 0 24px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  margin: 0.5rem auto 1rem;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  display: inline-block;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  transform: translateY(0);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  max-width: 90%;
+  word-wrap: break-word;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.image-full-bleed[data-image-variant="ambient"] ~ .card-preview-content .card-class,
+.image-full-bleed-ambient ~ .card-preview-content .card-class {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.image-full-bleed[data-image-variant="ambient"] ~ .card-preview-content .badge-container {
+  margin: 6px auto;
+}
+
+.image-full-bleed[data-image-variant="ambient"] ~ .card-preview-content .card-badge,
+.image-full-bleed-ambient ~ .card-preview-content .card-badge {
   background: rgba(0, 0, 0, 0.7);
   color: white;
   border: none;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
+.image-full-bleed[data-image-variant="ambient"] ~ .card-preview-content .card-rarity,
+.image-full-bleed-ambient ~ .card-preview-content .card-rarity {
+  background: rgba(255, 215, 0, 0.2);
+  color: #ffd700;
+  border: 1px solid rgba(255, 215, 0, 0.4);
+}
+
 /* Full Bleed - Overlay Safe Variant */
-.image-style-full-bleed[data-image-variant="overlay-safe"] .badge-container {
+.image-full-bleed[data-image-variant="overlay-safe"] ~ .card-preview-content .badge-container,
+.image-full-bleed-overlay-safe ~ .card-preview-content .badge-container {
   margin: 8px 0 0 0;
 }
 
-.image-style-full-bleed[data-image-variant="overlay-safe"] .card-badge {
+.image-full-bleed[data-image-variant="overlay-safe"] ~ .card-preview-content .card-badge,
+.image-full-bleed-overlay-safe ~ .card-preview-content .card-badge,
+.image-full-bleed[data-image-variant="overlay-safe"] ~ .card-preview-content .card-rarity,
+.image-full-bleed-overlay-safe ~ .card-preview-content .card-rarity {
   background: rgba(255, 255, 255, 0.9);
-  color: #2d3748;
-  border: none;
+  color: #333;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.image-style-full-bleed[data-image-variant="overlay-safe"] .card-rarity {
-  background: rgba(255, 215, 0, 0.9);
-  color: #181b22;
+/* Full Bleed - Base Styles */
+.image-full-bleed,
+.image-full-bleed-ambient,
+.image-full-bleed-overlay-safe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.image-full-bleed ~ .card-preview-content,
+.image-full-bleed-ambient ~ .card-preview-content,
+.image-full-bleed-overlay-safe ~ .card-preview-content {
+  position: relative;
+  z-index: 2;
+  padding: 1.5rem;
+  color: white;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.image-full-bleed ~ .card-preview-content .card-header,
+.image-full-bleed-ambient ~ .card-preview-content .card-header,
+.image-full-bleed-overlay-safe ~ .card-preview-content .card-header {
+  background: none;
   border: none;
+  padding: 0;
+  margin: 0 0 1rem 0;
+}
+
+.image-full-bleed ~ .card-preview-content .card-name,
+.image-full-bleed-ambient ~ .card-preview-content .card-name,
+.image-full-bleed-overlay-safe ~ .card-preview-content .card-name {
+  font-size: 1.8rem;
+  margin: 0 0 0.5rem 0;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.image-full-bleed ~ .card-preview-content .card-class,
+.image-full-bleed-ambient ~ .card-preview-content .card-class,
+.image-full-bleed-overlay-safe ~ .card-preview-content .card-class {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  margin: 0 0 1rem 0;
+}
+
+.image-full-bleed ~ .card-preview-content .card-quote,
+.image-full-bleed-ambient ~ .card-preview-content .card-quote,
+.image-full-bleed-overlay-safe ~ .card-preview-content .card-quote {
+  font-style: italic;
+  margin: 1rem 0;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.image-full-bleed ~ .card-preview-content .card-stats,
+.image-full-bleed-ambient ~ .card-preview-content .card-stats,
+.image-full-bleed-overlay-safe ~ .card-preview-content .card-stats {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: auto;
+}
+
+.image-full-bleed ~ .card-preview-content .stat-bar,
+.image-full-bleed-ambient ~ .card-preview-content .stat-bar,
+.image-full-bleed-overlay-safe ~ .card-preview-content .stat-bar {
+  margin-bottom: 0.5rem;
+}
+
+.image-full-bleed ~ .card-preview-content .stat-label,
+.image-full-bleed-ambient ~ .card-preview-content .stat-label,
+.image-full-bleed-overlay-safe ~ .card-preview-content .stat-label {
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.image-full-bleed ~ .card-preview-content .stat-progress,
+.image-full-bleed-ambient ~ .card-preview-content .stat-progress,
+.image-full-bleed-overlay-safe ~ .card-preview-content .stat-progress {
+  background: rgba(255, 255, 255, 0.2);
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.image-full-bleed ~ .card-preview-content .stat-progress::-webkit-progress-value,
+.image-full-bleed-ambient ~ .card-preview-content .stat-progress::-webkit-progress-value,
+.image-full-bleed-overlay-safe ~ .card-preview-content .stat-progress::-webkit-progress-value {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 3px;
+}
+
+.image-full-bleed ~ .card-preview-content .stat-progress::-moz-progress-bar,
+.image-full-bleed-ambient ~ .card-preview-content .stat-progress::-moz-progress-bar,
+.image-full-bleed-overlay-safe ~ .card-preview-content .stat-progress::-moz-progress-bar {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 3px;
 }
 
 /* Base Stat Styles */
@@ -521,34 +694,51 @@
 
 /* ProPersona Theme */
 .card-preview-canvas.theme-propersona.variant-default {
-  --card-bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  --card-border: rgba(71, 85, 105, 0.2);
-  --card-text: #1e293b;
-  --card-name-color: #0f172a;
-  --card-class-color: rgba(71, 85, 105, 0.8);
-  --card-glow: linear-gradient(135deg, #3b82f6, #1d4ed8);
-  --card-avatar-border: rgba(59, 130, 246, 0.3);
-  --card-avatar-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
-  --card-hover-shadow: 0 20px 40px rgba(59, 130, 246, 0.15);
+  /* Modern Blue */
+  --card-bg: #ffffff;
+  --card-border: rgba(99, 102, 241, 0.2);
+  --card-text: #1f2937;
+  --card-name-color: #1e40af;
+  --card-class-color: #4b5563;
+  --card-glow: linear-gradient(135deg, #6366f1, #4f46e5);
+  --card-avatar-border: rgba(99, 102, 241, 0.3);
+  --card-avatar-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+  --card-hover-shadow: 0 10px 25px rgba(99, 102, 241, 0.1);
 }
+
 .card-preview-canvas.theme-propersona.variant-dark {
+  /* Dark theme - keeping as is */
   --card-bg: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   --card-border: rgba(148, 163, 184, 0.3);
   --card-text: #f1f5f9;
   --card-name-color: #ffffff;
   --card-glow: linear-gradient(135deg, #1e40af, #3b82f6);
 }
+
 .card-preview-canvas.theme-propersona.variant-light {
-  --card-bg: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  --card-border: rgba(71, 85, 105, 0.15);
-  --card-text: #334155;
-  --card-glow: linear-gradient(135deg, #60a5fa, #93c5fd);
+  /* Warm Sand */
+  --card-bg: #fef6e4;
+  --card-border: rgba(230, 181, 92, 0.3);
+  --card-text: #5c4b37;
+  --card-name-color: #b45309;
+  --card-class-color: #7c6a4f;
+  --card-glow: linear-gradient(135deg, #f59e0b, #fbbf24);
+  --card-avatar-border: rgba(230, 181, 92, 0.4);
+  --card-avatar-shadow: 0 0 15px rgba(230, 181, 92, 0.15);
+  --card-hover-shadow: 0 8px 20px rgba(251, 191, 36, 0.1);
 }
+
 .card-preview-canvas.theme-propersona.variant-alternate {
-  --card-bg: radial-gradient(circle at top left, #f1f5f9 0%, #e2e8f0 70%);
-  --card-border: rgba(59, 130, 246, 0.25);
-  --card-text: #1e293b;
-  --card-glow: conic-gradient(from 180deg, #3b82f6, #1d4ed8, #60a5fa, #3b82f6);
+  /* Modern Teal */
+  --card-bg: #f0fdfa;
+  --card-border: rgba(13, 148, 136, 0.2);
+  --card-text: #134e4a;
+  --card-name-color: #0d9488;
+  --card-class-color: #0f766e;
+  --card-glow: linear-gradient(135deg, #0d9488, #0f766e);
+  --card-avatar-border: rgba(13, 148, 136, 0.3);
+  --card-avatar-shadow: 0 0 15px rgba(13, 148, 136, 0.15);
+  --card-hover-shadow: 0 8px 20px rgba(13, 148, 136, 0.1);
 }
 
 /* Card attributes styling */
@@ -817,7 +1007,7 @@
 /* Style-specific card modifications */
 
 /* Full Bleed Image Styles - Works with flip */
-.image-style-full-bleed .card-avatar {
+.image-full-bleed, .image-full-bleed-ambient, .image-full-bleed-overlay-safe {
   position: absolute;
   top: 0;
   left: 0;
@@ -831,7 +1021,9 @@
 }
 
 /* Content container for full bleed */
-.image-style-full-bleed .card-preview-content {
+.image-full-bleed ~ .card-preview-content, 
+.image-full-bleed-ambient ~ .card-preview-content, 
+.image-full-bleed-overlay-safe ~ .card-preview-content {
   position: relative;
   z-index: 2;
   padding: 1.5rem;
@@ -846,7 +1038,8 @@
 }
 
 /* Ambient Variant - Text on image */
-.image-style-full-bleed[data-image-variant="ambient"] .card-preview-content {
+.image-full-bleed-ambient ~ .card-preview-content, 
+.image-full-bleed[data-image-variant="ambient"] ~ .card-preview-content {
   background: none;
   text-shadow: 0 1px 3px rgba(0,0,0,0.8);
   padding: 1.5rem;
@@ -855,7 +1048,8 @@
 }
 
 /* Overlay Safe Variant - Glass container */
-.image-style-full-bleed[data-image-variant="overlay-safe"] .card-preview-content {
+.image-full-bleed-overlay-safe ~ .card-preview-content,
+.image-full-bleed[data-image-variant="overlay-safe"] ~ .card-preview-content {
   background: rgba(0, 0, 0, 0.6);
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
@@ -863,7 +1057,8 @@
 }
 
 /* Ensure the avatar image respects the overlay-safe variant */
-.image-style-full-bleed[data-image-variant="overlay-safe"] .card-avatar {
+.image-full-bleed-overlay-safe,
+.image-full-bleed[data-image-variant="overlay-safe"] {
   opacity: 1;
   border-radius: 0;
   pointer-events: none;
