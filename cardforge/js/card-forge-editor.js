@@ -1109,15 +1109,7 @@
 
   // Default state
   let currentPage = 1;
-  // TODO: Replace with actual image lists or API
-  const imageDirs = [
-    '/images/image-packs/characters',
-    '/images/image-packs/characters-02',
-    '/images/image-packs/characters-03-super-heroes/male',
-    '/images/image-packs/characters-03-super-heroes/female'
-  ];
-  const imagesPerPage = 20;
-
+  const imagesPerPage = 18;
   function loadInlineImages(page) {
     if (!inlineImageGrid) return;
     inlineImageGrid.textContent = 'Loading images...';
