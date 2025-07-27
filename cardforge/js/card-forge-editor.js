@@ -767,16 +767,14 @@
         if (name) {
           header.appendChild(createElement('h3', { class: 'card-name' }, name));
         }
-        if (cardClass) {
-          header.appendChild(createElement('p', { class: 'card-class' }, cardClass));
-        }
+        // Remove the class text since we'll show it as a badge below
       }
       
       // Rest of the content (badges, stats, etc.)
       // Create badge container for class and rarity
       const badgeContainer = createElement('div', { class: 'badge-container' });
       
-      // Class/Type badge
+      // Class/Type badge - Always show as badge, not as text
       if (cardClass) {
         const badge = createElement('div', { class: 'card-badge' });
         const classLower = cardClass.toLowerCase();
@@ -803,6 +801,8 @@
           iconClass = 'fa-skull';
         } else if (classLower.includes('bard') || classLower.includes('performer') || classLower.includes('entertainer')) {
           iconClass = 'fa-music';
+        } else if (classLower.includes('agent')) {
+          iconClass = 'fa-user-secret'; // Special icon for agent
         }
         
         const icon = createElement('i', { class: `fas ${iconClass}`, 'aria-hidden': 'true' });
@@ -1043,7 +1043,7 @@
     if (defaultVariant && imageVariantSelect.querySelector(`option[value="${defaultVariant}"]`)) {
       imageVariantSelect.value = defaultVariant;
     } else if (relevantOptions.length > 0) {
-      // Fallback to first available option if default not found
+      // If the specified variant doesn't exist, use the first available
       imageVariantSelect.value = relevantOptions[0].value;
     }
     
