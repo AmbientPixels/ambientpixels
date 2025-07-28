@@ -1,10 +1,10 @@
 {
-  "updated": "2025-07-27T13:32:25.121Z",
+  "updated": "2025-07-28T13:41:15.486Z",
   "entries": [
     {
-      "hash": "a98d8f6",
-      "date": "2025-07-27 00:07:29 -0700",
-      "message": "fix(editor): resolve image picker loading and initialization issues"
+      "hash": "e72235d",
+      "date": "2025-07-27 23:32:13 -0700",
+      "message": "docs(cardforge): update HANDOFF-DOCUMENT.md to reflect stat bars restoration"
     }
   ]
 }
