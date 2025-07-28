@@ -1,0 +1,69 @@
+{
+  "cardData": {
+    "name": "Aria Shadowbane",
+    "class": "Rogue Assassin", 
+    "rarity": "Rare",
+    "quote": "Shadows are my allies, silence my weapon.",
+    "biography": "A mysterious figure who emerged from the shadows, wielding ancient knowledge and unmatched stealth abilities. Known throughout the realm for her precision and deadly grace.",
+    "avatar": "/cardforge/images/default-avatar.jpg"
+  },
+  "visualSettings": {
+    "theme": "NeoFantasy",
+    "preset": "cyberpunk",
+    "variant": "Default",
+    "layout": "Hero",
+    "colorPalette": "cyberpunk"
+  },
+  "stats": [
+    {
+      "name": "Strength",
+      "value": 7
+    },
+    {
+      "name": "Agility", 
+      "value": 9
+    },
+    {
+      "name": "Intelligence",
+      "value": 8
+    }
+  ],
+  "socialLinks": [
+    {
+      "platform": "twitter",
+      "url": "https://twitter.com/ariashadowbane"
+    },
+    {
+      "platform": "github", 
+      "url": "https://github.com/shadowrogue"
+    }
+  ],
+  "badges": [
+    {
+      "category": "Achievement",
+      "icon": "star",
+      "description": "Master Strategist",
+      "quantity": 3
+    },
+    {
+      "category": "Victory",
+      "icon": "trophy", 
+      "description": "Campaign Winner",
+      "quantity": 1
+    }
+  ],
+  "attributes": [
+    {
+      "name": "Level",
+      "value": "12"
+    },
+    {
+      "name": "Experience",
+      "value": "8,450 XP"
+    },
+    {
+      "name": "Alignment", 
+      "value": "Chaotic Good"
+    }
+  ]
+}
