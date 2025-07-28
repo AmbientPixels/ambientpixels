@@ -89,15 +89,18 @@
     
     // Handle tab changes for auto-flip
     document.addEventListener('click', function(e) {
-      const tabButton = e.target.closest('.tab-button');
-      if (tabButton) {
-        const section = tabButton.getAttribute('data-section');
+      const stepButton = e.target.closest('.step-btn');
+      if (stepButton) {
+        const step = stepButton.getAttribute('data-step');
         const cardInner = document.querySelector('.card-container .card-inner');
         if (cardInner) {
-          if (section && ['social', 'badges', 'attributes'].includes(section)) {
+          // Steps 4, 5, 6 are back-of-card content (Social, Badges, Attributes)
+          if (step && ['4', '5', '6'].includes(step)) {
             cardInner.classList.add('flipped');
+            console.log('Flipping to back for step:', step);
           } else {
             cardInner.classList.remove('flipped');
+            console.log('Flipping to front for step:', step);
           }
         }
       }
@@ -668,6 +671,191 @@
     `).join('');
   }
 
+  // ===== SOCIAL, BADGES, AND ATTRIBUTES COLLECTION =====
+  function collectSocialLinksFromEditor() {
+    const socialLinks = [];
+    const socialRows = document.querySelectorAll('#social-editor .social-row');
+    
+    socialRows.forEach(row => {
+      const platform = row.querySelector('select[name="social-name"]')?.value;
+      const url = row.querySelector('input[name="social-url"]')?.value;
+      
+      if (platform && url) {
+        socialLinks.push({ platform, url });
+      }
+    });
+    
+    console.log('📱 Collected social links:', socialLinks);
+    return socialLinks;
+  }
+
+  function collectBadgesFromEditor() {
+    const badges = [];
+    const badgeRows = document.querySelectorAll('#micro-editor .micro-row');
+    
+    badgeRows.forEach(row => {
+      const category = row.querySelector('input[name="micro-category"]')?.value;
+      const icon = row.querySelector('input[name="micro-icon"]')?.value;
+      const description = row.querySelector('input[name="micro-desc"]')?.value;
+      const quantity = row.querySelector('input[name="micro-quantity"]')?.value;
+      
+      if (category || description) {
+        badges.push({ 
+          category: category || 'Badge', 
+          icon: icon || 'star', 
+          description: description || 'Achievement', 
+          quantity: parseInt(quantity) || 1 
+        });
+      }
+    });
+    
+    console.log('🏆 Collected badges:', badges);
+    return badges;
+  }
+
+  function collectAttributesFromEditor() {
+    const attributes = [];
+    const attributeRows = document.querySelectorAll('#attribute-editor .attribute-row');
+    
+    attributeRows.forEach(row => {
+      const name = row.querySelector('input[name="attribute-name"]')?.value;
+      const value = row.querySelector('input[name="attribute-value"]')?.value;
+      
+      if (name && value) {
+        attributes.push({ name, value });
+      }
+    });
+    
+    // Also collect biography if present
+    const biography = document.getElementById('card-bio')?.value;
+    if (biography) {
+      attributes.unshift({ name: 'Biography', value: biography });
+    }
+    
+    console.log('📋 Collected attributes:', attributes);
+    return attributes;
+  }
+
+  function generateSocialLinksHTML(socialLinks) {
+    if (!socialLinks || socialLinks.length === 0) {
+      return `
+        <div class="social-item">
+          <i class="fab fa-twitter"></i>
+          <span class="social-platform">Twitter</span>
+          <span class="social-handle">@example</span>
+        </div>
+        <div class="social-item">
+          <i class="fab fa-github"></i>
+          <span class="social-platform">GitHub</span>
+          <span class="social-handle">username</span>
+        </div>
+      `;
+    }
+    
+    return socialLinks.map(social => {
+      const iconClass = getSocialIcon(social.platform);
+      const handle = extractHandle(social.url, social.platform);
+      
+      return `
+        <div class="social-item">
+          <i class="${iconClass}"></i>
+          <span class="social-platform">${social.platform}</span>
+          <span class="social-handle">${handle}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function generateBadgesHTML(badges) {
+    if (!badges || badges.length === 0) {
+      return `
+        <div class="badge-item">
+          <i class="fas fa-star"></i>
+          <span class="badge-category">Achievement</span>
+          <span class="badge-count">3</span>
+        </div>
+        <div class="badge-item">
+          <i class="fas fa-trophy"></i>
+          <span class="badge-category">Victory</span>
+          <span class="badge-count">1</span>
+        </div>
+      `;
+    }
+    
+    return badges.map(badge => `
+      <div class="badge-item">
+        <i class="fas fa-${badge.icon}"></i>
+        <span class="badge-category">${badge.category}</span>
+        <span class="badge-count">${badge.quantity}</span>
+      </div>
+    `).join('');
+  }
+
+  function generateAttributesHTML(attributes) {
+    if (!attributes || attributes.length === 0) {
+      return `
+        <div class="attribute-item">
+          <span class="attr-name">Level:</span>
+          <span class="attr-value">12</span>
+        </div>
+        <div class="attribute-item">
+          <span class="attr-name">Experience:</span>
+          <span class="attr-value">8,450 XP</span>
+        </div>
+        <div class="attribute-item">
+          <span class="attr-name">Alignment:</span>
+          <span class="attr-value">Chaotic Good</span>
+        </div>
+      `;
+    }
+    
+    return attributes.map(attr => `
+      <div class="attribute-item">
+        <span class="attr-name">${attr.name}:</span>
+        <span class="attr-value">${attr.value}</span>
+      </div>
+    `).join('');
+  }
+
+  // Helper functions
+  function getSocialIcon(platform) {
+    const iconMap = {
+      'twitter': 'fab fa-twitter',
+      'x': 'fab fa-x-twitter',
+      'instagram': 'fab fa-instagram',
+      'linkedin': 'fab fa-linkedin',
+      'github': 'fab fa-github',
+      'facebook': 'fab fa-facebook',
+      'discord': 'fab fa-discord',
+      'tiktok': 'fab fa-tiktok',
+      'deviantart': 'fab fa-deviantart'
+    };
+    return iconMap[platform.toLowerCase()] || 'fas fa-link';
+  }
+
+  function extractHandle(url, platform) {
+    if (!url) return '@username';
+    
+    try {
+      const urlObj = new URL(url);
+      const pathname = urlObj.pathname;
+      
+      // Extract username from common social media URL patterns
+      if (pathname.startsWith('/')) {
+        const handle = pathname.slice(1).split('/')[0];
+        return handle ? `@${handle}` : '@username';
+      }
+    } catch (e) {
+      // If URL parsing fails, try to extract from string
+      const match = url.match(/[/@]([a-zA-Z0-9_.-]+)/);
+      if (match) {
+        return `@${match[1]}`;
+      }
+    }
+    
+    return '@username';
+  }
+
   // ===== PREVIEW UPDATE SYSTEM =====
   function updatePreview() {
     console.log('🎨 Updating card preview...');
@@ -723,11 +911,16 @@
     const stats = collectStatsFromEditor();
     console.log('📊 Collected stats:', stats);
     
+    // Collect back-of-card data
+    const socialLinks = collectSocialLinksFromEditor();
+    const badges = collectBadgesFromEditor();
+    const attributes = collectAttributesFromEditor();
+    
     // Update front face content
     updateFrontFace(front, { name, characterClass, rarity, quote, avatar, stats });
     
     // Update back face content
-    updateBackFace(back, { name, characterClass, rarity, quote });
+    updateBackFace(back, { name, characterClass, rarity, quote, socialLinks, badges, attributes });
   }
 
   // Update front face with dynamic layout support
@@ -892,6 +1085,10 @@
 
   // Update back face content
   function updateBackFace(back, data) {
+    const socialHTML = generateSocialLinksHTML(data.socialLinks);
+    const badgesHTML = generateBadgesHTML(data.badges);
+    const attributesHTML = generateAttributesHTML(data.attributes);
+    
     back.innerHTML = `
       <div class="card-back-content">
         <div class="back-header">
@@ -899,23 +1096,27 @@
           <div class="card-class">${data.characterClass}</div>
         </div>
         <div class="back-body">
-          <div class="card-quote back-quote">"${data.quote}"</div>
-          <div class="card-attribute">
-            <span class="attr-name">Level:</span>
-            <span class="attr-value">12</span>
+          <div class="back-section social-section">
+            <h4 class="section-title">Social Links</h4>
+            <div class="social-links">
+              ${socialHTML}
+            </div>
           </div>
-          <div class="card-attribute">
-            <span class="attr-name">Experience:</span>
-            <span class="attr-value">8,450 XP</span>
+          
+          <div class="back-section badges-section">
+            <h4 class="section-title">Badges & Achievements</h4>
+            <div class="badges-container">
+              ${badgesHTML}
+            </div>
           </div>
-          <div class="card-attribute">
-            <span class="attr-name">Health:</span>
-            <span class="attr-value">85/100</span>
+          
+          <div class="back-section attributes-section">
+            <h4 class="section-title">Attributes</h4>
+            <div class="attributes-container">
+              ${attributesHTML}
+            </div>
           </div>
-          <div class="card-attribute">
-            <span class="attr-name">Mana:</span>
-            <span class="attr-value">60/75</span>
-          </div>
+          
           <div class="back-footer">
             <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
           </div>
