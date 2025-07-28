@@ -12,6 +12,8 @@
   grid-template-columns: repeat(12, 1fr);
   gap: 1rem;
   margin-top: 2rem;
+  margin-bottom: 4rem; /* Add space for footer */
+  min-height: calc(100vh - 200px); /* Ensure proper height */
 }
 
 .cardforge-editor {

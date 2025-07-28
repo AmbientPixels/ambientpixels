@@ -1379,32 +1379,43 @@
   function generateBadgesHTML(badges) {
     if (!badges || badges.length === 0) {
       return `
-        <div class="badge-item">
-          <i class="fas fa-star"></i>
+        <div class="badge-item" title="Master Strategist - Completed advanced tactical scenarios">
+          <div class="badge-icons">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+          </div>
           <span class="badge-category">Achievement</span>
-          <span class="badge-count">3</span>
         </div>
-        <div class="badge-item">
-          <i class="fas fa-trophy"></i>
+        <div class="badge-item" title="Campaign Victory - Won major battle campaigns">
+          <div class="badge-icons">
+            <i class="fas fa-trophy"></i>
+          </div>
           <span class="badge-category">Victory</span>
-          <span class="badge-count">1</span>
         </div>
       `;
     }
     
-    return badges.map(badge => `
-      <div class="badge-item">
-        <i class="fas fa-${badge.icon}"></i>
-        <span class="badge-category">${badge.category}</span>
-        <span class="badge-count">${badge.quantity}</span>
-      </div>
-    `).join('');
-  }
-
-  function generateAttributesHTML(attributes) {
-    if (!attributes || attributes.length === 0) {
+    return badges.map(badge => {
+      // Generate multiple icons based on quantity
+      const icons = Array.from({ length: Math.min(badge.quantity, 5) }, () => 
+        `<i class="fas fa-${badge.icon}"></i>`
+      ).join('');
+      
       return `
-        <div class="attribute-item">
+        <div class="badge-item" title="${badge.description}">
+          <div class="badge-icons">
+            ${icons}
+          </div>
+          <span class="badge-category">${badge.category}</span>
+        </div>
+      `;
+    }).join('');
+}
+
+function generateAttributesHTML(attributes) {
+  if (!attributes || attributes.length === 0) {
+    return `
           <span class="attr-name">Level:</span>
           <span class="attr-value">12</span>
         </div>
@@ -1504,6 +1515,9 @@
     
     // Update card content with form data and placeholder content
     updateCardContent(front, back);
+    
+    // Match heights of front and back faces after content update
+    setTimeout(() => matchCardHeights(), 50);
     
     console.log('✅ Card preview updated successfully');
   }
@@ -1735,8 +1749,32 @@
     `;
   }
 
+  // Match heights of front and back card faces
+  function matchCardHeights() {
+    const cardFront = document.querySelector('.card-front');
+    const cardBack = document.querySelector('.card-back');
+    
+    if (cardFront && cardBack) {
+      // Reset heights to auto to get natural heights
+      cardFront.style.height = 'auto';
+      cardBack.style.height = 'auto';
+      
+      // Get the natural heights
+      const frontHeight = cardFront.offsetHeight;
+      const backHeight = cardBack.offsetHeight;
+      
+      // Set both to the maximum height
+      const maxHeight = Math.max(frontHeight, backHeight);
+      cardFront.style.height = maxHeight + 'px';
+      cardBack.style.height = maxHeight + 'px';
+      
+      console.log(`🎯 Matched card heights: Front=${frontHeight}px, Back=${backHeight}px, Set=${maxHeight}px`);
+    }
+  }
+
   // Expose global functions for external access
   window.updatePreview = updatePreview;
+  window.matchCardHeights = matchCardHeights;
   window.currentPreset = currentPreset;
   window.currentLayout = currentLayout;
   window.currentPalette = currentPalette;
