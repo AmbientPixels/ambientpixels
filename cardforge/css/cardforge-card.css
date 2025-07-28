@@ -79,7 +79,6 @@
 .card-avatar {
   width: 100px;
   height: 100px;
-  border-radius: 50%;
   object-fit: cover;
   border: 3px solid var(--card-avatar-border, rgba(255,255,255,0.2));
   box-shadow: var(--card-avatar-shadow, 0 0 16px rgba(79,248,255,0.4));
@@ -418,7 +417,7 @@
   transform-origin: left;
   animation: growStat 1s ease-out forwards;
   height: 6px;
-  background: var(--card-stat-fill, linear-gradient(90deg, #35f5ff 0%, #9dff5c 100%));
+  background: var(--card-stat-fill, linear-gradient(90deg, #35f5ff, #9dff5c));
   border-radius: 3px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -765,49 +764,54 @@
 }
 
 /* Image Style Variants */
-/* Masked Styles */
-.image-masked-circle {
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--mood-accent-color, rgba(255, 255, 255, 0.2));
+/* Masked Styles - Higher specificity to override conflicting styles */
+.image-style-masked .card-avatar.image-masked-circle {
+  border-radius: 50% !important;
+  clip-path: none !important; /* Use border-radius for perfect circle */
 }
 
-.image-masked-hex {
-  clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
-  object-fit: cover;
+.image-style-masked .card-avatar.image-masked-hex {
+  border-radius: 0 !important;
+  clip-path: polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%) !important;
 }
 
-.image-masked-blob {
-  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-  object-fit: cover;
+.image-style-masked .card-avatar.image-masked-blob {
+  border-radius: 0 !important;
+  clip-path: polygon(
+    30% 0%, 70% 0%, 100% 30%, 100% 70%, 
+    70% 100%, 30% 100%, 0% 70%, 0% 30%
+  ) !important;
 }
 
-/* Hero Styles */
-.image-hero-large {
-  border-radius: 8px;
-  object-fit: cover;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--mood-accent-color, rgba(255, 255, 255, 0.1));
+.image-style-masked .card-avatar.image-masked-tear-drop {
+  border-radius: 0 !important;
+  clip-path: polygon(
+    50% 0%, 80% 10%, 100% 35%, 100% 70%, 
+    80% 90%, 50% 100%, 20% 90%, 0% 70%, 
+    0% 35%, 20% 10%
+  ) !important;
 }
 
-.image-hero-small {
-  border-radius: 8px;
+/* Ensure all masked variants maintain proper sizing and transitions */
+.image-style-masked .card-avatar.image-masked-circle,
+.image-style-masked .card-avatar.image-masked-hex,
+.image-style-masked .card-avatar.image-masked-blob,
+.image-style-masked .card-avatar.image-masked-tear-drop {
+  width: 100px !important;
+  height: 100px !important;
   object-fit: cover;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--mood-accent-color, rgba(255, 255, 255, 0.1));
+  border: 3px solid var(--card-avatar-border, rgba(255,255,255,0.2));
+  box-shadow: var(--card-avatar-shadow, 0 0 16px rgba(79,248,255,0.4));
+  transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
-/* Full Bleed Styles */
-.image-full-bleed-ambient {
-  border-radius: 4px;
-  object-fit: cover;
-  opacity: 0.9;
-}
-
-.image-full-bleed-overlay-safe {
-  border-radius: 4px;
-  object-fit: cover;
-  filter: contrast(1.1) brightness(0.9);
+.image-style-masked .card-avatar.image-masked-circle:hover,
+.image-style-masked .card-avatar.image-masked-hex:hover,
+.image-style-masked .card-avatar.image-masked-blob:hover,
+.image-style-masked .card-avatar.image-masked-tear-drop:hover {
+  transform: scale(1.1);
+  box-shadow: var(--card-avatar-hover-shadow, 0 0 24px rgba(79,248,255,0.6));
 }
 
 /* Hero Style Layout */
@@ -1133,7 +1137,6 @@
 .image-style-badge .card-avatar {
   width: 4rem;
   height: 4rem;
-  border-radius: 50%;
   object-fit: cover;
   margin: 0 auto;
 }
