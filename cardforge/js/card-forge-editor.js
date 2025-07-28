@@ -469,15 +469,15 @@
       return `
         <div class="stat-item">
           <div class="stat-label">Strength <span class="stat-value">7</span></div>
-          <div class="stat-bar"><div class="stat-fill" style="width: 70%"></div></div>
+          <div class="stat-bar"><div class="stat-progress" style="width: 70%"></div></div>
         </div>
         <div class="stat-item">
           <div class="stat-label">Agility <span class="stat-value">9</span></div>
-          <div class="stat-bar"><div class="stat-fill" style="width: 95%"></div></div>
+          <div class="stat-bar"><div class="stat-progress" style="width: 95%"></div></div>
         </div>
         <div class="stat-item">
           <div class="stat-label">Intelligence <span class="stat-value">8</span></div>
-          <div class="stat-bar"><div class="stat-fill" style="width: 80%"></div></div>
+          <div class="stat-bar"><div class="stat-progress" style="width: 80%"></div></div>
         </div>
       `;
     }
@@ -485,7 +485,7 @@
     return stats.map(stat => `
       <div class="stat-item">
         <div class="stat-label">${stat.name} <span class="stat-value">${stat.value}</span></div>
-        <div class="stat-bar"><div class="stat-fill" style="width: ${stat.value}%"></div></div>
+        <div class="stat-bar"><div class="stat-progress" style="width: ${stat.value}%"></div></div>
       </div>
     `).join('');
   }
@@ -495,6 +495,62 @@
     const addStatBtn = document.getElementById('add-stat-btn');
     
     if (!statsEditor || !addStatBtn) return;
+
+    // Prefill default stats if form is blank
+    const rows = statsEditor.querySelectorAll('.stat-row');
+    if (rows.length === 0 || !Array.from(rows).some(r => r.querySelector('input[name="stat-name"]').value.trim())) {
+      // Clear existing rows
+      statsEditor.innerHTML = '';
+      const defaultStats = [
+        { name: 'Strength', value: 7 },
+        { name: 'Agility', value: 9 },
+        { name: 'Intelligence', value: 8 }
+      ];
+      defaultStats.forEach(stat => {
+        const row = document.createElement('div');
+        row.className = 'stat-row';
+        row.innerHTML = `
+          <input type="text" name="stat-name" placeholder="Stat name" value="${stat.name}" />
+          <input type="range" name="stat-value" min="0" max="100" value="${stat.value}" class="stat-slider" aria-label="Stat value" />
+          <span class="stat-value-display">${stat.value}</span>
+          <button type="button" class="remove-attribute">&times;</button>
+        `;
+        statsEditor.appendChild(row);
+        const nameInput = row.querySelector('input[name="stat-name"]');
+        const valueInput = row.querySelector('input[name="stat-value"]');
+        const valueDisplay = row.querySelector('.stat-value-display');
+        const removeBtn = row.querySelector('.remove-attribute');
+        valueInput.addEventListener('input', () => { valueDisplay.textContent = valueInput.value; updatePreview(); });
+        nameInput.addEventListener('input', updatePreview);
+        removeBtn.addEventListener('click', () => { row.remove(); updatePreview(); });
+      });
+    }
+    const initialRows = statsEditor.querySelectorAll('.stat-row');
+    if (initialRows.length === 0) {
+      const defaultStats = [
+        { name: 'Strength', value: 7 },
+        { name: 'Agility', value: 9 },
+        { name: 'Intelligence', value: 8 }
+      ];
+      defaultStats.forEach(stat => {
+        const row = document.createElement('div');
+        row.className = 'stat-row';
+        row.innerHTML = `
+          <input type="text" name="stat-name" placeholder="Stat name" value="${stat.name}" />
+          <input type="range" name="stat-value" min="0" max="100" value="${stat.value}" class="stat-slider" aria-label="Stat value" />
+          <span class="stat-value-display">${stat.value}</span>
+          <button type="button" class="remove-attribute">&times;</button>
+        `;
+        statsEditor.appendChild(row);
+        const nameInput = row.querySelector('input[name="stat-name"]');
+        const valueInput = row.querySelector('input[name="stat-value"]');
+        const valueDisplay = row.querySelector('.stat-value-display');
+        const removeBtn = row.querySelector('.remove-attribute');
+        valueInput.addEventListener('input', () => { valueDisplay.textContent = valueInput.value; updatePreview(); });
+        nameInput.addEventListener('input', updatePreview);
+        removeBtn.addEventListener('click', () => { row.remove(); updatePreview(); });
+      });
+    }
     
     // Add stat button functionality
     addStatBtn.addEventListener('click', function() {
@@ -591,15 +647,15 @@
       return `
         <div class="stat-item">
           <div class="stat-label">Strength <span class="stat-value">7</span></div>
-          <div class="stat-bar"><div class="stat-fill" style="width: 70%"></div></div>
+          <div class="stat-bar"><div class="stat-progress" style="width: 70%"></div></div>
         </div>
         <div class="stat-item">
           <div class="stat-label">Agility <span class="stat-value">9</span></div>
-          <div class="stat-bar"><div class="stat-fill" style="width: 95%"></div></div>
+          <div class="stat-bar"><div class="stat-progress" style="width: 95%"></div></div>
         </div>
         <div class="stat-item">
           <div class="stat-label">Intelligence <span class="stat-value">8</span></div>
-          <div class="stat-bar"><div class="stat-fill" style="width: 80%"></div></div>
+          <div class="stat-bar"><div class="stat-progress" style="width: 80%"></div></div>
         </div>
       `;
     }
@@ -607,7 +663,7 @@
     return stats.map(stat => `
       <div class="stat-item">
         <div class="stat-label">${stat.name} <span class="stat-value">${stat.value}</span></div>
-        <div class="stat-bar"><div class="stat-fill" style="width: ${stat.value}%"></div></div>
+        <div class="stat-bar"><div class="stat-progress" style="width: ${stat.value}%"></div></div>
       </div>
     `).join('');
   }
@@ -665,6 +721,7 @@
     
     // Collect dynamic stats from editor
     const stats = collectStatsFromEditor();
+    console.log('📊 Collected stats:', stats);
     
     // Update front face content
     updateFrontFace(front, { name, characterClass, rarity, quote, avatar, stats });
