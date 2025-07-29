@@ -45,6 +45,7 @@ CardForge V2 is an RPG card builder interface featuring visual pickers for prese
 - **CSS Class Application:** Comprehensive class and data attribute system
 - **Placeholder Content:** Rich demo content including character data
 - **Form Integration:** Real-time form input synchronization
+- **Dynamic Height Matching:** Front and back cards automatically match heights to prevent layout shifts
 
 ---
 
@@ -129,6 +130,7 @@ cardforge/
 ### **Key JavaScript Functions**
 - `initVisualPickers()` - Initialize all 4 visual picker systems
 - `updatePreview()` - Main preview update function
+- `matchCardHeights()` - Dynamic height matching for front/back cards
 - `handleImageStyles()` - Image style application (NEEDS FIX)
 - `generateCenteredLayout()` - Layout HTML generation
 - `updateCardContent()` - Content synchronization
@@ -144,10 +146,11 @@ cardforge/
 ## 🔧 **Immediate Next Steps**
 
 ### **Phase 1: Back Card Styling & Code Cleanup (Priority 1)**
-1. **Style Back of Card**: Implement proper CSS styling for Social Links, Badges, and Attributes sections
-2. **Remove Legacy Code**: Clean up old frontend dropdown fragments in Card Design section
-3. **Debug & Polish**: Fix miscellaneous bugs and improve back card layout consistency
-4. **Visual Hierarchy**: Ensure back card content is properly organized and readable
+1. ✅ **~~Back Card Overflow Fixed~~**: Dynamic height matching system prevents layout shifts between front/back
+2. **Style Back of Card**: Implement proper CSS styling for Social Links, Badges, and Attributes sections
+3. **Remove Legacy Code**: Clean up old frontend dropdown fragments in Card Design section
+4. **Debug & Polish**: Fix miscellaneous bugs and improve back card layout consistency
+5. **Visual Hierarchy**: Ensure back card content is properly organized and readable
 
 ### **Phase 2: Layout System Overhaul (Priority 2)**
 1. **True Layout Representation**: Create layouts that actually match their form descriptions

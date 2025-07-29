@@ -1350,27 +1350,29 @@
     if (!socialLinks || socialLinks.length === 0) {
       return `
         <div class="social-item">
-          <i class="fab fa-twitter"></i>
+          <div class="social-icon-circle">
+            <i class="fab fa-twitter"></i>
+          </div>
           <span class="social-platform">Twitter</span>
-          <span class="social-handle">@example</span>
         </div>
         <div class="social-item">
-          <i class="fab fa-github"></i>
+          <div class="social-icon-circle">
+            <i class="fab fa-github"></i>
+          </div>
           <span class="social-platform">GitHub</span>
-          <span class="social-handle">username</span>
         </div>
       `;
     }
     
     return socialLinks.map(social => {
       const iconClass = getSocialIcon(social.platform);
-      const handle = extractHandle(social.url, social.platform);
       
       return `
         <div class="social-item">
-          <i class="${iconClass}"></i>
+          <div class="social-icon-circle">
+            <i class="${iconClass}"></i>
+          </div>
           <span class="social-platform">${social.platform}</span>
-          <span class="social-handle">${handle}</span>
         </div>
       `;
     }).join('');
@@ -1739,10 +1741,6 @@ function generateAttributesHTML(attributes) {
             <div class="attributes-container">
               ${attributesHTML}
             </div>
-          </div>
-          
-          <div class="back-footer">
-            <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
           </div>
         </div>
       </div>
