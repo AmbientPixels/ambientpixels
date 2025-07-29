@@ -121,6 +121,9 @@
       
       console.log('✅ Prefill data applied successfully');
       
+      // Final preview update after all data is applied
+      updatePreview();
+      
     } catch (error) {
       console.error('❌ Error loading prefill data:', error);
       // Fallback to basic prefill if JSON fails
@@ -1418,6 +1421,7 @@
 function generateAttributesHTML(attributes) {
   if (!attributes || attributes.length === 0) {
     return `
+        <div class="attribute-item">
           <span class="attr-name">Level:</span>
           <span class="attr-value">12</span>
         </div>
