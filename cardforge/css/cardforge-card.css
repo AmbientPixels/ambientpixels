@@ -771,13 +771,13 @@
 }
 
 /* Hero Large Variant - Full cinematic experience */
-.image-style-hero[data-image-variant="large"] .card-avatar {
-  aspect-ratio: 2 / 1;
+.image-style-hero.image-hero-large .card-avatar {
+  aspect-ratio: 16 / 9; /* Taller - Actually larger */
 }
 
 /* Hero Small Variant - More compact image */
-.image-style-hero[data-image-variant="small"] .card-avatar {
-  aspect-ratio: 3 / 1;
+.image-style-hero.image-hero-small .card-avatar {
+  aspect-ratio: 2 / 1; /* Flatter - Actually smaller */
 }
 
 .image-style-hero .card-header h3 {
