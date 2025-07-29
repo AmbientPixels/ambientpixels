@@ -1571,6 +1571,15 @@ function generateAttributesHTML(attributes) {
       case 'minimal':
         frontHTML = generateMinimalLayout(data);
         break;
+      case 'left-aligned':
+        frontHTML = generateLeftAlignedLayout(data);
+        break;
+      case 'right-aligned':
+        frontHTML = generateRightAlignedLayout(data);
+        break;
+      case 'grid':
+        frontHTML = generateGridLayout(data);
+        break;
       default:
         frontHTML = generateCenteredLayout(data);
     }
@@ -1708,6 +1717,74 @@ function generateAttributesHTML(attributes) {
           </div>
         </div>
         <div class="card-quote minimal-quote">"${data.quote}"</div>
+        ${statsHTML}
+      </div>
+    `;
+  }
+
+  // Generate left-aligned layout HTML
+  function generateLeftAlignedLayout(data) {
+    const statsHTML = generateStatsHTML(data.stats);
+    
+    return `
+      <div class="card-content left-aligned-layout">
+        <div class="card-header left-aligned-header">
+          <h3 class="card-name">${data.name}</h3>
+          <div class="card-class">${data.characterClass}</div>
+        </div>
+        <div class="left-aligned-body">
+          <div class="card-avatar-container ${currentImageStyle}-style left-avatar">
+            <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
+          </div>
+          <div class="left-content">
+            <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
+            <div class="card-quote">"${data.quote}"</div>
+            ${statsHTML}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Generate right-aligned layout HTML
+  function generateRightAlignedLayout(data) {
+    const statsHTML = generateStatsHTML(data.stats);
+    
+    return `
+      <div class="card-content right-aligned-layout">
+        <div class="card-header right-aligned-header">
+          <h3 class="card-name">${data.name}</h3>
+          <div class="card-class">${data.characterClass}</div>
+        </div>
+        <div class="right-aligned-body">
+          <div class="right-content">
+            <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
+            <div class="card-quote">"${data.quote}"</div>
+            ${statsHTML}
+          </div>
+          <div class="card-avatar-container ${currentImageStyle}-style right-avatar">
+            <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Generate grid layout HTML
+  function generateGridLayout(data) {
+    const statsHTML = generateStatsHTML(data.stats);
+    
+    return `
+      <div class="card-header">
+        <h3 class="card-name">${data.name}</h3>
+        <div class="card-class">${data.characterClass}</div>
+      </div>
+      <div class="card-avatar-container ${currentImageStyle}-style">
+        <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
+      </div>
+      <div class="card-body">
+        <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
+        <div class="card-quote">"${data.quote}"</div>
         ${statsHTML}
       </div>
     `;

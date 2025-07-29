@@ -863,7 +863,7 @@
   margin-top: 1.5rem;
 }
 
-.layout-grid {
+.visual-layout-group .layout-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 0.75rem;
@@ -948,20 +948,38 @@
 }
 
 /* Layout-specific styling */
+
+/* Centered Layout - Image and text centered vertically */
 .layout-centered .layout-content {
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
 .layout-centered .layout-image {
   margin-bottom: 0.25rem;
+  width: 18px;
+  height: 18px;
 }
 
+/* Split Layout - Image left, text right */
 .layout-split .layout-content {
   flex-direction: row;
   align-items: flex-start;
+  gap: 0.25rem;
 }
 
+.layout-split .layout-image {
+  width: 18px;
+  height: 25px;
+}
+
+.layout-split .layout-text {
+  flex: 1;
+  height: 25px;
+}
+
+/* Hero Layout - Large image on top, text below */
 .layout-hero .layout-content {
   flex-direction: column;
 }
@@ -970,23 +988,110 @@
   width: 100%;
   height: 25px;
   margin-bottom: 0.25rem;
+  background: linear-gradient(135deg, var(--mood-primary-color, #e1e1ff), var(--mood-accent-color, #4a4a6a));
 }
 
+.layout-hero .layout-text {
+  height: 12px;
+}
+
+/* Minimal Layout - Small centered elements */
 .layout-minimal .layout-content {
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
 .layout-minimal .layout-image {
-  width: 15px;
-  height: 15px;
+  width: 12px;
+  height: 12px;
   margin-bottom: 0.25rem;
+}
+
+.layout-minimal .layout-text {
+  width: 80%;
+  height: 8px;
+}
+
+/* Left Aligned Layout - Image and text aligned to left */
+.layout-left-aligned .layout-content {
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0.25rem;
+}
+
+.layout-left-aligned .layout-image {
+  width: 16px;
+  height: 20px;
+}
+
+.layout-left-aligned .layout-text {
+  flex: 1;
+  height: 20px;
+}
+
+/* Right Aligned Layout - Image and text aligned to right */
+.layout-right-aligned .layout-content {
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 0.25rem;
+}
+
+.layout-right-aligned .layout-image {
+  width: 16px;
+  height: 20px;
+}
+
+.layout-right-aligned .layout-text {
+  flex: 1;
+  height: 20px;
+}
+
+/* Grid Layout Preview - Multiple small images in grid pattern */
+.visual-layout-group .layout-grid .layout-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto auto;
+  gap: 0.15rem;
+  align-items: start;
+}
+
+.visual-layout-group .layout-grid .layout-image {
+  width: 100%;
+  height: 8px;
+  margin: 0;
+}
+
+.visual-layout-group .layout-grid .layout-image-1 {
+  background: var(--mood-primary-color, #e1e1ff);
+}
+
+.visual-layout-group .layout-grid .layout-image-2 {
+  background: var(--mood-secondary-color, #a0a0c0);
+}
+
+.visual-layout-group .layout-grid .layout-image-3 {
+  background: var(--mood-accent-color, #4a4a6a);
+}
+
+.visual-layout-group .layout-grid .layout-image-4 {
+  background: var(--mood-primary-color, #e1e1ff);
+  opacity: 0.7;
+}
+
+.visual-layout-group .layout-grid .layout-text {
+  grid-column: 1 / -1;
+  height: 6px;
+  margin-top: 0.15rem;
 }
 
 /* Responsive design for layout picker */
 @media (max-width: 768px) {
-  .layout-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .visual-layout-group .layout-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
   }
   
   .layout-option {
@@ -997,6 +1102,54 @@
     width: 50px;
     height: 70px;
   }
+}
+
+@media (max-width: 480px) {
+  .visual-layout-group .layout-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* NEW: Visual Layout Picker - Base Styles */
+.visual-layout-group {
+  margin-top: 1.5rem;
+}
+
+.visual-layout-group .layout-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.layout-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--aura-bg-secondary, #2a2a3e);
+}
+
+.layout-option:hover {
+  border-color: var(--mood-accent-color, #4a4a6a);
+  transform: translateY(-2px);
+}
+
+.layout-option.selected {
+  border-color: var(--mood-primary-color, #e1e1ff);
+  background: var(--mood-accent-color, #4a4a6a);
+}
+
+.layout-thumbnail {
+  width: 60px;
+  height: 80px;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 /* NEW: Visual Color Palette Picker - Independent System */
