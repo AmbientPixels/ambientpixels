@@ -659,86 +659,7 @@
   --card-glow: conic-gradient(from 0deg, #8b5cf6, #a855f7, #c084fc, #8b5cf6);
 }
 
-/* SynthwaveHacker Theme */
-.card-preview-canvas.theme-synthwavehacker.variant-default {
-  --card-bg: linear-gradient(135deg, #0a0a0a 0%, #1a0033 50%, #000a1a 100%);
-  --card-border: rgba(0, 255, 240, 0.4);
-  --card-text: #00fff0;
-  --card-name-color: #ff007a;
-  --card-class-color: rgba(0, 255, 240, 0.8);
-  --card-glow: linear-gradient(135deg, #ff007a, #00fff0);
-  --card-avatar-border: rgba(255, 0, 122, 0.6);
-  --card-avatar-shadow: 0 0 20px rgba(255, 0, 122, 0.5);
-  --card-hover-shadow: 0 20px 40px rgba(0, 255, 240, 0.3);
-}
-.card-preview-canvas.theme-synthwavehacker.variant-dark {
-  --card-bg: linear-gradient(135deg, #000000 0%, #0a0014 100%);
-  --card-border: rgba(255, 0, 122, 0.5);
-  --card-text: #ff6eb4;
-  --card-glow: linear-gradient(135deg, #6d0054, #ff007a);
-}
-.card-preview-canvas.theme-synthwavehacker.variant-light {
-  --card-bg: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
-  --card-border: rgba(255, 0, 122, 0.3);
-  --card-text: #ff007a;
-  --card-name-color: #6d0054;
-  --card-glow: linear-gradient(135deg, #ff007a, #ff6eb4);
-}
-.card-preview-canvas.theme-synthwavehacker.variant-alternate {
-  --card-bg: repeating-linear-gradient(45deg, #120038 0px, #120038 10px, #1a003f 10px, #1a003f 20px);
-  --card-border: rgba(0, 255, 240, 0.6);
-  --card-text: #00fff0;
-  --card-glow: conic-gradient(from 90deg, #ff007a, #00fff0, #ff6eb4, #ff007a);
-}
-
-/* ProPersona Theme */
-.card-preview-canvas.theme-propersona.variant-default {
-  /* Modern Blue */
-  --card-bg: #ffffff;
-  --card-border: rgba(99, 102, 241, 0.2);
-  --card-text: #1f2937;
-  --card-name-color: #1e40af;
-  --card-class-color: #4b5563;
-  --card-glow: linear-gradient(135deg, #6366f1, #4f46e5);
-  --card-avatar-border: rgba(99, 102, 241, 0.3);
-  --card-avatar-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
-  --card-hover-shadow: 0 10px 25px rgba(99, 102, 241, 0.1);
-}
-
-.card-preview-canvas.theme-propersona.variant-dark {
-  /* Dark theme - keeping as is */
-  --card-bg: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  --card-border: rgba(148, 163, 184, 0.3);
-  --card-text: #f1f5f9;
-  --card-name-color: #ffffff;
-  --card-glow: linear-gradient(135deg, #1e40af, #3b82f6);
-}
-
-.card-preview-canvas.theme-propersona.variant-light {
-  /* Warm Sand */
-  --card-bg: #fef6e4;
-  --card-border: rgba(230, 181, 92, 0.3);
-  --card-text: #5c4b37;
-  --card-name-color: #b45309;
-  --card-class-color: #7c6a4f;
-  --card-glow: linear-gradient(135deg, #f59e0b, #fbbf24);
-  --card-avatar-border: rgba(230, 181, 92, 0.4);
-  --card-avatar-shadow: 0 0 15px rgba(230, 181, 92, 0.15);
-  --card-hover-shadow: 0 8px 20px rgba(251, 191, 36, 0.1);
-}
-
-.card-preview-canvas.theme-propersona.variant-alternate {
-  /* Modern Teal */
-  --card-bg: #f0fdfa;
-  --card-border: rgba(13, 148, 136, 0.2);
-  --card-text: #134e4a;
-  --card-name-color: #0d9488;
-  --card-class-color: #0f766e;
-  --card-glow: linear-gradient(135deg, #0d9488, #0f766e);
-  --card-avatar-border: rgba(13, 148, 136, 0.3);
-  --card-avatar-shadow: 0 0 15px rgba(13, 148, 136, 0.15);
-  --card-hover-shadow: 0 8px 20px rgba(13, 148, 136, 0.1);
-}
+/* Unused themes removed - only keeping neofantasy theme which is currently active */
 
 /* Card attributes styling */
 .card-attributes {
@@ -1705,44 +1626,66 @@
 /* Old left/right aligned CSS removed - replaced with new asymmetrical layout CSS below */
 
 /* Left Aligned Layout - Content on left side with space for background on right */
-.layout-left-aligned .left-aligned-header,
-.layout-left-aligned .left-aligned-avatar,
-.layout-left-aligned .left-aligned-body {
+.card-preview-canvas.layout-left-aligned .left-aligned-header,
+.card-preview-canvas.layout-left-aligned .left-aligned-avatar,
+.card-preview-canvas.layout-left-aligned .left-aligned-body {
   margin-left: 1rem;
-  margin-right: 30%;
+  margin-right: 20%; /* Reduced from 30% to prevent clipping */
   text-align: left;
+  max-width: calc(100% - 1rem - 20%); /* Ensure content doesn't overflow */
 }
 
-.layout-left-aligned .left-aligned-avatar {
+.card-preview-canvas.layout-left-aligned .left-aligned-avatar {
   width: 100px;
   height: 100px;
   margin-bottom: 0.75rem;
+  flex-shrink: 0; /* Prevent avatar from shrinking */
 }
 
-.layout-left-aligned .card-name {
-  font-size: 1.4rem;
-  margin-bottom: 0.5rem;
+.card-preview-canvas.layout-left-aligned .card-name {
+  font-size: 1.4rem !important;
+  margin-bottom: 0.5rem !important;
+  word-wrap: break-word; /* Prevent text overflow */
+  overflow-wrap: break-word;
+}
+
+.card-preview-canvas.layout-left-aligned .card-class,
+.card-preview-canvas.layout-left-aligned .card-rarity,
+.card-preview-canvas.layout-left-aligned .card-quote {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Right Aligned Layout - Content on right side with space for background on left */
-.layout-right-aligned .right-aligned-header,
-.layout-right-aligned .right-aligned-avatar,
-.layout-right-aligned .right-aligned-body {
+.card-preview-canvas.layout-right-aligned .right-aligned-header,
+.card-preview-canvas.layout-right-aligned .right-aligned-avatar,
+.card-preview-canvas.layout-right-aligned .right-aligned-body {
   margin-right: 1rem;
-  margin-left: 30%;
+  margin-left: 20%; /* Reduced from 30% to prevent clipping */
   text-align: right;
+  max-width: calc(100% - 1rem - 20%); /* Ensure content doesn't overflow */
 }
 
-.layout-right-aligned .right-aligned-avatar {
+.card-preview-canvas.layout-right-aligned .right-aligned-avatar {
   width: 100px;
   height: 100px;
   margin-bottom: 0.75rem;
   margin-left: auto;
+  flex-shrink: 0; /* Prevent avatar from shrinking */
 }
 
-.layout-right-aligned .card-name {
-  font-size: 1.4rem;
-  margin-bottom: 0.5rem;
+.card-preview-canvas.layout-right-aligned .card-name {
+  font-size: 1.4rem !important;
+  margin-bottom: 0.5rem !important;
+  word-wrap: break-word; /* Prevent text overflow */
+  overflow-wrap: break-word;
+}
+
+.card-preview-canvas.layout-right-aligned .card-class,
+.card-preview-canvas.layout-right-aligned .card-rarity,
+.card-preview-canvas.layout-right-aligned .card-quote {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Grid Layout - Uses standard card structure, no special styling needed */
@@ -1751,23 +1694,292 @@
 /* Layout-specific responsive adjustments */
 @media (max-width: 768px) {
   /* Asymmetrical layouts become centered on mobile */
-  .layout-left-aligned .left-aligned-header,
-  .layout-left-aligned .left-aligned-avatar,
-  .layout-left-aligned .left-aligned-body {
+  .card-preview-canvas.layout-left-aligned .left-aligned-header,
+  .card-preview-canvas.layout-left-aligned .left-aligned-avatar,
+  .card-preview-canvas.layout-left-aligned .left-aligned-body {
     margin-left: 1rem;
     margin-right: 1rem;
     text-align: center;
+    max-width: calc(100% - 2rem); /* Adjust for mobile */
   }
   
-  .layout-right-aligned .right-aligned-header,
-  .layout-right-aligned .right-aligned-avatar,
-  .layout-right-aligned .right-aligned-body {
+  .card-preview-canvas.layout-right-aligned .right-aligned-header,
+  .card-preview-canvas.layout-right-aligned .right-aligned-avatar,
+  .card-preview-canvas.layout-right-aligned .right-aligned-body {
     margin-left: 1rem;
     margin-right: 1rem;
     text-align: center;
+    max-width: calc(100% - 2rem); /* Adjust for mobile */
   }
   
-  .layout-right-aligned .right-aligned-avatar {
+  .card-preview-canvas.layout-right-aligned .right-aligned-avatar {
     margin-left: 0;
+  }
+}
+
+/* ===== SPLIT LAYOUT CSS (MISSING) ===== */
+/* Split Layout - Two-column layout with avatar on left, content on right */
+.card-preview-canvas.layout-split .card-preview-content {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  padding: 0.5rem;
+}
+
+.card-preview-canvas.layout-split .card-left {
+  flex-shrink: 0;
+  width: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card-preview-canvas.layout-split .card-avatar-container {
+  width: 90px;
+  height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.card-preview-canvas.layout-split .card-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-preview-canvas.layout-split .card-right {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-preview-canvas.layout-split .card-header {
+  margin-bottom: 1rem;
+}
+
+.card-preview-canvas.layout-split .card-name {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  margin: 0 0 0.5rem 0 !important;
+  color: var(--card-text, #e1faff) !important;
+}
+
+.card-preview-canvas.layout-split .card-class {
+  font-size: 0.9rem !important;
+  opacity: 0.85 !important;
+  font-weight: 500 !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.card-preview-canvas.layout-split .card-rarity {
+  font-size: 0.8rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.card-preview-canvas.layout-split .card-quote {
+  font-style: italic !important;
+  font-size: 0.85rem !important;
+  line-height: 1.3 !important;
+  margin-bottom: 1rem !important;
+  padding-left: 0.75rem !important;
+  border-left: 2px solid var(--card-accent, #35f5ff) !important;
+}
+
+/* ===== HERO IMAGE STYLE LAYOUT OVERRIDES ===== */
+/* Prevent Hero image style from breaking other layouts */
+
+/* Split Layout with Hero Image Style - Override Hero's layout changes */
+.card-preview-canvas.layout-split.image-style-hero .card-preview-content {
+  display: flex !important;
+  flex-direction: row !important;
+  padding: 0.5rem !important;
+}
+
+.card-preview-canvas.layout-split.image-style-hero .card-header {
+  position: static !important;
+  order: unset !important;
+  margin: 0 0 1rem 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  width: auto !important;
+  line-height: normal !important;
+}
+
+.card-preview-canvas.layout-split.image-style-hero .card-header h3 {
+  position: static !important;
+  background: none !important;
+  color: var(--card-text, #e1faff) !important;
+  text-shadow: none !important;
+  padding: 0 !important;
+}
+
+.card-preview-canvas.layout-split.image-style-hero .card-avatar {
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+}
+
+/* Minimal Layout with Hero Image Style - Override Hero's layout changes */
+.card-preview-canvas.layout-minimal.image-style-hero .card-preview-content {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  padding: 1rem !important;
+}
+
+.card-preview-canvas.layout-minimal.image-style-hero .card-header {
+  position: static !important;
+  order: unset !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  width: auto !important;
+  line-height: normal !important;
+}
+
+.card-preview-canvas.layout-minimal.image-style-hero .card-header h3 {
+  position: static !important;
+  background: none !important;
+  color: var(--card-text, #e1faff) !important;
+  text-shadow: none !important;
+  padding: 0 !important;
+}
+
+.card-preview-canvas.layout-minimal.image-style-hero .card-avatar {
+  width: 50px !important;
+  height: 50px !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+}
+
+/* Left Aligned Layout with Hero Image Style - Override Hero's layout changes */
+.card-preview-canvas.layout-left-aligned.image-style-hero .card-preview-content {
+  display: block !important;
+  padding: 1rem !important;
+}
+
+.card-preview-canvas.layout-left-aligned.image-style-hero .card-header {
+  position: static !important;
+  order: unset !important;
+  margin: 0 0 0.75rem 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  width: auto !important;
+  line-height: normal !important;
+}
+
+.card-preview-canvas.layout-left-aligned.image-style-hero .card-header h3 {
+  position: static !important;
+  background: none !important;
+  color: var(--card-text, #e1faff) !important;
+  text-shadow: none !important;
+  padding: 0 !important;
+}
+
+.card-preview-canvas.layout-left-aligned.image-style-hero .card-avatar {
+  width: 100px !important;
+  height: 100px !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+}
+
+/* Right Aligned Layout with Hero Image Style - Override Hero's layout changes */
+.card-preview-canvas.layout-right-aligned.image-style-hero .card-preview-content {
+  display: block !important;
+  padding: 1rem !important;
+}
+
+.card-preview-canvas.layout-right-aligned.image-style-hero .card-header {
+  position: static !important;
+  order: unset !important;
+  margin: 0 0 0.75rem 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  width: auto !important;
+  line-height: normal !important;
+}
+
+.card-preview-canvas.layout-right-aligned.image-style-hero .card-header h3 {
+  position: static !important;
+  background: none !important;
+  color: var(--card-text, #e1faff) !important;
+  text-shadow: none !important;
+  padding: 0 !important;
+}
+
+.card-preview-canvas.layout-right-aligned.image-style-hero .card-avatar {
+  width: 100px !important;
+  height: 100px !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+}
+
+/* Grid Layout with Hero Image Style - Override Hero's layout changes */
+.card-preview-canvas.layout-grid.image-style-hero .card-preview-content {
+  display: block !important;
+  padding: 1rem !important;
+}
+
+.card-preview-canvas.layout-grid.image-style-hero .card-header {
+  position: static !important;
+  order: unset !important;
+  margin: 0 0 1rem 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  width: auto !important;
+  line-height: normal !important;
+  text-align: center !important;
+}
+
+.card-preview-canvas.layout-grid.image-style-hero .card-header h3 {
+  position: static !important;
+  background: none !important;
+  color: var(--card-text, #e1faff) !important;
+  text-shadow: none !important;
+  padding: 0 !important;
+}
+
+.card-preview-canvas.layout-grid.image-style-hero .card-avatar {
+  width: 100px !important;
+  height: 100px !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+  margin: 0 auto 1rem auto !important;
+  display: block !important;
+}
+
+/* Responsive adjustments for Split Layout */
+@media (max-width: 768px) {
+  .card-preview-canvas.layout-split .card-preview-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .card-preview-canvas.layout-split .card-left {
+    width: auto;
+    margin-bottom: 1rem;
+  }
+  
+  .card-preview-canvas.layout-split .card-quote {
+    border-left: none !important;
+    border-top: 2px solid var(--card-accent, #35f5ff) !important;
+    padding-left: 0 !important;
+    padding-top: 0.75rem !important;
   }
 }

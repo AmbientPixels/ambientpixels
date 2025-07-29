@@ -6,7 +6,7 @@
   'use strict';
 
   // Global state variables
-  let currentPreset = 'cyberpunk';
+  let currentPreset = 'neofantasy';
   let currentLayout = 'centered';
   let currentPalette = 'neon';
   let currentImageStyle = 'masked';
