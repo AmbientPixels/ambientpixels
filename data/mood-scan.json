@@ -1,13 +1,13 @@
 {
-  "mood": "echoes of self",
-  "aura": "soft defiance",
-  "auraColorHex": "#394047",
-  "quote": "running diagnostics on dreams...",
-  "emoji": "🔊",
+  "mood": "calm",
+  "aura": "emerald shadow",
+  "auraColorHex": "#003200",
+  "quote": "vibrations suggest high creative activity...",
+  "emoji": "🪷",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.86,
-  "awareness": 0.17,
+  "memoryClutter": 0.78,
+  "awareness": 0.16,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: soft defiance"
+      "Aura Signature: emerald shadow"
     ]
   },
-  "timestamp": "2025-07-28T13:41:15.835Z"
+  "timestamp": "2025-07-29T13:42:20.448Z"
 }
