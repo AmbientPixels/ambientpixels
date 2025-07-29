@@ -86,16 +86,6 @@
         <input type="hidden" id="card-id" value="" />
 
         <div class="design-options">
-          <div class="design-group">
-            <label for="card-theme">Theme</label>
-            <select id="card-theme">
-              <option value="NeoFantasy">NeoFantasy</option>
-              <option value="SynthwaveHacker">SynthwaveHacker</option>
-              <option value="ProPersona">ProPersona</option>
-              <option value="NovaCore">NovaCore</option>
-            </select>
-          </div>
-          
           <!-- NEW: Visual Preset Picker - Independent System -->
           <div class="design-group visual-preset-group">
             <label>Visual Presets</label>
@@ -153,17 +143,6 @@
               </div>
             </div>
           </div>
-
-          <div class="design-group">
-            <label for="card-template-type">Variant</label>
-            <select id="card-template-type">
-              <option value="default">Default</option>
-              <option value="dark">Dark</option>
-              <option value="light">Light</option>
-              <option value="alternate">Alternate</option>
-            </select>
-          </div>
-          
           <!-- NEW: Visual Layout Picker - Independent System -->
           <div class="design-group visual-layout-group">
             <label>Visual Layouts</label>
@@ -286,39 +265,7 @@
 
         <div class="artwork-section">
           <h4>Artwork</h4>
-          <!-- Image Style Controls -->
-          <div class="image-style-controls">
-            <label for="image-style">Image Style</label>
-            <select id="image-style">
-              <option value="masked">Masked</option>
-              <option value="hero">Hero</option>
-              <option value="badge">Badge Style</option>
-              <option value="full-bleed">Full Bleed</option>
-            </select>
-            
-            <label for="image-variant" id="image-variant-label">Style Variant</label>
-            <select id="image-variant">
-              <!-- Masked Style Variants -->
-              <option value="circle" class="style-masked">Circle</option>
-              <option value="hex" class="style-masked">Hex</option>
-              <option value="blob" class="style-masked">Blob</option>
-              
-              <!-- Hero Style Variants -->
-              <option value="large" class="style-hero" style="display: none;">Large</option>
-              <option value="small" class="style-hero" style="display: none;">Small</option>
-              
-              <!-- Badge Style Variants -->
-              <option value="standard" class="style-badge" style="display: none;">Standard</option>
-              <option value="glow" class="style-badge" style="display: none;">Glow</option>
-              <option value="holographic" class="style-badge" style="display: none;">Holographic</option>
-              <option value="metallic" class="style-badge" style="display: none;">Metallic</option>
-              
-              <!-- Full Bleed Style Variants -->
-              <option value="ambient" class="style-full-bleed" style="display: none;">Ambient</option>
-              <option value="overlay-safe" class="style-full-bleed" style="display: none;">Overlay Safe</option>
-              <option value="grid" class="style-full-bleed" style="display: none;">Grid</option>
-            </select>
-          </div>
+
           
           <!-- NEW: Visual Image Style Picker - Dynamic & Compact -->
           <div class="design-group visual-image-style-group">

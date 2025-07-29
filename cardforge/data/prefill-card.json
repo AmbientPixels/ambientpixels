@@ -17,15 +17,15 @@
   "stats": [
     {
       "name": "Strength",
-      "value": 7
+      "value": 70
     },
     {
       "name": "Agility", 
-      "value": 9
+      "value": 90
     },
     {
       "name": "Intelligence",
-      "value": 8
+      "value": 80
     }
   ],
   "socialLinks": [
@@ -43,13 +43,13 @@
       "category": "Achievement",
       "icon": "star",
       "description": "Master Strategist",
-      "quantity": 3
+      "quantity": 30
     },
     {
       "category": "Victory",
       "icon": "trophy", 
       "description": "Campaign Winner",
-      "quantity": 1
+      "quantity": 10
     }
   ],
   "attributes": [
