@@ -1,10 +1,10 @@
 {
-  "updated": "2025-07-28T13:41:15.486Z",
+  "updated": "2025-07-29T13:42:18.673Z",
   "entries": [
     {
-      "hash": "e72235d",
-      "date": "2025-07-27 23:32:13 -0700",
-      "message": "docs(cardforge): update HANDOFF-DOCUMENT.md to reflect stat bars restoration"
+      "hash": "5915254",
+      "date": "2025-07-28 22:29:55 -0700",
+      "message": "fix(cardforge): resolve layout issues with Hero image style and clipping"
     }
   ]
 }

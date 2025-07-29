@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "9ff74003-936b-438b-8360-a892c2c525c8",
-      "hash": "e72235d051bc05fe6b37d8b32d6730166560b8cc",
-      "message": "docs(cardforge): update HANDOFF-DOCUMENT.md to reflect stat bars restoration",
-      "timestamp": "2025-07-27 23:32:13 -0700",
+      "id": "502e83e3-1a7a-4282-8499-15328ae187e6",
+      "hash": "5915254eb1d20055951ceebdd72e00b406b3168e",
+      "message": "fix(cardforge): resolve layout issues with Hero image style and clipping",
+      "timestamp": "2025-07-28 22:29:55 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/e72235d051bc05fe6b37d8b32d6730166560b8cc"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/5915254eb1d20055951ceebdd72e00b406b3168e"
     }
   ],
-  "timestamp": "2025-07-28T13:41:15.910Z",
+  "timestamp": "2025-07-29T13:42:20.523Z",
   "count": 1,
-  "scanId": 1753710075910
+  "scanId": 1753796540523
 }
