@@ -984,19 +984,19 @@
   height: 25px;
 }
 
-/* Hero Layout - Large image on top, text below */
-.layout-hero .layout-content {
+/* Banner Layout - Large image on top, text below */
+.layout-banner .layout-content {
   flex-direction: column;
 }
 
-.layout-hero .layout-image {
+.layout-banner .layout-image {
   width: 100%;
   height: 25px;
   margin-bottom: 0.25rem;
   background: linear-gradient(135deg, var(--mood-primary-color, #e1e1ff), var(--mood-accent-color, #4a4a6a));
 }
 
-.layout-hero .layout-text {
+.layout-banner .layout-text {
   height: 12px;
 }
 

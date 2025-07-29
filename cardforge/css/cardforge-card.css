@@ -1555,43 +1555,74 @@
 }
 
 /* Split Layout */
-.card-content.split-layout,
-.layout-split .card-content {
+/* Split Layout - Two-column layout with avatar on left, content on right */
+.layout-split .card-preview-content {
+  display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 1rem;
+  gap: 1.5rem;
+  padding: 0;
 }
 
-.card-left {
+.layout-split .card-left {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 120px;
 }
 
-.card-right {
+.layout-split .card-right {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  min-width: 0; /* Prevents flex item from overflowing */
 }
 
-/* Hero Layout */
-.card-content.hero-layout,
-.layout-hero .card-content {
+.layout-split .card-avatar {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 0;
+}
+
+.layout-split .card-header {
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+
+.layout-split .card-name {
+  font-size: 1.4rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Banner Layout - Full-width header image with overlay text */
+.layout-banner .card-preview-content {
+  position: relative;
+  padding: 0;
+}
+
+.layout-banner .card-hero-header {
+  width: 100%;
+  margin-bottom: 1rem;
   position: relative;
 }
 
-.hero-avatar-container {
+.layout-banner .hero-image-container {
   width: 100%;
   height: 120px;
-  margin-bottom: 1rem;
   position: relative;
   overflow: hidden;
   border-radius: 8px;
 }
 
-.hero-overlay {
+.layout-banner .hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.layout-banner .hero-overlay {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -1601,16 +1632,18 @@
   color: white;
 }
 
-.hero-name {
+.layout-banner .hero-name {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
+  font-weight: 600;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
 }
 
-.hero-body {
+.layout-banner .hero-body {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  padding: 0 1rem;
 }
 
 /* Minimal Layout */
@@ -1671,33 +1704,45 @@
 
 /* Old left/right aligned CSS removed - replaced with new asymmetrical layout CSS below */
 
-/* Left Aligned Layout - Content on left 60%, right 40% open for background */
+/* Left Aligned Layout - Content on left side with space for background on right */
 .layout-left-aligned .left-aligned-header,
 .layout-left-aligned .left-aligned-avatar,
 .layout-left-aligned .left-aligned-body {
   margin-left: 1rem;
-  margin-right: 40%;
+  margin-right: 30%;
   text-align: left;
 }
 
 .layout-left-aligned .left-aligned-avatar {
-  width: 80px;
+  width: 100px;
+  height: 100px;
   margin-bottom: 0.75rem;
 }
 
-/* Right Aligned Layout - Content on right 60%, left 40% open for background */
+.layout-left-aligned .card-name {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Right Aligned Layout - Content on right side with space for background on left */
 .layout-right-aligned .right-aligned-header,
 .layout-right-aligned .right-aligned-avatar,
 .layout-right-aligned .right-aligned-body {
   margin-right: 1rem;
-  margin-left: 40%;
+  margin-left: 30%;
   text-align: right;
 }
 
 .layout-right-aligned .right-aligned-avatar {
-  width: 80px;
+  width: 100px;
+  height: 100px;
   margin-bottom: 0.75rem;
   margin-left: auto;
+}
+
+.layout-right-aligned .card-name {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
 }
 
 /* Grid Layout - Uses standard card structure, no special styling needed */

@@ -16,7 +16,7 @@
   const presetConfigurations = {
     cyberpunk: {
       theme: 'cyberpunk',
-      layout: 'hero',
+      layout: 'banner',
       palette: 'neon',
       imageStyle: 'masked',
       imageVariant: 'hex'
@@ -1565,8 +1565,8 @@ function generateAttributesHTML(attributes) {
       case 'split':
         frontHTML = generateSplitLayout(data);
         break;
-      case 'hero':
-        frontHTML = generateHeroLayout(data);
+      case 'banner':
+        frontHTML = generateBannerLayout(data);
         break;
       case 'minimal':
         frontHTML = generateMinimalLayout(data);
@@ -1652,34 +1652,32 @@ function generateAttributesHTML(attributes) {
     `;
   }
 
-  // Generate split layout HTML
+  // Generate split layout HTML - Two-column layout with avatar on left, content on right
   function generateSplitLayout(data) {
     const statsHTML = generateStatsHTML(data.stats);
     
     return `
-      <div class="card-content split-layout">
-        <div class="card-left">
-          <div class="card-avatar-container ${currentImageStyle}-style">
-            <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
-          </div>
+      <div class="card-left">
+        <div class="card-avatar-container ${currentImageStyle}-style">
+          <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
         </div>
-        <div class="card-right">
-          <div class="card-header">
-            <h3 class="card-name">${data.name}</h3>
-            <div class="card-class">${data.characterClass}</div>
-          </div>
-          <div class="card-body">
-            <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
-            <div class="card-quote">"${data.quote}"</div>
-            ${statsHTML}
-          </div>
+      </div>
+      <div class="card-right">
+        <div class="card-header">
+          <h3 class="card-name">${data.name}</h3>
+          <div class="card-class">${data.characterClass}</div>
+        </div>
+        <div class="card-body">
+          <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
+          <div class="card-quote">"${data.quote}"</div>
+          ${statsHTML}
         </div>
       </div>
     `;
   }
 
-  // Generate hero layout HTML
-  function generateHeroLayout(data) {
+  // Generate banner layout HTML - Banner-style with full-width header image
+  function generateBannerLayout(data) {
     const statsHTML = generateStatsHTML(data.stats);
     
     return `
@@ -1693,16 +1691,6 @@ function generateAttributesHTML(attributes) {
       </div>
       <div class="card-body hero-body">
         <div class="card-class">${data.characterClass}</div>
-        <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
-        <div class="card-quote">"${data.quote}"</div>
-      <div class="card-header left-aligned-header">
-        <h3 class="card-name">${data.name}</h3>
-        <div class="card-class">${data.characterClass}</div>
-      </div>
-      <div class="card-avatar-container ${currentImageStyle}-style left-aligned-avatar">
-        <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
-      </div>
-      <div class="card-body left-aligned-body">
         <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
         <div class="card-quote">"${data.quote}"</div>
         ${statsHTML}
@@ -1723,6 +1711,26 @@ function generateAttributesHTML(attributes) {
         <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
       </div>
       <div class="card-body right-aligned-body">
+        <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
+        <div class="card-quote">"${data.quote}"</div>
+        ${statsHTML}
+      </div>
+    `;
+  }
+
+  // Generate left-aligned layout HTML - Content on left, space for background on right
+  function generateLeftAlignedLayout(data) {
+    const statsHTML = generateStatsHTML(data.stats);
+    
+    return `
+      <div class="card-header left-aligned-header">
+        <h3 class="card-name">${data.name}</h3>
+        <div class="card-class">${data.characterClass}</div>
+      </div>
+      <div class="card-avatar-container ${currentImageStyle}-style left-aligned-avatar">
+        <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
+      </div>
+      <div class="card-body left-aligned-body">
         <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
         <div class="card-quote">"${data.quote}"</div>
         ${statsHTML}
