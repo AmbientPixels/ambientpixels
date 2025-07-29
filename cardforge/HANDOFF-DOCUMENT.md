@@ -1,13 +1,46 @@
 # CardForge V2 - Project Handoff Document
 **Date:** July 28, 2025  
-**Status:** 🎉 PRODUCTION READY - Compact Back Design Implemented  
-**Next Phase:** Image Masking and Advanced Features
+**Status:** 🚨 CRITICAL LAYOUT ISSUES - Restart Required  
+**Next Phase:** Fix Split & Hero Layout Rendering
 
 ---
 
 ## 🎯 **Project Overview**
 
 CardForge V2 is an RPG card builder interface featuring visual pickers for presets, layouts, color palettes, and image styles. The system provides real-time preview updates and comprehensive card customization capabilities.
+
+## 🚨 **CRITICAL ISSUES - IMMEDIATE ATTENTION REQUIRED**
+
+### **1. Minimal Layout Image Squishing - ✅ FIXED**
+**Issue:** Images in minimal layout with masked/badge styles appeared squished/oval-shaped  
+**Root Cause:** CSS specificity conflict where masked image styles forced 100px size while minimal container was 50px  
+**Solution Applied:** Added specific CSS overrides for minimal layout masked images  
+**Status:** ✅ RESOLVED - Images now maintain proper aspect ratio in minimal layout
+
+### **2. Split Layout Rendering Failure - 🚨 CRITICAL**
+**Issue:** Split layout shows only oversized image with no card content visible  
+**Symptoms:** 
+- Image displays but is too large and gets clipped
+- No text content (name, class, rarity, quote, stats) appears
+- Card appears broken/incomplete
+**Root Cause:** Likely CSS conflicts or missing styles for split layout structure  
+**Status:** 🚨 NEEDS IMMEDIATE FIX
+
+### **3. Hero Layout Rendering Failure - 🚨 CRITICAL**
+**Issue:** Hero layout (both Large and Small variants) shows only oversized image with no card content  
+**Symptoms:**
+- Image displays but is too large and gets clipped
+- No text content (name, class, rarity, quote, stats) appears
+- Card appears broken/incomplete
+**Root Cause:** Likely CSS conflicts between hero image styles and card content layout  
+**Status:** 🚨 NEEDS IMMEDIATE FIX
+
+### **4. Missing Minimal Layout Function - ✅ FIXED**
+**Issue:** Minimal layout function was accidentally removed during previous edits  
+**Solution Applied:** Re-added `generateMinimalLayout()` function with proper structure  
+**Status:** ✅ RESOLVED
+
+---
 
 ## ✅ **Completed Work**
 
@@ -191,18 +224,6 @@ cardforge/
 ### **Layout Specifications**
 - **Centered:** All content centered vertically and horizontally
 - **Split:** Image left, content right (or vice versa)
-- **Hero:** Large image header with content below
-- **Minimal:** Compact layout with small image and essential info
-- **Left-Aligned:** All content aligned to left side of card
-- **Right-Aligned:** All content aligned to right side of card
-- **Grid:** Content arranged in grid format
-- **Stacked:** Vertical stacking of all elements
-
-### **Image Style Requirements**
-- **Masked:** Only image is clipped (circle, hex, blob, tear-drop)
-- **Hero:** Large image with overlay text
-- **Badge:** Small circular image badge
-- **Full-Bleed:** Image as card background (ambient, overlay-safe, grid)
 
 ---
 

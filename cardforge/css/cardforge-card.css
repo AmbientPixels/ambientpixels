@@ -1630,6 +1630,23 @@
   width: 50px;
   height: 50px;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.minimal-avatar .card-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Override masked image sizing for minimal layout */
+.minimal-avatar .card-avatar.image-masked-circle,
+.minimal-avatar .card-avatar.image-masked-hex,
+.minimal-avatar .card-avatar.image-masked-blob,
+.minimal-avatar .card-avatar.image-masked-tear-drop {
+  width: 50px !important;
+  height: 50px !important;
 }
 
 .minimal-info {
@@ -1652,73 +1669,35 @@
   margin-bottom: 0.5rem;
 }
 
-/* Left Aligned Layout */
-.card-content.left-aligned-layout,
-.layout-left-aligned .card-content {
-  align-items: flex-start;
+/* Old left/right aligned CSS removed - replaced with new asymmetrical layout CSS below */
+
+/* Left Aligned Layout - Content on left 60%, right 40% open for background */
+.layout-left-aligned .left-aligned-header,
+.layout-left-aligned .left-aligned-avatar,
+.layout-left-aligned .left-aligned-body {
+  margin-left: 1rem;
+  margin-right: 40%;
   text-align: left;
 }
 
-.left-aligned-header {
-  text-align: left;
-  margin-bottom: 1rem;
-  width: 100%;
-}
-
-.left-aligned-body {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  width: 100%;
-}
-
-.left-avatar {
-  flex-shrink: 0;
+.layout-left-aligned .left-aligned-avatar {
   width: 80px;
-  height: 80px;
+  margin-bottom: 0.75rem;
 }
 
-.left-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  text-align: left;
-}
-
-/* Right Aligned Layout */
-.card-content.right-aligned-layout,
-.layout-right-aligned .card-content {
-  align-items: flex-end;
+/* Right Aligned Layout - Content on right 60%, left 40% open for background */
+.layout-right-aligned .right-aligned-header,
+.layout-right-aligned .right-aligned-avatar,
+.layout-right-aligned .right-aligned-body {
+  margin-right: 1rem;
+  margin-left: 40%;
   text-align: right;
 }
 
-.right-aligned-header {
-  text-align: right;
-  margin-bottom: 1rem;
-  width: 100%;
-}
-
-.right-aligned-body {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  width: 100%;
-  flex-direction: row-reverse;
-}
-
-.right-avatar {
-  flex-shrink: 0;
+.layout-right-aligned .right-aligned-avatar {
   width: 80px;
-  height: 80px;
-}
-
-.right-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  text-align: right;
+  margin-bottom: 0.75rem;
+  margin-left: auto;
 }
 
 /* Grid Layout - Uses standard card structure, no special styling needed */
@@ -1726,13 +1705,24 @@
 
 /* Layout-specific responsive adjustments */
 @media (max-width: 768px) {
-  /* Remove width constraints in responsive mode too */
-  
-  .split-layout .card-left,
-  .left-aligned-body,
-  .right-aligned-body {
-    flex-direction: column;
-    align-items: center;
+  /* Asymmetrical layouts become centered on mobile */
+  .layout-left-aligned .left-aligned-header,
+  .layout-left-aligned .left-aligned-avatar,
+  .layout-left-aligned .left-aligned-body {
+    margin-left: 1rem;
+    margin-right: 1rem;
     text-align: center;
+  }
+  
+  .layout-right-aligned .right-aligned-header,
+  .layout-right-aligned .right-aligned-avatar,
+  .layout-right-aligned .right-aligned-body {
+    margin-left: 1rem;
+    margin-right: 1rem;
+    text-align: center;
+  }
+  
+  .layout-right-aligned .right-aligned-avatar {
+    margin-left: 0;
   }
 }

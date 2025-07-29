@@ -865,7 +865,7 @@
 
 .visual-layout-group .layout-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 0.75rem;
   margin-top: 0.75rem;
 }
@@ -941,10 +941,15 @@
 }
 
 .layout-label {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--mood-primary-color, #e1e1ff);
   text-align: center;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  margin-top: 0.25rem;
 }
 
 /* Layout-specific styling */

@@ -1695,77 +1695,59 @@ function generateAttributesHTML(attributes) {
         <div class="card-class">${data.characterClass}</div>
         <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
         <div class="card-quote">"${data.quote}"</div>
+      <div class="card-header left-aligned-header">
+        <h3 class="card-name">${data.name}</h3>
+        <div class="card-class">${data.characterClass}</div>
+      </div>
+      <div class="card-avatar-container ${currentImageStyle}-style left-aligned-avatar">
+        <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
+      </div>
+      <div class="card-body left-aligned-body">
+        <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
+        <div class="card-quote">"${data.quote}"</div>
         ${statsHTML}
       </div>
     `;
   }
 
-  // Generate minimal layout HTML
-  function generateMinimalLayout(data) {
-    const statsHTML = generateStatsHTML(data.stats);
-    
-    return `
-      <div class="card-content minimal-layout">
-        <div class="minimal-header">
-          <div class="card-avatar-container ${currentImageStyle}-style minimal-avatar">
-            <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
-          </div>
-          <div class="minimal-info">
-            <h3 class="card-name">${data.name}</h3>
-            <div class="card-class">${data.characterClass}</div>
-            <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
-          </div>
-        </div>
-        <div class="card-quote minimal-quote">"${data.quote}"</div>
-        ${statsHTML}
-      </div>
-    `;
-  }
-
-  // Generate left-aligned layout HTML
-  function generateLeftAlignedLayout(data) {
-    const statsHTML = generateStatsHTML(data.stats);
-    
-    return `
-      <div class="card-content left-aligned-layout">
-        <div class="card-header left-aligned-header">
-          <h3 class="card-name">${data.name}</h3>
-          <div class="card-class">${data.characterClass}</div>
-        </div>
-        <div class="left-aligned-body">
-          <div class="card-avatar-container ${currentImageStyle}-style left-avatar">
-            <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
-          </div>
-          <div class="left-content">
-            <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
-            <div class="card-quote">"${data.quote}"</div>
-            ${statsHTML}
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  // Generate right-aligned layout HTML
+  // Generate right-aligned layout HTML - Content on right, space for background on left
   function generateRightAlignedLayout(data) {
     const statsHTML = generateStatsHTML(data.stats);
     
     return `
-      <div class="card-content right-aligned-layout">
-        <div class="card-header right-aligned-header">
+      <div class="card-header right-aligned-header">
+        <h3 class="card-name">${data.name}</h3>
+        <div class="card-class">${data.characterClass}</div>
+      </div>
+      <div class="card-avatar-container ${currentImageStyle}-style right-aligned-avatar">
+        <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
+      </div>
+      <div class="card-body right-aligned-body">
+        <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
+        <div class="card-quote">"${data.quote}"</div>
+        ${statsHTML}
+      </div>
+    `;
+  }
+
+  // Generate minimal layout HTML - Compact layout with small avatar and horizontal layout
+  function generateMinimalLayout(data) {
+    const statsHTML = generateStatsHTML(data.stats);
+    
+    return `
+      <div class="card-header minimal-header">
+        <div class="card-avatar-container ${currentImageStyle}-style minimal-avatar">
+          <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
+        </div>
+        <div class="minimal-info">
           <h3 class="card-name">${data.name}</h3>
           <div class="card-class">${data.characterClass}</div>
+          <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
         </div>
-        <div class="right-aligned-body">
-          <div class="right-content">
-            <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
-            <div class="card-quote">"${data.quote}"</div>
-            ${statsHTML}
-          </div>
-          <div class="card-avatar-container ${currentImageStyle}-style right-avatar">
-            <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
-          </div>
-        </div>
+      </div>
+      <div class="card-body minimal-body">
+        <div class="card-quote">"${data.quote}"</div>
+        ${statsHTML}
       </div>
     `;
   }
