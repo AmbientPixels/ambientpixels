@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "502e83e3-1a7a-4282-8499-15328ae187e6",
-      "hash": "5915254eb1d20055951ceebdd72e00b406b3168e",
-      "message": "fix(cardforge): resolve layout issues with Hero image style and clipping",
-      "timestamp": "2025-07-28 22:29:55 -0700",
+      "id": "d618cdba-6dff-4adc-b208-722ac0802aab",
+      "hash": "10ab4d7d5428f230c3c01b7d5c2ddfbc3b19c402",
+      "message": "Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels",
+      "timestamp": "2025-07-29 15:00:56 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/5915254eb1d20055951ceebdd72e00b406b3168e"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/10ab4d7d5428f230c3c01b7d5c2ddfbc3b19c402"
     }
   ],
-  "timestamp": "2025-07-29T13:42:20.523Z",
+  "timestamp": "2025-07-30T13:41:52.809Z",
   "count": 1,
-  "scanId": 1753796540523
+  "scanId": 1753882912809
 }

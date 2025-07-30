@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-07-29T13:42:27.728Z",
+  "timestamp": "2025-07-30T13:42:00.048Z",
   "summary": {
     "totalJS": 1941,
     "totalCSS": 87,
@@ -4176,6 +4176,8 @@
     "image-full-bleed-overlay-safe",
     "image-grid",
     "image-grid-container",
+    "image-hero-large",
+    "image-hero-small",
     "image-masked-blob",
     "image-masked-circle",
     "image-masked-hex",
