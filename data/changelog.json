@@ -1,10 +1,10 @@
 {
-  "updated": "2025-07-29T13:42:18.673Z",
+  "updated": "2025-07-30T13:41:51.895Z",
   "entries": [
     {
-      "hash": "5915254",
-      "date": "2025-07-28 22:29:55 -0700",
-      "message": "fix(cardforge): resolve layout issues with Hero image style and clipping"
+      "hash": "10ab4d7",
+      "date": "2025-07-29 15:00:56 -0700",
+      "message": "Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels"
     }
   ]
 }
