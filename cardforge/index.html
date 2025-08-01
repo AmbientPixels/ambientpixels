@@ -20,8 +20,9 @@
   <link rel="stylesheet" href="/css/hero.css">
   <link rel="stylesheet" href="/css/theme.css">
   <link rel="stylesheet" href="/cardforge/css/card-forge.css">
-  <link rel="stylesheet" href="/cardforge/css/cardforge-ui.css">
-  <link rel="stylesheet" href="/cardforge/css/cardforge-card.css">
+  <link rel="stylesheet" href="css/cardforge-ui.css">
+  <link rel="stylesheet" href="css/cardforge-card.css">
+  <link rel="stylesheet" href="css/tier5-tier6-modular.css">
 
 </head>
 <body data-theme="dark">
@@ -85,396 +86,313 @@
         <!-- Hidden field for card ID when editing existing cards -->
         <input type="hidden" id="card-id" value="" />
 
-        <div class="design-options">
-          <!-- NEW: Visual Preset Picker - Independent System -->
-          <div class="design-group visual-preset-group">
-            <label>Visual Presets</label>
-            <div id="visual-preset-picker" class="preset-grid">
-              <div class="preset-option" data-preset="cyberpunk">
-                <div class="preset-thumbnail">
-                  <div class="mini-card-preview preset-cyberpunk">
-                    <div class="card-header"></div>
-                    <div class="card-content">
-                      <div class="card-badge"></div>
-                      <div class="card-text"></div>
-                    </div>
-                  </div>
+        <!-- MODULAR DESIGN SYSTEM -->
+        <div class="modular-system">
+          
+          <!-- QUICK START PRESETS -->
+          <div class="presets-section">
+            <h4 class="presets-title">🚀 Quick Start Presets</h4>
+            <div class="presets-grid">
+              <button type="button" class="preset-btn" data-preset="hero-classic">
+                <div class="preset-preview">
+                  <div class="preset-icon hero-classic-icon"></div>
                 </div>
-                <span class="preset-label">Cyberpunk</span>
-              </div>
+                <span class="preset-label">Hero Classic</span>
+                <span class="preset-desc">Traditional hero card</span>
+              </button>
               
-              <div class="preset-option" data-preset="fantasy">
-                <div class="preset-thumbnail">
-                  <div class="mini-card-preview preset-fantasy">
-                    <div class="card-header"></div>
-                    <div class="card-content">
-                      <div class="card-badge"></div>
-                      <div class="card-text"></div>
-                    </div>
-                  </div>
+              <button type="button" class="preset-btn" data-preset="split-modern">
+                <div class="preset-preview">
+                  <div class="preset-icon split-modern-icon"></div>
                 </div>
-                <span class="preset-label">Fantasy</span>
-              </div>
+                <span class="preset-label">Split Modern</span>
+                <span class="preset-desc">Two-column layout</span>
+              </button>
               
-              <div class="preset-option" data-preset="corporate">
-                <div class="preset-thumbnail">
-                  <div class="mini-card-preview preset-corporate">
-                    <div class="card-header"></div>
-                    <div class="card-content">
-                      <div class="card-badge"></div>
-                      <div class="card-text"></div>
-                    </div>
-                  </div>
+              <button type="button" class="preset-btn" data-preset="minimal-glow">
+                <div class="preset-preview">
+                  <div class="preset-icon minimal-glow-icon"></div>
                 </div>
-                <span class="preset-label">Corporate</span>
-              </div>
+                <span class="preset-label">Minimal Glow</span>
+                <span class="preset-desc">Clean with effects</span>
+              </button>
               
-              <div class="preset-option" data-preset="retro">
-                <div class="preset-thumbnail">
-                  <div class="mini-card-preview preset-retro">
-                    <div class="card-header"></div>
-                    <div class="card-content">
-                      <div class="card-badge"></div>
-                      <div class="card-text"></div>
-                    </div>
-                  </div>
+              <button type="button" class="preset-btn" data-preset="fullbleed-cinematic">
+                <div class="preset-preview">
+                  <div class="preset-icon fullbleed-cinematic-icon"></div>
                 </div>
-                <span class="preset-label">Retro</span>
-              </div>
+                <span class="preset-label">Full Bleed</span>
+                <span class="preset-desc">Cinematic background</span>
+              </button>
+              
+              <button type="button" class="preset-btn" data-preset="framed-ornate">
+                <div class="preset-preview">
+                  <div class="preset-icon framed-ornate-icon"></div>
+                </div>
+                <span class="preset-label">Framed Ornate</span>
+                <span class="preset-desc">Elegant with borders</span>
+              </button>
             </div>
           </div>
-          <!-- NEW: Visual Layout Picker - Independent System -->
-          <div class="design-group visual-layout-group">
-            <label>Visual Layouts</label>
-            <div id="visual-layout-picker" class="layout-grid">
-              <div class="layout-option" data-layout="centered">
-                <div class="layout-thumbnail">
-                  <div class="mini-layout-preview layout-centered">
-                    <div class="layout-header"></div>
-                    <div class="layout-content">
-                      <div class="layout-image"></div>
-                      <div class="layout-text"></div>
-                    </div>
-                  </div>
+          
+          <!-- TIER 1: BASE LAYOUT -->
+          <div class="modular-tier" data-tier="1">
+            <h4 class="tier-title">Layout Style</h4>
+            <div class="tier-options-grid">
+              <div class="tier-option" data-value="hero">
+                <div class="option-preview">
+                  <div class="layout-icon hero-icon"></div>
                 </div>
-                <span class="layout-label">Centered</span>
+                <span class="option-label">Hero</span>
               </div>
-              
-              <div class="layout-option" data-layout="split">
-                <div class="layout-thumbnail">
-                  <div class="mini-layout-preview layout-split">
-                    <div class="layout-header"></div>
-                    <div class="layout-content">
-                      <div class="layout-image"></div>
-                      <div class="layout-text"></div>
-                    </div>
-                  </div>
+              <div class="tier-option" data-value="split">
+                <div class="option-preview">
+                  <div class="layout-icon split-icon"></div>
                 </div>
-                <span class="layout-label">Split</span>
+                <span class="option-label">Split</span>
               </div>
-              
-              <div class="layout-option" data-layout="banner">
-                <div class="layout-thumbnail">
-                  <div class="mini-layout-preview layout-banner">
-                    <div class="layout-header"></div>
-                    <div class="layout-content">
-                      <div class="layout-image"></div>
-                      <div class="layout-text"></div>
-                    </div>
-                  </div>
+              <div class="tier-option" data-value="minimal">
+                <div class="option-preview">
+                  <div class="layout-icon minimal-icon"></div>
                 </div>
-                <span class="layout-label">Banner</span>
+                <span class="option-label">Minimal</span>
               </div>
-              
-              <div class="layout-option" data-layout="minimal">
-                <div class="layout-thumbnail">
-                  <div class="mini-layout-preview layout-minimal">
-                    <div class="layout-header"></div>
-                    <div class="layout-content">
-                      <div class="layout-image"></div>
-                      <div class="layout-text"></div>
-                    </div>
-                  </div>
+              <div class="tier-option" data-value="overlay">
+                <div class="option-preview">
+                  <div class="layout-icon overlay-icon"></div>
                 </div>
-                <span class="layout-label">Minimal</span>
+                <span class="option-label">Overlay</span>
               </div>
-              
-              <div class="layout-option" data-layout="left-aligned">
-                <div class="layout-thumbnail">
-                  <div class="mini-layout-preview layout-left-aligned">
-                    <div class="layout-header"></div>
-                    <div class="layout-content">
-                      <div class="layout-image"></div>
-                      <div class="layout-text"></div>
-                    </div>
-                  </div>
+              <div class="tier-option" data-value="stack">
+                <div class="option-preview">
+                  <div class="layout-icon stack-icon"></div>
                 </div>
-                <span class="layout-label">Left Aligned</span>
+                <span class="option-label">Stack</span>
               </div>
-              
-              <div class="layout-option" data-layout="right-aligned">
-                <div class="layout-thumbnail">
-                  <div class="mini-layout-preview layout-right-aligned">
-                    <div class="layout-header"></div>
-                    <div class="layout-content">
-                      <div class="layout-image"></div>
-                      <div class="layout-text"></div>
-                    </div>
-                  </div>
+              <div class="tier-option" data-value="frame">
+                <div class="option-preview">
+                  <div class="layout-icon frame-icon"></div>
                 </div>
-                <span class="layout-label">Right Aligned</span>
-              </div>
-              
-              <div class="layout-option" data-layout="grid">
-                <div class="layout-thumbnail">
-                  <div class="mini-layout-preview layout-grid">
-                    <div class="layout-header"></div>
-                    <div class="layout-content">
-                      <div class="layout-image layout-image-1"></div>
-                      <div class="layout-image layout-image-2"></div>
-                      <div class="layout-image layout-image-3"></div>
-                      <div class="layout-image layout-image-4"></div>
-                      <div class="layout-text"></div>
-                    </div>
-                  </div>
-                </div>
-                <span class="layout-label">Grid</span>
+                <span class="option-label">Frame</span>
               </div>
             </div>
           </div>
           
-          <!-- NEW: Visual Color Palette Picker - Independent System -->
-          <div class="design-group visual-palette-group">
-            <label>Visual Color Palettes</label>
-            <div id="visual-palette-picker" class="palette-grid">
-              <div class="palette-option" data-palette="neon">
-                <div class="palette-swatch">
-                  <div class="color-preview palette-neon">
-                    <div class="color-primary"></div>
-                    <div class="color-secondary"></div>
-                    <div class="color-accent"></div>
-                  </div>
+          <!-- TIER 4: COLOR PALETTE -->
+          <div class="modular-tier" data-tier="4">
+            <h4 class="tier-title">Color Palette</h4>
+            <div class="palette-section">
+              <div class="palette-families">
+                <div class="palette-family" data-palette="neon">
+                  <div class="palette-preview neon-preview"></div>
+                  <span class="palette-label">Neon</span>
                 </div>
-                <span class="palette-label">Neon</span>
+                <div class="palette-family" data-palette="earth">
+                  <div class="palette-preview earth-preview"></div>
+                  <span class="palette-label">Earth</span>
+                </div>
+                <div class="palette-family" data-palette="ocean">
+                  <div class="palette-preview ocean-preview"></div>
+                  <span class="palette-label">Ocean</span>
+                </div>
+                <div class="palette-family" data-palette="sunset">
+                  <div class="palette-preview sunset-preview"></div>
+                  <span class="palette-label">Sunset</span>
+                </div>
+                <div class="palette-family" data-palette="monochrome">
+                  <div class="palette-preview monochrome-preview"></div>
+                  <span class="palette-label">Mono</span>
+                </div>
               </div>
-              
-              <div class="palette-option" data-palette="earth">
-                <div class="palette-swatch">
-                  <div class="color-preview palette-earth">
-                    <div class="color-primary"></div>
-                    <div class="color-secondary"></div>
-                    <div class="color-accent"></div>
-                  </div>
+              <div class="variant-toggles">
+                <div class="variant-toggle" data-variant="light">
+                  <span class="variant-label">Light</span>
                 </div>
-                <span class="palette-label">Earth</span>
-              </div>
-              
-              <div class="palette-option" data-palette="ocean">
-                <div class="palette-swatch">
-                  <div class="color-preview palette-ocean">
-                    <div class="color-primary"></div>
-                    <div class="color-secondary"></div>
-                    <div class="color-accent"></div>
-                  </div>
+                <div class="variant-toggle" data-variant="dark">
+                  <span class="variant-label">Dark</span>
                 </div>
-                <span class="palette-label">Ocean</span>
-              </div>
-              
-              <div class="palette-option" data-palette="sunset">
-                <div class="palette-swatch">
-                  <div class="color-preview palette-sunset">
-                    <div class="color-primary"></div>
-                    <div class="color-secondary"></div>
-                    <div class="color-accent"></div>
-                  </div>
-                </div>
-                <span class="palette-label">Sunset</span>
-              </div>
-              
-              <div class="palette-option" data-palette="monochrome">
-                <div class="palette-swatch">
-                  <div class="color-preview palette-monochrome">
-                    <div class="color-primary"></div>
-                    <div class="color-secondary"></div>
-                    <div class="color-accent"></div>
-                  </div>
-                </div>
-                <span class="palette-label">Monochrome</span>
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="artwork-section">
-          <h4>Artwork</h4>
-
           
-          <!-- NEW: Visual Image Style Picker - Dynamic & Compact -->
-          <div class="design-group visual-image-style-group">
-            <label>Visual Image Styles</label>
-            
-            <!-- Primary Style Selection -->
-            <div id="image-style-primary" class="style-primary-grid">
-              <div class="style-primary-option active" data-style="masked">
-                <div class="style-primary-thumbnail">
-                  <div class="mini-style-preview style-masked-preview">
-                    <div class="preview-image"></div>
-                  </div>
+          <!-- TIER 2: CONTENT ALIGNMENT -->
+          <div class="modular-tier" data-tier="2">
+            <h4 class="tier-title">Content Alignment</h4>
+            <div class="tier-options-grid alignment-grid">
+              <div class="tier-option" data-value="left">
+                <div class="option-preview">
+                  <div class="alignment-icon left-align-icon"></div>
                 </div>
-                <span class="style-primary-label">Masked</span>
+                <span class="option-label">Left</span>
               </div>
-              
-              <div class="style-primary-option" data-style="hero">
-                <div class="style-primary-thumbnail">
-                  <div class="mini-style-preview style-hero-preview">
-                    <div class="preview-image"></div>
-                  </div>
+              <div class="tier-option" data-value="center">
+                <div class="option-preview">
+                  <div class="alignment-icon center-align-icon"></div>
                 </div>
-                <span class="style-primary-label">Hero</span>
+                <span class="option-label">Center</span>
               </div>
-              
-              <div class="style-primary-option" data-style="badge">
-                <div class="style-primary-thumbnail">
-                  <div class="mini-style-preview style-badge-preview">
-                    <div class="preview-image"></div>
-                  </div>
+              <div class="tier-option" data-value="right">
+                <div class="option-preview">
+                  <div class="alignment-icon right-align-icon"></div>
                 </div>
-                <span class="style-primary-label">Badge</span>
+                <span class="option-label">Right</span>
               </div>
-              
-              <div class="style-primary-option" data-style="full-bleed">
-                <div class="style-primary-thumbnail">
-                  <div class="mini-style-preview style-fullbleed-preview">
-                    <div class="preview-image"></div>
-                  </div>
+            </div>
+          </div>
+          
+          <!-- TIER 3: VISUAL WEIGHT -->
+          <div class="modular-tier" data-tier="3">
+            <h4 class="tier-title">Visual Weight</h4>
+            <div class="tier-options-grid weight-grid">
+              <div class="tier-option" data-value="top-heavy">
+                <div class="option-preview">
+                  <div class="weight-icon top-heavy-icon"></div>
                 </div>
-                <span class="style-primary-label">Full Bleed</span>
+                <span class="option-label">Top Heavy</span>
+              </div>
+              <div class="tier-option" data-value="balanced">
+                <div class="option-preview">
+                  <div class="weight-icon balanced-icon"></div>
+                </div>
+                <span class="option-label">Balanced</span>
+              </div>
+              <div class="tier-option" data-value="bottom-heavy">
+                <div class="option-preview">
+                  <div class="weight-icon bottom-heavy-icon"></div>
+                </div>
+                <span class="option-label">Bottom Heavy</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- TIER 5: IMAGE CONTAINER -->
+          <div class="modular-tier" data-tier="5">
+            <h4 class="tier-title">Image Container</h4>
+            <div class="tier-options-grid container-grid">
+              <div class="tier-option" data-value="masked">
+                <div class="option-preview">
+                  <div class="container-icon masked-icon"></div>
+                </div>
+                <span class="option-label">Masked</span>
+              </div>
+              <div class="tier-option" data-value="framed">
+                <div class="option-preview">
+                  <div class="container-icon framed-icon"></div>
+                </div>
+                <span class="option-label">Framed</span>
+              </div>
+              <div class="tier-option" data-value="raw">
+                <div class="option-preview">
+                  <div class="container-icon raw-icon"></div>
+                </div>
+                <span class="option-label">Raw</span>
+              </div>
+              <div class="tier-option" data-value="fullbleed">
+                <div class="option-preview">
+                  <div class="container-icon fullbleed-icon"></div>
+                </div>
+                <span class="option-label">Full Bleed</span>
               </div>
             </div>
             
-            <!-- Dynamic Variant Selection -->
-            <div id="image-style-variants" class="style-variants-container">
-              <!-- Masked Variants -->
-              <div class="variant-group" data-for-style="masked">
-                <div class="variant-option active" data-variant="circle">
-                  <div class="variant-thumbnail">
-                    <div class="mini-variant-preview">
-                      <div class="preview-image circle-shape"></div>
-                    </div>
-                  </div>
+            <!-- Container Variants -->
+            <div class="container-variants" data-container="masked">
+              <h5 class="variant-title">Shape</h5>
+              <div class="variant-options">
+                <div class="variant-option" data-variant="circle">
+                  <div class="variant-preview circle-preview"></div>
                   <span class="variant-label">Circle</span>
                 </div>
-                
                 <div class="variant-option" data-variant="hex">
-                  <div class="variant-thumbnail">
-                    <div class="mini-variant-preview">
-                      <div class="preview-image hex-shape"></div>
-                    </div>
-                  </div>
+                  <div class="variant-preview hex-preview"></div>
                   <span class="variant-label">Hex</span>
                 </div>
-                
-                <div class="variant-option" data-variant="blob">
-                  <div class="variant-thumbnail">
-                    <div class="mini-variant-preview">
-                      <div class="preview-image blob-shape"></div>
-                    </div>
-                  </div>
-                  <span class="variant-label">Blob</span>
+                <div class="variant-option" data-variant="diamond">
+                  <div class="variant-preview diamond-preview"></div>
+                  <span class="variant-label">Diamond</span>
                 </div>
               </div>
-              
-              <!-- Hero Variants -->
-              <div class="variant-group" data-for-style="hero" style="display: none;">
-                <div class="variant-option active" data-variant="large">
-                  <div class="variant-thumbnail">
-                    <div class="mini-variant-preview">
-                      <div class="preview-image large-hero"></div>
-                    </div>
-                  </div>
-                  <span class="variant-label">Large</span>
+            </div>
+            
+            <div class="container-variants" data-container="framed" style="display: none;">
+              <h5 class="variant-title">Frame Style</h5>
+              <div class="variant-options">
+                <div class="variant-option" data-variant="classic">
+                  <div class="variant-preview frame-classic-preview"></div>
+                  <span class="variant-label">Classic</span>
                 </div>
-                
-                <div class="variant-option" data-variant="small">
-                  <div class="variant-thumbnail">
-                    <div class="mini-variant-preview">
-                      <div class="preview-image small-hero"></div>
-                    </div>
-                  </div>
-                  <span class="variant-label">Small</span>
+                <div class="variant-option" data-variant="modern">
+                  <div class="variant-preview frame-modern-preview"></div>
+                  <span class="variant-label">Modern</span>
+                </div>
+                <div class="variant-option" data-variant="ornate">
+                  <div class="variant-preview frame-ornate-preview"></div>
+                  <span class="variant-label">Ornate</span>
                 </div>
               </div>
-              
-              <!-- Badge Variants -->
-              <div class="variant-group" data-for-style="badge" style="display: none;">
-                <div class="variant-option active" data-variant="standard">
-                  <div class="variant-thumbnail">
-                    <div class="mini-variant-preview">
-                      <div class="preview-image badge-standard"></div>
-                    </div>
-                  </div>
-                  <span class="variant-label">Standard</span>
+            </div>
+            
+            <div class="container-variants" data-container="raw" style="display: none;">
+              <h5 class="variant-title">Edge Style</h5>
+              <div class="variant-options">
+                <div class="variant-option" data-variant="sharp">
+                  <div class="variant-preview raw-sharp-preview"></div>
+                  <span class="variant-label">Sharp</span>
                 </div>
-                
-                <div class="variant-option" data-variant="glow">
-                  <div class="variant-thumbnail">
-                    <div class="mini-variant-preview">
-                      <div class="preview-image badge-glow"></div>
-                    </div>
-                  </div>
-                  <span class="variant-label">Glow</span>
+                <div class="variant-option" data-variant="rounded">
+                  <div class="variant-preview raw-rounded-preview"></div>
+                  <span class="variant-label">Rounded</span>
                 </div>
-                
-                <div class="variant-option" data-variant="holographic">
-                  <div class="variant-thumbnail">
-                    <div class="mini-variant-preview">
-                      <div class="preview-image badge-holo"></div>
-                    </div>
-                  </div>
-                  <span class="variant-label">Holo</span>
-                </div>
-                
-                <div class="variant-option" data-variant="metallic">
-                  <div class="variant-thumbnail">
-                    <div class="mini-variant-preview">
-                      <div class="preview-image badge-metal"></div>
-                    </div>
-                  </div>
-                  <span class="variant-label">Metal</span>
-                </div>
-              </div>
-              
-              <!-- Full Bleed Variants -->
-              <div class="variant-group" data-for-style="full-bleed" style="display: none;">
-                <div class="variant-option active" data-variant="ambient">
-                  <div class="variant-thumbnail">
-                    <div class="mini-variant-preview">
-                      <div class="preview-image fullbleed-ambient"></div>
-                    </div>
-                  </div>
-                  <span class="variant-label">Ambient</span>
-                </div>
-                
-                <div class="variant-option" data-variant="overlay-safe">
-                  <div class="variant-thumbnail">
-                    <div class="mini-variant-preview">
-                      <div class="preview-image fullbleed-overlay"></div>
-                    </div>
-                  </div>
-                  <span class="variant-label">Overlay</span>
-                </div>
-                
-                <div class="variant-option" data-variant="grid">
-                  <div class="variant-thumbnail">
-                    <div class="mini-variant-preview">
-                      <div class="preview-image fullbleed-grid"></div>
-                    </div>
-                  </div>
-                  <span class="variant-label">Grid</span>
+                <div class="variant-option" data-variant="soft">
+                  <div class="variant-preview raw-soft-preview"></div>
+                  <span class="variant-label">Soft</span>
                 </div>
               </div>
             </div>
           </div>
+          
+          <!-- TIER 6: IMAGE EFFECTS -->
+          <div class="modular-tier" data-tier="6">
+            <h4 class="tier-title">Image Effects</h4>
+            <div class="tier-options-grid effects-grid">
+              <div class="tier-option" data-value="none">
+                <div class="option-preview">
+                  <div class="effect-icon none-icon"></div>
+                </div>
+                <span class="option-label">None</span>
+              </div>
+              <div class="tier-option" data-value="glow">
+                <div class="option-preview">
+                  <div class="effect-icon glow-icon"></div>
+                </div>
+                <span class="option-label">Glow</span>
+              </div>
+              <div class="tier-option" data-value="shadow">
+                <div class="option-preview">
+                  <div class="effect-icon shadow-icon"></div>
+                </div>
+                <span class="option-label">Shadow</span>
+              </div>
+              <div class="tier-option" data-value="filter">
+                <div class="option-preview">
+                  <div class="effect-icon filter-icon"></div>
+                </div>
+                <span class="option-label">Filter</span>
+              </div>
+              <div class="tier-option" data-value="border">
+                <div class="option-preview">
+                  <div class="effect-icon border-icon"></div>
+                </div>
+                <span class="option-label">Border</span>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+        
+        <!-- PRESERVED: Image Gallery and Custom URL -->
+        <div class="artwork-section">
+          <h4>Artwork</h4>
           
           <!-- Hidden field to store selected image URL -->
           <input type="hidden" id="card-avatar" value="" />
@@ -645,32 +563,30 @@
       <div id="auth-status-message" class="cardforge-auth-message"></div>
       <p id="test-auth-state">Auth: <em>unknown</em></p>
       <button type="button" id="flip-btn" class="glass-button">Flip Card</button>
-      <div class="card-preview">
-        <div class="card-container">
-          <div class="card-inner">
-            <div class="card-front">
-              <div class="card-header">
-                <div class="card-avatar-container">
-                  <img class="card-avatar" src="/cardforge/images/default-avatar.jpg" alt="Character Avatar">
-                </div>
-                <div class="card-title-section">
-                  <h3 class="card-name"></h3>
-                  <p class="card-class"></p>
-                </div>
+      <div class="card-preview-canvas">
+        <div class="card-inner">
+          <div class="card-front">
+            <div class="card-header">
+              <div class="card-avatar-container">
+                <img class="card-avatar" src="/cardforge/images/default-avatar.jpg" alt="Character Avatar">
               </div>
-              <div class="card-body">
-                <div class="card-quote"></div>
-                <div class="card-stats">
-                  <!-- Stats will be populated by JavaScript -->
-                </div>
-                <div class="badge-container">
-                  <!-- Badges will be populated by JavaScript -->
-                </div>
+              <div class="card-title-section">
+                <h3 class="card-name"></h3>
+                <p class="card-class"></p>
               </div>
             </div>
-            <div class="card-back">
-              <!-- Back content will be populated by JavaScript -->
+            <div class="card-body">
+              <div class="card-quote"></div>
+              <div class="card-stats">
+                <!-- Stats will be populated by JavaScript -->
+              </div>
+              <div class="badge-container">
+                <!-- Badges will be populated by JavaScript -->
+              </div>
             </div>
+          </div>
+          <div class="card-back">
+            <!-- Back content will be populated by JavaScript -->
           </div>
         </div>
       </div>

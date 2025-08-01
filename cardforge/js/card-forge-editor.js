@@ -1,372 +1,214 @@
-// CardForge V2 - RPG Card Builder Editor
-// Comprehensive JavaScript implementation with visual pickers and live preview
-// Updated: 2025-07-27 - Clean rewrite to restore functionality
+// CardForge V2 - Modular System Implementation
+// Clean implementation of the 6-tier modular card design system
+// Updated: 2025-07-30 - Fresh start with modular architecture
 
 (function() {
   'use strict';
 
-  // Global state variables
-  let currentPreset = 'neofantasy';
-  let currentLayout = 'centered';
-  let currentPalette = 'neon';
-  let currentImageStyle = 'masked';
-  let currentImageVariant = 'circle';
-
-  // Preset configurations
-  const presetConfigurations = {
-    cyberpunk: {
-      theme: 'cyberpunk',
-      layout: 'banner',
+  // ===== MODULAR SYSTEM STATE =====
+  const ModularState = {
+    // Tier 1: Base Layout
+    layout: 'hero',
+    
+    // Tier 2: Content Alignment
+    alignment: 'center',
+    
+    // Tier 3: Visual Weight
+    weight: 'balanced',
+    
+    // Tier 4: Color Palette
+    palette: 'neon',
+    paletteVariant: 'light',
+    
+    // Tier 5: Image Container
+    imageContainer: 'masked',
+    imageContainerVariant: 'circle',
+    
+    // Tier 6: Image Effects
+    imageEffect: 'none'
+  };
+  
+  // ===== PRESET CONFIGURATIONS =====
+  const PresetConfigurations = {
+    'hero-classic': {
+      layout: 'hero',
+      alignment: 'center',
+      weight: 'balanced',
       palette: 'neon',
-      imageStyle: 'masked',
-      imageVariant: 'hex'
+      paletteVariant: 'light',
+      imageContainer: 'masked',
+      imageContainerVariant: 'circle',
+      imageEffect: 'none'
     },
-    fantasy: {
-      theme: 'fantasy',
-      layout: 'centered',
-      palette: 'earth',
-      imageStyle: 'masked',
-      imageVariant: 'circle'
-    },
-    corporate: {
-      theme: 'corporate',
+    'split-modern': {
       layout: 'split',
-      palette: 'monochrome',
-      imageStyle: 'badge',
-      imageVariant: 'standard'
+      alignment: 'left',
+      weight: 'top-heavy',
+      palette: 'ocean',
+      paletteVariant: 'dark',
+      imageContainer: 'framed',
+      imageContainerVariant: 'modern',
+      imageEffect: 'shadow'
     },
-    retro: {
-      theme: 'retro',
+    'minimal-glow': {
       layout: 'minimal',
+      alignment: 'center',
+      weight: 'balanced',
+      palette: 'monochrome',
+      paletteVariant: 'light',
+      imageContainer: 'raw',
+      imageContainerVariant: 'rounded',
+      imageEffect: 'glow'
+    },
+    'fullbleed-cinematic': {
+      layout: 'hero',
+      alignment: 'center',
+      weight: 'bottom-heavy',
       palette: 'sunset',
-      imageStyle: 'hero',
-      imageVariant: 'large'
+      paletteVariant: 'dark',
+      imageContainer: 'fullbleed',
+      imageContainerVariant: 'none',
+      imageEffect: 'filter'
+    },
+    'framed-ornate': {
+      layout: 'hero',
+      alignment: 'center',
+      weight: 'top-heavy',
+      palette: 'earth',
+      paletteVariant: 'light',
+      imageContainer: 'framed',
+      imageContainerVariant: 'ornate',
+      imageEffect: 'border'
     }
   };
 
-  // Initialize when DOM is ready
-  document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 CardForge Editor initializing...');
-    
-    // Initialize all components
-    initFlipFunctionality();
-    initVisualPickers();
-    initFormListeners();
-    initImageGallery();
-    initStatsEditor();
-    initSocialEditor();
-    initBadgesEditor();
-    initAttributesEditor();
-    
-    // Add prefill data (async)
-    addPrefillData().then(() => {
-      console.log('🎯 Prefill data loading completed');
-      // Initial preview update after prefill
-      updatePreview();
-    }).catch(error => {
-      console.error('❌ Prefill data loading failed:', error);
-      // Still update preview even if prefill fails
-      updatePreview();
-    });
-    
-    console.log('✅ CardForge Editor initialized successfully');
-  });
-
-  // ===== FALLBACK PREFILL INITIALIZATION =====
-  // Fallback: Try to run prefill after a short delay if it hasn't run yet
-  setTimeout(() => {
-    const cardName = document.getElementById('card-name');
-    if (cardName && !cardName.value) {
-      console.log('🔄 Fallback: Running prefill initialization...');
-      if (window.addPrefillData) {
-        window.addPrefillData().catch(error => {
-          console.error('❌ Fallback prefill failed:', error);
+  // ===== PREFILL INTEGRATION =====
+  async function loadPrefillData() {
+    try {
+      const response = await fetch('./data/prefill-card.json');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const prefillData = await response.json();
+      
+      // Apply card data to form fields
+      if (prefillData.cardData) {
+        const cardData = prefillData.cardData;
+        
+        // Basic fields
+        if (cardData.name) document.getElementById('card-name').value = cardData.name;
+        if (cardData.class) document.getElementById('card-class').value = cardData.class;
+        if (cardData.rarity) document.getElementById('card-rarity').value = cardData.rarity;
+        if (cardData.quote) document.getElementById('card-quote').value = cardData.quote;
+        if (cardData.avatar) document.getElementById('card-avatar').value = cardData.avatar;
+      }
+      
+      // Apply stats - CREATE MULTIPLE ROWS
+      if (prefillData.stats && prefillData.stats.length > 0) {
+        const statsContainer = document.getElementById('stats-editor');
+        
+        // Clear existing stat rows
+        statsContainer.innerHTML = '';
+        
+        // Create a row for each stat
+        prefillData.stats.forEach((stat, index) => {
+          const statRow = createStatRow(stat.name, stat.value);
+          statsContainer.appendChild(statRow);
+          console.log(`📊 Added stat: ${stat.name} = ${stat.value}`);
         });
       }
-    } else if (cardName && cardName.value) {
-      console.log('✅ Prefill already completed, skipping fallback');
-    }
-  }, 1000);
-
-  // ===== PREFILL DATA =====
-  // Make function globally accessible for debugging
-  window.addPrefillData = async function addPrefillData() {
-    try {
-      console.log('🎯 Loading prefill data from JSON...');
-      const response = await fetch('/cardforge/data/prefill-card.json');
-      if (!response.ok) {
-        throw new Error(`Failed to load prefill data: ${response.status}`);
+      
+      // Apply social links - CREATE MULTIPLE ROWS
+      if (prefillData.socialLinks && prefillData.socialLinks.length > 0) {
+        const socialContainer = document.getElementById('social-editor');
+        
+        // Clear existing social rows
+        socialContainer.innerHTML = '';
+        
+        // Create a row for each social link
+        prefillData.socialLinks.forEach((social, index) => {
+          const socialRow = createSocialRow(social.platform, social.url);
+          socialContainer.appendChild(socialRow);
+          console.log(`🔗 Added social: ${social.platform} = ${social.url}`);
+        });
       }
       
-      const prefillData = await response.json();
-      console.log('📦 Prefill data loaded:', prefillData);
+      // Apply badges - CREATE MULTIPLE ROWS
+      if (prefillData.badges && prefillData.badges.length > 0) {
+        const badgesContainer = document.getElementById('micro-editor');
+        
+        // Clear existing badge rows
+        badgesContainer.innerHTML = '';
+        
+        // Create a row for each badge
+        prefillData.badges.forEach((badge, index) => {
+          const badgeRow = createBadgeRow(badge.category, badge.icon, badge.description, badge.quantity);
+          badgesContainer.appendChild(badgeRow);
+          console.log(`🏆 Added badge: ${badge.category} = ${badge.quantity}`);
+        });
+      }
       
-      // Apply visual settings first
-      applyVisualSettings(prefillData.visualSettings);
+      // Apply attributes - CREATE MULTIPLE ROWS
+      if (prefillData.attributes && prefillData.attributes.length > 0) {
+        const attributesContainer = document.getElementById('attribute-editor');
+        
+        // Clear existing attribute rows
+        attributesContainer.innerHTML = '';
+        
+        // Create a row for each attribute
+        prefillData.attributes.forEach((attribute, index) => {
+          const attributeRow = createAttributeRow(attribute.name, attribute.value);
+          attributesContainer.appendChild(attributeRow);
+          console.log(`⚡ Added attribute: ${attribute.name} = ${attribute.value}`);
+        });
+      }
       
-      // Apply basic card data
-      applyBasicCardData(prefillData.cardData);
+      console.log('📄 Prefill data loaded successfully:', prefillData);
       
-      // Apply stats
-      applyStatsData(prefillData.stats);
-      
-      // Apply social links
-      applySocialLinksData(prefillData.socialLinks);
-      
-      // Apply badges
-      applyBadgesData(prefillData.badges);
-      
-      // Apply attributes
-      applyAttributesData(prefillData.attributes);
-      
-      console.log('✅ Prefill data applied successfully');
-      
-      // Final preview update after all data is applied
+      // Update preview after loading prefill data
       updatePreview();
       
     } catch (error) {
-      console.error('❌ Error loading prefill data:', error);
-      // Fallback to basic prefill if JSON fails
-      fallbackPrefillData();
+      console.warn('⚠️ Could not load prefill data:', error);
+      // Continue without prefill data
     }
   }
   
-  function applyVisualSettings(visualSettings) {
-    if (!visualSettings) return;
-    
-    // Set visual preset
-    const presetSelector = `[data-preset="${visualSettings.preset}"]`;
-    const presetElement = document.querySelector(presetSelector);
-    if (presetElement && !document.querySelector('.preset-option.active')) {
-      console.log(`🎨 Setting visual preset: ${visualSettings.preset}`);
-      presetElement.click();
-    }
-  }
-  
-  function applyBasicCardData(cardData) {
-    if (!cardData) return;
-    
-    const fields = [
-      { id: 'card-name', value: cardData.name },
-      { id: 'card-class', value: cardData.class },
-      { id: 'card-rarity', value: cardData.rarity },
-      { id: 'card-quote', value: cardData.quote },
-      { id: 'card-bio', value: cardData.biography }
-    ];
-    
-    fields.forEach(field => {
-      const element = document.getElementById(field.id);
-      if (element && field.value && !element.value.trim()) {
-        element.value = field.value;
-        element.dispatchEvent(new Event('input', { bubbles: true }));
-        console.log(`📝 Set ${field.id}: ${field.value}`);
-      }
-    });
-  }
-  
-  function applyStatsData(stats) {
-    if (!stats || !Array.isArray(stats)) return;
-    
-    const statsEditor = document.getElementById('stats-editor');
-    if (!statsEditor) return;
-    
-    // Clear existing stats
-    statsEditor.innerHTML = '';
-    
-    stats.forEach(stat => {
-      addStatRow(stat.name, stat.value);
-    });
-    
-    console.log(`📊 Applied ${stats.length} stats`);
-  }
-  
-  function applySocialLinksData(socialLinks) {
-    if (!socialLinks || !Array.isArray(socialLinks)) return;
-    
-    const socialEditor = document.getElementById('social-editor');
-    if (!socialEditor) return;
-    
-    // Clear existing social links
-    socialEditor.innerHTML = '';
-    
-    socialLinks.forEach(social => {
-      addSocialRow(social.platform, social.url);
-    });
-    
-    console.log(`📱 Applied ${socialLinks.length} social links`);
-  }
-  
-  function applyBadgesData(badges) {
-    if (!badges || !Array.isArray(badges)) return;
-    
-    const microEditor = document.getElementById('micro-editor');
-    if (!microEditor) return;
-    
-    // Clear existing badges
-    microEditor.innerHTML = '';
-    
-    badges.forEach(badge => {
-      addBadgeRow(badge.category, badge.icon, badge.description, badge.quantity);
-    });
-    
-    console.log(`🏆 Applied ${badges.length} badges`);
-  }
-  
-  function applyAttributesData(attributes) {
-    if (!attributes || !Array.isArray(attributes)) return;
-    
-    const attributeEditor = document.getElementById('attribute-editor');
-    if (!attributeEditor) return;
-    
-    // Clear existing attributes
-    attributeEditor.innerHTML = '';
-    
-    attributes.forEach(attr => {
-      addAttributeRow(attr.name, attr.value);
-    });
-    
-    console.log(`📋 Applied ${attributes.length} attributes`);
-  }
-  
-  // Helper function for adding stat rows
-  function addStatRow(name = '', value = 0) {
-    const statsEditor = document.getElementById('stats-editor');
-    if (!statsEditor) return;
-    
-    const row = document.createElement('div');
-    row.className = 'stat-row';
-    row.innerHTML = `
+  // ===== DYNAMIC ROW CREATION HELPERS =====
+  function createStatRow(name = '', value = 0) {
+    const statRow = document.createElement('div');
+    statRow.className = 'stat-row';
+    statRow.innerHTML = `
       <input type="text" name="stat-name" placeholder="Stat name" value="${name}" />
       <input type="range" name="stat-value" min="0" max="100" value="${value}" class="stat-slider" aria-label="Stat value" />
       <span class="stat-value-display">${value}</span>
       <button type="button" class="remove-attribute">&times;</button>
     `;
     
-    statsEditor.appendChild(row);
+    // Add event listeners for the new row
+    const slider = statRow.querySelector('.stat-slider');
+    const display = statRow.querySelector('.stat-value-display');
+    const removeBtn = statRow.querySelector('.remove-attribute');
     
-    // Add event listeners
-    const nameInput = row.querySelector('input[name="stat-name"]');
-    const valueInput = row.querySelector('input[name="stat-value"]');
-    const valueDisplay = row.querySelector('.stat-value-display');
-    const removeBtn = row.querySelector('.remove-attribute');
+    slider.addEventListener('input', function() {
+      display.textContent = this.value;
+      updatePreview();
+    });
     
-    if (valueInput && valueDisplay) {
-      valueInput.addEventListener('input', function() {
-        valueDisplay.textContent = this.value;
-        updatePreview();
-      });
-    }
+    statRow.querySelector('input[name="stat-name"]').addEventListener('input', updatePreview);
     
-    if (nameInput) {
-      nameInput.addEventListener('input', updatePreview);
-    }
+    removeBtn.addEventListener('click', function() {
+      statRow.remove();
+      updatePreview();
+    });
     
-    if (removeBtn) {
-      removeBtn.addEventListener('click', function() {
-        row.remove();
-        updatePreview();
-      });
-    }
+    return statRow;
   }
   
-  function fallbackPrefillData() {
-    console.log('🔄 Using fallback prefill data...');
-    // Basic fallback data
-    const cardName = document.getElementById('card-name');
-    const cardClass = document.getElementById('card-class');
-    const cardRarity = document.getElementById('card-rarity');
-    const cardQuote = document.getElementById('card-quote');
-    
-    if (cardName && !cardName.value.trim()) {
-      cardName.value = 'Aria Shadowbane';
-      cardName.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-    if (cardClass && !cardClass.value.trim()) {
-      cardClass.value = 'Rogue Assassin';
-      cardClass.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-    if (cardRarity && !cardRarity.value.trim()) {
-      cardRarity.value = 'Rare';
-      cardRarity.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-    if (cardQuote && !cardQuote.value.trim()) {
-      cardQuote.value = 'Shadows are my allies, silence my weapon.';
-      cardQuote.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-    
-    // Add default social links if none exist
-    const socialEditor = document.getElementById('social-editor');
-    if (socialEditor) {
-      const existingRows = socialEditor.querySelectorAll('.social-row');
-      if (existingRows.length === 0 || !Array.from(existingRows).some(row => {
-        const urlInput = row.querySelector('input[name="social-url"]');
-        return urlInput && urlInput.value.trim();
-      })) {
-        // Clear and add default social links
-        socialEditor.innerHTML = '';
-        const defaultSocials = [
-          { platform: 'twitter', url: 'https://twitter.com/ariashadowbane' },
-          { platform: 'github', url: 'https://github.com/shadowrogue' }
-        ];
-        
-        defaultSocials.forEach(social => {
-          addSocialRow(social.platform, social.url);
-        });
-      }
-    }
-    
-    // Add default badges if none exist
-    const microEditor = document.getElementById('micro-editor');
-    if (microEditor) {
-      const existingRows = microEditor.querySelectorAll('.micro-row');
-      if (existingRows.length === 0 || !Array.from(existingRows).some(row => {
-        const categoryInput = row.querySelector('input[name="micro-category"]');
-        return categoryInput && categoryInput.value.trim();
-      })) {
-        // Clear and add default badges
-        microEditor.innerHTML = '';
-        const defaultBadges = [
-          { category: 'Achievement', icon: 'star', description: 'Master Strategist', quantity: 3 },
-          { category: 'Victory', icon: 'trophy', description: 'Campaign Winner', quantity: 1 }
-        ];
-        
-        defaultBadges.forEach(badge => {
-          addBadgeRow(badge.category, badge.icon, badge.description, badge.quantity);
-        });
-      }
-    }
-    
-    // Add default attributes if none exist
-    const attributeEditor = document.getElementById('attribute-editor');
-    if (attributeEditor) {
-      const existingRows = attributeEditor.querySelectorAll('.attribute-row');
-      if (existingRows.length === 0 || !Array.from(existingRows).some(row => {
-        const nameInput = row.querySelector('input[name="attribute-name"]');
-        return nameInput && nameInput.value.trim();
-      })) {
-        // Clear and add default attributes
-        attributeEditor.innerHTML = '';
-        const defaultAttributes = [
-          { name: 'Level', value: '12' },
-          { name: 'Experience', value: '8,450 XP' },
-          { name: 'Alignment', value: 'Chaotic Good' }
-        ];
-        
-        defaultAttributes.forEach(attr => {
-          addAttributeRow(attr.name, attr.value);
-        });
-      }
-    }
-  }
-  
-  // Helper functions for adding rows
-  function addSocialRow(platform = 'twitter', url = '') {
-    const socialEditor = document.getElementById('social-editor');
-    if (!socialEditor) return;
-    
-    const row = document.createElement('div');
-    row.className = 'social-row';
-    row.innerHTML = `
+  function createSocialRow(platform = 'twitter', url = '') {
+    const socialRow = document.createElement('div');
+    socialRow.className = 'social-row';
+    socialRow.innerHTML = `
       <label>Platform
         <select name="social-name" class="social-platform" aria-label="Platform">
           <option value="twitter" ${platform === 'twitter' ? 'selected' : ''}>Twitter</option>
@@ -386,369 +228,967 @@
       <button type="button" class="remove-attribute">&times;</button>
     `;
     
-    socialEditor.appendChild(row);
+    // Add event listeners for the new row
+    const removeBtn = socialRow.querySelector('.remove-attribute');
+    const selectField = socialRow.querySelector('select[name="social-name"]');
+    const urlField = socialRow.querySelector('input[name="social-url"]');
     
-    // Add event listeners
-    const selectInput = row.querySelector('select[name="social-name"]');
-    const urlInput = row.querySelector('input[name="social-url"]');
-    const removeBtn = row.querySelector('.remove-attribute');
+    selectField.addEventListener('change', updatePreview);
+    urlField.addEventListener('input', updatePreview);
     
-    selectInput.addEventListener('change', updatePreview);
-    urlInput.addEventListener('input', updatePreview);
     removeBtn.addEventListener('click', function() {
-      row.remove();
+      socialRow.remove();
       updatePreview();
     });
-  }
-  
-  function addBadgeRow(category = '', icon = 'star', description = '', quantity = 1) {
-    const microEditor = document.getElementById('micro-editor');
-    if (!microEditor) return;
     
-    const row = document.createElement('div');
-    row.className = 'micro-row';
-    row.innerHTML = `
+    return socialRow;
+  }
+
+  function createBadgeRow(category = '', icon = 'star', description = '', quantity = 1) {
+    const badgeRow = document.createElement('div');
+    badgeRow.className = 'micro-row';
+    badgeRow.innerHTML = `
       <label>Category
-        <input type="text" name="micro-category" placeholder="Category (e.g. Skill)" value="${category}" />
+        <input type="text" name="micro-category" placeholder="Category (e.g. Skill)" value="${category}">
       </label>
       <label>Symbol/Icon
         <div class="icon-picker" aria-label="Select badge icon">
-          <input type="hidden" name="micro-icon" value="${icon}" />
-          <button type="button" class="icon-option ${icon === 'star' ? 'active' : ''}" data-icon="star"><i class="fas fa-star"></i></button>
-          <button type="button" class="icon-option ${icon === 'heart' ? 'active' : ''}" data-icon="heart"><i class="fas fa-heart"></i></button>
-          <button type="button" class="icon-option ${icon === 'bolt' ? 'active' : ''}" data-icon="bolt"><i class="fas fa-bolt"></i></button>
-          <button type="button" class="icon-option ${icon === 'trophy' ? 'active' : ''}" data-icon="trophy"><i class="fas fa-trophy"></i></button>
-          <button type="button" class="icon-option ${icon === 'leaf' ? 'active' : ''}" data-icon="leaf"><i class="fas fa-leaf"></i></button>
-          <button type="button" class="icon-option ${icon === 'gear' ? 'active' : ''}" data-icon="gear"><i class="fas fa-gear"></i></button>
-          <button type="button" class="icon-option ${icon === 'book' ? 'active' : ''}" data-icon="book"><i class="fas fa-book"></i></button>
-          <button type="button" class="icon-option ${icon === 'lightbulb' ? 'active' : ''}" data-icon="lightbulb"><i class="fas fa-lightbulb"></i></button>
-          <button type="button" class="icon-option ${icon === 'medal' ? 'active' : ''}" data-icon="medal"><i class="fas fa-medal"></i></button>
-          <button type="button" class="icon-option ${icon === 'certificate' ? 'active' : ''}" data-icon="certificate"><i class="fas fa-certificate"></i></button>
+          <input type="hidden" name="micro-icon" value="${icon}">
+          <button type="button" class="icon-option" data-icon="star"><i class="fas fa-star"></i></button>
+          <button type="button" class="icon-option" data-icon="heart"><i class="fas fa-heart"></i></button>
+          <button type="button" class="icon-option" data-icon="bolt"><i class="fas fa-bolt"></i></button>
+          <button type="button" class="icon-option" data-icon="trophy"><i class="fas fa-trophy"></i></button>
+          <button type="button" class="icon-option" data-icon="leaf"><i class="fas fa-leaf"></i></button>
+          <button type="button" class="icon-option" data-icon="gear"><i class="fas fa-gear"></i></button>
+          <button type="button" class="icon-option" data-icon="book"><i class="fas fa-book"></i></button>
+          <button type="button" class="icon-option" data-icon="lightbulb"><i class="fas fa-lightbulb"></i></button>
+          <button type="button" class="icon-option" data-icon="medal"><i class="fas fa-medal"></i></button>
+          <button type="button" class="icon-option" data-icon="certificate"><i class="fas fa-certificate"></i></button>
         </div>
       </label>
       <label>Description
-        <input type="text" name="micro-desc" placeholder="Description" value="${description}" />
+        <input type="text" name="micro-desc" placeholder="Description" value="${description}">
       </label>
       <label>Count
-        <input type="range" name="micro-quantity" min="1" max="5" value="${quantity}" class="badge-slider" />
+        <input type="range" name="micro-quantity" min="1" max="5" value="${quantity}" class="badge-slider">
         <span class="slider-value">${quantity}</span>
       </label>
       <button type="button" class="remove-attribute" aria-label="Remove badge">&times;</button>
     `;
     
-    microEditor.appendChild(row);
-    
-    // Add event listeners
-    const categoryInput = row.querySelector('input[name="micro-category"]');
-    const descInput = row.querySelector('input[name="micro-desc"]');
-    const quantityInput = row.querySelector('input[name="micro-quantity"]');
-    const sliderValue = row.querySelector('.slider-value');
-    const removeBtn = row.querySelector('.remove-attribute');
-    const iconInput = row.querySelector('input[name="micro-icon"]');
-    const iconOptions = row.querySelectorAll('.icon-option');
+    // Add event listeners for the new row
+    const removeBtn = badgeRow.querySelector('.remove-attribute');
+    const categoryField = badgeRow.querySelector('input[name="micro-category"]');
+    const descField = badgeRow.querySelector('input[name="micro-desc"]');
+    const quantitySlider = badgeRow.querySelector('input[name="micro-quantity"]');
+    const sliderDisplay = badgeRow.querySelector('.slider-value');
+    const iconPicker = badgeRow.querySelector('.icon-picker');
+    const hiddenIconInput = badgeRow.querySelector('input[name="micro-icon"]');
     
     // Icon picker functionality
-    iconOptions.forEach(option => {
-      option.addEventListener('click', function() {
-        iconOptions.forEach(opt => opt.classList.remove('active'));
-        option.classList.add('active');
-        iconInput.value = option.dataset.icon;
+    iconPicker.addEventListener('click', function(e) {
+      if (e.target.closest('.icon-option')) {
+        const iconBtn = e.target.closest('.icon-option');
+        const iconValue = iconBtn.dataset.icon;
+        hiddenIconInput.value = iconValue;
+        
+        // Update visual selection
+        iconPicker.querySelectorAll('.icon-option').forEach(btn => btn.classList.remove('selected'));
+        iconBtn.classList.add('selected');
+        
         updatePreview();
-      });
+      }
     });
     
-    categoryInput.addEventListener('input', updatePreview);
-    descInput.addEventListener('input', updatePreview);
-    quantityInput.addEventListener('input', function() {
-      sliderValue.textContent = this.value;
+    // Set initial icon selection
+    const initialIconBtn = iconPicker.querySelector(`[data-icon="${icon}"]`);
+    if (initialIconBtn) initialIconBtn.classList.add('selected');
+    
+    // Quantity slider functionality
+    quantitySlider.addEventListener('input', function() {
+      sliderDisplay.textContent = this.value;
       updatePreview();
     });
+    
+    // Other field listeners
+    categoryField.addEventListener('input', updatePreview);
+    descField.addEventListener('input', updatePreview);
+    
     removeBtn.addEventListener('click', function() {
-      row.remove();
+      badgeRow.remove();
       updatePreview();
     });
-  }
-  
-  function addAttributeRow(name = '', value = '') {
-    const attributeEditor = document.getElementById('attribute-editor');
-    if (!attributeEditor) return;
     
-    const row = document.createElement('div');
-    row.className = 'attribute-row';
-    row.innerHTML = `
-      <input type="text" name="attribute-name" placeholder="Attribute (e.g. Alignment)" value="${name}" />
-      <input type="text" name="attribute-value" placeholder="Value (e.g. Chaotic Creative)" value="${value}" />
+    return badgeRow;
+  }
+
+  function createAttributeRow(name = '', value = '') {
+    const attributeRow = document.createElement('div');
+    attributeRow.className = 'attribute-row';
+    attributeRow.innerHTML = `
+      <input type="text" name="attribute-name" placeholder="Attribute (e.g. Alignment)" value="${name}">
+      <input type="text" name="attribute-value" placeholder="Value (e.g. Chaotic Creative)" value="${value}">
       <button type="button" class="remove-attribute">&times;</button>
     `;
     
-    attributeEditor.appendChild(row);
+    // Add event listeners for the new row
+    const removeBtn = attributeRow.querySelector('.remove-attribute');
+    const nameField = attributeRow.querySelector('input[name="attribute-name"]');
+    const valueField = attributeRow.querySelector('input[name="attribute-value"]');
     
-    // Add event listeners
-    const nameInput = row.querySelector('input[name="attribute-name"]');
-    const valueInput = row.querySelector('input[name="attribute-value"]');
-    const removeBtn = row.querySelector('.remove-attribute');
+    // Field listeners
+    nameField.addEventListener('input', updatePreview);
+    valueField.addEventListener('input', updatePreview);
     
-    nameInput.addEventListener('input', updatePreview);
-    valueInput.addEventListener('input', updatePreview);
     removeBtn.addEventListener('click', function() {
-      row.remove();
+      attributeRow.remove();
       updatePreview();
     });
+    
+    return attributeRow;
   }
 
-  // ===== FLIP FUNCTIONALITY =====
-  function initFlipFunctionality() {
-    function flipCard() {
-      console.log('Flipping card...');
-      const cardInner = document.querySelector('.card-container .card-inner');
-      if (cardInner) {
-        cardInner.classList.toggle('flipped');
-        console.log('Card flipped:', cardInner.classList.contains('flipped'));
-      } else {
-        console.error('Card inner element not found');
-      }
-    }
+  // ===== DYNAMIC EDITORS INITIALIZATION =====
+  function initDynamicEditors() {
+    console.log('🔧 Initializing dynamic editors...');
     
-    // Set up flip button
+    // Initialize Stats Editor
+    initStatsEditor();
+    
+    // Initialize Social Links Editor
+    initSocialEditor();
+    
+    // Initialize Badges Editor
+    initBadgesEditor();
+    
+    // Initialize Attributes Editor
+    initAttributesEditor();
+    
+    // Initialize form listeners for live preview
+    initFormListeners();
+    
+    console.log('✅ Dynamic editors initialized');
+  }
+  
+  function initStatsEditor() {
+    const addStatBtn = document.getElementById('add-stat-btn');
+    if (addStatBtn) {
+      addStatBtn.addEventListener('click', function() {
+        const statsContainer = document.getElementById('stats-editor');
+        const newStatRow = createStatRow();
+        statsContainer.appendChild(newStatRow);
+        console.log('📊 New stat row added');
+      });
+    }
+  }
+  
+  function initSocialEditor() {
+    const addSocialBtn = document.getElementById('add-social-btn');
+    if (addSocialBtn) {
+      addSocialBtn.addEventListener('click', function() {
+        const socialContainer = document.getElementById('social-editor');
+        const newSocialRow = createSocialRow();
+        socialContainer.appendChild(newSocialRow);
+        console.log('🔗 New social row added');
+      });
+    }
+  }
+
+  function initBadgesEditor() {
+    const addBadgeBtn = document.getElementById('add-micro-btn');
+    if (addBadgeBtn) {
+      addBadgeBtn.addEventListener('click', function() {
+        const badgesContainer = document.getElementById('micro-editor');
+        const newBadgeRow = createBadgeRow();
+        badgesContainer.appendChild(newBadgeRow);
+        console.log('🏆 New badge row added');
+      });
+    }
+  }
+
+  function initAttributesEditor() {
+    const addAttributeBtn = document.getElementById('add-attribute-btn');
+    if (addAttributeBtn) {
+      addAttributeBtn.addEventListener('click', function() {
+        const attributesContainer = document.getElementById('attribute-editor');
+        const newAttributeRow = createAttributeRow();
+        attributesContainer.appendChild(newAttributeRow);
+        console.log('⚡ New attribute row added');
+      });
+    }
+  }
+
+  // Initialize everything when DOM is ready
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 CardForge Editor initializing...');
+    
+    initPresets();
+    initDynamicEditors();
+    loadPrefillData();
+    
+    // Initialize modular tier system
+    initModularSystem();
+    
+    // Initialize image gallery
+    initImageGallery();
+    
+    // Initialize card flip functionality
+    initCardFlip();
+    
+    console.log('✅ CardForge V2 Modular System Ready!');
+  });
+  
+  // ===== CARD FLIP FUNCTIONALITY =====
+  function initCardFlip() {
     const flipBtn = document.getElementById('flip-btn');
-    if (flipBtn) {
-      console.log('Flip button found, adding click handler');
-      flipBtn.onclick = function(e) {
-        e.preventDefault();
-        flipCard();
-        return false;
-      };
-    } else {
-      console.error('Flip button not found in DOM');
+    const cardInner = document.querySelector('.card-inner');
+    
+    // Manual flip button
+    if (flipBtn && cardInner) {
+      flipBtn.addEventListener('click', function() {
+        cardInner.classList.toggle('flipped');
+        console.log('🔄 Card flipped manually');
+      });
     }
     
-    // Handle tab changes for auto-flip
+    // Auto flip on tab clicks
     document.addEventListener('click', function(e) {
-      const stepButton = e.target.closest('.step-btn');
-      if (stepButton) {
-        const step = stepButton.getAttribute('data-step');
-        const cardInner = document.querySelector('.card-container .card-inner');
-        if (cardInner) {
-          // Steps 4, 5, 6 are back-of-card content (Social, Badges, Attributes)
-          if (step && ['4', '5', '6'].includes(step)) {
-            cardInner.classList.add('flipped');
-            console.log('Flipping to back for step:', step);
-          } else {
-            cardInner.classList.remove('flipped');
-            console.log('Flipping to front for step:', step);
-          }
+      const stepBtn = e.target.closest('.step-btn');
+      if (stepBtn && cardInner) {
+        const step = stepBtn.getAttribute('data-step');
+        // Steps 4, 5, 6 show back face (Social, Badges, Attributes)
+        if (['4', '5', '6'].includes(step)) {
+          cardInner.classList.add('flipped');
+          console.log('🔄 Card flipped to back (step ' + step + ')');
+        } else {
+          // Steps 1, 2, 3 show front face (Card Design, Basics, Stats)
+          cardInner.classList.remove('flipped');
+          console.log('🔄 Card flipped to front (step ' + step + ')');
         }
       }
     });
     
-    // Add flip method to window for testing
-    window.flipCard = flipCard;
-    console.log('Flip functionality initialized');
+    console.log('🔄 Card flip initialized');
   }
 
-  // ===== VISUAL PICKERS =====
-  function initVisualPickers() {
-    initPresetPicker();
-    initLayoutPicker();
-    initPalettePicker();
-    initImageStylePicker();
-  }
-
-  // Preset Picker
-  function initPresetPicker() {
-    const presetOptions = document.querySelectorAll('.preset-option');
+  // ===== PRESET SYSTEM =====
+  function initPresets() {
+    const presetButtons = document.querySelectorAll('.preset-btn');
     
-    presetOptions.forEach(option => {
-      option.addEventListener('click', () => {
-        // Remove selected from all preset options
-        presetOptions.forEach(opt => opt.classList.remove('selected'));
+    presetButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const presetId = button.dataset.preset;
+        applyPreset(presetId);
         
-        // Add selected to clicked option
-        option.classList.add('selected');
+        // Update active state
+        presetButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
         
-        // Get selected preset
-        const selectedPreset = option.dataset.preset;
-        currentPreset = selectedPreset;
-        
-        // Apply full preset configuration
-        applyPresetConfiguration(selectedPreset);
-        
-        console.log(`🎨 Preset Applied: ${selectedPreset}`);
+        console.log(`🎨 Applied preset: ${presetId}`);
       });
     });
     
-    // Initialize with default selection
-    applyPresetConfiguration(currentPreset);
+    console.log('🚀 Presets initialized');
+  }
+  
+  function applyPreset(presetId) {
+    const config = PresetConfigurations[presetId];
+    if (!config) {
+      console.warn(`Preset ${presetId} not found`);
+      return;
+    }
+    
+    // Update ModularState with preset configuration
+    Object.assign(ModularState, config);
+    
+    // Update all UI controls to reflect the preset
+    updateUIFromState();
+    
+    // Update the preview
+    updatePreview();
+    
+    console.log(`✨ Preset ${presetId} applied:`, config);
+  }
+  
+  function updateUIFromState() {
+    // Update Tier 1: Layout
+    const layoutOptions = document.querySelectorAll('[data-tier="1"] .tier-option');
+    layoutOptions.forEach(option => {
+      option.classList.toggle('selected', option.dataset.value === ModularState.layout);
+    });
+    
+    // Update Tier 2: Alignment
+    const alignmentOptions = document.querySelectorAll('[data-tier="2"] .tier-option');
+    alignmentOptions.forEach(option => {
+      option.classList.toggle('selected', option.dataset.value === ModularState.alignment);
+    });
+    
+    // Update Tier 3: Weight
+    const weightOptions = document.querySelectorAll('[data-tier="3"] .tier-option');
+    weightOptions.forEach(option => {
+      option.classList.toggle('selected', option.dataset.value === ModularState.weight);
+    });
+    
+    // Update Tier 4: Palette
+    const paletteOptions = document.querySelectorAll('[data-tier="4"] .palette-family');
+    paletteOptions.forEach(option => {
+      option.classList.toggle('selected', option.dataset.palette === ModularState.palette);
+    });
+    
+    const variantToggles = document.querySelectorAll('[data-tier="4"] .variant-toggle');
+    variantToggles.forEach(toggle => {
+      toggle.classList.toggle('selected', toggle.dataset.variant === ModularState.paletteVariant);
+    });
+    
+    // Update Tier 5: Image Container
+    const containerOptions = document.querySelectorAll('[data-tier="5"] .tier-option');
+    containerOptions.forEach(option => {
+      option.classList.toggle('selected', option.dataset.value === ModularState.imageContainer);
+    });
+    
+    // Show/hide container variants
+    const variantContainers = document.querySelectorAll('[data-tier="5"] .container-variants');
+    variantContainers.forEach(container => {
+      const containerType = container.dataset.container;
+      container.style.display = containerType === ModularState.imageContainer ? 'block' : 'none';
+    });
+    
+    // Update container variant selection
+    const activeContainer = document.querySelector(`[data-tier="5"] [data-container="${ModularState.imageContainer}"]`);
+    if (activeContainer) {
+      const variantOptions = activeContainer.querySelectorAll('.variant-option');
+      variantOptions.forEach(option => {
+        option.classList.toggle('selected', option.dataset.variant === ModularState.imageContainerVariant);
+      });
+    }
+    
+    // Update Tier 6: Effects
+    const effectOptions = document.querySelectorAll('[data-tier="6"] .tier-option');
+    effectOptions.forEach(option => {
+      option.classList.toggle('selected', option.dataset.value === ModularState.imageEffect);
+    });
   }
 
-  // Layout Picker
-  function initLayoutPicker() {
-    const layoutOptions = document.querySelectorAll('.layout-option');
+  // ===== MODULAR SYSTEM INITIALIZATION =====
+  function initModularSystem() {
+    console.log('🎯 Initializing modular tier systems...');
+    
+    // Initialize all modular tiers
+    initTier1Layout();
+    initTier2Alignment();
+    initTier3Weight();
+    initTier4Palette();
+    initTier5Container();
+    initTier6Effects();
+    
+    console.log('✅ Core modular tiers initialized');
+  }
+
+  // ===== TIER 1: BASE LAYOUT =====
+  function initTier1Layout() {
+    const layoutOptions = document.querySelectorAll('[data-tier="1"] .tier-option');
     
     layoutOptions.forEach(option => {
       option.addEventListener('click', () => {
-        // Remove selected from all layout options
+        // Update selection state
         layoutOptions.forEach(opt => opt.classList.remove('selected'));
-        
-        // Add selected to clicked option
         option.classList.add('selected');
         
-        // Get selected layout
-        const selectedLayout = option.dataset.layout;
-        currentLayout = selectedLayout;
-        
-        // Update preview immediately
-        updatePreview();
-        
-        console.log(`Layout Updated: ${selectedLayout}`);
-      });
-    });
-  }
-
-  // Palette Picker
-  function initPalettePicker() {
-    const paletteOptions = document.querySelectorAll('.palette-option');
-    
-    paletteOptions.forEach(option => {
-      option.addEventListener('click', () => {
-        // Remove selected from all palette options
-        paletteOptions.forEach(opt => opt.classList.remove('selected'));
-        
-        // Add selected to clicked option
-        option.classList.add('selected');
-        
-        // Get selected palette
-        const selectedPalette = option.dataset.palette;
-        currentPalette = selectedPalette;
-        
-        // Update preview immediately
-        updatePreview();
-        
-        console.log(`Palette Updated: ${selectedPalette}`);
-      });
-    });
-  }
-
-  // Image Style Picker
-  function initImageStylePicker() {
-    const primaryOptions = document.querySelectorAll('.style-primary-option');
-    const variantGroups = document.querySelectorAll('.variant-group');
-    
-    // Primary style selection handler
-    primaryOptions.forEach(option => {
-      option.addEventListener('click', () => {
-        // Remove active from all primary options
-        primaryOptions.forEach(opt => opt.classList.remove('active'));
-        
-        // Add active to clicked option
-        option.classList.add('active');
-        
-        // Get selected style
-        const selectedStyle = option.dataset.style;
-        currentImageStyle = selectedStyle;
-        
-        // Hide all variant groups
-        variantGroups.forEach(group => {
-          group.style.display = 'none';
-        });
-        
-        // Show the variant group for selected style
-        const targetGroup = document.querySelector(`[data-for-style="${selectedStyle}"]`);
-        if (targetGroup) {
-          targetGroup.style.display = 'grid';
-        }
+        // Update modular state
+        ModularState.layout = option.dataset.value;
         
         // Update preview
         updatePreview();
         
-        console.log(`Image Style Updated: ${selectedStyle}`);
+        console.log(`🎨 Layout updated: ${ModularState.layout}`);
       });
     });
     
-    // Variant selection handler
-    variantGroups.forEach(group => {
-      const variantOptions = group.querySelectorAll('.variant-option');
-      
-      variantOptions.forEach(option => {
-        option.addEventListener('click', () => {
-          // Remove active from all variants in this group
-          variantOptions.forEach(opt => opt.classList.remove('active'));
-          
-          // Add active to clicked variant
-          option.classList.add('active');
-          
-          // Store selected variant
-          const selectedVariant = option.dataset.variant;
-          currentImageVariant = selectedVariant;
-          
-          // Update preview
-          updatePreview();
-          
-          console.log(`Image Variant Updated: ${selectedVariant}`);
-        });
-      });
-    });
+    // Set default selection
+    const defaultOption = document.querySelector(`[data-tier="1"] [data-value="${ModularState.layout}"]`);
+    if (defaultOption) {
+      defaultOption.classList.add('selected');
+    }
   }
 
-  // Apply full preset configuration
-  function applyPresetConfiguration(presetName) {
-    const config = presetConfigurations[presetName];
-    if (!config) {
-      console.warn(`⚠️ Preset configuration not found: ${presetName}`);
+  // ===== TIER 2: CONTENT ALIGNMENT =====
+  function initTier2Alignment() {
+    const alignmentOptions = document.querySelectorAll('[data-tier="2"] .tier-option');
+    
+    alignmentOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        // Update selection state
+        alignmentOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        
+        // Update modular state
+        ModularState.alignment = option.dataset.value;
+        
+        // Update preview
+        updatePreview();
+        
+        console.log(`📐 Alignment updated: ${ModularState.alignment}`);
+      });
+    });
+    
+    // Set default selection
+    const defaultOption = document.querySelector(`[data-tier="2"] [data-value="${ModularState.alignment}"]`);
+    if (defaultOption) {
+      defaultOption.classList.add('selected');
+    }
+  }
+
+  // ===== TIER 3: VISUAL WEIGHT =====
+  function initTier3Weight() {
+    const weightOptions = document.querySelectorAll('[data-tier="3"] .tier-option');
+    
+    weightOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        // Update selection state
+        weightOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        
+        // Update modular state
+        ModularState.weight = option.dataset.value;
+        
+        // Update preview
+        updatePreview();
+        
+        console.log(`⚖️ Weight updated: ${ModularState.weight}`);
+      });
+    });
+    
+    // Set default selection
+    const defaultOption = document.querySelector(`[data-tier="3"] [data-value="${ModularState.weight}"]`);
+    if (defaultOption) {
+      defaultOption.classList.add('selected');
+    }
+  }
+
+  // ===== TIER 4: COLOR PALETTE =====
+  function initTier4Palette() {
+    // Palette family selection
+    const paletteOptions = document.querySelectorAll('[data-tier="4"] .palette-family');
+    const variantToggles = document.querySelectorAll('[data-tier="4"] .variant-toggle');
+    
+    paletteOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        // Update selection state
+        paletteOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        
+        // Update modular state
+        ModularState.palette = option.dataset.palette;
+        
+        // Update preview
+        updatePreview();
+        
+        console.log(`🎨 Palette updated: ${ModularState.palette}`);
+      });
+    });
+    
+    // Variant toggle (Light/Dark)
+    variantToggles.forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        // Update selection state
+        variantToggles.forEach(t => t.classList.remove('selected'));
+        toggle.classList.add('selected');
+        
+        // Update modular state
+        ModularState.paletteVariant = toggle.dataset.variant;
+        
+        // Update preview
+        updatePreview();
+        
+        console.log(`💡 Palette variant updated: ${ModularState.paletteVariant}`);
+      });
+    });
+    
+    // Set default selections
+    const defaultPalette = document.querySelector(`[data-tier="4"] [data-palette="${ModularState.palette}"]`);
+    const defaultVariant = document.querySelector(`[data-tier="4"] [data-variant="${ModularState.paletteVariant}"]`);
+    
+    if (defaultPalette) defaultPalette.classList.add('selected');
+    if (defaultVariant) defaultVariant.classList.add('selected');
+  }
+
+  // ===== PREVIEW UPDATE SYSTEM =====
+  function updatePreview() {
+    console.log('🎨 Updating card preview with modular system...');
+    
+    const front = document.querySelector('.card-front');
+    const back = document.querySelector('.card-back');
+    
+    if (!front || !back) {
+      console.warn('⚠️ Card preview elements not found');
       return;
     }
     
-    // Update all global variables
-    currentPreset = presetName;
-    currentLayout = config.layout;
-    currentPalette = config.palette;
-    currentImageStyle = config.imageStyle;
-    currentImageVariant = config.imageVariant;
+    // Apply modular CSS classes
+    const modularClasses = [
+      `layout-${ModularState.layout}`,
+      `align-${ModularState.alignment}`,
+      `weight-${ModularState.weight}`,
+      `palette-${ModularState.palette}`,
+      `variant-${ModularState.paletteVariant}`,
+      `container-${ModularState.imageContainer}`,
+      `container-variant-${ModularState.imageContainerVariant}`,
+      `effect-${ModularState.imageEffect}`
+    ];
     
-    // Update visual picker selections
-    updatePickerSelections(config);
+    // Apply classes to both front and back
+    front.className = `card-preview-canvas card-front ${modularClasses.join(' ')}`;
+    back.className = `card-preview-canvas card-back ${modularClasses.join(' ')}`;
     
-    // Update preview immediately
-    updatePreview();
+    // Set data attributes for advanced styling
+    const dataAttributes = {
+      'data-layout': ModularState.layout,
+      'data-alignment': ModularState.alignment,
+      'data-weight': ModularState.weight,
+      'data-palette': ModularState.palette,
+      'data-palette-variant': ModularState.paletteVariant,
+      'data-image-container': ModularState.imageContainer,
+      'data-image-container-variant': ModularState.imageContainerVariant,
+      'data-image-effect': ModularState.imageEffect
+    };
+    
+    Object.entries(dataAttributes).forEach(([attr, value]) => {
+      front.setAttribute(attr, value);
+      back.setAttribute(attr, value);
+    });
+    
+    // Update card content
+    updateCardContent();
+    
+    // Equalize card heights after content update
+    setTimeout(() => {
+      setEqualCardHeight();
+    }, 50); // Small delay to ensure content is rendered
+    
+    console.log('✅ Card preview updated with modular system:', {
+      layout: ModularState.layout,
+      palette: `${ModularState.palette}-${ModularState.paletteVariant}`,
+      imageContainer: `${ModularState.imageContainer}-${ModularState.imageContainerVariant}`
+    });
   }
 
-  // Update visual picker selections to match preset configuration
-  function updatePickerSelections(config) {
-    // Update layout picker selection
-    const layoutOptions = document.querySelectorAll('.layout-option');
-    layoutOptions.forEach(opt => {
-      opt.classList.toggle('selected', opt.dataset.layout === config.layout);
-    });
+  // ===== CARD CONTENT UPDATE =====
+  function updateCardContent() {
+    // Collect all data first
+    const statsData = collectStatsData();
+    const socialData = collectSocialLinksData();
+    const badgesData = collectBadgesData();
+    const attributesData = collectAttributesData();
     
-    // Update palette picker selection
-    const paletteOptions = document.querySelectorAll('.palette-option');
-    paletteOptions.forEach(opt => {
-      opt.classList.toggle('selected', opt.dataset.palette === config.palette);
-    });
+    // Build complete card data object
+    const cardData = {
+      name: document.getElementById('card-name')?.value || 'Aria Shadowbane',
+      characterClass: document.getElementById('card-class')?.value || 'Rogue Assassin',
+      rarity: document.getElementById('card-rarity')?.value || 'Rare',
+      quote: document.getElementById('card-quote')?.value || 'Shadows are my allies, silence my weapon.',
+      avatar: document.getElementById('card-avatar')?.value || '/cardforge/images/default-avatar.jpg',
+      stats: statsData,
+      socialLinks: socialData,
+      badges: badgesData,
+      attributes: attributesData
+    };
     
-    // Update image style picker selection
-    const primaryOptions = document.querySelectorAll('.style-primary-option');
-    primaryOptions.forEach(opt => {
-      opt.classList.toggle('active', opt.dataset.style === config.imageStyle);
-    });
+    console.log('📋 Complete card data with all sections:', cardData);
+    console.log('📊 Stats count:', cardData.stats.length);
+    console.log('🔗 Social links count:', cardData.socialLinks.length);
+    console.log('🏆 Badges count:', cardData.badges.length);
+    console.log('⚡ Attributes count:', cardData.attributes.length);
     
-    // Update image style variants
-    const variantGroups = document.querySelectorAll('.variant-group');
-    variantGroups.forEach(group => {
-      const isActiveStyle = group.dataset.forStyle === config.imageStyle;
-      group.style.display = isActiveStyle ? 'grid' : 'none';
-      
-      if (isActiveStyle) {
-        const variantOptions = group.querySelectorAll('.variant-option');
-        variantOptions.forEach(opt => {
-          opt.classList.toggle('active', opt.dataset.variant === config.imageVariant);
-        });
-      }
-    });
+    // Update front face
+    updateFrontFace(cardData);
+    
+    // Update back face
+    updateBackFace(cardData);
+  }
+  
+  // ===== DATA COLLECTION HELPERS =====
+  function collectStatsData() {
+    const statsContainer = document.getElementById('stats-editor');
+    const stats = [];
+    
+    if (statsContainer) {
+      const statRows = statsContainer.querySelectorAll('.stat-row');
+      statRows.forEach(row => {
+        const nameInput = row.querySelector('input[name="stat-name"]');
+        const valueInput = row.querySelector('input[name="stat-value"]');
+        
+        if (nameInput && valueInput && nameInput.value.trim()) {
+          stats.push({
+            name: nameInput.value.trim(),
+            value: parseInt(valueInput.value) || 0
+          });
+        }
+      });
+    }
+    
+    console.log('📊 Collected stats:', stats);
+    return stats;
+  }
+  
+  function collectSocialLinksData() {
+    const socialContainer = document.getElementById('social-editor');
+    const socialLinks = [];
+    
+    if (socialContainer) {
+      const socialRows = socialContainer.querySelectorAll('.social-row');
+      socialRows.forEach(row => {
+        const platformSelect = row.querySelector('select[name="social-name"]');
+        const urlInput = row.querySelector('input[name="social-url"]');
+        
+        if (platformSelect && urlInput && urlInput.value.trim()) {
+          socialLinks.push({
+            platform: platformSelect.value,
+            url: urlInput.value.trim()
+          });
+        }
+      });
+    }
+    
+    console.log('🔗 Collected social links:', socialLinks);
+    return socialLinks;
+  }
+  
+  function collectBadgesData() {
+    const badgesContainer = document.getElementById('micro-editor');
+    const badges = [];
+    
+    if (badgesContainer) {
+      const badgeRows = badgesContainer.querySelectorAll('.micro-row');
+      badgeRows.forEach(row => {
+        const categoryInput = row.querySelector('input[name="micro-category"]');
+        const iconInput = row.querySelector('input[name="micro-icon"]');
+        const descInput = row.querySelector('input[name="micro-desc"]');
+        const quantityInput = row.querySelector('input[name="micro-quantity"]');
+        
+        if (categoryInput && categoryInput.value.trim()) {
+          badges.push({
+            category: categoryInput.value.trim(),
+            icon: iconInput ? iconInput.value : 'star',
+            description: descInput ? descInput.value.trim() : '',
+            quantity: parseInt(quantityInput?.value) || 1
+          });
+        }
+      });
+    }
+    
+    console.log('🏆 Collected badges:', badges);
+    return badges;
+  }
+  
+  function collectAttributesData() {
+    const attributesContainer = document.getElementById('attribute-editor');
+    const attributes = [];
+    
+    if (attributesContainer) {
+      const attributeRows = attributesContainer.querySelectorAll('.attribute-row');
+      attributeRows.forEach(row => {
+        const nameInput = row.querySelector('input[name="attribute-name"]');
+        const valueInput = row.querySelector('input[name="attribute-value"]');
+        
+        if (nameInput && valueInput && nameInput.value.trim()) {
+          attributes.push({
+            name: nameInput.value.trim(),
+            value: valueInput.value.trim()
+          });
+        }
+      });
+    }
+    
+    console.log('⚡ Collected attributes:', attributes);
+    return attributes;
+  }
+
+  // ===== FRONT FACE UPDATE =====
+  function updateFrontFace(data) {
+    const front = document.querySelector('.card-front');
+    if (!front) return;
+    
+    // Generate layout-specific HTML based on modular state
+    let frontHTML = '';
+    
+    switch (ModularState.layout) {
+      case 'hero':
+        frontHTML = generateHeroLayout(data);
+        break;
+      case 'split':
+        frontHTML = generateSplitLayout(data);
+        break;
+      case 'minimal':
+        frontHTML = generateMinimalLayout(data);
+        break;
+      case 'overlay':
+        frontHTML = generateOverlayLayout(data);
+        break;
+      case 'stack':
+        frontHTML = generateStackLayout(data);
+        break;
+      case 'frame':
+        frontHTML = generateFrameLayout(data);
+        break;
+      default:
+        frontHTML = generateHeroLayout(data);
+    }
+    
+    front.innerHTML = frontHTML;
+  }
+
+  // ===== DYNAMIC HTML GENERATORS =====
+  function generateStatsHTML(stats) {
+    if (!stats || stats.length === 0) {
+      return '<div class="no-stats">No stats available</div>';
+    }
+    
+    return stats.map(stat => {
+      const percentage = Math.min(stat.value, 100); // Cap at 100%
+      return `
+        <div class="stat-item">
+          <div class="stat-label">${stat.name} <span class="stat-value">${stat.value}</span></div>
+          <div class="stat-bar"><div class="stat-progress" style="width: ${percentage}%"></div></div>
+        </div>
+      `;
+    }).join('');
+  }
+  
+  function generateSocialLinksHTML(socialLinks) {
+    if (!socialLinks || socialLinks.length === 0) {
+      return '<div class="no-social">No social links available</div>';
+    }
+    
+    const iconMap = {
+      twitter: 'fab fa-twitter',
+      github: 'fab fa-github',
+      instagram: 'fab fa-instagram',
+      linkedin: 'fab fa-linkedin',
+      x: 'fab fa-x-twitter',
+      deviantart: 'fab fa-deviantart',
+      facebook: 'fab fa-facebook',
+      discord: 'fab fa-discord',
+      tiktok: 'fab fa-tiktok'
+    };
+    
+    return socialLinks.map(social => {
+      const iconClass = iconMap[social.platform] || 'fas fa-link';
+      const platformName = social.platform.charAt(0).toUpperCase() + social.platform.slice(1);
+      return `
+        <div class="social-item">
+          <div class="social-icon-circle">
+            <i class="${iconClass}"></i>
+          </div>
+          <span class="social-platform">${platformName}</span>
+        </div>
+      `;
+    }).join('');
+  }
+  
+  function generateBadgesHTML(badges) {
+    if (!badges || badges.length === 0) {
+      return '<div class="no-badges">No badges available</div>';
+    }
+    
+    const iconMap = {
+      star: 'fas fa-star',
+      trophy: 'fas fa-trophy',
+      medal: 'fas fa-medal',
+      crown: 'fas fa-crown',
+      shield: 'fas fa-shield-alt',
+      gem: 'fas fa-gem',
+      fire: 'fas fa-fire',
+      heart: 'fas fa-heart',
+      bolt: 'fas fa-bolt',
+      target: 'fas fa-bullseye'
+    };
+    
+    return badges.map(badge => {
+      const iconClass = iconMap[badge.icon] || 'fas fa-award';
+      const icons = Array(badge.quantity || 1).fill(`<i class="${iconClass}"></i>`).join('');
+      return `
+        <div class="badge-item">
+          <div class="badge-icons">
+            ${icons}
+          </div>
+          <span class="badge-category">${badge.category}</span>
+        </div>
+      `;
+    }).join('');
+  }
+  
+  function generateAttributesHTML(attributes) {
+    if (!attributes || attributes.length === 0) {
+      return '<div class="no-attributes">No attributes available</div>';
+    }
+    
+    return attributes.map(attr => {
+      return `
+        <div class="attribute-item">
+          <span class="attr-name">${attr.name}:</span>
+          <span class="attr-value">${attr.value}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ===== LAYOUT GENERATORS =====
+  function generateHeroLayout(data) {
+    return `
+      <div class="card-hero-header">
+        <div class="hero-image-container">
+          <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
+          <div class="hero-overlay">
+            <h3 class="card-name">${data.name}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-class">${data.characterClass}</div>
+        <div class="card-rarity">${data.rarity}</div>
+        <div class="card-quote">"${data.quote}"</div>
+        <div class="card-stats">
+          ${generateStatsHTML(data.stats)}
+        </div>
+      </div>
+    `;
+  }
+  function generateSplitLayout(data) {
+    return `
+      <div class="card-left">
+        <div class="card-avatar-container">
+          <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
+        </div>
+      </div>
+      <div class="card-right">
+        <div class="card-header">
+          <h3 class="card-name">${data.name}</h3>
+          <div class="card-class">${data.characterClass}</div>
+        </div>
+        <div class="card-body">
+          <div class="card-rarity">${data.rarity}</div>
+          <div class="card-quote">"${data.quote}"</div>
+          <div class="card-stats">
+            <div class="stat-item">
+              <div class="stat-label">STR <span class="stat-value">7</span></div>
+              <div class="stat-bar"><div class="stat-progress" style="width: 70%"></div></div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">AGI <span class="stat-value">9</span></div>
+              <div class="stat-bar"><div class="stat-progress" style="width: 90%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function generateMinimalLayout(data) {
+    return `
+      <div class="card-header minimal-header">
+        <div class="card-avatar-container">
+          <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
+        </div>
+        <div class="minimal-info">
+          <h3 class="card-name">${data.name}</h3>
+          <div class="card-class">${data.characterClass}</div>
+          <div class="card-rarity">${data.rarity}</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-quote">"${data.quote}"</div>
+      </div>
+    `;
+  }
+
+  function generateOverlayLayout(data) {
+    return `
+      <div class="card-overlay-container">
+        <img src="${data.avatar}" alt="${data.name}" class="card-background" />
+        <div class="overlay-content">
+          <h3 class="card-name">${data.name}</h3>
+          <div class="card-class">${data.characterClass}</div>
+          <div class="card-rarity">${data.rarity}</div>
+          <div class="card-quote">"${data.quote}"</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function generateStackLayout(data) {
+    return `
+      <div class="card-header">
+        <h3 class="card-name">${data.name}</h3>
+        <div class="card-class">${data.characterClass}</div>
+      </div>
+      <div class="card-avatar-container">
+        <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
+      </div>
+      <div class="card-body">
+        <div class="card-rarity">${data.rarity}</div>
+        <div class="card-quote">"${data.quote}"</div>
+      </div>
+    `;
+  }
+
+  function generateFrameLayout(data) {
+    return `
+      <div class="card-frame">
+        <div class="frame-border">
+          <div class="card-avatar-container">
+            <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
+          </div>
+          <div class="frame-content">
+            <h3 class="card-name">${data.name}</h3>
+            <div class="card-class">${data.characterClass}</div>
+            <div class="card-rarity">${data.rarity}</div>
+            <div class="card-quote">"${data.quote}"</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // ===== BACK FACE UPDATE =====
+  function updateBackFace(data) {
+    const back = document.querySelector('.card-back');
+    if (!back) return;
+    
+    back.innerHTML = `
+      <div class="card-back-content">
+        <div class="back-header">
+          <h3 class="card-name">${data.name}</h3>
+          <div class="card-class">${data.characterClass}</div>
+        </div>
+        <div class="back-body">
+          <div class="back-section social-section">
+            <h4 class="section-title">Social Links</h4>
+            <div class="social-links">
+              ${generateSocialLinksHTML(data.socialLinks)}
+            </div>
+          </div>
+          
+          <div class="back-section badges-section">
+            <h4 class="section-title">Badges & Achievements</h4>
+            <div class="badges-container">
+              ${generateBadgesHTML(data.badges)}
+            </div>
+          </div>
+          
+          <div class="back-section attributes-section">
+            <h4 class="section-title">Attributes</h4>
+            <div class="attributes-container">
+              ${generateAttributesHTML(data.attributes)}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   // ===== FORM LISTENERS =====
   function initFormListeners() {
+    // Basic form fields
     const formInputs = [
       'card-name',
       'card-class', 
@@ -765,184 +1205,57 @@
       }
     });
     
-    // Initialize dynamic form functionality
-    initDynamicFormHandlers();
+    // Dynamic stats listeners
+    initStatsListeners();
+    
+    // Dynamic social links listeners
+    initSocialListeners();
+    
+    console.log('🎧 Form listeners initialized for live preview');
+  }
+  
+  function initStatsListeners() {
+    const statsContainer = document.getElementById('stats-editor');
+    if (statsContainer) {
+      // Use event delegation for dynamic stat rows
+      statsContainer.addEventListener('input', function(e) {
+        if (e.target.matches('input[name="stat-name"]') || e.target.matches('input[name="stat-value"]')) {
+          updatePreview();
+        }
+      });
+      
+      statsContainer.addEventListener('change', function(e) {
+        if (e.target.matches('input[name="stat-value"]')) {
+          // Update the display value for range sliders
+          const display = e.target.parentNode.querySelector('.stat-value-display');
+          if (display) {
+            display.textContent = e.target.value;
+          }
+          updatePreview();
+        }
+      });
+    }
+  }
+  
+  function initSocialListeners() {
+    const socialContainer = document.getElementById('social-editor');
+    if (socialContainer) {
+      // Use event delegation for dynamic social rows
+      socialContainer.addEventListener('change', function(e) {
+        if (e.target.matches('select[name="social-name"]') || e.target.matches('input[name="social-url"]')) {
+          updatePreview();
+        }
+      });
+      
+      socialContainer.addEventListener('input', function(e) {
+        if (e.target.matches('input[name="social-url"]')) {
+          updatePreview();
+        }
+      });
+    }
   }
 
-  // Initialize dynamic form handlers
-  function initDynamicFormHandlers() {
-    const addSocialBtn = document.getElementById('add-social-btn');
-    const addMicroBtn = document.getElementById('add-micro-btn');
-    const addAttributeBtn = document.getElementById('add-attribute-btn');
-    const cardBio = document.getElementById('card-bio');
 
-    // Add Social Link functionality
-    if (addSocialBtn) {
-      addSocialBtn.addEventListener('click', function() {
-        const socialEditor = document.getElementById('social-editor');
-        if (socialEditor) {
-          const newSocialRow = document.createElement('div');
-          newSocialRow.className = 'social-row';
-          newSocialRow.innerHTML = `
-            <label>Platform
-              <select name="social-name" class="social-platform" aria-label="Platform">
-                <option value="twitter">Twitter</option>
-                <option value="instagram">Instagram</option>
-                <option value="linkedin">LinkedIn</option>
-                <option value="x">X</option>
-                <option value="deviantart">DeviantArt</option>
-                <option value="github">GitHub</option>
-                <option value="facebook">Facebook</option>
-                <option value="discord">Discord</option>
-                <option value="tiktok">TikTok</option>
-              </select>
-            </label>
-            <label>Link (URL)
-              <input type="url" name="social-url" placeholder="https://..." />
-            </label>
-            <button type="button" class="remove-attribute">&times;</button>
-          `;
-          
-          socialEditor.appendChild(newSocialRow);
-          
-          // Add event listeners to new elements
-          const selectInput = newSocialRow.querySelector('select[name="social-name"]');
-          const urlInput = newSocialRow.querySelector('input[name="social-url"]');
-          const removeBtn = newSocialRow.querySelector('.remove-attribute');
-          
-          selectInput.addEventListener('change', updatePreview);
-          urlInput.addEventListener('input', updatePreview);
-          removeBtn.addEventListener('click', function() {
-            newSocialRow.remove();
-            updatePreview();
-          });
-          
-          updatePreview();
-        }
-      });
-    }
-
-    // Add Badge functionality
-    if (addMicroBtn) {
-      addMicroBtn.addEventListener('click', function() {
-        const microEditor = document.getElementById('micro-editor');
-        if (microEditor) {
-          const newMicroRow = document.createElement('div');
-          newMicroRow.className = 'micro-row';
-          newMicroRow.innerHTML = `
-            <label>Category
-              <input type="text" name="micro-category" placeholder="Category (e.g. Skill)" />
-            </label>
-            <label>Symbol/Icon
-              <div class="icon-picker" aria-label="Select badge icon">
-                <input type="hidden" name="micro-icon" value="star" />
-                <button type="button" class="icon-option active" data-icon="star"><i class="fas fa-star"></i></button>
-                <button type="button" class="icon-option" data-icon="heart"><i class="fas fa-heart"></i></button>
-                <button type="button" class="icon-option" data-icon="bolt"><i class="fas fa-bolt"></i></button>
-                <button type="button" class="icon-option" data-icon="trophy"><i class="fas fa-trophy"></i></button>
-                <button type="button" class="icon-option" data-icon="leaf"><i class="fas fa-leaf"></i></button>
-                <button type="button" class="icon-option" data-icon="gear"><i class="fas fa-gear"></i></button>
-                <button type="button" class="icon-option" data-icon="book"><i class="fas fa-book"></i></button>
-                <button type="button" class="icon-option" data-icon="lightbulb"><i class="fas fa-lightbulb"></i></button>
-                <button type="button" class="icon-option" data-icon="medal"><i class="fas fa-medal"></i></button>
-                <button type="button" class="icon-option" data-icon="certificate"><i class="fas fa-certificate"></i></button>
-              </div>
-            </label>
-            <label>Description
-              <input type="text" name="micro-desc" placeholder="Description" />
-            </label>
-            <label>Count
-              <input type="range" name="micro-quantity" min="1" max="5" value="1" class="badge-slider" />
-              <span class="slider-value">1</span>
-            </label>
-            <button type="button" class="remove-attribute" aria-label="Remove badge">&times;</button>
-          `;
-          
-          microEditor.appendChild(newMicroRow);
-          
-          // Add event listeners to new elements
-          const categoryInput = newMicroRow.querySelector('input[name="micro-category"]');
-          const descInput = newMicroRow.querySelector('input[name="micro-desc"]');
-          const quantityInput = newMicroRow.querySelector('input[name="micro-quantity"]');
-          const sliderValue = newMicroRow.querySelector('.slider-value');
-          const removeBtn = newMicroRow.querySelector('.remove-attribute');
-          const iconInput = newMicroRow.querySelector('input[name="micro-icon"]');
-          const iconOptions = newMicroRow.querySelectorAll('.icon-option');
-          
-          // Icon picker functionality
-          iconOptions.forEach(option => {
-            option.addEventListener('click', function() {
-              iconOptions.forEach(opt => opt.classList.remove('active'));
-              option.classList.add('active');
-              iconInput.value = option.dataset.icon;
-              updatePreview();
-            });
-          });
-          
-          categoryInput.addEventListener('input', updatePreview);
-          descInput.addEventListener('input', updatePreview);
-          quantityInput.addEventListener('input', function() {
-            sliderValue.textContent = this.value;
-            updatePreview();
-          });
-          removeBtn.addEventListener('click', function() {
-            newMicroRow.remove();
-            updatePreview();
-          });
-          
-          updatePreview();
-        }
-      });
-    }
-
-    // Add Attribute functionality
-    if (addAttributeBtn) {
-      addAttributeBtn.addEventListener('click', function() {
-        const attributeEditor = document.getElementById('attribute-editor');
-        if (attributeEditor) {
-          const newAttributeRow = document.createElement('div');
-          newAttributeRow.className = 'attribute-row';
-          newAttributeRow.innerHTML = `
-            <input type="text" name="attribute-name" placeholder="Attribute (e.g. Alignment)" />
-            <input type="text" name="attribute-value" placeholder="Value (e.g. Chaotic Creative)" />
-            <button type="button" class="remove-attribute">&times;</button>
-          `;
-          
-          attributeEditor.appendChild(newAttributeRow);
-          
-          // Add event listeners to new elements
-          const nameInput = newAttributeRow.querySelector('input[name="attribute-name"]');
-          const valueInput = newAttributeRow.querySelector('input[name="attribute-value"]');
-          const removeBtn = newAttributeRow.querySelector('.remove-attribute');
-          
-          nameInput.addEventListener('input', updatePreview);
-          valueInput.addEventListener('input', updatePreview);
-          removeBtn.addEventListener('click', function() {
-            newAttributeRow.remove();
-            updatePreview();
-          });
-          
-          updatePreview();
-        }
-      });
-    }
-
-    // Biography field listener
-    if (cardBio) {
-      cardBio.addEventListener('input', updatePreview);
-    }
-
-    // Add event listeners to existing remove buttons
-    document.addEventListener('click', function(e) {
-      if (e.target.classList.contains('remove-attribute')) {
-        const row = e.target.closest('.social-row, .micro-row, .attribute-row, .stat-row');
-        if (row) {
-          row.remove();
-          updatePreview();
-        }
-      }
-    });
-  }
 
   // ===== IMAGE GALLERY =====
   function initImageGallery() {
@@ -1056,798 +1369,126 @@
     });
   }
 
-  // ===== STATS COLLECTION AND MANAGEMENT =====
-  function collectStatsFromEditor() {
-    const statsEditor = document.getElementById('stats-editor');
-    if (!statsEditor) return [];
+  // ===== TIER 5: IMAGE CONTAINER =====
+  function initTier5Container() {
+    const containerOptions = document.querySelectorAll('[data-tier="5"] .tier-option');
+    const variantContainers = document.querySelectorAll('[data-tier="5"] .container-variants');
     
-    const statRows = statsEditor.querySelectorAll('.stat-row');
-    const stats = [];
-    
-    statRows.forEach(row => {
-      const nameInput = row.querySelector('input[name="stat-name"]');
-      const valueInput = row.querySelector('input[name="stat-value"]');
-      
-      if (nameInput && valueInput && nameInput.value.trim()) {
-        stats.push({
-          name: nameInput.value.trim(),
-          value: parseInt(valueInput.value) || 0
+    containerOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        // Update selection state
+        containerOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        
+        // Update modular state
+        ModularState.imageContainer = option.dataset.value;
+        
+        // Show/hide relevant variant options
+        variantContainers.forEach(container => {
+          const containerType = container.dataset.container;
+          if (containerType === ModularState.imageContainer) {
+            container.style.display = 'block';
+          } else {
+            container.style.display = 'none';
+          }
         });
-      }
-    });
-    
-    return stats;
-  }
-
-  function generateStatsHTML(stats) {
-    if (!stats || stats.length === 0) {
-      // Return default demo stats if no custom stats
-      return `
-        <div class="stat-item">
-          <div class="stat-label">Strength <span class="stat-value">7</span></div>
-          <div class="stat-bar"><div class="stat-progress" style="width: 70%"></div></div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-label">Agility <span class="stat-value">9</span></div>
-          <div class="stat-bar"><div class="stat-progress" style="width: 95%"></div></div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-label">Intelligence <span class="stat-value">8</span></div>
-          <div class="stat-bar"><div class="stat-progress" style="width: 80%"></div></div>
-        </div>
-      `;
-    }
-    
-    return stats.map(stat => `
-      <div class="stat-item">
-        <div class="stat-label">${stat.name} <span class="stat-value">${stat.value}</span></div>
-        <div class="stat-bar"><div class="stat-progress" style="width: ${stat.value}%"></div></div>
-      </div>
-    `).join('');
-  }
-
-  function initStatsEditor() {
-    const statsEditor = document.getElementById('stats-editor');
-    const addStatBtn = document.getElementById('add-stat-btn');
-    
-    if (!statsEditor || !addStatBtn) return;
-
-    // Prefill default stats if form is blank
-    const rows = statsEditor.querySelectorAll('.stat-row');
-    if (rows.length === 0 || !Array.from(rows).some(r => r.querySelector('input[name="stat-name"]').value.trim())) {
-      // Clear existing rows
-      statsEditor.innerHTML = '';
-      const defaultStats = [
-        { name: 'Strength', value: 7 },
-        { name: 'Agility', value: 9 },
-        { name: 'Intelligence', value: 8 }
-      ];
-      defaultStats.forEach(stat => {
-        const row = document.createElement('div');
-        row.className = 'stat-row';
-        row.innerHTML = `
-          <input type="text" name="stat-name" placeholder="Stat name" value="${stat.name}" />
-          <input type="range" name="stat-value" min="0" max="100" value="${stat.value}" class="stat-slider" aria-label="Stat value" />
-          <span class="stat-value-display">${stat.value}</span>
-          <button type="button" class="remove-attribute">&times;</button>
-        `;
-        statsEditor.appendChild(row);
-        const nameInput = row.querySelector('input[name="stat-name"]');
-        const valueInput = row.querySelector('input[name="stat-value"]');
-        const valueDisplay = row.querySelector('.stat-value-display');
-        const removeBtn = row.querySelector('.remove-attribute');
-        valueInput.addEventListener('input', () => { valueDisplay.textContent = valueInput.value; updatePreview(); });
-        nameInput.addEventListener('input', updatePreview);
-        removeBtn.addEventListener('click', () => { row.remove(); updatePreview(); });
-      });
-    }
-    const initialRows = statsEditor.querySelectorAll('.stat-row');
-    if (initialRows.length === 0) {
-      const defaultStats = [
-        { name: 'Strength', value: 7 },
-        { name: 'Agility', value: 9 },
-        { name: 'Intelligence', value: 8 }
-      ];
-      defaultStats.forEach(stat => {
-        const row = document.createElement('div');
-        row.className = 'stat-row';
-        row.innerHTML = `
-          <input type="text" name="stat-name" placeholder="Stat name" value="${stat.name}" />
-          <input type="range" name="stat-value" min="0" max="100" value="${stat.value}" class="stat-slider" aria-label="Stat value" />
-          <span class="stat-value-display">${stat.value}</span>
-          <button type="button" class="remove-attribute">&times;</button>
-        `;
-        statsEditor.appendChild(row);
-        const nameInput = row.querySelector('input[name="stat-name"]');
-        const valueInput = row.querySelector('input[name="stat-value"]');
-        const valueDisplay = row.querySelector('.stat-value-display');
-        const removeBtn = row.querySelector('.remove-attribute');
-        valueInput.addEventListener('input', () => { valueDisplay.textContent = valueInput.value; updatePreview(); });
-        nameInput.addEventListener('input', updatePreview);
-        removeBtn.addEventListener('click', () => { row.remove(); updatePreview(); });
-      });
-    }
-    
-    // Add stat button functionality
-    addStatBtn.addEventListener('click', function() {
-      const newStatRow = document.createElement('div');
-      newStatRow.className = 'stat-row';
-      newStatRow.innerHTML = `
-        <input type="text" name="stat-name" placeholder="Stat name" />
-        <input type="range" name="stat-value" min="0" max="100" value="0" class="stat-slider" aria-label="Stat value" />
-        <span class="stat-value-display">0</span>
-        <button type="button" class="remove-attribute">&times;</button>
-      `;
-      
-      statsEditor.appendChild(newStatRow);
-      
-      // Add event listeners to new elements
-      const nameInput = newStatRow.querySelector('input[name="stat-name"]');
-      const valueInput = newStatRow.querySelector('input[name="stat-value"]');
-      const valueDisplay = newStatRow.querySelector('.stat-value-display');
-      const removeBtn = newStatRow.querySelector('.remove-attribute');
-      
-      // Update display when slider changes
-      valueInput.addEventListener('input', function() {
-        valueDisplay.textContent = this.value;
-        updatePreview();
-      });
-      
-      // Update preview when name changes
-      nameInput.addEventListener('input', updatePreview);
-      
-      // Remove stat functionality
-      removeBtn.addEventListener('click', function() {
-        newStatRow.remove();
-        updatePreview();
-      });
-      
-      // Update preview after adding new stat
-      updatePreview();
-    });
-    
-    // Add event listeners to existing stat rows
-    const existingRows = statsEditor.querySelectorAll('.stat-row');
-    existingRows.forEach(row => {
-      const nameInput = row.querySelector('input[name="stat-name"]');
-      const valueInput = row.querySelector('input[name="stat-value"]');
-      const valueDisplay = row.querySelector('.stat-value-display');
-      const removeBtn = row.querySelector('.remove-attribute');
-      
-      if (valueInput && valueDisplay) {
-        valueInput.addEventListener('input', function() {
-          valueDisplay.textContent = this.value;
-          updatePreview();
-        });
-      }
-      
-      if (nameInput) {
-        nameInput.addEventListener('input', updatePreview);
-      }
-      
-      if (removeBtn) {
-        removeBtn.addEventListener('click', function() {
-          row.remove();
-          updatePreview();
-        });
-      }
-    });
-  }
-
-  // ===== STATS COLLECTION AND MANAGEMENT =====
-  function collectStatsFromEditor() {
-    const statsEditor = document.getElementById('stats-editor');
-    if (!statsEditor) return [];
-    
-    const statRows = statsEditor.querySelectorAll('.stat-row');
-    const stats = [];
-    
-    statRows.forEach(row => {
-      const nameInput = row.querySelector('input[name="stat-name"]');
-      const valueInput = row.querySelector('input[name="stat-value"]');
-      
-      if (nameInput && valueInput && nameInput.value.trim()) {
-        stats.push({
-          name: nameInput.value.trim(),
-          value: parseInt(valueInput.value) || 0
-        });
-      }
-    });
-    
-    return stats;
-  }
-
-  function generateStatsHTML(stats) {
-    if (!stats || stats.length === 0) {
-      // Return default demo stats if no custom stats
-      return `
-        <div class="stat-item">
-          <div class="stat-label">Strength <span class="stat-value">7</span></div>
-          <div class="stat-bar"><div class="stat-progress" style="width: 70%"></div></div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-label">Agility <span class="stat-value">9</span></div>
-          <div class="stat-bar"><div class="stat-progress" style="width: 95%"></div></div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-label">Intelligence <span class="stat-value">8</span></div>
-          <div class="stat-bar"><div class="stat-progress" style="width: 80%"></div></div>
-        </div>
-      `;
-    }
-    
-    return stats.map(stat => `
-      <div class="stat-item">
-        <div class="stat-label">${stat.name} <span class="stat-value">${stat.value}</span></div>
-        <div class="stat-bar"><div class="stat-progress" style="width: ${stat.value}%"></div></div>
-      </div>
-    `).join('');
-  }
-
-  // ===== SOCIAL, BADGES, AND ATTRIBUTES COLLECTION =====
-  function collectSocialLinksFromEditor() {
-    const socialLinks = [];
-    const socialRows = document.querySelectorAll('#social-editor .social-row');
-    
-    socialRows.forEach(row => {
-      const platform = row.querySelector('select[name="social-name"]')?.value;
-      const url = row.querySelector('input[name="social-url"]')?.value;
-      
-      if (platform && url) {
-        socialLinks.push({ platform, url });
-      }
-    });
-    
-    console.log('📱 Collected social links:', socialLinks);
-    return socialLinks;
-  }
-
-  function collectBadgesFromEditor() {
-    const badges = [];
-    const badgeRows = document.querySelectorAll('#micro-editor .micro-row');
-    
-    badgeRows.forEach(row => {
-      const category = row.querySelector('input[name="micro-category"]')?.value;
-      const icon = row.querySelector('input[name="micro-icon"]')?.value;
-      const description = row.querySelector('input[name="micro-desc"]')?.value;
-      const quantity = row.querySelector('input[name="micro-quantity"]')?.value;
-      
-      if (category || description) {
-        badges.push({ 
-          category: category || 'Badge', 
-          icon: icon || 'star', 
-          description: description || 'Achievement', 
-          quantity: parseInt(quantity) || 1 
-        });
-      }
-    });
-    
-    console.log('🏆 Collected badges:', badges);
-    return badges;
-  }
-
-  function collectAttributesFromEditor() {
-    const attributes = [];
-    const attributeRows = document.querySelectorAll('#attribute-editor .attribute-row');
-    
-    attributeRows.forEach(row => {
-      const name = row.querySelector('input[name="attribute-name"]')?.value;
-      const value = row.querySelector('input[name="attribute-value"]')?.value;
-      
-      if (name && value) {
-        attributes.push({ name, value });
-      }
-    });
-    
-    // Also collect biography if present
-    const biography = document.getElementById('card-bio')?.value;
-    if (biography) {
-      attributes.unshift({ name: 'Biography', value: biography });
-    }
-    
-    console.log('📋 Collected attributes:', attributes);
-    return attributes;
-  }
-
-  function generateSocialLinksHTML(socialLinks) {
-    if (!socialLinks || socialLinks.length === 0) {
-      return `
-        <div class="social-item">
-          <div class="social-icon-circle">
-            <i class="fab fa-twitter"></i>
-          </div>
-          <span class="social-platform">Twitter</span>
-        </div>
-        <div class="social-item">
-          <div class="social-icon-circle">
-            <i class="fab fa-github"></i>
-          </div>
-          <span class="social-platform">GitHub</span>
-        </div>
-      `;
-    }
-    
-    return socialLinks.map(social => {
-      const iconClass = getSocialIcon(social.platform);
-      
-      return `
-        <div class="social-item">
-          <div class="social-icon-circle">
-            <i class="${iconClass}"></i>
-          </div>
-          <span class="social-platform">${social.platform}</span>
-        </div>
-      `;
-    }).join('');
-  }
-
-  function generateBadgesHTML(badges) {
-    if (!badges || badges.length === 0) {
-      return `
-        <div class="badge-item" title="Master Strategist - Completed advanced tactical scenarios">
-          <div class="badge-icons">
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-          </div>
-          <span class="badge-category">Achievement</span>
-        </div>
-        <div class="badge-item" title="Campaign Victory - Won major battle campaigns">
-          <div class="badge-icons">
-            <i class="fas fa-trophy"></i>
-          </div>
-          <span class="badge-category">Victory</span>
-        </div>
-      `;
-    }
-    
-    return badges.map(badge => {
-      // Generate multiple icons based on quantity
-      const icons = Array.from({ length: Math.min(badge.quantity, 5) }, () => 
-        `<i class="fas fa-${badge.icon}"></i>`
-      ).join('');
-      
-      return `
-        <div class="badge-item" title="${badge.description}">
-          <div class="badge-icons">
-            ${icons}
-          </div>
-          <span class="badge-category">${badge.category}</span>
-        </div>
-      `;
-    }).join('');
-}
-
-function generateAttributesHTML(attributes) {
-  if (!attributes || attributes.length === 0) {
-    return `
-        <div class="attribute-item">
-          <span class="attr-name">Level:</span>
-          <span class="attr-value">12</span>
-        </div>
-        <div class="attribute-item">
-          <span class="attr-name">Experience:</span>
-          <span class="attr-value">8,450 XP</span>
-        </div>
-        <div class="attribute-item">
-          <span class="attr-name">Alignment:</span>
-          <span class="attr-value">Chaotic Good</span>
-        </div>
-      `;
-    }
-    
-    return attributes.map(attr => `
-      <div class="attribute-item">
-        <span class="attr-name">${attr.name}:</span>
-        <span class="attr-value">${attr.value}</span>
-      </div>
-    `).join('');
-  }
-
-  // Helper functions
-  function getSocialIcon(platform) {
-    const iconMap = {
-      'twitter': 'fab fa-twitter',
-      'x': 'fab fa-x-twitter',
-      'instagram': 'fab fa-instagram',
-      'linkedin': 'fab fa-linkedin',
-      'github': 'fab fa-github',
-      'facebook': 'fab fa-facebook',
-      'discord': 'fab fa-discord',
-      'tiktok': 'fab fa-tiktok',
-      'deviantart': 'fab fa-deviantart'
-    };
-    return iconMap[platform.toLowerCase()] || 'fas fa-link';
-  }
-
-  function extractHandle(url, platform) {
-    if (!url) return '@username';
-    
-    try {
-      const urlObj = new URL(url);
-      const pathname = urlObj.pathname;
-      
-      // Extract username from common social media URL patterns
-      if (pathname.startsWith('/')) {
-        const handle = pathname.slice(1).split('/')[0];
-        return handle ? `@${handle}` : '@username';
-      }
-    } catch (e) {
-      // If URL parsing fails, try to extract from string
-      const match = url.match(/[/@]([a-zA-Z0-9_.-]+)/);
-      if (match) {
-        return `@${match[1]}`;
-      }
-    }
-    
-    return '@username';
-  }
-
-  // ===== PREVIEW UPDATE SYSTEM =====
-  function updatePreview() {
-    console.log('🎨 Updating card preview...');
-    
-    // Get preview elements
-    const cardPreview = document.querySelector('.card-preview');
-    const front = document.querySelector('.card-front');
-    const back = document.querySelector('.card-back');
-    
-    if (!cardPreview || !front || !back) {
-      console.warn('⚠️ Card preview elements not found');
-      return;
-    }
-    
-    // Apply theme classes to card preview container
-    cardPreview.className = `card-preview theme-${currentPreset} layout-${currentLayout} palette-${currentPalette}`;
-    
-    // Apply comprehensive CSS classes to front face
-    front.className = `card-preview-canvas card-front theme-${currentPreset} variant-${currentPalette} layout-${currentLayout} image-style-${currentImageStyle} image-${currentImageStyle}-${currentImageVariant}`;
-    
-    // Apply comprehensive CSS classes to back face  
-    back.className = `card-preview-canvas card-back theme-${currentPreset} variant-${currentPalette} layout-${currentLayout} image-style-${currentImageStyle} image-${currentImageStyle}-${currentImageVariant}`;
-    
-    // Set data attributes for advanced styling
-    front.setAttribute('data-preset', currentPreset);
-    front.setAttribute('data-layout', currentLayout);
-    front.setAttribute('data-palette', currentPalette);
-    front.setAttribute('data-image-style', currentImageStyle);
-    front.setAttribute('data-image-variant', currentImageVariant);
-    
-    back.setAttribute('data-preset', currentPreset);
-    back.setAttribute('data-layout', currentLayout);
-    back.setAttribute('data-palette', currentPalette);
-    back.setAttribute('data-image-style', currentImageStyle);
-    back.setAttribute('data-image-variant', currentImageVariant);
-    
-    // Update card content with form data and placeholder content
-    updateCardContent(front, back);
-    
-    // Match heights of front and back faces after content update
-    setTimeout(() => matchCardHeights(), 50);
-    
-    console.log('✅ Card preview updated successfully');
-  }
-
-  // Update card content based on current form data
-  function updateCardContent(front, back) {
-    // Get form data with fallbacks to placeholder content
-    const name = document.getElementById('card-name')?.value || 'Aria Shadowbane';
-    const characterClass = document.getElementById('card-class')?.value || 'Rogue Assassin';
-    const rarity = document.getElementById('card-rarity')?.value || 'rare';
-    const quote = document.getElementById('card-quote')?.value || '"Shadows are my allies, silence my weapon."';
-    const avatar = document.getElementById('card-avatar')?.value || '/cardforge/images/default-avatar.jpg';
-    
-    // Collect dynamic stats from editor
-    const stats = collectStatsFromEditor();
-    console.log('📊 Collected stats:', stats);
-    
-    // Collect back-of-card data
-    const socialLinks = collectSocialLinksFromEditor();
-    const badges = collectBadgesFromEditor();
-    const attributes = collectAttributesFromEditor();
-    
-    // Update front face content
-    updateFrontFace(front, { name, characterClass, rarity, quote, avatar, stats });
-    
-    // Update back face content
-    updateBackFace(back, { name, characterClass, rarity, quote, socialLinks, badges, attributes });
-  }
-
-  // Update front face with dynamic layout support
-  function updateFrontFace(front, data) {
-    let frontHTML = '';
-    
-    // Generate layout-specific HTML structure
-    switch (currentLayout) {
-      case 'centered':
-        frontHTML = generateCenteredLayout(data);
-        break;
-      case 'split':
-        frontHTML = generateSplitLayout(data);
-        break;
-      case 'banner':
-        frontHTML = generateBannerLayout(data);
-        break;
-      case 'minimal':
-        frontHTML = generateMinimalLayout(data);
-        break;
-      case 'left-aligned':
-        frontHTML = generateLeftAlignedLayout(data);
-        break;
-      case 'right-aligned':
-        frontHTML = generateRightAlignedLayout(data);
-        break;
-      case 'grid':
-        frontHTML = generateGridLayout(data);
-        break;
-      default:
-        frontHTML = generateCenteredLayout(data);
-    }
-    
-    front.innerHTML = frontHTML;
-    
-    // Handle image styles using legacy approach
-    handleImageStyles(front, data.avatar);
-  }
-
-  // Handle image styles (masked, hero, badge, full-bleed)
-  function handleImageStyles(front, avatar) {
-    const avatarImg = front.querySelector('.card-avatar');
-    
-    if (avatarImg && avatar) {
-      // Update avatar source
-      avatarImg.src = avatar;
-      
-      // Apply image style classes
-      avatarImg.className = `card-avatar image-${currentImageStyle}-${currentImageVariant}`;
-      
-      // For full bleed styles, apply to card container
-      if (currentImageStyle === 'full-bleed') {
-        // Hide avatar container for full bleed
-        const avatarContainer = front.querySelector('.card-avatar-container');
-        if (avatarContainer) {
-          avatarContainer.style.display = 'none';
+        
+        // Set default variant for the selected container
+        const defaultVariants = {
+          'masked': 'circle',
+          'framed': 'classic',
+          'raw': 'sharp',
+          'fullbleed': 'none'
+        };
+        ModularState.imageContainerVariant = defaultVariants[ModularState.imageContainer] || 'circle';
+        
+        // Update variant selection UI
+        const activeContainer = document.querySelector(`[data-tier="5"] [data-container="${ModularState.imageContainer}"]`);
+        if (activeContainer) {
+          const variantOptions = activeContainer.querySelectorAll('.variant-option');
+          variantOptions.forEach(v => v.classList.remove('selected'));
+          const defaultVariant = activeContainer.querySelector(`[data-variant="${ModularState.imageContainerVariant}"]`);
+          if (defaultVariant) defaultVariant.classList.add('selected');
         }
         
-        // Apply full bleed background
-        front.style.backgroundImage = `url(${avatar})`;
-        front.style.backgroundSize = 'cover';
-        front.style.backgroundPosition = 'center';
+        // Update preview
+        updatePreview();
         
-        // Add variant-specific classes
-        front.classList.add(`image-full-bleed-${currentImageVariant}`);
-      } else {
-        // Show avatar container for non-full-bleed styles
-        const avatarContainer = front.querySelector('.card-avatar-container');
-        if (avatarContainer) {
-          avatarContainer.style.display = 'block';
-        }
+        console.log(`🖼️ Image container updated: ${ModularState.imageContainer}-${ModularState.imageContainerVariant}`);
+      });
+    });
+    
+    // Initialize variant option listeners
+    const allVariantOptions = document.querySelectorAll('[data-tier="5"] .variant-option');
+    allVariantOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        // Update selection state within the same container
+        const container = option.closest('.container-variants');
+        const siblingOptions = container.querySelectorAll('.variant-option');
+        siblingOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
         
-        // Remove full bleed styling
-        front.style.backgroundImage = '';
-        front.style.backgroundSize = '';
-        front.style.backgroundPosition = '';
-        front.classList.remove('image-full-bleed-ambient', 'image-full-bleed-overlay-safe', 'image-full-bleed-grid');
+        // Update modular state
+        ModularState.imageContainerVariant = option.dataset.variant;
+        
+        // Update preview
+        updatePreview();
+        
+        console.log(`🎭 Container variant updated: ${ModularState.imageContainerVariant}`);
+      });
+    });
+    
+    // Set default selections
+    const defaultContainer = document.querySelector(`[data-tier="5"] [data-value="${ModularState.imageContainer}"]`);
+    if (defaultContainer) {
+      defaultContainer.classList.add('selected');
+      // Show the default container's variants
+      const defaultVariantContainer = document.querySelector(`[data-tier="5"] [data-container="${ModularState.imageContainer}"]`);
+      if (defaultVariantContainer) {
+        defaultVariantContainer.style.display = 'block';
+        const defaultVariant = defaultVariantContainer.querySelector(`[data-variant="${ModularState.imageContainerVariant}"]`);
+        if (defaultVariant) defaultVariant.classList.add('selected');
       }
     }
   }
 
-  // Generate centered layout HTML
-  function generateCenteredLayout(data) {
-    const statsHTML = generateStatsHTML(data.stats);
+  // ===== TIER 6: IMAGE EFFECTS =====
+  function initTier6Effects() {
+    const effectOptions = document.querySelectorAll('[data-tier="6"] .tier-option');
     
-    return `
-      <div class="card-header centered-header">
-        <h3 class="card-name">${data.name}</h3>
-        <div class="card-class">${data.characterClass}</div>
-      </div>
-      <div class="card-avatar-container ${currentImageStyle}-style">
-        <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
-      </div>
-      <div class="card-body centered-body">
-        <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
-        <div class="card-quote">"${data.quote}"</div>
-        ${statsHTML}
-      </div>
-    `;
-  }
-
-  // Generate split layout HTML - Two-column layout with avatar on left, content on right
-  function generateSplitLayout(data) {
-    const statsHTML = generateStatsHTML(data.stats);
+    effectOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        // Update selection state
+        effectOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        
+        // Update modular state
+        ModularState.imageEffect = option.dataset.value;
+        
+        // Update preview
+        updatePreview();
+        
+        console.log(`✨ Image effect updated: ${ModularState.imageEffect}`);
+      });
+    });
     
-    return `
-      <div class="card-left">
-        <div class="card-avatar-container ${currentImageStyle}-style">
-          <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
-        </div>
-      </div>
-      <div class="card-right">
-        <div class="card-header">
-          <h3 class="card-name">${data.name}</h3>
-          <div class="card-class">${data.characterClass}</div>
-        </div>
-        <div class="card-body">
-          <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
-          <div class="card-quote">"${data.quote}"</div>
-          ${statsHTML}
-        </div>
-      </div>
-    `;
-  }
-
-  // Generate banner layout HTML - Banner-style with full-width header image
-  function generateBannerLayout(data) {
-    const statsHTML = generateStatsHTML(data.stats);
-    
-    return `
-      <div class="card-hero-header">
-        <div class="hero-image-container ${currentImageStyle}-style">
-          <img src="${data.avatar}" alt="${data.name}" class="card-avatar hero-image" />
-          <div class="hero-overlay">
-            <h3 class="card-name hero-name">${data.name}</h3>
-          </div>
-        </div>
-      </div>
-      <div class="card-body hero-body">
-        <div class="card-class">${data.characterClass}</div>
-        <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
-        <div class="card-quote">"${data.quote}"</div>
-        ${statsHTML}
-      </div>
-    `;
-  }
-
-  // Generate right-aligned layout HTML - Content on right, space for background on left
-  function generateRightAlignedLayout(data) {
-    const statsHTML = generateStatsHTML(data.stats);
-    
-    return `
-      <div class="card-header right-aligned-header">
-        <h3 class="card-name">${data.name}</h3>
-        <div class="card-class">${data.characterClass}</div>
-      </div>
-      <div class="card-avatar-container ${currentImageStyle}-style right-aligned-avatar">
-        <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
-      </div>
-      <div class="card-body right-aligned-body">
-        <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
-        <div class="card-quote">"${data.quote}"</div>
-        ${statsHTML}
-      </div>
-    `;
-  }
-
-  // Generate left-aligned layout HTML - Content on left, space for background on right
-  function generateLeftAlignedLayout(data) {
-    const statsHTML = generateStatsHTML(data.stats);
-    
-    return `
-      <div class="card-header left-aligned-header">
-        <h3 class="card-name">${data.name}</h3>
-        <div class="card-class">${data.characterClass}</div>
-      </div>
-      <div class="card-avatar-container ${currentImageStyle}-style left-aligned-avatar">
-        <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
-      </div>
-      <div class="card-body left-aligned-body">
-        <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
-        <div class="card-quote">"${data.quote}"</div>
-        ${statsHTML}
-      </div>
-    `;
-  }
-
-  // Generate minimal layout HTML - Compact layout with small avatar and horizontal layout
-  function generateMinimalLayout(data) {
-    const statsHTML = generateStatsHTML(data.stats);
-    
-    return `
-      <div class="card-header minimal-header">
-        <div class="card-avatar-container ${currentImageStyle}-style minimal-avatar">
-          <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
-        </div>
-        <div class="minimal-info">
-          <h3 class="card-name">${data.name}</h3>
-          <div class="card-class">${data.characterClass}</div>
-          <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
-        </div>
-      </div>
-      <div class="card-body minimal-body">
-        <div class="card-quote">"${data.quote}"</div>
-        ${statsHTML}
-      </div>
-    `;
-  }
-
-  // Generate grid layout HTML
-  function generateGridLayout(data) {
-    const statsHTML = generateStatsHTML(data.stats);
-    
-    return `
-      <div class="card-header">
-        <h3 class="card-name">${data.name}</h3>
-        <div class="card-class">${data.characterClass}</div>
-      </div>
-      <div class="card-avatar-container ${currentImageStyle}-style">
-        <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
-      </div>
-      <div class="card-body">
-        <div class="card-rarity rarity-${data.rarity}">${data.rarity.charAt(0).toUpperCase() + data.rarity.slice(1)}</div>
-        <div class="card-quote">"${data.quote}"</div>
-        ${statsHTML}
-      </div>
-    `;
-  }
-
-  // Update back face content
-  function updateBackFace(back, data) {
-    const socialHTML = generateSocialLinksHTML(data.socialLinks);
-    const badgesHTML = generateBadgesHTML(data.badges);
-    const attributesHTML = generateAttributesHTML(data.attributes);
-    
-    back.innerHTML = `
-      <div class="card-back-content">
-        <div class="back-header">
-          <h3 class="card-name">${data.name}</h3>
-          <div class="card-class">${data.characterClass}</div>
-        </div>
-        <div class="back-body">
-          <div class="back-section social-section">
-            <h4 class="section-title">Social Links</h4>
-            <div class="social-links">
-              ${socialHTML}
-            </div>
-          </div>
-          
-          <div class="back-section badges-section">
-            <h4 class="section-title">Badges & Achievements</h4>
-            <div class="badges-container">
-              ${badgesHTML}
-            </div>
-          </div>
-          
-          <div class="back-section attributes-section">
-            <h4 class="section-title">Attributes</h4>
-            <div class="attributes-container">
-              ${attributesHTML}
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  // Match heights of front and back card faces
-  function matchCardHeights() {
-    const cardFront = document.querySelector('.card-front');
-    const cardBack = document.querySelector('.card-back');
-    
-    if (cardFront && cardBack) {
-      // Reset heights to auto to get natural heights
-      cardFront.style.height = 'auto';
-      cardBack.style.height = 'auto';
-      
-      // Get the natural heights
-      const frontHeight = cardFront.offsetHeight;
-      const backHeight = cardBack.offsetHeight;
-      
-      // Set both to the maximum height
-      const maxHeight = Math.max(frontHeight, backHeight);
-      cardFront.style.height = maxHeight + 'px';
-      cardBack.style.height = maxHeight + 'px';
-      
-      console.log(`🎯 Matched card heights: Front=${frontHeight}px, Back=${backHeight}px, Set=${maxHeight}px`);
+    // Set default selection
+    const defaultEffect = ModularState.imageEffect || 'none';
+    const defaultOption = document.querySelector(`[data-tier="6"] [data-value="${defaultEffect}"]`);
+    if (defaultOption) {
+      defaultOption.classList.add('selected');
     }
   }
 
   // Expose global functions for external access
-  window.updatePreview = updatePreview;
-  window.matchCardHeights = matchCardHeights;
-  window.currentPreset = currentPreset;
-  window.currentLayout = currentLayout;
-  window.currentPalette = currentPalette;
-  window.currentImageStyle = currentImageStyle;
-  window.currentImageVariant = currentImageVariant;
+  window.CardForge = {
+    updatePreview,
+    initImageGallery,
+    ModularState
+  };
 
 })();
+
+// ===== PLACEHOLDER FOR ADDITIONAL TIERS =====
+// TODO: Add Tier 2 (Alignment), Tier 3 (Weight), Tier 5 (Image Container), Tier 6 (Effects)
+// TODO: Add dynamic form editors (Stats, Social, Badges, Attributes)

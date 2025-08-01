@@ -2,17 +2,17 @@
   "cardData": {
     "name": "Aria Shadowbane",
     "class": "Rogue Assassin", 
-    "rarity": "Rare",
+    "rarity": "Legendary",
     "quote": "Shadows are my allies, silence my weapon.",
     "biography": "A mysterious figure who emerged from the shadows, wielding ancient knowledge and unmatched stealth abilities. Known throughout the realm for her precision and deadly grace.",
-    "avatar": "/cardforge/images/default-avatar.jpg"
+    "avatar": "/images/image-packs/characters/cyber-erenity.jpg"
   },
   "visualSettings": {
     "theme": "NeoFantasy",
-    "preset": "cyberpunk",
+    "preset": "hero-classic",
     "variant": "Default",
     "layout": "Hero",
-    "colorPalette": "cyberpunk"
+    "colorPalette": "neon"
   },
   "stats": [
     {
@@ -26,6 +26,10 @@
     {
       "name": "Intelligence",
       "value": 8
+    },
+    {
+      "name": "Stealth",
+      "value": 10
     }
   ],
   "socialLinks": [
@@ -36,6 +40,10 @@
     {
       "platform": "github", 
       "url": "https://github.com/shadowrogue"
+    },
+    {
+      "platform": "discord",
+      "url": "https://discord.gg/shadowguild"
     }
   ],
   "badges": [
@@ -50,20 +58,193 @@
       "icon": "trophy", 
       "description": "Campaign Winner",
       "quantity": 1
+    },
+    {
+      "category": "Skill",
+      "icon": "bolt",
+      "description": "Shadow Walker",
+      "quantity": 5
+    },
+    {
+      "category": "Honor",
+      "icon": "medal",
+      "description": "Guild Champion",
+      "quantity": 2
     }
   ],
   "attributes": [
     {
       "name": "Level",
-      "value": "12"
+      "value": "15"
     },
     {
       "name": "Experience",
-      "value": "8,450 XP"
+      "value": "12,750 XP"
     },
     {
       "name": "Alignment", 
       "value": "Chaotic Good"
+    },
+    {
+      "name": "Guild",
+      "value": "Shadow Runners"
+    },
+    {
+      "name": "Origin",
+      "value": "The Whispering Woods"
     }
-  ]
+  ],
+  "presets": {
+    "hero-classic": {
+      "cardData": {
+        "name": "Sir Galahad",
+        "class": "Paladin Knight",
+        "rarity": "Epic",
+        "quote": "Honor guides my blade, justice fuels my spirit.",
+        "biography": "A noble knight sworn to protect the innocent and uphold the ancient codes of chivalry."
+      },
+      "stats": [
+        {"name": "Strength", "value": 9},
+        {"name": "Defense", "value": 8},
+        {"name": "Honor", "value": 10},
+        {"name": "Wisdom", "value": 7}
+      ],
+      "socialLinks": [
+        {"platform": "linkedin", "url": "https://linkedin.com/in/sir-galahad"},
+        {"platform": "facebook", "url": "https://facebook.com/knightsoftheround"}
+      ],
+      "badges": [
+        {"category": "Honor", "icon": "certificate", "description": "Knight of the Round Table", "quantity": 1},
+        {"category": "Victory", "icon": "trophy", "description": "Dragon Slayer", "quantity": 3},
+        {"category": "Service", "icon": "heart", "description": "Protector of the Realm", "quantity": 5}
+      ],
+      "attributes": [
+        {"name": "Level", "value": "18"},
+        {"name": "Order", "value": "Knights of the Round Table"},
+        {"name": "Alignment", "value": "Lawful Good"},
+        {"name": "Sacred Oath", "value": "Devotion"}
+      ]
+    },
+    "split-modern": {
+      "cardData": {
+        "name": "Zara Nexus",
+        "class": "Cyber Hacker",
+        "rarity": "Rare",
+        "quote": "In the matrix of code, I am the ghost in the machine.",
+        "biography": "A brilliant hacker who navigates the digital realm with unmatched skill and cyber-enhanced abilities."
+      },
+      "stats": [
+        {"name": "Intelligence", "value": 10},
+        {"name": "Hacking", "value": 9},
+        {"name": "Speed", "value": 8},
+        {"name": "Tech", "value": 9}
+      ],
+      "socialLinks": [
+        {"platform": "github", "url": "https://github.com/zaranexus"},
+        {"platform": "twitter", "url": "https://twitter.com/cyberzara"},
+        {"platform": "discord", "url": "https://discord.gg/netrunners"}
+      ],
+      "badges": [
+        {"category": "Skill", "icon": "gear", "description": "Code Master", "quantity": 4},
+        {"category": "Achievement", "icon": "lightbulb", "description": "System Breaker", "quantity": 2},
+        {"category": "Recognition", "icon": "star", "description": "Elite Hacker", "quantity": 1}
+      ],
+      "attributes": [
+        {"name": "Level", "value": "14"},
+        {"name": "Network", "value": "CyberNet Collective"},
+        {"name": "Specialization", "value": "Neural Interface"},
+        {"name": "Clearance", "value": "Level 7"}
+      ]
+    },
+    "minimal-glow": {
+      "cardData": {
+        "name": "Luna Starweaver",
+        "class": "Mystic Sage",
+        "rarity": "Legendary",
+        "quote": "The cosmos whispers its secrets to those who listen.",
+        "biography": "An ethereal being who channels the power of stars and moonlight to weave magic beyond mortal comprehension."
+      },
+      "stats": [
+        {"name": "Wisdom", "value": 10},
+        {"name": "Magic", "value": 9},
+        {"name": "Intuition", "value": 8},
+        {"name": "Harmony", "value": 9}
+      ],
+      "socialLinks": [
+        {"platform": "instagram", "url": "https://instagram.com/lunastarweaver"},
+        {"platform": "tiktok", "url": "https://tiktok.com/@mysticmoon"}
+      ],
+      "badges": [
+        {"category": "Mastery", "icon": "star", "description": "Celestial Adept", "quantity": 3},
+        {"category": "Wisdom", "icon": "book", "description": "Ancient Scholar", "quantity": 2},
+        {"category": "Power", "icon": "bolt", "description": "Stormcaller", "quantity": 1}
+      ],
+      "attributes": [
+        {"name": "Level", "value": "20"},
+        {"name": "Circle", "value": "Order of the Cosmic Veil"},
+        {"name": "Alignment", "value": "True Neutral"},
+        {"name": "Patron", "value": "The Weaving Stars"}
+      ]
+    },
+    "full-bleed": {
+      "cardData": {
+        "name": "Rex Ironforge",
+        "class": "Battle Warrior",
+        "rarity": "Epic",
+        "quote": "Victory is forged in the heat of battle!",
+        "biography": "A fearless warrior whose strength is matched only by his unwavering determination to protect his allies."
+      },
+      "stats": [
+        {"name": "Strength", "value": 10},
+        {"name": "Endurance", "value": 9},
+        {"name": "Combat", "value": 9},
+        {"name": "Leadership", "value": 8}
+      ],
+      "socialLinks": [
+        {"platform": "facebook", "url": "https://facebook.com/ironforge.warriors"},
+        {"platform": "discord", "url": "https://discord.gg/battleforge"}
+      ],
+      "badges": [
+        {"category": "Victory", "icon": "trophy", "description": "Arena Champion", "quantity": 5},
+        {"category": "Courage", "icon": "heart", "description": "Fearless Leader", "quantity": 3},
+        {"category": "Strength", "icon": "medal", "description": "Iron Will", "quantity": 4}
+      ],
+      "attributes": [
+        {"name": "Level", "value": "16"},
+        {"name": "Clan", "value": "Ironforge Warriors"},
+        {"name": "Alignment", "value": "Chaotic Good"},
+        {"name": "Weapon", "value": "Thunderstrike Axe"}
+      ]
+    },
+    "framed-ornate": {
+      "cardData": {
+        "name": "Lady Evangeline",
+        "class": "Royal Diplomat",
+        "rarity": "Legendary",
+        "quote": "Elegance and wisdom shall always triumph over brute force.",
+        "biography": "A noble aristocrat whose diplomatic prowess and refined intellect have shaped the fate of kingdoms."
+      },
+      "stats": [
+        {"name": "Charisma", "value": 10},
+        {"name": "Intelligence", "value": 9},
+        {"name": "Diplomacy", "value": 9},
+        {"name": "Influence", "value": 8}
+      ],
+      "socialLinks": [
+        {"platform": "linkedin", "url": "https://linkedin.com/in/lady-evangeline"},
+        {"platform": "twitter", "url": "https://twitter.com/royalcourt"}
+      ],
+      "badges": [
+        {"category": "Honor", "icon": "certificate", "description": "Royal Advisor", "quantity": 1},
+        {"category": "Achievement", "icon": "star", "description": "Peace Negotiator", "quantity": 3},
+        {"category": "Nobility", "icon": "crown", "description": "Court Excellence", "quantity": 2}
+      ],
+      "attributes": [
+        {"name": "Level", "value": "17"},
+        {"name": "Title", "value": "Duchess of Silverwind"},
+        {"name": "Alignment", "value": "Lawful Neutral"},
+        {"name": "House", "value": "House of Evangeline"}
+      ]
+    }
+  }
 }
