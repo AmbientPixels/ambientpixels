@@ -210,38 +210,55 @@
             </div>
           </div>
           
-          <!-- TIER 4: COLOR PALETTE -->
-          <div class="modular-tier" data-tier="4">
-            <h4 class="tier-title">Color Palette</h4>
-            <div class="palette-section">
-              <div class="palette-families">
-                <div class="palette-family" data-palette="neon">
-                  <div class="palette-preview neon-preview"></div>
-                  <span class="palette-label">Neon</span>
-                </div>
-                <div class="palette-family" data-palette="earth">
-                  <div class="palette-preview earth-preview"></div>
-                  <span class="palette-label">Earth</span>
-                </div>
-                <div class="palette-family" data-palette="ocean">
-                  <div class="palette-preview ocean-preview"></div>
-                  <span class="palette-label">Ocean</span>
-                </div>
-                <div class="palette-family" data-palette="sunset">
-                  <div class="palette-preview sunset-preview"></div>
-                  <span class="palette-label">Sunset</span>
-                </div>
-                <div class="palette-family" data-palette="monochrome">
-                  <div class="palette-preview monochrome-preview"></div>
-                  <span class="palette-label">Mono</span>
-                </div>
+          <!-- TIER 4: COLOR PALETTE (Collapsible) -->
+          <div class="modular-tier collapsible-tier" data-tier="4">
+            <div class="tier-header" data-tier-toggle="4">
+              <h4 class="tier-title">Color Palette</h4>
+              <div class="tier-current-selection">
+                <div class="current-palette-preview ocean-preview"></div>
+                <span class="current-selection-text">Ocean Dark</span>
               </div>
-              <div class="variant-toggles">
-                <div class="variant-toggle" data-variant="light">
-                  <span class="variant-label">Light</span>
+              <div class="tier-expand-icon">▼</div>
+            </div>
+            
+            <div class="tier-content" data-tier-content="4">
+              <div class="palette-section">
+                <div class="palette-level">
+                  <h5 class="level-title">Choose Palette Family</h5>
+                  <div class="palette-families">
+                    <div class="palette-family" data-palette="neon">
+                      <div class="palette-preview neon-preview"></div>
+                      <span class="palette-label">Neon</span>
+                    </div>
+                    <div class="palette-family" data-palette="earth">
+                      <div class="palette-preview earth-preview"></div>
+                      <span class="palette-label">Earth</span>
+                    </div>
+                    <div class="palette-family selected" data-palette="ocean">
+                      <div class="palette-preview ocean-preview"></div>
+                      <span class="palette-label">Ocean</span>
+                    </div>
+                    <div class="palette-family" data-palette="sunset">
+                      <div class="palette-preview sunset-preview"></div>
+                      <span class="palette-label">Sunset</span>
+                    </div>
+                    <div class="palette-family" data-palette="monochrome">
+                      <div class="palette-preview monochrome-preview"></div>
+                      <span class="palette-label">Mono</span>
+                    </div>
+                  </div>
                 </div>
-                <div class="variant-toggle" data-variant="dark">
-                  <span class="variant-label">Dark</span>
+                
+                <div class="palette-level">
+                  <h5 class="level-title">Choose Variant</h5>
+                  <div class="variant-toggles">
+                    <div class="variant-toggle" data-variant="light">
+                      <span class="variant-label">Light</span>
+                    </div>
+                    <div class="variant-toggle selected" data-variant="dark">
+                      <span class="variant-label">Dark</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

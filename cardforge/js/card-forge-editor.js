@@ -567,11 +567,17 @@
     effectOptions.forEach(option => {
       option.classList.toggle('selected', option.dataset.value === ModularState.imageEffect);
     });
+    
+    // Update collapsible tier current selection displays
+    updateCollapsibleTierDisplays();
   }
 
   // ===== MODULAR SYSTEM INITIALIZATION =====
   function initModularSystem() {
     console.log('🎯 Initializing modular tier systems...');
+    
+    // Initialize collapsible tier system
+    initCollapsibleTiers();
     
     // Initialize all modular tiers
     initTier1Layout();
@@ -582,6 +588,88 @@
     initTier6Effects();
     
     console.log('✅ Core modular tiers initialized');
+  }
+
+  // ===== COLLAPSIBLE TIER SYSTEM =====
+  function initCollapsibleTiers() {
+    console.log('🎯 Initializing collapsible tier system...');
+    
+    // Get all tier headers (clickable collapse/expand triggers)
+    const tierHeaders = document.querySelectorAll('.tier-header[data-tier-toggle]');
+    
+    tierHeaders.forEach(header => {
+      header.addEventListener('click', function() {
+        const tierId = this.getAttribute('data-tier-toggle');
+        const tier = this.closest('.collapsible-tier');
+        const content = tier.querySelector(`[data-tier-content="${tierId}"]`);
+        
+        // Toggle expanded state
+        const isExpanded = tier.classList.contains('expanded');
+        
+        if (isExpanded) {
+          // Collapse
+          tier.classList.remove('expanded');
+          console.log(`📁 Collapsed tier ${tierId}`);
+        } else {
+          // Expand (and optionally collapse others for accordion effect)
+          // First collapse all other tiers
+          document.querySelectorAll('.collapsible-tier.expanded').forEach(otherTier => {
+            if (otherTier !== tier) {
+              otherTier.classList.remove('expanded');
+            }
+          });
+          
+          // Then expand this tier
+          tier.classList.add('expanded');
+          console.log(`📂 Expanded tier ${tierId}`);
+        }
+      });
+    });
+    
+    // Initialize with all tiers collapsed by default
+    document.querySelectorAll('.collapsible-tier').forEach(tier => {
+      tier.classList.remove('expanded');
+    });
+    
+    console.log('✅ Collapsible tier system initialized');
+  }
+
+  // ===== TIER SELECTION DISPLAY UPDATES =====
+  function updateTierCurrentSelection(tierId, displayText, previewClass = null) {
+    const tier = document.querySelector(`[data-tier="${tierId}"]`);
+    if (!tier) return;
+    
+    const selectionText = tier.querySelector('.current-selection-text');
+    const previewElement = tier.querySelector('.current-palette-preview');
+    
+    if (selectionText) {
+      selectionText.textContent = displayText;
+    }
+    
+    if (previewElement && previewClass) {
+      // Remove all existing preview classes
+      previewElement.className = previewElement.className.replace(/\w+-preview/g, '').trim();
+      previewElement.classList.add('current-palette-preview', previewClass);
+    }
+    
+    console.log(`🔄 Updated tier ${tierId} selection display: ${displayText}`);
+  }
+
+  function updateCollapsibleTierDisplays() {
+    // Update Tier 4: Color Palette display
+    const selectedPalette = document.querySelector('[data-tier="4"] .palette-family.selected');
+    if (selectedPalette) {
+      const paletteLabel = selectedPalette.querySelector('.palette-label').textContent;
+      const variantLabel = ModularState.paletteVariant.charAt(0).toUpperCase() + ModularState.paletteVariant.slice(1);
+      const previewClass = `${ModularState.palette}-preview`;
+      updateTierCurrentSelection('4', `${paletteLabel} ${variantLabel}`, previewClass);
+    }
+    
+    // TODO: Add other collapsible tier displays as they are implemented
+    // updateTierCurrentSelection('1', `Layout: ${ModularState.layout}`);
+    // updateTierCurrentSelection('5', `Container: ${ModularState.imageContainer}`);
+    
+    console.log('🔄 Updated all collapsible tier displays');
   }
 
   // ===== TIER 1: BASE LAYOUT =====
@@ -680,6 +768,12 @@
         // Update modular state
         ModularState.palette = option.dataset.palette;
         
+        // Update current selection display
+        const paletteLabel = option.querySelector('.palette-label').textContent;
+        const variantLabel = ModularState.paletteVariant.charAt(0).toUpperCase() + ModularState.paletteVariant.slice(1);
+        const previewClass = `${ModularState.palette}-preview`;
+        updateTierCurrentSelection('4', `${paletteLabel} ${variantLabel}`, previewClass);
+        
         // Update preview
         updatePreview();
         
@@ -697,6 +791,15 @@
         // Update modular state
         ModularState.paletteVariant = toggle.dataset.variant;
         
+        // Update current selection display
+        const selectedPalette = document.querySelector('[data-tier="4"] .palette-family.selected');
+        if (selectedPalette) {
+          const paletteLabel = selectedPalette.querySelector('.palette-label').textContent;
+          const variantLabel = ModularState.paletteVariant.charAt(0).toUpperCase() + ModularState.paletteVariant.slice(1);
+          const previewClass = `${ModularState.palette}-preview`;
+          updateTierCurrentSelection('4', `${paletteLabel} ${variantLabel}`, previewClass);
+        }
+        
         // Update preview
         updatePreview();
         
@@ -710,6 +813,14 @@
     
     if (defaultPalette) defaultPalette.classList.add('selected');
     if (defaultVariant) defaultVariant.classList.add('selected');
+    
+    // Initialize current selection display with default values
+    if (defaultPalette) {
+      const paletteLabel = defaultPalette.querySelector('.palette-label').textContent;
+      const variantLabel = ModularState.paletteVariant.charAt(0).toUpperCase() + ModularState.paletteVariant.slice(1);
+      const previewClass = `${ModularState.palette}-preview`;
+      updateTierCurrentSelection('4', `${paletteLabel} ${variantLabel}`, previewClass);
+    }
   }
 
   // ===== PREVIEW UPDATE SYSTEM =====
