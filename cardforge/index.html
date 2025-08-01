@@ -135,6 +135,38 @@
             </div>
           </div>
           
+          <!-- PRESERVED: Image Gallery and Custom URL -->
+          <div class="artwork-section">
+            <h4>Artwork</h4>
+            
+            <!-- Hidden field to store selected image URL -->
+            <input type="hidden" id="card-avatar" value="" />
+            
+            <div class="image-chooser-section">
+              <label>Choose from Gallery:</label>
+              <div class="image-chooser-controls">
+                <div class="image-pagination">
+                  <button type="button" id="prev-page">« Prev</button>
+                  <span id="page-info">Page 1</span>
+                  <button type="button" id="next-page">Next »</button>
+                </div>
+              </div>
+              <div id="inline-image-grid" class="inline-image-grid">
+                Loading images...
+              </div>
+            </div>
+            
+            <div class="custom-url-section">
+              <label for="custom-url-input">Or enter custom URL:</label>
+              <div class="url-input-group">
+                <input type="url" id="custom-url-input" placeholder="https://..." />
+                <button type="button" id="use-custom-url" class="use-url-btn">Use URL</button>
+              </div>
+            </div>
+            
+            <p class="coming-soon">Upload your own image with filters—coming soon!</p>
+          </div>
+          
           <!-- TIER 1: BASE LAYOUT -->
           <div class="modular-tier" data-tier="1">
             <h4 class="tier-title">Layout Style</h4>
@@ -388,38 +420,6 @@
             </div>
           </div>
           
-        </div>
-        
-        <!-- PRESERVED: Image Gallery and Custom URL -->
-        <div class="artwork-section">
-          <h4>Artwork</h4>
-          
-          <!-- Hidden field to store selected image URL -->
-          <input type="hidden" id="card-avatar" value="" />
-          
-          <div class="image-chooser-section">
-            <label>Choose from Gallery:</label>
-            <div class="image-chooser-controls">
-              <div class="image-pagination">
-                <button type="button" id="prev-page">« Prev</button>
-                <span id="page-info">Page 1</span>
-                <button type="button" id="next-page">Next »</button>
-              </div>
-            </div>
-            <div id="inline-image-grid" class="inline-image-grid">
-              Loading images...
-            </div>
-          </div>
-          
-          <div class="custom-url-section">
-            <label for="custom-url-input">Or enter custom URL:</label>
-            <div class="url-input-group">
-              <input type="url" id="custom-url-input" placeholder="https://..." />
-              <button type="button" id="use-custom-url" class="use-url-btn">Use URL</button>
-            </div>
-          </div>
-          
-          <p class="coming-soon">Upload your own image with filters—coming soon!</p>
         </div>
       </div>
       <div class="cf-section" data-step-section="2">
