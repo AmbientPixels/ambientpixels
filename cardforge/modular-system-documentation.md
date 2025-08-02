@@ -2,707 +2,225 @@
 
 ## Overview
 
-CardForge V2 implements a sophisticated 6-tier hierarchical modular UI system that provides users with granular control over card design through progressive disclosure. This system replaces the previous flat picker interface with a structured, hierarchical approach that reduces cognitive load while maximizing customization options.
+CardForge V2 implements a sophisticated **6-tier hierarchical modular UI system** that provides users with granular control over card design through progressive disclosure. This system replaces the previous flat picker interface with a structured, hierarchical approach that reduces cognitive load while maximizing customization options.
 
-**🎉 IMPLEMENTATION COMPLETE**: All 6 tiers have been successfully converted to the collapsible progressive disclosure interface, achieving a ~85% reduction in visual clutter while maintaining full functionality.
+## Architecture
 
-## Implementation Status
+The modular system is built on a matrix architecture where **Layout + Color Palette + Image Style** work independently and harmoniously. This allows any combination of these elements to work together without conflicts or overrides.
 
-### ✅ ALL COLLAPSIBLE TIERS COMPLETE
+### Key Benefits of the Matrix System
 
-- **Tier 1: Layout Style** - Single-level accordion with dynamic preview icons
-- **Tier 2: Content Alignment** - **3-level hierarchy** (Alignment Type → Weight Distribution → Style Variants) - **MOST COMPLEX TIER**
-- **Tier 3: Visual Weight** - Single-level accordion with weight distribution preview icons
-- **Tier 4: Color Palette** - 2-level hierarchy (Families → Light/Dark variants) with color swatches
-- **Tier 5: Image Container** - 2-level hierarchy (Container Type → Type-specific variants) with shape previews
-- **Tier 6: Image Effects** - 2-level hierarchy (Effect Type → Effect variants) with visual effect previews
+- **Modular Design:** Each layout maintains its structure
+- **Variant Support:** Large/Small variants work across all layouts
+- **No Overrides:** Eliminated redundant CSS rules
+- **Maintainable:** Easy to add new layouts or image styles
+- **Consistent:** All combinations work predictably
 
-## 🏆 IMPLEMENTATION COMPLETE
+## Tier Structure
 
-### Major Achievement: Tier 2 Content Alignment
+### Tier 1: Layout Style
+- **Purpose:** Controls the fundamental card structure
+- **Options:** Hero, Split, Minimal, Left Aligned, Right Aligned, Grid
+- **Implementation:** Base CSS classes (e.g., `layout-hero`, `layout-split`)
+- **State Property:** `ModularState.layout`
 
-The most complex tier in the entire system has been successfully implemented with a sophisticated **3-level hierarchy**:
+### Tier 2: Content Alignment (3-level hierarchy)
+- **Purpose:** Controls content positioning and spacing
+- **Level 1:** Alignment Type (Left, Center, Right)
+  - **State Property:** `ModularState.alignmentType`
+- **Level 2:** Weight Distribution (Top Heavy, Balanced, Bottom Heavy)
+  - **State Property:** `ModularState.alignmentWeight`
+- **Level 3:** Style Variants (Minimal, Padded, Compact)
+  - **State Property:** `ModularState.alignmentStyle`
+- **Legacy Support:** `ModularState.alignment` (maintained for backward compatibility)
 
-- **Level 1: Alignment Type** (Left, Center, Right)
-- **Level 2: Weight Distribution** (Top Heavy, Balanced, Bottom Heavy)
-- **Level 3: Style Variants** (Minimal, Padded, Compact)
+### Tier 3: Visual Weight
+- **Purpose:** Controls content distribution and emphasis
+- **Options:** Top Heavy, Balanced, Bottom Heavy
+- **Implementation:** CSS classes (e.g., `weight-top-heavy`, `weight-balanced`)
+- **State Property:** `ModularState.weight`
 
-This creates **3 × 3 × 3 = 27 total combinations** with dynamic progressive disclosure, where only relevant options are shown based on previous selections.
+### Tier 4: Color Palette
+- **Purpose:** Controls color scheme and mood
+- **Palette Families:** Neon, Earth, Ocean, Sunset, Monochrome
+  - **State Property:** `ModularState.palette`
+- **Variants:** Light, Dark (per family)
+  - **State Property:** `ModularState.paletteVariant`
+- **Implementation:** CSS classes (e.g., `theme-neofantasy`, `variant-light`)
 
-### System Impact
+### Tier 5: Image Container
+- **Purpose:** Controls avatar/image presentation
+- **Container Types:** Masked, Framed, Raw
+  - **State Property:** `ModularState.imageContainer`
+- **Type-specific variants:** Circle, Hex, Square, etc.
+  - **State Property:** `ModularState.imageContainerVariant`
+- **Implementation:** CSS classes (e.g., `image-style-masked`, `image-masked-circle`)
 
-- **~85% reduction in visual clutter** compared to flat picker interface
-- **Professional progressive disclosure** reduces cognitive load
-- **Complete modular architecture** ready for future expansion
-- **Seamless preset integration** with all 6 tiers
-- **Responsive design** optimized for all screen sizes
+### Tier 6: Image Effects
+- **Purpose:** Applies visual treatments to images
+- **Effect Types:** Filters, Borders, Overlays
+  - **State Property:** `ModularState.imageEffect`
+- **Effect-specific variants:** Glow, Vintage, Pixel, etc.
+  - **State Property:** `ModularState.imageEffectVariant`
+- **Implementation:** CSS classes (e.g., `image-effect-glow`, `image-glow-subtle`)
 
-### Technical Excellence
+## HTML/CSS/JS Patterns
 
-- **Dynamic style group creation** for all 27 alignment combinations
-- **Real-time current selection displays** in collapsed headers
-- **Comprehensive CSS classes** for modular styling
-- **Enhanced ModularState** with 3-level alignment properties
-- **Smooth accordion behavior** with proper overflow handling
-
-### 🎯 Key Features Implemented
-
-- **Accordion Behavior**: Only one tier expands at a time for focused interaction
-- **Dynamic Current Selection Display**: Collapsed headers show current selection with visual previews
-- **Real-time Updates**: Selection changes immediately reflect in collapsed headers
-- **Preset Integration**: Quick Start Presets update all collapsible tier displays correctly
-- **Smooth Animations**: Professional expand/collapse transitions with CSS transforms
-
-## System Architecture
-
-### Core Principles
-
-1. **Progressive Disclosure**: Complex options are revealed progressively as users make higher-level choices
-2. **Hierarchical Organization**: Options are organized in logical parent-child relationships
-3. **Visual Consistency**: All tiers use consistent visual patterns and interaction models
-4. **State Management**: Global state variables track selections across all tiers
-5. **Live Preview**: Changes are reflected immediately in the card preview
-
-### Modular Tier Structure
-
-The system consists of 6 primary tiers, each with specific responsibilities:
-
-```
-Tier 1: Base Layout (Foundation)
-├── Hero, Split, Minimal, Overlay, Stack, Frame
-
-Tier 2: Content Alignment (3-Level Hierarchy)
-├── Level 1: Alignment Type
-│   ├── Left, Center, Right
-├── Level 2: Weight Distribution (per alignment)
-│   ├── Top Heavy, Balanced, Bottom Heavy
-└── Level 3: Style Variants (per weight)
-    ├── Minimal, Padded, Compact
-
-Tier 4: Color Palettes (Enhanced)
-├── Palette Families: Neon, Earth, Ocean, Sunset, Monochrome
-└── Variants: Light, Dark (per family)
-
-Tier 5: Image Container (2-Level Hierarchy)
-├── Level 1: Container Type
-│   ├── Masked, Framed, Raw
-└── Level 2: Container Variants (per type)
-    ├── Masked: Circle, Hex, Blob
-    ├── Framed: Border, Shadow, Glow
-    └── Raw: Contain, Cover, Fill
-
-Tier 6: Image Effects (2-Level Hierarchy)
-├── Level 1: Effect Type
-│   ├── Filters, Borders, Overlays
-└── Level 2: Effect Variants (per type)
-    ├── Filters: Sepia, Grayscale, Blur, Brightness
-    ├── Borders: Solid, Dashed, Glow, Neon
-    └── Overlays: Gradient, Pattern, Texture
-
-Tier 7: Image Dimensions (2-Level Hierarchy)
-├── Level 1: Coverage Type
-│   ├── Contain, Cover, Fill
-└── Level 2: Aspect Ratio Variants (per coverage)
-    ├── Contain: Square, Portrait, Landscape
-    ├── Cover: Wide, Standard, Tall
-    └── Fill: Stretch, Crop, Fit
-```
-
-## Technical Implementation
-
-### Collapsible Progressive Disclosure Pattern
-
-The implemented collapsible system follows a consistent pattern across all tiers:
-
-#### HTML Structure Pattern
-
+### HTML Structure
 ```html
-<!-- Collapsible Tier Container -->
-<div class="collapsible-tier" data-tier="{tier-number}">
-  <!-- Tier Header with Current Selection Display -->
-  <div class="tier-header" data-tier-toggle="{tier-number}">
-    <div class="tier-header-content">
-      <div class="tier-title-section">
-        <h3 class="tier-title">{Tier Name}</h3>
-        <div class="current-selection">
-          <div class="current-{type}-preview {preview-class}"></div>
-          <span class="current-selection-text">{Current Selection}</span>
-        </div>
-      </div>
-      <div class="tier-expand-icon">▼</div>
-    </div>
-  </div>
-  
-  <!-- Collapsible Content -->
-  <div class="tier-content" data-tier-content="{tier-number}">
-    <!-- Tier-specific options and hierarchies -->
-  </div>
-</div>
-```
-
-#### CSS Implementation Pattern
-
-```css
-/* Base Collapsible Tier Styles */
-.collapsible-tier {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  background: rgba(255, 255, 255, 0.02);
-  transition: all 0.3s ease;
-}
-
-.tier-header {
-  padding: 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.tier-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-}
-
-.collapsible-tier.expanded .tier-content {
-  max-height: 1000px;
-  padding: 0 1rem 1rem 1rem;
-}
-
-/* Preview Icon Patterns */
-.current-{type}-preview {
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  position: relative;
-}
-```
-
-#### JavaScript Implementation Pattern
-
-```javascript
-// Collapsible Tier System Initialization
-function initCollapsibleTiers() {
-  const tierHeaders = document.querySelectorAll('.tier-header[data-tier-toggle]');
-  
-  tierHeaders.forEach(header => {
-    header.addEventListener('click', function() {
-      const tierId = this.getAttribute('data-tier-toggle');
-      const tier = this.closest('.collapsible-tier');
-      const isExpanded = tier.classList.contains('expanded');
-      
-      if (isExpanded) {
-        tier.classList.remove('expanded');
-      } else {
-        // Accordion behavior - collapse others
-        document.querySelectorAll('.collapsible-tier.expanded').forEach(otherTier => {
-          if (otherTier !== tier) {
-            otherTier.classList.remove('expanded');
-          }
-        });
-        tier.classList.add('expanded');
-      }
-    });
-  });
-}
-
-// Dynamic Current Selection Updates
-function updateTierCurrentSelection(tierId, displayText, previewClass = null) {
-  const tier = document.querySelector(`[data-tier="${tierId}"]`);
-  if (!tier) return;
-  
-  const selectionText = tier.querySelector('.current-selection-text');
-  const previewElement = tier.querySelector('.current-{type}-preview');
-  
-  if (selectionText) {
-    selectionText.textContent = displayText;
-  }
-  
-  if (previewElement && previewClass) {
-    previewElement.className = previewElement.className.replace(/\w+-preview/g, '').trim();
-    previewElement.classList.add('current-{type}-preview', previewClass);
-  }
-}
-```
-
-### Implemented Tier Specifications
-
-#### Tier 1: Layout Style (Single Level)
-- **Structure**: Direct option selection
-- **Preview**: Layout pattern icons (hero-layout-preview, split-layout-preview, etc.)
-- **Hierarchy**: Flat - 6 layout options
-- **Integration**: Updates ModularState.layout
-
-#### Tier 4: Color Palette (2-Level Hierarchy)
-- **Structure**: Palette Families → Light/Dark Variants
-- **Preview**: Color swatch previews (ocean-preview, neon-preview, etc.)
-- **Hierarchy**: 5 families × 2 variants = 10 total combinations
-- **Integration**: Updates ModularState.palette and ModularState.paletteVariant
-
-#### Tier 5: Image Container (2-Level Hierarchy)
-- **Structure**: Container Type → Type-specific Variants
-- **Preview**: Shape icons (masked-container-preview, framed-container-preview, etc.)
-- **Hierarchy**: 3 types × 3 variants each = 9 total combinations
-- **Integration**: Updates ModularState.imageContainer and ModularState.imageContainerVariant
-
-### State Management Integration
-
-```javascript
-// Global state synchronization
-function updateCollapsibleTierDisplays() {
-  // Update each implemented tier's display
-  updateLayoutTierDisplay();
-  updatePaletteTierDisplay();
-  updateContainerTierDisplay();
-}
-
-// Called whenever ModularState changes
-function updateUIFromState() {
-  updatePreview();
-  updateCollapsibleTierDisplays(); // Keep collapsed headers in sync
-}
-```
-
-## Legacy Implementation Details
-
-### Original HTML Structure (Pre-Collapsible)
-
-Each tier was originally implemented with semantic HTML using data attributes for JavaScript integration:
-
-```html
-<!-- Original Tier 1: Base Layout -->
-<div class="tier-1-container">
-  <h3>Base Layout</h3>
-  <div class="tier-1-options">
-    <div class="tier-1-option" data-tier1="hero">
-      <div class="option-thumbnail hero-thumbnail"></div>
-      <span class="option-label">Hero</span>
-    </div>
-    <!-- Additional layout options... -->
-  </div>
-</div>
-
-<!-- Tier 2: Content Alignment (Progressive Disclosure) -->
-<div class="tier-2-container">
-  <h3>Content Alignment</h3>
-  
-  <!-- Level 1: Alignment Type -->
-  <div class="alignment-options">
-    <div class="alignment-option" data-alignment="left">
-      <div class="option-thumbnail align-left-thumbnail"></div>
-      <span class="option-label">Left</span>
-    </div>
-    <!-- Additional alignment options... -->
-  </div>
-  
-  <!-- Level 2: Weight Distribution (Hidden by default) -->
-  <div class="weight-container" data-weight-options="left" style="display: none;">
-    <h4>Weight Distribution</h4>
-    <div class="weight-options">
-      <div class="weight-option" data-weight="top-heavy">
-        <div class="option-thumbnail weight-top-thumbnail"></div>
-        <span class="option-label">Top Heavy</span>
-      </div>
-      <!-- Additional weight options... -->
-    </div>
-    
-    <!-- Level 3: Style Variants (Hidden by default) -->
-    <div class="variant-container" data-style-variants="top-heavy" style="display: none;">
-      <h5>Style Variants</h5>
-      <div class="variant-options">
-        <div class="variant-option" data-variant="minimal">
-          <div class="option-thumbnail variant-minimal-thumbnail"></div>
-          <span class="option-label">Minimal</span>
-        </div>
-        <!-- Additional variant options... -->
-      </div>
-    </div>
-  </div>
+<div class="card-preview-canvas card-front 
+            theme-neofantasy variant-light 
+            layout-hero 
+            image-style-hero image-hero-large">
+  <!-- Card content -->
 </div>
 ```
 
 ### CSS Implementation
-
-The modular system uses a comprehensive CSS architecture:
-
-#### Base Tier Styling
 ```css
-/* Tier Container Base Styles */
-.tier-1-container,
-.tier-2-container,
-.tier-5-container,
-.tier-6-container,
-.tier-7-container {
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background: var(--aura-bg-secondary);
-  border-radius: 12px;
-  border: 1px solid var(--mood-border-color);
-}
+/* Base layout styles */
+.layout-hero { /* Base hero layout styles */ }
+.layout-split { /* Base split layout styles */ }
 
-/* Option Grid Layouts */
-.tier-1-options,
-.alignment-options,
-.weight-options,
-.variant-options,
-.container-options,
-.container-variant-options,
-.effect-options,
-.effect-variant-options,
-.coverage-options,
-.dimension-variant-options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-/* Option Base Styling */
-.tier-1-option,
-.alignment-option,
-.weight-option,
-.variant-option,
-.container-option,
-.container-variant-option,
-.effect-option,
-.effect-variant-option,
-.coverage-option,
-.dimension-variant-option {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem;
-  background: var(--aura-bg-primary);
-  border: 2px solid var(--mood-border-color);
+/* Image style implementation */
+.image-style-hero .card-avatar {
   border-radius: 8px;
-  cursor: pointer;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  object-fit: cover;
+  object-position: center;
   transition: all 0.3s ease;
-  text-align: center;
 }
 
-/* Hover and Selected States */
-.tier-1-option:hover,
-.alignment-option:hover,
-.weight-option:hover,
-.variant-option:hover,
-.container-option:hover,
-.container-variant-option:hover,
-.effect-option:hover,
-.effect-variant-option:hover,
-.coverage-option:hover,
-.dimension-variant-option:hover {
-  border-color: var(--mood-accent-color);
-  background: var(--aura-bg-hover);
-  transform: translateY(-2px);
+/* Variant support */
+.card-preview-canvas.layout-split.image-hero-large .card-avatar {
+  aspect-ratio: 16 / 9 !important; /* Taller, more cinematic */
 }
 
-.tier-1-option.selected,
-.alignment-option.selected,
-.weight-option.selected,
-.variant-option.selected,
-.container-option.selected,
-.container-variant-option.selected,
-.effect-option.selected,
-.effect-variant-option.selected,
-.coverage-option.selected,
-.dimension-variant-option.selected {
-  border-color: var(--mood-primary-color);
-  background: var(--aura-bg-selected);
-  box-shadow: 0 4px 12px rgba(var(--mood-primary-rgb), 0.3);
+.card-preview-canvas.layout-split.image-hero-small .card-avatar {
+  aspect-ratio: 3 / 1 !important; /* Flatter, more compact */
 }
 ```
 
-#### Visual Thumbnails
-```css
-/* Thumbnail Base Styles */
-.option-thumbnail {
-  width: 60px;
-  height: 40px;
-  border-radius: 4px;
-  margin-bottom: 0.5rem;
-  border: 1px solid var(--mood-border-color);
-}
-
-/* Tier 1: Layout Thumbnails */
-.hero-thumbnail {
-  background: linear-gradient(to bottom, var(--mood-primary-color) 30%, var(--aura-bg-secondary) 30%);
-}
-
-.split-thumbnail {
-  background: linear-gradient(to right, var(--mood-primary-color) 50%, var(--aura-bg-secondary) 50%);
-}
-
-.minimal-thumbnail {
-  background: var(--aura-bg-secondary);
-  border: 2px solid var(--mood-primary-color);
-}
-
-/* Tier 2: Alignment Thumbnails */
-.align-left-thumbnail {
-  background: linear-gradient(to right, var(--mood-primary-color) 40%, transparent 40%);
-}
-
-.align-center-thumbnail {
-  background: linear-gradient(to right, transparent 30%, var(--mood-primary-color) 30%, var(--mood-primary-color) 70%, transparent 70%);
-}
-
-.align-right-thumbnail {
-  background: linear-gradient(to left, var(--mood-primary-color) 40%, transparent 40%);
-}
-
-/* Weight Distribution Thumbnails */
-.weight-top-thumbnail {
-  background: linear-gradient(to bottom, var(--mood-primary-color) 60%, var(--aura-bg-secondary) 60%);
-}
-
-.weight-balanced-thumbnail {
-  background: linear-gradient(to bottom, var(--mood-primary-color) 33%, var(--aura-bg-secondary) 33%, var(--aura-bg-secondary) 66%, var(--mood-primary-color) 66%);
-}
-
-.weight-bottom-thumbnail {
-  background: linear-gradient(to bottom, var(--aura-bg-secondary) 40%, var(--mood-primary-color) 40%);
-}
-```
-
-### JavaScript Implementation
-
-#### Global State Management
+### JavaScript State Management
 ```javascript
-// Global state variables for all modular tiers
-let currentLayout = 'hero';
-let currentAlignment = 'center';
-let currentWeight = 'balanced';
-let currentVariant = 'minimal';
-let currentPalette = 'neon';
-let currentPaletteVariant = 'light';
-let currentImageContainer = 'masked';
-let currentContainerVariant = 'circle';
-let currentImageEffect = 'none';
-let currentEffectVariant = 'none';
-let currentImageDimensions = 'contain';
-let currentDimensionsVariant = 'square';
-```
-
-#### Progressive Disclosure Logic
-```javascript
-// Example: Tier 2 Content Alignment Progressive Disclosure
-function initTier2ContentAlignment() {
-  // Level 1: Alignment Type
-  const alignmentOptions = document.querySelectorAll('[data-alignment]');
-  alignmentOptions.forEach(option => {
-    option.addEventListener('click', function() {
-      // Update selection state
-      alignmentOptions.forEach(opt => opt.classList.remove('selected'));
-      this.classList.add('selected');
-      
-      // Update global state
-      currentAlignment = this.dataset.alignment;
-      
-      // Progressive disclosure: Show weight options for selected alignment
-      const alignmentValue = this.dataset.alignment;
-      const weightContainer = document.querySelector(`[data-weight-options="${alignmentValue}"]`);
-      
-      // Hide all weight containers
-      document.querySelectorAll('[data-weight-options]').forEach(container => {
-        container.style.display = 'none';
-      });
-      
-      // Show the selected alignment's weight container
-      if (weightContainer) {
-        weightContainer.style.display = 'block';
-      }
-      
-      // Update live preview
-      updatePreview();
-    });
-  });
-  
-  // Similar logic for Level 2 (Weight) and Level 3 (Variants)...
-}
-```
-
-#### Live Preview Integration
-```javascript
-function updatePreview() {
-  const cardPreview = document.querySelector('.card-preview-canvas');
-  if (!cardPreview) return;
-  
-  // Apply modular tier classes
-  cardPreview.className = 'card-preview-canvas';
-  
+const ModularState = {
   // Tier 1: Base Layout
-  cardPreview.classList.add(`layout-${currentLayout}`);
+  layout: 'hero',
   
-  // Tier 2: Content Alignment
-  cardPreview.classList.add(`align-${currentAlignment}`);
-  cardPreview.classList.add(`weight-${currentWeight}`);
-  cardPreview.classList.add(`variant-${currentVariant}`);
+  // Tier 2: Content Alignment (3-level hierarchy)
+  alignment: 'center', // Legacy compatibility
+  alignmentType: 'center',
+  alignmentWeight: 'balanced',
+  alignmentStyle: 'padded',
+  
+  // Tier 3: Visual Weight
+  weight: 'balanced',
   
   // Tier 4: Color Palette
-  cardPreview.classList.add(`palette-${currentPalette}`);
-  cardPreview.classList.add(`variant-${currentPaletteVariant}`);
+  palette: 'neon',
+  paletteVariant: 'light',
   
   // Tier 5: Image Container
-  cardPreview.classList.add(`container-${currentImageContainer}`);
-  cardPreview.classList.add(`container-variant-${currentContainerVariant}`);
+  imageContainer: 'masked',
+  imageContainerVariant: 'circle',
   
   // Tier 6: Image Effects
-  cardPreview.classList.add(`effect-${currentImageEffect}`);
-  cardPreview.classList.add(`effect-variant-${currentEffectVariant}`);
-  
-  // Tier 7: Image Dimensions
-  cardPreview.classList.add(`dimensions-${currentImageDimensions}`);
-  cardPreview.classList.add(`dimension-variant-${currentDimensionsVariant}`);
-  
-  // Apply data attributes for advanced styling
-  cardPreview.dataset.layout = currentLayout;
-  cardPreview.dataset.alignment = currentAlignment;
-  cardPreview.dataset.weight = currentWeight;
-  cardPreview.dataset.variant = currentVariant;
-  cardPreview.dataset.palette = currentPalette;
-  cardPreview.dataset.paletteVariant = currentPaletteVariant;
-  cardPreview.dataset.container = currentImageContainer;
-  cardPreview.dataset.containerVariant = currentContainerVariant;
-  cardPreview.dataset.effect = currentImageEffect;
-  cardPreview.dataset.effectVariant = currentEffectVariant;
-  cardPreview.dataset.dimensions = currentImageDimensions;
-  cardPreview.dataset.dimensionVariant = currentDimensionsVariant;
-  
-  console.log('🎯 Modular preview updated:', {
-    layout: currentLayout,
-    alignment: currentAlignment,
-    weight: currentWeight,
-    variant: currentVariant,
-    palette: `${currentPalette}-${currentPaletteVariant}`,
-    container: `${currentImageContainer}-${currentContainerVariant}`,
-    effect: `${currentImageEffect}-${currentEffectVariant}`,
-    dimensions: `${currentImageDimensions}-${currentDimensionsVariant}`
-  });
-}
+  imageEffect: 'none',
+  imageEffectVariant: 'clean'
+};
 ```
 
-## User Experience Flow
+## Progressive Disclosure
 
-### 1. Initial State
-- All tiers display their top-level options
-- Default selections are pre-made for each tier
-- Sub-level containers are hidden (progressive disclosure)
+The modular system implements progressive disclosure to reduce cognitive load:
 
-### 2. User Interaction
-- User clicks on a top-level option (e.g., "Left" alignment)
-- System updates selection state visually
-- Progressive disclosure reveals relevant sub-options
-- Live preview updates immediately
+1. **Initial View:** Only Tier 1 (Layout) is fully expanded
+2. **Selection Behavior:** When a user selects a layout, Tier 2 (Alignment) expands
+3. **Cascading Expansion:** Each tier selection reveals the next tier's options
+4. **Current Selection Display:** Each tier shows the currently selected option
+5. **Collapsible Tiers:** Users can collapse previously expanded tiers to focus on current choices
 
-### 3. Hierarchical Navigation
-- User can drill down through multiple levels
-- Each level reveals more specific options
-- Previous selections remain visible and editable
-- User can change higher-level selections to explore different paths
+## Implementation Details
 
-### 4. Visual Feedback
-- Selected options are highlighted with primary color
-- Hover states provide immediate feedback
-- Smooth animations guide user attention
-- Thumbnails provide visual context for each option
+### Initialization
+The modular system is initialized in `initModularSystem()` which:
+- Sets up event listeners for tier selections
+- Initializes the UI based on default or saved ModularState
+- Ensures proper progressive disclosure behavior
 
-## Technical Considerations
+### State Updates
+When a user selects an option:
+1. The corresponding ModularState property is updated
+2. The updatePreview() function is called
+3. CSS classes are applied to the card preview based on the updated state
+4. The UI is updated to reflect the current selection
 
-### Performance
-- Event delegation used for efficient event handling
-- CSS classes applied/removed rather than inline styles
-- Minimal DOM manipulation for progressive disclosure
-- Debounced preview updates to prevent excessive re-rendering
+### Preview Updates
+The `updatePreview()` function:
+- Collects the current ModularState values
+- Applies corresponding CSS classes to the card preview
+- Generates card content based on form data
+- Updates both front and back faces of the card
 
-### Accessibility
-- Semantic HTML structure with proper headings
-- ARIA labels and roles for screen readers
-- Keyboard navigation support
-- High contrast color schemes
-- Focus management for progressive disclosure
+## Recent Technical Fixes
 
-### Responsive Design
-- Grid layouts adapt to different screen sizes
-- Mobile-optimized touch targets
-- Collapsible sections for smaller screens
-- Horizontal scrolling for option grids when needed
+### Hero Variant Aspect Ratios
+- **Hero Large:** 16:9 ratio (taller, more cinematic)
+- **Hero Small:** 3:1 ratio (flatter, more compact)
+- Fixed across all layouts (Split, Minimal, Left/Right Aligned, Grid)
 
-### Browser Compatibility
-- Modern CSS Grid with fallbacks
-- ES6+ JavaScript with polyfills
-- Progressive enhancement approach
-- Graceful degradation for older browsers
+### CSS Selector Correction
+- Changed from data attribute selectors to class selectors
+- Ensures proper matching with JavaScript-generated classes
+- Consistent pattern across all layouts and variants
 
-## Integration Points
+### Theme System Consolidation
+- Standardized on 'neofantasy' theme
+- Removed unused theme CSS (synthwavehacker, propersona)
+- Fixed theme name mismatch in JavaScript
 
-### Theme System
-- Uses Nova CSS variables for consistent theming
-- Respects user's color preferences
-- Supports light/dark mode variants
-- Maintains visual hierarchy through color
+## Planned Enhancements
 
-### Card Generation
-- Modular selections feed into card generation logic
-- CSS classes map to specific styling rules
-- Data attributes enable complex styling combinations
-- Backward compatibility with existing card formats
+### Component Visibility Toggles
+- Toggle visibility for Class, Rarity, Quote sections
+- Name and Bio remain required
+- Global toggles for Stats, Social, Badges sections
 
-### Save/Load System
-- All modular selections are serializable
-- State can be saved to JSON format
-- Presets can include modular configurations
-- Import/export functionality for sharing designs
+### Visual UI Selectors
+- Replace text dropdowns with visual previews
+- Show color swatches for palette selection
+- Display mini-previews for layout options
+- Visual filters for image effects
 
-## Future Enhancements
+### Additional Design Options
+- Back image customization
+- Border style and color controls
+- Background particle effects
+- Advanced visual settings panel
 
-### Planned Features
-1. **Custom Tier Extensions**: Allow users to create custom option sets
-2. **Animation Presets**: Add tier for card animation and transition effects
-3. **Typography Tier**: Dedicated tier for font selection and text styling
-4. **Advanced Layouts**: More complex layout options with custom positioning
-5. **Template System**: Pre-configured combinations of modular selections
+## Technical Implementation Notes
 
-### Technical Improvements
-1. **State Management**: Implement Redux-like state management
-2. **Performance Optimization**: Virtual scrolling for large option sets
-3. **Testing Suite**: Comprehensive unit and integration tests
-4. **Documentation**: Interactive documentation with live examples
+### Class Naming Convention
+- Layout classes: `layout-{name}` (e.g., `layout-hero`, `layout-split`)
+- Theme classes: `theme-{name}` (e.g., `theme-neofantasy`)
+- Variant classes: `variant-{name}` (e.g., `variant-light`, `variant-dark`)
+- Image style classes: `image-style-{name}` (e.g., `image-style-hero`)
+- Image variant classes: `image-{style}-{variant}` (e.g., `image-hero-large`)
 
-## Troubleshooting
+### CSS Architecture
+- Base styles define core card structure
+- Layout styles define positioning and spacing
+- Theme styles define colors and visual treatment
+- Image styles define avatar/image presentation
+- Responsive breakpoints ensure mobile compatibility
 
-### Common Issues
-
-#### Progressive Disclosure Not Working
-- Check data attribute naming consistency
-- Verify JavaScript event listeners are attached
-- Ensure CSS display properties are correctly set
-
-#### Preview Not Updating
-- Confirm updatePreview() function is called after state changes
-- Check that CSS classes are being applied correctly
-- Verify global state variables are being updated
-
-#### Visual Inconsistencies
-- Review CSS specificity rules
-- Check for conflicting styles between tiers
-- Ensure theme variables are properly applied
-
-#### Performance Issues
-- Monitor event listener count
-- Check for memory leaks in progressive disclosure
-- Optimize CSS selector performance
-
-### Debug Tools
-- Console logging for state changes
-- Visual indicators for selected options
-- Performance monitoring for preview updates
-- State inspection tools for development
+### JavaScript Integration
+```javascript
+// Example of class application in updatePreview()
+front.className = `card-preview-canvas card-front theme-${currentPreset} variant-${currentPalette} layout-${currentLayout} image-style-${currentImageStyle} image-${currentImageStyle}-${currentImageVariant}`;
+```
 
 ## Conclusion
 
-The CardForge V2 modular system represents a significant advancement in user interface design for card creation tools. By implementing progressive disclosure and hierarchical organization, the system provides users with powerful customization capabilities while maintaining an intuitive and accessible interface.
-
-The modular architecture ensures scalability for future enhancements while maintaining backward compatibility with existing features. The comprehensive CSS and JavaScript implementation provides a solid foundation for continued development and refinement.
-
-This documentation serves as both a technical reference and a guide for future development, ensuring that the modular system can be maintained, extended, and improved over time.
+The CardForge V2 modular system provides a flexible, maintainable architecture for card customization. The 6-tier hierarchical approach with progressive disclosure reduces cognitive load while maximizing customization options. The matrix system ensures that any combination of Layout + Color Palette + Image Style works harmoniously without conflicts.
