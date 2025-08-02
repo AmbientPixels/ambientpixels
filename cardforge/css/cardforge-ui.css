@@ -2479,7 +2479,8 @@
 
 /* Card Preview Zone (Always Visible) - Fixed math */
 #card-preview-container {
-  position: relative;
+  position: sticky;
+  top: 60px;
   z-index: 10;
   background: var(--aura-bg-color, #1a1a2e);
   border-radius: 8px;
