@@ -656,6 +656,14 @@
   }
 
   function updateCollapsibleTierDisplays() {
+    // Update Tier 1: Layout Style display
+    const selectedLayout = document.querySelector('[data-tier="1"] .tier-option.selected');
+    if (selectedLayout) {
+      const layoutLabel = selectedLayout.querySelector('.option-label').textContent;
+      const previewClass = `${ModularState.layout}-layout-preview`;
+      updateTierCurrentSelection('1', layoutLabel, previewClass);
+    }
+    
     // Update Tier 4: Color Palette display
     const selectedPalette = document.querySelector('[data-tier="4"] .palette-family.selected');
     if (selectedPalette) {
@@ -665,9 +673,14 @@
       updateTierCurrentSelection('4', `${paletteLabel} ${variantLabel}`, previewClass);
     }
     
-    // TODO: Add other collapsible tier displays as they are implemented
-    // updateTierCurrentSelection('1', `Layout: ${ModularState.layout}`);
-    // updateTierCurrentSelection('5', `Container: ${ModularState.imageContainer}`);
+    // Update Tier 5: Image Container display
+    const selectedContainer = document.querySelector('[data-tier="5"] .tier-option.selected');
+    if (selectedContainer) {
+      const containerLabel = selectedContainer.querySelector('.option-label').textContent;
+      const variantLabel = ModularState.imageContainerVariant.charAt(0).toUpperCase() + ModularState.imageContainerVariant.slice(1);
+      const previewClass = `${ModularState.imageContainer}-container-preview`;
+      updateTierCurrentSelection('5', `${containerLabel} ${variantLabel}`, previewClass);
+    }
     
     console.log('🔄 Updated all collapsible tier displays');
   }
@@ -685,6 +698,11 @@
         // Update modular state
         ModularState.layout = option.dataset.value;
         
+        // Update current selection display
+        const layoutLabel = option.querySelector('.option-label').textContent;
+        const previewClass = `${ModularState.layout}-layout-preview`;
+        updateTierCurrentSelection('1', layoutLabel, previewClass);
+        
         // Update preview
         updatePreview();
         
@@ -696,6 +714,11 @@
     const defaultOption = document.querySelector(`[data-tier="1"] [data-value="${ModularState.layout}"]`);
     if (defaultOption) {
       defaultOption.classList.add('selected');
+      
+      // Initialize current selection display with default values
+      const layoutLabel = defaultOption.querySelector('.option-label').textContent;
+      const previewClass = `${ModularState.layout}-layout-preview`;
+      updateTierCurrentSelection('1', layoutLabel, previewClass);
     }
   }
 
