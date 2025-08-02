@@ -1525,7 +1525,8 @@
 
 .current-palette-preview,
 .current-layout-preview,
-.current-container-preview {
+.current-container-preview,
+.current-effect-preview {
   width: 20px;
   height: 20px;
   border-radius: 4px;
@@ -1634,6 +1635,60 @@
   bottom: 4px;
   background: var(--mood-primary-color, #e1e1ff);
   border-radius: 1px;
+}
+
+/* Effect Preview Icons */
+.current-effect-preview {
+  background: var(--mood-accent-color, #4a4a6a);
+  position: relative;
+}
+
+.none-effect-preview::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background: var(--mood-primary-color, #e1e1ff);
+  border-radius: 50%;
+}
+
+.filters-effect-preview::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  right: 3px;
+  bottom: 3px;
+  background: linear-gradient(45deg, var(--mood-primary-color, #e1e1ff), var(--mood-secondary-color, #a0a0c0));
+  border-radius: 2px;
+  opacity: 0.8;
+}
+
+.borders-effect-preview::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  background: transparent;
+  border: 2px solid var(--mood-primary-color, #e1e1ff);
+  border-radius: 2px;
+}
+
+.overlays-effect-preview::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle, transparent 30%, var(--mood-primary-color, #e1e1ff) 70%);
+  border-radius: 4px;
+  opacity: 0.6;
 }
 
 .current-selection-text {
