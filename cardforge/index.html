@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/base.css">
-  <link rel="stylesheet" href="/css/grid.css">
+  <link rel="stylesheet" href="/css/grid.css"> <!-- Restored for footer compatibility -->
   <link rel="stylesheet" href="/css/nav.css">
   <link rel="stylesheet" href="/css/components.css">
   <link rel="stylesheet" href="/css/hero.css">
@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="css/cardforge-ui.css">
   <link rel="stylesheet" href="css/cardforge-card.css">
   <link rel="stylesheet" href="css/tier5-tier6-modular.css">
+  <link rel="stylesheet" href="css/cardforge-layout.css"> <!-- New local layout styles that override grid.css -->
 
 </head>
 <body data-theme="dark">
@@ -55,9 +56,9 @@
 
 
 
-<main class="grid-container">
+<main>
 
-  <section class="content-section grid-col-12 cardforge-intro">
+  <section class="content-section cardforge-intro">
     <h2>What is CardForge?</h2>
     <p>CardForge V2 is a browser-based toolkit for crafting and sharing collectible cards that capture characters, lore, and epic moments. Think of it as your personal foundry for tabletop RPGs, fan worlds, and trading-card concepts—all powered by Nova’s crystalline flux aesthetic.</p>
     <ul>
@@ -68,8 +69,8 @@
     </ul>
   </section>
   <!-- CardForge Editor UI -->
-  <section class="cardforge-container grid-col-12 split-pane" id="cardforge-main-container">
-  <div class="cf-left-column grid-col-8 form-pane">
+  <section class="cardforge-container split-pane" id="cardforge-main-container">
+  <div class="cf-left-column form-pane">
       <div class="cardforge-editor">
       <h2>Card Details</h2>
       <nav class="cf-stepper">
@@ -840,7 +841,7 @@
   </div>
     <!-- Unified card preview section -->
     <div class="drag-divider" aria-label="Resize panes"></div>
-    <div class="cardforge-preview grid-col-4 preview-pane right-column" id="card-preview-container">
+    <div class="cardforge-preview preview-pane right-column" id="card-preview-container">
       
       <!-- CARD PREVIEW ZONE (Always Visible) -->
       <div class="sticky-preview-wrapper">

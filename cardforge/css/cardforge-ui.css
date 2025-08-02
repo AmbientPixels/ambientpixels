@@ -2860,15 +2860,10 @@
   overflow: visible !important;
 }
 
-/* Sticky wrapper for card preview section */
+/* Sticky wrapper for card preview section - updated by Cascade */
+/* Note: Main styles now in cardforge-layout.css, this is kept for backward compatibility */
 .sticky-preview-wrapper {
-  position: sticky;
-  top: 80px;
-  z-index: 10;
-  background: var(--aura-bg-color, #1a1a2e);
-  border-radius: 8px;
-  padding: 0.75rem;
-  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  /* Styles moved to cardforge-layout.css */
 }
 
 
