@@ -304,27 +304,42 @@
             </div>
           </div>
           
-          <!-- TIER 3: VISUAL WEIGHT -->
-          <div class="modular-tier" data-tier="3">
-            <h4 class="tier-title">Visual Weight</h4>
-            <div class="tier-options-grid weight-grid">
-              <div class="tier-option" data-value="top-heavy">
-                <div class="option-preview">
-                  <div class="weight-icon top-heavy-icon"></div>
-                </div>
-                <span class="option-label">Top Heavy</span>
+          <!-- TIER 3: VISUAL WEIGHT (Collapsible) -->
+          <div class="modular-tier collapsible-tier" data-tier="3">
+            <div class="tier-header" data-tier-toggle="3">
+              <h4 class="tier-title">Visual Weight</h4>
+              <div class="tier-current-selection">
+                <div class="current-weight-preview balanced-weight-preview"></div>
+                <span class="current-selection-text">Balanced</span>
               </div>
-              <div class="tier-option" data-value="balanced">
-                <div class="option-preview">
-                  <div class="weight-icon balanced-icon"></div>
+              <div class="tier-expand-icon">▼</div>
+            </div>
+            
+            <div class="tier-content" data-tier-content="3">
+              <div class="weight-section">
+                <div class="weight-level">
+                  <h5 class="level-title">Choose Visual Weight Distribution</h5>
+                  <div class="tier-options-grid weight-grid">
+                    <div class="tier-option" data-value="top-heavy">
+                      <div class="option-preview">
+                        <div class="weight-icon top-heavy-icon"></div>
+                      </div>
+                      <span class="option-label">Top Heavy</span>
+                    </div>
+                    <div class="tier-option selected" data-value="balanced">
+                      <div class="option-preview">
+                        <div class="weight-icon balanced-icon"></div>
+                      </div>
+                      <span class="option-label">Balanced</span>
+                    </div>
+                    <div class="tier-option" data-value="bottom-heavy">
+                      <div class="option-preview">
+                        <div class="weight-icon bottom-heavy-icon"></div>
+                      </div>
+                      <span class="option-label">Bottom Heavy</span>
+                    </div>
+                  </div>
                 </div>
-                <span class="option-label">Balanced</span>
-              </div>
-              <div class="tier-option" data-value="bottom-heavy">
-                <div class="option-preview">
-                  <div class="weight-icon bottom-heavy-icon"></div>
-                </div>
-                <span class="option-label">Bottom Heavy</span>
               </div>
             </div>
           </div>

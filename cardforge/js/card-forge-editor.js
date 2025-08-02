@@ -688,6 +688,14 @@
       updateTierCurrentSelection('5', `${containerLabel} ${variantLabel}`, previewClass);
     }
     
+    // Update Tier 3: Visual Weight display
+    const selectedWeight = document.querySelector('[data-tier="3"] .tier-option.selected');
+    if (selectedWeight) {
+      const weightLabel = selectedWeight.querySelector('.option-label').textContent;
+      const previewClass = `${ModularState.weight}-weight-preview`;
+      updateTierCurrentSelection('3', weightLabel, previewClass);
+    }
+    
     // Update Tier 6: Image Effects display
     const selectedEffect = document.querySelector('[data-tier="6"] .tier-option.selected');
     if (selectedEffect) {
@@ -779,6 +787,9 @@
         // Update modular state
         ModularState.weight = option.dataset.value;
         
+        // Update collapsible tier display
+        updateCollapsibleTierDisplays();
+        
         // Update preview
         updatePreview();
         
@@ -790,6 +801,11 @@
     const defaultOption = document.querySelector(`[data-tier="3"] [data-value="${ModularState.weight}"]`);
     if (defaultOption) {
       defaultOption.classList.add('selected');
+      
+      // Initialize current selection display with default values
+      const weightLabel = defaultOption.querySelector('.option-label').textContent;
+      const previewClass = `${ModularState.weight}-weight-preview`;
+      updateTierCurrentSelection('3', weightLabel, previewClass);
     }
   }
 
