@@ -2478,14 +2478,14 @@
 }
 
 /* Card Preview Zone (Always Visible) - Fixed math */
-.card-preview-zone {
-  flex: 1 1 auto;
-  min-height: 0;
-  background: var(--aura-bg-secondary, #2a2a3e);
+#card-preview-container {
+  position: sticky;
+  top: 20px;
+  z-index: 10;
+  background: var(--aura-bg-color, #1a1a2e);
   border-radius: 8px;
   padding: 0.75rem;
   border: 1px solid var(--mood-accent-color, #4a4a6a);
-  /* overflow: auto; */ /* Removed to prevent internal scrollbars */
   display: flex;
   flex-direction: column;
 }
@@ -2858,6 +2858,17 @@
 /* Fix for grid overflow - override grid.css overflow: hidden */
 .grid-container {
   overflow: visible !important;
+}
+
+/* Sticky wrapper for card preview section */
+.sticky-preview-wrapper {
+  position: sticky;
+  top: 80px;
+  z-index: 10;
+  background: var(--aura-bg-color, #1a1a2e);
+  border-radius: 8px;
+  padding: 0.75rem;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
 }
 
 
