@@ -80,6 +80,7 @@
         <button data-step="4" class="step-btn">Social</button>
         <button data-step="5" class="step-btn">Badges</button>
         <button data-step="6" class="step-btn">Attributes</button>
+        <button data-step="7" class="step-btn">Forge</button>
       </nav>
       <form id="card-editor-form" class="cardforge-form">
       <div class="cf-section active" data-step-section="1">
@@ -824,19 +825,100 @@
         </div>
         <button type="button" id="add-attribute-btn" class="add-attribute-btn">Add Attribute</button>
       </div>
-      <div class="cardforge-form-actions">
-          
-          <button type="button" id="save-btn" class="glass-button">Save</button>
-          <button type="button" id="publish-btn" class="glass-button" disabled>Publish to Gallery</button>
-           
-        </div>
-      </form>
+      <!-- Form actions moved to Forge tab -->
       
-      <!-- User cards sidebar - only visible when signed in -->
-      <aside class="cardforge-sidebar" id="user-cards-sidebar">
-        <h2 id="cards-list-title">My Cards</h2>
-        <ul id="my-cards-list" class="cardforge-list"></ul>
-      </aside>
+      <!-- FORGE TAB SECTION -->
+      <div class="cf-section" data-step-section="7">
+        <h3 class="cf-section-title"><span class="step-index">7</span> Forge</h3>
+        <p class="cf-section-description">Publish, save, share, and manage your card creations.</p>
+        
+        <!-- Forge Sub-Navigation -->
+        <nav class="forge-sub-nav">
+          <button class="forge-sub-btn active" data-forge-tab="actions">Quick Actions</button>
+          <button class="forge-sub-btn" data-forge-tab="cards">My Cards</button>
+          <button class="forge-sub-btn" data-forge-tab="deck">Deck Manager</button>
+        </nav>
+        
+        <!-- QUICK ACTIONS SUB-TAB -->
+        <div class="forge-tab-content active" data-forge-content="actions">
+          <h4 class="forge-section-title"><i class="fas fa-tools"></i> Quick Actions</h4>
+          <div class="forge-actions-grid">
+            <button type="button" class="forge-action-btn" id="save-card-btn">
+              <i class="fas fa-save"></i>
+              <span>Save Card</span>
+              <small>Save to your collection</small>
+            </button>
+            <button type="button" class="forge-action-btn" id="publish-card-btn">
+              <i class="fas fa-share"></i>
+              <span>Publish</span>
+              <small>Share to gallery</small>
+            </button>
+            <button type="button" class="forge-action-btn" id="duplicate-card-btn">
+              <i class="fas fa-copy"></i>
+              <span>Duplicate</span>
+              <small>Make a copy</small>
+            </button>
+            <button type="button" class="forge-action-btn" id="reset-card-btn">
+              <i class="fas fa-undo"></i>
+              <span>Reset</span>
+              <small>Clear all fields</small>
+            </button>
+            <button type="button" class="forge-action-btn coming-soon" disabled>
+              <i class="fas fa-download"></i>
+              <span>Export</span>
+              <small class="coming-soon-label">Coming Soon</small>
+            </button>
+          </div>
+        </div>
+        
+        <!-- MY CARDS SUB-TAB -->
+        <div class="forge-tab-content" data-forge-content="cards">
+          <h4 class="forge-section-title"><i class="fas fa-layer-group"></i> My Cards</h4>
+          <div class="my-cards-search">
+            <div class="search-input-group">
+              <i class="fas fa-search"></i>
+              <input type="text" id="my-cards-search" placeholder="Search my cards..." />
+            </div>
+          </div>
+          
+          <div class="my-cards-list" id="my-cards-list">
+            <!-- My Cards will be populated by JavaScript -->
+            <div class="my-cards-empty">
+              <i class="fas fa-layer-group"></i>
+              <p>No saved cards yet</p>
+              <small>Save your first card to see it here</small>
+            </div>
+          </div>
+        </div>
+        
+        <!-- DECK MANAGER SUB-TAB -->
+        <div class="forge-tab-content" data-forge-content="deck">
+          <h4 class="forge-section-title"><i class="fas fa-layer-group"></i> Deck Manager</h4>
+          <div class="deck-actions">
+            <button type="button" class="forge-action-btn" id="create-deck-btn">
+              <i class="fas fa-plus"></i>
+              <span>Create New Deck</span>
+              <small>Organize your cards</small>
+            </button>
+            <button type="button" class="forge-action-btn coming-soon" disabled>
+              <i class="fas fa-upload"></i>
+              <span>Import Deck</span>
+              <small class="coming-soon-label">Coming Soon</small>
+            </button>
+          </div>
+          
+          <div class="deck-list" id="deck-list">
+            <!-- Decks will be populated by JavaScript -->
+            <div class="deck-empty">
+              <i class="fas fa-layer-group"></i>
+              <p>No decks created yet</p>
+              <small>Create your first deck to organize your cards</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      </form>
+      <!-- User cards sidebar moved to Forge tab -->
     </div>
   </div>
     <!-- Unified card preview section -->
@@ -844,7 +926,8 @@
     <div class="cardforge-preview preview-pane right-column" id="card-preview-container">
       
       <!-- CARD PREVIEW ZONE (Always Visible) -->
-      <div class="card-preview-zone">
+      <div class="sticky-preview-wrapper">
+        <div class="card-preview-zone">
         <div class="preview-header">
           <h2>Card Preview</h2>
           <div class="preview-controls">
@@ -887,71 +970,7 @@
           </div>
         </div>
       </div>
-      
-      <!-- TOOLS ZONE (Scrollable) -->
-      <div class="tools-zone">
-        <div class="zone-header">
-          <h3><i class="fas fa-tools"></i> Quick Actions</h3>
-          <button type="button" class="zone-toggle" data-zone="tools">
-            <i class="fas fa-chevron-up"></i>
-          </button>
-        </div>
-        <div class="zone-content" data-zone-content="tools">
-          <div class="tool-buttons">
-            <button type="button" class="tool-btn" id="save-card-btn">
-              <i class="fas fa-save"></i>
-              <span>Save Card</span>
-            </button>
-            <button type="button" class="tool-btn" id="duplicate-card-btn">
-              <i class="fas fa-copy"></i>
-              <span>Duplicate</span>
-            </button>
-            <button type="button" class="tool-btn" id="reset-card-btn">
-              <i class="fas fa-undo"></i>
-              <span>Reset</span>
-            </button>
-            <button type="button" class="tool-btn coming-soon" disabled>
-              <i class="fas fa-share-alt"></i>
-              <span>Share</span>
-              <small class="coming-soon-label">Soon</small>
-            </button>
-            <button type="button" class="tool-btn coming-soon" disabled>
-              <i class="fas fa-download"></i>
-              <span>Export</span>
-              <small class="coming-soon-label">Soon</small>
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- MY CARDS ZONE (Scrollable) -->
-      <div class="my-cards-zone">
-        <div class="zone-header">
-          <h3><i class="fas fa-layer-group"></i> My Cards</h3>
-          <div class="zone-controls">
-            <button type="button" class="zone-toggle" data-zone="my-cards">
-              <i class="fas fa-chevron-up"></i>
-            </button>
-          </div>
-        </div>
-        <div class="zone-content" data-zone-content="my-cards">
-          <div class="my-cards-search">
-            <div class="search-input-group">
-              <i class="fas fa-search"></i>
-              <input type="text" id="my-cards-search" placeholder="Search my cards..." />
-            </div>
-          </div>
-          
-          <div class="my-cards-list" id="my-cards-list">
-            <!-- My Cards will be populated by JavaScript -->
-            <div class="my-cards-empty">
-              <i class="fas fa-layer-group"></i>
-              <p>No saved cards yet</p>
-              <small>Save your first card to see it here</small>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- Right column now dedicated only to card preview -->
       </div>
       
     </div>
