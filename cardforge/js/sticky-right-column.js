@@ -6,7 +6,6 @@
 
 class StickyRightColumn {
   constructor() {
-    this.isSticky = true;
     this.zoneStates = {
       tools: true,    // expanded by default
       'my-cards': true // expanded by default
@@ -18,16 +17,12 @@ class StickyRightColumn {
   init() {
     this.bindEvents();
     this.initializeZones();
-    this.setupStickyBehavior();
+    // Sticky behavior now handled purely by CSS
     console.log('✅ Sticky Right Column initialized');
   }
 
   bindEvents() {
-    // Sticky toggle button
-    const stickyToggle = document.getElementById('sticky-toggle');
-    if (stickyToggle) {
-      stickyToggle.addEventListener('click', () => this.toggleSticky());
-    }
+    // Sticky toggle button removed - using pure CSS sticky
 
     // Zone toggle buttons
     document.querySelectorAll('.zone-toggle').forEach(toggle => {
@@ -117,58 +112,11 @@ class StickyRightColumn {
     });
   }
 
-  setupStickyBehavior() {
-    const rightColumn = document.querySelector('.sticky-right-column');
-    if (!rightColumn) return;
+  // setupStickyBehavior method removed - using pure CSS sticky
 
-    // Apply initial sticky state
-    this.applyStickyState();
+  // toggleSticky method removed - using pure CSS sticky
 
-    // Monitor scroll position for debugging
-    if (window.CardForgeDebug?.enabled) {
-      window.addEventListener('scroll', () => {
-        const rect = rightColumn.getBoundingClientRect();
-        console.log('Right column position:', {
-          top: rect.top,
-          isSticky: this.isSticky,
-          scrollY: window.scrollY
-        });
-      });
-    }
-  }
-
-  toggleSticky() {
-    this.isSticky = !this.isSticky;
-    this.applyStickyState();
-    
-    // Update button appearance
-    const stickyToggle = document.getElementById('sticky-toggle');
-    if (stickyToggle) {
-      const icon = stickyToggle.querySelector('i');
-      if (this.isSticky) {
-        icon.className = 'fas fa-thumbtack';
-        stickyToggle.title = 'Disable sticky preview';
-      } else {
-        icon.className = 'fas fa-thumbtack-slash';
-        stickyToggle.title = 'Enable sticky preview';
-      }
-    }
-
-    console.log(`🔧 Sticky mode ${this.isSticky ? 'enabled' : 'disabled'}`);
-  }
-
-  applyStickyState() {
-    const rightColumn = document.querySelector('.sticky-right-column');
-    if (!rightColumn) return;
-
-    if (this.isSticky) {
-      rightColumn.style.position = 'sticky';
-      rightColumn.style.top = '20px';
-    } else {
-      rightColumn.style.position = 'static';
-      rightColumn.style.top = 'auto';
-    }
-  }
+  // applyStickyState method removed - using pure CSS sticky
 
   toggleZone(zoneName) {
     if (!this.zoneStates.hasOwnProperty(zoneName)) return;
@@ -258,18 +206,8 @@ class StickyRightColumn {
   }
 
   handleResize() {
-    const width = window.innerWidth;
-    
-    // Disable sticky behavior on smaller screens
-    if (width <= 1200 && this.isSticky) {
-      const rightColumn = document.querySelector('.sticky-right-column');
-      if (rightColumn) {
-        rightColumn.style.position = 'static';
-        rightColumn.style.top = 'auto';
-      }
-    } else if (width > 1200 && this.isSticky) {
-      this.applyStickyState();
-    }
+    // Responsive behavior now handled purely by CSS media queries
+    // No JavaScript sticky logic needed
   }
 
   showToolMessage(message, type = 'info') {

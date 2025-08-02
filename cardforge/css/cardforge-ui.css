@@ -2466,12 +2466,10 @@
    STICKY RIGHT COLUMN REDESIGN
    =================================== */
 
-/* Sticky Right Column Container */
+/* Sticky right preview pane - now handled by minimal JavaScript */
 .sticky-right-column {
-  position: sticky;
-  top: 20px;
-  align-self: start; /* Prevent grid from stretching this item */
-  /* Height is now natural, overflow is handled by the page body */
+  /* CSS sticky removed - using minimal JavaScript for better control */
+  align-self: flex-start;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -2638,12 +2636,7 @@
   display: none;
 }
 
-/* Non-Sticky Mode */
-.sticky-right-column.non-sticky {
-  position: static;
-  height: auto;
-  max-height: none;
-}
+/* Non-sticky mode removed - using pure CSS sticky only */
 
 /* Responsive Behavior - CLEANED UP */
 @media (max-width: 1200px) {
@@ -2874,3 +2867,15 @@
 }
 
 /* DUPLICATE RESPONSIVE CSS REMOVED - Using consolidated version above */
+
+/* Fix for sticky positioning - override grid.css overflow: hidden */
+.grid-container {
+  overflow: visible !important;
+}
+
+/* Sticky right preview pane */
+.sticky-right-column {
+  position: sticky;
+  top: 1rem;
+  align-self: start;
+}
