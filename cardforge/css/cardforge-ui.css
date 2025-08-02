@@ -2479,8 +2479,7 @@
 
 /* Card Preview Zone (Always Visible) - Fixed math */
 #card-preview-container {
-  position: sticky;
-  top: 20px;
+  position: relative;
   z-index: 10;
   background: var(--aura-bg-color, #1a1a2e);
   border-radius: 8px;
@@ -2860,10 +2859,7 @@
   overflow: visible !important;
 }
 
-/* Sticky wrapper for card preview section - updated by Cascade */
-/* Note: Main styles now in cardforge-layout.css, this is kept for backward compatibility */
-.sticky-preview-wrapper {
-  /* Styles moved to cardforge-layout.css */
-}
+/* Card preview section - updated by Cascade */
+/* All sticky behavior removed */
 
 

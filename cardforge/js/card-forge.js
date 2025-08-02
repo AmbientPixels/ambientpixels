@@ -344,8 +344,7 @@ function editCard(id) {
   updatePreview();
   const saveBtn = document.getElementById('save-btn'); if (saveBtn) saveBtn.disabled = false;
   const publishBtn = document.getElementById('publish-btn'); if (publishBtn) publishBtn.disabled = false;
-  // Scroll to editor
-  document.getElementById('cardforge-main-container').scrollIntoView({behavior:'smooth'});
+  // No automatic scrolling
 }
 
 /** Delete a user card */

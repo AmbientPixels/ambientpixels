@@ -39,10 +39,9 @@
   max-width: 33%;
 }
 
-/* Sticky preview wrapper - improved implementation */
-.sticky-preview-wrapper {
-  position: sticky;
-  top: 80px; /* Adjust based on header height */
+/* Card preview wrapper - non-sticky implementation */
+.card-preview-zone {
+  position: relative;
   z-index: 100; /* Increased z-index to ensure it's above other elements */
   background: var(--aura-bg-color, #1a1a2e);
   border-radius: 8px;
@@ -81,9 +80,8 @@
     display: none;
   }
   
-  .sticky-preview-wrapper {
+  .card-preview-zone {
     position: relative;
-    top: 0;
   }
 }
 
@@ -94,7 +92,7 @@
     gap: 0.5rem;
   }
   
-  .sticky-preview-wrapper {
+  .card-preview-zone {
     padding: 0.5rem;
   }
 }
