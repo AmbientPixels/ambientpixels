@@ -47,7 +47,266 @@
   align-items: center;
   padding: 20px;
   box-sizing: border-box;
-  overflow-y: auto;
+}
+
+.cardforge-dialog.active {
+  display: flex;
+}
+
+.cardforge-dialog-content {
+  background-color: var(--aura-bg-color, #1a1a2e);
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 8px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+  transform: translateY(-20px);
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.cardforge-dialog.active .cardforge-dialog-content {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.cardforge-dialog h3 {
+  margin-top: 0;
+  color: var(--mood-primary-color, #e1e1ff);
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* Message Notifications */
+.cardforge-message-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 300px;
+}
+
+.cardforge-message {
+  padding: 12px 16px;
+  border-radius: 6px;
+  background-color: var(--aura-bg-color, #1a1a2e);
+  border-left: 4px solid var(--mood-accent-color, #4a4a6a);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  animation: slide-in 0.3s ease-out;
+}
+
+.cardforge-message-success {
+  border-left-color: #4CAF50;
+}
+
+.cardforge-message-error {
+  border-left-color: #F44336;
+}
+
+.cardforge-message-info {
+  border-left-color: #2196F3;
+}
+
+.message-icon {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.message-text {
+  flex: 1;
+}
+
+/* ===== MODULAR SYSTEM STYLING ===== */
+
+.modular-system {
+  margin-bottom: 2rem;
+}
+
+/* ===== PRESETS SECTION ===== */
+
+.presets-section {
+  background: var(--aura-bg-secondary, #2a2a3e);
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.presets-title {
+  color: var(--mood-primary-color, #00d4ff);
+  font-size: 1.2em;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  text-align: center;
+}
+
+.presets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.preset-btn {
+  background: var(--aura-bg-color, #1a1a2e);
+  border: 2px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 8px;
+  padding: 1rem 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  font-family: inherit;
+  color: var(--mood-text-primary, #e1e1ff);
+}
+
+.preset-btn:hover {
+  border-color: var(--mood-primary-color, #00d4ff);
+  background: var(--aura-bg-secondary, #2a2a3e);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2);
+}
+
+.preset-btn.active {
+  border-color: var(--mood-primary-color, #00d4ff);
+  background: var(--mood-primary-color, #00d4ff);
+  color: var(--aura-bg-color, #1a1a2e);
+}
+
+.preset-preview {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+
+.preset-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  position: relative;
+}
+
+/* Preset Icon Styles */
+.hero-classic-icon {
+  background: linear-gradient(135deg, var(--mood-primary-color, #00d4ff) 0%, var(--aura-cyan) 100%);
+  border-radius: 50%;
+}
+
+.split-modern-icon {
+  background: linear-gradient(90deg, var(--aura-violet) 0%, var(--aura-violet) 50%, var(--mood-accent-color, #4a4a6a) 50%, var(--mood-accent-color, #4a4a6a) 100%);
+  border-radius: 2px;
+}
+
+.minimal-glow-icon {
+  background: var(--aura-bg-secondary, #2a2a3e);
+  border: 2px solid var(--mood-primary-color, #00d4ff);
+  border-radius: 4px;
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+}
+
+.fullbleed-cinematic-icon {
+  background: linear-gradient(135deg, var(--aura-red) 0%, var(--aura-orange) 100%);
+  border-radius: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.fullbleed-cinematic-icon::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60%;
+  height: 60%;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  transform: translate(-50%, -50%);
+}
+
+.framed-ornate-icon {
+  background: var(--aura-bg-color, #1a1a2e);
+  border: 3px solid var(--mood-primary-color, #00d4ff);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px var(--aura-bg-secondary, #2a2a3e), 0 0 6px rgba(0, 212, 255, 0.3);
+}
+
+.preset-label {
+  font-size: 0.9em;
+  font-weight: 600;
+  color: inherit;
+  margin: 0;
+}
+
+.preset-desc {
+  font-size: 0.75em;
+  color: var(--mood-text-secondary, #a0a0c0);
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Tabbed Sections */
+
+/* Stepper Tabs */
+.cf-stepper {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--mood-accent-color, #4a4a6a);
+  margin-bottom: 1rem;
+  position: sticky;
+  top: 0;
+  background: var(--aura-bg-color, #1a1a2e);
+  z-index: 5;
+  padding-top: 0.25rem;
+}
+.step-btn {
+  background: transparent;
+  border: none;
+  padding: 0.5rem 1rem;
+  color: var(--mood-secondary-color, #a0a0c0);
+  font-family: inherit;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.step-btn:hover {
+  color: var(--mood-primary-color, #e1e1ff);
+}
+.step-btn.active {
+  color: var(--mood-primary-color, #e1e1ff);
+  border-color: var(--mood-primary-color, #e1e1ff);
+}
+.cardforge-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 10000;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .cardforge-dialog.active {
@@ -1191,7 +1450,7 @@
 #cardforge-main-container {
   display: flex;
   gap: 1rem;
-  align-items: stretch;
+  align-items: flex-start; /* Use flex-start to allow children to have natural height, fixing sticky */
 }
 .cardforge-editor,
 .cardforge-sidebar,
@@ -1445,9 +1704,8 @@
 }
 
 .card-inner {
-  position: relative;
+  display: grid; /* Use grid to stack faces and auto-size height */
   width: 100%;
-  min-height: fit-content;
   transition: transform 0.6s;
   transform-style: preserve-3d;
 }
@@ -1458,11 +1716,9 @@
 
 .card-front,
 .card-back {
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
+  /* Both faces occupy the same grid cell, making the container size to the tallest */
+  grid-area: 1 / 1 / 2 / 2;
+  width: 100%;
   backface-visibility: hidden;
   transform-origin: center center;
 }
@@ -2214,7 +2470,8 @@
 .sticky-right-column {
   position: sticky;
   top: 20px;
-  height: calc(100vh - 40px);
+  align-self: start; /* Prevent grid from stretching this item */
+  /* Height is now natural, overflow is handled by the page body */
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -2225,7 +2482,6 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   width: 100%;
   box-sizing: border-box;
-  overflow: hidden;
 }
 
 /* Card Preview Zone (Always Visible) - Fixed math */
@@ -2236,7 +2492,7 @@
   border-radius: 8px;
   padding: 0.75rem;
   border: 1px solid var(--mood-accent-color, #4a4a6a);
-  overflow: auto;
+  /* overflow: auto; */ /* Removed to prevent internal scrollbars */
   display: flex;
   flex-direction: column;
 }
@@ -2283,17 +2539,14 @@
 /* Scrollable Zones Container - Reduced height to prevent clipping */
 .tools-zone,
 .my-cards-zone {
-  flex: 0 0 auto;
-  max-height: 120px;
   background: var(--aura-bg-secondary, #2a2a3e);
   border-radius: 8px;
   border: 1px solid var(--mood-accent-color, #4a4a6a);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  /* Removed flex:1 and overflow-y: auto to prevent internal scrolling */
 }
 
-/* When zones are collapsed, they should take minimal space */
 .tools-zone.collapsed,
 .my-cards-zone.collapsed {
   flex: 0 0 auto;
@@ -2355,7 +2608,7 @@
 /* Zone Content */
 .zone-content {
   flex: 1;
-  overflow-y: auto;
+  /* overflow-y: auto; */ /* Removed to prevent internal scrollbars */
   padding: 0.75rem;
   scrollbar-width: thin;
   scrollbar-color: var(--mood-primary-color, #00d4ff) var(--aura-bg-color, #1a1a2e);
