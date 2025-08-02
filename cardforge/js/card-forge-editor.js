@@ -11,7 +11,6 @@
     layout: 'hero',
     
     // Tier 2: Content Alignment (3-level hierarchy)
-    alignment: 'center', // Legacy compatibility
     alignmentType: 'center',
     alignmentWeight: 'balanced',
     alignmentStyle: 'padded',
@@ -36,7 +35,6 @@
   const PresetConfigurations = {
     'hero-classic': {
       layout: 'hero',
-      alignment: 'center', // Legacy compatibility
       alignmentType: 'center',
       alignmentWeight: 'balanced',
       alignmentStyle: 'padded',
@@ -50,7 +48,6 @@
     },
     'split-modern': {
       layout: 'split',
-      alignment: 'left', // Legacy compatibility
       alignmentType: 'left',
       alignmentWeight: 'top-heavy',
       alignmentStyle: 'minimal',
@@ -64,7 +61,6 @@
     },
     'minimal-glow': {
       layout: 'minimal',
-      alignment: 'center', // Legacy compatibility
       alignmentType: 'center',
       alignmentWeight: 'balanced',
       alignmentStyle: 'compact',
@@ -78,7 +74,6 @@
     },
     'fullbleed-cinematic': {
       layout: 'hero',
-      alignment: 'center', // Legacy compatibility
       alignmentType: 'center',
       alignmentWeight: 'bottom-heavy',
       alignmentStyle: 'padded',
@@ -92,7 +87,6 @@
     },
     'framed-ornate': {
       layout: 'hero',
-      alignment: 'center', // Legacy compatibility
       alignmentType: 'center',
       alignmentWeight: 'top-heavy',
       alignmentStyle: 'padded',
@@ -542,10 +536,23 @@
       option.classList.toggle('selected', option.dataset.value === ModularState.layout);
     });
     
-    // Update Tier 2: Alignment
-    const alignmentOptions = document.querySelectorAll('[data-tier="2"] .tier-option');
-    alignmentOptions.forEach(option => {
-      option.classList.toggle('selected', option.dataset.value === ModularState.alignment);
+    // Update Tier 2: Content Alignment (3-level hierarchy)
+    // Level 1: Alignment Type
+    const alignmentTypeOptions = document.querySelectorAll('[data-tier="2"] .alignment-type .tier-option');
+    alignmentTypeOptions.forEach(option => {
+      option.classList.toggle('selected', option.dataset.value === ModularState.alignmentType);
+    });
+    
+    // Level 2: Alignment Weight
+    const alignmentWeightOptions = document.querySelectorAll('[data-tier="2"] .alignment-weight .tier-option');
+    alignmentWeightOptions.forEach(option => {
+      option.classList.toggle('selected', option.dataset.value === ModularState.alignmentWeight);
+    });
+    
+    // Level 3: Alignment Style
+    const alignmentStyleOptions = document.querySelectorAll('[data-tier="2"] .alignment-style .tier-option');
+    alignmentStyleOptions.forEach(option => {
+      option.classList.toggle('selected', option.dataset.value === ModularState.alignmentStyle);
     });
     
     // Update Tier 3: Weight
@@ -592,6 +599,22 @@
     effectOptions.forEach(option => {
       option.classList.toggle('selected', option.dataset.value === ModularState.imageEffect);
     });
+    
+    // Show/hide effect variants
+    const effectVariantContainers = document.querySelectorAll('[data-tier="6"] .effect-variants');
+    effectVariantContainers.forEach(container => {
+      const effectType = container.dataset.effect;
+      container.style.display = effectType === ModularState.imageEffect ? 'block' : 'none';
+    });
+    
+    // Update effect variant selection
+    const activeEffect = document.querySelector(`[data-tier="6"] [data-effect="${ModularState.imageEffect}"]`);
+    if (activeEffect) {
+      const variantOptions = activeEffect.querySelectorAll('.variant-option');
+      variantOptions.forEach(option => {
+        option.classList.toggle('selected', option.dataset.variant === ModularState.imageEffectVariant);
+      });
+    }
     
     // Update collapsible tier current selection displays
     updateCollapsibleTierDisplays();
@@ -1117,7 +1140,6 @@
     // Apply modular CSS classes
     const modularClasses = [
       `layout-${ModularState.layout}`,
-      `align-${ModularState.alignment}`, // Legacy compatibility
       `align-type-${ModularState.alignmentType}`,
       `align-weight-${ModularState.alignmentWeight}`,
       `align-style-${ModularState.alignmentStyle}`,
@@ -1126,7 +1148,8 @@
       `variant-${ModularState.paletteVariant}`,
       `container-${ModularState.imageContainer}`,
       `container-variant-${ModularState.imageContainerVariant}`,
-      `effect-${ModularState.imageEffect}`
+      `effect-${ModularState.imageEffect}`,
+      `effect-variant-${ModularState.imageEffectVariant}`
     ];
     
     // Apply classes to both front and back
@@ -1136,7 +1159,6 @@
     // Set data attributes for advanced styling
     const dataAttributes = {
       'data-layout': ModularState.layout,
-      'data-alignment': ModularState.alignment, // Legacy compatibility
       'data-alignment-type': ModularState.alignmentType,
       'data-alignment-weight': ModularState.alignmentWeight,
       'data-alignment-style': ModularState.alignmentStyle,
@@ -1145,7 +1167,8 @@
       'data-palette-variant': ModularState.paletteVariant,
       'data-image-container': ModularState.imageContainer,
       'data-image-container-variant': ModularState.imageContainerVariant,
-      'data-image-effect': ModularState.imageEffect
+      'data-image-effect': ModularState.imageEffect,
+      'data-image-effect-variant': ModularState.imageEffectVariant
     };
     
     Object.entries(dataAttributes).forEach(([attr, value]) => {
@@ -1503,6 +1526,9 @@
       </div>
       <div class="card-body">
         <div class="card-quote">"${data.quote}"</div>
+        <div class="card-stats">
+          ${generateStatsHTML(data.stats)}
+        </div>
       </div>
     `;
   }
