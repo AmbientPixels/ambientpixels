@@ -1,10 +1,10 @@
 /**
- * Sticky Right Column Functionality
- * Handles zone collapsing, sticky toggle, and tool interactions
- * Part of CardForge V2 Right Column Redesign
+ * Right Column Functionality
+ * Handles zone collapsing and tool interactions
+ * Part of CardForge V2 Right Column
  */
 
-class StickyRightColumn {
+class RightColumn {
   constructor() {
     this.zoneStates = {
       tools: true,    // expanded by default
@@ -17,13 +17,10 @@ class StickyRightColumn {
   init() {
     this.bindEvents();
     this.initializeZones();
-    // Sticky behavior now handled purely by CSS
-    console.log('✅ Sticky Right Column initialized');
+    console.log('✅ Right Column initialized');
   }
 
   bindEvents() {
-    // Sticky toggle button removed - using pure CSS sticky
-
     // Zone toggle buttons
     document.querySelectorAll('.zone-toggle').forEach(toggle => {
       toggle.addEventListener('click', (e) => {
@@ -112,11 +109,7 @@ class StickyRightColumn {
     });
   }
 
-  // setupStickyBehavior method removed - using pure CSS sticky
 
-  // toggleSticky method removed - using pure CSS sticky
-
-  // applyStickyState method removed - using pure CSS sticky
 
   toggleZone(zoneName) {
     if (!this.zoneStates.hasOwnProperty(zoneName)) return;
@@ -207,7 +200,7 @@ class StickyRightColumn {
 
   handleResize() {
     // Responsive behavior now handled purely by CSS media queries
-    // No JavaScript sticky logic needed
+
   }
 
   showToolMessage(message, type = 'info') {
@@ -432,12 +425,12 @@ document.head.appendChild(notificationStyles);
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   // Only initialize if we're on the CardForge page
-  if (document.querySelector('.sticky-right-column')) {
-    window.StickyRightColumn = new StickyRightColumn();
+  if (document.querySelector('.right-column')) {
+    window.RightColumn = new RightColumn();
   }
 });
 
 // Export for potential module usage
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = StickyRightColumn;
+  module.exports = RightColumn;
 }

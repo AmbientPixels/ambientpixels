@@ -11,10 +11,8 @@
   gap: 0.5rem;
   border-bottom: 2px solid var(--mood-accent-color, #4a4a6a);
   margin-bottom: 1rem;
-  position: sticky;
-  top: 0;
+
   background: var(--aura-bg-color, #1a1a2e);
-  z-index: 5;
   padding-top: 0.25rem;
 }
 .step-btn {
@@ -271,10 +269,8 @@
   gap: 0.5rem;
   border-bottom: 2px solid var(--mood-accent-color, #4a4a6a);
   margin-bottom: 1rem;
-  position: sticky;
-  top: 0;
+
   background: var(--aura-bg-color, #1a1a2e);
-  z-index: 5;
   padding-top: 0.25rem;
 }
 .step-btn {
@@ -1450,7 +1446,7 @@
 #cardforge-main-container {
   display: flex;
   gap: 1rem;
-  align-items: flex-start; /* Use flex-start to allow children to have natural height, fixing sticky */
+  align-items: flex-start; /* Use flex-start to allow children to have natural height */
 }
 .cardforge-editor,
 .cardforge-sidebar,
@@ -2463,12 +2459,11 @@
 }
 
 /* ===================================
-   STICKY RIGHT COLUMN REDESIGN
+   RIGHT COLUMN REDESIGN
    =================================== */
 
-/* Sticky right preview pane - now handled by minimal JavaScript */
-.sticky-right-column {
-  /* CSS sticky removed - using minimal JavaScript for better control */
+/* Right column */
+.right-column {
   align-self: flex-start;
   display: flex;
   flex-direction: column;
@@ -2525,14 +2520,7 @@
   font-size: 0.8rem;
 }
 
-#sticky-toggle {
-  background: var(--mood-primary-color, #00d4ff);
-  color: var(--aura-bg-color, #1a1a2e);
-}
 
-#sticky-toggle:hover {
-  background: var(--aura-cyan, #00b8e6);
-}
 
 /* Scrollable Zones Container - Reduced height to prevent clipping */
 .tools-zone,
@@ -2636,19 +2624,18 @@
   display: none;
 }
 
-/* Non-sticky mode removed - using pure CSS sticky only */
+
 
 /* Responsive Behavior - CLEANED UP */
 @media (max-width: 1200px) {
-  .sticky-right-column {
-    position: static;
+  .right-column {
     height: auto;
     max-height: none;
   }
 }
 
 @media (max-width: 768px) {
-  .sticky-right-column {
+  .right-column {
     padding: 0.5rem;
     gap: 0.5rem;
   }
@@ -2868,14 +2855,9 @@
 
 /* DUPLICATE RESPONSIVE CSS REMOVED - Using consolidated version above */
 
-/* Fix for sticky positioning - override grid.css overflow: hidden */
+/* Fix for grid overflow - override grid.css overflow: hidden */
 .grid-container {
   overflow: visible !important;
 }
 
-/* Sticky right preview pane */
-.sticky-right-column {
-  position: sticky;
-  top: 1rem;
-  align-self: start;
-}
+
