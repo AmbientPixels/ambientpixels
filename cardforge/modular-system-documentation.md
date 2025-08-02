@@ -4,13 +4,14 @@
 
 CardForge V2 implements a sophisticated 6-tier hierarchical modular UI system that provides users with granular control over card design through progressive disclosure. This system replaces the previous flat picker interface with a structured, hierarchical approach that reduces cognitive load while maximizing customization options.
 
-**Current Implementation Status**: 4 of 6 tiers have been successfully converted to the collapsible progressive disclosure interface, achieving a ~80% reduction in visual clutter while maintaining full functionality.
+**Current Implementation Status**: 5 of 6 tiers have been successfully converted to the collapsible progressive disclosure interface, achieving a ~85% reduction in visual clutter while maintaining full functionality.
 
 ## Implementation Status
 
 ### ✅ Completed Collapsible Tiers
 
 - **Tier 1: Layout Style** - Single-level accordion with dynamic preview icons
+- **Tier 3: Visual Weight** - Single-level accordion with weight distribution preview icons
 - **Tier 4: Color Palette** - 2-level hierarchy (Families → Light/Dark variants) with color swatches
 - **Tier 5: Image Container** - 2-level hierarchy (Container Type → Type-specific variants) with shape previews
 - **Tier 6: Image Effects** - 2-level hierarchy (Effect Type → Effect variants) with visual effect previews
@@ -18,7 +19,6 @@ CardForge V2 implements a sophisticated 6-tier hierarchical modular UI system th
 ### ⏳ Pending Implementation
 
 - **Tier 2: Content Alignment** - 3-level hierarchy (most complex tier)
-- **Tier 3: Visual Weight** - Single-level (straightforward conversion)
 
 ### 🎯 Key Features Implemented
 

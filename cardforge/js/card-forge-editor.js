@@ -10,8 +10,11 @@
     // Tier 1: Base Layout
     layout: 'hero',
     
-    // Tier 2: Content Alignment
-    alignment: 'center',
+    // Tier 2: Content Alignment (3-level hierarchy)
+    alignment: 'center', // Legacy compatibility
+    alignmentType: 'center',
+    alignmentWeight: 'balanced',
+    alignmentStyle: 'padded',
     
     // Tier 3: Visual Weight
     weight: 'balanced',
@@ -33,7 +36,10 @@
   const PresetConfigurations = {
     'hero-classic': {
       layout: 'hero',
-      alignment: 'center',
+      alignment: 'center', // Legacy compatibility
+      alignmentType: 'center',
+      alignmentWeight: 'balanced',
+      alignmentStyle: 'padded',
       weight: 'balanced',
       palette: 'neon',
       paletteVariant: 'light',
@@ -44,7 +50,10 @@
     },
     'split-modern': {
       layout: 'split',
-      alignment: 'left',
+      alignment: 'left', // Legacy compatibility
+      alignmentType: 'left',
+      alignmentWeight: 'top-heavy',
+      alignmentStyle: 'minimal',
       weight: 'top-heavy',
       palette: 'ocean',
       paletteVariant: 'dark',
@@ -55,7 +64,10 @@
     },
     'minimal-glow': {
       layout: 'minimal',
-      alignment: 'center',
+      alignment: 'center', // Legacy compatibility
+      alignmentType: 'center',
+      alignmentWeight: 'balanced',
+      alignmentStyle: 'compact',
       weight: 'balanced',
       palette: 'monochrome',
       paletteVariant: 'light',
@@ -66,7 +78,10 @@
     },
     'fullbleed-cinematic': {
       layout: 'hero',
-      alignment: 'center',
+      alignment: 'center', // Legacy compatibility
+      alignmentType: 'center',
+      alignmentWeight: 'bottom-heavy',
+      alignmentStyle: 'padded',
       weight: 'bottom-heavy',
       palette: 'sunset',
       paletteVariant: 'dark',
@@ -77,7 +92,10 @@
     },
     'framed-ornate': {
       layout: 'hero',
-      alignment: 'center',
+      alignment: 'center', // Legacy compatibility
+      alignmentType: 'center',
+      alignmentWeight: 'top-heavy',
+      alignmentStyle: 'padded',
       weight: 'top-heavy',
       palette: 'earth',
       paletteVariant: 'light',
@@ -670,6 +688,19 @@
       updateTierCurrentSelection('1', layoutLabel, previewClass);
     }
     
+    // Update Tier 2: Content Alignment display (3-level hierarchy)
+    const alignmentType = ModularState.alignmentType || 'center';
+    const alignmentWeight = ModularState.alignmentWeight || 'balanced';
+    const alignmentStyle = ModularState.alignmentStyle || 'padded';
+    
+    const alignmentTypeLabel = alignmentType.charAt(0).toUpperCase() + alignmentType.slice(1);
+    const alignmentWeightLabel = alignmentWeight.charAt(0).toUpperCase() + alignmentWeight.slice(1);
+    const alignmentStyleLabel = alignmentStyle.charAt(0).toUpperCase() + alignmentStyle.slice(1);
+    
+    const alignmentDisplayText = `${alignmentTypeLabel} ${alignmentWeightLabel} ${alignmentStyleLabel}`;
+    const alignmentPreviewClass = `${alignmentType}-alignment-preview`;
+    updateTierCurrentSelection('2', alignmentDisplayText, alignmentPreviewClass);
+    
     // Update Tier 4: Color Palette display
     const selectedPalette = document.querySelector('[data-tier="4"] .palette-family.selected');
     if (selectedPalette) {
@@ -747,31 +778,222 @@
     }
   }
 
-  // ===== TIER 2: CONTENT ALIGNMENT =====
+  // ===== TIER 2: CONTENT ALIGNMENT (3-LEVEL HIERARCHY) =====
   function initTier2Alignment() {
-    const alignmentOptions = document.querySelectorAll('[data-tier="2"] .tier-option');
+    console.log('🎯 Initializing Tier 2: Content Alignment (3-level hierarchy)...');
     
-    alignmentOptions.forEach(option => {
+    // Initialize ModularState properties for 3-level alignment
+    if (!ModularState.alignmentType) ModularState.alignmentType = 'center';
+    if (!ModularState.alignmentWeight) ModularState.alignmentWeight = 'balanced';
+    if (!ModularState.alignmentStyle) ModularState.alignmentStyle = 'padded';
+    
+    // Level 1: Alignment Type Selection
+    initAlignmentTypeSelection();
+    
+    // Level 2: Weight Distribution Selection
+    initAlignmentWeightSelection();
+    
+    // Level 3: Style Variant Selection
+    initAlignmentStyleSelection();
+    
+    // Initialize display state
+    updateAlignmentLevelVisibility();
+    
+    console.log('✅ Tier 2 Content Alignment initialized');
+  }
+  
+  function initAlignmentTypeSelection() {
+    const alignmentTypeOptions = document.querySelectorAll('[data-tier="2"] .alignment-type-grid .tier-option');
+    
+    alignmentTypeOptions.forEach(option => {
       option.addEventListener('click', () => {
         // Update selection state
-        alignmentOptions.forEach(opt => opt.classList.remove('selected'));
+        alignmentTypeOptions.forEach(opt => opt.classList.remove('selected'));
         option.classList.add('selected');
         
         // Update modular state
-        ModularState.alignment = option.dataset.value;
+        ModularState.alignmentType = option.dataset.value;
+        
+        // Show/hide appropriate weight options
+        updateAlignmentLevelVisibility();
+        
+        // Update collapsible tier display
+        updateCollapsibleTierDisplays();
         
         // Update preview
         updatePreview();
         
-        console.log(`📐 Alignment updated: ${ModularState.alignment}`);
+        console.log(`📐 Alignment Type updated: ${ModularState.alignmentType}`);
       });
     });
     
     // Set default selection
-    const defaultOption = document.querySelector(`[data-tier="2"] [data-value="${ModularState.alignment}"]`);
+    const defaultOption = document.querySelector(`[data-tier="2"] .alignment-type-grid [data-value="${ModularState.alignmentType}"]`);
     if (defaultOption) {
       defaultOption.classList.add('selected');
     }
+  }
+  
+  function initAlignmentWeightSelection() {
+    const weightOptions = document.querySelectorAll('[data-tier="2"] .weight-option');
+    
+    weightOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        // Update selection state within the current alignment group
+        const currentAlignmentGroup = option.closest('.alignment-weights');
+        const groupWeightOptions = currentAlignmentGroup.querySelectorAll('.weight-option');
+        groupWeightOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        
+        // Update modular state
+        ModularState.alignmentWeight = option.dataset.weight;
+        
+        // Show/hide appropriate style options
+        updateAlignmentLevelVisibility();
+        
+        // Update collapsible tier display
+        updateCollapsibleTierDisplays();
+        
+        // Update preview
+        updatePreview();
+        
+        console.log(`⚖️ Alignment Weight updated: ${ModularState.alignmentWeight}`);
+      });
+    });
+  }
+  
+  function initAlignmentStyleSelection() {
+    const styleOptions = document.querySelectorAll('[data-tier="2"] .style-option');
+    
+    styleOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        // Update selection state within the current combination group
+        const currentCombinationGroup = option.closest('.alignment-styles');
+        const groupStyleOptions = currentCombinationGroup.querySelectorAll('.style-option');
+        groupStyleOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        
+        // Update modular state
+        ModularState.alignmentStyle = option.dataset.style;
+        
+        // Update collapsible tier display
+        updateCollapsibleTierDisplays();
+        
+        // Update preview
+        updatePreview();
+        
+        console.log(`🎨 Alignment Style updated: ${ModularState.alignmentStyle}`);
+      });
+    });
+  }
+  
+  function updateAlignmentLevelVisibility() {
+    // Hide all weight groups
+    const allWeightGroups = document.querySelectorAll('[data-tier="2"] .alignment-weights');
+    allWeightGroups.forEach(group => {
+      group.style.display = 'none';
+    });
+    
+    // Show weight group for current alignment type
+    const currentWeightGroup = document.querySelector(`[data-tier="2"] .alignment-weights[data-alignment="${ModularState.alignmentType}"]`);
+    if (currentWeightGroup) {
+      currentWeightGroup.style.display = 'block';
+      
+      // Set default weight selection if none exists
+      const selectedWeight = currentWeightGroup.querySelector('.weight-option.selected');
+      if (!selectedWeight) {
+        const defaultWeight = currentWeightGroup.querySelector(`[data-weight="${ModularState.alignmentWeight}"]`);
+        if (defaultWeight) {
+          defaultWeight.classList.add('selected');
+        }
+      }
+    }
+    
+    // Hide all style groups
+    const allStyleGroups = document.querySelectorAll('[data-tier="2"] .alignment-styles');
+    allStyleGroups.forEach(group => {
+      group.style.display = 'none';
+    });
+    
+    // Show style group for current alignment-weight combination
+    const currentCombination = `${ModularState.alignmentType}-${ModularState.alignmentWeight}`;
+    let currentStyleGroup = document.querySelector(`[data-tier="2"] .alignment-styles[data-combination="${currentCombination}"]`);
+    
+    // If the specific combination doesn't exist, create it dynamically
+    if (!currentStyleGroup) {
+      currentStyleGroup = createAlignmentStyleGroup(currentCombination);
+    }
+    
+    if (currentStyleGroup) {
+      currentStyleGroup.style.display = 'block';
+      
+      // Set default style selection if none exists
+      const selectedStyle = currentStyleGroup.querySelector('.style-option.selected');
+      if (!selectedStyle) {
+        const defaultStyle = currentStyleGroup.querySelector(`[data-style="${ModularState.alignmentStyle}"]`);
+        if (defaultStyle) {
+          defaultStyle.classList.add('selected');
+        }
+      }
+    }
+  }
+  
+  function createAlignmentStyleGroup(combination) {
+    const [alignmentType, weight] = combination.split('-');
+    const styleLevel = document.querySelector('[data-tier="2"] .alignment-level:last-child');
+    
+    // Create the style group HTML
+    const styleGroupHTML = `
+      <div class="alignment-styles" data-combination="${combination}">
+        <h6 class="variant-subtitle">${capitalizeFirst(alignmentType)} ${capitalizeFirst(weight)} Styles</h6>
+        <div class="style-options">
+          <div class="style-option" data-style="minimal">
+            <div class="style-preview minimal-style-preview"></div>
+            <span class="style-label">Minimal</span>
+          </div>
+          <div class="style-option" data-style="padded">
+            <div class="style-preview padded-style-preview"></div>
+            <span class="style-label">Padded</span>
+          </div>
+          <div class="style-option" data-style="compact">
+            <div class="style-preview compact-style-preview"></div>
+            <span class="style-label">Compact</span>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Insert the new style group
+    styleLevel.insertAdjacentHTML('beforeend', styleGroupHTML);
+    
+    // Get the newly created group and add event listeners
+    const newStyleGroup = styleLevel.querySelector(`[data-combination="${combination}"]`);
+    const newStyleOptions = newStyleGroup.querySelectorAll('.style-option');
+    
+    newStyleOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        // Update selection state within this group
+        newStyleOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        
+        // Update modular state
+        ModularState.alignmentStyle = option.dataset.style;
+        
+        // Update collapsible tier display
+        updateCollapsibleTierDisplays();
+        
+        // Update preview
+        updatePreview();
+        
+        console.log(`🎨 Alignment Style updated: ${ModularState.alignmentStyle}`);
+      });
+    });
+    
+    return newStyleGroup;
+  }
+  
+  function capitalizeFirst(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
   // ===== TIER 3: VISUAL WEIGHT =====
@@ -894,7 +1116,10 @@
     // Apply modular CSS classes
     const modularClasses = [
       `layout-${ModularState.layout}`,
-      `align-${ModularState.alignment}`,
+      `align-${ModularState.alignment}`, // Legacy compatibility
+      `align-type-${ModularState.alignmentType}`,
+      `align-weight-${ModularState.alignmentWeight}`,
+      `align-style-${ModularState.alignmentStyle}`,
       `weight-${ModularState.weight}`,
       `palette-${ModularState.palette}`,
       `variant-${ModularState.paletteVariant}`,
@@ -910,7 +1135,10 @@
     // Set data attributes for advanced styling
     const dataAttributes = {
       'data-layout': ModularState.layout,
-      'data-alignment': ModularState.alignment,
+      'data-alignment': ModularState.alignment, // Legacy compatibility
+      'data-alignment-type': ModularState.alignmentType,
+      'data-alignment-weight': ModularState.alignmentWeight,
+      'data-alignment-style': ModularState.alignmentStyle,
       'data-weight': ModularState.weight,
       'data-palette': ModularState.palette,
       'data-palette-variant': ModularState.paletteVariant,

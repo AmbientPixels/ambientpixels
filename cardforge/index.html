@@ -279,27 +279,150 @@
             </div>
           </div>
           
-          <!-- TIER 2: CONTENT ALIGNMENT -->
-          <div class="modular-tier" data-tier="2">
-            <h4 class="tier-title">Content Alignment</h4>
-            <div class="tier-options-grid alignment-grid">
-              <div class="tier-option" data-value="left">
-                <div class="option-preview">
-                  <div class="alignment-icon left-align-icon"></div>
-                </div>
-                <span class="option-label">Left</span>
+          <!-- TIER 2: CONTENT ALIGNMENT (Collapsible - 3 Levels) -->
+          <div class="modular-tier collapsible-tier" data-tier="2">
+            <div class="tier-header" data-tier-toggle="2">
+              <h4 class="tier-title">Content Alignment</h4>
+              <div class="tier-current-selection">
+                <div class="current-alignment-preview center-alignment-preview"></div>
+                <span class="current-selection-text">Center Balanced Padded</span>
               </div>
-              <div class="tier-option" data-value="center">
-                <div class="option-preview">
-                  <div class="alignment-icon center-align-icon"></div>
+              <div class="tier-expand-icon">▼</div>
+            </div>
+            
+            <div class="tier-content" data-tier-content="2">
+              <div class="alignment-section">
+                <!-- Level 1: Alignment Type -->
+                <div class="alignment-level">
+                  <h5 class="level-title">Choose Alignment Type</h5>
+                  <div class="tier-options-grid alignment-type-grid">
+                    <div class="tier-option" data-value="left">
+                      <div class="option-preview">
+                        <div class="alignment-icon left-align-icon"></div>
+                      </div>
+                      <span class="option-label">Left</span>
+                    </div>
+                    <div class="tier-option selected" data-value="center">
+                      <div class="option-preview">
+                        <div class="alignment-icon center-align-icon"></div>
+                      </div>
+                      <span class="option-label">Center</span>
+                    </div>
+                    <div class="tier-option" data-value="right">
+                      <div class="option-preview">
+                        <div class="alignment-icon right-align-icon"></div>
+                      </div>
+                      <span class="option-label">Right</span>
+                    </div>
+                  </div>
                 </div>
-                <span class="option-label">Center</span>
-              </div>
-              <div class="tier-option" data-value="right">
-                <div class="option-preview">
-                  <div class="alignment-icon right-align-icon"></div>
+                
+                <!-- Level 2: Weight Distribution -->
+                <div class="alignment-level">
+                  <h5 class="level-title">Choose Weight Distribution</h5>
+                  
+                  <!-- Weight options for Left alignment -->
+                  <div class="alignment-weights" data-alignment="left" style="display: none;">
+                    <h6 class="variant-subtitle">Left Alignment Weight</h6>
+                    <div class="weight-options">
+                      <div class="weight-option" data-weight="top-heavy">
+                        <div class="weight-preview left-top-heavy-preview"></div>
+                        <span class="weight-label">Top Heavy</span>
+                      </div>
+                      <div class="weight-option" data-weight="balanced">
+                        <div class="weight-preview left-balanced-preview"></div>
+                        <span class="weight-label">Balanced</span>
+                      </div>
+                      <div class="weight-option" data-weight="bottom-heavy">
+                        <div class="weight-preview left-bottom-heavy-preview"></div>
+                        <span class="weight-label">Bottom Heavy</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Weight options for Center alignment -->
+                  <div class="alignment-weights" data-alignment="center">
+                    <h6 class="variant-subtitle">Center Alignment Weight</h6>
+                    <div class="weight-options">
+                      <div class="weight-option" data-weight="top-heavy">
+                        <div class="weight-preview center-top-heavy-preview"></div>
+                        <span class="weight-label">Top Heavy</span>
+                      </div>
+                      <div class="weight-option selected" data-weight="balanced">
+                        <div class="weight-preview center-balanced-preview"></div>
+                        <span class="weight-label">Balanced</span>
+                      </div>
+                      <div class="weight-option" data-weight="bottom-heavy">
+                        <div class="weight-preview center-bottom-heavy-preview"></div>
+                        <span class="weight-label">Bottom Heavy</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Weight options for Right alignment -->
+                  <div class="alignment-weights" data-alignment="right" style="display: none;">
+                    <h6 class="variant-subtitle">Right Alignment Weight</h6>
+                    <div class="weight-options">
+                      <div class="weight-option" data-weight="top-heavy">
+                        <div class="weight-preview right-top-heavy-preview"></div>
+                        <span class="weight-label">Top Heavy</span>
+                      </div>
+                      <div class="weight-option" data-weight="balanced">
+                        <div class="weight-preview right-balanced-preview"></div>
+                        <span class="weight-label">Balanced</span>
+                      </div>
+                      <div class="weight-option" data-weight="bottom-heavy">
+                        <div class="weight-preview right-bottom-heavy-preview"></div>
+                        <span class="weight-label">Bottom Heavy</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <span class="option-label">Right</span>
+                
+                <!-- Level 3: Style Variants -->
+                <div class="alignment-level">
+                  <h5 class="level-title">Choose Style Variant</h5>
+                  
+                  <!-- Style variants for each alignment-weight combination -->
+                  <div class="alignment-styles" data-combination="center-balanced">
+                    <h6 class="variant-subtitle">Center Balanced Styles</h6>
+                    <div class="style-options">
+                      <div class="style-option" data-style="minimal">
+                        <div class="style-preview minimal-style-preview"></div>
+                        <span class="style-label">Minimal</span>
+                      </div>
+                      <div class="style-option selected" data-style="padded">
+                        <div class="style-preview padded-style-preview"></div>
+                        <span class="style-label">Padded</span>
+                      </div>
+                      <div class="style-option" data-style="compact">
+                        <div class="style-preview compact-style-preview"></div>
+                        <span class="style-label">Compact</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Additional style combinations will be shown/hidden dynamically -->
+                  <div class="alignment-styles" data-combination="left-balanced" style="display: none;">
+                    <h6 class="variant-subtitle">Left Balanced Styles</h6>
+                    <div class="style-options">
+                      <div class="style-option" data-style="minimal">
+                        <div class="style-preview minimal-style-preview"></div>
+                        <span class="style-label">Minimal</span>
+                      </div>
+                      <div class="style-option" data-style="padded">
+                        <div class="style-preview padded-style-preview"></div>
+                        <span class="style-label">Padded</span>
+                      </div>
+                      <div class="style-option" data-style="compact">
+                        <div class="style-preview compact-style-preview"></div>
+                        <span class="style-label">Compact</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- More combinations will be added dynamically by JavaScript -->
+                </div>
               </div>
             </div>
           </div>
