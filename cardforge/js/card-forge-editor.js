@@ -125,6 +125,7 @@
         if (cardData.rarity) document.getElementById('card-rarity').value = cardData.rarity;
         if (cardData.quote) document.getElementById('card-quote').value = cardData.quote;
         if (cardData.avatar) document.getElementById('card-avatar').value = cardData.avatar;
+        if (cardData.biography) document.getElementById('card-bio').value = cardData.biography;
       }
       
       // Apply stats - CREATE MULTIPLE ROWS
@@ -1279,6 +1280,16 @@
     const attributesContainer = document.getElementById('attribute-editor');
     const attributes = [];
     
+    // Collect biography field first
+    const biographyField = document.getElementById('card-bio');
+    if (biographyField && biographyField.value.trim()) {
+      attributes.push({
+        name: 'Biography',
+        value: biographyField.value.trim()
+      });
+    }
+    
+    // Collect dynamic custom attributes
     if (attributesContainer) {
       const attributeRows = attributesContainer.querySelectorAll('.attribute-row');
       attributeRows.forEach(row => {
@@ -1294,7 +1305,7 @@
       });
     }
     
-    console.log('⚡ Collected attributes:', attributes);
+    console.log('⚡ Collected attributes (including biography):', attributes);
     return attributes;
   }
 
@@ -1589,7 +1600,8 @@
       'card-class', 
       'card-rarity',
       'card-quote',
-      'card-avatar'
+      'card-avatar',
+      'card-bio' // Biography field for Attributes tab
     ];
     
     formInputs.forEach(inputId => {
