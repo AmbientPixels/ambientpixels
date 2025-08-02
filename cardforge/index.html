@@ -840,38 +840,120 @@
   </div>
     <!-- Unified card preview section -->
     <div class="drag-divider" aria-label="Resize panes"></div>
-    <div class="cardforge-preview grid-col-4 preview-pane" id="card-preview-container">
-      <h2>Card Preview</h2>
-      <div id="auth-status-message" class="cardforge-auth-message"></div>
-      <p id="test-auth-state">Auth: <em>unknown</em></p>
-      <button type="button" id="flip-btn" class="glass-button">Flip Card</button>
-      <div class="card-preview-canvas">
-        <div class="card-inner">
-          <div class="card-front">
-            <div class="card-header">
-              <div class="card-avatar-container">
-                <img class="card-avatar" src="/cardforge/images/default-avatar.jpg" alt="Character Avatar">
-              </div>
-              <div class="card-title-section">
-                <h3 class="card-name"></h3>
-                <p class="card-class"></p>
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="card-quote"></div>
-              <div class="card-stats">
-                <!-- Stats will be populated by JavaScript -->
-              </div>
-              <div class="badge-container">
-                <!-- Badges will be populated by JavaScript -->
-              </div>
-            </div>
+    <div class="cardforge-preview grid-col-4 preview-pane sticky-right-column" id="card-preview-container">
+      
+      <!-- CARD PREVIEW ZONE (Always Visible) -->
+      <div class="card-preview-zone">
+        <div class="preview-header">
+          <h2>Card Preview</h2>
+          <div class="preview-controls">
+            <button type="button" id="flip-btn" class="glass-button">
+              <i class="fas fa-sync-alt"></i>
+              <span>Flip Card</span>
+            </button>
+            <button type="button" id="sticky-toggle" class="glass-button" title="Toggle sticky preview">
+              <i class="fas fa-thumbtack"></i>
+            </button>
           </div>
-          <div class="card-back">
-            <!-- Back content will be populated by JavaScript -->
+        </div>
+        
+        <div id="auth-status-message" class="cardforge-auth-message"></div>
+        <p id="test-auth-state">Auth: <em>unknown</em></p>
+        
+        <div class="card-preview-canvas">
+          <div class="card-inner">
+            <div class="card-front">
+              <div class="card-header">
+                <div class="card-avatar-container">
+                  <img class="card-avatar" src="/cardforge/images/default-avatar.jpg" alt="Character Avatar">
+                </div>
+                <div class="card-title-section">
+                  <h3 class="card-name"></h3>
+                  <p class="card-class"></p>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="card-quote"></div>
+                <div class="card-stats">
+                  <!-- Stats will be populated by JavaScript -->
+                </div>
+                <div class="badge-container">
+                  <!-- Badges will be populated by JavaScript -->
+                </div>
+              </div>
+            </div>
+            <div class="card-back">
+              <!-- Back content will be populated by JavaScript -->
+            </div>
           </div>
         </div>
       </div>
+      
+      <!-- TOOLS ZONE (Scrollable) -->
+      <div class="tools-zone">
+        <div class="zone-header">
+          <h3><i class="fas fa-tools"></i> Quick Actions</h3>
+          <button type="button" class="zone-toggle" data-zone="tools">
+            <i class="fas fa-chevron-up"></i>
+          </button>
+        </div>
+        <div class="zone-content" data-zone-content="tools">
+          <div class="tool-buttons">
+            <button type="button" class="tool-btn" id="save-card-btn">
+              <i class="fas fa-save"></i>
+              <span>Save Card</span>
+            </button>
+            <button type="button" class="tool-btn" id="duplicate-card-btn">
+              <i class="fas fa-copy"></i>
+              <span>Duplicate</span>
+            </button>
+            <button type="button" class="tool-btn" id="reset-card-btn">
+              <i class="fas fa-undo"></i>
+              <span>Reset</span>
+            </button>
+            <button type="button" class="tool-btn coming-soon" disabled>
+              <i class="fas fa-share-alt"></i>
+              <span>Share</span>
+              <small class="coming-soon-label">Soon</small>
+            </button>
+            <button type="button" class="tool-btn coming-soon" disabled>
+              <i class="fas fa-download"></i>
+              <span>Export</span>
+              <small class="coming-soon-label">Soon</small>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- MY CARDS ZONE (Scrollable) -->
+      <div class="my-cards-zone">
+        <div class="zone-header">
+          <h3><i class="fas fa-layer-group"></i> My Cards</h3>
+          <div class="zone-controls">
+            <button type="button" class="zone-toggle" data-zone="my-cards">
+              <i class="fas fa-chevron-up"></i>
+            </button>
+          </div>
+        </div>
+        <div class="zone-content" data-zone-content="my-cards">
+          <div class="my-cards-search">
+            <div class="search-input-group">
+              <i class="fas fa-search"></i>
+              <input type="text" id="my-cards-search" placeholder="Search my cards..." />
+            </div>
+          </div>
+          
+          <div class="my-cards-list" id="my-cards-list">
+            <!-- My Cards will be populated by JavaScript -->
+            <div class="my-cards-empty">
+              <i class="fas fa-layer-group"></i>
+              <p>No saved cards yet</p>
+              <small>Save your first card to see it here</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      
     </div>
   </section>
   
@@ -906,6 +988,8 @@
   <script src="/cardforge/js/cardforge-template-loader.js" defer></script>
   <script src="/cardforge/js/card-forge-editor.js" defer></script>
   <script src="/cardforge/js/cardforge-publish.js" defer></script>
+  <script src="/cardforge/js/sticky-right-column.js" defer></script>
+  <script src="/cardforge/js/my-cards-manager.js" defer></script>
   
 
   <!-- Other Scripts -->
