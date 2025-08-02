@@ -2480,7 +2480,7 @@
 /* Card Preview Zone (Always Visible) - Fixed math */
 #card-preview-container {
   position: sticky;
-  top: 60px;
+  top: 100px;
   z-index: 10;
   background: var(--aura-bg-color, #1a1a2e);
   border-radius: 8px;
