@@ -4,10 +4,221 @@
  * Created: 2025-08-03
  */
 
-/* This file will contain:
- * - Dialog/modal systems
- * - Message notifications
- * - Tabbed sections and stepper tabs
- * - UI buttons and controls
- * - Component-specific styling
- */
+/* Stepper Tabs */
+.cf-stepper {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--mood-accent-color, #4a4a6a);
+  margin-bottom: 1rem;
+  background: var(--aura-bg-color, #1a1a2e);
+  padding-top: 0.25rem;
+}
+
+.step-btn {
+  background: transparent;
+  border: none;
+  padding: 0.5rem 1rem;
+  color: var(--mood-secondary-color, #a0a0c0);
+  font-family: inherit;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.step-btn:hover {
+  color: var(--mood-primary-color, #e1e1ff);
+}
+
+.step-btn.active {
+  color: var(--mood-primary-color, #e1e1ff);
+  border-color: var(--mood-primary-color, #e1e1ff);
+}
+
+/* Dialog/Modal Systems */
+.cardforge-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 10000;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.cardforge-dialog.active {
+  display: flex;
+}
+
+.cardforge-dialog-content {
+  background-color: var(--aura-bg-color, #1a1a2e);
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 8px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+  transform: translateY(-20px);
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.cardforge-dialog.active .cardforge-dialog-content {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.cardforge-dialog h3 {
+  margin-top: 0;
+  color: var(--mood-primary-color, #e1e1ff);
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* Message Notifications */
+.cardforge-message-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 300px;
+}
+
+.cardforge-message {
+  padding: 12px 16px;
+  border-radius: 6px;
+  background-color: var(--aura-bg-color, #1a1a2e);
+  border-left: 4px solid var(--mood-accent-color, #4a4a6a);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  animation: slide-in 0.3s ease-out;
+}
+
+.cardforge-message-success {
+  border-left-color: #4CAF50;
+}
+
+.cardforge-message-error {
+  border-left-color: #F44336;
+}
+
+.cardforge-message-info {
+  border-left-color: #2196F3;
+}
+
+.message-icon {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.message-text {
+  flex: 1;
+}
+
+/* Modal Message */
+.modal-message {
+  color: var(--mood-primary-color, #e1e1ff);
+  font-size: 0.9rem;
+  margin: 16px 0;
+  text-align: center;
+}
+
+/* Image Picker Modal */
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.8);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.image-modal .image-modal-content {
+  background: var(--aura-bg-color, #1a1a2e);
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 8px;
+  padding: 16px;
+  width: 90%;
+  max-width: 600px;
+  color: var(--mood-primary-color, #e1e1ff);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.image-modal .modal-close {
+  align-self: flex-end;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--mood-secondary-color, #a0a0c0);
+}
+
+.image-modal .image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+  overflow-y: auto;
+  max-height: 300px;
+}
+
+.image-modal .image-grid img {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.image-modal .image-grid img:hover {
+  border-color: var(--mood-primary-color, #e1e1ff);
+}
+
+.image-modal .modal-pagination {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.image-modal .modal-pagination button {
+  background: var(--mood-accent-color, #4a4a6a);
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.image-modal .custom-url {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.image-modal .custom-url input {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 4px;
+  background: var(--aura-bg-color, #1a1a2e);
+  color: var(--mood-primary-color, #e1e1ff);
+  font-family: inherit;
+}

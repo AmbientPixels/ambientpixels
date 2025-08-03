@@ -213,4 +213,68 @@ feat: Extract form styles to cardforge-forms.css
 - Reduced code duplication and improved maintainability
 
 Breaking: Form styles moved from legacy files to cardforge-forms.css
-```  
+```
+
+---
+
+## EXTRACTION IN PROGRESS: cardforge-ui-components.css (Priority #3)
+
+### READY TO EXTRACT:
+**From `cardforge-ui.css`:** Dialogs, messages, tabs, stepper components
+**Target:** Clear separation of UI components from other styling
+**Size estimate:** ~300 lines
+
+**Components to extract:**
+- Dialog/modal systems (.cardforge-dialog)
+- Message notifications (.cardforge-message-container)
+- Tabbed sections and stepper tabs (.cf-stepper, .step-btn)
+- UI component-specific styling
+
+**COMPLETED:** ✅ UI component CSS extracted to `cardforge-ui-components.css`
+
+### EXTRACTION COMPLETE:
+- **Lines extracted:** ~220 lines from `cardforge-ui.css`
+- **Components:** Stepper tabs, dialogs, message notifications, modal systems, image picker
+- **Reference added:** `index.html` updated with CSS link
+- **Legacy cleanup:** All UI component CSS removed from `cardforge-ui.css`
+
+---
+
+## NEXT EXTRACTION: cardforge-modular.css (Priority #4)
+
+### READY TO EXTRACT:
+**From `cardforge-ui.css`:** Modular system classes, presets, tier options
+**Target:** Separate modular design system from other UI styling
+**Size estimate:** ~400 lines
+
+**Components to extract:**
+- Modular system base (.modular-system)
+- Presets section (.presets-section, .preset-btn)
+- Tier system (.modular-tier, .tier-option)
+- Layout options and previews
+- Color palette system
+
+**COMPLETED:** ✅ Modular system CSS extracted to `cardforge-modular.css`
+
+### EXTRACTION COMPLETE:
+- **Lines extracted:** ~300+ lines from `cardforge-ui.css`
+- **Components:** Modular system base, presets section with icons, tier system, layout options
+- **Reference added:** `index.html` updated with CSS link
+- **Legacy cleanup:** All modular system CSS removed from `cardforge-ui.css`
+
+---
+
+## NEXT EXTRACTION: cardforge-icons.css (Priority #5)
+
+### READY TO EXTRACT:
+**From `cardforge-ui.css`:** Icon systems, icon previews, icon-related styling
+**Target:** Separate icon-specific CSS from other UI styling
+**Size estimate:** ~200 lines
+
+**Components to extract:**
+- Icon system classes
+- Icon preview styling
+- Icon-specific layouts and grids
+- Icon hover states and interactions
+
+**NEXT:** Copy icon system CSS to `cardforge-icons.css`  

@@ -1,6 +1,6 @@
 /* CardForge Modular System Styles
- * Modular system CSS classes (palettes, layouts, alignments, effects)
- * Extracted from: cardforge-card.css (modular classes, variants) + cardforge-ui.css (modular UI)
+ * Modular design system, presets, tiers, palettes
+ * Extracted from: cardforge-ui.css (modular system classes)
  * Created: 2025-08-03
  */
 
@@ -11,3 +11,255 @@
  * - Modular system CSS classes and combinations
  * - Card element styling variations
  */
+
+/* ===== MODULAR SYSTEM BASE ===== */
+
+.modular-system {
+  margin-bottom: 2rem;
+}
+
+/* ===== PRESETS SECTION ===== */
+
+.presets-section {
+  background: var(--aura-bg-secondary, #2a2a3e);
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.presets-title {
+  color: var(--mood-primary-color, #00d4ff);
+  font-size: 1.2em;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  text-align: center;
+}
+
+.presets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.preset-btn {
+  background: var(--aura-bg-color, #1a1a2e);
+  border: 2px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 8px;
+  padding: 1rem 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  font-family: inherit;
+  color: var(--mood-text-primary, #e1e1ff);
+}
+
+.preset-btn:hover {
+  border-color: var(--mood-primary-color, #00d4ff);
+  background: var(--aura-bg-secondary, #2a2a3e);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2);
+}
+
+.preset-btn.active {
+  border-color: var(--mood-primary-color, #00d4ff);
+  background: var(--mood-primary-color, #00d4ff);
+  color: var(--aura-bg-color, #1a1a2e);
+}
+
+.preset-preview {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+
+.preset-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  position: relative;
+}
+
+/* Preset Icon Styles */
+.hero-classic-icon {
+  background: linear-gradient(135deg, var(--mood-primary-color, #00d4ff) 0%, var(--aura-cyan) 100%);
+  border-radius: 50%;
+}
+
+.split-modern-icon {
+  background: linear-gradient(90deg, var(--aura-violet) 0%, var(--aura-violet) 50%, var(--mood-accent-color, #4a4a6a) 50%, var(--mood-accent-color, #4a4a6a) 100%);
+  border-radius: 2px;
+}
+
+.minimal-glow-icon {
+  background: var(--aura-bg-secondary, #2a2a3e);
+  border: 2px solid var(--mood-primary-color, #00d4ff);
+  border-radius: 4px;
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+}
+
+.fullbleed-cinematic-icon {
+  background: linear-gradient(135deg, var(--aura-red) 0%, var(--aura-orange) 100%);
+  border-radius: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.fullbleed-cinematic-icon::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60%;
+  height: 60%;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  transform: translate(-50%, -50%);
+}
+
+.framed-ornate-icon {
+  background: var(--aura-bg-color, #1a1a2e);
+  border: 3px solid var(--mood-primary-color, #00d4ff);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px var(--aura-bg-secondary, #2a2a3e), 0 0 6px rgba(0, 212, 255, 0.3);
+}
+
+.preset-label {
+  font-size: 0.9em;
+  font-weight: 600;
+  color: inherit;
+  margin: 0;
+}
+
+.preset-desc {
+  font-size: 0.75em;
+  color: var(--mood-text-secondary, #a0a0c0);
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* ===== TIER SYSTEM ===== */
+
+.tier-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.tier-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 8px;
+  background: var(--aura-bg-secondary, #2a2a4e);
+  border: 2px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.tier-option:hover {
+  border-color: var(--mood-accent-color, #4a4a6a);
+  background: var(--aura-bg-hover, #3a3a5e);
+}
+
+.tier-option.selected {
+  border-color: var(--mood-primary-color, #00d4ff);
+  background: var(--aura-bg-active, #1a4a5e);
+}
+
+.option-preview {
+  width: 40px;
+  height: 30px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.layout-icon {
+  width: 32px;
+  height: 24px;
+  background: var(--mood-text-secondary, #cccccc);
+  border-radius: 2px;
+  position: relative;
+}
+
+/* Layout Icon Styles */
+.hero-icon {
+  background: linear-gradient(to bottom, var(--mood-primary-color, #00d4ff) 0%, var(--mood-primary-color, #00d4ff) 40%, var(--mood-text-secondary, #cccccc) 40%);
+}
+
+.split-icon::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 40%;
+  height: 100%;
+  background: var(--mood-primary-color, #00d4ff);
+  border-radius: 2px 0 0 2px;
+}
+
+.minimal-icon {
+  height: 16px;
+  background: var(--mood-text-secondary, #cccccc);
+}
+
+.overlay-icon {
+  background: var(--mood-text-secondary, #cccccc);
+  position: relative;
+}
+
+.overlay-icon::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  background: var(--mood-primary-color, #00d4ff);
+  border-radius: 1px;
+  opacity: 0.7;
+}
+
+.stack-icon {
+  background: var(--mood-text-secondary, #cccccc);
+  position: relative;
+}
+
+.stack-icon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: var(--mood-primary-color, #00d4ff);
+  border-radius: 2px 2px 0 0;
+}
+
+.frame-icon {
+  background: var(--aura-bg-color, #1a1a2e);
+  border: 2px solid var(--mood-primary-color, #00d4ff);
+  border-radius: 2px;
+}
+
+.option-label {
+  font-size: 0.75em;
+  color: var(--mood-text-primary, #e1e1ff);
+  margin: 0;
+  font-weight: 500;
+}
