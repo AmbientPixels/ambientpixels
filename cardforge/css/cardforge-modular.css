@@ -482,3 +482,58 @@
   background: var(--mood-accent-color, #4a4a6a);
   border-radius: 2px;
 }
+
+/* ===== PRESET-SPECIFIC THEMES ===== */
+/* Extracted from cardforge-ui.css to consolidate preset system */
+
+/* Cyberpunk Preset */
+.preset-cyberpunk .card-header {
+  background: linear-gradient(45deg, #00ffff, #ff00ff);
+}
+
+.preset-cyberpunk .card-badge {
+  background: #00ffff;
+}
+
+.preset-cyberpunk .card-text {
+  background: #ff00ff;
+}
+
+/* Fantasy Preset */
+.preset-fantasy .card-header {
+  background: linear-gradient(45deg, #8b5cf6, #a855f7);
+}
+
+.preset-fantasy .card-badge {
+  background: #f3e8ff;
+}
+
+.preset-fantasy .card-text {
+  background: #e1d4ff;
+}
+
+/* Corporate Preset */
+.preset-corporate .card-header {
+  background: linear-gradient(45deg, #1f2937, #374151);
+}
+
+.preset-corporate .card-badge {
+  background: #60a5fa;
+}
+
+.preset-corporate .card-text {
+  background: #9ca3af;
+}
+
+/* Retro Preset */
+.preset-retro .card-header {
+  background: linear-gradient(45deg, #fbbf24, #f59e0b);
+}
+
+.preset-retro .card-badge {
+  background: #fb7185;
+}
+
+.preset-retro .card-text {
+  background: #34d399;
+}
