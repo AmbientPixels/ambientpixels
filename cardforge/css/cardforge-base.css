@@ -4,9 +4,63 @@
  * Created: 2025-08-03
  */
 
-/* This file will contain:
- * - CSS custom properties/variables
- * - Base card container styling
- * - Core animations and glow effects
- * - Foundation styles for the card system
- */
+/* Basic card container - will be extended by modular system */
+.card-preview-canvas {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  min-height: fit-content;
+  border-radius: 1rem;
+  background: var(--card-bg, rgba(18,22,34,0.85));
+  border: 1px solid var(--card-border, rgba(255,255,255,0.15));
+  overflow: visible;
+  display: block;
+  padding: 0;
+  box-sizing: border-box;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--card-text, #e1faff);
+  contain: layout style;
+}
+
+/* Basic glow effect - will be enhanced by modular system */
+.card-preview-canvas::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: 1rem;
+  background: var(--card-glow, linear-gradient(135deg, #35f5ff, #9dff5c));
+  background-size: 300% 300%;
+  animation: cardGlow 8s ease-in-out infinite;
+  pointer-events: none;
+  opacity: var(--card-glow-opacity, 0.6);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  transition: opacity 0.3s ease;
+}
+
+@keyframes cardGlow {
+  0%, 100% { background-position: 0% 50%; opacity: 0.4; }
+  50% { background-position: 100% 50%; opacity: 0.8; }
+}
+
+.card-preview-canvas:hover {
+  box-shadow: var(--card-hover-shadow, 0 16px 32px rgba(79,248,255,0.3));
+}
+
+.card-preview-canvas:hover::before {
+  opacity: var(--card-glow-hover-opacity, 1);
+}
+
+/* Basic content structure - will be enhanced by modular system */
+.card-preview-content {
+  width: 100%;
+  overflow: hidden;
+  padding: 0;
+  position: relative;
+  z-index: 1;
+}

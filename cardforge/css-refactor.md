@@ -149,6 +149,68 @@ first list what the legacy css files contain and what they do here:
 
 
 
-## NEXT STEP: Start with cardforge-base.css
-**Ready to extract:** Base card container, animations, and glow effects from cardforge-card.css
-**Process:** Copy CSS → Add reference to index.html → User removes from legacy → Report what to remove  
+## ✅ EXTRACTION COMPLETED: cardforge-base.css
+
+### ALL STEPS COMPLETED:
+✅ **STEP 1:** Copied CSS from `cardforge-card.css` to `cardforge-base.css`
+✅ **STEP 2:** Added reference to `index.html`
+✅ **STEP 3:** User manually removed code from `cardforge-card.css`
+✅ **STEP 4:** REMOVED FROM LEGACY:
+- Lines 4-22: `.card-preview-canvas` base container (60 lines removed)
+- Lines 24-41: `.card-preview-canvas::before` glow effects
+- Lines 43-46: `@keyframes cardGlow` animation
+- Lines 48-50: `.card-preview-canvas:hover` hover shadow
+- Lines 52-54: `.card-preview-canvas:hover::before` hover glow
+- Lines 56-60: `.card-preview-content` basic structure
+
+**RESULT:** 60 lines moved from `cardforge-card.css` to `cardforge-base.css` ✅
+
+---
+
+## ✅ EXTRACTION COMPLETED: cardforge-forms.css (Priority #2)
+
+### ALL STEPS COMPLETED:
+✅ **STEP 1:** Copied CSS from `card-forge.css` and `cardforge-ui.css` to `cardforge-forms.css`
+✅ **STEP 2:** Added reference to `index.html`
+✅ **STEP 3:** User manually removed code from both legacy files
+✅ **STEP 4:** REMOVED FROM LEGACY:
+
+**From `card-forge.css` (223 lines removed):**
+- Lines 30-35: `.cardforge-form label`
+- Lines 37-48: Form inputs (input, textarea, select)
+- Lines 50-56: Form focus states
+- Lines 58-90: Form buttons and hover/active states
+- Lines 92-122: Remove buttons styling
+- Lines 124-156: Row containers and micro-row grid
+- Lines 158-182: Input sizing within rows
+- Lines 184-204: Icon picker buttons
+- Lines 206-216: Badge slider and value label
+- Lines 218-236: Micro badges display grid
+- Lines 242-250: `.choose-image-btn` styling
+
+**From `cardforge-ui.css` (58 lines removed):**
+- Lines 1202-1226: Social row duplicate styles
+- Lines 1244-1257: Duplicate `.choose-image-btn` styles
+
+**RESULT:** 281 lines consolidated from 2 files into `cardforge-forms.css` (237 lines) ✅
+**DUPLICATES ELIMINATED:** Social row and choose-image-btn styles unified
+
+## COMMIT MESSAGE
+
+```
+feat: Extract form styles to cardforge-forms.css
+
+- Consolidated 281 lines of form CSS from card-forge.css and cardforge-ui.css
+- Eliminated duplicate social row and button styles between files
+- Created unified form styling system with:
+  * Form labels, inputs, textarea, select styling
+  * Focus states and validation styling
+  * Add/remove button styling with hover/active states
+  * Row containers (stat, social, micro, attribute rows)
+  * Icon picker and badge slider components
+  * Micro badges display grid system
+- Added cardforge-forms.css reference to index.html
+- Reduced code duplication and improved maintainability
+
+Breaking: Form styles moved from legacy files to cardforge-forms.css
+```  
