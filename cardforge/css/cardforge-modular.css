@@ -263,3 +263,31 @@
   margin: 0;
   font-weight: 500;
 }
+
+/* ===== MODULAR TIER CONTAINERS ===== */
+
+.modular-tier {
+  margin-bottom: 24px;
+}
+
+.modular-tier:last-child {
+  margin-bottom: 0;
+}
+
+.tier-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--mood-text-primary, #ffffff);
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tier-title::before {
+  content: "";
+  width: 4px;
+  height: 16px;
+  background: var(--mood-accent-color, #4a4a6a);
+  border-radius: 2px;
+}
