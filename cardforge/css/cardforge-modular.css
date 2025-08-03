@@ -218,6 +218,197 @@
   background: var(--mood-text-secondary, #cccccc);
 }
 
+/* ===== TIER 4: PALETTE OPTIONS ===== */
+.palette-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.palette-families {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 12px;
+}
+
+.palette-family {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 8px;
+  background: var(--aura-bg-secondary, #2a2a4e);
+  border: 2px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.palette-family:hover {
+  border-color: var(--mood-accent-color, #4a4a6a);
+  background: var(--aura-bg-hover, #3a3a5e);
+}
+
+.palette-family.selected {
+  border-color: var(--mood-primary-color, #00d4ff);
+  background: var(--aura-bg-active, #1a4a5e);
+}
+
+.palette-preview {
+  width: 40px;
+  height: 24px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Palette preview colors */
+.neon-preview {
+  background: linear-gradient(45deg, #00d4ff, #ff00ff, #00ff88);
+}
+
+.earth-preview {
+  background: linear-gradient(45deg, #8B4513, #228B22, #DAA520);
+}
+
+.ocean-preview {
+  background: linear-gradient(45deg, #006994, #0099cc, #66ccff);
+}
+
+.sunset-preview {
+  background: linear-gradient(45deg, #ff6b35, #f7931e, #ffcd3c);
+}
+
+.monochrome-preview {
+  background: linear-gradient(45deg, #333333, #666666, #999999);
+}
+
+.palette-label {
+  font-size: 12px;
+  color: var(--mood-text-secondary, #cccccc);
+  font-weight: 500;
+}
+
+.palette-family.selected .palette-label {
+  color: var(--mood-primary-color, #00d4ff);
+}
+
+/* ===== TIER SYSTEM ===== */
+.tier-option.selected .option-label {
+  color: var(--mood-primary-color, #00d4ff);
+}
+
+/* Collapsible Tier System */
+.collapsible-tier {
+  background: var(--aura-bg-secondary, #2a2a4e);
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.collapsible-tier:hover {
+  border-color: var(--mood-primary-color, #e1e1ff);
+}
+
+/* Tier Header (Always Visible) */
+.tier-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  cursor: pointer;
+  background: var(--aura-bg-color, #1a1a2e);
+  border-bottom: 1px solid var(--mood-accent-color, #4a4a6a);
+  transition: all 0.2s ease;
+}
+
+.tier-header:hover {
+  background: var(--aura-bg-hover, #3a3a5e);
+}
+
+.tier-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--mood-primary-color, #e1e1ff);
+  margin: 0;
+}
+
+.tier-current-selection {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tier-expand-icon {
+  font-size: 0.8rem;
+  color: var(--aura-bg-color, #1a1a2e);
+  transition: transform 0.3s ease;
+}
+
+.collapsible-tier.expanded .tier-expand-icon {
+  transform: rotate(180deg);
+}
+
+/* Tier Content (Collapsible) */
+.tier-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.collapsible-tier.expanded .tier-content {
+  max-height: 800px;
+}
+
+/* ===== PREVIEW COMPONENTS ===== */
+/* Weight Previews */
+.current-weight-preview {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  background: var(--aura-bg-secondary, #2a2a4e);
+}
+
+.top-heavy-weight-preview::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  width: 12px;
+  height: 6px;
+  background: var(--mood-primary-color, #00d4ff);
+  border-radius: 2px;
+}
+
+.balanced-weight-preview::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 12px;
+  height: 12px;
+  background: var(--mood-primary-color, #00d4ff);
+  border-radius: 2px;
+}
+
+.bottom-heavy-weight-preview::before {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  left: 4px;
+  width: 12px;
+  height: 6px;
+  background: var(--mood-primary-color, #00d4ff);
+  border-radius: 2px;
+}
+
+
+
 .overlay-icon {
   background: var(--mood-text-secondary, #cccccc);
   position: relative;

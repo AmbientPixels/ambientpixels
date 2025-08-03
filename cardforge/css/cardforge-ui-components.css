@@ -222,3 +222,92 @@
   color: var(--mood-primary-color, #e1e1ff);
   font-family: inherit;
 }
+
+/* Card List Components */
+.card-list-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.card-list-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--mood-secondary-color);
+}
+
+.card-list-actions button:hover {
+  color: var(--mood-primary-color);
+}
+
+/* Section Display Control */
+.cf-section.active {
+  display: block;
+}
+
+/* My Cards Sidebar Components */
+.my-card-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+
+.my-card-thumb {
+  width: 40px;
+  height: auto;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+/* Layout Container Components */
+#cardforge-main-container {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+/* Card Preview Container */
+#card-preview-container {
+  position: sticky;
+  top: 100px;
+  z-index: 10;
+  background: var(--aura-bg-color, #1a1a2e);
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+}
+
+/* Search Input Components */
+.search-input-group {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.search-input-group input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 4px;
+  background: var(--aura-bg-color, #1a1a2e);
+  color: var(--mood-primary-color, #e1e1ff);
+  font-family: inherit;
+}
+
+.search-input-group input:focus {
+  outline: none;
+  border-color: var(--mood-primary-color, #00d4ff);
+}
+
+.search-input-group input::placeholder {
+  color: var(--mood-text-secondary, #a0a0c0);
+}
+
+/* Tool Buttons */
+.tool-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}

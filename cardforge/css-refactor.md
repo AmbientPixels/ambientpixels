@@ -259,22 +259,96 @@ Breaking: Form styles moved from legacy files to cardforge-forms.css
 ### EXTRACTION COMPLETE:
 - **Lines extracted:** ~300+ lines from `cardforge-ui.css`
 - **Components:** Modular system base, presets section with icons, tier system, layout options
-- **Reference added:** `index.html` updated with CSS link
-- **Legacy cleanup:** All modular system CSS removed from `cardforge-ui.css`
-
----
-
-## NEXT EXTRACTION: cardforge-icons.css (Priority #5)
-
-### READY TO EXTRACT:
 **From `cardforge-ui.css`:** Icon systems, icon previews, icon-related styling
 **Target:** Separate icon-specific CSS from other UI styling
-**Size estimate:** ~200 lines
+**Size extracted:** ~200 lines
 
-**Components to extract:**
+**Components extracted:**
 - Icon system classes
 - Icon preview styling
 - Icon-specific layouts and grids
 - Icon hover states and interactions
 
-**NEXT:** Copy icon system CSS to `cardforge-icons.css`  
+---
+
+## CURRENT STATUS: cardforge-ui.css Analysis (1,217 lines remaining)
+
+### REMAINING CONTENT AUDIT:
+After 5 successful extractions, `cardforge-ui.css` contains:
+
+**SHOULD STAY (Core UI - ~350 lines):**
+- ✅ Variant Toggle System (~50 lines) - Core UI component
+- ✅ Card Flip System (~100 lines) - Core card preview functionality  
+- ✅ Authentication & Messages (~100 lines) - Core UI feedback
+- ✅ Responsive Design (~100+ lines) - Core UI responsive behavior
+
+**SHOULD BE EXTRACTED (Non-Core UI - ~867 lines):**
+- 🚚 Alignment & Weight Preview System (~400 lines) → `cardforge-modular.css`
+- 🚚 Preset System (~200 lines) → `cardforge-presets.css` (new file)
+- 🚚 My Cards Zone (~200 lines) → `cardforge-gallery.css`
+- 🚚 Visual Layout Picker (~100 lines) → `cardforge-modular.css`
+
+---
+
+## NEXT EXTRACTION: Alignment & Weight Previews (Priority #6)
+
+### READY TO EXTRACT:
+**From `cardforge-ui.css`:** Alignment & Weight Preview System
+**Target:** Move modular system previews to `cardforge-modular.css`
+**Size estimate:** ~400 lines
+
+**Components to extract:**
+- `.alignment-section` and alignment preview styling
+- `.left-balanced-preview`, `.center-balanced-preview`, `.right-balanced-preview`
+- Weight distribution preview thumbnails (top-heavy, balanced, bottom-heavy)
+- Visual preview systems for modular alignment options
+
+**Rationale:** These are modular system preview components, not core CardForge UI
+
+---
+
+## PLANNED EXTRACTION: Preset System (Priority #7)
+
+### READY TO EXTRACT:
+**From `cardforge-ui.css`:** Complete Preset System
+**Target:** Create new `cardforge-presets.css` file
+**Size estimate:** ~200 lines
+
+**Components to extract:**
+- `.preset-grid`, `.preset-option`, `.preset-thumbnail`
+- `.mini-card-preview` and card preview styling
+- Preset-specific themes (cyberpunk, fantasy, corporate, retro)
+- Responsive design for preset picker
+
+**Rationale:** Presets are a separate feature system, not core UI
+
+---
+
+## PLANNED EXTRACTION: My Cards Zone (Priority #8)
+
+### READY TO EXTRACT:
+**From `cardforge-ui.css`:** My Cards Zone Gallery System
+**Target:** Move to existing `cardforge-gallery.css`
+**Size estimate:** ~200 lines
+
+**Components to extract:**
+- `.my-cards-zone` and related card gallery styling
+- Card grid layouts for saved cards
+- Collection management styling
+
+**Rationale:** This is gallery/collection functionality, not core UI
+
+---
+
+## PLANNED EXTRACTION: Visual Layout Picker (Priority #9)
+
+### READY TO EXTRACT:
+**From `cardforge-ui.css`:** Visual Layout Picker System
+**Target:** Move to existing `cardforge-modular.css`
+**Size estimate:** ~100 lines
+
+**Components to extract:**
+- `.visual-layout-group`, `.layout-grid`, `.layout-option`
+- Layout selection system styling
+
+**Rationale:** This is part of the modular layout system, not core UI
