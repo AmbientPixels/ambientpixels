@@ -1568,21 +1568,6 @@
 
 
 
-/* Responsive Behavior - CLEANED UP */
-@media (max-width: 1200px) {
-  .right-column {
-    height: auto;
-    max-height: none;
-  }
-}
-
-@media (max-width: 768px) {
-  .right-column {
-    padding: 0.5rem;
-    gap: 0.5rem;
-  }
-}
-
 /* Tools Zone Styling */
 .tool-buttons {
   display: flex;

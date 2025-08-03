@@ -4,10 +4,17 @@
  * Created: 2025-08-03
  */
 
-/* This file will contain:
- * - Media queries for different screen sizes
- * - Mobile-specific layout adjustments
- * - Responsive grid modifications
- * - Touch-friendly UI adjustments
- * - Breakpoint-specific styling
- */
+/* Responsive Behavior - CLEANED UP */
+@media (max-width: 1200px) {
+  .right-column {
+    height: auto;
+    max-height: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .right-column {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+}
