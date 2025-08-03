@@ -762,6 +762,268 @@
   margin-top: 0.5rem;
 }
 
+/* ===== CONTENT ALIGNMENT SYSTEM ===== */
+
+/* TIER 2: ALIGNMENT TYPE */
+/* Center Alignment */
+.card-preview-canvas.align-type-center {
+  text-align: center;
+}
+
+.card-preview-canvas.align-type-center .card-name,
+.card-preview-canvas.align-type-center .card-class,
+.card-preview-canvas.align-type-center .card-rarity,
+.card-preview-canvas.align-type-center .card-quote {
+  text-align: center;
+}
+
+.card-preview-canvas.align-type-center .card-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Left Alignment */
+.card-preview-canvas.align-type-left {
+  text-align: left;
+}
+
+.card-preview-canvas.align-type-left .card-name,
+.card-preview-canvas.align-type-left .card-class,
+.card-preview-canvas.align-type-left .card-rarity,
+.card-preview-canvas.align-type-left .card-quote {
+  text-align: left;
+}
+
+.card-preview-canvas.align-type-left .card-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Right Alignment */
+.card-preview-canvas.align-type-right {
+  text-align: right;
+}
+
+.card-preview-canvas.align-type-right .card-name,
+.card-preview-canvas.align-type-right .card-class,
+.card-preview-canvas.align-type-right .card-rarity,
+.card-preview-canvas.align-type-right .card-quote {
+  text-align: right;
+}
+
+.card-preview-canvas.align-type-right .card-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* TIER 2: ALIGNMENT WEIGHT */
+/* Top-Heavy Weight */
+.card-preview-canvas.align-weight-top-heavy .card-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.card-preview-canvas.align-weight-top-heavy .card-class {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.card-preview-canvas.align-weight-top-heavy .card-rarity {
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.card-preview-canvas.align-weight-top-heavy .card-quote {
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.card-preview-canvas.align-weight-top-heavy .card-stats {
+  font-size: 0.8rem;
+}
+
+/* Balanced Weight */
+.card-preview-canvas.align-weight-balanced .card-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.card-preview-canvas.align-weight-balanced .card-class {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+}
+
+.card-preview-canvas.align-weight-balanced .card-rarity {
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+
+.card-preview-canvas.align-weight-balanced .card-quote {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.card-preview-canvas.align-weight-balanced .card-stats {
+  font-size: 0.85rem;
+}
+
+/* Bottom-Heavy Weight */
+.card-preview-canvas.align-weight-bottom-heavy .card-name {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.card-preview-canvas.align-weight-bottom-heavy .card-class {
+  font-size: 0.9rem;
+  font-weight: 400;
+  margin-bottom: 0.25rem;
+}
+
+.card-preview-canvas.align-weight-bottom-heavy .card-rarity {
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.card-preview-canvas.align-weight-bottom-heavy .card-quote {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+.card-preview-canvas.align-weight-bottom-heavy .card-stats {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* TIER 2: ALIGNMENT STYLE */
+/* Padded Style */
+.card-preview-canvas.align-style-padded {
+  padding: 1.5rem;
+}
+
+.card-preview-canvas.align-style-padded .card-body {
+  padding: 1rem 0;
+}
+
+.card-preview-canvas.align-style-padded .card-name {
+  margin-bottom: 0.75rem;
+}
+
+.card-preview-canvas.align-style-padded .card-class,
+.card-preview-canvas.align-style-padded .card-rarity {
+  margin-bottom: 0.5rem;
+}
+
+.card-preview-canvas.align-style-padded .card-quote {
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+}
+
+.card-preview-canvas.align-style-padded .card-stats {
+  margin-top: 1rem;
+}
+
+/* Minimal Style */
+.card-preview-canvas.align-style-minimal {
+  padding: 0.75rem;
+}
+
+.card-preview-canvas.align-style-minimal .card-body {
+  padding: 0.5rem 0;
+}
+
+.card-preview-canvas.align-style-minimal .card-name {
+  margin-bottom: 0.25rem;
+}
+
+.card-preview-canvas.align-style-minimal .card-class,
+.card-preview-canvas.align-style-minimal .card-rarity {
+  margin-bottom: 0.2rem;
+}
+
+.card-preview-canvas.align-style-minimal .card-quote {
+  margin-bottom: 0.5rem;
+}
+
+.card-preview-canvas.align-style-minimal .card-stats {
+  margin-top: 0.5rem;
+}
+
+/* Compact Style */
+.card-preview-canvas.align-style-compact {
+  padding: 0.5rem;
+}
+
+.card-preview-canvas.align-style-compact .card-body {
+  padding: 0.25rem 0;
+}
+
+.card-preview-canvas.align-style-compact .card-name {
+  margin-bottom: 0.15rem;
+  line-height: 1.2;
+}
+
+.card-preview-canvas.align-style-compact .card-class,
+.card-preview-canvas.align-style-compact .card-rarity {
+  margin-bottom: 0.1rem;
+  line-height: 1.1;
+}
+
+.card-preview-canvas.align-style-compact .card-quote {
+  margin-bottom: 0.25rem;
+  line-height: 1.3;
+}
+
+.card-preview-canvas.align-style-compact .card-stats {
+  margin-top: 0.25rem;
+}
+
+/* LAYOUT-SPECIFIC ALIGNMENT OVERRIDES */
+/* Override layout padding when alignment style is applied */
+.card-preview-canvas.layout-hero.align-style-padded,
+.card-preview-canvas.layout-hero.align-style-minimal,
+.card-preview-canvas.layout-hero.align-style-compact {
+  padding: 0; /* Let alignment style control padding */
+}
+
+.card-preview-canvas.layout-hero.align-style-padded .card-body,
+.card-preview-canvas.layout-hero.align-style-minimal .card-body,
+.card-preview-canvas.layout-hero.align-style-compact .card-body {
+  padding: inherit; /* Use alignment style padding */
+}
+
+.card-preview-canvas.layout-split.align-style-padded,
+.card-preview-canvas.layout-split.align-style-minimal,
+.card-preview-canvas.layout-split.align-style-compact {
+  padding: inherit; /* Use alignment style padding */
+}
+
+.card-preview-canvas.layout-minimal.align-style-padded,
+.card-preview-canvas.layout-minimal.align-style-minimal,
+.card-preview-canvas.layout-minimal.align-style-compact {
+  padding: inherit; /* Use alignment style padding */
+}
+
+.card-preview-canvas.layout-stack.align-style-padded,
+.card-preview-canvas.layout-stack.align-style-minimal,
+.card-preview-canvas.layout-stack.align-style-compact {
+  padding: inherit; /* Use alignment style padding */
+}
+
+.card-preview-canvas.layout-frame.align-style-padded,
+.card-preview-canvas.layout-frame.align-style-minimal,
+.card-preview-canvas.layout-frame.align-style-compact {
+  padding: inherit; /* Use alignment style padding */
+}
+
 /* RESPONSIVE LAYOUT ADJUSTMENTS */
 @media (max-width: 768px) {
   .card-preview-canvas.layout-split {
@@ -777,5 +1039,18 @@
   .card-preview-canvas.layout-frame .card-avatar {
     width: 80px;
     height: 80px;
+  }
+  
+  /* Adjust alignment styles for mobile */
+  .card-preview-canvas.align-style-padded {
+    padding: 1rem;
+  }
+  
+  .card-preview-canvas.align-style-minimal {
+    padding: 0.5rem;
+  }
+  
+  .card-preview-canvas.align-style-compact {
+    padding: 0.25rem;
   }
 }

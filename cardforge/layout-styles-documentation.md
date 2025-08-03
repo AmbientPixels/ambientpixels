@@ -690,7 +690,40 @@ Planned enhancements for layout styles include:
    - Consider fallback layouts for extreme dimensions
    - Ensure text remains readable at all sizes
 
-## Known Issues and Solutions
+## Recent Updates and Fixes
+
+### Layout CSS Implementation (Latest)
+
+**Issue:** Layout styles were missing their CSS implementation, causing layouts to display as unstyled HTML.
+
+**Solution:** Added comprehensive CSS styling for all 6 layout types to `cardforge-card.css`:
+- Hero Layout: Full-width hero image with gradient overlay
+- Split Layout: CSS Grid with 40/60 column split
+- Minimal Layout: Flexbox header with 60px circular avatar
+- Overlay Layout: Absolute positioning with gradient overlay
+- Stack Layout: Centered vertical flexbox layout
+- Frame Layout: Decorative border with CSS variables
+
+**Result:** All layouts now display with proper visual styling and responsive behavior.
+
+### Stats Display Fix
+
+**Issue:** Overlay, Stack, and Frame layouts were missing stats; Split layout had hardcoded stats.
+
+**Solution:** Added `generateStatsHTML(data.stats)` calls to all affected layouts:
+```javascript
+// Added to generateOverlayLayout, generateStackLayout, generateFrameLayout
+<div class="card-stats">
+  ${generateStatsHTML(data.stats)}
+</div>
+
+// Replaced hardcoded stats in generateSplitLayout
+<div class="card-stats">
+  ${generateStatsHTML(data.stats)}
+</div>
+```
+
+**Result:** All layouts now display stats that match the form input values.
 
 ### Hero Layout Image Variants
 
@@ -712,14 +745,10 @@ The fix involved updating CSS selectors from data attributes to classes:
 }
 ```
 
-### Minimal Layout Stats
+### Legacy Code Cleanup
 
-Stats were previously missing from the Minimal layout due to a missing `generateStatsHTML()` call. This has been fixed by adding:
+**Issue:** Legacy alignment code was causing conflicts with the modern modular system.
 
-```html
-<div class="card-stats">
-  ${generateStatsHTML(data.stats)}
-</div>
-```
+**Solution:** Removed legacy `alignment` property from ModularState and all presets, updated UI functions to use modern 3-level alignment hierarchy (alignmentType, alignmentWeight, alignmentStyle).
 
-to the `generateMinimalLayout()` function.
+**Result:** Presets now work correctly and apply the complete modular configuration.
