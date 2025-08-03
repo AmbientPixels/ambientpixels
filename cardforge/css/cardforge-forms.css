@@ -1,0 +1,13 @@
+/* CardForge Forms Styles
+ * All form inputs, validation, and form-specific styling
+ * Extracted from: card-forge.css (form inputs, focus states) + cardforge-ui.css (form controls)
+ * Created: 2025-08-03
+ */
+
+/* This file will contain:
+ * - Form input styling (text, textarea, select)
+ * - Form validation states
+ * - Focus states and transitions
+ * - Form row layouts (stat rows, social rows, badge rows)
+ * - Form-specific controls and buttons
+ */
