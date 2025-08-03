@@ -1498,14 +1498,7 @@
           <div class="card-rarity">${data.rarity}</div>
           <div class="card-quote">"${data.quote}"</div>
           <div class="card-stats">
-            <div class="stat-item">
-              <div class="stat-label">STR <span class="stat-value">7</span></div>
-              <div class="stat-bar"><div class="stat-progress" style="width: 70%"></div></div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-label">AGI <span class="stat-value">9</span></div>
-              <div class="stat-bar"><div class="stat-progress" style="width: 90%"></div></div>
-            </div>
+            ${generateStatsHTML(data.stats)}
           </div>
         </div>
       </div>
@@ -1542,6 +1535,9 @@
           <div class="card-class">${data.characterClass}</div>
           <div class="card-rarity">${data.rarity}</div>
           <div class="card-quote">"${data.quote}"</div>
+          <div class="card-stats">
+            ${generateStatsHTML(data.stats)}
+          </div>
         </div>
       </div>
     `;
@@ -1559,6 +1555,9 @@
       <div class="card-body">
         <div class="card-rarity">${data.rarity}</div>
         <div class="card-quote">"${data.quote}"</div>
+        <div class="card-stats">
+          ${generateStatsHTML(data.stats)}
+        </div>
       </div>
     `;
   }
@@ -1575,6 +1574,9 @@
             <div class="card-class">${data.characterClass}</div>
             <div class="card-rarity">${data.rarity}</div>
             <div class="card-quote">"${data.quote}"</div>
+            <div class="card-stats">
+              ${generateStatsHTML(data.stats)}
+            </div>
           </div>
         </div>
       </div>

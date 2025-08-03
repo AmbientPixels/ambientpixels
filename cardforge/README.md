@@ -4,26 +4,28 @@
 
 ---
 
-## 🎉 **LATEST UPDATE - July 30, 2025**
-**Matrix System Fully Implemented!**
+## 🎉 **LATEST UPDATE - August 2, 2025**
+**Preset System Overhaul & Legacy Code Cleanup!**
 
-✅ **Any Layout + Any Color + Any Image Style now works seamlessly**  
+✅ **Preset system completely refactored for modern modular architecture**  
+✅ **Legacy alignment code removed from all components**  
+✅ **All 5 presets now use proper 3-level alignment hierarchy**  
+✅ **UI state synchronization fixed - presets update all controls**  
+✅ **Minimal layout now includes stat bars (fixed minimal-glow preset)**  
+✅ **Preview system applies all 6 modular tiers correctly**  
+
+### **Previous Achievements:**
+✅ **Matrix System Fully Implemented**  
+✅ **Any Layout + Any Color + Any Image Style works seamlessly**  
 ✅ **Hero Large/Small variants fixed with proper aspect ratios**  
 ✅ **Card flip functionality fully operational**  
 ✅ **Left/Right aligned layouts optimized to prevent content clipping**  
 ✅ **Theme system consolidated to 'neofantasy' with light/dark variants**  
-
-### **Previous Achievements:**
 ✅ **Circular social icons with hover effects**  
 ✅ **Square glass badge panels with stacked icons**  
-✅ **Enhanced UX with animations and tooltips**  
-✅ **Cleaner layout without duplicate rarity badge**  
-✅ **Mobile-responsive design optimizations**  
 ✅ **JSON Prefill System FULLY OPERATIONAL**  
-✅ **All form fields auto-populate on page load**  
 ✅ **Complete card preview synchronization (front & back)**  
 ✅ **Dynamic row creation for Social Links, Badges, Attributes**  
-✅ **Real-time form-to-preview updates**  
 
 ---
 
@@ -209,9 +211,12 @@ const ModularState = {
 ```
 
 ### **Preset System**
-- Quick Start Presets provide pre-configured combinations
-- Each preset updates all 6 tiers simultaneously
-- Real-time preview updates when preset is selected
+- **5 Quick Start Presets:** Hero Classic, Split Modern, Minimal Glow, Fullbleed Cinematic, Framed Ornate
+- **Complete Modular Configuration:** Each preset configures all 6 tiers with optimal combinations
+- **3-Level Alignment Hierarchy:** Uses modern alignmentType, alignmentWeight, alignmentStyle (no legacy code)
+- **UI Synchronization:** Presets update all form controls to reflect the selected configuration
+- **Real-time Preview:** Instant card preview updates with proper CSS classes and data attributes
+- **Stat Bar Support:** All layouts including minimal now properly display stat bars
 
 ### **CSS Architecture**
 - Modular CSS classes for each tier and variant
@@ -231,6 +236,14 @@ CardForge V2 is fully responsive across all device sizes:
 ---
 
 ## 🔧 **Recent Technical Fixes**
+
+### **Preset System Overhaul (August 2, 2025)**
+- **Legacy Code Removal:** Eliminated all legacy `alignment` properties from ModularState and presets
+- **Modern Architecture:** All presets now use 3-level alignment hierarchy (alignmentType, alignmentWeight, alignmentStyle)
+- **UI State Management:** Fixed `updateUIFromState()` to properly handle modular alignment system
+- **Preview System:** Updated `updatePreview()` to apply correct CSS classes and data attributes
+- **Effect Variants:** Added missing effect variant support in UI and preview systems
+- **Minimal Layout Fix:** Added stats HTML to `generateMinimalLayout()` - stat bars now appear in minimal-glow preset
 
 ### **Hero Variant Aspect Ratios**
 - **Hero Large:** 16:9 ratio (taller, more cinematic)
