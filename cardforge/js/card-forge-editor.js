@@ -1871,6 +1871,76 @@
     updateImageEffectsAvailability();
   }
 
+  // ===== IMAGE EFFECTS SUB-LEVEL INITIALIZATION =====
+  function initImageEffectsSubLevel() {
+    const effectOptions = document.querySelectorAll('[data-tier="2"] .effects-level .effects-type-grid .tier-option');
+    const variantContainers = document.querySelectorAll('[data-tier="2"] .effects-level .effect-variants');
+    
+    // Effect Type Selection Handlers
+    effectOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        // Update selection state
+        effectOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        
+        // Update modular state
+        ModularState.imageEffect = option.dataset.value;
+        
+        // Show/hide variant containers based on selected effect
+        variantContainers.forEach(container => {
+          const effectType = container.dataset.effect;
+          container.style.display = effectType === ModularState.imageEffect ? 'block' : 'none';
+        });
+        
+        // Set default variant for the selected effect
+        const defaultVariants = {
+          'none': 'clean',
+          'filters': 'sepia',
+          'borders': 'solid',
+          'overlays': 'gradient'
+        };
+        
+        ModularState.imageEffectVariant = defaultVariants[ModularState.imageEffect] || 'clean';
+        
+        // Update variant selection UI
+        const activeVariantContainer = document.querySelector(`[data-tier="2"] .effects-level [data-effect="${ModularState.imageEffect}"]`);
+        if (activeVariantContainer) {
+          const variantOptions = activeVariantContainer.querySelectorAll('.variant-option');
+          variantOptions.forEach(opt => opt.classList.remove('selected'));
+          const defaultVariantOption = activeVariantContainer.querySelector(`[data-variant="${ModularState.imageEffectVariant}"]`);
+          if (defaultVariantOption) {
+            defaultVariantOption.classList.add('selected');
+          }
+        }
+        
+        // Update preview
+        updatePreview();
+        
+        console.log(`✨ Image effect updated: ${ModularState.imageEffect} ${ModularState.imageEffectVariant}`);
+      });
+    });
+    
+    // Effect Variant Selection Handlers
+    const variantOptions = document.querySelectorAll('[data-tier="2"] .effects-level .variant-option');
+    variantOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        // Update selection state within the same variant container
+        const container = option.closest('.effect-variants');
+        const siblingOptions = container.querySelectorAll('.variant-option');
+        siblingOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        
+        // Update modular state
+        ModularState.imageEffectVariant = option.dataset.variant;
+        
+        // Update preview
+        updatePreview();
+        
+        console.log(`🎨 Effect variant updated: ${ModularState.imageEffectVariant}`);
+      });
+    });
+  }
+
   // ===== IMAGE EFFECTS AVAILABILITY CONTROL =====
   function updateImageEffectsAvailability() {
     const bordersOption = document.querySelector('[data-tier="2"] .effects-level .effects-grid [data-value="borders"]');

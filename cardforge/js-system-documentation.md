@@ -35,15 +35,21 @@ Image Effects are now implemented as **sub-variants** within Tier 2 (Image Conta
 - Each effect type has its own variants (Sepia, Grayscale, etc.)
 
 ### Selectors Used
-- `[data-tier="2"] .effects-level .effects-grid .tier-option` - Effect type options (scoped to effects-level)
+- `[data-tier="2"] .effects-level .effects-type-grid .tier-option` - Effect type options (scoped to effects-level)
 - `[data-tier="2"] .effects-level .effect-variants` - Effect variant containers
-- `[data-tier="2"] .effects-level .effect-variants .variant-option` - Individual effect variants
+- `[data-tier="2"] .effects-level .variant-option` - Individual effect variants
 
 ### State Management
 - `ModularState.imageEffect` - Currently selected effect type
 - `ModularState.imageEffectVariant` - Currently selected effect variant
 - Default variants are set when switching effect types
 - Effects do not interfere with container variant selection
+
+### Bug Fix (August 3, 2025)
+**Issue:** Container variants disappeared when Image Effects were selected
+**Root Cause:** `initImageEffectsSubLevel()` function was being called but didn't exist
+**Solution:** Created missing function with proper event handlers and selectors
+**Result:** Image Effects now properly initialize as sub-variants within Tier 2, eliminating cross-tier interference
 
 ### Selector Separation Fix
 **Critical Fix Applied:** Container options selector was updated to prevent conflicts:
