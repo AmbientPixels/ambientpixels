@@ -31,8 +31,8 @@ Image Effects are now implemented as **sub-variants** within Tier 2 (Image Conta
 ### Key Functions
 - `initImageEffectsSubLevel()` - Initializes Image Effects as sub-variants within Tier 2
 - Called from within `initTier2ImageContainer()` for proper integration
-- Effect types: None, Filters, Borders, Overlays
-- Each effect type has its own variants (Sepia, Grayscale, etc.)
+- Effect types: None, Filters, Borders
+- Each effect type has its own variants (Sepia, Vintage, Noir for filters; Solid, Dashed, Dotted for borders)
 
 ### Selectors Used
 - `[data-tier="2"] .effects-level .effects-type-grid .tier-option` - Effect type options (scoped to effects-level)

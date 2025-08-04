@@ -725,30 +725,30 @@
     const alignmentPreviewClass = `${alignmentType}-alignment-preview`;
     updateTierCurrentSelection('2', alignmentDisplayText, alignmentPreviewClass);
     
-    // Update Tier 4: Color Palette display
-    const selectedPalette = document.querySelector('[data-tier="4"] .palette-family.selected');
+    // Update Tier 3: Color Palette display
+    const selectedPalette = document.querySelector('.palette-family.selected');
     if (selectedPalette) {
       const paletteLabel = selectedPalette.querySelector('.palette-label').textContent;
       const variantLabel = ModularState.paletteVariant.charAt(0).toUpperCase() + ModularState.paletteVariant.slice(1);
       const previewClass = `${ModularState.palette}-preview`;
-      updateTierCurrentSelection('4', `${paletteLabel} ${variantLabel}`, previewClass);
+      updateTierCurrentSelection('3', `${paletteLabel} ${variantLabel}`, previewClass);
     }
     
-    // Update Tier 5: Image Container display
-    const selectedContainer = document.querySelector('[data-tier="5"] .tier-option.selected');
-    if (selectedContainer) {
+    // Update Tier 2: Image Container display
+    const selectedContainer = document.querySelector('.tier-option.selected[data-value]');
+    if (selectedContainer && selectedContainer.dataset.value !== 'none') {
       const containerLabel = selectedContainer.querySelector('.option-label').textContent;
       const variantLabel = ModularState.imageContainerVariant.charAt(0).toUpperCase() + ModularState.imageContainerVariant.slice(1);
       const previewClass = `${ModularState.imageContainer}-container-preview`;
-      updateTierCurrentSelection('5', `${containerLabel} ${variantLabel}`, previewClass);
+      updateTierCurrentSelection('2', `${containerLabel} ${variantLabel}`, previewClass);
     }
     
-    // Update Tier 3: Visual Weight display
-    const selectedWeight = document.querySelector('[data-tier="3"] .tier-option.selected');
+    // Update Tier 5: Visual Weight display
+    const selectedWeight = document.querySelector('.weight-option.selected');
     if (selectedWeight) {
       const weightLabel = selectedWeight.querySelector('.option-label').textContent;
       const previewClass = `${ModularState.weight}-weight-preview`;
-      updateTierCurrentSelection('3', weightLabel, previewClass);
+      updateTierCurrentSelection('5', weightLabel, previewClass);
     }
     
     // Update Tier 6: Image Effects display
