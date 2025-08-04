@@ -99,21 +99,23 @@ Restructure CardForge V2's build flow from a layout-first to an **image-first de
 6.0 Content Position
 ```
 
-### **NEW FLOW (Solution)**
+### **NEW FLOW (Solution) ✅ IMPLEMENTED**
 ```
 1.0 Choose from Gallery (unchanged)
-2.0 Image Container & Effects ⭐ (NEW POSITION - Image First!)
-    2.1 Container Types (Masked, Framed, Raw)
-        2.1.1 Type Variants (Circle, Hex, Blob, Tear Drop, etc.)
-    2.2 Image Effects (Consolidated under Image Container)
-        2.2.1 Effect Variants (Filters, Borders, Overlays, Ambient)
+2.0 Image Container ⭐ (NEW POSITION - Image First!)
+    2.1 Container Types (Masked, Framed, Raw, Full Bleed, Hero)
+        2.1.1 Container Variants (Circle/Hex/Diamond, Classic/Modern, Sharp/Rounded/Soft, etc.)
+        2.1.2 Image Effects (Sub-Variants: None, Filters, Borders, Overlays)
+            2.1.2.1 Effect Variants (Clean, Sepia/Grayscale/Vintage, Solid/Dashed/Glow, etc.)
 3.0 Color Palette (Enhanced) ⭐
-    3.1 Base Palette Selection
-    3.2 Text Color Variants (Light/Dark for different imagery)
-    3.3 Background Compatibility Options
-4.0 Content Alignment
-5.0 Content Position
+    3.1 Base Palette Selection ✅
+    3.2 Text Color Variants (Light/Dark for different imagery) [NEXT]
+    3.3 Background Compatibility Options [NEXT]
+4.0 Content Alignment ✅
+5.0 Content Position ✅
 ```
+
+**✅ CRITICAL BREAKTHROUGH:** Image Effects are now properly implemented as **sub-variants** (variants of a variant) within the Image Container tier, creating the true hierarchy: **Container Type → Container Variant → Image Effects**. This eliminates the confusion of having effects as a competing separate tier.
 
 ---
 

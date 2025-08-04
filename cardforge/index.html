@@ -318,110 +318,109 @@
                   </div>
                 </div>
                 
-                <!-- IMAGE EFFECTS SUB-SECTION -->
-                <div class="container-level">
-                  <h5 class="level-title">Choose Image Effects</h5>
+                <!-- IMAGE EFFECTS SUB-LEVEL -->
+                <div class="container-level effects-level">
+                  <h5 class="level-title">Image Effects</h5>
                   
-                  <div class="effects-subsection">
-                    <div class="effects-level">
-                      <h6 class="variant-subtitle">Effect Type</h6>
-                      <div class="tier-options-grid effects-type-grid">
-                        <div class="tier-option selected" data-value="none">
-                          <div class="option-preview">
-                            <div class="effect-icon none-icon"></div>
-                          </div>
-                          <span class="option-label">None</span>
+                  <div class="effects-type-section">
+                    <h6 class="variant-subtitle">Effect Type</h6>
+                    <div class="tier-options-grid effects-grid">
+                      <div class="tier-option selected" data-value="none">
+                        <div class="option-preview">
+                          <div class="effect-icon none-icon"></div>
                         </div>
-                        <div class="tier-option" data-value="filters">
-                          <div class="option-preview">
-                            <div class="effect-icon filters-icon"></div>
-                          </div>
-                          <span class="option-label">Filters</span>
+                        <span class="option-label">None</span>
+                      </div>
+                      <div class="tier-option" data-value="filters">
+                        <div class="option-preview">
+                          <div class="effect-icon filters-icon"></div>
                         </div>
-                        <div class="tier-option" data-value="borders">
-                          <div class="option-preview">
-                            <div class="effect-icon borders-icon"></div>
-                          </div>
-                          <span class="option-label">Borders</span>
+                        <span class="option-label">Filters</span>
+                      </div>
+                      <div class="tier-option" data-value="borders">
+                        <div class="option-preview">
+                          <div class="effect-icon borders-icon"></div>
                         </div>
-                        <div class="tier-option" data-value="overlays">
-                          <div class="option-preview">
-                            <div class="effect-icon overlays-icon"></div>
-                          </div>
-                          <span class="option-label">Overlays</span>
+                        <span class="option-label">Borders</span>
+                      </div>
+                      <div class="tier-option" data-value="overlays">
+                        <div class="option-preview">
+                          <div class="effect-icon overlays-icon"></div>
+                        </div>
+                        <span class="option-label">Overlays</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="effects-variants-section">
+                    <h6 class="variant-subtitle">Effect Variants</h6>
+                    
+                    <!-- None Variants -->
+                    <div class="effect-variants" data-effect="none">
+                      <div class="variant-options">
+                        <div class="variant-option selected" data-variant="clean">
+                          <div class="variant-preview clean-preview"></div>
+                          <span class="variant-label">Clean</span>
                         </div>
                       </div>
                     </div>
                     
-                    <div class="effects-level">
-                      <h6 class="variant-subtitle">Effect Variants</h6>
-                      
-                      <!-- None Variants -->
-                      <div class="effect-variants" data-effect="none">
-                        <div class="variant-options">
-                          <div class="variant-option selected" data-variant="clean">
-                            <div class="variant-preview clean-preview"></div>
-                            <span class="variant-label">Clean</span>
-                          </div>
+                    <!-- Filter Variants -->
+                    <div class="effect-variants" data-effect="filters" style="display: none;">
+                      <div class="variant-options">
+                        <div class="variant-option" data-variant="sepia">
+                          <div class="variant-preview filter-sepia-preview"></div>
+                          <span class="variant-label">Sepia</span>
+                        </div>
+                        <div class="variant-option" data-variant="grayscale">
+                          <div class="variant-preview filter-grayscale-preview"></div>
+                          <span class="variant-label">Grayscale</span>
+                        </div>
+                        <div class="variant-option" data-variant="vintage">
+                          <div class="variant-preview filter-vintage-preview"></div>
+                          <span class="variant-label">Vintage</span>
                         </div>
                       </div>
-                      
-                      <!-- Filter Variants -->
-                      <div class="effect-variants" data-effect="filters" style="display: none;">
-                        <div class="variant-options">
-                          <div class="variant-option" data-variant="sepia">
-                            <div class="variant-preview sepia-preview"></div>
-                            <span class="variant-label">Sepia</span>
-                          </div>
-                          <div class="variant-option" data-variant="grayscale">
-                            <div class="variant-preview grayscale-preview"></div>
-                            <span class="variant-label">Grayscale</span>
-                          </div>
-                          <div class="variant-option" data-variant="blur">
-                            <div class="variant-preview blur-preview"></div>
-                            <span class="variant-label">Blur</span>
-                          </div>
+                    </div>
+                    
+                    <!-- Border Variants -->
+                    <div class="effect-variants" data-effect="borders" style="display: none;">
+                      <div class="variant-options">
+                        <div class="variant-option" data-variant="solid">
+                          <div class="variant-preview border-solid-preview"></div>
+                          <span class="variant-label">Solid</span>
+                        </div>
+                        <div class="variant-option" data-variant="dashed">
+                          <div class="variant-preview border-dashed-preview"></div>
+                          <span class="variant-label">Dashed</span>
+                        </div>
+                        <div class="variant-option" data-variant="glow">
+                          <div class="variant-preview border-glow-preview"></div>
+                          <span class="variant-label">Glow</span>
                         </div>
                       </div>
-                      
-                      <!-- Border Variants -->
-                      <div class="effect-variants" data-effect="borders" style="display: none;">
-                        <div class="variant-options">
-                          <div class="variant-option" data-variant="thin">
-                            <div class="variant-preview border-thin-preview"></div>
-                            <span class="variant-label">Thin</span>
-                          </div>
-                          <div class="variant-option" data-variant="thick">
-                            <div class="variant-preview border-thick-preview"></div>
-                            <span class="variant-label">Thick</span>
-                          </div>
-                          <div class="variant-option" data-variant="glow">
-                            <div class="variant-preview border-glow-preview"></div>
-                            <span class="variant-label">Glow</span>
-                          </div>
+                    </div>
+                    
+                    <!-- Overlay Variants -->
+                    <div class="effect-variants" data-effect="overlays" style="display: none;">
+                      <div class="variant-options">
+                        <div class="variant-option" data-variant="vignette">
+                          <div class="variant-preview overlay-vignette-preview"></div>
+                          <span class="variant-label">Vignette</span>
                         </div>
-                      </div>
-                      
-                      <!-- Overlay Variants -->
-                      <div class="effect-variants" data-effect="overlays" style="display: none;">
-                        <div class="variant-options">
-                          <div class="variant-option" data-variant="vignette">
-                            <div class="variant-preview overlay-vignette-preview"></div>
-                            <span class="variant-label">Vignette</span>
-                          </div>
-                          <div class="variant-option" data-variant="gradient">
-                            <div class="variant-preview overlay-gradient-preview"></div>
-                            <span class="variant-label">Gradient</span>
-                          </div>
-                          <div class="variant-option" data-variant="ambient">
-                            <div class="variant-preview overlay-ambient-preview"></div>
-                            <span class="variant-label">Ambient</span>
-                          </div>
+                        <div class="variant-option" data-variant="gradient">
+                          <div class="variant-preview overlay-gradient-preview"></div>
+                          <span class="variant-label">Gradient</span>
+                        </div>
+                        <div class="variant-option" data-variant="ambient">
+                          <div class="variant-preview overlay-ambient-preview"></div>
+                          <span class="variant-label">Ambient</span>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
+
               </div>
             </div>
           </div>

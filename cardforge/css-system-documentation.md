@@ -21,8 +21,10 @@ As part of the CardForge V2 flow restructure project, **Phase 1: Layout System R
 - ✅ **Enhanced Sizing:** Masked containers increased to 120px × 120px, Framed to 110px × 110px
 - ✅ **Raw Container Enhancement:** Increased to 100px × 100px with distinct shadow variants (Sharp, Rounded, Soft)
 - ✅ **Full Bleed Variants:** Added Standard, Dimmed, and Blurred background effect variants
+- ✅ **Image Effects Restructure:** Moved from separate Tier 3 to sub-variants within Tier 2 (Container Type → Container Variant → Image Effects)
 - ✅ **JavaScript Integration:** Fixed tier references, event handlers, and modular state management
 - ✅ **CSS Enhancements:** Improved visual hierarchy and container styling consistency
+- ✅ **Selector Separation:** Fixed container variant visibility issues by properly scoping Image Effects selectors
 
 **Impact:** The system now uses an image-first design approach with properly sized, visually balanced container types that drive the entire card design flow.
 

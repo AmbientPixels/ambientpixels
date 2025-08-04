@@ -23,6 +23,34 @@ As part of the CardForge V2 flow restructure project, significant JavaScript upd
 - ✅ **Full Bleed Variants:** Added Standard, Dimmed, and Blurred background effect variants
 - ✅ **Event Handler Fixes:** Fixed tier function names and event handler attachments
 - ✅ **State Management Updates:** Updated ModularState to reflect new tier structure
+- ✅ **Image Effects System (Sub-Variants within Tier 2)**
+
+### Overview
+Image Effects are now implemented as **sub-variants** within Tier 2 (Image Container), creating the proper hierarchy: Container Type → Container Variant → Image Effects (sub-variant). This creates a true image-first flow where effects are contextual to the selected container.
+
+### Key Functions
+- `initImageEffectsSubLevel()` - Initializes Image Effects as sub-variants within Tier 2
+- Called from within `initTier2ImageContainer()` for proper integration
+- Effect types: None, Filters, Borders, Overlays
+- Each effect type has its own variants (Sepia, Grayscale, etc.)
+
+### Selectors Used
+- `[data-tier="2"] .effects-level .effects-grid .tier-option` - Effect type options (scoped to effects-level)
+- `[data-tier="2"] .effects-level .effect-variants` - Effect variant containers
+- `[data-tier="2"] .effects-level .effect-variants .variant-option` - Individual effect variants
+
+### State Management
+- `ModularState.imageEffect` - Currently selected effect type
+- `ModularState.imageEffectVariant` - Currently selected effect variant
+- Default variants are set when switching effect types
+- Effects do not interfere with container variant selection
+
+### Selector Separation Fix
+**Critical Fix Applied:** Container options selector was updated to prevent conflicts:
+- **Before:** `[data-tier="2"] .tier-option` (captured ALL tier options)
+- **After:** `[data-tier="2"] .tier-options-grid:not(.effects-grid) .tier-option` (excludes Image Effects)
+
+This ensures that Image Effects options don't interfere with container variant display logic.
 
 **Impact:** The JavaScript system now supports a clean image-first design flow with properly functioning modular tiers and enhanced container options.
 
