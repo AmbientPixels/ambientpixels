@@ -1818,6 +1818,9 @@
         // Update collapsible tier display
         updateCollapsibleTierDisplays();
         
+        // Update Image Effects availability based on container type
+        updateImageEffectsAvailability();
+        
         // Update preview
         updatePreview();
         
@@ -1863,6 +1866,49 @@
     
     // Initialize Image Effects sub-level within Tier 2
     initImageEffectsSubLevel();
+    
+    // Set initial Image Effects availability based on default container
+    updateImageEffectsAvailability();
+  }
+
+  // ===== IMAGE EFFECTS AVAILABILITY CONTROL =====
+  function updateImageEffectsAvailability() {
+    const bordersOption = document.querySelector('[data-tier="2"] .effects-level .effects-grid [data-value="borders"]');
+    
+    if (bordersOption) {
+      if (ModularState.imageContainer === 'masked') {
+        // Hide borders option for masked containers (use Framed instead)
+        bordersOption.style.display = 'none';
+        
+        // If borders was selected, switch to 'none' effect
+        if (ModularState.imageEffect === 'borders') {
+          ModularState.imageEffect = 'none';
+          ModularState.imageEffectVariant = 'clean';
+          
+          // Update UI selection
+          const noneOption = document.querySelector('[data-tier="2"] .effects-level .effects-grid [data-value="none"]');
+          if (noneOption) {
+            // Clear all effect selections
+            const allEffectOptions = document.querySelectorAll('[data-tier="2"] .effects-level .effects-grid .tier-option');
+            allEffectOptions.forEach(opt => opt.classList.remove('selected'));
+            
+            // Select 'none' option
+            noneOption.classList.add('selected');
+          }
+          
+          // Hide all effect variant containers
+          const variantContainers = document.querySelectorAll('[data-tier="2"] .effects-level .effect-variants');
+          variantContainers.forEach(container => {
+            container.style.display = 'none';
+          });
+          
+          console.log('🚫 Borders disabled for masked container - switched to None effect');
+        }
+      } else {
+        // Show borders option for other containers
+        bordersOption.style.display = 'block';
+      }
+    }
   }
 
   // ===== IMAGE EFFECTS SUB-LEVEL (within Tier 2) =====
