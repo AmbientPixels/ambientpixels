@@ -516,6 +516,89 @@
   align-items: flex-end;
 }
 
+/* Top Alignment */
+.card-preview-canvas.align-type-top {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.card-preview-canvas.align-type-top .card-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.card-preview-canvas.align-type-top .card-name,
+.card-preview-canvas.align-type-top .card-class,
+.card-preview-canvas.align-type-top .card-rarity,
+.card-preview-canvas.align-type-top .card-quote {
+  text-align: center;
+}
+
+.card-preview-canvas.align-type-top .card-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: auto;
+}
+
+/* Middle Alignment */
+.card-preview-canvas.align-type-middle {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card-preview-canvas.align-type-middle .card-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-preview-canvas.align-type-middle .card-name,
+.card-preview-canvas.align-type-middle .card-class,
+.card-preview-canvas.align-type-middle .card-rarity,
+.card-preview-canvas.align-type-middle .card-quote {
+  text-align: center;
+}
+
+.card-preview-canvas.align-type-middle .card-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Bottom Alignment */
+.card-preview-canvas.align-type-bottom {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.card-preview-canvas.align-type-bottom .card-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.card-preview-canvas.align-type-bottom .card-name,
+.card-preview-canvas.align-type-bottom .card-class,
+.card-preview-canvas.align-type-bottom .card-rarity,
+.card-preview-canvas.align-type-bottom .card-quote {
+  text-align: center;
+}
+
+.card-preview-canvas.align-type-bottom .card-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: auto;
+}
+
 /* TIER 2: ALIGNMENT WEIGHT */
 /* Top-Heavy Weight */
 .card-preview-canvas.align-weight-top-heavy .card-name {
