@@ -7,8 +7,8 @@
 
   // ===== MODULAR SYSTEM STATE =====
   const ModularState = {
-    // Tier 1: Base Layout
-    layout: 'hero',
+    // LAYOUT REMOVED - Phase 1 of Flow Restructure
+    // Image-first design: Image Container moved to Tier 2
     
     // Tier 2: Content Alignment (3-level hierarchy)
     alignmentType: 'center',
@@ -34,7 +34,7 @@
   // ===== PRESET CONFIGURATIONS =====
   const PresetConfigurations = {
     'hero-classic': {
-      layout: 'hero',
+      // LAYOUT REMOVED - Phase 1 of Flow Restructure
       alignmentType: 'center',
       alignmentWeight: 'balanced',
       alignmentStyle: 'padded',
@@ -47,7 +47,7 @@
       imageEffectVariant: 'clean'
     },
     'split-modern': {
-      layout: 'split',
+      // LAYOUT REMOVED - Phase 1 of Flow Restructure
       alignmentType: 'left',
       alignmentWeight: 'top-heavy',
       alignmentStyle: 'minimal',
@@ -60,7 +60,7 @@
       imageEffectVariant: 'solid'
     },
     'minimal-glow': {
-      layout: 'minimal',
+      // LAYOUT REMOVED - Phase 1 of Flow Restructure
       alignmentType: 'center',
       alignmentWeight: 'balanced',
       alignmentStyle: 'compact',
@@ -73,7 +73,7 @@
       imageEffectVariant: 'glow'
     },
     'fullbleed-cinematic': {
-      layout: 'hero',
+      // LAYOUT REMOVED - Phase 1 of Flow Restructure
       alignmentType: 'center',
       alignmentWeight: 'bottom-heavy',
       alignmentStyle: 'padded',
@@ -86,7 +86,7 @@
       imageEffectVariant: 'sepia'
     },
     'framed-ornate': {
-      layout: 'hero',
+      // LAYOUT REMOVED - Phase 1 of Flow Restructure
       alignmentType: 'center',
       alignmentWeight: 'top-heavy',
       alignmentStyle: 'padded',
@@ -628,7 +628,7 @@
     initCollapsibleTiers();
     
     // Initialize all modular tiers
-    initTier1Layout();
+    // initTier1Layout() REMOVED - Phase 1 of Flow Restructure
     initTier2Alignment();
     initTier3Weight();
     initTier4Palette();
@@ -765,42 +765,9 @@
     console.log('🔄 Updated all collapsible tier displays');
   }
 
-  // ===== TIER 1: BASE LAYOUT =====
-  function initTier1Layout() {
-    const layoutOptions = document.querySelectorAll('[data-tier="1"] .tier-option');
-    
-    layoutOptions.forEach(option => {
-      option.addEventListener('click', () => {
-        // Update selection state
-        layoutOptions.forEach(opt => opt.classList.remove('selected'));
-        option.classList.add('selected');
-        
-        // Update modular state
-        ModularState.layout = option.dataset.value;
-        
-        // Update current selection display
-        const layoutLabel = option.querySelector('.option-label').textContent;
-        const previewClass = `${ModularState.layout}-layout-preview`;
-        updateTierCurrentSelection('1', layoutLabel, previewClass);
-        
-        // Update preview
-        updatePreview();
-        
-        console.log(`🎨 Layout updated: ${ModularState.layout}`);
-      });
-    });
-    
-    // Set default selection
-    const defaultOption = document.querySelector(`[data-tier="1"] [data-value="${ModularState.layout}"]`);
-    if (defaultOption) {
-      defaultOption.classList.add('selected');
-      
-      // Initialize current selection display with default values
-      const layoutLabel = defaultOption.querySelector('.option-label').textContent;
-      const previewClass = `${ModularState.layout}-layout-preview`;
-      updateTierCurrentSelection('1', layoutLabel, previewClass);
-    }
-  }
+  // ===== TIER 1: LAYOUT REMOVED =====
+  // Phase 1 of Flow Restructure: Layout initialization eliminated
+  // Image-first design: Image Container moved to Tier 2 position
 
   // ===== TIER 2: CONTENT ALIGNMENT (3-LEVEL HIERARCHY) =====
   function initTier2Alignment() {
@@ -1139,7 +1106,7 @@
     
     // Apply modular CSS classes
     const modularClasses = [
-      `layout-${ModularState.layout}`,
+      // `layout-${ModularState.layout}` REMOVED - Phase 1 of Flow Restructure
       `align-type-${ModularState.alignmentType}`,
       `align-weight-${ModularState.alignmentWeight}`,
       `align-style-${ModularState.alignmentStyle}`,
@@ -1158,7 +1125,7 @@
     
     // Set data attributes for advanced styling
     const dataAttributes = {
-      'data-layout': ModularState.layout,
+      // 'data-layout': ModularState.layout, REMOVED - Phase 1 of Flow Restructure
       'data-alignment-type': ModularState.alignmentType,
       'data-alignment-weight': ModularState.alignmentWeight,
       'data-alignment-style': ModularState.alignmentStyle,
@@ -1185,7 +1152,7 @@
     }, 50); // Small delay to ensure content is rendered
     
     console.log('✅ Card preview updated with modular system:', {
-      layout: ModularState.layout,
+      // layout: ModularState.layout, REMOVED - Phase 1 of Flow Restructure
       palette: `${ModularState.palette}-${ModularState.paletteVariant}`,
       imageContainer: `${ModularState.imageContainer}-${ModularState.imageContainerVariant}`
     });

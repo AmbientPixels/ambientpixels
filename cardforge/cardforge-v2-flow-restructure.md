@@ -20,6 +20,73 @@ Restructure CardForge V2's build flow from a layout-first to an **image-first de
 
 ---
 
+## 🚨 CRITICAL DEVELOPMENT RULE
+
+### **Rule #1: No Duplicate Classes or Styles**
+**NEVER create duplicate CSS classes, selectors, or style rules.**
+
+**Why this matters:**
+- Prevents CSS override battles and specificity conflicts
+- Avoids code bloat and maintenance nightmares
+- Keeps the system DRY, modular, and predictable
+- Maintains visual consistency across CardForge
+
+**What to do instead:**
+🔍 **Search existing CSS files first** (cardforge-ui.css, cardforge-modular.css, cardforge-card.css)
+📦 **Reuse existing classes** where possible
+🧩 **Only create new styles** if no equivalent exists - and scope them cleanly
+✂️ **Replace existing rules** instead of adding duplicates
+
+**This rule is MANDATORY during the flow restructure to prevent the CSS chaos that caused the original problems.**
+
+---
+
+## 📊 Current Progress Summary
+*Last Updated: August 3, 2025*
+
+### **✅ PHASE 1 COMPLETE: Layout System Removal**
+**Status:** 100% Complete
+
+**Completed Work:**
+- ✅ **HTML:** Removed entire Layout Style tier (Tier 1) from index.html
+- ✅ **CSS:** Removed ~288 lines of layout-specific styles from cardforge-card.css
+- ✅ **JavaScript:** Removed all layout properties, functions, and references
+  - Removed `layout` property from ModularState
+  - Removed layout entries from all preset configurations
+  - Removed `initTier1Layout()` function and initialization
+  - Removed layout references from `updatePreview()` function
+  - Removed layout generator functions (generateHeroLayout, etc.)
+
+**Result:** Successfully eliminated competing layout system and prepared foundation for image-first design.
+
+### **⏳ PHASE 2 IN PROGRESS: Image Container Restructure**
+**Status:** 60% Complete
+
+**Completed Work:**
+- ✅ **Image Container Migration:** Moved Image Container from Tier 5 to Tier 2
+- ✅ **HTML Structure:** Added proper variants (Masked, Framed, Floating, Inset)
+- ✅ **Duplicate Removal:** Removed duplicate Image Container tier
+
+**Current Issues:**
+- ⚠️ **HTML Structure:** Partially broken from previous edit
+- 🔄 **Image Effects:** Need to complete as Tier 3
+- 🔄 **Tier Renumbering:** Content Alignment (Tier 5) and Content Position (Tier 6) need renumbering
+
+**Next Steps:**
+1. Fix broken HTML structure from previous edit
+2. Complete Image Effects tier as Tier 3
+3. Add text color variants to Color Palette (Tier 4)
+4. Renumber remaining tiers (Content Alignment → Tier 5, Content Position → Tier 6)
+5. Update JavaScript ModularState and related code
+6. Test new modular flow
+
+### **📋 UPCOMING PHASES**
+- **Phase 3:** Enhanced Color System with text variants
+- **Phase 4:** Content Positioning Optimization
+- **Phase 5:** Testing & Validation
+
+---
+
 ## 📋 Current vs New Flow Comparison
 
 ### **CURRENT FLOW (Problems)**
@@ -75,25 +142,23 @@ Restructure CardForge V2's build flow from a layout-first to an **image-first de
 
 ## 🏗️ Implementation Phases
 
-### **Phase 1: Layout System Removal**
-**Objective:** Remove all layout-related code and competing systems
+### **Phase 1: Layout System Removal** ✅ *COMPLETED*
+- [x] **Remove Layout Style Tier from HTML:**
+  - ✅ Removed entire Tier 1 section from index.html
+  - ✅ Updated tier numbering for remaining sections
+  - ✅ Preserved existing functionality
 
-#### **1.1 Code Identification & Removal**
-- [ ] **HTML Changes:**
-  - Remove layout selection UI elements
-  - Remove layout-related form inputs
-  - Clean up step navigation (renumber if needed)
+- [x] **Remove Layout-Related CSS:**
+  - ✅ Identified all layout-specific CSS rules in cardforge-card.css
+  - ✅ Removed ~288 lines of Hero, Split, Minimal, Overlay, Stack, Frame layout styles
+  - ✅ Cleaned up layout-related selectors and classes
 
-- [ ] **CSS Changes:**
-  - Remove layout-specific classes from all CSS files
-  - Remove competing grid systems
-  - Clean up layout-related animations/transitions
-
-- [ ] **JavaScript Changes:**
-  - Remove layout selection event handlers
-  - Remove layout state management
-  - Remove layout-related preview updates
-  - Clean up layout references in preset system
+- [x] **Remove Layout-Related JavaScript:**
+  - ✅ Removed `layout` property from ModularState
+  - ✅ Removed layout entries from all preset configurations
+  - ✅ Removed `initTier1Layout()` function and all references
+  - ✅ Removed layout references from `updatePreview()` function
+  - ✅ Removed layout generator functions (generateHeroLayout, etc.) in preset system
 
 #### **1.2 Preset System Cleanup**
 - [ ] **Preset Consolidation:**
@@ -109,18 +174,19 @@ Restructure CardForge V2's build flow from a layout-first to an **image-first de
 
 ---
 
-### **Phase 2: Image Container Restructure**
+### **Phase 2: Image Container Restructure** ⏳ *In Progress*
 
 #### **2.1 UI Restructuring**
-- [ ] **Move Image Container to Position 2:**
-  - Update HTML structure to move image container section
-  - Renumber step navigation
-  - Update progress indicators
+- [x] **Move Image Container to Position 2:**
+  - ✅ Updated HTML structure to move image container to Tier 2
+  - ✅ Added proper variants (Masked, Framed, Floating, Inset)
+  - ✅ Removed duplicate Image Container tier that was previously Tier 5
 
 - [ ] **Consolidate Image Effects:**
-  - Move image effects under image container as subsections
-  - Create hierarchical structure: Container Types → Type Variants → Effects → Effect Variants
-  - Update UI to show nested relationship
+  - ⚠️ HTML structure partially broken from previous edit
+  - [ ] Complete Image Effects tier as Tier 3
+  - [ ] Create hierarchical structure: Container Types → Type Variants → Effects → Effect Variants
+  - [ ] Update UI to show nested relationship
 
 #### **2.2 JavaScript Flow Updates**
 - [ ] **State Management:**
