@@ -6,14 +6,23 @@
 
 The CardForge V2 CSS system has been successfully refactored from a monolithic architecture into a modular, maintainable system. **981 lines** of non-UI CSS have been extracted from the legacy `cardforge-ui.css` file into specialized modules, resulting in a clean separation of concerns and improved maintainability.
 
-### **🔄 Flow Restructure Update (Phase 1 Complete)**
-As part of the CardForge V2 flow restructure project, **Phase 1: Layout System Removal** has been completed:
+### **🔄 Flow Restructure Update (Phases 1 & 2 Complete)**
+As part of the CardForge V2 flow restructure project, **Phase 1: Layout System Removal** and **Phase 2: Image Container Restructure** have been completed:
+
+#### **Phase 1 Complete:**
 - ✅ **Layout CSS Removal:** ~288 lines of competing layout styles removed from `cardforge-card.css`
 - ✅ **Layout System Elimination:** Removed Hero, Split, Minimal, Overlay, Stack, Frame layout-specific CSS
 - ✅ **Architecture Simplification:** Eliminated competing style systems to prepare for image-first design
 - ✅ **Code Cleanup:** Removed layout-related selectors and classes that conflicted with modular system
 
-**Impact:** The system now has a single universal card structure instead of multiple layout-specific structures, eliminating CSS conflicts and preparing the foundation for the new image-first design approach.
+#### **Phase 2 Complete:**
+- ✅ **Image Container Migration:** Moved from Tier 5 to Tier 2 (image-first design)
+- ✅ **Hero Container Addition:** New full-bleed container with Large (40%) and Small (25%) variants
+- ✅ **Enhanced Sizing:** Masked containers increased to 120px × 120px, Framed to 110px × 110px
+- ✅ **JavaScript Integration:** Fixed tier references, event handlers, and modular state management
+- ✅ **CSS Enhancements:** Improved visual hierarchy and container styling consistency
+
+**Impact:** The system now uses an image-first design approach with properly sized, visually balanced container types that drive the entire card design flow.
 
 ---
 

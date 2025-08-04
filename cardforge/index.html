@@ -178,9 +178,239 @@
           <!-- LAYOUT TIER REMOVED - Phase 1 of Flow Restructure -->
           <!-- Image-first design: Image Container moved to Tier 2 position -->
           
-          <!-- TIER 4: COLOR PALETTE (Collapsible) -->
-          <div class="modular-tier collapsible-tier" data-tier="4">
-            <div class="tier-header" data-tier-toggle="4">
+          <!-- TIER 2: IMAGE CONTAINER & EFFECTS (Collapsible) -->
+          <div class="modular-tier collapsible-tier" data-tier="2">
+            <div class="tier-header" data-tier-toggle="2">
+              <h4 class="tier-title">Image Container & Effects</h4>
+              <div class="tier-current-selection">
+                <div class="current-container-preview masked-container-preview"></div>
+                <span class="current-selection-text">Masked Circle</span>
+              </div>
+              <div class="tier-expand-icon">▼</div>
+            </div>
+            
+            <div class="tier-content" data-tier-content="2">
+              <div class="container-section">
+                <div class="container-level">
+                  <h5 class="level-title">Choose Container Type</h5>
+                  <div class="tier-options-grid container-grid">
+                    <div class="tier-option selected" data-value="masked">
+                      <div class="option-preview">
+                        <div class="container-icon masked-icon"></div>
+                      </div>
+                      <span class="option-label">Masked</span>
+                    </div>
+                    <div class="tier-option" data-value="framed">
+                      <div class="option-preview">
+                        <div class="container-icon framed-icon"></div>
+                      </div>
+                      <span class="option-label">Framed</span>
+                    </div>
+                    <div class="tier-option" data-value="raw">
+                      <div class="option-preview">
+                        <div class="container-icon raw-icon"></div>
+                      </div>
+                      <span class="option-label">Raw</span>
+                    </div>
+                    <div class="tier-option" data-value="fullbleed">
+                      <div class="option-preview">
+                        <div class="container-icon fullbleed-icon"></div>
+                      </div>
+                      <span class="option-label">Full Bleed</span>
+                    </div>
+                    <div class="tier-option" data-value="hero">
+                      <div class="option-preview">
+                        <div class="container-icon hero-icon"></div>
+                      </div>
+                      <span class="option-label">Hero</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="container-level">
+                  <h5 class="level-title">Choose Variant</h5>
+                  
+                  <!-- Container Variants -->
+                  <div class="container-variants" data-container="masked">
+                    <h6 class="variant-subtitle">Shape</h6>
+                    <div class="variant-options">
+                      <div class="variant-option selected" data-variant="circle">
+                        <div class="variant-preview circle-preview"></div>
+                        <span class="variant-label">Circle</span>
+                      </div>
+                      <div class="variant-option" data-variant="hex">
+                        <div class="variant-preview hex-preview"></div>
+                        <span class="variant-label">Hex</span>
+                      </div>
+                      <div class="variant-option" data-variant="diamond">
+                        <div class="variant-preview diamond-preview"></div>
+                        <span class="variant-label">Diamond</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="container-variants" data-container="framed" style="display: none;">
+                    <h6 class="variant-subtitle">Frame Style</h6>
+                    <div class="variant-options">
+                      <div class="variant-option" data-variant="classic">
+                        <div class="variant-preview frame-classic-preview"></div>
+                        <span class="variant-label">Classic</span>
+                      </div>
+                      <div class="variant-option" data-variant="modern">
+                        <div class="variant-preview frame-modern-preview"></div>
+                        <span class="variant-label">Modern</span>
+                      </div>
+                      <div class="variant-option" data-variant="ornate">
+                        <div class="variant-preview frame-ornate-preview"></div>
+                        <span class="variant-label">Ornate</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="container-variants" data-container="raw" style="display: none;">
+                    <h6 class="variant-subtitle">Edge Style</h6>
+                    <div class="variant-options">
+                      <div class="variant-option" data-variant="sharp">
+                        <div class="variant-preview raw-sharp-preview"></div>
+                        <span class="variant-label">Sharp</span>
+                      </div>
+                      <div class="variant-option" data-variant="rounded">
+                        <div class="variant-preview raw-rounded-preview"></div>
+                        <span class="variant-label">Rounded</span>
+                      </div>
+                      <div class="variant-option" data-variant="soft">
+                        <div class="variant-preview raw-soft-preview"></div>
+                        <span class="variant-label">Soft</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="container-variants" data-container="hero" style="display: none;">
+                    <h6 class="variant-subtitle">Hero Size</h6>
+                    <div class="variant-options">
+                      <div class="variant-option" data-variant="large">
+                        <div class="variant-preview hero-large-preview"></div>
+                        <span class="variant-label">Large</span>
+                      </div>
+                      <div class="variant-option" data-variant="small">
+                        <div class="variant-preview hero-small-preview"></div>
+                        <span class="variant-label">Small</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- IMAGE EFFECTS SUB-SECTION -->
+                <div class="container-level">
+                  <h5 class="level-title">Choose Image Effects</h5>
+                  
+                  <div class="effects-subsection">
+                    <div class="effects-level">
+                      <h6 class="variant-subtitle">Effect Type</h6>
+                      <div class="tier-options-grid effects-type-grid">
+                        <div class="tier-option selected" data-value="none">
+                          <div class="option-preview">
+                            <div class="effect-icon none-icon"></div>
+                          </div>
+                          <span class="option-label">None</span>
+                        </div>
+                        <div class="tier-option" data-value="filters">
+                          <div class="option-preview">
+                            <div class="effect-icon filters-icon"></div>
+                          </div>
+                          <span class="option-label">Filters</span>
+                        </div>
+                        <div class="tier-option" data-value="borders">
+                          <div class="option-preview">
+                            <div class="effect-icon borders-icon"></div>
+                          </div>
+                          <span class="option-label">Borders</span>
+                        </div>
+                        <div class="tier-option" data-value="overlays">
+                          <div class="option-preview">
+                            <div class="effect-icon overlays-icon"></div>
+                          </div>
+                          <span class="option-label">Overlays</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="effects-level">
+                      <h6 class="variant-subtitle">Effect Variants</h6>
+                      
+                      <!-- None Variants -->
+                      <div class="effect-variants" data-effect="none">
+                        <div class="variant-options">
+                          <div class="variant-option selected" data-variant="clean">
+                            <div class="variant-preview clean-preview"></div>
+                            <span class="variant-label">Clean</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Filter Variants -->
+                      <div class="effect-variants" data-effect="filters" style="display: none;">
+                        <div class="variant-options">
+                          <div class="variant-option" data-variant="sepia">
+                            <div class="variant-preview sepia-preview"></div>
+                            <span class="variant-label">Sepia</span>
+                          </div>
+                          <div class="variant-option" data-variant="grayscale">
+                            <div class="variant-preview grayscale-preview"></div>
+                            <span class="variant-label">Grayscale</span>
+                          </div>
+                          <div class="variant-option" data-variant="blur">
+                            <div class="variant-preview blur-preview"></div>
+                            <span class="variant-label">Blur</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Border Variants -->
+                      <div class="effect-variants" data-effect="borders" style="display: none;">
+                        <div class="variant-options">
+                          <div class="variant-option" data-variant="thin">
+                            <div class="variant-preview border-thin-preview"></div>
+                            <span class="variant-label">Thin</span>
+                          </div>
+                          <div class="variant-option" data-variant="thick">
+                            <div class="variant-preview border-thick-preview"></div>
+                            <span class="variant-label">Thick</span>
+                          </div>
+                          <div class="variant-option" data-variant="glow">
+                            <div class="variant-preview border-glow-preview"></div>
+                            <span class="variant-label">Glow</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Overlay Variants -->
+                      <div class="effect-variants" data-effect="overlays" style="display: none;">
+                        <div class="variant-options">
+                          <div class="variant-option" data-variant="vignette">
+                            <div class="variant-preview overlay-vignette-preview"></div>
+                            <span class="variant-label">Vignette</span>
+                          </div>
+                          <div class="variant-option" data-variant="gradient">
+                            <div class="variant-preview overlay-gradient-preview"></div>
+                            <span class="variant-label">Gradient</span>
+                          </div>
+                          <div class="variant-option" data-variant="ambient">
+                            <div class="variant-preview overlay-ambient-preview"></div>
+                            <span class="variant-label">Ambient</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- TIER 3: COLOR PALETTE (Collapsible) -->
+          <div class="modular-tier collapsible-tier" data-tier="3">
+            <div class="tier-header" data-tier-toggle="3">
               <h4 class="tier-title">Color Palette</h4>
               <div class="tier-current-selection">
                 <div class="current-palette-preview ocean-preview"></div>
@@ -189,7 +419,7 @@
               <div class="tier-expand-icon">▼</div>
             </div>
             
-            <div class="tier-content" data-tier-content="4">
+            <div class="tier-content" data-tier-content="3">
               <div class="palette-section">
                 <div class="palette-level">
                   <h5 class="level-title">Choose Palette Family</h5>
@@ -232,9 +462,9 @@
             </div>
           </div>
           
-          <!-- TIER 2: CONTENT ALIGNMENT (Collapsible - 3 Levels) -->
-          <div class="modular-tier collapsible-tier" data-tier="2">
-            <div class="tier-header" data-tier-toggle="2">
+          <!-- TIER 4: CONTENT ALIGNMENT (Collapsible - 3 Levels) -->
+          <div class="modular-tier collapsible-tier" data-tier="4">
+            <div class="tier-header" data-tier-toggle="4">
               <h4 class="tier-title">Content Alignment</h4>
               <div class="tier-current-selection">
                 <div class="current-alignment-preview center-alignment-preview"></div>
@@ -243,7 +473,7 @@
               <div class="tier-expand-icon">▼</div>
             </div>
             
-            <div class="tier-content" data-tier-content="2">
+            <div class="tier-content" data-tier-content="4">
               <div class="alignment-section">
                 <!-- Level 1: Alignment Type -->
                 <div class="alignment-level">
@@ -420,234 +650,39 @@
             </div>
           </div>
           
-          <!-- TIER 5: IMAGE CONTAINER (Collapsible) -->
+          <!-- TIER 5: CONTENT POSITION (Coming Soon) -->
           <div class="modular-tier collapsible-tier" data-tier="5">
             <div class="tier-header" data-tier-toggle="5">
-              <h4 class="tier-title">Image Container</h4>
+              <h4 class="tier-title">Content Position</h4>
               <div class="tier-current-selection">
-                <div class="current-container-preview masked-container-preview"></div>
-                <span class="current-selection-text">Masked Circle</span>
+                <div class="current-position-preview center-position-preview"></div>
+                <span class="current-selection-text">Center</span>
               </div>
               <div class="tier-expand-icon">▼</div>
             </div>
             
             <div class="tier-content" data-tier-content="5">
-              <div class="container-section">
-                <div class="container-level">
-                  <h5 class="level-title">Choose Container Type</h5>
-                  <div class="tier-options-grid container-grid">
-                    <div class="tier-option selected" data-value="masked">
+              <div class="position-section">
+                <div class="position-level">
+                  <h5 class="level-title">Choose Content Position</h5>
+                  <div class="tier-options-grid position-grid">
+                    <div class="tier-option" data-value="top">
                       <div class="option-preview">
-                        <div class="container-icon masked-icon"></div>
+                        <div class="position-icon top-position-icon"></div>
                       </div>
-                      <span class="option-label">Masked</span>
+                      <span class="option-label">Top</span>
                     </div>
-                    <div class="tier-option" data-value="framed">
+                    <div class="tier-option selected" data-value="center">
                       <div class="option-preview">
-                        <div class="container-icon framed-icon"></div>
+                        <div class="position-icon center-position-icon"></div>
                       </div>
-                      <span class="option-label">Framed</span>
+                      <span class="option-label">Center</span>
                     </div>
-                    <div class="tier-option" data-value="raw">
+                    <div class="tier-option" data-value="bottom">
                       <div class="option-preview">
-                        <div class="container-icon raw-icon"></div>
+                        <div class="position-icon bottom-position-icon"></div>
                       </div>
-                      <span class="option-label">Raw</span>
-                    </div>
-                    <div class="tier-option" data-value="fullbleed">
-                      <div class="option-preview">
-                        <div class="container-icon fullbleed-icon"></div>
-                      </div>
-                      <span class="option-label">Full Bleed</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="container-level">
-                  <h5 class="level-title">Choose Variant</h5>
-                  
-                  <!-- Container Variants -->
-                  <div class="container-variants" data-container="masked">
-                    <h6 class="variant-subtitle">Shape</h6>
-                    <div class="variant-options">
-                      <div class="variant-option selected" data-variant="circle">
-                        <div class="variant-preview circle-preview"></div>
-                        <span class="variant-label">Circle</span>
-                      </div>
-                      <div class="variant-option" data-variant="hex">
-                        <div class="variant-preview hex-preview"></div>
-                        <span class="variant-label">Hex</span>
-                      </div>
-                      <div class="variant-option" data-variant="diamond">
-                        <div class="variant-preview diamond-preview"></div>
-                        <span class="variant-label">Diamond</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div class="container-variants" data-container="framed" style="display: none;">
-                    <h6 class="variant-subtitle">Frame Style</h6>
-                    <div class="variant-options">
-                      <div class="variant-option" data-variant="classic">
-                        <div class="variant-preview frame-classic-preview"></div>
-                        <span class="variant-label">Classic</span>
-                      </div>
-                      <div class="variant-option" data-variant="modern">
-                        <div class="variant-preview frame-modern-preview"></div>
-                        <span class="variant-label">Modern</span>
-                      </div>
-                      <div class="variant-option" data-variant="ornate">
-                        <div class="variant-preview frame-ornate-preview"></div>
-                        <span class="variant-label">Ornate</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div class="container-variants" data-container="raw" style="display: none;">
-                    <h6 class="variant-subtitle">Edge Style</h6>
-                    <div class="variant-options">
-                      <div class="variant-option" data-variant="sharp">
-                        <div class="variant-preview raw-sharp-preview"></div>
-                        <span class="variant-label">Sharp</span>
-                      </div>
-                      <div class="variant-option" data-variant="rounded">
-                        <div class="variant-preview raw-rounded-preview"></div>
-                        <span class="variant-label">Rounded</span>
-                      </div>
-                      <div class="variant-option" data-variant="soft">
-                        <div class="variant-preview raw-soft-preview"></div>
-                        <span class="variant-label">Soft</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- TIER 6: IMAGE EFFECTS (Collapsible) -->
-          <div class="modular-tier collapsible-tier" data-tier="6">
-            <div class="tier-header" data-tier-toggle="6">
-              <h4 class="tier-title">Image Effects</h4>
-              <div class="tier-current-selection">
-                <div class="current-effect-preview none-effect-preview"></div>
-                <span class="current-selection-text">None</span>
-              </div>
-              <div class="tier-expand-icon">▼</div>
-            </div>
-            
-            <div class="tier-content" data-tier-content="6">
-              <div class="effects-section">
-                <div class="effects-level">
-                  <h5 class="level-title">Choose Effect Type</h5>
-                  <div class="tier-options-grid effects-type-grid">
-                    <div class="tier-option selected" data-value="none">
-                      <div class="option-preview">
-                        <div class="effect-icon none-icon"></div>
-                      </div>
-                      <span class="option-label">None</span>
-                    </div>
-                    <div class="tier-option" data-value="filters">
-                      <div class="option-preview">
-                        <div class="effect-icon filters-icon"></div>
-                      </div>
-                      <span class="option-label">Filters</span>
-                    </div>
-                    <div class="tier-option" data-value="borders">
-                      <div class="option-preview">
-                        <div class="effect-icon borders-icon"></div>
-                      </div>
-                      <span class="option-label">Borders</span>
-                    </div>
-                    <div class="tier-option" data-value="overlays">
-                      <div class="option-preview">
-                        <div class="effect-icon overlays-icon"></div>
-                      </div>
-                      <span class="option-label">Overlays</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="effects-level">
-                  <h5 class="level-title">Choose Effect Variant</h5>
-                  
-                  <!-- None Variants -->
-                  <div class="effect-variants" data-effect="none">
-                    <h6 class="variant-subtitle">No Effects Applied</h6>
-                    <div class="variant-options">
-                      <div class="variant-option selected" data-variant="clean">
-                        <div class="variant-preview clean-preview"></div>
-                        <span class="variant-label">Clean</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <!-- Filter Variants -->
-                  <div class="effect-variants" data-effect="filters" style="display: none;">
-                    <h6 class="variant-subtitle">Filter Effects</h6>
-                    <div class="variant-options">
-                      <div class="variant-option" data-variant="sepia">
-                        <div class="variant-preview sepia-preview"></div>
-                        <span class="variant-label">Sepia</span>
-                      </div>
-                      <div class="variant-option" data-variant="grayscale">
-                        <div class="variant-preview grayscale-preview"></div>
-                        <span class="variant-label">Grayscale</span>
-                      </div>
-                      <div class="variant-option" data-variant="blur">
-                        <div class="variant-preview blur-preview"></div>
-                        <span class="variant-label">Blur</span>
-                      </div>
-                      <div class="variant-option" data-variant="brightness">
-                        <div class="variant-preview brightness-preview"></div>
-                        <span class="variant-label">Brightness</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <!-- Border Variants -->
-                  <div class="effect-variants" data-effect="borders" style="display: none;">
-                    <h6 class="variant-subtitle">Border Effects</h6>
-                    <div class="variant-options">
-                      <div class="variant-option" data-variant="solid">
-                        <div class="variant-preview solid-border-preview"></div>
-                        <span class="variant-label">Solid</span>
-                      </div>
-                      <div class="variant-option" data-variant="dashed">
-                        <div class="variant-preview dashed-border-preview"></div>
-                        <span class="variant-label">Dashed</span>
-                      </div>
-                      <div class="variant-option" data-variant="glow">
-                        <div class="variant-preview glow-border-preview"></div>
-                        <span class="variant-label">Glow</span>
-                      </div>
-                      <div class="variant-option" data-variant="neon">
-                        <div class="variant-preview neon-border-preview"></div>
-                        <span class="variant-label">Neon</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <!-- Overlay Variants -->
-                  <div class="effect-variants" data-effect="overlays" style="display: none;">
-                    <h6 class="variant-subtitle">Overlay Effects</h6>
-                    <div class="variant-options">
-                      <div class="variant-option" data-variant="gradient">
-                        <div class="variant-preview gradient-overlay-preview"></div>
-                        <span class="variant-label">Gradient</span>
-                      </div>
-                      <div class="variant-option" data-variant="pattern">
-                        <div class="variant-preview pattern-overlay-preview"></div>
-                        <span class="variant-label">Pattern</span>
-                      </div>
-                      <div class="variant-option" data-variant="texture">
-                        <div class="variant-preview texture-overlay-preview"></div>
-                        <span class="variant-label">Texture</span>
-                      </div>
-                      <div class="variant-option" data-variant="vignette">
-                        <div class="variant-preview vignette-overlay-preview"></div>
-                        <span class="variant-label">Vignette</span>
-                      </div>
+                      <span class="option-label">Bottom</span>
                     </div>
                   </div>
                 </div>

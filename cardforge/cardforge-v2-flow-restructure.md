@@ -174,35 +174,42 @@ Restructure CardForge V2's build flow from a layout-first to an **image-first de
 
 ---
 
-### **Phase 2: Image Container Restructure** ⏳ *In Progress*
+### **Phase 2: Image Container Restructure** ✅ *COMPLETED*
 
 #### **2.1 UI Restructuring**
 - [x] **Move Image Container to Position 2:**
   - ✅ Updated HTML structure to move image container to Tier 2
-  - ✅ Added proper variants (Masked, Framed, Floating, Inset)
+  - ✅ Added proper variants (Masked, Framed, Raw, Full Bleed)
+  - ✅ **NEW**: Added Hero container type with Large/Small variants
   - ✅ Removed duplicate Image Container tier that was previously Tier 5
+  - ✅ Updated tier numbering: Color Palette → Tier 3, Content Alignment → Tier 4
 
-- [ ] **Consolidate Image Effects:**
-  - ⚠️ HTML structure partially broken from previous edit
-  - [ ] Complete Image Effects tier as Tier 3
-  - [ ] Create hierarchical structure: Container Types → Type Variants → Effects → Effect Variants
-  - [ ] Update UI to show nested relationship
+- [x] **Consolidate Image Effects:**
+  - ✅ Fixed HTML structure from previous edits
+  - ✅ Image Effects consolidated as sub-section under Image Container (Tier 2)
+  - ✅ Created hierarchical structure: Container Types → Type Variants → Effects → Effect Variants
+  - ✅ Updated UI to show nested relationship properly
 
 #### **2.2 JavaScript Flow Updates**
-- [ ] **State Management:**
-  - Update state management to reflect new flow order
-  - Ensure image container selection triggers appropriate updates
-  - Update preview system to reflect image-first approach
+- [x] **State Management:**
+  - ✅ Updated state management to reflect new flow order
+  - ✅ Fixed tier references in ModularState and event handlers
+  - ✅ Updated preview system to reflect image-first approach
+  - ✅ Added Hero container to default variants system
 
-- [ ] **Event Handling:**
-  - Update event handlers for new section order
-  - Ensure proper flow between image container and effects
-  - Update validation logic for new flow
+- [x] **Event Handling:**
+  - ✅ Updated event handlers for new section order
+  - ✅ Fixed tier function initialization (initTier2ImageContainer, etc.)
+  - ✅ Ensured proper flow between image container and effects
+  - ✅ All container options now functional with click events
 
-#### **2.3 CSS Integration**
-- [ ] **Style Updates:**
-  - Ensure image container styles work in new position
-  - Update transitions/animations for new flow
+#### **2.3 CSS Integration & Enhancements**
+- [x] **Style Updates:**
+  - ✅ **NEW**: Hero container full-bleed styling with Large (40%) and Small (25%) variants
+  - ✅ **ENHANCED**: Masked containers increased to 120px × 120px for better visibility
+  - ✅ **ENHANCED**: Framed containers increased to 110px × 110px with centered layout
+  - ✅ Fixed CSS selectors to match JavaScript class naming (container-variant-*)
+  - ✅ All container types now have proper visual hierarchy and sizing
   - Verify responsive design works with restructure
 
 ---

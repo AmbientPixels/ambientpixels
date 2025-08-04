@@ -561,32 +561,32 @@
       option.classList.toggle('selected', option.dataset.value === ModularState.weight);
     });
     
-    // Update Tier 4: Palette
-    const paletteOptions = document.querySelectorAll('[data-tier="4"] .palette-family');
+    // Update Tier 3: Color Palette
+    const paletteOptions = document.querySelectorAll('[data-tier="3"] .palette-family');
     paletteOptions.forEach(option => {
       option.classList.toggle('selected', option.dataset.palette === ModularState.palette);
     });
     
-    const variantToggles = document.querySelectorAll('[data-tier="4"] .variant-toggle');
+    const variantToggles = document.querySelectorAll('[data-tier="3"] .variant-toggle');
     variantToggles.forEach(toggle => {
       toggle.classList.toggle('selected', toggle.dataset.variant === ModularState.paletteVariant);
     });
     
-    // Update Tier 5: Image Container
-    const containerOptions = document.querySelectorAll('[data-tier="5"] .tier-option');
+    // Update Tier 2: Image Container & Effects (consolidated)
+    const containerOptions = document.querySelectorAll('[data-tier="2"] .tier-option');
     containerOptions.forEach(option => {
       option.classList.toggle('selected', option.dataset.value === ModularState.imageContainer);
     });
     
     // Show/hide container variants
-    const variantContainers = document.querySelectorAll('[data-tier="5"] .container-variants');
+    const variantContainers = document.querySelectorAll('[data-tier="2"] .container-variants');
     variantContainers.forEach(container => {
       const containerType = container.dataset.container;
       container.style.display = containerType === ModularState.imageContainer ? 'block' : 'none';
     });
     
     // Update container variant selection
-    const activeContainer = document.querySelector(`[data-tier="5"] [data-container="${ModularState.imageContainer}"]`);
+    const activeContainer = document.querySelector(`[data-tier="2"] [data-container="${ModularState.imageContainer}"]`);
     if (activeContainer) {
       const variantOptions = activeContainer.querySelectorAll('.variant-option');
       variantOptions.forEach(option => {
@@ -594,21 +594,21 @@
       });
     }
     
-    // Update Tier 6: Effects
-    const effectOptions = document.querySelectorAll('[data-tier="6"] .tier-option');
+    // Update Image Effects (sub-section of Tier 2)
+    const effectOptions = document.querySelectorAll('[data-tier="2"] .effect-option');
     effectOptions.forEach(option => {
       option.classList.toggle('selected', option.dataset.value === ModularState.imageEffect);
     });
     
     // Show/hide effect variants
-    const effectVariantContainers = document.querySelectorAll('[data-tier="6"] .effect-variants');
+    const effectVariantContainers = document.querySelectorAll('[data-tier="2"] .effect-variants');
     effectVariantContainers.forEach(container => {
       const effectType = container.dataset.effect;
       container.style.display = effectType === ModularState.imageEffect ? 'block' : 'none';
     });
     
     // Update effect variant selection
-    const activeEffect = document.querySelector(`[data-tier="6"] [data-effect="${ModularState.imageEffect}"]`);
+    const activeEffect = document.querySelector(`[data-tier="2"] [data-effect="${ModularState.imageEffect}"]`);
     if (activeEffect) {
       const variantOptions = activeEffect.querySelectorAll('.variant-option');
       variantOptions.forEach(option => {
@@ -629,11 +629,10 @@
     
     // Initialize all modular tiers
     // initTier1Layout() REMOVED - Phase 1 of Flow Restructure
-    initTier2Alignment();
-    initTier3Weight();
-    initTier4Palette();
-    initTier5Container();
-    initTier6Effects();
+    initTier2ImageContainer(); // Image Container & Effects consolidated in Tier 2
+    initTier3Palette(); // Color Palette moved to Tier 3
+    initTier4Alignment(); // Content Alignment moved to Tier 4
+    initTier5Weight(); // Visual Weight moved to Tier 5
     
     console.log('✅ Core modular tiers initialized');
   }
@@ -769,8 +768,8 @@
   // Phase 1 of Flow Restructure: Layout initialization eliminated
   // Image-first design: Image Container moved to Tier 2 position
 
-  // ===== TIER 2: CONTENT ALIGNMENT (3-LEVEL HIERARCHY) =====
-  function initTier2Alignment() {
+  // ===== TIER 4: CONTENT ALIGNMENT (3-LEVEL HIERARCHY) =====
+  function initTier4Alignment() {
     console.log('🎯 Initializing Tier 2: Content Alignment (3-level hierarchy)...');
     
     // Initialize ModularState properties for 3-level alignment
@@ -819,14 +818,14 @@
     });
     
     // Set default selection
-    const defaultOption = document.querySelector(`[data-tier="2"] .alignment-type-grid [data-value="${ModularState.alignmentType}"]`);
+    const defaultOption = document.querySelector(`[data-tier="4"] .alignment-type-grid [data-value="${ModularState.alignmentType}"]`);
     if (defaultOption) {
       defaultOption.classList.add('selected');
     }
   }
   
   function initAlignmentWeightSelection() {
-    const weightOptions = document.querySelectorAll('[data-tier="2"] .weight-option');
+    const weightOptions = document.querySelectorAll('[data-tier="4"] .weight-option');
     
     weightOptions.forEach(option => {
       option.addEventListener('click', () => {
@@ -880,13 +879,13 @@
   
   function updateAlignmentLevelVisibility() {
     // Hide all weight groups
-    const allWeightGroups = document.querySelectorAll('[data-tier="2"] .alignment-weights');
+    const allWeightGroups = document.querySelectorAll('[data-tier="4"] .alignment-weights');
     allWeightGroups.forEach(group => {
       group.style.display = 'none';
     });
     
     // Show weight group for current alignment type
-    const currentWeightGroup = document.querySelector(`[data-tier="2"] .alignment-weights[data-alignment="${ModularState.alignmentType}"]`);
+    const currentWeightGroup = document.querySelector(`[data-tier="4"] .alignment-weights[data-alignment="${ModularState.alignmentType}"]`);
     if (currentWeightGroup) {
       currentWeightGroup.style.display = 'block';
       
@@ -901,14 +900,14 @@
     }
     
     // Hide all style groups
-    const allStyleGroups = document.querySelectorAll('[data-tier="2"] .alignment-styles');
+    const allStyleGroups = document.querySelectorAll('[data-tier="4"] .alignment-styles');
     allStyleGroups.forEach(group => {
       group.style.display = 'none';
     });
     
     // Show style group for current alignment-weight combination
     const currentCombination = `${ModularState.alignmentType}-${ModularState.alignmentWeight}`;
-    let currentStyleGroup = document.querySelector(`[data-tier="2"] .alignment-styles[data-combination="${currentCombination}"]`);
+    let currentStyleGroup = document.querySelector(`[data-tier="4"] .alignment-styles[data-combination="${currentCombination}"]`);
     
     // If the specific combination doesn't exist, create it dynamically
     if (!currentStyleGroup) {
@@ -987,9 +986,9 @@
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
-  // ===== TIER 3: VISUAL WEIGHT =====
-  function initTier3Weight() {
-    const weightOptions = document.querySelectorAll('[data-tier="3"] .tier-option');
+  // ===== TIER 5: VISUAL WEIGHT =====
+  function initTier5Weight() {
+    const weightOptions = document.querySelectorAll('[data-tier="5"] .tier-option');
     
     weightOptions.forEach(option => {
       option.addEventListener('click', () => {
@@ -1011,22 +1010,22 @@
     });
     
     // Set default selection
-    const defaultOption = document.querySelector(`[data-tier="3"] [data-value="${ModularState.weight}"]`);
+    const defaultOption = document.querySelector(`[data-tier="5"] [data-value="${ModularState.weight}"]`);
     if (defaultOption) {
       defaultOption.classList.add('selected');
       
       // Initialize current selection display with default values
       const weightLabel = defaultOption.querySelector('.option-label').textContent;
       const previewClass = `${ModularState.weight}-weight-preview`;
-      updateTierCurrentSelection('3', weightLabel, previewClass);
+      updateTierCurrentSelection('5', weightLabel, previewClass);
     }
   }
 
-  // ===== TIER 4: COLOR PALETTE =====
-  function initTier4Palette() {
+  // ===== TIER 3: COLOR PALETTE =====
+  function initTier3Palette() {
     // Palette family selection
-    const paletteOptions = document.querySelectorAll('[data-tier="4"] .palette-family');
-    const variantToggles = document.querySelectorAll('[data-tier="4"] .variant-toggle');
+    const paletteOptions = document.querySelectorAll('[data-tier="3"] .palette-family');
+    const variantToggles = document.querySelectorAll('[data-tier="3"] .variant-toggle');
     
     paletteOptions.forEach(option => {
       option.addEventListener('click', () => {
@@ -1041,7 +1040,7 @@
         const paletteLabel = option.querySelector('.palette-label').textContent;
         const variantLabel = ModularState.paletteVariant.charAt(0).toUpperCase() + ModularState.paletteVariant.slice(1);
         const previewClass = `${ModularState.palette}-preview`;
-        updateTierCurrentSelection('4', `${paletteLabel} ${variantLabel}`, previewClass);
+        updateTierCurrentSelection('3', `${paletteLabel} ${variantLabel}`, previewClass);
         
         // Update preview
         updatePreview();
@@ -1061,12 +1060,12 @@
         ModularState.paletteVariant = toggle.dataset.variant;
         
         // Update current selection display
-        const selectedPalette = document.querySelector('[data-tier="4"] .palette-family.selected');
+        const selectedPalette = document.querySelector('[data-tier="3"] .palette-family.selected');
         if (selectedPalette) {
           const paletteLabel = selectedPalette.querySelector('.palette-label').textContent;
           const variantLabel = ModularState.paletteVariant.charAt(0).toUpperCase() + ModularState.paletteVariant.slice(1);
           const previewClass = `${ModularState.palette}-preview`;
-          updateTierCurrentSelection('4', `${paletteLabel} ${variantLabel}`, previewClass);
+          updateTierCurrentSelection('3', `${paletteLabel} ${variantLabel}`, previewClass);
         }
         
         // Update preview
@@ -1077,8 +1076,8 @@
     });
     
     // Set default selections
-    const defaultPalette = document.querySelector(`[data-tier="4"] [data-palette="${ModularState.palette}"]`);
-    const defaultVariant = document.querySelector(`[data-tier="4"] [data-variant="${ModularState.paletteVariant}"]`);
+    const defaultPalette = document.querySelector(`[data-tier="3"] [data-palette="${ModularState.palette}"]`);
+    const defaultVariant = document.querySelector(`[data-tier="3"] [data-variant="${ModularState.paletteVariant}"]`);
     
     if (defaultPalette) defaultPalette.classList.add('selected');
     if (defaultVariant) defaultVariant.classList.add('selected');
@@ -1088,7 +1087,7 @@
       const paletteLabel = defaultPalette.querySelector('.palette-label').textContent;
       const variantLabel = ModularState.paletteVariant.charAt(0).toUpperCase() + ModularState.paletteVariant.slice(1);
       const previewClass = `${ModularState.palette}-preview`;
-      updateTierCurrentSelection('4', `${paletteLabel} ${variantLabel}`, previewClass);
+      updateTierCurrentSelection('3', `${paletteLabel} ${variantLabel}`, previewClass);
     }
   }
 
@@ -1771,10 +1770,11 @@
     });
   }
 
-  // ===== TIER 5: IMAGE CONTAINER =====
-  function initTier5Container() {
-    const containerOptions = document.querySelectorAll('[data-tier="5"] .tier-option');
-    const variantContainers = document.querySelectorAll('[data-tier="5"] .container-variants');
+  // ===== TIER 2: IMAGE CONTAINER & EFFECTS (CONSOLIDATED) =====
+  function initTier2ImageContainer() {
+    // Initialize Image Container options
+    const containerOptions = document.querySelectorAll('[data-tier="2"] .tier-option');
+    const variantContainers = document.querySelectorAll('[data-tier="2"] .container-variants');
     
     containerOptions.forEach(option => {
       option.addEventListener('click', () => {
@@ -1800,18 +1800,22 @@
           'masked': 'circle',
           'framed': 'classic',
           'raw': 'sharp',
-          'fullbleed': 'none'
+          'fullbleed': 'none',
+          'hero': 'large'
         };
         ModularState.imageContainerVariant = defaultVariants[ModularState.imageContainer] || 'circle';
         
         // Update variant selection UI
-        const activeContainer = document.querySelector(`[data-tier="5"] [data-container="${ModularState.imageContainer}"]`);
+        const activeContainer = document.querySelector(`[data-tier="2"] [data-container="${ModularState.imageContainer}"]`);
         if (activeContainer) {
           const variantOptions = activeContainer.querySelectorAll('.variant-option');
           variantOptions.forEach(v => v.classList.remove('selected'));
           const defaultVariant = activeContainer.querySelector(`[data-variant="${ModularState.imageContainerVariant}"]`);
           if (defaultVariant) defaultVariant.classList.add('selected');
         }
+        
+        // Update collapsible tier display
+        updateCollapsibleTierDisplays();
         
         // Update preview
         updatePreview();
@@ -1821,7 +1825,7 @@
     });
     
     // Initialize variant option listeners
-    const allVariantOptions = document.querySelectorAll('[data-tier="5"] .variant-option');
+    const allVariantOptions = document.querySelectorAll('[data-tier="2"] .variant-option');
     allVariantOptions.forEach(option => {
       option.addEventListener('click', () => {
         // Update selection state within the same container
@@ -1833,6 +1837,9 @@
         // Update modular state
         ModularState.imageContainerVariant = option.dataset.variant;
         
+        // Update collapsible tier display
+        updateCollapsibleTierDisplays();
+        
         // Update preview
         updatePreview();
         
@@ -1841,11 +1848,11 @@
     });
     
     // Set default selections
-    const defaultContainer = document.querySelector(`[data-tier="5"] [data-value="${ModularState.imageContainer}"]`);
+    const defaultContainer = document.querySelector(`[data-tier="2"] [data-value="${ModularState.imageContainer}"]`);
     if (defaultContainer) {
       defaultContainer.classList.add('selected');
       // Show the default container's variants
-      const defaultVariantContainer = document.querySelector(`[data-tier="5"] [data-container="${ModularState.imageContainer}"]`);
+      const defaultVariantContainer = document.querySelector(`[data-tier="2"] [data-container="${ModularState.imageContainer}"]`);
       if (defaultVariantContainer) {
         defaultVariantContainer.style.display = 'block';
         const defaultVariant = defaultVariantContainer.querySelector(`[data-variant="${ModularState.imageContainerVariant}"]`);
