@@ -15,21 +15,22 @@
     alignmentWeight: 'balanced',
     alignmentStyle: 'padded',
     
-    // Tier 3: Visual Weight
-    weight: 'balanced',
-    
-    // Tier 4: Color Palette
+    // Tier 3: Color Palette
     palette: 'neon',
     paletteVariant: 'light',
+    textColor: 'auto',
     
-    // Tier 5: Image Container
+    // Tier 2: Image Container
     imageContainer: 'masked',
     imageContainerVariant: 'circle',
     
-    // Tier 6: Image Effects
+    // Image Effects (sub-tier of Image Container)
     imageEffect: 'none',
     imageEffectVariant: 'clean'
   };
+  
+  // Make ModularState globally accessible for event handlers
+  window.ModularState = ModularState;
   
   // ===== PRESET CONFIGURATIONS =====
   const PresetConfigurations = {
@@ -633,7 +634,7 @@
     // initTier3ImageEffects(); // Image Effects - TEMPORARILY DISABLED
     initTier3Palette(); // Color Palette moved to Tier 4 (function name needs updating)
     initTier4Alignment(); // Content Alignment moved to Tier 5 (function name needs updating)
-    initTier5Weight(); // Visual Weight moved to Tier 6 (function name needs updating)
+    // initTier5Weight(); // REMOVED - Standalone Visual Weight tier (redundant with Content Alignment weight distribution)
     
     console.log('✅ Core modular tiers initialized');
   }
@@ -771,7 +772,7 @@
 
   // ===== TIER 4: CONTENT ALIGNMENT (3-LEVEL HIERARCHY) =====
   function initTier4Alignment() {
-    console.log('🎯 Initializing Tier 2: Content Alignment (3-level hierarchy)...');
+    console.log('🎯 Initializing Tier 4: Content Alignment (3-level hierarchy)...');
     
     // Initialize ModularState properties for 3-level alignment
     if (!ModularState.alignmentType) ModularState.alignmentType = 'center';
@@ -790,11 +791,11 @@
     // Initialize display state
     updateAlignmentLevelVisibility();
     
-    console.log('✅ Tier 2 Content Alignment initialized');
+    console.log('✅ Tier 4 Content Alignment initialized');
   }
   
   function initAlignmentTypeSelection() {
-    const alignmentTypeOptions = document.querySelectorAll('[data-tier="2"] .alignment-type-grid .tier-option');
+    const alignmentTypeOptions = document.querySelectorAll('[data-tier="4"] .alignment-type-grid .tier-option');
     
     alignmentTypeOptions.forEach(option => {
       option.addEventListener('click', () => {
@@ -854,7 +855,7 @@
   }
   
   function initAlignmentStyleSelection() {
-    const styleOptions = document.querySelectorAll('[data-tier="2"] .style-option');
+    const styleOptions = document.querySelectorAll('[data-tier="4"] .style-option');
     
     styleOptions.forEach(option => {
       option.addEventListener('click', () => {
@@ -1083,12 +1084,46 @@
     if (defaultPalette) defaultPalette.classList.add('selected');
     if (defaultVariant) defaultVariant.classList.add('selected');
     
+    // Text Color selection
+    const textColorOptions = document.querySelectorAll('[data-tier="3"] .text-color-option');
+    
+    textColorOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        // Update selection state
+        textColorOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        
+        // Update modular state
+        ModularState.textColor = option.dataset.textColor;
+        
+        // Update current selection display
+        const selectedPalette = document.querySelector('[data-tier="3"] .palette-family.selected');
+        if (selectedPalette) {
+          const paletteLabel = selectedPalette.querySelector('.palette-label').textContent;
+          const variantLabel = ModularState.paletteVariant.charAt(0).toUpperCase() + ModularState.paletteVariant.slice(1);
+          const textLabel = ModularState.textColor.charAt(0).toUpperCase() + ModularState.textColor.slice(1);
+          const previewClass = `${ModularState.palette}-preview`;
+          updateTierCurrentSelection('3', `${paletteLabel} ${variantLabel} ${textLabel}`, previewClass);
+        }
+        
+        // Update preview
+        updatePreview();
+        
+        console.log(`📝 Text color updated: ${ModularState.textColor}`);
+      });
+    });
+    
+    // Set default text color selection
+    const defaultTextColor = document.querySelector(`[data-tier="3"] [data-text-color="${ModularState.textColor}"]`);
+    if (defaultTextColor) defaultTextColor.classList.add('selected');
+    
     // Initialize current selection display with default values
     if (defaultPalette) {
       const paletteLabel = defaultPalette.querySelector('.palette-label').textContent;
       const variantLabel = ModularState.paletteVariant.charAt(0).toUpperCase() + ModularState.paletteVariant.slice(1);
+      const textLabel = ModularState.textColor.charAt(0).toUpperCase() + ModularState.textColor.slice(1);
       const previewClass = `${ModularState.palette}-preview`;
-      updateTierCurrentSelection('3', `${paletteLabel} ${variantLabel}`, previewClass);
+      updateTierCurrentSelection('3', `${paletteLabel} ${variantLabel} ${textLabel}`, previewClass);
     }
   }
 
@@ -1110,9 +1145,10 @@
       `align-type-${ModularState.alignmentType}`,
       `align-weight-${ModularState.alignmentWeight}`,
       `align-style-${ModularState.alignmentStyle}`,
-      `weight-${ModularState.weight}`,
+      // `weight-${ModularState.weight}` REMOVED - Standalone Visual Weight tier removed
       `palette-${ModularState.palette}`,
       `variant-${ModularState.paletteVariant}`,
+      `text-${ModularState.textColor}`,
       `container-${ModularState.imageContainer}`,
       `container-variant-${ModularState.imageContainerVariant}`,
       `effect-${ModularState.imageEffect}`,

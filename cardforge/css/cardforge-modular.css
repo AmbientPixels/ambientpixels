@@ -18,6 +18,92 @@
   margin-bottom: 2rem;
 }
 
+/* ===== TEXT COLOR OPTIONS STYLING ===== */
+
+.text-color-options {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.text-color-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--aura-bg-color, #1a1a2e);
+  border: 2px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 60px;
+}
+
+.text-color-option:hover {
+  border-color: var(--mood-primary-color, #00d4ff);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2);
+}
+
+.text-color-option.selected {
+  border-color: var(--mood-primary-color, #00d4ff);
+  background: var(--aura-bg-secondary, #2a2a3e);
+  box-shadow: 0 0 0 1px var(--mood-primary-color, #00d4ff);
+}
+
+.text-color-preview {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background: var(--aura-bg-secondary, #2a2a3e);
+}
+
+.text-color-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--mood-text-secondary, #cccccc);
+  text-align: center;
+}
+
+/* Text Color Preview Variants */
+.auto-text-preview {
+  color: var(--mood-primary-color, #00d4ff);
+  background: linear-gradient(45deg, #1a1a2e 50%, #2a2a3e 50%);
+}
+
+.light-text-preview {
+  color: #ffffff;
+  background: #333333;
+}
+
+.dark-text-preview {
+  color: #000000;
+  background: #f0f0f0;
+}
+
+/* Selected state for text color options */
+.text-color-option.selected .text-color-label {
+  color: var(--mood-primary-color, #00d4ff);
+}
+
+.text-color-option.selected .auto-text-preview {
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+}
+
+.text-color-option.selected .light-text-preview {
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+.text-color-option.selected .dark-text-preview {
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+}
+
 /* ===== PRESETS SECTION ===== */
 
 .presets-section {

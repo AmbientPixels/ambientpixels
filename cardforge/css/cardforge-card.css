@@ -5,6 +5,32 @@
 
 /* ===== MODULAR SYSTEM CSS ===== */
 
+/* TEXT COLOR SYSTEM (Simple Palette Extension) */
+/* Auto text color uses palette defaults */
+.card-preview-canvas.text-auto {
+  /* Uses existing palette text colors */
+}
+
+/* Light text override */
+.card-preview-canvas.text-light,
+.card-preview-canvas.text-light .card-name,
+.card-preview-canvas.text-light .card-class,
+.card-preview-canvas.text-light .card-quote,
+.card-preview-canvas.text-light .stat-name,
+.card-preview-canvas.text-light .stat-value {
+  color: #ffffff !important;
+}
+
+/* Dark text override */
+.card-preview-canvas.text-dark,
+.card-preview-canvas.text-dark .card-name,
+.card-preview-canvas.text-dark .card-class,
+.card-preview-canvas.text-dark .card-quote,
+.card-preview-canvas.text-dark .stat-name,
+.card-preview-canvas.text-dark .stat-value {
+  color: #000000 !important;
+}
+
 /* TIER 4: COLOR PALETTE SYSTEM */
 /* Neon Palette */
 .card-preview-canvas.palette-neon.variant-light {
@@ -197,30 +223,6 @@
   text-align: right;
 }
 
-/* TIER 3: VISUAL WEIGHT SYSTEM */
-.card-preview-canvas.weight-top-heavy .card-header {
-  font-size: 1.3em;
-  margin-bottom: 0.5rem;
-}
-
-.card-preview-canvas.weight-top-heavy .card-body {
-  font-size: 0.9em;
-}
-
-.card-preview-canvas.weight-balanced .card-header,
-.card-preview-canvas.weight-balanced .card-body {
-  font-size: 1em;
-}
-
-.card-preview-canvas.weight-bottom-heavy .card-header {
-  font-size: 0.9em;
-  margin-bottom: 0.3rem;
-}
-
-.card-preview-canvas.weight-bottom-heavy .card-body {
-  font-size: 1.2em;
-}
-
 /* Tier 2: Content Alignment */
 .card-preview-canvas.align-left {
   text-align: left;
@@ -234,82 +236,7 @@
   text-align: right;
 }
 
-/* Tier 3: Visual Weight */
-.card-preview-canvas.weight-top-heavy .card-name {
-  font-size: 1.8em;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.card-preview-canvas.weight-top-heavy .card-class {
-  font-size: 1.2em;
-  font-weight: 600;
-}
-
-.card-preview-canvas.weight-top-heavy .card-quote {
-  font-size: 0.9em;
-  opacity: 0.8;
-}
-
-.card-preview-canvas.weight-balanced .card-name {
-  font-size: 1.4em;
-  font-weight: 600;
-}
-
-.card-preview-canvas.weight-balanced .card-class {
-  font-size: 1.1em;
-  font-weight: 500;
-}
-
-.card-preview-canvas.weight-balanced .card-quote {
-  font-size: 1em;
-  opacity: 0.9;
-}
-
-.card-preview-canvas.weight-bottom-heavy .card-name {
-  font-size: 1.2em;
-  font-weight: 500;
-}
-
-.card-preview-canvas.weight-bottom-heavy .card-class {
-  font-size: 1em;
-  font-weight: 400;
-}
-
-.card-preview-canvas.weight-bottom-heavy .card-quote {
-  font-size: 1.3em;
-  font-weight: 600;
-  opacity: 1;
-}
-
-.card-preview-canvas.weight-bottom-heavy .card-stats {
-  margin-top: 16px;
-}
-
-/* Alignment + Weight combinations for enhanced effects */
-.card-preview-canvas.align-left.weight-top-heavy .card-header {
-  padding-left: 0;
-}
-
-.card-preview-canvas.align-right.weight-top-heavy .card-header {
-  padding-right: 0;
-}
-
-.card-preview-canvas.align-center.weight-balanced {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.card-preview-canvas.weight-top-heavy .card-avatar {
-  width: 120px;
-  height: 120px;
-}
-
-.card-preview-canvas.weight-bottom-heavy .card-avatar {
-  width: 80px;
-  height: 80px;
-}
+/* STANDALONE VISUAL WEIGHT TIER REMOVED - Use Content Alignment weight distribution instead */
 
 /* ===== TIER 5: IMAGE CONTAINER STYLES ===== */
 

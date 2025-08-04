@@ -454,6 +454,24 @@
                     </div>
                   </div>
                 </div>
+                
+                <div class="palette-level">
+                  <h5 class="level-title">Text Color</h5>
+                  <div class="text-color-options">
+                    <div class="text-color-option selected" data-text-color="auto">
+                      <div class="text-color-preview auto-text-preview">Aa</div>
+                      <span class="text-color-label">Auto</span>
+                    </div>
+                    <div class="text-color-option" data-text-color="light">
+                      <div class="text-color-preview light-text-preview">Aa</div>
+                      <span class="text-color-label">Light</span>
+                    </div>
+                    <div class="text-color-option" data-text-color="dark">
+                      <div class="text-color-preview dark-text-preview">Aa</div>
+                      <span class="text-color-label">Dark</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -600,45 +618,136 @@
                     </div>
                   </div>
                   
-                  <!-- More combinations will be added dynamically by JavaScript -->
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- TIER 3: VISUAL WEIGHT (Collapsible) -->
-          <div class="modular-tier collapsible-tier" data-tier="3">
-            <div class="tier-header" data-tier-toggle="3">
-              <h4 class="tier-title">Visual Weight</h4>
-              <div class="tier-current-selection">
-                <div class="current-weight-preview balanced-weight-preview"></div>
-                <span class="current-selection-text">Balanced</span>
-              </div>
-              <div class="tier-expand-icon">▼</div>
-            </div>
-            
-            <div class="tier-content" data-tier-content="3">
-              <div class="weight-section">
-                <div class="weight-level">
-                  <h5 class="level-title">Choose Visual Weight Distribution</h5>
-                  <div class="tier-options-grid weight-grid">
-                    <div class="tier-option" data-value="top-heavy">
-                      <div class="option-preview">
-                        <div class="weight-icon top-heavy-icon"></div>
+                  <!-- Center Top Heavy Styles -->
+                  <div class="alignment-styles" data-combination="center-top-heavy" style="display: none;">
+                    <h6 class="variant-subtitle">Center Top Heavy Styles</h6>
+                    <div class="style-options">
+                      <div class="style-option" data-style="minimal">
+                        <div class="style-preview minimal-style-preview"></div>
+                        <span class="style-label">Minimal</span>
                       </div>
-                      <span class="option-label">Top Heavy</span>
+                      <div class="style-option" data-style="padded">
+                        <div class="style-preview padded-style-preview"></div>
+                        <span class="style-label">Padded</span>
+                      </div>
+                      <div class="style-option" data-style="compact">
+                        <div class="style-preview compact-style-preview"></div>
+                        <span class="style-label">Compact</span>
+                      </div>
                     </div>
-                    <div class="tier-option selected" data-value="balanced">
-                      <div class="option-preview">
-                        <div class="weight-icon balanced-icon"></div>
+                  </div>
+                  
+                  <!-- Center Bottom Heavy Styles -->
+                  <div class="alignment-styles" data-combination="center-bottom-heavy" style="display: none;">
+                    <h6 class="variant-subtitle">Center Bottom Heavy Styles</h6>
+                    <div class="style-options">
+                      <div class="style-option" data-style="minimal">
+                        <div class="style-preview minimal-style-preview"></div>
+                        <span class="style-label">Minimal</span>
                       </div>
-                      <span class="option-label">Balanced</span>
+                      <div class="style-option" data-style="padded">
+                        <div class="style-preview padded-style-preview"></div>
+                        <span class="style-label">Padded</span>
+                      </div>
+                      <div class="style-option" data-style="compact">
+                        <div class="style-preview compact-style-preview"></div>
+                        <span class="style-label">Compact</span>
+                      </div>
                     </div>
-                    <div class="tier-option" data-value="bottom-heavy">
-                      <div class="option-preview">
-                        <div class="weight-icon bottom-heavy-icon"></div>
+                  </div>
+                  
+                  <!-- Left Top Heavy Styles -->
+                  <div class="alignment-styles" data-combination="left-top-heavy" style="display: none;">
+                    <h6 class="variant-subtitle">Left Top Heavy Styles</h6>
+                    <div class="style-options">
+                      <div class="style-option" data-style="minimal">
+                        <div class="style-preview minimal-style-preview"></div>
+                        <span class="style-label">Minimal</span>
                       </div>
-                      <span class="option-label">Bottom Heavy</span>
+                      <div class="style-option" data-style="padded">
+                        <div class="style-preview padded-style-preview"></div>
+                        <span class="style-label">Padded</span>
+                      </div>
+                      <div class="style-option" data-style="compact">
+                        <div class="style-preview compact-style-preview"></div>
+                        <span class="style-label">Compact</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Left Bottom Heavy Styles -->
+                  <div class="alignment-styles" data-combination="left-bottom-heavy" style="display: none;">
+                    <h6 class="variant-subtitle">Left Bottom Heavy Styles</h6>
+                    <div class="style-options">
+                      <div class="style-option" data-style="minimal">
+                        <div class="style-preview minimal-style-preview"></div>
+                        <span class="style-label">Minimal</span>
+                      </div>
+                      <div class="style-option" data-style="padded">
+                        <div class="style-preview padded-style-preview"></div>
+                        <span class="style-label">Padded</span>
+                      </div>
+                      <div class="style-option" data-style="compact">
+                        <div class="style-preview compact-style-preview"></div>
+                        <span class="style-label">Compact</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Right Top Heavy Styles -->
+                  <div class="alignment-styles" data-combination="right-top-heavy" style="display: none;">
+                    <h6 class="variant-subtitle">Right Top Heavy Styles</h6>
+                    <div class="style-options">
+                      <div class="style-option" data-style="minimal">
+                        <div class="style-preview minimal-style-preview"></div>
+                        <span class="style-label">Minimal</span>
+                      </div>
+                      <div class="style-option" data-style="padded">
+                        <div class="style-preview padded-style-preview"></div>
+                        <span class="style-label">Padded</span>
+                      </div>
+                      <div class="style-option" data-style="compact">
+                        <div class="style-preview compact-style-preview"></div>
+                        <span class="style-label">Compact</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Right Balanced Styles -->
+                  <div class="alignment-styles" data-combination="right-balanced" style="display: none;">
+                    <h6 class="variant-subtitle">Right Balanced Styles</h6>
+                    <div class="style-options">
+                      <div class="style-option" data-style="minimal">
+                        <div class="style-preview minimal-style-preview"></div>
+                        <span class="style-label">Minimal</span>
+                      </div>
+                      <div class="style-option" data-style="padded">
+                        <div class="style-preview padded-style-preview"></div>
+                        <span class="style-label">Padded</span>
+                      </div>
+                      <div class="style-option" data-style="compact">
+                        <div class="style-preview compact-style-preview"></div>
+                        <span class="style-label">Compact</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Right Bottom Heavy Styles -->
+                  <div class="alignment-styles" data-combination="right-bottom-heavy" style="display: none;">
+                    <h6 class="variant-subtitle">Right Bottom Heavy Styles</h6>
+                    <div class="style-options">
+                      <div class="style-option" data-style="minimal">
+                        <div class="style-preview minimal-style-preview"></div>
+                        <span class="style-label">Minimal</span>
+                      </div>
+                      <div class="style-option" data-style="padded">
+                        <div class="style-preview padded-style-preview"></div>
+                        <span class="style-label">Padded</span>
+                      </div>
+                      <div class="style-option" data-style="compact">
+                        <div class="style-preview compact-style-preview"></div>
+                        <span class="style-label">Compact</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -646,9 +755,9 @@
             </div>
           </div>
           
-          <!-- TIER 5: CONTENT POSITION (Coming Soon) -->
-          <div class="modular-tier collapsible-tier" data-tier="5">
-            <div class="tier-header" data-tier-toggle="5">
+          <!-- TIER 4: CONTENT POSITION -->
+          <div class="modular-tier collapsible-tier" data-tier="4">
+            <div class="tier-header" data-tier-toggle="4">
               <h4 class="tier-title">Content Position</h4>
               <div class="tier-current-selection">
                 <div class="current-position-preview center-position-preview"></div>
@@ -657,7 +766,7 @@
               <div class="tier-expand-icon">▼</div>
             </div>
             
-            <div class="tier-content" data-tier-content="5">
+            <div class="tier-content" data-tier-content="4">
               <div class="position-section">
                 <div class="position-level">
                   <h5 class="level-title">Choose Content Position</h5>
@@ -685,6 +794,8 @@
               </div>
             </div>
           </div>
+          
+
           
         </div>
       </div>
