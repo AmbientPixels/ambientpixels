@@ -630,7 +630,7 @@
     // Initialize all modular tiers
     // initTier1Layout() REMOVED - Phase 1 of Flow Restructure
     initTier2ImageContainer(); // Image Container in Tier 2
-    initTier3ImageEffects(); // Image Effects in Tier 3
+    // initTier3ImageEffects(); // Image Effects - TEMPORARILY DISABLED
     initTier3Palette(); // Color Palette moved to Tier 4 (function name needs updating)
     initTier4Alignment(); // Content Alignment moved to Tier 5 (function name needs updating)
     initTier5Weight(); // Visual Weight moved to Tier 6 (function name needs updating)
