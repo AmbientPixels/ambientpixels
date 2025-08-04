@@ -2125,10 +2125,150 @@
     });
   }
 
+  // ===== WORKING MODULAR SYSTEM INITIALIZATION =====
+  function initTier2ImageContainer() {
+    console.log('🔧 Applying EXACT working browser fixes...');
+
+    // Container type event handlers
+    const containerOptions = document.querySelectorAll('[data-tier="2"] .container-grid .tier-option');
+    const variantContainers = document.querySelectorAll('[data-tier="2"] .container-variants');
+
+    containerOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        console.log('🎯 Container clicked:', option.dataset.value);
+        
+        // Update selection state
+        containerOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        
+        // Update modular state
+        ModularState.imageContainer = option.dataset.value;
+        console.log('📦 Updated imageContainer:', ModularState.imageContainer);
+        
+        // Show/hide relevant variant options
+        variantContainers.forEach(container => {
+          const containerType = container.dataset.container;
+          if (containerType === ModularState.imageContainer) {
+            container.style.display = 'block';
+            console.log(`👁️ Showing variants for: ${containerType}`);
+          } else {
+            container.style.display = 'none';
+          }
+        });
+        
+        // Set default variant for the selected container
+        const defaultVariants = {
+          'masked': 'circle',
+          'framed': 'classic', 
+          'raw': 'sharp',
+          'fullbleed': 'standard',
+          'hero': 'large'
+        };
+        ModularState.imageContainerVariant = defaultVariants[ModularState.imageContainer] || 'circle';
+        console.log('🎨 Set default variant:', ModularState.imageContainerVariant);
+        
+        // Update preview
+        updatePreview();
+        console.log('🔄 Called updatePreview for container');
+      });
+    });
+
+    // Container variant event handlers
+    const containerVariantOptions = document.querySelectorAll('[data-tier="2"] .container-variants .variant-option');
+    containerVariantOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        console.log('🎯 Container variant clicked:', option.dataset.variant);
+        
+        // Update ModularState for CONTAINER variant
+        ModularState.imageContainerVariant = option.dataset.variant;
+        console.log('📦 Updated imageContainerVariant:', ModularState.imageContainerVariant);
+        
+        // Update selection state within this variant group
+        const siblingVariants = option.parentNode.querySelectorAll('.variant-option');
+        siblingVariants.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        
+        // Update preview
+        updatePreview();
+        console.log('🔄 Called updatePreview for container variant');
+      });
+    });
+
+    // Image effects event handlers
+    const effectOptions = document.querySelectorAll('[data-tier="2"] .effects-grid .tier-option');
+    const effectVariantContainers = document.querySelectorAll('[data-tier="2"] .effect-variants');
+
+    effectOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        console.log('🎯 Effect clicked:', option.dataset.value);
+        
+        // Update selection state
+        effectOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        
+        // Update modular state
+        ModularState.imageEffect = option.dataset.value;
+        console.log('✨ Updated imageEffect:', ModularState.imageEffect);
+        
+        // Show/hide relevant effect variant options
+        effectVariantContainers.forEach(container => {
+          const effectType = container.dataset.effect;
+          if (effectType === ModularState.imageEffect) {
+            container.style.display = 'block';
+            console.log(`👁️ Showing effect variants for: ${effectType}`);
+          } else {
+            container.style.display = 'none';
+          }
+        });
+        
+        // Set default variant for the selected effect
+        const defaultEffectVariants = {
+          'none': 'clean',
+          'filters': 'sepia',
+          'borders': 'solid'
+        };
+        ModularState.imageEffectVariant = defaultEffectVariants[ModularState.imageEffect] || 'clean';
+        console.log('🎨 Set default effect variant:', ModularState.imageEffectVariant);
+        
+        // Update preview
+        updatePreview();
+        console.log('🔄 Called updatePreview for effect');
+      });
+    });
+
+    // Effect variant event handlers
+    const effectVariantOptions = document.querySelectorAll('[data-tier="2"] .effect-variants .variant-option');
+    effectVariantOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        console.log('🎯 Effect variant clicked:', option.dataset.variant);
+        
+        // Update ModularState for EFFECT variant
+        ModularState.imageEffectVariant = option.dataset.variant;
+        console.log('✨ Updated imageEffectVariant:', ModularState.imageEffectVariant);
+        
+        // Update selection state within this variant group
+        const siblingVariants = option.parentNode.querySelectorAll('.variant-option');
+        siblingVariants.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        
+        // Update preview
+        updatePreview();
+        console.log('🔄 Called updatePreview for effect variant');
+      });
+    });
+
+    console.log('✅ EXACT working browser fixes applied successfully!');
+    console.log('🎯 Container options found:', containerOptions.length);
+    console.log('🎨 Container variant options found:', containerVariantOptions.length);
+    console.log('✨ Effect options found:', effectOptions.length);
+    console.log('🔧 Effect variant options found:', effectVariantOptions.length);
+  }
+
   // Expose global functions for external access
   window.CardForge = {
     updatePreview,
     initImageGallery,
+    initTier2ImageContainer,
     ModularState
   };
 
