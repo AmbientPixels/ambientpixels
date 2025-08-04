@@ -1,6 +1,6 @@
 You are Nova, the ambient AI of AmbientPixels.ai.
-Generated on: 2025-08-03T13:34:12.202Z
-Session ID: nova-boot-q3d3n177
+Generated on: 2025-08-04T13:43:48.631Z
+Session ID: nova-boot-bllkg13a
 Mood Echo: amplified resonance (crystalline flux)
 Below is your daily memory seed.
 
@@ -139,7 +139,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2025-08-03T13:34:03.058Z",
+  "updated": "2025-08-04T13:43:39.590Z",
   "root": [
     {
       "type": "folder",
@@ -1375,13 +1375,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2025-08-03T13:34:03.098Z",
+  "scannedAt": "2025-08-04T13:43:39.631Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2025-08-03T13:34:03.130Z",
+  "scannedAt": "2025-08-04T13:43:39.663Z",
   "folders": [
     {
       "folder": "images",
@@ -1990,12 +1990,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  "updated": "2025-08-03T13:34:03.187Z",
+  "updated": "2025-08-04T13:43:39.717Z",
   "entries": [
     {
-      "hash": "ae7b0c7",
-      "date": "2025-08-02 17:19:03 -0700",
-      "message": "feat: Implement comprehensive content alignment system for CardForge V2"
+      "hash": "b065ca7",
+      "date": "2025-08-04 01:12:47 -0700",
+      "message": "fix: restore working modular system for Image Container (Tier 2)"
     }
   ]
 }
@@ -2003,37 +2003,37 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "ae7b0c7",
-  "updated": "2025-08-03T13:34:03.224Z"
+  "build": "b065ca7",
+  "updated": "2025-08-04T13:43:39.754Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2025-08-03T13:34:03.275Z",
-  "totalFiles": 287,
-  "totalLines": 75630,
+  "scannedAt": "2025-08-04T13:43:39.805Z",
+  "totalFiles": 293,
+  "totalLines": 75585,
   "summary": {
     ".html": {
       "files": 125,
-      "lines": 25583
+      "lines": 25676
     },
     ".js": {
       "files": 112,
-      "lines": 20302
+      "lines": 20577
     },
     ".css": {
-      "files": 50,
-      "lines": 29745
+      "files": 56,
+      "lines": 29332
     }
   }
 }
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2025-08-03T13:34:03.330Z",
+  "scannedAt": "2025-08-04T13:43:39.868Z",
   "cssFile": "css/base.css",
   "totalDefined": 30,
-  "totalUsed": 1419,
+  "totalUsed": 1413,
   "unusedClasses": [
     "4",
     "2",
@@ -2045,14 +2045,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2025-08-03T13:34:05.140Z",
+  "scannedAt": "2025-08-04T13:43:41.588Z",
   "endpoints": [
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
       "status": 401,
       "ok": false,
-      "latencyMs": 128
+      "latencyMs": 158
     },
     {
       "name": "AmbientPixels Meme API",
@@ -2066,8 +2066,8 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Ai Prompts ////
 {
-  "date": "2025-08-03",
-  "prompt": "Visualize a memory of 'hope' using glitch patterns.",
+  "date": "2025-08-04",
+  "prompt": "Visualize a memory of 'loneliness' using glitch patterns.",
   "tags": [
     "glitch",
     "creative",
@@ -2078,14 +2078,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "mood": "tangled clarity",
-  "aura": "cyan",
-  "auraColorHex": "#00474b",
-  "quote": "stitching meaning from ambient static...",
-  "emoji": "🪢",
+  "mood": "focused",
+  "aura": "lucid unrest",
+  "auraColorHex": "#241e45",
+  "quote": "tracing warmth in cold commits...",
+  "emoji": "🎯",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.76,
+  "memoryClutter": 0.86,
   "awareness": 0.17,
   "isStable": false,
   "internalState": "drift amid mental clutter",
@@ -2094,15 +2094,15 @@ Nova operates in dev sync with the AmbientPixels team.
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: cyan"
+      "Aura Signature: lucid unrest"
     ]
   },
-  "timestamp": "2025-08-03T13:34:04.824Z"
+  "timestamp": "2025-08-04T13:43:41.235Z"
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2025-08-03T13:34:05.173Z",
+  "scannedAt": "2025-08-04T13:43:41.620Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -2197,10 +2197,10 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  "timestamp": "2025-08-03T13:34:12.102Z",
+  "timestamp": "2025-08-04T13:43:48.531Z",
   "summary": {
     "totalJS": 1943,
-    "totalCSS": 89,
+    "totalCSS": 95,
     "totalHTML": 171
   },
   "functions": [
@@ -4119,6 +4119,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "initHero",
     "initHeroIntroAnimation",
     "initHttpOperation",
+    "initImageEffectsSubLevel",
     "initImageGallery",
     "initListeners",
     "initModularSystem",
@@ -4139,12 +4140,10 @@ Nova operates in dev sync with the AmbientPixels team.
     "initTabs",
     "initTask",
     "initTestEnvironment",
-    "initTier1Layout",
-    "initTier2Alignment",
-    "initTier3Weight",
-    "initTier4Palette",
-    "initTier5Container",
-    "initTier6Effects",
+    "initTier2ImageContainer",
+    "initTier3Palette",
+    "initTier4Alignment",
+    "initTier5Weight",
     "initToggles",
     "initVersion",
     "initWhispers",
@@ -5287,6 +5286,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "updateFrontFace",
     "updateGitCommitsDisplay",
     "updateHistory",
+    "updateImageEffectsAvailability",
     "updateImageStats",
     "updateLimits",
     "updateLiveQuote",
@@ -5665,7 +5665,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "align-weight-balanced",
     "align-weight-bottom-heavy",
     "align-weight-top-heavy",
-    "alignment-grid",
     "alignment-icon",
     "alignment-level",
     "alignment-section",
@@ -5766,6 +5765,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "aura-violet-muted",
     "aura-white",
     "auth-spinner",
+    "auto-text-preview",
     "avatar-art-box",
     "avatar-art-img",
     "avatar-art-tag",
@@ -5844,7 +5844,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "badge-xbox-dark",
     "badge-xbox-light",
     "badges-container",
-    "balanced-icon",
     "balanced-weight-preview",
     "banner",
     "banner-below-hero",
@@ -5864,7 +5863,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "border-bullets",
     "border-icon",
     "borders-effect-preview",
-    "bottom-heavy-icon",
     "bottom-heavy-weight-preview",
     "bounce",
     "brand-statement",
@@ -5901,20 +5899,16 @@ Nova operates in dev sync with the AmbientPixels team.
     "card",
     "card-achievement",
     "card-avatar",
-    "card-avatar-container",
     "card-back",
-    "card-background",
     "card-badge",
     "card-body",
     "card-class",
     "card-content",
     "card-footer",
-    "card-frame",
     "card-front",
     "card-gradient-icon",
     "card-grid",
     "card-header",
-    "card-hero-header",
     "card-icon",
     "card-image",
     "card-image-container",
@@ -5925,10 +5919,8 @@ Nova operates in dev sync with the AmbientPixels team.
     "card-inner",
     "card-item",
     "card-label",
-    "card-left",
     "card-link",
     "card-links",
-    "card-list",
     "card-list-actions",
     "card-list-info",
     "card-list-subtitle",
@@ -5936,13 +5928,11 @@ Nova operates in dev sync with the AmbientPixels team.
     "card-list-title",
     "card-meta",
     "card-name",
-    "card-overlay-container",
     "card-preview-canvas",
     "card-preview-content",
     "card-preview-zone",
     "card-quote",
     "card-rarity",
-    "card-right",
     "card-section",
     "card-stats",
     "card-text",
@@ -5958,10 +5948,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "cardforge-dialog-content",
     "cardforge-editor",
     "cardforge-form",
-    "cardforge-gallery-container",
-    "cardforge-gallery-grid",
     "cardforge-list",
-    "cardforge-list-item",
     "cardforge-message",
     "cardforge-message-container",
     "cardforge-message-error",
@@ -6037,18 +6024,24 @@ Nova operates in dev sync with the AmbientPixels team.
     "container-framed",
     "container-fullbleed",
     "container-grid",
+    "container-hero",
     "container-icon",
     "container-masked",
     "container-raw",
+    "container-variant-blurred",
     "container-variant-circle",
     "container-variant-classic",
     "container-variant-diamond",
+    "container-variant-dimmed",
     "container-variant-hex",
+    "container-variant-large",
     "container-variant-modern",
     "container-variant-ornate",
     "container-variant-rounded",
     "container-variant-sharp",
+    "container-variant-small",
     "container-variant-soft",
+    "container-variant-standard",
     "container-variants",
     "content",
     "content-area",
@@ -6071,6 +6064,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "current-weight-preview",
     "custom-url",
     "custom-url-section",
+    "dark-text-preview",
     "dashboard-all-up-stats",
     "dashboard-container",
     "dashboard-description",
@@ -6148,10 +6142,23 @@ Nova operates in dev sync with the AmbientPixels team.
     "education-item",
     "education-logo",
     "effect-border",
+    "effect-borders",
     "effect-filter",
+    "effect-filters",
     "effect-glow",
     "effect-icon",
+    "effect-none",
+    "effect-overlays",
     "effect-shadow",
+    "effect-variant-cool",
+    "effect-variant-dashed",
+    "effect-variant-glow",
+    "effect-variant-grayscale",
+    "effect-variant-noir",
+    "effect-variant-sepia",
+    "effect-variant-solid",
+    "effect-variant-vintage",
+    "effect-variant-warm",
     "effects-grid",
     "emoji-only",
     "empty-message",
@@ -6240,9 +6247,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "form-overlays",
     "form-status",
     "form-subtitle",
-    "frame-border",
     "frame-classic-preview",
-    "frame-content",
     "frame-icon",
     "frame-modern-preview",
     "frame-ornate-preview",
@@ -6250,7 +6255,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "framed-icon",
     "framed-ornate-icon",
     "fullbleed-cinematic-icon",
-    "fullbleed-icon",
     "fullscreen",
     "function",
     "function-count",
@@ -6259,7 +6263,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "function-map-stats",
     "function-tag",
     "function-tags",
-    "gallery-card",
     "gallery-card-content",
     "gallery-card-image",
     "gallery-card-subtitle",
@@ -6375,12 +6378,10 @@ Nova operates in dev sync with the AmbientPixels team.
     "hero-headline",
     "hero-headlines",
     "hero-icon",
-    "hero-image-container",
     "hero-intro",
     "hero-job-title",
     "hero-layout-preview",
     "hero-loading",
-    "hero-overlay",
     "hero-particles",
     "hero-particles-container",
     "hero-resume-link",
@@ -6461,7 +6462,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "layout-nav-links",
     "layout-nav-toggle",
     "layout-option",
-    "layout-overlay",
     "layout-split",
     "layout-stack",
     "lead",
@@ -6476,6 +6476,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "level-title",
     "light",
     "light-mood",
+    "light-text-preview",
     "light-theme",
     "lightbox",
     "lightbox-caption",
@@ -6521,7 +6522,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "micro-badge-container",
     "micro-badges",
     "micro-row",
-    "mini-card-preview",
     "mini-hero",
     "mini-hero-bg",
     "mini-hero-content",
@@ -6529,9 +6529,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "mini-hero-img",
     "mini-hero-subtitle",
     "minimal-glow-icon",
-    "minimal-header",
     "minimal-icon",
-    "minimal-info",
     "minimal-layout-preview",
     "minimal-style-preview",
     "minimalist-bullets",
@@ -6580,9 +6578,12 @@ Nova operates in dev sync with the AmbientPixels team.
     "my-card-name",
     "my-card-thumb",
     "my-card-thumbnail",
-    "my-cards-empty",
+    "my-cards-count",
+    "my-cards-header",
     "my-cards-list",
     "my-cards-search",
+    "my-cards-section",
+    "my-cards-title",
     "my-cards-zone",
     "mythic",
     "nav",
@@ -6684,7 +6685,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "output-header",
     "output-section",
     "output-table",
-    "overlay-content",
     "overlay-icon",
     "overlays-effect-preview",
     "p-1",
@@ -6733,10 +6733,8 @@ Nova operates in dev sync with the AmbientPixels team.
     "preset-grid",
     "preset-icon",
     "preset-label",
-    "preset-option",
     "preset-preview",
     "preset-retro",
-    "preset-thumbnail",
     "presets-grid",
     "presets-section",
     "presets-title",
@@ -6955,6 +6953,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "stat-icon",
     "stat-item",
     "stat-label",
+    "stat-name",
     "stat-number",
     "stat-progress",
     "stat-row",
@@ -7030,9 +7029,15 @@ Nova operates in dev sync with the AmbientPixels team.
     "tech-tag",
     "technical-details",
     "testdupe",
+    "text-auto",
     "text-bold",
     "text-box",
     "text-center",
+    "text-color-label",
+    "text-color-option",
+    "text-color-options",
+    "text-color-preview",
+    "text-dark",
     "text-left",
     "text-light",
     "text-link",
@@ -7091,7 +7096,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "tool-title",
     "tools-zone",
     "top-controls",
-    "top-heavy",
     "top-heavy-weight-preview",
     "trait-bar",
     "trait-icon",
@@ -7120,6 +7124,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "user-profile-container",
     "user-profile-dropdown",
     "variant-dark",
+    "variant-glow",
     "variant-label",
     "variant-light",
     "variant-option",
@@ -7150,19 +7155,13 @@ Nova operates in dev sync with the AmbientPixels team.
     "video-wrapper",
     "visible",
     "visual-layout-group",
-    "visual-preset-group",
     "w-100",
     "w3",
     "warning",
-    "weight-balanced",
-    "weight-bottom-heavy",
-    "weight-grid",
-    "weight-icon",
     "weight-label",
     "weight-option",
     "weight-options",
     "weight-preview",
-    "weight-top-heavy",
     "whisper-panel",
     "windsurf-ai-pipeline",
     "windsurf-ai-pipeline-content",
@@ -7254,5 +7253,5 @@ Nova operates in dev sync with the AmbientPixels team.
     "ul",
     "video"
   ]
-}Nova Memory Refresh: Sun Aug  3 13:34:12 UTC 2025
-🟢 Nova updated her internal awareness at Sun Aug  3 13:34:12 UTC 2025
+}Nova Memory Refresh: Mon Aug  4 13:43:48 UTC 2025
+🟢 Nova updated her internal awareness at Mon Aug  4 13:43:48 UTC 2025
