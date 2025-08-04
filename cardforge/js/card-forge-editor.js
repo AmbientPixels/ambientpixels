@@ -595,7 +595,7 @@
     }
     
     // Update Image Effects (sub-section of Tier 2)
-    const effectOptions = document.querySelectorAll('[data-tier="2"] .effect-option');
+    const effectOptions = document.querySelectorAll('[data-tier="2"] .effects-level .tier-option');
     effectOptions.forEach(option => {
       option.classList.toggle('selected', option.dataset.value === ModularState.imageEffect);
     });
@@ -1848,6 +1848,62 @@
         updatePreview();
         
         console.log(`🎭 Container variant updated: ${ModularState.imageContainerVariant}`);
+      });
+    });
+    
+    // Initialize Image Effects type listeners
+    const effectTypeOptions = document.querySelectorAll('[data-tier="2"] .effects-level .tier-option');
+    effectTypeOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        // Update selection state
+        effectTypeOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        
+        // Update modular state
+        ModularState.imageEffect = option.dataset.value;
+        
+        // Set default variant for the selected effect
+        const defaultVariants = {
+          'none': 'clean',
+          'filters': 'sepia',
+          'borders': 'solid',
+          'overlays': 'vintage'
+        };
+        ModularState.imageEffectVariant = defaultVariants[ModularState.imageEffect] || 'clean';
+        
+        // Update variant selection UI
+        const activeEffect = document.querySelector(`[data-tier="2"] .effects-level [data-effect="${ModularState.imageEffect}"]`);
+        if (activeEffect) {
+          const variantOptions = activeEffect.querySelectorAll('.variant-option');
+          variantOptions.forEach(v => v.classList.remove('selected'));
+          const defaultVariant = activeEffect.querySelector(`[data-variant="${ModularState.imageEffectVariant}"]`);
+          if (defaultVariant) defaultVariant.classList.add('selected');
+        }
+        
+        // Update preview
+        updatePreview();
+        
+        console.log(`✨ Image effect updated: ${ModularState.imageEffect}-${ModularState.imageEffectVariant}`);
+      });
+    });
+    
+    // Initialize Image Effects variant listeners
+    const effectVariantOptions = document.querySelectorAll('[data-tier="2"] .effects-level .variant-option');
+    effectVariantOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        // Update selection state within the same effect container
+        const container = option.closest('.effect-variants');
+        const siblingOptions = container.querySelectorAll('.variant-option');
+        siblingOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        
+        // Update modular state
+        ModularState.imageEffectVariant = option.dataset.variant;
+        
+        // Update preview
+        updatePreview();
+        
+        console.log(`🎨 Effect variant updated: ${ModularState.imageEffectVariant}`);
       });
     });
     

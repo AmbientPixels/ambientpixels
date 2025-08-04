@@ -919,53 +919,7 @@
   }
 }
 
-/* OVERLAY EFFECTS - Applied to .card-avatar with pseudo-elements */
 
-/* Overlay Effects - Vignette */
-.card-preview-canvas.effect-overlays.effect-variant-vignette .card-avatar::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at center, transparent 30%, rgba(0, 0, 0, 0.6) 100%);
-  pointer-events: none;
-  border-radius: inherit;
-}
-
-/* Overlay Effects - Gradient */
-.card-preview-canvas.effect-overlays.effect-variant-gradient .card-avatar::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(255, 0, 255, 0.2) 100%);
-  pointer-events: none;
-  border-radius: inherit;
-}
-
-/* Overlay Effects - Ambient */
-.card-preview-canvas.effect-overlays.effect-variant-ambient .card-avatar::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 30% 20%, rgba(0, 212, 255, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 70% 80%, rgba(255, 0, 255, 0.15) 0%, transparent 50%);
-  pointer-events: none;
-  border-radius: inherit;
-}
-
-/* Ensure relative positioning for overlay effects */
-.card-preview-canvas.effect-overlays .card-avatar {
-  position: relative;
-}
 
 /* COMBINED EFFECTS - For complex combinations */
 
