@@ -56,6 +56,100 @@
   opacity: var(--card-glow-hover-opacity, 1);
 }
 
+/* ===== SOCIAL LINKS DISPLAY ON CARD ===== */
+/* Extracted from cardforge-ui.css - Card-specific social link styling */
+
+/* Social Links Display on Card */
+.social-links {
+  display: flex;
+  gap: 12px;
+  margin: 16px 0 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.social-link:hover {
+  background: var(--mood-primary-color, #5AE4FF);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(90, 228, 255, 0.3);
+}
+
+.social-link .social-icon {
+  width: 16px;
+  height: 16px;
+  filter: brightness(0) invert(1);
+  transition: all 0.2s ease;
+}
+
+/* Theme-specific adjustments */
+.theme-neofantasy .social-link {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.theme-neofantasy .social-link:hover {
+  background: var(--mood-accent-color, #8b5cf6);
+  box-shadow: 0 0 15px var(--mood-accent-color, #8b5cf6);
+}
+
+/* ===== FRONT FACE STYLING ===== */
+/* Extracted from cardforge-ui.css - Card display components */
+
+/* Front face styling */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-avatar {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+}
+
+.card-badge, .card-rarity, .card-achievement {
+  display: inline-block;
+  padding: 2px 6px;
+  margin: 4px 4px 4px 0;
+  background: var(--mood-primary-color);
+  color: #fff;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.stat-bar {
+  display: flex;
+  align-items: center;
+  margin: 6px 0;
+}
+
+.stat-label {
+  flex: 1;
+  font-size: 0.8rem;
+  color: var(--mood-secondary-color);
+}
+
+.stat-progress { /* updated by Cascade: honor width */
+  flex: 0 0 auto; /* override default flex-grow */
+  height: 8px;
+  background: var(--mood-primary-color);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
 /* Basic content structure - will be enhanced by modular system */
 .card-preview-content {
   width: 100%;

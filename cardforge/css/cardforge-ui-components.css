@@ -311,3 +311,33 @@
   flex-direction: column;
   gap: 0.5rem;
 }
+
+/* ===== MESSAGE & ANIMATION SYSTEM ===== */
+/* Extracted from cardforge-ui.css - UI component messaging and animations */
+
+.message-text {
+  flex: 1;
+}
+
+.cardforge-message.fade-out {
+  animation: fade-out 0.5s ease-out forwards;
+}
+
+@keyframes slide-in {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Auth Status Message */
+.cardforge-auth-message {
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.2);
+  font-size: 14px;
+}
