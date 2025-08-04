@@ -364,23 +364,35 @@
   box-shadow: inset 0 0 0 2px var(--aura-bg-color, #1a1a2e), 0 0 15px rgba(0, 212, 255, 0.5);
 }
 
-/* Raw Container Variants */
+/* Raw Container - Enhanced Size */
+.card-preview-canvas.container-raw .card-avatar {
+  width: 100px !important;
+  height: 100px !important;
+  margin: 0 auto 1rem auto;
+  display: block;
+}
+
+/* Raw Container Variants - Enhanced Distinction */
 .card-preview-canvas.container-raw.container-variant-sharp .card-avatar {
   border-radius: 0;
   border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .card-preview-canvas.container-raw.container-variant-rounded .card-avatar {
   border-radius: 12px;
   border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .card-preview-canvas.container-raw.container-variant-soft .card-avatar {
   border-radius: 20px;
   border: none;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  transform: scale(1.02);
 }
 
-/* Full Bleed Container */
+/* Full Bleed Container - Base */
 .card-preview-canvas.container-fullbleed .card-avatar {
   position: absolute;
   top: 0;
@@ -395,6 +407,22 @@
 .card-preview-canvas.container-fullbleed {
   position: relative;
   overflow: hidden;
+}
+
+/* Full Bleed Container Variants */
+.card-preview-canvas.container-fullbleed.container-variant-standard .card-avatar {
+  opacity: 1;
+  filter: none;
+}
+
+.card-preview-canvas.container-fullbleed.container-variant-dimmed .card-avatar {
+  opacity: 0.6;
+  filter: brightness(0.7) contrast(1.1);
+}
+
+.card-preview-canvas.container-fullbleed.container-variant-blurred .card-avatar {
+  opacity: 0.8;
+  filter: blur(3px) brightness(0.8);
 }
 
 .card-preview-canvas.container-fullbleed .card-content {

@@ -19,6 +19,8 @@ As part of the CardForge V2 flow restructure project, significant JavaScript upd
 - ✅ **Tier Restructuring:** Updated tier numbering and initialization functions
 - ✅ **Image Container Migration:** Moved Image Container from Tier 5 to Tier 2 (image-first design)
 - ✅ **Hero Container Addition:** Added new Hero container type with Large/Small variants
+- ✅ **Raw Container Enhancement:** Enhanced with distinct shadow variants and improved sizing
+- ✅ **Full Bleed Variants:** Added Standard, Dimmed, and Blurred background effect variants
 - ✅ **Event Handler Fixes:** Fixed tier function names and event handler attachments
 - ✅ **State Management Updates:** Updated ModularState to reflect new tier structure
 

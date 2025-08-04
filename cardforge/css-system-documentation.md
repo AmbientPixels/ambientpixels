@@ -19,6 +19,8 @@ As part of the CardForge V2 flow restructure project, **Phase 1: Layout System R
 - ✅ **Image Container Migration:** Moved from Tier 5 to Tier 2 (image-first design)
 - ✅ **Hero Container Addition:** New full-bleed container with Large (40%) and Small (25%) variants
 - ✅ **Enhanced Sizing:** Masked containers increased to 120px × 120px, Framed to 110px × 110px
+- ✅ **Raw Container Enhancement:** Increased to 100px × 100px with distinct shadow variants (Sharp, Rounded, Soft)
+- ✅ **Full Bleed Variants:** Added Standard, Dimmed, and Blurred background effect variants
 - ✅ **JavaScript Integration:** Fixed tier references, event handlers, and modular state management
 - ✅ **CSS Enhancements:** Improved visual hierarchy and container styling consistency
 

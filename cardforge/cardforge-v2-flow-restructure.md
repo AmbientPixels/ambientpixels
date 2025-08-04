@@ -208,6 +208,8 @@ Restructure CardForge V2's build flow from a layout-first to an **image-first de
   - ✅ **NEW**: Hero container full-bleed styling with Large (40%) and Small (25%) variants
   - ✅ **ENHANCED**: Masked containers increased to 120px × 120px for better visibility
   - ✅ **ENHANCED**: Framed containers increased to 110px × 110px with centered layout
+  - ✅ **ENHANCED**: Raw containers increased to 100px × 100px with distinct shadow variants
+  - ✅ **NEW**: Full Bleed container variants (Standard, Dimmed, Blurred) for background effects
   - ✅ Fixed CSS selectors to match JavaScript class naming (container-variant-*)
   - ✅ All container types now have proper visual hierarchy and sizing
   - Verify responsive design works with restructure

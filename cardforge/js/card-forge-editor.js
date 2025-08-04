@@ -1800,7 +1800,7 @@
           'masked': 'circle',
           'framed': 'classic',
           'raw': 'sharp',
-          'fullbleed': 'none',
+          'fullbleed': 'standard',
           'hero': 'large'
         };
         ModularState.imageContainerVariant = defaultVariants[ModularState.imageContainer] || 'circle';
