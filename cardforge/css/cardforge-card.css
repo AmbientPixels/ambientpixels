@@ -28,6 +28,378 @@
   color: #000000 !important;
 }
 
+/* ===== TIER 4: CONTAINER-AWARE ALIGNMENT SYSTEM ===== */
+
+/* =========================== */
+/* LEVEL 1: HORIZONTAL ALIGNMENT */
+/* =========================== */
+
+/* --- LEFT ALIGNMENT --- */
+/* Fixed-size containers (Masked, Framed, Raw) */
+.card-preview-canvas.align-type-left.container-masked,
+.card-preview-canvas.align-type-left.container-framed,
+.card-preview-canvas.align-type-left.container-raw {
+  text-align: left;
+}
+
+.card-preview-canvas.align-type-left.container-masked .card-content,
+.card-preview-canvas.align-type-left.container-framed .card-content,
+.card-preview-canvas.align-type-left.container-raw .card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.card-preview-canvas.align-type-left.container-masked .card-avatar,
+.card-preview-canvas.align-type-left.container-framed .card-avatar,
+.card-preview-canvas.align-type-left.container-raw .card-avatar {
+  margin: 0 auto 1rem 0;
+  float: left;
+  margin-right: 1rem;
+}
+
+/* Hero container - content positioned below image, left-aligned */
+.card-preview-canvas.align-type-left.container-hero .card-content {
+  text-align: left;
+  padding-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Full Bleed container - content overlaid, left-aligned */
+.card-preview-canvas.align-type-left.container-fullbleed .card-content {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+  text-align: left;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 1rem;
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+}
+
+/* --- CENTER ALIGNMENT (Default) --- */
+/* Fixed-size containers (Masked, Framed, Raw) */
+.card-preview-canvas.align-type-center.container-masked,
+.card-preview-canvas.align-type-center.container-framed,
+.card-preview-canvas.align-type-center.container-raw {
+  text-align: center;
+}
+
+.card-preview-canvas.align-type-center.container-masked .card-content,
+.card-preview-canvas.align-type-center.container-framed .card-content,
+.card-preview-canvas.align-type-center.container-raw .card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.card-preview-canvas.align-type-center.container-masked .card-avatar,
+.card-preview-canvas.align-type-center.container-framed .card-avatar,
+.card-preview-canvas.align-type-center.container-raw .card-avatar {
+  margin: 0 auto 1rem auto;
+  display: block;
+}
+
+/* Hero container - content positioned below image, centered */
+.card-preview-canvas.align-type-center.container-hero .card-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+}
+
+/* Full Bleed container - content overlaid, centered */
+.card-preview-canvas.align-type-center.container-fullbleed .card-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 1.5rem;
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+}
+
+/* --- RIGHT ALIGNMENT --- */
+/* Fixed-size containers (Masked, Framed, Raw) */
+.card-preview-canvas.align-type-right.container-masked,
+.card-preview-canvas.align-type-right.container-framed,
+.card-preview-canvas.align-type-right.container-raw {
+  text-align: right;
+}
+
+.card-preview-canvas.align-type-right.container-masked .card-content,
+.card-preview-canvas.align-type-right.container-framed .card-content,
+.card-preview-canvas.align-type-right.container-raw .card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.card-preview-canvas.align-type-right.container-masked .card-avatar,
+.card-preview-canvas.align-type-right.container-framed .card-avatar,
+.card-preview-canvas.align-type-right.container-raw .card-avatar {
+  margin: 0 0 1rem auto;
+  float: right;
+  margin-left: 1rem;
+}
+
+/* Hero container - content positioned below image, right-aligned */
+.card-preview-canvas.align-type-right.container-hero .card-content {
+  text-align: right;
+  padding-right: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* Full Bleed container - content overlaid, right-aligned */
+.card-preview-canvas.align-type-right.container-fullbleed .card-content {
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  text-align: right;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 1rem;
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+}
+
+/* =========================== */
+/* LEVEL 1: VERTICAL ALIGNMENT */
+/* =========================== */
+
+/* --- TOP ALIGNMENT --- */
+.card-preview-canvas.align-vertical-top .card-content {
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+/* Hero container - content immediately below image */
+.card-preview-canvas.align-vertical-top.container-hero .card-content {
+  margin-top: 0;
+  padding-top: 1rem;
+}
+
+/* Full Bleed container - content at top */
+.card-preview-canvas.align-vertical-top.container-fullbleed .card-content {
+  top: 1rem;
+  transform: translateX(-50%);
+}
+
+/* --- MIDDLE ALIGNMENT (Default) --- */
+.card-preview-canvas.align-vertical-middle .card-content {
+  justify-content: center;
+  align-items: center;
+}
+
+/* Hero container - content centered in remaining space */
+.card-preview-canvas.align-vertical-middle.container-hero .card-content {
+  display: flex;
+  justify-content: center;
+  min-height: calc(100% - 60%);
+}
+
+/* Full Bleed container - content centered */
+.card-preview-canvas.align-vertical-middle.container-fullbleed .card-content {
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* --- BOTTOM ALIGNMENT --- */
+.card-preview-canvas.align-vertical-bottom .card-content {
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+/* Hero container - content at bottom */
+.card-preview-canvas.align-vertical-bottom.container-hero .card-content {
+  margin-top: auto;
+  padding-bottom: 1rem;
+}
+
+/* Full Bleed container - content at bottom */
+.card-preview-canvas.align-vertical-bottom.container-fullbleed .card-content {
+  top: auto;
+  bottom: 1rem;
+  transform: translateX(-50%);
+}
+
+/* =========================== */
+/* LEVEL 2: WEIGHT DISTRIBUTION */
+/* =========================== */
+
+/* --- TOP HEAVY --- */
+.card-preview-canvas.align-weight-top-heavy .card-header {
+  margin-bottom: 2rem;
+  font-size: 1.2em;
+}
+
+.card-preview-canvas.align-weight-top-heavy .card-name {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.card-preview-canvas.align-weight-top-heavy .card-body {
+  margin: 0.5rem 0;
+}
+
+.card-preview-canvas.align-weight-top-heavy .card-stats {
+  margin-top: 0.5rem;
+}
+
+/* --- BALANCED (Default) --- */
+.card-preview-canvas.align-weight-balanced .card-header {
+  margin-bottom: 1rem;
+}
+
+.card-preview-canvas.align-weight-balanced .card-body {
+  margin: 1rem 0;
+}
+
+.card-preview-canvas.align-weight-balanced .card-stats {
+  margin-top: 1rem;
+}
+
+/* --- BOTTOM HEAVY --- */
+.card-preview-canvas.align-weight-bottom-heavy .card-header {
+  margin-bottom: 0.5rem;
+}
+
+.card-preview-canvas.align-weight-bottom-heavy .card-body {
+  margin: 0.5rem 0;
+}
+
+.card-preview-canvas.align-weight-bottom-heavy .card-stats {
+  margin-top: 2rem;
+  font-size: 1.1em;
+  padding: 1.5rem;
+}
+
+/* =========================== */
+/* LEVEL 3: STYLE VARIANTS */
+/* =========================== */
+
+/* --- NONE STYLE --- */
+.card-preview-canvas.align-style-none {
+  padding: 0;
+}
+
+.card-preview-canvas.align-style-none .card-content {
+  padding: 0;
+  gap: 0;
+}
+
+.card-preview-canvas.align-style-none .card-quote {
+  margin: 0.5rem 0;
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+/* --- PADDED STYLE (Default) --- */
+.card-preview-canvas.align-style-padded {
+  padding: 1.5rem;
+}
+
+.card-preview-canvas.align-style-padded .card-content {
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.card-preview-canvas.align-style-padded .card-quote {
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  border-left: 3px solid var(--card-accent, #00d4ff);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.card-preview-canvas.align-style-padded .card-stats {
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+}
+
+/* --- MINIMAL STYLE --- */
+.card-preview-canvas.align-style-minimal {
+  padding: 0.75rem;
+}
+
+.card-preview-canvas.align-style-minimal .card-content {
+  padding: 0.5rem;
+  gap: 0.5rem;
+}
+
+.card-preview-canvas.align-style-minimal .card-quote {
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  border-left: 2px solid var(--card-accent, #00d4ff);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.card-preview-canvas.align-style-minimal .card-stats {
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.01);
+}
+
+/* --- COMPACT STYLE --- */
+.card-preview-canvas.align-style-compact {
+  padding: 0.5rem;
+}
+
+.card-preview-canvas.align-style-compact .card-content {
+  padding: 0.25rem;
+  gap: 0.25rem;
+}
+
+.card-preview-canvas.align-style-compact .card-name {
+  font-size: 1.2rem;
+  margin-bottom: 0.25rem;
+}
+
+.card-preview-canvas.align-style-compact .card-quote {
+  padding: 0.25rem 0.5rem;
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  border-left: 1px solid var(--card-accent, #00d4ff);
+}
+
+.card-preview-canvas.align-style-compact .card-stats {
+  padding: 0.25rem;
+  font-size: 0.9rem;
+}
+
+/* =========================== */
+/* CONTAINER-SPECIFIC OVERRIDES */
+/* =========================== */
+
+/* Hero container - ensure content doesn't overlap image */
+.card-preview-canvas.container-hero .card-content {
+  position: relative;
+  z-index: 1;
+  margin-top: 1rem;
+}
+
+/* Full Bleed container - ensure content is always visible */
+.card-preview-canvas.container-fullbleed .card-content {
+  max-width: 80%;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
 /* TIER 4: COLOR PALETTE SYSTEM */
 /* Neon Palette */
 .card-preview-canvas.palette-neon.variant-light {
