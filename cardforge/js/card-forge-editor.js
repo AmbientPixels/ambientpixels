@@ -770,44 +770,44 @@
   // Phase 1 of Flow Restructure: Layout initialization eliminated
   // Image-first design: Image Container moved to Tier 2 position
 
-  // ===== TIER 4: CONTENT ALIGNMENT (3-LEVEL HIERARCHY) =====
+  // ===== TIER 4: CONTENT ALIGNMENT (UNIFIED SYSTEM) =====
   function initTier4Alignment() {
-    console.log('🎯 Initializing Tier 4: Content Alignment (3-level hierarchy)...');
+    console.log('🎯 Initializing Tier 4: Content Alignment (unified system)...');
     
-    // Initialize ModularState properties for 3-level alignment
-    if (!ModularState.alignmentType) ModularState.alignmentType = 'center';
+    // Initialize ModularState properties for unified alignment system
+    if (!ModularState.horizontalAlignment) ModularState.horizontalAlignment = 'center';
+    if (!ModularState.verticalAlignment) ModularState.verticalAlignment = 'middle';
     if (!ModularState.alignmentWeight) ModularState.alignmentWeight = 'balanced';
     if (!ModularState.alignmentStyle) ModularState.alignmentStyle = 'padded';
     
-    // Level 1: Alignment Type Selection
-    initAlignmentTypeSelection();
+    // Initialize horizontal and vertical alignment selections
+    initHorizontalAlignmentSelection();
+    initVerticalAlignmentSelection();
     
-    // Level 2: Weight Distribution Selection
-    initAlignmentWeightSelection();
+    // Initialize unified weight and style selections
+    initUnifiedWeightSelection();
+    initUnifiedStyleSelection();
     
-    // Level 3: Style Variant Selection
-    initAlignmentStyleSelection();
-    
-    // Initialize display state
-    updateAlignmentLevelVisibility();
+    // Update weight and style previews based on current alignment
+    updateAlignmentPreviews();
     
     console.log('✅ Tier 4 Content Alignment initialized');
   }
   
-  function initAlignmentTypeSelection() {
-    const alignmentTypeOptions = document.querySelectorAll('[data-tier="4"] .alignment-type-grid .tier-option');
+  function initHorizontalAlignmentSelection() {
+    const horizontalOptions = document.querySelectorAll('[data-tier="4"] .alignment-level:first-child .tier-option');
     
-    alignmentTypeOptions.forEach(option => {
+    horizontalOptions.forEach(option => {
       option.addEventListener('click', () => {
-        // Update selection state
-        alignmentTypeOptions.forEach(opt => opt.classList.remove('selected'));
+        // Update selection state within horizontal alignment group only
+        horizontalOptions.forEach(opt => opt.classList.remove('selected'));
         option.classList.add('selected');
         
         // Update modular state
-        ModularState.alignmentType = option.dataset.value;
+        ModularState.horizontalAlignment = option.dataset.value;
         
-        // Show/hide appropriate weight options
-        updateAlignmentLevelVisibility();
+        // Update weight and style previews
+        updateAlignmentPreviews();
         
         // Update collapsible tier display
         updateCollapsibleTierDisplays();
@@ -815,33 +815,63 @@
         // Update preview
         updatePreview();
         
-        console.log(`📐 Alignment Type updated: ${ModularState.alignmentType}`);
+        console.log(`📐 Horizontal Alignment updated: ${ModularState.horizontalAlignment}`);
       });
     });
     
     // Set default selection
-    const defaultOption = document.querySelector(`[data-tier="4"] .alignment-type-grid [data-value="${ModularState.alignmentType}"]`);
-    if (defaultOption) {
-      defaultOption.classList.add('selected');
+    const defaultHorizontal = document.querySelector(`[data-tier="4"] .alignment-level:first-child [data-value="${ModularState.horizontalAlignment}"]`);
+    if (defaultHorizontal) {
+      defaultHorizontal.classList.add('selected');
     }
   }
   
-  function initAlignmentWeightSelection() {
+  function initVerticalAlignmentSelection() {
+    const verticalOptions = document.querySelectorAll('[data-tier="4"] .alignment-level:nth-child(2) .tier-option');
+    
+    verticalOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        // Update selection state within vertical alignment group only
+        verticalOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        
+        // Update modular state
+        ModularState.verticalAlignment = option.dataset.value;
+        
+        // Update weight and style previews
+        updateAlignmentPreviews();
+        
+        // Update collapsible tier display
+        updateCollapsibleTierDisplays();
+        
+        // Update preview
+        updatePreview();
+        
+        console.log(`📐 Vertical Alignment updated: ${ModularState.verticalAlignment}`);
+      });
+    });
+    
+    // Set default selection
+    const defaultVertical = document.querySelector(`[data-tier="4"] .alignment-level:nth-child(2) [data-value="${ModularState.verticalAlignment}"]`);
+    if (defaultVertical) {
+      defaultVertical.classList.add('selected');
+    }
+  }
+  
+  function initUnifiedWeightSelection() {
     const weightOptions = document.querySelectorAll('[data-tier="4"] .weight-option');
     
     weightOptions.forEach(option => {
       option.addEventListener('click', () => {
-        // Update selection state within the current alignment group
-        const currentAlignmentGroup = option.closest('.alignment-weights');
-        const groupWeightOptions = currentAlignmentGroup.querySelectorAll('.weight-option');
-        groupWeightOptions.forEach(opt => opt.classList.remove('selected'));
+        // Update selection state within the unified weight section
+        weightOptions.forEach(opt => opt.classList.remove('selected'));
         option.classList.add('selected');
         
         // Update modular state
         ModularState.alignmentWeight = option.dataset.weight;
         
-        // Show/hide appropriate style options
-        updateAlignmentLevelVisibility();
+        // Update weight preview based on current alignment combination
+        updateAlignmentPreviews();
         
         // Update collapsible tier display
         updateCollapsibleTierDisplays();
@@ -852,120 +882,21 @@
         console.log(`⚖️ Alignment Weight updated: ${ModularState.alignmentWeight}`);
       });
     });
+    
+    // Set default selection
+    const defaultWeight = document.querySelector(`[data-tier="4"] .weight-option[data-weight="${ModularState.alignmentWeight}"]`);
+    if (defaultWeight) {
+      defaultWeight.classList.add('selected');
+    }
   }
   
-  function initAlignmentStyleSelection() {
+  function initUnifiedStyleSelection() {
     const styleOptions = document.querySelectorAll('[data-tier="4"] .style-option');
     
     styleOptions.forEach(option => {
       option.addEventListener('click', () => {
-        // Update selection state within the current combination group
-        const currentCombinationGroup = option.closest('.alignment-styles');
-        const groupStyleOptions = currentCombinationGroup.querySelectorAll('.style-option');
-        groupStyleOptions.forEach(opt => opt.classList.remove('selected'));
-        option.classList.add('selected');
-        
-        // Update modular state
-        ModularState.alignmentStyle = option.dataset.style;
-        
-        // Update collapsible tier display
-        updateCollapsibleTierDisplays();
-        
-        // Update preview
-        updatePreview();
-        
-        console.log(`🎨 Alignment Style updated: ${ModularState.alignmentStyle}`);
-      });
-    });
-  }
-  
-  function updateAlignmentLevelVisibility() {
-    // Hide all weight groups
-    const allWeightGroups = document.querySelectorAll('[data-tier="4"] .alignment-weights');
-    allWeightGroups.forEach(group => {
-      group.style.display = 'none';
-    });
-    
-    // Show weight group for current alignment type
-    const currentWeightGroup = document.querySelector(`[data-tier="4"] .alignment-weights[data-alignment="${ModularState.alignmentType}"]`);
-    if (currentWeightGroup) {
-      currentWeightGroup.style.display = 'block';
-      
-      // Set default weight selection if none exists
-      const selectedWeight = currentWeightGroup.querySelector('.weight-option.selected');
-      if (!selectedWeight) {
-        const defaultWeight = currentWeightGroup.querySelector(`[data-weight="${ModularState.alignmentWeight}"]`);
-        if (defaultWeight) {
-          defaultWeight.classList.add('selected');
-        }
-      }
-    }
-    
-    // Hide all style groups
-    const allStyleGroups = document.querySelectorAll('[data-tier="4"] .alignment-styles');
-    allStyleGroups.forEach(group => {
-      group.style.display = 'none';
-    });
-    
-    // Show style group for current alignment-weight combination
-    const currentCombination = `${ModularState.alignmentType}-${ModularState.alignmentWeight}`;
-    let currentStyleGroup = document.querySelector(`[data-tier="4"] .alignment-styles[data-combination="${currentCombination}"]`);
-    
-    // If the specific combination doesn't exist, create it dynamically
-    if (!currentStyleGroup) {
-      currentStyleGroup = createAlignmentStyleGroup(currentCombination);
-    }
-    
-    if (currentStyleGroup) {
-      currentStyleGroup.style.display = 'block';
-      
-      // Set default style selection if none exists
-      const selectedStyle = currentStyleGroup.querySelector('.style-option.selected');
-      if (!selectedStyle) {
-        const defaultStyle = currentStyleGroup.querySelector(`[data-style="${ModularState.alignmentStyle}"]`);
-        if (defaultStyle) {
-          defaultStyle.classList.add('selected');
-        }
-      }
-    }
-  }
-  
-  function createAlignmentStyleGroup(combination) {
-    const [alignmentType, weight] = combination.split('-');
-    const styleLevel = document.querySelector('[data-tier="2"] .alignment-level:last-child');
-    
-    // Create the style group HTML
-    const styleGroupHTML = `
-      <div class="alignment-styles" data-combination="${combination}">
-        <h6 class="variant-subtitle">${capitalizeFirst(alignmentType)} ${capitalizeFirst(weight)} Styles</h6>
-        <div class="style-options">
-          <div class="style-option" data-style="minimal">
-            <div class="style-preview minimal-style-preview"></div>
-            <span class="style-label">Minimal</span>
-          </div>
-          <div class="style-option" data-style="padded">
-            <div class="style-preview padded-style-preview"></div>
-            <span class="style-label">Padded</span>
-          </div>
-          <div class="style-option" data-style="compact">
-            <div class="style-preview compact-style-preview"></div>
-            <span class="style-label">Compact</span>
-          </div>
-        </div>
-      </div>
-    `;
-    
-    // Insert the new style group
-    styleLevel.insertAdjacentHTML('beforeend', styleGroupHTML);
-    
-    // Get the newly created group and add event listeners
-    const newStyleGroup = styleLevel.querySelector(`[data-combination="${combination}"]`);
-    const newStyleOptions = newStyleGroup.querySelectorAll('.style-option');
-    
-    newStyleOptions.forEach(option => {
-      option.addEventListener('click', () => {
-        // Update selection state within this group
-        newStyleOptions.forEach(opt => opt.classList.remove('selected'));
+        // Update selection state within the unified style section
+        styleOptions.forEach(opt => opt.classList.remove('selected'));
         option.classList.add('selected');
         
         // Update modular state
@@ -981,8 +912,40 @@
       });
     });
     
-    return newStyleGroup;
+    // Set default selection
+    const defaultStyle = document.querySelector(`[data-tier="4"] .style-option[data-style="${ModularState.alignmentStyle}"]`);
+    if (defaultStyle) {
+      defaultStyle.classList.add('selected');
+    }
   }
+  
+  function updateAlignmentPreviews() {
+    // Update weight previews based on current horizontal + vertical alignment combination
+    const horizontalAlign = ModularState.horizontalAlignment || 'center';
+    const verticalAlign = ModularState.verticalAlignment || 'middle';
+    
+    // Update weight preview classes dynamically
+    const weightPreviews = {
+      'top-heavy': document.getElementById('weight-preview-top-heavy'),
+      'balanced': document.getElementById('weight-preview-balanced'),
+      'bottom-heavy': document.getElementById('weight-preview-bottom-heavy')
+    };
+    
+    Object.entries(weightPreviews).forEach(([weight, element]) => {
+      if (element) {
+        // Remove all existing preview classes
+        element.className = 'weight-preview';
+        
+        // Add the appropriate preview class based on current alignment combination
+        const previewClass = `${horizontalAlign}-${weight}-preview`;
+        element.classList.add(previewClass);
+      }
+    });
+    
+    console.log(`🔄 Updated alignment previews for ${horizontalAlign}+${verticalAlign} combination`);
+  }
+  
+  // createAlignmentStyleGroup function removed - no longer needed with unified style system
   
   function capitalizeFirst(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
