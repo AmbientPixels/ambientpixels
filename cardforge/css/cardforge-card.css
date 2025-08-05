@@ -6,10 +6,7 @@
 /* ===== MODULAR SYSTEM CSS ===== */
 
 /* TEXT COLOR SYSTEM (Simple Palette Extension) */
-/* Auto text color uses palette defaults */
-.card-preview-canvas.text-auto {
-  /* Uses existing palette text colors */
-}
+/* Auto text color uses palette defaults - uses existing palette text colors */
 
 /* Light text override */
 .card-preview-canvas.text-light,
@@ -662,15 +659,8 @@
 
 /* COMBINED EFFECTS - For complex combinations */
 
-/* Filter + Border combinations */
-.card-preview-canvas.effect-filters.effect-borders .card-avatar {
-  /* Filters and borders can be combined */
-}
-
-/* Filter + Overlay combinations */
-.card-preview-canvas.effect-filters.effect-overlays .card-avatar {
-  /* Filters and overlays can be combined */
-}
+/* Filter + Border combinations - filters and borders can be combined */
+/* Filter + Overlay combinations - filters and overlays can be combined */
 
 /* Hover effects for interactive preview */
 .card-preview-canvas .card-avatar:hover {
