@@ -360,75 +360,58 @@
   border-radius: inherit;
 }
 
-/* Hero Container - Full Bleed */
+/* Hero Container - Full Bleed (using same approach as Full Bleed) */
 .card-preview-canvas.container-hero {
   position: relative;
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
-  padding: 0 !important;
-  margin: 0 !important;
 }
 
 .card-preview-canvas.container-hero .card-avatar {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100% !important;
+  height: 60% !important;
   object-fit: cover;
   border-radius: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  flex-shrink: 0;
-  display: block;
+  z-index: -1;
 }
 
-/* Hero Large Variant - 40% of card height for dramatic effect */
+/* Hero Large Variant */
 .card-preview-canvas.container-hero.container-variant-large .card-avatar {
-  height: 40% !important;
-  min-height: 140px;
-  max-height: 160px;
+  height: 250px !important;
 }
 
-/* Hero Small Variant - 25% of card height for subtle effect */
+/* Hero Small Variant */
 .card-preview-canvas.container-hero.container-variant-small .card-avatar {
-  height: 25% !important;
-  min-height: 80px;
-  max-height: 100px;
+  height: 150px !important;
 }
 
-.card-preview-canvas.container-hero .card-content {
-  flex: 1;
+/* Hero container - add top padding to push all content below image */
+.card-preview-canvas.container-hero {
+  position: relative;
+  overflow: hidden;
+  padding-top: 60%; /* Default: push content below 60% height image */
+}
+
+.card-preview-canvas.container-hero .card-header,
+.card-preview-canvas.container-hero .card-body {
+  position: relative;
+  z-index: 1;
+}
+
+.card-preview-canvas.container-hero .card-body {
   padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  margin: 0;
 }
 
-.card-preview-canvas.container-hero .card-header {
-  margin-bottom: 0.75rem;
+/* Hero Large Variant - adjust container padding for larger image */
+.card-preview-canvas.container-hero.container-variant-large {
+  padding-top: 250px; /* Push content below 250px image */
 }
 
-.card-preview-canvas.container-hero .card-name {
-  font-size: 1.3rem;
-  font-weight: 700;
-  margin-bottom: 0.25rem;
-  line-height: 1.2;
-}
-
-.card-preview-canvas.container-hero .card-class {
-  font-size: 0.95rem;
-  opacity: 0.85;
-  margin-bottom: 0.75rem;
-  font-weight: 500;
-}
-
-.card-preview-canvas.container-hero .card-quote {
-  font-style: italic;
-  font-size: 0.9rem;
-  opacity: 0.9;
-  margin-top: auto;
-  padding-top: 0.75rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
-  line-height: 1.4;
+/* Hero Small Variant - adjust container padding for smaller image */
+.card-preview-canvas.container-hero.container-variant-small {
+  padding-top: 150px; /* Push content below 150px image */
 }
 
 /* ===== TIER 6: IMAGE EFFECTS ===== */
@@ -462,59 +445,7 @@
 /* ===== CONTENT ALIGNMENT SYSTEM ===== */
 
 /* TIER 2: ALIGNMENT TYPE */
-/* Center Alignment */
-.card-preview-canvas.align-type-center {
-  text-align: center;
-}
-
-.card-preview-canvas.align-type-center .card-name,
-.card-preview-canvas.align-type-center .card-class,
-.card-preview-canvas.align-type-center .card-rarity,
-.card-preview-canvas.align-type-center .card-quote {
-  text-align: center;
-}
-
-.card-preview-canvas.align-type-center .card-stats {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* Left Alignment */
-.card-preview-canvas.align-type-left {
-  text-align: left;
-}
-
-.card-preview-canvas.align-type-left .card-name,
-.card-preview-canvas.align-type-left .card-class,
-.card-preview-canvas.align-type-left .card-rarity,
-.card-preview-canvas.align-type-left .card-quote {
-  text-align: left;
-}
-
-.card-preview-canvas.align-type-left .card-stats {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-/* Right Alignment */
-.card-preview-canvas.align-type-right {
-  text-align: right;
-}
-
-.card-preview-canvas.align-type-right .card-name,
-.card-preview-canvas.align-type-right .card-class,
-.card-preview-canvas.align-type-right .card-rarity,
-.card-preview-canvas.align-type-right .card-quote {
-  text-align: right;
-}
-
-.card-preview-canvas.align-type-right .card-stats {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
+/* Default alignment styles removed - alignment selections will have no visual effect */
 
 /* Middle alignment preset styles - REMOVED */
 /* TIER 2: ALIGNMENT STYLE */
@@ -600,43 +531,7 @@
   margin-top: 0.25rem;
 }
 
-/* LAYOUT-SPECIFIC ALIGNMENT OVERRIDES */
-/* Override layout padding when alignment style is applied */
-.card-preview-canvas.layout-hero.align-style-padded,
-.card-preview-canvas.layout-hero.align-style-minimal,
-.card-preview-canvas.layout-hero.align-style-compact {
-  padding: 0; /* Let alignment style control padding */
-}
-
-.card-preview-canvas.layout-hero.align-style-padded .card-body,
-.card-preview-canvas.layout-hero.align-style-minimal .card-body,
-.card-preview-canvas.layout-hero.align-style-compact .card-body {
-  padding: inherit; /* Use alignment style padding */
-}
-
-.card-preview-canvas.layout-split.align-style-padded,
-.card-preview-canvas.layout-split.align-style-minimal,
-.card-preview-canvas.layout-split.align-style-compact {
-  padding: inherit; /* Use alignment style padding */
-}
-
-.card-preview-canvas.layout-minimal.align-style-padded,
-.card-preview-canvas.layout-minimal.align-style-minimal,
-.card-preview-canvas.layout-minimal.align-style-compact {
-  padding: inherit; /* Use alignment style padding */
-}
-
-.card-preview-canvas.layout-stack.align-style-padded,
-.card-preview-canvas.layout-stack.align-style-minimal,
-.card-preview-canvas.layout-stack.align-style-compact {
-  padding: inherit; /* Use alignment style padding */
-}
-
-.card-preview-canvas.layout-frame.align-style-padded,
-.card-preview-canvas.layout-frame.align-style-minimal,
-.card-preview-canvas.layout-frame.align-style-compact {
-  padding: inherit; /* Use alignment style padding */
-}
+/* Layout override rules removed - were causing conflicts with container system */
 
 /* RESPONSIVE LAYOUT ADJUSTMENTS */
 @media (max-width: 768px) {
