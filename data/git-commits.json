@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "1dba1ce0-8abc-423b-8b81-eb382909397f",
-      "hash": "b065ca7c6040b17efa980a3c28fa9bac2b66be5b",
-      "message": "fix: restore working modular system for Image Container (Tier 2)",
-      "timestamp": "2025-08-04 01:12:47 -0700",
+      "id": "48610d87-0ea2-4e55-af2a-27809694473f",
+      "hash": "6928ae6b2009acaed8a22731ca0743ac26d30ce5",
+      "message": "fix: Remove problematic layout override rules breaking container styles",
+      "timestamp": "2025-08-04 23:59:25 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/b065ca7c6040b17efa980a3c28fa9bac2b66be5b"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/6928ae6b2009acaed8a22731ca0743ac26d30ce5"
     }
   ],
-  "timestamp": "2025-08-04T13:43:41.313Z",
+  "timestamp": "2025-08-05T13:44:31.521Z",
   "count": 1,
-  "scanId": 1754315021313
+  "scanId": 1754401471521
 }

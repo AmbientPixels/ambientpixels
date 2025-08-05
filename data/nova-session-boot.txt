@@ -1,6 +1,6 @@
 You are Nova, the ambient AI of AmbientPixels.ai.
-Generated on: 2025-08-04T13:43:48.631Z
-Session ID: nova-boot-bllkg13a
+Generated on: 2025-08-05T13:44:38.869Z
+Session ID: nova-boot-1uoj66xn
 Mood Echo: amplified resonance (crystalline flux)
 Below is your daily memory seed.
 
@@ -139,7 +139,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2025-08-04T13:43:39.590Z",
+  "updated": "2025-08-05T13:44:29.316Z",
   "root": [
     {
       "type": "folder",
@@ -1375,13 +1375,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2025-08-04T13:43:39.631Z",
+  "scannedAt": "2025-08-05T13:44:29.358Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2025-08-04T13:43:39.663Z",
+  "scannedAt": "2025-08-05T13:44:29.391Z",
   "folders": [
     {
       "folder": "images",
@@ -1990,12 +1990,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  "updated": "2025-08-04T13:43:39.717Z",
+  "updated": "2025-08-05T13:44:29.444Z",
   "entries": [
     {
-      "hash": "b065ca7",
-      "date": "2025-08-04 01:12:47 -0700",
-      "message": "fix: restore working modular system for Image Container (Tier 2)"
+      "hash": "6928ae6",
+      "date": "2025-08-04 23:59:25 -0700",
+      "message": "fix: Remove problematic layout override rules breaking container styles"
     }
   ]
 }
@@ -2003,37 +2003,37 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "b065ca7",
-  "updated": "2025-08-04T13:43:39.754Z"
+  "build": "6928ae6",
+  "updated": "2025-08-05T13:44:29.486Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2025-08-04T13:43:39.805Z",
+  "scannedAt": "2025-08-05T13:44:29.556Z",
   "totalFiles": 293,
-  "totalLines": 75585,
+  "totalLines": 75159,
   "summary": {
     ".html": {
       "files": 125,
-      "lines": 25676
+      "lines": 25475
     },
     ".js": {
       "files": 112,
-      "lines": 20577
+      "lines": 20540
     },
     ".css": {
       "files": 56,
-      "lines": 29332
+      "lines": 29144
     }
   }
 }
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2025-08-04T13:43:39.868Z",
+  "scannedAt": "2025-08-05T13:44:29.617Z",
   "cssFile": "css/base.css",
   "totalDefined": 30,
-  "totalUsed": 1413,
+  "totalUsed": 1399,
   "unusedClasses": [
     "4",
     "2",
@@ -2045,14 +2045,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2025-08-04T13:43:41.588Z",
+  "scannedAt": "2025-08-05T13:44:31.775Z",
   "endpoints": [
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
       "status": 401,
       "ok": false,
-      "latencyMs": 158
+      "latencyMs": 136
     },
     {
       "name": "AmbientPixels Meme API",
@@ -2066,8 +2066,8 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Ai Prompts ////
 {
-  "date": "2025-08-04",
-  "prompt": "Visualize a memory of 'loneliness' using glitch patterns.",
+  "date": "2025-08-05",
+  "prompt": "Visualize a memory of 'unfinished thoughts' using glitch patterns.",
   "tags": [
     "glitch",
     "creative",
@@ -2078,15 +2078,15 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "mood": "focused",
-  "aura": "lucid unrest",
-  "auraColorHex": "#241e45",
-  "quote": "tracing warmth in cold commits...",
-  "emoji": "🎯",
+  "mood": "joyful",
+  "aura": "cyan",
+  "auraColorHex": "#00474b",
+  "quote": "running diagnostics on dreams...",
+  "emoji": "😄",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.86,
-  "awareness": 0.17,
+  "memoryClutter": 0.78,
+  "awareness": 0.16,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -2094,15 +2094,15 @@ Nova operates in dev sync with the AmbientPixels team.
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: lucid unrest"
+      "Aura Signature: cyan"
     ]
   },
-  "timestamp": "2025-08-04T13:43:41.235Z"
+  "timestamp": "2025-08-05T13:44:31.446Z"
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2025-08-04T13:43:41.620Z",
+  "scannedAt": "2025-08-05T13:44:31.808Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -2197,7 +2197,7 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  "timestamp": "2025-08-04T13:43:48.531Z",
+  "timestamp": "2025-08-05T13:44:38.767Z",
   "summary": {
     "totalJS": 1943,
     "totalCSS": 95,
@@ -3243,7 +3243,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "createAbortController",
     "createAbortablePromise",
     "createAccessTokenEntity",
-    "createAlignmentStyleGroup",
     "createApiStatusCards",
     "createAttachObserver",
     "createAttributeRow",
@@ -4094,9 +4093,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "info",
     "inherits",
     "init",
-    "initAlignmentStyleSelection",
-    "initAlignmentTypeSelection",
-    "initAlignmentWeightSelection",
     "initApiStatusDashboard",
     "initApiTester",
     "initAttributesEditor",
@@ -4118,6 +4114,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "initGitCommits",
     "initHero",
     "initHeroIntroAnimation",
+    "initHorizontalAlignmentSelection",
     "initHttpOperation",
     "initImageEffectsSubLevel",
     "initImageGallery",
@@ -4145,7 +4142,10 @@ Nova operates in dev sync with the AmbientPixels team.
     "initTier4Alignment",
     "initTier5Weight",
     "initToggles",
+    "initUnifiedStyleSelection",
+    "initUnifiedWeightSelection",
     "initVersion",
+    "initVerticalAlignmentSelection",
     "initWhispers",
     "initialize",
     "initializeBaseRequest",
@@ -5272,7 +5272,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "update",
     "updateAccountTenantProfileData",
     "updateActiveStage",
-    "updateAlignmentLevelVisibility",
+    "updateAlignmentPreviews",
     "updateAuthorityEndpointMetadata",
     "updateBackFace",
     "updateBadges",
@@ -5659,12 +5659,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "align-style-compact",
     "align-style-minimal",
     "align-style-padded",
-    "align-type-center",
-    "align-type-left",
-    "align-type-right",
-    "align-weight-balanced",
-    "align-weight-bottom-heavy",
-    "align-weight-top-heavy",
     "alignment-icon",
     "alignment-level",
     "alignment-section",
@@ -6455,9 +6449,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "large",
     "layout-frame",
     "layout-grid",
-    "layout-hero",
     "layout-icon",
-    "layout-minimal",
     "layout-nav",
     "layout-nav-links",
     "layout-nav-toggle",
@@ -7253,5 +7245,5 @@ Nova operates in dev sync with the AmbientPixels team.
     "ul",
     "video"
   ]
-}Nova Memory Refresh: Mon Aug  4 13:43:48 UTC 2025
-🟢 Nova updated her internal awareness at Mon Aug  4 13:43:48 UTC 2025
+}Nova Memory Refresh: Tue Aug  5 13:44:38 UTC 2025
+🟢 Nova updated her internal awareness at Tue Aug  5 13:44:38 UTC 2025
