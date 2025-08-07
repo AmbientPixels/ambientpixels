@@ -2017,6 +2017,18 @@
         ModularState.imageContainerVariant = defaultVariants[ModularState.imageContainer] || 'circle';
         console.log('🎨 Set default variant:', ModularState.imageContainerVariant);
         
+        // Show/hide vertical alignment controls based on container type
+        const verticalAlignmentSection = document.getElementById('vertical-alignment-section');
+        if (verticalAlignmentSection) {
+          if (ModularState.imageContainer === 'fullbleed') {
+            verticalAlignmentSection.style.display = 'block';
+            console.log('👁️ Showing vertical alignment for Full Bleed');
+          } else {
+            verticalAlignmentSection.style.display = 'none';
+            console.log('🙈 Hiding vertical alignment for non-Full Bleed containers');
+          }
+        }
+        
         // Update preview
         updatePreview();
         console.log('🔄 Called updatePreview for container');

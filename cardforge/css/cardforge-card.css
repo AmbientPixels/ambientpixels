@@ -180,61 +180,40 @@
 /* =========================== */
 /* LEVEL 1: VERTICAL ALIGNMENT */
 /* =========================== */
+/* NOTE: Vertical alignment only applies to Full Bleed containers */
+/* where text overlays the background image */
 
 /* --- TOP ALIGNMENT --- */
-.card-preview-canvas.align-vertical-top .card-content {
-  justify-content: flex-start;
-  align-items: flex-start;
-}
-
-/* Hero container - content immediately below image */
-.card-preview-canvas.align-vertical-top.container-hero .card-content {
-  margin-top: 0;
-  padding-top: 1rem;
-}
-
 /* Full Bleed container - content at top */
-.card-preview-canvas.align-vertical-top.container-fullbleed .card-content {
+.card-preview-canvas.align-vertical-top.container-fullbleed .card-body {
+  position: absolute;
   top: 1rem;
+  left: 50%;
   transform: translateX(-50%);
+  width: calc(100% - 2rem);
+  z-index: 2;
 }
 
 /* --- MIDDLE ALIGNMENT (Default) --- */
-.card-preview-canvas.align-vertical-middle .card-content {
-  justify-content: center;
-  align-items: center;
-}
-
-/* Hero container - content centered in remaining space */
-.card-preview-canvas.align-vertical-middle.container-hero .card-content {
-  display: flex;
-  justify-content: center;
-  min-height: calc(100% - 60%);
-}
-
 /* Full Bleed container - content centered */
-.card-preview-canvas.align-vertical-middle.container-fullbleed .card-content {
+.card-preview-canvas.align-vertical-middle.container-fullbleed .card-body {
+  position: absolute;
   top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
+  width: calc(100% - 2rem);
+  z-index: 2;
 }
 
 /* --- BOTTOM ALIGNMENT --- */
-.card-preview-canvas.align-vertical-bottom .card-content {
-  justify-content: flex-end;
-  align-items: flex-end;
-}
-
-/* Hero container - content at bottom */
-.card-preview-canvas.align-vertical-bottom.container-hero .card-content {
-  margin-top: auto;
-  padding-bottom: 1rem;
-}
-
 /* Full Bleed container - content at bottom */
-.card-preview-canvas.align-vertical-bottom.container-fullbleed .card-content {
-  top: auto;
+.card-preview-canvas.align-vertical-bottom.container-fullbleed .card-body {
+  position: absolute;
   bottom: 1rem;
+  left: 50%;
   transform: translateX(-50%);
+  width: calc(100% - 2rem);
+  z-index: 2;
 }
 
 /* =========================== */
