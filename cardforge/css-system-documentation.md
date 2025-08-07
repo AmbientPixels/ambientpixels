@@ -1,6 +1,6 @@
 # CardForge V2 CSS System Documentation
 **Complete Analysis for New Build Flow Project**  
-*Generated: August 3, 2025 | Updated: August 3, 2025*
+*Generated: August 3, 2025 | Updated: August 6, 2025*
 
 ## 🎯 Executive Summary
 
@@ -27,6 +27,14 @@ As part of the CardForge V2 flow restructure project, **Phase 1: Layout System R
 - ✅ **Selector Separation:** Fixed container variant visibility issues by properly scoping Image Effects selectors
 
 **Impact:** The system now uses an image-first design approach with properly sized, visually balanced container types that drive the entire card design flow.
+
+#### **Phase 3 Complete (August 6, 2025):**
+- ✅ **Vertical Alignment System Fix:** Fixed CSS selectors from `.card-content` to `.card-body` for proper alignment
+- ✅ **Full Bleed Alignment Restriction:** Vertical alignment now only applies to Full Bleed containers where text overlays images
+- ✅ **Weight Distribution Enhancement:** Enhanced Bottom Heavy and Top Heavy variants for more pronounced visual hierarchy
+- ✅ **Style Variant Overhaul:** Replaced similar Minimal/Compact with distinct Ultra-Compact, Elegant, and Narrow variants
+- ✅ **UI Integration:** Updated HTML controls to conditionally show vertical alignment only for Full Bleed containers
+- ✅ **JavaScript Logic:** Added container-based visibility toggling for vertical alignment controls
 
 ---
 
@@ -280,10 +288,47 @@ Level 2: Sub-Tier Options
 └── Image Containers → Container types
 
 Level 3: Style Variants
-├── Weight Distribution → Top-heavy, Balanced, Bottom-heavy
+├── Weight Distribution → Top-heavy, Balanced, Bottom-heavy (enhanced visual hierarchy)
 ├── Palette Variants → Light/Dark variants
-└── Shape/Frame/Sizing → Specific styling options
+├── Style Types → None, Padded, Ultra-Compact, Elegant, Narrow
+└── Vertical Alignment → Top/Middle/Bottom (Full Bleed containers only)
 ```
+
+### **Style Variant System (Updated August 6, 2025)**
+5 distinct style variants providing comprehensive layout options:
+
+#### **None**
+- Raw content with no additional styling
+- Zero padding and margins
+- Perfect for custom styling or minimal designs
+
+#### **Padded** (Default)
+- Balanced spacing with 1.5rem card padding
+- Standard 1rem content gaps
+- Quote styling with accent borders and subtle backgrounds
+- General-purpose design suitable for most cards
+
+#### **Ultra-Compact**
+- Maximum information density with minimal spacing
+- 0.25rem card padding, 0.125rem content gaps
+- Tiny fonts (1rem name, 0.7rem content, 0.65rem stats)
+- 4px stat bars, no backgrounds
+- Perfect for dense information cards and mobile displays
+
+#### **Elegant**
+- Sophisticated premium styling with luxury elements
+- 2rem card padding with gradient backgrounds
+- Enhanced typography (1.6rem name with text shadows)
+- Decorative quote marks, inset shadows, rounded corners
+- Border styling and enhanced visual hierarchy
+- Perfect for showcase cards and premium presentations
+
+#### **Narrow**
+- Compressed text width within standard card dimensions
+- Content limited to 60% width, centered layout
+- 3rem side padding with auto-centered elements
+- Quote max 80% width, stats max 70% width
+- Perfect for focused, readable text layouts and portrait contexts
 
 ### **Preset System**
 5 professional preset configurations:
