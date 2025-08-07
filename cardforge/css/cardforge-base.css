@@ -142,12 +142,36 @@
   color: var(--mood-secondary-color);
 }
 
-.stat-progress { /* updated by Cascade: honor width */
-  flex: 0 0 auto; /* override default flex-grow */
+.stat-progress {
   height: 8px;
-  background: var(--mood-primary-color);
+  background: linear-gradient(90deg, var(--aura-glow, #5AE4FF), var(--mood-primary-color, #5AE4FF));
   border-radius: 4px;
-  transition: width 0.5s ease;
+  transition: width 1s ease-out;
+  width: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated fill effect */
+.stat-progress.animate {
+  width: var(--target-width, 0%) !important;
+}
+
+/* Subtle glow effect during animation */
+.stat-progress::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transform: translateX(-100%);
+  transition: transform 1s ease-out;
+}
+
+.stat-progress.animate::before {
+  transform: translateX(100%);
 }
 
 /* ===== BACK-OF-CARD INFORMATION GRID LAYOUT ===== */

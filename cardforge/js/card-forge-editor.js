@@ -1518,6 +1518,11 @@
     
     // Apply class and rarity styles to card elements
     applyClassAndRarityStyles();
+    
+    // Trigger stat bar animations after content is updated
+    setTimeout(() => {
+      animateStatBars();
+    }, 100); // Small delay to ensure DOM is updated
   }
   
   // ===== CLASS AND RARITY STYLING =====
@@ -1777,6 +1782,25 @@
     return attributes;
   }
 
+  // ===== ANIMATED STAT BARS =====
+  function animateStatBars() {
+    const statBars = document.querySelectorAll('.stat-progress');
+    
+    statBars.forEach((bar, index) => {
+      // Reset animation state
+      bar.classList.remove('animate');
+      bar.style.width = '0';
+      
+      // Staggered animation with delay
+      setTimeout(() => {
+        bar.classList.add('animate');
+        console.log(`🎯 Animating stat bar ${index + 1}`);
+      }, index * 200 + 300); // 200ms stagger + 300ms base delay
+    });
+    
+    console.log(`✨ Started animation for ${statBars.length} stat bars`);
+  }
+
   // ===== FRONT FACE UPDATE =====
   function updateFrontFace(data) {
     const front = document.querySelector('.card-front');
@@ -1817,12 +1841,16 @@
       return '<div class="no-stats">No stats available</div>';
     }
     
-    return stats.map(stat => {
+    return stats.map((stat, index) => {
       const percentage = Math.min(stat.value, 100); // Cap at 100%
       return `
         <div class="stat-item">
           <div class="stat-label">${stat.name} <span class="stat-value">${stat.value}</span></div>
-          <div class="stat-bar"><div class="stat-progress" style="width: ${percentage}%"></div></div>
+          <div class="stat-bar">
+            <div class="stat-progress" 
+                 style="--target-width: ${percentage}%">
+            </div>
+          </div>
         </div>
       `;
     }).join('');
