@@ -221,6 +221,7 @@
       alignmentWeight: 'balanced',
       alignmentStyle: 'minimal',
       weight: 'balanced',
+      verticalAlignment: 'bottom',
       palette: 'fire',
       paletteVariant: 'dark',
       imageContainer: 'fullbleed',
