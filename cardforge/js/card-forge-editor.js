@@ -1628,38 +1628,44 @@
     if (!back) return;
     
     back.innerHTML = `
-      <div class="card-back-content">
-        <div class="back-header">
-          <h3 class="card-name">${data.name}</h3>
-          <div class="card-class">${data.characterClass}</div>
+    <div class="card-back-content">
+      <div class="back-header">
+        <h3 class="card-name">${data.name}</h3>
+        <div class="card-class">${data.characterClass}</div>
+      </div>
+      <div class="back-body">
+        ${data.biography ? `
+        <div class="biography-section">
+          <h4 class="section-title">Biography</h4>
+          <div class="biography-text">${data.biography}</div>
         </div>
-        <div class="back-body">
-          <div class="info-grid">
-            <div class="back-section badges-section">
-              <h4 class="section-title">Badges & Achievements</h4>
-              <div class="badges-container">
-                ${generateBadgesHTML(data.badges)}
-              </div>
-            </div>
-            
-            <div class="back-section attributes-section">
-              <h4 class="section-title">Attributes</h4>
-              <div class="attributes-container">
-                ${generateAttributesHTML(data.attributes)}
-                ${data.biography ? `<div class="biography-text">${data.biography}</div>` : ''}
-              </div>
+        ` : ''}
+        
+        <div class="info-grid">
+          <div class="back-section badges-section">
+            <h4 class="section-title">Badges & Achievements</h4>
+            <div class="badges-container">
+              ${generateBadgesHTML(data.badges)}
             </div>
           </div>
           
-          <div class="social-section">
-            <h4 class="section-title">Social Links</h4>
-            <div class="social-links">
-              ${generateSocialLinksHTML(data.socialLinks)}
+          <div class="back-section attributes-section">
+            <h4 class="section-title">Attributes</h4>
+            <div class="attributes-container">
+              ${generateAttributesHTML(data.attributes)}
             </div>
           </div>
         </div>
+        
+        <div class="social-section">
+          <h4 class="section-title">Social Links</h4>
+          <div class="social-links">
+            ${generateSocialLinksHTML(data.socialLinks)}
+          </div>
+        </div>
       </div>
-    `;
+    </div>
+  `;
   }
 
   // ===== FORM LISTENERS =====
