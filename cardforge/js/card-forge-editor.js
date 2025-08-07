@@ -37,16 +37,21 @@
   const PresetConfigurations = {
     'hero-classic': {
       // Front-of-card styling
-      alignmentType: 'center',
+      horizontalAlignment: 'center',
+      verticalAlignment: 'middle',
       alignmentWeight: 'balanced',
       alignmentStyle: 'padded',
-      weight: 'balanced',
       palette: 'earth',
       paletteVariant: 'light',
       imageContainer: 'framed',
       imageContainerVariant: 'ornate',
       imageEffect: 'borders',
       imageEffectVariant: 'glow',
+      // Class and Rarity Styling
+      classStyle: 'badge',
+      classIcon: 'khanda',
+      rarityStyle: 'glow',
+      rarityIcon: 'gem',
       // Back-of-card sample data
       sampleData: {
         name: 'Fantasy Ranger',
@@ -75,16 +80,21 @@
     },
     'split-modern': {
       // Front-of-card styling
-      alignmentType: 'left',
+      horizontalAlignment: 'left',
+      verticalAlignment: 'middle',
       alignmentWeight: 'top-heavy',
-      alignmentStyle: 'minimal',
-      weight: 'top-heavy',
+      alignmentStyle: 'compact',
       palette: 'ocean',
       paletteVariant: 'dark',
       imageContainer: 'framed',
       imageContainerVariant: 'modern',
       imageEffect: 'borders',
       imageEffectVariant: 'solid',
+      // Class and Rarity Styling
+      classStyle: 'glow',
+      classIcon: 'cog',
+      rarityStyle: 'foil',
+      rarityIcon: 'bolt',
       // Back-of-card sample data
       sampleData: {
         name: 'Cyberpunk Runner',
@@ -113,16 +123,21 @@
     },
     'minimal-glow': {
       // Front-of-card styling
-      alignmentType: 'center',
+      horizontalAlignment: 'center',
+      verticalAlignment: 'middle',
       alignmentWeight: 'balanced',
       alignmentStyle: 'compact',
-      weight: 'balanced',
       palette: 'monochrome',
       paletteVariant: 'light',
       imageContainer: 'raw',
       imageContainerVariant: 'rounded',
       imageEffect: 'borders',
       imageEffectVariant: 'glow',
+      // Class and Rarity Styling
+      classStyle: 'outlined',
+      classIcon: 'book',
+      rarityStyle: 'border',
+      rarityIcon: 'scroll',
       // Back-of-card sample data
       sampleData: {
         name: 'Arcane Scholar',
@@ -161,6 +176,11 @@
       imageContainerVariant: 'none',
       imageEffect: 'filters',
       imageEffectVariant: 'sepia',
+      // Class and Rarity Styling
+      classStyle: 'banner',
+      classIcon: 'shield',
+      rarityStyle: 'frame',
+      rarityIcon: 'star',
       // Back-of-card sample data
       sampleData: {
         name: 'Space Marine',
@@ -189,16 +209,21 @@
     },
     'framed-ornate': {
       // Front-of-card styling
-      alignmentType: 'center',
-      alignmentWeight: 'top-heavy',
+      horizontalAlignment: 'center',
+      verticalAlignment: 'middle',
+      alignmentWeight: 'balanced',
       alignmentStyle: 'padded',
-      weight: 'top-heavy',
       palette: 'neon',
       paletteVariant: 'dark',
       imageContainer: 'framed',
       imageContainerVariant: 'ornate',
       imageEffect: 'borders',
       imageEffectVariant: 'neon',
+      // Class and Rarity Styling
+      classStyle: 'badge',
+      classIcon: 'cut',
+      rarityStyle: 'glow',
+      rarityIcon: 'trophy',
       // Back-of-card sample data
       sampleData: {
         name: 'Corporate Ronin',
@@ -227,17 +252,21 @@
     },
     'hero-fullbleed': {
       // Front-of-card styling - Full Bleed Hero
-      alignmentType: 'center',
-      alignmentWeight: 'balanced',
-      alignmentStyle: 'minimal',
-      weight: 'balanced',
+      horizontalAlignment: 'center',
       verticalAlignment: 'bottom',
+      alignmentWeight: 'balanced',
+      alignmentStyle: 'compact',
       palette: 'fire',
       paletteVariant: 'dark',
       imageContainer: 'fullbleed',
       imageContainerVariant: 'standard',
       imageEffect: 'overlay',
       imageEffectVariant: 'gradient',
+      // Class and Rarity Styling
+      classStyle: 'banner',
+      classIcon: 'crown',
+      rarityStyle: 'foil',
+      rarityIcon: 'sun',
       // Back-of-card sample data
       sampleData: {
         name: 'Legendary Hero',
@@ -266,16 +295,21 @@
     },
     'hero-large': {
       // Front-of-card styling - Hero Large Container
-      alignmentType: 'center',
+      horizontalAlignment: 'center',
+      verticalAlignment: 'middle',
       alignmentWeight: 'balanced',
       alignmentStyle: 'padded',
-      weight: 'balanced',
       palette: 'sunset',
       paletteVariant: 'light',
       imageContainer: 'hero',
       imageContainerVariant: 'large',
       imageEffect: 'shadow',
       imageEffectVariant: 'soft',
+      // Class and Rarity Styling
+      classStyle: 'glow',
+      classIcon: 'hammer',
+      rarityStyle: 'frame',
+      rarityIcon: 'diamond',
       // Back-of-card sample data
       sampleData: {
         name: 'Titan Guardian',
@@ -304,16 +338,21 @@
     },
     'raw-rounded': {
       // Front-of-card styling - Raw Rounded
-      alignmentType: 'left',
+      horizontalAlignment: 'left',
+      verticalAlignment: 'middle',
       alignmentWeight: 'top-heavy',
-      alignmentStyle: 'minimal',
-      weight: 'top-heavy',
+      alignmentStyle: 'compact',
       palette: 'monochrome',
       paletteVariant: 'dark',
       imageContainer: 'raw',
       imageContainerVariant: 'rounded',
       imageEffect: 'none',
       imageEffectVariant: 'none',
+      // Class and Rarity Styling
+      classStyle: 'outlined',
+      classIcon: 'eye',
+      rarityStyle: 'border',
+      rarityIcon: 'moon',
       // Back-of-card sample data
       sampleData: {
         name: 'Shadow Operative',
@@ -796,6 +835,49 @@
     Object.assign(ModularState, frontConfig);
     console.log(`🔄 ModularState updated:`, ModularState);
     
+    // Populate class and rarity styling form fields
+    if (frontConfig.classStyle) {
+      const classStyleField = document.getElementById('class-style');
+      if (classStyleField) {
+        classStyleField.value = frontConfig.classStyle;
+        console.log(`✅ Class style populated: ${frontConfig.classStyle}`);
+      }
+    }
+    
+    if (frontConfig.classIcon) {
+      const classIconField = document.getElementById('class-icon-value');
+      if (classIconField) {
+        classIconField.value = frontConfig.classIcon;
+        // Update visual selection
+        const classIconOptions = document.querySelectorAll('#class-section .icon-option');
+        classIconOptions.forEach(option => {
+          option.classList.toggle('selected', option.dataset.icon === frontConfig.classIcon);
+        });
+        console.log(`✅ Class icon populated: ${frontConfig.classIcon}`);
+      }
+    }
+    
+    if (frontConfig.rarityStyle) {
+      const rarityStyleField = document.getElementById('rarity-style');
+      if (rarityStyleField) {
+        rarityStyleField.value = frontConfig.rarityStyle;
+        console.log(`✅ Rarity style populated: ${frontConfig.rarityStyle}`);
+      }
+    }
+    
+    if (frontConfig.rarityIcon) {
+      const rarityIconField = document.getElementById('rarity-icon-value');
+      if (rarityIconField) {
+        rarityIconField.value = frontConfig.rarityIcon;
+        // Update visual selection
+        const rarityIconOptions = document.querySelectorAll('#rarity-section .icon-option');
+        rarityIconOptions.forEach(option => {
+          option.classList.toggle('selected', option.dataset.icon === frontConfig.rarityIcon);
+        });
+        console.log(`✅ Rarity icon populated: ${frontConfig.rarityIcon}`);
+      }
+    }
+    
     try {
       updateUIFromState();
       console.log(`✅ updateUIFromState completed`);
@@ -954,12 +1036,55 @@
       option.classList.toggle('selected', option.dataset.value === ModularState.layout);
     });
     
-    // Update Tier 2: Content Alignment (3-level hierarchy)
-    // Level 1: Alignment Type
-    const alignmentTypeOptions = document.querySelectorAll('[data-tier="2"] .alignment-type .tier-option');
-    alignmentTypeOptions.forEach(option => {
-      option.classList.toggle('selected', option.dataset.value === ModularState.alignmentType);
+    // Update Tier 4: Content Alignment (3-level hierarchy)
+    // Level 1: Horizontal Alignment
+    const horizontalAlignmentOptions = document.querySelectorAll('[data-tier="4"] .alignment-type .tier-option');
+    horizontalAlignmentOptions.forEach(option => {
+      option.classList.toggle('selected', option.dataset.value === ModularState.horizontalAlignment);
     });
+    
+    // Level 1: Vertical Alignment (show/hide based on fullbleed container)
+    const verticalAlignmentSection = document.getElementById('vertical-alignment-section');
+    console.log('🔍 Vertical alignment debug:', {
+      section: verticalAlignmentSection,
+      sectionExists: !!verticalAlignmentSection,
+      imageContainer: ModularState.imageContainer,
+      verticalAlignment: ModularState.verticalAlignment,
+      isFullbleed: ModularState.imageContainer === 'fullbleed'
+    });
+    
+    if (verticalAlignmentSection) {
+      // Show vertical alignment only for fullbleed containers
+      const showVerticalAlignment = ModularState.imageContainer === 'fullbleed';
+      
+      // Force show with important style
+      if (showVerticalAlignment) {
+        verticalAlignmentSection.style.setProperty('display', 'block', 'important');
+        verticalAlignmentSection.style.visibility = 'visible';
+        verticalAlignmentSection.style.opacity = '1';
+        console.log(`📐 FORCED vertical alignment section VISIBLE for fullbleed container`);
+      } else {
+        verticalAlignmentSection.style.display = 'none';
+        console.log(`📐 Vertical alignment section HIDDEN for container: ${ModularState.imageContainer}`);
+      }
+      
+      // Update vertical alignment selection if visible
+      if (showVerticalAlignment) {
+        const verticalAlignmentOptions = document.querySelectorAll('[data-tier="4"] .vertical-alignment-level .tier-option');
+        console.log(`🔍 Found ${verticalAlignmentOptions.length} vertical alignment options`);
+        verticalAlignmentOptions.forEach(option => {
+          const isSelected = option.dataset.value === ModularState.verticalAlignment;
+          option.classList.toggle('selected', isSelected);
+          console.log(`🎯 Option ${option.dataset.value}: ${isSelected ? 'SELECTED' : 'not selected'}`);
+        });
+        console.log(`✅ Updated vertical alignment selection to: ${ModularState.verticalAlignment}`);
+      }
+    } else {
+      console.error('❌ Vertical alignment section not found! Element with ID "vertical-alignment-section" does not exist.');
+      // Try to find it with a different selector
+      const altSection = document.querySelector('.vertical-alignment-level');
+      console.log('🔍 Alternative search result:', altSection);
+    }
     
     // Level 2: Alignment Weight
     const alignmentWeightOptions = document.querySelectorAll('[data-tier="2"] .alignment-weight .tier-option');
@@ -2783,6 +2908,61 @@
     console.log('🔧 Effect variant options found:', effectVariantOptions.length);
   }
 
+  // ===== DEFAULT CLASS AND RARITY STYLING =====
+  function initDefaultClassAndRarityStyles() {
+    console.log('🎨 Initializing default class and rarity styles...');
+    
+    // Set default class styling
+    const classStyleField = document.getElementById('class-style');
+    if (classStyleField) {
+      classStyleField.value = 'badge';
+      console.log('✅ Default class style set to: badge');
+    }
+    
+    const classIconField = document.getElementById('class-icon-value');
+    if (classIconField) {
+      classIconField.value = 'khanda';
+      // Update visual selection
+      const classIconOptions = document.querySelectorAll('#class-section .icon-option');
+      classIconOptions.forEach(option => {
+        option.classList.toggle('selected', option.dataset.icon === 'khanda');
+      });
+      console.log('✅ Default class icon set to: khanda');
+    }
+    
+    // Set default rarity styling
+    const rarityStyleField = document.getElementById('rarity-style');
+    if (rarityStyleField) {
+      rarityStyleField.value = 'glow';
+      console.log('✅ Default rarity style set to: glow');
+    }
+    
+    const rarityIconField = document.getElementById('rarity-icon-value');
+    if (rarityIconField) {
+      rarityIconField.value = 'gem';
+      // Update visual selection
+      const rarityIconOptions = document.querySelectorAll('#rarity-section .icon-option');
+      rarityIconOptions.forEach(option => {
+        option.classList.toggle('selected', option.dataset.icon === 'gem');
+      });
+      console.log('✅ Default rarity icon set to: gem');
+    }
+    
+    console.log('✨ Default class and rarity styles initialized');
+  }
+  
+  // Initialize default styles on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Page loaded - initializing default styles...');
+    
+    // Small delay to ensure all elements are ready
+    setTimeout(() => {
+      initDefaultClassAndRarityStyles();
+      // Update preview to apply the default styling
+      updatePreview();
+    }, 100);
+  });
+  
   // Expose global functions for external access
   window.CardForge = {
     updatePreview,
