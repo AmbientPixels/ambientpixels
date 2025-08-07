@@ -65,9 +65,11 @@
           { name: 'Nature Lore', value: 'Expert' }
         ],
         stats: [
-          { name: 'Health', value: 85 },
-          { name: 'Mana', value: 70 },
-          { name: 'Stamina', value: 90 }
+          { name: 'Health', value: 78 },
+          { name: 'Mana', value: 64 },
+          { name: 'Stamina', value: 82 },
+          { name: 'Archery', value: 91 },
+          { name: 'Survival', value: 73 }
         ]
       }
     },
@@ -101,9 +103,11 @@
           { name: 'Reputation', value: 'Legendary' }
         ],
         stats: [
-          { name: 'Processing', value: 95 },
-          { name: 'Security', value: 80 },
-          { name: 'Speed', value: 88 }
+          { name: 'Processing', value: 87 },
+          { name: 'Security', value: 72 },
+          { name: 'Speed', value: 91 },
+          { name: 'Hacking', value: 84 },
+          { name: 'Stealth', value: 69 }
         ]
       }
     },
@@ -137,9 +141,11 @@
           { name: 'Research', value: 'Masterful' }
         ],
         stats: [
-          { name: 'Knowledge', value: 98 },
-          { name: 'Concentration', value: 85 },
-          { name: 'Memory', value: 92 }
+          { name: 'Knowledge', value: 93 },
+          { name: 'Concentration', value: 68 },
+          { name: 'Memory', value: 85 },
+          { name: 'Research', value: 79 },
+          { name: 'Wisdom', value: 88 }
         ]
       }
     },
@@ -173,9 +179,11 @@
           { name: 'Honor', value: 'Unbreakable' }
         ],
         stats: [
-          { name: 'Combat', value: 95 },
-          { name: 'Command', value: 90 },
-          { name: 'Morale', value: 88 }
+          { name: 'Combat', value: 89 },
+          { name: 'Command', value: 76 },
+          { name: 'Morale', value: 83 },
+          { name: 'Tactics', value: 92 },
+          { name: 'Armor', value: 85 }
         ]
       }
     },
@@ -209,9 +217,11 @@
           { name: 'Reputation', value: 'Respected' }
         ],
         stats: [
-          { name: 'Speed', value: 92 },
-          { name: 'Precision', value: 88 },
-          { name: 'Focus', value: 85 }
+          { name: 'Speed', value: 94 },
+          { name: 'Precision', value: 81 },
+          { name: 'Focus', value: 77 },
+          { name: 'Honor', value: 86 },
+          { name: 'Blade Mastery', value: 90 }
         ]
       }
     },
@@ -246,9 +256,11 @@
           { name: 'Honor', value: 'Legendary' }
         ],
         stats: [
-          { name: 'Health', value: 100 },
-          { name: 'Energy', value: 95 },
-          { name: 'Spirit', value: 100 }
+          { name: 'Health', value: 88 },
+          { name: 'Energy', value: 92 },
+          { name: 'Spirit', value: 95 },
+          { name: 'Strength', value: 87 },
+          { name: 'Leadership', value: 93 }
         ]
       }
     },
@@ -282,9 +294,11 @@
           { name: 'Divine Favor', value: 'Blessed' }
         ],
         stats: [
-          { name: 'Health', value: 100 },
-          { name: 'Divine Power', value: 90 },
-          { name: 'Endurance', value: 95 }
+          { name: 'Health', value: 97 },
+          { name: 'Divine Power', value: 83 },
+          { name: 'Endurance', value: 90 },
+          { name: 'Strength', value: 94 },
+          { name: 'Protection', value: 89 }
         ]
       }
     },
@@ -318,9 +332,11 @@
           { name: 'Infiltration', value: 'Expert' }
         ],
         stats: [
-          { name: 'Stealth', value: 98 },
-          { name: 'Agility', value: 92 },
-          { name: 'Focus', value: 88 }
+          { name: 'Stealth', value: 96 },
+          { name: 'Agility', value: 85 },
+          { name: 'Focus', value: 71 },
+          { name: 'Intelligence', value: 82 },
+          { name: 'Infiltration', value: 88 }
         ]
       }
     }
@@ -567,6 +583,11 @@
     return badgeRow;
   }
 
+  // Alias for createBadgeRow to maintain compatibility with preset system
+  function createMicroBadgeRow(category, icon, description, quantity) {
+    return createBadgeRow(category, icon, description, quantity);
+  }
+
   function createAttributeRow(name = '', value = '') {
     const attributeRow = document.createElement('div');
     attributeRow.className = 'attribute-row';
@@ -620,9 +641,17 @@
     if (addStatBtn) {
       addStatBtn.addEventListener('click', function() {
         const statsContainer = document.getElementById('stats-editor');
+        const currentStats = statsContainer.querySelectorAll('.stat-row').length;
+        
+        if (currentStats >= 5) {
+          console.warn('⚠️ Maximum of 5 stats allowed');
+          alert('Maximum of 5 stats allowed');
+          return;
+        }
+        
         const newStatRow = createStatRow();
         statsContainer.appendChild(newStatRow);
-        console.log('📊 New stat row added');
+        console.log(`📊 New stat row added (${currentStats + 1}/5)`);
       });
     }
   }
@@ -853,7 +882,7 @@
     
     // Populate stats
     if (sampleData.stats && sampleData.stats.length > 0) {
-      const statsContainer = document.getElementById('stats-container');
+      const statsContainer = document.getElementById('stats-editor');
       if (statsContainer) {
         sampleData.stats.forEach(stat => {
           const statRow = createStatRow(stat.name, stat.value);
@@ -867,7 +896,7 @@
     
     // Populate badges
     if (sampleData.badges && sampleData.badges.length > 0) {
-      const badgesContainer = document.getElementById('micro-badges-container');
+      const badgesContainer = document.getElementById('micro-editor');
       if (badgesContainer) {
         sampleData.badges.forEach(badge => {
           const badgeRow = createMicroBadgeRow(badge.category, badge.icon, badge.description, badge.quantity);
@@ -881,7 +910,7 @@
     
     // Populate attributes
     if (sampleData.attributes && sampleData.attributes.length > 0) {
-      const attributesContainer = document.getElementById('attributes-container');
+      const attributesContainer = document.getElementById('attribute-editor');
       if (attributesContainer) {
         sampleData.attributes.forEach(attribute => {
           const attributeRow = createAttributeRow(attribute.name, attribute.value);
@@ -898,19 +927,19 @@
   
   function clearAllDynamicRows() {
     // Clear stats
-    const statsContainer = document.getElementById('stats-container');
+    const statsContainer = document.getElementById('stats-editor');
     if (statsContainer) {
       statsContainer.innerHTML = '';
     }
     
     // Clear badges
-    const badgesContainer = document.getElementById('micro-badges-container');
+    const badgesContainer = document.getElementById('micro-editor');
     if (badgesContainer) {
       badgesContainer.innerHTML = '';
     }
     
     // Clear attributes
-    const attributesContainer = document.getElementById('attributes-container');
+    const attributesContainer = document.getElementById('attribute-editor');
     if (attributesContainer) {
       attributesContainer.innerHTML = '';
     }
