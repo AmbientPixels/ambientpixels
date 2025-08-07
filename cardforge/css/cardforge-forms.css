@@ -26,6 +26,17 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Style Selector Dropdowns */
+.style-selector {
+  margin-top: 0.5rem;
+  padding: 6px 10px;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 4px;
+  background: var(--aura-bg-color, #1a1a2e);
+  color: var(--mood-primary-color, #e1e1ff);
+  font-size: 0.9rem;
+}
+
 /* Form Inputs - Focus States */
 .cardforge-form input:focus,
 .cardforge-form textarea:focus,
@@ -229,6 +240,144 @@
   margin-bottom: 4px;
   font-weight: 500;
   color: var(--mood-primary-color, #e1e1ff);
+}
+
+/* Styling Options Controls */
+.styling-options {
+  margin: 0.5rem 0 1rem 0;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+}
+
+/* Icon Toggle Section */
+.icon-toggle-section {
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--mood-accent-color, #4a4a6a);
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--mood-primary-color, #e1e1ff);
+}
+
+.icon-toggle {
+  width: auto !important;
+  margin: 0;
+  cursor: pointer;
+}
+
+.toggle-text {
+  user-select: none;
+}
+
+/* Icon Picker Container */
+.icon-picker-container {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: var(--aura-bg-color, #1a1a2e);
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+/* Override existing icon picker for new system */
+.icon-picker-container .icon-picker {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+  max-width: 250px;
+}
+
+/* New Icon Option Buttons */
+.icon-picker-container .icon-option {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 6px;
+  background: var(--aura-bg-color, #1a1a2e);
+  color: var(--mood-primary-color, #e1e1ff);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.icon-picker-container .icon-option:hover {
+  border-color: var(--mood-primary-color, #e1e1ff);
+  background: var(--mood-accent-color, #4a4a6a);
+  transform: scale(1.05);
+}
+
+.icon-picker-container .icon-option.selected {
+  border-color: var(--mood-primary-color, #e1e1ff);
+  background: var(--mood-primary-color, #e1e1ff);
+  color: var(--aura-bg-color, #1a1a2e);
+  box-shadow: 0 0 8px rgba(225, 225, 255, 0.3);
+}
+
+/* Class and Rarity Icon Styling */
+.class-has-icon .class-icon,
+.rarity-has-icon .rarity-icon {
+  margin-right: 0.5rem;
+  font-size: 0.9em;
+  opacity: 0.8;
+}
+
+/* Icon spacing adjustments for different styles */
+.class-style-badge .class-icon,
+.rarity-style-badge .rarity-icon {
+  margin-right: 0.3rem;
+}
+
+.class-style-banner .class-icon,
+.rarity-style-frame .rarity-icon {
+  margin-right: 0.4rem;
+  font-size: 0.85em;
+}
+
+.class-style-glow .class-icon,
+.rarity-style-glow .rarity-icon {
+  text-shadow: 0 0 4px currentColor;
+  margin-right: 0.4rem;
+}
+
+.styling-options label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--mood-secondary-color, #b8b8d1);
+  margin: 0 0 0.25rem 0;
+  display: block;
+}
+
+.style-selector {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  background: var(--aura-bg-secondary, #16213e);
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 4px;
+  color: var(--mood-primary-color, #e1e1ff);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.style-selector:focus {
+  outline: none;
+  border-color: var(--mood-primary-color, #e1e1ff);
+  box-shadow: 0 0 0 2px rgba(225, 225, 255, 0.1);
+}
+
+.style-selector:hover {
+  border-color: var(--mood-secondary-color, #b8b8d1);
 }
 
 /* Stats Editor Styles */

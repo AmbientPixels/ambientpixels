@@ -1005,6 +1005,23 @@
       `effect-variant-${ModularState.imageEffectVariant}`
     ];
     
+    // Get class and rarity style selections
+    const classStyleSelector = document.getElementById('class-style');
+    const rarityStyleSelector = document.getElementById('rarity-style');
+    const cardRarityInput = document.getElementById('card-rarity');
+    
+    const classStyle = classStyleSelector ? classStyleSelector.value : 'default';
+    const rarityStyle = rarityStyleSelector ? rarityStyleSelector.value : 'default';
+    const rarityValue = cardRarityInput ? cardRarityInput.value : '';
+    
+    // Add class and rarity style classes to modular classes
+    if (classStyle !== 'default') {
+      modularClasses.push(`class-style-${classStyle}`);
+    }
+    if (rarityStyle !== 'default') {
+      modularClasses.push(`rarity-style-${rarityStyle}`);
+    }
+    
     // Apply classes to both front and back
     front.className = `card-preview-canvas card-front ${modularClasses.join(' ')}`;
     back.className = `card-preview-canvas card-back ${modularClasses.join(' ')}`;
@@ -1021,7 +1038,8 @@
       'data-image-container': ModularState.imageContainer,
       'data-image-container-variant': ModularState.imageContainerVariant,
       'data-image-effect': ModularState.imageEffect,
-      'data-image-effect-variant': ModularState.imageEffectVariant
+      'data-image-effect-variant': ModularState.imageEffectVariant,
+      'data-rarity': rarityValue.toLowerCase()
     };
     
     Object.entries(dataAttributes).forEach(([attr, value]) => {
@@ -1076,6 +1094,175 @@
     
     // Update back face
     updateBackFace(cardData);
+    
+    // Apply class and rarity styles to card elements
+    applyClassAndRarityStyles();
+  }
+  
+  // ===== CLASS AND RARITY STYLING =====
+  function applyClassAndRarityStyles() {
+    // Get style selections
+    const classStyleSelector = document.getElementById('class-style');
+    const rarityStyleSelector = document.getElementById('rarity-style');
+    
+    const classStyle = classStyleSelector ? classStyleSelector.value : 'default';
+    const rarityStyle = rarityStyleSelector ? rarityStyleSelector.value : 'default';
+    
+    // Get icon settings
+    const classIconToggle = document.getElementById('class-icon-toggle');
+    const rarityIconToggle = document.getElementById('rarity-icon-toggle');
+    const classIconValue = document.getElementById('class-icon-value');
+    const rarityIconValue = document.getElementById('rarity-icon-value');
+    
+    const classIconEnabled = classIconToggle ? classIconToggle.checked : false;
+    const rarityIconEnabled = rarityIconToggle ? rarityIconToggle.checked : false;
+    const classIcon = classIconValue ? classIconValue.value : 'sword';
+    const rarityIcon = rarityIconValue ? rarityIconValue.value : 'gem';
+    
+    // Apply class styling to all .card-class elements
+    const classElements = document.querySelectorAll('.card-class');
+    classElements.forEach(element => {
+      // Remove existing class style classes
+      element.classList.remove('class-style-default', 'class-style-badge', 'class-style-banner', 
+                                'class-style-outlined', 'class-style-glow', 'class-has-icon');
+      
+      // Add new class style
+      if (classStyle !== 'default') {
+        element.classList.add(`class-style-${classStyle}`);
+      }
+      
+      // Handle class icon
+      if (classIconEnabled) {
+        element.classList.add('class-has-icon');
+        element.setAttribute('data-class-icon', classIcon);
+        
+        // Add icon to element if it doesn't exist
+        let iconElement = element.querySelector('.class-icon');
+        if (!iconElement) {
+          iconElement = document.createElement('i');
+          iconElement.className = 'class-icon';
+          element.insertBefore(iconElement, element.firstChild);
+        }
+        iconElement.className = `class-icon fas fa-${classIcon}`;
+      } else {
+        element.removeAttribute('data-class-icon');
+        const iconElement = element.querySelector('.class-icon');
+        if (iconElement) {
+          iconElement.remove();
+        }
+      }
+    });
+    
+    // Apply rarity styling to all .card-rarity elements
+    const rarityElements = document.querySelectorAll('.card-rarity');
+    rarityElements.forEach(element => {
+      // Remove existing rarity style classes
+      element.classList.remove('rarity-style-default', 'rarity-style-badge', 'rarity-style-border',
+                                'rarity-style-glow', 'rarity-style-foil', 'rarity-style-frame', 'rarity-has-icon');
+      
+      // Add new rarity style
+      if (rarityStyle !== 'default') {
+        element.classList.add(`rarity-style-${rarityStyle}`);
+      }
+      
+      // Handle rarity icon
+      if (rarityIconEnabled) {
+        element.classList.add('rarity-has-icon');
+        element.setAttribute('data-rarity-icon', rarityIcon);
+        
+        // Add icon to element if it doesn't exist
+        let iconElement = element.querySelector('.rarity-icon');
+        if (!iconElement) {
+          iconElement = document.createElement('i');
+          iconElement.className = 'rarity-icon';
+          element.insertBefore(iconElement, element.firstChild);
+        }
+        iconElement.className = `rarity-icon fas fa-${rarityIcon}`;
+      } else {
+        element.removeAttribute('data-rarity-icon');
+        const iconElement = element.querySelector('.rarity-icon');
+        if (iconElement) {
+          iconElement.remove();
+        }
+      }
+    });
+    
+    console.log('🎨 Applied class and rarity styles:', { 
+      classStyle, rarityStyle, 
+      classIconEnabled, rarityIconEnabled, 
+      classIcon, rarityIcon 
+    });
+  }
+  
+  // ===== ICON TOGGLE AND PICKER SYSTEM =====
+  function initIconToggleSystem() {
+    // Initialize class icon toggle
+    const classIconToggle = document.getElementById('class-icon-toggle');
+    const classIconPicker = document.getElementById('class-icon-picker');
+    const classIconOptions = document.querySelectorAll('#class-icon-picker .icon-option');
+    const classIconValue = document.getElementById('class-icon-value');
+    
+    if (classIconToggle && classIconPicker) {
+      // Toggle visibility of class icon picker
+      classIconToggle.addEventListener('change', function() {
+        if (this.checked) {
+          classIconPicker.style.display = 'block';
+        } else {
+          classIconPicker.style.display = 'none';
+        }
+        updatePreview();
+      });
+      
+      // Handle class icon selection
+      classIconOptions.forEach(option => {
+        option.addEventListener('click', function() {
+          // Remove selected class from all options
+          classIconOptions.forEach(opt => opt.classList.remove('selected'));
+          // Add selected class to clicked option
+          this.classList.add('selected');
+          // Update hidden input value
+          if (classIconValue) {
+            classIconValue.value = this.dataset.icon;
+          }
+          updatePreview();
+        });
+      });
+    }
+    
+    // Initialize rarity icon toggle
+    const rarityIconToggle = document.getElementById('rarity-icon-toggle');
+    const rarityIconPicker = document.getElementById('rarity-icon-picker');
+    const rarityIconOptions = document.querySelectorAll('#rarity-icon-picker .icon-option');
+    const rarityIconValue = document.getElementById('rarity-icon-value');
+    
+    if (rarityIconToggle && rarityIconPicker) {
+      // Toggle visibility of rarity icon picker
+      rarityIconToggle.addEventListener('change', function() {
+        if (this.checked) {
+          rarityIconPicker.style.display = 'block';
+        } else {
+          rarityIconPicker.style.display = 'none';
+        }
+        updatePreview();
+      });
+      
+      // Handle rarity icon selection
+      rarityIconOptions.forEach(option => {
+        option.addEventListener('click', function() {
+          // Remove selected class from all options
+          rarityIconOptions.forEach(opt => opt.classList.remove('selected'));
+          // Add selected class to clicked option
+          this.classList.add('selected');
+          // Update hidden input value
+          if (rarityIconValue) {
+            rarityIconValue.value = this.dataset.icon;
+          }
+          updatePreview();
+        });
+      });
+    }
+    
+    console.log('🎯 Icon toggle and picker system initialized');
   }
   
   // ===== DATA COLLECTION HELPERS =====
@@ -1498,6 +1685,27 @@
     
     // Dynamic social links listeners
     initSocialListeners();
+    
+    // Class and Rarity style selectors
+    const classStyleSelector = document.getElementById('class-style');
+    const rarityStyleSelector = document.getElementById('rarity-style');
+    
+    if (classStyleSelector) {
+      classStyleSelector.addEventListener('change', function() {
+        console.log('Class style changed to:', this.value);
+        updatePreview();
+      });
+    }
+    
+    if (rarityStyleSelector) {
+      rarityStyleSelector.addEventListener('change', function() {
+        console.log('Rarity style changed to:', this.value);
+        updatePreview();
+      });
+    }
+    
+    // Initialize icon toggle and picker systems
+    initIconToggleSystem();
     
     console.log('🎧 Form listeners initialized for live preview');
   }

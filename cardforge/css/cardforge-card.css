@@ -564,6 +564,203 @@
 }
 
 /* =========================== */
+/* CLASS/TYPE STYLING VARIANTS */
+/* =========================== */
+
+/* Default Class Styling (unchanged) */
+.card-preview-canvas .card-class.class-style-default {
+  /* Uses existing card-class styles */
+}
+
+/* Badge Style Class */
+.card-preview-canvas .card-class.class-style-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: linear-gradient(135deg, var(--card-accent, #00d4ff) 0%, rgba(0, 212, 255, 0.7) 100%);
+  color: #000;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Banner Ribbon Class */
+.card-preview-canvas .card-class.class-style-banner {
+  position: relative;
+  display: inline-block;
+  padding: 0.4rem 1rem 0.4rem 0.75rem;
+  background: linear-gradient(45deg, var(--card-accent, #00d4ff), rgba(0, 212, 255, 0.8));
+  color: #000;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
+  margin-right: 10px;
+}
+
+/* Icon Style Class */
+.card-preview-canvas .card-class.class-style-icon::before {
+  content: "⚔️";
+  margin-right: 0.5rem;
+  font-size: 1.1em;
+}
+
+/* Outlined Class */
+.card-preview-canvas .card-class.class-style-outlined {
+  border: 2px solid var(--card-accent, #00d4ff);
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(0, 212, 255, 0.1);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Glow Effect Class */
+.card-preview-canvas .card-class.class-style-glow {
+  text-shadow: 0 0 8px var(--card-accent, #00d4ff), 0 0 16px var(--card-accent, #00d4ff);
+  color: var(--card-accent, #00d4ff);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* =========================== */
+/* RARITY STYLING VARIANTS */
+/* =========================== */
+
+/* Default Rarity Styling (unchanged) */
+.card-preview-canvas .card-rarity.rarity-style-default {
+  /* Uses existing card-rarity styles */
+}
+
+/* Corner Badge Rarity */
+.card-preview-canvas.rarity-style-badge {
+  position: relative;
+}
+
+.card-preview-canvas.rarity-style-badge::after {
+  content: attr(data-rarity);
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 0.25rem 0.5rem;
+  background: var(--rarity-color, #888);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+/* Colored Border Rarity */
+.card-preview-canvas.rarity-style-border {
+  border: 3px solid var(--rarity-color, #888);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 0 0 1px var(--rarity-color, #888);
+}
+
+/* Rarity Glow */
+.card-preview-canvas.rarity-style-glow {
+  box-shadow: 0 0 20px var(--rarity-color, #888), 0 0 40px rgba(var(--rarity-rgb, 136, 136, 136), 0.3);
+}
+
+/* Gem Icon Rarity */
+.card-preview-canvas .card-rarity.rarity-style-gem::before {
+  content: "💎";
+  margin-right: 0.5rem;
+  font-size: 1.1em;
+  filter: hue-rotate(var(--rarity-hue, 0deg));
+}
+
+/* Foil Effect Rarity */
+.card-preview-canvas.rarity-style-foil {
+  background: linear-gradient(45deg, 
+    rgba(255, 255, 255, 0.1) 0%, 
+    transparent 25%, 
+    rgba(255, 255, 255, 0.1) 50%, 
+    transparent 75%, 
+    rgba(255, 255, 255, 0.1) 100%);
+  background-size: 20px 20px;
+  animation: foil-shimmer 3s ease-in-out infinite;
+}
+
+@keyframes foil-shimmer {
+  0%, 100% { background-position: 0 0; }
+  50% { background-position: 20px 20px; }
+}
+
+/* Ornate Frame Rarity */
+.card-preview-canvas.rarity-style-frame {
+  border: 4px solid transparent;
+  background: linear-gradient(var(--aura-bg-color, #1a1a2e), var(--aura-bg-color, #1a1a2e)) padding-box,
+              linear-gradient(45deg, var(--rarity-color, #888), rgba(var(--rarity-rgb, 136, 136, 136), 0.5), var(--rarity-color, #888)) border-box;
+  position: relative;
+}
+
+.card-preview-canvas.rarity-style-frame::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, var(--rarity-color, #888), transparent, var(--rarity-color, #888));
+  z-index: -1;
+  border-radius: inherit;
+}
+
+/* =========================== */
+/* RARITY COLOR VARIABLES */
+/* =========================== */
+
+/* Common Rarity */
+.card-preview-canvas[data-rarity*="common" i] {
+  --rarity-color: #9e9e9e;
+  --rarity-rgb: 158, 158, 158;
+  --rarity-hue: 0deg;
+}
+
+/* Uncommon Rarity */
+.card-preview-canvas[data-rarity*="uncommon" i] {
+  --rarity-color: #4caf50;
+  --rarity-rgb: 76, 175, 80;
+  --rarity-hue: 120deg;
+}
+
+/* Rare Rarity */
+.card-preview-canvas[data-rarity*="rare" i] {
+  --rarity-color: #2196f3;
+  --rarity-rgb: 33, 150, 243;
+  --rarity-hue: 210deg;
+}
+
+/* Epic Rarity */
+.card-preview-canvas[data-rarity*="epic" i] {
+  --rarity-color: #9c27b0;
+  --rarity-rgb: 156, 39, 176;
+  --rarity-hue: 290deg;
+}
+
+/* Legendary Rarity */
+.card-preview-canvas[data-rarity*="legendary" i] {
+  --rarity-color: #ff9800;
+  --rarity-rgb: 255, 152, 0;
+  --rarity-hue: 36deg;
+}
+
+/* Mythic Rarity */
+.card-preview-canvas[data-rarity*="mythic" i] {
+  --rarity-color: #f44336;
+  --rarity-rgb: 244, 67, 54;
+  --rarity-hue: 4deg;
+}
+
+/* =========================== */
 /* CONTAINER-SPECIFIC OVERRIDES */
 /* =========================== */
 
