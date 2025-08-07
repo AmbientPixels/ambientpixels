@@ -49,8 +49,8 @@
       imageEffectVariant: 'glow',
       // Back-of-card sample data
       sampleData: {
-        name: 'Aria Stormwind',
-        characterClass: 'Elven Ranger',
+        name: 'Fantasy Ranger',
+        characterClass: 'Elven Archer',
         avatar: '/images/image-packs/characters/whispers-of-the-sylvan-queen.jpg',
         biography: 'A skilled archer from the Whispering Woods, protector of ancient secrets and guardian of the realm.',
         badges: [
@@ -85,8 +85,8 @@
       imageEffectVariant: 'solid',
       // Back-of-card sample data
       sampleData: {
-        name: 'Zara-7',
-        characterClass: 'Data Runner',
+        name: 'Cyberpunk Runner',
+        characterClass: 'Data Netrunner',
         avatar: '/images/image-packs/characters/cyber-erenity.jpg',
         biography: 'Elite netrunner specializing in corporate infiltration and data extraction from high-security systems.',
         badges: [
@@ -121,8 +121,8 @@
       imageEffectVariant: 'glow',
       // Back-of-card sample data
       sampleData: {
-        name: 'Dr. Elena Voss',
-        characterClass: 'Arcane Researcher',
+        name: 'Arcane Scholar',
+        characterClass: 'Mystic Researcher',
         avatar: '/images/image-packs/characters/ethereal-enigma.jpg',
         biography: 'Renowned scholar of ancient magics and forbidden knowledge, keeper of the Great Library.',
         badges: [
@@ -157,8 +157,8 @@
       imageEffectVariant: 'sepia',
       // Back-of-card sample data
       sampleData: {
-        name: 'Commander Rex',
-        characterClass: 'Galactic Marine',
+        name: 'Space Marine',
+        characterClass: 'Galactic Warrior',
         avatar: '/images/image-packs/characters/guardian-of-the-gilded-halls.jpg',
         biography: 'Veteran space marine with decades of combat experience across multiple star systems. Leader of the Phoenix Squadron and defender of the galaxy.',
         badges: [
@@ -193,8 +193,8 @@
       imageEffectVariant: 'neon',
       // Back-of-card sample data
       sampleData: {
-        name: 'Kenji Nakamura',
-        characterClass: 'Corporate Ronin',
+        name: 'Corporate Ronin',
+        characterClass: 'Blade for Hire',
         avatar: '/images/image-packs/characters/the-enigmatic-neuromancer.jpg',
         biography: 'Former corporate security turned freelance blade for hire, walking the path of honor in a corrupt world.',
         badges: [
@@ -229,8 +229,8 @@
       imageEffectVariant: 'gradient',
       // Back-of-card sample data
       sampleData: {
-        name: 'Captain Nova',
-        characterClass: 'Legendary Hero',
+        name: 'Legendary Hero',
+        characterClass: 'Champion of Justice',
         avatar: '/images/image-packs/characters/hero.png',
         biography: 'Champion of justice and defender of the innocent. Wielder of ancient powers and leader of the legendary Phoenix Guard.',
         badges: [
@@ -248,6 +248,78 @@
           { name: 'Health', value: 100 },
           { name: 'Energy', value: 95 },
           { name: 'Spirit', value: 100 }
+        ]
+      }
+    },
+    'hero-large': {
+      // Front-of-card styling - Hero Large Container
+      alignmentType: 'center',
+      alignmentWeight: 'balanced',
+      alignmentStyle: 'padded',
+      weight: 'balanced',
+      palette: 'sunset',
+      paletteVariant: 'light',
+      imageContainer: 'hero',
+      imageContainerVariant: 'large',
+      imageEffect: 'shadow',
+      imageEffectVariant: 'soft',
+      // Back-of-card sample data
+      sampleData: {
+        name: 'Titan Guardian',
+        characterClass: 'Divine Protector',
+        avatar: '/images/image-packs/characters/twilight-titan.jpg',
+        biography: 'A towering guardian blessed by the gods, standing watch over sacred temples and protecting the faithful from darkness.',
+        badges: [
+          { category: 'Divine', icon: 'crown', quantity: 4, description: 'Blessed with divine power and authority' },
+          { category: 'Guardian', icon: 'shield', quantity: 5, description: 'Eternal protector of the sacred realm' },
+          { category: 'Strength', icon: 'trophy', quantity: 3, description: 'Possesses incredible physical might' }
+        ],
+        attributes: [
+          { name: 'Strength', value: '20' },
+          { name: 'Constitution', value: '19' },
+          { name: 'Wisdom', value: '17' },
+          { name: 'Divine Favor', value: 'Blessed' }
+        ],
+        stats: [
+          { name: 'Health', value: 100 },
+          { name: 'Divine Power', value: 90 },
+          { name: 'Endurance', value: 95 }
+        ]
+      }
+    },
+    'raw-rounded': {
+      // Front-of-card styling - Raw Rounded
+      alignmentType: 'left',
+      alignmentWeight: 'top-heavy',
+      alignmentStyle: 'minimal',
+      weight: 'top-heavy',
+      palette: 'monochrome',
+      paletteVariant: 'dark',
+      imageContainer: 'raw',
+      imageContainerVariant: 'rounded',
+      imageEffect: 'none',
+      imageEffectVariant: 'none',
+      // Back-of-card sample data
+      sampleData: {
+        name: 'Shadow Operative',
+        characterClass: 'Stealth Specialist',
+        avatar: '/images/image-packs/characters/navigator-kairo.jpg',
+        biography: 'A master of stealth and infiltration, operating in the shadows to gather intelligence and eliminate threats with surgical precision.',
+        badges: [
+          { category: 'Stealth', icon: 'target', quantity: 5, description: 'Undetectable in shadows and silence' },
+          { category: 'Precision', icon: 'star', quantity: 4, description: 'Every move calculated and exact' },
+          { category: 'Intel', icon: 'trophy', quantity: 2, description: 'Master of information gathering' }
+        ],
+        attributes: [
+          { name: 'Stealth', value: '20' },
+          { name: 'Dexterity', value: '18' },
+          { name: 'Intelligence', value: '16' },
+          { name: 'Infiltration', value: 'Expert' }
+        ],
+        stats: [
+          { name: 'Stealth', value: 98 },
+          { name: 'Agility', value: 92 },
+          { name: 'Focus', value: 88 }
         ]
       }
     }
