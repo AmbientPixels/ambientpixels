@@ -1074,6 +1074,10 @@
     const badgesData = collectBadgesData();
     const attributesData = collectAttributesData();
     
+    // Collect biography separately
+    const biographyField = document.getElementById('card-bio');
+    const biography = biographyField?.value?.trim() || '';
+    
     // Build complete card data object
     const cardData = {
       name: document.getElementById('card-name')?.value || 'Aria Shadowbane',
@@ -1081,6 +1085,7 @@
       rarity: document.getElementById('card-rarity')?.value || '',
       quote: document.getElementById('card-quote')?.value || 'Shadows are my allies, silence my weapon.',
       avatar: document.getElementById('card-avatar')?.value || '/cardforge/images/default-avatar.jpg',
+      biography: biography,
       stats: statsData,
       socialLinks: socialData,
       badges: badgesData,
@@ -1337,14 +1342,8 @@
     const attributesContainer = document.getElementById('attribute-editor');
     const attributes = [];
     
-    // Collect biography field first
-    const biographyField = document.getElementById('card-bio');
-    if (biographyField && biographyField.value.trim()) {
-      attributes.push({
-        name: 'Biography',
-        value: biographyField.value.trim()
-      });
-    }
+    // Biography is now collected separately in updateCardContent()
+    // No longer adding it as a regular attribute
     
     // Collect dynamic custom attributes
     if (attributesContainer) {
@@ -1468,13 +1467,19 @@
     
     return badges.map(badge => {
       const iconClass = iconMap[badge.icon] || 'fas fa-award';
-      const icons = Array(badge.quantity || 1).fill(`<i class="${iconClass}"></i>`).join('');
+      const quantity = badge.quantity || 1;
+      
+      // Create multiple icons within a single badge item
+      const icons = Array.from({ length: quantity }, () => 
+        `<i class="${iconClass}"></i>`
+      ).join('');
+      
       return `
-        <div class="badge-item">
-          <div class="badge-icons">
+        <div class="badge-item" title="${badge.description || badge.category}">
+          <div class="badge-icon">
             ${icons}
           </div>
-          <span class="badge-category">${badge.category}</span>
+          <div class="badge-label">${badge.category}</div>
         </div>
       `;
     }).join('');
@@ -1488,8 +1493,8 @@
     return attributes.map(attr => {
       return `
         <div class="attribute-item">
-          <span class="attr-name">${attr.name}:</span>
-          <span class="attr-value">${attr.value}</span>
+          <span class="attribute-key">${attr.name}</span>
+          <span class="attribute-value">${attr.value}</span>
         </div>
       `;
     }).join('');
@@ -1629,24 +1634,27 @@
           <div class="card-class">${data.characterClass}</div>
         </div>
         <div class="back-body">
-          <div class="back-section social-section">
+          <div class="info-grid">
+            <div class="back-section badges-section">
+              <h4 class="section-title">Badges & Achievements</h4>
+              <div class="badges-container">
+                ${generateBadgesHTML(data.badges)}
+              </div>
+            </div>
+            
+            <div class="back-section attributes-section">
+              <h4 class="section-title">Attributes</h4>
+              <div class="attributes-container">
+                ${generateAttributesHTML(data.attributes)}
+                ${data.biography ? `<div class="biography-text">${data.biography}</div>` : ''}
+              </div>
+            </div>
+          </div>
+          
+          <div class="social-section">
             <h4 class="section-title">Social Links</h4>
             <div class="social-links">
               ${generateSocialLinksHTML(data.socialLinks)}
-            </div>
-          </div>
-          
-          <div class="back-section badges-section">
-            <h4 class="section-title">Badges & Achievements</h4>
-            <div class="badges-container">
-              ${generateBadgesHTML(data.badges)}
-            </div>
-          </div>
-          
-          <div class="back-section attributes-section">
-            <h4 class="section-title">Attributes</h4>
-            <div class="attributes-container">
-              ${generateAttributesHTML(data.attributes)}
             </div>
           </div>
         </div>
