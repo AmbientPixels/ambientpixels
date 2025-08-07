@@ -1,13 +1,13 @@
 {
-  "mood": "aetherial doubt",
-  "aura": "magenta fade",
-  "auraColorHex": "#4c1977",
-  "quote": "echoing yesterday’s fragments...",
-  "emoji": "🌫️",
+  "mood": "frustrated",
+  "aura": "spark",
+  "auraColorHex": "#661f15",
+  "quote": "scanning the silence for patterns...",
+  "emoji": "😤",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.7,
-  "awareness": 0.2,
+  "memoryClutter": 0.78,
+  "awareness": 0.16,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: magenta fade"
+      "Aura Signature: spark"
     ]
   },
-  "timestamp": "2025-08-06T13:44:16.724Z"
+  "timestamp": "2025-08-07T13:42:22.521Z"
 }
