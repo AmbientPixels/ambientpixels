@@ -222,21 +222,57 @@
 
 /* --- TOP HEAVY --- */
 .card-preview-canvas.align-weight-top-heavy .card-header {
-  margin-bottom: 2rem;
-  font-size: 1.2em;
+  margin-bottom: 3rem;
+  font-size: 1.4em;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .card-preview-canvas.align-weight-top-heavy .card-name {
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
+  font-size: 2.2rem !important;
+  margin-bottom: 1.5rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+
+.card-preview-canvas.align-weight-top-heavy .card-class {
+  font-size: 1.1rem !important;
+  margin-bottom: 1rem !important;
+  font-weight: 600 !important;
 }
 
 .card-preview-canvas.align-weight-top-heavy .card-body {
-  margin: 0.5rem 0;
+  margin: 0.25rem 0;
+  font-size: 0.85em;
+}
+
+.card-preview-canvas.align-weight-top-heavy .card-quote {
+  font-size: 0.8rem !important;
+  margin: 0.25rem 0 !important;
+  padding: 0.5rem !important;
 }
 
 .card-preview-canvas.align-weight-top-heavy .card-stats {
-  margin-top: 0.5rem;
+  margin-top: 0.25rem;
+  font-size: 0.8em;
+  padding: 0.75rem;
+}
+
+.card-preview-canvas.align-weight-top-heavy .stat-bar {
+  height: 6px !important;
+  margin: 0.25rem 0 !important;
+}
+
+.card-preview-canvas.align-weight-top-heavy .stat-name {
+  font-size: 0.75rem !important;
+  font-weight: 400 !important;
+}
+
+.card-preview-canvas.align-weight-top-heavy .stat-value {
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
 }
 
 /* --- BALANCED (Default) --- */
@@ -254,17 +290,53 @@
 
 /* --- BOTTOM HEAVY --- */
 .card-preview-canvas.align-weight-bottom-heavy .card-header {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.9em;
+}
+
+.card-preview-canvas.align-weight-bottom-heavy .card-name {
+  font-size: 1.3rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.card-preview-canvas.align-weight-bottom-heavy .card-class {
+  font-size: 0.8rem !important;
+  margin-bottom: 0.25rem !important;
 }
 
 .card-preview-canvas.align-weight-bottom-heavy .card-body {
-  margin: 0.5rem 0;
+  margin: 0.25rem 0;
+  font-size: 0.85em;
+}
+
+.card-preview-canvas.align-weight-bottom-heavy .card-quote {
+  font-size: 0.8rem !important;
+  margin: 0.25rem 0 !important;
+  padding: 0.5rem !important;
 }
 
 .card-preview-canvas.align-weight-bottom-heavy .card-stats {
-  margin-top: 2rem;
-  font-size: 1.1em;
-  padding: 1.5rem;
+  margin-top: 3rem;
+  font-size: 1.3em;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card-preview-canvas.align-weight-bottom-heavy .stat-bar {
+  height: 12px !important;
+  margin: 0.75rem 0 !important;
+}
+
+.card-preview-canvas.align-weight-bottom-heavy .stat-name {
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+}
+
+.card-preview-canvas.align-weight-bottom-heavy .stat-value {
+  font-size: 1.2rem !important;
+  font-weight: 700 !important;
 }
 
 /* =========================== */
