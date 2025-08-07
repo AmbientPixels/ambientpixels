@@ -36,20 +36,43 @@
   // ===== PRESET CONFIGURATIONS =====
   const PresetConfigurations = {
     'hero-classic': {
-      // LAYOUT REMOVED - Phase 1 of Flow Restructure
+      // Front-of-card styling
       alignmentType: 'center',
       alignmentWeight: 'balanced',
       alignmentStyle: 'padded',
       weight: 'balanced',
-      palette: 'neon',
+      palette: 'earth',
       paletteVariant: 'light',
-      imageContainer: 'masked',
-      imageContainerVariant: 'circle',
-      imageEffect: 'none',
-      imageEffectVariant: 'clean'
+      imageContainer: 'framed',
+      imageContainerVariant: 'ornate',
+      imageEffect: 'borders',
+      imageEffectVariant: 'glow',
+      // Back-of-card sample data
+      sampleData: {
+        name: 'Aria Stormwind',
+        characterClass: 'Elven Ranger',
+        avatar: '/images/image-packs/characters/whispers-of-the-sylvan-queen.jpg',
+        biography: 'A skilled archer from the Whispering Woods, protector of ancient secrets and guardian of the realm.',
+        badges: [
+          { category: 'Marksman', icon: 'target', quantity: 3, description: 'Expert archer with unmatched precision' },
+          { category: 'Explorer', icon: 'star', quantity: 2, description: 'Discovered hidden paths and ancient ruins' },
+          { category: 'Beast Friend', icon: 'heart', quantity: 1, description: 'Trusted companion of forest creatures' }
+        ],
+        attributes: [
+          { name: 'Agility', value: '18' },
+          { name: 'Wisdom', value: '16' },
+          { name: 'Stealth', value: '14' },
+          { name: 'Nature Lore', value: 'Expert' }
+        ],
+        stats: [
+          { name: 'Health', value: 85 },
+          { name: 'Mana', value: 70 },
+          { name: 'Stamina', value: 90 }
+        ]
+      }
     },
     'split-modern': {
-      // LAYOUT REMOVED - Phase 1 of Flow Restructure
+      // Front-of-card styling
       alignmentType: 'left',
       alignmentWeight: 'top-heavy',
       alignmentStyle: 'minimal',
@@ -59,10 +82,33 @@
       imageContainer: 'framed',
       imageContainerVariant: 'modern',
       imageEffect: 'borders',
-      imageEffectVariant: 'solid'
+      imageEffectVariant: 'solid',
+      // Back-of-card sample data
+      sampleData: {
+        name: 'Zara-7',
+        characterClass: 'Data Runner',
+        avatar: '/images/image-packs/characters/cyber-erenity.jpg',
+        biography: 'Elite netrunner specializing in corporate infiltration and data extraction from high-security systems.',
+        badges: [
+          { category: 'Hacker', icon: 'bolt', quantity: 4, description: 'Master of digital infiltration' },
+          { category: 'Ghost Protocol', icon: 'shield', quantity: 2, description: 'Invisible in the net' },
+          { category: 'System Breaker', icon: 'fire', quantity: 1, description: 'Can crack any firewall' }
+        ],
+        attributes: [
+          { name: 'Tech', value: '20' },
+          { name: 'Stealth', value: '17' },
+          { name: 'Logic', value: '15' },
+          { name: 'Reputation', value: 'Legendary' }
+        ],
+        stats: [
+          { name: 'Processing', value: 95 },
+          { name: 'Security', value: 80 },
+          { name: 'Speed', value: 88 }
+        ]
+      }
     },
     'minimal-glow': {
-      // LAYOUT REMOVED - Phase 1 of Flow Restructure
+      // Front-of-card styling
       alignmentType: 'center',
       alignmentWeight: 'balanced',
       alignmentStyle: 'compact',
@@ -72,10 +118,33 @@
       imageContainer: 'raw',
       imageContainerVariant: 'rounded',
       imageEffect: 'borders',
-      imageEffectVariant: 'glow'
+      imageEffectVariant: 'glow',
+      // Back-of-card sample data
+      sampleData: {
+        name: 'Dr. Elena Voss',
+        characterClass: 'Arcane Researcher',
+        avatar: '/images/image-packs/characters/ethereal-enigma.jpg',
+        biography: 'Renowned scholar of ancient magics and forbidden knowledge, keeper of the Great Library.',
+        badges: [
+          { category: 'Scholar', icon: 'star', quantity: 4, description: 'Master of ancient texts' },
+          { category: 'Spell Weaver', icon: 'gem', quantity: 3, description: 'Creator of new magical formulas' },
+          { category: 'Ancient Lore', icon: 'crown', quantity: 2, description: 'Keeper of forgotten secrets' }
+        ],
+        attributes: [
+          { name: 'Intelligence', value: '20' },
+          { name: 'Wisdom', value: '17' },
+          { name: 'Focus', value: '15' },
+          { name: 'Research', value: 'Masterful' }
+        ],
+        stats: [
+          { name: 'Knowledge', value: 98 },
+          { name: 'Concentration', value: 85 },
+          { name: 'Memory', value: 92 }
+        ]
+      }
     },
     'fullbleed-cinematic': {
-      // LAYOUT REMOVED - Phase 1 of Flow Restructure
+      // Front-of-card styling
       alignmentType: 'center',
       alignmentWeight: 'bottom-heavy',
       alignmentStyle: 'padded',
@@ -85,20 +154,102 @@
       imageContainer: 'fullbleed',
       imageContainerVariant: 'none',
       imageEffect: 'filters',
-      imageEffectVariant: 'sepia'
+      imageEffectVariant: 'sepia',
+      // Back-of-card sample data
+      sampleData: {
+        name: 'Commander Rex',
+        characterClass: 'Galactic Marine',
+        avatar: '/images/image-packs/characters/guardian-of-the-gilded-halls.jpg',
+        biography: 'Veteran space marine with decades of combat experience across multiple star systems. Leader of the Phoenix Squadron and defender of the galaxy.',
+        badges: [
+          { category: 'Combat Veteran', icon: 'medal', quantity: 5, description: 'Survived countless battles' },
+          { category: 'Leadership', icon: 'crown', quantity: 3, description: 'Inspires troops to victory' },
+          { category: 'Pilot', icon: 'star', quantity: 2, description: 'Ace starfighter pilot' }
+        ],
+        attributes: [
+          { name: 'Strength', value: '19' },
+          { name: 'Leadership', value: '18' },
+          { name: 'Tactics', value: '16' },
+          { name: 'Honor', value: 'Unbreakable' }
+        ],
+        stats: [
+          { name: 'Combat', value: 95 },
+          { name: 'Command', value: 90 },
+          { name: 'Morale', value: 88 }
+        ]
+      }
     },
     'framed-ornate': {
-      // LAYOUT REMOVED - Phase 1 of Flow Restructure
+      // Front-of-card styling
       alignmentType: 'center',
       alignmentWeight: 'top-heavy',
       alignmentStyle: 'padded',
       weight: 'top-heavy',
-      palette: 'earth',
-      paletteVariant: 'light',
+      palette: 'neon',
+      paletteVariant: 'dark',
       imageContainer: 'framed',
       imageContainerVariant: 'ornate',
       imageEffect: 'borders',
-      imageEffectVariant: 'neon'
+      imageEffectVariant: 'neon',
+      // Back-of-card sample data
+      sampleData: {
+        name: 'Kenji Nakamura',
+        characterClass: 'Corporate Ronin',
+        avatar: '/images/image-packs/characters/the-enigmatic-neuromancer.jpg',
+        biography: 'Former corporate security turned freelance blade for hire, walking the path of honor in a corrupt world.',
+        badges: [
+          { category: 'Blade Master', icon: 'trophy', quantity: 4, description: 'Unmatched sword technique' },
+          { category: 'Honor Code', icon: 'shield', quantity: 2, description: 'Lives by ancient principles' },
+          { category: 'Street Smart', icon: 'target', quantity: 3, description: 'Knows the urban jungle' }
+        ],
+        attributes: [
+          { name: 'Reflexes', value: '19' },
+          { name: 'Honor', value: '16' },
+          { name: 'Combat', value: '18' },
+          { name: 'Reputation', value: 'Respected' }
+        ],
+        stats: [
+          { name: 'Speed', value: 92 },
+          { name: 'Precision', value: 88 },
+          { name: 'Focus', value: 85 }
+        ]
+      }
+    },
+    'hero-fullbleed': {
+      // Front-of-card styling - Full Bleed Hero
+      alignmentType: 'center',
+      alignmentWeight: 'balanced',
+      alignmentStyle: 'minimal',
+      weight: 'balanced',
+      palette: 'fire',
+      paletteVariant: 'dark',
+      imageContainer: 'fullbleed',
+      imageContainerVariant: 'standard',
+      imageEffect: 'overlay',
+      imageEffectVariant: 'gradient',
+      // Back-of-card sample data
+      sampleData: {
+        name: 'Captain Nova',
+        characterClass: 'Legendary Hero',
+        avatar: '/images/image-packs/characters/hero.png',
+        biography: 'Champion of justice and defender of the innocent. Wielder of ancient powers and leader of the legendary Phoenix Guard.',
+        badges: [
+          { category: 'Hero', icon: 'crown', quantity: 5, description: 'Legendary status among all heroes' },
+          { category: 'Leader', icon: 'star', quantity: 4, description: 'Commands respect and loyalty' },
+          { category: 'Champion', icon: 'trophy', quantity: 3, description: 'Victor in countless battles' }
+        ],
+        attributes: [
+          { name: 'Strength', value: '20' },
+          { name: 'Courage', value: '19' },
+          { name: 'Leadership', value: '18' },
+          { name: 'Honor', value: 'Legendary' }
+        ],
+        stats: [
+          { name: 'Health', value: 100 },
+          { name: 'Energy', value: 95 },
+          { name: 'Spirit', value: 100 }
+        ]
+      }
     }
   };
 
@@ -499,10 +650,16 @@
   // ===== PRESET SYSTEM =====
   function initPresets() {
     const presetButtons = document.querySelectorAll('.preset-btn');
+    console.log(`🔍 Found ${presetButtons.length} preset buttons`);
     
-    presetButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const presetId = button.dataset.preset;
+    presetButtons.forEach((button, index) => {
+      const presetId = button.dataset.preset;
+      console.log(`🔗 Binding preset button ${index}: ${presetId}`);
+      
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log(`🖱️ Preset button clicked: ${presetId}`);
+        
         applyPreset(presetId);
         
         // Update active state
@@ -513,26 +670,179 @@
       });
     });
     
-    console.log('🚀 Presets initialized');
+    console.log('🚀 Presets initialized with event listeners');
   }
   
   function applyPreset(presetId) {
+    console.log(`🎯 applyPreset called with: ${presetId}`);
+    
     const config = PresetConfigurations[presetId];
     if (!config) {
-      console.warn(`Preset ${presetId} not found`);
+      console.error(`❌ Preset ${presetId} not found in PresetConfigurations`);
+      console.log('Available presets:', Object.keys(PresetConfigurations));
       return;
     }
     
-    // Update ModularState with preset configuration
-    Object.assign(ModularState, config);
+    console.log(`📋 Found preset config:`, config);
     
-    // Update all UI controls to reflect the preset
-    updateUIFromState();
+    // Separate front styling from sample data
+    const { sampleData, ...frontConfig } = config;
+    console.log(`🎨 Front config:`, frontConfig);
+    console.log(`📝 Sample data:`, sampleData);
     
-    // Update the preview
-    updatePreview();
+    // Apply front-of-card styling
+    Object.assign(ModularState, frontConfig);
+    console.log(`🔄 ModularState updated:`, ModularState);
     
-    console.log(`✨ Preset ${presetId} applied:`, config);
+    try {
+      updateUIFromState();
+      console.log(`✅ updateUIFromState completed`);
+    } catch (error) {
+      console.error(`❌ Error in updateUIFromState:`, error);
+    }
+    
+    // Populate form with sample data
+    console.log(`🔍 Checking sampleData:`, sampleData, 'Type:', typeof sampleData, 'Truthy:', !!sampleData);
+    if (sampleData) {
+      console.log(`📊 Populating form with sample data...`);
+      try {
+        populateFormWithSampleData(sampleData);
+        console.log(`✅ populateFormWithSampleData completed`);
+      } catch (error) {
+        console.error(`❌ Error in populateFormWithSampleData:`, error);
+      }
+    } else {
+      console.warn(`⚠️ No sample data found for preset ${presetId}`);
+    }
+    
+    // Update preview
+    console.log(`🔄 Updating preview...`);
+    try {
+      updatePreview();
+      console.log(`✅ updatePreview completed`);
+    } catch (error) {
+      console.error(`❌ Error in updatePreview:`, error);
+    }
+    
+    console.log(`✨ Preset ${presetId} applied successfully`);
+  }
+  
+  function populateFormWithSampleData(sampleData) {
+    console.log('📊 populateFormWithSampleData called with:', sampleData);
+    
+    // Populate basic character info
+    if (sampleData.name) {
+      const nameField = document.getElementById('card-name');
+      console.log('🏷️ Name field:', nameField, 'Setting to:', sampleData.name);
+      if (nameField) {
+        nameField.value = sampleData.name;
+        console.log('✅ Name field populated:', nameField.value);
+      } else {
+        console.error('❌ Name field not found!');
+      }
+    }
+    
+    if (sampleData.characterClass) {
+      const classField = document.getElementById('card-class');
+      console.log('🎭 Class field:', classField, 'Setting to:', sampleData.characterClass);
+      if (classField) {
+        classField.value = sampleData.characterClass;
+        console.log('✅ Class field populated:', classField.value);
+      } else {
+        console.error('❌ Class field not found!');
+      }
+    }
+    
+    if (sampleData.biography) {
+      const bioField = document.getElementById('card-bio');
+      console.log('📖 Bio field:', bioField, 'Setting to:', sampleData.biography);
+      if (bioField) {
+        bioField.value = sampleData.biography;
+        console.log('✅ Bio field populated:', bioField.value);
+      } else {
+        console.error('❌ Bio field not found!');
+      }
+    }
+    
+    if (sampleData.avatar) {
+      const avatarField = document.getElementById('card-avatar');
+      console.log('🖼️ Avatar field:', avatarField, 'Setting to:', sampleData.avatar);
+      if (avatarField) {
+        avatarField.value = sampleData.avatar;
+        console.log('✅ Avatar field populated:', avatarField.value);
+      } else {
+        console.error('❌ Avatar field not found!');
+      }
+    }
+    
+    // Clear existing dynamic content
+    clearAllDynamicRows();
+    
+    // Populate stats
+    if (sampleData.stats && sampleData.stats.length > 0) {
+      const statsContainer = document.getElementById('stats-container');
+      if (statsContainer) {
+        sampleData.stats.forEach(stat => {
+          const statRow = createStatRow(stat.name, stat.value);
+          statsContainer.appendChild(statRow);
+        });
+        console.log(`✅ Populated ${sampleData.stats.length} stats`);
+      } else {
+        console.warn('⚠️ Stats container not found');
+      }
+    }
+    
+    // Populate badges
+    if (sampleData.badges && sampleData.badges.length > 0) {
+      const badgesContainer = document.getElementById('micro-badges-container');
+      if (badgesContainer) {
+        sampleData.badges.forEach(badge => {
+          const badgeRow = createMicroBadgeRow(badge.category, badge.icon, badge.description, badge.quantity);
+          badgesContainer.appendChild(badgeRow);
+        });
+        console.log(`✅ Populated ${sampleData.badges.length} badges`);
+      } else {
+        console.warn('⚠️ Badges container not found');
+      }
+    }
+    
+    // Populate attributes
+    if (sampleData.attributes && sampleData.attributes.length > 0) {
+      const attributesContainer = document.getElementById('attributes-container');
+      if (attributesContainer) {
+        sampleData.attributes.forEach(attribute => {
+          const attributeRow = createAttributeRow(attribute.name, attribute.value);
+          attributesContainer.appendChild(attributeRow);
+        });
+        console.log(`✅ Populated ${sampleData.attributes.length} attributes`);
+      } else {
+        console.warn('⚠️ Attributes container not found');
+      }
+    }
+    
+    console.log(`📝 Form populated with sample data:`, sampleData);
+  }
+  
+  function clearAllDynamicRows() {
+    // Clear stats
+    const statsContainer = document.getElementById('stats-container');
+    if (statsContainer) {
+      statsContainer.innerHTML = '';
+    }
+    
+    // Clear badges
+    const badgesContainer = document.getElementById('micro-badges-container');
+    if (badgesContainer) {
+      badgesContainer.innerHTML = '';
+    }
+    
+    // Clear attributes
+    const attributesContainer = document.getElementById('attributes-container');
+    if (attributesContainer) {
+      attributesContainer.innerHTML = '';
+    }
+    
+    console.log('🧹 Cleared all dynamic form rows');
   }
   
   function updateUIFromState() {
