@@ -607,84 +607,92 @@
         <label for="card-name">Name</label>
         <input type="text" id="card-name" placeholder="Card Name" />
 
-        <label for="card-class">Class/Type</label>
-        <div class="stat-row">
-          <input type="text" id="card-class" placeholder="e.g. Ranger, Castle, Artifact" />
-          <button type="button" class="remove-attribute" data-target="card-class">&times;</button>
-        </div>
-        
-        <!-- Class/Type Styling Options -->
-        <div class="styling-options">
-          <label for="class-style">Class Style</label>
-          <select id="class-style" class="style-selector">
-            <option value="default">Default Text</option>
-            <option value="badge">Badge Style</option>
-            <option value="banner">Banner Ribbon</option>
-            <option value="outlined">Outlined</option>
-            <option value="glow">Glow Effect</option>
-          </select>
+        <!-- Class/Type Section -->
+        <div id="class-section" class="badge-section">
+          <div class="section-header">
+            <h4>Class/Type</h4>
+          </div>
           
-          <!-- Class Icon Toggle & Picker -->
-          <div class="icon-toggle-section">
-            <label class="toggle-label">
-              <input type="checkbox" id="class-icon-toggle" class="icon-toggle">
-              <span class="toggle-text">Add Icon</span>
-            </label>
-            <div id="class-icon-picker" class="icon-picker-container" style="display: none;">
-              <div class="icon-picker" aria-label="Select class icon">
-                <input type="hidden" id="class-icon-value" value="sword" />
-                <button type="button" class="icon-option selected" data-icon="sword"><i class="fas fa-sword"></i></button>
-                <button type="button" class="icon-option" data-icon="shield"><i class="fas fa-shield"></i></button>
-                <button type="button" class="icon-option" data-icon="magic"><i class="fas fa-magic"></i></button>
-                <button type="button" class="icon-option" data-icon="bow-arrow"><i class="fas fa-bow-arrow"></i></button>
-                <button type="button" class="icon-option" data-icon="hammer"><i class="fas fa-hammer"></i></button>
-                <button type="button" class="icon-option" data-icon="staff"><i class="fas fa-staff"></i></button>
-                <button type="button" class="icon-option" data-icon="dagger"><i class="fas fa-dagger"></i></button>
-                <button type="button" class="icon-option" data-icon="crown"><i class="fas fa-crown"></i></button>
-                <button type="button" class="icon-option" data-icon="dragon"><i class="fas fa-dragon"></i></button>
-                <button type="button" class="icon-option" data-icon="castle"><i class="fas fa-castle"></i></button>
+          <div id="class-content" class="section-content">
+            <div class="stat-row">
+              <input type="text" id="card-class" placeholder="e.g. Ranger, Castle, Artifact" />
+            </div>
+            
+            <!-- Class/Type Styling Options -->
+            <div class="styling-options">
+              <label for="class-style">Class Style</label>
+              <select id="class-style" class="style-selector">
+                <option value="default">Default Text</option>
+                <option value="badge">Badge Style</option>
+                <option value="banner">Banner Ribbon</option>
+                <option value="outlined">Outlined</option>
+                <option value="glow">Glow Effect</option>
+              </select>
+              
+              <!-- Class Icon Section -->
+              <div class="icon-section">
+                <label>Icon</label>
+                <div class="icon-picker-container">
+                  <div class="icon-picker" aria-label="Select class icon">
+                    <input type="hidden" id="class-icon-value" value="none" />
+                    <button type="button" class="icon-option selected" data-icon="none"><span class="no-icon">None</span></button>
+                    <button type="button" class="icon-option" data-icon="sword"><i class="fas fa-sword"></i></button>
+                    <button type="button" class="icon-option" data-icon="shield"><i class="fas fa-shield-alt"></i></button>
+                    <button type="button" class="icon-option" data-icon="magic"><i class="fas fa-magic"></i></button>
+                    <button type="button" class="icon-option" data-icon="bow-arrow"><i class="fas fa-crosshairs"></i></button>
+                    <button type="button" class="icon-option" data-icon="hammer"><i class="fas fa-hammer"></i></button>
+                    <button type="button" class="icon-option" data-icon="staff"><i class="fas fa-magic"></i></button>
+                    <button type="button" class="icon-option" data-icon="dagger"><i class="fas fa-sword"></i></button>
+                    <button type="button" class="icon-option" data-icon="crown"><i class="fas fa-crown"></i></button>
+                    <button type="button" class="icon-option" data-icon="dragon"><i class="fas fa-dragon"></i></button>
+                    <button type="button" class="icon-option" data-icon="castle"><i class="fas fa-chess-rook"></i></button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <label for="card-rarity">Rarity</label>
-        <div class="stat-row">
-          <input type="text" id="card-rarity" placeholder="e.g. Common, Rare, Legendary" />
-          <button type="button" class="remove-attribute" data-target="card-rarity">&times;</button>
-        </div>
-        
-        <!-- Rarity Styling Options -->
-        <div class="styling-options">
-          <label for="rarity-style">Rarity Style</label>
-          <select id="rarity-style" class="style-selector">
-            <option value="default">Default Text</option>
-            <option value="badge">Corner Badge</option>
-            <option value="border">Colored Border</option>
-            <option value="glow">Rarity Glow</option>
-            <option value="foil">Foil Effect</option>
-            <option value="frame">Ornate Frame</option>
-          </select>
+        <!-- Rarity Section -->
+        <div id="rarity-section" class="badge-section">
+          <div class="section-header">
+            <h4>Rarity</h4>
+          </div>
           
-          <!-- Rarity Icon Toggle & Picker -->
-          <div class="icon-toggle-section">
-            <label class="toggle-label">
-              <input type="checkbox" id="rarity-icon-toggle" class="icon-toggle">
-              <span class="toggle-text">Add Icon</span>
-            </label>
-            <div id="rarity-icon-picker" class="icon-picker-container" style="display: none;">
-              <div class="icon-picker" aria-label="Select rarity icon">
-                <input type="hidden" id="rarity-icon-value" value="gem" />
-                <button type="button" class="icon-option selected" data-icon="gem"><i class="fas fa-gem"></i></button>
-                <button type="button" class="icon-option" data-icon="star"><i class="fas fa-star"></i></button>
-                <button type="button" class="icon-option" data-icon="crown"><i class="fas fa-crown"></i></button>
-                <button type="button" class="icon-option" data-icon="trophy"><i class="fas fa-trophy"></i></button>
-                <button type="button" class="icon-option" data-icon="medal"><i class="fas fa-medal"></i></button>
-                <button type="button" class="icon-option" data-icon="certificate"><i class="fas fa-certificate"></i></button>
-                <button type="button" class="icon-option" data-icon="diamond"><i class="fas fa-diamond"></i></button>
-                <button type="button" class="icon-option" data-icon="fire"><i class="fas fa-fire"></i></button>
-                <button type="button" class="icon-option" data-icon="bolt"><i class="fas fa-bolt"></i></button>
-                <button type="button" class="icon-option" data-icon="sparkles"><i class="fas fa-sparkles"></i></button>
+          <div id="rarity-content" class="section-content">
+            <div class="stat-row">
+              <input type="text" id="card-rarity" placeholder="e.g. Common, Rare, Legendary" />
+            </div>
+            
+            <!-- Rarity Styling Options -->
+            <div class="styling-options">
+              <label for="rarity-style">Rarity Style</label>
+              <select id="rarity-style" class="style-selector">
+                <option value="default">Default Text</option>
+                <option value="badge">Corner Badge</option>
+                <option value="border">Colored Border</option>
+                <option value="glow">Rarity Glow</option>
+                <option value="foil">Foil Effect</option>
+                <option value="frame">Ornate Frame</option>
+              </select>
+              
+              <!-- Rarity Icon Picker (always visible when section is active) -->
+              <div class="icon-section">
+                <label>Icon</label>
+                <div class="icon-picker" aria-label="Select rarity icon">
+                  <input type="hidden" id="rarity-icon-value" value="none" />
+                  <button type="button" class="icon-option selected" data-icon="none"><span class="no-icon">None</span></button>
+                  <button type="button" class="icon-option" data-icon="gem"><i class="fas fa-gem"></i></button>
+                  <button type="button" class="icon-option" data-icon="star"><i class="fas fa-star"></i></button>
+                  <button type="button" class="icon-option" data-icon="crown"><i class="fas fa-crown"></i></button>
+                  <button type="button" class="icon-option" data-icon="trophy"><i class="fas fa-trophy"></i></button>
+                  <button type="button" class="icon-option" data-icon="medal"><i class="fas fa-medal"></i></button>
+                  <button type="button" class="icon-option" data-icon="certificate"><i class="fas fa-certificate"></i></button>
+                  <button type="button" class="icon-option" data-icon="diamond"><i class="fas fa-diamond"></i></button>
+                  <button type="button" class="icon-option" data-icon="fire"><i class="fas fa-fire"></i></button>
+                  <button type="button" class="icon-option" data-icon="bolt"><i class="fas fa-bolt"></i></button>
+                  <button type="button" class="icon-option" data-icon="sparkles"><i class="fas fa-sparkles"></i></button>
+                </div>
               </div>
             </div>
           </div>

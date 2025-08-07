@@ -242,6 +242,35 @@
   color: var(--mood-primary-color, #e1e1ff);
 }
 
+/* Badge Section Styling */
+.badge-section {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.section-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--mood-primary-color, #e1e1ff);
+  flex-shrink: 0;
+}
+
+.section-content {
+  display: block;
+}
+
 /* Styling Options Controls */
 .styling-options {
   margin: 0.5rem 0 1rem 0;
@@ -260,16 +289,56 @@
 .toggle-label {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   cursor: pointer;
   font-size: 0.9rem;
   color: var(--mood-primary-color, #e1e1ff);
 }
 
-.icon-toggle {
-  width: auto !important;
-  margin: 0;
+.section-toggle {
+  display: none; /* Hide the actual checkbox */
+}
+
+.toggle-switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  background: #4a4a6a;
+  border-radius: 13px;
+  transition: background-color 0.3s ease;
   cursor: pointer;
+  flex-shrink: 0;
+}
+
+.toggle-switch::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.section-toggle:checked + .toggle-switch {
+  background: #6c5ce7;
+}
+
+.section-toggle:checked + .toggle-switch::before {
+  transform: translateX(22px);
+  background: white;
+}
+
+.toggle-label:hover .toggle-switch {
+  box-shadow: 0 0 8px rgba(225, 225, 255, 0.2);
+}
+
+.section-toggle:checked + .toggle-switch:hover {
+  background: var(--mood-primary-color, #e1e1ff);
+  box-shadow: 0 0 12px rgba(225, 225, 255, 0.3);
 }
 
 .toggle-text {
@@ -324,6 +393,15 @@
   box-shadow: 0 0 8px rgba(225, 225, 255, 0.3);
 }
 
+/* None option styling */
+.no-icon {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: inherit;
+}
+
 /* Class and Rarity Icon Styling */
 .class-has-icon .class-icon,
 .rarity-has-icon .rarity-icon {
@@ -348,6 +426,64 @@
 .rarity-style-glow .rarity-icon {
   text-shadow: 0 0 4px currentColor;
   margin-right: 0.4rem;
+}
+
+/* Badge Section Styling */
+.badge-section {
+  margin: 1rem 0;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.section-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--mood-primary-color, #e1e1ff);
+  font-weight: 500;
+}
+
+.section-toggle {
+  width: auto !important;
+  margin: 0;
+  cursor: pointer;
+}
+
+.section-content {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Icon Section Styling */
+.icon-section {
+  margin-top: 1rem;
+}
+
+.icon-section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--mood-primary-color, #e1e1ff);
+}
+
+.icon-section .icon-picker {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+  max-width: 250px;
+  padding: 0.5rem;
+  background: var(--aura-bg-color, #1a1a2e);
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 6px;
 }
 
 .styling-options label {

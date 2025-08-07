@@ -450,6 +450,10 @@
     // Initialize modular tier system
     initModularSystem();
     
+    // Initialize badge section toggles
+    // Initialize icon pickers
+    initIconPickers();
+    
     // Initialize image gallery
     initImageGallery();
     
@@ -1073,8 +1077,8 @@
     // Build complete card data object
     const cardData = {
       name: document.getElementById('card-name')?.value || 'Aria Shadowbane',
-      characterClass: document.getElementById('card-class')?.value || 'Rogue Assassin',
-      rarity: document.getElementById('card-rarity')?.value || 'Rare',
+      characterClass: document.getElementById('card-class')?.value || '',
+      rarity: document.getElementById('card-rarity')?.value || '',
       quote: document.getElementById('card-quote')?.value || 'Shadows are my allies, silence my weapon.',
       avatar: document.getElementById('card-avatar')?.value || '/cardforge/images/default-avatar.jpg',
       stats: statsData,
@@ -1101,6 +1105,13 @@
   
   // ===== CLASS AND RARITY STYLING =====
   function applyClassAndRarityStyles() {
+    // Get form input values to check if sections should be displayed
+    const classInput = document.getElementById('card-class');
+    const rarityInput = document.getElementById('card-rarity');
+    
+    const classValue = classInput ? classInput.value.trim() : '';
+    const rarityValue = rarityInput ? rarityInput.value.trim() : '';
+    
     // Get style selections
     const classStyleSelector = document.getElementById('class-style');
     const rarityStyleSelector = document.getElementById('rarity-style');
@@ -1109,19 +1120,24 @@
     const rarityStyle = rarityStyleSelector ? rarityStyleSelector.value : 'default';
     
     // Get icon settings
-    const classIconToggle = document.getElementById('class-icon-toggle');
-    const rarityIconToggle = document.getElementById('rarity-icon-toggle');
     const classIconValue = document.getElementById('class-icon-value');
     const rarityIconValue = document.getElementById('rarity-icon-value');
     
-    const classIconEnabled = classIconToggle ? classIconToggle.checked : false;
-    const rarityIconEnabled = rarityIconToggle ? rarityIconToggle.checked : false;
-    const classIcon = classIconValue ? classIconValue.value : 'sword';
-    const rarityIcon = rarityIconValue ? rarityIconValue.value : 'gem';
+    const classIcon = classIconValue ? classIconValue.value : 'none';
+    const rarityIcon = rarityIconValue ? rarityIconValue.value : 'none';
     
     // Apply class styling to all .card-class elements
     const classElements = document.querySelectorAll('.card-class');
     classElements.forEach(element => {
+      // Hide element if class value is empty
+      if (!classValue) {
+        element.style.display = 'none';
+        return;
+      }
+      
+      // Show element if class value exists
+      element.style.display = '';
+      
       // Remove existing class style classes
       element.classList.remove('class-style-default', 'class-style-badge', 'class-style-banner', 
                                 'class-style-outlined', 'class-style-glow', 'class-has-icon');
@@ -1131,8 +1147,8 @@
         element.classList.add(`class-style-${classStyle}`);
       }
       
-      // Handle class icon
-      if (classIconEnabled) {
+      // Handle class icon (only when icon is not 'none')
+      if (classIcon !== 'none') {
         element.classList.add('class-has-icon');
         element.setAttribute('data-class-icon', classIcon);
         
@@ -1145,6 +1161,7 @@
         }
         iconElement.className = `class-icon fas fa-${classIcon}`;
       } else {
+        element.classList.remove('class-has-icon');
         element.removeAttribute('data-class-icon');
         const iconElement = element.querySelector('.class-icon');
         if (iconElement) {
@@ -1156,6 +1173,15 @@
     // Apply rarity styling to all .card-rarity elements
     const rarityElements = document.querySelectorAll('.card-rarity');
     rarityElements.forEach(element => {
+      // Hide element if rarity value is empty
+      if (!rarityValue) {
+        element.style.display = 'none';
+        return;
+      }
+      
+      // Show element if rarity value exists
+      element.style.display = '';
+      
       // Remove existing rarity style classes
       element.classList.remove('rarity-style-default', 'rarity-style-badge', 'rarity-style-border',
                                 'rarity-style-glow', 'rarity-style-foil', 'rarity-style-frame', 'rarity-has-icon');
@@ -1165,8 +1191,8 @@
         element.classList.add(`rarity-style-${rarityStyle}`);
       }
       
-      // Handle rarity icon
-      if (rarityIconEnabled) {
+      // Handle rarity icon (only when icon is not 'none')
+      if (rarityIcon !== 'none') {
         element.classList.add('rarity-has-icon');
         element.setAttribute('data-rarity-icon', rarityIcon);
         
@@ -1179,6 +1205,7 @@
         }
         iconElement.className = `rarity-icon fas fa-${rarityIcon}`;
       } else {
+        element.classList.remove('rarity-has-icon');
         element.removeAttribute('data-rarity-icon');
         const iconElement = element.querySelector('.rarity-icon');
         if (iconElement) {
@@ -1189,81 +1216,48 @@
     
     console.log('🎨 Applied class and rarity styles:', { 
       classStyle, rarityStyle, 
-      classIconEnabled, rarityIconEnabled, 
       classIcon, rarityIcon 
     });
   }
   
-  // ===== ICON TOGGLE AND PICKER SYSTEM =====
-  function initIconToggleSystem() {
-    // Initialize class icon toggle
-    const classIconToggle = document.getElementById('class-icon-toggle');
-    const classIconPicker = document.getElementById('class-icon-picker');
-    const classIconOptions = document.querySelectorAll('#class-icon-picker .icon-option');
-    const classIconValue = document.getElementById('class-icon-value');
-    
-    if (classIconToggle && classIconPicker) {
-      // Toggle visibility of class icon picker
-      classIconToggle.addEventListener('change', function() {
-        if (this.checked) {
-          classIconPicker.style.display = 'block';
-        } else {
-          classIconPicker.style.display = 'none';
+  // ===== ICON PICKER SYSTEM =====
+  function initIconPickers() {
+    // Handle class icon selection
+    const classIconOptions = document.querySelectorAll('#class-section .icon-picker .icon-option');
+    classIconOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        // Remove selected class from all options
+        classIconOptions.forEach(opt => opt.classList.remove('selected'));
+        // Add selected class to clicked option
+        this.classList.add('selected');
+        // Update hidden input
+        const iconValue = document.getElementById('class-icon-value');
+        if (iconValue) {
+          iconValue.value = this.dataset.icon;
         }
         updatePreview();
       });
-      
-      // Handle class icon selection
-      classIconOptions.forEach(option => {
-        option.addEventListener('click', function() {
-          // Remove selected class from all options
-          classIconOptions.forEach(opt => opt.classList.remove('selected'));
-          // Add selected class to clicked option
-          this.classList.add('selected');
-          // Update hidden input value
-          if (classIconValue) {
-            classIconValue.value = this.dataset.icon;
-          }
-          updatePreview();
-        });
-      });
-    }
+    });
     
-    // Initialize rarity icon toggle
-    const rarityIconToggle = document.getElementById('rarity-icon-toggle');
-    const rarityIconPicker = document.getElementById('rarity-icon-picker');
-    const rarityIconOptions = document.querySelectorAll('#rarity-icon-picker .icon-option');
-    const rarityIconValue = document.getElementById('rarity-icon-value');
-    
-    if (rarityIconToggle && rarityIconPicker) {
-      // Toggle visibility of rarity icon picker
-      rarityIconToggle.addEventListener('change', function() {
-        if (this.checked) {
-          rarityIconPicker.style.display = 'block';
-        } else {
-          rarityIconPicker.style.display = 'none';
+    // Handle rarity icon selection
+    const rarityIconOptions = document.querySelectorAll('#rarity-section .icon-picker .icon-option');
+    rarityIconOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        // Remove selected class from all options
+        rarityIconOptions.forEach(opt => opt.classList.remove('selected'));
+        // Add selected class to clicked option
+        this.classList.add('selected');
+        // Update hidden input
+        const iconValue = document.getElementById('rarity-icon-value');
+        if (iconValue) {
+          iconValue.value = this.dataset.icon;
         }
         updatePreview();
       });
-      
-      // Handle rarity icon selection
-      rarityIconOptions.forEach(option => {
-        option.addEventListener('click', function() {
-          // Remove selected class from all options
-          rarityIconOptions.forEach(opt => opt.classList.remove('selected'));
-          // Add selected class to clicked option
-          this.classList.add('selected');
-          // Update hidden input value
-          if (rarityIconValue) {
-            rarityIconValue.value = this.dataset.icon;
-          }
-          updatePreview();
-        });
-      });
-    }
-    
-    console.log('🎯 Icon toggle and picker system initialized');
+    });
   }
+  
+  console.log('🎯 Icon picker system initialized');
   
   // ===== DATA COLLECTION HELPERS =====
   function collectStatsData() {
@@ -1704,8 +1698,9 @@
       });
     }
     
-    // Initialize icon toggle and picker systems
-    initIconToggleSystem();
+    // Initialize badge section toggle systems
+    // Initialize icon pickers
+    initIconPickers();
     
     console.log('🎧 Form listeners initialized for live preview');
   }
