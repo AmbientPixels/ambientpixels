@@ -752,6 +752,9 @@
     // Initialize card flip functionality
     initCardFlip();
     
+    // Load a random preset for better initial experience
+    loadRandomPreset();
+    
     console.log('✅ CardForge V2 Modular System Ready!');
   });
   
@@ -811,7 +814,46 @@
       });
     });
     
+    // Initialize Roll button
+    const rollButton = document.getElementById('roll-random-preset');
+    if (rollButton) {
+      rollButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log('🎲 Roll button clicked - generating random preset');
+        
+        // Add visual feedback
+        rollButton.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+          rollButton.style.transform = '';
+        }, 150);
+        
+        loadRandomPreset();
+      });
+      console.log('🎲 Roll button initialized');
+    }
+    
     console.log('🚀 Presets initialized with event listeners');
+  }
+  
+  // ===== RANDOM PRESET LOADER =====
+  function loadRandomPreset() {
+    const presetKeys = Object.keys(PresetConfigurations);
+    const randomIndex = Math.floor(Math.random() * presetKeys.length);
+    const randomPresetId = presetKeys[randomIndex];
+    
+    console.log(`🎲 Loading random preset: ${randomPresetId} (${randomIndex + 1}/${presetKeys.length})`);
+    
+    // Apply the random preset
+    applyPreset(randomPresetId);
+    
+    // Update the active preset button if it exists
+    const presetButton = document.querySelector(`[data-preset="${randomPresetId}"]`);
+    if (presetButton) {
+      const allPresetButtons = document.querySelectorAll('.preset-btn');
+      allPresetButtons.forEach(btn => btn.classList.remove('active'));
+      presetButton.classList.add('active');
+      console.log(`✨ Random preset loaded and button activated: ${randomPresetId}`);
+    }
   }
   
   function applyPreset(presetId) {
