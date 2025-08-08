@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "4b8b1132-f585-4c8d-9697-d6d1c3ec2e2f",
-      "hash": "588e6f495cd23727cca6dcf63a16dde7e16f090a",
-      "message": "feat: Complete class and rarity styling system for presets and default card",
-      "timestamp": "2025-08-07 00:35:44 -0700",
+      "id": "50526c4f-e7b8-477f-9bc7-8e73a9d7289a",
+      "hash": "67cc2d91391a79f339cc1a1e8f90afbd87f2d8a4",
+      "message": "docs: Add comprehensive Forge tab technical implementation specification",
+      "timestamp": "2025-08-07 22:17:43 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/588e6f495cd23727cca6dcf63a16dde7e16f090a"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/67cc2d91391a79f339cc1a1e8f90afbd87f2d8a4"
     }
   ],
-  "timestamp": "2025-08-07T13:42:22.602Z",
+  "timestamp": "2025-08-08T13:40:24.235Z",
   "count": 1,
-  "scanId": 1754574142602
+  "scanId": 1754660424235
 }
