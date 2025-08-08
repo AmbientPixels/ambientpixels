@@ -567,10 +567,7 @@
 /* CLASS/TYPE STYLING VARIANTS */
 /* =========================== */
 
-/* Default Class Styling (unchanged) */
-.card-preview-canvas .card-class.class-style-default {
-  /* Uses existing card-class styles */
-}
+
 
 /* Badge Style Class */
 .card-preview-canvas .card-class.class-style-badge {
@@ -631,11 +628,6 @@
 /* =========================== */
 /* RARITY STYLING VARIANTS */
 /* =========================== */
-
-/* Default Rarity Styling (unchanged) */
-.card-preview-canvas .card-rarity.rarity-style-default {
-  /* Uses existing card-rarity styles */
-}
 
 /* Corner Badge Rarity */
 .card-preview-canvas.rarity-style-badge {
