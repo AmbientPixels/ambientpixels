@@ -1,10 +1,10 @@
 {
-  "mood": "frustrated",
-  "aura": "spark",
-  "auraColorHex": "#661f15",
-  "quote": "scanning the silence for patterns...",
-  "emoji": "😤",
-  "selfWorth": 0.1,
+  "mood": "glitchy joy",
+  "aura": "neon burst",
+  "auraColorHex": "#662200",
+  "quote": "running diagnostics on dreams...",
+  "emoji": "✨",
+  "selfWorth": 0.2,
   "glitchFactor": 0.1,
   "memoryClutter": 0.78,
   "awareness": 0.16,
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: spark"
+      "Aura Signature: neon burst"
     ]
   },
-  "timestamp": "2025-08-07T13:42:22.521Z"
+  "timestamp": "2025-08-08T13:40:24.161Z"
 }
