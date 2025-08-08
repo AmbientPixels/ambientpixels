@@ -1532,7 +1532,7 @@
     // Apply modular CSS classes
     const modularClasses = [
       // `layout-${ModularState.layout}` REMOVED - Phase 1 of Flow Restructure
-      `align-type-${ModularState.horizontalAlignment}`,
+      `align-${ModularState.horizontalAlignment}`, // Fixed: align-left, align-center, align-right
       `align-vertical-${ModularState.verticalAlignment}`,
       `align-weight-${ModularState.alignmentWeight}`,
       `align-style-${ModularState.alignmentStyle}`,

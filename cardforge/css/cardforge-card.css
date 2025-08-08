@@ -1151,14 +1151,19 @@
   padding: 1rem;
 }
 
-/* Hero Large Variant - adjust container padding for larger image */
-.card-preview-canvas.container-hero.container-variant-large {
+/* Hero Large Variant - adjust container padding for larger image (FRONT ONLY) */
+.card-preview-canvas.card-front.container-hero.container-variant-large {
   padding-top: 250px; /* Push content below 250px image */
 }
 
-/* Hero Small Variant - adjust container padding for smaller image */
-.card-preview-canvas.container-hero.container-variant-small {
+/* Hero Small Variant - adjust container padding for smaller image (FRONT ONLY) */
+.card-preview-canvas.card-front.container-hero.container-variant-small {
   padding-top: 150px; /* Push content below 150px image */
+}
+
+/* Hero Container Back Face - No top padding needed */
+.card-preview-canvas.card-back.container-hero {
+  padding-top: 0; /* Remove top padding from back face */
 }
 
 /* ===== TIER 6: IMAGE EFFECTS ===== */
