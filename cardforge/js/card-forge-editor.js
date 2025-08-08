@@ -682,15 +682,15 @@
         const statsContainer = document.getElementById('stats-editor');
         const currentStats = statsContainer.querySelectorAll('.stat-row').length;
         
-        if (currentStats >= 5) {
-          console.warn('⚠️ Maximum of 5 stats allowed');
-          alert('Maximum of 5 stats allowed');
+        if (currentStats >= 10) {
+          console.warn('⚠️ Maximum of 10 stats allowed');
+          alert('Maximum of 10 stats allowed');
           return;
         }
         
         const newStatRow = createStatRow();
         statsContainer.appendChild(newStatRow);
-        console.log(`📊 New stat row added (${currentStats + 1}/5)`);
+        console.log(`📊 New stat row added (${currentStats + 1}/10)`);
       });
     }
   }
