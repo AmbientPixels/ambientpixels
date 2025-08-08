@@ -752,8 +752,12 @@
     // Initialize card flip functionality
     initCardFlip();
     
-    // Load a random preset for better initial experience
-    loadRandomPreset();
+    // Initialize default class and rarity styles
+    initDefaultClassAndRarityStyles();
+    
+    // Roll a random card for better initial experience
+    // Note: Using direct call since we're inside the IIFE closure
+    rollRandomCard();
     
     console.log('✅ CardForge V2 Modular System Ready!');
   });
@@ -827,7 +831,7 @@
           rollButton.style.transform = '';
         }, 150);
         
-        loadRandomPreset();
+        window.CardForge.rollRandomCard();
       });
       console.log('🎲 Roll button initialized');
     }
@@ -835,25 +839,217 @@
     console.log('🚀 Presets initialized with event listeners');
   }
   
-  // ===== RANDOM PRESET LOADER =====
-  function loadRandomPreset() {
-    const presetKeys = Object.keys(PresetConfigurations);
-    const randomIndex = Math.floor(Math.random() * presetKeys.length);
-    const randomPresetId = presetKeys[randomIndex];
+  // ===== RANDOM CARD GENERATOR =====
+  function rollRandomCard() {
+    console.log('🎲 Rolling a completely random card...');
     
-    console.log(`🎲 Loading random preset: ${randomPresetId} (${randomIndex + 1}/${presetKeys.length})`);
+    // Define all possible options for each modular tier
+    const randomOptions = {
+      // Tier 2: Image Container & Effects
+      imageContainers: ['masked', 'framed', 'raw', 'hero', 'fullbleed'],
+      containerVariants: {
+        'masked': ['circle', 'hex', 'diamond'],
+        'framed': ['classic', 'ornate', 'minimal'],
+        'raw': ['sharp', 'rounded', 'soft'],
+        'hero': ['large', 'compact'],
+        'fullbleed': ['standard', 'wide']
+      },
+      imageEffects: ['none', 'filters', 'borders'],
+      effectVariants: {
+        'none': ['clean'],
+        'filters': ['sepia', 'blur', 'saturate', 'contrast'],
+        'borders': ['solid', 'dashed', 'glow']
+      },
+      
+      // Tier 3: Color Palette
+      palettes: ['neon', 'earth', 'ocean', 'fire', 'cosmic'],
+      paletteVariants: ['light', 'dark', 'vibrant'],
+      
+      // Tier 4: Content Alignment
+      horizontalAlignments: ['left', 'center', 'right'],
+      verticalAlignments: ['top', 'middle', 'bottom'],
+      alignmentWeights: ['light', 'balanced', 'heavy'],
+      alignmentStyles: ['minimal', 'padded', 'spacious']
+    };
     
-    // Apply the random preset
-    applyPreset(randomPresetId);
+    // Generate random selections
+    const randomContainer = randomOptions.imageContainers[Math.floor(Math.random() * randomOptions.imageContainers.length)];
+    const randomContainerVariant = randomOptions.containerVariants[randomContainer][Math.floor(Math.random() * randomOptions.containerVariants[randomContainer].length)];
     
-    // Update the active preset button if it exists
-    const presetButton = document.querySelector(`[data-preset="${randomPresetId}"]`);
-    if (presetButton) {
-      const allPresetButtons = document.querySelectorAll('.preset-btn');
-      allPresetButtons.forEach(btn => btn.classList.remove('active'));
-      presetButton.classList.add('active');
-      console.log(`✨ Random preset loaded and button activated: ${randomPresetId}`);
+    // Handle image effects based on container type (avoid borders on masked)
+    let availableEffects = [...randomOptions.imageEffects];
+    if (randomContainer === 'masked') {
+      availableEffects = availableEffects.filter(effect => effect !== 'borders');
     }
+    const randomEffect = availableEffects[Math.floor(Math.random() * availableEffects.length)];
+    const randomEffectVariant = randomOptions.effectVariants[randomEffect][Math.floor(Math.random() * randomOptions.effectVariants[randomEffect].length)];
+    
+    const randomPalette = randomOptions.palettes[Math.floor(Math.random() * randomOptions.palettes.length)];
+    const randomPaletteVariant = randomOptions.paletteVariants[Math.floor(Math.random() * randomOptions.paletteVariants.length)];
+    
+    const randomHorizontal = randomOptions.horizontalAlignments[Math.floor(Math.random() * randomOptions.horizontalAlignments.length)];
+    const randomVertical = randomOptions.verticalAlignments[Math.floor(Math.random() * randomOptions.verticalAlignments.length)];
+    const randomWeight = randomOptions.alignmentWeights[Math.floor(Math.random() * randomOptions.alignmentWeights.length)];
+    const randomStyle = randomOptions.alignmentStyles[Math.floor(Math.random() * randomOptions.alignmentStyles.length)];
+    
+    // Update ModularState with random selections
+    ModularState.imageContainer = randomContainer;
+    ModularState.imageContainerVariant = randomContainerVariant;
+    ModularState.imageEffect = randomEffect;
+    ModularState.imageEffectVariant = randomEffectVariant;
+    ModularState.palette = randomPalette;
+    ModularState.paletteVariant = randomPaletteVariant;
+    ModularState.horizontalAlignment = randomHorizontal;
+    ModularState.verticalAlignment = randomVertical;
+    ModularState.alignmentWeight = randomWeight;
+    ModularState.alignmentStyle = randomStyle;
+    
+    console.log(`🎯 Random card generated:`, {
+      container: `${randomContainer}-${randomContainerVariant}`,
+      effect: `${randomEffect}-${randomEffectVariant}`,
+      palette: `${randomPalette}-${randomPaletteVariant}`,
+      alignment: `${randomHorizontal}-${randomVertical}-${randomWeight}-${randomStyle}`
+    });
+    
+    // Clear any active preset buttons since this is a custom random card
+    const allPresetButtons = document.querySelectorAll('.preset-btn');
+    allPresetButtons.forEach(btn => btn.classList.remove('active'));
+    
+    // Update UI elements to reflect new random selections
+    updateUIElementsFromState();
+    
+    // Generate random character data
+    generateRandomCharacterData();
+    
+    // Generate random image
+    generateRandomImage();
+    
+    // Update preview with new random settings (same as page load)
+    updatePreview();
+    
+    console.log('✨ Random card rolled successfully!');
+  }
+  
+  // ===== UI ELEMENTS UPDATE FOR RANDOM CARD =====
+  function updateUIElementsFromState() {
+    // Update container selection UI
+    const containerOptions = document.querySelectorAll('[data-tier="2"] .container-grid .tier-option');
+    containerOptions.forEach(option => {
+      option.classList.toggle('selected', option.dataset.value === ModularState.imageContainer);
+    });
+    
+    // Show correct container variants
+    const variantContainers = document.querySelectorAll('[data-tier="2"] .container-variants');
+    variantContainers.forEach(container => {
+      const containerType = container.dataset.container;
+      container.style.display = containerType === ModularState.imageContainer ? 'block' : 'none';
+    });
+    
+    // Update variant selection
+    const activeContainer = document.querySelector(`[data-tier="2"] [data-container="${ModularState.imageContainer}"]`);
+    if (activeContainer) {
+      const variantOptions = activeContainer.querySelectorAll('.variant-option');
+      variantOptions.forEach(option => {
+        option.classList.toggle('selected', option.dataset.variant === ModularState.imageContainerVariant);
+      });
+    }
+    
+    // Update effects selection
+    const effectOptions = document.querySelectorAll('[data-tier="2"] .effects-level .effects-grid .tier-option');
+    effectOptions.forEach(option => {
+      option.classList.toggle('selected', option.dataset.value === ModularState.imageEffect);
+    });
+    
+    // Update palette selection
+    const paletteOptions = document.querySelectorAll('[data-tier="3"] .palette-family');
+    paletteOptions.forEach(option => {
+      option.classList.toggle('selected', option.dataset.palette === ModularState.palette);
+    });
+    
+    // Update palette variant toggles
+    const variantToggles = document.querySelectorAll('[data-tier="3"] .variant-toggle');
+    variantToggles.forEach(toggle => {
+      toggle.classList.toggle('selected', toggle.dataset.variant === ModularState.paletteVariant);
+    });
+    
+    // Update alignment selections
+    const horizontalOptions = document.querySelectorAll('[data-tier="4"] .alignment-type .tier-option');
+    horizontalOptions.forEach(option => {
+      option.classList.toggle('selected', option.dataset.value === ModularState.horizontalAlignment);
+    });
+    
+    console.log('🔄 UI elements updated from ModularState');
+  }
+  
+  // ===== RANDOM CHARACTER DATA GENERATOR =====
+  function generateRandomCharacterData() {
+    const randomNames = ['Aria Shadowbane', 'Zara-7', 'Marcus Ironforge', 'Luna Starweaver', 'Kai Stormrider', 'Nova Brightblade', 'Rex Cyberpunk', 'Sage Moonwhisper'];
+    const randomClasses = ['Rogue Assassin', 'Cyberpunk Runner', 'Arcane Scholar', 'Space Marine', 'Fantasy Ranger', 'Tech Specialist', 'Mystic Warrior', 'Shadow Operative'];
+    const randomRarities = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
+    const randomQuotes = [
+      'Shadows are my allies, silence my weapon.',
+      'In the neon glow, I find my path.',
+      'Knowledge is the greatest power.',
+      'For honor and the galaxy!',
+      'Nature guides my arrows.',
+      'Technology is my sword.',
+      'Magic flows through all things.',
+      'Stealth is my greatest asset.'
+    ];
+    
+    // Set random basic info
+    document.getElementById('card-name').value = randomNames[Math.floor(Math.random() * randomNames.length)];
+    document.getElementById('card-class').value = randomClasses[Math.floor(Math.random() * randomClasses.length)];
+    document.getElementById('card-rarity').value = randomRarities[Math.floor(Math.random() * randomRarities.length)];
+    document.getElementById('card-quote').value = randomQuotes[Math.floor(Math.random() * randomQuotes.length)];
+    
+    // Clear and generate random stats
+    clearAllDynamicRows();
+    const statNames = ['Strength', 'Agility', 'Intelligence', 'Stealth', 'Magic', 'Tech'];
+    const numStats = Math.floor(Math.random() * 4) + 3; // 3-6 stats
+    for (let i = 0; i < numStats; i++) {
+      const statName = statNames[Math.floor(Math.random() * statNames.length)];
+      const statValue = Math.floor(Math.random() * 100) + 1;
+      const statsContainer = document.getElementById('stats-editor');
+      const newRow = createStatRow(statName, statValue);
+      statsContainer.appendChild(newRow);
+    }
+    
+    console.log(`🎲 Generated ${numStats} random stats`);
+  }
+  
+  // ===== RANDOM IMAGE GENERATOR =====
+  function generateRandomImage() {
+    // Return a Promise so we can chain .then() properly
+    return fetch('/cardforge/image-manifest.json')
+      .then(res => res.json())
+      .then(images => {
+        if (images && images.length > 0) {
+          const randomIndex = Math.floor(Math.random() * images.length);
+          const randomImage = images[randomIndex];
+          
+          // Set the random image as the card avatar
+          const cardAvatarInput = document.getElementById('card-avatar');
+          if (cardAvatarInput) {
+            cardAvatarInput.value = randomImage;
+            console.log(`🖼️ Random image selected: ${randomImage}`);
+            
+            // Clear any gallery selections
+            const inlineImageGrid = document.getElementById('inline-image-grid');
+            if (inlineImageGrid) {
+              inlineImageGrid.querySelectorAll('img').forEach(img => img.classList.remove('selected'));
+            }
+          }
+        }
+      })
+      .catch(error => {
+        console.warn('⚠️ Could not load random image:', error);
+        // Fallback to a default image if manifest fails
+        const cardAvatarInput = document.getElementById('card-avatar');
+        if (cardAvatarInput) {
+          cardAvatarInput.value = '/images/image-packs/characters/cyber-erenity.jpg';
+        }
+      });
   }
   
   function applyPreset(presetId) {
@@ -2993,23 +3189,14 @@
     console.log('✨ Default class and rarity styles initialized');
   }
   
-  // Initialize default styles on page load
-  document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Page loaded - initializing default styles...');
-    
-    // Small delay to ensure all elements are ready
-    setTimeout(() => {
-      initDefaultClassAndRarityStyles();
-      // Update preview to apply the default styling
-      updatePreview();
-    }, 100);
-  });
+  // Note: Default styles initialization moved to main DOMContentLoaded listener to avoid conflicts
   
   // Expose global functions for external access
   window.CardForge = {
     updatePreview,
     initImageGallery,
     initTier2ImageContainer,
+    rollRandomCard,
     ModularState
   };
 

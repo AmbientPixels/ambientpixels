@@ -341,7 +341,7 @@ function editCard(id) {
   document.getElementById('card-avatar').value = card.avatar;
   document.getElementById('card-achievement').value = card.achievement || '';
   document.getElementById('card-template-type').value = card.templateType;
-  updatePreview();
+  // updatePreview(); // Removed - handled by card-forge-editor.js
   const saveBtn = document.getElementById('save-btn'); if (saveBtn) saveBtn.disabled = false;
   const publishBtn = document.getElementById('publish-btn'); if (publishBtn) publishBtn.disabled = false;
   // No automatic scrolling
