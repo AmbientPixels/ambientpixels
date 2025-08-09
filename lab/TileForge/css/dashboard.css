@@ -1,0 +1,62 @@
+/* TileForge Analytics/Dashboard Styles - restored */
+
+.analytics-section {
+  margin-bottom: 24px;
+}
+.analytics-section h3 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  color: #fff;
+  font-weight: 600;
+}
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: #2a2a2a;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #333;
+  transition: all 0.2s ease;
+}
+.stat-card:hover {
+  background: #2f2f2f;
+  border-color: #444;
+}
+.stat-card.warning {
+  border-color: #ff6b6b;
+  background: linear-gradient(135deg, #2a2a2a, #3d2626);
+}
+.stat-card.near-limit {
+  border-color: #ffa500;
+  background: linear-gradient(135deg, #2a2a2a, #3d3226);
+}
+.stat-card.success {
+  border-color: #4caf50;
+  background: linear-gradient(135deg, #2a2a2a, #263d26);
+}
+.stat-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.stat-content {
+  flex: 1;
+}
+.stat-number {
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-label {
+  font-size: 12px;
+  color: #aaa;
+  font-weight: 400;
+}
