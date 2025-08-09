@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TileForge - Xbox Tile Localization Preview</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Split Screen Layout -->
+  <div class="app-container">
+    <!-- Left Panel - Controls -->
+    <div class="left-panel">
+      <div class="panel-header">
+        <h1>🎮 TileForge</h1>
+        <p class="subtitle">Xbox Tile Localization Preview</p>
+      </div>
+      
+      <!-- Upload Section -->
+      <div class="upload-section">
+        <h3>📁 File Upload</h3>
+        
+        <div class="drop-zone" id="imgDropZone">
+          <div class="drop-zone-content">
+            <i class="upload-icon">🖼️</i>
+            <h4>Drop Image Here</h4>
+            <p>or <span class="browse-link" onclick="document.getElementById('imgInput').click()">browse files</span></p>
+            <small>PNG, JPG, or GIF</small>
+          </div>
+          <input type="file" id="imgInput" accept="image/*" style="display: none;" />
+        </div>
+        
+        <div class="drop-zone" id="csvDropZone">
+          <div class="drop-zone-content">
+            <i class="upload-icon">📊</i>
+            <h4>Drop CSV File Here</h4>
+            <p>or <span class="browse-link" onclick="document.getElementById('csvInput').click()">browse files</span></p>
+            <small>Iris Localization CSV format</small>
+          </div>
+          <input type="file" id="csvInput" accept=".csv" style="display: none;" />
+        </div>
+      </div>
+      
+      <!-- Controls Section -->
+      <div class="controls-section">
+        <h3>⚙️ Controls</h3>
+        
+        <!-- File Info -->
+        <div class="file-info" id="fileInfo" style="display: none;">
+          <div class="info-item">
+            <span class="info-label">Image:</span>
+            <span class="info-value" id="imageFileName">None</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">CSV:</span>
+            <span class="info-value" id="csvFileName">None</span>
+          </div>
+        </div>
+        
+        <!-- Future: Filters, Settings, Export buttons will go here -->
+        <div class="control-group">
+          <button class="control-btn" disabled>🔍 Filter by Status</button>
+          <button class="control-btn" disabled>🌍 Filter by Locale</button>
+          <button class="control-btn" disabled>📤 Export Tiles</button>
+          <button class="control-btn" disabled>⚙️ Settings</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Right Panel - Preview Area -->
+    <div class="right-panel">
+      <!-- Analytics Section -->
+      <div class="analytics-section" id="analyticsSection" style="display: none;">
+        <h3>📊 Analytics Dashboard</h3>
+        <div class="analytics-grid">
+          <div class="stat-card">
+            <div class="stat-icon">🌍</div>
+            <div class="stat-content">
+              <div class="stat-number" id="localeCount">0</div>
+              <div class="stat-label">Total Locales</div>
+            </div>
+          </div>
+          
+          <div class="stat-card warning">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-content">
+              <div class="stat-number" id="overflowCount">0</div>
+              <div class="stat-label">Overflow Issues</div>
+            </div>
+          </div>
+          
+          <div class="stat-card near-limit">
+            <div class="stat-icon">🟠</div>
+            <div class="stat-content">
+              <div class="stat-number" id="nearLimitCount">0</div>
+              <div class="stat-label">Near Limit</div>
+            </div>
+          </div>
+          
+          <div class="stat-card success">
+            <div class="stat-icon">✅</div>
+            <div class="stat-content">
+              <div class="stat-number" id="cleanCount">0</div>
+              <div class="stat-label">Clean Tiles</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Live Editing Panel -->
+      <div class="live-editing-panel" id="liveEditingPanel" style="display: none;">
+        <h3>✏️ Live Tile Editor</h3>
+        <div class="editing-content">
+          <div class="preview-tile-container">
+            <div class="preview-tile" id="previewTile">
+              <div class="tile-status-badge clean">✓</div>
+              <div class="tile-overlay">
+                <div class="tile-title" id="previewTitle">Fortnite OG</div>
+                <div class="tile-subtitle" id="previewSubtitle">New season</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="editing-controls">
+            <div class="input-group">
+              <label for="titleInput">Headline</label>
+              <div class="input-container">
+                <input type="text" id="titleInput" placeholder="Enter headline..." maxlength="50" />
+                <div class="character-info">
+                  <div class="char-count">
+                    <span id="titleCharCount">0</span>/15 
+                    <span class="w-reference" title="Max W characters: WWWWWWWWWWWWWWW">W</span>
+                  </div>
+                  <div class="w-count-display">Max: <code>WWWWWWWWWWWWWWW</code></div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="input-group">
+              <label for="subtitleInput">Subheadline</label>
+              <div class="input-container">
+                <input type="text" id="subtitleInput" placeholder="Enter subheadline..." maxlength="50" />
+                <div class="character-info">
+                  <div class="char-count">
+                    <span id="subtitleCharCount">0</span>/15 
+                    <span class="w-reference" title="Max W characters: WWWWWWWWWWWWWWW">W</span>
+                  </div>
+                  <div class="w-count-display">Max: <code>WWWWWWWWWWWWWWW</code></div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="editing-actions">
+              <button class="control-btn" id="applyToAllBtn">📋 Apply to All Tiles</button>
+              <button class="control-btn" id="resetBtn">🔄 Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Locale Groups Container -->
+      <div class="locale-groups-container" id="localeGroups">
+        <!-- Locale groups will be dynamically generated here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Modules -->
+  <script src="js/constants.js"></script>
+  <script src="js/csv-handler.js"></script>
+  <script src="js/tile-renderer.js"></script>
+  <script src="js/live-editor.js"></script>
+  <script src="js/drag-drop.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
