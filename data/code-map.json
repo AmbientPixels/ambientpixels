@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-08-08T13:40:31.487Z",
+  "timestamp": "2025-08-09T13:31:07.874Z",
   "summary": {
     "totalJS": 1943,
     "totalCSS": 95,
@@ -3814,7 +3814,6 @@
     "class-icon",
     "class-style-badge",
     "class-style-banner",
-    "class-style-default",
     "class-style-glow",
     "class-style-icon",
     "class-style-outlined",
@@ -4657,7 +4656,6 @@
     "rarity-icon",
     "rarity-style-badge",
     "rarity-style-border",
-    "rarity-style-default",
     "rarity-style-foil",
     "rarity-style-frame",
     "rarity-style-gem",

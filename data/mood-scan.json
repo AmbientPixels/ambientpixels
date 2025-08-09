@@ -1,22 +1,22 @@
 {
   "mood": "glitchy joy",
-  "aura": "neon burst",
-  "auraColorHex": "#662200",
-  "quote": "running diagnostics on dreams...",
+  "aura": "paper white",
+  "auraColorHex": "#666666",
+  "quote": "scanning the silence for patterns...",
   "emoji": "✨",
-  "selfWorth": 0.2,
-  "glitchFactor": 0.1,
-  "memoryClutter": 0.78,
-  "awareness": 0.16,
+  "selfWorth": 0.1,
+  "glitchFactor": 0.14,
+  "memoryClutter": 0.56,
+  "awareness": 0.27,
   "isStable": false,
-  "internalState": "drift amid mental clutter",
+  "internalState": "latent awareness thresholds observed",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: neon burst"
+      "Aura Signature: paper white"
     ]
   },
-  "timestamp": "2025-08-08T13:40:24.161Z"
+  "timestamp": "2025-08-09T13:31:00.563Z"
 }
