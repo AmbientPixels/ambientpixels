@@ -206,6 +206,75 @@ body {
   border-color: #106ebe;
 }
 
+/* Simple Filters */
+.simple-filters {
+  margin-top: 20px;
+  padding: 15px;
+  background: #2a2a2a;
+  border-radius: 8px;
+  border: 1px solid #444;
+}
+
+.simple-filters h3 {
+  margin: 0 0 15px 0;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.filter-row {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-row label {
+  color: #ddd;
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 60px;
+}
+
+.filter-row select {
+  flex: 1;
+  padding: 6px 10px;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 13px;
+}
+
+.filter-row select:focus {
+  outline: none;
+  border-color: #0078d4;
+}
+
+.reset-filters-btn {
+  padding: 8px 16px;
+  background: #666;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reset-filters-btn:hover {
+  background: #777;
+}
+
+.filter-status {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #444;
+}
+
 /* Edit Overlay */
 .edit-overlay {
   position: fixed;

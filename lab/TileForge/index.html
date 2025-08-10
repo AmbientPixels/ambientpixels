@@ -65,9 +65,37 @@
         
         <!-- Controls -->
         <div class="control-group">
-          <button class="control-btn" disabled>🔍 Filter by Status</button>
-          <button class="control-btn" disabled>🌍 Filter by Locale</button>
           <button class="control-btn" onclick="exportToCSV()">📤 Export to CSV</button>
+        </div>
+        
+        <!-- Simple Filters -->
+        <div class="simple-filters">
+          <h3>🔍 Filters</h3>
+          
+          <div class="filter-row">
+            <label for="statusFilter">Status:</label>
+            <select id="statusFilter" onchange="applyFilters()">
+              <option value="all">All Tiles</option>
+              <option value="clean">Clean Only</option>
+              <option value="issues">Issues Only</option>
+            </select>
+          </div>
+          
+          <div class="filter-row">
+            <label for="localeFilter">Locale:</label>
+            <select id="localeFilter" onchange="applyFilters()">
+              <option value="all">All Locales</option>
+              <!-- Options will be populated dynamically -->
+            </select>
+          </div>
+          
+          <div class="filter-row">
+            <button class="reset-filters-btn" onclick="resetFilters()">Reset Filters</button>
+          </div>
+          
+          <div class="filter-status" id="filterStatus">
+            Showing all tiles
+          </div>
         </div>
       </div>
     </div>
