@@ -282,16 +282,16 @@ body {
   border-top: 1px solid #444;
 }
 
-/* Country badge styling */
+/* Country badge/pill styling */
 .country-badge {
   background: #007acc;
   color: white;
   padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 16px;
+  border-radius: 12px;
+  font-size: 14px;
   font-weight: bold;
   margin-right: 8px;
-  display: inline-flex;
+  display: inline-block;
   align-items: center;
   gap: 6px;
 }

@@ -1,16 +1,69 @@
 # TileForge Documentation
-**Xbox Tile Localization Preview Tool with Visual Text Measurement & Country Identification**
+**Xbox Tile Localization Preview Tool with Visual Text Measurement**
+
+---
+
+## 🤖 AI Agent Onboarding
+
+### **Project Context**
+TileForge is a **production-ready Xbox tile localization preview tool** built with vanilla HTML/CSS/JavaScript. It helps game developers and localization teams preview how Xbox game tiles will appear across 52+ languages and regions before deployment.
+
+### **Current Architecture**
+```
+TileForge/
+├── index.html              # Main application entry point
+├── css/
+│   ├── base.css            # Core styling and variables
+│   ├── styles.css          # Main component styles
+│   └── tile-utils.css      # Tile-specific utilities
+└── js/
+    ├── constants.js        # Locale mappings, limits, helper functions
+    ├── main.js             # Core app logic, modals, filtering
+    ├── tile-renderer.js    # Tile creation and locale rendering
+    ├── live-editor.js      # Real-time tile editing functionality
+    ├── analytics.js        # Statistics and dashboard updates
+    └── drag-drop.js        # File upload handling
+```
+
+### **Key Technical Details**
+- **No Build Process**: Pure vanilla JavaScript, runs directly in browser
+- **Visual Text Measurement**: Canvas-based pixel-perfect text analysis (not character counting)
+- **Locale Badge System**: Clean pill-style badges for locale identification (EN-US, FR-FR, etc.)
+- **Real-time Updates**: Live tile preview with instant visual feedback
+- **Modular CSS**: Feature-based separation, no duplication, follows Windsurf Protocol
+- **52+ Locales**: Full international coverage with proper locale name mappings
+
+### **Important Notes for AI Agents**
+- ⚠️ **No Country Flags**: Previous country identification system was removed as code bloat
+- ✅ **Simple Locale Badges**: Only clean pill-style badges with locale codes (no emojis/flags)
+- 🎯 **Core Focus**: Xbox tile localization testing and visual overflow detection
+- 📱 **Desktop Optimized**: Professional interface for development workflows
+- 🔧 **Helper Functions**: `getLanguageFromLocale()` and `getRegionFromLocale()` in constants.js
+
+### **Common Tasks**
+- **Styling Changes**: Modify `css/styles.css` (never inline styles per Windsurf Protocol)
+- **Locale Logic**: Update `js/constants.js` for locale mappings and limits
+- **Tile Rendering**: Modify `js/tile-renderer.js` for display logic
+- **Filtering/UI**: Update `js/main.js` for app functionality
+
+### **Testing**
+- Open `index.html` in browser (no server required)
+- Upload sample image + CSV file to test functionality
+- Check console for any JavaScript errors
+- Verify locale badges display correctly without country flags
+
+---
 
 ## 📋 Overview
 
-TileForge is a comprehensive localization preview tool designed for Xbox tile content. It provides real-time visual feedback for game titles across multiple locales, featuring advanced text measurement, country identification badges, detailed image analysis, drag-and-drop functionality, and modular CSS architecture.
+TileForge is a comprehensive localization preview tool designed for Xbox tile content. It provides real-time visual feedback for game titles across multiple locales, featuring advanced text measurement, locale identification badges, detailed image analysis, drag-and-drop functionality, and modular CSS architecture.
 
 ### ✨ Key Features
 
 - **Real-time Tile Status System**: Color-coded tile borders with instant visual feedback (green/orange/red)
 - **Unified Analytics Dashboard**: Live updates from both live editor and CSV tile editing
 - **Visual Text Measurement**: Canvas-based pixel-perfect text analysis (replaces conservative character counting)
-- **Country Code Badges**: Unicode flag emojis with locale codes for instant country identification
+- **Locale Code Badges**: Clean pill-style badges for locale codes (EN-US, FR-FR, etc.) for easy identification
 - **Detailed Image Analysis**: Comprehensive image metadata panel (format, dimensions, file size, aspect ratio)
 - **52 Comprehensive Locales**: Full regional coverage including Arabic, European, English, Spanish, and Asian variants
 - **Real-time Live Editing**: Click-to-edit tile text with instant visual feedback and border color updates
@@ -55,6 +108,39 @@ Each locale section now features a prominent country badge with:
 <h3 class="locale-header">
   <span class="country-badge">🇺🇸 EN-US</span> English (United States)
 </h3>
+```
+
+---
+
+## 🏷️ Locale Badge System
+
+### **Clean Pill-Style Badges**
+Each locale section features a prominent locale badge with:
+
+- **Locale Code**: Clear language/region code (EN-US, FR-FR, DE-DE, etc.)
+- **Pill Styling**: Blue rounded badges with clean typography
+- **Visual Prominence**: Easy scanning and identification of different locales
+- **Consistent Design**: Uniform styling across all 52+ supported locales
+
+### **Badge Implementation**
+```html
+<h3 class="locale-header">
+  <span class="country-badge">EN-US</span> English (United States)
+</h3>
+```
+
+### **CSS Styling**
+```css
+.country-badge {
+  background: #007acc;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: bold;
+  margin-right: 8px;
+  display: inline-block;
+}
 ```
 
 ---
