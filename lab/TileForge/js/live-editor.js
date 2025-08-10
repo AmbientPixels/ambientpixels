@@ -79,6 +79,11 @@ function setupLiveEditor() {
       const text = this.value;
       const charCount = text.length;
       
+      // Update preview tile text
+      if (previewTitle) {
+        previewTitle.textContent = text || 'Fortnite OG';
+      }
+      
       // Update character count
       if (titleCharCount) {
         titleCharCount.textContent = charCount;
@@ -93,11 +98,6 @@ function setupLiveEditor() {
         }
       }
       
-      // Update preview tile
-      if (previewTitle) {
-        previewTitle.textContent = text || 'Fortnite OG';
-      }
-      
       // Update preview tile status
       updatePreviewTileStatus();
     });
@@ -108,6 +108,11 @@ function setupLiveEditor() {
     subtitleInput.addEventListener('input', function() {
       const text = this.value;
       const charCount = text.length;
+      
+      // Update preview tile text
+      if (previewSubtitle) {
+        previewSubtitle.textContent = text || 'New season';
+      }
       
       // Update character count
       if (subtitleCharCount) {
@@ -121,11 +126,6 @@ function setupLiveEditor() {
         } else if (charCount > LIMITS.subtitle.warning) {
           charCountEl.classList.add('warning');
         }
-      }
-      
-      // Update preview tile
-      if (previewSubtitle) {
-        previewSubtitle.textContent = text || 'New season';
       }
       
       // Update preview tile status
