@@ -15,6 +15,7 @@ TileForge is a comprehensive localization preview tool designed for Xbox tile co
 - **Advanced Filtering**: Multi-level filtering by status, language, region, and locale
 - **Drag & Drop Interface**: Upload images and CSV files with visual styling
 - **Analytics Dashboard**: Character analysis, locale statistics, and overflow detection
+- **Modal System**: Integrated modal system for confirmations, alerts, and detailed information display
 - **Modular Architecture**: Clean separation of concerns with feature-based CSS modules
 - **Responsive Design**: Optimized for various screen sizes and resolutions
 
@@ -235,6 +236,7 @@ TileForge/
 ```
 
 ### **Recent Enhancements**
+- **Modal System Integration**: Complete modal framework with multiple types and sizes
 - **Country Badge System**: Unicode flag emojis with locale codes
 - **Image Info Panel**: Detailed metadata display with default state
 - **Filter Improvements**: Multi-level filtering with real-time updates

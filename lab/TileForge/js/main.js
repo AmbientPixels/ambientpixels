@@ -3,6 +3,9 @@
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+  // Check if intro should be shown
+  initializeIntroSection();
+  
   // Load default data first
   loadDefaultData();
   
@@ -14,6 +17,50 @@ document.addEventListener('DOMContentLoaded', function() {
   
   console.log('TileForge initialized successfully with modular architecture');
 });
+
+// Intro Section Management
+function initializeIntroSection() {
+  const showIntroOnStartup = localStorage.getItem('tileforge-show-intro');
+  const introSection = document.getElementById('introSection');
+  
+  // Show intro by default for new users, or if preference is set to show
+  if (showIntroOnStartup === null || showIntroOnStartup === 'true') {
+    showIntro();
+  } else {
+    hideIntro();
+  }
+}
+
+function showIntro() {
+  const introSection = document.getElementById('introSection');
+  if (introSection) {
+    introSection.classList.remove('hidden');
+  }
+}
+
+function hideIntro() {
+  const introSection = document.getElementById('introSection');
+  if (introSection) {
+    introSection.classList.add('hidden');
+  }
+}
+
+function toggleIntroVisibility() {
+  const currentSetting = localStorage.getItem('tileforge-show-intro');
+  const newSetting = currentSetting === 'false' ? 'true' : 'false';
+  
+  localStorage.setItem('tileforge-show-intro', newSetting);
+  
+  // Update button text to reflect current state
+  const button = event.target;
+  if (newSetting === 'true') {
+    button.textContent = 'Hide on startup';
+    button.title = 'Intro will show on next visit';
+  } else {
+    button.textContent = 'Show on startup';
+    button.title = 'Intro will be hidden on next visit';
+  }
+}
 
 // Simple Filter Functions
 function initializeFilters() {
@@ -183,4 +230,282 @@ function resetFilters() {
   document.getElementById('regionFilter').value = 'all';
   document.getElementById('localeFilter').value = 'all';
   applyFilters();
+}
+
+// TileForge Info Popup with Tabs
+function showInfoPopup() {
+  const tabs = [
+    {
+      title: 'Features',
+      icon: '🚀',
+      content: createFeaturesTabContent()
+    },
+    {
+      title: 'Tips & Tricks',
+      icon: '💡',
+      content: createTipsTabContent()
+    },
+    {
+      title: 'Shortcuts',
+      icon: '⌨️',
+      content: createShortcutsTabContent()
+    },
+    {
+      title: 'Troubleshooting',
+      icon: '🔧',
+      content: createTroubleshootingTabContent()
+    },
+    {
+      title: 'About',
+      icon: 'ℹ️',
+      content: createAboutTabContent()
+    }
+  ];
+
+  const infoModal = Modal.createTabbedModal({
+    title: '📖 TileForge Information Center',
+    size: 'large',
+    tabs: tabs,
+    activeTab: 0
+  });
+
+  infoModal.show();
+}
+
+function createFeaturesTabContent() {
+  return `
+    <div class="info-section">
+      <h4>🎮 Core Features</h4>
+      <div class="feature-grid">
+        <div class="feature-item">
+          <h5>📊 Visual Text Measurement</h5>
+          <p>Canvas-based pixel-perfect text measurement ensures accurate overflow detection and prevents text truncation issues.</p>
+        </div>
+        <div class="feature-item">
+          <h5>🌍 52+ Locale Support</h5>
+          <p>Comprehensive locale support with Unicode flag emojis for countries worldwide, including proper country code badges.</p>
+        </div>
+        <div class="feature-item">
+          <h5>✏️ Live Tile Editing</h5>
+          <p>Real-time tile preview updates as you type, with instant visual feedback for headline and subheadline changes.</p>
+        </div>
+        <div class="feature-item">
+          <h5>🖼️ Image Analysis</h5>
+          <p>Detailed image metadata display with thumbnail generation, file size analysis, and aspect ratio calculations.</p>
+        </div>
+        <div class="feature-item">
+          <h5>🔍 Advanced Filtering</h5>
+          <p>Multi-level filtering by status, locale, language, and region with real-time tile updates and search capabilities.</p>
+        </div>
+        <div class="feature-item">
+          <h5>📁 CSV Import/Export</h5>
+          <p>Seamless CSV file handling with support for complex locale data structures and narrator text integration.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h4>🎨 Design Features</h4>
+      <ul>
+        <li><strong>Dark Theme:</strong> Professional dark interface optimized for extended use</li>
+        <li><strong>Responsive Design:</strong> Works seamlessly across desktop, tablet, and mobile devices</li>
+        <li><strong>Modular CSS:</strong> Clean, maintainable stylesheet architecture with zero duplication</li>
+        <li><strong>Accessibility:</strong> Keyboard navigation, focus management, and screen reader support</li>
+        <li><strong>Smooth Animations:</strong> Polished transitions and micro-interactions throughout the interface</li>
+      </ul>
+    </div>
+  `;
+}
+
+function createTipsTabContent() {
+  return `
+    <div class="info-section">
+      <h4>💡 Pro Tips</h4>
+      
+      <div class="tip-box">
+        <h5><span class="tip-icon">🎯</span>Text Overflow Prevention</h5>
+        <p>TileForge automatically measures text width using Canvas API. Watch the character count and visual indicators to prevent text from breaking to multiple lines or getting truncated.</p>
+      </div>
+
+      <div class="tip-box">
+        <h5><span class="tip-icon">🏷️</span>Country Badge Recognition</h5>
+        <p>Country badges automatically detect locale codes (EN-US, FR-FR, etc.) and display the appropriate flag emoji. The system supports 15+ countries with fallback to a globe icon.</p>
+      </div>
+
+      <div class="tip-box">
+        <h5><span class="tip-icon">📸</span>Image Optimization</h5>
+        <p>For best results, use images with 16:9 aspect ratio. TileForge will analyze and display detailed metadata including dimensions, file size, and format information.</p>
+      </div>
+
+      <div class="tip-box">
+        <h5><span class="tip-icon">🔄</span>Live Preview Magic</h5>
+        <p>The live tile editor updates in real-time as you type. Use this to experiment with different headline lengths and see immediate visual feedback.</p>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h4>🚀 Advanced Techniques</h4>
+      <ul>
+        <li><strong>Batch Editing:</strong> Use filters to isolate specific locales, then edit multiple tiles efficiently</li>
+        <li><strong>Text Length Strategy:</strong> Keep headlines under 25 characters for single-line display</li>
+        <li><strong>Locale Grouping:</strong> Organize your CSV with clear locale codes for automatic country detection</li>
+        <li><strong>Image Preparation:</strong> Pre-optimize images to 1920x1080 for consistent tile backgrounds</li>
+        <li><strong>CSV Structure:</strong> Include narrator text in <code>items/0/narratorText</code> column for rich content</li>
+      </ul>
+    </div>
+  `;
+}
+
+function createShortcutsTabContent() {
+  return `
+    <div class="info-section">
+      <h4>⌨️ Keyboard Shortcuts</h4>
+      
+      <div class="info-section">
+        <h4>🔧 Modal Controls</h4>
+        <p><span class="keyboard-shortcut">ESC</span> Close active modal or dialog</p>
+        <p><span class="keyboard-shortcut">Tab</span> Navigate between modal elements</p>
+        <p><span class="keyboard-shortcut">Enter</span> Confirm action in dialogs</p>
+      </div>
+
+      <div class="info-section">
+        <h4>📁 File Operations</h4>
+        <p><span class="keyboard-shortcut">Ctrl + O</span> Open file dialog (when focused on file inputs)</p>
+        <p><span class="keyboard-shortcut">Drag & Drop</span> Drop files directly onto the upload areas</p>
+      </div>
+
+      <div class="info-section">
+        <h4>🎮 Navigation Tips</h4>
+        <ul>
+          <li><strong>Tab Navigation:</strong> Use Tab key to move between form elements and buttons</li>
+          <li><strong>Focus Management:</strong> Modals automatically focus the first interactive element</li>
+          <li><strong>Escape Handling:</strong> ESC key always closes the topmost modal or dialog</li>
+          <li><strong>Click Outside:</strong> Click modal backdrop to close (when enabled)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h4>🔍 Filter Shortcuts</h4>
+      <p>Use the filter dropdowns to quickly isolate:</p>
+      <ul>
+        <li><strong>Status Filtering:</strong> Clean, Issues, Modified tiles</li>
+        <li><strong>Locale Filtering:</strong> Specific country/language combinations</li>
+        <li><strong>Quick Reset:</strong> "All" option resets filters to show everything</li>
+      </ul>
+    </div>
+  `;
+}
+
+function createTroubleshootingTabContent() {
+  return `
+    <div class="info-section">
+      <h4>🔧 Common Issues & Solutions</h4>
+      
+      <div class="tip-box">
+        <h5><span class="tip-icon">❌</span>CSV File Won't Load</h5>
+        <p><strong>Solution:</strong> Ensure your CSV file has proper headers and uses UTF-8 encoding. Check that locale codes follow the format "EN-US" or similar.</p>
+      </div>
+
+      <div class="tip-box">
+        <h5><span class="tip-icon">🖼️</span>Image Not Displaying</h5>
+        <p><strong>Solution:</strong> Verify the image format is supported (JPG, PNG, GIF, WebP). Large files may take time to process - check the image info panel for details.</p>
+      </div>
+
+      <div class="tip-box">
+        <h5><span class="tip-icon">🏷️</span>Country Flag Missing</h5>
+        <p><strong>Solution:</strong> Ensure locale codes include country identifiers (US, FR, DE, etc.). Unsupported countries will show a globe emoji as fallback.</p>
+      </div>
+
+      <div class="tip-box">
+        <h5><span class="tip-icon">📝</span>Live Editor Not Updating</h5>
+        <p><strong>Solution:</strong> Click directly in the tile editor fields. The preview updates automatically as you type in the headline or subheadline inputs.</p>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h4>🐛 Debugging Tips</h4>
+      <ul>
+        <li><strong>Browser Console:</strong> Press F12 to open developer tools and check for error messages</li>
+        <li><strong>File Format:</strong> Ensure CSV files use comma separation and proper UTF-8 encoding</li>
+        <li><strong>Image Size:</strong> Very large images (>10MB) may cause performance issues</li>
+        <li><strong>Browser Support:</strong> TileForge works best in modern browsers (Chrome, Firefox, Safari, Edge)</li>
+        <li><strong>JavaScript Enabled:</strong> Ensure JavaScript is enabled in your browser settings</li>
+      </ul>
+    </div>
+
+    <div class="info-section">
+      <h4>📞 Getting Help</h4>
+      <p>If you encounter persistent issues:</p>
+      <ul>
+        <li>Check the browser console for error messages</li>
+        <li>Try refreshing the page and reloading your files</li>
+        <li>Verify your CSV file structure matches the expected format</li>
+        <li>Test with a smaller image file to isolate performance issues</li>
+      </ul>
+    </div>
+  `;
+}
+
+function createAboutTabContent() {
+  return `
+    <div class="info-section">
+      <h4>🎮 About TileForge</h4>
+      <p>TileForge is a comprehensive Xbox tile localization preview tool designed to streamline the process of creating and managing localized game tiles across multiple regions and languages.</p>
+      
+      <div class="version-info">
+        <h5>📦 Version Information</h5>
+        <p><strong>Version:</strong> 2.1.0</p>
+        <p><strong>Build Date:</strong> August 2025</p>
+        <p><strong>Architecture:</strong> Modular CSS/JS with Canvas API integration</p>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h4>🛠️ Technical Stack</h4>
+      <ul>
+        <li><strong>Frontend:</strong> Vanilla JavaScript ES6+, HTML5, CSS3</li>
+        <li><strong>Canvas API:</strong> Pixel-perfect text measurement and analysis</li>
+        <li><strong>File Handling:</strong> FileReader API for CSV and image processing</li>
+        <li><strong>Responsive Design:</strong> CSS Grid and Flexbox layouts</li>
+        <li><strong>Accessibility:</strong> ARIA labels, keyboard navigation, focus management</li>
+        <li><strong>Performance:</strong> Optimized rendering with efficient DOM manipulation</li>
+      </ul>
+    </div>
+
+    <div class="info-section">
+      <h4>🌟 Key Innovations</h4>
+      <ul>
+        <li><strong>Visual Text Measurement:</strong> Canvas-based pixel measurement replaces unreliable character counting</li>
+        <li><strong>Unicode Flag Support:</strong> Native emoji flags for 15+ countries with automatic detection</li>
+        <li><strong>Modular Architecture:</strong> Zero-duplication CSS with feature-based separation</li>
+        <li><strong>Real-time Preview:</strong> Instant visual feedback for all tile modifications</li>
+        <li><strong>Advanced Filtering:</strong> Multi-dimensional filtering by status, locale, language, and region</li>
+      </ul>
+    </div>
+
+    <div class="info-section">
+      <h4>🎯 Design Philosophy</h4>
+      <p>TileForge follows the Windsurf Protocol development standards, emphasizing:</p>
+      <ul>
+        <li><strong>Precision over Approximation:</strong> Exact measurements instead of estimates</li>
+        <li><strong>Modularity over Monoliths:</strong> Clean separation of concerns</li>
+        <li><strong>User Experience First:</strong> Intuitive interfaces with immediate feedback</li>
+        <li><strong>Performance Optimization:</strong> Efficient algorithms and minimal resource usage</li>
+        <li><strong>Accessibility by Design:</strong> Inclusive interfaces for all users</li>
+      </ul>
+    </div>
+
+    <div class="info-section">
+      <h4>🔮 Future Roadmap</h4>
+      <p>Planned enhancements include:</p>
+      <ul>
+        <li>Advanced export options with custom formatting</li>
+        <li>Batch editing capabilities for multiple tiles</li>
+        <li>Integration with external localization services</li>
+        <li>Enhanced image processing and optimization tools</li>
+        <li>Collaborative editing features</li>
+      </ul>
+    </div>
+  `;
 }

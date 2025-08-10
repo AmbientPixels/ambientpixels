@@ -21,30 +21,20 @@ function updateAnalytics(analytics) {
 function updateFileInfo(type, filename, info) {
   const fileInfoElement = document.getElementById('fileInfo');
   if (fileInfoElement) {
-    const currentInfo = fileInfoElement.textContent;
-    let newInfo = '';
-    
-    if (type === 'CSV') {
-      newInfo = `CSV: ${filename} (${info} locales)`;
-    } else if (type === 'Image') {
-      newInfo = `Image: ${filename} (${info})`;
-    }
-    
-    // Update or append file info
-    if (currentInfo.includes(type)) {
-      // Replace existing info for this type
-      const lines = currentInfo.split('\n');
-      const updatedLines = lines.map(line => 
-        line.startsWith(type) ? newInfo : line
-      );
-      fileInfoElement.textContent = updatedLines.join('\n');
-    } else {
-      // Add new info
-      fileInfoElement.textContent = currentInfo ? `${currentInfo}\n${newInfo}` : newInfo;
-    }
-    
     // Show file info section
     fileInfoElement.style.display = 'block';
+    
+    if (type === 'CSV') {
+      const csvElement = document.getElementById('csvFileName');
+      if (csvElement) {
+        csvElement.textContent = `${filename} (${info} locales)`;
+      }
+    } else if (type === 'Image') {
+      const imageElement = document.getElementById('imageFileName');
+      if (imageElement) {
+        imageElement.textContent = `${filename} (${info})`;
+      }
+    }
   }
 }
 

@@ -11,8 +11,76 @@
   <link rel="stylesheet" href="css/tile-card.css">
   <link rel="stylesheet" href="css/tile-editor.css">
   <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/modal.css">
 </head>
 <body>
+  <!-- Intro Section -->
+  <div class="intro-section" id="introSection">
+    <div class="intro-content">
+      <div class="intro-header">
+        <h2>🎮 Welcome to TileForge</h2>
+        <button class="intro-close" onclick="hideIntro()" title="Hide intro">✕</button>
+      </div>
+      
+      <div class="intro-body">
+        <p class="intro-description">
+          <strong>TileForge</strong> is a comprehensive Xbox tile localization preview tool with advanced visual text measurement, 
+          country identification, and real-time editing capabilities across 52+ locales.
+        </p>
+        
+        <div class="intro-features">
+          <div class="intro-feature">
+            <span class="feature-icon">📏</span>
+            <div class="feature-content">
+              <h4>Visual Text Measurement</h4>
+              <p>Canvas-based pixel-perfect analysis replaces conservative character counting</p>
+            </div>
+          </div>
+          
+          <div class="intro-feature">
+            <span class="feature-icon">🏳️</span>
+            <div class="feature-content">
+              <h4>Country Identification</h4>
+              <p>Unicode flag badges for instant locale recognition across 15+ countries</p>
+            </div>
+          </div>
+          
+          <div class="intro-feature">
+            <span class="feature-icon">📷</span>
+            <div class="feature-content">
+              <h4>Image Analysis</h4>
+              <p>Detailed metadata panel with thumbnails for uploaded tile backgrounds</p>
+            </div>
+          </div>
+          
+          <div class="intro-feature">
+            <span class="feature-icon">✏️</span>
+            <div class="feature-content">
+              <h4>Live Editing</h4>
+              <p>Click any tile to edit text with real-time preview and overflow detection</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="intro-workflow">
+          <h4>🚀 Quick Start Workflow:</h4>
+          <ol class="workflow-steps">
+            <li><strong>Upload Image:</strong> Drag your tile background to the image drop zone</li>
+            <li><strong>Load Data:</strong> Upload your CSV localization file or use the default data</li>
+            <li><strong>Filter & Browse:</strong> Use filters to focus on specific locales or regions</li>
+            <li><strong>Edit & Preview:</strong> Click tiles to edit text with real-time visual feedback</li>
+            <li><strong>Export:</strong> Download your updated localization data as CSV</li>
+          </ol>
+        </div>
+        
+        <div class="intro-actions">
+          <button class="intro-btn primary" onclick="hideIntro()">Get Started</button>
+          <button class="intro-btn secondary" onclick="toggleIntroVisibility()">Show on startup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
   <!-- Split Screen Layout -->
   <div class="app-container">
     <!-- Left Panel - Controls -->
@@ -66,6 +134,7 @@
         <!-- Controls -->
         <div class="control-group">
           <button class="control-btn" onclick="exportToCSV()">📤 Export to CSV</button>
+          <button class="control-btn" onclick="showInfoPopup()" style="background: #17a2b8; border-color: #17a2b8;">📖 Info & Help</button>
         </div>
         
         <!-- Simple Filters -->
@@ -221,6 +290,7 @@
   </div>
 
   <!-- JavaScript Modules -->
+  <script src="js/modal.js"></script>
   <script src="js/constants.js"></script>
   <script src="js/text-measurement.js"></script>
   <script src="js/csv-handler.js"></script>
