@@ -105,6 +105,9 @@ function createTile(locale, title, subtitle, analysis) {
     
     // Update tile status and border colors
     updateTileStatus(tile, titleInput.value, subtitleInput.value, badge);
+    
+    // Update analytics dashboard to reflect all tile changes
+    updateAnalyticsFromAllTiles();
   });
   
   subtitleInput.addEventListener('input', function() {
@@ -113,6 +116,9 @@ function createTile(locale, title, subtitle, analysis) {
     
     // Update tile status and border colors
     updateTileStatus(tile, titleInput.value, subtitleInput.value, badge);
+    
+    // Update analytics dashboard to reflect all tile changes
+    updateAnalyticsFromAllTiles();
   });
   
   // Assemble editing content (tile left, controls right)
@@ -494,4 +500,63 @@ function updateTileBackgrounds(imageSrc) {
       tile.style.backgroundImage = '';
     }
   });
+}
+
+// Update analytics dashboard by scanning all current tiles
+function updateAnalyticsFromAllTiles() {
+  const allTiles = document.querySelectorAll('.tile-preview');
+  let totalLocales = 0;
+  let overflowCount = 0;
+  let nearLimitCount = 0;
+  let cleanCount = 0;
+  
+  allTiles.forEach(tile => {
+    totalLocales++;
+    
+    // Get current text from the tile's input fields or display elements
+    const tileContainer = tile.closest('.tile-container');
+    let title = '';
+    let subtitle = '';
+    
+    if (tileContainer) {
+      // Try to get from input fields first (if being edited)
+      const titleInput = tileContainer.querySelector('.card-title-input');
+      const subtitleInput = tileContainer.querySelector('.card-subtitle-input');
+      
+      if (titleInput && subtitleInput) {
+        title = titleInput.value;
+        subtitle = subtitleInput.value;
+      } else {
+        // Fallback to display elements
+        const titleEl = tile.querySelector('.tile-title');
+        const subtitleEl = tile.querySelector('.tile-subtitle');
+        title = titleEl ? titleEl.textContent : '';
+        subtitle = subtitleEl ? subtitleEl.textContent : '';
+      }
+    }
+    
+    // Analyze current text and count status
+    const analysis = analyzeText(title, subtitle);
+    switch (analysis.status) {
+      case 'overflow':
+        overflowCount++;
+        break;
+      case 'near-limit':
+        nearLimitCount++;
+        break;
+      case 'clean':
+        cleanCount++;
+        break;
+    }
+  });
+  
+  // Update the analytics display
+  const analytics = {
+    totalLocales,
+    overflowCount,
+    nearLimitCount,
+    cleanCount
+  };
+  
+  updateAnalytics(analytics);
 }
