@@ -84,8 +84,23 @@ function handleImageUpload(file) {
     const imageSrc = e.target.result;
     updateTileBackgrounds(imageSrc);
     
-    // Update file info in analytics
-    updateFileInfo('Image', file.name, `${(file.size / 1024).toFixed(1)} KB`);
+    // Create image element to get dimensions and detailed info
+    const img = new Image();
+    img.onload = function() {
+      const imageInfo = {
+        filename: file.name,
+        format: file.type.split('/')[1].toUpperCase(),
+        fileSize: file.size,
+        width: img.width,
+        height: img.height,
+        aspectRatio: (img.width / img.height).toFixed(2),
+        lastModified: new Date(file.lastModified).toLocaleDateString()
+      };
+      
+      // Update detailed image info panel
+      updateImageInfoPanel(imageInfo);
+    };
+    img.src = imageSrc;
   };
   reader.readAsDataURL(file);
 }

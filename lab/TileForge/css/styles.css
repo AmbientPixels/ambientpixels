@@ -284,6 +284,76 @@ body {
   font-size: 16px;
   font-weight: bold;
   margin-right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Image Info Panel */
+.image-info-panel {
+  background: #2a2a2a;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #444;
+}
+
+.image-info-panel h4 {
+  margin: 0 0 12px 0;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.image-info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.image-info-grid .info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.image-info-grid .info-label {
+  font-size: 12px;
+  color: #aaa;
+  font-weight: 500;
+}
+
+.image-info-grid .info-value {
+  font-size: 12px;
+  color: #fff;
+  font-weight: 400;
+  text-align: right;
+}
+
+/* No Image Message */
+.no-image-message {
+  text-align: center;
+  padding: 20px 0;
+  color: #666;
+}
+
+.no-image-icon {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 8px;
+  opacity: 0.5;
+}
+
+.no-image-message p {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  color: #888;
+  font-weight: 500;
+}
+
+.no-image-message small {
+  font-size: 11px;
+  color: #666;
 }
 
 /* Edit Overlay */
