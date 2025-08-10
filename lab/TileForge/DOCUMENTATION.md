@@ -17,7 +17,7 @@ TileForge is a comprehensive localization preview tool designed for Xbox tile co
 - **Analytics Dashboard**: Character analysis, locale statistics, and overflow detection
 - **Modal System**: Integrated modal system for confirmations, alerts, and detailed information display
 - **Modular Architecture**: Clean separation of concerns with feature-based CSS modules
-- **Responsive Design**: Optimized for various screen sizes and resolutions
+- **Desktop Optimized**: Professional interface optimized for desktop development workflows
 
 ---
 

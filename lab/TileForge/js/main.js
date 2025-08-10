@@ -256,6 +256,11 @@ function showInfoPopup() {
       content: createTroubleshootingTabContent()
     },
     {
+      title: 'Future Plans',
+      icon: '🔮',
+      content: createFuturePlansTabContent()
+    },
+    {
       title: 'About',
       icon: 'ℹ️',
       content: createAboutTabContent()
@@ -443,6 +448,33 @@ function createTroubleshootingTabContent() {
         <li>Verify your CSV file structure matches the expected format</li>
         <li>Test with a smaller image file to isolate performance issues</li>
       </ul>
+    </div>
+  `;
+}
+
+function createFuturePlansTabContent() {
+  return `
+    <div class="info-section">
+      <h4>🔮 Future Expansion Plans</h4>
+      <p>TileForge is continuously evolving to meet the needs of Xbox developers and localization teams. Here are our planned enhancements:</p>
+      
+      <div class="roadmap-section">
+        <h5>🚀 Enhanced Export & Integration</h5>
+        <ul>
+          <li><strong>Advanced Export Options:</strong> Custom CSV formatting, JSON export, Excel compatibility</li>
+          <li><strong>Batch Processing:</strong> Upload and process multiple tile sets simultaneously</li>
+          <li><strong>Template System:</strong> Save and reuse tile configurations across projects</li>
+          <li><strong>Auto-Localization:</strong> AI-powered automatic translation and localization suggestions</li>
+          <li><strong>Smart Headlines:</strong> Load default or most commonly used headlines for quick tile creation</li>
+          <li><strong>Improved UI:</strong> Enhanced user interface with better navigation and visual design</li>
+          <li><strong>Mobile & Tablet Support:</strong> Responsive design optimized for mobile and tablet devices</li>
+        </ul>
+      </div>
+
+      <div class="feedback-section">
+        <h5>💬 Your Input Matters</h5>
+        <p>Have ideas for new features or improvements? We'd love to hear from you! Your feedback helps shape the future of TileForge.</p>
+      </div>
     </div>
   `;
 }
