@@ -287,8 +287,8 @@ function createFeaturesTabContent() {
           <p>Canvas-based pixel-perfect text measurement ensures accurate overflow detection and prevents text truncation issues.</p>
         </div>
         <div class="feature-item">
-          <h5>🌍 52+ Locale Support</h5>
-          <p>Comprehensive locale support with Unicode flag emojis for countries worldwide, including proper country code badges.</p>
+          <h5>52+ Locale Support</h5>
+          <p>Comprehensive locale support for languages and regions worldwide with clear locale identification and filtering.</p>
         </div>
         <div class="feature-item">
           <h5>✏️ Live Tile Editing</h5>
@@ -467,7 +467,7 @@ function createFuturePlansTabContent() {
           <li><strong>Auto-Localization:</strong> AI-powered automatic translation and localization suggestions</li>
           <li><strong>Smart Headlines:</strong> Load default or most commonly used headlines for quick tile creation</li>
           <li><strong>Improved UI:</strong> Enhanced user interface with better navigation and visual design</li>
-          <li><strong>Mobile & Tablet Support:</strong> Responsive design optimized for mobile and tablet devices</li>
+
         </ul>
       </div>
 
