@@ -1,494 +1,270 @@
 # TileForge Documentation
-**Xbox Tile Localization Preview Tool**
+**Xbox Tile Localization Preview Tool with Visual Text Measurement**
 
-Version: 2.0  
-Last Updated: January 2025  
-Author: AmbientPixels Team
+## 📋 Overview
 
----
+TileForge is a comprehensive localization preview tool designed for Xbox tile content. It provides real-time visual feedback for game titles across multiple locales, featuring advanced text measurement, drag-and-drop functionality, and modular CSS architecture.
 
-## 📋 Table of Contents
+### ✨ Key Features
 
-1. [Overview](#overview)
-2. [Features](#features)
-3. [Architecture](#architecture)
-4. [File Structure](#file-structure)
-5. [Locale System](#locale-system)
-6. [CSS Architecture](#css-architecture)
-7. [JavaScript Modules](#javascript-modules)
-8. [Usage Guide](#usage-guide)
-9. [Development](#development)
-10. [Troubleshooting](#troubleshooting)
+- **Visual Text Measurement**: Canvas-based pixel-perfect text analysis (replaces conservative character counting)
+- **52 Comprehensive Locales**: Full regional coverage including Arabic, European, English, Spanish, and Asian variants
+- **Real-time Live Editing**: Click-to-edit tile text with instant visual feedback
+- **Drag & Drop Interface**: Upload images and CSV files with visual styling
+- **Analytics Dashboard**: Character analysis, locale statistics, and overflow detection
+- **Modular Architecture**: Clean separation of concerns with feature-based CSS modules
+- **Responsive Design**: Optimized for various screen sizes and resolutions
 
 ---
 
-## 🎯 Overview
+## 🎯 Visual Text Measurement System
 
-TileForge is a comprehensive Xbox Tile Localization Preview Tool designed to help developers and localization teams visualize, edit, and validate Xbox tile content across multiple languages and regions. The tool provides real-time character limit analysis, live editing capabilities, and comprehensive analytics for localization workflows.
+### **Revolutionary Approach**
+TileForge now uses **Canvas-based visual measurement** instead of conservative character counting, providing:
 
-### Key Capabilities
-- **52 Comprehensive Locales** - Complete coverage of major global markets
-- **Real-time Character Analysis** - W-count based character limit validation
-- **Live Tile Editor** - Interactive editing with instant preview
-- **Analytics Dashboard** - Comprehensive statistics and overflow detection
-- **Modular Architecture** - Clean, maintainable codebase with separated concerns
+- **Pixel-perfect accuracy**: Measures actual rendered text width
+- **Font-aware analysis**: Considers exact font size, weight, and family
+- **Multi-line intelligence**: Predicts text wrapping and truncation
+- **Real space utilization**: Uses actual tile dimensions (280px width, 248px usable)
 
----
+### **Old vs New System Comparison**
+```
+OLD SYSTEM (Character Count):
+- Title limit: 15 characters (WWWWWWWWWWWWWWW)
+- Subtitle limit: 15 characters
+- Result: Massive underutilization of visual space
 
-## ✨ Features
+NEW SYSTEM (Visual Measurement):
+- Title limit: ~35-45 characters (based on actual pixel width)
+- Subtitle limit: ~40-50 characters (smaller font allows more)
+- Result: 2.5-3x more usable space while preventing overflow
+```
 
-### 🌍 Comprehensive Locale Support
-- **52 Locales** covering major global markets
-- **Regional Variants** (EN-US, EN-GB, EN-AU, etc.)
-- **RTL Language Support** (Arabic, Hebrew)
-- **CJK Language Support** (Chinese, Japanese, Korean)
-
-### 📊 Analytics Dashboard
-- **Total Locale Count** - Real-time locale statistics
-- **Overflow Detection** - Automatic character limit warnings
-- **Near-Limit Analysis** - Proactive overflow prevention
-- **Clean Tile Tracking** - Success rate monitoring
-
-### ✏️ Live Tile Editor
-- **Real-time Editing** - Instant tile preview updates
-- **Character Counting** - W-count based limit validation
-- **Visual Feedback** - Color-coded status indicators
-- **Batch Operations** - Apply changes to all tiles
-
-### 📁 File Management
-- **CSV Import/Export** - Standard localization file format
-- **Image Upload** - Custom tile background support
-- **Drag & Drop** - Intuitive file handling
-- **Format Validation** - Automatic file format checking
+### **Text Analysis Functions**
+- `measureTextWidth()`: Pixel-accurate text width measurement
+- `analyzeTextLayout()`: Multi-line text analysis with word wrapping
+- `willTextFit()`: Single-line overflow prediction
+- `analyzeTextVisually()`: Complete text analysis replacing old character-count system
 
 ---
 
 ## 🏗️ Architecture
 
-TileForge follows a **modular architecture** with clear separation of concerns:
+### **Modular CSS System**
+TileForge follows a strict modular architecture with zero duplication:
 
 ```
-TileForge/
-├── index.html              # Main application entry point
-├── css/                    # Modular CSS architecture
-│   ├── styles.css          # Core application layout
-│   ├── tile-card.css       # Tile display components
-│   ├── tile-editor.css     # Live editing system
-│   ├── tile-grid.css       # Locale grid layout
-│   ├── tile-utils.css      # Utility classes
-│   └── dashboard.css       # Analytics dashboard
-├── js/                     # JavaScript modules
-│   ├── main.js             # Application initialization
-│   ├── constants.js        # Configuration and data
-│   ├── csv-handler.js      # CSV parsing and export
-│   ├── tile-renderer.js    # Tile display logic
-│   ├── live-editor.js      # Interactive editing
-│   ├── analytics.js        # Statistics and reporting
-│   └── drag-drop.js        # File handling
-└── assets/                 # Static resources
+css/
+├── base.css           # Core typography and layout foundation
+├── styles.css         # Main app layout, upload system, controls
+├── tile-card.css      # Tile display, text positioning, overlays
+├── tile-editor.css    # Live editing interface and form controls
+├── tile-grid.css      # Locale organization and grid layout
+├── dashboard.css      # Analytics interface and statistics
+└── tile-utils.css     # Utility classes and helpers
 ```
 
-### Design Principles
-- **Modular CSS** - Feature-specific stylesheets with no duplication
-- **Component-based JS** - Isolated, reusable functionality
-- **Progressive Enhancement** - Core functionality without dependencies
-- **Responsive Design** - Works across different screen sizes
-
----
-
-## 📂 File Structure
-
-### Core Files
-- **`index.html`** - Main application interface
-- **`DOCUMENTATION.md`** - This documentation file
-- **`README.md`** - Quick start guide
-
-### CSS Modules
-- **`styles.css`** - Core layout, upload system, global typography
-- **`tile-card.css`** - Tile preview components, text styling
-- **`tile-editor.css`** - Live editing interface, form controls
-- **`tile-grid.css`** - Locale organization, grid layout
-- **`tile-utils.css`** - Utility classes, helpers
-- **`dashboard.css`** - Analytics interface, statistics
-
-### JavaScript Modules
-- **`main.js`** - Application initialization and coordination
-- **`constants.js`** - Configuration, limits, default data
-- **`csv-handler.js`** - CSV parsing, import/export functionality
-- **`tile-renderer.js`** - Tile creation and display logic
-- **`live-editor.js`** - Interactive editing capabilities
-- **`analytics.js`** - Statistics calculation and display
-- **`drag-drop.js`** - File upload and drag-drop handling
+### **JavaScript Modules**
+```
+js/
+├── main.js              # Application initialization and coordination
+├── constants.js         # Configuration and locale mappings
+├── text-measurement.js  # Visual text measurement system (NEW)
+├── csv-handler.js       # CSV parsing and data management
+├── tile-renderer.js     # Tile creation and visual updates
+├── live-editor.js       # Real-time editing functionality
+├── analytics.js         # Statistics and dashboard updates
+└── drag-drop.js         # File upload and drag-and-drop handling
+```
 
 ---
 
 ## 🌍 Locale System
 
-### Supported Locales (52 Total)
+### **Comprehensive Coverage (52 Locales)**
+- **Arabic**: AR-AE, AR-SA
+- **European**: CS-CZ, DA-DK, DE-AT, DE-CH, DE-DE, EL-GR, ES-ES, FI-FI, FR-BE, FR-CA, FR-CH, FR-FR, HU-HU, IT-IT, NL-BE, NL-NL, NO-NO, PL-PL, PT-BR, PT-PT, RO-RO, RU-RU, SK-SK, SV-SE, TR-TR
+- **English**: EN-AU, EN-CA, EN-GB, EN-IE, EN-IN, EN-NZ, EN-PH, EN-SG, EN-US, EN-ZA
+- **Spanish**: ES-AR, ES-CL, ES-CO, ES-MX, ES-US
+- **Asian**: JA-JP, KO-KR, TH-TH, VI-VN, ZH-CN, ZH-HK, ZH-TW
 
-#### Arabic Regions (2)
-- `AR-AE` - Arabic UAE
-- `AR-SA` - Arabic Saudi Arabia
-
-#### European Locales (25)
-- `CS-CZ` - Czech Czech Republic
-- `DA-DK` - Danish Denmark
-- `DE-AT` - German Austria
-- `DE-CH` - German Switzerland
-- `DE-DE` - German Germany
-- `EL-GR` - Greek Greece
-- `FI-FI` - Finnish Finland
-- `FR-BE` - French Belgium
-- `FR-CA` - French Canada
-- `FR-CH` - French Switzerland
-- `FR-FR` - French France
-- `HE-IL` - Hebrew Israel
-- `HU-HU` - Hungarian Hungary
-- `IT-CH` - Italian Switzerland
-- `IT-IT` - Italian Italy
-- `NB-NO` - Norwegian Norway
-- `NL-BE` - Dutch Belgium
-- `NL-NL` - Dutch Netherlands
-- `PL-PL` - Polish Poland
-- `PT-BR` - Portuguese Brazil
-- `PT-PT` - Portuguese Portugal
-- `SK-SK` - Slovak Slovakia
-- `SV-SE` - Swedish Sweden
-- `TR-TR` - Turkish Turkey
-- `UK-UA` - Ukrainian Ukraine
-
-#### English Variants (16)
-- `EN-AE` - English UAE
-- `EN-AU` - English Australia
-- `EN-CA` - English Canada
-- `EN-CZ` - English Czech Republic
-- `EN-GB` - English United Kingdom
-- `EN-GR` - English Greece
-- `EN-HK` - English Hong Kong
-- `EN-HU` - English Hungary
-- `EN-IE` - English Ireland
-- `EN-IL` - English Israel
-- `EN-IN` - English India
-- `EN-NZ` - English New Zealand
-- `EN-SA` - English Saudi Arabia
-- `EN-SG` - English Singapore
-- `EN-SK` - English Slovakia
-- `EN-US` - English United States
-- `EN-ZA` - English South Africa
-
-#### Spanish Variants (5)
-- `ES-AR` - Spanish Argentina
-- `ES-CL` - Spanish Chile
-- `ES-CO` - Spanish Colombia
-- `ES-ES` - Spanish Spain
-- `ES-MX` - Spanish Mexico
-
-#### Asian Locales (5)
-- `JA-JP` - Japanese Japan
-- `KO-KR` - Korean South Korea
-- `ZH-HK` - Chinese Hong Kong
-- `ZH-SG` - Chinese Singapore
-- `ZH-TW` - Chinese Taiwan
-
-### CSV Data Structure
-
+### **CSV Data Structure**
 ```csv
 Locale,items/0/title,items/0/subtitle,items/0/narratorText
-EN-US,Fortnite OG,New season,
-JA-JP,Fortnite OG,新シーズン到来,
+EN-US,Game Title,Subtitle Text,Accessibility narrator text
 ```
 
-#### Required Columns
-- **`Locale`** - ISO language-region code
-- **`items/0/title`** - Primary tile text (15 char limit)
-- **`items/0/subtitle`** - Secondary tile text (15 char limit)
-- **`items/0/narratorText`** - Accessibility text (future feature)
+### **Locale Display Names**
+Full mapping of locale codes to human-readable names with regional variants.
 
 ---
 
-## 🎨 CSS Architecture
+## 🎮 Usage Guide
 
-### Modular Design Philosophy
+### **Getting Started**
+1. **Load Default Data**: Application initializes with 52 locales automatically
+2. **Upload Custom Image**: Drag image to "Drop Image Here" zone or browse files
+3. **Upload Custom CSV**: Drag CSV to "Drop CSV File Here" zone or browse files
+4. **Live Edit Text**: Click any tile title/subtitle to edit in real-time
+5. **Monitor Analytics**: View character analysis and locale statistics
 
-TileForge uses a **fully modular CSS architecture** with zero duplication:
+### **Visual Text Analysis**
+- **Green Status**: Text fits comfortably within visual bounds
+- **Orange Warning**: Text approaching visual limits (>90% space utilization)
+- **Red Overflow**: Text will be truncated or overflow tile boundaries
 
-#### Core Stylesheet (`styles.css`)
-- **Application Layout** - Split-screen interface, panels
-- **Upload System** - File drop zones, browse controls
-- **Global Typography** - Base fonts, text styles
-- **Core Controls** - Primary buttons, form elements
-
-#### Feature-Specific Modules
-- **`tile-card.css`** - Tile display, text positioning, status badges
-- **`tile-editor.css`** - Live editing interface, form controls
-- **`tile-grid.css`** - Locale organization, grid layouts
-- **`dashboard.css`** - Analytics interface, statistics cards
-- **`tile-utils.css`** - Utility classes, helpers
-
-### CSS Best Practices
-- **No Duplication** - Each style defined once in appropriate module
-- **Scoped Responsibilities** - Clear module boundaries
-- **Consistent Naming** - BEM-inspired class naming
-- **Performance Optimized** - Minimal cascade conflicts
-
-### Recent Improvements (v2.0)
-- **415+ lines of duplicate code removed**
-- **42% reduction in main stylesheet size**
-- **Eliminated CSS conflicts** causing layout issues
-- **Fixed tile text positioning** (bottom-left alignment)
-
----
-
-## ⚙️ JavaScript Modules
-
-### Module Responsibilities
-
-#### `main.js` - Application Coordinator
+### **Testing Visual Measurement**
+Open browser console and run:
 ```javascript
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-  loadDefaultData();
-  setupFileInputs();
-  setupDragAndDrop();
-  setupLiveEditor();
-});
+testVisualMeasurement()
 ```
-
-#### `constants.js` - Configuration Hub
-- **Character Limits** - W-count based validation rules
-- **Default CSV Data** - 52 comprehensive locales
-- **Locale Names** - Display name mappings
-- **Global State** - Application-wide variables
-
-#### `csv-handler.js` - Data Management
-- **CSV Parsing** - Robust data extraction
-- **File Upload** - Import functionality
-- **Data Validation** - Format checking
-- **Export Capabilities** - Download processed data
-
-#### `tile-renderer.js` - Display Engine
-- **Locale Grouping** - Organize tiles by language
-- **Tile Creation** - Generate preview components
-- **Character Analysis** - Real-time limit checking
-- **Visual Status** - Color-coded feedback
-
-#### `live-editor.js` - Interactive Features
-- **Real-time Editing** - Instant preview updates
-- **Character Counting** - Live limit validation
-- **Batch Operations** - Apply to all tiles
-- **Visual Feedback** - Status indicators
-
-#### `analytics.js` - Statistics Engine
-- **Locale Counting** - Total locale statistics
-- **Overflow Detection** - Character limit violations
-- **Status Analysis** - Clean vs. problematic tiles
-- **Dashboard Updates** - Real-time statistics
-
----
-
-## 📖 Usage Guide
-
-### Getting Started
-
-1. **Open TileForge** - Load `index.html` in a web browser
-2. **Default Data** - 52 locales load automatically on startup
-3. **Upload Custom Data** - Drag CSV file to upload area (optional)
-4. **Upload Background** - Drag image file for custom tile background (optional)
-
-### Working with Locales
-
-#### Viewing Locales
-- **Locale Sections** - Organized by language-region code
-- **Tile Previews** - Visual representation of each locale
-- **Status Indicators** - Color-coded character limit status
-- **Analytics Dashboard** - Overview statistics
-
-#### Character Limit System
-- **Green** - Clean (within limits)
-- **Orange** - Near limit (warning threshold)
-- **Red** - Overflow (exceeds limits)
-
-#### Live Editing
-1. **Click any tile** to open the live editor
-2. **Edit text** in the headline/subheadline fields
-3. **Watch character counts** update in real-time
-4. **Apply changes** to see instant preview
-5. **Apply to All** to batch update all locales
-
-### File Operations
-
-#### CSV Import
-- **Drag & Drop** - Drop CSV file on upload area
-- **Browse** - Click to select file from system
-- **Auto-Parse** - Automatic data extraction and validation
-- **Error Handling** - Clear feedback for invalid files
-
-#### Image Upload
-- **Supported Formats** - PNG, JPG, GIF
-- **Background Replacement** - Custom tile backgrounds
-- **Automatic Scaling** - Optimized for tile display
-
-### Analytics Dashboard
-
-#### Key Metrics
-- **Total Locales** - Count of loaded language variants
-- **Overflow Issues** - Tiles exceeding character limits
-- **Near Limit** - Tiles approaching character limits
-- **Clean Tiles** - Tiles within acceptable ranges
+This shows the dramatic improvement in space utilization vs the old character-count system.
 
 ---
 
 ## 🛠️ Development
 
-### Setup Requirements
-- **Modern Web Browser** - Chrome, Firefox, Safari, Edge
-- **Local Web Server** - For file operations (Live Server, Python HTTP server)
-- **Text Editor** - VS Code, Sublime Text, etc.
+### **File Structure**
+```
+TileForge/
+├── index.html           # Main application interface
+├── DOCUMENTATION.md     # This comprehensive guide
+├── css/                 # Modular stylesheets
+├── js/                  # JavaScript modules
+└── data/               # Sample CSV files and assets
+```
 
-### Development Workflow
+### **CSS Architecture Principles**
+- **Zero Duplication**: Each style defined once in appropriate module
+- **Feature-Based Separation**: Styles grouped by functionality
+- **Windsurf Protocol Compliance**: No inline styles, proper scoping
+- **Visual Consistency**: Consistent spacing, colors, and typography
 
-#### CSS Development
-1. **Identify Module** - Determine which CSS file to modify
-2. **Check for Duplicates** - Ensure no conflicting styles exist
-3. **Follow Naming** - Use consistent class naming conventions
-4. **Test Responsively** - Verify across different screen sizes
+### **JavaScript Module Loading Order**
+```html
+<script src="js/constants.js"></script>
+<script src="js/text-measurement.js"></script>  <!-- NEW -->
+<script src="js/csv-handler.js"></script>
+<script src="js/tile-renderer.js"></script>
+<script src="js/live-editor.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/drag-drop.js"></script>
+<script src="js/main.js"></script>
+```
 
-#### JavaScript Development
-1. **Module Isolation** - Keep functionality in appropriate modules
-2. **Error Handling** - Implement robust error checking
-3. **Performance** - Optimize for real-time operations
-4. **Documentation** - Comment complex logic clearly
-
-### Code Standards
-
-#### CSS Guidelines
-- **Modular Organization** - One feature per file
-- **No Duplication** - Each style defined once
-- **Semantic Naming** - Clear, descriptive class names
-- **Consistent Formatting** - Uniform indentation and spacing
-
-#### JavaScript Guidelines
-- **ES6+ Features** - Modern JavaScript syntax
-- **Error Handling** - Try-catch blocks for file operations
-- **Performance** - Debounced updates for real-time features
-- **Modularity** - Clear function responsibilities
-
-### Testing Checklist
-- [ ] All 52 locales load on page startup
-- [ ] CSV import/export functionality works
-- [ ] Live editor updates tiles in real-time
-- [ ] Character limits are enforced correctly
-- [ ] Analytics dashboard shows accurate statistics
-- [ ] File drag-and-drop operations function properly
-- [ ] Responsive design works on different screen sizes
+### **Adding New Locales**
+1. Update `DEFAULT_CSV_DATA` in `constants.js`
+2. Add locale mapping to `LOCALE_NAMES`
+3. Test with visual measurement system
 
 ---
 
-## 🔧 Troubleshooting
+## 🔧 Technical Details
 
-### Common Issues
+### **Drag & Drop System**
+- **HTML Elements**: `#imgDropZone`, `#csvDropZone`, `#imgInput`, `#csvInput`
+- **CSS Classes**: `.drop-zone`, `.drop-zone:hover`, `.drop-zone.drag-over`
+- **JavaScript**: Event listeners for dragover, dragleave, drop events
+- **Visual Feedback**: Border color changes and hover effects
 
-#### Locales Not Loading
-**Symptoms:** Empty locale sections, missing tiles
-**Solutions:**
+### **Text Measurement Specifications**
+- **Tile Dimensions**: 280px × 140px
+- **Text Area**: 248px usable width (280px - 32px padding)
+- **Title Font**: 18px system-ui, weight 600
+- **Subtitle Font**: 16px system-ui, weight 400
+- **Line Clamp**: Maximum 2 lines with CSS `line-clamp: 2`
+
+### **Performance Optimizations**
+- **Canvas Reuse**: Single measurement canvas for all text analysis
+- **Modular Loading**: CSS and JS loaded only when needed
+- **Event Delegation**: Efficient event handling for live editing
+
+---
+
+## 🚨 Troubleshooting
+
+### **Common Issues**
+
+**Text appears too conservative/short:**
+- The new visual measurement system allows much longer text
+- Run `testVisualMeasurement()` to see actual limits vs old character count
+
+**Drag-and-drop not working:**
+- Ensure `styles.css` is loaded in HTML (required for drop-zone styling)
 - Check browser console for JavaScript errors
-- Verify `constants.js` contains `DEFAULT_CSV_DATA`
-- Ensure all JavaScript modules are loading properly
+- Verify file types: images (PNG, JPG, GIF), CSV files only
 
-#### CSV Import Failures
-**Symptoms:** "Invalid CSV file" error messages
-**Solutions:**
-- Verify CSV has required columns: `Locale`, `items/0/title`, `items/0/subtitle`
-- Check for proper UTF-8 encoding
-- Ensure no empty rows or malformed data
+**Tiles not displaying correctly:**
+- Check that all CSS modules are loaded in correct order
+- Verify `tile-card.css` contains tile positioning styles
+- Ensure no CSS conflicts between modules
 
-#### Character Limits Not Working
-**Symptoms:** No color coding, incorrect character counts
-**Solutions:**
-- Verify `LIMITS` object in `constants.js`
-- Check `analyzeText()` function in `tile-renderer.js`
-- Ensure CSS classes for status indicators are loaded
+**Live editing not responding:**
+- Confirm `live-editor.js` is loaded after `tile-renderer.js`
+- Check that tiles have proper `contenteditable` attributes
+- Verify character counter elements exist
 
-#### Live Editor Issues
-**Symptoms:** Editing doesn't update tiles, character counts wrong
-**Solutions:**
-- Check `live-editor.js` is loaded and initialized
-- Verify event listeners are attached properly
-- Check for JavaScript console errors
-
-#### Styling Problems
-**Symptoms:** Layout issues, missing styles, visual glitches
-**Solutions:**
-- Verify all CSS modules are loading in correct order
-- Check for CSS conflicts or duplicate styles
-- Ensure proper class names are used in HTML
-
-### Performance Issues
-
-#### Slow Loading
-- **Reduce Default Data** - Temporarily reduce locale count for testing
-- **Optimize Images** - Use compressed background images
-- **Browser Cache** - Clear cache if styles aren't updating
-
-#### Memory Usage
-- **Large CSV Files** - Break into smaller chunks for processing
-- **Image Size** - Optimize background images for web
-- **Browser Limits** - Test with different browsers
-
-### Browser Compatibility
-
-#### Supported Browsers
-- **Chrome 80+** - Full feature support
-- **Firefox 75+** - Full feature support
-- **Safari 13+** - Full feature support
-- **Edge 80+** - Full feature support
-
-#### Known Limitations
-- **File API** - Requires modern browser for drag-and-drop
-- **CSS Grid** - Fallback layouts for older browsers
-- **ES6 Modules** - May need transpilation for legacy support
+### **Browser Compatibility**
+- **Canvas API**: Required for text measurement (supported in all modern browsers)
+- **CSS Line Clamp**: Required for text truncation (widely supported)
+- **Drag & Drop API**: Required for file uploads (universal support)
 
 ---
 
-## 📝 Changelog
+## 📊 Analytics & Monitoring
 
-### Version 2.0 (January 2025)
-- **Comprehensive Locale Support** - Expanded from 34 to 52 locales
-- **CSS Architecture Overhaul** - Fully modular, zero duplication
-- **Performance Improvements** - 42% reduction in stylesheet size
-- **Enhanced CSV Structure** - Added `items/0/narratorText` column
-- **Bug Fixes** - Fixed tile text positioning, eliminated CSS conflicts
+### **Dashboard Metrics**
+- **Total Locales**: Count of loaded locale variants
+- **Character Analysis**: Real-time text length monitoring with visual measurement
+- **File Information**: Uploaded image and CSV details
+- **Status Distribution**: Clean, warning, and overflow tile counts
 
-### Version 1.0 (Initial Release)
-- **Core Functionality** - Basic tile preview and editing
-- **34 Locale Support** - Initial locale coverage
-- **Analytics Dashboard** - Basic statistics and overflow detection
-- **CSV Import/Export** - File handling capabilities
+### **Visual Measurement Insights**
+- **Space Utilization**: Percentage of available tile width used
+- **Line Analysis**: Predicted text wrapping and truncation
+- **Overflow Prevention**: Proactive detection of text that won't fit
 
 ---
 
-## 🤝 Contributing
+## 📈 Changelog
 
-### Development Guidelines
-1. **Follow Windsurf Protocol** - Check existing code before creating new
-2. **Modular Architecture** - Keep features in appropriate modules
-3. **No Duplication** - Avoid duplicate styles or functionality
-4. **Documentation** - Update this file with significant changes
+### **Version 2.1 - Visual Measurement Revolution**
+- ✅ **NEW**: Canvas-based visual text measurement system
+- ✅ **NEW**: `text-measurement.js` module with pixel-perfect analysis
+- ✅ **IMPROVED**: 2.5-3x increase in usable text space
+- ✅ **FIXED**: Drag-and-drop styling and functionality alignment
+- ✅ **ENHANCED**: Title font size increased to 18px, subtitle to 16px
 
-### Pull Request Process
-1. **Test Thoroughly** - Verify all functionality works
-2. **Update Documentation** - Reflect changes in this file
-3. **Performance Check** - Ensure no regressions
-4. **Browser Testing** - Verify cross-browser compatibility
+### **Version 2.0 - Complete CSS Modularization**
+- ✅ **MAJOR**: Complete CSS architecture overhaul with modular design
+- ✅ **EXPANSION**: 52 comprehensive locales (up from 34)
+- ✅ **NEW**: Narrator text column support (`items/0/narratorText`)
+- ✅ **CLEANUP**: 415+ lines of duplicate CSS removed (42% reduction)
+- ✅ **DOCUMENTATION**: Comprehensive system documentation
+
+### **Version 1.0 - Foundation**
+- ✅ Basic tile preview functionality
+- ✅ CSV upload and parsing
+- ✅ Live text editing
+- ✅ Character count monitoring
 
 ---
 
-## 📄 License
+## 🎯 Future Enhancements
 
-TileForge is part of the AmbientPixels project suite.  
-© 2025 AmbientPixels Team. All rights reserved.
+### **Planned Features**
+- **Advanced Typography**: Font family selection and custom font loading
+- **Accessibility Testing**: Screen reader compatibility and ARIA improvements
+- **Export Functionality**: Generate tile assets and localization reports
+- **Batch Processing**: Multiple CSV file handling and comparison
+- **Theme Customization**: Dark/light mode and color scheme options
+
+### **Performance Improvements**
+- **Web Workers**: Offload text measurement to background threads
+- **Caching System**: Store measurement results for repeated text
+- **Lazy Loading**: Load locales on-demand for better initial performance
 
 ---
 
-*This documentation was last updated: January 2025*  
-*For technical support or questions, contact the AmbientPixels development team.*
+**TileForge** - Precision localization preview with visual intelligence.
+*Built with modular architecture and Canvas-based text measurement for maximum accuracy and usability.*

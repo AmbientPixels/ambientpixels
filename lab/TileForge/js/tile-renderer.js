@@ -1,33 +1,10 @@
 // TileForge Tile Rendering Module
 // Handles tile creation, rendering, and visual updates
 
-// Analyze text for character limits and status
+// Enhanced text analysis using visual measurement instead of character count
 function analyzeText(title, subtitle) {
-  const titleLength = title.length;
-  const subtitleLength = subtitle.length;
-  const issues = [];
-  
-  let status = 'clean';
-  
-  // Check title limits
-  if (titleLength > LIMITS.title.max) {
-    issues.push(`Title exceeds ${LIMITS.title.max} characters (${titleLength})`);
-    status = 'overflow';
-  } else if (titleLength > LIMITS.title.warning) {
-    issues.push(`Title near limit (${titleLength}/${LIMITS.title.max})`);
-    if (status !== 'overflow') status = 'near-limit';
-  }
-  
-  // Check subtitle limits
-  if (subtitleLength > LIMITS.subtitle.max) {
-    issues.push(`Subtitle exceeds ${LIMITS.subtitle.max} characters (${subtitleLength})`);
-    status = 'overflow';
-  } else if (subtitleLength > LIMITS.subtitle.warning) {
-    issues.push(`Subtitle near limit (${subtitleLength}/${LIMITS.subtitle.max})`);
-    if (status !== 'overflow') status = 'near-limit';
-  }
-  
-  return { status, issues, titleLength, subtitleLength };
+  // Use the new visual measurement system
+  return analyzeTextVisually(title, subtitle);
 }
 
 // Create tile element with dedicated editor
