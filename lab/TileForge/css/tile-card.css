@@ -72,3 +72,104 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Tile Overlay Positioning - Bottom Left Text */
+.tile-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  padding: 20px 16px 16px 16px;
+  color: white;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.tile-locale {
+  font-size: 10px;
+  color: #ccc;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tile-warning {
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(255, 107, 107, 0.1);
+  border-left: 3px solid #ff6b6b;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #ff6b6b;
+}
+
+/* Per-Tile Character Counter Styles */
+.char-counter {
+  font-size: 10px;
+  color: #888;
+  margin-top: 2px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 2px 4px;
+  border-radius: 4px;
+  backdrop-filter: blur(5px);
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.char-counter.warning {
+  color: #ff9500;
+  background: rgba(255, 149, 0, 0.2);
+}
+
+.char-counter.error {
+  color: #ff453a;
+  background: rgba(255, 69, 58, 0.2);
+}
+
+.char-counter .count {
+  font-weight: bold;
+}
+
+.char-counter .w-ref {
+  font-family: 'Courier New', monospace;
+  opacity: 0.7;
+}
+
+.editable-text {
+  outline: none;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+  padding: 2px;
+}
+
+.editable-text:focus {
+  background: rgba(0, 122, 255, 0.1);
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.3);
+}
+
+.editable-text.editing {
+  background: rgba(0, 122, 255, 0.15);
+}
+
+/* Show character counters only when editing */
+.editable-text:focus + .char-counter,
+.editable-text.editing + .char-counter,
+.tile-preview:hover .char-counter {
+  opacity: 1;
+}
+
+/* Tile Container */
+.tile-container {
+  position: relative;
+  margin-bottom: 20px;
+}
