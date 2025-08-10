@@ -63,4 +63,12 @@
   overflow: hidden;
 }
 
-/* Subtitle, overlay, warning, char counter, etc. can be moved to tile-editor or tile-utils if not part of the tile core */
+.tile-subtitle {
+  font-size: 13px;
+  color: #ddd;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
