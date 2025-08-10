@@ -88,7 +88,12 @@
     <!-- Left Panel - Controls -->
     <div class="left-panel">
       <div class="panel-header">
-        <h1><i class="fab fa-xbox"></i> TileForge</h1>
+        <div class="header-top">
+          <h1><i class="fab fa-xbox"></i> TileForge</h1>
+          <button class="settings-btn" onclick="openSettings()" title="Settings">
+            <i class="fas fa-cog"></i>
+          </button>
+        </div>
         <p class="subtitle">Xbox Tile Localization Preview</p>
       </div>
       
@@ -291,6 +296,7 @@
     </div>
   </div>
 
+
   <!-- JavaScript Modules -->
   <script src="js/modal.js"></script>
   <script src="js/constants.js"></script>
@@ -300,6 +306,7 @@
   <script src="js/live-editor.js"></script>
   <script src="js/analytics.js"></script>
   <script src="js/drag-drop.js"></script>
+  <script src="js/settings.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

@@ -518,7 +518,7 @@ function createAboutTabContent() {
 
     <div class="info-section">
       <h4>🎯 Design Philosophy</h4>
-      <p>TileForge follows the Windsurf Protocol development standards, emphasizing:</p>
+      <p>TileForge emphasizes professional development standards:</p>
       <ul>
         <li><strong>Precision over Approximation:</strong> Exact measurements instead of estimates</li>
         <li><strong>Modularity over Monoliths:</strong> Clean separation of concerns</li>
