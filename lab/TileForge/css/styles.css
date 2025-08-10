@@ -275,6 +275,17 @@ body {
   border-top: 1px solid #444;
 }
 
+/* Country badge styling */
+.country-badge {
+  background: #007acc;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  margin-right: 8px;
+}
+
 /* Edit Overlay */
 .edit-overlay {
   position: fixed;

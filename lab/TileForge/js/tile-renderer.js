@@ -289,7 +289,7 @@ function renderLocaleGroups(csvData) {
     const header = document.createElement('h3');
     header.className = 'locale-header';
     const localeName = LOCALE_NAMES[locale] || locale;
-    header.textContent = `${locale} ${localeName}`;
+    header.innerHTML = `<span class="country-badge">${locale}</span> ${localeName}`;
     
     // Tiles container
     const tilesContainer = document.createElement('div');
