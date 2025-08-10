@@ -94,7 +94,8 @@ function handleImageUpload(file) {
         width: img.width,
         height: img.height,
         aspectRatio: (img.width / img.height).toFixed(2),
-        lastModified: new Date(file.lastModified).toLocaleDateString()
+        lastModified: new Date(file.lastModified).toLocaleDateString(),
+        imageSrc: imageSrc  // Add image source for thumbnail generation
       };
       
       // Update detailed image info panel
