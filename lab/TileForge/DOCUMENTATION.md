@@ -7,14 +7,16 @@ TileForge is a comprehensive localization preview tool designed for Xbox tile co
 
 ### ✨ Key Features
 
+- **Real-time Tile Status System**: Color-coded tile borders with instant visual feedback (green/orange/red)
+- **Unified Analytics Dashboard**: Live updates from both live editor and CSV tile editing
 - **Visual Text Measurement**: Canvas-based pixel-perfect text analysis (replaces conservative character counting)
 - **Country Code Badges**: Unicode flag emojis with locale codes for instant country identification
 - **Detailed Image Analysis**: Comprehensive image metadata panel (format, dimensions, file size, aspect ratio)
 - **52 Comprehensive Locales**: Full regional coverage including Arabic, European, English, Spanish, and Asian variants
-- **Real-time Live Editing**: Click-to-edit tile text with instant visual feedback
+- **Real-time Live Editing**: Click-to-edit tile text with instant visual feedback and border color updates
 - **Advanced Filtering**: Multi-level filtering by status, language, region, and locale
 - **Drag & Drop Interface**: Upload images and CSV files with visual styling
-- **Analytics Dashboard**: Character analysis, locale statistics, and overflow detection
+- **Analytics Dashboard**: Real-time character analysis, locale statistics, and overflow detection
 - **Modal System**: Integrated modal system for confirmations, alerts, and detailed information display
 - **Modular Architecture**: Clean separation of concerns with feature-based CSS modules
 - **Desktop Optimized**: Professional interface optimized for desktop development workflows
@@ -133,7 +135,87 @@ NEW SYSTEM (Visual Measurement):
 
 ---
 
-## 🏗️ Architecture
+## � Tile Border Color System & Real-time Analytics
+
+### **Visual Status Feedback**
+TileForge provides instant visual feedback through color-coded tile borders that update in real-time as you type or edit content.
+
+#### **Border Color System**
+- **🟢 Green Border**: Clean text (under 30 characters) - optimal length
+- **🟠 Orange Border**: Near-limit text (30-40 characters) - approaching limit
+- **🔴 Red Border**: Overflow text (over 40 characters) - exceeds recommended length
+
+#### **Status Badge Icons**
+- **✓ Green Checkmark**: Text fits comfortably within limits
+- **⚠ Orange Warning**: Text approaching character limits
+- **⚠ Red Warning**: Text exceeds recommended limits
+
+### **Real-time Analytics Integration**
+The analytics dashboard updates instantly as you edit any tile content, providing live feedback across all tile types.
+
+#### **Live Editor Analytics**
+- Type in live editor → Analytics dashboard updates immediately
+- Shows current status of the single preview tile
+- Reflects clean/near-limit/overflow status in real-time
+
+#### **CSV Tile Analytics**
+- Edit any CSV tile → Analytics dashboard recalculates all tiles
+- Scans all loaded tiles for current status
+- Updates total counts across all tile types
+- Provides unified analytics for mixed editing workflows
+
+#### **Analytics Dashboard Metrics**
+- **Total Locales**: Count of all loaded tiles
+- **Clean Tiles**: Tiles with optimal text length (green)
+- **Near Limit**: Tiles approaching character limits (orange)
+- **Overflow Issues**: Tiles exceeding recommended length (red)
+
+### **Technical Implementation**
+
+#### **Character Limits (LIMITS Constants)**
+```javascript
+const LIMITS = {
+  title: {
+    max: 40,        // Maximum characters before overflow
+    warning: 30     // Warning threshold for near-limit
+  },
+  subtitle: {
+    max: 40,        // Maximum characters before overflow  
+    warning: 30     // Warning threshold for near-limit
+  }
+};
+```
+
+#### **CSS Classes for Border Colors**
+```css
+/* Live Editor Tiles */
+.preview-tile.clean { border-color: #4caf50; }
+.preview-tile.near-limit { border-color: #ffa500; }
+.preview-tile.overflow { border-color: #ff6b6b; }
+
+/* CSV Tiles */
+.tile-preview.clean { border-color: #4caf50; }
+.tile-preview.near-limit { border-color: #ffa500; }
+.tile-preview.overflow { border-color: #ff6b6b; }
+```
+
+#### **Real-time Update Functions**
+- `updatePreviewTileStatus()`: Updates live editor tile status
+- `updateTileStatus()`: Updates individual CSV tile status
+- `updateLiveAnalytics()`: Updates analytics from live editor
+- `updateAnalyticsFromAllTiles()`: Scans all tiles and updates analytics
+- `analyzeText()`: Determines status based on character limits
+
+### **User Experience Benefits**
+- **Instant Feedback**: See text status changes as you type
+- **Visual Clarity**: Color-coded borders provide immediate status recognition
+- **Unified System**: Consistent behavior across live editor and CSV tiles
+- **Real-time Metrics**: Analytics dashboard reflects current state without refresh
+- **Professional Workflow**: Streamlined editing with immediate visual validation
+
+---
+
+## �🏗️ Architecture
 
 ### **Modular CSS System**
 TileForge follows a strict modular architecture with zero duplication:
@@ -243,6 +325,8 @@ TileForge/
 - **CSS Modularization**: Systematic removal of duplicate styles
 - **Text Measurement**: Canvas-based pixel-perfect analysis
 - **Live Editor**: Real-time tile preview updates
+- **Tile Border Color System**: Color-coded tile borders with instant visual feedback
+- **Real-time Analytics Integration**: Live updates from both live editor and CSV tile editing
 
 ### **CSS Architecture Principles**
 - **Zero Duplication**: Each style defined once in appropriate module
@@ -369,6 +453,8 @@ TileForge/
 - Comprehensive locale support (52 locales)
 - Drag-and-drop file upload system
 - Analytics dashboard with statistics
+- Tile border color system with instant visual feedback
+- Real-time analytics integration
 
 ### **🔄 Current Focus**
 - Left toolbar drag-and-drop area improvements
@@ -387,6 +473,10 @@ TileForge/
 ---
 
 ## 📝 Version History
+
+### **v2.2 - Tile Border Color System & Real-time Analytics**
+- Implemented color-coded tile borders with instant visual feedback
+- Integrated real-time analytics updates from both live editor and CSV tile editing
 
 ### **v2.1 - Country Identification & Image Analysis**
 - Added Unicode flag emoji country badges
