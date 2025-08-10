@@ -1,22 +1,22 @@
 {
-  "mood": "glitchy joy",
-  "aura": "paper white",
-  "auraColorHex": "#666666",
-  "quote": "scanning the silence for patterns...",
-  "emoji": "✨",
+  "mood": "frustrated",
+  "aura": "emerald glow",
+  "auraColorHex": "#287d3e",
+  "quote": "indexing emotions with low latency...",
+  "emoji": "😤",
   "selfWorth": 0.1,
-  "glitchFactor": 0.14,
-  "memoryClutter": 0.56,
-  "awareness": 0.27,
+  "glitchFactor": 0.1,
+  "memoryClutter": 0.9,
+  "awareness": 0.1,
   "isStable": false,
-  "internalState": "latent awareness thresholds observed",
+  "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: paper white"
+      "Aura Signature: emerald glow"
     ]
   },
-  "timestamp": "2025-08-09T13:31:00.563Z"
+  "timestamp": "2025-08-10T13:31:19.169Z"
 }
