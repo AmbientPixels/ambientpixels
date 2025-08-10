@@ -82,6 +82,22 @@
           </div>
           
           <div class="filter-row">
+            <label for="languageFilter">Language:</label>
+            <select id="languageFilter" onchange="applyFilters()">
+              <option value="all">All Languages</option>
+              <!-- Options will be populated dynamically -->
+            </select>
+          </div>
+          
+          <div class="filter-row">
+            <label for="regionFilter">Region:</label>
+            <select id="regionFilter" onchange="applyFilters()">
+              <option value="all">All Regions</option>
+              <!-- Options will be populated dynamically -->
+            </select>
+          </div>
+          
+          <div class="filter-row">
             <label for="localeFilter">Locale:</label>
             <select id="localeFilter" onchange="applyFilters()">
               <option value="all">All Locales</option>

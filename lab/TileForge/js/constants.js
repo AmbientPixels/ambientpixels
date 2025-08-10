@@ -116,6 +116,93 @@ const LOCALE_NAMES = {
   'ZH-TW': 'Chinese Taiwan'
 };
 
+// Language mapping for filtering
+const LANGUAGE_MAP = {
+  'AR': 'Arabic',
+  'CS': 'Czech',
+  'DA': 'Danish',
+  'DE': 'German',
+  'EL': 'Greek',
+  'EN': 'English',
+  'ES': 'Spanish',
+  'FI': 'Finnish',
+  'FR': 'French',
+  'HE': 'Hebrew',
+  'HU': 'Hungarian',
+  'IT': 'Italian',
+  'JA': 'Japanese',
+  'KO': 'Korean',
+  'NB': 'Norwegian',
+  'NL': 'Dutch',
+  'PL': 'Polish',
+  'PT': 'Portuguese',
+  'RU': 'Russian',
+  'SK': 'Slovak',
+  'SV': 'Swedish',
+  'TH': 'Thai',
+  'TR': 'Turkish',
+  'UK': 'Ukrainian',
+  'ZH': 'Chinese'
+};
+
+// Region mapping for filtering
+const REGION_MAP = {
+  'AE': 'Middle East',
+  'AR': 'South America',
+  'AT': 'Europe',
+  'AU': 'Oceania',
+  'BE': 'Europe',
+  'BR': 'South America',
+  'CA': 'North America',
+  'CH': 'Europe',
+  'CL': 'South America',
+  'CN': 'Asia',
+  'CO': 'South America',
+  'CZ': 'Europe',
+  'DE': 'Europe',
+  'DK': 'Europe',
+  'ES': 'Europe',
+  'FI': 'Europe',
+  'FR': 'Europe',
+  'GB': 'Europe',
+  'GR': 'Europe',
+  'HK': 'Asia',
+  'HU': 'Europe',
+  'IE': 'Europe',
+  'IL': 'Middle East',
+  'IN': 'Asia',
+  'IT': 'Europe',
+  'JP': 'Asia',
+  'KR': 'Asia',
+  'MX': 'North America',
+  'NL': 'Europe',
+  'NO': 'Europe',
+  'NZ': 'Oceania',
+  'PE': 'South America',
+  'PL': 'Europe',
+  'PT': 'Europe',
+  'RU': 'Europe/Asia',
+  'SA': 'Middle East',
+  'SE': 'Europe',
+  'SG': 'Asia',
+  'SK': 'Europe',
+  'TH': 'Asia',
+  'TR': 'Europe/Asia',
+  'TW': 'Asia',
+  'UA': 'Europe',
+  'US': 'North America',
+  'ZA': 'Africa'
+};
+
+// Helper functions for locale parsing
+function getLanguageFromLocale(locale) {
+  return locale.split('-')[0].toUpperCase();
+}
+
+function getRegionFromLocale(locale) {
+  return locale.split('-')[1];
+}
+
 // Global state
 let currentCsvData = null;
 let currentImageSrc = null;
