@@ -108,3 +108,77 @@ function updateAnalyticsFromCurrentData() {
   
   updateAnalytics(analytics);
 }
+
+// Export current CSV data to downloadable file
+function exportToCSV() {
+  if (!currentCsvData || currentCsvData.length === 0) {
+    alert('No data available to export. Please load CSV data first.');
+    return;
+  }
+  
+  try {
+    // Generate CSV content from current data
+    const csvContent = generateCSVContent(currentCsvData);
+    
+    // Create download
+    downloadCSVFile(csvContent, 'tileforge-export.csv');
+    
+    // Update analytics
+    updateFileInfo('Export', 'tileforge-export.csv', `${currentCsvData.length} locales`);
+    
+    console.log('CSV export successful:', currentCsvData.length, 'locales exported');
+  } catch (error) {
+    console.error('CSV export failed:', error);
+    alert('Failed to export CSV. Please try again.');
+  }
+}
+
+// Generate CSV content from data array
+function generateCSVContent(data) {
+  if (!data || data.length === 0) {
+    throw new Error('No data to export');
+  }
+  
+  // Get headers from first row
+  const headers = Object.keys(data[0]);
+  
+  // Create CSV header row
+  const csvLines = [headers.join(',')];
+  
+  // Add data rows
+  data.forEach(row => {
+    const values = headers.map(header => {
+      const value = row[header] || '';
+      // Escape commas and quotes in CSV values
+      if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+        return `"${value.replace(/"/g, '""')}"`;
+      }
+      return value;
+    });
+    csvLines.push(values.join(','));
+  });
+  
+  return csvLines.join('\n');
+}
+
+// Download CSV file to user's system
+function downloadCSVFile(csvContent, filename) {
+  // Create blob with CSV content
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  
+  // Create download link
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  link.style.visibility = 'hidden';
+  
+  // Trigger download
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  // Clean up URL object
+  URL.revokeObjectURL(url);
+}
