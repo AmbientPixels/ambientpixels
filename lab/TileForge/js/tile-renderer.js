@@ -63,36 +63,28 @@ function createTile(locale, title, subtitle, analysis) {
   const editingControls = document.createElement('div');
   editingControls.className = 'editing-controls';
   
-  // Title input group
+  // Title input with simple character counter
   const titleGroup = document.createElement('div');
   titleGroup.className = 'input-group';
   titleGroup.innerHTML = `
     <label>Headline</label>
     <div class="input-container">
-      <input type="text" class="card-title-input" value="${title}" placeholder="Enter headline..." maxlength="50" />
-      <div class="character-info">
-        <div class="char-count">
-          <span class="count">${title.length}</span>/15 
-          <span class="w-reference" title="Max W characters: WWWWWWWWWWWWWWW">W</span>
-        </div>
-        <div class="w-count-display">Max: <code>WWWWWWWWWWWWWWW</code></div>
+      <input type="text" class="card-title-input" value="${title}" placeholder="Enter headline..." />
+      <div class="char-count">
+        <span class="count">${title.length}</span>
       </div>
     </div>
   `;
   
-  // Subtitle input group
+  // Subtitle input with simple character counter
   const subtitleGroup = document.createElement('div');
   subtitleGroup.className = 'input-group';
   subtitleGroup.innerHTML = `
     <label>Subheadline</label>
     <div class="input-container">
-      <input type="text" class="card-subtitle-input" value="${subtitle}" placeholder="Enter subheadline..." maxlength="50" />
-      <div class="character-info">
-        <div class="char-count">
-          <span class="count">${subtitle.length}</span>/15 
-          <span class="w-reference" title="Max W characters: WWWWWWWWWWWWWWW">W</span>
-        </div>
-        <div class="w-count-display">Max: <code>WWWWWWWWWWWWWWW</code></div>
+      <input type="text" class="card-subtitle-input" value="${subtitle}" placeholder="Enter subheadline..." />
+      <div class="char-count">
+        <span class="count">${subtitle.length}</span>
       </div>
     </div>
   `;
@@ -110,13 +102,11 @@ function createTile(locale, title, subtitle, analysis) {
   titleInput.addEventListener('input', function() {
     titleEl.textContent = this.value;
     titleCounter.textContent = this.value.length;
-    updateTileStatus(tile);
   });
   
   subtitleInput.addEventListener('input', function() {
     subtitleEl.textContent = this.value;
     subtitleCounter.textContent = this.value.length;
-    updateTileStatus(tile);
   });
   
   // Assemble editing content (tile left, controls right)
@@ -149,13 +139,11 @@ function createTileEditor(locale, title, subtitle, tileElement) {
   titleGroup.innerHTML = `
     <label>Headline</label>
     <div class="input-container">
-      <input type="text" class="title-input" value="${title}" maxlength="50" />
+      <input type="text" class="title-input" value="${title}" />
       <div class="char-count">
-        <span class="count">${title.length}</span>/15 
-        <span class="w-reference">W</span>
+        <span class="count">${title.length}</span>
       </div>
     </div>
-    <div class="w-count-display">Max: <code>WWWWWWWWWWWWWWW</code></div>
   `;
   
   // Subtitle input group
@@ -164,13 +152,11 @@ function createTileEditor(locale, title, subtitle, tileElement) {
   subtitleGroup.innerHTML = `
     <label>Subheadline</label>
     <div class="input-container">
-      <input type="text" class="subtitle-input" value="${subtitle}" maxlength="50" />
+      <input type="text" class="subtitle-input" value="${subtitle}" />
       <div class="char-count">
-        <span class="count">${subtitle.length}</span>/15 
-        <span class="w-reference">W</span>
+        <span class="count">${subtitle.length}</span>
       </div>
     </div>
-    <div class="w-count-display">Max: <code>WWWWWWWWWWWWWWW</code></div>
   `;
   
   // Action buttons
@@ -236,9 +222,6 @@ function applyTileChanges(button) {
   if (titleEl) titleEl.textContent = newTitle;
   if (subtitleEl) subtitleEl.textContent = newSubtitle;
   
-  // Update tile status
-  updateTileStatus(tile);
-  
   // Update CSV data
   updateCsvDataForTile(locale, tile);
   
@@ -265,10 +248,6 @@ function resetTileEditor(button) {
   
   if (titleCount) titleCount.textContent = originalTitle.length;
   if (subtitleCount) subtitleCount.textContent = originalSubtitle.length;
-  
-  // Reset character count colors
-  const charCounts = editor.querySelectorAll('.char-count');
-  charCounts.forEach(el => el.className = 'char-count');
 }
 
 // Render locale groups with tiles
@@ -373,25 +352,21 @@ function createSectionEditor(locale, tileData) {
         <div class="input-group">
           <label>Headline</label>
           <div class="input-container">
-            <input type="text" class="section-title-input" value="${currentTitle}" maxlength="50" />
+            <input type="text" class="section-title-input" value="${currentTitle}" />
             <div class="char-count">
-              <span class="count">${currentTitle.length}</span>/15 
-              <span class="w-reference">W</span>
+              <span class="count">${currentTitle.length}</span>
             </div>
           </div>
-          <div class="w-count-display">Max: <code>WWWWWWWWWWWWWWW</code></div>
         </div>
         
         <div class="input-group">
           <label>Subheadline</label>
           <div class="input-container">
-            <input type="text" class="section-subtitle-input" value="${currentSubtitle}" maxlength="50" />
+            <input type="text" class="section-subtitle-input" value="${currentSubtitle}" />
             <div class="char-count">
-              <span class="count">${currentSubtitle.length}</span>/15 
-              <span class="w-reference">W</span>
+              <span class="count">${currentSubtitle.length}</span>
             </div>
           </div>
-          <div class="w-count-display">Max: <code>WWWWWWWWWWWWWWW</code></div>
         </div>
         
         <div class="section-editor-actions">
@@ -437,9 +412,6 @@ function applySectionChanges(button) {
     
     if (titleEl) titleEl.textContent = newTitle;
     if (subtitleEl) subtitleEl.textContent = newSubtitle;
-    
-    // Update tile status
-    updateTileStatus(tile);
   });
   
   // Update CSV data for this locale
@@ -477,10 +449,6 @@ function resetSectionEditor(button) {
       
       if (titleCount) titleCount.textContent = originalTitle.length;
       if (subtitleCount) subtitleCount.textContent = originalSubtitle.length;
-      
-      // Reset character count colors
-      const charCounts = editor.querySelectorAll('.char-count');
-      charCounts.forEach(el => el.className = 'char-count');
     }
   }
 }
@@ -500,17 +468,6 @@ function setupSectionEditorInputs(editor) {
       if (countEl) {
         countEl.textContent = charCount;
       }
-      
-      // Update color based on W-count limits
-      const charCountEl = editor.querySelector('.section-title-input + .char-count');
-      if (charCountEl) {
-        charCountEl.className = 'char-count';
-        if (charCount > LIMITS.title.max) {
-          charCountEl.classList.add('error');
-        } else if (charCount > LIMITS.title.warning) {
-          charCountEl.classList.add('warning');
-        }
-      }
     });
   }
   
@@ -523,17 +480,6 @@ function setupSectionEditorInputs(editor) {
       const countEl = editor.querySelector('.section-subtitle-input + .char-count .count');
       if (countEl) {
         countEl.textContent = charCount;
-      }
-      
-      // Update color based on W-count limits
-      const charCountEl = editor.querySelector('.section-subtitle-input + .char-count');
-      if (charCountEl) {
-        charCountEl.className = 'char-count';
-        if (charCount > LIMITS.subtitle.max) {
-          charCountEl.classList.add('error');
-        } else if (charCount > LIMITS.subtitle.warning) {
-          charCountEl.classList.add('warning');
-        }
       }
     });
   }

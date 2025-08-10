@@ -1,19 +1,8 @@
 // TileForge Constants and Configuration
-// W-count character limits (based on widest character 'W')
-const LIMITS = {
-  title: {
-    max: 15,      // WWWWWWWWWWWWWWW
-    warning: 12   // Warning threshold
-  },
-  subtitle: {
-    max: 15,      // WWWWWWWWWWWWWWW
-    warning: 12   // Warning threshold
-  }
-};
 
 // Default CSV data for initial load (Fortnite OG localization - comprehensive)
 const DEFAULT_CSV_DATA = `Locale,items/0/title,items/0/subtitle,items/0/narratorText
-Locale,WWWWWWWWWWWWWWW,WWWWWWWWWWWWWWW,Narrator Text
+Locale,Sample Title,Sample Subtitle,Narrator Text
 AR-AE,Fortnite OG,موسم جديد ,
 AR-SA,Fortnite OG,موسم جديد ,
 CS-CZ,Fortnite OG,Nová sezóna ,

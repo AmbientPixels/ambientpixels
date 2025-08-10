@@ -268,3 +268,223 @@ TileForge/
 
 **TileForge** - Precision localization preview with visual intelligence.
 *Built with modular architecture and Canvas-based text measurement for maximum accuracy and usability.*
+
+---
+
+## 📋 Overview
+
+TileForge is a comprehensive Xbox tile localization preview tool that allows teams to visualize, edit, and export localized content for Xbox tiles across multiple languages. It features a revolutionary visual text measurement system, intelligent subtitle visibility logic, and streamlined CSV export functionality.
+
+## Key Features
+
+### 🎯 Visual Text Measurement System
+- **Canvas-based pixel measurement** - Replaces conservative character counting with actual pixel-width analysis
+- **Real-time overflow detection** - Prevents text truncation using actual tile dimensions (280px width, 248px usable)
+- **Multi-line text analysis** - Smart word wrapping and line break prediction
+- **2.5-3x increased text capacity** - Maximizes usable space while preventing overflow
+
+### 🎨 Intelligent Subtitle Visibility
+- **Dynamic subtitle hiding** - When headlines break to 2 lines, subtitles automatically disappear
+- **Clean tile layout** - Prevents text overcrowding and maintains readability
+- **Real-time responsiveness** - Updates instantly as users type
+
+### 📊 Simple Character Counting
+- **Clean interface** - Shows only current character count without arbitrary limits
+- **No W-count restrictions** - Removed legacy 15-character limits
+- **Real-time updates** - Character counts update as users type
+
+### 📤 CSV Export Functionality
+- **One-click export** - Download current localization data as CSV
+- **Preserves all edits** - Includes user modifications from live editing
+- **Proper CSV formatting** - Handles commas, quotes, and newlines correctly
+- **Integration ready** - Files can be imported back into localization workflows
+
+## Architecture
+
+### Modular CSS Structure
+```
+css/
+├── styles.css          # Core app layout and global styles
+├── tile-card.css       # Tile preview and overlay positioning
+├── tile-editor.css     # Inline editing controls and inputs
+└── base.css           # Typography and foundational styles
+```
+
+### JavaScript Modules
+```
+js/
+├── main.js            # Application initialization and coordination
+├── tile-renderer.js   # Tile creation, rendering, and visual updates
+├── text-measurement.js # Canvas-based visual text measurement
+├── csv-handler.js     # CSV parsing, updating, and export
+├── drag-drop.js       # File upload and drag-and-drop handling
+└── constants.js       # Locale data and configuration
+```
+
+## Visual Text Measurement System
+
+### Technical Implementation
+The visual measurement system uses HTML5 Canvas API to measure actual pixel width of text:
+
+```javascript
+function measureTextWidth(text, fontSize, fontFamily, fontWeight) {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  context.font = `${fontWeight} ${fontSize} ${fontFamily}`;
+  return context.measureText(text).width;
+}
+```
+
+### Key Functions
+- `measureTextWidth()` - Pixel-accurate text measurement
+- `analyzeTextLayout()` - Multi-line analysis with word wrapping
+- `willTextFit()` - Single-line overflow prediction
+- `analyzeTextVisually()` - Complete text fitting analysis
+
+### Performance Optimizations
+- Canvas reuse for multiple measurements
+- Cached font metrics for repeated calculations
+- Efficient word-wrapping algorithms
+
+## Subtitle Visibility Logic
+
+### Behavior
+- **Single-line headlines**: Both headline and subtitle are displayed
+- **Multi-line headlines**: Subtitle is automatically hidden to prevent overcrowding
+- **Real-time updates**: Visibility changes instantly as users type
+
+### Implementation
+```javascript
+function updateSubtitleVisibility(tileElement) {
+  const titleAnalysis = analyzeTextLayout(titleText, '18px', 'system-ui', '600');
+  
+  if (titleAnalysis.lineCount > 1) {
+    subtitleElement.style.display = 'none';
+    tileElement.classList.add('title-multiline');
+  } else {
+    subtitleElement.style.display = 'block';
+    tileElement.classList.remove('title-multiline');
+  }
+}
+```
+
+## Locale System
+
+### Supported Locales
+TileForge supports 52+ locales including:
+- **Arabic**: AR-AE, AR-SA
+- **European**: DE-DE, FR-FR, ES-ES, IT-IT
+- **Asian**: JA-JP, KO-KR, ZH-CN, ZH-TW
+- **English variants**: EN-US, EN-GB, EN-AU, EN-CA
+- And many more...
+
+### CSV Structure
+```csv
+Locale,items/0/title,items/0/subtitle,items/0/narratorText
+EN-US,Game Title,Subtitle Text,Narrator description
+DE-DE,Spiel Titel,Untertitel Text,Erzähler Beschreibung
+```
+
+## Usage Guide
+
+### 1. Loading Data
+- **Drag & Drop**: Drop CSV files into the designated drop zone
+- **File Browser**: Click "browse files" to select CSV files
+- **Default Data**: Application loads with sample Fortnite OG data
+
+### 2. Live Editing
+- **Inline Editing**: Click any tile to edit headline/subtitle directly
+- **Section Editor**: Use the expandable section editors for batch editing
+- **Real-time Preview**: See changes instantly in tile previews
+- **Character Counting**: Simple character counts update as you type
+
+### 3. Visual Analysis
+- **Overflow Detection**: Visual measurement prevents text truncation
+- **Subtitle Logic**: Subtitles hide automatically when headlines wrap
+- **Status Indicators**: Visual feedback for text fitting analysis
+
+### 4. Exporting Data
+- **Export to CSV**: Click the "📤 Export to CSV" button
+- **File Download**: Browser downloads "tileforge-export.csv"
+- **All Edits Included**: Exported file contains all user modifications
+
+## Character Counting System
+
+### Simple and Clean
+- **Current count only**: Shows actual character count without arbitrary limits
+- **No restrictions**: Removed legacy 15-character W-count limitations
+- **Visual measurement**: Uses pixel-based analysis instead of character counting
+- **Real-time updates**: Counts update instantly as users type
+
+### Implementation
+```javascript
+// Simple character counter - no limits or warnings
+titleInput.addEventListener('input', function() {
+  titleCounter.textContent = this.value.length;
+  updateSubtitleVisibility(tile);
+});
+```
+
+## CSV Export System
+
+### Export Functionality
+```javascript
+function exportToCSV() {
+  const csvContent = generateCSVContent(currentCsvData);
+  downloadCSVFile(csvContent, 'tileforge-export.csv');
+}
+```
+
+### Features
+- **Proper escaping**: Handles commas, quotes, and newlines in CSV format
+- **All columns preserved**: Maintains original CSV structure
+- **User edits included**: Exports current state with all modifications
+- **Browser download**: Uses Blob API for clean file downloads
+
+## Troubleshooting
+
+### Common Issues
+
+**Tiles not loading**
+- Check browser console for JavaScript errors
+- Verify CSV file format matches expected structure
+- Ensure all required columns are present
+
+**Character counts not updating**
+- Verify input event listeners are properly attached
+- Check for JavaScript errors in browser console
+
+**Export not working**
+- Ensure CSV data is loaded before attempting export
+- Check browser permissions for file downloads
+- Verify Blob API support in browser
+
+### Browser Compatibility
+- **Chrome/Edge**: Full support for all features
+- **Firefox**: Full support with Canvas API
+- **Safari**: Supported with minor visual differences
+
+## Development Notes
+
+### Code Organization
+- **Modular architecture**: Separate concerns across multiple files
+- **Event-driven updates**: Real-time responsiveness through event listeners
+- **Visual measurement**: Canvas-based text analysis for accuracy
+
+### Performance Considerations
+- **Efficient rendering**: Minimal DOM manipulation during updates
+- **Cached measurements**: Reuse canvas contexts for performance
+- **Debounced updates**: Prevent excessive recalculations during typing
+
+## Future Enhancements
+
+### Planned Features
+- **Advanced export options**: Export with analysis data, modified-only export
+- **Batch editing tools**: Multi-locale editing capabilities
+- **Theme customization**: Custom tile backgrounds and styling
+- **Analytics dashboard**: Enhanced text fitting statistics
+
+### Technical Improvements
+- **Performance optimization**: Further canvas measurement improvements
+- **Accessibility**: Enhanced screen reader support
+- **Mobile responsiveness**: Touch-friendly editing interface
