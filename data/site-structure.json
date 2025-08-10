@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-08-09T13:30:59.608Z",
+  "updated": "2025-08-10T13:31:18.285Z",
   "root": [
     {
       "type": "folder",
@@ -518,6 +518,30 @@
       "name": "lab",
       "path": "lab",
       "children": [
+        {
+          "type": "folder",
+          "name": "TileForge",
+          "path": "lab/TileForge",
+          "children": [
+            {
+              "type": "folder",
+              "name": "css",
+              "path": "lab/TileForge/css",
+              "children": []
+            },
+            {
+              "type": "page",
+              "name": "index.html",
+              "path": "lab/TileForge/index.html"
+            },
+            {
+              "type": "folder",
+              "name": "js",
+              "path": "lab/TileForge/js",
+              "children": []
+            }
+          ]
+        },
         {
           "type": "page",
           "name": "auth-test.html",
