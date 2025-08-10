@@ -3,8 +3,8 @@
 
 // Setup drag and drop functionality
 function setupDragAndDrop() {
-  const imageZone = document.getElementById('imageUploadZone');
-  const csvZone = document.getElementById('csvUploadZone');
+  const imageZone = document.getElementById('imgDropZone');
+  const csvZone = document.getElementById('csvDropZone');
   
   if (imageZone) {
     setupImageDragDrop(imageZone);
@@ -92,7 +92,7 @@ function handleImageUpload(file) {
 
 // Setup file input handlers
 function setupFileInputs() {
-  const imageInput = document.getElementById('imageInput');
+  const imageInput = document.getElementById('imgInput');
   const csvInput = document.getElementById('csvInput');
   
   if (imageInput) {

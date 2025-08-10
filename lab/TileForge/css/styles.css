@@ -90,7 +90,7 @@ body {
   background: #2d3748;
 }
 
-.drop-zone.dragover {
+.drop-zone.drag-over {
   border-color: #00bcf2;
   background: #1a365d;
   box-shadow: 0 0 20px rgba(0, 188, 242, 0.3);
