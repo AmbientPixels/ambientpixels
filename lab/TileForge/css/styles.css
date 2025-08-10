@@ -26,6 +26,13 @@ body {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Hide scrollbars for webkit browsers */
+.left-panel::-webkit-scrollbar {
+  display: none;
 }
 
 .panel-header {
