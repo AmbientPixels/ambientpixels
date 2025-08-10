@@ -45,6 +45,24 @@
   font-size: 20px;
   flex-shrink: 0;
 }
+
+/* Icon color styling for semantic meaning */
+.stat-card .stat-icon i.fa-globe {
+  color: #4a9eff; /* Blue for global/total */
+}
+
+.stat-card.warning .stat-icon i.fa-exclamation-triangle {
+  color: #ff6b6b; /* Red for critical overflow issues */
+}
+
+.stat-card.near-limit .stat-icon i.fa-exclamation-circle {
+  color: #ffa500; /* Orange for warning/near limit */
+}
+
+.stat-card.success .stat-icon i.fa-check-circle {
+  color: #4caf50; /* Green for success/clean tiles */
+}
+
 .stat-content {
   flex: 1;
 }

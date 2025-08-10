@@ -102,11 +102,17 @@ function createTile(locale, title, subtitle, analysis) {
   titleInput.addEventListener('input', function() {
     titleEl.textContent = this.value;
     titleCounter.textContent = this.value.length;
+    
+    // Update tile status and border colors
+    updateTileStatus(tile, titleInput.value, subtitleInput.value, badge);
   });
   
   subtitleInput.addEventListener('input', function() {
     subtitleEl.textContent = this.value;
     subtitleCounter.textContent = this.value.length;
+    
+    // Update tile status and border colors
+    updateTileStatus(tile, titleInput.value, subtitleInput.value, badge);
   });
   
   // Assemble editing content (tile left, controls right)
@@ -311,21 +317,13 @@ function renderLocaleGroups(csvData) {
 }
 
 // Update tile status based on current title and subtitle text
-function updateTileStatus(tileElement) {
-  const titleEl = tileElement.querySelector('.tile-title');
-  const subtitleEl = tileElement.querySelector('.tile-subtitle');
-  
-  if (!titleEl || !subtitleEl) return;
-  
-  const title = titleEl.textContent || '';
-  const subtitle = subtitleEl.textContent || '';
+function updateTileStatus(tileElement, title, subtitle, badge) {
   const analysis = analyzeText(title, subtitle);
   
   // Update tile class
   tileElement.className = `tile-preview ${analysis.status}`;
   
   // Update status badge
-  const badge = tileElement.querySelector('.tile-status-badge');
   if (badge) {
     badge.className = `tile-status-badge ${analysis.status}`;
     badge.textContent = analysis.status === 'clean' ? '✓' : 

@@ -203,6 +203,18 @@ function getRegionFromLocale(locale) {
   return locale.split('-')[1];
 }
 
+// Text length limits for tile analysis
+const LIMITS = {
+  title: {
+    max: 40,        // Maximum characters before overflow
+    warning: 30     // Warning threshold for near-limit
+  },
+  subtitle: {
+    max: 40,        // Maximum characters before overflow  
+    warning: 30     // Warning threshold for near-limit
+  }
+};
+
 // Global state
 let currentCsvData = null;
 let currentImageSrc = null;

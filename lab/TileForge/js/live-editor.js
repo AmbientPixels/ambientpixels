@@ -100,6 +100,9 @@ function setupLiveEditor() {
       
       // Update preview tile status
       updatePreviewTileStatus();
+      
+      // Update analytics dashboard in real-time
+      updateLiveAnalytics();
     });
   }
   
@@ -130,6 +133,9 @@ function setupLiveEditor() {
       
       // Update preview tile status
       updatePreviewTileStatus();
+      
+      // Update analytics dashboard in real-time
+      updateLiveAnalytics();
     });
   }
   
@@ -209,10 +215,25 @@ function updatePreviewTileStatus() {
   
   const title = titleInput.value || 'Fortnite OG';
   const subtitle = subtitleInput.value || 'New season';
+  
+  // Use the EXACT same analysis logic as CSV tiles
   const analysis = analyzeText(title, subtitle);
   
-  // Update tile class and badge
+  // DEBUG: Log what we're getting
+  console.log('Live Editor Debug:', {
+    title: title,
+    titleLength: title.length,
+    subtitle: subtitle,
+    subtitleLength: subtitle.length,
+    analysis: analysis,
+    LIMITS: LIMITS
+  });
+  
+  // Apply the EXACT same class logic as createTile() function
   previewTile.className = `preview-tile ${analysis.status}`;
+  
+  // DEBUG: Log what class was applied
+  console.log('Applied class:', previewTile.className);
   
   const badge = previewTile.querySelector('.tile-status-badge');
   if (badge) {
@@ -274,4 +295,27 @@ function setupEditorInputs(editor, tileElement) {
       }
     });
   }
+}
+
+// Update analytics dashboard based on live editor input
+function updateLiveAnalytics() {
+  const titleInput = document.getElementById('titleInput');
+  const subtitleInput = document.getElementById('subtitleInput');
+  
+  if (!titleInput || !subtitleInput) return;
+  
+  const title = titleInput.value || 'Fortnite OG';
+  const subtitle = subtitleInput.value || 'New season';
+  const analysis = analyzeText(title, subtitle);
+  
+  // Create analytics based on current live editor status
+  const analytics = {
+    totalLocales: 1, // Live editor shows 1 preview tile
+    overflowCount: analysis.status === 'overflow' ? 1 : 0,
+    nearLimitCount: analysis.status === 'near-limit' ? 1 : 0,
+    cleanCount: analysis.status === 'clean' ? 1 : 0
+  };
+  
+  // Update the analytics display
+  updateAnalytics(analytics);
 }

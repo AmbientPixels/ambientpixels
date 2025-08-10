@@ -170,6 +170,39 @@
   opacity: 1;
 }
 
+/* Preview tile styles for live editor - matches tile-preview styles */
+.preview-tile {
+  position: relative;
+  width: 280px;
+  height: 140px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.preview-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.preview-tile.overflow {
+  border-color: #ff6b6b;
+  box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
+}
+
+.preview-tile.near-limit {
+  border-color: #ffa500;
+  box-shadow: 0 0 15px rgba(255, 165, 0, 0.3);
+}
+
+.preview-tile.clean {
+  border-color: #4caf50;
+}
+
 /* Tile Container */
 .tile-container {
   position: relative;
