@@ -11,78 +11,119 @@ const LIMITS = {
   }
 };
 
-// Default CSV data for initial load (Fortnite OG localization)
-const DEFAULT_CSV_DATA = `Locale,items/0/title,items/0/subtitle
-AR-SA,Fortnite OG,موسم جديد
-BG-BG,Fortnite OG,Нов сезон
-CS-CZ,Fortnite OG,Nová sezóna
-DA-DK,Fortnite OG,Ny sæson
-DE-DE,Fortnite OG,Neue Saison
-EL-GR,Fortnite OG,Νέα σεζόν
-EN-US,Fortnite OG,New season
-ES-ES,Fortnite OG,Nueva temporada
-ES-MX,Fortnite OG,Nueva temporada
-FI-FI,Fortnite OG,Uusi kausi
-FR-FR,Fortnite OG,Nouvelle saison
-FR-CA,Fortnite OG,Nouvelle saison
-HE-IL,Fortnite OG,עונה חדשה
-HR-HR,Fortnite OG,Nova sezona
-HU-HU,Fortnite OG,Új évad
-IT-IT,Fortnite OG,Nuova stagione
-JA-JP,Fortnite OG,新シーズン
-KO-KR,Fortnite OG,새 시즌
-NB-NO,Fortnite OG,Ny sesong
-NL-NL,Fortnite OG,Nieuw seizoen
-PL-PL,Fortnite OG,Nowy sezon
-PT-BR,Fortnite OG,Nova temporada
-PT-PT,Fortnite OG,Nova época
-RO-RO,Fortnite OG,Sezon nou
-RU-RU,Fortnite OG,Новый сезон
-SK-SK,Fortnite OG,Nová sezóna
-SL-SI,Fortnite OG,Nova sezona
-SV-SE,Fortnite OG,Ny säsong
-TH-TH,Fortnite OG,ซีซันใหม่
-TR-TR,Fortnite OG,Yeni sezon
-UK-UA,Fortnite OG,Новий сезон
-VI-VN,Fortnite OG,Mùa mới
-ZH-CN,Fortnite OG,新赛季
-ZH-TW,Fortnite OG,全新賽季`;
+// Default CSV data for initial load (Fortnite OG localization - comprehensive)
+const DEFAULT_CSV_DATA = `Locale,items/0/title,items/0/subtitle,items/0/narratorText
+Locale,WWWWWWWWWWWWWWW,WWWWWWWWWWWWWWW,Narrator Text
+AR-AE,Fortnite OG,موسم جديد ,
+AR-SA,Fortnite OG,موسم جديد ,
+CS-CZ,Fortnite OG,Nová sezóna ,
+DA-DK,Fortnite OG,Ny sæson ,
+DE-AT,Fortnite OG,Neue Staffel,
+DE-CH,Fortnite OG,Neue Staffel,
+DE-DE,Fortnite OG,Neue Staffel,
+EL-GR,Fortnite OG,Νέα σεζόν ,
+EN-AE,Fortnite OG,New season,
+EN-AU,Fortnite OG,New season,
+EN-CA,Fortnite OG,New season,
+EN-CZ,Fortnite OG,New season,
+EN-GB,Fortnite OG,New season,
+EN-GR,Fortnite OG,New season,
+EN-HK,Fortnite OG,New season,
+EN-HU,Fortnite OG,New season,
+EN-IE,Fortnite OG,New season,
+EN-IL,Fortnite OG,New season,
+EN-IN,Fortnite OG,New season,
+EN-NZ,Fortnite OG,New season,
+EN-SA,Fortnite OG,New season,
+EN-SG,Fortnite OG,New season,
+EN-SK,Fortnite OG,New season,
+EN-US,Fortnite OG,New season,
+EN-ZA,Fortnite OG,New season,
+ES-AR,Fortnite OG,Nueva temporada,
+ES-CL,Fortnite OG,Nueva temporada,
+ES-CO,Fortnite OG,Nueva temporada,
+ES-ES,Fortnite OG,Nueva temporada,
+ES-MX,Fortnite OG,Nueva temporada,
+FI-FI,Fortnite OG,Uusi kausi,
+FR-BE,Fortnite OG,Nouvelle saison ,
+FR-CA,Fortnite OG,Nouvelle saison ,
+FR-CH,Fortnite OG,Nouvelle saison ,
+FR-FR,Fortnite OG,Nouvelle saison ,
+HE-IL,Fortnite OG,העונה החדשה כאן,
+HU-HU,Fortnite OG,Új évad ,
+IT-CH,Fortnite OG,Nuova stagione,
+IT-IT,Fortnite OG,Nuova stagione,
+JA-JP,Fortnite OG,新シーズン到来,
+KO-KR,Fortnite OG,새로운 시즌 출시,
+NB-NO,Fortnite OG,Ny sesong,
+NL-BE,Fortnite OG,Nieuw seizoen ,
+NL-NL,Fortnite OG,Nieuw seizoen ,
+PL-PL,Fortnite OG,Nowy sezon,
+PT-BR,Fortnite OG,Nova temporada,
+PT-PT,Fortnite OG,Nova Temporada,
+SK-SK,Fortnite OG,Nová sezóna ,
+SV-SE,Fortnite OG,Ny säsong,
+TR-TR,Fortnite OG,Yeni Sezon çıktı,
+UK-UA,Fortnite OG,Новий сезон ,
+ZH-HK,Fortnite OG,全新賽季 ,
+ZH-SG,Fortnite OG,新赛季 ,
+ZH-TW,Fortnite OG,全新賽季 ,`;
 
-// Locale display names mapping
+// Locale display names mapping (comprehensive)
 const LOCALE_NAMES = {
+  'AR-AE': 'Arabic UAE',
   'AR-SA': 'Arabic Saudi Arabia',
-  'BG-BG': 'Bulgarian Bulgaria',
   'CS-CZ': 'Czech Czech Republic',
   'DA-DK': 'Danish Denmark',
+  'DE-AT': 'German Austria',
+  'DE-CH': 'German Switzerland',
   'DE-DE': 'German Germany',
   'EL-GR': 'Greek Greece',
+  'EN-AE': 'English UAE',
+  'EN-AU': 'English Australia',
+  'EN-CA': 'English Canada',
+  'EN-CZ': 'English Czech Republic',
+  'EN-GB': 'English United Kingdom',
+  'EN-GR': 'English Greece',
+  'EN-HK': 'English Hong Kong',
+  'EN-HU': 'English Hungary',
+  'EN-IE': 'English Ireland',
+  'EN-IL': 'English Israel',
+  'EN-IN': 'English India',
+  'EN-NZ': 'English New Zealand',
+  'EN-SA': 'English Saudi Arabia',
+  'EN-SG': 'English Singapore',
+  'EN-SK': 'English Slovakia',
   'EN-US': 'English United States',
+  'EN-ZA': 'English South Africa',
+  'ES-AR': 'Spanish Argentina',
+  'ES-CL': 'Spanish Chile',
+  'ES-CO': 'Spanish Colombia',
   'ES-ES': 'Spanish Spain',
   'ES-MX': 'Spanish Mexico',
   'FI-FI': 'Finnish Finland',
-  'FR-FR': 'French France',
+  'FR-BE': 'French Belgium',
   'FR-CA': 'French Canada',
+  'FR-CH': 'French Switzerland',
+  'FR-FR': 'French France',
   'HE-IL': 'Hebrew Israel',
-  'HR-HR': 'Croatian Croatia',
   'HU-HU': 'Hungarian Hungary',
+  'IT-CH': 'Italian Switzerland',
   'IT-IT': 'Italian Italy',
   'JA-JP': 'Japanese Japan',
   'KO-KR': 'Korean South Korea',
   'NB-NO': 'Norwegian Norway',
+  'NL-BE': 'Dutch Belgium',
   'NL-NL': 'Dutch Netherlands',
   'PL-PL': 'Polish Poland',
   'PT-BR': 'Portuguese Brazil',
   'PT-PT': 'Portuguese Portugal',
-  'RO-RO': 'Romanian Romania',
-  'RU-RU': 'Russian Russia',
   'SK-SK': 'Slovak Slovakia',
-  'SL-SI': 'Slovenian Slovenia',
   'SV-SE': 'Swedish Sweden',
-  'TH-TH': 'Thai Thailand',
   'TR-TR': 'Turkish Turkey',
   'UK-UA': 'Ukrainian Ukraine',
-  'VI-VN': 'Vietnamese Vietnam',
-  'ZH-CN': 'Chinese China',
+  'ZH-HK': 'Chinese Hong Kong',
+  'ZH-SG': 'Chinese Singapore',
   'ZH-TW': 'Chinese Taiwan'
 };
 
