@@ -77,6 +77,17 @@
   border-color: #1e73be;
   box-shadow: 0 0 0 2px rgba(30, 115, 190, 0.2);
 }
+
+/* Fix browser autofill white background bug */
+.input-container input:-webkit-autofill,
+.input-container input:-webkit-autofill:hover,
+.input-container input:-webkit-autofill:focus,
+.input-container input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #333 inset !important;
+  -webkit-text-fill-color: #fff !important;
+  border: 1px solid #555 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
 .character-info {
   display: flex;
   justify-content: space-between;

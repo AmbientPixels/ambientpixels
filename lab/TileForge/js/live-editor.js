@@ -115,9 +115,17 @@ function setupLiveEditor() {
       const text = this.value;
       const charCount = text.length;
       
-      // Update preview tile text
+      // Update preview tile text - behave like localized previews
       if (previewSubtitle) {
-        previewSubtitle.textContent = text || 'New season';
+        if (text.trim() === '') {
+          // Hide subtitle when empty, let title expand
+          previewSubtitle.textContent = '';
+          previewSubtitle.classList.add('hidden');
+        } else {
+          // Show subtitle with text
+          previewSubtitle.textContent = text;
+          previewSubtitle.classList.remove('hidden');
+        }
       }
       
       // Update character count

@@ -75,6 +75,22 @@
   overflow: hidden;
 }
 
+/* Hide subtitle when empty, allow title to expand */
+.tile-subtitle:empty {
+  display: none;
+}
+
+.tile-subtitle.hidden {
+  display: none;
+}
+
+/* When subtitle is hidden, title can expand to more lines */
+.tile-overlay:has(.tile-subtitle:empty) .tile-title,
+.tile-overlay:has(.tile-subtitle.hidden) .tile-title {
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
 /* Tile Overlay Positioning - Bottom Left Text */
 .tile-overlay {
   position: absolute;
