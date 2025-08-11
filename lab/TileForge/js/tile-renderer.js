@@ -8,7 +8,7 @@ function analyzeText(title, subtitle) {
 }
 
 // Create tile element with dedicated editor
-function createTile(locale, title, subtitle, analysis) {
+function createTile(locale, title, subtitle, narratorText, analysis) {
   const tileContainer = document.createElement('div');
   tileContainer.className = 'tile-container';
   tileContainer.dataset.locale = locale;
@@ -89,14 +89,30 @@ function createTile(locale, title, subtitle, analysis) {
     </div>
   `;
   
+  // Narrator text input with simple character counter
+  const narratorGroup = document.createElement('div');
+  narratorGroup.className = 'input-group';
+  narratorGroup.innerHTML = `
+    <label>Narrator Text</label>
+    <div class="input-container">
+      <input type="text" class="card-narrator-input" value="${narratorText}" placeholder="Enter narrator text..." />
+      <div class="char-count">
+        <span class="count">${narratorText.length}</span>
+      </div>
+    </div>
+  `;
+  
   // Get input elements for event listeners
   editingControls.appendChild(titleGroup);
   editingControls.appendChild(subtitleGroup);
+  editingControls.appendChild(narratorGroup);
   
   const titleInput = titleGroup.querySelector('.card-title-input');
   const subtitleInput = subtitleGroup.querySelector('.card-subtitle-input');
+  const narratorInput = narratorGroup.querySelector('.card-narrator-input');
   const titleCounter = titleGroup.querySelector('.char-count .count');
   const subtitleCounter = subtitleGroup.querySelector('.char-count .count');
+  const narratorCounter = narratorGroup.querySelector('.char-count .count');
   
   // Live preview updates
   titleInput.addEventListener('input', function() {
@@ -116,6 +132,13 @@ function createTile(locale, title, subtitle, analysis) {
     
     // Update tile status and border colors
     updateTileStatus(tile, titleInput.value, subtitleInput.value, badge);
+    
+    // Update analytics dashboard to reflect all tile changes
+    updateAnalyticsFromAllTiles();
+  });
+  
+  narratorInput.addEventListener('input', function() {
+    narratorCounter.textContent = this.value.length;
     
     // Update analytics dashboard to reflect all tile changes
     updateAnalyticsFromAllTiles();
@@ -277,6 +300,7 @@ function renderLocaleGroups(csvData) {
     const locale = row.Locale || row.locale || 'unknown';
     const title = row['items/0/title'] || row.Title || row.title || '';
     const subtitle = row['items/0/subtitle'] || row.Subtitle || row.subtitle || '';
+    const narratorText = row['items/0/narratorText'] || row.NarratorText || row.narratorText || '';
     
     if (!localeGroups[locale]) {
       localeGroups[locale] = [];
@@ -284,7 +308,7 @@ function renderLocaleGroups(csvData) {
     }
     
     const analysis = analyzeText(title, subtitle);
-    localeGroups[locale].push({ title, subtitle, analysis });
+    localeGroups[locale].push({ title, subtitle, narratorText, analysis });
     
     // Update analytics
     if (analysis.status === 'overflow') analytics.overflowCount++;
@@ -308,8 +332,8 @@ function renderLocaleGroups(csvData) {
     tilesContainer.className = 'tiles-container';
     
     // Create tiles for this locale
-    tiles.forEach(({ title, subtitle, analysis }) => {
-      const tile = createTile(locale, title, subtitle, analysis);
+    tiles.forEach(({ title, subtitle, narratorText, analysis }) => {
+      const tile = createTile(locale, title, subtitle, narratorText, analysis);
       tilesContainer.appendChild(tile);
     });
     

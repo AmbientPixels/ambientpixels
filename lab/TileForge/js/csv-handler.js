@@ -69,11 +69,19 @@ function updateCsvDataForTile(locale, tileElement) {
   const newTitle = titleEl.textContent || '';
   const newSubtitle = subtitleEl.textContent || '';
   
+  // Get narrator text from live editor if available
+  const narratorInput = document.getElementById('narratorInput');
+  const newNarratorText = narratorInput ? narratorInput.value || '' : '';
+  
   // Find and update the corresponding CSV row
   const row = currentCsvData.find(r => r.Locale === locale);
   if (row) {
     row['items/0/title'] = newTitle;
     row['items/0/subtitle'] = newSubtitle;
+    // Add narrator text field (using common CSV column name)
+    if (newNarratorText || row['items/0/narratorText'] !== undefined) {
+      row['items/0/narratorText'] = newNarratorText;
+    }
   }
   
   // Update analytics after a short delay to avoid excessive updates

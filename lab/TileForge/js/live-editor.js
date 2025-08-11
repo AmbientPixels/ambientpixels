@@ -60,8 +60,10 @@ function setupLiveEditor() {
   const liveEditingPanel = document.getElementById('liveEditingPanel');
   const titleInput = document.getElementById('titleInput');
   const subtitleInput = document.getElementById('subtitleInput');
+  const narratorInput = document.getElementById('narratorInput');
   const titleCharCount = document.getElementById('titleCharCount');
   const subtitleCharCount = document.getElementById('subtitleCharCount');
+  const narratorCharCount = document.getElementById('narratorCharCount');
   const previewTitle = document.getElementById('previewTitle');
   const previewSubtitle = document.getElementById('previewSubtitle');
   const previewTile = document.getElementById('previewTile');
@@ -124,6 +126,35 @@ function setupLiveEditor() {
         // Update color based on W-count limits
         const charCountEl = subtitleCharCount.parentElement;
         charCountEl.className = 'char-count';
+        if (charCount > LIMITS.subtitle.max) {
+          charCountEl.classList.add('error');
+        } else if (charCount > LIMITS.subtitle.warning) {
+          charCountEl.classList.add('warning');
+        }
+      }
+      
+      // Update preview tile status
+      updatePreviewTileStatus();
+      
+      // Update analytics dashboard in real-time
+      updateLiveAnalytics();
+    });
+  }
+  
+  // Narrator text input handler
+  if (narratorInput) {
+    narratorInput.addEventListener('input', function() {
+      const text = this.value;
+      const charCount = text.length;
+      
+      // Update character count
+      if (narratorCharCount) {
+        narratorCharCount.textContent = charCount;
+        
+        // Add visual feedback for character limits (using subtitle limits as reference)
+        const charCountEl = narratorCharCount.parentElement;
+        charCountEl.classList.remove('warning', 'error');
+        
         if (charCount > LIMITS.subtitle.max) {
           charCountEl.classList.add('error');
         } else if (charCount > LIMITS.subtitle.warning) {
