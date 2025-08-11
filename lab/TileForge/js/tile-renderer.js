@@ -131,6 +131,14 @@ function createTile(locale, title, subtitle, narratorText, analysis) {
     // Update tile status and border colors
     updateTileStatus(tile, titleInput.value, subtitleInput.value, badge);
     
+    // Re-apply Mobile Spotlight template class after status update (FIX: Maintain template)
+    if (typeof window.templateSystem !== 'undefined') {
+      const currentConfig = window.templateSystem.getCurrentConfig();
+      if (currentConfig && currentConfig.name === 'Mobile Spotlight') {
+        tile.classList.add('mobile-spotlight');
+      }
+    }
+    
     // Update analytics dashboard to reflect all tile changes
     updateAnalyticsFromAllTiles();
   });
@@ -141,6 +149,14 @@ function createTile(locale, title, subtitle, narratorText, analysis) {
     
     // Update tile status and border colors
     updateTileStatus(tile, titleInput.value, subtitleInput.value, badge);
+    
+    // Re-apply Mobile Spotlight template class after status update (FIX: Maintain template)
+    if (typeof window.templateSystem !== 'undefined') {
+      const currentConfig = window.templateSystem.getCurrentConfig();
+      if (currentConfig && currentConfig.name === 'Mobile Spotlight') {
+        tile.classList.add('mobile-spotlight');
+      }
+    }
     
     // Update analytics dashboard to reflect all tile changes
     updateAnalyticsFromAllTiles();

@@ -13,25 +13,139 @@ TileForge is a **production-ready Xbox tile localization preview tool** built wi
 TileForge/
 ├── index.html              # Main application entry point
 ├── css/
-│   ├── base.css            # Core styling and variables
-│   ├── styles.css          # Main component styles
-│   └── tile-utils.css      # Tile-specific utilities
+│   ├── styles.css          # Main styling and layout
+│   ├── tile-card.css       # Tile preview styling
+│   └── template-system.css # Template selection and Mobile Spotlight styles
 └── js/
+    ├── main.js             # Application initialization
     ├── constants.js        # Locale mappings, limits, helper functions
-    ├── main.js             # Core app logic, modals, filtering
+    ├── template-system.js  # Template selection and switching logic
     ├── tile-renderer.js    # Tile creation and locale rendering
+    ├── text-measurement.js # Visual text analysis and overflow detection
     ├── live-editor.js      # Real-time tile editing functionality
-    ├── analytics.js        # Statistics and dashboard updates
-    └── drag-drop.js        # File upload handling
+    └── analytics.js        # Statistics and dashboard updates
 ```
 
 ### **Key Technical Details**
 - **No Build Process**: Pure vanilla JavaScript, runs directly in browser
+- **Multi-Template System**: Top of Home and Mobile Spotlight templates with dynamic switching
 - **Visual Text Measurement**: Canvas-based pixel-perfect text analysis (not character counting)
+- **Template-Aware Analysis**: Text limits and overflow detection adapt to selected template
 - **Locale Badge System**: Clean pill-style badges for locale identification (EN-US, FR-FR, etc.)
 - **Real-time Updates**: Live tile preview with instant visual feedback
 - **Modular CSS**: Feature-based separation, no duplication, follows Windsurf Protocol
 - **52+ Locales**: Full international coverage with proper locale name mappings
+
+## 🎨 Template System
+
+### **Overview**
+TileForge supports two Xbox tile templates optimized for different platforms and use cases:
+
+### **Top of Home (ToH) - Default Template**
+- **Image Dimensions**: 360×315px (Xbox standard)
+- **Display Size**: 280×140px (50% scale for UI)
+- **Aspect Ratio**: 8:7 horizontal format
+- **Text Limits**:
+  - Title: 40 characters max, 2 lines
+  - Subtitle: 40 characters max, 2 lines
+- **Typography**:
+  - Title: 18px, font-weight 600
+  - Subtitle: 16px, font-weight 400
+- **Use Case**: Traditional Xbox dashboard tiles, home screen placement
+
+### **Mobile Spotlight - New Template**
+- **Image Dimensions**: 694×758px (mobile-optimized)
+- **Display Size**: 347×379px (50% scale for UI)
+- **Aspect Ratio**: 11:12 vertical format
+- **Text Limits**:
+  - Title: 60 characters max, 3 lines (+50% capacity)
+  - Subtitle: 80 characters max, 3 lines (+100% capacity)
+- **Typography**:
+  - Title: 20px, font-weight 700 (larger, bolder)
+  - Subtitle: 16px, font-weight 400
+- **Use Case**: Xbox mobile app spotlight tiles, vertical mobile layouts
+
+### **Template Architecture**
+
+#### **JavaScript Module: `template-system.js`**
+```javascript
+// Template configuration objects
+const TEMPLATE_CONFIGS = {
+  'Top of Home': {
+    name: 'Top of Home',
+    displayWidth: 280,
+    displayHeight: 140,
+    imageWidth: 360,
+    imageHeight: 315,
+    limits: { title: { max: 40, warning: 35 }, subtitle: { max: 40, warning: 35 } },
+    fonts: { title: { fontSize: '18px', fontWeight: '600' }, subtitle: { fontSize: '16px', fontWeight: '400' } },
+    lineClamps: { title: 2, subtitle: 2 }
+  },
+  'Mobile Spotlight': {
+    name: 'Mobile Spotlight',
+    displayWidth: 347,
+    displayHeight: 379,
+    imageWidth: 694,
+    imageHeight: 758,
+    limits: { title: { max: 60, warning: 55 }, subtitle: { max: 80, warning: 75 } },
+    fonts: { title: { fontSize: '20px', fontWeight: '700' }, subtitle: { fontSize: '16px', fontWeight: '400' } },
+    lineClamps: { title: 3, subtitle: 3 }
+  }
+};
+```
+
+#### **CSS Classes: `template-system.css`**
+```css
+/* Mobile Spotlight template styling */
+.tile-preview.mobile-spotlight {
+  width: 347px;
+  height: 379px;
+}
+
+.mobile-spotlight .tile-overlay {
+  padding: 24px 20px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+}
+
+.mobile-spotlight .tile-title {
+  font-size: 20px;
+  font-weight: 700;
+  -webkit-line-clamp: 3;
+}
+
+.mobile-spotlight .tile-subtitle {
+  font-size: 16px;
+  -webkit-line-clamp: 3;
+}
+```
+
+### **Template Switching Logic**
+1. **UI Selection**: Visual template cards in left panel
+2. **Global State**: `currentTemplate` variable tracks active template
+3. **Dynamic Updates**: All existing tiles update classes and dimensions
+4. **Text Analysis**: Limits and overflow detection adapt to template
+5. **Live Editor**: Preview tile maintains template during editing
+
+### **Integration Points**
+- **`tile-renderer.js`**: Applies template CSS classes during tile creation
+- **`text-measurement.js`**: Uses template-specific fonts and line clamps
+- **`live-editor.js`**: Template-aware character limits and preview updates
+- **`constants.js`**: Delegates limit queries to template system
+
+### **Template Persistence & Bug Fixes**
+The Mobile Spotlight template system includes robust persistence logic to maintain template consistency across all UI interactions:
+
+#### **Template Persistence Logic**
+- **Live Preview Editor**: Automatically re-applies template classes after every text update
+- **Locale Tile Editors**: Re-applies Mobile Spotlight template class after `updateTileStatus()` calls
+- **Template Switching**: All existing tiles update classes and dimensions dynamically
+- **Modal Previews**: Template classes persist when opening locale tile live editors
+
+#### **Resolved Issues**
+- **Fixed**: Mobile Spotlight template reversion bug in locale tile editors
+- **Root Cause**: Locale editors called `updateTileStatus()` but didn't re-apply template classes
+- **Solution**: Added template class re-application logic matching live preview editor behavior
+- **Impact**: Consistent 347×379px Mobile Spotlight dimensions across all editing contexts
 
 ### **Important Notes for AI Agents**
 - ⚠️ **No Country Flags**: Previous country identification system was removed as code bloat

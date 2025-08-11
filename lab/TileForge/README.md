@@ -11,14 +11,17 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 ## ✨ Features
 
 ### 🎯 Core Functionality
-- **Xbox Tile Simulation** - Authentic 560x315px Xbox tile dimensions
+- **Multi-Template Support** - Top of Home (280×140px) and Mobile Spotlight (347×379px) templates
+- **Xbox Tile Simulation** - Authentic Xbox tile dimensions with template-specific sizing
 - **Multi-Locale Preview** - Test multiple languages simultaneously  
-- **Text Overflow Detection** - Automatic detection and warnings for text that doesn't fit
+- **Text Overflow Detection** - Template-aware automatic detection and warnings
 - **Visual Feedback** - Clear indicators for ellipsis and overflow issues
 
 ### 🖱️ Modern Interface
+- **Template Selection** - Visual template picker with live preview switching
 - **Drag & Drop Upload** - Simply drag image and CSV files onto drop zones
 - **Click to Browse** - Traditional file selection still available
+- **Live Editor** - Real-time tile editing with template-aware character limits
 - **Responsive Design** - Works on desktop, tablet, and mobile devices
 - **Professional Styling** - Xbox-inspired dark theme with smooth animations
 
@@ -37,9 +40,11 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 
 ### 2. Usage
 1. Open `index.html` in your web browser
-2. **Upload Tile Image**: Drag an image file to the left drop zone or click to browse
-3. **Upload CSV Data**: Drag your localization CSV to the right drop zone or click to browse
-4. **Preview Results**: View tiles for all locales with overflow warnings
+2. **Select Template**: Choose between Top of Home or Mobile Spotlight in the Template section
+3. **Upload Tile Image**: Drag an image file to the left drop zone or click to browse
+4. **Upload CSV Data**: Drag your localization CSV to the right drop zone or click to browse
+5. **Preview Results**: View tiles for all locales with template-specific overflow warnings
+6. **Live Edit**: Click any tile to edit text with real-time preview
 
 ### 3. CSV Format
 Your CSV file should contain columns:
@@ -55,16 +60,54 @@ fr-FR,Jeu d'Aventure Épique,Édition Ultime
 de-DE,Episches Abenteuerspiel,Ultimate Edition
 ```
 
+## 🎨 Template System
+
+TileForge supports two Xbox tile templates optimized for different platforms:
+
+### Top of Home (ToH) - Default
+- **Dimensions**: 360×315px (displayed as 280×140px)
+- **Aspect Ratio**: Xbox standard horizontal format
+- **Text Limits**: 
+  - Title: 40 characters max, 2 lines
+  - Subtitle: 40 characters max, 2 lines
+- **Font Sizes**: Title 18px, Subtitle 16px
+- **Best For**: Traditional Xbox dashboard tiles
+
+### Mobile Spotlight - New
+- **Dimensions**: 694×758px (displayed as 347×379px)
+- **Aspect Ratio**: Vertical mobile-optimized format
+- **Text Limits**: 
+  - Title: 60 characters max, 3 lines
+  - Subtitle: 80 characters max, 3 lines
+- **Font Sizes**: Title 20px, Subtitle 16px
+- **Best For**: Mobile Xbox app spotlight tiles
+
+### Template Switching
+- Use the **Template** section in the left panel to switch between templates
+- All existing tiles update automatically when switching templates
+- Text analysis and overflow detection adapts to the selected template
+- Live editor preview maintains the selected template during editing
+- **Template persistence**: Mobile Spotlight template now maintains correct dimensions across all UI interactions
+- **Bug fixed**: Locale tile editors no longer revert to Top of Home template when typing
+
 ## 📁 Project Structure
 
 ```
 TileForge/
-├── index.html          # Main application file
+├── index.html              # Main application file
 ├── css/
-│   └── styles.css      # All styling and animations
+│   ├── styles.css          # Main styling and layout
+│   ├── tile-card.css       # Tile preview styling
+│   └── template-system.css # Template selection and Mobile Spotlight styles
 ├── js/
-│   └── script.js       # Core functionality and drag-drop
-└── README.md           # This documentation
+│   ├── main.js             # Application initialization
+│   ├── tile-renderer.js    # Tile creation and rendering
+│   ├── text-measurement.js # Text analysis and overflow detection
+│   ├── live-editor.js      # Live tile editing functionality
+│   ├── template-system.js  # Template selection and switching
+│   └── constants.js        # Configuration and limits
+├── DOCUMENTATION.md        # Technical documentation
+└── README.md              # This documentation
 ```
 
 ## 🔧 Technical Details
