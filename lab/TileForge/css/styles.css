@@ -949,6 +949,46 @@ body {
   }
 }
 
+/* Input row layout - positions input and manual controls horizontally */
+.input-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.input-row .input-container {
+  flex: 1;
+}
+
+/* Manual Controls Styling */
+.manual-controls {
+  display: flex;
+  align-items: center;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.manual-apply-btn {
+  padding: 6px 12px;
+  background: var(--success-color, #28a745);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.manual-apply-btn:hover {
+  background: var(--success-hover, #218838);
+}
+
+.manual-apply-btn i {
+  margin-right: 4px;
+}
+
 /* Preset Controls Styling */
 .preset-controls {
   display: flex;

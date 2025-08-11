@@ -236,6 +236,47 @@ function setupLiveEditor() {
       updatePreviewTileStatus();
     });
   }
+  
+  // Manual Apply All buttons for typed text
+  const titleManualApplyBtn = document.getElementById('titleManualApplyBtn');
+  const subtitleManualApplyBtn = document.getElementById('subtitleManualApplyBtn');
+  const narratorManualApplyBtn = document.getElementById('narratorManualApplyBtn');
+  
+  // Apply manually entered title text to all tiles
+  if (titleManualApplyBtn) {
+    titleManualApplyBtn.addEventListener('click', function() {
+      const manualText = titleInput ? titleInput.value.trim() : '';
+      if (manualText) {
+        applyManualTextToAllTiles(manualText, 'title');
+      } else {
+        alert('Please enter some text in the Title field first');
+      }
+    });
+  }
+  
+  // Apply manually entered subtitle text to all tiles
+  if (subtitleManualApplyBtn) {
+    subtitleManualApplyBtn.addEventListener('click', function() {
+      const manualText = subtitleInput ? subtitleInput.value.trim() : '';
+      if (manualText) {
+        applyManualTextToAllTiles(manualText, 'subtitle');
+      } else {
+        alert('Please enter some text in the Subtitle field first');
+      }
+    });
+  }
+  
+  // Apply manually entered narrator text to all tiles
+  if (narratorManualApplyBtn) {
+    narratorManualApplyBtn.addEventListener('click', function() {
+      const manualText = narratorInput ? narratorInput.value.trim() : '';
+      if (manualText) {
+        applyManualTextToAllTiles(manualText, 'narrator');
+      } else {
+        alert('Please enter some text in the Narrator field first');
+      }
+    });
+  }
 }
 
 // Update preview tile status based on current input
@@ -448,6 +489,48 @@ function applyPresetToField(presetKey, fieldType) {
   } else {
     console.error(`Input field not found: ${inputId}`);
   }
+}
+
+// Apply manually entered text to all tiles for a specific field
+function applyManualTextToAllTiles(text, fieldType) {
+  if (!currentCsvData || !currentCsvData.length) {
+    console.warn('No CSV data available to apply text to');
+    return;
+  }
+  
+  console.log(`Applying manual text "${text}" to all tiles for ${fieldType} field`);
+  
+  // Determine the field key based on field type
+  let fieldKey;
+  switch (fieldType) {
+    case 'title':
+      fieldKey = 'items/0/title';
+      break;
+    case 'subtitle':
+      fieldKey = 'items/0/subtitle';
+      break;
+    case 'narrator':
+      fieldKey = 'items/0/narratorText';
+      break;
+    default:
+      console.error(`Unknown field type: ${fieldType}`);
+      return;
+  }
+  
+  // Update CSV data for all locales
+  currentCsvData.forEach((row, index) => {
+    if (index === 0) return; // Skip header row
+    
+    const locale = row.Locale || row.locale;
+    console.log(`Updating ${locale} - ${fieldKey} = "${text}"`);
+    row[fieldKey] = text;
+  });
+  
+  // Re-render tiles and update analytics
+  renderLocaleGroups(currentCsvData);
+  updateAnalytics();
+  
+  console.log(`Successfully applied manual text to all tiles for ${fieldType} field`);
 }
 
 // Apply preset to all tiles for a specific field
