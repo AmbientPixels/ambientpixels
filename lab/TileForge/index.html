@@ -267,6 +267,14 @@
                   </div>
                 </div>
               </div>
+              <div class="preset-controls">
+                <select id="titlePresetSelect" class="preset-dropdown">
+                  <option value="">Select preset...</option>
+                </select>
+                <button class="preset-apply-btn" id="titleApplyAllBtn" title="Apply this preset to all tiles">
+                  <i class="fas fa-arrow-right"></i> Apply All
+                </button>
+              </div>
             </div>
             
             <div class="input-group">
@@ -278,6 +286,14 @@
                     <span id="subtitleCharCount">0</span>
                   </div>
                 </div>
+              </div>
+              <div class="preset-controls">
+                <select id="subtitlePresetSelect" class="preset-dropdown">
+                  <option value="">Select preset...</option>
+                </select>
+                <button class="preset-apply-btn" id="subtitleApplyAllBtn" title="Apply this preset to all tiles">
+                  <i class="fas fa-arrow-right"></i> Apply All
+                </button>
               </div>
             </div>
             
@@ -291,6 +307,22 @@
                   </div>
                 </div>
               </div>
+              <div class="preset-controls">
+                <select id="narratorPresetSelect" class="preset-dropdown">
+                  <option value="">Select preset...</option>
+                </select>
+                <button class="preset-apply-btn" id="narratorApplyAllBtn" title="Apply this preset to all tiles">
+                  <i class="fas fa-arrow-right"></i> Apply All
+                </button>
+              </div>
+            </div>
+            
+            <div class="preset-options">
+              <label class="checkbox-label">
+                <input type="checkbox" id="autoLocalizeToggle" checked>
+                <span class="checkmark"></span>
+                Auto-localize presets (apply correct language per locale)
+              </label>
             </div>
             
             <div class="editing-actions">

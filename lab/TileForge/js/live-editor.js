@@ -352,3 +352,197 @@ function updateLiveAnalytics() {
   // Update the analytics display
   updateAnalytics(analytics);
 }
+
+// Preset Headlines System
+let presetData = {};
+let currentActiveLocale = 'EN-US'; // Track the currently active tile's locale
+
+// Load preset data from JSON files
+async function loadPresetData() {
+  try {
+    const presetFiles = ['available-now', 'buy-now', 'pre-order-now'];
+    
+    for (const presetName of presetFiles) {
+      console.log(`DEBUG: Loading preset file: ${presetName}.json`);
+      const response = await fetch(`data/${presetName}.json`);
+      if (response.ok) {
+        const data = await response.json();
+        presetData[presetName] = data;
+        console.log(`DEBUG: Loaded ${presetName}:`, {
+          name: data.name,
+          localeCount: Object.keys(data.locales).length,
+          sampleLocales: Object.keys(data.locales).slice(0, 5)
+        });
+      } else {
+        console.warn(`Could not load preset: ${presetName}.json - Status: ${response.status}`);
+      }
+    }
+    
+    console.log('DEBUG: All preset data loaded:', Object.keys(presetData));
+    populatePresetDropdowns();
+  } catch (error) {
+    console.error('Error loading preset data:', error);
+  }
+}
+
+// Populate all preset dropdowns with available options
+function populatePresetDropdowns() {
+  const dropdowns = ['titlePresetSelect', 'subtitlePresetSelect', 'narratorPresetSelect'];
+  
+  dropdowns.forEach(dropdownId => {
+    const dropdown = document.getElementById(dropdownId);
+    if (!dropdown) return;
+    
+    // Clear existing options (except the first "Select preset..." option)
+    dropdown.innerHTML = '<option value="">Select preset...</option>';
+    
+    // Add options for each preset type
+    Object.keys(presetData).forEach(presetKey => {
+      const preset = presetData[presetKey];
+      const option = document.createElement('option');
+      option.value = presetKey;
+      option.textContent = preset.name;
+      dropdown.appendChild(option);
+    });
+  });
+}
+
+// Set the current active locale (called when Live Editor opens for a specific tile)
+function setCurrentActiveLocale(locale) {
+  currentActiveLocale = locale;
+  console.log(`Active locale set to: ${locale}`);
+}
+
+// Apply preset to current input field
+function applyPresetToField(presetKey, fieldType) {
+  const preset = presetData[presetKey];
+  if (!preset) {
+    console.error(`Preset not found: ${presetKey}`);
+    return;
+  }
+  
+  // Check if auto-localization is enabled
+  const autoLocalizeToggle = document.getElementById('autoLocalizeToggle');
+  const isAutoLocalizeEnabled = autoLocalizeToggle ? autoLocalizeToggle.checked : true;
+  
+  console.log(`DEBUG: Auto-localize enabled: ${isAutoLocalizeEnabled}`);
+  console.log(`DEBUG: Available locales in preset:`, Object.keys(preset.locales));
+  console.log(`DEBUG: Current CSV data available:`, !!currentCsvData);
+  
+  // Live Editor preview always shows English text for consistency
+  const previewText = preset.locales['EN-US'] || '';
+  console.log(`DEBUG: Live Editor preview (always English): "${previewText}"`);
+  console.log(`DEBUG: Auto-localize setting: ${isAutoLocalizeEnabled ? 'ON (affects Apply All)' : 'OFF (English only for Apply All)'}`);
+  
+  // Apply to the appropriate input field
+  const inputId = fieldType + 'Input';
+  const input = document.getElementById(inputId);
+  if (input) {
+    input.value = previewText;
+    
+    // Trigger input event to update character count and preview
+    const event = new Event('input', { bubbles: true });
+    input.dispatchEvent(event);
+    
+    console.log(`DEBUG: Applied to ${inputId}: "${previewText}"`);
+  } else {
+    console.error(`Input field not found: ${inputId}`);
+  }
+}
+
+// Apply preset to all tiles for a specific field
+function applyPresetToAllTiles(presetKey, fieldType) {
+  const preset = presetData[presetKey];
+  if (!preset || !currentCsvData) return;
+  
+  // Check if auto-localization is enabled
+  const autoLocalizeToggle = document.getElementById('autoLocalizeToggle');
+  const isAutoLocalizeEnabled = autoLocalizeToggle ? autoLocalizeToggle.checked : true;
+  
+  // Update CSV data
+  currentCsvData.forEach(row => {
+    // The locale field might be 'Locale' (uppercase) or 'locale' (lowercase)
+    const locale = row.Locale || row.locale;
+    
+    console.log(`DEBUG: Processing row for locale: "${locale}"`);
+    
+    let textToApply;
+    if (isAutoLocalizeEnabled) {
+      // Use localized text for each locale
+      textToApply = preset.locales[locale] || preset.locales['EN-US'] || '';
+      console.log(`DEBUG: Auto-localize ON - Using "${locale}" text: "${textToApply}"`);
+    } else {
+      // Use English text for all locales
+      textToApply = preset.locales['EN-US'] || '';
+      console.log(`DEBUG: Auto-localize OFF - Using English text: "${textToApply}"`);
+    }
+    
+    // Update the appropriate field in CSV data
+    let fieldKey;
+    if (fieldType === 'title') {
+      fieldKey = 'items/0/title';
+    } else if (fieldType === 'subtitle') {
+      fieldKey = 'items/0/subtitle';
+    } else if (fieldType === 'narrator') {
+      fieldKey = 'items/0/narratorText';
+    }
+    
+    console.log(`Updating ${locale} - ${fieldKey} = "${textToApply}" (auto-localize: ${isAutoLocalizeEnabled})`);
+    row[fieldKey] = textToApply;
+  });
+  
+  // Re-render all tiles with updated data
+  renderLocaleGroups(currentCsvData);
+  
+  const mode = isAutoLocalizeEnabled ? 'auto-localized' : 'English-only';
+  console.log(`Applied "${preset.name}" preset to all tiles for ${fieldType} field (${mode})`);
+}
+
+// Setup preset dropdown event listeners
+function setupPresetControls() {
+  // Dropdown change handlers
+  const dropdowns = [
+    { id: 'titlePresetSelect', field: 'title' },
+    { id: 'subtitlePresetSelect', field: 'subtitle' },
+    { id: 'narratorPresetSelect', field: 'narrator' }
+  ];
+  
+  dropdowns.forEach(({ id, field }) => {
+    const dropdown = document.getElementById(id);
+    const applyBtn = document.getElementById(field + 'ApplyAllBtn');
+    
+    if (dropdown) {
+      dropdown.addEventListener('change', function() {
+        const presetKey = this.value;
+        
+        // Enable/disable apply button
+        if (applyBtn) {
+          applyBtn.disabled = !presetKey;
+        }
+        
+        // Apply to current field if preset selected
+        if (presetKey) {
+          applyPresetToField(presetKey, field);
+        }
+      });
+    }
+    
+    // Apply All button handlers
+    if (applyBtn) {
+      applyBtn.addEventListener('click', function() {
+        const dropdown = document.getElementById(id);
+        const presetKey = dropdown ? dropdown.value : '';
+        
+        if (presetKey) {
+          applyPresetToAllTiles(presetKey, field);
+        }
+      });
+    }
+  });
+}
+
+// Initialize preset system when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  loadPresetData();
+  setupPresetControls();
+});

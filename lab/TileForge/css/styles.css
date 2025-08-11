@@ -948,3 +948,106 @@ body {
     max-width: 200px;
   }
 }
+
+/* Preset Controls Styling */
+.preset-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: center;
+}
+
+.preset-dropdown {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--border-color, #444);
+  border-radius: 4px;
+  background: var(--input-bg, #2a2a2a);
+  color: var(--text-color, #fff);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.preset-dropdown:hover {
+  border-color: var(--accent-color, #007acc);
+}
+
+.preset-dropdown:focus {
+  outline: none;
+  border-color: var(--accent-color, #007acc);
+  box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
+}
+
+.preset-apply-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--accent-color, #007acc);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--accent-color, #007acc);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.preset-apply-btn:hover {
+  background: var(--accent-color, #007acc);
+  color: #fff;
+}
+
+.preset-apply-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.preset-apply-btn:disabled:hover {
+  background: transparent;
+  color: var(--accent-color, #007acc);
+}
+
+.preset-apply-btn i {
+  font-size: 10px;
+}
+
+/* Enhanced input-group styling for preset controls */
+.input-group {
+  margin-bottom: 16px;
+}
+
+.input-group:last-child {
+  margin-bottom: 0;
+}
+
+/* Preset Options Styling */
+.preset-options {
+  margin: 16px 0;
+  padding: 12px;
+  background: var(--input-bg, #2a2a2a);
+  border: 1px solid var(--border-color, #444);
+  border-radius: 6px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-color, #fff);
+  user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin: 0;
+  accent-color: var(--accent-color, #007acc);
+}
+
+.checkbox-label:hover {
+  color: var(--accent-color, #007acc);
+}
