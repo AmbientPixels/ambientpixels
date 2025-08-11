@@ -47,6 +47,9 @@ function updateImageInfoPanel(imageInfo) {
   // Generate thumbnail synchronously since image is already loaded
   const thumbnailDataUrl = generateImageThumbnail(imageInfo.imageSrc, imageInfo.width, imageInfo.height, 120, 80);
   
+  // Get template compliance validation
+  const validation = validateImageDimensions(imageInfo.width, imageInfo.height);
+  
   // Update detailed image info panel
   const imageInfoPanel = document.getElementById('imageInfoPanel');
   if (imageInfoPanel) {
@@ -71,11 +74,15 @@ function updateImageInfoPanel(imageInfo) {
           </div>
           <div class="info-row">
             <span class="info-label">Dimensions:</span>
-            <span class="info-value">${imageInfo.width} × ${imageInfo.height}</span>
+            <span class="info-value ${validation.cssClass}">${imageInfo.width} × ${imageInfo.height} ${validation.icon}</span>
           </div>
           <div class="info-row">
             <span class="info-label">Aspect Ratio:</span>
             <span class="info-value">${imageInfo.aspectRatio}:1</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Template Compliance:</span>
+            <span class="info-value ${validation.cssClass}">${validation.message}</span>
           </div>
           <div class="info-row">
             <span class="info-label">Modified:</span>
@@ -85,6 +92,109 @@ function updateImageInfoPanel(imageInfo) {
       </div>
     `;
   }
+  
+  // Update preview badge
+  updatePreviewBadge(validation);
+}
+
+// Validate image dimensions against current template requirements
+function validateImageDimensions(width, height) {
+  // Get current template configuration
+  const currentTemplate = typeof window.templateSystem !== 'undefined' 
+    ? window.templateSystem.getCurrentConfig() 
+    : null;
+  
+  // Default to ToH if template system not available
+  const expectedDimensions = currentTemplate 
+    ? { width: currentTemplate.actualDimensions.width, height: currentTemplate.actualDimensions.height }
+    : { width: 560, height: 315 }; // ToH default
+  
+  const templateName = currentTemplate ? currentTemplate.name : 'Top of Home';
+  
+
+  
+  // Check if dimensions match exactly
+  const isExactMatch = width === expectedDimensions.width && height === expectedDimensions.height;
+  
+  // Calculate tolerance (±5% acceptable)
+  const tolerance = 0.05;
+  const widthTolerance = expectedDimensions.width * tolerance;
+  const heightTolerance = expectedDimensions.height * tolerance;
+  
+  const isWithinTolerance = 
+    Math.abs(width - expectedDimensions.width) <= widthTolerance &&
+    Math.abs(height - expectedDimensions.height) <= heightTolerance;
+  
+  // Determine validation result
+  if (isExactMatch) {
+    return {
+      status: 'compliant',
+      icon: '✅',
+      cssClass: 'validation-compliant',
+      message: `Perfect match for ${templateName} (${expectedDimensions.width}×${expectedDimensions.height})`,
+      badgeText: `${width}×${height}`,
+      badgeClass: 'compliant'
+    };
+  } else if (isWithinTolerance) {
+    return {
+      status: 'close',
+      icon: '⚠️',
+      cssClass: 'validation-close',
+      message: `Close match for ${templateName} (Expected: ${expectedDimensions.width}×${expectedDimensions.height})`,
+      badgeText: `${width}×${height}`,
+      badgeClass: 'compliant'
+    };
+  } else {
+    return {
+      status: 'non-compliant',
+      icon: '❌',
+      cssClass: 'validation-error',
+      message: `Does not match ${templateName} (Expected: ${expectedDimensions.width}×${expectedDimensions.height})`,
+      badgeText: `${width}×${height}`,
+      badgeClass: 'non-compliant'
+    };
+  }
+}
+
+// Update preview badge based on validation status
+function updatePreviewBadge(validation) {
+  // Find all tile elements that need validation badges
+  const tileSelectors = [
+    '#previewTile',           // Live editor preview tile
+    '.preview-tile',          // Main preview tile
+    '.tile-preview',          // Localized tile cards
+    '.modal .preview-tile'    // Modal preview tiles
+  ];
+  
+  const allTiles = [];
+  tileSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(el => allTiles.push(el));
+  });
+  
+  if (allTiles.length === 0) return;
+  
+  // Update badges on all tiles
+  allTiles.forEach(tile => {
+    // Remove existing validation badge
+    const existingBadge = tile.querySelector('.validation-badge');
+    if (existingBadge) {
+      existingBadge.remove();
+    }
+    
+    // Add badge for all images (compliant and non-compliant)
+    const badge = document.createElement('div');
+    badge.className = `validation-badge ${validation.badgeClass}`;
+    badge.innerHTML = validation.badgeText;
+    badge.title = validation.message;
+    
+    // Ensure tile has relative positioning for badge placement
+    if (getComputedStyle(tile).position === 'static') {
+      tile.style.position = 'relative';
+    }
+    
+    tile.appendChild(badge);
+  });
 }
 
 // Generate a thumbnail from image source data

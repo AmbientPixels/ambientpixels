@@ -42,7 +42,7 @@ TileForge/
 TileForge supports two Xbox tile templates optimized for different platforms and use cases:
 
 ### **Top of Home (ToH) - Default Template**
-- **Image Dimensions**: 360×315px (Xbox standard)
+- **Image Dimensions**: 560×315px (Xbox standard)
 - **Display Size**: 280×140px (50% scale for UI)
 - **Aspect Ratio**: 8:7 horizontal format
 - **Text Limits**:

@@ -8,9 +8,9 @@ let currentTemplate = 'toh'; // Default to Top of Home template
 const TEMPLATE_CONFIG = {
   'toh': {
     name: 'Top of Home (ToH)',
-    description: '360×315px • Standard Xbox tile',
+    description: '560×315px • Standard Xbox tile',
     dimensions: { width: 280, height: 140 },
-    actualDimensions: { width: 360, height: 315 },
+    actualDimensions: { width: 560, height: 315 },
     textLimits: {
       title: { max: 40, warning: 30 },
       subtitle: { max: 40, warning: 30 }

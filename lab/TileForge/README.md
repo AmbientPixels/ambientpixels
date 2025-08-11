@@ -65,7 +65,7 @@ de-DE,Episches Abenteuerspiel,Ultimate Edition
 TileForge supports two Xbox tile templates optimized for different platforms:
 
 ### Top of Home (ToH) - Default
-- **Dimensions**: 360×315px (displayed as 280×140px)
+- **Dimensions**: 560×315px (displayed as 280×140px)
 - **Aspect Ratio**: Xbox standard horizontal format
 - **Text Limits**: 
   - Title: 40 characters max, 2 lines
