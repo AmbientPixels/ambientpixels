@@ -26,9 +26,9 @@
       
       <div class="intro-body">
         <p class="intro-description">
-          <strong>TileForge</strong> helps Producers publishing Xbox content preview how tiles look across all languages before going live. 
-          Upload your tile image and CSV localization data to instantly catch text overflow issues across 52+ locales with 
-          advanced visual text measurement and real-time editing capabilities.
+          🚀 <strong>TileForge</strong> revolutionizes Xbox content localization! Instantly preview your game tiles across 52+ languages on both Xbox dashboard and mobile platforms before launch. 
+          Simply drag & drop your tile image and CSV data to unleash powerful visual text analysis, seamless template switching, and lightning-fast real-time editing. 
+          Say goodbye to text overflow surprises and hello to flawless global launches! ✨
         </p>
         
         <div class="intro-features">
@@ -63,6 +63,22 @@
               <p>Click any tile to edit text with real-time preview and overflow detection</p>
             </div>
           </div>
+          
+          <div class="intro-feature">
+            <span class="feature-icon"><i class="fas fa-mobile-alt"></i></span>
+            <div class="feature-content">
+              <h4>Multi-Platform Templates</h4>
+              <p>Switch between Xbox dashboard (ToH) and mobile spotlight templates with dynamic sizing</p>
+            </div>
+          </div>
+          
+          <div class="intro-feature">
+            <span class="feature-icon"><i class="fas fa-language"></i></span>
+            <div class="feature-content">
+              <h4>Auto-Localization</h4>
+              <p>Smart preset system with 121+ language translations and bulk application features</p>
+            </div>
+          </div>
         </div>
         
         <div class="intro-workflow">
@@ -91,9 +107,14 @@
       <div class="panel-header">
         <div class="header-top">
           <h1><i class="fab fa-xbox"></i> TileForge</h1>
-          <button class="settings-btn" onclick="openSettings()" title="Settings">
-            <i class="fas fa-cog"></i>
-          </button>
+          <div class="header-buttons">
+            <button class="settings-btn" onclick="showInfoPopup()" title="Info & Help">
+              <i class="fas fa-info-circle"></i>
+            </button>
+            <button class="settings-btn" onclick="openSettings()" title="Settings">
+              <i class="fas fa-cog"></i>
+            </button>
+          </div>
         </div>
         <p class="subtitle">Xbox Tile Localization Preview</p>
       </div>
@@ -168,7 +189,6 @@
         <!-- Controls -->
         <div class="control-group">
           <button class="control-btn" onclick="exportToCSV()"><i class="fas fa-file-export"></i> Export to CSV</button>
-          <button class="control-btn" onclick="showInfoPopup()" style="background: #17a2b8; border-color: #17a2b8;"><i class="fas fa-info-circle"></i> Info & Help</button>
         </div>
         
         <!-- Simple Filters -->

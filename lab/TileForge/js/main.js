@@ -261,14 +261,14 @@ function showInfoPopup() {
       content: createTroubleshootingTabContent()
     },
     {
+      title: 'Known Issues',
+      icon: '⚠️',
+      content: createKnownIssuesTabContent()
+    },
+    {
       title: 'Future Plans',
       icon: '🔮',
       content: createFuturePlansTabContent()
-    },
-    {
-      title: 'About',
-      icon: 'ℹ️',
-      content: createAboutTabContent()
     }
   ];
 
@@ -460,25 +460,84 @@ function createTroubleshootingTabContent() {
 function createFuturePlansTabContent() {
   return `
     <div class="info-section">
-      <h4>🔮 Future Expansion Plans</h4>
-      <p>TileForge is continuously evolving to meet the needs of Xbox developers and localization teams. Here are our planned enhancements:</p>
+      <h4>🎉 Recently Completed</h4>
+      <p>Major features delivered in recent updates:</p>
+      <div class="completed-section">
+        <ul>
+          <li>✅ <strong>Multi-Platform Template System:</strong> Xbox dashboard (ToH) + Mobile Spotlight templates</li>
+          <li>✅ <strong>Auto-Localization System:</strong> 121+ language presets with smart toggle functionality</li>
+          <li>✅ <strong>Enhanced UI:</strong> Streamlined interface with icon-based navigation and exciting welcome experience</li>
+          <li>✅ <strong>Template Persistence:</strong> Robust template consistency across all UI interactions</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h4>🔮 Upcoming Enhancements</h4>
+      <p>Next-generation features in development:</p>
       
       <div class="roadmap-section">
-        <h5>🚀 Enhanced Export & Integration</h5>
+        <h5>🚀 Advanced Export & Integration</h5>
         <ul>
-          <li><strong>Advanced Export Options:</strong> Custom CSV formatting, JSON export, Excel compatibility</li>
+          <li><strong>Enhanced Export Options:</strong> JSON export, Excel compatibility, custom formatting</li>
           <li><strong>Batch Processing:</strong> Upload and process multiple tile sets simultaneously</li>
-          <li><strong>Template System:</strong> Save and reuse tile configurations across projects</li>
-          <li><strong>Auto-Localization:</strong> AI-powered automatic translation and localization suggestions</li>
-          <li><strong>Smart Headlines:</strong> Load default or most commonly used headlines for quick tile creation</li>
-          <li><strong>Improved UI:</strong> Enhanced user interface with better navigation and visual design</li>
+          <li><strong>Project Templates:</strong> Save and reuse complete tile configurations across projects</li>
+          <li><strong>Cloud Integration:</strong> Sync projects across devices and teams</li>
+        </ul>
+      </div>
 
+      <div class="roadmap-section">
+        <h5>🤖 AI-Powered Features</h5>
+        <ul>
+          <li><strong>Smart Text Optimization:</strong> AI suggestions for better text fit and readability</li>
+          <li><strong>Automated QA:</strong> Intelligent detection of localization issues and inconsistencies</li>
+          <li><strong>Dynamic Presets:</strong> Context-aware preset recommendations based on game genre</li>
         </ul>
       </div>
 
       <div class="feedback-section">
-        <h5>💬 Your Input Matters</h5>
-        <p>Have ideas for new features or improvements? We'd love to hear from you! Your feedback helps shape the future of TileForge.</p>
+        <h5>💬 Your Input Shapes TileForge</h5>
+        <p>Have ideas for new features? Your feedback drives our roadmap and helps us build exactly what Xbox developers need!</p>
+      </div>
+    </div>
+  `;
+}
+
+function createKnownIssuesTabContent() {
+  return `
+    <div class="info-section">
+      <h4>⚠️ Known Issues</h4>
+      <p>Current known issues and limitations in TileForge:</p>
+      
+      <div class="issue-section">
+        <h5>🎨 Theme System Issues</h5>
+        <div class="issue-item">
+          <h6><span class="issue-status medium">🟠 Medium</span> Light Themes Not Working</h6>
+          <p><strong>Issue:</strong> Light theme options in Settings are currently non-functional and may cause display issues.</p>
+          <p><strong>Workaround:</strong> Use the default dark theme or other dark theme variants for optimal experience.</p>
+          <p><strong>Status:</strong> Under investigation - fix planned for next release.</p>
+        </div>
+      </div>
+      
+      <div class="reporting-section">
+        <h5>🐛 Report New Issues</h5>
+        <p>Found a bug or issue not listed here? Help us improve TileForge:</p>
+        <ul>
+          <li>Check browser console for error messages</li>
+          <li>Note your browser version and operating system</li>
+          <li>Describe steps to reproduce the issue</li>
+          <li>Include any relevant files or screenshots</li>
+        </ul>
+      </div>
+      
+      <div class="status-legend">
+        <h5>📊 Issue Status Legend</h5>
+        <ul>
+          <li><span class="issue-status critical">🔴 Critical</span> - Major functionality broken</li>
+          <li><span class="issue-status high">🟡 High</span> - Significant impact on user experience</li>
+          <li><span class="issue-status medium">🟠 Medium</span> - Minor functionality issues</li>
+          <li><span class="issue-status low">🟢 Low</span> - Cosmetic or edge case issues</li>
+        </ul>
       </div>
     </div>
   `;
@@ -492,9 +551,10 @@ function createAboutTabContent() {
       
       <div class="version-info">
         <h5>📦 Version Information</h5>
-        <p><strong>Version:</strong> 2.1.0</p>
+        <p><strong>Version:</strong> 2.2.0</p>
         <p><strong>Build Date:</strong> August 2025</p>
         <p><strong>Architecture:</strong> Modular CSS/JS with Canvas API integration</p>
+        <p><strong>Latest:</strong> Mobile Spotlight template system with template persistence</p>
       </div>
     </div>
 
@@ -511,10 +571,34 @@ function createAboutTabContent() {
     </div>
 
     <div class="info-section">
+      <h4>🎨 Template System</h4>
+      <p>TileForge now supports multiple Xbox tile templates optimized for different platforms:</p>
+      <ul>
+        <li><strong>Top of Home (ToH):</strong> Traditional 360×315px horizontal Xbox dashboard tiles</li>
+        <li><strong>Mobile Spotlight:</strong> NEW 694×758px vertical mobile-optimized tiles</li>
+        <li><strong>Dynamic Switching:</strong> Seamless template switching with automatic tile updates</li>
+        <li><strong>Template Persistence:</strong> Robust template consistency across all UI interactions</li>
+        <li><strong>Enhanced Capacity:</strong> Mobile Spotlight supports 50% more text (60/80 char vs 40/40)</li>
+      </ul>
+    </div>
+
+    <div class="info-section">
+      <h4>🤖 Auto-Localization System</h4>
+      <p>Advanced preset management with intelligent localization capabilities:</p>
+      <ul>
+        <li><strong>JSON-Based Presets:</strong> Modular preset files with 121+ language translations</li>
+        <li><strong>Smart Toggle:</strong> Switch between localized text per locale vs English for all</li>
+        <li><strong>Preset Library:</strong> Available Now, Buy Now, Pre-order Now, New Season presets</li>
+        <li><strong>Dropdown Selection:</strong> Per-field preset selection with immediate preview</li>
+        <li><strong>Apply All:</strong> Bulk application of presets across all tiles with one click</li>
+      </ul>
+    </div>
+
+    <div class="info-section">
       <h4>🌟 Key Innovations</h4>
       <ul>
         <li><strong>Visual Text Measurement:</strong> Canvas-based pixel measurement replaces unreliable character counting</li>
-        <li><strong>Unicode Flag Support:</strong> Native emoji flags for 15+ countries with automatic detection</li>
+        <li><strong>Template-Aware Analysis:</strong> Text limits and overflow detection adapt to selected template</li>
         <li><strong>Modular Architecture:</strong> Zero-duplication CSS with feature-based separation</li>
         <li><strong>Real-time Preview:</strong> Instant visual feedback for all tile modifications</li>
         <li><strong>Advanced Filtering:</strong> Multi-dimensional filtering by status, locale, language, and region</li>
@@ -543,6 +627,16 @@ function createAboutTabContent() {
         <li>Enhanced image processing and optimization tools</li>
         <li>Collaborative editing features</li>
       </ul>
+    </div>
+
+    <div class="info-section">
+      <h4>👥 Credits</h4>
+      <p>TileForge development team:</p>
+      <ul>
+        <li><strong>Jon:</strong> Initial base code concept and foundation</li>
+        <li><strong>Chad:</strong> Upgrades, enhancements, and system refinement</li>
+      </ul>
+      <p>Special thanks to all contributors who helped shape TileForge into a comprehensive Xbox localization tool.</p>
     </div>
   `;
 }
