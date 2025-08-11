@@ -175,6 +175,7 @@ function setupLiveEditor() {
     applyToAllBtn.addEventListener('click', function() {
       const title = titleInput?.value || 'Fortnite OG';
       const subtitle = subtitleInput?.value || 'New season';
+      const narratorText = narratorInput?.value || '';
       
       // Update all tiles in the preview
       const allTiles = document.querySelectorAll('.tile-preview');
@@ -209,6 +210,7 @@ function setupLiveEditor() {
         currentCsvData.forEach(row => {
           row['items/0/title'] = title;
           row['items/0/subtitle'] = subtitle;
+          row['items/0/narratorText'] = narratorText;
         });
         
         // Recalculate analytics
