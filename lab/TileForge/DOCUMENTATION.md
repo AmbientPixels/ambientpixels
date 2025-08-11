@@ -132,6 +132,152 @@ const TEMPLATE_CONFIGS = {
 - **`live-editor.js`**: Template-aware character limits and preview updates
 - **`constants.js`**: Delegates limit queries to template system
 
+---
+
+## 🎯 Image Dimension Validation System
+
+TileForge includes a comprehensive image dimension validation system that ensures uploaded images comply with Xbox template specifications. The system provides real-time feedback through both detailed information panels and visual badges.
+
+### **Template Requirements**
+- **Top of Home (ToH)**: 560×315px (Xbox standard horizontal format)
+- **Mobile Spotlight**: 694×758px (mobile-optimized vertical format)
+
+### **Validation Logic**
+
+#### **Compliance Levels**
+1. **✅ Perfect Match**: Exact dimension match (green badge/text)
+2. **⚠️ Close Match**: Within ±5% tolerance (green badge/text)
+3. **❌ Non-Compliant**: Outside tolerance range (red badge/text)
+
+#### **JavaScript Implementation**
+```javascript
+// Core validation function in analytics.js
+function validateImageDimensions(width, height) {
+  const currentTemplate = window.templateSystem.getCurrentConfig();
+  const expectedDimensions = {
+    width: currentTemplate.actualDimensions.width,
+    height: currentTemplate.actualDimensions.height
+  };
+  
+  // Exact match check
+  const isExactMatch = width === expectedDimensions.width && 
+                      height === expectedDimensions.height;
+  
+  // Tolerance check (±5%)
+  const tolerance = 0.05;
+  const isWithinTolerance = 
+    Math.abs(width - expectedDimensions.width) <= expectedDimensions.width * tolerance &&
+    Math.abs(height - expectedDimensions.height) <= expectedDimensions.height * tolerance;
+  
+  return {
+    status: isExactMatch ? 'compliant' : isWithinTolerance ? 'close' : 'non-compliant',
+    badgeText: `${width}×${height}`,
+    badgeClass: isExactMatch || isWithinTolerance ? 'compliant' : 'non-compliant',
+    message: `${isExactMatch ? 'Perfect' : isWithinTolerance ? 'Close' : 'Does not'} match for ${templateName}`
+  };
+}
+```
+
+### **Visual Feedback System**
+
+#### **Enhanced Image Info Panel**
+- **Color-coded dimensions**: Green for compliant, red for non-compliant
+- **Template compliance row**: Shows current template requirements
+- **Detailed messages**: Explains compliance status and expected dimensions
+- **Visual icons**: ✅, ⚠️, ❌ indicators for quick status recognition
+
+#### **Preview Badges**
+- **Universal coverage**: Appears on all tile types (live editor, localized cards, modal previews)
+- **Dimension display**: Shows actual image size (e.g., "560×315")
+- **Color coding**: Green background for compliant, red for non-compliant
+- **Strategic positioning**: Top-left corner to avoid UI conflicts
+- **Hover tooltips**: Detailed compliance information on hover
+
+### **Template-Aware Validation**
+
+#### **Dynamic Re-validation**
+The validation system automatically re-checks image dimensions when users switch between templates:
+
+```javascript
+// Template switching triggers re-validation
+function switchTemplate(templateType) {
+  // ... template switching logic ...
+  
+  // Re-validate image dimensions for new template
+  if (typeof revalidateImageDimensions === 'function') {
+    revalidateImageDimensions();
+  }
+}
+
+// Re-validation function
+function revalidateImageDimensions() {
+  if (window.currentImageInfo) {
+    const validation = validateImageDimensions(
+      window.currentImageInfo.width, 
+      window.currentImageInfo.height
+    );
+    updateImageInfoPanel(window.currentImageInfo);
+  }
+}
+```
+
+#### **Global State Management**
+- **Image storage**: `window.currentImageInfo` stores current image metadata
+- **Template awareness**: Validation adapts to active template requirements
+- **Immediate feedback**: Updates occur instantly on template changes
+
+### **CSS Styling**
+
+#### **Validation Classes**
+```css
+/* Info panel validation colors */
+.validation-compliant {
+  color: #4caf50 !important;
+  font-weight: 500;
+}
+
+.validation-error {
+  color: #f44336 !important;
+  font-weight: 500;
+}
+
+/* Badge styling */
+.validation-badge {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.validation-badge.compliant {
+  background: #4caf50;
+  color: white;
+}
+
+.validation-badge.non-compliant {
+  background: #f44336;
+  color: white;
+}
+```
+
+### **User Experience Benefits**
+- **Immediate feedback**: Users know instantly if images meet template specs
+- **Template switching**: Validation updates automatically when changing templates
+- **Professional presentation**: Clean, color-coded system for quick assessment
+- **Non-intrusive design**: Badges positioned to avoid UI conflicts
+- **Comprehensive coverage**: Validation appears across all tile instances
+
+### **Technical Architecture**
+- **Module**: `analytics.js` contains core validation logic
+- **Integration**: Hooks into template system and drag-drop handlers
+- **Global state**: Image info stored for template switching scenarios
+- **Event-driven**: Responds to both image uploads and template changes
+
 ### **Template Persistence & Bug Fixes**
 The Mobile Spotlight template system includes robust persistence logic to maintain template consistency across all UI interactions:
 

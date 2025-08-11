@@ -98,6 +98,11 @@ function selectTemplate(templateType) {
     updateAnalyticsFromAllTiles();
   }
   
+  // Re-validate image dimensions for new template
+  if (typeof revalidateImageDimensions === 'function') {
+    revalidateImageDimensions();
+  }
+  
   // Show template status
   showTemplateStatus(templateType);
   

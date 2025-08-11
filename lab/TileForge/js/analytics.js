@@ -97,6 +97,21 @@ function updateImageInfoPanel(imageInfo) {
   updatePreviewBadge(validation);
 }
 
+// Re-validate image dimensions when template changes
+function revalidateImageDimensions() {
+  // Check if we have image info stored
+  const imageInfoPanel = document.getElementById('imageInfoPanel');
+  if (!imageInfoPanel || !window.currentImageInfo) {
+    return; // No image loaded, nothing to validate
+  }
+  
+  // Re-run validation with current image dimensions
+  const validation = validateImageDimensions(window.currentImageInfo.width, window.currentImageInfo.height);
+  
+  // Update the image info panel with new validation
+  updateImageInfoPanel(window.currentImageInfo);
+}
+
 // Validate image dimensions against current template requirements
 function validateImageDimensions(width, height) {
   // Get current template configuration

@@ -98,6 +98,9 @@ function handleImageUpload(file) {
         imageSrc: imageSrc  // Add image source for thumbnail generation
       };
       
+      // Store image info globally for template switching validation
+      window.currentImageInfo = imageInfo;
+      
       // Update detailed image info panel
       updateImageInfoPanel(imageInfo);
     };
