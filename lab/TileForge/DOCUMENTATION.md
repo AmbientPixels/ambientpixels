@@ -301,7 +301,185 @@ const LIMITS = {
 
 ---
 
-## �🏗️ Architecture
+## 🎛️ Enhanced Live Tile Editor
+
+### **Overview**
+The Live Tile Editor provides comprehensive text editing capabilities with dual control systems for maximum flexibility and granular control over tile localization.
+
+### **Dual Control Architecture**
+
+#### **1. Manual Text Application**
+Independent "Apply Text to All" buttons for applying manually typed text to all tiles per field.
+
+**Features:**
+- **Per-Field Control**: Separate buttons for Headline, Subheadline, and Narrator Text
+- **Horizontal Layout**: Green buttons positioned to the right of each input field
+- **Real-time Application**: Instantly applies typed text to all 55+ locales
+- **Visual Feedback**: Immediate tile re-rendering and analytics updates
+
+**Technical Implementation:**
+```javascript
+// Function: applyManualTextToAllTiles(text, fieldType)
+// Location: js/live-editor.js
+// Purpose: Apply manually entered text to all tiles for specific field
+
+applyManualTextToAllTiles('Custom Title', 'title');
+// Updates all locales with "Custom Title" in title field
+```
+
+**HTML Structure:**
+```html
+<div class="input-row">
+  <div class="input-container">
+    <input type="text" id="titleInput" placeholder="Enter headline..." />
+    <div class="character-info">
+      <div class="char-count"><span id="titleCharCount">0</span></div>
+    </div>
+  </div>
+  <div class="manual-controls">
+    <button class="manual-apply-btn" id="titleManualApplyBtn">
+      <i class="fas fa-share"></i> Apply Text to All
+    </button>
+  </div>
+</div>
+```
+
+#### **2. Preset System**
+Comprehensive preset management with auto-localization capabilities.
+
+**Features:**
+- **JSON-Based Presets**: Modular preset files in `data/` directory
+- **Auto-Localization Toggle**: Apply localized text per locale or English to all
+- **Dropdown Selection**: Per-field preset selection with immediate preview
+- **Preset "Apply All"**: Blue buttons for applying selected presets to all tiles
+
+**Available Presets:**
+- `available-now.json` - "Available Now" in 121+ languages
+- `buy-now.json` - "Buy Now" in 121+ languages  
+- `pre-order-now.json` - "Pre-order Now" in 121+ languages
+- `new-season.json` - "New Season" in 121+ languages
+
+**Preset Data Structure:**
+```json
+{
+  "name": "Available Now",
+  "locales": {
+    "EN-US": "Available Now",
+    "FR-FR": "Disponible maintenant",
+    "DE-DE": "Jetzt verfügbar",
+    "ES-ES": "Ya disponible"
+  }
+}
+```
+
+**Auto-Localization Logic:**
+```javascript
+// Auto-localize ON: Each locale gets its translated text
+if (isAutoLocalizeEnabled) {
+  textToApply = preset.locales[locale] || preset.locales['EN-US'];
+}
+// Auto-localize OFF: All locales get English text
+else {
+  textToApply = preset.locales['EN-US'];
+}
+```
+
+### **CSS Layout System**
+
+#### **Input Row Layout**
+```css
+.input-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.input-row .input-container {
+  flex: 1; /* Input takes remaining space */
+}
+
+.manual-controls {
+  display: flex;
+  align-items: center;
+}
+```
+
+#### **Button Styling**
+```css
+/* Manual Apply All Buttons (Green) */
+.manual-apply-btn {
+  background: var(--success-color, #28a745);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* Preset Apply All Buttons (Blue) */
+.preset-apply-btn {
+  background: var(--accent-color);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+```
+
+### **Event Handling Architecture**
+
+#### **Manual Text Event Listeners**
+```javascript
+// Setup in setupLiveEditor() function
+titleManualApplyBtn.addEventListener('click', function() {
+  const manualText = titleInput ? titleInput.value.trim() : '';
+  if (manualText) {
+    applyManualTextToAllTiles(manualText, 'title');
+  } else {
+    alert('Please enter some text in the Title field first');
+  }
+});
+```
+
+#### **Data Flow & Synchronization**
+```javascript
+// Manual text application - same text to all locales
+currentCsvData.forEach((row, index) => {
+  if (index === 0) return; // Skip header row
+  const locale = row.Locale || row.locale;
+  row[fieldKey] = text; // Apply same text to all locales
+});
+
+// Preset application with auto-localization
+currentCsvData.forEach(row => {
+  const locale = row.Locale || row.locale;
+  const textToApply = isAutoLocalizeEnabled 
+    ? preset.locales[locale] || preset.locales['EN-US']
+    : preset.locales['EN-US'];
+  row[fieldKey] = textToApply;
+});
+
+// Trigger UI re-render
+renderLocaleGroups(currentCsvData);
+updateAnalytics();
+```
+
+### **User Experience Features**
+
+#### **Visual Distinction**
+- **Green Buttons**: Manual text application ("Apply Text to All")
+- **Blue Buttons**: Preset application ("Apply All")
+- **Horizontal Layout**: Buttons aligned to the right of input fields
+- **Clear Labeling**: Distinct icons and text for each function
+
+#### **Validation & Feedback**
+- **Empty Field Alerts**: User-friendly messages for empty inputs
+- **Real-time Preview**: Live Editor always shows English text for consistency
+- **Immediate Updates**: Tiles re-render instantly after application
+- **Analytics Integration**: Dashboard updates reflect all changes
+
+---
+
+## 🏗️ Architecture
 
 ### **Modular CSS System**
 TileForge follows a strict modular architecture with zero duplication:
