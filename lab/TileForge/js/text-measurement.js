@@ -26,7 +26,12 @@ function measureTextWidth(text, fontSize = '18px', fontFamily = 'system-ui, -app
 
 // Get the available width for tile text (tile width minus padding)
 function getTileTextWidth() {
-  // Tile width: 280px, padding: 16px left + 16px right = 32px
+  // Use template system if available, otherwise fallback to default
+  if (typeof window.templateSystem !== 'undefined') {
+    return window.templateSystem.getTextWidth();
+  }
+  
+  // Fallback: Tile width: 280px, padding: 16px left + 16px right = 32px
   // Available text width: 280 - 32 = 248px
   return 248;
 }
@@ -74,12 +79,19 @@ function analyzeTextLayout(text, fontSize = '18px', fontFamily = 'system-ui, -ap
     lines.push(currentLine);
   }
   
+  // Get line clamp from template system
+  let lineClamp = 2; // Default
+  if (typeof window.templateSystem !== 'undefined') {
+    const clamps = window.templateSystem.getLineClamps();
+    lineClamp = clamps.title; // Use title clamp as default, will be overridden in analyzeTextVisually
+  }
+  
   return {
     lines: lines,
     lineCount: lines.length,
-    willTruncate: lines.length > 2, // CSS line-clamp: 2
-    truncatedText: lines.slice(0, 2).join(' '),
-    hiddenText: lines.length > 2 ? lines.slice(2).join(' ') : '',
+    willTruncate: lines.length > lineClamp,
+    truncatedText: lines.slice(0, lineClamp).join(' '),
+    hiddenText: lines.length > lineClamp ? lines.slice(lineClamp).join(' ') : '',
     maxLineWidth: Math.max(...lines.map(line => measureTextWidth(line, fontSize, fontFamily, fontWeight))),
     utilizationPercent: Math.round((Math.max(...lines.map(line => measureTextWidth(line, fontSize, fontFamily, fontWeight))) / availableWidth) * 100)
   };
@@ -119,15 +131,38 @@ function getOptimalLimits() {
 
 // Enhanced text analysis that replaces the old character-count system
 function analyzeTextVisually(title, subtitle) {
-  const titleAnalysis = analyzeTextLayout(title, '18px', 'system-ui, -apple-system, sans-serif', '600');
-  const subtitleAnalysis = analyzeTextLayout(subtitle, '16px', 'system-ui, -apple-system, sans-serif', '400');
+  // Get template-specific font settings
+  let titleFont = { fontSize: '18px', fontWeight: '600' };
+  let subtitleFont = { fontSize: '16px', fontWeight: '400' };
+  let lineClamps = { title: 2, subtitle: 2 };
+  
+  if (typeof window.templateSystem !== 'undefined') {
+    const fontSettings = window.templateSystem.getFontSettings();
+    const templateClamps = window.templateSystem.getLineClamps();
+    
+    titleFont = fontSettings.title;
+    subtitleFont = fontSettings.subtitle;
+    lineClamps = templateClamps;
+  }
+  
+  const titleAnalysis = analyzeTextLayout(title, titleFont.fontSize, 'system-ui, -apple-system, sans-serif', titleFont.fontWeight);
+  const subtitleAnalysis = analyzeTextLayout(subtitle, subtitleFont.fontSize, 'system-ui, -apple-system, sans-serif', subtitleFont.fontWeight);
+  
+  // Update analysis with correct line clamps
+  titleAnalysis.willTruncate = titleAnalysis.lineCount > lineClamps.title;
+  titleAnalysis.truncatedText = titleAnalysis.lines.slice(0, lineClamps.title).join(' ');
+  titleAnalysis.hiddenText = titleAnalysis.lineCount > lineClamps.title ? titleAnalysis.lines.slice(lineClamps.title).join(' ') : '';
+  
+  subtitleAnalysis.willTruncate = subtitleAnalysis.lineCount > lineClamps.subtitle;
+  subtitleAnalysis.truncatedText = subtitleAnalysis.lines.slice(0, lineClamps.subtitle).join(' ');
+  subtitleAnalysis.hiddenText = subtitleAnalysis.lineCount > lineClamps.subtitle ? subtitleAnalysis.lines.slice(lineClamps.subtitle).join(' ') : '';
   
   const issues = [];
   let status = 'clean';
   
   // Check title
   if (titleAnalysis.willTruncate) {
-    issues.push(`Title will be truncated (${titleAnalysis.lineCount} lines, showing 2)`);
+    issues.push(`Title will be truncated (${titleAnalysis.lineCount} lines, showing ${lineClamps.title})`);
     status = 'overflow';
   } else if (titleAnalysis.utilizationPercent > 90) {
     issues.push(`Title near width limit (${titleAnalysis.utilizationPercent}% of available space)`);
@@ -136,7 +171,7 @@ function analyzeTextVisually(title, subtitle) {
   
   // Check subtitle
   if (subtitleAnalysis.willTruncate) {
-    issues.push(`Subtitle will be truncated (${subtitleAnalysis.lineCount} lines, showing 2)`);
+    issues.push(`Subtitle will be truncated (${subtitleAnalysis.lineCount} lines, showing ${lineClamps.subtitle})`);
     status = 'overflow';
   } else if (subtitleAnalysis.utilizationPercent > 90) {
     issues.push(`Subtitle near width limit (${subtitleAnalysis.utilizationPercent}% of available space)`);

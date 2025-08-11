@@ -203,7 +203,7 @@ function getRegionFromLocale(locale) {
   return locale.split('-')[1];
 }
 
-// Text length limits for tile analysis
+// Text length limits for tile analysis (legacy - now handled by template system)
 const LIMITS = {
   title: {
     max: 40,        // Maximum characters before overflow
@@ -214,6 +214,14 @@ const LIMITS = {
     warning: 30     // Warning threshold for near-limit
   }
 };
+
+// Get current template limits (template-aware)
+function getCurrentLimits() {
+  if (typeof window.templateSystem !== 'undefined') {
+    return window.templateSystem.getCurrentLimits();
+  }
+  return LIMITS; // Fallback to legacy limits
+}
 
 // Global state
 let currentCsvData = null;

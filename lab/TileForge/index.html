@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="css/tile-editor.css">
   <link rel="stylesheet" href="css/dashboard.css">
   <link rel="stylesheet" href="css/modal.css">
+  <link rel="stylesheet" href="css/template-system.css">
 </head>
 <body>
   <!-- Intro Section -->
@@ -119,6 +120,32 @@
             <small>Iris Localization CSV format</small>
           </div>
           <input type="file" id="csvInput" accept=".csv" style="display: none;" />
+        </div>
+      </div>
+
+      <!-- Template Selection Section -->
+      <div class="template-section">
+        <h3><i class="fas fa-th-large"></i> Template</h3>
+        <div class="template-selector">
+          <div class="template-option active" data-template="toh">
+            <div class="template-preview">
+              <div class="template-tile toh-preview"></div>
+            </div>
+            <div class="template-info">
+              <h4>Top of Home (ToH)</h4>
+              <p>360×315px • Standard Xbox tile</p>
+            </div>
+          </div>
+          
+          <div class="template-option" data-template="mobile-spotlight">
+            <div class="template-preview">
+              <div class="template-tile mobile-spotlight-preview"></div>
+            </div>
+            <div class="template-info">
+              <h4>Mobile Spotlight</h4>
+              <p>694×758px • Vertical mobile format</p>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -372,6 +399,7 @@
   <script src="js/analytics.js"></script>
   <script src="js/drag-drop.js"></script>
   <script src="js/settings.js"></script>
+  <script src="js/template-system.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

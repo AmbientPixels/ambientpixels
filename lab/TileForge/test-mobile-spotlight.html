@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TileForge Mobile Spotlight Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a1a;
+      color: white;
+      padding: 20px;
+    }
+    .test-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .test-section {
+      margin: 20px 0;
+      padding: 20px;
+      background: #2a2a2a;
+      border-radius: 8px;
+    }
+    .template-comparison {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .template-demo {
+      text-align: center;
+    }
+    .demo-tile {
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      border-radius: 8px;
+      position: relative;
+      margin: 10px 0;
+    }
+    .toh-tile {
+      width: 280px;
+      height: 140px;
+    }
+    .mobile-spotlight-tile {
+      width: 347px;
+      height: 379px;
+    }
+    .tile-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+      padding: 16px;
+      color: white;
+    }
+    .mobile-spotlight-tile .tile-overlay {
+      padding: 24px 20px;
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+    }
+    .tile-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+    }
+    .mobile-spotlight-tile .tile-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+    }
+    .tile-subtitle {
+      font-size: 16px;
+      font-weight: 400;
+      margin: 0;
+      opacity: 0.9;
+    }
+    .status {
+      color: #4caf50;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>🎮 TileForge Mobile Spotlight Template Test</h1>
+    
+    <div class="test-section">
+      <h2>✅ Implementation Status</h2>
+      <ul>
+        <li class="status">✓ Template selection UI added to index.html</li>
+        <li class="status">✓ CSS template-system.css created with Mobile Spotlight styles</li>
+        <li class="status">✓ JavaScript template-system.js created with switching logic</li>
+        <li class="status">✓ Text measurement system updated for template-aware analysis</li>
+        <li class="status">✓ Tile renderer updated to apply template classes</li>
+        <li class="status">✓ Live editor updated for template-aware limits</li>
+        <li class="status">✓ Constants updated with template-aware limit functions</li>
+      </ul>
+    </div>
+
+    <div class="test-section">
+      <h2>📏 Template Comparison</h2>
+      <div class="template-comparison">
+        <div class="template-demo">
+          <h3>Top of Home (ToH)</h3>
+          <p>360×315px (280×140px display)</p>
+          <div class="demo-tile toh-tile">
+            <div class="tile-overlay">
+              <div class="tile-title">Fortnite OG</div>
+              <div class="tile-subtitle">New season</div>
+            </div>
+          </div>
+          <ul style="text-align: left; font-size: 12px;">
+            <li>Title: 40 chars max, 2 lines</li>
+            <li>Subtitle: 40 chars max, 2 lines</li>
+            <li>Font: 18px/16px</li>
+          </ul>
+        </div>
+        
+        <div class="template-demo">
+          <h3>Mobile Spotlight</h3>
+          <p>694×758px (347×379px display)</p>
+          <div class="demo-tile mobile-spotlight-tile">
+            <div class="tile-overlay">
+              <div class="tile-title">Fortnite OG</div>
+              <div class="tile-subtitle">New season with enhanced mobile experience</div>
+            </div>
+          </div>
+          <ul style="text-align: left; font-size: 12px;">
+            <li>Title: 60 chars max, 3 lines</li>
+            <li>Subtitle: 80 chars max, 3 lines</li>
+            <li>Font: 20px/16px</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>🧪 Testing Instructions</h2>
+      <ol>
+        <li><strong>Open TileForge:</strong> Load index.html in your browser</li>
+        <li><strong>Find Template Section:</strong> Look for the "Template" section in the left panel</li>
+        <li><strong>Test Template Switching:</strong>
+          <ul>
+            <li>Click "Top of Home (ToH)" - tiles should be 280×140px</li>
+            <li>Click "Mobile Spotlight" - tiles should be 347×379px</li>
+          </ul>
+        </li>
+        <li><strong>Upload Test Data:</strong> Use default data or upload CSV</li>
+        <li><strong>Verify Tile Updates:</strong> All tiles should resize when switching templates</li>
+        <li><strong>Test Text Analysis:</strong> Mobile Spotlight should allow longer text</li>
+        <li><strong>Check Live Editor:</strong> Preview tile should also update with template</li>
+      </ol>
+    </div>
+
+    <div class="test-section">
+      <h2>🔧 Key Features Implemented</h2>
+      <ul>
+        <li><strong>Template Selection UI:</strong> Visual template picker with previews</li>
+        <li><strong>Dynamic Tile Resizing:</strong> All tiles update when switching templates</li>
+        <li><strong>Template-Aware Text Analysis:</strong> Different limits for each template</li>
+        <li><strong>Enhanced Mobile Spotlight:</strong> 50% more text capacity, larger fonts</li>
+        <li><strong>Live Editor Integration:</strong> Preview tile updates with template</li>
+        <li><strong>Modular Architecture:</strong> Clean separation in dedicated files</li>
+      </ul>
+    </div>
+
+    <div class="test-section">
+      <h2>📁 Files Created/Modified</h2>
+      <ul>
+        <li><strong>NEW:</strong> css/template-system.css - Template styling</li>
+        <li><strong>NEW:</strong> js/template-system.js - Template logic</li>
+        <li><strong>MODIFIED:</strong> index.html - Added template selection UI</li>
+        <li><strong>MODIFIED:</strong> js/main.js - Initialize template system</li>
+        <li><strong>MODIFIED:</strong> js/text-measurement.js - Template-aware analysis</li>
+        <li><strong>MODIFIED:</strong> js/tile-renderer.js - Apply template classes</li>
+        <li><strong>MODIFIED:</strong> js/live-editor.js - Template-aware limits</li>
+        <li><strong>MODIFIED:</strong> js/constants.js - Template-aware limit functions</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

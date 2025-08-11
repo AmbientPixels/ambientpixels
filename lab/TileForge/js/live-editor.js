@@ -18,8 +18,9 @@ function setupTileEditing(textElement, charCountElement, tileElement) {
       countSpan.textContent = charCount;
     }
     
-    // Update character count color based on W-count limits
-    const limit = field === 'title' ? LIMITS.title : LIMITS.subtitle;
+    // Update character count color based on template-aware limits
+    const limits = typeof getCurrentLimits === 'function' ? getCurrentLimits() : LIMITS;
+    const limit = field === 'title' ? limits.title : limits.subtitle;
     charCountElement.className = `char-counter ${field}-counter`;
     
     if (charCount > limit.max) {
@@ -305,6 +306,14 @@ function updatePreviewTileStatus() {
   
   // Apply the EXACT same class logic as createTile() function
   previewTile.className = `preview-tile ${analysis.status}`;
+  
+  // Apply current template class if available (FIX: Maintain template class)
+  if (typeof window.templateSystem !== 'undefined') {
+    const currentConfig = window.templateSystem.getCurrentConfig();
+    if (currentConfig && currentConfig.name === 'Mobile Spotlight') {
+      previewTile.classList.add('mobile-spotlight');
+    }
+  }
   
   // DEBUG: Log what class was applied
   console.log('Applied class:', previewTile.className);

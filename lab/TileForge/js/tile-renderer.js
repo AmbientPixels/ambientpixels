@@ -16,6 +16,15 @@ function createTile(locale, title, subtitle, narratorText, analysis) {
   // Create the actual tile preview
   const tile = document.createElement('div');
   tile.className = `tile-preview ${analysis.status}`;
+  
+  // Apply current template class if available
+  if (typeof window.templateSystem !== 'undefined') {
+    const currentConfig = window.templateSystem.getCurrentConfig();
+    if (currentConfig && currentConfig.name === 'Mobile Spotlight') {
+      tile.classList.add('mobile-spotlight');
+    }
+  }
+  
   tile.dataset.locale = locale;
   tile.dataset.originalTitle = title;
   tile.dataset.originalSubtitle = subtitle;

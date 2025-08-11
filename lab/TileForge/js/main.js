@@ -15,6 +15,11 @@ document.addEventListener('DOMContentLoaded', function() {
   setupLiveEditor();
   initializeFilters();
   
+  // Initialize template system
+  if (typeof window.templateSystem !== 'undefined') {
+    window.templateSystem.initialize();
+  }
+  
   console.log('TileForge initialized successfully with modular architecture');
 });
 
