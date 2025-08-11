@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
   setupFileInputs();
   setupDragAndDrop();
   setupLiveEditor();
+  setupPresetControls(); // Initialize preset dropdowns
   initializeFilters();
   
   // Initialize template system

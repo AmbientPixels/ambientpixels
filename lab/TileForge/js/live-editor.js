@@ -412,35 +412,109 @@ function updateLiveAnalytics() {
 }
 
 // Preset Headlines System
-let presetData = {};
 let currentActiveLocale = 'EN-US'; // Track the currently active tile's locale
 
-// Load preset data from JSON files
-async function loadPresetData() {
-  try {
-    const presetFiles = ['available-now', 'buy-now', 'pre-order-now'];
-    
-    for (const presetName of presetFiles) {
-      console.log(`DEBUG: Loading preset file: ${presetName}.json`);
-      const response = await fetch(`data/${presetName}.json`);
-      if (response.ok) {
-        const data = await response.json();
-        presetData[presetName] = data;
-        console.log(`DEBUG: Loaded ${presetName}:`, {
-          name: data.name,
-          localeCount: Object.keys(data.locales).length,
-          sampleLocales: Object.keys(data.locales).slice(0, 5)
-        });
-      } else {
-        console.warn(`Could not load preset: ${presetName}.json - Status: ${response.status}`);
-      }
+// Embedded preset data (no external file loading needed for local tool usage)
+const presetData = {
+  'available-now': {
+    "name": "Available Now",
+    "description": "Common availability messaging",
+    "locales": {
+      "AR-AE": "يتوفر الآن", "AR-BH": "يتوفر الآن", "AR-DZ": "يتوفر الآن", "AR-EG": "يتوفر الآن", "AR-KW": "يتوفر الآن",
+      "AR-LY": "يتوفر الآن", "AR-MA": "يتوفر الآن", "AR-OM": "يتوفر الآن", "AR-QA": "يتوفر الآن", "AR-SA": "يتوفر الآن", "AR-TN": "يتوفر الآن",
+      "CA-ES": "Disponible ara", "CS-CZ": "Nyní k dispozici", "DA-DK": "Fås nu", "DE-AT": "Jetzt verfügbar", "DE-CH": "Jetzt verfügbar",
+      "DE-DE": "Jetzt verfügbar", "DE-LI": "Jetzt verfügbar", "DE-LU": "Jetzt verfügbar", "EL-GR": "Διαθέσιμο τώρα",
+      "EN-AE": "Available now", "EN-AL": "Available now", "EN-AU": "Available now", "EN-BA": "Available now", "EN-BG": "Available now",
+      "EN-BH": "Available now", "EN-CA": "Available now", "EN-CY": "Available now", "EN-CZ": "Available now", "EN-DZ": "Available now",
+      "EN-EE": "Available now", "EN-EG": "Available now", "EN-GB": "Available now", "EN-GE": "Available now", "EN-GR": "Available now",
+      "EN-HK": "Available now", "EN-HR": "Available now", "EN-HU": "Available now", "EN-IE": "Available now", "EN-IL": "Available now",
+      "EN-IN": "Available now", "EN-IS": "Available now", "EN-KW": "Available now", "EN-LI": "Available now", "EN-LT": "Available now",
+      "EN-LU": "Available now", "EN-LV": "Available now", "EN-MA": "Available now", "EN-MT": "Available now", "EN-MY": "Available now",
+      "EN-NZ": "Available now", "EN-OM": "Available now", "EN-PH": "Available now", "EN-PL": "Available now", "EN-QA": "Available now",
+      "EN-RO": "Available now", "EN-SA": "Available now", "EN-SG": "Available now", "EN-SI": "Available now", "EN-SK": "Available now",
+      "EN-TH": "Available now", "EN-TN": "Available now", "EN-TW": "Available now", "EN-US": "Available now", "EN-ZA": "Available now",
+      "ES-AR": "Disponible ahora", "ES-BO": "Disponible ahora", "ES-CL": "Disponible ahora", "ES-CO": "Disponible ahora", "ES-CR": "Disponible ahora",
+      "ES-DO": "Disponible ahora", "ES-EC": "Disponible ahora", "ES-ES": "Disponible ahora", "ES-GT": "Disponible ahora", "ES-HN": "Disponible ahora",
+      "ES-MX": "Disponible ahora", "ES-NI": "Disponible ahora", "ES-PA": "Disponible ahora", "ES-PE": "Disponible ahora", "ES-PR": "Disponible ahora",
+      "ES-PY": "Disponible ahora", "ES-SV": "Disponible ahora", "ES-UY": "Disponible ahora", "ES-VE": "Disponible ahora",
+      "FI-FI": "Saatavilla nyt", "FR-BE": "Disponible maintenant", "FR-CA": "Disponible maintenant", "FR-CH": "Disponible maintenant",
+      "FR-FR": "Disponible maintenant", "FR-LU": "Disponible maintenant", "FR-MC": "Disponible maintenant", "HE-IL": "זמין עכשיו",
+      "HU-HU": "Most elérhető", "IT-CH": "Disponibile ora", "IT-IT": "Disponibile ora", "JA-JP": "今すぐ利用可能",
+      "KO-KR": "지금 이용 가능", "NB-NO": "Tilgjengelig nå", "NL-BE": "Nu beschikbaar", "NL-NL": "Nu beschikbaar",
+      "PL-PL": "Dostępne teraz", "PT-BR": "Disponível agora", "PT-PT": "Disponível agora", "RU-RU": "Доступно сейчас",
+      "SK-SK": "Dostupné teraz", "SV-SE": "Tillgänglig nu", "TH-TH": "พร้อมใช้งานแล้ว", "TR-TR": "Şimdi mevcut",
+      "ZH-CN": "现已推出", "ZH-HK": "現已推出", "ZH-TW": "現已推出"
     }
-    
-    console.log('DEBUG: All preset data loaded:', Object.keys(presetData));
-    populatePresetDropdowns();
-  } catch (error) {
-    console.error('Error loading preset data:', error);
+  },
+  'buy-now': {
+    "name": "Buy Now",
+    "description": "Purchase call-to-action",
+    "locales": {
+      "AR-AE": "بادر بالشراء الآن", "AR-BH": "بادر بالشراء الآن", "AR-DZ": "بادر بالشراء الآن", "AR-EG": "بادر بالشراء الآن",
+      "AR-KW": "بادر بالشراء الآن", "AR-LY": "بادر بالشراء الآن", "AR-MA": "بادر بالشراء الآن", "AR-OM": "بادر بالشراء الآن",
+      "AR-QA": "بادر بالشراء الآن", "AR-SA": "بادر بالشراء الآن", "AR-TN": "بادر بالشراء الآن",
+      "CA-ES": "Compra ara", "CS-CZ": "Koupit nyní", "DA-DK": "Køb nu", "DE-AT": "Jetzt kaufen", "DE-CH": "Jetzt kaufen",
+      "DE-DE": "Jetzt kaufen", "DE-LI": "Jetzt kaufen", "DE-LU": "Jetzt kaufen", "EL-GR": "Αγοράστε τώρα",
+      "EN-AE": "Buy now", "EN-AL": "Buy now", "EN-AU": "Buy now", "EN-BA": "Buy now", "EN-BG": "Buy now",
+      "EN-BH": "Buy now", "EN-CA": "Buy now", "EN-CY": "Buy now", "EN-CZ": "Buy now", "EN-DZ": "Buy now",
+      "EN-EE": "Buy now", "EN-EG": "Buy now", "EN-GB": "Buy now", "EN-GE": "Buy now", "EN-GR": "Buy now",
+      "EN-HK": "Buy now", "EN-HR": "Buy now", "EN-HU": "Buy now", "EN-IE": "Buy now", "EN-IL": "Buy now",
+      "EN-IN": "Buy now", "EN-IS": "Buy now", "EN-KW": "Buy now", "EN-LI": "Buy now", "EN-LT": "Buy now",
+      "EN-LU": "Buy now", "EN-LV": "Buy now", "EN-MA": "Buy now", "EN-MT": "Buy now", "EN-MY": "Buy now",
+      "EN-NZ": "Buy now", "EN-OM": "Buy now", "EN-PH": "Buy now", "EN-PL": "Buy now", "EN-QA": "Buy now",
+      "EN-RO": "Buy now", "EN-SA": "Buy now", "EN-SG": "Buy now", "EN-SI": "Buy now", "EN-SK": "Buy now",
+      "EN-TH": "Buy now", "EN-TN": "Buy now", "EN-TW": "Buy now", "EN-US": "Buy now", "EN-ZA": "Buy now",
+      "ES-AR": "Comprar ahora", "ES-BO": "Comprar ahora", "ES-CL": "Comprar ahora", "ES-CO": "Comprar ahora", "ES-CR": "Comprar ahora",
+      "ES-DO": "Comprar ahora", "ES-EC": "Comprar ahora", "ES-ES": "Comprar ahora", "ES-GT": "Comprar ahora", "ES-HN": "Comprar ahora",
+      "ES-MX": "Comprar ahora", "ES-NI": "Comprar ahora", "ES-PA": "Comprar ahora", "ES-PE": "Comprar ahora", "ES-PR": "Comprar ahora",
+      "ES-PY": "Comprar ahora", "ES-SV": "Comprar ahora", "ES-UY": "Comprar ahora", "ES-VE": "Comprar ahora",
+      "FI-FI": "Osta nyt", "FR-BE": "Acheter maintenant", "FR-CA": "Acheter maintenant", "FR-CH": "Acheter maintenant",
+      "FR-FR": "Acheter maintenant", "FR-LU": "Acheter maintenant", "FR-MC": "Acheter maintenant", "HE-IL": "קנה עכשיו",
+      "HU-HU": "Vásárlás most", "IT-CH": "Acquista ora", "IT-IT": "Acquista ora", "JA-JP": "今すぐ購入",
+      "KO-KR": "지금 구매", "NB-NO": "Kjøp nå", "NL-BE": "Nu kopen", "NL-NL": "Nu kopen",
+      "PL-PL": "Kup teraz", "PT-BR": "Comprar agora", "PT-PT": "Comprar agora", "RU-RU": "Купить сейчас",
+      "SK-SK": "Kúpiť teraz", "SV-SE": "Köp nu", "TH-TH": "ซื้อตอนนี้", "TR-TR": "Şimdi satın al",
+      "ZH-CN": "立即购买", "ZH-HK": "立即購買", "ZH-TW": "立即購買"
+    }
+  },
+  'pre-order-now': {
+    "name": "Pre-order Now",
+    "description": "Pre-order messaging",
+    "locales": {
+      "AR-AE": "احجز مسبقًا الآن", "AR-BH": "احجز مسبقًا الآن", "AR-DZ": "احجز مسبقًا الآن", "AR-EG": "احجز مسبقًا الآن",
+      "AR-KW": "احجز مسبقًا الآن", "AR-LY": "احجز مسبقًا الآن", "AR-MA": "احجز مسبقًا الآن", "AR-OM": "احجز مسبقًا الآن",
+      "AR-QA": "احجز مسبقًا الآن", "AR-SA": "احجز مسبقًا الآن", "AR-TN": "احجز مسبقًا الآن",
+      "CA-ES": "Reserva ara", "CS-CZ": "Předobjednat nyní", "DA-DK": "Forudbestil nu", "DE-AT": "Jetzt vorbestellen", "DE-CH": "Jetzt vorbestellen",
+      "DE-DE": "Jetzt vorbestellen", "DE-LI": "Jetzt vorbestellen", "DE-LU": "Jetzt vorbestellen", "EL-GR": "Προπαραγγελία τώρα",
+      "EN-AE": "Pre-order now", "EN-AL": "Pre-order now", "EN-AU": "Pre-order now", "EN-BA": "Pre-order now", "EN-BG": "Pre-order now",
+      "EN-BH": "Pre-order now", "EN-CA": "Pre-order now", "EN-CY": "Pre-order now", "EN-CZ": "Pre-order now", "EN-DZ": "Pre-order now",
+      "EN-EE": "Pre-order now", "EN-EG": "Pre-order now", "EN-GB": "Pre-order now", "EN-GE": "Pre-order now", "EN-GR": "Pre-order now",
+      "EN-HK": "Pre-order now", "EN-HR": "Pre-order now", "EN-HU": "Pre-order now", "EN-IE": "Pre-order now", "EN-IL": "Pre-order now",
+      "EN-IN": "Pre-order now", "EN-IS": "Pre-order now", "EN-KW": "Pre-order now", "EN-LI": "Pre-order now", "EN-LT": "Pre-order now",
+      "EN-LU": "Pre-order now", "EN-LV": "Pre-order now", "EN-MA": "Pre-order now", "EN-MT": "Pre-order now", "EN-MY": "Pre-order now",
+      "EN-NZ": "Pre-order now", "EN-OM": "Pre-order now", "EN-PH": "Pre-order now", "EN-PL": "Pre-order now", "EN-QA": "Pre-order now",
+      "EN-RO": "Pre-order now", "EN-SA": "Pre-order now", "EN-SG": "Pre-order now", "EN-SI": "Pre-order now", "EN-SK": "Pre-order now",
+      "EN-TH": "Pre-order now", "EN-TN": "Pre-order now", "EN-TW": "Pre-order now", "EN-US": "Pre-order now", "EN-ZA": "Pre-order now",
+      "ES-AR": "Reservar ahora", "ES-BO": "Reservar ahora", "ES-CL": "Reservar ahora", "ES-CO": "Reservar ahora", "ES-CR": "Reservar ahora",
+      "ES-DO": "Reservar ahora", "ES-EC": "Reservar ahora", "ES-ES": "Reservar ahora", "ES-GT": "Reservar ahora", "ES-HN": "Reservar ahora",
+      "ES-MX": "Reservar ahora", "ES-NI": "Reservar ahora", "ES-PA": "Reservar ahora", "ES-PE": "Reservar ahora", "ES-PR": "Reservar ahora",
+      "ES-PY": "Reservar ahora", "ES-SV": "Reservar ahora", "ES-UY": "Reservar ahora", "ES-VE": "Reservar ahora",
+      "FI-FI": "Ennakkotilaa nyt", "FR-BE": "Précommander maintenant", "FR-CA": "Précommander maintenant", "FR-CH": "Précommander maintenant",
+      "FR-FR": "Précommander maintenant", "FR-LU": "Précommander maintenant", "FR-MC": "Précommander maintenant", "HE-IL": "הזמן מראש עכשיו",
+      "HU-HU": "Előrendelés most", "IT-CH": "Preordina ora", "IT-IT": "Preordina ora", "JA-JP": "今すぐ予約注文",
+      "KO-KR": "지금 사전 주문", "NB-NO": "Forhåndsbestill nå", "NL-BE": "Nu voorbestellen", "NL-NL": "Nu voorbestellen",
+      "PL-PL": "Zamów z wyprzedzeniem", "PT-BR": "Pré-encomende agora", "PT-PT": "Pré-encomendar agora", "RU-RU": "Предзаказать сейчас",
+      "SK-SK": "Predobjednať teraz", "SV-SE": "Förbeställ nu", "TH-TH": "สั่งจองล่วงหน้าตอนนี้", "TR-TR": "Şimdi ön sipariş ver",
+      "ZH-CN": "立即预购", "ZH-HK": "立即預購", "ZH-TW": "立即預購"
+    }
   }
+};
+
+// Initialize preset data (no async loading needed)
+function loadPresetData() {
+  console.log('DEBUG: Using embedded preset data for local tool usage');
+  console.log('DEBUG: Available presets:', Object.keys(presetData));
+  populatePresetDropdowns();
 }
 
 // Populate all preset dropdowns with available options
