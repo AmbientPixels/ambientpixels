@@ -21,6 +21,12 @@
   gap: 24px;
   align-items: start;
 }
+
+.preview-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 .preview-tile-container {
   display: flex;
   justify-content: center;
@@ -30,11 +36,11 @@
   width: 280px;
   height: 140px;
   background: linear-gradient(135deg, #1e73be 0%, #743ad5 100%);
-  background-size: cover;
-  background-position: center;
   border-radius: 8px;
   overflow: hidden;
-  border: 2px solid #4caf50;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: background-image 0.5s ease-in-out;
 }
 .editing-controls {
   display: flex;

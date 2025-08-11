@@ -638,3 +638,26 @@ document.addEventListener('DOMContentLoaded', function() {
   loadPresetData();
   setupPresetControls();
 });
+
+// Background Image Toggle Function
+window.toggleBackgroundImage = function(isEnabled) {
+  const previewTile = document.getElementById('previewTile');
+  
+  if (previewTile && window.currentImageInfo && window.currentImageInfo.imageSrc) {
+    if (isEnabled) {
+      // Show uploaded image
+      previewTile.style.backgroundImage = `url(${window.currentImageInfo.imageSrc})`;
+      previewTile.style.backgroundSize = 'cover';
+      previewTile.style.backgroundPosition = 'center';
+      previewTile.style.backgroundRepeat = 'no-repeat';
+    } else {
+      // Restore original gradient background
+      previewTile.style.backgroundImage = '';
+      previewTile.style.backgroundSize = '';
+      previewTile.style.backgroundPosition = '';
+      previewTile.style.backgroundRepeat = '';
+    }
+  } else {
+    console.log('Toggle failed - previewTile:', !!previewTile, 'currentImageInfo:', !!window.currentImageInfo, 'imageSrc:', !!(window.currentImageInfo && window.currentImageInfo.imageSrc));
+  }
+};

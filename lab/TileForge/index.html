@@ -293,13 +293,23 @@
       <div class="live-editing-panel" id="liveEditingPanel" style="display: none;">
         <h3><i class="fas fa-edit"></i> Live Tile Editor</h3>
         <div class="editing-content">
-          <div class="preview-tile-container">
-            <div class="preview-tile" id="previewTile">
-              <div class="tile-status-badge clean"><i class="fas fa-check-circle"></i></div>
-              <div class="tile-overlay">
-                <div class="tile-title" id="previewTitle">Fortnite OG</div>
-                <div class="tile-subtitle" id="previewSubtitle">New season</div>
+          <div class="preview-column">
+            <div class="preview-tile-container">
+              <div class="preview-tile" id="previewTile">
+                <div class="tile-status-badge clean"><i class="fas fa-check-circle"></i></div>
+                <div class="tile-overlay">
+                  <div class="tile-title" id="previewTitle">Fortnite OG</div>
+                  <div class="tile-subtitle" id="previewSubtitle">New season</div>
+                </div>
               </div>
+            </div>
+            
+            <div class="bg-toggle-control">
+              <span>Background Image</span>
+              <label class="switch">
+                <input type="checkbox" id="bgToggle" onchange="toggleBackgroundImage(this.checked)">
+                <span class="slider"></span>
+              </label>
             </div>
           </div>
           
@@ -386,15 +396,19 @@
             </div>
             
             <div class="preset-options">
-              <label class="checkbox-label">
-                <input type="checkbox" id="autoLocalizeToggle" checked>
-                <span class="checkmark"></span>
-                Auto-localize presets (apply correct language per locale)
-              </label>
+              <div class="auto-localize-control">
+                <div class="control-info">
+                  <span class="control-label">Auto-Localize Presets</span>
+                  <span class="control-description">Automatically applies language-specific presets based on each tile's locale</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="autoLocalizeToggle" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
             </div>
             
             <div class="editing-actions">
-              <button class="control-btn" id="applyToAllBtn"><i class="fas fa-file-export"></i> Apply to All Tiles</button>
               <button class="control-btn" id="resetBtn"><i class="fas fa-sync-alt"></i> Reset</button>
             </div>
           </div>
