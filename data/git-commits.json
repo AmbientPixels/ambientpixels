@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "6e713992-e760-4fe7-ae6c-68cca8b0ae70",
-      "hash": "2c6b21f3ba9a98d6f5c4bd3f629700e23d315f88",
-      "message": "📚 docs: Update documentation for tile border color system and real-time analytics",
-      "timestamp": "2025-08-10 01:05:56 -0700",
+      "id": "c978a824-09eb-4515-8399-4059de82804c",
+      "hash": "3d25000e0567195a24298b22ce3f0c3818a835bb",
+      "message": "Fix CORS issue: Embed preset data for standalone local usage",
+      "timestamp": "2025-08-11 01:34:40 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/2c6b21f3ba9a98d6f5c4bd3f629700e23d315f88"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/3d25000e0567195a24298b22ce3f0c3818a835bb"
     }
   ],
-  "timestamp": "2025-08-10T13:31:19.246Z",
+  "timestamp": "2025-08-11T13:39:33.949Z",
   "count": 1,
-  "scanId": 1754832679246
+  "scanId": 1754919573949
 }

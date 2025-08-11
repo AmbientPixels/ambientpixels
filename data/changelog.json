@@ -1,10 +1,10 @@
 {
-  "updated": "2025-08-10T13:31:18.414Z",
+  "updated": "2025-08-11T13:39:31.339Z",
   "entries": [
     {
-      "hash": "2c6b21f",
-      "date": "2025-08-10 01:05:56 -0700",
-      "message": "📚 docs: Update documentation for tile border color system and real-time analytics"
+      "hash": "3d25000",
+      "date": "2025-08-11 01:34:40 -0700",
+      "message": "Fix CORS issue: Embed preset data for standalone local usage"
     }
   ]
 }
