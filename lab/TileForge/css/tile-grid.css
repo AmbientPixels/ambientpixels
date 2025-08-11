@@ -12,6 +12,49 @@
   flex: 1;
 }
 
+/* Creative Section Separator */
+.section-separator {
+  display: flex;
+  align-items: center;
+  margin: 32px 0;
+  gap: 16px;
+}
+
+.separator-line {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--theme-accent, #007acc), transparent);
+  opacity: 0.6;
+}
+
+.separator-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--theme-accent, #007acc);
+  border-radius: 20px;
+  color: var(--theme-accent, #007acc);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.separator-content i {
+  font-size: 16px;
+  opacity: 0.8;
+}
+
+/* Locale Section Styling */
+.locale-section {
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  margin-bottom: 16px;
+  padding: 20px;
+}
+
 /* Locale Group Styling - if used */
 .locale-group {
   margin-bottom: 32px;

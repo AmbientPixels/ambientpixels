@@ -3,7 +3,7 @@
 /* Live Editing Panel & Preview Styles */
 .live-editing-panel {
   background: rgba(30, 30, 30, 0.95);
-  border: 1px solid #444;
+  border: 2px solid var(--theme-accent, #007acc);
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 20px;
@@ -40,7 +40,7 @@
   overflow: hidden;
   cursor: pointer;
   border: 2px solid transparent;
-  transition: background-image 0.5s ease-in-out;
+  transition: all 0.3s ease, background-image 0.5s ease-in-out;
 }
 .editing-controls {
   display: flex;

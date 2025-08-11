@@ -103,6 +103,12 @@ function handleImageUpload(file) {
       
       // Update detailed image info panel
       updateImageInfoPanel(imageInfo);
+      
+      // Auto-apply background image to live preview if toggle is ON
+      const bgToggle = document.getElementById('bgToggle');
+      if (bgToggle && bgToggle.checked && window.toggleBackgroundImage) {
+        window.toggleBackgroundImage(true);
+      }
     };
     img.src = imageSrc;
   };
