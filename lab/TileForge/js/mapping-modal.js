@@ -358,53 +358,87 @@ class MappingModal {
   }
 
   /**
-   * Populate the field mapping interface
+   * Populate the field mapping interface with card-based layout
    */
   populateFieldMapping() {
     const inputContainer = document.getElementById('input-fields');
     const outputContainer = document.getElementById('output-fields');
     
-    // Input fields
-    const inputHTML = this.fieldTypes.input.map(field => `
-      <div class="field-item input-field" data-field="${field}">
-        <div class="field-header">
-          <span class="field-name">${field}</span>
-          <span class="field-sample">${this.getFieldSample(field)}</span>
+    // Input field cards with enhanced visualization
+    const inputHTML = this.fieldTypes.input.map(field => {
+      const sample = this.getFieldSample(field);
+      const sampleLength = sample.length;
+      return `
+        <div class="field-card input-card" data-field="${field}">
+          <div class="card-header">
+            <i class="fas fa-file-alt card-icon"></i>
+            <span class="field-name">${field}</span>
+          </div>
+          <div class="card-content">
+            <div class="field-sample">
+              <span class="sample-label">Sample:</span>
+              <span class="sample-text">"${sample}"</span>
+            </div>
+            <div class="field-meta">
+              <span class="sample-length">${sampleLength} chars</span>
+            </div>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
     
-    // Output fields with dropdowns
-    const outputHTML = this.fieldTypes.output.map(field => `
-      <div class="field-item output-field" data-field="${field}">
-        <div class="field-header">
-          <span class="field-name">${field}</span>
-          <span class="field-limit">${this.getFieldLimit(field)} chars</span>
+    // Output field cards with mapping controls and visual feedback
+    const outputHTML = this.fieldTypes.output.map(field => {
+      const limit = this.getFieldLimit(field);
+      const defaultMapping = this.getDefaultMapping(field);
+      const isAutoMapped = this.fieldTypes.input.some(inputField => 
+        this.getDefaultMapping(inputField) === field
+      );
+      
+      return `
+        <div class="field-card output-card" data-field="${field}">
+          <div class="card-header">
+            <i class="fas fa-bullseye card-icon"></i>
+            <span class="field-name">${field}</span>
+            <span class="char-limit">${limit} chars max</span>
+          </div>
+          <div class="card-content">
+            <select class="field-mapping-select" data-output="${field}">
+              <option value="">Select input field...</option>
+              ${this.fieldTypes.input.map(inputField => `
+                <option value="${inputField}" ${this.getDefaultMapping(inputField) === field ? 'selected' : ''}>
+                  ${inputField}
+                </option>
+              `).join('')}
+            </select>
+            <div class="mapping-preview" id="preview-${field}">
+              <span class="preview-label">Preview:</span>
+              <span class="preview-text">Select a field to see preview...</span>
+            </div>
+            <div class="mapping-status ${isAutoMapped ? 'auto-mapped' : 'unmapped'}" id="status-${field}">
+              <i class="fas ${isAutoMapped ? 'fa-check-circle' : 'fa-circle'} status-icon"></i>
+              <span class="status-text">${isAutoMapped ? 'Auto-mapped' : 'Not mapped'}</span>
+            </div>
+          </div>
         </div>
-        <select class="field-mapping-select" data-output="${field}">
-          <option value="">Select input field...</option>
-          ${this.fieldTypes.input.map(inputField => `
-            <option value="${inputField}" ${this.getDefaultMapping(inputField) === field ? 'selected' : ''}>
-              ${inputField}
-            </option>
-          `).join('')}
-        </select>
-      </div>
-    `).join('');
+      `;
+    }).join('');
     
     inputContainer.innerHTML = inputHTML;
     outputContainer.innerHTML = outputHTML;
     
-    // Bind mapping change events
+    // Bind mapping change events with enhanced feedback
     document.querySelectorAll('.field-mapping-select').forEach(select => {
       select.addEventListener('change', () => {
         this.updateCurrentMapping();
+        this.updateMappingPreviews();
         this.updatePreview();
       });
     });
     
-    // Set initial mapping
+    // Set initial mapping and update previews
     this.updateCurrentMapping();
+    this.updateMappingPreviews();
   }
 
   /**
@@ -577,6 +611,30 @@ class MappingModal {
       console.error('❌ Import error:', error);
       alert('Error importing data: ' + error.message);
     }
+  }
+
+  /**
+   * Update mapping previews
+   */
+  updateMappingPreviews() {
+    document.querySelectorAll('.field-mapping-select').forEach(select => {
+      const outputField = select.dataset.output;
+      const inputField = select.value;
+      const previewContainer = document.getElementById(`preview-${outputField}`);
+      
+      if (inputField) {
+        const sample = this.getFieldSample(inputField);
+        previewContainer.innerHTML = `
+          <span class="preview-label">Preview:</span>
+          <span class="preview-text">"${sample}"</span>
+        `;
+      } else {
+        previewContainer.innerHTML = `
+          <span class="preview-label">Preview:</span>
+          <span class="preview-text">Select a field to see preview...</span>
+        `;
+      }
+    });
   }
 }
 

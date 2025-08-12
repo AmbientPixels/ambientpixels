@@ -210,68 +210,243 @@
   font-weight: 600;
 }
 
-/* Field Mapping */
-.mapping-grid {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 24px;
-  align-items: start;
+/* Card-based Field Mapping Layout */
+.field-card {
+  background: linear-gradient(135deg, #333 0%, #2a2a2a 100%);
+  border: 2px solid #444;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.input-fields h4,
-.output-fields h4 {
-  margin: 0 0 12px 0;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
+.field-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  border-color: #0078d4;
 }
 
-.field-item {
-  background: #333;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 8px;
-  border: 1px solid #444;
+.field-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #0078d4, #28a745);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-.field-header {
+.field-card:hover::before {
+  opacity: 1;
+}
+
+/* Input Cards */
+.input-card {
+  border-left: 4px solid #17a2b8;
+}
+
+.input-card .card-icon {
+  color: #17a2b8;
+}
+
+/* Output Cards */
+.output-card {
+  border-left: 4px solid #28a745;
+}
+
+.output-card .card-icon {
+  color: #28a745;
+}
+
+/* Card Headers */
+.card-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #444;
+}
+
+.card-icon {
+  font-size: 18px;
+  width: 20px;
+  text-align: center;
 }
 
 .field-name {
   font-weight: 600;
+  font-size: 16px;
   color: #fff;
-  font-size: 13px;
+  flex: 1;
 }
 
-.field-sample {
-  font-size: 11px;
-  color: #aaa;
-  font-style: italic;
-}
-
-.field-limit {
-  font-size: 11px;
+.char-limit {
+  background: #444;
   color: #0078d4;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
   font-weight: 500;
 }
 
+/* Card Content */
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Field Samples */
+.field-sample {
+  background: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.sample-label {
+  font-weight: 500;
+  color: #aaa;
+  margin-right: 6px;
+}
+
+.sample-text {
+  color: #fff;
+  font-style: italic;
+}
+
+.field-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #aaa;
+}
+
+.sample-length {
+  background: #444;
+  color: #aaa;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Mapping Controls */
 .field-mapping-select {
   width: 100%;
-  padding: 8px;
+  padding: 8px 12px;
+  border: 2px solid #555;
+  border-radius: 6px;
+  font-size: 14px;
   background: #2a2a2a;
-  border: 1px solid #555;
-  border-radius: 4px;
   color: #fff;
-  font-size: 12px;
+  transition: border-color 0.3s ease;
 }
 
 .field-mapping-select:focus {
   outline: none;
   border-color: #0078d4;
+  box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.2);
+}
+
+/* Mapping Previews */
+.mapping-preview {
+  background: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.preview-label {
+  font-weight: 500;
+  color: #aaa;
+}
+
+.preview-text {
+  color: #fff;
+  font-style: italic;
+  flex: 1;
+}
+
+.preview-text.over-limit {
+  color: #ff6b6b;
+  font-weight: 500;
+}
+
+.char-count {
+  font-size: 12px;
+  color: #aaa;
+  background: #444;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.char-count.over-limit {
+  background: #4a1a1a;
+  color: #ff6b6b;
+}
+
+/* Mapping Status */
+.mapping-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.mapping-status.mapped {
+  background: #1a4a2e;
+  color: #4caf50;
+  border: 1px solid #2e7d32;
+}
+
+.mapping-status.auto-mapped {
+  background: #1a3a4a;
+  color: #2196f3;
+  border: 1px solid #1976d2;
+}
+
+.mapping-status.unmapped {
+  background: #4a1a1a;
+  color: #f44336;
+  border: 1px solid #d32f2f;
+}
+
+.status-icon {
+  font-size: 12px;
+}
+
+/* Field Mapping Grid Layout */
+.mapping-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 24px;
+  align-items: start;
+  margin-top: 20px;
+}
+
+.input-fields h4,
+.output-fields h4 {
+  margin: 0 0 16px 0;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
 }
 
 .mapping-arrow {
@@ -279,8 +454,84 @@
   align-items: center;
   justify-content: center;
   color: #0078d4;
-  font-size: 20px;
-  margin-top: 40px;
+  font-size: 24px;
+  margin-top: 60px;
+  width: 40px;
+}
+
+.mapping-arrow::before {
+  content: '→';
+}
+
+/* Animation for card appearance */
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.field-card {
+  animation: cardSlideIn 0.3s ease-out;
+}
+
+/* Hover effects for better interactivity */
+.field-mapping-select:hover {
+  border-color: #0078d4;
+}
+
+.mapping-preview:hover {
+  background: #333;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .modal-container {
+    width: 95%;
+    max-height: 95vh;
+  }
+  
+  .mapping-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .mapping-arrow {
+    transform: rotate(90deg);
+    margin: 0;
+  }
+  
+  .preview-header,
+  .preview-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .preview-cell {
+    border-right: none;
+    border-bottom: 1px solid #444;
+  }
+  
+  .field-card {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .card-header {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  
+  .field-name {
+    font-size: 14px;
+  }
+  
+  .char-limit {
+    font-size: 11px;
+  }
 }
 
 /* Live Preview */
@@ -376,32 +627,4 @@
 
 .btn-primary:hover {
   background: #106ebe;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .modal-container {
-    width: 95%;
-    max-height: 95vh;
-  }
-  
-  .mapping-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-  
-  .mapping-arrow {
-    transform: rotate(90deg);
-    margin: 0;
-  }
-  
-  .preview-header,
-  .preview-row {
-    grid-template-columns: 1fr;
-  }
-  
-  .preview-cell {
-    border-right: none;
-    border-bottom: 1px solid #444;
-  }
 }
