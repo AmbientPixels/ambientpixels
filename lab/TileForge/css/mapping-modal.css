@@ -112,11 +112,11 @@
   box-shadow: 0 0 20px rgba(0, 188, 242, 0.3);
 }
 
-.drop-zone-content {
+.csv-drop-zone-content {
   pointer-events: none;
 }
 
-.drop-zone-content i {
+.csv-drop-zone-content i {
   font-size: 48px;
   color: #0078d4;
   margin-bottom: 16px;
@@ -124,21 +124,26 @@
   font-weight: 900;
 }
 
-.csv-drop-zone:hover .drop-zone-content i {
+.csv-drop-zone:hover .csv-drop-zone-content i {
   color: #00bcf2;
 }
 
-.drop-zone-content h4 {
+.csv-drop-zone-content h4 {
   margin: 0 0 8px 0;
   color: #fff;
   font-size: 18px;
   font-weight: 600;
 }
 
-.drop-zone-content p {
+.csv-drop-zone-content p {
   margin: 0 0 8px 0;
   color: #aaa;
   font-size: 14px;
+}
+
+.csv-drop-zone-content small {
+  color: #666;
+  font-size: 12px;
 }
 
 .browse-link {
@@ -150,11 +155,6 @@
 
 .browse-link:hover {
   color: #00bcf2;
-}
-
-.drop-zone-content small {
-  color: #777;
-  font-size: 12px;
 }
 
 /* Mapping Interface */
