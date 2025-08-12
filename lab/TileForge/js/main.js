@@ -95,8 +95,8 @@ function openHeadlinerCrafter() {
       return;
     }
     
-    // Show the mapping modal - it will handle whether to show upload or use existing data
-    window.mappingModal.show(currentCsvData, (transformedData, stats) => {
+    // Show the mapping modal with upload interface (no pre-loaded data)
+    window.mappingModal.show(null, (transformedData, stats) => {
       console.log('✅ Headliner Crafter transformation complete:', stats);
       
       // Process the transformed data through TileForge's normal pipeline
