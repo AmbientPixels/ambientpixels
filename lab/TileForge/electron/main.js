@@ -7,7 +7,54 @@ const isDev = process.env.NODE_ENV === 'development';
 let mainWindow;
 
 // Configure auto-updater
-autoUpdater.checkForUpdatesAndNotify();
+autoUpdater.logger = require('electron-log');
+autoUpdater.logger.transports.file.level = 'info';
+
+// Auto-updater event handlers
+autoUpdater.on('checking-for-update', () => {
+  console.log('Checking for update...');
+});
+
+autoUpdater.on('update-available', (info) => {
+  console.log('Update available.');
+  dialog.showMessageBox(mainWindow, {
+    type: 'info',
+    title: 'Update Available',
+    message: 'A new version is available. It will be downloaded in the background.',
+    detail: `Version ${info.version} is now available. The update will be installed when you restart the application.`,
+    buttons: ['OK']
+  });
+});
+
+autoUpdater.on('update-not-available', (info) => {
+  console.log('Update not available.');
+});
+
+autoUpdater.on('error', (err) => {
+  console.log('Error in auto-updater. ' + err);
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+  let log_message = "Download speed: " + progressObj.bytesPerSecond;
+  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+  log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+  console.log(log_message);
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+  console.log('Update downloaded');
+  dialog.showMessageBox(mainWindow, {
+    type: 'info',
+    title: 'Update Ready',
+    message: 'Update downloaded successfully!',
+    detail: 'The application will restart to apply the update.',
+    buttons: ['Restart Now', 'Later']
+  }).then((result) => {
+    if (result.response === 0) {
+      autoUpdater.quitAndInstall();
+    }
+  });
+});
 
 function createWindow() {
   // Create the browser window
@@ -196,50 +243,14 @@ app.on('window-all-closed', () => {
   }
 });
 
-// Auto-updater events
-autoUpdater.on('checking-for-update', () => {
-  console.log('Checking for update...');
-});
-
-autoUpdater.on('update-available', (info) => {
-  console.log('Update available.');
-  dialog.showMessageBox(mainWindow, {
-    type: 'info',
-    title: 'Update Available',
-    message: 'A new version of TileForge is available!',
-    detail: 'The update will be downloaded in the background. You will be notified when it is ready to install.',
-    buttons: ['OK']
-  });
-});
-
-autoUpdater.on('update-not-available', (info) => {
-  console.log('Update not available.');
-});
-
-autoUpdater.on('error', (err) => {
-  console.log('Error in auto-updater. ' + err);
-});
-
-autoUpdater.on('download-progress', (progressObj) => {
-  let log_message = "Download speed: " + progressObj.bytesPerSecond;
-  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
-  log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
-  console.log(log_message);
-});
-
-autoUpdater.on('update-downloaded', (info) => {
-  console.log('Update downloaded');
-  dialog.showMessageBox(mainWindow, {
-    type: 'info',
-    title: 'Update Ready',
-    message: 'Update downloaded successfully!',
-    detail: 'TileForge will restart to apply the update.',
-    buttons: ['Restart Now', 'Later']
-  }).then((result) => {
-    if (result.response === 0) {
-      autoUpdater.quitAndInstall();
+// Auto-updater initialization - check for updates when app is ready
+app.whenReady().then(() => {
+  // Check for updates 5 seconds after app is ready (gives time for window to load)
+  setTimeout(() => {
+    if (!isDev) {
+      autoUpdater.checkForUpdatesAndNotify();
     }
-  });
+  }, 5000);
 });
 
 // Security: Prevent new window creation

@@ -61,10 +61,135 @@ body {
 }
 
 .panel-header .subtitle {
-  margin: 0;
+  cursor: pointer;
   font-size: 14px;
   color: var(--theme-text-secondary, #aaa);
-  font-weight: 400;
+}
+
+/* Enhanced About Section Styling */
+.about-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.version-info {
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--theme-primary, #007bff) 0%, var(--theme-accent, #0056b3) 100%);
+  border-radius: 12px;
+  color: white;
+}
+
+.version-info h4 {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.version-subtitle {
+  font-style: italic;
+  opacity: 0.9;
+  margin: 8px 0;
+}
+
+.update-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.features-highlight {
+  background: var(--theme-surface, #252525);
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid var(--theme-primary, #007bff);
+}
+
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0 0;
+}
+
+.feature-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--theme-border, #444);
+}
+
+.feature-list li:last-child {
+  border-bottom: none;
+}
+
+.feature-list li i {
+  color: var(--theme-primary, #007bff);
+  width: 16px;
+  text-align: center;
+}
+
+.credits {
+  background: var(--theme-surface, #252525);
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.credits p {
+  margin: 8px 0;
+}
+
+.tech-info {
+  background: var(--theme-surface, #252525);
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.tech-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.tech-item {
+  padding: 8px;
+  background: var(--theme-background, #1a1a1a);
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.tech-item strong {
+  color: var(--theme-primary, #007bff);
+}
+
+.links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.links .btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.links .btn i {
+  font-size: 12px;
 }
 
 /* Right Panel - Preview Area */

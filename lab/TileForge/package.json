@@ -1,6 +1,6 @@
 {
   "name": "tileforge",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Xbox Tile Localization Preview Tool - Professional desktop app for game developers and localization teams",
   "main": "electron/main.js",
   "homepage": "https://github.com/ambientpixels/tileforge",
@@ -14,6 +14,7 @@
     "electron-dev": "electron . --dev",
     "build": "electron-builder",
     "build-win": "electron-builder --win --publish=never",
+    "build-win-publish": "electron-builder --win --publish=always",
     "build-mac": "electron-builder --mac",
     "build-linux": "electron-builder --linux",
     "dist": "npm run build",
@@ -25,7 +26,8 @@
     "electron-builder": "^24.9.1"
   },
   "dependencies": {
-    "electron-updater": "^6.1.7"
+    "electron-updater": "^6.1.7",
+    "electron-log": "^5.0.1"
   },
   "build": {
     "appId": "com.ambientpixels.tileforge",

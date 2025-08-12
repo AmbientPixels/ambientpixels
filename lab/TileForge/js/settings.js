@@ -580,19 +580,61 @@ function createAboutTabContent() {
       <h3>About TileForge</h3>
       <div class="about-info">
         <div class="version-info">
-          <h4>Version 1.2.0</h4>
-          <p>Xbox Tile Localization Preview Tool</p>
+          <h4>Version 1.0.1 🚀</h4>
+          <p><strong>Xbox Tile Localization Preview Tool</strong></p>
+          <p class="version-subtitle">Professional Desktop Edition with Auto-Updates</p>
+          <div class="update-badge">
+            <i class="fas fa-download"></i>
+            <span>Auto-Update Enabled</span>
+          </div>
+        </div>
+        
+        <div class="features-highlight">
+          <h4>✨ Latest Features</h4>
+          <ul class="feature-list">
+            <li><i class="fas fa-magic"></i> Enhanced About section with detailed information</li>
+            <li><i class="fas fa-sync-alt"></i> Automatic update system for seamless upgrades</li>
+            <li><i class="fas fa-desktop"></i> Native desktop app with system integration</li>
+            <li><i class="fas fa-language"></i> Support for 52+ languages and locales</li>
+            <li><i class="fas fa-chart-line"></i> Advanced analytics and text analysis</li>
+          </ul>
         </div>
         
         <div class="credits">
-          <h4>Credits</h4>
-          <p>Built for Producers publishing Xbox content</p>
-          <p>Designed to prevent certification failures</p>
+          <h4>Credits & Purpose</h4>
+          <p><strong>Built by AmbientPixels</strong> for Xbox content producers and localization teams</p>
+          <p>🎯 <em>Designed to prevent certification failures and streamline the localization workflow</em></p>
+          <p>💡 Empowering developers to create perfect tile experiences across all markets</p>
+        </div>
+        
+        <div class="tech-info">
+          <h4>Technical Information</h4>
+          <div class="tech-grid">
+            <div class="tech-item">
+              <strong>Platform:</strong> Electron Desktop App
+            </div>
+            <div class="tech-item">
+              <strong>Updates:</strong> Automatic via GitHub Releases
+            </div>
+            <div class="tech-item">
+              <strong>Compatibility:</strong> Windows 10/11
+            </div>
+            <div class="tech-item">
+              <strong>License:</strong> MIT Open Source
+            </div>
+          </div>
         </div>
         
         <div class="links">
-          <button class="btn secondary" onclick="showChangelog()">View Changelog</button>
-          <button class="btn secondary" onclick="reportIssue()">Report Issue</button>
+          <button class="btn secondary" onclick="showChangelog()">
+            <i class="fas fa-history"></i> View Changelog
+          </button>
+          <button class="btn secondary" onclick="reportIssue()">
+            <i class="fas fa-bug"></i> Report Issue
+          </button>
+          <button class="btn secondary" onclick="checkForUpdates()">
+            <i class="fas fa-download"></i> Check for Updates
+          </button>
         </div>
       </div>
     </div>
@@ -607,6 +649,22 @@ function showChangelog() {
 
 function reportIssue() {
   alert('Issue reporting feature coming soon!');
+}
+
+function checkForUpdates() {
+  // In Electron environment, trigger manual update check
+  if (typeof require !== 'undefined') {
+    try {
+      const { ipcRenderer } = require('electron');
+      ipcRenderer.send('check-for-updates');
+      alert('Checking for updates... You will be notified if an update is available.');
+    } catch (error) {
+      console.log('Running in web mode, update check not available');
+      alert('Manual update check is only available in the desktop version of TileForge.');
+    }
+  } else {
+    alert('Manual update check is only available in the desktop version of TileForge.');
+  }
 }
 
 // ===== INITIALIZATION =====
