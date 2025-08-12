@@ -295,6 +295,23 @@
   margin-left: 8px;
 }
 
+.locale-warning {
+  font-size: 11px;
+  color: #fd7e14;
+  background: rgba(253, 126, 20, 0.1);
+  border: 1px solid rgba(253, 126, 20, 0.3);
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin-top: 6px;
+  display: block;
+  animation: warning-pulse 2s infinite;
+}
+
+@keyframes warning-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
 /* Card Content */
 .card-content {
   display: flex;

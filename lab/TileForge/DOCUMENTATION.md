@@ -137,6 +137,134 @@ const TEMPLATE_CONFIGS = {
 
 ---
 
+## 🎨 Headliner Crafter - Advanced Localization Field Mapping
+
+### **Overview**
+Headliner Crafter is TileForge's advanced CSV localization transformation tool that enables intelligent field mapping from source CSV data to CardForge output fields. It provides real-time visual feedback, multi-locale analysis, and smart content optimization for game localization workflows.
+
+### **Core Features**
+
+#### **🔄 Intelligent Field Mapping**
+- **Input Field Analysis**: Automatically detects and displays CSV fields (Title, Description, MiniFAD, etc.)
+- **Output Field Targeting**: Maps to CardForge fields (headline, subheadline, narrator)
+- **Auto-Mapping Logic**: Smart default mappings based on field name patterns
+- **Real-time Preview**: Shows English content samples for accurate character assessment
+
+#### **📊 Color-Coded Character Analysis**
+Dynamic visual feedback system with four-tier color coding:
+
+- **🟢 Green (Safe)**: <70% of character limit - optimal length
+- **🟡 Yellow (Caution)**: 70-89% of limit - approaching threshold  
+- **🟠 Orange (Warning)**: 90-99% of limit - very close to limit
+- **🔴 Red (Danger)**: 100%+ over limit - exceeds CardForge constraints
+
+#### **🌍 Multi-Locale Length Analysis**
+Comprehensive locale validation that scans all CSV locales for character limit violations:
+
+```
+Preview: "Save up to 45%" 16/45
+⚠️ AR(52/45), DE(48/45) (2 over limit)
+✅ Mapped
+```
+
+**Supported Locale Detection**:
+- **Common Languages**: EN, AR, DE, FR, ES, IT, PT, RU, JA, KO, ZH
+- **Auto-Detection**: Recognizes language codes and full names
+- **Fallback Logic**: Generates codes for unknown locales
+
+### **Technical Architecture**
+
+#### **File Structure**
+```
+js/
+├── headliner-crafter.js    # Core transformation logic and data analysis
+├── mapping-modal.js        # Modal UI, field mapping, and preview system
+└── content-analyzer.js     # Smart content analysis and optimization
+
+css/
+└── mapping-modal.css       # Dark-themed modal styling and visual feedback
+```
+
+#### **Character Limits (CardForge Constraints)**
+```javascript
+const fieldLimits = {
+  'headline': 45,      // Main title - prominent display
+  'subheadline': 35,   // Secondary text - shorter for hierarchy
+  'narrator': 60       // Descriptive text - more space allowed
+};
+```
+
+### **User Interface**
+
+#### **Card-Based Field Mapping**
+- **Input Fields (Left)**: CSV field cards with English sample content
+- **Output Fields (Right)**: CardForge target fields with character limits
+- **Visual Connection**: Central arrow indicating data flow direction
+- **Status Indicators**: Real-time mapping status (Mapped/Not Mapped)
+
+#### **Interactive Elements**
+- **Dropdown Selection**: Choose input field for each output target
+- **Live Preview**: Shows actual content with character counts
+- **Warning Display**: Multi-locale issues appear below preview
+- **Export Options**: CSV export and direct CardForge import
+
+### **Workflow Integration**
+
+#### **CSV Upload Process**
+1. **Drag & Drop**: Upload CSV files directly into modal
+2. **Data Analysis**: Automatic field detection and locale counting
+3. **Field Mapping**: Configure input → output relationships
+4. **Preview & Validate**: Review mappings with visual feedback
+5. **Export/Import**: Generate CSV or import directly to CardForge
+
+#### **Smart Content Prioritization**
+- **English Preview**: Prioritizes English content for character assessment
+- **Locale Analysis**: Scans all locales for length violations
+- **Visual Feedback**: Immediate warnings for problematic content
+- **Optimization Guidance**: Character count warnings and suggestions
+
+### **Advanced Features**
+
+#### **Real-time Visual Feedback**
+- **Dynamic Updates**: Character counts update as mappings change
+- **Color Transitions**: Smooth color changes based on usage levels
+- **Pulse Animations**: Warning states include subtle animations
+- **Status Synchronization**: Mapping status reflects current state
+
+#### **Multi-Locale Validation**
+- **Comprehensive Scanning**: Analyzes all CSV rows for length issues
+- **Locale-Specific Warnings**: Shows which languages exceed limits
+- **Character Count Display**: Exact counts for problematic locales
+- **Batch Analysis**: Processes entire dataset for compatibility
+
+### **Integration Points**
+
+#### **CardForge Compatibility**
+- **Direct Import**: Seamless data transfer to main TileForge interface
+- **Format Consistency**: Maintains locale structure and naming
+- **Template Awareness**: Respects CardForge field constraints
+- **Data Validation**: Ensures clean import without errors
+
+#### **CSV Export Workflow**
+- **Transformed Output**: Generates CardForge-compatible CSV
+- **Field Mapping**: Applies configured input → output relationships
+- **Locale Preservation**: Maintains all locale data integrity
+- **Download Ready**: One-click export for external use
+
+### **Performance Considerations**
+- **Efficient Analysis**: Optimized for large CSV datasets
+- **Real-time Updates**: Minimal latency for interactive feedback
+- **Memory Management**: Handles multiple locales without performance impact
+- **Responsive UI**: Smooth interactions even with complex mappings
+
+### **Future Enhancements**
+- **Custom Field Limits**: User-configurable character constraints
+- **Advanced Truncation**: Smart text truncation with meaning preservation
+- **Batch Processing**: Multiple CSV file handling
+- **Template Integration**: Direct template-aware validation
+
+---
+
 ## 🔄 CSV Transformation System
 
 TileForge includes a modular CSV transformation system that converts generic localization data into Xbox-compatible locale format. This system provides seamless integration between external localization workflows and TileForge's tile preview pipeline.

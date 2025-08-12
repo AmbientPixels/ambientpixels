@@ -636,10 +636,17 @@ class MappingModal {
         const charCount = sampleText.length;
         const colorClass = this.getCharCountColorClass(charCount, limit);
         
+        // Analyze all locales for length issues
+        const localeAnalysis = this.analyzeLocaleLength(inputField, limit);
+        const localeWarningHTML = localeAnalysis.issues.length > 0 
+          ? `<div class="locale-warning">⚠️ ${localeAnalysis.issues.join(', ')} (${localeAnalysis.issues.length} over limit)</div>`
+          : '';
+        
         previewElement.innerHTML = `
           <span class="preview-label">Preview:</span>
           <span class="preview-text">"${sampleText}"</span>
           <span class="char-count ${colorClass}">${charCount}/${limit}</span>
+          ${localeWarningHTML}
         `;
         
         // Update status to mapped
@@ -663,6 +670,68 @@ class MappingModal {
         `;
       }
     });
+  }
+
+  /**
+   * Analyze character length across all locales for a given field
+   */
+  analyzeLocaleLength(inputField, limit) {
+    const issues = [];
+    const localeStats = {};
+    
+    // Check each row (locale) for length issues
+    this.currentData.forEach(row => {
+      const locale = row.Language || 'Unknown';
+      const text = row[inputField] || '';
+      const length = text.length;
+      
+      localeStats[locale] = length;
+      
+      // Flag if over limit
+      if (length > limit) {
+        const localeCode = this.getLocaleCode(locale);
+        issues.push(`${localeCode}(${length}/${limit})`);
+      }
+    });
+    
+    return {
+      issues: issues,
+      stats: localeStats,
+      totalLocales: Object.keys(localeStats).length,
+      problemLocales: issues.length
+    };
+  }
+
+  /**
+   * Get short locale code for display
+   */
+  getLocaleCode(language) {
+    const localeCodes = {
+      'en': 'EN',
+      'ar': 'AR', 
+      'arabic': 'AR',
+      'de': 'DE',
+      'german': 'DE',
+      'fr': 'FR',
+      'french': 'FR',
+      'es': 'ES',
+      'spanish': 'ES',
+      'it': 'IT',
+      'italian': 'IT',
+      'pt': 'PT',
+      'portuguese': 'PT',
+      'ru': 'RU',
+      'russian': 'RU',
+      'ja': 'JA',
+      'japanese': 'JA',
+      'ko': 'KO',
+      'korean': 'KO',
+      'zh': 'ZH',
+      'chinese': 'ZH'
+    };
+    
+    const key = language.toLowerCase();
+    return localeCodes[key] || language.substring(0, 2).toUpperCase();
   }
 
   /**
