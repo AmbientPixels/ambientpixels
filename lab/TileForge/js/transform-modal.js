@@ -196,22 +196,40 @@ class TransformModal {
               <div class="transform-input-group">
                 <label for="mapping-file-input">
                   <i class="fas fa-table"></i> Mapping Table CSV
-                  <span class="input-description">Language → Locale mapping (Language, Country, LanguageLocale)</span>
                 </label>
-                <div class="file-input-wrapper">
-                  <input type="file" id="mapping-file-input" accept=".csv" />
-                  <div class="file-status" id="mapping-status">No file selected</div>
+                <div class="file-drop-zone" id="mapping-drop-zone">
+                  <div class="drop-zone-content">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drop CSV file here</p>
+                    <span>or</span>
+                    <button type="button" class="browse-btn" onclick="document.getElementById('mapping-file-input').click()">
+                      Browse Files
+                    </button>
+                  </div>
+                  <input type="file" id="mapping-file-input" accept=".csv" style="display: none;" />
+                </div>
+                <div class="file-status" id="mapping-status">
+                  <span class="status-text">No file selected</span>
                 </div>
               </div>
               
               <div class="transform-input-group">
                 <label for="source-file-input">
-                  <i class="fas fa-file-text"></i> Source Localization CSV
-                  <span class="input-description">Your localization data (Language, Region, Title, MiniFAD)</span>
+                  <i class="fas fa-file-csv"></i> Source Data CSV
                 </label>
-                <div class="file-input-wrapper">
-                  <input type="file" id="source-file-input" accept=".csv" />
-                  <div class="file-status" id="source-status">No file selected</div>
+                <div class="file-drop-zone" id="source-drop-zone">
+                  <div class="drop-zone-content">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drop CSV file here</p>
+                    <span>or</span>
+                    <button type="button" class="browse-btn" onclick="document.getElementById('source-file-input').click()">
+                      Browse Files
+                    </button>
+                  </div>
+                  <input type="file" id="source-file-input" accept=".csv" style="display: none;" />
+                </div>
+                <div class="file-status" id="source-status">
+                  <span class="status-text">No file selected</span>
                 </div>
               </div>
             </div>
@@ -345,6 +363,74 @@ class TransformModal {
       }
     });
     console.log('✅ Escape key event listener bound');
+
+    // Drag and drop events
+    this.bindDragDropEvents();
+    console.log('✅ Drag and drop events bound');
+  }
+
+  /**
+   * Bind drag and drop events for file upload zones using TileForge's existing system
+   */
+  bindDragDropEvents() {
+    const mappingDropZone = document.getElementById('mapping-drop-zone');
+    const sourceDropZone = document.getElementById('source-drop-zone');
+    const mappingInput = document.getElementById('mapping-file-input');
+    const sourceInput = document.getElementById('source-file-input');
+
+    if (mappingDropZone && mappingInput) {
+      this.setupTransformDropZone(mappingDropZone, mappingInput, 'mapping');
+    }
+
+    if (sourceDropZone && sourceInput) {
+      this.setupTransformDropZone(sourceDropZone, sourceInput, 'source');
+    }
+  }
+
+  /**
+   * Setup drag and drop for transform modal using TileForge's pattern
+   */
+  setupTransformDropZone(zone, fileInput, type) {
+    // Use the same pattern as TileForge's existing drag-drop system
+    zone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      zone.classList.add('drag-over');
+    });
+    
+    zone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      zone.classList.remove('drag-over');
+    });
+    
+    zone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      zone.classList.remove('drag-over');
+      
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        const file = files[0];
+        if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
+          // Create a new FileList and assign to input
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(file);
+          fileInput.files = dataTransfer.files;
+          
+          // Trigger the change event
+          const event = new Event('change', { bubbles: true });
+          fileInput.dispatchEvent(event);
+          
+          console.log(`📁 File dropped: ${file.name} for ${type}`);
+        } else {
+          this.showError('Please drop a CSV file only.');
+        }
+      }
+    });
+
+    // Handle click to browse
+    zone.addEventListener('click', () => fileInput.click());
   }
 
   /**
