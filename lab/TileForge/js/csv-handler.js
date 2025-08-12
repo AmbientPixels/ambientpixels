@@ -30,37 +30,20 @@ function loadDefaultData() {
   renderLocaleGroups(csvRows);
 }
 
-// Handle CSV file upload with transformation detection
+// Handle CSV file upload - restored to original behavior
 function handleCsvUpload(file) {
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
       const csvText = e.target.result;
       
-      // Check if CSV needs transformation before processing
-      if (typeof window.LocTransformer !== 'undefined' && window.LocTransformer.needsTransformation(csvText)) {
-        console.log('🔄 CSV needs transformation - showing transform modal');
-        
-        // Show transformation modal
-        if (typeof window.transformModal !== 'undefined') {
-          window.transformModal.show((transformedCsvText, stats) => {
-            console.log('✅ Transformation complete:', stats);
-            // Process the transformed CSV data
-            processCsvData(transformedCsvText, file.name + ' (transformed)', stats.totalRows);
-          });
-        } else {
-          console.error('Transform modal not available');
-          alert('This CSV requires transformation, but the transform module is not loaded.');
-        }
-        return;
-      }
-      
-      // Process standard CSV directly
+      // Process CSV directly without transformation checks
+      // Headliner Crafter is now a separate manual action
       processCsvData(csvText, file.name);
       
     } catch (error) {
-      console.error('Error handling CSV upload:', error);
-      alert('Error processing CSV file. Please check the format.');
+      console.error('❌ Error reading CSV file:', error);
+      alert('Failed to read CSV file. Please try again.');
     }
   };
   reader.readAsText(file);

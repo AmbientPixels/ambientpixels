@@ -83,6 +83,44 @@ function toggleIntroVisibility() {
   }
 }
 
+// Headliner Crafter Integration
+function openHeadlinerCrafter() {
+  console.log('🎯 Opening Headliner Crafter...');
+  
+  try {
+    // Check if mapping modal is available
+    if (!window.mappingModal) {
+      console.error('❌ Mapping modal not available');
+      alert('Headliner Crafter is not properly initialized. Please refresh the page.');
+      return;
+    }
+    
+    // Show the mapping modal - it will handle whether to show upload or use existing data
+    window.mappingModal.show(currentCsvData, (transformedData, stats) => {
+      console.log('✅ Headliner Crafter transformation complete:', stats);
+      
+      // Process the transformed data through TileForge's normal pipeline
+      if (transformedData && transformedData.length > 0) {
+        // Convert to TileForge CSV format
+        const csvText = window.headlinerCrafter.exportToCardForgeCSV(transformedData);
+        
+        // Process as if it was uploaded CSV
+        processCsvData(csvText, 'Headliner Crafter Output', transformedData.length);
+        
+        // Show success message
+        alert(`Successfully processed ${transformedData.length} locales through Headliner Crafter!`);
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Error in openHeadlinerCrafter:', error);
+    alert('Error opening Headliner Crafter: ' + error.message);
+  }
+}
+
+// Make sure function is globally accessible
+window.openHeadlinerCrafter = openHeadlinerCrafter;
+
 // Simple Filter Functions
 function initializeFilters() {
   // Populate locale filter when data is available
