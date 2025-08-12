@@ -316,10 +316,14 @@ class MappingModal {
     this.dataAnalysis = analysis;
     this.currentData = csvData;
     
-    // Extract input fields from CSV, excluding metadata fields
+    // Extract input fields from CSV, filtering out Language and Region fields
     const allFields = Object.keys(csvData[0] || {});
-    const metadataFields = ['Region', 'Language', 'Locale', 'locale', 'language', 'region'];
-    this.fieldTypes.input = allFields.filter(field => !metadataFields.includes(field));
+    this.fieldTypes.input = allFields.filter(field => {
+      const fieldLower = field.toLowerCase();
+      return fieldLower !== 'language' && fieldLower !== 'region';
+    });
+    
+    console.log('🔍 Filtered input fields (hiding Language/Region):', this.fieldTypes.input);
     
     // Populate all interface sections
     this.populateAnalysis();
@@ -474,7 +478,7 @@ class MappingModal {
     if (!this.currentData || !window.headlinerCrafter) return;
     
     const previewContainer = document.getElementById('previewContainer');
-    const preview = window.headlinerCrafter.getPreview(this.currentData, 5);
+    const transformedData = window.headlinerCrafter.transformData(this.currentData);
     
     const previewHTML = `
       <div class="preview-table">
@@ -484,8 +488,8 @@ class MappingModal {
           <div class="preview-cell">Subheadline</div>
           <div class="preview-cell">Narrator</div>
         </div>
-        ${preview.map(row => `
-          <div class="preview-row">
+        ${transformedData.map(row => `
+          <div class="preview-row" data-locale="${row.locale}" data-language="${row.language || ''}" data-region="${row.region || ''}">
             <div class="preview-cell">${row.locale}</div>
             <div class="preview-cell">${row.headline}</div>
             <div class="preview-cell">${row.subheadline}</div>
@@ -494,7 +498,7 @@ class MappingModal {
         `).join('')}
       </div>
       <div class="preview-note">
-        <small>Showing first 5 rows of ${this.currentData.length} total rows</small>
+        <small>Showing all ${transformedData.length} rows</small>
       </div>
     `;
     
