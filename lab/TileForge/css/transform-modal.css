@@ -339,12 +339,12 @@
   border: 2px dashed #555;
   border-radius: 8px;
   background: #1a1a1a;
-  padding: 30px 20px;
+  padding: 20px 16px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  min-height: 120px;
+  min-height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;

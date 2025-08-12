@@ -189,7 +189,7 @@ class TransformModal {
           
           <div class="modal-body">
             <div class="transform-explanation">
-              <p><i class="fas fa-info-circle"></i> Your CSV needs transformation to work with TileForge. Please upload both files:</p>
+              <p><i class="fas fa-magic"></i> <strong>CSV Transformation Tool</strong> - Convert your generic localization data (like "English", "Spanish") into TileForge and Iris-compatible Xbox locale format (like "EN-US", "ES-ES"). Upload your mapping table and source data below, preview the results, then transform.</p>
             </div>
             
             <div class="transform-inputs">

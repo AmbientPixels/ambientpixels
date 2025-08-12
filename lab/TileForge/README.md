@@ -16,11 +16,13 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 - **Multi-Locale Preview** - Test multiple languages simultaneously  
 - **Text Overflow Detection** - Template-aware automatic detection and warnings
 - **Visual Feedback** - Clear indicators for ellipsis and overflow issues
+- **CSV Transformation** - Convert generic localization data to TileForge and Iris-compatible Xbox locale format
 
 ### 🖱️ Modern Interface
 - **Template Selection** - Visual template picker with live preview switching
 - **Drag & Drop Upload** - Simply drag image and CSV files onto drop zones
 - **Click to Browse** - Traditional file selection still available
+- **Transform Modal** - Interactive CSV transformation with drag-and-drop file upload
 - **Live Editor** - Real-time tile editing with template-aware character limits
 - **Responsive Design** - Works on desktop, tablet, and mobile devices
 - **Professional Styling** - Xbox-inspired dark theme with smooth animations
@@ -43,6 +45,8 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 2. **Select Template**: Choose between Top of Home or Mobile Spotlight in the Template section
 3. **Upload Tile Image**: Drag an image file to the left drop zone or click to browse
 4. **Upload CSV Data**: Drag your localization CSV to the right drop zone or click to browse
+   - If your CSV needs transformation, the Transform Modal will automatically appear
+   - Or click **"Transform Data"** button in the Controls section for manual transformation
 5. **Preview Results**: View tiles for all locales with template-specific overflow warnings
 6. **Live Edit**: Click any tile to edit text with real-time preview
 
@@ -59,6 +63,43 @@ en-US,Epic Adventure Game,Ultimate Edition
 fr-FR,Jeu d'Aventure Épique,Édition Ultime
 de-DE,Episches Abenteuerspiel,Ultimate Edition
 ```
+
+## 🔄 CSV Transformation
+
+TileForge includes a powerful CSV transformation system to convert generic localization data into TileForge and Iris-compatible Xbox locale format.
+
+### When to Use
+- Your CSV has generic language names instead of Xbox locale codes
+- Data structure doesn't match TileForge's expected format
+- Need to map regional language variants to specific Xbox locales
+
+### How It Works
+1. **Automatic Detection**: TileForge detects when uploaded CSV needs transformation
+2. **Transform Modal**: Interactive modal appears with drag-and-drop file upload
+3. **Dual File Input**: Upload both mapping table and source data CSV files
+4. **Live Preview**: See transformed data before applying
+5. **Seamless Integration**: Transformed data flows directly into TileForge
+
+### Required Files
+**Mapping Table CSV** - Maps language codes to Xbox locales:
+```csv
+Language,Country,LanguageLocale
+EN,US,EN-US
+ES,ES,ES-ES
+FR,FR,FR-FR
+```
+
+**Source Data CSV** - Your localization content:
+```csv
+Region,Language,Title,Description,MiniFAD
+US,en,Game Title,Game description text,Short text
+ES,es,Título del Juego,Texto de descripción del juego,Texto corto
+```
+
+### Sample Data
+TileForge includes sample CSV files in `sample-data/` folder:
+- `mapping-table.csv` - Xbox locale mapping with 55+ supported locales
+- `source-data.csv` - Real Xbox promotional content in 24 languages
 
 ## 🎨 Template System
 

@@ -15,7 +15,8 @@ TileForge/
 ├── css/
 │   ├── styles.css          # Main styling and layout
 │   ├── tile-card.css       # Tile preview styling
-│   └── template-system.css # Template selection and Mobile Spotlight styles
+│   ├── template-system.css # Template selection and Mobile Spotlight styles
+│   └── transform-modal.css # CSV transformation modal styling
 └── js/
     ├── main.js             # Application initialization
     ├── constants.js        # Locale mappings, limits, helper functions
@@ -23,7 +24,9 @@ TileForge/
     ├── tile-renderer.js    # Tile creation and locale rendering
     ├── text-measurement.js # Visual text analysis and overflow detection
     ├── live-editor.js      # Real-time tile editing functionality
-    └── analytics.js        # Statistics and dashboard updates
+    ├── analytics.js        # Statistics and dashboard updates
+    ├── loc-transformer.js  # CSV transformation logic
+    └── transform-modal.js  # Transform modal UI and interaction
 ```
 
 ### **Key Technical Details**
@@ -131,6 +134,74 @@ const TEMPLATE_CONFIGS = {
 - **`text-measurement.js`**: Uses template-specific fonts and line clamps
 - **`live-editor.js`**: Template-aware character limits and preview updates
 - **`constants.js`**: Delegates limit queries to template system
+
+---
+
+## 🔄 CSV Transformation System
+
+TileForge includes a modular CSV transformation system that converts generic localization data into Xbox-compatible locale format. This system provides seamless integration between external localization workflows and TileForge's tile preview pipeline.
+
+### **System Architecture**
+
+#### **Core Modules**
+- **`loc-transformer.js`**: Core transformation logic and data processing
+- **`transform-modal.js`**: Interactive UI modal with file upload and preview
+- **`transform-modal.css`**: Modal styling consistent with TileForge design
+- **`csv-handler.js`**: Enhanced to detect transformation needs and trigger modal
+
+#### **Transformation Workflow**
+1. **Detection**: CSV upload triggers automatic analysis for transformation requirements
+2. **Modal Trigger**: Transform modal appears when generic language data is detected
+3. **File Input**: User uploads mapping table and source data CSV files via drag-and-drop
+4. **Processing**: Transformer maps generic language codes to TileForge and Iris-compatible Xbox locale format
+5. **Preview**: Live preview shows transformed data structure before application
+6. **Integration**: Transformed data flows seamlessly into TileForge's tile rendering pipeline
+
+### **Technical Implementation**
+
+#### **File Format Specifications**
+
+**Mapping Table CSV Structure:**
+```csv
+Language,Country,LanguageLocale
+EN,US,EN-US
+ES,ES,ES-ES
+FR,FR,FR-FR
+```
+
+**Source Data CSV Structure:**
+```csv
+Region,Language,Title,Description,MiniFAD
+US,en,Game Title,Game description text,Short text
+ES,es,Título del Juego,Texto de descripción del juego,Texto corto
+```
+
+**Output Format (TileForge Compatible):**
+```csv
+Locale,items/0/title,items/0/subtitle
+EN-US,Game Title,Game description text
+ES-ES,Título del Juego,Texto de descripción del juego
+```
+
+#### **User Interface Components**
+- **Transform Button**: Manual trigger in left panel controls
+- **Modal System**: Leverages TileForge's existing modal infrastructure
+- **Drag-and-Drop Zones**: Consistent with main upload areas
+- **File Status Indicators**: Real-time feedback for upload progress
+- **Preview Section**: Live transformation preview before application
+
+#### **Integration Points**
+- **`csv-handler.js`**: Enhanced `handleCsvUpload()` with transformation detection
+- **`main.js`**: Added `openTransformModal()` function for manual triggering
+- **`drag-drop.js`**: Extended drag-and-drop support to modal file inputs
+- **Modal System**: Integrated with existing TileForge modal infrastructure
+
+#### **Error Handling and Validation**
+- **File Type Validation**: Ensures only CSV files are accepted
+- **Structure Validation**: Verifies required columns in mapping and source files
+- **Data Integrity**: Validates locale mappings and handles missing entries
+- **User Feedback**: Clear error messages and status indicators
+- **Graceful Fallback**: System continues normal operation if transformation fails
 
 ---
 
