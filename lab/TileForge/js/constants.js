@@ -224,5 +224,5 @@ function getCurrentLimits() {
 }
 
 // Global state
-let currentCsvData = null;
-let currentImageSrc = null;
+window.currentCsvData = null;
+window.currentImageSrc = null;

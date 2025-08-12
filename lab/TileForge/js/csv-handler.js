@@ -26,7 +26,7 @@ function parseCSV(csvText) {
 // Load default CSV data on page initialization
 function loadDefaultData() {
   const csvRows = parseCSV(DEFAULT_CSV_DATA);
-  currentCsvData = csvRows;
+  window.currentCsvData = csvRows;
   renderLocaleGroups(csvRows);
 }
 
@@ -59,7 +59,7 @@ function processCsvData(csvText, fileName, rowCount = null) {
       return;
     }
     
-    currentCsvData = csvRows;
+    window.currentCsvData = csvRows;
     renderLocaleGroups(csvRows);
     
     // Update file info in analytics
@@ -76,7 +76,7 @@ function processCsvData(csvText, fileName, rowCount = null) {
 
 // Update CSV data when individual tiles are edited
 function updateCsvDataForTile(locale, tileElement) {
-  if (!currentCsvData || !locale) return;
+  if (!window.currentCsvData || !locale) return;
   
   const titleEl = tileElement.querySelector('.tile-title');
   const subtitleEl = tileElement.querySelector('.tile-subtitle');
@@ -91,7 +91,7 @@ function updateCsvDataForTile(locale, tileElement) {
   const newNarratorText = narratorInput ? narratorInput.value || '' : '';
   
   // Find and update the corresponding CSV row
-  const row = currentCsvData.find(r => r.Locale === locale);
+  const row = window.currentCsvData.find(r => r.Locale === locale);
   if (row) {
     row['items/0/title'] = newTitle;
     row['items/0/subtitle'] = newSubtitle;
@@ -110,12 +110,12 @@ function updateCsvDataForTile(locale, tileElement) {
 
 // Update analytics from current CSV data
 function updateAnalyticsFromCurrentData() {
-  if (!currentCsvData) return;
+  if (!window.currentCsvData) return;
   
   const analytics = { totalLocales: 0, overflowCount: 0, nearLimitCount: 0, cleanCount: 0 };
   const localeGroups = {};
   
-  currentCsvData.forEach(row => {
+  window.currentCsvData.forEach(row => {
     const locale = row.Locale || row.locale || 'unknown';
     const title = row['items/0/title'] || row.Title || row.title || '';
     const subtitle = row['items/0/subtitle'] || row.Subtitle || row.subtitle || '';
@@ -136,22 +136,22 @@ function updateAnalyticsFromCurrentData() {
 
 // Export current CSV data to downloadable file
 function exportToCSV() {
-  if (!currentCsvData || currentCsvData.length === 0) {
+  if (!window.currentCsvData || window.currentCsvData.length === 0) {
     alert('No data available to export. Please load CSV data first.');
     return;
   }
   
   try {
     // Generate CSV content from current data
-    const csvContent = generateCSVContent(currentCsvData);
+    const csvContent = generateCSVContent(window.currentCsvData);
     
     // Create download
     downloadCSVFile(csvContent, 'tileforge-export.csv');
     
     // Update analytics
-    updateFileInfo('Export', 'tileforge-export.csv', `${currentCsvData.length} locales`);
+    updateFileInfo('Export', 'tileforge-export.csv', `${window.currentCsvData.length} locales`);
     
-    console.log('CSV export successful:', currentCsvData.length, 'locales exported');
+    console.log('CSV export successful:', window.currentCsvData.length, 'locales exported');
   } catch (error) {
     console.error('CSV export failed:', error);
     alert('Failed to export CSV. Please try again.');

@@ -95,8 +95,11 @@ class MappingModal {
           
           <div class="modal-footer">
             <button class="btn btn-secondary" onclick="window.mappingModal.hide()">Cancel</button>
-            <button class="btn btn-primary" id="exportBtn" onclick="window.mappingModal.exportData()" style="display: none;">
-              <i class="fas fa-download"></i> Export CardForge CSV
+            <button class="btn btn-outline-primary" id="exportCsvBtn" onclick="window.mappingModal.exportCsv()" style="display: none;">
+              <i class="fas fa-download"></i> Export CSV
+            </button>
+            <button class="btn btn-primary" id="importBtn" onclick="window.mappingModal.importToCardForge()" style="display: none;">
+              <i class="fas fa-upload"></i> Import to CardForge
             </button>
           </div>
         </div>
@@ -190,7 +193,8 @@ class MappingModal {
     const modal = document.getElementById('mapping-modal');
     const uploadSection = document.getElementById('csv-upload-section');
     const mappingInterface = document.getElementById('mapping-interface');
-    const exportBtn = document.getElementById('exportBtn');
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
+    const importBtn = document.getElementById('importBtn');
     
     if (csvData && csvData.length > 0) {
       console.log('📊 Using provided CSV data:', csvData.length, 'rows');
@@ -198,11 +202,13 @@ class MappingModal {
       this.analyzeAndPopulate(csvData);
       uploadSection.style.display = 'none';
       mappingInterface.style.display = 'block';
-      exportBtn.style.display = 'inline-block';
+      exportCsvBtn.style.display = 'inline-block';
+      importBtn.style.display = 'inline-block';
     } else {
       uploadSection.style.display = 'block';
       mappingInterface.style.display = 'none';
-      exportBtn.style.display = 'none';
+      exportCsvBtn.style.display = 'none';
+      importBtn.style.display = 'none';
     }
     
     modal.style.display = 'flex';
@@ -251,7 +257,8 @@ class MappingModal {
         // Switch to mapping interface
         document.getElementById('csv-upload-section').style.display = 'none';
         document.getElementById('mapping-interface').style.display = 'block';
-        document.getElementById('exportBtn').style.display = 'inline-block';
+        document.getElementById('exportCsvBtn').style.display = 'inline-block';
+        document.getElementById('importBtn').style.display = 'inline-block';
         
       } catch (error) {
         console.error('❌ Error parsing CSV:', error);
@@ -493,9 +500,9 @@ class MappingModal {
   }
 
   /**
-   * Export the transformed data
+   * Export the transformed data as CSV file
    */
-  exportData() {
+  exportCsv() {
     if (!this.currentData || !window.headlinerCrafter) {
       alert('No data to export');
       return;
@@ -519,11 +526,50 @@ class MappingModal {
       window.URL.revokeObjectURL(url);
       
       console.log('✅ CardForge CSV exported successfully');
-      alert(`Successfully exported ${transformedData.length} locales to CardForge format!`);
+      alert(`Successfully exported ${transformedData.length} locales to CSV file!`);
       
     } catch (error) {
       console.error('❌ Export error:', error);
       alert('Error exporting data: ' + error.message);
+    }
+  }
+
+  /**
+   * Import the transformed data directly into CardForge main interface
+   */
+  importToCardForge() {
+    if (!this.currentData || !window.headlinerCrafter) {
+      alert('No data to import');
+      return;
+    }
+    
+    console.log('📥 Importing data to CardForge main interface...');
+    
+    try {
+      const transformedData = window.headlinerCrafter.transformData(this.currentData);
+      const csvContent = window.headlinerCrafter.exportToCardForgeCSV(transformedData);
+      
+      // Import directly into TileForge main interface
+      if (typeof processCsvData === 'function') {
+        console.log('📥 CSV content being imported:', csvContent.substring(0, 200) + '...');
+        console.log('📊 Transformed data sample:', transformedData.slice(0, 2));
+        
+        processCsvData(csvContent, 'Headliner Crafter Import', transformedData.length);
+        
+        console.log('✅ Data imported to CardForge successfully');
+        alert(`Successfully imported ${transformedData.length} locales to CardForge!`);
+        
+        // Close the modal after successful import
+        this.hide();
+        
+      } else {
+        console.error('❌ processCsvData function not available');
+        alert('Error: Main TileForge interface not available for import');
+      }
+      
+    } catch (error) {
+      console.error('❌ Import error:', error);
+      alert('Error importing data: ' + error.message);
     }
   }
 }

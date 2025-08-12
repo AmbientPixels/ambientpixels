@@ -94,7 +94,7 @@ class HeadlinerCrafter {
     
     const transformedData = csvData.map(row => {
       const transformed = {
-        locale: `${row.Language}-${row.Region}`,
+        locale: row.Region ? `${row.Language}-${row.Region}` : row.Language,
         headline: '',
         subheadline: '',
         narrator: ''
@@ -180,12 +180,20 @@ class HeadlinerCrafter {
   exportToCardForgeCSV(transformedData) {
     console.log('📤 Exporting to CardForge CSV format...');
     
-    const headers = ['locale', 'headline', 'subheadline', 'narrator'];
+    const headers = ['Locale', 'items/0/title', 'items/0/subtitle', 'items/0/narratorText'];
     const csvRows = [headers.join(',')];
     
     transformedData.forEach(row => {
+      // Map our field names to TileForge expected field names
+      const mappedRow = {
+        'Locale': row.locale,
+        'items/0/title': row.headline,
+        'items/0/subtitle': row.subheadline,
+        'items/0/narratorText': row.narrator
+      };
+      
       const csvRow = headers.map(header => {
-        const value = String(row[header] || '');
+        const value = String(mappedRow[header] || '');
         // Escape quotes and wrap in quotes if contains comma
         return value.includes(',') || value.includes('"') 
           ? `"${value.replace(/"/g, '""')}"` 
