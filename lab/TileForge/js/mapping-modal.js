@@ -395,11 +395,20 @@ class MappingModal {
   }
 
   /**
-   * Get sample data for a field
+   * Get sample data for a field, prioritizing English content
    */
   getFieldSample(field) {
     if (!this.currentData || this.currentData.length === 0) return '';
-    const sample = this.currentData[0][field] || '';
+    
+    // Try to find English language row first
+    const englishRow = this.currentData.find(row => 
+      row.Language && row.Language.toLowerCase() === 'en'
+    );
+    
+    // Use English sample if available, otherwise use first row
+    const sampleRow = englishRow || this.currentData[0];
+    const sample = sampleRow[field] || '';
+    
     return sample.length > 30 ? sample.substring(0, 30) + '...' : sample;
   }
 
