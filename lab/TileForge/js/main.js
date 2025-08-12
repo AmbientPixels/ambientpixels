@@ -365,6 +365,10 @@ function createFeaturesTabContent() {
           <h5>📁 CSV Import/Export</h5>
           <p>Seamless CSV file handling with support for complex locale data structures and narrator text integration.</p>
         </div>
+        <div class="feature-item">
+          <h5>🎨 Headliner Crafter</h5>
+          <p>Advanced CSV field mapping with color-coded character analysis and multi-locale validation for optimal localization workflows.</p>
+        </div>
       </div>
     </div>
 
@@ -502,7 +506,7 @@ function createTroubleshootingTabContent() {
       <h4>📞 Getting Help</h4>
       <p>If you encounter persistent issues:</p>
       <ul>
-        <li>Check the browser console for error messages</li>
+        <li>Check browser console for error messages</li>
         <li>Try refreshing the page and reloading your files</li>
         <li>Verify your CSV file structure matches the expected format</li>
         <li>Test with a smaller image file to isolate performance issues</li>
