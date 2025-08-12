@@ -617,53 +617,69 @@ class MappingModal {
    * Update mapping previews and status flags
    */
   updateMappingPreviews() {
-    if (!this.currentData) return;
-    
     document.querySelectorAll('.field-mapping-select').forEach(select => {
       const outputField = select.dataset.output;
       const inputField = select.value;
       const previewElement = document.getElementById(`preview-${outputField}`);
       const statusElement = document.getElementById(`status-${outputField}`);
       
-      if (previewElement) {
-        if (inputField) {
-          // Field is mapped - show preview
-          const sample = this.getFieldSample(inputField);
-          const limit = this.getFieldLimit(outputField);
-          
-          previewElement.innerHTML = `
-            <span class="preview-label">Preview:</span>
-            <span class="preview-text">"${sample}"</span>
-            <span class="char-count">${sample.length}/${limit}</span>
-          `;
-        } else {
-          // Field is not mapped
-          previewElement.innerHTML = `
-            <span class="preview-label">Preview:</span>
-            <span class="preview-text">Select a field to see preview...</span>
-          `;
-        }
-      }
-      
-      // Update status flag
-      if (statusElement) {
-        if (inputField) {
-          // Field is mapped
-          statusElement.className = 'mapping-status mapped';
-          statusElement.innerHTML = `
-            <i class="fas fa-check-circle status-icon"></i>
-            <span class="status-text">Mapped</span>
-          `;
-        } else {
-          // Field is not mapped
-          statusElement.className = 'mapping-status unmapped';
-          statusElement.innerHTML = `
-            <i class="fas fa-circle status-icon"></i>
-            <span class="status-text">Not mapped</span>
-          `;
-        }
+      if (inputField && this.currentData && this.currentData.length > 0) {
+        // Get English sample data for preview (prioritize English like Input Fields do)
+        const englishRow = this.currentData.find(row => 
+          row.Language && row.Language.toLowerCase() === 'en'
+        );
+        const sampleRow = englishRow || this.currentData[0];
+        const sampleText = sampleRow[inputField] || '';
+        const limit = this.getFieldLimit(outputField);
+        
+        // Update preview text with character count and color coding
+        const charCount = sampleText.length;
+        const colorClass = this.getCharCountColorClass(charCount, limit);
+        
+        previewElement.innerHTML = `
+          <span class="preview-label">Preview:</span>
+          <span class="preview-text">"${sampleText}"</span>
+          <span class="char-count ${colorClass}">${charCount}/${limit}</span>
+        `;
+        
+        // Update status to mapped
+        statusElement.className = 'mapping-status mapped';
+        statusElement.innerHTML = `
+          <i class="fas fa-check-circle status-icon"></i>
+          <span class="status-text">Mapped</span>
+        `;
+      } else {
+        // No mapping selected
+        previewElement.innerHTML = `
+          <span class="preview-label">Preview:</span>
+          <span class="preview-text">Select a field to see preview...</span>
+        `;
+        
+        // Update status to not mapped
+        statusElement.className = 'mapping-status unmapped';
+        statusElement.innerHTML = `
+          <i class="fas fa-circle status-icon"></i>
+          <span class="status-text">Not mapped</span>
+        `;
       }
     });
+  }
+
+  /**
+   * Get color class based on character count vs limit
+   */
+  getCharCountColorClass(charCount, limit) {
+    const percentage = (charCount / limit) * 100;
+    
+    if (percentage >= 100) {
+      return 'char-count-danger'; // Red - over limit
+    } else if (percentage >= 90) {
+      return 'char-count-warning'; // Orange - very close to limit
+    } else if (percentage >= 70) {
+      return 'char-count-caution'; // Yellow - approaching limit
+    } else {
+      return 'char-count-safe'; // Green - safe zone
+    }
   }
 }
 

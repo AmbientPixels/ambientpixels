@@ -287,12 +287,12 @@
 }
 
 .char-limit {
-  background: #444;
+  font-size: 11px;
   color: #0078d4;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
+  background: rgba(0, 120, 212, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
 }
 
 /* Card Content */
@@ -385,16 +385,55 @@
 }
 
 .char-count {
-  font-size: 12px;
-  color: #aaa;
-  background: #444;
+  font-size: 11px;
+  font-weight: 600;
   padding: 2px 6px;
   border-radius: 4px;
+  margin-left: 8px;
+  display: inline-block;
+  transition: all 0.3s ease;
 }
 
-.char-count.over-limit {
-  background: #4a1a1a;
-  color: #ff6b6b;
+.char-count-safe {
+  color: #28a745;
+  background: rgba(40, 167, 69, 0.1);
+  border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.char-count-caution {
+  color: #ffc107;
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  animation: pulse-caution 2s infinite;
+}
+
+.char-count-warning {
+  color: #fd7e14;
+  background: rgba(253, 126, 20, 0.1);
+  border: 1px solid rgba(253, 126, 20, 0.3);
+  animation: pulse-warning 1.5s infinite;
+}
+
+.char-count-danger {
+  color: #dc3545;
+  background: rgba(220, 53, 69, 0.1);
+  border: 1px solid rgba(220, 53, 69, 0.3);
+  animation: pulse-danger 1s infinite;
+}
+
+@keyframes pulse-caution {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes pulse-warning {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+@keyframes pulse-danger {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.1); }
 }
 
 /* Mapping Status */
