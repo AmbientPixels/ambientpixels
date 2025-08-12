@@ -316,8 +316,10 @@ class MappingModal {
     this.dataAnalysis = analysis;
     this.currentData = csvData;
     
-    // Extract input fields from CSV
-    this.fieldTypes.input = Object.keys(csvData[0] || {});
+    // Extract input fields from CSV, excluding metadata fields
+    const allFields = Object.keys(csvData[0] || {});
+    const metadataFields = ['Region', 'Language', 'Locale', 'locale', 'language', 'region'];
+    this.fieldTypes.input = allFields.filter(field => !metadataFields.includes(field));
     
     // Populate all interface sections
     this.populateAnalysis();
