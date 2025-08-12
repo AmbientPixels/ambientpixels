@@ -107,10 +107,10 @@ class HeadlinerCrafter {
         }
       });
 
-      // Smart truncation with meaning preservation
-      transformed.headline = this.smartTruncate(transformed.headline, 45);
-      transformed.subheadline = this.smartTruncate(transformed.subheadline, 35);
-      transformed.narrator = this.smartTruncate(transformed.narrator, 60);
+      // Skip smart truncation to preserve full text without ellipses
+      // transformed.headline = this.smartTruncate(transformed.headline, 45);
+      // transformed.subheadline = this.smartTruncate(transformed.subheadline, 35);
+      // transformed.narrator = this.smartTruncate(transformed.narrator, 60);
 
       return transformed;
     });

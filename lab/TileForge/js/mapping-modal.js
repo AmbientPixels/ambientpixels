@@ -583,33 +583,44 @@ class MappingModal {
       return;
     }
     
-    console.log('📥 Importing data to CardForge main interface...');
+    console.log('📥 Importing ONLY content to CardForge...');
     
     try {
       const transformedData = window.headlinerCrafter.transformData(this.currentData);
-      const csvContent = window.headlinerCrafter.exportToCardForgeCSV(transformedData);
       
-      // Import directly into TileForge main interface
-      if (typeof processCsvData === 'function') {
-        console.log('📥 CSV content being imported:', csvContent.substring(0, 200) + '...');
-        console.log('📊 Transformed data sample:', transformedData.slice(0, 2));
-        
-        processCsvData(csvContent, 'Headliner Crafter Import', transformedData.length);
-        
-        console.log('✅ Data imported to CardForge successfully');
-        alert(`Successfully imported ${transformedData.length} locales to CardForge!`);
-        
-        // Close the modal after successful import
-        this.hide();
-        
-      } else {
-        console.error('❌ processCsvData function not available');
-        alert('Error: Main TileForge interface not available for import');
+      if (!window.currentCsvData) {
+        alert('No existing data to update. Please load a CSV file first.');
+        return;
       }
+      
+      console.log('� Updating ONLY content fields by row index...');
+      
+      // Update content by row index - don't touch locale names at all
+      transformedData.forEach((newRow, index) => {
+        if (index < window.currentCsvData.length) {
+          const existingRow = window.currentCsvData[index];
+          
+          // ONLY update content fields - NEVER touch Locale
+          existingRow['items/0/title'] = newRow.headline || '';
+          existingRow['items/0/subtitle'] = newRow.subheadline || '';
+          existingRow['items/0/narratorText'] = newRow.narrator || '';
+          
+          console.log(`✅ Updated content for row ${index}: ${existingRow.Locale}`);
+        }
+      });
+      
+      // Re-render the interface with updated content
+      renderLocaleGroups(window.currentCsvData);
+      
+      console.log('✅ Content imported successfully');
+      alert(`Successfully updated content for ${transformedData.length} locales!`);
+      
+      // Close the modal
+      this.hide();
       
     } catch (error) {
       console.error('❌ Import error:', error);
-      alert('Error importing data: ' + error.message);
+      alert('Error importing content: ' + error.message);
     }
   }
 
