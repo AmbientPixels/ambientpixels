@@ -1,0 +1,70 @@
+{
+  "name": "tileforge",
+  "version": "1.0.0",
+  "description": "Xbox Tile Localization Preview Tool - Professional desktop app for game developers and localization teams",
+  "main": "electron/main.js",
+  "homepage": "https://github.com/ambientpixels/tileforge",
+  "author": {
+    "name": "AmbientPixels",
+    "email": "support@ambientpixels.ai"
+  },
+  "license": "MIT",
+  "scripts": {
+    "electron": "electron .",
+    "electron-dev": "electron . --dev",
+    "build": "electron-builder",
+    "build-win": "electron-builder --win --publish=never",
+    "build-mac": "electron-builder --mac",
+    "build-linux": "electron-builder --linux",
+    "dist": "npm run build",
+    "pack": "electron-builder --dir",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "dependencies": {
+    "electron-updater": "^6.1.7"
+  },
+  "build": {
+    "appId": "com.ambientpixels.tileforge",
+    "productName": "TileForge",
+    "directories": {
+      "output": "."
+    },
+    "files": [
+      "electron/**/*",
+      "css/**/*",
+      "js/**/*",
+      "data/**/*",
+      "sample-data/**/*",
+      "index.html",
+      "README.md"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64", "ia32"]
+        }
+      ],
+      "publisherName": "AmbientPixels",
+      "sign": null,
+      "certificateFile": null,
+      "certificatePassword": null
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "TileForge"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "ambientpixels",
+      "repo": "tileforge"
+    }
+  }
+}
