@@ -614,25 +614,54 @@ class MappingModal {
   }
 
   /**
-   * Update mapping previews
+   * Update mapping previews and status flags
    */
   updateMappingPreviews() {
+    if (!this.currentData) return;
+    
     document.querySelectorAll('.field-mapping-select').forEach(select => {
       const outputField = select.dataset.output;
       const inputField = select.value;
-      const previewContainer = document.getElementById(`preview-${outputField}`);
+      const previewElement = document.getElementById(`preview-${outputField}`);
+      const statusElement = document.getElementById(`status-${outputField}`);
       
-      if (inputField) {
-        const sample = this.getFieldSample(inputField);
-        previewContainer.innerHTML = `
-          <span class="preview-label">Preview:</span>
-          <span class="preview-text">"${sample}"</span>
-        `;
-      } else {
-        previewContainer.innerHTML = `
-          <span class="preview-label">Preview:</span>
-          <span class="preview-text">Select a field to see preview...</span>
-        `;
+      if (previewElement) {
+        if (inputField) {
+          // Field is mapped - show preview
+          const sample = this.getFieldSample(inputField);
+          const limit = this.getFieldLimit(outputField);
+          
+          previewElement.innerHTML = `
+            <span class="preview-label">Preview:</span>
+            <span class="preview-text">"${sample}"</span>
+            <span class="char-count">${sample.length}/${limit}</span>
+          `;
+        } else {
+          // Field is not mapped
+          previewElement.innerHTML = `
+            <span class="preview-label">Preview:</span>
+            <span class="preview-text">Select a field to see preview...</span>
+          `;
+        }
+      }
+      
+      // Update status flag
+      if (statusElement) {
+        if (inputField) {
+          // Field is mapped
+          statusElement.className = 'mapping-status mapped';
+          statusElement.innerHTML = `
+            <i class="fas fa-check-circle status-icon"></i>
+            <span class="status-text">Mapped</span>
+          `;
+        } else {
+          // Field is not mapped
+          statusElement.className = 'mapping-status unmapped';
+          statusElement.innerHTML = `
+            <i class="fas fa-circle status-icon"></i>
+            <span class="status-text">Not mapped</span>
+          `;
+        }
       }
     });
   }

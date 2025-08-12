@@ -459,10 +459,6 @@
   width: 40px;
 }
 
-.mapping-arrow::before {
-  content: '→';
-}
-
 /* Animation for card appearance */
 @keyframes cardSlideIn {
   from {
