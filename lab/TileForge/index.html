@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="css/dashboard.css">
   <link rel="stylesheet" href="css/modal.css">
   <link rel="stylesheet" href="css/template-system.css">
+  <link rel="stylesheet" href="css/transform-modal.css">
 </head>
 <body>
   <!-- Intro Section -->
@@ -206,6 +207,7 @@
         <!-- Controls -->
         <div class="control-group">
           <button class="control-btn" onclick="exportToCSV()"><i class="fas fa-file-export"></i> Export to CSV</button>
+          <button class="control-btn transform-btn" onclick="openTransformModal()"><i class="fas fa-exchange-alt"></i> Transform Data</button>
         </div>
         
         <!-- Simple Filters -->
@@ -454,6 +456,8 @@
   <script src="js/modal.js"></script>
   <script src="js/constants.js"></script>
   <script src="js/text-measurement.js"></script>
+  <script src="js/loc-transformer.js"></script>
+  <script src="js/transform-modal.js"></script>
   <script src="js/csv-handler.js"></script>
   <script src="js/tile-renderer.js"></script>
   <script src="js/live-editor.js"></script>

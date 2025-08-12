@@ -30,31 +30,65 @@ function loadDefaultData() {
   renderLocaleGroups(csvRows);
 }
 
-// Handle CSV file upload
+// Handle CSV file upload with transformation detection
 function handleCsvUpload(file) {
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
       const csvText = e.target.result;
-      const csvRows = parseCSV(csvText);
       
-      if (csvRows.length === 0) {
-        alert('Invalid CSV file or no data found.');
+      // Check if CSV needs transformation before processing
+      if (typeof window.LocTransformer !== 'undefined' && window.LocTransformer.needsTransformation(csvText)) {
+        console.log('🔄 CSV needs transformation - showing transform modal');
+        
+        // Show transformation modal
+        if (typeof window.transformModal !== 'undefined') {
+          window.transformModal.show((transformedCsvText, stats) => {
+            console.log('✅ Transformation complete:', stats);
+            // Process the transformed CSV data
+            processCsvData(transformedCsvText, file.name + ' (transformed)', stats.totalRows);
+          });
+        } else {
+          console.error('Transform modal not available');
+          alert('This CSV requires transformation, but the transform module is not loaded.');
+        }
         return;
       }
       
-      currentCsvData = csvRows;
-      renderLocaleGroups(csvRows);
-      
-      // Update file info in analytics
-      updateFileInfo('CSV', file.name, csvRows.length);
+      // Process standard CSV directly
+      processCsvData(csvText, file.name);
       
     } catch (error) {
-      console.error('Error parsing CSV:', error);
-      alert('Error parsing CSV file. Please check the format.');
+      console.error('Error handling CSV upload:', error);
+      alert('Error processing CSV file. Please check the format.');
     }
   };
   reader.readAsText(file);
+}
+
+// Process CSV data (extracted for reuse with transformed data)
+function processCsvData(csvText, fileName, rowCount = null) {
+  try {
+    const csvRows = parseCSV(csvText);
+    
+    if (csvRows.length === 0) {
+      alert('Invalid CSV file or no data found.');
+      return;
+    }
+    
+    currentCsvData = csvRows;
+    renderLocaleGroups(csvRows);
+    
+    // Update file info in analytics
+    const actualRowCount = rowCount || csvRows.length;
+    updateFileInfo('CSV', fileName, actualRowCount);
+    
+    console.log('📊 CSV data processed successfully:', actualRowCount, 'rows');
+    
+  } catch (error) {
+    console.error('Error parsing CSV:', error);
+    alert('Error parsing CSV file. Please check the format.');
+  }
 }
 
 // Update CSV data when individual tiles are edited

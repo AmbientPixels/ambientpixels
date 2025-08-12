@@ -1,0 +1,489 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Localization Transform Preview (Power Query → Browser)</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #222;
+            color: #fff;
+            margin: 0;
+            padding: 32px 16px 80px;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 0 0 24px;
+            font-weight: 500;
+        }
+
+        .inputs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .inputs label {
+            background: #2f2f2f;
+            padding: 12px 16px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            font-size: 14px;
+            gap: 6px;
+            min-width: 240px;
+            box-shadow: 0 2px 6px #0009;
+        }
+
+        input[type=file] {
+            cursor: pointer;
+        }
+
+        button {
+            background: #107c10;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 6px #0008;
+        }
+
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .status {
+            text-align: center;
+            margin: 8px 0 24px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+
+        .result-summary {
+            text-align: center;
+            margin: 24px 0 8px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .grid-wrapper {
+            max-width: 1200px;
+            margin: 0 auto 48px;
+            overflow: auto;
+            background: #1d1d1d;
+            border: 1px solid #333;
+            border-radius: 10px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 14px;
+            min-width: 760px;
+        }
+
+        th,
+        td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #333;
+            vertical-align: top;
+            text-align: left;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            background: #2c2c2c;
+            z-index: 1;
+        }
+
+        tr:nth-child(even) td {
+            background: #262626;
+        }
+
+        tr:hover td {
+            background: #313131;
+        }
+
+        .actions-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin: 16px 0 8px;
+        }
+        .error-message {
+            color: #ff6d6d;
+            text-align: center;
+            margin-bottom: 12px;
+            font-size: 15px;
+            min-height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Localization Transform Preview</h1>
+    <div style="max-width:700px;margin:0 auto 18px;font-size:15px;color:#ccc;text-align:center;">
+        <b>What does this do?</b>
+        <br>
+        This tool lets transform loc with country codes into 4 digit language-locale codes. You upload a MappingTable CSV with the language to locales mapping and a Source Loc CSV with the content, and it then transforms and joins them using Power Query-like logic. The result is shown in a table and can be downloaded as a CSV and imported into Iris.
+    </div>
+    <div class="inputs">
+        <label> MappingTable CSV
+            <input type="file" id="mappingInput" accept=".csv,text/csv" />
+        </label>
+        <label> Source Loc CSV
+            <input type="file" id="sourceInput" accept=".csv,text/csv" />
+        </label>
+    </div>
+    <div class="actions-bar">
+        <button id="runBtn" disabled tabindex="0">Run Transform</button>
+        <button id="downloadBtn" disabled tabindex="0">Download CSV</button>
+        <button id="resetBtn" tabindex="0">Reset</button>
+    </div>
+    <div class="error-message" id="errorMessage" aria-live="polite"></div>
+    <div class="status" id="status"></div>
+    <div class="result-summary" id="resultSummary" style="display:none;"></div>
+    <div class="grid-wrapper" id="gridWrapper" style="display:none;">
+        <table id="resultTable">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <script>
+        // --- CSV Parser with basic quote support ---
+        function parseCSV(text) {
+            const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+            if (!lines.length) return [];
+            const headerLine = lines[0];
+            const headers = splitCSVLine(headerLine).map(h => h.trim().replace(/^"|"$/g, ''));
+            return lines.slice(1).map(line => {
+                const parts = splitCSVLine(line);
+                const obj = {};
+                headers.forEach((h, i) => obj[h] = (parts[i] ?? '').replace(/^"|"$/g, '').trim());
+                return obj;
+            });
+        }
+        function splitCSVLine(line) {
+            const out = [];
+            let cur = '';
+            let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+                const c = line[i];
+                if (c === '"') {
+                    if (inQuotes && line[i + 1] === '"') {
+                        cur += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (c === ',' && !inQuotes) {
+                    out.push(cur);
+                    cur = '';
+                } else {
+                    cur += c;
+                }
+            }
+            out.push(cur);
+            return out;
+        }
+
+        // --- Normalization Helpers ---
+        const upperTrim = v => (v == null ? '' : String(v).toUpperCase().trim());
+        const trim = v => (v == null ? '' : String(v).trim());
+
+        // --- Global State ---
+        let mappingRows = null;
+        let sourceRows = null;
+        let transformedRows = null;
+
+        document.getElementById('mappingInput').addEventListener('change', e => handleFile(e, 'mapping'));
+        document.getElementById('sourceInput').addEventListener('change', e => handleFile(e, 'source'));
+
+        // --- Error Handling ---
+        function showError(msg) {
+            const el = document.getElementById('errorMessage');
+            el.textContent = msg || '';
+        }
+        function clearError() {
+            showError('');
+        }
+
+        // --- Reset Functionality ---
+        function resetAll() {
+            mappingRows = null;
+            sourceRows = null;
+            transformedRows = null;
+            document.getElementById('mappingInput').value = '';
+            document.getElementById('sourceInput').value = '';
+            document.getElementById('resultSummary').style.display = 'none';
+            document.getElementById('resultSummary').textContent = '';
+            document.getElementById('status').textContent = '';
+            document.getElementById('gridWrapper').style.display = 'none';
+            document.querySelector('#resultTable thead').innerHTML = '';
+            document.querySelector('#resultTable tbody').innerHTML = '';
+            updateRunButton();
+            updateDownloadButton();
+            clearError();
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', resetAll);
+
+        // --- Keyboard Accessibility: Enter/Space triggers focused button ---
+        document.querySelectorAll('.actions-bar button').forEach(btn => {
+            btn.addEventListener('keydown', function(e) {
+                if ((e.key === 'Enter' || e.key === ' ') && !btn.disabled) {
+                    e.preventDefault();
+                    btn.click();
+                }
+            });
+        });
+
+        // --- File Inputs: Keyboard Accessibility (focus on Tab, trigger file dialog on Enter/Space) ---
+        document.querySelectorAll('.inputs input[type="file"]').forEach(input => {
+            input.setAttribute('tabindex', '0');
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    input.click();
+                }
+            });
+        });
+
+        // --- File Handling with Error Handling ---
+        function handleFile(e, kind) {
+            clearError();
+            const file = e.target.files[0];
+            if (!file) {
+                if (kind === 'mapping') mappingRows = null;
+                else sourceRows = null;
+                updateRunButton();
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = ev => {
+                try {
+                    const text = ev.target.result;
+                    const rows = parseCSV(text);
+                    if (!rows.length) throw new Error('CSV is empty or invalid.');
+                    // Check required columns
+                    if (kind === 'mapping') {
+                        if (!rows[0].Language || !rows[0].Country || !rows[0].LanguageLocale) {
+                            throw new Error('MappingTable CSV must have columns: Language, Country, LanguageLocale.');
+                        }
+                        mappingRows = rows;
+                    } else {
+                        if (!rows[0].Language || !('Region' in rows[0]) || !('Title' in rows[0]) || !('MiniFAD' in rows[0])) {
+                            throw new Error('Source__Loc CSV must have columns: Language, Region, Title, MiniFAD.');
+                        }
+                        sourceRows = rows;
+                    }
+                    updateRunButton();
+                } catch (err) {
+                    showError('Error parsing CSV: ' + err.message);
+                }
+            };
+            reader.onerror = () => {
+                showError('Error reading file.');
+            };
+            reader.readAsText(file, 'utf-8');
+        }
+
+        function updateRunButton() {
+            document.getElementById('runBtn').disabled = !(mappingRows && sourceRows);
+        }
+
+        function runTransform() {
+            clearError();
+            if (!(mappingRows && sourceRows)) {
+                showError('Both MappingTable and Source__Loc files must be loaded.');
+                return;
+            }
+            try {
+                // --- Normalize MappingTable: Language, Country, LanguageLocale -> upper+trim ---
+                const map = mappingRows.map(r => ({ ...r }));
+                map.forEach(r => {
+                    if ('Language' in r) r.Language = upperTrim(r.Language);
+                    if ('Country' in r) r.Country = upperTrim(r.Country);
+                    if ('LanguageLocale' in r) r.LanguageLocale = upperTrim(r.LanguageLocale);
+                });
+
+                // --- Normalize Source__Loc: Language upper+trim; Region upper+trim (empty if null) ---
+                const src = sourceRows.map(r => ({ ...r }));
+                src.forEach(r => {
+                    if ('Language' in r) r.Language = upperTrim(r.Language);
+                    if ('Region' in r) {
+                        r.Region = r.Region == null || r.Region === '' ? '' : upperTrim(r.Region);
+                    } else {
+                        r.Region = '';
+                    }
+                });
+
+                // --- Split ---
+                const withRegion = src.filter(r => r.Region !== '');
+                const withoutRegion = src.filter(r => r.Region === '').map(r => {
+                    const { Region, ...rest } = r;
+                    return rest; // Region removed
+                });
+
+                // --- Join with Region (Source: Language+Region == Mapping: Language+Country) ---
+                const joinWithRegion = [];
+                const mapByLangCountry = new Map();
+                map.forEach(r => {
+                    const k = r.Language + '||' + r.Country;
+                    if (!mapByLangCountry.has(k)) mapByLangCountry.set(k, []);
+                    mapByLangCountry.get(k).push(r);
+                });
+                withRegion.forEach(sr => {
+                    const k = sr.Language + '||' + sr.Region;
+                    const matches = mapByLangCountry.get(k);
+                    if (matches) {
+                        matches.forEach(mr => {
+                            joinWithRegion.push({
+                                Language: sr.Language,
+                                LanguageLocale: mr.LanguageLocale,
+                                Title: sr.Title ?? '',
+                                MiniFAD: sr.MiniFAD ?? ''
+                            });
+                        });
+                    }
+                });
+
+                // --- Join without Region (on Language) ---
+                const joinWithoutRegionRaw = [];
+                const mapByLanguage = new Map();
+                map.forEach(r => {
+                    if (!mapByLanguage.has(r.Language)) mapByLanguage.set(r.Language, []);
+                    mapByLanguage.get(r.Language).push(r);
+                });
+                withoutRegion.forEach(sr => {
+                    const matches = mapByLanguage.get(sr.Language);
+                    if (matches) {
+                        matches.forEach(mr => {
+                            joinWithoutRegionRaw.push({
+                                Language: sr.Language,
+                                LanguageLocale: mr.LanguageLocale,
+                                Title: sr.Title ?? '',
+                                MiniFAD: sr.MiniFAD ?? ''
+                            });
+                        });
+                    }
+                });
+
+                // --- Anti-join: remove rows whose LanguageLocale already produced via region join ---
+                const regionLocales = new Set(joinWithRegion.map(r => r.LanguageLocale));
+                const joinWithoutRegion = joinWithoutRegionRaw.filter(r => !regionLocales.has(r.LanguageLocale));
+
+                // --- Combine ---
+                const combined = [...joinWithRegion, ...joinWithoutRegion];
+
+                // --- Select/Rename, add narratorText, sort by Locale ---
+                const finalRows = combined.map(r => ({
+                    'Locale': r.LanguageLocale,
+                    'items/0/title': r.Title,
+                    'items/0/subtitle': r.MiniFAD,
+                    'items/0/narratorText': ''
+                })).sort((a, b) => a.Locale.localeCompare(b.Locale));
+
+                // --- Insert two header rows as required ---
+                const headerRow = {
+                    'Locale': 'Locale',
+                    'items/0/title': 'items/0/title',
+                    'items/0/subtitle': 'items/0/subtitle',
+                    'items/0/narratorText': 'items/0/narratorText'
+                };
+                const sampleRow = {
+                    'Locale': 'Locale',
+                    'items/0/title': 'WWWWWWWWWWWWWWW',
+                    'items/0/subtitle': 'WWWWWWWWWWWWWWW',
+                    'items/0/narratorText': 'Narrator Text'
+                };
+                // Prepend these rows to the output
+                transformedRows = [headerRow, sampleRow, ...finalRows];
+                renderTable(transformedRows);
+                updateDownloadButton();
+                document.getElementById('resultSummary').style.display = '';
+                document.getElementById('resultSummary').textContent = `Transformed Rows: ${finalRows.length}`;
+            } catch (err) {
+                showError('Error during transform: ' + (err.message || err));
+            }
+        }
+
+        function renderTable(rows) {
+            const wrapper = document.getElementById('gridWrapper');
+            const thead = document.querySelector('#resultTable thead');
+            const tbody = document.querySelector('#resultTable tbody');
+            if (!rows.length) {
+                wrapper.style.display = 'none';
+                thead.innerHTML = '';
+                tbody.innerHTML = '';
+                return;
+            }
+            wrapper.style.display = '';
+            const cols = Object.keys(rows[0]);
+            // Only show the first row as thead, rest as tbody
+            thead.innerHTML = '<tr>' + cols.map(c => `<th>${escapeHtml(rows[0][c])}</th>`).join('') + '</tr>' +
+                              '<tr>' + cols.map(c => `<th>${escapeHtml(rows[1][c])}</th>`).join('') + '</tr>';
+            tbody.innerHTML = rows.slice(2).map(r => '<tr>' + cols.map(c => `<td>${escapeHtml(r[c])}</td>`).join('') + '</tr>').join('');
+        }
+
+        function escapeHtml(str) {
+            // ...no AR/percent special formatting, just escape as normal...
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function updateDownloadButton() {
+            document.getElementById('downloadBtn').disabled = !transformedRows || !transformedRows.length;
+        }
+
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            if (!transformedRows?.length) return;
+            const cols = Object.keys(transformedRows[0]);
+            const lines = transformedRows.map(r => cols.map(c => csvEscape(r[c])).join(','));
+            const BOM = '\uFEFF';
+
+            // Try to get the Source__Loc filename for naming
+            let baseName = 'TransformedLocalization';
+            const sourceInput = document.getElementById('sourceInput');
+            if (sourceInput && sourceInput.files && sourceInput.files.length > 0) {
+                const file = sourceInput.files[0];
+                const name = file.name.replace(/\.[^/.]+$/, ''); // remove extension
+                baseName = name;
+            }
+            // Add _revised_YYYYMMDD
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            const dateStr = `${yyyy}${mm}${dd}`;
+            const filename = `${baseName}_revised_${dateStr}.csv`;
+
+            const blob = new Blob([BOM + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        });
+
+        function csvEscape(v) {
+            const s = String(v ?? '');
+            if (/[" ,\r\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+            return s;
+        }
+
+        document.getElementById('runBtn').addEventListener('click', runTransform);
+    </script>
+</body>
+</html>

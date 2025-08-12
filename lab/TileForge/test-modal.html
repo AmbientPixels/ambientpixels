@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transform Modal Test</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/transform-modal.css">
+    <style>
+        body {
+            background: #222;
+            color: #fff;
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 40px;
+        }
+        
+        .test-button {
+            background: #107c10;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        
+        .test-button:hover {
+            background: #0d6b0d;
+        }
+        
+        .debug-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔄 Transform Modal Test Page</h1>
+    
+    <div class="debug-info">
+        <h3>Debug Information:</h3>
+        <div id="debug-output">
+            <p>Page loaded. Check console for detailed logs.</p>
+        </div>
+    </div>
+    
+    <button class="test-button" onclick="testTransformModal()">
+        <i class="fas fa-exchange-alt"></i> Test Transform Modal
+    </button>
+    
+    <button class="test-button" onclick="testDirectModal()">
+        <i class="fas fa-cog"></i> Test Direct Modal Creation
+    </button>
+    
+    <button class="test-button" onclick="checkDependencies()">
+        <i class="fas fa-search"></i> Check Dependencies
+    </button>
+
+    <!-- Load TileForge modules -->
+    <script src="js/modal.js"></script>
+    <script src="js/loc-transformer.js"></script>
+    <script src="js/transform-modal.js"></script>
+    
+    <script>
+        function log(message) {
+            console.log(message);
+            const debugOutput = document.getElementById('debug-output');
+            debugOutput.innerHTML += '<p>' + message + '</p>';
+        }
+        
+        function testTransformModal() {
+            log('🧪 Testing transform modal...');
+            
+            if (typeof window.transformModal !== 'undefined') {
+                log('✅ transformModal is available');
+                try {
+                    window.transformModal.show((csvData, stats) => {
+                        log('✅ Transform completed with stats: ' + JSON.stringify(stats));
+                    });
+                } catch (error) {
+                    log('❌ Error showing transform modal: ' + error.message);
+                }
+            } else {
+                log('❌ transformModal is not available');
+            }
+        }
+        
+        function testDirectModal() {
+            log('🧪 Testing direct modal creation...');
+            
+            const modalHTML = `
+                <div id="test-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: #333; padding: 20px; border-radius: 8px; max-width: 400px;">
+                        <h3>Test Modal</h3>
+                        <p>This is a direct modal test.</p>
+                        <button onclick="document.getElementById('test-modal').remove()">Close</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            log('✅ Direct modal created');
+        }
+        
+        function checkDependencies() {
+            log('🔍 Checking dependencies...');
+            log('Modal class: ' + (typeof window.Modal !== 'undefined' ? '✅ Available' : '❌ Missing'));
+            log('LocTransformer class: ' + (typeof window.LocTransformer !== 'undefined' ? '✅ Available' : '❌ Missing'));
+            log('transformModal instance: ' + (typeof window.transformModal !== 'undefined' ? '✅ Available' : '❌ Missing'));
+            log('locTransformer instance: ' + (typeof window.locTransformer !== 'undefined' ? '✅ Available' : '❌ Missing'));
+        }
+        
+        // Auto-check dependencies on load
+        window.addEventListener('load', () => {
+            log('📄 Page loaded, checking dependencies...');
+            checkDependencies();
+        });
+    </script>
+</body>
+</html>
