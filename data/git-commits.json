@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "c978a824-09eb-4515-8399-4059de82804c",
-      "hash": "3d25000e0567195a24298b22ce3f0c3818a835bb",
-      "message": "Fix CORS issue: Embed preset data for standalone local usage",
-      "timestamp": "2025-08-11 01:34:40 -0700",
+      "id": "bb3c248e-1bb6-4d71-b1e7-b45f091152eb",
+      "hash": "3a83fc65c43fc6d046f16180cbbbc7cb6f99497a",
+      "message": "Fix Headliner Crafter import: preserve locale names and remove text truncation",
+      "timestamp": "2025-08-12 01:55:05 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/3d25000e0567195a24298b22ce3f0c3818a835bb"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/3a83fc65c43fc6d046f16180cbbbc7cb6f99497a"
     }
   ],
-  "timestamp": "2025-08-11T13:39:33.949Z",
+  "timestamp": "2025-08-12T13:35:36.505Z",
   "count": 1,
-  "scanId": 1754919573949
+  "scanId": 1755005736505
 }

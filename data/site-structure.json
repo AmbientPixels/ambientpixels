@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-08-11T13:39:31.201Z",
+  "updated": "2025-08-12T13:35:35.611Z",
   "root": [
     {
       "type": "folder",
@@ -542,8 +542,29 @@
             },
             {
               "type": "page",
+              "name": "loc_transformer.html",
+              "path": "lab/TileForge/loc_transformer.html"
+            },
+            {
+              "type": "folder",
+              "name": "sample-data",
+              "path": "lab/TileForge/sample-data",
+              "children": []
+            },
+            {
+              "type": "page",
               "name": "test-mobile-spotlight.html",
               "path": "lab/TileForge/test-mobile-spotlight.html"
+            },
+            {
+              "type": "page",
+              "name": "test-modal.html",
+              "path": "lab/TileForge/test-modal.html"
+            },
+            {
+              "type": "page",
+              "name": "transformer.html",
+              "path": "lab/TileForge/transformer.html"
             }
           ]
         },

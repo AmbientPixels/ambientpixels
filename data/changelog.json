@@ -1,10 +1,10 @@
 {
-  "updated": "2025-08-11T13:39:31.339Z",
+  "updated": "2025-08-12T13:35:35.749Z",
   "entries": [
     {
-      "hash": "3d25000",
-      "date": "2025-08-11 01:34:40 -0700",
-      "message": "Fix CORS issue: Embed preset data for standalone local usage"
+      "hash": "3a83fc6",
+      "date": "2025-08-12 01:55:05 -0700",
+      "message": "Fix Headliner Crafter import: preserve locale names and remove text truncation"
     }
   ]
 }
