@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-08-10T13:31:18.285Z",
+  "updated": "2025-08-11T13:39:31.201Z",
   "root": [
     {
       "type": "folder",
@@ -539,6 +539,11 @@
               "name": "js",
               "path": "lab/TileForge/js",
               "children": []
+            },
+            {
+              "type": "page",
+              "name": "test-mobile-spotlight.html",
+              "path": "lab/TileForge/test-mobile-spotlight.html"
             }
           ]
         },
