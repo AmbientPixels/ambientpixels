@@ -4,6 +4,44 @@
  */
 
 // ================================
+// INTRO SECTION FUNCTIONALITY
+// ================================
+
+function initializeIntro() {
+  const hideIntro = localStorage.getItem('cardforge-hide-intro') === 'true';
+  
+  if (hideIntro) {
+    hideIntro();
+  } else {
+    showIntro();
+  }
+}
+
+function showIntro() {
+  const introSection = document.getElementById('introSection');
+  if (introSection) {
+    introSection.classList.remove('hidden');
+  }
+}
+
+function hideIntro() {
+  const introSection = document.getElementById('introSection');
+  if (introSection) {
+    introSection.classList.add('hidden');
+  }
+}
+
+function toggleIntroVisibility() {
+  const currentSetting = localStorage.getItem('cardforge-hide-intro') === 'true';
+  localStorage.setItem('cardforge-hide-intro', !currentSetting);
+  hideIntro();
+}
+
+function showIntroManually() {
+  showIntro();
+}
+
+// ================================
 // MODAL SYSTEM CLASS
 // ================================
 
@@ -212,6 +250,20 @@ function createPreferencesTabContent() {
   return `
     <div class="settings-section">
       <h4>⚙️ General Preferences</h4>
+      
+      <div class="preference-group">
+        <h5>Startup Behavior</h5>
+        <label class="preference-item">
+          <input type="checkbox" id="show-intro-startup" />
+          <span class="checkmark"></span>
+          Show intro modal on startup
+        </label>
+        <div class="preference-item">
+          <button class="settings-btn secondary" onclick="showIntroManually()">
+            <i class="fas fa-magic"></i> Show Welcome Intro
+          </button>
+        </div>
+      </div>
       
       <div class="preference-group">
         <h5>Editor Behavior</h5>
@@ -557,50 +609,63 @@ function initializeThemeSelection() {
 }
 
 function initializePreferences() {
-  const autoSave = localStorage.getItem('cardforge-auto-save') === 'true';
-  const realtimePreview = localStorage.getItem('cardforge-realtime-preview') !== 'false';
-  const showGrid = localStorage.getItem('cardforge-show-grid') === 'true';
-  const exportFormat = localStorage.getItem('cardforge-export-format') || 'png';
-  const exportQuality = localStorage.getItem('cardforge-export-quality') || 'medium';
-  
+  // Show intro on startup setting
+  const introCheckbox = document.getElementById('show-intro-startup');
+  if (introCheckbox) {
+    const hideIntro = localStorage.getItem('cardforge-hide-intro') === 'true';
+    introCheckbox.checked = !hideIntro; // Inverted because we store "hide" but display "show"
+    introCheckbox.addEventListener('change', (e) => {
+      localStorage.setItem('cardforge-hide-intro', !e.target.checked);
+    });
+  }
+
+  // Auto-save setting
   const autoSaveCheckbox = document.getElementById('auto-save-enabled');
-  const realtimeCheckbox = document.getElementById('real-time-preview');
-  const gridCheckbox = document.getElementById('show-grid-lines');
-  const formatSelect = document.getElementById('default-export-format');
-  const qualitySelect = document.getElementById('export-quality');
-  
-  if (autoSaveCheckbox) autoSaveCheckbox.checked = autoSave;
-  if (realtimeCheckbox) realtimeCheckbox.checked = realtimePreview;
-  if (gridCheckbox) gridCheckbox.checked = showGrid;
-  if (formatSelect) formatSelect.value = exportFormat;
-  if (qualitySelect) qualitySelect.value = exportQuality;
-  
-  // Add event listeners
   if (autoSaveCheckbox) {
+    const autoSaveEnabled = localStorage.getItem('cardforge-auto-save') === 'true';
+    autoSaveCheckbox.checked = autoSaveEnabled;
     autoSaveCheckbox.addEventListener('change', (e) => {
       localStorage.setItem('cardforge-auto-save', e.target.checked);
     });
   }
-  
-  if (realtimeCheckbox) {
-    realtimeCheckbox.addEventListener('change', (e) => {
-      localStorage.setItem('cardforge-realtime-preview', e.target.checked);
+
+  // Real-time preview setting
+  const previewCheckbox = document.getElementById('real-time-preview');
+  if (previewCheckbox) {
+    const previewEnabled = localStorage.getItem('cardforge-real-time-preview') !== 'false';
+    previewCheckbox.checked = previewEnabled;
+    previewCheckbox.addEventListener('change', (e) => {
+      localStorage.setItem('cardforge-real-time-preview', e.target.checked);
     });
   }
-  
+
+  // Grid lines setting
+  const gridCheckbox = document.getElementById('show-grid-lines');
   if (gridCheckbox) {
+    const gridEnabled = localStorage.getItem('cardforge-show-grid') === 'true';
+    gridCheckbox.checked = gridEnabled;
     gridCheckbox.addEventListener('change', (e) => {
       localStorage.setItem('cardforge-show-grid', e.target.checked);
+      // Apply grid visibility immediately
+      document.body.classList.toggle('show-grid', e.target.checked);
     });
   }
-  
+
+  // Export format setting
+  const formatSelect = document.getElementById('default-export-format');
   if (formatSelect) {
+    const exportFormat = localStorage.getItem('cardforge-export-format') || 'png';
+    formatSelect.value = exportFormat;
     formatSelect.addEventListener('change', (e) => {
       localStorage.setItem('cardforge-export-format', e.target.value);
     });
   }
-  
+
+  // Export quality setting
+  const qualitySelect = document.getElementById('export-quality');
   if (qualitySelect) {
+    const exportQuality = localStorage.getItem('cardforge-export-quality') || 'medium';
+    qualitySelect.value = exportQuality;
     qualitySelect.addEventListener('change', (e) => {
       localStorage.setItem('cardforge-export-quality', e.target.value);
     });
@@ -616,16 +681,8 @@ function setTheme(theme) {
 // INITIALIZATION
 // ================================
 
+// Initialize keyboard shortcuts and intro when the page loads
 document.addEventListener('DOMContentLoaded', function() {
-  // Keyboard shortcuts
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'F1') {
-      e.preventDefault();
-      showInfoPopup();
-    }
-    if (e.ctrlKey && e.key === ',') {
-      e.preventDefault();
-      openSettings();
-    }
-  });
+  initializeKeyboardShortcuts();
+  initializeIntro();
 });
