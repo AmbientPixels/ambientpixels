@@ -8,12 +8,13 @@
 // ================================
 
 function initializeIntro() {
-  const hideIntro = localStorage.getItem('cardforge-hide-intro') === 'true';
+  const showIntroOnStartup = localStorage.getItem('cardforge-show-intro');
   
-  if (hideIntro) {
-    hideIntro();
-  } else {
+  // Show intro by default for new users, or if preference is set to show
+  if (showIntroOnStartup === null || showIntroOnStartup === 'true') {
     showIntro();
+  } else {
+    hideIntro();
   }
 }
 
@@ -32,9 +33,20 @@ function hideIntro() {
 }
 
 function toggleIntroVisibility() {
-  const currentSetting = localStorage.getItem('cardforge-hide-intro') === 'true';
-  localStorage.setItem('cardforge-hide-intro', !currentSetting);
-  hideIntro();
+  const currentSetting = localStorage.getItem('cardforge-show-intro');
+  const newSetting = currentSetting === 'false' ? 'true' : 'false';
+  
+  localStorage.setItem('cardforge-show-intro', newSetting);
+  
+  // Update button text to reflect current state
+  const button = event.target;
+  if (newSetting === 'true') {
+    button.textContent = 'Hide on startup';
+    button.title = 'Intro will show on next visit';
+  } else {
+    button.textContent = 'Show on startup';
+    button.title = 'Intro will be hidden on next visit';
+  }
 }
 
 function showIntroManually() {
@@ -681,8 +693,7 @@ function setTheme(theme) {
 // INITIALIZATION
 // ================================
 
-// Initialize keyboard shortcuts and intro when the page loads
+// Initialize intro when the page loads
 document.addEventListener('DOMContentLoaded', function() {
-  initializeKeyboardShortcuts();
   initializeIntro();
 });
