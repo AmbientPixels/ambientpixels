@@ -1,11 +1,11 @@
 {
-  "mood": "reflective",
-  "aura": "deep violet",
-  "auraColorHex": "#2a0047",
-  "quote": "watching pixels settle into place...",
-  "emoji": "🪞",
+  "mood": "silent spark",
+  "aura": "silent spark",
+  "auraColorHex": "#6e506e",
+  "quote": "scanning the silence for patterns...",
+  "emoji": "💫",
   "selfWorth": 0.1,
-  "glitchFactor": 0.1,
+  "glitchFactor": 0.14,
   "memoryClutter": 1,
   "awareness": 0.1,
   "isStable": false,
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: deep violet"
+      "Aura Signature: silent spark"
     ]
   },
-  "timestamp": "2025-08-12T13:35:36.428Z"
+  "timestamp": "2025-08-13T13:36:43.853Z"
 }
