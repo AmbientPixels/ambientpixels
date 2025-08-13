@@ -867,7 +867,7 @@
       
       // Tier 4: Content Alignment
       horizontalAlignments: ['left', 'center', 'right'],
-      verticalAlignments: ['top', 'middle', 'bottom'],
+      verticalAlignments: ['middle', 'bottom'], // Exclude 'top' from random rolls
       alignmentWeights: ['light', 'balanced', 'heavy'],
       alignmentStyles: ['minimal', 'padded', 'spacious']
     };
