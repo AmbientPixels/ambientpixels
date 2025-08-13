@@ -359,14 +359,247 @@
   align-items: center;
   justify-content: center;
   opacity: 1;
-  visibility: visible;
   transition: all 0.3s ease;
 }
 
 .intro-section.hidden {
-  opacity: 0;
-  visibility: hidden;
+  display: none;
+}
+
+/* Compact Intro Layout */
+.intro-layout {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.intro-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.intro-right {
+  flex: 0 0 400px;
+  display: flex;
+  justify-content: center;
+}
+
+.intro-features-compact {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.intro-feature-compact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--card-bg-secondary, #252525);
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #333);
+  transition: all 0.2s ease;
+  min-height: 48px;
+}
+
+.intro-feature-compact:hover {
+  background: var(--card-bg-hover, #2a2a2a);
+  border-color: var(--primary-color, #6366f1);
+}
+
+.intro-feature-compact i {
+  color: var(--primary-color, #6366f1);
+  font-size: 1.1rem;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.intro-feature-compact span {
+  color: var(--text-color, #e5e5e5);
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* FORCE CardForge Preview Card - High Specificity */
+.intro-section .intro-body .cardforge-preview {
+  perspective: 1000px !important;
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.intro-section .intro-body .preview-card {
+  width: 280px !important;
+  height: 380px !important;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+  border: 2px solid #6366f1 !important;
+  border-radius: 12px !important;
+  padding: 16px !important;
+  box-shadow: 
+    0 8px 32px rgba(99, 102, 241, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+  transform: rotateY(-5deg) rotateX(2deg) !important;
+  transition: transform 0.3s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.preview-card:hover {
+  transform: rotateY(0deg) rotateX(0deg) scale(1.02);
+}
+
+.preview-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+  animation: cardShimmer 3s infinite;
   pointer-events: none;
+}
+
+@keyframes cardShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  z-index: 1;
+  position: relative;
+}
+
+.card-title {
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.card-cost {
+  background: var(--primary-color, #6366f1);
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.card-image {
+  height: 120px;
+  background: linear-gradient(135deg, #2d2d44, #1a1a2e);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1;
+  position: relative;
+}
+
+.image-placeholder {
+  color: var(--primary-color, #6366f1);
+  font-size: 2.5rem;
+  animation: cardPulse 2s infinite;
+}
+
+@keyframes cardPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+  position: relative;
+}
+
+.card-type {
+  color: #a1a1aa;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+.card-text {
+  flex: 1;
+  margin-bottom: 12px;
+}
+
+.card-text p {
+  color: #e5e5e5;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  margin: 0 0 6px 0;
+}
+
+.card-text em {
+  color: #a1a1aa;
+  font-size: 0.75rem;
+}
+
+.card-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.attack, .health {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.attack {
+  color: #ff6b6b;
+}
+
+.health {
+  color: #51cf66;
+}
+
+/* Removed duplicate CSS definitions that were conflicting */
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .intro-layout {
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  .intro-right {
+    flex: none;
+    align-self: center;
+  }
+  
+  .preview-card {
+    transform: none;
+    width: 200px;
+    height: 280px;
+  }
+  
+  .intro-features-compact {
+    grid-template-columns: 1fr;
+  }
 }
 
 .intro-content {
@@ -374,8 +607,7 @@
   border: 1px solid var(--border-color, #333);
   border-radius: 12px;
   max-width: 1000px;
-  max-height: 90vh;
-  overflow-y: auto;
+  overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   position: relative;
   margin: 20px;
@@ -436,92 +668,61 @@
   text-align: center;
 }
 
-.intro-features {
+/* FORCE Two-Column Layout - High Specificity */
+.intro-section .intro-body .intro-layout {
+  display: flex !important;
+  gap: 32px !important;
+  align-items: flex-start !important;
+}
+
+.intro-section .intro-body .intro-left {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.intro-section .intro-body .intro-right {
+  flex: 0 0 300px !important;
+  display: flex !important;
+  justify-content: center !important;
+  background: rgba(255, 0, 0, 0.1) !important; /* Temporary red background to see if it shows */
+}
+
+/* Compact Feature Grid */
+.intro-features-compact {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-  margin-bottom: 32px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 20px;
 }
 
-.intro-feature {
+.intro-feature-compact {
   display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 20px;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
   background: var(--card-bg-secondary, #252525);
   border: 1px solid var(--border-color, #333);
-  border-radius: 8px;
+  border-radius: 6px;
   transition: all 0.2s ease;
-}
-
-.intro-feature:hover {
-  border-color: var(--primary-color, #6366f1);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15);
-}
-
-.feature-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, var(--primary-color, #6366f1), var(--secondary-color, #8b5cf6));
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.2rem;
-  flex-shrink: 0;
-}
-
-.feature-content h4 {
-  margin: 0 0 8px 0;
-  color: var(--text-color, #e5e5e5);
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.feature-content p {
-  margin: 0;
-  color: var(--text-muted, #a1a1aa);
   font-size: 0.9rem;
-  line-height: 1.4;
 }
 
-.intro-workflow {
-  background: var(--card-bg-secondary, #252525);
-  border: 1px solid var(--border-color, #333);
-  border-radius: 8px;
-  padding: 24px;
-  margin-bottom: 32px;
+.intro-feature-compact:hover {
+  border-color: var(--primary-color, #6366f1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
 }
 
-.intro-workflow h4 {
-  margin: 0 0 16px 0;
-  color: var(--text-color, #e5e5e5);
-  font-size: 1.1rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.intro-workflow h4 i {
+.intro-feature-compact i {
   color: var(--primary-color, #6366f1);
+  font-size: 1rem;
+  width: 16px;
+  text-align: center;
 }
 
-.workflow-steps {
-  margin: 0;
-  padding-left: 20px;
-  color: var(--text-muted, #a1a1aa);
-}
-
-.workflow-steps li {
-  margin-bottom: 8px;
-  line-height: 1.5;
-}
-
-.workflow-steps li strong {
+.intro-feature-compact span {
   color: var(--text-color, #e5e5e5);
+  font-weight: 500;
 }
 
 .intro-actions {
@@ -529,6 +730,7 @@
   gap: 16px;
   justify-content: center;
   flex-wrap: wrap;
+  margin-top: 32px;
 }
 
 .intro-btn {
@@ -761,8 +963,8 @@
 }
 
 .modal-body {
-  overflow-y: auto;
-  max-height: calc(90vh - 120px);
+  overflow-y: visible;
+  max-height: none;
 }
 
 /* Tabbed Modal Styles */
