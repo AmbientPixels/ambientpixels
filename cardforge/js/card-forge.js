@@ -6,40 +6,92 @@
  * Delete a user card - SINGLE SOURCE OF TRUTH
  */
 function deleteCard(id) {
-  const msg = 'Are you sure you want to delete this card? This cannot be undone.';
+  // Get card name for confirmation
+  const savedCards = JSON.parse(localStorage.getItem('cardforge_saved_cards') || '[]');
+  const card = savedCards.find(card => card.id === id);
+  const cardName = card?.name || card?.cardData?.name || 'Unknown Card';
   
-  if (confirm(msg)) {
-    try {
-      console.log(`🗑️ Deleting card: ${id}`);
-      
-      // Get saved cards from localStorage
-      const savedCards = JSON.parse(localStorage.getItem('cardforge_saved_cards') || '[]');
-      const cardIndex = savedCards.findIndex(card => card.id === id);
-      
-      if (cardIndex === -1) {
-        console.error('Card not found:', id);
-        alert('Card not found');
-        return;
-      }
-      
-      const cardName = savedCards[cardIndex].name || 'Unknown Card';
-      savedCards.splice(cardIndex, 1);
-      localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
-      
-      console.log(`✅ Card "${cardName}" deleted from localStorage`);
-      
-      // Refresh gallery if it exists
-      if (window.cardForgeActions && window.cardForgeActions.refreshMyCardsList) {
-        window.cardForgeActions.refreshMyCardsList();
-        console.log('🔄 Gallery refreshed');
-      }
-      
-      alert(`Card "${cardName}" deleted successfully`);
-      
-    } catch (e) {
-      console.error('Delete failed', e);
-      alert(`Delete error: ${e.message}`);
+  // Use existing Modal system instead of confirm()
+  const confirmModal = new Modal({
+    title: 'Delete Card',
+    size: 'small',
+    tabs: [{
+      title: 'Confirm',
+      content: `
+        <div style="text-align: center; padding: 20px;">
+          <div style="color: #ff4444; font-size: 48px; margin-bottom: 16px;">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <h3 style="margin-bottom: 16px; color: #fff;">Delete "${cardName}"?</h3>
+          <p style="margin-bottom: 24px; color: #aaa;">
+            This action cannot be undone. The card will be permanently removed from your collection.
+          </p>
+          <div style="display: flex; gap: 12px; justify-content: center;">
+            <button id="confirm-delete-btn" class="btn-primary" style="background: #ff4444; border: 1px solid #ff4444; color: white; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+              <i class="fas fa-trash"></i> Delete Card
+            </button>
+            <button id="cancel-delete-btn" class="btn-secondary" style="background: #666; border: 1px solid #666; color: white; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+              <i class="fas fa-times"></i> Cancel
+            </button>
+          </div>
+        </div>
+      `
+    }]
+  });
+  
+  confirmModal.show();
+  
+  // Add event listeners after modal is shown
+  setTimeout(() => {
+    const confirmBtn = document.getElementById('confirm-delete-btn');
+    const cancelBtn = document.getElementById('cancel-delete-btn');
+    
+    if (confirmBtn) {
+      confirmBtn.addEventListener('click', () => {
+        performDelete(id, cardName);
+        confirmModal.hide();
+      });
     }
+    
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        confirmModal.hide();
+      });
+    }
+  }, 100);
+}
+
+function performDelete(id, cardName) {
+  try {
+    console.log(`🗑️ Deleting card: ${id}`);
+    
+    // Get saved cards from localStorage
+    const savedCards = JSON.parse(localStorage.getItem('cardforge_saved_cards') || '[]');
+    const cardIndex = savedCards.findIndex(card => card.id === id);
+    
+    if (cardIndex === -1) {
+      console.error('Card not found:', id);
+      alert('Card not found');
+      return;
+    }
+    
+    savedCards.splice(cardIndex, 1);
+    localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
+    
+    console.log(`✅ Card "${cardName}" deleted from localStorage`);
+    
+    // Refresh gallery if it exists
+    if (window.cardForgeActions && window.cardForgeActions.refreshMyCardsList) {
+      window.cardForgeActions.refreshMyCardsList();
+      console.log('🔄 Gallery refreshed');
+    }
+    
+    // Success - no alert needed, gallery refresh shows the result
+    console.log(`✅ Card "${cardName}" deleted successfully`);
+    
+  } catch (e) {
+    console.error('Delete failed', e);
+    alert(`Delete error: ${e.message}`);
   }
 }
 
