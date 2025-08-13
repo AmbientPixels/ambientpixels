@@ -107,15 +107,18 @@ class CardForgeActions {
     
     try {
       const cardData = this.collectCardData();
+      console.log('🔍 Got card data:', cardData);
+      console.log('🖼️ SAVING IMAGE:', cardData.avatar);
       
       if (!cardData.name || cardData.name.trim() === '') {
         this.showNotification('Please enter a card name before saving', 'error');
         return;
       }
-
-      // Get saved cards first to check for existing card by name
+      
       const savedCards = this.getSavedCards();
-      const existingCard = savedCards.find(card => card.name.trim().toLowerCase() === cardData.name.trim().toLowerCase());
+      
+      // Always create new cards - don't check for existing names
+      const existingCard = null;
       
       // Use existing card ID if found, otherwise generate new one
       const cardId = existingCard ? existingCard.id : this.generateCardId();
@@ -137,7 +140,8 @@ class CardForgeActions {
         savedCards[existingIndex] = savedCard;
         this.showNotification(`Card "${savedCard.name}" updated`, 'success');
       } else {
-        savedCards.push(savedCard);
+        // Add new cards to the TOP of the list
+        savedCards.unshift(savedCard);
         this.showNotification(`Card "${savedCard.name}" saved`, 'success');
       }
 
@@ -300,21 +304,47 @@ class CardForgeActions {
   // UTILITY METHODS
   // ===================
 
+
+
   collectCardData() {
-    const data = {};
+    // Trigger updateCardContent first to get the preview JSON
+    if (window.updateCardContent) {
+      console.log('🔄 Calling updateCardContent to get preview JSON...');
+      window.updateCardContent();
+    }
     
-    // Basic form fields
-    const basicFields = [
-      'card-name', 'card-class', 'card-quote', 'card-bio',
-      'card-rarity', 'card-level', 'card-image-url'
-    ];
+    // Use the stored preview JSON data instead of form fields
+    if (window.lastPreviewCardData) {
+      console.log('✅ Using stored preview JSON data for save');
+      console.log('🖼️ Preview JSON avatar:', window.lastPreviewCardData.avatar);
+      const data = { ...window.lastPreviewCardData };
+      
+      console.log('📋 USING PREVIEW JSON DATA:', data);
+      return data;
+    }
     
-    basicFields.forEach(fieldId => {
-      const field = document.getElementById(fieldId);
-      if (field) {
-        data[fieldId.replace('card-', '')] = field.value;
-      }
-    });
+    // Fallback: collect from form fields if preview data not available
+    console.log('⚠️ Preview JSON not available, falling back to form fields');
+    const statsData = window.collectStatsData ? window.collectStatsData() : [];
+    const socialData = window.collectSocialLinksData ? window.collectSocialLinksData() : [];
+    const badgesData = window.collectBadgesData ? window.collectBadgesData() : [];
+    const attributesData = window.collectAttributesData ? window.collectAttributesData() : [];
+    
+    const biographyField = document.getElementById('card-bio');
+    const biography = biographyField?.value?.trim() || '';
+    
+    const data = {
+      name: document.getElementById('card-name')?.value || 'Aria Shadowbane',
+      characterClass: document.getElementById('card-class')?.value || '',
+      rarity: document.getElementById('card-rarity')?.value || '',
+      quote: document.getElementById('card-quote')?.value || 'Shadows are my allies, silence my weapon.',
+      avatar: document.getElementById('card-avatar')?.value || '/cardforge/images/default-avatar.jpg',
+      biography: biography,
+      stats: statsData,
+      socialLinks: socialData,
+      badges: badgesData,
+      attributes: attributesData
+    };
 
     // Collect modular system data if available
     if (window.ModularState && window.ModularState.getCurrentState) {
@@ -328,7 +358,7 @@ class CardForgeActions {
     // Load basic fields
     const basicFields = [
       'card-name', 'card-class', 'card-quote', 'card-bio',
-      'card-rarity', 'card-level', 'card-image-url'
+      'card-rarity', 'card-level', 'card-avatar'
     ];
     
     basicFields.forEach(fieldId => {
@@ -491,20 +521,39 @@ class CardForgeActions {
       return;
     }
 
-    // Render beautiful card gallery
+    // Render beautiful card gallery with rich JSON data
     myCardsList.innerHTML = savedCards.map(card => {
       const cardDate = new Date(card.lastModified).toLocaleDateString();
-      const cardImage = card.cardData?.avatar || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNhcmQgSW1hZ2U8L3RleHQ+PC9zdmc+';
-      const cardName = card.name || 'Untitled Card';
+      // Use the exact avatar from JSON data - ensure it's the correct preview image
+      const cardImage = card.cardData?.avatar || '/cardforge/images/default-avatar.jpg';
+      const cardName = card.cardData?.name || card.name || 'Untitled Card';
+      const characterClass = card.cardData?.characterClass || '';
+      const rarity = card.cardData?.rarity || '';
+      const quote = card.cardData?.quote || '';
       const isPublished = card.isPublished || false;
+      
+      console.log(`🖼️ Gallery rendering card "${cardName}" with image:`, cardImage);
+      
+      // Get stats count for display
+      const statsCount = card.cardData?.stats?.length || 0;
+      const socialCount = card.cardData?.socialLinks?.length || 0;
+      const badgesCount = card.cardData?.badges?.length || 0;
       
       return `
         <div class="card-gallery-item" data-card-id="${card.id}">
           <div class="card-thumbnail">
             <img src="${cardImage}" alt="${cardName}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNhcmQgSW1hZ2U8L3RleHQ+PC9zdmc+'">
+            ${rarity ? `<div class="card-rarity-badge ${rarity.toLowerCase()}">${rarity}</div>` : ''}
           </div>
           <div class="card-info">
             <h3 class="card-title" title="${cardName}">${cardName}</h3>
+            ${characterClass ? `<div class="card-class">${characterClass}</div>` : ''}
+            ${quote ? `<div class="card-quote">"${quote.length > 50 ? quote.substring(0, 50) + '...' : quote}"</div>` : ''}
+            <div class="card-stats-summary">
+              ${statsCount > 0 ? `<span class="stat-count">📊 ${statsCount} stats</span>` : ''}
+              ${socialCount > 0 ? `<span class="social-count">🔗 ${socialCount} links</span>` : ''}
+              ${badgesCount > 0 ? `<span class="badge-count">🏆 ${badgesCount} badges</span>` : ''}
+            </div>
             <div class="card-meta">
               <span class="card-date">${cardDate}</span>
               <span class="card-status ${isPublished ? 'published' : 'saved'}">

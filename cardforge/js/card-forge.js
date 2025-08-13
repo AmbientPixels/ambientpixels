@@ -2,208 +2,24 @@
 // Updated 2025-07-05: Added input validation, sanitization, and improved error handling
 // Updated 2025-07-05: Using shared validation utilities module
 
-// [Previous code remains the same until the saveCard function]
-
 // Dynamic form validation and button state management
 window.addEventListener('DOMContentLoaded', () => {
   const nameInput = document.getElementById('card-name');
   const classInput = document.getElementById('card-class');
   const avatarInput = document.getElementById('card-avatar');
-  const saveBtn = document.getElementById('save-btn');
   const publishBtn = document.getElementById('publish-btn');
   
-
   function validateForm() {
     const valid = nameInput?.value.trim() && classInput?.value.trim() && avatarInput?.value.trim();
-    if (saveBtn) saveBtn.disabled = !valid;
+    // Note: Save button validation is handled by cardforge-forge-actions.js
   }
 
   [nameInput, classInput, avatarInput].forEach(input => input?.addEventListener('input', validateForm));
   validateForm();
 
-  // Ensure Publish and Delete disabled until after a successful save
+  // Ensure Publish disabled until after a successful save
   if (publishBtn) publishBtn.disabled = true;
-  
 });
-
-
-async function saveCard() {
-  const form = document.getElementById('card-editor-form');
-  if (!form) {
-    console.error('Card editor form not found');
-    return;
-  }
-
-  // Get form elements
-  const nameInput = document.getElementById('card-name');
-  const classInput = document.getElementById('card-class');
-  const quoteInput = document.getElementById('card-quote');
-  const avatarInput = document.getElementById('card-avatar');
-  const achievementInput = document.getElementById('card-achievement');
-  const cardIdInput = document.getElementById('card-id');
-  const templateTypeInput = document.getElementById('card-template-type');
-
-  // Clear previous errors
-  if (window.UIUtils) {
-    window.UIUtils.clearValidationErrors();
-  }
-
-  // Simple validation
-  const errors = [];
-  if (!nameInput?.value?.trim()) errors.push('Name is required');
-  if (!classInput?.value?.trim()) errors.push('Class is required');
-  if (!avatarInput?.value?.trim()) errors.push('Avatar URL is required');
-
-  if (errors.length > 0) {
-    if (window.UIUtils) {
-      window.UIUtils.showValidationErrors(errors);
-    } else {
-      console.error('Validation errors:', errors);
-    }
-    return;
-  }
-
-  // Prepare card data
-  const card = {
-    id: cardIdInput?.value || `v2-${Date.now()}`,
-    name: nameInput.value.trim(),
-    class: classInput.value.trim(),
-    quote: quoteInput?.value?.trim() || '',
-    avatar: avatarInput.value.trim(),
-    achievement: achievementInput?.value?.trim() || '',
-    templateType: templateTypeInput?.value || 'default'
-  };
-
-  // Show confirmation dialog
-  const showDialog = window.UIUtils?.showConfirmDialog || window.confirm;
-  
-  if (typeof showDialog === 'function') {
-    showDialog(
-      'Save Card', 
-      'Do you want to save this card to your collection?',
-      async () => {
-        const saveBtn = document.getElementById('save-btn');
-        // Set loading state
-        if (saveBtn) {
-          saveBtn.disabled = true;
-          saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-        }
-
-        try {
-          // Prepare the card data
-          const cardData = {
-            id: card.id,
-            name: card.name,
-            class: card.class,
-            quote: card.quote,
-            avatar: card.avatar,
-            achievement: card.achievement,
-            templateType: card.templateType
-          };
-
-          // Use buildApiPath helper for proper API endpoint construction
-          const endpoint = window.buildApiPath('saveCard');
-          console.log(`[CardForge] Saving card to endpoint: ${endpoint}`);
-
-          // Prepare headers for anonymous access
-          const headers = {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': window.csrfProtection?.getToken?.() || '',
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-          };
-
-          console.log('[CardForge] Request details:', {
-            url: endpoint,
-            method: 'POST',
-            headers: {
-              ...headers,
-              'X-CSRF-Token': headers['X-CSRF-Token'] ? '[REDACTED]' : 'MISSING'
-            },
-            body: {
-              ...cardData,
-              userId: 'anonymous',
-              cardData: '[...truncated]'
-            }
-          });
-          
-          const response = await fetch(endpoint, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({
-              ...cardData,
-              userId: 'anonymous',
-              authToken: 'included-in-header'
-            })
-          });
-          
-          console.log('[CardForge] Response status:', response.status);
-          console.log('[CardForge] Response headers:', [...response.headers.entries()]);
-          
-          // updated by Cascade 2025-07-20: fix double-read of response body
-          const responseText = await response.text();
-          console.log('[CardForge] Response body:', responseText);
-
-          let result;
-          try {
-            result = JSON.parse(responseText);
-          } catch (e) {
-            result = null;
-          }
-
-          if (!response.ok) {
-            console.error('[CardForge] Error response:', result || responseText);
-            throw new Error((result && result.message) || `HTTP ${response.status}: ${response.statusText}`);
-          }
-
-          console.log('[CardForge] Card saved:', result);
-
-          if (window.UIUtils?.showAlertDialog) {
-            window.UIUtils.showAlertDialog('Card Saved', 'Your card was successfully saved!', () => {
-              // Optional: focus the publish button or do any follow-up
-              const publishBtn = document.getElementById('publish-btn');
-              if (publishBtn) publishBtn.focus();
-            });
-          } else if (window.UIUtils?.showMessage) {
-            window.UIUtils.showMessage('Card saved successfully!', 'success');
-          } else {
-            console.log('Card saved successfully!');
-          }
-          
-          if (cardIdInput && result && result.id) {
-            cardIdInput.value = result.id;
-          }
-
-          const publishBtn = document.getElementById('publish-btn');
-          if (publishBtn) {
-            publishBtn.disabled = false;
-          }
-
-          if (window.showMessage) {
-            window.showMessage('Card saved successfully!', 'success');
-          }
-            
-            if (window.loadCards) {
-              window.loadCards();
-            }
-          } catch (error) {
-            console.error('Failed to save card:', error);
-            if (window.UIUtils?.showMessage) {
-              window.UIUtils.showMessage(`Error: ${error.message}`, 'error');
-            } else {
-              console.error('Error:', error.message);
-            }
-          } finally {
-            if (saveBtn) {
-              saveBtn.disabled = false;
-              saveBtn.innerHTML = 'Save';
-            }
-          }
-
-      }
-    );
-  }
-}
 
 /**
  * Load cards from the API and update the UI
@@ -494,9 +310,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Load published gallery cards
   await loadGallery();
 
-  // Set up event listeners for the save button
-  const saveBtn = document.getElementById('save-btn');
-  if (saveBtn) {
-    saveBtn.addEventListener('click', saveCard);
-  }
+  // Save button event listener is handled by cardforge-forge-actions.js
 });

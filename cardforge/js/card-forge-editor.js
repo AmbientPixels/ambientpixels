@@ -1873,6 +1873,10 @@
     console.log('🏆 Badges count:', cardData.badges.length);
     console.log('⚡ Attributes count:', cardData.attributes.length);
     
+    // Store the preview JSON data globally for save function to use
+    window.lastPreviewCardData = cardData;
+    console.log('💾 Stored preview data globally for save function');
+    
     // Update front face
     updateFrontFace(cardData);
     
