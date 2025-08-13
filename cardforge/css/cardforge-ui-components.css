@@ -1092,11 +1092,6 @@
   background: #ffffff;
 }
 
-.preview-header {
-  height: 20px;
-  background: var(--primary-color, #6366f1);
-}
-
 .preview-content {
   padding: 8px;
   height: calc(100% - 20px);

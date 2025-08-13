@@ -202,6 +202,9 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+  width: 100%;
+  position: relative;
+  box-sizing: border-box;
 }
 
 .preview-header h2 {
