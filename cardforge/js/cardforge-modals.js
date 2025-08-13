@@ -624,10 +624,10 @@ function initializePreferences() {
   // Show intro on startup setting
   const introCheckbox = document.getElementById('show-intro-startup');
   if (introCheckbox) {
-    const hideIntro = localStorage.getItem('cardforge-hide-intro') === 'true';
-    introCheckbox.checked = !hideIntro; // Inverted because we store "hide" but display "show"
+    const showIntro = localStorage.getItem('cardforge-show-intro');
+    introCheckbox.checked = showIntro === null || showIntro === 'true';
     introCheckbox.addEventListener('change', (e) => {
-      localStorage.setItem('cardforge-hide-intro', !e.target.checked);
+      localStorage.setItem('cardforge-show-intro', e.target.checked ? 'true' : 'false');
     });
   }
 
