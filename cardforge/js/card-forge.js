@@ -17,6 +17,7 @@ function deleteCard(id) {
     size: 'small',
     tabs: [{
       title: 'Confirm',
+      icon: '<i class="fas fa-exclamation-triangle"></i>',
       content: `
         <div style="text-align: center; padding: 20px;">
           <div style="color: #ff4444; font-size: 48px; margin-bottom: 16px;">
