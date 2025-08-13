@@ -50,6 +50,66 @@
   cursor: pointer;
 }
 
+/* New JSON Schema Card Display Elements */
+.card-rarity {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-left: 8px;
+}
+
+.rarity-common { background: #9ca3af; color: white; }
+.rarity-uncommon { background: #10b981; color: white; }
+.rarity-rare { background: #3b82f6; color: white; }
+.rarity-epic { background: #8b5cf6; color: white; }
+.rarity-legendary { background: #f59e0b; color: white; }
+.rarity-mythic { background: #ef4444; color: white; }
+
+.card-level {
+  font-size: 12px;
+  color: var(--mood-accent-color, #4a4a6a);
+  margin: 4px 0;
+}
+
+.card-palette {
+  font-size: 11px;
+  color: var(--mood-secondary-color, #a0a0c0);
+  font-style: italic;
+  margin: 2px 0;
+}
+
+/* User Cards List Enhancements */
+.card-list-class {
+  font-size: 11px;
+  color: var(--mood-accent-color, #4a4a6a);
+  margin-left: 8px;
+}
+
+.card-list-rarity {
+  display: inline-block;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-left: 6px;
+}
+
+.cardforge-list-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.card-list-title {
+  flex: 1;
+  min-width: 0;
+}
+
 /* My Cards Section */
 .my-cards-section {
   margin-top: 2rem;

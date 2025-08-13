@@ -1,0 +1,326 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CardForge JSON Structure",
+  "description": "Complete JSON schema for CardForge modular card system",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string", "example": "2.0" },
+        "created": { "type": "string", "format": "date-time" },
+        "modified": { "type": "string", "format": "date-time" },
+        "cardId": { "type": "string", "example": "card_1691234567890_abc123def" },
+        "presetUsed": { "type": "string", "example": "hero-classic" },
+        "isCustom": { "type": "boolean", "default": false }
+      },
+      "required": ["version", "cardId"]
+    },
+    
+    "modularSystem": {
+      "type": "object",
+      "description": "6-tier modular design system configuration",
+      "properties": {
+        "tier2_imageContainer": {
+          "type": "object",
+          "properties": {
+            "container": {
+              "type": "string",
+              "enum": ["masked", "framed", "raw", "hero", "fullbleed"],
+              "default": "masked"
+            },
+            "containerVariant": {
+              "type": "string",
+              "enum": ["circle", "hex", "diamond", "classic", "ornate", "minimal", "sharp", "rounded", "soft", "large", "compact", "standard", "wide"],
+              "default": "circle"
+            },
+            "imageEffect": {
+              "type": "string",
+              "enum": ["none", "filters", "borders"],
+              "default": "none"
+            },
+            "imageEffectVariant": {
+              "type": "string",
+              "enum": ["clean", "sepia", "blur", "saturate", "contrast", "solid", "dashed", "glow"],
+              "default": "clean"
+            }
+          },
+          "required": ["container", "containerVariant", "imageEffect", "imageEffectVariant"]
+        },
+        
+        "tier3_colorPalette": {
+          "type": "object",
+          "properties": {
+            "palette": {
+              "type": "string",
+              "enum": ["neon", "earth", "ocean", "fire", "cosmic"],
+              "default": "neon"
+            },
+            "paletteVariant": {
+              "type": "string",
+              "enum": ["light", "dark", "vibrant"],
+              "default": "light"
+            },
+            "textColor": {
+              "type": "string",
+              "enum": ["auto", "light", "dark", "custom"],
+              "default": "auto"
+            },
+            "customTextColor": {
+              "type": "string",
+              "pattern": "^#[0-9A-Fa-f]{6}$",
+              "description": "Hex color code when textColor is 'custom'"
+            }
+          },
+          "required": ["palette", "paletteVariant", "textColor"]
+        },
+        
+        "tier4_contentAlignment": {
+          "type": "object",
+          "properties": {
+            "horizontalAlignment": {
+              "type": "string",
+              "enum": ["left", "center", "right"],
+              "default": "center"
+            },
+            "verticalAlignment": {
+              "type": "string",
+              "enum": ["top", "middle", "bottom"],
+              "default": "middle"
+            },
+            "alignmentWeight": {
+              "type": "string",
+              "enum": ["light", "balanced", "heavy"],
+              "default": "balanced"
+            },
+            "alignmentStyle": {
+              "type": "string",
+              "enum": ["minimal", "padded", "spacious"],
+              "default": "padded"
+            }
+          },
+          "required": ["horizontalAlignment", "verticalAlignment", "alignmentWeight", "alignmentStyle"]
+        }
+      },
+      "required": ["tier2_imageContainer", "tier3_colorPalette", "tier4_contentAlignment"]
+    },
+    
+    "cardContent": {
+      "type": "object",
+      "properties": {
+        "frontFace": {
+          "type": "object",
+          "properties": {
+            "characterName": { "type": "string", "maxLength": 50 },
+            "characterClass": { "type": "string", "maxLength": 30 },
+            "characterRarity": {
+              "type": "string",
+              "enum": ["common", "uncommon", "rare", "epic", "legendary", "mythic"],
+              "default": "common"
+            },
+            "characterLevel": { "type": "integer", "minimum": 1, "maximum": 100 },
+            "characterDescription": { "type": "string", "maxLength": 200 },
+            "characterImage": {
+              "type": "object",
+              "properties": {
+                "url": { "type": "string", "format": "uri" },
+                "alt": { "type": "string" },
+                "source": {
+                  "type": "string",
+                  "enum": ["upload", "gallery", "url", "generated"],
+                  "default": "gallery"
+                }
+              },
+              "required": ["url"]
+            }
+          },
+          "required": ["characterName"]
+        },
+        
+        "backFace": {
+          "type": "object",
+          "properties": {
+            "stats": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "maxLength": 20 },
+                  "value": { "type": "integer", "minimum": 0, "maximum": 100 }
+                },
+                "required": ["name", "value"]
+              },
+              "maxItems": 10
+            },
+            
+            "socialLinks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": ["twitter", "instagram", "youtube", "twitch", "discord", "website", "github", "linkedin"]
+                  },
+                  "url": { "type": "string", "format": "uri" },
+                  "displayName": { "type": "string", "maxLength": 30 }
+                },
+                "required": ["platform", "url"]
+              },
+              "maxItems": 8
+            },
+            
+            "badges": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "category": { "type": "string", "maxLength": 20 },
+                  "icon": { "type": "string", "maxLength": 30 },
+                  "description": { "type": "string", "maxLength": 50 },
+                  "quantity": { "type": "integer", "minimum": 1, "maximum": 999 }
+                },
+                "required": ["category", "icon", "description"]
+              },
+              "maxItems": 12
+            },
+            
+            "attributes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "maxLength": 20 },
+                  "value": { "type": "string", "maxLength": 30 }
+                },
+                "required": ["name", "value"]
+              },
+              "maxItems": 10
+            },
+            
+            "backDescription": { "type": "string", "maxLength": 300 },
+            "flavorText": { "type": "string", "maxLength": 150 }
+          }
+        }
+      },
+      "required": ["frontFace"]
+    },
+    
+    "userPreferences": {
+      "type": "object",
+      "properties": {
+        "autoSave": { "type": "boolean", "default": true },
+        "showIntroOnStartup": { "type": "boolean", "default": true },
+        "theme": {
+          "type": "string",
+          "enum": ["auto", "light", "dark"],
+          "default": "auto"
+        },
+        "defaultExportFormat": {
+          "type": "string",
+          "enum": ["png", "pdf", "jpg"],
+          "default": "png"
+        },
+        "exportQuality": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "ultra"],
+          "default": "high"
+        }
+      }
+    },
+    
+    "exportSettings": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "type": "string",
+          "enum": ["png", "pdf", "jpg"],
+          "default": "png"
+        },
+        "quality": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "ultra"],
+          "default": "high"
+        },
+        "dimensions": {
+          "type": "object",
+          "properties": {
+            "width": { "type": "integer", "minimum": 300, "maximum": 4000 },
+            "height": { "type": "integer", "minimum": 400, "maximum": 6000 }
+          }
+        },
+        "includeBackFace": { "type": "boolean", "default": true },
+        "printReady": { "type": "boolean", "default": false }
+      }
+    }
+  },
+  
+  "required": ["metadata", "modularSystem", "cardContent"],
+  
+  "examples": [
+    {
+      "metadata": {
+        "version": "2.0",
+        "created": "2025-08-12T22:15:00Z",
+        "cardId": "card_1691234567890_abc123def",
+        "presetUsed": "hero-classic",
+        "isCustom": false
+      },
+      "modularSystem": {
+        "tier2_imageContainer": {
+          "container": "framed",
+          "containerVariant": "ornate",
+          "imageEffect": "borders",
+          "imageEffectVariant": "glow"
+        },
+        "tier3_colorPalette": {
+          "palette": "earth",
+          "paletteVariant": "light",
+          "textColor": "auto"
+        },
+        "tier4_contentAlignment": {
+          "horizontalAlignment": "center",
+          "verticalAlignment": "middle",
+          "alignmentWeight": "balanced",
+          "alignmentStyle": "padded"
+        }
+      },
+      "cardContent": {
+        "frontFace": {
+          "characterName": "Aria Stormwind",
+          "characterClass": "Paladin",
+          "characterRarity": "legendary",
+          "characterLevel": 45,
+          "characterDescription": "A noble warrior blessed by the storm gods, wielding lightning and justice in equal measure.",
+          "characterImage": {
+            "url": "https://example.com/images/aria-stormwind.jpg",
+            "alt": "Aria Stormwind in golden armor",
+            "source": "gallery"
+          }
+        },
+        "backFace": {
+          "stats": [
+            { "name": "Strength", "value": 85 },
+            { "name": "Magic", "value": 92 },
+            { "name": "Defense", "value": 78 }
+          ],
+          "badges": [
+            { "category": "Achievements", "icon": "trophy", "description": "Storm Caller", "quantity": 1 },
+            { "category": "Titles", "icon": "crown", "description": "Lightning Lord", "quantity": 1 }
+          ],
+          "attributes": [
+            { "name": "Element", "value": "Lightning" },
+            { "name": "Weapon", "value": "Stormbreaker" }
+          ]
+        }
+      },
+      "userPreferences": {
+        "autoSave": true,
+        "showIntroOnStartup": false,
+        "theme": "dark",
+        "defaultExportFormat": "png",
+        "exportQuality": "high"
+      }
+    }
+  ]
+}

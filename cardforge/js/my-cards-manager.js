@@ -55,7 +55,113 @@ class MyCardsManager {
   }
 
   addCard(cardData) {
-    const card = {
+    // Create card using new JSON schema format
+    const card = this.createNewSchemaCard(cardData);
+    
+    // For backward compatibility, also create old format data
+    const legacyCard = this.createLegacyCard(cardData);
+
+    // Check if card with same name already exists
+    const cardName = card.cardContent.frontFace.characterName || 'Untitled Card';
+    const existingIndex = this.cards.findIndex(c => {
+      // Handle both old and new format when checking for duplicates
+      const existingName = c.cardContent ? c.cardContent.frontFace.characterName : c.name;
+      return existingName === cardName;
+    });
+    
+    if (existingIndex !== -1) {
+      // Update existing card
+      card.metadata.modified = new Date().toISOString();
+      this.cards[existingIndex] = card;
+      console.log('📝 Updated existing card:', cardName);
+    } else {
+      // Add new card
+      this.cards.unshift(card); // Add to beginning of array
+      console.log('➕ Added new card:', cardName);
+    }
+
+    this.saveCardsToStorage();
+    this.applySearch(this.currentSearchQuery);
+    this.renderMyCards();
+    
+    return card;
+  }
+
+  /**
+   * Create a card using the new JSON schema format
+   */
+  createNewSchemaCard(cardData) {
+    const cardId = this.generateCardId();
+    const now = new Date().toISOString();
+    
+    return {
+      metadata: {
+        version: "2.0",
+        created: now,
+        modified: now,
+        cardId: cardId,
+        presetUsed: cardData.presetUsed || null,
+        isCustom: !cardData.presetUsed
+      },
+      
+      modularSystem: {
+        tier2_imageContainer: {
+          container: window.ModularState?.imageContainer || 'masked',
+          containerVariant: window.ModularState?.imageContainerVariant || 'circle',
+          imageEffect: window.ModularState?.imageEffect || 'none',
+          imageEffectVariant: window.ModularState?.imageEffectVariant || 'clean'
+        },
+        tier3_colorPalette: {
+          palette: window.ModularState?.palette || 'neon',
+          paletteVariant: window.ModularState?.paletteVariant || 'light',
+          textColor: window.ModularState?.textColor || 'auto'
+        },
+        tier4_contentAlignment: {
+          horizontalAlignment: window.ModularState?.horizontalAlignment || 'center',
+          verticalAlignment: window.ModularState?.verticalAlignment || 'middle',
+          alignmentWeight: window.ModularState?.alignmentWeight || 'balanced',
+          alignmentStyle: window.ModularState?.alignmentStyle || 'padded'
+        }
+      },
+      
+      cardContent: {
+        frontFace: {
+          characterName: cardData.name || 'Untitled Card',
+          characterClass: cardData.class || '',
+          characterRarity: cardData.rarity || 'common',
+          characterLevel: cardData.level || null,
+          characterDescription: cardData.quote || cardData.description || '',
+          characterImage: {
+            url: cardData.avatar || '/cardforge/images/default-avatar.jpg',
+            alt: cardData.name || 'Card character',
+            source: 'upload'
+          }
+        },
+        backFace: {
+          stats: this.collectStatsFromForm(),
+          socialLinks: this.collectSocialLinksFromForm(),
+          badges: this.collectBadgesFromForm(),
+          attributes: this.collectAttributesFromForm(),
+          backDescription: cardData.bio || '',
+          flavorText: cardData.flavorText || ''
+        }
+      },
+      
+      userPreferences: {
+        autoSave: true,
+        showIntroOnStartup: false,
+        theme: 'auto',
+        defaultExportFormat: 'png',
+        exportQuality: 'high'
+      }
+    };
+  }
+
+  /**
+   * Create legacy format card for backward compatibility
+   */
+  createLegacyCard(cardData) {
+    return {
       id: this.generateCardId(),
       name: cardData.name || 'Untitled Card',
       class: cardData.class || '',
@@ -65,24 +171,306 @@ class MyCardsManager {
       updatedAt: new Date().toISOString(),
       data: { ...cardData }
     };
+  }
 
-    // Check if card with same name already exists
-    const existingIndex = this.cards.findIndex(c => c.name === card.name);
-    if (existingIndex !== -1) {
-      // Update existing card
-      this.cards[existingIndex] = { ...this.cards[existingIndex], ...card, updatedAt: card.updatedAt };
-      console.log('📝 Updated existing card:', card.name);
-    } else {
-      // Add new card
-      this.cards.unshift(card); // Add to beginning of array
-      console.log('➕ Added new card:', card.name);
+  /**
+   * Collect stats data from the form
+   */
+  collectStatsFromForm() {
+    const stats = [];
+    const statsContainer = document.querySelector('#stats-editor .dynamic-rows');
+    if (statsContainer) {
+      const statRows = statsContainer.querySelectorAll('.dynamic-row');
+      statRows.forEach(row => {
+        const nameInput = row.querySelector('input[placeholder*="name"], input[placeholder*="Name"]');
+        const valueInput = row.querySelector('input[type="number"], input[placeholder*="value"], input[placeholder*="Value"]');
+        if (nameInput && valueInput && nameInput.value.trim()) {
+          stats.push({
+            name: nameInput.value.trim(),
+            value: parseInt(valueInput.value) || 0
+          });
+        }
+      });
+    }
+    return stats;
+  }
+
+  /**
+   * Collect social links data from the form
+   */
+  collectSocialLinksFromForm() {
+    const socialLinks = [];
+    const socialContainer = document.querySelector('#social-editor .dynamic-rows');
+    if (socialContainer) {
+      const socialRows = socialContainer.querySelectorAll('.dynamic-row');
+      socialRows.forEach(row => {
+        const platformSelect = row.querySelector('select');
+        const urlInput = row.querySelector('input[type="url"], input[placeholder*="URL"], input[placeholder*="url"]');
+        if (platformSelect && urlInput && urlInput.value.trim()) {
+          socialLinks.push({
+            platform: platformSelect.value,
+            url: urlInput.value.trim(),
+            displayName: ''
+          });
+        }
+      });
+    }
+    return socialLinks;
+  }
+
+  /**
+   * Collect badges data from the form
+   */
+  collectBadgesFromForm() {
+    const badges = [];
+    const badgesContainer = document.querySelector('#badges-editor .dynamic-rows');
+    if (badgesContainer) {
+      const badgeRows = badgesContainer.querySelectorAll('.dynamic-row');
+      badgeRows.forEach(row => {
+        const categoryInput = row.querySelector('input[placeholder*="category"], input[placeholder*="Category"]');
+        const iconInput = row.querySelector('input[placeholder*="icon"], input[placeholder*="Icon"]');
+        const descInput = row.querySelector('input[placeholder*="description"], input[placeholder*="Description"]');
+        const quantityInput = row.querySelector('input[type="number"]');
+        if (categoryInput && categoryInput.value.trim()) {
+          badges.push({
+            category: categoryInput.value.trim(),
+            icon: iconInput?.value.trim() || 'star',
+            description: descInput?.value.trim() || '',
+            quantity: parseInt(quantityInput?.value) || 1
+          });
+        }
+      });
+    }
+    return badges;
+  }
+
+  /**
+   * Collect attributes data from the form
+   */
+  collectAttributesFromForm() {
+    const attributes = [];
+    const attributesContainer = document.querySelector('#attributes-editor .dynamic-rows');
+    if (attributesContainer) {
+      const attributeRows = attributesContainer.querySelectorAll('.dynamic-row');
+      attributeRows.forEach(row => {
+        const nameInput = row.querySelector('input[placeholder*="name"], input[placeholder*="Name"]');
+        const valueInput = row.querySelector('input[placeholder*="value"], input[placeholder*="Value"]:not([type="number"])');
+        if (nameInput && valueInput && nameInput.value.trim()) {
+          attributes.push({
+            name: nameInput.value.trim(),
+            value: valueInput.value.trim()
+          });
+        }
+      });
+    }
+    return attributes;
+  }
+
+  /**
+   * Export card as JSON file (new schema format)
+   */
+  exportCardAsJSON(cardId) {
+    const card = this.cards.find(c => {
+      // Handle both old and new format IDs
+      return c.id === cardId || (c.metadata && c.metadata.cardId === cardId);
+    });
+    
+    if (!card) {
+      this.showMessage('Card not found for export', 'error');
+      return;
     }
 
-    this.saveCardsToStorage();
-    this.applySearch(this.currentSearchQuery);
-    this.renderMyCards();
+    // Ensure card is in new schema format
+    let exportCard = card;
+    if (!card.cardContent) {
+      // Convert old format to new format for export
+      exportCard = this.createNewSchemaCard(card.data || card);
+    }
+
+    // Create downloadable JSON file
+    const dataStr = JSON.stringify(exportCard, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
     
-    return card;
+    const exportFileDefaultName = `${exportCard.cardContent.frontFace.characterName || 'card'}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+    
+    this.showMessage(`Exported "${exportCard.cardContent.frontFace.characterName}" as JSON`, 'success');
+  }
+
+  /**
+   * Import card from JSON file
+   */
+  importCardFromJSON() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const cardData = JSON.parse(event.target.result);
+          
+          // Validate imported card data
+          if (this.validateImportedCard(cardData)) {
+            // Update metadata for import
+            if (cardData.metadata) {
+              cardData.metadata.cardId = this.generateCardId();
+              cardData.metadata.created = new Date().toISOString();
+              cardData.metadata.modified = new Date().toISOString();
+            }
+            
+            // Add imported card
+            this.cards.unshift(cardData);
+            this.saveCardsToStorage();
+            this.applySearch(this.currentSearchQuery);
+            this.renderMyCards();
+            
+            const cardName = cardData.cardContent?.frontFace?.characterName || cardData.name || 'Imported Card';
+            this.showMessage(`Imported "${cardName}" successfully`, 'success');
+          } else {
+            this.showMessage('Invalid card file format', 'error');
+          }
+        } catch (error) {
+          console.error('Error importing card:', error);
+          this.showMessage('Failed to import card: Invalid JSON format', 'error');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+
+  /**
+   * Validate imported card data
+   */
+  validateImportedCard(cardData) {
+    // Check for new schema format
+    if (cardData.cardContent && cardData.cardContent.frontFace) {
+      return cardData.cardContent.frontFace.characterName && 
+             cardData.modularSystem &&
+             cardData.metadata;
+    }
+    
+    // Check for old schema format (backward compatibility)
+    if (cardData.name || cardData.data) {
+      return true;
+    }
+    
+    return false;
+  }
+
+  /**
+   * Export all cards as JSON file
+   */
+  exportAllCardsAsJSON() {
+    if (this.cards.length === 0) {
+      this.showMessage('No cards to export', 'info');
+      return;
+    }
+
+    // Convert all cards to new schema format
+    const exportCards = this.cards.map(card => {
+      if (!card.cardContent) {
+        // Convert old format to new format
+        return this.createNewSchemaCard(card.data || card);
+      }
+      return card;
+    });
+
+    const exportData = {
+      metadata: {
+        exportVersion: "2.0",
+        exportDate: new Date().toISOString(),
+        cardCount: exportCards.length,
+        source: "CardForge V2"
+      },
+      cards: exportCards
+    };
+
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `cardforge-cards-${new Date().toISOString().split('T')[0]}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+    
+    this.showMessage(`Exported ${exportCards.length} cards as JSON`, 'success');
+  }
+
+  /**
+   * Import multiple cards from JSON file
+   */
+  importMultipleCardsFromJSON() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const importData = JSON.parse(event.target.result);
+          let cardsToImport = [];
+          
+          // Handle different import formats
+          if (importData.cards && Array.isArray(importData.cards)) {
+            // New export format with metadata wrapper
+            cardsToImport = importData.cards;
+          } else if (Array.isArray(importData)) {
+            // Direct array of cards
+            cardsToImport = importData;
+          } else if (importData.cardContent) {
+            // Single card format
+            cardsToImport = [importData];
+          } else {
+            this.showMessage('Invalid import file format', 'error');
+            return;
+          }
+          
+          let importedCount = 0;
+          cardsToImport.forEach(cardData => {
+            if (this.validateImportedCard(cardData)) {
+              // Update metadata for import
+              if (cardData.metadata) {
+                cardData.metadata.cardId = this.generateCardId();
+                cardData.metadata.created = new Date().toISOString();
+                cardData.metadata.modified = new Date().toISOString();
+              }
+              
+              this.cards.unshift(cardData);
+              importedCount++;
+            }
+          });
+          
+          if (importedCount > 0) {
+            this.saveCardsToStorage();
+            this.applySearch(this.currentSearchQuery);
+            this.renderMyCards();
+            this.showMessage(`Imported ${importedCount} cards successfully`, 'success');
+          } else {
+            this.showMessage('No valid cards found in import file', 'error');
+          }
+          
+        } catch (error) {
+          console.error('Error importing cards:', error);
+          this.showMessage('Failed to import cards: Invalid JSON format', 'error');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
   }
 
   removeCard(cardId) {

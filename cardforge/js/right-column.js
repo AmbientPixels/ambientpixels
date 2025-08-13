@@ -17,6 +17,7 @@ class RightColumn {
   init() {
     this.bindEvents();
     this.initializeZones();
+    this.initializeAutoSave();
     console.log('✅ Right Column initialized');
   }
 
@@ -55,23 +56,7 @@ class RightColumn {
   }
 
   bindToolButtons() {
-    // Save Card button
-    const saveBtn = document.getElementById('save-card-btn');
-    if (saveBtn) {
-      saveBtn.addEventListener('click', () => this.handleSaveCard());
-    }
-
-    // Duplicate Card button
-    const duplicateBtn = document.getElementById('duplicate-card-btn');
-    if (duplicateBtn) {
-      duplicateBtn.addEventListener('click', () => this.handleDuplicateCard());
-    }
-
-    // Reset Card button
-    const resetBtn = document.getElementById('reset-card-btn');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => this.handleResetCard());
-    }
+    // Forge tab buttons are handled by cardforge-forge-actions.js
   }
 
   bindMyCardsSearch() {
@@ -109,8 +94,6 @@ class RightColumn {
     });
   }
 
-
-
   toggleZone(zoneName) {
     if (!this.zoneStates.hasOwnProperty(zoneName)) return;
 
@@ -133,58 +116,7 @@ class RightColumn {
     console.log(`🔧 Zone "${zoneName}" ${isExpanded ? 'expanded' : 'collapsed'}`);
   }
 
-  // Tool Button Handlers
-  handleSaveCard() {
-    console.log('💾 Save card requested');
-    
-    try {
-      // Collect current form data
-      const cardData = this.collectCurrentCardData();
-      
-      if (!cardData.name || cardData.name.trim() === '') {
-        this.showToolMessage('Please enter a card name before saving', 'error');
-        return;
-      }
-      
-      // Dispatch event to My Cards Manager
-      document.dispatchEvent(new CustomEvent('cardforge:cardSaved', {
-        detail: cardData
-      }));
-      
-      this.showToolMessage(`Saved "${cardData.name}"`, 'success');
-      
-    } catch (error) {
-      console.error('Error saving card:', error);
-      this.showToolMessage('Error saving card', 'error');
-    }
-  }
 
-  handleDuplicateCard() {
-    console.log('📋 Duplicate card requested');
-    
-    // For now, show a placeholder message
-    this.showToolMessage('Duplicate functionality coming soon!', 'info');
-    
-    // Future integration point:
-    // if (window.CardForge && window.CardForge.duplicateCard) {
-    //   window.CardForge.duplicateCard();
-    // }
-  }
-
-  handleResetCard() {
-    console.log('🔄 Reset card requested');
-    
-    // Show confirmation dialog
-    if (confirm('Are you sure you want to reset the card? This will clear all current data.')) {
-      // TODO: Integrate with existing CardForge reset functionality
-      this.showToolMessage('Reset functionality coming soon!', 'info');
-      
-      // Future integration point:
-      // if (window.CardForge && window.CardForge.resetCard) {
-      //   window.CardForge.resetCard();
-      // }
-    }
-  }
 
   handleMyCardsSearch(query) {
     console.log('🔍 My Cards search:', query);

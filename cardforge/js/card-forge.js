@@ -256,27 +256,70 @@ function renderCards(container, cards) {
 }
 
 /**
- * Create a card element from card data
+ * Create a card element from card data (supports both old and new JSON schema)
  */
 function createCardElement(card) {
   const cardElement = document.createElement('div');
   cardElement.className = 'card';
+  
+  // Extract data from new JSON schema or fallback to old format
+  const cardData = extractCardDisplayData(card);
+  
   cardElement.innerHTML = `
     <div class="card-header">
-      <img src="${card.avatar || 'https://via.placeholder.com/50'}" alt="${card.name}" class="card-avatar">
-      <h3>${card.name || 'Unnamed Card'}</h3>
-      <span class="card-class">${card.class || 'No Class'}</span>
+      <img src="${cardData.avatar}" alt="${cardData.name}" class="card-avatar" onerror="this.src='https://via.placeholder.com/50'">
+      <h3>${cardData.name}</h3>
+      <span class="card-class">${cardData.class}</span>
+      ${cardData.rarity ? `<span class="card-rarity rarity-${cardData.rarity}">${cardData.rarity}</span>` : ''}
     </div>
     <div class="card-body">
-      <blockquote>${card.quote || 'No quote provided'}</blockquote>
-      ${card.achievement ? `<div class="achievement">🏆 ${card.achievement}</div>` : ''}
+      <blockquote>${cardData.description}</blockquote>
+      ${cardData.level ? `<div class="card-level">Level ${cardData.level}</div>` : ''}
+      ${cardData.palette ? `<div class="card-palette">Theme: ${cardData.palette}</div>` : ''}
     </div>
     <div class="card-actions">
-      <button onclick="editCard('${card.id}')" class="btn btn-edit">Edit</button>
-      <button onclick="deleteCard('${card.id}')" class="btn btn-delete">Delete</button>
+      <button onclick="editCard('${cardData.id}')" class="btn btn-edit">Edit</button>
+      <button onclick="deleteCard('${cardData.id}')" class="btn btn-delete">Delete</button>
     </div>
   `;
   return cardElement;
+}
+
+/**
+ * Extract display data from card object (supports both old and new JSON schema)
+ */
+function extractCardDisplayData(card) {
+  // Handle new JSON schema format
+  if (card.cardContent && card.cardContent.frontFace) {
+    const front = card.cardContent.frontFace;
+    const modular = card.modularSystem || {};
+    const meta = card.metadata || {};
+    
+    return {
+      id: meta.cardId || card.id || 'unknown',
+      name: front.characterName || 'Unnamed Card',
+      class: front.characterClass || 'No Class',
+      rarity: front.characterRarity || null,
+      level: front.characterLevel || null,
+      description: front.characterDescription || 'No description provided',
+      avatar: front.characterImage?.url || 'https://via.placeholder.com/50',
+      palette: modular.tier3_colorPalette?.palette || null,
+      container: modular.tier2_imageContainer?.container || null
+    };
+  }
+  
+  // Handle old format (backward compatibility)
+  return {
+    id: card.id || 'unknown',
+    name: card.name || 'Unnamed Card',
+    class: card.class || 'No Class',
+    rarity: card.rarity || null,
+    level: card.level || null,
+    description: card.quote || card.description || 'No description provided',
+    avatar: card.avatar || 'https://via.placeholder.com/50',
+    palette: null,
+    container: null
+  };
 }
 
 // Load and render published gallery cards
@@ -313,38 +356,100 @@ function renderUserCards(container, cards) {
     return;
   }
   cards.forEach(card => {
+    // Extract display data using the same function as gallery cards
+    const cardData = extractCardDisplayData(card);
+    
     const li = document.createElement('li');
     li.className = 'cardforge-list-item';
     li.innerHTML = `
-      <span class="card-list-title">${ValidationUtils.sanitizeString(card.name)}</span>
+      <span class="card-list-title">${ValidationUtils.sanitizeString(cardData.name)}</span>
+      ${cardData.class ? `<span class="card-list-class">${cardData.class}</span>` : ''}
+      ${cardData.rarity ? `<span class="card-list-rarity rarity-${cardData.rarity}">${cardData.rarity}</span>` : ''}
       <div class="card-list-actions">
         <button class="btn btn-edit"><i class="fas fa-edit"></i></button>
         <button class="btn btn-delete"><i class="fas fa-trash"></i></button>
       </div>
     `;
     const editBtn = li.querySelector('.btn-edit');
-    editBtn.addEventListener('click', () => editCard(card.id));
+    editBtn.addEventListener('click', () => editCard(cardData.id));
     const delBtn = li.querySelector('.btn-delete');
-    delBtn.addEventListener('click', () => deleteCard(card.id));
+    delBtn.addEventListener('click', () => deleteCard(cardData.id));
     container.appendChild(li);
   });
 }
 
 /** Load a card into the editor form for editing */
 function editCard(id) {
-  const card = window._userCards?.find(c => c.id === id);
+  const card = window._userCards?.find(c => {
+    // Handle both old format (c.id) and new format (c.metadata.cardId)
+    return c.id === id || (c.metadata && c.metadata.cardId === id);
+  });
   if (!card) return;
-  document.getElementById('card-id').value = card.id;
-  document.getElementById('card-name').value = card.name;
-  document.getElementById('card-class').value = card.class;
-  document.getElementById('card-quote').value = card.quote;
-  document.getElementById('card-avatar').value = card.avatar;
-  document.getElementById('card-achievement').value = card.achievement || '';
-  document.getElementById('card-template-type').value = card.templateType;
-  // updatePreview(); // Removed - handled by card-forge-editor.js
+  
+  // Load card data into editor using new JSON schema-aware function
+  loadCardIntoEditor(card);
+  
   const saveBtn = document.getElementById('save-btn'); if (saveBtn) saveBtn.disabled = false;
   const publishBtn = document.getElementById('publish-btn'); if (publishBtn) publishBtn.disabled = false;
-  // No automatic scrolling
+}
+
+/**
+ * Load card data into the editor form (supports both old and new JSON schema)
+ */
+function loadCardIntoEditor(card) {
+  // Handle new JSON schema format
+  if (card.cardContent && card.cardContent.frontFace) {
+    const front = card.cardContent.frontFace;
+    const back = card.cardContent.backFace || {};
+    const modular = card.modularSystem || {};
+    const meta = card.metadata || {};
+    
+    // Basic card info
+    document.getElementById('card-id').value = meta.cardId || card.id || '';
+    document.getElementById('card-name').value = front.characterName || '';
+    document.getElementById('card-class').value = front.characterClass || '';
+    document.getElementById('card-quote').value = front.characterDescription || '';
+    document.getElementById('card-avatar').value = front.characterImage?.url || '';
+    
+    // Load modular system settings if available
+    if (window.ModularState && modular.tier2_imageContainer) {
+      window.ModularState.imageContainer = modular.tier2_imageContainer.container || 'masked';
+      window.ModularState.imageContainerVariant = modular.tier2_imageContainer.containerVariant || 'circle';
+      window.ModularState.imageEffect = modular.tier2_imageContainer.imageEffect || 'none';
+      window.ModularState.imageEffectVariant = modular.tier2_imageContainer.imageEffectVariant || 'clean';
+    }
+    
+    if (window.ModularState && modular.tier3_colorPalette) {
+      window.ModularState.palette = modular.tier3_colorPalette.palette || 'neon';
+      window.ModularState.paletteVariant = modular.tier3_colorPalette.paletteVariant || 'light';
+      window.ModularState.textColor = modular.tier3_colorPalette.textColor || 'auto';
+    }
+    
+    if (window.ModularState && modular.tier4_contentAlignment) {
+      window.ModularState.horizontalAlignment = modular.tier4_contentAlignment.horizontalAlignment || 'center';
+      window.ModularState.verticalAlignment = modular.tier4_contentAlignment.verticalAlignment || 'middle';
+      window.ModularState.alignmentWeight = modular.tier4_contentAlignment.alignmentWeight || 'balanced';
+      window.ModularState.alignmentStyle = modular.tier4_contentAlignment.alignmentStyle || 'padded';
+    }
+    
+    // Update UI elements if the function exists
+    if (typeof updateUIFromState === 'function') {
+      updateUIFromState();
+    }
+    
+    return;
+  }
+  
+  // Handle old format (backward compatibility)
+  document.getElementById('card-id').value = card.id || '';
+  document.getElementById('card-name').value = card.name || '';
+  document.getElementById('card-class').value = card.class || '';
+  document.getElementById('card-quote').value = card.quote || '';
+  document.getElementById('card-avatar').value = card.avatar || '';
+  document.getElementById('card-achievement').value = card.achievement || '';
+  if (document.getElementById('card-template-type')) {
+    document.getElementById('card-template-type').value = card.templateType || '';
+  }
 }
 
 /** Delete a user card */
