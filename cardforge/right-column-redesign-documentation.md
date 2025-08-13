@@ -449,7 +449,7 @@ function createCardElement(card) {
   // Add event listeners
   cardElement.querySelector('.load-card-btn').addEventListener('click', () => loadCard(card.id));
   cardElement.querySelector('.duplicate-card-btn').addEventListener('click', () => duplicateCard(card.id));
-  cardElement.querySelector('.delete-card-btn').addEventListener('click', () => deleteCard(card.id));
+  // Delete functionality handled by global deleteCard function
   
   return cardElement;
 }

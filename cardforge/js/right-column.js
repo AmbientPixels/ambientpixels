@@ -178,10 +178,7 @@ class RightColumn {
     // TODO: Add card to My Cards list
   }
 
-  removeMyCard(cardId) {
-    console.log('🗑️ Removing My Card:', cardId);
-    // TODO: Remove card from My Cards list
-  }
+
 
   refreshMyCards() {
     console.log('🔄 Refreshing My Cards list');

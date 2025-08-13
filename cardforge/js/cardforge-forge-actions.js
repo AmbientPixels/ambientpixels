@@ -570,7 +570,7 @@ class CardForgeActions {
               <button class="card-action-btn publish" onclick="cardForgeActions.publishCard('${card.id}')" title="Publish Card">
                 <i class="fas fa-share"></i>
               </button>
-              <button class="card-action-btn delete" onclick="cardForgeActions.deleteCard('${card.id}')" title="Delete Card">
+              <button class="card-action-btn delete" onclick="window.deleteCard('${card.id}')" title="Delete Card" type="button">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
@@ -633,9 +633,10 @@ class CardForgeActions {
 
       // Save the duplicate
       savedCards.push(duplicateCard);
-      localStorage.setItem('cardforge-saved-cards', JSON.stringify(savedCards));
+      localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
       
       this.refreshMyCardsList();
+      this.publishCard(duplicateCard.id);
       this.showNotification(`Card duplicated as "${duplicateCard.name}"`, 'success');
     } catch (error) {
       console.error('Error duplicating card:', error);
@@ -643,36 +644,10 @@ class CardForgeActions {
     }
   }
 
-  deleteCard(cardId) {
-    console.log(`🗑️ Deleting card: ${cardId}`);
-    
-    if (!confirm('Are you sure you want to delete this card? This action cannot be undone.')) {
-      return;
-    }
 
-    try {
-      const savedCards = this.getSavedCards();
-      const cardIndex = savedCards.findIndex(c => c.id === cardId);
-      
-      if (cardIndex === -1) {
-        this.showNotification('Card not found', 'error');
-        return;
-      }
-
-      const cardName = savedCards[cardIndex].name;
-      savedCards.splice(cardIndex, 1);
-      localStorage.setItem('cardforge-saved-cards', JSON.stringify(savedCards));
-      
-      this.refreshMyCardsList();
-      this.showNotification(`Card "${cardName}" deleted`, 'success');
-    } catch (error) {
-      console.error('Error deleting card:', error);
-      this.showNotification('Failed to delete card', 'error');
-    }
-  }
 
   publishCard(cardId) {
-    console.log(`🚀 Publishing card: ${cardId}`);
+    console.log(`📤 Publishing card: ${cardId}`);
     const savedCards = this.getSavedCards();
     const card = savedCards.find(c => c.id === cardId);
     
@@ -689,7 +664,7 @@ class CardForgeActions {
         // Mark card as published
         card.published = true;
         card.publishedAt = new Date().toISOString();
-        localStorage.setItem('cardforge-saved-cards', JSON.stringify(savedCards));
+        localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
         
         this.refreshMyCardsList();
         this.showNotification(`Card "${card.name}" published successfully`, 'success');

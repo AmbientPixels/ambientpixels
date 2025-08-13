@@ -13,7 +13,7 @@ The Forge tab is the publishing and collection management interface for CardForg
 
 ### Existing Components
 - **Azure Blob Storage Integration**: Configured API endpoints for card operations
-- **API Endpoints**: `saveCard`, `loadCards`, `deleteCard`, `publish`, `template`
+- **API Endpoints**: `saveCard`, `loadCards`, `publish`, `template`
 - **Authentication**: CSRF protection and anonymous access support
 - **Validation**: Form validation utilities and error handling
 - **UI Framework**: Existing CardForge theme and component system
@@ -171,7 +171,6 @@ class ForgeManager {
   // Personal Collection Methods
   async saveCurrentCard() { }
   async loadPersonalCards() { }
-  async deleteCard(cardId) { }
   async duplicateCard(cardId) { }
   
   // Publishing Methods

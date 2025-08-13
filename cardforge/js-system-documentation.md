@@ -208,7 +208,7 @@ const ModularState = {
 | `renderCards()` | 232-255 | Render cards to DOM |
 | `loadGallery()` | 281-300 | Load published gallery cards |
 | `editCard()` | 332-347 | Load card for editing |
-| `deleteCard()` | 349-376 | Delete user card |
+
 
 ### **cardforge-layout.js** (~150 lines)
 **Purpose:** Layout utilities and responsive design helpers
