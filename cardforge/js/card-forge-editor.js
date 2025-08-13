@@ -2240,12 +2240,9 @@
       const iconClass = iconMap[social.platform] || 'fas fa-link';
       const platformName = social.platform.charAt(0).toUpperCase() + social.platform.slice(1);
       return `
-        <div class="social-item">
-          <div class="social-icon-circle">
-            <i class="${iconClass}"></i>
-          </div>
-          <span class="social-platform">${platformName}</span>
-        </div>
+        <a href="${social.url}" target="_blank" rel="noopener noreferrer" class="social-link" title="Visit ${platformName}">
+          <i class="${iconClass}"></i>
+        </a>
       `;
     }).join('');
   }
