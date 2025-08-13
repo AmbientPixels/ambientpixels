@@ -78,7 +78,19 @@
   <section class="cardforge-container split-pane" id="cardforge-main-container">
   <div class="cf-left-column form-pane">
       <div class="cardforge-editor">
-      <h2>Card Details</h2>
+      <div class="panel-header">
+        <div class="header-top">
+          <h2><i class="fas fa-magic"></i> Card Details</h2>
+          <div class="header-buttons">
+            <button class="settings-btn" onclick="showInfoPopup()" title="Info & Help">
+              <i class="fas fa-info-circle"></i>
+            </button>
+            <button class="settings-btn" onclick="openSettings()" title="Settings">
+              <i class="fas fa-cog"></i>
+            </button>
+          </div>
+        </div>
+      </div>
       <nav class="cf-stepper">
         <button data-step="1" class="step-btn active">Card Design</button>
         <button data-step="2" class="step-btn">Basics</button>
@@ -1071,6 +1083,7 @@
   <!-- === Application Insights (Production Only) === -->
   <script src="https://js.monitor.azure.com/scripts/b/ai.2.min.js" crossorigin="anonymous"></script>
   <script src="/cardforge/js/cardforge-layout.js" defer></script>
+  <script src="js/cardforge-modals.js" defer></script>
   <script src="/cardforge/js/app-insights.js"></script>
 
   <!-- Confirmation Dialog -->
