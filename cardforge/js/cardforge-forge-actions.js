@@ -25,6 +25,7 @@ class CardForgeActions {
     this.bindForgeTabNavigation();
     this.refreshMyCardsList();
     this.refreshDeckList();
+    this.bindToolbarActions();
     this.initialized = true;
   }
 
@@ -89,37 +90,36 @@ class CardForgeActions {
     }, 0);
   }
 
+  // updated by Cascade: Unify Save/Duplicate/Reset event binding for all UIs per Windsurf Protocol
   bindForgeButtons() {
     console.log('🔗 Binding Forge tab buttons...');
     
-    // Save Card Button - prevent duplicate bindings
-    const saveBtn = document.getElementById('save-card-btn');
-    if (saveBtn && !saveBtn.dataset.forgeActionsBound) {
-      // Mark as bound to prevent duplicates
-      saveBtn.dataset.forgeActionsBound = 'true';
-      
-      saveBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        // Prevent rapid clicks
-        if (saveBtn.dataset.saving === 'true') {
-          console.log('Already saving, ignoring click');
-          return;
-        }
-        
-        saveBtn.dataset.saving = 'true';
-        setTimeout(() => {
-          saveBtn.dataset.saving = 'false';
-        }, 2000);
-        
-        this.handleSaveCard();
-      });
-      
-      console.log('✅ Save Card button bound (single handler)');
-    } else if (saveBtn) {
-      console.log('⚠️ Save Card button already bound, skipping');
-    }
+    // Save Card Buttons (Forge tab and Toolbar) - prevent duplicate bindings
+    const saveBtns = [
+      document.getElementById('save-card-btn'),
+      document.getElementById('toolbar-save-btn')
+    ].filter(Boolean);
+    saveBtns.forEach(btn => {
+      if (!btn.dataset.forgeActionsBound) {
+        btn.dataset.forgeActionsBound = 'true';
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (btn.dataset.saving === 'true') {
+            console.log('Already saving, ignoring click');
+            return;
+          }
+          btn.dataset.saving = 'true';
+          setTimeout(() => {
+            btn.dataset.saving = 'false';
+          }, 2000);
+          this.handleSaveCard();
+        });
+        console.log('✅ Save Card button bound (single handler)', btn.id);
+      } else {
+        console.log('⚠️ Save Card button already bound, skipping', btn.id);
+      }
+    });
 
     // Duplicate Card button
     const duplicateBtn = document.getElementById('duplicate-card-btn');
@@ -211,6 +211,12 @@ class CardForgeActions {
       
       // Update My Cards list if visible
       this.refreshMyCardsList();
+      
+      // Show mini-gallery modal after save
+      setTimeout(() => {
+        if (typeof showSavedCardsModal === 'function') showSavedCardsModal();
+        else if (window.showSavedCardsModal) window.showSavedCardsModal();
+      }, 250);
       
     } catch (error) {
       console.error('Error saving card:', error);
@@ -777,6 +783,114 @@ class CardForgeActions {
 
 // Initialize CardForge Actions
 const cardForgeActions = new CardForgeActions();
+
+// Minimal Toolbar Integration
+CardForgeActions.prototype.bindToolbarActions = function() {
+  // All Save/Duplicate/Reset buttons are now bound in bindForgeButtons()
+  // This function is retained for protocol traceability but does nothing.
+}; // Windsurf Protocol: legacy toolbar binding stub only
+
+
+// Windsurf Protocol: SINGLE SOURCE OF TRUTH for Forge/Toolbar button bindings
+CardForgeActions.prototype.bindForgeButtons = function() {
+  const saveBtns = [
+    document.getElementById('save-card-btn'),
+    document.getElementById('toolbar-save-btn')
+  ].filter(Boolean);
+  saveBtns.forEach(btn => {
+    if (!btn.dataset.forgeActionsBound) {
+      btn.dataset.forgeActionsBound = 'true';
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (btn.dataset.saving === 'true') {
+          console.log('Already saving, ignoring click');
+          return;
+        }
+        btn.dataset.saving = 'true';
+        setTimeout(() => {
+          btn.dataset.saving = 'false';
+        }, 2000);
+        this.handleSaveCard();
+      });
+      console.log('✅ Save Card button bound (single handler)', btn.id);
+    } else {
+      console.log('⚠️ Save Card button already bound, skipping', btn.id);
+    }
+  });
+
+  const duplicateBtn = document.getElementById('duplicate-card-btn');
+  if (duplicateBtn && !duplicateBtn.dataset.forgeActionsBound) {
+    duplicateBtn.dataset.forgeActionsBound = 'true';
+    duplicateBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.handleDuplicateCard();
+    });
+  }
+
+  const resetBtn = document.getElementById('reset-card-btn');
+  if (resetBtn && !resetBtn.dataset.forgeActionsBound) {
+    resetBtn.dataset.forgeActionsBound = 'true';
+    resetBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.handleResetCard();
+    });
+  }
+};
+
+function showSavedCardsModal() {
+  // Fetch saved cards from localStorage
+  let savedCards = [];
+  try {
+    savedCards = JSON.parse(localStorage.getItem('cardforge_saved_cards')) || [];
+  } catch { savedCards = []; }
+  if (!savedCards.length) return;
+  // Show up to 6 recent cards
+  const recent = savedCards.slice(0, 6);
+  const latestId = recent[0].id;
+  let gallery = '<div class="mini-card-gallery">';
+  recent.forEach(card => {
+    gallery += `<div class="mini-card${card.id===latestId?' saved':''}">
+      <img src="${card.cardData.avatar||'/cardforge/images/default-avatar.jpg'}" alt="${card.name}" />
+      <div class="mini-card-name">${card.name||'Untitled'}</div>
+      ${card.id===latestId ? '<span class="saved-badge"><i class="fas fa-check"></i></span>' : ''}
+    </div>`;
+  });
+  gallery += '</div>';
+  const modalHtml = `<div class="modal-saved-gallery">
+    <h3><i class="fas fa-check-circle"></i> Card Saved!</h3>
+    ${gallery}
+    <div class="modal-actions">
+      <button onclick="window.location.hash='#forge-my-cards'">Go to My Cards</button>
+      <button onclick="document.querySelector('.modal-saved-gallery').parentNode.remove()">Close</button>
+    </div>
+  </div>`;
+  // Remove any existing modal
+  document.querySelectorAll('.modal-saved-gallery').forEach(m => m.parentNode.removeChild(m));
+  // Create modal overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = modalHtml;
+  overlay.style.position = 'fixed';
+  overlay.style.top = 0;
+  overlay.style.left = 0;
+  overlay.style.width = '100vw';
+  overlay.style.height = '100vh';
+  overlay.style.zIndex = 5000;
+  overlay.style.background = 'rgba(18,22,34,0.82)';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  // Windsurf Protocol: Force modal visible
+  overlay.style.opacity = '1';
+  overlay.style.visibility = 'visible';
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) overlay.remove();
+  });
+  document.body.appendChild(overlay);
+}
+window.showSavedCardsModal = showSavedCardsModal;
+
 
 // Initialize when DOM is ready with multiple fallbacks
 function initializeForgeActions() {

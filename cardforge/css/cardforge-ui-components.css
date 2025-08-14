@@ -406,6 +406,137 @@
   align-items: flex-start;
 }
 
+/* Saved Cards Modal Mini Gallery */
+.modal-overlay {
+  backdrop-filter: blur(2px);
+}
+.modal-saved-gallery {
+  background: var(--aura-bg-color, #18182a);
+  border-radius: 18px;
+  padding: 2.2rem 2.2rem 1.5rem 2.2rem;
+  min-width: 320px;
+  max-width: 96vw;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.38);
+  text-align: center;
+  color: var(--mood-text-primary, #e1e1ff);
+  position: relative;
+}
+.mini-card-gallery {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  justify-content: center;
+  margin: 1.25rem 0 1.5rem 0;
+}
+.mini-card {
+  background: var(--aura-bg-secondary, #23234a);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  width: 60px;
+  min-width: 60px;
+  height: 84px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+  position: relative;
+  transition: border 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+}
+.mini-card img {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 7px;
+  margin-top: 8px;
+  margin-bottom: 2px;
+}
+.mini-card .mini-card-name {
+  font-size: 0.7rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+  margin-bottom: 7px;
+  max-width: 54px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mini-card.saved {
+  border: 2px solid var(--mood-primary-color, #00d4ff);
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.12);
+}
+.saved-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: var(--mood-primary-color, #00d4ff);
+  color: #fff;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1em;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+.modal-saved-gallery h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: var(--mood-primary-color, #00d4ff);
+}
+.modal-saved-gallery .modal-actions {
+  margin-top: 1.2rem;
+  display: flex;
+  gap: 1.2rem;
+  justify-content: center;
+}
+.modal-saved-gallery .modal-actions button {
+  background: var(--aura-bg-hover, #23234a);
+  color: var(--mood-primary-color, #00d4ff);
+  border: none;
+  border-radius: 7px;
+  padding: 0.55rem 1.3rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+.modal-saved-gallery .modal-actions button:hover {
+  background: var(--mood-primary-color, #00d4ff);
+  color: #fff;
+}
+
+/* Minimal Card Toolbar (above preview) */
+.card-toolbar-minimal {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  background: transparent;
+  padding: 0.15rem 0.5rem 0.15rem 0;
+  margin-bottom: 0.1rem;
+  border-radius: 8px;
+  min-height: 32px;
+}
+.toolbar-btn {
+  background: none;
+  border: none;
+  color: var(--mood-text-secondary, #a0a0c0);
+  font-size: 1.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+.toolbar-btn:focus, .toolbar-btn:hover {
+  background: var(--aura-bg-hover, #23234a);
+  color: var(--mood-primary-color, #00d4ff);
+  box-shadow: 0 0 0 2px var(--mood-primary-color, #00d4ff, 0.2);
+  z-index: 1;
+}
+
 /* Card Preview Container */
 #card-preview-container {
   position: sticky;
