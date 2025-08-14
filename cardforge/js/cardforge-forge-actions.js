@@ -223,48 +223,14 @@ class CardForgeActions {
       this.showNotification('Error saving card', 'error');
     }
   }
-
-  // ===================
-  // DUPLICATE CARD
-  // ===================
   
-  handleDuplicateCard() {
-    console.log('📋 Duplicate card requested');
-    
-    try {
-      const cardData = this.collectCardData();
-      
-      if (!cardData.name || cardData.name.trim() === '') {
-        this.showNotification('Please enter a card name before duplicating', 'error');
-        return;
-      }
-
-      // Create duplicate with modified name
-      const duplicateName = `${cardData.name} (Copy)`;
-      const duplicateData = {
-        ...cardData,
-        name: duplicateName,
-        id: this.generateCardId()
-      };
-
-      // Load duplicate data into form
-      this.loadCardIntoForm(duplicateData);
-      
-      this.showNotification(`Card duplicated as "${duplicateName}"`, 'success');
-      
-      // Switch to Card Design tab
-      this.switchToDesignTab();
-      
-    } catch (error) {
-      console.error('Error duplicating card:', error);
-      this.showNotification('Error duplicating card', 'error');
-    }
+  if (!confirm('Are you sure you want to reset the card? This will clear all current data and cannot be undone.')) {
+    return;
   }
 
-  // ===================
-  // RESET CARD
-  // ===================
-  
+  try {
+    // Reset all form fields
+    this.resetAllFormFields();
   handleResetCard() {
     console.log('🔄 Reset card requested');
     
@@ -680,39 +646,6 @@ class CardForgeActions {
     }
   }
 
-  duplicateCard(cardId) {
-    console.log(`📋 Duplicating card: ${cardId}`);
-    const savedCards = this.getSavedCards();
-    const card = savedCards.find(c => c.id === cardId);
-    
-    if (!card) {
-      this.showNotification('Card not found', 'error');
-      return;
-    }
-
-    try {
-      // Create duplicate with new ID and name
-      const duplicateCard = {
-        ...card,
-        id: this.generateCardId(),
-        name: `${card.name} (Copy)`,
-        savedAt: new Date().toISOString()
-      };
-
-      // Save the duplicate
-      savedCards.push(duplicateCard);
-      localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
-      
-      this.refreshMyCardsList();
-      this.publishCard(duplicateCard.id);
-      this.showNotification(`Card duplicated as "${duplicateCard.name}"`, 'success');
-    } catch (error) {
-      console.error('Error duplicating card:', error);
-      this.showNotification('Failed to duplicate card', 'error');
-    }
-  }
-
-
 
   publishCard(cardId) {
     console.log(`📤 Publishing card: ${cardId}`);
@@ -819,14 +752,6 @@ CardForgeActions.prototype.bindForgeButtons = function() {
     }
   });
 
-  const duplicateBtn = document.getElementById('duplicate-card-btn');
-  if (duplicateBtn && !duplicateBtn.dataset.forgeActionsBound) {
-    duplicateBtn.dataset.forgeActionsBound = 'true';
-    duplicateBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      this.handleDuplicateCard();
-    });
-  }
 
   const resetBtn = document.getElementById('reset-card-btn');
   if (resetBtn && !resetBtn.dataset.forgeActionsBound) {
