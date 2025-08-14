@@ -747,14 +747,14 @@ class CardForgeActions {
 const cardForgeActions = new CardForgeActions();
 
 // Minimal Toolbar Integration
-CardForgeActions.prototype.bindToolbarActions = function() {
-  // All Save/Duplicate/Reset buttons are now bound in bindForgeButtons()
-  // This function is retained for protocol traceability but does nothing.
-}; // Windsurf Protocol: legacy toolbar binding stub only
-
+// REMOVED: Legacy prototype-based bindToolbarActions (all button bindings unified below)
 
 // Windsurf Protocol: SINGLE SOURCE OF TRUTH for Forge/Toolbar button bindings
+// Only keep the class-based bindForgeButtons
+// This function binds Save, Reset, and Clear All for both Forge tab and toolbar, and ensures only one handler per button.
+// Windsurf Protocol: SINGLE SOURCE OF TRUTH for all Save/Reset/Clear All button bindings
 CardForgeActions.prototype.bindForgeButtons = function() {
+  // Save Card Buttons (Forge tab and Toolbar) - prevent duplicate bindings
   const saveBtns = [
     document.getElementById('save-card-btn'),
     document.getElementById('toolbar-save-btn')
@@ -781,16 +781,62 @@ CardForgeActions.prototype.bindForgeButtons = function() {
     }
   });
 
+  // Reset Card Buttons (Forge tab and Toolbar)
+  const resetBtns = [
+    document.getElementById('reset-card-btn'),
+    document.getElementById('toolbar-reset-btn')
+  ].filter(Boolean);
+  resetBtns.forEach(btn => {
+    if (!btn.dataset.forgeActionsBound) {
+      btn.dataset.forgeActionsBound = 'true';
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        // Use CardForge modal confirmation, not native confirm
+        if (typeof showConfirmDialog === 'function') {
+          showConfirmDialog(
+            'Reset Card',
+            'Are you sure you want to reset the card? This will clear all current data and cannot be undone.',
+            () => this.handleResetCard()
+          );
+        } else {
+          // Fallback (should not happen)
+          if (confirm('Are you sure you want to reset the card? This will clear all current data and cannot be undone.')) {
+            this.handleResetCard();
+          }
+        }
+      });
+      console.log('✅ Reset Card button bound (single handler)', btn.id);
+    }
+  });
 
-  const resetBtn = document.getElementById('reset-card-btn');
-  if (resetBtn && !resetBtn.dataset.forgeActionsBound) {
-    resetBtn.dataset.forgeActionsBound = 'true';
-    resetBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      this.handleResetCard();
-    });
-  }
+  // Clear All Buttons (Forge tab and Toolbar)
+  const clearBtns = [
+    document.getElementById('clear-all-btn'),
+    document.getElementById('toolbar-clear-btn')
+  ].filter(Boolean);
+  clearBtns.forEach(btn => {
+    if (!btn.dataset.forgeActionsBound) {
+      btn.dataset.forgeActionsBound = 'true';
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        // Use CardForge modal confirmation, not native confirm
+        if (typeof showConfirmDialog === 'function') {
+          showConfirmDialog(
+            'Clear All Fields',
+            'Are you sure you want to clear all fields? This will blank out the entire card and cannot be undone.',
+            () => this.handleClearAll()
+          );
+        } else {
+          if (confirm('Are you sure you want to clear all fields? This will blank out the entire card and cannot be undone.')) {
+            this.handleClearAll();
+          }
+        }
+      });
+      console.log('✅ Clear All button bound (single handler)', btn.id);
+    }
+  });
 };
+
 
 function showSavedCardsModal() {
   // Fetch saved cards from localStorage
