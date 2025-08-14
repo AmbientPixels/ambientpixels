@@ -4,6 +4,143 @@
  * Created: 2025-08-03
  */
 
+/* =============================
+   Forge Tab Vertical Sidebar Layout
+   =============================
+   Added by Cascade 2025-08-07
+*/
+
+.forge-layout {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 2.5rem;
+  width: 100%;
+  min-height: 420px;
+}
+
+.forge-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 170px;
+  max-width: 220px;
+  background: var(--aura-bg-color, #18182a);
+  border-radius: 14px;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+  padding: 1.25rem 0.5rem 1.25rem 0.5rem;
+  box-sizing: border-box;
+}
+
+.forge-sidebar-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.2rem;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  color: var(--mood-text-primary, #e1e1ff);
+  font-size: 1rem;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  position: relative;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+}
+.forge-sidebar-tab:focus {
+  box-shadow: 0 0 0 2px var(--mood-primary-color, #00d4ff);
+  background: var(--aura-bg-hover, #23234a);
+  z-index: 1;
+}
+.forge-sidebar-tab.active,
+.forge-sidebar-tab[aria-selected="true"] {
+  background: var(--aura-bg-hover, #23234a);
+  color: var(--mood-primary-color, #00d4ff);
+  font-weight: 600;
+}
+.forge-sidebar-tab:hover:not(.active) {
+  background: var(--aura-bg-hover, #23234a);
+  color: var(--mood-primary-color, #00d4ff);
+}
+.forge-sidebar-tab .tab-label {
+  flex: 1;
+  text-align: left;
+}
+.forge-sidebar-tab .tab-badge {
+  background: var(--mood-accent-color, #4a4a6a);
+  color: #fff;
+  border-radius: 10px;
+  padding: 2px 9px;
+  font-size: 0.85em;
+  font-weight: 700;
+  margin-left: 0.5rem;
+  display: inline-block;
+  min-width: 28px;
+  text-align: center;
+}
+
+.forge-content-area {
+  flex: 1 1 0;
+  min-width: 0;
+  background: var(--aura-bg-secondary, #23234a);
+  border-radius: 14px;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+  padding: 2rem 2rem 2rem 2.2rem;
+  box-sizing: border-box;
+  overflow-x: auto;
+}
+
+.forge-tab-content {
+  display: none;
+}
+.forge-tab-content.active {
+  display: block;
+}
+
+/* Responsive behavior for Forge sidebar layout */
+@media (max-width: 1050px) {
+  .forge-layout {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .forge-sidebar-nav {
+    flex-direction: row;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+    padding: 0.5rem 0.5rem;
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    overflow-x: auto;
+  }
+  .forge-sidebar-tab {
+    flex: 1 1 0;
+    min-width: 120px;
+    justify-content: center;
+    font-size: 0.97rem;
+    padding: 0.7rem 0.5rem;
+  }
+  .forge-content-area {
+    padding: 1.3rem 0.7rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .forge-layout {
+    gap: 0.5rem;
+  }
+  .forge-content-area {
+    padding: 0.7rem 0.2rem;
+    border-radius: 8px;
+  }
+}
+
+/* End Forge Tab Vertical Sidebar Layout */
+
+
 /* Stepper Tabs */
 .cf-stepper {
   display: flex;

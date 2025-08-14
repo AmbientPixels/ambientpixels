@@ -32,16 +32,23 @@ class CardForgeActions {
    * Bind Forge sub-tab navigation (Quick Actions, My Cards, Deck Manager)
    */
   bindForgeTabNavigation() {
-    const tabButtons = document.querySelectorAll('.forge-sub-btn');
+    const tabButtons = document.querySelectorAll('.forge-sidebar-tab');
     const tabContents = document.querySelectorAll('.forge-tab-content');
 
-    tabButtons.forEach(btn => {
+    tabButtons.forEach((btn, idx) => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
-        // Remove active from all buttons
-        tabButtons.forEach(b => b.classList.remove('active'));
-        // Add active to clicked button
+        // Remove active/aria-selected from all buttons
+        tabButtons.forEach((b, i) => {
+          b.classList.remove('active');
+          b.setAttribute('aria-selected', 'false');
+          b.setAttribute('tabindex', '-1');
+        });
+        // Add active/aria-selected to clicked button
         btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
+        btn.setAttribute('tabindex', '0');
+        btn.focus();
         // Show matching content, hide others
         const target = btn.getAttribute('data-forge-tab');
         tabContents.forEach(content => {
@@ -54,10 +61,30 @@ class CardForgeActions {
           }
         });
       });
+      // Keyboard navigation (arrow keys, Home/End)
+      btn.addEventListener('keydown', (e) => {
+        let newIdx = idx;
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+          newIdx = (idx + 1) % tabButtons.length;
+          e.preventDefault();
+        } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+          newIdx = (idx - 1 + tabButtons.length) % tabButtons.length;
+          e.preventDefault();
+        } else if (e.key === 'Home') {
+          newIdx = 0;
+          e.preventDefault();
+        } else if (e.key === 'End') {
+          newIdx = tabButtons.length - 1;
+          e.preventDefault();
+        }
+        if (newIdx !== idx) {
+          tabButtons[newIdx].click();
+        }
+      });
     });
     // On load, ensure only the active tab's content is visible
     setTimeout(() => {
-      const activeBtn = document.querySelector('.forge-sub-btn.active');
+      const activeBtn = document.querySelector('.forge-sidebar-tab.active');
       if (activeBtn) activeBtn.click();
     }, 0);
   }
