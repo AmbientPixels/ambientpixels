@@ -223,14 +223,43 @@ class CardForgeActions {
       this.showNotification('Error saving card', 'error');
     }
   }
+
+  // ===================
+  // RESET CARD
+  // ===================
   
-  if (!confirm('Are you sure you want to reset the card? This will clear all current data and cannot be undone.')) {
-    return;
+  handleResetCard() {
+    console.log('🔄 Reset card requested');
+    
+    if (!confirm('Are you sure you want to reset the card? This will clear all current data and cannot be undone.')) {
+      return;
+    }
+
+    try {
+      // Reset all form fields
+      this.resetAllFormFields();
+      
+      // Reset modular system if available
+      if (window.ModularState && window.ModularState.reset) {
+        window.ModularState.reset();
+      }
+
+      // Update card preview
+      if (window.CardForgeEditor && window.CardForgeEditor.updateCardPreview) {
+        window.CardForgeEditor.updateCardPreview();
+      }
+
+      this.showNotification('Card reset successfully', 'success');
+      
+      // Switch to Card Design tab
+      this.switchToDesignTab();
+      
+    } catch (error) {
+      console.error('Error resetting card:', error);
+      this.showNotification('Error resetting card', 'error');
+    }
   }
 
-  try {
-    // Reset all form fields
-    this.resetAllFormFields();
   handleResetCard() {
     console.log('🔄 Reset card requested');
     
