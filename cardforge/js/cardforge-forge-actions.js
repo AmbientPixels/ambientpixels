@@ -228,67 +228,127 @@ class CardForgeActions {
   // RESET CARD
   // ===================
   
-  handleResetCard() {
+  async handleResetCard() {
     console.log('🔄 Reset card requested');
-    
-    if (!confirm('Are you sure you want to reset the card? This will clear all current data and cannot be undone.')) {
-      return;
+    let proceed = true;
+    if (typeof showConfirmDialog === 'function') {
+      proceed = await new Promise(resolve => showConfirmDialog(
+        'Reset Card',
+        'Are you sure you want to reset the card? This will restore the default template and cannot be undone.',
+        () => resolve(true),
+        () => resolve(false)
+      ));
+    } else {
+      proceed = confirm('Are you sure you want to reset the card? This will restore the default template and cannot be undone.');
     }
+    if (!proceed) return;
 
     try {
       // Reset all form fields
       this.resetAllFormFields();
-      
+
       // Reset modular system if available
       if (window.ModularState && window.ModularState.reset) {
         window.ModularState.reset();
       }
 
-      // Update card preview
-      if (window.CardForgeEditor && window.CardForgeEditor.updateCardPreview) {
-        window.CardForgeEditor.updateCardPreview();
-      }
+      // Load and apply prefill-card.json as the new default state
+      await this.applyDefaultTemplate();
 
-      this.showNotification('Card reset successfully', 'success');
-      
+      this.showNotification('Card reset to default template', 'success');
       // Switch to Card Design tab
       this.switchToDesignTab();
-      
     } catch (error) {
       console.error('Error resetting card:', error);
       this.showNotification('Error resetting card', 'error');
     }
   }
 
-  handleResetCard() {
-    console.log('🔄 Reset card requested');
-    
-    if (!confirm('Are you sure you want to reset the card? This will clear all current data and cannot be undone.')) {
-      return;
+  /**
+   * Loads prefill-card.json and applies its data to both form and preview
+   */
+  async applyDefaultTemplate() {
+    try {
+      const response = await fetch('./data/prefill-card.json');
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const prefillData = await response.json();
+      if (prefillData.cardData) {
+        // Use existing loadCardIntoForm to apply to form and preview
+        this.loadCardIntoForm(prefillData.cardData);
+        // If modular system exists, update it
+        if (window.ModularState && prefillData.cardData.design) {
+          window.ModularState.loadState?.(prefillData.cardData.design);
+        }
+        // Update preview
+        if (window.CardForgeEditor && window.CardForgeEditor.updateCardPreview) {
+          window.CardForgeEditor.updateCardPreview();
+        }
+      }
+      console.log('📄 Default template applied after reset:', prefillData);
+    } catch (error) {
+      console.warn('⚠️ Could not load prefill data after reset:', error);
     }
+  }
+
+  async handleResetCard() {
+    console.log('🔄 Reset card requested');
+    let proceed = true;
+    if (typeof showConfirmDialog === 'function') {
+      proceed = await new Promise(resolve => showConfirmDialog(
+        'Reset Card',
+        'Are you sure you want to reset the card? This will restore the default template and cannot be undone.',
+        () => resolve(true),
+        () => resolve(false)
+      ));
+    } else {
+      proceed = confirm('Are you sure you want to reset the card? This will restore the default template and cannot be undone.');
+    }
+    if (!proceed) return;
 
     try {
       // Reset all form fields
       this.resetAllFormFields();
-      
+
       // Reset modular system if available
       if (window.ModularState && window.ModularState.reset) {
         window.ModularState.reset();
       }
 
-      // Update card preview
-      if (window.CardForgeEditor && window.CardForgeEditor.updateCardPreview) {
-        window.CardForgeEditor.updateCardPreview();
-      }
+      // Load and apply prefill-card.json as the new default state
+      await this.applyDefaultTemplate();
 
-      this.showNotification('Card reset successfully', 'success');
-      
+      this.showNotification('Card reset to default template', 'success');
       // Switch to Card Design tab
       this.switchToDesignTab();
-      
     } catch (error) {
       console.error('Error resetting card:', error);
       this.showNotification('Error resetting card', 'error');
+    }
+  }
+
+  /**
+   * Loads prefill-card.json and applies its data to both form and preview
+   */
+  async applyDefaultTemplate() {
+    try {
+      const response = await fetch('./data/prefill-card.json');
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const prefillData = await response.json();
+      if (prefillData.cardData) {
+        // Use existing loadCardIntoForm to apply to form and preview
+        this.loadCardIntoForm(prefillData.cardData);
+        // If modular system exists, update it
+        if (window.ModularState && prefillData.cardData.design) {
+          window.ModularState.loadState?.(prefillData.cardData.design);
+        }
+        // Update preview
+        if (window.CardForgeEditor && window.CardForgeEditor.updateCardPreview) {
+          window.CardForgeEditor.updateCardPreview();
+        }
+      }
+      console.log('📄 Default template applied after reset:', prefillData);
+    } catch (error) {
+      console.warn('⚠️ Could not load prefill data after reset:', error);
     }
   }
 
@@ -812,7 +872,7 @@ CardForgeActions.prototype.bindForgeButtons = function() {
   // Clear All Buttons (Forge tab and Toolbar)
   const clearBtns = [
     document.getElementById('clear-all-btn'),
-    document.getElementById('toolbar-clear-btn')
+    document.getElementById('toolbar-clear-all-btn')
   ].filter(Boolean);
   clearBtns.forEach(btn => {
     if (!btn.dataset.forgeActionsBound) {
