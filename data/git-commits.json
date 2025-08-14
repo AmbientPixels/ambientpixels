@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "bb3c248e-1bb6-4d71-b1e7-b45f091152eb",
-      "hash": "3a83fc65c43fc6d046f16180cbbbc7cb6f99497a",
-      "message": "Fix Headliner Crafter import: preserve locale names and remove text truncation",
-      "timestamp": "2025-08-12 01:55:05 -0700",
+      "id": "7fd0fcca-a222-4144-ac58-564ceb0b230e",
+      "hash": "c248b5f9e17d929f16741467a8a39b184e08bd17",
+      "message": "fix(cardforge): Fix \"undefined Confirm\" in delete modal tab",
+      "timestamp": "2025-08-13 02:39:18 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/3a83fc65c43fc6d046f16180cbbbc7cb6f99497a"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/c248b5f9e17d929f16741467a8a39b184e08bd17"
     }
   ],
-  "timestamp": "2025-08-12T13:35:36.505Z",
+  "timestamp": "2025-08-13T13:36:43.926Z",
   "count": 1,
-  "scanId": 1755005736505
+  "scanId": 1755092203926
 }

@@ -1,10 +1,10 @@
 {
-  "updated": "2025-08-12T13:35:35.749Z",
+  "updated": "2025-08-13T13:36:41.346Z",
   "entries": [
     {
-      "hash": "3a83fc6",
-      "date": "2025-08-12 01:55:05 -0700",
-      "message": "Fix Headliner Crafter import: preserve locale names and remove text truncation"
+      "hash": "c248b5f",
+      "date": "2025-08-13 02:39:18 -0700",
+      "message": "fix(cardforge): Fix \"undefined Confirm\" in delete modal tab"
     }
   ]
 }
