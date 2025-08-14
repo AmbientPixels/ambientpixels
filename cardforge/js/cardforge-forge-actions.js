@@ -22,9 +22,44 @@ class CardForgeActions {
     }
     
     this.bindForgeButtons();
+    this.bindForgeTabNavigation();
     this.refreshMyCardsList();
     this.refreshDeckList();
     this.initialized = true;
+  }
+
+  /**
+   * Bind Forge sub-tab navigation (Quick Actions, My Cards, Deck Manager)
+   */
+  bindForgeTabNavigation() {
+    const tabButtons = document.querySelectorAll('.forge-sub-btn');
+    const tabContents = document.querySelectorAll('.forge-tab-content');
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        // Remove active from all buttons
+        tabButtons.forEach(b => b.classList.remove('active'));
+        // Add active to clicked button
+        btn.classList.add('active');
+        // Show matching content, hide others
+        const target = btn.getAttribute('data-forge-tab');
+        tabContents.forEach(content => {
+          if (content.getAttribute('data-forge-content') === target) {
+            content.classList.add('active');
+            content.style.display = '';
+          } else {
+            content.classList.remove('active');
+            content.style.display = 'none';
+          }
+        });
+      });
+    });
+    // On load, ensure only the active tab's content is visible
+    setTimeout(() => {
+      const activeBtn = document.querySelector('.forge-sub-btn.active');
+      if (activeBtn) activeBtn.click();
+    }, 0);
   }
 
   bindForgeButtons() {
