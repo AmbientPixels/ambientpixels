@@ -233,8 +233,10 @@ function setupLiveEditor() {
     resetBtn.addEventListener('click', function() {
       if (titleInput) titleInput.value = '';
       if (subtitleInput) subtitleInput.value = '';
+      if (narratorInput) narratorInput.value = '';
       if (titleCharCount) titleCharCount.textContent = '0';
       if (subtitleCharCount) subtitleCharCount.textContent = '0';
+      if (narratorCharCount) narratorCharCount.textContent = '0';
       if (previewTitle) previewTitle.textContent = 'Fortnite OG';
       if (previewSubtitle) previewSubtitle.textContent = 'New season';
       
@@ -243,6 +245,7 @@ function setupLiveEditor() {
       charCounts.forEach(el => el.className = 'char-count');
       
       updatePreviewTileStatus();
+      updateLiveAnalytics();
     });
   }
   
