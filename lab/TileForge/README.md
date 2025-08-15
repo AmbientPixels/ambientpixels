@@ -8,6 +8,24 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 ![Version](https://img.shields.io/badge/Version-1.0.0-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
+## 🆕 August 2025 Major Updates
+
+- **Campsite XML Import:** Drop Campsite-localized XML files directly; parsed and normalized to CSV workflow.
+- **XML Export Support:** Export mapped data back to Campsite-localized XML.
+- **Unified Mapping & Export:** Map/preview/export from either CSV or XML.
+- **CardForge Import Flexibility:** Works with both CSV and XML; initializes data if needed.
+- **Intelligent Field Filtering:** Fields with no values (like SubHeader, Footer) are hidden from the mapping UI.
+- **Improved Drop Zone & Guidance:** Clear messaging for CSV/XML support, Iris-ready CSV export, and tool purpose.
+- **Enhanced Modal Workflow:** More robust, user-friendly mapping and preview flows.
+- **New Clear All Features:** Quickly reset all mapping and preview data with one click.
+- **Improved UI & Control Panel:** New control panel for easier workflow and navigation.
+- **Manage Locales:** Panel to view, add, or remove locales for better control.
+- **Loading Default Template (Coming Soon):** Option to load a default mapping/template (feature in progress).
+- **Arabic & Special Character Support:** Fixed issues with Arabic and special characters in data and preview.
+- **New Case Converter Tool:** Added a dedicated Case Converter module for fast text case transformations.
+
+---
+
 ## ✨ Features
 
 ### 🎯 Core Functionality
@@ -31,6 +49,27 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 - **Images**: JPG, PNG, GIF formats for tile backgrounds
 - **CSV Files**: Iris Localization CSV format with locale data
 - **File Validation** - Automatic validation with user-friendly error messages
+
+---
+
+## ℹ️ TileForge Information Center
+
+### 🆕 Core Features
+- **Case Converter Tool:** Instantly convert text to UPPER, lower, Title, or Sentence case for any field or batch of text. Great for localization and consistency.
+- **Clear All:** One-click reset for all mapping and preview data—useful for rapid iteration or starting over.
+- **Manage Locales:** Add, remove, or filter locales from your data set for focused previews and exports.
+- **Arabic & Special Character Support:** Full UTF-8 support for right-to-left and special language characters.
+
+### 💡 Tips & Tricks
+- Use the **Case Converter** to quickly batch-convert all text fields before export—saves tons of manual editing!
+- **Clear All** resets your mapping and preview instantly—no need to reload the page.
+- If Arabic or special characters look wrong, ensure your CSV is UTF-8 encoded.
+- Drag-and-drop works everywhere: images, CSV, XML—just drop onto the right zone.
+- Use **Manage Locales** to focus on specific regions or languages—great for QA and targeted review.
+- Check the **modal drop zone** for file type support and workflow tips.
+- Coming soon: **Default Template Loader** for instant mapping setup.
+
+---
 
 ## 🚀 Quick Start
 

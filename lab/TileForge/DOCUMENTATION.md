@@ -142,6 +142,42 @@ const TEMPLATE_CONFIGS = {
 ### **Overview**
 Headliner Crafter is TileForge's advanced CSV localization transformation tool that enables intelligent field mapping from source CSV data to CardForge output fields. It provides real-time visual feedback, multi-locale analysis, and smart content optimization for game localization workflows.
 
+---
+
+## 🆕 August 2025 Major Updates (Headliner Crafter & Localization)
+
+- **Campsite XML Import & Export:** Now supports direct upload of Campsite-localized XML files. XML data is parsed and normalized to the same internal format as CSV, enabling seamless mapping, preview, and export workflows. Export to XML is also supported.
+- **Unified Mapping & CardForge Import:** Whether you upload CSV or XML, you can map, preview, and export data. The CardForge import button now initializes data if none exists, supporting both formats.
+- **Intelligent Field Filtering:** Fields with no values (such as SubHeader, Footer, or any unused field) are automatically excluded from mapping and preview interfaces.
+- **Improved Drop Zone & UI Guidance:** The modal drop zone now clearly indicates support for both CSV and XML, with added guidance on mapping to Iris-ready CSV. Tool purpose and workflow are explained for clarity.
+- **Enhanced Modal Workflow:** User guidance, mapping, and preview flows are more robust and user-friendly, with fixes for edge cases and improved end-to-end experience.
+- **New Clear All Features:** Quickly reset all mapping and preview data with one click.
+- **Improved UI & Control Panel:** New control panel for easier workflow and navigation.
+- **Manage Locales:** Panel to view, add, or remove locales for better control.
+- **Loading Default Template (Coming Soon):** Option to load a default mapping/template (feature in progress).
+- **Arabic & Special Character Support:** Fixed issues with Arabic and special characters in data and preview.
+- **New Case Converter Tool:** Added a dedicated Case Converter module for fast text case transformations.
+
+---
+
+## ✨ What’s New in 2.3.0
+
+- **Revamped Information Center:**
+  A new tabbed help modal accessible from the UI, featuring organized sections for features, tips, keyboard shortcuts, troubleshooting, and future plans—all updatable from a single source.
+- **Full Keyboard Shortcut System:**
+  Centralized, editable shortcuts with a clear reference table in the Information Center.
+- **Major Modal & Usability Upgrades:**
+  Improved modal consistency, accessibility, and help content. All help/tip content is now easier to find and maintain.
+- **Campsite XML Import/Export:**
+  Advanced support for importing and exporting Campsite-localized XML files, enabling seamless integration with external localization pipelines.
+- **Case Converter Tool & Locale Management:**
+  Highlighted and improved tools for batch text case conversion and managing locales.
+
+**Information Center:**
+A comprehensive, always-up-to-date help & support modal. Browse features, new tools, tips & tricks, keyboard shortcuts, troubleshooting, and future plans—all in one place!
+
+---
+
 ### **Core Features**
 
 #### **🔄 Intelligent Field Mapping**

@@ -424,6 +424,22 @@ function createFeaturesTabContent() {
       <h4>🎮 Core Features</h4>
       <div class="feature-grid">
         <div class="feature-item">
+          <h5>🆕 Case Converter Tool</h5>
+          <p>Instantly convert text to UPPER, lower, Title, or Sentence case for any field or batch of text. Great for localization and consistency.</p>
+        </div>
+        <div class="feature-item">
+          <h5>🧹 Clear All</h5>
+          <p>One-click reset for all mapping and preview data—useful for rapid iteration or starting over.</p>
+        </div>
+        <div class="feature-item">
+          <h5>🌍 Manage Locales</h5>
+          <p>Add, remove, or filter locales from your data set for focused previews and exports.</p>
+        </div>
+        <div class="feature-item">
+          <h5>🌐 Arabic & Special Character Support</h5>
+          <p>Full UTF-8 support for right-to-left and special language characters.</p>
+        </div>
+        <div class="feature-item">
           <h5>📊 Visual Text Measurement</h5>
           <p>Canvas-based pixel-perfect text measurement ensures accurate overflow detection and prevents text truncation issues.</p>
         </div>
@@ -470,29 +486,36 @@ function createFeaturesTabContent() {
 function createTipsTabContent() {
   return `
     <div class="info-section">
-      <h4>💡 Pro Tips</h4>
-      
+      <h4>💡 Tips & Tricks</h4>
+      <div class="tip-box">
+        <h5><span class="tip-icon">🆕</span>Use the Case Converter</h5>
+        <p>Quickly batch-convert all text fields to UPPER, lower, Title, or Sentence case before export—saves tons of manual editing!</p>
+      </div>
+      <div class="tip-box">
+        <h5><span class="tip-icon">🧹</span>Clear All for Fast Reset</h5>
+        <p>"Clear All" resets your mapping and preview instantly—no need to reload the page.</p>
+      </div>
+      <div class="tip-box">
+        <h5><span class="tip-icon">🌍</span>Locale Management</h5>
+        <p>Use Manage Locales to focus on specific regions or languages—great for QA and targeted review.</p>
+      </div>
+      <div class="tip-box">
+        <h5><span class="tip-icon">🌐</span>Arabic & Special Characters</h5>
+        <p>If Arabic or special characters look wrong, ensure your CSV is UTF-8 encoded for full support.</p>
+      </div>
+      <div class="tip-box">
+        <h5><span class="tip-icon">🔄</span>Drag-and-Drop Everywhere</h5>
+        <p>Drag-and-drop works everywhere: images, CSV, XML—just drop onto the right zone.</p>
+      </div>
+      <div class="tip-box">
+        <h5><span class="tip-icon">💡</span>Modal Drop Zone Tips</h5>
+        <p>Check the modal drop zone for file type support and workflow tips. Coming soon: Default Template Loader!</p>
+      </div>
       <div class="tip-box">
         <h5><span class="tip-icon">🎯</span>Text Overflow Prevention</h5>
         <p>TileForge automatically measures text width using Canvas API. Watch the character count and visual indicators to prevent text from breaking to multiple lines or getting truncated.</p>
       </div>
-
-      <div class="tip-box">
-        <h5><span class="tip-icon">🏷️</span>Country Badge Recognition</h5>
-        <p>Country badges automatically detect locale codes (EN-US, FR-FR, etc.) and display the appropriate flag emoji. The system supports 15+ countries with fallback to a globe icon.</p>
-      </div>
-
-      <div class="tip-box">
-        <h5><span class="tip-icon">📸</span>Image Optimization</h5>
-        <p>For best results, use images with 16:9 aspect ratio. TileForge will analyze and display detailed metadata including dimensions, file size, and format information.</p>
-      </div>
-
-      <div class="tip-box">
-        <h5><span class="tip-icon">🔄</span>Live Preview Magic</h5>
-        <p>The live tile editor updates in real-time as you type. Use this to experiment with different headline lengths and see immediate visual feedback.</p>
-      </div>
     </div>
-
     <div class="info-section">
       <h4>🚀 Advanced Techniques</h4>
       <ul>
@@ -510,39 +533,34 @@ function createShortcutsTabContent() {
   return `
     <div class="info-section">
       <h4>⌨️ Keyboard Shortcuts</h4>
-      
+      <table class="shortcut-table">
+        <thead>
+          <tr><th>Shortcut</th><th>Action</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="keyboard-shortcut">Ctrl + ,</span></td><td>Open Settings</td><td>Opens the TileForge settings modal</td></tr>
+          <tr><td><span class="keyboard-shortcut">Ctrl + E</span></td><td>Export CSV</td><td>Exports the current data as a CSV file</td></tr>
+          <tr><td><span class="keyboard-shortcut">Ctrl + U</span></td><td>Upload Image</td><td>Opens the file dialog to upload an image</td></tr>
+          <tr><td><span class="keyboard-shortcut">Ctrl + T</span></td><td>Toggle Theme</td><td>Switches to the next available theme</td></tr>
+          <tr><td><span class="keyboard-shortcut">Ctrl + F</span></td><td>Focus Search</td><td>Focuses the locale filter/search input</td></tr>
+          <tr><td><span class="keyboard-shortcut">Ctrl + R</span></td><td>Reset Filters</td><td>Resets all filters to their default state</td></tr>
+        </tbody>
+      </table>
       <div class="info-section">
-        <h4>🔧 Modal Controls</h4>
-        <p><span class="keyboard-shortcut">ESC</span> Close active modal or dialog</p>
-        <p><span class="keyboard-shortcut">Tab</span> Navigate between modal elements</p>
-        <p><span class="keyboard-shortcut">Enter</span> Confirm action in dialogs</p>
-      </div>
-
-      <div class="info-section">
-        <h4>📁 File Operations</h4>
-        <p><span class="keyboard-shortcut">Ctrl + O</span> Open file dialog (when focused on file inputs)</p>
-        <p><span class="keyboard-shortcut">Drag & Drop</span> Drop files directly onto the upload areas</p>
-      </div>
-
-      <div class="info-section">
-        <h4>🎮 Navigation Tips</h4>
+        <h4>🔧 Universal & Modal Shortcuts</h4>
         <ul>
-          <li><strong>Tab Navigation:</strong> Use Tab key to move between form elements and buttons</li>
-          <li><strong>Focus Management:</strong> Modals automatically focus the first interactive element</li>
-          <li><strong>Escape Handling:</strong> ESC key always closes the topmost modal or dialog</li>
-          <li><strong>Click Outside:</strong> Click modal backdrop to close (when enabled)</li>
+          <li><span class="keyboard-shortcut">ESC</span> — Close active modal or dialog</li>
+          <li><span class="keyboard-shortcut">Tab</span> — Navigate between modal elements</li>
+          <li><span class="keyboard-shortcut">Enter</span> — Confirm action in dialogs or blur text field in live editor</li>
         </ul>
       </div>
-    </div>
-
-    <div class="info-section">
-      <h4>🔍 Filter Shortcuts</h4>
-      <p>Use the filter dropdowns to quickly isolate:</p>
-      <ul>
-        <li><strong>Status Filtering:</strong> Clean, Issues, Modified tiles</li>
-        <li><strong>Locale Filtering:</strong> Specific country/language combinations</li>
-        <li><strong>Quick Reset:</strong> "All" option resets filters to show everything</li>
-      </ul>
+      <div class="info-section">
+        <h4>🖱️ Power User Tips</h4>
+        <ul>
+          <li><strong>Drag & Drop:</strong> Works for images, CSV, XML files—just drop onto the right zone</li>
+          <li><strong>Locale Quick Filter:</strong> <span class="keyboard-shortcut">Ctrl + F</span> focuses the locale filter, then type locale code and press Enter</li>
+        </ul>
+      </div>
     </div>
   `;
 }
@@ -688,13 +706,31 @@ function createAboutTabContent() {
     <div class="info-section">
       <h4>🎮 About TileForge</h4>
       <p>TileForge is a comprehensive Xbox tile localization preview tool designed to streamline the process of creating and managing localized game tiles across multiple regions and languages.</p>
-      
+
       <div class="version-info">
         <h5>📦 Version Information</h5>
-        <p><strong>Version:</strong> 2.2.0</p>
+        <p><strong>Version:</strong> 2.3.0</p>
         <p><strong>Build Date:</strong> August 2025</p>
         <p><strong>Architecture:</strong> Modular CSS/JS with Canvas API integration</p>
-        <p><strong>Latest:</strong> Mobile Spotlight template system with template persistence</p>
+        <p><strong>Latest:</strong> Major modal, shortcut, and info center upgrades</p>
+      </div>
+      <div class="whats-new">
+        <h5>✨ What’s New in 2.3.0</h5>
+        <ul>
+          <li><strong>Revamped Information Center:</strong> A new tabbed help modal accessible from the UI, featuring organized sections for features, tips, keyboard shortcuts, troubleshooting, and future plans—all updatable from a single source.</li>
+          <li><strong>Full Keyboard Shortcut System:</strong> Centralized, editable shortcuts with a clear reference table in the Information Center.</li>
+          <li><strong>Major Modal & Usability Upgrades:</strong> Improved modal consistency, accessibility, and help content. All help/tip content is now easier to find and maintain.</li>
+          <li><strong>Campsite XML Import/Export:</strong> Advanced support for importing and exporting Campsite-localized XML files, enabling seamless integration with external localization pipelines.</li>
+          <li><strong>Case Converter Tool & Locale Management:</strong> Highlighted and improved tools for batch text case conversion and managing locales.</li>
+        </ul>
+        <p><strong>Information Center:</strong> A comprehensive, always-up-to-date help & support modal. Browse features, new tools, tips & tricks, keyboard shortcuts, troubleshooting, and future plans—all in one place!</p>
+      </div>
+      <div class="version-info">
+        <h5>📦 Version Information</h5>
+        <p><strong>Version:</strong> 2.3.0</p>
+        <p><strong>Build Date:</strong> August 2025</p>
+        <p><strong>Architecture:</strong> Modular CSS/JS with Canvas API integration</p>
+        <p><strong>Latest:</strong> Major modal, shortcut, and info center upgrades</p>
       </div>
     </div>
 
