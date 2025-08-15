@@ -147,6 +147,27 @@
         <p class="subtitle">Xbox Tile Localization Preview</p>
       </div>
       
+      <!-- Controls Section -->
+      <div class="controls-section">
+        <h3><i class="fas fa-cog"></i> Controls</h3>
+        <div class="tileforge-toolbar" id="tileforgeToolbar">
+          <button class="toolbar-btn" id="toolbarSaveBtn" title="Save"><i class="fas fa-save"></i></button>
+          <button class="toolbar-btn" id="toolbarCloneBtn" title="Clone"><i class="fas fa-clone"></i></button>
+          <button class="toolbar-btn" id="toolbarNewBtn" title="New"><i class="fas fa-plus"></i></button>
+          <button class="toolbar-btn export-btn" id="toolbarExportBtn" title="Export to CSV"><i class="fas fa-file-export"></i> Export</button>
+        </div>
+        <div class="file-info" id="fileInfo" style="display: none;">
+          <div class="info-item">
+            <span class="info-label">Image:</span>
+            <span class="info-value" id="imageFileName">None</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">CSV:</span>
+            <span class="info-value" id="csvFileName">None</span>
+          </div>
+        </div>
+      </div>
+      
       <!-- Upload Section -->
       <div class="upload-section">
         <h3><i class="fas fa-file-upload"></i> File Upload</h3>
@@ -198,92 +219,68 @@
         </div>
       </div>
       
-      <!-- Controls Section -->
-      <div class="controls-section">
-        <!-- Toolbar: Save, Clone, New -->
-        <h3><i class="fas fa-cog"></i> Controls</h3>
-        <div class="tileforge-toolbar" id="tileforgeToolbar">
-  <button class="toolbar-btn" id="toolbarSaveBtn" title="Save"><i class="fas fa-save"></i></button>
-  <button class="toolbar-btn" id="toolbarCloneBtn" title="Clone"><i class="fas fa-clone"></i></button>
-  <button class="toolbar-btn" id="toolbarNewBtn" title="New"><i class="fas fa-plus"></i></button>
-  <button class="toolbar-btn export-btn" id="toolbarExportBtn" title="Export to CSV"><i class="fas fa-file-export"></i> Export</button>
-</div>
+      <!-- Tools Section -->
+      <div class="tools-section">
+        <h3><i class="fas fa-tools"></i> Tools</h3>
+        <div class="tool-group">
+          <button class="control-btn transform-btn" onclick="openTransformModal()"><i class="fas fa-exchange-alt"></i> Transform Data</button>
+          <button class="control-btn headliner-btn" onclick="openHeadlinerCrafter()"><i class="fas fa-magic"></i> Headliner Crafter</button>
+        </div>
+      </div>
+      
+      <!-- Simple Filters -->
+      <div class="simple-filters">
+        <h3><i class="fas fa-filter"></i> Filters</h3>
         
-        <!-- File Info -->
-        <div class="file-info" id="fileInfo" style="display: none;">
-          <div class="info-item">
-            <span class="info-label">Image:</span>
-            <span class="info-value" id="imageFileName">None</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">CSV:</span>
-            <span class="info-value" id="csvFileName">None</span>
-          </div>
+        <div class="filter-row">
+          <label for="statusFilter">Status:</label>
+          <select id="statusFilter" onchange="applyFilters()">
+            <option value="all">All Tiles</option>
+            <option value="clean">Clean Only</option>
+            <option value="issues">Issues Only</option>
+          </select>
         </div>
         
-        <!-- Tools Section -->
-        <div class="tools-section">
-          <h3><i class="fas fa-tools"></i> Tools</h3>
-          <div class="tool-group">
-            <button class="control-btn transform-btn" onclick="openTransformModal()"><i class="fas fa-exchange-alt"></i> Transform Data</button>
-            <button class="control-btn headliner-btn" onclick="openHeadlinerCrafter()"><i class="fas fa-magic"></i> Headliner Crafter</button>
-          </div>
+        <div class="filter-row">
+          <label for="languageFilter">Language:</label>
+          <select id="languageFilter" onchange="applyFilters()">
+            <option value="all">All Languages</option>
+            <!-- Options will be populated dynamically -->
+          </select>
         </div>
         
-        <!-- Simple Filters -->
-        <div class="simple-filters">
-          <h3><i class="fas fa-filter"></i> Filters</h3>
-          
-          <div class="filter-row">
-            <label for="statusFilter">Status:</label>
-            <select id="statusFilter" onchange="applyFilters()">
-              <option value="all">All Tiles</option>
-              <option value="clean">Clean Only</option>
-              <option value="issues">Issues Only</option>
-            </select>
-          </div>
-          
-          <div class="filter-row">
-            <label for="languageFilter">Language:</label>
-            <select id="languageFilter" onchange="applyFilters()">
-              <option value="all">All Languages</option>
-              <!-- Options will be populated dynamically -->
-            </select>
-          </div>
-          
-          <div class="filter-row">
-            <label for="regionFilter">Region:</label>
-            <select id="regionFilter" onchange="applyFilters()">
-              <option value="all">All Regions</option>
-              <!-- Options will be populated dynamically -->
-            </select>
-          </div>
-          
-          <div class="filter-row">
-            <label for="localeFilter">Locale:</label>
-            <select id="localeFilter" onchange="applyFilters()">
-              <option value="all">All Locales</option>
-              <!-- Options will be populated dynamically -->
-            </select>
-          </div>
-          
-          <div class="filter-row">
-            <button class="reset-filters-btn" onclick="resetFilters()"><i class="fas fa-sync-alt"></i> Reset Filters</button>
-          </div>
-          
-          <div class="filter-status" id="filterStatus">
-            Showing all tiles
-          </div>
+        <div class="filter-row">
+          <label for="regionFilter">Region:</label>
+          <select id="regionFilter" onchange="applyFilters()">
+            <option value="all">All Regions</option>
+            <!-- Options will be populated dynamically -->
+          </select>
         </div>
         
-        <!-- Detailed Image Info Panel -->
-        <div class="image-info-panel" id="imageInfoPanel">
-          <h4><i class="fas fa-image"></i> Image Details</h4>
-          <div class="no-image-message">
-            <span class="no-image-icon"><i class="fas fa-image"></i></span>
-            <p>No image loaded</p>
-            <small>Upload an image to see detailed information</small>
-          </div>
+        <div class="filter-row">
+          <label for="localeFilter">Locale:</label>
+          <select id="localeFilter" onchange="applyFilters()">
+            <option value="all">All Locales</option>
+            <!-- Options will be populated dynamically -->
+          </select>
+        </div>
+        
+        <div class="filter-row">
+          <button class="reset-filters-btn" onclick="resetFilters()"><i class="fas fa-sync-alt"></i> Reset Filters</button>
+        </div>
+        
+        <div class="filter-status" id="filterStatus">
+          Showing all tiles
+        </div>
+      </div>
+      
+      <!-- Detailed Image Info Panel -->
+      <div class="image-info-panel" id="imageInfoPanel">
+        <h4><i class="fas fa-image"></i> Image Details</h4>
+        <div class="no-image-message">
+          <span class="no-image-icon"><i class="fas fa-image"></i></span>
+          <p>No image loaded</p>
+          <small>Upload an image to see detailed information</small>
         </div>
       </div>
     </div>
