@@ -7,6 +7,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (!previewTile || !dndMessage) return;
 
+  // Make previewTile clickable to open image file browser
+  previewTile.style.cursor = 'pointer';
+  previewTile.addEventListener('click', function(e) {
+    // Only trigger if clicking background, not overlays/controls
+    if (e.target === previewTile) {
+      const imgInput = document.getElementById('imgInput');
+      if (imgInput) imgInput.click();
+    }
+  });
+
   // Show drop message only if no image is loaded
   function showDropMessage(show) {
     dndMessage.style.display = show ? 'flex' : 'none';

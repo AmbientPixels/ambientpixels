@@ -1,6 +1,47 @@
 // drag-drop-csv.js
 // Handles drag-and-drop for CSV upload in the locale preview area in TileForge
 
+// --- Make drop zones clickable to open file browser ---
+(function() {
+  // Helper to create or get a hidden file input for CSV/XML
+  function getOrCreateCsvInput() {
+    let csvInput = document.getElementById('csvInput');
+    if (!csvInput) {
+      csvInput = document.createElement('input');
+      csvInput.type = 'file';
+      csvInput.id = 'csvInput';
+      csvInput.accept = '.csv,.xml,text/csv,application/xml';
+      csvInput.style.display = 'none';
+      document.body.appendChild(csvInput);
+    }
+    return csvInput;
+  }
+
+  // List of drop zone IDs to make clickable
+  const dropZoneIds = [
+    'dndCsvZone',
+    'emptyDropZone',
+    'autoLocalizeDropZone',
+    'dndCsvZonePreview'
+  ];
+
+  dropZoneIds.forEach(function(zoneId) {
+    const zone = document.getElementById(zoneId);
+    if (zone) {
+      zone.style.cursor = 'pointer';
+      zone.addEventListener('click', function(e) {
+        // Only trigger if clicking background, not a child button
+        if (e.target === zone || e.target.classList.contains('dnd-csv-message')) {
+          getOrCreateCsvInput().click();
+        }
+      });
+    }
+  });
+
+  // Optionally wire up file input to existing handler if needed
+  // (Assume main CSV upload handler is already listening for file changes)
+})();
+
 document.addEventListener('DOMContentLoaded', function () {
   const dndCsvZone = document.getElementById('dndCsvZone');
   const dndCsvZonePreview = document.getElementById('dndCsvZonePreview');
