@@ -42,11 +42,22 @@ class MappingModal {
             <div id="csv-upload-section" class="upload-section">
               <div class="csv-drop-zone" id="modalCsvDropZone">
                 <div class="csv-drop-zone-content">
-                  <i class="fas fa-file-csv upload-icon"></i>
-                  <h4>Drop CSV File Here</h4>
-                  <p>or <span class="browse-link" onclick="document.getElementById('modalCsvInput').click()">browse files</span></p>
-                  <small>Drag and drop your localization CSV file</small>
-                </div>
+  <i class="fas fa-file-csv upload-icon"></i>
+  <h4>Drop CSV or Campsite XML File Here</h4>
+  <p>or <span class="browse-link" onclick="document.getElementById('modalCsvInput').click()">browse files</span></p>
+  <small>
+    Drag and drop your localization <b>CSV</b> or <b>Campsite-localized XML</b> file.<br>
+    <span style="color:#6c63ff"><b>Tip:</b></span> This tool lets you map and convert Campsite XML files to an <b>Iris-ready CSV</b> for CardForge or other Iris-compatible tools.
+  </small>
+  <div class="dropzone-info">
+    <p style="margin-top:8px;font-size:13px;color:#888;">
+      <b>What does this tool do?</b><br>
+      • Import Campsite-localized XML or CSV files<br>
+      • Map and preview localization fields<br>
+      • Export as Iris-ready CSV for CardForge or Iris pipeline
+    </p>
+  </div>
+</div>
                 <input type="file" id="modalCsvInput" accept=".csv" style="display: none;" />
               </div>
             </div>
@@ -139,6 +150,17 @@ class MappingModal {
         if (files.length > 0) {
           const file = files[0];
           if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
+          this.handleCsvUpload(file); // Call modal's own handleCsvUpload method
+        } else if (file.type === 'text/xml' || file.name.endsWith('.xml')) {
+          // Read XML and parse
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const xmlString = e.target.result;
+            const rows = window.headlinerCrafter.constructor.parseXML(xmlString);
+            this.handleCsvUpload(rows); // Reuse CSV handler with normalized data
+          };
+          reader.readAsText(file);
+
             this.handleCsvUpload(file); // Call modal's own handleCsvUpload method
           } else {
             alert('Please upload a valid CSV file.');
@@ -231,42 +253,54 @@ class MappingModal {
   /**
    * Handle CSV file upload
    */
-  handleCsvUpload(file) {
-    if (!file || !file.name.endsWith('.csv')) {
+  handleCsvUpload(input) {
+    // If input is an array (from XML), process directly
+    if (Array.isArray(input)) {
+      if (!input.length) {
+        alert('XML file appears to be empty or invalid.');
+        return;
+      }
+      console.log('📁 Processing uploaded XML data:', input.length, 'rows');
+      this.currentData = input;
+      this.analyzeAndPopulate(input);
+      // Switch to mapping interface
+      document.getElementById('csv-upload-section').style.display = 'none';
+      document.getElementById('mapping-interface').style.display = 'block';
+      document.getElementById('exportCsvBtn').style.display = 'inline-block';
+      document.getElementById('importBtn').style.display = 'inline-block';
+      return;
+    }
+
+    // Otherwise, expect a CSV file
+    if (!input || !input.name.endsWith('.csv')) {
       alert('Please select a valid CSV file.');
       return;
     }
 
-    console.log('📁 Processing uploaded CSV file:', file.name);
-    
+    console.log('📁 Processing uploaded CSV file:', input.name);
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const csvText = e.target.result;
         const csvData = this.parseCSV(csvText);
-        
         if (csvData.length === 0) {
           alert('CSV file appears to be empty or invalid.');
           return;
         }
-
         console.log('✅ CSV parsed successfully:', csvData.length, 'rows');
         this.currentData = csvData;
         this.analyzeAndPopulate(csvData);
-        
         // Switch to mapping interface
         document.getElementById('csv-upload-section').style.display = 'none';
         document.getElementById('mapping-interface').style.display = 'block';
         document.getElementById('exportCsvBtn').style.display = 'inline-block';
         document.getElementById('importBtn').style.display = 'inline-block';
-        
       } catch (error) {
         console.error('❌ Error parsing CSV:', error);
         alert('Error parsing CSV file: ' + error.message);
       }
     };
-    
-    reader.readAsText(file);
+    reader.readAsText(input);
   }
 
   /**
@@ -318,9 +352,12 @@ class MappingModal {
     
     // Extract input fields from CSV, filtering out Language and Region fields
     const allFields = Object.keys(csvData[0] || {});
+    // Only include fields that have at least one non-empty value
     this.fieldTypes.input = allFields.filter(field => {
       const fieldLower = field.toLowerCase();
-      return fieldLower !== 'language' && fieldLower !== 'region';
+      if (fieldLower === 'language' || fieldLower === 'region') return false;
+      // Check if any row has a non-empty value for this field
+      return csvData.some(row => row[field] && String(row[field]).trim() !== '');
     });
     
     console.log('🔍 Filtered input fields (hiding Language/Region):', this.fieldTypes.input);
@@ -588,8 +625,17 @@ class MappingModal {
     try {
       const transformedData = window.headlinerCrafter.transformData(this.currentData);
       
-      if (!window.currentCsvData) {
-        alert('No existing data to update. Please load a CSV file first.');
+      if (!window.currentCsvData || window.currentCsvData.length === 0) {
+        // If no data exists, initialize it from transformedData
+        window.currentCsvData = transformedData.map(row => ({
+          'Locale': row.locale,
+          'items/0/title': row.headline || '',
+          'items/0/subtitle': row.subheadline || '',
+          'items/0/narratorText': row.narrator || ''
+        }));
+        renderLocaleGroups(window.currentCsvData);
+        alert(`Imported ${transformedData.length} rows as new data!`);
+        this.hide();
         return;
       }
       

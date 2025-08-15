@@ -5,6 +5,50 @@
  */
 
 class HeadlinerCrafter {
+  /**
+   * Parse XML string to array of objects matching CSV format
+   * @param {string} xmlString
+   * @returns {Array} Array of objects (one per Variant)
+   */
+  static parseXML(xmlString) {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
+    const variants = xmlDoc.querySelectorAll('Variant');
+    const rows = [];
+    variants.forEach(variant => {
+      const culture = variant.getAttribute('variantCulture') || '';
+      let [Language, Region] = culture.split('-');
+      if (!Region) Region = '';
+      const row = { Language, Region };
+      variant.querySelectorAll('Field').forEach(field => {
+        const name = field.getAttribute('name');
+        row[name] = field.textContent || '';
+      });
+      rows.push(row);
+    });
+    return rows;
+  }
+
+  /**
+   * Export array of objects to XML string in the given format
+   * @param {Array} data
+   * @param {string} itemName (optional)
+   * @returns {string} XML string
+   */
+  static exportToXML(data, itemName = '_ExportedItem') {
+    let xml = '<ExportedContentItems>\n  <ExportedContentItem>\n    <Name>' + itemName + '</Name>\n    <ContentTypeId>3e04bb2b-7f7f-4ed9-be90-0c8b4fcd5e80</ContentTypeId>\n    <ContentItem>\n';
+    data.forEach(row => {
+      const culture = row.Region ? `${row.Language}-${row.Region}` : row.Language;
+      xml += `      <Variant variantCulture="${culture}">\n`;
+      ['Title','Description','MiniFAD','SubHeader','Footer'].forEach(field => {
+        xml += `        <Field name="${field}" type="String">${row[field] || ''}</Field>\n`;
+      });
+      xml += '      </Variant>\n';
+    });
+    xml += '      <PresentationData />\n    </ContentItem>\n  </ExportedContentItem>\n</ExportedContentItems>';
+    return xml;
+  }
+
   constructor() {
     this.currentData = null;
     this.fieldMappings = {
