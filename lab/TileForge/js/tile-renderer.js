@@ -317,14 +317,13 @@ function renderLocaleGroups(csvData) {
   
   // Show blank state if no data or no selected locales
   if (!csvData || !csvData.length) {
-    container.innerHTML = `<div class="blank-locale-preview">
-      <h2>No Locales Selected</h2>
-      <p>This is where your live locale previews will appear.</p>
-      <ul>
-        <li>Click <strong>Manage Locales</strong> to select languages and regions to preview.</li>
-        <li>Upload a CSV file to see your localization data visualized here.</li>
-        <li>Use the <strong>Filters</strong> to focus on specific locales.</li>
-      </ul>
+    container.innerHTML = `<div class="no-image-message">
+      <span class="no-image-icon"><i class="fas fa-language"></i></span>
+      <p>No Locales Selected</p>
+      <small>This is where your live locale previews will appear.<br>
+        Click <strong>Manage Locales</strong> to select languages and regions.<br>
+        Upload a CSV file to see your localization data visualized here.<br>
+        Use the <strong>Filters</strong> to focus on specific locales.</small>
     </div>`;
     updateAnalytics({ totalLocales: 0, overflowCount: 0, nearLimitCount: 0, cleanCount: 0 });
     return;
