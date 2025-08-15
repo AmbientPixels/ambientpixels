@@ -156,6 +156,9 @@
           <button class="toolbar-btn" id="toolbarNewBtn" title="New"><i class="fas fa-plus"></i></button>
           <button class="toolbar-btn export-btn" id="toolbarExportBtn" title="Export to CSV"><i class="fas fa-file-export"></i> Export</button>
         </div>
+        <div class="manage-locales-section">
+          <button class="control-btn" id="manageLocalesBtn"><i class="fas fa-globe"></i> Manage Locales</button>
+        </div>
         <div class="file-info" id="fileInfo" style="display: none;">
           <div class="info-item">
             <span class="info-label">Image:</span>
@@ -478,6 +481,8 @@
   <script src="js/mapping-modal.js"></script>
   <script src="js/csv-handler.js"></script>
   <script src="js/tile-renderer.js"></script>
+  <script src="js/locale-mapping.js"></script>
+  <script src="js/locale-picker-ui.js"></script>
   <script src="js/live-editor.js"></script>
   <script src="js/analytics.js"></script>
   <script src="js/drag-drop.js"></script>
@@ -485,5 +490,27 @@
   <script src="js/template-system.js"></script>
   <script src="js/main.js"></script>
   <script src="js/toolbar.js"></script>
+  <!-- Locale Picker Modal -->
+  <div id="localePickerModal" class="modal-overlay">
+    <div class="modal small">
+      <div class="modal-header">
+        <h3 class="modal-title">Select Locales</h3>
+        <button class="modal-close" onclick="TileForgeLocalesUI.close()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="localeSearchInput" placeholder="Search language or country..." style="width:100%;margin-bottom:10px;">
+        <div id="localeList" style="max-height:250px;overflow:auto;"></div>
+        <div style="margin:10px 0;">
+          <button class="modal-btn" onclick="TileForgeLocalesUI.selectAll()">Select All</button>
+          <button class="modal-btn" onclick="TileForgeLocalesUI.clearAll()">Clear All</button>
+          <button class="modal-btn" onclick="TileForgeLocalesUI.loadDefault('toh')">Load ToH Locales</button>
+          <button class="modal-btn" onclick="TileForgeLocalesUI.loadDefault('mobile')">Load Mobile Locales</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn primary" onclick="TileForgeLocalesUI.apply()">Apply</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

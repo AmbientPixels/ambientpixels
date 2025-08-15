@@ -15,7 +15,22 @@ document.addEventListener('DOMContentLoaded', function() {
   setupLiveEditor();
   setupPresetControls(); // Initialize preset dropdowns
   initializeFilters();
-  
+
+  // Attach Manage Locales button event
+  const manageLocalesBtn = document.getElementById('manageLocalesBtn');
+  if (manageLocalesBtn) {
+    manageLocalesBtn.addEventListener('click', function() {
+      console.log('[DEBUG] Manage Locales button clicked');
+      if (window.TileForgeLocalesUI && typeof window.TileForgeLocalesUI.open === 'function') {
+        console.log('[DEBUG] TileForgeLocalesUI.open is available, opening modal');
+        window.TileForgeLocalesUI.open();
+      } else {
+        console.error('[ERROR] TileForgeLocalesUI.open is not available');
+        alert('Locale Picker UI not loaded.');
+      }
+    });
+  }
+
   // Initialize template system
   if (typeof window.templateSystem !== 'undefined') {
     window.templateSystem.initialize();
