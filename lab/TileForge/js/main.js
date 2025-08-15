@@ -1,6 +1,42 @@
 // TileForge Main Initialization Module
 // Coordinates all modules and handles application startup
 
+// --- Locale Modal <-> Preview Synchronization State ---
+// Track which locales are currently active in the preview (default: all loaded locales)
+let activeLocalesForPreview = [];
+
+function getActiveLocalesForPreview() {
+  // If not set, default to all locales in currentCsvData
+  if (!activeLocalesForPreview || activeLocalesForPreview.length === 0) {
+    if (window.currentCsvData && Array.isArray(window.currentCsvData)) {
+      activeLocalesForPreview = [...new Set(window.currentCsvData.map(row => row.Locale || row.locale))].sort();
+    }
+  }
+  return activeLocalesForPreview;
+}
+
+function setActiveLocalesForPreview(locales) {
+  activeLocalesForPreview = Array.isArray(locales) ? [...locales] : [];
+}
+
+function filterPreviewByActiveLocales() {
+  const localeSections = document.querySelectorAll('.locale-section');
+  const activeSet = new Set(getActiveLocalesForPreview());
+  localeSections.forEach(section => {
+    const header = section.querySelector('.locale-header');
+    if (!header) return;
+    // Locale code is in the badge span
+    const badge = header.querySelector('.country-badge');
+    const locale = badge ? badge.textContent.trim() : header.textContent.split(' ')[0];
+    if (activeSet.has(locale)) {
+      section.style.display = '';
+    } else {
+      section.style.display = 'none';
+    }
+  });
+}
+
+
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
   // Check if intro should be shown
@@ -23,7 +59,11 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('[DEBUG] Manage Locales button clicked');
       if (window.TileForgeLocalesUI && typeof window.TileForgeLocalesUI.open === 'function') {
         console.log('[DEBUG] TileForgeLocalesUI.open is available, opening modal');
-        window.TileForgeLocalesUI.open();
+        window.TileForgeLocalesUI.open(function(selectedLocales) {
+          // Update active locales and filter the preview
+          setActiveLocalesForPreview(selectedLocales);
+          filterPreviewByActiveLocales();
+        }, getActiveLocalesForPreview());
       } else {
         console.error('[ERROR] TileForgeLocalesUI.open is not available');
         alert('Locale Picker UI not loaded.');

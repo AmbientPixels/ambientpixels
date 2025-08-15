@@ -58,7 +58,8 @@ window.TileForgeLocales = (function() {
     "UK-UA": { language: "Ukrainian", country: "Ukraine" },
     "ZH-HK": { language: "Chinese", country: "Hong Kong" },
     "ZH-SG": { language: "Chinese", country: "Singapore" },
-    "ZH-TW": { language: "Chinese", country: "Taiwan" }
+    "ZH-TW": { language: "Chinese", country: "Taiwan" },
+    "INVARIANT": { language: "Invariant", country: "Invariant" }
   };
 
 
