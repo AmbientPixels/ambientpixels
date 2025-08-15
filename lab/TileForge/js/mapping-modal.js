@@ -547,10 +547,25 @@ class MappingModal {
    */
   updatePreview() {
     if (!this.currentData || !window.headlinerCrafter) return;
-    
+
     const previewContainer = document.getElementById('previewContainer');
     const transformedData = window.headlinerCrafter.transformData(this.currentData);
-    
+
+    // Get active locales for preview from global state (TileForge main.js)
+    let activeLocales = [];
+    if (typeof window.getActiveLocalesForPreview === 'function') {
+      activeLocales = window.getActiveLocalesForPreview();
+    } else if (window.activeLocalesForPreview && Array.isArray(window.activeLocalesForPreview)) {
+      activeLocales = window.activeLocalesForPreview;
+    }
+    console.log('[MappingModal.updatePreview] activeLocales:', activeLocales);
+    console.log('[MappingModal.updatePreview] transformedData locales:', transformedData.map(r => r.locale));
+    let filteredData = transformedData;
+    if (activeLocales && Array.isArray(activeLocales) && activeLocales.length > 0) {
+      filteredData = transformedData.filter(row => activeLocales.includes(row.locale));
+    }
+    console.log('[MappingModal.updatePreview] filteredData locales:', filteredData.map(r => r.locale));
+
     const previewHTML = `
       <div class="preview-table">
         <div class="preview-header">
@@ -559,7 +574,7 @@ class MappingModal {
           <div class="preview-cell">Subheadline</div>
           <div class="preview-cell">Narrator</div>
         </div>
-        ${transformedData.map(row => `
+        ${filteredData.map(row => `
           <div class="preview-row" data-locale="${row.locale}" data-language="${row.language || ''}" data-region="${row.region || ''}">
             <div class="preview-cell">${row.locale}</div>
             <div class="preview-cell">${row.headline}</div>
@@ -569,10 +584,10 @@ class MappingModal {
         `).join('')}
       </div>
       <div class="preview-note">
-        <small>Showing all ${transformedData.length} rows</small>
+        <small>Showing ${filteredData.length} of ${transformedData.length} rows${filteredData.length !== transformedData.length ? ' (filtered)' : ''}</small>
       </div>
     `;
-    
+
     previewContainer.innerHTML = previewHTML;
   }
 
