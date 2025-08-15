@@ -41,7 +41,7 @@ class MappingModal {
             <!-- CSV Upload Section -->
             <div id="csv-upload-section" class="upload-section">
               <div class="csv-drop-zone" id="modalCsvDropZone">
-                <div class="drop-zone-content">
+                <div class="csv-drop-zone-content">
                   <i class="fas fa-file-csv upload-icon"></i>
                   <h4>Drop CSV File Here</h4>
                   <p>or <span class="browse-link" onclick="document.getElementById('modalCsvInput').click()">browse files</span></p>

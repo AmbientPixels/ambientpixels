@@ -1,0 +1,83 @@
+/* TileForge Case Converter Tool Styles */
+.case-converter-panel {
+  max-width: 100%;
+  width: 100%;
+  margin: 24px auto;
+  padding: 22px 24px;
+  background: var(--aura-bg, #181c24);
+  border-radius: 13px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  color: var(--aura-fg, #fff);
+  box-sizing: border-box;
+}
+.case-converter-panel h3 {
+  margin-top: 0;
+  font-size: 1.2rem;
+  color: var(--aura-accent, #4fd1c5);
+}
+.case-converter-panel textarea {
+  width: 100%;
+  min-height: 70px;
+  margin-bottom: 10px;
+  padding: 9px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid var(--aura-border, #333);
+  background: var(--aura-tile, #232733);
+  color: var(--aura-fg, #fff);
+  resize: vertical;
+  box-sizing: border-box;
+}
+.case-converter-btns,
+.case-converter-btns-grid,
+.output-section {
+  width: 100%;
+  box-sizing: border-box;
+}
+.case-converter-panel textarea:focus {
+  outline: none;
+  border: 1.5px solid var(--aura-accent, #4fd1c5);
+}
+.case-converter-btns {
+  display: flex;
+  width: 100%;
+  margin-bottom: 8px;
+}
+.case-btn-large {
+  flex: 1 1 100%;
+  font-size: 1rem;
+  padding: 10px 10px;
+  font-weight: 600;
+}
+.case-converter-btns-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+.case-converter-btns-grid button {
+  width: 100%;
+  font-size: 0.85rem;
+  padding: 6px 8px;
+}
+.case-converter-btns button {
+  flex: 1;
+  margin: 0;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  white-space: normal;
+  word-break: break-word;
+  font-size: 0.85rem;
+  padding: 6px 8px;
+}
+.case-converter-btns button:hover {
+}
+.case-converter-panel label {
+  font-size: 0.96rem;
+  color: var(--aura-accent, #4fd1c5);
+  padding-bottom: 4px;
+  margin-bottom: 2px;
+  display: block;
+}
