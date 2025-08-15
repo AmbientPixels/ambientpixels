@@ -60,9 +60,22 @@ document.addEventListener('DOMContentLoaded', function() {
       if (window.TileForgeLocalesUI && typeof window.TileForgeLocalesUI.open === 'function') {
         console.log('[DEBUG] TileForgeLocalesUI.open is available, opening modal');
         window.TileForgeLocalesUI.open(function(selectedLocales) {
-          // Update active locales and filter the preview
+          // Update active locales
           setActiveLocalesForPreview(selectedLocales);
-          filterPreviewByActiveLocales();
+          // For each selected locale, ensure a row exists (use blank/default if missing)
+          let mergedRows = [];
+          if (selectedLocales.length > 0) {
+            const csvRows = (window.currentCsvData && Array.isArray(window.currentCsvData)) ? window.currentCsvData : [];
+            selectedLocales.forEach(locale => {
+              const match = csvRows.find(row => (row.Locale || row.locale) === locale);
+              if (match) {
+                mergedRows.push(match);
+              } else {
+                mergedRows.push({ Locale: locale, 'items/0/title': '', 'items/0/subtitle': '', 'items/0/narratorText': '' });
+              }
+            });
+          }
+          renderLocaleGroups(mergedRows);
         }, getActiveLocalesForPreview());
       } else {
         console.error('[ERROR] TileForgeLocalesUI.open is not available');

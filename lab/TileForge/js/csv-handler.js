@@ -25,9 +25,8 @@ function parseCSV(csvText) {
 
 // Load default CSV data on page initialization
 function loadDefaultData() {
-  const csvRows = parseCSV(DEFAULT_CSV_DATA);
-  window.currentCsvData = csvRows;
-  renderLocaleGroups(csvRows);
+  window.currentCsvData = [];
+  renderLocaleGroups([]);
 }
 
 // Handle CSV file upload - restored to original behavior
