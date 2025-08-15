@@ -887,6 +887,10 @@ body {
 }
 
 /* Background Toggle Control - Under Preview Tile */
+.preset-options .bg-toggle-control {
+  margin-bottom: 14px;
+}
+
 .bg-toggle-control {
   display: flex;
   align-items: center;

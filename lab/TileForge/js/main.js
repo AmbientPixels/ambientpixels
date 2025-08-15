@@ -209,41 +209,47 @@ function populateLocaleFilter() {
   const languageFilter = document.getElementById('languageFilter');
   const regionFilter = document.getElementById('regionFilter');
   
-  if (!currentCsvData) return;
-  
-  // Get unique locales
-  const locales = [...new Set(currentCsvData.map(row => row.Locale || row.locale))].sort();
-  
-  // Populate locale filter
+  // Use all locales from the master locale mapping
+  const allLocales = window.TileForgeLocales && typeof window.TileForgeLocales.getAllLocales === 'function'
+    ? window.TileForgeLocales.getAllLocales()
+    : [];
+
   if (localeFilter) {
     localeFilter.innerHTML = '<option value="all">All Locales</option>';
-    locales.forEach(locale => {
+    allLocales.forEach(locale => {
+      const info = window.TileForgeLocales.getLocaleInfo(locale);
       const option = document.createElement('option');
       option.value = locale;
-      option.textContent = `${locale} - ${LOCALE_NAMES[locale] || locale}`;
+      option.textContent = `${locale} - ${(info && info.language ? info.language : '')} ${(info && info.country ? '(' + info.country + ')' : '')}`.trim();
       localeFilter.appendChild(option);
     });
   }
-  
+
   // Populate language filter
   if (languageFilter) {
-    const languages = [...new Set(locales.map(locale => getLanguageFromLocale(locale)))].sort();
+    const languageSet = new Set();
+    allLocales.forEach(locale => {
+      const info = window.TileForgeLocales.getLocaleInfo(locale);
+      if (info && info.language) languageSet.add(info.language);
+    });
+    const languages = Array.from(languageSet).sort();
     languageFilter.innerHTML = '<option value="all">All Languages</option>';
     languages.forEach(lang => {
       const option = document.createElement('option');
       option.value = lang;
-      option.textContent = `${LANGUAGE_MAP[lang] || lang} (${lang})`;
+      option.textContent = lang;
       languageFilter.appendChild(option);
     });
   }
-  
+
   // Populate region filter
   if (regionFilter) {
-    const regions = [...new Set(locales.map(locale => {
-      const regionCode = getRegionFromLocale(locale);
-      return REGION_MAP[regionCode] || regionCode;
-    }))].sort();
-    
+    const regionSet = new Set();
+    allLocales.forEach(locale => {
+      const info = window.TileForgeLocales.getLocaleInfo(locale);
+      if (info && info.country) regionSet.add(info.country);
+    });
+    const regions = Array.from(regionSet).sort();
     regionFilter.innerHTML = '<option value="all">All Regions</option>';
     regions.forEach(region => {
       const option = document.createElement('option');
@@ -263,41 +269,49 @@ function applyFilters() {
   let visibleCount = 0;
   let totalCount = 0;
   
-  // Get all locale sections
+  // Only operate on locale sections that are actually rendered in the live preview area.
   const localeSections = document.querySelectorAll('.locale-section');
-  
+  const activeLocales = new Set(getActiveLocalesForPreview());
+
   localeSections.forEach(section => {
     const localeHeader = section.querySelector('.locale-header');
     if (!localeHeader) return;
-    
+
     const locale = localeHeader.textContent.split(' ')[0];
-    const language = getLanguageFromLocale(locale);
-    const regionCode = getRegionFromLocale(locale);
-    const region = REGION_MAP[regionCode] || regionCode;
+    if (!activeLocales.has(locale)) {
+      // Hide any section not in the active/previewed locales
+      section.style.display = 'none';
+      return;
+    }
+
+    // Use mapping for language/region info
+    const info = window.TileForgeLocales && window.TileForgeLocales.getLocaleInfo ? window.TileForgeLocales.getLocaleInfo(locale) : {};
+    const language = info.language || getLanguageFromLocale(locale);
+    const region = info.country || getRegionFromLocale(locale);
     const tiles = section.querySelectorAll('.tile-container');
-    
+
     // Check if this locale should be visible based on all filters
     const localeVisible = localeFilter === 'all' || locale === localeFilter;
     const languageVisible = languageFilter === 'all' || language === languageFilter;
     const regionVisible = regionFilter === 'all' || region === regionFilter;
-    
+
     if (!localeVisible || !languageVisible || !regionVisible) {
       section.style.display = 'none';
       return;
     }
-    
+
     let sectionHasVisibleTiles = false;
-    
+
     tiles.forEach(tileContainer => {
       totalCount++;
       const tile = tileContainer.querySelector('.tile-preview');
-      
+
       if (tile) {
         const tileStatus = getTileStatus(tile);
-        const statusVisible = statusFilter === 'all' || 
+        const statusVisible = statusFilter === 'all' ||
                              (statusFilter === 'clean' && tileStatus === 'clean') ||
                              (statusFilter === 'issues' && tileStatus === 'issues');
-        
+
         if (statusVisible) {
           tileContainer.style.display = 'block';
           visibleCount++;
@@ -307,11 +321,11 @@ function applyFilters() {
         }
       }
     });
-    
+
     // Show/hide the entire section
     section.style.display = sectionHasVisibleTiles ? 'block' : 'none';
   });
-  
+
   updateFilterStatus(visibleCount, totalCount, statusFilter, languageFilter, regionFilter, localeFilter);
 }
 
