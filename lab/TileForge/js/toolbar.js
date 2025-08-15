@@ -66,6 +66,15 @@
     if (saveBtn) saveBtn.addEventListener('click', manualSave);
     if (cloneBtn) cloneBtn.addEventListener('click', cloneCurrentState);
     if (newBtn) newBtn.addEventListener('click', newDataSet);
+    var exportBtn = document.getElementById('toolbarExportBtn');
+    if (exportBtn) exportBtn.addEventListener('click', function() {
+      if (typeof window.exportToCSV === 'function') {
+        window.exportToCSV();
+      } else {
+        alert('Export function not available.');
+      }
+    });
+    // updated by Cascade
   });
 
   // Expose for integration with export flow

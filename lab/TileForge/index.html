@@ -201,12 +201,13 @@
       <!-- Controls Section -->
       <div class="controls-section">
         <!-- Toolbar: Save, Clone, New -->
-        <div class="tileforge-toolbar" id="tileforgeToolbar">
-          <button class="toolbar-btn" id="toolbarSaveBtn" title="Save"><i class="fas fa-save"></i></button>
-          <button class="toolbar-btn" id="toolbarCloneBtn" title="Clone"><i class="fas fa-clone"></i></button>
-          <button class="toolbar-btn" id="toolbarNewBtn" title="New"><i class="fas fa-plus"></i></button>
-        </div>
         <h3><i class="fas fa-cog"></i> Controls</h3>
+        <div class="tileforge-toolbar" id="tileforgeToolbar">
+  <button class="toolbar-btn" id="toolbarSaveBtn" title="Save"><i class="fas fa-save"></i></button>
+  <button class="toolbar-btn" id="toolbarCloneBtn" title="Clone"><i class="fas fa-clone"></i></button>
+  <button class="toolbar-btn" id="toolbarNewBtn" title="New"><i class="fas fa-plus"></i></button>
+  <button class="toolbar-btn export-btn" id="toolbarExportBtn" title="Export to CSV"><i class="fas fa-file-export"></i> Export</button>
+</div>
         
         <!-- File Info -->
         <div class="file-info" id="fileInfo" style="display: none;">
@@ -222,10 +223,9 @@
         
         <!-- Controls -->
         <div class="control-group">
-          <button class="control-btn" onclick="exportToCSV()"><i class="fas fa-file-export"></i> Export to CSV</button>
-          <button class="control-btn transform-btn" onclick="openTransformModal()"><i class="fas fa-exchange-alt"></i> Transform Data</button>
-          <button class="control-btn headliner-btn" onclick="openHeadlinerCrafter()"><i class="fas fa-magic"></i> Headliner Crafter</button>
-        </div>
+  <button class="control-btn transform-btn" onclick="openTransformModal()"><i class="fas fa-exchange-alt"></i> Transform Data</button>
+  <button class="control-btn headliner-btn" onclick="openHeadlinerCrafter()"><i class="fas fa-magic"></i> Headliner Crafter</button>
+</div>
         
         <!-- Simple Filters -->
         <div class="simple-filters">
