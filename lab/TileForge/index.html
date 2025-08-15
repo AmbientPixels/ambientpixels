@@ -171,30 +171,6 @@
         </div>
       </div>
       
-      <!-- Upload Section -->
-      <div class="upload-section">
-        <h3><i class="fas fa-file-upload"></i> File Upload</h3>
-        
-        <div class="drop-zone" id="imgDropZone">
-          <div class="drop-zone-content">
-            <i class="upload-icon"><i class="fas fa-image"></i></i>
-            <h4>Drop Image Here</h4>
-            <p>or <span class="browse-link" onclick="document.getElementById('imgInput').click()">browse files</span></p>
-            <small>PNG, JPG, or GIF</small>
-          </div>
-          <input type="file" id="imgInput" accept="image/*" style="display: none;" />
-        </div>
-        
-        <div class="drop-zone" id="csvDropZone">
-          <div class="drop-zone-content">
-            <i class="upload-icon"><i class="fas fa-file-csv"></i></i>
-            <h4>Drop CSV File Here</h4>
-            <p>or <span class="browse-link" onclick="document.getElementById('csvInput').click()">browse files</span></p>
-            <small>Iris Localization CSV format</small>
-          </div>
-          <input type="file" id="csvInput" accept=".csv" style="display: none;" />
-        </div>
-      </div>
 
       <!-- Simple Filters -->
       <div class="simple-filters">
@@ -380,11 +356,23 @@
         <div class="editing-content">
           <div class="preview-column">
             <div class="preview-tile-container">
-              <div class="preview-tile" id="previewTile">
+              <div class="preview-tile dnd-image-zone" id="previewTile">
                 <div class="tile-status-badge clean"><i class="fas fa-check-circle"></i></div>
                 <div class="tile-overlay">
                   <div class="tile-title" id="previewTitle">Fortnite OG</div>
                   <div class="tile-subtitle" id="previewSubtitle">New season</div>
+                </div>
+                <div class="dnd-image-message" id="dndImageMessage" style="display: none;">
+                  <i class="fas fa-image"></i>
+                  <span>Drop image here</span>
+                </div>
+              </div>
+              <!-- CSV drop zone below preview tile -->
+              <div class="dnd-csv-zone" id="dndCsvZonePreview" style="display: none;">
+                <div class="dnd-csv-message">
+                  <i class="fas fa-file-csv"></i>
+                  <span>Drop CSV file here</span>
+                  <small>Iris Localization CSV format</small>
                 </div>
               </div>
             </div>
@@ -406,6 +394,14 @@
                   <input type="checkbox" id="autoLocalizeToggle" checked>
                   <span class="slider"></span>
                 </label>
+              </div>
+              <!-- Added above-the-fold CSV/XML drop zone -->
+              <div id="autoLocalizeDropZone" class="dnd-csv-zone" style="display:flex; justify-content: center; align-items: center; min-height: 80px; border: 2px dashed #3a4a5d; border-radius: 10px; margin: 18px 0 0 0; background: #181f29;">
+                <div class="dnd-csv-message">
+                  <i class="fas fa-file-csv" style="font-size: 1.5em;"></i>
+                  <span style="display:block; font-size: 1em; margin-top: 6px;">Drop CSV or XML file to auto-localize</span>
+                  <small style="display:block; margin-top: 2px; color: #8ab4f8;">Iris Localization CSV or XML format</small>
+                </div>
               </div>
             </div>
           </div>
@@ -510,8 +506,25 @@
       </div>
       
       <!-- Locale Groups Container -->
-      <div class="locale-groups-container" id="localeGroups">
-        <!-- Locale groups will be dynamically generated here -->
+      <div class="locale-groups-container" id="localeGroupsContainer">
+        <div class="dnd-csv-zone" id="dndCsvZone" style="display:none;">
+          <div class="dnd-csv-message">
+            <i class="fas fa-file-csv"></i>
+            <span>Drop CSV file here</span>
+            <small>Iris Localization CSV format</small>
+          </div>
+        </div>
+        <!-- Drop zone appears if no data is loaded -->
+        <div id="emptyDropZone" class="dnd-csv-zone" style="display:none; justify-content: center; align-items: center; min-height: 120px; border: 2px dashed #3a4a5d; border-radius: 12px; margin: 32px 0; background: #181f29;">
+          <div class="dnd-csv-message">
+            <i class="fas fa-file-csv" style="font-size: 2em;"></i>
+            <span style="display:block; font-size: 1.1em; margin-top: 8px;">Drop CSV or XML file here to begin</span>
+            <small style="display:block; margin-top: 4px; color: #8ab4f8;">Iris Localization CSV or XML format</small>
+          </div>
+        </div>
+        <div id="localeGroups">
+          <!-- Locale groups will be dynamically generated here -->
+        </div>
       </div>
     </div>
   </div>
@@ -536,6 +549,8 @@
   <script src="js/template-system.js"></script>
   <script src="js/main.js"></script>
   <script src="js/toolbar.js"></script>
+  <script src="js/drag-drop-preview.js"></script>
+  <script src="js/drag-drop-csv.js"></script>
   <!-- Locale Picker Modal -->
   <div id="localePickerModal" class="modal-overlay">
     <div class="modal small">

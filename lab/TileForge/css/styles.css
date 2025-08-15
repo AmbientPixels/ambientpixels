@@ -604,6 +604,110 @@ body {
   opacity: 0.8;
 }
 
+.preview-tile-container {
+}
+
+.dnd-image-zone {
+}
+
+/* Drag-and-drop image overlay for per-tile tiles */
+.dnd-image-zone-tile {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 5;
+  background: rgba(32, 90, 180, 0.18);
+  border: 2.5px dashed #2684ff;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  flex-direction: column;
+  color: #2684ff;
+  font-size: 1.15em;
+  transition: background 0.18s, border 0.18s;
+}
+.dnd-image-zone-tile .dnd-image-message {
+  text-align: center;
+  font-weight: 500;
+  opacity: 0.95;
+  pointer-events: none;
+}
+.tile-preview.drag-over {
+  border-color: #1976d2 !important;
+  box-shadow: 0 0 0 2px #1976d233;
+}
+
+
+.dnd-csv-zone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+  background: linear-gradient(120deg, #222a3c 60%, #23272f 100%);
+  border: 2.5px dashed #4f8cff;
+  border-radius: 16px;
+  cursor: pointer;
+  box-shadow: 0 2px 16px 0 #e3f2fd60;
+}
+.dnd-csv-zone.drag-over {
+  border-color: #0d47a1;
+  background: linear-gradient(90deg, #bbdefb 0%, #e3f2fd 100%);
+  box-shadow: 0 2px 24px 0 #1976d220;
+}
+.dnd-csv-message {
+  text-align: center;
+  color: #1565c0;
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.dnd-csv-message i {
+  font-size: 2.8rem;
+  margin-bottom: 10px;
+  display: block;
+  color: #1976d2;
+}
+.dnd-csv-message span {
+  display: block;
+  font-size: 1.12em;
+  margin-bottom: 4px;
+}
+.dnd-csv-message small {
+  display: block;
+  color: #1976d2;
+  font-size: 1.01rem;
+  margin-top: 6px;
+}
+.drop-zone, .drop-zone-content {
+  display: none !important;
+} /* updated by Cascade 2025-08-14 */
+.dnd-image-zone.drag-over {
+  box-shadow: 0 0 0 4px #4f8cff66;
+  border: 2.5px dashed #4f8cff;
+}
+.dnd-image-message {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #4f8cff;
+  background: rgba(34, 40, 60, 0.88);
+  font-size: 1.5rem;
+  font-weight: 600;
+  z-index: 5;
+  border-radius: 18px;
+  pointer-events: none;
+  gap: 10px;
+  opacity: 0.96;
+}
+.dnd-image-message i {
+  font-size: 2.7rem;
+  margin-bottom: 6px;
+}
+
 .theme-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));

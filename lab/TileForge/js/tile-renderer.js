@@ -24,6 +24,43 @@ function createTile(locale, title, subtitle, narratorText, analysis) {
       tile.classList.add('mobile-spotlight');
     }
   }
+
+  // Add drag-and-drop image overlay for per-tile image upload
+  const dndOverlay = document.createElement('div');
+  dndOverlay.className = 'dnd-image-zone-tile';
+  dndOverlay.innerHTML = '<div class="dnd-image-message"><i class="fas fa-image"></i><br>Drop image here<br><small>Overrides only this tile</small></div>';
+  dndOverlay.style.display = 'none';
+  tile.appendChild(dndOverlay);
+
+  // Drag-and-drop handlers for per-tile image
+  tile.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    dndOverlay.style.display = 'flex';
+    tile.classList.add('drag-over');
+  });
+  tile.addEventListener('dragleave', function(e) {
+    dndOverlay.style.display = 'none';
+    tile.classList.remove('drag-over');
+  });
+  tile.addEventListener('drop', function(e) {
+    e.preventDefault();
+    dndOverlay.style.display = 'none';
+    tile.classList.remove('drag-over');
+    const files = e.dataTransfer.files;
+    if (files && files[0] && files[0].type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        tile.style.backgroundImage = `url(${evt.target.result})`;
+        tileContainer.dataset.imageSrc = evt.target.result;
+      };
+      reader.readAsDataURL(files[0]);
+    }
+  });
+  // Hide overlay on mouseout
+  tile.addEventListener('mouseout', function(e) {
+    dndOverlay.style.display = 'none';
+    tile.classList.remove('drag-over');
+  });
   
   tile.dataset.locale = locale;
   tile.dataset.originalTitle = title;
