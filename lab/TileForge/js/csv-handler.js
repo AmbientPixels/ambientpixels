@@ -200,8 +200,10 @@ function generateCSVContent(data) {
 
 // Download CSV file to user's system
 function downloadCSVFile(csvContent, filename) {
-  // Create blob with CSV content
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  // Add UTF-8 BOM to ensure special characters are preserved in Excel and other apps
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+  // updated by Cascade
   
   // Create download link
   const link = document.createElement('a');
