@@ -127,8 +127,15 @@ class ModalSystem {
         
         switch (action) {
           case 'confirm':
-            if (config.onConfirm) config.onConfirm();
+            console.log('[Modal] Confirm button clicked for modal:', config.id);
+            try {
+              if (config.onConfirm) config.onConfirm();
+            } catch (err) {
+              console.error('[Modal] Error in onConfirm callback:', err);
+            }
+            console.log('[Modal] About to call hideModal for:', config.id);
             this.hideModal(config.id);
+            console.log('[Modal] hideModal call returned for:', config.id);
             break;
           case 'cancel':
             if (config.onCancel) config.onCancel();
@@ -165,6 +172,7 @@ class ModalSystem {
 
   hideModal(modalId) {
     const overlay = document.getElementById(`${modalId}-overlay`);
+    console.log('[Modal] hideModal called for:', modalId, 'overlay:', overlay);
     if (overlay) {
       overlay.classList.remove('active');
       
@@ -179,9 +187,12 @@ class ModalSystem {
       // Auto-destroy after animation
       setTimeout(() => {
         if (!overlay.classList.contains('active')) {
+          console.log('[Modal] Destroying modal:', modalId);
           this.destroyModal(modalId);
         }
       }, 300);
+    } else {
+      console.warn('[Modal] hideModal: overlay not found for', modalId);
     }
   }
 

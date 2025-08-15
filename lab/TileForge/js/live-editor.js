@@ -254,36 +254,63 @@ function setupLiveEditor() {
   // Apply manually entered title text to all tiles
   if (titleManualApplyBtn) {
     titleManualApplyBtn.addEventListener('click', function() {
-      const manualText = titleInput ? titleInput.value.trim() : '';
-      if (manualText) {
-        applyManualTextToAllTiles(manualText, 'title');
-      } else {
-        alert('Please enter some text in the Title field first');
-      }
+        const manualText = titleInput ? titleInput.value.trim() : '';
+        if (manualText) {
+            applyManualTextToAllTiles(manualText, 'title');
+        } else {
+            const modal = window.showModal(
+    'This will clear the Title field for all tiles. Are you sure?',
+    {
+        confirmText: 'Clear All',
+        cancelText: 'Cancel',
+        onConfirm: function() {
+            applyManualTextToAllTiles('', 'title');
+        }
+    }
+);
+        }
     });
   }
   
   // Apply manually entered subtitle text to all tiles
   if (subtitleManualApplyBtn) {
     subtitleManualApplyBtn.addEventListener('click', function() {
-      const manualText = subtitleInput ? subtitleInput.value.trim() : '';
-      if (manualText) {
-        applyManualTextToAllTiles(manualText, 'subtitle');
-      } else {
-        alert('Please enter some text in the Subtitle field first');
-      }
+        const manualText = subtitleInput ? subtitleInput.value.trim() : '';
+        if (manualText) {
+            applyManualTextToAllTiles(manualText, 'subtitle');
+        } else {
+            const modal = window.showModal(
+    'This will clear the Subtitle field for all tiles. Are you sure?',
+    {
+        confirmText: 'Clear All',
+        cancelText: 'Cancel',
+        onConfirm: function() {
+            applyManualTextToAllTiles('', 'subtitle');
+        }
+    }
+);
+        }
     });
   }
   
   // Apply manually entered narrator text to all tiles
   if (narratorManualApplyBtn) {
     narratorManualApplyBtn.addEventListener('click', function() {
-      const manualText = narratorInput ? narratorInput.value.trim() : '';
-      if (manualText) {
-        applyManualTextToAllTiles(manualText, 'narrator');
-      } else {
-        alert('Please enter some text in the Narrator field first');
-      }
+        const manualText = narratorInput ? narratorInput.value.trim() : '';
+        if (manualText) {
+            applyManualTextToAllTiles(manualText, 'narrator');
+        } else {
+            const modal = window.showModal(
+    'This will clear the Narrator field for all tiles. Are you sure?',
+    {
+        confirmText: 'Clear All',
+        cancelText: 'Cancel',
+        onConfirm: function() {
+            applyManualTextToAllTiles('', 'narrator');
+        }
+    }
+);
+        }
     });
   }
 }
