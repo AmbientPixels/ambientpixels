@@ -1,10 +1,10 @@
 {
-  "updated": "2025-08-14T13:36:41.275Z",
+  "updated": "2025-08-15T13:32:19.352Z",
   "entries": [
     {
-      "hash": "98a7092",
-      "date": "2025-08-13 23:11:47 -0700",
-      "message": "bad committ"
+      "hash": "d138d8e",
+      "date": "2025-08-15 03:15:02 -0700",
+      "message": "Fix: Prevent \"Please select a valid CSV file.\" alert when dragging XML files in mapping modal"
     }
   ]
 }
