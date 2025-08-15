@@ -33,7 +33,7 @@ class MappingModal {
       <div id="mapping-modal" class="modal-overlay" style="display: none;">
         <div class="modal-container">
           <div class="modal-header">
-            <h2><i class="fas fa-magic"></i> Headliner Crafter</h2>
+            <h2><i class="fas fa-magic"></i> Headline Mapper</h2>
             <button class="modal-close">&times;</button>
           </div>
           
@@ -160,9 +160,7 @@ class MappingModal {
             this.handleCsvUpload(rows); // Reuse CSV handler with normalized data
           };
           reader.readAsText(file);
-
-            this.handleCsvUpload(file); // Call modal's own handleCsvUpload method
-          } else {
+        } else {
             alert('Please upload a valid CSV file.');
           }
         }
@@ -177,7 +175,21 @@ class MappingModal {
     // CSV file input
     const csvInput = document.getElementById('modalCsvInput');
     if (csvInput) {
-      csvInput.addEventListener('change', (e) => this.handleCsvUpload(e.target.files[0]));
+      csvInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.type === 'text/xml' || file.name.endsWith('.xml')) {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            const xmlString = ev.target.result;
+            const rows = window.headlinerCrafter.constructor.parseXML(xmlString);
+            this.handleCsvUpload(rows);
+          };
+          reader.readAsText(file);
+        } else {
+          this.handleCsvUpload(file);
+        }
+      });
     }
 
 
@@ -257,7 +269,7 @@ class MappingModal {
     // If input is an array (from XML), process directly
     if (Array.isArray(input)) {
       if (!input.length) {
-        alert('XML file appears to be empty or invalid.');
+        /* No alert for empty or invalid XML file */
         return;
       }
       console.log('📁 Processing uploaded XML data:', input.length, 'rows');
@@ -297,7 +309,7 @@ class MappingModal {
         document.getElementById('importBtn').style.display = 'inline-block';
       } catch (error) {
         console.error('❌ Error parsing CSV:', error);
-        alert('Error parsing CSV file: ' + error.message);
+        /* No alert for CSV parse error */
       }
     };
     reader.readAsText(input);
@@ -547,25 +559,10 @@ class MappingModal {
    */
   updatePreview() {
     if (!this.currentData || !window.headlinerCrafter) return;
-
+    
     const previewContainer = document.getElementById('previewContainer');
     const transformedData = window.headlinerCrafter.transformData(this.currentData);
-
-    // Get active locales for preview from global state (TileForge main.js)
-    let activeLocales = [];
-    if (typeof window.getActiveLocalesForPreview === 'function') {
-      activeLocales = window.getActiveLocalesForPreview();
-    } else if (window.activeLocalesForPreview && Array.isArray(window.activeLocalesForPreview)) {
-      activeLocales = window.activeLocalesForPreview;
-    }
-    console.log('[MappingModal.updatePreview] activeLocales:', activeLocales);
-    console.log('[MappingModal.updatePreview] transformedData locales:', transformedData.map(r => r.locale));
-    let filteredData = transformedData;
-    if (activeLocales && Array.isArray(activeLocales) && activeLocales.length > 0) {
-      filteredData = transformedData.filter(row => activeLocales.includes(row.locale));
-    }
-    console.log('[MappingModal.updatePreview] filteredData locales:', filteredData.map(r => r.locale));
-
+    
     const previewHTML = `
       <div class="preview-table">
         <div class="preview-header">
@@ -574,7 +571,7 @@ class MappingModal {
           <div class="preview-cell">Subheadline</div>
           <div class="preview-cell">Narrator</div>
         </div>
-        ${filteredData.map(row => `
+        ${transformedData.map(row => `
           <div class="preview-row" data-locale="${row.locale}" data-language="${row.language || ''}" data-region="${row.region || ''}">
             <div class="preview-cell">${row.locale}</div>
             <div class="preview-cell">${row.headline}</div>
@@ -584,10 +581,10 @@ class MappingModal {
         `).join('')}
       </div>
       <div class="preview-note">
-        <small>Showing ${filteredData.length} of ${transformedData.length} rows${filteredData.length !== transformedData.length ? ' (filtered)' : ''}</small>
+        <small>Showing all ${transformedData.length} rows</small>
       </div>
     `;
-
+    
     previewContainer.innerHTML = previewHTML;
   }
 
@@ -596,7 +593,7 @@ class MappingModal {
    */
   exportCsv() {
     if (!this.currentData || !window.headlinerCrafter) {
-      alert('No data to export');
+      /* No alert for no data to export */
       return;
     }
     
@@ -618,11 +615,11 @@ class MappingModal {
       window.URL.revokeObjectURL(url);
       
       console.log('✅ CardForge CSV exported successfully');
-      alert(`Successfully exported ${transformedData.length} locales to CSV file!`);
+      /* No alert for successful CSV export */
       
     } catch (error) {
       console.error('❌ Export error:', error);
-      alert('Error exporting data: ' + error.message);
+      /* No alert for error exporting data */
     }
   }
 
@@ -631,7 +628,7 @@ class MappingModal {
    */
   importToCardForge() {
     if (!this.currentData || !window.headlinerCrafter) {
-      alert('No data to import');
+      /* No alert for no data to import */
       return;
     }
     
@@ -674,14 +671,14 @@ class MappingModal {
       renderLocaleGroups(window.currentCsvData);
       
       console.log('✅ Content imported successfully');
-      alert(`Successfully updated content for ${transformedData.length} locales!`);
+      /* No alert for successful content import */
       
       // Close the modal
       this.hide();
       
     } catch (error) {
       console.error('❌ Import error:', error);
-      alert('Error importing content: ' + error.message);
+      /* No alert for error importing content */
     }
   }
 

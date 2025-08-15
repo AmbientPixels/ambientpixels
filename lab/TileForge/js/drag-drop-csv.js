@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (typeof handleCsvUpload === 'function') handleCsvUpload(file);
         } else if (name.endsWith('.xml')) {
           if (typeof handleXmlUpload === 'function') handleXmlUpload(file);
-          else alert('XML support coming soon.');
+          else {/* XML support coming soon - no alert */}
         }
       }
     });
@@ -133,9 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
             csvInput.files = dataTransfer.files;
             csvInput.dispatchEvent(new Event('change', { bubbles: true }));
           }
-        } else {
-          alert('Please drop a valid CSV file.');
-        }
+        } // No alert for non-CSV, allow XML to be handled elsewhere
       }
     });
   }

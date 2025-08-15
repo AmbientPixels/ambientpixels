@@ -57,8 +57,7 @@ class TransformModal {
           </label>
           <div class="file-input-wrapper">
             <input type="file" id="mapping-file-input" accept=".csv" />
-            <div class="file-status" id="mapping-status">No file selected</div>
-          </div>
+                      </div>
         </div>
         
         <div class="transform-input-group">
@@ -68,8 +67,7 @@ class TransformModal {
           </label>
           <div class="file-input-wrapper">
             <input type="file" id="source-file-input" accept=".csv" />
-            <div class="file-status" id="source-status">No file selected</div>
-          </div>
+                      </div>
         </div>
       </div>
       
@@ -423,9 +421,7 @@ class TransformModal {
           fileInput.dispatchEvent(event);
           
           console.log(`📁 File dropped: ${file.name} for ${type}`);
-        } else {
-          this.showError('Please drop a CSV file only.');
-        }
+        } // Do nothing for XML or any non-CSV file; never show error
       }
     });
 
@@ -443,8 +439,6 @@ class TransformModal {
     const statusElement = document.getElementById(`${type}-status`);
     
     if (!file) {
-      statusElement.textContent = 'No file selected';
-      statusElement.className = 'file-status';
       if (type === 'mapping') this.mappingFile = null;
       if (type === 'source') this.sourceFile = null;
       this.updateTransformButton();
@@ -452,20 +446,18 @@ class TransformModal {
     }
 
     if (!file.name.toLowerCase().endsWith('.csv')) {
-      statusElement.textContent = 'Please select a CSV file';
-      statusElement.className = 'file-status error';
+      if (file.name.toLowerCase().endsWith('.xml')) {
+        // Allow XML files, do not show CSV warning or success
+      } else {
+        // Do not show any status or error
+      }
       return;
     }
 
-    statusElement.textContent = `✓ ${file.name}`;
-    statusElement.className = 'file-status success';
-    
+    // Do not show any status or success
     if (type === 'mapping') this.mappingFile = file;
     if (type === 'source') this.sourceFile = file;
-    
     this.updateTransformButton();
-    
-    // Auto-run transformation if both files are loaded
     if (this.mappingFile && this.sourceFile) {
       setTimeout(() => this.previewTransform(), 100);
     }
@@ -667,14 +659,6 @@ class TransformModal {
     
     if (mappingInput) mappingInput.value = '';
     if (sourceInput) sourceInput.value = '';
-    if (mappingStatus) {
-      mappingStatus.textContent = 'No file selected';
-      mappingStatus.className = 'file-status';
-    }
-    if (sourceStatus) {
-      sourceStatus.textContent = 'No file selected';
-      sourceStatus.className = 'file-status';
-    }
     if (previewSection) previewSection.style.display = 'none';
     
     this.hideError();

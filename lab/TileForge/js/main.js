@@ -62,10 +62,6 @@ document.addEventListener('DOMContentLoaded', function() {
         window.TileForgeLocalesUI.open(function(selectedLocales) {
           // Update active locales
           setActiveLocalesForPreview(selectedLocales);
-          // If the mapping modal is open, update its preview as well
-          if (window.mappingModal && document.getElementById('mapping-modal')?.style.display !== 'none') {
-            window.mappingModal.updatePreview();
-          }
           // For each selected locale, ensure a row exists (use blank/default if missing)
           let mergedRows = [];
           if (selectedLocales.length > 0) {
@@ -290,8 +286,8 @@ function applyFilters() {
 
     // Use mapping for language/region info
     const info = window.TileForgeLocales && window.TileForgeLocales.getLocaleInfo ? window.TileForgeLocales.getLocaleInfo(locale) : {};
-    const language = (info && info.language) ? info.language : getLanguageFromLocale(locale);
-    const region = (info && info.country) ? info.country : getRegionFromLocale(locale);
+    const language = info.language || getLanguageFromLocale(locale);
+    const region = info.country || getRegionFromLocale(locale);
     const tiles = section.querySelectorAll('.tile-container');
 
     // Check if this locale should be visible based on all filters

@@ -42,7 +42,7 @@ function handleCsvUpload(file) {
       
     } catch (error) {
       console.error('❌ Error reading CSV file:', error);
-      alert('Failed to read CSV file. Please try again.');
+      /* No alert for failed CSV read */
     }
   };
   reader.readAsText(file);
@@ -54,7 +54,7 @@ function processCsvData(csvText, fileName, rowCount = null) {
     const csvRows = parseCSV(csvText);
     
     if (csvRows.length === 0) {
-      alert('Invalid CSV file or no data found.');
+      /* No alert for invalid CSV file or no data found */
       return;
     }
     
@@ -69,7 +69,7 @@ function processCsvData(csvText, fileName, rowCount = null) {
     
   } catch (error) {
     console.error('Error parsing CSV:', error);
-    alert('Error parsing CSV file. Please check the format.');
+    /* No alert for error parsing CSV file */
   }
 }
 
