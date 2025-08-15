@@ -558,6 +558,23 @@ body {
   margin-right: 0;
 }
 
+/* Export Button - Subtle Accent Style */
+.toolbar-btn.export-btn {
+  background: var(--aura-bg, #23272f);
+  color: var(--theme-primary, #4f8cff);
+  border: 1.5px solid var(--theme-accent, #4f8cff);
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  box-shadow: none;
+  text-shadow: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.toolbar-btn.export-btn:hover, .toolbar-btn.export-btn:focus {
+  background: var(--theme-accent, #4f8cff);
+  color: #fff;
+  border-color: #00bcf2;
+}
+
 /* Theme preview styles */
 .theme-preview-area {
   background: #f8f9fa;
