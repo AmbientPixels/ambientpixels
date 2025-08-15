@@ -448,3 +448,13 @@ const Modal = new ModalSystem();
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ModalSystem;
 }
+
+// Provide a global showModal confirmation API for all modules
+window.showModal = function(message, options = {}) {
+  const modal = Modal.confirm({
+    content: message,
+    ...options
+  });
+  modal.show();
+};
+// updated by Cascade

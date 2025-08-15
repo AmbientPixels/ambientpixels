@@ -524,8 +524,39 @@ body {
   font-size: 18px;
 }
 
+/* TileForge Toolbar Styles */
+.tileforge-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  align-items: center;
+}
 
+.toolbar-btn {
+  background: var(--aura-bg, #23272f);
+  border: none;
+  color: var(--aura-fg, #fff);
+  padding: 0.45em 0.7em;
+  border-radius: 6px;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
+.toolbar-btn:hover, .toolbar-btn:focus {
+  background: var(--aura-accent, #4f8cff);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(79,140,255,0.15);
+}
+
+.toolbar-btn i {
+  margin-right: 0;
+}
 
 /* Theme preview styles */
 .theme-preview-area {
