@@ -110,6 +110,17 @@ module.exports = async function (context, req) {
     "Content-Type": "application/json"
   };
 
+  // TEMP: Return all headers for debug purposes
+  context.res = {
+    status: 200,
+    headers: corsHeaders,
+    body: {
+      debugHeaders: req.headers,
+      message: 'TEMP: Debugging request headers for authentication.'
+    }
+  };
+  return;
+
   // CORS preflight
   if (req.method === "OPTIONS") {
     context.res = {
