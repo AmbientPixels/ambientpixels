@@ -1918,7 +1918,7 @@
       characterClass: document.getElementById('card-class')?.value || '',
       rarity: document.getElementById('card-rarity')?.value || '',
       quote: document.getElementById('card-quote')?.value || 'Shadows are my allies, silence my weapon.',
-      avatar: document.getElementById('card-avatar')?.value || '/cardforge/images/default-avatar.jpg',
+      avatar: document.getElementById('card-avatar')?.value || '',
       biography: biography,
       stats: statsData,
       socialLinks: socialData,

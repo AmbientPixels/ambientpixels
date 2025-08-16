@@ -460,7 +460,7 @@ class CardForgeActions {
       characterClass: document.getElementById('card-class')?.value || '',
       rarity: document.getElementById('card-rarity')?.value || '',
       quote: document.getElementById('card-quote')?.value || 'Shadows are my allies, silence my weapon.',
-      avatar: document.getElementById('card-avatar')?.value || '/cardforge/images/default-avatar.jpg',
+      avatar: document.getElementById('card-avatar')?.value || '',
       biography: biography,
       stats: statsData,
       socialLinks: socialData,
@@ -647,7 +647,7 @@ class CardForgeActions {
     myCardsList.innerHTML = savedCards.map(card => {
       const cardDate = new Date(card.lastModified).toLocaleDateString();
       // Use the exact avatar from JSON data - ensure it's the correct preview image
-      const cardImage = card.cardData?.avatar || '/cardforge/images/default-avatar.jpg';
+      const cardImage = card.cardData?.avatar || '';
       const cardName = card.cardData?.name || card.name || 'Untitled Card';
       const characterClass = card.cardData?.characterClass || '';
       const rarity = card.cardData?.rarity || '';
@@ -958,7 +958,7 @@ function showSavedCardsModal() {
   let gallery = '<div class="mini-card-gallery">';
   recent.forEach(card => {
     gallery += `<div class="mini-card${card.id===latestId?' saved':''}">
-      <img src="${card.cardData.avatar||'/cardforge/images/default-avatar.jpg'}" alt="${card.name}" />
+      <img src="${card.cardData.avatar||''}" alt="${card.name}" />
       <div class="mini-card-name">${card.name||'Untitled'}</div>
       ${card.id===latestId ? '<span class="saved-badge"><i class="fas fa-check"></i></span>' : ''}
     </div>`;

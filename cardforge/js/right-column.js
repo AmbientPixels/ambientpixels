@@ -192,7 +192,7 @@ class RightColumn {
       class: this.getFieldValue('card-class'),
       rarity: this.getFieldValue('card-rarity'),
       quote: this.getFieldValue('card-quote'),
-      avatar: this.getFieldValue('card-avatar') || '/cardforge/images/default-avatar.jpg',
+      avatar: this.getFieldValue('card-avatar') || '',
       
       // Stats
       stats: this.collectStats(),
