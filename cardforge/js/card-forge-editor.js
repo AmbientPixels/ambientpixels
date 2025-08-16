@@ -980,8 +980,11 @@
     // Generate random character data
     generateRandomCharacterData();
     
-    // Generate random image
-    generateRandomImage();
+    // Only randomize avatar if not already set
+    const cardAvatarInput = document.getElementById('card-avatar');
+    if (cardAvatarInput && !cardAvatarInput.value) {
+      generateRandomImage();
+    }
     
     // Update preview with new random settings (same as page load)
     updatePreview();
