@@ -194,28 +194,49 @@ class CardForgeActions {
         deckIds: existingCard ? existingCard.deckIds : []
       };
 
-      // Update existing card or add new one
-      const existingIndex = savedCards.findIndex(card => card.id === cardId);
-      
-      if (existingIndex >= 0) {
-        savedCards[existingIndex] = savedCard;
-        this.showNotification(`Card "${savedCard.name}" updated`, 'success');
-      } else {
-        // Add new cards to the TOP of the list
-        savedCards.unshift(savedCard);
-        this.showNotification(`Card "${savedCard.name}" saved`, 'success');
-      }
-
-      localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
-      
-      // Update My Cards list if visible
-      this.refreshMyCardsList();
-      
-      // Show mini-gallery modal after save
-      setTimeout(() => {
-        if (typeof showSavedCardsModal === 'function') showSavedCardsModal();
-        else if (window.showSavedCardsModal) window.showSavedCardsModal();
-      }, 250);
+      // Try to save card to Azure Blob Storage via API
+      fetch('/api/cardforgesavecards', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(savedCard)
+      })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('Azure save failed');
+        const result = await response.json();
+        this.showNotification(`Card "${savedCard.name}" saved to cloud`, 'success');
+        // Optionally update localStorage for offline viewing
+        const existingIndex = savedCards.findIndex(card => card.id === cardId);
+        if (existingIndex >= 0) {
+          savedCards[existingIndex] = savedCard;
+        } else {
+          savedCards.unshift(savedCard);
+        }
+        localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
+        this.refreshMyCardsList();
+        setTimeout(() => {
+          if (typeof showSavedCardsModal === 'function') showSavedCardsModal();
+          else if (window.showSavedCardsModal) window.showSavedCardsModal();
+        }, 250);
+      })
+      .catch(() => {
+        // Fallback: Save to localStorage if API fails
+        const existingIndex = savedCards.findIndex(card => card.id === cardId);
+        if (existingIndex >= 0) {
+          savedCards[existingIndex] = savedCard;
+          this.showNotification(`Card "${savedCard.name}" updated locally`, 'warning');
+        } else {
+          savedCards.unshift(savedCard);
+          this.showNotification(`Card "${savedCard.name}" saved locally`, 'warning');
+        }
+        localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
+        this.refreshMyCardsList();
+        setTimeout(() => {
+          if (typeof showSavedCardsModal === 'function') showSavedCardsModal();
+          else if (window.showSavedCardsModal) window.showSavedCardsModal();
+        }, 250);
+      });
       
     } catch (error) {
       console.error('Error saving card:', error);

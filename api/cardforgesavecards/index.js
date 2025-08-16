@@ -99,6 +99,7 @@ async function withRetry(operation, operationName, context, maxRetries = 3) {
 /* updated by Cascade 2025-07-15 */
 module.exports = async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request for cardforgesavecards');
+  context.log('HEADERS:', JSON.stringify(req.headers)); // Debug: output all incoming request headers
   context.log(`Request headers: ${JSON.stringify(req.headers)}`);
 
   // Add CORS headers to all responses
