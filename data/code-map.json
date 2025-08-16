@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-08-15T13:32:29.343Z",
+  "timestamp": "2025-08-16T13:28:34.957Z",
   "summary": {
     "totalJS": 1965,
     "totalCSS": 107,
@@ -2882,6 +2882,7 @@
     "setCurrentActiveLocale",
     "setDefault",
     "setDunder",
+    "setEqualCardHeight",
     "setFunctionName",
     "setHeader",
     "setHeaders",

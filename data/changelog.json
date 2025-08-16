@@ -1,10 +1,10 @@
 {
-  "updated": "2025-08-15T13:32:19.352Z",
+  "updated": "2025-08-16T13:28:25.175Z",
   "entries": [
     {
-      "hash": "d138d8e",
-      "date": "2025-08-15 03:15:02 -0700",
-      "message": "Fix: Prevent \"Please select a valid CSV file.\" alert when dragging XML files in mapping modal"
+      "hash": "44bbbcf",
+      "date": "2025-08-15 23:35:43 -0700",
+      "message": "Temp: Return all request headers in cardforgesavecards API response for authentication debugging"
     }
   ]
 }

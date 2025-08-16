@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-08-15T13:32:19.202Z",
+  "updated": "2025-08-16T13:28:25.043Z",
   "root": [
     {
       "type": "folder",
@@ -198,6 +198,12 @@
           "type": "folder",
           "name": "css",
           "path": "cardforge/css",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "images",
+          "path": "cardforge/images",
           "children": []
         },
         {
