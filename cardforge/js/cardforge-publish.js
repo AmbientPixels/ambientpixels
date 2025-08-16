@@ -25,7 +25,11 @@ async function publishCard() {
   if (!cardIdInput || !cardIdInput.value) {
 
 
-    showMessage('Please save the card before publishing', 'error');
+    if (window.rightColumn && typeof window.rightColumn.showToolMessage === 'function') {
+  window.rightColumn.showToolMessage('Please save the card before publishing', 'error');
+} else {
+  alert('Please save the card before publishing');
+}
 
 
     return;
@@ -271,7 +275,11 @@ async function publishCard() {
         console.error('[CardForge] Failed to publish card:', error);
 
 
-        showMessage(`Error publishing card: ${error.message}`, 'error');
+        if (window.rightColumn && typeof window.rightColumn.showToolMessage === 'function') {
+  window.rightColumn.showToolMessage(`Error publishing card: ${error.message}`, 'error');
+} else {
+  alert(`Error publishing card: ${error.message}`);
+}
 
 
       } finally {

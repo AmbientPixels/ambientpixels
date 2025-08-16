@@ -17,7 +17,7 @@ class CardForgeActions {
     
     // Prevent duplicate initialization
     if (this.initialized) {
-      console.log('⚠️ Already initialized, skipping...');
+      console.log(' Already initialized, skipping...');
       return;
     }
     
@@ -25,7 +25,6 @@ class CardForgeActions {
     this.bindForgeTabNavigation();
     this.refreshMyCardsList();
     this.refreshDeckList();
-    this.bindToolbarActions();
     this.initialized = true;
   }
 
@@ -126,9 +125,9 @@ class CardForgeActions {
     if (duplicateBtn) {
       duplicateBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        this.handleDuplicateCard();
+        this.handleDuplicateCard(); // updated by Cascade
       });
-    }
+    } // updated by Cascade
 
     // Reset Card button
     const resetBtn = document.getElementById('reset-card-btn');
@@ -684,16 +683,16 @@ class CardForgeActions {
               </span>
             </div>
             <div class="card-actions">
-              <button class="card-action-btn edit" onclick="cardForgeActions.loadCard('${card.id}')" title="Edit Card">
+              <button class="card-action-btn edit" type="button" onclick="cardForgeActions.loadCard('${card.id}')" title="Edit Card">
                 <i class="fas fa-edit"></i>
               </button>
-              <button class="card-action-btn save" onclick="cardForgeActions.duplicateCard('${card.id}')" title="Duplicate Card">
+              <button class="card-action-btn save" type="button" onclick="cardForgeActions.duplicateCard('${card.id}')" title="Duplicate Card"> <!-- updated by Cascade -->
                 <i class="fas fa-copy"></i>
               </button>
-              <button class="card-action-btn publish" onclick="cardForgeActions.publishCard('${card.id}')" title="Publish Card">
+              <button class="card-action-btn publish" type="button" onclick="cardForgeActions.publishCard('${card.id}')" title="Publish Card">
                 <i class="fas fa-share"></i>
               </button>
-              <button class="card-action-btn delete" onclick="window.deleteCard('${card.id}')" title="Delete Card" type="button">
+              <button class="card-action-btn delete" type="button" onclick="window.deleteCard('${card.id}')" title="Delete Card">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
@@ -722,7 +721,11 @@ class CardForgeActions {
     try {
       // Load card data into the editor
       if (window.cardForgeEditor && window.cardForgeEditor.loadCardData) {
-        window.cardForgeEditor.loadCardData(card.data);
+        console.log('[CardForge] Card object about to load:', card);
+        // Support legacy and new schemas: .data, .cardData, or direct
+        let cardData = card.data || card.cardData || card;
+        console.log('[CardForge] Card data about to load:', cardData);
+        window.cardForgeEditor.loadCardData(cardData);
         this.showNotification(`Card "${card.name}" loaded successfully`, 'success');
       } else {
         // Fallback: populate form fields manually
@@ -802,6 +805,50 @@ class CardForgeActions {
     }
   }
 }
+
+// Card duplication logic (single source of truth) - updated by Cascade
+CardForgeActions.prototype.duplicateCard = function(cardId) {
+  const savedCards = this.getSavedCards();
+  const original = savedCards.find(c => c.id === cardId);
+  if (!original) {
+    this.showNotification('Card not found', 'error');
+    return;
+  }
+  // Deep clone
+  const copy = JSON.parse(JSON.stringify(original));
+  copy.id = this.generateCardId();
+  // Name logic: "Name Copy" or "Name Copy (2)", etc.
+  let baseName = original.cardData?.name || original.name || 'Untitled Card';
+  let copyNum = 1;
+  let newName = baseName + ' Copy';
+  while (savedCards.some(c => (c.cardData?.name || c.name) === newName)) {
+    copyNum++;
+    newName = baseName + ' Copy (' + copyNum + ')';
+  }
+  if (copy.cardData) copy.cardData.name = newName;
+  copy.name = newName;
+  copy.lastModified = new Date().toISOString();
+  savedCards.unshift(copy);
+  localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
+  this.refreshMyCardsList();
+  this.showNotification(`Card duplicated as "${newName}"`, 'success');
+};
+
+// Toolbar and My Cards list both call this (single source of truth) - updated by Cascade
+CardForgeActions.prototype.handleDuplicateCard = function(cardId) {
+  // If called from button (no arg), get selected card from UI
+  if (!cardId) {
+    // Try to get selected card from UI (implement as needed)
+    const selected = document.querySelector('.my-card.selected');
+    if (selected && selected.dataset.cardId) {
+      cardId = selected.dataset.cardId;
+    } else {
+      this.showNotification('Select a card to duplicate', 'error');
+      return;
+    }
+  }
+  this.duplicateCard(cardId);
+};
 
 // Initialize CardForge Actions
 const cardForgeActions = new CardForgeActions();

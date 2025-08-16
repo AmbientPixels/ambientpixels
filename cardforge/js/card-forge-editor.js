@@ -731,6 +731,65 @@
     }
   }
 
+  // ===== CARD FORGE EDITOR GLOBAL API =====
+  if (!window.cardForgeEditor) window.cardForgeEditor = {};
+  window.cardForgeEditor.loadCardData = function(cardData) {
+    if (!cardData) {
+      console.error('[CardForge] loadCardData called with undefined/null cardData:', cardData);
+      return;
+    }
+    // Basic fields
+    if (cardData.name) document.getElementById('card-name').value = cardData.name;
+    if (cardData.characterClass || cardData.class) document.getElementById('card-class').value = cardData.characterClass || cardData.class;
+    if (cardData.rarity) document.getElementById('card-rarity').value = cardData.rarity;
+    if (cardData.quote) document.getElementById('card-quote').value = cardData.quote;
+    if (cardData.avatar) document.getElementById('card-avatar').value = cardData.avatar;
+    if (cardData.biography || cardData.bio) document.getElementById('card-bio').value = cardData.biography || cardData.bio;
+
+    // Stats
+    const statsContainer = document.getElementById('stats-editor');
+    if (statsContainer && cardData.stats && Array.isArray(cardData.stats)) {
+      statsContainer.innerHTML = '';
+      cardData.stats.forEach(stat => {
+        statsContainer.appendChild(createStatRow(stat.name, stat.value));
+      });
+    }
+
+    // Social Links
+    const socialContainer = document.getElementById('social-editor');
+    if (socialContainer && cardData.socialLinks && Array.isArray(cardData.socialLinks)) {
+      socialContainer.innerHTML = '';
+      cardData.socialLinks.forEach(social => {
+        socialContainer.appendChild(createSocialRow(social.platform, social.url));
+      });
+    }
+
+    // Badges
+    const badgesContainer = document.getElementById('micro-editor');
+    if (badgesContainer && cardData.badges && Array.isArray(cardData.badges)) {
+      badgesContainer.innerHTML = '';
+      cardData.badges.forEach(badge => {
+        badgesContainer.appendChild(createBadgeRow(badge.category, badge.icon, badge.description, badge.quantity));
+      });
+    }
+
+    // Attributes
+    const attributesContainer = document.getElementById('attribute-editor');
+    if (attributesContainer && cardData.attributes && Array.isArray(cardData.attributes)) {
+      attributesContainer.innerHTML = '';
+      cardData.attributes.forEach(attribute => {
+        attributesContainer.appendChild(createAttributeRow(attribute.name, attribute.value));
+      });
+    }
+
+    // Modular design (if present)
+    if (cardData.design && window.ModularState) {
+      Object.assign(window.ModularState, cardData.design);
+    }
+
+    updatePreview();
+  };
+
   // Initialize everything when DOM is ready
   document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 CardForge Editor initializing...');
@@ -3206,3 +3265,18 @@
 // ===== PLACEHOLDER FOR ADDITIONAL TIERS =====
 // TODO: Add Tier 2 (Alignment), Tier 3 (Weight), Tier 5 (Image Container), Tier 6 (Effects)
 // TODO: Add dynamic form editors (Stats, Social, Badges, Attributes)
+
+// ===== HEIGHT EQUALIZATION FOR CARD PREVIEW (added by Cascade) =====
+function setEqualCardHeight() {
+  const front = document.querySelector('.card-front');
+  const back = document.querySelector('.card-back');
+  if (!front || !back) return;
+  // Reset heights first
+  front.style.height = '';
+  back.style.height = '';
+  // Get computed heights
+  const frontHeight = front.offsetHeight;
+  const backHeight = back.offsetHeight;
+  const maxHeight = Math.max(frontHeight, backHeight);
+  front.style.height = back.style.height = maxHeight + 'px';
+}

@@ -17,7 +17,6 @@ class RightColumn {
   init() {
     this.bindEvents();
     this.initializeZones();
-    this.initializeAutoSave();
     console.log('✅ Right Column initialized');
   }
 

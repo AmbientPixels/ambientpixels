@@ -160,6 +160,97 @@ Headliner Crafter is TileForge's advanced CSV localization transformation tool t
 
 ---
 
+## 🕹️ Controls Panel
+
+### Overview
+The Controls Panel is a persistent toolbar located at the top of the TileForge interface, just above the tile preview grid. It provides quick access to essential workflow actions and batch operations, streamlining the localization and preview process.
+
+### Key Features
+
+- **Bulk Actions:** Perform operations on multiple tiles or mappings at once, such as clearing fields or deleting entries.
+- **Quick Navigation:** Jump to frequently used tools, modals, or panels (e.g., Mapping Modal, Transform Modal, Locale Manager).
+- **Status Indicators:** Visual cues for the current selection, applied filters, or batch mode.
+
+### Main Controls
+
+- **Clear All:** Instantly resets all mapping and preview data, allowing you to start fresh with a single click. Confirmation is required to prevent accidental data loss.
+- **Delete from All:** Removes a selected field or value from every tile or mapping across all locales. Useful for bulk cleanup or correcting widespread errors.
+- **Open Mapping Modal:** Quickly access the field mapping interface to adjust CSV/XML field assignments.
+- **Manage Locales:** Open the locale management panel to add, remove, or review supported locales.
+
+---
+
+## 🧭 Left Panel Overview
+
+The Left Panel is the primary navigation and workflow anchor in TileForge, always visible on the left side of the interface. It consolidates all major controls, filtering, and tool access into a single, persistent vertical panel for efficient localization and preview workflows.
+
+### Main Sections & Features
+
+- **Panel Header:** Displays the TileForge title, Info/Help and Settings buttons, and a subtitle for quick orientation.
+
+- **Controls Toolbar:** A persistent toolbar with Save, Clone, New, and Export actions for managing your localization session. Includes a "Manage Locales" button for batch locale control.
+
+- **File Info Display:** Shows the currently loaded image and CSV file names for clear workflow tracking.
+
+- **Dynamic Filters:** Multi-level filters for Status (All, Clean, Issues), Language, Region, and Locale. Each dropdown is dynamically populated based on the loaded data and locale mapping. Filters update the tile preview in real time.
+
+- **Template Selection:** Visual selector for "Top of Home" and "Mobile Spotlight" templates, each with preview thumbnails and info. Selecting a template updates all tiles and analysis systems accordingly.
+
+- **Tool Shortcuts:** Quick-access buttons for advanced tools, including Transform Data and Headliner Crafter. These launch modal interfaces for data transformation and field mapping.
+
+- **Image Info Panel:** Always-present panel displaying detailed metadata for the uploaded image, including file name, format, size, dimensions, and aspect ratio. Provides immediate feedback on image compliance with template requirements.
+
+- **Workflow Guidance:** The panel layout follows the logical workflow: 1) File Upload, 2) Filter/Template Selection, 3) Tool Access, 4) Image Details, ensuring users can move efficiently through each step.
+
+#### Recent Enhancements
+- **Bulk Actions:** Toolbar now supports Save, Clone, New, and Export, streamlining session management.
+- **Locale Manager:** Fully integrated modal for adding/removing supported locales, with live preview updates.
+- **Advanced Filtering:** Filters are now dynamically generated and update the UI instantly.
+- **Visual Template Picker:** Interactive, thumbnail-based template selection.
+- **Integrated Tools:** Transform Modal and Headliner Crafter are directly accessible from the panel.
+- **Image Metadata:** Image info panel provides compliance feedback and detailed analysis.
+
+The Left Panel is designed for clarity, speed, and full control, anchoring all major actions and navigation for the TileForge localization workflow.
+
+/* updated by Cascade */
+
+---
+
+### 🗑️ Delete from All
+
+**Description:**  
+The “Delete from All” feature allows you to remove a specific value or field from every tile, mapping, or locale entry in one action. This is especially useful for correcting errors that appear across multiple locales, or for cleaning up unwanted data globally.
+
+**How to Use:**
+1. Select the field or value you wish to remove.
+2. Click the **Delete from All** button in the Controls Panel.
+3. Confirm the action in the modal dialog to prevent accidental deletion.
+4. The selected field/value will be deleted from all relevant entries, and the UI will update to reflect the changes.
+
+**Safety:**  
+All destructive bulk actions require confirmation via a modal dialog to avoid accidental data loss.
+
+---
+
+### ⚡ Other Bulk Actions
+
+- **Clear All:**  
+  Removes all mapping and preview data, resetting the workspace to its initial state. Useful for starting over or importing a new dataset.
+
+- **Batch Locale Management:**  
+  Add or remove multiple locales at once using the Manage Locales panel. This streamlines the process of updating your supported regions.
+
+- **Bulk Field Assignment:**  
+  Assign a single input field to multiple output targets in the mapping modal, speeding up the mapping process for similar fields.
+
+- **Undo/Redo Support:**  
+  Most bulk actions can be undone/redone using the standard keyboard shortcuts (Ctrl+Z / Ctrl+Y), allowing for safe experimentation.
+
+---
+
+
+---
+
 ## ✨ What’s New in 2.3.0
 
 - **Revamped Information Center:**
