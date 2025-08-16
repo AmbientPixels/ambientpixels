@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2025-08-14T13:36:41.150Z",
+  "updated": "2025-08-15T13:32:19.202Z",
   "root": [
     {
       "type": "folder",
@@ -539,6 +539,11 @@
               "name": "js",
               "path": "lab/TileForge/js",
               "children": []
+            },
+            {
+              "type": "page",
+              "name": "locale-picker-modal.html",
+              "path": "lab/TileForge/locale-picker-modal.html"
             },
             {
               "type": "folder",
