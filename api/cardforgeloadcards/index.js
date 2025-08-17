@@ -88,10 +88,7 @@ async function downloadJsonBlobWithRetry(containerClient, blobName, context, max
       // Check if the blob exists
       const exists = await blobClient.exists();
       if (!exists) {
-        // Initialize missing blob with empty array
-        const blockClient = containerClient.getBlockBlobClient(blobName);
-        const emptyContent = JSON.stringify([], null, 2);
-        await blockClient.upload(emptyContent, Buffer.byteLength(emptyContent));
+        // Do not create blobs on read; return empty data
         return [];
       }
       

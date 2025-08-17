@@ -39,17 +39,13 @@ function extractUserInfo(req, context) {
  * @returns {BlobServiceClient} - Authenticated blob service client
  */
 async function createBlobServiceClient() {
-  // Use DefaultAzureCredential which supports managed identities
-  // This works in Azure Functions, Azure App Service, and other Azure services
+  // Prefer connection string when available (local or explicit config)
+  if (process.env.AZURE_STORAGE_CONNECTION_STRING) {
+    return BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
+  }
+  // Fallback to Managed Identity via DefaultAzureCredential
   const credential = new DefaultAzureCredential();
-  
-  // Create blob service client with credential
-  const blobServiceClient = new BlobServiceClient(
-    `https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net`,
-    credential
-  );
-  
-  return blobServiceClient;
+  return new BlobServiceClient(`https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net`, credential);
 }
 
 /**
@@ -480,12 +476,14 @@ function validateCard(card) {
  * @returns {boolean} True if valid URL, false otherwise
  */
 function isValidUrl(url) {
-  try {
-    new URL(url);
-    return true;
-  } catch (e) {
-    return false;
-  }
+  if (typeof url !== 'string' || url.trim() === '') return false;
+  const v = url.trim();
+  // Allow root-relative paths (served from same host)
+  if (v.startsWith('/')) return true;
+  // Allow data URLs (embedded images)
+  if (v.startsWith('data:image/')) return true;
+  // Absolute URLs
+  try { new URL(v); return true; } catch (_) { return false; }
 }
 
 /**
