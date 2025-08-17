@@ -202,12 +202,12 @@ class CardForgeActions {
                        (document.body?.getAttribute('data-auth-state') === 'signed-in');
       if (isAuthed) {
         const saveUrl = window.buildApiPath('saveCard');
-fetch(saveUrl, {
+// Map characterClass to class for backend compatibility
+        const backendPayload = { ...savedCard, class: savedCard.cardData.characterClass };
+        delete backendPayload.cardData.characterClass;
+        fetch(saveUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          // Map characterClass to class for backend compatibility
-          const backendPayload = { ...savedCard, class: savedCard.cardData.characterClass };
-          delete backendPayload.cardData.characterClass;
           body: JSON.stringify(backendPayload)
         })
         .then(async (response) => {
