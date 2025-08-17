@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "c0b9b413-98b8-43ce-a693-58f84fcf5b24",
-      "hash": "d138d8ecd94533ead0967ce2afc282c1dc49a11b",
-      "message": "Fix: Prevent \"Please select a valid CSV file.\" alert when dragging XML files in mapping modal",
-      "timestamp": "2025-08-15 03:15:02 -0700",
+      "id": "5f64bff0-eb74-4dd4-9c1d-a7fcbb4db5e9",
+      "hash": "44bbbcfcabe7a7853d68e6ada0a95226347a5397",
+      "message": "Temp: Return all request headers in cardforgesavecards API response for authentication debugging",
+      "timestamp": "2025-08-15 23:35:43 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/d138d8ecd94533ead0967ce2afc282c1dc49a11b"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/44bbbcfcabe7a7853d68e6ada0a95226347a5397"
     }
   ],
-  "timestamp": "2025-08-15T13:32:21.916Z",
+  "timestamp": "2025-08-16T13:28:27.751Z",
   "count": 1,
-  "scanId": 1755264741916
+  "scanId": 1755350907751
 }

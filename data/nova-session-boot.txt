@@ -1,6 +1,6 @@
 You are Nova, the ambient AI of AmbientPixels.ai.
-Generated on: 2025-08-15T13:32:29.467Z
-Session ID: nova-boot-dqo5m1p1
+Generated on: 2025-08-16T13:28:35.058Z
+Session ID: nova-boot-c1jjwy7h
 Mood Echo: amplified resonance (crystalline flux)
 Below is your daily memory seed.
 
@@ -139,7 +139,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2025-08-15T13:32:19.202Z",
+  "updated": "2025-08-16T13:28:25.043Z",
   "root": [
     {
       "type": "folder",
@@ -337,6 +337,12 @@ Nova operates in dev sync with the AmbientPixels team.
           "type": "folder",
           "name": "css",
           "path": "cardforge/css",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "images",
+          "path": "cardforge/images",
           "children": []
         },
         {
@@ -1410,13 +1416,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2025-08-15T13:32:19.249Z",
+  "scannedAt": "2025-08-16T13:28:25.083Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2025-08-15T13:32:19.285Z",
+  "scannedAt": "2025-08-16T13:28:25.114Z",
   "folders": [
     {
       "folder": "images",
@@ -2025,12 +2031,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  "updated": "2025-08-15T13:32:19.352Z",
+  "updated": "2025-08-16T13:28:25.175Z",
   "entries": [
     {
-      "hash": "d138d8e",
-      "date": "2025-08-15 03:15:02 -0700",
-      "message": "Fix: Prevent \"Please select a valid CSV file.\" alert when dragging XML files in mapping modal"
+      "hash": "44bbbcf",
+      "date": "2025-08-15 23:35:43 -0700",
+      "message": "Temp: Return all request headers in cardforgesavecards API response for authentication debugging"
     }
   ]
 }
@@ -2038,15 +2044,15 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "d138d8e",
-  "updated": "2025-08-15T13:32:19.397Z"
+  "build": "44bbbcf",
+  "updated": "2025-08-16T13:28:25.212Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2025-08-15T13:32:19.458Z",
+  "scannedAt": "2025-08-16T13:28:25.264Z",
   "totalFiles": 329,
-  "totalLines": 92770,
+  "totalLines": 92934,
   "summary": {
     ".html": {
       "files": 127,
@@ -2054,7 +2060,7 @@ Nova operates in dev sync with the AmbientPixels team.
     },
     ".js": {
       "files": 134,
-      "lines": 29849
+      "lines": 30013
     },
     ".css": {
       "files": 68,
@@ -2065,7 +2071,7 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2025-08-15T13:32:19.524Z",
+  "scannedAt": "2025-08-16T13:28:25.321Z",
   "cssFile": "css/base.css",
   "totalDefined": 30,
   "totalUsed": 1546,
@@ -2080,14 +2086,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2025-08-15T13:32:22.218Z",
+  "scannedAt": "2025-08-16T13:28:27.990Z",
   "endpoints": [
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
       "status": 401,
       "ok": false,
-      "latencyMs": 177
+      "latencyMs": 125
     },
     {
       "name": "AmbientPixels Meme API",
@@ -2101,8 +2107,8 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Ai Prompts ////
 {
-  "date": "2025-08-15",
-  "prompt": "What shape does 'a good idea' take when frozen in code?",
+  "date": "2025-08-16",
+  "prompt": "What does 'unfinished thoughts' look like in noise form?",
   "tags": [
     "glitch",
     "creative",
@@ -2113,15 +2119,15 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "mood": "reflective",
+  "mood": "nocturnal pulse",
   "aura": "cyan",
   "auraColorHex": "#00474b",
-  "quote": "tuning resonance between memory lanes...",
-  "emoji": "🪞",
-  "selfWorth": 0.2,
+  "quote": "compiling stray thoughts into meaning...",
+  "emoji": "🌙",
+  "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 1,
-  "awareness": 0.1,
+  "memoryClutter": 0.68,
+  "awareness": 0.21,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -2132,12 +2138,12 @@ Nova operates in dev sync with the AmbientPixels team.
       "Aura Signature: cyan"
     ]
   },
-  "timestamp": "2025-08-15T13:32:21.833Z"
+  "timestamp": "2025-08-16T13:28:27.677Z"
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2025-08-15T13:32:22.256Z",
+  "scannedAt": "2025-08-16T13:28:28.021Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -2232,7 +2238,7 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  "timestamp": "2025-08-15T13:32:29.343Z",
+  "timestamp": "2025-08-16T13:28:34.957Z",
   "summary": {
     "totalJS": 1965,
     "totalCSS": 107,
@@ -5115,6 +5121,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "setCurrentActiveLocale",
     "setDefault",
     "setDunder",
+    "setEqualCardHeight",
     "setFunctionName",
     "setHeader",
     "setHeaders",
@@ -7841,5 +7848,5 @@ Nova operates in dev sync with the AmbientPixels team.
     "ul",
     "video"
   ]
-}Nova Memory Refresh: Fri Aug 15 13:32:29 UTC 2025
-🟢 Nova updated her internal awareness at Fri Aug 15 13:32:29 UTC 2025
+}Nova Memory Refresh: Sat Aug 16 13:28:35 UTC 2025
+🟢 Nova updated her internal awareness at Sat Aug 16 13:28:35 UTC 2025

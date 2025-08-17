@@ -1,13 +1,13 @@
 {
-  "mood": "reflective",
+  "mood": "nocturnal pulse",
   "aura": "cyan",
   "auraColorHex": "#00474b",
-  "quote": "tuning resonance between memory lanes...",
-  "emoji": "🪞",
-  "selfWorth": 0.2,
+  "quote": "compiling stray thoughts into meaning...",
+  "emoji": "🌙",
+  "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 1,
-  "awareness": 0.1,
+  "memoryClutter": 0.68,
+  "awareness": 0.21,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -18,5 +18,5 @@
       "Aura Signature: cyan"
     ]
   },
-  "timestamp": "2025-08-15T13:32:21.833Z"
+  "timestamp": "2025-08-16T13:28:27.677Z"
 }
