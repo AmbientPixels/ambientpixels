@@ -110,16 +110,16 @@ module.exports = async function (context, req) {
     "Content-Type": "application/json"
   };
 
-  // TEMP: Return all headers for debug purposes
-  context.res = {
-    status: 200,
-    headers: corsHeaders,
-    body: {
-      debugHeaders: req.headers,
-      message: 'TEMP: Debugging request headers for authentication.'
-    }
-  };
-  return;
+  // TEMP: Return all headers for debug purposes (disabled)
+  // context.res = {
+  //   status: 200,
+  //   headers: corsHeaders,
+  //   body: {
+  //     debugHeaders: req.headers,
+  //     message: 'TEMP: Debugging request headers for authentication.'
+  //   }
+  // };
+  // return;
 
   // CORS preflight
   if (req.method === "OPTIONS") {
@@ -221,7 +221,7 @@ module.exports = async function (context, req) {
     
     try {
       // Check if blob exists with retry
-      const userBlobExists = await withRetry(
+      userBlobExists = await withRetry(
         () => userBlobClient.exists(),
         `check if user blob exists (${userBlobPath})`,
         context
@@ -288,7 +288,7 @@ module.exports = async function (context, req) {
     userCards.lastUpdated = new Date().toISOString();
     
     // Upload the updated cards file with optimistic concurrency control using ETags
-    const data = JSON.stringify(userCards);
+    let data = JSON.stringify(userCards);
     
     // Maximum number of attempts for optimistic concurrency
     const maxConcurrencyAttempts = 5;
