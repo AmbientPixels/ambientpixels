@@ -54,17 +54,13 @@ async function streamToText(readableStream) {
  * @returns {BlobServiceClient} - Authenticated blob service client
  */
 async function createBlobServiceClient() {
-  // Use DefaultAzureCredential which supports managed identities
-  // This works in Azure Functions, Azure App Service, and other Azure services
+  // Prefer connection string when available (local/dev convenience)
+  if (process.env.AZURE_STORAGE_CONNECTION_STRING) {
+    return BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
+  }
+  // Fallback to DefaultAzureCredential (managed identity in Azure)
   const credential = new DefaultAzureCredential();
-  
-  // Create blob service client with credential
-  const blobServiceClient = new BlobServiceClient(
-    `https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net`,
-    credential
-  );
-  
-  return blobServiceClient;
+  return new BlobServiceClient(`https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net`, credential);
 }
 
 /**
@@ -329,9 +325,12 @@ module.exports = async function (context, req) {
       // Update the published cards blob with retry logic
       const publishedData = JSON.stringify(publishedCards);
       await withRetry(
-        () => publishedBlobClient.upload(publishedData, publishedData.length, {
-          blobHTTPHeaders: { blobContentType: 'application/json' }
-        }),
+        () => {
+          const buffer = Buffer.from(publishedData, 'utf8');
+          return publishedBlobClient.upload(buffer, buffer.byteLength, {
+            blobHTTPHeaders: { blobContentType: 'application/json' }
+          });
+        },
         `upload published cards (${publishedBlobPath})`,
         context
       );
@@ -345,9 +344,12 @@ module.exports = async function (context, req) {
         // Update user's cards blob with the published status using retry logic
         const userData = JSON.stringify(userCards);
         await withRetry(
-          () => userBlobClient.upload(userData, userData.length, {
-            blobHTTPHeaders: { blobContentType: 'application/json' }
-          }),
+          () => {
+            const buffer = Buffer.from(userData, 'utf8');
+            return userBlobClient.upload(buffer, buffer.byteLength, {
+              blobHTTPHeaders: { blobContentType: 'application/json' }
+            });
+          },
           `update user cards with published status (${userBlobPath})`,
           context
         );

@@ -376,7 +376,11 @@ module.exports = async function (context, req) {
         }
         
         await withRetry(
-          () => userBlobClient.upload(data, data.length, uploadOptions),
+          () => {
+            // Use Buffer to ensure byte-accurate length for multibyte content
+            const buffer = Buffer.from(data, 'utf8');
+            return userBlobClient.upload(buffer, buffer.byteLength, uploadOptions);
+          },
           `upload user cards with optimistic concurrency (${userBlobPath})`,
           context
         );
@@ -455,7 +459,12 @@ function validateCard(card) {
   }
   
   if (!card.avatar || !isValidUrl(card.avatar)) {
-    errors.push('Avatar/Image must be a valid URL');
+    if (typeof card.avatar === 'string' && card.avatar.trim().toLowerCase().startsWith('blob:')) {
+      // Be explicit: blob: URLs are not persistable across sessions
+      errors.push("Avatar/Image cannot be a 'blob:' URL. Convert to a data:image/... URL or upload to a reachable https path.");
+    } else {
+      errors.push('Avatar/Image must be a valid URL (absolute https, root-relative, or data:image/...)');
+    }
   }
   
   // Check optional fields
