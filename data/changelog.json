@@ -1,10 +1,10 @@
 {
-  "updated": "2025-08-16T13:28:25.175Z",
+  "updated": "2025-08-17T13:29:41.804Z",
   "entries": [
     {
-      "hash": "44bbbcf",
-      "date": "2025-08-15 23:35:43 -0700",
-      "message": "Temp: Return all request headers in cardforgesavecards API response for authentication debugging"
+      "hash": "a409b24",
+      "date": "2025-08-16 22:34:47 -0700",
+      "message": "Fix CardForge save: map modular schema to backend flat payload"
     }
   ]
 }

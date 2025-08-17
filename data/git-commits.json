@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "5f64bff0-eb74-4dd4-9c1d-a7fcbb4db5e9",
-      "hash": "44bbbcfcabe7a7853d68e6ada0a95226347a5397",
-      "message": "Temp: Return all request headers in cardforgesavecards API response for authentication debugging",
-      "timestamp": "2025-08-15 23:35:43 -0700",
+      "id": "ddf46cbf-18c5-483c-8fdf-58397df826f7",
+      "hash": "a409b2497cf93d5da8e7851de73de33b8d3ab628",
+      "message": "Fix CardForge save: map modular schema to backend flat payload",
+      "timestamp": "2025-08-16 22:34:47 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/44bbbcfcabe7a7853d68e6ada0a95226347a5397"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/a409b2497cf93d5da8e7851de73de33b8d3ab628"
     }
   ],
-  "timestamp": "2025-08-16T13:28:27.751Z",
+  "timestamp": "2025-08-17T13:29:43.582Z",
   "count": 1,
-  "scanId": 1755350907751
+  "scanId": 1755437383582
 }
