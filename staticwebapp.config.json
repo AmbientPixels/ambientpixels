@@ -2,6 +2,9 @@
   "platform": {
     "apiRuntime": "node:20"
   },
+  "allowedForwardedHosts": [
+    "ambientpixels-nova-api.azurewebsites.net"
+  ],
   "navigationFallback": {
     "rewrite": "/index.html",
     "exclude": [
@@ -37,26 +40,32 @@
   "routes": [
     {
       "route": "/api/cardforgesavecards",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgesavecards",
       "allowedRoles": ["anonymous"]
     },
     {
       "route": "/api/cardforgetemplate",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgetemplate",
       "allowedRoles": ["anonymous"]
     },
     {
       "route": "/api/cardforgepublish",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgepublish",
       "allowedRoles": ["anonymous"]
     },
     {
       "route": "/api/cardforgedeletecard",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgedeletecard",
       "allowedRoles": ["anonymous"]
     },
     {
       "route": "/api/cardforgeloadcards",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgeloadcards",
       "allowedRoles": ["anonymous"]
     },
     {
-      "route": "/api/*"
+      "route": "/api/*",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
     },
     {
       "route": "/cardforge/*.css",
