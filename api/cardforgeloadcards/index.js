@@ -14,6 +14,27 @@ const CONTAINER_NAME = "cardforge";
 const DEFAULT_CARDS_PATH = "default-cards.json";
 const PUBLISHED_CARDS_PATH = "published-cards.json";
 
+// Safe timeout signal helper for Node < 18 compatibility
+function getAbortSignal(ms) {
+  if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
+    return AbortSignal.timeout(ms);
+  }
+  // Fallback: manual AbortController timeout
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(), ms);
+  return controller.signal;
+}
+
+// Helper to create BlobServiceClient with connection-string fallback
+async function createBlobServiceClient() {
+  if (process.env.AZURE_STORAGE_CONNECTION_STRING) {
+    return BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
+  }
+  const credential = new DefaultAzureCredential();
+  const accountUrl = `https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net`;
+  return new BlobServiceClient(accountUrl, credential);
+}
+
 // Helper to extract authenticated user information from Static Web Apps EasyAuth header
 function extractUserInfo(req, context) {
   const principalHeader = req.headers['x-ms-client-principal'];
@@ -76,7 +97,7 @@ async function downloadJsonBlobWithRetry(containerClient, blobName, context, max
       
       // Download the blob content with timeout
       const downloadResponse = await blobClient.download(0, undefined, {
-        abortSignal: AbortSignal.timeout(10000)
+        abortSignal: getAbortSignal(10000)
       });
       
       // Read the blob content as text
@@ -184,19 +205,17 @@ module.exports = async function (context, req) {
     // Always allow anonymous users to load cards (default/gallery); never block or return 401/403
 
     
-    // Initialize Azure storage client with managed identity
+    // Initialize Azure storage client with MI or connection string
     let blobServiceClient;
     try {
       // Log available environment variables for debugging (no secrets)
       context.log(`[${requestId}] Environment: ${process.env.AZURE_FUNCTIONS_ENVIRONMENT || 'unknown'}`); 
       context.log(`[${requestId}] Region: ${process.env.REGION_NAME || 'unknown'}`); 
       
-      // Create a BlobServiceClient using DefaultAzureCredential (Managed Identity)
-      context.log(`[${requestId}] Creating BlobServiceClient with DefaultAzureCredential for ${STORAGE_ACCOUNT_NAME}`);
-      const credential = new DefaultAzureCredential();
-      const accountUrl = `https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net`;
-      blobServiceClient = new BlobServiceClient(accountUrl, credential);
-      context.log(`[${requestId}] Successfully created BlobServiceClient with DefaultAzureCredential`);
+      const usingConnStr = !!process.env.AZURE_STORAGE_CONNECTION_STRING;
+      context.log(`[${requestId}] Creating BlobServiceClient using ${usingConnStr ? 'connection string' : 'DefaultAzureCredential'} for ${STORAGE_ACCOUNT_NAME}`);
+      blobServiceClient = await createBlobServiceClient();
+      context.log(`[${requestId}] Successfully created BlobServiceClient`);
     } catch (error) {
       context.log.error(`Failed to create BlobServiceClient: ${error.message}`);
       throw new Error(`Storage authentication failed: ${error.message}`);
