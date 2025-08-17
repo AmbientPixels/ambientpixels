@@ -183,6 +183,9 @@ class CardForgeActions {
       
       // Use existing card ID if found, otherwise generate new one
       const cardId = existingCard ? existingCard.id : this.generateCardId();
+      // Ensure hidden field reflects current working card id (used by publish flow)
+      const idField = document.getElementById('card-id'); /* updated by Cascade */
+      if (idField) idField.value = cardId;               /* updated by Cascade */
       
       const savedCard = {
         id: cardId,
@@ -447,7 +450,18 @@ class CardForgeActions {
 
       // Use existing publish functionality if available
       if (window.publishCard && typeof window.publishCard === 'function') {
+        // Ensure hidden id field is set to the card being published
+        const idField = document.getElementById('card-id'); /* updated by Cascade */
+        if (idField) idField.value = cardData.id;               /* updated by Cascade */
         window.publishCard();
+        
+        // Mark card as published
+        cardData.published = true;
+        cardData.publishedAt = new Date().toISOString();
+        localStorage.setItem('cardforge_saved_cards', JSON.stringify(this.getSavedCards()));
+        
+        this.refreshMyCardsList();
+        this.showNotification(`Card "${cardData.name}" published successfully`, 'success');
       } else {
         this.showNotification('Publish functionality coming soon!', 'info');
       }
@@ -547,8 +561,8 @@ class CardForgeActions {
 
     // Reset specific fields
     const fieldsToReset = [
-      'card-name', 'card-class', 'card-quote', 'card-bio',
-      'card-rarity', 'card-level', 'card-image-url'
+      'card-name', 'card-bio', 'card-class', 'card-rarity',
+      'card-level', 'card-image-url'
     ];
     
     fieldsToReset.forEach(fieldId => {
@@ -774,6 +788,9 @@ class CardForgeActions {
 
     try {
       // Load card data into the editor
+      // Set hidden id field so subsequent Publish knows which card is active
+      const idField = document.getElementById('card-id'); /* updated by Cascade */
+      if (idField) idField.value = card.id;               /* updated by Cascade */
       if (window.cardForgeEditor && window.cardForgeEditor.loadCardData) {
         console.log('[CardForge] Card object about to load:', card);
         // Support legacy and new schemas: .data, .cardData, or direct
@@ -806,6 +823,9 @@ class CardForgeActions {
     try {
       // Use existing publish functionality
       if (window.publishCard) {
+        // Ensure hidden id field is set to the card being published
+        const idField = document.getElementById('card-id'); /* updated by Cascade */
+        if (idField) idField.value = card.id;               /* updated by Cascade */
         window.publishCard();
         
         // Mark card as published
@@ -1022,7 +1042,7 @@ function showSavedCardsModal() {
     <h3><i class="fas fa-check-circle"></i> Card Saved!</h3>
     ${gallery}
     <div class="modal-actions">
-      <button onclick="window.location.hash='#forge-my-cards'">Go to My Cards</button>
+      <button id="saved-modal-go-cards" onclick="window.location.hash='#forge-my-cards'">Go to My Cards</button>
       <button onclick="document.querySelector('.modal-saved-gallery').parentNode.remove()">Close</button>
     </div>
   </div>`;
@@ -1049,6 +1069,45 @@ function showSavedCardsModal() {
     if (e.target === overlay) overlay.remove();
   });
   document.body.appendChild(overlay);
+  setTimeout(() => { /* updated by Cascade */
+    const goBtn = overlay.querySelector('#saved-modal-go-cards');
+    if (goBtn) {
+      goBtn.addEventListener('click', () => {
+        const forgeStepBtn = document.querySelector('.step-btn[data-step="7"]');
+        if (forgeStepBtn) {
+          try { forgeStepBtn.click(); } catch {}
+        }
+        setTimeout(() => {
+          const cardsTabBtn = document.querySelector('.forge-sidebar-tab[data-forge-tab="cards"]');
+          const allTabs = document.querySelectorAll('.forge-sidebar-tab');
+          const allPanels = document.querySelectorAll('.forge-tab-content');
+          const cardsPanel = document.querySelector('.forge-tab-content[data-forge-content="cards"]');
+          // Manually activate target tab/panel
+          if (allTabs.length && allPanels.length && cardsTabBtn && cardsPanel) {
+            allTabs.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); b.setAttribute('tabindex','-1'); });
+            cardsTabBtn.classList.add('active');
+            cardsTabBtn.setAttribute('aria-selected','true');
+            cardsTabBtn.setAttribute('tabindex','0');
+            allPanels.forEach(p => { p.classList.remove('active'); p.style.display = 'none'; });
+            cardsPanel.classList.add('active');
+            cardsPanel.style.display = '';
+            // Bring My Cards list into view and focus for clarity
+            const list = document.getElementById('my-cards-list');
+            if (list) {
+              try { list.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch {}
+              try { list.setAttribute('tabindex','-1'); list.focus({ preventScroll: true }); } catch {}
+            }
+          } else if (cardsTabBtn) {
+            // Fallback: trigger click if bindings exist
+            try { cardsTabBtn.click(); } catch {}
+          }
+          overlay.remove();
+          // Optionally focus the active tab for a11y
+          try { cardsTabBtn && cardsTabBtn.focus(); } catch {}
+        }, 50);
+      });
+    }
+  }, 0);
 }
 window.showSavedCardsModal = showSavedCardsModal;
 
