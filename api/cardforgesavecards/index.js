@@ -102,7 +102,7 @@ module.exports = async function (context, req) {
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-CSRF-Token, x-functions-key",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-CSRF-Token, X-User-ID, x-functions-key",
     "Content-Type": "application/json"
   };
 
@@ -147,7 +147,7 @@ module.exports = async function (context, req) {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID'
         },
         body: { error: 'Request body is required' }
       };
@@ -174,7 +174,7 @@ module.exports = async function (context, req) {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID'
         },
         body: { error: 'Invalid card data', validationErrors }
       };
@@ -414,7 +414,7 @@ module.exports = async function (context, req) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID'
       },
       body: {
         success: true,
@@ -430,7 +430,7 @@ module.exports = async function (context, req) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID'
       },
       body: { error: error.message }
     };
