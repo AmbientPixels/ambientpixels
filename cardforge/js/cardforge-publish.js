@@ -23,9 +23,6 @@ async function publishCard() {
     // Prefer CardForge modal system over native alerts
     if (window.UIUtils && typeof UIUtils.showAlertDialog === 'function') {
       UIUtils.showAlertDialog('Sign in required', 'Please sign in to publish cards');
-    } else if (typeof showConfirmDialog === 'function') {
-      // Fallback to confirm-style modal as an alert surrogate
-      UIUtils.showConfirmDialog('Sign in required', 'Please sign in to publish cards', () => {}, () => {});
     } else {
       alert('Please sign in to publish cards');
     }
