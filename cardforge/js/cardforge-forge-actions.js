@@ -205,7 +205,10 @@ class CardForgeActions {
 fetch(saveUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(savedCard)
+          // Map characterClass to class for backend compatibility
+          const backendPayload = { ...savedCard, class: savedCard.cardData.characterClass };
+          delete backendPayload.cardData.characterClass;
+          body: JSON.stringify(backendPayload)
         })
         .then(async (response) => {
           if (!response.ok) throw new Error('Azure save failed');
