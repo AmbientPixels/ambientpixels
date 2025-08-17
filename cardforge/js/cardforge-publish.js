@@ -25,7 +25,7 @@ async function publishCard() {
       UIUtils.showAlertDialog('Sign in required', 'Please sign in to publish cards');
     } else if (typeof showConfirmDialog === 'function') {
       // Fallback to confirm-style modal as an alert surrogate
-      showConfirmDialog('Sign in required', 'Please sign in to publish cards', () => {}, () => {});
+      UIUtils.showConfirmDialog('Sign in required', 'Please sign in to publish cards', () => {}, () => {});
     } else {
       alert('Please sign in to publish cards');
     }
@@ -74,7 +74,7 @@ async function publishCard() {
   // Show confirmation dialog
 
 
-  showConfirmDialog(
+  UIUtils.showConfirmDialog(
 
 
     'Publish Card', 

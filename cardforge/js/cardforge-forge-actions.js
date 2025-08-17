@@ -201,7 +201,8 @@ class CardForgeActions {
       const isAuthed = (sessionStorage.getItem('isAuthenticated') === 'true') ||
                        (document.body?.getAttribute('data-auth-state') === 'signed-in');
       if (isAuthed) {
-        fetch('/api/cardforgesavecards', {
+        const saveUrl = window.buildApiPath('saveCard');
+fetch(saveUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(savedCard)
