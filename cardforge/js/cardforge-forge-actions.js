@@ -203,8 +203,30 @@ class CardForgeActions {
       if (isAuthed) {
         const saveUrl = window.buildApiPath('saveCard');
 // Map characterClass to class for backend compatibility
-        const backendPayload = { ...savedCard, class: savedCard.cardData.characterClass };
-        delete backendPayload.cardData.characterClass;
+        // Construct backend payload with required top-level fields only
+        // Map from full modular schema to backend flat payload
+        const cardData = savedCard.cardData;
+        // Support both legacy and modular schema
+        let backendPayload;
+        if (cardData.cardContent && cardData.cardContent.frontFace) {
+          backendPayload = {
+            id: savedCard.id,
+            name: cardData.cardContent.frontFace.characterName,
+            class: cardData.cardContent.frontFace.characterClass,
+            avatar: cardData.cardContent.frontFace.characterImage?.url || '',
+            quote: cardData.cardContent.frontFace.characterDescription || '',
+            achievement: cardData.cardContent.frontFace.achievement || ''
+          };
+        } else {
+          backendPayload = {
+            id: savedCard.id,
+            name: cardData.name,
+            class: cardData.characterClass,
+            avatar: cardData.avatar,
+            quote: cardData.quote,
+            achievement: cardData.achievement
+          };
+        }
         fetch(saveUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
