@@ -10,10 +10,34 @@
 async function publishCard() {
 
 
-  // Allow anonymous publishing: skip all authentication checks
+  /* updated by Cascade: require authentication to publish */
 
 
+  const isAuthed = (sessionStorage.getItem('isAuthenticated') === 'true') ||
+                   (document.body?.getAttribute('data-auth-state') === 'signed-in');
 
+
+  if (!isAuthed) {
+
+
+    // Prefer CardForge modal system over native alerts
+    if (window.UIUtils && typeof UIUtils.showAlertDialog === 'function') {
+      UIUtils.showAlertDialog('Sign in required', 'Please sign in to publish cards');
+    } else if (typeof showConfirmDialog === 'function') {
+      // Fallback to confirm-style modal as an alert surrogate
+      showConfirmDialog('Sign in required', 'Please sign in to publish cards', () => {}, () => {});
+    } else {
+      alert('Please sign in to publish cards');
+    }
+
+
+    return;
+
+
+  }
+
+
+  
 
 
   // Get the card ID from the form

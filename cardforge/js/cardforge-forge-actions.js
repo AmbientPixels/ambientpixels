@@ -194,24 +194,56 @@ class CardForgeActions {
         deckIds: existingCard ? existingCard.deckIds : []
       };
 
-      // Try to save card to Azure Blob Storage via API
-      fetch('/api/cardforgesavecards', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(savedCard)
-      })
-      .then(async (response) => {
-        if (!response.ok) throw new Error('Azure save failed');
-        const result = await response.json();
-        this.showNotification(`Card "${savedCard.name}" saved to cloud`, 'success');
-        // Optionally update localStorage for offline viewing
+      /* updated by Cascade: route save based on auth state */
+      const isAuthed = (sessionStorage.getItem('isAuthenticated') === 'true') ||
+                       (document.body?.getAttribute('data-auth-state') === 'signed-in');
+      if (isAuthed) {
+        fetch('/api/cardforgesavecards', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(savedCard)
+        })
+        .then(async (response) => {
+          if (!response.ok) throw new Error('Azure save failed');
+          await response.json().catch(() => ({}));
+          this.showNotification(`Card "${savedCard.name}" saved to cloud`, 'success');
+          // Also cache locally for offline
+          const existingIndex = savedCards.findIndex(card => card.id === cardId);
+          if (existingIndex >= 0) savedCards[existingIndex] = savedCard;
+          else savedCards.unshift(savedCard);
+          localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
+          this.refreshMyCardsList();
+          setTimeout(() => {
+            if (typeof showSavedCardsModal === 'function') showSavedCardsModal();
+            else if (window.showSavedCardsModal) window.showSavedCardsModal();
+          }, 250);
+        })
+        .catch(() => {
+          // Cloud failed — fall back to local
+          const existingIndex = savedCards.findIndex(card => card.id === cardId);
+          if (existingIndex >= 0) {
+            savedCards[existingIndex] = savedCard;
+            this.showNotification(`Card "${savedCard.name}" updated locally`, 'warning');
+          } else {
+            savedCards.unshift(savedCard);
+            this.showNotification(`Card "${savedCard.name}" saved locally`, 'warning');
+          }
+          localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
+          this.refreshMyCardsList();
+          setTimeout(() => {
+            if (typeof showSavedCardsModal === 'function') showSavedCardsModal();
+            else if (window.showSavedCardsModal) window.showSavedCardsModal();
+          }, 250);
+        });
+      } else {
+        // Signed-out experience: local-only save
         const existingIndex = savedCards.findIndex(card => card.id === cardId);
         if (existingIndex >= 0) {
           savedCards[existingIndex] = savedCard;
+          this.showNotification(`Card "${savedCard.name}" saved locally (sign in to sync)`, 'info');
         } else {
           savedCards.unshift(savedCard);
+          this.showNotification(`Card "${savedCard.name}" saved locally (sign in to sync)`, 'info');
         }
         localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
         this.refreshMyCardsList();
@@ -219,24 +251,7 @@ class CardForgeActions {
           if (typeof showSavedCardsModal === 'function') showSavedCardsModal();
           else if (window.showSavedCardsModal) window.showSavedCardsModal();
         }, 250);
-      })
-      .catch(() => {
-        // Fallback: Save to localStorage if API fails
-        const existingIndex = savedCards.findIndex(card => card.id === cardId);
-        if (existingIndex >= 0) {
-          savedCards[existingIndex] = savedCard;
-          this.showNotification(`Card "${savedCard.name}" updated locally`, 'warning');
-        } else {
-          savedCards.unshift(savedCard);
-          this.showNotification(`Card "${savedCard.name}" saved locally`, 'warning');
-        }
-        localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
-        this.refreshMyCardsList();
-        setTimeout(() => {
-          if (typeof showSavedCardsModal === 'function') showSavedCardsModal();
-          else if (window.showSavedCardsModal) window.showSavedCardsModal();
-        }, 250);
-      });
+      }
       
     } catch (error) {
       console.error('Error saving card:', error);
@@ -646,14 +661,34 @@ class CardForgeActions {
   }
 
   // UI Updates
-  refreshMyCardsList() {
+  /* updated by Cascade: support cloud-backed list when authenticated */
+  async refreshMyCardsList() {
     console.log('📋 Refreshing My Cards list...');
     const myCardsList = document.getElementById('my-cards-list');
     if (!myCardsList) return;
 
-    const savedCards = this.getSavedCards();
-    
-    if (savedCards.length === 0) {
+    const isAuthed = (sessionStorage.getItem('isAuthenticated') === 'true') ||
+                     (document.body?.getAttribute('data-auth-state') === 'signed-in');
+
+    let savedCards = this.getSavedCards();
+
+    if (isAuthed) {
+      try {
+        const resp = await fetch('/api/cardforgeloadcards', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        if (resp.ok) {
+          const data = await resp.json();
+          const cloudCards = Array.isArray(data?.userCards) ? data.userCards : [];
+          // Prefer cloud cards; merge any local-only drafts not present by id
+          const cloudIds = new Set(cloudCards.map(c => c.id));
+          const localOnly = savedCards.filter(c => !cloudIds.has(c.id));
+          savedCards = [...cloudCards, ...localOnly];
+        }
+      } catch (e) {
+        console.warn('⚠️ Could not load cloud cards, showing local only:', e);
+      }
+    }
+
+    if (!savedCards || savedCards.length === 0) {
       myCardsList.innerHTML = `
         <div class="my-cards-empty">
           <i class="fas fa-layer-group"></i>
@@ -664,20 +699,18 @@ class CardForgeActions {
       return;
     }
 
-    // Render beautiful card gallery with rich JSON data
+    // Render gallery
     myCardsList.innerHTML = savedCards.map(card => {
-      const cardDate = new Date(card.lastModified).toLocaleDateString();
-      // Use the exact avatar from JSON data - ensure it's the correct preview image
-      const cardImage = card.cardData?.avatar || '';
+      const cardDate = new Date(card.lastModified || card.createdAt || Date.now()).toLocaleDateString();
+      const cardImage = card.cardData?.avatar || card.avatar || '';
       const cardName = card.cardData?.name || card.name || 'Untitled Card';
-      const characterClass = card.cardData?.characterClass || '';
-      const rarity = card.cardData?.rarity || '';
-      const quote = card.cardData?.quote || '';
-      const isPublished = card.isPublished || false;
+      const characterClass = card.cardData?.characterClass || card.characterClass || '';
+      const rarity = card.cardData?.rarity || card.rarity || '';
+      const quote = card.cardData?.quote || card.quote || '';
+      const isPublished = card.isPublished || card.published || false;
       
       console.log(`🖼️ Gallery rendering card "${cardName}" with image:`, cardImage);
       
-      // Get stats count for display
       const statsCount = card.cardData?.stats?.length || 0;
       const socialCount = card.cardData?.socialLinks?.length || 0;
       const badgesCount = card.cardData?.badges?.length || 0;
@@ -707,7 +740,7 @@ class CardForgeActions {
               <button class="card-action-btn edit" type="button" onclick="cardForgeActions.loadCard('${card.id}')" title="Edit Card">
                 <i class="fas fa-edit"></i>
               </button>
-              <button class="card-action-btn save" type="button" onclick="cardForgeActions.duplicateCard('${card.id}')" title="Duplicate Card"> <!-- updated by Cascade -->
+              <button class="card-action-btn save" type="button" onclick="cardForgeActions.duplicateCard('${card.id}')" title="Duplicate Card">
                 <i class="fas fa-copy"></i>
               </button>
               <button class="card-action-btn publish" type="button" onclick="cardForgeActions.publishCard('${card.id}')" title="Publish Card">
