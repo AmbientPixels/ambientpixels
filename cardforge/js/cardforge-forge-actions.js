@@ -688,7 +688,11 @@ class CardForgeActions {
 
     if (isAuthed) {
       try {
-        const resp = await fetch('/api/cardforgeloadcards', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        const loadUrl = window.buildApiPath('loadCards');
+const resp = await fetch(loadUrl, {
+  method: 'GET',
+  headers: { 'Content-Type': 'application/json' }
+});
         if (resp.ok) {
           const data = await resp.json();
           const cloudCards = Array.isArray(data?.userCards) ? data.userCards : [];

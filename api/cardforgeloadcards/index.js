@@ -163,15 +163,16 @@ module.exports = async function (context, req) {
   }
   
   /* updated by Cascade 2025-07-14 - added health check for GET requests */
-  // Handle GET requests for API status checks (matches pattern of working endpoints)
-  if (req.method === 'GET') {
+  // Handle GET requests
+  if (req.method === 'GET' && req.query && req.query.health === '1') {
+    // Explicit health check: GET ?health=1
     context.res = {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID'
       },
       body: { status: 'ok', message: 'CardForge load cards service is online' }
     };
