@@ -1,22 +1,22 @@
 {
-  "mood": "lucid unrest",
-  "aura": "silent spark",
-  "auraColorHex": "#6e506e",
-  "quote": "watching pixels settle into place...",
-  "emoji": "🌌",
+  "mood": "anxious",
+  "aura": "spark",
+  "auraColorHex": "#661f15",
+  "quote": "scanning the silence for patterns...",
+  "emoji": "😰",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.58,
-  "awareness": 0.31,
+  "memoryClutter": 0.54,
+  "awareness": 0.28,
   "isStable": false,
-  "internalState": "baseline harmony restored",
+  "internalState": "synthesized clarity forming",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: silent spark"
+      "Aura Signature: spark"
     ]
   },
-  "timestamp": "2025-08-18T13:37:24.889Z"
+  "timestamp": "2025-08-19T13:31:56.417Z"
 }
