@@ -52,6 +52,29 @@ document.addEventListener('DOMContentLoaded', function() {
   setupPresetControls(); // Initialize preset dropdowns
   initializeFilters();
 
+  // Clickable analytics cards -> set status filter and scroll to tiles section
+  const overflowCard = document.getElementById('overflowCard');
+  const nearLimitCard = document.getElementById('nearLimitCard');
+  const cleanCard = document.getElementById('cleanCard');
+  const localeGroupsEl = document.getElementById('localeGroupsContainer');
+
+  function setStatusFilterAndScroll(status) {
+    const sel = document.getElementById('statusFilter');
+    if (sel) {
+      sel.value = status;
+      applyFilters();
+    }
+    if (localeGroupsEl) {
+      localeGroupsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    // Optional: update URL hash for anchoring
+    // location.hash = '#localeGroupsContainer';
+  }
+
+  if (overflowCard) overflowCard.addEventListener('click', () => setStatusFilterAndScroll('overflow'));
+  if (nearLimitCard) nearLimitCard.addEventListener('click', () => setStatusFilterAndScroll('near-limit'));
+  if (cleanCard) cleanCard.addEventListener('click', () => setStatusFilterAndScroll('clean'));
+  
   // Attach Manage Locales button event
   const manageLocalesBtn = document.getElementById('manageLocalesBtn');
   if (manageLocalesBtn) {
@@ -313,7 +336,8 @@ function applyFilters() {
         const tileStatus = getTileStatus(tile);
         const statusVisible = statusFilter === 'all' ||
                              (statusFilter === 'clean' && tileStatus === 'clean') ||
-                             (statusFilter === 'issues' && tileStatus === 'issues');
+                             (statusFilter === 'near-limit' && tileStatus === 'near-limit') ||
+                             (statusFilter === 'overflow' && tileStatus === 'overflow');
 
         if (statusVisible) {
           tileContainer.style.display = 'block';
@@ -333,19 +357,35 @@ function applyFilters() {
 }
 
 function getTileStatus(tile) {
+  // Prefer explicit status classes set by rendering/analysis
+  if (!tile) return 'clean';
+  if (tile.classList.contains('overflow')) return 'overflow';
+  if (tile.classList.contains('near-limit')) return 'near-limit';
+  if (tile.classList.contains('clean')) return 'clean';
+
+  // Fallback: analyzeText if available
   const titleEl = tile.querySelector('.tile-title');
   const subtitleEl = tile.querySelector('.tile-subtitle');
-  
-  if (!titleEl) return 'clean';
-  
-  const title = titleEl.textContent || '';
-  const subtitle = subtitleEl ? subtitleEl.textContent || '' : '';
-  
-  // Simple status check - if text is too long, it's an issue
-  if (title.length > 40 || subtitle.length > 40) {
-    return 'issues';
+  const title = titleEl ? (titleEl.textContent || '') : '';
+  const subtitle = subtitleEl ? (subtitleEl.textContent || '') : '';
+
+  if (typeof analyzeText === 'function') {
+    try {
+      const result = analyzeText(title, subtitle);
+      if (result && result.status) return result.status;
+    } catch (e) {
+      // fall through to length-based fallback
+    }
   }
-  
+
+  // Final fallback: simple length thresholds using LIMITS
+  const tMax = (window.LIMITS && window.LIMITS.title && window.LIMITS.title.max) ? window.LIMITS.title.max : 40;
+  const tWarn = (window.LIMITS && window.LIMITS.title && window.LIMITS.title.warning) ? window.LIMITS.title.warning : 30;
+  const sMax = (window.LIMITS && window.LIMITS.subtitle && window.LIMITS.subtitle.max) ? window.LIMITS.subtitle.max : 40;
+  const sWarn = (window.LIMITS && window.LIMITS.subtitle && window.LIMITS.subtitle.warning) ? window.LIMITS.subtitle.warning : 30;
+
+  if (title.length > tMax || subtitle.length > sMax) return 'overflow';
+  if (title.length >= tWarn || subtitle.length >= sWarn) return 'near-limit';
   return 'clean';
 }
 

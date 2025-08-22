@@ -182,7 +182,8 @@
           <select id="statusFilter" onchange="applyFilters()">
             <option value="all">All Tiles</option>
             <option value="clean">Clean Only</option>
-            <option value="issues">Issues Only</option>
+            <option value="near-limit">Near Limit Only</option>
+            <option value="overflow">Overflow Only</option>
           </select>
         </div>
         
@@ -271,7 +272,7 @@
       <div class="analytics-section" id="analyticsSection">
         <h3><i class="fas fa-chart-line"></i> Analytics Dashboard</h3>
         <div class="analytics-grid">
-          <div class="stat-card">
+          <div class="stat-card" id="localeCard">
             <div class="stat-icon"><i class="fas fa-globe"></i></div>
             <div class="stat-content">
               <div class="stat-number" id="localeCount">0</div>
@@ -279,7 +280,7 @@
             </div>
           </div>
           
-          <div class="stat-card warning">
+          <div class="stat-card warning" id="overflowCard">
             <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
             <div class="stat-content">
               <div class="stat-number" id="overflowCount">0</div>
@@ -287,7 +288,7 @@
             </div>
           </div>
           
-          <div class="stat-card near-limit">
+          <div class="stat-card near-limit" id="nearLimitCard">
             <div class="stat-icon"><i class="fas fa-exclamation-circle"></i></div>
             <div class="stat-content">
               <div class="stat-number" id="nearLimitCount">0</div>
@@ -295,7 +296,7 @@
             </div>
           </div>
           
-          <div class="stat-card success">
+          <div class="stat-card success" id="cleanCard">
             <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
             <div class="stat-content">
               <div class="stat-number" id="cleanCount">0</div>

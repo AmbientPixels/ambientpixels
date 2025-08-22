@@ -24,10 +24,13 @@
   gap: 12px;
   border: 1px solid #333;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 .stat-card:hover {
   background: #2f2f2f;
   border-color: #444;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
 }
 .stat-card.warning {
   border-color: #ff6b6b;
@@ -40,6 +43,27 @@
 .stat-card.success {
   border-color: #4caf50;
   background: linear-gradient(135deg, #2a2a2a, #263d26);
+}
+.stat-card.warning:hover {
+  border-color: #ff7f7f;
+  box-shadow: 0 6px 18px rgba(255, 107, 107, 0.25);
+}
+.stat-card.near-limit:hover {
+  border-color: #ffb433;
+  box-shadow: 0 6px 18px rgba(255, 165, 0, 0.25);
+}
+.stat-card.success:hover {
+  border-color: #5ccd5c;
+  box-shadow: 0 6px 18px rgba(76, 175, 80, 0.25);
+}
+.stat-card:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  filter: brightness(0.98);
+}
+.stat-card:focus-visible {
+  outline: 2px solid #4a9eff;
+  outline-offset: 3px;
 }
 .stat-icon {
   font-size: 20px;
