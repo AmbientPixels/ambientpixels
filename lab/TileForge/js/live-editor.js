@@ -316,6 +316,55 @@ function setupLiveEditor() {
         }
     });
   }
+
+  // Apply manually entered text to SELECTED locales (opens Locale Picker)
+  const titleManualApplySelectedBtn = document.getElementById('titleManualApplySelectedBtn');
+  const subtitleManualApplySelectedBtn = document.getElementById('subtitleManualApplySelectedBtn');
+  const narratorManualApplySelectedBtn = document.getElementById('narratorManualApplySelectedBtn');
+
+  function getPreselectedLocales() {
+    try {
+      if (typeof window.getActiveLocalesForPreview === 'function') {
+        return window.getActiveLocalesForPreview() || [];
+      }
+    } catch(e) {}
+    return [];
+  }
+
+  function openLocalePickerAndApplyManual(fieldType) {
+    if (!window.TileForgeLocalesUI || typeof window.TileForgeLocalesUI.open !== 'function') {
+      alert('Locale Picker UI not loaded.');
+      return;
+    }
+    const textValue = (fieldType === 'title' ? titleInput?.value : fieldType === 'subtitle' ? subtitleInput?.value : narratorInput?.value) || '';
+    const pre = getPreselectedLocales();
+    window.TileForgeLocalesUI.open(function(selectedLocales) {
+      const cleanSet = Array.isArray(selectedLocales) ? selectedLocales.filter(Boolean) : [];
+      if (!cleanSet.length) return;
+      if (!textValue) {
+        window.showModal(
+          `This will clear the ${fieldType} field for ${cleanSet.length} selected locale(s). Proceed?`,
+          {
+            confirmText: 'Clear Selected',
+            cancelText: 'Cancel',
+            onConfirm: function() { applyManualTextToSelectedLocales('', fieldType, cleanSet); }
+          }
+        );
+      } else {
+        applyManualTextToSelectedLocales(textValue.trim(), fieldType, cleanSet);
+      }
+    }, pre);
+  }
+
+  if (titleManualApplySelectedBtn) {
+    titleManualApplySelectedBtn.addEventListener('click', function() { openLocalePickerAndApplyManual('title'); });
+  }
+  if (subtitleManualApplySelectedBtn) {
+    subtitleManualApplySelectedBtn.addEventListener('click', function() { openLocalePickerAndApplyManual('subtitle'); });
+  }
+  if (narratorManualApplySelectedBtn) {
+    narratorManualApplySelectedBtn.addEventListener('click', function() { openLocalePickerAndApplyManual('narrator'); });
+  }
 }
 
 // Update preview tile status based on current input
@@ -654,6 +703,36 @@ function applyManualTextToAllTiles(text, fieldType) {
   console.log(`Successfully applied manual text to all tiles for ${fieldType} field`);
 }
 
+// Apply manually entered text to SELECTED locales for a specific field
+function applyManualTextToSelectedLocales(text, fieldType, selectedLocales) {
+  if (!currentCsvData || !currentCsvData.length) {
+    console.warn('No CSV data available to apply text to');
+    return;
+  }
+  const target = new Set(selectedLocales || []);
+  if (!target.size) return;
+
+  let fieldKey;
+  switch (fieldType) {
+    case 'title': fieldKey = 'items/0/title'; break;
+    case 'subtitle': fieldKey = 'items/0/subtitle'; break;
+    case 'narrator': fieldKey = 'items/0/narratorText'; break;
+    default: console.error(`Unknown field type: ${fieldType}`); return;
+  }
+
+  currentCsvData.forEach((row, index) => {
+    if (index === 0) return; // Skip header row
+    const locale = row.Locale || row.locale;
+    if (target.has(locale)) {
+      row[fieldKey] = text;
+    }
+  });
+
+  renderLocaleGroups(currentCsvData);
+  updateAnalytics();
+  console.log(`Applied manual text to ${target.size} selected locale(s) for ${fieldType}`);
+}
+
 // Apply preset to all tiles for a specific field
 function applyPresetToAllTiles(presetKey, fieldType) {
   const preset = presetData[presetKey];
@@ -702,6 +781,40 @@ function applyPresetToAllTiles(presetKey, fieldType) {
   console.log(`Applied "${preset.name}" preset to all tiles for ${fieldType} field (${mode})`);
 }
 
+// Apply preset to SELECTED locales for a specific field
+function applyPresetToSelectedLocales(presetKey, fieldType, selectedLocales) {
+  const preset = presetData[presetKey];
+  if (!preset || !currentCsvData) return;
+
+  const autoLocalizeToggle = document.getElementById('autoLocalizeToggle');
+  const isAutoLocalizeEnabled = autoLocalizeToggle ? autoLocalizeToggle.checked : true;
+  const target = new Set(selectedLocales || []);
+  if (!target.size) return;
+
+  currentCsvData.forEach(row => {
+    const locale = row.Locale || row.locale;
+    if (!target.has(locale)) return;
+
+    let textToApply;
+    if (isAutoLocalizeEnabled) {
+      textToApply = preset.locales[locale] || preset.locales['EN-US'] || '';
+    } else {
+      textToApply = preset.locales['EN-US'] || '';
+    }
+
+    let fieldKey;
+    if (fieldType === 'title') fieldKey = 'items/0/title';
+    else if (fieldType === 'subtitle') fieldKey = 'items/0/subtitle';
+    else if (fieldType === 'narrator') fieldKey = 'items/0/narratorText';
+
+    row[fieldKey] = textToApply;
+  });
+
+  renderLocaleGroups(currentCsvData);
+  const mode = isAutoLocalizeEnabled ? 'auto-localized' : 'English-only';
+  console.log(`Applied "${preset.name}" preset to ${target.size} selected locale(s) for ${fieldType} (${mode})`);
+}
+
 // Setup preset dropdown event listeners
 function setupPresetControls() {
   // Dropdown change handlers
@@ -740,6 +853,26 @@ function setupPresetControls() {
         if (presetKey) {
           applyPresetToAllTiles(presetKey, field);
         }
+      });
+    }
+
+    // Apply to Selected button handlers (open Locale Picker)
+    const applySelectedBtn = document.getElementById(field + 'ApplySelectedBtn');
+    if (applySelectedBtn) {
+      applySelectedBtn.addEventListener('click', function() {
+        const dropdown = document.getElementById(id);
+        const presetKey = dropdown ? dropdown.value : '';
+        if (!presetKey) return;
+        const pre = (typeof window.getActiveLocalesForPreview === 'function') ? window.getActiveLocalesForPreview() : [];
+        if (!window.TileForgeLocalesUI || typeof window.TileForgeLocalesUI.open !== 'function') {
+          alert('Locale Picker UI not loaded.');
+          return;
+        }
+        window.TileForgeLocalesUI.open(function(selectedLocales){
+          if (Array.isArray(selectedLocales) && selectedLocales.length) {
+            applyPresetToSelectedLocales(presetKey, field, selectedLocales);
+          }
+        }, pre);
       });
     }
   });

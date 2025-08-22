@@ -378,14 +378,21 @@
                   <button class="manual-apply-btn" id="titleManualApplyBtn" title="Apply typed text to all tiles">
                     <i class="fas fa-share"></i> Apply Text to All
                   </button>
+                  <button class="manual-apply-btn" id="titleManualApplySelectedBtn" title="Apply typed text to selected locales">
+                    <i class="fas fa-share-nodes"></i> Apply to Selected…
+                  </button>
                 </div>
               </div>
               <div class="preset-controls">
                 <select id="titlePresetSelect" class="preset-dropdown">
                   <option value="">Select preset...</option>
                 </select>
+                <!-- Blue preset buttons under preset select -->
                 <button class="preset-apply-btn" id="titleApplyAllBtn" title="Apply this preset to all tiles">
                   <i class="fas fa-arrow-right"></i> Apply All
+                </button>
+                <button class="preset-apply-btn" id="titleApplySelectedBtn" title="Apply this preset to selected locales">
+                  <i class="fas fa-location-arrow"></i> Apply to Selected…
                 </button>
               </div>
             </div>
@@ -405,14 +412,21 @@
                   <button class="manual-apply-btn" id="subtitleManualApplyBtn" title="Apply typed text to all tiles">
                     <i class="fas fa-share"></i> Apply Text to All
                   </button>
+                  <button class="manual-apply-btn" id="subtitleManualApplySelectedBtn" title="Apply typed text to selected locales">
+                    <i class="fas fa-share-nodes"></i> Apply to Selected…
+                  </button>
                 </div>
               </div>
               <div class="preset-controls">
                 <select id="subtitlePresetSelect" class="preset-dropdown">
                   <option value="">Select preset...</option>
                 </select>
+                <!-- Blue preset buttons under preset select -->
                 <button class="preset-apply-btn" id="subtitleApplyAllBtn" title="Apply this preset to all tiles">
                   <i class="fas fa-arrow-right"></i> Apply All
+                </button>
+                <button class="preset-apply-btn" id="subtitleApplySelectedBtn" title="Apply this preset to selected locales">
+                  <i class="fas fa-location-arrow"></i> Apply to Selected…
                 </button>
               </div>
             </div>
@@ -432,14 +446,21 @@
                   <button class="manual-apply-btn" id="narratorManualApplyBtn" title="Apply typed text to all tiles">
                     <i class="fas fa-share"></i> Apply Text to All
                   </button>
+                  <button class="manual-apply-btn" id="narratorManualApplySelectedBtn" title="Apply typed text to selected locales">
+                    <i class="fas fa-share-nodes"></i> Apply to Selected…
+                  </button>
                 </div>
               </div>
               <div class="preset-controls">
                 <select id="narratorPresetSelect" class="preset-dropdown">
                   <option value="">Select preset...</option>
                 </select>
+                <!-- Blue preset buttons under preset select -->
                 <button class="preset-apply-btn" id="narratorApplyAllBtn" title="Apply this preset to all tiles">
                   <i class="fas fa-arrow-right"></i> Apply All
+                </button>
+                <button class="preset-apply-btn" id="narratorApplySelectedBtn" title="Apply this preset to selected locales">
+                  <i class="fas fa-location-arrow"></i> Apply to Selected…
                 </button>
               </div>
             </div>
@@ -463,21 +484,6 @@
       
       <!-- Locale Groups Container -->
       <div class="locale-groups-container" id="localeGroupsContainer">
-        <div class="dnd-csv-zone" id="dndCsvZone" style="display:none;">
-          <div class="dnd-csv-message">
-            <i class="fas fa-file-csv"></i>
-            <span>Drop CSV file here</span>
-            <small>Iris Localization CSV format</small>
-          </div>
-        </div>
-        <!-- Drop zone appears if no data is loaded -->
-        <div id="emptyDropZone" class="dnd-csv-zone" style="display:none;">
-          <div class="dnd-csv-message">
-            <i class="fas fa-file-csv"></i>
-            <span>Drop CSV or XML file here to begin</span>
-            <small>Upload a standard Iris-formatted CSV (recommended). Campsite XML import coming soon.</small>
-          </div>
-        </div>
         <div id="localeGroups">
           <!-- Locale groups will be dynamically generated here -->
         </div>

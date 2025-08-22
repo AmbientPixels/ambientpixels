@@ -750,7 +750,7 @@ function createAboutTabContent() {
       <h4>🎨 Template System</h4>
       <p>TileForge now supports multiple Xbox tile templates optimized for different platforms:</p>
       <ul>
-        <li><strong>Top of Home (ToH):</strong> Traditional 360×315px horizontal Xbox dashboard tiles</li>
+        <li><strong>Top of Home (ToH):</strong> Traditional 560×315px horizontal Xbox dashboard tiles</li>
         <li><strong>Mobile Spotlight:</strong> NEW 694×758px vertical mobile-optimized tiles</li>
         <li><strong>Dynamic Switching:</strong> Seamless template switching with automatic tile updates</li>
         <li><strong>Template Persistence:</strong> Robust template consistency across all UI interactions</li>

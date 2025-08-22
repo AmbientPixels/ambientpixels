@@ -1378,7 +1378,9 @@ input:checked + .slider:before {
 /* Manual Controls Styling */
 .manual-controls {
   display: flex;
-  align-items: center;
+  align-items: stretch;
+  flex-direction: column; /* updated by Cascade: stack manual buttons */
+  gap: 8px; /* updated by Cascade */
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -1394,6 +1396,7 @@ input:checked + .slider:before {
   font-weight: 500;
   transition: background-color 0.2s;
   white-space: nowrap;
+  width: 100%; /* updated by Cascade: full-width for stacked layout */
 }
 
 .manual-apply-btn:hover {
@@ -1406,10 +1409,12 @@ input:checked + .slider:before {
 
 /* Preset Controls Styling */
 .preset-controls {
-  display: flex;
+  display: grid; /* updated by Cascade: grid to place select left, buttons stacked right */
+  grid-template-columns: 1fr auto;
+  grid-auto-rows: auto;
   gap: 8px;
   margin-top: 8px;
-  align-items: center;
+  align-items: stretch;
 }
 
 .preset-dropdown {
@@ -1423,6 +1428,9 @@ input:checked + .slider:before {
   font-family: inherit;
   cursor: pointer;
   transition: all 0.2s ease;
+  width: 100%;
+  grid-column: 1; /* updated by Cascade */
+  grid-row: 1 / span 2; /* occupy both rows next to buttons */
 }
 
 .preset-dropdown:hover {
@@ -1449,7 +1457,13 @@ input:checked + .slider:before {
   display: flex;
   align-items: center;
   gap: 4px;
+  width: 100%;
+  grid-column: 2; /* updated by Cascade */
 }
+
+/* Place the two preset buttons in a vertical stack at right using nth-of-type */
+.preset-controls .preset-apply-btn:nth-of-type(1) { grid-row: 1; }
+.preset-controls .preset-apply-btn:nth-of-type(2) { grid-row: 2; }
 
 .preset-apply-btn:hover {
   background: var(--accent-color, #007acc);
