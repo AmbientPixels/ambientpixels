@@ -157,6 +157,7 @@ Headliner Crafter is TileForge's advanced CSV localization transformation tool t
 - **Loading Default Template (Coming Soon):** Option to load a default mapping/template (feature in progress).
 - **Arabic & Special Character Support:** Fixed issues with Arabic and special characters in data and preview.
 - **New Case Converter Tool:** Added a dedicated Case Converter module for fast text case transformations.
+- **Subtitle Symbols Selector:** Optional symbol dropdown for Subtitle Modifiers. Safely appends %, $, €, £, ¥ only when the chosen template has {n} and no existing percent/currency symbol (Behavior B). <!-- updated by Cascade -->
 
 ---
 
@@ -189,6 +190,14 @@ When you use **Manage Locales** to add all or a subset of locales, TileForge now
 - No CSV import is required for propagation after selecting locales.
 
 If no locales are selected, the localized preview shows the blank state. <!-- updated by Cascade -->
+
+
+### ✍️ Subtitle Modifiers – Symbols (Optional)
+
+- **Where:** `Subtitle Modifiers` row in `lab/TileForge/index.html` (`#subtitleSymbolSelect`).
+- **What it does:** Appends the selected symbol to the inserted value only when the resolved template contains `{n}` and does not already include a percent/currency symbol.
+- **Supported symbols:** None (default), %, $, €, £, ¥.
+- **Logic location:** `lab/TileForge/js/live-editor.js` in `applySubtitleModifiersAll()` and `applySubtitleModifiersSelected()`; uses `getSubtitleTemplateForLocale()` and existing `composeSubtitleFromTemplate()` without duplicating logic. <!-- updated by Cascade -->
 
 
 ## 🧭 Left Panel Overview

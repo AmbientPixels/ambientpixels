@@ -417,6 +417,30 @@
                   </button>
                 </div>
               </div>
+              <!-- Subtitle Modifiers: Auto-Localized Phrase + Percent -->
+              <div class="modifier-controls">
+                <div class="modifier-row">
+                  <label for="subtitlePhraseSelect" class="modifier-label">Subtitle Modifiers</label>
+                  <select id="subtitlePhraseSelect" class="preset-dropdown" title="Choose a phrase template">
+                    <option value="save_up_to">Save up to</option>
+                  </select>
+                  <input type="text" id="subtitlePercentInput" placeholder="value" style="width:120px" title="Value to insert (number or text)" />
+                  <select id="subtitleSymbolSelect" class="preset-dropdown" title="Append symbol when template has none">
+                    <option value="none">No symbol</option>
+                    <option value="%">%</option>
+                    <option value="$">$</option>
+                    <option value="€">€</option>
+                    <option value="£">£</option>
+                    <option value="¥">¥</option>
+                  </select>
+                  <button class="preset-apply-btn" id="subtitleModifiersApplyAllBtn" title="Compose and apply to all locales">
+                    <i class="fas fa-arrow-right"></i> Apply All
+                  </button>
+                  <button class="preset-apply-btn" id="subtitleModifiersApplySelectedBtn" title="Compose and apply to selected locales">
+                    <i class="fas fa-location-arrow"></i> Apply to Selected…
+                  </button>
+                </div>
+              </div>
               <div class="preset-controls">
                 <select id="subtitlePresetSelect" class="preset-dropdown">
                   <option value="">Select preset...</option>

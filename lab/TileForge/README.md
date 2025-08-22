@@ -23,7 +23,8 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 - **Loading Default Template (Coming Soon):** Option to load a default mapping/template (feature in progress).
 - **Arabic & Special Character Support:** Fixed issues with Arabic and special characters in data and preview.
 - **New Case Converter Tool:** Added a dedicated Case Converter module for fast text case transformations.
- - **Preset Controls Layout:** Blue preset apply buttons now stack vertically next to each preset select (Title, Subheadline, Narrator). <!-- updated by Cascade -->
+- **Preset Controls Layout:** Blue preset apply buttons now stack vertically next to each preset select (Title, Subheadline, Narrator). <!-- updated by Cascade -->
+- **Subtitle Symbols Selector:** Optional dropdown next to Subtitle Modifiers value. Safely appends %, $, €, £, ¥ only if the template has `{n}` and no existing percent/currency symbol (Behavior B). <!-- updated by Cascade -->
 
 ### Bug Fixes (Aug 2025)
 
@@ -76,6 +77,7 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 - Use **Manage Locales** to focus on specific regions or languages—great for QA and targeted review.
 - Check the **modal drop zone** for file type support and workflow tips.
 - Coming soon: **Default Template Loader** for instant mapping setup.
+ - Subtitle Symbols: leaving the selector at “No symbol” preserves existing templates; picking a symbol only appends when `{n}` is present and the template doesn’t already include %/currency. <!-- updated by Cascade -->
 
 ---
 

@@ -675,132 +675,139 @@ function applyPresetToField(presetKey, fieldType) {
     input.value = previewText;
     
     // Trigger input event to update character count and preview
-    const event = new Event('input', { bubbles: true });
-    input.dispatchEvent(event);
-    
-    console.log(`DEBUG: Applied to ${inputId}: "${previewText}"`);
-  } else {
-    console.error(`Input field not found: ${inputId}`);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
   }
 }
 
-// Apply manually entered text to all tiles for a specific field
-function applyManualTextToAllTiles(text, fieldType) {
-  if (!currentCsvData || !currentCsvData.length) {
-    console.warn('No CSV data available to apply text to');
-    return;
+// Replaces only the number immediately before the percent sign, preserving locale spacing and phrase
+function tfReplacePercentNumber(originalText, newValue) {
+  if (typeof originalText !== 'string') return originalText;
+  const strValue = String(newValue);
+  const regex = /(\d{1,3})([\s\u00A0]?%)/g;
+  let lastMatch = null;
+  let m;
+  while ((m = regex.exec(originalText)) !== null) {
+    lastMatch = { i: m.index, len: m[0].length, suffix: m[2] };
   }
-  
-  console.log(`Applying manual text "${text}" to all tiles for ${fieldType} field`);
-  
-  // Determine the field key based on field type
-  let fieldKey;
-  switch (fieldType) {
-    case 'title':
-      fieldKey = 'items/0/title';
-      break;
-    case 'subtitle':
-      fieldKey = 'items/0/subtitle';
-      break;
-    case 'narrator':
-      fieldKey = 'items/0/narratorText';
-      break;
-    default:
-      console.error(`Unknown field type: ${fieldType}`);
-      return;
-  }
-  
-  // Update CSV data for all locales
-  currentCsvData.forEach((row, index) => {
-    // updated by Cascade: do not skip index 0; there is no header row in currentCsvData
-    const locale = row.Locale || row.locale;
-    console.log(`Updating ${locale} - ${fieldKey} = "${text}"`);
-    row[fieldKey] = text;
-  });
-  
-  // Re-render tiles and update analytics
-  renderLocaleGroups(currentCsvData);
-  updateAnalytics();
-  
-  console.log(`Successfully applied manual text to all tiles for ${fieldType} field`);
+  if (!lastMatch) return originalText; // no percent pattern found
+  return originalText.slice(0, lastMatch.i) + strValue + lastMatch.suffix + originalText.slice(lastMatch.i + lastMatch.len);
 }
 
-// Apply manually entered text to SELECTED locales for a specific field
-function applyManualTextToSelectedLocales(text, fieldType, selectedLocales) {
-  if (!currentCsvData || !currentCsvData.length) {
-    console.warn('No CSV data available to apply text to');
-    return;
+// Embedded localized subtitle phrase templates (extensible)
+// Note: Keep minimal initial set; extend as needed. Use NBSP (\u00A0) where locales require it.
+const SUBTITLE_PHRASE_TEMPLATES = {
+  // save_up_to: "Save up to {n}%" and localized variants
+  save_up_to: {
+    'EN-US': 'Save up to {n}%',
+    'EN-GB': 'Save up to {n}%',
+    'AR-SA': '\u0648\u0641\u0631 \u062d\u062a\u0649 {n}\u066a',
+    'AR-AE': '\u0648\u0641\u0631 \u062d\u062a\u0649 {n}\u066a',
+    'DE-DE': 'Spare bis zu\u00A0{n}\u00A0%',
+    'FR-FR': '\u00C9conomisez jusqu\'\u00E0 {n}\u00A0%',
+    'ES-ES': 'Ahorra hasta un {n}%'
   }
-  const target = new Set(selectedLocales || []);
-  if (!target.size) return;
+};
 
-  let fieldKey;
-  switch (fieldType) {
-    case 'title': fieldKey = 'items/0/title'; break;
-    case 'subtitle': fieldKey = 'items/0/subtitle'; break;
-    case 'narrator': fieldKey = 'items/0/narratorText'; break;
-    default: console.error(`Unknown field type: ${fieldType}`); return;
+// Normalize locale like "de-de" or "de_DE" to canonical "DE-DE"
+function normalizeLocaleCode(loc) {
+  if (!loc || typeof loc !== 'string') return 'EN-US';
+  const cleaned = loc.replace('_', '-').trim();
+  const parts = cleaned.split('-');
+  if (parts.length === 1) {
+    return parts[0].toUpperCase();
   }
-
-  currentCsvData.forEach((row, index) => {
-    if (index === 0) return; // Skip header row
-    const locale = row.Locale || row.locale;
-    if (target.has(locale)) {
-      row[fieldKey] = text;
-    }
-  });
-
-  renderLocaleGroups(currentCsvData);
-  updateAnalytics();
-  console.log(`Applied manual text to ${target.size} selected locale(s) for ${fieldType}`);
+  return `${parts[0].toUpperCase()}-${parts[1].toUpperCase()}`;
 }
 
-// Apply preset to all tiles for a specific field
-function applyPresetToAllTiles(presetKey, fieldType) {
-  const preset = presetData[presetKey];
-  if (!preset || !currentCsvData) return;
-  
-  // Check if auto-localization is enabled
+function getSubtitleTemplateForLocale(phraseKey, locale, isAutoLocalizeEnabled) {
+  const key = phraseKey || 'save_up_to';
+  const bucket = SUBTITLE_PHRASE_TEMPLATES[key] || {};
+  if (!isAutoLocalizeEnabled) return bucket['EN-US'] || '';
+
+  const norm = normalizeLocaleCode(locale);
+  // 1) Exact match
+  if (bucket[norm]) return bucket[norm];
+  // 2) Language-wide fallback (e.g., DE-* -> DE-DE, FR-* -> FR-FR, ES-* -> ES-ES, EN-* -> EN-US)
+  const lang = norm.split('-')[0];
+  const langDefaults = {
+    'AR': 'AR-SA',
+    'DE': 'DE-DE',
+    'FR': 'FR-FR',
+    'ES': 'ES-ES',
+    'EN': 'EN-US'
+  };
+  const fallbackKey = langDefaults[lang];
+  if (fallbackKey && bucket[fallbackKey]) return bucket[fallbackKey];
+
+  // 3) Any entry matching this language prefix
+  const anyMatch = Object.keys(bucket).find(k => k.startsWith(lang + '-'));
+  if (anyMatch) return bucket[anyMatch];
+
+  // 4) Default to EN-US
+  return bucket['EN-US'] || '';
+}
+
+// Compose subtitle from template and numeric percent
+function composeSubtitleFromTemplate(locale, percentVal, isAutoLocalizeEnabled, phraseKey) {
+  const raw = getSubtitleTemplateForLocale(phraseKey || 'save_up_to', locale, isAutoLocalizeEnabled);
+  if (!raw) return '';
+  // If template has {n}, replace it; otherwise, fall back to replacing last number before %
+  if (raw.includes('{n}')) {
+    return raw.replace('{n}', String(percentVal));
+  }
+  return tfReplacePercentNumber(raw, String(percentVal));
+}
+
+// Detect if a template already carries a symbol such as %, Arabic percent, or currency marks
+function tfTemplateHasSymbol(tmpl) {
+  if (typeof tmpl !== 'string') return false;
+  return /[%\u066a$€£¥]/.test(tmpl);
+}
+
+function applySubtitleModifiersAll(percentVal) {
+  if (!currentCsvData) return;
   const autoLocalizeToggle = document.getElementById('autoLocalizeToggle');
   const isAutoLocalizeEnabled = autoLocalizeToggle ? autoLocalizeToggle.checked : true;
-  
-  // Update CSV data
+  const phraseDropdown = document.getElementById('subtitlePhraseSelect');
+  const phraseKey = (phraseDropdown && phraseDropdown.value) ? phraseDropdown.value : 'save_up_to';
+  const symbolSelect = document.getElementById('subtitleSymbolSelect');
+  const chosenSymbol = (symbolSelect && symbolSelect.value) ? symbolSelect.value : 'none';
+
   currentCsvData.forEach(row => {
-    // The locale field might be 'Locale' (uppercase) or 'locale' (lowercase)
-    const locale = row.Locale || row.locale;
-    
-    console.log(`DEBUG: Processing row for locale: "${locale}"`);
-    
-    let textToApply;
-    if (isAutoLocalizeEnabled) {
-      // Use localized text for each locale
-      textToApply = preset.locales[locale] || preset.locales['EN-US'] || '';
-      console.log(`DEBUG: Auto-localize ON - Using "${locale}" text: "${textToApply}"`);
-    } else {
-      // Use English text for all locales
-      textToApply = preset.locales['EN-US'] || '';
-      console.log(`DEBUG: Auto-localize OFF - Using English text: "${textToApply}"`);
-    }
-    
-    // Update the appropriate field in CSV data
-    let fieldKey;
-    if (fieldType === 'title') {
-      fieldKey = 'items/0/title';
-    } else if (fieldType === 'subtitle') {
-      fieldKey = 'items/0/subtitle';
-    } else if (fieldType === 'narrator') {
-      fieldKey = 'items/0/narratorText';
-    }
-    
-    console.log(`Updating ${locale} - ${fieldKey} = "${textToApply}" (auto-localize: ${isAutoLocalizeEnabled})`);
-    row[fieldKey] = textToApply;
+    const locale = row.Locale || row.locale || 'EN-US';
+    const tmpl = getSubtitleTemplateForLocale(phraseKey, locale, isAutoLocalizeEnabled);
+    const needsAppend = tmpl && tmpl.includes('{n}') && chosenSymbol && chosenSymbol !== 'none' && !tfTemplateHasSymbol(tmpl);
+    const insertVal = needsAppend ? String(percentVal) + String(chosenSymbol) : String(percentVal);
+    const composed = composeSubtitleFromTemplate(locale, insertVal, isAutoLocalizeEnabled, phraseKey);
+    row['items/0/subtitle'] = composed;
+    console.log(`Subtitle Modifiers: ${locale} -> "${composed}" (autoLocalize=${isAutoLocalizeEnabled}, phrase=${phraseKey}, symbol=${chosenSymbol})`);
   });
-  
-  // Re-render all tiles with updated data
+
   renderLocaleGroups(currentCsvData);
-  
-  const mode = isAutoLocalizeEnabled ? 'auto-localized' : 'English-only';
-  console.log(`Applied "${preset.name}" preset to all tiles for ${fieldType} field (${mode})`);
+}
+
+function applySubtitleModifiersSelected(percentVal, selectedLocales) {
+  if (!currentCsvData || !Array.isArray(selectedLocales) || !selectedLocales.length) return;
+  const autoLocalizeToggle = document.getElementById('autoLocalizeToggle');
+  const isAutoLocalizeEnabled = autoLocalizeToggle ? autoLocalizeToggle.checked : true;
+  const phraseDropdown = document.getElementById('subtitlePhraseSelect');
+  const phraseKey = (phraseDropdown && phraseDropdown.value) ? phraseDropdown.value : 'save_up_to';
+  const target = new Set(selectedLocales);
+  const symbolSelect = document.getElementById('subtitleSymbolSelect');
+  const chosenSymbol = (symbolSelect && symbolSelect.value) ? symbolSelect.value : 'none';
+
+  currentCsvData.forEach(row => {
+    const locale = row.Locale || row.locale || 'EN-US';
+    if (!target.has(locale)) return;
+    const tmpl = getSubtitleTemplateForLocale(phraseKey, locale, isAutoLocalizeEnabled);
+    const needsAppend = tmpl && tmpl.includes('{n}') && chosenSymbol && chosenSymbol !== 'none' && !tfTemplateHasSymbol(tmpl);
+    const insertVal = needsAppend ? String(percentVal) + String(chosenSymbol) : String(percentVal);
+    const composed = composeSubtitleFromTemplate(locale, insertVal, isAutoLocalizeEnabled, phraseKey);
+    row['items/0/subtitle'] = composed;
+    console.log(`Subtitle Modifiers (Selected): ${locale} -> "${composed}" (autoLocalize=${isAutoLocalizeEnabled}, phrase=${phraseKey}, symbol=${chosenSymbol})`);
+  });
+
+  renderLocaleGroups(currentCsvData);
 }
 
 // Apply preset to SELECTED locales for a specific field
@@ -900,10 +907,56 @@ function setupPresetControls() {
   });
 }
 
+function setupSubtitleModifiersControls() {
+  const applyAllBtn = document.getElementById('subtitleModifiersApplyAllBtn');
+  const applySelectedBtn = document.getElementById('subtitleModifiersApplySelectedBtn');
+  const percentInput = document.getElementById('subtitlePercentInput');
+
+  function getModifierValue() {
+    let val = (percentInput && typeof percentInput.value === 'string') ? percentInput.value.trim() : '';
+    if (val === '') return null;
+    // Normalize: if template already includes a % after {n}, avoid double % by stripping trailing % from input
+    if (val.endsWith('%')) val = val.slice(0, -1).trim();
+    return val;
+  }
+
+  if (applyAllBtn) {
+    applyAllBtn.addEventListener('click', function() {
+      const modVal = getModifierValue();
+      if (modVal === null) {
+        alert('Enter a value to insert (e.g., 40 or “forty”).');
+        return;
+      }
+      applySubtitleModifiersAll(modVal);
+    });
+  }
+
+  if (applySelectedBtn) {
+    applySelectedBtn.addEventListener('click', function() {
+      const modVal = getModifierValue();
+      if (modVal === null) {
+        alert('Enter a value to insert (e.g., 40 or “forty”).');
+        return;
+      }
+      const pre = (typeof window.getActiveLocalesForPreview === 'function') ? (window.getActiveLocalesForPreview() || []) : [];
+      if (!window.TileForgeLocalesUI || typeof window.TileForgeLocalesUI.open !== 'function') {
+        alert('Locale Picker UI not loaded.');
+        return;
+      }
+      window.TileForgeLocalesUI.open(function(selectedLocales){
+        if (Array.isArray(selectedLocales) && selectedLocales.length) {
+          applySubtitleModifiersSelected(modVal, selectedLocales);
+        }
+      }, pre);
+    });
+  }
+}
+
 // Initialize preset system when page loads
 document.addEventListener('DOMContentLoaded', function() {
   loadPresetData();
   setupPresetControls();
+  setupSubtitleModifiersControls();
 });
 
 // Background Image Toggle Function
