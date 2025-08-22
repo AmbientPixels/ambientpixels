@@ -84,7 +84,7 @@ function setupLiveEditor() {
       
       // Update preview tile text
       if (previewTitle) {
-        previewTitle.textContent = text || 'Fortnite OG';
+        previewTitle.textContent = text || ''; // updated by Cascade: remove hardcoded default
       }
       
       // Update character count
@@ -179,11 +179,31 @@ function setupLiveEditor() {
     });
   }
   
+  // Initialize clean state on load (no pre-filled Fortnite text)
+  // updated by Cascade: clear preload defaults and mirror blank preview
+  try {
+    if (titleInput) titleInput.value = '';
+    if (subtitleInput) subtitleInput.value = '';
+    if (narratorInput) narratorInput.value = '';
+    if (titleCharCount) titleCharCount.textContent = '0';
+    if (subtitleCharCount) subtitleCharCount.textContent = '0';
+    if (narratorCharCount) narratorCharCount.textContent = '0';
+    if (previewTitle) previewTitle.textContent = '';
+    if (previewSubtitle) {
+      previewSubtitle.textContent = '';
+      previewSubtitle.classList.add('hidden');
+    }
+    updatePreviewTileStatus();
+    updateLiveAnalytics();
+  } catch (e) {
+    console.warn('Live editor init state setup skipped:', e);
+  }
+
   // Apply to all tiles button
   if (applyToAllBtn) {
     applyToAllBtn.addEventListener('click', function() {
-      const title = titleInput?.value || 'Fortnite OG';
-      const subtitle = subtitleInput?.value || 'New season';
+      const title = titleInput?.value || '';
+      const subtitle = subtitleInput?.value || '';
       const narratorText = narratorInput?.value || '';
       
       // Update all tiles in the preview
@@ -237,8 +257,11 @@ function setupLiveEditor() {
       if (titleCharCount) titleCharCount.textContent = '0';
       if (subtitleCharCount) subtitleCharCount.textContent = '0';
       if (narratorCharCount) narratorCharCount.textContent = '0';
-      if (previewTitle) previewTitle.textContent = 'Fortnite OG';
-      if (previewSubtitle) previewSubtitle.textContent = 'New season';
+      if (previewTitle) previewTitle.textContent = '';
+      if (previewSubtitle) {
+        previewSubtitle.textContent = '';
+        previewSubtitle.classList.add('hidden'); // updated by Cascade: mirror live behavior when empty
+      }
       
       // Reset character count colors
       const charCounts = document.querySelectorAll('.char-count');
@@ -375,8 +398,8 @@ function updatePreviewTileStatus() {
   
   if (!titleInput || !subtitleInput || !previewTile) return;
   
-  const title = titleInput.value || 'Fortnite OG';
-  const subtitle = subtitleInput.value || 'New season';
+  const title = titleInput.value || '';
+  const subtitle = subtitleInput.value || '';
   
   // Use the EXACT same analysis logic as CSV tiles
   const analysis = analyzeText(title, subtitle);
@@ -474,8 +497,8 @@ function updateLiveAnalytics() {
   
   if (!titleInput || !subtitleInput) return;
   
-  const title = titleInput.value || 'Fortnite OG';
-  const subtitle = subtitleInput.value || 'New season';
+  const title = titleInput.value || '';
+  const subtitle = subtitleInput.value || '';
   const analysis = analyzeText(title, subtitle);
   
   // Create analytics based on current live editor status
@@ -689,8 +712,7 @@ function applyManualTextToAllTiles(text, fieldType) {
   
   // Update CSV data for all locales
   currentCsvData.forEach((row, index) => {
-    if (index === 0) return; // Skip header row
-    
+    // updated by Cascade: do not skip index 0; there is no header row in currentCsvData
     const locale = row.Locale || row.locale;
     console.log(`Updating ${locale} - ${fieldKey} = "${text}"`);
     row[fieldKey] = text;

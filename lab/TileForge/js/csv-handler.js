@@ -3,30 +3,98 @@
 
 // Parse CSV data into array of objects
 function parseCSV(csvText) {
-  const lines = csvText.trim().split('\n');
+  // Remove UTF-8 BOM if present
+  if (csvText && csvText.charCodeAt(0) === 0xFEFF) {
+    csvText = csvText.slice(1);
+  }
+  // Normalize line endings
+  const lines = (csvText || '').trim().split(/\r?\n/);
   if (lines.length < 2) return [];
-  
-  const headers = lines[0].split(',').map(h => h.trim());
+
+  // If the first line is the dummy W-width line, skip it and use the next line as header
+  // Detect delimiter based on the actual header line
+  let headerIndex = 0;
+  let probeDelimiter = lines[0].includes('\t') ? '\t' : ',';
+  const looksLikeDummyHeader = (function(rawLine){
+    const tokens = rawLine.split(probeDelimiter).map(t => t.trim());
+    if (tokens.length < 2) return false;
+    const first = tokens[0];
+    const last = tokens[tokens.length - 1];
+    if (/^locale$/i.test(first) && /^narrator\s*text$/i.test(last)) {
+      for (let i = 1; i < tokens.length - 1; i++) if (!/^w+$/i.test(tokens[i])) return false;
+      return true;
+    }
+    return false;
+  })(lines[0]);
+  if (looksLikeDummyHeader && lines.length >= 2) {
+    headerIndex = 1;
+  }
+
+  const headerLine = lines[headerIndex];
+  const delimiter = headerLine.includes('\t') ? '\t' : ',';
+
+  const headers = headerLine.split(delimiter).map(h => h.trim());
   const rows = [];
-  
-  for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(',').map(v => v.trim());
+
+  // Helper to detect the dummy W-line to ignore
+  function isDummyWLine(rawLine) {
+    const tokens = rawLine.split(delimiter).map(t => t.trim());
+    if (tokens.length < 2) return false;
+    const first = tokens[0];
+    const last = tokens[tokens.length - 1];
+    // Pattern: Locale, then one or more columns filled with only W's, then Narrator Text
+    if (/^locale$/i.test(first) && /^narrator\s*text$/i.test(last)) {
+      // Middle tokens should be all W's (any length)
+      for (let i = 1; i < tokens.length - 1; i++) {
+        if (!/^w+$/i.test(tokens[i])) return false;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  for (let i = headerIndex + 1; i < lines.length; i++) {
+    const raw = lines[i].trim();
+    if (!raw) continue;
+    // Ignore the special width-test line present in exported files
+    // updated by Cascade: skip dummy W line to fix locale propagation issues
+    if (isDummyWLine(raw)) continue;
+
+    const values = raw.split(delimiter).map(v => v.trim());
     const row = {};
-    
+
     headers.forEach((header, index) => {
       row[header] = values[index] || '';
     });
-    
+
     rows.push(row);
   }
-  
+
   return rows;
 }
 
 // Load default CSV data on page initialization
 function loadDefaultData() {
-  window.currentCsvData = [];
-  renderLocaleGroups([]);
+  // Attempt to load the default CSV. If it fails, fall back to empty state.
+  // updated by Cascade: use sample-data/source-data.csv as the default import
+  const defaultPath = 'lab/TileForge/sample-data/source-data.csv';
+  try {
+    fetch(defaultPath, { cache: 'no-store' })
+      .then(resp => {
+        if (!resp.ok) throw new Error('Default CSV not found');
+        return resp.text();
+      })
+      .then(text => {
+        processCsvData(text, 'source-data.csv');
+      })
+      .catch(() => {
+        window.currentCsvData = [];
+        renderLocaleGroups([]);
+      });
+  } catch (e) {
+    window.currentCsvData = [];
+    renderLocaleGroups([]);
+  }
 }
 
 // Handle CSV file upload - restored to original behavior
@@ -89,8 +157,8 @@ function updateCsvDataForTile(locale, tileElement) {
   const narratorInput = document.getElementById('narratorInput');
   const newNarratorText = narratorInput ? narratorInput.value || '' : '';
   
-  // Find and update the corresponding CSV row
-  const row = window.currentCsvData.find(r => r.Locale === locale);
+  // Find and update the corresponding CSV row (support Locale/locale casing)
+  const row = window.currentCsvData.find(r => (r.Locale || r.locale) === locale);
   if (row) {
     row['items/0/title'] = newTitle;
     row['items/0/subtitle'] = newSubtitle;

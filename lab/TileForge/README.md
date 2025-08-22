@@ -25,6 +25,13 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 - **New Case Converter Tool:** Added a dedicated Case Converter module for fast text case transformations.
  - **Preset Controls Layout:** Blue preset apply buttons now stack vertically next to each preset select (Title, Subheadline, Narrator). <!-- updated by Cascade -->
 
+### Bug Fixes (Aug 2025)
+
+- First locale not populating/updating after CSV import in Live Editor
+  - Root cause: bulk apply logic skipped index 0 as a "header"; per‑tile updates matched only `Locale` key and could miss `locale`.
+  - Changes: removed header skip in `applyManualTextToAllTiles()` (`lab/TileForge/js/live-editor.js`); made row match casing‑agnostic in `updateCsvDataForTile()` (`lab/TileForge/js/csv-handler.js`).
+  - Impact: first locale (e.g., `ar-AE`) now renders and updates correctly in previews and inputs.
+
 ---
 
 ## ✨ Features

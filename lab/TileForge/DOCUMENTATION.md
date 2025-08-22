@@ -149,7 +149,7 @@ Headliner Crafter is TileForge's advanced CSV localization transformation tool t
 - **Campsite XML Import & Export:** Now supports direct upload of Campsite-localized XML files. XML data is parsed and normalized to the same internal format as CSV, enabling seamless mapping, preview, and export workflows. Export to XML is also supported.
 - **Unified Mapping & CardForge Import:** Whether you upload CSV or XML, you can map, preview, and export data. The CardForge import button now initializes data if none exists, supporting both formats.
 - **Intelligent Field Filtering:** Fields with no values (such as SubHeader, Footer, or any unused field) are automatically excluded from mapping and preview interfaces.
-- **Improved Drop Zone & UI Guidance:** The modal drop zone now clearly indicates support for both CSV and XML, with added guidance on mapping to Iris-ready CSV. Tool purpose and workflow are explained for clarity.
+- **Drop Zone & UI Guidance:** CSV/XML dropping is centralized: use the Auto‑Localize drop zone above the editor; localized preview drop zones have been removed for clarity. The modal drop zone also indicates CSV/XML support and Iris-ready export guidance. <!-- updated by Cascade -->
 - **Enhanced Modal Workflow:** User guidance, mapping, and preview flows are more robust and user-friendly, with fixes for edge cases and improved end-to-end experience.
 - **New Clear All Features:** Quickly reset all mapping and preview data with one click.
 - **Improved UI & Control Panel:** New control panel for easier workflow and navigation.
@@ -179,6 +179,17 @@ The Controls Panel is a persistent toolbar located at the top of the TileForge i
 - **Manage Locales:** Open the locale management panel to add, remove, or review supported locales.
 
 ---
+
+### 🔄 Live Editor Propagation & Manage Locales
+
+When you use **Manage Locales** to add all or a subset of locales, TileForge now synchronizes that selection into the working dataset (`window.currentCsvData`). This ensures that:
+
+- **Apply to All** actions in the live editor update all localized preview tiles.
+- **Preset applications** (Auto‑Localize ON/OFF) immediately propagate to localized previews.
+- No CSV import is required for propagation after selecting locales.
+
+If no locales are selected, the localized preview shows the blank state. <!-- updated by Cascade -->
+
 
 ## 🧭 Left Panel Overview
 
@@ -338,7 +349,7 @@ const fieldLimits = {
 ### **Workflow Integration**
 
 #### **CSV Upload Process**
-1. **Drag & Drop**: Upload CSV files directly into modal
+1. **Drag & Drop**: Upload CSV/XML files directly into the Transform modal (or use the Auto‑Localize zone above the editor in the main UI) <!-- updated by Cascade -->
 2. **Data Analysis**: Automatic field detection and locale counting
 3. **Field Mapping**: Configure input → output relationships
 4. **Preview & Validate**: Review mappings with visual feedback
@@ -441,7 +452,7 @@ ES-ES,Título del Juego,Texto de descripción del juego
 #### **User Interface Components**
 - **Transform Button**: Manual trigger in left panel controls
 - **Modal System**: Leverages TileForge's existing modal infrastructure
-- **Drag-and-Drop Zones**: Consistent with main upload areas
+- **Drag-and-Drop Zones**: Consistent with main upload areas (centralized CSV/XML drop; localized preview tiles no longer accept drops) <!-- updated by Cascade -->
 - **File Status Indicators**: Real-time feedback for upload progress
 - **Preview Section**: Live transformation preview before application
 
@@ -619,6 +630,16 @@ The Mobile Spotlight template system includes robust persistence logic to mainta
 - **Solution**: Added template class re-application logic matching live preview editor behavior
 - **Impact**: Consistent 347×379px Mobile Spotlight dimensions across all editing contexts
 
+#### First Locale Population Fix (Aug 2025)
+- **Issue**: First locale (e.g., `ar-AE`) did not populate or update in Live Editor after CSV import.
+- **Root Cause**:
+  - Bulk apply path in `applyManualTextToAllTiles()` incorrectly skipped `index === 0` as if `window.currentCsvData` had a header row.
+  - Per‑tile updater `updateCsvDataForTile()` matched rows only on `Locale`, missing datasets that used `locale`.
+- **Fixes**:
+  - Removed header skip in `lab/TileForge/js/live-editor.js` `applyManualTextToAllTiles()`.
+  - Made row matching casing‑agnostic in `lab/TileForge/js/csv-handler.js` `updateCsvDataForTile()` via `(r.Locale || r.locale)`.
+- **Result**: First locale now renders and updates correctly in live editor and preview tiles.
+
 ### **Important Notes for AI Agents**
 - ⚠️ **No Country Flags**: Previous country identification system was removed as code bloat
 - ✅ **Simple Locale Badges**: Only clean pill-style badges with locale codes (no emojis/flags)
@@ -654,7 +675,7 @@ TileForge is a comprehensive localization preview tool designed for Xbox tile co
 - **52 Comprehensive Locales**: Full regional coverage including Arabic, European, English, Spanish, and Asian variants
 - **Real-time Live Editing**: Click-to-edit tile text with instant visual feedback and border color updates
 - **Advanced Filtering**: Multi-level filtering by status, language, region, and locale
-- **Drag & Drop Interface**: Upload images and CSV files with visual styling
+- **Drag & Drop Interface**: Upload images on the preview tile; upload CSV/XML in the Auto‑Localize zone or Transform modal. Localized preview tiles do not accept drops.
 - **Analytics Dashboard**: Real-time character analysis, locale statistics, and overflow detection
 - **Modal System**: Integrated modal system for confirmations, alerts, and detailed information display
 - **Modular Architecture**: Clean separation of concerns with feature-based CSS modules
@@ -1227,9 +1248,9 @@ TileForge/
 - **Styling**: Consistent with TileForge dark theme
 
 ### **Drag & Drop System**
-- **HTML Elements**: `#imgDropZone`, `#csvDropZone`, `#imgInput`, `#csvInput`
-- **CSS Classes**: `.drop-zone`, `.drop-zone:hover`, `.drop-zone.drag-over`
-- **JavaScript**: Event listeners for dragover, dragleave, drop events
+- **HTML Elements**: `#previewTile` (image drop), `#autoLocalizeDropZone` (CSV/XML drop), `#imgInput`, `#csvInput`
+- **CSS Classes**: `.dnd-image-zone`, `.dnd-csv-zone`, `.dnd-*-message`, `.drag-over`
+- **JavaScript**: Event listeners for dragover, dragleave, drop events; preview-area CSV drop zones removed in main UI
 - **Visual Feedback**: Border color changes and hover effects
 - **Image Processing**: Automatic metadata extraction and panel update
 

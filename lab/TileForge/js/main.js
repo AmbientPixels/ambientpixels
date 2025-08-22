@@ -75,6 +75,9 @@ document.addEventListener('DOMContentLoaded', function() {
               }
             });
           }
+          // Ensure the live editor operates on the same dataset rendered in the localized preview
+          // updated by Cascade: synchronize Manage Locales selection with currentCsvData
+          window.currentCsvData = mergedRows;
           renderLocaleGroups(mergedRows);
         }, getActiveLocalesForPreview());
       } else {
