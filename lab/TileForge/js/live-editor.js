@@ -764,6 +764,30 @@ function tfTemplateHasSymbol(tmpl) {
   return /[%\u066a$€£¥]/.test(tmpl);
 }
 
+// Helper: escape regex special chars
+function tfEscapeRegex(str) {
+  return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Helper: given a composed string and the raw number inserted, remove any symbol adjacent to that number
+// and then optionally apply the user's chosen symbol after the number.
+function tfNormalizeSymbolAroundNumber(composedStr, rawNumber, chosenSymbol) {
+  if (typeof composedStr !== 'string' || !rawNumber) return composedStr;
+  const numEsc = tfEscapeRegex(String(rawNumber));
+  // Remove symbol directly after the number (e.g., "40%", "40$", space variations)
+  const afterSymRe = new RegExp(`(${numEsc})\\s*([%\\u066a$€£¥])`, 'g');
+  let out = composedStr.replace(afterSymRe, '$1');
+  // Remove symbol directly before the number (edge case)
+  const beforeSymRe = new RegExp(`([%\\u066a$€£¥])\\s*(${numEsc})`, 'g');
+  out = out.replace(beforeSymRe, '$2');
+  // Apply chosen symbol if requested
+  if (chosenSymbol && chosenSymbol !== 'none') {
+    const firstNumRe = new RegExp(numEsc);
+    out = out.replace(firstNumRe, `${rawNumber}${chosenSymbol}`);
+  }
+  return out;
+}
+
 function applySubtitleModifiersAll(percentVal) {
   if (!currentCsvData) return;
   const autoLocalizeToggle = document.getElementById('autoLocalizeToggle');
@@ -775,10 +799,10 @@ function applySubtitleModifiersAll(percentVal) {
 
   currentCsvData.forEach(row => {
     const locale = row.Locale || row.locale || 'EN-US';
-    const tmpl = getSubtitleTemplateForLocale(phraseKey, locale, isAutoLocalizeEnabled);
-    const needsAppend = tmpl && tmpl.includes('{n}') && chosenSymbol && chosenSymbol !== 'none' && !tfTemplateHasSymbol(tmpl);
-    const insertVal = needsAppend ? String(percentVal) + String(chosenSymbol) : String(percentVal);
-    const composed = composeSubtitleFromTemplate(locale, insertVal, isAutoLocalizeEnabled, phraseKey);
+    // Always compose with raw number first, then normalize symbol according to user selection
+    const rawNumber = String(percentVal);
+    let composed = composeSubtitleFromTemplate(locale, rawNumber, isAutoLocalizeEnabled, phraseKey);
+    composed = tfNormalizeSymbolAroundNumber(composed, rawNumber, chosenSymbol);
     row['items/0/subtitle'] = composed;
     console.log(`Subtitle Modifiers: ${locale} -> "${composed}" (autoLocalize=${isAutoLocalizeEnabled}, phrase=${phraseKey}, symbol=${chosenSymbol})`);
   });
@@ -799,10 +823,9 @@ function applySubtitleModifiersSelected(percentVal, selectedLocales) {
   currentCsvData.forEach(row => {
     const locale = row.Locale || row.locale || 'EN-US';
     if (!target.has(locale)) return;
-    const tmpl = getSubtitleTemplateForLocale(phraseKey, locale, isAutoLocalizeEnabled);
-    const needsAppend = tmpl && tmpl.includes('{n}') && chosenSymbol && chosenSymbol !== 'none' && !tfTemplateHasSymbol(tmpl);
-    const insertVal = needsAppend ? String(percentVal) + String(chosenSymbol) : String(percentVal);
-    const composed = composeSubtitleFromTemplate(locale, insertVal, isAutoLocalizeEnabled, phraseKey);
+    const rawNumber = String(percentVal);
+    let composed = composeSubtitleFromTemplate(locale, rawNumber, isAutoLocalizeEnabled, phraseKey);
+    composed = tfNormalizeSymbolAroundNumber(composed, rawNumber, chosenSymbol);
     row['items/0/subtitle'] = composed;
     console.log(`Subtitle Modifiers (Selected): ${locale} -> "${composed}" (autoLocalize=${isAutoLocalizeEnabled}, phrase=${phraseKey}, symbol=${chosenSymbol})`);
   });
@@ -911,6 +934,8 @@ function setupSubtitleModifiersControls() {
   const applyAllBtn = document.getElementById('subtitleModifiersApplyAllBtn');
   const applySelectedBtn = document.getElementById('subtitleModifiersApplySelectedBtn');
   const percentInput = document.getElementById('subtitlePercentInput');
+  const phraseDropdown = document.getElementById('subtitlePhraseSelect');
+  const symbolSelect = document.getElementById('subtitleSymbolSelect');
 
   function getModifierValue() {
     let val = (percentInput && typeof percentInput.value === 'string') ? percentInput.value.trim() : '';
@@ -949,6 +974,49 @@ function setupSubtitleModifiersControls() {
         }
       }, pre);
     });
+  }
+
+  // Autofill the Subheadline input when a modifier preset is selected
+  // Uses EN-US preview text composed from the selected phrase + current percent + optional symbol
+  // Local helper to compose and write the subtitle input based on current controls
+  function updateSubtitlePreviewFromModifiers() {
+    const subtitleInput = document.getElementById('subtitleInput');
+    if (!subtitleInput || !phraseDropdown) return;
+    const presetKey = phraseDropdown.value;
+    // If no phrase selected, clear field
+    if (!presetKey) {
+      subtitleInput.value = '';
+      subtitleInput.dispatchEvent(new Event('input', { bubbles: true }));
+      return;
+    }
+    // Pull current percent modifier (strip trailing % if user typed it)
+    let insertVal = (percentInput && typeof percentInput.value === 'string') ? percentInput.value.trim() : '';
+    if (insertVal.endsWith('%')) insertVal = insertVal.slice(0, -1).trim();
+    // If no number yet, show phrase-only (remove {n} and any adjacent symbol/spaces)
+    if (!insertVal) {
+      let phraseOnly = getSubtitleTemplateForLocale(presetKey, 'EN-US', false) || '';
+      // Remove placeholder token and any immediately-adjacent symbol and spaces
+      phraseOnly = phraseOnly.replace(/\s*\{n\}\s*([%\u066a$€£¥])?\s*/g, ' ').replace(/\s{2,}/g, ' ').trim();
+      subtitleInput.value = phraseOnly;
+      subtitleInput.dispatchEvent(new Event('input', { bubbles: true }));
+      return;
+    }
+    const chosenSymbol = (symbolSelect && symbolSelect.value) ? symbolSelect.value : 'none';
+    // Compose with raw number first, then normalize symbol to reflect user selection
+    let composed = composeSubtitleFromTemplate('EN-US', String(insertVal), false, presetKey);
+    composed = tfNormalizeSymbolAroundNumber(composed, String(insertVal), chosenSymbol);
+    subtitleInput.value = composed;
+    subtitleInput.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  if (phraseDropdown) {
+    phraseDropdown.addEventListener('change', updateSubtitlePreviewFromModifiers);
+  }
+  if (percentInput) {
+    percentInput.addEventListener('input', updateSubtitlePreviewFromModifiers);
+  }
+  if (symbolSelect) {
+    symbolSelect.addEventListener('change', updateSubtitlePreviewFromModifiers);
   }
 }
 
