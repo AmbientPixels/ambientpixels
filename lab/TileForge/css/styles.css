@@ -1484,6 +1484,40 @@ input:checked + .slider:before {
   font-size: 10px;
 }
 
+/* Subtitle Modifiers layout — reuse preset-controls grid */ /* updated by Cascade */
+.modifier-controls .preset-controls .modifier-inputs {
+  grid-column: 1;
+  grid-row: 1 / span 2; /* occupy both rows next to right-side buttons */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modifier-controls .modifier-label {
+  color: #ddd;
+  font-size: 12px;
+  font-weight: 600;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+
+/* Size the value input; avoid inline styles */
+#subtitlePercentInput {
+  width: 120px;
+  padding: 6px 10px;
+  border: 1px solid var(--border-color, #444);
+  border-radius: 4px;
+  background: var(--input-bg, #2a2a2a);
+  color: var(--text-color, #fff);
+  font-size: 12px;
+}
+
+/* Do not force selects inside the modifier group to full width */
+.modifier-inputs .preset-dropdown {
+  width: auto;
+  min-width: 120px;
+}
+
 /* Enhanced input-group styling for preset controls */
 .input-group {
   margin-bottom: 16px;
