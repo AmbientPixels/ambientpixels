@@ -32,6 +32,7 @@
         </div>
         <div class="output-section">
           <label for="caseOutput">Output:</label>
+          <button id="copyCaseOutputBtn" type="button" class="btn btn-primary" aria-label="Copy output to clipboard" title="Copy"><i class="fas fa-copy"></i></button>
         </div>
         <textarea id="caseOutput" readonly></textarea>
       </div>
@@ -42,6 +43,7 @@
     // Wire up logic
     var input = panel.querySelector('#caseInput');
     var output = panel.querySelector('#caseOutput');
+    var copyBtn = panel.querySelector('#copyCaseOutputBtn');
     var header = panel.querySelector('.case-header');
     var chevron = panel.querySelector('#caseChevron');
     var body = panel.querySelector('#casePanelBody');
@@ -72,6 +74,36 @@
       input.value = '';
       output.value = '';
     };
+    if (copyBtn) {
+      copyBtn.addEventListener('click', async function() {
+        try {
+          const text = output.value || '';
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+          } else {
+            // Fallback for older browsers
+            const tmp = document.createElement('textarea');
+            tmp.value = text;
+            tmp.setAttribute('readonly', '');
+            tmp.style.position = 'absolute';
+            tmp.style.left = '-9999px';
+            document.body.appendChild(tmp);
+            tmp.select();
+            document.execCommand('copy');
+            document.body.removeChild(tmp);
+          }
+          const prev = copyBtn.innerHTML;
+          copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+          copyBtn.disabled = true;
+          setTimeout(() => { copyBtn.innerHTML = prev; copyBtn.disabled = false; }, 1200);
+        } catch (e) {
+          const prev = copyBtn.innerHTML;
+          copyBtn.innerHTML = '<i class="fas fa-triangle-exclamation"></i> Failed';
+          setTimeout(() => { copyBtn.innerHTML = prev; }, 1500);
+          console.warn('Copy failed:', e);
+        }
+      });
+    }
   }
   window.showCaseConverterPanel = createCaseConverterPanel;
   // Always inject Case Converter panel on page load
