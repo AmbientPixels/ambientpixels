@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-08-16T13:28:34.957Z",
+  "timestamp": "2025-08-21T13:32:00.242Z",
   "summary": {
     "totalJS": 1965,
     "totalCSS": 107,
@@ -1580,6 +1580,7 @@
     "generateTicks",
     "generateUUID",
     "get",
+    "getAbortSignal",
     "getAccount",
     "getAccountByHomeId",
     "getAccountByLocalId",
