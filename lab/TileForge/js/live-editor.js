@@ -283,7 +283,7 @@ function setupLiveEditor() {
         const totalLocales = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
         if (totalLocales === 0) {
             const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
-            if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { alert(msg); }
+            if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { if (window.Modal && typeof Modal.alert === 'function') { Modal.alert(msg, 'warning'); } else { alert(msg); } }
             return;
         }
         const manualText = titleInput ? titleInput.value.trim() : '';
@@ -322,7 +322,7 @@ function setupLiveEditor() {
         const totalLocales = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
         if (totalLocales === 0) {
             const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
-            if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { alert(msg); }
+            if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { if (window.Modal && typeof Modal.alert === 'function') { Modal.alert(msg, 'warning'); } else { alert(msg); } }
             return;
         }
         const manualText = subtitleInput ? subtitleInput.value.trim() : '';
@@ -361,7 +361,7 @@ function setupLiveEditor() {
         const totalLocales = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
         if (totalLocales === 0) {
             const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
-            if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { alert(msg); }
+            if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { if (window.Modal && typeof Modal.alert === 'function') { Modal.alert(msg, 'warning'); } else { alert(msg); } }
             return;
         }
         const manualText = narratorInput ? narratorInput.value.trim() : '';
@@ -410,13 +410,13 @@ function setupLiveEditor() {
 
   function openLocalePickerAndApplyManual(fieldType) {
     if (!window.TileForgeLocalesUI || typeof window.TileForgeLocalesUI.open !== 'function') {
-      alert('Locale Picker UI not loaded.');
+      if (window.Modal && typeof Modal.alert === 'function') { Modal.alert('Locale Picker UI not loaded.', 'warning'); } else { alert('Locale Picker UI not loaded.'); }
       return;
     }
     const totalLocales = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
     if (totalLocales === 0) {
       const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
-      if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { alert(msg); }
+      if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { if (window.Modal && typeof Modal.alert === 'function') { Modal.alert(msg, 'warning'); } else { alert(msg); } }
       return;
     }
     const textValue = (fieldType === 'title' ? titleInput?.value : fieldType === 'subtitle' ? subtitleInput?.value : narratorInput?.value) || '';
@@ -1070,7 +1070,7 @@ function setupPresetControls() {
             if (window.showModal) {
               window.showModal(msg, { confirmText: 'OK' });
             } else {
-              alert(msg);
+              if (window.Modal && typeof Modal.alert === 'function') { Modal.alert(msg, 'warning'); } else { alert(msg); }
             }
             return;
           }
@@ -1105,7 +1105,7 @@ function setupPresetControls() {
         }
         const pre = (typeof window.getActiveLocalesForPreview === 'function') ? (window.getActiveLocalesForPreview() || []) : [];
         if (!window.TileForgeLocalesUI || typeof window.TileForgeLocalesUI.open !== 'function') {
-          alert('Locale Picker UI not loaded.');
+          if (window.Modal && typeof Modal.alert === 'function') { Modal.alert('Locale Picker UI not loaded.', 'warning'); } else { alert('Locale Picker UI not loaded.'); }
           return;
         }
         window.TileForgeLocalesUI.open(function(selectedLocales){
@@ -1137,13 +1137,13 @@ function setupSubtitleModifiersControls() {
     applyAllBtn.addEventListener('click', function() {
       const modVal = getModifierValue();
       if (modVal === null) {
-        alert('Enter a value to insert (e.g., 40 or “forty”).');
+        if (window.Modal && typeof Modal.alert === 'function') { Modal.alert('Enter a value to insert (e.g., 40 or “forty”).', 'info'); } else { alert('Enter a value to insert (e.g., 40 or “forty”).'); }
         return;
       }
       const totalLocales = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
       if (totalLocales === 0) {
         const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
-        if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { alert(msg); }
+        if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { if (window.Modal && typeof Modal.alert === 'function') { Modal.alert(msg, 'warning'); } else { alert(msg); } }
         return;
       }
       if (window.showModal) {
@@ -1165,18 +1165,18 @@ function setupSubtitleModifiersControls() {
     applySelectedBtn.addEventListener('click', function() {
       const modVal = getModifierValue();
       if (modVal === null) {
-        alert('Enter a value to insert (e.g., 40 or “forty”).');
+        if (window.Modal && typeof Modal.alert === 'function') { Modal.alert('Enter a value to insert (e.g., 40 or “forty”).', 'info'); } else { alert('Enter a value to insert (e.g., 40 or “forty”).'); }
         return;
       }
       const totalLocales = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
       if (totalLocales === 0) {
         const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
-        if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { alert(msg); }
+        if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { if (window.Modal && typeof Modal.alert === 'function') { Modal.alert(msg, 'warning'); } else { alert(msg); } }
         return;
       }
       const pre = (typeof window.getActiveLocalesForPreview === 'function') ? (window.getActiveLocalesForPreview() || []) : [];
       if (!window.TileForgeLocalesUI || typeof window.TileForgeLocalesUI.open !== 'function') {
-        alert('Locale Picker UI not loaded.');
+        if (window.Modal && typeof Modal.alert === 'function') { Modal.alert('Locale Picker UI not loaded.', 'warning'); } else { alert('Locale Picker UI not loaded.'); }
         return;
       }
       window.TileForgeLocalesUI.open(function(selectedLocales){
@@ -1270,13 +1270,13 @@ function setupGenericModifiersControls({ phraseId, percentId, symbolId, applyAll
     applyAllBtn.addEventListener('click', function() {
       const modVal = numberFromInput();
       if (modVal === null) {
-        alert('Enter a value to insert (e.g., 40 or “forty”).');
+        if (window.Modal && typeof Modal.alert === 'function') { Modal.alert('Enter a value to insert (e.g., 40 or “forty”).', 'info'); } else { alert('Enter a value to insert (e.g., 40 or “forty”).'); }
         return;
       }
       const totalLocales = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
       if (totalLocales === 0) {
         const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
-        if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { alert(msg); }
+        if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { if (window.Modal && typeof Modal.alert === 'function') { Modal.alert(msg, 'warning'); } else { alert(msg); } }
         return;
       }
       if (window.showModal) {
@@ -1298,18 +1298,18 @@ function setupGenericModifiersControls({ phraseId, percentId, symbolId, applyAll
     applySelectedBtn.addEventListener('click', function() {
       const modVal = numberFromInput();
       if (modVal === null) {
-        alert('Enter a value to insert (e.g., 40 or “forty”).');
+        if (window.Modal && typeof Modal.alert === 'function') { Modal.alert('Enter a value to insert (e.g., 40 or “forty”).', 'info'); } else { alert('Enter a value to insert (e.g., 40 or “forty”).'); }
         return;
       }
       const totalLocales = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
       if (totalLocales === 0) {
         const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
-        if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { alert(msg); }
+        if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { if (window.Modal && typeof Modal.alert === 'function') { Modal.alert(msg, 'warning'); } else { alert(msg); } }
         return;
       }
       const pre = (typeof window.getActiveLocalesForPreview === 'function') ? (window.getActiveLocalesForPreview() || []) : [];
       if (!window.TileForgeLocalesUI || typeof window.TileForgeLocalesUI.open !== 'function') {
-        alert('Locale Picker UI not loaded.');
+        if (window.Modal && typeof Modal.alert === 'function') { Modal.alert('Locale Picker UI not loaded.', 'warning'); } else { alert('Locale Picker UI not loaded.'); }
         return;
       }
       window.TileForgeLocalesUI.open(function(selectedLocales){

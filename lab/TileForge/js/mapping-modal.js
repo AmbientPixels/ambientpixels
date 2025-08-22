@@ -161,7 +161,11 @@ class MappingModal {
           };
           reader.readAsText(file);
         } else {
-            alert('Please upload a valid CSV file.');
+            if (window.Modal && typeof Modal.alert === 'function') {
+              Modal.alert('Please upload a valid CSV file.', 'warning');
+            } else {
+              alert('Please upload a valid CSV file.');
+            }
           }
         }
       });
@@ -285,7 +289,11 @@ class MappingModal {
 
     // Otherwise, expect a CSV file
     if (!input || !input.name.endsWith('.csv')) {
-      alert('Please select a valid CSV file.');
+      if (window.Modal && typeof Modal.alert === 'function') {
+        Modal.alert('Please select a valid CSV file.', 'warning');
+      } else {
+        alert('Please select a valid CSV file.');
+      }
       return;
     }
 
@@ -296,7 +304,11 @@ class MappingModal {
         const csvText = e.target.result;
         const csvData = this.parseCSV(csvText);
         if (csvData.length === 0) {
-          alert('CSV file appears to be empty or invalid.');
+          if (window.Modal && typeof Modal.alert === 'function') {
+            Modal.alert('CSV file appears to be empty or invalid.', 'warning');
+          } else {
+            alert('CSV file appears to be empty or invalid.');
+          }
           return;
         }
         console.log('✅ CSV parsed successfully:', csvData.length, 'rows');
@@ -646,7 +658,11 @@ class MappingModal {
           'items/0/narratorText': row.narrator || ''
         }));
         renderLocaleGroups(window.currentCsvData);
-        alert(`Imported ${transformedData.length} rows as new data!`);
+        if (window.Modal && typeof Modal.alert === 'function') {
+          Modal.alert(`Imported ${transformedData.length} rows as new data!`, 'success');
+        } else {
+          alert(`Imported ${transformedData.length} rows as new data!`);
+        }
         this.hide();
         return;
       }

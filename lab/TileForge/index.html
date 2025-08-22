@@ -150,16 +150,6 @@
       
       <!-- Controls Section -->
       <div class="controls-section">
-        <h3><i class="fas fa-cog"></i> Controls</h3>
-        <div class="tileforge-toolbar" id="tileforgeToolbar">
-          <button class="toolbar-btn" id="toolbarSaveBtn" title="Save"><i class="fas fa-save"></i></button>
-          <button class="toolbar-btn" id="toolbarCloneBtn" title="Clone"><i class="fas fa-clone"></i></button>
-          <button class="toolbar-btn" id="toolbarNewBtn" title="New"><i class="fas fa-plus"></i></button>
-          <button class="toolbar-btn export-btn" id="toolbarExportBtn" title="Export to CSV"><i class="fas fa-file-export"></i> Export</button>
-        </div>
-        <div class="manage-locales-section">
-          <button class="control-btn" id="manageLocalesBtn"><i class="fas fa-globe"></i> Manage Locales</button>
-        </div>
         <div class="file-info" id="fileInfo" style="display: none;">
           <div class="info-item">
             <span class="info-label">Image:</span>
@@ -175,8 +165,7 @@
         <div class="projects-section" id="projectsSection">
           <h4><i class="fas fa-folder-open"></i> Projects</h4>
           <div class="tool-group">
-            <button class="control-btn" id="projectImportBtn"><i class="fas fa-file-import"></i> Import ZIP</button>
-            <button class="control-btn" id="projectExportBtn"><i class="fas fa-file-archive"></i> Export ZIP</button>
+            <button class="control-btn" id="projectCreateBtn"><i class="fas fa-plus"></i> Create Project</button>
           </div>
           <div class="projects-list" id="projectsList"></div>
         </div>
@@ -345,6 +334,10 @@
             </div>
             
             <div class="preset-options">
+              <!-- Manage Locales Section: own block separate from Controls -->
+              <div class="manage-locales-section">
+                <button class="control-btn" id="manageLocalesBtn"><i class="fas fa-globe"></i> Manage Locales</button>
+              </div>
               <div class="bg-toggle-control">
                 <span>Background Image</span>
                 <label class="switch">
@@ -359,6 +352,15 @@
                   <i class="fas fa-file-csv"></i>
                   <span>Drop CSV or XML file here to begin</span>
                   <small>Upload a standard Iris-formatted CSV (recommended). Campsite XML import coming soon.</small>
+                </div>
+              </div>
+              <!-- Controls toolbar moved under the drop zone (header removed) -->
+              <div class="controls-section">
+                <div class="tileforge-toolbar" id="tileforgeToolbar">
+                  <button class="toolbar-btn" id="toolbarSaveBtn" title="Save"><i class="fas fa-save"></i></button>
+                  <button class="toolbar-btn" id="toolbarCloneBtn" title="Clone"><i class="fas fa-clone"></i></button>
+                  <button class="toolbar-btn" id="toolbarNewBtn" title="New"><i class="fas fa-plus"></i></button>
+                  <button class="toolbar-btn" id="resetBtn" title="Reset editor fields"><i class="fas fa-sync-alt"></i></button>
                 </div>
               </div>
             </div>
@@ -597,9 +599,7 @@
               </div>
             </div>
             
-            <div class="editing-actions">
-              <button class="control-btn" id="resetBtn"><i class="fas fa-sync-alt"></i> Reset</button>
-            </div>
+            
           </div>
         </div>
       </div>
@@ -614,6 +614,20 @@
         <div class="separator-line"></div>
       </div>
       
+      <!-- Localized Preview Status (Active CSV + Export) -->
+      <div class="controls-section">
+        <div class="tileforge-toolbar" id="localizedStatusBar">
+          <span title="Currently active CSV used for previews">
+            <i class="fas fa-file-csv"></i>
+            <span id="activeCsvName">—</span>
+          </span>
+          <button class="toolbar-btn export-btn" id="localizedExportBtn" title="Export to CSV">
+            <i class="fas fa-file-export"></i> Export
+          </button>
+        </div>
+      </div>
+      
+      
       <!-- Locale Groups Container -->
       <div class="locale-groups-container" id="localeGroupsContainer">
         <div id="localeGroups">
@@ -625,8 +639,6 @@
 
 
   <!-- JavaScript Modules -->
-  <!-- JSZip for project import/export -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-3RzU2m3b3k4e0mZk5b7rG1Q5sNQe7p2g3mE5m+0oFSkR3ZQw2EwVxq2mI1G8ZlJf8ZJpQxj0wV0m2V6S8HqPFw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="js/modal.js"></script>
   <script src="js/constants.js"></script>
   <script src="js/text-measurement.js"></script>

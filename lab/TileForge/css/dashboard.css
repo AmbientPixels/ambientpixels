@@ -102,3 +102,166 @@
   color: #aaa;
   font-weight: 400;
 }
+
+/* TileForge Projects – Files toggle and panel styling (scoped) */
+.files-toggle {
+  background: transparent;
+  border: none;
+  color: var(--theme-text, #fff);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-weight: 600;
+  opacity: 0.85;
+}
+.files-toggle:hover { opacity: 1; text-decoration: underline; }
+.files-toggle:focus-visible { outline: 2px solid #4a9eff; outline-offset: 2px; }
+.files-toggle .chev { display: inline-block; width: 1em; text-align: center; }
+
+.project-files {
+  border: 1px solid #333;
+  border-radius: 8px;
+  margin-top: 8px;
+  background: #1a1a1a;
+}
+.project-files-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  background: #1f1f1f;
+  border-bottom: 1px solid #333;
+}
+.project-files-actions .preset-apply-btn { padding: 6px 10px; }
+
+.project-files-list { padding: 4px 0; }
+.project-file-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-top: 1px solid #2a2a2a;
+}
+.project-file-row .file-actions button { margin-left: 8px; }
+
+/* Distinct styling for the frequently used Export Active button */
+.project-files-actions .btn-export-active {
+  background: linear-gradient(180deg, rgba(28,160,255,0.18), rgba(28,160,255,0.06));
+  border: 1px solid rgba(74,158,255,0.8);
+  color: var(--theme-text, #eaf3ff);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  box-shadow: 0 0 0 1px rgba(74,158,255,0.15) inset, 0 4px 12px rgba(28,160,255,0.15);
+  display: inline-flex;
+  align-items: center;
+}
+.project-files-actions .btn-export-active i { margin-right: 6px; font-size: 0.95em; }
+.project-files-actions .btn-export-active .label { line-height: 1; }
+.project-files-actions .btn-export-active:hover {
+  background: linear-gradient(180deg, rgba(28,160,255,0.28), rgba(28,160,255,0.12));
+  border-color: #4a9eff;
+  box-shadow: 0 0 0 1px rgba(74,158,255,0.25) inset, 0 6px 16px rgba(28,160,255,0.22);
+}
+.project-files-actions .btn-export-active:active {
+  transform: translateY(0);
+  filter: brightness(0.98);
+  box-shadow: 0 0 0 1px rgba(74,158,255,0.25) inset, 0 3px 10px rgba(28,160,255,0.18);
+}
+.project-files-actions .btn-export-active:focus-visible {
+  outline: 2px solid #4a9eff;
+  outline-offset: 2px;
+}
+
+/* Localized preview status bar (below separator) */
+#localizedStatusBar { /* updated by Cascade */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.08));
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  margin: 8px 0 12px;
+  min-width: 0; /* allow children to shrink */
+}
+#localizedStatusBar > span { /* label + filename container */
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 60%;
+}
+#localizedStatusBar #activeCsvName {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--theme-text, #eaf3ff);
+}
+#localizedStatusBar .export-btn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: var(--theme-text, #eaf3ff);
+  background: linear-gradient(180deg, rgba(28,160,255,0.18), rgba(28,160,255,0.06));
+  border: 1px solid rgba(74,158,255,0.8);
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(74,158,255,0.15) inset, 0 4px 12px rgba(28,160,255,0.15);
+}
+#localizedStatusBar .export-btn i { margin-right: 6px; font-size: 0.95em; }
+#localizedStatusBar .export-btn:hover {
+  background: linear-gradient(180deg, rgba(28,160,255,0.28), rgba(28,160,255,0.12));
+  border-color: #4a9eff;
+  box-shadow: 0 0 0 1px rgba(74,158,255,0.25) inset, 0 6px 16px rgba(28,160,255,0.22);
+}
+#localizedStatusBar .export-btn:active {
+  transform: translateY(0);
+  filter: brightness(0.98);
+  box-shadow: 0 0 0 1px rgba(74,158,255,0.25) inset, 0 3px 10px rgba(28,160,255,0.18);
+}
+#localizedStatusBar .export-btn:focus-visible { outline: 2px solid #4a9eff; outline-offset: 2px; }
+
+/* Disabled state */
+#localizedStatusBar .export-btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(20%);
+  box-shadow: none;
+}
+#localizedStatusBar .export-btn[disabled]:hover { background: linear-gradient(180deg, rgba(28,160,255,0.18), rgba(28,160,255,0.06)); }
+
+/* Active CSV pill shown near localized previews */
+.active-file-pill { /* updated by Cascade */
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--theme-text, #eaf3ff);
+  background: linear-gradient(180deg, rgba(74,158,255,0.14), rgba(74,158,255,0.06));
+  border: 1px solid rgba(74,158,255,0.35);
+  border-radius: 999px;
+  max-width: 46ch;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.active-file-pill i { color: #4a9eff; }
+
+/* Separator header with actions (Localized Previews) */
+.section-separator .separator-content { /* updated by Cascade */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.section-separator .separator-title { display: inline-flex; align-items: center; gap: 8px; }
+.section-separator .separator-actions { display: inline-flex; align-items: center; gap: 10px; }

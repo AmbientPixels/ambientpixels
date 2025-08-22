@@ -24,6 +24,9 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 - **Arabic & Special Character Support:** Fixed issues with Arabic and special characters in data and preview.
 - **New Case Converter Tool:** Added a dedicated Case Converter module for fast text case transformations.
 - **Preset Controls Layout:** Blue preset apply buttons now stack vertically next to each preset select (Title, Subheadline, Narrator). <!-- updated by Cascade -->
+- **Toolbar Placement Update:** Controls toolbar moved directly under the CSV/XML drop zone for a top-down workflow (previous "Controls" header removed). <!-- updated by Cascade -->
+- **Projects Export:** Added “Export Active” button with download icon in the Projects files header to quickly download the active CSV/JSON. <!-- updated by Cascade -->
+- **State Preservation:** Files panel expanded/collapsed state now persists across list refreshes for smoother project management. <!-- updated by Cascade -->
 - **Subtitle Symbols Selector:** Optional dropdown next to Subtitle Modifiers value. Safely appends %, $, €, £, ¥ only if the template has `{n}` and no existing percent/currency symbol (Behavior B). <!-- updated by Cascade -->
 
 ### Bug Fixes (Aug 2025)
@@ -48,6 +51,7 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 ### 🖱️ Modern Interface
  - **Template Selection** - Visual template picker with live preview switching
  - **Drag & Drop Upload** - Image drop on the preview tile; CSV/XML drop centralized above the editor (localized preview tiles no longer accept drops). <!-- updated by Cascade -->
+- **Inline Toolbar** - Primary editor toolbar sits directly below the CSV/XML drop zone for immediate access to Save/Clone/New/Reset/Export. <!-- updated by Cascade -->
  - **Click to Browse** - Traditional file selection still available
  - **Transform Modal** - Interactive CSV transformation with drag-and-drop file upload
  - **Live Editor** - Real-time tile editing with template-aware character limits
@@ -96,7 +100,7 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 4. **Upload CSV/XML Data**: Drop files on the Auto‑Localize zone above the editor or click to browse
    - Localized preview area no longer accepts file drops
    - If your CSV needs transformation, the Transform Modal will automatically appear
-   - Or click **"Transform Data"** in the Controls section for manual transformation
+   - Or click **"Transform Data"** in the Tools section for manual transformation <!-- updated by Cascade -->
 5. **Preview Results**: View tiles for all locales with template-specific overflow warnings
 6. **Live Edit**: Click any tile to edit text with real-time preview
 

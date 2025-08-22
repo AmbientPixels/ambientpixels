@@ -29,6 +29,17 @@ function updateFileInfo(type, filename, info) {
       if (csvElement) {
         csvElement.textContent = `${filename} (${info} locales)`;
       }
+      // Also reflect active CSV in the localized preview status pill
+      try {
+        const activeName = document.getElementById('activeCsvName');
+        if (activeName) {
+          activeName.textContent = filename || '—';
+          const pill = activeName.parentElement;
+          if (pill && pill.setAttribute) {
+            pill.setAttribute('title', filename ? `Currently active CSV: ${filename}` : 'No active CSV selected');
+          }
+        }
+      } catch (e) { /* no-op */ }
     } else if (type === 'Image') {
       const imageElement = document.getElementById('imageFileName');
       if (imageElement) {

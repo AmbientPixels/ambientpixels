@@ -13,26 +13,36 @@
       });
     } else {
       // No fallback: show error and do not proceed
-      alert('Error: TileForge modal system (showModal) is not available. Confirmations require the custom modal.');
+      if (window.Modal && typeof Modal.alert === 'function') {
+        Modal.alert('Error: TileForge modal system (showModal) is not available. Confirmations require the custom modal.', 'error');
+      } else {
+        alert('Error: TileForge modal system (showModal) is not available. Confirmations require the custom modal.');
+      }
     }
   }
 
-  // Save current tile/form data to localStorage
-  function manualSave() {
-    showModalConfirm('Save current progress? This will overwrite any previous save.', function() {
-      try {
-        // Save currentCsvData if available, else fallback to a global state object
-        if (window.currentCsvData) {
-          localStorage.setItem('tileforge-data', JSON.stringify(window.currentCsvData));
-          console.log('TileForge: Data saved to localStorage.');
-          if (typeof window.showToast === 'function') window.showToast('Data saved!');
+  // Save current state into a Project (via ProjectUI)
+  function manualSave(silent) {
+    const doSave = function() {
+      if (!window.ProjectUI || typeof window.ProjectUI.onSave !== 'function') {
+        if (window.Modal && typeof Modal.alert === 'function') {
+          Modal.alert('Project UI not available. Cannot save project.', 'error');
         } else {
-          alert('No data found to save.');
+          alert('Project UI not available. Cannot save project.');
         }
-      } catch (err) {
-        alert('Save failed: ' + err.message);
+        return;
       }
-    });
+      try { window.ProjectUI.onSave(); } catch (err) {
+        if (window.Modal && typeof Modal.alert === 'function') {
+          Modal.alert('Save failed: ' + err.message, 'error');
+        } else {
+          alert('Save failed: ' + err.message);
+        }
+      }
+    };
+
+    if (silent) { doSave(); return; }
+    showModalConfirm('Save current progress to a Project? This will update the current Project or create a new one.', doSave);
   }
 
   // Clone current state (deep copy, with modal)
@@ -45,7 +55,11 @@
         if (typeof window.showToast === 'function') window.showToast('Data cloned in memory!');
         console.log('TileForge: Data cloned to window.clonedCsvData');
       } else {
-        alert('No data found to clone.');
+        if (window.Modal && typeof Modal.alert === 'function') {
+          Modal.alert('No data found to clone.', 'warning');
+        } else {
+          alert('No data found to clone.');
+        }
       }
     });
   }
@@ -71,7 +85,24 @@
       if (typeof window.exportToCSV === 'function') {
         window.exportToCSV();
       } else {
-        alert('Export function not available.');
+        if (window.Modal && typeof Modal.alert === 'function') {
+          Modal.alert('Export function not available.', 'error');
+        } else {
+          alert('Export function not available.');
+        }
+      }
+    });
+    // Bind export for Localized Previews status bar button
+    var localizedExportBtn = document.getElementById('localizedExportBtn');
+    if (localizedExportBtn) localizedExportBtn.addEventListener('click', function() {
+      if (typeof window.exportToCSV === 'function') {
+        window.exportToCSV();
+      } else {
+        if (window.Modal && typeof Modal.alert === 'function') {
+          Modal.alert('Export function not available.', 'error');
+        } else {
+          alert('Export function not available.');
+        }
       }
     });
     // updated by Cascade

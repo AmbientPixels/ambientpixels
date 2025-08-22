@@ -90,10 +90,28 @@ function loadDefaultData() {
       .catch(() => {
         window.currentCsvData = [];
         renderLocaleGroups([]);
+        // Reset Active CSV pill in localized preview status
+        try {
+          const activeName = document.getElementById('activeCsvName');
+          if (activeName) {
+            activeName.textContent = '—';
+            const pill = activeName.parentElement;
+            if (pill && pill.setAttribute) pill.setAttribute('title', 'No active CSV selected');
+          }
+        } catch (e) { /* no-op */ }
       });
   } catch (e) {
     window.currentCsvData = [];
     renderLocaleGroups([]);
+    // Reset Active CSV pill in localized preview status
+    try {
+      const activeName = document.getElementById('activeCsvName');
+      if (activeName) {
+        activeName.textContent = '—';
+        const pill = activeName.parentElement;
+        if (pill && pill.setAttribute) pill.setAttribute('title', 'No active CSV selected');
+      }
+    } catch (err) { /* no-op */ }
   }
 }
 

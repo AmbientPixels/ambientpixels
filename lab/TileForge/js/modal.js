@@ -454,6 +454,10 @@ class ModalSystem {
 
 // Create global modal instance
 const Modal = new ModalSystem();
+// Ensure global access for modules that check window.Modal
+if (typeof window !== 'undefined') {
+  window.Modal = Modal; // updated by Cascade: expose Modal on window
+}
 
 // Export for module systems
 if (typeof module !== 'undefined' && module.exports) {

@@ -104,7 +104,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }, getActiveLocalesForPreview());
       } else {
         console.error('[ERROR] TileForgeLocalesUI.open is not available');
-        alert('Locale Picker UI not loaded.');
+        if (window.Modal && typeof Modal.alert === 'function') {
+          Modal.alert('Locale Picker UI not loaded.', 'warning');
+        } else {
+          alert('Locale Picker UI not loaded.');
+        }
       }
     });
   }
@@ -128,7 +132,11 @@ function openTransformModal() {
     });
   } else {
     console.error('Transform modal not available');
-    alert('Transform modal is not loaded. Please refresh the page and try again.');
+    if (window.Modal && typeof Modal.alert === 'function') {
+      Modal.alert('Transform modal is not loaded. Please refresh the page and try again.', 'error');
+    } else {
+      alert('Transform modal is not loaded. Please refresh the page and try again.');
+    }
   }
 }
 
@@ -184,7 +192,11 @@ function openHeadlinerCrafter() {
     // Check if mapping modal is available
     if (!window.mappingModal) {
       console.error('❌ Mapping modal not available');
-      alert('Headliner Crafter is not properly initialized. Please refresh the page.');
+      if (window.Modal && typeof Modal.alert === 'function') {
+        Modal.alert('Headliner Crafter is not properly initialized. Please refresh the page.', 'error');
+      } else {
+        alert('Headliner Crafter is not properly initialized. Please refresh the page.');
+      }
       return;
     }
     
@@ -201,13 +213,21 @@ function openHeadlinerCrafter() {
         processCsvData(csvText, 'Headliner Crafter Output', transformedData.length);
         
         // Show success message
-        alert(`Successfully processed ${transformedData.length} locales through Headliner Crafter!`);
+        if (window.Modal && typeof Modal.alert === 'function') {
+          Modal.alert(`Successfully processed ${transformedData.length} locales through Headliner Crafter!`, 'success');
+        } else {
+          alert(`Successfully processed ${transformedData.length} locales through Headliner Crafter!`);
+        }
       }
     });
     
   } catch (error) {
     console.error('❌ Error in openHeadlinerCrafter:', error);
-    alert('Error opening Headliner Crafter: ' + error.message);
+    if (window.Modal && typeof Modal.alert === 'function') {
+      Modal.alert('Error opening Headliner Crafter: ' + error.message, 'error');
+    } else {
+      alert('Error opening Headliner Crafter: ' + error.message);
+    }
   }
 }
 

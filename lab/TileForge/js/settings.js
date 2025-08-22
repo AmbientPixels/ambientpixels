@@ -273,22 +273,47 @@ function initializeThemeSelection() {
 
 function editShortcut(action) {
   const actionName = action.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-  const newShortcut = prompt(`Enter new shortcut for ${actionName}:`, currentSettings.shortcuts[action]);
-  
-  if (newShortcut && newShortcut.trim()) {
-    currentSettings.shortcuts[action] = newShortcut.trim();
-    updateShortcutsDisplay();
-    saveSettings();
-    console.log(`Updated shortcut for ${action}: ${newShortcut}`);
+  if (window.Modal && typeof Modal.prompt === 'function') {
+    const modal = Modal.prompt({
+      title: 'Edit Shortcut',
+      message: `Enter new shortcut for ${actionName}:`,
+      defaultValue: currentSettings.shortcuts[action],
+      onConfirm: (value) => {
+        if (value && value.trim()) {
+          currentSettings.shortcuts[action] = value.trim();
+          updateShortcutsDisplay();
+          saveSettings();
+          console.log(`Updated shortcut for ${action}: ${value}`);
+        }
+      }
+    });
+    modal.show();
+  } else {
+    const newShortcut = prompt(`Enter new shortcut for ${actionName}:`, currentSettings.shortcuts[action]);
+    if (newShortcut && newShortcut.trim()) {
+      currentSettings.shortcuts[action] = newShortcut.trim();
+      updateShortcutsDisplay();
+      saveSettings();
+      console.log(`Updated shortcut for ${action}: ${newShortcut}`);
+    }
   }
 }
 
 function resetShortcuts() {
-  if (confirm('Reset all keyboard shortcuts to defaults?')) {
+  const doReset = () => {
     currentSettings.shortcuts = { ...DEFAULT_SHORTCUTS };
     updateShortcutsDisplay();
     saveSettings();
     console.log('Shortcuts reset to defaults');
+  };
+  if (window.Modal && typeof Modal.confirm === 'function') {
+    const modal = Modal.confirm({
+      content: 'Reset all keyboard shortcuts to defaults?',
+      onConfirm: doReset
+    });
+    modal.show();
+  } else {
+    if (confirm('Reset all keyboard shortcuts to defaults?')) doReset();
   }
 }
 
@@ -418,7 +443,11 @@ function exportShortcuts() {
     console.log('Shortcuts exported successfully');
   } catch (error) {
     console.error('Failed to export shortcuts:', error);
-    alert('Failed to export shortcuts');
+    if (window.Modal && typeof Modal.alert === 'function') {
+      Modal.alert('Failed to export shortcuts', 'error');
+    } else {
+      alert('Failed to export shortcuts');
+    }
   }
 }
 
@@ -436,11 +465,19 @@ function importShortcuts() {
           currentSettings.shortcuts = { ...DEFAULT_SHORTCUTS, ...shortcuts };
           updateShortcutsDisplay();
           saveSettings();
-          alert('Shortcuts imported successfully!');
+          if (window.Modal && typeof Modal.alert === 'function') {
+            Modal.alert('Shortcuts imported successfully!', 'success');
+          } else {
+            alert('Shortcuts imported successfully!');
+          }
           console.log('Shortcuts imported successfully');
         } catch (error) {
           console.error('Failed to import shortcuts:', error);
-          alert('Failed to import shortcuts: Invalid file format');
+          if (window.Modal && typeof Modal.alert === 'function') {
+            Modal.alert('Failed to import shortcuts: Invalid file format', 'error');
+          } else {
+            alert('Failed to import shortcuts: Invalid file format');
+          }
         }
       };
       reader.readAsText(file);
@@ -644,11 +681,19 @@ function createAboutTabContent() {
 // ===== PLACEHOLDER FUNCTIONS =====
 
 function showChangelog() {
-  alert('Changelog feature coming soon!');
+  if (window.Modal && typeof Modal.alert === 'function') {
+    Modal.alert('Changelog feature coming soon!', 'info');
+  } else {
+    alert('Changelog feature coming soon!');
+  }
 }
 
 function reportIssue() {
-  alert('Issue reporting feature coming soon!');
+  if (window.Modal && typeof Modal.alert === 'function') {
+    Modal.alert('Issue reporting feature coming soon!', 'info');
+  } else {
+    alert('Issue reporting feature coming soon!');
+  }
 }
 
 function checkForUpdates() {
@@ -657,13 +702,25 @@ function checkForUpdates() {
     try {
       const { ipcRenderer } = require('electron');
       ipcRenderer.send('check-for-updates');
-      alert('Checking for updates... You will be notified if an update is available.');
+      if (window.Modal && typeof Modal.alert === 'function') {
+        Modal.alert('Checking for updates... You will be notified if an update is available.', 'info');
+      } else {
+        alert('Checking for updates... You will be notified if an update is available.');
+      }
     } catch (error) {
       console.log('Running in web mode, update check not available');
-      alert('Manual update check is only available in the desktop version of TileForge.');
+      if (window.Modal && typeof Modal.alert === 'function') {
+        Modal.alert('Manual update check is only available in the desktop version of TileForge.', 'warning');
+      } else {
+        alert('Manual update check is only available in the desktop version of TileForge.');
+      }
     }
   } else {
-    alert('Manual update check is only available in the desktop version of TileForge.');
+    if (window.Modal && typeof Modal.alert === 'function') {
+      Modal.alert('Manual update check is only available in the desktop version of TileForge.', 'warning');
+    } else {
+      alert('Manual update check is only available in the desktop version of TileForge.');
+    }
   }
 }
 

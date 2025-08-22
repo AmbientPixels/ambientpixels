@@ -4,7 +4,162 @@
 (function(){
   const state = {
     currentProject: null, // { id, name }
+    expandedFilesPanels: new Set(), /* updated by Cascade: preserve expanded state */
   };
+
+  // Modal helpers (replace browser dialogs)
+  function alertModal(message, type = 'info', title = null) {
+    if (window.Modal && typeof Modal.alert === 'function') {
+      Modal.alert(message, type, title);
+    } else {
+      window.alert(message);
+    }
+  }
+
+  function downloadTextFile(filename, text, mime) {
+    try {
+      const blob = new Blob([text], { type: mime || 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename || 'download.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error(e);
+      alertModal('Failed to export file', 'error');
+    }
+  }
+
+  function collectLocalesFromRows(rows) {
+    if (!Array.isArray(rows)) return [];
+    const set = new Set();
+    rows.forEach(r => {
+      const loc = r.Locale || r.locale;
+      if (loc) set.add(loc);
+    });
+    return Array.from(set).sort();
+  }
+
+  function mergeLocalesIntoRows(selectedLocales, baseRows) {
+    const rows = Array.isArray(baseRows) ? [...baseRows] : [];
+    const hasLocale = (rows, loc) => rows.some(r => (r.Locale || r.locale) === loc);
+    selectedLocales.forEach(loc => {
+      if (!hasLocale(rows, loc)) {
+        rows.push({ Locale: loc, 'items/0/title': '', 'items/0/subtitle': '', 'items/0/narratorText': '' });
+      }
+    });
+    return rows;
+  }
+
+  async function onManageLocales(projectId) {
+    try {
+      if (!window.TileForgeLocalesUI || typeof window.TileForgeLocalesUI.open !== 'function') {
+        return alertModal('Locale Picker UI not loaded.', 'warning');
+      }
+      // Preselect from current working data
+      const preselect = collectLocalesFromRows(window.currentCsvData);
+      window.TileForgeLocalesUI.open(function(selectedLocales) {
+        // Merge selected locales into working set
+        const merged = mergeLocalesIntoRows(selectedLocales, window.currentCsvData);
+        window.currentCsvData = merged;
+        // Persist as a new CSV instance in the project and set active
+        (async () => {
+          try {
+            const proj = await ProjectStore.get(projectId);
+            if (!proj || !proj.data) throw new Error('Project not found');
+            const csvs = Array.isArray(proj.data.csvs) ? proj.data.csvs : (proj.data.csvs = []);
+            // Ask user for the CSV name (default suggested)
+            const stamp = new Date();
+            const pad = (n)=> String(n).padStart(2,'0');
+            const defaultName = `locales-${stamp.getFullYear()}${pad(stamp.getMonth()+1)}${pad(stamp.getDate())}-${pad(stamp.getHours())}${pad(stamp.getMinutes())}${pad(stamp.getSeconds())}.csv`;
+            let inputName = await promptAsync('Name your new CSV', defaultName, { title: 'New CSV Name' }).catch(() => null);
+            if (!inputName) return; // user canceled
+            inputName = inputName.trim();
+            if (!inputName.toLowerCase().endsWith('.csv')) inputName += '.csv';
+            // Ensure unique name within project
+            const existing = new Set(csvs.map(c => c.name.toLowerCase()));
+            let name = inputName;
+            if (existing.has(name.toLowerCase())) {
+              const base = name.replace(/\.csv$/i, '');
+              let i = 1;
+              while (existing.has(`${base}-${i}.csv`.toLowerCase())) i++;
+              name = `${base}-${i}.csv`;
+            }
+            csvs.push({ name, rows: merged });
+            // Serialize merged rows to stored file shape expected by loader
+            // Loader expects entries like { name, text }
+            let storedEntry;
+            if (typeof generateCSVContent === 'function') {
+              const text = generateCSVContent(merged);
+              storedEntry = { name, text };
+            } else {
+              // Fallback: store JSON if CSV generator not present
+              const jsonName = name.replace(/\.csv$/i, '.json');
+              storedEntry = { name: jsonName, text: JSON.stringify(merged) };
+            }
+            // Replace the provisional push with the proper entry
+            csvs.pop();
+            csvs.push(storedEntry);
+            proj.data.activeCsv = storedEntry.name; /* updated by Cascade */
+            await ProjectStore.update(proj.id, proj);
+            // Refresh UI list and load the new active file to reflect immediately
+            if (typeof refreshList === 'function') refreshList();
+            if (typeof onSetActiveFile === 'function') onSetActiveFile(proj.id, storedEntry.name);
+            if (typeof window.setActiveLocalesForPreview === 'function') {
+              window.setActiveLocalesForPreview(selectedLocales);
+            }
+            if (typeof window.renderLocaleGroups === 'function') {
+              window.renderLocaleGroups(merged);
+            }
+            if (window.showToast) window.showToast(`Created new CSV "${name}" and set active`, 'success');
+          } catch (err) {
+            console.error(err);
+            alertModal('Failed to create CSV for selected locales', 'error');
+          }
+        })();
+      }, preselect);
+    } catch (e) {
+      console.error(e);
+      alertModal('Failed to manage locales', 'error');
+    }
+  }
+
+  function confirmAsync(message, options = {}) {
+    return new Promise(resolve => {
+      if (window.Modal && typeof Modal.confirm === 'function') {
+        const modal = Modal.confirm({
+          content: message,
+          ...options,
+          onConfirm: () => resolve(true),
+          onCancel: () => resolve(false)
+        });
+        modal.show();
+      } else {
+        resolve(window.confirm(message));
+      }
+    });
+  }
+
+  function promptAsync(message, defaultValue = '', options = {}) {
+    return new Promise((resolve, reject) => {
+      if (window.Modal && typeof Modal.prompt === 'function') {
+        const modal = Modal.prompt({
+          title: options.title || 'Input Required',
+          message,
+          defaultValue,
+          onConfirm: (val) => resolve(val),
+          onCancel: () => reject(new Error('Canceled')),
+        });
+        modal.show();
+      } else {
+        const v = window.prompt(message, defaultValue);
+        if (v === null) reject(new Error('Canceled')); else resolve(v);
+      }
+    });
+  }
 
   function getCurrentTemplate() {
     const active = document.querySelector('.template-option.active');
@@ -70,6 +225,19 @@
       if (Array.isArray(csvRows)) {
         window.currentCsvData = csvRows;
         if (typeof renderLocaleGroups === 'function') renderLocaleGroups(csvRows);
+        // Reflect active CSV into the localized preview status pill
+        try {
+          const activeName = active || '';
+          if (typeof updateFileInfo === 'function' && activeName) {
+            updateFileInfo('CSV', activeName, csvRows.length || 0);
+          } else {
+            const nameEl = document.getElementById('activeCsvName');
+            if (nameEl) {
+              nameEl.textContent = activeName || '—';
+              const pill = nameEl.parentElement; if (pill && pill.setAttribute) pill.setAttribute('title', activeName ? `Currently active CSV: ${activeName}` : 'No active CSV selected');
+            }
+          }
+        } catch (e) { /* no-op */ }
       }
 
       // Apply template selection visually
@@ -87,7 +255,7 @@
       });
     } catch (e) {
       console.error('Failed to load project into UI', e);
-      alert('Failed to load project. See console for details.');
+      alertModal('Failed to load project. See console for details.', 'error');
     }
   }
 
@@ -128,23 +296,25 @@
 
   async function ensureProjectContext() {
     if (state.currentProject && state.currentProject.id) return state.currentProject;
-    const name = prompt('Project name:');
+    const name = await promptAsync('Project name:');
     if (!name) throw new Error('Canceled');
-    const rec = await window.ProjectStore.create(name, buildSnapshotFromUI());
+    const description = await promptAsync('Short description (optional):', '');
+    const rec = await window.ProjectStore.create(name, buildSnapshotFromUI(), description || '');
     state.currentProject = { id: rec.id, name: rec.name };
     refreshList();
     return state.currentProject;
   }
 
   async function onNew() {
-    const choice = confirm('Create a new project from current state? (OK = from current, Cancel = blank)');
-    const name = prompt('New project name:');
+    const choice = await confirmAsync('Create a new project from current state? (OK = from current, Cancel = blank)');
+    const name = await promptAsync('New project name:');
     if (!name) return;
+    const description = await promptAsync('Short description (optional):', '');
     const data = choice ? buildSnapshotFromUI() : { csvs: [], activeCsv: null, image: null, template: 'toh', settings: { enabledSections: { title: true, subtitle: true, narrator: true } } };
-    const rec = await ProjectStore.create(name, data);
+    const rec = await ProjectStore.create(name, data, description || '');
     state.currentProject = { id: rec.id, name: rec.name };
     refreshList();
-    alert('Project created');
+    alertModal('Project created', 'success');
   }
 
   async function onSave() {
@@ -153,88 +323,46 @@
       const snap = buildSnapshotFromUI();
       await ProjectStore.saveSnapshot(ctx.id, snap);
       refreshList();
-      if (window.showToast) window.showToast('Project saved', 'success'); else alert('Project saved');
+      if (window.showToast) window.showToast('Project saved', 'success'); else alertModal('Project saved', 'success');
     } catch (e) {
       if (e && e.message === 'Canceled') return;
       console.error(e);
-      alert('Save failed');
+      alertModal('Save failed', 'error');
     }
   }
 
-  async function onClone() {
+  async function onClone(projectId) {
+    // If a specific projectId is provided (from list action), clone that project.
+    if (projectId) {
+      const proj = await ProjectStore.get(projectId);
+      if (!proj) return;
+      const newName = await promptAsync('Name for cloned project:', (proj.name || 'Project') + ' (Copy)');
+      if (!newName) return;
+      const rec = await ProjectStore.clone(projectId, newName);
+      state.currentProject = { id: rec.id, name: rec.name };
+      refreshList();
+      alertModal('Project cloned', 'success');
+      return;
+    }
+    // Otherwise, preserve prior behavior: clone current project or state
     if (!state.currentProject) {
       // allow clone from current state into a newly named project
-      const name = prompt('Clone to new project name:');
+      const name = await promptAsync('Clone to new project name:');
       if (!name) return;
       const rec = await ProjectStore.create(name, buildSnapshotFromUI());
       state.currentProject = { id: rec.id, name: rec.name };
       refreshList();
-      alert('Cloned to new project');
+      alertModal('Cloned to new project', 'success');
       return;
     }
-    const newName = prompt('Name for cloned project:', state.currentProject.name + ' (Copy)');
+    const newName = await promptAsync('Name for cloned project:', state.currentProject.name + ' (Copy)');
     if (!newName) return;
     const rec = await ProjectStore.clone(state.currentProject.id, newName);
     state.currentProject = { id: rec.id, name: rec.name };
     refreshList();
-    alert('Project cloned');
+    alertModal('Project cloned', 'success');
   }
 
-  async function onExport(projectId) {
-    const proj = projectId ? await ProjectStore.get(projectId) : (state.currentProject ? await ProjectStore.get(state.currentProject.id) : null);
-    if (!proj) { alert('No project to export'); return; }
-    if (!window.JSZip) { alert('JSZip not loaded'); return; }
-    const zip = new JSZip();
-    zip.file('project.json', JSON.stringify({ id: proj.id, name: proj.name, schemaVersion: proj.schemaVersion, data: proj.data }, null, 2));
-    const folderCsv = zip.folder('csv');
-    (proj.data.csvs || []).forEach(f => folderCsv.file(f.name, f.text));
-    if (proj.data.image && proj.data.image.dataUrl) {
-      const folderImg = zip.folder('images');
-      folderImg.file(proj.data.image.name || 'image.png', proj.data.image.dataUrl.split(',')[1], { base64: true });
-    }
-    const blob = await zip.generateAsync({ type: 'blob' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = (proj.name || 'tileforge-project') + '.zip';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }
-
-  function onImport() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.zip,application/zip';
-    input.onchange = async () => {
-      const file = input.files && input.files[0];
-      if (!file) return;
-      if (!window.JSZip) { alert('JSZip not loaded'); return; }
-      const zip = await JSZip.loadAsync(file);
-      const projJsonFile = zip.file('project.json');
-      if (!projJsonFile) { alert('Invalid project zip: missing project.json'); return; }
-      const meta = JSON.parse(await projJsonFile.async('string'));
-      const data = meta.data || {};
-      // Load csv files into data.csvs if present
-      const csvFolder = zip.folder('csv');
-      if (csvFolder) {
-        const entries = [];
-        await Promise.all(Object.keys(zip.files).map(async key => {
-          if (key.startsWith('csv/') && !zip.files[key].dir) {
-            const name = key.substring(4);
-            const text = await zip.files[key].async('string');
-            entries.push({ name, text });
-          }
-        }));
-        if (entries.length) { data.csvs = entries; if (!data.activeCsv) data.activeCsv = entries[0].name; }
-      }
-      const name = prompt('Import project name:', meta.name || 'Imported Project');
-      const rec = await ProjectStore.create(name, data);
-      state.currentProject = { id: rec.id, name: rec.name };
-      refreshList();
-      alert('Project imported');
-    };
-    input.click();
-  }
 
   async function refreshList() {
     const listEl = document.getElementById('projectsList');
@@ -243,16 +371,41 @@
     listEl.innerHTML = items.map(p => {
       const isActive = state.currentProject && state.currentProject.id === p.id;
       const date = new Date(p.updatedAt || p.createdAt).toLocaleString();
+      const fileCount = (p.data && Array.isArray(p.data.csvs)) ? p.data.csvs.length : 0;
+      const activeCsv = p.data && p.data.activeCsv ? p.data.activeCsv : (fileCount && p.data.csvs[0].name) || '';
+      const isExpanded = state.expandedFilesPanels.has(p.id);
       return `
         <div class="project-item${isActive ? ' active' : ''}">
           <div class="project-meta">
             <div class="project-name">${p.name}</div>
+            <div class="project-desc">${p.description || ''}</div>
             <div class="project-date">${date}</div>
           </div>
           <div class="project-actions">
             <button class="preset-apply-btn" data-act="load" data-id="${p.id}">Load</button>
-            <button class="preset-apply-btn" data-act="export" data-id="${p.id}">Export</button>
+            <button class="preset-apply-btn" data-act="clone" data-id="${p.id}">Clone</button>
             <button class="preset-apply-btn" data-act="delete" data-id="${p.id}">Delete</button>
+            <button class="files-toggle" data-act="toggle-files" data-id="${p.id}" aria-expanded="${isExpanded}"><span class="chev">${isExpanded ? '▼' : '►'}</span> Files (${fileCount})</button>
+          </div>
+          <div class="project-files" data-files-for="${p.id}" style="display:${isExpanded ? 'block' : 'none'};">
+            <div class="project-files-header">
+              <div class="project-files-actions">
+                <button class="preset-apply-btn" data-act="add-file" data-id="${p.id}">Add CSV</button>
+                <button class="preset-apply-btn" data-act="manage-locales" data-id="${p.id}">Create New</button>
+                <button class="preset-apply-btn btn-export-active" data-act="export-active" data-id="${p.id}"><i class="fa fa-download" aria-hidden="true"></i><span class="label">Export Active</span></button>
+              </div>
+            </div>
+            <div class="project-files-list">
+              ${(p.data?.csvs || []).map(f => `
+                <div class="project-file-row${f.name === activeCsv ? ' is-active' : ''}" data-name="${f.name}">
+                  <span class="file-name">${f.name}</span>
+                  <div class="file-actions">
+                    <button class="preset-apply-btn" data-act="set-active-file" data-id="${p.id}" data-name="${f.name}">Set Active</button>
+                    <button class="preset-apply-btn" data-act="remove-file" data-id="${p.id}" data-name="${f.name}">Remove</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
           </div>
         </div>`;
     }).join('');
@@ -268,31 +421,137 @@
             loadSnapshotIntoUI(proj);
             refreshList();
           }
-        } else if (act === 'export') {
-          onExport(id);
+        } else if (act === 'clone') {
+          onClone(id);
         } else if (act === 'delete') {
-          if (confirm('Delete this project?')) {
+          if (await confirmAsync('Delete this project?')) {
             await ProjectStore.remove(id);
             if (state.currentProject && state.currentProject.id === id) state.currentProject = null;
             refreshList();
           }
+        } else if (act === 'toggle-files') {
+          const panel = listEl.querySelector(`.project-files[data-files-for="${id}"]`);
+          if (panel) {
+            const isHidden = panel.style.display === 'none';
+            panel.style.display = isHidden ? 'block' : 'none';
+            // Update chevron and aria state
+            const chev = btn.querySelector('.chev');
+            if (chev) chev.textContent = isHidden ? '▼' : '►';
+            btn.setAttribute('aria-expanded', String(isHidden));
+            // Track expanded state so refreshList preserves it
+            if (isHidden) state.expandedFilesPanels.add(id); else state.expandedFilesPanels.delete(id);
+          }
+        } else if (act === 'export-active') {
+          try {
+            const proj = await ProjectStore.get(id);
+            if (!proj || !proj.data) return alertModal('Project not found', 'warning');
+            const activeName = proj.data.activeCsv;
+            if (!activeName) return alertModal('No active CSV to export', 'warning');
+            const entry = (proj.data.csvs || []).find(f => f.name === activeName);
+            if (!entry) return alertModal('Active file not found in project', 'error');
+            const isCsv = /\.csv$/i.test(entry.name);
+            const mime = isCsv ? 'text/csv;charset=utf-8' : 'application/json;charset=utf-8';
+            downloadTextFile(entry.name, entry.text || '', mime);
+          } catch (e) {
+            console.error(e);
+            alertModal('Export failed', 'error');
+          }
+        } else if (act === 'add-file') {
+          onAddFile(id);
+        } else if (act === 'manage-locales') {
+          onManageLocales(id);
+        } else if (act === 'set-active-file') {
+          const name = btn.getAttribute('data-name');
+          onSetActiveFile(id, name);
+        } else if (act === 'remove-file') {
+          const name = btn.getAttribute('data-name');
+          onRemoveFile(id, name);
         }
       });
     });
   }
 
-  function bindToolbar() {
-    const newBtn = document.getElementById('toolbarNewBtn');
-    const saveBtn = document.getElementById('toolbarSaveBtn');
-    const cloneBtn = document.getElementById('toolbarCloneBtn');
-    if (newBtn) newBtn.addEventListener('click', onNew);
-    if (saveBtn) saveBtn.addEventListener('click', onSave);
-    if (cloneBtn) cloneBtn.addEventListener('click', onClone);
+  async function onAddFile(projectId) {
+    try {
+      const proj = await ProjectStore.get(projectId);
+      if (!proj) return;
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.csv,text/csv';
+      input.onchange = async () => {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        const text = await file.text();
+        const name = file.name || 'data.csv';
+        proj.data = proj.data || { csvs: [], activeCsv: null, image: null, template: 'toh', settings: {} };
+        const existingIdx = (proj.data.csvs || []).findIndex(f => f.name === name);
+        if (existingIdx >= 0) {
+          const overwrite = await confirmAsync(`A file named "${name}" already exists in this project. Overwrite it?`);
+          if (!overwrite) return;
+          proj.data.csvs[existingIdx] = { name, text };
+        } else {
+          proj.data.csvs.push({ name, text });
+        }
+        if (!proj.data.activeCsv) proj.data.activeCsv = name;
+        await ProjectStore.saveSnapshot(projectId, proj.data);
+        if (state.currentProject && state.currentProject.id === projectId) {
+          // If currently loaded project, update UI snapshot (do not auto-switch content)
+          // Keep current UI unless user explicitly loads project.
+        }
+        refreshList();
+        if (window.showToast) window.showToast('CSV added to project', 'success'); else alertModal('CSV added', 'success');
+      };
+      input.click();
+    } catch (e) {
+      console.error(e);
+      alertModal('Failed to add file', 'error');
+    }
+  }
 
-    const importBtn = document.getElementById('projectImportBtn');
-    const exportBtn = document.getElementById('projectExportBtn');
-    if (importBtn) importBtn.addEventListener('click', onImport);
-    if (exportBtn) exportBtn.addEventListener('click', () => onExport());
+  async function onSetActiveFile(projectId, fileName) {
+    try {
+      const proj = await ProjectStore.get(projectId);
+      if (!proj || !proj.data) return;
+      if (!(proj.data.csvs || []).some(f => f.name === fileName)) return;
+      proj.data.activeCsv = fileName;
+      await ProjectStore.saveSnapshot(projectId, proj.data);
+      // Option B: Always load the project immediately and set it current
+      state.currentProject = { id: proj.id, name: proj.name };
+      loadSnapshotIntoUI(proj);
+      refreshList();
+      if (window.showToast) window.showToast(`Active file set to ${fileName} and loaded`, 'success');
+    } catch (e) {
+      console.error(e);
+      alertModal('Failed to set active file', 'error');
+    }
+  }
+
+  async function onRemoveFile(projectId, fileName) {
+    try {
+      const proj = await ProjectStore.get(projectId);
+      if (!proj || !proj.data) return;
+      const idx = (proj.data.csvs || []).findIndex(f => f.name === fileName);
+      if (idx < 0) return;
+      if (!(await confirmAsync(`Remove "${fileName}" from this project?`))) return;
+      proj.data.csvs.splice(idx, 1);
+      if (proj.data.activeCsv === fileName) {
+        proj.data.activeCsv = (proj.data.csvs[0] && proj.data.csvs[0].name) || null;
+      }
+      await ProjectStore.saveSnapshot(projectId, proj.data);
+      // If this project is loaded and we changed active, reflect into UI
+      if (state.currentProject && state.currentProject.id === projectId) {
+        loadSnapshotIntoUI(proj);
+      }
+      refreshList();
+    } catch (e) {
+      console.error(e);
+      alertModal('Failed to remove file', 'error');
+    }
+  }
+
+  function bindToolbar() {
+    const createBtn = document.getElementById('projectCreateBtn');
+    if (createBtn) createBtn.addEventListener('click', onNew);
   }
 
   function mountProjectsSection() {
@@ -311,5 +570,5 @@
 
   document.addEventListener('DOMContentLoaded', initOnce);
 
-  window.ProjectUI = { initOnce, refreshList };
+  window.ProjectUI = { initOnce, refreshList, onSave };
 })();

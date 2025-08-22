@@ -61,11 +61,12 @@
       }));
     },
 
-    async create(name, data) {
+    async create(name, data, description) {
       const now = new Date().toISOString();
       const rec = {
         id: uuid(),
         name: name || 'Untitled Project',
+        description: description || '',
         createdAt: now,
         updatedAt: now,
         schemaVersion: 1,
@@ -100,7 +101,7 @@
       const copy = JSON.parse(JSON.stringify(cur));
       delete copy.id;
       copy.name = newName || (cur.name + ' (Copy)');
-      const rec = await this.create(copy.name, copy.data);
+      const rec = await this.create(copy.name, copy.data, copy.description || '');
       return rec;
     },
 
