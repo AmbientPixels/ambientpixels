@@ -170,6 +170,16 @@
             <span class="info-value" id="csvFileName">None</span>
           </div>
         </div>
+
+        <!-- Projects Section (under Controls) -->
+        <div class="projects-section" id="projectsSection">
+          <h4><i class="fas fa-folder-open"></i> Projects</h4>
+          <div class="tool-group">
+            <button class="control-btn" id="projectImportBtn"><i class="fas fa-file-import"></i> Import ZIP</button>
+            <button class="control-btn" id="projectExportBtn"><i class="fas fa-file-archive"></i> Export ZIP</button>
+          </div>
+          <div class="projects-list" id="projectsList"></div>
+        </div>
       </div>
       
 
@@ -615,6 +625,8 @@
 
 
   <!-- JavaScript Modules -->
+  <!-- JSZip for project import/export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-3RzU2m3b3k4e0mZk5b7rG1Q5sNQe7p2g3mE5m+0oFSkR3ZQw2EwVxq2mI1G8ZlJf8ZJpQxj0wV0m2V6S8HqPFw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="js/modal.js"></script>
   <script src="js/constants.js"></script>
   <script src="js/text-measurement.js"></script>
@@ -627,6 +639,8 @@
   <script src="js/locale-mapping.js"></script>
   <script src="js/locale-picker-ui.js"></script>
   <script src="js/live-editor.js"></script>
+  <script src="js/project-store.js"></script>
+  <script src="js/project-ui.js"></script>
   <script src="js/analytics.js"></script>
   <script src="js/drag-drop.js"></script>
   <script src="js/settings.js"></script>
