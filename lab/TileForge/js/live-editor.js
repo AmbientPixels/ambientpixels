@@ -388,6 +388,76 @@ function setupLiveEditor() {
   if (narratorManualApplySelectedBtn) {
     narratorManualApplySelectedBtn.addEventListener('click', function() { openLocalePickerAndApplyManual('narrator'); });
   }
+
+  // --- Preset Sections UI wiring (collapse / enable / mode) --- // added by Cascade
+  const autoLocalizeToggle = null; // Auto-Localize is permanent; UI toggle removed
+
+  function setSectionEnabledState(section, enabled) {
+    section.classList.toggle('disabled', !enabled);
+    const body = section.querySelector('.preset-section-body');
+    if (!body) return;
+    // Disable all interactive elements in body only
+    const interactive = body.querySelectorAll('input, select, button, textarea');
+    interactive.forEach(el => {
+      if (el.closest('.switch')) return; // keep header switches clickable
+      el.disabled = !enabled;
+    });
+  }
+
+  function setSectionMode(section, mode) {
+    // mode: 'manual' | 'auto'
+    section.classList.remove('mode-manual', 'mode-auto');
+    section.classList.add(mode === 'auto' ? 'mode-auto' : 'mode-manual');
+
+    // Update segmented buttons visual state
+    const modeBtns = section.querySelectorAll('.mode-toggle .mode-btn');
+    modeBtns.forEach(btn => {
+      const isActive = btn.dataset.mode === mode;
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+  }
+
+  function applyGlobalAutoStateToSection(section, isAuto) {
+    // No-op: Auto-Localize is permanent; do not alter per-section mode automatically
+  }
+
+  function initSection(section) {
+    // Initial mode: Manual (per request). Auto-Localize remains permanent for apply paths.
+    setSectionMode(section, 'manual');
+
+    // Initial enabled state from checkbox
+    const enabledCb = section.querySelector('.section-enabled');
+    if (enabledCb) {
+      setSectionEnabledState(section, !!enabledCb.checked);
+      enabledCb.addEventListener('change', () => setSectionEnabledState(section, !!enabledCb.checked));
+    }
+
+    // Collapse toggle
+    const collapseBtn = section.querySelector('.collapse-btn');
+    if (collapseBtn) {
+      collapseBtn.addEventListener('click', () => {
+        const collapsed = section.classList.toggle('collapsed');
+        collapseBtn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      });
+    }
+
+    // Mode segmented control
+    const modeButtons = section.querySelectorAll('.mode-toggle .mode-btn');
+    modeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const nextMode = btn.dataset.mode === 'auto' ? 'auto' : 'manual';
+        setSectionMode(section, nextMode);
+      });
+    });
+
+    // NOTE: Do not auto-apply global Auto-Localize on init; only respond to user toggle events
+  }
+
+  // Initialize all preset sections
+  document.querySelectorAll('.preset-section').forEach(initSection);
+
+  // Auto-Localize is permanent; no global toggle listener
 }
 
 // Update preview tile status based on current input
@@ -655,9 +725,8 @@ function applyPresetToField(presetKey, fieldType) {
     return;
   }
   
-  // Check if auto-localization is enabled
-  const autoLocalizeToggle = document.getElementById('autoLocalizeToggle');
-  const isAutoLocalizeEnabled = autoLocalizeToggle ? autoLocalizeToggle.checked : true;
+  // Auto-Localize is permanent; do not alter per-section mode automatically
+  const isAutoLocalizeEnabled = true;
   
   console.log(`DEBUG: Auto-localize enabled: ${isAutoLocalizeEnabled}`);
   console.log(`DEBUG: Available locales in preset:`, Object.keys(preset.locales));
@@ -790,8 +859,7 @@ function tfNormalizeSymbolAroundNumber(composedStr, rawNumber, chosenSymbol) {
 
 function applySubtitleModifiersAll(percentVal) {
   if (!currentCsvData) return;
-  const autoLocalizeToggle = document.getElementById('autoLocalizeToggle');
-  const isAutoLocalizeEnabled = autoLocalizeToggle ? autoLocalizeToggle.checked : true;
+  const isAutoLocalizeEnabled = true; // Auto-Localize permanently ON
   const phraseDropdown = document.getElementById('subtitlePhraseSelect');
   const phraseKey = (phraseDropdown && phraseDropdown.value) ? phraseDropdown.value : 'save_up_to';
   const symbolSelect = document.getElementById('subtitleSymbolSelect');
@@ -812,11 +880,10 @@ function applySubtitleModifiersAll(percentVal) {
 
 function applySubtitleModifiersSelected(percentVal, selectedLocales) {
   if (!currentCsvData || !Array.isArray(selectedLocales) || !selectedLocales.length) return;
-  const autoLocalizeToggle = document.getElementById('autoLocalizeToggle');
-  const isAutoLocalizeEnabled = autoLocalizeToggle ? autoLocalizeToggle.checked : true;
+  const isAutoLocalizeEnabled = true; // Auto-Localize permanently ON
+  const target = new Set(selectedLocales);
   const phraseDropdown = document.getElementById('subtitlePhraseSelect');
   const phraseKey = (phraseDropdown && phraseDropdown.value) ? phraseDropdown.value : 'save_up_to';
-  const target = new Set(selectedLocales);
   const symbolSelect = document.getElementById('subtitleSymbolSelect');
   const chosenSymbol = (symbolSelect && symbolSelect.value) ? symbolSelect.value : 'none';
 
@@ -838,8 +905,7 @@ function applyPresetToSelectedLocales(presetKey, fieldType, selectedLocales) {
   const preset = presetData[presetKey];
   if (!preset || !currentCsvData) return;
 
-  const autoLocalizeToggle = document.getElementById('autoLocalizeToggle');
-  const isAutoLocalizeEnabled = autoLocalizeToggle ? autoLocalizeToggle.checked : true;
+  const isAutoLocalizeEnabled = true; // Auto-Localize permanently ON
   const target = new Set(selectedLocales || []);
   if (!target.size) return;
 
@@ -863,7 +929,7 @@ function applyPresetToSelectedLocales(presetKey, fieldType, selectedLocales) {
   });
 
   renderLocaleGroups(currentCsvData);
-  const mode = isAutoLocalizeEnabled ? 'auto-localized' : 'English-only';
+  const mode = 'auto-localized';
   console.log(`Applied "${preset.name}" preset to ${target.size} selected locale(s) for ${fieldType} (${mode})`);
 }
 
@@ -915,7 +981,7 @@ function setupPresetControls() {
         const dropdown = document.getElementById(id);
         const presetKey = dropdown ? dropdown.value : '';
         if (!presetKey) return;
-        const pre = (typeof window.getActiveLocalesForPreview === 'function') ? window.getActiveLocalesForPreview() : [];
+        const pre = (typeof window.getActiveLocalesForPreview === 'function') ? (window.getActiveLocalesForPreview() || []) : [];
         if (!window.TileForgeLocalesUI || typeof window.TileForgeLocalesUI.open !== 'function') {
           alert('Locale Picker UI not loaded.');
           return;
@@ -976,7 +1042,7 @@ function setupSubtitleModifiersControls() {
     });
   }
 
-  // Autofill the Subheadline input when a modifier preset is selected
+  // Autofill the target input (Title or Narrator) when a modifier preset is selected
   // Uses EN-US preview text composed from the selected phrase + current percent + optional symbol
   // Local helper to compose and write the subtitle input based on current controls
   function updateSubtitlePreviewFromModifiers() {
@@ -1023,8 +1089,7 @@ function setupSubtitleModifiersControls() {
 // Generic Modifiers setup for Title/Narrator (mirrors Subtitle Modifiers)
 function applyGenericModifiersAll(percentVal, phraseKey, fieldKey) {
   if (!currentCsvData) return;
-  const autoLocalizeToggle = document.getElementById('autoLocalizeToggle');
-  const isAutoLocalizeEnabled = autoLocalizeToggle ? autoLocalizeToggle.checked : true;
+  const isAutoLocalizeEnabled = true; // Auto-Localize permanently ON
   const symbolSelectEl = document.getElementById(fieldKey === 'items/0/title' ? 'titleSymbolSelect' : (fieldKey === 'items/0/narratorText' ? 'narratorSymbolSelect' : 'subtitleSymbolSelect'));
   const chosenSymbol = (symbolSelectEl && symbolSelectEl.value) ? symbolSelectEl.value : 'none';
 
@@ -1040,8 +1105,7 @@ function applyGenericModifiersAll(percentVal, phraseKey, fieldKey) {
 
 function applyGenericModifiersSelected(percentVal, selectedLocales, phraseKey, fieldKey) {
   if (!currentCsvData || !Array.isArray(selectedLocales) || !selectedLocales.length) return;
-  const autoLocalizeToggle = document.getElementById('autoLocalizeToggle');
-  const isAutoLocalizeEnabled = autoLocalizeToggle ? autoLocalizeToggle.checked : true;
+  const isAutoLocalizeEnabled = true; // Auto-Localize permanently ON
   const target = new Set(selectedLocales);
   const symbolSelectEl = document.getElementById(fieldKey === 'items/0/title' ? 'titleSymbolSelect' : (fieldKey === 'items/0/narratorText' ? 'narratorSymbolSelect' : 'subtitleSymbolSelect'));
   const chosenSymbol = (symbolSelectEl && symbolSelectEl.value) ? symbolSelectEl.value : 'none';
@@ -1066,71 +1130,83 @@ function setupGenericModifiersControls({ phraseId, percentId, symbolId, applyAll
 
   function numberFromInput() {
     let v = (percentInput && typeof percentInput.value === 'string') ? percentInput.value.trim() : '';
+    if (v === '') return null;
+    // Normalize: if template already includes a % after {n}, avoid double % by stripping trailing % from input
     if (v.endsWith('%')) v = v.slice(0, -1).trim();
     return v;
   }
 
-  function updatePreview() {
-    const inputEl = document.getElementById(inputId);
-    if (!inputEl || !phraseDropdown) return;
+  if (applyAllBtn) {
+    applyAllBtn.addEventListener('click', function() {
+      const modVal = numberFromInput();
+      if (modVal === null) {
+        alert('Enter a value to insert (e.g., 40 or “forty”).');
+        return;
+      }
+      applyGenericModifiersAll(modVal, phraseDropdown.value, fieldKey);
+    });
+  }
+
+  if (applySelectedBtn) {
+    applySelectedBtn.addEventListener('click', function() {
+      const modVal = numberFromInput();
+      if (modVal === null) {
+        alert('Enter a value to insert (e.g., 40 or “forty”).');
+        return;
+      }
+      const pre = (typeof window.getActiveLocalesForPreview === 'function') ? (window.getActiveLocalesForPreview() || []) : [];
+      if (!window.TileForgeLocalesUI || typeof window.TileForgeLocalesUI.open !== 'function') {
+        alert('Locale Picker UI not loaded.');
+        return;
+      }
+      window.TileForgeLocalesUI.open(function(selectedLocales){
+        if (Array.isArray(selectedLocales) && selectedLocales.length) {
+          applyGenericModifiersSelected(modVal, selectedLocales, phraseDropdown.value, fieldKey);
+        }
+      }, pre);
+    });
+  }
+
+  // Autofill the target input (Title or Narrator) when a modifier preset is selected
+  // Uses EN-US preview text composed from the selected phrase + current percent + optional symbol
+  // Local helper to compose and write the subtitle input based on current controls
+  function updatePreviewFromModifiers() {
+    const targetInput = document.getElementById(inputId);
+    if (!targetInput || !phraseDropdown) return;
     const presetKey = phraseDropdown.value;
+    // If no phrase selected, clear field
     if (!presetKey) {
-      inputEl.value = '';
-      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+      targetInput.value = '';
+      targetInput.dispatchEvent(new Event('input', { bubbles: true }));
       return;
     }
-    let insertVal = numberFromInput();
+    // Pull current percent modifier (strip trailing % if user typed it)
+    let insertVal = (percentInput && typeof percentInput.value === 'string') ? percentInput.value.trim() : '';
+    if (insertVal.endsWith('%')) insertVal = insertVal.slice(0, -1).trim();
+    // If no number yet, show phrase-only (remove {n} and any adjacent symbol/spaces)
     if (!insertVal) {
       let phraseOnly = getSubtitleTemplateForLocale(presetKey, 'EN-US', false) || '';
       phraseOnly = phraseOnly.replace(/\s*\{n\}\s*([%\u066a$€£¥])?\s*/g, ' ').replace(/\s{2,}/g, ' ').trim();
-      inputEl.value = phraseOnly;
-      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+      targetInput.value = phraseOnly;
+      targetInput.dispatchEvent(new Event('input', { bubbles: true }));
       return;
     }
     const chosenSymbol = (symbolSelect && symbolSelect.value) ? symbolSelect.value : 'none';
     let composed = composeSubtitleFromTemplate('EN-US', String(insertVal), false, presetKey);
     composed = tfNormalizeSymbolAroundNumber(composed, String(insertVal), chosenSymbol);
-    inputEl.value = composed;
-    inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+    targetInput.value = composed;
+    targetInput.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
-  if (phraseDropdown) phraseDropdown.addEventListener('change', updatePreview);
-  if (percentInput) percentInput.addEventListener('input', updatePreview);
-  if (symbolSelect) symbolSelect.addEventListener('change', updatePreview);
-
-  function doApplyAll() {
-    const presetKey = phraseDropdown ? phraseDropdown.value : '';
-    const val = numberFromInput();
-    if (!presetKey) return;
-    if (!val) {
-      alert('Enter a value to insert (e.g., 40 or “forty”).');
-      return;
-    }
-    applyGenericModifiersAll(val, presetKey, fieldKey);
+  if (phraseDropdown) {
+    phraseDropdown.addEventListener('change', updatePreviewFromModifiers);
   }
-
-  function doApplySelected() {
-    const presetKey = phraseDropdown ? phraseDropdown.value : '';
-    const val = numberFromInput();
-    if (!presetKey) return;
-    if (!val) {
-      alert('Enter a value to insert (e.g., 40 or “forty”).');
-      return;
-    }
-    const pre = (typeof window.getActiveLocalesForPreview === 'function') ? (window.getActiveLocalesForPreview() || []) : [];
-    if (!window.TileForgeLocalesUI || typeof window.TileForgeLocalesUI.open !== 'function') {
-      alert('Locale Picker UI not loaded.');
-      return;
-    }
-    window.TileForgeLocalesUI.open(function(selectedLocales){
-      if (Array.isArray(selectedLocales) && selectedLocales.length) {
-        applyGenericModifiersSelected(val, selectedLocales, presetKey, fieldKey);
-      }
-    }, pre);
+  if (percentInput) {
+    percentInput.addEventListener('input', updatePreviewFromModifiers);
   }
-
-  if (applyAllBtn) applyAllBtn.addEventListener('click', doApplyAll);
-  if (applySelectedBtn) applySelectedBtn.addEventListener('click', doApplySelected);
+  if (symbolSelect) {
+    symbolSelect.addEventListener('change', updatePreviewFromModifiers);
+  }
 }
 
 // Initialize preset system when page loads

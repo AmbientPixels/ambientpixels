@@ -1594,3 +1594,91 @@ input:checked + .slider:before {
   background: #f44336;
   color: white;
 }
+
+/* --- Preset Section Wrapper (scoped UI shell) --- */ /* added by Cascade */
+.preset-section {
+  background: #2a2a2a; /* reuse image-info-panel bg */
+  border: 1px solid #444; /* reuse simple-filters border */
+  border-radius: 8px;
+  padding: 10px 10px 12px;
+  margin-bottom: 14px;
+}
+
+.preset-section.disabled {
+  opacity: 0.6;
+}
+
+.preset-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 4px 8px;
+}
+
+.preset-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.preset-section-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Tiny segmented mode toggle */
+.mode-toggle {
+  display: inline-flex;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.mode-toggle .mode-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #ddd;
+  font-size: 11px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.mode-toggle .mode-btn.active {
+  background: var(--accent-bg, rgba(0,122,204,0.25));
+  color: #fff;
+}
+.mode-toggle .mode-btn:focus {
+  outline: none;
+}
+
+/* Collapse control */
+.collapse-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #ccc;
+  border-radius: 6px;
+  width: 28px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.preset-section.collapsed .preset-section-body {
+  display: none;
+}
+
+/* Disable interactions when section is disabled (keep header interactive) */
+.preset-section.disabled .preset-section-body {
+  pointer-events: none;
+  filter: grayscale(0.1) opacity(0.85);
+}
+
+/* Per-section mode visibility: show only relevant controls */
+.preset-section.mode-manual .preset-controls,
+.preset-section.mode-manual .modifier-controls {
+  display: none;
+}
+.preset-section.mode-auto .manual-controls {
+  display: none;
+}

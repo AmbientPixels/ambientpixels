@@ -341,17 +341,8 @@
                   <span class="slider"></span>
                 </label>
               </div>
-              <div class="auto-localize-control">
-                <div class="control-info">
-                  <span class="control-label">Auto-Localize Presets</span>
-                  <span class="control-description">Automatically applies language-specific presets based on each tile's locale</span>
-                </div>
-                <label class="switch">
-                  <input type="checkbox" id="autoLocalizeToggle" checked>
-                  <span class="slider"></span>
-                </label>
-              </div>
-              <!-- Added above-the-fold CSV/XML drop zone -->
+              <!-- removed by Cascade: Auto-Localize Presets toggle is now permanent and has no UI control -->
+              
               <div id="autoLocalizeDropZone" class="dnd-csv-zone">
                 <div class="dnd-csv-message">
                   <i class="fas fa-file-csv"></i>
@@ -364,182 +355,233 @@
           
           <div class="editing-controls">
             <div class="input-group">
-              <label for="titleInput">Headline</label>
-              <div class="input-row">
-                <div class="input-container">
-                  <input type="text" id="titleInput" value="Fortnite OG" />
-                  <div class="character-info">
-                    <div class="char-count">
-                      <span id="titleCharCount">0</span>
+              <div class="preset-section" data-section="title">
+                <div class="preset-section-header">
+                  <div class="preset-section-title">Headline Preset</div>
+                  <div class="preset-section-controls">
+                    <div class="mode-toggle" role="tablist" aria-label="Headline mode">
+                      <button class="mode-btn active" data-mode="manual" aria-selected="true">Manual</button>
+                      <button class="mode-btn" data-mode="auto" aria-selected="false">Auto</button>
+                    </div>
+                    <label class="switch" title="Enable/disable Headline section">
+                      <input type="checkbox" class="section-enabled" data-target="title" checked>
+                      <span class="slider"></span>
+                    </label>
+                    <button class="collapse-btn" aria-expanded="true" title="Collapse/Expand">▾</button>
+                  </div>
+                </div>
+                <div class="preset-section-body">
+                  <label for="titleInput">Headline</label>
+                  <div class="input-row">
+                    <div class="input-container">
+                      <input type="text" id="titleInput" value="Fortnite OG" />
+                      <div class="character-info">
+                        <div class="char-count">
+                          <span id="titleCharCount">0</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="manual-controls">
+                      <button class="manual-apply-btn" id="titleManualApplyBtn" title="Apply typed text to all tiles">
+                        <i class="fas fa-share"></i> Apply Text to All
+                      </button>
+                      <button class="manual-apply-btn" id="titleManualApplySelectedBtn" title="Apply typed text to selected locales">
+                        <i class="fas fa-share-nodes"></i> Apply to Selected…
+                      </button>
                     </div>
                   </div>
-                </div>
-                <div class="manual-controls">
-                  <button class="manual-apply-btn" id="titleManualApplyBtn" title="Apply typed text to all tiles">
-                    <i class="fas fa-share"></i> Apply Text to All
-                  </button>
-                  <button class="manual-apply-btn" id="titleManualApplySelectedBtn" title="Apply typed text to selected locales">
-                    <i class="fas fa-share-nodes"></i> Apply to Selected…
-                  </button>
-                </div>
-              </div>
-              <div class="preset-controls">
-                <select id="titlePresetSelect" class="preset-dropdown">
-                  <option value="">Select preset...</option>
-                </select>
-                <!-- Blue preset buttons under preset select -->
-                <button class="preset-apply-btn" id="titleApplyAllBtn" title="Apply this preset to all tiles">
-                  <i class="fas fa-arrow-right"></i> Apply All
-                </button>
-                <button class="preset-apply-btn" id="titleApplySelectedBtn" title="Apply this preset to selected locales">
-                  <i class="fas fa-location-arrow"></i> Apply to Selected…
-                </button>
-              </div>
-              <!-- Headline Modifiers: Phrase + Value + Symbol (mirrors Subtitle Modifiers) -->
-              <div class="modifier-controls">
-                <div class="modifier-row preset-controls">
-                  <div class="modifier-inputs">
-                    <select id="titlePhraseSelect" class="preset-dropdown" title="Choose a phrase template">
-                      <option value="" disabled selected>Select preset...</option>
-                      <option value="save_up_to">Save up to</option>
+                  <div class="preset-controls">
+                    <select id="titlePresetSelect" class="preset-dropdown">
+                      <option value="">Select preset...</option>
                     </select>
-                    <input type="text" id="titlePercentInput" class="preset-dropdown" placeholder="value" title="Value to insert (number or text)" />
-                    <select id="titleSymbolSelect" class="preset-dropdown" title="Append symbol when template has none">
-                      <option value="none">No symbol</option>
-                      <option value="%">%</option>
-                      <option value="$">$</option>
-                      <option value="€">€</option>
-                      <option value="£">£</option>
-                      <option value="¥">¥</option>
-                    </select>
+                    <button class="preset-apply-btn" id="titleApplyAllBtn" title="Apply this preset to all tiles">
+                      <i class="fas fa-arrow-right"></i> Apply All
+                    </button>
+                    <button class="preset-apply-btn" id="titleApplySelectedBtn" title="Apply this preset to selected locales">
+                      <i class="fas fa-location-arrow"></i> Apply to Selected…
+                    </button>
                   </div>
-                  <button class="preset-apply-btn" id="titleModifiersApplyAllBtn" title="Compose and apply to all locales">
-                    <i class="fas fa-arrow-right"></i> Apply All
-                  </button>
-                  <button class="preset-apply-btn" id="titleModifiersApplySelectedBtn" title="Compose and apply to selected locales">
-                    <i class="fas fa-location-arrow"></i> Apply to Selected…
-                  </button>
+                  <!-- Headline Modifiers: Phrase + Value + Symbol (mirrors Subtitle Modifiers) -->
+                  <div class="modifier-controls">
+                    <div class="modifier-row preset-controls">
+                      <div class="modifier-inputs">
+                        <select id="titlePhraseSelect" class="preset-dropdown" title="Choose a phrase template">
+                          <option value="" disabled selected>Select preset...</option>
+                          <option value="save_up_to">Save up to</option>
+                        </select>
+                        <input type="text" id="titlePercentInput" class="preset-dropdown" placeholder="value" title="Value to insert (number or text)" />
+                        <select id="titleSymbolSelect" class="preset-dropdown" title="Append symbol when template has none">
+                          <option value="none">No symbol</option>
+                          <option value="%">%</option>
+                          <option value="$">$</option>
+                          <option value="€">€</option>
+                          <option value="£">£</option>
+                          <option value="¥">¥</option>
+                        </select>
+                      </div>
+                      <button class="preset-apply-btn" id="titleModifiersApplyAllBtn" title="Compose and apply to all locales">
+                        <i class="fas fa-arrow-right"></i> Apply All
+                      </button>
+                      <button class="preset-apply-btn" id="titleModifiersApplySelectedBtn" title="Compose and apply to selected locales">
+                        <i class="fas fa-location-arrow"></i> Apply to Selected…
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
             
             <div class="input-group">
-              <label for="subtitleInput">Subheadline</label>
-              <div class="input-row">
-                <div class="input-container">
-                  <input type="text" id="subtitleInput" value="New Season" />
-                  <div class="character-info">
-                    <div class="char-count">
-                      <span id="subtitleCharCount">0</span>
+              <div class="preset-section" data-section="subtitle">
+                <div class="preset-section-header">
+                  <div class="preset-section-title">Subheadline Preset</div>
+                  <div class="preset-section-controls">
+                    <div class="mode-toggle" role="tablist" aria-label="Subheadline mode">
+                      <button class="mode-btn active" data-mode="manual" aria-selected="true">Manual</button>
+                      <button class="mode-btn" data-mode="auto" aria-selected="false">Auto</button>
+                    </div>
+                    <label class="switch" title="Enable/disable Subheadline section">
+                      <input type="checkbox" class="section-enabled" data-target="subtitle" checked>
+                      <span class="slider"></span>
+                    </label>
+                    <button class="collapse-btn" aria-expanded="true" title="Collapse/Expand">▾</button>
+                  </div>
+                </div>
+                <div class="preset-section-body">
+                  <label for="subtitleInput">Subheadline</label>
+                  <div class="input-row">
+                    <div class="input-container">
+                      <input type="text" id="subtitleInput" value="New Season" />
+                      <div class="character-info">
+                        <div class="char-count">
+                          <span id="subtitleCharCount">0</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="manual-controls">
+                      <button class="manual-apply-btn" id="subtitleManualApplyBtn" title="Apply typed text to all tiles">
+                        <i class="fas fa-share"></i> Apply Text to All
+                      </button>
+                      <button class="manual-apply-btn" id="subtitleManualApplySelectedBtn" title="Apply typed text to selected locales">
+                        <i class="fas fa-share-nodes"></i> Apply to Selected…
+                      </button>
                     </div>
                   </div>
-                </div>
-                <div class="manual-controls">
-                  <button class="manual-apply-btn" id="subtitleManualApplyBtn" title="Apply typed text to all tiles">
-                    <i class="fas fa-share"></i> Apply Text to All
-                  </button>
-                  <button class="manual-apply-btn" id="subtitleManualApplySelectedBtn" title="Apply typed text to selected locales">
-                    <i class="fas fa-share-nodes"></i> Apply to Selected…
-                  </button>
-                </div>
-              </div>
-              <div class="preset-controls">
-                <select id="subtitlePresetSelect" class="preset-dropdown">
-                  <option value="">Select preset...</option>
-                </select>
-                <!-- Blue preset buttons under preset select -->
-                <button class="preset-apply-btn" id="subtitleApplyAllBtn" title="Apply this preset to all tiles">
-                  <i class="fas fa-arrow-right"></i> Apply All
-                </button>
-                <button class="preset-apply-btn" id="subtitleApplySelectedBtn" title="Apply this preset to selected locales">
-                  <i class="fas fa-location-arrow"></i> Apply to Selected…
-                </button>
-              </div>
-              <!-- Subtitle Modifiers: Auto-Localized Phrase + Percent -->
-              <div class="modifier-controls">
-                <div class="modifier-row preset-controls"> <!-- updated by Cascade: reuse preset-controls grid for right-aligned buttons -->
-                  <div class="modifier-inputs">
-                    <!-- removed label: Subtitle Modifiers -->
-                    <select id="subtitlePhraseSelect" class="preset-dropdown" title="Choose a phrase template">
-                      <option value="" disabled selected>Select preset...</option>
-                      <option value="save_up_to">Save up to</option>
+                  <div class="preset-controls">
+                    <select id="subtitlePresetSelect" class="preset-dropdown">
+                      <option value="">Select preset...</option>
                     </select>
-                    <input type="text" id="subtitlePercentInput" class="preset-dropdown" placeholder="value" title="Value to insert (number or text)" />
-                    <select id="subtitleSymbolSelect" class="preset-dropdown" title="Append symbol when template has none">
-                      <option value="none">No symbol</option>
-                      <option value="%">%</option>
-                      <option value="$">$</option>
-                      <option value="€">€</option>
-                      <option value="£">£</option>
-                      <option value="¥">¥</option>
-                    </select>
+                    <button class="preset-apply-btn" id="subtitleApplyAllBtn" title="Apply this preset to all tiles">
+                      <i class="fas fa-arrow-right"></i> Apply All
+                    </button>
+                    <button class="preset-apply-btn" id="subtitleApplySelectedBtn" title="Apply this preset to selected locales">
+                      <i class="fas fa-location-arrow"></i> Apply to Selected…
+                    </button>
                   </div>
-                  <button class="preset-apply-btn" id="subtitleModifiersApplyAllBtn" title="Compose and apply to all locales">
-                    <i class="fas fa-arrow-right"></i> Apply All
-                  </button>
-                  <button class="preset-apply-btn" id="subtitleModifiersApplySelectedBtn" title="Compose and apply to selected locales">
-                    <i class="fas fa-location-arrow"></i> Apply to Selected…
-                  </button>
+                  <!-- Subtitle Modifiers: Auto-Localized Phrase + Percent -->
+                  <div class="modifier-controls">
+                    <div class="modifier-row preset-controls"> <!-- updated by Cascade: reuse preset-controls grid for right-aligned buttons -->
+                      <div class="modifier-inputs">
+                        <!-- removed label: Subtitle Modifiers -->
+                        <select id="subtitlePhraseSelect" class="preset-dropdown" title="Choose a phrase template">
+                          <option value="" disabled selected>Select preset...</option>
+                          <option value="save_up_to">Save up to</option>
+                        </select>
+                        <input type="text" id="subtitlePercentInput" class="preset-dropdown" placeholder="value" title="Value to insert (number or text)" />
+                        <select id="subtitleSymbolSelect" class="preset-dropdown" title="Append symbol when template has none">
+                          <option value="none">No symbol</option>
+                          <option value="%">%</option>
+                          <option value="$">$</option>
+                          <option value="€">€</option>
+                          <option value="£">£</option>
+                          <option value="¥">¥</option>
+                        </select>
+                      </div>
+                      <button class="preset-apply-btn" id="subtitleModifiersApplyAllBtn" title="Compose and apply to all locales">
+                        <i class="fas fa-arrow-right"></i> Apply All
+                      </button>
+                      <button class="preset-apply-btn" id="subtitleModifiersApplySelectedBtn" title="Compose and apply to selected locales">
+                        <i class="fas fa-location-arrow"></i> Apply to Selected…
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
             
             <div class="input-group">
-              <label for="narratorInput">Narrator Text</label>
-              <div class="input-row">
-                <div class="input-container">
-                  <input type="text" id="narratorInput" value="Drop back into the original map" />
-                  <div class="character-info">
-                    <div class="char-count">
-                      <span id="narratorCharCount">0</span>
+              <div class="preset-section" data-section="narrator">
+                <div class="preset-section-header">
+                  <div class="preset-section-title">Narrator Preset</div>
+                  <div class="preset-section-controls">
+                    <div class="mode-toggle" role="tablist" aria-label="Narrator mode">
+                      <button class="mode-btn active" data-mode="manual" aria-selected="true">Manual</button>
+                      <button class="mode-btn" data-mode="auto" aria-selected="false">Auto</button>
+                    </div>
+                    <label class="switch" title="Enable/disable Narrator section">
+                      <input type="checkbox" class="section-enabled" data-target="narrator" checked>
+                      <span class="slider"></span>
+                    </label>
+                    <button class="collapse-btn" aria-expanded="true" title="Collapse/Expand">▾</button>
+                  </div>
+                </div>
+                <div class="preset-section-body">
+                  <label for="narratorInput">Narrator Text</label>
+                  <div class="input-row">
+                    <div class="input-container">
+                      <input type="text" id="narratorInput" value="Drop back into the original map" />
+                      <div class="character-info">
+                        <div class="char-count">
+                          <span id="narratorCharCount">0</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="manual-controls">
+                      <button class="manual-apply-btn" id="narratorManualApplyBtn" title="Apply typed text to all tiles">
+                        <i class="fas fa-share"></i> Apply Text to All
+                      </button>
+                      <button class="manual-apply-btn" id="narratorManualApplySelectedBtn" title="Apply typed text to selected locales">
+                        <i class="fas fa-share-nodes"></i> Apply to Selected…
+                      </button>
                     </div>
                   </div>
-                </div>
-                <div class="manual-controls">
-                  <button class="manual-apply-btn" id="narratorManualApplyBtn" title="Apply typed text to all tiles">
-                    <i class="fas fa-share"></i> Apply Text to All
-                  </button>
-                  <button class="manual-apply-btn" id="narratorManualApplySelectedBtn" title="Apply typed text to selected locales">
-                    <i class="fas fa-share-nodes"></i> Apply to Selected…
-                  </button>
-                </div>
-              </div>
-              <div class="preset-controls">
-                <select id="narratorPresetSelect" class="preset-dropdown">
-                  <option value="">Select preset...</option>
-                </select>
-                <!-- Blue preset buttons under preset select -->
-                <button class="preset-apply-btn" id="narratorApplyAllBtn" title="Apply this preset to all tiles">
-                  <i class="fas fa-arrow-right"></i> Apply All
-                </button>
-                <button class="preset-apply-btn" id="narratorApplySelectedBtn" title="Apply this preset to selected locales">
-                  <i class="fas fa-location-arrow"></i> Apply to Selected…
-                </button>
-              </div>
-              <!-- Narrator Modifiers: Phrase + Value + Symbol (mirrors Subtitle Modifiers) -->
-              <div class="modifier-controls">
-                <div class="modifier-row preset-controls">
-                  <div class="modifier-inputs">
-                    <select id="narratorPhraseSelect" class="preset-dropdown" title="Choose a phrase template">
-                      <option value="" disabled selected>Select preset...</option>
-                      <option value="save_up_to">Save up to</option>
+                  <div class="preset-controls">
+                    <select id="narratorPresetSelect" class="preset-dropdown">
+                      <option value="">Select preset...</option>
                     </select>
-                    <input type="text" id="narratorPercentInput" class="preset-dropdown" placeholder="value" title="Value to insert (number or text)" />
-                    <select id="narratorSymbolSelect" class="preset-dropdown" title="Append symbol when template has none">
-                      <option value="none">No symbol</option>
-                      <option value="%">%</option>
-                      <option value="$">$</option>
-                      <option value="€">€</option>
-                      <option value="£">£</option>
-                      <option value="¥">¥</option>
-                    </select>
+                    <button class="preset-apply-btn" id="narratorApplyAllBtn" title="Apply this preset to all tiles">
+                      <i class="fas fa-arrow-right"></i> Apply All
+                    </button>
+                    <button class="preset-apply-btn" id="narratorApplySelectedBtn" title="Apply this preset to selected locales">
+                      <i class="fas fa-location-arrow"></i> Apply to Selected…
+                    </button>
                   </div>
-                  <button class="preset-apply-btn" id="narratorModifiersApplyAllBtn" title="Compose and apply to all locales">
-                    <i class="fas fa-arrow-right"></i> Apply All
-                  </button>
-                  <button class="preset-apply-btn" id="narratorModifiersApplySelectedBtn" title="Compose and apply to selected locales">
-                    <i class="fas fa-location-arrow"></i> Apply to Selected…
-                  </button>
+                  <!-- Narrator Modifiers: Phrase + Value + Symbol (mirrors Subtitle Modifiers) -->
+                  <div class="modifier-controls">
+                    <div class="modifier-row preset-controls">
+                      <div class="modifier-inputs">
+                        <select id="narratorPhraseSelect" class="preset-dropdown" title="Choose a phrase template">
+                          <option value="" disabled selected>Select preset...</option>
+                          <option value="save_up_to">Save up to</option>
+                        </select>
+                        <input type="text" id="narratorPercentInput" class="preset-dropdown" placeholder="value" title="Value to insert (number or text)" />
+                        <select id="narratorSymbolSelect" class="preset-dropdown" title="Append symbol when template has none">
+                          <option value="none">No symbol</option>
+                          <option value="%">%</option>
+                          <option value="$">$</option>
+                          <option value="€">€</option>
+                          <option value="£">£</option>
+                          <option value="¥">¥</option>
+                        </select>
+                      </div>
+                      <button class="preset-apply-btn" id="narratorModifiersApplyAllBtn" title="Compose and apply to all locales">
+                        <i class="fas fa-arrow-right"></i> Apply All
+                      </button>
+                      <button class="preset-apply-btn" id="narratorModifiersApplySelectedBtn" title="Compose and apply to selected locales">
+                        <i class="fas fa-location-arrow"></i> Apply to Selected…
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
