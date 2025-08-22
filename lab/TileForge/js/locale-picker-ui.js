@@ -6,7 +6,14 @@ window.TileForgeLocalesUI = (function() {
   let onApplyCallback = null;
 
   function open(callback, preselect) {
-    selectedLocales = preselect && Array.isArray(preselect) ? [...preselect] : [];
+    // If no preselect or it's empty, default to all locales checked
+    if (Array.isArray(preselect) && preselect.length > 0) {
+      selectedLocales = [...preselect];
+    } else {
+      selectedLocales = window.TileForgeLocales && typeof window.TileForgeLocales.getAllLocales === 'function'
+        ? window.TileForgeLocales.getAllLocales()
+        : [];
+    }
     onApplyCallback = typeof callback === 'function' ? callback : null;
     renderList();
     document.getElementById('localePickerModal').classList.add('active');
