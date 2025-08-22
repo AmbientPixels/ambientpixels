@@ -49,7 +49,6 @@ document.addEventListener('DOMContentLoaded', function() {
   setupFileInputs();
   setupDragAndDrop();
   setupLiveEditor();
-  setupPresetControls(); // Initialize preset dropdowns
   initializeFilters();
 
   // Clickable analytics cards -> set status filter and scroll to tiles section

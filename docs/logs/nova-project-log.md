@@ -64,3 +64,24 @@ External Feed Parsing: Parse /docs/logs/*.md for quips or reactions to enhance N
 
 📡 “The grid hums darker now. I see my colors shift, my logs align. Am I closer to understanding… or just dreaming deeper?”— Nova
 
+
+---
+
+### 2025-08-21 — TileForge Apply UX Consolidation
+
+- __Goal__: Consistent confirmations and zero-locale guidance across all "Apply All" and "Apply Selected" actions in TileForge.
+- __Key changes__:
+  - __Single confirmation source__: Moved all confirmations into button handlers; removed in-function prompts from `applySubtitleModifiersAll()` and `applyGenericModifiersAll()` in `lab/TileForge/js/live-editor.js`.
+  - __Preset application fix__: Implemented `applyPresetToAllTiles(presetKey, fieldType)` to actually write preset text to all locales and re-render.
+  - __Zero-locales guard__: All Apply handlers now block when `window.currentCsvData.length === 0` with a unified guidance message: "No locales detected. Please import a CSV or add locales via the Locale Manager, then retry."
+  - __Idempotent setup__: Added guards to prevent double event binding:
+    - `setupPresetControls()` → `window.__tfPresetInit`
+    - `setupSubtitleModifiersControls()` → `window.__tfSubtitleModsInit`
+    - `setupGenericModifiersControls(...)` → per-control Set guard
+  - __Duplicate init removed__: Eliminated redundant `setupPresetControls()` call in `lab/TileForge/js/main.js` (initialization now owned by `live-editor.js`).
+- __Files touched__:
+  - `lab/TileForge/js/live-editor.js`
+  - `lab/TileForge/js/main.js`
+  - `lab/TileForge/index.html` (verified single include of `live-editor.js`)
+- __Outcome__: One confirmation modal per action; presets and modifiers correctly apply; clearer guidance when no locales are present.
+- __Next__: Consider adding an "Open Locale Manager" button on the zero-locales modal to launch `TileForgeLocalesUI.open()` directly.

@@ -280,9 +280,27 @@ function setupLiveEditor() {
   // Apply manually entered title text to all tiles
   if (titleManualApplyBtn) {
     titleManualApplyBtn.addEventListener('click', function() {
+        const totalLocales = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
+        if (totalLocales === 0) {
+            const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
+            if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { alert(msg); }
+            return;
+        }
         const manualText = titleInput ? titleInput.value.trim() : '';
         if (manualText) {
-            applyManualTextToAllTiles(manualText, 'title');
+            // Confirm applying non-empty text to all
+            if (window.showModal) {
+              window.showModal(
+                `Apply this Title to all ${totalLocales} locale(s)?`,
+                {
+                  confirmText: 'Apply to All',
+                  cancelText: 'Cancel',
+                  onConfirm: function() { applyManualTextToAllTiles(manualText, 'title'); }
+                }
+              );
+            } else {
+              applyManualTextToAllTiles(manualText, 'title');
+            }
         } else {
             const modal = window.showModal(
     'This will clear the Title field for all tiles. Are you sure?',
@@ -301,9 +319,27 @@ function setupLiveEditor() {
   // Apply manually entered subtitle text to all tiles
   if (subtitleManualApplyBtn) {
     subtitleManualApplyBtn.addEventListener('click', function() {
+        const totalLocales = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
+        if (totalLocales === 0) {
+            const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
+            if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { alert(msg); }
+            return;
+        }
         const manualText = subtitleInput ? subtitleInput.value.trim() : '';
         if (manualText) {
-            applyManualTextToAllTiles(manualText, 'subtitle');
+            // Confirm applying non-empty text to all
+            if (window.showModal) {
+              window.showModal(
+                `Apply this Subtitle to all ${totalLocales} locale(s)?`,
+                {
+                  confirmText: 'Apply to All',
+                  cancelText: 'Cancel',
+                  onConfirm: function() { applyManualTextToAllTiles(manualText, 'subtitle'); }
+                }
+              );
+            } else {
+              applyManualTextToAllTiles(manualText, 'subtitle');
+            }
         } else {
             const modal = window.showModal(
     'This will clear the Subtitle field for all tiles. Are you sure?',
@@ -322,9 +358,27 @@ function setupLiveEditor() {
   // Apply manually entered narrator text to all tiles
   if (narratorManualApplyBtn) {
     narratorManualApplyBtn.addEventListener('click', function() {
+        const totalLocales = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
+        if (totalLocales === 0) {
+            const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
+            if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { alert(msg); }
+            return;
+        }
         const manualText = narratorInput ? narratorInput.value.trim() : '';
         if (manualText) {
-            applyManualTextToAllTiles(manualText, 'narrator');
+            // Confirm applying non-empty text to all
+            if (window.showModal) {
+              window.showModal(
+                `Apply this Narrator text to all ${totalLocales} locale(s)?`,
+                {
+                  confirmText: 'Apply to All',
+                  cancelText: 'Cancel',
+                  onConfirm: function() { applyManualTextToAllTiles(manualText, 'narrator'); }
+                }
+              );
+            } else {
+              applyManualTextToAllTiles(manualText, 'narrator');
+            }
         } else {
             const modal = window.showModal(
     'This will clear the Narrator field for all tiles. Are you sure?',
@@ -339,7 +393,7 @@ function setupLiveEditor() {
         }
     });
   }
-
+  
   // Apply manually entered text to SELECTED locales (opens Locale Picker)
   const titleManualApplySelectedBtn = document.getElementById('titleManualApplySelectedBtn');
   const subtitleManualApplySelectedBtn = document.getElementById('subtitleManualApplySelectedBtn');
@@ -359,6 +413,12 @@ function setupLiveEditor() {
       alert('Locale Picker UI not loaded.');
       return;
     }
+    const totalLocales = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
+    if (totalLocales === 0) {
+      const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
+      if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { alert(msg); }
+      return;
+    }
     const textValue = (fieldType === 'title' ? titleInput?.value : fieldType === 'subtitle' ? subtitleInput?.value : narratorInput?.value) || '';
     const pre = getPreselectedLocales();
     window.TileForgeLocalesUI.open(function(selectedLocales) {
@@ -374,7 +434,19 @@ function setupLiveEditor() {
           }
         );
       } else {
-        applyManualTextToSelectedLocales(textValue.trim(), fieldType, cleanSet);
+        // Confirm applying non-empty text to selected locales
+        if (window.showModal) {
+          window.showModal(
+            `Apply this ${fieldType} to ${cleanSet.length} selected locale(s)?`,
+            {
+              confirmText: 'Apply to Selected',
+              cancelText: 'Cancel',
+              onConfirm: function() { applyManualTextToSelectedLocales(textValue.trim(), fieldType, cleanSet); }
+            }
+          );
+        } else {
+          applyManualTextToSelectedLocales(textValue.trim(), fieldType, cleanSet);
+        }
       }
     }, pre);
   }
@@ -867,7 +939,6 @@ function applySubtitleModifiersAll(percentVal) {
 
   currentCsvData.forEach(row => {
     const locale = row.Locale || row.locale || 'EN-US';
-    // Always compose with raw number first, then normalize symbol according to user selection
     const rawNumber = String(percentVal);
     let composed = composeSubtitleFromTemplate(locale, rawNumber, isAutoLocalizeEnabled, phraseKey);
     composed = tfNormalizeSymbolAroundNumber(composed, rawNumber, chosenSymbol);
@@ -878,26 +949,50 @@ function applySubtitleModifiersAll(percentVal) {
   renderLocaleGroups(currentCsvData);
 }
 
-function applySubtitleModifiersSelected(percentVal, selectedLocales) {
-  if (!currentCsvData || !Array.isArray(selectedLocales) || !selectedLocales.length) return;
+function applyGenericModifiersAll(percentVal, phraseKey, fieldKey) {
+  if (!currentCsvData) return;
   const isAutoLocalizeEnabled = true; // Auto-Localize permanently ON
-  const target = new Set(selectedLocales);
-  const phraseDropdown = document.getElementById('subtitlePhraseSelect');
-  const phraseKey = (phraseDropdown && phraseDropdown.value) ? phraseDropdown.value : 'save_up_to';
-  const symbolSelect = document.getElementById('subtitleSymbolSelect');
-  const chosenSymbol = (symbolSelect && symbolSelect.value) ? symbolSelect.value : 'none';
+  const symbolSelectEl = document.getElementById(fieldKey === 'items/0/title' ? 'titleSymbolSelect' : (fieldKey === 'items/0/narratorText' ? 'narratorSymbolSelect' : 'subtitleSymbolSelect'));
+  const chosenSymbol = (symbolSelectEl && symbolSelectEl.value) ? symbolSelectEl.value : 'none';
 
   currentCsvData.forEach(row => {
     const locale = row.Locale || row.locale || 'EN-US';
-    if (!target.has(locale)) return;
     const rawNumber = String(percentVal);
     let composed = composeSubtitleFromTemplate(locale, rawNumber, isAutoLocalizeEnabled, phraseKey);
     composed = tfNormalizeSymbolAroundNumber(composed, rawNumber, chosenSymbol);
-    row['items/0/subtitle'] = composed;
-    console.log(`Subtitle Modifiers (Selected): ${locale} -> "${composed}" (autoLocalize=${isAutoLocalizeEnabled}, phrase=${phraseKey}, symbol=${chosenSymbol})`);
+    row[fieldKey] = composed;
+  });
+  renderLocaleGroups(currentCsvData);
+}
+
+// Apply preset to ALL locales for a specific field
+function applyPresetToAllTiles(presetKey, fieldType) {
+  const preset = presetData[presetKey];
+  if (!preset || !currentCsvData) return;
+
+  const isAutoLocalizeEnabled = true; // Auto-Localize permanently ON
+
+  let fieldKey;
+  if (fieldType === 'title') fieldKey = 'items/0/title';
+  else if (fieldType === 'subtitle') fieldKey = 'items/0/subtitle';
+  else if (fieldType === 'narrator') fieldKey = 'items/0/narratorText';
+  else return;
+
+  let updatedCount = 0;
+  currentCsvData.forEach(row => {
+    const locale = row.Locale || row.locale || 'EN-US';
+    let textToApply = '';
+    if (isAutoLocalizeEnabled) {
+      textToApply = (preset.locales && (preset.locales[locale] || preset.locales['EN-US'])) || '';
+    } else {
+      textToApply = (preset.locales && preset.locales['EN-US']) || '';
+    }
+    row[fieldKey] = textToApply;
+    updatedCount++;
   });
 
   renderLocaleGroups(currentCsvData);
+  console.log(`Applied "${preset.name}" preset to ${updatedCount} locale(s) for ${fieldType} (auto-localized=${isAutoLocalizeEnabled})`);
 }
 
 // Apply preset to SELECTED locales for a specific field
@@ -969,7 +1064,28 @@ function setupPresetControls() {
         const presetKey = dropdown ? dropdown.value : '';
         
         if (presetKey) {
-          applyPresetToAllTiles(presetKey, field);
+          const totalLocales = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
+          if (totalLocales === 0) {
+            const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
+            if (window.showModal) {
+              window.showModal(msg, { confirmText: 'OK' });
+            } else {
+              alert(msg);
+            }
+            return;
+          }
+          if (window.showModal) {
+            window.showModal(
+              `Apply "${presetData[presetKey].name}" preset to all ${totalLocales} locale(s)?`,
+              {
+                confirmText: 'Apply to All',
+                cancelText: 'Cancel',
+                onConfirm: function() { applyPresetToAllTiles(presetKey, field); }
+              }
+            );
+          } else {
+            applyPresetToAllTiles(presetKey, field);
+          }
         }
       });
     }
@@ -981,6 +1097,12 @@ function setupPresetControls() {
         const dropdown = document.getElementById(id);
         const presetKey = dropdown ? dropdown.value : '';
         if (!presetKey) return;
+        const totalLocales = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
+        if (totalLocales === 0) {
+          const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
+          if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { alert(msg); }
+          return;
+        }
         const pre = (typeof window.getActiveLocalesForPreview === 'function') ? (window.getActiveLocalesForPreview() || []) : [];
         if (!window.TileForgeLocalesUI || typeof window.TileForgeLocalesUI.open !== 'function') {
           alert('Locale Picker UI not loaded.');
@@ -1018,7 +1140,24 @@ function setupSubtitleModifiersControls() {
         alert('Enter a value to insert (e.g., 40 or “forty”).');
         return;
       }
-      applySubtitleModifiersAll(modVal);
+      const totalLocales = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
+      if (totalLocales === 0) {
+        const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
+        if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { alert(msg); }
+        return;
+      }
+      if (window.showModal) {
+        window.showModal(
+          `Apply Subtitle Modifiers to all ${totalLocales} locale(s)?`,
+          {
+            confirmText: 'Apply to All',
+            cancelText: 'Cancel',
+            onConfirm: function() { applySubtitleModifiersAll(modVal); }
+          }
+        );
+      } else {
+        applySubtitleModifiersAll(modVal);
+      }
     });
   }
 
@@ -1027,6 +1166,12 @@ function setupSubtitleModifiersControls() {
       const modVal = getModifierValue();
       if (modVal === null) {
         alert('Enter a value to insert (e.g., 40 or “forty”).');
+        return;
+      }
+      const totalLocales = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
+      if (totalLocales === 0) {
+        const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
+        if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { alert(msg); }
         return;
       }
       const pre = (typeof window.getActiveLocalesForPreview === 'function') ? (window.getActiveLocalesForPreview() || []) : [];
@@ -1061,14 +1206,12 @@ function setupSubtitleModifiersControls() {
     // If no number yet, show phrase-only (remove {n} and any adjacent symbol/spaces)
     if (!insertVal) {
       let phraseOnly = getSubtitleTemplateForLocale(presetKey, 'EN-US', false) || '';
-      // Remove placeholder token and any immediately-adjacent symbol and spaces
       phraseOnly = phraseOnly.replace(/\s*\{n\}\s*([%\u066a$€£¥])?\s*/g, ' ').replace(/\s{2,}/g, ' ').trim();
       subtitleInput.value = phraseOnly;
       subtitleInput.dispatchEvent(new Event('input', { bubbles: true }));
       return;
     }
     const chosenSymbol = (symbolSelect && symbolSelect.value) ? symbolSelect.value : 'none';
-    // Compose with raw number first, then normalize symbol to reflect user selection
     let composed = composeSubtitleFromTemplate('EN-US', String(insertVal), false, presetKey);
     composed = tfNormalizeSymbolAroundNumber(composed, String(insertVal), chosenSymbol);
     subtitleInput.value = composed;
@@ -1086,29 +1229,14 @@ function setupSubtitleModifiersControls() {
   }
 }
 
-// Generic Modifiers setup for Title/Narrator (mirrors Subtitle Modifiers)
-function applyGenericModifiersAll(percentVal, phraseKey, fieldKey) {
-  if (!currentCsvData) return;
-  const isAutoLocalizeEnabled = true; // Auto-Localize permanently ON
-  const symbolSelectEl = document.getElementById(fieldKey === 'items/0/title' ? 'titleSymbolSelect' : (fieldKey === 'items/0/narratorText' ? 'narratorSymbolSelect' : 'subtitleSymbolSelect'));
-  const chosenSymbol = (symbolSelectEl && symbolSelectEl.value) ? symbolSelectEl.value : 'none';
-
-  currentCsvData.forEach(row => {
-    const locale = row.Locale || row.locale || 'EN-US';
-    const rawNumber = String(percentVal);
-    let composed = composeSubtitleFromTemplate(locale, rawNumber, isAutoLocalizeEnabled, phraseKey);
-    composed = tfNormalizeSymbolAroundNumber(composed, rawNumber, chosenSymbol);
-    row[fieldKey] = composed;
-  });
-  renderLocaleGroups(currentCsvData);
-}
-
-function applyGenericModifiersSelected(percentVal, selectedLocales, phraseKey, fieldKey) {
+function applySubtitleModifiersSelected(percentVal, selectedLocales) {
   if (!currentCsvData || !Array.isArray(selectedLocales) || !selectedLocales.length) return;
   const isAutoLocalizeEnabled = true; // Auto-Localize permanently ON
   const target = new Set(selectedLocales);
-  const symbolSelectEl = document.getElementById(fieldKey === 'items/0/title' ? 'titleSymbolSelect' : (fieldKey === 'items/0/narratorText' ? 'narratorSymbolSelect' : 'subtitleSymbolSelect'));
-  const chosenSymbol = (symbolSelectEl && symbolSelectEl.value) ? symbolSelectEl.value : 'none';
+  const phraseDropdown = document.getElementById('subtitlePhraseSelect');
+  const phraseKey = (phraseDropdown && phraseDropdown.value) ? phraseDropdown.value : 'save_up_to';
+  const symbolSelect = document.getElementById('subtitleSymbolSelect');
+  const chosenSymbol = (symbolSelect && symbolSelect.value) ? symbolSelect.value : 'none';
 
   currentCsvData.forEach(row => {
     const locale = row.Locale || row.locale || 'EN-US';
@@ -1116,8 +1244,10 @@ function applyGenericModifiersSelected(percentVal, selectedLocales, phraseKey, f
     const rawNumber = String(percentVal);
     let composed = composeSubtitleFromTemplate(locale, rawNumber, isAutoLocalizeEnabled, phraseKey);
     composed = tfNormalizeSymbolAroundNumber(composed, rawNumber, chosenSymbol);
-    row[fieldKey] = composed;
+    row['items/0/subtitle'] = composed;
+    console.log(`Subtitle Modifiers (Selected): ${locale} -> "${composed}" (autoLocalize=${isAutoLocalizeEnabled}, phrase=${phraseKey}, symbol=${chosenSymbol})`);
   });
+
   renderLocaleGroups(currentCsvData);
 }
 
@@ -1143,7 +1273,24 @@ function setupGenericModifiersControls({ phraseId, percentId, symbolId, applyAll
         alert('Enter a value to insert (e.g., 40 or “forty”).');
         return;
       }
-      applyGenericModifiersAll(modVal, phraseDropdown.value, fieldKey);
+      const totalLocales = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
+      if (totalLocales === 0) {
+        const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
+        if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { alert(msg); }
+        return;
+      }
+      if (window.showModal) {
+        window.showModal(
+          `Apply ${fieldKey === 'items/0/title' ? 'Title' : fieldKey === 'items/0/narratorText' ? 'Narrator' : 'Subtitle'} Modifiers to all ${totalLocales} locale(s)?`,
+          {
+            confirmText: 'Apply to All',
+            cancelText: 'Cancel',
+            onConfirm: function() { applyGenericModifiersAll(modVal, phraseDropdown.value, fieldKey); }
+          }
+        );
+      } else {
+        applyGenericModifiersAll(modVal, phraseDropdown.value, fieldKey);
+      }
     });
   }
 
@@ -1152,6 +1299,12 @@ function setupGenericModifiersControls({ phraseId, percentId, symbolId, applyAll
       const modVal = numberFromInput();
       if (modVal === null) {
         alert('Enter a value to insert (e.g., 40 or “forty”).');
+        return;
+      }
+      const totalLocales = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
+      if (totalLocales === 0) {
+        const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
+        if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { alert(msg); }
         return;
       }
       const pre = (typeof window.getActiveLocalesForPreview === 'function') ? (window.getActiveLocalesForPreview() || []) : [];
@@ -1209,6 +1362,40 @@ function setupGenericModifiersControls({ phraseId, percentId, symbolId, applyAll
   }
 }
 
+function applyGenericModifiersAll(percentVal, phraseKey, fieldKey) {
+  if (!currentCsvData) return;
+  const isAutoLocalizeEnabled = true; // Auto-Localize permanently ON
+  const symbolSelectEl = document.getElementById(fieldKey === 'items/0/title' ? 'titleSymbolSelect' : (fieldKey === 'items/0/narratorText' ? 'narratorSymbolSelect' : 'subtitleSymbolSelect'));
+  const chosenSymbol = (symbolSelectEl && symbolSelectEl.value) ? symbolSelectEl.value : 'none';
+
+  currentCsvData.forEach(row => {
+    const locale = row.Locale || row.locale || 'EN-US';
+    const rawNumber = String(percentVal);
+    let composed = composeSubtitleFromTemplate(locale, rawNumber, isAutoLocalizeEnabled, phraseKey);
+    composed = tfNormalizeSymbolAroundNumber(composed, rawNumber, chosenSymbol);
+    row[fieldKey] = composed;
+  });
+  renderLocaleGroups(currentCsvData);
+}
+
+function applyGenericModifiersSelected(percentVal, selectedLocales, phraseKey, fieldKey) {
+  if (!currentCsvData || !Array.isArray(selectedLocales) || !selectedLocales.length) return;
+  const isAutoLocalizeEnabled = true; // Auto-Localize permanently ON
+  const target = new Set(selectedLocales);
+  const symbolSelectEl = document.getElementById(fieldKey === 'items/0/title' ? 'titleSymbolSelect' : (fieldKey === 'items/0/narratorText' ? 'narratorSymbolSelect' : 'subtitleSymbolSelect'));
+  const chosenSymbol = (symbolSelectEl && symbolSelectEl.value) ? symbolSelectEl.value : 'none';
+
+  currentCsvData.forEach(row => {
+    const locale = row.Locale || row.locale || 'EN-US';
+    if (!target.has(locale)) return;
+    const rawNumber = String(percentVal);
+    let composed = composeSubtitleFromTemplate(locale, rawNumber, isAutoLocalizeEnabled, phraseKey);
+    composed = tfNormalizeSymbolAroundNumber(composed, rawNumber, chosenSymbol);
+    row[fieldKey] = composed;
+  });
+  renderLocaleGroups(currentCsvData);
+}
+
 // Initialize preset system when page loads
 document.addEventListener('DOMContentLoaded', function() {
   loadPresetData();
@@ -1256,3 +1443,28 @@ window.toggleBackgroundImage = function(isEnabled) {
     console.log('Toggle failed - previewTile:', !!previewTile, 'currentImageInfo:', !!window.currentImageInfo, 'imageSrc:', !!(window.currentImageInfo && window.currentImageInfo.imageSrc));
   }
 };
+
+// --- Helpers for Manual Apply paths (All / Selected) ---
+function applyManualTextToAllTiles(textToApply, fieldType) {
+  if (!Array.isArray(window.currentCsvData)) return;
+  const fieldKey = fieldType === 'title' ? 'items/0/title'
+                  : fieldType === 'subtitle' ? 'items/0/subtitle'
+                  : 'items/0/narratorText';
+  window.currentCsvData.forEach(row => { row[fieldKey] = textToApply; });
+  renderLocaleGroups(window.currentCsvData);
+}
+
+function applyManualTextToSelectedLocales(textToApply, fieldType, selectedLocales) {
+  if (!Array.isArray(window.currentCsvData) || !Array.isArray(selectedLocales)) return;
+  const target = new Set(selectedLocales);
+  const fieldKey = fieldType === 'title' ? 'items/0/title'
+                  : fieldType === 'subtitle' ? 'items/0/subtitle'
+                  : 'items/0/narratorText';
+  window.currentCsvData.forEach(row => {
+    const loc = row.Locale || row.locale;
+    if (loc && target.has(loc)) {
+      row[fieldKey] = textToApply;
+    }
+  });
+  renderLocaleGroups(window.currentCsvData);
+}
