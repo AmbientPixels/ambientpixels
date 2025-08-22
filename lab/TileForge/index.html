@@ -395,6 +395,32 @@
                   <i class="fas fa-location-arrow"></i> Apply to Selected…
                 </button>
               </div>
+              <!-- Headline Modifiers: Phrase + Value + Symbol (mirrors Subtitle Modifiers) -->
+              <div class="modifier-controls">
+                <div class="modifier-row preset-controls">
+                  <div class="modifier-inputs">
+                    <select id="titlePhraseSelect" class="preset-dropdown" title="Choose a phrase template">
+                      <option value="" disabled selected>Select preset...</option>
+                      <option value="save_up_to">Save up to</option>
+                    </select>
+                    <input type="text" id="titlePercentInput" class="preset-dropdown" placeholder="value" title="Value to insert (number or text)" />
+                    <select id="titleSymbolSelect" class="preset-dropdown" title="Append symbol when template has none">
+                      <option value="none">No symbol</option>
+                      <option value="%">%</option>
+                      <option value="$">$</option>
+                      <option value="€">€</option>
+                      <option value="£">£</option>
+                      <option value="¥">¥</option>
+                    </select>
+                  </div>
+                  <button class="preset-apply-btn" id="titleModifiersApplyAllBtn" title="Compose and apply to all locales">
+                    <i class="fas fa-arrow-right"></i> Apply All
+                  </button>
+                  <button class="preset-apply-btn" id="titleModifiersApplySelectedBtn" title="Compose and apply to selected locales">
+                    <i class="fas fa-location-arrow"></i> Apply to Selected…
+                  </button>
+                </div>
+              </div>
             </div>
             
             <div class="input-group">
@@ -438,7 +464,7 @@
                       <option value="" disabled selected>Select preset...</option>
                       <option value="save_up_to">Save up to</option>
                     </select>
-                    <input type="text" id="subtitlePercentInput" placeholder="value" title="Value to insert (number or text)" />
+                    <input type="text" id="subtitlePercentInput" class="preset-dropdown" placeholder="value" title="Value to insert (number or text)" />
                     <select id="subtitleSymbolSelect" class="preset-dropdown" title="Append symbol when template has none">
                       <option value="none">No symbol</option>
                       <option value="%">%</option>
@@ -489,6 +515,32 @@
                 <button class="preset-apply-btn" id="narratorApplySelectedBtn" title="Apply this preset to selected locales">
                   <i class="fas fa-location-arrow"></i> Apply to Selected…
                 </button>
+              </div>
+              <!-- Narrator Modifiers: Phrase + Value + Symbol (mirrors Subtitle Modifiers) -->
+              <div class="modifier-controls">
+                <div class="modifier-row preset-controls">
+                  <div class="modifier-inputs">
+                    <select id="narratorPhraseSelect" class="preset-dropdown" title="Choose a phrase template">
+                      <option value="" disabled selected>Select preset...</option>
+                      <option value="save_up_to">Save up to</option>
+                    </select>
+                    <input type="text" id="narratorPercentInput" class="preset-dropdown" placeholder="value" title="Value to insert (number or text)" />
+                    <select id="narratorSymbolSelect" class="preset-dropdown" title="Append symbol when template has none">
+                      <option value="none">No symbol</option>
+                      <option value="%">%</option>
+                      <option value="$">$</option>
+                      <option value="€">€</option>
+                      <option value="£">£</option>
+                      <option value="¥">¥</option>
+                    </select>
+                  </div>
+                  <button class="preset-apply-btn" id="narratorModifiersApplyAllBtn" title="Compose and apply to all locales">
+                    <i class="fas fa-arrow-right"></i> Apply All
+                  </button>
+                  <button class="preset-apply-btn" id="narratorModifiersApplySelectedBtn" title="Compose and apply to selected locales">
+                    <i class="fas fa-location-arrow"></i> Apply to Selected…
+                  </button>
+                </div>
               </div>
             </div>
             

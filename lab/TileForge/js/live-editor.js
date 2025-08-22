@@ -1020,11 +1020,142 @@ function setupSubtitleModifiersControls() {
   }
 }
 
+// Generic Modifiers setup for Title/Narrator (mirrors Subtitle Modifiers)
+function applyGenericModifiersAll(percentVal, phraseKey, fieldKey) {
+  if (!currentCsvData) return;
+  const autoLocalizeToggle = document.getElementById('autoLocalizeToggle');
+  const isAutoLocalizeEnabled = autoLocalizeToggle ? autoLocalizeToggle.checked : true;
+  const symbolSelectEl = document.getElementById(fieldKey === 'items/0/title' ? 'titleSymbolSelect' : (fieldKey === 'items/0/narratorText' ? 'narratorSymbolSelect' : 'subtitleSymbolSelect'));
+  const chosenSymbol = (symbolSelectEl && symbolSelectEl.value) ? symbolSelectEl.value : 'none';
+
+  currentCsvData.forEach(row => {
+    const locale = row.Locale || row.locale || 'EN-US';
+    const rawNumber = String(percentVal);
+    let composed = composeSubtitleFromTemplate(locale, rawNumber, isAutoLocalizeEnabled, phraseKey);
+    composed = tfNormalizeSymbolAroundNumber(composed, rawNumber, chosenSymbol);
+    row[fieldKey] = composed;
+  });
+  renderLocaleGroups(currentCsvData);
+}
+
+function applyGenericModifiersSelected(percentVal, selectedLocales, phraseKey, fieldKey) {
+  if (!currentCsvData || !Array.isArray(selectedLocales) || !selectedLocales.length) return;
+  const autoLocalizeToggle = document.getElementById('autoLocalizeToggle');
+  const isAutoLocalizeEnabled = autoLocalizeToggle ? autoLocalizeToggle.checked : true;
+  const target = new Set(selectedLocales);
+  const symbolSelectEl = document.getElementById(fieldKey === 'items/0/title' ? 'titleSymbolSelect' : (fieldKey === 'items/0/narratorText' ? 'narratorSymbolSelect' : 'subtitleSymbolSelect'));
+  const chosenSymbol = (symbolSelectEl && symbolSelectEl.value) ? symbolSelectEl.value : 'none';
+
+  currentCsvData.forEach(row => {
+    const locale = row.Locale || row.locale || 'EN-US';
+    if (!target.has(locale)) return;
+    const rawNumber = String(percentVal);
+    let composed = composeSubtitleFromTemplate(locale, rawNumber, isAutoLocalizeEnabled, phraseKey);
+    composed = tfNormalizeSymbolAroundNumber(composed, rawNumber, chosenSymbol);
+    row[fieldKey] = composed;
+  });
+  renderLocaleGroups(currentCsvData);
+}
+
+function setupGenericModifiersControls({ phraseId, percentId, symbolId, applyAllId, applySelectedId, inputId, fieldKey }) {
+  const phraseDropdown = document.getElementById(phraseId);
+  const percentInput = document.getElementById(percentId);
+  const symbolSelect = document.getElementById(symbolId);
+  const applyAllBtn = document.getElementById(applyAllId);
+  const applySelectedBtn = document.getElementById(applySelectedId);
+
+  function numberFromInput() {
+    let v = (percentInput && typeof percentInput.value === 'string') ? percentInput.value.trim() : '';
+    if (v.endsWith('%')) v = v.slice(0, -1).trim();
+    return v;
+  }
+
+  function updatePreview() {
+    const inputEl = document.getElementById(inputId);
+    if (!inputEl || !phraseDropdown) return;
+    const presetKey = phraseDropdown.value;
+    if (!presetKey) {
+      inputEl.value = '';
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+      return;
+    }
+    let insertVal = numberFromInput();
+    if (!insertVal) {
+      let phraseOnly = getSubtitleTemplateForLocale(presetKey, 'EN-US', false) || '';
+      phraseOnly = phraseOnly.replace(/\s*\{n\}\s*([%\u066a$€£¥])?\s*/g, ' ').replace(/\s{2,}/g, ' ').trim();
+      inputEl.value = phraseOnly;
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+      return;
+    }
+    const chosenSymbol = (symbolSelect && symbolSelect.value) ? symbolSelect.value : 'none';
+    let composed = composeSubtitleFromTemplate('EN-US', String(insertVal), false, presetKey);
+    composed = tfNormalizeSymbolAroundNumber(composed, String(insertVal), chosenSymbol);
+    inputEl.value = composed;
+    inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  if (phraseDropdown) phraseDropdown.addEventListener('change', updatePreview);
+  if (percentInput) percentInput.addEventListener('input', updatePreview);
+  if (symbolSelect) symbolSelect.addEventListener('change', updatePreview);
+
+  function doApplyAll() {
+    const presetKey = phraseDropdown ? phraseDropdown.value : '';
+    const val = numberFromInput();
+    if (!presetKey) return;
+    if (!val) {
+      alert('Enter a value to insert (e.g., 40 or “forty”).');
+      return;
+    }
+    applyGenericModifiersAll(val, presetKey, fieldKey);
+  }
+
+  function doApplySelected() {
+    const presetKey = phraseDropdown ? phraseDropdown.value : '';
+    const val = numberFromInput();
+    if (!presetKey) return;
+    if (!val) {
+      alert('Enter a value to insert (e.g., 40 or “forty”).');
+      return;
+    }
+    const pre = (typeof window.getActiveLocalesForPreview === 'function') ? (window.getActiveLocalesForPreview() || []) : [];
+    if (!window.TileForgeLocalesUI || typeof window.TileForgeLocalesUI.open !== 'function') {
+      alert('Locale Picker UI not loaded.');
+      return;
+    }
+    window.TileForgeLocalesUI.open(function(selectedLocales){
+      if (Array.isArray(selectedLocales) && selectedLocales.length) {
+        applyGenericModifiersSelected(val, selectedLocales, presetKey, fieldKey);
+      }
+    }, pre);
+  }
+
+  if (applyAllBtn) applyAllBtn.addEventListener('click', doApplyAll);
+  if (applySelectedBtn) applySelectedBtn.addEventListener('click', doApplySelected);
+}
+
 // Initialize preset system when page loads
 document.addEventListener('DOMContentLoaded', function() {
   loadPresetData();
   setupPresetControls();
   setupSubtitleModifiersControls();
+  setupGenericModifiersControls({
+    phraseId: 'titlePhraseSelect',
+    percentId: 'titlePercentInput',
+    symbolId: 'titleSymbolSelect',
+    applyAllId: 'titleModifiersApplyAllBtn',
+    applySelectedId: 'titleModifiersApplySelectedBtn',
+    inputId: 'titleInput',
+    fieldKey: 'items/0/title'
+  });
+  setupGenericModifiersControls({
+    phraseId: 'narratorPhraseSelect',
+    percentId: 'narratorPercentInput',
+    symbolId: 'narratorSymbolSelect',
+    applyAllId: 'narratorModifiersApplyAllBtn',
+    applySelectedId: 'narratorModifiersApplySelectedBtn',
+    inputId: 'narratorInput',
+    fieldKey: 'items/0/narratorText'
+  });
 });
 
 // Background Image Toggle Function
