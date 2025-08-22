@@ -417,12 +417,25 @@
                   </button>
                 </div>
               </div>
+              <div class="preset-controls">
+                <select id="subtitlePresetSelect" class="preset-dropdown">
+                  <option value="">Select preset...</option>
+                </select>
+                <!-- Blue preset buttons under preset select -->
+                <button class="preset-apply-btn" id="subtitleApplyAllBtn" title="Apply this preset to all tiles">
+                  <i class="fas fa-arrow-right"></i> Apply All
+                </button>
+                <button class="preset-apply-btn" id="subtitleApplySelectedBtn" title="Apply this preset to selected locales">
+                  <i class="fas fa-location-arrow"></i> Apply to Selected…
+                </button>
+              </div>
               <!-- Subtitle Modifiers: Auto-Localized Phrase + Percent -->
               <div class="modifier-controls">
                 <div class="modifier-row preset-controls"> <!-- updated by Cascade: reuse preset-controls grid for right-aligned buttons -->
                   <div class="modifier-inputs">
-                    <label for="subtitlePhraseSelect" class="modifier-label">Subtitle Modifiers</label>
+                    <!-- removed label: Subtitle Modifiers -->
                     <select id="subtitlePhraseSelect" class="preset-dropdown" title="Choose a phrase template">
+                      <option value="" disabled selected>Select preset...</option>
                       <option value="save_up_to">Save up to</option>
                     </select>
                     <input type="text" id="subtitlePercentInput" placeholder="value" title="Value to insert (number or text)" />
@@ -442,18 +455,6 @@
                     <i class="fas fa-location-arrow"></i> Apply to Selected…
                   </button>
                 </div>
-              </div>
-              <div class="preset-controls">
-                <select id="subtitlePresetSelect" class="preset-dropdown">
-                  <option value="">Select preset...</option>
-                </select>
-                <!-- Blue preset buttons under preset select -->
-                <button class="preset-apply-btn" id="subtitleApplyAllBtn" title="Apply this preset to all tiles">
-                  <i class="fas fa-arrow-right"></i> Apply All
-                </button>
-                <button class="preset-apply-btn" id="subtitleApplySelectedBtn" title="Apply this preset to selected locales">
-                  <i class="fas fa-location-arrow"></i> Apply to Selected…
-                </button>
               </div>
             </div>
             
