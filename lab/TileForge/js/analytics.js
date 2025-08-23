@@ -329,6 +329,28 @@ function renderLocaleBadgeArea() {
     badgesSection.classList.toggle('has-badges', badges.length > 0);
   }
   badges.forEach(b => {
+    // Anchor wrapper for deep linking to the locale section
+    const anchor = document.createElement('a');
+    const targetId = `locale-${String(b.code).replace(/[^A-Za-z0-9_-]/g, '-')}`;
+    anchor.href = `#${targetId}`;
+    anchor.className = 'locale-pill-link';
+    anchor.addEventListener('click', function(e){
+      // Smooth-scroll to the section if present; preserve hash behavior
+      const target = document.getElementById(targetId);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Optionally focus header for accessibility
+        const header = target.querySelector('.locale-header');
+        if (header && header.focus) {
+          header.setAttribute('tabindex', '-1');
+          header.focus({ preventScroll: true });
+        }
+        // Update hash after scroll
+        history.pushState(null, '', `#${targetId}`);
+      }
+    });
+
     const badge = document.createElement('span');
     // Reuse existing badge styling; add status as modifier class
     const lang = (b.code || '').split('-')[0].toLowerCase();
@@ -336,7 +358,8 @@ function renderLocaleBadgeArea() {
     badge.dataset.lang = lang; // for future hooks/telemetry
     badge.title = `${b.code}: ${b.clean} clean, ${b.near} near, ${b.overflow} overflow`;
     badge.textContent = b.code;
-    host.appendChild(badge);
+    anchor.appendChild(badge);
+    host.appendChild(anchor);
   });
 }
 

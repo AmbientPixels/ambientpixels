@@ -423,6 +423,12 @@ function renderLocaleGroups(csvData) {
     section.className = 'locale-section';
     section.dataset.locale = locale; // expose locale for downstream readers (badges)
     
+    // Provide stable anchor id for deep linking from pills
+    try {
+      const safeId = `locale-${String(locale).replace(/[^A-Za-z0-9_-]/g, '-')}`;
+      section.id = safeId;
+    } catch (e) { /* no-op */ }
+    
     // Section header with locale code and full name
     const header = document.createElement('h3');
     header.className = 'locale-header';
