@@ -67,7 +67,6 @@ function openManageLocales() {
 function updateManageLocalesState(hasData) {
   try {
     const ids = [
-      'manageLocalesBtn',
       'toolbarManageLocalesBtn',
       // inline clear buttons in live editor
       'titleClearBtn',
@@ -81,13 +80,13 @@ function updateManageLocalesState(hasData) {
         btn.removeAttribute('disabled');
         btn.classList.remove('disabled');
         // Preserve existing specific titles, but correct the generic Manage Locales hint when present
-        if (id === 'manageLocalesBtn' || id === 'toolbarManageLocalesBtn') {
+        if (id === 'toolbarManageLocalesBtn') {
           btn.title = btn.title && btn.title.includes('Load') ? 'Manage Locales' : (btn.title || 'Manage Locales');
         }
       } else {
         btn.setAttribute('disabled', 'disabled');
         btn.classList.add('disabled');
-        if (id === 'manageLocalesBtn' || id === 'toolbarManageLocalesBtn') {
+        if (id === 'toolbarManageLocalesBtn') {
           btn.title = 'Load CSV data to manage locales';
         }
       }
@@ -136,11 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (nearLimitCard) nearLimitCard.addEventListener('click', () => setStatusFilterAndScroll('near-limit'));
   if (cleanCard) cleanCard.addEventListener('click', () => setStatusFilterAndScroll('clean'));
   
-  // Attach Manage Locales button event
-  const manageLocalesBtn = document.getElementById('manageLocalesBtn');
-  if (manageLocalesBtn) {
-    manageLocalesBtn.addEventListener('click', function() { if (typeof window.openManageLocales === 'function') window.openManageLocales(); });
-  }
+  // Attach Manage Locales (toolbar) button event
   const toolbarManageLocalesBtn = document.getElementById('toolbarManageLocalesBtn');
   if (toolbarManageLocalesBtn) {
     toolbarManageLocalesBtn.addEventListener('click', function() { if (typeof window.openManageLocales === 'function') window.openManageLocales(); });
@@ -825,7 +820,7 @@ function createAboutTabContent() {
         <p><strong>Information Center:</strong> A comprehensive, always-up-to-date help & support modal. Browse features, new tools, tips & tricks, keyboard shortcuts, troubleshooting, and future plans—all in one place!</p>
       </div>
       <div class="version-info">
-        <h5>📦 Version Information</h5>
+        <h4>📦 Version Information</h4>
         <p><strong>Version:</strong> 2.3.0</p>
         <p><strong>Build Date:</strong> August 2025</p>
         <p><strong>Architecture:</strong> Modular CSS/JS with Canvas API integration</p>

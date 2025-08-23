@@ -69,7 +69,6 @@ function setupLiveEditor() {
   const previewSubtitle = document.getElementById('previewSubtitle');
   const previewTile = document.getElementById('previewTile');
   const applyToAllBtn = document.getElementById('applyToAllBtn');
-  const resetBtn = document.getElementById('resetBtn');
   
   // Show live editor panel when data is loaded
   if (liveEditingPanel) {
@@ -245,30 +244,6 @@ function setupLiveEditor() {
         // Recalculate analytics
         renderLocaleGroups(currentCsvData);
       }
-    });
-  }
-  
-  // Reset button
-  if (resetBtn) {
-    resetBtn.addEventListener('click', function() {
-      if (titleInput) titleInput.value = '';
-      if (subtitleInput) subtitleInput.value = '';
-      if (narratorInput) narratorInput.value = '';
-      if (titleCharCount) titleCharCount.textContent = '0';
-      if (subtitleCharCount) subtitleCharCount.textContent = '0';
-      if (narratorCharCount) narratorCharCount.textContent = '0';
-      if (previewTitle) previewTitle.textContent = '';
-      if (previewSubtitle) {
-        previewSubtitle.textContent = '';
-        previewSubtitle.classList.add('hidden'); // updated by Cascade: mirror live behavior when empty
-      }
-      
-      // Reset character count colors
-      const charCounts = document.querySelectorAll('.char-count');
-      charCounts.forEach(el => el.className = 'char-count');
-      
-      updatePreviewTileStatus();
-      updateLiveAnalytics();
     });
   }
   
@@ -1304,7 +1279,9 @@ function setupGenericModifiersControls({ phraseId, percentId, symbolId, applyAll
       const totalLocales = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
       if (totalLocales === 0) {
         const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
-        if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); } else { if (window.Modal && typeof Modal.alert === 'function') { Modal.alert(msg, 'warning'); } else { alert(msg); } }
+        if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); }
+        else if (window.Modal && typeof Modal.alert === 'function') { Modal.alert(msg, 'warning'); }
+        else { alert(msg); }
         return;
       }
       const pre = (typeof window.getActiveLocalesForPreview === 'function') ? (window.getActiveLocalesForPreview() || []) : [];

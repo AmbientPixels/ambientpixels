@@ -334,34 +334,29 @@
             </div>
             
             <div class="preset-options">
-              <!-- Manage Locales Section: own block separate from Controls -->
-              <div class="manage-locales-section">
-                <button class="control-btn" id="manageLocalesBtn"><i class="fas fa-globe"></i> Manage Locales</button>
-              </div>
-              <div class="bg-toggle-control">
-                <span>Background Image</span>
-                <label class="switch">
-                  <input type="checkbox" id="bgToggle" checked onchange="toggleBackgroundImage(this.checked)">
-                  <span class="slider"></span>
-                </label>
-              </div>
-              <!-- removed by Cascade: Auto-Localize Presets toggle is now permanent and has no UI control -->
-              
-              <div id="autoLocalizeDropZone" class="dnd-csv-zone">
-                <div class="dnd-csv-message">
-                  <i class="fas fa-file-csv"></i>
-                  <span>Drop CSV or XML file here to begin</span>
-                  <small>Upload a standard Iris-formatted CSV (recommended). Campsite XML import coming soon.</small>
-                </div>
-              </div>
-              <!-- Controls toolbar moved under the drop zone (header removed) -->
-              <div class="controls-section">
-                <div class="tileforge-toolbar" id="tileforgeToolbar">
-                  <!-- updated by Cascade: Save/Clone/New moved to localized status bar to group file-scoped actions -->
-                  <button class="toolbar-btn" id="resetBtn" title="Reset editor fields"><i class="fas fa-sync-alt"></i></button>
-                </div>
-              </div>
-            </div>
+               <div class="bg-toggle-control">
+                 <span>Background Image</span>
+                 <label class="switch">
+                   <input type="checkbox" id="bgToggle" checked onchange="toggleBackgroundImage(this.checked)">
+                   <span class="slider"></span>
+                 </label>
+               </div>
+               <!-- removed by Cascade: Auto-Localize Presets toggle is now permanent and has no UI control -->
+               
+               <div id="autoLocalizeDropZone" class="dnd-csv-zone">
+                 <div class="dnd-csv-message">
+                   <i class="fas fa-file-csv"></i>
+                   <span>Drop CSV or XML file here to begin</span>
+                   <small>Upload a standard Iris-formatted CSV (recommended). Campsite XML import coming soon.</small>
+                 </div>
+               </div>
+               <!-- Controls toolbar moved under the drop zone (header removed) -->
+               <div class="controls-section">
+                 <div class="tileforge-toolbar" id="tileforgeToolbar">
+                   <!-- updated by Cascade: toolbar reset removed -->
+                 </div>
+               </div>
+             </div>
           </div>
           
           <div class="editing-controls">
