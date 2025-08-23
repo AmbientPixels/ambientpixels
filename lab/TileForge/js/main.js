@@ -414,6 +414,9 @@ function applyFilters() {
   });
 
   updateFilterStatus(visibleCount, totalCount, statusFilter, languageFilter, regionFilter, localeFilter);
+  
+  // Ensure locale pills mirror the current filtered view
+  try { if (window.requestLocaleBadgeRefresh) window.requestLocaleBadgeRefresh(); } catch (e) { /* no-op */ }
 }
 
 function getTileStatus(tile) {

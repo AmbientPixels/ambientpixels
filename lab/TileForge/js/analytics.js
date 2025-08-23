@@ -282,6 +282,10 @@ function renderLocaleBadgeArea() {
   const sections = document.querySelectorAll('.locale-section');
   const badges = [];
   sections.forEach(section => {
+    // Skip sections hidden by filters or active-locale preview state
+    const sectionStyle = window.getComputedStyle(section);
+    if (sectionStyle.display === 'none' || section.offsetParent === null) return;
+
     const header = section.querySelector('.locale-header .country-badge');
     let code = header ? (header.textContent || '').trim() : '';
     if (!code) {
@@ -292,6 +296,11 @@ function renderLocaleBadgeArea() {
 
     let overflow = 0, near = 0, clean = 0; 
     section.querySelectorAll('.tile-preview').forEach(tile => {
+      // Count only tiles currently visible (respect applied filters)
+      const tileContainer = tile.closest('.tile-container') || tile;
+      const tcStyle = tileContainer ? window.getComputedStyle(tileContainer) : null;
+      const isVisible = tile.offsetParent !== null && (!tcStyle || tcStyle.display !== 'none');
+      if (!isVisible) return;
       if (tile.classList.contains('overflow')) overflow++;
       else if (tile.classList.contains('near-limit')) near++;
       else if (tile.classList.contains('clean')) clean++;
@@ -303,7 +312,10 @@ function renderLocaleBadgeArea() {
     else if (near > 0) status = 'near-limit';
 
     const total = overflow + near + clean;
-    badges.push({ code, status, total, overflow, near, clean });
+    // Only add a pill if this locale has at least one visible tile
+    if (total > 0) {
+      badges.push({ code, status, total, overflow, near, clean });
+    }
   });
 
   // Sort badges alphabetically by code for stable visual order
