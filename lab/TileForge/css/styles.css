@@ -352,15 +352,15 @@ body {
 
 /* Simple Filters */
 .simple-filters {
-  margin-top: 20px;
-  padding: 15px;
+  margin-top: 16px;
+  padding: 20px;
   background: #2a2a2a;
-  border-radius: 8px;
   border: 1px solid #444;
+  border-radius: 8px;
 }
 
 .simple-filters h3 {
-  margin: 0 0 15px 0;
+  margin: 0 0 10px 0;
   color: var(--theme-text, #fff);
   font-size: 16px;
   font-weight: 600;
@@ -583,7 +583,7 @@ body {
 /* Projects UI */
 .projects-section {
   margin-top: 16px;
-  padding: 14px;
+  padding: 20px;
   background: #2a2a2a;
   border: 1px solid #444;
   border-radius: 8px;
@@ -1292,15 +1292,15 @@ input:checked + .slider:before {
 .image-info-panel {
   background: #2a2a2a;
   border-radius: 8px;
-  padding: 16px;
+  padding: 20px;
   margin-bottom: 16px;
   border: 1px solid #444;
 }
 
 .image-info-panel h4 {
-  margin: 0 0 12px 0;
+  margin: 0 0 10px 0;
   color: #fff;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
 }
 
@@ -2011,3 +2011,72 @@ input:checked + .slider:before {
   margin-top: 10px;
 }
 /* --- end HOTFIX --- */
+
+/* Projects section: header and collapse behavior */
+.collapsible > h3,
+.collapsible > h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.collapsible > h3 .toolbar-btn,
+.collapsible > h4 .toolbar-btn {
+  margin-left: auto; /* push chevron to the right */
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+.collapsible.collapsed > :not(h3):not(h4) {
+  display: none !important;
+}
+
+/* Align other left-pane sections to project card styling */
+.template-section {
+  margin-top: 16px;
+  padding: 20px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+}
+.template-section > h3 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--theme-text, #fff);
+}
+/* removed by Cascade: redundant compound selector for Tools card */
+.tools-section {
+  margin-top: 16px;
+  padding: 20px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+}
+.tools-section h3,
+.tools-section h4 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--theme-text, #fff);
+}
+/* Unify icon colors in section headers */
+.simple-filters h3 i,
+.template-section h3 i,
+.tools-section h3 i,
+.image-info-panel h4 i {
+  color: var(--accent-color, #007acc);
+}
+
+/* removed by Cascade: .template-section duplicated here; canonical lives in template-system.css */
+/* .template-section { margin-top:16px; padding:14px; background:#2a2a2a; border:1px solid #444; border-radius:8px; } */
+
+/* removed by Cascade: .template-section > h3 duplicate; canonical lives in template-system.css */
+/* .template-section > h3 { margin:0 0 10px 0; font-size:16px; font-weight:600; color:var(--theme-text,#fff);} */
+
+/* Left panel card outer inset to match Projects container padding */ /* updated by Cascade */
+.left-panel .simple-filters,
+.left-panel .template-section,
+.left-panel .tools-section,
+.left-panel .image-info-panel {
+  margin-left: 20px;
+  margin-right: 20px;
+}

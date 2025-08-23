@@ -47,7 +47,8 @@
 }
 
 /* Locale Section Styling */
-.locale-section {
+/* updated by Cascade: scope to right panel to avoid overriding left-panel Tools */
+.right-panel .locale-section {
   border: 1px solid #333;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.02);

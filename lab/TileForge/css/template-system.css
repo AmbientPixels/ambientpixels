@@ -3,15 +3,20 @@
 
 /* Template Selection Section */
 .template-section {
+  /* updated by Cascade: align with Projects card styling */
+  margin-top: 16px;
   padding: 20px;
-  border-bottom: 1px solid #333;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
 }
 
 .template-section h3 {
-  margin: 0 0 16px 0;
+  /* updated by Cascade: match Projects header */
+  margin: 0 0 10px 0;
   font-size: 16px;
   color: var(--theme-text, #fff);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .template-selector {

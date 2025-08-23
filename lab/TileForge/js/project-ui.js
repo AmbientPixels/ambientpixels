@@ -513,6 +513,47 @@
     alertModal('Project cloned', 'success');
   }
 
+  // Generic collapsible section helper
+  function setupCollapsible({ sectionId, buttonId, storageKey }) {
+    const container = document.getElementById(sectionId);
+    const btn = document.getElementById(buttonId);
+    if (!container || !btn) return;
+    const applyCollapsed = (collapsed) => {
+      container.classList.toggle('collapsed', !!collapsed);
+      btn.setAttribute('aria-expanded', String(!collapsed));
+      const icon = btn.querySelector('i');
+      if (icon) {
+        icon.classList.toggle('fa-chevron-up', !collapsed);
+        icon.classList.toggle('fa-chevron-down', !!collapsed);
+      }
+    };
+    const stored = localStorage.getItem(storageKey);
+    const initialCollapsed = stored === 'true';
+    applyCollapsed(initialCollapsed);
+    btn.addEventListener('click', () => {
+      const nowCollapsed = !container.classList.contains('collapsed');
+      localStorage.setItem(storageKey, String(nowCollapsed));
+      applyCollapsed(nowCollapsed);
+    });
+  }
+
+  function mountProjectsSection() {
+    // List will be rendered by refreshList; set up collapsible behavior
+    setupCollapsible({ sectionId: 'projectsSection', buttonId: 'projectsCollapseBtn', storageKey: 'TileForge_projects_collapsed' });
+  }
+
+  function initOnce() {
+    if (window.__tfProjectsInit) return;
+    window.__tfProjectsInit = true;
+    bindToolbar();
+    // Collapsibles
+    mountProjectsSection();
+    setupCollapsible({ sectionId: 'filtersSection', buttonId: 'filtersCollapseBtn', storageKey: 'TileForge_filters_collapsed' });
+    setupCollapsible({ sectionId: 'templateSection', buttonId: 'templateCollapseBtn', storageKey: 'TileForge_template_collapsed' });
+    setupCollapsible({ sectionId: 'toolsSection', buttonId: 'toolsCollapseBtn', storageKey: 'TileForge_tools_collapsed' });
+    setupCollapsible({ sectionId: 'imageInfoPanel', buttonId: 'imageInfoCollapseBtn', storageKey: 'TileForge_image_collapsed' });
+    refreshList();
+  }
 
   async function refreshList() {
     const listEl = document.getElementById('projectsList');
@@ -744,20 +785,6 @@
   function bindToolbar() {
     const createBtn = document.getElementById('projectCreateBtn');
     if (createBtn) createBtn.addEventListener('click', onNew);
-  }
-
-  function mountProjectsSection() {
-    const container = document.getElementById('projectsSection');
-    if (!container) return;
-    // Nothing dynamic here besides list; list will be rendered by refreshList
-  }
-
-  function initOnce() {
-    if (window.__tfProjectsInit) return;
-    window.__tfProjectsInit = true;
-    bindToolbar();
-    mountProjectsSection();
-    refreshList();
   }
 
   document.addEventListener('DOMContentLoaded', initOnce);

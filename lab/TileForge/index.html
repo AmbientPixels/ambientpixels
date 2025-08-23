@@ -162,8 +162,13 @@
         </div>
 
         <!-- Projects Section (under Controls) -->
-        <div class="projects-section" id="projectsSection">
-          <h4><i class="fas fa-folder-open"></i> Projects</h4>
+        <div class="projects-section collapsible" id="projectsSection">
+          <h4>
+            <i class="fas fa-folder-open"></i> Projects
+            <button class="toolbar-btn" id="projectsCollapseBtn" title="Collapse/Expand Projects" aria-label="Collapse/Expand Projects" aria-expanded="true">
+              <i class="fas fa-chevron-up" aria-hidden="true"></i>
+            </button>
+          </h4>
           <div class="tool-group">
             <!-- compact icon-only create project button -->
             <button class="toolbar-btn" id="projectCreateBtn" title="Create Project" aria-label="Create Project">
@@ -176,8 +181,13 @@
       
 
       <!-- Simple Filters -->
-      <div class="simple-filters">
-        <h3><i class="fas fa-filter"></i> Filters</h3>
+      <div class="simple-filters collapsible" id="filtersSection">
+        <h3>
+          <i class="fas fa-filter"></i> Filters
+          <button class="toolbar-btn" id="filtersCollapseBtn" title="Collapse/Expand Filters" aria-label="Collapse/Expand Filters" aria-expanded="true">
+            <i class="fas fa-chevron-up" aria-hidden="true"></i>
+          </button>
+        </h3>
         
         <div class="filter-row">
           <label for="statusFilter">Status:</label>
@@ -223,8 +233,13 @@
       </div>
       
       <!-- Template Selection Section -->
-      <div class="template-section">
-        <h3><i class="fas fa-th-large"></i> Template</h3>
+      <div class="template-section collapsible" id="templateSection">
+        <h3>
+          <i class="fas fa-th-large"></i> Template
+          <button class="toolbar-btn" id="templateCollapseBtn" title="Collapse/Expand Template" aria-label="Collapse/Expand Template" aria-expanded="true">
+            <i class="fas fa-chevron-up" aria-hidden="true"></i>
+          </button>
+        </h3>
         <div class="template-selector">
           <div class="template-option active" data-template="toh">
             <div class="template-preview">
@@ -249,8 +264,13 @@
       </div>
       
       <!-- Tools Section -->
-      <div class="locale-section tools-section">
-        <h3><i class="fas fa-tools"></i> Tools</h3>
+      <div class="locale-section tools-section collapsible" id="toolsSection">
+        <h3>
+          <i class="fas fa-tools"></i> Tools
+          <button class="toolbar-btn" id="toolsCollapseBtn" title="Collapse/Expand Tools" aria-label="Collapse/Expand Tools" aria-expanded="true">
+            <i class="fas fa-chevron-up" aria-hidden="true"></i>
+          </button>
+        </h3>
         <div class="tool-group">
           <button class="control-btn transform-btn" onclick="openTransformModal()"><i class="fas fa-exchange-alt"></i> Transform Data</button>
           <button class="control-btn headliner-btn" onclick="openHeadlinerCrafter()"><i class="fas fa-magic"></i> Headline Mapper</button>
@@ -258,8 +278,13 @@
       </div>
       
       <!-- Detailed Image Info Panel -->
-      <div class="image-info-panel" id="imageInfoPanel">
-        <h4><i class="fas fa-image"></i> Image Details</h4>
+      <div class="image-info-panel collapsible" id="imageInfoPanel">
+        <h4>
+          <i class="fas fa-image"></i> Image Details
+          <button class="toolbar-btn" id="imageInfoCollapseBtn" title="Collapse/Expand Image Details" aria-label="Collapse/Expand Image Details" aria-expanded="true">
+            <i class="fas fa-chevron-up" aria-hidden="true"></i>
+          </button>
+        </h4>
         <div class="no-image-message">
           <span class="no-image-icon"><i class="fas fa-image"></i></span>
           <p>No image loaded</p>
