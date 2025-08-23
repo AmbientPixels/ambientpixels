@@ -718,5 +718,5 @@
 
   document.addEventListener('DOMContentLoaded', initOnce);
 
-  window.ProjectUI = { initOnce, refreshList, onSave, onCloneActiveFile, onNewWithProjectPicker };
+  window.ProjectUI = { initOnce, refreshList, onSave, onCloneActiveFile, onNewWithProjectPicker, onNew };
 })();

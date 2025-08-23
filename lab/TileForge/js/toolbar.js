@@ -101,9 +101,21 @@
     var saveBtn = document.getElementById('toolbarSaveBtn');
     var cloneBtn = document.getElementById('toolbarCloneBtn');
     var newBtn = document.getElementById('toolbarNewBtn');
+    var newProjectBtn = document.getElementById('toolbarNewProjectBtn');
     if (saveBtn) saveBtn.addEventListener('click', manualSave);
     if (cloneBtn) cloneBtn.addEventListener('click', cloneCurrentState);
     if (newBtn) newBtn.addEventListener('click', newDataSet);
+    if (newProjectBtn) newProjectBtn.addEventListener('click', function() {
+      if (window.ProjectUI && typeof window.ProjectUI.onNew === 'function') {
+        try { window.ProjectUI.onNew(); } catch (err) {
+          if (window.Modal && typeof Modal.alert === 'function') Modal.alert('New Project failed: ' + err.message, 'error');
+          else alert('New Project failed: ' + err.message);
+        }
+      } else {
+        if (window.Modal && typeof Modal.alert === 'function') Modal.alert('Projects UI not ready. Please open Projects panel first.', 'warning');
+        else alert('Projects UI not ready.');
+      }
+    });
     var exportBtn = document.getElementById('toolbarExportBtn');
     if (exportBtn) exportBtn.addEventListener('click', function() {
       if (typeof window.exportToCSV === 'function') {
