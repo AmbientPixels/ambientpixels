@@ -78,6 +78,60 @@
   box-shadow: 0 0 0 2px rgba(30, 115, 190, 0.2);
 }
 
+/* Inline input action: keep border radius visible and blue hover */
+.input-container.with-inline-action {
+  position: relative; /* legacy support */
+}
+.input-container.with-inline-action .input-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  border-radius: 6px;      /* mirror input radius */
+  overflow: hidden;        /* clip children to rounded corners */
+}
+.input-container.with-inline-action input {
+  display: block;
+  width: 100%;
+  padding-right: 72px;     /* ensure text never underlaps icon */
+  border-radius: 6px;      /* rounded corners */
+  background-clip: padding-box; /* keep background within radius */
+}
+.input-container.with-inline-action .inline-clear-btn {
+  position: absolute;
+  top: 1px;                /* leave 1px gap so input border shows */
+  bottom: 1px;             /* matches input height minus border */
+  right: 1px;              /* keep inside border radius */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;         /* comfortable hit area */
+  min-width: 32px;
+  border: none;
+  background: transparent;
+  color: #c9c9c9;
+  cursor: pointer;
+  border-radius: 6px;      /* match input radius visually */
+  z-index: 1;
+  font-size: 16px;
+}
+.input-container.with-inline-action .inline-clear-btn i {
+  pointer-events: none;
+  font-size: 14px;
+}
+.input-container.with-inline-action .inline-clear-btn:hover {
+  color: #fff;
+  background: rgba(0,122,204,0.20); /* clear blue hover */
+}
+.input-container.with-inline-action .inline-clear-btn:focus {
+  outline: 2px solid rgba(30,115,190,0.6);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.input-container.with-inline-action .inline-clear-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Fix browser autofill white background bug */
 .input-container input:-webkit-autofill,
 .input-container input:-webkit-autofill:hover,

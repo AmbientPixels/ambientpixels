@@ -66,18 +66,30 @@ function openManageLocales() {
 // Enable/disable Manage Locales buttons depending on data presence
 function updateManageLocalesState(hasData) {
   try {
-    const ids = ['manageLocalesBtn', 'toolbarManageLocalesBtn'];
+    const ids = [
+      'manageLocalesBtn',
+      'toolbarManageLocalesBtn',
+      // inline clear buttons in live editor
+      'titleClearBtn',
+      'subtitleClearBtn',
+      'narratorClearBtn'
+    ];
     ids.forEach(id => {
       const btn = document.getElementById(id);
       if (!btn) return;
       if (hasData) {
         btn.removeAttribute('disabled');
         btn.classList.remove('disabled');
-        btn.title = btn.title && btn.title.includes('Load') ? 'Manage Locales' : (btn.title || 'Manage Locales');
+        // Preserve existing specific titles, but correct the generic Manage Locales hint when present
+        if (id === 'manageLocalesBtn' || id === 'toolbarManageLocalesBtn') {
+          btn.title = btn.title && btn.title.includes('Load') ? 'Manage Locales' : (btn.title || 'Manage Locales');
+        }
       } else {
         btn.setAttribute('disabled', 'disabled');
         btn.classList.add('disabled');
-        btn.title = 'Load CSV data to manage locales';
+        if (id === 'manageLocalesBtn' || id === 'toolbarManageLocalesBtn') {
+          btn.title = 'Load CSV data to manage locales';
+        }
       }
     });
   } catch (e) { /* no-op */ }
@@ -739,7 +751,7 @@ function createFuturePlansTabContent() {
           <li><strong>Dynamic Presets:</strong> Context-aware preset recommendations based on game genre</li>
         </ul>
       </div>
-
+  
       <div class="feedback-section">
         <h5>💬 Your Input Shapes TileForge</h5>
         <p>Have ideas for new features? Your feedback drives our roadmap and helps us build exactly what Xbox developers need!</p>

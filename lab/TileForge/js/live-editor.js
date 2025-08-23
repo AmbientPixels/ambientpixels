@@ -1421,6 +1421,74 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+// Inline Clear buttons inside inputs
+const titleClearBtn = document.getElementById('titleClearBtn');
+const subtitleClearBtn = document.getElementById('subtitleClearBtn');
+const narratorClearBtn = document.getElementById('narratorClearBtn');
+
+function ensureDataOrWarn() {
+  const total = Array.isArray(window.currentCsvData) ? window.currentCsvData.length : 0;
+  if (total === 0) {
+    const msg = 'No locales detected. Please import a CSV or add locales via the Locale Manager, then retry.';
+    if (window.showModal) { window.showModal(msg, { confirmText: 'OK' }); }
+    else if (window.Modal && typeof Modal.alert === 'function') { Modal.alert(msg, 'warning'); }
+    else { alert(msg); }
+    return false;
+  }
+  return true;
+}
+
+function clearFieldEverywhere(fieldType, inputEl) {
+  if (!ensureDataOrWarn()) return;
+  const label = fieldType === 'title' ? 'Title' : fieldType === 'subtitle' ? 'Subtitle' : 'Narrator';
+  if (window.showModal) {
+    window.showModal(
+      `This will clear the ${label} field for all tiles. Are you sure?`,
+      {
+        confirmText: 'Clear All',
+        cancelText: 'Cancel',
+        onConfirm: function() {
+          // Apply empty text across all locales
+          applyManualTextToAllTiles('', fieldType);
+          // Clear local input and counters/preview
+          if (inputEl) inputEl.value = '';
+          if (fieldType === 'title' && titleCharCount) {
+            titleCharCount.textContent = '0';
+            const el = titleCharCount.parentElement; if (el) el.className = 'char-count';
+            if (previewTitle) previewTitle.textContent = '';
+          }
+          if (fieldType === 'subtitle' && subtitleCharCount) {
+            subtitleCharCount.textContent = '0';
+            const el = subtitleCharCount.parentElement; if (el) el.className = 'char-count';
+            if (previewSubtitle) { previewSubtitle.textContent = ''; previewSubtitle.classList.add('hidden'); }
+          }
+          if (fieldType === 'narrator' && narratorCharCount) {
+            narratorCharCount.textContent = '0';
+            const el = narratorCharCount.parentElement; if (el) el.className = 'char-count';
+          }
+          updatePreviewTileStatus();
+          updateLiveAnalytics();
+        }
+      }
+    );
+  } else {
+    applyManualTextToAllTiles('', fieldType);
+    if (inputEl) inputEl.value = '';
+    updatePreviewTileStatus();
+    updateLiveAnalytics();
+  }
+}
+
+if (titleClearBtn) {
+  titleClearBtn.addEventListener('click', function() { clearFieldEverywhere('title', titleInput); });
+}
+if (subtitleClearBtn) {
+  subtitleClearBtn.addEventListener('click', function() { clearFieldEverywhere('subtitle', subtitleInput); });
+}
+if (narratorClearBtn) {
+  narratorClearBtn.addEventListener('click', function() { clearFieldEverywhere('narrator', narratorInput); });
+}
+
 // Background Image Toggle Function
 window.toggleBackgroundImage = function(isEnabled) {
   const previewTile = document.getElementById('previewTile');
