@@ -472,6 +472,23 @@ body {
 .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-tr { background: #E57E6A; border-color: #AB5A4D; } /* sunset orange */
 .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-zh { background: #E6A76E; border-color: #AB794F; color: #1C1C1C; } /* amber gold */
 
+/* Status palette: pill colors for overflow status (scoped) */ /* updated by Cascade */
+.locale-badges-section.status-palette-on #localeBadgeArea .country-badge.clean {
+  background: #4caf50; /* green */
+  border-color: #2e7d32;
+  color: #fff;
+}
+.locale-badges-section.status-palette-on #localeBadgeArea .country-badge.near-limit {
+  background: #ffa500; /* orange */
+  border-color: #b26a00;
+  color: #1c1c1c; /* better contrast on orange */
+}
+.locale-badges-section.status-palette-on #localeBadgeArea .country-badge.overflow {
+  background: #ff6b6b; /* red */
+  border-color: #c62828;
+  color: #fff;
+}
+
 /* Header Settings Button */
 .header-top {
   display: flex;
@@ -2305,4 +2322,20 @@ input:checked + .slider:before {
 .badge-controls .badge-controls-label {
   font-size: 12px;
   color: var(--text-muted, #8aa0b3);
+}
+
+.badge-controls .switch-state {
+  font-size: 11px;
+  color: var(--text-muted, #8aa0b3);
+  min-width: 22px;
+  text-align: left;
+}
+
+.badge-controls .default-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 1px solid var(--theme-border, #444);
+  color: var(--theme-text-secondary, #adb5bd);
+  background: var(--theme-surface, #252525);
 }

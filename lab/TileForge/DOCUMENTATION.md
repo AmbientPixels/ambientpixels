@@ -177,6 +177,23 @@ Headliner Crafter is TileForge's advanced CSV localization transformation tool t
 
 <!-- updated by Cascade: locale badge palette toggle docs -->
 
+## 🟩 Tile Status — Pill Color Toggle
+- **Source of classes:** Locale pills are rendered by `lab/TileForge/js/analytics.js` → `renderLocaleBadgeArea()`. Each pill uses `country-badge` plus a status class (`clean`, `near-limit`, `overflow`) and a language class `lang-<code>`.
+- **UI control:** `lab/TileForge/index.html` adds a second toggle inside `.locale-badges-section`:
+  - Checkbox id: `#toggleStatusPillColors` within a `.badge-controls` block.
+- **Binding (JS):** `lab/TileForge/js/toolbar.js` listens to `#toggleStatusPillColors` and toggles `.status-palette-on` on `.locale-badges-section`, syncing `aria-checked`.
+- **Scoped CSS:** `lab/TileForge/css/styles.css` applies status colors only when active:
+  - `.locale-badges-section.status-palette-on #localeBadgeArea .country-badge.clean { … }`
+  - `.locale-badges-section.status-palette-on #localeBadgeArea .country-badge.near-limit { … }`
+  - `.locale-badges-section.status-palette-on #localeBadgeArea .country-badge.overflow { … }`
+- **Behavior & precedence:**
+  - Status toggle ON → pills use green/orange/red by status.
+  - Language toggle ON → pills use per-language colors.
+  - Both ON → status palette takes precedence (rules are defined after language palette in `styles.css`).
+- **Accessibility:** `aria-checked` is kept in sync on change (mirrors the language palette toggle).
+
+<!-- updated by Cascade: status pill color toggle docs -->
+
 ## 🧭 Left Panel Overview
 
 The Left Panel is the primary navigation and workflow anchor in TileForge, always visible on the left side of the interface. It consolidates all major controls, filtering, and tool access into a single, persistent vertical panel for efficient localization and preview workflows.

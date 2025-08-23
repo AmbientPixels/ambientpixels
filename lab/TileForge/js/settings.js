@@ -67,7 +67,14 @@ let currentSettings = {
   shortcuts: { ...DEFAULT_SHORTCUTS },
   autosaveFreq: 60,
   csvDelimiter: ',',
-  showIntroStartup: true
+  showIntroStartup: true,
+  // Toggle for locale badge status pill colors (Clean/Near/Overflow)
+  statusPillColors: false,
+  // Toggle for locale badge language pill colors
+  languagePillColors: false,
+  // Default pill palette to apply when both toggles are off
+  // Allowed: 'language' | 'status' | 'none'
+  defaultPillPalette: 'language'
 };
 
 // ===== SETTINGS MODAL FUNCTIONS =====
@@ -244,6 +251,9 @@ function initializeThemeSelection() {
   const autosaveFreq = document.getElementById('autosaveFreq');
   const csvDelimiter = document.getElementById('csvDelimiter');
   const showIntroStartup = document.getElementById('showIntroStartup');
+  const statusPillColorsPref = document.getElementById('statusPillColorsPref');
+  const languagePillColorsPref = document.getElementById('languagePillColorsPref');
+  const defaultPillPalettePref = document.getElementById('defaultPillPalettePref');
   
   if (autosaveFreq) {
     autosaveFreq.value = currentSettings.autosaveFreq;
@@ -269,6 +279,86 @@ function initializeThemeSelection() {
       saveSettings();
     });
   }
+  
+  // Resolve any persisted conflict: only one may be true at a time
+  if (currentSettings.statusPillColors && currentSettings.languagePillColors) {
+    // Prefer language and disable status to avoid conflict
+    currentSettings.statusPillColors = false;
+    saveSettings();
+  }
+  
+  if (statusPillColorsPref) {
+    statusPillColorsPref.checked = !!currentSettings.statusPillColors;
+  }
+  if (languagePillColorsPref) {
+    languagePillColorsPref.checked = !!currentSettings.languagePillColors;
+  }
+  if (defaultPillPalettePref) {
+    const allowed = ['language','status','none'];
+    const val = allowed.includes(currentSettings.defaultPillPalette) ? currentSettings.defaultPillPalette : 'language';
+    defaultPillPalettePref.value = val;
+  }
+  
+  function applyPaletteState() {
+    const badgesSection = document.querySelector('.locale-badges-section');
+    const statusOn = !!currentSettings.statusPillColors;
+    const langOn = !!currentSettings.languagePillColors;
+    if (badgesSection) {
+      badgesSection.classList.toggle('status-palette-on', statusOn);
+      badgesSection.classList.toggle('palette-on', langOn);
+    }
+    const uiStatus = document.getElementById('toggleStatusPillColors');
+    if (uiStatus) {
+      uiStatus.checked = statusOn;
+      uiStatus.setAttribute('aria-checked', String(statusOn));
+    }
+    const uiLang = document.getElementById('toggleLocaleColors');
+    if (uiLang) {
+      uiLang.checked = langOn;
+      uiLang.setAttribute('aria-checked', String(langOn));
+    }
+  }
+  
+  if (statusPillColorsPref) {
+    statusPillColorsPref.addEventListener('change', function() {
+      const enabled = !!this.checked;
+      currentSettings.statusPillColors = enabled;
+      if (enabled) {
+        // turn off language if it was on
+        currentSettings.languagePillColors = false;
+      }
+      saveSettings();
+      applyPaletteState();
+    });
+  }
+  if (languagePillColorsPref) {
+    languagePillColorsPref.addEventListener('change', function() {
+      const enabled = !!this.checked;
+      currentSettings.languagePillColors = enabled;
+      if (enabled) {
+        // turn off status if it was on
+        currentSettings.statusPillColors = false;
+      }
+      saveSettings();
+      applyPaletteState();
+    });
+  }
+  if (defaultPillPalettePref) {
+    defaultPillPalettePref.addEventListener('change', function() {
+      const v = String(this.value);
+      if (v === 'language' || v === 'status' || v === 'none') {
+        currentSettings.defaultPillPalette = v;
+        saveSettings();
+        // Notify toolbar UI to refresh default badge, if available
+        if (typeof window.updatePillPaletteDefaultUI === 'function') {
+          try { window.updatePillPaletteDefaultUI(); } catch(_) {}
+        }
+      }
+    });
+  }
+  
+  // Apply initial palette state to live UI when settings modal opens
+  applyPaletteState();
 }
 
 function editShortcut(action) {
@@ -597,7 +687,7 @@ function createGeneralTabContent() {
         <select id="csvDelimiter">
           <option value="," selected>Comma (,)</option>
           <option value=";">Semicolon (;)</option>
-          <option value="\\t">Tab</option>
+          <option value="\t">Tab</option>
         </select>
       </div>
       
@@ -606,6 +696,32 @@ function createGeneralTabContent() {
           <input type="checkbox" id="showIntroStartup" checked>
           Show intro on startup
         </label>
+      </div>
+      
+      <div class="setting-group">
+        <label>
+          <input type="checkbox" id="statusPillColorsPref">
+          Status pill colors (locale badges)
+        </label>
+        <div class="setting-hint">Controls green/orange/red for Clean / Near-limit / Overflow on locale pills.</div>
+      </div>
+      
+      <div class="setting-group">
+        <label>
+          <input type="checkbox" id="languagePillColorsPref">
+          Language pill colors (locale badges)
+        </label>
+        <div class="setting-hint">Per-language color palette for locale pills (lang-en, lang-fr, etc.).</div>
+      </div>
+      
+      <div class="setting-group">
+        <label>Default pill palette</label>
+        <select id="defaultPillPalettePref">
+          <option value="language">Language colors</option>
+          <option value="status">Status colors</option>
+          <option value="none">None</option>
+        </select>
+        <div class="setting-hint">If both toggles are OFF, this preference determines which palette turns ON automatically. "None" leaves both off.</div>
       </div>
     </div>
   `;
