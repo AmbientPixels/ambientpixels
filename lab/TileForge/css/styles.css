@@ -371,6 +371,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0; /* allow children to shrink within flex row */ /* updated by Cascade */
 }
 
 .filter-row label {
@@ -384,10 +385,16 @@ body {
   flex: 1;
   padding: 6px 10px;
   background: #1a1a1a;
-  border: 1px solid #444;
-  border-radius: 4px;
+  border: 1px solid #333;
+  border-radius: 6px;
   color: #fff;
   font-size: 13px;
+  width: 100%;        /* ensure it fits inside the row */ /* updated by Cascade */
+  max-width: 100%;    /* clamp to container */ /* updated by Cascade */
+  min-width: 0;       /* allow shrinking in flex */ /* updated by Cascade */
+  overflow: hidden;   /* prevent visual spill */ /* updated by Cascade */
+  text-overflow: ellipsis; /* show … when label is too long */ /* updated by Cascade */
+  white-space: nowrap; /* keep single-line closed state */ /* updated by Cascade */
 }
 
 .filter-row select:focus {
