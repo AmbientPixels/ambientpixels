@@ -1,9 +1,10 @@
 /* TileForge Case Converter Tool Styles */
 .case-converter-panel {
   max-width: 100%;
+  /* wrapped by .controls-section; take full width and no external margins */
   width: 100%;
-  margin: 24px auto;
-  padding: 22px 24px;
+  margin: 0;
+  padding: 20px;
   background: var(--aura-bg, #181c24);
   border-radius: 13px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.07);

@@ -12,6 +12,10 @@
   }
   function createCaseConverterPanel() {
     if (document.getElementById('caseConverterPanel')) return; // Only one instance
+    // Create wrapper to match Projects padding/inset
+    var wrapper = document.createElement('div');
+    wrapper.className = 'controls-section';
+
     var panel = document.createElement('div');
     panel.className = 'case-converter-panel';
     panel.id = 'caseConverterPanel';
@@ -37,9 +41,10 @@
         <textarea id="caseOutput" readonly></textarea>
       </div>
     `;
-    // Insert into main content or tools area
+    // Insert into main content or tools area, wrapped in controls-section
+    wrapper.appendChild(panel);
     var target = document.querySelector('.tools-section') || document.body;
-    target.parentNode.insertBefore(panel, target.nextSibling);
+    target.parentNode.insertBefore(wrapper, target.nextSibling);
     // Wire up logic
     var input = panel.querySelector('#caseInput');
     var output = panel.querySelector('#caseOutput');
