@@ -928,8 +928,11 @@ body {
 /* Sticky option for the Locale Badges Panel */
 .locale-badges-section.sticky {
   position: sticky;
+  /* place at top when sticky is enabled */
+  --badges-sticky-top: 0px;
   top: var(--badges-sticky-top, 72px); /* adjust via CSS var to match header/toolbar height */
   z-index: 30; /* above content tiles, below modals */
+  margin-top: 0; /* avoid extra gap when pinned */
 }
 
 /* Optional subtle elevation when sticky */
@@ -940,9 +943,18 @@ body {
 /* Sticky option for the unified Localized Previews header + badges wrapper */ /* added by Cascade */
 #localizedPreviewsStickyBlock.sticky {
   position: sticky;
+  /* place at top when sticky is enabled */
+  --badges-sticky-top: 0px;
   top: var(--badges-sticky-top, 72px);
   z-index: 30;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); /* match badges sticky elevation */
+  margin-top: 0; /* avoid extra gap when pinned */
+}
+
+/* Anchor offset for locale sections when sticky header/badges are active */ /* updated by Cascade */
+/* The groups container follows the sticky block as a sibling in the DOM. */
+#localizedPreviewsStickyBlock.sticky ~ .locale-groups-container .locale-section {
+  scroll-margin-top: var(--localized-sticky-anchor-offset, 72px);
 }
 
 /* Glass panel styling for the unified Localized Previews block */ /* added by Cascade */

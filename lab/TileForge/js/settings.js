@@ -939,6 +939,18 @@ function applyBadgesStickyState() {
   if (headerState) {
     headerState.textContent = stickyOn ? 'On' : 'Off';
   }
+
+  // Compute anchor offset only when sticky is active so section anchors are not hidden
+  try {
+    const root = document.documentElement;
+    if (stickyOn && previewsStickyBlock) {
+      // Use offsetHeight to include borders/padding; fallback to 72px if zero
+      const h = Math.max(previewsStickyBlock.offsetHeight || 0, 1) ? previewsStickyBlock.offsetHeight : 72;
+      root.style.setProperty('--localized-sticky-anchor-offset', h + 'px');
+    } else {
+      root.style.removeProperty('--localized-sticky-anchor-offset');
+    }
+  } catch (_) {}
 }
 
 // Wire sticky toggle interaction in main UI
@@ -950,6 +962,15 @@ document.addEventListener('change', function(event) {
     saveSettings();
     applyBadgesStickyState();
   }
+});
+
+// Recompute anchor offset on resize if sticky is active (layout/height can change)
+window.addEventListener('resize', function() {
+  try {
+    if (currentSettings && currentSettings.badgesPanelSticky) {
+      applyBadgesStickyState();
+    }
+  } catch (_) {}
 });
 
 // ===== MODAL CLOSE ON OUTSIDE CLICK =====
