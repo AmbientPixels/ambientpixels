@@ -16,6 +16,21 @@ function updateAnalytics(analytics) {
     }
   });
 
+  // added by Cascade: update minimal status pill (read-only)
+  try {
+    const pill = document.getElementById('statusInfoBadge');
+    if (pill && analytics) {
+      const t = Number(analytics.totalLocales) || 0;
+      const c = Number(analytics.cleanCount) || 0;
+      const n = Number(analytics.nearLimitCount) || 0;
+      const o = Number(analytics.overflowCount) || 0;
+      const text = `Locales: ${t} • Clean: ${c} • Near: ${n} • Overflow: ${o}`;
+      pill.textContent = text;
+      pill.title = `Analytics summary — ${text}`;
+      pill.setAttribute('aria-label', `Analytics summary. ${t} locales. ${c} clean. ${n} near limit. ${o} overflow.`);
+    }
+  } catch (_) { /* no-op */ }
+
   // Ensure locale badges reflect the latest statuses
   try { if (window.requestLocaleBadgeRefresh) window.requestLocaleBadgeRefresh(); } catch (e) {}
 }

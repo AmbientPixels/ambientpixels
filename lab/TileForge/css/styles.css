@@ -426,10 +426,33 @@ body {
   border-top: 1px solid #444;
 }
 
-/* Localized Preview Status: show active CSV name in green (match Projects list) */
-#localizedStatusBar #activeCsvName {
-  color: #8be08b; /* reuse active green */
-  font-weight: 600;
+/* Locale Badge Styling */
+.locale-badges-section .status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--theme-text, #fff);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  user-select: text; /* allow copy */
+}
+
+.locale-badges-section .status-pill:focus {
+  outline: 2px solid var(--theme-accent, #4f8cff);
+  outline-offset: 2px;
+}
+
+/* layout for info row above badges */
+.locale-badges-section .badge-info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 8px;
+  flex-wrap: wrap;
 }
 
 /* Country Badge Styling */
