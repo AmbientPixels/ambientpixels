@@ -16,6 +16,54 @@
     }
   }
 
+  // Clone the currently active/working CSV as a new file in the current project (append -clone)
+  async function onCloneActiveFile() {
+    try {
+      const ctx = await ensureProjectContext();
+      const proj = await ProjectStore.get(ctx.id);
+      if (!proj) throw new Error('Project not found');
+
+      // Determine working rows and base active name
+      const workingRows = Array.isArray(window.currentCsvData) ? window.currentCsvData : [];
+      const currentActive = (proj.data && (proj.data.activeCsv || (proj.data.csvs && proj.data.csvs[0] && proj.data.csvs[0].name))) || 'current.csv';
+
+      // Decide extension based on generator availability and current active name
+      const hasCsvGen = (typeof generateCSVContent === 'function');
+      const preferredExt = hasCsvGen ? '.csv' : '.json';
+      const base = currentActive.replace(/\.(csv|json)$/i, '');
+      const ext = /\.(csv|json)$/i.test(currentActive) ? currentActive.match(/\.(csv|json)$/i)[0].toLowerCase() : preferredExt;
+
+      // Build unique clone filename: base-clone.ext, then base-clone-2.ext, etc.
+      proj.data = proj.data || { csvs: [], activeCsv: null, image: null, template: 'toh', settings: {} };
+      const csvs = Array.isArray(proj.data.csvs) ? proj.data.csvs : (proj.data.csvs = []);
+      const existing = new Set(csvs.map(f => (f && f.name ? f.name.toLowerCase() : '')));
+      let cloneName = `${base}-clone${ext}`;
+      if (existing.has(cloneName.toLowerCase())) {
+        let n = 2;
+        while (existing.has(`${base}-clone-${n}${ext}`.toLowerCase())) n++;
+        cloneName = `${base}-clone-${n}${ext}`;
+      }
+
+      // Generate file text
+      let entryText = '';
+      if (ext === '.csv' && hasCsvGen) {
+        entryText = generateCSVContent(workingRows);
+      } else {
+        entryText = JSON.stringify(workingRows);
+      }
+
+      // Append as a new file; do not change activeCsv
+      csvs.push({ name: cloneName, text: entryText });
+      await ProjectStore.saveSnapshot(ctx.id, proj.data);
+      refreshList();
+      if (window.showToast) window.showToast(`Cloned as ${cloneName}`, 'success'); else alertModal(`Cloned as ${cloneName}`, 'success');
+    } catch (e) {
+      if (e && e.message === 'Canceled') return;
+      console.error(e);
+      alertModal('Clone failed', 'error');
+    }
+  }
+
   function downloadTextFile(filename, text, mime) {
     try {
       const blob = new Blob([text], { type: mime || 'text/plain;charset=utf-8' });
@@ -614,5 +662,5 @@
 
   document.addEventListener('DOMContentLoaded', initOnce);
 
-  window.ProjectUI = { initOnce, refreshList, onSave };
+  window.ProjectUI = { initOnce, refreshList, onSave, onCloneActiveFile };
 })();

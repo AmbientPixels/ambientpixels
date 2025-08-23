@@ -45,20 +45,31 @@
     showModalConfirm('Save current progress to a Project? This will update the current Project or create a new one.', doSave);
   }
 
-  // Clone current state (deep copy, with modal)
+  // Clone current item as a new project file (append -clone) with confirmation
   function cloneCurrentState() {
-    showModalConfirm('Clone current data set? This will create a copy in memory.', function() {
-      if (window.currentCsvData) {
-        // Deep clone
-        const cloned = JSON.parse(JSON.stringify(window.currentCsvData));
-        window.clonedCsvData = cloned;
-        if (typeof window.showToast === 'function') window.showToast('Data cloned in memory!');
-        console.log('TileForge: Data cloned to window.clonedCsvData');
+    showModalConfirm('Clone current item into project as a new file (append -clone)?', function() {
+      if (window.ProjectUI && typeof window.ProjectUI.onCloneActiveFile === 'function') {
+        try {
+          window.ProjectUI.onCloneActiveFile();
+        } catch (err) {
+          if (window.Modal && typeof Modal.alert === 'function') {
+            Modal.alert('Clone failed: ' + err.message, 'error');
+          } else {
+            alert('Clone failed: ' + err.message);
+          }
+        }
       } else {
-        if (window.Modal && typeof Modal.alert === 'function') {
-          Modal.alert('No data found to clone.', 'warning');
+        // Fallback: clone in memory only
+        if (window.currentCsvData) {
+          const cloned = JSON.parse(JSON.stringify(window.currentCsvData));
+          window.clonedCsvData = cloned;
+          if (typeof window.showToast === 'function') window.showToast('Data cloned in memory!');
         } else {
-          alert('No data found to clone.');
+          if (window.Modal && typeof Modal.alert === 'function') {
+            Modal.alert('No data found to clone.', 'warning');
+          } else {
+            alert('No data found to clone.');
+          }
         }
       }
     });
