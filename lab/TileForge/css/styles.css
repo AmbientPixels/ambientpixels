@@ -1953,3 +1953,19 @@ input:checked + .slider:before {
   margin-top: 10px;
 }
 /* --- end HOTFIX --- */
+
+/* --- TileForge: Project action badge buttons --- */
+.project-actions .preset-apply-btn.badge-btn {
+  min-width: auto; /* override wide buttons */
+  padding: 4px 8px; /* compact badge padding */
+  border-radius: 999px; /* pill/badge shape */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+.project-actions .preset-apply-btn.badge-btn i {
+  margin: 0;
+  font-size: 12px; /* slightly larger for clarity */
+}
+/* keep existing hover/disabled styles from .preset-apply-btn */

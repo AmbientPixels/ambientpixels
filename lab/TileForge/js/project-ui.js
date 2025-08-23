@@ -530,9 +530,9 @@
             <div class="project-date">${date}</div>
           </div>
           <div class="project-actions">
-            <button class="preset-apply-btn" data-act="load" data-id="${p.id}">Load</button>
-            <button class="preset-apply-btn" data-act="clone" data-id="${p.id}">Clone</button>
-            <button class="preset-apply-btn" data-act="delete" data-id="${p.id}">Delete</button>
+            <button class="preset-apply-btn badge-btn" data-act="load" data-id="${p.id}" title="Load Project" aria-label="Load Project"><i class="fas fa-folder-open" aria-hidden="true"></i></button>
+            <button class="preset-apply-btn badge-btn" data-act="clone" data-id="${p.id}" title="Clone Project" aria-label="Clone Project"><i class="fas fa-clone" aria-hidden="true"></i></button>
+            <button class="preset-apply-btn badge-btn" data-act="delete" data-id="${p.id}" title="Delete Project" aria-label="Delete Project"><i class="fas fa-trash" aria-hidden="true"></i></button>
             <button class="files-toggle" data-act="toggle-files" data-id="${p.id}" aria-expanded="${isExpanded}"><span class="chev">${isExpanded ? '▼' : '►'}</span> Files (${fileCount})</button>
           </div>
           <div class="project-files" data-files-for="${p.id}" style="display:${isExpanded ? 'block' : 'none'};">
