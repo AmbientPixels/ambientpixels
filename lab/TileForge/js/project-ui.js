@@ -5,6 +5,7 @@
   const state = {
     currentProject: null, // { id, name }
     expandedFilesPanels: new Set(), /* updated by Cascade: preserve expanded state */
+    projectOrder: [], /* updated by Cascade: stable ordering of projects */
   };
 
   // Modal helpers (replace browser dialogs)
@@ -283,18 +284,19 @@
   function buildSnapshotFromUI() {
     const data = {
       csvs: [],
-      activeCsv: 'current.csv',
+      activeCsv: null, // updated by Cascade: start empty unless editor has data
       image: null, // future: capture uploaded image if available
       template: getCurrentTemplate(),
       settings: {
         enabledSections: getEnabledSections(),
       }
     };
-    // Serialize currentCsvData as single csv entry
+    // Serialize currentCsvData only if rows exist
     if (Array.isArray(window.currentCsvData) && window.currentCsvData.length) {
       if (typeof generateCSVContent === 'function') {
         const csvText = generateCSVContent(window.currentCsvData);
         data.csvs.push({ name: 'current.csv', text: csvText });
+        data.activeCsv = 'current.csv';
       } else {
         // fallback: store as JSON
         data.csvs.push({ name: 'current.json', text: JSON.stringify(window.currentCsvData) });
@@ -515,7 +517,19 @@
   async function refreshList() {
     const listEl = document.getElementById('projectsList');
     if (!listEl) return;
-    const items = await ProjectStore.list();
+    let items = await ProjectStore.list();
+    // Maintain stable order irrespective of updatedAt changes
+    if (!Array.isArray(state.projectOrder) || state.projectOrder.length === 0) {
+      state.projectOrder = items.map(p => p.id);
+    } else {
+      // Remove any IDs that no longer exist
+      const existingIds = new Set(items.map(p => p.id));
+      state.projectOrder = state.projectOrder.filter(id => existingIds.has(id));
+      // Append any new IDs to end
+      items.forEach(p => { if (!state.projectOrder.includes(p.id)) state.projectOrder.push(p.id); });
+    }
+    const pos = new Map(state.projectOrder.map((id, i) => [id, i]));
+    items = items.slice().sort((a, b) => (pos.get(a.id) ?? 0) - (pos.get(b.id) ?? 0));
     listEl.innerHTML = items.map(p => {
       const isActive = state.currentProject && state.currentProject.id === p.id;
       const date = new Date(p.updatedAt || p.createdAt).toLocaleString();
@@ -538,18 +552,25 @@
           <div class="project-files" data-files-for="${p.id}" style="display:${isExpanded ? 'block' : 'none'};">
             <div class="project-files-header">
               <div class="project-files-actions">
-                <button class="preset-apply-btn" data-act="add-file" data-id="${p.id}">Add CSV</button>
-                <button class="preset-apply-btn" data-act="manage-locales" data-id="${p.id}">Create New</button>
-                <button class="preset-apply-btn btn-export-active" data-act="export-active" data-id="${p.id}"><i class="fa fa-download" aria-hidden="true"></i><span class="label">Export Active</span></button>
+                <button class="preset-apply-btn file-badge-btn" data-act="add-file" data-id="${p.id}" title="Add CSV" aria-label="Add CSV">
+                  <i class="fas fa-file-upload" aria-hidden="true"></i>
+                </button>
+                <button class="preset-apply-btn file-badge-btn" data-act="manage-locales" data-id="${p.id}" title="Create New" aria-label="Create New">
+                  <i class="fas fa-plus-circle" aria-hidden="true"></i>
+                </button>
+                <button class="preset-apply-btn file-badge-btn btn-export-active" data-act="export-active" data-id="${p.id}" title="Export Active" aria-label="Export Active">
+                  <i class="fa fa-download" aria-hidden="true"></i>
+                </button>
               </div>
             </div>
             <div class="project-files-list">
               ${(p.data?.csvs || []).map(f => `
-                <div class="project-file-row${f.name === activeCsv ? ' is-active' : ''}" data-name="${f.name}">
+                <div class="project-file-row${f.name === activeCsv ? ' is-active' : ''}" data-name="${f.name}" role="button" tabindex="0" aria-selected="${f.name === activeCsv}">
                   <span class="file-name">${f.name}</span>
                   <div class="file-actions">
-                    <button class="preset-apply-btn" data-act="set-active-file" data-id="${p.id}" data-name="${f.name}">Set Active</button>
-                    <button class="preset-apply-btn" data-act="remove-file" data-id="${p.id}" data-name="${f.name}">Remove</button>
+                    <button class="preset-apply-btn file-badge-btn" data-act="remove-file" data-id="${p.id}" data-name="${f.name}" title="Remove File" aria-label="Remove File">
+                      <i class="fas fa-trash" aria-hidden="true"></i>
+                    </button>
                   </div>
                 </div>
               `).join('')}
@@ -575,6 +596,10 @@
           if (await confirmAsync('Delete this project?')) {
             await ProjectStore.remove(id);
             if (state.currentProject && state.currentProject.id === id) state.currentProject = null;
+            // Keep order in sync after deletion
+            if (Array.isArray(state.projectOrder)) {
+              state.projectOrder = state.projectOrder.filter(pid => pid !== id);
+            }
             refreshList();
           }
         } else if (act === 'toggle-files') {
@@ -614,6 +639,25 @@
         } else if (act === 'remove-file') {
           const name = btn.getAttribute('data-name');
           onRemoveFile(id, name);
+        }
+      });
+    });
+    // Make entire file row clickable/keyboard-activatable to set active
+    listEl.querySelectorAll('.project-file-row').forEach(row => {
+      row.addEventListener('click', (e) => {
+        if (e.target && e.target.closest('button')) return; // ignore clicks on buttons within the row
+        const panel = row.closest('.project-files');
+        const projectId = panel ? panel.getAttribute('data-files-for') : null;
+        const name = row.getAttribute('data-name');
+        if (projectId && name) onSetActiveFile(projectId, name);
+      });
+      row.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const panel = row.closest('.project-files');
+          const projectId = panel ? panel.getAttribute('data-files-for') : null;
+          const name = row.getAttribute('data-name');
+          if (projectId && name) onSetActiveFile(projectId, name);
         }
       });
     });

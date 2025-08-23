@@ -768,6 +768,64 @@ body {
   gap: 6px;
 }
 
+/* Clickable file rows: affordance */
+.project-files-list .project-file-row {
+  cursor: pointer;
+  border-radius: 6px;
+}
+.project-files-list .project-file-row:hover {
+  background: rgba(79,140,255,0.08); /* subtle accent tint */
+}
+
+/* --- TileForge: Project action badge buttons --- */
+.project-actions .preset-apply-btn.badge-btn {
+  min-width: auto; /* override wide buttons */
+  padding: 4px 8px; /* compact badge padding */
+  border-radius: 999px; /* pill/badge shape */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+.project-actions .preset-apply-btn.badge-btn i {
+  margin: 0;
+  font-size: 12px; /* slightly larger for clarity */
+}
+/* keep existing hover/disabled styles from .preset-apply-btn */
+
+/* --- TileForge: Project file action badge buttons (distinct from project badges) --- */
+.project-files-actions .preset-apply-btn.file-badge-btn {
+  min-width: auto;
+  padding: 5px 10px;             /* slightly squarer than project badges */
+  border-radius: 10px;            /* not fully pill to differentiate */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  background: transparent;
+  color: var(--theme-accent, #4f8cff);
+  border-color: rgba(79,140,255,0.6);
+}
+.project-files-actions .preset-apply-btn.file-badge-btn i {
+  margin: 0;
+  font-size: 13px;
+}
+.project-files-actions .preset-apply-btn.file-badge-btn:hover {
+  background: rgba(79,140,255,0.12);
+  color: #fff;
+  border-color: var(--theme-accent, #4f8cff);
+}
+/* Export Active: emphasize with filled accent */
+.project-files-actions .preset-apply-btn.file-badge-btn.btn-export-active {
+  background: var(--theme-accent, #4f8cff);
+  color: #fff;
+  border-color: var(--theme-accent, #4f8cff);
+}
+.project-files-actions .preset-apply-btn.file-badge-btn.btn-export-active:hover {
+  background: #3b7ae0; /* slight darken for hover */
+  border-color: #3b7ae0;
+}
+
 /* Stack actions under title on small widths */
 @media (max-width: 520px) {
   .project-item { align-items: stretch; }
@@ -1953,19 +2011,3 @@ input:checked + .slider:before {
   margin-top: 10px;
 }
 /* --- end HOTFIX --- */
-
-/* --- TileForge: Project action badge buttons --- */
-.project-actions .preset-apply-btn.badge-btn {
-  min-width: auto; /* override wide buttons */
-  padding: 4px 8px; /* compact badge padding */
-  border-radius: 999px; /* pill/badge shape */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-}
-.project-actions .preset-apply-btn.badge-btn i {
-  margin: 0;
-  font-size: 12px; /* slightly larger for clarity */
-}
-/* keep existing hover/disabled styles from .preset-apply-btn */
