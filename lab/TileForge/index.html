@@ -150,17 +150,6 @@
       
       <!-- Controls Section -->
       <div class="controls-section">
-        <div class="file-info" id="fileInfo" style="display: none;">
-          <div class="info-item">
-            <span class="info-label">Image:</span>
-            <span class="info-value" id="imageFileName">None</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">CSV:</span>
-            <span class="info-value" id="csvFileName">None</span>
-          </div>
-        </div>
-
         <!-- Projects Section (under Controls) -->
         <div class="projects-section collapsible" id="projectsSection">
           <h4>
@@ -343,20 +332,12 @@
               <div class="preview-tile dnd-image-zone" id="previewTile">
                 <div class="tile-status-badge clean"><i class="fas fa-check-circle"></i></div>
                 <div class="tile-overlay">
-                  <div class="tile-title" id="previewTitle">Fortnite OG</div>
-                  <div class="tile-subtitle" id="previewSubtitle">New season</div>
+                  <div class="tile-title" id="previewTitle"></div>
+                  <div class="tile-subtitle" id="previewSubtitle"></div>
                 </div>
                 <div class="dnd-image-message" id="dndImageMessage" style="display: none;">
                   <i class="fas fa-image"></i>
                   <span>Drop image here</span>
-                </div>
-              </div>
-              <!-- CSV drop zone below preview tile -->
-              <div class="dnd-csv-zone" id="dndCsvZonePreview" style="display: none;">
-                <div class="dnd-csv-message">
-                  <i class="fas fa-file-csv"></i>
-                  <span>Drop CSV file here</span>
-                  <small>Iris Localization CSV format</small>
                 </div>
               </div>
             </div>
@@ -371,19 +352,26 @@
                </div>
                <!-- removed by Cascade: Auto-Localize Presets toggle is now permanent and has no UI control -->
                
-               <div id="autoLocalizeDropZone" class="dnd-csv-zone">
-                 <div class="dnd-csv-message">
-                   <i class="fas fa-file-csv"></i>
-                   <span>Drop CSV or XML file here to begin</span>
-                   <small>Upload a standard Iris-formatted CSV (recommended). Campsite XML import coming soon.</small>
-                 </div>
-               </div>
-               <!-- Controls toolbar moved under the drop zone (header removed) -->
-               <div class="controls-section">
-                 <div class="tileforge-toolbar" id="tileforgeToolbar">
-                   <!-- updated by Cascade: toolbar reset removed -->
-                 </div>
-               </div>
+               <!-- CSV/XML mini drop zone (replaces previous large zone) -->
+              <div class="dnd-csv-zone" id="dndCsvZonePreview"> 
+                <div class="dnd-csv-message">
+                  <i class="fas fa-file-import"></i> 
+                  <span>Drop CSV, XML, JSON, or image to begin</span>
+                </div>
+                <small>Images update the preview instantly. CSV is recommended; XML/JSON supported.</small>
+              </div>
+              <!-- moved by Cascade: File Info relocated under the mini drop zone -->
+              <div class="file-info" id="fileInfo" style="display: none;">
+                <div class="info-item">
+                  <span class="info-label"><i class="fas fa-image" aria-hidden="true"></i> Image:</span>
+                  <span class="info-value" id="imageFileName">None</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label"><i id="dataFileIcon" class="fas fa-table" aria-hidden="true"></i> <span id="dataFileLabel">CSV</span>:</span>
+                  <span class="info-value" id="csvFileName">None</span>
+                </div>
+              </div>
+               <!-- removed by Cascade: obsolete controls toolbar wrapper under drop zone -->
              </div>
           </div>
           
@@ -409,7 +397,7 @@
                   <div class="input-row">
                     <div class="input-container with-inline-action">
                       <div class="input-inner">
-                        <input type="text" id="titleInput" value="Fortnite OG" />
+                        <input type="text" id="titleInput" value="" />
                         <button class="inline-clear-btn" id="titleClearBtn" title="Clear Headline across all locales"><i class="fas fa-eraser" aria-hidden="true"></i><span class="sr-only">Clear Headline</span></button>
                       </div>
                       <div class="character-info">
@@ -489,7 +477,7 @@
                   <div class="input-row">
                     <div class="input-container with-inline-action">
                       <div class="input-inner">
-                        <input type="text" id="subtitleInput" value="New Season" />
+                        <input type="text" id="subtitleInput" value="" />
                         <button class="inline-clear-btn" id="subtitleClearBtn" title="Clear Subheadline across all locales"><i class="fas fa-eraser" aria-hidden="true"></i><span class="sr-only">Clear Subheadline</span></button>
                       </div>
                       <div class="character-info">
@@ -520,9 +508,8 @@
                   </div>
                   <!-- Subtitle Modifiers: Auto-Localized Phrase + Percent -->
                   <div class="modifier-controls">
-                    <div class="modifier-row preset-controls"> <!-- updated by Cascade: reuse preset-controls grid for right-aligned buttons -->
+                    <div class="modifier-row preset-controls"> 
                       <div class="modifier-inputs">
-                        <!-- removed label: Subtitle Modifiers -->
                         <select id="subtitlePhraseSelect" class="preset-dropdown" title="Choose a phrase template">
                           <option value="" disabled selected>Select preset...</option>
                           <option value="save_up_to">Save up to</option>
@@ -570,7 +557,7 @@
                   <div class="input-row">
                     <div class="input-container with-inline-action">
                       <div class="input-inner">
-                        <input type="text" id="narratorInput" value="Drop back into the original map" />
+                        <input type="text" id="narratorInput" value="" />
                         <button class="inline-clear-btn" id="narratorClearBtn" title="Clear Narrator across all locales"><i class="fas fa-eraser" aria-hidden="true"></i><span class="sr-only">Clear Narrator</span></button>
                       </div>
                       <div class="character-info">

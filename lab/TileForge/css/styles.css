@@ -2152,3 +2152,105 @@ input:checked + .slider:before {
   color: #fff;
   border-color: var(--theme-accent, #4f8cff);
 }
+
+/* Mini variant for compact CSV drop zones — updated by Cascade 2025-08-23 */
+.dnd-csv-zone.mini {
+  padding: 14px 16px;
+  min-height: 72px;
+  border-radius: 12px;
+  margin: 12px 0;
+}
+.dnd-csv-zone.mini .dnd-csv-message {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.dnd-csv-zone.mini .dnd-csv-message i {
+  font-size: 1.6rem;
+  margin-bottom: 6px;
+}
+.dnd-csv-zone.mini .dnd-csv-message small {
+  font-size: 0.9rem;
+}
+
+/* Live Editor: expanded mini size + icon row for #dndCsvZonePreview — updated by Cascade 2025-08-23 */
+#dndCsvZonePreview {
+  padding: 20px 18px;
+  min-height: 110px;
+}
+#dndCsvZonePreview .dnd-csv-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+#dndCsvZonePreview .dnd-csv-icons {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #1976d2;
+}
+#dndCsvZonePreview .dnd-csv-icons i {
+  font-size: 2.3rem;
+  opacity: 0.95;
+}
+#dndCsvZonePreview .helper-text {
+  display: block;
+  font-size: 0.9rem;
+  color: #1b5e9c;
+  line-height: 1.35;
+}
+
+/* Typography tuning for Live Editor drop zone text */
+#dndCsvZonePreview .dnd-csv-message > span {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+#dndCsvZonePreview .dnd-csv-message small {
+  font-size: 0.95rem;
+  opacity: 0.95;
+}
+
+/* updated by Cascade 2025-08-23: ensure helper line is small + grey in single-container drop zone */
+#dndCsvZonePreview > small {
+  font-size: 11px;
+  color: #666;
+}
+
+/* updated by Cascade 2025-08-23: stack and center contents in the mini drop zone */
+#dndCsvZonePreview {
+  flex-direction: column;
+  text-align: center;
+  gap: 6px;
+}
+
+/* updated by Cascade 2025-08-23: ensure helper line is small + grey in single-container drop zone */
+#dndCsvZonePreview > small {
+  font-size: 11px;
+  color: #666;
+}
+
+/* updated by Cascade 2025-08-23: larger import icon in mini drop zone only */
+#dndCsvZonePreview .dnd-csv-message i {
+  font-size: 3.6rem;
+  line-height: 1;
+}
+
+/* updated by Cascade 2025-08-23: file-info styling under mini drop zone */
+#fileInfo {
+  display: none; /* default hidden; JS toggles */
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+#fileInfo .info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.3;
+}
+#fileInfo .info-item + .info-item { margin-top: 4px; }
+#fileInfo .info-label { color: var(--mood-text-muted, #9aa3ad); display: inline-flex; align-items: center; gap: 6px; }
+#fileInfo .info-label i { color: var(--aura-glow, #4dabf7); font-size: 12px; }
+#fileInfo .info-value { color: var(--theme-text, #dbe4ed); }

@@ -156,6 +156,52 @@
 
     const observer = new MutationObserver(checkShowCsvZones);
     observer.observe(localeGroups, { childList: true });
+
+    // --- Live Editor: bind image drag-and-drop + click on preview tile --- // updated by Cascade 2025-08-23
+    const previewTile = document.getElementById('previewTile');
+    const dndImageMessage = document.getElementById('dndImageMessage');
+    const imgInput = document.getElementById('imgInput');
+    if (previewTile) {
+      // Click to open image picker
+      previewTile.addEventListener('click', function(e) {
+        if (!imgInput) return;
+        // avoid triggering when clicking buttons inside overlay (none currently)
+        imgInput.click();
+      });
+
+      function showImgOverlay() {
+        previewTile.classList.add('drag-over');
+        if (dndImageMessage) dndImageMessage.style.display = 'flex';
+      }
+      function hideImgOverlay() {
+        previewTile.classList.remove('drag-over');
+        if (dndImageMessage) dndImageMessage.style.display = 'none';
+      }
+
+      previewTile.addEventListener('dragover', function(e) {
+        if (!e.dataTransfer) return;
+        // only react to file drags
+        const types = e.dataTransfer.types || [];
+        if ([...types].indexOf('Files') === -1) return;
+        e.preventDefault();
+        showImgOverlay();
+      });
+      previewTile.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        hideImgOverlay();
+      });
+      previewTile.addEventListener('drop', function(e) {
+        e.preventDefault();
+        hideImgOverlay();
+        const files = e.dataTransfer && e.dataTransfer.files;
+        if (files && files.length) {
+          const file = files[0];
+          if (file && file.type && file.type.startsWith('image/')) {
+            if (typeof handleImageUpload === 'function') handleImageUpload(file);
+          }
+        }
+      });
+    }
   });
 
   // Expose binding API for dynamically inserted zones
