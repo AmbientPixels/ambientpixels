@@ -25,7 +25,16 @@ function updateAnalytics(analytics) {
       const n = Number(analytics.nearLimitCount) || 0;
       const o = Number(analytics.overflowCount) || 0;
       const text = `Locales: ${t} • Clean: ${c} • Near: ${n} • Overflow: ${o}`;
-      pill.textContent = text;
+      // Render with semantic spans for conditional colors
+      pill.innerHTML = `
+        <span class="label">Locales:</span> <span class="count count-locales">${t}</span>
+        <span class="dot">•</span>
+        <span class="label">Clean:</span> <span class="count count-clean">${c}</span>
+        <span class="dot">•</span>
+        <span class="label">Near:</span> <span class="count count-near">${n}</span>
+        <span class="dot">•</span>
+        <span class="label">Overflow:</span> <span class="count count-overflow">${o}</span>
+      `;
       pill.title = `Analytics summary — ${text}`;
       pill.setAttribute('aria-label', `Analytics summary. ${t} locales. ${c} clean. ${n} near limit. ${o} overflow.`);
     }

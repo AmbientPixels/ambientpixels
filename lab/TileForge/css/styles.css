@@ -441,6 +441,15 @@ body {
   user-select: text; /* allow copy */
 }
 
+/* colored analytics counts inside the info pill */ /* updated by Cascade */
+.locale-badges-section .status-pill .count { font-weight: 700; }
+.locale-badges-section .status-pill .label { opacity: 0.9; }
+.locale-badges-section .status-pill .dot { opacity: 0.6; }
+.locale-badges-section .status-pill .count-locales { color: var(--theme-accent, #4f8cff); }
+.locale-badges-section .status-pill .count-clean { color: #4caf50; }
+.locale-badges-section .status-pill .count-near { color: #ffa500; }
+.locale-badges-section .status-pill .count-overflow { color: #ff6b6b; }
+
 .locale-badges-section .status-pill:focus {
   outline: 2px solid var(--theme-accent, #4f8cff);
   outline-offset: 2px;
@@ -770,6 +779,7 @@ body {
   /* clamp to two lines when long */
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2; /* lint: standard property for compatibility */
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
