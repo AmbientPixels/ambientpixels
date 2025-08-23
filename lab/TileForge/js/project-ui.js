@@ -237,6 +237,10 @@
               const pill = nameEl.parentElement; if (pill && pill.setAttribute) pill.setAttribute('title', activeName ? `Currently active CSV: ${activeName}` : 'No active CSV selected');
             }
           }
+          // Ensure localized export button reflects data availability
+          if (typeof updateLocalizedExportState === 'function') {
+            updateLocalizedExportState(Array.isArray(csvRows) && csvRows.length > 0);
+          }
         } catch (e) { /* no-op */ }
       }
 

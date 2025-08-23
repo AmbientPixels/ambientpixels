@@ -1,6 +1,21 @@
 // TileForge CSV Handling Module
 // Handles CSV parsing, data processing, and file operations
 
+// Helper: toggle Localized Preview Export button enabled/disabled
+function updateLocalizedExportState(hasData) {
+  try {
+    const btn = document.getElementById('localizedExportBtn');
+    if (!btn) return;
+    if (hasData) {
+      btn.removeAttribute('disabled');
+      btn.title = 'Export to CSV';
+    } else {
+      btn.setAttribute('disabled', 'disabled');
+      btn.title = 'Load CSV data to enable export';
+    }
+  } catch (e) { /* no-op */ }
+}
+
 // Parse CSV data into array of objects
 function parseCSV(csvText) {
   // Remove UTF-8 BOM if present
@@ -78,6 +93,8 @@ function loadDefaultData() {
   // Attempt to load the default CSV. If it fails, fall back to empty state.
   // updated by Cascade: use sample-data/source-data.csv as the default import
   const defaultPath = 'lab/TileForge/sample-data/source-data.csv';
+  // default to disabled until data is confirmed loaded
+  updateLocalizedExportState(false);
   try {
     fetch(defaultPath, { cache: 'no-store' })
       .then(resp => {
@@ -86,6 +103,7 @@ function loadDefaultData() {
       })
       .then(text => {
         processCsvData(text, 'source-data.csv');
+        updateLocalizedExportState(true);
       })
       .catch(() => {
         window.currentCsvData = [];
@@ -99,6 +117,7 @@ function loadDefaultData() {
             if (pill && pill.setAttribute) pill.setAttribute('title', 'No active CSV selected');
           }
         } catch (e) { /* no-op */ }
+        updateLocalizedExportState(false);
       });
   } catch (e) {
     window.currentCsvData = [];
@@ -112,6 +131,7 @@ function loadDefaultData() {
         if (pill && pill.setAttribute) pill.setAttribute('title', 'No active CSV selected');
       }
     } catch (err) { /* no-op */ }
+    updateLocalizedExportState(false);
   }
 }
 
@@ -141,6 +161,7 @@ function processCsvData(csvText, fileName, rowCount = null) {
     
     if (csvRows.length === 0) {
       /* No alert for invalid CSV file or no data found */
+      updateLocalizedExportState(false);
       return;
     }
     
@@ -152,10 +173,12 @@ function processCsvData(csvText, fileName, rowCount = null) {
     updateFileInfo('CSV', fileName, actualRowCount);
     
     console.log('📊 CSV data processed successfully:', actualRowCount, 'rows');
+    updateLocalizedExportState(true);
     
   } catch (error) {
     console.error('Error parsing CSV:', error);
     /* No alert for error parsing CSV file */
+    updateLocalizedExportState(false);
   }
 }
 

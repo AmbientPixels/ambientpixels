@@ -202,7 +202,7 @@
   color: #8be08b; /* active green to match Projects list */
   font-weight: 600;
 }
-#localizedStatusBar .export-btn {
+#localizedStatusBar .toolbar-btn.export-btn {
   margin-left: auto;
   display: inline-flex;
   align-items: center;
@@ -212,31 +212,53 @@
   letter-spacing: 0.2px;
   color: var(--theme-text, #eaf3ff);
   background: linear-gradient(180deg, rgba(28,160,255,0.18), rgba(28,160,255,0.06));
-  border: 1px solid rgba(74,158,255,0.8);
-  border-radius: 999px;
-  box-shadow: 0 0 0 1px rgba(74,158,255,0.15) inset, 0 4px 12px rgba(28,160,255,0.15);
+  border: 1px solid var(--theme-accent, #4a9eff);
+  border-radius: 8px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset,
+              0 0 0 1px rgba(74,158,255,0.18) inset,
+              0 6px 14px rgba(28,160,255,0.18);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+  transition: background 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, transform 0.12s ease;
 }
-#localizedStatusBar .export-btn i { margin-right: 6px; font-size: 0.95em; }
-#localizedStatusBar .export-btn:hover {
-  background: linear-gradient(180deg, rgba(28,160,255,0.28), rgba(28,160,255,0.12));
-  border-color: #4a9eff;
-  box-shadow: 0 0 0 1px rgba(74,158,255,0.25) inset, 0 6px 16px rgba(28,160,255,0.22);
+#localizedStatusBar .toolbar-btn.export-btn i { margin-right: 6px; font-size: 0.95em; }
+#localizedStatusBar .toolbar-btn.export-btn:hover {
+  background: linear-gradient(180deg, rgba(28,160,255,0.34), rgba(28,160,255,0.14));
+  border-color: var(--theme-accent, #66b3ff);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset,
+              0 0 0 1px rgba(74,158,255,0.30) inset,
+              0 10px 22px rgba(28,160,255,0.28);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.3);
+  transform: translateY(-1px);
 }
-#localizedStatusBar .export-btn:active {
+#localizedStatusBar .toolbar-btn.export-btn:active {
   transform: translateY(0);
   filter: brightness(0.98);
-  box-shadow: 0 0 0 1px rgba(74,158,255,0.25) inset, 0 3px 10px rgba(28,160,255,0.18);
+  box-shadow: 0 0 0 1px rgba(74,158,255,0.24) inset,
+              0 2px 8px rgba(28,160,255,0.18);
 }
-#localizedStatusBar .export-btn:focus-visible { outline: 2px solid #4a9eff; outline-offset: 2px; }
+#localizedStatusBar .toolbar-btn.export-btn:focus-visible {
+  outline: 2px solid var(--theme-accent, #4a9eff);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px rgba(74,158,255,0.35), 0 0 0 4px rgba(74,158,255,0.15);
+}
 
 /* Disabled state */
-#localizedStatusBar .export-btn[disabled] {
-  opacity: 0.6;
+#localizedStatusBar .toolbar-btn.export-btn[disabled] {
+  opacity: 0.55;
   cursor: not-allowed;
-  filter: grayscale(20%);
+  filter: grayscale(35%);
   box-shadow: none;
+  background: linear-gradient(180deg, rgba(28,160,255,0.10), rgba(28,160,255,0.04));
+  border-color: rgba(74,158,255,0.35);
+  color: rgba(234, 243, 255, 0.6);
+  pointer-events: none;
 }
-#localizedStatusBar .export-btn[disabled]:hover { background: linear-gradient(180deg, rgba(28,160,255,0.18), rgba(28,160,255,0.06)); }
+#localizedStatusBar .toolbar-btn.export-btn[disabled]:hover {
+  background: linear-gradient(180deg, rgba(28,160,255,0.10), rgba(28,160,255,0.04));
+  border-color: rgba(74,158,255,0.35);
+  box-shadow: none;
+  transform: none;
+}
 
 /* Active CSV pill shown near localized previews */
 .active-file-pill { /* updated by Cascade */
