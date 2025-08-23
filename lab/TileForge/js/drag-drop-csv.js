@@ -1,21 +1,23 @@
-// drag-drop-csv.js
+  // drag-drop-csv.js
 // Handles drag-and-drop for CSV upload in the locale preview area in TileForge
 
 // --- Make drop zones clickable to open file browser ---
 (function() {
-  // Helper to create or get a hidden file input for CSV/XML
+  // Helper to create or get a hidden file input for CSV/XML/JSON/Images
   function getOrCreateCsvInput() {
     let csvInput = document.getElementById('csvInput');
     if (!csvInput) {
       csvInput = document.createElement('input');
       csvInput.type = 'file';
       csvInput.id = 'csvInput';
-      csvInput.accept = '.csv,.xml,text/csv,application/xml';
+      csvInput.accept = '.csv,.xml,.json,text/csv,application/xml,application/json,image/*';
       csvInput.style.display = 'none';
       document.body.appendChild(csvInput);
     }
     return csvInput;
   }
+  // expose globally for other modules/buttons
+  window.getOrCreateCsvInput = getOrCreateCsvInput;
 
   // List of drop zone IDs to make clickable
   const dropZoneIds = [
@@ -40,17 +42,8 @@
 
   // Optionally wire up file input to existing handler if needed
   // (Assume main CSV upload handler is already listening for file changes)
-})();
 
-document.addEventListener('DOMContentLoaded', function () {
-  const dndCsvZone = document.getElementById('dndCsvZone');
-  const dndCsvZonePreview = document.getElementById('dndCsvZonePreview');
-  const localeGroups = document.getElementById('localeGroups');
-
-  // Always allow emptyDropZone logic to run
-  if (!localeGroups) return;
-
-  // Drag/drop event handler for CSV/XML drop zones (calls main upload handlers)
+  // Utility: attach CSV/XML/JSON/Image drop events to a zone
   function addCsvXmlDropEvents(zone) {
     if (!zone) return;
     zone.addEventListener('dragover', (e) => {
@@ -61,55 +54,39 @@ document.addEventListener('DOMContentLoaded', function () {
       e.preventDefault();
       zone.classList.remove('drag-over');
     });
-    zone.addEventListener('drop', (e) => {
+    zone.addEventListener('drop', async (e) => {
       e.preventDefault();
       zone.classList.remove('drag-over');
       const files = e.dataTransfer.files;
       if (files && files.length) {
         const file = files[0];
-        const name = file.name.toLowerCase();
-        if (file.type === 'text/csv' || name.endsWith('.csv')) {
-          if (typeof handleCsvUpload === 'function') handleCsvUpload(file);
-        } else if (name.endsWith('.xml')) {
-          if (typeof handleXmlUpload === 'function') handleXmlUpload(file);
-          else {/* XML support coming soon - no alert */}
-        }
+        const name = (file.name || '').toLowerCase();
+        try {
+          if (file.type === 'text/csv' || name.endsWith('.csv')) {
+            if (typeof handleCsvUpload === 'function') handleCsvUpload(file);
+          } else if (name.endsWith('.xml') || file.type === 'application/xml' || file.type === 'text/xml') {
+            if (typeof handleXmlUpload === 'function') handleXmlUpload(file);
+            else { /* XML support pending */ }
+          } else if (name.endsWith('.json') || file.type === 'application/json') {
+            const text = await file.text();
+            try {
+              const data = JSON.parse(text);
+              if (Array.isArray(data)) {
+                window.currentCsvData = data;
+                if (typeof window.renderLocaleGroups === 'function') window.renderLocaleGroups(data);
+                if (typeof updateFileInfo === 'function') updateFileInfo('JSON', file.name, data.length || 0);
+                if (typeof updateLocalizedExportState === 'function') updateLocalizedExportState(true);
+              }
+            } catch (_) { /* ignore invalid JSON */ }
+          } else if (file.type && file.type.startsWith('image/')) {
+            if (typeof handleImageUpload === 'function') handleImageUpload(file);
+          }
+        } catch (_) { /* swallow errors to keep UX clean */ }
       }
     });
   }
 
-  addCsvXmlDropEvents(dndCsvZone);
-  addCsvXmlDropEvents(dndCsvZonePreview);
-
-  // Show dropzones if no CSV loaded (localeGroups is empty)
-  function checkShowCsvZones() {
-    var emptyDropZone = document.getElementById('emptyDropZone');
-    if (emptyDropZone) {
-      emptyDropZone.style.display = 'flex'; // Force visible for debug
-      console.log('[DEBUG] Forced emptyDropZone visible');
-    }
-  }
-
-  // Attach drag-and-drop to emptyDropZone and autoLocalizeDropZone
-  var emptyDropZone = document.getElementById('emptyDropZone');
-  if (emptyDropZone) addCsvXmlDropEvents(emptyDropZone);
-  var autoLocalizeDropZone = document.getElementById('autoLocalizeDropZone');
-  if (autoLocalizeDropZone) addCsvXmlDropEvents(autoLocalizeDropZone);
-
-  // Always check on DOMContentLoaded
-  checkShowCsvZones();
-
-  // Listen for localeGroups updates to hide dropzones after upload
-  // Only declare observer once!
-  // Patch: also call checkShowCsvZones after a file is loaded (CSV/XML)
-  if (typeof window.processCsvData === 'function') {
-    const origProcessCsvData = window.processCsvData;
-    window.processCsvData = function() {
-      origProcessCsvData.apply(this, arguments);
-      checkShowCsvZones();
-    };
-  }
-  // Drag/drop event handler for any drop zone
+  // Legacy helper: triggers input change for CSV
   function addCsvDropEvents(zone) {
     if (!zone) return;
     zone.addEventListener('dragover', (e) => {
@@ -127,21 +104,64 @@ document.addEventListener('DOMContentLoaded', function () {
       if (files && files.length) {
         const file = files[0];
         if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
+          const csvInput = (typeof window.getOrCreateCsvInput === 'function') ? window.getOrCreateCsvInput() : null;
           if (csvInput) {
             const dataTransfer = new DataTransfer();
             dataTransfer.items.add(file);
             csvInput.files = dataTransfer.files;
             csvInput.dispatchEvent(new Event('change', { bubbles: true }));
+          } else if (typeof handleCsvUpload === 'function') {
+            handleCsvUpload(file);
           }
-        } // No alert for non-CSV, allow XML to be handled elsewhere
+        }
       }
     });
   }
 
-  addCsvDropEvents(dndCsvZone);
-  addCsvDropEvents(dndCsvZonePreview);
+  document.addEventListener('DOMContentLoaded', function () {
+    const dndCsvZone = document.getElementById('dndCsvZone');
+    const dndCsvZonePreview = document.getElementById('dndCsvZonePreview');
+    const localeGroups = document.getElementById('localeGroups');
 
-  // Listen for localeGroups updates to hide both dropzones after upload
-  const observer = new MutationObserver(checkShowCsvZones);
-  observer.observe(localeGroups, { childList: true });
-});
+    // Always allow emptyDropZone logic to run
+    if (!localeGroups) return;
+
+    addCsvXmlDropEvents(dndCsvZone);
+    addCsvXmlDropEvents(dndCsvZonePreview);
+
+    function checkShowCsvZones() {
+      var emptyDropZone = document.getElementById('emptyDropZone');
+      if (emptyDropZone) {
+        // Visibility is handled by CSS; do not force styles here
+      }
+    }
+
+    var emptyDropZone = document.getElementById('emptyDropZone');
+    if (emptyDropZone) addCsvXmlDropEvents(emptyDropZone);
+    var autoLocalizeDropZone = document.getElementById('autoLocalizeDropZone');
+    if (autoLocalizeDropZone) addCsvXmlDropEvents(autoLocalizeDropZone);
+
+    checkShowCsvZones();
+
+    if (typeof window.processCsvData === 'function') {
+      const origProcessCsvData = window.processCsvData;
+      window.processCsvData = function() {
+        origProcessCsvData.apply(this, arguments);
+        checkShowCsvZones();
+      };
+    }
+
+    addCsvDropEvents(dndCsvZone);
+    addCsvDropEvents(dndCsvZonePreview);
+
+    const observer = new MutationObserver(checkShowCsvZones);
+    observer.observe(localeGroups, { childList: true });
+  });
+
+  // Expose binding API for dynamically inserted zones
+  window.TileForgeDnd = {
+    bind(zone) { addCsvXmlDropEvents(zone); },
+    bindById(id) { const el = document.getElementById(id); if (el) addCsvXmlDropEvents(el); },
+    bindEmptyState() { this.bindById('emptyDropZone'); }
+  };
+})();

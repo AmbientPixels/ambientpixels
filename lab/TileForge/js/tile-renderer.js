@@ -354,14 +354,35 @@ function renderLocaleGroups(csvData) {
   
   // Show blank state if no data or no selected locales
   if (!csvData || !csvData.length) {
-    container.innerHTML = `<div class="no-image-message">
-      <span class="no-image-icon"><i class="fas fa-language"></i></span>
-      <p>No Locales Selected</p>
-      <small>This is where your live locale previews will appear.<br>
-        Click <strong>Manage Locales</strong> to select languages and regions.<br>
-        Upload a CSV file to see your localization data visualized here.<br>
-        Use the <strong>Filters</strong> to focus on specific locales.</small>
-    </div>`;
+    container.innerHTML = `
+      <div id="emptyDropZone" class="dnd-csv-zone dnd-image-zone no-image-message">
+        <span class="no-image-icon"><i class="fas fa-language"></i></span>
+        <p>No Locales Selected</p>
+        <small class="blank-tip">
+          TileForge previews localized tiles from your project files. Create a project to organize images and CSV/JSON data, then create a new item and select languages/regions as needed. You can also drop CSV, XML, JSON, or an image anywhere in this area to get started.
+        </small>
+        <div class="blank-actions">
+          <button class="control-btn" onclick="(function(){var b=document.getElementById('toolbarNewBtn'); if(b){ b.click(); } else if(window.ProjectUI && typeof ProjectUI.onNewWithProjectPicker==='function'){ ProjectUI.onNewWithProjectPicker(); }})();"><i class="fas fa-plus"></i> Create New Item</button>
+          <button class="control-btn" onclick="(function(){var b=document.getElementById('projectCreateBtn'); if(b){ b.click(); } else if(window.ProjectUI && typeof ProjectUI.onNew==='function'){ ProjectUI.onNew(); }})();"><i class="fas fa-folder-plus"></i> Create New Project</button>
+        </div>
+        <div class="dnd-csv-message">
+          <i class="fas fa-file-import"></i>
+          <span>Drag & drop CSV, XML, JSON, or Image</span>
+          <small>CSV is recommended (Iris format). JSON arrays are supported. Images will become your tile background.</small>
+        </div>
+      </div>`;
+    // Bind DnD to the freshly inserted empty state zone (defensive: only if API is available)
+    try {
+      if (window.TileForgeDnd && typeof window.TileForgeDnd.bindEmptyState === 'function') {
+        window.TileForgeDnd.bindEmptyState();
+      } else {
+        // Fallback: bind directly if API is not present yet
+        var dz = document.getElementById('emptyDropZone');
+        if (dz && window.TileForgeDnd && typeof window.TileForgeDnd.bind === 'function') {
+          window.TileForgeDnd.bind(dz);
+        }
+      }
+    } catch (e) { /* no-op */ }
     updateAnalytics({ totalLocales: 0, overflowCount: 0, nearLimitCount: 0, cleanCount: 0 });
     return;
   }
