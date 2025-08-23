@@ -194,6 +194,48 @@ Headliner Crafter is TileForge's advanced CSV localization transformation tool t
 
 <!-- updated by Cascade: status pill color toggle docs -->
 
+## 📌 Localized Previews — Sticky Wrapper (Headline + Toolbar + Badges)
+
+<!-- updated by Cascade: localized previews sticky wrapper docs -->
+
+### Overview
+Keeps the Localized Previews headline, toolbar controls, and locale badges pinned under the top nav while scrolling. Provides a subtle glass panel background.
+
+### DOM Structure
+- **Wrapper**: `#localizedPreviewsStickyBlock`
+- **Header toggle (inline)**: checkbox `#togglePreviewsStickyHeader` with state label `#previewsStickyHeaderState` inside `.section-separator .separator-content`
+- **Back‑compat**: `.locale-badges-section` may also receive `.sticky` for legacy badges‑only pinning
+
+### Settings & State
+- **Key**: `currentSettings.badgesPanelSticky` (boolean)
+- **Persistence**: saved via `saveSettings()` → `localStorage['tileforge-settings']`
+- **Initializer**: `applyBadgesStickyState()` runs on `DOMContentLoaded`
+
+### Behavior
+- Applies `.sticky` to `#localizedPreviewsStickyBlock` when enabled
+- Syncs both header toggle (`#togglePreviewsStickyHeader`) and modal toggle (`#toggleBadgesSticky`) with `aria-checked` and textual state labels
+- Headline + toolbar + badges stay fixed; locale groups below continue scrolling
+
+### Functions
+- `applyBadgesStickyState()` in `lab/TileForge/js/settings.js`
+  - Toggles `.sticky` on `#localizedPreviewsStickyBlock`
+  - Back‑compat: mirrors state to `.locale-badges-section`
+  - Synchronizes UI controls and state labels
+- Global change listener updates state on either toggle: `#toggleBadgesSticky` or `#togglePreviewsStickyHeader`
+
+### CSS Hooks
+- Sticky container: `#localizedPreviewsStickyBlock.sticky { position: sticky; top: var(--badges-sticky-top, 72px); z-index: 30; }`
+- Glass panel: `#localizedPreviewsStickyBlock { backdrop-filter: blur(8px) saturate(120%); border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); }`
+- Headline row layout: `.section-separator .separator-content { display: flex; gap: 8px; }` with `.badge-controls { margin-left: auto; }`
+
+### Accessibility
+- Toggles maintain `aria-checked` and visible On/Off labels
+- Sticky elevation ensures focus outlines and content remain visible
+
+### Design Tokens
+- Uses existing offset variable `--badges-sticky-top`
+- Background aligns with Nova tokens (e.g., `--aura-*`) and avoids inline styles per Windsurf Protocol
+
 ## 🧭 Left Panel Overview
 
 The Left Panel is the primary navigation and workflow anchor in TileForge, always visible on the left side of the interface. It consolidates all major controls, filtering, and tool access into a single, persistent vertical panel for efficient localization and preview workflows.
