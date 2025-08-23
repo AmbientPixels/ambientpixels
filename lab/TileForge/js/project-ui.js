@@ -609,6 +609,9 @@
                 <div class="project-file-row${f.name === activeCsv ? ' is-active' : ''}" data-name="${f.name}" role="button" tabindex="0" aria-selected="${f.name === activeCsv}">
                   <span class="file-name">${f.name}</span>
                   <div class="file-actions">
+                    <button class="preset-apply-btn file-badge-btn" data-act="rename-file" data-id="${p.id}" data-name="${f.name}" title="Rename File" aria-label="Rename File">
+                      <i class="fas fa-edit" aria-hidden="true"></i>
+                    </button>
                     <button class="preset-apply-btn file-badge-btn" data-act="remove-file" data-id="${p.id}" data-name="${f.name}" title="Remove File" aria-label="Remove File">
                       <i class="fas fa-trash" aria-hidden="true"></i>
                     </button>
@@ -680,6 +683,9 @@
         } else if (act === 'remove-file') {
           const name = btn.getAttribute('data-name');
           onRemoveFile(id, name);
+        } else if (act === 'rename-file') {
+          const name = btn.getAttribute('data-name');
+          onRenameFile(id, name);
         }
       });
     });
@@ -763,12 +769,13 @@
     try {
       const proj = await ProjectStore.get(projectId);
       if (!proj || !proj.data) return;
-      const idx = (proj.data.csvs || []).findIndex(f => f.name === fileName);
+      const csvs = Array.isArray(proj.data.csvs) ? proj.data.csvs : (proj.data.csvs = []);
+      const idx = csvs.findIndex(f => f.name === fileName);
       if (idx < 0) return;
-      if (!(await confirmAsync(`Remove "${fileName}" from this project?`))) return;
-      proj.data.csvs.splice(idx, 1);
+      if (!(await confirmAsync(`Remove file "${fileName}" from this project?`))) return;
+      csvs.splice(idx, 1);
       if (proj.data.activeCsv === fileName) {
-        proj.data.activeCsv = (proj.data.csvs[0] && proj.data.csvs[0].name) || null;
+        proj.data.activeCsv = csvs[0] ? csvs[0].name : null;
       }
       await ProjectStore.saveSnapshot(projectId, proj.data);
       // If this project is loaded and we changed active, reflect into UI
@@ -779,6 +786,57 @@
     } catch (e) {
       console.error(e);
       alertModal('Failed to remove file', 'error');
+    }
+  }
+
+  async function onRenameFile(projectId, oldName) {
+    try {
+      const proj = await ProjectStore.get(projectId);
+      if (!proj || !proj.data) return;
+      const csvs = Array.isArray(proj.data.csvs) ? proj.data.csvs : (proj.data.csvs = []);
+      const idx = csvs.findIndex(f => f.name === oldName);
+      if (idx < 0) return;
+
+      // Ask for new name (default to current)
+      let inputName = await promptAsync('Rename file to:', oldName, { title: 'Rename File' }).catch(() => null);
+      if (!inputName) return; // canceled
+      inputName = String(inputName).trim();
+      if (!inputName) return;
+
+      // Preserve extension if user omitted it
+      const origExtMatch = oldName.match(/\.[^.]+$/);
+      const origExt = origExtMatch ? origExtMatch[0] : '';
+      const hasExt = /\.[^.]+$/.test(inputName);
+      let newName = hasExt ? inputName : (origExt ? inputName + origExt : inputName);
+
+      // Normalize case for comparison
+      const targetLower = newName.toLowerCase();
+      const exists = csvs.some((f, i) => i !== idx && f && f.name && f.name.toLowerCase() === targetLower);
+      if (exists) {
+        alertModal('A file with that name already exists in this project.', 'warning');
+        return;
+      }
+
+      // No change
+      if (newName === oldName) return;
+
+      // Apply rename
+      csvs[idx].name = newName;
+      if (proj.data.activeCsv === oldName) {
+        proj.data.activeCsv = newName;
+      }
+      await ProjectStore.saveSnapshot(projectId, proj.data);
+
+      // If this project is currently loaded, update UI snapshot so active labels reflect new name
+      if (state.currentProject && state.currentProject.id === projectId) {
+        // Reload snapshot into UI to refresh badges and file info
+        loadSnapshotIntoUI(proj);
+      }
+      refreshList();
+      if (window.showToast) window.showToast(`Renamed to ${newName}`, 'success'); else alertModal(`Renamed to ${newName}`, 'success');
+    } catch (e) {
+      console.error(e);
+      alertModal('Failed to rename file', 'error');
     }
   }
 
