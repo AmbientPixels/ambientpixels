@@ -599,9 +599,6 @@
                 <button class="preset-apply-btn file-badge-btn" data-act="manage-locales" data-id="${p.id}" title="Create New" aria-label="Create New">
                   <i class="fas fa-plus-circle" aria-hidden="true"></i>
                 </button>
-                <button class="preset-apply-btn file-badge-btn btn-export-active" data-act="export-active" data-id="${p.id}" title="Export Active" aria-label="Export Active">
-                  <i class="fa fa-download" aria-hidden="true"></i>
-                </button>
               </div>
             </div>
             <div class="project-files-list">
@@ -611,6 +608,9 @@
                   <div class="file-actions">
                     <button class="preset-apply-btn file-badge-btn" data-act="rename-file" data-id="${p.id}" data-name="${f.name}" title="Rename File" aria-label="Rename File">
                       <i class="fas fa-edit" aria-hidden="true"></i>
+                    </button>
+                    <button class="preset-apply-btn file-badge-btn" data-act="export-file" data-id="${p.id}" data-name="${f.name}" title="Export File" aria-label="Export File">
+                      <i class="fa fa-download" aria-hidden="true"></i>
                     </button>
                     <button class="preset-apply-btn file-badge-btn" data-act="remove-file" data-id="${p.id}" data-name="${f.name}" title="Remove File" aria-label="Remove File">
                       <i class="fas fa-trash" aria-hidden="true"></i>
@@ -658,17 +658,35 @@
             // Track expanded state so refreshList preserves it
             if (isHidden) state.expandedFilesPanels.add(id); else state.expandedFilesPanels.delete(id);
           }
-        } else if (act === 'export-active') {
+        } else if (act === 'export-file') {
+          const name = btn.getAttribute('data-name');
           try {
+            // Silent pre-export save to capture latest state
+            if (typeof window.manualSave === 'function') {
+              try { window.manualSave(true); } catch (err) { if (window.showToast) window.showToast('Warning: Save before export failed, exporting anyway.', 'warning'); }
+            }
             const proj = await ProjectStore.get(id);
             if (!proj || !proj.data) return alertModal('Project not found', 'warning');
-            const activeName = proj.data.activeCsv;
-            if (!activeName) return alertModal('No active CSV to export', 'warning');
-            const entry = (proj.data.csvs || []).find(f => f.name === activeName);
-            if (!entry) return alertModal('Active file not found in project', 'error');
+            const entry = (proj.data.csvs || []).find(f => f.name === name);
+            if (!entry) return alertModal('File not found in project', 'error');
             const isCsv = /\.csv$/i.test(entry.name);
-            const mime = isCsv ? 'text/csv;charset=utf-8' : 'application/json;charset=utf-8';
-            downloadTextFile(entry.name, entry.text || '', mime);
+            // Prefer unified CSV export with BOM when helpers are available
+            if (isCsv && typeof window.downloadCSVFile === 'function') {
+              window.downloadCSVFile(entry.text || '', entry.name);
+            } else if (!isCsv && typeof window.generateCSVContent === 'function' && typeof window.downloadCSVFile === 'function') {
+              try {
+                const rows = entry.text ? JSON.parse(entry.text) : [];
+                const csv = window.generateCSVContent(rows);
+                const csvName = entry.name.replace(/\.json$/i, '.csv');
+                window.downloadCSVFile(csv, csvName);
+              } catch (jsonErr) {
+                const mime = 'application/json;charset=utf-8';
+                downloadTextFile(entry.name, entry.text || '', mime);
+              }
+            } else {
+              const mime = isCsv ? 'text/csv;charset=utf-8' : 'application/json;charset=utf-8';
+              downloadTextFile(entry.name, entry.text || '', mime);
+            }
           } catch (e) {
             console.error(e);
             alertModal('Export failed', 'error');
