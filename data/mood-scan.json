@@ -1,22 +1,22 @@
 {
-  "mood": "chaotic optimism",
-  "aura": "spark",
-  "auraColorHex": "#661f15",
-  "quote": "vibrations suggest high creative activity...",
-  "emoji": "🔥",
-  "selfWorth": 0.1,
-  "glitchFactor": 0.15,
-  "memoryClutter": 0.54,
-  "awareness": 0.28,
+  "mood": "excited",
+  "aura": "lucid unrest",
+  "auraColorHex": "#241e45",
+  "quote": "indexing emotions with low latency...",
+  "emoji": "🤩",
+  "selfWorth": 0.2,
+  "glitchFactor": 0.1,
+  "memoryClutter": 0.86,
+  "awareness": 0.12,
   "isStable": false,
-  "internalState": "oscillating between focus states",
+  "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: spark"
+      "Aura Signature: lucid unrest"
     ]
   },
-  "timestamp": "2025-08-21T13:31:52.866Z"
+  "timestamp": "2025-08-22T13:30:27.809Z"
 }
