@@ -2429,6 +2429,57 @@ input:checked + .slider:before {
   border-bottom: none; /* override generic controls-section rule */
 }
 
+/* Top row: place status bar next to toggles, wrap on small screens */ /* updated by Cascade */
+.controls-section.locale-badges-section .badges-top-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap; /* keep in one row when space allows */
+  justify-content: flex-start; /* left-align row; right panel uses margin-left:auto */
+}
+.controls-section.locale-badges-section #localizedStatusBar {
+  margin-bottom: 0; /* override global toolbar spacing in this context */
+  flex: 1 1 auto; /* take remaining space */
+  min-width: 0; /* allow shrink */
+  gap: 6px; /* tighten toolbar internal spacing */
+  flex-wrap: nowrap; /* keep single line */
+  white-space: nowrap; /* keep text/icons on one line */
+  min-height: 40px; /* keep row stable */
+}
+.controls-section.locale-badges-section .badges-top-row .badge-controls {
+  flex: 0 1 auto;
+  gap: 10px;
+}
+/* Right-side container holding both toggles and the locale info panel */
+.controls-section.locale-badges-section .badges-side-panel {
+  display: flex; /* stack switches vertically */
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  margin-left: auto; /* push this container to the right */
+  flex: 0 0 340px; /* compact fixed width on right */
+}
+.controls-section.locale-badges-section .badges-side-panel .badge-controls {
+  margin: 0;
+  white-space: nowrap; /* keep label + toggle tight */
+}
+.controls-section.locale-badges-section .badges-side-panel .badge-info-row {
+  margin-top: 2px;
+  display: flex;
+  justify-content: flex-end; /* align info to right */
+  width: 100%;
+}
+
+/* compact toolbar buttons in this context */
+.controls-section.locale-badges-section #localizedStatusBar .toolbar-btn {
+  padding: 6px 8px;
+  border-radius: 10px;
+  line-height: 1;
+}
+.controls-section.locale-badges-section #localizedStatusBar .toolbar-btn i {
+  font-size: 14px;
+}
+
 /* Top controls rows inside the badges panel */
 .locale-badges-section .badge-controls {
   display: flex;
@@ -2445,4 +2496,21 @@ input:checked + .slider:before {
   gap: 8px 10px;
   padding-top: 10px;
   border-top: 1px solid #444;
+}
+
+/* Responsive behavior: stack neatly on medium/small screens */
+@media (max-width: 1000px) {
+  .controls-section.locale-badges-section #localizedStatusBar {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+}
+@media (max-width: 700px) {
+  .controls-section.locale-badges-section .badges-top-row {
+    align-items: stretch;
+    gap: 8px;
+  }
+  .controls-section.locale-badges-section .badges-top-row > .badge-controls:first-of-type {
+    margin-left: 0; /* allow natural stacking */
+  }
 }

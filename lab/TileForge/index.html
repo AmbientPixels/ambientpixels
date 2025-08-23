@@ -642,46 +642,50 @@
         <div class="separator-line"></div>
       </div>
       
-      <!-- Localized Preview Status (Active CSV + Actions) -->
-      <div class="controls-section">
-        <div class="tileforge-toolbar" id="localizedStatusBar">
-          <span title="Currently active CSV used for previews">
-            <i class="fas fa-file-csv"></i>
-            <span id="activeCsvName">—</span>
-          </span>
-          <!-- moved by Cascade: Save/Clone/New relocated from live editor toolbar into status bar -->
-          <button class="toolbar-btn" id="toolbarSaveBtn" title="Save"><i class="fas fa-save"></i></button>
-          <button class="toolbar-btn" id="toolbarCloneBtn" title="Clone"><i class="fas fa-clone"></i></button>
-          <button class="toolbar-btn" id="toolbarNewBtn" title="New"><i class="fas fa-plus"></i></button>
-          <button class="toolbar-btn" id="toolbarNewProjectBtn" title="New Project"><i class="fas fa-folder-plus"></i></button>
-          <button class="toolbar-btn export-btn" id="toolbarManageLocalesBtn" title="Manage Locales">
-            <i class="fas fa-globe"></i> Manage Locales
-          </button>
-          <button class="toolbar-btn export-btn" id="localizedExportBtn" title="Export to CSV">
-            <i class="fas fa-file-export"></i> Export
-          </button>
-        </div>
-      </div>
-      <!-- Locale badges: separate section under the toolbar -->
+      <!-- Locale badges & status: unified section under the header -->
       <div class="controls-section locale-badges-section">
-        <div class="badge-controls" aria-label="Language color codes controls">
-          <span class="badge-controls-label">Language color codes</span>
-          <label class="switch" title="Toggle language color codes">
-            <input type="checkbox" id="toggleLocaleColors" aria-checked="false" aria-label="Toggle language color codes">
-            <span class="slider"></span>
-          </label>
-          <span class="switch-state" id="localeColorsState">Off</span>
-          <span class="default-badge" id="languageDefaultBadge" hidden>Default</span>
+        <div class="badges-top-row">
+          <!-- Left: Control panel (CSV status + actions) -->
+          <div class="tileforge-toolbar" id="localizedStatusBar">
+            <span title="Currently active CSV used for previews">
+              <i class="fas fa-file-csv"></i>
+              <span id="activeCsvName">—</span>
+            </span>
+            <!-- Save/Clone/New + Manage Locales + Export -->
+            <button class="toolbar-btn" id="toolbarSaveBtn" title="Save"><i class="fas fa-save"></i></button>
+            <button class="toolbar-btn" id="toolbarCloneBtn" title="Clone"><i class="fas fa-clone"></i></button>
+            <button class="toolbar-btn" id="toolbarNewBtn" title="New"><i class="fas fa-plus"></i></button>
+            <button class="toolbar-btn" id="toolbarNewProjectBtn" title="New Project"><i class="fas fa-folder-plus"></i></button>
+            <button class="toolbar-btn export-btn" id="toolbarManageLocalesBtn" title="Manage Locales">
+              <i class="fas fa-globe"></i> Manage Locales
+            </button>
+            <button class="toolbar-btn export-btn" id="localizedExportBtn" title="Export to CSV">
+              <i class="fas fa-file-export"></i> Export
+            </button>
+          </div>
+          <!-- Right: Toggles (stacked) -->
+          <div class="badges-side-panel" role="group" aria-label="Locale badges controls and info">
+            <div class="badge-controls" aria-label="Language color codes controls">
+              <span class="badge-controls-label">Language color codes</span>
+              <label class="switch" title="Toggle language color codes">
+                <input type="checkbox" id="toggleLocaleColors" aria-checked="false" aria-label="Toggle language color codes">
+                <span class="slider"></span>
+              </label>
+              <span class="switch-state" id="localeColorsState">Off</span>
+              <span class="default-badge" id="languageDefaultBadge" hidden>Default</span>
+            </div>
+            <div class="badge-controls" aria-label="Status color codes controls">
+              <span class="badge-controls-label">Status color codes</span>
+              <label class="switch" title="Toggle status color codes">
+                <input type="checkbox" id="toggleStatusPillColors" aria-checked="false" aria-label="Toggle status color codes">
+                <span class="slider"></span>
+              </label>
+              <span class="switch-state" id="statusColorsState">Off</span>
+              <span class="default-badge" id="statusDefaultBadge" hidden>Default</span>
+            </div>
+          </div>
         </div>
-        <div class="badge-controls" aria-label="Status color codes controls">
-          <span class="badge-controls-label">Status color codes</span>
-          <label class="switch" title="Toggle status color codes">
-            <input type="checkbox" id="toggleStatusPillColors" aria-checked="false" aria-label="Toggle status color codes">
-            <span class="slider"></span>
-          </label>
-          <span class="switch-state" id="statusColorsState">Off</span>
-          <span class="default-badge" id="statusDefaultBadge" hidden>Default</span>
-        </div>
+        <!-- Locale info panel positioned under the toolbar/top row -->
         <div class="badge-info-row">
           <span id="statusInfoBadge" class="status-pill" aria-live="polite" aria-label="Current analytics summary" title="Current analytics summary">—</span>
         </div>
