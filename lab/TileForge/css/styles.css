@@ -445,6 +445,32 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+/* Locale badge language colors (scoped) */ /* updated by Cascade */
+#localeBadgeArea .country-badge[class*="lang-"] {
+  color: #fff; /* ensure contrast */
+}
+#localeBadgeArea .country-badge.lang-en { background: #2d7ef7; border-color: #1d5cc0; }
+#localeBadgeArea .country-badge.lang-de { background: #f5a623; border-color: #c07e12; }
+#localeBadgeArea .country-badge.lang-fr { background: #4a90e2; border-color: #2b6cb0; }
+#localeBadgeArea .country-badge.lang-es { background: #e94e3d; border-color: #b9382a; }
+#localeBadgeArea .country-badge.lang-it { background: #2bb673; border-color: #1f8a57; }
+#localeBadgeArea .country-badge.lang-pt { background: #0f9d58; border-color: #0b6f3e; }
+#localeBadgeArea .country-badge.lang-ja { background: #d0021b; border-color: #9c0114; }
+#localeBadgeArea .country-badge.lang-ko { background: #7b61ff; border-color: #5a42d6; }
+#localeBadgeArea .country-badge.lang-zh { background: #ff6f00; border-color: #cc5800; }
+#localeBadgeArea .country-badge.lang-ru { background: #2980b9; border-color: #1f5f8a; }
+#localeBadgeArea .country-badge.lang-pl { background: #c0392b; border-color: #8e2b20; }
+#localeBadgeArea .country-badge.lang-nl { background: #e67e22; border-color: #b6631a; }
+#localeBadgeArea .country-badge.lang-sv { background: #f1c40f; color: #12263a; border-color: #b7950b; }
+#localeBadgeArea .country-badge.lang-no { background: #b71c1c; border-color: #871414; }
+#localeBadgeArea .country-badge.lang-da { background: #a80000; border-color: #780000; }
+#localeBadgeArea .country-badge.lang-fi { background: #1565c0; border-color: #0e4688; }
+#localeBadgeArea .country-badge.lang-tr { background: #e53935; border-color: #ad2a28; }
+#localeBadgeArea .country-badge.lang-ar { background: #00897b; border-color: #00695c; }
+#localeBadgeArea .country-badge.lang-he { background: #3949ab; border-color: #2a357e; }
+
+/* note: status classes (clean | near-limit | overflow) still apply; these language colors are base fills for toolbar */ /* updated by Cascade */
+
 /* Header Settings Button */
 .header-top {
   display: flex;
@@ -2014,7 +2040,7 @@ input:checked + .slider:before {
   }
 }
 
-/* --- HOTFIX: stable single-column centered layout for empty-state --- */
+/* --- HOTFIX: stable single-column centered layout for empty-state — updated by Cascade 2025-08-22 --- */
 .no-image-message.dnd-csv-zone {
   display: block;                 /* cancel flex/grid experiments */
   max-width: 720px;               /* stable card width */
@@ -2254,3 +2280,14 @@ input:checked + .slider:before {
 #fileInfo .info-label { color: var(--mood-text-muted, #9aa3ad); display: inline-flex; align-items: center; gap: 6px; }
 #fileInfo .info-label i { color: var(--aura-glow, #4dabf7); font-size: 12px; }
 #fileInfo .info-value { color: var(--theme-text, #dbe4ed); }
+
+/* Locale badges layout under toolbar (new section) */ /* updated by Cascade */
+.locale-badges-section {
+  padding-top: 4px;
+}
+.locale-badge-area {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}

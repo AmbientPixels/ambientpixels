@@ -15,6 +15,9 @@ function updateAnalytics(analytics) {
       element.textContent = analytics[key];
     }
   });
+
+  // Ensure locale badges reflect the latest statuses
+  try { if (window.requestLocaleBadgeRefresh) window.requestLocaleBadgeRefresh(); } catch (e) {}
 }
 
 // Update file information in analytics
@@ -269,3 +272,65 @@ function calculateThumbnailSize(originalWidth, originalHeight, maxWidth, maxHeig
   
   return { width: Math.round(width), height: Math.round(height) };
 }
+
+// Render compact locale badges in the localized status bar
+function renderLocaleBadgeArea() { 
+  const host = document.getElementById('localeBadgeArea');
+  if (!host) return;
+
+  // Gather per-locale status by scanning rendered sections and tiles
+  const sections = document.querySelectorAll('.locale-section');
+  const badges = [];
+  sections.forEach(section => {
+    const header = section.querySelector('.locale-header .country-badge');
+    let code = header ? (header.textContent || '').trim() : '';
+    if (!code) {
+      // Fallback to data-locale set on the section (covers cases like 'invariant')
+      code = (section.dataset && section.dataset.locale) ? String(section.dataset.locale).trim() : '';
+    }
+    if (!code) return;
+
+    let overflow = 0, near = 0, clean = 0; 
+    section.querySelectorAll('.tile-preview').forEach(tile => {
+      if (tile.classList.contains('overflow')) overflow++;
+      else if (tile.classList.contains('near-limit')) near++;
+      else if (tile.classList.contains('clean')) clean++;
+    });
+
+    // Determine overall status priority: overflow > near-limit > clean
+    let status = 'clean';
+    if (overflow > 0) status = 'overflow';
+    else if (near > 0) status = 'near-limit';
+
+    const total = overflow + near + clean;
+    badges.push({ code, status, total, overflow, near, clean });
+  });
+
+  // Sort badges alphabetically by code for stable visual order
+  badges.sort((a, b) => String(a.code).toUpperCase().localeCompare(String(b.code).toUpperCase()));
+
+  // Render
+  host.innerHTML = '';
+  badges.forEach(b => {
+    const badge = document.createElement('span');
+    // Reuse existing badge styling; add status as modifier class
+    const lang = (b.code || '').split('-')[0].toLowerCase();
+    badge.className = `country-badge ${b.status} lang-${lang}`;
+    badge.dataset.lang = lang; // for future hooks/telemetry
+    badge.title = `${b.code}: ${b.clean} clean, ${b.near} near, ${b.overflow} overflow`;
+    badge.textContent = b.code;
+    host.appendChild(badge);
+  });
+}
+
+// Debounced global refresh hook used by tile rendering/analytics modules
+window.requestLocaleBadgeRefresh = (function(){ 
+  let raf = null;
+  return function() {
+    if (raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => {
+      raf = null;
+      renderLocaleBadgeArea();
+    });
+  };
+})();

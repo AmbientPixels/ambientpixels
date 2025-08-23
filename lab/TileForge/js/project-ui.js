@@ -156,6 +156,12 @@
         rows.push({ Locale: loc, 'items/0/title': '', 'items/0/subtitle': '', 'items/0/narratorText': '' });
       }
     });
+    // Keep rows sorted alphabetically by locale code to match Locale Manager ordering
+    rows.sort((a, b) => {
+      const la = String(a.Locale || a.locale || '').toUpperCase();
+      const lb = String(b.Locale || b.locale || '').toUpperCase();
+      return la.localeCompare(lb);
+    });
     return rows;
   }
 

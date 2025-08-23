@@ -413,10 +413,15 @@ function renderLocaleGroups(csvData) {
     else analytics.cleanCount++;
   });
   
-  // Create sections for each locale
-  Object.entries(localeGroups).forEach(([locale, tiles]) => {
+  // Create sections for each locale in alphabetical order
+  Object.keys(localeGroups)
+    .slice()
+    .sort((a, b) => String(a).toUpperCase().localeCompare(String(b).toUpperCase()))
+    .forEach((locale) => {
+    const tiles = localeGroups[locale];
     const section = document.createElement('div');
     section.className = 'locale-section';
+    section.dataset.locale = locale; // expose locale for downstream readers (badges)
     
     // Section header with locale code and full name
     const header = document.createElement('h3');
@@ -441,6 +446,8 @@ function renderLocaleGroups(csvData) {
   
   // Update analytics display
   updateAnalytics(analytics);
+  // Refresh locale badges to reflect latest statuses
+  try { if (window.requestLocaleBadgeRefresh) window.requestLocaleBadgeRefresh(); } catch (e) {}
 }
 
 // Update tile status based on current title and subtitle text
@@ -550,6 +557,8 @@ function applySectionChanges(button) {
     // Update analytics
     updateAnalyticsFromCurrentData();
   }
+  // Refresh locale badges to reflect live edits
+  try { if (window.requestLocaleBadgeRefresh) window.requestLocaleBadgeRefresh(); } catch (e) {}
 }
 
 // Reset section editor to original values
@@ -680,4 +689,20 @@ function updateAnalyticsFromAllTiles() {
   };
   
   updateAnalytics(analytics);
+}
+
+// Update analytics display
+function updateAnalytics(analytics) {
+  // Update analytics display elements
+  const totalLocalesEl = document.getElementById('totalLocales');
+  const overflowCountEl = document.getElementById('overflowCount');
+  const nearLimitCountEl = document.getElementById('nearLimitCount');
+  const cleanCountEl = document.getElementById('cleanCount');
+  
+  if (totalLocalesEl) totalLocalesEl.textContent = analytics.totalLocales;
+  if (overflowCountEl) overflowCountEl.textContent = analytics.overflowCount;
+  if (nearLimitCountEl) nearLimitCountEl.textContent = analytics.nearLimitCount;
+  if (cleanCountEl) cleanCountEl.textContent = analytics.cleanCount;
+  // Refresh locale badges to reflect latest statuses
+  try { if (window.requestLocaleBadgeRefresh) window.requestLocaleBadgeRefresh(); } catch (e) {}
 }
