@@ -41,10 +41,19 @@
         <textarea id="caseOutput" readonly></textarea>
       </div>
     `;
-    // Insert into main content or tools area, wrapped in controls-section
+    // Insert into Tools section under Transform Data and Headline Mapper
     wrapper.appendChild(panel);
-    var target = document.querySelector('.tools-section') || document.body;
-    target.parentNode.insertBefore(wrapper, target.nextSibling);
+    var toolsSection = document.getElementById('toolsSection');
+    if (toolsSection) {
+      var anchor = toolsSection.querySelector('.tool-group');
+      if (anchor && anchor.parentNode === toolsSection) {
+        anchor.insertAdjacentElement('afterend', wrapper);
+      } else {
+        toolsSection.appendChild(wrapper);
+      }
+    } else {
+      document.body.appendChild(wrapper);
+    }
     // Wire up logic
     var input = panel.querySelector('#caseInput');
     var output = panel.querySelector('#caseOutput');
