@@ -161,44 +161,21 @@ Headliner Crafter is TileForge's advanced CSV localization transformation tool t
 
 ---
 
-## 🕹️ Controls Panel
+## 🏷️ Locale Badges — Language Color Palette Toggle
+- **Badge rendering:** `lab/TileForge/js/analytics.js` → `renderLocaleBadgeArea()` writes pills into `#localeBadgeArea`. Each pill is a link wrapping a badge span with classes: `country-badge`, a status class (e.g., `clean`, `near-limit`, `overflow`), and a language class `lang-<code>` (e.g., `lang-en`). The function also toggles `.has-badges` on the container `.locale-badges-section` when pills exist.
+- **Palette application (CSS):** `lab/TileForge/css/styles.css` scopes per‑language colors behind a container switch:
+  - Default (palette OFF): `.country-badge` uses the base pill style.
+  - Palette ON: `.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-en { … }` and similar for `fr`, `es`, `de`, `ja`, `ko`, `zh`, etc. These rules only apply when the ancestor `.locale-badges-section` has `.palette-on`.
+- **Toggle binding (JS):** `lab/TileForge/js/toolbar.js` attaches to the checkbox `#toggleLocaleColors` on `DOMContentLoaded` and toggles `.palette-on` on `.locale-badges-section`. It also syncs `aria-checked` with the control state.
+- **Required DOM (verify in HTML):**
+  - Container: an element with class `.locale-badges-section`.
+  - Host: `#localeBadgeArea` where pills render.
+  - Control: a checkbox/switch with id `#toggleLocaleColors` that the toolbar script listens to. If adding markup, place the control inside the existing `.badge-controls` within `.locale-badges-section` rather than creating new containers.
+- **Behavior:**
+  - Toggle OFF → `.palette-on` absent → all pills use default `.country-badge` styling (uniform color).
+  - Toggle ON → `.palette-on` present → per‑language colors activate via the `lang-<code>` classes.
 
-### Overview
-The Controls Panel is a persistent toolbar located at the top of the TileForge interface, just above the tile preview grid. It provides quick access to essential workflow actions and batch operations, streamlining the localization and preview process.
-
-### Key Features
-
-- **Bulk Actions:** Perform operations on multiple tiles or mappings at once, such as clearing fields or deleting entries.
-- **Quick Navigation:** Jump to frequently used tools, modals, or panels (e.g., Mapping Modal, Transform Modal, Locale Manager).
-- **Status Indicators:** Visual cues for the current selection, applied filters, or batch mode.
-
-### Main Controls
-
-- **Clear All:** Instantly resets all mapping and preview data, allowing you to start fresh with a single click. Confirmation is required to prevent accidental data loss.
-- **Delete from All:** Removes a selected field or value from every tile or mapping across all locales. Useful for bulk cleanup or correcting widespread errors.
-- **Open Mapping Modal:** Quickly access the field mapping interface to adjust CSV/XML field assignments.
-- **Create New Item (Empty-State):** Starts the same flow as the toolbar New action (project picker → locale selection).
-
----
-
-### 🔄 Live Editor Propagation, Empty-State, and Manage Locales
-
-When you use **Create New Item** to add all or a subset of locales, TileForge now synchronizes that selection into the working dataset (`window.currentCsvData`). This ensures that:
-
-- **Apply to All** actions in the live editor update all localized preview tiles.
-- **Preset applications** (Auto‑Localize ON/OFF) immediately propagate to localized previews.
-- No CSV import is required for propagation after selecting locales.
-
-If no locales are selected, the localized preview shows the blank state with a **Create New Item** button wired to the toolbar New flow. <!-- updated by Cascade -->
-
-
-### ✍️ Subtitle Modifiers – Symbols (Optional)
-
-- **Where:** `Subtitle Modifiers` row in `lab/TileForge/index.html` (`#subtitleSymbolSelect`).
-- **What it does:** Appends the selected symbol to the inserted value only when the resolved template contains `{n}` and does not already include a percent/currency symbol.
-- **Supported symbols:** None (default), %, $, €, £, ¥.
-- **Logic location:** `lab/TileForge/js/live-editor.js` in `applySubtitleModifiersAll()` and `applySubtitleModifiersSelected()`; uses `getSubtitleTemplateForLocale()` and existing `composeSubtitleFromTemplate()` without duplicating logic. <!-- updated by Cascade -->
-
+<!-- updated by Cascade: locale badge palette toggle docs -->
 
 ## 🧭 Left Panel Overview
 
@@ -1377,5 +1354,3 @@ TileForge/
 - Analytics dashboard
 
 This documentation reflects the current state of TileForge as a comprehensive Xbox tile localization tool with advanced visual measurement, country identification, and image analysis capabilities.
-
-```
