@@ -311,6 +311,11 @@ function renderLocaleBadgeArea() {
 
   // Render
   host.innerHTML = '';
+  // Toggle UI state for badge controls visibility
+  const badgesSection = document.querySelector('.locale-badges-section');
+  if (badgesSection) {
+    badgesSection.classList.toggle('has-badges', badges.length > 0);
+  }
   badges.forEach(b => {
     const badge = document.createElement('span');
     // Reuse existing badge styling; add status as modifier class

@@ -150,6 +150,19 @@
         }
       });
     }
+    // Locale badge color palette toggle
+    var colorToggle = document.getElementById('toggleLocaleColors');
+    var badgesSection = document.querySelector('.locale-badges-section');
+    if (colorToggle && badgesSection) {
+      // Ensure initial state (unchecked -> no palette)
+      badgesSection.classList.toggle('palette-on', !!colorToggle.checked);
+      colorToggle.setAttribute('aria-checked', String(!!colorToggle.checked));
+      colorToggle.addEventListener('change', function(e) {
+        var on = !!e.target.checked;
+        badgesSection.classList.toggle('palette-on', on);
+        colorToggle.setAttribute('aria-checked', String(on));
+      });
+    }
     // updated by Cascade
   });
 
