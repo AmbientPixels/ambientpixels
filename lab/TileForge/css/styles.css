@@ -826,11 +826,6 @@ body {
   border: 1px solid #2d4a2d;
   background: rgba(16, 124, 16, 0.08);
 }
-.project-files:has(.project-file-row.is-active) .project-files-actions .btn-export-active:hover,
-.project-files:has(.project-file-row.is-active) .project-files-actions .btn-export-active:focus {
-  background: rgba(16, 124, 16, 0.16);
-  box-shadow: 0 0 0 2px rgba(16, 124, 16, 0.18);
-}
 .project-files-meta {
   font-size: 12px;
   color: #bbb;
@@ -928,6 +923,18 @@ body {
 .project-files-actions .preset-apply-btn.file-badge-btn.btn-export-active:hover {
   background: #3b7ae0; /* slight darken for hover */
   border-color: #3b7ae0;
+}
+
+/* Sticky option for the Locale Badges Panel */
+.locale-badges-section.sticky {
+  position: sticky;
+  top: var(--badges-sticky-top, 72px); /* adjust via CSS var to match header/toolbar height */
+  z-index: 30; /* above content tiles, below modals */
+}
+
+/* Optional subtle elevation when sticky */
+.locale-badges-section.sticky {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 /* Stack actions under title on small widths */
@@ -2361,4 +2368,32 @@ input:checked + .slider:before {
   border: 1px solid var(--theme-border, #444);
   color: var(--theme-text-secondary, #adb5bd);
   background: var(--theme-surface, #252525);
+}
+
+/* Locale Badges Panel container */
+.controls-section.locale-badges-section {
+  background: var(--theme-surface, #252525);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 16px 16px 12px;
+  margin: 12px 0 16px;
+  border-bottom: none; /* override generic controls-section rule */
+}
+
+/* Top controls rows inside the badges panel */
+.locale-badges-section .badge-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+/* Locale badge grid area */
+.locale-badges-section .locale-badge-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  padding-top: 10px;
+  border-top: 1px solid #444;
 }

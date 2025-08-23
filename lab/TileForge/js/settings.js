@@ -74,7 +74,9 @@ let currentSettings = {
   languagePillColors: false,
   // Default pill palette to apply when both toggles are off
   // Allowed: 'language' | 'status' | 'none'
-  defaultPillPalette: 'language'
+  defaultPillPalette: 'language',
+  // Sticky option for the Locale Badges Panel container
+  badgesPanelSticky: false
 };
 
 // ===== SETTINGS MODAL FUNCTIONS =====
@@ -723,6 +725,15 @@ function createGeneralTabContent() {
         </select>
         <div class="setting-hint">If both toggles are OFF, this preference determines which palette turns ON automatically. "None" leaves both off.</div>
       </div>
+      
+      <div class="setting-group">
+        <label>
+          <input type="checkbox" id="toggleBadgesSticky">
+          Sticky Locale Badges Panel
+        </label>
+        <div class="setting-hint">Keep the locale badges panel open even when the main content area is scrolled.</div>
+        <div class="setting-state" id="badgesStickyState">Off</div>
+      </div>
     </div>
   `;
 }
@@ -889,6 +900,35 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   console.log('Settings system initialized successfully');
+});
+
+// Apply sticky state to the Locale Badges Panel and sync UI toggle
+function applyBadgesStickyState() {
+  const badgesSection = document.querySelector('.locale-badges-section');
+  const stickyOn = !!currentSettings.badgesPanelSticky;
+  if (badgesSection) {
+    badgesSection.classList.toggle('sticky', stickyOn);
+  }
+  const toggle = document.getElementById('toggleBadgesSticky');
+  const stateLabel = document.getElementById('badgesStickyState');
+  if (toggle) {
+    toggle.checked = stickyOn;
+    toggle.setAttribute('aria-checked', String(stickyOn));
+  }
+  if (stateLabel) {
+    stateLabel.textContent = stickyOn ? 'On' : 'Off';
+  }
+}
+
+// Wire sticky toggle interaction in main UI
+document.addEventListener('change', function(event) {
+  const t = event.target;
+  if (t && t.id === 'toggleBadgesSticky') {
+    const enabled = !!t.checked;
+    currentSettings.badgesPanelSticky = enabled;
+    saveSettings();
+    applyBadgesStickyState();
+  }
 });
 
 // ===== MODAL CLOSE ON OUTSIDE CLICK =====
