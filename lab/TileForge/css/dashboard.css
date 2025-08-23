@@ -299,3 +299,72 @@
 }
 .section-separator .separator-title { display: inline-flex; align-items: center; gap: 8px; }
 .section-separator .separator-actions { display: inline-flex; align-items: center; gap: 10px; }
+
+/* Project picker field styles (used in modal) — updated by Cascade */
+.tf-field { 
+  margin: 8px 0 4px; 
+}
+.tf-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--theme-text, #eaf3ff);
+  opacity: 0.9;
+}
+.tf-select {
+  width: 100%;
+  padding: 8px 40px 8px 10px; /* reserve space for chevron */
+  border-radius: 8px;
+  color: var(--theme-text, #eaf3ff);
+  background: #1e1e1e;
+  border: 1px solid #333;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset,
+              0 0 0 1px rgba(255,255,255,0.04) inset;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+  appearance: none; /* hide native arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  color-scheme: dark; /* hint to use dark popover when supported */
+  box-sizing: border-box;
+  line-height: 1.2;
+  min-height: 36px; /* stabilize height so icon doesn't jump */
+}
+.tf-select:hover {
+  border-color: #3a3a3a;
+  background: #212121;
+}
+.tf-select:focus-visible {
+  outline: 2px solid var(--theme-accent, #4a9eff);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 1px rgba(74,158,255,0.25) inset,
+              0 0 0 2px rgba(74,158,255,0.25);
+}
+.tf-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+/* Try to theme option list (browser support varies) */
+.tf-select option {
+  background: #1e1e1e;
+  color: var(--theme-text, #eaf3ff);
+}
+
+/* Hide legacy Edge/IE native arrow to avoid double-arrows or layout shift */
+select.tf-select::-ms-expand { display: none; }
+
+/* Wrapper-provided chevron to avoid background-position shifts on hover */
+.tf-select-wrap { position: relative; }
+.tf-select-wrap::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+  transform: translateY(-50%);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2366b3ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-size: 14px 14px;
+  background-repeat: no-repeat;
+}

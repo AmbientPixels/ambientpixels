@@ -75,12 +75,25 @@
     });
   }
 
-  // New (placeholder, with modal)
+  // New: open project picker, then locale picker, then save into selected project
   function newDataSet() {
-    showModalConfirm('Start a new data set? (This is a placeholder; action not implemented yet.)', function() {
-      if (typeof window.showToast === 'function') window.showToast('New data set placeholder!');
-      console.log('TileForge: New data set action (placeholder)');
-    });
+    if (window.ProjectUI && typeof window.ProjectUI.onNewWithProjectPicker === 'function') {
+      try {
+        window.ProjectUI.onNewWithProjectPicker();
+      } catch (err) {
+        if (window.Modal && typeof Modal.alert === 'function') {
+          Modal.alert('New creation failed: ' + err.message, 'error');
+        } else {
+          alert('New creation failed: ' + err.message);
+        }
+      }
+    } else {
+      if (window.Modal && typeof Modal.alert === 'function') {
+        Modal.alert('Projects UI not ready. Please open Projects panel first.', 'warning');
+      } else {
+        alert('Projects UI not ready.');
+      }
+    }
   }
 
   // Toolbar button event listeners

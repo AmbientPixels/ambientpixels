@@ -16,6 +16,62 @@
     }
   }
 
+  // Open a dropdown (modal) to choose a project, then open the Locale picker and save into that project
+  async function onNewWithProjectPicker() {
+    try {
+      // Load all projects for selection
+      const items = await ProjectStore.list();
+      if (!items || items.length === 0) {
+        // If no projects exist, create one via ensureProjectContext, then continue
+        const ctx = await ensureProjectContext();
+        return onManageLocales(ctx.id);
+      }
+
+      // Build select HTML (no inline styles; themed classes)
+      const optionsHtml = items.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+      const content = `
+        <div class="tf-field">
+          <label class="tf-label" for="__tfProjectSelect">Choose a project to save the new file:</label>
+          <div class="tf-select-wrap">
+            <select id="__tfProjectSelect" class="tf-select">
+              ${optionsHtml}
+            </select>
+          </div>
+        </div>`;
+
+      const projectId = await new Promise((resolve, reject) => {
+        if (window.Modal && typeof Modal.confirm === 'function') {
+          const modal = Modal.confirm({
+            title: 'Select Project',
+            content,
+            confirmText: 'Continue',
+            cancelText: 'Cancel',
+            onConfirm: () => {
+              const sel = document.getElementById('__tfProjectSelect');
+              resolve(sel && sel.value ? sel.value : null);
+            },
+            onCancel: () => reject(new Error('Canceled'))
+          });
+          modal.show();
+        } else {
+          // Fallback to prompt
+          const nameList = items.map(p => p.name).join(', ');
+          const chosen = window.prompt('Enter project name to save into:\n' + nameList, items[0].name);
+          if (chosen === null) return reject(new Error('Canceled'));
+          const found = items.find(p => p.name.toLowerCase() === String(chosen).trim().toLowerCase());
+          resolve(found ? found.id : items[0].id);
+        }
+      });
+
+      if (!projectId) throw new Error('Canceled');
+      await onManageLocales(projectId);
+    } catch (e) {
+      if (e && e.message === 'Canceled') return;
+      console.error(e);
+      alertModal('New file flow failed', 'error');
+    }
+  }
+
   // Clone the currently active/working CSV as a new file in the current project (append -clone)
   async function onCloneActiveFile() {
     try {
@@ -662,5 +718,5 @@
 
   document.addEventListener('DOMContentLoaded', initOnce);
 
-  window.ProjectUI = { initOnce, refreshList, onSave, onCloneActiveFile };
+  window.ProjectUI = { initOnce, refreshList, onSave, onCloneActiveFile, onNewWithProjectPicker };
 })();
