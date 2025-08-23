@@ -149,11 +149,11 @@ Headliner Crafter is TileForge's advanced CSV localization transformation tool t
 - **Campsite XML Import & Export:** Now supports direct upload of Campsite-localized XML files. XML data is parsed and normalized to the same internal format as CSV, enabling seamless mapping, preview, and export workflows. Export to XML is also supported.
 - **Unified Mapping & CardForge Import:** Whether you upload CSV or XML, you can map, preview, and export data. The CardForge import button now initializes data if none exists, supporting both formats.
 - **Intelligent Field Filtering:** Fields with no values (such as SubHeader, Footer, or any unused field) are automatically excluded from mapping and preview interfaces.
-- **Drop Zone & UI Guidance:** CSV/XML dropping is centralized: use the Auto‑Localize drop zone above the editor; localized preview drop zones have been removed for clarity. The modal drop zone also indicates CSV/XML support and Iris-ready export guidance. <!-- updated by Cascade -->
+- **Drop Zone & UI Guidance:** The localized preview empty-state accepts CSV, XML, JSON (arrays), and Images. You can also use the Auto‑Localize drop zone above the editor. After items exist, localized preview tiles do not accept drops. The modal drop zone also indicates CSV/XML support and Iris-ready export guidance. <!-- updated by Cascade -->
 - **Enhanced Modal Workflow:** User guidance, mapping, and preview flows are more robust and user-friendly, with fixes for edge cases and improved end-to-end experience.
 - **New Clear All Features:** Quickly reset all mapping and preview data with one click.
 - **Improved UI & Control Panel:** New control panel for easier workflow and navigation.
-- **Manage Locales:** Panel to view, add, or remove locales for better control.
+- **Manage Locales (Panel):** Separate panel to view, add, or remove locales for better control. <!-- updated by Cascade -->
 - **Loading Default Template (Coming Soon):** Option to load a default mapping/template (feature in progress).
 - **Arabic & Special Character Support:** Fixed issues with Arabic and special characters in data and preview.
 - **New Case Converter Tool:** Added a dedicated Case Converter module for fast text case transformations.
@@ -177,19 +177,19 @@ The Controls Panel is a persistent toolbar located at the top of the TileForge i
 - **Clear All:** Instantly resets all mapping and preview data, allowing you to start fresh with a single click. Confirmation is required to prevent accidental data loss.
 - **Delete from All:** Removes a selected field or value from every tile or mapping across all locales. Useful for bulk cleanup or correcting widespread errors.
 - **Open Mapping Modal:** Quickly access the field mapping interface to adjust CSV/XML field assignments.
-- **Manage Locales:** Open the locale management panel to add, remove, or review supported locales.
+- **Create New Item (Empty-State):** Starts the same flow as the toolbar New action (project picker → locale selection).
 
 ---
 
-### 🔄 Live Editor Propagation & Manage Locales
+### 🔄 Live Editor Propagation, Empty-State, and Manage Locales
 
-When you use **Manage Locales** to add all or a subset of locales, TileForge now synchronizes that selection into the working dataset (`window.currentCsvData`). This ensures that:
+When you use **Create New Item** to add all or a subset of locales, TileForge now synchronizes that selection into the working dataset (`window.currentCsvData`). This ensures that:
 
 - **Apply to All** actions in the live editor update all localized preview tiles.
 - **Preset applications** (Auto‑Localize ON/OFF) immediately propagate to localized previews.
 - No CSV import is required for propagation after selecting locales.
 
-If no locales are selected, the localized preview shows the blank state. <!-- updated by Cascade -->
+If no locales are selected, the localized preview shows the blank state with a **Create New Item** button wired to the toolbar New flow. <!-- updated by Cascade -->
 
 
 ### ✍️ Subtitle Modifiers – Symbols (Optional)
@@ -208,7 +208,7 @@ The Left Panel is the primary navigation and workflow anchor in TileForge, alway
 
 - **Panel Header:** Displays the TileForge title, Info/Help and Settings buttons, and a subtitle for quick orientation.
 
-- **Controls Toolbar:** A persistent toolbar with Save, Clone, New, and Export actions for managing your localization session. Includes a "Manage Locales" button for batch locale control.
+- **Controls Toolbar:** A persistent toolbar with Save, Clone, New, and Export actions for managing your localization session. Locale management is available via the **Manage Locales** panel in the left column. <!-- updated by Cascade -->
 
 - **File Info Display:** Shows the currently loaded image and CSV file names for clear workflow tracking.
 
@@ -224,7 +224,7 @@ The Left Panel is the primary navigation and workflow anchor in TileForge, alway
 
 #### Recent Enhancements
 - **Bulk Actions:** Toolbar now supports Save, Clone, New, and Export, streamlining session management.
-- **Locale Manager:** Fully integrated modal for adding/removing supported locales, with live preview updates.
+- **Locale Management (Panel):** Fully integrated modal for adding/removing supported locales, with live preview updates. <!-- updated by Cascade -->
 - **Advanced Filtering:** Filters are now dynamically generated and update the UI instantly.
 - **Visual Template Picker:** Interactive, thumbnail-based template selection.
 - **Integrated Tools:** Transform Modal and Headliner Crafter are directly accessible from the panel.
@@ -358,7 +358,7 @@ const fieldLimits = {
 ### **Workflow Integration**
 
 #### **CSV Upload Process**
-1. **Drag & Drop**: Upload CSV/XML files directly into the Transform modal (or use the Auto‑Localize zone above the editor in the main UI) <!-- updated by Cascade -->
+1. **Drag & Drop**: Upload CSV/XML files directly into the Transform modal, the localized preview empty-state, or use the Auto‑Localize zone above the editor in the main UI. After items exist, localized preview tiles do not accept drops. <!-- updated by Cascade -->
 2. **Data Analysis**: Automatic field detection and locale counting
 3. **Field Mapping**: Configure input → output relationships
 4. **Preview & Validate**: Review mappings with visual feedback
@@ -684,7 +684,7 @@ TileForge is a comprehensive localization preview tool designed for Xbox tile co
 - **52 Comprehensive Locales**: Full regional coverage including Arabic, European, English, Spanish, and Asian variants
 - **Real-time Live Editing**: Click-to-edit tile text with instant visual feedback and border color updates
 - **Advanced Filtering**: Multi-level filtering by status, language, region, and locale
-- **Drag & Drop Interface**: Upload images on the preview tile; upload CSV/XML in the Auto‑Localize zone or Transform modal. Localized preview tiles do not accept drops.
+- **Drag & Drop Interface**: Upload images on the preview tile. The localized preview empty-state accepts CSV/XML/JSON/Image; after items exist, localized tiles themselves do not accept drops. The Auto‑Localize zone also accepts CSV/XML. <!-- updated by Cascade -->
 - **Analytics Dashboard**: Real-time character analysis, locale statistics, and overflow detection
 - **Modal System**: Integrated modal system for confirmations, alerts, and detailed information display
 - **Modular Architecture**: Clean separation of concerns with feature-based CSS modules
@@ -735,7 +735,7 @@ Each locale section features a prominent locale badge with:
 
 - **Locale Code**: Clear language/region code (EN-US, FR-FR, DE-DE, etc.)
 - **Pill Styling**: Blue rounded badges with clean typography
-- **Visual Prominence**: Easy scanning and identification of different locales
+- **Visual Prominence**: Easy to spot specific locales in large lists
 - **Consistent Design**: Uniform styling across all 52+ supported locales
 
 ### **Badge Implementation**
@@ -1377,3 +1377,5 @@ TileForge/
 - Analytics dashboard
 
 This documentation reflects the current state of TileForge as a comprehensive Xbox tile localization tool with advanced visual measurement, country identification, and image analysis capabilities.
+
+```

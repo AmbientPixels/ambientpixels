@@ -15,7 +15,7 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 - **Unified Mapping & Export:** Map/preview/export from either CSV or XML.
 - **CardForge Import Flexibility:** Works with both CSV and XML; initializes data if needed.
 - **Intelligent Field Filtering:** Fields with no values (like SubHeader, Footer) are hidden from the mapping UI.
-- **Drop Zone & Guidance:** Centralized CSV/XML drop at the top of the editor; localized preview drop zones removed for clarity. Clear messaging for Iris-ready CSV export and tool purpose. <!-- updated by Cascade -->
+- **Drop Zone & Guidance:** The empty-state in the localized preview now accepts CSV, XML, JSON (arrays), and Images. You can also use the Auto‑Localize drop zone at the top of the editor. Once items exist, localized preview tiles do not accept CSV/XML/JSON drops (image drop per tile remains supported). Clear messaging for Iris-ready CSV export and tool purpose. <!-- updated by Cascade -->
 - **Enhanced Modal Workflow:** More robust, user-friendly mapping and preview flows.
 - **New Clear All Features:** Quickly reset all mapping and preview data with one click.
 - **Improved UI & Control Panel:** New control panel for easier workflow and navigation.
@@ -50,7 +50,7 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 
 ### 🖱️ Modern Interface
  - **Template Selection** - Visual template picker with live preview switching
- - **Drag & Drop Upload** - Image drop on the preview tile; CSV/XML drop centralized above the editor (localized preview tiles no longer accept drops). <!-- updated by Cascade -->
+ - **Drag & Drop Upload** - Image drop on the preview tile; CSV/XML/JSON/Image drop supported in the localized preview empty-state and in the Auto‑Localize zone above the editor. After items are created, localized tiles do not accept CSV/XML/JSON drops (image drop still allowed per tile). <!-- updated by Cascade -->
 - **Inline Toolbar** - Primary editor toolbar sits directly below the CSV/XML drop zone for immediate access to Save/Clone/New/Reset/Export. <!-- updated by Cascade -->
  - **Click to Browse** - Traditional file selection still available
  - **Transform Modal** - Interactive CSV transformation with drag-and-drop file upload
@@ -77,8 +77,8 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 - Use the **Case Converter** to quickly batch-convert all text fields before export—saves tons of manual editing!
 - **Clear All** resets your mapping and preview instantly—no need to reload the page.
 - If Arabic or special characters look wrong, ensure your CSV is UTF-8 encoded.
-- Drag-and-drop is centralized: use the preview tile for images and the Auto‑Localize zone (or Transform modal) for CSV/XML. Localized preview tiles do not accept drops. <!-- updated by Cascade -->
-- Use **Manage Locales** to focus on specific regions or languages—great for QA and targeted review.
+- Drag-and-drop is centralized: use the preview tile for images and the Auto‑Localize zone (or Transform modal) for CSV/XML. Localized preview tiles do not accept CSV/XML/JSON drops after items are created (image drop remains supported). <!-- updated by Cascade -->
+- Use **Create New Item** in the empty-state to start a new localized item using the same flow as the toolbar New action. Use **Manage Locales** from the left panel to focus on specific regions or languages. <!-- updated by Cascade -->
 - Check the **modal drop zone** for file type support and workflow tips.
 - Coming soon: **Default Template Loader** for instant mapping setup.
  - Subtitle Symbols: leaving the selector at “No symbol” preserves existing templates; picking a symbol only appends when `{n}` is present and the template doesn’t already include %/currency. <!-- updated by Cascade -->
@@ -97,8 +97,8 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 1. Open `index.html` in your web browser
 2. **Select Template**: Choose between Top of Home or Mobile Spotlight in the Template section
 3. **Upload Tile Image**: Drag an image file onto the preview tile or click to browse
-4. **Upload CSV/XML Data**: Drop files on the Auto‑Localize zone above the editor or click to browse
-   - Localized preview area no longer accepts file drops
+4. **Upload CSV/XML/JSON Data**: Drop files on the localized preview empty-state, or use the Auto‑Localize zone above the editor, or click to browse
+   - After items exist, localized preview tiles do not accept CSV/XML/JSON drops (image drop remains supported on individual tiles)
    - If your CSV needs transformation, the Transform Modal will automatically appear
    - Or click **"Transform Data"** in the Tools section for manual transformation <!-- updated by Cascade -->
 5. **Preview Results**: View tiles for all locales with template-specific overflow warnings
