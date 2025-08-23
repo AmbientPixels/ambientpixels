@@ -937,6 +937,43 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
+/* Sticky option for the unified Localized Previews header + badges wrapper */ /* added by Cascade */
+#localizedPreviewsStickyBlock.sticky {
+  position: sticky;
+  top: var(--badges-sticky-top, 72px);
+  z-index: 30;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); /* match badges sticky elevation */
+}
+
+/* Glass panel styling for the unified Localized Previews block */ /* added by Cascade */
+#localizedPreviewsStickyBlock {
+  background: color-mix(in srgb, var(--aura-bg, #23272f) 70%, #1b1f2a 30%);
+  background: linear-gradient(180deg, rgba(35,39,47,0.72), rgba(27,31,42,0.66));
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+}
+
+/* Headline row layout so the toggle sits next to the title */ /* added by Cascade */
+.section-separator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-separator .separator-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 auto;
+}
+.section-separator .separator-content .badge-controls {
+  margin-left: auto; /* push toggle to the right of the headline */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 /* Stack actions under title on small widths */
 @media (max-width: 520px) {
   .project-item { align-items: stretch; }

@@ -858,6 +858,8 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Load settings on startup
   loadSettings();
+  // Apply persisted sticky state for localized previews (header + badges) on startup
+  try { applyBadgesStickyState(); } catch (_) {}
   
   // Add global keyboard shortcut listener
   document.addEventListener('keydown', handleGlobalShortcuts);
@@ -904,11 +906,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Apply sticky state to the Locale Badges Panel and sync UI toggle
 function applyBadgesStickyState() {
-  const badgesSection = document.querySelector('.locale-badges-section');
+  // Apply sticky to the unified header+badges wrapper
+  const previewsStickyBlock = document.querySelector('#localizedPreviewsStickyBlock');
   const stickyOn = !!currentSettings.badgesPanelSticky;
+  if (previewsStickyBlock) {
+    previewsStickyBlock.classList.toggle('sticky', stickyOn);
+  }
+  // Back-compat: if a badges-only sticky still exists, keep it in sync (future sub-sticky can override)
+  const badgesSection = document.querySelector('.locale-badges-section');
   if (badgesSection) {
     badgesSection.classList.toggle('sticky', stickyOn);
   }
+
+  // Sync inline/modal badges toggle if present
   const toggle = document.getElementById('toggleBadgesSticky');
   const stateLabel = document.getElementById('badgesStickyState');
   if (toggle) {
@@ -918,12 +928,23 @@ function applyBadgesStickyState() {
   if (stateLabel) {
     stateLabel.textContent = stickyOn ? 'On' : 'Off';
   }
+
+  // Sync new header pill toggle
+  const headerToggle = document.getElementById('togglePreviewsStickyHeader');
+  const headerState = document.getElementById('previewsStickyHeaderState');
+  if (headerToggle) {
+    headerToggle.checked = stickyOn;
+    headerToggle.setAttribute('aria-checked', String(stickyOn));
+  }
+  if (headerState) {
+    headerState.textContent = stickyOn ? 'On' : 'Off';
+  }
 }
 
 // Wire sticky toggle interaction in main UI
 document.addEventListener('change', function(event) {
   const t = event.target;
-  if (t && t.id === 'toggleBadgesSticky') {
+  if (t && (t.id === 'toggleBadgesSticky' || t.id === 'togglePreviewsStickyHeader')) {
     const enabled = !!t.checked;
     currentSettings.badgesPanelSticky = enabled;
     saveSettings();

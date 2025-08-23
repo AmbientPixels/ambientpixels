@@ -622,11 +622,22 @@
       </div>
       
       <!-- Creative Separator -->
+      <!-- wrapped by Cascade: begin sticky wrapper for headline + toolbar + badges (glass panel) -->
+      <div id="localizedPreviewsStickyBlock">
       <div class="section-separator">
         <div class="separator-line"></div>
         <div class="separator-content">
           <i class="fas fa-globe-americas"></i>
           <span>Localized Previews</span>
+          <!-- added by Cascade: header sticky toggle placed next to headline -->
+          <div class="badge-controls" aria-label="Sticky localized previews control">
+            <span class="badge-controls-label">Sticky</span>
+            <label class="switch" title="Toggle sticky localized previews">
+              <input type="checkbox" id="togglePreviewsStickyHeader" aria-checked="false" aria-label="Toggle sticky localized previews">
+              <span class="slider"></span>
+            </label>
+            <span class="switch-state" id="previewsStickyHeaderState">Off</span>
+          </div>
         </div>
         <div class="separator-line"></div>
       </div>
@@ -671,18 +682,12 @@
           <span class="switch-state" id="statusColorsState">Off</span>
           <span class="default-badge" id="statusDefaultBadge" hidden>Default</span>
         </div>
-        <div class="badge-controls" aria-label="Sticky panel control">
-          <span class="badge-controls-label">Sticky panel</span>
-          <label class="switch" title="Toggle sticky locale badges panel">
-            <input type="checkbox" id="toggleBadgesSticky" aria-checked="false" aria-label="Toggle sticky locale badges panel">
-            <span class="slider"></span>
-          </label>
-          <span class="switch-state" id="badgesStickyState">Off</span>
-        </div>
         <div class="badge-info-row">
           <span id="statusInfoBadge" class="status-pill" aria-live="polite" aria-label="Current analytics summary" title="Current analytics summary">—</span>
         </div>
         <div id="localeBadgeArea" class="locale-badge-area" aria-label="Locale badges"></div>
+      </div>
+      <!-- wrapped by Cascade: end sticky wrapper for headline + toolbar + badges -->
       </div>
       
       <!-- Locale Groups Container -->
