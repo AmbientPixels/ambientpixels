@@ -19,7 +19,7 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 - **Enhanced Modal Workflow:** More robust, user-friendly mapping and preview flows.
 - **New Clear All Features:** Quickly reset all mapping and preview data with one click.
 - **Improved UI & Control Panel:** New control panel for easier workflow and navigation.
-- **Manage Locales:** Panel to view, add, or remove locales for better control.
+- **Manage Locales:** Panel and toolbar button to view, add, or remove locales. Toolbar button is enabled only when localization CSV data is loaded. <!-- updated by Cascade -->
 - **Loading Default Template (Coming Soon):** Option to load a default mapping/template (feature in progress).
 - **Arabic & Special Character Support:** Fixed issues with Arabic and special characters in data and preview.
 - **New Case Converter Tool:** Added a dedicated Case Converter module for fast text case transformations.
@@ -50,8 +50,8 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 
 ### 🖱️ Modern Interface
  - **Template Selection** - Visual template picker with live preview switching
- - **Drag & Drop Upload** - Image drop on the preview tile; CSV/XML/JSON/Image drop supported in the localized preview empty-state and in the Auto‑Localize zone above the editor. After items are created, localized tiles do not accept CSV/XML/JSON drops (image drop still allowed per tile). <!-- updated by Cascade -->
-- **Inline Toolbar** - Primary editor toolbar sits directly below the CSV/XML drop zone for immediate access to Save/Clone/New/Reset/Export. <!-- updated by Cascade -->
+ - **Drag & Drop Upload** - Image drop on the preview tile; CSV/XML/JSON/Image drop supported in the localized preview empty-state and in the Auto‑Localize zone above the editor. After items are created, localized preview tiles do not accept CSV/XML/JSON drops (image drop remains supported on individual tiles)
+- **Inline Toolbar** - Primary editor toolbar sits directly below the CSV/XML drop zone for immediate access to Save/Clone/New/Reset/Export/Manage Locales. The Manage Locales toolbar button is disabled until CSV data is present. <!-- updated by Cascade -->
  - **Click to Browse** - Traditional file selection still available
  - **Transform Modal** - Interactive CSV transformation with drag-and-drop file upload
  - **Live Editor** - Real-time tile editing with template-aware character limits
@@ -70,7 +70,7 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 ### 🆕 Core Features
 - **Case Converter Tool:** Instantly convert text to UPPER, lower, Title, or Sentence case for any field or batch of text. Great for localization and consistency.
 - **Clear All:** One-click reset for all mapping and preview data—useful for rapid iteration or starting over.
-- **Manage Locales:** Add, remove, or filter locales from your data set for focused previews and exports.
+- **Manage Locales:** Panel and toolbar button to view, add, or remove locales. Toolbar button is enabled only when localization CSV data is loaded. <!-- updated by Cascade -->
 - **Arabic & Special Character Support:** Full UTF-8 support for right-to-left and special language characters.
 
 ### 💡 Tips & Tricks
@@ -102,7 +102,8 @@ TileForge is a professional web-based tool designed for Xbox game developers and
    - If your CSV needs transformation, the Transform Modal will automatically appear
    - Or click **"Transform Data"** in the Tools section for manual transformation <!-- updated by Cascade -->
 5. **Preview Results**: View tiles for all locales with template-specific overflow warnings
-6. **Live Edit**: Click any tile to edit text with real-time preview
+6. **Manage Locales**: Use the left panel button or the toolbar "Manage Locales" button (enabled after CSV load) to choose which locales are active for preview and export. <!-- updated by Cascade -->
+7. **Live Edit**: Click any tile to edit text with real-time preview
 
 ### 3. CSV Format
 Your CSV file should contain columns:
@@ -259,6 +260,9 @@ Extend `js/script.js` to add:
 - Ensure you're using a modern browser with drag-drop support
 - Try the "browse files" link as an alternative
 - Check that JavaScript is enabled
+
+**Manage Locales button disabled?** <!-- updated by Cascade -->
+- Ensure a localization CSV has been loaded (default or uploaded). The toolbar button is intentionally disabled until data is present. Use the left panel or toolbar button after loading data. <!-- updated by Cascade -->
 
 ## 🚀 Use Cases
 

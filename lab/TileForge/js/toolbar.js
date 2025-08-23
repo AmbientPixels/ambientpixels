@@ -141,6 +141,15 @@
         }
       }
     });
+    // Manage Locales (toolbar) -> central flow in main.js
+    var toolbarManageLocalesBtn = document.getElementById('toolbarManageLocalesBtn');
+    if (toolbarManageLocalesBtn) {
+      toolbarManageLocalesBtn.addEventListener('click', function() {
+        if (typeof window.openManageLocales === 'function') {
+          window.openManageLocales();
+        }
+      });
+    }
     // updated by Cascade
   });
 

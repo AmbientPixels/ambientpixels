@@ -95,6 +95,7 @@ function loadDefaultData() {
   const defaultPath = 'lab/TileForge/sample-data/source-data.csv';
   // default to disabled until data is confirmed loaded
   updateLocalizedExportState(false);
+  if (typeof window.updateManageLocalesState === 'function') { window.updateManageLocalesState(false); }
   try {
     fetch(defaultPath, { cache: 'no-store' })
       .then(resp => {
@@ -104,6 +105,7 @@ function loadDefaultData() {
       .then(text => {
         processCsvData(text, 'source-data.csv');
         updateLocalizedExportState(true);
+        if (typeof window.updateManageLocalesState === 'function') { window.updateManageLocalesState(true); }
       })
       .catch(() => {
         window.currentCsvData = [];
@@ -118,6 +120,7 @@ function loadDefaultData() {
           }
         } catch (e) { /* no-op */ }
         updateLocalizedExportState(false);
+        if (typeof window.updateManageLocalesState === 'function') { window.updateManageLocalesState(false); }
       });
   } catch (e) {
     window.currentCsvData = [];
@@ -132,6 +135,7 @@ function loadDefaultData() {
       }
     } catch (err) { /* no-op */ }
     updateLocalizedExportState(false);
+    if (typeof window.updateManageLocalesState === 'function') { window.updateManageLocalesState(false); }
   }
 }
 
@@ -162,6 +166,7 @@ function processCsvData(csvText, fileName, rowCount = null) {
     if (csvRows.length === 0) {
       /* No alert for invalid CSV file or no data found */
       updateLocalizedExportState(false);
+      if (typeof window.updateManageLocalesState === 'function') { window.updateManageLocalesState(false); }
       return;
     }
     
@@ -174,11 +179,13 @@ function processCsvData(csvText, fileName, rowCount = null) {
     
     console.log('📊 CSV data processed successfully:', actualRowCount, 'rows');
     updateLocalizedExportState(true);
+    if (typeof window.updateManageLocalesState === 'function') { window.updateManageLocalesState(true); }
     
   } catch (error) {
     console.error('Error parsing CSV:', error);
     /* No alert for error parsing CSV file */
     updateLocalizedExportState(false);
+    if (typeof window.updateManageLocalesState === 'function') { window.updateManageLocalesState(false); }
   }
 }
 

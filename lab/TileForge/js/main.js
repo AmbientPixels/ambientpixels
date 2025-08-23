@@ -36,6 +36,56 @@ function filterPreviewByActiveLocales() {
   });
 }
 
+// Manage Locales flow (centralized)
+function openManageLocales() {
+  if (!window.TileForgeLocalesUI || typeof window.TileForgeLocalesUI.open !== 'function') {
+    if (window.Modal && typeof Modal.alert === 'function') { Modal.alert('Locale Picker UI not loaded.', 'warning'); } else { alert('Locale Picker UI not loaded.'); }
+    return;
+  }
+  const pre = getActiveLocalesForPreview();
+  window.TileForgeLocalesUI.open(function(selectedLocales) {
+    setActiveLocalesForPreview(selectedLocales || []);
+    // Merge selection with current data (preserve rows for selected locales, create blanks when missing)
+    let mergedRows = [];
+    if (Array.isArray(selectedLocales) && selectedLocales.length > 0) {
+      const csvRows = (window.currentCsvData && Array.isArray(window.currentCsvData)) ? window.currentCsvData : [];
+      selectedLocales.forEach(locale => {
+        const match = csvRows.find(row => (row.Locale || row.locale) === locale);
+        if (match) {
+          mergedRows.push(match);
+        } else {
+          mergedRows.push({ Locale: locale, 'items/0/title': '', 'items/0/subtitle': '', 'items/0/narratorText': '' });
+        }
+      });
+    }
+    window.currentCsvData = mergedRows;
+    renderLocaleGroups(mergedRows);
+  }, pre);
+}
+
+// Enable/disable Manage Locales buttons depending on data presence
+function updateManageLocalesState(hasData) {
+  try {
+    const ids = ['manageLocalesBtn', 'toolbarManageLocalesBtn'];
+    ids.forEach(id => {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      if (hasData) {
+        btn.removeAttribute('disabled');
+        btn.classList.remove('disabled');
+        btn.title = btn.title && btn.title.includes('Load') ? 'Manage Locales' : (btn.title || 'Manage Locales');
+      } else {
+        btn.setAttribute('disabled', 'disabled');
+        btn.classList.add('disabled');
+        btn.title = 'Load CSV data to manage locales';
+      }
+    });
+  } catch (e) { /* no-op */ }
+}
+
+// Expose globally
+window.openManageLocales = openManageLocales;
+window.updateManageLocalesState = updateManageLocalesState;
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
@@ -77,41 +127,14 @@ document.addEventListener('DOMContentLoaded', function() {
   // Attach Manage Locales button event
   const manageLocalesBtn = document.getElementById('manageLocalesBtn');
   if (manageLocalesBtn) {
-    manageLocalesBtn.addEventListener('click', function() {
-      console.log('[DEBUG] Manage Locales button clicked');
-      if (window.TileForgeLocalesUI && typeof window.TileForgeLocalesUI.open === 'function') {
-        console.log('[DEBUG] TileForgeLocalesUI.open is available, opening modal');
-        window.TileForgeLocalesUI.open(function(selectedLocales) {
-          // Update active locales
-          setActiveLocalesForPreview(selectedLocales);
-          // For each selected locale, ensure a row exists (use blank/default if missing)
-          let mergedRows = [];
-          if (selectedLocales.length > 0) {
-            const csvRows = (window.currentCsvData && Array.isArray(window.currentCsvData)) ? window.currentCsvData : [];
-            selectedLocales.forEach(locale => {
-              const match = csvRows.find(row => (row.Locale || row.locale) === locale);
-              if (match) {
-                mergedRows.push(match);
-              } else {
-                mergedRows.push({ Locale: locale, 'items/0/title': '', 'items/0/subtitle': '', 'items/0/narratorText': '' });
-              }
-            });
-          }
-          // Ensure the live editor operates on the same dataset rendered in the localized preview
-          // updated by Cascade: synchronize Manage Locales selection with currentCsvData
-          window.currentCsvData = mergedRows;
-          renderLocaleGroups(mergedRows);
-        }, getActiveLocalesForPreview());
-      } else {
-        console.error('[ERROR] TileForgeLocalesUI.open is not available');
-        if (window.Modal && typeof Modal.alert === 'function') {
-          Modal.alert('Locale Picker UI not loaded.', 'warning');
-        } else {
-          alert('Locale Picker UI not loaded.');
-        }
-      }
-    });
+    manageLocalesBtn.addEventListener('click', function() { if (typeof window.openManageLocales === 'function') window.openManageLocales(); });
   }
+  const toolbarManageLocalesBtn = document.getElementById('toolbarManageLocalesBtn');
+  if (toolbarManageLocalesBtn) {
+    toolbarManageLocalesBtn.addEventListener('click', function() { if (typeof window.openManageLocales === 'function') window.openManageLocales(); });
+  }
+  // Initialize button state based on current data
+  try { window.updateManageLocalesState(!!(window.currentCsvData && window.currentCsvData.length)); } catch (e) { /* no-op */ }
 
   // Initialize template system
   if (typeof window.templateSystem !== 'undefined') {
@@ -246,6 +269,8 @@ function initializeFilters() {
   window.renderLocaleGroups = function(csvData) {
     originalRenderLocaleGroups(csvData);
     populateLocaleFilter();
+    // Ensure Manage Locales button state follows actual rendered data
+    try { window.updateManageLocalesState(!!(csvData && csvData.length)); } catch (e) { /* no-op */ }
   };
 }
 
