@@ -27,7 +27,7 @@ function filterPreviewByActiveLocales() {
     if (!header) return;
     // Locale code is in the badge span
     const badge = header.querySelector('.country-badge');
-    const locale = badge ? badge.textContent.trim() : header.textContent.split(' ')[0];
+    const locale = badge ? badge.textContent.trim() : (header.getAttribute('data-locale') || header.textContent.split(' ')[0]).trim();
     if (activeSet.has(locale)) {
       section.style.display = '';
     } else {
@@ -354,7 +354,15 @@ function applyFilters() {
     const localeHeader = section.querySelector('.locale-header');
     if (!localeHeader) return;
 
-    const locale = localeHeader.textContent.split(' ')[0];
+    // Extract locale consistently with filterPreviewByActiveLocales
+    const badge = localeHeader.querySelector('.country-badge');
+    const headerText = localeHeader.textContent || '';
+    const locale = badge ? badge.textContent.trim() : (localeHeader.getAttribute('data-locale') || headerText.split(' ')[0]).trim();
+    if (!locale) {
+      section.style.display = 'none';
+      return;
+    }
+
     if (!activeLocales.has(locale)) {
       // Hide any section not in the active/previewed locales
       section.style.display = 'none';
@@ -391,7 +399,8 @@ function applyFilters() {
                              (statusFilter === 'overflow' && tileStatus === 'overflow');
 
         if (statusVisible) {
-          tileContainer.style.display = 'block';
+          // Use empty string to defer exact layout mode to CSS
+          tileContainer.style.display = '';
           visibleCount++;
           sectionHasVisibleTiles = true;
         } else {
@@ -401,7 +410,7 @@ function applyFilters() {
     });
 
     // Show/hide the entire section
-    section.style.display = sectionHasVisibleTiles ? 'block' : 'none';
+    section.style.display = sectionHasVisibleTiles ? '' : 'none';
   });
 
   updateFilterStatus(visibleCount, totalCount, statusFilter, languageFilter, regionFilter, localeFilter);
@@ -742,7 +751,7 @@ function createFuturePlansTabContent() {
         <h5>🤖 AI-Powered Features</h5>
         <ul>
           <li><strong>Smart Text Optimization:</strong> AI suggestions for better text fit and readability</li>
-          <li><strong>Automated QA:</strong> Intelligent detection of localization issues and inconsistencies</li>
+            <li><strong>Automated QA:</strong> Intelligent detection of localization issues and inconsistencies</li>
           <li><strong>Dynamic Presets:</strong> Context-aware preset recommendations based on game genre</li>
         </ul>
       </div>
