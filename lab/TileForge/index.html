@@ -357,9 +357,7 @@
               <!-- Controls toolbar moved under the drop zone (header removed) -->
               <div class="controls-section">
                 <div class="tileforge-toolbar" id="tileforgeToolbar">
-                  <button class="toolbar-btn" id="toolbarSaveBtn" title="Save"><i class="fas fa-save"></i></button>
-                  <button class="toolbar-btn" id="toolbarCloneBtn" title="Clone"><i class="fas fa-clone"></i></button>
-                  <button class="toolbar-btn" id="toolbarNewBtn" title="New"><i class="fas fa-plus"></i></button>
+                  <!-- updated by Cascade: Save/Clone/New moved to localized status bar to group file-scoped actions -->
                   <button class="toolbar-btn" id="resetBtn" title="Reset editor fields"><i class="fas fa-sync-alt"></i></button>
                 </div>
               </div>
@@ -614,13 +612,17 @@
         <div class="separator-line"></div>
       </div>
       
-      <!-- Localized Preview Status (Active CSV + Export) -->
+      <!-- Localized Preview Status (Active CSV + Actions) -->
       <div class="controls-section">
         <div class="tileforge-toolbar" id="localizedStatusBar">
           <span title="Currently active CSV used for previews">
             <i class="fas fa-file-csv"></i>
             <span id="activeCsvName">—</span>
           </span>
+          <!-- moved by Cascade: Save/Clone/New relocated from live editor toolbar into status bar -->
+          <button class="toolbar-btn" id="toolbarSaveBtn" title="Save"><i class="fas fa-save"></i></button>
+          <button class="toolbar-btn" id="toolbarCloneBtn" title="Clone"><i class="fas fa-clone"></i></button>
+          <button class="toolbar-btn" id="toolbarNewBtn" title="New"><i class="fas fa-plus"></i></button>
           <button class="toolbar-btn export-btn" id="localizedExportBtn" title="Export to CSV">
             <i class="fas fa-file-export"></i> Export
           </button>

@@ -221,6 +221,17 @@
   transition: background 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, transform 0.12s ease;
 }
 #localizedStatusBar .toolbar-btn.export-btn i { margin-right: 6px; font-size: 0.95em; }
+/* compact buttons inside status bar (Save, Clone, New) */
+#localizedStatusBar .toolbar-btn:not(.export-btn) {
+  padding: 6px 8px; /* tighter than export */
+  min-width: auto;
+  border-radius: 8px; /* match export shape */
+}
+#localizedStatusBar .toolbar-btn:not(.export-btn) i { margin: 0; }
+#localizedStatusBar .toolbar-btn:not(.export-btn):focus-visible {
+  outline: 2px solid var(--theme-accent, #4a9eff);
+  outline-offset: 2px;
+}
 #localizedStatusBar .toolbar-btn.export-btn:hover {
   background: linear-gradient(180deg, rgba(28,160,255,0.34), rgba(28,160,255,0.14));
   border-color: var(--theme-accent, #66b3ff);
