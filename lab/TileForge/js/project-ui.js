@@ -320,8 +320,48 @@
   async function onSave() {
     try {
       const ctx = await ensureProjectContext();
-      const snap = buildSnapshotFromUI();
-      await ProjectStore.saveSnapshot(ctx.id, snap);
+      // Load existing project to preserve current files and active CSV name
+      const proj = await ProjectStore.get(ctx.id);
+      if (!proj) throw new Error('Project not found');
+
+      // Determine working rows and active file name
+      const workingRows = Array.isArray(window.currentCsvData) ? window.currentCsvData : [];
+      let activeName = (proj.data && (proj.data.activeCsv || (proj.data.csvs && proj.data.csvs[0] && proj.data.csvs[0].name))) || 'current.csv';
+
+      // Ensure data structure exists
+      proj.data = proj.data || { csvs: [], activeCsv: activeName, image: null, template: 'toh', settings: {} };
+
+      // Update template and enabled sections from current UI state
+      proj.data.template = getCurrentTemplate();
+      proj.data.settings = proj.data.settings || {};
+      proj.data.settings.enabledSections = getEnabledSections();
+
+      // Generate file text based on available generator
+      let entryName = activeName;
+      let entryText = '';
+      const hasCsvGen = (typeof generateCSVContent === 'function');
+      if (hasCsvGen) {
+        entryText = generateCSVContent(workingRows);
+        // Prefer .csv extension when we can generate CSV
+        if (!/\.csv$/i.test(entryName)) entryName = entryName.replace(/\.json$/i, '.csv');
+      } else {
+        entryText = JSON.stringify(workingRows);
+        // Fallback to .json when CSV generator is unavailable
+        if (!/\.json$/i.test(entryName)) entryName = entryName.replace(/\.csv$/i, '.json');
+      }
+
+      // Find existing active entry and update, or add a new one
+      const csvs = Array.isArray(proj.data.csvs) ? proj.data.csvs : (proj.data.csvs = []);
+      const idx = csvs.findIndex(f => f.name === entryName);
+      if (idx >= 0) {
+        csvs[idx].text = entryText;
+      } else {
+        csvs.push({ name: entryName, text: entryText });
+      }
+      proj.data.activeCsv = entryName;
+
+      // Persist changes without renaming files
+      await ProjectStore.saveSnapshot(ctx.id, proj.data);
       refreshList();
       if (window.showToast) window.showToast('Project saved', 'success'); else alertModal('Project saved', 'success');
     } catch (e) {

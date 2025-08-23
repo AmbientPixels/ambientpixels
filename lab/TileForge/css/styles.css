@@ -419,6 +419,12 @@ body {
   border-top: 1px solid #444;
 }
 
+/* Localized Preview Status: show active CSV name in green (match Projects list) */
+#localizedStatusBar #activeCsvName {
+  color: #8be08b; /* reuse active green */
+  font-weight: 600;
+}
+
 /* Country Badge Styling */
 .country-badge {
   background: #005a9e;
@@ -820,11 +826,6 @@ body {
   opacity: 0.8;
 }
 
-.preview-tile-container {
-}
-
-.dnd-image-zone {
-}
 
 /* Drag-and-drop image overlay for per-tile tiles */
 .dnd-image-zone-tile {
@@ -1333,10 +1334,6 @@ input:checked + .slider:before {
   background: none;
 }
 
-  text-align: center;
-  padding: 20px 0;
-  color: #666;
-}
 
 .no-image-icon {
   font-size: 32px;

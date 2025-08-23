@@ -199,7 +199,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--theme-text, #eaf3ff);
+  color: #8be08b; /* active green to match Projects list */
+  font-weight: 600;
 }
 #localizedStatusBar .export-btn {
   margin-left: auto;
