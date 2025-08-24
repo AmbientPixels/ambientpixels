@@ -92,7 +92,7 @@ function parseCSV(csvText) {
 function loadDefaultData() {
   // Attempt to load the default CSV. If it fails, fall back to empty state.
   // updated by Cascade: use sample-data/source-data.csv as the default import
-  const defaultPath = 'lab/TileForge/sample-data/source-data.csv';
+  const defaultPath = './sample-data/source-data.csv'; // updated by Cascade: make path relative to /lab/TileForge/
   // default to disabled until data is confirmed loaded
   updateLocalizedExportState(false);
   if (typeof window.updateManageLocalesState === 'function') { window.updateManageLocalesState(false); }

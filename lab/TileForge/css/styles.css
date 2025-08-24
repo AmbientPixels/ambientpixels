@@ -873,6 +873,11 @@ body {
   background: linear-gradient(180deg, #212121, #1a1a1a);
   border-radius: 8px;
 }
+.project-files.drag-over { /* updated by Cascade: stronger highlight for droppable area */
+  /* reuse accent glow language seen in other drag-over zones, amplified */
+  box-shadow: 0 0 0 3px rgba(79,140,255,0.35), 0 4px 28px rgba(79,140,255,0.28);
+  background: linear-gradient(180deg, #242833 0%, #1b1f2a 100%);
+}
 .project-files-header {
   display: flex;
   align-items: center;
@@ -902,6 +907,11 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+.project-files-list.drag-over { /* updated by Cascade: stronger inner list highlight when dragging */
+  background: rgba(79,140,255,0.10);
+  box-shadow: inset 0 0 0 3px rgba(79,140,255,0.32), 0 2px 14px rgba(79,140,255,0.18);
+  border-radius: 6px;
 }
 .project-file-row {
   display: flex;

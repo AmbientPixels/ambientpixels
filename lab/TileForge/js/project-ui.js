@@ -828,6 +828,64 @@
         }
       });
     });
+
+    // Attach drag-and-drop to each project's files container to add files directly
+    listEl.querySelectorAll('.project-files[data-files-for]').forEach(panel => {
+      const pid = panel.getAttribute('data-files-for');
+      const dropTargets = [panel, panel.querySelector('.project-files-list')].filter(Boolean);
+      dropTargets.forEach(zone => {
+        // Avoid duplicate bindings across refreshes
+        if (zone.__tfDndBound) return;
+        zone.__tfDndBound = true;
+        // Improve DnD reliability: handle dragenter explicitly
+        zone.addEventListener('dragenter', (e) => {
+          const dt = e.dataTransfer;
+          const looksLikeFiles = (dt && dt.files && dt.files.length > 0) || (Array.from(dt?.types || []).includes('Files'));
+          // Always prevent default so browser allows a drop on this zone
+          e.preventDefault();
+          e.stopPropagation();
+          if (looksLikeFiles) zone.classList.add('drag-over');
+        });
+        zone.addEventListener('dragover', (e) => {
+          // Always allow drop for this zone; highlight if likely files
+          const dt = e.dataTransfer;
+          const looksLikeFiles = (dt && dt.files && dt.files.length > 0) || (Array.from(dt?.types || []).includes('Files'));
+          e.preventDefault();
+          e.stopPropagation();
+          try { if (dt) dt.dropEffect = 'copy'; } catch (_) {}
+          if (looksLikeFiles) zone.classList.add('drag-over');
+        });
+        zone.addEventListener('dragleave', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          zone.classList.remove('drag-over');
+        });
+        zone.addEventListener('drop', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          zone.classList.remove('drag-over');
+          const dt = e.dataTransfer;
+          let file = null;
+          const files = dt && dt.files;
+          if (files && files.length) {
+            file = files[0];
+          } else if (dt && dt.items && dt.items.length) {
+            // Fallback for browsers providing DataTransferItemList
+            for (let i = 0; i < dt.items.length; i++) {
+              const item = dt.items[i];
+              if (item.kind === 'file') { file = item.getAsFile(); break; }
+            }
+          }
+          if (!file) return;
+          try {
+            await saveFileToProject(pid, file);
+          } catch (err) {
+            console.error(err);
+            alertModal('Failed to add dropped file', 'error');
+          }
+        });
+      });
+    });
   }
 
   async function onAddFile(projectId) {
@@ -840,31 +898,41 @@
       input.onchange = async () => {
         const file = input.files && input.files[0];
         if (!file) return;
-        const text = await file.text();
-        const name = file.name || 'data.csv';
-        proj.data = proj.data || { csvs: [], activeCsv: null, image: null, template: 'toh', settings: {} };
-        const existingIdx = (proj.data.csvs || []).findIndex(f => f.name === name);
-        if (existingIdx >= 0) {
-          const overwrite = await confirmAsync(`A file named "${name}" already exists in this project. Overwrite it?`);
-          if (!overwrite) return;
-          proj.data.csvs[existingIdx] = { name, text };
-        } else {
-          proj.data.csvs.push({ name, text });
-        }
-        if (!proj.data.activeCsv) proj.data.activeCsv = name;
-        await ProjectStore.saveSnapshot(projectId, proj.data);
-        if (state.currentProject && state.currentProject.id === projectId) {
-          // If currently loaded project, update UI snapshot (do not auto-switch content)
-          // Keep current UI unless user explicitly loads project.
-        }
-        refreshList();
-        if (window.showToast) window.showToast('CSV added to project', 'success'); else alertModal('CSV added', 'success');
+        await saveFileToProject(projectId, file);
       };
       input.click();
     } catch (e) {
       console.error(e);
       alertModal('Failed to add file', 'error');
     }
+  }
+
+  // Save a dropped or selected file into the project's file list (CSV/JSON supported)
+  async function saveFileToProject(projectId, file) {
+    const proj = await ProjectStore.get(projectId);
+    if (!proj) return;
+    const name = (file && file.name) ? file.name : 'data.csv';
+    const lower = String(name).toLowerCase();
+    // Only support CSV or JSON for now (project stores textual content)
+    if (!(lower.endsWith('.csv') || lower.endsWith('.json'))) {
+      alertModal('Only CSV or JSON files can be added to a project at this time.', 'warning');
+      return;
+    }
+    const text = await file.text();
+    proj.data = proj.data || { csvs: [], activeCsv: null, image: null, template: 'toh', settings: {} };
+    const csvs = Array.isArray(proj.data.csvs) ? proj.data.csvs : (proj.data.csvs = []);
+    const existingIdx = csvs.findIndex(f => f && f.name === name);
+    if (existingIdx >= 0) {
+      const overwrite = await confirmAsync(`A file named "${name}" already exists in this project. Overwrite it?`, { type: 'destructive', confirmText: 'Overwrite', cancelText: 'Cancel' });
+      if (!overwrite) return;
+      csvs[existingIdx] = { name, text };
+    } else {
+      csvs.push({ name, text });
+    }
+    if (!proj.data.activeCsv) proj.data.activeCsv = name;
+    await ProjectStore.saveSnapshot(projectId, proj.data);
+    refreshList();
+    if (window.showToast) window.showToast(`${lower.endsWith('.json') ? 'JSON' : 'CSV'} added to project`, 'success'); else alertModal('File added to project', 'success');
   }
 
   async function onSetActiveFile(projectId, fileName) {
