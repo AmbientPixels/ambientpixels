@@ -202,6 +202,30 @@ body {
   padding: 24px;
 }
 
+/* Floating Back to Top button for TileForge preview panel */
+.tileforge-back-to-top-fab {
+  position: fixed;            /* overlay relative to viewport */
+  right: 24px;
+  bottom: 24px;
+  z-index: 1000;              /* above content, below modals (modals use overlay) */
+  display: none;              /* JS toggles visibility on scroll */
+  opacity: 0.96;              /* subtle translucency */
+}
+.tileforge-back-to-top-fab:hover,
+.tileforge-back-to-top-fab:focus {
+  opacity: 1;
+}
+/* Ensure compact round look while reusing toolbar-btn visuals */
+.tileforge-back-to-top-fab.toolbar-btn {
+  border-radius: 999px;
+  width: 44px;
+  height: 44px;
+  padding: 0;                 /* center icon */
+}
+.tileforge-back-to-top-fab.toolbar-btn i {
+  font-size: 16px;
+}
+
 /* Upload Section */
 .upload-section {
   padding: 20px;

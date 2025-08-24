@@ -140,6 +140,70 @@ document.addEventListener('DOMContentLoaded', function() {
   if (toolbarManageLocalesBtn) {
     toolbarManageLocalesBtn.addEventListener('click', function() { if (typeof window.openManageLocales === 'function') window.openManageLocales(); });
   }
+  // Back to Top button under Status color codes
+  const backToTopBtn = document.getElementById('backToTopBtn');
+  if (backToTopBtn) {
+    backToTopBtn.addEventListener('click', function() {
+      // Determine the actual scroll container. Body is non-scrollable (overflow: hidden),
+      // and panels (e.g., .right-panel) handle their own scrolling. /* updated by Cascade */
+      const scrollHost = document.querySelector('.right-panel') || document.scrollingElement || document.documentElement;
+      try {
+        if (typeof scrollHost.scrollTo === 'function') {
+          scrollHost.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          scrollHost.scrollTop = 0;
+        }
+      } catch (e) {
+        // Safe fallback
+        scrollHost.scrollTop = 0;
+      }
+    });
+  }
+
+  // Floating Back to Top (auto-sticky) for scrollable preview panel /* added by Cascade */
+  (function setupFloatingBackToTop() {
+    const scrollHost = document.querySelector('.right-panel');
+    if (!scrollHost) return; // respect layout; only attach when panel exists
+
+    // Avoid duplicates
+    let fab = document.querySelector('.tileforge-back-to-top-fab');
+    if (!fab) {
+      fab = document.createElement('button');
+      fab.className = 'toolbar-btn tileforge-back-to-top-fab';
+      fab.type = 'button';
+      fab.title = 'Back to Top';
+      fab.setAttribute('aria-label', 'Back to Top');
+      // Minimal icon without assuming external icon packs
+      const icon = document.createElement('span');
+      icon.textContent = '↑';
+      icon.setAttribute('aria-hidden', 'true');
+      fab.appendChild(icon);
+      document.body.appendChild(fab);
+
+      // Reuse the same scrolling logic
+      fab.addEventListener('click', function() {
+        try {
+          if (typeof scrollHost.scrollTo === 'function') {
+            scrollHost.scrollTo({ top: 0, behavior: 'smooth' });
+          } else {
+            scrollHost.scrollTop = 0;
+          }
+        } catch (e) {
+          scrollHost.scrollTop = 0;
+        }
+      });
+    }
+
+    // Toggle visibility based on scroll
+    const toggleFab = () => {
+      const shouldShow = (scrollHost.scrollTop || 0) > 120; // threshold
+      if (fab) {
+        fab.style.display = shouldShow ? 'inline-flex' : 'none';
+      }
+    };
+    toggleFab();
+    scrollHost.addEventListener('scroll', toggleFab, { passive: true });
+  })();
   // Initialize button state based on current data
   try { window.updateManageLocalesState(!!(window.currentCsvData && window.currentCsvData.length)); } catch (e) { /* no-op */ }
 
