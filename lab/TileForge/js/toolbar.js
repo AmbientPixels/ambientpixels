@@ -102,9 +102,11 @@
     var cloneBtn = document.getElementById('toolbarCloneBtn');
     var newBtn = document.getElementById('toolbarNewBtn');
     var newProjectBtn = document.getElementById('toolbarNewProjectBtn');
+    var projectsNewBtn = document.getElementById('projectsNewBtn');
     if (saveBtn) saveBtn.addEventListener('click', manualSave);
     if (cloneBtn) cloneBtn.addEventListener('click', cloneCurrentState);
     if (newBtn) newBtn.addEventListener('click', newDataSet);
+    if (projectsNewBtn) projectsNewBtn.addEventListener('click', newDataSet); // mirror toolbar New
     if (newProjectBtn) newProjectBtn.addEventListener('click', function() {
       if (window.ProjectUI && typeof window.ProjectUI.onNew === 'function') {
         try { window.ProjectUI.onNew(); } catch (err) {
