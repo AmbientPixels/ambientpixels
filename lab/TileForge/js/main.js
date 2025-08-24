@@ -147,15 +147,33 @@ document.addEventListener('DOMContentLoaded', function() {
     const lsWantsAutoload = localStorage.getItem('tileforge-autoload') === 'true';
     const wantsAutoload = (urlWantsAutoload || lsWantsAutoload);
     if (wantsAutoload && typeof loadDefaultData === 'function') {
+      console.info('[TF-Startup] Autoload override active (url=%s, ls=%s) → loading default dataset', urlWantsAutoload, lsWantsAutoload); /* debug: remove after verification */
       loadDefaultData();
     } else {
-      // Explicitly render clean empty state so the area is visible on load /* updated by Cascade */
-      try { window.currentCsvData = []; } catch (e) { /* no-op */ }
-      if (typeof renderLocaleGroups === 'function') renderLocaleGroups([]);
-      try { if (typeof updateLocalizedExportState === 'function') updateLocalizedExportState(false); } catch (e) {}
-      try { if (typeof window.updateManageLocalesState === 'function') window.updateManageLocalesState(false); } catch (e) {}
-      try { if (typeof window.updateApplyButtonsState === 'function') window.updateApplyButtonsState(false); } catch (e) {}
-      try { if (typeof window.updateLiveEditorEnabled === 'function') window.updateLiveEditorEnabled(false); } catch (e) {}
+      // If user opted to load last saved data and we have a cached CSV, restore it; otherwise show empty state
+      const shouldLoadLast = !!(window.currentSettings && window.currentSettings.loadLastSavedOnStartup);
+      let loadedLast = false;
+      if (shouldLoadLast && typeof processCsvData === 'function') {
+        try {
+          const lastCsv = localStorage.getItem('tileforge-last-csv');
+          const lastName = localStorage.getItem('tileforge-last-csv-name') || 'session.csv';
+          if (lastCsv && lastCsv.trim().length > 0) {
+            console.info('[TF-Startup] Loading last saved CSV from localStorage (%s, %d chars)', lastName, lastCsv.length); /* debug: remove after verification */
+            processCsvData(lastCsv, lastName);
+            loadedLast = true;
+          }
+        } catch (_) { /* fall through to empty state */ }
+      }
+      if (!loadedLast) {
+        // Explicitly render clean empty state so the area is visible on load /* updated by Cascade */
+        console.info('[TF-Startup] No autoload and no last saved CSV (or disabled) → rendering empty state (shouldLoadLast=%s)', String(shouldLoadLast)); /* debug: remove after verification */
+        try { window.currentCsvData = []; } catch (e) { /* no-op */ }
+        if (typeof renderLocaleGroups === 'function') renderLocaleGroups([]);
+        try { if (typeof updateLocalizedExportState === 'function') updateLocalizedExportState(false); } catch (e) {}
+        try { if (typeof window.updateManageLocalesState === 'function') window.updateManageLocalesState(false); } catch (e) {}
+        try { if (typeof window.updateApplyButtonsState === 'function') window.updateApplyButtonsState(false); } catch (e) {}
+        try { if (typeof window.updateLiveEditorEnabled === 'function') window.updateLiveEditorEnabled(false); } catch (e) {}
+      }
     }
   } catch (_) { /* no-op */ }
   

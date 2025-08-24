@@ -68,6 +68,8 @@ let currentSettings = {
   autosaveFreq: 60,
   csvDelimiter: ',',
   showIntroStartup: true,
+  // When enabled, attempt to load the last saved data on startup (unless URL/localStorage autoload overrides)
+  loadLastSavedOnStartup: false,
   // Toggle for locale badge status pill colors (Clean/Near/Overflow)
   statusPillColors: false,
   // Toggle for locale badge language pill colors
@@ -80,6 +82,10 @@ let currentSettings = {
   // Sticky option for the Locale Badges Panel container
   badgesPanelSticky: false
 };
+
+// Ensure settings are accessible to other modules that expect window.currentSettings
+// Keep this as a direct reference to the same object. /* updated by Cascade */
+window.currentSettings = currentSettings;
 
 // ===== SETTINGS MODAL FUNCTIONS =====
 
@@ -255,6 +261,7 @@ function initializeThemeSelection() {
   const autosaveFreq = document.getElementById('autosaveFreq');
   const csvDelimiter = document.getElementById('csvDelimiter');
   const showIntroStartup = document.getElementById('showIntroStartup');
+  const loadLastSavedOnStartup = document.getElementById('loadLastSavedOnStartup');
   const statusPillColorsPref = document.getElementById('statusPillColorsPref');
   const languagePillColorsPref = document.getElementById('languagePillColorsPref');
   const defaultPillPalettePref = document.getElementById('defaultPillPalettePref');
@@ -281,6 +288,13 @@ function initializeThemeSelection() {
     showIntroStartup.addEventListener('change', function() {
       currentSettings.showIntroStartup = this.checked;
       localStorage.setItem('tileforge-show-intro', this.checked ? 'true' : 'false');
+      saveSettings();
+    });
+  }
+  if (loadLastSavedOnStartup) {
+    loadLastSavedOnStartup.checked = !!currentSettings.loadLastSavedOnStartup;
+    loadLastSavedOnStartup.addEventListener('change', function() {
+      currentSettings.loadLastSavedOnStartup = !!this.checked;
       saveSettings();
     });
   }
@@ -508,7 +522,8 @@ function loadSettings() {
     const saved = localStorage.getItem('tileforge-settings');
     if (saved) {
       const parsedSettings = JSON.parse(saved);
-      currentSettings = { ...currentSettings, ...parsedSettings };
+      // Preserve the same object reference so window.currentSettings stays in sync
+      Object.assign(currentSettings, parsedSettings); /* updated by Cascade */
       console.log('Settings loaded successfully');
     }
   } catch (error) {
@@ -717,6 +732,14 @@ function createGeneralTabContent() {
           <input type="checkbox" id="showIntroStartup" checked>
           Show intro on startup
         </label>
+      </div>
+
+      <div class="setting-group">
+        <label>
+          <input type="checkbox" id="loadLastSavedOnStartup">
+          Load last saved data on startup
+        </label>
+        <div class="setting-hint">Overrides empty start unless ?autoload=1 or an autoload flag is set. Uses the most recently processed CSV from this browser.</div>
       </div>
       
       <div class="setting-group">

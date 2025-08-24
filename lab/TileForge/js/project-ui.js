@@ -318,9 +318,11 @@
       // Load CSV into currentCsvData
       const active = data.activeCsv || (data.csvs && data.csvs[0] && data.csvs[0].name);
       let csvRows = [];
+      let activeEntry = null; /* updated by Cascade: track active entry for persistence */
       if (active && Array.isArray(data.csvs)) {
         const entry = data.csvs.find(f => f.name === active) || data.csvs[0];
         if (entry) {
+          activeEntry = entry; /* updated by Cascade */
           if (entry.name.endsWith('.csv')) {
             // Parse CSV quickly via existing CSV loader if present
             if (typeof window.processCsvText === 'function') {
@@ -337,6 +339,14 @@
       if (Array.isArray(csvRows)) {
         window.currentCsvData = csvRows;
         if (typeof renderLocaleGroups === 'function') renderLocaleGroups(csvRows);
+        // Persist last loaded CSV for startup restore when toggle is enabled
+        // updated by Cascade: only persist when the active entry is a CSV
+        try {
+          if (activeEntry && typeof activeEntry.name === 'string' && /\.csv$/i.test(activeEntry.name) && typeof activeEntry.text === 'string') {
+            localStorage.setItem('tileforge-last-csv', activeEntry.text);
+            localStorage.setItem('tileforge-last-csv-name', activeEntry.name);
+          }
+        } catch (_) { /* no-op */ }
         // Reflect active CSV into the localized preview status pill
         try {
           const activeName = active || '';

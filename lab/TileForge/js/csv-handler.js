@@ -188,6 +188,11 @@ function processCsvData(csvText, fileName, rowCount = null) {
     updateLocalizedExportState(true);
     if (typeof window.updateManageLocalesState === 'function') { window.updateManageLocalesState(true); }
     if (typeof window.updateApplyButtonsState === 'function') { window.updateApplyButtonsState(true); }
+    // Persist last processed CSV for optional startup restore
+    try {
+      localStorage.setItem('tileforge-last-csv', csvText || '');
+      localStorage.setItem('tileforge-last-csv-name', fileName || 'session.csv');
+    } catch (_) {}
     
   } catch (error) {
     console.error('Error parsing CSV:', error);
