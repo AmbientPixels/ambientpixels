@@ -528,9 +528,12 @@
     const container = document.getElementById(sectionId);
     const btn = document.getElementById(buttonId);
     if (!container || !btn) return;
+    // Target the immediate heading for larger click area
+    const header = container.querySelector(':scope > h3, :scope > h4');
     const applyCollapsed = (collapsed) => {
       container.classList.toggle('collapsed', !!collapsed);
       btn.setAttribute('aria-expanded', String(!collapsed));
+      if (header) header.setAttribute('aria-expanded', String(!collapsed));
       const icon = btn.querySelector('i');
       if (icon) {
         icon.classList.toggle('fa-chevron-up', !collapsed);
@@ -540,11 +543,35 @@
     const stored = localStorage.getItem(storageKey);
     const initialCollapsed = stored === 'true';
     applyCollapsed(initialCollapsed);
-    btn.addEventListener('click', () => {
+    // Central toggle
+    const toggle = () => {
       const nowCollapsed = !container.classList.contains('collapsed');
       localStorage.setItem(storageKey, String(nowCollapsed));
       applyCollapsed(nowCollapsed);
+    };
+    // Keep existing button behavior but stop propagation so header doesn't double-toggle
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggle();
     });
+    // Enlarge target: allow clicking the entire header row
+    if (header) {
+      // Make header focusable and button-like for a11y
+      if (!header.hasAttribute('tabindex')) header.setAttribute('tabindex', '0');
+      if (!header.hasAttribute('role')) header.setAttribute('role', 'button');
+      header.addEventListener('click', (e) => {
+        // Ignore clicks originating from the dedicated chevron button
+        if (e.target && e.target.closest && e.target.closest(`#${buttonId}`)) return;
+        toggle();
+      });
+      header.addEventListener('keydown', (e) => {
+        // Activate on Enter or Space
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggle();
+        }
+      });
+    }
   }
 
   function mountProjectsSection() {
@@ -664,7 +691,7 @@
         } else if (act === 'clone') {
           onClone(id);
         } else if (act === 'delete') {
-          if (await confirmAsync('Delete this project?')) {
+          if (await confirmAsync('Delete this project?', { type: 'destructive', confirmText: 'Delete', cancelText: 'Cancel' })) {
             await ProjectStore.remove(id);
             if (state.currentProject && state.currentProject.id === id) state.currentProject = null;
             // Keep order in sync after deletion
@@ -725,7 +752,7 @@
               downloadTextFile(entry.name, entry.text || '', mime);
             }
             // Notify success with green-accent modal (reuses Modal/alert helper)
-            alertModal(`Export of "${exportedFileName}" successful!`, 'success', 'Export Complete');
+            alertModal(`“${exportedFileName}” is forged and ready.<br><span class="modal-description">Delivered to your downloads.</span>`, 'success', '🛠️ File forged');
           } catch (e) {
             console.error(e);
             alertModal('Export failed', 'error');
@@ -861,7 +888,7 @@
       const csvs = Array.isArray(proj.data.csvs) ? proj.data.csvs : (proj.data.csvs = []);
       const idx = csvs.findIndex(f => f.name === fileName);
       if (idx < 0) return;
-      if (!(await confirmAsync(`Remove file "${fileName}" from this project?`))) return;
+      if (!(await confirmAsync(`Remove file "${fileName}" from this project?`, { type: 'destructive', confirmText: 'Delete', cancelText: 'Cancel' }))) return;
       csvs.splice(idx, 1);
       if (proj.data.activeCsv === fileName) {
         proj.data.activeCsv = csvs[0] ? csvs[0].name : null;

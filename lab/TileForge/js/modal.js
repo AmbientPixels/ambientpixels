@@ -349,18 +349,52 @@ class ModalSystem {
 
   // Convenience methods for common modal types
   confirm(options = {}) {
+    // Heuristic: if no explicit type is provided but confirmText indicates a Clear action,
+    // default to the amber/yellow clear-confirmation variant. /* updated by Cascade */
+    const hasExplicitType = !!options.type;
+    const confirmLabel = (options.confirmText || '').toString();
+    const looksLikeClear = /\bclear\b/i.test(confirmLabel);
+    if (!hasExplicitType && looksLikeClear) {
+      options.type = 'clear-confirmation';
+    }
+
+    const isDestructive = options.type === 'destructive';
+    const isClear = options.type === 'clear-confirmation';
+    // Choose defaults based on type
     const defaults = {
-      title: '🤔 Confirm Action',
+      title: isDestructive
+        ? '⚠️ Confirm Destructive Action'
+        : (isClear ? '⚠️ Confirm Clear' : '🤔 Confirm Action'),
       content: 'Are you sure you want to proceed?',
-      type: 'confirmation',
+      type: isDestructive ? 'destructive' : (options.type || 'confirmation'),
       size: 'small',
       buttons: [
-        { text: 'Cancel', class: 'secondary', action: 'cancel' },
-        { text: 'Confirm', class: 'primary', action: 'confirm' }
+        { text: options.cancelText || 'Cancel', class: 'secondary', action: 'cancel' },
+        { text: options.confirmText || (isDestructive ? 'Delete' : (isClear ? 'Clear' : 'Confirm')), class: (options.buttons && options.buttons[1] && options.buttons[1].class) ? options.buttons[1].class : (isDestructive ? 'danger' : (isClear ? 'warning' : 'primary')), action: 'confirm' }
       ]
     };
 
-    return this.createModal({ ...defaults, ...options });
+    // If content is a plain string and destructive, prepend an icon for visual clarity
+    let computedContent = options.content;
+    if (typeof computedContent === 'string') {
+      const icon = isDestructive ? '🗑️' : (isClear ? '🧹' : '🤔');
+      // Only add icon markup if caller didn't already include one
+      if (!/modal-icon/.test(computedContent)) {
+        computedContent = `
+          <div class="modal-icon">${icon}</div>
+          <p class="modal-message">${computedContent}</p>
+        `;
+      }
+    }
+
+    // Compose final config, preserving provided callbacks and flags
+    const finalConfig = {
+      ...defaults,
+      ...options,
+      content: computedContent !== undefined ? computedContent : defaults.content
+    };
+
+    return this.createModal(finalConfig);
   }
 
   alert(message, type = 'info', title = null) {
@@ -378,13 +412,16 @@ class ModalSystem {
       success: 'Success'
     };
 
+    // Map alert types to button classes for consistent visual language
+    const btnClass = type === 'success' ? 'success' : type === 'error' ? 'danger' : type === 'warning' ? 'warning' : 'primary';
+
     const modal = this.createModal({
       title: title || `${icons[type]} ${titles[type]}`,
       content: `<div class="modal-icon">${icons[type]}</div><p class="modal-message">${message}</p>`,
       type: `alert-${type}`,
       size: 'small',
       buttons: [
-        { text: 'OK', class: 'primary', action: 'close' }
+        { text: 'OK', class: btnClass, action: 'close' }
       ]
     });
 

@@ -2277,12 +2277,26 @@ input:checked + .slider:before {
   display: flex;
   align-items: center;
   gap: 8px;
+  /* enlarged hit area for collapse toggle - updated by Cascade */
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 120ms ease-in-out, box-shadow 120ms ease-in-out;
 }
 .collapsible > h3 .toolbar-btn,
 .collapsible > h4 .toolbar-btn {
   margin-left: auto; /* push chevron to the right */
   padding: 4px 8px;
   border-radius: 8px;
+}
+.collapsible > h3:hover,
+.collapsible > h4:hover {
+  background-color: rgba(255, 255, 255, 0.06); /* subtle hover */ /* updated by Cascade */
+}
+.collapsible > h3:focus-visible,
+.collapsible > h4:focus-visible {
+  outline: 2px solid var(--accent-color, #007acc); /* accessible focus */ /* updated by Cascade */
+  outline-offset: 2px;
 }
 .collapsible.collapsed > :not(h3):not(h4) {
   display: none !important;

@@ -275,9 +275,9 @@ function exportToCSV() {
     downloadCSVFile(csvContent, exportedName);
     // Show success modal consistent with project export flow (reuse global Modal)
     if (window.Modal && typeof Modal.alert === 'function') {
-      Modal.alert(`Export of "${exportedName}" successful!`, 'success', 'Export Complete');
+      Modal.alert(`“${exportedName}” is forged and ready.<br><span class="modal-description">Delivered to your downloads.</span>`, 'success', '🛠️ File forged');
     } else {
-      alert(`Export of "${exportedName}" successful!`);
+      alert(`“${exportedName}” is forged and ready.`);
     }
     
     // Update analytics

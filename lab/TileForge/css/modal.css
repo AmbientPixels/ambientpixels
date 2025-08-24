@@ -228,6 +228,95 @@
 
 .modal.alert-success .modal-icon {
   color: #28a745;
+  margin: 0;
+  font-size: 28px;
+  line-height: 1;
+}
+
+/* Success Alert Variant — green theme for export success */ /* updated by Cascade */
+.modal.alert-success .modal-header {
+  background: linear-gradient(180deg, rgba(0, 60, 20, 0.85), #1e1e1e 60%);
+  border-bottom-color: #1f5a34;
+}
+.modal.alert-success {
+  border-color: #1f6a3e;
+  box-shadow: 0 20px 40px rgba(0, 120, 60, 0.28);
+}
+.modal.alert-success .modal-title { color: #e8fff0; }
+.modal.alert-success .modal-body {
+  background: #1b221d;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.modal.alert-success .modal-message {
+  color: #ccffdd;
+  margin: 0;
+}
+.modal.alert-success .modal-footer {
+  border-top-color: #1f5a34;
+  background: #151c18;
+}
+
+/* Destructive Modal Variant */ /* updated by Cascade */
+.modal.destructive .modal-header {
+  background: linear-gradient(180deg, rgba(40, 0, 0, 0.85), #1e1e1e 60%);
+  border-bottom-color: #4a1f1f;
+}
+.modal.destructive {
+  border-color: #5a1f1f;
+  box-shadow: 0 20px 40px rgba(120, 0, 0, 0.35);
+}
+.modal.destructive .modal-title { color: #fff3f3; }
+.modal.destructive .modal-body { background: #252020; }
+.modal.destructive .modal-icon {
+  color: #ff6b6b;
+  text-shadow: 0 0 8px rgba(255, 80, 80, 0.35);
+}
+.modal.destructive .modal-message { color: #ffecec; }
+.modal.destructive .modal-description {
+  color: #ffb3b3;
+}
+.modal.destructive .modal-footer {
+  border-top-color: #4a1f1f;
+  background: #1d1818;
+}
+
+/* Caution/Clear Modal Variant */ /* updated by Cascade */
+.modal.clear-confirmation .modal-header {
+  background: linear-gradient(180deg, rgba(80, 50, 0, 0.85), #1e1e1e 60%);
+  border-bottom-color: #5a450f;
+}
+.modal.clear-confirmation {
+  border-color: #6a4f0f;
+  box-shadow: 0 20px 40px rgba(180, 120, 0, 0.28);
+}
+.modal.clear-confirmation .modal-title { color: #fff9e6; }
+.modal.clear-confirmation .modal-body { background: #221f17; }
+.modal.clear-confirmation .modal-icon {
+  color: #ffc107; /* amber */
+  text-shadow: 0 0 8px rgba(255, 193, 7, 0.35);
+}
+.modal.clear-confirmation .modal-message { color: #fff3cc; }
+.modal.clear-confirmation .modal-description {
+  color: #ffd98a;
+}
+.modal.clear-confirmation .modal-footer {
+  border-top-color: #5a450f;
+  background: #1c1913;
+}
+
+/* Warning button style for clear actions */ /* updated by Cascade */
+.modal-btn.warning {
+  background: linear-gradient(180deg, #ffb020, #ff8c00);
+  color: #1e1e1e;
+  border: 1px solid #ffae42;
+}
+
+.modal-btn.warning:hover {
+  background: linear-gradient(180deg, #ffc043, #ff9a1a);
+  border-color: #ffc043;
+  color: #000;
 }
 
 /* Form Elements in Modals */

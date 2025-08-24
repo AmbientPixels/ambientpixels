@@ -280,6 +280,7 @@ function setupLiveEditor() {
             const modal = window.showModal(
     'This will clear the Title field for all tiles. Are you sure?',
     {
+        type: 'clear-confirmation',
         confirmText: 'Clear All',
         cancelText: 'Cancel',
         onConfirm: function() {
@@ -319,6 +320,7 @@ function setupLiveEditor() {
             const modal = window.showModal(
     'This will clear the Subtitle field for all tiles. Are you sure?',
     {
+        type: 'clear-confirmation',
         confirmText: 'Clear All',
         cancelText: 'Cancel',
         onConfirm: function() {
@@ -358,6 +360,7 @@ function setupLiveEditor() {
             const modal = window.showModal(
     'This will clear the Narrator field for all tiles. Are you sure?',
     {
+        type: 'clear-confirmation',
         confirmText: 'Clear All',
         cancelText: 'Cancel',
         onConfirm: function() {
@@ -403,6 +406,7 @@ function setupLiveEditor() {
         window.showModal(
           `This will clear the ${fieldType} field for ${cleanSet.length} selected locale(s). Proceed?`,
           {
+            type: 'clear-confirmation',
             confirmText: 'Clear Selected',
             cancelText: 'Cancel',
             onConfirm: function() { applyManualTextToSelectedLocales('', fieldType, cleanSet); }
