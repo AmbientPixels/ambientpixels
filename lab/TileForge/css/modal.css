@@ -268,10 +268,20 @@
   box-shadow: 0 20px 40px rgba(120, 0, 0, 0.35);
 }
 .modal.destructive .modal-title { color: #fff3f3; }
-.modal.destructive .modal-body { background: #252020; }
+.modal.destructive .modal-body {
+  background: #252020;
+  /* Match confirmation/clear layout: icon left, text right */
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
 .modal.destructive .modal-icon {
   color: #ff6b6b;
   text-shadow: 0 0 8px rgba(255, 80, 80, 0.35);
+  /* Ensure prominent icon size consistent with confirm layout */
+  font-size: 28px;
+  line-height: 1;
+  margin: 0;
 }
 .modal.destructive .modal-message { color: #ffecec; }
 .modal.destructive .modal-description {
