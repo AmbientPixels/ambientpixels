@@ -655,3 +655,72 @@
   color: #8be08b;
   font-weight: 600;
 }
+
+/* Locale Picker: language filter pills and list spacing */
+#localePickerModal .modal-body .modal-form-input {
+  margin-bottom: 10px;
+}
+
+#localePickerModal .locale-filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+#localePickerModal .pill-btn {
+  background: #1f1f1f;
+  color: #ddd;
+  border: 1px solid #3a3a3a;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+#localePickerModal .pill-btn:hover {
+  background: #2a2a2a;
+  color: #fff;
+  border-color: #4a4a4a;
+}
+
+#localePickerModal .pill-btn[aria-pressed="true"] {
+  background: #0a66a3;
+  color: #fff;
+  border-color: #0a66a3;
+  box-shadow: 0 0 0 2px rgba(10, 102, 163, 0.25);
+}
+
+#localePickerModal .locale-list {
+  max-height: 250px;
+  overflow: auto;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-bottom: 12px;
+}
+
+#localePickerModal .locale-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+#localePickerModal .locale-actions-row .modal-btn {
+  background: #1f1f1f;
+  color: #ddd;
+  border: 1px solid #3a3a3a;
+  border-radius: 999px;
+  padding: 6px 12px;
+  min-width: auto;
+}
+
+#localePickerModal .locale-actions-row .modal-btn:hover {
+  background: #2a2a2a;
+  color: #fff;
+  border-color: #4a4a4a;
+}

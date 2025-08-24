@@ -375,6 +375,55 @@ The Left Panel is designed for clarity, speed, and full control, anchoring all m
 
 /* updated by Cascade */
 
+## 🌍 Locale Manager (Modal)
+
+<!-- updated by Cascade: Locale Manager docs -->
+
+### Overview
+The Locale Manager lets you choose which locales are active for preview and export. It includes a search box, language filter pills, and pill‑styled action buttons. All styles and selectors are scoped to the modal to avoid CSS collisions.
+
+### UI Structure
+- **Host file:** `lab/TileForge/index.html`
+- **Container:** `#localePickerModal`
+- **Key elements:**
+  - Search: `#localeSearchInput`
+  - Language pills: `#localeLanguageFilters` with `.pill-btn` buttons (includes an "All" pill)
+  - Locale list: `#localeList`
+  - Actions row: `.locale-actions-row` with `.modal-btn` buttons
+  - Apply: footer button calling `TileForgeLocalesUI.apply()`
+
+### Behavior
+- **Filtering:** Search text and the selected language pill combine to filter the locale list.
+- **Language pills:** Clicking a pill sets `aria-pressed` on that pill and re-renders the list. "All" clears the language filter.
+- **Selection:** Check/uncheck in the list updates the internal `selectedLocales` state.
+
+### Defaults
+- Source: `lab/TileForge/js/locale-mapping.js`
+- Buttons in actions row call `TileForgeLocalesUI.loadDefault(type)`:
+  - `type === 'mobile'` → selects all locales (Mobile includes all)
+  - `type === 'toh'` → selects all except the special `INVARIANT` locale (ToH excludes INVARIANT)
+
+### Styling Scope
+- Source: `lab/TileForge/css/modal.css`
+- Modal‑scoped rules under `#localePickerModal`:
+  - Pills: `#localePickerModal .locale-filter-pills .pill-btn`
+  - List wrapper: `#localePickerModal .locale-list`
+  - Actions row: `#localePickerModal .locale-actions-row .modal-btn` (pill‑style buttons)
+- No inline styles; action row uses `.locale-actions-row` for consistent spacing.
+
+### Public API
+- Module: `lab/TileForge/js/locale-picker-ui.js`
+- Exposed on `window.TileForgeLocalesUI`:
+  - `open(callback, preselect?)` → opens modal with optional preselected locales and on-apply callback
+  - `close()` → closes modal
+  - `apply()` → invokes callback with the selected locales
+  - `selectAll()` / `clearAll()` → select or clear visible locales
+  - `loadDefault('toh' | 'mobile')` → apply default sets described above
+
+### Accessibility
+- Language filter pills use `aria-pressed` to indicate the active state.
+- Buttons and inputs follow existing modal focus and keyboard handling patterns.
+
 ---
 
 ### 🗑️ Delete from All

@@ -3,14 +3,18 @@
 
 (function() {
   // Utility: Show modal confirmation using existing modal system
-  function showModalConfirm(message, onConfirm) {
+  function showModalConfirm(message, onConfirm, overrides) {
     // Require the custom modal system for confirmations
     if (typeof window.showModal === 'function') {
-      window.showModal(message, {
+      const base = {
         confirmText: 'Confirm',
         cancelText: 'Cancel',
         onConfirm: onConfirm
-      });
+      };
+      const opts = Object.assign({}, base, overrides || {});
+      // Allow callers to pass rich HTML content via overrides.content
+      const content = Object.prototype.hasOwnProperty.call(opts, 'content') ? opts.content : message;
+      window.showModal(content, opts);
     } else {
       // No fallback: show error and do not proceed
       if (window.Modal && typeof Modal.alert === 'function') {
@@ -42,7 +46,22 @@
     };
 
     if (silent) { doSave(); return; }
-    showModalConfirm('Save current progress to a Project? This will update the current Project or create a new one.', doSave);
+    // Green confirm Save modal with check icon
+    const saveContent = `
+      <div class="modal-icon"><i class="fas fa-check-circle" aria-hidden="true"></i></div>
+      <p class="modal-message">Save current progress to a Project? This will update the current Project or create a new one.</p>
+    `;
+    showModalConfirm(saveContent, doSave, {
+      title: 'Confirm Save',
+      type: 'alert-success',
+      size: 'small',
+      confirmText: 'Save',
+      cancelText: 'Cancel',
+      buttons: [
+        { text: 'Cancel', class: 'secondary', action: 'cancel' },
+        { text: 'Save', class: 'success', action: 'confirm' }
+      ]
+    });
   }
 
   // Clone current item as a new project file (append -clone) with confirmation
@@ -96,14 +115,19 @@
     }
   }
 
-  // Toolbar button event listeners
-  document.addEventListener('DOMContentLoaded', function() {
+  // Toolbar button event listeners (robust binding even if DOM is already ready)
+  function bindToolbarButtons() {
     var saveBtn = document.getElementById('toolbarSaveBtn');
     var cloneBtn = document.getElementById('toolbarCloneBtn');
     var newBtn = document.getElementById('toolbarNewBtn');
     var newProjectBtn = document.getElementById('toolbarNewProjectBtn');
     var projectsNewBtn = document.getElementById('projectsNewBtn');
-    if (saveBtn) saveBtn.addEventListener('click', manualSave);
+    // Important: do NOT pass the click event into manualSave(silent)
+    // Passing the MouseEvent would be truthy and interpreted as `silent`, skipping the modal.
+    if (saveBtn) saveBtn.addEventListener('click', function(e) {
+      try { e.preventDefault(); } catch(_) {}
+      manualSave(false);
+    });
     if (cloneBtn) cloneBtn.addEventListener('click', cloneCurrentState);
     if (newBtn) newBtn.addEventListener('click', newDataSet);
     if (projectsNewBtn) projectsNewBtn.addEventListener('click', newDataSet); // mirror toolbar New
@@ -368,7 +392,14 @@
     // updated by Cascade
     // Expose a small hook for Settings to refresh default badge labeling
     window.updatePillPaletteDefaultUI = updatePillPaletteUIBits;
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindToolbarButtons);
+  } else {
+    // DOM already ready — bind immediately
+    bindToolbarButtons();
+  }
 
   // Expose for integration with export flow
   window.manualSave = manualSave;

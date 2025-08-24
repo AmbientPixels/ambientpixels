@@ -20,6 +20,7 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 - **New Clear All Features:** Quickly reset all mapping and preview data with one click.
 - **Improved UI & Control Panel:** New control panel for easier workflow and navigation.
 - **Manage Locales:** Panel and toolbar button to view, add, or remove locales. Toolbar button is enabled only when localization CSV data is loaded. <!-- updated by Cascade -->
+ - **Locale Manager (Modal):** Language filter pills (with "All") + search for fast narrowing, pill‑styled action buttons, and correct defaults: "Load ToH Locales" selects all except INVARIANT; "Load Mobile Locales" selects all. Styles are fully scoped under `#localePickerModal`. <!-- updated by Cascade -->
 - **Loading Default Template (Coming Soon):** Option to load a default mapping/template (feature in progress).
 - **Arabic & Special Character Support:** Fixed issues with Arabic and special characters in data and preview.
 - **New Case Converter Tool:** Added a dedicated Case Converter module for fast text case transformations.
@@ -107,7 +108,7 @@ TileForge is a professional web-based tool designed for Xbox game developers and
    - If your CSV needs transformation, the Transform Modal will automatically appear
    - Or click **"Transform Data"** in the Tools section for manual transformation <!-- updated by Cascade -->
 5. **Preview Results**: View tiles for all locales with template-specific overflow warnings
-6. **Manage Locales**: Use the left panel button or the toolbar "Manage Locales" button (enabled after CSV load) to choose which locales are active for preview and export. <!-- updated by Cascade -->
+6. **Manage Locales**: Use the left panel button or the toolbar "Manage Locales" button (enabled after CSV load). In the modal, use the language pills (or search) to filter, and the action pills to Select/Clear or load defaults (ToH excludes INVARIANT; Mobile includes all). Apply to update previews and export scope. <!-- updated by Cascade -->
 7. **Live Edit**: Click any tile to edit text with real-time preview
 
 ### 3. CSV Format
