@@ -103,8 +103,26 @@ document.addEventListener('DOMContentLoaded', function() {
   // Check if intro should be shown
   initializeIntroSection();
   
-  // Load default data first
-  loadDefaultData();
+  // Default: do NOT autoload any dataset on refresh. Keep a clean page.
+  // Opt-in autoload only if:
+  //  - URL has ?autoload=1, or
+  //  - localStorage 'tileforge-autoload' === 'true'
+  // This avoids loading preloaded or last-saved templates automatically. /* updated by Cascade */
+  try {
+    const params = new URLSearchParams(window.location.search || '');
+    const urlWantsAutoload = params.get('autoload') === '1';
+    const lsWantsAutoload = localStorage.getItem('tileforge-autoload') === 'true';
+    const wantsAutoload = (urlWantsAutoload || lsWantsAutoload);
+    if (wantsAutoload && typeof loadDefaultData === 'function') {
+      loadDefaultData();
+    } else {
+      // Explicitly render clean empty state so the area is visible on load /* updated by Cascade */
+      try { window.currentCsvData = []; } catch (e) { /* no-op */ }
+      if (typeof renderLocaleGroups === 'function') renderLocaleGroups([]);
+      try { if (typeof updateLocalizedExportState === 'function') updateLocalizedExportState(false); } catch (e) {}
+      try { if (typeof window.updateManageLocalesState === 'function') window.updateManageLocalesState(false); } catch (e) {}
+    }
+  } catch (_) { /* no-op */ }
   
   // Setup all functionality
   setupFileInputs();

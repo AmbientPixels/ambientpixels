@@ -832,7 +832,14 @@
     // Attach drag-and-drop to each project's files container to add files directly
     listEl.querySelectorAll('.project-files[data-files-for]').forEach(panel => {
       const pid = panel.getAttribute('data-files-for');
-      const dropTargets = [panel, panel.querySelector('.project-files-list')].filter(Boolean);
+      // Broaden drop targets to improve UX: accept drop on the whole project block as well
+      const projectItem = panel.closest('.project-item');
+      const dropTargets = [
+        panel,
+        panel.querySelector('.project-files-list'),
+        panel.querySelector('.project-files-header'),
+        projectItem
+      ].filter(Boolean);
       dropTargets.forEach(zone => {
         // Avoid duplicate bindings across refreshes
         if (zone.__tfDndBound) return;
