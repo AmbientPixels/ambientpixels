@@ -29,6 +29,8 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 - **State Preservation:** Files panel expanded/collapsed state now persists across list refreshes for smoother project management. <!-- updated by Cascade -->
 - **Subtitle Symbols Selector:** Optional dropdown next to Subtitle Modifiers value. Safely appends %, $, €, £, ¥ only if the template has `{n}` and no existing percent/currency symbol (Behavior B). <!-- updated by Cascade -->
 
+ - **Locale Badge Status Borders Toggle:** New General setting to enable/disable colored status borders on locale badges in the default view. When off, `.status-borders-off` is applied to `.locale-badges-section` and border/glow styles are suppressed. Palettes remain unchanged. <!-- updated by Cascade -->
+
 ### Bug Fixes (Aug 2025)
 
 - First locale not populating/updating after CSV import in Live Editor

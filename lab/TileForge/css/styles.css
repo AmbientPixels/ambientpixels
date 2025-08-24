@@ -505,7 +505,7 @@ body {
 .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-zh { background: #E6A76E; border-color: #AB794F; color: #1C1C1C; } /* amber gold */
 
 /* Default view: border-only for clean status, neutral text (override global .clean color) */ /* updated by Cascade */
-.locale-badges-section:not(.palette-on):not(.status-palette-on) #localeBadgeArea .country-badge.clean {
+.locale-badges-section:not(.palette-on):not(.status-palette-on):not(.status-borders-off) #localeBadgeArea .country-badge.clean {
   color: inherit;
   border-color: #4caf50;
   border-width: 2px;
@@ -513,7 +513,7 @@ body {
 }
 
 /* Default view: border-only for near-limit status, neutral text */ /* updated by Cascade */
-.locale-badges-section:not(.palette-on):not(.status-palette-on) #localeBadgeArea .country-badge.near-limit {
+.locale-badges-section:not(.palette-on):not(.status-palette-on):not(.status-borders-off) #localeBadgeArea .country-badge.near-limit {
   color: inherit;
   border-color: #ffa500;
   border-width: 2px;
@@ -521,7 +521,7 @@ body {
 }
 
 /* Default view: border-only for overflow status, neutral text */ /* updated by Cascade */
-.locale-badges-section:not(.palette-on):not(.status-palette-on) #localeBadgeArea .country-badge.overflow {
+.locale-badges-section:not(.palette-on):not(.status-palette-on):not(.status-borders-off) #localeBadgeArea .country-badge.overflow {
   color: inherit;
   border-color: #ff6b6b;
   border-width: 2px;

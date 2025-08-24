@@ -194,6 +194,24 @@ Headliner Crafter is TileForge's advanced CSV localization transformation tool t
 
 <!-- updated by Cascade: status pill color toggle docs -->
 
+## 🧰 Locale Badges — Status Borders Toggle (Default View)
+- **Setting (General):** Checkbox labeled "Status borders on locale badges" (`statusPillBordersPref`).
+- **State Key:** `currentSettings.statusPillBorders` (boolean, default `true`).
+- **DOM Hook:** Toggles `.status-borders-off` on the container `.locale-badges-section`.
+
+### Behavior
+- Borders/glow apply only in the default view (when both palettes are OFF) and when the opt-out class is absent:
+  - CSS scope: `.locale-badges-section:not(.palette-on):not(.status-palette-on):not(.status-borders-off) #localeBadgeArea .country-badge.{clean|near-limit|overflow}`
+- Turning the setting OFF adds `.status-borders-off` and suppresses the default border/glow for Clean / Near-limit / Overflow.
+- Status and Language palette behaviors are unchanged and remain mutually exclusive.
+
+### Implementation
+- **UI:** Added to Settings → General tab within `createGeneralTabContent()` (`lab/TileForge/js/settings.js`) as `#statusPillBordersPref`.
+- **Init & Persistence:** Value initializes from `currentSettings.statusPillBorders` and persists via `saveSettings()`; applied on `DOMContentLoaded` and modal open.
+- **CSS:** Updated `lab/TileForge/css/styles.css` to include `:not(.status-borders-off)` in the default-view status border selectors for `.clean`, `.near-limit`, `.overflow`.
+
+<!-- updated by Cascade: status borders toggle docs -->
+
 ## 📌 Localized Previews — Sticky Wrapper (Headline + Toolbar + Badges)
 
 <!-- updated by Cascade: localized previews sticky wrapper docs -->

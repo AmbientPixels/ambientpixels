@@ -72,6 +72,8 @@ let currentSettings = {
   statusPillColors: false,
   // Toggle for locale badge language pill colors
   languagePillColors: false,
+  // Toggle for showing status borders on locale badges in default view
+  statusPillBorders: true,
   // Default pill palette to apply when both toggles are off
   // Allowed: 'language' | 'status' | 'none'
   defaultPillPalette: 'language',
@@ -256,6 +258,7 @@ function initializeThemeSelection() {
   const statusPillColorsPref = document.getElementById('statusPillColorsPref');
   const languagePillColorsPref = document.getElementById('languagePillColorsPref');
   const defaultPillPalettePref = document.getElementById('defaultPillPalettePref');
+  const statusPillBordersPref = document.getElementById('statusPillBordersPref');
   
   if (autosaveFreq) {
     autosaveFreq.value = currentSettings.autosaveFreq;
@@ -295,6 +298,9 @@ function initializeThemeSelection() {
   if (languagePillColorsPref) {
     languagePillColorsPref.checked = !!currentSettings.languagePillColors;
   }
+  if (statusPillBordersPref) {
+    statusPillBordersPref.checked = !!currentSettings.statusPillBorders;
+  }
   if (defaultPillPalettePref) {
     const allowed = ['language','status','none'];
     const val = allowed.includes(currentSettings.defaultPillPalette) ? currentSettings.defaultPillPalette : 'language';
@@ -308,6 +314,8 @@ function initializeThemeSelection() {
     if (badgesSection) {
       badgesSection.classList.toggle('status-palette-on', statusOn);
       badgesSection.classList.toggle('palette-on', langOn);
+      // Apply borders opt-out
+      badgesSection.classList.toggle('status-borders-off', !currentSettings.statusPillBorders);
     }
     const uiStatus = document.getElementById('toggleStatusPillColors');
     if (uiStatus) {
@@ -356,6 +364,17 @@ function initializeThemeSelection() {
           try { window.updatePillPaletteDefaultUI(); } catch(_) {}
         }
       }
+    });
+  }
+  
+  // Handle borders toggle changes
+  if (statusPillBordersPref) {
+    statusPillBordersPref.addEventListener('change', function() {
+      const enabled = !!this.checked;
+      currentSettings.statusPillBorders = enabled;
+      saveSettings();
+      const badgesSection = document.querySelector('.locale-badges-section');
+      if (badgesSection) badgesSection.classList.toggle('status-borders-off', !enabled);
     });
   }
   
@@ -707,7 +726,15 @@ function createGeneralTabContent() {
         </label>
         <div class="setting-hint">Controls green/orange/red for Clean / Near-limit / Overflow on locale pills.</div>
       </div>
-      
+
+      <div class="setting-group">
+        <label>
+          <input type="checkbox" id="statusPillBordersPref" checked>
+          Status borders on locale badges
+        </label>
+        <div class="setting-hint">When enabled, default view shows a colored border around each locale badge based on status (Clean/ Near-limit/ Overflow). Turn off to hide these borders.</div>
+      </div>
+
       <div class="setting-group">
         <label>
           <input type="checkbox" id="languagePillColorsPref">
@@ -860,6 +887,11 @@ document.addEventListener('DOMContentLoaded', function() {
   loadSettings();
   // Apply persisted sticky state for localized previews (header + badges) on startup
   try { applyBadgesStickyState(); } catch (_) {}
+  // Apply persisted status borders preference on startup
+  try {
+    const badgesSection = document.querySelector('.locale-badges-section');
+    if (badgesSection) badgesSection.classList.toggle('status-borders-off', !currentSettings.statusPillBorders);
+  } catch (_) {}
   
   // Add global keyboard shortcut listener
   document.addEventListener('keydown', handleGlobalShortcuts);
