@@ -99,7 +99,7 @@ function openSettings() {
     {
       title: 'Shortcuts',
       icon: '<i class="fas fa-keyboard" aria-hidden="true"></i>',
-      content: createShortcutsTabContent()
+      content: createSettingsShortcutsTabContent()
     },
     {
       title: 'General',
@@ -222,15 +222,19 @@ function updateShortcutsDisplay() {
   
   Object.entries(currentSettings.shortcuts).forEach(([action, shortcut]) => {
     const item = document.createElement('div');
-    item.className = 'shortcut-item';
+    item.className = 'settings-row';
     
     const actionName = action.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     const keys = shortcut.split('+').map(key => `<kbd>${key}</kbd>`).join(' + ');
     
     item.innerHTML = `
-      <div class="shortcut-action">${actionName}</div>
-      <div class="shortcut-keys">${keys}</div>
-      <button class="shortcut-edit" onclick="editShortcut('${action}')">Edit</button>
+      <div class="row-text">
+        <div class="row-title">${actionName}</div>
+      </div>
+      <div class="row-actions">
+        <div class="shortcut-keys">${keys}</div>
+        <button class="btn btn-secondary" onclick="editShortcut('${action}')">Edit</button>
+      </div>
     `;
     
     shortcutsList.appendChild(item);
@@ -676,29 +680,44 @@ function createThemesTabContent() {
       </div>
       
       <div class="theme-actions">
-        <button class="btn secondary" onclick="previewTheme()">Preview</button>
-        <button class="btn primary" onclick="applySelectedTheme()">Apply Theme</button>
+        <button class="btn btn-secondary" onclick="previewTheme()">Preview</button>
+        <button class="btn btn-primary" onclick="applySelectedTheme()">Apply Theme</button>
       </div>
     </div>
   `;
 }
 
-function createShortcutsTabContent() {
+function createSettingsShortcutsTabContent() {
   return `
-    <div class="settings-section">
+    <div class="settings-section tf-general shortcuts-panel">
       <h3>Keyboard Shortcuts</h3>
-      <div class="shortcuts-search">
-        <input type="text" placeholder="Search shortcuts..." id="shortcutsSearch">
+
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="row-text">
+            <div class="row-title">Search</div>
+          </div>
+          <div class="shortcuts-search">
+            <input type="text" placeholder="Search shortcuts..." id="shortcutsSearch" class="modal-form-input">
+          </div>
+        </div>
       </div>
       
-      <div class="shortcuts-list" id="shortcutsList">
-        <!-- Shortcuts will be populated by updateShortcutsDisplay() -->
+      <div class="settings-card">
+        <div id="shortcutsList"><!-- populated by updateShortcutsDisplay() --></div>
       </div>
-      
-      <div class="shortcuts-actions">
-        <button class="btn secondary" onclick="resetShortcuts()">Reset to Defaults</button>
-        <button class="btn secondary" onclick="exportShortcuts()">Export</button>
-        <button class="btn secondary" onclick="importShortcuts()">Import</button>
+
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="row-text">
+            <div class="row-title">Manage</div>
+          </div>
+          <div>
+            <button class="btn btn-secondary" onclick="resetShortcuts()">Reset to Defaults</button>
+            <button class="btn btn-secondary" onclick="exportShortcuts()">Export</button>
+            <button class="btn btn-secondary" onclick="importShortcuts()">Import</button>
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -883,13 +902,13 @@ function createAboutTabContent() {
         </div>
         
         <div class="links">
-          <button class="btn secondary" onclick="showChangelog()">
+          <button class="btn btn-secondary" onclick="showChangelog()">
             <i class="fas fa-history"></i> View Changelog
           </button>
-          <button class="btn secondary" onclick="reportIssue()">
+          <button class="btn btn-secondary" onclick="reportIssue()">
             <i class="fas fa-bug"></i> Report Issue
           </button>
-          <button class="btn secondary" onclick="checkForUpdates()">
+          <button class="btn btn-secondary" onclick="checkForUpdates()">
             <i class="fas fa-download"></i> Check for Updates
           </button>
         </div>
@@ -1090,3 +1109,17 @@ document.addEventListener('keydown', function(event) {
     }
   }
 });
+
+function applyShortcutsFilter(q) {
+  const rows = document.querySelectorAll('#shortcutsList .settings-row');
+  if (!rows || rows.length === 0) return;
+  if (!q) {
+    rows.forEach(r => r.classList.remove('hidden'));
+    return;
+    }
+  rows.forEach(r => {
+    const hay = r.getAttribute('data-filter-text') || r.textContent || '';
+    const match = hay.toLowerCase().includes(q);
+    r.classList.toggle('hidden', !match);
+  });
+}
