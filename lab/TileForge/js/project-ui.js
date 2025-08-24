@@ -615,6 +615,9 @@
                     <button class="preset-apply-btn file-badge-btn" data-act="rename-file" data-id="${p.id}" data-name="${f.name}" title="Rename File" aria-label="Rename File">
                       <i class="fas fa-edit" aria-hidden="true"></i>
                     </button>
+                    <button class="preset-apply-btn file-badge-btn" data-act="gridpeek-file" data-id="${p.id}" data-name="${f.name}" title="GridPeek CSV" aria-label="GridPeek CSV Preview">
+                      <i class="fas fa-table" aria-hidden="true"></i>
+                    </button>
                     <button class="preset-apply-btn file-badge-btn" data-act="export-file" data-id="${p.id}" data-name="${f.name}" title="Export File" aria-label="Export File">
                       <i class="fa fa-download" aria-hidden="true"></i>
                     </button>
@@ -710,6 +713,38 @@
         } else if (act === 'rename-file') {
           const name = btn.getAttribute('data-name');
           onRenameFile(id, name);
+        } else if (act === 'gridpeek-file') {
+          const name = btn.getAttribute('data-name');
+          (async () => {
+            try {
+              const proj = await ProjectStore.get(id);
+              if (!proj || !proj.data) return alertModal('Project not found', 'warning');
+              const entry = (proj.data.csvs || []).find(f => f.name === name);
+              if (!entry) return alertModal('File not found in project', 'error');
+              let rows = [];
+              if (/\.csv$/i.test(entry.name)) {
+                if (typeof window.processCsvText === 'function') {
+                  rows = window.processCsvText(entry.text || '');
+                } else {
+                  rows = fallbackParseCSV(entry.text || '');
+                }
+              } else if (/\.json$/i.test(entry.name)) {
+                try { rows = JSON.parse(entry.text || '[]'); } catch (_) { rows = []; }
+              }
+              if (window.GridPeek && typeof window.GridPeek.open === 'function') {
+                window.GridPeek.open({ rows, title: `GridPeek — ${entry.name}`, filename: entry.name });
+              } else {
+                if (window.Modal && typeof Modal.alert === 'function') {
+                  Modal.alert('CSV Viewer (GridPeek) is not available. Make sure csv-viewer.js is loaded.', 'warning');
+                } else {
+                  alert('CSV Viewer (GridPeek) is not available.');
+                }
+              }
+            } catch (e) {
+              console.error(e);
+              alertModal('Failed to open GridPeek preview', 'error');
+            }
+          })();
         }
       });
     });

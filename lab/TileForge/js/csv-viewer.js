@@ -47,7 +47,7 @@
       .replace(/'/g, '&#039;');
   }
 
-  function buildTableHTML(headers, rows) {
+  function buildTableHTML(headers, rows, filename) {
     if (!headers.length) {
       return '<div class="empty-state"><i class="fas fa-table"></i><p>No CSV data loaded.</p><small>Load CSV/XML/JSON to preview rows here.</small></div>';
     }
@@ -81,6 +81,7 @@
         <div class="gridpeek-meta">
           <span class="meta-item"><i class="fas fa-database"></i> Rows: ${rows.length}</span>
           <span class="meta-item"><i class="fas fa-columns"></i> Columns: ${headers.length}</span>
+          ${filename ? `<span class="meta-item"><i class=\"fas fa-file-csv\"></i> File: ${escapeHtml(filename)}</span>` : ''}
         </div>
         <div class="preview-table-wrapper">
           <table class="preview-table">
@@ -92,14 +93,19 @@
       </div>`;
   }
 
-  function openCsvViewer() {
-    const { rows, headers: provided } = getActiveData();
+  function openCsvViewer(opts) {
+    // opts?: { rows?, headers?, title?, filename? }
+    const active = (!opts || (!opts.rows && !opts.headers)) ? getActiveData() : {};
+    const rows = (opts && Array.isArray(opts.rows)) ? opts.rows : (active.rows || []);
+    const provided = (opts && Array.isArray(opts.headers)) ? opts.headers : (active.headers);
     const headers = inferHeaders(rows, provided);
 
-    const content = buildTableHTML(headers, rows);
+    const content = buildTableHTML(headers, rows, opts && opts.filename);
+
+    const modalTitle = (opts && opts.title) ? opts.title : `${TOOL_NAME} — CSV Preview`;
 
     const m = window.Modal.createModal({
-      title: `${TOOL_NAME} — CSV Preview`,
+      title: modalTitle,
       content,
       size: 'large',
       buttons: [

@@ -26,7 +26,8 @@ TileForge/
     ├── live-editor.js      # Real-time tile editing functionality
     ├── analytics.js        # Statistics and dashboard updates
     ├── loc-transformer.js  # CSV transformation logic
-    └── transform-modal.js  # Transform modal UI and interaction
+    ├── transform-modal.js  # Transform modal UI and interaction
+    └── csv-viewer.js       # GridPeek: lightweight, read-only CSV table viewer
 ```
 
 ### **Key Technical Details**
@@ -158,6 +159,57 @@ Headliner Crafter is TileForge's advanced CSV localization transformation tool t
 - **Arabic & Special Character Support:** Fixed issues with Arabic and special characters in data and preview.
 - **New Case Converter Tool:** Added a dedicated Case Converter module for fast text case transformations.
 - **Subtitle Symbols Selector:** Optional symbol dropdown for Subtitle Modifiers. Safely appends %, $, €, £, ¥ only when the chosen template has {n} and no existing percent/currency symbol (Behavior B). <!-- updated by Cascade -->
+
+---
+
+## 📈 GridPeek — CSV Quick Viewer
+
+### Overview
+GridPeek is a lightweight, read-only CSV table viewer used for fast inspection of dataset rows without modifying state. It reuses the shared Modal system and existing table styles for consistent UI and zero CSS bloat.
+
+### Launch Points
+- Toolbar: table icon button opens the active dataset
+- Projects panel quick-view button
+- Per-file button in Projects list: next to Rename on each file row (opens that file directly)
+
+### Module
+- File: `lab/TileForge/js/csv-viewer.js`
+- Global API: `window.GridPeek.open(opts)`
+
+### API
+```js
+// opts is optional; if omitted, GridPeek infers the active dataset
+GridPeek.open({
+  rows?: Array<object>,      // array of row objects to display
+  headers?: Array<string>,   // optional columns; inferred from rows if omitted
+  title?: string,            // modal title; defaults to "GridPeek — CSV Preview"
+  filename?: string          // displayed in meta area when provided
+});
+```
+
+Behavior:
+- Renders up to 200 rows for performance; shows total counts and columns
+- Escapes HTML safely; infers headers from the first few rows when not provided
+- Displays filename in the meta bar and title when `filename`/`title` supplied
+
+### Integration Points
+- Projects list handler (`lab/TileForge/js/project-ui.js`):
+  - Adds a per-file button with `data-act="gridpeek-file"`
+  - On click, loads the file’s content (CSV via `processCsvText` or fallback parser; JSON via `JSON.parse`) and calls `GridPeek.open({ rows, title, filename })`
+- Modal System: uses `Modal.createModal({ title, content, size: 'large' })`
+- Styles: reuses `.preview-table-wrapper` and `.preview-table`
+
+### Accessibility
+- Buttons include ARIA labels and tooltips
+- Modal supports keyboard focus and dismissal via existing modal patterns
+
+### Performance
+- Hard cap of 200 rows rendered initially; suitable for quick inspection
+- No mutation of global state; stateless viewer
+
+### Limitations & Future Work
+- No pagination/sorting yet (planned)
+- Column resize and search/filter are candidates for a future iteration
 
 ---
 
