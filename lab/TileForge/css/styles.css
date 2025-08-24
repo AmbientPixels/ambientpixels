@@ -504,6 +504,40 @@ body {
 .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-tr { background: #E57E6A; border-color: #AB5A4D; } /* sunset orange */
 .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-zh { background: #E6A76E; border-color: #AB794F; color: #1C1C1C; } /* amber gold */
 
+/* Default view: border-only for clean status, neutral text (override global .clean color) */ /* updated by Cascade */
+.locale-badges-section:not(.palette-on):not(.status-palette-on) #localeBadgeArea .country-badge.clean {
+  color: inherit;
+  border-color: #4caf50;
+  border-width: 2px;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.18), 0 0 8px rgba(76, 175, 80, 0.26);
+}
+
+/* Default view: border-only for near-limit status, neutral text */ /* updated by Cascade */
+.locale-badges-section:not(.palette-on):not(.status-palette-on) #localeBadgeArea .country-badge.near-limit {
+  color: inherit;
+  border-color: #ffa500;
+  border-width: 2px;
+  box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.18), 0 0 8px rgba(255, 165, 0, 0.26);
+}
+
+/* Default view: border-only for overflow status, neutral text */ /* updated by Cascade */
+.locale-badges-section:not(.palette-on):not(.status-palette-on) #localeBadgeArea .country-badge.overflow {
+  color: inherit;
+  border-color: #ff6b6b;
+  border-width: 2px;
+  box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.18), 0 0 8px rgba(255, 107, 107, 0.26);
+}
+
+/* Keep pill link text from turning blue; scope to locale badge area */ /* updated by Cascade */
+.locale-badges-section #localeBadgeArea a.locale-pill-link,
+.locale-badges-section #localeBadgeArea a.locale-pill-link:link,
+.locale-badges-section #localeBadgeArea a.locale-pill-link:visited,
+.locale-badges-section #localeBadgeArea a.locale-pill-link:hover,
+.locale-badges-section #localeBadgeArea a.locale-pill-link:active {
+  color: inherit;
+  text-decoration: none;
+}
+
 /* Status palette: pill colors for overflow status (scoped) */ /* updated by Cascade */
 .locale-badges-section.status-palette-on #localeBadgeArea .country-badge.clean {
   background: #4caf50; /* green */
