@@ -509,6 +509,35 @@ function setupLiveEditor() {
   // Auto-Localize is permanent; no global toggle listener
 }
 
+// Enable/disable all Live Editor preset sections depending on data presence
+function updateLiveEditorEnabled(hasData) {
+  try {
+    // Prefer the shared helper if available; otherwise, use a local inline implementation
+    const enableFn = (window.setSectionEnabledState) ? window.setSectionEnabledState : function(section, enabled) {
+      section.classList.toggle('disabled', !enabled);
+      const body = section.querySelector('.preset-section-body');
+      if (!body) return;
+      const interactive = body.querySelectorAll('input, select, button, textarea');
+      interactive.forEach(el => {
+        if (el.closest('.switch')) return;
+        el.disabled = !enabled;
+      });
+    };
+    document.querySelectorAll('.preset-section').forEach(section => {
+      // Sync checkbox visual state
+      const enabledCb = section.querySelector('.section-enabled');
+      if (enabledCb) enabledCb.checked = !!hasData;
+      // Disable/enable interactive elements within body
+      enableFn(section, !!hasData);
+    });
+  } catch (e) { /* no-op */ }
+}
+
+// Expose globally for main.js and CSV handlers
+window.updateLiveEditorEnabled = updateLiveEditorEnabled;
+// Also expose the section helper so others can reuse
+window.setSectionEnabledState = window.setSectionEnabledState || setSectionEnabledState;
+
 // Update preview tile status based on current input
 function updatePreviewTileStatus() {
   const titleInput = document.getElementById('titleInput');

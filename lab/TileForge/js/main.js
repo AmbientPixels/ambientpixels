@@ -94,9 +94,42 @@ function updateManageLocalesState(hasData) {
   } catch (e) { /* no-op */ }
 }
 
+// Enable/disable all Live Editor "Apply" buttons depending on data presence
+function updateApplyButtonsState(hasData) {
+  try {
+    const ids = [
+      // Global apply all
+      'applyToAllBtn',
+      // Manual apply all per field
+      'titleManualApplyBtn',
+      'subtitleManualApplyBtn',
+      'narratorManualApplyBtn',
+      // Apply to selected (opens locale picker)
+      'titleManualApplySelectedBtn',
+      'subtitleManualApplySelectedBtn',
+      'narratorManualApplySelectedBtn'
+    ];
+    ids.forEach(id => {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      if (hasData) {
+        btn.removeAttribute('disabled');
+        btn.classList.remove('disabled');
+        // Preserve any existing titles
+        if (!btn.title) btn.title = 'Apply';
+      } else {
+        btn.setAttribute('disabled', 'disabled');
+        btn.classList.add('disabled');
+        btn.title = 'Load CSV data to enable apply actions';
+      }
+    });
+  } catch (e) { /* no-op */ }
+}
+
 // Expose globally
 window.openManageLocales = openManageLocales;
 window.updateManageLocalesState = updateManageLocalesState;
+window.updateApplyButtonsState = updateApplyButtonsState;
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
@@ -121,6 +154,8 @@ document.addEventListener('DOMContentLoaded', function() {
       if (typeof renderLocaleGroups === 'function') renderLocaleGroups([]);
       try { if (typeof updateLocalizedExportState === 'function') updateLocalizedExportState(false); } catch (e) {}
       try { if (typeof window.updateManageLocalesState === 'function') window.updateManageLocalesState(false); } catch (e) {}
+      try { if (typeof window.updateApplyButtonsState === 'function') window.updateApplyButtonsState(false); } catch (e) {}
+      try { if (typeof window.updateLiveEditorEnabled === 'function') window.updateLiveEditorEnabled(false); } catch (e) {}
     }
   } catch (_) { /* no-op */ }
   
@@ -224,6 +259,8 @@ document.addEventListener('DOMContentLoaded', function() {
   })();
   // Initialize button state based on current data
   try { window.updateManageLocalesState(!!(window.currentCsvData && window.currentCsvData.length)); } catch (e) { /* no-op */ }
+  try { window.updateApplyButtonsState(!!(window.currentCsvData && window.currentCsvData.length)); } catch (e) { /* no-op */ }
+  try { window.updateLiveEditorEnabled(!!(window.currentCsvData && window.currentCsvData.length)); } catch (e) { /* no-op */ }
 
   // Initialize template system
   if (typeof window.templateSystem !== 'undefined') {
@@ -360,6 +397,8 @@ function initializeFilters() {
     populateLocaleFilter();
     // Ensure Manage Locales button state follows actual rendered data
     try { window.updateManageLocalesState(!!(csvData && csvData.length)); } catch (e) { /* no-op */ }
+    try { window.updateApplyButtonsState(!!(csvData && csvData.length)); } catch (e) { /* no-op */ }
+    try { window.updateLiveEditorEnabled(!!(csvData && csvData.length)); } catch (e) { /* no-op */ }
   };
 }
 

@@ -106,6 +106,8 @@ function loadDefaultData() {
         processCsvData(text, 'source-data.csv');
         updateLocalizedExportState(true);
         if (typeof window.updateManageLocalesState === 'function') { window.updateManageLocalesState(true); }
+        if (typeof window.updateApplyButtonsState === 'function') { window.updateApplyButtonsState(true); }
+        if (typeof window.updateLiveEditorEnabled === 'function') { window.updateLiveEditorEnabled(true); }
       })
       .catch(() => {
         window.currentCsvData = [];
@@ -121,6 +123,8 @@ function loadDefaultData() {
         } catch (e) { /* no-op */ }
         updateLocalizedExportState(false);
         if (typeof window.updateManageLocalesState === 'function') { window.updateManageLocalesState(false); }
+        if (typeof window.updateApplyButtonsState === 'function') { window.updateApplyButtonsState(false); }
+        if (typeof window.updateLiveEditorEnabled === 'function') { window.updateLiveEditorEnabled(false); }
       });
   } catch (e) {
     window.currentCsvData = [];
@@ -136,6 +140,8 @@ function loadDefaultData() {
     } catch (err) { /* no-op */ }
     updateLocalizedExportState(false);
     if (typeof window.updateManageLocalesState === 'function') { window.updateManageLocalesState(false); }
+    if (typeof window.updateApplyButtonsState === 'function') { window.updateApplyButtonsState(false); }
+    if (typeof window.updateLiveEditorEnabled === 'function') { window.updateLiveEditorEnabled(false); }
   }
 }
 
@@ -167,6 +173,7 @@ function processCsvData(csvText, fileName, rowCount = null) {
       /* No alert for invalid CSV file or no data found */
       updateLocalizedExportState(false);
       if (typeof window.updateManageLocalesState === 'function') { window.updateManageLocalesState(false); }
+      if (typeof window.updateApplyButtonsState === 'function') { window.updateApplyButtonsState(false); }
       return;
     }
     
@@ -180,12 +187,14 @@ function processCsvData(csvText, fileName, rowCount = null) {
     console.log('📊 CSV data processed successfully:', actualRowCount, 'rows');
     updateLocalizedExportState(true);
     if (typeof window.updateManageLocalesState === 'function') { window.updateManageLocalesState(true); }
+    if (typeof window.updateApplyButtonsState === 'function') { window.updateApplyButtonsState(true); }
     
   } catch (error) {
     console.error('Error parsing CSV:', error);
     /* No alert for error parsing CSV file */
     updateLocalizedExportState(false);
     if (typeof window.updateManageLocalesState === 'function') { window.updateManageLocalesState(false); }
+    if (typeof window.updateApplyButtonsState === 'function') { window.updateApplyButtonsState(false); }
   }
 }
 
