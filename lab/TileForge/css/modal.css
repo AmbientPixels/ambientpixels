@@ -67,12 +67,13 @@
 
 /* Modal Header */
 .modal-header {
-  padding: 20px 24px 16px;
+  padding: 20px 24px 20px; /* add a bit more bottom padding */ /* updated by Cascade */
   border-bottom: 1px solid #333;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: #1e1e1e;
+  margin-bottom: 6px; /* create breathing room before tabs */ /* updated by Cascade */
 }
 
 .modal-title {
@@ -83,6 +84,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 4px 8px; /* subtle breathing room for headline */ /* updated by Cascade */
+}
+
+.modal-title .fa-xbox { /* style Xbox brand icon like header */ /* updated by Cascade */
+  color: #107c10;
+  font-size: 18px;
 }
 
 .modal-close {
@@ -461,7 +468,7 @@
   display: flex;
   border-bottom: 1px solid #333;
   background: #1e1e1e;
-  margin: -24px -24px 24px -24px;
+  margin: -12px -24px 24px -24px; /* reduce overlap to add space under header */ /* updated by Cascade */
   padding: 0 24px;
 }
 

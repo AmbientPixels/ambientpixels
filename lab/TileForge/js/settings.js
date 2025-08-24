@@ -93,28 +93,28 @@ function openSettings() {
   const tabs = [
     {
       title: 'Themes',
-      icon: '🎨',
+      icon: '<i class="fas fa-palette" aria-hidden="true"></i>',
       content: createThemesTabContent()
     },
     {
       title: 'Shortcuts',
-      icon: '⌨️',
+      icon: '<i class="fas fa-keyboard" aria-hidden="true"></i>',
       content: createShortcutsTabContent()
     },
     {
       title: 'General',
-      icon: '⚙️',
+      icon: '<i class="fas fa-cog" aria-hidden="true"></i>',
       content: createGeneralTabContent()
     },
     {
       title: 'About',
-      icon: 'ℹ️',
+      icon: '<i class="fas fa-info-circle" aria-hidden="true"></i>',
       content: createAboutTabContent()
     }
   ];
 
   const settingsModal = Modal.createTabbedModal({
-    title: '⚙️ TileForge Settings',
+    title: '<i class="fab fa-xbox" aria-hidden="true"></i> TileForge Settings',
     size: 'large',
     tabs: tabs,
     activeTab: 0
@@ -794,7 +794,7 @@ function createAboutTabContent() {
       <h3>About TileForge</h3>
       <div class="about-info">
         <div class="version-info">
-          <h4>Version 1.0.1 🚀</h4>
+          <h4>Version 1.0.1</h4>
           <p><strong>Xbox Tile Localization Preview Tool</strong></p>
           <p class="version-subtitle">Professional Desktop Edition with Auto-Updates</p>
           <div class="update-badge">
@@ -804,7 +804,7 @@ function createAboutTabContent() {
         </div>
         
         <div class="features-highlight">
-          <h4>✨ Latest Features</h4>
+          <h4>Latest Features</h4>
           <ul class="feature-list">
             <li><i class="fas fa-magic"></i> Enhanced About section with detailed information</li>
             <li><i class="fas fa-sync-alt"></i> Automatic update system for seamless upgrades</li>
@@ -817,8 +817,8 @@ function createAboutTabContent() {
         <div class="credits">
           <h4>Credits & Purpose</h4>
           <p><strong>Built by AmbientPixels</strong> for Xbox content producers and localization teams</p>
-          <p>🎯 <em>Designed to prevent certification failures and streamline the localization workflow</em></p>
-          <p>💡 Empowering developers to create perfect tile experiences across all markets</p>
+          <p><em>Designed to prevent certification failures and streamline the localization workflow</em></p>
+          <p>Empowering developers to create perfect tile experiences across all markets</p>
         </div>
         
         <div class="tech-info">
