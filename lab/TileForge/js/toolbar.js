@@ -32,7 +32,7 @@
         }
         return;
       }
-      try { window.ProjectUI.onSave(); } catch (err) {
+      try { window.ProjectUI.onSave(!!silent); } catch (err) {
         if (window.Modal && typeof Modal.alert === 'function') {
           Modal.alert('Save failed: ' + err.message, 'error');
         } else {

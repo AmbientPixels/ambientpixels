@@ -251,18 +251,7 @@ function updateAnalyticsFromCurrentData() {
 
 // Export current CSV data to downloadable file
 function exportToCSV() {
-  // Always save before export (manualSave from toolbar.js)
-  if (typeof window.manualSave === 'function') {
-    try {
-      window.manualSave(true); // Optionally pass silent=true to suppress modal
-    } catch (err) {
-      if (window.showToast) {
-        window.showToast('Warning: Save before export failed, exporting anyway.', 'warning');
-      } else {
-        alert('Warning: Save before export failed, exporting anyway.');
-      }
-    }
-  }
+  // Skip pre-export save to avoid any prompts during export
   if (!window.currentCsvData || window.currentCsvData.length === 0) {
     alert('No data available to export. Please load CSV data first.');
     return;

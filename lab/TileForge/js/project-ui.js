@@ -433,7 +433,7 @@
     alertModal('Project created', 'success');
   }
 
-  async function onSave() {
+  async function onSave(silent = false) {
     try {
       const ctx = await ensureProjectContext();
       // Load existing project to preserve current files and active CSV name
@@ -479,7 +479,9 @@
       // Persist changes without renaming files
       await ProjectStore.saveSnapshot(ctx.id, proj.data);
       refreshList();
-      if (window.showToast) window.showToast('Project saved', 'success'); else alertModal('Project saved', 'success');
+      if (!silent) {
+        if (window.showToast) window.showToast('Project saved', 'success'); else alertModal('Project saved', 'success');
+      }
       // Mark export ready after successful save
       try { window.dispatchEvent(new Event('tileforge:file-saved')); } catch (_) {}
     } catch (e) {
@@ -686,15 +688,24 @@
         } else if (act === 'export-file') {
           const name = btn.getAttribute('data-name');
           try {
-            // Silent pre-export save to capture latest state
+            // Silent pre-export save to capture latest state, but only if a project context exists
+            // Avoid triggering project creation prompts during export
             if (typeof window.manualSave === 'function') {
-              try { window.manualSave(true); } catch (err) { if (window.showToast) window.showToast('Warning: Save before export failed, exporting anyway.', 'warning'); }
+              try {
+                if (state && state.currentProject && state.currentProject.id) {
+                  window.manualSave(true);
+                }
+              } catch (err) {
+                if (window.showToast) window.showToast('Warning: Save before export failed, exporting anyway.', 'warning');
+              }
             }
             const proj = await ProjectStore.get(id);
             if (!proj || !proj.data) return alertModal('Project not found', 'warning');
             const entry = (proj.data.csvs || []).find(f => f.name === name);
             if (!entry) return alertModal('File not found in project', 'error');
             const isCsv = /\.csv$/i.test(entry.name);
+            // Track final exported filename for success message
+            let exportedFileName = entry.name;
             // Prefer unified CSV export with BOM when helpers are available
             if (isCsv && typeof window.downloadCSVFile === 'function') {
               window.downloadCSVFile(entry.text || '', entry.name);
@@ -704,6 +715,7 @@
                 const csv = window.generateCSVContent(rows);
                 const csvName = entry.name.replace(/\.json$/i, '.csv');
                 window.downloadCSVFile(csv, csvName);
+                exportedFileName = csvName;
               } catch (jsonErr) {
                 const mime = 'application/json;charset=utf-8';
                 downloadTextFile(entry.name, entry.text || '', mime);
@@ -712,6 +724,8 @@
               const mime = isCsv ? 'text/csv;charset=utf-8' : 'application/json;charset=utf-8';
               downloadTextFile(entry.name, entry.text || '', mime);
             }
+            // Notify success with green-accent modal (reuses Modal/alert helper)
+            alertModal(`Export of "${exportedFileName}" successful!`, 'success', 'Export Complete');
           } catch (e) {
             console.error(e);
             alertModal('Export failed', 'error');
