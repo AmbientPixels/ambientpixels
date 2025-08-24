@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "89a5a6c1-035c-4dc9-9f1b-5b2cc2c0ef22",
-      "hash": "da57ddf259145eb3a6357c3e444ed19c1fcefcc9",
-      "message": "nightly",
-      "timestamp": "2025-08-23 02:59:37 -0700",
+      "id": "0eea0ea4-708c-4a93-98c7-a567104f3b2f",
+      "hash": "bf8593fa30a0f253058ac01b8e6c54abc7449f1d",
+      "message": "feat(settings-general): Windows-style grouping, custom selects, and toggle switches",
+      "timestamp": "2025-08-24 02:30:48 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/da57ddf259145eb3a6357c3e444ed19c1fcefcc9"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/bf8593fa30a0f253058ac01b8e6c54abc7449f1d"
     }
   ],
-  "timestamp": "2025-08-23T13:26:06.673Z",
+  "timestamp": "2025-08-24T13:27:22.034Z",
   "count": 1,
-  "scanId": 1755955566673
+  "scanId": 1756042042034
 }
