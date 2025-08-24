@@ -29,6 +29,8 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 - **State Preservation:** Files panel expanded/collapsed state now persists across list refreshes for smoother project management. <!-- updated by Cascade -->
 - **Subtitle Symbols Selector:** Optional dropdown next to Subtitle Modifiers value. Safely appends %, $, €, £, ¥ only if the template has `{n}` and no existing percent/currency symbol (Behavior B). <!-- updated by Cascade -->
 
+- **GridPeek – CSV Quick Viewer:** Instantly preview the currently loaded CSV in a modal table. Launch from Projects panel button or the toolbar table icon. Read‑only; reuses existing modal + table styles for clarity. <!-- added by Cascade -->
+
  - **Locale Badge Status Borders Toggle:** New General setting to enable/disable colored status borders on locale badges in the default view. When off, `.status-borders-off` is applied to `.locale-badges-section` and border/glow styles are suppressed. Palettes remain unchanged. <!-- updated by Cascade -->
 
 ### Bug Fixes (Aug 2025)
@@ -73,6 +75,7 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 - **Case Converter Tool:** Instantly convert text to UPPER, lower, Title, or Sentence case for any field or batch of text. Great for localization and consistency.
 - **Clear All:** One-click reset for all mapping and preview data—useful for rapid iteration or starting over.
 - **Manage Locales:** Panel and toolbar button to view, add, or remove locales. Toolbar button is enabled only when localization CSV data is loaded. <!-- updated by Cascade -->
+- **GridPeek (CSV Viewer):** Quick, formatted view of the active CSV. Opens in a modal; shows first 200 rows with column headers. Launch via Projects panel icon or top toolbar table icon. <!-- added by Cascade -->
 - **Arabic & Special Character Support:** Full UTF-8 support for right-to-left and special language characters.
 
 ### 💡 Tips & Tricks

@@ -163,6 +163,10 @@
             <button class="toolbar-btn" id="projectCreateBtn" title="Create Project" aria-label="Create Project">
               <i class="fas fa-folder-plus" aria-hidden="true"></i>
             </button>
+            <!-- added by Cascade: CSV QuickLook button (GridPeek) -->
+            <button class="toolbar-btn" id="csvQuickViewBtn" title="Open CSV Viewer (GridPeek)" aria-label="Open CSV Viewer">
+              <i class="fas fa-table" aria-hidden="true"></i>
+            </button>
           </div>
           <div class="projects-list" id="projectsList"></div>
         </div>
@@ -656,6 +660,10 @@
             <button class="toolbar-btn" id="toolbarCloneBtn" title="Clone"><i class="fas fa-clone"></i></button>
             <button class="toolbar-btn" id="toolbarNewBtn" title="New"><i class="fas fa-plus"></i></button>
             <button class="toolbar-btn" id="toolbarNewProjectBtn" title="New Project"><i class="fas fa-folder-plus"></i></button>
+            <!-- added by Cascade: quick CSV Viewer access in toolbar -->
+            <button class="toolbar-btn" id="toolbarCsvQuickViewBtn" title="Open CSV Viewer (GridPeek)">
+              <i class="fas fa-table"></i>
+            </button>
             <button class="toolbar-btn export-btn" id="toolbarManageLocalesBtn" title="Manage Locales">
               <i class="fas fa-globe"></i> Manage Locales
             </button>
@@ -728,6 +736,7 @@
   <script src="js/drag-drop-preview.js"></script>
   <script src="js/drag-drop-csv.js"></script>
   <script src="js/case-converter.js"></script>
+  <script src="js/csv-viewer.js"></script>
   <!-- Locale Picker Modal -->
   <div id="localePickerModal" class="modal-overlay">
     <div class="modal small">
