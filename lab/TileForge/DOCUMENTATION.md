@@ -213,6 +213,41 @@ Behavior:
 
 ---
 
+## 📁 Projects List — File Actions & Export Button
+
+### Overview
+The per-file actions in the Projects list use a compact 3-column grid for quick operations. The Export button is a full-width, accessible badge below the icon row and reflects save/export readiness using an attribute-based state — no new classes.
+
+### Layout
+- Container: `.project-file-row .file-actions`
+- Grid: 3 equal columns for top-row icon buttons (Rename, GridPeek, Remove)
+- Export button: `[data-act="export-file"]` spans all 3 columns beneath the icons
+
+### Accessibility
+- Visible label: "Export to Iris CSV" appears alongside the icon
+- Attributes: `title` and `aria-label` mirror the visible label
+
+### Ready-State Visuals
+- Attribute: `[data-ready="true" | "false"]` on the Export button
+- Styles are applied via existing selectors in `lab/TileForge/css/styles.css`:
+  - Ready (green): `.project-file-row .file-actions [data-act="export-file"][data-ready="true"] { … }`
+  - Not ready (outline): default/when `data-ready="false"`
+
+### State Management (No New Classes)
+- Default state: Export button renders with `data-ready="true"`
+- Global events handled in `lab/TileForge/js/project-ui.js`:
+  - `tileforge:file-dirty` → sets active row’s export `[data-ready]` to `"false"`
+  - `tileforge:file-saved` → sets active row’s export `[data-ready]` to `"true"`
+- Convenience helpers (exposed on `window`):
+  - `TileForge.markDirty()` → dispatches `tileforge:file-dirty`
+  - `TileForge.markSaved()` → dispatches `tileforge:file-saved`
+
+### Integration Points
+- Per-locale editors (`lab/TileForge/js/tile-renderer.js`): on input for title/subtitle/narrator, call `TileForge.markDirty()` so the Export button leaves ready state immediately during edits.
+- Save flow (`lab/TileForge/js/project-ui.js`): on successful save, dispatches `tileforge:file-saved` so the Export button returns to ready (green).
+
+<!-- updated by Cascade: projects list export button layout + ready state docs -->
+
 ## 🏷️ Locale Badges — Language Color Palette Toggle
 - **Badge rendering:** `lab/TileForge/js/analytics.js` → `renderLocaleBadgeArea()` writes pills into `#localeBadgeArea`. Each pill is a link wrapping a badge span with classes: `country-badge`, a status class (e.g., `clean`, `near-limit`, `overflow`), and a language class `lang-<code>` (e.g., `lang-en`). The function also toggles `.has-badges` on the container `.locale-badges-section` when pills exist.
 - **Palette application (CSS):** `lab/TileForge/css/styles.css` scopes per‑language colors behind a container switch:

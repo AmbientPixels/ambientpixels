@@ -480,6 +480,8 @@
       await ProjectStore.saveSnapshot(ctx.id, proj.data);
       refreshList();
       if (window.showToast) window.showToast('Project saved', 'success'); else alertModal('Project saved', 'success');
+      // Mark export ready after successful save
+      try { window.dispatchEvent(new Event('tileforge:file-saved')); } catch (_) {}
     } catch (e) {
       if (e && e.message === 'Canceled') return;
       console.error(e);
@@ -559,6 +561,19 @@
     setupCollapsible({ sectionId: 'toolsSection', buttonId: 'toolsCollapseBtn', storageKey: 'TileForge_tools_collapsed' });
     setupCollapsible({ sectionId: 'imageInfoPanel', buttonId: 'imageInfoCollapseBtn', storageKey: 'TileForge_image_collapsed' });
     refreshList();
+    // Wire global readiness toggles for export button on active file row (no new classes)
+    window.addEventListener('tileforge:file-dirty', () => {
+      const btn = document.querySelector('.project-file-row.is-active .file-actions [data-act="export-file"]');
+      if (btn) btn.setAttribute('data-ready', 'false');
+    });
+    window.addEventListener('tileforge:file-saved', () => {
+      const btn = document.querySelector('.project-file-row.is-active .file-actions [data-act="export-file"]');
+      if (btn) btn.setAttribute('data-ready', 'true');
+    });
+    // Convenience helpers for other modules/editors to signal state
+    window.TileForge = window.TileForge || {};
+    window.TileForge.markDirty = function() { try { window.dispatchEvent(new Event('tileforge:file-dirty')); } catch (_) {} };
+    window.TileForge.markSaved = function() { try { window.dispatchEvent(new Event('tileforge:file-saved')); } catch (_) {} };
   }
 
   async function refreshList() {
@@ -618,7 +633,7 @@
                     <button class="preset-apply-btn file-badge-btn" data-act="gridpeek-file" data-id="${p.id}" data-name="${f.name}" title="GridPeek CSV" aria-label="GridPeek CSV Preview">
                       <i class="fas fa-table" aria-hidden="true"></i>
                     </button>
-                    <button class="preset-apply-btn file-badge-btn" data-act="export-file" data-id="${p.id}" data-name="${f.name}" title="Export to Iris CSV" aria-label="Export to Iris CSV">
+                    <button class="preset-apply-btn file-badge-btn" data-act="export-file" data-id="${p.id}" data-name="${f.name}" data-ready="true" title="Export to Iris CSV" aria-label="Export to Iris CSV">
                       <i class="fa fa-download" aria-hidden="true"></i>
                       <span>Export to Iris CSV</span>
                     </button>

@@ -1009,6 +1009,21 @@ body {
   box-shadow: 0 0 0 3px rgba(0,188,242,0.35), 0 6px 18px rgba(79,140,255,0.35);
 }
 
+/* Ready state: explicit attribute-driven green badge */ /* updated by Cascade */
+.project-file-row .file-actions [data-act="export-file"][data-ready="true"] {
+  background: #2bbf6a; /* harmonizes with #8be08b filename accent */
+  color: #0b1c11;      /* dark text for readability if theme prefers */
+  border-color: #21a859;
+  box-shadow: 0 3px 14px rgba(43,191,106,0.35), inset 0 0 0 1px rgba(255,255,255,0.10);
+}
+.project-file-row .file-actions [data-act="export-file"][data-ready="true"]:hover,
+.project-file-row .file-actions [data-act="export-file"][data-ready="true"]:focus {
+  background: #25ac5f;
+  color: #ffffff;
+  border-color: #1e9a54;
+  box-shadow: 0 4px 16px rgba(43,191,106,0.45), 0 0 0 2px rgba(17, 185, 95, 0.25);
+}
+
 /* Sticky option for the Locale Badges Panel */
 .locale-badges-section.sticky {
   position: sticky;

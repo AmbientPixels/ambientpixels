@@ -178,6 +178,8 @@ function createTile(locale, title, subtitle, narratorText, analysis) {
     
     // Update analytics dashboard to reflect all tile changes
     updateAnalyticsFromAllTiles();
+    // Signal unsaved changes so Export button leaves ready state
+    try { if (window.TileForge && typeof window.TileForge.markDirty === 'function') window.TileForge.markDirty(); } catch (e) {}
   });
   
   subtitleInput.addEventListener('input', function() {
@@ -197,6 +199,8 @@ function createTile(locale, title, subtitle, narratorText, analysis) {
     
     // Update analytics dashboard to reflect all tile changes
     updateAnalyticsFromAllTiles();
+    // Signal unsaved changes so Export button leaves ready state
+    try { if (window.TileForge && typeof window.TileForge.markDirty === 'function') window.TileForge.markDirty(); } catch (e) {}
   });
   
   narratorInput.addEventListener('input', function() {
@@ -204,6 +208,8 @@ function createTile(locale, title, subtitle, narratorText, analysis) {
     
     // Update analytics dashboard to reflect all tile changes
     updateAnalyticsFromAllTiles();
+    // Signal unsaved changes so Export button leaves ready state
+    try { if (window.TileForge && typeof window.TileForge.markDirty === 'function') window.TileForge.markDirty(); } catch (e) {}
   });
   
   // Assemble editing content (tile left, controls right)
