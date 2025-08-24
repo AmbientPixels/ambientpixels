@@ -1,0 +1,53 @@
+[
+  {
+    "id": "70c8902d-a212-44ec-8d38-afe4fa0246da",
+    "name": "Griffin - Mobile app spotlight",
+    "description": "Top of home templates go here. ",
+    "createdAt": "2025-08-24T07:34:44.106Z",
+    "updatedAt": "2025-08-24T10:35:59.711Z",
+    "schemaVersion": 1,
+    "data": {
+      "csvs": [
+        {
+          "name": "locales-20250824-011322.csv",
+          "text": "Locale,items/0/title,items/0/subtitle,items/0/narratorText\nAR-AE,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nAR-SA,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nCS-CZ,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nDA-DK,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nDE-AT,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nDE-CH,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nDE-DE,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nEL-GR,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nEN-AE,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nEN-AU,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nEN-CA,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nEN-CZ,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nEN-GB,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nEN-GR,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nEN-HK,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nEN-HU,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nEN-IE,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nEN-IL,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nEN-IN,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nEN-NZ,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nEN-SA,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nEN-SG,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nEN-SK,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nEN-US,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nEN-ZA,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nES-AR,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nES-CL,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nES-CO,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nES-ES,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nES-MX,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nFI-FI,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nFR-BE,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nFR-CA,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nFR-CH,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nFR-FR,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nHE-IL,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nHU-HU,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nINVARIANT,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nIT-CH,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nIT-IT,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nJA-JP,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nKO-KR,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nNB-NO,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nNL-BE,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nNL-NL,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nPL-PL,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nPT-BR,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nPT-PT,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nSK-SK,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nSV-SE,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nTR-TR,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nUK-UA,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nZH-HK,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nZH-SG,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a\nZH-TW,Test e srereres dasdsa,New Seasons rrse rd asd,eresrs srresssda ass a"
+        },
+        {
+          "name": "test-drag-and drop.csv",
+          "text": "Locale,items/0/title,items/0/subtitle,items/0/narratorText\nLocale,WWWWWWWWWWWWWWW,WWWWWWWWWWWWWWW,Narrator Text\nAR-AE,COD: Black Ops 6 & Warzone,مارس الموسم 05 الآن,COD: Black Ops 6 & Warzone\nAR-SA,COD: Black Ops 6 & Warzone,مارس الموسم 05 الآن,COD: Black Ops 6 & Warzone\nCS-CZ,COD: Black Ops 6 & Warzone,Zahrajte si nyní 05. sezónu,COD: Black Ops 6 & Warzone\nDA-DK,COD: Black Ops 6 & Warzone,Spil sæson 05,COD: Black Ops 6 & Warzone\nDE-AT,COD: Black Ops 6 & Warzone,Spiele jetzt Saison 5,COD: Black Ops 6 & Warzone\nDE-CH,COD: Black Ops 6 & Warzone,Spiele jetzt Saison 5,COD: Black Ops 6 & Warzone\nDE-DE,COD: Black Ops 6 & Warzone,Spiele jetzt Saison 5,COD: Black Ops 6 & Warzone\nEL-GR,COD: Black Ops 6 & Warzone,Παίξτε τη Σεζόν 05 τώρα,COD: Black Ops 6 & Warzone\nEN-AE,COD: Black Ops 6 & Warzone,Play Season 05 now,COD: Black Ops 6 & Warzone\nEN-AU,COD: Black Ops 6 & Warzone,Play Season 05 now,COD: Black Ops 6 & Warzone\nEN-CA,COD: Black Ops 6 & Warzone,Play Season 05 now,COD: Black Ops 6 & Warzone\nEN-CZ,COD: Black Ops 6 & Warzone,Play Season 05 now,COD: Black Ops 6 & Warzone\nEN-GB,COD: Black Ops 6 & Warzone,Play Season 05 now,COD: Black Ops 6 & Warzone\nEN-GR,COD: Black Ops 6 & Warzone,Play Season 05 now,COD: Black Ops 6 & Warzone\nEN-HK,COD: Black Ops 6 & Warzone,Play Season 05 now,COD: Black Ops 6 & Warzone\nEN-HU,COD: Black Ops 6 & Warzone,Play Season 05 now,COD: Black Ops 6 & Warzone\nEN-IE,COD: Black Ops 6 & Warzone,Play Season 05 now,COD: Black Ops 6 & Warzone\nEN-IL,COD: Black Ops 6 & Warzone,Play Season 05 now,COD: Black Ops 6 & Warzone\nEN-IN,COD: Black Ops 6 & Warzone,Play Season 05 now,COD: Black Ops 6 & Warzone\nEN-NZ,COD: Black Ops 6 & Warzone,Play Season 05 now,COD: Black Ops 6 & Warzone\nEN-SA,COD: Black Ops 6 & Warzone,Play Season 05 now,COD: Black Ops 6 & Warzone\nEN-SG,COD: Black Ops 6 & Warzone,Play Season 05 now,COD: Black Ops 6 & Warzone\nEN-SK,COD: Black Ops 6 & Warzone,Play Season 05 now,COD: Black Ops 6 & Warzone\nEN-US,COD: Black Ops 6 & Warzone,Play Season 05 now,COD: Black Ops 6 & Warzone\nEN-ZA,COD: Black Ops 6 & Warzone,Play Season 05 now,COD: Black Ops 6 & Warzone\nES-AR,COD: Black Ops 6 & Warzone,Juega a Temporada 5,COD: Black Ops 6 & Warzone\nES-CL,COD: Black Ops 6 & Warzone,Juega a Temporada 5,COD: Black Ops 6 & Warzone\nES-CO,COD: Black Ops 6 & Warzone,Juega a Temporada 5,COD: Black Ops 6 & Warzone\nES-ES,COD: Black Ops 6 & Warzone,Juega a Temporada 5,COD: Black Ops 6 & Warzone\nES-MX,COD: Black Ops 6 & Warzone,Juega a Temporada 5,COD: Black Ops 6 & Warzone\nFI-FI,COD: Black Ops 6 & Warzone,Pelaa Kauden 05 nyt,COD: Black Ops 6 & Warzone\nFR-BE,COD: Black Ops 6 & Warzone,Jouez à La Saison 5,COD: Black Ops 6 & Warzone\nFR-CA,COD: Black Ops 6 & Warzone,Jouez à La Saison 5,COD: Black Ops 6 & Warzone\nFR-CH,COD: Black Ops 6 & Warzone,Jouez à La Saison 5,COD: Black Ops 6 & Warzone\nFR-FR,COD: Black Ops 6 & Warzone,Jouez à La Saison 5,COD: Black Ops 6 & Warzone\nHE-IL,COD: Black Ops 6 & Warzone,שחק ב-Season 05 עכשיו,COD: Black Ops 6 & Warzone\nHU-HU,COD: Black Ops 6 & Warzone,Játssz a 05. évaddal most,COD: Black Ops 6 & Warzone\nIT-CH,COD: Black Ops 6 & Warzone,Gioca la Stagione 5,COD: Black Ops 6 & Warzone\nIT-IT,COD: Black Ops 6 & Warzone,Gioca la Stagione 5,COD: Black Ops 6 & Warzone\nJA-JP,COD: Black Ops 6 & Warzone,シーズン 05 を今すぐプレイ,COD: Black Ops 6 & Warzone\nKO-KR,COD: Black Ops 6 & Warzone,지금 시즌 05 플레이하기,COD: Black Ops 6 & Warzone\nNB-NO,COD: Black Ops 6 & Warzone,Spill sesong 05 nå,COD: Black Ops 6 & Warzone\nNL-BE,COD: Black Ops 6 & Warzone,Speel nu seizoen 05,COD: Black Ops 6 & Warzone\nNL-NL,COD: Black Ops 6 & Warzone,Speel nu seizoen 05,COD: Black Ops 6 & Warzone\nPL-PL,COD: Black Ops 6 & Warzone,Graj w Sezon 05 już teraz,COD: Black Ops 6 & Warzone\nPT-BR,COD: Black Ops 6 & Warzone,Jogue a Temporada 05,COD: Black Ops 6 & Warzone\nPT-PT,COD: Black Ops 6 & Warzone,Joga a Temporada 05 agora,COD: Black Ops 6 & Warzone\nSK-SK,COD: Black Ops 6 & Warzone,Zahrajte si teraz 05. sériu,COD: Black Ops 6 & Warzone\nSV-SE,COD: Black Ops 6 & Warzone,Spela säsong 05,COD: Black Ops 6 & Warzone\nTR-TR,COD: Black Ops 6 & Warzone,05. sezonu hemen oynayın,COD: Black Ops 6 & Warzone\nUK-UA,COD: Black Ops 6 & Warzone,Грайте сезон 05 вже зараз,COD: Black Ops 6 & Warzone\nZH-HK,COD: Black Ops 6 & Warzone,立即暢玩第 05 季,COD: Black Ops 6 & Warzone\nZH-SG,COD: Black Ops 6 & Warzone,立即畅玩第 05 赛季,COD: Black Ops 6 & Warzone\nZH-TW,COD: Black Ops 6 & Warzone,立即暢玩第 05 季,COD: Black Ops 6 & Warzone"
+        }
+      ],
+      "activeCsv": "locales-20250824-011322.csv",
+      "image": null,
+      "template": "toh",
+      "settings": {
+        "enabledSections": {
+          "title": true,
+          "subtitle": true,
+          "narrator": true
+        }
+      }
+    }
+  },
+  {
+    "id": "6ee375f2-417a-4c9d-ac46-bf83410b052e",
+    "name": "ToH",
+    "description": "Top of home templates go here. ",
+    "createdAt": "2025-08-24T07:31:18.597Z",
+    "updatedAt": "2025-08-24T08:19:58.818Z",
+    "schemaVersion": 1,
+    "data": {
+      "csvs": [],
+      "activeCsv": null,
+      "image": null,
+      "template": "toh",
+      "settings": {
+        "enabledSections": {
+          "title": true,
+          "subtitle": true,
+          "narrator": true
+        }
+      }
+    }
+  }
+]

@@ -1045,12 +1045,181 @@
     }
   }
 
+  // ============= Project Export / Import (JSON) ============= /* added by Cascade */
+  async function onExportProjectJson() {
+    try {
+      const items = await ProjectStore.list();
+      if (!items || items.length === 0) {
+        return alertModal('No projects to export. Create or load a project first.', 'warning');
+      }
+
+      // Prefer rich modal with dropdown + Export All toggle
+      let chosenId = null;
+      let exportAll = false;
+
+      if (window.Modal && typeof Modal.confirm === 'function') {
+        const optionsHtml = items.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+        const content = `
+          <div class="tf-field">
+            <label class="tf-label" for="__tfExportSelect">Choose a project to export</label>
+            <div class="tf-select-wrap">
+              <select id="__tfExportSelect" class="tf-select">${optionsHtml}</select>
+            </div>
+          </div>
+          <div class="tf-field">
+            <label class="tf-checkbox">
+              <input type="checkbox" id="__tfExportAllChk" /> Export all projects
+            </label>
+          </div>`;
+
+        await new Promise((resolve, reject) => {
+          const modal = Modal.confirm({
+            title: 'Export Project(s)',
+            content,
+            confirmText: 'Export',
+            cancelText: 'Cancel',
+            onConfirm: () => {
+              const sel = document.getElementById('__tfExportSelect');
+              const all = document.getElementById('__tfExportAllChk');
+              exportAll = !!(all && all.checked);
+              chosenId = sel && sel.value;
+              resolve();
+            },
+            onCancel: () => reject(new Error('Canceled'))
+          });
+          // Wire checkbox to disable/enable select for clarity
+          modal.show();
+          setTimeout(() => {
+            try {
+              const sel = document.getElementById('__tfExportSelect');
+              const all = document.getElementById('__tfExportAllChk');
+              if (all && sel) {
+                const sync = () => sel.disabled = !!all.checked;
+                all.addEventListener('change', sync);
+                sync();
+              }
+            } catch (_) {}
+          }, 0);
+        });
+      } else {
+        // Fallback prompt: allow typing 'all' to export all, otherwise choose by name
+        const names = items.map(p => p.name).join(', ');
+        const val = await promptAsync('Export which project? Type a name or "all" to export all.\n' + names, items[0].name).catch(() => null);
+        if (!val) return; // canceled
+        if (String(val).trim().toLowerCase() === 'all') exportAll = true; else {
+          const found = items.find(p => p.name.toLowerCase() === String(val).trim().toLowerCase());
+          if (!found) return alertModal('Project not found.', 'warning');
+          chosenId = found.id;
+        }
+      }
+
+      // Build payload(s)
+      const buildPayload = (proj) => ({
+        id: proj.id,
+        name: proj.name,
+        description: proj.description || '',
+        createdAt: proj.createdAt,
+        updatedAt: proj.updatedAt,
+        schemaVersion: proj.schemaVersion || 1,
+        data: proj.data || { csvs: [], activeCsv: null, image: null, template: 'toh', settings: {} }
+      });
+
+      if (exportAll) {
+        const all = await Promise.all(items.map(p => ProjectStore.get(p.id)));
+        const payloads = all.filter(Boolean).map(buildPayload);
+        const stamp = (() => { const d = new Date(); const pad = (n)=> String(n).padStart(2,'0'); return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`; })();
+        const filename = `tileforge-projects-${stamp}.tileforge.json`;
+        downloadTextFile(filename, JSON.stringify(payloads, null, 2), 'application/json;charset=utf-8');
+        if (window.showToast) window.showToast(`Exported ${payloads.length} projects`, 'success'); else alertModal(`Exported ${payloads.length} projects`, 'success');
+        return;
+      }
+
+      // Single export (default: currentProject if set, else chosen)
+      let targetId = chosenId;
+      if (!targetId && state.currentProject && state.currentProject.id) targetId = state.currentProject.id;
+      if (!targetId) targetId = items[0].id;
+      const proj = await ProjectStore.get(targetId);
+      if (!proj) return alertModal('Project not found', 'warning');
+      const payload = buildPayload(proj);
+      const safeName = (proj.name || 'TileForgeProject').replace(/[^a-z0-9._-]+/gi, '_');
+      const filename = `${safeName}.tileforge.json`;
+      downloadTextFile(filename, JSON.stringify(payload, null, 2), 'application/json;charset=utf-8');
+      if (window.showToast) window.showToast('Project exported', 'success'); else alertModal('Project exported', 'success');
+    } catch (e) {
+      if (e && e.message === 'Canceled') return;
+      console.error(e);
+      alertModal('Export failed', 'error');
+    }
+  }
+
+  function validateImportedProject(obj) {
+    if (!obj || typeof obj !== 'object') return { ok: false, reason: 'Not an object' };
+    if (!obj.name || typeof obj.name !== 'string') return { ok: false, reason: 'Missing name' };
+    if (!obj.data || typeof obj.data !== 'object') return { ok: false, reason: 'Missing data block' };
+    const d = obj.data;
+    if (!Array.isArray(d.csvs)) return { ok: false, reason: 'data.csvs must be an array' };
+    for (const f of d.csvs) {
+      if (!f || typeof f !== 'object' || typeof f.name !== 'string' || typeof f.text !== 'string') {
+        return { ok: false, reason: 'Each file must have name and text (string)' };
+      }
+    }
+    return { ok: true };
+  }
+
+  async function onImportProjectJson() {
+    try {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'application/json,.json';
+      input.onchange = async () => {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        let text = '';
+        try { text = await file.text(); } catch (_) { return alertModal('Failed to read file', 'error'); }
+        let parsed;
+        try { parsed = JSON.parse(text); } catch (_) { return alertModal('Invalid JSON file', 'error'); }
+        const items = Array.isArray(parsed) ? parsed : [parsed];
+        const imported = [];
+        for (const obj of items) {
+          const v = validateImportedProject(obj);
+          if (!v.ok) { console.warn('Invalid project skipped:', v.reason); continue; }
+          try {
+            const rec = await ProjectStore.create(obj.name, obj.data, obj.description || '');
+            imported.push(rec);
+          } catch (err) {
+            console.error('Failed to import project', err);
+          }
+        }
+        if (imported.length === 0) {
+          return alertModal('No valid projects found in file.', 'warning');
+        }
+        if (imported.length === 1) {
+          const rec = imported[0];
+          state.currentProject = { id: rec.id, name: rec.name };
+          const proj = await ProjectStore.get(rec.id);
+          if (proj) loadSnapshotIntoUI(proj);
+        }
+        refreshList();
+        if (window.showToast) window.showToast(`Imported ${imported.length} project${imported.length > 1 ? 's' : ''}`, 'success'); else alertModal(`Imported ${imported.length} project(s)`, 'success');
+      };
+      input.click();
+    } catch (e) {
+      console.error(e);
+      alertModal('Import failed', 'error');
+    }
+  }
+
   function bindToolbar() {
     const createBtn = document.getElementById('projectCreateBtn');
     if (createBtn) createBtn.addEventListener('click', onNew);
+    // added by Cascade: Project Export/Import wiring
+    const exportBtn = document.getElementById('projectExportBtn');
+    if (exportBtn) exportBtn.addEventListener('click', onExportProjectJson);
+    const importBtn = document.getElementById('projectImportBtn');
+    if (importBtn) importBtn.addEventListener('click', onImportProjectJson);
   }
 
   document.addEventListener('DOMContentLoaded', initOnce);
 
-  window.ProjectUI = { initOnce, refreshList, onSave, onCloneActiveFile, onNewWithProjectPicker, onNew };
+  window.ProjectUI = { initOnce, refreshList, onSave, onCloneActiveFile, onNewWithProjectPicker, onNew, onExportProjectJson, onImportProjectJson };
 })();
