@@ -731,3 +731,89 @@
   color: #fff;
   border-color: #4a4a4a;
 }
+
+/* ==== Settings: General tab (scoped) ==== */ /* updated by Cascade */
+.tf-general {
+  display: grid;
+  gap: 16px;
+}
+
+.tf-general .settings-card {
+  background: #222;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+
+.tf-general .settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.tf-general .settings-row:last-child { border-bottom: 0; }
+
+.tf-general .row-text { flex: 1 1 auto; }
+.tf-general .row-title { font-weight: 600; color: #ddd; }
+.tf-general .row-desc { color: #9aa0a6; font-size: 12px; margin-top: 4px; max-width: 56ch; }
+
+/* Custom select wrapper */
+.tf-general .tf-select { position: relative; min-width: 220px; }
+.tf-general .tf-select select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: #1a1a1a;
+  color: #eaeaea;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+  padding: 10px 36px 10px 12px;
+  font-size: 14px;
+}
+.tf-general .tf-select i {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  pointer-events: none;
+}
+.tf-general .tf-select select:focus { outline: 2px solid #107c10; border-color: #107c10; }
+
+/* Toggle switch */
+.tf-general .tf-switch { position: relative; display: inline-flex; align-items: center; cursor: pointer; }
+.tf-general .tf-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.tf-general .tf-switch .tf-switch-track {
+  width: 48px; height: 26px;
+  background: #3a3a3a;
+  border-radius: 999px;
+  border: 1px solid #505050;
+  display: inline-block;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  position: relative;
+}
+.tf-general .tf-switch .tf-switch-track::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 3px;
+  transform: translateY(-50%);
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: #dcdcdc;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  transition: left 0.2s ease, background 0.2s ease;
+}
+.tf-general .tf-switch input:checked + .tf-switch-track {
+  background: #107c10; /* Xbox green */
+  border-color: #0e6f0e;
+}
+.tf-general .tf-switch input:checked + .tf-switch-track::after { left: 25px; background: #fff; }
+.tf-general .tf-switch input:focus-visible + .tf-switch-track { outline: 2px solid #107c10; outline-offset: 2px; }
+
+/* Responsive tweaks */
+@media (max-width: 560px) {
+  .tf-general .settings-row { flex-direction: column; align-items: flex-start; }
+  .tf-general .tf-select { width: 100%; }
+}

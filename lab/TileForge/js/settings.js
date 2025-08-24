@@ -705,84 +705,127 @@ function createShortcutsTabContent() {
 }
 
 function createGeneralTabContent() {
+  // Windows Settings-style layout with cards/rows, right-aligned controls
+  // Keep original input IDs for JS wiring. /* updated by Cascade */
   return `
-    <div class="settings-section">
+    <div class="settings-section tf-general">
       <h3>General Settings</h3>
-      <div class="setting-group">
-        <label>Auto-save Frequency</label>
-        <select id="autosaveFreq">
-          <option value="30">30 seconds</option>
-          <option value="60" selected>1 minute</option>
-          <option value="300">5 minutes</option>
-          <option value="0">Manual only</option>
-        </select>
-      </div>
-      
-      <div class="setting-group">
-        <label>Default CSV Delimiter</label>
-        <select id="csvDelimiter">
-          <option value="," selected>Comma (,)</option>
-          <option value=";">Semicolon (;)</option>
-          <option value="\t">Tab</option>
-        </select>
-      </div>
-      
-      <div class="setting-group">
-        <label>
-          <input type="checkbox" id="showIntroStartup" checked>
-          Show intro on startup
-        </label>
+
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="row-text">
+            <div class="row-title">Auto-save Frequency</div>
+          </div>
+          <div class="tf-select">
+            <select id="autosaveFreq">
+              <option value="30">30 seconds</option>
+              <option value="60" selected>1 minute</option>
+              <option value="300">5 minutes</option>
+              <option value="0">Manual only</option>
+            </select>
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="row-text">
+            <div class="row-title">Default CSV Delimiter</div>
+          </div>
+          <div class="tf-select">
+            <select id="csvDelimiter">
+              <option value="," selected>Comma (,)</option>
+              <option value=";">Semicolon (;)</option>
+              <option value="\t">Tab</option>
+            </select>
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+          </div>
+        </div>
       </div>
 
-      <div class="setting-group">
-        <label>
-          <input type="checkbox" id="loadLastSavedOnStartup">
-          Load last saved data on startup
-        </label>
-        <div class="setting-hint">Overrides empty start unless ?autoload=1 or an autoload flag is set. Uses the most recently processed CSV from this browser.</div>
-      </div>
-      
-      <div class="setting-group">
-        <label>
-          <input type="checkbox" id="statusPillColorsPref">
-          Status pill colors (locale badges)
-        </label>
-        <div class="setting-hint">Controls green/orange/red for Clean / Near-limit / Overflow on locale pills.</div>
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="row-text">
+            <div class="row-title">Show intro on startup</div>
+          </div>
+          <label class="tf-switch">
+            <input type="checkbox" id="showIntroStartup" />
+            <span class="tf-switch-track" aria-hidden="true"></span>
+          </label>
+        </div>
+
+        <div class="settings-row">
+          <div class="row-text">
+            <div class="row-title">Load last saved data on startup</div>
+            <div class="row-desc">Overrides empty start unless ?autoload=1 or an autoload flag is set. Uses the most recently processed CSV from this browser.</div>
+          </div>
+          <label class="tf-switch">
+            <input type="checkbox" id="loadLastSavedOnStartup" />
+            <span class="tf-switch-track" aria-hidden="true"></span>
+          </label>
+        </div>
       </div>
 
-      <div class="setting-group">
-        <label>
-          <input type="checkbox" id="statusPillBordersPref" checked>
-          Status borders on locale badges
-        </label>
-        <div class="setting-hint">When enabled, default view shows a colored border around each locale badge based on status (Clean/ Near-limit/ Overflow). Turn off to hide these borders.</div>
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="row-text">
+            <div class="row-title">Status pill colors (locale badges)</div>
+            <div class="row-desc">Controls green/orange/red for Clean / Near-limit / Overflow on locale pills.</div>
+          </div>
+          <label class="tf-switch">
+            <input type="checkbox" id="statusPillColorsPref" />
+            <span class="tf-switch-track" aria-hidden="true"></span>
+          </label>
+        </div>
+
+        <div class="settings-row">
+          <div class="row-text">
+            <div class="row-title">Status borders on locale badges</div>
+            <div class="row-desc">Colored border around each locale badge based on status (Clean / Near-limit / Overflow).</div>
+          </div>
+          <label class="tf-switch">
+            <input type="checkbox" id="statusPillBordersPref" />
+            <span class="tf-switch-track" aria-hidden="true"></span>
+          </label>
+        </div>
+
+        <div class="settings-row">
+          <div class="row-text">
+            <div class="row-title">Language pill colors (locale badges)</div>
+            <div class="row-desc">Per-language color palette for locale pills (lang-en, lang-fr, etc.).</div>
+          </div>
+          <label class="tf-switch">
+            <input type="checkbox" id="languagePillColorsPref" />
+            <span class="tf-switch-track" aria-hidden="true"></span>
+          </label>
+        </div>
+
+        <div class="settings-row">
+          <div class="row-text">
+            <div class="row-title">Default pill palette</div>
+            <div class="row-desc">If both toggles are OFF, this determines which palette turns ON automatically.</div>
+          </div>
+          <div class="tf-select">
+            <select id="defaultPillPalettePref">
+              <option value="language">Language colors</option>
+              <option value="status">Status colors</option>
+              <option value="none">None</option>
+            </select>
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+          </div>
+        </div>
       </div>
 
-      <div class="setting-group">
-        <label>
-          <input type="checkbox" id="languagePillColorsPref">
-          Language pill colors (locale badges)
-        </label>
-        <div class="setting-hint">Per-language color palette for locale pills (lang-en, lang-fr, etc.).</div>
-      </div>
-      
-      <div class="setting-group">
-        <label>Default pill palette</label>
-        <select id="defaultPillPalettePref">
-          <option value="language">Language colors</option>
-          <option value="status">Status colors</option>
-          <option value="none">None</option>
-        </select>
-        <div class="setting-hint">If both toggles are OFF, this preference determines which palette turns ON automatically. "None" leaves both off.</div>
-      </div>
-      
-      <div class="setting-group">
-        <label>
-          <input type="checkbox" id="toggleBadgesSticky">
-          Sticky Locale Badges Panel
-        </label>
-        <div class="setting-hint">Keep the locale badges panel open even when the main content area is scrolled.</div>
-        <div class="setting-state" id="badgesStickyState">Off</div>
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="row-text">
+            <div class="row-title">Sticky Locale Badges Panel</div>
+            <div class="row-desc">Keep the locale badges panel open even when the main content area is scrolled.</div>
+          </div>
+          <label class="tf-switch">
+            <input type="checkbox" id="toggleBadgesSticky" />
+            <span class="tf-switch-track" aria-hidden="true"></span>
+          </label>
+        </div>
       </div>
     </div>
   `;
