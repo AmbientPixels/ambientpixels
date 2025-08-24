@@ -900,6 +900,9 @@ body {
   font-size: 12px;
   color: #e0e0e0;
   word-break: break-all;
+  flex: 1 1 auto;        /* allow filename to take remaining space */ /* updated by Cascade */
+  min-width: 0;          /* enable text overflow handling in flex */ /* updated by Cascade */
+  margin-right: 8px;     /* breathing room from actions */ /* updated by Cascade */
 }
 /* updated by Cascade: active row shows green filename */
 .project-file-row.is-active .file-name {
@@ -907,8 +910,21 @@ body {
   font-weight: 600;
 }
 .project-file-row .file-actions {
-  display: flex;
-  gap: 6px;
+  display: grid;                              /* grid for action buttons */ /* updated by Cascade */
+  grid-template-columns: repeat(3, auto);     /* 3 icons across */ /* updated by Cascade */
+  grid-template-rows: auto auto;              /* second row for export */ /* updated by Cascade */
+  gap: 6px;                                   /* spacing */ /* updated by Cascade */
+  align-items: start;                          /* align to top */ /* updated by Cascade */
+}
+/* Position actions explicitly so export spans full width below */ /* added by Cascade */
+.project-file-row .file-actions [data-act="rename-file"] { grid-column: 1; grid-row: 1; }
+.project-file-row .file-actions [data-act="gridpeek-file"] { grid-column: 2; grid-row: 1; }
+.project-file-row .file-actions [data-act="remove-file"] { grid-column: 3; grid-row: 1; }
+.project-file-row .file-actions [data-act="export-file"] {
+  grid-column: 1 / -1;                        /* span all three columns */
+  grid-row: 2;                                 /* place on second row */
+  justify-self: stretch;                       /* full width */
+  width: 100%;                                  /* ensure it fills column span */
 }
 
 /* Clickable file rows: affordance */
@@ -967,6 +983,30 @@ body {
 .project-files-actions .preset-apply-btn.file-badge-btn.btn-export-active:hover {
   background: #3b7ae0; /* slight darken for hover */
   border-color: #3b7ae0;
+}
+
+/* Distinct style for per-file Export action (most-used) */ /* added by Cascade */
+.project-file-row .file-actions [data-act="export-file"] {
+  /* Option A: Premium Outline */ /* updated by Cascade */
+  background: transparent;
+  color: var(--theme-accent, #4f8cff);
+  border-color: var(--theme-accent, #4f8cff);         /* stronger visible outline */
+  border-width: 2px;                                  /* thicker outline */
+  box-shadow: 0 0 0 2px rgba(79,140,255,0.18);        /* subtle outer ring */
+}
+.project-file-row .file-actions [data-act="export-file"] i {
+  font-size: 14px; /* subtle emphasis */
+}
+.project-file-row .file-actions [data-act="export-file"]:hover,
+.project-file-row .file-actions [data-act="export-file"]:focus {
+  background: var(--theme-accent, #4f8cff);
+  color: #fff;
+  border-color: #00bcf2;                              /* refined accent on focus */
+  box-shadow: 0 4px 16px rgba(79,140,255,0.35), 0 0 0 2px rgba(0,188,242,0.30);
+}
+.project-file-row .file-actions [data-act="export-file"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0,188,242,0.35), 0 6px 18px rgba(79,140,255,0.35);
 }
 
 /* Sticky option for the Locale Badges Panel */

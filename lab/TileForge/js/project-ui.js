@@ -618,8 +618,9 @@
                     <button class="preset-apply-btn file-badge-btn" data-act="gridpeek-file" data-id="${p.id}" data-name="${f.name}" title="GridPeek CSV" aria-label="GridPeek CSV Preview">
                       <i class="fas fa-table" aria-hidden="true"></i>
                     </button>
-                    <button class="preset-apply-btn file-badge-btn" data-act="export-file" data-id="${p.id}" data-name="${f.name}" title="Export File" aria-label="Export File">
+                    <button class="preset-apply-btn file-badge-btn" data-act="export-file" data-id="${p.id}" data-name="${f.name}" title="Export to Iris CSV" aria-label="Export to Iris CSV">
                       <i class="fa fa-download" aria-hidden="true"></i>
+                      <span>Export to Iris CSV</span>
                     </button>
                     <button class="preset-apply-btn file-badge-btn" data-act="remove-file" data-id="${p.id}" data-name="${f.name}" title="Remove File" aria-label="Remove File">
                       <i class="fas fa-trash" aria-hidden="true"></i>
