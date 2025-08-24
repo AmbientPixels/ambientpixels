@@ -273,9 +273,10 @@ function exportToCSV() {
     
     // Create download
     downloadCSVFile(csvContent, exportedName);
-    // Show success modal consistent with project export flow (reuse global Modal)
+    // Show success modal consistent with project export flow (reuses global Modal)
     if (window.Modal && typeof Modal.alert === 'function') {
-      Modal.alert(`“${exportedName}” is forged and ready.<br><span class="modal-description">Delivered to your downloads.</span>`, 'success', '🛠️ File forged');
+      // updated by Cascade: remove emoji, rely on FA icon from Modal.alert()
+      Modal.alert(`“${exportedName}” is forged and ready.<br><span class="modal-description">Delivered to your downloads.</span>`, 'success', 'File forged');
     } else {
       alert(`“${exportedName}” is forged and ready.`);
     }

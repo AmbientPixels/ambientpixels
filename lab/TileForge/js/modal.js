@@ -362,9 +362,10 @@ class ModalSystem {
     const isClear = options.type === 'clear-confirmation';
     // Choose defaults based on type
     const defaults = {
+      // updated by Cascade: use plain titles (no emoji); icons are rendered in body
       title: isDestructive
-        ? '⚠️ Confirm Destructive Action'
-        : (isClear ? '⚠️ Confirm Clear' : '🤔 Confirm Action'),
+        ? 'Confirm Destructive Action'
+        : (isClear ? 'Confirm Clear' : 'Confirm Action'),
       content: 'Are you sure you want to proceed?',
       type: isDestructive ? 'destructive' : (options.type || 'confirmation'),
       size: 'small',
@@ -374,14 +375,18 @@ class ModalSystem {
       ]
     };
 
-    // If content is a plain string and destructive, prepend an icon for visual clarity
+    // If content is a plain string, prepend a Font Awesome icon for visual clarity
     let computedContent = options.content;
     if (typeof computedContent === 'string') {
-      const icon = isDestructive ? '🗑️' : (isClear ? '🧹' : '🤔');
+      // Choose FA icon by type (fallback: question-circle)
+      // updated by Cascade: Font Awesome icons instead of emoji
+      const iconClass = isDestructive
+        ? 'fas fa-trash-alt'
+        : (isClear ? 'fas fa-exclamation-triangle' : 'fas fa-question-circle');
       // Only add icon markup if caller didn't already include one
       if (!/modal-icon/.test(computedContent)) {
         computedContent = `
-          <div class="modal-icon">${icon}</div>
+          <div class="modal-icon"><i class="${iconClass}" aria-hidden="true"></i></div>
           <p class="modal-message">${computedContent}</p>
         `;
       }
@@ -398,11 +403,12 @@ class ModalSystem {
   }
 
   alert(message, type = 'info', title = null) {
-    const icons = {
-      info: 'ℹ️',
-      warning: '⚠️',
-      error: '❌',
-      success: '✅'
+    // updated by Cascade: use Font Awesome icons and plain titles (no emoji)
+    const iconMap = {
+      info: 'fas fa-info-circle',
+      warning: 'fas fa-exclamation-triangle',
+      error: 'fas fa-times-circle',
+      success: 'fas fa-check-circle'
     };
 
     const titles = {
@@ -415,9 +421,10 @@ class ModalSystem {
     // Map alert types to button classes for consistent visual language
     const btnClass = type === 'success' ? 'success' : type === 'error' ? 'danger' : type === 'warning' ? 'warning' : 'primary';
 
+    const iconClass = iconMap[type] || iconMap.info;
     const modal = this.createModal({
-      title: title || `${icons[type]} ${titles[type]}`,
-      content: `<div class="modal-icon">${icons[type]}</div><p class="modal-message">${message}</p>`,
+      title: title || `${titles[type]}`,
+      content: `<div class="modal-icon"><i class="${iconClass}" aria-hidden="true"></i></div><p class="modal-message">${message}</p>`,
       type: `alert-${type}`,
       size: 'small',
       buttons: [

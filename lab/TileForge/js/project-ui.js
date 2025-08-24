@@ -422,10 +422,13 @@
   }
 
   async function onNew() {
-    const choice = await confirmAsync('Create a new project from current state? (OK = from current, Cancel = blank)');
-    const name = await promptAsync('New project name:');
+    const choice = await confirmAsync(
+      'Start a new project. Choose how to initialize it:\n\n• Use Current State — copy what\'s in the editor now into the project\n• Start Blank — create an empty project you can build from',
+      { confirmText: 'Use Current State', cancelText: 'Start Blank' }
+    );
+    const name = await promptAsync('Project name:', '', { title: 'Name Your Project' });
     if (!name) return;
-    const description = await promptAsync('Short description (optional):', '');
+    const description = await promptAsync('Short description (optional):', '', { title: 'Project Description' });
     const data = choice ? buildSnapshotFromUI() : { csvs: [], activeCsv: null, image: null, template: 'toh', settings: { enabledSections: { title: true, subtitle: true, narrator: true } } };
     const rec = await ProjectStore.create(name, data, description || '');
     state.currentProject = { id: rec.id, name: rec.name };
@@ -752,7 +755,8 @@
               downloadTextFile(entry.name, entry.text || '', mime);
             }
             // Notify success with green-accent modal (reuses Modal/alert helper)
-            alertModal(`“${exportedFileName}” is forged and ready.<br><span class="modal-description">Delivered to your downloads.</span>`, 'success', '🛠️ File forged');
+            // updated by Cascade: remove emoji, rely on FA icon from Modal.alert()
+            alertModal(`“${exportedFileName}” is forged and ready.<br><span class="modal-description">Delivered to your downloads.</span>`, 'success', 'File forged');
           } catch (e) {
             console.error(e);
             alertModal('Export failed', 'error');

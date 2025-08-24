@@ -266,9 +266,8 @@ function setupLiveEditor() {
             // Confirm applying non-empty text to all
             if (window.showModal) {
               window.showModal('', {
-                title: '✅ Confirm Apply',
+                title: 'Confirm Apply',
                 content: `
-                  <div class="modal-icon">🔁</div>
                   <p class="modal-message">Apply this Title to all ${totalLocales} locale(s)?</p>
                 `,
                 confirmText: 'Apply to All',
@@ -306,9 +305,8 @@ function setupLiveEditor() {
             // Confirm applying non-empty text to all
             if (window.showModal) {
               window.showModal('', {
-                title: '✅ Confirm Apply',
+                title: 'Confirm Apply',
                 content: `
-                  <div class="modal-icon">🔁</div>
                   <p class="modal-message">Apply this Subtitle to all ${totalLocales} locale(s)?</p>
                 `,
                 confirmText: 'Apply to All',
@@ -346,9 +344,8 @@ function setupLiveEditor() {
             // Confirm applying non-empty text to all
             if (window.showModal) {
               window.showModal('', {
-                title: '✅ Confirm Apply',
+                title: 'Confirm Apply',
                 content: `
-                  <div class="modal-icon">🔁</div>
                   <p class="modal-message">Apply this Narrator text to all ${totalLocales} locale(s)?</p>
                 `,
                 confirmText: 'Apply to All',
@@ -416,9 +413,8 @@ function setupLiveEditor() {
         // Confirm applying non-empty text to selected locales
         if (window.showModal) {
           window.showModal('', {
-            title: '✅ Confirm Apply',
+            title: 'Confirm Apply',
             content: `
-              <div class="modal-icon">🔁</div>
               <p class="modal-message">Apply this ${fieldType} to ${cleanSet.length} selected locale(s)?</p>
             `,
             confirmText: 'Apply to Selected',
@@ -1057,9 +1053,8 @@ function setupPresetControls() {
           }
           if (window.showModal) {
             window.showModal('', {
-              title: '✅ Confirm Apply',
+              title: 'Confirm Apply',
               content: `
-                <div class="modal-icon">🔁</div>
                 <p class="modal-message">Apply "${presetData[presetKey].name}" preset to all ${totalLocales} locale(s)?</p>
               `,
               confirmText: 'Apply to All',
@@ -1131,9 +1126,8 @@ function setupSubtitleModifiersControls() {
       }
       if (window.showModal) {
         window.showModal('', {
-          title: '✅ Confirm Apply',
+          title: 'Confirm Apply',
           content: `
-            <div class="modal-icon">🔁</div>
             <p class="modal-message">Apply Subtitle Modifiers to all ${totalLocales} locale(s)?</p>
           `,
           confirmText: 'Apply to All',
@@ -1266,9 +1260,8 @@ function setupGenericModifiersControls({ phraseId, percentId, symbolId, applyAll
       }
       if (window.showModal) {
         window.showModal('', {
-          title: '✅ Confirm Apply',
+          title: 'Confirm Apply',
           content: `
-            <div class="modal-icon">🔁</div>
             <p class="modal-message">Apply ${fieldKey === 'items/0/title' ? 'Title' : fieldKey === 'items/0/narratorText' ? 'Narrator' : 'Subtitle'} Modifiers to all ${totalLocales} locale(s)?</p>
           `,
           confirmText: 'Apply to All',

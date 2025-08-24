@@ -258,6 +258,18 @@
   background: #151c18;
 }
 
+/* Size-aware icon scaling for confirmation-style modals */ /* updated by Cascade */
+/* Default sizes are defined above; these refine per-modal size variants */
+/* Small modal: slightly reduce icon to fit tighter layout */
+.modal.small.confirmation .modal-icon { font-size: 36px; }
+.modal.small.destructive .modal-icon,
+.modal.small.clear-confirmation .modal-icon { font-size: 24px; }
+
+/* Large modal: increase icon emphasis for visual balance */
+.modal.large.confirmation .modal-icon { font-size: 64px; }
+.modal.large.destructive .modal-icon,
+.modal.large.clear-confirmation .modal-icon { font-size: 36px; }
+
 /* Destructive Modal Variant */ /* updated by Cascade */
 .modal.destructive .modal-header {
   background: linear-gradient(180deg, rgba(40, 0, 0, 0.85), #1e1e1e 60%);
