@@ -81,7 +81,7 @@
         <div class="gridpeek-meta">
           <span class="meta-item"><i class="fas fa-database"></i> Rows: ${rows.length}</span>
           <span class="meta-item"><i class="fas fa-columns"></i> Columns: ${headers.length}</span>
-          ${filename ? `<span class="meta-item"><i class=\"fas fa-file-csv\"></i> File: ${escapeHtml(filename)}</span>` : ''}
+          ${filename ? `<span class=\"meta-item\"><i class=\"fas fa-file-csv\"></i> File: <span class=\"gridpeek-file\" title=\"File preview\">${escapeHtml(filename)}</span></span>` : ''}
         </div>
         <div class="preview-table-wrapper">
           <table class="preview-table">
@@ -102,11 +102,14 @@
 
     const content = buildTableHTML(headers, rows, opts && opts.filename);
 
-    const modalTitle = (opts && opts.title) ? opts.title : `${TOOL_NAME} — CSV Preview`;
+    const modalTitle = (opts && opts.title)
+      ? opts.title
+      : `${TOOL_NAME} — ${opts && opts.filename ? opts.filename : 'CSV Preview'}`;
 
     const m = window.Modal.createModal({
       title: modalTitle,
       content,
+      type: 'gridpeek',
       size: 'large',
       buttons: [
         { text: 'Close', class: 'secondary', action: 'close' }

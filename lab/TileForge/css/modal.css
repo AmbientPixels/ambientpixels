@@ -524,3 +524,12 @@
   margin: 0;
   line-height: 1.4;
 }
+
+/* GridPeek-specific styling */
+.modal.gridpeek .modal-title {
+  color: #8be08b;
+}
+.modal.gridpeek .modal-body .gridpeek-file {
+  color: #8be08b;
+  font-weight: 600;
+}
