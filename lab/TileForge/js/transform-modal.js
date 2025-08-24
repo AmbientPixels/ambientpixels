@@ -21,7 +21,7 @@ class TransformModal {
     this.onTransformComplete = onComplete;
     this.isOpen = true;
     
-    console.log('🔄 Attempting to show transform modal...');
+    console.log('🔁 Attempting to show transform modal...');
     console.log('Modal class available:', typeof window.Modal !== 'undefined');
     
     // Use TileForge's existing modal system (Modal class)
@@ -119,7 +119,7 @@ class TransformModal {
       ],
       onShow: () => {
         this.bindEvents();
-        console.log('🔄 Transform modal opened');
+        console.log('🔁 Transform modal opened');
       },
       onHide: () => {
         this.reset();
@@ -347,7 +347,7 @@ class TransformModal {
     if (transformButton) {
       transformButton.addEventListener('click', (e) => {
         e.preventDefault();
-        console.log('🔄 Transform button clicked');
+        console.log('🔁 Transform button clicked');
         this.runTransform();
       });
       console.log('✅ Transform button event listener bound');
@@ -672,4 +672,4 @@ class TransformModal {
 // Initialize global transform modal instance
 window.transformModal = new TransformModal();
 
-console.log('🔄 Transform Modal module loaded');
+console.log('🔁 Transform Modal module loaded');

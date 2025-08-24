@@ -72,7 +72,7 @@ function selectTemplate(templateType) {
     return;
   }
   
-  console.log(`🔄 Switching to template: ${templateType}`);
+  console.log(`🔁 Switching to template: ${templateType}`);
   
   // Update global state
   currentTemplate = templateType;

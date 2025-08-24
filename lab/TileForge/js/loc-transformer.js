@@ -326,4 +326,4 @@ window.LocTransformer = LocTransformer;
 // Initialize global transformer instance
 window.locTransformer = new LocTransformer();
 
-console.log('🔄 Localization Transformer module loaded');
+console.log('🔁 Localization Transformer module loaded');

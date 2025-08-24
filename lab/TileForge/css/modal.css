@@ -292,12 +292,23 @@
   box-shadow: 0 20px 40px rgba(180, 120, 0, 0.28);
 }
 .modal.clear-confirmation .modal-title { color: #fff9e6; }
-.modal.clear-confirmation .modal-body { background: #221f17; }
+.modal.clear-confirmation .modal-body {
+  background: #221f17;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
 .modal.clear-confirmation .modal-icon {
   color: #ffc107; /* amber */
   text-shadow: 0 0 8px rgba(255, 193, 7, 0.35);
+  font-size: 28px;
+  line-height: 1;
+  margin: 0;
 }
-.modal.clear-confirmation .modal-message { color: #fff3cc; }
+.modal.clear-confirmation .modal-message {
+  color: #fff3cc;
+  margin: 0;
+}
 .modal.clear-confirmation .modal-description {
   color: #ffd98a;
 }

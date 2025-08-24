@@ -134,7 +134,7 @@ class HeadlinerCrafter {
    * @returns {Array} Transformed data ready for CardForge
    */
   transformData(csvData) {
-    console.log('🔄 Transforming data with current mappings...');
+    console.log('🔁 Transforming data with current mappings...');
     
     const transformedData = csvData.map(row => {
       const transformed = {
@@ -256,7 +256,7 @@ class HeadlinerCrafter {
    */
   updateFieldMappings(mappings) {
     this.fieldMappings = { ...mappings };
-    console.log('🔄 Field mappings updated:', this.fieldMappings);
+    console.log('🔁 Field mappings updated:', this.fieldMappings);
   }
 
   /**

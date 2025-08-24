@@ -265,29 +265,29 @@ function setupLiveEditor() {
         if (manualText) {
             // Confirm applying non-empty text to all
             if (window.showModal) {
-              window.showModal(
-                `Apply this Title to all ${totalLocales} locale(s)?`,
-                {
-                  confirmText: 'Apply to All',
-                  cancelText: 'Cancel',
-                  onConfirm: function() { applyManualTextToAllTiles(manualText, 'title'); }
-                }
-              );
+              window.showModal('', {
+                title: '✅ Confirm Apply',
+                content: `
+                  <div class="modal-icon">🔁</div>
+                  <p class="modal-message">Apply this Title to all ${totalLocales} locale(s)?</p>
+                `,
+                confirmText: 'Apply to All',
+                cancelText: 'Cancel',
+                onConfirm: function() { applyManualTextToAllTiles(manualText, 'title'); }
+              });
             } else {
               applyManualTextToAllTiles(manualText, 'title');
             }
         } else {
-            const modal = window.showModal(
-    'This will clear the Title field for all tiles. Are you sure?',
-    {
-        type: 'clear-confirmation',
-        confirmText: 'Clear All',
-        cancelText: 'Cancel',
-        onConfirm: function() {
-            applyManualTextToAllTiles('', 'title');
-        }
-    }
-);
+            window.showModal(
+              'This will clear the Title field for all tiles. Are you sure?',
+              {
+                type: 'clear-confirmation',
+                confirmText: 'Clear All',
+                cancelText: 'Cancel',
+                onConfirm: function() { applyManualTextToAllTiles('', 'title'); }
+              }
+            );
         }
     });
   }
@@ -305,29 +305,29 @@ function setupLiveEditor() {
         if (manualText) {
             // Confirm applying non-empty text to all
             if (window.showModal) {
-              window.showModal(
-                `Apply this Subtitle to all ${totalLocales} locale(s)?`,
-                {
-                  confirmText: 'Apply to All',
-                  cancelText: 'Cancel',
-                  onConfirm: function() { applyManualTextToAllTiles(manualText, 'subtitle'); }
-                }
-              );
+              window.showModal('', {
+                title: '✅ Confirm Apply',
+                content: `
+                  <div class="modal-icon">🔁</div>
+                  <p class="modal-message">Apply this Subtitle to all ${totalLocales} locale(s)?</p>
+                `,
+                confirmText: 'Apply to All',
+                cancelText: 'Cancel',
+                onConfirm: function() { applyManualTextToAllTiles(manualText, 'subtitle'); }
+              });
             } else {
               applyManualTextToAllTiles(manualText, 'subtitle');
             }
         } else {
-            const modal = window.showModal(
-    'This will clear the Subtitle field for all tiles. Are you sure?',
-    {
-        type: 'clear-confirmation',
-        confirmText: 'Clear All',
-        cancelText: 'Cancel',
-        onConfirm: function() {
-            applyManualTextToAllTiles('', 'subtitle');
-        }
-    }
-);
+            window.showModal(
+              'This will clear the Subtitle field for all tiles. Are you sure?',
+              {
+                type: 'clear-confirmation',
+                confirmText: 'Clear All',
+                cancelText: 'Cancel',
+                onConfirm: function() { applyManualTextToAllTiles('', 'subtitle'); }
+              }
+            );
         }
     });
   }
@@ -345,29 +345,29 @@ function setupLiveEditor() {
         if (manualText) {
             // Confirm applying non-empty text to all
             if (window.showModal) {
-              window.showModal(
-                `Apply this Narrator text to all ${totalLocales} locale(s)?`,
-                {
-                  confirmText: 'Apply to All',
-                  cancelText: 'Cancel',
-                  onConfirm: function() { applyManualTextToAllTiles(manualText, 'narrator'); }
-                }
-              );
+              window.showModal('', {
+                title: '✅ Confirm Apply',
+                content: `
+                  <div class="modal-icon">🔁</div>
+                  <p class="modal-message">Apply this Narrator text to all ${totalLocales} locale(s)?</p>
+                `,
+                confirmText: 'Apply to All',
+                cancelText: 'Cancel',
+                onConfirm: function() { applyManualTextToAllTiles(manualText, 'narrator'); }
+              });
             } else {
               applyManualTextToAllTiles(manualText, 'narrator');
             }
         } else {
-            const modal = window.showModal(
-    'This will clear the Narrator field for all tiles. Are you sure?',
-    {
-        type: 'clear-confirmation',
-        confirmText: 'Clear All',
-        cancelText: 'Cancel',
-        onConfirm: function() {
-            applyManualTextToAllTiles('', 'narrator');
-        }
-    }
-);
+            window.showModal(
+              'This will clear the Narrator field for all tiles. Are you sure?',
+              {
+                type: 'clear-confirmation',
+                confirmText: 'Clear All',
+                cancelText: 'Cancel',
+                onConfirm: function() { applyManualTextToAllTiles('', 'narrator'); }
+              }
+            );
         }
     });
   }
@@ -415,14 +415,16 @@ function setupLiveEditor() {
       } else {
         // Confirm applying non-empty text to selected locales
         if (window.showModal) {
-          window.showModal(
-            `Apply this ${fieldType} to ${cleanSet.length} selected locale(s)?`,
-            {
-              confirmText: 'Apply to Selected',
-              cancelText: 'Cancel',
-              onConfirm: function() { applyManualTextToSelectedLocales(textValue.trim(), fieldType, cleanSet); }
-            }
-          );
+          window.showModal('', {
+            title: '✅ Confirm Apply',
+            content: `
+              <div class="modal-icon">🔁</div>
+              <p class="modal-message">Apply this ${fieldType} to ${cleanSet.length} selected locale(s)?</p>
+            `,
+            confirmText: 'Apply to Selected',
+            cancelText: 'Cancel',
+            onConfirm: function() { applyManualTextToSelectedLocales(textValue.trim(), fieldType, cleanSet); }
+          });
         } else {
           applyManualTextToSelectedLocales(textValue.trim(), fieldType, cleanSet);
         }
@@ -1054,14 +1056,16 @@ function setupPresetControls() {
             return;
           }
           if (window.showModal) {
-            window.showModal(
-              `Apply "${presetData[presetKey].name}" preset to all ${totalLocales} locale(s)?`,
-              {
-                confirmText: 'Apply to All',
-                cancelText: 'Cancel',
-                onConfirm: function() { applyPresetToAllTiles(presetKey, field); }
-              }
-            );
+            window.showModal('', {
+              title: '✅ Confirm Apply',
+              content: `
+                <div class="modal-icon">🔁</div>
+                <p class="modal-message">Apply "${presetData[presetKey].name}" preset to all ${totalLocales} locale(s)?</p>
+              `,
+              confirmText: 'Apply to All',
+              cancelText: 'Cancel',
+              onConfirm: function() { applyPresetToAllTiles(presetKey, field); }
+            });
           } else {
             applyPresetToAllTiles(presetKey, field);
           }
@@ -1126,14 +1130,16 @@ function setupSubtitleModifiersControls() {
         return;
       }
       if (window.showModal) {
-        window.showModal(
-          `Apply Subtitle Modifiers to all ${totalLocales} locale(s)?`,
-          {
-            confirmText: 'Apply to All',
-            cancelText: 'Cancel',
-            onConfirm: function() { applySubtitleModifiersAll(modVal); }
-          }
-        );
+        window.showModal('', {
+          title: '✅ Confirm Apply',
+          content: `
+            <div class="modal-icon">🔁</div>
+            <p class="modal-message">Apply Subtitle Modifiers to all ${totalLocales} locale(s)?</p>
+          `,
+          confirmText: 'Apply to All',
+          cancelText: 'Cancel',
+          onConfirm: function() { applySubtitleModifiersAll(modVal); }
+        });
       } else {
         applySubtitleModifiersAll(modVal);
       }
@@ -1259,14 +1265,16 @@ function setupGenericModifiersControls({ phraseId, percentId, symbolId, applyAll
         return;
       }
       if (window.showModal) {
-        window.showModal(
-          `Apply ${fieldKey === 'items/0/title' ? 'Title' : fieldKey === 'items/0/narratorText' ? 'Narrator' : 'Subtitle'} Modifiers to all ${totalLocales} locale(s)?`,
-          {
-            confirmText: 'Apply to All',
-            cancelText: 'Cancel',
-            onConfirm: function() { applyGenericModifiersAll(modVal, phraseDropdown.value, fieldKey); }
-          }
-        );
+        window.showModal('', {
+          title: '✅ Confirm Apply',
+          content: `
+            <div class="modal-icon">🔁</div>
+            <p class="modal-message">Apply ${fieldKey === 'items/0/title' ? 'Title' : fieldKey === 'items/0/narratorText' ? 'Narrator' : 'Subtitle'} Modifiers to all ${totalLocales} locale(s)?</p>
+          `,
+          confirmText: 'Apply to All',
+          cancelText: 'Cancel',
+          onConfirm: function() { applyGenericModifiersAll(modVal, phraseDropdown.value, fieldKey); }
+        });
       } else {
         applyGenericModifiersAll(modVal, phraseDropdown.value, fieldKey);
       }

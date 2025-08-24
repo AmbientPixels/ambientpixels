@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Open Transform Modal manually
 function openTransformModal() {
   if (typeof window.transformModal !== 'undefined') {
-    console.log('🔄 Opening transform modal manually');
+    console.log('🔁 Opening transform modal manually');
     window.transformModal.show((transformedCsvText, stats) => {
       console.log('✅ Manual transformation complete:', stats);
       // Process the transformed CSV data
@@ -610,7 +610,7 @@ function createTipsTabContent() {
         <p>If Arabic or special characters look wrong, ensure your CSV is UTF-8 encoded for full support.</p>
       </div>
       <div class="tip-box">
-        <h5><span class="tip-icon">🔄</span>Drag-and-Drop Everywhere</h5>
+        <h5><span class="tip-icon">🔁</span>Drag-and-Drop Everywhere</h5>
         <p>Drag-and-drop works everywhere: images, CSV, XML—just drop onto the right zone.</p>
       </div>
       <div class="tip-box">
