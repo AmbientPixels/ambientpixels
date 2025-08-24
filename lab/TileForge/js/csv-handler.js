@@ -260,12 +260,28 @@ function exportToCSV() {
   try {
     // Generate CSV content from current data
     const csvContent = generateCSVContent(window.currentCsvData);
+    // Determine export filename from the active CSV name shown in UI, fallback to default
+    let exportedName = (function(){
+      try {
+        const el = document.getElementById('activeCsvName');
+        const name = el ? (el.textContent || '').trim() : '';
+        return name || 'tileforge-export.csv';
+      } catch (_) { return 'tileforge-export.csv'; }
+    })();
+    // Ensure .csv extension
+    if (!/\.csv$/i.test(exportedName)) exportedName = exportedName + '.csv';
     
     // Create download
-    downloadCSVFile(csvContent, 'tileforge-export.csv');
+    downloadCSVFile(csvContent, exportedName);
+    // Show success modal consistent with project export flow (reuse global Modal)
+    if (window.Modal && typeof Modal.alert === 'function') {
+      Modal.alert(`Export of "${exportedName}" successful!`, 'success', 'Export Complete');
+    } else {
+      alert(`Export of "${exportedName}" successful!`);
+    }
     
     // Update analytics
-    updateFileInfo('Export', 'tileforge-export.csv', `${window.currentCsvData.length} locales`);
+    updateFileInfo('Export', exportedName, `${window.currentCsvData.length} locales`);
     
     console.log('CSV export successful:', window.currentCsvData.length, 'locales exported');
   } catch (error) {
