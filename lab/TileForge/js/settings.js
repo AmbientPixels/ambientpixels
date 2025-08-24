@@ -118,7 +118,7 @@ function openSettings() {
     size: 'large',
     tabs: tabs,
     activeTab: 0
-  });
+  }); 
 
   settingsModal.show();
   
