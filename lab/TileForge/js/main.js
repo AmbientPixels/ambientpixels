@@ -332,6 +332,23 @@ function openTransformModal() {
   }
 }
 
+// Persistently hide intro and update UI labels (used by right-side card action)
+function dontShowIntro() {
+  try {
+    localStorage.setItem('tileforge-show-intro', 'false');
+  } catch (_) { /* no-op */ }
+  // Update any existing secondary toggle button label if present
+  try {
+    const btn = document.querySelector('.intro-section .intro-btn.secondary');
+    if (btn) {
+      btn.textContent = 'Show on startup';
+      btn.title = 'Intro will be hidden on next visit';
+    }
+  } catch (_) { /* no-op */ }
+  // Hide immediately
+  hideIntro();
+}
+
 // Intro Section Management
 function initializeIntroSection() {
   const showIntroOnStartup = localStorage.getItem('tileforge-show-intro');
@@ -359,20 +376,25 @@ function hideIntro() {
   }
 }
 
-function toggleIntroVisibility() {
+function toggleIntroVisibility(evt) {
   const currentSetting = localStorage.getItem('tileforge-show-intro');
   const newSetting = currentSetting === 'false' ? 'true' : 'false';
-  
+
   localStorage.setItem('tileforge-show-intro', newSetting);
-  
-  // Update button text to reflect current state
-  const button = event.target;
-  if (newSetting === 'true') {
-    button.textContent = 'Hide on startup';
-    button.title = 'Intro will show on next visit';
-  } else {
-    button.textContent = 'Show on startup';
-    button.title = 'Intro will be hidden on next visit';
+
+  // Update button text to reflect current state (do not rely on implicit global event)
+  let button = (evt && evt.target) ? evt.target : null;
+  if (!button) {
+    try { button = document.querySelector('.intro-section .intro-btn.secondary'); } catch (_) { /* no-op */ }
+  }
+  if (button) {
+    if (newSetting === 'true') {
+      button.textContent = 'Hide on startup';
+      button.title = 'Intro will show on next visit';
+    } else {
+      button.textContent = 'Show on startup';
+      button.title = 'Intro will be hidden on next visit';
+    }
   }
 }
 
