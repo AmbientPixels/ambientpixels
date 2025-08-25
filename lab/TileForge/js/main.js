@@ -657,11 +657,6 @@ function showInfoPopup() {
       content: createTipsTabContent()
     },
     {
-      title: 'Shortcuts',
-      icon: '⌨️',
-      content: createShortcutsTabContent()
-    },
-    {
       title: 'Troubleshooting',
       icon: '🔧',
       content: createTroubleshootingTabContent()

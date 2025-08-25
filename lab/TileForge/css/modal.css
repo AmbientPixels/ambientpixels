@@ -537,6 +537,22 @@
   min-height: var(--settings-tab-min);
 }
 
+/* Tabbed modals: unify body height and tab content across ALL tabs */ /* added by Cascade */
+.modal.tabbed {
+  /* Let tabbed modals breathe slightly more like settings-modal */
+  max-height: 94vh;
+  --tabbed-tab-min: 420px;
+}
+.modal.tabbed .modal-body {
+  /* Fix body height so switching tabs doesn't resize the window */
+  height: min(760px, calc(92vh - 160px));
+  overflow-y: auto;
+  padding-bottom: 26px; /* ensure footer/buttons never clip */
+}
+.modal.tabbed .modal-tab-content {
+  min-height: var(--tabbed-tab-min);
+}
+
 /* Settings: Themes tab preview area (scoped) */ /* added by Cascade */
 .settings-root .theme-preview-area {
   margin-bottom: 8px; /* tighter spacing */
@@ -627,15 +643,15 @@
 .feature-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 16px;
-  margin-top: 16px;
+  gap: 12px; /* aligned with modal spacing — updated by Cascade */
+  margin-top: 12px; /* aligned with .info-section top margin — updated by Cascade */
 }
 
 .feature-item {
   background: #1e1e1e;
   border: 1px solid #333;
-  border-radius: 6px;
-  padding: 16px;
+  border-radius: 10px; /* match settings card radius — updated by Cascade */
+  padding: 12px; /* match modal card padding — updated by Cascade */
 }
 
 .feature-item h5 {
@@ -658,9 +674,9 @@
 .tip-box {
   background: linear-gradient(135deg, #1a4d5c 0%, #2a3a4a 100%);
   border: 1px solid #007acc;
-  border-radius: 6px;
-  padding: 16px;
-  margin: 16px 0;
+  border-radius: 10px; /* unify with other cards — updated by Cascade */
+  padding: 12px; /* tighter to match modal rhythm — updated by Cascade */
+  margin: 12px 0; /* consistent vertical rhythm — updated by Cascade */
 }
 
 .tip-box .tip-icon {

@@ -294,7 +294,7 @@ class ModalSystem {
 
     return `
       <div class="modal-overlay" id="${config.id}-overlay">
-        <div class="modal ${sizeClass}" id="${config.id}">
+        <div class="modal ${sizeClass} tabbed" id="${config.id}">
           <div class="modal-header">
             <h3 class="modal-title">${config.title}</h3>
             ${closeBtnHTML}
