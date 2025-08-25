@@ -140,6 +140,11 @@ function openSettings() {
   }); 
 
   settingsModal.show();
+  // Add a specific class to the settings modal container for stable sizing across tabs. /* updated by Cascade */
+  try {
+    const modalEl = document.getElementById(settingsModal.id);
+    if (modalEl) modalEl.classList.add('settings-modal');
+  } catch (_) {}
   
   // Initialize theme system after modal is shown
   setTimeout(() => {
@@ -698,10 +703,10 @@ function importShortcuts() {
 
 function createThemesTabContent() {
   return `
-    <div class="settings-section">
+    <div class="settings-section settings-root">
       <h3>Theme Selection</h3>
       <div class="theme-preview-area">
-        <div class="theme-preview-tile" style="min-height: 300px; border-radius: 8px;">
+        <div class="theme-preview-tile">
           <div class="preview-header">Theme Preview</div>
           <div class="preview-content">Sample content with current theme</div>
         </div>
@@ -719,7 +724,7 @@ function createThemesTabContent() {
 
 function createSettingsShortcutsTabContent() {
   return `
-    <div class="settings-section tf-general shortcuts-panel">
+    <div class="settings-section tf-general shortcuts-panel settings-root">
       <h3>Keyboard Shortcuts</h3>
 
       <div class="settings-card">
@@ -757,7 +762,7 @@ function createGeneralTabContent() {
   // Windows Settings-style layout with cards/rows, right-aligned controls
   // Keep original input IDs for JS wiring. /* updated by Cascade */
   return `
-    <div class="settings-section tf-general">
+    <div class="settings-section tf-general settings-root">
       <h3>General Settings</h3>
 
       <div class="settings-card">
@@ -882,19 +887,10 @@ function createGeneralTabContent() {
 
 function createAboutTabContent() {
   return `
-    <div class="settings-section">
+    <div class="settings-section settings-root">
       <h3>About TileForge</h3>
       <div class="about-info">
-        <div class="version-info">
-          <h4>Version 1.0.1</h4>
-          <p><strong>Xbox Tile Localization Preview Tool</strong></p>
-          <p class="version-subtitle">Professional Desktop Edition with Auto-Updates</p>
-          <div class="update-badge">
-            <i class="fas fa-download"></i>
-            <span>Auto-Update Enabled</span>
-          </div>
-        </div>
-        
+        ${typeof window.renderVersionCard === 'function' ? window.renderVersionCard({ headingLevel: 'h5', wrapperClass: 'version-info' }) : ''}
         <div class="features-highlight">
           <h4>Latest Features</h4>
           <ul class="feature-list">

@@ -3,8 +3,8 @@
  * Simple, focused styling for Upload → Configure → Export workflow
  */
 
-/* Modal Overlay */
-.modal-overlay {
+/* Modal Overlay */ /* updated by Cascade */
+#mapping-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -20,13 +20,13 @@
   transition: all 0.3s ease;
 }
 
-.modal-overlay.show {
+#mapping-modal.show {
   opacity: 1;
   visibility: visible;
 }
 
-/* Modal Container */
-.modal-container {
+/* Modal Container */ /* updated by Cascade */
+#mapping-modal .modal-container {
   background: #2a2a2a;
   border-radius: 12px;
   width: 90%;
@@ -37,8 +37,8 @@
   border: 1px solid #444;
 }
 
-/* Modal Header */
-.modal-header {
+/* Modal Header */ /* updated by Cascade */
+#mapping-modal .modal-header {
   background: linear-gradient(135deg, #333, #2a2a2a);
   padding: 20px 24px;
   border-bottom: 1px solid #444;
@@ -47,7 +47,7 @@
   justify-content: space-between;
 }
 
-.modal-header h2 {
+#mapping-modal .modal-header h2 {
   margin: 0;
   color: #fff;
   font-size: 20px;
@@ -57,11 +57,11 @@
   gap: 10px;
 }
 
-.modal-header h2 i {
+#mapping-modal .modal-header h2 i {
   color: #0078d4;
 }
 
-.modal-close {
+#mapping-modal .modal-close {
   background: none;
   border: none;
   color: #aaa;
@@ -72,13 +72,13 @@
   transition: all 0.2s ease;
 }
 
-.modal-close:hover {
+#mapping-modal .modal-close:hover {
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
 
-/* Modal Body */
-.modal-body {
+/* Modal Body */ /* updated by Cascade */
+#mapping-modal .modal-body {
   padding: 24px;
   max-height: 70vh;
   overflow-y: auto;
@@ -542,7 +542,7 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .modal-container {
+  #mapping-modal .modal-container {
     width: 95%;
     max-height: 95vh;
   }
@@ -640,8 +640,8 @@
   font-size: 11px;
 }
 
-/* Modal Footer */
-.modal-footer {
+/* Modal Footer */ /* updated by Cascade */
+#mapping-modal .modal-footer {
   background: #2a2a2a;
   padding: 16px 24px;
   border-top: 1px solid #444;

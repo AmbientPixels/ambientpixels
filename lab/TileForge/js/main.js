@@ -1,6 +1,31 @@
 // TileForge Main Initialization Module
 // Coordinates all modules and handles application startup
 
+// --- Global Meta & Shared Renderers (About/Version) --- /* updated by Cascade */
+// Single source of truth for version/build info
+window.TileForgeMeta = window.TileForgeMeta || {
+  version: '2.3.0',
+  buildDate: 'August 2025',
+  architecture: 'Modular CSS/JS with Canvas API integration',
+  latest: 'Major modal, shortcut, and info center upgrades'
+};
+
+// Shared HTML renderer for the Version card
+window.renderVersionCard = function renderVersionCard(opts = {}) {
+  const { headingLevel = 'h5', wrapperClass = 'version-info' } = opts;
+  const { version, buildDate, architecture, latest } = window.TileForgeMeta || {};
+  const safeHeading = (headingLevel === 'h4' || headingLevel === 'h5') ? headingLevel : 'h5';
+  return `
+    <div class="${wrapperClass}">
+      <${safeHeading}>📦 Version Information</${safeHeading}>
+      <p><strong>Version:</strong> ${version}</p>
+      <p><strong>Build Date:</strong> ${buildDate}</p>
+      <p><strong>Architecture:</strong> ${architecture}</p>
+      <p><strong>Latest:</strong> ${latest}</p>
+    </div>
+  `;
+};
+
 // --- Locale Modal <-> Preview Synchronization State ---
 // Track which locales are currently active in the preview (default: all loaded locales)
 let activeLocalesForPreview = [];
@@ -951,14 +976,7 @@ function createAboutTabContent() {
     <div class="info-section">
       <h4>🎮 About TileForge</h4>
       <p>TileForge is a comprehensive Xbox tile localization preview tool designed to streamline the process of creating and managing localized game tiles across multiple regions and languages.</p>
-
-      <div class="version-info">
-        <h5>📦 Version Information</h5>
-        <p><strong>Version:</strong> 2.3.0</p>
-        <p><strong>Build Date:</strong> August 2025</p>
-        <p><strong>Architecture:</strong> Modular CSS/JS with Canvas API integration</p>
-        <p><strong>Latest:</strong> Major modal, shortcut, and info center upgrades</p>
-      </div>
+      ${typeof window.renderVersionCard === 'function' ? window.renderVersionCard({ headingLevel: 'h5' }) : ''}
       <div class="whats-new">
         <h5>✨ What’s New in 2.3.0</h5>
         <ul>
@@ -969,13 +987,6 @@ function createAboutTabContent() {
           <li><strong>Case Converter Tool & Locale Management:</strong> Highlighted and improved tools for batch text case conversion and managing locales.</li>
         </ul>
         <p><strong>Information Center:</strong> A comprehensive, always-up-to-date help & support modal. Browse features, new tools, tips & tricks, keyboard shortcuts, troubleshooting, and future plans—all in one place!</p>
-      </div>
-      <div class="version-info">
-        <h4>📦 Version Information</h4>
-        <p><strong>Version:</strong> 2.3.0</p>
-        <p><strong>Build Date:</strong> August 2025</p>
-        <p><strong>Architecture:</strong> Modular CSS/JS with Canvas API integration</p>
-        <p><strong>Latest:</strong> Major modal, shortcut, and info center upgrades</p>
       </div>
     </div>
 

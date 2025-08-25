@@ -505,6 +505,11 @@
   animation: tabFadeIn 0.3s ease;
 }
 
+/* Ensure consistent height across tabs to prevent jumping */ /* restored by Cascade */
+.modal .modal-tab-content {
+  min-height: 360px;
+}
+
 @keyframes tabFadeIn {
   from {
     opacity: 0;
@@ -516,41 +521,99 @@
   }
 }
 
-/* Info Modal Specific Styles */
-.info-section {
-  margin-bottom: 24px;
+/* Settings modal: lock a stable, taller body height across tabs */ /* restored by Cascade */
+.modal.settings-modal .modal-body {
+  height: min(760px, calc(92vh - 160px)); /* even taller body while respecting viewport */
+  overflow-y: auto;  /* allow inner content to scroll without resizing container */
+  padding-bottom: 26px; /* extra safety so buttons never clip */
 }
 
-.info-section:last-child {
-  margin-bottom: 0;
+/* Settings modal: unify tab content height across ALL tabs (Themes, Shortcuts, General, About) */ /* added by Cascade */
+.modal.settings-modal {
+  --settings-tab-min: 420px; /* taller tabs to match larger modal */
+  max-height: 94vh; /* allow overall modal to grow taller than default 90vh */
+}
+.modal.settings-modal .modal-tab-content {
+  min-height: var(--settings-tab-min);
 }
 
-.info-section h4 {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0 0 12px 0;
+/* Settings: Themes tab preview area (scoped) */ /* added by Cascade */
+.settings-root .theme-preview-area {
+  margin-bottom: 8px; /* tighter spacing */
+}
+.settings-root .theme-preview-tile {
+  min-height: 130px;         /* allow theme content to breathe */
+  max-height: 170px;         /* avoid internal clipping */
+  border-radius: 8px;
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  overflow: hidden;
+}
+.settings-root .theme-preview-tile .preview-header {
+  background: #1e1e1e;
+  color: #cfd2d6;
+  padding: 4px 10px; /* smaller header */
+  font-weight: 600;
+  border-bottom: 1px solid #333;
+}
+.settings-root .theme-preview-tile .preview-content {
+  flex: 1;
+  padding: 6px 10px; /* smaller body padding */
+  color: #cfd2d6;
 }
 
-.info-section p {
-  color: #ddd;
-  line-height: 1.6;
-  margin: 0 0 12px 0;
+/* Theme grid cards – compact spacing so all fits */
+.settings-root .theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
+  gap: 4px;
+  margin-top: 6px; /* minimal top margin */
+}
+.settings-root .theme-option {
+  background: #1f1f1f;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 8px; /* leave as-is for readability */
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.settings-root .theme-option:hover {
+  border-color: #4a4a4a;
+}
+.settings-root .theme-option.selected {
+  border-color: #0d6efd; /* highlight */
+  box-shadow: 0 0 0 2px rgba(13,110,253,0.35);
+  background: #232323;
+}
+.settings-root .theme-option .theme-preview {
+  height: 46px; /* more compact swatch */
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+.settings-root .theme-option .theme-info h4 {
+  font-size: 11.75px;
+  margin: 0 0 2px 0;
+}
+.settings-root .theme-option .theme-info p {
+  font-size: 10.75px;
+  margin: 0;
+  color: #a9a9a9;
 }
 
-.info-section ul {
-  color: #ddd;
-  margin: 0 0 12px 0;
-  padding-left: 20px;
+/* Ensure bottom actions have breathing room within scroll area */
+.settings-root .theme-actions {
+  margin-top: 8px;
+  padding-bottom: 8px;
 }
 
-.info-section li {
-  margin-bottom: 6px;
-  line-height: 1.5;
-}
+/* Info Modal Specific Styles — migrated to scoped block below */ /* updated by Cascade */
+/*
+  NOTE: The earlier unscoped .info-section typography and spacing rules
+  were removed to prevent conflicts with the scoped selectors defined later:
+    .modal .info-section, .info-section { ... }
+  This ensures the About tab inside Settings uses the intended modal-specific
+  styles without being overridden by generic rules.
+*/
 
 .info-section code {
   background: #1a1a1a;
@@ -633,25 +696,172 @@
   margin: 0 4px;
 }
 
-.version-info {
-  background: #1e1e1e;
-  border-radius: 6px;
-  padding: 16px;
-  margin-top: 16px;
+.settings-root .version-info,
+.info-section .version-info {
+  /* Match .settings-card look with subtle flair */ /* updated by Cascade */
+  background: linear-gradient(180deg, #222 0%, #1f1f1f 100%);
   border: 1px solid #333;
+  border-radius: 10px;
+  padding: 10px 12px; /* slightly increased for balance */
+  margin-top: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.03);
+  position: relative;
+  overflow: hidden;
 }
 
-.version-info h5 {
+.settings-root .version-info h4,
+.settings-root .version-info h5,
+.info-section .version-info h4,
+.info-section .version-info h5 {
   color: #fff;
   margin: 0 0 8px 0;
   font-size: 14px;
 }
 
-.version-info p {
+.settings-root .version-info p,
+.info-section .version-info p {
   color: #aaa;
   font-size: 13px;
   margin: 0;
   line-height: 1.4;
+}
+
+/* Decorative top accent bar (subtle) */ /* added by Cascade */
+.settings-root .version-info::before,
+.info-section .version-info::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #0d6efd 0%, #6f42c1 35%, #20c997 70%, #0d6efd 100%);
+  opacity: 0.35;
+}
+
+/* Optional header row inside version-info */ /* added by Cascade */
+.settings-root .version-info .vi-header,
+.info-section .version-info .vi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.settings-root .version-info .vi-title,
+.info-section .version-info .vi-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-weight: 600;
+}
+.settings-root .version-info .vi-title i,
+.info-section .version-info .vi-title i { color: #0d6efd; }
+.settings-root .version-info .vi-meta,
+.info-section .version-info .vi-meta {
+  color: #cfd2d6;
+  font-size: 12px;
+}
+
+/* Info Center: About section general styles (scoped) */ /* added by Cascade */
+.modal .info-section,
+.info-section {
+  margin-top: 12px; /* synced with other tabs */ /* updated by Cascade */
+}
+.modal .info-section h4,
+.info-section h4 {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+}
+.modal .info-section h5,
+.info-section h5 {
+  color: #ddd;
+  font-size: 14px;
+  margin: 0 0 8px 0;
+}
+.modal .info-section p,
+.info-section p {
+  color: #cfcfcf;
+  font-size: 13px;
+  margin: 0 0 8px 0;
+  line-height: 1.5;
+}
+.modal .info-section ul,
+.info-section ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #ddd;
+}
+.modal .info-section li,
+.info-section li {
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+/* Info Center: What's New block styled as a card */ /* added by Cascade */
+.modal .info-section .whats-new,
+.info-section .whats-new {
+  background: #222;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin-top: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+.modal .info-section .whats-new h5,
+.info-section .whats-new h5 { color: #fff; }
+
+/* About tab feature block styled like a card */
+.settings-root .features-highlight {
+  background: #222;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin-top: 16px;
+}
+.settings-root .features-highlight h4 {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.settings-root .features-highlight .feature-list {
+  margin: 0;
+  padding-left: 20px;
+  color: #ddd;
+}
+.settings-root .features-highlight .feature-list li {
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+/* About: container spacing */
+.settings-root .about-info {
+  display: grid;
+  gap: 12px;
+}
+
+/* About: update badge */
+.settings-root .version-info .update-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: #1a1f1a;
+  border: 1px solid #2d4a2d;
+  border-radius: 999px;
+  color: #bfe8bf;
+  font-size: 12px;
+  margin-top: 8px;
+}
+.settings-root .version-info .version-subtitle {
+  color: #cfd4cf;
+  font-size: 12px;
+  margin: 4px 0 0 0;
 }
 
 /* GridPeek-specific styling */
@@ -736,6 +946,8 @@
 .tf-general {
   display: grid;
   gap: 16px;
+  /* Ensure consistent panel height across tabs to avoid modal jumping */ /* updated by Cascade */
+  min-height: 300px;
 }
 
 .tf-general .settings-card {
