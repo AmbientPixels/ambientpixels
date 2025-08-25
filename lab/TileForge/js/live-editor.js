@@ -1670,3 +1670,40 @@ function applyManualTextToSelectedLocales(textToApply, fieldType, selectedLocale
   });
   renderLocaleGroups(window.currentCsvData);
 }
+
+// --- Helpers required by drag-drop.js (added by Cascade) ---
+// Note: Do NOT define updateTileBackgrounds here; use the implementation in tile-renderer.js
+function updateImageInfoPanel(imageInfo) {
+  try {
+    // Update compact file info under the preview mini drop zone
+    const fileInfo = document.getElementById('fileInfo');
+    const imageFileName = document.getElementById('imageFileName');
+    if (fileInfo) fileInfo.style.display = 'block';
+    if (imageFileName && imageInfo && imageInfo.filename) {
+      imageFileName.textContent = imageInfo.filename;
+    }
+
+    // Optionally enhance the Image Details panel if present
+    const panel = document.getElementById('imageInfoPanel');
+    if (panel && imageInfo) {
+      // Replace the "no image" message with quick facts
+      const noMsg = panel.querySelector('.no-image-message');
+      if (noMsg) noMsg.style.display = 'none';
+      let details = panel.querySelector('.image-details');
+      if (!details) {
+        details = document.createElement('div');
+        details.className = 'image-details';
+        panel.appendChild(details);
+      }
+      details.innerHTML = `
+        <div class="info-grid">
+          <div><strong>Name:</strong> ${imageInfo.filename || '—'}</div>
+          <div><strong>Format:</strong> ${imageInfo.format || '—'}</div>
+          <div><strong>Size:</strong> ${typeof imageInfo.fileSize === 'number' ? (Math.round(imageInfo.fileSize/1024) + ' KB') : '—'}</div>
+          <div><strong>Dimensions:</strong> ${imageInfo.width || '—'}×${imageInfo.height || '—'}</div>
+          <div><strong>Aspect:</strong> ${imageInfo.aspectRatio || '—'}</div>
+          <div><strong>Modified:</strong> ${imageInfo.lastModified || '—'}</div>
+        </div>`;
+    }
+  } catch (_) { /* no-op */ }
+}
