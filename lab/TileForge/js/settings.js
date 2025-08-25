@@ -34,9 +34,17 @@ const THEMES = {
     '--theme-accent': '#3498db',
     '--theme-border': '#4a5f7a'
   },
-
-
-
+  // Added by Cascade – light variant used by Theme tab UI
+  'corporate-light': {
+    '--theme-primary': '#0d6efd',
+    '--theme-secondary': '#6c757d',
+    '--theme-background': '#f8f9fa',
+    '--theme-surface': '#ffffff',
+    '--theme-text': '#212529',
+    '--theme-text-secondary': '#495057',
+    '--theme-accent': '#0d6efd',
+    '--theme-border': '#dee2e6'
+  },
   'dark-focus': {
     '--theme-primary': '#adb5bd',
     '--theme-secondary': '#6c757d',
@@ -46,6 +54,17 @@ const THEMES = {
     '--theme-text-secondary': '#adb5bd',
     '--theme-accent': '#6c757d',
     '--theme-border': '#495057'
+  },
+  // Added by Cascade – minimal light focus theme used by Theme tab UI
+  'light-focus': {
+    '--theme-primary': '#495057',
+    '--theme-secondary': '#adb5bd',
+    '--theme-background': '#ffffff',
+    '--theme-surface': '#f8f9fa',
+    '--theme-text': '#212529',
+    '--theme-text-secondary': '#6c757d',
+    '--theme-accent': '#495057',
+    '--theme-border': '#e9ecef'
   }
 };
 
@@ -190,7 +209,10 @@ function previewTheme() {
   
   // Auto-revert after 3 seconds
   setTimeout(() => {
-    previewArea.style.cssText = '';
+    // Remove only theme variables to preserve size/border-radius. /* updated by Cascade */
+    try {
+      Object.keys(theme).forEach((prop) => previewArea.style.removeProperty(prop));
+    } catch(_) {}
   }, 3000);
   
   console.log(`Previewing theme: ${themeName}`);
@@ -242,22 +264,78 @@ function updateShortcutsDisplay() {
 }
 
 function initializeThemeSelection() {
-  // Update theme selection to show current theme
-  const currentThemeOption = document.querySelector(`[data-theme="${currentSettings.theme}"]`);
-  if (currentThemeOption) {
-    document.querySelectorAll('.theme-option').forEach(option => {
-      option.classList.remove('selected');
+  // Build the theme grid dynamically from THEMES to avoid drift. /* updated by Cascade */
+  const grid = document.getElementById('themeGrid');
+  if (grid) {
+    grid.innerHTML = '';
+    const themeEntries = Object.entries(THEMES);
+    themeEntries.forEach(([name, vars]) => {
+      const option = document.createElement('div');
+      option.className = 'theme-option';
+      option.setAttribute('data-theme', name);
+      // Simple readable label
+      const label = name
+        .replace(/-/g, ' ')
+        .replace(/\b\w/g, l => l.toUpperCase());
+      option.innerHTML = `
+        <div class=\"theme-preview\"></div>
+        <div class="theme-info">
+          <h4>${label}</h4>
+          <p>${label} theme</p>
+        </div>
+      `;
+      grid.appendChild(option);
+
+      // Apply gradient swatch using theme variables (surface -> primary). /* updated by Cascade */
+      try {
+        const preview = option.querySelector('.theme-preview');
+        const surface = vars['--theme-surface'] || '#2b2b2b';
+        const primary = vars['--theme-primary'] || '#0d6efd';
+        const border = vars['--theme-border'] || 'rgba(0,0,0,0.2)';
+        if (preview) {
+          preview.style.background = `linear-gradient(135deg, ${surface} 0%, ${primary} 100%)`;
+          preview.style.border = `1px solid ${border}`;
+          preview.style.borderRadius = '8px';
+        }
+      } catch(_) {}
     });
-    currentThemeOption.classList.add('selected');
   }
-  
-  // Add click handlers for theme options
+
+  // Update selection to current theme
+  document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('selected'));
+  const currentThemeOption = document.querySelector(`[data-theme="${currentSettings.theme}"]`);
+  if (currentThemeOption) currentThemeOption.classList.add('selected');
+
+  // Click selects theme option (no immediate apply)
   document.querySelectorAll('.theme-option').forEach(option => {
     option.addEventListener('click', function() {
-      document.querySelectorAll('.theme-option').forEach(opt => {
-        opt.classList.remove('selected');
-      });
+      document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('selected'));
       this.classList.add('selected');
+    });
+  });
+
+  // Hover preview: apply CSS vars only to preview tile sandbox
+  const previewArea = document.querySelector('.theme-preview-tile');
+  document.querySelectorAll('.theme-option').forEach(option => {
+    option.addEventListener('mouseenter', () => {
+      if (!previewArea) return;
+      const themeName = option.getAttribute('data-theme');
+      const theme = THEMES[themeName];
+      if (!theme) return;
+      Object.entries(theme).forEach(([property, value]) => {
+        previewArea.style.setProperty(property, value);
+      });
+    });
+    option.addEventListener('mouseleave', () => {
+      if (!previewArea) return;
+      // Revert only theme variables to preserve size/border-radius. /* updated by Cascade */
+      try {
+        const themeName = option.getAttribute('data-theme');
+        const theme = THEMES[themeName];
+        if (theme) {
+          Object.keys(theme).forEach((prop) => previewArea.style.removeProperty(prop));
+        }
+      } catch(_) {}
     });
   });
   
@@ -623,64 +701,16 @@ function createThemesTabContent() {
     <div class="settings-section">
       <h3>Theme Selection</h3>
       <div class="theme-preview-area">
-        <div class="theme-preview-tile">
+        <div class="theme-preview-tile" style="min-height: 300px; border-radius: 8px;">
           <div class="preview-header">Theme Preview</div>
           <div class="preview-content">Sample content with current theme</div>
         </div>
       </div>
       
-      <div class="theme-grid">
-        <div class="theme-option" data-theme="default">
-          <div class="theme-preview default-preview"></div>
-          <div class="theme-info">
-            <h4>Default</h4>
-            <p>Original TileForge theme</p>
-          </div>
-        </div>
-        
-        <div class="theme-option" data-theme="xbox-green">
-          <div class="theme-preview xbox-green-preview"></div>
-          <div class="theme-info">
-            <h4>Xbox Green</h4>
-            <p>Official Xbox brand colors</p>
-          </div>
-        </div>
-        
-        <div class="theme-option" data-theme="corporate-dark">
-          <div class="theme-preview corporate-dark-preview"></div>
-          <div class="theme-info">
-            <h4>Corporate Dark</h4>
-            <p>Professional dark theme</p>
-          </div>
-        </div>
-        
-        <div class="theme-option" data-theme="corporate-light">
-          <div class="theme-preview corporate-light-preview"></div>
-          <div class="theme-info">
-            <h4>Corporate Light</h4>
-            <p>Clean professional theme</p>
-          </div>
-        </div>
-        
-        <div class="theme-option" data-theme="light-focus">
-          <div class="theme-preview light-focus-preview"></div>
-          <div class="theme-info">
-            <h4>Light Focus</h4>
-            <p>Minimal distraction-free</p>
-          </div>
-        </div>
-        
-        <div class="theme-option" data-theme="dark-focus">
-          <div class="theme-preview dark-focus-preview"></div>
-          <div class="theme-info">
-            <h4>Dark Focus</h4>
-            <p>Dark minimal theme</p>
-          </div>
-        </div>
-      </div>
+      <!-- Dynamic grid populated by initializeThemeSelection() to keep UI in sync with THEMES -->
+      <div class="theme-grid" id="themeGrid"></div>
       
       <div class="theme-actions">
-        <button class="btn btn-secondary" onclick="previewTheme()">Preview</button>
         <button class="btn btn-primary" onclick="applySelectedTheme()">Apply Theme</button>
       </div>
     </div>
