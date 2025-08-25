@@ -4,10 +4,10 @@
 // --- Global Meta & Shared Renderers (About/Version) --- /* updated by Cascade */
 // Single source of truth for version/build info
 window.TileForgeMeta = window.TileForgeMeta || {
-  version: '2.3.0',
+  version: '2.4.0',
   buildDate: 'August 2025',
   architecture: 'Modular CSS/JS with Canvas API integration',
-  latest: 'Major modal, shortcut, and info center upgrades'
+  latest: 'New Projects module, locale pills/badges, GridPeek viewer, smarter export states'
 };
 
 // Shared HTML renderer for the Version card
@@ -995,13 +995,16 @@ function createAboutTabContent() {
       <p>TileForge is a comprehensive Xbox tile localization preview tool designed to streamline the process of creating and managing localized game tiles across multiple regions and languages.</p>
       ${typeof window.renderVersionCard === 'function' ? window.renderVersionCard({ headingLevel: 'h5' }) : ''}
       <div class="whats-new">
-        <h5>✨ What’s New in 2.3.0</h5>
+        <h5>✨ What’s New in 2.4.0</h5>
         <ul>
-          <li><strong>Revamped Information Center:</strong> A new tabbed help modal accessible from the UI, featuring organized sections for features, tips, keyboard shortcuts, troubleshooting, and future plans—all updatable from a single source.</li>
-          <li><strong>Full Keyboard Shortcut System:</strong> Centralized, editable shortcuts with a clear reference table in the Information Center.</li>
-          <li><strong>Major Modal & Usability Upgrades:</strong> Improved modal consistency, accessibility, and help content. All help/tip content is now easier to find and maintain.</li>
-          <li><strong>Campsite XML Import/Export:</strong> Advanced support for importing and exporting Campsite-localized XML files, enabling seamless integration with external localization pipelines.</li>
-          <li><strong>Case Converter Tool & Locale Management:</strong> Highlighted and improved tools for batch text case conversion and managing locales.</li>
+          <li><strong>New Projects module:</strong> Left‑panel Projects manager with Save, Clone, New, Remove, and Export to Iris CSV. Per‑file actions and quick preview centralize session files.</li>
+          <li><strong>Locale pills and badges:</strong> New pill row under the toolbar with language/status palettes, optional status borders, anchor links, counts, and sticky wrapper. Interactive filters by language/status.</li>
+          <li><strong>Locale Picker upgrades:</strong> Quick picks for ToH and Mobile defaults, language pills, improved filtering and scoped modal styling.</li>
+          <li><strong>GridPeek — CSV Quick Viewer:</strong> Read‑only CSV modal with filename meta and capped rows. Launch from Projects or toolbar.</li>
+          <li><strong>Dynamic Export ready state:</strong> Export buttons reflect saved/dirty via <code>[data-ready]</code> and global events (<code>tileforge:file-dirty</code>/<code>tileforge:file-saved</code>).</li>
+          <li><strong>Save overwrite confirmation:</strong> Confirmation prompt with accent styling before overwriting an existing filename.</li>
+          <li><strong>Interactive analytics:</strong> Analytics cards sort/filter and anchor to impacted entries for faster triage.</li>
+          <li><strong>Quality‑of‑life:</strong> Clear All buttons per field, template validation pass, and sticky previews polish.</li>
         </ul>
         <p><strong>Information Center:</strong> A comprehensive, always-up-to-date help & support modal. Browse features, new tools, tips & tricks, keyboard shortcuts, troubleshooting, and future plans—all in one place!</p>
       </div>

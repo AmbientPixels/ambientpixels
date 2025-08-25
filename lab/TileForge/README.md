@@ -5,7 +5,7 @@
 TileForge is a professional web-based tool designed for Xbox game developers and localization teams to preview how game tiles will appear across different languages and locales. It helps identify text overflow issues and ensures consistent visual quality before deployment.
 
 ![TileForge Preview](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
-![Version](https://img.shields.io/badge/Version-1.0.0-blue)
+![Version](https://img.shields.io/badge/Version-2.4.0-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ## 🆕 August 2025 Major Updates
