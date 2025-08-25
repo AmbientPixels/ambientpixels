@@ -36,6 +36,9 @@
   width: 280px;
   height: 140px;
   background: linear-gradient(135deg, #1e73be 0%, #743ad5 100%);
+  background-size: cover;           /* updated by Cascade: ensure image fills container */
+  background-position: center;      /* keep subject centered */
+  background-repeat: no-repeat;     /* avoid tiling on small images */
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;

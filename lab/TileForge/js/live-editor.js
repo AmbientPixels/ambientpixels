@@ -536,7 +536,33 @@ function updateLiveEditorEnabled(hasData) {
 // Expose globally for main.js and CSV handlers
 window.updateLiveEditorEnabled = updateLiveEditorEnabled;
 // Also expose the section helper so others can reuse
-window.setSectionEnabledState = window.setSectionEnabledState || setSectionEnabledState;
+if (typeof window.setSectionEnabledState === 'undefined' && typeof setSectionEnabledState !== 'undefined') {
+  window.setSectionEnabledState = setSectionEnabledState; // guarded export to avoid ReferenceError
+}
+
+// updated by Cascade: provide a global background image toggle for the live preview
+function toggleBackgroundImage(on) {
+  try {
+    const preview = document.getElementById('previewTile');
+    const dndMsg = document.getElementById('dndImageMessage');
+    if (!preview) return;
+
+    // Prefer detailed image info from last upload; fallback to currentImageSrc if present
+    const src = (window.currentImageInfo && window.currentImageInfo.imageSrc) ? window.currentImageInfo.imageSrc : (typeof currentImageSrc !== 'undefined' ? currentImageSrc : '');
+
+    if (on && src) {
+      preview.style.backgroundImage = `url(${src})`;
+      if (dndMsg) dndMsg.style.display = 'none';
+    } else {
+      preview.style.backgroundImage = '';
+      // Only show the drop hint when no image is applied
+      if (dndMsg) dndMsg.style.display = 'flex';
+    }
+  } catch (e) { /* no-op */ }
+}
+
+// Expose so other modules (drag-drop.js) can call it
+window.toggleBackgroundImage = toggleBackgroundImage;
 
 // Update preview tile status based on current input
 function updatePreviewTileStatus() {
@@ -770,23 +796,63 @@ function loadPresetData() {
 // Populate all preset dropdowns with available options
 function populatePresetDropdowns() {
   const dropdowns = ['titlePresetSelect', 'subtitlePresetSelect', 'narratorPresetSelect'];
-  
+
+  const presetKeys = presetData ? Object.keys(presetData) : [];
+  console.log('PopulatePresets: dropdowns', dropdowns, 'preset keys', presetKeys);
+
   dropdowns.forEach(dropdownId => {
     const dropdown = document.getElementById(dropdownId);
-    if (!dropdown) return;
-    
-    // Clear existing options (except the first "Select preset..." option)
+    if (!dropdown) {
+      console.warn('PopulatePresets: missing select', dropdownId);
+      return;
+    }
+
+    // Clear existing options
     dropdown.innerHTML = '<option value="">Select preset...</option>';
-    
-    // Add options for each preset type
-    Object.keys(presetData).forEach(presetKey => {
+
+    // Add options
+    presetKeys.forEach(presetKey => {
       const preset = presetData[presetKey];
+      if (!preset || !preset.name) return;
       const option = document.createElement('option');
       option.value = presetKey;
       option.textContent = preset.name;
       dropdown.appendChild(option);
     });
+
+    dropdown.setAttribute('data-presets-populated', String(dropdown.options.length));
+    console.log(`PopulatePresets: ${dropdownId} options=`, dropdown.options.length);
   });
+
+  // Retry shortly if any remains at only the placeholder
+  const needsRetry = dropdowns.some(id => {
+    const dd = document.getElementById(id);
+    return dd && dd.options && dd.options.length <= 1;
+  });
+  if (needsRetry) {
+    setTimeout(() => {
+      console.log('PopulatePresets: retrying populate');
+      dropdowns.forEach(id => {
+        const dd = document.getElementById(id);
+        if (!dd) return;
+        // Only retry ones still empty
+        if (dd.options.length <= 1) {
+          // Repopulate
+          dd.innerHTML = '<option value="">Select preset...</option>';
+          (presetData ? Object.keys(presetData) : []).forEach(k => {
+            const p = presetData[k];
+            if (!p || !p.name) return;
+            const opt = document.createElement('option');
+            opt.value = k;
+            opt.textContent = p.name;
+            dd.appendChild(opt);
+          });
+          dd.setAttribute('data-presets-populated', String(dd.options.length));
+          console.log(`PopulatePresets: retry ${id} options=`, dd.options.length);
+        }
+      });
+    }, 50);
+  }
 }
 
 // Set the current active locale (called when Live Editor opens for a specific tile)
@@ -1407,30 +1473,87 @@ function applyGenericModifiersSelected(percentVal, selectedLocales, phraseKey, f
   renderLocaleGroups(currentCsvData);
 }
 
-// Initialize preset system when page loads
-document.addEventListener('DOMContentLoaded', function() {
-  loadPresetData();
-  setupPresetControls();
-  setupSubtitleModifiersControls();
-  setupGenericModifiersControls({
-    phraseId: 'titlePhraseSelect',
-    percentId: 'titlePercentInput',
-    symbolId: 'titleSymbolSelect',
-    applyAllId: 'titleModifiersApplyAllBtn',
-    applySelectedId: 'titleModifiersApplySelectedBtn',
-    inputId: 'titleInput',
-    fieldKey: 'items/0/title'
+// Initialize preset system (robust to late-loading scripts)
+function initLiveEditorModules() {
+  try {
+    loadPresetData();
+    setupPresetControls();
+    if (typeof setupSubtitleModifiersControls === 'function') {
+      setupSubtitleModifiersControls();
+    }
+    if (typeof setupGenericModifiersControls === 'function') {
+      setupGenericModifiersControls({
+        field: 'title',
+        phraseSelectId: 'titlePhraseSelect',
+        valueInputId: 'titlePercentInput',
+        symbolSelectId: 'titleSymbolSelect',
+        applyAllBtnId: 'titleModifiersApplyAllBtn',
+        applySelectedBtnId: 'titleModifiersApplySelectedBtn'
+      });
+      setupGenericModifiersControls({
+        field: 'subtitle',
+        phraseSelectId: 'subtitlePhraseSelect',
+        valueInputId: 'subtitlePercentInput',
+        symbolSelectId: 'subtitleSymbolSelect',
+        applyAllBtnId: 'subtitleModifiersApplyAllBtn',
+        applySelectedBtnId: 'subtitleModifiersApplySelectedBtn'
+      });
+      setupGenericModifiersControls({
+        field: 'narrator',
+        phraseSelectId: 'narratorPhraseSelect',
+        valueInputId: 'narratorPercentInput',
+        symbolSelectId: 'narratorSymbolSelect',
+        applyAllBtnId: 'narratorModifiersApplyAllBtn',
+        applySelectedBtnId: 'narratorModifiersApplySelectedBtn'
+      });
+    }
+  } catch (e) {
+    console.warn('Live Editor init warning:', e);
+  }
+
+  // Safety: if any dropdowns are empty, repopulate
+  ensurePresetDropdownsPopulated();
+  // Run once more after microtasks in case other scripts alter the DOM
+  setTimeout(ensurePresetDropdownsPopulated, 0);
+  // Attach focus listeners so user opening the dropdown triggers a re-check
+  ['titlePresetSelect','subtitlePresetSelect','narratorPresetSelect'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('focus', ensurePresetDropdownsPopulated, { once: false });
   });
-  setupGenericModifiersControls({
-    phraseId: 'narratorPhraseSelect',
-    percentId: 'narratorPercentInput',
-    symbolId: 'narratorSymbolSelect',
-    applyAllId: 'narratorModifiersApplyAllBtn',
-    applySelectedId: 'narratorModifiersApplySelectedBtn',
-    inputId: 'narratorInput',
-    fieldKey: 'items/0/narratorText'
-  });
-});
+
+  // Observe Live Editor visibility changes to repopulate when panel is shown
+  const panel = document.getElementById('liveEditingPanel');
+  if (panel && typeof MutationObserver !== 'undefined') {
+    const mo = new MutationObserver(() => ensurePresetDropdownsPopulated());
+    mo.observe(panel, { attributes: true, attributeFilter: ['style','class'] });
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initLiveEditorModules);
+} else {
+  // Document is already parsed; run immediately
+  initLiveEditorModules();
+}
+
+// Ensure preset dropdowns are populated with options; repopulate if empty
+function ensurePresetDropdownsPopulated() {
+  try {
+    const ids = ['titlePresetSelect','subtitlePresetSelect','narratorPresetSelect'];
+    let needsPopulate = false;
+    ids.forEach(id => {
+      const dd = document.getElementById(id);
+      if (dd && dd.options && dd.options.length <= 1) {
+        needsPopulate = true;
+      }
+    });
+    if (needsPopulate) {
+      populatePresetDropdowns();
+    }
+  } catch (e) {
+    console.warn('ensurePresetDropdownsPopulated warning:', e);
+  }
+}
 
 // Inline Clear buttons inside inputs
 const titleClearBtn = document.getElementById('titleClearBtn');

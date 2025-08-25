@@ -642,6 +642,17 @@ function updateTileBackgrounds(imageSrc) {
       tile.style.backgroundImage = '';
     }
   });
+  // updated by Cascade: also update the dedicated live preview tile
+  try {
+    const preview = document.getElementById('previewTile');
+    if (preview) {
+      if (imageSrc) {
+        preview.style.backgroundImage = `url(${imageSrc})`;
+      } else {
+        preview.style.backgroundImage = '';
+      }
+    }
+  } catch (e) { /* no-op */ }
 }
 
 // Update analytics dashboard by scanning all current tiles
