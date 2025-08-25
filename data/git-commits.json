@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "0eea0ea4-708c-4a93-98c7-a567104f3b2f",
-      "hash": "bf8593fa30a0f253058ac01b8e6c54abc7449f1d",
-      "message": "feat(settings-general): Windows-style grouping, custom selects, and toggle switches",
-      "timestamp": "2025-08-24 02:30:48 -0700",
+      "id": "a51a80bb-12d8-4000-b861-eb12dfdd98b2",
+      "hash": "33b34f6c539324d7238d8c3e91b2290fb21900a8",
+      "message": "feat(tileforge): refresh 2.4.0 highlights in Info Center and meta",
+      "timestamp": "2025-08-25 00:02:32 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/bf8593fa30a0f253058ac01b8e6c54abc7449f1d"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/33b34f6c539324d7238d8c3e91b2290fb21900a8"
     }
   ],
-  "timestamp": "2025-08-24T13:27:22.034Z",
+  "timestamp": "2025-08-25T13:32:17.555Z",
   "count": 1,
-  "scanId": 1756042042034
+  "scanId": 1756128737555
 }

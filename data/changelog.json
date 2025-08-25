@@ -1,10 +1,10 @@
 {
-  "updated": "2025-08-24T13:27:21.229Z",
+  "updated": "2025-08-25T13:32:16.668Z",
   "entries": [
     {
-      "hash": "bf8593f",
-      "date": "2025-08-24 02:30:48 -0700",
-      "message": "feat(settings-general): Windows-style grouping, custom selects, and toggle switches"
+      "hash": "33b34f6",
+      "date": "2025-08-25 00:02:32 -0700",
+      "message": "feat(tileforge): refresh 2.4.0 highlights in Info Center and meta"
     }
   ]
 }
