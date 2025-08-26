@@ -1,23 +1,23 @@
 {
   "commits": [
     {
-      "id": "a51a80bb-12d8-4000-b861-eb12dfdd98b2",
-      "hash": "33b34f6c539324d7238d8c3e91b2290fb21900a8",
-      "message": "feat(tileforge): refresh 2.4.0 highlights in Info Center and meta",
-      "timestamp": "2025-08-25 00:02:32 -0700",
+      "id": "5e54b4c5-e7b1-4378-b409-7a91b39ac97e",
+      "hash": "0bee76a0e81350701fcb4741c2d777d469644336",
+      "message": "Daily refresh: site memory update for Nova",
+      "timestamp": "2025-08-25 13:32:25 +0000",
       "author": {
-        "name": "AmbientPixels",
-        "email": "ambientpixels2022@gmail.com"
+        "name": "NovaBot",
+        "email": "nova@ambientpixels.ai"
       },
       "branches": [
         "grafted",
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/33b34f6c539324d7238d8c3e91b2290fb21900a8"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/0bee76a0e81350701fcb4741c2d777d469644336"
     }
   ],
-  "timestamp": "2025-08-25T13:32:17.555Z",
+  "timestamp": "2025-08-26T13:34:55.583Z",
   "count": 1,
-  "scanId": 1756128737555
+  "scanId": 1756215295583
 }
