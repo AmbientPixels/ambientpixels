@@ -1,23 +1,23 @@
 {
   "commits": [
     {
-      "id": "0eea0ea4-708c-4a93-98c7-a567104f3b2f",
-      "hash": "bf8593fa30a0f253058ac01b8e6c54abc7449f1d",
-      "message": "feat(settings-general): Windows-style grouping, custom selects, and toggle switches",
-      "timestamp": "2025-08-24 02:30:48 -0700",
+      "id": "0238d4a2-f848-43b5-bec5-ae7d86cbabc0",
+      "hash": "7be3eb3c8adbacebcebb1ee303235b2f47c2d283",
+      "message": "Daily refresh: site memory update for Nova",
+      "timestamp": "2025-08-26 13:35:03 +0000",
       "author": {
-        "name": "AmbientPixels",
-        "email": "ambientpixels2022@gmail.com"
+        "name": "NovaBot",
+        "email": "nova@ambientpixels.ai"
       },
       "branches": [
         "grafted",
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/bf8593fa30a0f253058ac01b8e6c54abc7449f1d"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/7be3eb3c8adbacebcebb1ee303235b2f47c2d283"
     }
   ],
-  "timestamp": "2025-08-24T13:27:22.034Z",
+  "timestamp": "2025-08-27T13:29:31.881Z",
   "count": 1,
-  "scanId": 1756042042034
+  "scanId": 1756301371881
 }
