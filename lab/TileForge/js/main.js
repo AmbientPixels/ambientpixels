@@ -710,6 +710,36 @@ function createFeaturesTabContent() {
     <div class="info-section">
       <h4>🎮 Core Features</h4>
       <div class="feature-grid">
+        <!-- 2.4.0 features → placed first for visibility (updated by Cascade) -->
+        <div class="feature-item">
+          <h5>📁 Projects Manager</h5>
+          <p>Left‑panel Projects with Save, Clone, New, Remove, and Export to Iris CSV. Per‑file actions and quick preview centralize session files.</p>
+        </div>
+        <div class="feature-item">
+          <h5>🏷️ Locale Pills & Badges</h5>
+          <p>Interactive language/status pills under the toolbar with counts, anchor links, optional status borders, and sticky wrapper. Filter by language or status.</p>
+        </div>
+        <div class="feature-item">
+          <h5>🧭 Locale Picker Upgrades</h5>
+          <p>Quick picks for ToH and Mobile defaults, language pills, improved filtering, and scoped modal styling for efficient locale selection.</p>
+        </div>
+        <div class="feature-item">
+          <h5>🔎 GridPeek (CSV Viewer)</h5>
+          <p>Read‑only CSV quick viewer with filename meta and capped rows. Launch from Projects quick‑view or the toolbar.</p>
+        </div>
+        <div class="feature-item">
+          <h5>🛡️ Save Overwrite Confirmation</h5>
+          <p>Confirmation prompt with accent styling before overwriting an existing filename to prevent accidental loss.</p>
+        </div>
+        <div class="feature-item">
+          <h5>📈 Interactive Analytics</h5>
+          <p>Analytics cards sort/filter and anchor to impacted entries for faster triage and review.</p>
+        </div>
+        <div class="feature-item">
+          <h5>✨ Quality of Life</h5>
+          <p>Clear All per‑field buttons, template validation pass, and sticky previews polish overall workflow.</p>
+        </div>
+
         <div class="feature-item">
           <h5>🆕 Case Converter Tool</h5>
           <p>Instantly convert text to UPPER, lower, Title, or Sentence case for any field or batch of text. Great for localization and consistency.</p>
