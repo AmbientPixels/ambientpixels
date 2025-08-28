@@ -1502,6 +1502,12 @@ function updateLiveAnalytics() {
   
   if (!titleInput || !subtitleInput) return;
   
+  // Do not override global analytics when CSV data is present
+  // This ensures the dashboard reflects all locales from the CSV rather than the single preview tile
+  if (Array.isArray(window.currentCsvData) && window.currentCsvData.length > 0) {
+    return;
+  }
+  
   const title = titleInput.value || '';
   const subtitle = subtitleInput.value || '';
   const analysis = analyzeText(title, subtitle);
