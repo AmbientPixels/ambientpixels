@@ -207,6 +207,10 @@ function processCsvData(csvText, fileName, rowCount = null) {
     
     window.currentCsvData = csvRows;
     renderLocaleGroups(csvRows);
+    // Notify listeners that CSV data is ready (load-order safe)
+    try { document.dispatchEvent(new CustomEvent('tf:csvProcessed', { detail: { rows: csvRows } })); } catch (_) {}
+    // Auto-populate Live Editor from imported data (prefer EN-US)
+    try { if (typeof window.populateLiveEditorFromCsv === 'function') window.populateLiveEditorFromCsv(csvRows, 'EN-US'); } catch (e) { /* no-op */ }
     
     // Update file info in analytics
     const actualRowCount = rowCount || csvRows.length;

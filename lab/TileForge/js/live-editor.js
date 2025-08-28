@@ -194,6 +194,9 @@ function setupLiveEditor() {
     }
     updatePreviewTileStatus();
     updateLiveAnalytics();
+    
+    // If CSV data already exists (e.g., from previous session restore), populate now
+    try { if (Array.isArray(window.currentCsvData) && window.currentCsvData.length) { window.populateLiveEditorFromCsv(window.currentCsvData, 'EN-US'); } } catch (_) {}
   } catch (e) {
     console.warn('Live editor init state setup skipped:', e);
   }
@@ -540,29 +543,71 @@ if (typeof window.setSectionEnabledState === 'undefined' && typeof setSectionEna
   window.setSectionEnabledState = setSectionEnabledState; // guarded export to avoid ReferenceError
 }
 
-// updated by Cascade: provide a global background image toggle for the live preview
-function toggleBackgroundImage(on) {
+// Populate Live Editor inputs from current CSV, preferring EN-US locale
+function populateLiveEditorFromCsv(csvRows, preferredLocale) {
   try {
-    const preview = document.getElementById('previewTile');
-    const dndMsg = document.getElementById('dndImageMessage');
-    if (!preview) return;
+    const rows = Array.isArray(csvRows) ? csvRows : (Array.isArray(window.currentCsvData) ? window.currentCsvData : []);
+    if (!rows.length) return;
 
-    // Prefer detailed image info from last upload; fallback to currentImageSrc if present
-    const src = (window.currentImageInfo && window.currentImageInfo.imageSrc) ? window.currentImageInfo.imageSrc : (typeof currentImageSrc !== 'undefined' ? currentImageSrc : '');
+    // Choose target row: prefer EN-US (case-insensitive), else first row
+    const want = (preferredLocale || 'EN-US').toUpperCase();
+    const row = rows.find(r => ((r.Locale || r.locale || '').toUpperCase() === want)) || rows[0];
+    if (!row) return;
 
-    if (on && src) {
-      preview.style.backgroundImage = `url(${src})`;
-      if (dndMsg) dndMsg.style.display = 'none';
-    } else {
-      preview.style.backgroundImage = '';
-      // Only show the drop hint when no image is applied
-      if (dndMsg) dndMsg.style.display = 'flex';
+    // Helper: get first non-empty value among aliases
+    function pick(r, aliases) {
+      for (const key of aliases) {
+        if (r[key] != null && String(r[key]).trim() !== '') return String(r[key]);
+      }
+      return '';
     }
-  } catch (e) { /* no-op */ }
+
+    // Map fields with Mobile Spotlight fallbacks
+    const title = pick(row, ['items/0/title', 'Title', 'title']);
+    const subtitle = pick(row, ['items/0/subtitle', 'Subtitle', 'subtitle', 'description', 'Description']);
+    const narrator = pick(row, ['items/0/narratorText', 'narratorText', 'Accessibility String', 'accessibilityString']);
+
+    // Apply to inputs
+    const titleInput = document.getElementById('titleInput');
+    const subtitleInput = document.getElementById('subtitleInput');
+    const narratorInput = document.getElementById('narratorInput');
+    const titleCharCount = document.getElementById('titleCharCount');
+    const subtitleCharCount = document.getElementById('subtitleCharCount');
+    const narratorCharCount = document.getElementById('narratorCharCount');
+    const previewTitle = document.getElementById('previewTitle');
+    const previewSubtitle = document.getElementById('previewSubtitle');
+
+    if (titleInput) titleInput.value = title;
+    if (subtitleInput) subtitleInput.value = subtitle;
+    if (narratorInput) narratorInput.value = narrator;
+
+    // Update counts
+    if (titleCharCount) titleCharCount.textContent = String(title || '').length;
+    if (subtitleCharCount) subtitleCharCount.textContent = String(subtitle || '').length;
+    if (narratorCharCount) narratorCharCount.textContent = String(narrator || '').length;
+
+    // Reflect in preview elements
+    if (previewTitle) previewTitle.textContent = title || '';
+    if (previewSubtitle) {
+      if ((subtitle || '').trim() === '') {
+        previewSubtitle.textContent = '';
+        previewSubtitle.classList.add('hidden');
+      } else {
+        previewSubtitle.textContent = subtitle;
+        previewSubtitle.classList.remove('hidden');
+      }
+    }
+
+    // Recompute status/analytics
+    updatePreviewTileStatus();
+    updateLiveAnalytics();
+  } catch (e) {
+    console.warn('populateLiveEditorFromCsv failed:', e);
+  }
 }
 
-// Expose so other modules (drag-drop.js) can call it
-window.toggleBackgroundImage = toggleBackgroundImage;
+// Expose globally for CSV lifecycle callers
+window.populateLiveEditorFromCsv = populateLiveEditorFromCsv;
 
 // Update preview tile status based on current input
 function updatePreviewTileStatus() {
@@ -662,29 +707,6 @@ function setupEditorInputs(editor, tileElement) {
       }
     });
   }
-}
-
-// Update analytics dashboard based on live editor input
-function updateLiveAnalytics() {
-  const titleInput = document.getElementById('titleInput');
-  const subtitleInput = document.getElementById('subtitleInput');
-  
-  if (!titleInput || !subtitleInput) return;
-  
-  const title = titleInput.value || '';
-  const subtitle = subtitleInput.value || '';
-  const analysis = analyzeText(title, subtitle);
-  
-  // Create analytics based on current live editor status
-  const analytics = {
-    totalLocales: 1, // Live editor shows 1 preview tile
-    overflowCount: analysis.status === 'overflow' ? 1 : 0,
-    nearLimitCount: analysis.status === 'near-limit' ? 1 : 0,
-    cleanCount: analysis.status === 'clean' ? 1 : 0
-  };
-  
-  // Update the analytics display
-  updateAnalytics(analytics);
 }
 
 // Preset Headlines System
@@ -1473,6 +1495,29 @@ function applyGenericModifiersSelected(percentVal, selectedLocales, phraseKey, f
   renderLocaleGroups(currentCsvData);
 }
 
+// Update analytics dashboard based on live editor input
+function updateLiveAnalytics() {
+  const titleInput = document.getElementById('titleInput');
+  const subtitleInput = document.getElementById('subtitleInput');
+  
+  if (!titleInput || !subtitleInput) return;
+  
+  const title = titleInput.value || '';
+  const subtitle = subtitleInput.value || '';
+  const analysis = analyzeText(title, subtitle);
+  
+  // Create analytics based on current live editor status
+  const analytics = {
+    totalLocales: 1, // Live editor shows 1 preview tile
+    overflowCount: analysis.status === 'overflow' ? 1 : 0,
+    nearLimitCount: analysis.status === 'near-limit' ? 1 : 0,
+    cleanCount: analysis.status === 'clean' ? 1 : 0
+  };
+  
+  // Update the analytics display
+  updateAnalytics(analytics);
+}
+
 // Initialize preset system (robust to late-loading scripts)
 function initLiveEditorModules() {
   try {
@@ -1554,6 +1599,16 @@ function ensurePresetDropdownsPopulated() {
     console.warn('ensurePresetDropdownsPopulated warning:', e);
   }
 }
+
+// Respond to CSV processed events (load-order safe)
+document.addEventListener('tf:csvProcessed', function (evt) {
+  try {
+    const rows = evt && evt.detail && Array.isArray(evt.detail.rows) ? evt.detail.rows : (Array.isArray(window.currentCsvData) ? window.currentCsvData : []);
+    if (rows && rows.length && typeof window.populateLiveEditorFromCsv === 'function') {
+      window.populateLiveEditorFromCsv(rows, 'EN-US');
+    }
+  } catch (_) { /* no-op */ }
+});
 
 // Inline Clear buttons inside inputs
 const titleClearBtn = document.getElementById('titleClearBtn');
@@ -1669,41 +1724,4 @@ function applyManualTextToSelectedLocales(textToApply, fieldType, selectedLocale
     }
   });
   renderLocaleGroups(window.currentCsvData);
-}
-
-// --- Helpers required by drag-drop.js (added by Cascade) ---
-// Note: Do NOT define updateTileBackgrounds here; use the implementation in tile-renderer.js
-function updateImageInfoPanel(imageInfo) {
-  try {
-    // Update compact file info under the preview mini drop zone
-    const fileInfo = document.getElementById('fileInfo');
-    const imageFileName = document.getElementById('imageFileName');
-    if (fileInfo) fileInfo.style.display = 'block';
-    if (imageFileName && imageInfo && imageInfo.filename) {
-      imageFileName.textContent = imageInfo.filename;
-    }
-
-    // Optionally enhance the Image Details panel if present
-    const panel = document.getElementById('imageInfoPanel');
-    if (panel && imageInfo) {
-      // Replace the "no image" message with quick facts
-      const noMsg = panel.querySelector('.no-image-message');
-      if (noMsg) noMsg.style.display = 'none';
-      let details = panel.querySelector('.image-details');
-      if (!details) {
-        details = document.createElement('div');
-        details.className = 'image-details';
-        panel.appendChild(details);
-      }
-      details.innerHTML = `
-        <div class="info-grid">
-          <div><strong>Name:</strong> ${imageInfo.filename || '—'}</div>
-          <div><strong>Format:</strong> ${imageInfo.format || '—'}</div>
-          <div><strong>Size:</strong> ${typeof imageInfo.fileSize === 'number' ? (Math.round(imageInfo.fileSize/1024) + ' KB') : '—'}</div>
-          <div><strong>Dimensions:</strong> ${imageInfo.width || '—'}×${imageInfo.height || '—'}</div>
-          <div><strong>Aspect:</strong> ${imageInfo.aspectRatio || '—'}</div>
-          <div><strong>Modified:</strong> ${imageInfo.lastModified || '—'}</div>
-        </div>`;
-    }
-  } catch (_) { /* no-op */ }
 }
