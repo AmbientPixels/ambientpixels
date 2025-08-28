@@ -458,9 +458,35 @@
 
   async function onSave(silent = false) {
     try {
-      const ctx = await ensureProjectContext();
+      // Determine save target project: if none active, let user choose existing or create new
+      if (!state.currentProject || !state.currentProject.id) {
+        const items = await ProjectStore.list();
+        if (items && items.length > 0) {
+          const chooseExisting = await confirmAsync('Save to an existing project or create a new one?', { confirmText: 'Choose Project', cancelText: 'Create New' });
+          if (chooseExisting) {
+            const pickedId = await selectExistingProjectId('Select Project to Save Into');
+            if (!pickedId) throw new Error('Canceled');
+            const picked = await ProjectStore.get(pickedId);
+            if (!picked) throw new Error('Project not found');
+            state.currentProject = { id: picked.id, name: picked.name };
+          } else {
+            // Create new project (blank or from current state) similar to onNew minimal path
+            const name = await promptAsync('Project name:', '', { title: 'Create New Project' });
+            if (!name) throw new Error('Canceled');
+            const description = await promptAsync('Short description (optional):', '', { title: 'Project Description' }).catch(() => '');
+            const rec = await ProjectStore.create(name, { csvs: [], activeCsv: null, image: null, template: getCurrentTemplate(), settings: { enabledSections: getEnabledSections() } }, description || '');
+            state.currentProject = { id: rec.id, name: rec.name };
+            refreshList();
+          }
+        } else {
+          // No projects exist: fall back to original creation flow
+          const ctx = await ensureProjectContext();
+          state.currentProject = ctx;
+        }
+      }
+
       // Load existing project to preserve current files and active CSV name
-      const proj = await ProjectStore.get(ctx.id);
+      const proj = await ProjectStore.get(state.currentProject.id);
       if (!proj) throw new Error('Project not found');
 
       // Determine working rows and active file name
@@ -500,7 +526,7 @@
       proj.data.activeCsv = entryName;
 
       // Persist changes without renaming files
-      await ProjectStore.saveSnapshot(ctx.id, proj.data);
+      await ProjectStore.saveSnapshot(state.currentProject.id, proj.data);
       refreshList();
       if (!silent) {
         if (window.showToast) window.showToast('Project saved', 'success'); else alertModal('Project saved', 'success');
@@ -509,8 +535,8 @@
       try { window.dispatchEvent(new Event('tileforge:file-saved')); } catch (_) {}
     } catch (e) {
       if (e && e.message === 'Canceled') return;
-      console.error(e);
-      alertModal('Save failed', 'error');
+      console.error('Save failed:', e);
+      alertModal('Save failed: ' + (e && e.message ? e.message : 'Unknown error'), 'error');
     }
   }
 
@@ -1217,6 +1243,49 @@
       console.error(e);
       alertModal('Import failed', 'error');
     }
+  }
+
+  async function selectExistingProjectId(title = 'Select Project to Save Into') {
+    const items = await ProjectStore.list();
+    if (!items || items.length === 0) return null;
+    const optionsHtml = items.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    const content = `
+      <div class="tf-field">
+        <label class="tf-label" for="__tfProjectSelectSave">Choose a project:</label>
+        <div class="tf-select-wrap">
+          <select id="__tfProjectSelectSave" class="tf-select">
+            ${optionsHtml}
+          </select>
+        </div>
+      </div>`;
+    return new Promise((resolve, reject) => {
+      if (window.Modal && typeof Modal.confirm === 'function') {
+        const modal = Modal.confirm({
+          title,
+          content,
+          confirmText: 'Use Project',
+          cancelText: 'Cancel',
+          onConfirm: () => {
+            try {
+              const sel = document.getElementById('__tfProjectSelectSave');
+              const val = sel && sel.value ? sel.value : null;
+              if (!val) return reject(new Error('No project selected'));
+              resolve(val);
+            } catch (err) {
+              reject(err);
+            }
+          },
+          onCancel: () => reject(new Error('Canceled'))
+        });
+        modal.show();
+      } else {
+        const nameList = items.map(p => p.name).join(', ');
+        const chosen = window.prompt('Enter project name to save into:\n' + nameList, items[0].name);
+        if (chosen === null) return reject(new Error('Canceled'));
+        const found = items.find(p => p.name.toLowerCase() === String(chosen).trim().toLowerCase());
+        resolve(found ? found.id : items[0].id);
+      }
+    });
   }
 
   function bindToolbar() {
