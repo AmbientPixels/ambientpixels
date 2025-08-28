@@ -59,13 +59,13 @@ window.TileForgeLocales = (function() {
     "ZH-HK": { language: "Chinese", country: "Hong Kong" },
     "ZH-SG": { language: "Chinese", country: "Singapore" },
     "ZH-TW": { language: "Chinese", country: "Taiwan" },
-    "INVARIANT": { language: "Invariant", country: "Invariant" }
+    "INVARIANTCULTURE": { language: "Invariant", country: "Invariant" }
   };
 
 
   // Default sets (auto-generated from LOCALE_MAP) /* updated by Cascade 2025-08-24 */
-  // ToH: all except INVARIANT; Mobile: all locales
-  const DEFAULT_TOH = Object.keys(LOCALE_MAP).filter(k => k !== 'INVARIANT');
+  // ToH: all except INVARIANTCULTURE; Mobile: all locales
+  const DEFAULT_TOH = Object.keys(LOCALE_MAP).filter(k => k !== 'INVARIANTCULTURE');
   const DEFAULT_MOBILE = Object.keys(LOCALE_MAP);
 
   // Utility: get all supported locales

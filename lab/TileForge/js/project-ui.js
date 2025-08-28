@@ -142,16 +142,26 @@
     if (!Array.isArray(rows)) return [];
     const set = new Set();
     rows.forEach(r => {
-      const loc = r.Locale || r.locale;
-      if (loc) set.add(loc);
+      let loc = r.Locale || r.locale;
+      if (!loc) return;
+      // Normalize legacy code
+      if (/^invariant$/i.test(String(loc))) loc = 'INVARIANTCULTURE';
+      set.add(loc);
     });
     return Array.from(set).sort();
   }
 
   function mergeLocalesIntoRows(selectedLocales, baseRows) {
     const rows = Array.isArray(baseRows) ? [...baseRows] : [];
-    const hasLocale = (rows, loc) => rows.some(r => (r.Locale || r.locale) === loc);
-    selectedLocales.forEach(loc => {
+    const hasLocale = (rows, loc) => rows.some(r => {
+      const val = r.Locale || r.locale;
+      // Compare after normalization
+      const norm = /^invariant$/i.test(String(val)) ? 'INVARIANTCULTURE' : String(val || '');
+      return norm === loc;
+    });
+    selectedLocales.forEach(l => {
+      // Normalize incoming selection
+      const loc = /^invariant$/i.test(String(l)) ? 'INVARIANTCULTURE' : l;
       if (!hasLocale(rows, loc)) {
         rows.push({ Locale: loc, 'items/0/title': '', 'items/0/subtitle': '', 'items/0/narratorText': '' });
       }

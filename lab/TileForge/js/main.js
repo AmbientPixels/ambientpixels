@@ -34,14 +34,21 @@ function getActiveLocalesForPreview() {
   // If not set, default to all locales in currentCsvData
   if (!activeLocalesForPreview || activeLocalesForPreview.length === 0) {
     if (window.currentCsvData && Array.isArray(window.currentCsvData)) {
-      activeLocalesForPreview = [...new Set(window.currentCsvData.map(row => row.Locale || row.locale))].sort();
+      // Normalize legacy code to prevent preselect mismatch
+      activeLocalesForPreview = [...new Set(window.currentCsvData.map(row => {
+        let loc = row.Locale || row.locale;
+        return /^invariant$/i.test(String(loc)) ? 'INVARIANTCULTURE' : loc;
+      }))].sort();
     }
   }
   return activeLocalesForPreview;
 }
 
 function setActiveLocalesForPreview(locales) {
-  activeLocalesForPreview = Array.isArray(locales) ? [...locales] : [];
+  // Normalize incoming values and de-dup
+  const arr = Array.isArray(locales) ? [...locales] : [];
+  const norm = arr.map(l => /^invariant$/i.test(String(l)) ? 'INVARIANTCULTURE' : l);
+  activeLocalesForPreview = [...new Set(norm)];
 }
 
 function filterPreviewByActiveLocales() {
@@ -75,11 +82,17 @@ function openManageLocales() {
     if (Array.isArray(selectedLocales) && selectedLocales.length > 0) {
       const csvRows = (window.currentCsvData && Array.isArray(window.currentCsvData)) ? window.currentCsvData : [];
       selectedLocales.forEach(locale => {
-        const match = csvRows.find(row => (row.Locale || row.locale) === locale);
+        // Ensure comparison uses normalized code
+        const normSel = /^invariant$/i.test(String(locale)) ? 'INVARIANTCULTURE' : locale;
+        const match = csvRows.find(row => {
+          const loc = row.Locale || row.locale;
+          const normRow = /^invariant$/i.test(String(loc)) ? 'INVARIANTCULTURE' : loc;
+          return normRow === normSel;
+        });
         if (match) {
           mergedRows.push(match);
         } else {
-          mergedRows.push({ Locale: locale, 'items/0/title': '', 'items/0/subtitle': '', 'items/0/narratorText': '' });
+          mergedRows.push({ Locale: normSel, 'items/0/title': '', 'items/0/subtitle': '', 'items/0/narratorText': '' });
         }
       });
     }

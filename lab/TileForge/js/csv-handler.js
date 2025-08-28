@@ -110,6 +110,14 @@ function parseCSV(csvText) {
       row[header] = values[index] || '';
     });
 
+    // Normalize legacy locale code to Iris-compliant value so Locale Manager detects it
+    if (row.Locale && /^invariant$/i.test(String(row.Locale))) {
+      row.Locale = 'INVARIANTCULTURE';
+    }
+    if (row.locale && /^invariant$/i.test(String(row.locale))) {
+      row.locale = 'INVARIANTCULTURE';
+    }
+
     rows.push(row);
   }
 
@@ -395,6 +403,8 @@ function generateCSVContent(data) {
         value = prefer(row, ['items/0/narratorText', 'narratorText', 'Accessibility String', 'accessibilityString']);
       } else if (h === 'locale') {
         value = prefer(row, ['Locale', 'locale']);
+        // Normalize legacy INVARIANT to Iris-compliant INVARIANTCULTURE
+        if (/^invariant$/i.test(value)) value = 'INVARIANTCULTURE';
       } else {
         // Default: use the field as-is
         value = row[header] != null ? String(row[header]) : '';
