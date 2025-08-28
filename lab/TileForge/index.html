@@ -761,8 +761,10 @@
         </div>
         <!-- Locale info panel positioned under the toolbar/top row -->
         <div class="badge-info-row">
-          <span id="statusInfoBadge" class="status-pill" aria-live="polite" aria-label="Current analytics summary" title="Current analytics summary">—</span>
-          <span id="localeValidationBadge" class="status-pill" aria-live="polite" aria-label="Locale validation status" title="Locale validation status">—</span>
+          <span class="pill-label" id="analyticsSummaryLabel" aria-hidden="false">Localization Stats</span>
+          <span id="statusInfoBadge" class="status-pill" aria-live="polite" aria-label="Current analytics summary" aria-labelledby="analyticsSummaryLabel" title="Current analytics summary">—</span>
+          <span class="pill-label" id="localeValidationLabel" aria-hidden="false">Locale Validator</span>
+          <span id="localeValidationBadge" class="status-pill" aria-live="polite" aria-label="Locale validation status" aria-labelledby="localeValidationLabel" title="Locale validation status">—</span>
         </div>
         <div id="localeBadgeArea" class="locale-badge-area" aria-label="Locale badges"></div>
       </div>

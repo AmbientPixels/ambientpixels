@@ -492,6 +492,24 @@ window.requestLocaleBadgeRefresh = (function(){
       return;
     }
 
+    // Special handling: no CSV/data loaded -> not an invalid state, just no data yet
+    if (validation.reason === 'no-data') {
+      el.innerHTML = '<span class="label">Locales:</span> <span class="count">No CSV</span>';
+      el.title = 'No CSV loaded. Load a CSV or add locales to validate.';
+      el.setAttribute('aria-label', 'Locale validation: no CSV loaded.');
+      // Make the pill behave like a button for accessibility
+      el.setAttribute('role', 'button');
+      el.setAttribute('tabindex', '0');
+      try { el.style.cursor = 'pointer'; } catch (_) {}
+      // Ensure click opens details explaining the state
+      if (!el.dataset.validationBound) {
+        el.addEventListener('click', showLocaleValidationDetails);
+        el.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showLocaleValidationDetails(); } });
+        el.dataset.validationBound = '1';
+      }
+      return;
+    }
+
     if (validation.ok) {
       el.innerHTML = '<span class="label">Locales:</span> <span class="count">Valid</span>';
       el.title = `All ${validation.expectedCount} locales present in exact order`;
@@ -537,6 +555,18 @@ window.requestLocaleBadgeRefresh = (function(){
     try {
       const expected = getExpectedLocales();
       const active = getActiveLocalesSequence();
+      const noCsvLoaded = !(window.currentCsvData && Array.isArray(window.currentCsvData) && window.currentCsvData.length);
+
+      // If no CSV is loaded and no active locales are present, report a 'no-data' state instead of 'Invalid'
+      if (noCsvLoaded && active.length === 0) {
+        const result = { ok: false, reason: 'no-data', missing: [], extras: [], expectedCount: expected.length, activeCount: 0 };
+        lastExpected = expected;
+        lastActive = active;
+        lastValidation = result;
+        renderValidationBadge(result);
+        return;
+      }
+
       const result = validateLocales(active, expected);
       lastExpected = expected;
       lastActive = active;
@@ -561,51 +591,46 @@ window.requestLocaleBadgeRefresh = (function(){
       return;
     }
 
-    const reasonText = v.ok ? 'Valid' : (v.reason === 'presence' ? 'Missing or extra locales' : v.reason === 'count' ? 'Count mismatch' : v.reason === 'order' ? 'Order mismatch' : 'Invalid');
+    const reasonText = v.ok ? 'Valid' : (v.reason === 'no-data' ? 'No CSV loaded' : (v.reason === 'presence' ? 'Missing or extra locales' : v.reason === 'count' ? 'Count mismatch' : v.reason === 'order' ? 'Order mismatch' : 'Invalid'));
     // Map status to existing visual classes
     const statusClass = v.ok
       ? 'file-status success clean'
-      : (v.reason === 'presence' ? 'file-status error'
-         : (v.reason === 'count' || v.reason === 'order') ? 'file-status warning' : 'file-status');
-
-    const listHtml = (arr, badgeCls = '') => arr.map(l => `<li><span class="country-badge ${badgeCls}">${escapeHtml(l)}</span></li>`).join('');
-
-    // Order diff table
-    let orderTable = '';
-    if (!v.ok && v.reason === 'order') {
-      const max = Math.max(expected.length, active.length);
-      const rows = [];
-      for (let i = 0; i < max; i++) {
-        const eLoc = expected[i] || '';
-        const aLoc = active[i] || '';
-        const isMismatch = eLoc !== aLoc;
-        const rowCls = isMismatch ? ' class="warning"' : '';
-        const activeBadgeCls = isMismatch ? 'warning' : 'clean';
-        rows.push(`
-          <tr${rowCls}>
-            <td>${i + 1}</td>
-            <td><span class="country-badge clean">${escapeHtml(eLoc)}</span></td>
-            <td><span class="country-badge ${activeBadgeCls}">${escapeHtml(aLoc)}</span></td>
-          </tr>
-        `);
-      }
-      orderTable = `
-        <h5>Order Comparison</h5>
-        <table aria-label="Locale order comparison">
-          <thead><tr><th>#</th><th>Expected</th><th>Active</th></tr></thead>
-          <tbody>${rows.join('')}</tbody>
-        </table>
-      `;
-    }
-
+      : (v.reason === 'no-data' ? 'file-status' : (v.reason === 'presence' ? 'file-status error' : (v.reason === 'count' || v.reason === 'order') ? 'file-status warning' : 'file-status'));
+    const statusIcon = v.ok ? '✅' : (v.reason === 'no-data' ? 'ℹ️' : (v.reason === 'order' ? '↕️' : v.reason === 'count' ? '🔢' : '⚠️'));
+    const noDataCta = (v.reason === 'no-data') ? `
+      <div class="no-data-cta" role="region" aria-label="No data actions">
+        <p>Load a CSV to validate locales.</p>
+        <button id="loadCsvNowBtn" class="primary">Load CSV…</button>
+      </div>
+    ` : '';
+    const listHtml = (arr, badgeCls = '') => Array.isArray(arr) ? arr.map(l => `<li><span class="country-badge ${badgeCls}">${escapeHtml(l)}</span></li>`).join('') : '';
+    const orderTable = (!v.ok && v.reason === 'order') ? `
+      <h5>Order Comparison</h5>
+      <table aria-label="Locale order comparison">
+        <thead><tr><th>#</th><th>Expected</th><th>Active</th></tr></thead>
+        <tbody>${Array.from({ length: Math.max(expected.length, active.length) }, (_, i) => {
+          const eLoc = expected[i] || '';
+          const aLoc = active[i] || '';
+          const isMismatch = eLoc !== aLoc;
+          const rowCls = isMismatch ? ' class="warning"' : '';
+          const activeBadgeCls = isMismatch ? 'warning' : 'clean';
+          return `
+            <tr${rowCls}>
+              <td>${i + 1}</td>
+              <td><span class="country-badge clean">${escapeHtml(eLoc)}</span></td>
+              <td><span class="country-badge ${activeBadgeCls}">${escapeHtml(aLoc)}</span></td>
+            </tr>
+          `;
+        }).join('')}</tbody>
+      </table>
+    ` : '';
     const presenceBlocks = (!v.ok && v.reason === 'presence') ? `
        <div>
-         <h5>Missing (${v.missing.length})</h5>
+         <h5>Missing (${(v.missing || []).length})</h5>
          <ul>${listHtml(v.missing, 'overflow')}</ul>
        </div>
-       ${v.extras.length ? `<div><h5>Extras (${v.extras.length})</h5><ul>${listHtml(v.extras, 'warning')}</ul></div>` : ''}
+       ${(v.extras && v.extras.length) ? `<div><h5>Extras (${v.extras.length})</h5><ul>${listHtml(v.extras, 'warning')}</ul></div>` : ''}
      ` : '';
-
     const expectedBlock = `
        <details open>
          <summary><strong>Expected (${expected.length})</strong></summary>
@@ -618,8 +643,6 @@ window.requestLocaleBadgeRefresh = (function(){
          <ol>${listHtml(active)}</ol>
        </details>
      `;
-
-    const statusIcon = v.ok ? '✅' : (v.reason === 'order' ? '↕️' : v.reason === 'count' ? '🔢' : '⚠️');
     const bodyHtml = `
       <div class="validation-details">
         <div class="${statusClass}" aria-live="polite">${statusIcon} ${escapeHtml(reasonText)}</div>
@@ -628,7 +651,8 @@ window.requestLocaleBadgeRefresh = (function(){
         ${orderTable}
         <hr/>
         ${expectedBlock}
-        ${activeBlock}
+        ${v.reason === 'no-data' ? '' : activeBlock}
+        ${noDataCta}
       </div>
     `;
 
@@ -643,6 +667,20 @@ window.requestLocaleBadgeRefresh = (function(){
         activeTab: 0
       });
       modal.show();
+      // Wire CTA after modal renders
+      setTimeout(() => {
+        const btn = document.getElementById('loadCsvNowBtn');
+        if (btn) {
+          btn.addEventListener('click', () => {
+            try {
+              if (typeof window.getOrCreateCsvInput === 'function') {
+                const input = window.getOrCreateCsvInput();
+                if (input && input.click) input.click();
+              }
+            } catch (_) {}
+          });
+        }
+      }, 0);
       return;
     }
     // Fallback to generic modal API
@@ -651,6 +689,20 @@ window.requestLocaleBadgeRefresh = (function(){
       m.setBody(bodyHtml);
       m.setButtons([{ label: 'Close', role: 'primary' }]);
       m.show();
+      // Wire CTA after modal renders
+      setTimeout(() => {
+        const btn = document.getElementById('loadCsvNowBtn');
+        if (btn) {
+          btn.addEventListener('click', () => {
+            try {
+              if (typeof window.getOrCreateCsvInput === 'function') {
+                const input = window.getOrCreateCsvInput();
+                if (input && input.click) input.click();
+              }
+            } catch (_) {}
+          });
+        }
+      }, 0);
       return;
     }
     // Last resort within Modal system
