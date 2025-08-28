@@ -537,6 +537,14 @@
   min-height: var(--settings-tab-min);
 }
 
+/* Settings > About: ensure content uses full available width */
+.modal.settings-modal .modal-body .settings-section.settings-root {
+  width: 100%;
+}
+.modal.settings-modal .modal-body .settings-section.settings-root > * {
+  max-width: 100%;
+}
+
 /* Tabbed modals: unify body height and tab content across ALL tabs */ /* added by Cascade */
 .modal.tabbed {
   /* Let tabbed modals breathe slightly more like settings-modal */
@@ -858,7 +866,16 @@
 /* About: container spacing */
 .settings-root .about-info {
   display: grid;
+  grid-template-columns: 1fr; /* single full-width column */
   gap: 12px;
+}
+
+/* Prevent inner cards from reserving extra space on the right */
+.settings-root .about-info > .info-section,
+.settings-root .features-highlight,
+.settings-root .version-info {
+  margin-right: 0;
+  max-width: none;
 }
 
 /* About: update badge */

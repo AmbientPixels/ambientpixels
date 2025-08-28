@@ -913,55 +913,121 @@ function createGeneralTabContent() {
 function createAboutTabContent() {
   return `
     <div class="settings-section settings-root">
-      <h3>About TileForge</h3>
+      <h3>🎮 About TileForge</h3>
       <div class="about-info">
         ${typeof window.renderVersionCard === 'function' ? window.renderVersionCard({ headingLevel: 'h5', wrapperClass: 'version-info' }) : ''}
-        <div class="features-highlight">
-          <h4>Latest Features</h4>
-          <ul class="feature-list">
-            <li><i class="fas fa-magic"></i> Enhanced About section with detailed information</li>
-            <li><i class="fas fa-sync-alt"></i> Automatic update system for seamless upgrades</li>
-            <li><i class="fas fa-desktop"></i> Native desktop app with system integration</li>
-            <li><i class="fas fa-language"></i> Support for 52+ languages and locales</li>
-            <li><i class="fas fa-chart-line"></i> Advanced analytics and text analysis</li>
+
+        <div class="info-section">
+          <h4>🛠️ Hotfixes (2.4.1)</h4>
+          <ul>
+            <li><strong>Iris export compatibility:</strong> Fixed CSV export to avoid malformed structures that Iris rejected. Exports now strictly match the expected Iris import schema.</li>
+            <li><strong>Locale Validator:</strong> Added validation pass with a <em>linkable pill</em> in the UI showing overall status; clicking opens a full report modal with details and a "Locales: No CSV" state when applicable.</li>
+            <li><strong>Transform Data guidance:</strong> Added in-tool context and instructions to help map and clean incoming CSVs before processing.</li>
+            <li><strong>Case Converter upgrades:</strong> New space remover utility and an option to inherit the current <em>Title</em> field for quick input when game titles are commonly reused.</li>
           </ul>
         </div>
-        
-        <div class="credits">
-          <h4>Credits & Purpose</h4>
-          <p><strong>Built by AmbientPixels</strong> for Xbox content producers and localization teams</p>
-          <p><em>Designed to prevent certification failures and streamline the localization workflow</em></p>
-          <p>Empowering developers to create perfect tile experiences across all markets</p>
+
+        <div class="info-section">
+          <h4>🎮 About TileForge</h4>
+          <p>TileForge is a comprehensive Xbox tile localization preview tool designed to streamline the process of creating and managing localized game tiles across multiple regions and languages.</p>
         </div>
-        
-        <div class="tech-info">
-          <h4>Technical Information</h4>
-          <div class="tech-grid">
-            <div class="tech-item">
-              <strong>Platform:</strong> Electron Desktop App
-            </div>
-            <div class="tech-item">
-              <strong>Updates:</strong> Automatic via GitHub Releases
-            </div>
-            <div class="tech-item">
-              <strong>Compatibility:</strong> Windows 10/11
-            </div>
-            <div class="tech-item">
-              <strong>License:</strong> MIT Open Source
-            </div>
-          </div>
+
+        <div class="info-section whats-new">
+          <h4>✨ What’s New in 2.4.0</h4>
+          <ul>
+            <li><strong>New Projects module:</strong> Left‑panel Projects manager with Save, Clone, New, Remove, and Export to Iris CSV. Per‑file actions and quick preview centralize session files.</li>
+            <li><strong>Locale pills and badges:</strong> New pill row under the toolbar with language/status palettes, optional status borders, anchor links, counts, and sticky wrapper. Interactive filters by language/status.</li>
+            <li><strong>Locale Picker upgrades:</strong> Quick picks for ToH and Mobile defaults, language pills, improved filtering and scoped modal styling.</li>
+            <li><strong>GridPeek — CSV Quick Viewer:</strong> Read‑only CSV modal with filename meta and capped rows. Launch from Projects or toolbar.</li>
+            <li><strong>Dynamic Export ready state:</strong> Export buttons reflect saved/dirty via <code>[data-ready]</code> and global events (<code>tileforge:file-dirty</code>/<code>tileforge:file-saved</code>).</li>
+            <li><strong>Save overwrite confirmation:</strong> Confirmation prompt with accent styling before overwriting an existing filename.</li>
+            <li><strong>Interactive analytics:</strong> Analytics cards sort/filter and anchor to impacted entries for faster triage.</li>
+            <li><strong>Quality‑of‑life:</strong> Clear All buttons per field, template validation pass, and sticky previews polish.</li>
+          </ul>
+          <p><strong>Information Center:</strong> A comprehensive, always-up-to-date help & support modal. Browse features, new tools, tips & tricks, keyboard shortcuts, troubleshooting, and future plans—all in one place!</p>
         </div>
-        
-        <div class="links">
-          <button class="btn btn-secondary" onclick="showChangelog()">
-            <i class="fas fa-history"></i> View Changelog
-          </button>
-          <button class="btn btn-secondary" onclick="reportIssue()">
-            <i class="fas fa-bug"></i> Report Issue
-          </button>
-          <button class="btn btn-secondary" onclick="checkForUpdates()">
-            <i class="fas fa-download"></i> Check for Updates
-          </button>
+
+        <div class="info-section">
+          <h4>🛠️ Technical Stack</h4>
+          <ul>
+            <li><strong>Frontend:</strong> Vanilla JavaScript ES6+, HTML5, CSS3</li>
+            <li><strong>Canvas API:</strong> Pixel-perfect text measurement and analysis</li>
+            <li><strong>File Handling:</strong> FileReader API for CSV and image processing</li>
+            <li><strong>Responsive Design:</strong> CSS Grid and Flexbox layouts</li>
+            <li><strong>Accessibility:</strong> ARIA labels, keyboard navigation, focus management</li>
+            <li><strong>Performance:</strong> Optimized rendering with efficient DOM manipulation</li>
+          </ul>
+        </div>
+
+        <div class="info-section">
+          <h4>🎨 Template System</h4>
+          <p>TileForge now supports multiple Xbox tile templates optimized for different platforms:</p>
+          <ul>
+            <li><strong>Top of Home (ToH):</strong> Traditional 560×315px horizontal Xbox dashboard tiles</li>
+            <li><strong>Mobile Spotlight:</strong> NEW 694×758px vertical mobile-optimized tiles</li>
+            <li><strong>Dynamic Switching:</strong> Seamless template switching with automatic tile updates</li>
+            <li><strong>Template Persistence:</strong> Robust template consistency across all UI interactions</li>
+            <li><strong>Enhanced Capacity:</strong> Mobile Spotlight supports 50% more text (60/80 char vs 40/40)</li>
+          </ul>
+        </div>
+
+        <div class="info-section">
+          <h4>🤖 Auto-Localization System</h4>
+          <p>Advanced preset management with intelligent localization capabilities:</p>
+          <ul>
+            <li><strong>JSON-Based Presets:</strong> Modular preset files with 121+ language translations</li>
+            <li><strong>Smart Toggle:</strong> Switch between localized text per locale vs English for all</li>
+            <li><strong>Preset Library:</strong> Available Now, Buy Now, Pre-order Now, New Season presets</li>
+            <li><strong>Dropdown Selection:</strong> Per-field preset selection with immediate preview</li>
+            <li><strong>Apply All:</strong> Bulk application of presets across all tiles with one click</li>
+          </ul>
+        </div>
+
+        <div class="info-section">
+          <h4>🌟 Key Innovations</h4>
+          <ul>
+            <li><strong>Visual Text Measurement:</strong> Canvas-based pixel measurement replaces unreliable character counting</li>
+            <li><strong>Template-Aware Analysis:</strong> Text limits and overflow detection adapt to selected template</li>
+            <li><strong>Modular Architecture:</strong> Zero-duplication CSS with feature-based separation</li>
+            <li><strong>Real-time Preview:</strong> Instant visual feedback for all tile modifications</li>
+            <li><strong>Advanced Filtering:</strong> Multi-dimensional filtering by status, locale, language, and region</li>
+          </ul>
+        </div>
+
+        <div class="info-section">
+          <h4>🎯 Design Philosophy</h4>
+          <p>TileForge emphasizes professional development standards:</p>
+          <ul>
+            <li><strong>Precision over Approximation:</strong> Exact measurements instead of estimates</li>
+            <li><strong>Modularity over Monoliths:</strong> Clean separation of concerns</li>
+            <li><strong>User Experience First:</strong> Intuitive interfaces with immediate feedback</li>
+            <li><strong>Performance Optimization:</strong> Efficient algorithms and minimal resource usage</li>
+            <li><strong>Accessibility by Design:</strong> Inclusive interfaces for all users</li>
+          </ul>
+        </div>
+
+        <div class="info-section">
+          <h4>🔮 Future Roadmap</h4>
+          <p>Planned enhancements include:</p>
+          <ul>
+            <li>Advanced export options with custom formatting</li>
+            <li>Batch editing capabilities for multiple tiles</li>
+            <li>Integration with external localization services</li>
+            <li>Enhanced image processing and optimization tools</li>
+            <li>Collaborative editing features</li>
+          </ul>
+        </div>
+
+        <div class="info-section">
+          <h4>👥 Credits</h4>
+          <p>TileForge development team:</p>
+          <ul>
+            <li><strong>Jon:</strong> Initial base code concept and foundation</li>
+            <li><strong>Chad:</strong> Upgrades, enhancements, and system refinement</li>
+            <li><strong>Tania Jimenez:</strong> Thoughtful testing feedback and steadfast backing support for this project</li>
+            <li><strong>Joel Valdes Beneyto:</strong> Detailed testing feedback and strong backing support for this project</li>
+          </ul>
+          <p>Special thanks to all contributors who helped shape TileForge into a comprehensive Xbox localization tool. Thank you for helping make this project the best it can possibly be.</p>
         </div>
       </div>
     </div>
