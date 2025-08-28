@@ -46,8 +46,25 @@ class TransformModal {
   getModalContent() {
     return `
       <div class="transform-explanation">
-        <p><i class="fas fa-info-circle"></i> Your CSV needs transformation to work with TileForge. Please upload both files:</p>
+        <p><i class="fas fa-info-circle"></i> Quick Transform converts generic localization (e.g., "English", optional Region) into TileForge CSV (Locale, items/0/title, items/0/subtitle). If you need advanced field mapping and per-locale validation, use <button id="open-headliner-btn" class="linklike" aria-label="Open Headliner Mapper">Headliner Mapper</button>.</p>
       </div>
+
+      <div class="callout info" id="schema-help">
+        <p><strong>Required schemas</strong></p>
+        <ul>
+          <li><strong>Mapping Table CSV</strong>: Language, Country, LanguageLocale</li>
+          <li><strong>Source Localization CSV</strong>: Language, Region (optional), Title, MiniFAD</li>
+        </ul>
+        <p class="small">Transform will warn if any required columns are missing.</p>
+      </div>
+      
+      <details class="callout" id="tool-diff">
+        <summary><strong>What’s the difference?</strong></summary>
+        <ul>
+          <li><strong>Transform Data (this)</strong>: Quick guided convert for standard schemas. Requires exact column names. Good for fast CSV-to-TileForge.</li>
+          <li><strong>Headliner Mapper</strong>: Advanced field mapping, character checks, multi-locale validation, and flexible schemas. Use when columns differ or you need fine control.</li>
+        </ul>
+      </details>
       
       <div class="transform-inputs">
         <div class="transform-input-group">
@@ -57,7 +74,7 @@ class TransformModal {
           </label>
           <div class="file-input-wrapper">
             <input type="file" id="mapping-file-input" accept=".csv" />
-                      </div>
+          </div>
         </div>
         
         <div class="transform-input-group">
@@ -67,9 +84,11 @@ class TransformModal {
           </label>
           <div class="file-input-wrapper">
             <input type="file" id="source-file-input" accept=".csv" />
-                      </div>
+          </div>
         </div>
       </div>
+
+      <div id="schema-check" class="file-status" style="display:none;"></div>
       
       <div class="transform-preview" id="transform-preview" style="display: none;">
         <h4><i class="fas fa-eye"></i> Transformation Preview</h4>
@@ -85,6 +104,16 @@ class TransformModal {
       <div class="transform-error" id="transform-error" style="display: none;">
         <i class="fas fa-exclamation-triangle"></i>
         <span id="error-message"></span>
+      </div>
+
+      <div class="callout warning" id="limits-note">
+        <p><strong>Limitations</strong></p>
+        <ul>
+          <li>Assumes column names match exactly as listed above.</li>
+          <li>Does not rename or infer arbitrary columns.</li>
+          <li>One-to-many mapping by Language expands to all supported locales; duplicates are filtered.</li>
+        </ul>
+        <p class="small">Need flexible mapping, color-coded character checks, or per-locale fixing? Open <button id="open-headliner-btn-2" class="linklike">Headliner Mapper</button>.</p>
       </div>
     `;
   }
@@ -104,6 +133,11 @@ class TransformModal {
       closable: true,
       backdrop: true,
       buttons: [
+        {
+          text: 'Open Headliner Mapper',
+          class: 'btn-secondary',
+          action: () => this.openHeadliner()
+        },
         {
           text: 'Cancel',
           class: 'btn-secondary',
@@ -130,43 +164,11 @@ class TransformModal {
   }
 
   /**
-   * Hide transformation modal
-   */
-  hide() {
-    console.log('🔴 Hide method called');
-    this.isOpen = false;
-    
-    if (this.tileForgeModal) {
-      this.tileForgeModal.hide();
-      this.tileForgeModal = null;
-    } else {
-      const modal = document.getElementById('transform-modal');
-      if (modal) {
-        console.log('🔴 Hiding modal with aggressive styling override');
-        // Use aggressive styling to override the !important CSS rules
-        modal.style.display = 'none !important';
-        modal.style.visibility = 'hidden !important';
-        modal.style.opacity = '0 !important';
-        modal.style.pointerEvents = 'none !important';
-        // Alternative: remove the modal completely
-        modal.remove();
-        console.log('✅ Modal removed from DOM');
-      } else {
-        console.log('❌ Modal element not found');
-      }
-    }
-    
-    this.reset();
-    console.log('✅ Hide method completed');
-  }
-
-  /**
    * Create modal HTML structure
    */
   createModal() {
     console.log('📝 Creating modal HTML structure...');
     
-    // Check if modal already exists
     const existingModal = document.getElementById('transform-modal');
     if (existingModal) {
       console.log('Modal already exists, showing it');
@@ -187,8 +189,24 @@ class TransformModal {
           
           <div class="modal-body">
             <div class="transform-explanation">
-              <p><i class="fas fa-magic"></i> <strong>CSV Transformation Tool</strong> - Convert your generic localization data (like "English", "Spanish") into TileForge and Iris-compatible Xbox locale format (like "EN-US", "ES-ES"). Upload your mapping table and source data below, preview the results, then transform.</p>
+              <p><i class="fas fa-magic"></i> <strong>CSV Transformation Tool</strong> — Quick transform for standard schemas. For advanced mapping and validation, use <button id="open-headliner-btn" class="linklike">Headliner Mapper</button>.</p>
             </div>
+
+            <div class="callout info" id="schema-help">
+              <p><strong>Required schemas</strong></p>
+              <ul>
+                <li><strong>Mapping</strong>: Language, Country, LanguageLocale</li>
+                <li><strong>Source</strong>: Language, Region (optional), Title, MiniFAD</li>
+              </ul>
+            </div>
+            
+            <details class="callout" id="tool-diff-fallback">
+              <summary><strong>What’s the difference?</strong></summary>
+              <ul>
+                <li><strong>Transform Data (this)</strong>: Quick guided convert for standard schemas. Requires exact column names. Good for fast CSV-to-TileForge.</li>
+                <li><strong>Headliner Mapper</strong>: Advanced field mapping, character checks, multi-locale validation, and flexible schemas. Use when columns differ or you need fine control.</li>
+              </ul>
+            </details>
             
             <div class="transform-inputs">
               <div class="transform-input-group">
@@ -231,6 +249,8 @@ class TransformModal {
                 </div>
               </div>
             </div>
+
+            <div id="schema-check" class="file-status" style="display:none;"></div>
             
             <div class="transform-preview" id="transform-preview" style="display: none;">
               <h4><i class="fas fa-eye"></i> Transformation Preview</h4>
@@ -247,12 +267,21 @@ class TransformModal {
               <i class="fas fa-exclamation-triangle"></i>
               <span id="error-message"></span>
             </div>
+
+            <div class="callout warning" id="limits-note">
+              <p><strong>Limitations</strong></p>
+              <ul>
+                <li>Assumes exact column names.</li>
+                <li>No arbitrary column remapping.</li>
+                <li>Language-only rows expand to all supported locales; duplicates removed.</li>
+              </ul>
+              <p class="small">Need more control? Open <button id="open-headliner-btn-2" class="linklike">Headliner Mapper</button>.</p>
+            </div>
           </div>
           
           <div class="modal-footer">
-            <button class="btn btn-secondary">
-              Cancel
-            </button>
+            <button class="btn btn-secondary" id="open-headliner-footer">Open Headliner Mapper</button>
+            <button class="btn btn-secondary">Cancel</button>
             <button class="btn btn-primary" id="transform-btn" disabled>
               <i class="fas fa-magic"></i> Transform & Use Data
             </button>
@@ -264,7 +293,6 @@ class TransformModal {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     console.log('✅ Modal HTML inserted into DOM');
     
-    // Ensure modal is visible with aggressive styling
     const modal = document.getElementById('transform-modal');
     if (modal) {
       modal.style.display = 'flex';
@@ -353,6 +381,14 @@ class TransformModal {
       console.log('✅ Transform button event listener bound');
     }
 
+    // Headliner Mapper buttons
+    const hl1 = document.getElementById('open-headliner-btn');
+    const hl2 = document.getElementById('open-headliner-btn-2');
+    const hlFooter = document.getElementById('open-headliner-footer');
+    [hl1, hl2, hlFooter].forEach(btn => {
+      if (btn) btn.addEventListener('click', (e) => { e.preventDefault(); this.openHeadliner(); });
+    });
+
     // Escape key to close
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && document.getElementById('transform-modal')) {
@@ -368,68 +404,6 @@ class TransformModal {
   }
 
   /**
-   * Bind drag and drop events for file upload zones using TileForge's existing system
-   */
-  bindDragDropEvents() {
-    const mappingDropZone = document.getElementById('mapping-drop-zone');
-    const sourceDropZone = document.getElementById('source-drop-zone');
-    const mappingInput = document.getElementById('mapping-file-input');
-    const sourceInput = document.getElementById('source-file-input');
-
-    if (mappingDropZone && mappingInput) {
-      this.setupTransformDropZone(mappingDropZone, mappingInput, 'mapping');
-    }
-
-    if (sourceDropZone && sourceInput) {
-      this.setupTransformDropZone(sourceDropZone, sourceInput, 'source');
-    }
-  }
-
-  /**
-   * Setup drag and drop for transform modal using TileForge's pattern
-   */
-  setupTransformDropZone(zone, fileInput, type) {
-    // Use the same pattern as TileForge's existing drag-drop system
-    zone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      zone.classList.add('drag-over');
-    });
-    
-    zone.addEventListener('dragleave', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      zone.classList.remove('drag-over');
-    });
-    
-    zone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      zone.classList.remove('drag-over');
-      
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        const file = files[0];
-        if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
-          // Create a new FileList and assign to input
-          const dataTransfer = new DataTransfer();
-          dataTransfer.items.add(file);
-          fileInput.files = dataTransfer.files;
-          
-          // Trigger the change event
-          const event = new Event('change', { bubbles: true });
-          fileInput.dispatchEvent(event);
-          
-          console.log(`📁 File dropped: ${file.name} for ${type}`);
-        } // Do nothing for XML or any non-CSV file; never show error
-      }
-    });
-
-    // Handle click to browse
-    zone.addEventListener('click', () => fileInput.click());
-  }
-
-  /**
    * Handle file selection
    * @param {Event} event - File input change event
    * @param {string} type - File type ('mapping' or 'source')
@@ -442,6 +416,7 @@ class TransformModal {
       if (type === 'mapping') this.mappingFile = null;
       if (type === 'source') this.sourceFile = null;
       this.updateTransformButton();
+      this.renderSchemaCheck();
       return;
     }
 
@@ -461,18 +436,7 @@ class TransformModal {
     if (this.mappingFile && this.sourceFile) {
       setTimeout(() => this.previewTransform(), 100);
     }
-  }
-
-  /**
-   * Update transform button state
-   */
-  updateTransformButton() {
-    // For TileForge modal system, find button in modal footer
-    const transformBtn = document.querySelector('#transform-modal .btn-primary') || 
-                        document.getElementById('transform-btn');
-    if (transformBtn) {
-      transformBtn.disabled = !(this.mappingFile && this.sourceFile);
-    }
+    this.renderSchemaCheck();
   }
 
   /**
@@ -484,11 +448,9 @@ class TransformModal {
     try {
       this.hideError();
       
-      // Read files
       const mappingText = await this.readFile(this.mappingFile);
       const sourceText = await this.readFile(this.sourceFile);
       
-      // Load data into transformer
       const mappingLoaded = window.locTransformer.loadMappingTable(mappingText);
       const sourceLoaded = window.locTransformer.loadSourceData(sourceText);
       
@@ -496,16 +458,22 @@ class TransformModal {
         this.showError('Failed to load CSV files. Please check file format.');
         return;
       }
-      
-      // Run transformation
-      const result = window.locTransformer.transform();
-      
-      if (!result.success) {
-        this.showError(result.error);
+
+      const schemaOk = this.validateSchemas();
+      this.renderSchemaCheck(schemaOk);
+      if (!schemaOk.ok) {
+        const msg = this.composeSchemaError(schemaOk);
+        this.showError(msg);
         return;
       }
       
-      // Show preview
+      const result = window.locTransformer.transform();
+      
+      if (!result.success) {
+        this.showError(result.error + ' Tip: Try Headliner Mapper for flexible mapping.');
+        return;
+      }
+      
       this.showPreview(result.data, result.stats);
       
     } catch (error) {
@@ -514,77 +482,17 @@ class TransformModal {
   }
 
   /**
-   * Read file as text
-   * @param {File} file - File to read
-   * @returns {Promise<string>} File content as text
-   */
-  readFile(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target.result);
-      reader.onerror = (e) => reject(new Error('Failed to read file'));
-      reader.readAsText(file);
-    });
-  }
-
-  /**
-   * Show transformation preview
-   * @param {Array} data - Transformed data
-   * @param {Object} stats - Transformation statistics
-   */
-  showPreview(data, stats) {
-    const previewSection = document.getElementById('transform-preview');
-    const statsElement = document.getElementById('preview-stats');
-    const table = document.getElementById('preview-table');
-    
-    if (!previewSection || !statsElement || !table) return;
-    
-    // Show stats
-    statsElement.innerHTML = `
-      <div class="stats-grid">
-        <div class="stat-item">
-          <span class="stat-value">${stats.totalRows}</span>
-          <span class="stat-label">Total Locales</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-value">${stats.withRegion}</span>
-          <span class="stat-label">Region-Specific</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-value">${stats.withoutRegion}</span>
-          <span class="stat-label">Language-Only</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-value">${stats.duplicatesRemoved}</span>
-          <span class="stat-label">Duplicates Removed</span>
-        </div>
-      </div>
-    `;
-    
-    // Show table preview (first 10 rows)
-    const previewData = data.slice(0, Math.min(10, data.length));
-    const headers = Object.keys(previewData[0] || {});
-    
-    table.querySelector('thead').innerHTML = `
-      <tr>
-        ${headers.map(header => `<th>${header}</th>`).join('')}
-      </tr>
-    `;
-    
-    table.querySelector('tbody').innerHTML = previewData.map(row => `
-      <tr>
-        ${headers.map(header => `<td>${this.escapeHtml(row[header])}</td>`).join('')}
-      </tr>
-    `).join('');
-    
-    previewSection.style.display = 'block';
-  }
-
-  /**
    * Run final transformation and pass to TileForge
    */
   async runTransform() {
     try {
+      const schemaOk = this.validateSchemas();
+      if (!schemaOk.ok) {
+        const msg = this.composeSchemaError(schemaOk);
+        this.showError(msg);
+        return;
+      }
+
       const result = window.locTransformer.transform();
       
       if (!result.success) {
@@ -592,10 +500,8 @@ class TransformModal {
         return;
       }
       
-      // Convert to CSV format for TileForge
       const csvData = window.locTransformer.exportCSV();
       
-      // Call completion callback
       if (this.onTransformComplete) {
         this.onTransformComplete(csvData, result.stats);
       }
@@ -632,17 +538,6 @@ class TransformModal {
   }
 
   /**
-   * Escape HTML for safe display
-   * @param {string} str - String to escape
-   * @returns {string} Escaped string
-   */
-  escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  /**
    * Reset modal state
    */
   reset() {
@@ -650,22 +545,123 @@ class TransformModal {
     this.sourceFile = null;
     this.onTransformComplete = null;
     
-    // Reset UI elements
     const mappingInput = document.getElementById('mapping-file-input');
     const sourceInput = document.getElementById('source-file-input');
     const mappingStatus = document.getElementById('mapping-status');
     const sourceStatus = document.getElementById('source-status');
     const previewSection = document.getElementById('transform-preview');
+    const schemaCheck = document.getElementById('schema-check');
     
     if (mappingInput) mappingInput.value = '';
     if (sourceInput) sourceInput.value = '';
     if (previewSection) previewSection.style.display = 'none';
+    if (schemaCheck) { schemaCheck.style.display = 'none'; schemaCheck.innerHTML = ''; }
     
     this.hideError();
     this.updateTransformButton();
     
-    // Reset transformer
     window.locTransformer.reset();
+  }
+
+  /**
+   * Update transform button state
+   */
+  updateTransformButton() {
+    // For TileForge modal system, find button in modal footer
+    const transformBtn = document.querySelector('#transform-modal .btn-primary') || 
+                        document.getElementById('transform-btn');
+    if (transformBtn) {
+      transformBtn.disabled = !(this.mappingFile && this.sourceFile);
+    }
+  }
+
+  /**
+   * Validate schemas
+   */
+  validateSchemas() {
+    // Inspect parsed rows from locTransformer
+    const mappingRows = window.locTransformer.mappingRows || [];
+    const sourceRows = window.locTransformer.sourceRows || [];
+    const mapHeaders = mappingRows[0] ? Object.keys(mappingRows[0]) : [];
+    const srcHeaders = sourceRows[0] ? Object.keys(sourceRows[0]) : [];
+
+    const requiredMap = ['Language', 'Country', 'LanguageLocale'];
+    const requiredSrc = ['Language', 'Title', 'MiniFAD']; // Region optional
+
+    const mapMissing = requiredMap.filter(h => !mapHeaders.includes(h));
+    const srcMissing = requiredSrc.filter(h => !srcHeaders.includes(h));
+
+    return { ok: mapMissing.length === 0 && srcMissing.length === 0, mapMissing, srcMissing, mapHeaders, srcHeaders };
+  }
+
+  /**
+   * Compose schema error message
+   */
+  composeSchemaError(state) {
+    const parts = [];
+    if (state.mapMissing.length) parts.push(`Mapping table missing: ${state.mapMissing.join(', ')}`);
+    if (state.srcMissing.length) parts.push(`Source CSV missing: ${state.srcMissing.join(', ')}`);
+    return parts.join(' • ') + '. You can fix your CSVs or use Headliner Mapper for flexible mapping.';
+  }
+
+  /**
+   * Render schema check
+   */
+  renderSchemaCheck(state) {
+    const el = document.getElementById('schema-check');
+    if (!el) return;
+    const s = state || this.validateSchemas();
+
+    if (!this.mappingFile && !this.sourceFile) {
+      el.style.display = 'none';
+      el.innerHTML = '';
+      return;
+    }
+
+    const okIcon = '<span class="status-pill success">OK</span>';
+    const warnIcon = '<span class="status-pill warning">Missing</span>';
+
+    const mapSummary = s.mapMissing.length ? warnIcon + ' Mapping: ' + s.mapMissing.join(', ') : okIcon + ' Mapping schema OK';
+    const srcSummary = s.srcMissing.length ? warnIcon + ' Source: ' + s.srcMissing.join(', ') : okIcon + ' Source schema OK';
+
+    el.innerHTML = `<div>${mapSummary}</div><div>${srcSummary}</div>`;
+    el.style.display = 'block';
+  }
+
+  /**
+   * Open Headliner Mapper
+   */
+  openHeadliner() {
+    try {
+      if (!window.mappingModal) {
+        if (window.Modal && typeof Modal.alert === 'function') {
+          Modal.alert('Headliner Mapper is not properly initialized. Please refresh the page.', 'error');
+        } else {
+          alert('Headliner Mapper is not properly initialized. Please refresh the page.');
+        }
+        return;
+      }
+      window.mappingModal.show(null, (transformedData, stats) => {
+        if (transformedData && transformedData.length > 0) {
+          const csvText = window.headlinerCrafter.exportToCardForgeCSV(transformedData);
+          if (typeof window.processCsvData === 'function') {
+            window.processCsvData(csvText, 'Headliner Crafter Output', transformedData.length);
+          }
+          if (window.Modal && typeof Modal.alert === 'function') {
+            Modal.alert(`Successfully processed ${transformedData.length} locales through Headliner Mapper!`, 'success');
+          } else {
+            alert(`Successfully processed ${transformedData.length} locales through Headliner Mapper!`);
+          }
+        }
+      });
+    } catch (error) {
+      console.error('❌ Error opening Headliner Mapper from Transform modal:', error);
+      if (window.Modal && typeof Modal.alert === 'function') {
+        Modal.alert('Error opening Headliner Mapper: ' + error.message, 'error');
+      } else {
+        alert('Error opening Headliner Mapper: ' + error.message);
+      }
+    }
   }
 }
 

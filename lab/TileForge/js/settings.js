@@ -99,7 +99,9 @@ let currentSettings = {
   // Allowed: 'language' | 'status' | 'none'
   defaultPillPalette: 'language',
   // Sticky option for the Locale Badges Panel container
-  badgesPanelSticky: false
+  badgesPanelSticky: false,
+  // Default: Case Converter auto-fills input from Live Editor Title when opened
+  caseAutoFillFromTitleDefault: false
 };
 
 // Ensure settings are accessible to other modules that expect window.currentSettings
@@ -353,6 +355,7 @@ function initializeThemeSelection() {
   const languagePillColorsPref = document.getElementById('languagePillColorsPref');
   const defaultPillPalettePref = document.getElementById('defaultPillPalettePref');
   const statusPillBordersPref = document.getElementById('statusPillBordersPref');
+  const caseAutoFillPref = document.getElementById('caseAutoFillFromTitleDefault');
   
   if (autosaveFreq) {
     autosaveFreq.value = currentSettings.autosaveFreq;
@@ -406,6 +409,9 @@ function initializeThemeSelection() {
     const allowed = ['language','status','none'];
     const val = allowed.includes(currentSettings.defaultPillPalette) ? currentSettings.defaultPillPalette : 'language';
     defaultPillPalettePref.value = val;
+  }
+  if (caseAutoFillPref) {
+    caseAutoFillPref.checked = !!currentSettings.caseAutoFillFromTitleDefault;
   }
   
   function applyPaletteState() {
@@ -465,6 +471,12 @@ function initializeThemeSelection() {
           try { window.updatePillPaletteDefaultUI(); } catch(_) {}
         }
       }
+    });
+  }
+  if (caseAutoFillPref) {
+    caseAutoFillPref.addEventListener('change', function() {
+      currentSettings.caseAutoFillFromTitleDefault = !!this.checked;
+      saveSettings();
     });
   }
   
@@ -872,6 +884,19 @@ function createGeneralTabContent() {
       <div class="settings-card">
         <div class="settings-row">
           <div class="row-text">
+            <div class="row-title">Case Converter: auto-fill from Title by default</div>
+            <div class="row-desc">When enabled, the Case Converter will default to syncing its input from the Live Editor Title field.</div>
+          </div>
+          <label class="tf-switch">
+            <input type="checkbox" id="caseAutoFillFromTitleDefault" />
+            <span class="tf-switch-track" aria-hidden="true"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="row-text">
             <div class="row-title">Sticky Locale Badges Panel</div>
             <div class="row-desc">Keep the locale badges panel open even when the main content area is scrolled.</div>
           </div>
@@ -1148,4 +1173,11 @@ function applyShortcutsFilter(q) {
     const match = hay.toLowerCase().includes(q);
     r.classList.toggle('hidden', !match);
   });
+}
+
+// ===== STARTUP: Load settings immediately so other modules see persisted values =====
+try {
+  loadSettings();
+} catch (e) {
+  console.warn('Settings failed to load on startup:', e);
 }
