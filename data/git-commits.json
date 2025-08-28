@@ -1,23 +1,23 @@
 {
   "commits": [
     {
-      "id": "0238d4a2-f848-43b5-bec5-ae7d86cbabc0",
-      "hash": "7be3eb3c8adbacebcebb1ee303235b2f47c2d283",
-      "message": "Daily refresh: site memory update for Nova",
-      "timestamp": "2025-08-26 13:35:03 +0000",
+      "id": "519898c6-1025-46ee-93ba-bd112685b432",
+      "hash": "4c1e3d089d09668c08a2a4aba2b551268845945e",
+      "message": "chore(tileforge): bump to 2.4.1 and update About hotfix notes; fix Settings > About layout",
+      "timestamp": "2025-08-27 23:51:22 -0700",
       "author": {
-        "name": "NovaBot",
-        "email": "nova@ambientpixels.ai"
+        "name": "AmbientPixels",
+        "email": "ambientpixels2022@gmail.com"
       },
       "branches": [
         "grafted",
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/7be3eb3c8adbacebcebb1ee303235b2f47c2d283"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/4c1e3d089d09668c08a2a4aba2b551268845945e"
     }
   ],
-  "timestamp": "2025-08-27T13:29:31.881Z",
+  "timestamp": "2025-08-28T13:30:29.108Z",
   "count": 1,
-  "scanId": 1756301371881
+  "scanId": 1756387829108
 }
