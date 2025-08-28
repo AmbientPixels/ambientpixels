@@ -1,0 +1,24 @@
+{{ ... }}
+/* Locale Validation Details layout (scoped) */
+.modal .validation-details .validation-columns {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.modal .validation-details .validation-col {
+  flex: 1 1 0;
+  min-width: 0;
+}
+/* Ensure ordered lists inside columns wrap nicely */
+.modal .validation-details ol {
+  padding-left: 18px;
+  margin: 8px 0 0 0;
+}
+/* Responsive: stack columns on smaller modals */
+@media (max-width: 900px) {
+  .modal .validation-details .validation-columns {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+{{ ... }}

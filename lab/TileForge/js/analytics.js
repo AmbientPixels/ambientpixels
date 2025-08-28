@@ -600,7 +600,7 @@ window.requestLocaleBadgeRefresh = (function(){
     const noDataCta = (v.reason === 'no-data') ? `
       <div class="no-data-cta" role="region" aria-label="No data actions">
         <p>Load a CSV to validate locales.</p>
-        <button id="loadCsvNowBtn" class="primary">Load CSV…</button>
+        <button id="loadCsvNowBtn" class="modal-btn primary">Load CSV…</button>
       </div>
     ` : '';
     const listHtml = (arr, badgeCls = '') => Array.isArray(arr) ? arr.map(l => `<li><span class="country-badge ${badgeCls}">${escapeHtml(l)}</span></li>`).join('') : '';
@@ -643,16 +643,21 @@ window.requestLocaleBadgeRefresh = (function(){
          <ol>${listHtml(active)}</ol>
        </details>
      `;
+    const columnsHtml = `
+      <div class="validation-columns">
+        <div class="validation-col">${expectedBlock}</div>
+        <div class="validation-col">${v.reason === 'no-data' ? '' : activeBlock}</div>
+      </div>
+    `;
     const bodyHtml = `
       <div class="validation-details">
         <div class="${statusClass}" aria-live="polite">${statusIcon} ${escapeHtml(reasonText)}</div>
+        ${noDataCta}
         ${!v.ok && v.reason === 'count' ? `<p class="warning"><strong>Count:</strong> Expected ${v.expectedCount}, found ${v.activeCount}</p>` : ''}
         ${presenceBlocks}
         ${orderTable}
         <hr/>
-        ${expectedBlock}
-        ${v.reason === 'no-data' ? '' : activeBlock}
-        ${noDataCta}
+        ${columnsHtml}
       </div>
     `;
 
@@ -667,8 +672,8 @@ window.requestLocaleBadgeRefresh = (function(){
         activeTab: 0
       });
       modal.show();
-      // Wire CTA after modal renders
-      setTimeout(() => {
+      // Helper to (re)wire the CTA and allow CSV browsing
+      function wireNoDataCta() {
         const btn = document.getElementById('loadCsvNowBtn');
         if (btn) {
           btn.addEventListener('click', () => {
@@ -678,9 +683,96 @@ window.requestLocaleBadgeRefresh = (function(){
                 if (input && input.click) input.click();
               }
             } catch (_) {}
-          });
+          }, { once: true });
         }
-      }, 0);
+      }
+      // Initial wire after render
+      setTimeout(wireNoDataCta, 0);
+      // Live update details when CSV loads while modal is open
+      function onCsvProcessed() {
+        // Recompute HTML using current state
+        try {
+          runLocaleValidation(); // refresh lastValidation/expected/active
+          const container = document.querySelector('.modal .validation-details');
+          if (!container) return;
+          // Rebuild the same blocks with latest 'v', 'expected', 'active'
+          const v2 = lastValidation;
+          const expected2 = lastExpected || [];
+          const active2 = lastActive || [];
+          const reasonText2 = v2.ok ? 'Valid' : (v2.reason === 'no-data' ? 'No CSV loaded' : (v2.reason === 'presence' ? 'Missing or extra locales' : v2.reason === 'count' ? 'Count mismatch' : v2.reason === 'order' ? 'Order mismatch' : 'Invalid'));
+          const statusClass2 = v2.ok ? 'file-status success clean' : (v2.reason === 'no-data' ? 'file-status' : (v2.reason === 'presence' ? 'file-status error' : (v2.reason === 'count' || v2.reason === 'order') ? 'file-status warning' : 'file-status'));
+          const statusIcon2 = v2.ok ? '✅' : (v2.reason === 'no-data' ? 'ℹ️' : (v2.reason === 'order' ? '↕️' : v2.reason === 'count' ? '🔢' : '⚠️'));
+          const noDataCta2 = (v2.reason === 'no-data') ? `
+            <div class="no-data-cta" role="region" aria-label="No data actions">
+              <p>Load a CSV to validate locales.</p>
+              <button id="loadCsvNowBtn" class="modal-btn primary">Load CSV…</button>
+            </div>
+          ` : '';
+          const listHtml2 = (arr, badgeCls = '') => Array.isArray(arr) ? arr.map(l => `<li><span class="country-badge ${badgeCls}">${escapeHtml(l)}</span></li>`).join('') : '';
+          const orderTable2 = (!v2.ok && v2.reason === 'order') ? `
+            <h5>Order Comparison</h5>
+            <table aria-label="Locale order comparison">
+              <thead><tr><th>#</th><th>Expected</th><th>Active</th></tr></thead>
+              <tbody>${Array.from({ length: Math.max(expected2.length, active2.length) }, (_, i) => {
+                const eLoc = expected2[i] || '';
+                const aLoc = active2[i] || '';
+                const isMismatch = eLoc !== aLoc;
+                const rowCls = isMismatch ? ' class="warning"' : '';
+                const activeBadgeCls = isMismatch ? 'warning' : 'clean';
+                return `
+                  <tr${rowCls}>
+                    <td>${i + 1}</td>
+                    <td><span class="country-badge clean">${escapeHtml(eLoc)}</span></td>
+                    <td><span class="country-badge ${activeBadgeCls}">${escapeHtml(aLoc)}</span></td>
+                  </tr>
+                `;
+              }).join('')}</tbody>
+            </table>
+          ` : '';
+          const presenceBlocks2 = (!v2.ok && v2.reason === 'presence') ? `
+             <div>
+               <h5>Missing (${(v2.missing || []).length})</h5>
+               <ul>${listHtml2(v2.missing, 'overflow')}</ul>
+             </div>
+             ${(v2.extras && v2.extras.length) ? `<div><h5>Extras (${v2.extras.length})</h5><ul>${listHtml2(v2.extras, 'warning')}</ul></div>` : ''}
+           ` : '';
+          const expectedBlock2 = `
+             <details open>
+               <summary><strong>Expected (${expected2.length})</strong></summary>
+               <ol>${listHtml2(expected2, 'clean')}</ol>
+             </details>
+           `;
+          const activeBlock2 = `
+             <details open>
+               <summary><strong>Active (${active2.length})</strong></summary>
+               <ol>${listHtml2(active2)}</ol>
+             </details>
+           `;
+          const columnsHtml2 = `
+            <div class="validation-columns">
+              <div class="validation-col">${expectedBlock2}</div>
+              <div class="validation-col">${v2.reason === 'no-data' ? '' : activeBlock2}</div>
+            </div>
+          `;
+          const bodyHtml2 = `
+            <div class="validation-details">
+              <div class="${statusClass2}" aria-live="polite">${statusIcon2} ${escapeHtml(reasonText2)}</div>
+              ${noDataCta2}
+              ${!v2.ok && v2.reason === 'count' ? `<p class="warning"><strong>Count:</strong> Expected ${v2.expectedCount}, found ${v2.activeCount}</p>` : ''}
+              ${presenceBlocks2}
+              ${orderTable2}
+              <hr/>
+              ${columnsHtml2}
+            </div>
+          `;
+          // Replace details content
+          const root = container.parentElement || container;
+          root.innerHTML = bodyHtml2;
+          // Re-wire CTA if still in no-data state
+          wireNoDataCta();
+        } catch (_) { /* no-op */ }
+      }
+      document.addEventListener('tf:csvProcessed', onCsvProcessed);
       return;
     }
     // Fallback to generic modal API
@@ -689,8 +781,7 @@ window.requestLocaleBadgeRefresh = (function(){
       m.setBody(bodyHtml);
       m.setButtons([{ label: 'Close', role: 'primary' }]);
       m.show();
-      // Wire CTA after modal renders
-      setTimeout(() => {
+      function wireNoDataCta() {
         const btn = document.getElementById('loadCsvNowBtn');
         if (btn) {
           btn.addEventListener('click', () => {
@@ -700,9 +791,90 @@ window.requestLocaleBadgeRefresh = (function(){
                 if (input && input.click) input.click();
               }
             } catch (_) {}
-          });
+          }, { once: true });
         }
-      }, 0);
+      }
+      setTimeout(wireNoDataCta, 0);
+      function onCsvProcessed() {
+        try {
+          runLocaleValidation();
+          const container = document.querySelector('.modal .validation-details');
+          if (!container) return;
+          const v2 = lastValidation;
+          const expected2 = lastExpected || [];
+          const active2 = lastActive || [];
+          const reasonText2 = v2.ok ? 'Valid' : (v2.reason === 'no-data' ? 'No CSV loaded' : (v2.reason === 'presence' ? 'Missing or extra locales' : v2.reason === 'count' ? 'Count mismatch' : v2.reason === 'order' ? 'Order mismatch' : 'Invalid'));
+          const statusClass2 = v2.ok ? 'file-status success clean' : (v2.reason === 'no-data' ? 'file-status' : (v2.reason === 'presence' ? 'file-status error' : (v2.reason === 'count' || v2.reason === 'order') ? 'file-status warning' : 'file-status'));
+          const statusIcon2 = v2.ok ? '✅' : (v2.reason === 'no-data' ? 'ℹ️' : (v2.reason === 'order' ? '↕️' : v2.reason === 'count' ? '🔢' : '⚠️'));
+          const noDataCta2 = (v2.reason === 'no-data') ? `
+            <div class="no-data-cta" role="region" aria-label="No data actions">
+              <p>Load a CSV to validate locales.</p>
+              <button id="loadCsvNowBtn" class="modal-btn primary">Load CSV…</button>
+            </div>
+          ` : '';
+          const listHtml2 = (arr, badgeCls = '') => Array.isArray(arr) ? arr.map(l => `<li><span class="country-badge ${badgeCls}">${escapeHtml(l)}</span></li>`).join('') : '';
+          const orderTable2 = (!v2.ok && v2.reason === 'order') ? `
+            <h5>Order Comparison</h5>
+            <table aria-label="Locale order comparison">
+              <thead><tr><th>#</th><th>Expected</th><th>Active</th></tr></thead>
+              <tbody>${Array.from({ length: Math.max(expected2.length, active2.length) }, (_, i) => {
+                const eLoc = expected2[i] || '';
+                const aLoc = active2[i] || '';
+                const isMismatch = eLoc !== aLoc;
+                const rowCls = isMismatch ? ' class="warning"' : '';
+                const activeBadgeCls = isMismatch ? 'warning' : 'clean';
+                return `
+                  <tr${rowCls}>
+                    <td>${i + 1}</td>
+                    <td><span class="country-badge clean">${escapeHtml(eLoc)}</span></td>
+                    <td><span class="country-badge ${activeBadgeCls}">${escapeHtml(aLoc)}</span></td>
+                  </tr>
+                `;
+              }).join('')}</tbody>
+            </table>
+          ` : '';
+          const presenceBlocks2 = (!v2.ok && v2.reason === 'presence') ? `
+             <div>
+               <h5>Missing (${(v2.missing || []).length})</h5>
+               <ul>${listHtml2(v2.missing, 'overflow')}</ul>
+             </div>
+             ${(v2.extras && v2.extras.length) ? `<div><h5>Extras (${v2.extras.length})</h5><ul>${listHtml2(v2.extras, 'warning')}</ul></div>` : ''}
+           ` : '';
+          const expectedBlock2 = `
+             <details open>
+               <summary><strong>Expected (${expected2.length})</strong></summary>
+               <ol>${listHtml2(expected2, 'clean')}</ol>
+             </details>
+           `;
+          const activeBlock2 = `
+             <details open>
+               <summary><strong>Active (${active2.length})</strong></summary>
+               <ol>${listHtml2(active2)}</ol>
+             </details>
+           `;
+          const columnsHtml2 = `
+            <div class="validation-columns">
+              <div class="validation-col">${expectedBlock2}</div>
+              <div class="validation-col">${v2.reason === 'no-data' ? '' : activeBlock2}</div>
+            </div>
+          `;
+          const bodyHtml2 = `
+            <div class="validation-details">
+              <div class="${statusClass2}" aria-live="polite">${statusIcon2} ${escapeHtml(reasonText2)}</div>
+              ${noDataCta2}
+              ${!v2.ok && v2.reason === 'count' ? `<p class="warning"><strong>Count:</strong> Expected ${v2.expectedCount}, found ${v2.activeCount}</p>` : ''}
+              ${presenceBlocks2}
+              ${orderTable2}
+              <hr/>
+              ${columnsHtml2}
+            </div>
+          `;
+          const root = container.parentElement || container;
+          root.innerHTML = bodyHtml2;
+          wireNoDataCta();
+        } catch (_) { /* no-op */ }
+      }
+      document.addEventListener('tf:csvProcessed', onCsvProcessed);
       return;
     }
     // Last resort within Modal system

@@ -14,6 +14,36 @@
       csvInput.style.display = 'none';
       document.body.appendChild(csvInput);
     }
+    // Ensure a single, robust change handler is attached (for CSV/XML/JSON/Image)
+    if (!csvInput.dataset.bound) {
+      csvInput.addEventListener('change', async (e) => {
+        try {
+          const file = e.target && e.target.files && e.target.files[0];
+          if (!file) return;
+          const name = (file.name || '').toLowerCase();
+          if (file.type === 'text/csv' || name.endsWith('.csv')) {
+            if (typeof handleCsvUpload === 'function') handleCsvUpload(file);
+          } else if (name.endsWith('.xml') || file.type === 'application/xml' || file.type === 'text/xml') {
+            if (typeof handleXmlUpload === 'function') handleXmlUpload(file);
+            else { /* XML support pending */ }
+          } else if (name.endsWith('.json') || file.type === 'application/json') {
+            const text = await file.text();
+            try {
+              const data = JSON.parse(text);
+              if (Array.isArray(data)) {
+                window.currentCsvData = data;
+                if (typeof window.renderLocaleGroups === 'function') window.renderLocaleGroups(data);
+                if (typeof updateFileInfo === 'function') updateFileInfo('JSON', file.name, data.length || 0);
+                if (typeof updateLocalizedExportState === 'function') updateLocalizedExportState(true);
+              }
+            } catch (_) { /* ignore invalid JSON */ }
+          } else if (file.type && file.type.startsWith('image/')) {
+            if (typeof handleImageUpload === 'function') handleImageUpload(file);
+          }
+        } catch (_) { /* swallow errors to keep UX clean */ }
+      });
+      csvInput.dataset.bound = '1';
+    }
     return csvInput;
   }
   // expose globally for other modules/buttons
