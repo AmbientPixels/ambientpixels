@@ -402,8 +402,10 @@ function renderLocaleGroups(csvData) {
   csvData.forEach(row => {
     const locale = row.Locale || row.locale || 'unknown';
     const title = row['items/0/title'] || row.Title || row.title || '';
-    const subtitle = row['items/0/subtitle'] || row.Subtitle || row.subtitle || '';
-    const narratorText = row['items/0/narratorText'] || row.NarratorText || row.narratorText || '';
+    // Support Mobile Spotlight schema: `description` as subtitle
+    const subtitle = row['items/0/subtitle'] || row.Subtitle || row.subtitle || row.description || row.Description || '';
+    // Support Mobile Spotlight schema: `accessibilityString` as narrator text
+    const narratorText = row['items/0/narratorText'] || row.NarratorText || row.narratorText || row.accessibilityString || row['Accessibility String'] || '';
     
     if (!localeGroups[locale]) {
       localeGroups[locale] = [];
@@ -583,7 +585,8 @@ function resetSectionEditor(button) {
     const row = currentCsvData.find(r => (r.Locale || r.locale) === locale);
     if (row) {
       const originalTitle = row['items/0/title'] || row.Title || row.title || '';
-      const originalSubtitle = row['items/0/subtitle'] || row.Subtitle || row.subtitle || '';
+      // Also consider `description` for Mobile Spotlight when restoring subtitle
+      const originalSubtitle = row['items/0/subtitle'] || row.Subtitle || row.subtitle || row.description || row.Description || '';
       
       const titleInput = editor.querySelector('.section-title-input');
       const subtitleInput = editor.querySelector('.section-subtitle-input');

@@ -26,12 +26,22 @@ function parseCSV(csvText) {
   const lines = (csvText || '').trim().split(/\r?\n/);
   if (lines.length < 2) return [];
 
+  // Simple CSV field cleaner: trim, remove surrounding quotes, unescape doubled quotes
+  function cleanField(v) {
+    if (v == null) return '';
+    let s = String(v).trim();
+    if (s.length >= 2 && s[0] === '"' && s[s.length - 1] === '"') {
+      s = s.slice(1, -1).replace(/""/g, '"');
+    }
+    return s;
+  }
+
   // If the first line is the dummy W-width line, skip it and use the next line as header
   // Detect delimiter based on the actual header line
   let headerIndex = 0;
   let probeDelimiter = lines[0].includes('\t') ? '\t' : ',';
   const looksLikeDummyHeader = (function(rawLine){
-    const tokens = rawLine.split(probeDelimiter).map(t => t.trim());
+    const tokens = rawLine.split(probeDelimiter).map(t => cleanField(t));
     if (tokens.length < 2) return false;
     const first = tokens[0];
     const last = tokens[tokens.length - 1];
@@ -48,12 +58,12 @@ function parseCSV(csvText) {
   const headerLine = lines[headerIndex];
   const delimiter = headerLine.includes('\t') ? '\t' : ',';
 
-  const headers = headerLine.split(delimiter).map(h => h.trim());
+  const headers = headerLine.split(delimiter).map(h => cleanField(h));
   const rows = [];
 
   // Helper to detect the dummy W-line to ignore
   function isDummyWLine(rawLine) {
-    const tokens = rawLine.split(delimiter).map(t => t.trim());
+    const tokens = rawLine.split(delimiter).map(t => cleanField(t));
     if (tokens.length < 2) return false;
     const first = tokens[0];
     const last = tokens[tokens.length - 1];
@@ -68,6 +78,20 @@ function parseCSV(csvText) {
     return false;
   }
 
+  // Helper to detect the repeated human-readable header row often present after the real header
+  const aliasHeaderSets = [
+    // Iris duplicate header row
+    ['locale', 'title', 'subtitle', 'narrator text'],
+    // Mobile Spotlight duplicate header row
+    ['locale', 'title', 'description', 'accessibility string']
+  ];
+  function isAliasHeaderValues(values) {
+    if (!values || values.length !== headers.length) return false;
+    const norm = values.map(v => String(v).trim().toLowerCase());
+    const joined = norm.join('\u0001');
+    return aliasHeaderSets.some(set => joined === set.join('\u0001'));
+  }
+
   for (let i = headerIndex + 1; i < lines.length; i++) {
     const raw = lines[i].trim();
     if (!raw) continue;
@@ -75,7 +99,11 @@ function parseCSV(csvText) {
     // updated by Cascade: skip dummy W line to fix locale propagation issues
     if (isDummyWLine(raw)) continue;
 
-    const values = raw.split(delimiter).map(v => v.trim());
+    const values = raw.split(delimiter).map(v => cleanField(v));
+
+    // Skip duplicated human-readable header row (e.g., Locale, Title, Subtitle, Narrator Text)
+    if (isAliasHeaderValues(values)) continue;
+
     const row = {};
 
     headers.forEach((header, index) => {
@@ -247,7 +275,8 @@ function updateAnalyticsFromCurrentData() {
   window.currentCsvData.forEach(row => {
     const locale = row.Locale || row.locale || 'unknown';
     const title = row['items/0/title'] || row.Title || row.title || '';
-    const subtitle = row['items/0/subtitle'] || row.Subtitle || row.subtitle || '';
+    // Treat Mobile Spotlight `description` as subtitle as well
+    const subtitle = row['items/0/subtitle'] || row.Subtitle || row.subtitle || row.description || row.Description || '';
     
     if (!localeGroups[locale]) {
       localeGroups[locale] = true;
