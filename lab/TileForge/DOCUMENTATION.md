@@ -1158,3 +1158,59 @@ TileForge/
 - Analytics dashboard
 
 This documentation reflects the current state of TileForge as a comprehensive Xbox tile localization tool with advanced visual measurement, country identification, and image analysis capabilities.
+
+## ✅ Locale Validation — Presence, Count, and Exact Order
+
+### Overview
+Ensures all required locales for the active template are present, counted correctly, and in the exact expected order.
+
+- Templates covered: Top of Home (ToH) and Mobile Spotlight
+- Expected sets source: `lab/TileForge/js/locale-mapping.js` → `TileForgeLocales.getDefaultSet(templateKey)`
+- Active set source: `getActiveLocalesForPreview()` (CSV-derived or Manage Locales selection)
+
+### UI Placement
+- Badge id: `#localeValidationBadge`
+- Location: Toolbar info row next to `#statusInfoBadge` in `lab/TileForge/index.html`
+- Behavior: Shows “Locales: Valid” or “Locales: Invalid” and is clickable/focusable
+
+### Triggers
+Validation recalculates automatically on:
+- `tf:csvProcessed` — after CSV is loaded/processed
+- `tf:templateSwitched` — when switching between ToH and Mobile Spotlight
+- `tf:localesChanged` — after applying changes in Manage Locales modal
+
+### Modal Details (Shared Modal System)
+- Opens on click/Enter/Space of the badge
+- API preference order:
+  1) `Modal.createTabbedModal({ title, tabs: [{ title: 'Summary', content }], size: 'large' })`
+  2) `Modal.create({ title, size }).setBody(content).show()`
+  3) `Modal.alert(message, kind)`
+- Content includes:
+  - Status banner: Valid / Missing or extra locales / Count mismatch / Order mismatch
+  - Presence lists: Missing and Extras (when applicable)
+  - Count details: Expected vs Found
+  - Order comparison table: Expected vs Active with mismatches highlighted
+  - Full lists: `<details>` blocks for Expected and Active sequences
+
+### Styling (Reuses Existing Classes)
+- Status banner: `.file-status` with variants `success`, `warning`, `error`
+- Locale chips: `.country-badge` (with contextual `clean`, `warning`, `overflow`)
+- Mismatch emphasis: `.warning` applied to rows/cells in the order table
+- No new CSS added; leverages tokens already in `css/styles.css`
+
+### Accessibility
+- Badge configured with `role="button"`, `tabindex="0"`, keyboard activation (Enter/Space)
+- Pointer cursor set programmatically for hover affordance
+- Modal content uses semantic markup and ARIA labels where appropriate
+
+### Implementation Notes
+- File: `lab/TileForge/js/analytics.js`
+  - `renderValidationBadge(validation)` renders badge text/affordances and binds events
+  - `showLocaleValidationDetails()` builds the HTML report and opens the modal
+  - Stores last snapshot for modal: `lastValidation`, `lastExpected`, `lastActive`
+- Integration points:
+  - Template key via `template-system.js` (`getCurrentTemplateKey()`)
+  - Locale changes dispatched by `main.js` (`tf:localesChanged`)
+  - Badge updated along with analytics after CSV processing
+
+<!-- updated by Cascade: locale validation badge + modal documentation -->

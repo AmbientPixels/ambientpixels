@@ -398,3 +398,278 @@ window.requestLocaleBadgeRefresh = (function(){
     });
   };
 })();
+
+// ------------------------------
+// Locale Presence & Order Validation (Toolbar Badge)
+// ------------------------------
+// Compares active locales for preview vs. required default set for current template
+// Requirements: presence, count, and exact order.
+//
+(function setupLocaleValidation() {
+  let lastValidation = null;
+  let lastExpected = [];
+  let lastActive = [];
+
+  function normalizeLocale(code) {
+    if (!code) return '';
+    return /^invariant$/i.test(String(code)) ? 'INVARIANTCULTURE' : String(code).toUpperCase();
+  }
+
+  function getExpectedLocales() {
+    try {
+      const templateKey = (window.templateSystem && typeof window.templateSystem.getCurrentTemplateKey === 'function')
+        ? window.templateSystem.getCurrentTemplateKey()
+        : 'toh';
+      const type = (templateKey === 'mobile-spotlight') ? 'mobile' : 'toh';
+      const api = window.TileForgeLocales;
+      if (!api || typeof api.getDefaultSet !== 'function') return [];
+      return (api.getDefaultSet(type) || []).map(normalizeLocale);
+    } catch (_) { return []; }
+  }
+
+  function getActiveLocalesSequence() {
+    // Prefer dedicated getter if available (source of truth per main.js)
+    try {
+      if (typeof window.getActiveLocalesForPreview === 'function') {
+        return (window.getActiveLocalesForPreview() || []).map(normalizeLocale);
+      }
+    } catch (_) {}
+    // Fallback: derive from currentCsvData in current order
+    const rows = (window.currentCsvData && Array.isArray(window.currentCsvData)) ? window.currentCsvData : [];
+    return rows.map(r => normalizeLocale(r.Locale || r.locale)).filter(Boolean);
+  }
+
+  function validateLocales(activeSeq, expectedSeq) {
+    const result = {
+      ok: false,
+      reason: '',
+      missing: [],
+      extras: [],
+      expectedCount: expectedSeq.length,
+      activeCount: activeSeq.length
+    };
+
+    // Presence: build sets
+    const setExpected = new Set(expectedSeq);
+    const setActive = new Set(activeSeq);
+    expectedSeq.forEach(loc => { if (!setActive.has(loc)) result.missing.push(loc); });
+    activeSeq.forEach(loc => { if (!setExpected.has(loc)) result.extras.push(loc); });
+
+    if (result.missing.length > 0 || result.extras.length > 0) {
+      result.reason = 'presence';
+      return result;
+    }
+
+    // Count must match exactly
+    if (activeSeq.length !== expectedSeq.length) {
+      result.reason = 'count';
+      return result;
+    }
+
+    // Exact order check
+    for (let i = 0; i < expectedSeq.length; i++) {
+      if (activeSeq[i] !== expectedSeq[i]) {
+        result.reason = 'order';
+        return result;
+      }
+    }
+
+    result.ok = true;
+    return result;
+  }
+
+  function renderValidationBadge(validation) {
+    const el = document.getElementById('localeValidationBadge');
+    if (!el) return;
+
+    if (!validation) {
+      el.textContent = '—';
+      el.title = 'Locale validation status';
+      el.setAttribute('aria-label', 'Locale validation status');
+      el.setAttribute('role', 'button');
+      el.setAttribute('tabindex', '0');
+      try { el.style.cursor = 'pointer'; } catch (_) {}
+      return;
+    }
+
+    if (validation.ok) {
+      el.innerHTML = '<span class="label">Locales:</span> <span class="count">Valid</span>';
+      el.title = `All ${validation.expectedCount} locales present in exact order`;
+      el.setAttribute('aria-label', `Locale validation: valid. All ${validation.expectedCount} locales present in exact order.`);
+    } else {
+      let msg = '';
+      if (validation.reason === 'presence') {
+        const miss = validation.missing.slice(0, 4).join(', ');
+        const extra = validation.extras.slice(0, 4).join(', ');
+        msg = `Missing: ${validation.missing.length}${miss ? ` (${miss}${validation.missing.length > 4 ? ', …' : ''})` : ''}` +
+              (validation.extras.length ? ` • Extras: ${validation.extras.length}${extra ? ` (${extra}${validation.extras.length > 4 ? ', …' : ''})` : ''}` : '');
+      } else if (validation.reason === 'count') {
+        msg = `Expected ${validation.expectedCount}, found ${validation.activeCount}`;
+      } else if (validation.reason === 'order') {
+        msg = 'Order mismatch';
+      } else {
+        msg = 'Invalid';
+      }
+      el.innerHTML = `<span class="label">Locales:</span> <span class="count">Invalid</span>`;
+      el.title = msg;
+      el.setAttribute('aria-label', `Locale validation: invalid. ${msg}`);
+    }
+
+    // Make the pill behave like a button for accessibility
+    el.setAttribute('role', 'button');
+    el.setAttribute('tabindex', '0');
+    try { el.style.cursor = 'pointer'; } catch (_) {}
+
+    // Bind click/keyboard once
+    if (!el.dataset.validationBound) {
+      el.addEventListener('click', showLocaleValidationDetails);
+      el.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          showLocaleValidationDetails();
+        }
+      });
+      el.dataset.validationBound = '1';
+    }
+  }
+
+  function runLocaleValidation() {
+    try {
+      const expected = getExpectedLocales();
+      const active = getActiveLocalesSequence();
+      const result = validateLocales(active, expected);
+      lastExpected = expected;
+      lastActive = active;
+      lastValidation = result;
+      renderValidationBadge(result);
+    } catch (_) {
+      renderValidationBadge(null);
+    }
+  }
+
+  function showLocaleValidationDetails() {
+    // Build detail content from lastValidation/lastExpected/lastActive
+    const v = lastValidation;
+    const expected = lastExpected || [];
+    const active = lastActive || [];
+
+    // If validation hasn't run yet, use Modal system for the notice
+    if (!v) {
+      if (window.Modal && typeof window.Modal.alert === 'function') {
+        window.Modal.alert('Locale validation has not run yet.', 'info');
+      }
+      return;
+    }
+
+    const reasonText = v.ok ? 'Valid' : (v.reason === 'presence' ? 'Missing or extra locales' : v.reason === 'count' ? 'Count mismatch' : v.reason === 'order' ? 'Order mismatch' : 'Invalid');
+    // Map status to existing visual classes
+    const statusClass = v.ok
+      ? 'file-status success clean'
+      : (v.reason === 'presence' ? 'file-status error'
+         : (v.reason === 'count' || v.reason === 'order') ? 'file-status warning' : 'file-status');
+
+    const listHtml = (arr, badgeCls = '') => arr.map(l => `<li><span class="country-badge ${badgeCls}">${escapeHtml(l)}</span></li>`).join('');
+
+    // Order diff table
+    let orderTable = '';
+    if (!v.ok && v.reason === 'order') {
+      const max = Math.max(expected.length, active.length);
+      const rows = [];
+      for (let i = 0; i < max; i++) {
+        const eLoc = expected[i] || '';
+        const aLoc = active[i] || '';
+        const isMismatch = eLoc !== aLoc;
+        const rowCls = isMismatch ? ' class="warning"' : '';
+        const activeBadgeCls = isMismatch ? 'warning' : 'clean';
+        rows.push(`
+          <tr${rowCls}>
+            <td>${i + 1}</td>
+            <td><span class="country-badge clean">${escapeHtml(eLoc)}</span></td>
+            <td><span class="country-badge ${activeBadgeCls}">${escapeHtml(aLoc)}</span></td>
+          </tr>
+        `);
+      }
+      orderTable = `
+        <h5>Order Comparison</h5>
+        <table aria-label="Locale order comparison">
+          <thead><tr><th>#</th><th>Expected</th><th>Active</th></tr></thead>
+          <tbody>${rows.join('')}</tbody>
+        </table>
+      `;
+    }
+
+    const presenceBlocks = (!v.ok && v.reason === 'presence') ? `
+       <div>
+         <h5>Missing (${v.missing.length})</h5>
+         <ul>${listHtml(v.missing, 'overflow')}</ul>
+       </div>
+       ${v.extras.length ? `<div><h5>Extras (${v.extras.length})</h5><ul>${listHtml(v.extras, 'warning')}</ul></div>` : ''}
+     ` : '';
+
+    const expectedBlock = `
+       <details open>
+         <summary><strong>Expected (${expected.length})</strong></summary>
+         <ol>${listHtml(expected, 'clean')}</ol>
+       </details>
+     `;
+    const activeBlock = `
+       <details open>
+         <summary><strong>Active (${active.length})</strong></summary>
+         <ol>${listHtml(active)}</ol>
+       </details>
+     `;
+
+    const statusIcon = v.ok ? '✅' : (v.reason === 'order' ? '↕️' : v.reason === 'count' ? '🔢' : '⚠️');
+    const bodyHtml = `
+      <div class="validation-details">
+        <div class="${statusClass}" aria-live="polite">${statusIcon} ${escapeHtml(reasonText)}</div>
+        ${!v.ok && v.reason === 'count' ? `<p class="warning"><strong>Count:</strong> Expected ${v.expectedCount}, found ${v.activeCount}</p>` : ''}
+        ${presenceBlocks}
+        ${orderTable}
+        <hr/>
+        ${expectedBlock}
+        ${activeBlock}
+      </div>
+    `;
+
+    // Prefer tabbed modal API with a single tab
+    if (window.Modal && typeof window.Modal.createTabbedModal === 'function') {
+      const modal = window.Modal.createTabbedModal({
+        title: 'Locale Validation Details',
+        size: 'large',
+        tabs: [
+          { title: 'Summary', icon: '🧩', content: bodyHtml }
+        ],
+        activeTab: 0
+      });
+      modal.show();
+      return;
+    }
+    // Fallback to generic modal API
+    if (window.Modal && typeof window.Modal.create === 'function') {
+      const m = window.Modal.create({ title: 'Locale Validation Details', size: 'large' });
+      m.setBody(bodyHtml);
+      m.setButtons([{ label: 'Close', role: 'primary' }]);
+      m.show();
+      return;
+    }
+    // Last resort within Modal system
+    if (window.Modal && typeof window.Modal.alert === 'function') {
+      window.Modal.alert(reasonText, v.ok ? 'success' : 'warning');
+    }
+  }
+
+  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c])); }
+
+  // Hook up events: CSV processed, template switch, locales changed
+  document.addEventListener('tf:csvProcessed', runLocaleValidation);
+  document.addEventListener('tf:templateSwitched', runLocaleValidation);
+  document.addEventListener('tf:localesChanged', runLocaleValidation);
+
+  // Also run once on DOM ready (in case default data loads later)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runLocaleValidation);
+  } else {
+    runLocaleValidation();
+  }
+})();

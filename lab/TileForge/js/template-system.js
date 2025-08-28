@@ -106,6 +106,9 @@ function selectTemplate(templateType) {
   // Show template status
   showTemplateStatus(templateType);
   
+  // Notify listeners about template change (for validation, analytics, etc.) /* updated by Cascade */
+  try { document.dispatchEvent(new CustomEvent('tf:templateSwitched', { detail: { template: templateType } })); } catch (_) {}
+  
   console.log(`✅ Template switched to: ${TEMPLATE_CONFIG[templateType].name}`);
 }
 
@@ -203,7 +206,9 @@ window.templateSystem = {
   getCurrentLimits: getCurrentLimits,
   getFontSettings: getTemplateFontSettings,
   getLineClamps: getTemplateLineClamps,
-  getTextWidth: getTileTextWidth
+  getTextWidth: getTileTextWidth,
+  // Expose current template key for consumers that need to branch on ToH vs Mobile /* updated by Cascade */
+  getCurrentTemplateKey: function() { return currentTemplate; },
 };
 
 console.log('📦 Template System module loaded');

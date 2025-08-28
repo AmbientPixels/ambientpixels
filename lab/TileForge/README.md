@@ -21,6 +21,7 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 - **Improved UI & Control Panel:** New control panel for easier workflow and navigation.
 - **Manage Locales:** Panel and toolbar button to view, add, or remove locales. Toolbar button is enabled only when localization CSV data is loaded. <!-- updated by Cascade -->
  - **Locale Manager (Modal):** Language filter pills (with "All") + search for fast narrowing, pill‑styled action buttons, and correct defaults: "Load ToH Locales" selects all except INVARIANT; "Load Mobile Locales" selects all. Styles are fully scoped under `#localePickerModal`. <!-- updated by Cascade -->
+- **Locale Validation Badge + Modal:** Validates presence, count, and exact order of required locales for Top of Home and Mobile Spotlight. A new badge next to `Locales:` updates on CSV load, template switch, and locale changes. Click to open a styled modal with missing/extra lists and an order comparison table. Accessible via keyboard; uses the shared Modal system. <!-- updated by Cascade -->
 - **Loading Default Template (Coming Soon):** Option to load a default mapping/template (feature in progress).
 - **Arabic & Special Character Support:** Fixed issues with Arabic and special characters in data and preview.
 - **New Case Converter Tool:** Added a dedicated Case Converter module for fast text case transformations.
@@ -52,6 +53,7 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 - **Text Overflow Detection** - Template-aware automatic detection and warnings
 - **Visual Feedback** - Clear indicators for ellipsis and overflow issues
 - **CSV Transformation** - Convert generic localization data to TileForge and Iris-compatible Xbox locale format
+- **Locale Validation** - Badge indicates Valid/Invalid; modal details show missing/extra locales, count mismatches, and expected vs active order with highlights
 
 ### 🖱️ Modern Interface
  - **Template Selection** - Visual template picker with live preview switching
@@ -76,8 +78,9 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 - **Case Converter Tool:** Instantly convert text to UPPER, lower, Title, or Sentence case for any field or batch of text. Great for localization and consistency.
 - **Clear All:** One-click reset for all mapping and preview data—useful for rapid iteration or starting over.
 - **Manage Locales:** Panel and toolbar button to view, add, or remove locales. Toolbar button is enabled only when localization CSV data is loaded. <!-- updated by Cascade -->
-- **GridPeek (CSV Viewer):** Quick, formatted view of CSV data. Opens in a modal; shows first 200 rows with column headers and displays the file name when opened from a specific file. Launch via the top toolbar table icon, Projects panel quick‑view, or the per‑file GridPeek button beside Rename. <!-- updated by Cascade -->
+- **GridPeek (CSV Viewer):** Quick, formatted view of CSV data. Opens in a modal; shows first 200 rows with column headers and displays the file name when opened from a specific file. Launch via the top toolbar table icon, Projects panel quick‑view, or the new per‑file GridPeek button beside Rename. <!-- updated by Cascade -->
 - **Arabic & Special Character Support:** Full UTF-8 support for right-to-left and special language characters.
+- **Locale Validation Badge + Modal:** Validates presence, count, and exact order of required locales for Top of Home and Mobile Spotlight. A new badge next to `Locales:` updates on CSV load, template switch, and locale changes. Click to open a styled modal with missing/extra lists and an order comparison table. Accessible via keyboard; uses the shared Modal system. <!-- updated by Cascade -->
 
 ### 💡 Tips & Tricks
 - Use the **Case Converter** to quickly batch-convert all text fields before export—saves tons of manual editing!
@@ -88,6 +91,7 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 - Check the **modal drop zone** for file type support and workflow tips.
 - Coming soon: **Default Template Loader** for instant mapping setup.
  - Subtitle Symbols: leaving the selector at “No symbol” preserves existing templates; picking a symbol only appends when `{n}` is present and the template doesn’t already include %/currency. <!-- updated by Cascade -->
+- **Locale Validation Details**: Click the small validation badge next to the analytics pill in the toolbar row. The modal shows status (Valid/Invalid), missing/extra locales, count differences, and an expected vs active order table. Triggers automatically on CSV load, template switch, and locale changes. <!-- updated by Cascade -->
 
 ---
 
@@ -109,7 +113,8 @@ TileForge is a professional web-based tool designed for Xbox game developers and
    - Or click **"Transform Data"** in the Tools section for manual transformation <!-- updated by Cascade -->
 5. **Preview Results**: View tiles for all locales with template-specific overflow warnings
 6. **Manage Locales**: Use the left panel button or the toolbar "Manage Locales" button (enabled after CSV load). In the modal, use the language pills (or search) to filter, and the action pills to Select/Clear or load defaults (ToH excludes INVARIANT; Mobile includes all). Apply to update previews and export scope. <!-- updated by Cascade -->
-7. **Live Edit**: Click any tile to edit text with real-time preview
+7. **Locale Validation Details**: Click the small validation badge next to the analytics pill in the toolbar row. The modal shows status (Valid/Invalid), missing/extra locales, count differences, and an expected vs active order table. Triggers automatically on CSV load, template switch, and locale changes. <!-- updated by Cascade -->
+8. **Live Edit**: Click any tile to edit text with real-time preview
 
 ### 3. CSV Format
 Your CSV file should contain columns:

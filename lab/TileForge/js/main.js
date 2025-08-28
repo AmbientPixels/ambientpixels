@@ -98,6 +98,8 @@ function openManageLocales() {
     }
     window.currentCsvData = mergedRows;
     renderLocaleGroups(mergedRows);
+    // Notify listeners that active locales and data order changed (for validation)
+    try { document.dispatchEvent(new CustomEvent('tf:localesChanged', { detail: { locales: getActiveLocalesForPreview() } })); } catch (_) {}
   }, pre);
 }
 
@@ -806,7 +808,7 @@ function createFeaturesTabContent() {
         <li><strong>Dark Theme:</strong> Professional dark interface optimized for extended use</li>
         <li><strong>Responsive Design:</strong> Works seamlessly across desktop, tablet, and mobile devices</li>
         <li><strong>Modular CSS:</strong> Clean, maintainable stylesheet architecture with zero duplication</li>
-        <li><strong>Accessibility:</strong> Keyboard navigation, focus management, and screen reader support</li>
+        <li><strong>Accessibility:</strong> ARIA labels, keyboard navigation, focus management</li>
         <li><strong>Smooth Animations:</strong> Polished transitions and micro-interactions throughout the interface</li>
       </ul>
     </div>
