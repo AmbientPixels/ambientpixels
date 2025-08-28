@@ -356,9 +356,20 @@ function generateCSVContent(data) {
     }
     return '';
   }
-  
+
   // Create CSV header row
   const csvLines = [headers.join(',')];
+
+  // Insert human-readable alias header row to match Iris exports
+  const aliasHeader = headers.map(h => {
+    const k = String(h || '').toLowerCase();
+    if (k === 'locale') return 'Locale';
+    if (k === 'items/0/title' || k === 'title') return 'Title';
+    if (k === 'items/0/subtitle' || k === 'subtitle' || k === 'description') return 'Subtitle';
+    if (k === 'items/0/narratortext' || k === 'narratortext' || k === 'accessibility string' || k === 'accessibilitystring') return 'Narrator Text';
+    return h;
+  });
+  csvLines.push(aliasHeader.join(','));
   
   // Add data rows
   data.forEach(row => {
@@ -382,6 +393,8 @@ function generateCSVContent(data) {
         h === 'accessibilitystring'
       ) {
         value = prefer(row, ['items/0/narratorText', 'narratorText', 'Accessibility String', 'accessibilityString']);
+      } else if (h === 'locale') {
+        value = prefer(row, ['Locale', 'locale']);
       } else {
         // Default: use the field as-is
         value = row[header] != null ? String(row[header]) : '';
