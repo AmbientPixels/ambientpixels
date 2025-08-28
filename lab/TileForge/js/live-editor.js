@@ -481,7 +481,10 @@ function setupLiveEditor() {
     // Initial enabled state from checkbox
     const enabledCb = section.querySelector('.section-enabled');
     if (enabledCb) {
-      setSectionEnabledState(section, !!enabledCb.checked);
+      // updated by Cascade: force ON at load so presets are enabled by default
+      enabledCb.checked = true;
+      setSectionEnabledState(section, true);
+      // Preserve user control after initialization
       enabledCb.addEventListener('change', () => setSectionEnabledState(section, !!enabledCb.checked));
     }
 
@@ -526,12 +529,12 @@ function updateLiveEditorEnabled(hasData) {
         el.disabled = !enabled;
       });
     };
+    // updated by Cascade: keep sections enabled by default, even with no data
+    const shouldEnable = (hasData === false) ? true : !!hasData; // treat false as enabled
     document.querySelectorAll('.preset-section').forEach(section => {
-      // Sync checkbox visual state
       const enabledCb = section.querySelector('.section-enabled');
-      if (enabledCb) enabledCb.checked = !!hasData;
-      // Disable/enable interactive elements within body
-      enableFn(section, !!hasData);
+      if (enabledCb) enabledCb.checked = shouldEnable;
+      enableFn(section, shouldEnable);
     });
   } catch (e) { /* no-op */ }
 }
