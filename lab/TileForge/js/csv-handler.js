@@ -344,8 +344,18 @@ function generateCSVContent(data) {
     throw new Error('No data to export');
   }
   
-  // Get headers from first row
+  // Get headers from first row (preserve original columns/order)
   const headers = Object.keys(data[0]);
+
+  // Helper: pick first non-empty value from preferred keys
+  function prefer(row, keys) {
+    for (const k of keys) {
+      if (row.hasOwnProperty(k) && row[k] != null && String(row[k]).trim() !== '') {
+        return String(row[k]);
+      }
+    }
+    return '';
+  }
   
   // Create CSV header row
   const csvLines = [headers.join(',')];
@@ -353,8 +363,31 @@ function generateCSVContent(data) {
   // Add data rows
   data.forEach(row => {
     const values = headers.map(header => {
-      const value = row[header] || '';
-      // Escape commas and quotes in CSV values
+      const h = String(header || '').toLowerCase();
+      let value = '';
+
+      // Resolve common aliases so live-edited fields are exported even if headers are legacy
+      if (h === 'items/0/title' || h === 'title') {
+        value = prefer(row, ['items/0/title', 'Title', 'title']);
+      } else if (
+        h === 'items/0/subtitle' ||
+        h === 'subtitle' ||
+        h === 'description'
+      ) {
+        value = prefer(row, ['items/0/subtitle', 'Subtitle', 'subtitle', 'description', 'Description']);
+      } else if (
+        h === 'items/0/narratortext' ||
+        h === 'narratortext' ||
+        h === 'accessibility string' ||
+        h === 'accessibilitystring'
+      ) {
+        value = prefer(row, ['items/0/narratorText', 'narratorText', 'Accessibility String', 'accessibilityString']);
+      } else {
+        // Default: use the field as-is
+        value = row[header] != null ? String(row[header]) : '';
+      }
+
+      // Escape commas, quotes, newlines
       if (value.includes(',') || value.includes('"') || value.includes('\n')) {
         return `"${value.replace(/"/g, '""')}"`;
       }
