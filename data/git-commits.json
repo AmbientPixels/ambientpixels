@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "519898c6-1025-46ee-93ba-bd112685b432",
-      "hash": "4c1e3d089d09668c08a2a4aba2b551268845945e",
-      "message": "chore(tileforge): bump to 2.4.1 and update About hotfix notes; fix Settings > About layout",
-      "timestamp": "2025-08-27 23:51:22 -0700",
+      "id": "2bdd2cbf-31e3-4e09-a056-2d5e33670b2d",
+      "hash": "5673f7aff8124c646433289d37465fac52522585",
+      "message": "Merge branch 'master' of https://github.com/AmbientPixels/ambientpixels",
+      "timestamp": "2025-08-28 11:18:13 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/4c1e3d089d09668c08a2a4aba2b551268845945e"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/5673f7aff8124c646433289d37465fac52522585"
     }
   ],
-  "timestamp": "2025-08-28T13:30:29.108Z",
+  "timestamp": "2025-08-29T13:29:16.252Z",
   "count": 1,
-  "scanId": 1756387829108
+  "scanId": 1756474156252
 }
