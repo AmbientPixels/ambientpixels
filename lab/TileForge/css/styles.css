@@ -1273,6 +1273,11 @@ body {
 .drop-zone, .drop-zone-content {
   display: none !important;
 } /* updated by Cascade 2025-08-14 */
+/* Allow drop-zone inside modals (e.g., Line Name Generator) */ /* updated by Cascade 2025-08-30 */
+.modal .drop-zone,
+.modal .drop-zone-content {
+  display: block !important;
+}
 .dnd-image-zone.drag-over {
   box-shadow: 0 0 0 4px #4f8cff66;
   border: 2.5px dashed #4f8cff;

@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TileForge - Xbox Tile Localization Preview</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Global utilities (margin, spacing, layout). Provides mt-*, mb-*, etc.  --> <!-- added by Cascade -->
+  <link rel="stylesheet" href="../../css/utility.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/case-converter.css">
@@ -332,6 +334,7 @@
         <div class="tool-group">
           <button class="control-btn transform-btn" onclick="openTransformModal()"><i class="fas fa-exchange-alt"></i> Transform Data</button>
           <button class="control-btn headliner-btn" onclick="openHeadlinerCrafter()"><i class="fas fa-magic"></i> Headline Mapper</button>
+          <button class="control-btn" onclick="openLineNameGenerator()"><i class="fas fa-list"></i> Line Name Generator (CSV)</button>
         </div>
       </div>
       
@@ -789,6 +792,7 @@
   <script src="js/transform-modal.js"></script>
   <script src="js/headliner-crafter.js"></script>
   <script src="js/mapping-modal.js"></script>
+  <script src="js/line-name-generator-modal.js"></script>
   <script src="js/csv-handler.js"></script>
   <script src="js/tile-renderer.js"></script>
   <script src="js/locale-mapping.js"></script>

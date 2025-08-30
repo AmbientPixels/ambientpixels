@@ -394,6 +394,28 @@
   min-height: 80px;
 }
 
+/* Modal utility helpers (scoped) */ /* added by Cascade */
+.modal-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px; /* align with modal spacing rhythm */
+}
+
+/* Accessible, off-screen input for file pickers */ /* added by Cascade */
+.visually-hidden-input {
+  position: absolute !important;
+  left: -10000px !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
 .modal-form-select {
   width: 100%;
   padding: 10px 12px;

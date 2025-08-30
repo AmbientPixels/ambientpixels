@@ -17,6 +17,8 @@ class MappingModal {
     console.log('🎨 Mapping Modal initialized (Clean Version)');
   }
 
+  /* Line Name Generator helpers removed — moved to dedicated modal (line-name-generator-modal.js) */
+
   /**
    * Initialize the modal
    */
@@ -115,6 +117,8 @@ class MappingModal {
                 </div>
               </div>
             </div>
+
+            <!-- Line Name Generator moved to its own modal (open via Tools → Line Name Generator) — removed from this modal -->
           </div>
           
           <div class="modal-footer">
