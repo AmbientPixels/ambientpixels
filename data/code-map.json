@@ -1,8 +1,8 @@
 {
-  "timestamp": "2025-08-28T13:30:36.460Z",
+  "timestamp": "2025-08-29T13:29:23.464Z",
   "summary": {
     "totalJS": 1968,
-    "totalCSS": 107,
+    "totalCSS": 109,
     "totalHTML": 173
   },
   "functions": [
@@ -2333,6 +2333,7 @@
     "link",
     "listConfigTask",
     "listHtml",
+    "listHtml2",
     "listRemotesTask",
     "listenDevicePixelRatioChanges",
     "listener",
@@ -2512,6 +2513,7 @@
     "onCanceled",
     "onClone",
     "onCloneActiveFile",
+    "onCsvProcessed",
     "onDataReceived",
     "onError2",
     "onErrorReceived",
@@ -3465,6 +3467,7 @@
     "whichSync",
     "wi",
     "willTextFit",
+    "wireNoDataCta",
     "withContext",
     "withRetry",
     "withSilentAuthentication",
@@ -5725,7 +5728,10 @@
     "user-profile-dropdown",
     "validation-badge",
     "validation-close",
+    "validation-col",
+    "validation-columns",
     "validation-compliant",
+    "validation-details",
     "validation-error",
     "variant-dark",
     "variant-glow",
