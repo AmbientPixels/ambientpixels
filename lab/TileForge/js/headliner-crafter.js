@@ -54,11 +54,11 @@ class HeadlinerCrafter {
 
   constructor() {
     this.currentData = null;
+    // output -> input field mapping (allows one input to drive multiple outputs)
     this.fieldMappings = {
-      'Title': 'headline',
-      'MiniFAD': 'headline', 
-      'Description': 'subheadline',
-      'Narrator': 'narrator'
+      headline: 'MiniFAD', // common promotional source; can be changed to 'Title' via UI
+      subheadline: 'Description',
+      narrator: 'Narrator'
     };
     this.conditionalRules = [];
     // mapper-only template override (null uses auto-detect)

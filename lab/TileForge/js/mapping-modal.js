@@ -715,30 +715,24 @@ class MappingModal {
     }
     
     console.log('📥 Importing ONLY content to CardForge...');
-    
+     
     try {
       const transformedData = window.headlinerCrafter.transformData(this.currentData);
-      
-      if (!window.currentCsvData || window.currentCsvData.length === 0) {
-        // If no data exists, initialize it from transformedData
-        window.currentCsvData = transformedData.map(row => ({
-          'Locale': row.locale,
-          'items/0/title': row.headline || '',
-          'items/0/subtitle': row.subheadline || '',
-          'items/0/narratorText': row.narrator || ''
-        }));
-        renderLocaleGroups(window.currentCsvData);
+       
+      // Preferred path: synthesize a CSV and feed the existing CSV pipeline so all validators/state update
+      if (typeof window.headlinerCrafter.exportToCardForgeCSV === 'function' && typeof window.processCsvData === 'function') {
+        const csvContent = window.headlinerCrafter.exportToCardForgeCSV(transformedData);
+        // Use CSV pipeline to populate window.currentCsvData, render UI, and fire events
+        window.processCsvData(csvContent, 'mapper-import.csv', transformedData.length);
         if (window.Modal && typeof Modal.alert === 'function') {
-          Modal.alert(`Imported ${transformedData.length} rows as new data!`, 'success');
-        } else {
-          alert(`Imported ${transformedData.length} rows as new data!`);
+          Modal.alert(`Imported ${transformedData.length} rows from Mapper into CardForge.`, 'success', 'Import complete');
         }
         this.hide();
         return;
       }
-      
+
       console.log('🔍 Updating ONLY content fields by row index...');
-      
+       
       // Update content by row index - don't touch locale names at all
       transformedData.forEach((newRow, index) => {
         if (index < window.currentCsvData.length) {
@@ -752,16 +746,22 @@ class MappingModal {
           console.log(`✅ Updated content for row ${index}: ${existingRow.Locale}`);
         }
       });
-      
+       
       // Re-render the interface with updated content
       renderLocaleGroups(window.currentCsvData);
-      
+
+      // Ensure validators and UI state reflect that data is loaded
+      try { if (typeof window.updateLocalizedExportState === 'function') window.updateLocalizedExportState(true); } catch (_) {}
+      try { if (typeof window.updateManageLocalesState === 'function') window.updateManageLocalesState(true); } catch (_) {}
+      try { if (typeof window.updateApplyButtonsState === 'function') window.updateApplyButtonsState(true); } catch (_) {}
+      try { document.dispatchEvent(new CustomEvent('tf:csvProcessed', { detail: { rows: window.currentCsvData } })); } catch (_) {}
+
       console.log('✅ Content imported successfully');
       /* No alert for successful content import */
-      
+       
       // Close the modal
       this.hide();
-      
+       
     } catch (error) {
       console.error('❌ Import error:', error);
       /* No alert for error importing content */
