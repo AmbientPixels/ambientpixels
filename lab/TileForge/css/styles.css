@@ -579,6 +579,21 @@ body {
   color: #fff;
 }
 
+/* Ghost missing pills (inline, subdued) */ /* added by Cascade */
+.locale-badges-section #localeBadgeArea .country-badge.pill-ghost {
+  background: transparent;
+  color: #ff9e9e; /* soft red text */
+  border-color: rgba(255, 107, 107, 0.7);
+  border-style: dashed;
+  border-width: 1px;
+  opacity: 0.7;
+}
+.locale-badges-section #localeBadgeArea a.locale-pill-link:hover .country-badge.pill-ghost,
+.locale-badges-section #localeBadgeArea a.locale-pill-link:focus .country-badge.pill-ghost {
+  opacity: 0.95;
+  border-color: #ff6b6b;
+}
+
 /* Header Settings Button */
 .header-top {
   display: flex;

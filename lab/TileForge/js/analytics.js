@@ -302,6 +302,10 @@ function renderLocaleBadgeArea() {
   const host = document.getElementById('localeBadgeArea');
   if (!host) return;
 
+  // Determine UI toggles
+  const ui = (window.TileForgeUI = window.TileForgeUI || {});
+  if (typeof ui.showGhostMissing !== 'boolean') ui.showGhostMissing = true; // default on
+
   // Gather per-locale status by scanning rendered sections and tiles
   const sections = document.querySelectorAll('.locale-section');
   const badges = [];
@@ -345,6 +349,25 @@ function renderLocaleBadgeArea() {
   // Sort badges alphabetically by code for stable visual order
   badges.sort((a, b) => String(a.code).toUpperCase().localeCompare(String(b.code).toUpperCase()));
 
+  // Optionally append ghost-missing locales based on validation state
+  try {
+    const vState = (window.TileForgeLocaleValidation && typeof window.TileForgeLocaleValidation.getLast === 'function')
+      ? window.TileForgeLocaleValidation.getLast()
+      : null;
+    if (ui.showGhostMissing && vState && Array.isArray(vState.expected)) {
+      const setRendered = new Set(badges.map(b => String(b.code).toUpperCase()));
+      const setActive = new Set((vState.active || []).map(c => String(c).toUpperCase()));
+      vState.expected.forEach(code => {
+        const up = String(code).toUpperCase();
+        if (!setActive.has(up) && !setRendered.has(up)) {
+          badges.push({ code, status: 'ghost-missing', total: 0, overflow: 0, near: 0, clean: 0, ghost: true });
+        }
+      });
+      // keep order stable after additions
+      badges.sort((a, b) => String(a.code).toUpperCase().localeCompare(String(b.code).toUpperCase()));
+    }
+  } catch(_) {}
+
   // Render
   host.innerHTML = '';
   // Toggle UI state for badge controls visibility
@@ -356,21 +379,24 @@ function renderLocaleBadgeArea() {
     // Anchor wrapper for deep linking to the locale section
     const anchor = document.createElement('a');
     const targetId = `locale-${String(b.code).replace(/[^A-Za-z0-9_-]/g, '-')}`;
-    anchor.href = `#${targetId}`;
+    anchor.href = b.ghost ? '#' : `#${targetId}`;
     anchor.className = 'locale-pill-link';
     anchor.addEventListener('click', function(e){
+      if (b.ghost) {
+        e.preventDefault();
+        if (typeof showLocaleValidationDetails === 'function') showLocaleValidationDetails();
+        return;
+      }
       // Smooth-scroll to the section if present; preserve hash behavior
       const target = document.getElementById(targetId);
       if (target) {
         e.preventDefault();
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        // Optionally focus header for accessibility
         const header = target.querySelector('.locale-header');
         if (header && header.focus) {
           header.setAttribute('tabindex', '-1');
           header.focus({ preventScroll: true });
         }
-        // Update hash after scroll
         history.pushState(null, '', `#${targetId}`);
       }
     });
@@ -378,7 +404,8 @@ function renderLocaleBadgeArea() {
     const badge = document.createElement('span');
     // Reuse existing badge styling; add status as modifier class
     const lang = (b.code || '').split('-')[0].toLowerCase();
-    badge.className = `country-badge ${b.status} lang-${lang}`;
+    const baseCls = b.ghost ? 'country-badge pill-ghost overflow' : `country-badge ${b.status}`;
+    badge.className = `${baseCls} lang-${lang}`;
     badge.dataset.lang = lang; // for future hooks/telemetry
     badge.title = `${b.code}: ${b.clean} clean, ${b.near} near, ${b.overflow} overflow`;
     badge.textContent = b.code;
@@ -409,6 +436,16 @@ window.requestLocaleBadgeRefresh = (function(){
   let lastValidation = null;
   let lastExpected = [];
   let lastActive = [];
+
+  // Expose minimal global accessor for reuse by other renderers
+  window.TileForgeLocaleValidation = window.TileForgeLocaleValidation || {};
+  window.TileForgeLocaleValidation.getLast = function() {
+    return {
+      validation: lastValidation,
+      expected: Array.isArray(lastExpected) ? lastExpected.slice() : [],
+      active: Array.isArray(lastActive) ? lastActive.slice() : []
+    };
+  };
 
   function normalizeLocale(code) {
     if (!code) return '';
@@ -549,6 +586,9 @@ window.requestLocaleBadgeRefresh = (function(){
       });
       el.dataset.validationBound = '1';
     }
+
+    // Also render compact presence summary pill in the toolbar
+    try { renderLocalePresenceSummaryPill(validation); } catch(_) {}
   }
 
   function runLocaleValidation() {
@@ -557,13 +597,21 @@ window.requestLocaleBadgeRefresh = (function(){
       const active = getActiveLocalesSequence();
       const noCsvLoaded = !(window.currentCsvData && Array.isArray(window.currentCsvData) && window.currentCsvData.length);
 
-      // If no CSV is loaded and no active locales are present, report a 'no-data' state instead of 'Invalid'
+      // If no CSV is loaded and no active locales are present, report a 'no-data' state instead of 'Invalid'.
+      // If the ghost-missing toggle is ON, skip rendering badges on initial load (no need to load badges yet).
       if (noCsvLoaded && active.length === 0) {
         const result = { ok: false, reason: 'no-data', missing: [], extras: [], expectedCount: expected.length, activeCount: 0 };
         lastExpected = expected;
         lastActive = active;
         lastValidation = result;
-        renderValidationBadge(result);
+        // Honor ghost toggle even before UI bootstrap by reading localStorage fallback
+        const persisted = (function(){
+          try { return localStorage.getItem('tf_showGhostMissing'); } catch(_) { return null; }
+        })();
+        const ghostOn = !!(window.TileForgeUI && window.TileForgeUI.showGhostMissing) || (persisted === '1' || persisted === 'true');
+        if (!ghostOn) {
+          renderValidationBadge(result);
+        }
         return;
       }
 
@@ -572,6 +620,8 @@ window.requestLocaleBadgeRefresh = (function(){
       lastActive = active;
       lastValidation = result;
       renderValidationBadge(result);
+      // Notify listeners
+      document.dispatchEvent(new CustomEvent('tf:localeValidationUpdated', { detail: { result, expected, active } }));
     } catch (_) {
       renderValidationBadge(null);
     }
@@ -910,11 +960,94 @@ window.requestLocaleBadgeRefresh = (function(){
   document.addEventListener('tf:csvProcessed', runLocaleValidation);
   document.addEventListener('tf:templateSwitched', runLocaleValidation);
   document.addEventListener('tf:localesChanged', runLocaleValidation);
+  // Refresh badge area when validation changes (to reflect ghost pills)
+  document.addEventListener('tf:localeValidationUpdated', function(){
+    if (typeof window.requestLocaleBadgeRefresh === 'function') window.requestLocaleBadgeRefresh();
+  });
+
+  // Inject Ghost Missing toggle into the side panel (idempotent)
+  function ensureGhostToggle() {
+    const panel = document.querySelector('.badges-side-panel');
+    if (!panel) return;
+    if (panel.querySelector('#toggleGhostMissing')) return; // already added
+    const block = document.createElement('div');
+    block.className = 'badge-controls';
+    block.setAttribute('aria-label', 'Ghost missing locales controls');
+    block.innerHTML = `
+      <span class="badge-controls-label">Ghost missing locales</span>
+      <label class="switch" title="Toggle ghost pills for missing locales">
+        <input type="checkbox" id="toggleGhostMissing" aria-checked="false" aria-label="Toggle ghost pills for missing locales">
+        <span class="slider"></span>
+      </label>
+      <span class="switch-state" id="ghostMissingState">Off</span>
+    `;
+    panel.appendChild(block);
+
+    // Initialize from storage
+    const stored = localStorage.getItem('tf_showGhostMissing');
+    const initial = stored == null ? 'true' : stored; // default on
+    const checked = initial === 'true';
+    const input = block.querySelector('#toggleGhostMissing');
+    const state = block.querySelector('#ghostMissingState');
+    const ui = (window.TileForgeUI = window.TileForgeUI || {});
+    ui.showGhostMissing = checked;
+    input.checked = checked;
+    input.setAttribute('aria-checked', String(checked));
+    state.textContent = checked ? 'On' : 'Off';
+
+    input.addEventListener('change', () => {
+      const on = !!input.checked;
+      ui.showGhostMissing = on;
+      localStorage.setItem('tf_showGhostMissing', String(on));
+      state.textContent = on ? 'On' : 'Off';
+      if (typeof window.requestLocaleBadgeRefresh === 'function') window.requestLocaleBadgeRefresh();
+    });
+  }
+
+  // Render compact presence summary pill inside #localizedStatusBar
+  function renderLocalePresenceSummaryPill(validation) {
+    const bar = document.getElementById('localizedStatusBar');
+    if (!bar) return;
+    let pill = document.getElementById('localePresenceSummaryPill');
+    if (!pill) {
+      pill = document.createElement('span');
+      pill.id = 'localePresenceSummaryPill';
+      pill.className = 'status-pill';
+      pill.title = 'Locale presence summary';
+      pill.setAttribute('role', 'button');
+      pill.setAttribute('tabindex', '0');
+      pill.style.marginLeft = '8px';
+      pill.addEventListener('click', showLocaleValidationDetails);
+      pill.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showLocaleValidationDetails(); } });
+      bar.appendChild(pill);
+    }
+    const v = validation || lastValidation;
+    if (!v) { pill.textContent = '—'; return; }
+    if (v.reason === 'no-data') { pill.textContent = 'Missing 0 • Extras 0'; return; }
+    const miss = Array.isArray(v.missing) ? v.missing.length : 0;
+    const extras = Array.isArray(v.extras) ? v.extras.length : 0;
+    pill.textContent = `Missing ${miss} • Extras ${extras}`;
+  }
 
   // Also run once on DOM ready (in case default data loads later)
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', runLocaleValidation);
+    document.addEventListener('DOMContentLoaded', () => {
+      ensureGhostToggle();
+      // Initialize ghost toggle state into UI object for badge renderer
+      try {
+        const stored = localStorage.getItem('tf_showGhostMissing');
+        const ui = (window.TileForgeUI = window.TileForgeUI || {});
+        if (stored != null) ui.showGhostMissing = (stored === 'true');
+      } catch(_) {}
+      runLocaleValidation();
+    });
   } else {
+    ensureGhostToggle();
+    try {
+      const stored = localStorage.getItem('tf_showGhostMissing');
+      const ui = (window.TileForgeUI = window.TileForgeUI || {});
+      if (stored != null) ui.showGhostMissing = (stored === 'true');
+    } catch(_) {}
     runLocaleValidation();
   }
 })();
