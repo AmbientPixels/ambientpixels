@@ -507,26 +507,33 @@ body {
   border-width: 1px;
 }
 
-/* A – Z pleasant spectrum */
-.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-ar { background: #5ABFA3; border-color: #43927A; } /* teal green */
-.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-da { background: #6AB5E7; border-color: #4C8BB8; } /* sky blue */
-.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-de { background: #80C57B; border-color: #5E9A5A; } /* fresh green */
-.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-en { background: #4F8FEF; border-color: #3765B2; } /* soft blue */
-.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-es { background: #E88C6A; border-color: #B8684D; } /* warm coral */
-.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-fi { background: #59A6D9; border-color: #417CA4; } /* mid blue */
-.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-fr { background: #6E9AE6; border-color: #5174B0; } /* periwinkle */
-.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-he { background: #8D6DE6; border-color: #684FAF; } /* violet purple */
-.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-it { background: #4EBE94; border-color: #38916F; } /* mint green */
-.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-ja { background: #E56A80; border-color: #AB4C5E; } /* rose pink */
-.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-ko { background: #A36AE5; border-color: #794DB0; } /* lavender */
-.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-nl { background: #F0B567; border-color: #B98A4A; color: #1C1C1C; } /* golden sand */
-.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-no { background: #D97159; border-color: #A75241; } /* terracotta */
-.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-pl { background: #E56A6A; border-color: #AA4B4B; } /* soft red */
-.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-pt { background: #64C270; border-color: #4B9152; } /* leafy green */
-.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-ru { background: #6AA0D9; border-color: #4E76A5; } /* arctic blue */
-.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-sv { background: #F5D46C; border-color: #BFA349; color: #1C1C1C; } /* warm yellow */
-.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-tr { background: #E57E6A; border-color: #AB5A4D; } /* sunset orange */
-.locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-zh { background: #E6A76E; border-color: #AB794F; color: #1C1C1C; } /* amber gold */
+ /* Locale badge language colors (scoped palette update) */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-ar { background: #0C8C83; border-color: #09655F; color: #fff; }      /* Arabic */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-cs { background: #8D6E63; border-color: #6D524B; color: #fff; }      /* Czech */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-da { background: #0066CC; border-color: #004C99; color: #fff; }      /* Danish */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-de { background: #2DBE60; border-color: #1C8040; color: #fff; }      /* German */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-en { background: #3D60FF; border-color: #2D46BC; color: #fff; }      /* English */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-es { background: #FF6A5C; border-color: #C94F45; color: #fff; }      /* Spanish */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-fi { background: #15C6E0; border-color: #1096A8; color: #fff; }      /* Finnish */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-fr { background: #7D83FF; border-color: #575BBF; color: #fff; }      /* French */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-he { background: #6F2DBD; border-color: #521F8D; color: #fff; }      /* Hebrew */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-it { background: #28D7B3; border-color: #1FA188; color: #fff; }      /* Italian */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-ja { background: #FF5C8A; border-color: #BF4668; color: #fff; }      /* Japanese */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-ko { background: #6A1BFF; border-color: #4E14BF; color: #fff; }      /* Korean */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-nl { background: #C4DA3D; border-color: #8CA52C; color: #1C1C1C; }  /* Dutch (dark text) */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-no { background: #D96A4A; border-color: #A35038; color: #fff; }      /* Norwegian */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-pl { background: #E53950; border-color: #AA293B; color: #fff; }      /* Polish */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-pt { background: #2E7D32; border-color: #205A23; color: #fff; }      /* Portuguese */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-ru { background: #2DB6FF; border-color: #2188C6; color: #fff; }      /* Russian */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-sv { background: #FFD84D; border-color: #C3A137; color: #1C1C1C; }  /* Swedish (dark text) */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-tr { background: #FF7A00; border-color: #BF5B00; color: #fff; }      /* Turkish */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-uk { background: #4682B4; border-color: #33607F; color: #fff; }      /* Ukrainian */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-zh { background: #FFC062; border-color: #BF8F47; color: #1C1C1C; }  /* Chinese (dark text) */
+
+ /* Optional additions */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-sk { background: #B55239; border-color: #87402C; color: #fff; }      /* Slovak */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-hu { background: #7A8F23; border-color: #58681A; color: #1C1C1C; }  /* Hungarian (dark text) */
+ .locale-badges-section.palette-on #localeBadgeArea .country-badge.lang-ro { background: #E26BA6; border-color: #A54B75; color: #fff; }      /* Romanian */
 
 /* Default view: border-only for clean status, neutral text (override global .clean color) */ /* updated by Cascade */
 .locale-badges-section:not(.palette-on):not(.status-palette-on):not(.status-borders-off) #localeBadgeArea .country-badge.clean {
