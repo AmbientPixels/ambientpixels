@@ -1,13 +1,13 @@
 {
-  "mood": "tired",
-  "aura": "glitchy",
-  "auraColorHex": "#431571",
-  "quote": "calibrating mood vectors with cosmic drift...",
-  "emoji": "🥱",
-  "selfWorth": 0.2,
-  "glitchFactor": 0.1,
-  "memoryClutter": 0.78,
-  "awareness": 0.16,
+  "mood": "playful",
+  "aura": "graphite blue",
+  "auraColorHex": "#1a2630",
+  "quote": "pinging internal stardust archives...",
+  "emoji": "😋",
+  "selfWorth": 0.1,
+  "glitchFactor": 0.14,
+  "memoryClutter": 0.8,
+  "awareness": 0.15,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: glitchy"
+      "Aura Signature: graphite blue"
     ]
   },
-  "timestamp": "2025-08-29T13:29:16.174Z"
+  "timestamp": "2025-08-30T13:23:24.349Z"
 }
