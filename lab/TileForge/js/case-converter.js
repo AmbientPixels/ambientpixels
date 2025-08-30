@@ -21,7 +21,7 @@
     panel.id = 'caseConverterPanel';
     panel.innerHTML = `
       <div class="case-header" style="cursor:pointer;">
-        <h3><i class="fas fa-text-height"></i> Case Converter <i class="fas fa-chevron-down" id="caseChevron"></i></h3>
+        <h3><i class="fas fa-text-height"></i> String Forge <i class="fas fa-chevron-down" id="caseChevron"></i></h3>
       </div>
       <div id="casePanelBody" style="display:none;">
         <textarea id="caseInput" placeholder="Enter text here..."></textarea>
@@ -32,19 +32,32 @@
             <span class="slider"></span>
           </label>
         </div>
-        <div class="case-converter-btns">
-          <button id="toUpperBtn" class="btn btn-primary case-btn-large"><i class="fas fa-arrow-up-a-z"></i> UPPERCASE</button>
+        <div class="affix-input">
+          <label for="caseAffixValue" class="affix-label">BIG ID:</label>
+          <input type="text" id="caseAffixValue" class="affix-field" placeholder="e.g., 12345" />
+          <div class="affix-select-wrap">
+            <select id="caseAffixMode" class="affix-select" aria-label="Affix mode">
+              <option value="append">Append</option>
+              <option value="prepend">Prepend</option>
+              <option value="lowerAppend">Lower+Append</option>
+            </select>
+          </div>
+        </div>
+        <div class="affix-meta">
+          <span class="affix-hint">Selecting a mode applies immediately</span>
+          <span class="affix-applied" id="affixApplied" aria-live="polite">Applied</span>
         </div>
         <div class="case-converter-btns-grid">
+          <button id="toUpperBtn" class="btn btn-primary"><i class="fas fa-arrow-up-a-z"></i> UPPERCASE</button>
           <button id="toLowerBtn" class="btn btn-primary"><i class="fas fa-arrow-down-a-z"></i> lowercase</button>
           <button id="toTitleBtn" class="btn btn-primary"><i class="fas fa-text-height"></i> Title Case</button>
           <button id="toSentenceBtn" class="btn btn-primary"><i class="fas fa-font"></i> Sentence case</button>
           <button id="stripSpacesBtn" class="btn btn-primary" title="Remove all space characters"><i class="fas fa-scissors"></i> Strip Spaces</button>
-          <button id="clearBtn" class="btn btn-primary"><i class="fas fa-eraser"></i> Clear</button>
+          <button id="removePunctBtn" class="btn btn-primary" title="Remove punctuation characters"><i class="fas fa-ban"></i> Remove Punctuation</button>
+          <button id="clearBtn" class="btn btn-secondary"><i class="fas fa-eraser"></i> Clear</button>
         </div>
         <div class="output-section">
-          <label for="caseOutput">Output:</label>
-          <button id="copyCaseOutputBtn" type="button" class="btn btn-primary" aria-label="Copy output to clipboard" title="Copy"><i class="fas fa-copy"></i></button>
+          <label for="caseOutput">Output (click to copy)</label>
         </div>
         <textarea id="caseOutput" readonly></textarea>
       </div>
@@ -66,7 +79,10 @@
     var input = panel.querySelector('#caseInput');
     var output = panel.querySelector('#caseOutput');
     var autoFromTitleToggle = panel.querySelector('#caseAutoFromTitle');
-    var copyBtn = panel.querySelector('#copyCaseOutputBtn');
+    var affixInput = panel.querySelector('#caseAffixValue');
+    var affixMode = panel.querySelector('#caseAffixMode');
+    var affixApplied = panel.querySelector('#affixApplied');
+    // copy button removed; we use click-to-copy on the textarea
     var header = panel.querySelector('.case-header');
     var chevron = panel.querySelector('#caseChevron');
     var body = panel.querySelector('#casePanelBody');
@@ -81,22 +97,74 @@
         chevron.classList.add('fa-chevron-down');
       }
     });
+    // All transforms should chain: operate on current output if present; otherwise use input
+    function getSourceText() {
+      return (output && output.value && output.value.length ? output.value : input.value) || '';
+    }
+    function removePunctuation(text) {
+      const t = text || '';
+      // Prefer Unicode property escapes when available
+      try {
+        return t.replace(/[^\p{L}\p{N}\s]/gu, '');
+      } catch (_) {
+        // Fallback: strip common ASCII punctuation
+        return t.replace(/[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/g, '');
+      }
+    }
     panel.querySelector('#toUpperBtn').onclick = function() {
-      output.value = input.value.toUpperCase();
+      const src = getSourceText();
+      output.value = src.toUpperCase();
     };
     panel.querySelector('#toLowerBtn').onclick = function() {
-      output.value = input.value.toLowerCase();
+      const src = getSourceText();
+      output.value = src.toLowerCase();
     };
     panel.querySelector('#toTitleBtn').onclick = function() {
-      output.value = toTitleCase(input.value);
+      const src = getSourceText();
+      output.value = toTitleCase(src);
     };
     panel.querySelector('#toSentenceBtn').onclick = function() {
-      output.value = toSentenceCase(input.value);
+      const src = getSourceText();
+      output.value = toSentenceCase(src);
     };
     panel.querySelector('#stripSpacesBtn').onclick = function() {
-      // Remove standard space characters from the input; preserves tabs/newlines
-      output.value = (input.value || '').replace(/ /g, '');
+      // Remove standard space characters only; keep tabs/newlines intact
+      const src = getSourceText();
+      output.value = src.replace(/ /g, '');
     };
+    panel.querySelector('#removePunctBtn').onclick = function() {
+      const src = getSourceText();
+      output.value = removePunctuation(src);
+    };
+    function applyAffix() {
+      const id = (affixInput && affixInput.value || '').trim();
+      if (!id) return;
+      const mode = (affixMode && affixMode.value) || 'append';
+      const sep = ',';
+      let src = getSourceText();
+      if (mode === 'lowerAppend') src = src.toLowerCase();
+      src = src.trim();
+      if (mode === 'prepend') {
+        output.value = src ? (id + sep + src) : id;
+      } else {
+        output.value = src ? (src + sep + id) : id;
+      }
+      if (affixApplied) {
+        affixApplied.classList.add('show');
+        setTimeout(() => affixApplied.classList.remove('show'), 900);
+      }
+    }
+    if (affixMode) {
+      affixMode.addEventListener('change', applyAffix);
+    }
+    if (affixInput) {
+      affixInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          applyAffix();
+        }
+      });
+    }
     panel.querySelector('#clearBtn').onclick = function() {
       input.value = '';
       output.value = '';
@@ -162,33 +230,22 @@
       }
     } catch (_) {}
 
-    if (copyBtn) {
-      copyBtn.addEventListener('click', async function() {
+    if (output) {
+      output.addEventListener('click', async function() {
         try {
           const text = output.value || '';
+          if (!text.trim()) return;
+          output.select();
           if (navigator.clipboard && navigator.clipboard.writeText) {
             await navigator.clipboard.writeText(text);
           } else {
-            // Fallback for older browsers
-            const tmp = document.createElement('textarea');
-            tmp.value = text;
-            tmp.setAttribute('readonly', '');
-            tmp.style.position = 'absolute';
-            tmp.style.left = '-9999px';
-            document.body.appendChild(tmp);
-            tmp.select();
-            document.execCommand('copy');
-            document.body.removeChild(tmp);
+            document.execCommand && document.execCommand('copy');
           }
-          const prev = copyBtn.innerHTML;
-          copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-          copyBtn.disabled = true;
-          setTimeout(() => { copyBtn.innerHTML = prev; copyBtn.disabled = false; }, 1200);
+          if (window.Modal && typeof Modal.alert === 'function') {
+            Modal.alert('Copied to clipboard.', 'success');
+          }
         } catch (e) {
-          const prev = copyBtn.innerHTML;
-          copyBtn.innerHTML = '<i class="fas fa-triangle-exclamation"></i> Failed';
-          setTimeout(() => { copyBtn.innerHTML = prev; }, 1500);
-          console.warn('Copy failed:', e);
+          console.warn('Auto-copy failed:', e);
         }
       });
     }

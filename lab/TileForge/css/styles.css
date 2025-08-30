@@ -305,7 +305,7 @@ body {
 
 /* Controls Section */
 .controls-section {
-  padding: 20px;
+  padding: 0px;
   border-bottom: 1px solid #333;
 }
 
@@ -769,6 +769,23 @@ body {
   flex-wrap: wrap;
   margin-bottom: 10px;
 }
+.tools-section .tool-group {
+  display: grid;                 /* grid ensures perfect edge alignment */
+  grid-template-columns: 1fr 1fr;/* two equal columns */
+  gap: 8px;                      /* same spacing as elsewhere */
+  margin-bottom: 10px;
+}
+.tools-section .tool-group .control-btn {
+  width: 100%;                   /* fill grid cell */
+  margin: 0;                     /* no extra margins */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+.tools-section .tool-group .control-btn i {
+  margin-right: 6px;
+}
 .projects-section .tool-group:last-of-type { /* updated by Cascade: add breathing room around bottom buttons */
   margin-top: 12px;    /* separation from projects list */
   margin-bottom: 0;    /* avoid extra space at section bottom */
@@ -778,6 +795,17 @@ body {
 .projects-section .tool-group .control-btn i {
   margin-right: 6px;
 }
+
+/* Block variant for tool launchers: span full row within tool-group */
+.projects-section .tool-group .control-btn--block,
+.tools-section .tool-group .control-btn--block {
+  flex: 1 1 100%;
+  width: 100%;
+}
+.tools-section .tool-group .control-btn--block { /* grid: span full width */
+  grid-column: 1 / -1;
+}
+
 .projects-list {
   display: flex;
   flex-direction: column;

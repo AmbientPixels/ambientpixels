@@ -62,10 +62,10 @@
   LineNameGeneratorModal.prototype.buildContent = function(){
     return `
       <div class="lngg-wrap">
-        <div class="drop-zone" id="lnggCsvDropZone" role="button" tabindex="0" aria-label="Upload CSV to generate line names">
+        <div class="drop-zone" id="lnggCsvDropZone" role="button" tabindex="0" aria-label="Upload CSV to generate names">
           <div class="drop-zone-content">
             <span class="upload-icon">📥</span>
-            <h4>Drag & drop CSV to generate line names</h4>
+            <h4>Drag & drop CSV to generate names</h4>
             <p>Auto-detects common columns. No mapping needed.</p>
             <small>Tap to select a CSV on mobile</small>
           </div>
@@ -73,11 +73,12 @@
         <input type="file" id="lnggCsvFile" accept=".csv" class="visually-hidden-input" aria-hidden="true" />
         <section aria-label="How this works" class="lngg-help">
           <details>
-            <summary>How to use and naming convention</summary>
+            <summary>How to use and naming conventions</summary>
             <div>
-              <p><strong>Scope:</strong> This generator formats campaign line names for planning/BI exports. It is <em>not intended for direct mobile calendar feeds</em>. For mobile calendars, export to CSV first, then import here.</p>
-              <p><strong>Naming convention:</strong></p>
+              <p><strong>Scope:</strong> This generator creates both planning line names and creative naming strings from the same CSV. For mobile calendars, export to CSV first, then import here.</p>
+              <p><strong>Line naming convention:</strong></p>
               <pre><code>Spotlight: {Title}[ | {Phase}][ | {MM/DD/YY - MM/DD/YY}][ | {Region (ex: ll-CC, …)}] {Segment}</code></pre>
+              <p><strong>Creative naming patterns:</strong> XBL Item M2/M3 campaign and product modes, and ToH format.</p>
               <ul>
                 <li><strong>Title</strong>: Campaign/Title column</li>
                 <li><strong>Phase</strong>: Phase/Wave/Week (optional)</li>
@@ -89,19 +90,19 @@
               <ol>
                 <li>Export your calendar or plan to <strong>CSV</strong> (e.g., from Sheets/Excel/mobile calendar export).</li>
                 <li>Ensure headers exist for: Title/Campaign, Phase/Wave/Week, Start/End Date, Region/Markets, Segment. Exclusions optional.</li>
-                <li>Drag & drop the CSV above (or tap to pick), then review the generated lines.</li>
-                <li>Click <em>Copy All</em> to paste into your destination.</li>
+                <li>Drag & drop the CSV above (or tap to pick), then review the generated names.</li>
+                <li><strong>Click inside a textarea</strong> to auto-copy its contents.</li>
               </ol>
               <p><strong>Header learning:</strong> When new header names are detected, you can choose to remember them for future auto-mapping.</p>
             </div>
           </details>
         </section>
-        <div class="modal-actions-row mt-2">
-          <button class="modal-btn primary" id="lnggCopyBtn"><i class="fas fa-copy"></i> Copy All</button>
-        </div>
-
-        <label class="modal-form-label mt-2" for="lnggOutput">Output (generated after CSV upload):</label>
+        <label class="modal-form-label mt-2" for="lnggOutput">Line Names (click inside to copy):</label>
         <textarea id="lnggOutput" rows="10" class="modal-form-textarea modal-form-input w-100" readonly placeholder="Generated line names will appear here…"></textarea>
+
+        <!-- Creative naming output (same CSV, common patterns) -->
+        <label class="modal-form-label mt-1" for="lnggCreativeOutput">Creative Output (click inside to copy):</label>
+        <textarea id="lnggCreativeOutput" rows="10" class="modal-form-textarea modal-form-input w-100" readonly placeholder="Generated creative names will appear here…"></textarea>
       </div>
     `;
   };
@@ -182,21 +183,27 @@
     const overlay = document.getElementById(modalId + '-overlay');
     if (!overlay) return;
     const root = overlay.querySelector('#' + modalId);
-    const copyBtn = root.querySelector('#lnggCopyBtn');
     const dropZone = root.querySelector('#lnggCsvDropZone');
     const fileInput = root.querySelector('#lnggCsvFile');
 
-    if (copyBtn) copyBtn.addEventListener('click', async ()=>{
-      const out = root.querySelector('#lnggOutput');
-      try {
-        await navigator.clipboard.writeText(out.value || '');
-        if (window.Modal && typeof Modal.alert === 'function') {
-          Modal.alert('Copied to clipboard.', 'success');
-        }
-      } catch (e) {
-        console.warn('Copy failed', e);
-      }
-    });
+    // Auto-copy on click inside textareas when populated
+    const attachAutoCopy = (selector) => {
+      const el = root.querySelector(selector);
+      if (!el) return;
+      el.addEventListener('click', async () => {
+        const val = el.value || '';
+        if (!val.trim()) return;
+        el.select();
+        try {
+          await navigator.clipboard.writeText(val);
+          if (window.Modal && typeof Modal.alert === 'function') {
+            Modal.alert('Copied to clipboard.', 'success');
+          }
+        } catch (e) { console.warn('Auto-copy failed', e); }
+      });
+    };
+    attachAutoCopy('#lnggOutput');
+    attachAutoCopy('#lnggCreativeOutput');
 
     // Minimal CSV DnD using existing .drop-zone styles; no mapping UI
     const addDZ = (el, ev, fn) => el && el.addEventListener(ev, fn);
@@ -208,6 +215,7 @@
       const rows = (typeof window.parseCSV === 'function') ? window.parseCSV(text) : [];
       if (!rows || !rows.length) { try { Modal && Modal.alert && Modal.alert('No rows detected in CSV', 'warning'); } catch(_){} return; }
       const outputs = [];
+      const creativeOutputs = [];
       // Build a per-row case-insensitive key map
       const buildKeyMap = (row) => {
         const map = {};
@@ -226,6 +234,42 @@
         const hit = Object.keys(keyMap).find(k => k.includes(norm));
         if (hit){ const o = keyMap[hit]; if (row[o] != null && String(row[o]).trim() !== '') return String(row[o]).trim(); }
         return '';
+      };
+
+      // Creative alias map (reuses same getVal/prefer helpers)
+      const C_AL = {
+        program: ['Program','program','Store Program','Store','Channel'],
+        slot: ['Segment','Audience','Slot','Item','Placement','M2/M3'],
+        campaign: ['Campaign','Campaign Name','Title','Name','title','items/0/title'],
+        week: ['Week','Wave','Phase'],
+        tag: ['Tag','Shortcode','Slug','Code'],
+        start: ['Start Date','Start','Go Live','Go-Live','GoLive'],
+        end: ['End Date','End','Go Dark','Go-Dark','GoDark'],
+        region: ['Region','Markets','Market','Locale Group','Locale'],
+        title: ['Product Title','Title','Game','SKU Title','title'],
+        cta: ['CTA','Call to Action','Subline','Description','Subtitle','description'],
+        productId: ['Product ID','Store ID','ID','ProductID'],
+        edition: ['Edition','Variant','Edition Note']
+      };
+
+      const composeCampaign = ({ slot, program, campaign, week, tag, dateRange, region })=>{
+        const seg = slot ? `M${String(slot).replace(/[^23]/g,'')}` : 'M2';
+        const prog = program || 'Store Spotlight';
+        const parts = [ `XBL Item ${seg}`, prog, campaign ];
+        if (week) parts.push(week);
+        if (tag) parts.push(tag);
+        if (dateRange) parts.push(dateRange);
+        parts.push(region || 'WW');
+        return parts.filter(Boolean).join(' | ');
+      };
+      const composeProduct = ({ slot, program, title, cta, productId, edition, region })=>{
+        const seg = slot ? `M${String(slot).replace(/[^23]/g,'')}` : 'M2';
+        const prog = program || 'Store Spotlight';
+        const base = [ `XBL Item ${seg}`, prog, title, cta, productId ].filter(Boolean).join(' | ');
+        const ed = edition ? ` (${edition})` : '';
+        const reg = region || 'WW';
+        // Keep simple join; avoid duplicating productId
+        return `${base}${ed}${reg ? ' | ' + reg : ''}`.replace(/\s+\|\s+\|/g,' | ');
       };
       const prefer = (row, keys, category, keyMap) => {
         // Merge learned headers for this category in front of provided keys
@@ -538,10 +582,55 @@
           }
         }
         if (idx < 3) console.info('[TileForge][LNGen] row', idx, JSON.parse(JSON.stringify({ title, phase, start, end, region, segVal, exclusions })), '->', outputs[outputs.length-1]);
+
+        // --- Creative naming generation for same row ---
+        try {
+          let c_slotRaw = prefer(row, C_AL.slot, null, keyMap) || normalizedSeg;
+          const c_slot = /3/.test(String(c_slotRaw)) ? '3' : (/2/.test(String(c_slotRaw)) ? '2' : (normalizedSeg === 'Both' ? 'Both' : (normalizedSeg === 'M3' ? '3' : '2')));
+          const segList = c_slot === 'Both' ? ['2','3'] : [c_slot];
+          let c_program = prefer(row, C_AL.program, null, keyMap) || 'Store Spotlight';
+          let c_campaign = prefer(row, C_AL.campaign, null, keyMap);
+          let c_week = prefer(row, C_AL.week, null, keyMap);
+          let c_tag = prefer(row, C_AL.tag, null, keyMap);
+          let c_start = prefer(row, C_AL.start, null, keyMap);
+          let c_end = prefer(row, C_AL.end, null, keyMap);
+          let c_region = prefer(row, C_AL.region, null, keyMap) || region;
+          let c_title = prefer(row, C_AL.title, null, keyMap) || title;
+          let c_cta = prefer(row, C_AL.cta, null, keyMap);
+          let c_productId = prefer(row, C_AL.productId, null, keyMap);
+          let c_edition = prefer(row, C_AL.edition, null, keyMap);
+          const anyText = Object.values(row||{}).map(v=>String(v||'')).join(' | ');
+          const isToH = /\bToH\b/i.test(anyText) || /^ToH:/i.test(String(c_campaign||c_title||''));
+          let c_dateRange = this.normalizeDateRange(c_start && c_end ? `${c_start} - ${c_end}` : (c_start || c_end));
+          if (!c_dateRange && COMMON_RANGE) c_dateRange = COMMON_RANGE;
+          if (c_region) {
+            if (/^ww$/i.test(c_region)) c_region = 'WW';
+            else if (/^row$/i.test(c_region)) c_region = 'ROW';
+          }
+          const hasProductId = /\b9[A-Z0-9]{11}\b/.test(anyText) || /\b9[A-Z0-9]{11}\b/.test(String(c_productId||''));
+          const productMode = hasProductId || (!!c_title && !!c_cta);
+          const clines = [];
+          if (isToH) {
+            const t = c_campaign || c_title || '-';
+            const r = c_region || 'WW';
+            const dr = c_dateRange || '';
+            clines.push([`ToH: ${t}`, dr, r].filter(Boolean).join(' | '));
+          } else if (productMode) {
+            segList.forEach(s=>{ clines.push(composeProduct({ slot: s, program: c_program, title: (c_title||c_campaign||'').trim(), cta: c_cta, productId: c_productId, edition: c_edition, region: c_region || 'WW' })); });
+          } else {
+            segList.forEach(s=>{ clines.push(composeCampaign({ slot: s, program: c_program, campaign: (c_campaign||c_title||'').trim(), week: c_week, tag: c_tag, dateRange: c_dateRange, region: c_region || 'WW' })); });
+          }
+          creativeOutputs.push(...clines);
+        } catch(e) {
+          // Non-fatal
+        }
       });
       const outEl = root.querySelector('#lnggOutput');
       if (outEl) outEl.value = outputs.filter(Boolean).join('\n');
       console.info('[TileForge][LNGen] output lines:', outputs.length);
+      const cOutEl = root.querySelector('#lnggCreativeOutput');
+      if (cOutEl) cOutEl.value = creativeOutputs.filter(Boolean).join('\n');
+      console.info('[TileForge][LNGen] creative output lines:', creativeOutputs.length);
     };
 
     const onDrop = e => {
@@ -586,7 +675,7 @@
     const content = this.buildContent();
     this.modalRef = Modal.createModal({
       id: this.id,
-      title: 'Line Name Generator (CSV)',
+      title: 'Naming Generator (CSV)',
       size: 'large',
       content: content,
       buttons: [

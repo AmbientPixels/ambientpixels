@@ -4,12 +4,13 @@
   /* wrapped by .controls-section; take full width and no external margins */
   width: 100%;
   margin: 0;
-  padding: 20px;
+  padding: 12px 14px; /* reduced by Cascade: tighten panel padding */
   background: var(--aura-bg, #181c24);
   border-radius: 13px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.07);
   color: var(--aura-fg, #fff);
   box-sizing: border-box;
+  overflow: hidden; /* contain any child overflow */
 }
 .case-converter-panel h3 {
   margin-top: 0;
@@ -52,10 +53,13 @@
 }
 .case-converter-btns-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
   width: 100%;
   margin-bottom: 10px;
+}
+.case-converter-btns-grid #clearBtn {
+  grid-column: 1 / -1;
 }
 .case-converter-btns-grid button {
   width: 100%;
@@ -81,4 +85,115 @@
   padding-bottom: 4px;
   margin-bottom: 2px;
   display: block;
+}
+
+/* Affix (Append/Prepend) input row */
+.case-converter-panel .affix-input {
+  margin: 6px 0 8px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-auto-flow: column;
+  gap: 6px;
+  align-items: center;
+  width: 100%;
+  overflow: hidden; /* prevent control bleed */
+}
+/* Allow grid children to shrink inside container */
+.case-converter-panel .affix-input > * { min-width: 0; }
+/* Label now sits on its own row */
+.case-converter-panel .affix-label-row {
+  margin: 2px 0 4px;
+}
+.case-converter-panel .affix-label {
+  font-size: 0.9rem;
+  color: var(--aura-accent, #4fd1c5);
+  margin: 0;
+  white-space: nowrap;
+  max-width: 64px; /* clamp label */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.case-converter-panel .affix-field {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 6px 8px;
+  border-radius: 5px;
+  border: 1px solid var(--aura-border, #333);
+  background: var(--aura-tile, #232733);
+  color: var(--aura-fg, #fff);
+  box-sizing: border-box;
+  height: 32px;
+  font-size: 0.9rem;
+}
+.case-converter-panel .affix-select {
+  padding: 6px 8px;
+  border-radius: 5px;
+  border: 1px solid var(--aura-border, #333);
+  background: var(--aura-tile, #232733);
+  color: var(--aura-fg, #fff);
+  width: 110px; /* tighter clamp */
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  height: 32px;
+  font-size: 0.9rem;
+}
+/* Grid alignment helpers */
+.case-converter-panel .affix-input .affix-select { justify-self: end; }
+.case-converter-panel .affix-input .affix-field { width: 100%; }
+/* Meta row under affix controls */
+.case-converter-panel .affix-meta {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+/* Affix hint and applied badge */
+.case-converter-panel .affix-hint {
+  grid-column: 1 / -1;
+  font-size: 0.8rem;
+  color: var(--aura-muted, #a9b2c3);
+}
+.case-converter-panel .affix-applied {
+  justify-self: end;
+  background: rgba(90, 228, 255, 0.12);
+  color: var(--aura-glow, #5ae4ff);
+  border: 1px solid rgba(90, 228, 255, 0.3);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.case-converter-panel .affix-applied.show {
+  opacity: 1;
+}
+@media (max-width: 520px) {
+  .case-converter-panel .affix-input {
+    grid-template-columns: 1fr 1fr;
+  }
+  .case-converter-panel .affix-label {
+    grid-column: 1 / -1;
+  }
+  .case-converter-panel #caseAffixValue {
+    grid-column: 1 / -1;
+  }
+  .case-converter-panel .affix-select {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+/* Secondary button style scoped to Case Converter */
+.case-converter-panel .btn.btn-secondary {
+  border: 1px solid rgba(90, 228, 255, 0.25);
+  background: rgba(90, 228, 255, 0.06);
+  color: #cfe9ff;
+}
+.case-converter-panel .btn.btn-secondary:hover {
+  border-color: #5ae4ff;
+  background: rgba(90, 228, 255, 0.1);
+  color: #5ae4ff;
 }
