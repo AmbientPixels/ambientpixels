@@ -2732,3 +2732,62 @@ input:checked + .slider:before {
     margin-left: 0; /* allow natural stacking */
   }
 }
+
+/* Locale Validation Details: two-column lists (TileForge) */ /* updated by Cascade */
+.modal .validation-details ol.tf-two-col-list {
+  column-count: 2;
+  -webkit-column-count: 2;
+  column-gap: 24px;
+  -webkit-column-gap: 24px;
+  padding-left: 1.25rem; /* keep list markers visible */
+  margin: 8px 0 0 0;
+}
+
+.modal .validation-details ol.tf-two-col-list > li {
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+@media (max-width: 720px) {
+  .modal .validation-details ol.tf-two-col-list {
+    column-count: 1;
+    -webkit-column-count: 1;
+  }
+}
+
+/* Locale Validation Details: side-by-side Expected vs Active layout */ /* added by Cascade */
+.modal .validation-details .tf-compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* two even columns */
+  gap: 16px 24px;                 /* row, column gap */
+  align-items: start;              /* keep details tops aligned */
+}
+
+/* stack on small screens */
+@media (max-width: 720px) {
+  .modal .validation-details .tf-compare-grid {
+    grid-template-columns: 1fr;    /* single column */
+    gap: 12px 0;
+  }
+}
+
+/* Modal-scoped badge colors for per-item locale status */ /* added by Cascade */
+.modal .validation-details .country-badge.clean {
+  color: inherit;
+  background: rgba(76, 175, 80, 0.12);
+  border-color: #4caf50;
+  border-width: 2px;
+}
+.modal .validation-details .country-badge.warning {
+  color: #1c1c1c;
+  background: rgba(255, 165, 0, 0.28);
+  border-color: #ffa500;
+  border-width: 2px;
+}
+.modal .validation-details .country-badge.overflow {
+  color: #fff;
+  background: rgba(255, 107, 107, 0.22);
+  border-color: #ff6b6b;
+  border-width: 2px;
+}

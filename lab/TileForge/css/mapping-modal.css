@@ -640,6 +640,89 @@
   font-size: 11px;
 }
 
+/* Details sub-modal for locale lists */ /* updated by Cascade */
+#mapping-modal .tf-details-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+}
+
+#mapping-modal .tf-details-modal.open {
+  display: flex;
+}
+
+#mapping-modal .tf-details-content {
+  width: 640px;
+  max-width: calc(100% - 48px);
+  background: #2b2b2b;
+  border: 1px solid #444;
+  border-radius: 10px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+
+#mapping-modal .tf-details-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #333, #2a2a2a);
+  border-bottom: 1px solid #444;
+}
+
+#mapping-modal .tf-details-header h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#mapping-modal .tf-details-close {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 22px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+#mapping-modal .tf-details-close:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.08);
+}
+
+#mapping-modal .tf-details-body {
+  padding: 16px;
+}
+
+.tf-missing-locales-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* two columns */
+  gap: 10px 16px;
+}
+
+.tf-missing-locale-item {
+  background: #1f1f1f;
+  border: 1px solid #3d3d3d;
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #eaeaea;
+  font-size: 13px;
+}
+
+@media (max-width: 560px) {
+  .tf-missing-locales-grid {
+    grid-template-columns: 1fr; /* stack on small screens */
+  }
+}
+
 /* Modal Footer */ /* updated by Cascade */
 #mapping-modal .modal-footer {
   background: #2a2a2a;

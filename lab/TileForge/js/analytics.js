@@ -603,7 +603,23 @@ window.requestLocaleBadgeRefresh = (function(){
         <button id="loadCsvNowBtn" class="modal-btn primary">Load CSV…</button>
       </div>
     ` : '';
-    const listHtml = (arr, badgeCls = '') => Array.isArray(arr) ? arr.map(l => `<li><span class="country-badge ${badgeCls}">${escapeHtml(l)}</span></li>`).join('') : '';
+    // Compute membership sets for per-item coloring
+    const setExpected = new Set(expected);
+    const setActive = new Set(active);
+    const listHtml = (arr, column) => Array.isArray(arr)
+      ? arr.map(l => {
+          const code = String(l);
+          let extraCls = '';
+          if (column === 'expected') {
+            // Missing from active -> red; present in both -> green
+            extraCls = setActive.has(code) ? 'clean' : 'overflow';
+          } else if (column === 'active') {
+            // Extra in active -> yellow; present in both -> green
+            extraCls = setExpected.has(code) ? 'clean' : 'warning';
+          }
+          return `<li><span class="country-badge ${extraCls}">${escapeHtml(code)}</span></li>`;
+        }).join('')
+      : '';
     const orderTable = (!v.ok && v.reason === 'order') ? `
       <h5>Order Comparison</h5>
       <table aria-label="Locale order comparison">
@@ -627,20 +643,20 @@ window.requestLocaleBadgeRefresh = (function(){
     const presenceBlocks = (!v.ok && v.reason === 'presence') ? `
        <div>
          <h5>Missing (${(v.missing || []).length})</h5>
-         <ul>${listHtml(v.missing, 'overflow')}</ul>
+         <ul>${Array.isArray(v.missing) ? v.missing.map(l => `<li><span class="country-badge overflow">${escapeHtml(l)}</span></li>`).join('') : ''}</ul>
        </div>
-       ${(v.extras && v.extras.length) ? `<div><h5>Extras (${v.extras.length})</h5><ul>${listHtml(v.extras, 'warning')}</ul></div>` : ''}
+       ${(v.extras && v.extras.length) ? `<div><h5>Extras (${v.extras.length})</h5><ul>${v.extras.map(l => `<li><span class=\"country-badge warning\">${escapeHtml(l)}</span></li>`).join('')}</ul></div>` : ''}
      ` : '';
     const expectedBlock = `
        <details open>
          <summary><strong>Expected (${expected.length})</strong></summary>
-         <ol>${listHtml(expected, 'clean')}</ol>
+         <ol class="tf-two-col-list">${listHtml(expected, 'expected')}</ol>
        </details>
      `;
     const activeBlock = `
        <details open>
          <summary><strong>Active (${active.length})</strong></summary>
-         <ol>${listHtml(active)}</ol>
+         <ol class="tf-two-col-list">${listHtml(active, 'active')}</ol>
        </details>
      `;
     const bodyHtml = `
@@ -650,8 +666,10 @@ window.requestLocaleBadgeRefresh = (function(){
         ${presenceBlocks}
         ${orderTable}
         <hr/>
-        ${expectedBlock}
-        ${v.reason === 'no-data' ? '' : activeBlock}
+        <div class="tf-compare-grid">
+          ${expectedBlock}
+          ${v.reason === 'no-data' ? '' : activeBlock}
+        </div>
         ${noDataCta}
       </div>
     `;
@@ -703,7 +721,21 @@ window.requestLocaleBadgeRefresh = (function(){
               <button id="loadCsvNowBtn" class="modal-btn primary">Load CSV…</button>
             </div>
           ` : '';
-          const listHtml2 = (arr, badgeCls = '') => Array.isArray(arr) ? arr.map(l => `<li><span class="country-badge ${badgeCls}">${escapeHtml(l)}</span></li>`).join('') : '';
+          // Live path: recompute sets for coloring
+          const setExpected2 = new Set(expected2);
+          const setActive2 = new Set(active2);
+          const listHtml2 = (arr, column) => Array.isArray(arr)
+            ? arr.map(l => {
+                const code = String(l);
+                let extraCls = '';
+                if (column === 'expected') {
+                  extraCls = setActive2.has(code) ? 'clean' : 'overflow';
+                } else if (column === 'active') {
+                  extraCls = setExpected2.has(code) ? 'clean' : 'warning';
+                }
+                return `<li><span class="country-badge ${extraCls}">${escapeHtml(code)}</span></li>`;
+              }).join('')
+            : '';
           const orderTable2 = (!v2.ok && v2.reason === 'order') ? `
             <h5>Order Comparison</h5>
             <table aria-label="Locale order comparison">
@@ -727,20 +759,20 @@ window.requestLocaleBadgeRefresh = (function(){
           const presenceBlocks2 = (!v2.ok && v2.reason === 'presence') ? `
              <div>
                <h5>Missing (${(v2.missing || []).length})</h5>
-               <ul>${listHtml2(v2.missing, 'overflow')}</ul>
+               <ul>${Array.isArray(v2.missing) ? v2.missing.map(l => `<li><span class="country-badge overflow">${escapeHtml(l)}</span></li>`).join('') : ''}</ul>
              </div>
-             ${(v2.extras && v2.extras.length) ? `<div><h5>Extras (${v2.extras.length})</h5><ul>${listHtml2(v2.extras, 'warning')}</ul></div>` : ''}
+             ${(v2.extras && v2.extras.length) ? `<div><h5>Extras (${v2.extras.length})</h5><ul>${v2.extras.map(l => `<li><span class=\"country-badge warning\">${escapeHtml(l)}</span></li>`).join('')}</ul></div>` : ''}
            ` : '';
           const expectedBlock2 = `
              <details open>
                <summary><strong>Expected (${expected2.length})</strong></summary>
-               <ol>${listHtml2(expected2, 'clean')}</ol>
+               <ol class="tf-two-col-list">${listHtml2(expected2, 'expected')}</ol>
              </details>
            `;
           const activeBlock2 = `
              <details open>
                <summary><strong>Active (${active2.length})</strong></summary>
-               <ol>${listHtml2(active2)}</ol>
+               <ol class="tf-two-col-list">${listHtml2(active2, 'active')}</ol>
              </details>
            `;
           const bodyHtml2 = `
@@ -750,8 +782,10 @@ window.requestLocaleBadgeRefresh = (function(){
               ${presenceBlocks2}
               ${orderTable2}
               <hr/>
-              ${expectedBlock2}
-              ${v2.reason === 'no-data' ? '' : activeBlock2}
+              <div class="tf-compare-grid">
+                ${expectedBlock2}
+                ${v2.reason === 'no-data' ? '' : activeBlock2}
+              </div>
               ${noDataCta2}
             </div>
           `;
@@ -833,13 +867,13 @@ window.requestLocaleBadgeRefresh = (function(){
           const expectedBlock2 = `
              <details open>
                <summary><strong>Expected (${expected2.length})</strong></summary>
-               <ol>${listHtml2(expected2, 'clean')}</ol>
+               <ol class="tf-two-col-list">${listHtml2(expected2, 'clean')}</ol>
              </details>
            `;
           const activeBlock2 = `
              <details open>
                <summary><strong>Active (${active2.length})</strong></summary>
-               <ol>${listHtml2(active2)}</ol>
+               <ol class="tf-two-col-list">${listHtml2(active2)}</ol>
              </details>
            `;
           const bodyHtml2 = `
@@ -849,8 +883,10 @@ window.requestLocaleBadgeRefresh = (function(){
               ${presenceBlocks2}
               ${orderTable2}
               <hr/>
-              ${expectedBlock2}
-              ${v2.reason === 'no-data' ? '' : activeBlock2}
+              <div class="tf-compare-grid">
+                ${expectedBlock2}
+                ${v2.reason === 'no-data' ? '' : activeBlock2}
+              </div>
               ${noDataCta2}
             </div>
           `;

@@ -131,6 +131,19 @@ class MappingModal {
             </div>
           </div>
         </div>
+        
+        <!-- Details sub-modal: Missing Locales -->
+        <div id="localeDetailsModal" class="tf-details-modal" aria-hidden="true">
+          <div class="tf-details-content">
+            <div class="tf-details-header">
+              <h3><i class="fas fa-language"></i> Missing locales</h3>
+              <button class="tf-details-close" aria-label="Close">&times;</button>
+            </div>
+            <div class="tf-details-body">
+              <div id="missingLocalesGrid" class="tf-missing-locales-grid"></div>
+            </div>
+          </div>
+        </div>
       </div>
     `;
 
@@ -234,7 +247,14 @@ class MappingModal {
     // Escape key to close
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && modal && modal.style.display !== 'none') {
-        this.hide();
+        // If details sub-modal is open, close it first
+        const details = document.getElementById('localeDetailsModal');
+        if (details && details.classList.contains('open')) {
+          details.setAttribute('aria-hidden', 'true');
+          details.classList.remove('open');
+        } else {
+          this.hide();
+        }
       }
     });
 
@@ -262,6 +282,18 @@ class MappingModal {
     if (strictToggle) {
       strictToggle.addEventListener('change', () => {
         this.populateAnalysis();
+      });
+    }
+
+    // Close details sub-modal
+    const detailsClose = document.querySelector('#mapping-modal .tf-details-close');
+    if (detailsClose) {
+      detailsClose.addEventListener('click', () => {
+        const details = document.getElementById('localeDetailsModal');
+        if (details) {
+          details.setAttribute('aria-hidden', 'true');
+          details.classList.remove('open');
+        }
       });
     }
   }
@@ -518,8 +550,17 @@ class MappingModal {
         viewLink.addEventListener('click', (e) => {
           e.preventDefault();
           try {
-            const msg = `Missing locales (\n${missingLocales.join(', ')}\n)`;
-            alert(msg);
+            // Populate two-column grid
+            const grid = document.getElementById('missingLocalesGrid');
+            if (grid) {
+              grid.innerHTML = missingLocales.map(loc => `<div class="tf-missing-locale-item">${loc}</div>`).join('');
+            }
+            // Show details modal
+            const details = document.getElementById('localeDetailsModal');
+            if (details) {
+              details.setAttribute('aria-hidden', 'false');
+              details.classList.add('open');
+            }
           } catch (_) {
             console.warn('Missing locales:', missingLocales);
           }
