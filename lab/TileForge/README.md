@@ -44,6 +44,35 @@ TileForge is a professional web-based tool designed for Xbox game developers and
 
 ---
 
+## 🧰 Tools — String Forge (Case Converter)
+
+String Forge provides quick text transforms and BIG ID affixing for cleanup and export prep.
+
+- Actions: UPPERCASE • lowercase • Title Case • Sentence case
+- Cleanup: Strip Spaces • Remove Punctuation
+- BIG ID: Append • Prepend • Lower+Append
+- Auto‑apply: Selecting a mode or pressing Enter in BIG ID applies immediately
+- Layout: 2‑column action grid; Clear spans full width
+- Output: Click output area to copy
+
+Files: `lab/TileForge/js/case-converter.js`, `lab/TileForge/css/case-converter.css`
+
+Open programmatically: `window.showCaseConverterPanel()`
+
+---
+
+## 🧰 Tools — Naming Generator (CSV)
+
+Generate consistent line names and CSV‑ready rows.
+
+- Create variants, slugs, categories, and tags
+- Copy results or export as CSV from the modal
+- Integrates with Projects/CSV flows
+
+Entry point: Tools → Naming Generator (CSV)
+
+Files: `lab/TileForge/js/line-name-generator-modal.js`
+
 ## ✨ Features
 
 ### 🎯 Core Functionality

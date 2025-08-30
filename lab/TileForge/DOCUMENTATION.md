@@ -376,6 +376,56 @@ The Left Panel is designed for clarity, speed, and full control, anchoring all m
 
 /* updated by Cascade */
 
+---
+
+## 🆕 Tools — String Forge (Case Converter)
+
+### Overview
+`String Forge` is a compact text utilities panel for quick transformations and ID affixing used during editing and cleanup.
+
+### Features
+- UPPERCASE • lowercase • Title Case • Sentence case
+- Strip Spaces • Remove Punctuation
+- BIG ID affix: Append • Prepend • Lower+Append
+- Auto‑apply on dropdown change or Enter in BIG ID field
+- 2‑column action layout; Clear spans full width
+
+### Usage
+1) Paste or type text into the input.
+2) Click actions in the 2‑column grid to transform.
+3) Enter BIG ID, choose mode (applies immediately) or press Enter.
+4) Click Output to copy.
+
+### Behavior & Containment
+- Affix row grid: `label | minmax(0,1fr) | select` with strict overflow containment.
+- Native select wrapped to avoid panel overflow. All controls are `32px` high.
+
+### Files
+- JS: `lab/TileForge/js/case-converter.js`
+- CSS: `lab/TileForge/css/case-converter.css`
+
+---
+
+## 🆕 Tools — Naming Generator (CSV)
+
+### Overview
+The Naming Generator helps craft consistent product/feature names and exportable CSV rows for batch localization workflows.
+
+### Capabilities
+- Generate line name variants, slugs, categories, and tags
+- Compose CSV‑ready rows for downstream tools
+- Copy/export from modal; integrates with Projects/CSV flows
+
+### Usage
+1) Open the modal from Tools → Naming Generator (CSV).
+2) Provide base terms and constraints.
+3) Generate and copy rows, or export as CSV.
+
+### Files
+- JS: `lab/TileForge/js/line-name-generator-modal.js`
+
+<!-- updated by Cascade: String Forge + Naming Generator docs -->
+
 ## 🌍 Locale Manager (Modal)
 
 <!-- updated by Cascade: Locale Manager docs -->
