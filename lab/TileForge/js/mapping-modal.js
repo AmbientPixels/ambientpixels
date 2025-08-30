@@ -38,6 +38,19 @@ class MappingModal {
           </div>
           
           <div class="modal-body">
+            <!-- Template Selector (mapper-only override) -->
+            <div class="analysis-section" id="mapperTemplateSection">
+              <h3><i class="fas fa-th-large"></i> Template</h3>
+              <div class="stats-container">
+                <label for="mapperTemplateSelect" class="stat-label">Apply mapping for:</label>
+                <select id="mapperTemplateSelect">
+                  <option value="auto">Auto-detect</option>
+                  <option value="toh">Top of Home (ToH)</option>
+                  <option value="mobile">Mobile Spotlight</option>
+                </select>
+              </div>
+            </div>
+
             <!-- CSV Upload Section -->
             <div id="csv-upload-section" class="upload-section">
               <div class="csv-drop-zone" id="modalCsvDropZone">
@@ -112,6 +125,10 @@ class MappingModal {
             <button class="btn btn-primary" id="importBtn" onclick="window.mappingModal.importToCardForge()" style="display: none;">
               <i class="fas fa-upload"></i> Import to CardForge
             </button>
+            <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
+              <input type="checkbox" id="strictSetToggle" />
+              <label for="strictSetToggle" title="Require full locale set for the selected template before allowing export/import">Require full set</label>
+            </div>
           </div>
         </div>
       </div>
@@ -220,6 +237,33 @@ class MappingModal {
         this.hide();
       }
     });
+
+    // Mapper Template selector change -> set override and refresh preview
+    const tplSelect = document.getElementById('mapperTemplateSelect');
+    if (tplSelect) {
+      tplSelect.addEventListener('change', () => {
+        const val = tplSelect.value;
+        if (window.headlinerCrafter && typeof window.headlinerCrafter.setTemplateOverrideMode === 'function') {
+          if (val === 'auto') {
+            window.headlinerCrafter.setTemplateOverrideMode(null);
+          } else {
+            window.headlinerCrafter.setTemplateOverrideMode(val);
+          }
+        }
+        // Refresh preview first so analysis reflects the new template immediately
+        this.updatePreview();
+        // Then recompute stats (locale count) from transformed data
+        this.populateAnalysis();
+      });
+    }
+
+    // Bind strict set toggle
+    const strictToggle = document.getElementById('strictSetToggle');
+    if (strictToggle) {
+      strictToggle.addEventListener('change', () => {
+        this.populateAnalysis();
+      });
+    }
   }
 
   /**
@@ -233,6 +277,19 @@ class MappingModal {
     const mappingInterface = document.getElementById('mapping-interface');
     const exportCsvBtn = document.getElementById('exportCsvBtn');
     const importBtn = document.getElementById('importBtn');
+    const tplSelect = document.getElementById('mapperTemplateSelect');
+    const strictToggle = document.getElementById('strictSetToggle');
+    
+    // Initialize template selector to current mode
+    try {
+      if (tplSelect && window.headlinerCrafter && typeof window.headlinerCrafter.getActiveTemplateMode === 'function') {
+        if (window.headlinerCrafter.templateOverrideMode === 'toh' || window.headlinerCrafter.templateOverrideMode === 'mobile') {
+          tplSelect.value = window.headlinerCrafter.templateOverrideMode;
+        } else {
+          tplSelect.value = 'auto';
+        }
+      }
+    } catch (_) {}
     
     if (csvData && csvData.length > 0) {
       console.log('📊 Using provided CSV data:', csvData.length, 'rows');
@@ -400,15 +457,52 @@ class MappingModal {
     const statsContainer = document.getElementById('statsContainer');
     const analysis = this.dataAnalysis;
     
+    // Compute locale count deterministically from transformed data (what will export)
+    let activeLocaleCount = 0;
+    let activeTemplateLabel = '';
+    let expectedLocaleCount = 0;
+    let missingLocales = [];
+    try {
+      if (window.headlinerCrafter && this.currentData) {
+        activeLocaleCount = window.headlinerCrafter.transformData(this.currentData).length;
+        const mode = typeof window.headlinerCrafter.getActiveTemplateMode === 'function'
+          ? window.headlinerCrafter.getActiveTemplateMode()
+          : 'toh';
+        activeTemplateLabel = mode === 'mobile' ? 'Mobile' : 'ToH';
+
+        // Expected vs present diagnostics
+        if (window.TileForgeLocales && typeof window.TileForgeLocales.getDefaultSet === 'function') {
+          const expected = window.TileForgeLocales.getDefaultSet(mode) || [];
+          expectedLocaleCount = expected.length;
+          const present = new Set(window.headlinerCrafter.transformData(this.currentData).map(r => r.locale));
+          missingLocales = expected.filter(loc => !present.has(loc));
+        }
+      }
+    } catch (_) {}
+    
+    // Enforce strict requirement (disable buttons if required and missing)
+    const strictToggle = document.getElementById('strictSetToggle');
+    const exportBtn = document.getElementById('exportCsvBtn');
+    const importBtn = document.getElementById('importBtn');
+    const strictOn = !!(strictToggle && strictToggle.checked);
+    const hasMissing = missingLocales && missingLocales.length > 0;
+    if (exportBtn) exportBtn.disabled = strictOn && hasMissing;
+    if (importBtn) importBtn.disabled = strictOn && hasMissing;
+
     const statsHTML = `
       <div class="stat-item">
         <span class="stat-label">Total Rows:</span>
         <span class="stat-value">${analysis.totalRows}</span>
       </div>
       <div class="stat-item">
-        <span class="stat-label">Locales:</span>
-        <span class="stat-value">${analysis.locales.size}</span>
+        <span class="stat-label">Locales${activeTemplateLabel ? ' (' + activeTemplateLabel + ')' : ''}:</span>
+        <span class="stat-value">${activeLocaleCount}${expectedLocaleCount ? ' / ' + expectedLocaleCount : ''}</span>
       </div>
+      ${missingLocales && missingLocales.length ? `
+      <div class="stat-item">
+        <span class="stat-label">Missing:</span>
+        <span class="stat-value">${missingLocales.length} <a href="#" id="viewMissingLocales" style="margin-left:6px;">(view)</a></span>
+      </div>` : ''}
       <div class="stat-item">
         <span class="stat-label">Input Fields:</span>
         <span class="stat-value">${this.fieldTypes.input.length}</span>
@@ -416,6 +510,22 @@ class MappingModal {
     `;
     
     statsContainer.innerHTML = statsHTML;
+
+    // Hook up the view link if present
+    if (missingLocales && missingLocales.length) {
+      const viewLink = document.getElementById('viewMissingLocales');
+      if (viewLink) {
+        viewLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          try {
+            const msg = `Missing locales (\n${missingLocales.join(', ')}\n)`;
+            alert(msg);
+          } catch (_) {
+            console.warn('Missing locales:', missingLocales);
+          }
+        });
+      }
+    }
   }
 
   /**
@@ -494,6 +604,8 @@ class MappingModal {
         this.updateCurrentMapping();
         this.updateMappingPreviews();
         this.updatePreview();
+        // Keep the Locales stat in sync with the preview rows
+        this.populateAnalysis();
       });
     });
     
@@ -503,66 +615,24 @@ class MappingModal {
   }
 
   /**
-   * Get sample data for a field, prioritizing English content
-   */
-  getFieldSample(field) {
-    if (!this.currentData || this.currentData.length === 0) return '';
-    
-    // Try to find English language row first
-    const englishRow = this.currentData.find(row => 
-      row.Language && row.Language.toLowerCase() === 'en'
-    );
-    
-    // Use English sample if available, otherwise use first row
-    const sampleRow = englishRow || this.currentData[0];
-    const sample = sampleRow[field] || '';
-    
-    return sample.length > 30 ? sample.substring(0, 30) + '...' : sample;
-  }
-
-  /**
-   * Get character limit for output field
-   */
-  getFieldLimit(field) {
-    const limits = {
-      'headline': 45,
-      'subheadline': 35,
-      'narrator': 60
-    };
-    return limits[field] || 50;
-  }
-
-  /**
-   * Get default mapping for input field
-   */
-  getDefaultMapping(inputField) {
-    const defaultMappings = {
-      'Title': 'headline',
-      'MiniFAD': 'headline',
-      'Description': 'subheadline',
-      'Narrator': 'narrator'
-    };
-    return defaultMappings[inputField] || '';
-  }
-
-  /**
    * Update current mapping from UI
    */
   updateCurrentMapping() {
-    const mappings = {};
+    // New schema: output -> input (allows one input to feed multiple outputs)
+    const outputToInput = {};
     document.querySelectorAll('.field-mapping-select').forEach(select => {
-      const outputField = select.dataset.output;
-      const inputField = select.value;
-      if (inputField) {
-        mappings[inputField] = outputField;
+      const outputField = select.dataset.output; // e.g., 'headline'
+      const inputField = select.value;          // e.g., 'MiniFAD'
+      if (outputField) {
+        outputToInput[outputField] = inputField || '';
       }
     });
-    
-    this.currentMapping = mappings;
-    
+
+    this.currentMapping = outputToInput;
+
     // Update headliner crafter mappings
     if (window.headlinerCrafter) {
-      window.headlinerCrafter.updateFieldMappings(mappings);
+      window.headlinerCrafter.updateFieldMappings(outputToInput);
     }
   }
 
@@ -667,7 +737,7 @@ class MappingModal {
         return;
       }
       
-      console.log('� Updating ONLY content fields by row index...');
+      console.log('🔍 Updating ONLY content fields by row index...');
       
       // Update content by row index - don't touch locale names at all
       transformedData.forEach((newRow, index) => {
@@ -696,6 +766,31 @@ class MappingModal {
       console.error('❌ Import error:', error);
       /* No alert for error importing content */
     }
+  }
+
+  /**
+   * Validate locales against the active template's expected set
+   * Returns { mode, expected: string[], present: string[], missing: string[] }
+   */
+  validateLocales() {
+    if (!window.headlinerCrafter || !this.currentData || !window.TileForgeLocales) {
+      return { mode: 'toh', expected: [], present: [], missing: [] };
+    }
+    const mode = typeof window.headlinerCrafter.getActiveTemplateMode === 'function'
+      ? window.headlinerCrafter.getActiveTemplateMode()
+      : 'toh';
+    const expected = (typeof window.TileForgeLocales.getDefaultSet === 'function')
+      ? (window.TileForgeLocales.getDefaultSet(mode) || [])
+      : [];
+    const present = window.headlinerCrafter.transformData(this.currentData).map(r => r.locale);
+    const presentSet = new Set(present);
+    const missing = expected.filter(loc => !presentSet.has(loc));
+    if (missing.length) {
+      console.warn('Locale validation:', { mode, expectedCount: expected.length, presentCount: present.length, missing });
+    } else {
+      console.log('Locale validation passed:', { mode, count: present.length });
+    }
+    return { mode, expected, present, missing };
   }
 
   /**
@@ -755,6 +850,49 @@ class MappingModal {
         `;
       }
     });
+  }
+
+  /**
+   * Get sample data for a field, prioritizing English content
+   */
+  getFieldSample(field) {
+    if (!this.currentData || this.currentData.length === 0) return '';
+    
+    // Try to find English language row first
+    const englishRow = this.currentData.find(row => 
+      row.Language && row.Language.toLowerCase() === 'en'
+    );
+    
+    // Use English sample if available, otherwise use first row
+    const sampleRow = englishRow || this.currentData[0];
+    const sample = sampleRow[field] || '';
+    
+    return sample.length > 30 ? sample.substring(0, 30) + '...' : sample;
+  }
+
+  /**
+   * Get character limit for output field
+   */
+  getFieldLimit(field) {
+    const limits = {
+      'headline': 45,
+      'subheadline': 35,
+      'narrator': 60
+    };
+    return limits[field] || 50;
+  }
+
+  /**
+   * Get default mapping for input field
+   */
+  getDefaultMapping(inputField) {
+    const defaultMappings = {
+      'Title': 'headline',
+      'MiniFAD': 'headline',
+      'Description': 'subheadline',
+      'Narrator': 'narrator'
+    };
+    return defaultMappings[inputField] || '';
   }
 
   /**

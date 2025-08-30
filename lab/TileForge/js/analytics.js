@@ -643,21 +643,16 @@ window.requestLocaleBadgeRefresh = (function(){
          <ol>${listHtml(active)}</ol>
        </details>
      `;
-    const columnsHtml = `
-      <div class="validation-columns">
-        <div class="validation-col">${expectedBlock}</div>
-        <div class="validation-col">${v.reason === 'no-data' ? '' : activeBlock}</div>
-      </div>
-    `;
     const bodyHtml = `
       <div class="validation-details">
         <div class="${statusClass}" aria-live="polite">${statusIcon} ${escapeHtml(reasonText)}</div>
-        ${noDataCta}
         ${!v.ok && v.reason === 'count' ? `<p class="warning"><strong>Count:</strong> Expected ${v.expectedCount}, found ${v.activeCount}</p>` : ''}
         ${presenceBlocks}
         ${orderTable}
         <hr/>
-        ${columnsHtml}
+        ${expectedBlock}
+        ${v.reason === 'no-data' ? '' : activeBlock}
+        ${noDataCta}
       </div>
     `;
 
@@ -748,21 +743,16 @@ window.requestLocaleBadgeRefresh = (function(){
                <ol>${listHtml2(active2)}</ol>
              </details>
            `;
-          const columnsHtml2 = `
-            <div class="validation-columns">
-              <div class="validation-col">${expectedBlock2}</div>
-              <div class="validation-col">${v2.reason === 'no-data' ? '' : activeBlock2}</div>
-            </div>
-          `;
           const bodyHtml2 = `
             <div class="validation-details">
               <div class="${statusClass2}" aria-live="polite">${statusIcon2} ${escapeHtml(reasonText2)}</div>
-              ${noDataCta2}
               ${!v2.ok && v2.reason === 'count' ? `<p class="warning"><strong>Count:</strong> Expected ${v2.expectedCount}, found ${v2.activeCount}</p>` : ''}
               ${presenceBlocks2}
               ${orderTable2}
               <hr/>
-              ${columnsHtml2}
+              ${expectedBlock2}
+              ${v2.reason === 'no-data' ? '' : activeBlock2}
+              ${noDataCta2}
             </div>
           `;
           // Replace details content
@@ -852,21 +842,16 @@ window.requestLocaleBadgeRefresh = (function(){
                <ol>${listHtml2(active2)}</ol>
              </details>
            `;
-          const columnsHtml2 = `
-            <div class="validation-columns">
-              <div class="validation-col">${expectedBlock2}</div>
-              <div class="validation-col">${v2.reason === 'no-data' ? '' : activeBlock2}</div>
-            </div>
-          `;
           const bodyHtml2 = `
             <div class="validation-details">
               <div class="${statusClass2}" aria-live="polite">${statusIcon2} ${escapeHtml(reasonText2)}</div>
-              ${noDataCta2}
               ${!v2.ok && v2.reason === 'count' ? `<p class="warning"><strong>Count:</strong> Expected ${v2.expectedCount}, found ${v2.activeCount}</p>` : ''}
               ${presenceBlocks2}
               ${orderTable2}
               <hr/>
-              ${columnsHtml2}
+              ${expectedBlock2}
+              ${v2.reason === 'no-data' ? '' : activeBlock2}
+              ${noDataCta2}
             </div>
           `;
           const root = container.parentElement || container;

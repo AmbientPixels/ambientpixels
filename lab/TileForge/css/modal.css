@@ -975,29 +975,6 @@
   border-color: #4a4a4a;
 }
 
-/* Locale Validation Details layout (scoped) */ /* added by Cascade */
-.modal .validation-details .validation-columns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  align-items: start;
-}
-.modal .validation-details .validation-col {
-  min-width: 0;
-}
-/* Tweak lists inside columns for compactness */
-.modal .validation-details details { margin: 0; }
-.modal .validation-details summary { cursor: pointer; margin-bottom: 6px; }
-.modal .validation-details ol { margin: 0; padding-left: 18px; }
-
-/* Stack on narrow viewports */
-@media (max-width: 900px) {
-  .modal .validation-details .validation-columns {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-}
-
 /* ==== Settings: General tab (scoped) ==== */ /* updated by Cascade */
 .tf-general {
   display: grid;

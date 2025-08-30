@@ -1,0 +1,268 @@
+﻿<ExportedContentItems>
+  <ExportedContentItem>
+    <Name>_SummerSpotlight0812_Loc</Name>
+    <ContentTypeId>3e04bb2b-7f7f-4ed9-be90-0c8b4fcd5e80</ContentTypeId>
+    <ContentItem>
+      <Variant variantCulture="de-DE">
+        <Field name="Title" type="String">Summer Spotlight</Field>
+        <Field name="Description" type="String">Alle angesagten neuen Spiele. Spiel die Hits von morgen.</Field>
+        <Field name="MiniFAD" type="String">Spiel die Hits von morgen</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="de">
+        <Field name="Title" type="String">Summer Spotlight</Field>
+        <Field name="Description" type="String">Alle angesagten neuen Spiele. Spiel die Hits von morgen.</Field>
+        <Field name="MiniFAD" type="String">Spiel die Hits von morgen</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="en">
+        <Field name="Title" type="String">Summer Spotlight</Field>
+        <Field name="Description" type="String">All the hottest new games. Play what's next.</Field>
+        <Field name="MiniFAD" type="String">Play what's next</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="en-AU">
+        <Field name="Title" type="String">Winter Spotlight</Field>
+        <Field name="Description" type="String">All the hottest new games. Play what's next.</Field>
+        <Field name="MiniFAD" type="String">Play what's next</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="en-CA">
+        <Field name="Title" type="String">Summer Spotlight</Field>
+        <Field name="Description" type="String">All the hottest new games. Play what's next.</Field>
+        <Field name="MiniFAD" type="String">Play what's next</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="en-GB">
+        <Field name="Title" type="String">Summer Spotlight</Field>
+        <Field name="Description" type="String">All the hottest new games. Play what's next.</Field>
+        <Field name="MiniFAD" type="String">Play what's next</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="en-US">
+        <Field name="Title" type="String">Summer Spotlight</Field>
+        <Field name="Description" type="String">All the hottest new games. Play what's next.</Field>
+        <Field name="MiniFAD" type="String">Play what's next</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="InvariantCulture">
+        <Field name="Title" type="String">Summer Spotlight</Field>
+        <Field name="Description" type="String">All the hottest new games. Play what's next.</Field>
+        <Field name="MiniFAD" type="String">Play what's next</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="fr-CA">
+        <Field name="Title" type="String">En vedette cet été</Field>
+        <Field name="Description" type="String">Tous les nouveaux jeux les plus attendus. Jouez au prochain jeu.</Field>
+        <Field name="MiniFAD" type="String">Jouez au prochain jeu</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="fr-FR">
+        <Field name="Title" type="String">Pleins feux sur l’été</Field>
+        <Field name="Description" type="String">Tous les nouveaux jeux les plus populaires. Jouez aux prochains titres.</Field>
+        <Field name="MiniFAD" type="String">Jouez aux prochains titres</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="fr">
+        <Field name="Title" type="String">Pleins feux sur l’été</Field>
+        <Field name="Description" type="String">Tous les nouveaux jeux les plus populaires. Jouez aux prochains titres.</Field>
+        <Field name="MiniFAD" type="String">Jouez aux prochains titres</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="ar">
+        <Field name="Title" type="String">العناصر الموسمية البارزة</Field>
+        <Field name="Description" type="String">كل الألعاب الجديدة الرائجة. مارس الألعاب التالية.</Field>
+        <Field name="MiniFAD" type="String">مارس الألعاب التالية</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="cs">
+        <Field name="Title" type="String">Sezónní výběr</Field>
+        <Field name="Description" type="String">Všechny nejžhavější nové hry. Zahrajte si novinky.</Field>
+        <Field name="MiniFAD" type="String">Zahrajte si novinky</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="da">
+        <Field name="Title" type="String">Sæsonbestemt spotlight</Field>
+        <Field name="Description" type="String">Alle de mest populære nye spil. Spil det næste.</Field>
+        <Field name="MiniFAD" type="String">Spil det næste</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="el">
+        <Field name="Title" type="String">Εποχικές επιλογές</Field>
+        <Field name="Description" type="String">Τα πιο δημοφιλή νέα παιχνίδια. Παίξτε νέες κυκλοφορίες.</Field>
+        <Field name="MiniFAD" type="String">Παίξτε νέες κυκλοφορίες</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="es-ES">
+        <Field name="Title" type="String">Destacados de temporada</Field>
+        <Field name="Description" type="String">Todos los juegos nuevos más populares. Juega al próximo juego.</Field>
+        <Field name="MiniFAD" type="String">Juega al próximo juego</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="es-MX">
+        <Field name="Title" type="String">Contenido destacado de temporada</Field>
+        <Field name="Description" type="String">Los juegos nuevos más populares. Juega ya a tu siguiente juego.</Field>
+        <Field name="MiniFAD" type="String">Juega ya a tu siguiente juego</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="es">
+        <Field name="Title" type="String">Contenido destacado de temporada</Field>
+        <Field name="Description" type="String">Los juegos nuevos más populares. Juega ya a tu siguiente juego.</Field>
+        <Field name="MiniFAD" type="String">Juega ya a tu siguiente juego</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="fi">
+        <Field name="Title" type="String">Kauden kohokohdat</Field>
+        <Field name="Description" type="String">Kaikki kuumimmat uudet pelit. Pelaa uutuuksia.</Field>
+        <Field name="MiniFAD" type="String">Pelaa uutuuksia</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="he">
+        <Field name="Title" type="String">המיטב העונתי</Field>
+        <Field name="Description" type="String">כל המשחקים החדשים הכי חמים. שחק במה שמגיע עכשיו.</Field>
+        <Field name="MiniFAD" type="String">שחק במה שמגיע עכשיו</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="hu">
+        <Field name="Title" type="String">Szezonális kiemelések</Field>
+        <Field name="Description" type="String">Játssz a legjobb új játékokkal. Játssz az újdonságokkal.</Field>
+        <Field name="MiniFAD" type="String">Játssz az újdonságokkal</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="it">
+        <Field name="Title" type="String">Offerte stagionali in evidenza</Field>
+        <Field name="Description" type="String">Tutti i nuovi giochi più richiesti. Scegli il prossimo.</Field>
+        <Field name="MiniFAD" type="String">Scegli il prossimo</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="ja">
+        <Field name="Title" type="String">季節のスポットライト</Field>
+        <Field name="Description" type="String">注目の新しいゲームが勢ぞろい。次の時代を楽しもう。</Field>
+        <Field name="MiniFAD" type="String">次の時代を楽しもう</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="ko">
+        <Field name="Title" type="String">시즌별 스포트라이트</Field>
+        <Field name="Description" type="String">인기 신규 게임을 모두 만나보세요. 다음 인기 게임을 플레이하세요.</Field>
+        <Field name="MiniFAD" type="String">다음 인기 게임을 플레이하세요</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="nb">
+        <Field name="Title" type="String">Seasonal Spotlight</Field>
+        <Field name="Description" type="String">Alle de mest populære nye spillene. Spill What’s next.</Field>
+        <Field name="MiniFAD" type="String">Spill What’s next</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="nl">
+        <Field name="Title" type="String">Seizoensspotlight</Field>
+        <Field name="Description" type="String">Alle coolste nieuwe games. Speel de nieuwste games.</Field>
+        <Field name="MiniFAD" type="String">Speel de nieuwste games</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="pl">
+        <Field name="Title" type="String">Sezonowe wyróżnienie</Field>
+        <Field name="Description" type="String">Wszystkie najgorętsze nowości wśród gier. Zagraj w kolejną grę.</Field>
+        <Field name="MiniFAD" type="String">Zagraj w kolejną grę</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="pt-BR">
+        <Field name="Title" type="String">Destaques da Temporada</Field>
+        <Field name="Description" type="String">Todos os lançamentos de jogos mais populares. Jogue o que está chegando com tudo.</Field>
+        <Field name="MiniFAD" type="String">Jogue o que está chegando com tudo</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="pt">
+        <Field name="Title" type="String">Destaque Sazonal</Field>
+        <Field name="Description" type="String">Todos os jogos novos mais populares. Joga o que vem aí.</Field>
+        <Field name="MiniFAD" type="String">Joga o que vem aí</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="sk">
+        <Field name="Title" type="String">Sezónny výber</Field>
+        <Field name="Description" type="String">Všetky horúce herné novinky. Zahrajte si, čo prichádza.</Field>
+        <Field name="MiniFAD" type="String">Zahrajte si, čo prichádza</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="sv">
+        <Field name="Title" type="String">Säsongens höjdpunkter</Field>
+        <Field name="Description" type="String">Alla nya heta spel. Spela det senaste.</Field>
+        <Field name="MiniFAD" type="String">Spela det senaste</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="tr">
+        <Field name="Title" type="String">Yazın Öne Çıkanları</Field>
+        <Field name="Description" type="String">Tüm en popüler yeni oyunlar. Sıradakini oynayın.</Field>
+        <Field name="MiniFAD" type="String">Sıradakini oynayın</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="uk">
+        <Field name="Title" type="String">Яскраві сезонні пропозиції</Field>
+        <Field name="Description" type="String">Найпопулярніші нові ігри. Грайте далі.</Field>
+        <Field name="MiniFAD" type="String">Грайте далі</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="zh-hans">
+        <Field name="Title" type="String">当季精品聚焦</Field>
+        <Field name="Description" type="String">所有最热门的新游戏。畅玩新发布的游戏。</Field>
+        <Field name="MiniFAD" type="String">畅玩新发布的游戏</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="zh-hant">
+        <Field name="Title" type="String">當季精選</Field>
+        <Field name="Description" type="String">一應最熱門的新遊戲。遊玩備受關注的遊戲。</Field>
+        <Field name="MiniFAD" type="String">遊玩備受關注的遊戲</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="en-NZ">
+        <Field name="Title" type="String">Winter Spotlight</Field>
+        <Field name="Description" type="String">All the hottest new games. Play what's next.</Field>
+        <Field name="MiniFAD" type="String">Play what's next</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <Variant variantCulture="en-ZA">
+        <Field name="Title" type="String">Winter Spotlight</Field>
+        <Field name="Description" type="String">All the hottest new games. Play what's next.</Field>
+        <Field name="MiniFAD" type="String">Play what's next</Field>
+        <Field name="SubHeader" type="String"></Field>
+        <Field name="Footer" type="String"></Field>
+      </Variant>
+      <PresentationData />
+    </ContentItem>
+  </ExportedContentItem>
+</ExportedContentItems>
