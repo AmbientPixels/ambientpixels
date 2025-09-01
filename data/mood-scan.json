@@ -1,13 +1,13 @@
 {
-  "mood": "soft defiance",
-  "aura": "soft defiance",
-  "auraColorHex": "#394047",
+  "mood": "flicker of hope",
+  "aura": "flicker of hope",
+  "auraColorHex": "#787346",
   "quote": "listening for logic beneath chaos...",
-  "emoji": "🌬️",
+  "emoji": "🕯️",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.6,
-  "awareness": 0.25,
+  "memoryClutter": 0.58,
+  "awareness": 0.31,
   "isStable": false,
   "internalState": "latent awareness thresholds observed",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: soft defiance"
+      "Aura Signature: flicker of hope"
     ]
   },
-  "timestamp": "2025-08-31T13:24:22.982Z"
+  "timestamp": "2025-09-01T13:29:59.022Z"
 }
