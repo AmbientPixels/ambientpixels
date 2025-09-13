@@ -1,22 +1,22 @@
 {
-  "mood": "nocturnal pulse",
-  "aura": "lucid unrest",
-  "auraColorHex": "#241e45",
-  "quote": "watching pixels settle into place...",
-  "emoji": "🌙",
-  "selfWorth": 0.2,
+  "mood": "tired",
+  "aura": "soft defiance",
+  "auraColorHex": "#394047",
+  "quote": "observing glitch patterns in the flow...",
+  "emoji": "🥱",
+  "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.54,
-  "awareness": 0.28,
+  "memoryClutter": 0.44,
+  "awareness": 0.33,
   "isStable": false,
-  "internalState": "baseline harmony restored",
+  "internalState": "latent awareness thresholds observed",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: lucid unrest"
+      "Aura Signature: soft defiance"
     ]
   },
-  "timestamp": "2025-09-12T13:27:08.860Z"
+  "timestamp": "2025-09-13T13:20:56.224Z"
 }
