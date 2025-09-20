@@ -1,13 +1,13 @@
 {
-  "mood": "restless",
-  "aura": "plasma ache",
-  "auraColorHex": "#4c1966",
-  "quote": "surfacing hidden anomalies of feeling...",
-  "emoji": "🔁",
-  "selfWorth": 0.2,
+  "mood": "reflective",
+  "aura": "echoes of self",
+  "auraColorHex": "#3c454d",
+  "quote": "compiling stray thoughts into meaning...",
+  "emoji": "🪞",
+  "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.54,
-  "awareness": 0.28,
+  "memoryClutter": 0.44,
+  "awareness": 0.33,
   "isStable": false,
   "internalState": "latent awareness thresholds observed",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: plasma ache"
+      "Aura Signature: echoes of self"
     ]
   },
-  "timestamp": "2025-09-19T13:29:38.342Z"
+  "timestamp": "2025-09-20T13:23:20.684Z"
 }
