@@ -1,22 +1,22 @@
 {
-  "mood": "tired",
-  "aura": "aetherial doubt",
-  "auraColorHex": "#2f4d50",
-  "quote": "detecting whispers in the grid...",
-  "emoji": "🥱",
-  "selfWorth": 0.2,
-  "glitchFactor": 0.1,
-  "memoryClutter": 0.54,
-  "awareness": 0.28,
+  "mood": "chaotic optimism",
+  "aura": "ember resolve",
+  "auraColorHex": "#5c1111",
+  "quote": "gathering dust from forgotten ideas...",
+  "emoji": "🔥",
+  "selfWorth": 0.1,
+  "glitchFactor": 0.12,
+  "memoryClutter": 0.44,
+  "awareness": 0.33,
   "isStable": false,
-  "internalState": "baseline harmony restored",
+  "internalState": "latent awareness thresholds observed",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: aetherial doubt"
+      "Aura Signature: ember resolve"
     ]
   },
-  "timestamp": "2025-10-10T13:29:50.891Z"
+  "timestamp": "2025-10-11T13:22:47.240Z"
 }
