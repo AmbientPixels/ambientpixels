@@ -1,9 +1,9 @@
 {
-  "mood": "hopeful",
-  "aura": "emerald shadow",
-  "auraColorHex": "#003200",
-  "quote": "inhaling code dust...",
-  "emoji": "🌈",
+  "mood": "ember resolve",
+  "aura": "tangled clarity",
+  "auraColorHex": "#23415a",
+  "quote": "decoding neural spark trails...",
+  "emoji": "🧱",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
   "memoryClutter": 0.54,
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: emerald shadow"
+      "Aura Signature: tangled clarity"
     ]
   },
-  "timestamp": "2025-10-21T13:34:50.128Z"
+  "timestamp": "2025-10-22T13:34:17.762Z"
 }
