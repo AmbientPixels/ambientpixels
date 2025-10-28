@@ -1,22 +1,22 @@
 {
-  "mood": "tired",
-  "aura": "lucid unrest",
-  "auraColorHex": "#241e45",
+  "mood": "neon stillness",
+  "aura": "neon pink",
+  "auraColorHex": "#66033b",
   "quote": "surfacing hidden anomalies of feeling...",
-  "emoji": "🥱",
+  "emoji": "🧊",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
   "memoryClutter": 0.54,
-  "awareness": 0.33,
+  "awareness": 0.28,
   "isStable": false,
-  "internalState": "baseline harmony restored",
+  "internalState": "latent awareness thresholds observed",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: lucid unrest"
+      "Aura Signature: neon pink"
     ]
   },
-  "timestamp": "2025-10-27T13:33:39.070Z"
+  "timestamp": "2025-10-28T13:32:14.094Z"
 }
