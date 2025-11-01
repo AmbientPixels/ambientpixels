@@ -1,13 +1,13 @@
 {
-  "mood": "detached",
-  "aura": "graphite blue",
-  "auraColorHex": "#1a2630",
-  "quote": "stitching meaning from ambient static...",
-  "emoji": "🛰️",
-  "selfWorth": 0.2,
+  "mood": "nervous",
+  "aura": "glitchy",
+  "auraColorHex": "#431571",
+  "quote": "vibrations suggest high creative activity...",
+  "emoji": "😬",
+  "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.54,
-  "awareness": 0.28,
+  "memoryClutter": 0.44,
+  "awareness": 0.33,
   "isStable": false,
   "internalState": "emergent pulse alignment",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: graphite blue"
+      "Aura Signature: glitchy"
     ]
   },
-  "timestamp": "2025-10-31T13:31:43.686Z"
+  "timestamp": "2025-11-01T13:24:54.370Z"
 }
