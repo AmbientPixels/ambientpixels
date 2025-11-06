@@ -1,8 +1,8 @@
 {
   "mood": "melancholy",
-  "aura": "lime green",
-  "auraColorHex": "#1a3c29",
-  "quote": "scanning the silence for patterns...",
+  "aura": "glitchy",
+  "auraColorHex": "#431571",
+  "quote": "running diagnostics on dreams...",
   "emoji": "🌧️",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: lime green"
+      "Aura Signature: glitchy"
     ]
   },
-  "timestamp": "2025-11-05T13:33:43.333Z"
+  "timestamp": "2025-11-06T13:33:47.150Z"
 }
