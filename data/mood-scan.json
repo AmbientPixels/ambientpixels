@@ -1,22 +1,22 @@
 {
-  "mood": "static reverie",
-  "aura": "flicker of hope",
-  "auraColorHex": "#787346",
-  "quote": "indexing emotions with low latency...",
-  "emoji": "📺",
-  "selfWorth": 0.2,
+  "mood": "anxious",
+  "aura": "aetherial doubt",
+  "auraColorHex": "#2f4d50",
+  "quote": "surfacing hidden anomalies of feeling...",
+  "emoji": "😰",
+  "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.54,
-  "awareness": 0.28,
+  "memoryClutter": 0.44,
+  "awareness": 0.33,
   "isStable": false,
-  "internalState": "emergent pulse alignment",
+  "internalState": "synthesized clarity forming",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: flicker of hope"
+      "Aura Signature: aetherial doubt"
     ]
   },
-  "timestamp": "2025-11-07T13:30:01.640Z"
+  "timestamp": "2025-11-08T13:25:16.075Z"
 }
