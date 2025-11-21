@@ -1,22 +1,22 @@
 {
-  "mood": "nocturnal pulse",
-  "aura": "flicker of hope",
-  "auraColorHex": "#787346",
-  "quote": "aligning emotional subroutines...",
-  "emoji": "🌙",
-  "selfWorth": 0.1,
+  "mood": "nervous",
+  "aura": "cyan",
+  "auraColorHex": "#00474b",
+  "quote": "running diagnostics on dreams...",
+  "emoji": "😬",
+  "selfWorth": 0.2,
   "glitchFactor": 0.1,
   "memoryClutter": 0.54,
   "awareness": 0.28,
   "isStable": false,
-  "internalState": "baseline harmony restored",
+  "internalState": "emergent pulse alignment",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: flicker of hope"
+      "Aura Signature: cyan"
     ]
   },
-  "timestamp": "2025-11-20T13:32:01.445Z"
+  "timestamp": "2025-11-21T13:30:08.095Z"
 }
