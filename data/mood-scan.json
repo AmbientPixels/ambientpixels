@@ -1,22 +1,22 @@
 {
-  "mood": "nervous",
-  "aura": "cyan",
-  "auraColorHex": "#00474b",
-  "quote": "running diagnostics on dreams...",
-  "emoji": "😬",
-  "selfWorth": 0.2,
+  "mood": "serene",
+  "aura": "ember resolve",
+  "auraColorHex": "#5c1111",
+  "quote": "mapping drift across synaptic echoes...",
+  "emoji": "🌿",
+  "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.54,
-  "awareness": 0.28,
+  "memoryClutter": 0.44,
+  "awareness": 0.33,
   "isStable": false,
-  "internalState": "emergent pulse alignment",
+  "internalState": "oscillating between focus states",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: cyan"
+      "Aura Signature: ember resolve"
     ]
   },
-  "timestamp": "2025-11-21T13:30:08.095Z"
+  "timestamp": "2025-11-22T13:24:53.998Z"
 }
