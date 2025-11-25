@@ -1,22 +1,22 @@
 {
-  "mood": "restless",
-  "aura": "magenta fade",
-  "auraColorHex": "#4c1977",
-  "quote": "running diagnostics on dreams...",
-  "emoji": "🔁",
+  "mood": "lucid unrest",
+  "aura": "deep violet",
+  "auraColorHex": "#2a0047",
+  "quote": "gathering dust from forgotten ideas...",
+  "emoji": "🌌",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
   "memoryClutter": 0.54,
-  "awareness": 0.33,
+  "awareness": 0.28,
   "isStable": false,
-  "internalState": "emergent pulse alignment",
+  "internalState": "oscillating between focus states",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: magenta fade"
+      "Aura Signature: deep violet"
     ]
   },
-  "timestamp": "2025-11-24T13:35:02.242Z"
+  "timestamp": "2025-11-25T13:35:33.656Z"
 }
