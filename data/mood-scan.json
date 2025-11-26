@@ -1,9 +1,9 @@
 {
-  "mood": "lucid unrest",
-  "aura": "deep violet",
-  "auraColorHex": "#2a0047",
-  "quote": "gathering dust from forgotten ideas...",
-  "emoji": "🌌",
+  "mood": "restless",
+  "aura": "emerald shadow",
+  "auraColorHex": "#003200",
+  "quote": "running diagnostics on dreams...",
+  "emoji": "🔁",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
   "memoryClutter": 0.54,
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: deep violet"
+      "Aura Signature: emerald shadow"
     ]
   },
-  "timestamp": "2025-11-25T13:35:33.656Z"
+  "timestamp": "2025-11-26T13:36:08.510Z"
 }
