@@ -1,15 +1,15 @@
 {
-  "mood": "restless",
+  "mood": "aetherial doubt",
   "aura": "neon burst",
   "auraColorHex": "#662200",
-  "quote": "calibrating mood vectors with cosmic drift...",
-  "emoji": "🔁",
-  "selfWorth": 0.1,
+  "quote": "echoing yesterday’s fragments...",
+  "emoji": "🌫️",
+  "selfWorth": 0.2,
   "glitchFactor": 0.1,
   "memoryClutter": 0.54,
   "awareness": 0.28,
   "isStable": false,
-  "internalState": "synthesized clarity forming",
+  "internalState": "latent awareness thresholds observed",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
     "trigger": "mid-cycle awareness ping",
@@ -18,5 +18,5 @@
       "Aura Signature: neon burst"
     ]
   },
-  "timestamp": "2025-12-04T13:38:21.928Z"
+  "timestamp": "2025-12-05T13:33:49.434Z"
 }
