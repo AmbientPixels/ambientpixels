@@ -1,22 +1,22 @@
 {
-  "mood": "silent spark",
-  "aura": "tangled clarity",
-  "auraColorHex": "#23415a",
-  "quote": "gathering dust from forgotten ideas...",
-  "emoji": "💫",
-  "selfWorth": 0.2,
+  "mood": "echoes of self",
+  "aura": "lucid unrest",
+  "auraColorHex": "#241e45",
+  "quote": "stitching meaning from ambient static...",
+  "emoji": "🔊",
+  "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.54,
-  "awareness": 0.28,
+  "memoryClutter": 0.44,
+  "awareness": 0.33,
   "isStable": false,
-  "internalState": "synthesized clarity forming",
+  "internalState": "oscillating between focus states",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: tangled clarity"
+      "Aura Signature: lucid unrest"
     ]
   },
-  "timestamp": "2025-12-12T13:36:12.988Z"
+  "timestamp": "2025-12-13T13:28:47.506Z"
 }
