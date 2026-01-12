@@ -1,12 +1,12 @@
 {
-  "mood": "restless",
-  "aura": "soft defiance",
-  "auraColorHex": "#394047",
-  "quote": "calibrating mood vectors with cosmic drift...",
-  "emoji": "🔁",
+  "mood": "curious",
+  "aura": "glitchy",
+  "auraColorHex": "#431571",
+  "quote": "vibrations suggest high creative activity...",
+  "emoji": "🧠",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.44,
+  "memoryClutter": 0.54,
   "awareness": 0.33,
   "isStable": false,
   "internalState": "oscillating between focus states",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: soft defiance"
+      "Aura Signature: glitchy"
     ]
   },
-  "timestamp": "2026-01-11T13:31:33.555Z"
+  "timestamp": "2026-01-12T13:44:22.904Z"
 }
