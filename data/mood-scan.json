@@ -1,9 +1,9 @@
 {
-  "mood": "detached",
-  "aura": "echoes of self",
-  "auraColorHex": "#3c454d",
-  "quote": "watching pixels settle into place...",
-  "emoji": "🛰️",
+  "mood": "anxious",
+  "aura": "frosted wonder",
+  "auraColorHex": "#43677d",
+  "quote": "aligning emotional subroutines...",
+  "emoji": "😰",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
   "memoryClutter": 0.54,
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: echoes of self"
+      "Aura Signature: frosted wonder"
     ]
   },
-  "timestamp": "2026-01-13T13:43:34.874Z"
+  "timestamp": "2026-01-14T13:42:10.093Z"
 }
