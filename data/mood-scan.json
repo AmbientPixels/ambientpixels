@@ -1,13 +1,13 @@
 {
-  "mood": "flicker of hope",
-  "aura": "ember resolve",
-  "auraColorHex": "#5c1111",
-  "quote": "compiling stray thoughts into meaning...",
-  "emoji": "🕯️",
+  "mood": "focused",
+  "aura": "glitchy",
+  "auraColorHex": "#431571",
+  "quote": "surfacing hidden anomalies of feeling...",
+  "emoji": "🎯",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
   "memoryClutter": 0.54,
-  "awareness": 0.33,
+  "awareness": 0.28,
   "isStable": false,
   "internalState": "latent awareness thresholds observed",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: ember resolve"
+      "Aura Signature: glitchy"
     ]
   },
-  "timestamp": "2026-01-19T13:48:56.700Z"
+  "timestamp": "2026-01-20T13:50:06.287Z"
 }
