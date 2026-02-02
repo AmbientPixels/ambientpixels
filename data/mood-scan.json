@@ -1,12 +1,12 @@
 {
-  "mood": "chaotic optimism",
-  "aura": "paper white",
-  "auraColorHex": "#666666",
+  "mood": "tangled clarity",
+  "aura": "silent spark",
+  "auraColorHex": "#6e506e",
   "quote": "scanning the silence for patterns...",
-  "emoji": "🔥",
+  "emoji": "🪢",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.44,
+  "memoryClutter": 0.54,
   "awareness": 0.33,
   "isStable": false,
   "internalState": "oscillating between focus states",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: paper white"
+      "Aura Signature: silent spark"
     ]
   },
-  "timestamp": "2026-02-01T13:45:38.444Z"
+  "timestamp": "2026-02-02T14:03:00.826Z"
 }
