@@ -825,8 +825,8 @@ async function updateNovaHeartbeat() {
   try {
     // Fetch Nova's status data (debugging live)
     const moodRes = await fetch('/data/mood-scan.json?t=' + Date.now());
-    const apiRes = await fetch('/data/api-status.json?t=' + Date.now());
-    const memoryRes = await fetch('/data/memory-snapshot.json?t=' + Date.now());
+    const apiRes = await fetch('/data/api-monitor.json?t=' + Date.now());
+    const memoryRes = await fetch('/data/performance-metrics.json?t=' + Date.now());
     // Log HTTP statuses to console for live debugging
     console.log('[NovaHeartbeat] status codes:', {
       mood: moodRes.status,
@@ -846,9 +846,9 @@ async function updateNovaHeartbeat() {
       const timestamp = moodData.timestamp ? new Date(moodData.timestamp) : null;
       const timeDiff = timestamp ? Date.now() - timestamp.getTime() : Infinity;
       
-      if (timeDiff < 3600000) { // Less than 1 hour old
+      if (timeDiff < 21600000) { // Less than 1 hour old
         updateStatusIndicator(coreStatusEl, 'active', 'fa-circle-check', 'Operational');
-      } else if (timeDiff < 7200000) { // Less than 2 hours old
+      } else if (timeDiff < 86400000) { // Less than 2 hours old
         updateStatusIndicator(coreStatusEl, 'warning', 'fa-circle-exclamation', 'Stale');
       } else {
         updateStatusIndicator(coreStatusEl, 'error', 'fa-circle-xmark', 'Offline');
@@ -865,7 +865,7 @@ async function updateNovaHeartbeat() {
     const apiCountEl = document.getElementById('api-services-count');
     
     if (!apiRes.ok) {
-      console.warn('[NovaHeartbeat] api-status.json returned', apiRes.status);
+      console.warn('[NovaHeartbeat] api-monitor.json returned', apiRes.status);
       updateStatusIndicator(apiStatusEl, 'error', 'fa-circle-xmark', 'Unreachable');
       if (apiCountEl) apiCountEl.textContent = 'Status unknown';
     } else {
@@ -890,7 +890,7 @@ async function updateNovaHeartbeat() {
     const memoryStatsEl = document.getElementById('memory-stats');
     
     if (!memoryRes.ok) {
-      console.warn('[NovaHeartbeat] memory-snapshot.json returned', memoryRes.status);
+      console.warn('[NovaHeartbeat] performance-metrics.json returned', memoryRes.status);
       updateStatusIndicator(memoryStatusEl, 'warning', 'fa-circle-exclamation', 'No Recent Data');
       if (memoryStatsEl) memoryStatsEl.textContent = 'Snapshots: Unknown';
     } else {
