@@ -834,7 +834,7 @@ async function updateNovaHeartbeat() {
       memory: memoryRes.status
     });
     
-    // Update Nova Core status
+    let moodData = null; let apiData = null; // Update Nova Core status
     const coreStatusEl = document.getElementById('nova-core-status');
     const lastPingEl = document.getElementById('nova-last-ping');
     
@@ -842,7 +842,7 @@ async function updateNovaHeartbeat() {
       updateStatusIndicator(coreStatusEl, 'error', 'fa-circle-xmark', 'Unreachable');
       if (lastPingEl) lastPingEl.textContent = 'Last ping: Unknown';
     } else {
-      const moodData = moodRes.ok ? await moodRes.json() : { timestamp: null };
+      moodData = await moodRes.json();
       const timestamp = moodData.timestamp ? new Date(moodData.timestamp) : null;
       const timeDiff = timestamp ? Date.now() - timestamp.getTime() : Infinity;
       
@@ -869,7 +869,7 @@ async function updateNovaHeartbeat() {
       updateStatusIndicator(apiStatusEl, 'error', 'fa-circle-xmark', 'Unreachable');
       if (apiCountEl) apiCountEl.textContent = 'Status unknown';
     } else {
-      const apiData = await apiRes.json();
+      apiData = await apiRes.json();
       const services = apiData.endpoints || [];
       const operational = services.filter(s => s.ok).length;
       const total = services.length;
@@ -912,8 +912,7 @@ async function updateNovaHeartbeat() {
     }
     
     // Update ticker messages
-    updateStatusTicker(moodRes.ok ? await moodRes.json() : null, 
-                      apiRes.ok ? await apiRes.json() : null);
+    updateStatusTicker(moodData, apiData);
     
     // Set up periodic checks
     setTimeout(updateNovaHeartbeat, 60000); // Check every minute
