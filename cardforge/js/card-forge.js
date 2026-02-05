@@ -100,10 +100,15 @@ async function performDelete(id, cardName) {
       console.warn('Card not found in localStorage, may have been cloud-only');
     }
     
-    // Refresh gallery if it exists
-    if (window.cardForgeActions && window.cardForgeActions.refreshMyCardsList) {
-      window.cardForgeActions.refreshMyCardsList();
-      console.log('🔄 Gallery refreshed');
+    // Refresh My Cards and public gallery
+    if (window.cardForgeActions) {
+      if (window.cardForgeActions.refreshMyCardsList) {
+        window.cardForgeActions.refreshMyCardsList();
+      }
+      if (window.cardForgeActions.refreshGallery) {
+        window.cardForgeActions.refreshGallery();
+      }
+      console.log('🔄 My Cards and Gallery refreshed');
     }
     
     console.log(`✅ Card "${cardName}" deleted successfully`);
