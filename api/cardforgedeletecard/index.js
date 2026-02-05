@@ -123,16 +123,38 @@ module.exports = async function (context, req) {
 
   try {
     const path = getUserCardsPath(userId);
-    let cards = await downloadJsonBlobWithRetry(containerClient, path, context);
+    context.log(`Deleting card ${cardId} from path: ${path}`);
+    
+    let userCardsData = await downloadJsonBlobWithRetry(containerClient, path, context);
+    
+    // Handle the { cards: [...] } structure used by save API
+    let cards = [];
+    if (Array.isArray(userCardsData)) {
+      cards = userCardsData;
+    } else if (userCardsData && Array.isArray(userCardsData.cards)) {
+      cards = userCardsData.cards;
+    }
+    
+    const originalCount = cards.length;
     const filtered = cards.filter(c => c.id !== cardId);
-    await uploadJsonBlob(containerClient, path, filtered);
+    
+    if (filtered.length === originalCount) {
+      context.log.warn(`Card ${cardId} not found in user's cards`);
+    } else {
+      context.log(`Removed card ${cardId}, ${originalCount} -> ${filtered.length} cards`);
+    }
+    
+    // Save back in the same structure
+    const dataToSave = Array.isArray(userCardsData) ? filtered : { cards: filtered };
+    await uploadJsonBlob(containerClient, path, dataToSave);
+    
     context.res = {
       status: 200,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-      body: filtered
+      body: { success: true, remainingCards: filtered.length }
     };
   } catch (e) {
     context.log.error(`Delete card error: ${e.message}`);
-    context.res = { status: 500, body: 'Server error' };
+    context.res = { status: 500, body: { error: 'Server error', details: e.message } };
   }
 };
