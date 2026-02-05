@@ -853,20 +853,13 @@ const resp = await fetch(loadUrl, {
     }
 
     try {
-      // Use existing publish functionality
+      // Use existing publish functionality - modal will be shown by cardforge-publish.js
       if (window.publishCard) {
         // Ensure hidden id field is set to the card being published
         const idField = document.getElementById('card-id'); /* updated by Cascade */
         if (idField) idField.value = card.id;               /* updated by Cascade */
         window.publishCard();
-        
-        // Mark card as published
-        card.published = true;
-        card.publishedAt = new Date().toISOString();
-        localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
-        
-        this.refreshMyCardsList();
-        this.showNotification(`Card "${card.name}" published successfully`, 'success');
+        // Note: Success modal and status update handled by cardforge-publish.js
       } else {
         this.showNotification('Publish functionality not available', 'error');
       }
