@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-02-04T14:03:53.364Z",
+  "updated": "2026-02-05T14:06:05.381Z",
   "root": [
     {
       "type": "folder",
@@ -283,6 +283,70 @@
     },
     {
       "type": "folder",
+      "name": "hanson",
+      "path": "hanson",
+      "children": [
+        {
+          "type": "folder",
+          "name": "game-plan",
+          "path": "hanson/game-plan",
+          "children": [
+            {
+              "type": "page",
+              "name": "index.html",
+              "path": "hanson/game-plan/index.html"
+            }
+          ]
+        },
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "hanson/index.html"
+        },
+        {
+          "type": "page",
+          "name": "meta-lab-studio.html",
+          "path": "hanson/meta-lab-studio.html"
+        },
+        {
+          "type": "folder",
+          "name": "tileforge",
+          "path": "hanson/tileforge",
+          "children": [
+            {
+              "type": "folder",
+              "name": "css",
+              "path": "hanson/tileforge/css",
+              "children": []
+            },
+            {
+              "type": "page",
+              "name": "index.html",
+              "path": "hanson/tileforge/index.html"
+            },
+            {
+              "type": "folder",
+              "name": "js",
+              "path": "hanson/tileforge/js",
+              "children": []
+            },
+            {
+              "type": "page",
+              "name": "locale-picker-modal.html",
+              "path": "hanson/tileforge/locale-picker-modal.html"
+            },
+            {
+              "type": "folder",
+              "name": "sample-data",
+              "path": "hanson/tileforge/sample-data",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "folder",
       "name": "help",
       "path": "help",
       "children": [
@@ -524,41 +588,6 @@
       "name": "lab",
       "path": "lab",
       "children": [
-        {
-          "type": "folder",
-          "name": "TileForge",
-          "path": "lab/TileForge",
-          "children": [
-            {
-              "type": "folder",
-              "name": "css",
-              "path": "lab/TileForge/css",
-              "children": []
-            },
-            {
-              "type": "page",
-              "name": "index.html",
-              "path": "lab/TileForge/index.html"
-            },
-            {
-              "type": "folder",
-              "name": "js",
-              "path": "lab/TileForge/js",
-              "children": []
-            },
-            {
-              "type": "page",
-              "name": "locale-picker-modal.html",
-              "path": "lab/TileForge/locale-picker-modal.html"
-            },
-            {
-              "type": "folder",
-              "name": "sample-data",
-              "path": "lab/TileForge/sample-data",
-              "children": []
-            }
-          ]
-        },
         {
           "type": "page",
           "name": "auth-test.html",
@@ -839,6 +868,11 @@
       "name": "pages",
       "path": "pages",
       "children": [
+        {
+          "type": "page",
+          "name": "401.html",
+          "path": "pages/401.html"
+        },
         {
           "type": "page",
           "name": "form-explainer-demo.html",
@@ -1238,11 +1272,6 @@
           "type": "page",
           "name": "link-styles-demo.html",
           "path": "tools/link-styles-demo.html"
-        },
-        {
-          "type": "page",
-          "name": "meta-lab-studio.html",
-          "path": "tools/meta-lab-studio.html"
         },
         {
           "type": "page",
