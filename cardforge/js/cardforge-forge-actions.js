@@ -179,14 +179,14 @@ class CardForgeActions {
       
       const savedCards = this.getSavedCards();
       
-      // Always create new cards - don't check for existing names
-      const existingCard = null;
+      // Check if we're editing an existing card (card-id is set by loadCard)
+      const idField = document.getElementById('card-id');
+      const editingId = idField ? idField.value : null;
+      const existingCard = editingId ? savedCards.find(c => c.id === editingId) : null;
       
-      // Use existing card ID if found, otherwise generate new one
+      // Reuse existing card ID when editing, otherwise generate new one
       const cardId = existingCard ? existingCard.id : this.generateCardId();
-      // Ensure hidden field reflects current working card id (used by publish flow)
-      const idField = document.getElementById('card-id'); /* updated by Cascade */
-      if (idField) idField.value = cardId;               /* updated by Cascade */
+      if (idField) idField.value = cardId;
       
       const savedCard = {
         id: cardId,
@@ -243,10 +243,17 @@ class CardForgeActions {
           else savedCards.unshift(savedCard);
           localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
           this.refreshMyCardsList();
-          setTimeout(() => {
-            if (typeof showSavedCardsModal === 'function') showSavedCardsModal();
-            else if (window.showSavedCardsModal) window.showSavedCardsModal();
-          }, 250);
+          // If this was a published card, offer to re-publish with updated content
+          const wasPublished = (existingCard && existingCard.isPublished) ||
+            (this._publishedCardIds && this._publishedCardIds.has(cardId));
+          if (wasPublished) {
+            this._promptRepublish(cardId, savedCard.name);
+          } else {
+            setTimeout(() => {
+              if (typeof showSavedCardsModal === 'function') showSavedCardsModal();
+              else if (window.showSavedCardsModal) window.showSavedCardsModal();
+            }, 250);
+          }
         })
         .catch(() => {
           // Cloud failed — fall back to local
@@ -286,6 +293,33 @@ class CardForgeActions {
     } catch (error) {
       console.error('Error saving card:', error);
       this.showNotification('Error saving card', 'error');
+    }
+  }
+
+  // ===================
+  // RE-PUBLISH PROMPT
+  // ===================
+
+  _promptRepublish(cardId, cardName) {
+    // Show a confirm dialog to re-publish the updated card
+    const doRepublish = () => {
+      const idField = document.getElementById('card-id');
+      if (idField) idField.value = cardId;
+      if (window.publishCard && typeof window.publishCard === 'function') {
+        window.publishCard();
+      } else {
+        this.showNotification('Publish functionality not available', 'error');
+      }
+    };
+
+    if (typeof showConfirmDialog === 'function') {
+      showConfirmDialog(
+        'Update Published Card',
+        `"${cardName}" is published in the gallery. Would you like to re-publish with your changes?`,
+        doRepublish
+      );
+    } else if (confirm(`"${cardName}" is published. Re-publish with your changes?`)) {
+      doRepublish();
     }
   }
 
@@ -728,6 +762,8 @@ const resp = await fetch(loadUrl, {
           const publishedCardIds = new Set(galleryCards.map(c => c.id));
           console.log('☁️ Raw cloud cards from API:', cloudCards.map(c => ({ id: c.id, name: c.name || c.cardData?.name, published: c.published, publishDate: c.publishDate })));
           console.log('📢 Published card IDs from gallery:', [...publishedCardIds]);
+          // Cache published IDs so save flow can detect re-publish scenarios
+          this._publishedCardIds = publishedCardIds;
           // Filter out default sample cards - they shouldn't appear in My Cards
           cloudCards = cloudCards.filter(c => !c.isDefault);
           // Cross-reference with gallery to set published status reliably
