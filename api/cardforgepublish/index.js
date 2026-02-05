@@ -11,28 +11,34 @@ const CONTAINER_NAME = 'cardforge';
 // Helper to extract authenticated user information from Static Web Apps EasyAuth header
 function extractUserInfo(req, context) {
   const principalHeader = req.headers['x-ms-client-principal'];
-  if (!principalHeader) {
-    // Development fallback: use X-User-ID header to simulate auth
-    if (process.env.AZURE_FUNCTIONS_ENVIRONMENT !== 'Production') {
-      const devUserId = req.headers['x-user-id'];
-      if (devUserId) {
-        context.log(`[DEV AUTH] Falling back to X-User-ID: ${devUserId}`);
-        return { userId: devUserId, isAuthenticated: true };
+  if (principalHeader) {
+    try {
+      const decoded = Buffer.from(principalHeader, 'base64').toString('utf8');
+      const clientPrincipal = JSON.parse(decoded);
+      const userId = clientPrincipal.userId || 'anonymous';
+      return { userId, isAuthenticated: userId !== 'anonymous' };
+    } catch (err) {
+      if (context && context.log && typeof context.log.warn === 'function') {
+        context.log.warn(`Failed to parse client principal: ${err.message}`);
       }
+      // fall through to fallback logic
     }
-    return { userId: 'anonymous', isAuthenticated: false };
   }
-  try {
-    const decoded = Buffer.from(principalHeader, 'base64').toString('utf8');
-    const clientPrincipal = JSON.parse(decoded);
-    const userId = clientPrincipal.userId || 'anonymous';
-    return { userId, isAuthenticated: userId !== 'anonymous' };
-  } catch (err) {
-    if (context && context.log && typeof context.log.warn === 'function') {
-      context.log.warn(`Failed to parse client principal: ${err.message}`);
+  // Fallback to client principal ID header (matches loadCards API)
+  const principalId = req.headers['x-ms-client-principal-id'];
+  if (principalId && principalId !== 'anonymous') {
+    context.log(`Using x-ms-client-principal-id fallback: ${principalId}`);
+    return { userId: principalId, isAuthenticated: true };
+  }
+  // Development fallback: use X-User-ID header to simulate auth
+  if (process.env.AZURE_FUNCTIONS_ENVIRONMENT !== 'Production') {
+    const devUserId = req.headers['x-user-id'];
+    if (devUserId) {
+      context.log(`[DEV AUTH] Falling back to X-User-ID: ${devUserId}`);
+      return { userId: devUserId, isAuthenticated: true };
     }
-    return { userId: 'anonymous', isAuthenticated: false };
   }
+  return { userId: 'anonymous', isAuthenticated: false };
 }
 
 // Helper function to convert stream to text

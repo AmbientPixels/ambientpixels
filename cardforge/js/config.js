@@ -8,9 +8,9 @@ window._config = {
   // Environment settings
   environment: (window.location.hostname === 'ambientpixels.ai' || window.location.hostname.endsWith('.azurestaticapps.net')) ? 'production' : 'development',
   
-  // API Configuration
+  // API Configuration - Use relative path to go through SWA proxy for auth header forwarding
   apiEndpoints: {
-    base: 'https://ambientpixels-nova-api.azurewebsites.net/api',
+    base: '/api',
     loadCards: 'cardforgeloadcards',
     saveCard: 'cardforgesavecards',
     deleteCard: 'cardforgedeletecard',
