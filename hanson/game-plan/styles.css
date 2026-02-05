@@ -1,10 +1,12 @@
 :root{
   --bg:#f6f6f9; --panel:#ffffff; --muted:#666; --accent:#0067c5; --danger:#c84747; --radius:8px;
   --surface-2:#eef3fb; --text:#0b0b0b; --border:#d0d5dd; --surface:#f0f4fa;
+  --bg-end:#ffffff;
   color-scheme: light;
 }
 :root.dark{
   --bg:#0b0c0f; --panel:#0f1113; --muted:#9aa4b2; --accent:#2aa0ff; --text:#e6eef8; --surface-2:#0b1320; --border:#2a3545; --surface:#151a22;
+  --bg-end:#0d1117;
   color-scheme: dark;
 }
 /* Fix date/time picker icons in dark mode */
@@ -14,7 +16,7 @@
 }
 *{box-sizing:border-box}
 html,body{height:100%;overflow-x:hidden}
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;color:var(--text);background:linear-gradient(180deg,var(--bg),#fff);max-width:100vw}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;color:var(--text);background:linear-gradient(180deg,var(--bg),var(--bg-end));max-width:100vw}
 .topbar{background:var(--panel);box-shadow:0 1px 0 rgba(0,0,0,0.06);position:sticky;top:0;z-index:40;max-width:100vw}
 .topbar-inner{display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
 .app-title{margin:0;font-size:1.1rem}
