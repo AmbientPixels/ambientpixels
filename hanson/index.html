@@ -20,30 +20,9 @@
   <style>
     /* Hanson Portal Custom Styles */
     .hanson-hero {
-      background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460, #1a1a3e, #0d2847);
-      background-size: 400% 400%;
-      animation: gradientShift 15s ease infinite;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
       position: relative;
       overflow: hidden;
-    }
-    
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    
-    .hanson-hero::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: 
-        radial-gradient(circle at 20% 80%, rgba(0, 103, 197, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(138, 99, 210, 0.15) 0%, transparent 50%);
-      pointer-events: none;
     }
     
     .tool-card {
@@ -248,6 +227,22 @@
       background: rgba(138, 99, 210, 0.2);
       color: #a78bfa;
     }
+    
+    /* Particles Canvas */
+    #particles-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .hanson-hero .mini-hero-content-wrapper {
+      position: relative;
+      z-index: 2;
+    }
   </style>
 </head>
 <body data-theme="dark">
@@ -256,6 +251,7 @@
 
   <!-- Mini Hero Section -->
   <section class="mini-hero hanson-hero">
+    <canvas id="particles-canvas"></canvas>
     <div class="mini-hero-content-wrapper">
       <h1><i class="fas fa-rocket"></i> Hanson Portal</h1>
       <p class="subtitle">Internal productivity apps & creative utilities</p>
@@ -391,6 +387,63 @@
   <!-- Scripts -->
   <script>
     console.log('%cHanson Portal Loaded', 'color: #0067c5; font-family: monospace; font-size: 14px;');
+    
+    // Subtle Particles Effect
+    (function() {
+      const canvas = document.getElementById('particles-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      const particleCount = 30;
+      
+      function resize() {
+        const hero = canvas.parentElement;
+        canvas.width = hero.offsetWidth;
+        canvas.height = hero.offsetHeight;
+      }
+      
+      function createParticle() {
+        return {
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 2 + 1,
+          speedX: (Math.random() - 0.5) * 0.3,
+          speedY: (Math.random() - 0.5) * 0.3,
+          opacity: Math.random() * 0.4 + 0.1
+        };
+      }
+      
+      function init() {
+        resize();
+        particles = [];
+        for (let i = 0; i < particleCount; i++) {
+          particles.push(createParticle());
+        }
+      }
+      
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        particles.forEach(p => {
+          p.x += p.speedX;
+          p.y += p.speedY;
+          
+          if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+          if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+          
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(100, 180, 255, ${p.opacity})`;
+          ctx.fill();
+        });
+        
+        requestAnimationFrame(animate);
+      }
+      
+      window.addEventListener('resize', resize);
+      init();
+      animate();
+    })();
   </script>
   <script src="/js/init-header-footer.js" defer></script>
   <script src="/js/dreamEngine.js" defer></script>
