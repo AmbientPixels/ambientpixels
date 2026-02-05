@@ -251,14 +251,42 @@ async function publishCard() {
         
 
 
-        // Show success message
-
-
-        if (window.UIUtils && typeof window.UIUtils.showMessage === 'function') {
-          window.UIUtils.showMessage('Card published to gallery!', 'success');
-        } else {
-          console.log('[SUCCESS] Card published to gallery!');
-        }
+        // Show success modal
+        const cardName = result.card?.name || result.cardName || 'Your card';
+        const publishedModal = new Modal({
+          title: 'Published!',
+          size: 'small',
+          tabs: [{
+            title: 'Success',
+            icon: '<i class="fas fa-check-circle"></i>',
+            content: `
+              <div style="text-align: center; padding: 20px;">
+                <div style="color: #00ff88; font-size: 64px; margin-bottom: 16px;">
+                  <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 style="margin-bottom: 12px; color: #fff; font-size: 1.4em;">${cardName}</h3>
+                <p style="margin-bottom: 24px; color: #00ff88; font-size: 1.1em;">
+                  Successfully published to the gallery!
+                </p>
+                <p style="margin-bottom: 24px; color: #aaa;">
+                  Your card is now visible to everyone in the public gallery.
+                </p>
+                <button id="publish-success-ok-btn" class="btn-primary" style="background: linear-gradient(135deg, #00ff88, #00cc6a); border: none; color: #000; padding: 12px 32px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1em;">
+                  <i class="fas fa-thumbs-up"></i> Awesome!
+                </button>
+              </div>
+            `
+          }]
+        });
+        
+        publishedModal.show();
+        
+        setTimeout(() => {
+          const okBtn = document.getElementById('publish-success-ok-btn');
+          if (okBtn) {
+            okBtn.addEventListener('click', () => publishedModal.hide());
+          }
+        }, 100);
 
 
         
