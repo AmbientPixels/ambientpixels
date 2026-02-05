@@ -25,6 +25,7 @@ class CardForgeActions {
     this.bindForgeTabNavigation();
     this.refreshMyCardsList();
     this.refreshDeckList();
+    this.refreshGallery();
     this.initialized = true;
   }
 
@@ -805,6 +806,79 @@ const resp = await fetch(loadUrl, {
   refreshDeckList() {
     // TODO: Implement deck list refresh
     console.log('🗂️ Refreshing deck list...');
+  }
+
+  // Public Gallery - shows published cards from all users
+  async refreshGallery() {
+    console.log('🌐 Refreshing public gallery...');
+    const galleryGrid = document.getElementById('gallery-cards-grid');
+    if (!galleryGrid) return;
+
+    try {
+      const loadUrl = window.buildApiPath('loadCards');
+      const resp = await fetch(loadUrl, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!resp.ok) {
+        throw new Error(`Failed to load gallery: ${resp.status}`);
+      }
+      
+      const data = await resp.json();
+      const galleryCards = Array.isArray(data?.galleryCards) ? data.galleryCards : [];
+      
+      console.log(`🌐 Loaded ${galleryCards.length} published cards for gallery`);
+      
+      if (galleryCards.length === 0) {
+        galleryGrid.innerHTML = `
+          <div class="gallery-empty">
+            <i class="fas fa-images"></i>
+            <p>No published cards yet</p>
+            <small>Be the first to publish a card to the gallery!</small>
+          </div>
+        `;
+        return;
+      }
+      
+      // Render published cards
+      galleryGrid.innerHTML = galleryCards.map(card => {
+        const cardImage = card.cardData?.avatar || card.avatar || card.image || '';
+        const cardName = card.cardData?.name || card.name || 'Untitled Card';
+        const characterClass = card.cardData?.characterClass || card.characterClass || '';
+        const rarity = card.cardData?.rarity || card.rarity || '';
+        const quote = card.cardData?.quote || card.quote || '';
+        const publishedBy = card.publishedBy || card.userId || 'Anonymous';
+        const publishedAt = card.publishedAt ? new Date(card.publishedAt).toLocaleDateString() : '';
+        
+        return `
+          <div class="gallery-card-item" data-card-id="${card.id}">
+            <div class="gallery-card-thumbnail">
+              <img src="${cardImage}" alt="${cardName}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNhcmQgSW1hZ2U8L3RleHQ+PC9zdmc+'">
+              ${rarity ? `<div class="gallery-rarity-badge ${rarity.toLowerCase()}">${rarity}</div>` : ''}
+            </div>
+            <div class="gallery-card-info">
+              <h3 class="gallery-card-title">${cardName}</h3>
+              ${characterClass ? `<div class="gallery-card-class">${characterClass}</div>` : ''}
+              ${quote ? `<div class="gallery-card-quote">"${quote.length > 40 ? quote.substring(0, 40) + '...' : quote}"</div>` : ''}
+              <div class="gallery-card-meta">
+                ${publishedAt ? `<span class="gallery-published-date">📅 ${publishedAt}</span>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+    } catch (e) {
+      console.error('❌ Failed to load gallery:', e);
+      galleryGrid.innerHTML = `
+        <div class="gallery-error">
+          <i class="fas fa-exclamation-triangle"></i>
+          <p>Failed to load gallery</p>
+          <small>${e.message}</small>
+        </div>
+      `;
+    }
   }
 
   // Card Gallery Actions

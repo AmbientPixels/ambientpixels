@@ -293,32 +293,13 @@ async function publishCard() {
 
 
         // Reload gallery to show the updated list
-
-
-        if (typeof loadGallery === 'function') {
-
-
+        if (window.cardForgeActions && typeof window.cardForgeActions.refreshGallery === 'function') {
+          window.cardForgeActions.refreshGallery();
+          window.cardForgeActions.refreshMyCardsList();
+        } else if (typeof loadGallery === 'function') {
           loadGallery();
-
-
         } else {
-
-
-          // Fallback to reloading the page if loadGallery isn't available
-
-
-          console.log('[CardForge] loadGallery function not found, reloading cards instead');
-
-
-          if (typeof loadCards === 'function') {
-
-
-            loadCards();
-
-
-          }
-
-
+          console.log('[CardForge] refreshGallery not available');
         }
 
 
