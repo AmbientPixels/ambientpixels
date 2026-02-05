@@ -342,13 +342,19 @@ module.exports = async function (context, req) {
         userCards.cards[userCardIndex].publishDate = publishedCard.publishDate;
         
         // Update user's cards blob with the published status using retry logic
+        // Note: BlockBlobClient.upload() doesn't support overwrite option - must delete first
         const userData = JSON.stringify(userCards);
         await withRetry(
-          () => {
+          async () => {
+            // Delete existing blob first to allow overwrite
+            try {
+              await userBlobClient.deleteIfExists();
+            } catch (delErr) {
+              context.log.warn(`Could not delete existing blob: ${delErr.message}`);
+            }
             const buffer = Buffer.from(userData, 'utf8');
             return userBlobClient.upload(buffer, buffer.byteLength, {
-              blobHTTPHeaders: { blobContentType: 'application/json' },
-              overwrite: true
+              blobHTTPHeaders: { blobContentType: 'application/json' }
             });
           },
           `update user cards with published status (${userBlobPath})`,
