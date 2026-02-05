@@ -754,9 +754,9 @@ const resp = await fetch(loadUrl, {
       const characterClass = card.cardData?.characterClass || card.characterClass || '';
       const rarity = card.cardData?.rarity || card.rarity || '';
       const quote = card.cardData?.quote || card.quote || '';
-      const isPublished = card.isPublished || card.published || false;
+      const isPublished = card.isPublished || card.published || card.cardData?.published || card.cardData?.isPublished || false;
       
-      console.log(`🖼️ Gallery rendering card "${cardName}" with image:`, cardImage);
+      console.log(`🖼️ Gallery rendering card "${cardName}" | published:`, isPublished, `| card.published:`, card.published, `| full card:`, JSON.stringify(card).substring(0, 300));
       
       const statsCount = card.cardData?.stats?.length || 0;
       const socialCount = card.cardData?.socialLinks?.length || 0;
