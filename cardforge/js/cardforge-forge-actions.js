@@ -807,8 +807,8 @@ const resp = await fetch(loadUrl, {
               <button class="card-action-btn save" type="button" onclick="cardForgeActions.duplicateCard('${card.id}')" title="Duplicate Card">
                 <i class="fas fa-copy"></i>
               </button>
-              <button class="card-action-btn publish" type="button" onclick="cardForgeActions.publishCard('${card.id}')" title="Publish Card">
-                <i class="fas fa-share"></i>
+              <button class="card-action-btn publish${isPublished ? ' published-disabled' : ''}" type="button" onclick="${isPublished ? '' : `cardForgeActions.publishCard('${card.id}')`}" title="${isPublished ? 'Already Published' : 'Publish Card'}" ${isPublished ? 'disabled' : ''}>
+                <i class="fas fa-${isPublished ? 'check-circle' : 'share'}"></i>
               </button>
               <button class="card-action-btn delete" type="button" onclick="window.deleteCard('${card.id}')" title="Delete Card">
                 <i class="fas fa-trash"></i>

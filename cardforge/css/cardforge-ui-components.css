@@ -1962,6 +1962,14 @@
   border-color: rgba(59, 130, 246, 0.5);
 }
 
+.card-action-btn.publish.published-disabled {
+  color: #6b7280;
+  border-color: rgba(107, 114, 128, 0.2);
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .card-action-btn.delete {
   color: #ef4444;
   border-color: rgba(239, 68, 68, 0.3);
