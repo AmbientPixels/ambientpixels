@@ -44,23 +44,7 @@
   },
   "routes": [
     {
-      "route": "/hanson",
-      "allowedRoles": ["hansonuser"]
-    },
-    {
-      "route": "/hanson/",
-      "allowedRoles": ["hansonuser"]
-    },
-    {
-      "route": "/hanson/*",
-      "allowedRoles": ["hansonuser"]
-    },
-    {
-      "route": "/hanson/game-plan/*",
-      "allowedRoles": ["hansonuser"]
-    },
-    {
-      "route": "/hanson/tileforge/*",
+      "route": "/hanson*",
       "allowedRoles": ["hansonuser"]
     },
     {
