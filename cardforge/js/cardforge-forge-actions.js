@@ -723,12 +723,28 @@ const resp = await fetch(loadUrl, {
         if (resp.ok) {
           const data = await resp.json();
           let cloudCards = Array.isArray(data?.userCards) ? data.userCards : [];
+          // Build a set of published card IDs from gallery data for reliable status detection
+          const galleryCards = Array.isArray(data?.galleryCards) ? data.galleryCards : [];
+          const publishedCardIds = new Set(galleryCards.map(c => c.id));
           console.log('☁️ Raw cloud cards from API:', cloudCards.map(c => ({ id: c.id, name: c.name || c.cardData?.name, published: c.published, publishDate: c.publishDate })));
+          console.log('📢 Published card IDs from gallery:', [...publishedCardIds]);
           // Filter out default sample cards - they shouldn't appear in My Cards
           cloudCards = cloudCards.filter(c => !c.isDefault);
+          // Cross-reference with gallery to set published status reliably
+          cloudCards.forEach(c => {
+            if (publishedCardIds.has(c.id)) {
+              c.published = true;
+            }
+          });
           // Prefer cloud cards; merge any local-only drafts not present by id
           const cloudIds = new Set(cloudCards.map(c => c.id));
           const localOnly = savedCards.filter(c => !cloudIds.has(c.id));
+          // Also mark local cards as published if they exist in gallery
+          localOnly.forEach(c => {
+            if (publishedCardIds.has(c.id)) {
+              c.published = true;
+            }
+          });
           savedCards = [...cloudCards, ...localOnly];
         }
       } catch (e) {
