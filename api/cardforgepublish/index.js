@@ -168,13 +168,15 @@ module.exports = async function (context, req) {
     }
 
     // Extract user information from EasyAuth header
-    const { userId, isAuthenticated } = extractUserInfo(req, context);
-    context.log(`Extracted user info: userId=${userId}, isAuthenticated=${isAuthenticated}`);
+    let { userId, isAuthenticated } = extractUserInfo(req, context);
+    context.log(`Extracted user info from headers: userId=${userId}, isAuthenticated=${isAuthenticated}`);
     
-    // Allow anonymous access: set userId to 'anonymous' if not authenticated
-    // (No blocking, no 401 response)
-    // userId is already set by extractUserInfo; proceed with publish
-
+    // If auth headers didn't provide userId, use userId from request body (passed by client)
+    if (userId === 'anonymous' && req.body.userId && req.body.userId !== 'anonymous') {
+      userId = req.body.userId;
+      isAuthenticated = true;
+      context.log(`Using userId from request body: ${userId}`);
+    }
 
     // Get the card ID from the request body
     const { cardId } = req.body;

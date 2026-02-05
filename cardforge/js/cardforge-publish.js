@@ -158,7 +158,16 @@ async function publishCard() {
           headers: publishHeaders,
 
 
-          body: JSON.stringify({ cardId }),
+          body: JSON.stringify({ 
+            cardId,
+            // Pass userId explicitly since auth headers aren't forwarded to external Function App
+            userId: (() => {
+              try {
+                const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
+                return userInfo.userId || 'anonymous';
+              } catch { return 'anonymous'; }
+            })()
+          }),
 
 
           credentials: 'include'  // Include cookies for any session-based auth
