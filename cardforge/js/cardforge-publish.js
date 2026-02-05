@@ -254,7 +254,11 @@ async function publishCard() {
         // Show success message
 
 
-        showMessage('Card published to gallery!', 'success');
+        if (window.UIUtils && typeof window.UIUtils.showMessage === 'function') {
+          window.UIUtils.showMessage('Card published to gallery!', 'success');
+        } else {
+          console.log('[SUCCESS] Card published to gallery!');
+        }
 
 
         
