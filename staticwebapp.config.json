@@ -27,6 +27,10 @@
     ".json": "text/json"
   },
   "responseOverrides": {
+    "401": {
+      "rewrite": "/pages/401.html",
+      "statusCode": 401
+    },
     "404": {
       "rewrite": "/index.html",
       "statusCode": 404
@@ -124,12 +128,6 @@
     },
     "login": {
       "externalUrl": "/.auth/login/aad"
-    },
-    "responseOverrides": {
-      "401": {
-        "rewrite": "/pages/401.html",
-        "statusCode": 401
-      }
     }
   }
 }
