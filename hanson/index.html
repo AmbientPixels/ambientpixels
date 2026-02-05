@@ -1,0 +1,393 @@
+<!-- File: /hanson/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Hanson Tools & Apps — Internal productivity tools and creative applications by Chad Martin" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Hanson Tools - Ambient Pixels</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/breadcrumb.css" />
+  <style>
+    /* Hanson Portal Custom Styles */
+    .hanson-hero {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hanson-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(0, 103, 197, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(138, 99, 210, 0.15) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    
+    .tool-card {
+      background: linear-gradient(145deg, rgba(30, 30, 45, 0.9), rgba(20, 20, 35, 0.95));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--card-accent, #0067c5);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .tool-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    
+    .tool-card:hover::before {
+      opacity: 1;
+    }
+    
+    .tool-card-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      margin-bottom: 1.25rem;
+      background: var(--card-accent, #0067c5);
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .tool-card h3 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin: 0 0 0.75rem;
+      color: #fff;
+    }
+    
+    .tool-card p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin: 0 0 1.25rem;
+    }
+    
+    .tool-card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+    
+    .tool-tag {
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.8);
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .tool-card-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: auto;
+    }
+    
+    .tool-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    
+    .tool-btn-primary {
+      background: var(--card-accent, #0067c5);
+      color: white;
+    }
+    
+    .tool-btn-primary:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+    
+    .tool-btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    
+    .tool-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+    
+    /* Card accent colors */
+    .tool-card[data-tool="tileforge"] { --card-accent: #8a63d2; }
+    .tool-card[data-tool="metalab"] { --card-accent: #1abc9c; }
+    .tool-card[data-tool="gameplan"] { --card-accent: #0067c5; }
+    
+    /* Stats bar */
+    .hanson-stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      padding: 1.5rem 2rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      margin-top: 2rem;
+    }
+    
+    .hanson-stat {
+      text-align: center;
+    }
+    
+    .hanson-stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+      display: block;
+    }
+    
+    .hanson-stat-label {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Intro section */
+    .hanson-intro {
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto 2rem;
+    }
+    
+    .hanson-intro h2 {
+      font-size: 1.75rem;
+      margin-bottom: 1rem;
+    }
+    
+    .hanson-intro p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1.1rem;
+      line-height: 1.7;
+    }
+    
+    /* Tool grid */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    /* Status badge */
+    .tool-status {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .tool-status-live {
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+    }
+    
+    .tool-status-beta {
+      background: rgba(245, 158, 11, 0.2);
+      color: #f59e0b;
+    }
+    
+    .tool-status-new {
+      background: rgba(138, 99, 210, 0.2);
+      color: #a78bfa;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  <!-- Dynamic Navigation Header -->
+  <header id="nav-header"></header>
+
+  <!-- Mini Hero Section -->
+  <section class="mini-hero hanson-hero">
+    <img src="/images/textures/delchron_mechanical_texture_microscopic_extreme_close_up_futuri.jpg" alt="Hanson Tools" class="mini-hero-img" loading="lazy">
+    <div class="mini-hero-content-wrapper">
+      <h1><i class="fas fa-rocket"></i> Hanson Tools</h1>
+      <p class="subtitle">Internal productivity apps & creative utilities</p>
+    </div>
+  </section>
+
+  <main class="grid-container">
+    <!-- Breadcrumb Navigation -->
+    <div class="breadcrumb-container grid-col-12"></div>
+
+    <!-- Intro Section -->
+    <section class="content-section grid-col-12">
+      <div class="hanson-intro">
+        <h2><i class="fas fa-toolbox"></i> Welcome to Hanson Tools</h2>
+        <p>A collection of internal tools and applications built to streamline workflows, boost creativity, and manage projects. Each tool is designed with purpose—whether it's crafting RPG cards, parsing data, or planning content calendars.</p>
+      </div>
+      
+      <div class="hanson-stats">
+        <div class="hanson-stat">
+          <span class="hanson-stat-value">3</span>
+          <span class="hanson-stat-label">Active Tools</span>
+        </div>
+        <div class="hanson-stat">
+          <span class="hanson-stat-value">100%</span>
+          <span class="hanson-stat-label">Browser-Based</span>
+        </div>
+        <div class="hanson-stat">
+          <span class="hanson-stat-value">∞</span>
+          <span class="hanson-stat-label">Possibilities</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tools Grid -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-apps"></i> Available Tools</h2>
+      
+      <div class="tools-grid">
+        <!-- TileForge -->
+        <div class="tool-card" data-tool="tileforge">
+          <span class="tool-status tool-status-live">Live</span>
+          <div class="tool-card-icon">
+            <i class="fas fa-th-large"></i>
+          </div>
+          <h3>TileForge</h3>
+          <p>Xbox Tile Localization Preview Tool. Preview how game tiles appear across languages, identify text overflow issues, and ensure visual quality before deployment.</p>
+          <div class="tool-card-tags">
+            <span class="tool-tag">Xbox</span>
+            <span class="tool-tag">Localization</span>
+            <span class="tool-tag">Preview</span>
+            <span class="tool-tag">CSV/XML</span>
+          </div>
+          <div class="tool-card-actions">
+            <a href="/lab/TileForge/" class="tool-btn tool-btn-primary">
+              <i class="fas fa-play"></i> Launch App
+            </a>
+          </div>
+        </div>
+
+        <!-- Meta Lab Studio -->
+        <div class="tool-card" data-tool="metalab">
+          <span class="tool-status tool-status-live">Live</span>
+          <div class="tool-card-icon">
+            <i class="fas fa-flask"></i>
+          </div>
+          <h3>Meta Lab Studio</h3>
+          <p>Experimental data interface for parsing, validating, and transforming JSON/XML files. Compare files, export to multiple formats, and explore data structures.</p>
+          <div class="tool-card-tags">
+            <span class="tool-tag">JSON</span>
+            <span class="tool-tag">XML</span>
+            <span class="tool-tag">Parser</span>
+            <span class="tool-tag">Export</span>
+          </div>
+          <div class="tool-card-actions">
+            <a href="/tools/meta-lab-studio.html" class="tool-btn tool-btn-primary">
+              <i class="fas fa-play"></i> Launch App
+            </a>
+          </div>
+        </div>
+
+        <!-- Game Plan -->
+        <div class="tool-card" data-tool="gameplan">
+          <span class="tool-status tool-status-new">New</span>
+          <div class="tool-card-icon">
+            <i class="fas fa-calendar-alt"></i>
+          </div>
+          <h3>Game Plan</h3>
+          <p>Event calendar and project tracker for content pipelines. Multiple views, time tracking, alerts, dashboards, and platform-based organization for Xbox content planning.</p>
+          <div class="tool-card-tags">
+            <span class="tool-tag">Calendar</span>
+            <span class="tool-tag">Tracking</span>
+            <span class="tool-tag">Dashboard</span>
+            <span class="tool-tag">Alerts</span>
+          </div>
+          <div class="tool-card-actions">
+            <a href="/game-plan/" class="tool-btn tool-btn-primary">
+              <i class="fas fa-play"></i> Launch App
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Coming Soon Section -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-lightbulb"></i> Coming Soon</h2>
+      <p>More tools are in development. Have an idea for a tool that could help your workflow? Let us know!</p>
+      
+      <div class="card-grid">
+        <div class="card placeholder-block">
+          <h3><i class="fas fa-image"></i> Asset Manager</h3>
+          <p>Organize, tag, and search through project assets with AI-powered categorization.</p>
+        </div>
+        <div class="card placeholder-block">
+          <h3><i class="fas fa-clipboard-list"></i> Sprint Tracker</h3>
+          <p>Lightweight sprint planning and task management for small teams.</p>
+        </div>
+        <div class="card placeholder-block">
+          <h3><i class="fas fa-chart-pie"></i> Report Builder</h3>
+          <p>Generate visual reports from JSON data with customizable templates.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <div id="footer-container"></div>
+
+  <!-- Scripts -->
+  <script>
+    console.log('%cHanson Tools Portal Loaded', 'color: #0067c5; font-family: monospace; font-size: 14px;');
+  </script>
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/dreamEngine.js" defer></script>
+  <script src="/js/init-quotes.js" defer></script>
+  <script src="/js/main.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/nova-mood-core.js" defer></script>
+  <script src="/modules/breadcrumb.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+</body>
+</html>
