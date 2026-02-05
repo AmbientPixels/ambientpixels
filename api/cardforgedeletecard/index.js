@@ -1,9 +1,19 @@
 const { BlobServiceClient } = require('@azure/storage-blob');
-const { DefaultAzureCredential } = require('@azure/identity');
 
 // Azure Storage configuration
 const STORAGE_ACCOUNT_NAME = "cardforgeblobdata";
 const CONTAINER_NAME = "cardforge";
+
+// Create blob service client using connection string (preferred) or managed identity
+async function createBlobServiceClient() {
+  if (process.env.AZURE_STORAGE_CONNECTION_STRING) {
+    return BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
+  }
+  // Fallback to managed identity
+  const { DefaultAzureCredential } = require('@azure/identity');
+  const credential = new DefaultAzureCredential();
+  return new BlobServiceClient(`https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net`, credential);
+}
 
 // Helper to extract authenticated user information from Static Web Apps EasyAuth header
 function extractUserInfo(req, context) {
@@ -108,9 +118,7 @@ module.exports = async function (context, req) {
     return;
   }
 
-  const accountUrl = `https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net`;
-  const credential = new DefaultAzureCredential();
-  const blobServiceClient = new BlobServiceClient(accountUrl, credential);
+  const blobServiceClient = await createBlobServiceClient();
   const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
 
   try {

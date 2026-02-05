@@ -62,24 +62,43 @@ function deleteCard(id) {
   }, 100);
 }
 
-function performDelete(id, cardName) {
+async function performDelete(id, cardName) {
   try {
     console.log(`🗑️ Deleting card: ${id}`);
     
-    // Get saved cards from localStorage
+    const isAuthed = (sessionStorage.getItem('isAuthenticated') === 'true') ||
+                     (document.body?.getAttribute('data-auth-state') === 'signed-in');
+    
+    // Try to delete from cloud storage first if authenticated
+    let cloudDeleteSuccess = false;
+    if (isAuthed && window.buildApiPath) {
+      try {
+        const deleteUrl = window.buildApiPath('deleteCard');
+        const resp = await fetch(deleteUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+        if (resp.ok) {
+          cloudDeleteSuccess = true;
+          console.log(`☁️ Card "${cardName}" deleted from cloud`);
+        }
+      } catch (cloudErr) {
+        console.warn('⚠️ Cloud delete failed, trying local:', cloudErr);
+      }
+    }
+    
+    // Also delete from localStorage
     const savedCards = JSON.parse(localStorage.getItem('cardforge_saved_cards') || '[]');
     const cardIndex = savedCards.findIndex(card => card.id === id);
     
-    if (cardIndex === -1) {
-      console.error('Card not found:', id);
-      alert('Card not found');
-      return;
+    if (cardIndex !== -1) {
+      savedCards.splice(cardIndex, 1);
+      localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
+      console.log(`✅ Card "${cardName}" deleted from localStorage`);
+    } else if (!cloudDeleteSuccess) {
+      console.warn('Card not found in localStorage, may have been cloud-only');
     }
-    
-    savedCards.splice(cardIndex, 1);
-    localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
-    
-    console.log(`✅ Card "${cardName}" deleted from localStorage`);
     
     // Refresh gallery if it exists
     if (window.cardForgeActions && window.cardForgeActions.refreshMyCardsList) {
@@ -87,7 +106,6 @@ function performDelete(id, cardName) {
       console.log('🔄 Gallery refreshed');
     }
     
-    // Success - no alert needed, gallery refresh shows the result
     console.log(`✅ Card "${cardName}" deleted successfully`);
     
   } catch (e) {

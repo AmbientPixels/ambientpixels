@@ -13,6 +13,7 @@ window._config = {
     base: 'https://ambientpixels-nova-api.azurewebsites.net/api',
     loadCards: 'cardforgeloadcards',
     saveCard: 'cardforgesavecards',
+    deleteCard: 'cardforgedeletecard',
     publish: 'cardforgepublish',
     template: 'cardforgetemplate'
   },
