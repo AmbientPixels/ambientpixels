@@ -262,12 +262,16 @@ module.exports = async function (context, req) {
     const existingCardIndex = userCards.cards.findIndex(c => c.id === card.id);
     
     if (existingCardIndex >= 0) {
-      // Update existing card
+      // Update existing card - preserve published status from existing card
+      const existingCard = userCards.cards[existingCardIndex];
       userCards.cards[existingCardIndex] = {
         ...card,
+        // Preserve published status if it exists on the existing card
+        published: card.published || existingCard.published || false,
+        publishDate: card.publishDate || existingCard.publishDate || null,
         lastModified: new Date().toISOString()
       };
-      context.log(`Updated existing card with ID: ${card.id}`);
+      context.log(`Updated existing card with ID: ${card.id}, published: ${userCards.cards[existingCardIndex].published}`);
     } else {
       // Add new card with metadata
       userCards.cards.push({

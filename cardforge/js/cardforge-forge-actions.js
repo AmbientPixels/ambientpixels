@@ -723,6 +723,7 @@ const resp = await fetch(loadUrl, {
         if (resp.ok) {
           const data = await resp.json();
           let cloudCards = Array.isArray(data?.userCards) ? data.userCards : [];
+          console.log('☁️ Raw cloud cards from API:', cloudCards.map(c => ({ id: c.id, name: c.name || c.cardData?.name, published: c.published, publishDate: c.publishDate })));
           // Filter out default sample cards - they shouldn't appear in My Cards
           cloudCards = cloudCards.filter(c => !c.isDefault);
           // Prefer cloud cards; merge any local-only drafts not present by id
