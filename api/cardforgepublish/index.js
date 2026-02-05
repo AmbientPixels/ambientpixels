@@ -337,35 +337,45 @@ module.exports = async function (context, req) {
       
       // Update the card in user's cards to mark it as published
       const userCardIndex = userCards.cards.findIndex(c => c.id === cardId);
+      context.log(`DEBUG: userCardIndex for ${cardId} = ${userCardIndex}`);
+      context.log(`DEBUG: Total cards in userCards.cards = ${userCards.cards.length}`);
+      
       if (userCardIndex >= 0) {
         userCards.cards[userCardIndex].published = true;
         userCards.cards[userCardIndex].publishDate = publishedCard.publishDate;
+        context.log(`DEBUG: Set published=true on card at index ${userCardIndex}`);
+        context.log(`DEBUG: Card now has published=${userCards.cards[userCardIndex].published}`);
         
-        // Update user's cards blob with the published status using retry logic
-        // Note: BlockBlobClient.upload() doesn't support overwrite option - must delete first
+        // Update user's cards blob with the published status
         const userData = JSON.stringify(userCards);
-        await withRetry(
-          async () => {
-            // Delete existing blob first to allow overwrite
-            try {
-              await userBlobClient.deleteIfExists();
-            } catch (delErr) {
-              context.log.warn(`Could not delete existing blob: ${delErr.message}`);
-            }
-            const buffer = Buffer.from(userData, 'utf8');
-            return userBlobClient.upload(buffer, buffer.byteLength, {
-              blobHTTPHeaders: { blobContentType: 'application/json' }
-            });
-          },
-          `update user cards with published status (${userBlobPath})`,
-          context
-        );
-        context.log(`User cards blob updated with published=true for card ${cardId}`);
+        context.log(`DEBUG: About to upload user data (${userData.length} bytes) to ${userBlobPath}`);
+        
+        try {
+          // Delete existing blob first, then upload new data
+          context.log(`DEBUG: Deleting existing blob at ${userBlobPath}...`);
+          const deleteResult = await userBlobClient.deleteIfExists();
+          context.log(`DEBUG: Delete result: succeeded=${deleteResult.succeeded}`);
+          
+          // Upload the new data
+          const buffer = Buffer.from(userData, 'utf8');
+          context.log(`DEBUG: Uploading ${buffer.byteLength} bytes...`);
+          const uploadResult = await userBlobClient.upload(buffer, buffer.byteLength, {
+            blobHTTPHeaders: { blobContentType: 'application/json' }
+          });
+          context.log(`DEBUG: Upload completed, requestId=${uploadResult.requestId}`);
+          context.log(`User cards blob updated with published=true for card ${cardId}`);
+        } catch (uploadErr) {
+          context.log.error(`ERROR uploading user blob: ${uploadErr.message}`);
+          context.log.error(`ERROR stack: ${uploadErr.stack}`);
+          throw uploadErr;
+        }
         
         context.log(`Successfully updated user card ${cardId} as published`);
+      } else {
+        context.log.warn(`DEBUG: Card ${cardId} not found in userCards.cards - cannot set published flag`);
       }
       
-      // Return success response
+      // Return success response with debug info
       context.res = {
         status: 200,
         headers: {
@@ -380,6 +390,12 @@ module.exports = async function (context, req) {
           data: {
             cardId: cardId,
             publishedAt: publishedCard.publishDate
+          },
+          debug: {
+            userCardIndex: userCardIndex,
+            totalUserCards: userCards.cards.length,
+            updatedPublishedFlag: userCardIndex >= 0,
+            userBlobPath: userBlobPath
           }
         }
       };

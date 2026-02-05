@@ -246,6 +246,7 @@ async function publishCard() {
 
 
         console.log('[CardForge] Card published:', result);
+        console.log('[CardForge] DEBUG from API:', result.debug);
 
 
         
