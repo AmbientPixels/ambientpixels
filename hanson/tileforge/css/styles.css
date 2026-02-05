@@ -2846,3 +2846,71 @@ input:checked + .slider:before {
   border-color: #ff6b6b;
   border-width: 2px;
 }
+
+/* TileForge Auth Bar */
+.tileforge-auth-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  margin-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 12px;
+}
+
+.tf-portal-link {
+  color: #00d4ff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.2s;
+}
+
+.tf-portal-link:hover {
+  color: #5ce1ff;
+}
+
+.tf-auth-divider {
+  color: #555;
+}
+
+.tf-auth-link {
+  color: #00d4ff;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(0, 212, 255, 0.1);
+  transition: all 0.2s;
+}
+
+.tf-auth-link:hover {
+  background: rgba(0, 212, 255, 0.2);
+}
+
+.tf-auth-link.tf-logout {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+  padding: 4px 6px;
+}
+
+.tf-auth-link.tf-logout:hover {
+  background: rgba(255, 107, 107, 0.2);
+}
+
+.tf-user-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #e0e0e0;
+}
+
+.tf-user-dot {
+  width: 6px;
+  height: 6px;
+  background: #4ade80;
+  border-radius: 50%;
+}
