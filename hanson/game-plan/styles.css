@@ -449,5 +449,66 @@ legend{padding:0 10px;font-weight:600;color:var(--text);font-size:0.9rem}
 .recent-event-platform{padding:4px 8px;border-radius:4px;font-size:0.7rem;color:white}
 .recent-event-date{font-size:0.8rem;color:var(--muted)}
 
+/* Game Plan Auth Bar */
+.gp-auth-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 16px;
+  font-size: 12px;
+}
+
+.gp-portal-link {
+  color: var(--accent);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: opacity 0.2s;
+}
+
+.gp-portal-link:hover {
+  opacity: 0.8;
+}
+
+.gp-auth-divider {
+  color: var(--muted);
+}
+
+.gp-auth-link {
+  color: var(--accent);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--surface-2);
+  transition: all 0.2s;
+}
+
+.gp-auth-link:hover {
+  background: var(--surface);
+}
+
+.gp-auth-link.gp-logout {
+  color: var(--danger);
+  padding: 4px 6px;
+}
+
+.gp-user-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+}
+
+.gp-user-dot {
+  width: 6px;
+  height: 6px;
+  background: #22c55e;
+  border-radius: 50%;
+}
+
 /* small screens */
-@media (max-width:800px){.layout{grid-template-columns:1fr}.day-panel{order:2;height:auto}.notifications-panel{width:calc(100vw - 32px);right:-80px}.timer-widget{display:none}.time-stats-grid{grid-template-columns:repeat(2,1fr)}.time-breakdown{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,1fr)}.dashboard-columns{grid-template-columns:1fr}.month-stats{grid-template-columns:1fr}}
+@media (max-width:800px){.layout{grid-template-columns:1fr}.day-panel{order:2;height:auto}.notifications-panel{width:calc(100vw - 32px);right:-80px}.timer-widget{display:none}.time-stats-grid{grid-template-columns:repeat(2,1fr)}.time-breakdown{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,1fr)}.dashboard-columns{grid-template-columns:1fr}.month-stats{grid-template-columns:1fr}.gp-auth-bar{display:none}}
