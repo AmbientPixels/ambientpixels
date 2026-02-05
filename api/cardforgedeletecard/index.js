@@ -148,10 +148,30 @@ module.exports = async function (context, req) {
     const dataToSave = Array.isArray(userCardsData) ? filtered : { cards: filtered };
     await uploadJsonBlob(containerClient, path, dataToSave);
     
+    // Also remove from published gallery if the card was published
+    let unpublishedFromGallery = false;
+    try {
+      const publishedPath = 'published-cards.json';
+      const publishedData = await downloadJsonBlobWithRetry(containerClient, publishedPath, context);
+      
+      if (publishedData && Array.isArray(publishedData.publishedCards)) {
+        const originalPublishedCount = publishedData.publishedCards.length;
+        publishedData.publishedCards = publishedData.publishedCards.filter(c => c.id !== cardId);
+        
+        if (publishedData.publishedCards.length < originalPublishedCount) {
+          await uploadJsonBlob(containerClient, publishedPath, publishedData);
+          unpublishedFromGallery = true;
+          context.log(`Also removed card ${cardId} from published gallery`);
+        }
+      }
+    } catch (pubErr) {
+      context.log.warn(`Could not check/update published gallery: ${pubErr.message}`);
+    }
+    
     context.res = {
       status: 200,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-      body: { success: true, remainingCards: filtered.length }
+      body: { success: true, remainingCards: filtered.length, unpublishedFromGallery }
     };
   } catch (e) {
     context.log.error(`Delete card error: ${e.message}`);

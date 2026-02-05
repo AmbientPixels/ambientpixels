@@ -288,67 +288,34 @@ async function publishCard() {
           }
         }, 100);
 
-
-        
-
-
-        // Reload gallery to show the updated list
-        if (window.cardForgeActions && typeof window.cardForgeActions.refreshGallery === 'function') {
-          window.cardForgeActions.refreshGallery();
-          window.cardForgeActions.refreshMyCardsList();
-        } else if (typeof loadGallery === 'function') {
-          loadGallery();
-        } else {
-          console.log('[CardForge] refreshGallery not available');
-        }
-
+        // Reload gallery after small delay to ensure blob storage has propagated
+        setTimeout(async () => {
+          if (window.cardForgeActions && typeof window.cardForgeActions.refreshGallery === 'function') {
+            await window.cardForgeActions.refreshGallery();
+            await window.cardForgeActions.refreshMyCardsList();
+          }
+        }, 500);
 
       } catch (error) {
-
-
         console.error('[CardForge] Failed to publish card:', error);
-
-
         if (window.rightColumn && typeof window.rightColumn.showToolMessage === 'function') {
-  window.rightColumn.showToolMessage(`Error publishing card: ${error.message}`, 'error');
-} else {
-  alert(`Error publishing card: ${error.message}`);
-}
-
-
-      } finally {
-
-
-        // Reset button state
-
-
-        const publishBtn = document.getElementById('publish-btn');
-
-
-        if (publishBtn) {
-
-
-          publishBtn.disabled = false;
-
-
-          publishBtn.innerHTML = 'Publish to Gallery';
-
-
+          window.rightColumn.showToolMessage(`Error publishing card: ${error.message}`, 'error');
+        } else {
+          alert(`Error publishing card: ${error.message}`);
         }
-
-
+      } finally {
+        // Reset button state
+        const publishBtn = document.getElementById('publish-btn');
+        if (publishBtn) {
+          publishBtn.disabled = false;
+          publishBtn.innerHTML = 'Publish to Gallery';
+        }
       }
-
-
     }
-
-
   );
 }
 
-
 // Attach publish button event listener after DOM is loaded
-// Ensures publishCard is bound and button is interactive (Windsurf Protocol)
 document.addEventListener('DOMContentLoaded', () => {
   const publishBtn = document.getElementById('publish-btn');
   if (publishBtn) {

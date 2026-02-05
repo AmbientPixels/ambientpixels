@@ -347,12 +347,14 @@ module.exports = async function (context, req) {
           () => {
             const buffer = Buffer.from(userData, 'utf8');
             return userBlobClient.upload(buffer, buffer.byteLength, {
-              blobHTTPHeaders: { blobContentType: 'application/json' }
+              blobHTTPHeaders: { blobContentType: 'application/json' },
+              overwrite: true
             });
           },
           `update user cards with published status (${userBlobPath})`,
           context
         );
+        context.log(`User cards blob updated with published=true for card ${cardId}`);
         
         context.log(`Successfully updated user card ${cardId} as published`);
       }
