@@ -190,17 +190,29 @@ module.exports = async function (context, req) {
     const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
     context.log(`Using container: ${CONTAINER_NAME}`);
     
-    // Path to user's cards file
-    const userBlobPath = `user/${userId}/cards.json`;
-    const userBlobClient = containerClient.getBlockBlobClient(userBlobPath);
-    context.log(`User blob path: ${userBlobPath}`);
+    // Path to user's cards file - try authenticated user first, then fallback to anonymous
+    let userBlobPath = `user/${userId}/cards.json`;
+    let userBlobClient = containerClient.getBlockBlobClient(userBlobPath);
+    context.log(`Checking user blob path: ${userBlobPath}`);
     
     // Check if the user's cards file exists with retry logic
-    const userBlobExists = await withRetry(
+    let userBlobExists = await withRetry(
       () => userBlobClient.exists(),
       `check if user blob exists (${userBlobPath})`,
       context
     );
+    
+    // Fallback to anonymous blob if user blob doesn't exist
+    if (!userBlobExists && userId !== 'anonymous') {
+      context.log(`User blob not found, checking anonymous blob as fallback`);
+      userBlobPath = `user/anonymous/cards.json`;
+      userBlobClient = containerClient.getBlockBlobClient(userBlobPath);
+      userBlobExists = await withRetry(
+        () => userBlobClient.exists(),
+        `check if anonymous blob exists (${userBlobPath})`,
+        context
+      );
+    }
     
     if (!userBlobExists) {
       context.res = {
@@ -215,6 +227,8 @@ module.exports = async function (context, req) {
       };
       return;
     }
+    
+    context.log(`Using blob path: ${userBlobPath}`);
     
     // Read user's cards from blob storage
     try {
