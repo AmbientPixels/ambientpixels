@@ -140,6 +140,69 @@
 
 /* End Forge Tab Vertical Sidebar Layout */
 
+/* Forge Action Buttons */
+.forge-card-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.forge-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 1rem 1.5rem;
+  background: var(--aura-bg-hover, #23234a);
+  border: 1px solid var(--aura-border, #3a3a5a);
+  border-radius: 10px;
+  color: var(--aura-text, #e0e0e0);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 140px;
+}
+
+.forge-action-btn i {
+  font-size: 1.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.forge-action-btn small {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  font-weight: 400;
+}
+
+.forge-action-btn:hover {
+  background: var(--aura-bg-tertiary, #2a2a4a);
+  border-color: var(--mood-primary-color, #00d4ff);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.15);
+}
+
+.forge-action-btn.primary {
+  background: linear-gradient(135deg, var(--mood-primary-color, #00d4ff) 0%, #0099cc 100%);
+  border-color: transparent;
+  color: #fff;
+}
+
+.forge-action-btn.primary:hover {
+  background: linear-gradient(135deg, #00e5ff 0%, #00b3e6 100%);
+  box-shadow: 0 4px 16px rgba(0, 212, 255, 0.35);
+}
+
+.forge-action-btn.coming-soon {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.forge-action-btn.coming-soon:hover {
+  transform: none;
+  box-shadow: none;
+}
 
 /* Stepper Tabs */
 .cf-stepper {
