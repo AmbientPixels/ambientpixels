@@ -721,7 +721,9 @@ const resp = await fetch(loadUrl, {
 });
         if (resp.ok) {
           const data = await resp.json();
-          const cloudCards = Array.isArray(data?.userCards) ? data.userCards : [];
+          let cloudCards = Array.isArray(data?.userCards) ? data.userCards : [];
+          // Filter out default sample cards - they shouldn't appear in My Cards
+          cloudCards = cloudCards.filter(c => !c.isDefault);
           // Prefer cloud cards; merge any local-only drafts not present by id
           const cloudIds = new Set(cloudCards.map(c => c.id));
           const localOnly = savedCards.filter(c => !cloudIds.has(c.id));
