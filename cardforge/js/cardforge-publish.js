@@ -110,7 +110,7 @@ async function publishCard() {
         // Call the cardforgepublish API with correct path
 
 
-        const endpoint = window.buildApiPath('cardforgepublish');
+        const endpoint = window.buildApiPath('publish');
 
 
         console.log('[CardForge] Publishing to endpoint:', endpoint);
