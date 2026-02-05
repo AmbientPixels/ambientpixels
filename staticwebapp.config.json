@@ -40,6 +40,10 @@
   },
   "routes": [
     {
+      "route": "/hanson/*",
+      "allowedRoles": ["hansonuser"]
+    },
+    {
       "route": "/api/cardforgesavecards",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgesavecards",
       "allowedRoles": ["anonymous"]
