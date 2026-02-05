@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Access Restricted - Ambient Pixels" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Access Restricted - Ambient Pixels</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <style>
+    .error-container {
+      min-height: 70vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+    
+    .error-icon {
+      font-size: 5rem;
+      color: #f59e0b;
+      margin-bottom: 1.5rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.05); }
+    }
+    
+    .error-code {
+      font-size: 6rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.1);
+      position: absolute;
+      z-index: -1;
+      letter-spacing: -0.05em;
+    }
+    
+    .error-title {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #fff;
+    }
+    
+    .error-message {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.7);
+      max-width: 500px;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+    
+    .error-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .error-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.875rem 1.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    
+    .error-btn-primary {
+      background: #0067c5;
+      color: white;
+    }
+    
+    .error-btn-primary:hover {
+      background: #0077e6;
+      transform: translateY(-2px);
+    }
+    
+    .error-btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .error-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .error-note {
+      margin-top: 2rem;
+      padding: 1rem 1.5rem;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+      max-width: 500px;
+    }
+    
+    .error-note i {
+      color: #f59e0b;
+      margin-right: 0.5rem;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  <!-- Dynamic Navigation Header -->
+  <header id="nav-header"></header>
+
+  <main class="grid-container">
+    <div class="error-container grid-col-12">
+      <span class="error-code">401</span>
+      <i class="fas fa-lock error-icon"></i>
+      <h1 class="error-title">Access Restricted</h1>
+      <p class="error-message">
+        This area requires authentication. Please sign in with an authorized account to continue.
+      </p>
+      
+      <div class="error-actions">
+        <a href="/.auth/login/aad?post_login_redirect_uri=/hanson/" class="error-btn error-btn-primary">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </a>
+        <a href="/" class="error-btn error-btn-secondary">
+          <i class="fas fa-home"></i> Go Home
+        </a>
+      </div>
+      
+      <div class="error-note">
+        <i class="fas fa-info-circle"></i>
+        Need access? Contact the site administrator to request an invitation.
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <div id="footer-container"></div>
+
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+</body>
+</html>
