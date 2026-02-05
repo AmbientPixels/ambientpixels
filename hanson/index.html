@@ -20,9 +20,17 @@
   <style>
     /* Hanson Portal Custom Styles */
     .hanson-hero {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460, #1a1a3e, #0d2847);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
       position: relative;
       overflow: hidden;
+    }
+    
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
     
     .hanson-hero::before {
