@@ -1,0 +1,36 @@
+/* Calendar and modal styles */
+.calendar-wrapper { max-width: 1000px; margin-top: 12px; }
+.calendar { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.calendar th { background: #f3f3f3; padding: 8px; text-align: left; border: 1px solid var(--border-light); }
+.calendar td { vertical-align: top; border: 1px solid var(--border-light); height: 120px; padding: 6px; }
+.cal-day { padding: 6px; position: relative; }
+.cal-day-label { position: absolute; top: 6px; right: 6px; font-size: 12px; color: #666; }
+.cal-event { display: block; margin-top: 22px; background: var(--accent-light); color: #fff; padding: 4px 6px; border-radius: 4px; font-size: 12px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Week calendar styles */
+.week-calendar { margin-top: 12px; border: 1px solid var(--border-light); border-radius: 4px; overflow: hidden; }
+.week-header { background: #f3f3f3; padding: 12px; font-weight: 600; font-size: 14px; }
+.week-table { width: 100%; border-collapse: collapse; }
+.week-day-header { background: #f9f9f9; }
+.week-day-name { padding: 12px; text-align: center; font-weight: 600; border-right: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); }
+.week-day-name:last-child { border-right: none; }
+.week-day-cell { padding: 8px; border-right: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); min-height: 100px; vertical-align: top; }
+.week-day-cell:last-child { border-right: none; }
+.week-event { background: var(--accent-light); color: #fff; padding: 6px 8px; margin: 4px 0; border-radius: 3px; font-size: 12px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.week-event:hover { opacity: 0.9; }
+.week-event:focus { outline: 2px solid var(--accent-light); outline-offset: -2px; }
+
+/* Raw table styles */
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid var(--border-light); padding: 6px; }
+
+/* Modal styles */
+.modal { display: none; }
+.modal.open { display: block; position: fixed; left: 0; top: 0; right: 0; bottom: 0; z-index: 9999; }
+.modal-overlay { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); }
+.modal-content { position: relative; max-width: 640px; margin: 60px auto; background: #fff; padding: 18px; border-radius: 6px; box-shadow: 0 6px 24px rgba(0,0,0,0.2); z-index: 10000; }
+.modal-close { position: absolute; right: 8px; top: 8px; background: transparent; border: none; font-size: 16px; cursor: pointer; }
+.modal-content h2 { margin-top: 0; }
+.modal-content dl { display: grid; grid-template-columns: 140px 1fr; gap: 6px 12px; }
+.modal-content dt { font-weight: 600; }
+.modal-content dd { margin: 0 0 6px 0; }

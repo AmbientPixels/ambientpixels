@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Game Plan</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar" role="banner">
+    <div class="topbar-inner">
+      <h1 class="app-title">Game Plan</h1>
+
+      <div class="controls">
+        <label class="visually-hidden" for="search">Search events</label>
+        <input id="search" type="search" placeholder="Search events, id, headline..." aria-label="Search events" />
+
+        <div class="platform-filters" role="toolbar" aria-label="Platform filters" id="platform-filters">
+          <!-- chips inserted by JS -->
+        </div>
+
+        <button id="theme-toggle" aria-pressed="false" title="Toggle theme">Light / Dark</button>
+        
+        <!-- Timer Widget -->
+        <div class="timer-widget" id="timer-widget">
+          <div class="timer-display">
+            <span id="timer-time">00:00:00</span>
+          </div>
+          <div class="timer-controls">
+            <button id="timer-start" class="timer-btn" title="Start Timer">▶</button>
+            <button id="timer-pause" class="timer-btn" title="Pause" style="display:none">⏸</button>
+            <button id="timer-stop" class="timer-btn" title="Stop & Log" style="display:none">⏹</button>
+          </div>
+          <div class="timer-event" id="timer-event-name">No event selected</div>
+        </div>
+        
+        <div class="notification-wrapper">
+          <button id="notifications-btn" title="Notifications" aria-label="Notifications">🔔<span id="notification-badge" class="notification-badge" style="display:none">0</span></button>
+          <div id="notifications-panel" class="notifications-panel" style="display:none">
+            <div class="notifications-header">
+              <h3>Upcoming Alerts</h3>
+              <button id="clear-all-notifications" class="text-btn">Clear All</button>
+            </div>
+            <div id="notifications-list" class="notifications-list">
+              <div class="empty-notifications">No upcoming alerts</div>
+            </div>
+          </div>
+        </div>
+        <button id="settings-btn" title="Settings">⚙️ Settings</button>
+        <button id="add-event" class="primary">Add Event</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout" id="app" role="main">
+    <section class="calendar-panel" aria-label="Month calendar">
+      <div class="calendar-header">
+        <div class="nav">
+          <button id="prev-month" aria-label="Previous period">◀</button>
+          <button id="today" aria-label="Today">Today</button>
+          <button id="next-month" aria-label="Next period">▶</button>
+        </div>
+        <div id="month-label" class="month-label" aria-live="polite"></div>
+        <div class="current-view-label" id="current-view-label">Month View</div>
+        <div class="view-toggle" role="toolbar" aria-label="Calendar view">
+          <button id="view-month" class="view-btn" data-view="month">Month</button>
+          <button id="view-week" class="view-btn" data-view="week">Week</button>
+          <button id="view-day" class="view-btn" data-view="day">Day</button>
+          <button id="view-grid" class="view-btn" data-view="grid">Grid</button>
+          <button id="view-time" class="view-btn" data-view="time">⏱️ Time</button>
+          <button id="view-dashboard" class="view-btn" data-view="dashboard">📊 Dashboard</button>
+        </div>
+      </div>
+      <div id="month-grid" class="month-grid" role="grid" aria-label="Calendar grid"></div>
+      <div id="week-grid" class="week-grid" style="display:none" role="grid" aria-label="Week calendar"></div>
+      <div id="day-view" class="day-view" style="display:none" role="region" aria-label="Day view"></div>
+      <div id="grid-view" class="grid-view" style="display:none" role="region" aria-label="Grid view"></div>
+      <div id="time-view" class="time-view" style="display:none" role="region" aria-label="Time tracking view">
+        <div class="time-view-header">
+          <h3>Time Tracking Dashboard</h3>
+          <div class="time-period-selector">
+            <button class="time-period-btn active" data-period="week">This Week</button>
+            <button class="time-period-btn" data-period="month">This Month</button>
+            <button class="time-period-btn" data-period="all">All Time</button>
+          </div>
+        </div>
+        
+        <div class="time-stats-grid">
+          <div class="time-stat-card">
+            <div class="time-stat-icon">⏱️</div>
+            <div class="time-stat-value" id="total-time-logged">0h</div>
+            <div class="time-stat-label">Total Logged</div>
+          </div>
+          <div class="time-stat-card">
+            <div class="time-stat-icon">📊</div>
+            <div class="time-stat-value" id="total-estimated">0h</div>
+            <div class="time-stat-label">Estimated</div>
+          </div>
+          <div class="time-stat-card">
+            <div class="time-stat-icon">📈</div>
+            <div class="time-stat-value" id="time-efficiency">—</div>
+            <div class="time-stat-label">Efficiency</div>
+          </div>
+          <div class="time-stat-card">
+            <div class="time-stat-icon">📅</div>
+            <div class="time-stat-value" id="events-tracked">0</div>
+            <div class="time-stat-label">Events Tracked</div>
+          </div>
+        </div>
+        
+        <div class="time-breakdown">
+          <div class="time-by-platform">
+            <h4>Time by Platform</h4>
+            <div id="platform-time-bars" class="time-bars"></div>
+          </div>
+          <div class="time-by-status">
+            <h4>Time by Status</h4>
+            <div id="status-time-bars" class="time-bars"></div>
+          </div>
+        </div>
+        
+        <div class="recent-time-entries">
+          <h4>Recent Time Entries</h4>
+          <div id="recent-entries-list" class="recent-entries-list"></div>
+        </div>
+      </div>
+      
+      <!-- Dashboard View -->
+      <div id="dashboard-view" class="dashboard-view" style="display:none" role="region" aria-label="Stats dashboard">
+        <div class="dashboard-header">
+          <h3>📊 Game Plan Dashboard</h3>
+          <span class="dashboard-updated">Last updated: <span id="dashboard-timestamp"></span></span>
+        </div>
+        
+        <!-- KPI Cards Row -->
+        <div class="kpi-grid">
+          <div class="kpi-card kpi-total">
+            <div class="kpi-icon">📅</div>
+            <div class="kpi-value" id="kpi-total-events">0</div>
+            <div class="kpi-label">Total Events</div>
+          </div>
+          <div class="kpi-card kpi-active">
+            <div class="kpi-icon">🔄</div>
+            <div class="kpi-value" id="kpi-active-events">0</div>
+            <div class="kpi-label">In Progress</div>
+          </div>
+          <div class="kpi-card kpi-completed">
+            <div class="kpi-icon">✅</div>
+            <div class="kpi-value" id="kpi-completed-events">0</div>
+            <div class="kpi-label">Completed</div>
+          </div>
+          <div class="kpi-card kpi-rate">
+            <div class="kpi-icon">📈</div>
+            <div class="kpi-value" id="kpi-completion-rate">0%</div>
+            <div class="kpi-label">Completion Rate</div>
+          </div>
+          <div class="kpi-card kpi-time">
+            <div class="kpi-icon">⏱️</div>
+            <div class="kpi-value" id="kpi-total-hours">0h</div>
+            <div class="kpi-label">Hours Logged</div>
+          </div>
+        </div>
+        
+        <!-- Pipeline Funnel -->
+        <div class="dashboard-section">
+          <h4>🔄 Status Pipeline</h4>
+          <div class="pipeline-container">
+            <div class="pipeline-track pipeline-preprod">
+              <div class="pipeline-label">Pre-Production</div>
+              <div class="pipeline-stages" id="pipeline-preprod"></div>
+            </div>
+            <div class="pipeline-track pipeline-prod">
+              <div class="pipeline-label">Production</div>
+              <div class="pipeline-stages" id="pipeline-prod"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Two Column Layout -->
+        <div class="dashboard-columns">
+          <!-- Platform Distribution -->
+          <div class="dashboard-section">
+            <h4>🎯 Events by Platform</h4>
+            <div id="dashboard-platform-chart" class="chart-container"></div>
+          </div>
+          
+          <!-- Upcoming Deadlines -->
+          <div class="dashboard-section">
+            <h4>⏰ Upcoming Deadlines</h4>
+            <div id="dashboard-deadlines" class="deadlines-list"></div>
+          </div>
+        </div>
+        
+        <!-- Another Two Column Layout -->
+        <div class="dashboard-columns">
+          <!-- Monthly Trends -->
+          <div class="dashboard-section">
+            <h4>📆 This Month</h4>
+            <div class="month-stats">
+              <div class="month-stat">
+                <span class="month-stat-value" id="month-created">0</span>
+                <span class="month-stat-label">Created</span>
+              </div>
+              <div class="month-stat">
+                <span class="month-stat-value" id="month-completed">0</span>
+                <span class="month-stat-label">Completed</span>
+              </div>
+              <div class="month-stat">
+                <span class="month-stat-value" id="month-upcoming">0</span>
+                <span class="month-stat-label">Upcoming</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Data Quality -->
+          <div class="dashboard-section">
+            <h4>📋 Data Quality Score</h4>
+            <div id="data-quality" class="data-quality"></div>
+          </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="dashboard-section">
+          <h4>🕐 Recent Events</h4>
+          <div id="dashboard-recent" class="recent-events-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="day-panel" id="day-panel" aria-label="Selected day events">
+      <div class="day-header">
+        <div id="selected-day" class="selected-day">Select a day</div>
+        <div class="day-actions">
+          <button id="add-event-day" class="primary" title="Add event on selected day">+ Add Event</button>
+          <button id="export-json" title="Export as JSON">📤 JSON</button>
+          <button id="export-csv" title="Export as CSV">📤 CSV</button>
+          <label class="import-label" title="Import events (JSON or CSV)">📥 Import <input id="import-file" type="file" accept=".json,.csv,application/json,text/csv" /></label>
+        </div>
+      </div>
+
+      <div id="day-events" class="day-events" tabindex="0"></div>
+      <div id="empty-state" class="empty-state">
+        <div style="font-size:1.5rem;margin-bottom:8px">📅</div>
+        No events scheduled for this day.<br>
+        <small>Double-click a day or use "+ Add Event" to create one.</small>
+      </div>
+    </aside>
+  </main>
+
+  <!-- View Event Modal -->
+  <div id="view-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-overlay" id="view-modal-overlay" tabindex="0"></div>
+    <div class="modal-panel view-panel" role="document">
+      <header class="modal-head">
+        <h2 id="view-modal-title">Event Details</h2>
+        <button id="view-modal-close" aria-label="Close">✖</button>
+      </header>
+      <div class="view-content">
+        <div class="view-actions view-actions-top">
+          <button type="button" class="view-copy-btn primary">Duplicate Event</button>
+          <button type="button" class="view-edit-btn primary">Edit Event</button>
+          <button type="button" class="view-delete-btn danger">Delete</button>
+          <button type="button" id="view-start-timer" class="timer-start-btn">▶ Start Timer</button>
+        </div>
+        
+        <div class="view-grid">
+          <!-- Title (full width) -->
+          <div class="view-field view-full view-title-field">
+            <span class="view-label">Title</span>
+            <span id="view-title" class="view-value view-event-title"></span>
+          </div>
+          
+          <!-- Time Tracking Summary -->
+          <div class="view-field view-full view-time-tracking">
+            <span class="view-label">⏱️ Time Tracking</span>
+            <div class="view-time-stats">
+              <div class="view-time-stat">
+                <span class="view-time-value" id="view-estimated-time">—</span>
+                <span class="view-time-label">Estimated</span>
+              </div>
+              <div class="view-time-stat">
+                <span class="view-time-value" id="view-actual-time">—</span>
+                <span class="view-time-label">Actual</span>
+              </div>
+              <div class="view-time-stat">
+                <span class="view-time-value" id="view-time-remaining">—</span>
+                <span class="view-time-label">Remaining</span>
+              </div>
+            </div>
+            <div id="view-time-entries" class="view-time-entries"></div>
+          </div>
+          
+          <!-- Row 1: Dates -->
+          <div class="view-field">
+            <span class="view-label">Date</span>
+            <span id="view-date" class="view-value"></span>
+          </div>
+          <div class="view-field">
+            <span class="view-label">End Date</span>
+            <span id="view-enddate" class="view-value"></span>
+          </div>
+          
+          <!-- Row 2: Times -->
+          <div class="view-field">
+            <span class="view-label">Start Time</span>
+            <span id="view-starttime" class="view-value"></span>
+          </div>
+          <div class="view-field">
+            <span class="view-label">End Time</span>
+            <span id="view-endtime" class="view-value"></span>
+          </div>
+          
+          <!-- Row 3: Alert and ID -->
+          <div class="view-field">
+            <span class="view-label">🔔 Alert</span>
+            <span id="view-alert" class="view-value"></span>
+          </div>
+          <div class="view-field">
+            <span class="view-label">ID</span>
+            <span id="view-id" class="view-value"></span>
+          </div>
+          
+          <!-- Row 4: Slot # and Targeting (full width) -->
+          <div class="view-field">
+            <span class="view-label">Slot #</span>
+            <span id="view-slot" class="view-value"></span>
+          </div>
+          <div class="view-field">
+            <span class="view-label">Targeting</span>
+            <span id="view-targeting" class="view-value"></span>
+          </div>
+          
+          <!-- Platforms and Frequency side by side -->
+          <div class="view-field">
+            <span class="view-label">Platforms</span>
+            <div id="view-platforms" class="view-platforms"></div>
+          </div>
+          <div class="view-field">
+            <span class="view-label">Frequency</span>
+            <span id="view-frequency-combined" class="view-value"></span>
+          </div>
+          
+          <!-- Status fields -->
+          <div class="view-field">
+            <span class="view-label">Pre-production Status</span>
+            <span id="view-preprod-status" class="view-value status-badge"></span>
+          </div>
+          <div class="view-field">
+            <span class="view-label">Production Status</span>
+            <span id="view-prod-status" class="view-value status-badge"></span>
+          </div>
+          
+          <!-- Headlines (full width) -->
+          <div class="view-field view-full">
+            <span class="view-label">Headline <button type="button" class="copy-btn" data-copy="view-headline" title="Copy to clipboard">📋 Copy</button></span>
+            <span id="view-headline" class="view-value"></span>
+          </div>
+          
+          <div class="view-field view-full">
+            <span class="view-label">Sub-headline <button type="button" class="copy-btn" data-copy="view-subheadline" title="Copy to clipboard">📋 Copy</button></span>
+            <span id="view-subheadline" class="view-value"></span>
+          </div>
+          
+          <!-- Links -->
+          <div class="view-field">
+            <span class="view-label">LOC Link <button type="button" class="copy-btn" data-copy="view-loc" title="Copy to clipboard">📋 Copy</button></span>
+            <a id="view-loc" class="view-value view-link" href="" target="_blank"></a>
+          </div>
+          <div class="view-field">
+            <span class="view-label">ADO Deliverable <button type="button" class="copy-btn" data-copy="view-ado" title="Copy to clipboard">📋 Copy</button></span>
+            <a id="view-ado" class="view-value view-link" href="" target="_blank"></a>
+          </div>
+          
+          <div class="view-field view-full">
+            <span class="view-label">Links <button type="button" class="copy-btn" data-copy="view-links" title="Copy all links">📋 Copy All</button></span>
+            <div id="view-links" class="view-links"></div>
+          </div>
+          
+          <div class="view-field view-full">
+            <span class="view-label">Assets <button type="button" class="copy-btn" data-copy="view-assets" title="Copy all assets">📋 Copy All</button></span>
+            <div id="view-assets" class="view-assets"></div>
+          </div>
+          
+          <!-- Notes and Tags -->
+          <div class="view-field">
+            <span class="view-label">Notes</span>
+            <span id="view-notes" class="view-value view-notes"></span>
+          </div>
+          <div class="view-field">
+            <span class="view-label">Tags</span>
+            <div id="view-tags" class="view-tags"></div>
+          </div>
+        </div>
+        
+        <div class="view-actions">
+          <button type="button" id="view-copy" class="view-copy-btn primary">Duplicate Event</button>
+          <button type="button" id="view-edit" class="view-edit-btn primary">Edit Event</button>
+          <button type="button" id="view-delete" class="view-delete-btn danger">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-overlay" id="settings-modal-overlay" tabindex="0"></div>
+    <div class="modal-panel settings-panel" role="document">
+      <header class="modal-head">
+        <h2>Settings</h2>
+        <button id="settings-modal-close" aria-label="Close">✖</button>
+      </header>
+      <div class="settings-content">
+        <div class="settings-group">
+          <label class="settings-label">Theme
+            <select id="setting-theme">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+              <option value="system">System</option>
+            </select>
+          </label>
+        </div>
+        <div class="settings-group">
+          <label class="settings-label">Default View
+            <select id="setting-default-view">
+              <option value="month">Month</option>
+              <option value="week">Week</option>
+              <option value="day">Day</option>
+              <option value="grid">Grid</option>
+            </select>
+          </label>
+        </div>
+        <div class="settings-group">
+          <label class="settings-label">Week Starts On
+            <select id="setting-week-start">
+              <option value="0">Sunday</option>
+              <option value="1">Monday</option>
+            </select>
+          </label>
+        </div>
+        <div class="settings-group">
+          <label class="settings-label">Time Format
+            <select id="setting-time-format">
+              <option value="12h">12-hour (AM/PM)</option>
+              <option value="24h">24-hour</option>
+            </select>
+          </label>
+        </div>
+        <div class="settings-group">
+          <label class="settings-checkbox">
+            <input type="checkbox" id="setting-show-weekends" checked />
+            Show weekends
+          </label>
+        </div>
+        <div class="settings-group">
+          <label class="settings-checkbox">
+            <input type="checkbox" id="setting-compact-view" />
+            Compact event display
+          </label>
+        </div>
+        <div class="settings-group">
+          <label class="settings-checkbox">
+            <input type="checkbox" id="setting-auto-track-status" checked />
+            Auto-track time on status changes
+          </label>
+          <small class="settings-hint">Automatically logs time spent when pre-production or production status changes</small>
+        </div>
+        <div class="settings-group">
+          <label class="settings-checkbox">
+            <input type="checkbox" id="setting-show-welcome" checked />
+            Show welcome screen on startup
+          </label>
+        </div>
+        <div class="settings-actions">
+          <button type="button" id="settings-reset">Reset to Defaults</button>
+          <button type="button" id="settings-save" class="primary">Save Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal (Add / Edit) -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-overlay" id="modal-overlay" tabindex="0"></div>
+    <div class="modal-panel" role="document">
+      <header class="modal-head">
+        <h2 id="modal-title">Add Event</h2>
+        <button id="modal-close" aria-label="Close">✖</button>
+      </header>
+
+      <form id="event-form">
+        <div class="form-actions form-actions-top">
+          <button type="button" class="cancel-btn">Cancel</button>
+          <button type="submit" class="save-btn primary">Save</button>
+        </div>
+        <div class="form-grid">
+          <label style="grid-column: span 2;">Title <input id="fld-title" name="title" type="text" required /></label>
+          <label>Date <input id="fld-date" name="date" type="date" required /></label>
+          <label>End Date <input id="fld-enddate" name="endDate" type="date" /></label>
+          <label>Start Time <input id="fld-start" name="startTime" type="time" /></label>
+          <label>End Time <input id="fld-end" name="endTime" type="time" /></label>
+          <label>🔔 Alert
+            <select id="fld-alert" name="alert">
+              <option value="">No alert</option>
+              <option value="0">At time of event</option>
+              <option value="15">15 minutes before</option>
+              <option value="30">30 minutes before</option>
+              <option value="60">1 hour before</option>
+              <option value="120">2 hours before</option>
+              <option value="1440">1 day before</option>
+              <option value="2880">2 days before</option>
+              <option value="10080">1 week before</option>
+            </select>
+          </label>
+          <label>ID <input id="fld-id" name="id" type="text" required /></label>
+          <label>Slot # <input id="fld-slot" name="slotNumber" type="number" min="0" /></label>
+          <fieldset class="time-tracking-fieldset" style="grid-column: span 2;">
+            <legend>⏱️ Time Tracking</legend>
+            <div class="time-tracking-inputs">
+              <label>Estimated Time (hours) <input id="fld-estimated-time" name="estimatedTime" type="number" min="0" step="0.25" placeholder="0" /></label>
+              <label>Actual Time (hours) <input id="fld-actual-time" name="actualTime" type="number" min="0" step="0.25" placeholder="0" readonly /></label>
+            </div>
+            <div class="manual-time-entry">
+              <div class="manual-time-inputs">
+                <input id="manual-time-hours" type="number" min="0" step="0.25" placeholder="Hours" />
+                <input id="manual-time-note" type="text" placeholder="Note (optional)" />
+                <button type="button" id="add-manual-time" class="text-btn">+ Log Time</button>
+              </div>
+            </div>
+            <div id="time-entries-section" class="time-entries-section">
+              <div class="time-entries-header">
+                <span class="time-entries-label">Time Entries</span>
+              </div>
+              <div id="time-entries-list" class="time-entries-list"></div>
+            </div>
+          </fieldset>
+          <label style="grid-column: span 2;">Targeting <input id="fld-targeting" name="targeting" type="text" /></label>
+          <fieldset class="platform-fieldset">
+            <legend>Platforms</legend>
+            <div id="platform-checkboxes">
+              <label data-platform="Xbox desktop app (Garrison)"><input type="checkbox" name="platforms" value="Xbox desktop app (Garrison)" /> Xbox desktop app (Garrison)</label>
+              <label data-platform="Console"><input type="checkbox" name="platforms" value="Console" /> Console</label>
+              <label data-platform="Xbox mobile home"><input type="checkbox" name="platforms" value="Xbox mobile home" /> Xbox mobile home</label>
+              <label data-platform="Mobile Store Editorial"><input type="checkbox" name="platforms" value="Mobile Store Editorial" /> Mobile Store Editorial</label>
+              <label data-platform="Mobile Store Spotlight"><input type="checkbox" name="platforms" value="Mobile Store Spotlight" /> Mobile Store Spotlight</label>
+              <label data-platform="Other"><input type="checkbox" name="platforms" value="Other" /> Other</label>
+            </div>
+          </fieldset>
+          <fieldset class="frequency-fieldset">
+            <legend>Frequency</legend>
+            <div class="frequency-inputs">
+              <label>Type
+                <select id="fld-type" name="eventType">
+                  <option value="Regular">Regular</option>
+                  <option value="Takeover">Takeover</option>
+                </select>
+              </label>
+              <label>Count
+                <input id="fld-frequency" name="frequency" type="number" min="1" max="15" placeholder="1-15" />
+              </label>
+              <label>Period
+                <select id="fld-recurrence" name="recurrence">
+                  <option value="">—</option>
+                  <option value="Daily">Daily</option>
+                  <option value="Weekly">Weekly</option>
+                  <option value="Monthly">Monthly</option>
+                </select>
+              </label>
+            </div>
+          </fieldset>
+          <label>Pre-production Status
+            <select id="fld-preprod-status" name="preProdStatus">
+              <option value="">— Select —</option>
+              <option value="Planning">Planning</option>
+              <option value="Pending assets">Pending assets</option>
+              <option value="Ready for production">Ready for production</option>
+              <option value="Canceled">Canceled</option>
+            </select>
+          </label>
+          <label>Production Status
+            <select id="fld-prod-status" name="prodStatus">
+              <option value="">— Select —</option>
+              <option value="Build is cooking">Build is cooking</option>
+              <option value="In QC">In QC</option>
+              <option value="Cooked and booked">Cooked and booked (published)</option>
+              <option value="Canceled">Canceled</option>
+            </select>
+          </label>
+          <fieldset class="headlines-fieldset" style="grid-column: span 2;">
+            <legend>Headlines</legend>
+            <div class="headlines-inputs">
+              <label>Headline <input id="fld-headline" name="headline" type="text" /></label>
+              <label>Sub-headline <input id="fld-sub" name="subHeadline" type="text" /></label>
+            </div>
+          </fieldset>
+          <label>LOC Link <input id="fld-loc" name="locLink" type="url" placeholder="https://..." /></label>
+          <label>ADO Deliverable <input id="fld-ado" name="adoLink" type="url" placeholder="https://dev.azure.com/..." /></label>
+
+          <div style="grid-column: span 2; margin-top: 6px;">
+            <label style="display:block; margin-bottom:8px; font-weight:600;">Links</label>
+            <div id="links-list" class="repeat-list"></div>
+            <button type="button" id="add-link">+ Add Link</button>
+          </div>
+
+          <div style="grid-column: span 2;">
+            <label style="display:block; margin-bottom:8px; font-weight:600;">Assets</label>
+            <div id="assets-list" class="repeat-list"></div>
+            <button type="button" id="add-asset">+ Add Asset</button>
+          </div>
+
+          <label>Notes <textarea id="fld-notes" name="notes" rows="3"></textarea></label>
+          <label>Tags <input id="fld-tags" name="tags" type="text" placeholder="comma,separated" /></label>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" id="cancel" class="cancel-btn">Cancel</button>
+          <button type="submit" id="save" class="save-btn primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Alert/Confirm Modal -->
+  <div id="dialog-modal" class="modal dialog-modal" role="alertdialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-overlay" id="dialog-modal-overlay"></div>
+    <div class="modal-panel dialog-panel" role="document">
+      <div class="dialog-icon" id="dialog-icon"></div>
+      <div class="dialog-message" id="dialog-message"></div>
+      <div class="dialog-actions" id="dialog-actions">
+        <button type="button" id="dialog-cancel" class="dialog-btn">Cancel</button>
+        <button type="button" id="dialog-ok" class="dialog-btn primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Welcome Modal -->
+  <div id="welcome-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-overlay" id="welcome-modal-overlay"></div>
+    <div class="modal-panel welcome-panel" role="document">
+      <header class="modal-head">
+        <h2>👋 Welcome to Game Plan</h2>
+        <button id="welcome-modal-close" aria-label="Close">✖</button>
+      </header>
+      <div class="welcome-content">
+        <p class="welcome-intro">Your powerful tool for managing and tracking events across multiple platforms.</p>
+        
+        <div class="feature-grid">
+          <div class="feature-item">
+            <div class="feature-icon">�</div>
+            <h4>Smart Alerts</h4>
+            <p>Never miss a deadline! Set alerts from 15 minutes to 1 week before events with browser notifications.</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">⏱️</div>
+            <h4>Time Tracking</h4>
+            <p>Built-in timer to log time spent on events. Track estimated vs actual hours with detailed entries.</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">📊</div>
+            <h4>Analytics Dashboard</h4>
+            <p>View KPIs, completion rates, pipeline status, and time breakdowns at a glance.</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">📅</div>
+            <h4>Multiple Views</h4>
+            <p>Switch between Month, Week, Day, Grid, Time, and Dashboard views.</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">🎯</div>
+            <h4>Platform Tracking</h4>
+            <p>Organize events by platform with color-coded tags for Xbox, Console, Mobile, and more.</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">📤</div>
+            <h4>Import & Export</h4>
+            <p>Export your calendar to JSON or CSV. Import from external sources easily.</p>
+          </div>
+        </div>
+        
+        <div class="welcome-tips">
+          <h4>💡 Quick Tips</h4>
+          <ul>
+            <li><strong>🔔 Alerts:</strong> Set reminders on any event — check the notification bell for upcoming alerts</li>
+            <li><strong>⏱️ Timer:</strong> Click the play button on any event to start tracking time</li>
+            <li><strong>📊 Dashboard:</strong> Click the Dashboard view to see all your stats and KPIs</li>
+            <li><strong>Double-click</strong> any calendar day to quickly add an event</li>
+            <li>Use the <strong>search bar</strong> to find events by title, ID, or headline</li>
+          </ul>
+        </div>
+        
+        <div class="welcome-actions">
+          <label class="welcome-checkbox">
+            <input type="checkbox" id="welcome-dont-show" />
+            Don't show this again
+          </label>
+          <button type="button" id="welcome-get-started" class="primary">Get Started</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
