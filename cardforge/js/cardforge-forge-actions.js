@@ -820,44 +820,31 @@ const resp = await fetch(loadUrl, {
       return;
     }
 
-    // Palette color map for mini card styling
-    const paletteColors = {
-      'neon-light':      { bg: 'linear-gradient(135deg, #1a1a2e, #16213e)', accent: '#00d4ff', text: '#fff', secondary: '#00d4ff', glow: 'rgba(0,212,255,0.25)' },
-      'neon-dark':       { bg: 'linear-gradient(135deg, #0a0a1e, #16213e)', accent: '#ff00ff', text: '#00d4ff', secondary: '#fff', glow: 'rgba(255,0,255,0.25)' },
-      'earth-light':     { bg: 'linear-gradient(135deg, #2d1b0e, #3d2b1e)', accent: '#228b22', text: '#f4e4c1', secondary: '#daa520', glow: 'rgba(34,139,34,0.25)' },
-      'earth-dark':      { bg: 'linear-gradient(135deg, #1a0f08, #2d1b0e)', accent: '#8b4513', text: '#daa520', secondary: '#f4e4c1', glow: 'rgba(139,69,19,0.25)' },
-      'ocean-light':     { bg: 'linear-gradient(135deg, #0e1b2d, #1e2b3d)', accent: '#66ccff', text: '#e6f3ff', secondary: '#66ccff', glow: 'rgba(102,204,255,0.25)' },
-      'ocean-dark':      { bg: 'linear-gradient(135deg, #091420, #0e1b2d)', accent: '#0077cc', text: '#66ccff', secondary: '#e6f3ff', glow: 'rgba(0,119,204,0.25)' },
-    };
-    function getMiniCardStyle(design) {
-      const key = `${design?.palette || 'neon'}-${design?.paletteVariant || 'light'}`;
-      const c = paletteColors[key] || paletteColors['neon-light'];
-      return `--mc-bg:${c.bg};--mc-accent:${c.accent};--mc-text:${c.text};--mc-secondary:${c.secondary};--mc-glow:${c.glow}`;
-    }
-
-    const fallbackSvg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
+    // Render mini cards — scaled replicas of the actual card preview
+    const fallbackSvg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjUwNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
     myCardsList.innerHTML = savedCards.map(card => {
       const cd = card.cardData || card;
       const cardName = cd.name || card.name || 'Untitled Card';
       const characterClass = cd.characterClass || '';
       const cardImage = cd.avatar || card.avatar || '';
-      const rarity = cd.rarity || card.rarity || '';
       const isPublished = card.isPublished || card.published || cd.published || cd.isPublished || false;
-      const stats = cd.stats || [];
-      const design = cd.design || {};
-      const style = getMiniCardStyle(design);
+      const hasRendered = cd.renderedFront && cd.frontClasses;
+
+      // Use stored rendered HTML or fall back to avatar image
+      let contentHTML;
+      if (hasRendered) {
+        contentHTML = `<div class="mini-card-preview ${cd.frontClasses}">${cd.renderedFront}</div>`;
+      } else {
+        contentHTML = `<img class="mini-card-fallback" src="${cardImage || fallbackSvg}" alt="${cardName}" onerror="this.src='${fallbackSvg}'">`;
+      }
 
       return `
-        <div class="mini-card" data-card-id="${card.id}" style="${style}">
-          <div class="mini-card-header">
-            <span class="mini-card-name">${cardName}</span>
-            ${rarity ? `<span class="mini-card-rarity ${rarity.toLowerCase()}">${rarity}</span>` : ''}
-          </div>
-          <img class="mini-card-avatar" src="${cardImage}" alt="${cardName}" onerror="this.src='${fallbackSvg}'">
-          ${stats.length ? `<div class="mini-card-stats">${stats.map(s => `<div class="mini-card-stat-bar" style="opacity:${Math.max(0.3, (s.value || 0) / 100)}"></div>`).join('')}</div>` : ''}
-          <div class="mini-card-footer">
-            <span class="mini-card-class">${characterClass || '\u00A0'}</span>
-            ${isPublished ? '<span class="mini-card-published">Published</span>' : ''}
+        <div class="mini-card" data-card-id="${card.id}">
+          ${contentHTML}
+          ${isPublished ? '<span class="mini-card-published" title="Published"></span>' : ''}
+          <div class="mini-card-label">
+            ${cardName}
+            ${characterClass ? `<span class="mini-card-class">${characterClass}</span>` : ''}
           </div>
           <div class="mini-card-overlay">
             <div class="mini-card-actions">
@@ -878,6 +865,17 @@ const resp = await fetch(loadUrl, {
         </div>
       `;
     }).join('');
+
+    // Calculate scale for each mini card preview based on actual container width
+    requestAnimationFrame(() => {
+      myCardsList.querySelectorAll('.mini-card').forEach(card => {
+        const preview = card.querySelector('.mini-card-preview');
+        if (preview) {
+          const scale = card.clientWidth / 360;
+          preview.style.transform = `scale(${scale})`;
+        }
+      });
+    });
   }
 
   refreshDeckList() {
@@ -926,44 +924,30 @@ const resp = await fetch(loadUrl, {
       const adminIds = window._config?.adminUserIds || [];
       const isAdmin = currentUserId && adminIds.includes(currentUserId);
 
-      // Palette color map (same as My Cards)
-      const paletteColors = {
-        'neon-light':      { bg: 'linear-gradient(135deg, #1a1a2e, #16213e)', accent: '#00d4ff', text: '#fff', secondary: '#00d4ff', glow: 'rgba(0,212,255,0.25)' },
-        'neon-dark':       { bg: 'linear-gradient(135deg, #0a0a1e, #16213e)', accent: '#ff00ff', text: '#00d4ff', secondary: '#fff', glow: 'rgba(255,0,255,0.25)' },
-        'earth-light':     { bg: 'linear-gradient(135deg, #2d1b0e, #3d2b1e)', accent: '#228b22', text: '#f4e4c1', secondary: '#daa520', glow: 'rgba(34,139,34,0.25)' },
-        'earth-dark':      { bg: 'linear-gradient(135deg, #1a0f08, #2d1b0e)', accent: '#8b4513', text: '#daa520', secondary: '#f4e4c1', glow: 'rgba(139,69,19,0.25)' },
-        'ocean-light':     { bg: 'linear-gradient(135deg, #0e1b2d, #1e2b3d)', accent: '#66ccff', text: '#e6f3ff', secondary: '#66ccff', glow: 'rgba(102,204,255,0.25)' },
-        'ocean-dark':      { bg: 'linear-gradient(135deg, #091420, #0e1b2d)', accent: '#0077cc', text: '#66ccff', secondary: '#e6f3ff', glow: 'rgba(0,119,204,0.25)' },
-      };
-      function getMiniCardStyle(design) {
-        const key = `${design?.palette || 'neon'}-${design?.paletteVariant || 'light'}`;
-        const c = paletteColors[key] || paletteColors['neon-light'];
-        return `--mc-bg:${c.bg};--mc-accent:${c.accent};--mc-text:${c.text};--mc-secondary:${c.secondary};--mc-glow:${c.glow}`;
-      }
-
-      const fallbackSvg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
+      // Render mini cards for gallery — scaled replicas
+      const fallbackSvg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjUwNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
       galleryGrid.innerHTML = galleryCards.map(card => {
         const cd = card.cardData || card;
         const cardName = cd.name || card.name || 'Untitled Card';
         const characterClass = cd.characterClass || card.characterClass || '';
         const cardImage = cd.avatar || card.avatar || card.image || '';
-        const rarity = cd.rarity || card.rarity || '';
-        const stats = cd.stats || [];
-        const design = cd.design || {};
-        const style = getMiniCardStyle(design);
         const publishedBy = card.publishedBy || card.userId || 'Anonymous';
         const canRemove = isAdmin || (currentUserId && publishedBy === currentUserId);
+        const hasRendered = cd.renderedFront && cd.frontClasses;
+
+        let contentHTML;
+        if (hasRendered) {
+          contentHTML = `<div class="mini-card-preview ${cd.frontClasses}">${cd.renderedFront}</div>`;
+        } else {
+          contentHTML = `<img class="mini-card-fallback" src="${cardImage || fallbackSvg}" alt="${cardName}" onerror="this.src='${fallbackSvg}'">`;
+        }
 
         return `
-          <div class="mini-card" data-card-id="${card.id}" style="${style}">
-            <div class="mini-card-header">
-              <span class="mini-card-name">${cardName}</span>
-              ${rarity ? `<span class="mini-card-rarity ${rarity.toLowerCase()}">${rarity}</span>` : ''}
-            </div>
-            <img class="mini-card-avatar" src="${cardImage}" alt="${cardName}" onerror="this.src='${fallbackSvg}'">
-            ${stats.length ? `<div class="mini-card-stats">${stats.map(s => `<div class="mini-card-stat-bar" style="opacity:${Math.max(0.3, (s.value || 0) / 100)}"></div>`).join('')}</div>` : ''}
-            <div class="mini-card-footer">
-              <span class="mini-card-class">${characterClass || '\u00A0'}</span>
+          <div class="mini-card" data-card-id="${card.id}">
+            ${contentHTML}
+            <div class="mini-card-label">
+              ${cardName}
+              ${characterClass ? `<span class="mini-card-class">${characterClass}</span>` : ''}
             </div>
             ${canRemove ? `
             <div class="mini-card-overlay">
@@ -976,6 +960,17 @@ const resp = await fetch(loadUrl, {
           </div>
         `;
       }).join('');
+
+      // Calculate scale for gallery mini card previews
+      requestAnimationFrame(() => {
+        galleryGrid.querySelectorAll('.mini-card').forEach(card => {
+          const preview = card.querySelector('.mini-card-preview');
+          if (preview) {
+            const scale = card.clientWidth / 360;
+            preview.style.transform = `scale(${scale})`;
+          }
+        });
+      });
 
       // Bind gallery mini-card clicks to open lightbox
       galleryGrid.querySelectorAll('.mini-card').forEach((item, idx) => {
