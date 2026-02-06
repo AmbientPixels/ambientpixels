@@ -1770,7 +1770,6 @@
 .mini-card {
   position: relative;
   width: 180px;
-  aspect-ratio: 5 / 7;
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
@@ -1785,22 +1784,18 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 12px rgba(0, 212, 255, 0.2);
 }
 
-/* Scaler wrapper — positioned absolute inside the fixed-ratio container.
-   Renders card at 360px then transform:scale(0.5) shrinks to 180px visually. */
+/* Scaler wrapper — zoom affects BOTH visual AND layout sizing.
+   Renders card at 360px, zoom:0.5 shrinks to 180px in layout,
+   and the parent auto-sizes to the zoomed height. No clipping. */
 .mini-card-scaler {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 360px;
-  transform: scale(0.5);
-  transform-origin: top left;
+  zoom: 0.5;
   pointer-events: none;
 }
 
 /* Override base card CSS inside mini cards */
 .mini-card-scaler > .card-preview-canvas {
   contain: style !important;
-  min-height: 504px !important; /* 360 × 7/5 = 504 — fills the 5:7 container when scaled */
 }
 
 /* Suppress glow pseudo-element inside mini cards */
@@ -1950,7 +1945,7 @@
   }
 
   .mini-card-scaler {
-    transform: scale(0.417); /* 150 / 360 */
+    zoom: 0.417; /* 150 / 360 */
   }
 }
 
