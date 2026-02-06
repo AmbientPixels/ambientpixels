@@ -1783,11 +1783,18 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 12px rgba(0, 212, 255, 0.2);
 }
 
-/* Scaler wrapper — provides 360px context then zoom shrinks it to 180px in layout */
+/* Scaler wrapper — renders card at 360px then transform:scale shrinks it visually.
+   Height is set by JS post-render to match the scaled content. */
 .mini-card-scaler {
   width: 360px;
-  zoom: 0.5;
+  transform: scale(0.5);
+  transform-origin: top left;
   pointer-events: none;
+}
+
+/* Override contain:layout from base card CSS — it interferes with height flow */
+.mini-card-scaler > .card-preview-canvas {
+  contain: style !important;
 }
 
 /* Suppress glow pseudo-element inside mini cards */
@@ -1937,7 +1944,7 @@
   }
 
   .mini-card-scaler {
-    zoom: 0.417; /* 150 / 360 */
+    transform: scale(0.417); /* 150 / 360 */
   }
 }
 

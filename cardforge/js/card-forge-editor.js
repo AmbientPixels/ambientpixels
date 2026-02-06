@@ -1821,8 +1821,8 @@
   function updatePreview() {
     console.log('🎨 Updating card preview with modular system...');
     
-    const front = document.querySelector('.card-front');
-    const back = document.querySelector('.card-back');
+    const front = document.querySelector('.card-preview-zone .card-front');
+    const back = document.querySelector('.card-preview-zone .card-back');
     
     if (!front || !back) {
       console.warn('⚠️ Card preview elements not found');
@@ -2232,7 +2232,7 @@
 
   // ===== FRONT FACE UPDATE =====
   function updateFrontFace(data) {
-    const front = document.querySelector('.card-front');
+    const front = document.querySelector('.card-preview-zone .card-front');
     if (!front) return;
     
     // Generate layout-specific HTML based on modular state
@@ -2490,7 +2490,7 @@
 
   // ===== BACK FACE UPDATE =====
   function updateBackFace(data) {
-    const back = document.querySelector('.card-back');
+    const back = document.querySelector('.card-preview-zone .card-back');
     if (!back) return;
     
     back.innerHTML = `
@@ -3271,8 +3271,8 @@
 
 // ===== HEIGHT EQUALIZATION FOR CARD PREVIEW (added by Cascade) =====
 function setEqualCardHeight() {
-  const front = document.querySelector('.card-front');
-  const back = document.querySelector('.card-back');
+  const front = document.querySelector('.card-preview-zone .card-front');
+  const back = document.querySelector('.card-preview-zone .card-back');
   if (!front || !back) return;
   // Reset heights first
   front.style.height = '';
