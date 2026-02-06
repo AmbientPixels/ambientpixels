@@ -820,19 +820,27 @@ const resp = await fetch(loadUrl, {
       return;
     }
 
-    // Render mini cards
+    // Render mini cards — scaled-down replicas of the full card preview
     const fallbackSvg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjI4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
     myCardsList.innerHTML = savedCards.map(card => {
-      const cardImage = card.cardData?.avatar || card.avatar || '';
-      const cardName = card.cardData?.name || card.name || 'Untitled Card';
-      const characterClass = card.cardData?.characterClass || card.characterClass || '';
-      const rarity = card.cardData?.rarity || card.rarity || '';
-      const isPublished = card.isPublished || card.published || card.cardData?.published || card.cardData?.isPublished || false;
+      const cd = card.cardData || card;
+      const cardName = cd.name || card.name || 'Untitled Card';
+      const characterClass = cd.characterClass || '';
+      const cardImage = cd.avatar || card.avatar || '';
+      const isPublished = card.isPublished || card.published || cd.published || cd.isPublished || false;
+      const hasRendered = cd.renderedFront && cd.frontClasses;
+
+      // Card preview content: use stored rendered HTML or fall back to image
+      let previewHTML;
+      if (hasRendered) {
+        previewHTML = `<div class="mini-card-preview ${cd.frontClasses}">${cd.renderedFront}</div>`;
+      } else {
+        previewHTML = `<img class="mini-card-img" src="${cardImage}" alt="${cardName}" onerror="this.src='${fallbackSvg}'">`;
+      }
 
       return `
         <div class="mini-card" data-card-id="${card.id}" title="${cardName}">
-          <img class="mini-card-img" src="${cardImage}" alt="${cardName}" onerror="this.src='${fallbackSvg}'">
-          ${rarity ? `<span class="mini-card-rarity ${rarity.toLowerCase()}">${rarity}</span>` : ''}
+          ${previewHTML}
           ${isPublished ? '<span class="mini-card-published" title="Published"></span>' : ''}
           <div class="mini-card-label">
             ${cardName}
@@ -905,20 +913,27 @@ const resp = await fetch(loadUrl, {
       const adminIds = window._config?.adminUserIds || [];
       const isAdmin = currentUserId && adminIds.includes(currentUserId);
 
-      // Render mini cards for gallery
+      // Render mini cards for gallery — scaled-down replicas
       const fallbackSvg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjI4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
       galleryGrid.innerHTML = galleryCards.map(card => {
-        const cardImage = card.cardData?.avatar || card.avatar || card.image || '';
-        const cardName = card.cardData?.name || card.name || 'Untitled Card';
-        const characterClass = card.cardData?.characterClass || card.characterClass || '';
-        const rarity = card.cardData?.rarity || card.rarity || '';
+        const cd = card.cardData || card;
+        const cardName = cd.name || card.name || 'Untitled Card';
+        const characterClass = cd.characterClass || card.characterClass || '';
+        const cardImage = cd.avatar || card.avatar || card.image || '';
         const publishedBy = card.publishedBy || card.userId || 'Anonymous';
         const canRemove = isAdmin || (currentUserId && publishedBy === currentUserId);
+        const hasRendered = cd.renderedFront && cd.frontClasses;
+
+        let previewHTML;
+        if (hasRendered) {
+          previewHTML = `<div class="mini-card-preview ${cd.frontClasses}">${cd.renderedFront}</div>`;
+        } else {
+          previewHTML = `<img class="mini-card-img" src="${cardImage}" alt="${cardName}" onerror="this.src='${fallbackSvg}'">`;
+        }
 
         return `
           <div class="mini-card" data-card-id="${card.id}" title="${cardName}">
-            <img class="mini-card-img" src="${cardImage}" alt="${cardName}" onerror="this.src='${fallbackSvg}'">
-            ${rarity ? `<span class="mini-card-rarity ${rarity.toLowerCase()}">${rarity}</span>` : ''}
+            ${previewHTML}
             <div class="mini-card-label">
               ${cardName}
               ${characterClass ? `<span class="mini-card-class">${characterClass}</span>` : ''}

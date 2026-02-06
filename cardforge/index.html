@@ -1175,31 +1175,31 @@
   <!-- Lightbox — Gallery Card Viewer -->
   <div id="cardforge-lightbox">
     <div class="lightbox-inner">
-      <div class="lightbox-header">
+      <button id="lightbox-close" class="lightbox-btn close-btn" title="Close (Esc)">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="lightbox-card-toolbar">
         <span id="lightbox-card-title" class="lightbox-card-title"></span>
-        <div class="lightbox-controls">
-          <span id="lightbox-counter" class="lightbox-counter"></span>
-          <button id="lightbox-share" class="lightbox-btn share-btn" title="Copy Share Link">
-            <i class="fas fa-share-alt"></i>
-          </button>
-          <button id="lightbox-flip" class="lightbox-btn flip-btn" title="Flip Card (F)">
-            <i class="fas fa-sync-alt"></i>
-          </button>
-          <button id="lightbox-close" class="lightbox-btn close-btn" title="Close (Esc)">
-            <i class="fas fa-times"></i>
+        <span id="lightbox-counter" class="lightbox-counter"></span>
+        <button id="lightbox-share" class="lightbox-btn share-btn" title="Copy Share Link">
+          <i class="fas fa-share-alt"></i>
+        </button>
+        <button id="lightbox-flip" class="lightbox-btn flip-btn" title="Flip Card (F)">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      </div>
+      <div class="lightbox-card-row">
+        <div class="lightbox-nav prev">
+          <button id="lightbox-prev" class="lightbox-btn" title="Previous (←)">
+            <i class="fas fa-chevron-left"></i>
           </button>
         </div>
-      </div>
-      <div class="lightbox-nav prev">
-        <button id="lightbox-prev" class="lightbox-btn" title="Previous (←)">
-          <i class="fas fa-chevron-left"></i>
-        </button>
-      </div>
-      <div id="lightbox-card-container"></div>
-      <div class="lightbox-nav next">
-        <button id="lightbox-next" class="lightbox-btn" title="Next (→)">
-          <i class="fas fa-chevron-right"></i>
-        </button>
+        <div id="lightbox-card-container"></div>
+        <div class="lightbox-nav next">
+          <button id="lightbox-next" class="lightbox-btn" title="Next (→)">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
       </div>
     </div>
   </div>
