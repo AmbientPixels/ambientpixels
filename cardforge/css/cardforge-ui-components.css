@@ -1761,6 +1761,7 @@
 #gallery-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, 180px);
+  align-items: start;
   gap: 1rem;
   padding: 0.75rem 0;
 }
@@ -1796,9 +1797,10 @@
   pointer-events: none;
 }
 
-/* Override contain:layout from base card CSS — it interferes with height flow */
+/* Override base card CSS inside mini cards */
 .mini-card-scaler > .card-preview-canvas {
   contain: style !important;
+  min-height: 504px !important; /* 360 × 7/5 = 504 — fills the 5:7 container when scaled */
 }
 
 /* Suppress glow pseudo-element inside mini cards */
