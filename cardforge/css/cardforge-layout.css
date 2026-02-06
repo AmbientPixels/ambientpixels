@@ -17,18 +17,18 @@
   box-sizing: border-box;
 }
 
-/* Left column (form pane) */
+/* Left column (form pane) — ~55% of viewport */
 .cf-left-column {
-  flex: 1 1 66%;
+  flex: 1 1 55%;
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-/* Right column (preview pane) — sized to fixed card width */
+/* Right column (preview pane) — ~45%, sized to canonical card width */
 .right-column {
   flex: 0 0 auto;
-  width: calc(360px + 3rem + 4px); /* card 360 + preview-zone padding/border + column padding/border */
+  width: calc(var(--card-width) + 3rem + 4px); /* card width + preview-zone padding/border + column padding/border */
   align-self: flex-start;
   display: flex;
   flex-direction: column;
@@ -55,7 +55,7 @@
 
 /* Fixed card width — same in preview and lightbox for pixel-perfect match */
 .card-preview-zone .card-preview-canvas {
-  max-width: 360px;
+  max-width: var(--card-width);
   width: 100%;
   margin: 0 auto;
 }

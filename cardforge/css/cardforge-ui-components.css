@@ -1760,7 +1760,7 @@
 .my-cards-list,
 #gallery-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 180px);
+  grid-template-columns: repeat(auto-fill, var(--mini-card-width));
   align-items: start;
   gap: 1rem;
   padding: 0.75rem 0;
@@ -1769,8 +1769,8 @@
 /* --- Mini card tile — half-size replica of the full card preview --- */
 .mini-card {
   position: relative;
-  width: 180px;
-  height: 252px; /* 504px card × 0.5 scale */
+  width: var(--mini-card-width);
+  height: var(--mini-card-height);
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
@@ -1785,21 +1785,21 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 12px rgba(0, 212, 255, 0.2);
 }
 
-/* Scaler wrapper — renders card at full 360px, then transform:scale(0.5)
-   shrinks it visually. ResizeObserver sets parent height via JS. */
+/* Scaler wrapper — renders card at full canonical width, then scales down.
+   Parent .mini-card has fixed height matching the scaled card. */
 .mini-card-scaler {
   position: absolute;
   top: 0;
   left: 0;
-  width: 360px;
-  transform: scale(0.5);
+  width: var(--card-width);
+  transform: scale(var(--mini-card-scale));
   transform-origin: top left;
   pointer-events: none;
 }
 
-/* Force uniform card height inside mini cards — matches 5:7 trading card ratio */
+/* Force uniform card height inside mini cards — matches canonical card ratio */
 .mini-card-scaler > .card-preview-canvas {
-  height: 504px !important;
+  height: var(--card-height) !important;
   overflow: hidden !important;
 }
 
@@ -1950,11 +1950,11 @@
 
   .mini-card {
     width: 150px;
-    height: 210px; /* 504px card × 0.417 scale */
+    height: 210px; /* 560px card × 0.375 scale */
   }
 
   .mini-card-scaler {
-    transform: scale(0.417); /* 150 / 360 */
+    transform: scale(0.375); /* 150 / 400 */
   }
 }
 
@@ -2079,9 +2079,9 @@
   font-size: 1.2rem;
 }
 
-/* Card container — fixed width matching the editor preview (360px) */
+/* Card container — fixed width matching the editor preview */
 #lightbox-card-container {
-  width: 360px;
+  width: var(--card-width);
   max-width: 100%;
   z-index: 1;
 }
@@ -2108,7 +2108,7 @@
   width: 100%;
   backface-visibility: hidden;
   transform-origin: center center;
-  height: 504px; /* Fixed 5:7 card ratio — matches mini cards */
+  height: var(--card-height); /* Fixed canonical card ratio */
   overflow: hidden;
   box-sizing: border-box;
 }

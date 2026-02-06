@@ -4,6 +4,18 @@
  * Created: 2025-08-03
  */
 
+/* Canonical card dimensions — single source of truth for all contexts
+   Ratio: 1 : 1.4  (real-world collectible card proportions)
+   Contexts: live preview, lightbox, mini cards, gallery */
+:root {
+  --card-width: 400px;
+  --card-height: 560px;
+  --card-ratio: 1 / 1.4;
+  --mini-card-scale: 0.45;  /* 400 × 0.45 = 180px wide */
+  --mini-card-width: 180px;
+  --mini-card-height: 252px; /* 560 × 0.45 */
+}
+
 /* Basic card container - will be extended by modular system */
 .card-preview-canvas {
   position: relative;

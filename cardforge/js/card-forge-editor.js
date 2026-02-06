@@ -3271,15 +3271,6 @@
 
 // ===== HEIGHT EQUALIZATION FOR CARD PREVIEW (added by Cascade) =====
 function setEqualCardHeight() {
-  const front = document.querySelector('.card-preview-zone .card-front');
-  const back = document.querySelector('.card-preview-zone .card-back');
-  if (!front || !back) return;
-  // Reset heights first
-  front.style.height = '';
-  back.style.height = '';
-  // Get computed heights
-  const frontHeight = front.offsetHeight;
-  const backHeight = back.offsetHeight;
-  const maxHeight = Math.max(frontHeight, backHeight);
-  front.style.height = back.style.height = maxHeight + 'px';
+  // Card height is now enforced by CSS via --card-height (canonical card dimensions).
+  // This function is kept as a no-op for backward compatibility with callers.
 }

@@ -111,6 +111,12 @@
   transform: rotateY(180deg);
 }
 
+/* Live preview: enforce canonical card height — no silent auto-expand */
+.card-preview-zone .card-front,
+.card-preview-zone .card-back {
+  height: var(--card-height);
+  overflow: hidden;
+}
 
 .palette-level:last-child {
   margin-bottom: 0;
