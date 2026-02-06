@@ -501,6 +501,8 @@ class CardForgeActions {
         const idField = document.getElementById('card-id'); /* updated by Cascade */
         if (idField) idField.value = cardData.id;               /* updated by Cascade */
         window.publishCard();
+        // Clear card-id immediately — publishCard() already captured it
+        if (idField) idField.value = '';
         
         // Mark card as published
         cardData.published = true;
@@ -1070,6 +1072,8 @@ const resp = await fetch(loadUrl, {
         const idField = document.getElementById('card-id'); /* updated by Cascade */
         if (idField) idField.value = card.id;               /* updated by Cascade */
         window.publishCard();
+        // Clear card-id immediately — publishCard() already captured it
+        if (idField) idField.value = '';
         // Note: Success modal and status update handled by cardforge-publish.js
       } else {
         this.showNotification('Publish functionality not available', 'error');
