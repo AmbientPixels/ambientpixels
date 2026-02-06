@@ -899,6 +899,8 @@
   }
   
   // ===== RANDOM CARD GENERATOR =====
+  let _lastRandomImage = ''; // Track last image to avoid repeats
+
   function rollRandomCard() {
     console.log('🎲 Rolling a completely random card...');
     
@@ -977,19 +979,15 @@
     // Update UI elements to reflect new random selections
     updateUIElementsFromState();
     
-    // Generate random character data
+    // Generate random character data (name, class, rarity, quote, stats, badges, attributes, bio)
     generateRandomCharacterData();
     
-    // Only randomize avatar if not already set
-    const cardAvatarInput = document.getElementById('card-avatar');
-    if (cardAvatarInput && !cardAvatarInput.value) {
-      generateRandomImage();
-    }
-    
-    // Update preview with new random settings (same as page load)
-    updatePreview();
-    
-    console.log('✨ Random card rolled successfully!');
+    // Always randomize artwork on every roll — fetch then update preview
+    generateRandomImage().then(() => {
+      updatePreview();
+      restartStatBarAnimations();
+      console.log('✨ Random card rolled successfully!');
+    });
   }
   
   // ===== UI ELEMENTS UPDATE FOR RANDOM CARD =====
@@ -1045,8 +1043,10 @@
   
   // ===== RANDOM CHARACTER DATA GENERATOR =====
   function generateRandomCharacterData() {
-    const randomNames = ['Aria Shadowbane', 'Zara-7', 'Marcus Ironforge', 'Luna Starweaver', 'Kai Stormrider', 'Nova Brightblade', 'Rex Cyberpunk', 'Sage Moonwhisper'];
-    const randomClasses = ['Rogue Assassin', 'Cyberpunk Runner', 'Arcane Scholar', 'Space Marine', 'Fantasy Ranger', 'Tech Specialist', 'Mystic Warrior', 'Shadow Operative'];
+    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+    const randomNames = ['Aria Shadowbane', 'Zara-7', 'Marcus Ironforge', 'Luna Starweaver', 'Kai Stormrider', 'Nova Brightblade', 'Rex Cyberpunk', 'Sage Moonwhisper', 'Titan Guardian', 'Vex Nightshade', 'Orion Blaze', 'Lyra Frostwind'];
+    const randomClasses = ['Rogue Assassin', 'Cyberpunk Runner', 'Arcane Scholar', 'Space Marine', 'Fantasy Ranger', 'Tech Specialist', 'Mystic Warrior', 'Shadow Operative', 'Void Walker', 'Chrono Mage', 'Neon Samurai', 'Bio-Engineer'];
     const randomRarities = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
     const randomQuotes = [
       'Shadows are my allies, silence my weapon.',
@@ -1056,28 +1056,95 @@
       'Nature guides my arrows.',
       'Technology is my sword.',
       'Magic flows through all things.',
-      'Stealth is my greatest asset.'
+      'Stealth is my greatest asset.',
+      'The void whispers, and I answer.',
+      'Time bends to my will.',
+      'Every circuit tells a story.',
+      'Born from starlight, forged in fire.'
+    ];
+    const randomBios = [
+      'A wanderer from the outer rim, shaped by conflict and driven by an unshakable code of honor.',
+      'Once a street-level hacker, now a legend in the underground resistance networks.',
+      'Trained in the ancient arts since childhood, wielding power few can comprehend.',
+      'A decorated veteran of the Galactic Wars, seeking redemption in the frontier.',
+      'Emerged from the digital void with memories of a thousand simulated lifetimes.',
+      'Last survivor of a forgotten order, carrying secrets that could reshape reality.',
+      'A prodigy of bio-mechanical fusion, blurring the line between flesh and machine.',
+      'Guardian of the threshold between worlds, sworn to maintain the cosmic balance.'
+    ];
+    const badgePool = [
+      { category: 'Combat', icon: 'fire', description: 'Battle-hardened warrior' },
+      { category: 'Stealth', icon: 'shield', description: 'Master of shadows' },
+      { category: 'Leadership', icon: 'crown', description: 'Born to lead' },
+      { category: 'Arcane', icon: 'gem', description: 'Wielder of ancient magic' },
+      { category: 'Tech', icon: 'bolt', description: 'Digital pioneer' },
+      { category: 'Honor', icon: 'medal', description: 'Decorated hero' },
+      { category: 'Valor', icon: 'trophy', description: 'Proven in battle' },
+      { category: 'Precision', icon: 'target', description: 'Never misses' },
+      { category: 'Heart', icon: 'heart', description: 'Compassionate soul' },
+      { category: 'Legend', icon: 'star', description: 'Known across galaxies' }
+    ];
+    const attributePool = [
+      { name: 'Origin', values: ['Earth', 'Mars Colony', 'Void Station', 'Neon City', 'Arcane Realm', 'Deep Space'] },
+      { name: 'Faction', values: ['Rebel Alliance', 'Shadow Guild', 'Tech Union', 'Arcane Order', 'Free Agents', 'Void Walkers'] },
+      { name: 'Weapon', values: ['Plasma Blade', 'Arcane Staff', 'Twin Daggers', 'Rail Cannon', 'Energy Bow', 'Void Gauntlets'] },
+      { name: 'Rank', values: ['Initiate', 'Adept', 'Veteran', 'Commander', 'Grandmaster', 'Ascended'] },
+      { name: 'Element', values: ['Fire', 'Ice', 'Lightning', 'Shadow', 'Light', 'Void'] },
+      { name: 'Era', values: ['Ancient', 'Modern', 'Futuristic', 'Timeless', 'Post-Apocalyptic', 'Mythic'] }
     ];
     
     // Set random basic info
-    document.getElementById('card-name').value = randomNames[Math.floor(Math.random() * randomNames.length)];
-    document.getElementById('card-class').value = randomClasses[Math.floor(Math.random() * randomClasses.length)];
-    document.getElementById('card-rarity').value = randomRarities[Math.floor(Math.random() * randomRarities.length)];
-    document.getElementById('card-quote').value = randomQuotes[Math.floor(Math.random() * randomQuotes.length)];
-    
-    // Clear and generate random stats
-    clearAllDynamicRows();
-    const statNames = ['Strength', 'Agility', 'Intelligence', 'Stealth', 'Magic', 'Tech'];
-    const numStats = Math.floor(Math.random() * 4) + 3; // 3-6 stats
-    for (let i = 0; i < numStats; i++) {
-      const statName = statNames[Math.floor(Math.random() * statNames.length)];
-      const statValue = Math.floor(Math.random() * 100) + 1;
-      const statsContainer = document.getElementById('stats-editor');
-      const newRow = createStatRow(statName, statValue);
-      statsContainer.appendChild(newRow);
+    document.getElementById('card-name').value = pick(randomNames);
+    document.getElementById('card-class').value = pick(randomClasses);
+    document.getElementById('card-rarity').value = pick(randomRarities);
+    document.getElementById('card-quote').value = pick(randomQuotes);
+
+    // Set random biography
+    const bioField = document.getElementById('card-bio');
+    if (bioField) {
+      bioField.value = pick(randomBios);
     }
     
-    console.log(`🎲 Generated ${numStats} random stats`);
+    // Clear all dynamic rows (stats, badges, attributes)
+    clearAllDynamicRows();
+
+    // Generate random stats (3-6)
+    const statNames = ['Strength', 'Agility', 'Intelligence', 'Stealth', 'Magic', 'Tech', 'Charisma', 'Endurance'];
+    const numStats = Math.floor(Math.random() * 4) + 3;
+    const statsContainer = document.getElementById('stats-editor');
+    if (statsContainer) {
+      const usedStats = [];
+      for (let i = 0; i < numStats; i++) {
+        let statName;
+        do { statName = pick(statNames); } while (usedStats.includes(statName) && usedStats.length < statNames.length);
+        usedStats.push(statName);
+        const statValue = Math.floor(Math.random() * 80) + 20; // 20-99 range
+        statsContainer.appendChild(createStatRow(statName, statValue));
+      }
+    }
+
+    // Generate random badges (2-5)
+    const numBadges = Math.floor(Math.random() * 4) + 2;
+    const badgesContainer = document.getElementById('micro-editor');
+    if (badgesContainer) {
+      const shuffledBadges = [...badgePool].sort(() => Math.random() - 0.5).slice(0, numBadges);
+      shuffledBadges.forEach(badge => {
+        const quantity = Math.floor(Math.random() * 3) + 1; // 1-3
+        badgesContainer.appendChild(createBadgeRow(badge.category, badge.icon, badge.description, quantity));
+      });
+    }
+
+    // Generate random attributes (2-4)
+    const numAttrs = Math.floor(Math.random() * 3) + 2;
+    const attributesContainer = document.getElementById('attribute-editor');
+    if (attributesContainer) {
+      const shuffledAttrs = [...attributePool].sort(() => Math.random() - 0.5).slice(0, numAttrs);
+      shuffledAttrs.forEach(attr => {
+        attributesContainer.appendChild(createAttributeRow(attr.name, pick(attr.values)));
+      });
+    }
+    
+    console.log(`🎲 Generated random character: ${numStats} stats, ${numBadges} badges, ${numAttrs} attributes`);
   }
   
   // ===== RANDOM IMAGE GENERATOR =====
@@ -1087,8 +1154,12 @@
       .then(res => res.json())
       .then(images => {
         if (images && images.length > 0) {
-          const randomIndex = Math.floor(Math.random() * images.length);
-          const randomImage = images[randomIndex];
+          // Avoid repeating the same image two rolls in a row
+          let candidates = images.length > 1
+            ? images.filter(img => img !== _lastRandomImage)
+            : images;
+          const randomImage = candidates[Math.floor(Math.random() * candidates.length)];
+          _lastRandomImage = randomImage;
           
           // Set the random image as the card avatar
           const cardAvatarInput = document.getElementById('card-avatar');
@@ -1096,10 +1167,12 @@
             cardAvatarInput.value = randomImage;
             console.log(`🖼️ Random image selected: ${randomImage}`);
             
-            // Clear any gallery selections
+            // Highlight matching gallery thumbnail if visible
             const inlineImageGrid = document.getElementById('inline-image-grid');
             if (inlineImageGrid) {
-              inlineImageGrid.querySelectorAll('img').forEach(img => img.classList.remove('selected'));
+              inlineImageGrid.querySelectorAll('img').forEach(img => {
+                img.classList.toggle('selected', img.src.endsWith(randomImage));
+              });
             }
           }
         }
@@ -1203,6 +1276,7 @@
     console.log(`🔄 Updating preview...`);
     try {
       updatePreview();
+      restartStatBarAnimations();
       console.log(`✅ updatePreview completed`);
     } catch (error) {
       console.error(`❌ Error in updatePreview:`, error);
@@ -2209,6 +2283,21 @@
     
     console.log('⚡ Collected attributes (including biography):', attributes);
     return attributes;
+  }
+
+  // ===== RESTART STAT BAR ANIMATIONS (called after roll/preset) =====
+  function restartStatBarAnimations() {
+    // Scope to preview zone only — reset all bars then re-trigger staggered animation
+    const bars = document.querySelectorAll('.card-preview-zone .stat-progress');
+    bars.forEach(bar => {
+      bar.classList.remove('animate');
+      bar.style.width = '0';
+    });
+    setTimeout(() => {
+      bars.forEach((bar, i) => {
+        setTimeout(() => bar.classList.add('animate'), i * 200 + 100);
+      });
+    }, 50);
   }
 
   // ===== ANIMATED STAT BARS =====
