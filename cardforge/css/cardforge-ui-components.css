@@ -1770,6 +1770,7 @@
 .mini-card {
   position: relative;
   width: 180px;
+  height: 252px; /* 504px card × 0.5 scale */
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
@@ -1794,6 +1795,12 @@
   transform: scale(0.5);
   transform-origin: top left;
   pointer-events: none;
+}
+
+/* Force uniform card height inside mini cards — matches 5:7 trading card ratio */
+.mini-card-scaler > .card-preview-canvas {
+  height: 504px !important;
+  overflow: hidden !important;
 }
 
 /* Suppress glow pseudo-element inside mini cards */
@@ -1943,6 +1950,7 @@
 
   .mini-card {
     width: 150px;
+    height: 210px; /* 504px card × 0.417 scale */
   }
 
   .mini-card-scaler {
