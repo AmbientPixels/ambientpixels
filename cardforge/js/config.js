@@ -22,6 +22,9 @@ window._config = {
   appInsightsConnectionString: '',
   enableAppInsights: false,
   
+  // Admin userIds — users who can remove any card from the gallery
+  adminUserIds: ['5bb115c5-9077-4049-8af0-ce5085a9c315'],
+
   // Debug settings - Always off in production
   debug: false,
   version: 'v2.2',

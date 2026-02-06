@@ -895,6 +895,13 @@ const resp = await fetch(loadUrl, {
         return;
       }
       
+      // Determine current user for owner/admin checks
+      const currentUserId = (() => {
+        try { return JSON.parse(sessionStorage.getItem('userInfo') || '{}').userId || null; } catch { return null; }
+      })();
+      const adminIds = window._config?.adminUserIds || [];
+      const isAdmin = currentUserId && adminIds.includes(currentUserId);
+
       // Render published cards
       galleryGrid.innerHTML = galleryCards.map(card => {
         const cardImage = card.cardData?.avatar || card.avatar || card.image || '';
@@ -904,6 +911,7 @@ const resp = await fetch(loadUrl, {
         const quote = card.cardData?.quote || card.quote || '';
         const publishedBy = card.publishedBy || card.userId || 'Anonymous';
         const publishedAt = card.publishedAt ? new Date(card.publishedAt).toLocaleDateString() : '';
+        const canRemove = isAdmin || (currentUserId && publishedBy === currentUserId);
         
         return `
           <div class="gallery-card-item" data-card-id="${card.id}">
@@ -918,6 +926,12 @@ const resp = await fetch(loadUrl, {
               <div class="gallery-card-meta">
                 ${publishedAt ? `<span class="gallery-published-date">📅 ${publishedAt}</span>` : ''}
               </div>
+              ${canRemove ? `
+              <div class="gallery-card-actions">
+                <button class="card-action-btn delete" type="button" onclick="cardForgeActions.removeFromGallery('${card.id}')" title="Remove from Gallery">
+                  <i class="fas fa-trash"></i> Remove
+                </button>
+              </div>` : ''}
             </div>
           </div>
         `;
@@ -932,6 +946,36 @@ const resp = await fetch(loadUrl, {
           <small>${e.message}</small>
         </div>
       `;
+    }
+  }
+
+  // Remove a card from the public gallery (published-cards.json)
+  async removeFromGallery(cardId) {
+    const doRemove = async () => {
+      try {
+        const deleteUrl = window.buildApiPath('deleteCard');
+        const resp = await fetch(deleteUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: cardId })
+        });
+        if (resp.ok) {
+          this.showNotification('Card removed from gallery', 'success');
+          this.refreshGallery();
+          this.refreshMyCardsList();
+        } else {
+          this.showNotification('Failed to remove card', 'error');
+        }
+      } catch (e) {
+        console.error('Remove from gallery failed:', e);
+        this.showNotification('Failed to remove card', 'error');
+      }
+    };
+    const dialogFn = (window.UIUtils && window.UIUtils.showConfirmDialog) || null;
+    if (dialogFn) {
+      dialogFn('Remove from Gallery', 'Are you sure you want to remove this card from the public gallery? This cannot be undone.', doRemove);
+    } else if (confirm('Remove this card from the gallery?')) {
+      doRemove();
     }
   }
 
