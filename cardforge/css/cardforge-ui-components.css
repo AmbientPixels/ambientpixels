@@ -1768,6 +1768,7 @@
 /* --- Mini card tile — scaled-down replica of the full card --- */
 .mini-card {
   position: relative;
+  width: 100%;
   aspect-ratio: 5 / 7;
   border-radius: 8px;
   overflow: hidden;
@@ -1783,14 +1784,22 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 12px rgba(0, 212, 255, 0.2);
 }
 
-/* Scaled card preview — rendered at 360px, shrunk via transform to fit container */
-.mini-card-preview {
-  position: absolute;
+/* Scaled card preview — rendered at 360px, shrunk via transform to fit container.
+   Higher specificity selector overrides .card-preview-canvas base styles. */
+.mini-card > .mini-card-preview {
+  position: absolute !important;
   top: 0;
   left: 0;
-  width: 360px;
+  width: 360px !important;
+  max-width: none !important;
+  min-height: 504px;
   transform-origin: top left;
   pointer-events: none;
+  box-sizing: border-box;
+}
+
+.mini-card > .mini-card-preview::before {
+  display: none !important;
 }
 
 /* Name label overlay at bottom */
