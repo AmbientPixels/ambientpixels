@@ -2154,10 +2154,10 @@
   font-size: 1.3rem;
 }
 
-/* Card container — match right-side editor preview */
+/* Card container — fixed width matching the editor preview (360px) */
 #lightbox-card-container {
-  width: 100%;
-  max-width: 420px;
+  width: 360px;
+  max-width: 100%;
   z-index: 1;
 }
 

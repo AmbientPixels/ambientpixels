@@ -23,9 +23,10 @@
   gap: 1rem;
 }
 
-/* Right column (preview pane) */
+/* Right column (preview pane) — sized to fixed card width */
 .right-column {
-  flex: 0 0 33%;
+  flex: 0 0 auto;
+  width: calc(360px + 1.5rem + 2px); /* card width + padding + border */
   align-self: flex-start;
   display: flex;
   flex-direction: column;
@@ -36,19 +37,25 @@
   border: 1px solid var(--mood-accent-color, #4a4a6a);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   box-sizing: border-box;
-  max-width: 33%;
 }
 
 /* Card preview wrapper - non-sticky implementation */
 .card-preview-zone {
   position: relative;
-  z-index: 100; /* Increased z-index to ensure it's above other elements */
+  z-index: 100;
   background: var(--aura-bg-color, #1a1a2e);
   border-radius: 8px;
   padding: 0.75rem;
   border: 1px solid var(--mood-accent-color, #4a4a6a);
   width: 100%;
   box-sizing: border-box;
+}
+
+/* Fixed card width — same in preview and lightbox for pixel-perfect match */
+.card-preview-zone .card-preview-canvas {
+  width: 360px;
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 /* Drag divider for resizing panes */
@@ -70,9 +77,14 @@
     flex-direction: column;
   }
   
-  .cf-left-column,
+  .cf-left-column {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+
   .right-column {
     flex: 1 1 100%;
+    width: 100%;
     max-width: 100%;
   }
   
