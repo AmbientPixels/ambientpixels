@@ -312,8 +312,9 @@ class CardForgeActions {
       }
     };
 
-    if (typeof showConfirmDialog === 'function') {
-      showConfirmDialog(
+    const dialogFn = (window.UIUtils && window.UIUtils.showConfirmDialog) || (typeof showConfirmDialog === 'function' ? showConfirmDialog : null);
+    if (dialogFn) {
+      dialogFn(
         'Update Published Card',
         `"${cardName}" is published in the gallery. Would you like to re-publish with your changes?`,
         doRepublish
