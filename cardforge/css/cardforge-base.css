@@ -634,7 +634,20 @@
   width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* Relaxed badge labels — 2-line when ≤3 badges, more room per badge */
+.badges-container[data-badge-count="1"] .badge-label,
+.badges-container[data-badge-count="2"] .badge-label,
+.badges-container[data-badge-count="3"] .badge-label {
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .badge-count {

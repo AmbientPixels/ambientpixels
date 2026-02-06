@@ -32,6 +32,12 @@
   
   // Make ModularState globally accessible for event handlers
   window.ModularState = ModularState;
+
+  // ===== CARD DISPLAY CAPS =====
+  const STAT_CAP = 5;        // Max visible stats on card face
+  const SOCIAL_CAP = 5;      // Max visible social icons on card face
+  const BADGE_CAP = 6;       // 2 rows × 3 columns — overflow gets "+N" indicator
+  const ATTRIBUTE_CAP = 6;   // Max visible attributes on card face
   
   // ===== PRESET CONFIGURATIONS =====
   const PresetConfigurations = {
@@ -538,6 +544,15 @@
     
     removeBtn.addEventListener('click', function() {
       socialRow.remove();
+      // Re-enable Add Social button if under cap
+      const addSocialBtn = document.getElementById('add-social-btn');
+      if (addSocialBtn) {
+        const remaining = document.querySelectorAll('#social-editor .social-row').length;
+        if (remaining < SOCIAL_CAP) {
+          addSocialBtn.classList.remove('disabled');
+          addSocialBtn.title = '';
+        }
+      }
       updatePreview();
     });
     
@@ -656,6 +671,15 @@
     
     removeBtn.addEventListener('click', function() {
       attributeRow.remove();
+      // Re-enable Add Attribute button if under cap
+      const addAttributeBtn = document.getElementById('add-attribute-btn');
+      if (addAttributeBtn) {
+        const remaining = document.querySelectorAll('#attribute-editor .attribute-row').length;
+        if (remaining < ATTRIBUTE_CAP) {
+          addAttributeBtn.classList.remove('disabled');
+          addAttributeBtn.title = '';
+        }
+      }
       updatePreview();
     });
     
@@ -709,9 +733,20 @@
     if (addSocialBtn) {
       addSocialBtn.addEventListener('click', function() {
         const socialContainer = document.getElementById('social-editor');
+        const currentSocials = socialContainer.querySelectorAll('.social-row').length;
+        if (currentSocials >= SOCIAL_CAP) {
+          addSocialBtn.classList.add('disabled');
+          addSocialBtn.title = `Maximum ${SOCIAL_CAP} social links reached`;
+          console.log(`🔗 Social limit reached (${SOCIAL_CAP})`);
+          return;
+        }
         const newSocialRow = createSocialRow();
         socialContainer.appendChild(newSocialRow);
-        console.log('🔗 New social row added');
+        if (currentSocials + 1 >= SOCIAL_CAP) {
+          addSocialBtn.classList.add('disabled');
+          addSocialBtn.title = `Maximum ${SOCIAL_CAP} social links reached`;
+        }
+        console.log(`🔗 New social row added (${currentSocials + 1}/${SOCIAL_CAP})`);
       });
     }
   }
@@ -745,9 +780,20 @@
     if (addAttributeBtn) {
       addAttributeBtn.addEventListener('click', function() {
         const attributesContainer = document.getElementById('attribute-editor');
+        const currentAttrs = attributesContainer.querySelectorAll('.attribute-row').length;
+        if (currentAttrs >= ATTRIBUTE_CAP) {
+          addAttributeBtn.classList.add('disabled');
+          addAttributeBtn.title = `Maximum ${ATTRIBUTE_CAP} attributes reached`;
+          console.log(`⚡ Attribute limit reached (${ATTRIBUTE_CAP})`);
+          return;
+        }
         const newAttributeRow = createAttributeRow();
         attributesContainer.appendChild(newAttributeRow);
-        console.log('⚡ New attribute row added');
+        if (currentAttrs + 1 >= ATTRIBUTE_CAP) {
+          addAttributeBtn.classList.add('disabled');
+          addAttributeBtn.title = `Maximum ${ATTRIBUTE_CAP} attributes reached`;
+        }
+        console.log(`⚡ New attribute row added (${currentAttrs + 1}/${ATTRIBUTE_CAP})`);
       });
     }
   }
@@ -2375,8 +2421,6 @@
   }
 
   // ===== DYNAMIC HTML GENERATORS =====
-  const STAT_CAP = 5; // Max visible stats on card face
-
   function generateStatsHTML(stats) {
     if (!stats || stats.length === 0) {
       return '<div class="no-stats">No stats available</div>';
@@ -2406,8 +2450,6 @@
     return html;
   }
   
-  const SOCIAL_CAP = 5; // Max visible social icons on card face
-
   function generateSocialLinksHTML(socialLinks) {
     if (!socialLinks || socialLinks.length === 0) {
       return '<div class="no-social">No social links available</div>';
@@ -2445,8 +2487,6 @@
     return html;
   }
   
-  const BADGE_CAP = 6; // 2 rows × 3 columns — overflow gets "+N" indicator
-
   function generateBadgesHTML(badges) {
     if (!badges || badges.length === 0) {
       return '<div class="no-badges">No badges available</div>';
@@ -2494,8 +2534,6 @@
     return html;
   }
   
-  const ATTRIBUTE_CAP = 6; // Max visible attributes on card face
-
   function generateAttributesHTML(attributes) {
     if (!attributes || attributes.length === 0) {
       return '<div class="no-attributes">No attributes available</div>';
@@ -2646,6 +2684,8 @@
   function updateBackFace(data) {
     const back = document.querySelector('.card-preview-zone .card-back');
     if (!back) return;
+
+    const badgeCount = data.badges ? Math.min(data.badges.length, BADGE_CAP) : 0;
     
     back.innerHTML = `
     <div class="card-back-content">
@@ -2664,7 +2704,7 @@
         <div class="info-grid">
           <div class="back-section badges-section">
             <h4 class="section-title">Badges & Achievements</h4>
-            <div class="badges-container">
+            <div class="badges-container" data-badge-count="${badgeCount}">
               ${generateBadgesHTML(data.badges)}
             </div>
           </div>
