@@ -202,11 +202,8 @@ class CardForgeActions {
                        (document.body?.getAttribute('data-auth-state') === 'signed-in');
       if (isAuthed) {
         const saveUrl = window.buildApiPath('saveCard');
-// Map characterClass to class for backend compatibility
-        // Construct backend payload with required top-level fields only
-        // Map from full modular schema to backend flat payload
+        // Build backend payload: flat validated fields + full cardData for lightbox rendering
         const cardData = savedCard.cardData;
-        // Support both legacy and modular schema
         let backendPayload;
         if (cardData.cardContent && cardData.cardContent.frontFace) {
           backendPayload = {
@@ -215,7 +212,8 @@ class CardForgeActions {
             class: cardData.cardContent.frontFace.characterClass,
             avatar: cardData.cardContent.frontFace.characterImage?.url || '',
             quote: cardData.cardContent.frontFace.characterDescription || '',
-            achievement: cardData.cardContent.frontFace.achievement || ''
+            achievement: cardData.cardContent.frontFace.achievement || '',
+            cardData: cardData
           };
         } else {
           backendPayload = {
@@ -224,7 +222,8 @@ class CardForgeActions {
             class: cardData.characterClass,
             avatar: cardData.avatar,
             quote: cardData.quote,
-            achievement: cardData.achievement
+            achievement: cardData.achievement,
+            cardData: cardData
           };
         }
         fetch(saveUrl, {
@@ -547,13 +546,17 @@ class CardForgeActions {
       // Capture rendered card HTML from the live preview DOM
       const frontEl = document.querySelector('.card-preview-zone .card-front');
       const backEl = document.querySelector('.card-preview-zone .card-back');
+      console.log('🔍 [CAPTURE] frontEl found:', !!frontEl, 'backEl found:', !!backEl);
       if (frontEl) {
         data.renderedFront = frontEl.innerHTML;
         data.frontClasses = frontEl.className;
+        console.log('🔍 [CAPTURE] frontClasses:', data.frontClasses);
+        console.log('🔍 [CAPTURE] renderedFront length:', data.renderedFront.length);
       }
       if (backEl) {
         data.renderedBack = backEl.innerHTML;
         data.backClasses = backEl.className;
+        console.log('🔍 [CAPTURE] backClasses:', data.backClasses);
       }
 
       console.log('📋 USING PREVIEW JSON DATA:', data);
