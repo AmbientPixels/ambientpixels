@@ -2194,87 +2194,9 @@
   transform: rotateY(180deg);
 }
 
-#lightbox-card-container .card-name {
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin: 0.5rem 0;
-}
-
-#lightbox-card-container .card-class {
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  opacity: 0.85;
-}
-
-#lightbox-card-container .card-quote {
-  font-style: italic;
-  opacity: 0.9;
-  margin: 0.75rem 0;
-  font-size: 0.9rem;
-}
-
-#lightbox-card-container .card-rarity {
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-#lightbox-card-container .card-avatar {
-  width: 100%;
-  max-height: 220px;
-  object-fit: cover;
-  display: block;
-}
-
-#lightbox-card-container .hero-image-container {
-  position: relative;
-  overflow: hidden;
-  border-radius: 8px;
-  margin: -1rem -1rem 1rem -1rem;
-}
-
-#lightbox-card-container .hero-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 1rem;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
-}
-
-#lightbox-card-container .hero-overlay .card-name {
-  color: #fff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-  margin: 0;
-}
-
-#lightbox-card-container .card-body {
-  padding: 0.5rem 0;
-}
-
-#lightbox-card-container .stat-item {
-  margin-bottom: 0.5rem;
-}
-
-#lightbox-card-container .stat-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  margin-bottom: 0.25rem;
-}
-
-#lightbox-card-container .stat-bar {
-  height: 8px;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-#lightbox-card-container .stat-progress {
-  height: 100%;
-  border-radius: 4px;
-}
+/* Card element styling is handled by the stored modular CSS classes
+   (palette, container, alignment, effects) from cardforge-card.css.
+   Only override sizing constraints specific to the lightbox viewport. */
 
 /* Responsive */
 @media (max-width: 768px) {
