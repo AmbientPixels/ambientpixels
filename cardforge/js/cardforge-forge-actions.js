@@ -186,7 +186,6 @@ class CardForgeActions {
       
       // Reuse existing card ID when editing, otherwise generate new one
       const cardId = existingCard ? existingCard.id : this.generateCardId();
-      if (idField) idField.value = cardId;
       
       const savedCard = {
         id: cardId,
@@ -242,18 +241,9 @@ class CardForgeActions {
           if (existingIndex >= 0) savedCards[existingIndex] = savedCard;
           else savedCards.unshift(savedCard);
           localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
+          // Clear card-id so the next save creates a new card
+          if (idField) idField.value = '';
           this.refreshMyCardsList();
-          // If this was a published card, offer to re-publish with updated content
-          const wasPublished = (existingCard && existingCard.isPublished) ||
-            (this._publishedCardIds && this._publishedCardIds.has(cardId));
-          if (wasPublished) {
-            this._promptRepublish(cardId, savedCard.name);
-          } else {
-            setTimeout(() => {
-              if (typeof showSavedCardsModal === 'function') showSavedCardsModal();
-              else if (window.showSavedCardsModal) window.showSavedCardsModal();
-            }, 250);
-          }
         })
         .catch(() => {
           // Cloud failed — fall back to local
@@ -266,11 +256,9 @@ class CardForgeActions {
             this.showNotification(`Card "${savedCard.name}" saved locally`, 'warning');
           }
           localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
+          // Clear card-id so the next save creates a new card
+          if (idField) idField.value = '';
           this.refreshMyCardsList();
-          setTimeout(() => {
-            if (typeof showSavedCardsModal === 'function') showSavedCardsModal();
-            else if (window.showSavedCardsModal) window.showSavedCardsModal();
-          }, 250);
         });
       } else {
         // Signed-out experience: local-only save
@@ -283,11 +271,9 @@ class CardForgeActions {
           this.showNotification(`Card "${savedCard.name}" saved locally (sign in to sync)`, 'info');
         }
         localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
+        // Clear card-id so the next save creates a new card
+        if (idField) idField.value = '';
         this.refreshMyCardsList();
-        setTimeout(() => {
-          if (typeof showSavedCardsModal === 'function') showSavedCardsModal();
-          else if (window.showSavedCardsModal) window.showSavedCardsModal();
-        }, 250);
       }
       
     } catch (error) {
