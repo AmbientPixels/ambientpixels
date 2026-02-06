@@ -1784,18 +1784,16 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 12px rgba(0, 212, 255, 0.2);
 }
 
-/* Scaler wrapper — zoom affects BOTH visual AND layout sizing.
-   Renders card at 360px, zoom:0.5 shrinks to 180px in layout,
-   and the parent auto-sizes to the zoomed height. No clipping. */
+/* Scaler wrapper — renders card at full 360px, then transform:scale(0.5)
+   shrinks it visually. ResizeObserver sets parent height via JS. */
 .mini-card-scaler {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 360px;
-  zoom: 0.5;
+  transform: scale(0.5);
+  transform-origin: top left;
   pointer-events: none;
-}
-
-/* Override base card CSS inside mini cards */
-.mini-card-scaler > .card-preview-canvas {
-  contain: style !important;
 }
 
 /* Suppress glow pseudo-element inside mini cards */
@@ -1803,9 +1801,12 @@
   display: none !important;
 }
 
-/* Suppress hover effects inside mini cards */
+/* Suppress hover effects and transitions inside mini cards */
 .mini-card-scaler .card-preview-canvas:hover {
   box-shadow: none !important;
+}
+.mini-card-scaler .card-preview-canvas {
+  transition: none !important;
 }
 
 /* Name label overlay at bottom */
@@ -1945,7 +1946,7 @@
   }
 
   .mini-card-scaler {
-    zoom: 0.417; /* 150 / 360 */
+    transform: scale(0.417); /* 150 / 360 */
   }
 }
 

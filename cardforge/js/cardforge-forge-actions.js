@@ -865,6 +865,21 @@ const resp = await fetch(loadUrl, {
         </div>
       `;
     }).join('');
+
+    // ResizeObserver sets mini-card height to match scaled content.
+    // Fires after layout AND after images load — unlike requestAnimationFrame.
+    const scalerObserver = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        const card = entry.target.closest('.mini-card');
+        if (card) {
+          const fullH = entry.target.offsetHeight;
+          const scaledH = Math.ceil(fullH * 0.5);
+          console.log('📐 Mini-card scaler height:', fullH, '→ scaled:', scaledH);
+          card.style.height = scaledH + 'px';
+        }
+      }
+    });
+    myCardsList.querySelectorAll('.mini-card-scaler').forEach(s => scalerObserver.observe(s));
   }
 
   refreshDeckList() {
@@ -949,6 +964,17 @@ const resp = await fetch(loadUrl, {
           </div>
         `;
       }).join('');
+
+      // ResizeObserver sets gallery mini-card height to match scaled content
+      const galleryObserver = new ResizeObserver(entries => {
+        for (const entry of entries) {
+          const card = entry.target.closest('.mini-card');
+          if (card) {
+            card.style.height = Math.ceil(entry.target.offsetHeight * 0.5) + 'px';
+          }
+        }
+      });
+      galleryGrid.querySelectorAll('.mini-card-scaler').forEach(s => galleryObserver.observe(s));
 
       // Bind gallery mini-card clicks to open lightbox
       galleryGrid.querySelectorAll('.mini-card').forEach((item, idx) => {
