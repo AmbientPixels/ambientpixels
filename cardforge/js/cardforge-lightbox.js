@@ -137,81 +137,93 @@
   function renderCard(card) {
     const d = card.cardData || card;
     const name = d.name || card.name || 'Untitled Card';
-    const charClass = d.characterClass || card.characterClass || '';
-    const rarity = d.rarity || card.rarity || '';
-    const quote = d.quote || card.quote || '';
-    const avatar = d.avatar || card.avatar || '';
-    const bio = d.biography || '';
-    const stats = d.stats || [];
-    const badges = d.badges || [];
-    const attributes = d.attributes || [];
-    const socialLinks = d.socialLinks || [];
-    const design = d.design || null;
-
-    const modClasses = buildModularClasses(design);
-    const dataAttrs = buildDataAttributes(design, rarity);
-    const fallbackImg = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNhcmQgSW1hZ2U8L3RleHQ+PC9zdmc+";
-
-    // Front face — hero layout (matches editor default)
-    const frontHTML = `
-      <div class="card-hero-header">
-        <div class="hero-image-container">
-          <img src="${avatar}" alt="${name}" class="card-avatar" onerror="this.src='${fallbackImg}'" />
-          <div class="hero-overlay">
-            <h3 class="card-name">${name}</h3>
-          </div>
-        </div>
-      </div>
-      <div class="card-body">
-        ${charClass ? `<div class="card-class">${charClass}</div>` : ''}
-        ${rarity ? `<div class="card-rarity">${rarity}</div>` : ''}
-        ${quote ? `<div class="card-quote">"${quote}"</div>` : ''}
-        <div class="card-stats">${statsHTML(stats)}</div>
-      </div>`;
-
-    // Back face (matches updateBackFace in card-forge-editor.js)
-    const backHTML = `
-      <div class="card-back-content">
-        <div class="back-header">
-          <h3 class="card-name">${name}</h3>
-          ${charClass ? `<div class="card-class">${charClass}</div>` : ''}
-        </div>
-        <div class="back-body">
-          ${bio ? `
-          <div class="biography-section">
-            <h4 class="section-title">Biography</h4>
-            <div class="biography-text">${bio}</div>
-          </div>` : ''}
-          <div class="info-grid">
-            ${badges.length ? `
-            <div class="back-section badges-section">
-              <h4 class="section-title">Badges & Achievements</h4>
-              <div class="badges-container">${badgesHTML(badges)}</div>
-            </div>` : ''}
-            ${attributes.length ? `
-            <div class="back-section attributes-section">
-              <h4 class="section-title">Attributes</h4>
-              <div class="attributes-container">${attributesHTML(attributes)}</div>
-            </div>` : ''}
-          </div>
-          ${socialLinks.length ? `
-          <div class="social-section">
-            <h4 class="section-title">Social Links</h4>
-            <div class="social-links">${socialHTML(socialLinks)}</div>
-          </div>` : ''}
-        </div>
-      </div>`;
 
     const container = el('lightbox-card-container');
     if (!container) return;
 
-    container.innerHTML = `
-      <div class="card-preview-canvas" style="perspective:1000px;">
-        <div class="card-inner${isFlipped ? ' flipped' : ''}">
-          <div class="card-preview-canvas card-front ${modClasses}" ${dataAttrs}>${frontHTML}</div>
-          <div class="card-preview-canvas card-back ${modClasses}" ${dataAttrs}>${backHTML}</div>
+    // PRIMARY PATH: Use stored rendered HTML captured from the preview at save time
+    if (d.renderedFront && d.frontClasses) {
+      const frontCls = d.frontClasses;
+      const backCls = d.backClasses || d.frontClasses;
+      container.innerHTML = `
+        <div class="card-preview-canvas" style="perspective:1000px;">
+          <div class="card-inner${isFlipped ? ' flipped' : ''}">
+            <div class="${frontCls}">${d.renderedFront}</div>
+            <div class="${backCls}">${d.renderedBack || ''}</div>
+          </div>
+        </div>`;
+    } else {
+      // FALLBACK: Re-render from data for legacy cards without stored HTML
+      const design = d.design || null;
+      const modClasses = buildModularClasses(design);
+      const dataAttrs = buildDataAttributes(design, d.rarity || card.rarity || '');
+      const avatar = d.avatar || card.avatar || '';
+      const charClass = d.characterClass || card.characterClass || '';
+      const rarity = d.rarity || card.rarity || '';
+      const quote = d.quote || card.quote || '';
+      const bio = d.biography || '';
+      const stats = d.stats || [];
+      const badges = d.badges || [];
+      const attributes = d.attributes || [];
+      const socialLinks = d.socialLinks || [];
+      const fallbackImg = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNhcmQgSW1hZ2U8L3RleHQ+PC9zdmc+";
+
+      const frontHTML = `
+        <div class="card-hero-header">
+          <div class="hero-image-container">
+            <img src="${avatar}" alt="${name}" class="card-avatar" onerror="this.src='${fallbackImg}'" />
+            <div class="hero-overlay">
+              <h3 class="card-name">${name}</h3>
+            </div>
+          </div>
         </div>
-      </div>`;
+        <div class="card-body">
+          ${charClass ? `<div class="card-class">${charClass}</div>` : ''}
+          ${rarity ? `<div class="card-rarity">${rarity}</div>` : ''}
+          ${quote ? `<div class="card-quote">"${quote}"</div>` : ''}
+          <div class="card-stats">${statsHTML(stats)}</div>
+        </div>`;
+
+      const backHTML = `
+        <div class="card-back-content">
+          <div class="back-header">
+            <h3 class="card-name">${name}</h3>
+            ${charClass ? `<div class="card-class">${charClass}</div>` : ''}
+          </div>
+          <div class="back-body">
+            ${bio ? `
+            <div class="biography-section">
+              <h4 class="section-title">Biography</h4>
+              <div class="biography-text">${bio}</div>
+            </div>` : ''}
+            <div class="info-grid">
+              ${badges.length ? `
+              <div class="back-section badges-section">
+                <h4 class="section-title">Badges & Achievements</h4>
+                <div class="badges-container">${badgesHTML(badges)}</div>
+              </div>` : ''}
+              ${attributes.length ? `
+              <div class="back-section attributes-section">
+                <h4 class="section-title">Attributes</h4>
+                <div class="attributes-container">${attributesHTML(attributes)}</div>
+              </div>` : ''}
+            </div>
+            ${socialLinks.length ? `
+            <div class="social-section">
+              <h4 class="section-title">Social Links</h4>
+              <div class="social-links">${socialHTML(socialLinks)}</div>
+            </div>` : ''}
+          </div>
+        </div>`;
+
+      container.innerHTML = `
+        <div class="card-preview-canvas" style="perspective:1000px;">
+          <div class="card-inner${isFlipped ? ' flipped' : ''}">
+            <div class="card-preview-canvas card-front ${modClasses}" ${dataAttrs}>${frontHTML}</div>
+            <div class="card-preview-canvas card-back ${modClasses}" ${dataAttrs}>${backHTML}</div>
+          </div>
+        </div>`;
+    }
 
     // Animate stat bars (staggered, mirrors card-forge-editor.js)
     setTimeout(() => {
@@ -284,8 +296,14 @@
   }
 
   function share() {
-    const url = window.location.href;
-    navigator.clipboard.writeText(url).then(() => {
+    // Build a direct card link (not the lightbox page URL)
+    const card = galleryCards[currentIndex];
+    if (!card) return;
+    const cardId = card.id || '';
+    const origin = window.location.origin;
+    const shareUrl = `${origin}/cardforge/?card=${encodeURIComponent(cardId)}`;
+
+    navigator.clipboard.writeText(shareUrl).then(() => {
       const btn = el('lightbox-share');
       if (btn) {
         const icon = btn.querySelector('i');
@@ -297,7 +315,7 @@
         }, 2000);
       }
     }).catch(() => {
-      window.prompt('Copy this link to share:', url);
+      window.prompt('Copy this link to share:', shareUrl);
     });
   }
 

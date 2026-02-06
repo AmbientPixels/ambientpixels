@@ -539,6 +539,23 @@ class CardForgeActions {
       console.log('🖼️ Preview JSON avatar:', window.lastPreviewCardData.avatar);
       const data = { ...window.lastPreviewCardData };
       
+      // Capture modular design state
+      if (window.ModularState && window.ModularState.getCurrentState) {
+        data.design = window.ModularState.getCurrentState();
+      }
+
+      // Capture rendered card HTML from the live preview DOM
+      const frontEl = document.querySelector('.card-preview-zone .card-front');
+      const backEl = document.querySelector('.card-preview-zone .card-back');
+      if (frontEl) {
+        data.renderedFront = frontEl.innerHTML;
+        data.frontClasses = frontEl.className;
+      }
+      if (backEl) {
+        data.renderedBack = backEl.innerHTML;
+        data.backClasses = backEl.className;
+      }
+
       console.log('📋 USING PREVIEW JSON DATA:', data);
       return data;
     }
@@ -569,6 +586,18 @@ class CardForgeActions {
     // Collect modular system data if available
     if (window.ModularState && window.ModularState.getCurrentState) {
       data.design = window.ModularState.getCurrentState();
+    }
+
+    // Capture rendered card HTML from the live preview DOM
+    const frontEl = document.querySelector('.card-preview-zone .card-front');
+    const backEl = document.querySelector('.card-preview-zone .card-back');
+    if (frontEl) {
+      data.renderedFront = frontEl.innerHTML;
+      data.frontClasses = frontEl.className;
+    }
+    if (backEl) {
+      data.renderedBack = backEl.innerHTML;
+      data.backClasses = backEl.className;
     }
 
     return data;
