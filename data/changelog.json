@@ -1,10 +1,10 @@
 {
-  "updated": "2026-02-05T14:06:05.506Z",
+  "updated": "2026-02-06T14:03:13.636Z",
   "entries": [
     {
-      "hash": "0f89e49",
-      "date": "2026-02-04 22:59:14 -0800",
-      "message": "update hanson portal intro copy"
+      "hash": "b44b2f8",
+      "date": "2026-02-05 23:40:03 -0800",
+      "message": "fix lightbox card height"
     }
   ]
 }
