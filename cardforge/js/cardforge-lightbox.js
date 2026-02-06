@@ -85,6 +85,54 @@
     }).join('');
   }
 
+  // ===== MODULAR DEFAULTS (mirrors ModularState in card-forge-editor.js) =====
+  const MODULAR_DEFAULTS = {
+    horizontalAlignment: 'center',
+    verticalAlignment: 'middle',
+    alignmentWeight: 'balanced',
+    alignmentStyle: 'padded',
+    palette: 'neon',
+    paletteVariant: 'light',
+    textColor: 'auto',
+    imageContainer: 'masked',
+    imageContainerVariant: 'circle',
+    imageEffect: 'none',
+    imageEffectVariant: 'clean'
+  };
+
+  function buildModularClasses(design) {
+    const s = Object.assign({}, MODULAR_DEFAULTS, design || {});
+    return [
+      `align-${s.horizontalAlignment}`,
+      `align-vertical-${s.verticalAlignment}`,
+      `align-weight-${s.alignmentWeight}`,
+      `align-style-${s.alignmentStyle}`,
+      `palette-${s.palette}`,
+      `variant-${s.paletteVariant}`,
+      `text-${s.textColor}`,
+      `container-${s.imageContainer}`,
+      `container-variant-${s.imageContainerVariant}`,
+      `effect-${s.imageEffect}`,
+      `effect-variant-${s.imageEffectVariant}`
+    ].join(' ');
+  }
+
+  function buildDataAttributes(design, rarity) {
+    const s = Object.assign({}, MODULAR_DEFAULTS, design || {});
+    return [
+      `data-alignment-type="${s.horizontalAlignment}"`,
+      `data-alignment-weight="${s.alignmentWeight}"`,
+      `data-alignment-style="${s.alignmentStyle}"`,
+      `data-palette="${s.palette}"`,
+      `data-palette-variant="${s.paletteVariant}"`,
+      `data-image-container="${s.imageContainer}"`,
+      `data-image-container-variant="${s.imageContainerVariant}"`,
+      `data-image-effect="${s.imageEffect}"`,
+      `data-image-effect-variant="${s.imageEffectVariant}"`,
+      `data-rarity="${(rarity || '').toLowerCase()}"`
+    ].join(' ');
+  }
+
   // ===== CARD RENDERING =====
   function renderCard(card) {
     const d = card.cardData || card;
@@ -98,12 +146,17 @@
     const badges = d.badges || [];
     const attributes = d.attributes || [];
     const socialLinks = d.socialLinks || [];
+    const design = d.design || null;
 
-    // Front face — hero layout
+    const modClasses = buildModularClasses(design);
+    const dataAttrs = buildDataAttributes(design, rarity);
+    const fallbackImg = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNhcmQgSW1hZ2U8L3RleHQ+PC9zdmc+";
+
+    // Front face — hero layout (matches editor default)
     const frontHTML = `
       <div class="card-hero-header">
         <div class="hero-image-container">
-          <img src="${avatar}" alt="${name}" class="card-avatar" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNhcmQgSW1hZ2U8L3RleHQ+PC9zdmc+'" />
+          <img src="${avatar}" alt="${name}" class="card-avatar" onerror="this.src='${fallbackImg}'" />
           <div class="hero-overlay">
             <h3 class="card-name">${name}</h3>
           </div>
@@ -116,7 +169,7 @@
         <div class="card-stats">${statsHTML(stats)}</div>
       </div>`;
 
-    // Back face
+    // Back face (matches updateBackFace in card-forge-editor.js)
     const backHTML = `
       <div class="card-back-content">
         <div class="back-header">
@@ -155,10 +208,19 @@
     container.innerHTML = `
       <div class="card-preview-canvas" style="perspective:1000px;">
         <div class="card-inner${isFlipped ? ' flipped' : ''}">
-          <div class="card-preview-canvas card-front">${frontHTML}</div>
-          <div class="card-preview-canvas card-back">${backHTML}</div>
+          <div class="card-preview-canvas card-front ${modClasses}" ${dataAttrs}>${frontHTML}</div>
+          <div class="card-preview-canvas card-back ${modClasses}" ${dataAttrs}>${backHTML}</div>
         </div>
       </div>`;
+
+    // Animate stat bars (staggered, mirrors card-forge-editor.js)
+    setTimeout(() => {
+      container.querySelectorAll('.stat-progress').forEach((bar, i) => {
+        bar.classList.remove('animate');
+        bar.style.width = '0';
+        setTimeout(() => bar.classList.add('animate'), i * 200 + 300);
+      });
+    }, 100);
 
     // Update counter
     const counter = el('lightbox-counter');
@@ -219,6 +281,24 @@
     isFlipped = !isFlipped;
     const inner = document.querySelector('#lightbox-card-container .card-inner');
     if (inner) inner.classList.toggle('flipped', isFlipped);
+  }
+
+  function share() {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = el('lightbox-share');
+      if (btn) {
+        const icon = btn.querySelector('i');
+        if (icon) { icon.className = 'fas fa-check'; }
+        btn.title = 'Link copied!';
+        setTimeout(() => {
+          if (icon) { icon.className = 'fas fa-share-alt'; }
+          btn.title = 'Copy Share Link';
+        }, 2000);
+      }
+    }).catch(() => {
+      window.prompt('Copy this link to share:', url);
+    });
   }
 
   // ===== KEYBOARD =====
@@ -295,10 +375,13 @@
     const flipBtn = el('lightbox-flip');
     const overlay = el('cardforge-lightbox');
 
+    const shareBtn = el('lightbox-share');
+
     if (closeBtn) closeBtn.addEventListener('click', close);
     if (prevBtn) prevBtn.addEventListener('click', () => navigate(-1));
     if (nextBtn) nextBtn.addEventListener('click', () => navigate(1));
     if (flipBtn) flipBtn.addEventListener('click', flip);
+    if (shareBtn) shareBtn.addEventListener('click', share);
 
     // Close on backdrop click
     if (overlay) {
