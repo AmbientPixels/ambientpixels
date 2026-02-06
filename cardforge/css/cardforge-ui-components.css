@@ -1760,16 +1760,15 @@
 .my-cards-list,
 #gallery-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, 180px);
   gap: 1rem;
   padding: 0.75rem 0;
 }
 
-/* --- Mini card tile — scaled-down replica of the full card --- */
+/* --- Mini card tile — half-size replica of the full card preview --- */
 .mini-card {
   position: relative;
-  width: 100%;
-  aspect-ratio: 5 / 7;
+  width: 180px;
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
@@ -1784,22 +1783,21 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 12px rgba(0, 212, 255, 0.2);
 }
 
-/* Scaled card preview — rendered at 360px, shrunk via transform to fit container.
-   Higher specificity selector overrides .card-preview-canvas base styles. */
-.mini-card > .mini-card-preview {
-  position: absolute !important;
-  top: 0;
-  left: 0;
-  width: 360px !important;
-  max-width: none !important;
-  min-height: 504px;
-  transform-origin: top left;
+/* Scaler wrapper — provides 360px context then zoom shrinks it to 180px in layout */
+.mini-card-scaler {
+  width: 360px;
+  zoom: 0.5;
   pointer-events: none;
-  box-sizing: border-box;
 }
 
-.mini-card > .mini-card-preview::before {
+/* Suppress glow pseudo-element inside mini cards */
+.mini-card-scaler .card-preview-canvas::before {
   display: none !important;
+}
+
+/* Suppress hover effects inside mini cards */
+.mini-card-scaler .card-preview-canvas:hover {
+  box-shadow: none !important;
 }
 
 /* Name label overlay at bottom */
@@ -1864,7 +1862,7 @@
 /* Fallback image for cards without renderedFront */
 .mini-card-fallback {
   width: 100%;
-  height: 100%;
+  aspect-ratio: 5 / 7;
   object-fit: cover;
   display: block;
 }
@@ -1930,8 +1928,16 @@
 @media (max-width: 768px) {
   .my-cards-list,
   #gallery-cards-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, 150px);
     gap: 0.75rem;
+  }
+
+  .mini-card {
+    width: 150px;
+  }
+
+  .mini-card-scaler {
+    zoom: 0.417; /* 150 / 360 */
   }
 }
 

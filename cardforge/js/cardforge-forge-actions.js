@@ -820,7 +820,7 @@ const resp = await fetch(loadUrl, {
       return;
     }
 
-    // Render mini cards — scaled replicas of the actual card preview
+    // Render mini cards — half-size replicas using zoom
     const fallbackSvg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjUwNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
     myCardsList.innerHTML = savedCards.map(card => {
       const cd = card.cardData || card;
@@ -830,10 +830,10 @@ const resp = await fetch(loadUrl, {
       const isPublished = card.isPublished || card.published || cd.published || cd.isPublished || false;
       const hasRendered = cd.renderedFront && cd.frontClasses;
 
-      // Use stored rendered HTML or fall back to avatar image
+      // Wrap card content in a scaler div — zoom:0.5 shrinks 360px to 180px in layout
       let contentHTML;
       if (hasRendered) {
-        contentHTML = `<div class="mini-card-preview ${cd.frontClasses}">${cd.renderedFront}</div>`;
+        contentHTML = `<div class="mini-card-scaler"><div class="${cd.frontClasses}">${cd.renderedFront}</div></div>`;
       } else {
         contentHTML = `<img class="mini-card-fallback" src="${cardImage || fallbackSvg}" alt="${cardName}" onerror="this.src='${fallbackSvg}'">`;
       }
@@ -865,17 +865,6 @@ const resp = await fetch(loadUrl, {
         </div>
       `;
     }).join('');
-
-    // Calculate scale for each mini card preview based on actual container width
-    requestAnimationFrame(() => {
-      myCardsList.querySelectorAll('.mini-card').forEach(card => {
-        const preview = card.querySelector('.mini-card-preview');
-        if (preview) {
-          const scale = card.clientWidth / 360;
-          preview.style.transform = `scale(${scale})`;
-        }
-      });
-    });
   }
 
   refreshDeckList() {
@@ -924,7 +913,7 @@ const resp = await fetch(loadUrl, {
       const adminIds = window._config?.adminUserIds || [];
       const isAdmin = currentUserId && adminIds.includes(currentUserId);
 
-      // Render mini cards for gallery — scaled replicas
+      // Render mini cards for gallery — half-size replicas using zoom
       const fallbackSvg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjUwNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
       galleryGrid.innerHTML = galleryCards.map(card => {
         const cd = card.cardData || card;
@@ -937,7 +926,7 @@ const resp = await fetch(loadUrl, {
 
         let contentHTML;
         if (hasRendered) {
-          contentHTML = `<div class="mini-card-preview ${cd.frontClasses}">${cd.renderedFront}</div>`;
+          contentHTML = `<div class="mini-card-scaler"><div class="${cd.frontClasses}">${cd.renderedFront}</div></div>`;
         } else {
           contentHTML = `<img class="mini-card-fallback" src="${cardImage || fallbackSvg}" alt="${cardName}" onerror="this.src='${fallbackSvg}'">`;
         }
@@ -960,17 +949,6 @@ const resp = await fetch(loadUrl, {
           </div>
         `;
       }).join('');
-
-      // Calculate scale for gallery mini card previews
-      requestAnimationFrame(() => {
-        galleryGrid.querySelectorAll('.mini-card').forEach(card => {
-          const preview = card.querySelector('.mini-card-preview');
-          if (preview) {
-            const scale = card.clientWidth / 360;
-            preview.style.transform = `scale(${scale})`;
-          }
-        });
-      });
 
       // Bind gallery mini-card clicks to open lightbox
       galleryGrid.querySelectorAll('.mini-card').forEach((item, idx) => {
