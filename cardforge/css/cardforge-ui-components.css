@@ -2108,7 +2108,8 @@
   width: 100%;
   backface-visibility: hidden;
   transform-origin: center center;
-  min-height: 480px;
+  height: 504px; /* Fixed 5:7 card ratio — matches mini cards */
+  overflow: hidden;
   box-sizing: border-box;
 }
 
