@@ -865,16 +865,6 @@ const resp = await fetch(loadUrl, {
         </div>
       `;
     }).join('');
-
-    // Set explicit height on each mini-card based on scaled content
-    requestAnimationFrame(() => {
-      myCardsList.querySelectorAll('.mini-card').forEach(card => {
-        const scaler = card.querySelector('.mini-card-scaler');
-        if (scaler) {
-          card.style.height = (scaler.scrollHeight * 0.5) + 'px';
-        }
-      });
-    });
   }
 
   refreshDeckList() {
@@ -959,16 +949,6 @@ const resp = await fetch(loadUrl, {
           </div>
         `;
       }).join('');
-
-      // Set explicit height on each gallery mini-card based on scaled content
-      requestAnimationFrame(() => {
-        galleryGrid.querySelectorAll('.mini-card').forEach(card => {
-          const scaler = card.querySelector('.mini-card-scaler');
-          if (scaler) {
-            card.style.height = (scaler.scrollHeight * 0.5) + 'px';
-          }
-        });
-      });
 
       // Bind gallery mini-card clicks to open lightbox
       galleryGrid.querySelectorAll('.mini-card').forEach((item, idx) => {

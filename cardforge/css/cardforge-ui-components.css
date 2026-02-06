@@ -1769,6 +1769,7 @@
 .mini-card {
   position: relative;
   width: 180px;
+  aspect-ratio: 5 / 7;
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
@@ -1783,9 +1784,12 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 12px rgba(0, 212, 255, 0.2);
 }
 
-/* Scaler wrapper — renders card at 360px then transform:scale shrinks it visually.
-   Height is set by JS post-render to match the scaled content. */
+/* Scaler wrapper — positioned absolute inside the fixed-ratio container.
+   Renders card at 360px then transform:scale(0.5) shrinks to 180px visually. */
 .mini-card-scaler {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 360px;
   transform: scale(0.5);
   transform-origin: top left;
