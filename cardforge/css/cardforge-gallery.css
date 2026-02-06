@@ -304,7 +304,7 @@
   border-radius: 8px;
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  border: 1px solid var(--mood-border-color, #3a3a5e);
+  border: 1px solid rgba(0, 212, 255, 0.35);
 }
 
 .gallery-card-item:hover {
