@@ -538,9 +538,9 @@ class CardForgeActions {
       console.log('🖼️ Preview JSON avatar:', window.lastPreviewCardData.avatar);
       const data = { ...window.lastPreviewCardData };
       
-      // Capture modular design state
-      if (window.ModularState && window.ModularState.getCurrentState) {
-        data.design = window.ModularState.getCurrentState();
+      // Collect modular system data if available (ModularState is a plain object)
+      if (window.ModularState) {
+        data.design = { ...window.ModularState };
       }
 
       // Capture rendered card HTML from the live preview DOM
@@ -586,9 +586,9 @@ class CardForgeActions {
       attributes: attributesData
     };
 
-    // Collect modular system data if available
-    if (window.ModularState && window.ModularState.getCurrentState) {
-      data.design = window.ModularState.getCurrentState();
+    // Collect modular system data if available (ModularState is a plain object)
+    if (window.ModularState) {
+      data.design = Object.assign({}, window.ModularState);
     }
 
     // Capture rendered card HTML from the live preview DOM
