@@ -54,9 +54,13 @@
     }).join('');
   }
 
+  const BADGE_CAP = 6; // 2 rows × 3 columns
+
   function badgesHTML(badges) {
     if (!badges || badges.length === 0) return '';
-    return badges.map(b => {
+    const visible = badges.slice(0, BADGE_CAP);
+    const overflow = badges.length - BADGE_CAP;
+    let html = visible.map(b => {
       const iconClass = badgeIconMap[b.icon] || 'fas fa-award';
       const icons = Array.from({ length: b.quantity || 1 }, () => `<i class="${iconClass}"></i>`).join('');
       return `
@@ -65,6 +69,10 @@
           <div class="badge-label">${b.category}</div>
         </div>`;
     }).join('');
+    if (overflow > 0) {
+      html += `<div class="badges-overflow-indicator">+${overflow} more</div>`;
+    }
+    return html;
   }
 
   function attributesHTML(attrs) {

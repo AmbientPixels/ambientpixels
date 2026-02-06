@@ -2313,6 +2313,8 @@
     }).join('');
   }
   
+  const BADGE_CAP = 6; // 2 rows × 3 columns — overflow gets "+N" indicator
+
   function generateBadgesHTML(badges) {
     if (!badges || badges.length === 0) {
       return '<div class="no-badges">No badges available</div>';
@@ -2330,8 +2332,11 @@
       bolt: 'fas fa-bolt',
       target: 'fas fa-bullseye'
     };
+
+    const visible = badges.slice(0, BADGE_CAP);
+    const overflow = badges.length - BADGE_CAP;
     
-    return badges.map(badge => {
+    let html = visible.map(badge => {
       const iconClass = iconMap[badge.icon] || 'fas fa-award';
       const quantity = badge.quantity || 1;
       
@@ -2349,6 +2354,12 @@
         </div>
       `;
     }).join('');
+
+    if (overflow > 0) {
+      html += `<div class="badges-overflow-indicator">+${overflow} more</div>`;
+    }
+
+    return html;
   }
   
   function generateAttributesHTML(attributes) {
@@ -2533,6 +2544,33 @@
     </div>
   `;
   }
+
+  // ===== OVERFLOW DETECTION — applies condensed mode when back face overflows =====
+  function checkCardOverflow() {
+    const back = document.querySelector('.card-preview-zone .card-back');
+    if (!back) return;
+    const backContent = back.querySelector('.card-back-content');
+    if (!backContent) return;
+
+    // Remove condensed first to measure natural height
+    back.classList.remove('card-condensed');
+
+    // Use requestAnimationFrame to measure after layout
+    requestAnimationFrame(() => {
+      const cardH = back.clientHeight;
+      const contentH = backContent.scrollHeight;
+      if (contentH > cardH) {
+        back.classList.add('card-condensed');
+      }
+    });
+  }
+
+  // Hook into updateBackFace — check overflow after rendering
+  const _origUpdateBackFace = updateBackFace;
+  updateBackFace = function(data) {
+    _origUpdateBackFace(data);
+    checkCardOverflow();
+  };
 
   // ===== FORM LISTENERS =====
   function initFormListeners() {

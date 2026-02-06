@@ -293,13 +293,46 @@
   text-align: center;
 }
 
-/* Badges Section - Glass Panel Grid */
+/* Badges Section - Glass Panel Grid — capped to 2 rows (6 badges) */
 .badges-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.5rem;
   justify-items: center;
   width: 100%;
+  max-height: calc(2 * (3.5rem + 0.5rem)); /* ~2 rows of badges */
+  overflow: hidden;
+  position: relative;
+}
+
+/* "+N more" overflow indicator — injected by JS when badges exceed cap */
+.badges-overflow-indicator {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 0.65rem;
+  color: var(--mood-accent-color, #8b5cf6);
+  font-weight: 600;
+  padding: 0.2rem 0;
+  letter-spacing: 0.3px;
+}
+
+/* Condensed badges — tighter grid */
+.card-condensed .badges-container {
+  gap: 0.35rem;
+  max-height: calc(2 * (3rem + 0.35rem));
+}
+
+.card-condensed .badge-item {
+  padding: 0.3rem;
+  min-height: auto;
+}
+
+.card-condensed .badge-icon {
+  font-size: 0.85rem;
+}
+
+.card-condensed .badge-label {
+  font-size: 0.55rem;
 }
 
 .presets-grid {
@@ -603,7 +636,53 @@
   font-weight: 400;
 }
 
-/* Biography Text */
+/* Condensed attributes — tighter spacing, truncated labels */
+.card-condensed .attributes-container {
+  gap: 0.3rem;
+}
+
+.card-condensed .attribute-item {
+  padding: 0.25rem 0.5rem;
+}
+
+.card-condensed .attribute-key {
+  font-size: 0.65rem;
+  max-width: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-condensed .attribute-value {
+  font-size: 0.65rem;
+}
+
+/* Condensed info-grid — tighter gap */
+.card-condensed .info-grid {
+  gap: 0.5rem;
+}
+
+.card-condensed .back-section {
+  padding: 0.5rem;
+}
+
+.card-condensed .back-section .section-title {
+  font-size: 0.7rem;
+  margin: 0 0 0.5rem 0;
+}
+
+/* Subtle condensed indicator — thin accent line at bottom of card back */
+.card-condensed .card-back-content::after {
+  content: "";
+  display: block;
+  height: 2px;
+  margin-top: auto;
+  background: linear-gradient(90deg, transparent, var(--mood-accent-color, #8b5cf6), transparent);
+  opacity: 0.5;
+  border-radius: 1px;
+}
+
+/* Biography Text — clamped to 5 lines with fade-out on overflow */
 .biography-text {
   font-size: 0.7rem;
   line-height: 1.4;
@@ -614,6 +693,27 @@
   background: rgba(255, 255, 255, 0.03);
   border-radius: 4px;
   text-align: left;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Condensed biography — tighter spacing when card has heavy content */
+.card-condensed .biography-text {
+  font-size: 0.65rem;
+  line-height: 1.35;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  padding: 0.35rem;
+  margin-top: 0.35rem;
+}
+
+.card-condensed .biography-section {
+  padding: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 /* Mobile Responsive - Stack Grid Vertically */
