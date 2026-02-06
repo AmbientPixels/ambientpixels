@@ -142,11 +142,7 @@
   border: 1px solid var(--mood-accent-color, #4a4a6a);
 }
 
-.my-cards-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
+/* Grid layout defined in cardforge-ui-components.css */
 
 /* My Card Item */
 .my-card-item {
