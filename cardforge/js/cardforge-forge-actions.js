@@ -820,55 +820,37 @@ const resp = await fetch(loadUrl, {
       return;
     }
 
-    // Render gallery
+    // Render mini cards
+    const fallbackSvg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjI4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
     myCardsList.innerHTML = savedCards.map(card => {
-      const cardDate = new Date(card.lastModified || card.createdAt || Date.now()).toLocaleDateString();
       const cardImage = card.cardData?.avatar || card.avatar || '';
       const cardName = card.cardData?.name || card.name || 'Untitled Card';
       const characterClass = card.cardData?.characterClass || card.characterClass || '';
       const rarity = card.cardData?.rarity || card.rarity || '';
-      const quote = card.cardData?.quote || card.quote || '';
       const isPublished = card.isPublished || card.published || card.cardData?.published || card.cardData?.isPublished || false;
-      
-      console.log(`🖼️ Gallery rendering card "${cardName}" | published:`, isPublished, `| card.published:`, card.published, `| full card:`, JSON.stringify(card).substring(0, 300));
-      
-      const statsCount = card.cardData?.stats?.length || 0;
-      const socialCount = card.cardData?.socialLinks?.length || 0;
-      const badgesCount = card.cardData?.badges?.length || 0;
-      
+
       return `
-        <div class="card-gallery-item" data-card-id="${card.id}">
-          <div class="card-thumbnail">
-            <img src="${cardImage}" alt="${cardName}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNhcmQgSW1hZ2U8L3RleHQ+PC9zdmc+'">
-            ${rarity ? `<div class="card-rarity-badge ${rarity.toLowerCase()}">${rarity}</div>` : ''}
+        <div class="mini-card" data-card-id="${card.id}" title="${cardName}">
+          <img class="mini-card-img" src="${cardImage}" alt="${cardName}" onerror="this.src='${fallbackSvg}'">
+          ${rarity ? `<span class="mini-card-rarity ${rarity.toLowerCase()}">${rarity}</span>` : ''}
+          ${isPublished ? '<span class="mini-card-published" title="Published"></span>' : ''}
+          <div class="mini-card-label">
+            ${cardName}
+            ${characterClass ? `<span class="mini-card-class">${characterClass}</span>` : ''}
           </div>
-          <div class="card-info">
-            <h3 class="card-title" title="${cardName}">${cardName}</h3>
-            ${characterClass ? `<div class="card-class">${characterClass}</div>` : ''}
-            ${quote ? `<div class="card-quote">"${quote.length > 50 ? quote.substring(0, 50) + '...' : quote}"</div>` : ''}
-            <div class="card-stats-summary">
-              ${statsCount > 0 ? `<span class="stat-count">📊 ${statsCount} stats</span>` : ''}
-              ${socialCount > 0 ? `<span class="social-count">🔗 ${socialCount} links</span>` : ''}
-              ${badgesCount > 0 ? `<span class="badge-count">🏆 ${badgesCount} badges</span>` : ''}
-            </div>
-            <div class="card-meta">
-              <span class="card-date">${cardDate}</span>
-              <span class="card-status ${isPublished ? 'published' : 'saved'}">
-                ${isPublished ? 'Published' : 'Saved'}
-              </span>
-            </div>
-            <div class="card-actions">
-              <button class="card-action-btn edit" type="button" onclick="cardForgeActions.loadCard('${card.id}')" title="Edit Card">
-                <i class="fas fa-edit"></i> Edit
+          <div class="mini-card-overlay">
+            <div class="mini-card-actions">
+              <button class="mini-card-btn edit" type="button" onclick="event.stopPropagation();cardForgeActions.loadCard('${card.id}')" title="Edit">
+                <i class="fas fa-edit"></i>
               </button>
-              <button class="card-action-btn duplicate" type="button" onclick="cardForgeActions.duplicateCard('${card.id}')" title="Duplicate Card">
-                <i class="fas fa-copy"></i> Duplicate
+              <button class="mini-card-btn duplicate" type="button" onclick="event.stopPropagation();cardForgeActions.duplicateCard('${card.id}')" title="Duplicate">
+                <i class="fas fa-copy"></i>
               </button>
-              <button class="card-action-btn publish${isPublished ? ' published-disabled' : ''}" type="button" onclick="${isPublished ? '' : `cardForgeActions.publishCard('${card.id}')`}" title="${isPublished ? 'Already Published' : 'Publish Card'}" ${isPublished ? 'disabled' : ''}>
-                <i class="fas fa-${isPublished ? 'check-circle' : 'share'}"></i> ${isPublished ? 'Published' : 'Publish'}
+              <button class="mini-card-btn publish" type="button" onclick="event.stopPropagation();${isPublished ? '' : `cardForgeActions.publishCard('${card.id}')`}" title="${isPublished ? 'Published' : 'Publish'}" ${isPublished ? 'disabled style="opacity:0.4"' : ''}>
+                <i class="fas fa-${isPublished ? 'check-circle' : 'share'}"></i>
               </button>
-              <button class="card-action-btn delete" type="button" onclick="window.deleteCard('${card.id}')" title="Delete Card">
-                <i class="fas fa-trash"></i> Delete
+              <button class="mini-card-btn delete" type="button" onclick="event.stopPropagation();window.deleteCard('${card.id}')" title="Delete">
+                <i class="fas fa-trash"></i>
               </button>
             </div>
           </div>
@@ -923,46 +905,40 @@ const resp = await fetch(loadUrl, {
       const adminIds = window._config?.adminUserIds || [];
       const isAdmin = currentUserId && adminIds.includes(currentUserId);
 
-      // Render published cards
+      // Render mini cards for gallery
+      const fallbackSvg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjI4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
       galleryGrid.innerHTML = galleryCards.map(card => {
         const cardImage = card.cardData?.avatar || card.avatar || card.image || '';
         const cardName = card.cardData?.name || card.name || 'Untitled Card';
         const characterClass = card.cardData?.characterClass || card.characterClass || '';
         const rarity = card.cardData?.rarity || card.rarity || '';
-        const quote = card.cardData?.quote || card.quote || '';
         const publishedBy = card.publishedBy || card.userId || 'Anonymous';
-        const publishedAt = card.publishedAt ? new Date(card.publishedAt).toLocaleDateString() : '';
         const canRemove = isAdmin || (currentUserId && publishedBy === currentUserId);
-        
+
         return `
-          <div class="gallery-card-item" data-card-id="${card.id}">
-            <div class="gallery-card-thumbnail">
-              <img src="${cardImage}" alt="${cardName}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNhcmQgSW1hZ2U8L3RleHQ+PC9zdmc+'">
-              ${rarity ? `<div class="gallery-rarity-badge ${rarity.toLowerCase()}">${rarity}</div>` : ''}
+          <div class="mini-card" data-card-id="${card.id}" title="${cardName}">
+            <img class="mini-card-img" src="${cardImage}" alt="${cardName}" onerror="this.src='${fallbackSvg}'">
+            ${rarity ? `<span class="mini-card-rarity ${rarity.toLowerCase()}">${rarity}</span>` : ''}
+            <div class="mini-card-label">
+              ${cardName}
+              ${characterClass ? `<span class="mini-card-class">${characterClass}</span>` : ''}
             </div>
-            <div class="gallery-card-info">
-              <h3 class="gallery-card-title">${cardName}</h3>
-              ${characterClass ? `<div class="gallery-card-class">${characterClass}</div>` : ''}
-              ${quote ? `<div class="gallery-card-quote">"${quote.length > 40 ? quote.substring(0, 40) + '...' : quote}"</div>` : ''}
-              <div class="gallery-card-meta">
-                ${publishedAt ? `<span class="gallery-published-date">📅 ${publishedAt}</span>` : ''}
-              </div>
-              ${canRemove ? `
-              <div class="gallery-card-actions">
-                <button class="card-action-btn delete" type="button" onclick="cardForgeActions.removeFromGallery('${card.id}')" title="Remove from Gallery">
-                  <i class="fas fa-trash"></i> Remove
+            ${canRemove ? `
+            <div class="mini-card-overlay">
+              <div class="mini-card-actions">
+                <button class="mini-card-btn remove" type="button" onclick="event.stopPropagation();cardForgeActions.removeFromGallery('${card.id}')" title="Remove from Gallery">
+                  <i class="fas fa-trash"></i>
                 </button>
-              </div>` : ''}
-            </div>
+              </div>
+            </div>` : ''}
           </div>
         `;
       }).join('');
 
-      // Bind gallery card clicks to open lightbox
-      galleryGrid.querySelectorAll('.gallery-card-item').forEach((item, idx) => {
-        item.style.cursor = 'pointer';
+      // Bind gallery mini-card clicks to open lightbox
+      galleryGrid.querySelectorAll('.mini-card').forEach((item, idx) => {
         item.addEventListener('click', (e) => {
-          if (e.target.closest('.card-action-btn')) return;
+          if (e.target.closest('.mini-card-btn')) return;
           if (window.CardForgeLightbox) {
             window.CardForgeLightbox.open(galleryCards, idx);
           }

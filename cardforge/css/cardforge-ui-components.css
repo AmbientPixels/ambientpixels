@@ -1755,237 +1755,150 @@
    CARD GALLERY STYLES
    ================================ */
 
-/* Card Gallery Grid Layout */
-.my-cards-list {
+/* ===== MINI CARD GRID — shared by My Cards + Public Gallery ===== */
+
+.my-cards-list,
+#gallery-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-  padding: 1rem 0;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.75rem;
+  padding: 0.75rem 0;
 }
 
-.card-gallery-item {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 12px;
-  transition: all 0.3s ease;
+/* --- Mini card tile --- */
+.mini-card {
   position: relative;
-}
-
-.card-gallery-item:hover {
-  border-color: var(--accent-color);
-  box-shadow: 0 4px 12px rgba(0, 255, 255, 0.1);
-  transform: translateY(-2px);
-}
-
-.card-thumbnail {
   width: 100%;
-  height: 120px;
-  border-radius: 6px;
+  aspect-ratio: 5 / 7;
+  border-radius: 8px;
   overflow: hidden;
-  margin-bottom: 8px;
-  background: var(--bg-secondary);
-  position: relative;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  background: var(--aura-bg-color, #1a1a2e);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.card-thumbnail img {
+.mini-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--mood-primary-color, #00d4ff);
+  box-shadow: 0 6px 20px rgba(0, 212, 255, 0.2);
+}
+
+/* Image fills entire tile */
+.mini-card-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
-.card-rarity-badge {
+/* Name overlay at bottom */
+.mini-card-label {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 10px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 4px 6px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+  color: #fff;
+  font-size: 11px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  backdrop-filter: blur(4px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
 }
 
-.card-rarity-badge.common {
-  background: rgba(108, 117, 125, 0.8);
-  color: #fff;
-}
-
-.card-rarity-badge.rare {
-  background: rgba(0, 123, 255, 0.8);
-  color: #fff;
-}
-
-.card-rarity-badge.epic {
-  background: rgba(102, 16, 242, 0.8);
-  color: #fff;
-}
-
-.card-rarity-badge.legendary {
-  background: rgba(255, 193, 7, 0.8);
-  color: #000;
-}
-
-.card-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.card-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
+.mini-card-class {
+  display: block;
+  font-size: 9px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.6);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.card-class {
-  font-size: 12px;
-  color: var(--accent-color);
-  font-weight: 500;
-  opacity: 0.8;
-}
-
-.card-quote {
-  font-size: 11px;
-  color: var(--text-secondary);
-  font-style: italic;
-  opacity: 0.7;
-  line-height: 1.3;
-}
-
-.card-stats-summary {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin: 4px 0;
-}
-
-.card-stats-summary span {
-  font-size: 10px;
-  padding: 2px 4px;
+/* Rarity badge */
+.mini-card-rarity {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  padding: 1px 5px;
   border-radius: 3px;
-  background: rgba(0, 255, 255, 0.1);
-  color: var(--accent-color);
-  white-space: nowrap;
-}
-
-.card-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 11px;
-  color: var(--text-secondary);
-  margin-top: auto;
-}
-
-.card-date {
-  opacity: 0.7;
-}
-
-.card-status {
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: 500;
+  font-size: 8px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  backdrop-filter: blur(4px);
 }
 
-.card-status.saved {
-  background: rgba(255, 193, 7, 0.2);
-  color: #ffc107;
+.mini-card-rarity.common   { background: rgba(108, 117, 125, 0.85); color: #fff; }
+.mini-card-rarity.rare     { background: rgba(0, 123, 255, 0.85); color: #fff; }
+.mini-card-rarity.epic     { background: rgba(102, 16, 242, 0.85); color: #fff; }
+.mini-card-rarity.legendary { background: rgba(255, 193, 7, 0.85); color: #000; }
+
+/* Published dot */
+.mini-card-published {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #28a745;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 4px rgba(40, 167, 69, 0.6);
 }
 
-.card-status.published {
-  background: rgba(40, 167, 69, 0.2);
-  color: #28a745;
-}
-
-.card-actions {
+/* Hover overlay with action buttons */
+.mini-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
-  gap: 0.25rem;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  backdrop-filter: blur(2px);
 }
 
-.card-action-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: var(--text-primary);
-  padding: 0.4rem 0.5rem;
+.mini-card:hover .mini-card-overlay {
+  opacity: 1;
+}
+
+/* Mini card action buttons (inside hover overlay) */
+.mini-card-actions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.mini-card-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  width: 30px;
+  height: 30px;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0;
-  gap: 0;
-  min-width: 32px;
-  height: 32px;
+  font-size: 12px;
+  transition: all 0.15s ease;
 }
 
-.card-action-btn i {
-  font-size: 13px;
-}
-
-.card-action-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
-  transform: translateY(-1px);
-}
-
-.card-action-btn.edit {
-  color: #fbbf24;
-  border-color: rgba(251, 191, 36, 0.3);
-}
-
-.card-action-btn.edit:hover {
-  background: rgba(251, 191, 36, 0.1);
-  border-color: rgba(251, 191, 36, 0.5);
-}
-
-.card-action-btn.duplicate {
-  color: #22c55e;
-  border-color: rgba(34, 197, 94, 0.3);
-}
-
-.card-action-btn.duplicate:hover {
-  background: rgba(34, 197, 94, 0.1);
-  border-color: rgba(34, 197, 94, 0.5);
-}
-
-.card-action-btn.publish {
-  color: #3b82f6;
-  border-color: rgba(59, 130, 246, 0.3);
-}
-
-.card-action-btn.publish:hover {
-  background: rgba(59, 130, 246, 0.1);
-  border-color: rgba(59, 130, 246, 0.5);
-}
-
-.card-action-btn.publish.published-disabled {
-  color: #6b7280;
-  border-color: rgba(107, 114, 128, 0.2);
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.card-action-btn.delete {
-  color: #ef4444;
-  border-color: rgba(239, 68, 68, 0.3);
-}
-
-.card-action-btn.delete:hover {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.5);
-}
+.mini-card-btn:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.1); }
+.mini-card-btn.edit { color: #fbbf24; }
+.mini-card-btn.duplicate { color: #22c55e; }
+.mini-card-btn.publish { color: #3b82f6; }
+.mini-card-btn.delete { color: #ef4444; }
+.mini-card-btn.remove { color: #ef4444; }
 
 /* Enhanced Empty State */
 .my-cards-empty {
@@ -2014,25 +1927,12 @@
   opacity: 0.7;
 }
 
-/* Responsive Design for Card Gallery */
+/* Responsive Design for Mini Card Gallery */
 @media (max-width: 768px) {
-  .my-cards-list {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 1rem;
-  }
-  
-  .card-thumbnail {
-    height: 140px;
-  }
-  
-  .card-actions {
-    gap: 0.3rem;
-  }
-  
-  .card-action-btn {
-    min-width: 36px;
-    height: 36px;
-    padding: 0.5rem;
+  .my-cards-list,
+  #gallery-cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.5rem;
   }
 }
 
