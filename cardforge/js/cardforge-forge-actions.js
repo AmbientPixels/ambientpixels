@@ -883,6 +883,7 @@ const resp = await fetch(loadUrl, {
       const galleryCards = Array.isArray(data?.galleryCards) ? data.galleryCards : [];
       
       console.log(`🌐 Loaded ${galleryCards.length} published cards for gallery`);
+      this._galleryCards = galleryCards;
       
       if (galleryCards.length === 0) {
         galleryGrid.innerHTML = `
@@ -936,6 +937,17 @@ const resp = await fetch(loadUrl, {
           </div>
         `;
       }).join('');
+
+      // Bind gallery card clicks to open lightbox
+      galleryGrid.querySelectorAll('.gallery-card-item').forEach((item, idx) => {
+        item.style.cursor = 'pointer';
+        item.addEventListener('click', (e) => {
+          if (e.target.closest('.card-action-btn')) return;
+          if (window.CardForgeLightbox) {
+            window.CardForgeLightbox.open(galleryCards, idx);
+          }
+        });
+      });
       
     } catch (e) {
       console.error('❌ Failed to load gallery:', e);

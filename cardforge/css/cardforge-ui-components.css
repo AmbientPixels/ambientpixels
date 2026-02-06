@@ -2028,3 +2028,161 @@
     padding: 0.5rem;
   }
 }
+
+/* ===== LIGHTBOX — Gallery Card Viewer ===== */
+#cardforge-lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  align-items: center;
+  justify-content: center;
+}
+
+#cardforge-lightbox.active {
+  display: flex;
+}
+
+.lightbox-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 2rem;
+}
+
+/* Header bar */
+.lightbox-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  z-index: 2;
+}
+
+.lightbox-card-title {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.lightbox-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.lightbox-counter {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+}
+
+.lightbox-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.lightbox-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.lightbox-btn.close-btn {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.lightbox-btn.close-btn:hover {
+  background: rgba(239, 68, 68, 0.4);
+}
+
+.lightbox-btn.flip-btn {
+  background: rgba(0, 255, 255, 0.15);
+  border-color: rgba(0, 255, 255, 0.3);
+}
+
+.lightbox-btn.flip-btn:hover {
+  background: rgba(0, 255, 255, 0.3);
+  border-color: rgba(0, 255, 255, 0.5);
+}
+
+/* Navigation arrows */
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+.lightbox-nav.prev { left: 1rem; }
+.lightbox-nav.next { right: 1rem; }
+
+.lightbox-nav .lightbox-btn {
+  width: 48px;
+  height: 48px;
+  font-size: 1.3rem;
+}
+
+/* Card container */
+#lightbox-card-container {
+  width: 100%;
+  max-width: 420px;
+  z-index: 1;
+}
+
+#lightbox-card-container .card-preview-canvas {
+  perspective: 1000px;
+}
+
+#lightbox-card-container .card-inner {
+  display: grid;
+  width: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+#lightbox-card-container .card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+#lightbox-card-container .card-front,
+#lightbox-card-container .card-back {
+  grid-area: 1 / 1 / 2 / 2;
+  width: 100%;
+  backface-visibility: hidden;
+  transform-origin: center center;
+}
+
+#lightbox-card-container .card-back {
+  transform: rotateY(180deg);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .lightbox-inner { padding: 1rem; }
+  #lightbox-card-container { max-width: 340px; }
+  .lightbox-nav .lightbox-btn { width: 36px; height: 36px; font-size: 1rem; }
+  .lightbox-header { padding: 0.75rem 1rem; }
+  .lightbox-card-title { font-size: 1rem; }
+}

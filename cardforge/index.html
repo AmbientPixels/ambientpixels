@@ -1169,7 +1169,37 @@
   <script src="/cardforge/js/cardforge-layout.js" defer></script>
   <script src="js/cardforge-modals.js" defer></script>
   <script src="js/cardforge-forge-actions.js" defer></script>
+  <script src="js/cardforge-lightbox.js" defer></script>
   <script src="/cardforge/js/app-insights.js"></script>
+
+  <!-- Lightbox — Gallery Card Viewer -->
+  <div id="cardforge-lightbox">
+    <div class="lightbox-inner">
+      <div class="lightbox-header">
+        <span id="lightbox-card-title" class="lightbox-card-title"></span>
+        <div class="lightbox-controls">
+          <span id="lightbox-counter" class="lightbox-counter"></span>
+          <button id="lightbox-flip" class="lightbox-btn flip-btn" title="Flip Card (F)">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+          <button id="lightbox-close" class="lightbox-btn close-btn" title="Close (Esc)">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <div class="lightbox-nav prev">
+        <button id="lightbox-prev" class="lightbox-btn" title="Previous (←)">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+      </div>
+      <div id="lightbox-card-container"></div>
+      <div class="lightbox-nav next">
+        <button id="lightbox-next" class="lightbox-btn" title="Next (→)">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Confirmation Dialog -->
   <div id="cardforge-dialog" class="cardforge-dialog">
