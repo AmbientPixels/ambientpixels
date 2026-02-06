@@ -85,6 +85,17 @@
   transform: translateY(0);
 }
 
+/* Form Buttons - Disabled State (cap reached) */
+.add-micro-btn.disabled,
+.add-stat-btn.disabled,
+.add-attribute-btn.disabled,
+.add-social-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+}
+
 /* Remove Buttons */
 .remove-stat,
 .remove-social,

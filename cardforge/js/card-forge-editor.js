@@ -616,6 +616,15 @@
     
     removeBtn.addEventListener('click', function() {
       badgeRow.remove();
+      // Re-enable Add Badge button if under cap
+      const addBadgeBtn = document.getElementById('add-micro-btn');
+      if (addBadgeBtn) {
+        const remaining = document.querySelectorAll('#micro-editor .micro-row').length;
+        if (remaining < BADGE_CAP) {
+          addBadgeBtn.classList.remove('disabled');
+          addBadgeBtn.title = '';
+        }
+      }
       updatePreview();
     });
     
@@ -712,9 +721,21 @@
     if (addBadgeBtn) {
       addBadgeBtn.addEventListener('click', function() {
         const badgesContainer = document.getElementById('micro-editor');
+        const currentBadges = badgesContainer.querySelectorAll('.micro-row').length;
+        if (currentBadges >= BADGE_CAP) {
+          addBadgeBtn.classList.add('disabled');
+          addBadgeBtn.title = `Maximum ${BADGE_CAP} badges reached`;
+          console.log(`🏆 Badge limit reached (${BADGE_CAP})`);
+          return;
+        }
         const newBadgeRow = createBadgeRow();
         badgesContainer.appendChild(newBadgeRow);
-        console.log('🏆 New badge row added');
+        // Update button state after adding
+        if (currentBadges + 1 >= BADGE_CAP) {
+          addBadgeBtn.classList.add('disabled');
+          addBadgeBtn.title = `Maximum ${BADGE_CAP} badges reached`;
+        }
+        console.log(`🏆 New badge row added (${currentBadges + 1}/${BADGE_CAP})`);
       });
     }
   }
@@ -2354,12 +2375,17 @@
   }
 
   // ===== DYNAMIC HTML GENERATORS =====
+  const STAT_CAP = 5; // Max visible stats on card face
+
   function generateStatsHTML(stats) {
     if (!stats || stats.length === 0) {
       return '<div class="no-stats">No stats available</div>';
     }
+
+    const visible = stats.slice(0, STAT_CAP);
+    const overflow = stats.length - STAT_CAP;
     
-    return stats.map((stat, index) => {
+    let html = visible.map((stat, index) => {
       const percentage = Math.min(stat.value, 100); // Cap at 100%
       return `
         <div class="stat-item">
@@ -2372,8 +2398,16 @@
         </div>
       `;
     }).join('');
+
+    if (overflow > 0) {
+      html += `<div class="stats-overflow-indicator">+${overflow} more</div>`;
+    }
+
+    return html;
   }
   
+  const SOCIAL_CAP = 5; // Max visible social icons on card face
+
   function generateSocialLinksHTML(socialLinks) {
     if (!socialLinks || socialLinks.length === 0) {
       return '<div class="no-social">No social links available</div>';
@@ -2390,8 +2424,11 @@
       discord: 'fab fa-discord',
       tiktok: 'fab fa-tiktok'
     };
+
+    const visible = socialLinks.slice(0, SOCIAL_CAP);
+    const overflow = socialLinks.length - SOCIAL_CAP;
     
-    return socialLinks.map(social => {
+    let html = visible.map(social => {
       const iconClass = iconMap[social.platform] || 'fas fa-link';
       const platformName = social.platform.charAt(0).toUpperCase() + social.platform.slice(1);
       return `
@@ -2400,6 +2437,12 @@
         </a>
       `;
     }).join('');
+
+    if (overflow > 0) {
+      html += `<span class="social-overflow-indicator" title="${overflow} more links">+${overflow}</span>`;
+    }
+
+    return html;
   }
   
   const BADGE_CAP = 6; // 2 rows × 3 columns — overflow gets "+N" indicator
@@ -2451,12 +2494,17 @@
     return html;
   }
   
+  const ATTRIBUTE_CAP = 6; // Max visible attributes on card face
+
   function generateAttributesHTML(attributes) {
     if (!attributes || attributes.length === 0) {
       return '<div class="no-attributes">No attributes available</div>';
     }
+
+    const visible = attributes.slice(0, ATTRIBUTE_CAP);
+    const overflow = attributes.length - ATTRIBUTE_CAP;
     
-    return attributes.map(attr => {
+    let html = visible.map(attr => {
       return `
         <div class="attribute-item">
           <span class="attribute-key">${attr.name}</span>
@@ -2464,6 +2512,12 @@
         </div>
       `;
     }).join('');
+
+    if (overflow > 0) {
+      html += `<div class="attributes-overflow-indicator">+${overflow} more</div>`;
+    }
+
+    return html;
   }
 
   // ===== LAYOUT GENERATORS =====

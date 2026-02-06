@@ -912,6 +912,11 @@
 .card-preview-canvas .card-quote {
   color: var(--card-text-primary, #ffffff);
   opacity: 0.9;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .card-preview-canvas .stat-label {

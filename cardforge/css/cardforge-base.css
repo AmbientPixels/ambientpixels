@@ -169,6 +169,21 @@
   width: var(--target-width, 0%) !important;
 }
 
+/* Stats overflow indicator — shown when stats exceed cap */
+.stats-overflow-indicator {
+  text-align: center;
+  font-size: 0.65rem;
+  color: var(--mood-accent-color, #8b5cf6);
+  font-weight: 600;
+  padding: 0.15rem 0;
+  letter-spacing: 0.3px;
+}
+
+/* Card stats container — prevent unbounded growth */
+.card-stats {
+  overflow: hidden;
+}
+
 /* Subtle glow effect during animation */
 .stat-progress::before {
   content: '';
@@ -225,11 +240,14 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  min-height: 0;
+  overflow: hidden;
 }
 
-/* Social Links Section - Horizontal Row */
+/* Social Links Section - Horizontal Row — reserved space, never clips off card */
 .social-section {
   text-align: center;
+  flex-shrink: 0;
 }
 
 .social-section .section-title {
@@ -244,6 +262,23 @@
 .social-section .social-links {
   justify-content: center;
   margin: 0;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+/* Social overflow indicator — shown when social links exceed cap */
+.social-overflow-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--mood-accent-color, #8b5cf6);
+  font-size: 0.6rem;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
 /* Biography Section - Above Grid */
@@ -272,6 +307,8 @@
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
   flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* Back Sections - Badges and Attributes */
@@ -634,6 +671,16 @@
   font-size: 0.75rem;
   color: var(--mood-text-color, #ffffff);
   font-weight: 400;
+}
+
+/* Attributes overflow indicator — shown when attributes exceed cap */
+.attributes-overflow-indicator {
+  text-align: center;
+  font-size: 0.6rem;
+  color: var(--mood-accent-color, #8b5cf6);
+  font-weight: 600;
+  padding: 0.15rem 0;
+  letter-spacing: 0.3px;
 }
 
 /* Condensed attributes — tighter spacing, truncated labels */

@@ -40,9 +40,13 @@
   };
 
   // ===== HTML GENERATORS =====
+  const STAT_CAP = 5; // Max visible stats on card face
+
   function statsHTML(stats) {
     if (!stats || stats.length === 0) return '';
-    return stats.map(s => {
+    const visible = stats.slice(0, STAT_CAP);
+    const overflow = stats.length - STAT_CAP;
+    let html = visible.map(s => {
       const pct = Math.min(s.value, 100);
       return `
         <div class="stat-item">
@@ -52,6 +56,10 @@
           </div>
         </div>`;
     }).join('');
+    if (overflow > 0) {
+      html += `<div class="stats-overflow-indicator">+${overflow} more</div>`;
+    }
+    return html;
   }
 
   const BADGE_CAP = 6; // 2 rows × 3 columns
@@ -75,22 +83,38 @@
     return html;
   }
 
+  const ATTRIBUTE_CAP = 6; // Max visible attributes on card face
+
   function attributesHTML(attrs) {
     if (!attrs || attrs.length === 0) return '';
-    return attrs.map(a => `
+    const visible = attrs.slice(0, ATTRIBUTE_CAP);
+    const overflow = attrs.length - ATTRIBUTE_CAP;
+    let html = visible.map(a => `
       <div class="attribute-item">
         <span class="attribute-key">${a.name}</span>
         <span class="attribute-value">${a.value}</span>
       </div>`).join('');
+    if (overflow > 0) {
+      html += `<div class="attributes-overflow-indicator">+${overflow} more</div>`;
+    }
+    return html;
   }
+
+  const SOCIAL_CAP = 5; // Max visible social icons on card face
 
   function socialHTML(links) {
     if (!links || links.length === 0) return '';
-    return links.map(s => {
+    const visible = links.slice(0, SOCIAL_CAP);
+    const overflow = links.length - SOCIAL_CAP;
+    let html = visible.map(s => {
       const iconClass = socialIconMap[s.platform] || 'fas fa-link';
       const name = s.platform.charAt(0).toUpperCase() + s.platform.slice(1);
       return `<a href="${s.url}" target="_blank" rel="noopener noreferrer" class="social-link" title="Visit ${name}"><i class="${iconClass}"></i></a>`;
     }).join('');
+    if (overflow > 0) {
+      html += `<span class="social-overflow-indicator" title="${overflow} more links">+${overflow}</span>`;
+    }
+    return html;
   }
 
   // ===== MODULAR DEFAULTS (mirrors ModularState in card-forge-editor.js) =====
