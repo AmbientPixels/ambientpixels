@@ -962,6 +962,15 @@ const resp = await fetch(loadUrl, {
         this.populateFormFields(card.data);
         this.showNotification(`Card "${card.name}" loaded`, 'success');
       }
+      // If this card is published, re-enable its Publish button so user can re-publish after edits
+      const publishBtn = document.querySelector(`.card-gallery-item[data-card-id="${card.id}"] .card-action-btn.publish`);
+      if (publishBtn && publishBtn.disabled) {
+        publishBtn.disabled = false;
+        publishBtn.classList.remove('published-disabled');
+        publishBtn.innerHTML = '<i class="fas fa-share"></i> Publish';
+        publishBtn.title = 'Publish Card';
+        publishBtn.setAttribute('onclick', `cardForgeActions.publishCard('${card.id}')`);
+      }
     } catch (error) {
       console.error('Error loading card:', error);
       this.showNotification('Failed to load card', 'error');
