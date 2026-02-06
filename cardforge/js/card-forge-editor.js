@@ -702,10 +702,42 @@
     // Initialize Attributes Editor
     initAttributesEditor();
     
+    // Initialize Biography Character Counter
+    initBioCounter();
+    
     // Initialize form listeners for live preview
     initFormListeners();
     
     console.log('✅ Dynamic editors initialized');
+  }
+
+  // ===== BIOGRAPHY CHARACTER COUNTER =====
+  const BIO_RECOMMENDED_MAX = 220; // ~5 lines at 0.7rem/1.4 line-height in the card bio box
+
+  function initBioCounter() {
+    const bioField = document.getElementById('card-bio');
+    if (!bioField) return;
+
+    // Create counter element below the textarea
+    const counter = document.createElement('div');
+    counter.className = 'bio-char-counter';
+    counter.setAttribute('aria-live', 'polite');
+    bioField.parentNode.insertBefore(counter, bioField.nextSibling);
+
+    function updateCounter() {
+      const len = bioField.value.length;
+      counter.textContent = `${len} / ${BIO_RECOMMENDED_MAX}`;
+      if (len > BIO_RECOMMENDED_MAX) {
+        counter.classList.add('over-limit');
+        counter.textContent += ' — Bio will be truncated on card';
+      } else {
+        counter.classList.remove('over-limit');
+      }
+    }
+
+    bioField.addEventListener('input', updateCounter);
+    // Initial state
+    updateCounter();
   }
   
   function initStatsEditor() {
@@ -2697,7 +2729,8 @@
         ${data.biography ? `
         <div class="biography-section">
           <h4 class="section-title">Biography</h4>
-          <div class="biography-text">${data.biography}</div>
+          <div class="biography-text" data-full-bio="${data.biography.replace(/"/g, '&quot;')}">${data.biography}</div>
+          <a class="bio-read-more" href="#">Read more &raquo;</a>
         </div>
         ` : ''}
         
@@ -2748,11 +2781,28 @@
     });
   }
 
-  // Hook into updateBackFace — check overflow after rendering
+  // ===== BIOGRAPHY TRUNCATION DETECTION =====
+  function detectBioTruncation(root) {
+    const bioText = (root || document).querySelector('.biography-text');
+    if (!bioText) return;
+    // Compare scrollHeight vs clientHeight to detect line-clamp truncation
+    if (bioText.scrollHeight > bioText.clientHeight + 1) {
+      bioText.classList.add('is-truncated');
+    } else {
+      bioText.classList.remove('is-truncated');
+    }
+  }
+
+  // Hook into updateBackFace — check overflow + bio truncation after rendering
   const _origUpdateBackFace = updateBackFace;
   updateBackFace = function(data) {
     _origUpdateBackFace(data);
     checkCardOverflow();
+    // Detect bio truncation after layout settles
+    requestAnimationFrame(() => {
+      const back = document.querySelector('.card-preview-zone .card-back');
+      detectBioTruncation(back);
+    });
   };
 
   // ===== FORM LISTENERS =====

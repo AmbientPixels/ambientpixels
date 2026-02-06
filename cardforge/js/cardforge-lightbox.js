@@ -251,7 +251,8 @@
             ${bio ? `
             <div class="biography-section">
               <h4 class="section-title">Biography</h4>
-              <div class="biography-text">${bio}</div>
+              <div class="biography-text" data-full-bio="${bio.replace(/"/g, '&quot;')}">${bio}</div>
+              <a class="bio-read-more" href="#">Read more &raquo;</a>
             </div>` : ''}
             <div class="info-grid">
               ${badges.length ? `
@@ -290,6 +291,18 @@
         setTimeout(() => bar.classList.add('animate'), i * 200 + 300);
       });
     }, 100);
+
+    // Detect biography truncation after layout settles
+    requestAnimationFrame(() => {
+      const bioText = container.querySelector('.biography-text');
+      if (bioText) {
+        if (bioText.scrollHeight > bioText.clientHeight + 1) {
+          bioText.classList.add('is-truncated');
+        } else {
+          bioText.classList.remove('is-truncated');
+        }
+      }
+    });
 
     // Update counter
     const counter = el('lightbox-counter');

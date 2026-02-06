@@ -308,7 +308,7 @@
   gap: 1rem;
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Back Sections - Badges and Attributes */
@@ -337,8 +337,7 @@
   gap: 0.5rem;
   justify-items: center;
   width: 100%;
-  max-height: calc(2 * (3.5rem + 0.5rem)); /* ~2 rows of badges */
-  overflow: hidden;
+  overflow: visible;
   position: relative;
 }
 
@@ -356,7 +355,6 @@
 /* Condensed badges — tighter grid */
 .card-condensed .badges-container {
   gap: 0.35rem;
-  max-height: calc(2 * (3rem + 0.35rem));
 }
 
 .card-condensed .badge-item {
@@ -692,8 +690,10 @@
   font-size: 0.6rem;
   color: var(--mood-accent-color, #8b5cf6);
   font-weight: 600;
-  padding: 0.15rem 0;
+  padding: 0.3rem 0 0;
+  margin-top: 0.15rem;
   letter-spacing: 0.3px;
+  flex-shrink: 0;
 }
 
 /* Condensed attributes — tighter spacing, truncated labels */
@@ -799,6 +799,123 @@
   .badge-label {
     font-size: 0.65rem;
   }
+}
+
+/* ===== PORTAL TOOLTIP — appended to body, never clipped ===== */
+.cf-portal-tooltip {
+  position: fixed;
+  z-index: 100000;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: rgba(18, 22, 34, 0.95);
+  color: var(--mood-primary-color, #5AE4FF);
+  font-size: 0.75rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+/* ===== BIOGRAPHY "READ MORE" MODAL ===== */
+.cf-bio-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.cf-bio-modal-overlay.active {
+  opacity: 1;
+}
+
+.cf-bio-modal {
+  position: relative;
+  max-width: 480px;
+  width: 90%;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  color: var(--mood-secondary-color, #a0a0c0);
+  font-family: 'Inter', sans-serif;
+}
+
+.cf-bio-modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mood-secondary-color, #a0a0c0);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.cf-bio-modal-close:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.cf-bio-modal-title {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--mood-primary-color, #5AE4FF);
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+}
+
+.cf-bio-modal-text {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--mood-secondary-color, #a0a0c0);
+  white-space: pre-wrap;
+}
+
+/* ===== BIOGRAPHY "READ MORE" LINK ===== */
+.bio-read-more {
+  display: none;
+  font-size: 0.65rem;
+  color: var(--mood-primary-color, #5AE4FF);
+  cursor: pointer;
+  text-align: right;
+  margin-top: 0.25rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.bio-read-more:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+/* Show "Read more" only when biography is actually truncated */
+.biography-text.is-truncated + .bio-read-more {
+  display: block;
 }
 
 /* Basic content structure - will be enhanced by modular system */

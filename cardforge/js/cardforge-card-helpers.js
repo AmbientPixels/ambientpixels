@@ -1,0 +1,144 @@
+/**
+ * CardForge Card Helpers — Portal Tooltips + Biography "Read more" Modal
+ * Shared across editor preview, lightbox, and gallery contexts.
+ * Created: 2025-02-06
+ */
+(function () {
+  'use strict';
+
+  // ===== PORTAL TOOLTIP SYSTEM =====
+  // Appends tooltip to document.body so it's never clipped by overflow:hidden ancestors.
+
+  let activeTooltip = null;
+
+  function createPortalTooltip(text, anchorRect) {
+    removePortalTooltip();
+
+    const tip = document.createElement('div');
+    tip.className = 'cf-portal-tooltip';
+    tip.textContent = text;
+    document.body.appendChild(tip);
+    activeTooltip = tip;
+
+    // Measure after append so we get real dimensions
+    requestAnimationFrame(() => {
+      if (!activeTooltip) return;
+      const tipRect = tip.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
+      // Horizontal: center on anchor, clamp to viewport
+      let left = anchorRect.left + anchorRect.width / 2 - tipRect.width / 2;
+      left = Math.max(6, Math.min(left, vw - tipRect.width - 6));
+
+      // Vertical: prefer below, flip above if no room
+      let top = anchorRect.bottom + 8;
+      if (top + tipRect.height > vh - 6) {
+        top = anchorRect.top - tipRect.height - 8;
+      }
+      top = Math.max(6, top);
+
+      tip.style.left = left + 'px';
+      tip.style.top = top + 'px';
+      tip.style.opacity = '1';
+    });
+  }
+
+  function removePortalTooltip() {
+    if (activeTooltip) {
+      activeTooltip.remove();
+      activeTooltip = null;
+    }
+  }
+
+  // Cleanup on scroll/resize
+  window.addEventListener('scroll', removePortalTooltip, true);
+  window.addEventListener('resize', removePortalTooltip);
+
+  // Delegate: any .social-link with a title attribute
+  document.addEventListener('mouseenter', function (e) {
+    const link = e.target.closest('.social-link[title]');
+    if (!link) return;
+    const text = link.getAttribute('title');
+    if (!text) return;
+    // Suppress native tooltip by temporarily removing title
+    link.dataset.cfTitle = text;
+    link.removeAttribute('title');
+    createPortalTooltip(text, link.getBoundingClientRect());
+  }, true);
+
+  document.addEventListener('mouseleave', function (e) {
+    const link = e.target.closest('.social-link');
+    if (!link) return;
+    // Restore native title
+    if (link.dataset.cfTitle) {
+      link.setAttribute('title', link.dataset.cfTitle);
+      delete link.dataset.cfTitle;
+    }
+    removePortalTooltip();
+  }, true);
+
+  // ===== BIOGRAPHY "READ MORE" MODAL =====
+
+  function openBioModal(fullText) {
+    // Prevent duplicates
+    closeBioModal();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'cf-bio-modal-overlay';
+    overlay.innerHTML = `
+      <div class="cf-bio-modal">
+        <button class="cf-bio-modal-close" aria-label="Close">&times;</button>
+        <h3 class="cf-bio-modal-title">Biography</h3>
+        <div class="cf-bio-modal-text">${escapeHTML(fullText)}</div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    // Animate in
+    requestAnimationFrame(() => overlay.classList.add('active'));
+
+    // Close handlers
+    overlay.querySelector('.cf-bio-modal-close').addEventListener('click', closeBioModal);
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) closeBioModal();
+    });
+    document.addEventListener('keydown', bioModalEscHandler);
+  }
+
+  function closeBioModal() {
+    const overlay = document.querySelector('.cf-bio-modal-overlay');
+    if (overlay) {
+      overlay.classList.remove('active');
+      setTimeout(() => overlay.remove(), 200);
+    }
+    document.removeEventListener('keydown', bioModalEscHandler);
+  }
+
+  function bioModalEscHandler(e) {
+    if (e.key === 'Escape') closeBioModal();
+  }
+
+  function escapeHTML(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // Delegate: click on .bio-read-more buttons
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.bio-read-more');
+    if (!btn) return;
+    e.preventDefault();
+    const bioSection = btn.closest('.biography-section');
+    if (!bioSection) return;
+    const bioText = bioSection.querySelector('.biography-text');
+    if (!bioText) return;
+    // Get the full untruncated text from the data attribute or textContent
+    const fullText = bioText.dataset.fullBio || bioText.textContent;
+    openBioModal(fullText);
+  });
+
+  // ===== PUBLIC API =====
+  window.CardForgeCardHelpers = { openBioModal, closeBioModal, removePortalTooltip };
+})();
