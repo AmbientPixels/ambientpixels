@@ -313,7 +313,7 @@
 /* Information Grid - Two Column Layout */
 .info-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 0.5rem;
   flex: 1;
   min-height: 0;
@@ -328,6 +328,7 @@
   padding: 0.5rem;
   backdrop-filter: blur(4px);
   overflow: visible;
+  min-width: 0;
   min-height: 0;
 }
 
