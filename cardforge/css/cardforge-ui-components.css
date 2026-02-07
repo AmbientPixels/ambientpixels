@@ -2117,6 +2117,26 @@
   transform: rotateY(180deg);
 }
 
+/* Lightbox faces: override .card-preview-canvas height:auto */
+#lightbox-card-container .card-preview-canvas.card-front,
+#lightbox-card-container .card-preview-canvas.card-back {
+  height: var(--card-height);
+  min-height: var(--card-height);
+}
+
+/* Lightbox back-face inner wrappers must fill the face height */
+#lightbox-card-container .card-back .card-back-content {
+  height: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#lightbox-card-container .card-back .back-body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 /* Card element styling is handled by the stored modular CSS classes
    (palette, container, alignment, effects) from cardforge-card.css.
    Only override sizing constraints specific to the lightbox viewport. */

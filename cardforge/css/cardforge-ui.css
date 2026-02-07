@@ -118,6 +118,26 @@
   overflow: hidden;
 }
 
+/* Faces must fill the fixed card — override .card-preview-canvas height:auto */
+.card-preview-zone .card-preview-canvas.card-front,
+.card-preview-zone .card-preview-canvas.card-back {
+  height: var(--card-height);
+  min-height: var(--card-height);
+}
+
+/* Back-face inner wrappers must fill the face height */
+.card-preview-zone .card-back .card-back-content {
+  height: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-preview-zone .card-back .back-body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 .palette-level:last-child {
   margin-bottom: 0;
 }
