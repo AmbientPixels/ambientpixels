@@ -244,6 +244,7 @@
   gap: 0.5rem;
   min-height: 0;
   overflow: hidden;
+  padding-bottom: 4px;
 }
 
 /* Social Links Section - Horizontal Row — reserved space, never clips off card */
@@ -251,6 +252,8 @@
   text-align: center;
   flex-shrink: 0;
   margin-top: auto;
+  padding-top: 0.35rem;
+  overflow: visible;
 }
 
 .social-section .section-title {
@@ -266,7 +269,8 @@
   justify-content: center;
   margin: 0;
   flex-wrap: nowrap;
-  overflow: hidden;
+  overflow: visible;
+  padding: 4px 0;
 }
 
 /* Social overflow indicator — shown when social links exceed cap */
@@ -289,7 +293,7 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  padding: 0.5rem 0.6rem;
+  padding: 0.6rem 0.75rem;
   backdrop-filter: blur(4px);
   margin-bottom: 0.35rem;
   flex-shrink: 0;
@@ -336,10 +340,10 @@
   text-align: center;
 }
 
-/* Badges Section - Glass Panel Grid — capped to 2 rows (6 badges) */
+/* Badges Section - Glass Panel Grid — 2-col × up to 3 rows (max 6 badges) */
 .badges-container {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 0.35rem;
   justify-items: center;
   width: 100%;
@@ -360,7 +364,7 @@
 
 /* Condensed badges — tighter grid */
 .card-condensed .badges-container {
-  gap: 0.25rem;
+  gap: 0.2rem;
 }
 
 .card-condensed .badge-item {
@@ -646,10 +650,11 @@
   word-break: break-word;
 }
 
-/* Relaxed badge labels — 2-line when ≤3 badges, more room per badge */
+/* Relaxed badge labels — 2-line when ≤4 badges (≤2 rows in 2-col grid) */
 .badges-container[data-badge-count="1"] .badge-label,
 .badges-container[data-badge-count="2"] .badge-label,
-.badges-container[data-badge-count="3"] .badge-label {
+.badges-container[data-badge-count="3"] .badge-label,
+.badges-container[data-badge-count="4"] .badge-label {
   -webkit-line-clamp: 2;
   line-clamp: 2;
 }
@@ -665,7 +670,7 @@
 .attributes-container {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.4rem;
   overflow: hidden;
 }
 
@@ -673,7 +678,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.25rem 0.5rem;
+  padding: 0.3rem 0.5rem;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
   border-left: 3px solid var(--mood-primary-color, #5AE4FF);
@@ -802,7 +807,7 @@
   }
   
   .badges-container {
-    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
   }
   
   .badge-item {
@@ -857,9 +862,9 @@
 .cf-bio-modal {
   position: fixed;
   z-index: 100002;
-  max-width: 340px;
-  width: 90%;
-  max-height: 60vh;
+  max-width: 360px;
+  width: 85%;
+  max-height: var(--card-height, 560px);
   overflow-y: auto;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -868,7 +873,7 @@
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
   color: var(--mood-secondary-color, #a0a0c0);
   font-family: 'Inter', sans-serif;
-  /* JS will set top/left to center over card */
+  /* JS sets top/left to card center; transform centers the modal on that point */
   transform: translate(-50%, -50%);
 }
 

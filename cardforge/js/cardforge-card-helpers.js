@@ -80,9 +80,55 @@
 
   // ===== BIOGRAPHY "READ MORE" MODAL =====
 
+  let _bioModalCardEl = null;
+  let _bioModalRAF = null;
+
+  function positionBioModal() {
+    const modal = document.querySelector('.cf-bio-modal');
+    if (!modal || !_bioModalCardEl) return;
+
+    const rect = _bioModalCardEl.getBoundingClientRect();
+    const cardCX = rect.left + rect.width / 2;
+    const cardCY = rect.top + rect.height / 2;
+
+    // Measure modal (without transform so we get natural size)
+    const mW = modal.offsetWidth;
+    const mH = modal.offsetHeight;
+
+    // Clamp so modal stays visually within card bounds
+    let left = cardCX;
+    let top = cardCY;
+
+    // Horizontal: keep modal edges inside card rect
+    const halfW = mW / 2;
+    if (left - halfW < rect.left) left = rect.left + halfW;
+    if (left + halfW > rect.right) left = rect.right - halfW;
+
+    // Vertical: keep modal edges inside card rect
+    const halfH = mH / 2;
+    if (top - halfH < rect.top) top = rect.top + halfH;
+    if (top + halfH > rect.bottom) top = rect.bottom - halfH;
+
+    modal.style.left = left + 'px';
+    modal.style.top = top + 'px';
+  }
+
+  function onBioModalScrollResize() {
+    if (_bioModalRAF) return;
+    _bioModalRAF = requestAnimationFrame(() => {
+      _bioModalRAF = null;
+      positionBioModal();
+    });
+  }
+
   function openBioModal(fullText, anchorEl) {
     // Prevent duplicates
     closeBioModal();
+
+    // Resolve card element for anchoring
+    _bioModalCardEl = anchorEl
+      ? anchorEl.closest('.card-preview-canvas') || anchorEl.closest('.card-back')
+      : null;
 
     // Create overlay (full-screen backdrop)
     const overlay = document.createElement('div');
@@ -99,22 +145,15 @@
     `;
     document.body.appendChild(modal);
 
-    // Position modal centered over the card preview element
-    const cardEl = anchorEl
-      ? anchorEl.closest('.card-preview-canvas') || anchorEl.closest('.card-back')
-      : null;
-    if (cardEl) {
-      const rect = cardEl.getBoundingClientRect();
-      modal.style.left = (rect.left + rect.width / 2) + 'px';
-      modal.style.top = (rect.top + rect.height / 2) + 'px';
-    } else {
-      // Fallback: center in viewport
-      modal.style.left = '50%';
-      modal.style.top = '50%';
-    }
+    // Initial position
+    positionBioModal();
 
     // Animate in
     requestAnimationFrame(() => overlay.classList.add('active'));
+
+    // Reposition on scroll / resize (throttled via rAF)
+    window.addEventListener('scroll', onBioModalScrollResize, true);
+    window.addEventListener('resize', onBioModalScrollResize);
 
     // Close handlers
     modal.querySelector('.cf-bio-modal-close').addEventListener('click', closeBioModal);
@@ -132,6 +171,10 @@
     if (modal) {
       setTimeout(() => modal.remove(), 200);
     }
+    window.removeEventListener('scroll', onBioModalScrollResize, true);
+    window.removeEventListener('resize', onBioModalScrollResize);
+    if (_bioModalRAF) { cancelAnimationFrame(_bioModalRAF); _bioModalRAF = null; }
+    _bioModalCardEl = null;
     document.removeEventListener('keydown', bioModalEscHandler);
   }
 
