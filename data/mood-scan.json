@@ -1,13 +1,13 @@
 {
-  "mood": "plasma ache",
-  "aura": "lime green",
-  "auraColorHex": "#1a3c29",
-  "quote": "calibrating mood vectors with cosmic drift...",
-  "emoji": "💔",
-  "selfWorth": 0.2,
+  "mood": "detached",
+  "aura": "ember resolve",
+  "auraColorHex": "#5c1111",
+  "quote": "watching pixels settle into place...",
+  "emoji": "🛰️",
+  "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.86,
-  "awareness": 0.12,
+  "memoryClutter": 0.72,
+  "awareness": 0.19,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: lime green"
+      "Aura Signature: ember resolve"
     ]
   },
-  "timestamp": "2026-02-06T14:03:14.313Z"
+  "timestamp": "2026-02-07T13:47:01.481Z"
 }
