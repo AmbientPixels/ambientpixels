@@ -48,10 +48,12 @@
     const visible = stats.slice(0, STAT_CAP);
     const overflow = stats.length - STAT_CAP;
     let html = visible.map(s => {
-      const pct = Math.min(s.value, 100);
+      const raw = Number(s.value);
+      const v = Number.isFinite(raw) ? raw : 0;
+      const pct = Math.max(0, Math.min(100, v));
       return `
         <div class="stat-item">
-          <div class="stat-label">${s.name} <span class="stat-value">${s.value}</span></div>
+          <div class="stat-label">${s.name} <span class="stat-value">${Math.round(v)}</span></div>
           <div class="stat-bar">
             <div class="stat-progress" data-target="${pct}" style="width:0%"></div>
           </div>
@@ -287,7 +289,8 @@
     // Animate stat bars (staggered, rAF + forced reflow — mirrors card-forge-editor.js)
     setTimeout(() => {
       container.querySelectorAll('.stat-progress').forEach((bar, i) => {
-        const targetPct = parseInt(bar.dataset.target, 10) || 0;
+        const raw = Number(bar.dataset.target);
+        const targetPct = Number.isFinite(raw) ? Math.max(0, Math.min(100, raw)) : 0;
         bar.style.transition = 'none';
         bar.style.width = '0%';
         void bar.offsetWidth; // force reflow

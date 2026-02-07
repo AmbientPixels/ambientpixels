@@ -2148,9 +2148,9 @@
     // otherwise snap bars to target instantly (avoids flicker on name edits).
     if (_statAnimationNeeded) {
       _statAnimationNeeded = false;
-      setTimeout(() => { animateStatBars(); }, 50);
+      requestAnimationFrame(() => { animateStatBars(); });
     } else {
-      snapStatBars();
+      requestAnimationFrame(() => { snapStatBars(); });
     }
   }
   
@@ -2419,7 +2419,8 @@
   function snapStatBars() {
     const bars = document.querySelectorAll('.stat-progress');
     bars.forEach(bar => {
-      const pct = parseInt(bar.dataset.target, 10) || 0;
+      const raw = Number(bar.dataset.target);
+      const pct = Number.isFinite(raw) ? Math.max(0, Math.min(100, raw)) : 0;
       bar.style.transition = 'none';
       bar.style.width = pct + '%';
     });
@@ -2427,7 +2428,8 @@
 
   // ===== SINGLE BAR ANIMATION (rAF + forced reflow) =====
   function animateBar(bar, delayMs) {
-    const targetPct = parseInt(bar.dataset.target, 10) || 0;
+    const raw = Number(bar.dataset.target);
+    const targetPct = Number.isFinite(raw) ? Math.max(0, Math.min(100, raw)) : 0;
     bar.style.transition = 'none';
     bar.style.width = '0%';
     void bar.offsetWidth; // force reflow
@@ -2495,10 +2497,12 @@
     const overflow = stats.length - STAT_CAP;
     
     let html = visible.map((stat, index) => {
-      const percentage = Math.min(stat.value, 100); // Cap at 100%
+      const raw = Number(stat.value);
+      const v = Number.isFinite(raw) ? raw : 0;
+      const percentage = Math.max(0, Math.min(100, v));
       return `
         <div class="stat-item">
-          <div class="stat-label">${stat.name} <span class="stat-value">${stat.value}</span></div>
+          <div class="stat-label">${stat.name} <span class="stat-value">${Math.round(v)}</span></div>
           <div class="stat-bar">
             <div class="stat-progress" data-target="${percentage}" style="width:0%"></div>
           </div>
