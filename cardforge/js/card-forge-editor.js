@@ -172,10 +172,10 @@
     },
     'fullbleed-cinematic': {
       // Front-of-card styling
-      alignmentType: 'center',
+      horizontalAlignment: 'center',
+      verticalAlignment: 'bottom',
       alignmentWeight: 'bottom-heavy',
       alignmentStyle: 'padded',
-      weight: 'bottom-heavy',
       palette: 'sunset',
       paletteVariant: 'dark',
       imageContainer: 'fullbleed',
@@ -902,9 +902,22 @@
       });
     }
 
-    // Modular design (if present)
+    // Modular design (if present) — reset to defaults first to prevent stale keys
     if (cardData.design && window.ModularState) {
-      Object.assign(window.ModularState, cardData.design);
+      const defaults = {
+        horizontalAlignment: 'center',
+        verticalAlignment: 'middle',
+        alignmentWeight: 'balanced',
+        alignmentStyle: 'padded',
+        palette: 'neon',
+        paletteVariant: 'light',
+        textColor: 'auto',
+        imageContainer: 'masked',
+        imageContainerVariant: 'circle',
+        imageEffect: 'none',
+        imageEffectVariant: 'clean'
+      };
+      Object.assign(window.ModularState, defaults, cardData.design);
     }
 
     _statAnimationNeeded = true;
@@ -1074,17 +1087,33 @@
     const randomWeight = randomOptions.alignmentWeights[Math.floor(Math.random() * randomOptions.alignmentWeights.length)];
     const randomStyle = randomOptions.alignmentStyles[Math.floor(Math.random() * randomOptions.alignmentStyles.length)];
     
-    // Update ModularState with random selections
-    ModularState.imageContainer = randomContainer;
-    ModularState.imageContainerVariant = randomContainerVariant;
-    ModularState.imageEffect = randomEffect;
-    ModularState.imageEffectVariant = randomEffectVariant;
-    ModularState.palette = randomPalette;
-    ModularState.paletteVariant = randomPaletteVariant;
-    ModularState.horizontalAlignment = randomHorizontal;
-    ModularState.verticalAlignment = randomVertical;
-    ModularState.alignmentWeight = randomWeight;
-    ModularState.alignmentStyle = randomStyle;
+    // Reset ModularState to defaults, then apply random selections
+    // This prevents stale keys from persisting across rolls/preset switches
+    const defaults = {
+      horizontalAlignment: 'center',
+      verticalAlignment: 'middle',
+      alignmentWeight: 'balanced',
+      alignmentStyle: 'padded',
+      palette: 'neon',
+      paletteVariant: 'light',
+      textColor: 'auto',
+      imageContainer: 'masked',
+      imageContainerVariant: 'circle',
+      imageEffect: 'none',
+      imageEffectVariant: 'clean'
+    };
+    Object.assign(ModularState, defaults, {
+      imageContainer: randomContainer,
+      imageContainerVariant: randomContainerVariant,
+      imageEffect: randomEffect,
+      imageEffectVariant: randomEffectVariant,
+      palette: randomPalette,
+      paletteVariant: randomPaletteVariant,
+      horizontalAlignment: randomHorizontal,
+      verticalAlignment: randomVertical,
+      alignmentWeight: randomWeight,
+      alignmentStyle: randomStyle
+    });
     
     console.log(`🎯 Random card generated:`, {
       container: `${randomContainer}-${randomContainerVariant}`,
@@ -1320,55 +1349,69 @@
     
     console.log(`📋 Found preset config:`, config);
     
-    // Separate front styling from sample data
-    const { sampleData, ...frontConfig } = config;
-    console.log(`🎨 Front config:`, frontConfig);
+    // Separate front styling from sample data and non-ModularState keys
+    const { sampleData, classStyle, classIcon, rarityStyle, rarityIcon, ...designConfig } = config;
+    console.log(`🎨 Design config:`, designConfig);
     console.log(`📝 Sample data:`, sampleData);
     
-    // Apply front-of-card styling
-    Object.assign(ModularState, frontConfig);
+    // Reset ModularState to defaults, then apply preset design config
+    // This prevents stale keys from persisting across preset switches
+    const defaults = {
+      horizontalAlignment: 'center',
+      verticalAlignment: 'middle',
+      alignmentWeight: 'balanced',
+      alignmentStyle: 'padded',
+      palette: 'neon',
+      paletteVariant: 'light',
+      textColor: 'auto',
+      imageContainer: 'masked',
+      imageContainerVariant: 'circle',
+      imageEffect: 'none',
+      imageEffectVariant: 'clean'
+    };
+    Object.assign(ModularState, defaults, designConfig);
     console.log(`🔄 ModularState updated:`, ModularState);
     
     // Populate class and rarity styling form fields
-    if (frontConfig.classStyle) {
+    if (classStyle) {
       const classStyleField = document.getElementById('class-style');
       if (classStyleField) {
-        classStyleField.value = frontConfig.classStyle;
-        console.log(`✅ Class style populated: ${frontConfig.classStyle}`);
+        classStyleField.value = classStyle;
+        console.log(`✅ Class style populated: ${classStyle}`);
       }
     }
     
-    if (frontConfig.classIcon) {
+    if (classIcon) {
       const classIconField = document.getElementById('class-icon-value');
       if (classIconField) {
-        classIconField.value = frontConfig.classIcon;
+        classIconField.value = classIcon;
         // Update visual selection
         const classIconOptions = document.querySelectorAll('#class-section .icon-option');
         classIconOptions.forEach(option => {
-          option.classList.toggle('selected', option.dataset.icon === frontConfig.classIcon);
+          option.classList.toggle('selected', option.dataset.icon === classIcon);
         });
-        console.log(`✅ Class icon populated: ${frontConfig.classIcon}`);
+        console.log(`✅ Class icon populated: ${classIcon}`);
       }
     }
     
-    if (frontConfig.rarityStyle) {
+    if (rarityStyle) {
       const rarityStyleField = document.getElementById('rarity-style');
       if (rarityStyleField) {
-        rarityStyleField.value = frontConfig.rarityStyle;
-        console.log(`✅ Rarity style populated: ${frontConfig.rarityStyle}`);
+        rarityStyleField.value = rarityStyle;
+        console.log(`✅ Rarity style populated: ${rarityStyle}`);
       }
     }
     
-    if (frontConfig.rarityIcon) {
+    if (rarityIcon) {
       const rarityIconField = document.getElementById('rarity-icon-value');
       if (rarityIconField) {
-        rarityIconField.value = frontConfig.rarityIcon;
+        rarityIconField.value = rarityIcon;
         // Update visual selection
         const rarityIconOptions = document.querySelectorAll('#rarity-section .icon-option');
         rarityIconOptions.forEach(option => {
-          option.classList.toggle('selected', option.dataset.icon === frontConfig.rarityIcon);
+          option.classList.toggle('selected', option.dataset.icon === rarityIcon);
         });
-        console.log(`✅ Rarity icon populated: ${frontConfig.rarityIcon}`);
+        console.log(`✅ Rarity icon populated: ${rarityIcon}`);
       }
     }
     
@@ -1751,7 +1794,7 @@
     }
     
     // Update Tier 2: Content Alignment display (3-level hierarchy)
-    const alignmentType = ModularState.alignmentType || 'center';
+    const alignmentType = ModularState.horizontalAlignment || 'center';
     const alignmentWeight = ModularState.alignmentWeight || 'balanced';
     const alignmentStyle = ModularState.alignmentStyle || 'padded';
     
@@ -2024,14 +2067,8 @@
       return;
     }
     
-    // Apply modular CSS classes
-    const modularClasses = [
-      // `layout-${ModularState.layout}` REMOVED - Phase 1 of Flow Restructure
-      `align-${ModularState.horizontalAlignment}`, // Fixed: align-left, align-center, align-right
-      `align-vertical-${ModularState.verticalAlignment}`,
-      `align-weight-${ModularState.alignmentWeight}`,
-      `align-style-${ModularState.alignmentStyle}`,
-      // `weight-${ModularState.weight}` REMOVED - Standalone Visual Weight tier removed
+    // Shared classes — palette, container, effects (apply to both faces)
+    const sharedClasses = [
       `palette-${ModularState.palette}`,
       `variant-${ModularState.paletteVariant}`,
       `text-${ModularState.textColor}`,
@@ -2039,6 +2076,14 @@
       `container-variant-${ModularState.imageContainerVariant}`,
       `effect-${ModularState.imageEffect}`,
       `effect-variant-${ModularState.imageEffectVariant}`
+    ];
+    
+    // Front-only classes — alignment, weight, style (these resize elements)
+    const frontOnlyClasses = [
+      `align-${ModularState.horizontalAlignment}`,
+      `align-vertical-${ModularState.verticalAlignment}`,
+      `align-weight-${ModularState.alignmentWeight}`,
+      `align-style-${ModularState.alignmentStyle}`
     ];
     
     // Get class and rarity style selections
@@ -2050,25 +2095,24 @@
     const rarityStyle = rarityStyleSelector ? rarityStyleSelector.value : 'default';
     const rarityValue = cardRarityInput ? cardRarityInput.value : '';
     
-    // Add class and rarity style classes to modular classes
+    // Add class and rarity style classes to shared classes
     if (classStyle !== 'default') {
-      modularClasses.push(`class-style-${classStyle}`);
+      sharedClasses.push(`class-style-${classStyle}`);
     }
     if (rarityStyle !== 'default') {
-      modularClasses.push(`rarity-style-${rarityStyle}`);
+      sharedClasses.push(`rarity-style-${rarityStyle}`);
     }
     
-    // Apply classes to both front and back
-    front.className = `card-preview-canvas card-front ${modularClasses.join(' ')}`;
-    back.className = `card-preview-canvas card-back ${modularClasses.join(' ')}`;
+    // Apply classes: front gets alignment + shared; back gets shared only
+    front.className = `card-preview-canvas card-front ${frontOnlyClasses.join(' ')} ${sharedClasses.join(' ')}`;
+    back.className = `card-preview-canvas card-back ${sharedClasses.join(' ')}`;
     
     // Set data attributes for advanced styling
     const dataAttributes = {
       // 'data-layout': ModularState.layout, REMOVED - Phase 1 of Flow Restructure
-      'data-alignment-type': ModularState.alignmentType,
+      'data-alignment-type': ModularState.horizontalAlignment,
       'data-alignment-weight': ModularState.alignmentWeight,
       'data-alignment-style': ModularState.alignmentStyle,
-      'data-weight': ModularState.weight,
       'data-palette': ModularState.palette,
       'data-palette-variant': ModularState.paletteVariant,
       'data-image-container': ModularState.imageContainer,

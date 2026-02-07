@@ -137,11 +137,7 @@
 
   function buildModularClasses(design) {
     const s = Object.assign({}, MODULAR_DEFAULTS, design || {});
-    return [
-      `align-${s.horizontalAlignment}`,
-      `align-vertical-${s.verticalAlignment}`,
-      `align-weight-${s.alignmentWeight}`,
-      `align-style-${s.alignmentStyle}`,
+    const shared = [
       `palette-${s.palette}`,
       `variant-${s.paletteVariant}`,
       `text-${s.textColor}`,
@@ -150,6 +146,13 @@
       `effect-${s.imageEffect}`,
       `effect-variant-${s.imageEffectVariant}`
     ].join(' ');
+    const frontOnly = [
+      `align-${s.horizontalAlignment}`,
+      `align-vertical-${s.verticalAlignment}`,
+      `align-weight-${s.alignmentWeight}`,
+      `align-style-${s.alignmentStyle}`
+    ].join(' ');
+    return { shared, frontOnly };
   }
 
   function buildDataAttributes(design, rarity) {
@@ -215,7 +218,7 @@
       // FALLBACK: Re-render from data for legacy cards without stored HTML
       console.log('⚠️ [LIGHTBOX] FALLBACK: No stored HTML, re-rendering from data');
       const design = d.design || null;
-      const modClasses = buildModularClasses(design);
+      const { shared: modShared, frontOnly: modFront } = buildModularClasses(design);
       const dataAttrs = buildDataAttributes(design, d.rarity || card.rarity || '');
       const avatar = d.avatar || card.avatar || '';
       const charClass = d.characterClass || card.characterClass || '';
@@ -280,8 +283,8 @@
       container.innerHTML = `
         <div class="card-preview-canvas" style="perspective:1000px;">
           <div class="card-inner${isFlipped ? ' flipped' : ''}">
-            <div class="card-preview-canvas card-front ${modClasses}" ${dataAttrs}>${frontHTML}</div>
-            <div class="card-preview-canvas card-back ${modClasses}" ${dataAttrs}>${backHTML}</div>
+            <div class="card-preview-canvas card-front ${modFront} ${modShared}" ${dataAttrs}>${frontHTML}</div>
+            <div class="card-preview-canvas card-back ${modShared}" ${dataAttrs}>${backHTML}</div>
           </div>
         </div>`;
     }

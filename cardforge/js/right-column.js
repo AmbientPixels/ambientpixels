@@ -313,10 +313,10 @@ class RightColumn {
     
     // Try to get modular state if available
     if (window.ModularState) {
-      design.alignment = window.ModularState.alignment || 'center';
-      design.weight = window.ModularState.weight || 'balanced';
-      design.container = window.ModularState.container || 'masked';
-      design.effect = window.ModularState.effect || 'none';
+      design.alignment = window.ModularState.horizontalAlignment || 'center';
+      design.weight = window.ModularState.alignmentWeight || 'balanced';
+      design.container = window.ModularState.imageContainer || 'masked';
+      design.effect = window.ModularState.imageEffect || 'none';
     }
     
     return design;
