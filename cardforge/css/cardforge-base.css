@@ -592,9 +592,10 @@
 }
 
 .badge-item:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(90, 228, 255, 0.08);
+  border-color: var(--mood-primary-color, #5AE4FF);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(90, 228, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(90, 228, 255, 0.25), 0 0 8px rgba(90, 228, 255, 0.1);
 }
 
 .badge-icon {
@@ -841,9 +842,9 @@
 .cf-portal-tooltip {
   position: fixed;
   z-index: 100000;
-  padding: 5px 10px;
-  border-radius: 6px;
-  background: rgba(18, 22, 34, 0.95);
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(18, 22, 34, 0.92);
   color: var(--mood-primary-color, #5AE4FF);
   font-size: 0.75rem;
   font-family: 'Inter', sans-serif;
@@ -852,9 +853,9 @@
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.15s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 8px rgba(90, 228, 255, 0.1);
+  border: 1px solid rgba(90, 228, 255, 0.2);
+  backdrop-filter: blur(12px);
 }
 
 /* ===== BIOGRAPHY "READ MORE" MODAL ===== */
