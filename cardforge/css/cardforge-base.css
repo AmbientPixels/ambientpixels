@@ -675,20 +675,26 @@
   flex-direction: column;
   gap: 0.4rem;
   overflow: hidden;
+  min-width: 0;
 }
 
 .attribute-item {
   display: flex;
-  justify-content: space-between;
+  gap: 8px;
   align-items: center;
+  width: 100%;
+  min-width: 0;
   padding: 0.3rem 0.5rem;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
   border-left: 3px solid var(--mood-primary-color, #5AE4FF);
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .attribute-key {
+  flex: 0 0 44%;
+  min-width: 0;
   font-size: 0.7rem;
   color: var(--mood-secondary-color, #a0a0c0);
   font-weight: 500;
@@ -698,6 +704,8 @@
 }
 
 .attribute-value {
+  flex: 1 1 auto;
+  min-width: 0;
   font-size: 0.7rem;
   color: var(--mood-text-color, #ffffff);
   font-weight: 400;
@@ -729,8 +737,9 @@
 }
 
 .card-condensed .attribute-key {
+  flex: 0 0 40%;
+  min-width: 0;
   font-size: 0.65rem;
-  max-width: 60px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
