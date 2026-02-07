@@ -80,37 +80,57 @@
 
   // ===== BIOGRAPHY "READ MORE" MODAL =====
 
-  function openBioModal(fullText) {
+  function openBioModal(fullText, anchorEl) {
     // Prevent duplicates
     closeBioModal();
 
+    // Create overlay (full-screen backdrop)
     const overlay = document.createElement('div');
     overlay.className = 'cf-bio-modal-overlay';
-    overlay.innerHTML = `
-      <div class="cf-bio-modal">
-        <button class="cf-bio-modal-close" aria-label="Close">&times;</button>
-        <h3 class="cf-bio-modal-title">Biography</h3>
-        <div class="cf-bio-modal-text">${escapeHTML(fullText)}</div>
-      </div>
-    `;
     document.body.appendChild(overlay);
+
+    // Create modal (separate element, positioned over card)
+    const modal = document.createElement('div');
+    modal.className = 'cf-bio-modal';
+    modal.innerHTML = `
+      <button class="cf-bio-modal-close" aria-label="Close">&times;</button>
+      <h3 class="cf-bio-modal-title">Biography</h3>
+      <div class="cf-bio-modal-text">${escapeHTML(fullText)}</div>
+    `;
+    document.body.appendChild(modal);
+
+    // Position modal centered over the card preview element
+    const cardEl = anchorEl
+      ? anchorEl.closest('.card-preview-canvas') || anchorEl.closest('.card-back')
+      : null;
+    if (cardEl) {
+      const rect = cardEl.getBoundingClientRect();
+      modal.style.left = (rect.left + rect.width / 2) + 'px';
+      modal.style.top = (rect.top + rect.height / 2) + 'px';
+    } else {
+      // Fallback: center in viewport
+      modal.style.left = '50%';
+      modal.style.top = '50%';
+    }
 
     // Animate in
     requestAnimationFrame(() => overlay.classList.add('active'));
 
     // Close handlers
-    overlay.querySelector('.cf-bio-modal-close').addEventListener('click', closeBioModal);
-    overlay.addEventListener('click', function (e) {
-      if (e.target === overlay) closeBioModal();
-    });
+    modal.querySelector('.cf-bio-modal-close').addEventListener('click', closeBioModal);
+    overlay.addEventListener('click', closeBioModal);
     document.addEventListener('keydown', bioModalEscHandler);
   }
 
   function closeBioModal() {
     const overlay = document.querySelector('.cf-bio-modal-overlay');
+    const modal = document.querySelector('.cf-bio-modal');
     if (overlay) {
       overlay.classList.remove('active');
       setTimeout(() => overlay.remove(), 200);
+    }
+    if (modal) {
+      setTimeout(() => modal.remove(), 200);
     }
     document.removeEventListener('keydown', bioModalEscHandler);
   }
@@ -136,7 +156,7 @@
     if (!bioText) return;
     // Get the full untruncated text from the data attribute or textContent
     const fullText = bioText.dataset.fullBio || bioText.textContent;
-    openBioModal(fullText);
+    openBioModal(fullText, bioSection);
   });
 
   // ===== PUBLIC API =====
