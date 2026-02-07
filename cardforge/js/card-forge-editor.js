@@ -1063,8 +1063,8 @@
       // Tier 4: Content Alignment
       horizontalAlignments: ['left', 'center', 'right'],
       verticalAlignments: ['middle', 'bottom'], // Exclude 'top' from random rolls
-      alignmentWeights: ['light', 'balanced', 'heavy'],
-      alignmentStyles: ['minimal', 'padded', 'spacious']
+      alignmentWeights: ['top-heavy', 'balanced', 'bottom-heavy'],
+      alignmentStyles: ['none', 'padded', 'compact', 'elegant', 'narrow']
     };
     
     // Generate random selections
@@ -1186,6 +1186,18 @@
     const horizontalOptions = document.querySelectorAll('[data-tier="4"] .alignment-type .tier-option');
     horizontalOptions.forEach(option => {
       option.classList.toggle('selected', option.dataset.value === ModularState.horizontalAlignment);
+    });
+    
+    // Update weight distribution selection
+    const weightOptions = document.querySelectorAll('[data-tier="4"] .weight-option');
+    weightOptions.forEach(option => {
+      option.classList.toggle('selected', option.dataset.weight === ModularState.alignmentWeight);
+    });
+    
+    // Update style variant selection
+    const styleOptions = document.querySelectorAll('[data-tier="4"] .style-option');
+    styleOptions.forEach(option => {
+      option.classList.toggle('selected', option.dataset.style === ModularState.alignmentStyle);
     });
     
     console.log('🔄 UI elements updated from ModularState');
@@ -1625,15 +1637,15 @@
     }
     
     // Level 2: Alignment Weight
-    const alignmentWeightOptions = document.querySelectorAll('[data-tier="2"] .alignment-weight .tier-option');
+    const alignmentWeightOptions = document.querySelectorAll('[data-tier="4"] .weight-option');
     alignmentWeightOptions.forEach(option => {
-      option.classList.toggle('selected', option.dataset.value === ModularState.alignmentWeight);
+      option.classList.toggle('selected', option.dataset.weight === ModularState.alignmentWeight);
     });
     
     // Level 3: Alignment Style
-    const alignmentStyleOptions = document.querySelectorAll('[data-tier="2"] .alignment-style .tier-option');
+    const alignmentStyleOptions = document.querySelectorAll('[data-tier="4"] .style-option');
     alignmentStyleOptions.forEach(option => {
-      option.classList.toggle('selected', option.dataset.value === ModularState.alignmentStyle);
+      option.classList.toggle('selected', option.dataset.style === ModularState.alignmentStyle);
     });
     
     // Update Tier 3: Weight
