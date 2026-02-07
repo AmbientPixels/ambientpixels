@@ -498,13 +498,16 @@
     
     slider.addEventListener('input', function() {
       display.textContent = this.value;
+      _statAnimationNeeded = true;
       updatePreview();
     });
     
+    // Name edits: no animation needed — just re-render and snap
     statRow.querySelector('input[name="stat-name"]').addEventListener('input', updatePreview);
     
     removeBtn.addEventListener('click', function() {
       statRow.remove();
+      _statAnimationNeeded = true;
       updatePreview();
       updateStatBtnState();
     });
@@ -905,6 +908,7 @@
       Object.assign(window.ModularState, cardData.design);
     }
 
+    _statAnimationNeeded = true;
     updatePreview();
   };
 
@@ -1102,8 +1106,8 @@
     
     // Always randomize artwork on every roll — fetch then update preview
     generateRandomImage().then(() => {
+      _statAnimationNeeded = true;
       updatePreview();
-      restartStatBarAnimations();
       console.log('✨ Random card rolled successfully!');
     });
   }
@@ -1393,8 +1397,8 @@
     // Update preview
     console.log(`🔄 Updating preview...`);
     try {
+      _statAnimationNeeded = true;
       updatePreview();
-      restartStatBarAnimations();
       console.log(`✅ updatePreview completed`);
     } catch (error) {
       console.error(`❌ Error in updatePreview:`, error);
@@ -2140,10 +2144,14 @@
     // Apply class and rarity styles to card elements
     applyClassAndRarityStyles();
     
-    // Trigger stat bar animations after content is updated
-    setTimeout(() => {
-      animateStatBars();
-    }, 100); // Small delay to ensure DOM is updated
+    // Trigger stat bar animations only when structural change occurred;
+    // otherwise snap bars to target instantly (avoids flicker on name edits).
+    if (_statAnimationNeeded) {
+      _statAnimationNeeded = false;
+      setTimeout(() => { animateStatBars(); }, 50);
+    } else {
+      snapStatBars();
+    }
   }
   
   // ===== CLASS AND RARITY STYLING =====
@@ -2403,33 +2411,44 @@
     return attributes;
   }
 
+  // Flag: when true, next updatePreview triggers full bar animation.
+  // When false, bars snap to target without animation (e.g. name-only edits).
+  let _statAnimationNeeded = true;
+
+  // Snap all stat bars to their data-target width instantly (no animation).
+  function snapStatBars() {
+    const bars = document.querySelectorAll('.stat-progress');
+    bars.forEach(bar => {
+      const pct = parseInt(bar.dataset.target, 10) || 0;
+      bar.style.transition = 'none';
+      bar.style.width = pct + '%';
+    });
+  }
+
+  // ===== SINGLE BAR ANIMATION (rAF + forced reflow) =====
+  function animateBar(bar, delayMs) {
+    const targetPct = parseInt(bar.dataset.target, 10) || 0;
+    bar.style.transition = 'none';
+    bar.style.width = '0%';
+    void bar.offsetWidth; // force reflow
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        bar.style.transition = 'width 450ms ease';
+        setTimeout(() => { bar.style.width = targetPct + '%'; }, delayMs);
+      });
+    });
+  }
+
   // ===== RESTART STAT BAR ANIMATIONS (called after roll/preset) =====
   function restartStatBarAnimations() {
-    // Scope to preview zone only — stagger re-entrance from 0 to target width
     const bars = document.querySelectorAll('.card-preview-zone .stat-progress');
-    bars.forEach((bar, i) => {
-      const target = bar.style.width || '0%';
-      bar.style.transition = 'none';
-      bar.style.width = '0';
-      setTimeout(() => {
-        bar.style.transition = '';
-        bar.style.width = target;
-      }, i * 150 + 50);
-    });
+    bars.forEach((bar, i) => animateBar(bar, i * 120));
   }
 
   // ===== ANIMATED STAT BARS =====
   function animateStatBars() {
     const statBars = document.querySelectorAll('.stat-progress');
-    statBars.forEach((bar, index) => {
-      const target = bar.style.width || '0%';
-      bar.style.transition = 'none';
-      bar.style.width = '0';
-      setTimeout(() => {
-        bar.style.transition = '';
-        bar.style.width = target;
-      }, index * 150 + 200);
-    });
+    statBars.forEach((bar, i) => animateBar(bar, i * 120));
   }
 
   // ===== FRONT FACE UPDATE =====
@@ -2481,9 +2500,7 @@
         <div class="stat-item">
           <div class="stat-label">${stat.name} <span class="stat-value">${stat.value}</span></div>
           <div class="stat-bar">
-            <div class="stat-progress" 
-                 style="width: ${percentage}%">
-            </div>
+            <div class="stat-progress" data-target="${percentage}" style="width:0%"></div>
           </div>
         </div>
       `;
@@ -2876,7 +2893,11 @@
     if (statsContainer) {
       // Use event delegation for dynamic stat rows
       statsContainer.addEventListener('input', function(e) {
-        if (e.target.matches('input[name="stat-name"]') || e.target.matches('input[name="stat-value"]')) {
+        if (e.target.matches('input[name="stat-value"]')) {
+          _statAnimationNeeded = true;
+          updatePreview();
+        } else if (e.target.matches('input[name="stat-name"]')) {
+          // Name-only edit: no animation, just snap bars
           updatePreview();
         }
       });
@@ -2888,6 +2909,7 @@
           if (display) {
             display.textContent = e.target.value;
           }
+          _statAnimationNeeded = true;
           updatePreview();
         }
       });

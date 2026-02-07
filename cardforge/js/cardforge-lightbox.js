@@ -53,7 +53,7 @@
         <div class="stat-item">
           <div class="stat-label">${s.name} <span class="stat-value">${s.value}</span></div>
           <div class="stat-bar">
-            <div class="stat-progress" style="width: ${pct}%"></div>
+            <div class="stat-progress" data-target="${pct}" style="width:0%"></div>
           </div>
         </div>`;
     }).join('');
@@ -284,14 +284,21 @@
         </div>`;
     }
 
-    // Animate stat bars (staggered, mirrors card-forge-editor.js)
+    // Animate stat bars (staggered, rAF + forced reflow — mirrors card-forge-editor.js)
     setTimeout(() => {
       container.querySelectorAll('.stat-progress').forEach((bar, i) => {
-        bar.classList.remove('animate');
-        bar.style.width = '0';
-        setTimeout(() => bar.classList.add('animate'), i * 200 + 300);
+        const targetPct = parseInt(bar.dataset.target, 10) || 0;
+        bar.style.transition = 'none';
+        bar.style.width = '0%';
+        void bar.offsetWidth; // force reflow
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            bar.style.transition = 'width 450ms ease';
+            setTimeout(() => { bar.style.width = targetPct + '%'; }, i * 120);
+          });
+        });
       });
-    }, 100);
+    }, 50);
 
     // Detect biography truncation after layout settles
     requestAnimationFrame(() => {
