@@ -3,17 +3,208 @@
    Updated: 2025-07-06
 */
 
+:root {
+  --cf-nav-height: 68px;
+  --cf-page-bar-height: 60px;
+  --cf-sticky-tabs-offset: calc(var(--cf-nav-height, 68px) + var(--cf-page-bar-height, 60px) + 10px);
+}
 
+/* Context header */
+.cf-page-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 22px;
+  margin-top: calc(var(--cf-nav-height, 68px) + 8px);
+  margin-bottom: 1rem;
+  background: rgba(12, 16, 28, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  box-shadow: 0 12px 28px rgba(7, 8, 12, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--mood-text-primary, #f2f4ff);
+  position: sticky;
+  top: var(--cf-nav-height, 68px);
+  z-index: 1500;
+  min-height: var(--cf-page-bar-height, 60px);
+}
 
+.cf-page-bar::after {
+  content: '';
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 6px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.35), rgba(255, 0, 153, 0.25));
+  opacity: 0.8;
+}
 
+.cf-page-bar__titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 
+.cf-page-bar__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
 
+.cf-page-bar__subtitle {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
+}
 
+.cf-page-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
 
+.cf-page-bar__icon-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
 
+.cf-icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s;
+}
 
+.cf-icon-btn:hover,
+.cf-icon-btn:focus-visible {
+  border-color: var(--mood-primary-color, #00d4ff);
+  background: rgba(0, 212, 255, 0.12);
+  transform: translateY(-1px);
+}
 
+.cf-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
 
+.cf-status-pill__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.cf-status-pill[data-state='ready'] {
+  color: #8fe3ff;
+}
+
+.cf-status-pill[data-state='unsaved'] {
+  color: #ffc857;
+  border-color: rgba(255, 200, 87, 0.4);
+}
+
+.cf-status-pill[data-state='saving'] {
+  color: #7ab8ff;
+  border-color: rgba(122, 184, 255, 0.5);
+  animation: cf-status-pulse 1.2s infinite;
+}
+
+.cf-status-pill[data-state='saved'] {
+  color: #6dff9f;
+  border-color: rgba(109, 255, 159, 0.4);
+}
+
+.cf-status-pill[data-state='error'] {
+  color: #ff7d7d;
+  border-color: rgba(255, 125, 125, 0.45);
+}
+
+@keyframes cf-status-pulse {
+  0% { box-shadow: 0 0 4px rgba(122, 184, 255, 0.4); }
+  50% { box-shadow: 0 0 12px rgba(122, 184, 255, 0.8); }
+  100% { box-shadow: 0 0 4px rgba(122, 184, 255, 0.4); }
+}
+
+.cf-variant-toggle {
+  display: inline-flex;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.cf-variant-btn {
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.75rem;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.cf-variant-btn.active {
+  background: rgba(0, 212, 255, 0.18);
+  color: #e8fbff;
+}
+
+body.cf-ui--clean .cf-page-bar {
+  background: rgba(15, 17, 24, 0.9);
+  border-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+}
+
+body.cf-ui--clean .cf-page-bar::after {
+  opacity: 0.4;
+}
+
+body.cf-ui--clean .cf-icon-btn:hover,
+body.cf-ui--clean .cf-icon-btn:focus-visible {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+body.cf-ui--clean .cf-variant-btn.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+body.cf-ui--neon .cf-page-bar {
+  background: rgba(10, 14, 28, 0.92);
+  border-color: rgba(0, 212, 255, 0.35);
+  box-shadow: 0 18px 30px rgba(0, 8, 32, 0.7);
+}
+
+body.cf-ui--neon .cf-icon-btn:hover,
+body.cf-ui--neon .cf-icon-btn:focus-visible {
+  border-color: #00d4ff;
+  background: rgba(0, 212, 255, 0.18);
+}
+
+body.cf-ui--neon .cf-variant-btn.active {
+  background: linear-gradient(120deg, rgba(0, 212, 255, 0.35), rgba(255, 0, 153, 0.35));
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+}
 
 /* Variant toggles */
 .variant-toggles {

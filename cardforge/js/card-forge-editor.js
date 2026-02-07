@@ -33,6 +33,113 @@
   // Make ModularState globally accessible for event handlers
   window.ModularState = ModularState;
 
+  const ChromeUI = {
+    statusEl: null,
+    statusLabelEl: null,
+    variantButtons: [],
+    readyForDirty: false,
+    isDirty: false,
+    isSaving: false,
+    init() {
+      this.statusEl = document.querySelector('.cf-status-pill');
+      this.statusLabelEl = this.statusEl?.querySelector('.cf-status-pill__label') || null;
+      this.variantButtons = Array.from(document.querySelectorAll('.cf-variant-btn'));
+      if (this.variantButtons.length) {
+        this.variantButtons.forEach(btn => {
+          btn.addEventListener('click', () => this.applyVariant(btn.dataset.cfVariant));
+        });
+        const storedVariant = localStorage.getItem('cfUiVariant');
+        if (storedVariant) {
+          this.applyVariant(storedVariant, false);
+        } else {
+          const activeBtn = this.variantButtons.find(btn => btn.classList.contains('active'));
+          if (activeBtn) {
+            this.applyVariant(activeBtn.dataset.cfVariant, false);
+          }
+        }
+      }
+
+      const editorForm = document.getElementById('card-editor-form');
+      if (editorForm) {
+        const handleFormDirty = () => this.markDirty();
+        editorForm.addEventListener('input', handleFormDirty, true);
+        editorForm.addEventListener('change', handleFormDirty, true);
+      }
+
+      document.addEventListener('click', (event) => {
+        if (!this.readyForDirty) return;
+        const interactive = event.target.closest('.preset-btn, .tier-option, .variant-option, .weight-option, .style-option, #roll-random-preset');
+        if (interactive) {
+          this.markDirty();
+        }
+      });
+
+      this.setStatus('ready', 'Ready');
+    },
+    applyVariant(variant, persist = true) {
+      const normalized = variant === 'clean' ? 'clean' : 'neon';
+      document.body.classList.remove('cf-ui--clean', 'cf-ui--neon');
+      document.body.classList.add(`cf-ui--${normalized}`);
+      this.variantButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.cfVariant === normalized);
+      });
+      if (persist) {
+        localStorage.setItem('cfUiVariant', normalized);
+      }
+    },
+    setStatus(state, labelOverride) {
+      if (!this.statusEl) return;
+      const labels = {
+        ready: 'Ready',
+        unsaved: 'Unsaved',
+        saving: 'Saving…',
+        saved: 'Saved',
+        error: 'Error'
+      };
+      this.statusEl.dataset.state = state;
+      if (this.statusLabelEl) {
+        this.statusLabelEl.textContent = labelOverride || labels[state] || state;
+      }
+      if (state === 'unsaved') {
+        this.isDirty = true;
+      }
+      if (state === 'saved' || state === 'ready') {
+        this.isDirty = false;
+      }
+    },
+    markDirty() {
+      if (!this.readyForDirty || this.isDirty || this.isSaving) return;
+      this.setStatus('unsaved', 'Unsaved');
+    },
+    beginSaving() {
+      this.isSaving = true;
+      this.setStatus('saving', 'Saving…');
+    },
+    finishSaving(success) {
+      this.isSaving = false;
+      if (success) {
+        this.isDirty = false;
+        this.setStatus('saved', 'Saved');
+        setTimeout(() => {
+          if (!this.isDirty && !this.isSaving) {
+            this.setStatus('ready', 'Ready');
+          }
+        }, 2000);
+      } else {
+        this.setStatus('error', 'Error');
+      }
+    },
+    setDirtyTracking(enabled) {
+      this.readyForDirty = Boolean(enabled);
+      if (!this.readyForDirty && !this.isSaving) {
+        this.isDirty = false;
+        this.setStatus('ready', 'Ready');
+      }
+    }
+  };
+
+  window.CardForgeChrome = ChromeUI;
+
   // ===== CARD DISPLAY CAPS =====
   const STAT_CAP = 5;        // Max visible stats on card face
   const SOCIAL_CAP = 8;      // Max visible social icons on card face
@@ -948,9 +1055,17 @@
     // Initialize default class and rarity styles
     initDefaultClassAndRarityStyles();
     
+    if (window.CardForgeChrome) {
+      window.CardForgeChrome.init();
+    }
+    
     // Roll a random card for better initial experience
     // Note: Using direct call since we're inside the IIFE closure
     rollRandomCard();
+    
+    if (window.CardForgeChrome) {
+      setTimeout(() => window.CardForgeChrome.setDirtyTracking(true), 600);
+    }
     
     console.log('✅ CardForge V2 Modular System Ready!');
   });

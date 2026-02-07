@@ -110,10 +110,13 @@ class CardForgeActions {
             return;
           }
           btn.dataset.saving = 'true';
+          if (window.CardForgeChrome) {
+            window.CardForgeChrome.beginSaving();
+          }
+          this.handleSaveCard();
           setTimeout(() => {
             btn.dataset.saving = 'false';
           }, 2000);
-          this.handleSaveCard();
         });
         console.log('✅ Save Card button bound (single handler)', btn.id);
       } else {
@@ -243,6 +246,9 @@ class CardForgeActions {
           // Clear card-id so the next save creates a new card
           if (idField) idField.value = '';
           this.refreshMyCardsList();
+          if (window.CardForgeChrome) {
+            window.CardForgeChrome.finishSaving(true);
+          }
         })
         .catch(() => {
           // Cloud failed — fall back to local
@@ -258,6 +264,9 @@ class CardForgeActions {
           // Clear card-id so the next save creates a new card
           if (idField) idField.value = '';
           this.refreshMyCardsList();
+          if (window.CardForgeChrome) {
+            window.CardForgeChrome.finishSaving(true);
+          }
         });
       } else {
         // Signed-out experience: local-only save
@@ -273,11 +282,17 @@ class CardForgeActions {
         // Clear card-id so the next save creates a new card
         if (idField) idField.value = '';
         this.refreshMyCardsList();
+        if (window.CardForgeChrome) {
+          window.CardForgeChrome.finishSaving(true);
+        }
       }
       
     } catch (error) {
       console.error('Error saving card:', error);
       this.showNotification('Error saving card', 'error');
+      if (window.CardForgeChrome) {
+        window.CardForgeChrome.finishSaving(false);
+      }
     }
   }
 

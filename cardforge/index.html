@@ -32,7 +32,7 @@
   <link rel="stylesheet" href="css/cardforge-layout.css"> <!-- New local layout styles that override grid.css -->
 
 </head>
-<body data-theme="dark">
+<body data-theme="dark" class="cf-ui--neon">
   <!-- Intro Section -->
   <div class="intro-section hidden" id="introSection">
     <div class="intro-content">
@@ -167,8 +167,23 @@
     <div class="cf-page-bar__title">CardForge v2</div>
     <div class="cf-page-bar__subtitle">RPG Card Creator &amp; Gallery</div>
   </div>
-  <div class="cf-page-bar__actions" aria-label="Session status placeholder">
-    <span class="cf-placeholder-pill">Status: Ready</span>
+  <div class="cf-page-bar__actions" aria-label="Page controls">
+    <div class="cf-status-pill" data-state="ready">
+      <span class="cf-status-pill__dot"></span>
+      <span class="cf-status-pill__label">Ready</span>
+    </div>
+    <div class="cf-variant-toggle" role="group" aria-label="UI Accent Mode">
+      <button type="button" class="cf-variant-btn" data-cf-variant="clean">Clean</button>
+      <button type="button" class="cf-variant-btn active" data-cf-variant="neon">Neon</button>
+    </div>
+    <div class="cf-page-bar__icon-buttons">
+      <button class="cf-icon-btn" onclick="showInfoPopup()" title="Info &amp; Help" aria-label="Info &amp; Help">
+        <i class="fas fa-info-circle"></i>
+      </button>
+      <button class="cf-icon-btn" onclick="openSettings()" title="Settings" aria-label="Settings">
+        <i class="fas fa-cog"></i>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -186,14 +201,6 @@
       <div class="panel-header">
         <div class="header-top">
           <h2><i class="fas fa-magic"></i> Card Details</h2>
-          <div class="header-buttons">
-            <button class="settings-btn" onclick="showInfoPopup()" title="Info & Help">
-              <i class="fas fa-info-circle"></i>
-            </button>
-            <button class="settings-btn" onclick="openSettings()" title="Settings">
-              <i class="fas fa-cog"></i>
-            </button>
-          </div>
         </div>
       </div>
       <nav class="cf-stepper">
