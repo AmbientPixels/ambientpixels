@@ -1123,7 +1123,7 @@
 
 /* Hero Large Variant */
 .card-preview-canvas.container-hero.container-variant-large .card-avatar {
-  height: 250px !important;
+  height: 210px !important;
 }
 
 /* Hero Small Variant */
@@ -1150,7 +1150,8 @@
 
 /* Hero Large Variant - adjust container padding for larger image (FRONT ONLY) */
 .card-preview-canvas.card-front.container-hero.container-variant-large {
-  padding-top: 250px; /* Push content below 250px image */
+  padding-top: 210px; /* Push content below 210px image */
+  padding-bottom: 10px; /* Safety net against bottom clipping */
 }
 
 /* Hero Small Variant - adjust container padding for smaller image (FRONT ONLY) */

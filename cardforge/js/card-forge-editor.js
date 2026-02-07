@@ -302,7 +302,7 @@
     'hero-large': {
       // Front-of-card styling - Hero Large Container
       horizontalAlignment: 'center',
-      verticalAlignment: 'top',
+      verticalAlignment: 'middle',
       alignmentWeight: 'balanced',
       alignmentStyle: 'padded',
       palette: 'sunset',
@@ -337,7 +337,8 @@
           { name: 'Health', value: 97 },
           { name: 'Divine Power', value: 83 },
           { name: 'Endurance', value: 90 },
-          { name: 'Strength', value: 94 }
+          { name: 'Strength', value: 94 },
+          { name: 'Protection', value: 89 }
         ]
       }
     },
