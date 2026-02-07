@@ -498,7 +498,6 @@
     
     slider.addEventListener('input', function() {
       display.textContent = this.value;
-      _statAnimationNeeded = true;
       updatePreview();
     });
     
@@ -2148,9 +2147,12 @@
     // otherwise snap bars to target instantly (avoids flicker on name edits).
     if (_statAnimationNeeded) {
       _statAnimationNeeded = false;
+      // rAF ensures innerHTML is committed before animation queries bars
       requestAnimationFrame(() => { animateStatBars(); });
     } else {
-      requestAnimationFrame(() => { snapStatBars(); });
+      // Snap synchronously — innerHTML is already committed, no need to defer.
+      // This avoids a visible 0-width frame between innerHTML and the snap.
+      snapStatBars();
     }
   }
   
@@ -2415,42 +2417,79 @@
   // When false, bars snap to target without animation (e.g. name-only edits).
   let _statAnimationNeeded = true;
 
+  // Animation version counter — incremented on every animate/snap request.
+  // Stale callbacks compare their captured version and bail if superseded.
+  let _statsAnimVersion = 0;
+
+  // Active per-bar timer IDs (keyed by bar element via WeakMap).
+  const _barTimers = new WeakMap();
+
+  // Read sanitized target percentage from a bar's data-target attribute.
+  function _barTarget(bar) {
+    const raw = Number(bar.dataset.target);
+    return Number.isFinite(raw) ? Math.max(0, Math.min(100, raw)) : 0;
+  }
+
+  // Cancel any pending animation timer on a bar.
+  function _cancelBarTimer(bar) {
+    const id = _barTimers.get(bar);
+    if (id != null) { clearTimeout(id); _barTimers.delete(bar); }
+  }
+
   // Snap all stat bars to their data-target width instantly (no animation).
   function snapStatBars() {
+    const ver = ++_statsAnimVersion;
     const bars = document.querySelectorAll('.stat-progress');
     bars.forEach(bar => {
-      const raw = Number(bar.dataset.target);
-      const pct = Number.isFinite(raw) ? Math.max(0, Math.min(100, raw)) : 0;
+      _cancelBarTimer(bar);
+      if (!bar.isConnected) return;
       bar.style.transition = 'none';
-      bar.style.width = pct + '%';
+      bar.style.width = _barTarget(bar) + '%';
     });
   }
 
-  // ===== SINGLE BAR ANIMATION (rAF + forced reflow) =====
-  function animateBar(bar, delayMs) {
-    const raw = Number(bar.dataset.target);
-    const targetPct = Number.isFinite(raw) ? Math.max(0, Math.min(100, raw)) : 0;
+  // ===== SINGLE BAR ANIMATION (rAF + forced reflow, race-safe) =====
+  function animateBar(bar, delayMs, ver) {
+    _cancelBarTimer(bar);
+    if (!bar.isConnected || ver !== _statsAnimVersion) return;
+    const targetPct = _barTarget(bar);
     bar.style.transition = 'none';
     bar.style.width = '0%';
     void bar.offsetWidth; // force reflow
     requestAnimationFrame(() => {
+      if (!bar.isConnected || ver !== _statsAnimVersion) {
+        // Superseded — snap any connected bars to target as fallback
+        if (bar.isConnected) { bar.style.transition = 'none'; bar.style.width = targetPct + '%'; }
+        return;
+      }
       requestAnimationFrame(() => {
+        if (!bar.isConnected || ver !== _statsAnimVersion) {
+          if (bar.isConnected) { bar.style.transition = 'none'; bar.style.width = targetPct + '%'; }
+          return;
+        }
         bar.style.transition = 'width 450ms ease';
-        setTimeout(() => { bar.style.width = targetPct + '%'; }, delayMs);
+        const tid = setTimeout(() => {
+          _barTimers.delete(bar);
+          if (!bar.isConnected || ver !== _statsAnimVersion) return;
+          bar.style.width = targetPct + '%';
+        }, delayMs);
+        _barTimers.set(bar, tid);
       });
     });
   }
 
   // ===== RESTART STAT BAR ANIMATIONS (called after roll/preset) =====
   function restartStatBarAnimations() {
+    const ver = ++_statsAnimVersion;
     const bars = document.querySelectorAll('.card-preview-zone .stat-progress');
-    bars.forEach((bar, i) => animateBar(bar, i * 120));
+    bars.forEach((bar, i) => animateBar(bar, i * 120, ver));
   }
 
   // ===== ANIMATED STAT BARS =====
   function animateStatBars() {
+    const ver = ++_statsAnimVersion;
     const statBars = document.querySelectorAll('.stat-progress');
-    statBars.forEach((bar, i) => animateBar(bar, i * 120));
+    statBars.forEach((bar, i) => animateBar(bar, i * 120, ver));
   }
 
   // ===== FRONT FACE UPDATE =====
@@ -2897,11 +2936,8 @@
     if (statsContainer) {
       // Use event delegation for dynamic stat rows
       statsContainer.addEventListener('input', function(e) {
-        if (e.target.matches('input[name="stat-value"]')) {
-          _statAnimationNeeded = true;
-          updatePreview();
-        } else if (e.target.matches('input[name="stat-name"]')) {
-          // Name-only edit: no animation, just snap bars
+        if (e.target.matches('input[name="stat-value"]') || e.target.matches('input[name="stat-name"]')) {
+          // Value and name edits: snap bars (no full animation)
           updatePreview();
         }
       });
@@ -2913,7 +2949,6 @@
           if (display) {
             display.textContent = e.target.value;
           }
-          _statAnimationNeeded = true;
           updatePreview();
         }
       });

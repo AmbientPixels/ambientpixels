@@ -289,15 +289,21 @@
     // Animate stat bars (staggered, rAF + forced reflow — mirrors card-forge-editor.js)
     setTimeout(() => {
       container.querySelectorAll('.stat-progress').forEach((bar, i) => {
+        if (!bar.isConnected) return;
         const raw = Number(bar.dataset.target);
         const targetPct = Number.isFinite(raw) ? Math.max(0, Math.min(100, raw)) : 0;
         bar.style.transition = 'none';
         bar.style.width = '0%';
         void bar.offsetWidth; // force reflow
         requestAnimationFrame(() => {
+          if (!bar.isConnected) { return; }
           requestAnimationFrame(() => {
+            if (!bar.isConnected) { return; }
             bar.style.transition = 'width 450ms ease';
-            setTimeout(() => { bar.style.width = targetPct + '%'; }, i * 120);
+            setTimeout(() => {
+              if (!bar.isConnected) return;
+              bar.style.width = targetPct + '%';
+            }, i * 120);
           });
         });
       });
