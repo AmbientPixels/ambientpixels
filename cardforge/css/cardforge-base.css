@@ -268,7 +268,8 @@
 .social-section .social-links {
   justify-content: center;
   margin: 0;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+  gap: 6px;
   overflow: visible;
   padding: 4px 0;
 }
@@ -316,7 +317,7 @@
   gap: 0.5rem;
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Back Sections - Badges and Attributes */
@@ -326,7 +327,7 @@
   border-radius: 8px;
   padding: 0.5rem;
   backdrop-filter: blur(4px);
-  overflow: hidden;
+  overflow: visible;
   min-height: 0;
 }
 
@@ -347,7 +348,7 @@
   gap: 0.35rem;
   justify-items: center;
   width: 100%;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
 }
 
@@ -369,7 +370,7 @@
 
 .card-condensed .badge-item {
   padding: 0.2rem;
-  min-height: auto;
+  min-height: 44px;
 }
 
 .card-condensed .badge-icon {
@@ -580,8 +581,10 @@
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 6px;
   transition: all 0.2s ease;
-  min-height: 0;
+  width: 100%;
+  min-height: 52px;
   max-width: 100%;
+  box-sizing: border-box;
   justify-content: center;
   backdrop-filter: blur(2px);
   overflow: hidden;
@@ -869,7 +872,7 @@
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 12px;
-  padding: 1.25rem;
+  padding: 0;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
   color: var(--mood-secondary-color, #a0a0c0);
   font-family: 'Inter', sans-serif;
@@ -877,23 +880,39 @@
   transform: translate(-50%, -50%);
 }
 
+.cf-bio-modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px 12px 0 0;
+}
+
 .cf-bio-modal-close {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 50%;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  min-height: 26px;
+  max-width: 26px;
+  max-height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--mood-secondary-color, #a0a0c0);
-  font-size: 1.1rem;
+  font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
   line-height: 1;
+  padding: 0;
+  flex-shrink: 0;
 }
 
 .cf-bio-modal-close:hover {
@@ -906,8 +925,12 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--mood-primary-color, #5AE4FF);
-  margin: 0 0 1rem 0;
+  margin: 0;
   font-weight: 600;
+}
+
+.cf-bio-modal-body {
+  padding: 1rem 1.25rem 1.25rem;
 }
 
 .cf-bio-modal-text {

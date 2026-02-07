@@ -35,7 +35,7 @@
 
   // ===== CARD DISPLAY CAPS =====
   const STAT_CAP = 5;        // Max visible stats on card face
-  const SOCIAL_CAP = 5;      // Max visible social icons on card face
+  const SOCIAL_CAP = 8;      // Max visible social icons on card face
   const BADGE_CAP = 6;       // 2 rows × 3 columns — overflow gets "+N" indicator
   const ATTRIBUTE_CAP = 6;   // Max visible attributes on card face
   
@@ -526,6 +526,7 @@
           <option value="facebook" ${platform === 'facebook' ? 'selected' : ''}>Facebook</option>
           <option value="discord" ${platform === 'discord' ? 'selected' : ''}>Discord</option>
           <option value="tiktok" ${platform === 'tiktok' ? 'selected' : ''}>TikTok</option>
+          <option value="youtube" ${platform === 'youtube' ? 'selected' : ''}>YouTube</option>
         </select>
       </label>
       <label>Link (URL)
@@ -2496,7 +2497,8 @@
       deviantart: 'fab fa-deviantart',
       facebook: 'fab fa-facebook',
       discord: 'fab fa-discord',
-      tiktok: 'fab fa-tiktok'
+      tiktok: 'fab fa-tiktok',
+      youtube: 'fab fa-youtube'
     };
 
     const visible = socialLinks.slice(0, SOCIAL_CAP);

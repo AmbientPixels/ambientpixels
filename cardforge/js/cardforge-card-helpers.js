@@ -78,6 +78,25 @@
     removePortalTooltip();
   }, true);
 
+  // ===== ATTRIBUTE ELLIPSIS TOOLTIP =====
+  // Show full text on hover when attribute key/value is truncated (ellipsed).
+
+  document.addEventListener('mouseenter', function (e) {
+    const el = e.target.closest('.attribute-key, .attribute-value');
+    if (!el) return;
+    // Only show tooltip if content is actually truncated
+    if (el.scrollWidth <= el.clientWidth) return;
+    const text = el.textContent;
+    if (!text) return;
+    createPortalTooltip(text, el.getBoundingClientRect());
+  }, true);
+
+  document.addEventListener('mouseleave', function (e) {
+    const el = e.target.closest('.attribute-key, .attribute-value');
+    if (!el) return;
+    removePortalTooltip();
+  }, true);
+
   // ===== BIOGRAPHY "READ MORE" MODAL =====
 
   let _bioModalCardEl = null;
@@ -139,9 +158,13 @@
     const modal = document.createElement('div');
     modal.className = 'cf-bio-modal';
     modal.innerHTML = `
-      <button class="cf-bio-modal-close" aria-label="Close">&times;</button>
-      <h3 class="cf-bio-modal-title">Biography</h3>
-      <div class="cf-bio-modal-text">${escapeHTML(fullText)}</div>
+      <div class="cf-bio-modal-header">
+        <h3 class="cf-bio-modal-title">Biography</h3>
+        <button class="cf-bio-modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="cf-bio-modal-body">
+        <div class="cf-bio-modal-text">${escapeHTML(fullText)}</div>
+      </div>
     `;
     document.body.appendChild(modal);
 

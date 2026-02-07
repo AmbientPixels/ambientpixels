@@ -23,7 +23,8 @@
     deviantart: 'fab fa-deviantart',
     facebook: 'fab fa-facebook',
     discord: 'fab fa-discord',
-    tiktok: 'fab fa-tiktok'
+    tiktok: 'fab fa-tiktok',
+    youtube: 'fab fa-youtube'
   };
 
   const badgeIconMap = {
@@ -100,7 +101,7 @@
     return html;
   }
 
-  const SOCIAL_CAP = 5; // Max visible social icons on card face
+  const SOCIAL_CAP = 8; // Max visible social icons on card face
 
   function socialHTML(links) {
     if (!links || links.length === 0) return '';
