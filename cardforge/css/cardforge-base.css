@@ -143,31 +143,47 @@
   font-size: 0.85rem;
 }
 
-.stat-bar {
+.stat-item {
   display: flex;
-  align-items: center;
-  margin: 6px 0;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.stat-label {
-  flex: 1;
-  font-size: 0.8rem;
-  color: var(--mood-secondary-color);
-}
-
-.stat-progress {
-  height: 8px;
-  background: linear-gradient(90deg, var(--aura-glow, #5AE4FF), var(--mood-primary-color, #5AE4FF));
-  border-radius: 4px;
-  transition: width 1s ease-out;
-  width: 0;
-  position: relative;
+.stat-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
   overflow: hidden;
 }
 
-/* Animated fill effect */
-.stat-progress.animate {
-  width: var(--target-width, 0%) !important;
+.stat-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.7rem;
+  color: var(--mood-secondary-color, #a0a0c0);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.stat-value {
+  font-weight: 600;
+  color: var(--mood-primary-color, #5AE4FF);
+  font-size: 0.65rem;
+  margin-left: 4px;
+  flex-shrink: 0;
+}
+
+.stat-progress {
+  height: 100%;
+  background: linear-gradient(90deg, var(--aura-glow, #5AE4FF), var(--mood-primary-color, #5AE4FF));
+  border-radius: 3px;
+  transition: width 0.6s ease-out;
+  position: relative;
+  overflow: hidden;
 }
 
 /* Stats overflow indicator — shown when stats exceed cap */
@@ -178,11 +194,21 @@
   font-weight: 600;
   padding: 0.15rem 0;
   letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.stats-overflow-indicator:hover {
+  color: var(--mood-primary-color, #5AE4FF);
 }
 
 /* Card stats container — prevent unbounded growth */
 .card-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   overflow: hidden;
+  padding: 4px 0;
 }
 
 /* Subtle glow effect during animation */
@@ -198,9 +224,6 @@
   transition: transform 1s ease-out;
 }
 
-.stat-progress.animate::before {
-  transform: translateX(100%);
-}
 
 /* ===== BACK-OF-CARD INFORMATION GRID LAYOUT ===== */
 /* Information Grid Layout - Header, Social Row, Two-Column Content Grid */
@@ -776,7 +799,7 @@
   border-radius: 1px;
 }
 
-/* Biography Text — clamped to 5 lines with fade-out on overflow */
+/* Biography Text — clamped to 3 lines with fade-out on overflow */
 .biography-text {
   font-size: 0.7rem;
   line-height: 1.35;
@@ -788,24 +811,24 @@
   border-radius: 4px;
   text-align: left;
   display: -webkit-box;
-  -webkit-line-clamp: 5;
-  line-clamp: 5;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   position: relative;
-  /* Exact height = font-size * line-height * 5 lines = 0.7rem * 1.35 * 5 = 4.725rem */
-  max-height: calc(0.7rem * 1.35 * 5);
+  /* Exact height = font-size * line-height * 3 lines = 0.7rem * 1.35 * 3 = 2.835rem */
+  max-height: calc(0.7rem * 1.35 * 3);
 }
 
 /* Condensed biography — tighter spacing when card has heavy content */
 .card-condensed .biography-text {
   font-size: 0.65rem;
   line-height: 1.3;
-  -webkit-line-clamp: 4;
-  line-clamp: 4;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   padding: 0;
   margin-top: 0.25rem;
-  max-height: calc(0.65rem * 1.3 * 4);
+  max-height: calc(0.65rem * 1.3 * 2);
 }
 
 .card-condensed .biography-section {
@@ -973,6 +996,48 @@
 /* Show "Read more" only when biography is actually truncated */
 .biography-text.is-truncated + .bio-read-more {
   display: block;
+}
+
+/* ===== STATS MODAL — items inside the shared modal shell ===== */
+.cf-stats-modal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cf-stats-modal-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cf-stats-modal-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.75rem;
+  color: var(--mood-secondary-color, #a0a0c0);
+}
+
+.cf-stats-modal-value {
+  font-weight: 600;
+  color: var(--mood-primary-color, #5AE4FF);
+  font-size: 0.7rem;
+  margin-left: 4px;
+}
+
+.cf-stats-modal-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.cf-stats-modal-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--aura-glow, #5AE4FF), var(--mood-primary-color, #5AE4FF));
+  border-radius: 3px;
 }
 
 /* Basic content structure - will be enhanced by modular system */

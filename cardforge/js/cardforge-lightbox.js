@@ -53,7 +53,7 @@
         <div class="stat-item">
           <div class="stat-label">${s.name} <span class="stat-value">${s.value}</span></div>
           <div class="stat-bar">
-            <div class="stat-progress" style="--target-width: ${pct}%"></div>
+            <div class="stat-progress" style="width: ${pct}%"></div>
           </div>
         </div>`;
     }).join('');

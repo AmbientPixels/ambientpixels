@@ -275,6 +275,130 @@
     openBioModal(fullText, bioSection);
   });
 
+  // ===== STATS "MORE" MODAL =====
+  // Reuses the same positioning / overlay pattern as Bio modal.
+
+  let _statsModalCardEl = null;
+  let _statsModalRAF = null;
+
+  function positionStatsModal() {
+    const modal = document.querySelector('.cf-stats-modal');
+    if (!modal || !_statsModalCardEl) return;
+
+    const rect = _statsModalCardEl.getBoundingClientRect();
+    const cardCX = rect.left + rect.width / 2;
+    const cardCY = rect.top + rect.height / 2;
+    const mW = modal.offsetWidth;
+    const mH = modal.offsetHeight;
+
+    let left = cardCX;
+    let top = cardCY;
+    const halfW = mW / 2;
+    if (left - halfW < rect.left) left = rect.left + halfW;
+    if (left + halfW > rect.right) left = rect.right - halfW;
+    const halfH = mH / 2;
+    if (top - halfH < rect.top) top = rect.top + halfH;
+    if (top + halfH > rect.bottom) top = rect.bottom - halfH;
+
+    modal.style.left = left + 'px';
+    modal.style.top = top + 'px';
+  }
+
+  function onStatsModalScrollResize() {
+    if (_statsModalRAF) return;
+    _statsModalRAF = requestAnimationFrame(() => {
+      _statsModalRAF = null;
+      positionStatsModal();
+    });
+  }
+
+  function openStatsModal(stats, anchorEl) {
+    closeStatsModal();
+
+    _statsModalCardEl = anchorEl
+      ? anchorEl.closest('.card-preview-canvas') || anchorEl.closest('.card-front')
+      : null;
+
+    // Build stats list HTML
+    const statsListHTML = stats.map(s => {
+      const pct = Math.min(s.value, 100);
+      return `
+        <div class="cf-stats-modal-item">
+          <div class="cf-stats-modal-label">${escapeHTML(s.name)} <span class="cf-stats-modal-value">${s.value}</span></div>
+          <div class="cf-stats-modal-bar">
+            <div class="cf-stats-modal-fill" style="width: ${pct}%"></div>
+          </div>
+        </div>`;
+    }).join('');
+
+    const overlay = document.createElement('div');
+    overlay.className = 'cf-bio-modal-overlay';
+    document.body.appendChild(overlay);
+
+    const modal = document.createElement('div');
+    modal.className = 'cf-stats-modal cf-bio-modal';
+    modal.innerHTML = `
+      <div class="cf-bio-modal-header">
+        <h3 class="cf-bio-modal-title">Stats</h3>
+        <button class="cf-bio-modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="cf-bio-modal-body">
+        <div class="cf-stats-modal-list">${statsListHTML}</div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    positionStatsModal();
+    requestAnimationFrame(() => overlay.classList.add('active'));
+
+    window.addEventListener('scroll', onStatsModalScrollResize, true);
+    window.addEventListener('resize', onStatsModalScrollResize);
+
+    modal.querySelector('.cf-bio-modal-close').addEventListener('click', closeStatsModal);
+    overlay.addEventListener('click', closeStatsModal);
+    document.addEventListener('keydown', statsModalEscHandler);
+  }
+
+  function closeStatsModal() {
+    const modal = document.querySelector('.cf-stats-modal');
+    // The overlay was appended just before the modal — find the preceding sibling overlay
+    const overlay = modal ? modal.previousElementSibling : null;
+    const isOverlay = overlay && overlay.classList.contains('cf-bio-modal-overlay');
+    if (isOverlay) {
+      overlay.classList.remove('active');
+      setTimeout(() => overlay.remove(), 200);
+    }
+    if (modal) {
+      setTimeout(() => modal.remove(), 200);
+    }
+    window.removeEventListener('scroll', onStatsModalScrollResize, true);
+    window.removeEventListener('resize', onStatsModalScrollResize);
+    if (_statsModalRAF) { cancelAnimationFrame(_statsModalRAF); _statsModalRAF = null; }
+    _statsModalCardEl = null;
+    document.removeEventListener('keydown', statsModalEscHandler);
+  }
+
+  function statsModalEscHandler(e) {
+    if (e.key === 'Escape') closeStatsModal();
+  }
+
+  // Delegate: click on .stats-overflow-indicator
+  document.addEventListener('click', function (e) {
+    const indicator = e.target.closest('.stats-overflow-indicator');
+    if (!indicator) return;
+    e.preventDefault();
+
+    // Collect all stats from the card data
+    const cardEl = indicator.closest('.card-front') || indicator.closest('.card-preview-canvas');
+    if (!cardEl) return;
+
+    // Try to get stats from the global preview data
+    const stats = (window.lastPreviewCardData && window.lastPreviewCardData.stats) || [];
+    if (stats.length === 0) return;
+
+    openStatsModal(stats, indicator);
+  });
+
   // ===== PUBLIC API =====
-  window.CardForgeCardHelpers = { openBioModal, closeBioModal, removePortalTooltip };
+  window.CardForgeCardHelpers = { openBioModal, closeBioModal, openStatsModal, closeStatsModal, removePortalTooltip };
 })();

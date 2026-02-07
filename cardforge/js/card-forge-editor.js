@@ -506,6 +506,7 @@
     removeBtn.addEventListener('click', function() {
       statRow.remove();
       updatePreview();
+      updateStatBtnState();
     });
     
     return statRow;
@@ -741,6 +742,22 @@
     updateCounter();
   }
   
+  function updateStatBtnState() {
+    const addStatBtn = document.getElementById('add-stat-btn');
+    if (!addStatBtn) return;
+    const statsContainer = document.getElementById('stats-editor');
+    const count = statsContainer ? statsContainer.querySelectorAll('.stat-row').length : 0;
+    if (count >= 10) {
+      addStatBtn.classList.add('disabled');
+      addStatBtn.disabled = true;
+      addStatBtn.title = 'Maximum 10 stats reached';
+    } else {
+      addStatBtn.classList.remove('disabled');
+      addStatBtn.disabled = false;
+      addStatBtn.title = '';
+    }
+  }
+
   function initStatsEditor() {
     const addStatBtn = document.getElementById('add-stat-btn');
     if (addStatBtn) {
@@ -750,15 +767,16 @@
         
         if (currentStats >= 10) {
           console.warn('⚠️ Maximum of 10 stats allowed');
-          alert('Maximum of 10 stats allowed');
           return;
         }
         
         const newStatRow = createStatRow();
         statsContainer.appendChild(newStatRow);
         console.log(`📊 New stat row added (${currentStats + 1}/10)`);
+        updateStatBtnState();
       });
     }
+    updateStatBtnState();
   }
   
   function initSocialEditor() {
@@ -2387,36 +2405,31 @@
 
   // ===== RESTART STAT BAR ANIMATIONS (called after roll/preset) =====
   function restartStatBarAnimations() {
-    // Scope to preview zone only — reset all bars then re-trigger staggered animation
+    // Scope to preview zone only — stagger re-entrance from 0 to target width
     const bars = document.querySelectorAll('.card-preview-zone .stat-progress');
-    bars.forEach(bar => {
-      bar.classList.remove('animate');
+    bars.forEach((bar, i) => {
+      const target = bar.style.width || '0%';
+      bar.style.transition = 'none';
       bar.style.width = '0';
+      setTimeout(() => {
+        bar.style.transition = '';
+        bar.style.width = target;
+      }, i * 150 + 50);
     });
-    setTimeout(() => {
-      bars.forEach((bar, i) => {
-        setTimeout(() => bar.classList.add('animate'), i * 200 + 100);
-      });
-    }, 50);
   }
 
   // ===== ANIMATED STAT BARS =====
   function animateStatBars() {
     const statBars = document.querySelectorAll('.stat-progress');
-    
     statBars.forEach((bar, index) => {
-      // Reset animation state
-      bar.classList.remove('animate');
+      const target = bar.style.width || '0%';
+      bar.style.transition = 'none';
       bar.style.width = '0';
-      
-      // Staggered animation with delay
       setTimeout(() => {
-        bar.classList.add('animate');
-        console.log(`🎯 Animating stat bar ${index + 1}`);
-      }, index * 200 + 300); // 200ms stagger + 300ms base delay
+        bar.style.transition = '';
+        bar.style.width = target;
+      }, index * 150 + 200);
     });
-    
-    console.log(`✨ Started animation for ${statBars.length} stat bars`);
   }
 
   // ===== FRONT FACE UPDATE =====
@@ -2469,7 +2482,7 @@
           <div class="stat-label">${stat.name} <span class="stat-value">${stat.value}</span></div>
           <div class="stat-bar">
             <div class="stat-progress" 
-                 style="--target-width: ${percentage}%">
+                 style="width: ${percentage}%">
             </div>
           </div>
         </div>
