@@ -4,11 +4,13 @@
  * Updated to work alongside global grid.css for footer compatibility
  */
 
+:root {
+  --cf-rail-width: 220px;
+  --cf-rail-width-collapsed: 64px;
+}
+
 /* Main container layout */
 .cardforge-container {
-  display: flex;
-  flex-direction: row;
-  gap: 2rem;
   margin-top: 0.5rem;
   margin-bottom: 4rem;
   min-height: calc(100vh - 200px);
@@ -17,9 +19,38 @@
   box-sizing: border-box;
 }
 
+.cf-app-grid {
+  display: grid;
+  grid-template-columns: var(--cf-rail-width) minmax(520px, 1fr) 460px;
+  gap: 16px;
+  align-items: start;
+  width: 100%;
+}
+
+body.cf-rail-collapsed .cf-app-grid {
+  grid-template-columns: var(--cf-rail-width-collapsed) minmax(520px, 1fr) 460px;
+}
+
+.cf-rail {
+  width: var(--cf-rail-width);
+  min-height: 100%;
+  transition: width 180ms ease, min-width 180ms ease;
+}
+
+body.cf-rail-collapsed .cf-rail {
+  width: var(--cf-rail-width-collapsed);
+}
+
+.cf-main-pane {
+  min-width: 520px;
+}
+
+.cf-preview-pane {
+  min-width: 460px;
+}
+
 /* Left column (form pane) — ~55% of viewport */
 .cf-left-column {
-  flex: 1 1 55%;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -27,7 +58,6 @@
 
 /* Right column (preview pane) — ~45%, sized to canonical card width */
 .right-column {
-  flex: 0 0 auto;
   width: calc(var(--card-width) + 3rem + 4px); /* card width + preview-zone padding/border + column padding/border */
   align-self: flex-start;
   display: flex;

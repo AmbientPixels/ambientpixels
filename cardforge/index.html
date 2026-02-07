@@ -33,6 +33,51 @@
 
 </head>
 <body data-theme="dark" class="cf-ui--neon">
+  <svg aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden;">
+    <defs>
+      <symbol id="cf-icon-dice" viewBox="0 0 24 24">
+        <rect x="5" y="5" width="14" height="14" rx="3" fill="currentColor" />
+        <circle cx="10" cy="10" r="1.2" fill="currentColor" fill-opacity="0.35" />
+        <circle cx="14" cy="10" r="1.2" fill="currentColor" fill-opacity="0.35" />
+        <circle cx="10" cy="14" r="1.2" fill="currentColor" fill-opacity="0.35" />
+        <circle cx="14" cy="14" r="1.2" fill="currentColor" fill-opacity="0.35" />
+      </symbol>
+      <symbol id="cf-icon-brush" viewBox="0 0 24 24">
+        <path d="M4 14l8-8 5 5-8 8H4z" fill="currentColor" />
+        <rect x="14" y="4" width="6" height="4" rx="1" fill="currentColor" fill-opacity="0.7" />
+      </symbol>
+      <symbol id="cf-icon-doc" viewBox="0 0 24 24">
+        <path d="M7 3h8l5 5v13H7z" fill="currentColor" />
+        <rect x="9" y="8" width="6" height="2.2" rx="0.5" fill="#000" fill-opacity="0.2" />
+        <rect x="9" y="12" width="8" height="2" rx="0.5" fill="#000" fill-opacity="0.2" />
+      </symbol>
+      <symbol id="cf-icon-stats" viewBox="0 0 24 24">
+        <rect x="5" y="11" width="3" height="8" rx="1" fill="currentColor" />
+        <rect x="10" y="6" width="3" height="13" rx="1" fill="currentColor" />
+        <rect x="15" y="9" width="3" height="10" rx="1" fill="currentColor" />
+        <rect x="4" y="20" width="16" height="2" rx="1" fill="currentColor" fill-opacity="0.7" />
+      </symbol>
+      <symbol id="cf-icon-globe" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="8" fill="currentColor" />
+        <rect x="6" y="11" width="12" height="2" fill="#000" fill-opacity="0.25" />
+        <rect x="11" y="6" width="2" height="12" fill="#000" fill-opacity="0.25" />
+      </symbol>
+      <symbol id="cf-icon-tag" viewBox="0 0 24 24">
+        <path d="M5 5h4l11 11-4 4L5 13z" fill="currentColor" />
+        <circle cx="8.5" cy="8.5" r="1.2" fill="#000" fill-opacity="0.25" />
+      </symbol>
+      <symbol id="cf-icon-dna" viewBox="0 0 24 24">
+        <path d="M6 5c4 0 6 14 12 14H15c-4 0-6-14-12-14z" fill="currentColor" />
+        <path d="M18 19c-4 0-6-14-12-14h3c4 0 6 14 12 14z" fill="currentColor" fill-opacity="0.7" />
+        <rect x="6" y="9" width="12" height="1.8" fill="#000" fill-opacity="0.25" />
+        <rect x="6" y="14" width="12" height="1.8" fill="#000" fill-opacity="0.25" />
+      </symbol>
+      <symbol id="cf-icon-hammer" viewBox="0 0 24 24">
+        <path d="M5 7l6-3 6 3-1.5 3H6.5z" fill="currentColor" />
+        <rect x="10" y="10" width="4" height="10" rx="1" fill="currentColor" />
+      </symbol>
+    </defs>
+  </svg>
   <!-- Intro Section -->
   <div class="intro-section hidden" id="introSection">
     <div class="intro-content">
@@ -177,6 +222,9 @@
       <button type="button" class="cf-variant-btn active" data-cf-variant="neon">Neon</button>
     </div>
     <div class="cf-page-bar__icon-buttons">
+      <button class="cf-icon-btn" data-rail-toggle aria-label="Toggle navigation rail" title="Toggle navigation rail">
+        <i class="fas fa-bars"></i>
+      </button>
       <button class="cf-icon-btn" onclick="showInfoPopup()" title="Info &amp; Help" aria-label="Info &amp; Help">
         <i class="fas fa-info-circle"></i>
       </button>
@@ -195,135 +243,207 @@
 
 
   <!-- CardForge Editor UI -->
-  <section class="cardforge-container split-pane" id="cardforge-main-container">
-  <div class="cf-left-column form-pane">
+  <section class="cardforge-container" id="cardforge-main-container">
+    <div class="cf-app-grid">
+      <aside class="cf-rail" aria-label="CardForge navigation rail">
+        <nav class="cf-stepper" role="tablist" aria-orientation="vertical">
+          <button data-step="0" class="step-btn">
+            <span class="step-icon" aria-hidden="true">
+              <span class="cf-icon-chip" aria-hidden="true">
+                <i class="cf-icon fas fa-dice-d6"></i>
+              </span>
+            </span>
+            <span class="step-label">Presets + Random</span>
+          </button>
+          <button data-step="1" class="step-btn active">
+            <span class="step-icon" aria-hidden="true">
+              <span class="cf-icon-chip" aria-hidden="true">
+                <i class="cf-icon fas fa-layer-group"></i>
+              </span>
+            </span>
+            <span class="step-label">Card Design</span>
+          </button>
+          <button data-step="2" class="step-btn">
+            <span class="step-icon" aria-hidden="true">
+              <span class="cf-icon-chip" aria-hidden="true">
+                <i class="cf-icon fas fa-clipboard-list"></i>
+              </span>
+            </span>
+            <span class="step-label">Basics</span>
+          </button>
+          <button data-step="3" class="step-btn">
+            <span class="step-icon" aria-hidden="true">
+              <span class="cf-icon-chip" aria-hidden="true">
+                <i class="cf-icon fas fa-chart-line"></i>
+              </span>
+            </span>
+            <span class="step-label">Stats</span>
+          </button>
+          <button data-step="4" class="step-btn">
+            <span class="step-icon" aria-hidden="true">
+              <span class="cf-icon-chip" aria-hidden="true">
+                <i class="cf-icon fas fa-share-nodes"></i>
+              </span>
+            </span>
+            <span class="step-label">Social</span>
+          </button>
+          <button data-step="5" class="step-btn">
+            <span class="step-icon" aria-hidden="true">
+              <span class="cf-icon-chip" aria-hidden="true">
+                <i class="cf-icon fas fa-award"></i>
+              </span>
+            </span>
+            <span class="step-label">Badges</span>
+          </button>
+          <button data-step="6" class="step-btn">
+            <span class="step-icon" aria-hidden="true">
+              <span class="cf-icon-chip" aria-hidden="true">
+                <i class="cf-icon fas fa-atom"></i>
+              </span>
+            </span>
+            <span class="step-label">Attributes</span>
+          </button>
+          <button data-step="7" class="step-btn">
+            <span class="step-icon" aria-hidden="true">
+              <span class="cf-icon-chip" aria-hidden="true">
+                <i class="cf-icon fas fa-hammer"></i>
+              </span>
+            </span>
+            <span class="step-label">Forge</span>
+          </button>
+        </nav>
+      </aside>
+      <main class="cf-main-pane">
+        <div class="cf-left-column form-pane">
       <div class="cardforge-editor">
-      <div class="panel-header">
-        <div class="header-top">
-          <h2><i class="fas fa-magic"></i> Card Details</h2>
+      <form id="card-editor-form" class="cardforge-form">
+      <div class="cf-section" data-step-section="0">
+        <h3 class="cf-section-title">
+          <span class="cf-section-icon" aria-hidden="true">
+            <span class="cf-icon-chip" aria-hidden="true">
+              <i class="cf-icon fas fa-dice-d6"></i>
+            </span>
+          </span>
+          <span class="cf-section-label">Presets + Random</span>
+        </h3>
+        <p class="cf-section-description">Jump-start a build with curated templates or roll the dice for a surprise combo.</p>
+
+        <div class="presets-section">
+          <h4 class="presets-title">🚀 Quick Start Presets</h4>
+          <div class="roll-button-container">
+            <button type="button" id="roll-random-preset" class="roll-btn">
+              <div class="roll-icon">🎲</div>
+              <div class="roll-text">
+                <div class="roll-label">Roll Random Card</div>
+                <div class="roll-subtitle">Generate surprise combination</div>
+              </div>
+            </button>
+          </div>
+          <div class="presets-grid">
+            <button type="button" class="preset-btn" data-preset="hero-classic">
+              <div class="preset-image">
+                <img src="/images/image-packs/characters/whispers-of-the-sylvan-queen.jpg" alt="Aria Stormwind" />
+              </div>
+              <div class="preset-info">
+                <div class="preset-character">🗡️ Fantasy Ranger</div>
+                <div class="preset-name">Aria Stormwind</div>
+                <div class="preset-type">Center Balanced • Framed Ornate</div>
+              </div>
+            </button>
+            
+            <button type="button" class="preset-btn" data-preset="split-modern">
+              <div class="preset-image">
+                <img src="/images/image-packs/characters/cyber-erenity.jpg" alt="Zara-7" />
+              </div>
+              <div class="preset-info">
+                <div class="preset-character">🤖 Cyberpunk Runner</div>
+                <div class="preset-name">Zara-7</div>
+                <div class="preset-type">Left Top-heavy • Framed Modern</div>
+              </div>
+            </button>
+            
+            <button type="button" class="preset-btn" data-preset="minimal-glow">
+              <div class="preset-image">
+                <img src="/images/image-packs/characters/ethereal-enigma.jpg" alt="Dr. Elena Voss" />
+              </div>
+              <div class="preset-info">
+                <div class="preset-character">📚 Arcane Scholar</div>
+                <div class="preset-name">Dr. Elena Voss</div>
+                <div class="preset-type">Center Balanced • Raw Rounded</div>
+              </div>
+            </button>
+            
+            <button type="button" class="preset-btn" data-preset="fullbleed-cinematic">
+              <div class="preset-image">
+                <img src="/images/image-packs/characters/guardian-of-the-gilded-halls.jpg" alt="Commander Rex" />
+              </div>
+              <div class="preset-info">
+                <div class="preset-character">🚀 Space Marine</div>
+                <div class="preset-name">Commander Rex</div>
+                <div class="preset-type">Center Top-heavy • Masked Circle</div>
+              </div>
+            </button>
+            
+            <button type="button" class="preset-btn" data-preset="framed-ornate">
+              <div class="preset-image">
+                <img src="/images/image-packs/characters/the-enigmatic-neuromancer.jpg" alt="Kenji Nakamura" />
+              </div>
+              <div class="preset-info">
+                <div class="preset-character">⚔️ Corporate Ronin</div>
+                <div class="preset-name">Kenji Nakamura</div>
+                <div class="preset-type">Center Top-heavy • Framed Ornate</div>
+              </div>
+            </button>
+            
+            <button type="button" class="preset-btn" data-preset="hero-fullbleed">
+              <div class="preset-image">
+                <img src="/images/image-packs/characters/hero.png" alt="Captain Nova" />
+              </div>
+              <div class="preset-info">
+                <div class="preset-character">🦸 Legendary Hero</div>
+                <div class="preset-name">Captain Nova</div>
+                <div class="preset-type">Center Balanced • Full Bleed</div>
+              </div>
+            </button>
+            
+            <button type="button" class="preset-btn" data-preset="hero-large">
+              <div class="preset-image">
+                <img src="/images/image-packs/characters/twilight-titan.jpg" alt="Titan Guardian" />
+              </div>
+              <div class="preset-info">
+                <div class="preset-character">🛡️ Titan Guardian</div>
+                <div class="preset-name">Divine Protector</div>
+                <div class="preset-type">Center Balanced • Hero Large</div>
+              </div>
+            </button>
+            
+            <button type="button" class="preset-btn" data-preset="raw-rounded">
+              <div class="preset-image">
+                <img src="/images/image-packs/characters/navigator-kairo.jpg" alt="Shadow Operative" />
+              </div>
+              <div class="preset-info">
+                <div class="preset-character">🥷 Shadow Operative</div>
+                <div class="preset-name">Stealth Specialist</div>
+                <div class="preset-type">Left Top-heavy • Raw Rounded</div>
+              </div>
+            </button>
+          </div>
         </div>
       </div>
-      <nav class="cf-stepper">
-        <button data-step="1" class="step-btn active">Card Design</button>
-        <button data-step="2" class="step-btn">Basics</button>
-        <button data-step="3" class="step-btn">Stats</button>
-        <button data-step="4" class="step-btn">Social</button>
-        <button data-step="5" class="step-btn">Badges</button>
-        <button data-step="6" class="step-btn">Attributes</button>
-        <button data-step="7" class="step-btn">Forge</button>
-      </nav>
-      <form id="card-editor-form" class="cardforge-form">
       <div class="cf-section active" data-step-section="1">
-        <h3 class="cf-section-title"><span class="step-index">1</span> Card Design</h3>
+        <h3 class="cf-section-title">
+          <span class="cf-section-icon" aria-hidden="true">
+            <span class="cf-icon-chip" aria-hidden="true">
+              <i class="cf-icon fas fa-layer-group"></i>
+            </span>
+          </span>
+          <span class="cf-section-label">Card Design</span>
+        </h3>
         <!-- Hidden field for card ID when editing existing cards -->
         <input type="hidden" id="card-id" value="" />
 
         <!-- MODULAR DESIGN SYSTEM -->
         <div class="modular-system">
-          
-          <!-- QUICK START PRESETS -->
-          <div class="presets-section">
-            <h4 class="presets-title">🚀 Quick Start Presets</h4>
-            <div class="roll-button-container">
-              <button type="button" id="roll-random-preset" class="roll-btn">
-                <div class="roll-icon">🎲</div>
-                <div class="roll-text">
-                  <div class="roll-label">Roll Random Card</div>
-                  <div class="roll-subtitle">Generate surprise combination</div>
-                </div>
-              </button>
-            </div>
-            <div class="presets-grid">
-              <button type="button" class="preset-btn" data-preset="hero-classic">
-                <div class="preset-image">
-                  <img src="/images/image-packs/characters/whispers-of-the-sylvan-queen.jpg" alt="Aria Stormwind" />
-                </div>
-                <div class="preset-info">
-                  <div class="preset-character">🗡️ Fantasy Ranger</div>
-                  <div class="preset-name">Aria Stormwind</div>
-                  <div class="preset-type">Center Balanced • Framed Ornate</div>
-                </div>
-              </button>
-              
-              <button type="button" class="preset-btn" data-preset="split-modern">
-                <div class="preset-image">
-                  <img src="/images/image-packs/characters/cyber-erenity.jpg" alt="Zara-7" />
-                </div>
-                <div class="preset-info">
-                  <div class="preset-character">🤖 Cyberpunk Runner</div>
-                  <div class="preset-name">Zara-7</div>
-                  <div class="preset-type">Left Top-heavy • Framed Modern</div>
-                </div>
-              </button>
-              
-              <button type="button" class="preset-btn" data-preset="minimal-glow">
-                <div class="preset-image">
-                  <img src="/images/image-packs/characters/ethereal-enigma.jpg" alt="Dr. Elena Voss" />
-                </div>
-                <div class="preset-info">
-                  <div class="preset-character">📚 Arcane Scholar</div>
-                  <div class="preset-name">Dr. Elena Voss</div>
-                  <div class="preset-type">Center Balanced • Raw Rounded</div>
-                </div>
-              </button>
-              
-              <button type="button" class="preset-btn" data-preset="fullbleed-cinematic">
-                <div class="preset-image">
-                  <img src="/images/image-packs/characters/guardian-of-the-gilded-halls.jpg" alt="Commander Rex" />
-                </div>
-                <div class="preset-info">
-                  <div class="preset-character">🚀 Space Marine</div>
-                  <div class="preset-name">Commander Rex</div>
-                  <div class="preset-type">Center Top-heavy • Masked Circle</div>
-                </div>
-              </button>
-              
-              <button type="button" class="preset-btn" data-preset="framed-ornate">
-                <div class="preset-image">
-                  <img src="/images/image-packs/characters/the-enigmatic-neuromancer.jpg" alt="Kenji Nakamura" />
-                </div>
-                <div class="preset-info">
-                  <div class="preset-character">⚔️ Corporate Ronin</div>
-                  <div class="preset-name">Kenji Nakamura</div>
-                  <div class="preset-type">Center Top-heavy • Framed Ornate</div>
-                </div>
-              </button>
-              
-              <button type="button" class="preset-btn" data-preset="hero-fullbleed">
-                <div class="preset-image">
-                  <img src="/images/image-packs/characters/hero.png" alt="Captain Nova" />
-                </div>
-                <div class="preset-info">
-                  <div class="preset-character">🦸 Legendary Hero</div>
-                  <div class="preset-name">Captain Nova</div>
-                  <div class="preset-type">Center Balanced • Full Bleed</div>
-                </div>
-              </button>
-              
-              <button type="button" class="preset-btn" data-preset="hero-large">
-                <div class="preset-image">
-                  <img src="/images/image-packs/characters/twilight-titan.jpg" alt="Titan Guardian" />
-                </div>
-                <div class="preset-info">
-                  <div class="preset-character">🛡️ Titan Guardian</div>
-                  <div class="preset-name">Divine Protector</div>
-                  <div class="preset-type">Center Balanced • Hero Large</div>
-                </div>
-              </button>
-              
-              <button type="button" class="preset-btn" data-preset="raw-rounded">
-                <div class="preset-image">
-                  <img src="/images/image-packs/characters/navigator-kairo.jpg" alt="Shadow Operative" />
-                </div>
-                <div class="preset-info">
-                  <div class="preset-character">🥷 Shadow Operative</div>
-                  <div class="preset-name">Stealth Specialist</div>
-                  <div class="preset-type">Left Top-heavy • Raw Rounded</div>
-                </div>
-              </button>
-            </div>
-          </div>
-          
           <!-- PRESERVED: Image Gallery and Custom URL -->
           <div class="artwork-section">
             <h4>Artwork</h4>
@@ -784,7 +904,14 @@
         </div>
       </div>
       <div class="cf-section" data-step-section="2">
-        <h3 class="cf-section-title"><span class="step-index">2</span> Basics</h3>
+        <h3 class="cf-section-title">
+          <span class="cf-section-icon" aria-hidden="true">
+            <span class="cf-icon-chip" aria-hidden="true">
+              <i class="cf-icon fas fa-clipboard-list"></i>
+            </span>
+          </span>
+          <span class="cf-section-label">Basics</span>
+        </h3>
         <label for="card-name">Name</label>
         <input type="text" id="card-name" placeholder="Card Name" />
 
@@ -906,7 +1033,14 @@
       </div>
       
       <div class="cf-section" data-step-section="3">
-        <h3 class="cf-section-title"><span class="step-index">3</span> Stats</h3>
+        <h3 class="cf-section-title">
+          <span class="cf-section-icon" aria-hidden="true">
+            <span class="cf-icon-chip" aria-hidden="true">
+              <i class="cf-icon fas fa-chart-line"></i>
+            </span>
+          </span>
+          <span class="cf-section-label">Stats</span>
+        </h3>
         <label for="card-stats">Stats</label>
         <div id="stats-editor">
           <!-- Stats will be populated by presets or user input -->
@@ -917,7 +1051,14 @@
       
 
       <div class="cf-section" data-step-section="4">
-        <h3 class="cf-section-title"><span class="step-index">4</span> Social Links</h3>
+        <h3 class="cf-section-title">
+          <span class="cf-section-icon" aria-hidden="true">
+            <span class="cf-icon-chip" aria-hidden="true">
+              <i class="cf-icon fas fa-share-nodes"></i>
+            </span>
+          </span>
+          <span class="cf-section-label">Social Links</span>
+        </h3>
         <label for="card-social">Social Links</label>
         <div id="social-editor">
           <div class="social-row">
@@ -944,7 +1085,14 @@
       </div>
       
       <div class="cf-section" data-step-section="5">
-        <h3 class="cf-section-title"><span class="step-index">5</span> Badges</h3>
+        <h3 class="cf-section-title">
+          <span class="cf-section-icon" aria-hidden="true">
+            <span class="cf-icon-chip" aria-hidden="true">
+              <i class="cf-icon fas fa-award"></i>
+            </span>
+          </span>
+          <span class="cf-section-label">Badges</span>
+        </h3>
         <label for="micro-editor">Micro Badges</label>
         <div id="micro-editor">
           <div class="micro-row">
@@ -980,7 +1128,14 @@
       </div>
       
       <div class="cf-section" data-step-section="6">
-        <h3 class="cf-section-title"><span class="step-index">6</span> Attributes</h3>
+        <h3 class="cf-section-title">
+          <span class="cf-section-icon" aria-hidden="true">
+            <span class="cf-icon-chip" aria-hidden="true">
+              <i class="cf-icon fas fa-atom"></i>
+            </span>
+          </span>
+          <span class="cf-section-label">Attributes</span>
+        </h3>
 <label for="card-bio">Biography</label>
 <textarea id="card-bio" name="card-bio" rows="3" placeholder="Enter biography or background"></textarea>
         
@@ -1001,7 +1156,14 @@
       
       <!-- FORGE TAB SECTION - Redesign by Cascade 2025-08 -->
       <div class="cf-section" data-step-section="7">
-        <h3 class="cf-section-title"><span class="step-index">7</span> Forge</h3>
+        <h3 class="cf-section-title">
+          <span class="cf-section-icon" aria-hidden="true">
+            <span class="cf-icon-chip" aria-hidden="true">
+              <i class="cf-icon fas fa-hammer"></i>
+            </span>
+          </span>
+          <span class="cf-section-label">Forge</span>
+        </h3>
         <p class="cf-section-description">Publish, save, share, and manage your card creations.</p>
 
         <!-- New Forge Layout: Sidebar + Content -->
@@ -1071,63 +1233,66 @@
       </div> <!-- /.cf-section[data-step-section="7"] -->
       </form>
       <!-- User cards sidebar moved to Forge tab -->
-    </div>
-  </div>
-    <!-- Unified card preview section -->
-    <div class="drag-divider" aria-label="Resize panes"></div>
-    <div class="cardforge-preview preview-pane right-column" id="card-preview-container">
-      
-      <!-- CARD PREVIEW ZONE (Always Visible) -->
-      <div class="sticky-preview-wrapper">
-        <div class="card-preview-zone">
-        <div class="preview-header">
-          <div class="card-toolbar-minimal" role="toolbar" aria-label="Card Actions">
-            <button id="toolbar-save-btn" title="Save Card" aria-label="Save Card" class="toolbar-btn"><i class="fas fa-save"></i></button>
-            
-            <button id="toolbar-reset-btn" title="Reset Card" aria-label="Reset Card" class="toolbar-btn"><i class="fas fa-undo"></i></button>
-            <button id="toolbar-clear-all-btn" title="Clear All" aria-label="Clear All" class="toolbar-btn"><i class="fas fa-eraser"></i></button>
-          </div>
-          <h2>Card Preview</h2>
-          <div class="preview-controls">
-            <button type="button" id="flip-btn" class="glass-button">
-              <i class="fas fa-sync-alt"></i>
-              <span>Flip Card</span>
-            </button>
+        </div>
+      </div>
+      </main>
+      <aside class="cf-preview-pane" aria-label="Card preview column">
+        <div class="cardforge-preview preview-pane right-column" id="card-preview-container">
+          
+          <!-- CARD PREVIEW ZONE (Always Visible) -->
+          <div class="sticky-preview-wrapper">
+            <div class="card-preview-zone">
+            <div class="preview-header">
+              <div class="card-toolbar-minimal" role="toolbar" aria-label="Card Actions">
+                <button id="toolbar-save-btn" title="Save Card" aria-label="Save Card" class="toolbar-btn"><i class="fas
+ fa-save"></i></button>
+                
+                <button id="toolbar-reset-btn" title="Reset Card" aria-label="Reset Card" class="toolbar-btn"><i class="fas fa-undo"></i></button>
+                <button id="toolbar-clear-all-btn" title="Clear All" aria-label="Clear All" class="toolbar-btn"><i class="fas fa-eraser"></i></button>
+              </div>
+              <h2>Card Preview</h2>
+              <div class="preview-controls">
+                <button type="button" id="flip-btn" class="glass-button">
+                  <i class="fas fa-sync-alt"></i>
+                  <span>Flip Card</span>
+                </button>
 
-          </div>
-        </div>
-        
-        <div class="card-preview-canvas">
-          <div class="card-inner">
-            <div class="card-front">
-              <div class="card-header">
-                <div class="card-avatar-container">
-                  <img class="card-avatar" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAEklEQVQImWP4////fwYiYGQAAAMdAv+q1e0QAAAAAElFTkSuQmCC" alt="Character Avatar" loading="lazy" decoding="async">
-                </div>
-                <div class="card-title-section">
-                  <h3 class="card-name"></h3>
-                  <p class="card-class"></p>
-                </div>
               </div>
-              <div class="card-body">
-                <div class="card-quote"></div>
-                <div class="card-stats">
-                  <!-- Stats will be populated by JavaScript -->
+            </div>
+            
+            <div class="card-preview-canvas">
+              <div class="card-inner">
+                <div class="card-front">
+                  <div class="card-header">
+                    <div class="card-avatar-container">
+                      <img class="card-avatar" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAEklEQVQImWP4////fwYiYGQAAAMdAv+q1e0QAAAAAElFTkSuQmCC" alt="Character Avatar" loading="lazy" decoding="async">
+                    </div>
+                    <div class="card-title-section">
+                      <h3 class="card-name"></h3>
+                      <p class="card-class"></p>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="card-quote"></div>
+                    <div class="card-stats">
+                      <!-- Stats will be populated by JavaScript -->
+                    </div>
+                    <div class="badge-container">
+                      <!-- Badges will be populated by JavaScript -->
+                    </div>
+                  </div>
                 </div>
-                <div class="badge-container">
-                  <!-- Badges will be populated by JavaScript -->
+                <div class="card-back">
+                  <!-- Back content will be populated by JavaScript -->
                 </div>
               </div>
             </div>
-            <div class="card-back">
-              <!-- Back content will be populated by JavaScript -->
-            </div>
           </div>
+          <!-- Right column now dedicated only to card preview -->
+          </div>
+          
         </div>
-      </div>
-      <!-- Right column now dedicated only to card preview -->
-      </div>
-      
+      </aside>
     </div>
   </section>
   

@@ -3,6 +3,8 @@
 // Added by Cascade 2025-07-23
 
 (function () {
+  const RAIL_COLLAPSE_KEY = 'cfRailCollapsed';
+
   // Ensure DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
@@ -11,12 +13,15 @@
   }
 
   function init() {
+    initRailToggle();
     initDragDivider();
     initStepper();
     initTabs();
   }
 
+
   /* ---------------- Drag Divider ---------------- */
+
   function initDragDivider() {
     const divider = document.querySelector('.drag-divider');
     const formPane = document.querySelector('.form-pane');
@@ -50,6 +55,7 @@
   }
 
   /* ---------------- Stepper ---------------- */
+
   function initStepper() {
     const sections = document.querySelectorAll('.cf-section');
     const stepButtons = document.querySelectorAll('.step-btn');
@@ -84,6 +90,37 @@
     sections.forEach((sec) => {
       // ensure only first section visible by default
       if (!sec.classList.contains('active')) sec.style.display = 'none';
+    });
+  }
+
+  /* ---------------- Rail Toggle ---------------- */
+  function initRailToggle() {
+    const toggleBtn = document.querySelector('[data-rail-toggle]');
+    if (!toggleBtn) return;
+
+    const body = document.body;
+    const applyState = (collapsed) => {
+      body.classList.toggle('cf-rail-collapsed', collapsed);
+      toggleBtn.setAttribute('aria-pressed', collapsed ? 'true' : 'false');
+    };
+
+    try {
+      const savedState = localStorage.getItem(RAIL_COLLAPSE_KEY);
+      if (savedState === '1') {
+        applyState(true);
+      }
+    } catch (err) {
+      console.warn('CF Rail: unable to read saved state', err);
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      const collapsed = !body.classList.contains('cf-rail-collapsed');
+      applyState(collapsed);
+      try {
+        localStorage.setItem(RAIL_COLLAPSE_KEY, collapsed ? '1' : '0');
+      } catch (err) {
+        console.warn('CF Rail: unable to persist state', err);
+      }
     });
   }
 })();
