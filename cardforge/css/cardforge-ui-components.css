@@ -727,7 +727,7 @@ body.cf-ui--clean .cf-section-icon .cf-icon-chip {
 /* Card Preview Container */
 #card-preview-container {
   position: sticky;
-  top: 100px;
+  top: var(--cf-chrome-h);
   z-index: 10;
   background: var(--aura-bg-color, #1a1a2e);
   border-radius: 8px;

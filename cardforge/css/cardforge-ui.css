@@ -4,9 +4,10 @@
 */
 
 :root {
-  --cf-nav-height: 68px;
-  --cf-page-bar-height: 60px;
-  --cf-sticky-tabs-offset: calc(var(--cf-nav-height, 68px) + var(--cf-page-bar-height, 60px) + 10px);
+  --cf-nav-height: 70px;
+  --cf-page-bar-height: 62px;
+  --cf-chrome-h: calc(var(--cf-nav-height, 70px) + var(--cf-page-bar-height, 62px) + 2rem);
+  --cf-sticky-tabs-offset: calc(var(--cf-chrome-h) + 10px);
 }
 
 /* Context header */
@@ -16,8 +17,8 @@
   justify-content: space-between;
   width: 100%;
   padding: 12px 22px;
-  margin-top: calc(var(--cf-nav-height, 68px) + 8px);
-  margin-bottom: 1rem;
+  margin-top: var(--cf-nav-height, 70px);
+  margin-bottom: 0;
   background: rgba(12, 16, 28, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
@@ -26,9 +27,9 @@
   -webkit-backdrop-filter: blur(14px);
   color: var(--mood-text-primary, #f2f4ff);
   position: sticky;
-  top: var(--cf-nav-height, 68px);
+  top: var(--cf-nav-height, 70px);
   z-index: 1500;
-  min-height: var(--cf-page-bar-height, 60px);
+  min-height: var(--cf-page-bar-height, 62px);
 }
 
 .cf-page-bar::after {
@@ -399,7 +400,7 @@ body.cf-ui--neon .cf-variant-btn.active {
 /* Card Preview Zone (Always Visible) - Fixed math */
 #card-preview-container {
   position: sticky;
-  top: 100px;
+  top: var(--cf-chrome-h);
   z-index: 10;
   background: var(--aura-bg-color, #1a1a2e);
   border-radius: 8px;

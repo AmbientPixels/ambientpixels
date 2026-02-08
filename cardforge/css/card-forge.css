@@ -44,6 +44,7 @@
   border-radius: 8px;
   border: 1px solid var(--mood-accent-color, rgba(255,255,255,0.1));
   /* Blur effects removed */
+  scroll-margin-top: var(--cf-chrome-h);
 }
 
 .cf-section-title {

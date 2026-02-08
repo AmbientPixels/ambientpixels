@@ -70,6 +70,11 @@
           sections.forEach(sec=>{sec.classList.remove('active'); sec.style.display='none';});
           targetSection.classList.add('active');
           targetSection.style.display='block';
+          // Scroll so the active section is visible below the chrome
+          // Use rAF to ensure layout is recalculated after display change
+          requestAnimationFrame(() => {
+            targetSection.scrollIntoView({ behavior: 'instant', block: 'start' });
+          });
         }
         stepButtons.forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
