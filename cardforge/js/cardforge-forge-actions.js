@@ -1147,10 +1147,14 @@ const resp = await fetch(loadUrl, {
       const count = deck.cardIds ? deck.cardIds.length : 0;
       const isSelected = deck.id === this._selectedDeckId;
       const deckIcon = deck.icon || DEFAULT_DECK_ICON;
+      const hasDeckImg = deck.deckImage && deck.deckImage.trim();
+      const visualHTML = hasDeckImg
+        ? `<div class="deck-list-item-img"><img src="${deck.deckImage}" alt="" onerror="this.parentNode.innerHTML='<i class=\\'${deckIcon}\\'></i>'" /></div>`
+        : `<i class="deck-list-item-icon ${deckIcon}"></i>`;
       return `
         <div class="deck-list-item${isSelected ? ' active' : ''}" data-deck-id="${deck.id}"
              onclick="cardForgeActions.selectDeck('${deck.id}')">
-          <i class="deck-list-item-icon ${deckIcon}"></i>
+          ${visualHTML}
           <div class="deck-list-item-info">
             <span class="deck-list-item-name">${deck.name}</span>
             <span class="deck-list-item-count">${count} card${count !== 1 ? 's' : ''}</span>

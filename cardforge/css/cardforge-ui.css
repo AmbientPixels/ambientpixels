@@ -2551,12 +2551,13 @@ opacity: 1;
   align-items: center;
   justify-content: space-between;
   gap: 0.35rem;
-  padding: 0.45rem 0.5rem;
+  padding: 0.45rem 0.5rem 0.45rem 0;
   background: transparent;
   border: 1px solid transparent;
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.12s ease;
+  overflow: hidden;
 }
 
 [data-step-section="7"] .deck-list-item:hover {
@@ -2569,7 +2570,35 @@ opacity: 1;
   border-color: rgba(255, 255, 255, 0.08);
 }
 
-/* Deck list item icon (left rail) */
+/* Deck list item — image thumbnail (bleed left) */
+[data-step-section="7"] .deck-list-item-img {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 5px 0 0 5px;
+  background: #12121e;
+}
+
+[data-step-section="7"] .deck-list-item-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+[data-step-section="7"] .deck-list-item-img i {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+  opacity: 0.5;
+}
+
+/* Deck list item — icon fallback (no image) */
 [data-step-section="7"] .deck-list-item-icon {
   font-size: 0.8rem;
   width: 18px;
@@ -2577,6 +2606,7 @@ opacity: 1;
   flex-shrink: 0;
   color: var(--mood-text-secondary, #a0a0c0);
   opacity: 0.6;
+  margin-left: 0.5rem;
 }
 
 [data-step-section="7"] .deck-list-item.active .deck-list-item-icon {
