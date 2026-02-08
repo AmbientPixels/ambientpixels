@@ -108,6 +108,9 @@ async function performDelete(id, cardName) {
       if (window.cardForgeActions.refreshGallery) {
         window.cardForgeActions.refreshGallery();
       }
+      if (window.cardForgeActions.refreshGalleryDecks) {
+        window.cardForgeActions.refreshGalleryDecks();
+      }
       console.log('🔄 My Cards and Gallery refreshed');
     }
     

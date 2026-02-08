@@ -59,22 +59,42 @@ module.exports = async function (context, req) {
   }
 
   const shareId = (req.query && req.query.shareId) || '';
-  context.log(`cardforgedeckload: Loading deck with shareId=${shareId}`);
-
-  if (!shareId) {
-    context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'shareId query parameter is required' } };
-    return;
-  }
-
-  // Validate shareId format (alphanumeric + URL-safe base64 chars, max 16 chars)
-  if (!/^[A-Za-z0-9_-]{1,16}$/.test(shareId)) {
-    context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Invalid shareId format' } };
-    return;
-  }
+  context.log(`cardforgedeckload: shareId=${shareId || '(none — returning index)'}`);
 
   try {
     const blobServiceClient = await createBlobServiceClient();
     const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
+
+    // No shareId → return the published decks index (gallery listing)
+    if (!shareId) {
+      const indexPath = 'published-decks-index.json';
+      const indexBlobClient = containerClient.getBlockBlobClient(indexPath);
+      const indexExists = await withRetry(() => indexBlobClient.exists(), 'check index exists', context);
+
+      if (!indexExists) {
+        context.res = { status: 200, headers: CORS_HEADERS, body: { publishedDecks: [] } };
+        return;
+      }
+
+      const dl = await withRetry(() => indexBlobClient.download(), 'download index', context);
+      const text = await streamToText(dl.readableStreamBody);
+      let index;
+      try {
+        index = JSON.parse(text);
+      } catch (e) {
+        context.log.error('Index parse error: ' + e.message);
+        index = { publishedDecks: [] };
+      }
+
+      context.res = { status: 200, headers: CORS_HEADERS, body: index };
+      return;
+    }
+
+    // Validate shareId format (alphanumeric + URL-safe base64 chars, max 16 chars)
+    if (!/^[A-Za-z0-9_-]{1,16}$/.test(shareId)) {
+      context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Invalid shareId format' } };
+      return;
+    }
 
     const deckBlobPath = `published-decks/${shareId}.json`;
     const deckBlobClient = containerClient.getBlockBlobClient(deckBlobPath);

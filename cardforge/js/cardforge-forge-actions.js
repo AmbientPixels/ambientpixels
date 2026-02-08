@@ -42,6 +42,7 @@ class CardForgeActions {
     this.refreshMyCardsList();
     this.refreshDeckList();
     this.refreshGallery();
+    this.refreshGalleryDecks();
     this.initialized = true;
   }
 
@@ -1077,6 +1078,60 @@ const resp = await fetch(loadUrl, {
     }
   }
 
+  // Published Decks — gallery section
+  async refreshGalleryDecks() {
+    console.log('🌐 Refreshing gallery decks...');
+    const grid = document.getElementById('gallery-decks-grid');
+    if (!grid) return;
+
+    try {
+      const url = window.buildApiPath('deckLoad');
+      const resp = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+
+      const data = await resp.json();
+      const decks = Array.isArray(data?.publishedDecks) ? data.publishedDecks : [];
+
+      console.log(`🌐 Loaded ${decks.length} published decks`);
+
+      if (decks.length === 0) {
+        grid.innerHTML = `
+          <div class="gallery-empty">
+            <i class="fas fa-layer-group"></i>
+            <p>No published decks yet</p>
+            <small>Publish a deck from the Deck Manager to see it here!</small>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = decks.map(d => {
+        const icon = d.icon || 'fas fa-layer-group';
+        const tags = (d.tags || []).slice(0, 3).map(t =>
+          '<span class="gallery-deck-tag">' + t + '</span>'
+        ).join('');
+        const shareUrl = '/cardforge/deck.html?deck=' + d.shareId;
+        return `
+          <a class="gallery-deck-tile" href="${shareUrl}" target="_blank" title="${d.name}">
+            <div class="gallery-deck-tile-icon"><i class="${icon}"></i></div>
+            <div class="gallery-deck-tile-info">
+              <div class="gallery-deck-tile-name">${d.name}</div>
+              <div class="gallery-deck-tile-meta">${d.cardCount || 0} card${(d.cardCount || 0) !== 1 ? 's' : ''}</div>
+              ${tags ? '<div class="gallery-deck-tile-tags">' + tags + '</div>' : ''}
+            </div>
+          </a>`;
+      }).join('');
+
+    } catch (e) {
+      console.warn('⚠️ Could not load gallery decks:', e);
+      grid.innerHTML = `
+        <div class="gallery-empty">
+          <i class="fas fa-layer-group"></i>
+          <p>Decks coming soon</p>
+        </div>`;
+    }
+  }
+
   // Remove a card from the public gallery (published-cards.json)
   async removeFromGallery(cardId) {
     const doRemove = async () => {
@@ -1524,6 +1579,9 @@ CardForgeActions.prototype.publishDeck = function(deckId) {
       deck.shareId = shareId;
       deck.lastModified = new Date().toISOString();
       localStorage.setItem('cardforge_decks', JSON.stringify(decks));
+
+      // Refresh gallery decks section
+      setTimeout(() => { self.refreshGalleryDecks(); }, 500);
 
       // Show success dialog
       if (titleEl) titleEl.textContent = 'Deck Published!';

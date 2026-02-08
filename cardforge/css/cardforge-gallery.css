@@ -196,3 +196,103 @@
   font-size: 0.9rem;
   opacity: 0.7;
 }
+
+/* ── Published Decks Section ── */
+.gallery-decks-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--mood-primary-color, #e1e1ff);
+  margin: 2rem 0 0.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.gallery-decks-heading i {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.gallery-decks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.gallery-deck-tile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--aura-bg-color, #1a1a2e);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.gallery-deck-tile:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 212, 255, 0.25);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 8px rgba(0, 212, 255, 0.06);
+}
+
+.gallery-deck-tile-icon {
+  font-size: 1.3rem;
+  color: #00d4ff;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 212, 255, 0.08);
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.gallery-deck-tile-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.gallery-deck-tile-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--mood-primary-color, #e1e1ff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gallery-deck-tile-meta {
+  font-size: 0.72rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+  opacity: 0.7;
+  margin-top: 0.1rem;
+}
+
+.gallery-deck-tile-tags {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.3rem;
+}
+
+.gallery-deck-tag {
+  padding: 0.1rem 0.45rem;
+  border-radius: 9px;
+  background: rgba(0, 212, 255, 0.06);
+  border: 1px solid rgba(0, 212, 255, 0.12);
+  color: #00d4ff;
+  font-size: 0.6rem;
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .gallery-decks-grid {
+    grid-template-columns: 1fr;
+  }
+}
