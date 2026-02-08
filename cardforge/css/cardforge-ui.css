@@ -2223,6 +2223,293 @@ opacity: 1;
 }
 
 /* =========================================
+   FORGE TAB — Command Center Refactor
+   Scoped to [data-step-section="7"]
+   ========================================= */
+
+/* Outer panel — soft container matching Stats/Badges/Attributes */
+[data-step-section="7"] .forge-panel {
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+/* ── Actions Strip ── */
+[data-step-section="7"] .forge-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-step-section="7"] .forge-actions .forge-action-btn {
+  flex-direction: row;
+  align-items: center;
+  padding: 0.5rem 1.25rem;
+  gap: 0.5rem;
+  min-width: auto;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+[data-step-section="7"] .forge-actions .forge-action-btn.primary {
+  background: linear-gradient(135deg, var(--mood-primary-color, #00d4ff) 0%, #0099cc 100%);
+  border: 1px solid transparent;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 212, 255, 0.2);
+}
+
+[data-step-section="7"] .forge-actions .forge-action-btn.primary:hover {
+  background: linear-gradient(135deg, #00e5ff 0%, #00b3e6 100%);
+  box-shadow: 0 4px 16px rgba(0, 212, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+[data-step-section="7"] .forge-actions .forge-action-btn small {
+  display: none;
+}
+
+/* ── Body Layout — override old forge-layout ── */
+[data-step-section="7"] .forge-body {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 0.75rem !important;
+  min-height: 320px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+/* ── Mode Switcher Card ── */
+[data-step-section="7"] .forge-mode {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.35rem !important;
+  min-width: 150px !important;
+  max-width: 170px !important;
+  background: var(--aura-bg-secondary, #2a2a3e) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 6px !important;
+  padding: 0.5rem !important;
+  box-sizing: border-box !important;
+}
+
+/* Mode tab pills */
+[data-step-section="7"] .forge-mode .forge-sidebar-tab {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  padding: 0.5rem 0.65rem !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 6px !important;
+  color: var(--mood-text-secondary, #a0a0c0) !important;
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+[data-step-section="7"] .forge-mode .forge-sidebar-tab i {
+  font-size: 0.85rem;
+  width: 1rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+[data-step-section="7"] .forge-mode .forge-sidebar-tab.active,
+[data-step-section="7"] .forge-mode .forge-sidebar-tab[aria-selected="true"] {
+  background: var(--aura-bg-color, #1a1a2e) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: var(--mood-primary-color, #00d4ff) !important;
+  font-weight: 600 !important;
+}
+
+[data-step-section="7"] .forge-mode .forge-sidebar-tab:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: var(--mood-primary-color, #e1e1ff) !important;
+}
+
+/* ── View Panel ── */
+[data-step-section="7"] .forge-view {
+  flex: 1 !important;
+  background: var(--aura-bg-secondary, #2a2a3e) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 6px !important;
+  padding: 0.75rem !important;
+  min-width: 0 !important;
+  overflow-x: hidden !important;
+}
+
+/* Tab content visibility */
+[data-step-section="7"] .forge-tab-content {
+  display: none;
+}
+
+[data-step-section="7"] .forge-tab-content.active {
+  display: block;
+}
+
+/* ── Section Titles ── */
+[data-step-section="7"] .forge-section-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--mood-primary-color, #e1e1ff);
+  margin: 0 0 0.75rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+[data-step-section="7"] .forge-section-title i {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+/* ── Search Input ── */
+[data-step-section="7"] .my-cards-search {
+  margin-bottom: 0.75rem;
+}
+
+[data-step-section="7"] .search-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--aura-bg-color, #1a1a2e);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 0.4rem 0.75rem;
+}
+
+[data-step-section="7"] .search-input-group i {
+  color: var(--mood-text-secondary, #a0a0c0);
+  opacity: 0.6;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+[data-step-section="7"] .search-input-group input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--mood-primary-color, #e1e1ff);
+  font-size: 0.85rem;
+  font-family: inherit;
+  outline: none;
+  min-width: 0;
+}
+
+[data-step-section="7"] .search-input-group input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+  font-style: italic;
+}
+
+/* ── My Cards Grid ── */
+[data-step-section="7"] .my-cards-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+/* ── Empty States ── */
+[data-step-section="7"] .my-cards-empty,
+[data-step-section="7"] .deck-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--mood-text-secondary, #a0a0c0);
+  opacity: 0.6;
+}
+
+[data-step-section="7"] .my-cards-empty i,
+[data-step-section="7"] .deck-empty i {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.5;
+}
+
+[data-step-section="7"] .my-cards-empty p,
+[data-step-section="7"] .deck-empty p {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+[data-step-section="7"] .my-cards-empty small,
+[data-step-section="7"] .deck-empty small {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+/* ── Deck Manager — future-ready layout ── */
+[data-step-section="7"] .deck-actions {
+  margin-bottom: 0.75rem;
+}
+
+[data-step-section="7"] .deck-actions .forge-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1.25rem 1rem;
+  background: transparent;
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  color: var(--mood-text-secondary, #a0a0c0);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+
+[data-step-section="7"] .deck-actions .forge-action-btn i {
+  font-size: 1.25rem;
+  opacity: 0.6;
+}
+
+[data-step-section="7"] .deck-actions .forge-action-btn small {
+  font-size: 0.72rem;
+  opacity: 0.5;
+  font-weight: 400;
+}
+
+[data-step-section="7"] .deck-actions .forge-action-btn:hover {
+  background: rgba(255, 255, 255, 0.025);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--mood-primary-color, #e1e1ff);
+}
+
+/* ── Forge Responsive ── */
+@media (max-width: 768px) {
+  [data-step-section="7"] .forge-body {
+    flex-direction: column !important;
+  }
+  [data-step-section="7"] .forge-mode {
+    flex-direction: row !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+  [data-step-section="7"] .forge-mode .forge-sidebar-tab {
+    flex: 1 1 0 !important;
+    justify-content: center !important;
+    width: auto !important;
+  }
+  [data-step-section="7"] .my-cards-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================
    BASICS TAB — Layout Refinements
    Scoped to [data-step-section="2"]
    ========================================= */

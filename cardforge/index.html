@@ -1201,7 +1201,7 @@
       </div>
       <!-- Form actions moved to Forge tab -->
       
-      <!-- FORGE TAB SECTION - Redesign by Cascade 2025-08 -->
+      <!-- FORGE TAB SECTION — Command Center Refactor -->
       <div class="cf-section" data-step-section="7">
         <h3 class="cf-section-title">
           <span class="cf-section-icon" aria-hidden="true">
@@ -1213,70 +1213,71 @@
         </h3>
         <p class="cf-section-description">Publish, save, share, and manage your card creations.</p>
 
-        <!-- New Forge Layout: Sidebar + Content -->
-        <div class="forge-layout">
-          <!-- Sidebar Navigation -->
-          <nav class="forge-sidebar-nav" role="tablist" aria-label="Forge Navigation">
-            <button class="forge-sidebar-tab active" data-forge-tab="cards" aria-selected="true" tabindex="0" title="My Cards">
-              <i class="fas fa-layer-group"></i>
-              <span class="tab-label">My Cards</span>
-              <span class="tab-badge" id="my-cards-count" style="display:none"></span>
+        <div class="forge-panel">
+          <!-- Actions Strip -->
+          <div class="forge-actions">
+            <button type="button" class="forge-action-btn primary" id="save-card-btn">
+              <i class="fas fa-save"></i>
+              <span>Save Card</span>
             </button>
-            <button class="forge-sidebar-tab" data-forge-tab="deck" aria-selected="false" tabindex="-1" title="Deck Manager">
-              <i class="fas fa-th-large"></i>
-              <span class="tab-label">Deck Manager</span>
-              <span class="tab-badge" id="deck-count" style="display:none"></span>
-            </button>
-          </nav>
+          </div>
 
-          <!-- Content Area -->
-          <div class="forge-content-area">
-            <!-- My Cards Tab Content -->
-            <section class="forge-tab-content active" data-forge-content="cards" role="tabpanel" aria-labelledby="tab-cards">
-              <div class="forge-card-actions">
-                <button type="button" class="forge-action-btn primary" id="save-card-btn">
-                  <i class="fas fa-save"></i>
-                  <span>Save Card</span>
-                  <small>Save your current card</small>
-                </button>
-              </div>
-              <h4 class="forge-section-title"><i class="fas fa-layer-group"></i> My Cards</h4>
-              <div class="my-cards-search">
-                <div class="search-input-group">
-                  <i class="fas fa-search"></i>
-                  <input type="text" id="my-cards-search" placeholder="Search my cards..." />
+          <!-- Command Center Body -->
+          <div class="forge-layout forge-body">
+            <!-- Mode Switcher -->
+            <nav class="forge-sidebar-nav forge-mode" role="tablist" aria-label="Forge Navigation">
+              <button class="forge-sidebar-tab active" data-forge-tab="cards" aria-selected="true" tabindex="0" title="My Cards">
+                <i class="fas fa-layer-group"></i>
+                <span class="tab-label">My Cards</span>
+                <span class="tab-badge" id="my-cards-count" style="display:none"></span>
+              </button>
+              <button class="forge-sidebar-tab" data-forge-tab="deck" aria-selected="false" tabindex="-1" title="Deck Manager">
+                <i class="fas fa-th-large"></i>
+                <span class="tab-label">Deck Manager</span>
+                <span class="tab-badge" id="deck-count" style="display:none"></span>
+              </button>
+            </nav>
+
+            <!-- Active View -->
+            <div class="forge-content-area forge-view">
+              <!-- My Cards Tab Content -->
+              <section class="forge-tab-content active" data-forge-content="cards" role="tabpanel" aria-labelledby="tab-cards">
+                <h4 class="forge-section-title"><i class="fas fa-layer-group"></i> My Cards</h4>
+                <div class="my-cards-search">
+                  <div class="search-input-group">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="my-cards-search" placeholder="Search my cards..." />
+                  </div>
                 </div>
-              </div>
-              <div class="my-cards-list" id="my-cards-list">
-                <!-- My Cards will be populated by JavaScript -->
-                <div class="my-cards-empty">
-                  <i class="fas fa-layer-group"></i>
-                  <p>No saved cards yet</p>
-                  <small>Save your first card to see it here</small>
+                <div class="my-cards-list" id="my-cards-list">
+                  <div class="my-cards-empty">
+                    <i class="fas fa-layer-group"></i>
+                    <p>No saved cards yet</p>
+                    <small>Save your first card to see it here</small>
+                  </div>
                 </div>
-              </div>
-            </section>
-            <!-- Deck Manager Tab Content -->
-            <section class="forge-tab-content" data-forge-content="deck" role="tabpanel" aria-labelledby="tab-deck">
-              <h4 class="forge-section-title"><i class="fas fa-th-large"></i> Deck Manager</h4>
-              <div class="deck-actions">
-                <button type="button" class="forge-action-btn" id="create-deck-btn">
-                  <i class="fas fa-plus"></i>
-                  <span>Create New Deck</span>
-                  <small>Organize your cards</small>
-                </button>
-              </div>
-              <div class="deck-list" id="deck-list">
-                <!-- Decks will be populated by JavaScript -->
-                <div class="deck-empty">
-                  <i class="fas fa-th-large"></i>
-                  <p>No decks yet</p>
-                  <small>Create your first deck to see it here</small>
+              </section>
+              <!-- Deck Manager Tab Content -->
+              <section class="forge-tab-content" data-forge-content="deck" role="tabpanel" aria-labelledby="tab-deck">
+                <h4 class="forge-section-title"><i class="fas fa-th-large"></i> Deck Manager</h4>
+                <div class="deck-actions">
+                  <button type="button" class="forge-action-btn" id="create-deck-btn">
+                    <i class="fas fa-plus"></i>
+                    <span>Create New Deck</span>
+                    <small>Organize your cards</small>
+                  </button>
                 </div>
-              </div>
-            </section>
-          </div> <!-- /.forge-content-area -->
-        </div> <!-- /.forge-layout -->
+                <div class="deck-list" id="deck-list">
+                  <div class="deck-empty">
+                    <i class="fas fa-th-large"></i>
+                    <p>No decks yet</p>
+                    <small>Create your first deck to see it here</small>
+                  </div>
+                </div>
+              </section>
+            </div> <!-- /.forge-view -->
+          </div> <!-- /.forge-body -->
+        </div> <!-- /.forge-panel -->
       </div> <!-- /.cf-section[data-step-section="7"] -->
       </form>
       <!-- User cards sidebar moved to Forge tab -->
