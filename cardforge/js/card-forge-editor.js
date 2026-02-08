@@ -491,6 +491,92 @@
           { name: 'Infiltration', value: 88 }
         ]
       }
+    },
+    'celestial-warden': {
+      // Front-of-card styling
+      horizontalAlignment: 'center',
+      verticalAlignment: 'middle',
+      alignmentWeight: 'balanced',
+      alignmentStyle: 'padded',
+      palette: 'ocean',
+      paletteVariant: 'light',
+      imageContainer: 'framed',
+      imageContainerVariant: 'ornate',
+      imageEffect: 'borders',
+      imageEffectVariant: 'glow',
+      // Class and Rarity Styling
+      classStyle: 'badge',
+      classIcon: 'crown',
+      rarityStyle: 'glow',
+      rarityIcon: 'star',
+      // Back-of-card sample data
+      sampleData: {
+        name: 'Celestial Warden',
+        characterClass: 'Divine Sentinel',
+        avatar: '/images/image-packs/characters/seraphina.jpg',
+        biography: 'A radiant guardian chosen by the stars, sworn to protect the boundary between mortal and celestial realms.',
+        badges: [
+          { category: 'Divine Light', icon: 'star', quantity: 4, description: 'Channel of celestial radiance' },
+          { category: 'Warden', icon: 'shield', quantity: 3, description: 'Eternal guardian of the veil' },
+          { category: 'Prophecy', icon: 'gem', quantity: 2, description: 'Sees threads of fate' }
+        ],
+        attributes: [
+          { name: 'Wisdom', value: '20' },
+          { name: 'Spirit', value: '18' },
+          { name: 'Radiance', value: '17' },
+          { name: 'Devotion', value: 'Absolute' }
+        ],
+        stats: [
+          { name: 'Holy Power', value: 92 },
+          { name: 'Protection', value: 88 },
+          { name: 'Insight', value: 79 },
+          { name: 'Resilience', value: 85 },
+          { name: 'Grace', value: 94 }
+        ]
+      }
+    },
+    'flame-oracle': {
+      // Front-of-card styling
+      horizontalAlignment: 'center',
+      verticalAlignment: 'bottom',
+      alignmentWeight: 'bottom-heavy',
+      alignmentStyle: 'padded',
+      palette: 'fire',
+      paletteVariant: 'dark',
+      imageContainer: 'fullbleed',
+      imageContainerVariant: 'none',
+      imageEffect: 'overlay',
+      imageEffectVariant: 'gradient',
+      // Class and Rarity Styling
+      classStyle: 'banner',
+      classIcon: 'dragon',
+      rarityStyle: 'foil',
+      rarityIcon: 'fire',
+      // Back-of-card sample data
+      sampleData: {
+        name: 'Flame Oracle',
+        characterClass: 'Pyromantic Seer',
+        avatar: '/images/image-packs/characters/ember-gaze.jpg',
+        biography: 'A seer who reads the future in dancing flames, wielding fire as both weapon and window to destiny.',
+        badges: [
+          { category: 'Pyromancy', icon: 'fire', quantity: 5, description: 'Master of sacred flames' },
+          { category: 'Oracle', icon: 'gem', quantity: 3, description: 'Visions forged in fire' },
+          { category: 'Destroyer', icon: 'bolt', quantity: 2, description: 'Unleashes devastating infernos' }
+        ],
+        attributes: [
+          { name: 'Intelligence', value: '19' },
+          { name: 'Willpower', value: '18' },
+          { name: 'Fire Mastery', value: '20' },
+          { name: 'Foresight', value: 'Prophetic' }
+        ],
+        stats: [
+          { name: 'Fire Power', value: 95 },
+          { name: 'Vision', value: 82 },
+          { name: 'Intensity', value: 88 },
+          { name: 'Control', value: 74 },
+          { name: 'Divination', value: 91 }
+        ]
+      }
     }
   };
 

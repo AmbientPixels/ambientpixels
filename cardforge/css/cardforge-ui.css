@@ -1271,18 +1271,22 @@ body.cf-ui--neon .cf-variant-btn.active {
   line-height: 1.3;
 }
 
-/* Tighter preset grid — less gap */
+/* 5-column preset grid — 5×2 layout */
 [data-step-section="0"] .presets-grid {
-  gap: 0.6rem;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
   margin-top: 0;
 }
 
-/* Compact preset cards */
+/* Vertical preset cards for 5-col layout */
 [data-step-section="0"] .preset-btn {
-  padding: 0.6rem;
-  border-radius: 8px;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0.5rem 0.35rem;
+  border-radius: 6px;
   border-width: 1px;
-  gap: 0.4rem;
+  gap: 0.35rem;
   min-height: auto;
 }
 
@@ -1291,37 +1295,52 @@ body.cf-ui--neon .cf-variant-btn.active {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Smaller preset thumbnails */
+/* Mini-card preview — card aspect ratio, subdued */
 [data-step-section="0"] .preset-image {
-  width: 48px;
-  height: 48px;
-  border-radius: 6px;
+  width: 52px;
+  height: 73px;
+  border-radius: 4px;
   border-width: 1px;
+  flex-shrink: 0;
+  opacity: 0.82;
+  overflow: hidden;
 }
 
-/* Tighter preset info */
+[data-step-section="0"] .preset-image img {
+  border-radius: 3px;
+}
+
+/* Compact stacked info below mini-card */
 [data-step-section="0"] .preset-info {
-  padding: 0.4rem 0.4rem 0.4rem 0;
+  padding: 0;
   gap: 0.1rem;
+  align-items: center;
 }
 
-/* Emphasize character + name */
+/* Role/title — strongest element */
 [data-step-section="0"] .preset-character {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 600;
   margin-bottom: 0;
+  line-height: 1.2;
 }
 
+/* Character name — secondary */
 [data-step-section="0"] .preset-name {
-  font-size: 0.78rem;
+  font-size: 0.65rem;
   font-weight: 500;
   margin-bottom: 0;
+  line-height: 1.2;
 }
 
-/* De-emphasize layout metadata */
+/* Metadata — lowest priority */
 [data-step-section="0"] .preset-type {
-  font-size: 0.68rem;
-  opacity: 0.5;
+  font-size: 0;
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 /* Random section — visual sibling to presets */
