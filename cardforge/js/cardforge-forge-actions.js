@@ -853,7 +853,7 @@ const resp = await fetch(loadUrl, {
       }
 
       return `
-        <div class="mini-card" data-card-id="${card.id}">
+        <div class="mini-card" data-card-id="${card.id}" onclick="cardForgeActions.loadCard('${card.id}')" style="cursor:pointer">
           ${contentHTML}
           ${isPublished ? '<span class="mini-card-published" title="Published"></span>' : ''}
           <div class="mini-card-label">
@@ -862,9 +862,6 @@ const resp = await fetch(loadUrl, {
           </div>
           <div class="mini-card-overlay">
             <div class="mini-card-actions">
-              <button class="mini-card-btn edit" type="button" onclick="event.stopPropagation();cardForgeActions.loadCard('${card.id}')" title="Edit">
-                <i class="fas fa-edit"></i>
-              </button>
               <button class="mini-card-btn duplicate" type="button" onclick="event.stopPropagation();cardForgeActions.duplicateCard('${card.id}')" title="Duplicate">
                 <i class="fas fa-copy"></i>
               </button>
@@ -1273,7 +1270,7 @@ CardForgeActions.prototype.renderDeckDetail = function(deckId) {
       }
 
       return `
-        <div class="mini-card" data-card-id="${card.id}">
+        <div class="mini-card" data-card-id="${card.id}" onclick="cardForgeActions.loadCard('${card.id}')" style="cursor:pointer">
           ${contentHTML}
           <div class="mini-card-label">
             ${cardName}
@@ -1281,10 +1278,6 @@ CardForgeActions.prototype.renderDeckDetail = function(deckId) {
           </div>
           <div class="mini-card-overlay">
             <div class="mini-card-actions">
-              <button class="mini-card-btn edit" type="button"
-                      onclick="event.stopPropagation();cardForgeActions.loadCard('${card.id}')" title="Edit">
-                <i class="fas fa-edit"></i>
-              </button>
               <button class="mini-card-btn remove" type="button"
                       onclick="event.stopPropagation();cardForgeActions.removeCardFromDeck('${card.id}','${deckId}')" title="Remove from Deck">
                 <i class="fas fa-times"></i>
