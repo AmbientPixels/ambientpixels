@@ -718,7 +718,7 @@
     const socialRow = document.createElement('div');
     socialRow.className = 'social-row';
     socialRow.innerHTML = `
-      <label>Platform
+      <div class="social-header">
         <select name="social-name" class="social-platform" aria-label="Platform">
           <option value="twitter" ${platform === 'twitter' ? 'selected' : ''}>Twitter</option>
           <option value="instagram" ${platform === 'instagram' ? 'selected' : ''}>Instagram</option>
@@ -731,11 +731,9 @@
           <option value="tiktok" ${platform === 'tiktok' ? 'selected' : ''}>TikTok</option>
           <option value="youtube" ${platform === 'youtube' ? 'selected' : ''}>YouTube</option>
         </select>
-      </label>
-      <label>Link (URL)
         <input type="url" name="social-url" placeholder="https://..." value="${url}" />
-      </label>
-      <button type="button" class="remove-attribute">&times;</button>
+        <button type="button" class="remove-attribute">&times;</button>
+      </div>
     `;
     
     // Add event listeners for the new row

@@ -1608,6 +1608,154 @@ body.cf-ui--neon .cf-variant-btn.active {
 }
 
 /* =========================================
+   SOCIAL TAB — Structural Refactor
+   Scoped to [data-step-section="4"]
+   Aligned to Stats row system
+   ========================================= */
+
+/* Outer panel — soft container matching Stats tone */
+[data-step-section="4"] .social-panel {
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 0.6rem;
+  gap: 0.15rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Social list — vertical stack with clear gaps between modules */
+[data-step-section="4"] #social-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* ── Per-Social Module ── */
+[data-step-section="4"] .social-row {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  align-items: stretch !important;
+  background: var(--aura-bg-secondary, #2a2a3e);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 0 !important;
+  width: auto !important;
+}
+
+/* ── Header Row ── */
+[data-step-section="4"] .social-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+[data-step-section="4"] .social-header select {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 110px;
+  font-size: 0.85rem;
+  padding: 5px 8px;
+  background: var(--aura-bg-color, #1a1a2e);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  color: var(--mood-primary-color, #e1e1ff);
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+}
+
+[data-step-section="4"] .social-header select:focus {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-step-section="4"] .social-header input[name="social-url"] {
+  flex: 1 !important;
+  font-size: 0.85rem;
+  padding: 5px 8px;
+  background: var(--aura-bg-color, #1a1a2e);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  color: var(--mood-primary-color, #e1e1ff);
+  font-family: inherit;
+  outline: none;
+  min-width: 0;
+}
+
+[data-step-section="4"] .social-header input[name="social-url"]:focus {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-step-section="4"] .social-header input[name="social-url"]::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+  font-style: italic;
+  opacity: 1;
+}
+
+/* ── Remove button — chip style matching Stats ── */
+[data-step-section="4"] .social-header .remove-attribute {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 0.6rem;
+  opacity: 0.65;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  color: var(--mood-text-secondary, #a0a0c0);
+  line-height: 1;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25), 0 1px 4px rgba(0,0,0,0.25);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  outline: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+[data-step-section="4"] .social-row:hover .remove-attribute {
+  opacity: 0.8;
+}
+
+[data-step-section="4"] .social-header .remove-attribute:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--mood-primary-color, #e1e1ff);
+}
+
+/* ── Add Social — ghost secondary action ── */
+[data-step-section="4"] .add-social-btn {
+  background: transparent !important;
+  color: var(--mood-text-secondary, #a0a0c0) !important;
+  border: 1px dashed rgba(255, 255, 255, 0.08) !important;
+  border-radius: 6px !important;
+  padding: 0.45rem 0.75rem !important;
+  font-size: 0.78rem !important;
+  font-weight: 500 !important;
+  margin-top: 0.5rem;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+[data-step-section="4"] .add-social-btn:hover {
+  background: rgba(255, 255, 255, 0.025) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: var(--mood-primary-color, #e1e1ff) !important;
+}
+
+[data-step-section="4"] .add-social-btn.disabled {
+  opacity: 0.25 !important;
+  cursor: not-allowed !important;
+}
+
+/* =========================================
    BASICS TAB — Layout Refinements
    Scoped to [data-step-section="2"]
    ========================================= */
