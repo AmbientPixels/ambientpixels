@@ -43,6 +43,10 @@
     if (titleEl) titleEl.textContent = title;
     if (messageEl) messageEl.textContent = message;
 
+    // Reset button labels before cloning
+    if (confirmBtn) confirmBtn.textContent = 'Confirm';
+    if (cancelBtn) { cancelBtn.textContent = 'Cancel'; cancelBtn.style.display = ''; }
+
     // Clone buttons to remove any existing event listeners
     const newConfirmBtn = confirmBtn.cloneNode(true);
     const newCancelBtn = cancelBtn.cloneNode(true);
