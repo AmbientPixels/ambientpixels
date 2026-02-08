@@ -674,6 +674,20 @@
         }
       }
 
+      // Pad Attributes to ATTRIBUTE_CAP (6) for balanced 3×2 grid
+      const attributesContainer = document.getElementById('attribute-editor');
+      if (attributesContainer) {
+        const existingAttrs = attributesContainer.querySelectorAll('.attribute-row').length;
+        for (let i = existingAttrs; i < ATTRIBUTE_CAP; i++) {
+          attributesContainer.appendChild(createAttributeRow('Reputation', 'Unknown'));
+        }
+        const addAttrBtn = document.getElementById('add-attribute-btn');
+        if (attributesContainer.querySelectorAll('.attribute-row').length >= ATTRIBUTE_CAP && addAttrBtn) {
+          addAttrBtn.classList.add('disabled');
+          addAttrBtn.title = `Maximum ${ATTRIBUTE_CAP} attributes reached`;
+        }
+      }
+
       // Pad Badges to BADGE_CAP (6) for balanced 3×2 grid
       const badgesContainer = document.getElementById('micro-editor');
       if (badgesContainer) {
@@ -883,8 +897,10 @@
     const attributeRow = document.createElement('div');
     attributeRow.className = 'attribute-row';
     attributeRow.innerHTML = `
-      <input type="text" name="attribute-name" placeholder="Attribute (e.g. Alignment)" value="${name}">
-      <input type="text" name="attribute-value" placeholder="Value (e.g. Chaotic Creative)" value="${value}">
+      <label class="attribute-tile-label">Name</label>
+      <input type="text" name="attribute-name" placeholder="Attribute" value="${name}">
+      <label class="attribute-tile-label">Value</label>
+      <input type="text" name="attribute-value" placeholder="Value" value="${value}">
       <button type="button" class="remove-attribute">&times;</button>
     `;
     

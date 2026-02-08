@@ -1185,19 +1185,19 @@
         </h3>
 <label for="card-bio">Biography</label>
 <textarea id="card-bio" name="card-bio" rows="3" placeholder="Enter biography or background"></textarea>
-        
-        <label for="attribute-editor">Attributes</label>
-        <div id="attribute-editor">
-  <div class="attribute-group attribute-basic">
-  </div>
-  
-          <div class="attribute-row">
-            <input type="text" name="attribute-name" placeholder="Attribute (e.g. Alignment)" />
-            <input type="text" name="attribute-value" placeholder="Value (e.g. Chaotic Creative)" />
-            <button type="button" class="remove-attribute">&times;</button>
+
+        <div class="attributes-panel">
+          <div id="attribute-editor">
+            <div class="attribute-row">
+              <label class="attribute-tile-label">Name</label>
+              <input type="text" name="attribute-name" placeholder="Attribute" />
+              <label class="attribute-tile-label">Value</label>
+              <input type="text" name="attribute-value" placeholder="Value" />
+              <button type="button" class="remove-attribute">&times;</button>
+            </div>
           </div>
+          <button type="button" id="add-attribute-btn" class="add-attribute-btn">+ Add Attribute</button>
         </div>
-        <button type="button" id="add-attribute-btn" class="add-attribute-btn">Add Attribute</button>
       </div>
       <!-- Form actions moved to Forge tab -->
       
