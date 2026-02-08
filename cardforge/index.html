@@ -1260,18 +1260,30 @@
               <!-- Deck Manager Tab Content -->
               <section class="forge-tab-content" data-forge-content="deck" role="tabpanel" aria-labelledby="tab-deck">
                 <h4 class="forge-section-title"><i class="fas fa-th-large"></i> Deck Manager</h4>
-                <div class="deck-actions">
-                  <button type="button" class="forge-action-btn" id="create-deck-btn">
-                    <i class="fas fa-plus"></i>
-                    <span>Create New Deck</span>
-                    <small>Organize your cards</small>
-                  </button>
-                </div>
-                <div class="deck-list" id="deck-list">
-                  <div class="deck-empty">
-                    <i class="fas fa-th-large"></i>
-                    <p>No decks yet</p>
-                    <small>Create your first deck to see it here</small>
+                <div class="deck-manager-layout">
+                  <!-- Left: Deck List Sidebar -->
+                  <div class="deck-sidebar">
+                    <div class="deck-sidebar-header">
+                      <button type="button" class="forge-action-btn deck-create-btn" id="create-deck-btn">
+                        <i class="fas fa-plus"></i>
+                        <span>New Deck</span>
+                      </button>
+                    </div>
+                    <div class="deck-list" id="deck-list">
+                      <div class="deck-empty">
+                        <i class="fas fa-th-large"></i>
+                        <p>No decks yet</p>
+                        <small>Create your first deck to see it here</small>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Right: Deck Detail Panel -->
+                  <div class="deck-detail" id="deck-detail">
+                    <div class="deck-detail-empty">
+                      <i class="fas fa-folder-open"></i>
+                      <p>Select a deck</p>
+                      <small>Choose a deck from the list or create a new one</small>
+                    </div>
                   </div>
                 </div>
               </section>

@@ -458,6 +458,7 @@ class CardForgeActions {
   
   handleCreateNewDeck() {
     console.log('🗂️ Create new deck requested');
+    if (!this.requireAuth('create a deck')) return;
     
     const deckName = prompt('Enter a name for your new deck:', 'My New Deck');
     
@@ -482,6 +483,9 @@ class CardForgeActions {
       localStorage.setItem('cardforge_decks', JSON.stringify(decks));
 
       this.showNotification(`Created deck "${deckName}"`, 'success');
+      
+      // Auto-select the new deck
+      this._selectedDeckId = newDeck.id;
       
       // Switch to Deck Manager tab
       this.switchToDeckTab();
@@ -872,6 +876,9 @@ const resp = await fetch(loadUrl, {
               <button class="mini-card-btn publish" type="button" onclick="event.stopPropagation();${isPublished ? '' : `cardForgeActions.publishCard('${card.id}')`}" title="${isPublished ? 'Published' : 'Publish'}" ${isPublished ? 'disabled style="opacity:0.4"' : ''}>
                 <i class="fas fa-${isPublished ? 'check-circle' : 'share'}"></i>
               </button>
+              <button class="mini-card-btn deck-add" type="button" onclick="event.stopPropagation();cardForgeActions.showAddToDeckPicker('${card.id}', this.closest('.mini-card'))" title="Add to Deck">
+                <i class="fas fa-folder-plus"></i>
+              </button>
               <button class="mini-card-btn delete" type="button" onclick="event.stopPropagation();window.deleteCard('${card.id}')" title="Delete">
                 <i class="fas fa-trash"></i>
               </button>
@@ -885,8 +892,68 @@ const resp = await fetch(loadUrl, {
   }
 
   refreshDeckList() {
-    // TODO: Implement deck list refresh
     console.log('🗂️ Refreshing deck list...');
+    const deckListEl = document.getElementById('deck-list');
+    if (!deckListEl) return;
+
+    // Clean up orphaned cardIds before rendering
+    this.cleanupDeckCardIds();
+
+    const decks = this.getSavedDecks();
+
+    if (!decks || decks.length === 0) {
+      deckListEl.innerHTML = `
+        <div class="deck-empty">
+          <i class="fas fa-th-large"></i>
+          <p>No decks yet</p>
+          <small>Create your first deck to see it here</small>
+        </div>
+      `;
+      // Clear detail panel
+      const detailEl = document.getElementById('deck-detail');
+      if (detailEl) {
+        detailEl.innerHTML = `
+          <div class="deck-detail-empty">
+            <i class="fas fa-folder-open"></i>
+            <p>No decks yet</p>
+            <small>Create a new deck to get started</small>
+          </div>
+        `;
+      }
+      this._selectedDeckId = null;
+      return;
+    }
+
+    // Render deck list items
+    deckListEl.innerHTML = decks.map(deck => {
+      const count = deck.cardIds ? deck.cardIds.length : 0;
+      const isSelected = deck.id === this._selectedDeckId;
+      return `
+        <div class="deck-list-item${isSelected ? ' active' : ''}" data-deck-id="${deck.id}"
+             onclick="cardForgeActions.selectDeck('${deck.id}')">
+          <div class="deck-list-item-info">
+            <span class="deck-list-item-name">${deck.name}</span>
+            <span class="deck-list-item-count">${count} card${count !== 1 ? 's' : ''}</span>
+          </div>
+          <div class="deck-list-item-actions">
+            <button type="button" class="deck-item-btn" title="Rename"
+                    onclick="event.stopPropagation();cardForgeActions.renameDeck('${deck.id}')">
+              <i class="fas fa-pen"></i>
+            </button>
+            <button type="button" class="deck-item-btn delete" title="Delete"
+                    onclick="event.stopPropagation();cardForgeActions.deleteDeck('${deck.id}')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Auto-select first deck if none selected, or re-select current
+    if (!this._selectedDeckId || !decks.find(d => d.id === this._selectedDeckId)) {
+      this._selectedDeckId = decks[0].id;
+    }
+    this.renderDeckDetail(this._selectedDeckId);
   }
 
   // Public Gallery - shows published cards from all users
@@ -1130,6 +1197,287 @@ const resp = await fetch(loadUrl, {
   }
 }
 
+// ===================
+// DECK MANAGER — full implementation
+// ===================
+
+CardForgeActions.prototype.isAuthenticated = function() {
+  return (sessionStorage.getItem('isAuthenticated') === 'true') ||
+         (document.body?.getAttribute('data-auth-state') === 'signed-in');
+};
+
+CardForgeActions.prototype.requireAuth = function(action) {
+  if (!this.isAuthenticated()) {
+    this.showNotification(`Sign in to ${action}`, 'error');
+    return false;
+  }
+  return true;
+};
+
+CardForgeActions.prototype._selectedDeckId = null;
+
+CardForgeActions.prototype.selectDeck = function(deckId) {
+  this._selectedDeckId = deckId;
+  // Update sidebar active state
+  const items = document.querySelectorAll('#deck-list .deck-list-item');
+  items.forEach(el => {
+    el.classList.toggle('active', el.dataset.deckId === deckId);
+  });
+  this.renderDeckDetail(deckId);
+};
+
+CardForgeActions.prototype.renderDeckDetail = function(deckId) {
+  const detailEl = document.getElementById('deck-detail');
+  if (!detailEl) return;
+
+  const decks = this.getSavedDecks();
+  const deck = decks.find(d => d.id === deckId);
+  if (!deck) {
+    detailEl.innerHTML = `
+      <div class="deck-detail-empty">
+        <i class="fas fa-folder-open"></i>
+        <p>Select a deck</p>
+        <small>Choose a deck from the list or create a new one</small>
+      </div>`;
+    return;
+  }
+
+  const savedCards = this.getSavedCards();
+  const cardsInDeck = deck.cardIds
+    .map(id => savedCards.find(c => c.id === id))
+    .filter(Boolean);
+  const count = cardsInDeck.length;
+
+  const fallbackSvg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjUwNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
+
+  let gridHTML = '';
+  if (count === 0) {
+    gridHTML = `
+      <div class="deck-cards-empty">
+        <i class="fas fa-inbox"></i>
+        <p>This deck is empty</p>
+        <small>Go to My Cards and add cards to this deck</small>
+      </div>`;
+  } else {
+    gridHTML = `<div class="deck-cards-grid">` + cardsInDeck.map(card => {
+      const cd = card.cardData || card;
+      const cardName = cd.name || card.name || 'Untitled Card';
+      const characterClass = cd.characterClass || '';
+      const cardImage = cd.avatar || card.avatar || '';
+      const hasRendered = cd.renderedFront && cd.frontClasses;
+
+      let contentHTML;
+      if (hasRendered) {
+        contentHTML = `<div class="mini-card-scaler"><div class="${cd.frontClasses}">${cd.renderedFront}</div></div>`;
+      } else {
+        contentHTML = `<img class="mini-card-fallback" src="${cardImage || fallbackSvg}" alt="${cardName}" onerror="this.src='${fallbackSvg}'">`;
+      }
+
+      return `
+        <div class="mini-card" data-card-id="${card.id}">
+          ${contentHTML}
+          <div class="mini-card-label">
+            ${cardName}
+            ${characterClass ? `<span class="mini-card-class">${characterClass}</span>` : ''}
+          </div>
+          <div class="mini-card-overlay">
+            <div class="mini-card-actions">
+              <button class="mini-card-btn edit" type="button"
+                      onclick="event.stopPropagation();cardForgeActions.loadCard('${card.id}')" title="Edit">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="mini-card-btn remove" type="button"
+                      onclick="event.stopPropagation();cardForgeActions.removeCardFromDeck('${card.id}','${deckId}')" title="Remove from Deck">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }).join('') + `</div>`;
+  }
+
+  detailEl.innerHTML = `
+    <div class="deck-detail-header">
+      <div class="deck-detail-title">
+        <i class="fas fa-layer-group"></i>
+        <span>${deck.name}</span>
+        <span class="deck-detail-count">${count} card${count !== 1 ? 's' : ''}</span>
+      </div>
+      <div class="deck-detail-actions">
+        <button type="button" class="deck-item-btn" title="Rename Deck"
+                onclick="cardForgeActions.renameDeck('${deckId}')">
+          <i class="fas fa-pen"></i>
+        </button>
+        <button type="button" class="deck-item-btn delete" title="Delete Deck"
+                onclick="cardForgeActions.deleteDeck('${deckId}')">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+    ${gridHTML}`;
+};
+
+CardForgeActions.prototype.renameDeck = function(deckId) {
+  if (!this.requireAuth('manage decks')) return;
+  const decks = this.getSavedDecks();
+  const deck = decks.find(d => d.id === deckId);
+  if (!deck) return;
+
+  const newName = prompt('Rename deck:', deck.name);
+  if (!newName || newName.trim() === '' || newName.trim() === deck.name) return;
+
+  deck.name = newName.trim();
+  deck.lastModified = new Date().toISOString();
+  localStorage.setItem('cardforge_decks', JSON.stringify(decks));
+  this.showNotification(`Deck renamed to "${deck.name}"`, 'success');
+  this.refreshDeckList();
+};
+
+CardForgeActions.prototype.deleteDeck = function(deckId) {
+  if (!this.requireAuth('manage decks')) return;
+  const decks = this.getSavedDecks();
+  const deck = decks.find(d => d.id === deckId);
+  if (!deck) return;
+
+  const doDelete = () => {
+    const updated = decks.filter(d => d.id !== deckId);
+    localStorage.setItem('cardforge_decks', JSON.stringify(updated));
+    if (this._selectedDeckId === deckId) {
+      this._selectedDeckId = updated.length > 0 ? updated[0].id : null;
+    }
+    this.showNotification(`Deck "${deck.name}" deleted`, 'success');
+    this.refreshDeckList();
+  };
+
+  if (typeof showConfirmDialog === 'function') {
+    showConfirmDialog('Delete Deck', `Delete "${deck.name}"? Cards in the deck will NOT be deleted.`, doDelete);
+  } else {
+    if (confirm(`Delete "${deck.name}"? Cards in the deck will NOT be deleted.`)) {
+      doDelete();
+    }
+  }
+};
+
+CardForgeActions.prototype.addCardToDeck = function(cardId, deckId) {
+  if (!this.requireAuth('manage decks')) return;
+  if (!deckId) {
+    deckId = this._selectedDeckId;
+  }
+  if (!deckId) {
+    this.showNotification('No deck selected', 'error');
+    return;
+  }
+
+  const decks = this.getSavedDecks();
+  const deck = decks.find(d => d.id === deckId);
+  if (!deck) {
+    this.showNotification('Deck not found', 'error');
+    return;
+  }
+
+  if (deck.cardIds.includes(cardId)) {
+    this.showNotification(`Card is already in "${deck.name}"`, 'info');
+    return;
+  }
+
+  deck.cardIds.push(cardId);
+  deck.lastModified = new Date().toISOString();
+  localStorage.setItem('cardforge_decks', JSON.stringify(decks));
+  this.showNotification(`Card added to "${deck.name}"`, 'success');
+  this.refreshDeckList();
+};
+
+CardForgeActions.prototype.removeCardFromDeck = function(cardId, deckId) {
+  if (!this.requireAuth('manage decks')) return;
+  const decks = this.getSavedDecks();
+  const deck = decks.find(d => d.id === deckId);
+  if (!deck) return;
+
+  deck.cardIds = deck.cardIds.filter(id => id !== cardId);
+  deck.lastModified = new Date().toISOString();
+  localStorage.setItem('cardforge_decks', JSON.stringify(decks));
+  this.showNotification('Card removed from deck', 'success');
+  this.refreshDeckList();
+};
+
+CardForgeActions.prototype.cleanupDeckCardIds = function() {
+  const decks = this.getSavedDecks();
+  if (!decks || decks.length === 0) return;
+
+  const savedCards = this.getSavedCards();
+  const validIds = new Set(savedCards.map(c => c.id));
+  let changed = false;
+
+  decks.forEach(deck => {
+    const before = deck.cardIds.length;
+    deck.cardIds = deck.cardIds.filter(id => validIds.has(id));
+    if (deck.cardIds.length !== before) changed = true;
+  });
+
+  if (changed) {
+    localStorage.setItem('cardforge_decks', JSON.stringify(decks));
+    console.log('🧹 Cleaned up orphaned cardIds from decks');
+  }
+};
+
+CardForgeActions.prototype.getSelectedDeckId = function() {
+  return this._selectedDeckId;
+};
+
+CardForgeActions.prototype.showAddToDeckPicker = function(cardId, anchorEl) {
+  if (!this.requireAuth('manage decks')) return;
+  // Remove any existing picker
+  document.querySelectorAll('.deck-picker-dropdown').forEach(el => el.remove());
+
+  const decks = this.getSavedDecks();
+  if (!decks || decks.length === 0) {
+    this.showNotification('Create a deck first in Deck Manager', 'info');
+    return;
+  }
+
+  const picker = document.createElement('div');
+  picker.className = 'deck-picker-dropdown';
+  picker.innerHTML = `
+    <div class="deck-picker-title">Add to Deck</div>
+    ${decks.map(d => {
+      const inDeck = d.cardIds && d.cardIds.includes(cardId);
+      return `<button type="button" class="deck-picker-option${inDeck ? ' in-deck' : ''}"
+                      data-deck-id="${d.id}" ${inDeck ? 'disabled' : ''}>
+        <i class="fas fa-${inDeck ? 'check' : 'plus'}"></i>
+        <span>${d.name}</span>
+        ${inDeck ? '<small>already added</small>' : ''}
+      </button>`;
+    }).join('')}
+  `;
+
+  // Position relative to anchor
+  if (anchorEl) {
+    anchorEl.style.position = 'relative';
+    anchorEl.appendChild(picker);
+  } else {
+    document.body.appendChild(picker);
+  }
+
+  // Bind clicks
+  picker.querySelectorAll('.deck-picker-option:not([disabled])').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const dId = btn.dataset.deckId;
+      this.addCardToDeck(cardId, dId);
+      picker.remove();
+    });
+  });
+
+  // Close on outside click
+  const closeHandler = (e) => {
+    if (!picker.contains(e.target)) {
+      picker.remove();
+      document.removeEventListener('click', closeHandler, true);
+    }
+  };
+  setTimeout(() => document.addEventListener('click', closeHandler, true), 0);
+};
+
 // Card duplication logic (single source of truth) - updated by Cascade
 CardForgeActions.prototype.duplicateCard = function(cardId) {
   const savedCards = this.getSavedCards();
@@ -1266,6 +1614,28 @@ CardForgeActions.prototype.bindForgeButtons = function() {
       console.log('✅ Clear All button bound (single handler)', btn.id);
     }
   });
+
+  // Create New Deck button
+  const createDeckBtn = document.getElementById('create-deck-btn');
+  if (createDeckBtn && !createDeckBtn.dataset.forgeActionsBound) {
+    createDeckBtn.dataset.forgeActionsBound = 'true';
+    createDeckBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.handleCreateNewDeck();
+    });
+    console.log('✅ Create Deck button bound (single handler)');
+  }
+
+  // Publish Card button
+  const publishBtn = document.getElementById('publish-card-btn');
+  if (publishBtn && !publishBtn.dataset.forgeActionsBound) {
+    publishBtn.dataset.forgeActionsBound = 'true';
+    publishBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.handlePublishCard();
+    });
+    console.log('✅ Publish Card button bound (single handler)');
+  }
 };
 
 
