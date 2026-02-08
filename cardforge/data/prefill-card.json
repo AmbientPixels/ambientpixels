@@ -70,6 +70,18 @@
       "icon": "medal",
       "description": "Guild Champion",
       "quantity": 2
+    },
+    {
+      "category": "Craft",
+      "icon": "gear",
+      "description": "Blade Artisan",
+      "quantity": 4
+    },
+    {
+      "category": "Infamy",
+      "icon": "book",
+      "description": "Shadow Codex",
+      "quantity": 1
     }
   ],
   "attributes": [

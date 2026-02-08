@@ -664,6 +664,30 @@
       
       console.log('📄 Prefill data loaded successfully:', prefillData);
       
+      // Pad Social to 6 rows for balanced grid layout
+      const SOCIAL_GRID_MIN = 6;
+      const socialContainer = document.getElementById('social-editor');
+      if (socialContainer) {
+        const existingSocial = socialContainer.querySelectorAll('.social-row').length;
+        for (let i = existingSocial; i < SOCIAL_GRID_MIN; i++) {
+          socialContainer.appendChild(createSocialRow());
+        }
+      }
+
+      // Pad Badges to BADGE_CAP (6) for balanced 3×2 grid
+      const badgesContainer = document.getElementById('micro-editor');
+      if (badgesContainer) {
+        const existingBadges = badgesContainer.querySelectorAll('.micro-row').length;
+        for (let i = existingBadges; i < BADGE_CAP; i++) {
+          badgesContainer.appendChild(createBadgeRow('Badge'));
+        }
+        const addBadgeBtn = document.getElementById('add-micro-btn');
+        if (badgesContainer.querySelectorAll('.micro-row').length >= BADGE_CAP && addBadgeBtn) {
+          addBadgeBtn.classList.add('disabled');
+          addBadgeBtn.title = `Maximum ${BADGE_CAP} badges reached`;
+        }
+      }
+
       // Update preview after loading prefill data
       updatePreview();
       
@@ -765,10 +789,11 @@
     const badgeRow = document.createElement('div');
     badgeRow.className = 'micro-row';
     badgeRow.innerHTML = `
-      <label>Category
+      <div class="badge-card-header">
         <input type="text" name="micro-category" placeholder="Category (e.g. Skill)" value="${category}">
-      </label>
-      <label>Symbol/Icon
+        <button type="button" class="remove-attribute" aria-label="Remove badge">&times;</button>
+      </div>
+      <div class="badge-card-body">
         <div class="icon-picker" aria-label="Select badge icon">
           <input type="hidden" name="micro-icon" value="${icon}">
           <button type="button" class="icon-option" data-icon="star"><i class="fas fa-star"></i></button>
@@ -782,15 +807,12 @@
           <button type="button" class="icon-option" data-icon="medal"><i class="fas fa-medal"></i></button>
           <button type="button" class="icon-option" data-icon="certificate"><i class="fas fa-certificate"></i></button>
         </div>
-      </label>
-      <label>Description
         <input type="text" name="micro-desc" placeholder="Description" value="${description}">
-      </label>
-      <label>Count
+      </div>
+      <div class="badge-card-count">
         <input type="range" name="micro-quantity" min="1" max="5" value="${quantity}" class="badge-slider">
-        <span class="slider-value">${quantity}</span>
-      </label>
-      <button type="button" class="remove-attribute" aria-label="Remove badge">&times;</button>
+        <span class="badge-count-display">${quantity}</span>
+      </div>
     `;
     
     // Add event listeners for the new row
@@ -798,7 +820,7 @@
     const categoryField = badgeRow.querySelector('input[name="micro-category"]');
     const descField = badgeRow.querySelector('input[name="micro-desc"]');
     const quantitySlider = badgeRow.querySelector('input[name="micro-quantity"]');
-    const sliderDisplay = badgeRow.querySelector('.slider-value');
+    const sliderDisplay = badgeRow.querySelector('.badge-count-display');
     const iconPicker = badgeRow.querySelector('.icon-picker');
     const hiddenIconInput = badgeRow.querySelector('input[name="micro-icon"]');
     
@@ -821,9 +843,13 @@
     const initialIconBtn = iconPicker.querySelector(`[data-icon="${icon}"]`);
     if (initialIconBtn) initialIconBtn.classList.add('selected');
     
+    // Set initial slider fill (range 1–5 → 0–100%)
+    quantitySlider.style.setProperty('--fill', ((quantity - 1) / 4 * 100) + '%');
+
     // Quantity slider functionality
     quantitySlider.addEventListener('input', function() {
       sliderDisplay.textContent = this.value;
+      this.style.setProperty('--fill', ((this.value - 1) / 4 * 100) + '%');
       updatePreview();
     });
     
