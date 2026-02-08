@@ -678,10 +678,14 @@
     const statRow = document.createElement('div');
     statRow.className = 'stat-row';
     statRow.innerHTML = `
-      <input type="text" name="stat-name" placeholder="Stat name" value="${name}" />
-      <input type="range" name="stat-value" min="0" max="100" value="${value}" class="stat-slider" aria-label="Stat value" />
-      <span class="stat-value-display">${value}</span>
-      <button type="button" class="remove-attribute">&times;</button>
+      <div class="stat-header">
+        <input type="text" name="stat-name" placeholder="Stat name" value="${name}" />
+        <span class="stat-value-display">${value}</span>
+        <button type="button" class="remove-attribute">&times;</button>
+      </div>
+      <div class="stat-control">
+        <input type="range" name="stat-value" min="0" max="100" value="${value}" class="stat-slider" aria-label="Stat value" />
+      </div>
     `;
     
     // Add event listeners for the new row
@@ -689,8 +693,11 @@
     const display = statRow.querySelector('.stat-value-display');
     const removeBtn = statRow.querySelector('.remove-attribute');
     
+    slider.style.setProperty('--fill', value + '%');
+
     slider.addEventListener('input', function() {
       display.textContent = this.value;
+      this.style.setProperty('--fill', this.value + '%');
       updatePreview();
     });
     
