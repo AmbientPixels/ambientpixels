@@ -1233,6 +1233,147 @@ body.cf-ui--neon .cf-variant-btn.active {
 }
 
 /* =========================================
+   PRESETS + RANDOM TAB — Layout Refinements
+   Scoped to [data-step-section="0"]
+   ========================================= */
+
+/* Tighter presets section container */
+[data-step-section="0"] .presets-section {
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-radius: 8px;
+}
+
+/* Section description — lighter */
+[data-step-section="0"] .cf-section-description {
+  font-size: 0.8rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+  opacity: 0.7;
+  margin: 0 0 0.75rem 0;
+}
+
+/* Presets title — smaller, left-aligned, no emoji */
+[data-step-section="0"] .presets-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-align: left;
+  margin: 0 0 0.2rem 0;
+  color: var(--mood-primary-color, #e1e1ff);
+}
+
+/* Helper text under section titles */
+.presets-helper,
+.random-helper {
+  font-size: 0.75rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+  opacity: 0.65;
+  margin: 0 0 0.6rem 0;
+  line-height: 1.3;
+}
+
+/* Tighter preset grid — less gap */
+[data-step-section="0"] .presets-grid {
+  gap: 0.6rem;
+  margin-top: 0;
+}
+
+/* Compact preset cards */
+[data-step-section="0"] .preset-btn {
+  padding: 0.6rem;
+  border-radius: 8px;
+  border-width: 1px;
+  gap: 0.4rem;
+  min-height: auto;
+}
+
+[data-step-section="0"] .preset-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Smaller preset thumbnails */
+[data-step-section="0"] .preset-image {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  border-width: 1px;
+}
+
+/* Tighter preset info */
+[data-step-section="0"] .preset-info {
+  padding: 0.4rem 0.4rem 0.4rem 0;
+  gap: 0.1rem;
+}
+
+/* Emphasize character + name */
+[data-step-section="0"] .preset-character {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+[data-step-section="0"] .preset-name {
+  font-size: 0.78rem;
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+/* De-emphasize layout metadata */
+[data-step-section="0"] .preset-type {
+  font-size: 0.68rem;
+  opacity: 0.5;
+}
+
+/* Random section — visual sibling to presets */
+.random-section {
+  background: var(--aura-bg-secondary, #2a2a3e);
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.random-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--mood-primary-color, #e1e1ff);
+  margin: 0 0 0.2rem 0;
+}
+
+/* Compact roll button */
+[data-step-section="0"] .roll-button-container {
+  margin-bottom: 0;
+  justify-content: flex-start;
+}
+
+[data-step-section="0"] .roll-btn {
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  gap: 0.6rem;
+  width: 100%;
+}
+
+[data-step-section="0"] .roll-icon {
+  font-size: 1.4rem;
+}
+
+[data-step-section="0"] .roll-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.1rem;
+}
+
+[data-step-section="0"] .roll-subtitle {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+[data-step-section="0"] .roll-btn:hover {
+  transform: translateY(-1px) scale(1.01);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* =========================================
    BASICS TAB — Layout Refinements
    Scoped to [data-step-section="2"]
    ========================================= */
