@@ -401,6 +401,30 @@ body.cf-ui--clean .cf-section-icon .cf-icon-chip {
   color: var(--mood-primary-color, #e1e1ff);
 }
 
+.cardforge-dialog-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--aura-bg-secondary, #2a2a3e);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: var(--mood-primary-color, #e1e1ff);
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.cardforge-dialog-input:focus {
+  border-color: var(--mood-primary-color, #00d4ff);
+  box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.15);
+}
+
+.cardforge-dialog-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+  font-style: italic;
+}
+
 .dialog-buttons {
   display: flex;
   justify-content: flex-end;
@@ -2034,6 +2058,7 @@ body.cf-ui--clean .cf-section-icon .cf-icon-chip {
 .mini-card-btn.edit { color: #fbbf24; }
 .mini-card-btn.duplicate { color: #22c55e; }
 .mini-card-btn.publish { color: #3b82f6; }
+.mini-card-btn.deck-add { color: #a78bfa; }
 .mini-card-btn.delete { color: #ef4444; }
 .mini-card-btn.remove { color: #ef4444; }
 

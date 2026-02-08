@@ -2676,27 +2676,45 @@ opacity: 1;
   flex-shrink: 0;
 }
 
-/* Deck Cards Grid */
+/* Deck Cards Grid — overlapping fan layout */
 [data-step-section="7"] .deck-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  overflow: hidden;
+  padding: 0.25rem 0;
 }
 
-/* Deck Picker Dropdown (on My Cards tiles) */
+[data-step-section="7"] .deck-cards-grid .mini-card {
+  width: 120px;
+  height: auto;
+  aspect-ratio: 5 / 7;
+  margin-left: -20px;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, z-index 0s;
+  z-index: 1;
+}
+
+[data-step-section="7"] .deck-cards-grid .mini-card:first-child {
+  margin-left: 0;
+}
+
+[data-step-section="7"] .deck-cards-grid .mini-card:hover {
+  z-index: 10;
+  transform: translateY(-6px) scale(1.05);
+}
+
+/* Deck Picker Dropdown (appended to body, positioned by JS) */
 .deck-picker-dropdown {
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100;
-  min-width: 160px;
-  max-width: 220px;
-  background: var(--aura-bg-secondary, #2a2a3e);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
-  padding: 0.35rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  position: fixed;
+  z-index: 9999;
+  min-width: 180px;
+  max-width: 240px;
+  background: #1e1e32;
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  border-radius: 8px;
+  padding: 0.4rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 12px rgba(0, 212, 255, 0.1);
+  backdrop-filter: blur(8px);
 }
 
 .deck-picker-title {

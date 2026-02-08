@@ -173,6 +173,95 @@
     document.addEventListener('keydown', escListener);
   }
 
+  /**
+   * Shows a prompt dialog with a text input field (replaces browser prompt())
+   * @param {string} title - Dialog title
+   * @param {string} placeholder - Input placeholder text
+   * @param {string} defaultValue - Default input value
+   * @param {Function} onConfirm - Callback with input value when confirmed
+   * @param {Function} [onCancel] - Optional cancel callback
+   */
+  function showPromptDialog(title, placeholder, defaultValue, onConfirm, onCancel) {
+    const dialog = document.getElementById('cardforge-dialog');
+    if (!dialog) {
+      // Fallback to native prompt
+      const result = prompt(title, defaultValue || '');
+      if (result !== null && result.trim() !== '') {
+        onConfirm && onConfirm(result.trim());
+      } else {
+        onCancel && onCancel();
+      }
+      return;
+    }
+
+    const titleEl = dialog.querySelector('#cardforge-dialog-title');
+    const messageEl = dialog.querySelector('#cardforge-dialog-message');
+    const confirmBtn = dialog.querySelector('#cardforge-dialog-confirm');
+    const cancelBtn = dialog.querySelector('#cardforge-dialog-cancel');
+
+    if (titleEl) titleEl.textContent = title;
+
+    // Replace message area with an input field
+    if (messageEl) {
+      messageEl.innerHTML = `<input type="text" id="cardforge-dialog-input"
+        class="cardforge-dialog-input"
+        placeholder="${placeholder || ''}"
+        value="${defaultValue || ''}"
+        autocomplete="off" />`;
+    }
+
+    // Ensure cancel is visible and labels are correct
+    if (cancelBtn) cancelBtn.style.display = '';
+    if (confirmBtn) confirmBtn.textContent = 'Create';
+
+    // Clone buttons to remove prior listeners
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    const newCancelBtn = cancelBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+    dialog.classList.add('active');
+
+    const inputEl = dialog.querySelector('#cardforge-dialog-input');
+    if (inputEl) {
+      setTimeout(() => { inputEl.focus(); inputEl.select(); }, 100);
+    }
+
+    const cleanup = () => {
+      dialog.classList.remove('active');
+      // Restore message element to plain text mode
+      if (messageEl) messageEl.innerHTML = '';
+      if (newConfirmBtn) newConfirmBtn.textContent = 'Confirm';
+      newConfirmBtn.removeEventListener('click', handleConfirm);
+      newCancelBtn.removeEventListener('click', handleCancel);
+      document.removeEventListener('keydown', handleKeydown);
+    };
+
+    const handleConfirm = () => {
+      const val = inputEl ? inputEl.value.trim() : '';
+      cleanup();
+      if (val) {
+        onConfirm && onConfirm(val);
+      } else {
+        onCancel && onCancel();
+      }
+    };
+
+    const handleCancel = () => {
+      cleanup();
+      onCancel && onCancel();
+    };
+
+    const handleKeydown = (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); handleConfirm(); }
+      if (e.key === 'Escape') { handleCancel(); }
+    };
+
+    newConfirmBtn.addEventListener('click', handleConfirm);
+    newCancelBtn.addEventListener('click', handleCancel);
+    document.addEventListener('keydown', handleKeydown);
+  }
+
   // ===== CRAFT PANEL BEHAVIORS =====
 
   // Helpers
@@ -373,6 +462,7 @@
 
   const UIUtils = {
     showConfirmDialog,
+    showPromptDialog,
     showAlertDialog,
     clearValidationErrors,
     showValidationErrors,
