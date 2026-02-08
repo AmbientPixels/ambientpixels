@@ -291,6 +291,53 @@
   font-weight: 500;
 }
 
+/* Gallery deck tile — delete button (top-right corner, shown on hover) */
+.gallery-deck-tile {
+  position: relative;
+}
+
+.gallery-deck-delete-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 4px;
+  background: rgba(255, 80, 80, 0.15);
+  color: #ff6b6b;
+  font-size: 0.65rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s ease, background 0.12s ease;
+  z-index: 2;
+}
+
+.gallery-deck-tile:hover .gallery-deck-delete-btn {
+  opacity: 1;
+}
+
+.gallery-deck-delete-btn:hover {
+  background: rgba(255, 80, 80, 0.3);
+  color: #ff4444;
+}
+
+/* Deck modal — delete button (red variant) */
+.deck-modal-delete-btn {
+  border-color: rgba(255, 80, 80, 0.3) !important;
+  background: rgba(255, 80, 80, 0.08) !important;
+  color: #ff6b6b !important;
+}
+
+.deck-modal-delete-btn:hover {
+  background: rgba(255, 80, 80, 0.18) !important;
+  border-color: rgba(255, 80, 80, 0.5) !important;
+  color: #ff4444 !important;
+}
+
 /* Gallery deck tile — image variant */
 .gallery-deck-tile-img {
   width: 48px;

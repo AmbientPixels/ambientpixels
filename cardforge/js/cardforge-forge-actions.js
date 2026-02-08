@@ -1307,6 +1307,14 @@ const resp = await fetch(loadUrl, {
       }
 
       this._galleryDecks = decks;
+
+      // Admin/owner check for delete button
+      const currentUserId = (() => {
+        try { return JSON.parse(sessionStorage.getItem('userInfo') || '{}').userId || null; } catch { return null; }
+      })();
+      const adminIds = window._config?.adminUserIds || [];
+      const isAdmin = currentUserId && adminIds.includes(currentUserId);
+
       grid.innerHTML = decks.map(d => {
         const icon = d.icon || 'fas fa-layer-group';
         const tags = (d.tags || []).slice(0, 3).map(t =>
@@ -1316,6 +1324,10 @@ const resp = await fetch(loadUrl, {
         const visualHTML = hasImage
           ? `<div class="gallery-deck-tile-img"><img src="${d.deckImage}" alt="${d.name}" onerror="this.parentNode.innerHTML='<i class=\\'${icon}\\'></i>'" /></div>`
           : `<div class="gallery-deck-tile-icon"><i class="${icon}"></i></div>`;
+        const canDelete = isAdmin || (currentUserId && d.userId === currentUserId);
+        const deleteBtn = canDelete
+          ? `<button type="button" class="gallery-deck-delete-btn" onclick="event.stopPropagation();cardForgeActions.removeGalleryDeck('${d.shareId}')" title="Delete from Gallery"><i class="fas fa-trash"></i></button>`
+          : '';
         return `
           <div class="gallery-deck-tile" data-share-id="${d.shareId}" onclick="cardForgeActions.showDeckModal('${d.shareId}')" style="cursor:pointer" title="${d.name}">
             ${visualHTML}
@@ -1324,6 +1336,7 @@ const resp = await fetch(loadUrl, {
               <div class="gallery-deck-tile-meta">${d.cardCount || 0} card${(d.cardCount || 0) !== 1 ? 's' : ''}</div>
               ${tags ? '<div class="gallery-deck-tile-tags">' + tags + '</div>' : ''}
             </div>
+            ${deleteBtn}
           </div>`;
       }).join('');
 
@@ -1399,9 +1412,19 @@ const resp = await fetch(loadUrl, {
       }
 
       const shareUrl = window.location.origin + '/cardforge/deck.html?deck=' + shareId;
+
+      // Admin/owner check for delete in modal
+      const modalUserId = (() => {
+        try { return JSON.parse(sessionStorage.getItem('userInfo') || '{}').userId || null; } catch { return null; }
+      })();
+      const modalAdminIds = window._config?.adminUserIds || [];
+      const modalIsAdmin = modalUserId && modalAdminIds.includes(modalUserId);
+      const modalCanDelete = modalIsAdmin || (modalUserId && deck.publishedBy === modalUserId);
+
       const actionsHTML = '<div class="deck-modal-actions">' +
         '<button type="button" class="deck-publish-action-btn" onclick="navigator.clipboard.writeText(\'' + shareUrl + '\');this.innerHTML=\'<i class=&quot;fas fa-check&quot;></i> Copied!\';setTimeout(()=>{this.innerHTML=\'<i class=&quot;fas fa-link&quot;></i> Copy Link\'},2000)"><i class="fas fa-link"></i> Copy Link</button>' +
         '<button type="button" class="deck-publish-action-btn" onclick="cardForgeActions.saveDeckFromGallery(\'' + shareId + '\')"><i class="fas fa-download"></i> Save to My Decks</button>' +
+        (modalCanDelete ? '<button type="button" class="deck-publish-action-btn deck-modal-delete-btn" onclick="cardForgeActions.removeGalleryDeck(\'' + shareId + '\')"><i class="fas fa-trash"></i> Delete</button>' : '') +
         '</div>';
 
       if (messageEl) messageEl.innerHTML = headerHTML + cardsHTML + actionsHTML;
@@ -1410,6 +1433,40 @@ const resp = await fetch(loadUrl, {
       console.error('[CardForge] Deck modal load error:', e);
       if (titleEl) titleEl.textContent = 'Error';
       if (messageEl) messageEl.innerHTML = '<p style="text-align:center;color:#ff6b6b;padding:1rem;">Could not load deck: ' + e.message + '</p>';
+    }
+  }
+
+  // Delete a published deck from the gallery
+  async removeGalleryDeck(shareId) {
+    const doRemove = async () => {
+      try {
+        const deleteUrl = window.buildApiPath('deckDelete');
+        const resp = await fetch(deleteUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ shareId }),
+          credentials: 'include'
+        });
+        if (resp.ok) {
+          this.showNotification('Deck removed from gallery', 'success');
+          // Close modal if open
+          const dialog = document.getElementById('cardforge-dialog');
+          if (dialog && dialog.classList.contains('active')) dialog.classList.remove('active');
+          this.refreshGalleryDecks();
+        } else {
+          const errData = await resp.json().catch(() => ({}));
+          this.showNotification(errData.error || 'Failed to remove deck', 'error');
+        }
+      } catch (e) {
+        console.error('Remove gallery deck failed:', e);
+        this.showNotification('Failed to remove deck', 'error');
+      }
+    };
+    const dialogFn = (window.UIUtils && window.UIUtils.showConfirmDialog) || null;
+    if (dialogFn) {
+      dialogFn('Remove Deck from Gallery', 'Are you sure you want to remove this deck from the public gallery? This cannot be undone.', doRemove);
+    } else if (confirm('Remove this deck from the gallery?')) {
+      doRemove();
     }
   }
 

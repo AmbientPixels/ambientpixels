@@ -17,6 +17,7 @@ window._config = {
     publish: 'cardforgepublish',
     deckPublish: 'cardforgedeckpublish',
     deckLoad: 'cardforgedeckload',
+    deckDelete: 'cardforgedeckdelete',
     template: 'cardforgetemplate'
   },
   

@@ -73,6 +73,11 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/cardforgedeckdelete",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgedeckdelete",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/cardforgedeletecard",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgedeletecard",
       "allowedRoles": ["anonymous"]
