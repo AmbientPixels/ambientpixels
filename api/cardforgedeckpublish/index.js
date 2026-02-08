@@ -147,6 +147,7 @@ module.exports = async function (context, req) {
       shareId = entry.shareId;
       entry.name = body.name;
       entry.icon = body.icon || '';
+      entry.deckImage = body.deckImage || '';
       entry.description = body.description || '';
       entry.tags = body.tags || [];
       entry.visibility = body.visibility || 'unlisted';
@@ -161,6 +162,7 @@ module.exports = async function (context, req) {
         userId,
         name: body.name,
         icon: body.icon || '',
+        deckImage: body.deckImage || '',
         description: body.description || '',
         tags: body.tags || [],
         visibility: body.visibility || 'unlisted',
@@ -178,6 +180,7 @@ module.exports = async function (context, req) {
       deckId: body.deckId,
       name: body.name,
       icon: body.icon || '',
+      deckImage: body.deckImage || '',
       description: body.description || '',
       tags: body.tags || [],
       visibility: body.visibility || 'unlisted',

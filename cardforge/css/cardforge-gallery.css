@@ -291,8 +291,301 @@
   font-weight: 500;
 }
 
+/* Gallery deck tile — image variant */
+.gallery-deck-tile-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #12121e;
+}
+
+.gallery-deck-tile-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery-deck-tile-img i {
+  font-size: 1.3rem;
+  color: #00d4ff;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 212, 255, 0.08);
+}
+
+/* Deck form dialog — image input row */
+.deck-form-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.deck-form-image-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.deck-form-image-row .cardforge-dialog-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.deck-form-browse-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  border-radius: 6px;
+  background: rgba(0, 212, 255, 0.08);
+  color: #00d4ff;
+  font-size: 0.8rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.12s ease;
+}
+
+.deck-form-browse-btn:hover {
+  background: rgba(0, 212, 255, 0.16);
+  border-color: rgba(0, 212, 255, 0.4);
+}
+
+.deck-form-image-preview {
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 0.85rem;
+}
+
+.deck-form-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Image library panel */
+.deck-form-image-library {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.15);
+  padding: 0.4rem;
+  margin-top: 0.15rem;
+}
+
+.deck-form-image-library-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+
+.deck-form-image-library-title {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--mood-text-secondary, #a0a0c0);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.deck-form-image-library-title i {
+  margin-right: 0.3rem;
+  opacity: 0.6;
+}
+
+.deck-form-image-library-pager {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.deck-form-image-library-pager span {
+  font-size: 0.65rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+  opacity: 0.7;
+}
+
+.deck-form-pager-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--mood-text-secondary, #a0a0c0);
+  font-size: 0.65rem;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.deck-form-pager-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  color: #00d4ff;
+}
+
+.deck-form-pager-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.deck-form-image-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.deck-form-lib-img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.12s ease, transform 0.12s ease;
+  display: block;
+}
+
+.deck-form-lib-img:hover {
+  border-color: rgba(0, 212, 255, 0.3);
+  transform: scale(1.04);
+}
+
+.deck-form-lib-img.selected {
+  border-color: #00d4ff;
+  box-shadow: 0 0 6px rgba(0, 212, 255, 0.3);
+}
+
+/* Deck modal (gallery click) */
+.deck-modal-header {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  align-items: flex-start;
+}
+
+.deck-modal-cover {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #12121e;
+}
+
+.deck-modal-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.deck-modal-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.deck-modal-icon {
+  font-size: 0.9rem;
+  color: #00d4ff;
+  margin-bottom: 0.25rem;
+}
+
+.deck-modal-desc {
+  font-size: 0.78rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+  margin-bottom: 0.35rem;
+  line-height: 1.4;
+}
+
+.deck-modal-tags {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.3rem;
+}
+
+.deck-modal-meta {
+  font-size: 0.7rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+  opacity: 0.6;
+}
+
+.deck-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 0.25rem 0;
+  margin-bottom: 0.75rem;
+}
+
+.deck-modal-card {
+  background: #12121e;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.deck-modal-card-img {
+  width: 100%;
+  aspect-ratio: 5 / 7;
+  object-fit: cover;
+  display: block;
+}
+
+.deck-modal-card-placeholder {
+  width: 100%;
+  aspect-ratio: 5 / 7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3a3a5a;
+  font-size: 1.2rem;
+  background: #12121e;
+}
+
+.deck-modal-card-name {
+  padding: 0.3rem 0.4rem;
+  font-size: 0.65rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--mood-primary-color, #e1e1ff);
+}
+
+.deck-modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
 @media (max-width: 600px) {
   .gallery-decks-grid {
     grid-template-columns: 1fr;
+  }
+  .deck-modal-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }

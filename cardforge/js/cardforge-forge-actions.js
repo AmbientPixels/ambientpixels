@@ -479,14 +479,19 @@ class CardForgeActions {
     console.log('🗂️ Create new deck requested');
     if (!this.requireAuth('create a deck')) return;
 
-    const promptFn = (window.UIUtils && window.UIUtils.showPromptDialog) || null;
-    const createDeck = (deckName, selectedIcon) => {
+    this._showDeckFormDialog({
+      title: 'Create New Deck',
+      confirmLabel: 'Create',
+      defaults: { name: 'My New Deck', icon: DEFAULT_DECK_ICON, description: '', tags: '', deckImage: '' }
+    }, (formData) => {
       try {
         const newDeck = {
           id: this.generateDeckId(),
-          name: deckName,
-          icon: selectedIcon || DEFAULT_DECK_ICON,
-          description: '',
+          name: formData.name,
+          icon: formData.icon || DEFAULT_DECK_ICON,
+          description: formData.description || '',
+          tags: formData.tags || '',
+          deckImage: formData.deckImage || '',
           cardIds: [],
           createdAt: new Date().toISOString(),
           lastModified: new Date().toISOString()
@@ -496,7 +501,7 @@ class CardForgeActions {
         decks.push(newDeck);
         localStorage.setItem('cardforge_decks', JSON.stringify(decks));
 
-        this.showNotification(`Created deck "${deckName}"`, 'success');
+        this.showNotification(`Created deck "${formData.name}"`, 'success');
         this._selectedDeckId = newDeck.id;
         this.switchToDeckTab();
         this.refreshDeckList();
@@ -504,18 +509,7 @@ class CardForgeActions {
         console.error('Error creating deck:', error);
         this.showNotification('Error creating deck', 'error');
       }
-    };
-
-    if (promptFn) {
-      promptFn('Create New Deck', 'Enter deck name...', 'My New Deck', createDeck, null, {
-        icons: DECK_ICONS,
-        selectedIcon: DEFAULT_DECK_ICON,
-        confirmLabel: 'Create'
-      });
-    } else {
-      const deckName = prompt('Enter a name for your new deck:', 'My New Deck');
-      if (deckName && deckName.trim()) createDeck(deckName.trim());
-    }
+    });
   }
 
   // ===================
@@ -557,6 +551,213 @@ class CardForgeActions {
       console.error('Error publishing card:', error);
       this.showNotification('Error publishing card', 'error');
     }
+  }
+
+  // ===================
+  // DECK FORM DIALOG (shared by create + edit)
+  // ===================
+
+  _showDeckFormDialog(config, onConfirm) {
+    const dialog = document.getElementById('cardforge-dialog');
+    if (!dialog) {
+      const name = prompt(config.title, config.defaults.name || '');
+      if (name && name.trim()) onConfirm({ name: name.trim(), icon: config.defaults.icon, description: '', tags: '', deckImage: '' });
+      return;
+    }
+
+    const d = config.defaults || {};
+    const titleEl = dialog.querySelector('#cardforge-dialog-title');
+    const messageEl = dialog.querySelector('#cardforge-dialog-message');
+    const confirmBtn = dialog.querySelector('#cardforge-dialog-confirm');
+    const cancelBtn = dialog.querySelector('#cardforge-dialog-cancel');
+
+    if (titleEl) titleEl.textContent = config.title;
+
+    let _selectedIcon = d.icon || DEFAULT_DECK_ICON;
+
+    const iconsHTML = DECK_ICONS.map(item =>
+      '<button type="button" class="dialog-icon-option' +
+      (item.icon === _selectedIcon ? ' selected' : '') +
+      '" data-icon="' + item.icon + '" title="' + item.label + '">' +
+      '<i class="' + item.icon + '"></i></button>'
+    ).join('');
+
+    const formHTML =
+      '<div class="deck-form-dialog">' +
+        '<label class="deck-publish-label">Name</label>' +
+        '<input type="text" id="deck-form-name" class="cardforge-dialog-input" value="' + (d.name || '').replace(/"/g, '&quot;') + '" placeholder="Deck name..." autocomplete="off" />' +
+        '<label class="deck-publish-label">Deck Image <span style="opacity:0.5">(optional)</span></label>' +
+        '<div class="deck-form-image-row">' +
+          '<input type="text" id="deck-form-image" class="cardforge-dialog-input" value="' + (d.deckImage || '').replace(/"/g, '&quot;') + '" placeholder="Paste URL or browse below..." autocomplete="off" />' +
+          '<button type="button" id="deck-form-browse-btn" class="deck-form-browse-btn" title="Browse Image Library"><i class="fas fa-images"></i></button>' +
+          '<div class="deck-form-image-preview" id="deck-form-image-preview">' +
+            (d.deckImage ? '<img src="' + d.deckImage.replace(/"/g, '&quot;') + '" alt="preview" />' : '<i class="fas fa-image"></i>') +
+          '</div>' +
+        '</div>' +
+        '<div class="deck-form-image-library" id="deck-form-image-library" style="display:none">' +
+          '<div class="deck-form-image-library-header">' +
+            '<span class="deck-form-image-library-title"><i class="fas fa-images"></i> Image Library</span>' +
+            '<div class="deck-form-image-library-pager">' +
+              '<button type="button" id="deck-img-prev" class="deck-form-pager-btn" disabled>&laquo;</button>' +
+              '<span id="deck-img-page-info">Page 1</span>' +
+              '<button type="button" id="deck-img-next" class="deck-form-pager-btn">&raquo;</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="deck-form-image-grid" id="deck-form-image-grid">Loading...</div>' +
+        '</div>' +
+        '<label class="deck-publish-label">Description <span style="opacity:0.5">(optional)</span></label>' +
+        '<textarea id="deck-form-desc" class="cardforge-dialog-input" rows="2" placeholder="Describe your deck...">' + (d.description || '') + '</textarea>' +
+        '<label class="deck-publish-label">Tags <span style="opacity:0.5">(comma separated)</span></label>' +
+        '<input type="text" id="deck-form-tags" class="cardforge-dialog-input" value="' + (d.tags || '').replace(/"/g, '&quot;') + '" placeholder="e.g. warrior, fire, starter" autocomplete="off" />' +
+        '<div class="dialog-icon-picker">' +
+          '<div class="dialog-icon-label">Deck Icon</div>' +
+          '<div class="dialog-icon-grid">' + iconsHTML + '</div>' +
+        '</div>' +
+      '</div>';
+
+    if (messageEl) messageEl.innerHTML = formHTML;
+    if (cancelBtn) cancelBtn.style.display = '';
+    if (confirmBtn) confirmBtn.textContent = config.confirmLabel || 'Save';
+
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    const newCancelBtn = cancelBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+    dialog.classList.add('active');
+    const nameInput = dialog.querySelector('#deck-form-name');
+    if (nameInput) setTimeout(() => { nameInput.focus(); nameInput.select(); }, 100);
+
+    // Icon selection
+    const iconGrid = dialog.querySelector('.dialog-icon-grid');
+    if (iconGrid) {
+      iconGrid.addEventListener('click', function(e) {
+        const btn = e.target.closest('.dialog-icon-option');
+        if (!btn) return;
+        iconGrid.querySelectorAll('.dialog-icon-option').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        _selectedIcon = btn.getAttribute('data-icon');
+      });
+    }
+
+    // Image input, preview, and library
+    const imgInput = dialog.querySelector('#deck-form-image');
+    const imgPreview = dialog.querySelector('#deck-form-image-preview');
+    const browseBtn = dialog.querySelector('#deck-form-browse-btn');
+    const libraryEl = dialog.querySelector('#deck-form-image-library');
+    const imgGrid = dialog.querySelector('#deck-form-image-grid');
+    const prevBtn = dialog.querySelector('#deck-img-prev');
+    const nextBtn = dialog.querySelector('#deck-img-next');
+    const pageInfoEl = dialog.querySelector('#deck-img-page-info');
+
+    const updateImgPreview = (url) => {
+      if (!imgPreview) return;
+      if (url) {
+        imgPreview.innerHTML = '<img src="' + url.replace(/"/g, '&quot;') + '" alt="preview" onerror="this.parentNode.innerHTML=\'<i class=&quot;fas fa-exclamation-triangle&quot;></i>\'" />';
+      } else {
+        imgPreview.innerHTML = '<i class="fas fa-image"></i>';
+      }
+    };
+
+    // Live preview on URL typing
+    if (imgInput) {
+      let debounce;
+      imgInput.addEventListener('input', function() {
+        clearTimeout(debounce);
+        debounce = setTimeout(() => updateImgPreview(imgInput.value.trim()), 400);
+        // Deselect library images when typing a custom URL
+        if (imgGrid) imgGrid.querySelectorAll('img').forEach(i => i.classList.remove('selected'));
+      });
+    }
+
+    // Browse button toggles image library
+    let _imgManifest = null;
+    let _imgPage = 1;
+    const IMG_PER_PAGE = 12;
+
+    const loadImgPage = (page) => {
+      if (!_imgManifest || !imgGrid) return;
+      _imgPage = page;
+      const total = Math.ceil(_imgManifest.length / IMG_PER_PAGE);
+      const start = (page - 1) * IMG_PER_PAGE;
+      const pageImgs = _imgManifest.slice(start, start + IMG_PER_PAGE);
+      const currentVal = imgInput ? imgInput.value.trim() : '';
+
+      imgGrid.innerHTML = pageImgs.map(url =>
+        '<img src="' + url + '" alt="" class="deck-form-lib-img' +
+        (url === currentVal ? ' selected' : '') + '" data-url="' + url + '" />'
+      ).join('');
+
+      // Click handler for each image
+      imgGrid.querySelectorAll('.deck-form-lib-img').forEach(img => {
+        img.addEventListener('click', function() {
+          imgGrid.querySelectorAll('img').forEach(i => i.classList.remove('selected'));
+          img.classList.add('selected');
+          const selectedUrl = img.getAttribute('data-url');
+          if (imgInput) imgInput.value = selectedUrl;
+          updateImgPreview(selectedUrl);
+        });
+      });
+
+      if (pageInfoEl) pageInfoEl.textContent = 'Page ' + page + ' of ' + total;
+      if (prevBtn) prevBtn.disabled = page <= 1;
+      if (nextBtn) nextBtn.disabled = page >= total;
+    };
+
+    if (browseBtn && libraryEl) {
+      browseBtn.addEventListener('click', async function() {
+        const isOpen = libraryEl.style.display !== 'none';
+        if (isOpen) {
+          libraryEl.style.display = 'none';
+          return;
+        }
+        libraryEl.style.display = '';
+        if (!_imgManifest) {
+          try {
+            const resp = await fetch('/cardforge/image-manifest.json');
+            _imgManifest = await resp.json();
+          } catch (e) {
+            imgGrid.innerHTML = '<p style="color:#ff6b6b;font-size:0.75rem;">Failed to load images</p>';
+            return;
+          }
+        }
+        loadImgPage(1);
+      });
+    }
+
+    if (prevBtn) prevBtn.addEventListener('click', () => { if (_imgPage > 1) loadImgPage(_imgPage - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { loadImgPage(_imgPage + 1); });
+
+    const cleanup = () => {
+      dialog.classList.remove('active');
+      if (messageEl) messageEl.innerHTML = '';
+      newConfirmBtn.removeEventListener('click', handleConfirm);
+      newCancelBtn.removeEventListener('click', handleCancel);
+      document.removeEventListener('keydown', handleKeydown);
+    };
+
+    const handleConfirm = () => {
+      const name = (dialog.querySelector('#deck-form-name') || {}).value || '';
+      if (!name.trim()) { cleanup(); return; }
+      const formData = {
+        name: name.trim(),
+        icon: _selectedIcon,
+        description: (dialog.querySelector('#deck-form-desc') || {}).value || '',
+        tags: (dialog.querySelector('#deck-form-tags') || {}).value || '',
+        deckImage: (dialog.querySelector('#deck-form-image') || {}).value || ''
+      };
+      cleanup();
+      onConfirm(formData);
+    };
+
+    const handleCancel = () => { cleanup(); };
+    const handleKeydown = (e) => {
+      if (e.key === 'Escape') handleCancel();
+    };
+
+    newConfirmBtn.addEventListener('click', handleConfirm);
+    newCancelBtn.addEventListener('click', handleCancel);
+    document.addEventListener('keydown', handleKeydown);
   }
 
   // ===================
@@ -1105,21 +1306,25 @@ const resp = await fetch(loadUrl, {
         return;
       }
 
+      this._galleryDecks = decks;
       grid.innerHTML = decks.map(d => {
         const icon = d.icon || 'fas fa-layer-group';
         const tags = (d.tags || []).slice(0, 3).map(t =>
           '<span class="gallery-deck-tag">' + t + '</span>'
         ).join('');
-        const shareUrl = '/cardforge/deck.html?deck=' + d.shareId;
+        const hasImage = d.deckImage && d.deckImage.trim();
+        const visualHTML = hasImage
+          ? `<div class="gallery-deck-tile-img"><img src="${d.deckImage}" alt="${d.name}" onerror="this.parentNode.innerHTML='<i class=\\'${icon}\\'></i>'" /></div>`
+          : `<div class="gallery-deck-tile-icon"><i class="${icon}"></i></div>`;
         return `
-          <a class="gallery-deck-tile" href="${shareUrl}" target="_blank" title="${d.name}">
-            <div class="gallery-deck-tile-icon"><i class="${icon}"></i></div>
+          <div class="gallery-deck-tile" data-share-id="${d.shareId}" onclick="cardForgeActions.showDeckModal('${d.shareId}')" style="cursor:pointer" title="${d.name}">
+            ${visualHTML}
             <div class="gallery-deck-tile-info">
               <div class="gallery-deck-tile-name">${d.name}</div>
               <div class="gallery-deck-tile-meta">${d.cardCount || 0} card${(d.cardCount || 0) !== 1 ? 's' : ''}</div>
               ${tags ? '<div class="gallery-deck-tile-tags">' + tags + '</div>' : ''}
             </div>
-          </a>`;
+          </div>`;
       }).join('');
 
     } catch (e) {
@@ -1129,6 +1334,116 @@ const resp = await fetch(loadUrl, {
           <i class="fas fa-layer-group"></i>
           <p>Decks coming soon</p>
         </div>`;
+    }
+  }
+
+  // Show a modal for a published deck (gallery click)
+  async showDeckModal(shareId) {
+    const dialog = document.getElementById('cardforge-dialog');
+    if (!dialog) return;
+
+    const titleEl = dialog.querySelector('#cardforge-dialog-title');
+    const messageEl = dialog.querySelector('#cardforge-dialog-message');
+    const confirmBtn = dialog.querySelector('#cardforge-dialog-confirm');
+    const cancelBtn = dialog.querySelector('#cardforge-dialog-cancel');
+
+    if (titleEl) titleEl.textContent = 'Loading deck...';
+    if (messageEl) messageEl.innerHTML = '<div style="text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;color:#00d4ff"></i></div>';
+    if (cancelBtn) cancelBtn.style.display = 'none';
+    if (confirmBtn) confirmBtn.textContent = 'Close';
+
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    newConfirmBtn.addEventListener('click', () => {
+      dialog.classList.remove('active');
+      if (messageEl) messageEl.innerHTML = '';
+    });
+
+    dialog.classList.add('active');
+
+    try {
+      const url = window.buildApiPath('deckLoad', { shareId });
+      const resp = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const deck = await resp.json();
+
+      const icon = deck.icon || 'fas fa-layer-group';
+      const cards = deck.cards || [];
+      const tags = (deck.tags || []).map(t => '<span class="gallery-deck-tag">' + t + '</span>').join('');
+      const hasImage = deck.deckImage && deck.deckImage.trim();
+
+      if (titleEl) titleEl.textContent = deck.name;
+
+      let headerHTML = '<div class="deck-modal-header">';
+      if (hasImage) {
+        headerHTML += '<div class="deck-modal-cover"><img src="' + deck.deckImage + '" alt="' + deck.name + '" /></div>';
+      }
+      headerHTML += '<div class="deck-modal-info">';
+      headerHTML += '<div class="deck-modal-icon"><i class="' + icon + '"></i></div>';
+      if (deck.description) headerHTML += '<p class="deck-modal-desc">' + deck.description + '</p>';
+      if (tags) headerHTML += '<div class="deck-modal-tags">' + tags + '</div>';
+      headerHTML += '<div class="deck-modal-meta">' + cards.length + ' card' + (cards.length !== 1 ? 's' : '') + '</div>';
+      headerHTML += '</div></div>';
+
+      let cardsHTML = '';
+      if (cards.length > 0) {
+        cardsHTML = '<div class="deck-modal-grid">' + cards.map((c, i) => {
+          const imgHTML = c.preview
+            ? '<img class="deck-modal-card-img" src="' + c.preview + '" alt="' + (c.name || '') + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'" /><div class="deck-modal-card-placeholder" style="display:none"><i class="fas fa-image"></i></div>'
+            : '<div class="deck-modal-card-placeholder"><i class="fas fa-image"></i></div>';
+          return '<div class="deck-modal-card">' + imgHTML +
+            '<div class="deck-modal-card-name">' + (c.name || 'Untitled') + '</div></div>';
+        }).join('') + '</div>';
+      } else {
+        cardsHTML = '<p style="text-align:center;color:#6a6a8a;padding:1rem;">No cards in this deck.</p>';
+      }
+
+      const shareUrl = window.location.origin + '/cardforge/deck.html?deck=' + shareId;
+      const actionsHTML = '<div class="deck-modal-actions">' +
+        '<button type="button" class="deck-publish-action-btn" onclick="navigator.clipboard.writeText(\'' + shareUrl + '\');this.innerHTML=\'<i class=&quot;fas fa-check&quot;></i> Copied!\';setTimeout(()=>{this.innerHTML=\'<i class=&quot;fas fa-link&quot;></i> Copy Link\'},2000)"><i class="fas fa-link"></i> Copy Link</button>' +
+        '<button type="button" class="deck-publish-action-btn" onclick="cardForgeActions.saveDeckFromGallery(\'' + shareId + '\')"><i class="fas fa-download"></i> Save to My Decks</button>' +
+        '</div>';
+
+      if (messageEl) messageEl.innerHTML = headerHTML + cardsHTML + actionsHTML;
+
+    } catch (e) {
+      console.error('[CardForge] Deck modal load error:', e);
+      if (titleEl) titleEl.textContent = 'Error';
+      if (messageEl) messageEl.innerHTML = '<p style="text-align:center;color:#ff6b6b;padding:1rem;">Could not load deck: ' + e.message + '</p>';
+    }
+  }
+
+  // Save a published deck to local My Decks (from gallery modal)
+  saveDeckFromGallery(shareId) {
+    try {
+      const existing = JSON.parse(localStorage.getItem('cardforge_decks') || '[]');
+      const dup = existing.find(d => d.shareId === shareId);
+      if (dup) { this.showNotification('This deck is already in your collection', 'info'); return; }
+
+      // Find deck data from cached gallery decks
+      const galleryDeck = (this._galleryDecks || []).find(d => d.shareId === shareId);
+      if (!galleryDeck) { this.showNotification('Deck data not available', 'error'); return; }
+
+      const newDeck = {
+        id: 'deck_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+        name: galleryDeck.name,
+        icon: galleryDeck.icon || DEFAULT_DECK_ICON,
+        description: galleryDeck.description || '',
+        tags: (galleryDeck.tags || []).join(', '),
+        deckImage: galleryDeck.deckImage || '',
+        cardIds: [],
+        shareId: shareId,
+        createdAt: new Date().toISOString(),
+        lastModified: new Date().toISOString()
+      };
+
+      existing.push(newDeck);
+      localStorage.setItem('cardforge_decks', JSON.stringify(existing));
+      this.showNotification('Deck saved! Open Deck Manager to view it.', 'success');
+      this.refreshDeckList();
+    } catch (e) {
+      console.error('[CardForge] Save deck from gallery error:', e);
+      this.showNotification('Error saving deck', 'error');
     }
   }
 
@@ -1402,28 +1717,27 @@ CardForgeActions.prototype.renameDeck = function(deckId) {
   const deck = decks.find(d => d.id === deckId);
   if (!deck) return;
 
-  const doUpdate = (newName, selectedIcon) => {
-    let changed = false;
-    if (newName && newName !== deck.name) { deck.name = newName; changed = true; }
-    if (selectedIcon && selectedIcon !== deck.icon) { deck.icon = selectedIcon; changed = true; }
-    if (!changed) return;
+  this._showDeckFormDialog({
+    title: 'Edit Deck',
+    confirmLabel: 'Save',
+    defaults: {
+      name: deck.name,
+      icon: deck.icon || DEFAULT_DECK_ICON,
+      description: deck.description || '',
+      tags: deck.tags || '',
+      deckImage: deck.deckImage || ''
+    }
+  }, (formData) => {
+    deck.name = formData.name;
+    deck.icon = formData.icon || deck.icon;
+    deck.description = formData.description || '';
+    deck.tags = formData.tags || '';
+    deck.deckImage = formData.deckImage || '';
     deck.lastModified = new Date().toISOString();
     localStorage.setItem('cardforge_decks', JSON.stringify(decks));
     this.showNotification(`Deck updated: "${deck.name}"`, 'success');
     this.refreshDeckList();
-  };
-
-  const promptFn = (window.UIUtils && window.UIUtils.showPromptDialog) || null;
-  if (promptFn) {
-    promptFn('Edit Deck', 'Enter deck name...', deck.name, doUpdate, null, {
-      icons: DECK_ICONS,
-      selectedIcon: deck.icon || DEFAULT_DECK_ICON,
-      confirmLabel: 'Save'
-    });
-  } else {
-    const newName = prompt('Rename deck:', deck.name);
-    if (newName && newName.trim()) doUpdate(newName.trim());
-  }
+  });
 };
 
 CardForgeActions.prototype.deleteDeck = function(deckId) {
@@ -1485,11 +1799,12 @@ CardForgeActions.prototype.publishDeck = function(deckId) {
         '<label class="deck-publish-label">Title</label>' +
         '<input type="text" id="deck-publish-title" class="cardforge-dialog-input" value="' + (deck.name || '').replace(/"/g, '&quot;') + '" />' +
         '<label class="deck-publish-label">Description <span style="opacity:0.5">(optional)</span></label>' +
-        '<textarea id="deck-publish-desc" class="cardforge-dialog-input" rows="2" placeholder="Describe your deck..."></textarea>' +
+        '<textarea id="deck-publish-desc" class="cardforge-dialog-input" rows="2" placeholder="Describe your deck...">' + (deck.description || '') + '</textarea>' +
         '<label class="deck-publish-label">Tags <span style="opacity:0.5">(comma separated)</span></label>' +
-        '<input type="text" id="deck-publish-tags" class="cardforge-dialog-input" placeholder="e.g. warrior, fire, starter" />' +
+        '<input type="text" id="deck-publish-tags" class="cardforge-dialog-input" value="' + (deck.tags || '').replace(/"/g, '&quot;') + '" placeholder="e.g. warrior, fire, starter" />' +
         '<div class="deck-publish-meta">' +
           '<span><i class="' + deckIcon + '"></i> ' + cardsInDeck.length + ' card' + (cardsInDeck.length !== 1 ? 's' : '') + '</span>' +
+          (deck.deckImage ? '<span><i class="fas fa-image"></i> Has cover image</span>' : '') +
           '<span>Visibility: Unlisted</span>' +
         '</div>' +
       '</div>';
@@ -1556,6 +1871,7 @@ CardForgeActions.prototype.publishDeck = function(deckId) {
           deckId: deck.id,
           name: pubTitle.trim(),
           icon: deckIcon,
+          deckImage: deck.deckImage || '',
           description: pubDesc.trim(),
           tags: pubTags.split(',').map(t => t.trim()).filter(Boolean),
           visibility: 'unlisted',
