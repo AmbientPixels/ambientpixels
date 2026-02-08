@@ -2502,8 +2502,8 @@ opacity: 1;
 [data-step-section="7"] .deck-sidebar {
   display: flex;
   flex-direction: column;
-  min-width: 140px;
-  max-width: 180px;
+  min-width: 180px;
+  max-width: 280px;
   flex-shrink: 0;
 }
 
