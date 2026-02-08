@@ -2902,31 +2902,24 @@ opacity: 1;
   color: var(--mood-primary-color, #00d4ff);
 }
 
-/* Deck Cards Grid — overlapping fan layout */
+/* Deck Cards Grid — grid layout */
 [data-step-section="7"] .deck-cards-grid {
-  display: flex;
-  flex-wrap: wrap;
-  overflow: hidden;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 0.5rem;
   padding: 0.25rem 0;
 }
 
 [data-step-section="7"] .deck-cards-grid .mini-card {
-  width: 120px;
+  width: 100%;
   height: auto;
   aspect-ratio: 5 / 7;
-  margin-left: -20px;
-  flex-shrink: 0;
-  transition: transform 0.15s ease, z-index 0s;
-  z-index: 1;
-}
-
-[data-step-section="7"] .deck-cards-grid .mini-card:first-child {
-  margin-left: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 [data-step-section="7"] .deck-cards-grid .mini-card:hover {
-  z-index: 10;
-  transform: translateY(-6px) scale(1.05);
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
 /* Deck Picker Dropdown (appended to body, positioned by JS) */
@@ -3036,12 +3029,8 @@ opacity: 1;
     gap: 0.25rem;
     max-height: none;
   }
-  [data-step-section="7"] .deck-cards-grid .mini-card {
-    width: 100px;
-    margin-left: -16px;
-  }
-  [data-step-section="7"] .deck-cards-grid .mini-card:first-child {
-    margin-left: 0;
+  [data-step-section="7"] .deck-cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
   }
 }
 
@@ -3049,12 +3038,8 @@ opacity: 1;
   [data-step-section="7"] .my-cards-list {
     grid-template-columns: 1fr;
   }
-  [data-step-section="7"] .deck-cards-grid .mini-card {
-    width: 80px;
-    margin-left: -12px;
-  }
-  [data-step-section="7"] .deck-cards-grid .mini-card:first-child {
-    margin-left: 0;
+  [data-step-section="7"] .deck-cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
   }
 }
 
