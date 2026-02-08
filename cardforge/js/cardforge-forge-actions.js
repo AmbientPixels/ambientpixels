@@ -1436,8 +1436,28 @@ const resp = await fetch(loadUrl, {
       // Fallback SVG for cards without rendered HTML
       const fallbackSvg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjUwNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
 
+      // Enrich cards from localStorage — same pattern as lightbox enrichFromLocal()
+      let savedCardsCache = null;
+      try { savedCardsCache = JSON.parse(localStorage.getItem('cardforge_saved_cards') || '[]'); } catch (e) { savedCardsCache = []; }
+
+      const enrichedCards = cards.map(c => {
+        // If API card already has rendered HTML, use it directly
+        if (c.renderedFront && c.frontClasses) return c;
+        // Try to resolve from localStorage using cardId
+        const localMatch = savedCardsCache.find(s => s.id === c.cardId);
+        if (localMatch && localMatch.cardData && localMatch.cardData.renderedFront) {
+          return Object.assign({}, c, {
+            renderedFront: localMatch.cardData.renderedFront,
+            frontClasses: localMatch.cardData.frontClasses,
+            renderedBack: localMatch.cardData.renderedBack || '',
+            backClasses: localMatch.cardData.backClasses || ''
+          });
+        }
+        return c;
+      });
+
       // Render each card using the SAME structure as the lightbox
-      const cardsTrackHTML = cards.map(c => {
+      const cardsTrackHTML = enrichedCards.map(c => {
         let cardInner = '';
         if (c.renderedFront && c.frontClasses) {
           const frontCls = c.frontClasses;
