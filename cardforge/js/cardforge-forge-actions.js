@@ -61,6 +61,8 @@ class CardForgeActions {
             content.style.display = 'none';
           }
         });
+        // Update pip active states
+        this.updateSidebarIndicators();
       });
       // Keyboard navigation (arrow keys, Home/End)
       btn.addEventListener('keydown', (e) => {
@@ -881,6 +883,7 @@ const resp = await fetch(loadUrl, {
     }).join('');
 
     // Height handled by CSS: .mini-card { height: 252px } + .card-preview-canvas { height: 504px }
+    this.updateSidebarIndicators();
   }
 
   refreshDeckList() {
@@ -946,6 +949,7 @@ const resp = await fetch(loadUrl, {
       this._selectedDeckId = decks[0].id;
     }
     this.renderDeckDetail(this._selectedDeckId);
+    this.updateSidebarIndicators();
   }
 
   // Public Gallery - shows published cards from all users
@@ -1423,6 +1427,42 @@ CardForgeActions.prototype.cleanupDeckCardIds = function() {
 
 CardForgeActions.prototype.getSelectedDeckId = function() {
   return this._selectedDeckId;
+};
+
+CardForgeActions.prototype.updateSidebarIndicators = function() {
+  const cards = this.getSavedCards();
+  const decks = this.getSavedDecks();
+  const cardCount = cards ? cards.length : 0;
+  const deckCount = decks ? decks.length : 0;
+
+  // Badge pills
+  const cardBadge = document.getElementById('my-cards-count');
+  if (cardBadge) {
+    cardBadge.textContent = cardCount;
+    cardBadge.style.display = cardCount > 0 ? 'inline-block' : 'none';
+  }
+  const deckBadge = document.getElementById('deck-count');
+  if (deckBadge) {
+    deckBadge.textContent = deckCount;
+    deckBadge.style.display = deckCount > 0 ? 'inline-block' : 'none';
+  }
+
+  // Activity pips
+  const cardTab = document.querySelector('[data-forge-tab="cards"]');
+  const deckTab = document.querySelector('[data-forge-tab="deck"]');
+  const cardPip = document.getElementById('my-cards-pip');
+  const deckPip = document.getElementById('deck-pip');
+
+  if (cardPip) {
+    const isActive = cardTab && cardTab.classList.contains('active');
+    cardPip.classList.toggle('active', isActive || cardCount > 0);
+    cardPip.classList.toggle('lit', isActive);
+  }
+  if (deckPip) {
+    const isActive = deckTab && deckTab.classList.contains('active');
+    deckPip.classList.toggle('active', isActive || deckCount > 0);
+    deckPip.classList.toggle('lit', isActive);
+  }
 };
 
 CardForgeActions.prototype.showAddToDeckPicker = function(cardId, anchorEl) {
