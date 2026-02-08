@@ -63,6 +63,16 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/cardforgedeckpublish",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgedeckpublish",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/cardforgedeckload",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgedeckload",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/cardforgedeletecard",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgedeletecard",
       "allowedRoles": ["anonymous"]

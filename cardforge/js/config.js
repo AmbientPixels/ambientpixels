@@ -10,11 +10,15 @@ window._config = {
   
   // API Configuration
   apiEndpoints: {
-    base: 'https://ambientpixels-nova-api.azurewebsites.net/api',
+    base: (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? '/api'
+      : 'https://ambientpixels-nova-api.azurewebsites.net/api',
     loadCards: 'cardforgeloadcards',
     saveCard: 'cardforgesavecards',
     deleteCard: 'cardforgedeletecard',
     publish: 'cardforgepublish',
+    deckPublish: 'cardforgedeckpublish',
+    deckLoad: 'cardforgedeckload',
     template: 'cardforgetemplate'
   },
   

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deck Viewer - CardForge</title>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0e0e1a;
+      color: #e1e1ff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Top bar */
+    .deck-viewer-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.5rem;
+      background: rgba(20, 20, 36, 0.95);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .deck-viewer-bar-brand {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #a0a0c0;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .deck-viewer-bar-brand:hover { color: #00d4ff; }
+
+    .deck-viewer-bar-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* Shared button base */
+    .dv-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.4rem 0.85rem;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      background: rgba(255,255,255,0.04);
+      color: #e1e1ff;
+      font-size: 0.78rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+
+    .dv-btn:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(0, 212, 255, 0.3);
+      color: #00d4ff;
+    }
+
+    .dv-btn-primary {
+      background: rgba(0, 212, 255, 0.12);
+      border-color: rgba(0, 212, 255, 0.25);
+      color: #00d4ff;
+    }
+
+    .dv-btn-primary:hover {
+      background: rgba(0, 212, 255, 0.2);
+    }
+
+    /* Container */
+    .deck-viewer-container {
+      width: 100%;
+      max-width: 900px;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* Header */
+    .deck-viewer-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .deck-viewer-icon {
+      font-size: 2rem;
+      color: #00d4ff;
+      margin-bottom: 0.5rem;
+    }
+
+    .deck-viewer-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+
+    .deck-viewer-desc {
+      color: #a0a0c0;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .deck-viewer-tags {
+      display: flex;
+      gap: 0.35rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 0.5rem;
+    }
+
+    .deck-viewer-tag {
+      padding: 0.15rem 0.55rem;
+      border-radius: 9px;
+      background: rgba(0, 212, 255, 0.08);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      color: #00d4ff;
+      font-size: 0.68rem;
+      font-weight: 500;
+    }
+
+    .deck-viewer-meta {
+      font-size: 0.75rem;
+      color: #6a6a8a;
+    }
+
+    /* Card grid */
+    .deck-viewer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+
+    .deck-card-tile {
+      background: #1a1a2e;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .deck-card-tile:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 12px rgba(0, 212, 255, 0.08);
+    }
+
+    .deck-card-tile-img {
+      width: 100%;
+      aspect-ratio: 5 / 7;
+      object-fit: cover;
+      display: block;
+      background: #12121e;
+    }
+
+    .deck-card-tile-info {
+      padding: 0.5rem 0.6rem;
+    }
+
+    .deck-card-tile-name {
+      font-size: 0.78rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .deck-card-tile-order {
+      font-size: 0.65rem;
+      color: #6a6a8a;
+      margin-top: 0.15rem;
+    }
+
+    /* States */
+    .deck-viewer-loading,
+    .deck-viewer-error {
+      text-align: center;
+      padding: 4rem 1rem;
+    }
+
+    .deck-viewer-loading i,
+    .deck-viewer-error i {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .deck-viewer-loading i { color: #00d4ff; }
+    .deck-viewer-error i { color: #ff6b6b; }
+
+    .deck-viewer-error p {
+      color: #a0a0c0;
+      margin-bottom: 1rem;
+    }
+
+    /* No-image placeholder */
+    .deck-card-tile-placeholder {
+      width: 100%;
+      aspect-ratio: 5 / 7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #12121e;
+      color: #3a3a5a;
+      font-size: 1.5rem;
+    }
+
+    /* Save toast */
+    .dv-toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(120%);
+      background: #1e1e32;
+      border: 1px solid rgba(0, 212, 255, 0.25);
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      color: #00d4ff;
+      font-size: 0.82rem;
+      font-weight: 500;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      transition: transform 0.25s ease;
+      z-index: 200;
+    }
+
+    .dv-toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 600px) {
+      .deck-viewer-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+      }
+      .deck-viewer-title { font-size: 1.2rem; }
+      .deck-viewer-container { padding: 1rem 1rem 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <div class="deck-viewer-bar">
+    <a href="/cardforge/" class="deck-viewer-bar-brand">
+      <i class="fas fa-arrow-left"></i> CardForge
+    </a>
+    <div class="deck-viewer-bar-actions">
+      <button type="button" class="dv-btn" id="dv-copy-link" title="Copy share link">
+        <i class="fas fa-link"></i> Copy Link
+      </button>
+      <button type="button" class="dv-btn dv-btn-primary" id="dv-save-deck" title="Save to My Decks">
+        <i class="fas fa-download"></i> Save to My Decks
+      </button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="deck-viewer-container" id="dv-content">
+    <div class="deck-viewer-loading" id="dv-loading">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Loading deck...</p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="dv-toast" id="dv-toast"></div>
+
+  <script src="/cardforge/js/config.js"></script>
+  <script>
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      const shareId = params.get('deck') || '';
+      const contentEl = document.getElementById('dv-content');
+      const loadingEl = document.getElementById('dv-loading');
+      const toastEl = document.getElementById('dv-toast');
+
+      let _deckData = null;
+
+      function showToast(msg, duration) {
+        toastEl.textContent = msg;
+        toastEl.classList.add('show');
+        setTimeout(() => toastEl.classList.remove('show'), duration || 2500);
+      }
+
+      function showError(msg) {
+        contentEl.innerHTML =
+          '<div class="deck-viewer-error">' +
+            '<i class="fas fa-exclamation-triangle"></i>' +
+            '<p>' + msg + '</p>' +
+            '<a href="/cardforge/" class="dv-btn">Back to CardForge</a>' +
+          '</div>';
+      }
+
+      async function loadDeck() {
+        if (!shareId) { showError('No deck ID provided.'); return; }
+
+        try {
+          const endpoint = window.buildApiPath('deckLoad', { shareId: shareId });
+          const res = await fetch(endpoint);
+
+          if (!res.ok) {
+            if (res.status === 404) { showError('Deck not found. It may have been removed.'); return; }
+            throw new Error('HTTP ' + res.status);
+          }
+
+          _deckData = await res.json();
+          renderDeck(_deckData);
+
+        } catch (err) {
+          console.error('[DeckViewer] Load error:', err);
+          showError('Failed to load deck: ' + err.message);
+        }
+      }
+
+      function renderDeck(deck) {
+        const icon = deck.icon || 'fas fa-layer-group';
+        const cards = deck.cards || [];
+        const tags = deck.tags || [];
+
+        let tagsHTML = '';
+        if (tags.length) {
+          tagsHTML = '<div class="deck-viewer-tags">' +
+            tags.map(function(t) { return '<span class="deck-viewer-tag">' + escHtml(t) + '</span>'; }).join('') +
+            '</div>';
+        }
+
+        let descHTML = '';
+        if (deck.description) {
+          descHTML = '<p class="deck-viewer-desc">' + escHtml(deck.description) + '</p>';
+        }
+
+        let metaParts = [cards.length + ' card' + (cards.length !== 1 ? 's' : '')];
+        if (deck.updatedAt) {
+          metaParts.push('Updated ' + new Date(deck.updatedAt).toLocaleDateString());
+        }
+
+        document.title = deck.name + ' - CardForge Deck';
+
+        let gridHTML = '';
+        if (cards.length === 0) {
+          gridHTML = '<p style="text-align:center;color:#6a6a8a;padding:2rem;">This deck has no cards.</p>';
+        } else {
+          gridHTML = '<div class="deck-viewer-grid">' +
+            cards.map(function(c, i) {
+              let imgHTML;
+              if (c.preview) {
+                imgHTML = '<img class="deck-card-tile-img" src="' + escAttr(c.preview) + '" alt="' + escAttr(c.name) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'" />' +
+                  '<div class="deck-card-tile-placeholder" style="display:none"><i class="fas fa-image"></i></div>';
+              } else {
+                imgHTML = '<div class="deck-card-tile-placeholder"><i class="fas fa-image"></i></div>';
+              }
+              return '<div class="deck-card-tile">' +
+                imgHTML +
+                '<div class="deck-card-tile-info">' +
+                  '<div class="deck-card-tile-name">' + escHtml(c.name || 'Untitled') + '</div>' +
+                  '<div class="deck-card-tile-order">#' + (i + 1) + '</div>' +
+                '</div>' +
+              '</div>';
+            }).join('') +
+            '</div>';
+        }
+
+        contentEl.innerHTML =
+          '<div class="deck-viewer-header">' +
+            '<div class="deck-viewer-icon"><i class="' + icon + '"></i></div>' +
+            '<h1 class="deck-viewer-title">' + escHtml(deck.name) + '</h1>' +
+            descHTML +
+            tagsHTML +
+            '<div class="deck-viewer-meta">' + metaParts.join(' &middot; ') + '</div>' +
+          '</div>' +
+          gridHTML;
+      }
+
+      // Save to My Decks
+      document.getElementById('dv-save-deck').addEventListener('click', function() {
+        if (!_deckData) { showToast('Deck not loaded yet'); return; }
+
+        try {
+          var existing = [];
+          try { existing = JSON.parse(localStorage.getItem('cardforge_decks') || '[]'); } catch(e) { existing = []; }
+
+          // Check for duplicate
+          var dup = existing.find(function(d) { return d.shareId === shareId; });
+          if (dup) { showToast('This deck is already in your collection'); return; }
+
+          var newDeck = {
+            id: 'deck_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+            name: _deckData.name,
+            icon: _deckData.icon || 'fas fa-layer-group',
+            description: _deckData.description || '',
+            cardIds: (_deckData.cards || []).map(function(c) { return c.cardId; }),
+            shareId: shareId,
+            createdAt: new Date().toISOString(),
+            lastModified: new Date().toISOString()
+          };
+
+          existing.push(newDeck);
+          localStorage.setItem('cardforge_decks', JSON.stringify(existing));
+          showToast('Deck saved! Open Deck Manager to view it.');
+        } catch (err) {
+          console.error('[DeckViewer] Save error:', err);
+          showToast('Error saving deck');
+        }
+      });
+
+      // Copy link
+      document.getElementById('dv-copy-link').addEventListener('click', function() {
+        navigator.clipboard.writeText(window.location.href).then(function() {
+          showToast('Link copied!');
+        });
+      });
+
+      // Helpers
+      function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+      function escAttr(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+      // Boot
+      loadDeck();
+    })();
+  </script>
+</body>
+</html>
