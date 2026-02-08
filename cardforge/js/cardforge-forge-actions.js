@@ -1838,66 +1838,16 @@ CardForgeActions.prototype.publishDeck = function(deckId) {
     return;
   }
 
-  // Build modal HTML
-  const dialog = document.getElementById('cardforge-dialog');
-  if (!dialog) { this.showNotification('Dialog element not found', 'error'); return; }
-
-  const titleEl = dialog.querySelector('#cardforge-dialog-title');
-  const messageEl = dialog.querySelector('#cardforge-dialog-message');
-  const confirmBtn = dialog.querySelector('#cardforge-dialog-confirm');
-  const cancelBtn = dialog.querySelector('#cardforge-dialog-cancel');
-
-  if (titleEl) titleEl.textContent = 'Publish Deck';
-
   const deckIcon = deck.icon || DEFAULT_DECK_ICON;
-  if (messageEl) {
-    messageEl.innerHTML =
-      '<div class="deck-publish-form">' +
-        '<label class="deck-publish-label">Title</label>' +
-        '<input type="text" id="deck-publish-title" class="cardforge-dialog-input" value="' + (deck.name || '').replace(/"/g, '&quot;') + '" />' +
-        '<label class="deck-publish-label">Description <span style="opacity:0.5">(optional)</span></label>' +
-        '<textarea id="deck-publish-desc" class="cardforge-dialog-input" rows="2" placeholder="Describe your deck...">' + (deck.description || '') + '</textarea>' +
-        '<label class="deck-publish-label">Tags <span style="opacity:0.5">(comma separated)</span></label>' +
-        '<input type="text" id="deck-publish-tags" class="cardforge-dialog-input" value="' + (deck.tags || '').replace(/"/g, '&quot;') + '" placeholder="e.g. warrior, fire, starter" />' +
-        '<div class="deck-publish-meta">' +
-          '<span><i class="' + deckIcon + '"></i> ' + cardsInDeck.length + ' card' + (cardsInDeck.length !== 1 ? 's' : '') + '</span>' +
-          (deck.deckImage ? '<span><i class="fas fa-image"></i> Has cover image</span>' : '') +
-          '<span>Visibility: Unlisted</span>' +
-        '</div>' +
-      '</div>';
-  }
-
-  if (cancelBtn) cancelBtn.style.display = '';
-  if (confirmBtn) confirmBtn.textContent = 'Publish';
-
-  const newConfirmBtn = confirmBtn.cloneNode(true);
-  const newCancelBtn = cancelBtn.cloneNode(true);
-  confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-  cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-
-  dialog.classList.add('active');
-  const titleInput = dialog.querySelector('#deck-publish-title');
-  if (titleInput) setTimeout(() => { titleInput.focus(); titleInput.select(); }, 100);
-
+  const deckName = deck.name || 'Untitled Deck';
+  const cardCount = cardsInDeck.length;
   const self = this;
-  const cleanup = () => {
-    dialog.classList.remove('active');
-    if (messageEl) messageEl.innerHTML = '';
-    if (newConfirmBtn) newConfirmBtn.textContent = 'Confirm';
-    newConfirmBtn.removeEventListener('click', handleConfirm);
-    newCancelBtn.removeEventListener('click', handleCancel);
-    document.removeEventListener('keydown', handleKeydown);
-  };
 
-  const handleConfirm = async () => {
-    const pubTitle = (dialog.querySelector('#deck-publish-title') || {}).value || deck.name;
-    const pubDesc = (dialog.querySelector('#deck-publish-desc') || {}).value || '';
-    const pubTags = (dialog.querySelector('#deck-publish-tags') || {}).value || '';
-    cleanup();
+  // Simple confirm dialog — same pattern as card publish
+  const dialogFn = (window.UIUtils && window.UIUtils.showConfirmDialog) || null;
+  const confirmMsg = 'Do you want to publish "' + deckName + '" (' + cardCount + ' card' + (cardCount !== 1 ? 's' : '') + ') to the public gallery? Published decks will be visible to everyone.';
 
-    if (!pubTitle.trim()) { self.showNotification('Title is required', 'error'); return; }
-
-    newConfirmBtn.disabled = true;
+  const doPublish = async () => {
     self.showNotification('Publishing deck...', 'info');
 
     try {
@@ -1915,6 +1865,8 @@ CardForgeActions.prototype.publishDeck = function(deckId) {
         };
       });
 
+      const tagsList = (deck.tags || '').split(',').map(t => t.trim()).filter(Boolean);
+
       const endpoint = window.buildApiPath('deckPublish');
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -1926,11 +1878,11 @@ CardForgeActions.prototype.publishDeck = function(deckId) {
         },
         body: JSON.stringify({
           deckId: deck.id,
-          name: pubTitle.trim(),
+          name: deckName,
           icon: deckIcon,
           deckImage: deck.deckImage || '',
-          description: pubDesc.trim(),
-          tags: pubTags.split(',').map(t => t.trim()).filter(Boolean),
+          description: deck.description || '',
+          tags: tagsList,
           visibility: 'unlisted',
           createdAt: deck.createdAt,
           cards,
@@ -1956,55 +1908,50 @@ CardForgeActions.prototype.publishDeck = function(deckId) {
       // Refresh gallery decks section
       setTimeout(() => { self.refreshGalleryDecks(); }, 500);
 
-      // Show success dialog
-      if (titleEl) titleEl.textContent = 'Deck Published!';
-      if (messageEl) {
-        messageEl.innerHTML =
-          '<div class="deck-publish-success">' +
-            '<div class="deck-publish-success-icon"><i class="fas fa-check-circle"></i></div>' +
-            '<p class="deck-publish-success-name">' + pubTitle.trim() + '</p>' +
-            '<p class="deck-publish-success-sub">' + cards.length + ' card' + (cards.length !== 1 ? 's' : '') + ' published as unlisted</p>' +
-            '<div class="deck-publish-link-row">' +
-              '<input type="text" id="deck-share-url" class="cardforge-dialog-input" value="' + shareUrl + '" readonly />' +
-            '</div>' +
-            '<div class="deck-publish-link-actions">' +
-              '<button type="button" id="deck-copy-link" class="deck-publish-action-btn"><i class="fas fa-copy"></i> Copy Link</button>' +
-              '<button type="button" id="deck-open-link" class="deck-publish-action-btn"><i class="fas fa-external-link-alt"></i> Open</button>' +
-            '</div>' +
-          '</div>';
+      // Show success modal — same style as card publish
+      if (typeof Modal === 'function') {
+        const successModal = new Modal({
+          title: 'Published!',
+          size: 'small',
+          tabs: [{
+            title: 'Success',
+            icon: '<i class="fas fa-check-circle"></i>',
+            content: '<div style="text-align:center;padding:20px;">' +
+              '<div style="color:#00ff88;font-size:64px;margin-bottom:16px;"><i class="fas fa-check-circle"></i></div>' +
+              '<h3 style="margin-bottom:12px;color:#fff;font-size:1.4em;">' + deckName + '</h3>' +
+              '<p style="margin-bottom:8px;color:#00ff88;font-size:1.1em;">Successfully published to the gallery!</p>' +
+              '<p style="margin-bottom:16px;color:#aaa;">' + cardCount + ' card' + (cardCount !== 1 ? 's' : '') + ' · Visible to everyone</p>' +
+              '<div style="display:flex;gap:8px;justify-content:center;margin-bottom:20px;">' +
+                '<input type="text" id="deck-share-url" value="' + shareUrl + '" readonly style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px 10px;color:#e1e1ff;font-size:0.8em;min-width:0;" />' +
+                '<button id="deck-copy-link" class="deck-publish-action-btn" style="flex-shrink:0;"><i class="fas fa-copy"></i></button>' +
+                '<button id="deck-open-link" class="deck-publish-action-btn" style="flex-shrink:0;"><i class="fas fa-external-link-alt"></i></button>' +
+              '</div>' +
+              '<button id="deck-publish-ok-btn" class="btn-primary" style="background:linear-gradient(135deg,#00ff88,#00cc6a);border:none;color:#000;padding:12px 32px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:1em;">' +
+                '<i class="fas fa-thumbs-up"></i> Awesome!' +
+              '</button>' +
+            '</div>'
+          }]
+        });
+        successModal.show();
+
+        setTimeout(() => {
+          const okBtn = document.getElementById('deck-publish-ok-btn');
+          if (okBtn) okBtn.addEventListener('click', () => successModal.hide());
+          const copyBtn = document.getElementById('deck-copy-link');
+          if (copyBtn) {
+            copyBtn.addEventListener('click', () => {
+              const urlInput = document.getElementById('deck-share-url');
+              if (urlInput) navigator.clipboard.writeText(urlInput.value);
+              copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+              setTimeout(() => { copyBtn.innerHTML = '<i class="fas fa-copy"></i>'; }, 2000);
+            });
+          }
+          const openBtn = document.getElementById('deck-open-link');
+          if (openBtn) openBtn.addEventListener('click', () => window.open(shareUrl, '_blank'));
+        }, 100);
+      } else {
+        self.showNotification('Deck published! Link: ' + shareUrl, 'success');
       }
-
-      if (cancelBtn) {
-        const cb = dialog.querySelector('#cardforge-dialog-cancel');
-        if (cb) cb.style.display = 'none';
-      }
-      const cf = dialog.querySelector('#cardforge-dialog-confirm');
-      if (cf) cf.textContent = 'Done';
-
-      const newDone = cf.cloneNode(true);
-      cf.parentNode.replaceChild(newDone, cf);
-      newDone.addEventListener('click', () => {
-        dialog.classList.remove('active');
-        if (messageEl) messageEl.innerHTML = '';
-      });
-
-      dialog.classList.add('active');
-
-      setTimeout(() => {
-        const copyBtn = document.getElementById('deck-copy-link');
-        const openBtn = document.getElementById('deck-open-link');
-        if (copyBtn) {
-          copyBtn.addEventListener('click', () => {
-            const urlInput = document.getElementById('deck-share-url');
-            if (urlInput) { navigator.clipboard.writeText(urlInput.value); }
-            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-            setTimeout(() => { copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Link'; }, 2000);
-          });
-        }
-        if (openBtn) {
-          openBtn.addEventListener('click', () => { window.open(shareUrl, '_blank'); });
-        }
-      }, 100);
 
     } catch (error) {
       console.error('[CardForge] Deck publish error:', error);
@@ -2012,15 +1959,11 @@ CardForgeActions.prototype.publishDeck = function(deckId) {
     }
   };
 
-  const handleCancel = () => { cleanup(); };
-  const handleKeydown = (e) => {
-    if (e.key === 'Enter') { e.preventDefault(); handleConfirm(); }
-    if (e.key === 'Escape') { handleCancel(); }
-  };
-
-  newConfirmBtn.addEventListener('click', handleConfirm);
-  newCancelBtn.addEventListener('click', handleCancel);
-  document.addEventListener('keydown', handleKeydown);
+  if (dialogFn) {
+    dialogFn('Publish Deck', confirmMsg, doPublish);
+  } else if (confirm(confirmMsg)) {
+    doPublish();
+  }
 };
 
 CardForgeActions.prototype.addCardToDeck = function(cardId, deckId) {
