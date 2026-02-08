@@ -1807,21 +1807,48 @@ CardForgeActions.prototype.deleteDeck = function(deckId) {
   const deck = decks.find(d => d.id === deckId);
   if (!deck) return;
 
-  const doDelete = () => {
+  const self = this;
+  const isPublished = !!deck.shareId;
+
+  const doDelete = async () => {
+    // If published, also remove from the public gallery
+    if (isPublished) {
+      try {
+        const deleteUrl = window.buildApiPath('deckDelete');
+        const deleteUserId = (() => {
+          try { return JSON.parse(sessionStorage.getItem('userInfo') || '{}').userId || 'anonymous'; }
+          catch { return 'anonymous'; }
+        })();
+        await fetch(deleteUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ shareId: deck.shareId, userId: deleteUserId }),
+          credentials: 'include'
+        });
+        self.refreshGalleryDecks();
+      } catch (e) {
+        console.warn('[CardForge] Could not remove published deck from gallery:', e);
+      }
+    }
+
     const updated = decks.filter(d => d.id !== deckId);
     localStorage.setItem('cardforge_decks', JSON.stringify(updated));
-    if (this._selectedDeckId === deckId) {
-      this._selectedDeckId = updated.length > 0 ? updated[0].id : null;
+    if (self._selectedDeckId === deckId) {
+      self._selectedDeckId = updated.length > 0 ? updated[0].id : null;
     }
-    this.showNotification(`Deck "${deck.name}" deleted`, 'success');
-    this.refreshDeckList();
+    self.showNotification(`Deck "${deck.name}" deleted`, 'success');
+    self.refreshDeckList();
   };
+
+  const confirmMsg = isPublished
+    ? `Delete "${deck.name}"? This will also remove it from the published gallery. Cards in the deck will NOT be deleted.`
+    : `Delete "${deck.name}"? Cards in the deck will NOT be deleted.`;
 
   const dialogFn = (window.UIUtils && window.UIUtils.showConfirmDialog) || (typeof showConfirmDialog === 'function' ? showConfirmDialog : null);
   if (dialogFn) {
-    dialogFn('Delete Deck', `Delete "${deck.name}"? Cards in the deck will NOT be deleted.`, doDelete);
+    dialogFn('Delete Deck', confirmMsg, doDelete);
   } else {
-    if (confirm(`Delete "${deck.name}"? Cards in the deck will NOT be deleted.`)) {
+    if (confirm(confirmMsg)) {
       doDelete();
     }
   }
