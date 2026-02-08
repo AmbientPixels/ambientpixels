@@ -21,7 +21,7 @@
    * @param {Function} onConfirm - Callback when user confirms
    * @param {Function} [onCancel] - Optional cancel callback
    */
-  function showConfirmDialog(title, message, onConfirm, onCancel) {
+  function showConfirmDialog(title, message, onConfirm, onCancel, options) {
     const dialog = document.getElementById('cardforge-dialog');
     if (!dialog) {
       console.error('Dialog element not found');
@@ -44,7 +44,8 @@
     if (messageEl) messageEl.textContent = message;
 
     // Reset button labels before cloning
-    if (confirmBtn) confirmBtn.textContent = 'Confirm';
+    const opts = options || {};
+    if (confirmBtn) confirmBtn.textContent = opts.confirmLabel || 'Confirm';
     if (cancelBtn) { cancelBtn.textContent = 'Cancel'; cancelBtn.style.display = ''; }
 
     // Clone buttons to remove any existing event listeners

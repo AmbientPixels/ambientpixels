@@ -1468,7 +1468,7 @@ const resp = await fetch(loadUrl, {
     };
     const dialogFn = (window.UIUtils && window.UIUtils.showConfirmDialog) || null;
     if (dialogFn) {
-      dialogFn('Remove Deck from Gallery', 'Are you sure you want to remove this deck from the public gallery? This cannot be undone.', doRemove);
+      dialogFn('Remove Deck from Gallery', 'Are you sure you want to remove this deck from the public gallery? This cannot be undone.', doRemove, null, { confirmLabel: 'Remove' });
     } else if (confirm('Remove this deck from the gallery?')) {
       doRemove();
     }
@@ -1841,12 +1841,12 @@ CardForgeActions.prototype.deleteDeck = function(deckId) {
   };
 
   const confirmMsg = isPublished
-    ? `Delete "${deck.name}"? This will also remove it from the published gallery. Cards in the deck will NOT be deleted.`
-    : `Delete "${deck.name}"? Cards in the deck will NOT be deleted.`;
+    ? `Delete "${deck.name}"? This will also remove it from the published gallery.\nCards in your My Cards collection will not be deleted.`
+    : `Delete "${deck.name}"?\nCards in your My Cards collection will not be deleted.`;
 
   const dialogFn = (window.UIUtils && window.UIUtils.showConfirmDialog) || (typeof showConfirmDialog === 'function' ? showConfirmDialog : null);
   if (dialogFn) {
-    dialogFn('Delete Deck', confirmMsg, doDelete);
+    dialogFn('Delete Deck', confirmMsg, doDelete, null, { confirmLabel: 'Delete' });
   } else {
     if (confirm(confirmMsg)) {
       doDelete();
