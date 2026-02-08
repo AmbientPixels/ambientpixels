@@ -628,11 +628,288 @@
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+/* ===== Deck Viewer Overlay (full-screen card carousel) ===== */
+.deck-viewer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  overflow-y: auto;
+}
+
+.deck-viewer-overlay.active {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.deck-viewer-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 100%;
+  color: #00d4ff;
+  font-size: 1rem;
+}
+
+.deck-viewer-inner {
+  position: relative;
+  width: 100%;
+  max-width: 1360px;
+  padding: 2rem 1.5rem;
+  margin: auto;
+}
+
+.deck-viewer-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.12s ease;
+  z-index: 2;
+}
+
+.deck-viewer-close:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Header */
+.deck-viewer-header {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  padding-right: 3rem;
+}
+
+.deck-viewer-cover {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #12121e;
+}
+
+.deck-viewer-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.deck-viewer-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.deck-viewer-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 0.35rem 0;
+}
+
+.deck-viewer-title i {
+  font-size: 1rem;
+  opacity: 0.6;
+  margin-right: 0.3rem;
+}
+
+.deck-viewer-desc {
+  font-size: 0.85rem;
+  color: #a0a0c0;
+  margin: 0 0 0.4rem 0;
+  line-height: 1.4;
+}
+
+.deck-viewer-tags {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.3rem;
+}
+
+.deck-viewer-meta {
+  font-size: 0.75rem;
+  color: #a0a0c0;
+  opacity: 0.6;
+}
+
+/* Carousel */
+.deck-viewer-carousel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.deck-viewer-viewport {
+  flex: 1;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.deck-viewer-track {
+  display: flex;
+  gap: 16px;
+  transition: transform 0.35s ease;
+}
+
+.deck-viewer-card {
+  flex-shrink: 0;
+  width: var(--card-width, 400px);
+}
+
+.deck-viewer-card .card-preview-canvas {
+  height: var(--card-height, 560px);
+  overflow: hidden;
+}
+
+.deck-viewer-card .card-inner {
+  display: grid;
+  width: 100%;
+  transform-style: preserve-3d;
+}
+
+.deck-viewer-card .card-front,
+.deck-viewer-card .card-back {
+  grid-area: 1 / 1 / 2 / 2;
+  width: 100%;
+  backface-visibility: hidden;
+  height: var(--card-height, 560px);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.deck-viewer-card .card-back {
+  transform: rotateY(180deg);
+}
+
+/* Fallback card (image only) */
+.deck-viewer-fallback-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #12121e;
+  border-radius: 8px;
+}
+
+.deck-viewer-fallback-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.deck-viewer-card-label {
+  text-align: center;
+  padding: 0.4rem 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #e1e1ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Nav buttons */
+.deck-viewer-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.12s ease;
+}
+
+.deck-viewer-nav:hover:not(:disabled) {
+  background: rgba(0, 212, 255, 0.15);
+  border-color: rgba(0, 212, 255, 0.3);
+  color: #00d4ff;
+}
+
+.deck-viewer-nav:disabled {
+  opacity: 0.2;
+  cursor: default;
+}
+
+/* Counter */
+.deck-viewer-counter {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #a0a0c0;
+  opacity: 0.6;
+  margin-bottom: 1rem;
+}
+
+/* Actions */
+.deck-viewer-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Responsive */
+@media (max-width: 1300px) {
+  .deck-viewer-card {
+    width: 320px;
+  }
+  .deck-viewer-card .card-preview-canvas,
+  .deck-viewer-card .card-front,
+  .deck-viewer-card .card-back {
+    height: 448px;
+  }
+}
+
+@media (max-width: 1050px) {
+  .deck-viewer-card {
+    width: 260px;
+  }
+  .deck-viewer-card .card-preview-canvas,
+  .deck-viewer-card .card-front,
+  .deck-viewer-card .card-back {
+    height: 364px;
+  }
+}
+
 @media (max-width: 600px) {
   .gallery-decks-grid {
     grid-template-columns: 1fr;
   }
-  .deck-modal-grid {
-    grid-template-columns: repeat(3, 1fr);
+  .deck-viewer-inner {
+    padding: 1rem;
+  }
+  .deck-viewer-card {
+    width: 240px;
+  }
+  .deck-viewer-card .card-preview-canvas,
+  .deck-viewer-card .card-front,
+  .deck-viewer-card .card-back {
+    height: 336px;
   }
 }

@@ -1356,27 +1356,61 @@ const resp = await fetch(loadUrl, {
 
   // Show a modal for a published deck (gallery click)
   async showDeckModal(shareId) {
-    const dialog = document.getElementById('cardforge-dialog');
-    if (!dialog) return;
+    // Create or reuse full-screen deck viewer overlay
+    let overlay = document.getElementById('deck-viewer-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'deck-viewer-overlay';
+      overlay.className = 'deck-viewer-overlay';
+      document.body.appendChild(overlay);
+    }
 
-    const titleEl = dialog.querySelector('#cardforge-dialog-title');
-    const messageEl = dialog.querySelector('#cardforge-dialog-message');
-    const confirmBtn = dialog.querySelector('#cardforge-dialog-confirm');
-    const cancelBtn = dialog.querySelector('#cardforge-dialog-cancel');
+    // Show loading state
+    overlay.innerHTML =
+      '<div class="deck-viewer-loading"><i class="fas fa-spinner fa-spin"></i> Loading deck...</div>';
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
 
-    if (titleEl) titleEl.textContent = 'Loading deck...';
-    if (messageEl) messageEl.innerHTML = '<div style="text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;color:#00d4ff"></i></div>';
-    if (cancelBtn) cancelBtn.style.display = 'none';
-    if (confirmBtn) confirmBtn.textContent = 'Close';
+    const closeDeckViewer = () => {
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', deckKeyHandler);
+    };
 
-    const newConfirmBtn = confirmBtn.cloneNode(true);
-    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-    newConfirmBtn.addEventListener('click', () => {
-      dialog.classList.remove('active');
-      if (messageEl) messageEl.innerHTML = '';
-    });
+    // Keyboard handler
+    let carouselIndex = 0;
+    let totalCards = 0;
+    const VISIBLE = 3;
+    const updateCarousel = () => {
+      const track = overlay.querySelector('.deck-viewer-track');
+      const counter = overlay.querySelector('.deck-viewer-counter');
+      const prevBtn = overlay.querySelector('.deck-viewer-prev');
+      const nextBtn = overlay.querySelector('.deck-viewer-next');
+      if (track) {
+        const firstCard = track.querySelector('.deck-viewer-card');
+        const cardStep = firstCard ? (firstCard.offsetWidth + 16) : 416;
+        track.style.transform = 'translateX(-' + (carouselIndex * cardStep) + 'px)';
+      }
+      if (counter) {
+        const endIdx = Math.min(carouselIndex + VISIBLE, totalCards);
+        counter.textContent = (carouselIndex + 1) + '–' + endIdx + ' of ' + totalCards;
+      }
+      if (prevBtn) prevBtn.disabled = carouselIndex <= 0;
+      if (nextBtn) nextBtn.disabled = carouselIndex + VISIBLE >= totalCards;
+    };
 
-    dialog.classList.add('active');
+    const deckKeyHandler = (e) => {
+      if (!overlay.classList.contains('active')) return;
+      if (e.key === 'Escape') closeDeckViewer();
+      if (e.key === 'ArrowLeft' && carouselIndex > 0) { carouselIndex--; updateCarousel(); }
+      if (e.key === 'ArrowRight' && carouselIndex + VISIBLE < totalCards) { carouselIndex++; updateCarousel(); }
+    };
+    document.addEventListener('keydown', deckKeyHandler);
+
+    // Close on backdrop click
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeDeckViewer();
+    }, { once: true });
 
     try {
       const url = window.buildApiPath('deckLoad', { shareId });
@@ -1386,38 +1420,12 @@ const resp = await fetch(loadUrl, {
 
       const icon = deck.icon || 'fas fa-layer-group';
       const cards = deck.cards || [];
+      totalCards = cards.length;
       const tags = (deck.tags || []).map(t => '<span class="gallery-deck-tag">' + t + '</span>').join('');
       const hasImage = deck.deckImage && deck.deckImage.trim();
-
-      if (titleEl) titleEl.textContent = deck.name;
-
-      let headerHTML = '<div class="deck-modal-header">';
-      if (hasImage) {
-        headerHTML += '<div class="deck-modal-cover"><img src="' + deck.deckImage + '" alt="' + deck.name + '" /></div>';
-      }
-      headerHTML += '<div class="deck-modal-info">';
-      headerHTML += '<div class="deck-modal-icon"><i class="' + icon + '"></i></div>';
-      if (deck.description) headerHTML += '<p class="deck-modal-desc">' + deck.description + '</p>';
-      if (tags) headerHTML += '<div class="deck-modal-tags">' + tags + '</div>';
-      headerHTML += '<div class="deck-modal-meta">' + cards.length + ' card' + (cards.length !== 1 ? 's' : '') + '</div>';
-      headerHTML += '</div></div>';
-
-      let cardsHTML = '';
-      if (cards.length > 0) {
-        cardsHTML = '<div class="deck-modal-grid">' + cards.map((c, i) => {
-          const imgHTML = c.preview
-            ? '<img class="deck-modal-card-img" src="' + c.preview + '" alt="' + (c.name || '') + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'" /><div class="deck-modal-card-placeholder" style="display:none"><i class="fas fa-image"></i></div>'
-            : '<div class="deck-modal-card-placeholder"><i class="fas fa-image"></i></div>';
-          return '<div class="deck-modal-card">' + imgHTML +
-            '<div class="deck-modal-card-name">' + (c.name || 'Untitled') + '</div></div>';
-        }).join('') + '</div>';
-      } else {
-        cardsHTML = '<p style="text-align:center;color:#6a6a8a;padding:1rem;">No cards in this deck.</p>';
-      }
-
       const shareUrl = window.location.origin + '/cardforge/deck.html?deck=' + shareId;
 
-      // Admin/owner check for delete in modal
+      // Admin/owner check
       const modalUserId = (() => {
         try { return JSON.parse(sessionStorage.getItem('userInfo') || '{}').userId || null; } catch { return null; }
       })();
@@ -1425,18 +1433,97 @@ const resp = await fetch(loadUrl, {
       const modalIsAdmin = modalUserId && modalAdminIds.includes(modalUserId);
       const modalCanDelete = modalIsAdmin || (modalUserId && deck.publishedBy === modalUserId);
 
-      const actionsHTML = '<div class="deck-modal-actions">' +
-        '<button type="button" class="deck-publish-action-btn" onclick="navigator.clipboard.writeText(\'' + shareUrl + '\');this.innerHTML=\'<i class=&quot;fas fa-check&quot;></i> Copied!\';setTimeout(()=>{this.innerHTML=\'<i class=&quot;fas fa-link&quot;></i> Copy Link\'},2000)"><i class="fas fa-link"></i> Copy Link</button>' +
-        '<button type="button" class="deck-publish-action-btn" onclick="cardForgeActions.saveDeckFromGallery(\'' + shareId + '\')"><i class="fas fa-download"></i> Save to My Decks</button>' +
-        (modalCanDelete ? '<button type="button" class="deck-publish-action-btn deck-modal-delete-btn" onclick="cardForgeActions.removeGalleryDeck(\'' + shareId + '\')"><i class="fas fa-trash"></i> Delete</button>' : '') +
+      // Fallback SVG for cards without rendered HTML
+      const fallbackSvg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjUwNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
+
+      // Render each card using the SAME structure as the lightbox
+      const cardsTrackHTML = cards.map(c => {
+        let cardInner = '';
+        if (c.renderedFront && c.frontClasses) {
+          const frontCls = c.frontClasses;
+          const backCls = c.backClasses || c.frontClasses;
+          cardInner =
+            '<div class="card-preview-canvas" style="perspective:1000px;">' +
+              '<div class="card-inner">' +
+                '<div class="' + frontCls + '">' + c.renderedFront + '</div>' +
+                '<div class="' + backCls + '">' + (c.renderedBack || '') + '</div>' +
+              '</div>' +
+            '</div>';
+        } else {
+          const img = c.preview || c.avatar || fallbackSvg;
+          cardInner =
+            '<div class="card-preview-canvas deck-viewer-fallback-card">' +
+              '<img src="' + img + '" alt="' + (c.name || '') + '" onerror="this.src=\'' + fallbackSvg + '\'" />' +
+            '</div>';
+        }
+        return '<div class="deck-viewer-card">' + cardInner +
+          '<div class="deck-viewer-card-label">' + (c.name || 'Untitled') + '</div></div>';
+      }).join('');
+
+      // Build the full overlay content
+      overlay.innerHTML =
+        '<div class="deck-viewer-inner">' +
+          '<button class="deck-viewer-close" title="Close (Esc)"><i class="fas fa-times"></i></button>' +
+          // Header
+          '<div class="deck-viewer-header">' +
+            (hasImage ? '<div class="deck-viewer-cover"><img src="' + deck.deckImage + '" alt="" /></div>' : '') +
+            '<div class="deck-viewer-info">' +
+              '<h2 class="deck-viewer-title"><i class="' + icon + '"></i> ' + deck.name + '</h2>' +
+              (deck.description ? '<p class="deck-viewer-desc">' + deck.description + '</p>' : '') +
+              (tags ? '<div class="deck-viewer-tags">' + tags + '</div>' : '') +
+              '<div class="deck-viewer-meta">' + cards.length + ' card' + (cards.length !== 1 ? 's' : '') + '</div>' +
+            '</div>' +
+          '</div>' +
+          // Carousel
+          (cards.length > 0
+            ? '<div class="deck-viewer-carousel">' +
+                '<button class="deck-viewer-nav deck-viewer-prev" title="Previous (←)"' + (carouselIndex <= 0 ? ' disabled' : '') + '><i class="fas fa-chevron-left"></i></button>' +
+                '<div class="deck-viewer-viewport">' +
+                  '<div class="deck-viewer-track">' + cardsTrackHTML + '</div>' +
+                '</div>' +
+                '<button class="deck-viewer-nav deck-viewer-next" title="Next (→)"' + (carouselIndex + VISIBLE >= totalCards ? ' disabled' : '') + '><i class="fas fa-chevron-right"></i></button>' +
+              '</div>' +
+              '<div class="deck-viewer-counter">' + (carouselIndex + 1) + '–' + Math.min(VISIBLE, totalCards) + ' of ' + totalCards + '</div>'
+            : '<p style="text-align:center;color:#6a6a8a;padding:2rem;">No cards in this deck.</p>') +
+          // Actions
+          '<div class="deck-viewer-actions">' +
+            '<button type="button" class="deck-publish-action-btn" id="dv-copy-link"><i class="fas fa-link"></i> Copy Link</button>' +
+            '<button type="button" class="deck-publish-action-btn" id="dv-save-deck"><i class="fas fa-download"></i> Save to My Decks</button>' +
+            (modalCanDelete ? '<button type="button" class="deck-publish-action-btn deck-modal-delete-btn" id="dv-delete-deck"><i class="fas fa-trash"></i> Delete</button>' : '') +
+          '</div>' +
         '</div>';
 
-      if (messageEl) messageEl.innerHTML = headerHTML + cardsHTML + actionsHTML;
+      // Bind events
+      overlay.querySelector('.deck-viewer-close').addEventListener('click', closeDeckViewer);
+
+      const prevBtn = overlay.querySelector('.deck-viewer-prev');
+      const nextBtn = overlay.querySelector('.deck-viewer-next');
+      if (prevBtn) prevBtn.addEventListener('click', () => { if (carouselIndex > 0) { carouselIndex--; updateCarousel(); } });
+      if (nextBtn) nextBtn.addEventListener('click', () => { if (carouselIndex + VISIBLE < totalCards) { carouselIndex++; updateCarousel(); } });
+
+      const copyBtn = overlay.querySelector('#dv-copy-link');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText(shareUrl);
+          copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+          setTimeout(() => { copyBtn.innerHTML = '<i class="fas fa-link"></i> Copy Link'; }, 2000);
+        });
+      }
+
+      const saveBtn = overlay.querySelector('#dv-save-deck');
+      if (saveBtn) saveBtn.addEventListener('click', () => this.saveDeckFromGallery(shareId));
+
+      const deleteBtn = overlay.querySelector('#dv-delete-deck');
+      if (deleteBtn) deleteBtn.addEventListener('click', () => { closeDeckViewer(); this.removeGalleryDeck(shareId); });
 
     } catch (e) {
       console.error('[CardForge] Deck modal load error:', e);
-      if (titleEl) titleEl.textContent = 'Error';
-      if (messageEl) messageEl.innerHTML = '<p style="text-align:center;color:#ff6b6b;padding:1rem;">Could not load deck: ' + e.message + '</p>';
+      overlay.innerHTML =
+        '<div class="deck-viewer-inner">' +
+          '<button class="deck-viewer-close" title="Close"><i class="fas fa-times"></i></button>' +
+          '<p style="text-align:center;color:#ff6b6b;padding:2rem;">Could not load deck: ' + e.message + '</p>' +
+        '</div>';
+      overlay.querySelector('.deck-viewer-close').addEventListener('click', closeDeckViewer);
     }
   }
 
@@ -1896,7 +1983,18 @@ CardForgeActions.prototype.publishDeck = function(deckId) {
         return {
           cardId: c.id,
           name: cd.name || c.name || 'Untitled',
-          preview: cd.avatar || c.avatar || null
+          preview: cd.avatar || c.avatar || null,
+          renderedFront: cd.renderedFront || null,
+          frontClasses: cd.frontClasses || null,
+          renderedBack: cd.renderedBack || null,
+          backClasses: cd.backClasses || null,
+          characterClass: cd.characterClass || '',
+          rarity: cd.rarity || '',
+          avatar: cd.avatar || c.avatar || '',
+          quote: cd.quote || '',
+          stats: cd.stats || [],
+          badges: cd.badges || [],
+          design: cd.design || null
         };
       });
 
