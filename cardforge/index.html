@@ -247,7 +247,7 @@
     <div class="cf-app-grid">
       <aside class="cf-rail" aria-label="CardForge navigation rail">
         <nav class="cf-stepper" role="tablist" aria-orientation="vertical">
-          <button data-step="0" class="step-btn">
+          <button data-step="0" class="step-btn active">
             <span class="step-icon" aria-hidden="true">
               <span class="cf-icon-chip" aria-hidden="true">
                 <i class="cf-icon fas fa-dice-d6"></i>
@@ -255,7 +255,7 @@
             </span>
             <span class="step-label">Presets + Random</span>
           </button>
-          <button data-step="1" class="step-btn active">
+          <button data-step="1" class="step-btn">
             <span class="step-icon" aria-hidden="true">
               <span class="cf-icon-chip" aria-hidden="true">
                 <i class="cf-icon fas fa-layer-group"></i>
@@ -317,7 +317,7 @@
         <div class="cf-left-column form-pane">
       <div class="cardforge-editor">
       <form id="card-editor-form" class="cardforge-form">
-      <div class="cf-section" data-step-section="0">
+      <div class="cf-section active" data-step-section="0">
         <h3 class="cf-section-title">
           <span class="cf-section-icon" aria-hidden="true">
             <span class="cf-icon-chip" aria-hidden="true">
@@ -430,7 +430,7 @@
           </div>
         </div>
       </div>
-      <div class="cf-section active" data-step-section="1">
+      <div class="cf-section" data-step-section="1">
         <h3 class="cf-section-title">
           <span class="cf-section-icon" aria-hidden="true">
             <span class="cf-icon-chip" aria-hidden="true">
@@ -444,9 +444,15 @@
 
         <!-- MODULAR DESIGN SYSTEM -->
         <div class="modular-system">
-          <!-- PRESERVED: Image Gallery and Custom URL -->
-          <div class="artwork-section">
-            <h4>Artwork</h4>
+
+          <!-- Artwork (craft-row, collapsible) -->
+          <div class="artwork-section craft-row" id="craft-artwork-section">
+            <div class="craft-row-header" id="craft-artwork-toggle" role="button" tabindex="0" aria-expanded="true">
+              <span class="craft-row-title">Artwork</span>
+              <span class="craft-row-summary art-chip" id="craft-artwork-summary"><img class="art-chip-thumb" src="" alt="" style="display:none" /><span class="art-chip-label">None</span></span>
+              <span class="craft-row-chevron">›</span>
+            </div>
+            <div class="craft-row-body" id="craft-artwork-body">
             
             <!-- Hidden field to store selected image URL -->
             <input type="hidden" id="card-avatar" value="" />
@@ -474,6 +480,7 @@
             </div>
             
             <p class="coming-soon">Upload your own image with filters—coming soon!</p>
+            </div><!-- /.craft-row-body -->
           </div>
           
           <!-- LAYOUT TIER REMOVED - Phase 1 of Flow Restructure -->
@@ -481,13 +488,13 @@
           
           <!-- TIER 2: IMAGE CONTAINER & EFFECTS (Collapsible) -->
           <div class="modular-tier collapsible-tier" data-tier="2">
-            <div class="tier-header" data-tier-toggle="2">
-              <h4 class="tier-title">Image Container & Effects</h4>
+            <div class="tier-header craft-row-header" data-tier-toggle="2">
+              <h4 class="tier-title">Frame &amp; Effects</h4>
               <div class="tier-current-selection">
                 <div class="current-container-preview masked-container-preview"></div>
                 <span class="current-selection-text">Masked Circle</span>
               </div>
-              <div class="tier-expand-icon">▼</div>
+              <div class="tier-expand-icon">›</div>
             </div>
             
             <div class="tier-content" data-tier-content="2">
@@ -705,15 +712,15 @@
             </div>
           </div>
           
-          <!-- TIER 3: COLOR PALETTE (Collapsible) -->
+          <!-- ZONE 2: STYLE & MOOD (was Tier 3: Color Palette) -->
           <div class="modular-tier collapsible-tier" data-tier="3">
-            <div class="tier-header" data-tier-toggle="3">
-              <h4 class="tier-title">Color Palette</h4>
+            <div class="tier-header craft-row-header" data-tier-toggle="3">
+              <h4 class="tier-title">Style &amp; Mood</h4>
               <div class="tier-current-selection">
                 <div class="current-palette-preview neon-preview"></div>
-                <span class="current-selection-text">Neon Light</span>
+                <span class="current-selection-text">Neon · Light · Auto</span>
               </div>
-              <div class="tier-expand-icon">▼</div>
+              <div class="tier-expand-icon">›</div>
             </div>
             
             <div class="tier-content" data-tier-content="3">
@@ -777,15 +784,15 @@
             </div>
           </div>
           
-          <!-- TIER 4: CONTENT ALIGNMENT (Collapsible) -->
+          <!-- ZONE 3: COMPOSITION & BALANCE (was Tier 4: Content Alignment) -->
           <div class="modular-tier collapsible-tier" data-tier="4">
-            <div class="tier-header" data-tier-toggle="4">
-              <h4 class="tier-title">Content Alignment</h4>
+            <div class="tier-header craft-row-header" data-tier-toggle="4">
+              <h4 class="tier-title">Composition &amp; Balance</h4>
               <div class="tier-current-selection">
                 <div class="current-alignment-preview center-alignment-preview"></div>
-                <span class="current-selection-text">Center Balanced Padded</span>
+                <span class="current-selection-text">Center · Balanced · Padded</span>
               </div>
-              <div class="tier-expand-icon">▼</div>
+              <div class="tier-expand-icon">›</div>
             </div>
             
             <div class="tier-content" data-tier-content="4">
@@ -896,11 +903,19 @@
               </div>
             </div>
           </div>
-          
 
-          
+          <!-- DESIGN SNAPSHOT STRIP -->
+          <div class="craft-snapshot" id="craft-completion">
+            <span class="craft-snapshot-label">Design</span>
+            <div class="craft-snapshot-chips" id="craft-snapshot-chips">
+              <span class="snap-chip" data-snap="artwork">—</span>
+              <span class="snap-chip" data-snap="frame">Masked · Circle</span>
+              <span class="snap-chip" data-snap="mood">Neon Light</span>
+              <span class="snap-chip" data-snap="comp">Center · Balanced</span>
+            </div>
+            <button type="button" class="craft-completion-btn" id="craft-completion-cta">Next: Basics →</button>
+          </div>
 
-          
         </div>
       </div>
       <div class="cf-section" data-step-section="2">

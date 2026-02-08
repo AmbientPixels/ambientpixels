@@ -173,11 +173,214 @@
     document.addEventListener('keydown', escListener);
   }
 
+  // ===== CRAFT PANEL BEHAVIORS =====
+
+  // Helpers
+  function _cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+  function _capDash(s) { return _cap((s || '').replace(/-/g, ' ')); }
+
+  function _cleanLabel(url) {
+    if (!url) return '';
+    try {
+      var raw = decodeURIComponent(url.split('/').pop().split('?')[0]);
+      raw = raw.replace(/\.[^.]+$/, '');
+      return raw.replace(/[-_]+/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+    } catch (e) { return 'Image'; }
+  }
+
+  // ===== SINGLE SOURCE: READ CURRENT SELECTIONS =====
+
+  function getCardDesignSelections() {
+    var MS = (window.CardForge && window.CardForge.ModularState) || window.ModularState || {};
+    var avatarInput = document.getElementById('card-avatar');
+    var avatarUrl = avatarInput ? avatarInput.value : '';
+
+    var artworkLabel = '';
+    if (avatarUrl) {
+      var selectedImg = document.querySelector('#inline-image-grid img.selected');
+      if (selectedImg) {
+        artworkLabel = selectedImg.getAttribute('data-display-name')
+                    || selectedImg.getAttribute('data-title')
+                    || selectedImg.getAttribute('alt')
+                    || '';
+      }
+      if (!artworkLabel) artworkLabel = _cleanLabel(avatarUrl);
+    }
+
+    return {
+      artwork:     { url: avatarUrl, label: artworkLabel },
+      frame:       { container: MS.imageContainer || 'masked',
+                     variant:   MS.imageContainerVariant || 'circle',
+                     effect:    MS.imageEffect || 'none',
+                     effectVar: MS.imageEffectVariant || 'clean' },
+      style:       { palette:   MS.palette || 'neon',
+                     variant:   MS.paletteVariant || 'light',
+                     textColor: MS.textColor || 'auto' },
+      composition: { alignment: MS.horizontalAlignment || 'center',
+                     weight:    MS.alignmentWeight || 'balanced',
+                     density:   MS.alignmentStyle || 'padded' }
+    };
+  }
+
+  // ===== SINGLE SOURCE: DETERMINISTIC RENDERER =====
+
+  function _swapPreviewClass(el, prefix, value) {
+    if (!el) return;
+    el.className = prefix + ' ' + value;
+  }
+
+  function renderCardDesignSummaries(sel) {
+    // 1. Artwork chip
+    var artChip = document.getElementById('craft-artwork-summary');
+    if (artChip) {
+      var thumbEl = artChip.querySelector('.art-chip-thumb');
+      var labelEl = artChip.querySelector('.art-chip-label');
+      if (sel.artwork.url) {
+        if (thumbEl) { thumbEl.src = sel.artwork.url; thumbEl.style.display = ''; }
+        if (labelEl) {
+          var lbl = sel.artwork.label;
+          if (lbl && lbl.length > 20) lbl = lbl.substring(0, 18) + '\u2026';
+          labelEl.textContent = lbl || '';
+        }
+      } else {
+        if (thumbEl) { thumbEl.src = ''; thumbEl.style.display = 'none'; }
+        if (labelEl) labelEl.textContent = 'None';
+      }
+    }
+
+    // 2. Frame & Effects — tier 2 chip + text
+    var t2chip = document.querySelector('[data-tier="2"] .current-container-preview');
+    if (t2chip) _swapPreviewClass(t2chip, 'current-container-preview', sel.frame.container + '-container-preview');
+
+    var t2 = document.querySelector('[data-tier="2"] .current-selection-text');
+    if (t2) {
+      var fp = [_cap(sel.frame.container)];
+      if (sel.frame.variant) fp.push(_cap(sel.frame.variant));
+      if (sel.frame.effect !== 'none') fp.push(_cap(sel.frame.effect));
+      t2.textContent = fp.join(' \u00B7 ');
+    }
+
+    // 3. Style & Mood — tier 3 chip + text
+    var t3chip = document.querySelector('[data-tier="3"] .current-palette-preview');
+    if (t3chip) _swapPreviewClass(t3chip, 'current-palette-preview', sel.style.palette + '-preview');
+
+    var t3 = document.querySelector('[data-tier="3"] .current-selection-text');
+    if (t3) {
+      t3.textContent = _cap(sel.style.palette) + ' \u00B7 ' + _cap(sel.style.variant) + ' \u00B7 ' + _cap(sel.style.textColor);
+    }
+
+    // 4. Composition & Balance — tier 4 chip + text
+    var t4chip = document.querySelector('[data-tier="4"] .current-alignment-preview');
+    if (t4chip) _swapPreviewClass(t4chip, 'current-alignment-preview', sel.composition.alignment + '-alignment-preview');
+
+    var t4 = document.querySelector('[data-tier="4"] .current-selection-text');
+    if (t4) {
+      t4.textContent = _cap(sel.composition.alignment) + ' \u00B7 ' + _capDash(sel.composition.weight) + ' \u00B7 ' + _cap(sel.composition.density);
+    }
+
+    // 5. Bottom Design Snapshot — segmented chips
+    var chips = document.getElementById('craft-snapshot-chips');
+    if (chips) {
+      var artSnap = chips.querySelector('[data-snap="artwork"]');
+      var frmSnap = chips.querySelector('[data-snap="frame"]');
+      var moodSnap = chips.querySelector('[data-snap="mood"]');
+      var compSnap = chips.querySelector('[data-snap="comp"]');
+
+      if (artSnap) {
+        if (sel.artwork.url) {
+          var al = sel.artwork.label || '';
+          artSnap.textContent = al.length > 16 ? al.substring(0, 14) + '\u2026' : al;
+        } else {
+          artSnap.textContent = '\u2014';
+        }
+      }
+      if (frmSnap) frmSnap.textContent = _cap(sel.frame.container) + ' \u00B7 ' + _cap(sel.frame.variant);
+      if (moodSnap) moodSnap.textContent = _cap(sel.style.palette) + ' ' + _cap(sel.style.variant);
+      if (compSnap) compSnap.textContent = _cap(sel.composition.alignment) + ' \u00B7 ' + _capDash(sel.composition.weight);
+    }
+  }
+
+  // ===== DEBOUNCED SCHEDULE =====
+
+  var _renderRAF = 0;
+  function scheduleRender() {
+    cancelAnimationFrame(_renderRAF);
+    _renderRAF = requestAnimationFrame(function() {
+      renderCardDesignSummaries(getCardDesignSelections());
+    });
+  }
+
+  // ===== INIT =====
+
+  function initCraftPanel() {
+    // Artwork row collapse/expand
+    var artToggle = document.getElementById('craft-artwork-toggle');
+    var artSection = document.getElementById('craft-artwork-section');
+    if (artToggle && artSection) {
+      artToggle.addEventListener('click', function() {
+        artSection.classList.toggle('collapsed');
+      });
+      artToggle.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          artSection.classList.toggle('collapsed');
+        }
+      });
+    }
+
+    // Completion strip button → navigate to Basics step
+    var cta = document.getElementById('craft-completion-cta');
+    if (cta) {
+      cta.addEventListener('click', function() {
+        var btn = document.querySelector('.step-btn[data-step="2"]');
+        if (btn) btn.click();
+      });
+    }
+
+    // Event delegation: any click inside .modular-system triggers deferred render
+    var modSystem = document.querySelector('.modular-system');
+    if (modSystem) {
+      modSystem.addEventListener('click', scheduleRender);
+    }
+
+    // Preset buttons + random roll button (outside .modular-system)
+    document.querySelectorAll('.preset-btn, #roll-random-preset').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        // Presets/random update ModularState + DOM asynchronously; schedule multiple renders
+        scheduleRender();
+        setTimeout(scheduleRender, 200);
+        setTimeout(scheduleRender, 600);
+      });
+    });
+
+    // Initial render: immediate + deferred (gallery images load via fetch)
+    scheduleRender();
+    setTimeout(scheduleRender, 800);
+    setTimeout(scheduleRender, 2000);
+  }
+
+  // Convenience wrapper matching old API
+  function updateCardDesignSummaries() {
+    renderCardDesignSummaries(getCardDesignSelections());
+  }
+
+  // Auto-init
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() { setTimeout(initCraftPanel, 150); });
+  } else {
+    setTimeout(initCraftPanel, 150);
+  }
+
   const UIUtils = {
     showConfirmDialog,
     showAlertDialog,
     clearValidationErrors,
-    showValidationErrors
+    showValidationErrors,
+    initCraftPanel,
+    updateCardDesignSummaries,
+    getCardDesignSelections,
+    renderCardDesignSummaries,
+    scheduleRender
   };
 
   // Export to global scope

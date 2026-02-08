@@ -647,3 +647,600 @@ body.cf-ui--neon .cf-variant-btn.active {
 .search-input-group input::placeholder {
   color: var(--mood-text-secondary, #a0a0c0);
 }
+
+/* =========================================
+   CRAFT PANEL — Card Design zone system
+   ========================================= */
+
+/* Zone label / num / text — removed from UI, kept as no-ops */
+.craft-zone-label,
+.craft-zone-num,
+.craft-zone-text { display: none; }
+
+/* ── Craft Row (compact collapsible item) ── */
+.craft-row {
+  border-radius: 8px;
+  margin-bottom: 0.35rem;
+  overflow: hidden;
+}
+
+.craft-row-header {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.85rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  user-select: none;
+}
+
+.craft-row-header:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.craft-row-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--mood-text-primary, #e1e1ff);
+}
+
+.craft-row-summary {
+  flex: 1;
+  text-align: right;
+  font-size: 0.72rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Artwork thumbnail chip ── */
+.art-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  justify-content: flex-end;
+}
+
+.art-chip-thumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  flex-shrink: 0;
+}
+
+.art-chip-label {
+  font-size: 0.72rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+}
+
+.craft-row-chevron {
+  color: var(--mood-text-secondary, #a0a0c0);
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+  line-height: 1;
+}
+
+.craft-row.collapsed .craft-row-chevron {
+  transform: rotate(0deg);
+}
+
+.craft-row:not(.collapsed) .craft-row-chevron {
+  transform: rotate(90deg);
+}
+
+/* Craft row body — collapsible content */
+.craft-row-body {
+  padding: 0.5rem 0;
+  transition: max-height 0.25s ease, opacity 0.2s ease;
+}
+
+.craft-row.collapsed .craft-row-body {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  padding: 0;
+}
+
+/* ── Tier header reskin as craft-row ── */
+.tier-header.craft-row-header {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 0.55rem 0.85rem;
+  margin-bottom: 0.35rem;
+}
+
+.tier-header.craft-row-header .tier-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.tier-header.craft-row-header .tier-current-selection {
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.tier-header.craft-row-header .tier-expand-icon {
+  font-size: 0.85rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+/* Rotate tier chevron when expanded */
+.collapsible-tier.expanded > .tier-header.craft-row-header .tier-expand-icon {
+  transform: rotate(90deg);
+}
+
+/* ── Design Snapshot Strip ── */
+.craft-snapshot {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.craft-snapshot-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--mood-text-secondary, #a0a0c0);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.craft-snapshot-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.snap-chip {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  font-size: 0.65rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+  white-space: nowrap;
+  line-height: 1.3;
+}
+
+.craft-completion-btn {
+  background: var(--mood-accent-color, #4a4a6a);
+  color: var(--mood-primary-color, #e1e1ff);
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 0.8em;
+  font-family: inherit;
+  font-weight: 500;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.craft-completion-btn:hover {
+  background: var(--mood-primary-color, #6a6a8a);
+}
+
+/* =========================================
+   CRAFT PANEL — Tier content overhaul
+   Scoped to .modular-system context
+   ========================================= */
+
+/* ── Collapsible tier container — lighter ── */
+.modular-system .collapsible-tier {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  margin-bottom: 0.35rem;
+  overflow: hidden;
+}
+
+.modular-system .collapsible-tier:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ── Tier header — override the heavy default ── */
+.modular-system .tier-header {
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.6rem 0.85rem;
+}
+
+.modular-system .tier-header:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.modular-system .tier-header:hover .tier-title,
+.modular-system .tier-header:hover .current-selection-text {
+  color: var(--mood-text-primary, #e1e1ff);
+}
+
+.modular-system .tier-title {
+  font-size: 0.82rem;
+  color: var(--mood-text-primary, #e1e1ff);
+}
+
+.modular-system .tier-title::before {
+  display: none;
+}
+
+.modular-system .current-selection-text {
+  font-size: 0.75rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+}
+
+.modular-system .tier-expand-icon {
+  color: var(--mood-text-secondary, #a0a0c0);
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+/* ── Tier content when expanded ── */
+.modular-system .collapsible-tier.expanded .tier-content {
+  padding: 0.75rem;
+  overflow-y: visible;
+  max-height: 1200px;
+}
+
+/* ── Level titles — refined ── */
+.modular-system .level-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--mood-text-secondary, #a0a0c0);
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.modular-system .variant-subtitle {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--mood-accent-color, #4a4a6a);
+  margin: 0 0 0.4rem 0;
+  opacity: 0.7;
+}
+
+/* ── Tier option cards — compact, flat ── */
+.modular-system .tier-options-grid {
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.modular-system .tier-option {
+  padding: 8px 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.modular-system .tier-option:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: none;
+}
+
+.modular-system .tier-option.selected {
+  background: var(--aura-bg-hover, #3a3a5e);
+  border-color: var(--mood-accent-color, #4a4a6a);
+  box-shadow: none;
+}
+
+.modular-system .option-preview {
+  width: 28px;
+  height: 22px;
+  margin-bottom: 4px;
+}
+
+.modular-system .option-label {
+  font-size: 0.68rem;
+  font-weight: 500;
+}
+
+.modular-system .tier-option.selected .option-label {
+  color: var(--mood-text-primary, #e1e1ff);
+}
+
+/* ── Palette families — compact ── */
+.modular-system .palette-families {
+  gap: 6px;
+}
+
+.modular-system .palette-family {
+  padding: 8px 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.modular-system .palette-family:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: none;
+}
+
+.modular-system .palette-family.selected {
+  background: var(--aura-bg-hover, #3a3a5e);
+  border-color: var(--mood-accent-color, #4a4a6a);
+  box-shadow: none;
+}
+
+.modular-system .palette-preview {
+  width: 32px;
+  height: 18px;
+  border-radius: 3px;
+  margin-bottom: 4px;
+}
+
+.modular-system .palette-label {
+  font-size: 0.68rem;
+}
+
+/* ── Variant toggles (Light/Dark) — pill style ── */
+.modular-system .variant-toggles {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  padding: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.modular-system .variant-toggle {
+  flex: 1;
+  text-align: center;
+  padding: 0.35rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 0.72rem;
+}
+
+.modular-system .variant-toggle:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.modular-system .variant-toggle.selected {
+  background: var(--aura-bg-hover, #3a3a5e);
+  color: var(--mood-text-primary, #e1e1ff);
+}
+
+/* ── Text color options — compact ── */
+.modular-system .text-color-options {
+  gap: 6px;
+}
+
+.modular-system .text-color-option {
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  min-width: 50px;
+  transition: all 0.15s ease;
+}
+
+.modular-system .text-color-option:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: none;
+  box-shadow: none;
+}
+
+.modular-system .text-color-option.selected {
+  border-color: var(--mood-accent-color, #4a4a6a);
+  background: var(--aura-bg-hover, #3a3a5e);
+  box-shadow: none;
+}
+
+.modular-system .text-color-preview {
+  font-size: 1.1rem;
+  width: 26px;
+  height: 26px;
+  margin-bottom: 2px;
+}
+
+.modular-system .text-color-label {
+  font-size: 0.68rem;
+}
+
+/* ── Container variants — compact ── */
+.modular-system .variant-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.modular-system .variant-option {
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+}
+
+.modular-system .variant-option:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.modular-system .variant-option.selected {
+  background: var(--aura-bg-hover, #3a3a5e);
+  border-color: var(--mood-accent-color, #4a4a6a);
+}
+
+.modular-system .variant-label {
+  font-size: 0.68rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+}
+
+.modular-system .variant-option.selected .variant-label {
+  color: var(--mood-text-primary, #e1e1ff);
+}
+
+.modular-system .variant-preview {
+  width: 24px;
+  height: 18px;
+  margin-bottom: 3px;
+}
+
+/* ── Section containers — subtler ── */
+.modular-system .container-section,
+.modular-system .palette-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.modular-system .container-level,
+.modular-system .palette-level {
+  margin-bottom: 0;
+}
+
+.modular-system .effects-level {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* ── Alignment section — subtler ── */
+.modular-system .alignment-section {
+  gap: 0.75rem;
+}
+
+.modular-system .alignment-level {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 0.65rem;
+}
+
+.modular-system .alignment-type-grid {
+  gap: 6px;
+}
+
+/* ── Weight options — compact ── */
+.modular-system .weight-options {
+  gap: 6px;
+}
+
+.modular-system .weight-option {
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.modular-system .weight-option:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: none;
+}
+
+.modular-system .weight-option.selected {
+  background: var(--aura-bg-hover, #3a3a5e);
+  border-color: var(--mood-accent-color, #4a4a6a);
+  box-shadow: none;
+}
+
+.modular-system .weight-label {
+  font-size: 0.68rem;
+  margin-top: 0.3rem;
+}
+
+.modular-system .weight-preview {
+  width: 26px;
+  height: 20px;
+  margin-bottom: 0.25rem;
+}
+
+/* ── Style options — compact ── */
+.modular-system .style-options {
+  gap: 6px;
+}
+
+.modular-system .style-option {
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.modular-system .style-option:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: none;
+}
+
+.modular-system .style-option.selected {
+  background: var(--aura-bg-hover, #3a3a5e);
+  border-color: var(--mood-accent-color, #4a4a6a);
+  box-shadow: none;
+}
+
+.modular-system .style-label {
+  font-size: 0.68rem;
+  margin-top: 0.3rem;
+}
+
+.modular-system .style-preview {
+  width: 26px;
+  height: 16px;
+  margin-bottom: 0.25rem;
+}
+
+/* ── Artwork section styling ── */
+.modular-system .craft-row .image-chooser-section label,
+.modular-system .craft-row .custom-url-section label {
+  font-size: 0.75rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+  font-weight: 500;
+  margin-bottom: 0.35rem;
+  display: block;
+}
+
+.modular-system .craft-row .coming-soon {
+  font-size: 0.7rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+  opacity: 0.6;
+  margin: 0.5rem 0 0 0;
+}
+
+/* ── Screen-reader only ── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
