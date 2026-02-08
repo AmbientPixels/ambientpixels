@@ -86,10 +86,12 @@ module.exports = async function (context, req) {
     return;
   }
 
-  const { userId, isAuthenticated } = extractUserInfo(req, context);
-  if (!isAuthenticated) {
-    context.res = { status: 401, headers: CORS_HEADERS, body: { error: 'Authentication required' } };
-    return;
+  // Extract userId from EasyAuth headers or fall back to request body
+  let { userId, isAuthenticated } = extractUserInfo(req, context);
+  if (!isAuthenticated && req.body && req.body.userId && req.body.userId !== 'anonymous') {
+    userId = req.body.userId;
+    isAuthenticated = true;
+    context.log(`Using userId from request body: ${userId}`);
   }
 
   const shareId = req.body && req.body.shareId;

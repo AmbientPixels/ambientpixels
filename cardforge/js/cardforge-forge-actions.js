@@ -1441,10 +1441,14 @@ const resp = await fetch(loadUrl, {
     const doRemove = async () => {
       try {
         const deleteUrl = window.buildApiPath('deckDelete');
+        const deleteUserId = (() => {
+          try { return JSON.parse(sessionStorage.getItem('userInfo') || '{}').userId || 'anonymous'; }
+          catch { return 'anonymous'; }
+        })();
         const resp = await fetch(deleteUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ shareId }),
+          body: JSON.stringify({ shareId, userId: deleteUserId }),
           credentials: 'include'
         });
         if (resp.ok) {
