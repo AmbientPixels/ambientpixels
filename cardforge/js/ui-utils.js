@@ -178,13 +178,14 @@
    * @param {string} title - Dialog title
    * @param {string} placeholder - Input placeholder text
    * @param {string} defaultValue - Default input value
-   * @param {Function} onConfirm - Callback with input value when confirmed
+   * @param {Function} onConfirm - Callback: onConfirm(value) or onConfirm(value, selectedIcon) when icons provided
    * @param {Function} [onCancel] - Optional cancel callback
+   * @param {Object} [options] - Optional config: { icons: [{icon,label}], selectedIcon: string, confirmLabel: string }
    */
-  function showPromptDialog(title, placeholder, defaultValue, onConfirm, onCancel) {
+  function showPromptDialog(title, placeholder, defaultValue, onConfirm, onCancel, options) {
+    const opts = options || {};
     const dialog = document.getElementById('cardforge-dialog');
     if (!dialog) {
-      // Fallback to native prompt
       const result = prompt(title, defaultValue || '');
       if (result !== null && result.trim() !== '') {
         onConfirm && onConfirm(result.trim());
@@ -201,20 +202,33 @@
 
     if (titleEl) titleEl.textContent = title;
 
-    // Replace message area with an input field
-    if (messageEl) {
-      messageEl.innerHTML = `<input type="text" id="cardforge-dialog-input"
-        class="cardforge-dialog-input"
-        placeholder="${placeholder || ''}"
-        value="${defaultValue || ''}"
-        autocomplete="off" />`;
+    // Build dialog body: input + optional icon grid
+    let bodyHTML = `<input type="text" id="cardforge-dialog-input"
+      class="cardforge-dialog-input"
+      placeholder="${placeholder || ''}"
+      value="${defaultValue || ''}"
+      autocomplete="off" />`;
+
+    let _selectedIcon = opts.selectedIcon || '';
+
+    if (opts.icons && opts.icons.length) {
+      bodyHTML += '<div class="dialog-icon-picker">' +
+        '<div class="dialog-icon-label">Deck Icon</div>' +
+        '<div class="dialog-icon-grid">' +
+        opts.icons.map(function(item) {
+          return '<button type="button" class="dialog-icon-option' +
+            (item.icon === _selectedIcon ? ' selected' : '') +
+            '" data-icon="' + item.icon + '" title="' + item.label + '">' +
+            '<i class="' + item.icon + '"></i></button>';
+        }).join('') +
+        '</div></div>';
     }
 
-    // Ensure cancel is visible and labels are correct
-    if (cancelBtn) cancelBtn.style.display = '';
-    if (confirmBtn) confirmBtn.textContent = 'Create';
+    if (messageEl) messageEl.innerHTML = bodyHTML;
 
-    // Clone buttons to remove prior listeners
+    if (cancelBtn) cancelBtn.style.display = '';
+    if (confirmBtn) confirmBtn.textContent = opts.confirmLabel || 'Create';
+
     const newConfirmBtn = confirmBtn.cloneNode(true);
     const newCancelBtn = cancelBtn.cloneNode(true);
     confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
@@ -227,9 +241,20 @@
       setTimeout(() => { inputEl.focus(); inputEl.select(); }, 100);
     }
 
+    // Icon selection handling
+    const iconGrid = dialog.querySelector('.dialog-icon-grid');
+    if (iconGrid) {
+      iconGrid.addEventListener('click', function(e) {
+        const btn = e.target.closest('.dialog-icon-option');
+        if (!btn) return;
+        iconGrid.querySelectorAll('.dialog-icon-option').forEach(function(b) { b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        _selectedIcon = btn.getAttribute('data-icon');
+      });
+    }
+
     const cleanup = () => {
       dialog.classList.remove('active');
-      // Restore message element to plain text mode
       if (messageEl) messageEl.innerHTML = '';
       if (newConfirmBtn) newConfirmBtn.textContent = 'Confirm';
       newConfirmBtn.removeEventListener('click', handleConfirm);
@@ -241,7 +266,7 @@
       const val = inputEl ? inputEl.value.trim() : '';
       cleanup();
       if (val) {
-        onConfirm && onConfirm(val);
+        onConfirm && onConfirm(val, _selectedIcon || undefined);
       } else {
         onCancel && onCancel();
       }

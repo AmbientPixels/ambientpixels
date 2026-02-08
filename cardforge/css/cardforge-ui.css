@@ -2569,6 +2569,21 @@ opacity: 1;
   border-color: rgba(255, 255, 255, 0.08);
 }
 
+/* Deck list item icon (left rail) */
+[data-step-section="7"] .deck-list-item-icon {
+  font-size: 0.8rem;
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+  color: var(--mood-text-secondary, #a0a0c0);
+  opacity: 0.6;
+}
+
+[data-step-section="7"] .deck-list-item.active .deck-list-item-icon {
+  color: var(--mood-primary-color, #00d4ff);
+  opacity: 1;
+}
+
 [data-step-section="7"] .deck-list-item-info {
   display: flex;
   flex-direction: column;
@@ -2715,6 +2730,51 @@ opacity: 1;
   display: flex;
   gap: 0.2rem;
   flex-shrink: 0;
+}
+
+/* Dialog icon picker (inside prompt dialog) */
+.dialog-icon-picker {
+  margin-top: 0.6rem;
+}
+
+.dialog-icon-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--mood-text-secondary, #a0a0c0);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.35rem;
+}
+
+.dialog-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+}
+
+.dialog-icon-option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--mood-text-secondary, #a0a0c0);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.dialog-icon-option:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--mood-primary-color, #e1e1ff);
+}
+
+.dialog-icon-option.selected {
+  background: rgba(0, 212, 255, 0.12);
+  border-color: rgba(0, 212, 255, 0.3);
+  color: var(--mood-primary-color, #00d4ff);
 }
 
 /* Deck Cards Grid — overlapping fan layout */

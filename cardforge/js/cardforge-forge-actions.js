@@ -6,6 +6,22 @@
  * - Clean, focused implementation with proper error handling
  */
 
+const DECK_ICONS = [
+  { icon: 'fas fa-layer-group',        label: 'Stack' },
+  { icon: 'fas fa-clone',              label: 'Cards' },
+  { icon: 'fas fa-khanda',             label: 'Sword' },
+  { icon: 'fas fa-shield-halved',      label: 'Shield' },
+  { icon: 'fas fa-wand-magic-sparkles', label: 'Wand' },
+  { icon: 'fas fa-leaf',               label: 'Leaf' },
+  { icon: 'fas fa-gear',               label: 'Cog' },
+  { icon: 'fas fa-flask',              label: 'Flask' },
+  { icon: 'fas fa-star',               label: 'Star' },
+  { icon: 'fas fa-compass',            label: 'Compass' },
+  { icon: 'fas fa-box',                label: 'Box' },
+  { icon: 'fas fa-box-archive',        label: 'Archive' }
+];
+const DEFAULT_DECK_ICON = 'fas fa-layer-group';
+
 class CardForgeActions {
   constructor() {
     this.initialized = false;
@@ -463,11 +479,12 @@ class CardForgeActions {
     if (!this.requireAuth('create a deck')) return;
 
     const promptFn = (window.UIUtils && window.UIUtils.showPromptDialog) || null;
-    const createDeck = (deckName) => {
+    const createDeck = (deckName, selectedIcon) => {
       try {
         const newDeck = {
           id: this.generateDeckId(),
           name: deckName,
+          icon: selectedIcon || DEFAULT_DECK_ICON,
           description: '',
           cardIds: [],
           createdAt: new Date().toISOString(),
@@ -489,7 +506,11 @@ class CardForgeActions {
     };
 
     if (promptFn) {
-      promptFn('Create New Deck', 'Enter deck name...', 'My New Deck', createDeck);
+      promptFn('Create New Deck', 'Enter deck name...', 'My New Deck', createDeck, null, {
+        icons: DECK_ICONS,
+        selectedIcon: DEFAULT_DECK_ICON,
+        confirmLabel: 'Create'
+      });
     } else {
       const deckName = prompt('Enter a name for your new deck:', 'My New Deck');
       if (deckName && deckName.trim()) createDeck(deckName.trim());
@@ -923,9 +944,11 @@ const resp = await fetch(loadUrl, {
     deckListEl.innerHTML = decks.map(deck => {
       const count = deck.cardIds ? deck.cardIds.length : 0;
       const isSelected = deck.id === this._selectedDeckId;
+      const deckIcon = deck.icon || DEFAULT_DECK_ICON;
       return `
         <div class="deck-list-item${isSelected ? ' active' : ''}" data-deck-id="${deck.id}"
              onclick="cardForgeActions.selectDeck('${deck.id}')">
+          <i class="deck-list-item-icon ${deckIcon}"></i>
           <div class="deck-list-item-info">
             <span class="deck-list-item-name">${deck.name}</span>
             <span class="deck-list-item-count">${count} card${count !== 1 ? 's' : ''}</span>
@@ -1292,10 +1315,11 @@ CardForgeActions.prototype.renderDeckDetail = function(deckId) {
     }).join('') + `</div>`;
   }
 
+  const deckIcon = deck.icon || DEFAULT_DECK_ICON;
   detailEl.innerHTML = `
     <div class="deck-detail-header">
       <div class="deck-detail-title">
-        <i class="fas fa-layer-group"></i>
+        <i class="${deckIcon}"></i>
         <span>${deck.name}</span>
         <span class="deck-detail-count">${count} card${count !== 1 ? 's' : ''}</span>
       </div>
@@ -1319,21 +1343,27 @@ CardForgeActions.prototype.renameDeck = function(deckId) {
   const deck = decks.find(d => d.id === deckId);
   if (!deck) return;
 
-  const doRename = (newName) => {
-    if (newName === deck.name) return;
-    deck.name = newName;
+  const doUpdate = (newName, selectedIcon) => {
+    let changed = false;
+    if (newName && newName !== deck.name) { deck.name = newName; changed = true; }
+    if (selectedIcon && selectedIcon !== deck.icon) { deck.icon = selectedIcon; changed = true; }
+    if (!changed) return;
     deck.lastModified = new Date().toISOString();
     localStorage.setItem('cardforge_decks', JSON.stringify(decks));
-    this.showNotification(`Deck renamed to "${deck.name}"`, 'success');
+    this.showNotification(`Deck updated: "${deck.name}"`, 'success');
     this.refreshDeckList();
   };
 
   const promptFn = (window.UIUtils && window.UIUtils.showPromptDialog) || null;
   if (promptFn) {
-    promptFn('Rename Deck', 'Enter new name...', deck.name, doRename);
+    promptFn('Edit Deck', 'Enter deck name...', deck.name, doUpdate, null, {
+      icons: DECK_ICONS,
+      selectedIcon: deck.icon || DEFAULT_DECK_ICON,
+      confirmLabel: 'Save'
+    });
   } else {
     const newName = prompt('Rename deck:', deck.name);
-    if (newName && newName.trim() && newName.trim() !== deck.name) doRename(newName.trim());
+    if (newName && newName.trim()) doUpdate(newName.trim());
   }
 };
 
