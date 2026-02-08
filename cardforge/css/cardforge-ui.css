@@ -2341,7 +2341,7 @@ opacity: 1;
   background: var(--aura-bg-secondary, #2a2a3e) !important;
   border: 1px solid rgba(255, 255, 255, 0.06) !important;
   border-radius: 6px !important;
-  padding: 0.75rem !important;
+  padding: 0.5rem !important;
   min-width: 0 !important;
   overflow-x: hidden !important;
 }
@@ -2412,8 +2412,8 @@ opacity: 1;
 /* ── My Cards Grid ── */
 [data-step-section="7"] .my-cards-list {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.35rem;
 }
 
 /* ── Empty States ── */
@@ -2504,6 +2504,12 @@ opacity: 1;
     justify-content: center !important;
     width: auto !important;
   }
+  [data-step-section="7"] .my-cards-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
   [data-step-section="7"] .my-cards-list {
     grid-template-columns: 1fr;
   }
