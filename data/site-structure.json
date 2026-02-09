@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-02-08T13:48:50.672Z",
+  "updated": "2026-02-09T14:15:00.391Z",
   "root": [
     {
       "type": "folder",
@@ -100,6 +100,24 @@
         },
         {
           "type": "folder",
+          "name": "cardforgedeckdelete",
+          "path": "api/cardforgedeckdelete",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardforgedeckload",
+          "path": "api/cardforgedeckload",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardforgedeckpublish",
+          "path": "api/cardforgedeckpublish",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "cardforgedeletecard",
           "path": "api/cardforgedeletecard",
           "children": []
@@ -126,6 +144,18 @@
           "type": "folder",
           "name": "cardforgetemplate",
           "path": "api/cardforgetemplate",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardshare",
+          "path": "api/cardshare",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "deckshare",
+          "path": "api/deckshare",
           "children": []
         },
         {
@@ -199,6 +229,16 @@
           "name": "css",
           "path": "cardforge/css",
           "children": []
+        },
+        {
+          "type": "page",
+          "name": "deck.html",
+          "path": "cardforge/deck.html"
+        },
+        {
+          "type": "page",
+          "name": "devlog.html",
+          "path": "cardforge/devlog.html"
         },
         {
           "type": "folder",

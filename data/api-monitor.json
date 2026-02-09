@@ -1,12 +1,12 @@
 {
-  "scannedAt": "2026-02-08T13:48:53.542Z",
+  "scannedAt": "2026-02-09T14:15:02.227Z",
   "endpoints": [
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
       "status": 410,
       "ok": false,
-      "latencyMs": 173
+      "latencyMs": 202
     },
     {
       "name": "AmbientPixels Meme API",
