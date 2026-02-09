@@ -249,7 +249,8 @@
   gap: var(--cf-gap);
   padding: var(--cf-pad-y) var(--cf-pad-x);
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   line-height: var(--cf-line-height);
   box-sizing: border-box;
 }
@@ -1114,7 +1115,8 @@
 
 .card-preview-canvas.container-hero .card-body {
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: var(--cf-pad-y) var(--cf-pad-x);
 }
 

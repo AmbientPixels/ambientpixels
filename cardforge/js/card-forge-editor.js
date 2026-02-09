@@ -1292,10 +1292,10 @@
       imageContainers: ['masked', 'framed', 'raw', 'hero', 'fullbleed'],
       containerVariants: {
         'masked': ['circle', 'hex', 'diamond'],
-        'framed': ['classic', 'ornate', 'minimal'],
+        'framed': ['classic', 'modern', 'ornate'],
         'raw': ['sharp', 'rounded', 'soft'],
-        'hero': ['large', 'compact'],
-        'fullbleed': ['standard', 'wide']
+        'hero': ['large', 'small'],
+        'fullbleed': ['standard', 'dimmed', 'blurred']
       },
       imageEffects: ['none', 'filters', 'borders'],
       effectVariants: {
