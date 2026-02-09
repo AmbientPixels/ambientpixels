@@ -1349,13 +1349,14 @@
     // Define all possible options for each modular tier
     const randomOptions = {
       // Tier 2: Image Container & Effects
-      imageContainers: ['masked', 'framed', 'raw', 'hero', 'fullbleed'],
+      imageContainers: ['masked', 'framed', 'raw', 'hero', 'fullbleed', 'inset'],
       containerVariants: {
         'masked': ['circle', 'hex', 'diamond'],
         'framed': ['classic', 'modern', 'ornate'],
         'raw': ['sharp', 'rounded', 'soft'],
         'hero': ['large', 'small'],
-        'fullbleed': ['standard', 'dimmed', 'blurred']
+        'fullbleed': ['standard', 'dimmed', 'blurred'],
+        'inset': ['panel', 'glass', 'emblem', 'cutout']
       },
       imageEffects: ['none', 'filters', 'borders'],
       effectVariants: {
@@ -3451,7 +3452,8 @@
           'framed': 'classic',
           'raw': 'sharp',
           'fullbleed': 'standard',
-          'hero': 'large'
+          'hero': 'large',
+          'inset': 'panel'
         };
         ModularState.imageContainerVariant = defaultVariants[ModularState.imageContainer] || 'circle';
         

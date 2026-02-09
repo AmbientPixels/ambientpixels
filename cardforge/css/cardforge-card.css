@@ -38,13 +38,15 @@
 /* Fixed-size containers (Masked, Framed, Raw) */
 .card-preview-canvas.align-type-left.container-masked,
 .card-preview-canvas.align-type-left.container-framed,
-.card-preview-canvas.align-type-left.container-raw {
+.card-preview-canvas.align-type-left.container-raw,
+.card-preview-canvas.align-type-left.container-inset {
   text-align: left;
 }
 
 .card-preview-canvas.align-type-left.container-masked .card-content,
 .card-preview-canvas.align-type-left.container-framed .card-content,
-.card-preview-canvas.align-type-left.container-raw .card-content {
+.card-preview-canvas.align-type-left.container-raw .card-content,
+.card-preview-canvas.align-type-left.container-inset .card-content {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -53,7 +55,8 @@
 
 .card-preview-canvas.align-type-left.container-masked .card-avatar,
 .card-preview-canvas.align-type-left.container-framed .card-avatar,
-.card-preview-canvas.align-type-left.container-raw .card-avatar {
+.card-preview-canvas.align-type-left.container-raw .card-avatar,
+.card-preview-canvas.align-type-left.container-inset .card-avatar {
   margin: 0 auto 1rem 0;
   float: left;
   margin-right: 1rem;
@@ -83,16 +86,18 @@
 }
 
 /* --- CENTER ALIGNMENT (Default) --- */
-/* Fixed-size containers (Masked, Framed, Raw) */
+/* Fixed-size containers (Masked, Framed, Raw, Inset) */
 .card-preview-canvas.align-type-center.container-masked,
 .card-preview-canvas.align-type-center.container-framed,
-.card-preview-canvas.align-type-center.container-raw {
+.card-preview-canvas.align-type-center.container-raw,
+.card-preview-canvas.align-type-center.container-inset {
   text-align: center;
 }
 
 .card-preview-canvas.align-type-center.container-masked .card-content,
 .card-preview-canvas.align-type-center.container-framed .card-content,
-.card-preview-canvas.align-type-center.container-raw .card-content {
+.card-preview-canvas.align-type-center.container-raw .card-content,
+.card-preview-canvas.align-type-center.container-inset .card-content {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -101,7 +106,8 @@
 
 .card-preview-canvas.align-type-center.container-masked .card-avatar,
 .card-preview-canvas.align-type-center.container-framed .card-avatar,
-.card-preview-canvas.align-type-center.container-raw .card-avatar {
+.card-preview-canvas.align-type-center.container-raw .card-avatar,
+.card-preview-canvas.align-type-center.container-inset .card-avatar {
   margin: 0 auto 1rem auto;
   display: block;
 }
@@ -130,16 +136,18 @@
 }
 
 /* --- RIGHT ALIGNMENT --- */
-/* Fixed-size containers (Masked, Framed, Raw) */
+/* Fixed-size containers (Masked, Framed, Raw, Inset) */
 .card-preview-canvas.align-type-right.container-masked,
 .card-preview-canvas.align-type-right.container-framed,
-.card-preview-canvas.align-type-right.container-raw {
+.card-preview-canvas.align-type-right.container-raw,
+.card-preview-canvas.align-type-right.container-inset {
   text-align: right;
 }
 
 .card-preview-canvas.align-type-right.container-masked .card-content,
 .card-preview-canvas.align-type-right.container-framed .card-content,
-.card-preview-canvas.align-type-right.container-raw .card-content {
+.card-preview-canvas.align-type-right.container-raw .card-content,
+.card-preview-canvas.align-type-right.container-inset .card-content {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -1131,6 +1139,107 @@
   --cf-pad-y: 0.5rem;
   --cf-gap: 0.4rem;
   --cf-title-size: 1.15rem;
+}
+
+/* ===== INSET CONTAINER ===== */
+
+/* Inset base — constrained viewport for the image, inside the card */
+.card-preview-canvas.container-inset {
+  padding-top: 0.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-preview-canvas.container-inset .card-avatar {
+  display: block;
+  width: 80%;
+  max-width: 200px;
+  height: auto;
+  max-height: 45%;
+  object-fit: cover;
+  margin: 0 auto 0.75rem auto;
+  overflow: hidden;
+}
+
+/* --- Panel variant: rounded rect, subtle border + inner shadow --- */
+.card-preview-canvas.container-inset.container-variant-panel .card-avatar {
+  border-radius: 10px;
+  border: 2px solid var(--mood-accent-color, #4a4a6a);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.35), 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* --- Glass variant: frosted glass look --- */
+.card-preview-canvas.container-inset.container-variant-glass .card-avatar {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  filter: contrast(1.05) brightness(0.95);
+}
+
+.card-preview-canvas.container-inset.container-variant-glass .card-avatar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* --- Emblem variant: circle mask with border ring --- */
+.card-preview-canvas.container-inset.container-variant-emblem .card-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px solid var(--mood-primary-color, #00d4ff);
+  box-shadow: 0 0 0 3px var(--aura-bg-color, #1a1a2e), 0 0 12px rgba(0, 212, 255, 0.15);
+  object-fit: cover;
+}
+
+/* --- Cutout variant: no panel, masked/rounded image with shadow separation --- */
+.card-preview-canvas.container-inset.container-variant-cutout .card-avatar {
+  border-radius: 14px;
+  border: none;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* Inset alignment overrides — fixed-size container behavior like masked/framed/raw */
+.card-preview-canvas.align-type-left.container-inset .card-avatar {
+  margin: 0 auto 0.75rem 0;
+}
+
+.card-preview-canvas.align-type-right.container-inset .card-avatar {
+  margin: 0 0 0.75rem auto;
+}
+
+.card-preview-canvas.align-type-center.container-inset .card-avatar {
+  margin: 0 auto 0.75rem auto;
+}
+
+/* Inset inherits same alignment rules as fixed-size containers */
+.card-preview-canvas.align-type-left.container-inset,
+.card-preview-canvas.align-type-left.container-inset .card-content {
+  text-align: left;
+}
+
+.card-preview-canvas.align-type-center.container-inset,
+.card-preview-canvas.align-type-center.container-inset .card-content {
+  text-align: center;
+}
+
+.card-preview-canvas.align-type-right.container-inset,
+.card-preview-canvas.align-type-right.container-inset .card-content {
+  text-align: right;
+}
+
+/* Inset auto-tightens density variants to prevent overflow */
+.card-preview-canvas.container-inset.align-style-padded {
+  --cf-pad-y: 0.5rem;
+  --cf-gap: 0.4rem;
+}
+
+.card-preview-canvas.container-inset.align-style-elegant {
+  --cf-pad-y: 0.5rem;
+  --cf-gap: 0.4rem;
 }
 
 /* ===== TIER 6: IMAGE EFFECTS ===== */
