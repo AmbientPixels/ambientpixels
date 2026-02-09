@@ -1464,7 +1464,7 @@ const resp = await fetch(loadUrl, {
             : '<p style="text-align:center;color:#6a6a8a;padding:2rem;">No cards in this deck.</p>') +
           // Actions
           '<div class="deck-viewer-actions">' +
-            '<button type="button" class="deck-publish-action-btn" id="dv-copy-link"><i class="fas fa-link"></i> Copy Link</button>' +
+            '<button type="button" class="deck-publish-action-btn" id="dv-copy-link"><i class="fas fa-share-alt"></i> Share</button>' +
             '<button type="button" class="deck-publish-action-btn" id="dv-save-deck"><i class="fas fa-download"></i> Save to My Decks</button>' +
             (modalCanDelete ? '<button type="button" class="deck-publish-action-btn deck-modal-delete-btn" id="dv-delete-deck"><i class="fas fa-trash"></i> Delete</button>' : '') +
           '</div>' +
@@ -1483,7 +1483,7 @@ const resp = await fetch(loadUrl, {
         copyBtn.addEventListener('click', () => {
           navigator.clipboard.writeText(shareUrl);
           copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-          setTimeout(() => { copyBtn.innerHTML = '<i class="fas fa-link"></i> Copy Link'; }, 2000);
+          setTimeout(() => { copyBtn.innerHTML = '<i class="fas fa-share-alt"></i> Share'; }, 2000);
         });
       }
 
