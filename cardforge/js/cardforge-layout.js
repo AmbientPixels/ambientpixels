@@ -17,6 +17,7 @@
     initDragDivider();
     initStepper();
     initTabs();
+    wireStepNav();
   }
 
 
@@ -126,6 +127,72 @@
       } catch (err) {
         console.warn('CF Rail: unable to persist state', err);
       }
+    });
+  }
+
+  /* ---------------- Section Prev / Next Nav ---------------- */
+
+  function wireStepNav() {
+    const stepBtns = Array.from(document.querySelectorAll('.step-btn'));
+    if (!stepBtns.length) return;
+
+    // Build ordered list of { step, label } from left rail
+    const steps = stepBtns.map(btn => ({
+      step: btn.dataset.step,
+      label: (btn.querySelector('.step-label') || {}).textContent || 'Step ' + btn.dataset.step
+    }));
+
+    // Remove existing "Next: Basics →" CTA (superseded by standardized nav)
+    const legacyCta = document.getElementById('craft-completion-cta');
+    if (legacyCta) legacyCta.remove();
+
+    // Navigate to a step by triggering the corresponding left rail button
+    function goToStep(stepId) {
+      const btn = document.querySelector('.step-btn[data-step="' + stepId + '"]');
+      if (btn) btn.click();
+    }
+
+    steps.forEach((current, idx) => {
+      const section = document.querySelector('[data-step-section="' + current.step + '"]');
+      if (!section) return;
+
+      const isFirst = idx === 0;
+      const isLast = idx === steps.length - 1;
+      const prev = isFirst ? null : steps[idx - 1];
+      const next = isLast ? null : steps[idx + 1];
+
+      // Build nav row
+      const row = document.createElement('div');
+      row.className = 'cf-step-nav';
+
+      // Previous button
+      const prevBtn = document.createElement('button');
+      prevBtn.type = 'button';
+      prevBtn.className = 'cf-step-nav-btn cf-step-nav-prev';
+      prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i> <span>' + (prev ? prev.label : 'Previous') + '</span>';
+      prevBtn.setAttribute('aria-label', prev ? 'Go to ' + prev.label : 'No previous section');
+      if (isFirst) {
+        prevBtn.style.display = 'none';
+      } else {
+        prevBtn.addEventListener('click', function() { goToStep(prev.step); });
+      }
+
+      // Next button
+      const nextBtn = document.createElement('button');
+      nextBtn.type = 'button';
+      nextBtn.className = 'cf-step-nav-btn cf-step-nav-next';
+      nextBtn.innerHTML = '<span>' + (next ? next.label : 'Done') + '</span> <i class="fas fa-chevron-right"></i>';
+      nextBtn.setAttribute('aria-label', next ? 'Go to ' + next.label : 'No next section');
+      if (isLast) {
+        nextBtn.disabled = true;
+        nextBtn.setAttribute('aria-disabled', 'true');
+      } else {
+        nextBtn.addEventListener('click', function() { goToStep(next.step); });
+      }
+
+      row.appendChild(prevBtn);
+      row.appendChild(nextBtn);
+      section.appendChild(row);
     });
   }
 })();
