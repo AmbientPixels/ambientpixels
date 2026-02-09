@@ -13,7 +13,9 @@ async function publishCard() {
   /* updated by Cascade: require authentication to publish */
 
 
-  const isAuthed = (sessionStorage.getItem('isAuthenticated') === 'true') ||
+  const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  const isAuthed = isLocal ||
+                   (sessionStorage.getItem('isAuthenticated') === 'true') ||
                    (document.body?.getAttribute('data-auth-state') === 'signed-in');
 
 
@@ -166,6 +168,13 @@ async function publishCard() {
                 const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
                 return userInfo.userId || 'anonymous';
               } catch { return 'anonymous'; }
+            })(),
+            // Include card data so API can publish even when card isn't in blob storage yet
+            cardData: (() => {
+              try {
+                const saved = JSON.parse(localStorage.getItem('cardforge_saved_cards') || '[]');
+                return saved.find(c => c.id === cardId) || null;
+              } catch { return null; }
             })()
           }),
 

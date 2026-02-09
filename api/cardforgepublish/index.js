@@ -214,7 +214,7 @@ module.exports = async function (context, req) {
       );
     }
     
-    if (!userBlobExists) {
+    if (!userBlobExists && !req.body.cardData) {
       context.res = {
         status: 404,
         headers: {
@@ -230,32 +230,39 @@ module.exports = async function (context, req) {
     
     context.log(`Using blob path: ${userBlobPath}`);
     
-    // Read user's cards from blob storage
+    // Read user's cards from blob storage (or use inline cardData as fallback)
     try {
-      // Get the user's cards with retry logic
-      const downloadResponse = await withRetry(
-        () => userBlobClient.download(),
-        `download user blob (${userBlobPath})`,
-        context
-      );
-      const userBlobContents = await streamToText(downloadResponse.readableStreamBody);
-      
-      // Parse JSON with validation
-      let userCards;
-      try {
-        userCards = JSON.parse(userBlobContents);
-        // Validate basic structure
-        if (!userCards || !Array.isArray(userCards.cards)) {
-          throw new Error('Invalid user cards format: missing cards array');
+      let cardToPublish = null;
+      let userCards = { cards: [] };
+
+      if (userBlobExists) {
+        const downloadResponse = await withRetry(
+          () => userBlobClient.download(),
+          `download user blob (${userBlobPath})`,
+          context
+        );
+        const userBlobContents = await streamToText(downloadResponse.readableStreamBody);
+        
+        try {
+          userCards = JSON.parse(userBlobContents);
+          if (!userCards || !Array.isArray(userCards.cards)) {
+            throw new Error('Invalid user cards format: missing cards array');
+          }
+        } catch (parseError) {
+          context.log.error(`Error parsing user cards JSON: ${parseError.message}`);
+          throw new Error(`Invalid user cards data format: ${parseError.message}`);
         }
-      } catch (parseError) {
-        context.log.error(`Error parsing user cards JSON: ${parseError.message}`);
-        throw new Error(`Invalid user cards data format: ${parseError.message}`);
+        
+        cardToPublish = userCards.cards.find(c => c.id === cardId);
       }
-      
-      // Find the card to publish
-      const cardToPublish = userCards.cards.find(c => c.id === cardId);
-      
+
+      // Fallback: use cardData sent inline from client (local dev / card not yet in blob)
+      if (!cardToPublish && req.body.cardData) {
+        context.log('Card not in blob, using inline cardData from request body');
+        cardToPublish = req.body.cardData;
+        if (!cardToPublish.id) cardToPublish.id = cardId;
+      }
+
       if (!cardToPublish) {
         context.res = {
           status: 404,
