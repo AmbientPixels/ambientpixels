@@ -461,7 +461,7 @@
 
 /* ---- Variant: ULTRA-COMPACT — maximum density ---- */
 .card-preview-canvas.align-style-compact {
-  --cf-pad-x: 0.25rem;
+  --cf-pad-x: 0.5rem;
   --cf-pad-y: 0.15rem;
   --cf-gap: 0.15rem;
   --cf-title-size: 1rem;
