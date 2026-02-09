@@ -1077,6 +1077,243 @@
 }
 
 /* ================================
+   DIM THEME OVERRIDES
+   ================================
+   Mid-tone palette — between dark and light.
+   Warmer, softer dark with lifted backgrounds and muted accent.
+*/
+
+body[data-theme="dim"] {
+  --aura-bg-color: #2D3348;
+  --aura-bg-secondary: #353B52;
+  --aura-bg-hover: #3E455E;
+  --aura-bg-active: #474F6A;
+  --aura-glow: #7B8FE0;
+  --mood-text-primary: #D4D8E8;
+  --mood-text-secondary: #9AA0B8;
+  --mood-primary-color: #7B8FE0;
+  --mood-accent-color: #4A5170;
+  --mood-secondary-color: #9AA0B8;
+  --card-bg: rgba(35, 40, 58, 0.92);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --card-text: #D4D8E8;
+  --card-glow-opacity: 0.35;
+  --surface-2: rgba(255, 255, 255, 0.04);
+  --card-bg-secondary: #353B52;
+  --border-color: #4A5170;
+  --text-color: #D4D8E8;
+  --text-muted: #8A90A8;
+  --primary-color: #7B8FE0;
+}
+
+body[data-theme="dim"] .cf-page-bar {
+  background: rgba(45, 51, 72, 0.95);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  color: #D4D8E8;
+}
+
+body[data-theme="dim"] .cf-page-bar::after {
+  background: linear-gradient(90deg, transparent, rgba(123, 143, 224, 0.25), transparent);
+}
+
+body[data-theme="dim"] .cf-page-bar__subtitle {
+  color: rgba(212, 216, 232, 0.55);
+}
+
+body[data-theme="dim"] .cf-icon-btn {
+  color: #9AA0B8;
+  border-color: #4A5170;
+}
+
+body[data-theme="dim"] .cf-icon-btn:hover {
+  color: #7B8FE0;
+  background: rgba(123, 143, 224, 0.1);
+}
+
+body[data-theme="dim"] .cf-variant-btn {
+  background: rgba(255, 255, 255, 0.05);
+  color: #9AA0B8;
+  border-color: #4A5170;
+}
+
+body[data-theme="dim"] .cf-variant-btn.active {
+  background: #7B8FE0;
+  color: #ffffff;
+  border-color: #7B8FE0;
+}
+
+body[data-theme="dim"] .cf-rail {
+  background: #2D3348;
+  border-color: #4A5170;
+}
+
+body[data-theme="dim"] .step-btn {
+  color: #9AA0B8;
+}
+
+body[data-theme="dim"] .step-btn:hover {
+  color: #7B8FE0;
+  background: rgba(123, 143, 224, 0.08);
+}
+
+body[data-theme="dim"] .step-btn.active {
+  color: #7B8FE0;
+  background: rgba(123, 143, 224, 0.12);
+}
+
+body[data-theme="dim"] .right-column {
+  background: #2D3348;
+  border-color: #4A5170;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+body[data-theme="dim"] .card-preview-zone {
+  background: #2D3348;
+  border-color: #4A5170;
+}
+
+body[data-theme="dim"] #card-preview-container {
+  background: #2D3348;
+  border-color: #4A5170;
+}
+
+body[data-theme="dim"] .cf-section {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: #4A5170;
+}
+
+body[data-theme="dim"] .craft-row-header {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+body[data-theme="dim"] .craft-row-header:hover {
+  background: rgba(123, 143, 224, 0.06);
+}
+
+body[data-theme="dim"] input,
+body[data-theme="dim"] textarea,
+body[data-theme="dim"] select {
+  background: #353B52;
+  border-color: #4A5170;
+  color: #D4D8E8;
+}
+
+body[data-theme="dim"] input:focus,
+body[data-theme="dim"] textarea:focus,
+body[data-theme="dim"] select:focus {
+  border-color: #7B8FE0;
+  box-shadow: 0 0 0 2px rgba(123, 143, 224, 0.2);
+}
+
+body[data-theme="dim"] input::placeholder,
+body[data-theme="dim"] textarea::placeholder {
+  color: #6A7090;
+}
+
+body[data-theme="dim"] .tier-option {
+  background: #353B52;
+  border-color: #4A5170;
+  color: #9AA0B8;
+}
+
+body[data-theme="dim"] .tier-option:hover {
+  border-color: #7B8FE0;
+  background: rgba(123, 143, 224, 0.08);
+}
+
+body[data-theme="dim"] .tier-option.selected {
+  border-color: #7B8FE0;
+  background: rgba(123, 143, 224, 0.14);
+  color: #7B8FE0;
+}
+
+body[data-theme="dim"] .palette-family {
+  background: #353B52;
+  border-color: #4A5170;
+}
+
+body[data-theme="dim"] .palette-family.selected {
+  background: #7B8FE0;
+  color: #ffffff;
+  border-color: #7B8FE0;
+}
+
+body[data-theme="dim"] .palette-family.selected .palette-label {
+  color: #ffffff;
+}
+
+body[data-theme="dim"] .variant-toggle {
+  background: #353B52;
+}
+
+body[data-theme="dim"] .variant-toggle.selected {
+  background: rgba(123, 143, 224, 0.15);
+  border-color: #7B8FE0;
+}
+
+body[data-theme="dim"] .variant-toggle.selected .variant-label {
+  color: #7B8FE0;
+}
+
+body[data-theme="dim"] .tool-btn {
+  background: #353B52;
+  border-color: #4A5170;
+  color: #D4D8E8;
+}
+
+body[data-theme="dim"] .tool-btn:hover:not(:disabled) {
+  background: rgba(123, 143, 224, 0.1);
+  border-color: #7B8FE0;
+}
+
+body[data-theme="dim"] .tool-btn i {
+  color: #7B8FE0;
+}
+
+body[data-theme="dim"] .preset-card {
+  background: #353B52;
+  border-color: #4A5170;
+  color: #D4D8E8;
+}
+
+body[data-theme="dim"] .preset-card:hover {
+  border-color: #7B8FE0;
+  background: rgba(123, 143, 224, 0.08);
+}
+
+body[data-theme="dim"] .forge-sidebar-nav {
+  background: #2D3348;
+  border-color: #4A5170;
+}
+
+body[data-theme="dim"] .forge-sidebar-tab {
+  color: #9AA0B8;
+}
+
+body[data-theme="dim"] .forge-sidebar-tab.active,
+body[data-theme="dim"] .forge-sidebar-tab[aria-selected="true"] {
+  background: rgba(123, 143, 224, 0.1);
+  color: #7B8FE0;
+}
+
+body[data-theme="dim"] .forge-content-area {
+  background: #353B52;
+  border-color: #4A5170;
+}
+
+body[data-theme="dim"] .search-input-group input {
+  background: #353B52;
+  border-color: #4A5170;
+  color: #D4D8E8;
+}
+
+body[data-theme="dim"] .search-input-group i {
+  color: #6A7090;
+}
+
+/* ================================
    LIGHT THEME OVERRIDES
    ================================
    Warm-gray palette — not pure white.

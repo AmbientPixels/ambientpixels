@@ -1643,6 +1643,10 @@ body.cf-ui--clean .cf-section-icon .cf-icon-chip {
   background: #1a1a1a;
 }
 
+.dim-preview {
+  background: #2D3348;
+}
+
 .light-preview {
   background: #ffffff;
 }

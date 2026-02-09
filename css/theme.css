@@ -48,6 +48,47 @@ body[data-theme="dark"] .footer {
     background: rgba(7, 16, 25, 0.95);
     box-shadow: 0 -2px 6px var(--dark-shadow);
 }
+/* Dim theme — mid-tone between dark and light */
+body[data-theme="dim"] {
+    --dim-bg: #232840;
+    --dim-text: #D4D8E8;
+    --dim-accent: #7B8FE0;
+    --dim-shadow: rgba(0, 0, 0, 0.2);
+    background: var(--dim-bg);
+    color: var(--dim-text);
+}
+body[data-theme="dim"] .nav {
+    background: rgba(35, 40, 64, 0.95);
+    box-shadow: 0 2px 6px var(--dim-shadow);
+}
+body[data-theme="dim"] .nav-toggle,
+body[data-theme="dim"] .nav-links a,
+body[data-theme="dim"] #theme-toggle {
+    color: var(--dim-text);
+}
+body[data-theme="dim"] .nav-links.active {
+    background: rgba(35, 40, 64, 0.95);
+    box-shadow: 0 2px 6px var(--dim-shadow);
+}
+body[data-theme="dim"] .hero-loading {
+    background: rgba(35, 40, 64, 0.9);
+}
+body[data-theme="dim"] .hero h1,
+body[data-theme="dim"] .hero p {
+    color: var(--dim-text);
+    text-shadow: 0 1px 3px var(--dim-shadow);
+}
+body[data-theme="dim"] .toggle-btn {
+    border-color: var(--dim-accent);
+}
+body[data-theme="dim"] .mini-hero {
+    background: rgba(45, 51, 72, 0.9);
+    box-shadow: 0 2px 6px var(--dim-shadow);
+}
+body[data-theme="dim"] .footer {
+    background: rgba(35, 40, 64, 0.95);
+    box-shadow: 0 -2px 6px var(--dim-shadow);
+}
 body[data-theme="light"] {
     background: var(--light-bg);
     color: var(--light-text);

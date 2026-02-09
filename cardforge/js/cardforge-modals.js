@@ -252,6 +252,17 @@ function createThemesTabContent() {
           <p>Perfect for late-night sessions</p>
         </div>
         
+        <div class="theme-option" data-theme="dim">
+          <div class="theme-preview dim-preview">
+            <div class="preview-header"></div>
+            <div class="preview-content">
+              <div class="preview-card"></div>
+            </div>
+          </div>
+          <h5>Dim Theme</h5>
+          <p>Balanced mid-tone</p>
+        </div>
+        
         <div class="theme-option" data-theme="light">
           <div class="theme-preview light-preview">
             <div class="preview-header"></div>
