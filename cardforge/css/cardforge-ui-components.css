@@ -1722,6 +1722,72 @@ body.cf-ui--clean .cf-section-icon .cf-icon-chip {
   min-width: 120px;
 }
 
+/* Labs Section */
+.labs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.labs-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--card-bg-secondary, #252525);
+  border: 1px solid var(--border-color, #333);
+  border-radius: 8px;
+  opacity: 0.65;
+  pointer-events: none;
+  user-select: none;
+}
+
+.labs-item-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--text-muted, #a1a1aa);
+}
+
+.labs-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.labs-item-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.labs-item-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-color, #e5e5e5);
+}
+
+.labs-pill {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--primary-color, #6366f1);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.labs-item-content p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-muted, #a1a1aa);
+  line-height: 1.4;
+}
+
 /* About Section */
 .about-info {
   display: flex;

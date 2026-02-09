@@ -199,23 +199,28 @@ function openSettings() {
   const tabs = [
     {
       title: 'Themes',
-      icon: '🎨',
+      icon: '<i class="fas fa-palette"></i>',
       content: createThemesTabContent()
     },
     {
       title: 'Preferences',
-      icon: '⚙️',
+      icon: '<i class="fas fa-cog"></i>',
       content: createPreferencesTabContent()
     },
     {
+      title: 'Labs',
+      icon: '<i class="fas fa-flask"></i>',
+      content: createLabsTabContent()
+    },
+    {
       title: 'About',
-      icon: 'ℹ️',
+      icon: '<i class="fas fa-info-circle"></i>',
       content: createAboutTabContent()
     }
   ];
 
   const settingsModal = Modal.createTabbedModal({
-    title: '⚙️ CardForge Settings',
+    title: 'CardForge Settings',
     size: 'large',
     tabs: tabs,
     activeTab: 0
@@ -232,7 +237,7 @@ function openSettings() {
 function createThemesTabContent() {
   return `
     <div class="settings-section">
-      <h4>🎨 Theme Selection</h4>
+      <h4><i class="fas fa-palette"></i> Theme Selection</h4>
       <p>Choose your preferred theme for CardForge.</p>
       
       <div class="theme-options">
@@ -265,7 +270,7 @@ function createThemesTabContent() {
 function createPreferencesTabContent() {
   return `
     <div class="settings-section">
-      <h4>⚙️ General Preferences</h4>
+      <h4><i class="fas fa-cog"></i> General Preferences</h4>
       
       <div class="preference-group">
         <h5>Startup Behavior</h5>
@@ -280,45 +285,72 @@ function createPreferencesTabContent() {
           </button>
         </div>
       </div>
-      
-      <div class="preference-group">
-        <h5>Editor Behavior</h5>
-        <label class="preference-item">
-          <input type="checkbox" id="auto-save-enabled" />
-          <span class="checkmark"></span>
-          Enable auto-save (saves every 30 seconds)
-        </label>
-        <label class="preference-item">
-          <input type="checkbox" id="real-time-preview" checked />
-          <span class="checkmark"></span>
-          Real-time preview updates
-        </label>
-        <label class="preference-item">
-          <input type="checkbox" id="show-grid-lines" />
-          <span class="checkmark"></span>
-          Show alignment grid lines
-        </label>
+
+      <div class="preference-group preference-coming-soon">
+        <p style="margin: 16px 0 4px 0; font-size: 0.85rem; color: var(--text-muted, #a1a1aa);"><i class="fas fa-flask" style="margin-right: 6px;"></i>More settings coming soon</p>
+        <p style="margin: 0; font-size: 0.8rem; opacity: 0.6;">Additional editor and workflow controls are currently in development.</p>
       </div>
-      
-      <div class="preference-group">
-        <h5>Export Settings</h5>
-        <label class="preference-item">
-          <span class="preference-label">Default export format:</span>
-          <select id="default-export-format">
-            <option value="png">PNG (Recommended)</option>
-            <option value="jpg">JPEG</option>
-            <option value="svg">SVG</option>
-            <option value="pdf">PDF</option>
-          </select>
-        </label>
-        <label class="preference-item">
-          <span class="preference-label">Export quality:</span>
-          <select id="export-quality">
-            <option value="high">High (300 DPI)</option>
-            <option value="medium" selected>Medium (150 DPI)</option>
-            <option value="low">Low (72 DPI)</option>
-          </select>
-        </label>
+    </div>
+  `;
+}
+
+function createLabsTabContent() {
+  return `
+    <div class="settings-section">
+      <h4><i class="fas fa-flask"></i> Labs (Coming Soon)</h4>
+      <p style="margin: 0 0 8px 0; opacity: 0.7;">Experimental features and advanced tools currently in development.</p>
+      <p style="margin: 0 0 20px 0; opacity: 0.5; font-size: 0.85rem;">These features are not enabled yet.</p>
+
+      <div class="labs-list">
+        <div class="labs-item">
+          <div class="labs-item-icon"><i class="fas fa-image"></i></div>
+          <div class="labs-item-content">
+            <div class="labs-item-header"><span class="labs-item-title">AI Image Generation</span><span class="labs-pill">Coming Soon</span></div>
+            <p>Generate original character, item, or scene artwork directly inside CardForge using AI prompts.</p>
+          </div>
+        </div>
+        <div class="labs-item">
+          <div class="labs-item-icon"><i class="fas fa-robot"></i></div>
+          <div class="labs-item-content">
+            <div class="labs-item-header"><span class="labs-item-title">AI Assist (Experimental)</span><span class="labs-pill">Coming Soon</span></div>
+            <p>Get help generating card names, flavor text, archetypes, and stat suggestions.</p>
+          </div>
+        </div>
+        <div class="labs-item">
+          <div class="labs-item-icon"><i class="fas fa-sliders"></i></div>
+          <div class="labs-item-content">
+            <div class="labs-item-header"><span class="labs-item-title">Image Filters & Effects</span><span class="labs-pill">Coming Soon</span></div>
+            <p>Apply cinematic filters, color grading, and stylistic effects directly to card artwork.</p>
+          </div>
+        </div>
+        <div class="labs-item">
+          <div class="labs-item-icon"><i class="fas fa-border-all"></i></div>
+          <div class="labs-item-content">
+            <div class="labs-item-header"><span class="labs-item-title">Design Grid Overlay</span><span class="labs-pill">Coming Soon</span></div>
+            <p>Optional alignment and spacing guides for precision layouts.</p>
+          </div>
+        </div>
+        <div class="labs-item">
+          <div class="labs-item-icon"><i class="fas fa-floppy-disk"></i></div>
+          <div class="labs-item-content">
+            <div class="labs-item-header"><span class="labs-item-title">Auto-Save Engine</span><span class="labs-pill">Coming Soon</span></div>
+            <p>Background saving with recovery and safety snapshots.</p>
+          </div>
+        </div>
+        <div class="labs-item">
+          <div class="labs-item-icon"><i class="fas fa-clock-rotate-left"></i></div>
+          <div class="labs-item-content">
+            <div class="labs-item-header"><span class="labs-item-title">Version History</span><span class="labs-pill">Coming Soon</span></div>
+            <p>Restore previous saved versions of a card.</p>
+          </div>
+        </div>
+        <div class="labs-item">
+          <div class="labs-item-icon"><i class="fas fa-file-export"></i></div>
+          <div class="labs-item-content">
+            <div class="labs-item-header"><span class="labs-item-title">Advanced Export Options</span><span class="labs-pill">Coming Soon</span></div>
+            <p>Print-ready PDFs, social formats, and layout presets.</p>
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -327,7 +359,7 @@ function createPreferencesTabContent() {
 function createAboutTabContent() {
   return `
     <div class="settings-section">
-      <h4>ℹ️ About CardForge</h4>
+      <h4><i class="fas fa-info-circle"></i> About CardForge</h4>
       
       <div class="about-info">
         <div class="about-logo">
@@ -705,58 +737,6 @@ function initializePreferences() {
     introCheckbox.checked = showIntro === null || showIntro === 'true';
     introCheckbox.addEventListener('change', (e) => {
       localStorage.setItem('cardforge-show-intro', e.target.checked ? 'true' : 'false');
-    });
-  }
-
-  // Auto-save setting
-  const autoSaveCheckbox = document.getElementById('auto-save-enabled');
-  if (autoSaveCheckbox) {
-    const autoSaveEnabled = localStorage.getItem('cardforge-auto-save') === 'true';
-    autoSaveCheckbox.checked = autoSaveEnabled;
-    autoSaveCheckbox.addEventListener('change', (e) => {
-      localStorage.setItem('cardforge-auto-save', e.target.checked);
-    });
-  }
-
-  // Real-time preview setting
-  const previewCheckbox = document.getElementById('real-time-preview');
-  if (previewCheckbox) {
-    const previewEnabled = localStorage.getItem('cardforge-real-time-preview') !== 'false';
-    previewCheckbox.checked = previewEnabled;
-    previewCheckbox.addEventListener('change', (e) => {
-      localStorage.setItem('cardforge-real-time-preview', e.target.checked);
-    });
-  }
-
-  // Grid lines setting
-  const gridCheckbox = document.getElementById('show-grid-lines');
-  if (gridCheckbox) {
-    const gridEnabled = localStorage.getItem('cardforge-show-grid') === 'true';
-    gridCheckbox.checked = gridEnabled;
-    gridCheckbox.addEventListener('change', (e) => {
-      localStorage.setItem('cardforge-show-grid', e.target.checked);
-      // Apply grid visibility immediately
-      document.body.classList.toggle('show-grid', e.target.checked);
-    });
-  }
-
-  // Export format setting
-  const formatSelect = document.getElementById('default-export-format');
-  if (formatSelect) {
-    const exportFormat = localStorage.getItem('cardforge-export-format') || 'png';
-    formatSelect.value = exportFormat;
-    formatSelect.addEventListener('change', (e) => {
-      localStorage.setItem('cardforge-export-format', e.target.value);
-    });
-  }
-
-  // Export quality setting
-  const qualitySelect = document.getElementById('export-quality');
-  if (qualitySelect) {
-    const exportQuality = localStorage.getItem('cardforge-export-quality') || 'medium';
-    qualitySelect.value = exportQuality;
-    qualitySelect.addEventListener('change', (e) => {
-      localStorage.setItem('cardforge-export-quality', e.target.value);
     });
   }
 }
