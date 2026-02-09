@@ -826,6 +826,131 @@
   color: var(--card-text-primary);
 }
 
+/* Corporate Palette */
+.card-preview-canvas.palette-corporate.variant-light {
+  --card-bg-primary: #f4f6f8;
+  --card-bg-secondary: #e2e8f0;
+  --card-text-primary: #1e293b;
+  --card-text-secondary: #2563eb;
+  --card-accent: #2563eb;
+  --card-border: #cbd5e1;
+  background: linear-gradient(135deg, var(--card-bg-primary) 0%, var(--card-bg-secondary) 100%);
+  border: 1px solid var(--card-accent);
+  color: var(--card-text-primary);
+}
+
+.card-preview-canvas.palette-corporate.variant-dark {
+  --card-bg-primary: #0f172a;
+  --card-bg-secondary: #1e293b;
+  --card-text-primary: #e2e8f0;
+  --card-text-secondary: #3b82f6;
+  --card-accent: #3b82f6;
+  --card-border: #334155;
+  background: linear-gradient(135deg, var(--card-bg-primary) 0%, var(--card-bg-secondary) 100%);
+  border: 1px solid var(--card-accent);
+  color: var(--card-text-primary);
+}
+
+/* Royal Palette */
+.card-preview-canvas.palette-royal.variant-light {
+  --card-bg-primary: #2a1836;
+  --card-bg-secondary: #3a2846;
+  --card-text-primary: #f5e6d3;
+  --card-text-secondary: #c8a951;
+  --card-accent: #c8a951;
+  --card-border: #5a3d6a;
+  background: linear-gradient(135deg, var(--card-bg-primary) 0%, var(--card-bg-secondary) 100%);
+  border: 1px solid var(--card-accent);
+  color: var(--card-text-primary);
+}
+
+.card-preview-canvas.palette-royal.variant-dark {
+  --card-bg-primary: #140a1c;
+  --card-bg-secondary: #2a1836;
+  --card-text-primary: #c8a951;
+  --card-text-secondary: #f5e6d3;
+  --card-accent: #9b7c2f;
+  --card-border: #c8a951;
+  background: linear-gradient(135deg, var(--card-bg-primary) 0%, var(--card-bg-secondary) 100%);
+  border: 1px solid var(--card-accent);
+  color: var(--card-text-primary);
+}
+
+/* Inferno Palette */
+.card-preview-canvas.palette-inferno.variant-light {
+  --card-bg-primary: #2a0f0f;
+  --card-bg-secondary: #3a1f1f;
+  --card-text-primary: #ffe0dc;
+  --card-text-secondary: #ff3b30;
+  --card-accent: #ff3b30;
+  --card-border: #8b2020;
+  background: linear-gradient(135deg, var(--card-bg-primary) 0%, var(--card-bg-secondary) 100%);
+  border: 1px solid var(--card-accent);
+  color: var(--card-text-primary);
+}
+
+.card-preview-canvas.palette-inferno.variant-dark {
+  --card-bg-primary: #120707;
+  --card-bg-secondary: #2a0f0f;
+  --card-text-primary: #ff6b5c;
+  --card-text-secondary: #ffe0dc;
+  --card-accent: #ff6b5c;
+  --card-border: #ff3b30;
+  background: linear-gradient(135deg, var(--card-bg-primary) 0%, var(--card-bg-secondary) 100%);
+  border: 1px solid var(--card-accent);
+  color: var(--card-text-primary);
+}
+
+/* Frost Palette */
+.card-preview-canvas.palette-frost.variant-light {
+  --card-bg-primary: #0f1e2a;
+  --card-bg-secondary: #1a2d3d;
+  --card-text-primary: #e0f2fe;
+  --card-text-secondary: #7dd3fc;
+  --card-accent: #7dd3fc;
+  --card-border: #1e4a6a;
+  background: linear-gradient(135deg, var(--card-bg-primary) 0%, var(--card-bg-secondary) 100%);
+  border: 1px solid var(--card-accent);
+  color: var(--card-text-primary);
+}
+
+.card-preview-canvas.palette-frost.variant-dark {
+  --card-bg-primary: #07131c;
+  --card-bg-secondary: #0f1e2a;
+  --card-text-primary: #38bdf8;
+  --card-text-secondary: #e0f2fe;
+  --card-accent: #38bdf8;
+  --card-border: #7dd3fc;
+  background: linear-gradient(135deg, var(--card-bg-primary) 0%, var(--card-bg-secondary) 100%);
+  border: 1px solid var(--card-accent);
+  color: var(--card-text-primary);
+}
+
+/* Arcane Palette */
+.card-preview-canvas.palette-arcane.variant-light {
+  --card-bg-primary: #1c1430;
+  --card-bg-secondary: #2c2440;
+  --card-text-primary: #ede9fe;
+  --card-text-secondary: #a78bfa;
+  --card-accent: #a78bfa;
+  --card-border: #4c3d6a;
+  background: linear-gradient(135deg, var(--card-bg-primary) 0%, var(--card-bg-secondary) 100%);
+  border: 1px solid var(--card-accent);
+  color: var(--card-text-primary);
+}
+
+.card-preview-canvas.palette-arcane.variant-dark {
+  --card-bg-primary: #0f0a1a;
+  --card-bg-secondary: #1c1430;
+  --card-text-primary: #8b5cf6;
+  --card-text-secondary: #ede9fe;
+  --card-accent: #8b5cf6;
+  --card-border: #a78bfa;
+  background: linear-gradient(135deg, var(--card-bg-primary) 0%, var(--card-bg-secondary) 100%);
+  border: 1px solid var(--card-accent);
+  color: var(--card-text-primary);
+}
+
 /* Apply palette colors to card elements */
 .card-preview-canvas .card-name {
   color: var(--card-text-secondary, #00d4ff);

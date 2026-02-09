@@ -370,6 +370,26 @@
   background: linear-gradient(45deg, #333333, #666666, #999999);
 }
 
+.corporate-preview {
+  background: linear-gradient(45deg, #2563eb, #60a5fa, #f4f6f8);
+}
+
+.royal-preview {
+  background: linear-gradient(45deg, #2a1836, #c8a951, #9b7c2f);
+}
+
+.inferno-preview {
+  background: linear-gradient(45deg, #2a0f0f, #ff3b30, #ff6b5c);
+}
+
+.frost-preview {
+  background: linear-gradient(45deg, #0f1e2a, #7dd3fc, #38bdf8);
+}
+
+.arcane-preview {
+  background: linear-gradient(45deg, #1c1430, #a78bfa, #8b5cf6);
+}
+
 .palette-label {
   font-size: 12px;
   color: var(--mood-text-secondary, #cccccc);

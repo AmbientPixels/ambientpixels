@@ -1366,8 +1366,8 @@
       },
       
       // Tier 3: Color Palette
-      palettes: ['neon', 'earth', 'ocean', 'fire', 'cosmic'],
-      paletteVariants: ['light', 'dark', 'vibrant'],
+      palettes: ['neon', 'earth', 'ocean', 'sunset', 'monochrome', 'corporate', 'royal', 'inferno', 'frost', 'arcane'],
+      paletteVariants: ['light', 'dark'],
       
       // Tier 4: Content Alignment
       horizontalAlignments: ['left', 'center', 'right'],
