@@ -19,7 +19,8 @@ window._config = {
     deckLoad: 'cardforgedeckload',
     deckDelete: 'cardforgedeckdelete',
     template: 'cardforgetemplate',
-    cardShare: 'cardshare'
+    cardShare: 'cardshare',
+    deckShare: 'deckshare'
   },
   
   // Application Insights - Disabled in production until 400 errors are resolved

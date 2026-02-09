@@ -1378,7 +1378,7 @@ const resp = await fetch(loadUrl, {
       totalCards = cards.length;
       const tags = (deck.tags || []).map(t => '<span class="gallery-deck-tag">' + t + '</span>').join('');
       const hasImage = deck.deckImage && deck.deckImage.trim();
-      const shareUrl = window.location.origin + '/cardforge/deck.html?deck=' + shareId;
+      const shareUrl = window.buildApiPath('deckShare', { deck: shareId });
 
       // Admin/owner check
       const modalUserId = (() => {
@@ -2021,7 +2021,7 @@ CardForgeActions.prototype.publishDeck = function(deckId) {
 
       const result = await response.json();
       const shareId = result.shareId;
-      const shareUrl = window.location.origin + '/cardforge/deck.html?deck=' + shareId;
+      const shareUrl = window.buildApiPath('deckShare', { deck: shareId });
 
       // Store shareId on the deck for republish stability
       deck.shareId = shareId;
