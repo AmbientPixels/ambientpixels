@@ -340,210 +340,231 @@
 }
 
 /* =========================== */
-/* LEVEL 3: STYLE VARIANTS */
+/* LEVEL 3: STYLE VARIANTS    */
+/* (Density Profiles)          */
 /* =========================== */
+/* Variants NEVER change the outer card size.
+   They only control internal spacing, typography, and density
+   via CSS custom properties consumed by .card-body and children.
+   All content must stay within the fixed card bounds. */
 
-/* --- NONE STYLE --- */
-.card-preview-canvas.align-style-none {
-  padding-inline: 0;
-  padding-block: 0;
+/* ---- Base density tokens (defaults — overridden per variant) ---- */
+.card-preview-canvas {
+  --cf-pad-x: 0.75rem;
+  --cf-pad-y: 0.5rem;
+  --cf-gap: 0.4rem;
+  --cf-title-size: 1.25rem;
+  --cf-body-size: 0.85rem;
+  --cf-meta-size: 0.75rem;
+  --cf-line-height: 1.3;
+  --cf-stat-bar-h: 6px;
+  --cf-stat-font: 0.7rem;
+  --cf-quote-pad-y: 0.35rem;
+  --cf-quote-pad-x: 0.6rem;
+  --cf-quote-margin: 0.35rem;
+  --cf-stats-pad: 0.35rem;
 }
 
-.card-preview-canvas.align-style-none .card-content {
-  padding: 0;
-  gap: 0;
+/* ---- Safe .card-body layout (applies to ALL variants) ---- */
+.card-preview-canvas .card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cf-gap);
+  padding: var(--cf-pad-y) var(--cf-pad-x);
+  min-height: 0;
+  overflow: hidden;
+  line-height: var(--cf-line-height);
+  box-sizing: border-box;
+}
+
+/* Constrain children so they can shrink */
+.card-preview-canvas .card-body > * {
+  min-height: 0;
+  flex-shrink: 1;
+}
+
+/* Typography tokens applied to card elements */
+.card-preview-canvas .card-name {
+  font-size: var(--cf-title-size);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.card-preview-canvas .card-class {
+  font-size: var(--cf-meta-size);
+}
+
+.card-preview-canvas .card-quote {
+  font-size: var(--cf-body-size);
+  padding: var(--cf-quote-pad-y) var(--cf-quote-pad-x);
+  margin: var(--cf-quote-margin) 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.card-preview-canvas .card-stats {
+  padding: var(--cf-stats-pad);
+  flex-shrink: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.card-preview-canvas .stat-bar {
+  height: var(--cf-stat-bar-h);
+}
+
+.card-preview-canvas .stat-label,
+.card-preview-canvas .stat-name {
+  font-size: var(--cf-stat-font);
+}
+
+.card-preview-canvas .stat-value {
+  font-size: var(--cf-stat-font);
+}
+
+/* ---- Variant: NONE — baseline, clean, minimal decoration ---- */
+.card-preview-canvas.align-style-none {
+  --cf-pad-x: 0.5rem;
+  --cf-pad-y: 0.35rem;
+  --cf-gap: 0.3rem;
+  --cf-title-size: 1.2rem;
+  --cf-body-size: 0.8rem;
+  --cf-meta-size: 0.72rem;
+  --cf-line-height: 1.25;
+  --cf-quote-pad-y: 0.25rem;
+  --cf-quote-pad-x: 0.4rem;
+  --cf-quote-margin: 0.25rem;
+  --cf-stats-pad: 0.25rem;
 }
 
 .card-preview-canvas.align-style-none .card-quote {
-  margin: 0.5rem 0;
-  padding: 0;
   border: none;
   background: none;
 }
 
-/* --- PADDED STYLE (Default) --- */
+/* ---- Variant: PADDED — more breathing room ---- */
 .card-preview-canvas.align-style-padded {
-  padding-inline: 1.5rem;
-  padding-block: 1.5rem;
-}
-
-.card-preview-canvas.align-style-padded .card-content {
-  padding: 1rem;
-  gap: 1rem;
+  --cf-pad-x: 1rem;
+  --cf-pad-y: 0.75rem;
+  --cf-gap: 0.6rem;
+  --cf-title-size: 1.3rem;
+  --cf-body-size: 0.85rem;
+  --cf-meta-size: 0.78rem;
+  --cf-line-height: 1.35;
+  --cf-quote-pad-y: 0.5rem;
+  --cf-quote-pad-x: 0.75rem;
+  --cf-quote-margin: 0.5rem;
+  --cf-stats-pad: 0.6rem;
 }
 
 .card-preview-canvas.align-style-padded .card-quote {
-  padding: 0.75rem 1rem;
-  margin: 1rem 0;
   border-left: 3px solid var(--card-accent, #00d4ff);
   background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
 }
 
 .card-preview-canvas.align-style-padded .card-stats {
-  padding: 1rem;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 6px;
 }
 
-/* --- ULTRA-COMPACT STYLE --- */
-.card-preview-canvas.align-style-compact {
-  padding-inline: 0.25rem;
-  padding-block: 0.25rem;
-  line-height: 1.1;
-}
-
-.card-preview-canvas.align-style-compact .card-content {
-  padding: 0.125rem;
-  gap: 0.125rem;
-}
-
-.card-preview-canvas.align-style-compact .card-name {
-  font-size: 1rem !important;
-  margin-bottom: 0.125rem !important;
-  font-weight: 600 !important;
-}
-
-.card-preview-canvas.align-style-compact .card-class {
-  font-size: 0.7rem !important;
-  margin-bottom: 0.125rem !important;
-}
-
-.card-preview-canvas.align-style-compact .card-quote {
-  padding: 0.125rem 0.25rem !important;
-  margin: 0.125rem 0 !important;
-  font-size: 0.7rem !important;
-  border-left: 1px solid var(--card-accent, #00d4ff);
-  background: none;
-}
-
-.card-preview-canvas.align-style-compact .card-stats {
-  padding: 0.125rem !important;
-  font-size: 0.7rem !important;
-  background: none;
-}
-
-.card-preview-canvas.align-style-compact .stat-bar {
-  height: 4px !important;
-  margin: 0.125rem 0 !important;
-}
-
-.card-preview-canvas.align-style-compact .stat-name,
-.card-preview-canvas.align-style-compact .stat-value {
-  font-size: 0.65rem !important;
-}
-
-/* --- ELEGANT STYLE --- */
+/* ---- Variant: ELEGANT — premium typography + dividers ---- */
 .card-preview-canvas.align-style-elegant {
-  padding-inline: 2rem;
-  padding-block: 2rem;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-}
-
-.card-preview-canvas.align-style-elegant .card-content {
-  padding: 1.5rem;
-  gap: 1.5rem;
+  --cf-pad-x: 1.1rem;
+  --cf-pad-y: 0.75rem;
+  --cf-gap: 0.6rem;
+  --cf-title-size: 1.35rem;
+  --cf-body-size: 0.88rem;
+  --cf-meta-size: 0.8rem;
+  --cf-line-height: 1.35;
+  --cf-stat-bar-h: 7px;
+  --cf-stat-font: 0.72rem;
+  --cf-quote-pad-y: 0.5rem;
+  --cf-quote-pad-x: 0.85rem;
+  --cf-quote-margin: 0.5rem;
+  --cf-stats-pad: 0.65rem;
 }
 
 .card-preview-canvas.align-style-elegant .card-name {
-  font-size: 1.6rem !important;
-  margin-bottom: 0.75rem !important;
-  font-weight: 600 !important;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   letter-spacing: 0.5px;
+  font-weight: 600;
 }
 
 .card-preview-canvas.align-style-elegant .card-class {
-  font-size: 1rem !important;
-  margin-bottom: 1rem !important;
-  font-weight: 500 !important;
   text-transform: uppercase;
   letter-spacing: 1px;
   opacity: 0.9;
 }
 
 .card-preview-canvas.align-style-elegant .card-quote {
-  padding: 1rem 1.5rem !important;
-  margin: 1.5rem 0 !important;
-  font-size: 0.95rem !important;
   font-style: italic;
   border-left: 4px solid var(--card-accent, #00d4ff);
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 6px 6px 0;
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
   position: relative;
 }
 
 .card-preview-canvas.align-style-elegant .card-quote::before {
-  content: '"';
-  font-size: 2rem;
+  content: '\201C';
+  font-size: 1.6rem;
   color: var(--card-accent, #00d4ff);
   position: absolute;
-  top: -0.25rem;
-  left: 0.5rem;
+  top: -0.15rem;
+  left: 0.35rem;
   opacity: 0.3;
+  line-height: 1;
 }
 
 .card-preview-canvas.align-style-elegant .card-stats {
-  padding: 1.5rem !important;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .card-preview-canvas.align-style-elegant .stat-bar {
-  height: 8px !important;
-  margin: 0.75rem 0 !important;
   border-radius: 4px;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .card-preview-canvas.align-style-elegant .stat-name {
-  font-size: 0.9rem !important;
-  font-weight: 600 !important;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
 }
 
-.card-preview-canvas.align-style-elegant .stat-value {
-  font-size: 1rem !important;
-  font-weight: 700 !important;
-}
-
-/* --- NARROW STYLE --- */
+/* ---- Variant: NARROW — centered column, tighter width ---- */
 .card-preview-canvas.align-style-narrow {
-  padding-inline: 3rem;
-  padding-block: 1.5rem;
+  --cf-pad-x: 0.5rem;
+  --cf-pad-y: 0.5rem;
+  --cf-gap: 0.4rem;
+  --cf-title-size: 1.2rem;
+  --cf-body-size: 0.82rem;
+  --cf-meta-size: 0.74rem;
+  --cf-line-height: 1.3;
+  --cf-quote-pad-y: 0.4rem;
+  --cf-quote-pad-x: 0.6rem;
+  --cf-quote-margin: 0.35rem;
+  --cf-stats-pad: 0.4rem;
 }
 
-.card-preview-canvas.align-style-narrow .card-content {
-  padding: 1rem 2rem;
-  gap: 1rem;
-  max-width: 60%;
-  margin: 0 auto;
+.card-preview-canvas.align-style-narrow .card-body {
+  max-width: 85%;
+  margin-left: auto;
+  margin-right: auto;
   text-align: center;
 }
 
-.card-preview-canvas.align-style-narrow .card-name {
-  font-size: 1.4rem !important;
-  margin-bottom: 0.75rem !important;
-  line-height: 1.2 !important;
-}
-
-.card-preview-canvas.align-style-narrow .card-class {
-  font-size: 0.9rem !important;
-  margin-bottom: 0.75rem !important;
-}
-
 .card-preview-canvas.align-style-narrow .card-quote {
-  padding: 0.75rem 1rem !important;
-  margin: 1rem auto !important;
-  font-size: 0.85rem !important;
-  max-width: 80% !important;
   border-left: 3px solid var(--card-accent, #00d4ff);
   background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
@@ -551,21 +572,39 @@
 }
 
 .card-preview-canvas.align-style-narrow .card-stats {
-  padding: 1rem 1.5rem !important;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 6px;
-  max-width: 70%;
-  margin: 0 auto;
-}
-
-.card-preview-canvas.align-style-narrow .stat-bar {
-  margin: 0.5rem auto !important;
-  max-width: 80%;
 }
 
 .card-preview-canvas.align-style-narrow .stat-name,
 .card-preview-canvas.align-style-narrow .stat-value {
   text-align: center;
+}
+
+/* ---- Variant: ULTRA-COMPACT — maximum density ---- */
+.card-preview-canvas.align-style-compact {
+  --cf-pad-x: 0.25rem;
+  --cf-pad-y: 0.15rem;
+  --cf-gap: 0.15rem;
+  --cf-title-size: 1rem;
+  --cf-body-size: 0.7rem;
+  --cf-meta-size: 0.65rem;
+  --cf-line-height: 1.1;
+  --cf-stat-bar-h: 4px;
+  --cf-stat-font: 0.6rem;
+  --cf-quote-pad-y: 0.1rem;
+  --cf-quote-pad-x: 0.2rem;
+  --cf-quote-margin: 0.1rem;
+  --cf-stats-pad: 0.15rem;
+}
+
+.card-preview-canvas.align-style-compact .card-name {
+  font-weight: 600;
+}
+
+.card-preview-canvas.align-style-compact .card-quote {
+  border-left: 1px solid var(--card-accent, #00d4ff);
+  background: none;
 }
 
 /* =========================== */
@@ -1150,7 +1189,7 @@
 }
 
 .card-preview-canvas.container-hero .card-body {
-  padding: 1rem;
+  padding: var(--cf-pad-y) var(--cf-pad-x);
 }
 
 /* Hero Large Variant - adjust container padding for larger image (FRONT ONLY) */
@@ -1219,21 +1258,7 @@
     height: 80px;
   }
   
-  /* Adjust alignment styles for mobile — use longhands to avoid overriding container padding-top */
-  .card-preview-canvas.align-style-padded {
-    padding-inline: 1rem;
-    padding-block: 1rem;
-  }
-  
-  .card-preview-canvas.align-style-minimal {
-    padding-inline: 0.5rem;
-    padding-block: 0.5rem;
-  }
-  
-  .card-preview-canvas.align-style-compact {
-    padding-inline: 0.25rem;
-    padding-block: 0.25rem;
-  }
+  /* Density tokens scale down automatically — no canvas-level padding needed */
 }
 
 /* ===== IMAGE EFFECTS SYSTEM ===== */
