@@ -905,6 +905,13 @@
 
 /* ===== TIER 5: IMAGE CONTAINER STYLES ===== */
 
+/* Top breathing room for thumbnail-style containers */
+.card-preview-canvas.container-masked,
+.card-preview-canvas.container-framed,
+.card-preview-canvas.container-raw {
+  padding-top: 1rem;
+}
+
 /* Masked Container - Bigger Size */
 .card-preview-canvas.container-masked .card-avatar {
   width: 120px !important;
