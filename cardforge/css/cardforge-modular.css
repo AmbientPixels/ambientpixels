@@ -1369,6 +1369,62 @@
   border-radius: 1px;
 }
 
+/* Bold Style */
+.bold-style-preview::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 22px;
+  height: 10px;
+  background: var(--aura-accent-color, #00d4ff);
+  border-radius: 2px;
+  border: 2px solid var(--aura-accent-color, #00d4ff);
+}
+
+/* Cinematic Style */
+.cinematic-style-preview::before,
+.cinematic-style-preview::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  height: 2px;
+  background: var(--aura-accent-color, #00d4ff);
+}
+
+.cinematic-style-preview::before { top: 3px; }
+.cinematic-style-preview::after { bottom: 3px; }
+
+/* Editorial Style */
+.editorial-style-preview::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 18px;
+  height: 0;
+  border-top: 1px solid var(--aura-accent-color, #00d4ff);
+  border-bottom: 1px solid var(--aura-accent-color, #00d4ff);
+  padding: 3px 0;
+}
+
+/* Stacked Style */
+.stacked-style-preview::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 6px;
+  right: 6px;
+  height: 0;
+  border-top: 2px solid var(--aura-accent-color, #00d4ff);
+  border-bottom: 2px solid var(--aura-accent-color, #00d4ff);
+  padding: 4px 0;
+  box-shadow: 0 6px 0 0 var(--aura-accent-color, #00d4ff);
+}
+
 /* ===== RESPONSIVE DESIGN ===== */
 
 @media (max-width: 768px) {

@@ -1372,7 +1372,7 @@
       // Tier 4: Content Alignment
       horizontalAlignments: ['left', 'center', 'right'],
       verticalAlignments: ['middle', 'bottom'], // Exclude 'top' from random rolls
-      alignmentStyles: ['none', 'padded', 'compact', 'elegant', 'narrow']
+      alignmentStyles: ['none', 'padded', 'compact', 'elegant', 'narrow', 'bold', 'cinematic', 'editorial', 'stacked']
     };
     
     // Generate random selections
