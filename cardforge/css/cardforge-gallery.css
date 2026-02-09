@@ -771,27 +771,41 @@
   transition: transform 0.35s ease;
 }
 
+/* Card slot — fixed width matching the editor preview */
 .deck-viewer-card {
   flex-shrink: 0;
   width: var(--card-width, 400px);
+  position: relative;
 }
 
-.deck-viewer-card .card-preview-canvas {
+/* Outer canvas wrapper — fixed height, perspective */
+.deck-viewer-card > .card-preview-canvas {
+  perspective: 1000px;
   height: var(--card-height, 560px);
+  max-height: var(--card-height, 560px);
+  min-height: var(--card-height, 560px);
   overflow: hidden;
 }
 
+/* Card inner — grid stacking for flip */
 .deck-viewer-card .card-inner {
   display: grid;
   width: 100%;
+  transition: transform 0.6s;
   transform-style: preserve-3d;
 }
 
+.deck-viewer-card .card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+/* Faces — stacked via grid, backface hidden */
 .deck-viewer-card .card-front,
 .deck-viewer-card .card-back {
   grid-area: 1 / 1 / 2 / 2;
   width: 100%;
   backface-visibility: hidden;
+  transform-origin: center center;
   height: var(--card-height, 560px);
   overflow: hidden;
   box-sizing: border-box;
@@ -799,6 +813,64 @@
 
 .deck-viewer-card .card-back {
   transform: rotateY(180deg);
+}
+
+/* Override base .card-preview-canvas height:auto + min-height:fit-content on faces */
+.deck-viewer-card .card-preview-canvas.card-front,
+.deck-viewer-card .card-preview-canvas.card-back {
+  height: var(--card-height, 560px);
+  min-height: var(--card-height, 560px);
+  max-height: var(--card-height, 560px);
+}
+
+/* Back-face inner wrappers must fill the face height */
+.deck-viewer-card .card-back .card-back-content {
+  height: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.deck-viewer-card .card-back .back-body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Suppress glow pseudo-element inside deck viewer cards */
+.deck-viewer-card .card-preview-canvas::before {
+  display: none !important;
+}
+
+/* Flip button — positioned on each card */
+.deck-viewer-card-flip {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 5;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 0.7rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.12s ease;
+  backdrop-filter: blur(4px);
+}
+
+.deck-viewer-card:hover .deck-viewer-card-flip {
+  opacity: 1;
+}
+
+.deck-viewer-card-flip:hover {
+  background: rgba(0, 212, 255, 0.25);
+  border-color: rgba(0, 212, 255, 0.4);
+  color: #00d4ff;
 }
 
 /* Fallback card (image only) */
@@ -876,40 +948,36 @@
 
 /* Responsive */
 @media (max-width: 1300px) {
-  .deck-viewer-card {
-    width: 320px;
-  }
-  .deck-viewer-card .card-preview-canvas,
+  .deck-viewer-card { width: 320px; }
+  .deck-viewer-card > .card-preview-canvas,
   .deck-viewer-card .card-front,
-  .deck-viewer-card .card-back {
-    height: 448px;
+  .deck-viewer-card .card-back,
+  .deck-viewer-card .card-preview-canvas.card-front,
+  .deck-viewer-card .card-preview-canvas.card-back {
+    height: 448px; min-height: 448px; max-height: 448px;
   }
 }
 
 @media (max-width: 1050px) {
-  .deck-viewer-card {
-    width: 260px;
-  }
-  .deck-viewer-card .card-preview-canvas,
+  .deck-viewer-card { width: 260px; }
+  .deck-viewer-card > .card-preview-canvas,
   .deck-viewer-card .card-front,
-  .deck-viewer-card .card-back {
-    height: 364px;
+  .deck-viewer-card .card-back,
+  .deck-viewer-card .card-preview-canvas.card-front,
+  .deck-viewer-card .card-preview-canvas.card-back {
+    height: 364px; min-height: 364px; max-height: 364px;
   }
 }
 
 @media (max-width: 600px) {
-  .gallery-decks-grid {
-    grid-template-columns: 1fr;
-  }
-  .deck-viewer-inner {
-    padding: 1rem;
-  }
-  .deck-viewer-card {
-    width: 240px;
-  }
-  .deck-viewer-card .card-preview-canvas,
+  .gallery-decks-grid { grid-template-columns: 1fr; }
+  .deck-viewer-inner { padding: 1rem; }
+  .deck-viewer-card { width: 240px; }
+  .deck-viewer-card > .card-preview-canvas,
   .deck-viewer-card .card-front,
-  .deck-viewer-card .card-back {
-    height: 336px;
+  .deck-viewer-card .card-back,
+  .deck-viewer-card .card-preview-canvas.card-front,
+  .deck-viewer-card .card-preview-canvas.card-back {
+    height: 336px; min-height: 336px; max-height: 336px;
   }
 }

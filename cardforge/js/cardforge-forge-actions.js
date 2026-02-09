@@ -1459,16 +1459,18 @@ const resp = await fetch(loadUrl, {
       // Render each card using the SAME structure as the lightbox
       const cardsTrackHTML = enrichedCards.map(c => {
         let cardInner = '';
+        let flipBtn = '';
         if (c.renderedFront && c.frontClasses) {
           const frontCls = c.frontClasses;
           const backCls = c.backClasses || c.frontClasses;
           cardInner =
-            '<div class="card-preview-canvas" style="perspective:1000px;">' +
+            '<div class="card-preview-canvas">' +
               '<div class="card-inner">' +
                 '<div class="' + frontCls + '">' + c.renderedFront + '</div>' +
                 '<div class="' + backCls + '">' + (c.renderedBack || '') + '</div>' +
               '</div>' +
             '</div>';
+          flipBtn = '<button class="deck-viewer-card-flip" title="Flip Card"><i class="fas fa-sync-alt"></i></button>';
         } else {
           const img = c.preview || c.avatar || fallbackSvg;
           cardInner =
@@ -1476,7 +1478,7 @@ const resp = await fetch(loadUrl, {
               '<img src="' + img + '" alt="' + (c.name || '') + '" onerror="this.src=\'' + fallbackSvg + '\'" />' +
             '</div>';
         }
-        return '<div class="deck-viewer-card">' + cardInner +
+        return '<div class="deck-viewer-card">' + flipBtn + cardInner +
           '<div class="deck-viewer-card-label">' + (c.name || 'Untitled') + '</div></div>';
       }).join('');
 
@@ -1535,6 +1537,16 @@ const resp = await fetch(loadUrl, {
 
       const deleteBtn = overlay.querySelector('#dv-delete-deck');
       if (deleteBtn) deleteBtn.addEventListener('click', () => { closeDeckViewer(); this.removeGalleryDeck(shareId); });
+
+      // Bind flip buttons on each card
+      overlay.querySelectorAll('.deck-viewer-card-flip').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const card = btn.closest('.deck-viewer-card');
+          const inner = card && card.querySelector('.card-inner');
+          if (inner) inner.classList.toggle('flipped');
+        });
+      });
 
     } catch (e) {
       console.error('[CardForge] Deck modal load error:', e);
