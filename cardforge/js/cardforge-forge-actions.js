@@ -1878,10 +1878,10 @@ CardForgeActions.prototype.renderDeckDetail = function(deckId) {
         <span class="deck-detail-count">${count} card${count !== 1 ? 's' : ''}</span>
       </div>
       <div class="deck-detail-actions">
-        <button type="button" class="deck-publish-btn" title="${count === 0 ? 'Add cards to publish' : 'Publish Deck'}"
-                ${count === 0 ? 'disabled aria-disabled="true"' : ''}
+        <button type="button" class="deck-publish-btn" title="${count === 0 ? 'Add cards to publish' : deck.shareId ? 'Already published' : 'Publish Deck'}"
+                ${count === 0 || deck.shareId ? 'disabled aria-disabled="true"' : ''}
                 onclick="cardForgeActions.publishDeck('${deckId}')">
-          <i class="fas fa-share-from-square"></i> Publish
+          <i class="fas fa-${deck.shareId ? 'check-circle' : 'share-from-square'}"></i> ${deck.shareId ? 'Published' : 'Publish'}
         </button>
         <button type="button" class="deck-item-btn" title="Rename Deck"
                 onclick="cardForgeActions.renameDeck('${deckId}')">
