@@ -32,20 +32,22 @@ function hideIntro() {
   }
 }
 
-function toggleIntroVisibility() {
+function toggleIntroVisibility(e) {
   const currentSetting = localStorage.getItem('cardforge-show-intro');
   const newSetting = currentSetting === 'false' ? 'true' : 'false';
   
   localStorage.setItem('cardforge-show-intro', newSetting);
   
   // Update button text to reflect current state
-  const button = event.target;
-  if (newSetting === 'true') {
-    button.textContent = 'Hide on startup';
-    button.title = 'Intro will show on next visit';
-  } else {
-    button.textContent = 'Show on startup';
-    button.title = 'Intro will be hidden on next visit';
+  const button = e && e.target ? e.target : null;
+  if (button) {
+    if (newSetting === 'true') {
+      button.textContent = 'Hide on startup';
+      button.title = 'Intro will show on next visit';
+    } else {
+      button.textContent = 'Show on startup';
+      button.title = 'Intro will be hidden on next visit';
+    }
   }
 }
 

@@ -1412,7 +1412,7 @@ body.cf-ui--clean .cf-section-icon .cf-icon-chip {
   gap: 8px;
 }
 
-.settings-btn {
+.header-buttons .settings-btn {
   width: 36px;
   height: 36px;
   background: var(--card-bg-secondary, #252525);
@@ -1427,7 +1427,7 @@ body.cf-ui--clean .cf-section-icon .cf-icon-chip {
   transition: all 0.2s ease;
 }
 
-.settings-btn:hover {
+.header-buttons .settings-btn:hover {
   background: var(--primary-color, #6366f1);
   border-color: var(--primary-color, #6366f1);
   color: white;
@@ -1435,7 +1435,7 @@ body.cf-ui--clean .cf-section-icon .cf-icon-chip {
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
-.settings-btn:active {
+.header-buttons .settings-btn:active {
   transform: translateY(0);
 }
 
