@@ -2193,12 +2193,14 @@ body.cf-ui--clean .cf-section-icon .cf-icon-chip {
 }
 
 .lightbox-btn.close-btn {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  width: 36px;
+  height: 36px;
 }
 
 .lightbox-btn.close-btn:hover {
-  background: rgba(239, 68, 68, 0.4);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .lightbox-btn.share-btn {
