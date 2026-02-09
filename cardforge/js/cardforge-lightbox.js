@@ -388,8 +388,7 @@
     const card = galleryCards[currentIndex];
     if (!card) return;
     const cardId = card.id || '';
-    const origin = window.location.origin;
-    const shareUrl = `${origin}/api/cardshare?card=${encodeURIComponent(cardId)}`;
+    const shareUrl = window.buildApiPath('cardShare', { card: cardId });
 
     navigator.clipboard.writeText(shareUrl).then(() => {
       const btn = el('lightbox-share');
