@@ -545,20 +545,9 @@ function createTipsTabContent() {
           <ul>
             <li>Use high contrast between text and background for readability</li>
             <li>Try the Auto palette to let the system match colors to your image</li>
-            <li>Use the Inset container for a clean, constrained image frame</li>
-            <li>Pair the Bold style with the Inferno or Royal palette for dramatic cards</li>
             <li>Test your design in both Light and Dark palette variants</li>
-          </ul>
-        </div>
-        
-        <div class="tip-item">
-          <h5><i class="fas fa-bolt"></i> Workflow Tips</h5>
-          <ul>
-            <li>Start with a preset to save time on basic layout</li>
-            <li>Use the collapsible left rail to focus on one section at a time</li>
-            <li>Hit the random button to discover unexpected design combinations</li>
-            <li>Save different versions of your card as you iterate</li>
-            <li>Use keyboard shortcuts for faster navigation</li>
+            <li>Use the Inset container for a clean, constrained image frame</li>
+            <li>Pair the Bold style with Inferno or Royal for dramatic cards</li>
           </ul>
         </div>
         
@@ -567,9 +556,20 @@ function createTipsTabContent() {
           <ul>
             <li>Use high-resolution images (at least 300x300px)</li>
             <li>PNG format works best for images with transparency</li>
-            <li>The Inset Emblem variant works great for circular character portraits</li>
+            <li>The Inset Emblem variant works great for circular portraits</li>
             <li>Full Bleed is best for landscape or panoramic images</li>
             <li>Auto palette works best with colorful, well-lit images</li>
+          </ul>
+        </div>
+        
+        <div class="tip-item">
+          <h5><i class="fas fa-bolt"></i> Workflow Tips</h5>
+          <ul>
+            <li>Start with a preset to save time on basic layout</li>
+            <li>Use the collapsible left rail to focus on one section at a time</li>
+            <li>Hit the random button to discover unexpected combinations</li>
+            <li>Save different versions of your card as you iterate</li>
+            <li>Use keyboard shortcuts for faster navigation</li>
           </ul>
         </div>
         
@@ -580,7 +580,7 @@ function createTipsTabContent() {
             <li>Write descriptions that tell a story</li>
             <li>Use consistent terminology across your deck</li>
             <li>The Editorial style pairs well with longer quotes</li>
-            <li>Cinematic style adds em-dashes around quotes for dramatic flair</li>
+            <li>Cinematic style adds em-dashes around quotes for flair</li>
           </ul>
         </div>
 
@@ -592,6 +592,17 @@ function createTipsTabContent() {
             <li><strong>Inferno + Bold</strong> — aggressive villain energy</li>
             <li><strong>Corporate + Editorial</strong> — clean, professional look</li>
             <li><strong>Arcane + Stacked</strong> — structured magical codex</li>
+          </ul>
+        </div>
+
+        <div class="tip-item">
+          <h5><i class="fas fa-book"></i> Deck & Publishing Tips</h5>
+          <ul>
+            <li>Group cards into decks by theme, faction, or campaign</li>
+            <li>Reorder cards within a deck to control presentation flow</li>
+            <li>Preview your deck before publishing to check consistency</li>
+            <li>Published decks are visible in the public gallery immediately</li>
+            <li>Keep draft cards private until they are ready to share</li>
           </ul>
         </div>
       </div>
