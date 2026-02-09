@@ -222,9 +222,6 @@
       <button type="button" class="cf-variant-btn active" data-cf-variant="neon">Neon</button>
     </div>
     <div class="cf-page-bar__icon-buttons">
-      <button class="cf-icon-btn" data-rail-toggle aria-label="Toggle navigation rail" title="Toggle navigation rail">
-        <i class="fas fa-bars"></i>
-      </button>
       <button class="cf-icon-btn" onclick="showInfoPopup()" title="Info &amp; Help" aria-label="Info &amp; Help">
         <i class="fas fa-info-circle"></i>
       </button>
@@ -246,8 +243,14 @@
   <section class="cardforge-container" id="cardforge-main-container">
     <div class="cf-app-grid">
       <aside class="cf-rail" aria-label="CardForge navigation rail">
+        <div class="cf-rail-header">
+          <span class="cf-rail-header__title"><i class="fas fa-hammer"></i> CardForge</span>
+          <button type="button" class="cf-rail-toggle" data-rail-toggle aria-label="Collapse navigation rail" aria-pressed="false">
+            <i class="fas fa-angles-left"></i>
+          </button>
+        </div>
         <nav class="cf-stepper" role="tablist" aria-orientation="vertical">
-          <button data-step="0" class="step-btn active">
+          <button data-step="0" class="step-btn active" title="Presets + Random">
             <span class="step-icon" aria-hidden="true">
               <span class="cf-icon-chip" aria-hidden="true">
                 <i class="cf-icon fas fa-dice-d6"></i>
@@ -255,7 +258,7 @@
             </span>
             <span class="step-label">Presets + Random</span>
           </button>
-          <button data-step="1" class="step-btn">
+          <button data-step="1" class="step-btn" title="Card Design">
             <span class="step-icon" aria-hidden="true">
               <span class="cf-icon-chip" aria-hidden="true">
                 <i class="cf-icon fas fa-layer-group"></i>
@@ -263,7 +266,7 @@
             </span>
             <span class="step-label">Card Design</span>
           </button>
-          <button data-step="2" class="step-btn">
+          <button data-step="2" class="step-btn" title="Basics">
             <span class="step-icon" aria-hidden="true">
               <span class="cf-icon-chip" aria-hidden="true">
                 <i class="cf-icon fas fa-clipboard-list"></i>
@@ -271,7 +274,7 @@
             </span>
             <span class="step-label">Basics</span>
           </button>
-          <button data-step="3" class="step-btn">
+          <button data-step="3" class="step-btn" title="Stats">
             <span class="step-icon" aria-hidden="true">
               <span class="cf-icon-chip" aria-hidden="true">
                 <i class="cf-icon fas fa-chart-line"></i>
@@ -279,7 +282,7 @@
             </span>
             <span class="step-label">Stats</span>
           </button>
-          <button data-step="4" class="step-btn">
+          <button data-step="4" class="step-btn" title="Social">
             <span class="step-icon" aria-hidden="true">
               <span class="cf-icon-chip" aria-hidden="true">
                 <i class="cf-icon fas fa-share-nodes"></i>
@@ -287,7 +290,7 @@
             </span>
             <span class="step-label">Social</span>
           </button>
-          <button data-step="5" class="step-btn">
+          <button data-step="5" class="step-btn" title="Badges">
             <span class="step-icon" aria-hidden="true">
               <span class="cf-icon-chip" aria-hidden="true">
                 <i class="cf-icon fas fa-award"></i>
@@ -295,7 +298,7 @@
             </span>
             <span class="step-label">Badges</span>
           </button>
-          <button data-step="6" class="step-btn">
+          <button data-step="6" class="step-btn" title="Attributes">
             <span class="step-icon" aria-hidden="true">
               <span class="cf-icon-chip" aria-hidden="true">
                 <i class="cf-icon fas fa-atom"></i>
@@ -303,7 +306,7 @@
             </span>
             <span class="step-label">Attributes</span>
           </button>
-          <button data-step="7" class="step-btn">
+          <button data-step="7" class="step-btn" title="Forge">
             <span class="step-icon" aria-hidden="true">
               <span class="cf-icon-chip" aria-hidden="true">
                 <i class="cf-icon fas fa-hammer"></i>

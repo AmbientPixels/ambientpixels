@@ -105,9 +105,15 @@
     if (!toggleBtn) return;
 
     const body = document.body;
+    const icon = toggleBtn.querySelector('i');
+
     const applyState = (collapsed) => {
       body.classList.toggle('cf-rail-collapsed', collapsed);
       toggleBtn.setAttribute('aria-pressed', collapsed ? 'true' : 'false');
+      toggleBtn.setAttribute('aria-label', collapsed ? 'Expand navigation rail' : 'Collapse navigation rail');
+      if (icon) {
+        icon.className = collapsed ? 'fas fa-angles-right' : 'fas fa-angles-left';
+      }
     };
 
     try {
