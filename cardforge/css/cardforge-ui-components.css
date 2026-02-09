@@ -1528,8 +1528,14 @@ body.cf-ui--clean .cf-section-icon .cf-icon-chip {
 }
 
 .modal-body {
-  overflow-y: visible;
-  max-height: none;
+  overflow-y: auto;
+  max-height: calc(80vh - 170px);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.modal-body::-webkit-scrollbar {
+  display: none;
 }
 
 /* Tabbed Modal Styles */

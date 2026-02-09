@@ -139,18 +139,20 @@ class Modal {
         tabsContainer.appendChild(tabBtn);
       });
 
-      body.appendChild(tabsContainer);
-
       this.tabs.forEach((tab, index) => {
         const content = document.createElement('div');
         content.className = `modal-tab-content ${index === this.activeTab ? 'active' : ''}`;
         content.innerHTML = tab.content;
         body.appendChild(content);
       });
-    }
 
-    this.container.appendChild(header);
-    this.container.appendChild(body);
+      this.container.appendChild(header);
+      this.container.appendChild(tabsContainer);
+      this.container.appendChild(body);
+    } else {
+      this.container.appendChild(header);
+      this.container.appendChild(body);
+    }
     this.overlay.appendChild(this.container);
 
     document.addEventListener('keydown', this.handleKeydown.bind(this));
@@ -369,28 +371,28 @@ function showInfoPopup() {
   const tabs = [
     {
       title: 'Features',
-      icon: '🚀',
+      icon: '<i class="fas fa-rocket"></i>',
       content: createFeaturesTabContent()
     },
     {
       title: 'Getting Started',
-      icon: '🎯',
+      icon: '<i class="fas fa-bullseye"></i>',
       content: createGettingStartedTabContent()
     },
     {
       title: 'Tips & Tricks',
-      icon: '💡',
+      icon: '<i class="fas fa-lightbulb"></i>',
       content: createTipsTabContent()
     },
     {
       title: 'Shortcuts',
-      icon: '⌨️',
+      icon: '<i class="fas fa-keyboard"></i>',
       content: createShortcutsTabContent()
     }
   ];
 
   const infoModal = Modal.createTabbedModal({
-    title: '📖 CardForge Help Center',
+    title: 'CardForge Help Center',
     size: 'large',
     tabs: tabs,
     activeTab: 0
@@ -402,31 +404,51 @@ function showInfoPopup() {
 function createFeaturesTabContent() {
   return `
     <div class="info-section">
-      <h4>🚀 Core Features</h4>
+      <h4><i class="fas fa-rocket"></i> Core Features</h4>
       <div class="feature-grid">
         <div class="feature-item">
-          <h5>🎨 Real-time Design</h5>
+          <h5><i class="fas fa-paint-brush"></i> Real-time Design</h5>
           <p>See your card design update instantly as you type and adjust settings. No need to refresh or wait for previews.</p>
         </div>
         <div class="feature-item">
-          <h5>🃏 Quick Start Presets</h5>
+          <h5><i class="fas fa-magic"></i> Quick Start Presets</h5>
           <p>Jump-start your design with hero, villain, spell, and item templates. Each preset includes optimized layouts and styling.</p>
         </div>
         <div class="feature-item">
-          <h5>🎭 Modular Design System</h5>
-          <p>Customize every aspect with our tier-based system: containers, effects, colors, and alignment options.</p>
+          <h5><i class="fas fa-layer-group"></i> Modular Design System</h5>
+          <p>Customize every aspect with our tier-based system: 6 container types, 11 palette families, 9 style variants, and more.</p>
         </div>
         <div class="feature-item">
-          <h5>🌙 Theme Awareness</h5>
-          <p>Designs automatically adapt to light/dark modes with Nova's crystalline flux aesthetic for consistent beauty.</p>
+          <h5><i class="fas fa-folder-open"></i> My Cards</h5>
+          <p>Browse, search, and manage all your saved cards in a dedicated gallery. Edit, delete, publish, or add cards to decks from one place.</p>
         </div>
         <div class="feature-item">
-          <h5>📱 Responsive Design</h5>
-          <p>Works perfectly on desktop, tablet, and mobile devices. Create cards anywhere, anytime.</p>
+          <h5><i class="fas fa-book"></i> Deck Manager</h5>
+          <p>Organize your cards into themed decks. Create, rename, and curate collections with a visual deck builder and rendered card previews.</p>
         </div>
         <div class="feature-item">
-          <h5>💾 Smart Saving</h5>
-          <p>Auto-save functionality and manual save options ensure your work is never lost.</p>
+          <h5><i class="fas fa-wand-magic-sparkles"></i> Refreshed UI</h5>
+          <p>Completely overhauled interface with a collapsible left rail, step-by-step editor flow, and a cleaner layout for a smoother design experience.</p>
+        </div>
+      </div>
+
+      <h4 style="margin-top: 24px;"><i class="fas fa-bolt"></i> Latest Updates</h4>
+      <div class="feature-grid">
+        <div class="feature-item">
+          <h5><i class="fas fa-wand-magic-sparkles"></i> Auto Palette</h5>
+          <p>Select "Auto" in the palette picker and the system analyzes your card image to automatically choose the best matching color palette.</p>
+        </div>
+        <div class="feature-item">
+          <h5><i class="fas fa-palette"></i> 5 New Palettes</h5>
+          <p>Corporate, Royal, Inferno, Frost, and Arcane join the existing 5 families for a total of 11 palette options (including Auto), each with Light and Dark variants.</p>
+        </div>
+        <div class="feature-item">
+          <h5><i class="fas fa-crop-simple"></i> Inset Container</h5>
+          <p>New container type that renders your image inside a constrained inset frame. Choose from Panel, Glass, Emblem, or Cutout variants.</p>
+        </div>
+        <div class="feature-item">
+          <h5><i class="fas fa-film"></i> 4 New Style Variants</h5>
+          <p>Bold (poster impact), Cinematic (widescreen drama), Editorial (magazine layout), and Stacked (sectioned dividers) join the Composition picker.</p>
         </div>
       </div>
     </div>
@@ -436,14 +458,14 @@ function createFeaturesTabContent() {
 function createGettingStartedTabContent() {
   return `
     <div class="info-section">
-      <h4>🎯 Getting Started Guide</h4>
+      <h4><i class="fas fa-bullseye"></i> Getting Started Guide</h4>
       
       <div class="getting-started-steps">
         <div class="step-item">
           <div class="step-number">1</div>
           <div class="step-content">
             <h5>Choose Your Starting Point</h5>
-            <p>Begin with a Quick Start Preset (Hero, Villain, Spell, or Item) or start from scratch with a blank card.</p>
+            <p>Begin with a Quick Start Preset (Hero, Villain, Spell, or Item) or start from scratch with a blank card. You can also hit the random button to generate a completely randomized card.</p>
           </div>
         </div>
         
@@ -451,31 +473,47 @@ function createGettingStartedTabContent() {
           <div class="step-number">2</div>
           <div class="step-content">
             <h5>Add Basic Information</h5>
-            <p>Fill in the card name, description, and any stats or attributes. Use the step-by-step interface to guide you.</p>
+            <p>Fill in the card name, class, rarity, quote, and stats. Use the step-by-step left rail to navigate between sections.</p>
           </div>
         </div>
         
         <div class="step-item">
           <div class="step-number">3</div>
           <div class="step-content">
-            <h5>Customize the Design</h5>
-            <p>Use the modular design system to adjust containers, effects, colors, and alignment. Each tier offers different customization options.</p>
+            <h5>Select a Container Type</h5>
+            <p>Choose how your image is displayed: Masked, Framed, Raw, Full Bleed, Hero, or the new Inset type. Each has its own variants (e.g., Inset offers Panel, Glass, Emblem, and Cutout).</p>
           </div>
         </div>
         
         <div class="step-item">
           <div class="step-number">4</div>
           <div class="step-content">
-            <h5>Upload Artwork</h5>
-            <p>Add your character or item image using the artwork section. Supports PNG, JPG, and GIF formats.</p>
+            <h5>Pick a Color Palette</h5>
+            <p>Choose from 11 palette families: Neon, Earth, Ocean, Sunset, Mono, Corporate, Royal, Inferno, Frost, Arcane, or Auto. Auto analyzes your image and picks the best match. Each palette has Light and Dark variants.</p>
           </div>
         </div>
         
         <div class="step-item">
           <div class="step-number">5</div>
           <div class="step-content">
+            <h5>Set Composition & Style</h5>
+            <p>Fine-tune alignment (Left, Center, Right) and choose a style variant: None, Padded, Compact, Elegant, Narrow, Bold, Cinematic, Editorial, or Stacked. Each changes the card's typography and spacing.</p>
+          </div>
+        </div>
+        
+        <div class="step-item">
+          <div class="step-number">6</div>
+          <div class="step-content">
+            <h5>Upload Artwork</h5>
+            <p>Select from the built-in image gallery, paste a custom URL, or browse the paginated image packs. Supports PNG, JPG, and GIF formats.</p>
+          </div>
+        </div>
+        
+        <div class="step-item">
+          <div class="step-number">7</div>
+          <div class="step-content">
             <h5>Save and Share</h5>
-            <p>Save your card locally, export as an image, or publish to the community gallery for others to see.</p>
+            <p>Save your card locally, publish to the community gallery, or add it to a deck. Cards render consistently across the preview, gallery tiles, and deck modal.</p>
           </div>
         </div>
       </div>
@@ -486,48 +524,61 @@ function createGettingStartedTabContent() {
 function createTipsTabContent() {
   return `
     <div class="info-section">
-      <h4>💡 Tips & Tricks</h4>
+      <h4><i class="fas fa-lightbulb"></i> Tips & Tricks</h4>
       
       <div class="tips-grid">
         <div class="tip-item">
-          <h5>🎨 Design Tips</h5>
+          <h5><i class="fas fa-paint-brush"></i> Design Tips</h5>
           <ul>
             <li>Use high contrast between text and background for readability</li>
-            <li>Keep important information in the upper portion of the card</li>
-            <li>Limit yourself to 2-3 colors for a cohesive look</li>
-            <li>Use the masked container for character portraits</li>
-            <li>Test your design in both light and dark themes</li>
+            <li>Try the Auto palette to let the system match colors to your image</li>
+            <li>Use the Inset container for a clean, constrained image frame</li>
+            <li>Pair the Bold style with the Inferno or Royal palette for dramatic cards</li>
+            <li>Test your design in both Light and Dark palette variants</li>
           </ul>
         </div>
         
         <div class="tip-item">
-          <h5>⚡ Workflow Tips</h5>
+          <h5><i class="fas fa-bolt"></i> Workflow Tips</h5>
           <ul>
             <li>Start with a preset to save time on basic layout</li>
-            <li>Use the step-by-step interface to stay organized</li>
+            <li>Use the collapsible left rail to focus on one section at a time</li>
+            <li>Hit the random button to discover unexpected design combinations</li>
             <li>Save different versions of your card as you iterate</li>
-            <li>Preview your card at different screen sizes</li>
             <li>Use keyboard shortcuts for faster navigation</li>
           </ul>
         </div>
         
         <div class="tip-item">
-          <h5>🖼️ Image Tips</h5>
+          <h5><i class="fas fa-image"></i> Image Tips</h5>
           <ul>
             <li>Use high-resolution images (at least 300x300px)</li>
             <li>PNG format works best for images with transparency</li>
-            <li>Consider the aspect ratio when choosing container types</li>
-            <li>Optimize image file sizes for better performance</li>
+            <li>The Inset Emblem variant works great for circular character portraits</li>
+            <li>Full Bleed is best for landscape or panoramic images</li>
+            <li>Auto palette works best with colorful, well-lit images</li>
           </ul>
         </div>
         
         <div class="tip-item">
-          <h5>📝 Content Tips</h5>
+          <h5><i class="fas fa-pen"></i> Content Tips</h5>
           <ul>
             <li>Keep card names short and memorable</li>
             <li>Write descriptions that tell a story</li>
             <li>Use consistent terminology across your deck</li>
-            <li>Balance flavor text with mechanical information</li>
+            <li>The Editorial style pairs well with longer quotes</li>
+            <li>Cinematic style adds em-dashes around quotes for dramatic flair</li>
+          </ul>
+        </div>
+
+        <div class="tip-item">
+          <h5><i class="fas fa-swatchbook"></i> Palette Pairing Ideas</h5>
+          <ul>
+            <li><strong>Frost + Cinematic</strong> — ethereal, icy storytelling</li>
+            <li><strong>Royal + Elegant</strong> — premium, legendary feel</li>
+            <li><strong>Inferno + Bold</strong> — aggressive villain energy</li>
+            <li><strong>Corporate + Editorial</strong> — clean, professional look</li>
+            <li><strong>Arcane + Stacked</strong> — structured magical codex</li>
           </ul>
         </div>
       </div>
@@ -538,7 +589,7 @@ function createTipsTabContent() {
 function createShortcutsTabContent() {
   return `
     <div class="info-section">
-      <h4>⌨️ Keyboard Shortcuts</h4>
+      <h4><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h4>
       <p>Speed up your workflow with these keyboard shortcuts:</p>
       
       <div class="shortcuts-grid">
