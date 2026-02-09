@@ -1075,3 +1075,342 @@
   position: relative;
   z-index: 1;
 }
+
+/* ================================
+   LIGHT THEME OVERRIDES
+   ================================
+   Warm-gray palette — not pure white.
+   Scoped to body[data-theme="light"] so dark remains default.
+*/
+
+body[data-theme="light"] {
+  --aura-bg-color: #E8ECF1;
+  --aura-bg-secondary: #DDE2E8;
+  --aura-bg-hover: #D0D6DE;
+  --aura-bg-active: #C4CDD8;
+  --aura-glow: #4F6BF0;
+  --mood-text-primary: #1A2A44;
+  --mood-text-secondary: #5A6A80;
+  --mood-primary-color: #4F6BF0;
+  --mood-accent-color: #C0C8D4;
+  --mood-secondary-color: #5A6A80;
+  --card-bg: rgba(255, 255, 255, 0.92);
+  --card-border: rgba(0, 0, 0, 0.12);
+  --card-text: #1A2A44;
+  --card-glow-opacity: 0.2;
+  --surface-2: rgba(0, 0, 0, 0.03);
+  --card-bg-secondary: #E0E4EA;
+  --border-color: #C8CED6;
+  --text-color: #2A3A50;
+  --text-muted: #6A7A8C;
+  --primary-color: #4F6BF0;
+}
+
+/* Page bar */
+body[data-theme="light"] .cf-page-bar {
+  background: rgba(232, 236, 241, 0.95);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  color: #1A2A44;
+}
+
+body[data-theme="light"] .cf-page-bar::after {
+  background: linear-gradient(90deg, transparent, rgba(79, 107, 240, 0.3), transparent);
+}
+
+body[data-theme="light"] .cf-page-bar__subtitle {
+  color: rgba(26, 42, 68, 0.6);
+}
+
+/* Page bar buttons */
+body[data-theme="light"] .cf-icon-btn {
+  color: #5A6A80;
+  border-color: #C0C8D4;
+}
+
+body[data-theme="light"] .cf-icon-btn:hover {
+  color: #4F6BF0;
+  background: rgba(79, 107, 240, 0.08);
+}
+
+body[data-theme="light"] .cf-variant-btn {
+  background: rgba(0, 0, 0, 0.04);
+  color: #5A6A80;
+  border-color: #C0C8D4;
+}
+
+body[data-theme="light"] .cf-variant-btn.active {
+  background: #4F6BF0;
+  color: #ffffff;
+  border-color: #4F6BF0;
+}
+
+/* Left rail */
+body[data-theme="light"] .cf-rail {
+  background: #E8ECF1;
+  border-color: #C0C8D4;
+}
+
+body[data-theme="light"] .cf-rail-header__title {
+  color: #4F6BF0;
+}
+
+body[data-theme="light"] .cf-rail-toggle {
+  color: #5A6A80;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body[data-theme="light"] .cf-rail-toggle:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(79, 107, 240, 0.3);
+  color: #4F6BF0;
+}
+
+/* Step buttons */
+body[data-theme="light"] .step-btn {
+  color: #5A6A80;
+}
+
+body[data-theme="light"] .step-btn:hover {
+  color: #4F6BF0;
+  background: rgba(79, 107, 240, 0.06);
+}
+
+body[data-theme="light"] .step-btn.active {
+  color: #4F6BF0;
+  background: rgba(79, 107, 240, 0.1);
+}
+
+/* Right column / preview */
+body[data-theme="light"] .right-column {
+  background: #E8ECF1;
+  border-color: #C0C8D4;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+body[data-theme="light"] .card-preview-zone {
+  background: #E8ECF1;
+  border-color: #C0C8D4;
+}
+
+body[data-theme="light"] #card-preview-container {
+  background: #E8ECF1;
+  border-color: #C0C8D4;
+}
+
+/* Preview header actions */
+body[data-theme="light"] .preview-header .preview-actions button {
+  color: #5A6A80;
+  border-color: #C0C8D4;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+body[data-theme="light"] .preview-header .preview-actions button:hover {
+  color: #4F6BF0;
+  border-color: #4F6BF0;
+}
+
+/* Sections */
+body[data-theme="light"] .cf-section {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: #C0C8D4;
+}
+
+body[data-theme="light"] .cf-section-title {
+  color: #4F6BF0;
+}
+
+/* Craft rows */
+body[data-theme="light"] .craft-row-header {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+body[data-theme="light"] .craft-row-header:hover {
+  background: rgba(79, 107, 240, 0.05);
+}
+
+/* Forms */
+body[data-theme="light"] input,
+body[data-theme="light"] textarea,
+body[data-theme="light"] select {
+  background: #ffffff;
+  border-color: #C0C8D4;
+  color: #1A2A44;
+}
+
+body[data-theme="light"] input:focus,
+body[data-theme="light"] textarea:focus,
+body[data-theme="light"] select:focus {
+  border-color: #4F6BF0;
+  box-shadow: 0 0 0 2px rgba(79, 107, 240, 0.15);
+}
+
+body[data-theme="light"] input::placeholder,
+body[data-theme="light"] textarea::placeholder {
+  color: #8A96A6;
+}
+
+/* Modular tier system */
+body[data-theme="light"] .collapsible-tier {
+  border-color: #C0C8D4;
+}
+
+body[data-theme="light"] .tier-header {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+body[data-theme="light"] .tier-header:hover {
+  background: rgba(79, 107, 240, 0.04);
+}
+
+body[data-theme="light"] .tier-option {
+  background: #E0E4EA;
+  border-color: #C0C8D4;
+  color: #5A6A80;
+}
+
+body[data-theme="light"] .tier-option:hover {
+  border-color: #4F6BF0;
+  background: rgba(79, 107, 240, 0.06);
+}
+
+body[data-theme="light"] .tier-option.selected {
+  border-color: #4F6BF0;
+  background: rgba(79, 107, 240, 0.1);
+  color: #4F6BF0;
+}
+
+body[data-theme="light"] .palette-family {
+  background: #E0E4EA;
+  border-color: #C0C8D4;
+}
+
+body[data-theme="light"] .palette-family:hover {
+  border-color: #4F6BF0;
+}
+
+body[data-theme="light"] .palette-family.selected {
+  background: #4F6BF0;
+  color: #ffffff;
+  border-color: #4F6BF0;
+}
+
+body[data-theme="light"] .palette-family.selected .palette-label {
+  color: #ffffff;
+}
+
+body[data-theme="light"] .variant-toggle {
+  background: #E0E4EA;
+  border-color: transparent;
+}
+
+body[data-theme="light"] .variant-toggle.selected {
+  background: rgba(79, 107, 240, 0.12);
+  border-color: #4F6BF0;
+}
+
+body[data-theme="light"] .variant-toggle.selected .variant-label {
+  color: #4F6BF0;
+}
+
+/* Tool buttons */
+body[data-theme="light"] .tool-btn {
+  background: #E0E4EA;
+  border-color: #C0C8D4;
+  color: #2A3A50;
+}
+
+body[data-theme="light"] .tool-btn:hover:not(:disabled) {
+  background: rgba(79, 107, 240, 0.08);
+  border-color: #4F6BF0;
+}
+
+body[data-theme="light"] .tool-btn i {
+  color: #4F6BF0;
+}
+
+/* Zone headers */
+body[data-theme="light"] .zone-header {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: #C0C8D4;
+  color: #1A2A44;
+}
+
+body[data-theme="light"] .zone-content {
+  scrollbar-color: #4F6BF0 #E8ECF1;
+}
+
+body[data-theme="light"] .zone-content::-webkit-scrollbar-track {
+  background: #E8ECF1;
+}
+
+body[data-theme="light"] .zone-content::-webkit-scrollbar-thumb {
+  background: #4F6BF0;
+}
+
+/* Quick start presets */
+body[data-theme="light"] .preset-card {
+  background: #E0E4EA;
+  border-color: #C0C8D4;
+  color: #2A3A50;
+}
+
+body[data-theme="light"] .preset-card:hover {
+  border-color: #4F6BF0;
+  background: rgba(79, 107, 240, 0.06);
+}
+
+/* Forge sidebar */
+body[data-theme="light"] .forge-sidebar-nav {
+  background: #E8ECF1;
+  border-color: #C0C8D4;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+}
+
+body[data-theme="light"] .forge-sidebar-tab {
+  color: #5A6A80;
+}
+
+body[data-theme="light"] .forge-sidebar-tab.active,
+body[data-theme="light"] .forge-sidebar-tab[aria-selected="true"] {
+  background: rgba(79, 107, 240, 0.08);
+  color: #4F6BF0;
+}
+
+body[data-theme="light"] .forge-sidebar-tab:hover:not(.active) {
+  background: rgba(0, 0, 0, 0.03);
+  color: #4F6BF0;
+}
+
+body[data-theme="light"] .forge-content-area {
+  background: #DDE2E8;
+  border-color: #C0C8D4;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+}
+
+/* Stats bar */
+body[data-theme="light"] .cf-stats-modal-bar {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* Search */
+body[data-theme="light"] .search-input-group input {
+  background: #ffffff;
+  border-color: #C0C8D4;
+  color: #1A2A44;
+}
+
+body[data-theme="light"] .search-input-group i {
+  color: #8A96A6;
+}
+
+/* Modal overlay stays dark */
+body[data-theme="light"] .modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Status dot */
+body[data-theme="light"] .cf-status-dot {
+  box-shadow: 0 0 6px rgba(79, 107, 240, 0.3);
+}
