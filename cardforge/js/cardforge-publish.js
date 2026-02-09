@@ -117,7 +117,7 @@ async function publishCard() {
 
         // Show success modal with Copy Link + View Card
         var cardName = result.card?.name || result.cardName || 'Your card';
-        var cardShareUrl = window.location.origin + '/cardforge/?card=' + encodeURIComponent(cardId);
+        var cardShareUrl = window.location.origin + '/api/cardshare?card=' + encodeURIComponent(cardId);
         var publishedModal = new Modal({
           title: 'Published!',
           size: 'small',

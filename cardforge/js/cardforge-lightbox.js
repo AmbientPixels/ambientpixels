@@ -384,12 +384,12 @@
   }
 
   function share() {
-    // Build a direct card link (not the lightbox page URL)
+    // Build a shareable link — uses OG-tagged endpoint for social media rich previews
     const card = galleryCards[currentIndex];
     if (!card) return;
     const cardId = card.id || '';
     const origin = window.location.origin;
-    const shareUrl = `${origin}/cardforge/?card=${encodeURIComponent(cardId)}`;
+    const shareUrl = `${origin}/api/cardshare?card=${encodeURIComponent(cardId)}`;
 
     navigator.clipboard.writeText(shareUrl).then(() => {
       const btn = el('lightbox-share');
@@ -405,6 +405,45 @@
     }).catch(() => {
       window.prompt('Copy this link to share:', shareUrl);
     });
+  }
+
+  async function downloadAsPng() {
+    const container = el('lightbox-card-container');
+    if (!container) return;
+    const card = galleryCards[currentIndex];
+    const cardName = (card && (card.name || card.title)) || 'card';
+
+    const btn = el('lightbox-download');
+    let icon;
+    if (btn) {
+      icon = btn.querySelector('i');
+      if (icon) icon.className = 'fas fa-spinner fa-spin';
+      btn.disabled = true;
+    }
+
+    try {
+      // Target the front face for capture
+      const frontFace = container.querySelector('.card-front') || container;
+      const canvas = await html2canvas(frontFace, {
+        backgroundColor: null,
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false
+      });
+
+      const link = document.createElement('a');
+      link.download = `${cardName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (err) {
+      console.error('Card export failed:', err);
+    } finally {
+      if (btn) {
+        if (icon) icon.className = 'fas fa-download';
+        btn.disabled = false;
+      }
+    }
   }
 
   // ===== KEYBOARD =====
@@ -482,12 +521,14 @@
     const overlay = el('cardforge-lightbox');
 
     const shareBtn = el('lightbox-share');
+    const downloadBtn = el('lightbox-download');
 
     if (closeBtn) closeBtn.addEventListener('click', close);
     if (prevBtn) prevBtn.addEventListener('click', () => navigate(-1));
     if (nextBtn) nextBtn.addEventListener('click', () => navigate(1));
     if (flipBtn) flipBtn.addEventListener('click', flip);
     if (shareBtn) shareBtn.addEventListener('click', share);
+    if (downloadBtn) downloadBtn.addEventListener('click', downloadAsPng);
 
     // Close on backdrop click
     if (overlay) {
