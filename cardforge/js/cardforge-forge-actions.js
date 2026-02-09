@@ -1112,7 +1112,7 @@ const resp = await fetch(loadUrl, {
           ${visualHTML}
           <div class="deck-list-item-info">
             <span class="deck-list-item-name">${deck.name}</span>
-            <span class="deck-list-item-count">${count} card${count !== 1 ? 's' : ''}</span>
+            <span class="deck-list-item-count">${count} card${count !== 1 ? 's' : ''}${deck.shareId ? ' · <span class="deck-list-pub-dot" title="Published"></span>' : ''}</span>
           </div>
           <div class="deck-list-item-actions">
             <button type="button" class="deck-item-btn" title="Rename"
@@ -1830,22 +1830,24 @@ CardForgeActions.prototype.renderDeckDetail = function(deckId) {
       <div class="deck-detail-title">
         <i class="${deckIcon}"></i>
         <span>${deck.name}</span>
-        <span class="deck-detail-count">${count} card${count !== 1 ? 's' : ''}</span>
       </div>
-      <div class="deck-detail-actions">
-        <button type="button" class="deck-publish-btn" title="${count === 0 ? 'Add cards to publish' : deck.shareId ? 'Already published' : 'Publish Deck'}"
-                ${count === 0 || deck.shareId ? 'disabled aria-disabled="true"' : ''}
-                onclick="cardForgeActions.publishDeck('${deckId}')">
-          <i class="fas fa-${deck.shareId ? 'check-circle' : 'share-from-square'}"></i> ${deck.shareId ? 'Published' : 'Publish'}
-        </button>
-        <button type="button" class="deck-item-btn" title="Rename Deck"
-                onclick="cardForgeActions.renameDeck('${deckId}')">
-          <i class="fas fa-pen"></i>
-        </button>
-        <button type="button" class="deck-item-btn delete" title="Delete Deck"
-                onclick="cardForgeActions.deleteDeck('${deckId}')">
-          <i class="fas fa-trash"></i>
-        </button>
+      <div class="deck-detail-meta-row">
+        <span class="deck-detail-count">${count} card${count !== 1 ? 's' : ''}</span>
+        <div class="deck-detail-actions">
+          <button type="button" class="deck-publish-btn${deck.shareId ? ' published' : ''}" title="${count === 0 ? 'Add cards to publish' : deck.shareId ? 'Published · Visible in the public gallery' : 'Publish Deck'}"
+                  ${count === 0 || deck.shareId ? 'disabled aria-disabled="true"' : ''}
+                  onclick="cardForgeActions.publishDeck('${deckId}')">
+            <i class="fas fa-${deck.shareId ? 'check-circle' : 'share-from-square'}"></i> ${deck.shareId ? 'Published' : 'Publish'}
+          </button>
+          <button type="button" class="deck-item-btn" title="Rename Deck"
+                  onclick="cardForgeActions.renameDeck('${deckId}')">
+            <i class="fas fa-pen"></i>
+          </button>
+          <button type="button" class="deck-item-btn delete" title="Delete Deck"
+                  onclick="cardForgeActions.deleteDeck('${deckId}')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
       </div>
     </div>
     ${gridHTML}`;
