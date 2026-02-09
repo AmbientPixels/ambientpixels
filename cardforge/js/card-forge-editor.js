@@ -2115,8 +2115,14 @@
     if (selectedPalette) {
       const paletteLabel = selectedPalette.querySelector('.palette-label').textContent;
       const variantLabel = ModularState.paletteVariant.charAt(0).toUpperCase() + ModularState.paletteVariant.slice(1);
-      const previewClass = `${ModularState.palette}-preview`;
-      updateTierCurrentSelection('3', `${paletteLabel} ${variantLabel}`, previewClass);
+      const effective = getEffectivePalette();
+      const displayLabel = ModularState.palette === 'auto'
+        ? `Auto (${effective.charAt(0).toUpperCase() + effective.slice(1)}) ${variantLabel}`
+        : `${paletteLabel} ${variantLabel}`;
+      const previewClass = ModularState.palette === 'auto'
+        ? `${effective}-preview`
+        : `${ModularState.palette}-preview`;
+      updateTierCurrentSelection('3', displayLabel, previewClass);
     }
     
     // Update Tier 2: Image Container display
@@ -2261,13 +2267,19 @@
         // Update current selection display
         const paletteLabel = option.querySelector('.palette-label').textContent;
         const variantLabel = ModularState.paletteVariant.charAt(0).toUpperCase() + ModularState.paletteVariant.slice(1);
-        const previewClass = `${ModularState.palette}-preview`;
-        updateTierCurrentSelection('3', `${paletteLabel} ${variantLabel}`, previewClass);
+        const effective = getEffectivePalette();
+        const displayLabel = ModularState.palette === 'auto'
+          ? `Auto (${effective.charAt(0).toUpperCase() + effective.slice(1)}) ${variantLabel}`
+          : `${paletteLabel} ${variantLabel}`;
+        const previewClass = ModularState.palette === 'auto'
+          ? `${effective}-preview`
+          : `${ModularState.palette}-preview`;
+        updateTierCurrentSelection('3', displayLabel, previewClass);
         
         // Update preview
         updatePreview();
         
-        console.log(`🎨 Palette updated: ${ModularState.palette}`);
+        console.log(`🎨 Palette updated: ${ModularState.palette}${ModularState.palette === 'auto' ? ` → resolved: ${effective}` : ''}`);
       });
     });
     
@@ -2347,6 +2359,111 @@
     }
   }
 
+  // ===== AUTO-PALETTE RESOLUTION =====
+  let _resolvedAutoPalette = 'neon'; // cache for the resolved palette when Auto is active
+
+  function resolveAutoPalette(avatarUrl) {
+    if (!avatarUrl) return 'neon';
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+
+    img.onload = function () {
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const size = 50;
+        canvas.width = size;
+        canvas.height = size;
+        ctx.drawImage(img, 0, 0, size, size);
+        const data = ctx.getImageData(0, 0, size, size).data;
+
+        let rTotal = 0, gTotal = 0, bTotal = 0, count = 0;
+        for (let i = 0; i < data.length; i += 16) {
+          rTotal += data[i];
+          gTotal += data[i + 1];
+          bTotal += data[i + 2];
+          count++;
+        }
+
+        const r = rTotal / count;
+        const g = gTotal / count;
+        const b = bTotal / count;
+
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const delta = max - min;
+        const lightness = (max + min) / 2;
+        const saturation = delta === 0 ? 0 : delta / (1 - Math.abs(2 * (lightness / 255) - 1)) / 255;
+
+        let hue = 0;
+        if (delta !== 0) {
+          if (max === r) hue = ((g - b) / delta) % 6;
+          else if (max === g) hue = (b - r) / delta + 2;
+          else hue = (r - g) / delta + 4;
+          hue = Math.round(hue * 60);
+          if (hue < 0) hue += 360;
+        }
+
+        let matched;
+        if (saturation < 0.15) {
+          matched = lightness > 160 ? 'corporate' : 'monochrome';
+        } else if (hue >= 0 && hue < 30) matched = 'inferno';
+        else if (hue >= 30 && hue < 60) matched = 'sunset';
+        else if (hue >= 60 && hue < 150) matched = 'earth';
+        else if (hue >= 150 && hue < 200) matched = 'ocean';
+        else if (hue >= 200 && hue < 250) matched = 'frost';
+        else if (hue >= 250 && hue < 290) matched = 'arcane';
+        else if (hue >= 290 && hue < 330) matched = 'royal';
+        else matched = 'neon';
+
+        if (_resolvedAutoPalette !== matched) {
+          _resolvedAutoPalette = matched;
+          console.log(`🎨 Auto-palette resolved: hue=${hue} sat=${saturation.toFixed(2)} light=${lightness.toFixed(0)} → ${matched}`);
+          if (ModularState.palette === 'auto') {
+            applyResolvedPalette();
+          }
+        }
+      } catch (e) {
+        console.warn('⚠️ Auto-palette: could not sample image (CORS?), falling back to neon');
+        _resolvedAutoPalette = 'neon';
+      }
+    };
+
+    img.onerror = function () {
+      _resolvedAutoPalette = 'neon';
+    };
+
+    img.src = avatarUrl;
+    return _resolvedAutoPalette;
+  }
+
+  function getEffectivePalette() {
+    return ModularState.palette === 'auto' ? _resolvedAutoPalette : ModularState.palette;
+  }
+
+  function applyResolvedPalette() {
+    const front = document.querySelector('.card-preview-zone .card-front');
+    const back = document.querySelector('.card-preview-zone .card-back');
+    if (!front || !back) return;
+
+    const palettes = ['neon', 'earth', 'ocean', 'sunset', 'monochrome', 'corporate', 'royal', 'inferno', 'frost', 'arcane'];
+    palettes.forEach(p => {
+      front.classList.remove(`palette-${p}`);
+      back.classList.remove(`palette-${p}`);
+    });
+    front.classList.remove('palette-auto');
+    back.classList.remove('palette-auto');
+
+    const resolved = getEffectivePalette();
+    front.classList.add(`palette-${resolved}`);
+    back.classList.add(`palette-${resolved}`);
+    front.setAttribute('data-palette', resolved);
+    back.setAttribute('data-palette', resolved);
+
+    console.log(`🎨 Applied resolved auto-palette: ${resolved}`);
+  }
+
   // ===== PREVIEW UPDATE SYSTEM =====
   function updatePreview() {
     console.log('🎨 Updating card preview with modular system...');
@@ -2359,9 +2476,16 @@
       return;
     }
     
+    // Resolve auto-palette if active
+    const effectivePalette = getEffectivePalette();
+    if (ModularState.palette === 'auto') {
+      const avatarUrl = document.getElementById('card-avatar')?.value || '';
+      if (avatarUrl) resolveAutoPalette(avatarUrl);
+    }
+
     // Shared classes — palette, container, effects (apply to both faces)
     const sharedClasses = [
-      `palette-${ModularState.palette}`,
+      `palette-${effectivePalette}`,
       `variant-${ModularState.paletteVariant}`,
       `text-${ModularState.textColor}`,
       `container-${ModularState.imageContainer}`,
@@ -2403,7 +2527,7 @@
       // 'data-layout': ModularState.layout, REMOVED - Phase 1 of Flow Restructure
       'data-alignment-type': ModularState.horizontalAlignment,
       'data-alignment-style': ModularState.alignmentStyle,
-      'data-palette': ModularState.palette,
+      'data-palette': effectivePalette,
       'data-palette-variant': ModularState.paletteVariant,
       'data-image-container': ModularState.imageContainer,
       'data-image-container-variant': ModularState.imageContainerVariant,
