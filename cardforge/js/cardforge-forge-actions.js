@@ -2045,7 +2045,7 @@ CardForgeActions.prototype.publishDeck = function(deckId) {
               '<div style="display:flex;gap:8px;justify-content:center;margin-bottom:20px;">' +
                 '<input type="text" id="deck-share-url" value="' + shareUrl + '" readonly style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px 10px;color:#e1e1ff;font-size:0.8em;min-width:0;" />' +
                 '<button id="deck-copy-link" class="deck-publish-action-btn" style="flex-shrink:0;"><i class="fas fa-copy"></i></button>' +
-                '<button id="deck-open-link" class="deck-publish-action-btn" style="flex-shrink:0;"><i class="fas fa-external-link-alt"></i></button>' +
+                '<button id="deck-open-link" class="deck-publish-action-btn" style="flex-shrink:0;" title="View Deck"><i class="fas fa-eye"></i></button>' +
               '</div>' +
               '<button id="deck-publish-ok-btn" class="btn-primary" style="background:linear-gradient(135deg,#00ff88,#00cc6a);border:none;color:#000;padding:12px 32px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:1em;">' +
                 '<i class="fas fa-thumbs-up"></i> Awesome!' +
@@ -2068,7 +2068,18 @@ CardForgeActions.prototype.publishDeck = function(deckId) {
             });
           }
           const openBtn = document.getElementById('deck-open-link');
-          if (openBtn) openBtn.addEventListener('click', () => window.open(shareUrl, '_blank'));
+          if (openBtn) {
+            openBtn.addEventListener('click', () => {
+              successModal.hide();
+              try {
+                self.showDeckModal(shareId);
+              } catch (err) {
+                console.error('[CardForge] Could not open deck modal:', err);
+                self.showNotification('Could not open deck viewer — opening in new tab', 'info');
+                window.open(shareUrl, '_blank');
+              }
+            });
+          }
         }, 100);
       } else {
         self.showNotification('Deck published! Link: ' + shareUrl, 'success');
