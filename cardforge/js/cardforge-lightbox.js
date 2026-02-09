@@ -149,7 +149,6 @@
     const frontOnly = [
       `align-${s.horizontalAlignment}`,
       `align-vertical-${s.verticalAlignment}`,
-      `align-weight-${s.alignmentWeight}`,
       `align-style-${s.alignmentStyle}`
     ].join(' ');
     return { shared, frontOnly };
@@ -159,7 +158,6 @@
     const s = Object.assign({}, MODULAR_DEFAULTS, design || {});
     return [
       `data-alignment-type="${s.horizontalAlignment}"`,
-      `data-alignment-weight="${s.alignmentWeight}"`,
       `data-alignment-style="${s.alignmentStyle}"`,
       `data-palette="${s.palette}"`,
       `data-palette-variant="${s.paletteVariant}"`,

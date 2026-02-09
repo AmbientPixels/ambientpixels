@@ -1311,7 +1311,6 @@
       // Tier 4: Content Alignment
       horizontalAlignments: ['left', 'center', 'right'],
       verticalAlignments: ['middle', 'bottom'], // Exclude 'top' from random rolls
-      alignmentWeights: ['top-heavy', 'balanced', 'bottom-heavy'],
       alignmentStyles: ['none', 'padded', 'compact', 'elegant', 'narrow']
     };
     
@@ -1332,7 +1331,6 @@
     
     const randomHorizontal = randomOptions.horizontalAlignments[Math.floor(Math.random() * randomOptions.horizontalAlignments.length)];
     const randomVertical = randomOptions.verticalAlignments[Math.floor(Math.random() * randomOptions.verticalAlignments.length)];
-    const randomWeight = randomOptions.alignmentWeights[Math.floor(Math.random() * randomOptions.alignmentWeights.length)];
     const randomStyle = randomOptions.alignmentStyles[Math.floor(Math.random() * randomOptions.alignmentStyles.length)];
     
     // Reset ModularState to defaults, then apply random selections
@@ -1359,7 +1357,6 @@
       paletteVariant: randomPaletteVariant,
       horizontalAlignment: randomHorizontal,
       verticalAlignment: randomVertical,
-      alignmentWeight: randomWeight,
       alignmentStyle: randomStyle
     });
     
@@ -1367,7 +1364,7 @@
       container: `${randomContainer}-${randomContainerVariant}`,
       effect: `${randomEffect}-${randomEffectVariant}`,
       palette: `${randomPalette}-${randomPaletteVariant}`,
-      alignment: `${randomHorizontal}-${randomVertical}-${randomWeight}-${randomStyle}`
+      alignment: `${randomHorizontal}-${randomVertical}-${randomStyle}`
     });
     
     // Clear any active preset buttons since this is a custom random card
@@ -1434,12 +1431,6 @@
     const horizontalOptions = document.querySelectorAll('[data-tier="4"] .alignment-type .tier-option');
     horizontalOptions.forEach(option => {
       option.classList.toggle('selected', option.dataset.value === ModularState.horizontalAlignment);
-    });
-    
-    // Update weight distribution selection
-    const weightOptions = document.querySelectorAll('[data-tier="4"] .weight-option');
-    weightOptions.forEach(option => {
-      option.classList.toggle('selected', option.dataset.weight === ModularState.alignmentWeight);
     });
     
     // Update style variant selection
@@ -1884,12 +1875,6 @@
       console.log('🔍 Alternative search result:', altSection);
     }
     
-    // Level 2: Alignment Weight
-    const alignmentWeightOptions = document.querySelectorAll('[data-tier="4"] .weight-option');
-    alignmentWeightOptions.forEach(option => {
-      option.classList.toggle('selected', option.dataset.weight === ModularState.alignmentWeight);
-    });
-    
     // Level 3: Alignment Style
     const alignmentStyleOptions = document.querySelectorAll('[data-tier="4"] .style-option');
     alignmentStyleOptions.forEach(option => {
@@ -2055,14 +2040,12 @@
     
     // Update Tier 2: Content Alignment display (3-level hierarchy)
     const alignmentType = ModularState.horizontalAlignment || 'center';
-    const alignmentWeight = ModularState.alignmentWeight || 'balanced';
     const alignmentStyle = ModularState.alignmentStyle || 'padded';
     
     const alignmentTypeLabel = alignmentType.charAt(0).toUpperCase() + alignmentType.slice(1);
-    const alignmentWeightLabel = alignmentWeight.charAt(0).toUpperCase() + alignmentWeight.slice(1);
     const alignmentStyleLabel = alignmentStyle.charAt(0).toUpperCase() + alignmentStyle.slice(1);
     
-    const alignmentDisplayText = `${alignmentTypeLabel} ${alignmentWeightLabel} ${alignmentStyleLabel}`;
+    const alignmentDisplayText = `${alignmentTypeLabel} ${alignmentStyleLabel}`;
     const alignmentPreviewClass = `${alignmentType}-alignment-preview`;
     updateTierCurrentSelection('2', alignmentDisplayText, alignmentPreviewClass);
     
@@ -2142,18 +2125,6 @@
         ModularState.verticalAlignment = option.dataset.value;
         updatePreview();
         console.log(`📐 Vertical alignment: ${ModularState.verticalAlignment}`);
-      });
-    });
-    
-    // Weight distribution handlers
-    const weightOptions = document.querySelectorAll('[data-tier="4"] .weight-option');
-    weightOptions.forEach(option => {
-      option.addEventListener('click', () => {
-        weightOptions.forEach(opt => opt.classList.remove('selected'));
-        option.classList.add('selected');
-        ModularState.alignmentWeight = option.dataset.weight;
-        updatePreview();
-        console.log(`⚖️ Weight distribution: ${ModularState.alignmentWeight}`);
       });
     });
     
@@ -2342,7 +2313,6 @@
     const frontOnlyClasses = [
       `align-${ModularState.horizontalAlignment}`,
       `align-vertical-${ModularState.verticalAlignment}`,
-      `align-weight-${ModularState.alignmentWeight}`,
       `align-style-${ModularState.alignmentStyle}`
     ];
     
@@ -2371,7 +2341,6 @@
     const dataAttributes = {
       // 'data-layout': ModularState.layout, REMOVED - Phase 1 of Flow Restructure
       'data-alignment-type': ModularState.horizontalAlignment,
-      'data-alignment-weight': ModularState.alignmentWeight,
       'data-alignment-style': ModularState.alignmentStyle,
       'data-palette': ModularState.palette,
       'data-palette-variant': ModularState.paletteVariant,

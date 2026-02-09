@@ -217,129 +217,6 @@
 }
 
 /* =========================== */
-/* LEVEL 2: WEIGHT DISTRIBUTION */
-/* =========================== */
-
-/* --- TOP HEAVY --- */
-.card-preview-canvas.align-weight-top-heavy .card-header {
-  margin-bottom: 3rem;
-  font-size: 1.4em;
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.card-preview-canvas.align-weight-top-heavy .card-name {
-  font-size: 2.2rem !important;
-  margin-bottom: 1.5rem !important;
-  font-weight: 700 !important;
-  line-height: 1.2 !important;
-}
-
-.card-preview-canvas.align-weight-top-heavy .card-class {
-  font-size: 1.1rem !important;
-  margin-bottom: 1rem !important;
-  font-weight: 600 !important;
-}
-
-.card-preview-canvas.align-weight-top-heavy .card-body {
-  margin: 0.25rem 0;
-  font-size: 0.85em;
-}
-
-.card-preview-canvas.align-weight-top-heavy .card-quote {
-  font-size: 0.8rem !important;
-  margin: 0.25rem 0 !important;
-  padding: 0.5rem !important;
-}
-
-.card-preview-canvas.align-weight-top-heavy .card-stats {
-  margin-top: 0.25rem;
-  font-size: 0.8em;
-  padding: 0.75rem;
-}
-
-.card-preview-canvas.align-weight-top-heavy .stat-bar {
-  height: 6px !important;
-  margin: 0.25rem 0 !important;
-}
-
-.card-preview-canvas.align-weight-top-heavy .stat-name {
-  font-size: 0.75rem !important;
-  font-weight: 400 !important;
-}
-
-.card-preview-canvas.align-weight-top-heavy .stat-value {
-  font-size: 0.8rem !important;
-  font-weight: 500 !important;
-}
-
-/* --- BALANCED (Default) --- */
-.card-preview-canvas.align-weight-balanced .card-header {
-  margin-bottom: 1rem;
-}
-
-.card-preview-canvas.align-weight-balanced .card-body {
-  margin: 1rem 0;
-}
-
-.card-preview-canvas.align-weight-balanced .card-stats {
-  margin-top: 1rem;
-}
-
-/* --- BOTTOM HEAVY --- */
-.card-preview-canvas.align-weight-bottom-heavy .card-header {
-  margin-bottom: 0.25rem;
-  font-size: 0.9em;
-}
-
-.card-preview-canvas.align-weight-bottom-heavy .card-name {
-  font-size: 1.3rem !important;
-  margin-bottom: 0.25rem !important;
-}
-
-.card-preview-canvas.align-weight-bottom-heavy .card-class {
-  font-size: 0.8rem !important;
-  margin-bottom: 0.25rem !important;
-}
-
-.card-preview-canvas.align-weight-bottom-heavy .card-body {
-  margin: 0.25rem 0;
-  font-size: 0.85em;
-}
-
-.card-preview-canvas.align-weight-bottom-heavy .card-quote {
-  font-size: 0.8rem !important;
-  margin: 0.25rem 0 !important;
-  padding: 0.5rem !important;
-}
-
-.card-preview-canvas.align-weight-bottom-heavy .card-stats {
-  margin-top: 3rem;
-  font-size: 1.3em;
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.card-preview-canvas.align-weight-bottom-heavy .stat-bar {
-  height: 12px !important;
-  margin: 0.75rem 0 !important;
-}
-
-.card-preview-canvas.align-weight-bottom-heavy .stat-name {
-  font-size: 1.1rem !important;
-  font-weight: 600 !important;
-}
-
-.card-preview-canvas.align-weight-bottom-heavy .stat-value {
-  font-size: 1.2rem !important;
-  font-weight: 700 !important;
-}
-
-/* =========================== */
 /* LEVEL 3: STYLE VARIANTS    */
 /* (Density Profiles)          */
 /* =========================== */
@@ -1148,10 +1025,14 @@
   border-radius: inherit;
 }
 
-/* Hero Container - Full Bleed (using same approach as Full Bleed) */
+/* Hero Container — Flex-based layout
+   Uses flexbox + a ::before spacer so .card-body is height-constrained
+   to the remaining space after the hero image. No padding-top needed. */
 .card-preview-canvas.container-hero {
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .card-preview-canvas.container-hero .card-avatar {
@@ -1159,53 +1040,88 @@
   top: 0;
   left: 0;
   width: 100% !important;
-  height: 60% !important;
+  height: var(--hero-img-h, 55%) !important;
   object-fit: cover;
   border-radius: 0 !important;
-  z-index: -1;
+  z-index: 0;
+}
+
+/* Spacer pushes content below the hero image.
+   Must reset base glow ::before (position:absolute, inset:0, etc.) */
+.card-preview-canvas.card-front.container-hero::before {
+  content: '';
+  position: static;
+  inset: auto;
+  display: block;
+  flex-shrink: 0;
+  height: var(--hero-img-h, 55%);
+  background: none;
+  -webkit-mask: none;
+  mask: none;
+  animation: none;
+  opacity: 1;
+  padding: 0;
+  pointer-events: none;
+}
+
+/* Back face doesn't need the spacer */
+.card-preview-canvas.card-back.container-hero::before {
+  display: none;
 }
 
 /* Hero Large Variant */
-.card-preview-canvas.container-hero.container-variant-large .card-avatar {
-  height: 210px !important;
+.card-preview-canvas.container-hero.container-variant-large {
+  --hero-img-h: 190px;
 }
 
 /* Hero Small Variant */
-.card-preview-canvas.container-hero.container-variant-small .card-avatar {
-  height: 150px !important;
+.card-preview-canvas.container-hero.container-variant-small {
+  --hero-img-h: 150px;
 }
 
-/* Hero container - add top padding to push all content below image */
-.card-preview-canvas.container-hero {
+/* Hero header pulls up into the image area via negative margin.
+   Name overlays the bottom of the hero image; saves vertical space. */
+.card-preview-canvas.container-hero .card-hero-header {
+  z-index: 1;
+  margin-top: -2rem;
+  padding: 0.5rem var(--cf-pad-x);
+}
+
+/* Name overlay sits above the hero image */
+.card-preview-canvas.container-hero .hero-overlay {
   position: relative;
-  overflow: hidden;
-  padding-top: 60%; /* Default: push content below 60% height image */
+  z-index: 2;
+  background: none;
+  padding: 0.4rem 0.5rem;
+}
+
+.card-preview-canvas.container-hero .card-hero-header .card-name {
+  text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+  color: #fff;
 }
 
 .card-preview-canvas.container-hero .card-header,
 .card-preview-canvas.container-hero .card-body {
   position: relative;
-  z-index: 1;
 }
 
 .card-preview-canvas.container-hero .card-body {
+  min-height: 0;
+  overflow: hidden;
   padding: var(--cf-pad-y) var(--cf-pad-x);
 }
 
-/* Hero Large Variant - adjust container padding for larger image (FRONT ONLY) */
-.card-preview-canvas.card-front.container-hero.container-variant-large {
-  padding-top: 210px; /* Push content below 210px image */
-  padding-bottom: 10px; /* Safety net against bottom clipping */
+/* Hero auto-tightens larger density variants to prevent overflow */
+.card-preview-canvas.container-hero.align-style-padded {
+  --cf-pad-y: 0.5rem;
+  --cf-gap: 0.4rem;
+  --cf-title-size: 1.15rem;
 }
 
-/* Hero Small Variant - adjust container padding for smaller image (FRONT ONLY) */
-.card-preview-canvas.card-front.container-hero.container-variant-small {
-  padding-top: 150px; /* Push content below 150px image */
-}
-
-/* Hero Container Back Face - No top padding needed */
-.card-preview-canvas.card-back.container-hero {
-  padding-top: 0; /* Remove top padding from back face */
+.card-preview-canvas.container-hero.align-style-elegant {
+  --cf-pad-y: 0.5rem;
+  --cf-gap: 0.4rem;
+  --cf-title-size: 1.15rem;
 }
 
 /* ===== TIER 6: IMAGE EFFECTS ===== */
