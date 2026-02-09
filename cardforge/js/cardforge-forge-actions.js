@@ -113,7 +113,7 @@ class CardForgeActions {
   bindForgeButtons() {
     console.log('🔗 Binding Forge tab buttons...');
     
-    // Save Card Buttons (Forge tab and Toolbar) - prevent duplicate bindings
+    // Save Card Buttons (Forge tab and Toolbar) - unified state via ChromeUI
     const saveBtns = [
       document.getElementById('save-card-btn'),
       document.getElementById('toolbar-save-btn')
@@ -124,18 +124,18 @@ class CardForgeActions {
         btn.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          if (btn.dataset.saving === 'true') {
-            console.log('Already saving, ignoring click');
+          const currentState = window.CardForgeChrome?.statusEl?.dataset?.state;
+          if (currentState !== 'unsaved' && currentState !== 'error') {
+            console.log(`Save blocked — state is "${currentState}"`);
             return;
           }
-          btn.dataset.saving = 'true';
           if (window.CardForgeChrome) {
+            if (btn.id === 'toolbar-save-btn') {
+              window.CardForgeChrome._navigateAfterSave = true;
+            }
             window.CardForgeChrome.beginSaving();
           }
           this.handleSaveCard();
-          setTimeout(() => {
-            btn.dataset.saving = 'false';
-          }, 2000);
         });
         console.log('✅ Save Card button bound (single handler)', btn.id);
       } else {
@@ -1878,7 +1878,8 @@ CardForgeActions.prototype.renderDeckDetail = function(deckId) {
         <span class="deck-detail-count">${count} card${count !== 1 ? 's' : ''}</span>
       </div>
       <div class="deck-detail-actions">
-        <button type="button" class="deck-publish-btn" title="Publish Deck"
+        <button type="button" class="deck-publish-btn" title="${count === 0 ? 'Add cards to publish' : 'Publish Deck'}"
+                ${count === 0 ? 'disabled aria-disabled="true"' : ''}
                 onclick="cardForgeActions.publishDeck('${deckId}')">
           <i class="fas fa-share-from-square"></i> Publish
         </button>
@@ -2344,7 +2345,7 @@ const cardForgeActions = new CardForgeActions();
 // This function binds Save, Reset, and Clear All for both Forge tab and toolbar, and ensures only one handler per button.
 // Windsurf Protocol: SINGLE SOURCE OF TRUTH for all Save/Reset/Clear All button bindings
 CardForgeActions.prototype.bindForgeButtons = function() {
-  // Save Card Buttons (Forge tab and Toolbar) - prevent duplicate bindings
+  // Save Card Buttons (Forge tab and Toolbar) - unified state via ChromeUI
   const saveBtns = [
     document.getElementById('save-card-btn'),
     document.getElementById('toolbar-save-btn')
@@ -2355,14 +2356,17 @@ CardForgeActions.prototype.bindForgeButtons = function() {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (btn.dataset.saving === 'true') {
-          console.log('Already saving, ignoring click');
+        const currentState = window.CardForgeChrome?.statusEl?.dataset?.state;
+        if (currentState !== 'unsaved' && currentState !== 'error') {
+          console.log(`Save blocked — state is "${currentState}"`);
           return;
         }
-        btn.dataset.saving = 'true';
-        setTimeout(() => {
-          btn.dataset.saving = 'false';
-        }, 2000);
+        if (window.CardForgeChrome) {
+          if (btn.id === 'toolbar-save-btn') {
+            window.CardForgeChrome._navigateAfterSave = true;
+          }
+          window.CardForgeChrome.beginSaving();
+        }
         this.handleSaveCard();
       });
       console.log('✅ Save Card button bound (single handler)', btn.id);

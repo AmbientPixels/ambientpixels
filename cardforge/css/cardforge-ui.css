@@ -2781,9 +2781,15 @@ opacity: 1;
   transition: all 0.12s ease;
 }
 
-[data-step-section="7"] .deck-publish-btn:hover {
+[data-step-section="7"] .deck-publish-btn:hover:not(:disabled) {
   background: rgba(0, 212, 255, 0.16);
   border-color: rgba(0, 212, 255, 0.4);
+}
+
+[data-step-section="7"] .deck-publish-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
 }
 
 [data-step-section="7"] .deck-publish-btn i {

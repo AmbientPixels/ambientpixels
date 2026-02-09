@@ -1195,9 +1195,9 @@
         <div class="forge-panel">
           <!-- Actions Strip -->
           <div class="forge-actions">
-            <button type="button" class="forge-action-btn primary" id="save-card-btn">
-              <i class="fas fa-save"></i>
-              <span>Save Card</span>
+            <button type="button" class="forge-action-btn primary" id="save-card-btn" data-save-state="ready" aria-disabled="true" title="No changes to save">
+              <i class="fas fa-check"></i>
+              <span>Up to Date</span>
             </button>
           </div>
 
@@ -1285,8 +1285,7 @@
             <div class="card-preview-zone">
             <div class="preview-header">
               <div class="card-toolbar-minimal" role="toolbar" aria-label="Card Actions">
-                <button id="toolbar-save-btn" title="Save Card" aria-label="Save Card" class="toolbar-btn"><i class="fas
- fa-save"></i></button>
+                <button id="toolbar-save-btn" title="No changes to save" aria-label="No changes to save" aria-disabled="true" data-save-state="ready" class="toolbar-btn"><i class="fas fa-check"></i></button>
                 
                 <button id="toolbar-reset-btn" title="Reset Card" aria-label="Reset Card" class="toolbar-btn"><i class="fas fa-undo"></i></button>
                 <button id="toolbar-clear-all-btn" title="Clear All" aria-label="Clear All" class="toolbar-btn"><i class="fas fa-eraser"></i></button>

@@ -40,6 +40,7 @@
     readyForDirty: false,
     isDirty: false,
     isSaving: false,
+    _navigateAfterSave: false,
     init() {
       this.statusEl = document.querySelector('.cf-status-pill');
       this.statusLabelEl = this.statusEl?.querySelector('.cf-status-pill__label') || null;
@@ -106,6 +107,35 @@
       if (state === 'saved' || state === 'ready') {
         this.isDirty = false;
       }
+      this.syncSaveButtons(state);
+    },
+    syncSaveButtons(state) {
+      const btnConfig = {
+        ready:   { icon: 'fa-check',               label: 'Up to Date',  toolbarLabel: 'Saved',  title: 'No changes to save',       disabled: true  },
+        unsaved: { icon: 'fa-save',                 label: 'Save Card',   toolbarLabel: 'Save',   title: 'You have unsaved changes', disabled: false },
+        saving:  { icon: 'fa-spinner fa-spin',      label: 'Saving…',     toolbarLabel: 'Saving', title: 'Saving…',                  disabled: true  },
+        saved:   { icon: 'fa-check',                label: 'Saved',       toolbarLabel: 'Saved',  title: 'Card saved',               disabled: true  },
+        error:   { icon: 'fa-exclamation-triangle', label: 'Retry Save',  toolbarLabel: 'Retry',  title: 'Save failed — try again',  disabled: false }
+      };
+      const cfg = btnConfig[state];
+      if (!cfg) return;
+      const btns = [
+        document.getElementById('save-card-btn'),
+        document.getElementById('toolbar-save-btn')
+      ].filter(Boolean);
+      btns.forEach(btn => {
+        btn.dataset.saveState = state;
+        btn.disabled = cfg.disabled;
+        btn.setAttribute('aria-disabled', String(cfg.disabled));
+        btn.title = cfg.title;
+        btn.setAttribute('aria-label', cfg.title);
+        const icon = btn.querySelector('i');
+        if (icon) icon.className = 'fas ' + cfg.icon;
+        const span = btn.querySelector('span');
+        if (span) {
+          span.textContent = btn.id === 'save-card-btn' ? cfg.label : cfg.toolbarLabel;
+        }
+      });
     },
     markDirty() {
       if (!this.readyForDirty || this.isDirty || this.isSaving) return;
@@ -120,14 +150,44 @@
       if (success) {
         this.isDirty = false;
         this.setStatus('saved', 'Saved');
+        if (this._navigateAfterSave) {
+          this._navigateAfterSave = false;
+          this.navigateToMyCards();
+        }
         setTimeout(() => {
           if (!this.isDirty && !this.isSaving) {
             this.setStatus('ready', 'Ready');
           }
         }, 2000);
       } else {
+        this._navigateAfterSave = false;
         this.setStatus('error', 'Error');
       }
+    },
+    navigateToMyCards() {
+      const forgeStepBtn = document.querySelector('.step-btn[data-step="7"]');
+      if (forgeStepBtn) {
+        try { forgeStepBtn.click(); } catch (e) { /* ignore */ }
+      }
+      setTimeout(() => {
+        const cardsTabBtn = document.querySelector('.forge-sidebar-tab[data-forge-tab="cards"]');
+        const allTabs = document.querySelectorAll('.forge-sidebar-tab');
+        const allPanels = document.querySelectorAll('.forge-tab-content');
+        const cardsPanel = document.querySelector('.forge-tab-content[data-forge-content="cards"]');
+        if (allTabs.length && allPanels.length && cardsTabBtn && cardsPanel) {
+          allTabs.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); b.setAttribute('tabindex', '-1'); });
+          cardsTabBtn.classList.add('active');
+          cardsTabBtn.setAttribute('aria-selected', 'true');
+          cardsTabBtn.setAttribute('tabindex', '0');
+          allPanels.forEach(p => { p.classList.remove('active'); p.style.display = 'none'; });
+          cardsPanel.classList.add('active');
+          cardsPanel.style.display = '';
+          const list = document.getElementById('my-cards-list');
+          if (list) {
+            try { list.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { /* ignore */ }
+          }
+        }
+      }, 150);
     },
     setDirtyTracking(enabled) {
       this.readyForDirty = Boolean(enabled);
