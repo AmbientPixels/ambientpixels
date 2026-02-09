@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="CardForge V2 Dev Log — Full feature set, architecture, and technical rundown" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>CardForge V2 — Dev Log | Ambient Pixels</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/projects.css" />
+  <link rel="stylesheet" href="/modules/breadcrumb.css" />
+</head>
+<body data-theme="dark">
+  <!-- Dynamic Navigation Header -->
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/hero/hero-02.jpg" alt="CardForge Dev Log" class="mini-hero-img" loading="lazy">
+    <div class="mini-hero-content-wrapper">
+      <h1><i class="fas fa-hammer"></i> CardForge V2 — Dev Log</h1>
+      <p class="subtitle">Full feature set, architecture, and technical rundown</p>
+    </div>
+  </section>
+
+  <main class="grid-container">
+    <div class="breadcrumb-container grid-col-12"></div>
+
+    <!-- Overview -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-scroll"></i> Overview</h2>
+      <p><strong>CardForge V2</strong> is a production-ready, browser-based toolkit for designing, editing, and sharing collectible RPG-style identity cards. Built with vanilla JavaScript and powered by Azure Static Web Apps + Azure Functions.</p>
+      <p>The modular design engine supports nearly <strong>40 million unique visual card combinations</strong> through a 6-tier hierarchical system of layouts, palettes, containers, effects, and alignment options.</p>
+      <div class="card-grid">
+        <div class="neon-card">
+          <h3><i class="fas fa-code-branch"></i> Version</h3>
+          <p>v2.2 — Production</p>
+        </div>
+        <div class="neon-card">
+          <h3><i class="fas fa-server"></i> Platform</h3>
+          <p>Azure Static Web Apps + Azure Functions (Node.js 18)</p>
+        </div>
+        <div class="neon-card">
+          <h3><i class="fas fa-rocket"></i> Deployment</h3>
+          <p>CI/CD via GitHub Actions — auto-deploys on push to master</p>
+        </div>
+        <div class="neon-card">
+          <h3><i class="fas fa-puzzle-piece"></i> Combinations</h3>
+          <p>~40 million unique card designs from modular tiers</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-sitemap"></i> Architecture</h2>
+
+      <h3><i class="fas fa-desktop"></i> Frontend</h3>
+      <ul>
+        <li><strong>Pure vanilla JavaScript</strong> — no frameworks, 17 JS modules (~400KB+)</li>
+        <li><strong>11 CSS files</strong> (~300KB+) — modular, scoped architecture</li>
+        <li><strong>Azure Static Web Apps</strong> hosting with custom routing via <code>staticwebapp.config.json</code></li>
+      </ul>
+
+      <h3><i class="fas fa-cloud"></i> Backend — Azure Functions (14 Endpoints)</h3>
+      <ul>
+        <li><strong>cardforgepublish</strong> — Publish a card to the public gallery</li>
+        <li><strong>cardforgeloadcards</strong> — Load published cards for gallery display</li>
+        <li><strong>cardforgedeletecard</strong> — Remove a card from the gallery</li>
+        <li><strong>cardforgesavecards</strong> — Save cards to cloud storage</li>
+        <li><strong>cardforgetemplate</strong> — Load card templates</li>
+        <li><strong>cardforgedeckpublish</strong> — Publish a deck to the gallery</li>
+        <li><strong>cardforgedeckload</strong> — Load a published deck</li>
+        <li><strong>cardforgedeckdelete</strong> — Delete a published deck</li>
+        <li><strong>cardshare</strong> — OG meta tag endpoint for card social sharing</li>
+        <li><strong>deckshare</strong> — OG meta tag endpoint for deck social sharing</li>
+      </ul>
+
+      <h3><i class="fas fa-database"></i> Storage</h3>
+      <ul>
+        <li><strong>Azure Blob Storage</strong> — <code>cardforgeblobdata/cardforge</code> container</li>
+        <li><strong>localStorage</strong> — Client-side card and deck persistence</li>
+        <li><strong>sessionStorage</strong> — Auth state and user info</li>
+      </ul>
+    </section>
+
+    <!-- 6-Tier Modular Design System -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-layer-group"></i> 6-Tier Modular Design System</h2>
+      <p>The core of CardForge — a hierarchical design engine that provides granular control over card appearance through progressive disclosure.</p>
+
+      <div class="neon-card">
+        <h3>Tier 1: Layout Style</h3>
+        <p>Hero, Split, Minimal, Overlay, Stack, Frame — each with large/small variants. Controls the fundamental card structure.</p>
+      </div>
+      <div class="neon-card">
+        <h3>Tier 2: Content Alignment</h3>
+        <p>3-level hierarchy: Alignment Type (Left, Center, Right) × Weight Distribution (Top Heavy, Balanced, Bottom Heavy) × Style Variants (Minimal, Padded, Compact, Ultra-Compact, Elegant, Narrow). Creates 27+ combinations with progressive disclosure.</p>
+      </div>
+      <div class="neon-card">
+        <h3>Tier 3: Visual Weight</h3>
+        <p>Controls content distribution and emphasis — Top Heavy, Balanced, Bottom Heavy.</p>
+      </div>
+      <div class="neon-card">
+        <h3>Tier 4: Color Palette</h3>
+        <p>Palette Families: Neon, Earth, Ocean, Sunset, Monochrome — each with Light and Dark variants.</p>
+      </div>
+      <div class="neon-card">
+        <h3>Tier 5: Image Container</h3>
+        <p>Container Types: Masked (Circle, Hex), Framed (Modern, Ornate), Raw (Rounded), Full Bleed — with type-specific variants.</p>
+      </div>
+      <div class="neon-card">
+        <h3>Tier 6: Image Effects</h3>
+        <p>Effect Types: Filters, Borders (Glow, Solid), Overlays — with effect-specific variants.</p>
+      </div>
+    </section>
+
+    <!-- Card Editor -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-edit"></i> Card Editor (The Forge)</h2>
+      <p>The editor uses a vertical step-based navigation rail with 8 editing steps:</p>
+      <ul>
+        <li><strong>Step 0 — Presets + Random:</strong> 5 quick-start presets + 🎲 Roll Random Card generator</li>
+        <li><strong>Step 1 — Card Design:</strong> All 6 modular tiers with live visual controls</li>
+        <li><strong>Step 2 — Basics:</strong> Name, class, rarity, avatar, biography, quote</li>
+        <li><strong>Step 3 — Stats:</strong> Dynamic stat bars with animated values (0–100 scale)</li>
+        <li><strong>Step 4 — Social:</strong> Social media links with circular icon display</li>
+        <li><strong>Step 5 — Badges:</strong> Glass badge panels with icons, quantities, descriptions</li>
+        <li><strong>Step 6 — Attributes:</strong> Key-value pairs for custom properties</li>
+        <li><strong>Step 7 — Forge:</strong> Quick Actions, My Cards, Deck Manager (3 sub-tabs)</li>
+      </ul>
+
+      <h3><i class="fas fa-id-card"></i> Card Features</h3>
+      <ul>
+        <li><strong>Front face</strong> — Avatar, name, class pill, rarity badge, quote, stat bars</li>
+        <li><strong>Back face</strong> — Biography, social icons, glass badge panels, attributes</li>
+        <li><strong>Card flip</strong> — CSS 3D transforms with perspective, smooth 0.6s animation</li>
+        <li><strong>Real-time preview</strong> — Every form change instantly updates the card</li>
+        <li><strong>Class &amp; Rarity styling</strong> — Badge, glow, foil, outlined, border display styles with icon picker</li>
+      </ul>
+    </section>
+
+    <!-- Preset System -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-dice-d6"></i> Preset System</h2>
+      <p>5 curated presets with complete modular configuration and sample character data:</p>
+      <ul>
+        <li><strong>Hero Classic</strong> — Earth Light / Center Balanced / Framed Ornate (Fantasy Ranger)</li>
+        <li><strong>Split Modern</strong> — Ocean Dark / Left Top-Heavy / Framed Modern (Cyberpunk Runner)</li>
+        <li><strong>Minimal Glow</strong> — Monochrome Light / Center Balanced / Raw Rounded (Arcane Scholar)</li>
+        <li><strong>Fullbleed Cinematic</strong> — Sunset Dark / Center Bottom-Heavy / Full Bleed (Space Marine)</li>
+        <li><strong>Framed Ornate</strong> — Neon Dark / Center Top-Heavy / Framed Ornate (Corporate Ronin)</li>
+      </ul>
+      <p><strong>Roll Random</strong> — Generates a completely random card: random modular tiers, random name/class/stats from built-in pools, random image from the character image pack.</p>
+    </section>
+
+    <!-- My Cards & Deck Manager -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-box-archive"></i> My Cards &amp; Deck Manager</h2>
+
+      <h3><i class="fas fa-layer-group"></i> My Cards</h3>
+      <ul>
+        <li><strong>Local storage persistence</strong> — Cards saved to localStorage as JSON</li>
+        <li><strong>Cloud sync</strong> — Authenticated users get cloud backup via API</li>
+        <li><strong>Search &amp; filter</strong> — Search by card name in My Cards list</li>
+        <li><strong>Card operations</strong> — Save, Duplicate, Load, Delete, Add to Deck</li>
+        <li><strong>Rendered HTML caching</strong> — Front/back face HTML + CSS classes stored for instant gallery rendering</li>
+      </ul>
+
+      <h3><i class="fas fa-th-large"></i> Deck Manager</h3>
+      <ul>
+        <li><strong>Create/rename/delete decks</strong> with custom icons (12 icon options)</li>
+        <li><strong>Deck metadata</strong> — Name, description, tags, deck cover image</li>
+        <li><strong>Add/remove cards</strong> from decks via My Cards</li>
+        <li><strong>Visual deck detail</strong> — Mini-card grid showing all cards in a deck</li>
+        <li><strong>Deck publishing</strong> — Publish decks to the public gallery with share links</li>
+        <li><strong>Republish stability</strong> — Same <code>shareId</code> reused on republish (stable links)</li>
+      </ul>
+    </section>
+
+    <!-- Gallery -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-images"></i> Gallery</h2>
+
+      <h3><i class="fas fa-id-card"></i> Card Gallery</h3>
+      <ul>
+        <li><strong>Public gallery grid</strong> — All published cards displayed as rendered card faces</li>
+        <li><strong>Lightbox viewer</strong> — Full-size card with navigation (← →), flip (F), close (Esc)</li>
+        <li><strong>Deep linking</strong> — <code>?card=cardId</code> URL parameter opens specific card in lightbox</li>
+        <li><strong>Admin controls</strong> — Admin users can delete any card from gallery</li>
+        <li><strong>Owner controls</strong> — Card owners can delete their own published cards</li>
+      </ul>
+
+      <h3><i class="fas fa-th-large"></i> Deck Gallery</h3>
+      <ul>
+        <li><strong>Deck tiles</strong> — Visual grid with deck name, icon, card count, cover image</li>
+        <li><strong>Deck viewer modal</strong> — Full-screen overlay with card carousel, navigation, and flip</li>
+        <li><strong>Save to My Decks</strong> — Import a published deck into local collection</li>
+      </ul>
+    </section>
+
+    <!-- Social Media Sharing -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-share-alt"></i> Social Media Sharing</h2>
+      <p>Added February 2026 — enables rich link previews when cards and decks are shared on social platforms.</p>
+
+      <h3><i class="fas fa-id-card"></i> Card Sharing</h3>
+      <ul>
+        <li><strong>Share button</strong> in lightbox copies OG-tagged URL to clipboard</li>
+        <li><strong>Azure Function</strong> (<code>cardshare</code>) serves HTML with Open Graph + Twitter Card meta tags</li>
+        <li><strong>Rich previews</strong> on Discord, Facebook, Twitter, LinkedIn — card name, description, avatar image</li>
+        <li><strong>Human redirect</strong> — Browsers auto-redirect to <code>/cardforge/?card=xxx</code></li>
+      </ul>
+
+      <h3><i class="fas fa-th-large"></i> Deck Sharing</h3>
+      <ul>
+        <li><strong>Share button</strong> in deck viewer copies OG-tagged URL to clipboard</li>
+        <li><strong>Azure Function</strong> (<code>deckshare</code>) serves HTML with deck name, card count, tags, cover image</li>
+        <li><strong>Human redirect</strong> — Browsers auto-redirect to <code>/cardforge/deck.html?deck=xxx</code></li>
+      </ul>
+
+      <h3><i class="fas fa-download"></i> Download as PNG</h3>
+      <ul>
+        <li><strong>html2canvas</strong> (v1.4.1) for client-side card image export</li>
+        <li><strong>2× resolution</strong> capture of the card front face</li>
+        <li><strong>Named download</strong> — File named after the card (e.g., <code>aria-shadowbane.png</code>)</li>
+        <li><strong>Spinner feedback</strong> while rendering</li>
+      </ul>
+    </section>
+
+    <!-- Theming -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-palette"></i> Theming</h2>
+
+      <h3><i class="fas fa-moon"></i> 3 Themes</h3>
+      <ul>
+        <li><strong>Dark</strong> — Deep dark background, default experience</li>
+        <li><strong>Dim</strong> — Mid-tone, warmer lifted backgrounds with muted accent (<code>#2D3348</code> base)</li>
+        <li><strong>Light</strong> — Softened light palette with proper contrast</li>
+      </ul>
+
+      <h3><i class="fas fa-bolt"></i> 2 UI Accent Variants</h3>
+      <ul>
+        <li><strong>Clean</strong> — Subtle page bar with muted borders</li>
+        <li><strong>Neon</strong> — Glowing cyan borders and deeper shadows on page bar</li>
+      </ul>
+
+      <p>Theme selection via Settings modal with visual preview swatches. CSS variable system (<code>--aura-*</code>, <code>--mood-*</code>, <code>--card-*</code> tokens). Persistent via localStorage.</p>
+    </section>
+
+    <!-- Settings & Auth -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-cog"></i> Settings &amp; Authentication</h2>
+
+      <h3><i class="fas fa-sliders"></i> Settings Modal (4 Tabs)</h3>
+      <ul>
+        <li><strong>Themes</strong> — Dark/Dim/Light theme picker with visual swatches</li>
+        <li><strong>Preferences</strong> — Startup behavior, welcome screen toggle</li>
+        <li><strong>Labs</strong> — Coming soon features preview</li>
+        <li><strong>About</strong> — Version info, credits</li>
+      </ul>
+
+      <h3><i class="fas fa-lock"></i> Authentication</h3>
+      <ul>
+        <li><strong>Azure AD B2C / CIAM</strong> via <code>ambientpixelsid.ciamlogin.com</code></li>
+        <li><strong>EasyAuth integration</strong> — <code>x-ms-client-principal</code> header parsing</li>
+        <li><strong>Auth-gated actions</strong> — Publish, save to cloud, deck management require sign-in</li>
+        <li><strong>Admin system</strong> — Configurable admin user IDs for gallery moderation</li>
+        <li><strong>Localhost bypass</strong> — Auth checks skipped on localhost for development</li>
+      </ul>
+    </section>
+
+    <!-- UI/UX -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-wand-magic-sparkles"></i> UI/UX Features</h2>
+      <ul>
+        <li><strong>Welcome intro screen</strong> — Feature showcase with "By the Numbers" callout, dismissible, restorable from settings</li>
+        <li><strong>Page bar</strong> — CardForge v2 branding, status pill, UI variant toggle, info/settings buttons</li>
+        <li><strong>Left rail navigation</strong> — Vertical stepper with icon chips, collapsible</li>
+        <li><strong>Right column</strong> — Card preview zone, tools zone, My Cards zone (all collapsible)</li>
+        <li><strong>Modal system</strong> — Custom <code>Modal</code> class with tabbed content, multiple sizes</li>
+        <li><strong>Notification system</strong> — Toast notifications for success/error/info</li>
+        <li><strong>Confirmation dialogs</strong> — Custom styled confirm/cancel dialogs</li>
+        <li><strong>CSRF protection</strong> — Token-based protection for API calls</li>
+        <li><strong>Keyboard navigation</strong> — Arrow keys, Home/End in tab lists, Esc to close lightbox</li>
+        <li><strong>Responsive design</strong> — Desktop, tablet, and mobile layouts</li>
+      </ul>
+    </section>
+
+    <!-- File Structure -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-folder-tree"></i> File Structure</h2>
+      <div class="neon-card">
+        <h3>Frontend — /cardforge/</h3>
+        <ul>
+          <li><strong>index.html</strong> — Main app (80KB)</li>
+          <li><strong>deck.html</strong> — Standalone deck viewer (13KB)</li>
+          <li><strong>devlog.html</strong> — This page</li>
+          <li><strong>css/</strong> — 11 files (~300KB+): cardforge-base, cardforge-card, cardforge-ui-components, cardforge-ui, cardforge-gallery, cardforge-modular, cardforge-forms, cardforge-icons, and more</li>
+          <li><strong>js/</strong> — 17 files (~400KB+): config, card-forge-editor (168KB), cardforge-forge-actions (105KB), cardforge-lightbox, cardforge-publish, cardforge-modals, ui-utils, and more</li>
+        </ul>
+      </div>
+      <div class="neon-card">
+        <h3>Backend — /api/</h3>
+        <ul>
+          <li><strong>cardforgepublish/</strong> — Card publishing</li>
+          <li><strong>cardforgeloadcards/</strong> — Gallery card loading</li>
+          <li><strong>cardforgedeletecard/</strong> — Card deletion</li>
+          <li><strong>cardforgesavecards/</strong> — Cloud card save</li>
+          <li><strong>cardforgetemplate/</strong> — Template loading</li>
+          <li><strong>cardforgedeckpublish/</strong> — Deck publishing</li>
+          <li><strong>cardforgedeckload/</strong> — Deck loading</li>
+          <li><strong>cardforgedeckdelete/</strong> — Deck deletion</li>
+          <li><strong>cardshare/</strong> — Card OG social share</li>
+          <li><strong>deckshare/</strong> — Deck OG social share</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Roadmap -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-flask"></i> Roadmap — Labs (Coming Soon)</h2>
+      <div class="card-grid">
+        <div class="neon-card">
+          <h3><i class="fas fa-image"></i> AI Image Generation</h3>
+          <p>Generate character/scene artwork via AI prompts directly inside CardForge.</p>
+        </div>
+        <div class="neon-card">
+          <h3><i class="fas fa-robot"></i> AI Assist</h3>
+          <p>Card name, flavor text, archetype, and stat suggestions powered by AI.</p>
+        </div>
+        <div class="neon-card">
+          <h3><i class="fas fa-sliders"></i> Image Filters &amp; Effects</h3>
+          <p>Cinematic filters, color grading, and stylistic effects for card artwork.</p>
+        </div>
+        <div class="neon-card">
+          <h3><i class="fas fa-border-all"></i> Design Grid Overlay</h3>
+          <p>Alignment and spacing guides for precision card layouts.</p>
+        </div>
+        <div class="neon-card">
+          <h3><i class="fas fa-floppy-disk"></i> Auto-Save Engine</h3>
+          <p>Background saving with recovery and safety snapshots.</p>
+        </div>
+        <div class="neon-card">
+          <h3><i class="fas fa-clock-rotate-left"></i> Version History</h3>
+          <p>Restore previous saved versions of a card.</p>
+        </div>
+        <div class="neon-card">
+          <h3><i class="fas fa-file-export"></i> Advanced Export</h3>
+          <p>Print-ready PDFs, social formats, and layout presets.</p>
+        </div>
+        <div class="neon-card">
+          <h3><i class="fas fa-camera"></i> Server-Side Card Rendering</h3>
+          <p>Full card image as og:image for richer social media link previews.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-info-circle"></i> Credits</h2>
+      <p>CardForge V2 is built and maintained by <strong>Chad Martin (Pixelpusher)</strong> at Ambient Pixels.</p>
+      <p>Powered by Azure Static Web Apps, Azure Functions, Azure Blob Storage, and vanilla JavaScript.</p>
+      <p><em>© 2025–2026 Ambient Pixels — CardForge Team</em></p>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <div id="footer-container"></div>
+  <div id="contact-modal-container"></div>
+
+  <!-- Scripts -->
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/dreamEngine.js" defer></script>
+  <script src="/js/init-quotes.js" defer></script>
+  <script src="/js/main.js" defer></script>
+  <script src="/modules/breadcrumb.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/nova-ai.js" defer></script>
+  <script src="/js/nova-mood-core.js" defer></script>
+  <script src="/js/template.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+</body>
+</html>
