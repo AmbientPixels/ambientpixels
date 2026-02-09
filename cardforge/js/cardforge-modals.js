@@ -404,51 +404,64 @@ function showInfoPopup() {
 function createFeaturesTabContent() {
   return `
     <div class="info-section">
+      <h4><i class="fas fa-chart-bar"></i> By the Numbers</h4>
+      <h5 style="margin: 0 0 8px 0; color: var(--primary-color, #6366f1); font-size: 1.1rem;">Nearly 40 Million Possible Card Designs</h5>
+      <p style="margin: 0 0 8px 0;">CardForge's modular system combines container types, palette families, layout variants, compositions, and stat configurations into a structured design space that supports nearly 40 million unique visual card designs — all generated within intentional constraints rather than random output.</p>
+      <p style="margin: 0 0 24px 0; opacity: 0.8;">This gives creators massive variety without sacrificing readability, balance, or visual consistency.</p>
+
       <h4><i class="fas fa-rocket"></i> Core Features</h4>
       <div class="feature-grid">
         <div class="feature-item">
-          <h5><i class="fas fa-paint-brush"></i> Real-time Design</h5>
-          <p>See your card design update instantly as you type and adjust settings. No need to refresh or wait for previews.</p>
+          <h5><i class="fas fa-paint-brush"></i> Real-Time Design</h5>
+          <p>See your card update instantly as you type or adjust settings. Every change is reflected live — no refreshes, no waiting for previews.</p>
         </div>
         <div class="feature-item">
           <h5><i class="fas fa-magic"></i> Quick Start Presets</h5>
-          <p>Jump-start your design with hero, villain, spell, and item templates. Each preset includes optimized layouts and styling.</p>
+          <p>Jump-start your design with curated presets for heroes, villains, spells, items, and archetypes. Each preset applies a complete, tuned configuration across layout, palette, stats, and styling.</p>
         </div>
         <div class="feature-item">
           <h5><i class="fas fa-layer-group"></i> Modular Design System</h5>
-          <p>Customize every aspect with our tier-based system: 6 container types, 11 palette families, 9 style variants, and more.</p>
+          <p>Customize every aspect of your card using a tier-based system — container types, palette families, style variants, composition rules, and stat layouts all work together without breaking structure.</p>
         </div>
         <div class="feature-item">
           <h5><i class="fas fa-folder-open"></i> My Cards</h5>
-          <p>Browse, search, and manage all your saved cards in a dedicated gallery. Edit, delete, publish, or add cards to decks from one place.</p>
+          <p>Browse, search, and manage all your saved cards in one place. Edit, duplicate, publish, delete, or add cards to decks from a unified gallery.</p>
         </div>
         <div class="feature-item">
           <h5><i class="fas fa-book"></i> Deck Manager</h5>
-          <p>Organize your cards into themed decks. Create, rename, and curate collections with a visual deck builder and rendered card previews.</p>
+          <p>Organize cards into themed decks. Create, rename, and curate collections using a visual deck builder with fully rendered card previews.</p>
         </div>
         <div class="feature-item">
-          <h5><i class="fas fa-wand-magic-sparkles"></i> Refreshed UI</h5>
-          <p>Completely overhauled interface with a collapsible left rail, step-by-step editor flow, and a cleaner layout for a smoother design experience.</p>
+          <h5><i class="fas fa-share-nodes"></i> Publishing & Sharing</h5>
+          <p>Publish cards and decks to the public gallery with a single action. Share links, preview content in-app, and manage visibility without leaving your workflow.</p>
         </div>
       </div>
 
       <h4 style="margin-top: 24px;"><i class="fas fa-bolt"></i> Latest Updates</h4>
       <div class="feature-grid">
         <div class="feature-item">
-          <h5><i class="fas fa-wand-magic-sparkles"></i> Auto Palette</h5>
-          <p>Select "Auto" in the palette picker and the system analyzes your card image to automatically choose the best matching color palette.</p>
-        </div>
-        <div class="feature-item">
-          <h5><i class="fas fa-palette"></i> 5 New Palettes</h5>
-          <p>Corporate, Royal, Inferno, Frost, and Arcane join the existing 5 families for a total of 11 palette options (including Auto), each with Light and Dark variants.</p>
+          <h5><i class="fas fa-wand-magic-sparkles"></i> Refreshed Interface</h5>
+          <p>A fully overhauled UI featuring a collapsible left navigation rail, clearer editor sections, and a smoother step-by-step creation flow designed for focus and speed.</p>
         </div>
         <div class="feature-item">
           <h5><i class="fas fa-crop-simple"></i> Inset Container</h5>
-          <p>New container type that renders your image inside a constrained inset frame. Choose from Panel, Glass, Emblem, or Cutout variants.</p>
+          <p>A new container type that renders artwork inside a constrained inset frame. Choose from Panel, Glass, Emblem, or Cutout variants for cleaner, more controlled compositions.</p>
         </div>
         <div class="feature-item">
-          <h5><i class="fas fa-film"></i> 4 New Style Variants</h5>
-          <p>Bold (poster impact), Cinematic (widescreen drama), Editorial (magazine layout), and Stacked (sectioned dividers) join the Composition picker.</p>
+          <h5><i class="fas fa-palette"></i> Expanded Palette Library</h5>
+          <p>Five new palette families — Corporate, Royal, Inferno, Frost, and Arcane — join the original collection for a total of 11 palette options (including Auto), each with Light and Dark variants.</p>
+        </div>
+        <div class="feature-item">
+          <h5><i class="fas fa-eye-dropper"></i> Auto Palette</h5>
+          <p>Select Auto in the palette picker and CardForge analyzes your artwork to automatically choose a complementary color palette optimized for contrast and readability.</p>
+        </div>
+        <div class="feature-item">
+          <h5><i class="fas fa-floppy-disk"></i> Save State Feedback</h5>
+          <p>Clear visual save states indicate when your work is unsaved, saving, saved, or up to date, helping you stay confident as you iterate.</p>
+        </div>
+        <div class="feature-item">
+          <h5><i class="fas fa-dice"></i> Improved Preset & Random Flow</h5>
+          <p>Quick Start Presets and the Random Card generator now use unified iconography, clearer hover states, and improved selection feedback for better visual affordance.</p>
         </div>
       </div>
     </div>
