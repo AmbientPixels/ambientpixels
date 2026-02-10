@@ -1929,6 +1929,79 @@
   transition: filter 0.3s ease;
 }
 
+/* --- Visual Effects --- */
+
+/* Cyberpunk — neon-tinted, high saturation + hue shift */
+.card-preview-canvas.effect-filters.effect-variant-cyberpunk .card-avatar {
+  filter: saturate(1.8) contrast(1.3) brightness(1.1) hue-rotate(280deg);
+  transition: filter 0.3s ease;
+}
+
+/* Faded — washed-out, low contrast retro look */
+.card-preview-canvas.effect-filters.effect-variant-faded .card-avatar {
+  filter: saturate(0.5) contrast(0.85) brightness(1.15) sepia(15%);
+  transition: filter 0.3s ease;
+}
+
+/* High Contrast — punchy darks and lights */
+.card-preview-canvas.effect-filters.effect-variant-high-contrast .card-avatar {
+  filter: contrast(1.6) brightness(1.05) saturate(1.1);
+  transition: filter 0.3s ease;
+}
+
+/* Duotone — desaturated with strong tint */
+.card-preview-canvas.effect-filters.effect-variant-duotone .card-avatar {
+  filter: grayscale(80%) sepia(60%) saturate(1.6) hue-rotate(180deg) brightness(0.95);
+  transition: filter 0.3s ease;
+}
+
+/* --- Cinematic --- */
+
+/* Vignette — darkened edges via drop-shadow + slight dim */
+.card-preview-canvas.effect-filters.effect-variant-vignette .card-avatar {
+  filter: contrast(1.1) brightness(0.92) saturate(1.1);
+  box-shadow: inset 0 0 40px 10px rgba(0, 0, 0, 0.5);
+  transition: filter 0.3s ease;
+}
+
+/* Bleach Bypass — desaturated, high contrast cinematic */
+.card-preview-canvas.effect-filters.effect-variant-bleach-bypass .card-avatar {
+  filter: grayscale(40%) contrast(1.4) brightness(0.95) saturate(0.7);
+  transition: filter 0.3s ease;
+}
+
+/* Cross Process — shifted color channels, surreal tones */
+.card-preview-canvas.effect-filters.effect-variant-cross-process .card-avatar {
+  filter: sepia(20%) saturate(1.6) hue-rotate(40deg) contrast(1.15) brightness(1.05);
+  transition: filter 0.3s ease;
+}
+
+/* --- Color Shifts --- */
+
+/* Infrared — red-tinted heat vision look */
+.card-preview-canvas.effect-filters.effect-variant-infrared .card-avatar {
+  filter: sepia(40%) saturate(2) hue-rotate(330deg) contrast(1.2) brightness(1.05);
+  transition: filter 0.3s ease;
+}
+
+/* Midnight — deep blue cold tone */
+.card-preview-canvas.effect-filters.effect-variant-midnight .card-avatar {
+  filter: sepia(30%) saturate(1.4) hue-rotate(200deg) brightness(0.85) contrast(1.15);
+  transition: filter 0.3s ease;
+}
+
+/* Emerald — green forest tint */
+.card-preview-canvas.effect-filters.effect-variant-emerald .card-avatar {
+  filter: sepia(25%) saturate(1.5) hue-rotate(90deg) brightness(1.0) contrast(1.1);
+  transition: filter 0.3s ease;
+}
+
+/* Sunset — warm orange golden hour */
+.card-preview-canvas.effect-filters.effect-variant-sunset .card-avatar {
+  filter: sepia(50%) saturate(1.6) hue-rotate(350deg) brightness(1.1) contrast(1.05);
+  transition: filter 0.3s ease;
+}
+
 /* BORDER EFFECTS - Applied to .card-avatar */
 
 /* Border Effects - Solid */

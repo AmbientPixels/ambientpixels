@@ -1379,7 +1379,7 @@
       imageEffects: ['none', 'filters'],
       effectVariants: {
         'none': ['clean'],
-        'filters': ['sepia', 'blur', 'saturate', 'contrast']
+        'filters': ['sepia', 'grayscale', 'vintage', 'noir', 'warm', 'cool', 'cyberpunk', 'faded', 'high-contrast', 'duotone', 'vignette', 'bleach-bypass', 'cross-process', 'infrared', 'midnight', 'emerald', 'sunset']
       },
       // Border Types (standalone)
       borderStyles: ['none', 'solid', 'dashed', 'glow'],
@@ -2606,12 +2606,23 @@
     };
 
     const effectFilters = {
-      'sepia':     'sepia(80%) saturate(1.2) brightness(1.1)',
-      'grayscale': 'grayscale(100%) contrast(1.1) brightness(1.05)',
-      'vintage':   'sepia(60%) contrast(1.2) brightness(0.9) saturate(1.4) hue-rotate(15deg)',
-      'noir':      'grayscale(100%) contrast(1.3) brightness(0.8)',
-      'warm':      'sepia(30%) saturate(1.3) brightness(1.1) hue-rotate(10deg)',
-      'cool':      'saturate(1.2) brightness(1.05) hue-rotate(-10deg) contrast(1.1)'
+      'sepia':          'sepia(80%) saturate(1.2) brightness(1.1)',
+      'grayscale':      'grayscale(100%) contrast(1.1) brightness(1.05)',
+      'vintage':        'sepia(60%) contrast(1.2) brightness(0.9) saturate(1.4) hue-rotate(15deg)',
+      'noir':           'grayscale(100%) contrast(1.3) brightness(0.8)',
+      'warm':           'sepia(30%) saturate(1.3) brightness(1.1) hue-rotate(10deg)',
+      'cool':           'saturate(1.2) brightness(1.05) hue-rotate(-10deg) contrast(1.1)',
+      'cyberpunk':      'saturate(1.8) contrast(1.3) brightness(1.1) hue-rotate(280deg)',
+      'faded':          'saturate(0.5) contrast(0.85) brightness(1.15) sepia(15%)',
+      'high-contrast':  'contrast(1.6) brightness(1.05) saturate(1.1)',
+      'duotone':        'grayscale(80%) sepia(60%) saturate(1.6) hue-rotate(180deg) brightness(0.95)',
+      'vignette':       'contrast(1.1) brightness(0.92) saturate(1.1)',
+      'bleach-bypass':  'grayscale(40%) contrast(1.4) brightness(0.95) saturate(0.7)',
+      'cross-process':  'sepia(20%) saturate(1.6) hue-rotate(40deg) contrast(1.15) brightness(1.05)',
+      'infrared':       'sepia(40%) saturate(2) hue-rotate(330deg) contrast(1.2) brightness(1.05)',
+      'midnight':       'sepia(30%) saturate(1.4) hue-rotate(200deg) brightness(0.85) contrast(1.15)',
+      'emerald':        'sepia(25%) saturate(1.5) hue-rotate(90deg) brightness(1.0) contrast(1.1)',
+      'sunset':         'sepia(50%) saturate(1.6) hue-rotate(350deg) brightness(1.1) contrast(1.05)'
     };
 
     const containerFilter = (ModularState.imageContainer === 'fullbleed')
