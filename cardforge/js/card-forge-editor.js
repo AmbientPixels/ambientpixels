@@ -1273,6 +1273,26 @@
     // Note: Using direct call since we're inside the IIFE closure
     rollRandomCard();
     
+    // Default image effects and borders to none on page load
+    ModularState.imageEffect = 'none';
+    ModularState.imageEffectVariant = 'clean';
+    ModularState.borderStyle = 'none';
+    updatePreview();
+    
+    // Sync effect type buttons to None
+    document.querySelectorAll('[data-tier="2"] .effects-grid .tier-option').forEach(opt => {
+      opt.classList.toggle('selected', opt.dataset.value === 'none');
+    });
+    const evsSection = document.querySelector('[data-tier="2"] .effects-variants-section');
+    if (evsSection) evsSection.style.display = 'none';
+    
+    // Sync border category buttons to None
+    document.querySelectorAll('[data-tier="2"] .border-category-grid .tier-option').forEach(opt => {
+      opt.classList.toggle('selected', opt.dataset.value === 'none');
+    });
+    const bvsSection = document.querySelector('[data-tier="2"] .border-variants-section');
+    if (bvsSection) bvsSection.style.display = 'none';
+    
     if (window.CardForgeChrome) {
       setTimeout(() => window.CardForgeChrome.setDirtyTracking(true), 600);
     }
@@ -1376,10 +1396,11 @@
         'floating': ['centered', 'tilted-left', 'tilted-right']
       },
       // Image Effects (filters only)
-      imageEffects: ['none', 'filters'],
+      imageEffects: ['none', 'filters', 'overlays'],
       effectVariants: {
         'none': ['clean'],
-        'filters': ['sepia', 'grayscale', 'vintage', 'noir', 'warm', 'cool', 'cyberpunk', 'faded', 'high-contrast', 'duotone', 'vignette', 'bleach-bypass', 'cross-process', 'infrared', 'midnight', 'emerald', 'sunset']
+        'filters': ['sepia', 'grayscale', 'vintage', 'noir', 'warm', 'cool', 'cyberpunk', 'faded', 'high-contrast', 'duotone', 'vignette', 'bleach-bypass', 'cross-process', 'infrared', 'midnight', 'emerald', 'sunset'],
+        'overlays': ['color-wash', 'gradient-fade', 'spotlight', 'haze']
       },
       // Border Types (standalone)
       borderStyles: ['none', 'solid', 'dashed', 'glow', 'double', 'ridge', 'groove', 'inset', 'pulse', 'gradient', 'shimmer', 'neon', 'gold', 'frost', 'shadow-frame', 'bevel'],
@@ -1493,6 +1514,44 @@
     effectOptions.forEach(option => {
       option.classList.toggle('selected', option.dataset.value === ModularState.imageEffect);
     });
+    
+    // Show/hide effects variants section
+    const evsSection = document.querySelector('[data-tier="2"] .effects-variants-section');
+    if (evsSection) {
+      evsSection.style.display = ModularState.imageEffect === 'none' ? 'none' : 'block';
+    }
+    document.querySelectorAll('[data-tier="2"] .effect-variants').forEach(container => {
+      container.style.display = container.dataset.effect === ModularState.imageEffect ? 'block' : 'none';
+    });
+    const activeEffectPanel = document.querySelector(`[data-tier="2"] [data-effect="${ModularState.imageEffect}"]`);
+    if (activeEffectPanel) {
+      activeEffectPanel.querySelectorAll('.variant-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.dataset.variant === ModularState.imageEffectVariant);
+      });
+    }
+    
+    // Update border category selection
+    const borderCat = ModularState.borderStyle === 'none' ? 'none'
+      : ['solid','dashed','double','ridge','groove','inset','bevel'].includes(ModularState.borderStyle) ? 'classic'
+      : ['glow','neon','pulse','shimmer'].includes(ModularState.borderStyle) ? 'glow'
+      : ['gold','frost','shadow-frame','gradient'].includes(ModularState.borderStyle) ? 'themed'
+      : 'none';
+    document.querySelectorAll('[data-tier="2"] .border-category-grid .tier-option').forEach(opt => {
+      opt.classList.toggle('selected', opt.dataset.value === borderCat);
+    });
+    const bvsSection = document.querySelector('[data-tier="2"] .border-variants-section');
+    if (bvsSection) {
+      bvsSection.style.display = borderCat === 'none' ? 'none' : 'block';
+    }
+    document.querySelectorAll('[data-tier="2"] .border-variants').forEach(panel => {
+      panel.style.display = panel.dataset.borderCategory === borderCat ? 'block' : 'none';
+    });
+    const activeBorderPanel = document.querySelector(`[data-tier="2"] [data-border-category="${borderCat}"]`);
+    if (activeBorderPanel) {
+      activeBorderPanel.querySelectorAll('.variant-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.dataset.border === ModularState.borderStyle);
+      });
+    }
     
     // Update palette selection
     const paletteOptions = document.querySelectorAll('[data-tier="3"] .palette-family');
@@ -1990,8 +2049,8 @@
       toggle.classList.toggle('selected', toggle.dataset.variant === ModularState.paletteVariant);
     });
     
-    // Update Tier 2: Image Container & Effects (consolidated)
-    const containerOptions = document.querySelectorAll('[data-tier="2"] .tier-option');
+    // Update Tier 2: Image Container (scoped to .container-grid only)
+    const containerOptions = document.querySelectorAll('[data-tier="2"] .container-grid .tier-option');
     containerOptions.forEach(option => {
       option.classList.toggle('selected', option.dataset.value === ModularState.imageContainer);
     });
@@ -2012,11 +2071,17 @@
       });
     }
     
-    // Update Image Effects (sub-section of Tier 2)
-    const effectOptions = document.querySelectorAll('[data-tier="2"] .effects-level .tier-option');
+    // Update Image Effects (scoped to .effects-grid)
+    const effectOptions = document.querySelectorAll('[data-tier="2"] .effects-grid .tier-option');
     effectOptions.forEach(option => {
       option.classList.toggle('selected', option.dataset.value === ModularState.imageEffect);
     });
+    
+    // Show/hide effects-variants-section based on effect type
+    const effectsVariantsSection = document.querySelector('[data-tier="2"] .effects-level .effects-variants-section');
+    if (effectsVariantsSection) {
+      effectsVariantsSection.style.display = ModularState.imageEffect === 'none' ? 'none' : 'block';
+    }
     
     // Show/hide effect variants
     const effectVariantContainers = document.querySelectorAll('[data-tier="2"] .effect-variants');
@@ -2031,6 +2096,35 @@
       const variantOptions = activeEffect.querySelectorAll('.variant-option');
       variantOptions.forEach(option => {
         option.classList.toggle('selected', option.dataset.variant === ModularState.imageEffectVariant);
+      });
+    }
+    
+    // Update Border Category (scoped to .border-category-grid)
+    const borderCatOptions = document.querySelectorAll('[data-tier="2"] .border-category-grid .tier-option');
+    const borderCategory = ModularState.borderStyle === 'none' ? 'none'
+      : ['solid','dashed','double','ridge','groove','inset','bevel'].includes(ModularState.borderStyle) ? 'classic'
+      : ['glow','neon','pulse','shimmer'].includes(ModularState.borderStyle) ? 'glow'
+      : ['gold','frost','shadow-frame','gradient'].includes(ModularState.borderStyle) ? 'themed'
+      : 'none';
+    borderCatOptions.forEach(option => {
+      option.classList.toggle('selected', option.dataset.value === borderCategory);
+    });
+    
+    // Show/hide border variants section
+    const borderVariantsSection = document.querySelector('[data-tier="2"] .borders-level .border-variants-section');
+    if (borderVariantsSection) {
+      borderVariantsSection.style.display = borderCategory === 'none' ? 'none' : 'block';
+    }
+    const borderVariantPanels = document.querySelectorAll('[data-tier="2"] .border-variants');
+    borderVariantPanels.forEach(panel => {
+      panel.style.display = panel.dataset.borderCategory === borderCategory ? 'block' : 'none';
+    });
+    
+    // Update border variant selection
+    const activeBorderPanel = document.querySelector(`[data-tier="2"] [data-border-category="${borderCategory}"]`);
+    if (activeBorderPanel) {
+      activeBorderPanel.querySelectorAll('.variant-option').forEach(option => {
+        option.classList.toggle('selected', option.dataset.border === ModularState.borderStyle);
       });
     }
     
@@ -2622,14 +2716,18 @@
       'infrared':       'sepia(40%) saturate(2) hue-rotate(330deg) contrast(1.2) brightness(1.05)',
       'midnight':       'sepia(30%) saturate(1.4) hue-rotate(200deg) brightness(0.85) contrast(1.15)',
       'emerald':        'sepia(25%) saturate(1.5) hue-rotate(90deg) brightness(1.0) contrast(1.1)',
-      'sunset':         'sepia(50%) saturate(1.6) hue-rotate(350deg) brightness(1.1) contrast(1.05)'
+      'sunset':         'sepia(50%) saturate(1.6) hue-rotate(350deg) brightness(1.1) contrast(1.05)',
+      'color-wash':     'sepia(0.4) saturate(1.8) hue-rotate(160deg)',
+      'gradient-fade':  'brightness(0.6) contrast(1.15) saturate(1.1)',
+      'spotlight':      'contrast(1.3) brightness(1.1) saturate(1.2)',
+      'haze':           'brightness(1.15) contrast(0.8) saturate(0.75) blur(0.5px)'
     };
 
     const containerFilter = (ModularState.imageContainer === 'fullbleed')
       ? fullbleedFilters[ModularState.imageContainerVariant] || null
       : null;
 
-    const effectFilter = (ModularState.imageEffect === 'filters')
+    const effectFilter = (ModularState.imageEffect === 'filters' || ModularState.imageEffect === 'overlays')
       ? effectFilters[ModularState.imageEffectVariant] || null
       : null;
 
@@ -3725,7 +3823,8 @@
         // Set default variant for the selected effect
         const defaultVariants = {
           'none': 'clean',
-          'filters': 'sepia'
+          'filters': 'sepia',
+          'overlays': 'color-wash'
         };
         ModularState.imageEffectVariant = defaultVariants[ModularState.imageEffect] || 'clean';
         
@@ -3812,7 +3911,8 @@
         
         const defaultVariants = {
           'none': 'clean',
-          'filters': 'sepia'
+          'filters': 'sepia',
+          'overlays': 'color-wash'
         };
         
         ModularState.imageEffectVariant = defaultVariants[ModularState.imageEffect] || 'clean';
@@ -3833,8 +3933,8 @@
     });
     
     // Effect Variant Selection Handlers
-    const variantOptions = document.querySelectorAll('[data-tier="2"] .effects-level .variant-option');
-    variantOptions.forEach(option => {
+    const variantOptions2 = document.querySelectorAll('[data-tier="2"] .effects-level .variant-option');
+    variantOptions2.forEach(option => {
       option.addEventListener('click', () => {
         const container = option.closest('.effect-variants');
         const siblingOptions = container.querySelectorAll('.variant-option');
@@ -3946,7 +4046,8 @@
         
         const defaultVariants = {
           'none': 'clean',
-          'filters': 'sepia'
+          'filters': 'sepia',
+          'overlays': 'color-wash'
         };
         
         ModularState.imageEffectVariant = defaultVariants[ModularState.imageEffect] || 'clean';
@@ -3965,8 +4066,8 @@
       });
     });
     
-    const variantOptions = document.querySelectorAll('[data-tier="2"] .effects-level .effect-variants .variant-option');
-    variantOptions.forEach(option => {
+    const variantOptions3 = document.querySelectorAll('[data-tier="2"] .effects-level .effect-variants .variant-option');
+    variantOptions3.forEach(option => {
       option.addEventListener('click', () => {
         const container = option.closest('.effect-variants');
         const siblingOptions = container.querySelectorAll('.variant-option');
@@ -4100,7 +4201,8 @@
         // Set default variant for the selected effect
         const defaultEffectVariants = {
           'none': 'clean',
-          'filters': 'sepia'
+          'filters': 'sepia',
+          'overlays': 'color-wash'
         };
         ModularState.imageEffectVariant = defaultEffectVariants[ModularState.imageEffect] || 'clean';
         

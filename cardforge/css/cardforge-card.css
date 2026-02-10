@@ -2073,6 +2073,33 @@
   transition: filter 0.3s ease;
 }
 
+/* ===== OVERLAY EFFECTS ===== */
+/* Overlays use filter on .card-avatar directly — works across all container types */
+
+/* Color Wash — warm accent tint */
+.card-preview-canvas.effect-overlays.effect-variant-color-wash .card-avatar {
+  filter: sepia(0.4) saturate(1.8) hue-rotate(160deg);
+  transition: filter 0.3s ease;
+}
+
+/* Gradient Fade — darkened, high contrast fade */
+.card-preview-canvas.effect-overlays.effect-variant-gradient-fade .card-avatar {
+  filter: brightness(0.6) contrast(1.15) saturate(1.1);
+  transition: filter 0.3s ease;
+}
+
+/* Spotlight — bright center, punchy contrast */
+.card-preview-canvas.effect-overlays.effect-variant-spotlight .card-avatar {
+  filter: contrast(1.3) brightness(1.1) saturate(1.2);
+  transition: filter 0.3s ease;
+}
+
+/* Haze — soft foggy glow */
+.card-preview-canvas.effect-overlays.effect-variant-haze .card-avatar {
+  filter: brightness(1.15) contrast(0.8) saturate(0.75) blur(0.5px);
+  transition: filter 0.3s ease;
+}
+
 /* BORDER EFFECTS - Applied to .card-avatar */
 
 /* Border Effects - Solid */
