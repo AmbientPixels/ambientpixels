@@ -2577,6 +2577,9 @@
     // Update card content
     updateCardContent();
     
+    // Combine fullbleed variant filters with image effect filters
+    applyCombinedFilters();
+    
     // Equalize card heights after content update
     setTimeout(() => {
       setEqualCardHeight();
@@ -2586,6 +2589,45 @@
       // layout: ModularState.layout, REMOVED - Phase 1 of Flow Restructure
       palette: `${ModularState.palette}-${ModularState.paletteVariant}`,
       imageContainer: `${ModularState.imageContainer}-${ModularState.imageContainerVariant}`
+    });
+  }
+
+  // ===== COMBINED FILTER MERGE =====
+  // Fullbleed variants and image effects both use CSS `filter` on .card-avatar.
+  // CSS can't merge filter from separate rules, so when both are active we
+  // combine them into a single inline style.
+  function applyCombinedFilters() {
+    const avatars = document.querySelectorAll('.card-preview-zone .card-avatar');
+    if (!avatars.length) return;
+
+    const fullbleedFilters = {
+      'dimmed':  'brightness(0.7) contrast(1.1)',
+      'blurred': 'blur(3px) brightness(0.8)'
+    };
+
+    const effectFilters = {
+      'sepia':     'sepia(80%) saturate(1.2) brightness(1.1)',
+      'grayscale': 'grayscale(100%) contrast(1.1) brightness(1.05)',
+      'vintage':   'sepia(60%) contrast(1.2) brightness(0.9) saturate(1.4) hue-rotate(15deg)',
+      'noir':      'grayscale(100%) contrast(1.3) brightness(0.8)',
+      'warm':      'sepia(30%) saturate(1.3) brightness(1.1) hue-rotate(10deg)',
+      'cool':      'saturate(1.2) brightness(1.05) hue-rotate(-10deg) contrast(1.1)'
+    };
+
+    const containerFilter = (ModularState.imageContainer === 'fullbleed')
+      ? fullbleedFilters[ModularState.imageContainerVariant] || null
+      : null;
+
+    const effectFilter = (ModularState.imageEffect === 'filters')
+      ? effectFilters[ModularState.imageEffectVariant] || null
+      : null;
+
+    avatars.forEach(avatar => {
+      if (containerFilter && effectFilter) {
+        avatar.style.filter = `${containerFilter} ${effectFilter}`;
+      } else {
+        avatar.style.removeProperty('filter');
+      }
     });
   }
 
