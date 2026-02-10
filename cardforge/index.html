@@ -722,7 +722,7 @@
                     </div>
                   </div>
                   
-                  <div class="effects-variants-section">
+                  <div class="effects-variants-section" style="display: none;">
                     <h6 class="variant-subtitle">Effect Variants</h6>
                     
                     <!-- None Variants -->
@@ -816,22 +816,116 @@
                 <!-- BORDER TYPES (standalone, independent of container + effects) -->
                 <div class="container-level borders-level">
                   <h5 class="level-title">Border Type</h5>
-                  <div class="variant-options border-style-options">
-                    <div class="variant-option selected" data-border="none">
-                      <div class="variant-preview border-none-preview"></div>
-                      <span class="variant-label">None</span>
+                  
+                  <div class="border-type-section">
+                    <h6 class="variant-subtitle">Border Category</h6>
+                    <div class="tier-options-grid border-category-grid">
+                      <div class="tier-option selected" data-value="none">
+                        <div class="option-preview">
+                          <div class="effect-icon none-icon"></div>
+                        </div>
+                        <span class="option-label">None</span>
+                      </div>
+                      <div class="tier-option" data-value="classic">
+                        <div class="option-preview">
+                          <div class="effect-icon classic-icon"></div>
+                        </div>
+                        <span class="option-label">Classic</span>
+                      </div>
+                      <div class="tier-option" data-value="glow">
+                        <div class="option-preview">
+                          <div class="effect-icon glow-icon"></div>
+                        </div>
+                        <span class="option-label">Glow</span>
+                      </div>
+                      <div class="tier-option" data-value="themed">
+                        <div class="option-preview">
+                          <div class="effect-icon themed-icon"></div>
+                        </div>
+                        <span class="option-label">Themed</span>
+                      </div>
                     </div>
-                    <div class="variant-option" data-border="solid">
-                      <div class="variant-preview border-solid-preview"></div>
-                      <span class="variant-label">Solid</span>
+                  </div>
+                  
+                  <div class="border-variants-section">
+                    <h6 class="variant-subtitle">Border Style</h6>
+                    
+                    <!-- Classic Variants -->
+                    <div class="border-variants" data-border-category="classic" style="display: none;">
+                      <div class="variant-options">
+                        <div class="variant-option" data-border="solid">
+                          <div class="variant-preview border-solid-preview"></div>
+                          <span class="variant-label">Solid</span>
+                        </div>
+                        <div class="variant-option" data-border="dashed">
+                          <div class="variant-preview border-dashed-preview"></div>
+                          <span class="variant-label">Dashed</span>
+                        </div>
+                        <div class="variant-option" data-border="double">
+                          <div class="variant-preview border-double-preview"></div>
+                          <span class="variant-label">Double</span>
+                        </div>
+                        <div class="variant-option" data-border="ridge">
+                          <div class="variant-preview border-ridge-preview"></div>
+                          <span class="variant-label">Ridge</span>
+                        </div>
+                        <div class="variant-option" data-border="groove">
+                          <div class="variant-preview border-groove-preview"></div>
+                          <span class="variant-label">Groove</span>
+                        </div>
+                        <div class="variant-option" data-border="inset">
+                          <div class="variant-preview border-inset-preview"></div>
+                          <span class="variant-label">Inset</span>
+                        </div>
+                        <div class="variant-option" data-border="bevel">
+                          <div class="variant-preview border-bevel-preview"></div>
+                          <span class="variant-label">Bevel</span>
+                        </div>
+                      </div>
                     </div>
-                    <div class="variant-option" data-border="dashed">
-                      <div class="variant-preview border-dashed-preview"></div>
-                      <span class="variant-label">Dashed</span>
+                    
+                    <!-- Glow Variants -->
+                    <div class="border-variants" data-border-category="glow" style="display: none;">
+                      <div class="variant-options">
+                        <div class="variant-option" data-border="glow">
+                          <div class="variant-preview border-glow-preview"></div>
+                          <span class="variant-label">Glow</span>
+                        </div>
+                        <div class="variant-option" data-border="neon">
+                          <div class="variant-preview border-neon-preview"></div>
+                          <span class="variant-label">Neon</span>
+                        </div>
+                        <div class="variant-option" data-border="pulse">
+                          <div class="variant-preview border-pulse-preview"></div>
+                          <span class="variant-label">Pulse</span>
+                        </div>
+                        <div class="variant-option" data-border="shimmer">
+                          <div class="variant-preview border-shimmer-preview"></div>
+                          <span class="variant-label">Shimmer</span>
+                        </div>
+                      </div>
                     </div>
-                    <div class="variant-option" data-border="glow">
-                      <div class="variant-preview border-glow-preview"></div>
-                      <span class="variant-label">Glow</span>
+                    
+                    <!-- Themed Variants -->
+                    <div class="border-variants" data-border-category="themed" style="display: none;">
+                      <div class="variant-options">
+                        <div class="variant-option" data-border="gold">
+                          <div class="variant-preview border-gold-preview"></div>
+                          <span class="variant-label">Gold</span>
+                        </div>
+                        <div class="variant-option" data-border="frost">
+                          <div class="variant-preview border-frost-preview"></div>
+                          <span class="variant-label">Frost</span>
+                        </div>
+                        <div class="variant-option" data-border="shadow-frame">
+                          <div class="variant-preview border-shadow-frame-preview"></div>
+                          <span class="variant-label">Shadow Frame</span>
+                        </div>
+                        <div class="variant-option" data-border="gradient">
+                          <div class="variant-preview border-gradient-preview"></div>
+                          <span class="variant-label">Gradient</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
