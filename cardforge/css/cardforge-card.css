@@ -1257,6 +1257,7 @@
 
 /* Top breathing room for thumbnail-style containers */
 .card-preview-canvas.container-masked,
+.card-preview-canvas.container-polaroid,
 .card-preview-canvas.container-framed,
 .card-preview-canvas.container-raw {
   padding-top: 1rem;
@@ -1286,7 +1287,254 @@
   border-radius: 0;
 }
 
-/* Framed Container - Bigger Size */
+/* Masked Rounded Variant — rounded rectangle crop */
+.card-preview-canvas.container-masked.container-variant-rounded .card-avatar {
+  clip-path: none;
+  border-radius: 16px;
+}
+
+/* Masked Square Variant — sharp square crop */
+.card-preview-canvas.container-masked.container-variant-square .card-avatar {
+  clip-path: none;
+  border-radius: 0;
+}
+
+/* Masked Rectangle Variant — wide rectangle crop */
+.card-preview-canvas.container-masked.container-variant-rectangle .card-avatar {
+  clip-path: none;
+  border-radius: 6px;
+  width: 160px !important;
+  height: 100px !important;
+}
+
+/* ===== POLAROID CONTAINER ===== */
+
+.card-preview-canvas.container-polaroid .card-avatar {
+  width: 140px !important;
+  height: 120px !important;
+  margin: 0 auto 1rem auto;
+  display: block;
+  object-fit: cover;
+}
+
+/* Polaroid Classic — white photo frame with thick bottom */
+.card-preview-canvas.container-polaroid.container-variant-classic .card-avatar {
+  border: 6px solid #f5f5f0;
+  border-bottom-width: 20px;
+  border-radius: 2px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Polaroid Vintage — warm cream tint frame */
+.card-preview-canvas.container-polaroid.container-variant-vintage .card-avatar {
+  border: 6px solid #e8dcc8;
+  border-bottom-width: 20px;
+  border-radius: 2px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  filter: sepia(0.15) contrast(1.05);
+}
+
+/* Polaroid Dark — themed dark frame */
+.card-preview-canvas.container-polaroid.container-variant-dark .card-avatar {
+  border: 6px solid var(--mood-accent-color, #2a2a3e);
+  border-bottom-width: 20px;
+  border-radius: 2px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 8px rgba(0, 212, 255, 0.1);
+}
+
+/* ===== BANNER CONTAINER =====
+   Uses position:absolute for avatar (like Hero) with a ::before spacer.
+   --banner-h controls strip height, --banner-top controls position. */
+
+.card-preview-canvas.container-banner {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  --banner-h: 80px;
+}
+
+.card-preview-canvas.container-banner .card-avatar {
+  position: absolute;
+  left: 0;
+  width: 100% !important;
+  height: var(--banner-h) !important;
+  object-fit: cover;
+  border-radius: 0 !important;
+  z-index: 0;
+}
+
+/* Spacer pushes content below the banner image (resets base glow ::before) */
+.card-preview-canvas.card-front.container-banner::before {
+  content: '';
+  position: static;
+  inset: auto;
+  display: block;
+  flex-shrink: 0;
+  height: var(--banner-h);
+  background: none;
+  -webkit-mask: none;
+  mask: none;
+  animation: none;
+  opacity: 1;
+  padding: 0;
+  pointer-events: none;
+}
+
+.card-preview-canvas.card-back.container-banner::before {
+  display: none;
+}
+
+.card-preview-canvas.container-banner .card-header,
+.card-preview-canvas.container-banner .card-body {
+  position: relative;
+  z-index: 1;
+}
+
+/* Banner Top — strip at top of card */
+.card-preview-canvas.container-banner.container-variant-top .card-avatar {
+  top: 0;
+}
+
+/* Banner Bottom — strip at bottom, content above */
+.card-preview-canvas.container-banner.container-variant-bottom .card-avatar {
+  top: auto;
+  bottom: 0;
+}
+
+.card-preview-canvas.card-front.container-banner.container-variant-bottom::before {
+  height: 0;
+}
+
+/* ===== FLOATING CONTAINER =====
+   Thumbnail hovers above card with drop shadow + optional tilt.
+   Centered image with visible gap all around. */
+
+.card-preview-canvas.container-floating {
+  padding-top: 1rem;
+}
+
+.card-preview-canvas.container-floating .card-avatar {
+  width: 120px !important;
+  height: 120px !important;
+  margin: 0 auto 1rem auto;
+  display: block;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+/* Floating Centered — straight, big shadow */
+.card-preview-canvas.container-floating.container-variant-centered .card-avatar {
+  transform: translateY(-4px);
+}
+
+/* Floating Tilted Left — slight left rotation */
+.card-preview-canvas.container-floating.container-variant-tilted-left .card-avatar {
+  transform: rotate(-4deg) translateY(-4px);
+}
+
+/* Floating Tilted Right — slight right rotation */
+.card-preview-canvas.container-floating.container-variant-tilted-right .card-avatar {
+  transform: rotate(4deg) translateY(-4px);
+}
+
+/* ===== STANDALONE BORDER TYPES =====
+   3 layers:
+   A) Default — border on .card-avatar (most containers)
+   B) Clip-path shapes:
+      B1) Circle — switch to border-radius:50% so native borders work
+      B2) Hex — drop-shadow on avatar (follows hex clip-path shape)
+      B3) Diamond — switch to rotated rounded square
+   C) Polaroid — outline on .card-avatar (preserves white frame border) */
+
+/* --- A) Default: border on avatar --- */
+.card-preview-canvas.border-solid:not(.container-polaroid) .card-avatar {
+  border: 3px solid var(--card-accent, var(--mood-primary-color, #00d4ff)) !important;
+}
+
+.card-preview-canvas.border-dashed:not(.container-polaroid) .card-avatar {
+  border: 3px dashed var(--card-accent, var(--mood-primary-color, #00d4ff)) !important;
+}
+
+.card-preview-canvas.border-glow:not(.container-polaroid) .card-avatar {
+  border: 2px solid var(--card-accent, var(--mood-primary-color, #00d4ff)) !important;
+  box-shadow: 0 0 8px var(--card-accent, var(--mood-primary-color, #00d4ff)),
+              inset 0 0 8px rgba(0, 212, 255, 0.15);
+}
+
+/* --- B) Clip-path shapes with borders --- */
+
+/* B1) CIRCLE: switch from clip-path to border-radius so native CSS borders work */
+.card-preview-canvas.container-masked.container-variant-circle.border-solid .card-avatar,
+.card-preview-canvas.container-masked.container-variant-circle.border-dashed .card-avatar,
+.card-preview-canvas.container-masked.container-variant-circle.border-glow .card-avatar {
+  clip-path: none;
+  border-radius: 50%;
+}
+
+/* B2) HEX: drop-shadow on the avatar's PARENT wrapper (not the avatar itself).
+   clip-path clips drop-shadow on the element, but a parent's drop-shadow
+   follows the child's clipped alpha channel. Covers hero + other layouts. */
+
+/* Reset avatar border (clip-path clips it) */
+.card-preview-canvas.container-masked.container-variant-hex.border-solid .card-avatar,
+.card-preview-canvas.container-masked.container-variant-hex.border-dashed .card-avatar,
+.card-preview-canvas.container-masked.container-variant-hex.border-glow .card-avatar {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Solid — on parent wrapper */
+.card-preview-canvas.container-masked.container-variant-hex.border-solid .card-avatar-container {
+  filter: drop-shadow(0 0 2px var(--card-accent, #00d4ff))
+          drop-shadow(0 0 2px var(--card-accent, #00d4ff))
+          drop-shadow(0 0 1px var(--card-accent, #00d4ff));
+}
+
+/* Dashed — thinner on parent wrapper */
+.card-preview-canvas.container-masked.container-variant-hex.border-dashed .card-avatar-container {
+  filter: drop-shadow(0 0 1.5px var(--card-accent, #00d4ff))
+          drop-shadow(0 0 1px var(--card-accent, #00d4ff));
+}
+
+/* Glow — wide halo on parent wrapper */
+.card-preview-canvas.container-masked.container-variant-hex.border-glow .card-avatar-container {
+  filter: drop-shadow(0 0 5px var(--card-accent, #00d4ff))
+          drop-shadow(0 0 10px var(--card-accent, #00d4ff));
+}
+
+/* B3) DIAMOND: switch to rotated square when borders active.
+   45deg rotation + overflow hidden on parent creates diamond with visible borders. */
+.card-preview-canvas.container-masked.container-variant-diamond.border-solid .card-avatar,
+.card-preview-canvas.container-masked.container-variant-diamond.border-dashed .card-avatar,
+.card-preview-canvas.container-masked.container-variant-diamond.border-glow .card-avatar {
+  clip-path: none;
+  border-radius: 12px;
+  transform: rotate(45deg) scale(0.75);
+  object-fit: cover;
+}
+
+/* --- C) Polaroid: outline wraps around the white frame --- */
+.card-preview-canvas.container-polaroid.border-solid .card-avatar {
+  outline: 3px solid var(--card-accent, var(--mood-primary-color, #00d4ff));
+  outline-offset: 2px;
+}
+
+.card-preview-canvas.container-polaroid.border-dashed .card-avatar {
+  outline: 3px dashed var(--card-accent, var(--mood-primary-color, #00d4ff));
+  outline-offset: 2px;
+}
+
+.card-preview-canvas.container-polaroid.border-glow .card-avatar {
+  outline: 2px solid var(--card-accent, var(--mood-primary-color, #00d4ff));
+  outline-offset: 2px;
+  box-shadow: 0 0 8px var(--card-accent, var(--mood-primary-color, #00d4ff)),
+              0 0 16px rgba(0, 212, 255, 0.2);
+}
+
+/* Framed Container - Bigger Size (LEGACY — kept for backward compat) */
 .card-preview-canvas.container-framed .card-avatar {
   width: 110px !important;
   height: 110px !important;

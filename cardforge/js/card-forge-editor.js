@@ -25,9 +25,12 @@
     imageContainer: 'masked',
     imageContainerVariant: 'circle',
     
-    // Image Effects (sub-tier of Image Container)
+    // Image Effects (filters only)
     imageEffect: 'none',
-    imageEffectVariant: 'clean'
+    imageEffectVariant: 'clean',
+    
+    // Border Type (standalone, independent of container + effects)
+    borderStyle: 'none'
   };
   
   // Make ModularState globally accessible for event handlers
@@ -1215,9 +1218,23 @@
         imageContainer: 'masked',
         imageContainerVariant: 'circle',
         imageEffect: 'none',
-        imageEffectVariant: 'clean'
+        imageEffectVariant: 'clean',
+        borderStyle: 'none'
       };
       Object.assign(window.ModularState, defaults, cardData.design);
+      
+      // Legacy mapping: framed → masked(rounded), raw → masked(square), inset → masked(rounded)
+      if (['framed', 'raw', 'inset'].includes(window.ModularState.imageContainer)) {
+        const legacyMap = { 'framed': 'rounded', 'raw': 'square', 'inset': 'rounded' };
+        window.ModularState.imageContainerVariant = legacyMap[window.ModularState.imageContainer] || 'circle';
+        window.ModularState.imageContainer = 'masked';
+      }
+      // Legacy mapping: borders effect → standalone borderStyle
+      if (window.ModularState.imageEffect === 'borders') {
+        window.ModularState.borderStyle = window.ModularState.imageEffectVariant || 'solid';
+        window.ModularState.imageEffect = 'none';
+        window.ModularState.imageEffectVariant = 'clean';
+      }
     }
 
     _statAnimationNeeded = true;
@@ -1348,22 +1365,24 @@
     
     // Define all possible options for each modular tier
     const randomOptions = {
-      // Tier 2: Image Container & Effects
-      imageContainers: ['masked', 'framed', 'raw', 'hero', 'fullbleed', 'inset'],
+      // Container Types (6 types)
+      imageContainers: ['masked', 'polaroid', 'banner', 'fullbleed', 'hero', 'floating'],
       containerVariants: {
-        'masked': ['circle', 'hex', 'diamond'],
-        'framed': ['classic', 'modern', 'ornate'],
-        'raw': ['sharp', 'rounded', 'soft'],
+        'masked': ['circle', 'hex', 'diamond', 'rounded', 'square', 'rectangle'],
+        'polaroid': ['classic', 'vintage', 'dark'],
+        'banner': ['top', 'bottom'],
         'hero': ['large', 'small'],
         'fullbleed': ['standard', 'dimmed', 'blurred'],
-        'inset': ['panel', 'glass', 'emblem', 'cutout']
+        'floating': ['centered', 'tilted-left', 'tilted-right']
       },
-      imageEffects: ['none', 'filters', 'borders'],
+      // Image Effects (filters only)
+      imageEffects: ['none', 'filters'],
       effectVariants: {
         'none': ['clean'],
-        'filters': ['sepia', 'blur', 'saturate', 'contrast'],
-        'borders': ['solid', 'dashed', 'glow']
+        'filters': ['sepia', 'blur', 'saturate', 'contrast']
       },
+      // Border Types (standalone)
+      borderStyles: ['none', 'solid', 'dashed', 'glow'],
       
       // Tier 3: Color Palette
       palettes: ['neon', 'earth', 'ocean', 'sunset', 'monochrome', 'corporate', 'royal', 'inferno', 'frost', 'arcane'],
@@ -1379,13 +1398,10 @@
     const randomContainer = randomOptions.imageContainers[Math.floor(Math.random() * randomOptions.imageContainers.length)];
     const randomContainerVariant = randomOptions.containerVariants[randomContainer][Math.floor(Math.random() * randomOptions.containerVariants[randomContainer].length)];
     
-    // Handle image effects based on container type (avoid borders on masked)
-    let availableEffects = [...randomOptions.imageEffects];
-    if (randomContainer === 'masked') {
-      availableEffects = availableEffects.filter(effect => effect !== 'borders');
-    }
-    const randomEffect = availableEffects[Math.floor(Math.random() * availableEffects.length)];
+    const randomEffect = randomOptions.imageEffects[Math.floor(Math.random() * randomOptions.imageEffects.length)];
     const randomEffectVariant = randomOptions.effectVariants[randomEffect][Math.floor(Math.random() * randomOptions.effectVariants[randomEffect].length)];
+    
+    const randomBorderStyle = randomOptions.borderStyles[Math.floor(Math.random() * randomOptions.borderStyles.length)];
     
     const randomPalette = randomOptions.palettes[Math.floor(Math.random() * randomOptions.palettes.length)];
     const randomPaletteVariant = randomOptions.paletteVariants[Math.floor(Math.random() * randomOptions.paletteVariants.length)];
@@ -1407,13 +1423,15 @@
       imageContainer: 'masked',
       imageContainerVariant: 'circle',
       imageEffect: 'none',
-      imageEffectVariant: 'clean'
+      imageEffectVariant: 'clean',
+      borderStyle: 'none'
     };
     Object.assign(ModularState, defaults, {
       imageContainer: randomContainer,
       imageContainerVariant: randomContainerVariant,
       imageEffect: randomEffect,
       imageEffectVariant: randomEffectVariant,
+      borderStyle: randomBorderStyle,
       palette: randomPalette,
       paletteVariant: randomPaletteVariant,
       horizontalAlignment: randomHorizontal,
@@ -1679,9 +1697,22 @@
       imageContainer: 'masked',
       imageContainerVariant: 'circle',
       imageEffect: 'none',
-      imageEffectVariant: 'clean'
+      imageEffectVariant: 'clean',
+      borderStyle: 'none'
     };
     Object.assign(ModularState, defaults, designConfig);
+    // Legacy mapping: framed/raw/inset → masked
+    if (['framed', 'raw', 'inset'].includes(ModularState.imageContainer)) {
+      const legacyMap = { 'framed': 'rounded', 'raw': 'square', 'inset': 'rounded' };
+      ModularState.imageContainerVariant = legacyMap[ModularState.imageContainer] || 'circle';
+      ModularState.imageContainer = 'masked';
+    }
+    // Legacy mapping: borders effect → standalone borderStyle
+    if (ModularState.imageEffect === 'borders') {
+      ModularState.borderStyle = ModularState.imageEffectVariant || 'solid';
+      ModularState.imageEffect = 'none';
+      ModularState.imageEffectVariant = 'clean';
+    }
     console.log(`🔄 ModularState updated:`, ModularState);
     
     // Populate class and rarity styling form fields
@@ -2491,7 +2522,8 @@
       `container-${ModularState.imageContainer}`,
       `container-variant-${ModularState.imageContainerVariant}`,
       `effect-${ModularState.imageEffect}`,
-      `effect-variant-${ModularState.imageEffectVariant}`
+      `effect-variant-${ModularState.imageEffectVariant}`,
+      `border-${ModularState.borderStyle || 'none'}`
     ];
     
     // Front-only classes — alignment, weight, style (these resize elements)
@@ -2533,6 +2565,7 @@
       'data-image-container-variant': ModularState.imageContainerVariant,
       'data-image-effect': ModularState.imageEffect,
       'data-image-effect-variant': ModularState.imageEffectVariant,
+      'data-border-style': ModularState.borderStyle || 'none',
       'data-rarity': rarityValue.toLowerCase()
     };
     
@@ -3128,7 +3161,9 @@
     return `
       <div class="card-hero-header">
         <div class="hero-image-container">
-          <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
+          <div class="card-avatar-container">
+            <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
+          </div>
           <div class="hero-overlay">
             <h3 class="card-name">${data.name}</h3>
           </div>
@@ -3573,11 +3608,11 @@
         // Set default variant for the selected container
         const defaultVariants = {
           'masked': 'circle',
-          'framed': 'classic',
-          'raw': 'sharp',
+          'polaroid': 'classic',
+          'banner': 'top',
           'fullbleed': 'standard',
           'hero': 'large',
-          'inset': 'panel'
+          'floating': 'centered'
         };
         ModularState.imageContainerVariant = defaultVariants[ModularState.imageContainer] || 'circle';
         
@@ -3592,9 +3627,6 @@
         
         // Update collapsible tier display
         updateCollapsibleTierDisplays();
-        
-        // Update Image Effects availability based on container type
-        updateImageEffectsAvailability();
         
         // Update preview
         updatePreview();
@@ -3640,9 +3672,7 @@
         // Set default variant for the selected effect
         const defaultVariants = {
           'none': 'clean',
-          'filters': 'sepia',
-          'borders': 'solid',
-          'overlays': 'vintage'
+          'filters': 'sepia'
         };
         ModularState.imageEffectVariant = defaultVariants[ModularState.imageEffect] || 'clean';
         
@@ -3698,8 +3728,8 @@
     // Initialize Image Effects sub-level within Tier 2
     initImageEffectsSubLevel();
     
-    // Set initial Image Effects availability based on default container
-    updateImageEffectsAvailability();
+    // Initialize Border Type listeners
+    initBorderStyleListeners();
   }
 
   // ===== IMAGE EFFECTS SUB-LEVEL INITIALIZATION =====
@@ -3726,9 +3756,7 @@
         // Set default variant for the selected effect
         const defaultVariants = {
           'none': 'clean',
-          'filters': 'sepia',
-          'borders': 'solid',
-          'overlays': 'gradient'
+          'filters': 'sepia'
         };
         
         ModularState.imageEffectVariant = defaultVariants[ModularState.imageEffect] || 'clean';
@@ -3772,44 +3800,19 @@
     });
   }
 
-  // ===== IMAGE EFFECTS AVAILABILITY CONTROL =====
-  function updateImageEffectsAvailability() {
-    const bordersOption = document.querySelector('[data-tier="2"] .effects-level .effects-grid [data-value="borders"]');
-    
-    if (bordersOption) {
-      if (ModularState.imageContainer === 'masked') {
-        // Hide borders option for masked containers (use Framed instead)
-        bordersOption.style.display = 'none';
-        
-        // If borders was selected, switch to 'none' effect
-        if (ModularState.imageEffect === 'borders') {
-          ModularState.imageEffect = 'none';
-          ModularState.imageEffectVariant = 'clean';
-          
-          // Update UI selection
-          const noneOption = document.querySelector('[data-tier="2"] .effects-level .effects-grid [data-value="none"]');
-          if (noneOption) {
-            // Clear all effect selections
-            const allEffectOptions = document.querySelectorAll('[data-tier="2"] .effects-level .effects-grid .tier-option');
-            allEffectOptions.forEach(opt => opt.classList.remove('selected'));
-            
-            // Select 'none' option
-            noneOption.classList.add('selected');
-          }
-          
-          // Hide all effect variant containers
-          const variantContainers = document.querySelectorAll('[data-tier="2"] .effects-level .effect-variants');
-          variantContainers.forEach(container => {
-            container.style.display = 'none';
-          });
-          
-          console.log('🚫 Borders disabled for masked container - switched to None effect');
-        }
-      } else {
-        // Show borders option for other containers
-        bordersOption.style.display = 'block';
-      }
-    }
+  // ===== BORDER TYPE LISTENERS (standalone section) =====
+  function initBorderStyleListeners() {
+    const borderOptions = document.querySelectorAll('[data-tier="2"] .border-style-options .variant-option');
+    borderOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        borderOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        ModularState.borderStyle = option.dataset.border || 'none';
+        updatePreview();
+        console.log(`🔲 Border type updated: ${ModularState.borderStyle}`);
+      });
+    });
+    console.log('✅ Border type listeners initialized:', borderOptions.length, 'options');
   }
 
   // ===== IMAGE EFFECTS SUB-LEVEL (within Tier 2) =====
@@ -3831,9 +3834,7 @@
         
         const defaultVariants = {
           'none': 'clean',
-          'filters': 'sepia',
-          'borders': 'solid',
-          'overlays': 'gradient'
+          'filters': 'sepia'
         };
         
         ModularState.imageEffectVariant = defaultVariants[ModularState.imageEffect] || 'clean';
@@ -3898,10 +3899,11 @@
         // Set default variant for the selected container
         const defaultVariants = {
           'masked': 'circle',
-          'framed': 'classic', 
-          'raw': 'sharp',
+          'polaroid': 'classic',
+          'banner': 'top',
           'fullbleed': 'standard',
-          'hero': 'large'
+          'hero': 'large',
+          'floating': 'centered'
         };
         ModularState.imageContainerVariant = defaultVariants[ModularState.imageContainer] || 'circle';
         console.log('🎨 Set default variant:', ModularState.imageContainerVariant);
@@ -3975,8 +3977,7 @@
         // Set default variant for the selected effect
         const defaultEffectVariants = {
           'none': 'clean',
-          'filters': 'sepia',
-          'borders': 'solid'
+          'filters': 'sepia'
         };
         ModularState.imageEffectVariant = defaultEffectVariants[ModularState.imageEffect] || 'clean';
         console.log('🎨 Set default effect variant:', ModularState.imageEffectVariant);
@@ -4007,6 +4008,9 @@
         console.log('🔄 Called updatePreview for effect variant');
       });
     });
+
+    // Initialize Border Type listeners
+    initBorderStyleListeners();
 
     console.log('✅ EXACT working browser fixes applied successfully!');
     console.log('🎯 Container options found:', containerOptions.length);
