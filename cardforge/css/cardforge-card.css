@@ -979,7 +979,6 @@
     inset 0 0 0 2px rgba(var(--rarity-rgb, 136, 136, 136), 0.3);
   position: relative;
 }
-
 .card-preview-canvas.rarity-style-frame::after {
   content: "";
   position: absolute;

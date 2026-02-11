@@ -1405,7 +1405,7 @@
       rarityStyles: ['default', 'badge', 'inline-badge', 'outlined', 'underline', 'gradient', 'ribbon'],
       
       // Card Effects (separate categories)
-      bgEffects: ['none', 'foil'],
+      bgEffects: ['none', 'foil', 'holographic', 'sparkle', 'aurora', 'pulse', 'particles', 'grain', 'vignette', 'scanlines', 'frosted', 'linen', 'brushed-metal', 'parchment'],
       borderEffects: ['none', 'border', 'frame'],
       glowEffects: ['none', 'glow']
     };

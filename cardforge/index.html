@@ -31,6 +31,7 @@
   <link rel="stylesheet" href="css/cardforge-responsive.css"> <!-- Responsive design, media queries -->
   <link rel="stylesheet" href="css/cardforge-ui.css">
   <link rel="stylesheet" href="css/cardforge-card.css">
+  <link rel="stylesheet" href="css/cardforge-bg-effects.css">
   <link rel="stylesheet" href="css/cardforge-layout.css"> <!-- New local layout styles that override grid.css -->
 
 </head>
@@ -1071,7 +1072,25 @@
                   <label for="card-bg-effect">Background Effect</label>
                   <select id="card-bg-effect" class="style-selector">
                     <option value="none">None</option>
-                    <option value="foil">Foil Shimmer</option>
+                    <optgroup label="Animated">
+                      <option value="foil">Foil Shimmer</option>
+                      <option value="holographic">Holographic</option>
+                      <option value="sparkle">Sparkle / Glitter</option>
+                      <option value="aurora">Aurora</option>
+                      <option value="pulse">Pulse</option>
+                      <option value="particles">Particles</option>
+                    </optgroup>
+                    <optgroup label="Static">
+                      <option value="grain">Noise / Grain</option>
+                      <option value="vignette">Vignette</option>
+                      <option value="scanlines">Scanlines</option>
+                      <option value="frosted">Frosted Glass</option>
+                    </optgroup>
+                    <optgroup label="Textures">
+                      <option value="linen">Linen</option>
+                      <option value="brushed-metal">Brushed Metal</option>
+                      <option value="parchment">Parchment</option>
+                    </optgroup>
                   </select>
                 </div>
                 <div class="effect-control">
