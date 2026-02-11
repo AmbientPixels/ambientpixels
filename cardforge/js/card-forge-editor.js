@@ -1396,7 +1396,10 @@
       // Tier 4: Content Alignment
       horizontalAlignments: ['left', 'center', 'right'],
       verticalAlignments: ['middle', 'bottom'], // Exclude 'top' from random rolls
-      alignmentStyles: ['none', 'padded', 'compact', 'elegant', 'narrow', 'bold', 'cinematic', 'editorial', 'stacked']
+      alignmentStyles: ['none', 'padded', 'compact', 'elegant', 'narrow', 'bold', 'cinematic', 'editorial', 'stacked'],
+      
+      // Rarity Styles
+      rarityStyles: ['default', 'badge', 'border', 'glow', 'foil', 'frame']
     };
     
     // Generate random selections
@@ -1412,6 +1415,8 @@
     const randomHorizontal = randomOptions.horizontalAlignments[Math.floor(Math.random() * randomOptions.horizontalAlignments.length)];
     const randomVertical = randomOptions.verticalAlignments[Math.floor(Math.random() * randomOptions.verticalAlignments.length)];
     const randomStyle = randomOptions.alignmentStyles[Math.floor(Math.random() * randomOptions.alignmentStyles.length)];
+    
+    const randomRarityStyle = randomOptions.rarityStyles[Math.floor(Math.random() * randomOptions.rarityStyles.length)];
     
     // Reset ModularState to defaults, then apply random selections
     // This prevents stale keys from persisting across rolls/preset switches
@@ -1444,8 +1449,15 @@
       container: `${randomContainer}-${randomContainerVariant}`,
       effect: `${randomEffect}-${randomEffectVariant}`,
       palette: `${randomPalette}-${randomPaletteVariant}`,
-      alignment: `${randomHorizontal}-${randomVertical}-${randomStyle}`
+      alignment: `${randomHorizontal}-${randomVertical}-${randomStyle}`,
+      rarityStyle: randomRarityStyle
     });
+    
+    // Apply random rarity style to the dropdown
+    const rarityStyleField = document.getElementById('rarity-style');
+    if (rarityStyleField) {
+      rarityStyleField.value = randomRarityStyle;
+    }
     
     // Clear any active preset buttons since this is a custom random card
     const allPresetButtons = document.querySelectorAll('.preset-btn');
@@ -4127,8 +4139,8 @@
     // Set default rarity styling
     const rarityStyleField = document.getElementById('rarity-style');
     if (rarityStyleField) {
-      rarityStyleField.value = 'glow';
-      console.log('✅ Default rarity style set to: glow');
+      rarityStyleField.value = 'default';
+      console.log('✅ Default rarity style set to: default');
     }
     
     const rarityIconField = document.getElementById('rarity-icon-value');
