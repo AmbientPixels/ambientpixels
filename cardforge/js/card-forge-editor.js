@@ -27,10 +27,7 @@
     
     // Image Effects (filters only)
     imageEffect: 'none',
-    imageEffectVariant: 'clean',
-    
-    // Border Type (standalone, independent of container + effects)
-    borderStyle: 'none'
+    imageEffectVariant: 'clean'
   };
   
   // Make ModularState globally accessible for event handlers
@@ -1218,8 +1215,7 @@
         imageContainer: 'masked',
         imageContainerVariant: 'circle',
         imageEffect: 'none',
-        imageEffectVariant: 'clean',
-        borderStyle: 'none'
+        imageEffectVariant: 'clean'
       };
       Object.assign(window.ModularState, defaults, cardData.design);
       
@@ -1229,9 +1225,8 @@
         window.ModularState.imageContainerVariant = legacyMap[window.ModularState.imageContainer] || 'circle';
         window.ModularState.imageContainer = 'masked';
       }
-      // Legacy mapping: borders effect → standalone borderStyle
+      // Legacy mapping: borders effect → none (border feature removed)
       if (window.ModularState.imageEffect === 'borders') {
-        window.ModularState.borderStyle = window.ModularState.imageEffectVariant || 'solid';
         window.ModularState.imageEffect = 'none';
         window.ModularState.imageEffectVariant = 'clean';
       }
@@ -1276,7 +1271,6 @@
     // Default image effects and borders to none on page load
     ModularState.imageEffect = 'none';
     ModularState.imageEffectVariant = 'clean';
-    ModularState.borderStyle = 'none';
     updatePreview();
     
     // Sync effect type buttons to None
@@ -1285,13 +1279,6 @@
     });
     const evsSection = document.querySelector('[data-tier="2"] .effects-variants-section');
     if (evsSection) evsSection.style.display = 'none';
-    
-    // Sync border category buttons to None
-    document.querySelectorAll('[data-tier="2"] .border-category-grid .tier-option').forEach(opt => {
-      opt.classList.toggle('selected', opt.dataset.value === 'none');
-    });
-    const bvsSection = document.querySelector('[data-tier="2"] .border-variants-section');
-    if (bvsSection) bvsSection.style.display = 'none';
     
     if (window.CardForgeChrome) {
       setTimeout(() => window.CardForgeChrome.setDirtyTracking(true), 600);
@@ -1402,9 +1389,6 @@
         'filters': ['sepia', 'grayscale', 'vintage', 'noir', 'warm', 'cool', 'cyberpunk', 'faded', 'high-contrast', 'duotone', 'vignette', 'bleach-bypass', 'cross-process', 'infrared', 'midnight', 'emerald', 'sunset'],
         'overlays': ['color-wash', 'gradient-fade', 'spotlight', 'haze']
       },
-      // Border Types (standalone)
-      borderStyles: ['none', 'solid', 'dashed', 'glow', 'double', 'ridge', 'groove', 'inset', 'pulse', 'gradient', 'shimmer', 'neon', 'gold', 'frost', 'shadow-frame', 'bevel'],
-      
       // Tier 3: Color Palette
       palettes: ['neon', 'earth', 'ocean', 'sunset', 'monochrome', 'corporate', 'royal', 'inferno', 'frost', 'arcane'],
       paletteVariants: ['light', 'dark'],
@@ -1421,8 +1405,6 @@
     
     const randomEffect = randomOptions.imageEffects[Math.floor(Math.random() * randomOptions.imageEffects.length)];
     const randomEffectVariant = randomOptions.effectVariants[randomEffect][Math.floor(Math.random() * randomOptions.effectVariants[randomEffect].length)];
-    
-    const randomBorderStyle = randomOptions.borderStyles[Math.floor(Math.random() * randomOptions.borderStyles.length)];
     
     const randomPalette = randomOptions.palettes[Math.floor(Math.random() * randomOptions.palettes.length)];
     const randomPaletteVariant = randomOptions.paletteVariants[Math.floor(Math.random() * randomOptions.paletteVariants.length)];
@@ -1444,15 +1426,13 @@
       imageContainer: 'masked',
       imageContainerVariant: 'circle',
       imageEffect: 'none',
-      imageEffectVariant: 'clean',
-      borderStyle: 'none'
+      imageEffectVariant: 'clean'
     };
     Object.assign(ModularState, defaults, {
       imageContainer: randomContainer,
       imageContainerVariant: randomContainerVariant,
       imageEffect: randomEffect,
       imageEffectVariant: randomEffectVariant,
-      borderStyle: randomBorderStyle,
       palette: randomPalette,
       paletteVariant: randomPaletteVariant,
       horizontalAlignment: randomHorizontal,
@@ -1527,29 +1507,6 @@
     if (activeEffectPanel) {
       activeEffectPanel.querySelectorAll('.variant-option').forEach(opt => {
         opt.classList.toggle('selected', opt.dataset.variant === ModularState.imageEffectVariant);
-      });
-    }
-    
-    // Update border category selection
-    const borderCat = ModularState.borderStyle === 'none' ? 'none'
-      : ['solid','dashed','double','ridge','groove','inset','bevel'].includes(ModularState.borderStyle) ? 'classic'
-      : ['glow','neon','pulse','shimmer'].includes(ModularState.borderStyle) ? 'glow'
-      : ['gold','frost','shadow-frame','gradient'].includes(ModularState.borderStyle) ? 'themed'
-      : 'none';
-    document.querySelectorAll('[data-tier="2"] .border-category-grid .tier-option').forEach(opt => {
-      opt.classList.toggle('selected', opt.dataset.value === borderCat);
-    });
-    const bvsSection = document.querySelector('[data-tier="2"] .border-variants-section');
-    if (bvsSection) {
-      bvsSection.style.display = borderCat === 'none' ? 'none' : 'block';
-    }
-    document.querySelectorAll('[data-tier="2"] .border-variants').forEach(panel => {
-      panel.style.display = panel.dataset.borderCategory === borderCat ? 'block' : 'none';
-    });
-    const activeBorderPanel = document.querySelector(`[data-tier="2"] [data-border-category="${borderCat}"]`);
-    if (activeBorderPanel) {
-      activeBorderPanel.querySelectorAll('.variant-option').forEach(opt => {
-        opt.classList.toggle('selected', opt.dataset.border === ModularState.borderStyle);
       });
     }
     
@@ -1756,8 +1713,7 @@
       imageContainer: 'masked',
       imageContainerVariant: 'circle',
       imageEffect: 'none',
-      imageEffectVariant: 'clean',
-      borderStyle: 'none'
+      imageEffectVariant: 'clean'
     };
     Object.assign(ModularState, defaults, designConfig);
     // Legacy mapping: framed/raw/inset → masked
@@ -1766,9 +1722,8 @@
       ModularState.imageContainerVariant = legacyMap[ModularState.imageContainer] || 'circle';
       ModularState.imageContainer = 'masked';
     }
-    // Legacy mapping: borders effect → standalone borderStyle
+    // Legacy mapping: borders effect → none (border feature removed)
     if (ModularState.imageEffect === 'borders') {
-      ModularState.borderStyle = ModularState.imageEffectVariant || 'solid';
       ModularState.imageEffect = 'none';
       ModularState.imageEffectVariant = 'clean';
     }
@@ -2096,35 +2051,6 @@
       const variantOptions = activeEffect.querySelectorAll('.variant-option');
       variantOptions.forEach(option => {
         option.classList.toggle('selected', option.dataset.variant === ModularState.imageEffectVariant);
-      });
-    }
-    
-    // Update Border Category (scoped to .border-category-grid)
-    const borderCatOptions = document.querySelectorAll('[data-tier="2"] .border-category-grid .tier-option');
-    const borderCategory = ModularState.borderStyle === 'none' ? 'none'
-      : ['solid','dashed','double','ridge','groove','inset','bevel'].includes(ModularState.borderStyle) ? 'classic'
-      : ['glow','neon','pulse','shimmer'].includes(ModularState.borderStyle) ? 'glow'
-      : ['gold','frost','shadow-frame','gradient'].includes(ModularState.borderStyle) ? 'themed'
-      : 'none';
-    borderCatOptions.forEach(option => {
-      option.classList.toggle('selected', option.dataset.value === borderCategory);
-    });
-    
-    // Show/hide border variants section
-    const borderVariantsSection = document.querySelector('[data-tier="2"] .borders-level .border-variants-section');
-    if (borderVariantsSection) {
-      borderVariantsSection.style.display = borderCategory === 'none' ? 'none' : 'block';
-    }
-    const borderVariantPanels = document.querySelectorAll('[data-tier="2"] .border-variants');
-    borderVariantPanels.forEach(panel => {
-      panel.style.display = panel.dataset.borderCategory === borderCategory ? 'block' : 'none';
-    });
-    
-    // Update border variant selection
-    const activeBorderPanel = document.querySelector(`[data-tier="2"] [data-border-category="${borderCategory}"]`);
-    if (activeBorderPanel) {
-      activeBorderPanel.querySelectorAll('.variant-option').forEach(option => {
-        option.classList.toggle('selected', option.dataset.border === ModularState.borderStyle);
       });
     }
     
@@ -2616,8 +2542,7 @@
       `container-${ModularState.imageContainer}`,
       `container-variant-${ModularState.imageContainerVariant}`,
       `effect-${ModularState.imageEffect}`,
-      `effect-variant-${ModularState.imageEffectVariant}`,
-      `border-${ModularState.borderStyle || 'none'}`
+      `effect-variant-${ModularState.imageEffectVariant}`
     ];
     
     // Front-only classes — alignment, weight, style (these resize elements)
@@ -2659,7 +2584,6 @@
       'data-image-container-variant': ModularState.imageContainerVariant,
       'data-image-effect': ModularState.imageEffect,
       'data-image-effect-variant': ModularState.imageEffectVariant,
-      'data-border-style': ModularState.borderStyle || 'none',
       'data-rarity': rarityValue.toLowerCase()
     };
     
@@ -3879,9 +3803,6 @@
     
     // Initialize Image Effects sub-level within Tier 2
     initImageEffectsSubLevel();
-    
-    // Initialize Border Type listeners
-    initBorderStyleListeners();
   }
 
   // ===== IMAGE EFFECTS SUB-LEVEL INITIALIZATION =====
@@ -3949,75 +3870,6 @@
     
     // Hide variants section on initial load (None is default)
     if (variantsSection) variantsSection.style.display = 'none';
-  }
-
-  // ===== BORDER TYPE LISTENERS (categorized: None / Classic / Glow / Themed) =====
-  function initBorderStyleListeners() {
-    const defaultBorders = {
-      'none': 'none',
-      'classic': 'solid',
-      'glow': 'glow',
-      'themed': 'gold'
-    };
-
-    // Category selector
-    const categoryOptions = document.querySelectorAll('[data-tier="2"] .borders-level .border-category-grid .tier-option');
-    const variantContainers = document.querySelectorAll('[data-tier="2"] .borders-level .border-variants');
-    const variantsSection = document.querySelector('[data-tier="2"] .borders-level .border-variants-section');
-
-    categoryOptions.forEach(option => {
-      option.addEventListener('click', () => {
-        categoryOptions.forEach(opt => opt.classList.remove('selected'));
-        option.classList.add('selected');
-
-        const category = option.dataset.value;
-
-        // Show/hide variant panels
-        variantContainers.forEach(container => {
-          container.style.display = container.dataset.borderCategory === category ? 'block' : 'none';
-        });
-
-        // Hide variants section header when None is selected
-        if (variantsSection) {
-          variantsSection.style.display = category === 'none' ? 'none' : 'block';
-        }
-
-        // Set default border for this category
-        ModularState.borderStyle = defaultBorders[category] || 'none';
-
-        // Highlight the default variant option
-        if (category !== 'none') {
-          const activePanel = document.querySelector(`[data-tier="2"] .borders-level [data-border-category="${category}"]`);
-          if (activePanel) {
-            const opts = activePanel.querySelectorAll('.variant-option');
-            opts.forEach(opt => opt.classList.remove('selected'));
-            const defaultOpt = activePanel.querySelector(`[data-border="${ModularState.borderStyle}"]`);
-            if (defaultOpt) defaultOpt.classList.add('selected');
-          }
-        }
-
-        updatePreview();
-        console.log(`🔲 Border category: ${category}, style: ${ModularState.borderStyle}`);
-      });
-    });
-
-    // Variant click handlers (within each category panel)
-    const variantOptions = document.querySelectorAll('[data-tier="2"] .borders-level .border-variants .variant-option');
-    variantOptions.forEach(option => {
-      option.addEventListener('click', () => {
-        const container = option.closest('.border-variants');
-        container.querySelectorAll('.variant-option').forEach(opt => opt.classList.remove('selected'));
-        option.classList.add('selected');
-        ModularState.borderStyle = option.dataset.border || 'none';
-        updatePreview();
-        console.log(`🔲 Border style updated: ${ModularState.borderStyle}`);
-      });
-    });
-
-    // Hide variants section on initial load (None is default)
-    if (variantsSection) variantsSection.style.display = 'none';
-
-    console.log('✅ Border type listeners initialized (categorized):', categoryOptions.length, 'categories');
   }
 
   // ===== IMAGE EFFECTS SUB-LEVEL (within Tier 2) =====
@@ -4242,9 +4094,6 @@
         console.log('🔄 Called updatePreview for effect variant');
       });
     });
-
-    // Initialize Border Type listeners
-    initBorderStyleListeners();
 
     console.log('✅ EXACT working browser fixes applied successfully!');
     console.log('🎯 Container options found:', containerOptions.length);
