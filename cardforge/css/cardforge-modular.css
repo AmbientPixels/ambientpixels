@@ -1507,8 +1507,8 @@
 .effect-chip i {
   font-size: 1rem;
   color: var(--mood-primary-color, #00d4ff);
-  opacity: 0.6;
-  transition: all 0.2s ease;
+  opacity: 0.8;
+  transition: color 0.2s ease, opacity 0.2s ease;
 }
 
 .effect-chip:hover {
@@ -1523,15 +1523,16 @@
 }
 
 .effect-chip.selected {
-  background: var(--mood-primary-color, #00d4ff);
-  color: var(--aura-bg-color, #1a1a2e);
-  border-color: var(--mood-primary-color, #00d4ff);
+  background: var(--aura-bg-hover, #3a3a5e);
+  border-color: var(--mood-accent-color, #4a4a6a);
+  color: var(--mood-text-primary, #e1e1ff);
+  box-shadow: none;
   font-weight: 600;
 }
 
 .effect-chip.selected i {
-  color: var(--aura-bg-color, #1a1a2e);
-  opacity: 1;
+  color: var(--mood-primary-color, #00d4ff);
+  opacity: 0.9;
 }
 
 /* ===== CARD FONT FAMILY CLASSES ===== */
