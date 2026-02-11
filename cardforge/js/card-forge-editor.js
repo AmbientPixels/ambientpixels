@@ -1280,8 +1280,9 @@
     const evsSection = document.querySelector('[data-tier="2"] .effects-variants-section');
     if (evsSection) evsSection.style.display = 'none';
     
-    // Ensure card effects display is current after init
+    // Ensure card effects and typography display is current after init
     updateCardEffectsDisplay();
+    updateTypographyDisplay();
     
     if (window.CardForgeChrome) {
       setTimeout(() => window.CardForgeChrome.setDirtyTracking(true), 600);
@@ -1410,7 +1411,8 @@
       // Card Effects (separate categories)
       bgEffects: ['none', 'foil', 'holographic', 'sparkle', 'aurora', 'pulse', 'particles', 'grain', 'vignette', 'scanlines', 'frosted', 'linen', 'brushed-metal', 'parchment'],
       borderEffects: ['none', 'border', 'double', 'inset', 'thick', 'dashed', 'ridge', 'beveled', 'corners', 'animated-border'],
-      glowEffects: ['none', 'glow', 'soft-ambient', 'inner-glow', 'neon-glow', 'halo', 'drop-shadow', 'pulse-glow', 'color-shift']
+      glowEffects: ['none', 'glow', 'soft-ambient', 'inner-glow', 'neon-glow', 'halo', 'drop-shadow', 'pulse-glow', 'color-shift'],
+      fontFamilies: ['inter', 'montserrat', 'poppins', 'rajdhani', 'playfair', 'cinzel', 'orbitron', 'medievalsharp', 'pirata']
     };
     
     // Generate random selections
@@ -1432,6 +1434,7 @@
     const randomBgEffect = randomOptions.bgEffects[Math.floor(Math.random() * randomOptions.bgEffects.length)];
     const randomBorderEffect = randomOptions.borderEffects[Math.floor(Math.random() * randomOptions.borderEffects.length)];
     const randomGlowEffect = randomOptions.glowEffects[Math.floor(Math.random() * randomOptions.glowEffects.length)];
+    const randomFont = randomOptions.fontFamilies[Math.floor(Math.random() * randomOptions.fontFamilies.length)];
     
     // Reset ModularState to defaults, then apply random selections
     // This prevents stale keys from persisting across rolls/preset switches
@@ -1487,6 +1490,8 @@
     if (borderEffectField) borderEffectField.value = randomBorderEffect;
     const glowEffectField = document.getElementById('card-glow-effect');
     if (glowEffectField) glowEffectField.value = randomGlowEffect;
+    const fontField = document.getElementById('card-font-family');
+    if (fontField) fontField.value = randomFont;
     
     // Clear any active preset buttons since this is a custom random card
     const allPresetButtons = document.querySelectorAll('.preset-btn');
@@ -1577,6 +1582,7 @@
     
     // Update card effects display in tier header
     updateCardEffectsDisplay();
+    updateTypographyDisplay();
     
     console.log('🔄 UI elements updated from ModularState');
   }
@@ -2327,6 +2333,22 @@
     });
   }
 
+  function updateTypographyDisplay() {
+    const fontSelect = document.getElementById('card-font-family');
+    if (!fontSelect) return;
+    
+    const fontName = fontSelect.options[fontSelect.selectedIndex].text;
+    updateTierCurrentSelection('typo', fontName);
+    
+    // Sync font chip button selection state
+    const chipGroup = document.querySelector('.font-chips');
+    if (chipGroup) {
+      chipGroup.querySelectorAll('.effect-chip').forEach(chip => {
+        chip.classList.toggle('selected', chip.dataset.value === fontSelect.value);
+      });
+    }
+  }
+
   // ===== TIER 1: LAYOUT REMOVED =====
   // Phase 1 of Flow Restructure: Layout initialization eliminated
   // Image-first design: Image Container moved to Tier 2 position
@@ -2706,6 +2728,12 @@
     }
     if (glowEffect && glowEffect.value !== 'none') {
       sharedClasses.push(`rarity-style-${glowEffect.value}`);
+    }
+    
+    // Typography — apply font-family class
+    const fontSelect = document.getElementById('card-font-family');
+    if (fontSelect && fontSelect.value !== 'inter') {
+      sharedClasses.push(`card-font-${fontSelect.value}`);
     }
     
     // Apply classes: front gets alignment + shared; back gets shared only
@@ -3682,6 +3710,7 @@
           
           updatePreview();
           updateCardEffectsDisplay();
+          updateTypographyDisplay();
         });
       });
     });

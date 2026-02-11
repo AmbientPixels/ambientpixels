@@ -428,6 +428,12 @@
         if (glowEl && glowEl.value !== 'none') eParts.push(glowEl.options[glowEl.selectedIndex].text);
         effectsSnap.textContent = eParts.length > 0 ? eParts.join(' \u00B7 ') : '\u2014';
       }
+
+      var fontSnap = chips.querySelector('[data-snap="font"]');
+      if (fontSnap) {
+        var fontEl = document.getElementById('card-font-family');
+        fontSnap.textContent = fontEl ? fontEl.options[fontEl.selectedIndex].text : 'Inter';
+      }
     }
   }
 

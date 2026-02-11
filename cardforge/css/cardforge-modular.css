@@ -1533,3 +1533,13 @@
   color: var(--aura-bg-color, #1a1a2e);
   opacity: 1;
 }
+
+/* ===== CARD FONT FAMILY CLASSES ===== */
+.card-preview-canvas.card-font-montserrat { font-family: 'Montserrat', sans-serif; }
+.card-preview-canvas.card-font-poppins { font-family: 'Poppins', sans-serif; }
+.card-preview-canvas.card-font-rajdhani { font-family: 'Rajdhani', sans-serif; }
+.card-preview-canvas.card-font-playfair { font-family: 'Playfair Display', serif; }
+.card-preview-canvas.card-font-cinzel { font-family: 'Cinzel', serif; }
+.card-preview-canvas.card-font-orbitron { font-family: 'Orbitron', sans-serif; }
+.card-preview-canvas.card-font-medievalsharp { font-family: 'MedievalSharp', cursive; }
+.card-preview-canvas.card-font-pirata { font-family: 'Pirata One', cursive; }

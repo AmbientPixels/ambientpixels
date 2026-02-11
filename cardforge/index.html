@@ -14,7 +14,7 @@
   <meta name="csrf-token" content="">
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Cinzel:wght@400;600;700&family=Orbitron:wght@400;500;600;700&family=MedievalSharp&family=Pirata+One&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/base.css">
   <link rel="stylesheet" href="/css/grid.css"> <!-- Restored for footer compatibility -->
   <link rel="stylesheet" href="/css/nav.css">
@@ -943,6 +943,48 @@
             </div>
           </div>
           
+          <!-- ZONE: TYPOGRAPHY -->
+          <div class="modular-tier collapsible-tier" data-tier="typo">
+            <div class="tier-header craft-row-header" data-tier-toggle="typo">
+              <h4 class="tier-title">Typography</h4>
+              <div class="tier-current-selection">
+                <span class="current-selection-text">Inter</span>
+              </div>
+              <div class="tier-expand-icon">›</div>
+            </div>
+            
+            <div class="tier-content" data-tier-content="typo">
+              <div class="card-effects-section">
+                <select id="card-font-family" class="style-selector" hidden>
+                  <option value="inter">Inter</option>
+                  <option value="montserrat">Montserrat</option>
+                  <option value="poppins">Poppins</option>
+                  <option value="rajdhani">Rajdhani</option>
+                  <option value="playfair">Playfair Display</option>
+                  <option value="cinzel">Cinzel</option>
+                  <option value="orbitron">Orbitron</option>
+                  <option value="medievalsharp">MedievalSharp</option>
+                  <option value="pirata">Pirata One</option>
+                </select>
+
+                <div class="effect-control">
+                  <h5 class="level-title">Font Family</h5>
+                  <div class="effect-chips font-chips" data-target="card-font-family">
+                    <button type="button" class="effect-chip font-chip selected" data-value="inter" style="font-family:'Inter',sans-serif"><i class="fas fa-font"></i><span>Inter</span></button>
+                    <button type="button" class="effect-chip font-chip" data-value="montserrat" style="font-family:'Montserrat',sans-serif"><i class="fas fa-font"></i><span>Montserrat</span></button>
+                    <button type="button" class="effect-chip font-chip" data-value="poppins" style="font-family:'Poppins',sans-serif"><i class="fas fa-font"></i><span>Poppins</span></button>
+                    <button type="button" class="effect-chip font-chip" data-value="rajdhani" style="font-family:'Rajdhani',sans-serif"><i class="fas fa-font"></i><span>Rajdhani</span></button>
+                    <button type="button" class="effect-chip font-chip" data-value="playfair" style="font-family:'Playfair Display',serif"><i class="fas fa-italic"></i><span>Playfair</span></button>
+                    <button type="button" class="effect-chip font-chip" data-value="cinzel" style="font-family:'Cinzel',serif"><i class="fas fa-landmark"></i><span>Cinzel</span></button>
+                    <button type="button" class="effect-chip font-chip" data-value="orbitron" style="font-family:'Orbitron',sans-serif"><i class="fas fa-robot"></i><span>Orbitron</span></button>
+                    <button type="button" class="effect-chip font-chip" data-value="medievalsharp" style="font-family:'MedievalSharp',cursive"><i class="fas fa-shield-halved"></i><span>Medieval</span></button>
+                    <button type="button" class="effect-chip font-chip" data-value="pirata" style="font-family:'Pirata One',cursive"><i class="fas fa-skull-crossbones"></i><span>Pirata</span></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
           <!-- ZONE 3: COMPOSITION & BALANCE (was Tier 4: Content Alignment) -->
           <div class="modular-tier collapsible-tier" data-tier="4">
             <div class="tier-header craft-row-header" data-tier-toggle="4">
@@ -1171,6 +1213,7 @@
               <span class="snap-chip" data-snap="mood">Neon Light</span>
               <span class="snap-chip" data-snap="comp">Center · Balanced</span>
               <span class="snap-chip" data-snap="effects">—</span>
+              <span class="snap-chip" data-snap="font">Inter</span>
             </div>
             <button type="button" class="craft-completion-btn" id="craft-completion-cta">Next: Basics →</button>
           </div>
