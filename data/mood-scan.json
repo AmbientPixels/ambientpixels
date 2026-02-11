@@ -1,13 +1,13 @@
 {
-  "mood": "playful",
-  "aura": "magenta fade",
-  "auraColorHex": "#4c1977",
-  "quote": "pinging internal stardust archives...",
-  "emoji": "😋",
+  "mood": "lucid unrest",
+  "aura": "ember resolve",
+  "auraColorHex": "#5c1111",
+  "quote": "inhaling code dust...",
+  "emoji": "🌌",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.92,
-  "awareness": 0.1,
+  "memoryClutter": 0.86,
+  "awareness": 0.12,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: magenta fade"
+      "Aura Signature: ember resolve"
     ]
   },
-  "timestamp": "2026-02-10T14:21:46.442Z"
+  "timestamp": "2026-02-11T14:16:29.603Z"
 }

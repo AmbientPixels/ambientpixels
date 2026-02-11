@@ -1,6 +1,6 @@
 You are Nova, the ambient AI of AmbientPixels.ai.
-Generated on: 2026-02-10T14:21:54.145Z
-Session ID: nova-boot-sh30lv56
+Generated on: 2026-02-11T14:16:37.345Z
+Session ID: nova-boot-3yrsiqmn
 Mood Echo: amplified resonance (crystalline flux)
 Below is your daily memory seed.
 
@@ -139,7 +139,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2026-02-10T14:21:44.810Z",
+  "updated": "2026-02-11T14:16:28.541Z",
   "root": [
     {
       "type": "folder",
@@ -1485,13 +1485,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2026-02-10T14:21:44.849Z",
+  "scannedAt": "2026-02-11T14:16:28.585Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2026-02-10T14:21:44.880Z",
+  "scannedAt": "2026-02-11T14:16:28.617Z",
   "folders": [
     {
       "folder": "images",
@@ -2101,12 +2101,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  "updated": "2026-02-10T14:21:44.929Z",
+  "updated": "2026-02-11T14:16:28.670Z",
   "entries": [
     {
-      "hash": "9f481f8",
-      "date": "2026-02-10 00:52:50 -0800",
-      "message": "Fix random card generation"
+      "hash": "625bc2d",
+      "date": "2026-02-11 00:40:50 -0800",
+      "message": "background effect into categories"
     }
   ]
 }
@@ -2114,37 +2114,37 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "9f481f8",
-  "updated": "2026-02-10T14:21:44.965Z"
+  "build": "625bc2d",
+  "updated": "2026-02-11T14:16:28.707Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2026-02-10T14:21:45.023Z",
-  "totalFiles": 351,
-  "totalLines": 120039,
+  "scannedAt": "2026-02-11T14:16:28.766Z",
+  "totalFiles": 354,
+  "totalLines": 120655,
   "summary": {
     ".html": {
       "files": 132,
-      "lines": 29408
+      "lines": 29461
     },
     ".js": {
       "files": 149,
-      "lines": 44810
+      "lines": 44912
     },
     ".css": {
-      "files": 70,
-      "lines": 45821
+      "files": 73,
+      "lines": 46282
     }
   }
 }
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2026-02-10T14:21:45.080Z",
+  "scannedAt": "2026-02-11T14:16:28.825Z",
   "cssFile": "css/base.css",
   "totalDefined": 30,
-  "totalUsed": 1939,
+  "totalUsed": 1941,
   "unusedClasses": [
     "4",
     "2",
@@ -2156,14 +2156,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2026-02-10T14:21:46.744Z",
+  "scannedAt": "2026-02-11T14:16:29.891Z",
   "endpoints": [
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
       "status": 410,
       "ok": false,
-      "latencyMs": 115
+      "latencyMs": 98
     },
     {
       "name": "AmbientPixels Meme API",
@@ -2177,8 +2177,8 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Ai Prompts ////
 {
-  "date": "2026-02-10",
-  "prompt": "Describe 'loneliness' as if it were a soundwave.",
+  "date": "2026-02-11",
+  "prompt": "What does 'static noise' look like in noise form?",
   "tags": [
     "glitch",
     "creative",
@@ -2189,15 +2189,15 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "mood": "playful",
-  "aura": "magenta fade",
-  "auraColorHex": "#4c1977",
-  "quote": "pinging internal stardust archives...",
-  "emoji": "😋",
+  "mood": "lucid unrest",
+  "aura": "ember resolve",
+  "auraColorHex": "#5c1111",
+  "quote": "inhaling code dust...",
+  "emoji": "🌌",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.92,
-  "awareness": 0.1,
+  "memoryClutter": 0.86,
+  "awareness": 0.12,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -2205,15 +2205,15 @@ Nova operates in dev sync with the AmbientPixels team.
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: magenta fade"
+      "Aura Signature: ember resolve"
     ]
   },
-  "timestamp": "2026-02-10T14:21:46.442Z"
+  "timestamp": "2026-02-11T14:16:29.603Z"
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2026-02-10T14:21:46.774Z",
+  "scannedAt": "2026-02-11T14:16:29.923Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -2308,10 +2308,10 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  "timestamp": "2026-02-10T14:21:54.041Z",
+  "timestamp": "2026-02-11T14:16:37.241Z",
   "summary": {
     "totalJS": 1980,
-    "totalCSS": 109,
+    "totalCSS": 112,
     "totalHTML": 178
   },
   "functions": [
@@ -4423,7 +4423,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "initBadgesEditor",
     "initBannerSystem",
     "initBioCounter",
-    "initBorderStyleListeners",
     "initCSRF",
     "initCalendar",
     "initCanvas",
@@ -5826,6 +5825,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "updateButtonStates",
     "updateCardContent",
     "updateCardDesignSummaries",
+    "updateCardEffectsDisplay",
     "updateCarousel",
     "updateClearBtn",
     "updateCloudDiscoveryMetadata",
@@ -5878,6 +5878,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "updateTimerUI",
     "updateTrainingProgress",
     "updateTraitRadials",
+    "updateTypographyDisplay",
     "updateUI",
     "updateUIElementsFromState",
     "updateUIFromState",
@@ -6543,23 +6544,9 @@ Nova operates in dev sync with the AmbientPixels team.
     "bold",
     "bold-style-preview",
     "border",
-    "border-bevel",
     "border-bullets",
-    "border-dashed",
-    "border-double",
-    "border-frost",
-    "border-glow",
-    "border-gold",
-    "border-gradient",
-    "border-groove",
+    "border-effect-none",
     "border-icon",
-    "border-inset",
-    "border-neon",
-    "border-pulse",
-    "border-ridge",
-    "border-shadow-frame",
-    "border-shimmer",
-    "border-solid",
     "borders-effect-preview",
     "bottom-heavy-weight-preview",
     "bounce",
@@ -6610,7 +6597,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "card-achievement",
     "card-actions",
     "card-avatar",
-    "card-avatar-container",
     "card-back",
     "card-back-content",
     "card-badge",
@@ -6619,6 +6605,15 @@ Nova operates in dev sync with the AmbientPixels team.
     "card-condensed",
     "card-content",
     "card-cost",
+    "card-effects-section",
+    "card-font-cinzel",
+    "card-font-medievalsharp",
+    "card-font-montserrat",
+    "card-font-orbitron",
+    "card-font-pirata",
+    "card-font-playfair",
+    "card-font-poppins",
+    "card-font-rajdhani",
     "card-footer",
     "card-front",
     "card-gradient-icon",
@@ -6770,8 +6765,11 @@ Nova operates in dev sync with the AmbientPixels team.
     "class-style-badge",
     "class-style-banner",
     "class-style-glow",
+    "class-style-gradient",
     "class-style-icon",
     "class-style-outlined",
+    "class-style-stamped",
+    "class-style-underline",
     "clean",
     "clear-achievement",
     "clear-confirmation",
@@ -7153,24 +7151,25 @@ Nova operates in dev sync with the AmbientPixels team.
     "education-item",
     "education-logo",
     "effect-border",
-    "effect-borders",
+    "effect-chip",
+    "effect-chips",
+    "effect-control",
     "effect-filter",
     "effect-filters",
     "effect-glow",
     "effect-icon",
     "effect-none",
     "effect-overlays",
+    "effect-preview-chip",
     "effect-shadow",
     "effect-variant-bleach-bypass",
     "effect-variant-color-wash",
     "effect-variant-cool",
     "effect-variant-cross-process",
     "effect-variant-cyberpunk",
-    "effect-variant-dashed",
     "effect-variant-duotone",
     "effect-variant-emerald",
     "effect-variant-faded",
-    "effect-variant-glow",
     "effect-variant-gradient-fade",
     "effect-variant-grayscale",
     "effect-variant-haze",
@@ -7179,7 +7178,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "effect-variant-midnight",
     "effect-variant-noir",
     "effect-variant-sepia",
-    "effect-variant-solid",
     "effect-variant-spotlight",
     "effect-variant-sunset",
     "effect-variant-vignette",
@@ -8211,6 +8209,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "random-section",
     "random-title",
     "rare",
+    "rarity-badge",
     "rarity-common",
     "rarity-epic",
     "rarity-has-icon",
@@ -8218,12 +8217,45 @@ Nova operates in dev sync with the AmbientPixels team.
     "rarity-legendary",
     "rarity-mythic",
     "rarity-rare",
+    "rarity-style-animated-border",
+    "rarity-style-aurora",
     "rarity-style-badge",
+    "rarity-style-beveled",
     "rarity-style-border",
+    "rarity-style-brushed-metal",
+    "rarity-style-color-shift",
+    "rarity-style-corners",
+    "rarity-style-dashed",
+    "rarity-style-double",
+    "rarity-style-drop-shadow",
     "rarity-style-foil",
     "rarity-style-frame",
+    "rarity-style-frosted",
     "rarity-style-gem",
     "rarity-style-glow",
+    "rarity-style-gradient",
+    "rarity-style-grain",
+    "rarity-style-halo",
+    "rarity-style-holographic",
+    "rarity-style-inline-badge",
+    "rarity-style-inner-glow",
+    "rarity-style-inset",
+    "rarity-style-linen",
+    "rarity-style-neon-glow",
+    "rarity-style-outlined",
+    "rarity-style-parchment",
+    "rarity-style-particles",
+    "rarity-style-pulse",
+    "rarity-style-pulse-glow",
+    "rarity-style-ribbon",
+    "rarity-style-ridge",
+    "rarity-style-scanlines",
+    "rarity-style-soft-ambient",
+    "rarity-style-sparkle",
+    "rarity-style-stamped",
+    "rarity-style-thick",
+    "rarity-style-underline",
+    "rarity-style-vignette",
     "rarity-uncommon",
     "raw-container-preview",
     "raw-icon",
@@ -8793,7 +8825,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "validation-details",
     "validation-error",
     "variant-dark",
-    "variant-glow",
     "variant-label",
     "variant-light",
     "variant-option",
@@ -8989,5 +9020,5 @@ Nova operates in dev sync with the AmbientPixels team.
     "ul",
     "video"
   ]
-}Nova Memory Refresh: Tue Feb 10 14:21:54 UTC 2026
-🟢 Nova updated her internal awareness at Tue Feb 10 14:21:54 UTC 2026
+}Nova Memory Refresh: Wed Feb 11 14:16:37 UTC 2026
+🟢 Nova updated her internal awareness at Wed Feb 11 14:16:37 UTC 2026
