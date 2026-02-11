@@ -416,6 +416,18 @@
       if (frmSnap) frmSnap.textContent = _cap(sel.frame.container) + ' \u00B7 ' + _cap(sel.frame.variant);
       if (moodSnap) moodSnap.textContent = _cap(sel.style.palette) + ' ' + _cap(sel.style.variant);
       if (compSnap) compSnap.textContent = _cap(sel.composition.alignment) + ' \u00B7 ' + _capDash(sel.composition.weight);
+
+      var effectsSnap = chips.querySelector('[data-snap="effects"]');
+      if (effectsSnap) {
+        var bgEl = document.getElementById('card-bg-effect');
+        var borderEl = document.getElementById('card-border-effect');
+        var glowEl = document.getElementById('card-glow-effect');
+        var eParts = [];
+        if (bgEl && bgEl.value !== 'none') eParts.push(bgEl.options[bgEl.selectedIndex].text);
+        if (borderEl && borderEl.value !== 'none') eParts.push(borderEl.options[borderEl.selectedIndex].text);
+        if (glowEl && glowEl.value !== 'none') eParts.push(glowEl.options[glowEl.selectedIndex].text);
+        effectsSnap.textContent = eParts.length > 0 ? eParts.join(' \u00B7 ') : '\u2014';
+      }
     }
   }
 
