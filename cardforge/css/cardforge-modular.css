@@ -737,11 +737,25 @@
 .current-layout-preview,
 .current-container-preview,
 .current-effect-preview,
-.current-weight-preview {
+.current-weight-preview,
+.effect-preview-chip {
   width: 20px;
   height: 20px;
   border-radius: 4px;
   border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.effect-preview-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--mood-primary-color, #00d4ff);
+  flex-shrink: 0;
+}
+
+.effect-preview-chip i {
+  font-size: 0.6rem;
+  color: var(--aura-bg-color, #1a1a2e);
 }
 
 /* Layout Preview Icons */
@@ -1451,4 +1465,71 @@
   .style-options {
     grid-template-columns: 1fr;
   }
+}
+
+/* ===== CARD EFFECTS SECTION ===== */
+.card-effects-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+}
+
+.effect-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.effect-chips {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 6px;
+}
+
+.effect-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  background: var(--aura-bg-secondary, #2a2a4e);
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 8px;
+  color: var(--mood-text-secondary, #a0a0c0);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.effect-chip i {
+  font-size: 1rem;
+  color: var(--mood-primary-color, #00d4ff);
+  opacity: 0.6;
+  transition: all 0.2s ease;
+}
+
+.effect-chip:hover {
+  border-color: var(--mood-primary-color, #00d4ff);
+  color: var(--mood-text-primary, #e1e1ff);
+  background: var(--aura-bg-hover, #3a3a5e);
+  transform: translateY(-1px);
+}
+
+.effect-chip:hover i {
+  opacity: 1;
+}
+
+.effect-chip.selected {
+  background: var(--mood-primary-color, #00d4ff);
+  color: var(--aura-bg-color, #1a1a2e);
+  border-color: var(--mood-primary-color, #00d4ff);
+  font-weight: 600;
+}
+
+.effect-chip.selected i {
+  color: var(--aura-bg-color, #1a1a2e);
+  opacity: 1;
 }

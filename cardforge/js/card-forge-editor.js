@@ -1280,6 +1280,9 @@
     const evsSection = document.querySelector('[data-tier="2"] .effects-variants-section');
     if (evsSection) evsSection.style.display = 'none';
     
+    // Ensure card effects display is current after init
+    updateCardEffectsDisplay();
+    
     if (window.CardForgeChrome) {
       setTimeout(() => window.CardForgeChrome.setDirtyTracking(true), 600);
     }
@@ -1571,6 +1574,9 @@
     styleOptions.forEach(option => {
       option.classList.toggle('selected', option.dataset.style === ModularState.alignmentStyle);
     });
+    
+    // Update card effects display in tier header
+    updateCardEffectsDisplay();
     
     console.log('🔄 UI elements updated from ModularState');
   }
@@ -2111,6 +2117,7 @@
     
     // Update collapsible tier current selection displays
     updateCollapsibleTierDisplays();
+    updateCardEffectsDisplay();
   }
 
   // ===== MODULAR SYSTEM INITIALIZATION =====
@@ -2260,6 +2267,64 @@
     }
     
     console.log('🔄 Updated all collapsible tier displays');
+  }
+
+  function updateCardEffectsDisplay() {
+    const bg = document.getElementById('card-bg-effect');
+    const border = document.getElementById('card-border-effect');
+    const glow = document.getElementById('card-glow-effect');
+    
+    const parts = [];
+    const icons = [];
+    
+    if (bg && bg.value !== 'none') {
+      const chip = document.querySelector(`.effect-chips[data-target="card-bg-effect"] .effect-chip[data-value="${bg.value}"] i`);
+      parts.push(bg.options[bg.selectedIndex].text);
+      if (chip) icons.push(chip.className);
+    }
+    if (border && border.value !== 'none') {
+      const chip = document.querySelector(`.effect-chips[data-target="card-border-effect"] .effect-chip[data-value="${border.value}"] i`);
+      parts.push(border.options[border.selectedIndex].text);
+      if (chip) icons.push(chip.className);
+    }
+    if (glow && glow.value !== 'none') {
+      const chip = document.querySelector(`.effect-chips[data-target="card-glow-effect"] .effect-chip[data-value="${glow.value}"] i`);
+      parts.push(glow.options[glow.selectedIndex].text);
+      if (chip) icons.push(chip.className);
+    }
+    
+    const displayText = parts.length > 0 ? parts.join(' · ') : 'None';
+    
+    // Update header: inject mini icon chips + text
+    const tier = document.querySelector('[data-tier="5"]');
+    if (tier) {
+      const selectionArea = tier.querySelector('.tier-current-selection');
+      if (selectionArea) {
+        // Clear existing preview chips
+        selectionArea.querySelectorAll('.effect-preview-chip').forEach(el => el.remove());
+        
+        // Add mini icon chips before the text
+        const textEl = selectionArea.querySelector('.current-selection-text');
+        icons.forEach(iconClass => {
+          const chip = document.createElement('div');
+          chip.className = 'effect-preview-chip';
+          chip.innerHTML = `<i class="${iconClass}"></i>`;
+          selectionArea.insertBefore(chip, textEl);
+        });
+        
+        if (textEl) textEl.textContent = displayText;
+      }
+    }
+    
+    // Sync chip button selection state from hidden selects
+    [bg, border, glow].forEach(select => {
+      if (!select) return;
+      const chipGroup = document.querySelector(`.effect-chips[data-target="${select.id}"]`);
+      if (!chipGroup) return;
+      chipGroup.querySelectorAll('.effect-chip').forEach(chip => {
+        chip.classList.toggle('selected', chip.dataset.value === select.value);
+      });
+    });
   }
 
   // ===== TIER 1: LAYOUT REMOVED =====
@@ -3600,13 +3665,35 @@
       });
     }
     
-    // Card Effects selectors (Background, Border, Glow)
+    // Card Effects chip buttons — click to select, sync to hidden <select>, update preview
+    document.querySelectorAll('.effect-chips').forEach(chipGroup => {
+      const targetId = chipGroup.dataset.target;
+      const hiddenSelect = document.getElementById(targetId);
+      
+      chipGroup.querySelectorAll('.effect-chip').forEach(chip => {
+        chip.addEventListener('click', function() {
+          chipGroup.querySelectorAll('.effect-chip').forEach(c => c.classList.remove('selected'));
+          this.classList.add('selected');
+          
+          if (hiddenSelect) {
+            hiddenSelect.value = this.dataset.value;
+            hiddenSelect.dispatchEvent(new Event('change'));
+          }
+          
+          updatePreview();
+          updateCardEffectsDisplay();
+        });
+      });
+    });
+    
+    // Hidden select change listeners (for programmatic .value changes from random roll)
     ['card-bg-effect', 'card-border-effect', 'card-glow-effect'].forEach(id => {
       const el = document.getElementById(id);
       if (el) {
         el.addEventListener('change', function() {
           console.log(`${id} changed to:`, this.value);
           updatePreview();
+          updateCardEffectsDisplay();
         });
       }
     });

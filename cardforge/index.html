@@ -1069,72 +1069,94 @@
             </div>
             
             <div class="tier-content" data-tier-content="5">
-              <div class="card-effects-section" style="display:flex; flex-direction:column; gap:0.75rem; padding:0.5rem;">
+              <div class="card-effects-section">
+                <select id="card-bg-effect" class="style-selector" hidden>
+                  <option value="none">None</option>
+                  <option value="foil">Foil Shimmer</option>
+                  <option value="holographic">Holographic</option>
+                  <option value="sparkle">Sparkle / Glitter</option>
+                  <option value="aurora">Aurora</option>
+                  <option value="pulse">Pulse</option>
+                  <option value="particles">Particles</option>
+                  <option value="grain">Noise / Grain</option>
+                  <option value="vignette">Vignette</option>
+                  <option value="scanlines">Scanlines</option>
+                  <option value="frosted">Frosted Glass</option>
+                  <option value="linen">Linen</option>
+                  <option value="brushed-metal">Brushed Metal</option>
+                  <option value="parchment">Parchment</option>
+                </select>
+                <select id="card-border-effect" class="style-selector" hidden>
+                  <option value="none">None</option>
+                  <option value="border">Colored Border</option>
+                  <option value="double">Double Border</option>
+                  <option value="inset">Inset Border</option>
+                  <option value="thick">Rounded Thick</option>
+                  <option value="dashed">Dashed</option>
+                  <option value="ridge">Ridge</option>
+                  <option value="beveled">Beveled</option>
+                  <option value="corners">Dual Border</option>
+                  <option value="animated-border">Animated Border</option>
+                </select>
+                <select id="card-glow-effect" class="style-selector" hidden>
+                  <option value="none">None</option>
+                  <option value="glow">Glow</option>
+                  <option value="soft-ambient">Soft Ambient</option>
+                  <option value="inner-glow">Inner Glow</option>
+                  <option value="neon-glow">Neon</option>
+                  <option value="halo">Halo</option>
+                  <option value="drop-shadow">Drop Shadow</option>
+                  <option value="pulse-glow">Pulse Glow</option>
+                  <option value="color-shift">Color Shift</option>
+                </select>
+
                 <div class="effect-control">
-                  <label for="card-bg-effect">Background Effect</label>
-                  <select id="card-bg-effect" class="style-selector">
-                    <option value="none">None</option>
-                    <optgroup label="Animated">
-                      <option value="foil">Foil Shimmer</option>
-                      <option value="holographic">Holographic</option>
-                      <option value="sparkle">Sparkle / Glitter</option>
-                      <option value="aurora">Aurora</option>
-                      <option value="pulse">Pulse</option>
-                      <option value="particles">Particles</option>
-                    </optgroup>
-                    <optgroup label="Static">
-                      <option value="grain">Noise / Grain</option>
-                      <option value="vignette">Vignette</option>
-                      <option value="scanlines">Scanlines</option>
-                      <option value="frosted">Frosted Glass</option>
-                    </optgroup>
-                    <optgroup label="Textures">
-                      <option value="linen">Linen</option>
-                      <option value="brushed-metal">Brushed Metal</option>
-                      <option value="parchment">Parchment</option>
-                    </optgroup>
-                  </select>
+                  <h5 class="level-title">Background Effect</h5>
+                  <div class="effect-chips" data-target="card-bg-effect">
+                    <button type="button" class="effect-chip selected" data-value="none"><i class="fas fa-ban"></i><span>None</span></button>
+                    <button type="button" class="effect-chip" data-value="foil"><i class="fas fa-star"></i><span>Foil</span></button>
+                    <button type="button" class="effect-chip" data-value="holographic"><i class="fas fa-rainbow"></i><span>Holo</span></button>
+                    <button type="button" class="effect-chip" data-value="sparkle"><i class="fas fa-sparkles"></i><span>Sparkle</span></button>
+                    <button type="button" class="effect-chip" data-value="aurora"><i class="fas fa-wind"></i><span>Aurora</span></button>
+                    <button type="button" class="effect-chip" data-value="pulse"><i class="fas fa-heart-pulse"></i><span>Pulse</span></button>
+                    <button type="button" class="effect-chip" data-value="particles"><i class="fas fa-meteor"></i><span>Particles</span></button>
+                    <button type="button" class="effect-chip" data-value="grain"><i class="fas fa-braille"></i><span>Grain</span></button>
+                    <button type="button" class="effect-chip" data-value="vignette"><i class="fas fa-circle"></i><span>Vignette</span></button>
+                    <button type="button" class="effect-chip" data-value="scanlines"><i class="fas fa-bars"></i><span>Scanlines</span></button>
+                    <button type="button" class="effect-chip" data-value="frosted"><i class="fas fa-snowflake"></i><span>Frosted</span></button>
+                    <button type="button" class="effect-chip" data-value="linen"><i class="fas fa-scroll"></i><span>Linen</span></button>
+                    <button type="button" class="effect-chip" data-value="brushed-metal"><i class="fas fa-shield"></i><span>Metal</span></button>
+                    <button type="button" class="effect-chip" data-value="parchment"><i class="fas fa-file-alt"></i><span>Parchment</span></button>
+                  </div>
                 </div>
                 <div class="effect-control">
-                  <label for="card-border-effect">Card Border</label>
-                  <select id="card-border-effect" class="style-selector">
-                    <option value="none">None</option>
-                    <optgroup label="Structural">
-                      <option value="border">Colored Border</option>
-                      <option value="double">Double Border</option>
-                      <option value="inset">Inset Border</option>
-                      <option value="thick">Rounded Thick</option>
-                    </optgroup>
-                    <optgroup label="Stylized">
-                      <option value="dashed">Dashed</option>
-                      <option value="ridge">Ridge</option>
-                      <option value="beveled">Beveled</option>
-                      <option value="corners">Dual Border</option>
-                    </optgroup>
-                    <optgroup label="Animated">
-                      <option value="animated-border">Animated Border</option>
-                    </optgroup>
-                  </select>
+                  <h5 class="level-title">Card Border</h5>
+                  <div class="effect-chips" data-target="card-border-effect">
+                    <button type="button" class="effect-chip selected" data-value="none"><i class="fas fa-ban"></i><span>None</span></button>
+                    <button type="button" class="effect-chip" data-value="border"><i class="fas fa-square"></i><span>Colored</span></button>
+                    <button type="button" class="effect-chip" data-value="double"><i class="fas fa-clone"></i><span>Double</span></button>
+                    <button type="button" class="effect-chip" data-value="inset"><i class="fas fa-compress"></i><span>Inset</span></button>
+                    <button type="button" class="effect-chip" data-value="thick"><i class="fas fa-border-all"></i><span>Thick</span></button>
+                    <button type="button" class="effect-chip" data-value="dashed"><i class="fas fa-grip-lines"></i><span>Dashed</span></button>
+                    <button type="button" class="effect-chip" data-value="ridge"><i class="fas fa-mountain"></i><span>Ridge</span></button>
+                    <button type="button" class="effect-chip" data-value="beveled"><i class="fas fa-gem"></i><span>Beveled</span></button>
+                    <button type="button" class="effect-chip" data-value="corners"><i class="fas fa-th-large"></i><span>Dual</span></button>
+                    <button type="button" class="effect-chip" data-value="animated-border"><i class="fas fa-bolt"></i><span>Animated</span></button>
+                  </div>
                 </div>
                 <div class="effect-control">
-                  <label for="card-glow-effect">Card Glow</label>
-                  <select id="card-glow-effect" class="style-selector">
-                    <option value="none">None</option>
-                    <optgroup label="Subtle">
-                      <option value="glow">Glow</option>
-                      <option value="soft-ambient">Soft Ambient</option>
-                      <option value="inner-glow">Inner Glow</option>
-                    </optgroup>
-                    <optgroup label="Bold">
-                      <option value="neon-glow">Neon</option>
-                      <option value="halo">Halo</option>
-                      <option value="drop-shadow">Drop Shadow</option>
-                    </optgroup>
-                    <optgroup label="Animated">
-                      <option value="pulse-glow">Pulse Glow</option>
-                      <option value="color-shift">Color Shift</option>
-                    </optgroup>
-                  </select>
+                  <h5 class="level-title">Card Glow</h5>
+                  <div class="effect-chips" data-target="card-glow-effect">
+                    <button type="button" class="effect-chip selected" data-value="none"><i class="fas fa-ban"></i><span>None</span></button>
+                    <button type="button" class="effect-chip" data-value="glow"><i class="fas fa-sun"></i><span>Glow</span></button>
+                    <button type="button" class="effect-chip" data-value="soft-ambient"><i class="fas fa-cloud-sun"></i><span>Soft</span></button>
+                    <button type="button" class="effect-chip" data-value="inner-glow"><i class="fas fa-circle-dot"></i><span>Inner</span></button>
+                    <button type="button" class="effect-chip" data-value="neon-glow"><i class="fas fa-lightbulb"></i><span>Neon</span></button>
+                    <button type="button" class="effect-chip" data-value="halo"><i class="fas fa-circle-notch"></i><span>Halo</span></button>
+                    <button type="button" class="effect-chip" data-value="drop-shadow"><i class="fas fa-cloud"></i><span>Shadow</span></button>
+                    <button type="button" class="effect-chip" data-value="pulse-glow"><i class="fas fa-heart-pulse"></i><span>Pulse</span></button>
+                    <button type="button" class="effect-chip" data-value="color-shift"><i class="fas fa-palette"></i><span>Shift</span></button>
+                  </div>
                 </div>
               </div>
             </div>
