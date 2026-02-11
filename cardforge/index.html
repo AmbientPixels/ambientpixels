@@ -1055,6 +1055,44 @@
             </div>
           </div>
 
+          <!-- CARD EFFECTS -->
+          <div class="modular-tier collapsible-tier" data-tier="5">
+            <div class="tier-header craft-row-header" data-tier-toggle="5">
+              <h4 class="tier-title">Card Effects</h4>
+              <div class="tier-current-selection">
+                <span class="current-selection-text">None</span>
+              </div>
+              <div class="tier-expand-icon">›</div>
+            </div>
+            
+            <div class="tier-content" data-tier-content="5">
+              <div class="card-effects-section" style="display:flex; flex-direction:column; gap:0.75rem; padding:0.5rem;">
+                <div class="effect-control">
+                  <label for="card-bg-effect">Background Effect</label>
+                  <select id="card-bg-effect" class="style-selector">
+                    <option value="none">None</option>
+                    <option value="foil">Foil Shimmer</option>
+                  </select>
+                </div>
+                <div class="effect-control">
+                  <label for="card-border-effect">Card Border</label>
+                  <select id="card-border-effect" class="style-selector">
+                    <option value="none">None</option>
+                    <option value="border">Colored Border</option>
+                    <option value="frame">Ornate Frame</option>
+                  </select>
+                </div>
+                <div class="effect-control">
+                  <label for="card-glow-effect">Card Glow</label>
+                  <select id="card-glow-effect" class="style-selector">
+                    <option value="none">None</option>
+                    <option value="glow">Rarity Glow</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- DESIGN SNAPSHOT STRIP -->
           <div class="craft-snapshot" id="craft-completion">
             <span class="craft-snapshot-label">Design</span>
@@ -1155,10 +1193,6 @@
                 <select id="rarity-style" class="style-selector">
                   <option value="default">Default Text</option>
                   <option value="badge">Corner Badge</option>
-                  <option value="border">Colored Border</option>
-                  <option value="glow">Rarity Glow</option>
-                  <option value="foil">Foil Effect</option>
-                  <option value="frame">Ornate Frame</option>
                 </select>
 
                 <!-- Rarity Icon Picker -->

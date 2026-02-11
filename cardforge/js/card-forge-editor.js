@@ -1398,8 +1398,13 @@
       verticalAlignments: ['middle', 'bottom'], // Exclude 'top' from random rolls
       alignmentStyles: ['none', 'padded', 'compact', 'elegant', 'narrow', 'bold', 'cinematic', 'editorial', 'stacked'],
       
-      // Rarity Styles
-      rarityStyles: ['default', 'badge', 'border', 'glow', 'foil', 'frame']
+      // Rarity Styles (text/badge only)
+      rarityStyles: ['default', 'badge'],
+      
+      // Card Effects (separate categories)
+      bgEffects: ['none', 'foil'],
+      borderEffects: ['none', 'border', 'frame'],
+      glowEffects: ['none', 'glow']
     };
     
     // Generate random selections
@@ -1417,6 +1422,9 @@
     const randomStyle = randomOptions.alignmentStyles[Math.floor(Math.random() * randomOptions.alignmentStyles.length)];
     
     const randomRarityStyle = randomOptions.rarityStyles[Math.floor(Math.random() * randomOptions.rarityStyles.length)];
+    const randomBgEffect = randomOptions.bgEffects[Math.floor(Math.random() * randomOptions.bgEffects.length)];
+    const randomBorderEffect = randomOptions.borderEffects[Math.floor(Math.random() * randomOptions.borderEffects.length)];
+    const randomGlowEffect = randomOptions.glowEffects[Math.floor(Math.random() * randomOptions.glowEffects.length)];
     
     // Reset ModularState to defaults, then apply random selections
     // This prevents stale keys from persisting across rolls/preset switches
@@ -1458,6 +1466,14 @@
     if (rarityStyleField) {
       rarityStyleField.value = randomRarityStyle;
     }
+    
+    // Apply random card effects to their dropdowns
+    const bgEffectField = document.getElementById('card-bg-effect');
+    if (bgEffectField) bgEffectField.value = randomBgEffect;
+    const borderEffectField = document.getElementById('card-border-effect');
+    if (borderEffectField) borderEffectField.value = randomBorderEffect;
+    const glowEffectField = document.getElementById('card-glow-effect');
+    if (glowEffectField) glowEffectField.value = randomGlowEffect;
     
     // Clear any active preset buttons since this is a custom random card
     const allPresetButtons = document.querySelectorAll('.preset-btn');
@@ -1764,11 +1780,28 @@
     }
     
     if (rarityStyle) {
+      // Route old rarityStyle values to the correct new dropdowns
+      const bgEffectField = document.getElementById('card-bg-effect');
+      const borderEffectField = document.getElementById('card-border-effect');
+      const glowEffectField = document.getElementById('card-glow-effect');
       const rarityStyleField = document.getElementById('rarity-style');
-      if (rarityStyleField) {
+      
+      // Reset all effect dropdowns first
+      if (bgEffectField) bgEffectField.value = 'none';
+      if (borderEffectField) borderEffectField.value = 'none';
+      if (glowEffectField) glowEffectField.value = 'none';
+      if (rarityStyleField) rarityStyleField.value = 'default';
+      
+      if (rarityStyle === 'foil' && bgEffectField) {
+        bgEffectField.value = 'foil';
+      } else if ((rarityStyle === 'border' || rarityStyle === 'frame') && borderEffectField) {
+        borderEffectField.value = rarityStyle;
+      } else if (rarityStyle === 'glow' && glowEffectField) {
+        glowEffectField.value = 'glow';
+      } else if (rarityStyleField) {
         rarityStyleField.value = rarityStyle;
-        console.log(`✅ Rarity style populated: ${rarityStyle}`);
       }
+      console.log(`✅ Rarity/effect style routed: ${rarityStyle}`);
     }
     
     if (rarityIcon) {
@@ -2581,6 +2614,21 @@
       sharedClasses.push(`rarity-style-${rarityStyle}`);
     }
     
+    // Card Effects (from Card Design tab dropdowns)
+    const bgEffect = document.getElementById('card-bg-effect');
+    const borderEffect = document.getElementById('card-border-effect');
+    const glowEffect = document.getElementById('card-glow-effect');
+    
+    if (bgEffect && bgEffect.value !== 'none') {
+      sharedClasses.push(`rarity-style-${bgEffect.value}`);
+    }
+    if (borderEffect && borderEffect.value !== 'none') {
+      sharedClasses.push(`rarity-style-${borderEffect.value}`);
+    }
+    if (glowEffect && glowEffect.value !== 'none') {
+      sharedClasses.push(`rarity-style-${glowEffect.value}`);
+    }
+    
     // Apply classes: front gets alignment + shared; back gets shared only
     front.className = `card-preview-canvas card-front ${frontOnlyClasses.join(' ')} ${sharedClasses.join(' ')}`;
     back.className = `card-preview-canvas card-back ${sharedClasses.join(' ')}`;
@@ -2810,6 +2858,12 @@
         return;
       }
       
+      // Hide inline rarity text when Corner Badge is active (badge shows it in the corner instead)
+      if (rarityStyle === 'badge') {
+        element.style.display = 'none';
+        return;
+      }
+      
       // Show element if rarity value exists
       element.style.display = '';
       
@@ -2842,6 +2896,31 @@
         if (iconElement) {
           iconElement.remove();
         }
+      }
+    });
+    
+    // Handle rarity badge DOM element (not ::after, to avoid conflict with foil/frame)
+    const cardFaces = document.querySelectorAll('.card-preview-zone .card-preview-canvas.card-front, .card-preview-zone .card-preview-canvas.card-back');
+    cardFaces.forEach(face => {
+      const existingBadge = face.querySelector('.rarity-badge');
+      if (rarityStyle === 'badge' && rarityValue) {
+        // Build badge content: icon + text
+        let badgeHTML = '';
+        if (rarityIcon !== 'none') {
+          badgeHTML += `<i class="fas fa-${rarityIcon}" style="margin-right:0.3em"></i>`;
+        }
+        badgeHTML += rarityValue;
+        
+        if (!existingBadge) {
+          const badge = document.createElement('span');
+          badge.className = 'rarity-badge';
+          badge.innerHTML = badgeHTML;
+          face.appendChild(badge);
+        } else {
+          existingBadge.innerHTML = badgeHTML;
+        }
+      } else if (existingBadge) {
+        existingBadge.remove();
       }
     });
     
@@ -3503,6 +3582,17 @@
         updatePreview();
       });
     }
+    
+    // Card Effects selectors (Background, Border, Glow)
+    ['card-bg-effect', 'card-border-effect', 'card-glow-effect'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('change', function() {
+          console.log(`${id} changed to:`, this.value);
+          updatePreview();
+        });
+      }
+    });
     
     // Initialize badge section toggle systems
     // Initialize icon pickers
