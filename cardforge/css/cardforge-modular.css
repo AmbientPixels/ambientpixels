@@ -1487,6 +1487,11 @@
   gap: 6px;
 }
 
+.effect-chips .variant-subtitle {
+  grid-column: 1 / -1;
+  margin: 0.4rem 0 0.1rem;
+}
+
 .effect-chip {
   display: flex;
   flex-direction: column;
