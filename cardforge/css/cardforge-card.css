@@ -771,6 +771,50 @@
   letter-spacing: 1px;
 }
 
+/* Underline Accent Class — thick colored underline */
+.card-preview-canvas .card-class.class-style-underline {
+  padding-bottom: 0.25rem;
+  border-bottom: 3px solid var(--card-accent, #00d4ff);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Gradient Text Class — shimmering gradient fill */
+.card-preview-canvas .card-class.class-style-gradient {
+  display: inline-block;
+  background: linear-gradient(90deg, var(--card-accent, #00d4ff), #fff, var(--card-accent, #00d4ff));
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  animation: class-gradient-shift 3s ease-in-out infinite;
+}
+
+@keyframes class-gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Stamped Class — quality seal / stamp look */
+.card-preview-canvas .card-class.class-style-stamped {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border: 2px solid var(--card-accent, #00d4ff);
+  color: var(--card-accent, #00d4ff);
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  opacity: 0.85;
+  transform: rotate(-2deg);
+}
+
 /* =========================== */
 /* RARITY STYLING VARIANTS */
 /* =========================== */
@@ -790,6 +834,91 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   z-index: 10;
   pointer-events: none;
+}
+
+/* Inline Badge Rarity — colored pill behind rarity text */
+.card-preview-canvas .card-rarity.rarity-style-inline-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  background: var(--rarity-color, #888);
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Outlined Rarity — bordered box */
+.card-preview-canvas .card-rarity.rarity-style-outlined {
+  display: inline-block;
+  border: 2px solid var(--rarity-color, #888);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(var(--rarity-rgb, 136, 136, 136), 0.1);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--rarity-color, #888);
+}
+
+/* Underline Accent Rarity — thick colored underline */
+.card-preview-canvas .card-rarity.rarity-style-underline {
+  padding-bottom: 0.25rem;
+  border-bottom: 3px solid var(--rarity-color, #888);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Gradient Text Rarity — shimmering gradient fill */
+.card-preview-canvas .card-rarity.rarity-style-gradient {
+  display: inline-block;
+  background: linear-gradient(90deg, var(--rarity-color, #888), #fff, var(--rarity-color, #888));
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  animation: rarity-gradient-shift 3s ease-in-out infinite;
+}
+
+@keyframes rarity-gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Stamped Rarity — quality seal / stamp look */
+.card-preview-canvas .card-rarity.rarity-style-stamped {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border: 2px solid var(--rarity-color, #888);
+  color: var(--rarity-color, #888);
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  opacity: 0.85;
+  transform: rotate(-2deg);
+}
+
+/* Ribbon Rarity — banner shape behind text */
+.card-preview-canvas .card-rarity.rarity-style-ribbon {
+  display: inline-block;
+  padding: 0.25rem 1rem 0.25rem 0.6rem;
+  background: linear-gradient(135deg, var(--rarity-color, #888), rgba(var(--rarity-rgb, 136, 136, 136), 0.7));
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
+  margin-right: 10px;
 }
 
 /* Colored Border Rarity */

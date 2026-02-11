@@ -1398,8 +1398,11 @@
       verticalAlignments: ['middle', 'bottom'], // Exclude 'top' from random rolls
       alignmentStyles: ['none', 'padded', 'compact', 'elegant', 'narrow', 'bold', 'cinematic', 'editorial', 'stacked'],
       
+      // Class Styles
+      classStyles: ['default', 'badge', 'banner', 'outlined', 'glow', 'underline', 'gradient'],
+      
       // Rarity Styles (text/badge only)
-      rarityStyles: ['default', 'badge'],
+      rarityStyles: ['default', 'badge', 'inline-badge', 'outlined', 'underline', 'gradient', 'ribbon'],
       
       // Card Effects (separate categories)
       bgEffects: ['none', 'foil'],
@@ -1421,6 +1424,7 @@
     const randomVertical = randomOptions.verticalAlignments[Math.floor(Math.random() * randomOptions.verticalAlignments.length)];
     const randomStyle = randomOptions.alignmentStyles[Math.floor(Math.random() * randomOptions.alignmentStyles.length)];
     
+    const randomClassStyle = randomOptions.classStyles[Math.floor(Math.random() * randomOptions.classStyles.length)];
     const randomRarityStyle = randomOptions.rarityStyles[Math.floor(Math.random() * randomOptions.rarityStyles.length)];
     const randomBgEffect = randomOptions.bgEffects[Math.floor(Math.random() * randomOptions.bgEffects.length)];
     const randomBorderEffect = randomOptions.borderEffects[Math.floor(Math.random() * randomOptions.borderEffects.length)];
@@ -1460,6 +1464,12 @@
       alignment: `${randomHorizontal}-${randomVertical}-${randomStyle}`,
       rarityStyle: randomRarityStyle
     });
+    
+    // Apply random class style to the dropdown
+    const classStyleField = document.getElementById('class-style');
+    if (classStyleField) {
+      classStyleField.value = randomClassStyle;
+    }
     
     // Apply random rarity style to the dropdown
     const rarityStyleField = document.getElementById('rarity-style');
@@ -2819,7 +2829,8 @@
       
       // Remove existing class style classes
       element.classList.remove('class-style-default', 'class-style-badge', 'class-style-banner', 
-                                'class-style-outlined', 'class-style-glow', 'class-has-icon');
+                                'class-style-outlined', 'class-style-glow', 'class-has-icon',
+                                'class-style-underline', 'class-style-gradient', 'class-style-stamped');
       
       // Add new class style
       if (classStyle !== 'default') {
@@ -2869,7 +2880,9 @@
       
       // Remove existing rarity style classes
       element.classList.remove('rarity-style-default', 'rarity-style-badge', 'rarity-style-border',
-                                'rarity-style-glow', 'rarity-style-foil', 'rarity-style-frame', 'rarity-has-icon');
+                                'rarity-style-glow', 'rarity-style-foil', 'rarity-style-frame', 'rarity-has-icon',
+                                'rarity-style-inline-badge', 'rarity-style-outlined', 'rarity-style-underline',
+                                'rarity-style-gradient', 'rarity-style-stamped', 'rarity-style-ribbon');
       
       // Add new rarity style
       if (rarityStyle !== 'default') {
