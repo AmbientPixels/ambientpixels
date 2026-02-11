@@ -27,7 +27,13 @@
     
     // Image Effects (filters only)
     imageEffect: 'none',
-    imageEffectVariant: 'clean'
+    imageEffectVariant: 'clean',
+    
+    // 2D Stroke Tokens (image container only)
+    imageStrokeWidth: 4,
+    imageCornerRadius: 12,
+    imageStrokeStyle: 'solid',
+    imageShadowStyle: 'offset'
   };
   
   // Make ModularState globally accessible for event handlers
