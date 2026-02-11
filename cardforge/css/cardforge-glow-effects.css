@@ -1,0 +1,76 @@
+/* ================================= */
+/* CARD GLOW EFFECTS                  */
+/* ================================= */
+
+/* Glow — standard accent-colored glow */
+.card-preview-canvas.rarity-style-glow {
+  box-shadow: 0 0 20px var(--card-accent, #00d4ff), 0 0 40px color-mix(in srgb, var(--card-accent, #00d4ff) 30%, transparent) !important;
+}
+
+/* Soft Ambient — gentle wide spread, low intensity */
+.card-preview-canvas.rarity-style-soft-ambient {
+  box-shadow: 0 0 30px color-mix(in srgb, var(--card-accent, #00d4ff) 25%, transparent), 0 0 60px color-mix(in srgb, var(--card-accent, #00d4ff) 10%, transparent) !important;
+}
+
+/* Inner Glow — inset glow inside the card edges */
+.card-preview-canvas.rarity-style-inner-glow {
+  box-shadow: inset 0 0 20px color-mix(in srgb, var(--card-accent, #00d4ff) 40%, transparent), inset 0 0 40px color-mix(in srgb, var(--card-accent, #00d4ff) 15%, transparent) !important;
+}
+
+/* Neon — intense tight glow with bright accent color */
+.card-preview-canvas.rarity-style-neon-glow {
+  box-shadow:
+    0 0 5px var(--card-accent, #00d4ff),
+    0 0 10px var(--card-accent, #00d4ff),
+    0 0 20px var(--card-accent, #00d4ff),
+    0 0 40px color-mix(in srgb, var(--card-accent, #00d4ff) 50%, transparent) !important;
+}
+
+/* Halo — large diffused aura spreading far out */
+.card-preview-canvas.rarity-style-halo {
+  box-shadow:
+    0 0 15px color-mix(in srgb, var(--card-accent, #00d4ff) 30%, transparent),
+    0 0 40px color-mix(in srgb, var(--card-accent, #00d4ff) 20%, transparent),
+    0 0 80px color-mix(in srgb, var(--card-accent, #00d4ff) 15%, transparent),
+    0 0 120px color-mix(in srgb, var(--card-accent, #00d4ff) 8%, transparent) !important;
+}
+
+/* Drop Shadow — dramatic directional shadow (bottom-right) */
+.card-preview-canvas.rarity-style-drop-shadow {
+  box-shadow:
+    6px 8px 16px rgba(0,0,0,0.5),
+    10px 14px 30px rgba(0,0,0,0.3),
+    3px 4px 8px color-mix(in srgb, var(--card-accent, #00d4ff) 15%, transparent) !important;
+}
+
+/* Pulse Glow — breathing glow that fades in/out */
+.card-preview-canvas.rarity-style-pulse-glow {
+  animation: glow-pulse 3s ease-in-out infinite !important;
+}
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px color-mix(in srgb, var(--card-accent, #00d4ff) 20%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 20px var(--card-accent, #00d4ff),
+      0 0 40px color-mix(in srgb, var(--card-accent, #00d4ff) 40%, transparent),
+      0 0 60px color-mix(in srgb, var(--card-accent, #00d4ff) 15%, transparent);
+  }
+}
+
+/* Color Shift — glow that cycles through hue variations */
+.card-preview-canvas.rarity-style-color-shift {
+  animation: glow-color-shift 6s ease-in-out infinite !important;
+}
+@keyframes glow-color-shift {
+  0%, 100% {
+    box-shadow: 0 0 20px #ff0055, 0 0 40px rgba(255,0,85,0.3);
+  }
+  33% {
+    box-shadow: 0 0 20px #00d4ff, 0 0 40px rgba(0,212,255,0.3);
+  }
+  66% {
+    box-shadow: 0 0 20px #aa00ff, 0 0 40px rgba(170,0,255,0.3);
+  }
+}

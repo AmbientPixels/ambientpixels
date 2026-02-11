@@ -1407,7 +1407,7 @@
       // Card Effects (separate categories)
       bgEffects: ['none', 'foil', 'holographic', 'sparkle', 'aurora', 'pulse', 'particles', 'grain', 'vignette', 'scanlines', 'frosted', 'linen', 'brushed-metal', 'parchment'],
       borderEffects: ['none', 'border', 'double', 'inset', 'thick', 'dashed', 'ridge', 'beveled', 'corners', 'animated-border'],
-      glowEffects: ['none', 'glow']
+      glowEffects: ['none', 'glow', 'soft-ambient', 'inner-glow', 'neon-glow', 'halo', 'drop-shadow', 'pulse-glow', 'color-shift']
     };
     
     // Generate random selections

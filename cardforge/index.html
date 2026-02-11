@@ -33,6 +33,7 @@
   <link rel="stylesheet" href="css/cardforge-card.css">
   <link rel="stylesheet" href="css/cardforge-bg-effects.css">
   <link rel="stylesheet" href="css/cardforge-border-effects.css">
+  <link rel="stylesheet" href="css/cardforge-glow-effects.css">
   <link rel="stylesheet" href="css/cardforge-layout.css"> <!-- New local layout styles that override grid.css -->
 
 </head>
@@ -1119,7 +1120,20 @@
                   <label for="card-glow-effect">Card Glow</label>
                   <select id="card-glow-effect" class="style-selector">
                     <option value="none">None</option>
-                    <option value="glow">Rarity Glow</option>
+                    <optgroup label="Subtle">
+                      <option value="glow">Glow</option>
+                      <option value="soft-ambient">Soft Ambient</option>
+                      <option value="inner-glow">Inner Glow</option>
+                    </optgroup>
+                    <optgroup label="Bold">
+                      <option value="neon-glow">Neon</option>
+                      <option value="halo">Halo</option>
+                      <option value="drop-shadow">Drop Shadow</option>
+                    </optgroup>
+                    <optgroup label="Animated">
+                      <option value="pulse-glow">Pulse Glow</option>
+                      <option value="color-shift">Color Shift</option>
+                    </optgroup>
                   </select>
                 </div>
               </div>
