@@ -921,10 +921,10 @@
   margin-right: 10px;
 }
 
-/* Colored Border Rarity */
+/* Colored Border Rarity — uses card accent color, !important to beat palette specificity */
 .card-preview-canvas.rarity-style-border {
-  border: 3px solid var(--rarity-color, #888);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 0 0 1px var(--rarity-color, #888);
+  border: 3px solid var(--card-accent, #00d4ff) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 0 0 1px var(--card-accent, #00d4ff);
 }
 
 /* Rarity Glow */
@@ -974,8 +974,6 @@
   border: 3px solid var(--rarity-color, #888);
   box-shadow:
     0 0 0 2px rgba(0, 0, 0, 0.4),
-    0 0 12px var(--rarity-color, #888),
-    0 0 24px rgba(var(--rarity-rgb, 136, 136, 136), 0.25),
     inset 0 0 0 2px rgba(var(--rarity-rgb, 136, 136, 136), 0.3);
   position: relative;
 }

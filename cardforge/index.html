@@ -32,6 +32,7 @@
   <link rel="stylesheet" href="css/cardforge-ui.css">
   <link rel="stylesheet" href="css/cardforge-card.css">
   <link rel="stylesheet" href="css/cardforge-bg-effects.css">
+  <link rel="stylesheet" href="css/cardforge-border-effects.css">
   <link rel="stylesheet" href="css/cardforge-layout.css"> <!-- New local layout styles that override grid.css -->
 
 </head>
@@ -1097,8 +1098,21 @@
                   <label for="card-border-effect">Card Border</label>
                   <select id="card-border-effect" class="style-selector">
                     <option value="none">None</option>
-                    <option value="border">Colored Border</option>
-                    <option value="frame">Ornate Frame</option>
+                    <optgroup label="Structural">
+                      <option value="border">Colored Border</option>
+                      <option value="double">Double Border</option>
+                      <option value="inset">Inset Border</option>
+                      <option value="thick">Rounded Thick</option>
+                    </optgroup>
+                    <optgroup label="Stylized">
+                      <option value="dashed">Dashed</option>
+                      <option value="ridge">Ridge</option>
+                      <option value="beveled">Beveled</option>
+                      <option value="corners">Dual Border</option>
+                    </optgroup>
+                    <optgroup label="Animated">
+                      <option value="animated-border">Animated Border</option>
+                    </optgroup>
                   </select>
                 </div>
                 <div class="effect-control">

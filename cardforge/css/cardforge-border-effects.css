@@ -1,0 +1,111 @@
+/* ================================= */
+/* CARD BORDER EFFECTS               */
+/* ================================= */
+
+/* No Border — strip palette border AND base ::before glow border */
+.card-preview-canvas.border-effect-none {
+  border: none !important;
+}
+.card-preview-canvas.border-effect-none::before {
+  opacity: 0 !important;
+}
+
+/* Suppress base ::before glow when ANY border effect is active so it doesn't bleed through */
+.card-preview-canvas.rarity-style-double::before,
+.card-preview-canvas.rarity-style-border::before,
+.card-preview-canvas.rarity-style-inset::before,
+.card-preview-canvas.rarity-style-thick::before,
+.card-preview-canvas.rarity-style-dashed::before,
+.card-preview-canvas.rarity-style-ridge::before,
+.card-preview-canvas.rarity-style-beveled::before {
+  opacity: 0 !important;
+}
+
+/* Double Border — classic double-line */
+.card-preview-canvas.rarity-style-double {
+  border: 4px double var(--card-accent, #00d4ff) !important;
+}
+
+/* Inset Border — outer + inner border with dark gap between, picture frame matting */
+.card-preview-canvas.rarity-style-inset {
+  border: 2px solid var(--card-accent, #00d4ff) !important;
+  outline: 2px solid var(--card-accent, #00d4ff);
+  outline-offset: -8px;
+  box-shadow: inset 0 0 0 6px rgba(0,0,0,0.4);
+}
+
+/* Rounded Thick — extra chunky rounded border */
+.card-preview-canvas.rarity-style-thick {
+  border: 5px solid var(--card-accent, #00d4ff) !important;
+  border-radius: 1.25rem;
+}
+
+/* Dashed — dashed rarity-colored border */
+.card-preview-canvas.rarity-style-dashed {
+  border: 3px dashed var(--card-accent, #00d4ff) !important;
+}
+
+/* Ridge — 3D ridged border with grooved inner line */
+.card-preview-canvas.rarity-style-ridge {
+  border: 5px ridge var(--card-accent, #00d4ff) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.1),
+    inset 0 0 0 3px color-mix(in srgb, var(--card-accent, #00d4ff) 20%, transparent),
+    0 0 0 1px rgba(0,0,0,0.3);
+}
+
+/* Beveled — strong raised 3D edge with accent-colored directional lighting */
+.card-preview-canvas.rarity-style-beveled {
+  border-width: 6px !important;
+  border-style: solid !important;
+  border-top-color: var(--card-accent, #00d4ff) !important;
+  border-left-color: color-mix(in srgb, var(--card-accent, #00d4ff) 70%, white) !important;
+  border-right-color: color-mix(in srgb, var(--card-accent, #00d4ff) 30%, black) !important;
+  border-bottom-color: rgba(0,0,0,0.7) !important;
+  box-shadow:
+    inset 3px 3px 6px rgba(255,255,255,0.25),
+    inset -3px -3px 6px rgba(0,0,0,0.5),
+    2px 2px 4px rgba(0,0,0,0.5);
+}
+
+/* Dual Border — outer accent + inner accent with dark gap between */
+.card-preview-canvas.rarity-style-corners {
+  border: 2px solid var(--card-accent, #00d4ff) !important;
+  outline: 2px solid var(--card-accent, #00d4ff);
+  outline-offset: 3px;
+  border-radius: 1rem;
+}
+
+/* Animated Border — sweeping gradient border using ::before + mask */
+.card-preview-canvas.rarity-style-animated-border {
+  position: relative;
+  border: none !important;
+}
+.card-preview-canvas.rarity-style-animated-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--card-accent, #00d4ff),
+    transparent,
+    var(--card-accent, #00d4ff),
+    transparent,
+    var(--card-accent, #00d4ff)
+  );
+  background-size: 400% 100%;
+  animation: border-sweep 3s linear infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes border-sweep {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 400% 50%; }
+}

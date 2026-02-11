@@ -1406,7 +1406,7 @@
       
       // Card Effects (separate categories)
       bgEffects: ['none', 'foil', 'holographic', 'sparkle', 'aurora', 'pulse', 'particles', 'grain', 'vignette', 'scanlines', 'frosted', 'linen', 'brushed-metal', 'parchment'],
-      borderEffects: ['none', 'border', 'frame'],
+      borderEffects: ['none', 'border', 'double', 'inset', 'thick', 'dashed', 'ridge', 'beveled', 'corners', 'animated-border'],
       glowEffects: ['none', 'glow']
     };
     
@@ -2632,8 +2632,12 @@
     if (bgEffect && bgEffect.value !== 'none') {
       sharedClasses.push(`rarity-style-${bgEffect.value}`);
     }
-    if (borderEffect && borderEffect.value !== 'none') {
-      sharedClasses.push(`rarity-style-${borderEffect.value}`);
+    if (borderEffect) {
+      if (borderEffect.value !== 'none') {
+        sharedClasses.push(`rarity-style-${borderEffect.value}`);
+      } else {
+        sharedClasses.push('border-effect-none');
+      }
     }
     if (glowEffect && glowEffect.value !== 'none') {
       sharedClasses.push(`rarity-style-${glowEffect.value}`);
