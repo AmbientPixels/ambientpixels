@@ -71,7 +71,7 @@ body.cf-rail-collapsed .cf-rail {
   padding: 1rem;
   background: var(--aura-bg-color, #1a1a2e);
   border-radius: 12px;
-  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border: 1px solid rgba(255,255,255,0.06);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   box-sizing: border-box;
 }
@@ -83,7 +83,7 @@ body.cf-rail-collapsed .cf-rail {
   background: var(--aura-bg-color, #1a1a2e);
   border-radius: 8px;
   padding: 0.75rem;
-  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border: 1px solid rgba(255,255,255,0.06);
   width: 100%;
   box-sizing: border-box;
 }

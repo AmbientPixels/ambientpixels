@@ -2,6 +2,16 @@
 /* CARD BORDER EFFECTS               */
 /* ================================= */
 
+/* Kill the outer .card-preview-canvas wrapper border + glow — it's NOT the card face,
+   it's a structural wrapper that shows through at rounded corners */
+.card-preview-zone > .card-preview-canvas {
+  border: none !important;
+  background: none !important;
+}
+.card-preview-zone > .card-preview-canvas::before {
+  display: none !important;
+}
+
 /* No Border — strip palette border AND base ::before glow border */
 .card-preview-canvas.border-effect-none {
   border: none !important;
@@ -10,15 +20,20 @@
   opacity: 0 !important;
 }
 
-/* Suppress base ::before glow when ANY border effect is active so it doesn't bleed through */
+/* Suppress base ::before glow when ANY border effect is active so it doesn't bleed through.
+   animation: none is required because the cardGlow keyframes set opacity per-frame, overriding static opacity. */
+.card-preview-canvas.border-effect-none::before,
 .card-preview-canvas.rarity-style-double::before,
 .card-preview-canvas.rarity-style-border::before,
 .card-preview-canvas.rarity-style-inset::before,
 .card-preview-canvas.rarity-style-thick::before,
 .card-preview-canvas.rarity-style-dashed::before,
 .card-preview-canvas.rarity-style-ridge::before,
-.card-preview-canvas.rarity-style-beveled::before {
+.card-preview-canvas.rarity-style-beveled::before,
+.card-preview-canvas.rarity-style-corners::before {
   opacity: 0 !important;
+  animation: none !important;
+  display: none !important;
 }
 
 /* Double Border — classic double-line */
