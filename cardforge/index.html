@@ -1121,8 +1121,6 @@
           <label for="card-name">Name</label>
           <input type="text" id="card-name" placeholder="Card Name" />
 
-          <label for="card-class">Class / Type</label>
-          <input type="text" id="card-class" placeholder="e.g. Ranger, Castle, Artifact" />
         </div>
 
         <!-- Section 2: Classification (Two-Column Grid) -->
@@ -1130,9 +1128,13 @@
           <!-- Left: Class Style -->
           <div id="class-section" class="badge-section">
             <div class="section-header">
-              <h4>Class Style</h4>
+              <h4>Class / Type</h4>
             </div>
             <div id="class-content" class="section-content">
+              <div class="stat-row">
+                <input type="text" id="card-class" placeholder="e.g. Ranger, Castle, Artifact" />
+              </div>
+
               <div class="styling-options">
                 <label for="class-style">Class Style</label>
                 <select id="class-style" class="style-selector">
