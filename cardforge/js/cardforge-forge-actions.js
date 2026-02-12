@@ -431,7 +431,7 @@ class CardForgeActions {
   // CREATE NEW DECK
   // ===================
   
-  handleCreateNewDeck() {
+  handleCreateNewDeck(autoAddCardId) {
     console.log('🗂️ Create new deck requested');
     if (!this.requireAuth('create a deck')) return;
 
@@ -453,11 +453,19 @@ class CardForgeActions {
           lastModified: new Date().toISOString()
         };
 
+        // Auto-add card if triggered from "Add to Deck" flow
+        if (autoAddCardId) {
+          newDeck.cardIds.push(autoAddCardId);
+        }
+
         const decks = this.getSavedDecks();
         decks.push(newDeck);
         localStorage.setItem('cardforge_decks', JSON.stringify(decks));
 
-        this.showNotification(`Created deck "${formData.name}"`, 'success');
+        const msg = autoAddCardId
+          ? `Created deck "${formData.name}" and added card`
+          : `Created deck "${formData.name}"`;
+        this.showNotification(msg, 'success');
         this._selectedDeckId = newDeck.id;
         this.switchToDeckTab();
         this.refreshDeckList();
@@ -2227,13 +2235,13 @@ CardForgeActions.prototype.showAddToDeckPicker = function(cardId, anchorEl) {
     if (dialogFn) {
       dialogFn(
         'No Decks Yet',
-        'You don\'t have any decks. Would you like to create one now?',
-        function() { self.handleCreateNewDeck(); },
+        'You don\'t have any decks. Would you like to create one now? The card will be added automatically.',
+        function() { self.handleCreateNewDeck(cardId); },
         null,
         { confirmLabel: 'Create Deck' }
       );
-    } else if (confirm('You don\'t have any decks. Would you like to create one now?')) {
-      self.handleCreateNewDeck();
+    } else if (confirm('You don\'t have any decks. Create one now? The card will be added automatically.')) {
+      self.handleCreateNewDeck(cardId);
     }
     return;
   }
