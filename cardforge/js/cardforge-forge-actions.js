@@ -23,6 +23,9 @@ const DECK_ICONS = [
 const DEFAULT_DECK_ICON = 'fas fa-layer-group';
 
 class CardForgeActions {
+  // Flag: true while loading a card — prevents markDirty from resetting nav button
+  static _isLoadingCard = false;
+
   // Static helper to update the publish nav button state
   static setPublishNavState(state) {
     const btn = document.getElementById('forge-publish-nav-btn');
@@ -580,12 +583,21 @@ class CardForgeActions {
     }
     const idField = document.getElementById('card-id');
     if (idField) idField.value = cardId;
-    // publishCard() shows a confirm dialog — it's async.
-    // The nav button state should only change after actual success.
-    // We hook into the success by watching for the publish success modal.
     window.publishCard();
     if (idField) idField.value = '';
     this.refreshMyCardsList();
+
+    // Watch for publish success modal to appear, then set Published state
+    const observer = new MutationObserver(function(mutations) {
+      const okBtn = document.getElementById('publish-success-ok-btn');
+      if (okBtn) {
+        observer.disconnect();
+        CardForgeActions.setPublishNavState('published');
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    // Auto-disconnect after 30s to prevent leaks
+    setTimeout(function() { observer.disconnect(); }, 30000);
   }
 
   // ===================
@@ -1708,6 +1720,9 @@ const resp = await fetch(loadUrl, {
     }
 
     try {
+      // Block markDirty from resetting publish nav during load
+      CardForgeActions._isLoadingCard = true;
+
       // Load card data into the editor
       // Set hidden id field so subsequent Publish knows which card is active
       const idField = document.getElementById('card-id'); /* updated by Cascade */
@@ -1724,16 +1739,19 @@ const resp = await fetch(loadUrl, {
         this.populateFormFields(card.data);
         this.showNotification(`Card "${card.name}" loaded`, 'success');
       }
-      // If this card is published, re-enable its Publish button so user can re-publish after edits
-      const publishBtn = document.querySelector(`.card-gallery-item[data-card-id="${card.id}"] .card-action-btn.publish`);
-      if (publishBtn && publishBtn.disabled) {
-        publishBtn.disabled = false;
-        publishBtn.classList.remove('published-disabled');
-        publishBtn.innerHTML = '<i class="fas fa-share"></i> Publish';
-        publishBtn.title = 'Publish Card';
-        publishBtn.setAttribute('onclick', `cardForgeActions.publishCard('${card.id}')`);
+      // Set nav publish button state based on whether this card is published
+      const isPublished = card.isPublished || card.published ||
+                          (card.cardData && (card.cardData.published || card.cardData.isPublished));
+      if (isPublished) {
+        CardForgeActions.setPublishNavState('published');
+      } else {
+        CardForgeActions.setPublishNavState('default');
       }
+
+      // Release the loading flag after all async updatePreview/markDirty calls settle
+      setTimeout(function() { CardForgeActions._isLoadingCard = false; }, 800);
     } catch (error) {
+      CardForgeActions._isLoadingCard = false;
       console.error('Error loading card:', error);
       this.showNotification('Failed to load card', 'error');
     }
@@ -1753,13 +1771,33 @@ const resp = await fetch(loadUrl, {
     try {
       // Use existing publish functionality - modal will be shown by cardforge-publish.js
       if (window.publishCard) {
-        // Ensure hidden id field is set to the card being published
-        const idField = document.getElementById('card-id'); /* updated by Cascade */
-        if (idField) idField.value = card.id;               /* updated by Cascade */
+        const idField = document.getElementById('card-id');
+        if (idField) idField.value = card.id;
         window.publishCard();
-        // Clear card-id immediately — publishCard() already captured it
         if (idField) idField.value = '';
-        // Note: Success modal and status update handled by cardforge-publish.js
+
+        // Watch for publish success modal, then update card state + buttons
+        const self = this;
+        const observer = new MutationObserver(function() {
+          const okBtn = document.getElementById('publish-success-ok-btn');
+          if (okBtn) {
+            observer.disconnect();
+            // Mark card as published in localStorage so re-render shows it
+            const cards = self.getSavedCards();
+            const c = cards.find(x => x.id === cardId);
+            if (c) {
+              c.isPublished = true;
+              c.published = true;
+              localStorage.setItem('cardforge_saved_cards', JSON.stringify(cards));
+            }
+            // Update nav publish button
+            CardForgeActions.setPublishNavState('published');
+            // Refresh card list — re-render picks up published state
+            self.refreshMyCardsList();
+          }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+        setTimeout(function() { observer.disconnect(); }, 30000);
       } else {
         this.showNotification('Publish functionality not available', 'error');
       }

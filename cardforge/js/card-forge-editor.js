@@ -150,6 +150,13 @@
       if (success) {
         this.isDirty = false;
         this.setStatus('saved', 'Saved');
+        // After saving, re-enable publish nav button so user can re-publish
+        // Skip if we're in the middle of loading a card (auto-save during publish flow)
+        if (typeof CardForgeActions !== 'undefined' &&
+            !CardForgeActions._isLoadingCard &&
+            CardForgeActions.setPublishNavState) {
+          CardForgeActions.setPublishNavState('default');
+        }
         if (this._navigateAfterSave) {
           this._navigateAfterSave = false;
           this.navigateToMyCards();
