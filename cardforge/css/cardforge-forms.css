@@ -639,3 +639,102 @@
   max-width: 100%;
   overflow: hidden;
 }
+
+/* ===== AI Generate Button ===== */
+.cf-ai-generate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  margin-top: 12px;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.15));
+  color: #c4b5fd;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.cf-ai-generate-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(59, 130, 246, 0.3));
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.cf-ai-generate-btn:hover {
+  border-color: rgba(139, 92, 246, 0.7);
+  color: #e0d4ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
+
+.cf-ai-generate-btn:hover::before {
+  opacity: 1;
+}
+
+.cf-ai-generate-btn:active {
+  transform: translateY(0);
+}
+
+.cf-ai-generate-btn:disabled {
+  cursor: wait;
+  opacity: 0.8;
+}
+
+.cf-ai-btn-icon,
+.cf-ai-btn-label {
+  position: relative;
+  z-index: 1;
+}
+
+.cf-ai-btn-icon {
+  font-size: 0.9rem;
+}
+
+/* Loading state */
+.cf-ai-generate-btn.cf-ai-loading {
+  border-color: rgba(139, 92, 246, 0.5);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1));
+}
+
+/* Success state */
+.cf-ai-generate-btn.cf-ai-success {
+  border-color: rgba(52, 211, 153, 0.6);
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.15), rgba(16, 185, 129, 0.15));
+  color: #6ee7b7;
+}
+
+/* Error state */
+.cf-ai-generate-btn.cf-ai-error {
+  border-color: rgba(251, 146, 60, 0.6);
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.15), rgba(239, 68, 68, 0.1));
+  color: #fbbf24;
+}
+
+/* Name field highlight when AI button clicked without a name */
+.cf-ai-highlight {
+  border-color: rgba(139, 92, 246, 0.8) !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25) !important;
+  animation: cf-ai-pulse 0.6s ease-in-out 2;
+}
+
+@keyframes cf-ai-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25); }
+  50% { box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.15); }
+}
+
+/* AI helper text */
+.cf-ai-helper {
+  font-size: 0.75rem;
+  color: var(--mood-secondary-color, #a0a0c0);
+  margin-top: 4px;
+  opacity: 0.7;
+}

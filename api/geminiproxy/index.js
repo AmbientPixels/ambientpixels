@@ -2,8 +2,8 @@
 const fetch = require('node-fetch');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-// Updated by Cascade 2025-07-14 - Changed from v1beta/gemini-pro to v1/gemini-pro-1.0 to fix 404 error
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-pro-1.0:generateContent?key=' + GEMINI_API_KEY;
+// Updated by Cascade 2025-02-12 - Using gemini-1.5-flash (stable, fast model)
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=' + GEMINI_API_KEY;
 
 /* updated by Cascade 2025-07-15 */
 module.exports = async function (context, req) {
