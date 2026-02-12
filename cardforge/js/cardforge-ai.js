@@ -7,7 +7,7 @@
 (function () {
   'use strict';
 
-  const GEMINI_ENDPOINT = '/api/geminiproxy';
+  const GEMINI_ENDPOINT = 'https://ambientpixels-nova-api.azurewebsites.net/api/geminiproxy';
 
   // ===== DOM REFERENCES =====
   function getFields() {
