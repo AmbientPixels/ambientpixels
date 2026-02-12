@@ -1501,10 +1501,10 @@
 
 /* Spacer pushes content below the banner image (resets base glow ::before) */
 .card-preview-canvas.card-front.container-banner::before {
-  content: '';
-  position: static;
+  content: '' !important;
+  position: static !important;
   inset: auto;
-  display: block;
+  display: block !important;
   flex-shrink: 0;
   height: var(--banner-h);
   background: none;
@@ -1695,10 +1695,10 @@
 /* Spacer pushes content below the hero image.
    Must reset base glow ::before (position:absolute, inset:0, etc.) */
 .card-preview-canvas.card-front.container-hero::before {
-  content: '';
-  position: static;
+  content: '' !important;
+  position: static !important;
   inset: auto;
-  display: block;
+  display: block !important;
   flex-shrink: 0;
   height: var(--hero-img-h, 55%);
   background: none;
