@@ -1420,9 +1420,10 @@
     
     const randomClassStyle = randomOptions.classStyles[Math.floor(Math.random() * randomOptions.classStyles.length)];
     const randomRarityStyle = randomOptions.rarityStyles[Math.floor(Math.random() * randomOptions.rarityStyles.length)];
-    const randomBgEffect = randomOptions.bgEffects[Math.floor(Math.random() * randomOptions.bgEffects.length)];
-    const randomBorderEffect = randomOptions.borderEffects[Math.floor(Math.random() * randomOptions.borderEffects.length)];
-    const randomGlowEffect = randomOptions.glowEffects[Math.floor(Math.random() * randomOptions.glowEffects.length)];
+    // Keep bg effects off to avoid gotty cards; allow subtle border/glow
+    const randomBgEffect = 'none';
+    const randomBorderEffect = Math.random() < 0.5 ? 'border' : 'none';
+    const randomGlowEffect = Math.random() < 0.5 ? 'glow' : 'none';
     const randomFont = randomOptions.fontFamilies[Math.floor(Math.random() * randomOptions.fontFamilies.length)];
     
     // Reset ModularState to defaults, then apply random selections
@@ -3602,6 +3603,26 @@
       });
     });
     
+    // Clear All Effects buttons — reset bg/border/glow to 'none'
+    function clearAllEffects() {
+      ['card-bg-effect', 'card-border-effect', 'card-glow-effect'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (sel) sel.value = 'none';
+        const chipGroup = document.querySelector(`.effect-chips[data-target="${id}"]`);
+        if (chipGroup) {
+          chipGroup.querySelectorAll('.effect-chip').forEach(c => c.classList.remove('selected'));
+          const noneChip = chipGroup.querySelector('.effect-chip[data-value="none"]');
+          if (noneChip) noneChip.classList.add('selected');
+        }
+      });
+      updatePreview();
+      updateCardEffectsDisplay();
+    }
+    const clearEffectsBtn = document.getElementById('clear-all-effects');
+    if (clearEffectsBtn) clearEffectsBtn.addEventListener('click', clearAllEffects);
+    const clearEffectsBtnBottom = document.getElementById('clear-all-effects-bottom');
+    if (clearEffectsBtnBottom) clearEffectsBtnBottom.addEventListener('click', clearAllEffects);
+
     // Hidden select change listeners (for programmatic .value changes from random roll)
     ['card-bg-effect', 'card-border-effect', 'card-glow-effect'].forEach(id => {
       const el = document.getElementById(id);

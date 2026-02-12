@@ -471,7 +471,7 @@
 }
 
 .collapsible-tier.expanded .tier-content {
-  max-height: 800px;
+  max-height: 1400px;
 }
 
 /* ===== PREVIEW COMPONENTS ===== */
@@ -1048,9 +1048,9 @@
 }
 
 .collapsible-tier.expanded .tier-content {
-  max-height: 800px; /* Increased for complex 3-level hierarchies */
+  max-height: 1400px;
   padding: 1rem;
-  overflow-y: auto; /* Allow scrolling if content exceeds max-height */
+  overflow-y: visible;
 }
 
 /* Palette Levels */
@@ -1479,6 +1479,34 @@
 }
 
 /* ===== CARD EFFECTS SECTION ===== */
+.clear-effects-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-end;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+.clear-effects-btn:hover {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.08);
+  border-color: rgba(255, 107, 107, 0.25);
+}
+.clear-effects-btn-bottom {
+  margin-top: 0.25rem;
+}
+
+.collapsible-tier.expanded[data-tier="5"] .tier-content {
+  max-height: none;
+  overflow: visible;
+}
+
 .card-effects-section {
   display: flex;
   flex-direction: column;
