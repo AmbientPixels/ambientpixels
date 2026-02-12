@@ -352,8 +352,21 @@ class CardForgeActions {
     try {
       this.resetAllFormFields();
 
-      if (window.ModularState && window.ModularState.reset) {
-        window.ModularState.reset();
+      // Reset ModularState to defaults (it's a plain object, no .reset() method)
+      if (window.ModularState) {
+        Object.assign(window.ModularState, {
+          horizontalAlignment: 'center',
+          verticalAlignment: 'middle',
+          alignmentWeight: 'balanced',
+          alignmentStyle: 'padded',
+          palette: 'neon',
+          paletteVariant: 'light',
+          textColor: 'auto',
+          imageContainer: 'masked',
+          imageContainerVariant: 'circle',
+          imageEffect: 'none',
+          imageEffectVariant: 'clean'
+        });
       }
 
       await this.applyDefaultTemplate();
@@ -375,15 +388,9 @@ class CardForgeActions {
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const prefillData = await response.json();
       if (prefillData.cardData) {
-        // Use existing loadCardIntoForm to apply to form and preview
-        this.loadCardIntoForm(prefillData.cardData);
-        // If modular system exists, update it
-        if (window.ModularState && prefillData.cardData.design) {
-          window.ModularState.loadState?.(prefillData.cardData.design);
-        }
-        // Update preview
-        if (window.CardForgeEditor && window.CardForgeEditor.updateCardPreview) {
-          window.CardForgeEditor.updateCardPreview();
+        // Use the global API which handles form fields, ModularState, AND updatePreview()
+        if (window.cardForgeEditor && window.cardForgeEditor.loadCardData) {
+          window.cardForgeEditor.loadCardData(prefillData.cardData);
         }
       }
       console.log('📄 Default template applied after reset:', prefillData);
@@ -401,17 +408,38 @@ class CardForgeActions {
     try {
       this.resetAllFormFields();
 
-      if (window.ModularState && window.ModularState.reset) {
-        window.ModularState.reset();
+      // Reset ModularState to defaults (plain object, no .reset() method)
+      if (window.ModularState) {
+        Object.assign(window.ModularState, {
+          horizontalAlignment: 'center',
+          verticalAlignment: 'middle',
+          alignmentWeight: 'balanced',
+          alignmentStyle: 'padded',
+          palette: 'neon',
+          paletteVariant: 'light',
+          textColor: 'auto',
+          imageContainer: 'masked',
+          imageContainerVariant: 'circle',
+          imageEffect: 'none',
+          imageEffectVariant: 'clean'
+        });
       }
 
       // Clear card-id so next Save creates a new card instead of overwriting
       const idField = document.getElementById('card-id');
       if (idField) idField.value = '';
 
+      // Reset effect dropdowns
+      const bgEffect = document.getElementById('card-bg-effect');
+      const borderEffect = document.getElementById('card-border-effect');
+      const glowEffect = document.getElementById('card-glow-effect');
+      if (bgEffect) bgEffect.value = 'none';
+      if (borderEffect) borderEffect.value = 'none';
+      if (glowEffect) glowEffect.value = 'none';
+
       // Update preview to reflect blank state
-      if (window.CardForgeEditor && window.CardForgeEditor.updateCardPreview) {
-        window.CardForgeEditor.updateCardPreview();
+      if (window.cardForgeEditor && window.cardForgeEditor.loadCardData) {
+        window.cardForgeEditor.loadCardData({});
       }
 
       // Mark as dirty so Save becomes active
