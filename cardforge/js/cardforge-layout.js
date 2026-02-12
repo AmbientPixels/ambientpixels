@@ -187,12 +187,19 @@
       const nextBtn = document.createElement('button');
       nextBtn.type = 'button';
       nextBtn.className = 'cf-step-nav-btn cf-step-nav-next';
-      nextBtn.innerHTML = '<span>' + (next ? next.label : 'Done') + '</span> <i class="fas fa-chevron-right"></i>';
-      nextBtn.setAttribute('aria-label', next ? 'Go to ' + next.label : 'No next section');
       if (isLast) {
-        nextBtn.disabled = true;
-        nextBtn.setAttribute('aria-disabled', 'true');
+        nextBtn.innerHTML = '<span>Publish</span> <i class="fas fa-share"></i>';
+        nextBtn.setAttribute('aria-label', 'Publish card to gallery');
+        nextBtn.addEventListener('click', function() {
+          if (window.cardForgeActions && window.cardForgeActions.handlePublishCard) {
+            window.cardForgeActions.handlePublishCard();
+          } else if (window.publishCard) {
+            window.publishCard();
+          }
+        });
       } else {
+        nextBtn.innerHTML = '<span>' + next.label + '</span> <i class="fas fa-chevron-right"></i>';
+        nextBtn.setAttribute('aria-label', 'Go to ' + next.label);
         nextBtn.addEventListener('click', function() { goToStep(next.step); });
       }
 

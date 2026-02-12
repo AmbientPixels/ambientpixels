@@ -2128,6 +2128,14 @@ CardForgeActions.prototype.addCardToDeck = function(cardId, deckId) {
   localStorage.setItem('cardforge_decks', JSON.stringify(decks));
   this.showNotification(`Card added to "${deck.name}"`, 'success');
   this.refreshDeckList();
+
+  // Navigate to Forge tab → Deck Manager for feedback
+  const forgeStep = document.querySelector('.step-btn[data-step="7"]');
+  if (forgeStep) forgeStep.click();
+  setTimeout(() => {
+    const deckTab = document.querySelector('[data-forge-tab="deck"]');
+    if (deckTab) deckTab.click();
+  }, 100);
 };
 
 CardForgeActions.prototype.removeCardFromDeck = function(cardId, deckId) {
@@ -2239,13 +2247,27 @@ CardForgeActions.prototype.showAddToDeckPicker = function(cardId, anchorEl) {
     picker.style.zIndex = '9999';
   }
 
-  // Bind clicks
+  // Bind clicks with confirmation
   picker.querySelectorAll('.deck-picker-option:not([disabled])').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const dId = btn.dataset.deckId;
-      this.addCardToDeck(cardId, dId);
+      const deckName = btn.querySelector('span') ? btn.querySelector('span').textContent : 'this deck';
       picker.remove();
+      const dialogFn = (window.UIUtils && window.UIUtils.showConfirmDialog) || null;
+      if (dialogFn) {
+        dialogFn(
+          'Add to Deck',
+          `Add this card to "${deckName}"?`,
+          () => this.addCardToDeck(cardId, dId),
+          null,
+          { confirmLabel: 'Add' }
+        );
+      } else {
+        if (confirm(`Add this card to "${deckName}"?`)) {
+          this.addCardToDeck(cardId, dId);
+        }
+      }
     });
   });
 
