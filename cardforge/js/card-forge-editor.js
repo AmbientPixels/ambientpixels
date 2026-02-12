@@ -748,17 +748,19 @@
         }
       }
 
-      // Pad Badges to BADGE_CAP (6) for balanced 3×2 grid
+      // Update badge Add button state based on current count
       const badgesContainer = document.getElementById('micro-editor');
       if (badgesContainer) {
-        const existingBadges = badgesContainer.querySelectorAll('.micro-row').length;
-        for (let i = existingBadges; i < BADGE_CAP; i++) {
-          badgesContainer.appendChild(createBadgeRow('Badge'));
-        }
         const addBadgeBtn = document.getElementById('add-micro-btn');
-        if (badgesContainer.querySelectorAll('.micro-row').length >= BADGE_CAP && addBadgeBtn) {
-          addBadgeBtn.classList.add('disabled');
-          addBadgeBtn.title = `Maximum ${BADGE_CAP} badges reached`;
+        if (addBadgeBtn) {
+          const currentBadges = badgesContainer.querySelectorAll('.micro-row').length;
+          if (currentBadges >= BADGE_CAP) {
+            addBadgeBtn.classList.add('disabled');
+            addBadgeBtn.title = `Maximum ${BADGE_CAP} badges reached`;
+          } else {
+            addBadgeBtn.classList.remove('disabled');
+            addBadgeBtn.title = '';
+          }
         }
       }
 
@@ -1978,10 +1980,15 @@
       statsContainer.innerHTML = '';
     }
     
-    // Clear badges
+    // Clear badges and re-enable Add button
     const badgesContainer = document.getElementById('micro-editor');
     if (badgesContainer) {
       badgesContainer.innerHTML = '';
+      const addBadgeBtn = document.getElementById('add-micro-btn');
+      if (addBadgeBtn) {
+        addBadgeBtn.classList.remove('disabled');
+        addBadgeBtn.title = '';
+      }
     }
     
     // Clear attributes
