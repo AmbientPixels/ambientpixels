@@ -1,3 +1,9 @@
+/* Ensure card content sits ABOVE bg effect overlays (::after z-index:1) */
+.card-preview-canvas > * {
+  position: relative;
+  z-index: 2;
+}
+
 /* ================================= */
 /* BACKGROUND EFFECTS — ANIMATED     */
 /* ================================= */
