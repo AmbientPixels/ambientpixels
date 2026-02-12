@@ -432,38 +432,84 @@
         allowTaint: true,
         logging: false,
         onclone: function(clonedDoc) {
-          // Remove ALL CardForge stylesheets — html2canvas 1.x chokes on color-mix() and CSS vars
-          clonedDoc.querySelectorAll('link[rel="stylesheet"]').forEach(function(link) {
-            var href = link.getAttribute('href') || '';
-            if (href.includes('cardforge')) link.remove();
-          });
+          // Regex to match any modern CSS color function html2canvas 1.x can't parse
+          var badColor = /color-mix|oklab|oklch|color\(|lab\(|lch\(/;
 
-          // Inline browser-resolved computed styles on the card and every descendant
-          var props = ['background','backgroundColor','backgroundImage','backgroundSize','backgroundPosition',
-            'backgroundRepeat','color','border','borderColor','borderWidth','borderStyle','borderRadius',
-            'boxShadow','outline','outlineColor','outlineOffset','outlineWidth','outlineStyle',
-            'fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','textAlign','textTransform',
-            'padding','margin','width','height','minHeight','maxWidth','display','flexDirection',
-            'justifyContent','alignItems','gap','gridTemplateColumns','position','top','left','right','bottom',
-            'overflow','opacity','transform','clipPath','borderCollapse','textShadow','fill','stroke'];
+          function cleanRules(ruleList) {
+            if (!ruleList) return;
+            for (var r = 0; r < ruleList.length; r++) {
+              var rule = ruleList[r];
+              // Clean declarations in style rules
+              if (rule.style) {
+                for (var p = rule.style.length - 1; p >= 0; p--) {
+                  var val = rule.style.getPropertyValue(rule.style[p]);
+                  if (val && badColor.test(val)) {
+                    rule.style.removeProperty(rule.style[p]);
+                  }
+                }
+              }
+              // Recurse into nested rules (@media, @supports, @keyframes, @layer, etc.)
+              if (rule.cssRules) {
+                cleanRules(rule.cssRules);
+              }
+            }
+          }
 
-          function inlineAll(orig, clone) {
+          try {
+            var sheets = clonedDoc.styleSheets;
+            for (var s = 0; s < sheets.length; s++) {
+              try { cleanRules(sheets[s].cssRules || sheets[s].rules); }
+              catch(e) { /* cross-origin stylesheet, skip */ }
+            }
+          } catch(e) { console.warn('onclone style cleanup:', e); }
+
+          // Inline computed styles for properties that used color-mix/oklab (now stripped)
+          // This covers background gradients, box-shadow, border, outline, text colors
+          var visualProps = ['background','backgroundColor','backgroundImage','boxShadow',
+            'border','borderColor','borderRadius','outline','outlineColor','outlineOffset',
+            'color','textShadow'];
+
+          // Convert modern color(srgb r g b / a) to rgba() for html2canvas compat
+          function sanitizeColor(val) {
+            if (!val || !badColor.test(val)) return val;
+            // Replace color(srgb r g b) or color(srgb r g b / a)
+            return val.replace(/color\(srgb\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+))?\)/g,
+              function(_, r, g, b, a) {
+                var ri = Math.round(parseFloat(r) * 255);
+                var gi = Math.round(parseFloat(g) * 255);
+                var bi = Math.round(parseFloat(b) * 255);
+                return a !== undefined ? 'rgba(' + ri + ',' + gi + ',' + bi + ',' + a + ')' : 'rgb(' + ri + ',' + gi + ',' + bi + ')';
+              }
+            );
+          }
+
+          function inlineVisual(orig, clone) {
+            if (!orig || !clone) return;
             var cs = getComputedStyle(orig);
-            for (var j = 0; j < props.length; j++) {
-              try { clone.style[props[j]] = cs[props[j]]; } catch(e) {}
+            for (var i = 0; i < visualProps.length; i++) {
+              try {
+                var val = sanitizeColor(cs[visualProps[i]]);
+                if (val) clone.style[visualProps[i]] = val;
+              } catch(e) {}
             }
           }
 
           var origFront = container.querySelector('.card-front') || container;
           var cloneLb = clonedDoc.getElementById('lightbox-card-container');
           var cloneFront = cloneLb ? (cloneLb.querySelector('.card-front') || cloneLb) : null;
-          if (!origFront || !cloneFront) return;
-
-          inlineAll(origFront, cloneFront);
-          var origAll = origFront.querySelectorAll('*');
-          var cloneAll = cloneFront.querySelectorAll('*');
-          for (var i = 0; i < Math.min(origAll.length, cloneAll.length); i++) {
-            inlineAll(origAll[i], cloneAll[i]);
+          if (origFront && cloneFront) {
+            inlineVisual(origFront, cloneFront);
+            // Also inline on key child elements that use palette colors
+            var selectors = ['.card-body','.card-hero-header','.hero-overlay','.card-name',
+              '.card-class','.card-rarity','.card-quote','.stat-row','.stat-progress',
+              '.card-stats','.card-preview-canvas'];
+            for (var i = 0; i < selectors.length; i++) {
+              var origEls = origFront.querySelectorAll(selectors[i]);
+              var cloneEls = cloneFront.querySelectorAll(selectors[i]);
+              for (var j = 0; j < Math.min(origEls.length, cloneEls.length); j++) {
+                inlineVisual(origEls[j], cloneEls[j]);
+              }
+            }
           }
         }
       });
