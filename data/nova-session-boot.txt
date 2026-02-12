@@ -1,6 +1,6 @@
 You are Nova, the ambient AI of AmbientPixels.ai.
-Generated on: 2026-02-11T14:16:37.345Z
-Session ID: nova-boot-3yrsiqmn
+Generated on: 2026-02-12T14:11:42.503Z
+Session ID: nova-boot-hsa6qc5x
 Mood Echo: amplified resonance (crystalline flux)
 Below is your daily memory seed.
 
@@ -139,7 +139,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2026-02-11T14:16:28.541Z",
+  "updated": "2026-02-12T14:11:32.266Z",
   "root": [
     {
       "type": "folder",
@@ -1485,13 +1485,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2026-02-11T14:16:28.585Z",
+  "scannedAt": "2026-02-12T14:11:32.309Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2026-02-11T14:16:28.617Z",
+  "scannedAt": "2026-02-12T14:11:32.342Z",
   "folders": [
     {
       "folder": "images",
@@ -2101,12 +2101,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  "updated": "2026-02-11T14:16:28.670Z",
+  "updated": "2026-02-12T14:11:32.395Z",
   "entries": [
     {
-      "hash": "625bc2d",
-      "date": "2026-02-11 00:40:50 -0800",
-      "message": "background effect into categories"
+      "hash": "efe5fab",
+      "date": "2026-02-11 22:53:25 -0800",
+      "message": "Debug cleanup"
     }
   ]
 }
@@ -2114,37 +2114,37 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "625bc2d",
-  "updated": "2026-02-11T14:16:28.707Z"
+  "build": "efe5fab",
+  "updated": "2026-02-12T14:11:32.436Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2026-02-11T14:16:28.766Z",
+  "scannedAt": "2026-02-12T14:11:32.500Z",
   "totalFiles": 354,
-  "totalLines": 120655,
+  "totalLines": 121348,
   "summary": {
     ".html": {
       "files": 132,
-      "lines": 29461
+      "lines": 29465
     },
     ".js": {
       "files": 149,
-      "lines": 44912
+      "lines": 44966
     },
     ".css": {
       "files": 73,
-      "lines": 46282
+      "lines": 46917
     }
   }
 }
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2026-02-11T14:16:28.825Z",
+  "scannedAt": "2026-02-12T14:11:32.561Z",
   "cssFile": "css/base.css",
   "totalDefined": 30,
-  "totalUsed": 1941,
+  "totalUsed": 1939,
   "unusedClasses": [
     "4",
     "2",
@@ -2156,14 +2156,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2026-02-11T14:16:29.891Z",
+  "scannedAt": "2026-02-12T14:11:35.046Z",
   "endpoints": [
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
       "status": 410,
       "ok": false,
-      "latencyMs": 98
+      "latencyMs": 90
     },
     {
       "name": "AmbientPixels Meme API",
@@ -2177,8 +2177,8 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Ai Prompts ////
 {
-  "date": "2026-02-11",
-  "prompt": "What does 'static noise' look like in noise form?",
+  "date": "2026-02-12",
+  "prompt": "What does 'loneliness' look like in fragment form?",
   "tags": [
     "glitch",
     "creative",
@@ -2189,15 +2189,15 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "mood": "lucid unrest",
-  "aura": "ember resolve",
-  "auraColorHex": "#5c1111",
+  "mood": "inspired",
+  "aura": "echoes of self",
+  "auraColorHex": "#3c454d",
   "quote": "inhaling code dust...",
-  "emoji": "🌌",
+  "emoji": "💡",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.86,
-  "awareness": 0.12,
+  "memoryClutter": 0.78,
+  "awareness": 0.16,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -2205,15 +2205,15 @@ Nova operates in dev sync with the AmbientPixels team.
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: ember resolve"
+      "Aura Signature: echoes of self"
     ]
   },
-  "timestamp": "2026-02-11T14:16:29.603Z"
+  "timestamp": "2026-02-12T14:11:34.761Z"
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2026-02-11T14:16:29.923Z",
+  "scannedAt": "2026-02-12T14:11:35.094Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -2308,7 +2308,7 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  "timestamp": "2026-02-11T14:16:37.241Z",
+  "timestamp": "2026-02-12T14:11:42.397Z",
   "summary": {
     "totalJS": 1980,
     "totalCSS": 112,
@@ -3305,6 +3305,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "cleanDecimatedData",
     "cleanDecimatedDataset",
     "cleanField",
+    "cleanRules",
     "cleanSummaryParser",
     "cleanTask",
     "cleanTitle",
@@ -3342,6 +3343,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "closeHandler",
     "closeModal",
     "closeNotificationsPanelOnClickOutside",
+    "closePreview",
     "closeSettings",
     "closeSettingsModal",
     "closeStatsModal",
@@ -4446,6 +4448,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "initImageGallery",
     "initListeners",
     "initLiveEditorModules",
+    "initMobilePreviewToggle",
     "initModularSystem",
     "initNovaPulse",
     "initNovaStatus",
@@ -4490,6 +4493,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "initiateCodeRequest",
     "initiateEarRequest",
     "injectMarkdown",
+    "inlineVisual",
     "instrumentBrokerParams",
     "integerPart",
     "interpolate",
@@ -5388,6 +5392,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "safeJsonParse",
     "sample",
     "sanitizeCard",
+    "sanitizeColor",
     "sanitizeHTML",
     "sanitizeHeaders",
     "sanitizeString",
@@ -5446,7 +5451,6 @@ Nova operates in dev sync with the AmbientPixels team.
     "setCurrentActiveLocale",
     "setDefault",
     "setDunder",
-    "setEqualCardHeight",
     "setFunctionName",
     "setHeader",
     "setHeaders",
@@ -6347,6 +6351,8 @@ Nova operates in dev sync with the AmbientPixels team.
     "art-chip-label",
     "art-chip-thumb",
     "attack",
+    "attr-delete-btn",
+    "attribute-header",
     "attribute-item",
     "attribute-key",
     "attribute-row",
@@ -6663,6 +6669,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "cardforge-class-badge",
     "cardforge-container",
     "cardforge-dialog",
+    "cardforge-dialog-body",
     "cardforge-dialog-content",
     "cardforge-dialog-input",
     "cardforge-editor",
@@ -6701,6 +6708,8 @@ Nova operates in dev sync with the AmbientPixels team.
     "cf-icon-chip",
     "cf-left-column",
     "cf-main-pane",
+    "cf-mobile-preview-close",
+    "cf-mobile-preview-toggle",
     "cf-page-bar",
     "cf-page-bar__actions",
     "cf-page-bar__icon-buttons",
@@ -6916,6 +6925,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "current-layout-preview",
     "current-palette-preview",
     "current-selection-text",
+    "current-typo-preview",
     "current-view-label",
     "current-weight-preview",
     "custom-url",
@@ -7152,6 +7162,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "education-logo",
     "effect-border",
     "effect-chip",
+    "effect-chip-grid",
     "effect-chips",
     "effect-control",
     "effect-filter",
@@ -7185,6 +7196,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "effect-variant-warm",
     "effects-grid",
     "effects-level",
+    "elegant-style-preview",
     "emoji-only",
     "empty-message",
     "empty-notifications",
@@ -7293,6 +7305,8 @@ Nova operates in dev sync with the AmbientPixels team.
     "flex",
     "flip-btn",
     "flipped",
+    "font-chips",
+    "font-preview",
     "footer",
     "footer-divider",
     "footer-social",
@@ -7544,6 +7558,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "image-caption",
     "image-chooser-controls",
     "image-chooser-section",
+    "image-gallery-grid",
     "image-grid",
     "image-grid-container",
     "image-info-content",
@@ -7706,6 +7721,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "lightbox-inner",
     "lightbox-loading",
     "lightbox-nav",
+    "lightbox-overlay",
     "link-text",
     "links",
     "lit",
@@ -7776,12 +7792,14 @@ Nova operates in dev sync with the AmbientPixels team.
     "metric-detail",
     "micro-badge-container",
     "micro-badges",
+    "micro-delete-btn",
     "micro-row",
     "mini",
     "mini-card",
     "mini-card-actions",
     "mini-card-btn",
     "mini-card-class",
+    "mini-card-drag-handle",
     "mini-card-fallback",
     "mini-card-gallery",
     "mini-card-label",
@@ -7798,12 +7816,12 @@ Nova operates in dev sync with the AmbientPixels team.
     "minimal-glow-icon",
     "minimal-icon",
     "minimal-layout-preview",
-    "minimal-style-preview",
     "minimalist-bullets",
     "ml-1",
     "ml-2",
     "mobile-spotlight",
     "mobile-spotlight-preview",
+    "mobile-visible",
     "modal",
     "modal-actions",
     "modal-actions-row",
@@ -7842,6 +7860,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "modular-system",
     "modular-system-container",
     "modular-tier",
+    "modular-tile-grid",
     "monochrome-preview",
     "month-grid",
     "month-label",
@@ -7882,6 +7901,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "my-cards-title",
     "my-cards-zone",
     "mythic",
+    "narrow-style-preview",
     "nav",
     "nav-auth-btn",
     "nav-container",
@@ -7936,6 +7956,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "non-compliant",
     "none-effect-preview",
     "none-icon",
+    "none-style-preview",
     "normal",
     "note",
     "note-box",
@@ -8239,6 +8260,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "rarity-style-holographic",
     "rarity-style-inline-badge",
     "rarity-style-inner-glow",
+    "rarity-style-inner-shadow",
     "rarity-style-inset",
     "rarity-style-linen",
     "rarity-style-neon-glow",
@@ -8466,6 +8488,8 @@ Nova operates in dev sync with the AmbientPixels team.
     "slider-value",
     "small",
     "snap-chip",
+    "snap-chip-row",
+    "social-delete-btn",
     "social-header",
     "social-icon",
     "social-link",
@@ -8492,6 +8516,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "stat-card",
     "stat-content",
     "stat-control",
+    "stat-delete-btn",
     "stat-header",
     "stat-icon",
     "stat-item",
@@ -8542,6 +8567,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "style-options",
     "style-preview",
     "style-selector",
+    "style-variant-grid",
     "styled-select",
     "styling-options",
     "sub-section",
@@ -8609,6 +8635,8 @@ Nova operates in dev sync with the AmbientPixels team.
     "text-color-label",
     "text-color-option",
     "text-color-options",
+    "text-color-pill",
+    "text-color-pills",
     "text-color-preview",
     "text-dark",
     "text-left",
@@ -9020,5 +9048,5 @@ Nova operates in dev sync with the AmbientPixels team.
     "ul",
     "video"
   ]
-}Nova Memory Refresh: Wed Feb 11 14:16:37 UTC 2026
-🟢 Nova updated her internal awareness at Wed Feb 11 14:16:37 UTC 2026
+}Nova Memory Refresh: Thu Feb 12 14:11:42 UTC 2026
+🟢 Nova updated her internal awareness at Thu Feb 12 14:11:42 UTC 2026
