@@ -1991,10 +1991,15 @@
       }
     }
     
-    // Clear attributes
+    // Clear attributes and re-enable Add button
     const attributesContainer = document.getElementById('attribute-editor');
     if (attributesContainer) {
       attributesContainer.innerHTML = '';
+      const addAttrBtn = document.getElementById('add-attribute-btn');
+      if (addAttrBtn) {
+        addAttrBtn.classList.remove('disabled');
+        addAttrBtn.title = '';
+      }
     }
     
     console.log('🧹 Cleared all dynamic form rows');
