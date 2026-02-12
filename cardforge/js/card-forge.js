@@ -64,7 +64,6 @@ function deleteCard(id) {
 
 async function performDelete(id, cardName) {
   try {
-    console.log(`🗑️ Deleting card: ${id}`);
     
     const isAuthed = (sessionStorage.getItem('isAuthenticated') === 'true') ||
                      (document.body?.getAttribute('data-auth-state') === 'signed-in');
@@ -81,7 +80,6 @@ async function performDelete(id, cardName) {
         });
         if (resp.ok) {
           cloudDeleteSuccess = true;
-          console.log(`☁️ Card "${cardName}" deleted from cloud`);
         }
       } catch (cloudErr) {
         console.warn('⚠️ Cloud delete failed, trying local:', cloudErr);
@@ -95,7 +93,6 @@ async function performDelete(id, cardName) {
     if (cardIndex !== -1) {
       savedCards.splice(cardIndex, 1);
       localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
-      console.log(`✅ Card "${cardName}" deleted from localStorage`);
     } else if (!cloudDeleteSuccess) {
       console.warn('Card not found in localStorage, may have been cloud-only');
     }
@@ -111,10 +108,8 @@ async function performDelete(id, cardName) {
       if (window.cardForgeActions.refreshGalleryDecks) {
         window.cardForgeActions.refreshGalleryDecks();
       }
-      console.log('🔄 My Cards and Gallery refreshed');
     }
     
-    console.log(`✅ Card "${cardName}" deleted successfully`);
     
   } catch (e) {
     console.error('Delete failed', e);

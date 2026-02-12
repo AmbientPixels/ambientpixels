@@ -42,7 +42,6 @@ const TemplateLoader = {
 
     try {
       const endpoint = window.buildApiPath('template', { type: templateType });
-      console.log(`[CardForge] Loading template: ${endpoint}`);
       
       // Always use anonymous access
       let headers = {
@@ -65,7 +64,6 @@ const TemplateLoader = {
       }
 
       this.updateForm(template);
-      console.log(`[CardForge] Template loaded:`, template);
       
     } catch (error) {
       console.error('[CardForge] Failed to load template:', error);
@@ -122,7 +120,6 @@ const TemplateLoader = {
     if (window.UIUtils && typeof window.UIUtils.showMessage === 'function') {
       window.UIUtils.showMessage(message, type);
     } else {
-      console.log(`[${type.toUpperCase()}] ${message}`);
       // Fallback to browser alert if no UI utils available
       if (type === 'error') {
         alert(`Error: ${message}`);

@@ -49,15 +49,11 @@ class CardForgeActions {
 
   constructor() {
     this.initialized = false;
-    console.log('🔧 CardForge Forge Actions initialized');
   }
 
   init() {
-    console.log('✅ CardForge Forge Actions ready');
-    
     // Prevent duplicate initialization
     if (this.initialized) {
-      console.log(' Already initialized, skipping...');
       return;
     }
     
@@ -159,7 +155,6 @@ class CardForgeActions {
 
   // updated by Cascade: Unify Save/Duplicate/Reset event binding for all UIs per Windsurf Protocol
   bindForgeButtons() {
-    console.log('🔗 Binding Forge tab buttons...');
     
     // Save Card Buttons (Forge tab and Toolbar) - unified state via ChromeUI
     const saveBtns = [
@@ -174,7 +169,6 @@ class CardForgeActions {
           e.stopPropagation();
           const currentState = window.CardForgeChrome?.statusEl?.dataset?.state;
           if (currentState !== 'unsaved' && currentState !== 'error') {
-            console.log(`Save blocked — state is "${currentState}"`);
             return;
           }
           if (window.CardForgeChrome) {
@@ -185,9 +179,6 @@ class CardForgeActions {
           }
           this.handleSaveCard();
         });
-        console.log('✅ Save Card button bound (single handler)', btn.id);
-      } else {
-        console.log('⚠️ Save Card button already bound, skipping', btn.id);
       }
     });
 
@@ -227,7 +218,6 @@ class CardForgeActions {
       });
     }
 
-    console.log('🔗 Forge buttons bound successfully');
   }
 
   // ===================
@@ -235,12 +225,9 @@ class CardForgeActions {
   // ===================
   
   handleSaveCard() {
-    console.log('💾 Save card requested');
     
     try {
       const cardData = this.collectCardData();
-      console.log('🔍 Got card data:', cardData);
-      console.log('🖼️ SAVING IMAGE:', cardData.avatar);
       
       if (!cardData.name || cardData.name.trim() === '') {
         this.showNotification('Please enter a card name before saving', 'error');
@@ -396,7 +383,6 @@ class CardForgeActions {
   // ===================
   
   async handleResetCard() {
-    console.log('🔄 Reset card requested');
     try {
       this.resetAllFormFields();
 
@@ -441,7 +427,6 @@ class CardForgeActions {
           window.cardForgeEditor.loadCardData(prefillData.cardData);
         }
       }
-      console.log('📄 Default template applied after reset:', prefillData);
     } catch (error) {
       console.warn('⚠️ Could not load prefill data after reset:', error);
     }
@@ -452,7 +437,6 @@ class CardForgeActions {
   // ===================
 
   handleClearAll() {
-    console.log('✨ New random card requested');
     try {
       // Clear card-id so next Save creates a new card instead of overwriting
       const idField = document.getElementById('card-id');
@@ -480,7 +464,6 @@ class CardForgeActions {
   // ===================
   
   handleCreateNewDeck(autoAddCardId) {
-    console.log('🗂️ Create new deck requested');
     if (!this.requireAuth('create a deck')) return;
 
     this._showDeckFormDialog({
@@ -529,7 +512,6 @@ class CardForgeActions {
   // ===================
   
   handlePublishCard() {
-    console.log('🚀 Publish card requested');
     
     try {
       const cardData = this.collectCardData();
@@ -550,7 +532,6 @@ class CardForgeActions {
       }
       if (!cardId) {
         // Auto-save the card first
-        console.log('💾 Auto-saving card before publish...');
         this.handleSaveCard();
         // Wait briefly for save to complete, then retry
         const self = this;
@@ -816,14 +797,11 @@ class CardForgeActions {
   collectCardData() {
     // Trigger updateCardContent first to get the preview JSON
     if (window.updateCardContent) {
-      console.log('🔄 Calling updateCardContent to get preview JSON...');
       window.updateCardContent();
     }
     
     // Use the stored preview JSON data instead of form fields
     if (window.lastPreviewCardData) {
-      console.log('✅ Using stored preview JSON data for save');
-      console.log('🖼️ Preview JSON avatar:', window.lastPreviewCardData.avatar);
       const data = { ...window.lastPreviewCardData };
       
       // Collect modular system data if available (ModularState is a plain object)
@@ -834,25 +812,18 @@ class CardForgeActions {
       // Capture rendered card HTML from the live preview DOM
       const frontEl = document.querySelector('.card-preview-zone .card-front');
       const backEl = document.querySelector('.card-preview-zone .card-back');
-      console.log('🔍 [CAPTURE] frontEl found:', !!frontEl, 'backEl found:', !!backEl);
       if (frontEl) {
         data.renderedFront = frontEl.innerHTML;
         data.frontClasses = frontEl.className;
-        console.log('🔍 [CAPTURE] frontClasses:', data.frontClasses);
-        console.log('🔍 [CAPTURE] renderedFront length:', data.renderedFront.length);
       }
       if (backEl) {
         data.renderedBack = backEl.innerHTML;
         data.backClasses = backEl.className;
-        console.log('🔍 [CAPTURE] backClasses:', data.backClasses);
       }
-
-      console.log('📋 USING PREVIEW JSON DATA:', data);
       return data;
     }
     
     // Fallback: collect from form fields if preview data not available
-    console.log('⚠️ Preview JSON not available, falling back to form fields');
     const statsData = window.collectStatsData ? window.collectStatsData() : [];
     const socialData = window.collectSocialLinksData ? window.collectSocialLinksData() : [];
     const badgesData = window.collectBadgesData ? window.collectBadgesData() : [];
@@ -1045,7 +1016,6 @@ class CardForgeActions {
   // UI Updates
   /* updated by Cascade: support cloud-backed list when authenticated */
   async refreshMyCardsList() {
-    console.log('📋 Refreshing My Cards list...');
     const myCardsList = document.getElementById('my-cards-list');
     if (!myCardsList) return;
 
@@ -1067,8 +1037,6 @@ const resp = await fetch(loadUrl, {
           // Build a set of published card IDs from gallery data for reliable status detection
           const galleryCards = Array.isArray(data?.galleryCards) ? data.galleryCards : [];
           const publishedCardIds = new Set(galleryCards.map(c => c.id));
-          console.log('☁️ Raw cloud cards from API:', cloudCards.map(c => ({ id: c.id, name: c.name || c.cardData?.name, published: c.published, publishDate: c.publishDate })));
-          console.log('📢 Published card IDs from gallery:', [...publishedCardIds]);
           // Cache published IDs so save flow can detect re-publish scenarios
           this._publishedCardIds = publishedCardIds;
           // Filter out default sample cards - they shouldn't appear in My Cards
@@ -1157,7 +1125,6 @@ const resp = await fetch(loadUrl, {
   }
 
   refreshDeckList() {
-    console.log('🗂️ Refreshing deck list...');
     const deckListEl = document.getElementById('deck-list');
     if (!deckListEl) return;
 
@@ -1230,7 +1197,6 @@ const resp = await fetch(loadUrl, {
 
   // Public Gallery - shows published cards from all users
   async refreshGallery() {
-    console.log('🌐 Refreshing public gallery...');
     const galleryGrid = document.getElementById('gallery-cards-grid');
     if (!galleryGrid) return;
 
@@ -1248,7 +1214,6 @@ const resp = await fetch(loadUrl, {
       const data = await resp.json();
       const galleryCards = Array.isArray(data?.galleryCards) ? data.galleryCards : [];
       
-      console.log(`🌐 Loaded ${galleryCards.length} published cards for gallery`);
       this._galleryCards = galleryCards;
       
       if (galleryCards.length === 0) {
@@ -1332,7 +1297,6 @@ const resp = await fetch(loadUrl, {
 
   // Published Decks — gallery section
   async refreshGalleryDecks() {
-    console.log('🌐 Refreshing gallery decks...');
     const grid = document.getElementById('gallery-decks-grid');
     if (!grid) return;
 
@@ -1345,7 +1309,6 @@ const resp = await fetch(loadUrl, {
       const data = await resp.json();
       const decks = Array.isArray(data?.publishedDecks) ? data.publishedDecks : [];
 
-      console.log(`🌐 Loaded ${decks.length} published decks`);
 
       if (decks.length === 0) {
         grid.innerHTML = `
@@ -1710,7 +1673,6 @@ const resp = await fetch(loadUrl, {
 
   // Card Gallery Actions
   loadCard(cardId) {
-    console.log(`📂 Loading card: ${cardId}`);
     const savedCards = this.getSavedCards();
     const card = savedCards.find(c => c.id === cardId);
     
@@ -1728,10 +1690,8 @@ const resp = await fetch(loadUrl, {
       const idField = document.getElementById('card-id'); /* updated by Cascade */
       if (idField) idField.value = card.id;               /* updated by Cascade */
       if (window.cardForgeEditor && window.cardForgeEditor.loadCardData) {
-        console.log('[CardForge] Card object about to load:', card);
         // Support legacy and new schemas: .data, .cardData, or direct
         let cardData = card.data || card.cardData || card;
-        console.log('[CardForge] Card data about to load:', cardData);
         window.cardForgeEditor.loadCardData(cardData);
         this.showNotification(`Card "${card.name}" loaded successfully`, 'success');
       } else {
@@ -1759,7 +1719,6 @@ const resp = await fetch(loadUrl, {
 
 
   publishCard(cardId) {
-    console.log(`📤 Publishing card: ${cardId}`);
     const savedCards = this.getSavedCards();
     const card = savedCards.find(c => c.id === cardId);
     
@@ -1833,7 +1792,6 @@ const resp = await fetch(loadUrl, {
       window.rightColumn.showToolMessage(message, type);
     } else {
       // Fallback to console
-      console.log(`[${type.toUpperCase()}] ${message}`);
       
       // Simple alert for important messages
       if (type === 'error') {
@@ -2302,7 +2260,6 @@ CardForgeActions.prototype.cleanupDeckCardIds = function() {
 
   if (changed) {
     localStorage.setItem('cardforge_decks', JSON.stringify(decks));
-    console.log('🧹 Cleaned up orphaned cardIds from decks');
   }
 };
 
@@ -2496,7 +2453,6 @@ CardForgeActions.prototype.bindForgeButtons = function() {
         e.stopPropagation();
         const currentState = window.CardForgeChrome?.statusEl?.dataset?.state;
         if (currentState !== 'unsaved' && currentState !== 'error') {
-          console.log(`Save blocked — state is "${currentState}"`);
           return;
         }
         if (window.CardForgeChrome) {
@@ -2507,9 +2463,6 @@ CardForgeActions.prototype.bindForgeButtons = function() {
         }
         this.handleSaveCard();
       });
-      console.log('✅ Save Card button bound (single handler)', btn.id);
-    } else {
-      console.log('⚠️ Save Card button already bound, skipping', btn.id);
     }
   });
 
@@ -2529,7 +2482,6 @@ CardForgeActions.prototype.bindForgeButtons = function() {
           () => this.handleResetCard()
         );
       });
-      console.log('✅ Reset Card button bound (single handler)', btn.id);
     }
   });
 
@@ -2549,7 +2501,6 @@ CardForgeActions.prototype.bindForgeButtons = function() {
           () => this.handleClearAll()
         );
       });
-      console.log('✅ New Card button bound (single handler)', btn.id);
     }
   });
 
@@ -2561,7 +2512,6 @@ CardForgeActions.prototype.bindForgeButtons = function() {
       e.preventDefault();
       this.handleCreateNewDeck();
     });
-    console.log('✅ Create Deck button bound (single handler)');
   }
 
   // Publish Card button
@@ -2572,7 +2522,6 @@ CardForgeActions.prototype.bindForgeButtons = function() {
       e.preventDefault();
       this.handlePublishCard();
     });
-    console.log('✅ Publish Card button bound (single handler)');
   }
 };
 
@@ -2672,7 +2621,6 @@ window.showSavedCardsModal = showSavedCardsModal;
 
 // Initialize when DOM is ready with multiple fallbacks
 function initializeForgeActions() {
-  console.log('🔧 Attempting to initialize Forge Actions...');
   cardForgeActions.init();
 }
 
@@ -2690,7 +2638,6 @@ if (document.readyState === 'loading') {
 // Additional fallback - try again after a short delay
 setTimeout(() => {
   if (!cardForgeActions.initialized) {
-    console.log('🔄 Fallback initialization attempt...');
     initializeForgeActions();
   }
 }, 500);

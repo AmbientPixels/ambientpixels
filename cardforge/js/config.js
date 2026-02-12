@@ -65,6 +65,4 @@ window.buildApiPath = function(endpoint, params = {}) {
   return `${baseUrl}/${path}${queryString ? '?' + queryString : ''}`;
 };
 
-// Log environment info
-console.log(`[CardForge] Environment: ${window._config.environment}`);
-console.log(`[CardForge] Debug mode: ${window._config.debug ? 'ON' : 'OFF'}`);
+// Environment info available via window._config.environment and window._config.debug

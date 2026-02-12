@@ -688,7 +688,6 @@
         prefillData.stats.forEach((stat, index) => {
           const statRow = createStatRow(stat.name, stat.value);
           statsContainer.appendChild(statRow);
-          console.log(`📊 Added stat: ${stat.name} = ${stat.value}`);
         });
       }
       
@@ -703,7 +702,6 @@
         prefillData.socialLinks.forEach((social, index) => {
           const socialRow = createSocialRow(social.platform, social.url);
           socialContainer.appendChild(socialRow);
-          console.log(`🔗 Added social: ${social.platform} = ${social.url}`);
         });
       }
       
@@ -718,7 +716,6 @@
         prefillData.badges.forEach((badge, index) => {
           const badgeRow = createBadgeRow(badge.category, badge.icon, badge.description, badge.quantity);
           badgesContainer.appendChild(badgeRow);
-          console.log(`🏆 Added badge: ${badge.category} = ${badge.quantity}`);
         });
       }
       
@@ -733,11 +730,9 @@
         prefillData.attributes.forEach((attribute, index) => {
           const attributeRow = createAttributeRow(attribute.name, attribute.value);
           attributesContainer.appendChild(attributeRow);
-          console.log(`⚡ Added attribute: ${attribute.name} = ${attribute.value}`);
         });
       }
       
-      console.log('📄 Prefill data loaded successfully:', prefillData);
       
       // Pad Social to 6 rows for balanced grid layout
       const SOCIAL_GRID_MIN = 6;
@@ -1009,7 +1004,6 @@
 
   // ===== DYNAMIC EDITORS INITIALIZATION =====
   function initDynamicEditors() {
-    console.log('🔧 Initializing dynamic editors...');
     
     // Initialize Stats Editor
     initStatsEditor();
@@ -1029,7 +1023,6 @@
     // Initialize form listeners for live preview
     initFormListeners();
     
-    console.log('✅ Dynamic editors initialized');
   }
 
   // ===== BIOGRAPHY CHARACTER COUNTER =====
@@ -1091,7 +1084,6 @@
         
         const newStatRow = createStatRow();
         statsContainer.appendChild(newStatRow);
-        console.log(`📊 New stat row added (${currentStats + 1}/10)`);
         updateStatBtnState();
       });
     }
@@ -1107,7 +1099,6 @@
         if (currentSocials >= SOCIAL_CAP) {
           addSocialBtn.classList.add('disabled');
           addSocialBtn.title = `Maximum ${SOCIAL_CAP} social links reached`;
-          console.log(`🔗 Social limit reached (${SOCIAL_CAP})`);
           return;
         }
         const newSocialRow = createSocialRow();
@@ -1116,7 +1107,6 @@
           addSocialBtn.classList.add('disabled');
           addSocialBtn.title = `Maximum ${SOCIAL_CAP} social links reached`;
         }
-        console.log(`🔗 New social row added (${currentSocials + 1}/${SOCIAL_CAP})`);
       });
     }
   }
@@ -1130,7 +1120,6 @@
         if (currentBadges >= BADGE_CAP) {
           addBadgeBtn.classList.add('disabled');
           addBadgeBtn.title = `Maximum ${BADGE_CAP} badges reached`;
-          console.log(`🏆 Badge limit reached (${BADGE_CAP})`);
           return;
         }
         const newBadgeRow = createBadgeRow();
@@ -1140,7 +1129,6 @@
           addBadgeBtn.classList.add('disabled');
           addBadgeBtn.title = `Maximum ${BADGE_CAP} badges reached`;
         }
-        console.log(`🏆 New badge row added (${currentBadges + 1}/${BADGE_CAP})`);
       });
     }
   }
@@ -1154,7 +1142,6 @@
         if (currentAttrs >= ATTRIBUTE_CAP) {
           addAttributeBtn.classList.add('disabled');
           addAttributeBtn.title = `Maximum ${ATTRIBUTE_CAP} attributes reached`;
-          console.log(`⚡ Attribute limit reached (${ATTRIBUTE_CAP})`);
           return;
         }
         const newAttributeRow = createAttributeRow();
@@ -1163,7 +1150,6 @@
           addAttributeBtn.classList.add('disabled');
           addAttributeBtn.title = `Maximum ${ATTRIBUTE_CAP} attributes reached`;
         }
-        console.log(`⚡ New attribute row added (${currentAttrs + 1}/${ATTRIBUTE_CAP})`);
       });
     }
   }
@@ -1255,7 +1241,6 @@
 
   // Initialize everything when DOM is ready
   document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 CardForge Editor initializing...');
     
     initPresets();
     initDynamicEditors();
@@ -1305,7 +1290,6 @@
       setTimeout(() => window.CardForgeChrome.setDirtyTracking(true), 600);
     }
     
-    console.log('✅ CardForge V2 Modular System Ready!');
   });
   
   // ===== CARD FLIP FUNCTIONALITY =====
@@ -1317,7 +1301,6 @@
     if (flipBtn && cardInner) {
       flipBtn.addEventListener('click', function() {
         cardInner.classList.toggle('flipped');
-        console.log('🔄 Card flipped manually');
       });
     }
     
@@ -1329,30 +1312,24 @@
         // Steps 4, 5, 6 show back face (Social, Badges, Attributes)
         if (['4', '5', '6'].includes(step)) {
           cardInner.classList.add('flipped');
-          console.log('🔄 Card flipped to back (step ' + step + ')');
         } else {
           // Steps 1, 2, 3 show front face (Card Design, Basics, Stats)
           cardInner.classList.remove('flipped');
-          console.log('🔄 Card flipped to front (step ' + step + ')');
         }
       }
     });
     
-    console.log('🔄 Card flip initialized');
   }
 
   // ===== PRESET SYSTEM =====
   function initPresets() {
     const presetButtons = document.querySelectorAll('.preset-btn');
-    console.log(`🔍 Found ${presetButtons.length} preset buttons`);
     
     presetButtons.forEach((button, index) => {
       const presetId = button.dataset.preset;
-      console.log(`🔗 Binding preset button ${index}: ${presetId}`);
       
       button.addEventListener('click', (e) => {
         e.preventDefault();
-        console.log(`🖱️ Preset button clicked: ${presetId}`);
         
         applyPreset(presetId);
         
@@ -1360,7 +1337,6 @@
         presetButtons.forEach(btn => btn.classList.remove('active'));
         button.classList.add('active');
         
-        console.log(`🎨 Applied preset: ${presetId}`);
       });
     });
     
@@ -1369,7 +1345,6 @@
     if (rollButton) {
       rollButton.addEventListener('click', (e) => {
         e.preventDefault();
-        console.log('🎲 Roll button clicked - generating random preset');
         
         // Add visual feedback
         rollButton.style.transform = 'scale(0.95)';
@@ -1379,17 +1354,14 @@
         
         window.CardForge.rollRandomCard();
       });
-      console.log('🎲 Roll button initialized');
     }
     
-    console.log('🚀 Presets initialized with event listeners');
   }
   
   // ===== RANDOM CARD GENERATOR =====
   let _lastRandomImage = ''; // Track last image to avoid repeats
 
   function rollRandomCard() {
-    console.log('🎲 Rolling a completely random card...');
     
     // Define all possible options for each modular tier
     const randomOptions = {
@@ -1480,14 +1452,6 @@
       alignmentStyle: randomStyle
     });
     
-    console.log(`🎯 Random card generated:`, {
-      container: `${randomContainer}-${randomContainerVariant}`,
-      effect: `${randomEffect}-${randomEffectVariant}`,
-      palette: `${randomPalette}-${randomPaletteVariant}`,
-      alignment: `${randomHorizontal}-${randomVertical}-${randomStyle}`,
-      rarityStyle: randomRarityStyle
-    });
-    
     // Apply random class style to the dropdown
     const classStyleField = document.getElementById('class-style');
     if (classStyleField) {
@@ -1524,7 +1488,6 @@
     generateRandomImage().then(() => {
       _statAnimationNeeded = true;
       updatePreview();
-      console.log('✨ Random card rolled successfully!');
     });
   }
   
@@ -1601,7 +1564,6 @@
     updateCardEffectsDisplay();
     updateTypographyDisplay();
     
-    console.log('🔄 UI elements updated from ModularState');
   }
   
   // ===== RANDOM CHARACTER DATA GENERATOR =====
@@ -1707,7 +1669,6 @@
       });
     }
     
-    console.log(`🎲 Generated random character: ${numStats} stats, ${numBadges} badges, ${numAttrs} attributes`);
   }
   
   // ===== RANDOM IMAGE GENERATOR =====
@@ -1728,7 +1689,6 @@
           const cardAvatarInput = document.getElementById('card-avatar');
           if (cardAvatarInput) {
             cardAvatarInput.value = randomImage;
-            console.log(`🖼️ Random image selected: ${randomImage}`);
             
             // Highlight matching gallery thumbnail if visible
             const inlineImageGrid = document.getElementById('inline-image-grid');
@@ -1751,21 +1711,14 @@
   }
   
   function applyPreset(presetId) {
-    console.log(`🎯 applyPreset called with: ${presetId}`);
-    
     const config = PresetConfigurations[presetId];
     if (!config) {
-      console.error(`❌ Preset ${presetId} not found in PresetConfigurations`);
-      console.log('Available presets:', Object.keys(PresetConfigurations));
+      console.error(`Preset ${presetId} not found in PresetConfigurations`);
       return;
     }
     
-    console.log(`📋 Found preset config:`, config);
-    
     // Separate front styling from sample data and non-ModularState keys
     const { sampleData, classStyle, classIcon, rarityStyle, rarityIcon, ...designConfig } = config;
-    console.log(`🎨 Design config:`, designConfig);
-    console.log(`📝 Sample data:`, sampleData);
     
     // Reset ModularState to defaults, then apply preset design config
     // This prevents stale keys from persisting across preset switches
@@ -1794,14 +1747,12 @@
       ModularState.imageEffect = 'none';
       ModularState.imageEffectVariant = 'clean';
     }
-    console.log(`🔄 ModularState updated:`, ModularState);
     
     // Populate class and rarity styling form fields
     if (classStyle) {
       const classStyleField = document.getElementById('class-style');
       if (classStyleField) {
         classStyleField.value = classStyle;
-        console.log(`✅ Class style populated: ${classStyle}`);
       }
     }
     
@@ -1814,7 +1765,6 @@
         classIconOptions.forEach(option => {
           option.classList.toggle('selected', option.dataset.icon === classIcon);
         });
-        console.log(`✅ Class icon populated: ${classIcon}`);
       }
     }
     
@@ -1842,7 +1792,6 @@
       } else if (rarityStyleField) {
         rarityStyleField.value = rarityStyle;
       }
-      console.log(`✅ Rarity/effect style routed: ${rarityStyle}`);
     }
     
     if (rarityIcon) {
@@ -1854,90 +1803,57 @@
         rarityIconOptions.forEach(option => {
           option.classList.toggle('selected', option.dataset.icon === rarityIcon);
         });
-        console.log(`✅ Rarity icon populated: ${rarityIcon}`);
       }
     }
     
     try {
       updateUIFromState();
-      console.log(`✅ updateUIFromState completed`);
     } catch (error) {
-      console.error(`❌ Error in updateUIFromState:`, error);
+      console.error('Error in updateUIFromState:', error);
     }
     
     // Populate form with sample data
-    console.log(`🔍 Checking sampleData:`, sampleData, 'Type:', typeof sampleData, 'Truthy:', !!sampleData);
     if (sampleData) {
-      console.log(`📊 Populating form with sample data...`);
       try {
         populateFormWithSampleData(sampleData);
-        console.log(`✅ populateFormWithSampleData completed`);
       } catch (error) {
-        console.error(`❌ Error in populateFormWithSampleData:`, error);
+        console.error('Error in populateFormWithSampleData:', error);
       }
     } else {
       console.warn(`⚠️ No sample data found for preset ${presetId}`);
     }
     
     // Update preview
-    console.log(`🔄 Updating preview...`);
     try {
       _statAnimationNeeded = true;
       updatePreview();
-      console.log(`✅ updatePreview completed`);
     } catch (error) {
-      console.error(`❌ Error in updatePreview:`, error);
+      console.error('Error in updatePreview:', error);
     }
-    
-    console.log(`✨ Preset ${presetId} applied successfully`);
   }
   
   function populateFormWithSampleData(sampleData) {
-    console.log('📊 populateFormWithSampleData called with:', sampleData);
-    
     // Populate basic character info
     if (sampleData.name) {
       const nameField = document.getElementById('card-name');
-      console.log('🏷️ Name field:', nameField, 'Setting to:', sampleData.name);
       if (nameField) {
         nameField.value = sampleData.name;
-        console.log('✅ Name field populated:', nameField.value);
-      } else {
-        console.error('❌ Name field not found!');
       }
     }
     
     if (sampleData.characterClass) {
       const classField = document.getElementById('card-class');
-      console.log('🎭 Class field:', classField, 'Setting to:', sampleData.characterClass);
-      if (classField) {
-        classField.value = sampleData.characterClass;
-        console.log('✅ Class field populated:', classField.value);
-      } else {
-        console.error('❌ Class field not found!');
-      }
+      if (classField) classField.value = sampleData.characterClass;
     }
     
     if (sampleData.biography) {
       const bioField = document.getElementById('card-bio');
-      console.log('📖 Bio field:', bioField, 'Setting to:', sampleData.biography);
-      if (bioField) {
-        bioField.value = sampleData.biography;
-        console.log('✅ Bio field populated:', bioField.value);
-      } else {
-        console.error('❌ Bio field not found!');
-      }
+      if (bioField) bioField.value = sampleData.biography;
     }
     
     if (sampleData.avatar) {
       const avatarField = document.getElementById('card-avatar');
-      console.log('🖼️ Avatar field:', avatarField, 'Setting to:', sampleData.avatar);
-      if (avatarField) {
-        avatarField.value = sampleData.avatar;
-        console.log('✅ Avatar field populated:', avatarField.value);
-      } else {
-        console.error('❌ Avatar field not found!');
-      }
+      if (avatarField) avatarField.value = sampleData.avatar;
     }
     
     // Clear existing dynamic content
@@ -1951,7 +1867,6 @@
           const statRow = createStatRow(stat.name, stat.value);
           statsContainer.appendChild(statRow);
         });
-        console.log(`✅ Populated ${sampleData.stats.length} stats`);
       } else {
         console.warn('⚠️ Stats container not found');
       }
@@ -1965,7 +1880,6 @@
           const badgeRow = createMicroBadgeRow(badge.category, badge.icon, badge.description, badge.quantity);
           badgesContainer.appendChild(badgeRow);
         });
-        console.log(`✅ Populated ${sampleData.badges.length} badges`);
       } else {
         console.warn('⚠️ Badges container not found');
       }
@@ -1979,13 +1893,11 @@
           const attributeRow = createAttributeRow(attribute.name, attribute.value);
           attributesContainer.appendChild(attributeRow);
         });
-        console.log(`✅ Populated ${sampleData.attributes.length} attributes`);
       } else {
         console.warn('⚠️ Attributes container not found');
       }
     }
     
-    console.log(`📝 Form populated with sample data:`, sampleData);
   }
   
   function clearAllDynamicRows() {
@@ -2017,7 +1929,6 @@
       }
     }
     
-    console.log('🧹 Cleared all dynamic form rows');
   }
   
   function updateUIFromState() {
@@ -2036,14 +1947,6 @@
     
     // Level 1: Vertical Alignment (show/hide based on fullbleed container)
     const verticalAlignmentSection = document.getElementById('vertical-alignment-section');
-    console.log('🔍 Vertical alignment debug:', {
-      section: verticalAlignmentSection,
-      sectionExists: !!verticalAlignmentSection,
-      imageContainer: ModularState.imageContainer,
-      verticalAlignment: ModularState.verticalAlignment,
-      isFullbleed: ModularState.imageContainer === 'fullbleed'
-    });
-    
     if (verticalAlignmentSection) {
       // Show vertical alignment only for fullbleed containers
       const showVerticalAlignment = ModularState.imageContainer === 'fullbleed';
@@ -2053,28 +1956,18 @@
         verticalAlignmentSection.style.setProperty('display', 'block', 'important');
         verticalAlignmentSection.style.visibility = 'visible';
         verticalAlignmentSection.style.opacity = '1';
-        console.log(`📐 FORCED vertical alignment section VISIBLE for fullbleed container`);
       } else {
         verticalAlignmentSection.style.display = 'none';
-        console.log(`📐 Vertical alignment section HIDDEN for container: ${ModularState.imageContainer}`);
       }
       
       // Update vertical alignment selection if visible
       if (showVerticalAlignment) {
         const verticalAlignmentOptions = document.querySelectorAll('[data-tier="4"] .vertical-alignment-level .tier-option');
-        console.log(`🔍 Found ${verticalAlignmentOptions.length} vertical alignment options`);
         verticalAlignmentOptions.forEach(option => {
           const isSelected = option.dataset.value === ModularState.verticalAlignment;
           option.classList.toggle('selected', isSelected);
-          console.log(`🎯 Option ${option.dataset.value}: ${isSelected ? 'SELECTED' : 'not selected'}`);
         });
-        console.log(`✅ Updated vertical alignment selection to: ${ModularState.verticalAlignment}`);
       }
-    } else {
-      console.error('❌ Vertical alignment section not found! Element with ID "vertical-alignment-section" does not exist.');
-      // Try to find it with a different selector
-      const altSection = document.querySelector('.vertical-alignment-level');
-      console.log('🔍 Alternative search result:', altSection);
     }
     
     // Level 3: Alignment Style
@@ -2157,7 +2050,6 @@
 
   // ===== MODULAR SYSTEM INITIALIZATION =====
   function initModularSystem() {
-    console.log('🎯 Initializing modular tier systems...');
     
     // Initialize collapsible tier system
     initCollapsibleTiers();
@@ -2170,12 +2062,10 @@
     initTier4Alignment(); // Content Alignment moved to Tier 5 (function name needs updating)
     // initTier5Weight(); // REMOVED - Standalone Visual Weight tier (redundant with Content Alignment weight distribution)
     
-    console.log('✅ Core modular tiers initialized');
   }
 
   // ===== COLLAPSIBLE TIER SYSTEM =====
   function initCollapsibleTiers() {
-    console.log('🎯 Initializing collapsible tier system...');
     
     // Get all tier headers (clickable collapse/expand triggers)
     const tierHeaders = document.querySelectorAll('.tier-header[data-tier-toggle]');
@@ -2192,7 +2082,6 @@
         if (isExpanded) {
           // Collapse
           tier.classList.remove('expanded');
-          console.log(`📁 Collapsed tier ${tierId}`);
         } else {
           // Expand (and optionally collapse others for accordion effect)
           // First collapse all other tiers
@@ -2204,7 +2093,6 @@
           
           // Then expand this tier
           tier.classList.add('expanded');
-          console.log(`📂 Expanded tier ${tierId}`);
         }
       });
     });
@@ -2214,7 +2102,6 @@
       tier.classList.remove('expanded');
     });
     
-    console.log('✅ Collapsible tier system initialized');
   }
 
   // ===== TIER SELECTION DISPLAY UPDATES =====
@@ -2235,7 +2122,6 @@
       previewElement.classList.add('current-palette-preview', previewClass);
     }
     
-    console.log(`🔄 Updated tier ${tierId} selection display: ${displayText}`);
   }
 
   function updateCollapsibleTierDisplays() {
@@ -2301,7 +2187,6 @@
       updateTierCurrentSelection('6', displayText, previewClass);
     }
     
-    console.log('🔄 Updated all collapsible tier displays');
   }
 
   function updateCardEffectsDisplay() {
@@ -2393,12 +2278,10 @@
 
   // ===== TIER 4: CONTENT ALIGNMENT (SIMPLE WORKING SYSTEM) =====
   function initTier4Alignment() {
-    console.log('🎯 Initializing Tier 4: Content Alignment...');
     
     // Initialize alignment event handlers
     initAlignmentEventHandlers();
     
-    console.log('✅ Tier 4 Content Alignment initialized');
   }
   
   function initAlignmentEventHandlers() {
@@ -2410,7 +2293,6 @@
         option.classList.add('selected');
         ModularState.horizontalAlignment = option.dataset.value;
         updatePreview();
-        console.log(`📐 Horizontal alignment: ${ModularState.horizontalAlignment}`);
       });
     });
     
@@ -2422,7 +2304,6 @@
         option.classList.add('selected');
         ModularState.verticalAlignment = option.dataset.value;
         updatePreview();
-        console.log(`📐 Vertical alignment: ${ModularState.verticalAlignment}`);
       });
     });
     
@@ -2434,7 +2315,6 @@
         option.classList.add('selected');
         ModularState.alignmentStyle = option.dataset.style;
         updatePreview();
-        console.log(`🎨 Style variant: ${ModularState.alignmentStyle}`);
       });
     });
   }
@@ -2464,7 +2344,6 @@
         // Update preview
         updatePreview();
         
-        console.log(`⚖️ Weight updated: ${ModularState.weight}`);
       });
     });
     
@@ -2510,7 +2389,6 @@
         // Update preview
         updatePreview();
         
-        console.log(`🎨 Palette updated: ${ModularState.palette}${ModularState.palette === 'auto' ? ` → resolved: ${effective}` : ''}`);
       });
     });
     
@@ -2536,7 +2414,6 @@
         // Update preview
         updatePreview();
         
-        console.log(`💡 Palette variant updated: ${ModularState.paletteVariant}`);
       });
     });
     
@@ -2572,7 +2449,6 @@
         // Update preview
         updatePreview();
         
-        console.log(`📝 Text color updated: ${ModularState.textColor}`);
       });
     });
     
@@ -2650,7 +2526,6 @@
 
         if (_resolvedAutoPalette !== matched) {
           _resolvedAutoPalette = matched;
-          console.log(`🎨 Auto-palette resolved: hue=${hue} sat=${saturation.toFixed(2)} light=${lightness.toFixed(0)} → ${matched}`);
           if (ModularState.palette === 'auto') {
             applyResolvedPalette();
           }
@@ -2692,12 +2567,10 @@
     front.setAttribute('data-palette', resolved);
     back.setAttribute('data-palette', resolved);
 
-    console.log(`🎨 Applied resolved auto-palette: ${resolved}`);
   }
 
   // ===== PREVIEW UPDATE SYSTEM =====
   function updatePreview() {
-    console.log('🎨 Updating card preview with modular system...');
 
     // Any preview update means the card changed — mark dirty
     if (window.CardForgeChrome) window.CardForgeChrome.markDirty();
@@ -2806,16 +2679,6 @@
     // Combine fullbleed variant filters with image effect filters
     applyCombinedFilters();
     
-    // Equalize card heights after content update
-    setTimeout(() => {
-      setEqualCardHeight();
-    }, 50); // Small delay to ensure content is rendered
-    
-    console.log('✅ Card preview updated with modular system:', {
-      // layout: ModularState.layout, REMOVED - Phase 1 of Flow Restructure
-      palette: `${ModularState.palette}-${ModularState.paletteVariant}`,
-      imageContainer: `${ModularState.imageContainer}-${ModularState.imageContainerVariant}`
-    });
   }
 
   // ===== COMBINED FILTER MERGE =====
@@ -2898,15 +2761,9 @@
       attributes: attributesData
     };
     
-    console.log('📋 Complete card data with all sections:', cardData);
-    console.log('📊 Stats count:', cardData.stats.length);
-    console.log('🔗 Social links count:', cardData.socialLinks.length);
-    console.log('🏆 Badges count:', cardData.badges.length);
-    console.log('⚡ Attributes count:', cardData.attributes.length);
     
     // Store the preview JSON data globally for save function to use
     window.lastPreviewCardData = cardData;
-    console.log('💾 Stored preview data globally for save function');
     
     // Update front face
     updateFrontFace(cardData);
@@ -3075,10 +2932,6 @@
       }
     });
     
-    console.log('🎨 Applied class and rarity styles:', { 
-      classStyle, rarityStyle, 
-      classIcon, rarityIcon 
-    });
   }
   
   // ===== ICON PICKER SYSTEM =====
@@ -3118,7 +2971,6 @@
     });
   }
   
-  console.log('🎯 Icon picker system initialized');
   
   // ===== DATA COLLECTION HELPERS =====
   function collectStatsData() {
@@ -3140,7 +2992,6 @@
       });
     }
     
-    console.log('📊 Collected stats:', stats);
     return stats;
   }
   
@@ -3163,7 +3014,6 @@
       });
     }
     
-    console.log('🔗 Collected social links:', socialLinks);
     return socialLinks;
   }
   
@@ -3190,7 +3040,6 @@
       });
     }
     
-    console.log('🏆 Collected badges:', badges);
     return badges;
   }
   
@@ -3217,7 +3066,6 @@
       });
     }
     
-    console.log('⚡ Collected attributes (including biography):', attributes);
     return attributes;
   }
 
@@ -3722,14 +3570,12 @@
     
     if (classStyleSelector) {
       classStyleSelector.addEventListener('change', function() {
-        console.log('Class style changed to:', this.value);
         updatePreview();
       });
     }
     
     if (rarityStyleSelector) {
       rarityStyleSelector.addEventListener('change', function() {
-        console.log('Rarity style changed to:', this.value);
         updatePreview();
       });
     }
@@ -3761,7 +3607,6 @@
       const el = document.getElementById(id);
       if (el) {
         el.addEventListener('change', function() {
-          console.log(`${id} changed to:`, this.value);
           updatePreview();
           updateCardEffectsDisplay();
         });
@@ -3772,7 +3617,6 @@
     // Initialize icon pickers
     initIconPickers();
     
-    console.log('🎧 Form listeners initialized for live preview');
   }
   
   function initStatsListeners() {
@@ -3984,7 +3828,6 @@
         // Update preview
         updatePreview();
         
-        console.log(`🖼️ Image container updated: ${ModularState.imageContainer}-${ModularState.imageContainerVariant}`);
       });
     });
     
@@ -4007,7 +3850,6 @@
         // Update preview
         updatePreview();
         
-        console.log(`🎭 Container variant updated: ${ModularState.imageContainerVariant}`);
       });
     });
     
@@ -4042,7 +3884,6 @@
         // Update preview
         updatePreview();
         
-        console.log(`✨ Image effect updated: ${ModularState.imageEffect}-${ModularState.imageEffectVariant}`);
       });
     });
     
@@ -4062,7 +3903,6 @@
         // Update preview
         updatePreview();
         
-        console.log(`🎨 Effect variant updated: ${ModularState.imageEffectVariant}`);
       });
     });
     
@@ -4127,7 +3967,6 @@
         }
         
         updatePreview();
-        console.log(`✨ Image effect updated: ${ModularState.imageEffect} ${ModularState.imageEffectVariant}`);
       });
     });
     
@@ -4142,7 +3981,6 @@
         
         ModularState.imageEffectVariant = option.dataset.variant;
         updatePreview();
-        console.log(`🎨 Effect variant updated: ${ModularState.imageEffectVariant}`);
       });
     });
     
@@ -4215,7 +4053,6 @@
 
   // ===== WORKING MODULAR SYSTEM INITIALIZATION =====
   function initTier2ImageContainer() {
-    console.log('🔧 Applying EXACT working browser fixes...');
 
     // Container type event handlers
     const containerOptions = document.querySelectorAll('[data-tier="2"] .container-grid .tier-option');
@@ -4223,7 +4060,6 @@
 
     containerOptions.forEach(option => {
       option.addEventListener('click', () => {
-        console.log('🎯 Container clicked:', option.dataset.value);
         
         // Update selection state
         containerOptions.forEach(opt => opt.classList.remove('selected'));
@@ -4231,14 +4067,12 @@
         
         // Update modular state
         ModularState.imageContainer = option.dataset.value;
-        console.log('📦 Updated imageContainer:', ModularState.imageContainer);
         
         // Show/hide relevant variant options
         variantContainers.forEach(container => {
           const containerType = container.dataset.container;
           if (containerType === ModularState.imageContainer) {
             container.style.display = 'block';
-            console.log(`👁️ Showing variants for: ${containerType}`);
           } else {
             container.style.display = 'none';
           }
@@ -4254,23 +4088,19 @@
           'floating': 'centered'
         };
         ModularState.imageContainerVariant = defaultVariants[ModularState.imageContainer] || 'circle';
-        console.log('🎨 Set default variant:', ModularState.imageContainerVariant);
         
         // Show/hide vertical alignment controls based on container type
         const verticalAlignmentSection = document.getElementById('vertical-alignment-section');
         if (verticalAlignmentSection) {
           if (ModularState.imageContainer === 'fullbleed') {
             verticalAlignmentSection.style.display = 'block';
-            console.log('👁️ Showing vertical alignment for Full Bleed');
           } else {
             verticalAlignmentSection.style.display = 'none';
-            console.log('🙈 Hiding vertical alignment for non-Full Bleed containers');
           }
         }
         
         // Update preview
         updatePreview();
-        console.log('🔄 Called updatePreview for container');
       });
     });
 
@@ -4278,11 +4108,9 @@
     const containerVariantOptions = document.querySelectorAll('[data-tier="2"] .container-variants .variant-option');
     containerVariantOptions.forEach(option => {
       option.addEventListener('click', () => {
-        console.log('🎯 Container variant clicked:', option.dataset.variant);
         
         // Update ModularState for CONTAINER variant
         ModularState.imageContainerVariant = option.dataset.variant;
-        console.log('📦 Updated imageContainerVariant:', ModularState.imageContainerVariant);
         
         // Update selection state within this variant group
         const siblingVariants = option.parentNode.querySelectorAll('.variant-option');
@@ -4291,7 +4119,6 @@
         
         // Update preview
         updatePreview();
-        console.log('🔄 Called updatePreview for container variant');
       });
     });
 
@@ -4302,7 +4129,6 @@
 
     effectOptions.forEach(option => {
       option.addEventListener('click', () => {
-        console.log('🎯 Effect clicked:', option.dataset.value);
         
         // Update selection state
         effectOptions.forEach(opt => opt.classList.remove('selected'));
@@ -4310,7 +4136,6 @@
         
         // Update modular state
         ModularState.imageEffect = option.dataset.value;
-        console.log('✨ Updated imageEffect:', ModularState.imageEffect);
         
         // Hide entire variants section when None is selected
         if (effectVariantsSection) {
@@ -4322,7 +4147,6 @@
           const effectType = container.dataset.effect;
           if (effectType === ModularState.imageEffect) {
             container.style.display = 'block';
-            console.log(`👁️ Showing effect variants for: ${effectType}`);
           } else {
             container.style.display = 'none';
           }
@@ -4348,7 +4172,6 @@
         
         // Update preview
         updatePreview();
-        console.log('🔄 Called updatePreview for effect');
       });
     });
 
@@ -4356,11 +4179,9 @@
     const effectVariantOptions = document.querySelectorAll('[data-tier="2"] .effect-variants .variant-option');
     effectVariantOptions.forEach(option => {
       option.addEventListener('click', () => {
-        console.log('🎯 Effect variant clicked:', option.dataset.variant);
         
         // Update ModularState for EFFECT variant
         ModularState.imageEffectVariant = option.dataset.variant;
-        console.log('✨ Updated imageEffectVariant:', ModularState.imageEffectVariant);
         
         // Update selection state within this variant group
         const siblingVariants = option.parentNode.querySelectorAll('.variant-option');
@@ -4369,26 +4190,18 @@
         
         // Update preview
         updatePreview();
-        console.log('🔄 Called updatePreview for effect variant');
       });
     });
 
-    console.log('✅ EXACT working browser fixes applied successfully!');
-    console.log('🎯 Container options found:', containerOptions.length);
-    console.log('🎨 Container variant options found:', containerVariantOptions.length);
-    console.log('✨ Effect options found:', effectOptions.length);
-    console.log('🔧 Effect variant options found:', effectVariantOptions.length);
   }
 
   // ===== DEFAULT CLASS AND RARITY STYLING =====
   function initDefaultClassAndRarityStyles() {
-    console.log('🎨 Initializing default class and rarity styles...');
     
     // Set default class styling
     const classStyleField = document.getElementById('class-style');
     if (classStyleField) {
       classStyleField.value = 'badge';
-      console.log('✅ Default class style set to: badge');
     }
     
     const classIconField = document.getElementById('class-icon-value');
@@ -4399,14 +4212,12 @@
       classIconOptions.forEach(option => {
         option.classList.toggle('selected', option.dataset.icon === 'khanda');
       });
-      console.log('✅ Default class icon set to: khanda');
     }
     
     // Set default rarity styling
     const rarityStyleField = document.getElementById('rarity-style');
     if (rarityStyleField) {
       rarityStyleField.value = 'default';
-      console.log('✅ Default rarity style set to: default');
     }
     
     const rarityIconField = document.getElementById('rarity-icon-value');
@@ -4417,10 +4228,8 @@
       rarityIconOptions.forEach(option => {
         option.classList.toggle('selected', option.dataset.icon === 'gem');
       });
-      console.log('✅ Default rarity icon set to: gem');
     }
     
-    console.log('✨ Default class and rarity styles initialized');
   }
   
   // Note: Default styles initialization moved to main DOMContentLoaded listener to avoid conflicts
@@ -4440,8 +4249,3 @@
 // TODO: Add Tier 2 (Alignment), Tier 3 (Weight), Tier 5 (Image Container), Tier 6 (Effects)
 // TODO: Add dynamic form editors (Stats, Social, Badges, Attributes)
 
-// ===== HEIGHT EQUALIZATION FOR CARD PREVIEW (added by Cascade) =====
-function setEqualCardHeight() {
-  // Card height is now enforced by CSS via --card-height (canonical card dimensions).
-  // This function is kept as a no-op for backward compatibility with callers.
-}

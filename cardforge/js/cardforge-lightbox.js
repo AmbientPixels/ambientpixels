@@ -177,7 +177,6 @@
       const saved = JSON.parse(localStorage.getItem('cardforge_saved_cards') || '[]');
       const match = saved.find(c => c.id === card.id);
       if (match && match.cardData && match.cardData.renderedFront) {
-        console.log('🔍 [LIGHTBOX] Enriched card from localStorage');
         return match;
       }
     } catch (e) { /* ignore */ }
@@ -193,16 +192,8 @@
     const container = el('lightbox-card-container');
     if (!container) return;
 
-    // DEBUG: Log what data the lightbox receives
-    console.log('🔍 [LIGHTBOX] card keys:', Object.keys(card));
-    console.log('🔍 [LIGHTBOX] d keys:', Object.keys(d));
-    console.log('🔍 [LIGHTBOX] has renderedFront:', !!d.renderedFront);
-    console.log('🔍 [LIGHTBOX] has frontClasses:', !!d.frontClasses);
-    console.log('🔍 [LIGHTBOX] has cardData:', !!card.cardData);
-
     // PRIMARY PATH: Use stored rendered HTML captured from the preview at save time
     if (d.renderedFront && d.frontClasses) {
-      console.log('✅ [LIGHTBOX] Using STORED rendered HTML');
       const frontCls = d.frontClasses;
       const backCls = d.backClasses || d.frontClasses;
       container.innerHTML = `
@@ -214,7 +205,6 @@
         </div>`;
     } else {
       // FALLBACK: Re-render from data for legacy cards without stored HTML
-      console.log('⚠️ [LIGHTBOX] FALLBACK: No stored HTML, re-rendering from data');
       const design = d.design || null;
       const { shared: modShared, frontOnly: modFront } = buildModularClasses(design);
       const dataAttrs = buildDataAttributes(design, d.rarity || card.rarity || '');
@@ -628,7 +618,6 @@
     // Deep link check
     checkDeepLink();
 
-    console.log('🔍 CardForge Lightbox initialized');
   }
 
   // Wait for DOM

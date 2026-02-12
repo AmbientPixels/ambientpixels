@@ -77,7 +77,6 @@
       return originalFetch(url, options);
     };
 
-    console.log('[CSRF] Protection initialized');
   }
 
   /**

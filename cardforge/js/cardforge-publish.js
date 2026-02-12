@@ -46,7 +46,6 @@ async function publishCard() {
 
         // Call the cardforgepublish API with correct path
         const endpoint = window.buildApiPath('publish');
-        console.log('[CardForge] Publishing to endpoint:', endpoint);
 
         // Prepare headers (no auth required for anonymous publish)
         const publishHeaders = {
@@ -55,8 +54,6 @@ async function publishCard() {
           'Accept': 'application/json',
           'X-Requested-With': 'XMLHttpRequest'
         };
-
-        console.log('[CardForge] Request headers:', publishHeaders);
 
         const response = await fetch(endpoint, {
           method: 'POST',
@@ -81,9 +78,6 @@ async function publishCard() {
           credentials: 'include'
         });
 
-        console.log('[CardForge] Publish response status:', response.status);
-        console.log('[CardForge] Publish response headers:', [...response.headers.entries()]);
-
         if (!response.ok) {
           // Check content type to handle non-JSON errors
           const contentType = response.headers.get('content-type');
@@ -104,8 +98,6 @@ async function publishCard() {
         }
 
         const result = await response.json();
-        console.log('[CardForge] Card published:', result);
-        console.log('[CardForge] DEBUG from API:', result.debug);
 
         // Update nav publish button to "Published" state
         if (typeof CardForgeActions !== 'undefined' && CardForgeActions.setPublishNavState) {

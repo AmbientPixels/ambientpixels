@@ -17,7 +17,6 @@ class RightColumn {
   init() {
     this.bindEvents();
     this.initializeZones();
-    console.log('✅ Right Column initialized');
   }
 
   bindEvents() {
@@ -112,21 +111,12 @@ class RightColumn {
       }
     }
 
-    console.log(`🔧 Zone "${zoneName}" ${isExpanded ? 'expanded' : 'collapsed'}`);
   }
 
 
 
   handleMyCardsSearch(query) {
-    console.log('🔍 My Cards search:', query);
-    
-    // TODO: Implement search functionality
-    // For now, just log the search query
-    
-    // Future implementation:
-    // - Filter saved cards based on query
-    // - Update My Cards list display
-    // - Handle empty search results
+    // Search filtering handled by cardforge-forge-actions.js
   }
 
   handleResize() {
@@ -166,23 +156,6 @@ class RightColumn {
     }, 3000);
   }
 
-  // Public API for integration with existing CardForge functionality
-  loadMyCard(cardData) {
-    console.log('📄 Loading My Card:', cardData);
-    // TODO: Integrate with existing card loading functionality
-  }
-
-  addMyCard(cardData) {
-    console.log('➕ Adding My Card:', cardData);
-    // TODO: Add card to My Cards list
-  }
-
-
-
-  refreshMyCards() {
-    console.log('🔄 Refreshing My Cards list');
-    // TODO: Reload My Cards from storage/API
-  }
 
   // Data Collection for Card Saving
   collectCurrentCardData() {
