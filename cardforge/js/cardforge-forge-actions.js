@@ -404,42 +404,15 @@ class CardForgeActions {
   // ===================
 
   handleClearAll() {
-    console.log('✨ New blank card requested');
+    console.log('✨ New random card requested');
     try {
-      this.resetAllFormFields();
-
-      // Reset ModularState to defaults (plain object, no .reset() method)
-      if (window.ModularState) {
-        Object.assign(window.ModularState, {
-          horizontalAlignment: 'center',
-          verticalAlignment: 'middle',
-          alignmentWeight: 'balanced',
-          alignmentStyle: 'padded',
-          palette: 'neon',
-          paletteVariant: 'light',
-          textColor: 'auto',
-          imageContainer: 'masked',
-          imageContainerVariant: 'circle',
-          imageEffect: 'none',
-          imageEffectVariant: 'clean'
-        });
-      }
-
       // Clear card-id so next Save creates a new card instead of overwriting
       const idField = document.getElementById('card-id');
       if (idField) idField.value = '';
 
-      // Reset effect dropdowns
-      const bgEffect = document.getElementById('card-bg-effect');
-      const borderEffect = document.getElementById('card-border-effect');
-      const glowEffect = document.getElementById('card-glow-effect');
-      if (bgEffect) bgEffect.value = 'none';
-      if (borderEffect) borderEffect.value = 'none';
-      if (glowEffect) glowEffect.value = 'none';
-
-      // Update preview to reflect blank state
-      if (window.cardForgeEditor && window.cardForgeEditor.loadCardData) {
-        window.cardForgeEditor.loadCardData({});
+      // Roll a completely random card (design + character data + artwork)
+      if (window.CardForge && window.CardForge.rollRandomCard) {
+        window.CardForge.rollRandomCard();
       }
 
       // Mark as dirty so Save becomes active
@@ -447,7 +420,7 @@ class CardForgeActions {
         window.CardForgeChrome.markDirty();
       }
 
-      this.showNotification('New blank card started', 'success');
+      this.showNotification('New random card generated', 'success');
     } catch (error) {
       console.error('Error creating new card:', error);
       this.showNotification('Error creating new card', 'error');
@@ -2402,8 +2375,8 @@ CardForgeActions.prototype.bindForgeButtons = function() {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         UIUtils.showConfirmDialog(
-          'New Card',
-          'Start a new blank card? Any unsaved changes will be lost.',
+          'Random Card',
+          'Generate a random card? Any unsaved changes will be lost.',
           () => this.handleClearAll()
         );
       });
