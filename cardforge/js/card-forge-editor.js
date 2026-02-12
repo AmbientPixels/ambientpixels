@@ -195,6 +195,14 @@
         this.isDirty = false;
         this.setStatus('ready', 'Ready');
       }
+      // Fresh/new card (no saved card-id) should start as unsaved
+      if (enabled) {
+        const cardId = document.getElementById('card-id');
+        if (!cardId || !cardId.value) {
+          this.isDirty = false;
+          this.setStatus('unsaved', 'New Card');
+        }
+      }
     }
   };
 
@@ -2683,6 +2691,9 @@
   // ===== PREVIEW UPDATE SYSTEM =====
   function updatePreview() {
     console.log('🎨 Updating card preview with modular system...');
+
+    // Any preview update means the card changed — mark dirty
+    if (window.CardForgeChrome) window.CardForgeChrome.markDirty();
     
     const front = document.querySelector('.card-preview-zone .card-front');
     const back = document.querySelector('.card-preview-zone .card-back');
@@ -3855,6 +3866,7 @@
                 if (cardAvatarInput) {
                   cardAvatarInput.value = url;
                   updatePreview();
+                  if (window.CardForgeChrome) window.CardForgeChrome.markDirty();
                 }
               });
               
@@ -3909,6 +3921,7 @@
         cardAvatarInput.value = customUrlInput.value.trim();
         customUrlInput.value = '';
         updatePreview();
+        if (window.CardForgeChrome) window.CardForgeChrome.markDirty();
       }
     });
   }
