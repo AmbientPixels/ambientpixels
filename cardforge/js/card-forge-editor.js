@@ -1808,11 +1808,13 @@
       const glowEffectField = document.getElementById('card-glow-effect');
       const rarityStyleField = document.getElementById('rarity-style');
       
-      // Reset all effect dropdowns first
+      // Reset all effect dropdowns and font first
       if (bgEffectField) bgEffectField.value = 'none';
       if (borderEffectField) borderEffectField.value = 'none';
       if (glowEffectField) glowEffectField.value = 'none';
       if (rarityStyleField) rarityStyleField.value = 'default';
+      const fontField = document.getElementById('card-font-family');
+      if (fontField) fontField.value = 'inter';
       
       if (rarityStyle === 'foil' && bgEffectField) {
         bgEffectField.value = 'foil';
