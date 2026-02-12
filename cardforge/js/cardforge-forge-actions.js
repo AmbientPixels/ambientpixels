@@ -2304,10 +2304,11 @@ CardForgeActions.prototype.getSelectedDeckId = function() {
 };
 
 CardForgeActions.prototype.updateSidebarIndicators = function() {
-  const cards = this.getSavedCards();
-  const decks = this.getSavedDecks();
-  const cardCount = cards ? cards.length : 0;
-  const deckCount = decks ? decks.length : 0;
+  const isAuthed = (sessionStorage.getItem('isAuthenticated') === 'true') ||
+                   (document.body?.getAttribute('data-auth-state') === 'signed-in');
+
+  const cardCount = isAuthed ? (this.getSavedCards()?.length || 0) : 0;
+  const deckCount = isAuthed ? (this.getSavedDecks()?.length || 0) : 0;
 
   // Badge pills
   const cardBadge = document.getElementById('my-cards-count');
