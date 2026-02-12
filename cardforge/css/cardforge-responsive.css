@@ -1,20 +1,575 @@
 /* CardForge Responsive Styles
- * All responsive design and mobile adjustments
- * Extracted from: All files (media queries, mobile-specific rules)
- * Created: 2025-08-03
+ * Comprehensive mobile + tablet responsive design
+ * Phases: Grid → Nav → Forms → Preview → Touch → Modals
+ * Created: 2025-08-03 | Major rewrite: 2026-02-11
  */
 
-/* Responsive Behavior - CLEANED UP */
+/* =============================================
+   PHASE 1 — GRID LAYOUT BREAKPOINTS
+   ============================================= */
+
+/* Tablet: collapse to 2-column (hide rail, stack preview below) */
 @media (max-width: 1200px) {
+  .cf-app-grid {
+    grid-template-columns: var(--cf-rail-width) 1fr;
+    gap: 12px;
+  }
+  body.cf-rail-collapsed .cf-app-grid {
+    grid-template-columns: var(--cf-rail-width-collapsed) 1fr;
+  }
+  .cf-main-pane {
+    min-width: 0;
+  }
+  .cf-preview-pane {
+    min-width: 0;
+    position: relative;
+    top: auto;
+    grid-column: 2;
+  }
   .right-column {
+    width: 100%;
+    max-width: 100%;
     height: auto;
     max-height: none;
   }
+  .drag-divider {
+    display: none;
+  }
+  .card-preview-zone {
+    position: relative;
+  }
+}
+
+/* Small tablet / large phone: single column, rail hidden */
+@media (max-width: 768px) {
+  .cardforge-container {
+    padding: 0.5rem;
+  }
+  .cf-app-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  body.cf-rail-collapsed .cf-app-grid {
+    display: flex;
+    flex-direction: column;
+  }
+  .cf-rail {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    width: 100% !important;
+    height: auto;
+    z-index: 2000;
+    background: rgba(12, 16, 28, 0.97);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0;
+    padding: 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+  }
+  body.cf-rail-collapsed .cf-rail {
+    width: 100% !important;
+  }
+  .cf-main-pane {
+    min-width: 0;
+    width: 100%;
+    padding-bottom: 80px;
+  }
+  .cf-preview-pane {
+    min-width: 0;
+    position: relative;
+    top: auto;
+    width: 100%;
+  }
+  .right-column {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.5rem;
+    gap: 0.5rem;
+    border-radius: 8px;
+  }
+  .card-preview-zone {
+    padding: 0.5rem;
+  }
+  .cf-page-bar {
+    padding: 8px 12px;
+    border-radius: 0;
+    margin-top: 56px;
+    min-height: 48px;
+  }
+}
+
+/* Phone: tightest spacing */
+@media (max-width: 480px) {
+  .cardforge-container {
+    padding: 0.25rem;
+  }
+  .right-column {
+    padding: 0.25rem;
+    border-radius: 6px;
+  }
+}
+
+
+/* =============================================
+   PHASE 2 — MOBILE NAVIGATION (Rail → Bottom Bar)
+   ============================================= */
+
+@media (max-width: 768px) {
+  /* Hide rail header (title + collapse toggle) on mobile */
+  .cf-rail-header {
+    display: none;
+  }
+
+  /* Convert stepper to horizontal bottom tab bar */
+  .cf-stepper {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 0;
+    padding: 0.35rem 0.5rem;
+    margin: 0;
+  }
+  .cf-stepper::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Step buttons — compact horizontal pills */
+  .step-btn {
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.6rem;
+    min-width: 56px;
+    font-size: 0.65rem;
+    gap: 0.15rem;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+  .step-btn .step-label {
+    font-size: 0.6rem;
+    max-width: 56px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .step-btn .step-icon {
+    font-size: 1rem;
+  }
+  .cf-icon-chip {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+
+  /* Step nav (prev/next) — full width on mobile */
+  .cf-step-nav {
+    padding: 0.75rem 0.5rem;
+    gap: 0.5rem;
+  }
+  .cf-step-nav-btn {
+    font-size: 0.8rem;
+    padding: 0.6rem 1rem;
+    min-height: 44px;
+  }
+}
+
+
+/* =============================================
+   PHASE 3 — FORM SECTIONS
+   ============================================= */
+
+@media (max-width: 768px) {
+  /* Section containers — tighter padding */
+  .cf-section {
+    padding: 0.75rem 0.5rem;
+  }
+
+  /* Forge layout (Cards/Deck tabs + content) */
+  .forge-layout {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .forge-sidebar-nav {
+    flex-direction: row;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+    padding: 0.4rem;
+    border-radius: 8px;
+    overflow-x: auto;
+  }
+  .forge-sidebar-tab {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    font-size: 0.85rem;
+    padding: 0.6rem 0.4rem;
+  }
+  .forge-content-area {
+    padding: 0.75rem 0.5rem;
+    border-radius: 8px;
+  }
+
+  /* Action buttons — wrap, fill width */
+  .forge-card-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .forge-action-btn {
+    flex: 1 1 calc(50% - 0.5rem);
+    min-width: 0;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  /* Effect chip grids — 2 columns */
+  .effect-chip-grid,
+  .style-variant-grid,
+  .modular-tile-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.35rem;
+  }
+
+  /* Snap chips — wrap better */
+  .snap-chip-row {
+    gap: 0.25rem;
+  }
+  .snap-chip {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.75rem;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Stats/Social/Badge rows — stack vertically */
+  .stat-header,
+  .social-header,
+  .badge-card-header,
+  .attribute-header {
+    flex-wrap: wrap;
+  }
+
+  /* Increase tap targets for all small buttons */
+  .stat-header .stat-delete-btn,
+  .social-header .social-delete-btn,
+  .badge-card-header .micro-delete-btn,
+  .attribute-header .attr-delete-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Basics tab — full width inputs */
+  .basics-identity input,
+  .basics-identity select,
+  .basics-identity textarea {
+    font-size: 16px; /* prevents iOS zoom on focus */
+  }
+
+  /* Image gallery in forms */
+  .image-gallery-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .forge-action-btn {
+    flex: 1 1 100%;
+  }
+  .effect-chip-grid,
+  .style-variant-grid,
+  .modular-tile-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .image-gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+
+/* =============================================
+   PHASE 4 — PREVIEW PANE (Mobile Toggle)
+   ============================================= */
+
+/* Mobile preview toggle FAB */
+.cf-mobile-preview-toggle {
+  display: none;
 }
 
 @media (max-width: 768px) {
-  .right-column {
-    padding: 0.5rem;
+  /* Hide preview pane by default on mobile — shown via toggle */
+  .cf-preview-pane {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    background: rgba(12, 16, 28, 0.97);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    overflow-y: auto;
+    padding: 1rem;
+    padding-top: 3.5rem;
+  }
+  .cf-preview-pane.mobile-visible {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .cf-preview-pane.mobile-visible .right-column {
+    width: 100%;
+    max-width: 420px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  /* Close button for mobile preview overlay */
+  .cf-mobile-preview-close {
+    display: none;
+  }
+  .cf-preview-pane.mobile-visible .cf-mobile-preview-close {
+    display: flex;
+    position: fixed;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    z-index: 5001;
+  }
+
+  /* Floating action button to show preview */
+  .cf-mobile-preview-toggle {
+    display: flex;
+    position: fixed;
+    bottom: 76px; /* above bottom nav bar */
+    right: 1rem;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00d4ff, #0099cc);
+    color: #000;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 16px rgba(0, 212, 255, 0.35);
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 1999;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .cf-mobile-preview-toggle:active {
+    transform: scale(0.92);
+  }
+}
+
+
+/* =============================================
+   PHASE 5 — TOUCH INTERACTIONS
+   ============================================= */
+
+@media (max-width: 768px) {
+  /* Mini card overlay — always visible on touch devices (no hover) */
+  .mini-card .mini-card-overlay {
+    opacity: 1;
+    background: linear-gradient(transparent 40%, rgba(0, 0, 0, 0.7));
+  }
+  .mini-card .mini-card-actions {
+    opacity: 1;
+  }
+  /* Ensure action buttons are tappable */
+  .mini-card-btn {
+    min-width: 36px;
+    min-height: 36px;
+    font-size: 0.85rem;
+  }
+
+  /* Drag handle — always visible on mobile */
+  .mini-card-drag-handle {
+    opacity: 1 !important;
+  }
+
+  /* Deck picker dropdown — position better on mobile */
+  .deck-picker-dropdown {
+    position: fixed;
+    top: auto;
+    bottom: 80px;
+    left: 1rem;
+    right: 1rem;
+    max-width: none;
+    min-width: 0;
+    width: auto;
+    border-radius: 12px;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  /* Touch device overrides — always show interactive overlays */
+  .mini-card .mini-card-overlay {
+    opacity: 1;
+    background: linear-gradient(transparent 40%, rgba(0, 0, 0, 0.65));
+  }
+  .mini-card .mini-card-actions {
+    opacity: 1;
+  }
+  .gallery-deck-delete-btn {
+    opacity: 0.8;
+  }
+  .deck-viewer-card-flip {
+    opacity: 1;
+  }
+}
+
+
+/* =============================================
+   PHASE 6 — MODALS, GALLERY, MINI CARDS
+   ============================================= */
+
+@media (max-width: 768px) {
+  /* Modals — full screen sheets on mobile */
+  .modal-overlay .modal-content,
+  .modal-container .modal-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0 !important;
+    margin: 0;
+  }
+
+  /* Dialog boxes — almost full width */
+  .cardforge-dialog-body {
+    min-width: 0 !important;
+    max-width: 96vw !important;
+    width: 92vw;
+    border-radius: 12px;
+  }
+
+  /* Gallery grid — 2 columns */
+  .my-cards-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 0.5rem;
+  }
+  .gallery-decks-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .deck-modal-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  }
+
+  /* Deck manager layout — stack */
+  .deck-manager-layout {
+    flex-direction: column !important;
+  }
+  .deck-sidebar {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .deck-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    max-height: none;
+  }
+  .deck-cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)) !important;
+  }
+
+  /* Deck viewer overlay — tighter on mobile */
+  .deck-viewer-inner {
+    padding: 0.75rem;
+  }
+  .deck-viewer-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-right: 2.5rem;
+  }
+  .deck-viewer-carousel {
+    gap: 0.25rem;
+  }
+  .deck-viewer-nav {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+
+  /* Lightbox — full width */
+  .lightbox-overlay .lightbox-content {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.5rem;
+  }
+
+  /* Intro section — stack */
+  .intro-body {
+    flex-direction: column !important;
+  }
+  .intro-right {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Phone: single column cards */
+  .my-cards-list {
+    grid-template-columns: 1fr !important;
+  }
+  .deck-cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)) !important;
+  }
+
+  /* Smaller card previews in deck viewer */
+  .deck-viewer-card {
+    width: 280px;
+  }
+  .deck-viewer-card > .card-preview-canvas,
+  .deck-viewer-card .card-front,
+  .deck-viewer-card .card-back,
+  .deck-viewer-card .card-preview-canvas.card-front,
+  .deck-viewer-card .card-preview-canvas.card-back {
+    height: 392px; min-height: 392px; max-height: 392px;
+  }
+}
+
+/* =============================================
+   SAFE AREA INSETS (notched phones)
+   ============================================= */
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  @media (max-width: 768px) {
+    .cf-rail {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .cf-mobile-preview-toggle {
+      bottom: calc(76px + env(safe-area-inset-bottom));
+    }
+    .cf-main-pane {
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
   }
 }

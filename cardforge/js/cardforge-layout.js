@@ -18,6 +18,7 @@
     initStepper();
     initTabs();
     wireStepNav();
+    initMobilePreviewToggle();
   }
 
 
@@ -223,6 +224,37 @@
       row.appendChild(prevBtn);
       row.appendChild(nextBtn);
       section.appendChild(row);
+    });
+  }
+
+  /* ---------------- Mobile Preview Toggle ---------------- */
+  function initMobilePreviewToggle() {
+    var fab = document.querySelector('.cf-mobile-preview-toggle');
+    var pane = document.querySelector('.cf-preview-pane');
+    var closeBtn = document.querySelector('.cf-mobile-preview-close');
+    if (!fab || !pane) return;
+
+    fab.addEventListener('click', function() {
+      pane.classList.add('mobile-visible');
+      fab.style.display = 'none';
+      document.body.style.overflow = 'hidden';
+    });
+
+    function closePreview() {
+      pane.classList.remove('mobile-visible');
+      fab.style.display = '';
+      document.body.style.overflow = '';
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closePreview);
+    }
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && pane.classList.contains('mobile-visible')) {
+        closePreview();
+      }
     });
   }
 })();

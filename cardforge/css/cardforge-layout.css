@@ -108,40 +108,4 @@ body.cf-rail-collapsed .cf-rail {
   background: var(--mood-primary-color, #7a7aaa);
 }
 
-/* Responsive behavior */
-@media (max-width: 1200px) {
-  .cardforge-container {
-    flex-direction: column;
-  }
-  
-  .cf-left-column {
-    flex: 1 1 100%;
-    max-width: 100%;
-  }
-
-  .right-column {
-    flex: 1 1 100%;
-    width: 100%;
-    max-width: 100%;
-  }
-  
-  .drag-divider {
-    display: none;
-  }
-  
-  .card-preview-zone {
-    position: relative;
-  }
-}
-
-/* Tablet and mobile adjustments */
-@media (max-width: 768px) {
-  .right-column {
-    padding: 0.5rem;
-    gap: 0.5rem;
-  }
-  
-  .card-preview-zone {
-    padding: 0.5rem;
-  }
-}
+/* Responsive behavior — see cardforge-responsive.css for all breakpoints */

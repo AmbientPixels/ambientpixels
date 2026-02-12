@@ -28,13 +28,13 @@
   <link rel="stylesheet" href="css/cardforge-modular.css"> <!-- Modular system, presets, tiers -->
   <link rel="stylesheet" href="css/cardforge-icons.css"> <!-- Icon systems, container icons, effect icons -->
   <link rel="stylesheet" href="css/cardforge-gallery.css"> <!-- Gallery grid, card lists, media UI -->
-  <link rel="stylesheet" href="css/cardforge-responsive.css"> <!-- Responsive design, media queries -->
   <link rel="stylesheet" href="css/cardforge-ui.css">
   <link rel="stylesheet" href="css/cardforge-card.css">
   <link rel="stylesheet" href="css/cardforge-bg-effects.css">
   <link rel="stylesheet" href="css/cardforge-border-effects.css">
   <link rel="stylesheet" href="css/cardforge-glow-effects.css">
   <link rel="stylesheet" href="css/cardforge-layout.css"> <!-- New local layout styles that override grid.css -->
+  <link rel="stylesheet" href="css/cardforge-responsive.css"> <!-- Responsive design — MUST be last CSS to override all -->
 
 </head>
 <body data-theme="dark" class="cf-ui--neon">
@@ -1589,7 +1589,9 @@
         </div>
       </div>
       </main>
+      <!-- Mobile preview close button (inside pane, shown when overlay is open) -->
       <aside class="cf-preview-pane" aria-label="Card preview column">
+        <button type="button" class="cf-mobile-preview-close" aria-label="Close preview"><i class="fas fa-times"></i></button>
         <div class="cardforge-preview preview-pane right-column" id="card-preview-container">
           
           <!-- CARD PREVIEW ZONE (Always Visible) -->
@@ -1646,6 +1648,8 @@
         </div>
       </aside>
     </div>
+    <!-- Mobile preview toggle FAB (hidden on desktop via CSS) -->
+    <button type="button" class="cf-mobile-preview-toggle" aria-label="Show card preview"><i class="fas fa-eye"></i></button>
   </section>
   
   <!-- Separate Gallery Section -->
