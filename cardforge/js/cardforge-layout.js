@@ -188,13 +188,30 @@
       nextBtn.type = 'button';
       nextBtn.className = 'cf-step-nav-btn cf-step-nav-next';
       if (isLast) {
+        nextBtn.id = 'forge-publish-nav-btn';
         nextBtn.innerHTML = '<span>Publish</span> <i class="fas fa-share"></i>';
         nextBtn.setAttribute('aria-label', 'Publish card to gallery');
         nextBtn.addEventListener('click', function() {
-          if (window.cardForgeActions && window.cardForgeActions.handlePublishCard) {
-            window.cardForgeActions.handlePublishCard();
-          } else if (window.publishCard) {
-            window.publishCard();
+          // Check which forge tab is active
+          var deckTab = document.querySelector('.forge-sidebar-tab[data-forge-tab="deck"].active');
+          if (deckTab) {
+            // On deck tab — check if decks exist and one is selected
+            if (!window.cardForgeActions) return;
+            var decks = window.cardForgeActions.getSavedDecks();
+            if (!decks || decks.length === 0) {
+              window.cardForgeActions.showNotification('No decks to publish — create a deck first', 'info');
+            } else if (!window.cardForgeActions._selectedDeckId) {
+              window.cardForgeActions.showNotification('Select a deck first', 'info');
+            } else {
+              window.cardForgeActions.publishDeck(window.cardForgeActions._selectedDeckId);
+            }
+          } else {
+            // On cards tab — publish the current card
+            if (window.cardForgeActions && window.cardForgeActions.handlePublishCard) {
+              window.cardForgeActions.handlePublishCard();
+            } else if (window.publishCard) {
+              window.publishCard();
+            }
           }
         });
       } else {

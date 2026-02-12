@@ -23,6 +23,27 @@ const DECK_ICONS = [
 const DEFAULT_DECK_ICON = 'fas fa-layer-group';
 
 class CardForgeActions {
+  // Static helper to update the publish nav button state
+  static setPublishNavState(state) {
+    const btn = document.getElementById('forge-publish-nav-btn');
+    if (!btn) return;
+    if (state === 'published') {
+      btn.innerHTML = '<span>Published</span> <i class="fas fa-check-circle"></i>';
+      btn.style.background = 'linear-gradient(135deg, #00ff88, #00cc6a)';
+      btn.style.color = '#000';
+      btn.style.borderColor = '#00ff88';
+      btn.disabled = true;
+      btn.setAttribute('aria-disabled', 'true');
+    } else {
+      btn.innerHTML = '<span>Publish</span> <i class="fas fa-share"></i>';
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+      btn.disabled = false;
+      btn.removeAttribute('aria-disabled');
+    }
+  }
+
   constructor() {
     this.initialized = false;
     console.log('🔧 CardForge Forge Actions initialized');
@@ -78,6 +99,30 @@ class CardForgeActions {
             content.style.display = 'none';
           }
         });
+        // Reset publish nav button and update label for current context
+        CardForgeActions.setPublishNavState('default');
+        const pubNavBtn = document.getElementById('forge-publish-nav-btn');
+        if (pubNavBtn) {
+          if (target === 'deck') {
+            const decks = this.getSavedDecks();
+            const hasDeck = decks && decks.length > 0 && this._selectedDeckId;
+            pubNavBtn.innerHTML = '<span>Publish Deck</span> <i class="fas fa-share"></i>';
+            pubNavBtn.setAttribute('aria-label', 'Publish deck to gallery');
+            pubNavBtn.disabled = !hasDeck;
+            pubNavBtn.setAttribute('aria-disabled', String(!hasDeck));
+            if (!hasDeck) {
+              pubNavBtn.style.opacity = '0.4';
+              pubNavBtn.style.cursor = 'not-allowed';
+            }
+          } else {
+            pubNavBtn.innerHTML = '<span>Publish</span> <i class="fas fa-share"></i>';
+            pubNavBtn.setAttribute('aria-label', 'Publish card to gallery');
+            pubNavBtn.disabled = false;
+            pubNavBtn.removeAttribute('aria-disabled');
+            pubNavBtn.style.opacity = '';
+            pubNavBtn.style.cursor = '';
+          }
+        }
         // Update pip active states
         this.updateSidebarIndicators();
       });
@@ -491,30 +536,56 @@ class CardForgeActions {
         return;
       }
 
-      // Use existing publish functionality if available
-      if (window.publishCard && typeof window.publishCard === 'function') {
-        // Ensure hidden id field is set to the card being published
-        const idField = document.getElementById('card-id'); /* updated by Cascade */
-        if (idField) idField.value = cardData.id;               /* updated by Cascade */
-        window.publishCard();
-        // Clear card-id immediately — publishCard() already captured it
-        if (idField) idField.value = '';
-        
-        // Mark card as published
-        cardData.published = true;
-        cardData.publishedAt = new Date().toISOString();
-        localStorage.setItem('cardforge_saved_cards', JSON.stringify(this.getSavedCards()));
-        
-        this.refreshMyCardsList();
-        this.showNotification(`Card "${cardData.name}" published successfully`, 'success');
-      } else {
-        this.showNotification('Publish functionality coming soon!', 'info');
+      // Auto-save if card has no ID (unsaved card)
+      const savedCards = this.getSavedCards();
+      const idField = document.getElementById('card-id');
+      let cardId = idField ? idField.value : null;
+      if (!cardId) {
+        // Look up by name in saved cards
+        const match = savedCards.find(c => (c.cardData || c).name === cardData.name);
+        cardId = match ? match.id : null;
       }
+      if (!cardId) {
+        // Auto-save the card first
+        console.log('💾 Auto-saving card before publish...');
+        this.handleSaveCard();
+        // Wait briefly for save to complete, then retry
+        const self = this;
+        setTimeout(function() {
+          // After save, the card should now be in localStorage
+          const freshCards = self.getSavedCards();
+          const saved = freshCards.find(c => (c.cardData || c).name === cardData.name);
+          if (saved) {
+            if (idField) idField.value = saved.id;
+            self._doPublishCard(saved.id);
+          } else {
+            self.showNotification('Could not save card — please save manually first', 'error');
+          }
+        }, 500);
+        return;
+      }
+
+      this._doPublishCard(cardId);
       
     } catch (error) {
       console.error('Error publishing card:', error);
-      this.showNotification('Error publishing card', 'error');
+      this.showNotification('Error publishing card: ' + error.message, 'error');
     }
+  }
+
+  _doPublishCard(cardId) {
+    if (!window.publishCard || typeof window.publishCard !== 'function') {
+      this.showNotification('Publish functionality coming soon!', 'info');
+      return;
+    }
+    const idField = document.getElementById('card-id');
+    if (idField) idField.value = cardId;
+    // publishCard() shows a confirm dialog — it's async.
+    // The nav button state should only change after actual success.
+    // We hook into the success by watching for the publish success modal.
+    window.publishCard();
+    if (idField) idField.value = '';
+    this.refreshMyCardsList();
   }
 
   // ===================
@@ -1765,6 +1836,17 @@ CardForgeActions.prototype.selectDeck = function(deckId) {
     el.classList.toggle('active', el.dataset.deckId === deckId);
   });
   this.renderDeckDetail(deckId);
+  // Enable publish nav button only if selected deck has cards
+  const pubNavBtn = document.getElementById('forge-publish-nav-btn');
+  if (pubNavBtn && deckId) {
+    const decks = this.getSavedDecks();
+    const deck = decks.find(d => d.id === deckId);
+    const hasCards = deck && deck.cardIds && deck.cardIds.length > 0;
+    pubNavBtn.disabled = !hasCards;
+    pubNavBtn.setAttribute('aria-disabled', String(!hasCards));
+    pubNavBtn.style.opacity = hasCards ? '' : '0.4';
+    pubNavBtn.style.cursor = hasCards ? '' : 'not-allowed';
+  }
 };
 
 CardForgeActions.prototype.renderDeckDetail = function(deckId) {
@@ -2040,6 +2122,9 @@ CardForgeActions.prototype.publishDeck = function(deckId) {
       // Re-render deck detail so publish button updates to "Published" (green, disabled)
       self.renderDeckDetail(deck.id);
       self.refreshDeckList();
+
+      // Update nav publish button to "Published" state
+      CardForgeActions.setPublishNavState('published');
 
       // Refresh gallery decks section
       setTimeout(() => { self.refreshGalleryDecks(); }, 500);

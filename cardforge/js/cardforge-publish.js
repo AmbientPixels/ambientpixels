@@ -107,6 +107,11 @@ async function publishCard() {
         console.log('[CardForge] Card published:', result);
         console.log('[CardForge] DEBUG from API:', result.debug);
 
+        // Update nav publish button to "Published" state
+        if (typeof CardForgeActions !== 'undefined' && CardForgeActions.setPublishNavState) {
+          CardForgeActions.setPublishNavState('published');
+        }
+
         // Reload gallery after small delay to ensure blob storage has propagated
         setTimeout(async () => {
           if (window.cardForgeActions && typeof window.cardForgeActions.refreshGallery === 'function') {
