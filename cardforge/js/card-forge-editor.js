@@ -2340,6 +2340,15 @@
     const fontName = fontSelect.options[fontSelect.selectedIndex].text;
     updateTierCurrentSelection('typo', fontName);
     
+    // Update header font preview to match selected font
+    const typoPreview = document.querySelector('.current-typo-preview');
+    if (typoPreview) {
+      const selectedChip = document.querySelector(`.font-chip[data-value="${fontSelect.value}"]`);
+      if (selectedChip) {
+        typoPreview.style.fontFamily = selectedChip.style.fontFamily;
+      }
+    }
+    
     // Sync font chip button selection state
     const chipGroup = document.querySelector('.font-chips');
     if (chipGroup) {
