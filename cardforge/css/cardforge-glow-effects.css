@@ -35,6 +35,14 @@
     0 0 120px color-mix(in srgb, var(--card-accent, #00d4ff) 8%, transparent) !important;
 }
 
+/* Inner Shadow — dark inset shadow creating depth inside card edges */
+.card-preview-canvas.rarity-style-inner-shadow {
+  box-shadow:
+    inset 0 0 15px rgba(0, 0, 0, 0.5),
+    inset 0 0 30px rgba(0, 0, 0, 0.25),
+    inset 0 4px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
 /* Drop Shadow — dramatic directional shadow (bottom-right) */
 .card-preview-canvas.rarity-style-drop-shadow {
   box-shadow:

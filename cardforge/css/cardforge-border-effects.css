@@ -36,7 +36,7 @@
   display: none !important;
 }
 
-/* Double Border — classic double-line */
+/* Double Line — classic tight double-line border */
 .card-preview-canvas.rarity-style-double {
   border: 4px double var(--card-accent, #00d4ff) !important;
 }
@@ -83,44 +83,43 @@
     2px 2px 4px rgba(0,0,0,0.5);
 }
 
-/* Dual Border — outer accent + inner accent with dark gap between */
+/* Frame — inner border + spaced outer ring with lighter contrast */
 .card-preview-canvas.rarity-style-corners {
   border: 2px solid var(--card-accent, #00d4ff) !important;
-  outline: 2px solid var(--card-accent, #00d4ff);
-  outline-offset: 3px;
+  outline: 3px solid color-mix(in srgb, var(--card-accent, #00d4ff) 50%, white);
+  outline-offset: 5px;
   border-radius: 1rem;
 }
 
-/* Animated Border — sweeping gradient border using ::before + mask */
+/* Animated Border — color-cycling border + pulsing outline */
 .card-preview-canvas.rarity-style-animated-border {
-  position: relative;
-  border: none !important;
-}
-.card-preview-canvas.rarity-style-animated-border::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 2px;
-  background: linear-gradient(
-    90deg,
-    var(--card-accent, #00d4ff),
-    transparent,
-    var(--card-accent, #00d4ff),
-    transparent,
-    var(--card-accent, #00d4ff)
-  );
-  background-size: 400% 100%;
-  animation: border-sweep 3s linear infinite;
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  pointer-events: none;
-  z-index: 2;
+  border-width: 2px !important;
+  border-style: solid !important;
+  border-color: var(--card-accent, #00d4ff);
+  outline: 2px solid transparent;
+  outline-offset: 0px;
+  animation: border-animate 3s ease-in-out infinite !important;
 }
 
-@keyframes border-sweep {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 400% 50%; }
+@keyframes border-animate {
+  0%, 100% {
+    border-color: var(--card-accent, #00d4ff);
+    outline-color: transparent;
+    outline-offset: 0px;
+  }
+  25% {
+    border-color: rgba(255, 255, 255, 0.6);
+    outline-color: var(--card-accent, #00d4ff);
+    outline-offset: 3px;
+  }
+  50% {
+    border-color: var(--card-accent, #00d4ff);
+    outline-color: rgba(255, 255, 255, 0.3);
+    outline-offset: 5px;
+  }
+  75% {
+    border-color: rgba(255, 255, 255, 0.6);
+    outline-color: var(--card-accent, #00d4ff);
+    outline-offset: 3px;
+  }
 }
