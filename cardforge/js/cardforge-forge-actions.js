@@ -2029,6 +2029,10 @@ CardForgeActions.prototype.publishDeck = function(deckId) {
       deck.lastModified = new Date().toISOString();
       localStorage.setItem('cardforge_decks', JSON.stringify(decks));
 
+      // Re-render deck detail so publish button updates to "Published" (green, disabled)
+      self.renderDeckDetail(deck.id);
+      self.refreshDeckList();
+
       // Refresh gallery decks section
       setTimeout(() => { self.refreshGalleryDecks(); }, 500);
 

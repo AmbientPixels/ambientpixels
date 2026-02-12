@@ -384,23 +384,26 @@
   }
 
   function share() {
-    // Build a shareable link — uses OG-tagged endpoint for social media rich previews
     const card = galleryCards[currentIndex];
     if (!card) return;
     const cardId = card.id || '';
-    const shareUrl = window.buildApiPath('cardShare', { card: cardId });
+    const shareUrl = window.buildApiPath ? window.buildApiPath('cardShare', { card: cardId }) : window.location.href;
+
+    const btn = el('lightbox-share');
+    const icon = btn ? btn.querySelector('i') : null;
+    const label = btn ? btn.querySelector('span') || btn.lastChild : null;
 
     navigator.clipboard.writeText(shareUrl).then(() => {
-      const btn = el('lightbox-share');
-      if (btn) {
-        const icon = btn.querySelector('i');
-        if (icon) { icon.className = 'fas fa-check'; }
-        btn.title = 'Link copied!';
-        setTimeout(() => {
-          if (icon) { icon.className = 'fas fa-share-alt'; }
-          btn.title = 'Copy Share Link';
-        }, 2000);
-      }
+      if (icon) icon.className = 'fas fa-check';
+      if (btn) { btn.classList.add('copied'); btn.title = 'Link copied!'; }
+      if (label && label.nodeType === 3) label.textContent = ' Copied!';
+      else if (label) label.textContent = 'Copied!';
+      setTimeout(() => {
+        if (icon) icon.className = 'fas fa-share-alt';
+        if (btn) { btn.classList.remove('copied'); btn.title = 'Copy Share Link'; }
+        if (label && label.nodeType === 3) label.textContent = ' Share';
+        else if (label) label.textContent = 'Share';
+      }, 2000);
     }).catch(() => {
       window.prompt('Copy this link to share:', shareUrl);
     });
@@ -421,22 +424,59 @@
     }
 
     try {
-      // Target the front face for capture
       const frontFace = container.querySelector('.card-front') || container;
       const canvas = await html2canvas(frontFace, {
         backgroundColor: null,
         scale: 2,
         useCORS: true,
         allowTaint: true,
-        logging: false
+        logging: false,
+        onclone: function(clonedDoc) {
+          // Remove ALL CardForge stylesheets — html2canvas 1.x chokes on color-mix() and CSS vars
+          clonedDoc.querySelectorAll('link[rel="stylesheet"]').forEach(function(link) {
+            var href = link.getAttribute('href') || '';
+            if (href.includes('cardforge')) link.remove();
+          });
+
+          // Inline browser-resolved computed styles on the card and every descendant
+          var props = ['background','backgroundColor','backgroundImage','backgroundSize','backgroundPosition',
+            'backgroundRepeat','color','border','borderColor','borderWidth','borderStyle','borderRadius',
+            'boxShadow','outline','outlineColor','outlineOffset','outlineWidth','outlineStyle',
+            'fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','textAlign','textTransform',
+            'padding','margin','width','height','minHeight','maxWidth','display','flexDirection',
+            'justifyContent','alignItems','gap','gridTemplateColumns','position','top','left','right','bottom',
+            'overflow','opacity','transform','clipPath','borderCollapse','textShadow','fill','stroke'];
+
+          function inlineAll(orig, clone) {
+            var cs = getComputedStyle(orig);
+            for (var j = 0; j < props.length; j++) {
+              try { clone.style[props[j]] = cs[props[j]]; } catch(e) {}
+            }
+          }
+
+          var origFront = container.querySelector('.card-front') || container;
+          var cloneLb = clonedDoc.getElementById('lightbox-card-container');
+          var cloneFront = cloneLb ? (cloneLb.querySelector('.card-front') || cloneLb) : null;
+          if (!origFront || !cloneFront) return;
+
+          inlineAll(origFront, cloneFront);
+          var origAll = origFront.querySelectorAll('*');
+          var cloneAll = cloneFront.querySelectorAll('*');
+          for (var i = 0; i < Math.min(origAll.length, cloneAll.length); i++) {
+            inlineAll(origAll[i], cloneAll[i]);
+          }
+        }
       });
 
       const link = document.createElement('a');
       link.download = `${cardName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.png`;
       link.href = canvas.toDataURL('image/png');
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
     } catch (err) {
       console.error('Card export failed:', err);
+      alert('Card export failed: ' + err.message);
     } finally {
       if (btn) {
         if (icon) icon.className = 'fas fa-download';
