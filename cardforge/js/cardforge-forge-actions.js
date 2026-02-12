@@ -263,7 +263,7 @@ class CardForgeActions {
         createdAt: existingCard ? existingCard.createdAt : new Date().toISOString(),
         lastModified: new Date().toISOString(),
         cardData: cardData,
-        isPublished: existingCard ? existingCard.isPublished : false,
+        isPublished: false,
         deckIds: existingCard ? existingCard.deckIds : []
       };
 
