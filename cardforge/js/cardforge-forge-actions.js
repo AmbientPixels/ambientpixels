@@ -2222,7 +2222,19 @@ CardForgeActions.prototype.showAddToDeckPicker = function(cardId, anchorEl) {
 
   const decks = this.getSavedDecks();
   if (!decks || decks.length === 0) {
-    this.showNotification('Create a deck first in Deck Manager', 'info');
+    const self = this;
+    const dialogFn = (window.UIUtils && window.UIUtils.showConfirmDialog) || null;
+    if (dialogFn) {
+      dialogFn(
+        'No Decks Yet',
+        'You don\'t have any decks. Would you like to create one now?',
+        function() { self.handleCreateNewDeck(); },
+        null,
+        { confirmLabel: 'Create Deck' }
+      );
+    } else if (confirm('You don\'t have any decks. Would you like to create one now?')) {
+      self.handleCreateNewDeck();
+    }
     return;
   }
 
