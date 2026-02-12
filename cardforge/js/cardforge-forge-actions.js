@@ -1022,6 +1022,17 @@ class CardForgeActions {
     const isAuthed = (sessionStorage.getItem('isAuthenticated') === 'true') ||
                      (document.body?.getAttribute('data-auth-state') === 'signed-in');
 
+    if (!isAuthed) {
+      myCardsList.innerHTML = `
+        <div class="my-cards-empty">
+          <i class="fas fa-lock"></i>
+          <p>Sign in to view your cards</p>
+          <small>Your saved cards will appear here once you're signed in</small>
+        </div>
+      `;
+      return;
+    }
+
     let savedCards = this.getSavedCards();
 
     if (isAuthed) {
@@ -1127,6 +1138,31 @@ const resp = await fetch(loadUrl, {
   refreshDeckList() {
     const deckListEl = document.getElementById('deck-list');
     if (!deckListEl) return;
+
+    const isAuthed = (sessionStorage.getItem('isAuthenticated') === 'true') ||
+                     (document.body?.getAttribute('data-auth-state') === 'signed-in');
+
+    if (!isAuthed) {
+      deckListEl.innerHTML = `
+        <div class="deck-empty">
+          <i class="fas fa-lock"></i>
+          <p>Sign in to view your decks</p>
+          <small>Your saved decks will appear here once you're signed in</small>
+        </div>
+      `;
+      const detailEl = document.getElementById('deck-detail');
+      if (detailEl) {
+        detailEl.innerHTML = `
+          <div class="deck-detail-empty">
+            <i class="fas fa-lock"></i>
+            <p>Sign in to manage decks</p>
+            <small>Create and organize decks after signing in</small>
+          </div>
+        `;
+      }
+      this._selectedDeckId = null;
+      return;
+    }
 
     // Clean up orphaned cardIds before rendering
     this.cleanupDeckCardIds();
