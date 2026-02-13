@@ -30,6 +30,7 @@
         <li><a href="/modules/company/directives.html">Directives</a></li>
         <li><a href="/modules/company/objectives.html">Objectives</a></li>
         <li><a href="/modules/company/documents.html">Docs</a></li>
+        <li><a href="/modules/company/actions.html">Actions</a></li>
         <li><a href="/modules/company/workspace.html">Workspace</a></li>
         <li><a href="/" style="opacity:0.4;"><i class="fas fa-globe"></i></a></li>
       </ul>
@@ -176,6 +177,42 @@
         </div>
         <ul class="log-list" id="panel-objectives-snap"></ul>
         <div class="dash-empty" id="objectives-snap-empty">No active objectives.</div>
+      </div>
+
+      <!-- Autonomy Score -->
+      <div class="dash-panel">
+        <div class="dash-panel-header">
+          <span class="dash-panel-title"><i class="fas fa-robot" style="color:#34d399;"></i> Autonomy Score</span>
+        </div>
+        <div id="panel-autonomy" style="padding:0.5rem; text-align:center;">
+          <div id="autonomy-ring" style="position:relative; width:90px; height:90px; margin:0 auto;">
+            <svg viewBox="0 0 36 36" style="width:90px; height:90px; transform:rotate(-90deg);">
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="3" />
+              <circle id="autonomy-arc" cx="18" cy="18" r="15.9" fill="none" stroke="#34d399" stroke-width="3" stroke-dasharray="0, 100" stroke-linecap="round" style="transition:stroke-dasharray 0.6s;" />
+            </svg>
+            <div id="autonomy-pct" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:1.3rem; font-weight:600; color:#34d399;">—</div>
+          </div>
+          <div id="autonomy-detail" style="font-size:0.6rem; opacity:0.4; margin-top:0.4rem;"></div>
+        </div>
+      </div>
+
+      <!-- Risk Heatmap -->
+      <div class="dash-panel">
+        <div class="dash-panel-header">
+          <span class="dash-panel-title"><i class="fas fa-fire" style="color:#ef4444;"></i> Risk Heatmap</span>
+        </div>
+        <div id="panel-risk-heatmap" style="padding:0.5rem;"></div>
+      </div>
+
+      <!-- Action Snapshot -->
+      <div class="dash-panel dash-panel--full">
+        <div class="dash-panel-header">
+          <span class="dash-panel-title"><i class="fas fa-bolt" style="color:#FFA500;"></i> Actions</span>
+          <a href="/modules/company/actions.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">Command Center →</a>
+        </div>
+        <div id="panel-action-snap" style="padding:0.3rem 0.5rem;">
+          <div class="dash-empty">No actions yet.</div>
+        </div>
       </div>
 
       <!-- Governance Log -->
@@ -350,6 +387,9 @@
         renderApprovalQueue();
         renderDirectivesSnap();
         renderObjectivesSnap();
+        renderAutonomyScore();
+        renderRiskHeatmap();
+        renderActionSnap();
         renderGovernanceLog();
       }
 
@@ -791,6 +831,82 @@
             '</div>';
           listEl.appendChild(li);
         });
+      }
+
+      // ── Autonomy Score ──
+      function renderAutonomyScore() {
+        var data = AgentEngine.getAutonomyScore();
+        var arc = document.getElementById('autonomy-arc');
+        var pct = document.getElementById('autonomy-pct');
+        var detail = document.getElementById('autonomy-detail');
+        var score = data.score || 0;
+        arc.setAttribute('stroke-dasharray', score + ', 100');
+        var color = score >= 80 ? '#34d399' : score >= 50 ? '#fbbf24' : '#ef4444';
+        arc.setAttribute('stroke', color);
+        pct.textContent = score + '%';
+        pct.style.color = color;
+        detail.textContent = data.autonomous + ' of ' + data.total + ' tasks autonomous';
+      }
+
+      // ── Risk Heatmap ──
+      function renderRiskHeatmap() {
+        var data = AgentEngine.getRiskHeatmap();
+        var el = document.getElementById('panel-risk-heatmap');
+        var html = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">';
+        html += riskCell('High Risk Tasks', data.highRiskTasks.length, '#ef4444', 'fa-exclamation-triangle');
+        html += riskCell('Medium Risk Tasks', data.medRiskTasks.length, '#fbbf24', 'fa-exclamation-circle');
+        html += riskCell('At-Risk Objectives', data.atRiskObjectives.length, '#f87171', 'fa-bullseye');
+        html += riskCell('Escalations / Week', data.escalationFrequency, '#FFA500', 'fa-flag');
+        html += '</div>';
+        if (data.highRiskTasks.length > 0) {
+          html += '<div style="margin-top:0.6rem; font-size:0.6rem; opacity:0.5;">';
+          data.highRiskTasks.slice(0, 3).forEach(function (t) {
+            html += '<div style="padding:0.15rem 0;">• ' + escapeHtml(t.title) + ' <span style="opacity:0.4;">(' + (t.assignee || '?') + ')</span></div>';
+          });
+          html += '</div>';
+        }
+        el.innerHTML = html;
+      }
+      function riskCell(label, count, color, icon) {
+        var bg = count > 0 ? 'rgba(' + (color === '#ef4444' ? '239,68,68' : color === '#fbbf24' ? '251,191,36' : color === '#f87171' ? '248,113,113' : '255,165,0') + ',0.06)' : 'rgba(255,255,255,0.02)';
+        return '<div style="padding:0.5rem; border-radius:6px; background:' + bg + '; text-align:center;">' +
+          '<div style="font-size:1.1rem; font-weight:600; color:' + (count > 0 ? color : 'rgba(255,255,255,0.15)') + ';"><i class="fas ' + icon + '" style="font-size:0.7rem;"></i> ' + count + '</div>' +
+          '<div style="font-size:0.5rem; opacity:0.4; margin-top:0.15rem;">' + label + '</div>' +
+          '</div>';
+      }
+
+      // ── Action Snapshot ──
+      function renderActionSnap() {
+        var stats = AgentEngine.getActionStats();
+        var el = document.getElementById('panel-action-snap');
+        if (stats.total === 0) {
+          el.innerHTML = '<div class="dash-empty">No actions yet. <a href="/modules/company/actions.html" style="color:#FFA500;">Open Command Center →</a></div>';
+          return;
+        }
+        var html = '<div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:0.5rem;">';
+        if (stats.pending > 0) html += snapBadge(stats.pending, 'pending', '#FFA500');
+        if (stats.approved > 0) html += snapBadge(stats.approved, 'approved', '#34d399');
+        if (stats.running > 0) html += snapBadge(stats.running, 'running', '#3b82f6');
+        if (stats.success > 0) html += snapBadge(stats.success, 'success', '#34d399');
+        if (stats.failed > 0) html += snapBadge(stats.failed, 'failed', '#ef4444');
+        if (stats.dryRun > 0) html += snapBadge(stats.dryRun, 'dry run', '#a855f7');
+        html += '</div>';
+
+        // Show latest 3 pending actions
+        var pending = AgentEngine.getActionsByStatus('pending');
+        if (pending.length > 0) {
+          html += '<div style="font-size:0.6rem; opacity:0.4; margin-bottom:0.3rem;">Awaiting approval:</div>';
+          pending.slice(0, 3).forEach(function (a) {
+            html += '<div style="font-size:0.65rem; padding:0.2rem 0; opacity:0.7;">• ' + escapeHtml(a.action_type) + ' <span style="opacity:0.5;">(' + a.origin_agent + ')</span></div>';
+          });
+          if (pending.length > 3) html += '<div style="font-size:0.55rem; opacity:0.3;">+' + (pending.length - 3) + ' more</div>';
+        }
+        el.innerHTML = html;
+      }
+      function snapBadge(count, label, color) {
+        return '<span style="font-size:0.55rem; padding:0.15rem 0.5rem; border-radius:3px; background:rgba(' +
+          (color === '#FFA500' ? '255,165,0' : color === '#34d399' ? '52,211,153' : color === '#3b82f6' ? '59,130,246' : color === '#ef4444' ? '239,68,68' : '168,85,247') +
+          ',0.1); color:' + color + '; font-weight:500;">' + count + ' ' + label + '</span>';
       }
 
       // ── Helpers ──

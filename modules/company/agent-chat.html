@@ -29,6 +29,7 @@
         <li><a href="/modules/company/directives.html">Directives</a></li>
         <li><a href="/modules/company/objectives.html">Objectives</a></li>
         <li><a href="/modules/company/documents.html">Docs</a></li>
+        <li><a href="/modules/company/actions.html">Actions</a></li>
         <li><a href="/modules/company/workspace.html">Workspace</a></li>
         <li><a href="/" style="opacity:0.4;"><i class="fas fa-globe"></i></a></li>
       </ul>
@@ -275,9 +276,57 @@
           return true;
         }
 
+        if (cmd === '/action' && parts[1] === 'create') {
+          var actionMatch = text.match(/\/action\s+create\s+(\S+)\s*(.*)?/i);
+          if (actionMatch) {
+            var actionType = actionMatch[1];
+            var payloadStr = (actionMatch[2] || '').trim();
+            var payload = {};
+            if (payloadStr) { try { payload = JSON.parse(payloadStr); } catch (e) { payload = { content: payloadStr }; } }
+            var action = AgentEngine.createAction({ action_type: actionType, action_payload: payload, origin_agent: 'pixelpusher' });
+            if (action) {
+              addMessage('user', text);
+              addMessage('agent', 'Action created: **' + actionType + '** (ID: ' + action.id + ', Status: ' + action.execution_status + '). View in [Actions](/modules/company/actions.html).');
+            } else {
+              addMessage('user', text);
+              addMessage('agent', 'Failed to create action. Check action type is valid.');
+            }
+          } else {
+            addMessage('user', text);
+            addMessage('agent', 'Usage: `/action create social_post.publish {"content":"Hello world"}`');
+          }
+          return true;
+        }
+
+        if (cmd === '/approve' && parts[1]) {
+          var targetId = parts[1];
+          var approved = AgentEngine.approveAction(targetId);
+          if (approved) {
+            addMessage('user', text);
+            addMessage('agent', 'Action **' + targetId + '** approved (' + approved.action_type + '). Ready for execution.');
+          } else {
+            addMessage('user', text);
+            addMessage('agent', 'Approve failed — action "' + targetId + '" not found or not pending.');
+          }
+          return true;
+        }
+
+        if (cmd === '/reject' && parts[1]) {
+          var rejectId = parts[1];
+          var rejected = AgentEngine.rejectAction(rejectId);
+          if (rejected) {
+            addMessage('user', text);
+            addMessage('agent', 'Action **' + rejectId + '** rejected (' + rejected.action_type + ').');
+          } else {
+            addMessage('user', text);
+            addMessage('agent', 'Reject failed — action "' + rejectId + '" not found or not pending.');
+          }
+          return true;
+        }
+
         if (cmd === '/help') {
           addMessage('user', text);
-          addMessage('agent', '**CEO Commands:**\n`/override [task_id]` — Force approve and unlock a task\n`/directive create "Title"` — Create a new strategic directive\n`/objective create "Title" Q1 2026` — Create a quarterly objective\n`/help` — Show this help');
+          addMessage('agent', '**CEO Commands:**\n`/override [task_id]` — Force approve and unlock a task\n`/directive create "Title"` — Create a new strategic directive\n`/objective create "Title" Q1 2026` — Create a quarterly objective\n`/action create [type] {payload}` — Create an action request\n`/approve [action_id]` — Approve a pending action\n`/reject [action_id]` — Reject a pending action\n`/help` — Show this help');
           return true;
         }
 

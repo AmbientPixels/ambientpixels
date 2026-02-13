@@ -19,7 +19,49 @@ var CompanySchemas = (function () {
   var DIRECTIVE_STATUSES = ['active', 'completed', 'paused'];
   var OBJECTIVE_STATUSES = ['on_track', 'at_risk', 'behind', 'complete'];
   var QUARTERS = ['Q1', 'Q2', 'Q3', 'Q4'];
-  var LOG_TYPES = ['heartbeat', 'standup', 'task-created', 'task-updated', 'task-moved', 'chat', 'cron', 'error', 'morning-report', 'agent-action', 'ceo-approval', 'ceo-reject', 'ceo-override', 'ceo-revision', 'escalation', 'directive-created', 'objective-created'];
+  var LOG_TYPES = ['heartbeat', 'standup', 'task-created', 'task-updated', 'task-moved', 'chat', 'cron', 'error', 'morning-report', 'agent-action', 'ceo-approval', 'ceo-reject', 'ceo-override', 'ceo-revision', 'escalation', 'directive-created', 'objective-created', 'action-created', 'action-approved', 'action-rejected', 'action-running', 'action-success', 'action-failed'];
+
+  // ── Action Layer v1 ──
+  var ACTION_CATEGORIES = {
+    social: ['social_post.draft', 'social_post.schedule', 'social_post.publish', 'social_post.reply'],
+    email: ['email.search', 'email.summarize_thread', 'email.draft', 'email.send'],
+    git: ['git.create_branch', 'git.commit', 'git.open_pr'],
+    azure: ['azure.deploy'],
+    content: ['generate_asset', 'publish_gallery']
+  };
+  var ALL_ACTION_TYPES = [];
+  Object.keys(ACTION_CATEGORIES).forEach(function (cat) {
+    ACTION_CATEGORIES[cat].forEach(function (t) { ALL_ACTION_TYPES.push(t); });
+  });
+
+  var ACTION_EXECUTION_STATUSES = ['pending', 'approved', 'running', 'success', 'failed', 'rejected', 'dry_run'];
+
+  // Actions that always require CEO approval
+  var ACTIONS_REQUIRE_APPROVAL = [
+    'social_post.publish', 'social_post.reply',
+    'email.send',
+    'git.open_pr',
+    'azure.deploy',
+    'publish_gallery'
+  ];
+
+  // Actions that are irreversible once executed
+  var ACTIONS_IRREVERSIBLE = [
+    'social_post.publish', 'social_post.reply',
+    'email.send',
+    'git.commit', 'git.open_pr',
+    'azure.deploy',
+    'publish_gallery'
+  ];
+
+  // Default rate limits per integration category (per 24h)
+  var ACTION_RATE_LIMITS = {
+    social: 10,
+    email: 20,
+    git: 15,
+    azure: 5,
+    content: 10
+  };
 
   // ── Task ──
   function validateTask(t) {
@@ -126,6 +168,66 @@ var CompanySchemas = (function () {
     };
   }
 
+  // ── Action Request ──
+  function validateActionRequest(a) {
+    if (!a || typeof a !== 'object') return { valid: false, error: 'ActionRequest must be an object' };
+    if (!isString(a.id)) return { valid: false, error: 'ActionRequest.id required' };
+    if (!isString(a.action_type) || ALL_ACTION_TYPES.indexOf(a.action_type) === -1) return { valid: false, error: 'ActionRequest.action_type invalid: ' + a.action_type };
+    if (!isOneOf(a.execution_status, ACTION_EXECUTION_STATUSES)) return { valid: false, error: 'ActionRequest.execution_status invalid' };
+    return { valid: true };
+  }
+
+  function createActionRequest(data) {
+    var actionType = (data && data.action_type) || '';
+    var category = getActionCategory(actionType);
+    var requiresApproval = ACTIONS_REQUIRE_APPROVAL.indexOf(actionType) !== -1;
+    return {
+      id: 'act-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+      type: 'action',
+      action_type: actionType,
+      action_category: category,
+      action_payload: (data && data.action_payload) || {},
+      origin_agent: (data && data.origin_agent) || 'nova',
+      origin_task_id: (data && data.origin_task_id) || null,
+      execution_status: requiresApproval ? 'pending' : 'approved',
+      requires_approval: requiresApproval,
+      is_irreversible: ACTIONS_IRREVERSIBLE.indexOf(actionType) !== -1,
+      dry_run: (data && data.dry_run === true) || false,
+      execution_receipt: null,
+      created_at: new Date().toISOString(),
+      approved_at: null,
+      executed_at: null,
+      resolved_at: null,
+      error: null,
+      bundle_id: (data && data.bundle_id) || null
+    };
+  }
+
+  function getActionCategory(actionType) {
+    var cats = Object.keys(ACTION_CATEGORIES);
+    for (var i = 0; i < cats.length; i++) {
+      if (ACTION_CATEGORIES[cats[i]].indexOf(actionType) !== -1) return cats[i];
+    }
+    return 'unknown';
+  }
+
+  function createExecutionReceipt(data) {
+    return {
+      id: 'rcpt-' + Date.now(),
+      action_id: (data && data.action_id) || '',
+      platform: (data && data.platform) || '',
+      account: (data && data.account) || '',
+      result_url: (data && data.result_url) || null,
+      timestamp: new Date().toISOString(),
+      media_ids: (data && data.media_ids) || [],
+      thread_id: (data && data.thread_id) || null,
+      recipients: (data && data.recipients) || [],
+      subject: (data && data.subject) || null,
+      copy_hash: (data && data.copy_hash) || null,
+      extra: (data && data.extra) || {}
+    };
+  }
+
   // ── Decision Classification ──
   function classifyTask(task) {
     if (task.classification) return task.classification;
@@ -143,7 +245,9 @@ var CompanySchemas = (function () {
     maxNewTasksPerCycle: 5,
     maxExecutesPerCyclePerAgent: 1,
     dedupeWindowMs: 300000, // 5 minutes
-    cfoThreshold: 100 // budget_impact above this requires CEO approval
+    cfoThreshold: 100, // budget_impact above this requires CEO approval
+    actionDryRunDefault: true, // all actions default to dry-run until toggled off
+    actionRateLimits: ACTION_RATE_LIMITS
   };
 
   function getGuardrails(overrides) {
@@ -174,6 +278,17 @@ var CompanySchemas = (function () {
     validateObjective: validateObjective,
     createObjective: createObjective,
     classifyTask: classifyTask,
+    // Action Layer
+    ACTION_CATEGORIES: ACTION_CATEGORIES,
+    ALL_ACTION_TYPES: ALL_ACTION_TYPES,
+    ACTION_EXECUTION_STATUSES: ACTION_EXECUTION_STATUSES,
+    ACTIONS_REQUIRE_APPROVAL: ACTIONS_REQUIRE_APPROVAL,
+    ACTIONS_IRREVERSIBLE: ACTIONS_IRREVERSIBLE,
+    ACTION_RATE_LIMITS: ACTION_RATE_LIMITS,
+    validateActionRequest: validateActionRequest,
+    createActionRequest: createActionRequest,
+    getActionCategory: getActionCategory,
+    createExecutionReceipt: createExecutionReceipt,
     GUARDRAIL_DEFAULTS: GUARDRAIL_DEFAULTS,
     getGuardrails: getGuardrails
   };

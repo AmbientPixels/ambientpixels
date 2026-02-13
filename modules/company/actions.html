@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Action Command Center — approve, execute, and audit all external and internal actions." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Actions — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <style>
+    .act-stats { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+    .act-stat {
+      flex: 1; min-width: 100px;
+      padding: 0.7rem 0.8rem;
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.02);
+      text-align: center;
+    }
+    .act-stat-val { font-size: 1.3rem; font-weight: 600; }
+    .act-stat-label { font-size: 0.55rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.15rem; }
+
+    .act-panel {
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.015);
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+    .act-panel-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.65rem 0.9rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 0.78rem; font-weight: 500;
+    }
+    .act-panel-head i { opacity: 0.4; margin-right: 0.4rem; }
+    .act-panel-body { padding: 0.6rem 0.8rem; }
+    .act-panel-body:empty::after {
+      content: 'None';
+      display: block; text-align: center;
+      font-size: 0.7rem; opacity: 0.25; padding: 1rem;
+    }
+
+    .act-row {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      font-size: 0.72rem;
+    }
+    .act-row:last-child { border-bottom: none; }
+    .act-row-icon {
+      width: 28px; height: 28px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; flex-shrink: 0;
+    }
+    .act-row-info { flex: 1; min-width: 0; }
+    .act-row-title { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .act-row-meta { font-size: 0.6rem; opacity: 0.4; margin-top: 0.1rem; }
+    .act-row-actions { display: flex; gap: 0.3rem; flex-shrink: 0; }
+
+    .act-badge {
+      font-size: 0.5rem; padding: 0.12rem 0.4rem; border-radius: 3px;
+      font-weight: 500; text-transform: uppercase; letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+    .act-badge--pending { background: rgba(255,165,0,0.12); color: #FFA500; }
+    .act-badge--approved { background: rgba(52,211,153,0.12); color: #34d399; }
+    .act-badge--running { background: rgba(59,130,246,0.12); color: #3b82f6; }
+    .act-badge--success { background: rgba(52,211,153,0.12); color: #34d399; }
+    .act-badge--failed { background: rgba(239,68,68,0.12); color: #ef4444; }
+    .act-badge--rejected { background: rgba(239,68,68,0.12); color: #ef4444; }
+    .act-badge--dry_run { background: rgba(168,85,247,0.12); color: #a855f7; }
+    .act-badge--irreversible { background: rgba(239,68,68,0.08); color: #ef4444; }
+    .act-badge--external { background: rgba(255,165,0,0.08); color: #FFA500; }
+
+    .act-btn {
+      font-size: 0.55rem; padding: 0.2rem 0.5rem; border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.7); cursor: pointer; font-weight: 500;
+      transition: all 0.15s;
+    }
+    .act-btn:hover { background: rgba(255,255,255,0.08); }
+    .act-btn--approve { border-color: rgba(52,211,153,0.3); color: #34d399; }
+    .act-btn--approve:hover { background: rgba(52,211,153,0.1); }
+    .act-btn--reject { border-color: rgba(239,68,68,0.3); color: #ef4444; }
+    .act-btn--reject:hover { background: rgba(239,68,68,0.1); }
+    .act-btn--bundle { border-color: rgba(138,43,226,0.3); color: #8A2BE2; }
+    .act-btn--bundle:hover { background: rgba(138,43,226,0.1); }
+
+    .act-rate-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.5rem; }
+    .act-rate-card {
+      padding: 0.5rem 0.6rem; border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.02);
+    }
+    .act-rate-cat { font-size: 0.65rem; font-weight: 500; text-transform: capitalize; margin-bottom: 0.3rem; }
+    .act-rate-bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.06); overflow: hidden; margin-bottom: 0.2rem; }
+    .act-rate-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+    .act-rate-text { font-size: 0.55rem; opacity: 0.4; }
+
+    .act-audit-row {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.35rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.02);
+      font-size: 0.65rem;
+    }
+    .act-audit-row:last-child { border-bottom: none; }
+    .act-audit-time { font-size: 0.55rem; opacity: 0.3; flex-shrink: 0; width: 55px; }
+    .act-audit-type { font-weight: 500; flex-shrink: 0; }
+    .act-audit-detail { opacity: 0.5; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .act-dry-toggle {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.7rem; opacity: 0.6;
+    }
+    .act-dry-toggle input { accent-color: #a855f7; }
+
+    .act-receipt {
+      font-size: 0.6rem; opacity: 0.5; margin-top: 0.3rem;
+      padding: 0.3rem 0.5rem; background: rgba(255,255,255,0.02);
+      border-radius: 4px; word-break: break-all;
+    }
+  </style>
+</head>
+<body style="background:#071019" data-theme="dark">
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/modules/company/" class="nav-logo"><i class="fas fa-building"></i> AmbientPixels HQ</a>
+      <ul class="nav-links">
+        <li><a href="/modules/company/">HQ</a></li>
+        <li><a href="/modules/company/standup.html">Standup</a></li>
+        <li><a href="/modules/company/tasks.html">Tasks</a></li>
+        <li><a href="/modules/company/dashboard.html">Dashboard</a></li>
+        <li><a href="/modules/company/directives.html">Directives</a></li>
+        <li><a href="/modules/company/objectives.html">Objectives</a></li>
+        <li><a href="/modules/company/documents.html">Docs</a></li>
+        <li><a href="/modules/company/actions.html" class="active">Actions</a></li>
+        <li><a href="/modules/company/workspace.html">Workspace</a></li>
+        <li><a href="/" style="opacity:0.4;"><i class="fas fa-globe"></i></a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="content-section" style="max-width: 960px; margin: 0 auto; padding: 1rem;">
+
+    <div class="company-header">
+      <h1><i class="fas fa-bolt" style="opacity:0.4; margin-right:8px; color:#FFA500;"></i>Action Command Center</h1>
+      <p>Controlled execution layer — every external and internal action routes through approval, audit, and receipt.</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="act-stats" id="action-stats"></div>
+
+    <!-- Dry-Run Toggle -->
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+      <label class="act-dry-toggle">
+        <input type="checkbox" id="dry-run-toggle" checked />
+        Dry-Run Mode <span style="font-size:0.55rem; opacity:0.4;">(actions simulate only, no real execution)</span>
+      </label>
+      <button class="act-btn" onclick="createTestAction()" style="font-size:0.6rem; padding:0.3rem 0.8rem;">
+        <i class="fas fa-plus" style="margin-right:0.3rem;"></i>Test Action
+      </button>
+    </div>
+
+    <!-- Pending Approvals -->
+    <div class="act-panel">
+      <div class="act-panel-head">
+        <span><i class="fas fa-clock"></i> Pending Action Approvals</span>
+        <span id="pending-count" style="font-size:0.6rem; opacity:0.4;"></span>
+      </div>
+      <div class="act-panel-body" id="pending-list"></div>
+    </div>
+
+    <!-- Scheduled / Approved (ready to execute) -->
+    <div class="act-panel">
+      <div class="act-panel-head">
+        <span><i class="fas fa-calendar-check"></i> Approved / Scheduled</span>
+        <span id="scheduled-count" style="font-size:0.6rem; opacity:0.4;"></span>
+      </div>
+      <div class="act-panel-body" id="scheduled-list"></div>
+    </div>
+
+    <!-- Execution Log (success + dry_run) -->
+    <div class="act-panel">
+      <div class="act-panel-head">
+        <span><i class="fas fa-check-circle"></i> Execution Log</span>
+        <span id="exec-count" style="font-size:0.6rem; opacity:0.4;"></span>
+      </div>
+      <div class="act-panel-body" id="exec-list"></div>
+    </div>
+
+    <!-- Failures -->
+    <div class="act-panel">
+      <div class="act-panel-head">
+        <span><i class="fas fa-exclamation-triangle"></i> Failures</span>
+        <span id="fail-count" style="font-size:0.6rem; opacity:0.4;"></span>
+      </div>
+      <div class="act-panel-body" id="fail-list"></div>
+    </div>
+
+    <!-- Rate Limits -->
+    <div class="act-panel">
+      <div class="act-panel-head">
+        <span><i class="fas fa-tachometer-alt"></i> Integration Status &amp; Rate Limits</span>
+      </div>
+      <div class="act-panel-body">
+        <div class="act-rate-grid" id="rate-grid"></div>
+      </div>
+    </div>
+
+    <!-- Audit Log -->
+    <div class="act-panel">
+      <div class="act-panel-head">
+        <span><i class="fas fa-list-alt"></i> Action Audit Log</span>
+        <span id="audit-count" style="font-size:0.6rem; opacity:0.4;"></span>
+      </div>
+      <div class="act-panel-body" id="audit-list" style="max-height: 300px; overflow-y: auto;"></div>
+    </div>
+
+  </main>
+
+  <script src="/js/company-schemas.js"></script>
+  <script src="/js/company-store.js"></script>
+  <script src="/js/agent-engine.js"></script>
+  <script>
+    var AE = AgentEngine;
+
+    // ── Init ──
+    document.addEventListener('DOMContentLoaded', function () {
+      AE.loadRegistry('/data/company-agents.json');
+      if (typeof CompanyStore !== 'undefined') {
+        CompanyStore.init().then(function () {
+          return CompanyStore.syncFromServer();
+        }).then(function () {
+          renderAll();
+        });
+      }
+      document.addEventListener('sync-complete', renderAll);
+      renderAll();
+    });
+
+    function renderAll() {
+      renderStats();
+      renderPending();
+      renderScheduled();
+      renderExecLog();
+      renderFailures();
+      renderRateLimits();
+      renderAuditLog();
+    }
+
+    // ── Stats ──
+    function renderStats() {
+      var s = AE.getActionStats();
+      var el = document.getElementById('action-stats');
+      el.innerHTML =
+        statCard(s.total, 'Total', '#fff') +
+        statCard(s.pending, 'Pending', '#FFA500') +
+        statCard(s.approved, 'Approved', '#34d399') +
+        statCard(s.running, 'Running', '#3b82f6') +
+        statCard(s.success, 'Success', '#34d399') +
+        statCard(s.failed, 'Failed', '#ef4444') +
+        statCard(s.rejected, 'Rejected', '#ef4444') +
+        statCard(s.dryRun, 'Dry Run', '#a855f7');
+    }
+    function statCard(val, label, color) {
+      return '<div class="act-stat"><div class="act-stat-val" style="color:' + color + '">' + val + '</div><div class="act-stat-label">' + label + '</div></div>';
+    }
+
+    // ── Pending ──
+    function renderPending() {
+      var pending = AE.getActionsByStatus('pending');
+      var el = document.getElementById('pending-list');
+      document.getElementById('pending-count').textContent = pending.length + ' pending';
+      if (pending.length === 0) { el.innerHTML = ''; return; }
+
+      // Group by bundle
+      var bundles = {};
+      var unbundled = [];
+      pending.forEach(function (a) {
+        if (a.bundle_id) {
+          if (!bundles[a.bundle_id]) bundles[a.bundle_id] = [];
+          bundles[a.bundle_id].push(a);
+        } else {
+          unbundled.push(a);
+        }
+      });
+
+      var html = '';
+      // Bundle groups
+      Object.keys(bundles).forEach(function (bid) {
+        html += '<div style="margin-bottom:0.5rem;padding:0.4rem;border:1px dashed rgba(138,43,226,0.2);border-radius:6px;">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">';
+        html += '<span style="font-size:0.65rem;font-weight:500;color:#8A2BE2;"><i class="fas fa-layer-group"></i> Bundle: ' + esc(bid) + ' (' + bundles[bid].length + ')</span>';
+        html += '<button class="act-btn act-btn--bundle" onclick="doApproveBundle(\'' + esc(bid) + '\')">Approve Bundle</button>';
+        html += '</div>';
+        bundles[bid].forEach(function (a) { html += actionRow(a, true); });
+        html += '</div>';
+      });
+      // Unbundled
+      unbundled.forEach(function (a) { html += actionRow(a, true); });
+      el.innerHTML = html;
+    }
+
+    // ── Scheduled ──
+    function renderScheduled() {
+      var approved = AE.getActionsByStatus('approved');
+      var running = AE.getActionsByStatus('running');
+      var items = approved.concat(running);
+      var el = document.getElementById('scheduled-list');
+      document.getElementById('scheduled-count').textContent = items.length + ' ready';
+      if (items.length === 0) { el.innerHTML = ''; return; }
+      el.innerHTML = items.map(function (a) { return actionRow(a, false); }).join('');
+    }
+
+    // ── Exec Log ──
+    function renderExecLog() {
+      var success = AE.getActionsByStatus('success');
+      var dryRun = AE.getActionsByStatus('dry_run');
+      var items = success.concat(dryRun).sort(function (a, b) {
+        return new Date(b.resolved_at || b.created_at) - new Date(a.resolved_at || a.created_at);
+      }).slice(0, 50);
+      var el = document.getElementById('exec-list');
+      document.getElementById('exec-count').textContent = (success.length + dryRun.length) + ' executed';
+      if (items.length === 0) { el.innerHTML = ''; return; }
+      el.innerHTML = items.map(function (a) {
+        var row = actionRow(a, false);
+        if (a.execution_receipt) {
+          var r = a.execution_receipt;
+          var parts = [];
+          if (r.platform) parts.push(r.platform);
+          if (r.result_url) parts.push('<a href="' + esc(r.result_url) + '" target="_blank" style="color:#3b82f6;">' + esc(r.result_url) + '</a>');
+          if (r.recipients && r.recipients.length) parts.push('To: ' + r.recipients.join(', '));
+          if (r.subject) parts.push('Subj: ' + esc(r.subject));
+          if (parts.length) row += '<div class="act-receipt">' + parts.join(' · ') + '</div>';
+        }
+        return row;
+      }).join('');
+    }
+
+    // ── Failures ──
+    function renderFailures() {
+      var failed = AE.getActionsByStatus('failed');
+      var rejected = AE.getActionsByStatus('rejected');
+      var items = failed.concat(rejected).sort(function (a, b) {
+        return new Date(b.resolved_at || b.created_at) - new Date(a.resolved_at || a.created_at);
+      }).slice(0, 30);
+      var el = document.getElementById('fail-list');
+      document.getElementById('fail-count').textContent = items.length + ' issues';
+      if (items.length === 0) { el.innerHTML = ''; return; }
+      el.innerHTML = items.map(function (a) {
+        var row = actionRow(a, false);
+        if (a.error) row += '<div class="act-receipt" style="color:#ef4444;opacity:0.7;">' + esc(a.error) + '</div>';
+        return row;
+      }).join('');
+    }
+
+    // ── Rate Limits ──
+    function renderRateLimits() {
+      var status = AE.getRateLimitStatus();
+      var el = document.getElementById('rate-grid');
+      var icons = { social: 'fa-share-alt', email: 'fa-envelope', git: 'fa-code-branch', azure: 'fa-cloud', content: 'fa-paint-brush' };
+      var colors = { social: '#3b82f6', email: '#FFA500', git: '#34d399', azure: '#60a5fa', content: '#a855f7' };
+      var html = '';
+      Object.keys(status).forEach(function (cat) {
+        var s = status[cat];
+        var pct = s.limit > 0 ? Math.round((s.current / s.limit) * 100) : 0;
+        var barColor = pct > 80 ? '#ef4444' : pct > 50 ? '#FFA500' : colors[cat] || '#34d399';
+        html += '<div class="act-rate-card">';
+        html += '<div class="act-rate-cat"><i class="fas ' + (icons[cat] || 'fa-cog') + '" style="margin-right:0.3rem;color:' + (colors[cat] || '#888') + ';"></i>' + cat + '</div>';
+        html += '<div class="act-rate-bar"><div class="act-rate-fill" style="width:' + pct + '%;background:' + barColor + ';"></div></div>';
+        html += '<div class="act-rate-text">' + s.current + ' / ' + s.limit + ' today</div>';
+        html += '</div>';
+      });
+      el.innerHTML = html;
+    }
+
+    // ── Audit Log ──
+    function renderAuditLog() {
+      var log = AE.getActionAuditLog().slice(-50).reverse();
+      var el = document.getElementById('audit-list');
+      document.getElementById('audit-count').textContent = log.length + ' entries';
+      if (log.length === 0) { el.innerHTML = ''; return; }
+      el.innerHTML = log.map(function (entry) {
+        var d = entry.data || {};
+        var detail = d.type || d.actionId || '';
+        if (d.error) detail += ' — ' + d.error;
+        if (d.dryRun) detail += ' [dry-run]';
+        if (d.bundle) detail += ' bundle:' + d.bundle;
+        var time = new Date(entry.timestamp);
+        var timeStr = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        var typeColor = getAuditColor(entry.type);
+        return '<div class="act-audit-row">' +
+          '<span class="act-audit-time">' + timeStr + '</span>' +
+          '<span class="act-audit-type" style="color:' + typeColor + ';">' + esc(entry.type) + '</span>' +
+          '<span class="act-audit-detail">' + esc(detail) + '</span>' +
+          '</div>';
+      }).join('');
+    }
+
+    function getAuditColor(type) {
+      if (type.includes('approved')) return '#34d399';
+      if (type.includes('rejected') || type.includes('failed')) return '#ef4444';
+      if (type.includes('running')) return '#3b82f6';
+      if (type.includes('success')) return '#34d399';
+      if (type.includes('created')) return '#FFA500';
+      return 'rgba(255,255,255,0.5)';
+    }
+
+    // ── Shared row renderer ──
+    function actionRow(a, showApproveReject) {
+      var catIcons = { social: 'fa-share-alt', email: 'fa-envelope', git: 'fa-code-branch', azure: 'fa-cloud', content: 'fa-paint-brush' };
+      var catColors = { social: 'rgba(59,130,246,0.12)', email: 'rgba(255,165,0,0.12)', git: 'rgba(52,211,153,0.12)', azure: 'rgba(96,165,250,0.12)', content: 'rgba(168,85,247,0.12)' };
+      var catTextColors = { social: '#3b82f6', email: '#FFA500', git: '#34d399', azure: '#60a5fa', content: '#a855f7' };
+      var icon = catIcons[a.action_category] || 'fa-cog';
+      var bg = catColors[a.action_category] || 'rgba(255,255,255,0.04)';
+      var tc = catTextColors[a.action_category] || '#888';
+
+      var html = '<div class="act-row">';
+      html += '<div class="act-row-icon" style="background:' + bg + ';color:' + tc + ';"><i class="fas ' + icon + '"></i></div>';
+      html += '<div class="act-row-info">';
+      html += '<div class="act-row-title">' + esc(a.action_type);
+      if (a.is_irreversible) html += ' <span class="act-badge act-badge--irreversible">irreversible</span>';
+      if (a.dry_run) html += ' <span class="act-badge act-badge--dry_run">dry-run</span>';
+      html += '</div>';
+      var payload = a.action_payload || {};
+      var preview = payload.content || payload.subject || payload.branch || payload.message || '';
+      if (preview.length > 80) preview = preview.substring(0, 80) + '…';
+      html += '<div class="act-row-meta">' + esc(a.origin_agent) + ' · ' + timeAgo(a.created_at);
+      if (preview) html += ' · ' + esc(preview);
+      html += '</div>';
+      html += '</div>';
+      html += '<span class="act-badge act-badge--' + a.execution_status + '">' + a.execution_status.replace('_', ' ') + '</span>';
+
+      if (showApproveReject && a.execution_status === 'pending') {
+        html += '<div class="act-row-actions">';
+        html += '<button class="act-btn act-btn--approve" onclick="doApprove(\'' + a.id + '\')">Approve</button>';
+        html += '<button class="act-btn act-btn--reject" onclick="doReject(\'' + a.id + '\')">Reject</button>';
+        html += '</div>';
+      }
+      html += '</div>';
+      return html;
+    }
+
+    // ── Actions ──
+    function doApprove(id) {
+      AE.approveAction(id);
+      renderAll();
+    }
+    function doReject(id) {
+      AE.rejectAction(id);
+      renderAll();
+    }
+    function doApproveBundle(bid) {
+      AE.approveBundle(bid);
+      renderAll();
+    }
+
+    // ── Test Action Creator ──
+    function createTestAction() {
+      var types = CompanySchemas.ALL_ACTION_TYPES;
+      var agents = ['nova', 'cipher', 'pixel', 'forge', 'echo'];
+      var type = types[Math.floor(Math.random() * types.length)];
+      var agent = agents[Math.floor(Math.random() * agents.length)];
+      var dryRun = document.getElementById('dry-run-toggle').checked;
+
+      var payloads = {
+        'social_post.draft': { content: 'Draft: Exciting update on our AI agent runtime!', platform: 'twitter' },
+        'social_post.publish': { content: 'We just shipped v2.0 of the AmbientPixels AI runtime.', platform: 'twitter', account: '@ambientpixels' },
+        'social_post.schedule': { content: 'Coming soon: Action Layer v1', platform: 'twitter', scheduled_for: '2026-02-14T09:00:00Z' },
+        'social_post.reply': { content: 'Thanks for the feedback!', platform: 'twitter', reply_to: 'tweet-123' },
+        'email.search': { query: 'partnership proposal', mailbox: 'inbox' },
+        'email.summarize_thread': { thread_id: 'thread-456', subject: 'Re: Q1 Partnership' },
+        'email.draft': { to: 'partner@example.com', subject: 'Follow-up on Q1 goals', body: 'Hi, following up on our discussion...' },
+        'email.send': { to: 'partner@example.com', subject: 'Partnership Proposal', body: 'Please find attached our proposal.' },
+        'git.create_branch': { branch: 'feature/action-layer-v1', base: 'main' },
+        'git.commit': { branch: 'feature/action-layer-v1', message: 'Add action execution receipts' },
+        'git.open_pr': { branch: 'feature/action-layer-v1', title: 'Action Layer v1', description: 'Implements controlled execution system' },
+        'azure.deploy': { app: 'ambientpixels-nova-api', slot: 'staging' },
+        'generate_asset': { type: 'card-art', prompt: 'Cyberpunk city skyline at night', format: 'png' },
+        'publish_gallery': { gallery: 'card-gallery', items: 5 }
+      };
+
+      AE.createAction({
+        action_type: type,
+        action_payload: payloads[type] || { test: true },
+        origin_agent: agent,
+        dry_run: dryRun
+      });
+      renderAll();
+    }
+
+    // ── Helpers ──
+    function esc(s) {
+      if (!s) return '';
+      var d = document.createElement('div');
+      d.textContent = String(s);
+      return d.innerHTML;
+    }
+    function timeAgo(iso) {
+      if (!iso) return '';
+      var diff = Date.now() - new Date(iso).getTime();
+      if (diff < 60000) return 'just now';
+      if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+      if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+      return Math.floor(diff / 86400000) + 'd ago';
+    }
+  </script>
+
+</body>
+</html>
