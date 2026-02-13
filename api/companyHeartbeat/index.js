@@ -95,7 +95,7 @@ module.exports = async function (context) {
               context.log('[Heartbeat] Max new tasks reached, skipping create');
               continue;
             }
-            applyTaskUpdate(tasks, update);
+            applyTaskUpdate(tasks, update, _pendingEscalations);
             if (update.action === 'create') newTasksCreated++;
           }
         }
@@ -406,12 +406,13 @@ Respond with ONLY valid JSON in this exact format:
   "observation": "One sentence about what you notice or your current state",
   "actions": [
     {
-      "type": "create-task|update-task|move-task|execute-task|review-task",
+      "type": "create-task|update-task|move-task|execute-task|review-task|create-social-action",
       "summary": "Brief description of what you're doing",
       "task": { "title": "", "description": "", "priority": "low|medium|high|critical", "assignee": "agentId" },
       "taskId": "existing-task-id",
       "updates": { "description": "..." },
-      "newStatus": "todo|in-progress|review|done"
+      "newStatus": "todo|in-progress|review|done",
+      "social": { "text": "Post content", "platform": "x|linkedin|bluesky", "media": ["https://..."], "schedule_for": "2026-02-14T09:00:00Z" }
     }
   ]
 }
@@ -437,7 +438,7 @@ Rules:
 }
 
 // ── Apply task mutation ──
-function applyTaskUpdate(tasks, update) {
+function applyTaskUpdate(tasks, update, _pendingEscalations) {
   if (update.action === 'create') {
     const riskLevel = update.task.risk_level || 'low';
     const budgetImpact = update.task.budget_impact || 0;
