@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="/css/nova-mood.css" /> <!-- Component auras -->
   <link rel="stylesheet" href="/css/nova-mood-background.css" /> <!-- Background auras -->
   <link rel="stylesheet" href="/css/nova-chat.css" /> <!-- Nova Chat UI -->
+  <link rel="stylesheet" href="/css/nova-logs.css" /> <!-- Dream engine styles -->
 </head>
 <body data-theme="dark">
   <header id="nav-header"></header>
@@ -87,6 +88,15 @@
       </div>
     </section>
 
+    <!-- Nova's Dream Log -->
+    <section class="grid-col-12 content-section">
+      <h2><i class="fas fa-moon"></i> Nova's Dream Log</h2>
+      <p style="font-size:0.8rem;opacity:0.5;margin:0 0 0.75rem 0;">Fragments from Nova's subconscious — surreal, poetic, AI-generated dream cycles.</p>
+      <ul id="nova-dream-log" class="nova-dream-feed">
+        <li>Entering dream state...</li>
+      </ul>
+    </section>
+
     <!-- Nova Core Sections -->
     <!-- Nova's Neural Hub Card Section - Added by Cascade 2025-07-16 -->
     <section class="grid-col-12 card-section">
@@ -148,10 +158,10 @@
 
   <footer id="footer-container"></footer>
   <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/dreamEngine.js" defer></script>
   <script src="/js/main.js" defer></script>
   <script src="/js/nav.js" defer></script>
   <script src="/js/nova-soul.js" defer></script>
+  <script src="/js/dreamEngine.js" defer></script>
   <script src="/js/nova-ai.js" defer></script>
   <script src="/js/nova-awareness-feed.js" defer></script>
   <script src="/js/nova-dashboard.js" defer></script>
