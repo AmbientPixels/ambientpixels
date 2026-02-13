@@ -20,17 +20,15 @@
 </head>
 <body style="background:#071019" data-theme="dark">
 
-  <!-- Nav -->
   <nav class="navbar">
     <div class="nav-container">
-      <a href="/" class="nav-logo"><i class="fas fa-cube"></i> Ambient Pixels</a>
+      <a href="/modules/company/" class="nav-logo"><i class="fas fa-building"></i> AmbientPixels HQ</a>
       <ul class="nav-links">
-        <li><a href="/">Home</a></li>
-        <li><a href="/nova/">Nova</a></li>
-        <li><a href="/modules/company/" class="active">Company</a></li>
+        <li><a href="/modules/company/" class="active">HQ</a></li>
+        <li><a href="/modules/company/standup.html">Standup</a></li>
         <li><a href="/modules/company/dashboard.html">Dashboard</a></li>
         <li><a href="/modules/company/workspace.html">Workspace</a></li>
-        <li><a href="/projects/figma-fleet.html">Projects</a></li>
+        <li><a href="/" style="opacity:0.4;"><i class="fas fa-globe"></i> Main Site</a></li>
       </ul>
     </div>
   </nav>
@@ -59,21 +57,15 @@
     <!-- Agent Detail Panel (shown when clicking a card) -->
     <div class="agent-detail" id="agent-detail"></div>
 
-    <!-- Daily Standup -->
-    <div class="standup-section" id="standup-section">
-      <div class="standup-header">
-        <h3><i class="fas fa-users" style="margin-right:6px;"></i>Daily Standup</h3>
-        <button class="standup-trigger-btn" id="standup-trigger">
-          <i class="fas fa-play"></i> <span id="standup-trigger-label">Run Standup</span>
-        </button>
-      </div>
-      <div class="standup-feed" id="standup-feed">
-        <div class="standup-status" id="standup-status">No standup yet today. Hit the button to kick one off.</div>
-      </div>
-      <button class="standup-past-toggle" id="standup-past-toggle" style="display:none;">
-        <i class="fas fa-history"></i> View past standups
-      </button>
-      <div class="standup-past-log" id="standup-past-log"></div>
+    <!-- Standup Quick Link -->
+    <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.05);">
+      <a href="/modules/company/standup.html" style="display:flex; align-items:center; gap:0.8rem; padding:0.8rem 1rem; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:10px; text-decoration:none; color:inherit; transition:border-color 0.2s;" onmouseover="this.style.borderColor='rgba(138,43,226,0.2)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.05)'">
+        <i class="fas fa-users" style="font-size:1rem; opacity:0.4;"></i>
+        <div>
+          <div style="font-size:0.85rem; font-weight:500;">Daily Standup</div>
+          <div style="font-size:0.7rem; opacity:0.35;" id="standup-quick-status">Run today's standup →</div>
+        </div>
+      </a>
     </div>
 
     <!-- Company Activity Feed -->
@@ -241,169 +233,11 @@
         return days + 'd ago';
       }
 
-      // ── Daily Standup System ──
-      var standupFeed = document.getElementById('standup-feed');
-      var standupStatus = document.getElementById('standup-status');
-      var standupTrigger = document.getElementById('standup-trigger');
-      var standupTriggerLabel = document.getElementById('standup-trigger-label');
-      var standupPastToggle = document.getElementById('standup-past-toggle');
-      var standupPastLog = document.getElementById('standup-past-log');
-
-      // Check if standup already happened today
-      function initStandup() {
-        var latest = AgentEngine.getLatestStandup();
-        var log = AgentEngine.getStandupLog();
-
-        if (AgentEngine.hasStandupToday() && latest) {
-          renderStandupEntries(latest.entries);
-          standupTrigger.disabled = true;
-          standupTriggerLabel.textContent = 'Done for today';
-          standupTrigger.querySelector('i').className = 'fas fa-check';
-        }
-
-        // Show past toggle if there are older standups
-        if (log.length > (AgentEngine.hasStandupToday() ? 1 : 0)) {
-          standupPastToggle.style.display = '';
-        }
-
-        renderPastStandups(log);
+      // Update standup quick link status
+      var quickStatus = document.getElementById('standup-quick-status');
+      if (AgentEngine.hasStandupToday()) {
+        quickStatus.textContent = '✓ Completed today — view transcript →';
       }
-
-      // Trigger standup button
-      standupTrigger.addEventListener('click', function () {
-        if (AgentEngine.isStandupRunning()) return;
-
-        standupTrigger.disabled = true;
-        standupTriggerLabel.textContent = 'Running...';
-        standupTrigger.querySelector('i').className = 'fas fa-spinner fa-spin';
-        standupFeed.innerHTML = '';
-        standupStatus.style.display = 'none';
-
-        AgentEngine.runStandup();
-      });
-
-      // Live rendering: show each agent as they speak
-      AgentEngine.on('standup-agent-thinking', function (data) {
-        var agent = data.agent;
-        var el = document.createElement('div');
-        el.className = 'standup-entry standup-entry--thinking';
-        el.id = 'standup-thinking-' + data.agentId;
-        el.style.setProperty('--agent-color', agent.color);
-        el.innerHTML =
-          '<div class="standup-entry-avatar"><i class="' + agent.icon + '"></i></div>' +
-          '<div class="standup-entry-body">' +
-            '<div class="standup-entry-name">' + agent.name + '<span class="standup-entry-role">' + agent.role + '</span></div>' +
-            '<div class="standup-entry-text" style="font-style:italic;">' + agent.name + ' is thinking...</div>' +
-          '</div>';
-        standupFeed.appendChild(el);
-        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      });
-
-      AgentEngine.on('standup-agent-done', function (entry) {
-        // Remove thinking placeholder
-        var thinking = document.getElementById('standup-thinking-' + entry.agentId);
-        if (thinking) thinking.remove();
-
-        // Add real entry
-        var el = createStandupEntryEl(entry);
-        standupFeed.appendChild(el);
-        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      });
-
-      AgentEngine.on('standup-complete', function (standup) {
-        standupTrigger.disabled = true;
-        standupTriggerLabel.textContent = 'Done for today';
-        standupTrigger.querySelector('i').className = 'fas fa-check';
-
-        // Refresh past standups
-        var log = AgentEngine.getStandupLog();
-        if (log.length > 1) {
-          standupPastToggle.style.display = '';
-          renderPastStandups(log);
-        }
-      });
-
-      AgentEngine.on('standup-error', function (data) {
-        standupTrigger.disabled = false;
-        standupTriggerLabel.textContent = 'Retry Standup';
-        standupTrigger.querySelector('i').className = 'fas fa-redo';
-        standupFeed.innerHTML += '<div class="standup-status">Standup failed. Try again.</div>';
-      });
-
-      function createStandupEntryEl(entry) {
-        var el = document.createElement('div');
-        el.className = 'standup-entry';
-        el.style.setProperty('--agent-color', entry.color);
-
-        var textHtml = escapeHtml(entry.reply)
-          .replace(/\n/g, '<br>');
-
-        el.innerHTML =
-          '<div class="standup-entry-avatar"><i class="' + entry.icon + '"></i></div>' +
-          '<div class="standup-entry-body">' +
-            '<div class="standup-entry-name">' + entry.name + '<span class="standup-entry-role">' + entry.role + '</span></div>' +
-            '<div class="standup-entry-text">' + textHtml + '</div>' +
-          '</div>';
-        return el;
-      }
-
-      function renderStandupEntries(entries) {
-        standupFeed.innerHTML = '';
-        standupStatus.style.display = 'none';
-        entries.forEach(function (entry) {
-          standupFeed.appendChild(createStandupEntryEl(entry));
-        });
-      }
-
-      // Past standups
-      standupPastToggle.addEventListener('click', function () {
-        standupPastLog.classList.toggle('visible');
-        this.querySelector('i').className = standupPastLog.classList.contains('visible')
-          ? 'fas fa-chevron-up'
-          : 'fas fa-history';
-      });
-
-      function renderPastStandups(log) {
-        standupPastLog.innerHTML = '';
-        // Show all except the latest (which is displayed in the main feed)
-        var past = AgentEngine.hasStandupToday() ? log.slice(0, -1) : log;
-        past.reverse().forEach(function (standup) {
-          var item = document.createElement('div');
-          item.className = 'standup-past-item';
-
-          var dateStr = formatStandupDate(standup.date);
-          item.innerHTML = '<div class="standup-date-label"><i class="fas fa-calendar-day" style="margin-right:4px;"></i>' + dateStr + '</div>';
-
-          var feed = document.createElement('div');
-          feed.className = 'standup-feed';
-          standup.entries.forEach(function (entry) {
-            feed.appendChild(createStandupEntryEl(entry));
-          });
-          item.appendChild(feed);
-          standupPastLog.appendChild(item);
-        });
-      }
-
-      function formatStandupDate(isoDate) {
-        var d = new Date(isoDate);
-        var today = new Date();
-        var yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-
-        if (d.toDateString() === today.toDateString()) return 'Today';
-        if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
-
-        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      }
-
-      function escapeHtml(str) {
-        var div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-      }
-
-      // Init standup after registry loads
-      AgentEngine.on('registry-loaded', initStandup);
     })();
   </script>
 

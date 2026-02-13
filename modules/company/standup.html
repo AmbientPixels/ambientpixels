@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Daily Standup — AI agents report in and coordinate." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Daily Standup — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+</head>
+<body style="background:#071019" data-theme="dark">
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/modules/company/" class="nav-logo"><i class="fas fa-building"></i> AmbientPixels HQ</a>
+      <ul class="nav-links">
+        <li><a href="/modules/company/">HQ</a></li>
+        <li><a href="/modules/company/standup.html" class="active">Standup</a></li>
+        <li><a href="/modules/company/dashboard.html">Dashboard</a></li>
+        <li><a href="/modules/company/workspace.html">Workspace</a></li>
+        <li><a href="/" style="opacity:0.4;"><i class="fas fa-globe"></i> Main Site</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="content-section" style="max-width: 800px; margin: 0 auto; padding: 1rem;">
+
+    <div class="company-header">
+      <h1><i class="fas fa-users" style="opacity:0.4; margin-right:8px;"></i>Daily Standup</h1>
+      <p>Agents report in sequentially — each one sees what the others said. Nova wraps up as CEO.</p>
+    </div>
+
+    <!-- Standup Controls -->
+    <div class="standup-section" id="standup-section" style="border-top:none; margin-top:0; padding-top:0;">
+      <div class="standup-header">
+        <h3 id="standup-date-heading" style="font-size:0.8rem; font-weight:400; opacity:0.4;"></h3>
+        <button class="standup-trigger-btn" id="standup-trigger">
+          <i class="fas fa-play"></i> <span id="standup-trigger-label">Run Standup</span>
+        </button>
+      </div>
+
+      <!-- Live Feed -->
+      <div class="standup-feed" id="standup-feed">
+        <div class="standup-status" id="standup-status">No standup yet today. Hit the button to kick one off.</div>
+      </div>
+
+      <!-- Past Standups -->
+      <button class="standup-past-toggle" id="standup-past-toggle" style="display:none;">
+        <i class="fas fa-history"></i> View past standups
+      </button>
+      <div class="standup-past-log" id="standup-past-log"></div>
+    </div>
+
+  </main>
+
+  <script src="/js/agent-engine.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var standupFeed = document.getElementById('standup-feed');
+      var standupStatus = document.getElementById('standup-status');
+      var standupTrigger = document.getElementById('standup-trigger');
+      var standupTriggerLabel = document.getElementById('standup-trigger-label');
+      var standupPastToggle = document.getElementById('standup-past-toggle');
+      var standupPastLog = document.getElementById('standup-past-log');
+      var dateHeading = document.getElementById('standup-date-heading');
+
+      // Show today's date
+      dateHeading.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+      AgentEngine.loadRegistry().then(function () {
+        initStandup();
+      });
+
+      function initStandup() {
+        var latest = AgentEngine.getLatestStandup();
+        var log = AgentEngine.getStandupLog();
+
+        if (AgentEngine.hasStandupToday() && latest) {
+          renderStandupEntries(latest.entries);
+          standupTrigger.disabled = true;
+          standupTriggerLabel.textContent = 'Done for today';
+          standupTrigger.querySelector('i').className = 'fas fa-check';
+        }
+
+        if (log.length > (AgentEngine.hasStandupToday() ? 1 : 0)) {
+          standupPastToggle.style.display = '';
+        }
+
+        renderPastStandups(log);
+      }
+
+      standupTrigger.addEventListener('click', function () {
+        if (AgentEngine.isStandupRunning()) return;
+
+        standupTrigger.disabled = true;
+        standupTriggerLabel.textContent = 'Running...';
+        standupTrigger.querySelector('i').className = 'fas fa-spinner fa-spin';
+        standupFeed.innerHTML = '';
+        standupStatus.style.display = 'none';
+
+        AgentEngine.runStandup();
+      });
+
+      AgentEngine.on('standup-agent-thinking', function (data) {
+        var agent = data.agent;
+        var el = document.createElement('div');
+        el.className = 'standup-entry standup-entry--thinking';
+        el.id = 'standup-thinking-' + data.agentId;
+        el.style.setProperty('--agent-color', agent.color);
+        el.innerHTML =
+          '<div class="standup-entry-avatar"><i class="' + agent.icon + '"></i></div>' +
+          '<div class="standup-entry-body">' +
+            '<div class="standup-entry-name">' + agent.name + '<span class="standup-entry-role">' + agent.role + '</span></div>' +
+            '<div class="standup-entry-text" style="font-style:italic;">' + agent.name + ' is thinking...</div>' +
+          '</div>';
+        standupFeed.appendChild(el);
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+
+      AgentEngine.on('standup-agent-done', function (entry) {
+        var thinking = document.getElementById('standup-thinking-' + entry.agentId);
+        if (thinking) thinking.remove();
+
+        var el = createStandupEntryEl(entry);
+        standupFeed.appendChild(el);
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+
+      AgentEngine.on('standup-complete', function (standup) {
+        standupTrigger.disabled = true;
+        standupTriggerLabel.textContent = 'Done for today';
+        standupTrigger.querySelector('i').className = 'fas fa-check';
+
+        var log = AgentEngine.getStandupLog();
+        if (log.length > 1) {
+          standupPastToggle.style.display = '';
+          renderPastStandups(log);
+        }
+      });
+
+      AgentEngine.on('standup-error', function () {
+        standupTrigger.disabled = false;
+        standupTriggerLabel.textContent = 'Retry Standup';
+        standupTrigger.querySelector('i').className = 'fas fa-redo';
+        standupFeed.innerHTML += '<div class="standup-status">Standup failed. Try again.</div>';
+      });
+
+      function createStandupEntryEl(entry) {
+        var el = document.createElement('div');
+        el.className = 'standup-entry';
+        el.style.setProperty('--agent-color', entry.color);
+
+        var textHtml = escapeHtml(entry.reply).replace(/\n/g, '<br>');
+
+        el.innerHTML =
+          '<div class="standup-entry-avatar"><i class="' + entry.icon + '"></i></div>' +
+          '<div class="standup-entry-body">' +
+            '<div class="standup-entry-name">' + entry.name + '<span class="standup-entry-role">' + entry.role + '</span></div>' +
+            '<div class="standup-entry-text">' + textHtml + '</div>' +
+          '</div>';
+        return el;
+      }
+
+      function renderStandupEntries(entries) {
+        standupFeed.innerHTML = '';
+        standupStatus.style.display = 'none';
+        entries.forEach(function (entry) {
+          standupFeed.appendChild(createStandupEntryEl(entry));
+        });
+      }
+
+      standupPastToggle.addEventListener('click', function () {
+        standupPastLog.classList.toggle('visible');
+        this.querySelector('i').className = standupPastLog.classList.contains('visible')
+          ? 'fas fa-chevron-up'
+          : 'fas fa-history';
+      });
+
+      function renderPastStandups(log) {
+        standupPastLog.innerHTML = '';
+        var past = AgentEngine.hasStandupToday() ? log.slice(0, -1) : log;
+        past.reverse().forEach(function (standup) {
+          var item = document.createElement('div');
+          item.className = 'standup-past-item';
+
+          var dateStr = formatStandupDate(standup.date);
+          item.innerHTML = '<div class="standup-date-label"><i class="fas fa-calendar-day" style="margin-right:4px;"></i>' + dateStr + '</div>';
+
+          var feed = document.createElement('div');
+          feed.className = 'standup-feed';
+          standup.entries.forEach(function (entry) {
+            feed.appendChild(createStandupEntryEl(entry));
+          });
+          item.appendChild(feed);
+          standupPastLog.appendChild(item);
+        });
+      }
+
+      function formatStandupDate(isoDate) {
+        var d = new Date(isoDate);
+        var today = new Date();
+        var yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        if (d.toDateString() === today.toDateString()) return 'Today';
+        if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
+
+        return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+      }
+
+      function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+    })();
+  </script>
+
+</body>
+</html>
