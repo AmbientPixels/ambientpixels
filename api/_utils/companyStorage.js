@@ -1,11 +1,11 @@
 // companyStorage.js — Server-side persistent storage for Company Module
-// Uses Azure Blob Storage when AZURE_STORAGE_CONNECTION_STRING is set,
-// otherwise falls back to local JSON file storage (for dev).
+// Uses Azure Blob Storage (cardforgeblobdata) via Managed Identity or connection string,
+// falls back to local JSON file storage for dev.
 
 const path = require('path');
 const fs = require('fs');
 
-const CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
+const STORAGE_ACCOUNT_NAME = 'cardforgeblobdata';
 const CONTAINER_NAME = 'company-state';
 const WRITE_SECRET = process.env.COMPANY_WRITE_SECRET || '';
 
@@ -13,13 +13,24 @@ const WRITE_SECRET = process.env.COMPANY_WRITE_SECRET || '';
 let blobServiceClient = null;
 let containerClient = null;
 
+async function _createBlobServiceClient() {
+  // Prefer connection string when available (local or explicit config)
+  if (process.env.AZURE_STORAGE_CONNECTION_STRING) {
+    const { BlobServiceClient } = require('@azure/storage-blob');
+    return BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
+  }
+  // Fallback to Managed Identity via DefaultAzureCredential
+  const { BlobServiceClient } = require('@azure/storage-blob');
+  const { DefaultAzureCredential } = require('@azure/identity');
+  const credential = new DefaultAzureCredential();
+  return new BlobServiceClient(`https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net`, credential);
+}
+
 async function _initBlob() {
   if (containerClient) return containerClient;
-  if (!CONNECTION_STRING) return null;
 
   try {
-    const { BlobServiceClient } = require('@azure/storage-blob');
-    blobServiceClient = BlobServiceClient.fromConnectionString(CONNECTION_STRING);
+    blobServiceClient = await _createBlobServiceClient();
     containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
     await containerClient.createIfNotExists();
     return containerClient;
