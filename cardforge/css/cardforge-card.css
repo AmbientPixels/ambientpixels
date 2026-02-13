@@ -1399,13 +1399,13 @@
 }
 
 /* === Global avatar wrapper: clips zoom/pan overflow === */
-.card-preview-zone .card-avatar-container {
+.card-preview-canvas .card-avatar-container {
   overflow: hidden;
   position: relative;
 }
 
 /* === Global avatar image: fills wrapper, obeys slider CSS vars === */
-.card-preview-zone .card-avatar {
+.card-preview-canvas .card-avatar {
   display: block;
   width: 100%;
   height: 100%;

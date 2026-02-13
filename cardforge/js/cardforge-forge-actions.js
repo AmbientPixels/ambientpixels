@@ -809,6 +809,33 @@ class CardForgeActions {
         data.design = { ...window.ModularState };
       }
 
+      // Persist image slider values in design data
+      const posXSlider = document.getElementById('cf-img-pos-x');
+      const posYSlider = document.getElementById('cf-img-pos-y');
+      const zoomSlider = document.getElementById('cf-img-zoom');
+      if (data.design) {
+        data.design.imagePosX = posXSlider ? Number(posXSlider.value) : 50;
+        data.design.imagePosY = posYSlider ? Number(posYSlider.value) : 50;
+        data.design.imageZoom = zoomSlider ? Number(zoomSlider.value) : 100;
+      }
+
+      // Bake current slider values as inline styles on .card-avatar elements
+      // so they persist in the renderedFront HTML snapshot
+      const previewAvatars = document.querySelectorAll('.card-preview-zone .card-avatar');
+      const posX = posXSlider ? posXSlider.value : 50;
+      const posY = posYSlider ? posYSlider.value : 50;
+      const zoomScale = zoomSlider ? (zoomSlider.value / 100) : 1;
+      previewAvatars.forEach(function(avatar) {
+        avatar.style.objectPosition = posX + '% ' + posY + '%';
+        if (zoomScale !== 1) {
+          avatar.style.transform = 'scale(' + zoomScale + ')';
+          avatar.style.transformOrigin = posX + '% ' + posY + '%';
+        } else {
+          avatar.style.removeProperty('transform');
+          avatar.style.removeProperty('transform-origin');
+        }
+      });
+
       // Capture rendered card HTML from the live preview DOM
       const frontEl = document.querySelector('.card-preview-zone .card-front');
       const backEl = document.querySelector('.card-preview-zone .card-back');
@@ -849,6 +876,32 @@ class CardForgeActions {
     if (window.ModularState) {
       data.design = Object.assign({}, window.ModularState);
     }
+
+    // Persist image slider values in design data
+    const fbPosX = document.getElementById('cf-img-pos-x');
+    const fbPosY = document.getElementById('cf-img-pos-y');
+    const fbZoom = document.getElementById('cf-img-zoom');
+    if (data.design) {
+      data.design.imagePosX = fbPosX ? Number(fbPosX.value) : 50;
+      data.design.imagePosY = fbPosY ? Number(fbPosY.value) : 50;
+      data.design.imageZoom = fbZoom ? Number(fbZoom.value) : 100;
+    }
+
+    // Bake slider values as inline styles for HTML snapshot persistence
+    const fbAvatars = document.querySelectorAll('.card-preview-zone .card-avatar');
+    const fbX = fbPosX ? fbPosX.value : 50;
+    const fbY = fbPosY ? fbPosY.value : 50;
+    const fbScale = fbZoom ? (fbZoom.value / 100) : 1;
+    fbAvatars.forEach(function(avatar) {
+      avatar.style.objectPosition = fbX + '% ' + fbY + '%';
+      if (fbScale !== 1) {
+        avatar.style.transform = 'scale(' + fbScale + ')';
+        avatar.style.transformOrigin = fbX + '% ' + fbY + '%';
+      } else {
+        avatar.style.removeProperty('transform');
+        avatar.style.removeProperty('transform-origin');
+      }
+    });
 
     // Capture rendered card HTML from the live preview DOM
     const frontEl = document.querySelector('.card-preview-zone .card-front');
@@ -1729,6 +1782,32 @@ const resp = await fetch(loadUrl, {
         // Support legacy and new schemas: .data, .cardData, or direct
         let cardData = card.data || card.cardData || card;
         window.cardForgeEditor.loadCardData(cardData);
+
+        // Restore image slider positions from saved design data
+        const design = cardData.design || {};
+        const posXSlider = document.getElementById('cf-img-pos-x');
+        const posYSlider = document.getElementById('cf-img-pos-y');
+        const zoomSlider = document.getElementById('cf-img-zoom');
+        const posXVal = document.getElementById('cf-img-pos-x-val');
+        const posYVal = document.getElementById('cf-img-pos-y-val');
+        const zoomVal = document.getElementById('cf-img-zoom-val');
+        const savedX = design.imagePosX != null ? design.imagePosX : 50;
+        const savedY = design.imagePosY != null ? design.imagePosY : 50;
+        const savedZoom = design.imageZoom != null ? design.imageZoom : 100;
+        if (posXSlider) posXSlider.value = savedX;
+        if (posYSlider) posYSlider.value = savedY;
+        if (zoomSlider) zoomSlider.value = savedZoom;
+        if (posXVal) posXVal.textContent = savedX + '%';
+        if (posYVal) posYVal.textContent = savedY + '%';
+        if (zoomVal) zoomVal.textContent = savedZoom + '%';
+        // Apply CSS vars to .card-preview-zone for live preview
+        const previewZone = document.querySelector('.card-preview-zone');
+        if (previewZone) {
+          previewZone.style.setProperty('--cf-avatar-pos-x', savedX + '%');
+          previewZone.style.setProperty('--cf-avatar-pos-y', savedY + '%');
+          previewZone.style.setProperty('--cf-avatar-scale', savedZoom / 100);
+        }
+
         this.showNotification(`Card "${card.name}" loaded successfully`, 'success');
       } else {
         // Fallback: populate form fields manually
