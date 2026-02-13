@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Config Overview — workspace, agents, and system configuration." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Config — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <style>
+    .ov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .ov-card {
+      border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; background: rgba(255,255,255,0.02);
+      padding: 1.2rem; text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 0.6rem;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .ov-card:hover { border-color: rgba(138,43,226,0.25); background: rgba(138,43,226,0.03); }
+    .ov-card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+    .ov-card-title { font-size: 0.85rem; font-weight: 600; }
+    .ov-card-desc { font-size: 0.68rem; opacity: 0.45; line-height: 1.5; }
+    .ov-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); margin-bottom: 1rem; }
+    .ov-stat { text-align: center; }
+    .ov-stat-value { font-size: 1.5rem; font-weight: 600; }
+    .ov-stat-label { font-size: 0.55rem; opacity: 0.35; text-transform: uppercase; letter-spacing: 0.05em; }
+    .ov-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.3; font-weight: 500; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    .ov-agent-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.72rem; }
+    .ov-agent-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .ov-agent-name { font-weight: 500; }
+    .ov-agent-role { opacity: 0.35; font-size: 0.6rem; }
+  </style>
+</head>
+<body style="background:#071019" data-theme="dark">
+
+  <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
+
+    <div class="company-header">
+      <h1><i class="fas fa-sliders" style="opacity:0.4; margin-right:8px; color:#4ECDC4;"></i>Config</h1>
+      <p>Workspace settings, agent configuration, and system tools.</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="ov-stats">
+      <div class="ov-stat"><div class="ov-stat-value" id="stat-agents">—</div><div class="ov-stat-label">Agents</div></div>
+      <div class="ov-stat"><div class="ov-stat-value" style="color:#4ECDC4;" id="stat-memory">—</div><div class="ov-stat-label">Memory Items</div></div>
+      <div class="ov-stat"><div class="ov-stat-value" style="color:#FFA500;" id="stat-tools">—</div><div class="ov-stat-label">Tools</div></div>
+      <div class="ov-stat"><div class="ov-stat-value" style="color:#34d399;" id="stat-store">—</div><div class="ov-stat-label">Store Mode</div></div>
+    </div>
+
+    <div class="ov-section-title">Quick Access</div>
+    <div class="ov-grid">
+      <a href="/modules/company/workspace.html" class="ov-card">
+        <div class="ov-card-icon" style="background:rgba(78,205,196,0.08); color:#4ECDC4;"><i class="fas fa-layer-group"></i></div>
+        <div class="ov-card-title">Workspace</div>
+        <div class="ov-card-desc">Company identity, shared memory, agent configs, tools registry, and important dates.</div>
+      </a>
+      <a href="/modules/company/agent-chat.html" class="ov-card">
+        <div class="ov-card-icon" style="background:rgba(138,43,226,0.08); color:#8A2BE2;"><i class="fas fa-comments"></i></div>
+        <div class="ov-card-title">Agent Chat</div>
+        <div class="ov-card-desc">Direct conversation with any agent. CEO commands: /override, /directive, /objective.</div>
+      </a>
+    </div>
+
+    <!-- Agent Roster -->
+    <div class="ov-section-title">Agent Roster</div>
+    <div id="ov-agents" style="padding:0.5rem 0;">Loading...</div>
+
+  </main>
+
+  <script src="/js/company-store.js"></script>
+  <script>
+  (function () {
+    // Load agents from JSON
+    fetch('/data/company-agents.json')
+      .then(function (r) { return r.json(); })
+      .then(function (agents) {
+        document.getElementById('stat-agents').textContent = agents.length;
+        var el = document.getElementById('ov-agents');
+        var tierColors = { 1: '#FFD700', 2: '#8A2BE2', 3: '#4ECDC4', 4: '#888' };
+        el.innerHTML = agents.map(function (a) {
+          var color = tierColors[a.tier] || '#666';
+          return '<div class="ov-agent-row">' +
+            '<div class="ov-agent-dot" style="background:' + color + ';"></div>' +
+            '<span class="ov-agent-name">' + a.name + '</span>' +
+            '<span class="ov-agent-role">' + (a.role || '') + '</span>' +
+            '</div>';
+        }).join('');
+      }).catch(function () {
+        document.getElementById('ov-agents').innerHTML = '<span style="opacity:0.3; font-size:0.7rem;">Could not load agents.</span>';
+      });
+
+    // Workspace memory count
+    try {
+      var mem = JSON.parse(localStorage.getItem('ap_workspace_memory') || '[]');
+      document.getElementById('stat-memory').textContent = mem.length;
+    } catch (e) { document.getElementById('stat-memory').textContent = '0'; }
+
+    // Tools count
+    try {
+      var tools = JSON.parse(localStorage.getItem('ap_workspace_tools') || '[]');
+      document.getElementById('stat-tools').textContent = tools.length;
+    } catch (e) { document.getElementById('stat-tools').textContent = '0'; }
+
+    // Store mode
+    var mode = (typeof CompanyStore !== 'undefined' && CompanyStore.getMode) ? CompanyStore.getMode() : 'local';
+    document.getElementById('stat-store').textContent = mode;
+  })();
+  </script>
+
+  <script src="/modules/company/js/sidebar.js"></script>
+</body>
+</html>

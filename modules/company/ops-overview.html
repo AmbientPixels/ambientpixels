@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Operations Overview — agent status, metrics, and standup." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Operations — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <style>
+    .ov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .ov-card {
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.02);
+      padding: 1.2rem;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .ov-card:hover { border-color: rgba(138,43,226,0.25); background: rgba(138,43,226,0.03); }
+    .ov-card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+    .ov-card-title { font-size: 0.85rem; font-weight: 600; }
+    .ov-card-desc { font-size: 0.68rem; opacity: 0.45; line-height: 1.5; }
+    .ov-card-stat { font-size: 1.4rem; font-weight: 600; }
+    .ov-card-label { font-size: 0.55rem; opacity: 0.35; text-transform: uppercase; letter-spacing: 0.05em; }
+    .ov-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); margin-bottom: 1rem; }
+    .ov-stat { text-align: center; }
+    .ov-stat-value { font-size: 1.5rem; font-weight: 600; }
+    .ov-stat-label { font-size: 0.55rem; opacity: 0.35; text-transform: uppercase; letter-spacing: 0.05em; }
+    .ov-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.3; font-weight: 500; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body style="background:#071019" data-theme="dark">
+
+  <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
+
+    <div class="company-header">
+      <h1><i class="fas fa-gauge-high" style="opacity:0.4; margin-right:8px; color:#4ECDC4;"></i>Operations</h1>
+      <p>Company health, agent activity, and daily coordination at a glance.</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="ov-stats" id="ov-stats">
+      <div class="ov-stat"><div class="ov-stat-value" id="stat-agents">7</div><div class="ov-stat-label">Agents</div></div>
+      <div class="ov-stat"><div class="ov-stat-value" style="color:#4ECDC4;" id="stat-active">—</div><div class="ov-stat-label">Active Tasks</div></div>
+      <div class="ov-stat"><div class="ov-stat-value" style="color:#34d399;" id="stat-done">—</div><div class="ov-stat-label">Completed</div></div>
+      <div class="ov-stat"><div class="ov-stat-value" style="color:#8A2BE2;" id="stat-standup">—</div><div class="ov-stat-label">Standup</div></div>
+    </div>
+
+    <div class="ov-section-title">Quick Access</div>
+    <div class="ov-grid">
+
+      <a href="/modules/company/" class="ov-card">
+        <div class="ov-card-icon" style="background:rgba(138,43,226,0.08); color:#8A2BE2;"><i class="fas fa-building"></i></div>
+        <div class="ov-card-title">HQ — Org Chart</div>
+        <div class="ov-card-desc">View the full company hierarchy — CEO, Prime Operator, Department Heads, and Sub-agents.</div>
+      </a>
+
+      <a href="/modules/company/dashboard.html" class="ov-card">
+        <div class="ov-card-icon" style="background:rgba(78,205,196,0.08); color:#4ECDC4;"><i class="fas fa-chart-line"></i></div>
+        <div class="ov-card-title">Dashboard</div>
+        <div class="ov-card-desc">Agent metrics, session logs, token costs, cron history, approval queue, and governance panels.</div>
+      </a>
+
+      <a href="/modules/company/standup.html" class="ov-card">
+        <div class="ov-card-icon" style="background:rgba(255,165,0,0.08); color:#FFA500;"><i class="fas fa-users"></i></div>
+        <div class="ov-card-title">Daily Standup</div>
+        <div class="ov-card-desc">Nova opens, department heads report in, Nova closes with CEO summary. Run or review past standups.</div>
+      </a>
+
+    </div>
+
+    <!-- Recent Cron Activity -->
+    <div class="ov-section-title">Recent Heartbeat Activity</div>
+    <div id="ov-cron" style="font-size:0.7rem; opacity:0.5; padding:1rem 0;">Loading...</div>
+
+  </main>
+
+  <script src="/js/company-store.js"></script>
+  <script>
+  (function () {
+    var API_BASE = (window.location.hostname.includes('ambientpixels.ai'))
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+
+    // Load tasks for stats
+    fetch(API_BASE + '/company-state?key=tasks')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var tasks = (data && data.value) ? data.value : [];
+        var active = tasks.filter(function (t) { return t.status !== 'done' && t.status !== 'backlog'; }).length;
+        var done = tasks.filter(function (t) { return t.status === 'done'; }).length;
+        document.getElementById('stat-active').textContent = active;
+        document.getElementById('stat-done').textContent = done;
+      }).catch(function () {});
+
+    // Standup status
+    var lastStandup = localStorage.getItem('ap_standup_last_date');
+    var today = new Date().toISOString().substring(0, 10);
+    document.getElementById('stat-standup').textContent = (lastStandup === today) ? '✓' : '—';
+
+    // Recent cron log
+    fetch(API_BASE + '/company-state?key=cronLog')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var log = (data && data.value) ? data.value : [];
+        var el = document.getElementById('ov-cron');
+        if (log.length === 0) { el.textContent = 'No heartbeat activity yet.'; return; }
+        var recent = log.slice(-5).reverse();
+        el.innerHTML = recent.map(function (entry) {
+          var time = entry.timestamp ? new Date(entry.timestamp).toLocaleString() : '?';
+          var agents = entry.agentsRun || entry.agents || '?';
+          var actions = entry.totalActions || entry.actions || 0;
+          return '<div style="padding:0.3rem 0; border-bottom:1px solid rgba(255,255,255,0.03);">' +
+            '<span style="opacity:0.4;">' + time + '</span> — ' +
+            agents + ' agents, ' + actions + ' actions' +
+            '</div>';
+        }).join('');
+      }).catch(function () {
+        document.getElementById('ov-cron').textContent = 'Could not load cron log.';
+      });
+  })();
+  </script>
+
+  <script src="/modules/company/js/sidebar.js"></script>
+</body>
+</html>

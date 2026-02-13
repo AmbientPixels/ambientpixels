@@ -1,0 +1,285 @@
+/* ── Hybrid Nav: Left Rail Chips + Top Sub-link Bar ── */
+/* Left rail = category icon chips (like VS Code activity bar) */
+/* Top bar = sub-links for the active category */
+
+/* Layout wrapper */
+.sb-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── Left Rail ── */
+.sb-rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 58px;
+  background: rgba(7, 16, 25, 0.97);
+  border-right: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1001;
+  font-family: 'Inter', sans-serif;
+  padding-top: 6px;
+}
+
+/* Logo chip at top of rail */
+.sb-rail-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #8A2BE2;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  transition: background 0.15s;
+}
+
+.sb-rail-logo:hover {
+  background: rgba(138, 43, 226, 0.08);
+}
+
+/* Category chips in rail */
+.sb-rail-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  align-items: center;
+  padding-top: 2px;
+}
+
+.sb-rail-chip {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 52px;
+  height: 56px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  color: rgba(255,255,255,0.35);
+  font-family: inherit;
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.sb-rail-chip:hover {
+  color: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.04);
+}
+
+.sb-rail-chip i {
+  font-size: 1.3rem;
+}
+
+/* Active rail chip */
+.sb-rail-chip--active {
+  color: rgba(255,255,255,0.9);
+  background: rgba(138, 43, 226, 0.08);
+}
+
+.sb-rail-chip--active i {
+  color: #8A2BE2;
+}
+
+/* Left edge indicator for active chip */
+.sb-rail-chip--active::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: #8A2BE2;
+}
+
+/* Globe at bottom of rail */
+.sb-rail-footer {
+  padding-bottom: 10px;
+}
+
+.sb-rail-globe {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: rgba(255,255,255,0.2);
+  font-size: 0.95rem;
+  transition: color 0.15s, background 0.15s;
+}
+
+.sb-rail-globe:hover {
+  color: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.04);
+}
+
+/* ── Right side: topbar + content ── */
+.sb-main {
+  margin-left: 58px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── Top Sub-link Bar ── */
+.sb-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 16px;
+  height: 46px;
+  background: rgba(7, 16, 25, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-family: 'Inter', sans-serif;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.sb-topbar::-webkit-scrollbar { display: none; }
+
+/* Category label in topbar */
+.sb-topbar-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.25);
+  margin-right: 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Sub-links */
+.sb-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: rgba(255,255,255,0.45);
+  font-size: 0.88rem;
+  white-space: nowrap;
+  transition: color 0.15s, background 0.15s;
+}
+
+.sb-sub:hover {
+  color: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.04);
+}
+
+.sb-sub i {
+  font-size: 0.84rem;
+  opacity: 0.5;
+}
+
+/* Active sub-link */
+.sb-sub--active {
+  color: rgba(255,255,255,0.95);
+  background: rgba(138, 43, 226, 0.1);
+}
+
+.sb-sub--active i {
+  opacity: 1;
+  color: #8A2BE2;
+}
+
+/* ── Content area ── */
+.sb-content {
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  /* Rail becomes bottom tab bar */
+  .sb-rail {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 52px;
+    flex-direction: row;
+    border-right: none;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 0;
+    justify-content: center;
+  }
+
+  .sb-rail-logo { display: none; }
+  .sb-rail-footer { display: none; }
+
+  .sb-rail-chips {
+    flex-direction: row;
+    gap: 0;
+    padding-top: 0;
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .sb-rail-chip {
+    width: auto;
+    flex: 1;
+    height: 52px;
+    border-radius: 0;
+    font-size: 0.44rem;
+  }
+
+  .sb-rail-chip i { font-size: 0.95rem; }
+
+  .sb-rail-chip--active::before {
+    left: 25%;
+    right: 25%;
+    top: 0;
+    bottom: auto;
+    width: auto;
+    height: 2px;
+    border-radius: 0 0 3px 3px;
+  }
+
+  .sb-main {
+    margin-left: 0;
+    margin-bottom: 52px;
+  }
+
+  .sb-topbar {
+    padding: 0 10px;
+    height: 36px;
+  }
+
+  .sb-sub {
+    padding: 4px 8px;
+    font-size: 0.64rem;
+  }
+
+  .sb-topbar-label { display: none; }
+}
+
+/* ── Hide the old navbar ── */
+.sb-layout .navbar { display: none !important; }
