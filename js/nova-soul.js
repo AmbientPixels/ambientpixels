@@ -1,14 +1,118 @@
 // nova-soul.js — Nova's AI Core Engine
-// Handles chat, mood generation, and thought generation via the novachat API endpoint
+// Handles chat, mood generation, thought generation, and persistent memory via the novachat API endpoint
 
 const NovaSoul = (function () {
   'use strict';
 
-  // Conversation history (session-scoped)
-  let _history = [];
-  let _currentMood = null;
+  // ── Persistent Memory Layer ──
+  const STORAGE_KEYS = {
+    history: 'nova_chat_history',
+    moods: 'nova_mood_history',
+    diary: 'nova_diary_entries',
+    meta: 'nova_memory_meta'
+  };
+  const MAX_HISTORY = 40;
+  const MAX_MOODS = 50;
+  const MAX_DIARY = 100;
+
+  function _loadStorage(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+      console.warn('[NovaMemory] Load failed for ' + key, e);
+      return fallback;
+    }
+  }
+
+  function _saveStorage(key, data) {
+    try {
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch (e) {
+      console.warn('[NovaMemory] Save failed for ' + key, e);
+    }
+  }
+
+  // Restore persisted state
+  let _history = _loadStorage(STORAGE_KEYS.history, []);
+  let _moodHistory = _loadStorage(STORAGE_KEYS.moods, []);
+  let _diaryEntries = _loadStorage(STORAGE_KEYS.diary, []);
+  let _memoryMeta = _loadStorage(STORAGE_KEYS.meta, {
+    firstSeen: new Date().toISOString(),
+    totalChats: 0,
+    totalMoods: 0,
+    totalDiary: 0
+  });
+
+  let _currentMood = _moodHistory.length > 0 ? _moodHistory[_moodHistory.length - 1] : null;
   let _isAwake = false;
   let _listeners = {};
+
+  function _persistHistory() {
+    if (_history.length > MAX_HISTORY) _history = _history.slice(-MAX_HISTORY);
+    _saveStorage(STORAGE_KEYS.history, _history);
+  }
+
+  function _persistMoods() {
+    if (_moodHistory.length > MAX_MOODS) _moodHistory = _moodHistory.slice(-MAX_MOODS);
+    _saveStorage(STORAGE_KEYS.moods, _moodHistory);
+  }
+
+  function _persistDiary() {
+    if (_diaryEntries.length > MAX_DIARY) _diaryEntries = _diaryEntries.slice(-MAX_DIARY);
+    _saveStorage(STORAGE_KEYS.diary, _diaryEntries);
+  }
+
+  function _persistMeta() {
+    _saveStorage(STORAGE_KEYS.meta, _memoryMeta);
+  }
+
+  // Build compact memory context for prompt injection
+  function buildMemoryContext() {
+    const parts = [];
+
+    if (_memoryMeta.totalChats > 0) {
+      parts.push('[MEMORY] You have had ' + _memoryMeta.totalChats + ' conversations with the operator.');
+    }
+    if (_memoryMeta.firstSeen) {
+      const days = Math.floor((Date.now() - new Date(_memoryMeta.firstSeen).getTime()) / 86400000);
+      if (days > 0) parts.push('You have been active for ' + days + ' day' + (days > 1 ? 's' : '') + '.');
+    }
+
+    if (_moodHistory.length > 1) {
+      const recent = _moodHistory.slice(-3).map(m => m.mood);
+      parts.push('Recent mood trend: ' + recent.join(' → ') + '.');
+    }
+
+    if (_diaryEntries.length > 0) {
+      const last = _diaryEntries.slice(-2);
+      last.forEach(d => {
+        const dateStr = new Date(d.timestamp).toLocaleDateString();
+        parts.push('Diary (' + dateStr + '): Operator wrote "' + d.operator.substring(0, 80) + '"');
+      });
+    }
+
+    if (_currentMood) {
+      parts.push('Current mood: ' + _currentMood.mood + ' (aura: ' + _currentMood.aura + ').');
+    }
+
+    return parts.join(' ');
+  }
+
+  // Save a diary entry (called from nova-logs.js)
+  function saveDiaryEntry(operatorMessage, novaReply) {
+    const entry = {
+      timestamp: new Date().toISOString(),
+      operator: operatorMessage,
+      nova: novaReply
+    };
+    _diaryEntries.push(entry);
+    _memoryMeta.totalDiary = _diaryEntries.length;
+    _persistDiary();
+    _persistMeta();
+    emit('diary-saved', entry);
+    return entry;
+  }
 
   // API endpoint resolution
   function getEndpoint() {
@@ -32,8 +136,16 @@ const NovaSoul = (function () {
   // Core API call
   async function callNova(message, mode, includeHistory) {
     const endpoint = getEndpoint();
+
+    // Inject memory context for chat mode so Nova remembers past interactions
+    let enrichedMessage = message;
+    if (mode === 'chat') {
+      const memCtx = buildMemoryContext();
+      if (memCtx) enrichedMessage = memCtx + ' ' + message;
+    }
+
     const payload = {
-      message,
+      message: enrichedMessage,
       mode: mode || 'chat'
     };
 
@@ -65,14 +177,12 @@ const NovaSoul = (function () {
     try {
       const data = await callNova(message, 'chat', true);
 
-      // Update conversation history
+      // Update conversation history and persist
       _history.push({ role: 'user', text: message });
       _history.push({ role: 'nova', text: data.reply });
-
-      // Keep history manageable (last 20 turns)
-      if (_history.length > 20) {
-        _history = _history.slice(-20);
-      }
+      _memoryMeta.totalChats++;
+      _persistHistory();
+      _persistMeta();
 
       emit('response', { message: data.reply, mode: 'chat' });
       emit('thinking', false);
@@ -137,12 +247,18 @@ const NovaSoul = (function () {
 
       if (data.mood) {
         _currentMood = normalizeMood(data.mood);
+        _moodHistory.push(_currentMood);
+        _memoryMeta.totalMoods = _moodHistory.length;
+        _persistMoods();
+        _persistMeta();
         emit('mood-update', _currentMood);
         return _currentMood;
       }
 
       // Fallback: minimal mood from reply text
       _currentMood = normalizeMood({ quote: data.reply });
+      _moodHistory.push(_currentMood);
+      _persistMoods();
       emit('mood-update', _currentMood);
       return _currentMood;
     } catch (err) {
@@ -207,10 +323,51 @@ const NovaSoul = (function () {
   function isAwake() { return _isAwake; }
   function getMood() { return _currentMood; }
   function getHistory() { return [..._history]; }
+  function getMoodHistory() { return [..._moodHistory]; }
+  function getDiaryEntries() { return [..._diaryEntries]; }
+
+  function getMemoryStats() {
+    return {
+      chatTurns: _history.length,
+      moodSnapshots: _moodHistory.length,
+      diaryEntries: _diaryEntries.length,
+      totalChats: _memoryMeta.totalChats,
+      firstSeen: _memoryMeta.firstSeen,
+      daysSinceFirst: Math.floor((Date.now() - new Date(_memoryMeta.firstSeen).getTime()) / 86400000)
+    };
+  }
 
   function clearHistory() {
     _history = [];
+    _persistHistory();
     emit('history-cleared', true);
+  }
+
+  function clearMemory(scope) {
+    if (!scope || scope === 'all') {
+      _history = [];
+      _moodHistory = [];
+      _diaryEntries = [];
+      _currentMood = null;
+      _memoryMeta = { firstSeen: new Date().toISOString(), totalChats: 0, totalMoods: 0, totalDiary: 0 };
+      Object.values(STORAGE_KEYS).forEach(k => { try { localStorage.removeItem(k); } catch(e){} });
+      emit('memory-cleared', 'all');
+    } else if (scope === 'history') {
+      _history = [];
+      _persistHistory();
+      emit('memory-cleared', 'history');
+    } else if (scope === 'moods') {
+      _moodHistory = [];
+      _persistMoods();
+      emit('memory-cleared', 'moods');
+    } else if (scope === 'diary') {
+      _diaryEntries = [];
+      _memoryMeta.totalDiary = 0;
+      _persistDiary();
+      _persistMeta();
+      emit('memory-cleared', 'diary');
+    }
+    console.log('[NovaMemory] Cleared: ' + (scope || 'all'));
   }
 
   // Public API
@@ -223,6 +380,11 @@ const NovaSoul = (function () {
     getMood,
     getHistory,
     clearHistory,
+    getMoodHistory,
+    getDiaryEntries,
+    getMemoryStats,
+    saveDiaryEntry,
+    clearMemory,
     on,
   };
 })();

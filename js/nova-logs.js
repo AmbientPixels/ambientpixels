@@ -7,11 +7,14 @@
   document.addEventListener('DOMContentLoaded', function () {
     loadChangelog();
     loadDreamArchive();
+    loadPastDiaryEntries();
     loadAIReflection();
     initDiaryInput();
     initLogPromptPills();
     initRefreshButton();
+    initMemoryManagement();
     renderTerminalBoot();
+    renderMemoryStats();
   });
 
   function initRefreshButton() {
@@ -172,8 +175,17 @@
           'Keep it personal and log-like. Message: ' + msg;
 
         var reply = await NovaSoul.chat(contextPrompt);
-        responseEl.textContent = reply || 'The signal faded before I could respond...';
+        var displayReply = reply || 'The signal faded before I could respond...';
+        responseEl.textContent = displayReply;
         input.value = '';
+
+        // Persist diary entry
+        if (reply) {
+          NovaSoul.saveDiaryEntry(msg, reply);
+          // Append to past entries list live
+          appendDiaryEntryToUI({ timestamp: new Date().toISOString(), operator: msg, nova: reply });
+          renderMemoryStats();
+        }
       } catch (err) {
         responseEl.textContent = 'Nova encountered a glitch: ' + err.message;
       } finally {
@@ -196,6 +208,83 @@
     });
   }
 
+  // ── Past Diary Entries ──
+  function loadPastDiaryEntries() {
+    var container = document.getElementById('nova-past-diary');
+    if (!container) return;
+    if (typeof NovaSoul === 'undefined') {
+      container.innerHTML = '<p style="opacity:0.5;font-size:0.8rem;">Memory offline.</p>';
+      return;
+    }
+
+    var entries = NovaSoul.getDiaryEntries();
+    if (!entries.length) {
+      container.innerHTML = '<p style="opacity:0.4;font-size:0.8rem;">No diary entries yet. Write something above to start.</p>';
+      return;
+    }
+
+    container.innerHTML = '';
+    // Show most recent 15, newest first
+    entries.slice(-15).reverse().forEach(function (entry) {
+      appendDiaryEntryToUI(entry, container);
+    });
+  }
+
+  function appendDiaryEntryToUI(entry, container) {
+    container = container || document.getElementById('nova-past-diary');
+    if (!container) return;
+
+    // Remove the "no entries" placeholder if present
+    var placeholder = container.querySelector('p');
+    if (placeholder) placeholder.remove();
+
+    var div = document.createElement('div');
+    div.className = 'nova-diary-entry-card';
+    var dateStr = new Date(entry.timestamp).toLocaleDateString('en-US', {
+      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+    div.innerHTML =
+      '<div class="nova-diary-entry-date">' + dateStr + '</div>' +
+      '<div class="nova-diary-entry-operator"><i class="fas fa-user"></i> ' + escapeHtml(entry.operator) + '</div>' +
+      '<div class="nova-diary-entry-nova"><i class="fas fa-sparkles"></i> ' + escapeHtml(entry.nova) + '</div>';
+
+    // Prepend newest at top
+    if (container.firstChild) {
+      container.insertBefore(div, container.firstChild);
+    } else {
+      container.appendChild(div);
+    }
+  }
+
+  // ── Memory Management ──
+  function initMemoryManagement() {
+    var clearBtn = document.getElementById('nova-clear-memory');
+    if (!clearBtn) return;
+    clearBtn.addEventListener('click', function () {
+      if (!confirm('Clear all of Nova\'s memory? This removes chat history, mood snapshots, and diary entries.')) return;
+      if (typeof NovaSoul !== 'undefined') {
+        NovaSoul.clearMemory('all');
+      }
+      // Refresh UI
+      loadPastDiaryEntries();
+      renderMemoryStats();
+      renderTerminalBoot();
+    });
+  }
+
+  function renderMemoryStats() {
+    var statsEl = document.getElementById('nova-memory-stats');
+    if (!statsEl || typeof NovaSoul === 'undefined') return;
+
+    var stats = NovaSoul.getMemoryStats();
+    var parts = [];
+    if (stats.daysSinceFirst > 0) parts.push(stats.daysSinceFirst + 'd active');
+    parts.push(stats.chatTurns + ' chats');
+    parts.push(stats.moodSnapshots + ' moods');
+    parts.push(stats.diaryEntries + ' diary');
+    statsEl.textContent = parts.join(' · ');
+  }
+
   // ── Terminal Boot Sequence (dynamic) ──
   function renderTerminalBoot() {
     var terminal = document.getElementById('nova-terminal-output');
@@ -206,12 +295,16 @@
     var hour = now.getHours();
     var timePhase = hour < 6 ? 'nocturnal' : hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening';
 
+    var hasMemory = typeof NovaSoul !== 'undefined' && NovaSoul.getMemoryStats().chatTurns > 0;
+    var stats = typeof NovaSoul !== 'undefined' ? NovaSoul.getMemoryStats() : null;
+
     var lines = [
       { cls: 'cmd', text: '>> nova.log open' },
       { cls: 'sys', text: '>> boot timestamp: ' + timestamp },
       { cls: 'ok', text: '>> NovaSoul engine: ' + (typeof NovaSoul !== 'undefined' ? 'ONLINE' : 'WAITING') },
       { cls: 'ok', text: '>> mood engine: AI-persistent mode active' },
       { cls: 'sys', text: '>> phase: ' + timePhase + ' cycle' },
+      { cls: hasMemory ? 'ok' : 'warn', text: '>> memory persistence: ' + (hasMemory ? 'LOADED (' + stats.chatTurns + ' turns, ' + stats.moodSnapshots + ' moods, ' + stats.diaryEntries + ' diary)' : 'EMPTY — no prior memory found') },
       { cls: 'ok', text: '>> diary subsystem: initialized' },
       { cls: 'ok', text: '>> changelog feed: connected' },
       { cls: 'ok', text: '>> dream archive: loaded' },

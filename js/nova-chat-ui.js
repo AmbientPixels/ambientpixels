@@ -55,31 +55,55 @@
     const clearBtn = document.getElementById('nova-chat-clear');
     if (clearBtn) {
       clearBtn.addEventListener('click', function () {
-        NovaSoul.clearHistory();
+        NovaSoul.clearMemory('history');
         chatMessages.innerHTML = getWelcomeHTML();
         bindQuickPrompts();
       });
     }
 
+    // Restore persisted chat history into the UI
+    restorePersistedChat();
+
     // Wake Nova
     wakeNova();
   }
 
+  function restorePersistedChat() {
+    const history = NovaSoul.getHistory();
+    if (history.length === 0) return;
+
+    // We have persisted history — show it instead of the welcome screen
+    clearWelcome();
+    // Show last 10 messages (5 exchanges) to keep UI clean
+    const recent = history.slice(-10);
+    recent.forEach(function (turn) {
+      addMessage(turn.role === 'user' ? 'user' : 'nova', turn.text, true);
+    });
+    console.log('[NovaChatUI] Restored ' + recent.length + ' messages from memory.');
+  }
+
   async function wakeNova() {
-    setStatus('waking', 'Waking Nova...');
+    const stats = NovaSoul.getMemoryStats();
+    const hasMemory = stats.chatTurns > 0;
+    setStatus('waking', hasMemory ? 'Reconnecting...' : 'Waking Nova...');
+
     try {
       const mood = await NovaSoul.wake();
       if (mood) {
-        // Add Nova's first message based on mood
-        const greeting = await NovaSoul.chat("You just woke up. Greet the visitor with a brief, in-character message reflecting your current mood. Keep it to 1-2 sentences.");
-        if (greeting) {
-          // Remove the internal prompt from history (it was mechanical)
-          const h = NovaSoul.getHistory();
-          if (h.length >= 2) {
-            NovaSoul.clearHistory();
+        if (hasMemory) {
+          // Nova has memory — welcome back message
+          const wb = await NovaSoul.chat('The operator has returned. You remember previous conversations. Give a brief, warm welcome-back reflecting your mood. 1 sentence max.');
+          if (wb) {
+            clearWelcome();
+            addMessage('nova', wb);
           }
-          clearWelcome();
-          addMessage('nova', greeting);
+        } else {
+          // First time — normal greeting
+          const greeting = await NovaSoul.chat("You just woke up. Greet the visitor with a brief, in-character message reflecting your current mood. Keep it to 1-2 sentences.");
+          if (greeting) {
+            clearWelcome();
+            addMessage('nova', greeting);
+          }
         }
       }
     } catch (err) {
@@ -110,11 +134,12 @@
     chatInput.focus();
   }
 
-  function addMessage(role, text) {
+  function addMessage(role, text, isRestored) {
     if (!chatMessages) return;
 
     const msg = document.createElement('div');
     msg.className = `nova-msg ${role}`;
+    if (isRestored) msg.classList.add('restored');
 
     const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 

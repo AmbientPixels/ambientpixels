@@ -401,6 +401,109 @@
   line-height: 1.4;
 }
 
+/* ── Past Diary Entry Cards ── */
+.nova-diary-entry-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.6rem;
+  transition: border-color 0.2s;
+}
+
+.nova-diary-entry-card:hover {
+  border-color: rgba(138, 43, 226, 0.2);
+}
+
+.nova-diary-entry-date {
+  font-size: 0.65rem;
+  opacity: 0.4;
+  margin-bottom: 0.35rem;
+}
+
+.nova-diary-entry-operator {
+  font-size: 0.82rem;
+  opacity: 0.7;
+  margin-bottom: 0.3rem;
+  line-height: 1.4;
+}
+
+.nova-diary-entry-operator i {
+  opacity: 0.5;
+  margin-right: 4px;
+  font-size: 0.7rem;
+}
+
+.nova-diary-entry-nova {
+  font-size: 0.85rem;
+  font-style: italic;
+  opacity: 0.9;
+  line-height: 1.5;
+  padding-left: 0.5rem;
+  border-left: 2px solid rgba(138, 43, 226, 0.25);
+}
+
+.nova-diary-entry-nova i {
+  color: #c9a0ff;
+  margin-right: 4px;
+  font-size: 0.7rem;
+}
+
+#nova-past-diary {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* ── Memory Management Bar ── */
+.nova-memory-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+}
+
+.nova-memory-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.nova-memory-bar-left i {
+  opacity: 0.5;
+  font-size: 0.75rem;
+}
+
+.nova-memory-label {
+  opacity: 0.7;
+  font-weight: 500;
+}
+
+.nova-memory-stats {
+  opacity: 0.45;
+  font-size: 0.72rem;
+}
+
+.nova-clear-memory-btn {
+  background: none;
+  border: 1px solid rgba(255, 80, 80, 0.2);
+  color: rgba(255, 100, 100, 0.7);
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  transition: all 0.2s;
+}
+
+.nova-clear-memory-btn:hover {
+  background: rgba(255, 80, 80, 0.1);
+  border-color: rgba(255, 80, 80, 0.4);
+  color: rgba(255, 120, 120, 0.9);
+}
+
 /* ── Section Spacing ── */
 .nova-logs-section {
   margin-bottom: 0;
