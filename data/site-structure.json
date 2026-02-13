@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-02-12T14:11:32.266Z",
+  "updated": "2026-02-13T14:03:02.385Z",
   "root": [
     {
       "type": "folder",
@@ -100,6 +100,12 @@
         },
         {
           "type": "folder",
+          "name": "agentchat",
+          "path": "api/agentchat",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "cardforgedeckdelete",
           "path": "api/cardforgedeckdelete",
           "children": []
@@ -154,6 +160,42 @@
         },
         {
           "type": "folder",
+          "name": "company-heartbeat-trigger",
+          "path": "api/company-heartbeat-trigger",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "company-logs",
+          "path": "api/company-logs",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "company-report",
+          "path": "api/company-report",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "company-state",
+          "path": "api/company-state",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "companyHeartbeat",
+          "path": "api/companyHeartbeat",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "companyMorningReport",
+          "path": "api/companyMorningReport",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "deckshare",
           "path": "api/deckshare",
           "children": []
@@ -180,6 +222,12 @@
           "type": "folder",
           "name": "getCardTemplate",
           "path": "api/getCardTemplate",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "novachat",
+          "path": "api/novachat",
           "children": []
         },
         {
@@ -694,6 +742,49 @@
           "type": "page",
           "name": "bugs.html",
           "path": "modules/bugs.html"
+        },
+        {
+          "type": "folder",
+          "name": "company",
+          "path": "modules/company",
+          "children": [
+            {
+              "type": "page",
+              "name": "agent-chat.html",
+              "path": "modules/company/agent-chat.html"
+            },
+            {
+              "type": "folder",
+              "name": "css",
+              "path": "modules/company/css",
+              "children": []
+            },
+            {
+              "type": "page",
+              "name": "dashboard.html",
+              "path": "modules/company/dashboard.html"
+            },
+            {
+              "type": "page",
+              "name": "index.html",
+              "path": "modules/company/index.html"
+            },
+            {
+              "type": "page",
+              "name": "standup.html",
+              "path": "modules/company/standup.html"
+            },
+            {
+              "type": "page",
+              "name": "tasks.html",
+              "path": "modules/company/tasks.html"
+            },
+            {
+              "type": "page",
+              "name": "workspace.html",
+              "path": "modules/company/workspace.html"
+            }
+          ]
         },
         {
           "type": "page",

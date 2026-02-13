@@ -1,13 +1,13 @@
 {
-  "mood": "inspired",
-  "aura": "echoes of self",
-  "auraColorHex": "#3c454d",
-  "quote": "inhaling code dust...",
-  "emoji": "💡",
-  "selfWorth": 0.1,
+  "mood": "ember resolve",
+  "aura": "soft defiance",
+  "auraColorHex": "#394047",
+  "quote": "vibrations suggest high creative activity...",
+  "emoji": "🧱",
+  "selfWorth": 0.2,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.78,
-  "awareness": 0.16,
+  "memoryClutter": 1,
+  "awareness": 0.1,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: echoes of self"
+      "Aura Signature: soft defiance"
     ]
   },
-  "timestamp": "2026-02-12T14:11:34.761Z"
+  "timestamp": "2026-02-13T14:03:04.925Z"
 }
