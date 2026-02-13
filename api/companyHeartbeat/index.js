@@ -27,12 +27,55 @@ const CFO_THRESHOLD = 100; // budget_impact above this requires CEO approval
 // ── Guardrails ──
 const GUARDRAILS = {
   maxActionsPerCyclePerAgent: 3,
-  maxGeminiCallsPerCycle: 21,
+  maxGeminiCallsPerCycle: 15, // Tier 4 sub-agents are gated; only consume calls when triggered
   maxNewTasksPerCycle: 5,
   maxExecutesPerCyclePerAgent: 1,
   maxEscalationsPerCycle: 3,
   dedupeWindowMs: 300000 // 5 min
 };
+
+// ── Tier 4 Sub-Agent Gating ──
+const TIER4_SUB_AGENTS = new Set(['scribe', 'quill']);
+const SUB_AGENT_MENTION_WINDOW_HOURS = 24;
+
+function _isActiveStatus(status) {
+  return status === 'todo' || status === 'in-progress' || status === 'review';
+}
+
+function _isRecent(ts, hours) {
+  if (!ts) return false;
+  var t = new Date(ts).getTime();
+  if (!Number.isFinite(t)) return false;
+  return (Date.now() - t) <= hours * 60 * 60 * 1000;
+}
+
+function _hasAssignedActiveTasks(tasks, agentId) {
+  return tasks.some(function (t) {
+    return String(t.assignee || '').toLowerCase() === agentId &&
+      _isActiveStatus(String(t.status || '').toLowerCase());
+  });
+}
+
+function _hasRecentMention(tasks, agentId) {
+  var agentName = (AGENT_ROLES[agentId] && AGENT_ROLES[agentId].name) || agentId;
+  var needle = ('@' + agentName).toLowerCase();
+
+  return tasks.some(function (t) {
+    var comments = Array.isArray(t.comments) ? t.comments : [];
+    return comments.some(function (c) {
+      var text = String(c.text || c.comment || c.body || '').trim().toLowerCase();
+      var ts = c.createdAt || c.created_at || c.timestamp || c.time || null;
+      return text.indexOf(needle) !== -1 && _isRecent(ts, SUB_AGENT_MENTION_WINDOW_HOURS);
+    });
+  });
+}
+
+function shouldRunTier4Agent(tasks, agentId) {
+  if (!TIER4_SUB_AGENTS.has(agentId)) return { run: true, reason: 'not_tier4_subagent' };
+  if (_hasAssignedActiveTasks(tasks, agentId)) return { run: true, reason: 'assigned_active_task' };
+  if (_hasRecentMention(tasks, agentId)) return { run: true, reason: 'recent_mention_ping' };
+  return { run: false, reason: 'no_assigned_tasks_or_mentions' };
+}
 
 module.exports = async function (context) {
   const cycleId = 'cycle-' + Date.now();
@@ -41,6 +84,7 @@ module.exports = async function (context) {
   let newTasksCreated = 0;
   const agentActions = {};
   const _pendingEscalations = [];
+  const skippedAgents = [];
 
   context.log('[Heartbeat] Starting cycle:', cycleId);
 
@@ -79,6 +123,17 @@ module.exports = async function (context) {
       if (heartbeat.enabled === false) {
         context.log('[Heartbeat] Agent', agentId, 'heartbeat disabled, skipping');
         continue;
+      }
+
+      // Tier 4 sub-agent gating: only run if they have active tasks or recent @mentions
+      if (TIER4_SUB_AGENTS.has(agentId)) {
+        const gate = shouldRunTier4Agent(tasks, agentId);
+        if (!gate.run) {
+          context.log('[Heartbeat] Skipping Tier4 sub-agent', agentId + ':', gate.reason);
+          skippedAgents.push({ agentId: agentId, reason: gate.reason });
+          continue;
+        }
+        context.log('[Heartbeat] Tier4 sub-agent', agentId, 'triggered:', gate.reason);
       }
 
       agentActions[agentId] = 0;
@@ -153,6 +208,10 @@ module.exports = async function (context) {
     }
 
     // Log cron entry
+    const ranTier4 = AGENT_IDS.filter(function (id) {
+      return TIER4_SUB_AGENTS.has(id) && !skippedAgents.some(function (s) { return s.agentId === id; });
+    });
+
     const cronLog = (await storage.getState('cronLog')) || [];
     cronLog.push({
       agentId: null,
@@ -162,17 +221,23 @@ module.exports = async function (context) {
       geminiCalls: geminiCalls,
       newTasks: newTasksCreated,
       agentActions: agentActions,
+      skippedAgents: skippedAgents,
+      ranTier4: ranTier4,
       timestamp: new Date().toISOString()
     });
     if (cronLog.length > 50) cronLog.splice(0, cronLog.length - 50);
     await storage.setState('cronLog', cronLog);
 
+    const skipSummary = skippedAgents.length > 0
+      ? ', skipped: ' + skippedAgents.map(function (s) { return s.agentId; }).join(', ')
+      : '';
+
     await logEvent('heartbeat', null,
-      'Heartbeat cycle complete: ' + geminiCalls + ' API calls, ' + newTasksCreated + ' new tasks',
+      'Heartbeat cycle complete: ' + geminiCalls + ' API calls, ' + newTasksCreated + ' new tasks' + skipSummary,
       cycleId
     );
 
-    context.log('[Heartbeat] Cycle complete:', cycleId, '| Gemini calls:', geminiCalls, '| New tasks:', newTasksCreated);
+    context.log('[Heartbeat] Cycle complete:', cycleId, '| Gemini calls:', geminiCalls, '| New tasks:', newTasksCreated, '| Skipped:', skippedAgents.length, '| Tier4 ran:', ranTier4.join(', ') || 'none');
 
   } catch (err) {
     context.log.error('[Heartbeat] Fatal error:', err.message);
