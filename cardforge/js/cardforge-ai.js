@@ -252,10 +252,12 @@
         setButtonState(btn, 'loading', 'Generating artwork...');
         try {
           const imagePromptText = `Create a trading card character portrait: ${card.imagePrompt}. Style: detailed digital fantasy art, dramatic lighting, no text, no card borders.`;
+          console.log('[CardForge AI] Requesting artwork with prompt:', imagePromptText);
           const imgData = await callGemini(imagePromptText, {
             model: IMAGE_MODEL,
-            generationConfig: { responseModalities: ['TEXT', 'IMAGE'] }
+            generationConfig: { responseModalities: ['Image'] }
           });
+          console.log('[CardForge AI] Image response:', JSON.stringify(imgData).substring(0, 500));
 
           const img = extractImage(imgData);
           if (img) {
