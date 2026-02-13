@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Workspace — memory, identity, agents, tools, and configuration." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Workspace — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/workspace.css" />
+</head>
+<body style="background:#071019" data-theme="dark">
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo"><i class="fas fa-cube"></i> Ambient Pixels</a>
+      <ul class="nav-links">
+        <li><a href="/modules/company/">Company</a></li>
+        <li><a href="/modules/company/dashboard.html">Dashboard</a></li>
+        <li><a href="/modules/company/workspace.html" class="active">Workspace</a></li>
+        <li><a href="/nova/">Nova</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
+
+    <div class="ws-header">
+      <h1><i class="fas fa-layer-group"></i> Workspace</h1>
+      <div class="ws-nav-actions">
+        <a href="/modules/company/" class="ws-nav-btn"><i class="fas fa-arrow-left"></i> HQ</a>
+        <a href="/modules/company/dashboard.html" class="ws-nav-btn"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="ws-tabs" id="ws-tabs">
+      <button class="ws-tab active" data-tab="identity"><i class="fas fa-fingerprint"></i> Identity</button>
+      <button class="ws-tab" data-tab="memory"><i class="fas fa-brain"></i> Memory</button>
+      <button class="ws-tab" data-tab="agents"><i class="fas fa-users-cog"></i> Agents</button>
+      <button class="ws-tab" data-tab="tools"><i class="fas fa-toolbox"></i> Tools</button>
+      <button class="ws-tab" data-tab="dates"><i class="fas fa-calendar-alt"></i> Dates</button>
+    </div>
+
+    <!-- ═══════════════ IDENTITY TAB ═══════════════ -->
+    <div class="ws-panel active" id="panel-identity">
+      <div class="ws-identity-grid">
+        <div class="ws-field">
+          <label class="ws-field-label">Company Name</label>
+          <input type="text" class="ws-field-input" id="id-company-name" />
+        </div>
+        <div class="ws-field">
+          <label class="ws-field-label">Founder</label>
+          <input type="text" class="ws-field-input" id="id-founder" />
+        </div>
+        <div class="ws-field">
+          <label class="ws-field-label">Tagline</label>
+          <input type="text" class="ws-field-input" id="id-tagline" />
+        </div>
+        <div class="ws-field">
+          <label class="ws-field-label">Founded</label>
+          <input type="text" class="ws-field-input" id="id-founded" />
+        </div>
+      </div>
+      <div class="ws-field">
+        <label class="ws-field-label">Mission</label>
+        <textarea class="ws-field-textarea" id="id-mission" rows="2"></textarea>
+      </div>
+      <div class="ws-field">
+        <label class="ws-field-label">Brand Voice</label>
+        <textarea class="ws-field-textarea" id="id-brand-voice" rows="2"></textarea>
+      </div>
+      <div class="ws-field">
+        <label class="ws-field-label">Primary Color</label>
+        <input type="color" id="id-primary-color" style="width:40px;height:30px;border:none;background:none;cursor:pointer;" />
+      </div>
+      <div class="ws-field">
+        <label class="ws-field-label">Core Values</label>
+        <div class="ws-values-list" id="id-values"></div>
+        <div style="display:flex;gap:0.3rem;margin-top:0.4rem;">
+          <input type="text" class="ws-field-input" id="id-value-input" placeholder="Add a value..." style="flex:1;font-size:0.7rem;padding:5px 8px;" />
+          <button class="ws-save-btn" id="id-value-add" style="margin:0;padding:5px 10px;font-size:0.65rem;">Add</button>
+        </div>
+      </div>
+      <button class="ws-save-btn" id="id-save"><i class="fas fa-save"></i> Save Identity</button>
+      <span class="ws-save-msg" id="id-save-msg">Saved</span>
+    </div>
+
+    <!-- ═══════════════ MEMORY TAB ═══════════════ -->
+    <div class="ws-panel" id="panel-memory">
+      <div class="ws-memory-controls">
+        <button class="ws-memory-add-btn" id="mem-add-btn"><i class="fas fa-plus"></i> New Memory</button>
+        <input type="text" class="ws-memory-filter" id="mem-filter" placeholder="Filter memories..." />
+      </div>
+
+      <div class="ws-memory-form" id="mem-form">
+        <div class="ws-memory-form-row">
+          <div class="ws-field" style="margin:0;">
+            <label class="ws-field-label">Title</label>
+            <input type="text" class="ws-field-input" id="mem-form-title" placeholder="Memory title..." />
+          </div>
+          <div class="ws-field" style="margin:0;">
+            <label class="ws-field-label">Type</label>
+            <select class="ws-field-select" id="mem-form-type">
+              <option value="note">Note</option>
+              <option value="conversation">Conversation</option>
+              <option value="decision">Decision</option>
+              <option value="milestone">Milestone</option>
+              <option value="date">Date</option>
+            </select>
+          </div>
+        </div>
+        <div class="ws-field" style="margin:0 0 0.5rem;">
+          <label class="ws-field-label">Content</label>
+          <textarea class="ws-field-textarea" id="mem-form-content" rows="3" placeholder="What should be remembered..."></textarea>
+        </div>
+        <div class="ws-memory-form-row">
+          <div class="ws-field" style="margin:0;">
+            <label class="ws-field-label">Agent (optional)</label>
+            <select class="ws-field-select" id="mem-form-agent">
+              <option value="">Shared (all agents)</option>
+            </select>
+          </div>
+          <div class="ws-field" style="margin:0;">
+            <label class="ws-field-label">Tags (comma separated)</label>
+            <input type="text" class="ws-field-input" id="mem-form-tags" placeholder="project, feature, idea..." />
+          </div>
+        </div>
+        <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+          <button class="ws-save-btn" id="mem-form-save" style="margin:0;"><i class="fas fa-save"></i> Save Memory</button>
+          <button class="ws-nav-btn" id="mem-form-cancel">Cancel</button>
+        </div>
+      </div>
+
+      <div class="ws-memory-list" id="mem-list"></div>
+      <div class="ws-empty" id="mem-empty">No memories yet. Add your first one above.</div>
+    </div>
+
+    <!-- ═══════════════ AGENTS TAB ═══════════════ -->
+    <div class="ws-panel" id="panel-agents">
+      <div class="ws-agent-selector" id="agent-selector"></div>
+      <div id="agent-config-panels"></div>
+    </div>
+
+    <!-- ═══════════════ TOOLS TAB ═══════════════ -->
+    <div class="ws-panel" id="panel-tools">
+      <div class="ws-tools-grid" id="tools-grid"></div>
+    </div>
+
+    <!-- ═══════════════ DATES TAB ═══════════════ -->
+    <div class="ws-panel" id="panel-dates">
+      <div style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;">
+        <input type="text" class="ws-field-input" id="date-title" placeholder="Event title..." style="flex:2;min-width:150px;" />
+        <input type="date" class="ws-field-input" id="date-date" style="flex:1;min-width:130px;" />
+        <select class="ws-field-select" id="date-type" style="flex:1;min-width:100px;">
+          <option value="event">Event</option>
+          <option value="deadline">Deadline</option>
+          <option value="milestone">Milestone</option>
+          <option value="recurring">Recurring</option>
+        </select>
+        <button class="ws-save-btn" id="date-add" style="margin:0;"><i class="fas fa-plus"></i> Add</button>
+      </div>
+      <div class="ws-dates-list" id="dates-list"></div>
+      <div class="ws-empty" id="dates-empty">No important dates tracked yet.</div>
+    </div>
+
+  </main>
+
+  <script src="/js/agent-engine.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      // ── Tab switching ──
+      var tabs = document.querySelectorAll('.ws-tab');
+      var panels = document.querySelectorAll('.ws-panel');
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          tabs.forEach(function (t) { t.classList.remove('active'); });
+          panels.forEach(function (p) { p.classList.remove('active'); });
+          tab.classList.add('active');
+          document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+        });
+      });
+
+      // ── Init ──
+      AgentEngine.loadRegistry().then(function () {
+        initIdentity();
+        initMemory();
+        initAgents();
+        initTools();
+        initDates();
+      });
+
+      // ════════════════════════════════════════
+      //  IDENTITY
+      // ════════════════════════════════════════
+      function initIdentity() {
+        var identity = AgentEngine.getIdentity();
+        document.getElementById('id-company-name').value = identity.companyName || '';
+        document.getElementById('id-founder').value = identity.founder || '';
+        document.getElementById('id-tagline').value = identity.tagline || '';
+        document.getElementById('id-founded').value = identity.founded || '';
+        document.getElementById('id-mission').value = identity.mission || '';
+        document.getElementById('id-brand-voice').value = identity.brandVoice || '';
+        document.getElementById('id-primary-color').value = identity.primaryColor || '#8A2BE2';
+        renderValues(identity.values || []);
+      }
+
+      var _currentValues = [];
+
+      function renderValues(vals) {
+        _currentValues = vals.slice();
+        var container = document.getElementById('id-values');
+        container.innerHTML = '';
+        vals.forEach(function (v, i) {
+          var tag = document.createElement('span');
+          tag.className = 'ws-value-tag';
+          tag.innerHTML = v + ' <span style="cursor:pointer;opacity:0.5;margin-left:4px;" data-idx="' + i + '">&times;</span>';
+          tag.querySelector('span').addEventListener('click', function () {
+            _currentValues.splice(i, 1);
+            renderValues(_currentValues);
+          });
+          container.appendChild(tag);
+        });
+      }
+
+      document.getElementById('id-value-add').addEventListener('click', function () {
+        var input = document.getElementById('id-value-input');
+        var val = input.value.trim();
+        if (val) {
+          _currentValues.push(val);
+          renderValues(_currentValues);
+          input.value = '';
+        }
+      });
+
+      document.getElementById('id-save').addEventListener('click', function () {
+        AgentEngine.updateIdentity({
+          companyName: document.getElementById('id-company-name').value,
+          founder: document.getElementById('id-founder').value,
+          tagline: document.getElementById('id-tagline').value,
+          founded: document.getElementById('id-founded').value,
+          mission: document.getElementById('id-mission').value,
+          brandVoice: document.getElementById('id-brand-voice').value,
+          primaryColor: document.getElementById('id-primary-color').value,
+          values: _currentValues
+        });
+        flashSave('id-save-msg');
+      });
+
+      function flashSave(id) {
+        var el = document.getElementById(id);
+        el.classList.add('visible');
+        setTimeout(function () { el.classList.remove('visible'); }, 2000);
+      }
+
+      // ════════════════════════════════════════
+      //  MEMORY
+      // ════════════════════════════════════════
+      var memForm = document.getElementById('mem-form');
+      var memList = document.getElementById('mem-list');
+      var memEmpty = document.getElementById('mem-empty');
+      var memFilter = document.getElementById('mem-filter');
+
+      function initMemory() {
+        // Populate agent select
+        var agentSelect = document.getElementById('mem-form-agent');
+        var reg = AgentEngine.getRegistry();
+        if (reg && reg.agents) {
+          reg.agents.forEach(function (a) {
+            var opt = document.createElement('option');
+            opt.value = a.id;
+            opt.textContent = a.name + ' (' + a.role + ')';
+            agentSelect.appendChild(opt);
+          });
+        }
+        renderMemories();
+      }
+
+      document.getElementById('mem-add-btn').addEventListener('click', function () {
+        memForm.classList.toggle('visible');
+      });
+
+      document.getElementById('mem-form-cancel').addEventListener('click', function () {
+        memForm.classList.remove('visible');
+      });
+
+      document.getElementById('mem-form-save').addEventListener('click', function () {
+        var title = document.getElementById('mem-form-title').value.trim();
+        var content = document.getElementById('mem-form-content').value.trim();
+        if (!title) return;
+
+        var tags = document.getElementById('mem-form-tags').value.split(',').map(function (t) { return t.trim(); }).filter(Boolean);
+
+        AgentEngine.addMemory({
+          type: document.getElementById('mem-form-type').value,
+          title: title,
+          content: content,
+          agentId: document.getElementById('mem-form-agent').value || null,
+          tags: tags
+        });
+
+        document.getElementById('mem-form-title').value = '';
+        document.getElementById('mem-form-content').value = '';
+        document.getElementById('mem-form-tags').value = '';
+        memForm.classList.remove('visible');
+        renderMemories();
+      });
+
+      memFilter.addEventListener('input', function () {
+        renderMemories(this.value.toLowerCase());
+      });
+
+      function renderMemories(filterText) {
+        var memories = AgentEngine.getMemories().slice().reverse();
+
+        if (filterText) {
+          memories = memories.filter(function (m) {
+            return (m.title + ' ' + m.content + ' ' + (m.tags || []).join(' ')).toLowerCase().indexOf(filterText) !== -1;
+          });
+        }
+
+        memList.innerHTML = '';
+        memEmpty.style.display = memories.length === 0 ? '' : 'none';
+
+        memories.forEach(function (m) {
+          var agent = m.agentId ? AgentEngine.getAgent(m.agentId) : null;
+          var el = document.createElement('div');
+          el.className = 'ws-memory-item' + (m.pinned ? ' pinned' : '');
+
+          var tagsHtml = (m.tags || []).map(function (t) {
+            return '<span class="ws-tool-category">' + t + '</span>';
+          }).join(' ');
+
+          var timeStr = new Date(m.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+          el.innerHTML =
+            '<div class="ws-memory-actions">' +
+              '<button class="ws-memory-action-btn" data-action="pin" data-id="' + m.id + '" title="Pin"><i class="fas fa-thumbtack"></i></button>' +
+              '<button class="ws-memory-action-btn ws-memory-action-btn--delete" data-action="delete" data-id="' + m.id + '" title="Delete"><i class="fas fa-trash"></i></button>' +
+            '</div>' +
+            '<div class="ws-memory-item-header">' +
+              '<span class="ws-memory-type ws-memory-type--' + m.type + '">' + m.type + '</span>' +
+              '<span class="ws-memory-title">' + escapeHtml(m.title) + '</span>' +
+            '</div>' +
+            (m.content ? '<div class="ws-memory-content">' + escapeHtml(m.content) + '</div>' : '') +
+            '<div class="ws-memory-meta">' +
+              '<span>' + timeStr + '</span>' +
+              (agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : '<span>shared</span>') +
+              (tagsHtml ? ' ' + tagsHtml : '') +
+            '</div>';
+
+          // Bind actions
+          el.querySelectorAll('.ws-memory-action-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var id = this.dataset.id;
+              if (this.dataset.action === 'delete') {
+                AgentEngine.deleteMemory(id);
+                renderMemories(memFilter.value.toLowerCase());
+              } else if (this.dataset.action === 'pin') {
+                var mem = AgentEngine.getMemories().find(function (x) { return x.id === id; });
+                if (mem) AgentEngine.updateMemory(id, { pinned: !mem.pinned });
+                renderMemories(memFilter.value.toLowerCase());
+              }
+            });
+          });
+
+          memList.appendChild(el);
+        });
+      }
+
+      // ════════════════════════════════════════
+      //  AGENTS CONFIG
+      // ════════════════════════════════════════
+      var agentSelector = document.getElementById('agent-selector');
+      var agentConfigPanels = document.getElementById('agent-config-panels');
+      var _selectedAgentId = null;
+
+      function initAgents() {
+        var reg = AgentEngine.getRegistry();
+        if (!reg || !reg.agents) return;
+
+        reg.agents.forEach(function (agent, idx) {
+          // Selector tab
+          var tab = document.createElement('button');
+          tab.className = 'ws-agent-tab' + (idx === 0 ? ' active' : '');
+          tab.dataset.agentId = agent.id;
+          tab.style.setProperty('--agent-color', agent.color);
+          tab.innerHTML = '<i class="' + agent.icon + '"></i> ' + agent.name;
+          tab.addEventListener('click', function () {
+            selectAgent(agent.id);
+          });
+          agentSelector.appendChild(tab);
+
+          // Config panel
+          var panel = createAgentConfigPanel(agent);
+          panel.style.display = idx === 0 ? 'block' : 'none';
+          agentConfigPanels.appendChild(panel);
+        });
+
+        _selectedAgentId = reg.agents[0].id;
+      }
+
+      function selectAgent(agentId) {
+        _selectedAgentId = agentId;
+        agentSelector.querySelectorAll('.ws-agent-tab').forEach(function (t) {
+          t.classList.toggle('active', t.dataset.agentId === agentId);
+        });
+        agentConfigPanels.querySelectorAll('.ws-agent-config-panel').forEach(function (p) {
+          p.style.display = p.dataset.agentId === agentId ? 'block' : 'none';
+        });
+      }
+
+      function createAgentConfigPanel(agent) {
+        var config = AgentEngine.getAgentConfig(agent.id);
+        var panel = document.createElement('div');
+        panel.className = 'ws-agent-config-panel';
+        panel.dataset.agentId = agent.id;
+
+        var hbStatus = config.heartbeat.lastBeat ? 'alive' : 'idle';
+        var hbTime = config.heartbeat.lastBeat
+          ? new Date(config.heartbeat.lastBeat).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+          : 'Never';
+
+        panel.innerHTML =
+          // Heartbeat
+          '<div class="ws-config-section">' +
+            '<div class="ws-config-title"><i class="fas fa-heartbeat"></i> Heartbeat</div>' +
+            '<div class="ws-heartbeat">' +
+              '<div class="ws-heartbeat-dot ws-heartbeat-dot--' + hbStatus + '"></div>' +
+              '<div class="ws-heartbeat-info">' +
+                '<div class="ws-heartbeat-label">' + (hbStatus === 'alive' ? 'Online' : 'Idle') + '</div>' +
+                '<div class="ws-heartbeat-time">Last beat: ' + hbTime + '</div>' +
+              '</div>' +
+              '<button class="ws-nav-btn" data-agent="' + agent.id + '" data-action="ping-heartbeat" style="font-size:0.6rem;"><i class="fas fa-satellite-dish"></i> Ping</button>' +
+            '</div>' +
+          '</div>' +
+
+          // Personality
+          '<div class="ws-config-section">' +
+            '<div class="ws-config-title"><i class="fas fa-theater-masks"></i> Personality</div>' +
+            '<div class="ws-config-grid">' +
+              '<div class="ws-field" style="margin:0;">' +
+                '<label class="ws-field-label">Tone</label>' +
+                '<select class="ws-field-select agent-cfg" data-agent="' + agent.id + '" data-key="personality.tone">' +
+                  '<option value="default"' + sel(config.personality.tone, 'default') + '>Default</option>' +
+                  '<option value="professional"' + sel(config.personality.tone, 'professional') + '>Professional</option>' +
+                  '<option value="casual"' + sel(config.personality.tone, 'casual') + '>Casual</option>' +
+                  '<option value="technical"' + sel(config.personality.tone, 'technical') + '>Technical</option>' +
+                  '<option value="creative"' + sel(config.personality.tone, 'creative') + '>Creative</option>' +
+                '</select>' +
+              '</div>' +
+              '<div class="ws-field" style="margin:0;">' +
+                '<label class="ws-field-label">Formality</label>' +
+                '<select class="ws-field-select agent-cfg" data-agent="' + agent.id + '" data-key="personality.formality">' +
+                  '<option value="adaptive"' + sel(config.personality.formality, 'adaptive') + '>Adaptive</option>' +
+                  '<option value="formal"' + sel(config.personality.formality, 'formal') + '>Formal</option>' +
+                  '<option value="informal"' + sel(config.personality.formality, 'informal') + '>Informal</option>' +
+                '</select>' +
+              '</div>' +
+              '<div class="ws-field" style="margin:0;">' +
+                '<label class="ws-field-label">Humor</label>' +
+                '<select class="ws-field-select agent-cfg" data-agent="' + agent.id + '" data-key="personality.humor">' +
+                  '<option value="none"' + sel(config.personality.humor, 'none') + '>None</option>' +
+                  '<option value="subtle"' + sel(config.personality.humor, 'subtle') + '>Subtle</option>' +
+                  '<option value="moderate"' + sel(config.personality.humor, 'moderate') + '>Moderate</option>' +
+                  '<option value="frequent"' + sel(config.personality.humor, 'frequent') + '>Frequent</option>' +
+                '</select>' +
+              '</div>' +
+              '<div class="ws-field" style="margin:0;">' +
+                '<label class="ws-field-label">Verbosity</label>' +
+                '<select class="ws-field-select agent-cfg" data-agent="' + agent.id + '" data-key="personality.verbosity">' +
+                  '<option value="minimal"' + sel(config.personality.verbosity, 'minimal') + '>Minimal</option>' +
+                  '<option value="concise"' + sel(config.personality.verbosity, 'concise') + '>Concise</option>' +
+                  '<option value="detailed"' + sel(config.personality.verbosity, 'detailed') + '>Detailed</option>' +
+                '</select>' +
+              '</div>' +
+            '</div>' +
+            '<div class="ws-field" style="margin:0.6rem 0 0;">' +
+              '<label class="ws-field-label">Custom Traits</label>' +
+              '<textarea class="ws-field-textarea agent-cfg-text" data-agent="' + agent.id + '" data-key="personality.customTraits" rows="2" placeholder="Additional personality notes...">' + escapeHtml(config.personality.customTraits || '') + '</textarea>' +
+            '</div>' +
+          '</div>' +
+
+          // Role Override
+          '<div class="ws-config-section">' +
+            '<div class="ws-config-title"><i class="fas fa-user-tag"></i> Role &amp; Identity</div>' +
+            '<div class="ws-config-grid">' +
+              '<div class="ws-field" style="margin:0;">' +
+                '<label class="ws-field-label">Role Override</label>' +
+                '<input type="text" class="ws-field-input agent-cfg-text" data-agent="' + agent.id + '" data-key="roleOverride" placeholder="' + agent.role + '" value="' + escapeHtml(config.roleOverride || '') + '" />' +
+              '</div>' +
+              '<div class="ws-field" style="margin:0;">' +
+                '<label class="ws-field-label">Title Override</label>' +
+                '<input type="text" class="ws-field-input agent-cfg-text" data-agent="' + agent.id + '" data-key="titleOverride" placeholder="' + agent.title + '" value="' + escapeHtml(config.titleOverride || '') + '" />' +
+              '</div>' +
+            '</div>' +
+            '<div class="ws-field" style="margin:0.6rem 0 0;">' +
+              '<label class="ws-field-label">System Prompt Override</label>' +
+              '<textarea class="ws-field-textarea agent-cfg-text" data-agent="' + agent.id + '" data-key="systemPromptOverride" rows="3" placeholder="Leave empty to use default...">' + escapeHtml(config.systemPromptOverride || '') + '</textarea>' +
+            '</div>' +
+          '</div>' +
+
+          // Notes
+          '<div class="ws-config-section">' +
+            '<div class="ws-config-title"><i class="fas fa-sticky-note"></i> Agent Notes</div>' +
+            '<textarea class="ws-field-textarea agent-cfg-text" data-agent="' + agent.id + '" data-key="notes" rows="3" placeholder="Internal notes about this agent...">' + escapeHtml(config.notes || '') + '</textarea>' +
+          '</div>' +
+
+          '<button class="ws-save-btn" data-agent="' + agent.id + '" data-action="save-agent"><i class="fas fa-save"></i> Save ' + agent.name + ' Config</button>' +
+          '<span class="ws-save-msg" id="save-msg-' + agent.id + '">Saved</span>';
+
+        return panel;
+      }
+
+      // Delegate events for agent config panels
+      document.getElementById('agent-config-panels').addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        var agentId = btn.dataset.agent;
+
+        if (btn.dataset.action === 'ping-heartbeat') {
+          AgentEngine.recordHeartbeat(agentId);
+          var dot = btn.closest('.ws-heartbeat').querySelector('.ws-heartbeat-dot');
+          dot.className = 'ws-heartbeat-dot ws-heartbeat-dot--alive';
+          var label = btn.closest('.ws-heartbeat').querySelector('.ws-heartbeat-label');
+          label.textContent = 'Online';
+          var timeEl = btn.closest('.ws-heartbeat').querySelector('.ws-heartbeat-time');
+          timeEl.textContent = 'Last beat: just now';
+        }
+
+        if (btn.dataset.action === 'save-agent') {
+          // Collect select values
+          var panel = btn.closest('.ws-agent-config-panel');
+          var updates = {};
+
+          panel.querySelectorAll('.agent-cfg').forEach(function (select) {
+            var keys = select.dataset.key.split('.');
+            if (keys.length === 2) {
+              if (!updates[keys[0]]) updates[keys[0]] = {};
+              updates[keys[0]][keys[1]] = select.value;
+            } else {
+              updates[keys[0]] = select.value;
+            }
+          });
+
+          panel.querySelectorAll('.agent-cfg-text').forEach(function (input) {
+            var keys = input.dataset.key.split('.');
+            var val = input.value.trim() || null;
+            if (keys.length === 2) {
+              if (!updates[keys[0]]) updates[keys[0]] = {};
+              updates[keys[0]][keys[1]] = val || '';
+            } else {
+              updates[keys[0]] = val;
+            }
+          });
+
+          AgentEngine.updateAgentConfig(agentId, updates);
+          flashSave('save-msg-' + agentId);
+        }
+      });
+
+      function sel(current, value) {
+        return current === value ? ' selected' : '';
+      }
+
+      // ════════════════════════════════════════
+      //  TOOLS
+      // ════════════════════════════════════════
+      function initTools() {
+        var grid = document.getElementById('tools-grid');
+        var tools = AgentEngine.getTools();
+        grid.innerHTML = '';
+
+        tools.forEach(function (tool) {
+          var card = document.createElement('a');
+          card.className = 'ws-tool-card';
+          card.href = tool.url;
+          card.innerHTML =
+            '<div class="ws-tool-header">' +
+              '<div class="ws-tool-icon"><i class="' + tool.icon + '"></i></div>' +
+              '<span class="ws-tool-name">' + tool.name + '</span>' +
+            '</div>' +
+            '<div class="ws-tool-desc">' + tool.description + '</div>' +
+            '<span class="ws-tool-category">' + tool.category + '</span>';
+          grid.appendChild(card);
+        });
+      }
+
+      // ════════════════════════════════════════
+      //  DATES
+      // ════════════════════════════════════════
+      function initDates() {
+        renderDates();
+      }
+
+      document.getElementById('date-add').addEventListener('click', function () {
+        var title = document.getElementById('date-title').value.trim();
+        var date = document.getElementById('date-date').value;
+        if (!title || !date) return;
+
+        AgentEngine.addDate({
+          title: title,
+          date: date,
+          type: document.getElementById('date-type').value
+        });
+
+        document.getElementById('date-title').value = '';
+        document.getElementById('date-date').value = '';
+        renderDates();
+      });
+
+      function renderDates() {
+        var dates = AgentEngine.getDates();
+        var list = document.getElementById('dates-list');
+        var empty = document.getElementById('dates-empty');
+        list.innerHTML = '';
+        empty.style.display = dates.length === 0 ? '' : 'none';
+
+        // Sort by date
+        dates.sort(function (a, b) { return a.date.localeCompare(b.date); });
+
+        dates.forEach(function (d) {
+          var dt = new Date(d.date + 'T00:00:00');
+          var month = dt.toLocaleDateString('en-US', { month: 'short' });
+          var day = dt.getDate();
+
+          var el = document.createElement('div');
+          el.className = 'ws-date-item';
+          el.innerHTML =
+            '<div class="ws-date-cal">' +
+              '<div class="ws-date-cal-month">' + month + '</div>' +
+              '<div class="ws-date-cal-day">' + day + '</div>' +
+            '</div>' +
+            '<div class="ws-date-info">' +
+              '<div class="ws-date-title">' + escapeHtml(d.title) + '</div>' +
+              '<div class="ws-date-type">' + d.type + '</div>' +
+            '</div>' +
+            '<button class="ws-date-delete" data-id="' + d.id + '"><i class="fas fa-times"></i></button>';
+
+          el.querySelector('.ws-date-delete').addEventListener('click', function () {
+            AgentEngine.deleteDate(this.dataset.id);
+            renderDates();
+          });
+
+          list.appendChild(el);
+        });
+      }
+
+      // ── Helpers ──
+      function escapeHtml(str) {
+        if (!str) return '';
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+    })();
+  </script>
+
+</body>
+</html>

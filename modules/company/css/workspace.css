@@ -1,0 +1,629 @@
+/* ── AmbientPixels Workspace ── */
+
+.ws-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 0 1rem;
+}
+
+.ws-header h1 {
+  font-size: 1.3rem;
+  font-weight: 500;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ws-header h1 i { opacity: 0.4; }
+
+.ws-nav-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.ws-nav-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-family: inherit;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.ws-nav-btn:hover {
+  color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Tab Navigation ── */
+.ws-tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+}
+
+.ws-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: rgba(255, 255, 255, 0.35);
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ws-tab:hover {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.ws-tab.active {
+  color: #c9a0ff;
+  border-bottom-color: #8A2BE2;
+}
+
+.ws-tab i { font-size: 0.7rem; }
+
+/* ── Tab Panels ── */
+.ws-panel {
+  display: none;
+}
+
+.ws-panel.active {
+  display: block;
+}
+
+/* ── Identity Section ── */
+.ws-identity-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+
+.ws-field {
+  margin-bottom: 0.8rem;
+}
+
+.ws-field-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  opacity: 0.35;
+  margin-bottom: 0.3rem;
+  display: block;
+}
+
+.ws-field-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: #fff;
+  font-size: 0.8rem;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.ws-field-input:focus {
+  border-color: rgba(138, 43, 226, 0.4);
+}
+
+.ws-field-textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: #fff;
+  font-size: 0.8rem;
+  font-family: inherit;
+  outline: none;
+  resize: vertical;
+  min-height: 60px;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.ws-field-textarea:focus {
+  border-color: rgba(138, 43, 226, 0.4);
+}
+
+.ws-field-select {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: #fff;
+  font-size: 0.8rem;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.ws-values-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+}
+
+.ws-value-tag {
+  font-size: 0.6rem;
+  padding: 3px 10px;
+  border-radius: 10px;
+  background: rgba(138, 43, 226, 0.1);
+  border: 1px solid rgba(138, 43, 226, 0.2);
+  color: #c9a0ff;
+}
+
+.ws-save-btn {
+  background: rgba(138, 43, 226, 0.15);
+  border: 1px solid rgba(138, 43, 226, 0.3);
+  color: #c9a0ff;
+  padding: 7px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-family: inherit;
+  transition: all 0.2s;
+  margin-top: 0.5rem;
+}
+
+.ws-save-btn:hover {
+  background: rgba(138, 43, 226, 0.25);
+}
+
+.ws-save-msg {
+  font-size: 0.7rem;
+  color: #00C896;
+  margin-left: 8px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.ws-save-msg.visible { opacity: 1; }
+
+/* ── Memory Section ── */
+.ws-memory-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.ws-memory-add-btn {
+  background: rgba(138, 43, 226, 0.12);
+  border: 1px solid rgba(138, 43, 226, 0.25);
+  color: #c9a0ff;
+  padding: 5px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-family: inherit;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ws-memory-add-btn:hover {
+  background: rgba(138, 43, 226, 0.2);
+}
+
+.ws-memory-filter {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 5px 10px;
+  color: #fff;
+  font-size: 0.7rem;
+  font-family: inherit;
+  outline: none;
+  flex: 1;
+  min-width: 150px;
+}
+
+.ws-memory-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ws-memory-item {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  position: relative;
+}
+
+.ws-memory-item.pinned {
+  border-color: rgba(138, 43, 226, 0.2);
+  background: rgba(138, 43, 226, 0.03);
+}
+
+.ws-memory-item-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.ws-memory-type {
+  font-size: 0.55rem;
+  padding: 1px 6px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.ws-memory-type--note { background: rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.5); }
+.ws-memory-type--conversation { background: rgba(138, 43, 226, 0.12); color: #c9a0ff; }
+.ws-memory-type--date { background: rgba(0, 200, 150, 0.12); color: #00C896; }
+.ws-memory-type--decision { background: rgba(255, 107, 157, 0.12); color: #FF6B9D; }
+.ws-memory-type--milestone { background: rgba(255, 140, 0, 0.12); color: #FF8C00; }
+
+.ws-memory-title {
+  font-size: 0.82rem;
+  font-weight: 500;
+  flex: 1;
+}
+
+.ws-memory-pin {
+  font-size: 0.6rem;
+  opacity: 0.25;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.ws-memory-pin:hover, .ws-memory-pin.active { opacity: 0.8; color: #FFB800; }
+
+.ws-memory-content {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  opacity: 0.65;
+}
+
+.ws-memory-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+  font-size: 0.6rem;
+  opacity: 0.25;
+}
+
+.ws-memory-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+}
+
+.ws-memory-action-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  font-size: 0.6rem;
+  padding: 2px 4px;
+  transition: color 0.2s;
+}
+
+.ws-memory-action-btn:hover { color: rgba(255, 255, 255, 0.6); }
+.ws-memory-action-btn--delete:hover { color: #ff4444; }
+
+/* ── Add Memory Form ── */
+.ws-memory-form {
+  display: none;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(138, 43, 226, 0.15);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ws-memory-form.visible { display: block; }
+
+.ws-memory-form-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.ws-memory-form-row > * { flex: 1; }
+
+/* ── Agent Config Section ── */
+.ws-agent-selector {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.ws-agent-tab {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-family: inherit;
+  color: rgba(255, 255, 255, 0.4);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ws-agent-tab:hover {
+  color: rgba(255, 255, 255, 0.7);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.ws-agent-tab.active {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--agent-color, rgba(138, 43, 226, 0.3));
+  color: var(--agent-color, #c9a0ff);
+}
+
+.ws-agent-tab i { font-size: 0.7rem; }
+
+.ws-agent-config-panel {
+  display: none;
+}
+
+.ws-agent-config-panel.active {
+  display: block;
+}
+
+.ws-config-section {
+  margin-bottom: 1.2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.ws-config-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.ws-config-title {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.4;
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ws-config-title i { font-size: 0.65rem; }
+
+.ws-config-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+/* Heartbeat indicator */
+.ws-heartbeat {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.ws-heartbeat-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ws-heartbeat-dot--alive {
+  background: #00C896;
+  box-shadow: 0 0 8px rgba(0, 200, 150, 0.4);
+  animation: hb-pulse 2s ease-in-out infinite;
+}
+
+.ws-heartbeat-dot--idle {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+@keyframes hb-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.ws-heartbeat-info {
+  flex: 1;
+}
+
+.ws-heartbeat-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.ws-heartbeat-time {
+  font-size: 0.6rem;
+  opacity: 0.3;
+}
+
+/* ── Tools Section ── */
+.ws-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.6rem;
+}
+
+.ws-tool-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 0.8rem;
+  transition: all 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.ws-tool-card:hover {
+  border-color: rgba(138, 43, 226, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.ws-tool-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.ws-tool-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  background: rgba(138, 43, 226, 0.1);
+  color: #8A2BE2;
+  flex-shrink: 0;
+}
+
+.ws-tool-name {
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.ws-tool-desc {
+  font-size: 0.7rem;
+  opacity: 0.4;
+  line-height: 1.4;
+}
+
+.ws-tool-category {
+  font-size: 0.55rem;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.35);
+  margin-top: 0.4rem;
+  display: inline-block;
+}
+
+/* ── Dates Section ── */
+.ws-dates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ws-date-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.6rem 0.8rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+}
+
+.ws-date-cal {
+  width: 40px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.ws-date-cal-month {
+  font-size: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.4;
+}
+
+.ws-date-cal-day {
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.ws-date-info {
+  flex: 1;
+}
+
+.ws-date-title {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.ws-date-type {
+  font-size: 0.6rem;
+  opacity: 0.3;
+}
+
+.ws-date-delete {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  font-size: 0.65rem;
+  padding: 4px;
+  transition: color 0.2s;
+}
+
+.ws-date-delete:hover { color: #ff4444; }
+
+.ws-empty {
+  text-align: center;
+  opacity: 0.2;
+  font-size: 0.8rem;
+  font-style: italic;
+  padding: 2rem 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .ws-identity-grid,
+  .ws-config-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ws-tools-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ws-tabs {
+    gap: 0;
+  }
+
+  .ws-tab {
+    padding: 8px 10px;
+    font-size: 0.65rem;
+  }
+}

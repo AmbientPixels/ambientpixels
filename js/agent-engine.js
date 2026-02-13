@@ -509,6 +509,215 @@ var AgentEngine = (function () {
     return _standupRunning;
   }
 
+  // ── Workspace: Shared Memory ──
+  var MEMORY_KEY = 'ap_workspace_memory';
+  var MAX_MEMORIES = 200;
+
+  function getMemories() {
+    return _loadStorage(MEMORY_KEY, []);
+  }
+
+  function addMemory(entry) {
+    var memories = getMemories();
+    var item = {
+      id: 'mem-' + Date.now(),
+      type: entry.type || 'note',       // note, conversation, date, decision, milestone
+      title: entry.title || '',
+      content: entry.content || '',
+      agentId: entry.agentId || null,    // null = shared, or agent-specific
+      tags: entry.tags || [],
+      pinned: entry.pinned || false,
+      timestamp: new Date().toISOString()
+    };
+    memories.push(item);
+    if (memories.length > MAX_MEMORIES) memories = memories.slice(-MAX_MEMORIES);
+    _saveStorage(MEMORY_KEY, memories);
+    emit('memory-added', item);
+    return item;
+  }
+
+  function updateMemory(id, updates) {
+    var memories = getMemories();
+    var idx = -1;
+    for (var i = 0; i < memories.length; i++) {
+      if (memories[i].id === id) { idx = i; break; }
+    }
+    if (idx === -1) return null;
+    Object.keys(updates).forEach(function (k) { memories[idx][k] = updates[k]; });
+    memories[idx].updatedAt = new Date().toISOString();
+    _saveStorage(MEMORY_KEY, memories);
+    emit('memory-updated', memories[idx]);
+    return memories[idx];
+  }
+
+  function deleteMemory(id) {
+    var memories = getMemories().filter(function (m) { return m.id !== id; });
+    _saveStorage(MEMORY_KEY, memories);
+    emit('memory-deleted', { id: id });
+  }
+
+  // ── Workspace: Agent Config (personality, heartbeat, role overrides) ──
+  var AGENT_CONFIG_KEY = 'ap_agent_configs';
+
+  function getAgentConfigs() {
+    return _loadStorage(AGENT_CONFIG_KEY, {});
+  }
+
+  function getAgentConfig(agentId) {
+    var configs = getAgentConfigs();
+    if (!configs[agentId]) {
+      // Bootstrap defaults from registry
+      var agent = getAgent(agentId);
+      configs[agentId] = {
+        personality: {
+          tone: 'default',
+          formality: 'adaptive',
+          humor: 'moderate',
+          verbosity: 'concise',
+          customTraits: ''
+        },
+        heartbeat: {
+          enabled: true,
+          intervalMinutes: 60,
+          lastBeat: null,
+          status: 'idle'
+        },
+        roleOverride: null,          // null = use registry default
+        titleOverride: null,
+        systemPromptOverride: null,   // null = use registry default
+        notes: '',
+        updatedAt: null
+      };
+      _saveStorage(AGENT_CONFIG_KEY, configs);
+    }
+    return configs[agentId];
+  }
+
+  function updateAgentConfig(agentId, updates) {
+    var configs = getAgentConfigs();
+    var current = getAgentConfig(agentId);
+    // Deep merge for nested objects
+    Object.keys(updates).forEach(function (k) {
+      if (typeof updates[k] === 'object' && updates[k] !== null && !Array.isArray(updates[k]) && current[k]) {
+        Object.keys(updates[k]).forEach(function (subK) {
+          current[k][subK] = updates[k][subK];
+        });
+      } else {
+        current[k] = updates[k];
+      }
+    });
+    current.updatedAt = new Date().toISOString();
+    configs[agentId] = current;
+    _saveStorage(AGENT_CONFIG_KEY, configs);
+    emit('agent-config-updated', { agentId: agentId, config: current });
+    return current;
+  }
+
+  // Record heartbeat for an agent
+  function recordHeartbeat(agentId) {
+    updateAgentConfig(agentId, { heartbeat: { lastBeat: new Date().toISOString(), status: 'alive' } });
+  }
+
+  // ── Workspace: Company Identity ──
+  var IDENTITY_KEY = 'ap_workspace_identity';
+
+  function getIdentity() {
+    var defaults = {
+      companyName: 'AmbientPixels',
+      tagline: 'Creative-tech studio powered by AI agents',
+      founder: 'Chad Martin',
+      founded: '2024',
+      mission: 'Build creative tools and experiences powered by AI agents working as a team.',
+      brandVoice: 'Warm, direct, creative. Technical but not cold. Human-first.',
+      primaryColor: '#8A2BE2',
+      values: ['creativity', 'quality', 'autonomy', 'transparency'],
+      updatedAt: null
+    };
+    return _loadStorage(IDENTITY_KEY, defaults);
+  }
+
+  function updateIdentity(updates) {
+    var identity = getIdentity();
+    Object.keys(updates).forEach(function (k) { identity[k] = updates[k]; });
+    identity.updatedAt = new Date().toISOString();
+    _saveStorage(IDENTITY_KEY, identity);
+    emit('identity-updated', identity);
+    return identity;
+  }
+
+  // ── Workspace: Tools Registry ──
+  var TOOLS_KEY = 'ap_workspace_tools';
+
+  function getTools() {
+    return _loadStorage(TOOLS_KEY, [
+      { id: 'agent-chat', name: 'Agent Chat', icon: 'fas fa-comment', url: '/modules/company/agent-chat.html', category: 'communication', status: 'active', description: 'Chat with any agent individually' },
+      { id: 'daily-standup', name: 'Daily Standup', icon: 'fas fa-users', url: '/modules/company/', category: 'coordination', status: 'active', description: 'Run daily team standup meetings' },
+      { id: 'task-manager', name: 'Task Manager', icon: 'fas fa-tachometer-alt', url: '/modules/company/dashboard.html', category: 'monitoring', status: 'active', description: 'Monitor sessions, tokens, costs, and logs' },
+      { id: 'org-chart', name: 'Org Chart', icon: 'fas fa-sitemap', url: '/modules/company/', category: 'structure', status: 'active', description: 'View company structure and agent roles' },
+      { id: 'nova-nexus', name: 'Nova Nexus', icon: 'fas fa-brain', url: '/nova/', category: 'ai-core', status: 'active', description: 'Nova\'s sentient dashboard — mood, dreams, awareness' },
+      { id: 'cardforge', name: 'CardForge', icon: 'fas fa-id-card', url: '/cardforge/', category: 'creative-tools', status: 'active', description: 'Trading card creator with AI generation' }
+    ]);
+  }
+
+  function addTool(tool) {
+    var tools = getTools();
+    tool.id = tool.id || 'tool-' + Date.now();
+    tool.status = tool.status || 'active';
+    tools.push(tool);
+    _saveStorage(TOOLS_KEY, tools);
+    emit('tool-added', tool);
+    return tool;
+  }
+
+  function updateTool(id, updates) {
+    var tools = getTools();
+    for (var i = 0; i < tools.length; i++) {
+      if (tools[i].id === id) {
+        Object.keys(updates).forEach(function (k) { tools[i][k] = updates[k]; });
+        _saveStorage(TOOLS_KEY, tools);
+        emit('tool-updated', tools[i]);
+        return tools[i];
+      }
+    }
+    return null;
+  }
+
+  function deleteTool(id) {
+    var tools = getTools().filter(function (t) { return t.id !== id; });
+    _saveStorage(TOOLS_KEY, tools);
+    emit('tool-deleted', { id: id });
+  }
+
+  // ── Workspace: Important Dates ──
+  var DATES_KEY = 'ap_workspace_dates';
+
+  function getDates() {
+    return _loadStorage(DATES_KEY, []);
+  }
+
+  function addDate(entry) {
+    var dates = getDates();
+    var item = {
+      id: 'date-' + Date.now(),
+      title: entry.title || '',
+      date: entry.date || new Date().toISOString().split('T')[0],
+      type: entry.type || 'event',   // event, deadline, milestone, recurring
+      agentId: entry.agentId || null,
+      notes: entry.notes || '',
+      recurring: entry.recurring || false
+    };
+    dates.push(item);
+    _saveStorage(DATES_KEY, dates);
+    emit('date-added', item);
+    return item;
+  }
+
+  function deleteDate(id) {
+    var dates = getDates().filter(function (d) { return d.id !== id; });
+    _saveStorage(DATES_KEY, dates);
+    emit('date-deleted', { id: id });
+  }
+
   // ── Public API ──
   return {
     on: on,
@@ -532,6 +741,24 @@ var AgentEngine = (function () {
     getModelFleet: getModelFleet,
     getAgentSessionStats: getAgentSessionStats,
     getAgentStatuses: getAgentStatuses,
-    getOvernightLog: getOvernightLog
+    getOvernightLog: getOvernightLog,
+    // Workspace
+    getMemories: getMemories,
+    addMemory: addMemory,
+    updateMemory: updateMemory,
+    deleteMemory: deleteMemory,
+    getAgentConfig: getAgentConfig,
+    getAgentConfigs: getAgentConfigs,
+    updateAgentConfig: updateAgentConfig,
+    recordHeartbeat: recordHeartbeat,
+    getIdentity: getIdentity,
+    updateIdentity: updateIdentity,
+    getTools: getTools,
+    addTool: addTool,
+    updateTool: updateTool,
+    deleteTool: deleteTool,
+    getDates: getDates,
+    addDate: addDate,
+    deleteDate: deleteDate
   };
 })();
