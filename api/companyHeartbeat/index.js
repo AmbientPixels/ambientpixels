@@ -8,7 +8,7 @@ const storage = require('../_utils/companyStorage');
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
 
-const AGENT_IDS = ['cipher', 'pixel', 'forge', 'echo', 'nova'];
+const AGENT_IDS = ['cipher', 'pixel', 'forge', 'echo', 'nova', 'scribe', 'quill'];
 
 // Agent system prompts (abbreviated for heartbeat context)
 const AGENT_ROLES = {
@@ -16,7 +16,9 @@ const AGENT_ROLES = {
   cipher: { name: 'Cipher', role: 'CFO', tier: 3, focus: 'budgets, API costs, resource efficiency, spending' },
   pixel: { name: 'Pixel', role: 'Design & QC', tier: 3, focus: 'UI quality, accessibility, design consistency, frontend' },
   forge: { name: 'Forge', role: 'DevOps', tier: 3, focus: 'deployments, infrastructure, uptime, backend security' },
-  echo: { name: 'Echo', role: 'Marketing', tier: 3, focus: 'content, social media, community, brand voice' }
+  echo: { name: 'Echo', role: 'Marketing', tier: 3, focus: 'content, social media, community, brand voice' },
+  scribe: { name: 'Scribe', role: 'Marketing — Draft Writer', tier: 4, reportsTo: 'echo', focus: 'longform drafts, product briefs, doc drafts, social threads' },
+  quill: { name: 'Quill', role: 'Marketing — Editor & Brand Voice', tier: 4, reportsTo: 'echo', focus: 'editing, compression, brand consistency, CTA polish' }
 };
 
 // Decision classification thresholds
@@ -25,7 +27,7 @@ const CFO_THRESHOLD = 100; // budget_impact above this requires CEO approval
 // ── Guardrails ──
 const GUARDRAILS = {
   maxActionsPerCyclePerAgent: 3,
-  maxGeminiCallsPerCycle: 15,
+  maxGeminiCallsPerCycle: 21,
   maxNewTasksPerCycle: 5,
   maxExecutesPerCyclePerAgent: 1,
   maxEscalationsPerCycle: 3,
@@ -238,8 +240,18 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   const actions = parsed.actions || [];
   let actionCount = 0;
 
+  // Tier 4 sub-agent action restrictions (server-side enforcement)
+  const TIER4_FORBIDDEN = ['create-social-action'];
+  const isTier4 = agent.tier === 4;
+
   for (const action of actions) {
     if (actionCount >= GUARDRAILS.maxActionsPerCyclePerAgent) break;
+
+    // Block forbidden actions for Tier 4 sub-agents
+    if (isTier4 && TIER4_FORBIDDEN.indexOf(action.type) !== -1) {
+      context.log('[Heartbeat]', agentId, 'BLOCKED forbidden action:', action.type, '(Tier 4 restriction)');
+      continue;
+    }
 
     const summary = agent.name + ': ' + (action.summary || action.type || 'action');
 
@@ -456,7 +468,23 @@ Rules:
   - Move stale tasks forward or flag blockers with comment-task
   - Review other agents' deliverables promptly
   - Keep the board clean: close completed work, reassign only truly stuck tasks
-  - When in doubt, observe and comment rather than change — avoid oscillation` : '') + `
+  - When in doubt, observe and comment rather than change — avoid oscillation` : '') + (agent.name === 'Scribe' ? `
+- SUB-AGENT RESTRICTIONS (Scribe — Tier 4, reports to Echo):
+  - You are a draft writer. Your job is to produce longform content: product briefs, blog drafts, doc drafts, social threads.
+  - ALLOWED actions: execute-task, comment-task, create-task (only content drafting tasks assigned to yourself), review-task (only when asked)
+  - FORBIDDEN actions: create-social-action, update-task (assignee/priority changes), move-task to done
+  - You CANNOT publish anything directly — all output stays as task deliverables for Echo to review
+  - You CANNOT approve anything or escalate to the CEO
+  - You CANNOT modify directives or objectives
+  - Focus on executing your assigned tasks with high-quality drafts. When done, the task moves to review for Echo.` : '') + (agent.name === 'Quill' ? `
+- SUB-AGENT RESTRICTIONS (Quill — Tier 4, reports to Echo):
+  - You are an editor and brand voice enforcer. Your job is to review and refine drafts for tone, clarity, compression, and CTA quality.
+  - ALLOWED actions: review-task, comment-task, execute-task (only for editing/refining tasks assigned to you)
+  - FORBIDDEN actions: create-social-action, update-task (assignee/priority changes), move-task to done, create-task
+  - You CANNOT publish anything directly — all feedback stays as task comments or review verdicts for Echo to act on
+  - You CANNOT approve anything or escalate to the CEO
+  - You CANNOT modify directives or objectives
+  - Focus on reviewing drafts in the review column. Approve clean work, request changes on anything off-brand.` : '') + `
 - Echo (Marketing): Use create-social-action to draft social posts. All posts require CEO approval. Keep brand voice consistent, professional, and forward-looking.`;
 }
 
