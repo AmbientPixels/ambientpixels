@@ -1116,8 +1116,8 @@ const resp = await fetch(loadUrl, {
               <button class="mini-card-btn duplicate" type="button" onclick="event.stopPropagation();cardForgeActions.duplicateCard('${card.id}')" title="Duplicate">
                 <i class="fas fa-copy"></i>
               </button>
-              <button class="mini-card-btn publish" type="button" onclick="event.stopPropagation();${isPublished ? '' : `cardForgeActions.publishCard('${card.id}')`}" title="${isPublished ? 'Published' : 'Publish'}" ${isPublished ? 'disabled style="opacity:0.4"' : ''}>
-                <i class="fas fa-${isPublished ? 'check-circle' : 'share'}"></i>
+              <button class="mini-card-btn publish${isPublished ? ' published' : ''}" type="button" onclick="event.stopPropagation();cardForgeActions.publishCard('${card.id}')" title="${isPublished ? 'Update Published Card' : 'Publish'}">
+                <i class="fas fa-${isPublished ? 'arrow-up-from-bracket' : 'share'}"></i>
               </button>
               <button class="mini-card-btn deck-add" type="button" onclick="event.stopPropagation();cardForgeActions.showAddToDeckPicker('${card.id}', this.closest('.mini-card'))" title="Add to Deck">
                 <i class="fas fa-folder-plus"></i>
@@ -1957,10 +1957,10 @@ CardForgeActions.prototype.renderDeckDetail = function(deckId) {
       <div class="deck-detail-meta-row">
         <span class="deck-detail-count">${count} card${count !== 1 ? 's' : ''}</span>
         <div class="deck-detail-actions">
-          <button type="button" class="deck-publish-btn${deck.shareId ? ' published' : ''}" title="${count === 0 ? 'Add cards to publish' : deck.shareId ? 'Published · Visible in the public gallery' : 'Publish Deck'}"
-                  ${count === 0 || deck.shareId ? 'disabled aria-disabled="true"' : ''}
+          <button type="button" class="deck-publish-btn${deck.shareId ? ' published' : ''}" title="${count === 0 ? 'Add cards to publish' : deck.shareId ? 'Update Published Deck' : 'Publish Deck'}"
+                  ${count === 0 ? 'disabled aria-disabled="true"' : ''}
                   onclick="cardForgeActions.publishDeck('${deckId}')">
-            <i class="fas fa-${deck.shareId ? 'check-circle' : 'share-from-square'}"></i> ${deck.shareId ? 'Published' : 'Publish'}
+            <i class="fas fa-${deck.shareId ? 'arrow-up-from-bracket' : 'share-from-square'}"></i> ${deck.shareId ? 'Update' : 'Publish'}
           </button>
           <button type="button" class="deck-item-btn" title="Rename Deck"
                   onclick="cardForgeActions.renameDeck('${deckId}')">
@@ -2151,7 +2151,7 @@ CardForgeActions.prototype.publishDeck = function(deckId) {
       deck.lastModified = new Date().toISOString();
       localStorage.setItem('cardforge_decks', JSON.stringify(decks));
 
-      // Re-render deck detail so publish button updates to "Published" (green, disabled)
+      // Re-render deck detail so publish button updates to "Update" state
       self.renderDeckDetail(deck.id);
       self.refreshDeckList();
 
