@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AmbientPixels Agent Task Manager — sessions, tokens, costs, and logs." />
+  <meta name="description" content="AmbientPixels Dashboard — agent metrics, sessions, tokens, costs, logs, and reports." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Task Manager — AmbientPixels HQ</title>
+  <title>Dashboard — AmbientPixels HQ</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -37,8 +37,11 @@
 
     <!-- Header -->
     <div class="dash-header">
-      <h1><i class="fas fa-tachometer-alt"></i> Task Manager</h1>
+      <h1><i class="fas fa-tachometer-alt"></i> Dashboard <span id="store-mode-badge" style="font-size:0.5rem; padding:2px 8px; border-radius:6px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.25); font-weight:400; vertical-align:middle; margin-left:6px;">local</span></h1>
       <div class="dash-header-actions">
+        <button class="dash-refresh-btn" id="dash-heartbeat" title="Run agent heartbeat cycle manually" style="border-color:rgba(78,205,196,0.2); color:#4ecdc4;">
+          <i class="fas fa-heartbeat"></i> Run Heartbeat
+        </button>
         <a href="/modules/company/" class="dash-refresh-btn"><i class="fas fa-arrow-left"></i> Back to HQ</a>
         <button class="dash-refresh-btn" id="dash-refresh"><i class="fas fa-sync-alt"></i> Refresh</button>
       </div>
@@ -211,10 +214,75 @@
 
       var _chatThinking = false;
 
+      // ── Store mode badge ──
+      var storeModeBadge = document.getElementById('store-mode-badge');
+      var heartbeatBtn = document.getElementById('dash-heartbeat');
+
+      function updateStoreModeBadge() {
+        var mode = AgentEngine.getStoreMode();
+        storeModeBadge.textContent = mode;
+        if (mode === 'server') {
+          storeModeBadge.style.background = 'rgba(78,205,196,0.1)';
+          storeModeBadge.style.color = '#4ecdc4';
+        }
+      }
+
+      // ── Heartbeat trigger ──
+      function getApiBase() {
+        return window.location.hostname.includes('ambientpixels.ai')
+          ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+          : '/api';
+      }
+
+      var _heartbeatRunning = false;
+      heartbeatBtn.addEventListener('click', function () {
+        if (_heartbeatRunning) return;
+        _heartbeatRunning = true;
+        heartbeatBtn.disabled = true;
+        heartbeatBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
+
+        fetch(getApiBase() + '/company-heartbeat-trigger', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          heartbeatBtn.innerHTML = '<i class="fas fa-check"></i> Done!';
+          heartbeatBtn.style.borderColor = 'rgba(52,211,153,0.3)';
+          heartbeatBtn.style.color = '#34d399';
+          setTimeout(function () {
+            renderAll();
+          }, 500);
+          setTimeout(function () {
+            heartbeatBtn.innerHTML = '<i class="fas fa-heartbeat"></i> Run Heartbeat';
+            heartbeatBtn.style.borderColor = 'rgba(78,205,196,0.2)';
+            heartbeatBtn.style.color = '#4ecdc4';
+            heartbeatBtn.disabled = false;
+            _heartbeatRunning = false;
+          }, 3000);
+        })
+        .catch(function (err) {
+          heartbeatBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Failed';
+          heartbeatBtn.style.borderColor = 'rgba(248,113,113,0.3)';
+          heartbeatBtn.style.color = '#f87171';
+          console.error('[Dashboard] Heartbeat trigger failed:', err);
+          setTimeout(function () {
+            heartbeatBtn.innerHTML = '<i class="fas fa-heartbeat"></i> Run Heartbeat';
+            heartbeatBtn.style.borderColor = 'rgba(78,205,196,0.2)';
+            heartbeatBtn.style.color = '#4ecdc4';
+            heartbeatBtn.disabled = false;
+            _heartbeatRunning = false;
+          }, 3000);
+        });
+      });
+
       // ── Init ──
       AgentEngine.loadRegistry().then(function () {
         renderAll();
+        updateStoreModeBadge();
       });
+
+      AgentEngine.on('store-ready', updateStoreModeBadge);
 
       document.getElementById('dash-refresh').addEventListener('click', renderAll);
 
