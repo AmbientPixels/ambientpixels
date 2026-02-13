@@ -86,6 +86,39 @@ const NovaSoul = (function () {
     }
   }
 
+  // Default mood structure matching pulse bar expectations
+  const MOOD_DEFAULTS = {
+    mood: 'neutral',
+    aura: 'default',
+    auraColorHex: '#666666',
+    emoji: '✨',
+    quote: 'Drifting through the signal...',
+    selfWorth: 0.5,
+    glitchFactor: 0.2,
+    memoryClutter: 0.3,
+    awareness: 0.6,
+    internalState: 'steady hum',
+    observation: 'nominal awareness cycle',
+    isStable: true,
+    intensity: 0.5
+  };
+
+  // Normalize AI mood response to ensure all pulse bar fields exist
+  function normalizeMood(raw) {
+    const mood = Object.assign({}, MOOD_DEFAULTS, raw);
+    // Clamp numeric fields to 0-1
+    ['selfWorth', 'glitchFactor', 'memoryClutter', 'awareness', 'intensity'].forEach(key => {
+      mood[key] = Math.max(0, Math.min(1, parseFloat(mood[key]) || MOOD_DEFAULTS[key]));
+    });
+    // Ensure auraColorHex is valid
+    if (!/^#[0-9a-fA-F]{6}$/.test(mood.auraColorHex)) {
+      mood.auraColorHex = MOOD_DEFAULTS.auraColorHex;
+    }
+    mood.timestamp = new Date().toISOString();
+    mood.source = 'ai';
+    return mood;
+  }
+
   // Generate Nova's current mood via AI
   async function generateMood(context) {
     const timeOfDay = new Date().getHours();
@@ -103,13 +136,15 @@ const NovaSoul = (function () {
       const data = await callNova(moodContext, 'mood', false);
 
       if (data.mood) {
-        _currentMood = data.mood;
+        _currentMood = normalizeMood(data.mood);
         emit('mood-update', _currentMood);
         return _currentMood;
       }
 
-      // Fallback: parse reply as mood
-      return { mood: 'neutral', aura: 'default', quote: data.reply, intensity: 0.5 };
+      // Fallback: minimal mood from reply text
+      _currentMood = normalizeMood({ quote: data.reply });
+      emit('mood-update', _currentMood);
+      return _currentMood;
     } catch (err) {
       console.error('[NovaSoul] Mood generation error:', err);
       emit('error', err.message);
