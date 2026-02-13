@@ -46,8 +46,11 @@
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || `API error ${res.status}`);
+      const errText = await res.text().catch(() => '');
+      console.error('[CardForge AI] Response status:', res.status, 'Body:', errText);
+      let errObj = {};
+      try { errObj = JSON.parse(errText); } catch (e) { /* not JSON */ }
+      throw new Error(errObj.error || `API error ${res.status}`);
     }
 
     const data = await res.json();
