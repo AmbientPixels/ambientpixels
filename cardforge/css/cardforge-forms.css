@@ -778,3 +778,57 @@
   color: #a78bfa;
   margin-right: 6px;
 }
+
+/* AI Quick Generate inline button (inside form sections) */
+.cf-ai-quick-inline {
+  margin: 10px 0 16px;
+}
+
+.cf-ai-inline-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  min-height: auto;
+  width: auto;
+}
+
+.cf-ai-inline-btn .cf-ai-btn-icon {
+  font-size: 0.85rem;
+}
+
+.cf-ai-inline-btn .cf-ai-btn-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* URL toggle fallback link */
+.custom-url-toggle-section {
+  margin-top: 12px;
+}
+
+.cf-url-toggle {
+  background: none;
+  border: none;
+  color: var(--mood-secondary-color, #a0a0c0);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 4px 0;
+  opacity: 0.6;
+  transition: opacity 0.2s ease, color 0.2s ease;
+  font-family: inherit;
+}
+
+.cf-url-toggle:hover {
+  opacity: 1;
+  color: var(--mood-accent-color, #8b5cf6);
+}
+
+.cf-url-toggle i {
+  margin-right: 4px;
+}
+
+.custom-url-toggle-section .custom-url-section {
+  margin-top: 8px;
+}

@@ -91,19 +91,31 @@
   }
 
   // ===== PROMPT BUILDERS =====
-  function buildQuoteBioPrompt(name, cardClass, rarity) {
+  function buildQuotePrompt(name, cardClass, rarity) {
     return [
       'You are a creative trading-card writer for a fantasy / sci-fi card game.',
-      'Given the following card details, generate TWO things:',
-      '1. A short, punchy quote or tagline (max 120 characters).',
-      '2. A vivid biography paragraph (max 220 characters) that hints at the character\'s backstory.',
+      'Given the following card details, generate a short, punchy quote or tagline (max 120 characters).',
       '',
       `Card Name: ${name}`,
       cardClass ? `Class / Type: ${cardClass}` : '',
       rarity ? `Rarity: ${rarity}` : '',
       '',
-      'Return ONLY valid JSON in this exact format (no markdown, no code fences):',
-      '{"quote":"...","biography":"..."}'
+      'Return ONLY valid JSON (no markdown, no code fences):',
+      '{"quote":"..."}'
+    ].filter(Boolean).join('\n');
+  }
+
+  function buildBioPrompt(name, cardClass, rarity) {
+    return [
+      'You are a creative trading-card writer for a fantasy / sci-fi card game.',
+      'Given the following card details, generate a vivid biography paragraph (max 220 characters) that hints at the character\'s backstory.',
+      '',
+      `Card Name: ${name}`,
+      cardClass ? `Class / Type: ${cardClass}` : '',
+      rarity ? `Rarity: ${rarity}` : '',
+      '',
+      'Return ONLY valid JSON (no markdown, no code fences):',
+      '{"biography":"..."}'
     ].filter(Boolean).join('\n');
   }
 
@@ -184,8 +196,8 @@
     }
   }
 
-  // ===== HANDLER: Quick Generate (quote + bio) =====
-  async function handleQuickGenerate(btn) {
+  // ===== HANDLER: Generate Quote Only =====
+  async function handleGenerateQuote(btn) {
     const fields = getFields();
     const name = fields.name?.value?.trim();
 
@@ -198,20 +210,93 @@
 
     const cardClass = fields.cardClass?.value?.trim() || '';
     const rarity = fields.rarity?.value?.trim() || '';
-    const prompt = buildQuoteBioPrompt(name, cardClass, rarity);
+    const prompt = buildQuotePrompt(name, cardClass, rarity);
 
     setButtonState(btn, 'loading');
 
     try {
       const data = await callGemini(prompt, { model: TEXT_MODEL });
       const result = parseJSON(extractText(data));
-      const fields2 = getFields();
-      setField(fields2.quote, result.quote);
-      setField(fields2.bio, result.biography);
+      setField(getFields().quote, result.quote);
       triggerPreviewUpdate();
       setButtonState(btn, 'success');
     } catch (err) {
-      console.error('[CardForge AI] Quick generate failed:', err);
+      console.error('[CardForge AI] Quote generation failed:', err);
+      setButtonState(btn, 'error');
+    }
+  }
+
+  // ===== HANDLER: Generate Bio Only =====
+  async function handleGenerateBio(btn) {
+    const fields = getFields();
+    const name = fields.name?.value?.trim();
+
+    if (!name) {
+      fields.name?.focus();
+      fields.name?.classList.add('cf-ai-highlight');
+      setTimeout(() => fields.name?.classList.remove('cf-ai-highlight'), 1500);
+      return;
+    }
+
+    const cardClass = fields.cardClass?.value?.trim() || '';
+    const rarity = fields.rarity?.value?.trim() || '';
+    const prompt = buildBioPrompt(name, cardClass, rarity);
+
+    setButtonState(btn, 'loading');
+
+    try {
+      const data = await callGemini(prompt, { model: TEXT_MODEL });
+      const result = parseJSON(extractText(data));
+      setField(getFields().bio, result.biography);
+      triggerPreviewUpdate();
+      setButtonState(btn, 'success');
+    } catch (err) {
+      console.error('[CardForge AI] Bio generation failed:', err);
+      setButtonState(btn, 'error');
+    }
+  }
+
+  // ===== HANDLER: Generate Image Only =====
+  async function handleGenerateImage(btn) {
+    const promptInput = document.getElementById('cf-ai-image-prompt');
+    const userPrompt = promptInput?.value?.trim();
+
+    if (!userPrompt) {
+      promptInput?.focus();
+      promptInput?.classList.add('cf-ai-highlight');
+      setTimeout(() => promptInput?.classList.remove('cf-ai-highlight'), 1500);
+      return;
+    }
+
+    setButtonState(btn, 'loading', 'Generating artwork...');
+
+    try {
+      const imagePromptText = `Create a trading card character portrait: ${userPrompt}. Style: detailed digital fantasy art, dramatic lighting, no text, no card borders.`;
+      console.log('[CardForge AI] Requesting artwork with prompt:', imagePromptText);
+      const imgData = await callGemini(imagePromptText, {
+        model: IMAGE_MODEL,
+        generationConfig: { responseModalities: ['Image'] }
+      });
+
+      const img = extractImage(imgData);
+      if (img) {
+        const dataUrl = `data:${img.mimeType};base64,${img.base64}`;
+        const fields = getFields();
+        setField(fields.avatar, dataUrl);
+
+        const previewImg = document.querySelector('.card-avatar, .card-avatar-img, .card-front .avatar img');
+        if (previewImg) {
+          previewImg.src = dataUrl;
+        }
+        triggerPreviewUpdate();
+        console.log('[CardForge AI] Artwork generated successfully');
+        setButtonState(btn, 'success', 'Artwork Applied!');
+      } else {
+        console.warn('[CardForge AI] No image in response');
+        setButtonState(btn, 'error', 'No image returned');
+      }
+    } catch (err) {
+      console.error('[CardForge AI] Image generation failed:', err);
       setButtonState(btn, 'error');
     }
   }
@@ -288,12 +373,20 @@
 
   // ===== INIT =====
   function init() {
-    // Quick Generate button (quote + bio from existing fields)
-    const quickBtn = document.getElementById('cf-ai-generate-btn');
-    if (quickBtn) {
-      quickBtn.dataset.defaultIcon = 'fa-wand-magic-sparkles';
-      quickBtn.dataset.defaultLabel = 'AI Generate';
-      quickBtn.addEventListener('click', () => handleQuickGenerate(quickBtn));
+    // Quote Generate button
+    const quoteBtn = document.getElementById('cf-ai-quote-btn');
+    if (quoteBtn) {
+      quoteBtn.dataset.defaultIcon = 'fa-wand-magic-sparkles';
+      quoteBtn.dataset.defaultLabel = 'AI Generate Quote';
+      quoteBtn.addEventListener('click', () => handleGenerateQuote(quoteBtn));
+    }
+
+    // Bio Generate button
+    const bioBtn = document.getElementById('cf-ai-bio-btn');
+    if (bioBtn) {
+      bioBtn.dataset.defaultIcon = 'fa-wand-magic-sparkles';
+      bioBtn.dataset.defaultLabel = 'AI Generate Bio';
+      bioBtn.addEventListener('click', () => handleGenerateBio(bioBtn));
     }
 
     // Full Card Generate button
@@ -302,6 +395,14 @@
       fullBtn.dataset.defaultIcon = 'fa-bolt';
       fullBtn.dataset.defaultLabel = 'Create Full Card';
       fullBtn.addEventListener('click', () => handleFullCardGenerate(fullBtn));
+    }
+
+    // Standalone Image Generate button (Artwork section)
+    const imgBtn = document.getElementById('cf-ai-image-btn');
+    if (imgBtn) {
+      imgBtn.dataset.defaultIcon = 'fa-image';
+      imgBtn.dataset.defaultLabel = 'AI Generate Artwork';
+      imgBtn.addEventListener('click', () => handleGenerateImage(imgBtn));
     }
   }
 

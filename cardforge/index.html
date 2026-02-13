@@ -477,20 +477,6 @@
           </div>
         </div>
 
-        <!-- AI Quick Generate -->
-        <div class="random-section">
-          <h4 class="random-title"><i class="fas fa-wand-magic-sparkles"></i> AI Quick Generate</h4>
-          <p class="random-helper">Auto-generate quote &amp; biography from your card's name, class, and rarity.</p>
-          <div class="roll-button-container">
-            <button type="button" id="cf-ai-generate-btn" class="roll-btn cf-ai-generate-btn" title="Auto-generate quote and biography using AI">
-              <div class="roll-icon"><span class="cf-ai-btn-icon"><i class="fas fa-wand-magic-sparkles"></i></span></div>
-              <div class="roll-text">
-                <div class="roll-label cf-ai-btn-label">AI Generate</div>
-                <div class="roll-subtitle">Quote + Biography only</div>
-              </div>
-            </button>
-          </div>
-        </div>
 
         <!-- Random Generator -->
         <div class="random-section">
@@ -548,15 +534,30 @@
               </div>
             </div>
             
-            <div class="custom-url-section">
-              <label for="custom-url-input">Or enter custom URL:</label>
-              <div class="url-input-group">
-                <input type="url" id="custom-url-input" placeholder="https://..." />
-                <button type="button" id="use-custom-url" class="use-url-btn">Use URL</button>
+            <div class="cf-ai-image-section">
+              <label for="cf-ai-image-prompt">Generate with AI:</label>
+              <div class="cf-ai-prompt-wrapper">
+                <textarea id="cf-ai-image-prompt" class="cf-ai-prompt" rows="2" placeholder="e.g. A glowing elven warrior with crystal armor..."></textarea>
+              </div>
+              <div class="cf-ai-quick-inline">
+                <button type="button" id="cf-ai-image-btn" class="roll-btn cf-ai-generate-btn cf-ai-inline-btn" title="Generate card artwork using AI">
+                  <span class="cf-ai-btn-icon"><i class="fas fa-image"></i></span>
+                  <span class="cf-ai-btn-label">AI Generate Artwork</span>
+                </button>
               </div>
             </div>
-            
-            <p class="coming-soon">Upload your own image with filters—coming soon!</p>
+
+            <div class="custom-url-toggle-section">
+              <button type="button" class="cf-url-toggle" id="cf-url-toggle-btn" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+                <i class="fas fa-link"></i> Use a URL instead
+              </button>
+              <div class="custom-url-section" style="display:none;">
+                <div class="url-input-group">
+                  <input type="url" id="custom-url-input" placeholder="https://..." />
+                  <button type="button" id="use-custom-url" class="use-url-btn">Use URL</button>
+                </div>
+              </div>
+            </div>
             </div><!-- /.craft-row-body -->
           </div>
           
@@ -1404,6 +1405,12 @@
         <!-- Section 3: Flavor (Full Width) -->
         <label for="card-quote">Quote/Description</label>
         <textarea id="card-quote" rows="2" placeholder="Epic one-liner or brief description"></textarea>
+        <div class="cf-ai-quick-inline">
+          <button type="button" id="cf-ai-quote-btn" class="roll-btn cf-ai-generate-btn cf-ai-inline-btn" title="Auto-generate quote using AI">
+            <span class="cf-ai-btn-icon"><i class="fas fa-wand-magic-sparkles"></i></span>
+            <span class="cf-ai-btn-label">AI Generate Quote</span>
+          </button>
+        </div>
 
       </div>
       
@@ -1512,6 +1519,12 @@
         </h3>
 <label for="card-bio">Biography</label>
 <textarea id="card-bio" name="card-bio" rows="3" placeholder="Enter biography or background"></textarea>
+        <div class="cf-ai-quick-inline">
+          <button type="button" id="cf-ai-bio-btn" class="roll-btn cf-ai-generate-btn cf-ai-inline-btn" title="Auto-generate biography using AI">
+            <span class="cf-ai-btn-icon"><i class="fas fa-wand-magic-sparkles"></i></span>
+            <span class="cf-ai-btn-label">AI Generate Bio</span>
+          </button>
+        </div>
 
         <div class="attributes-panel">
           <div id="attribute-editor">
