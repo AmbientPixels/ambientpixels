@@ -131,11 +131,10 @@ html {
 body {
   overflow-x: hidden;
   max-width: 100%;
-}
-
-body {
-    font-family: 'Inter', sans-serif;
-    line-height: 1.6;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+  background: #071019;
+  color: #D8E0E5;
 }
 
 a {
