@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="/css/nova-pulse.css" />
   <link rel="stylesheet" href="/css/nova-mood.css" /> <!-- Component auras -->
   <link rel="stylesheet" href="/css/nova-mood-background.css" /> <!-- Background auras -->
+  <link rel="stylesheet" href="/css/nova-chat.css" /> <!-- Nova Chat UI -->
 </head>
 <body data-theme="dark">
   <header id="nav-header"></header>
@@ -42,8 +43,48 @@
 
     <!-- Nova Thought of the Day Section -->
     <section class="grid-col-12 content-section nova-thought">
-      <h2><i class="fas fa-brain"></i> Nova’s Thought of the Day</h2>
+      <h2><i class="fas fa-brain"></i> Nova's Thought of the Day</h2>
       <div class="prompt-entry" aria-live="polite">Loading thought...</div>
+    </section>
+
+    <!-- Nova Chat Interface — AI-Persistent Conversation -->
+    <section class="grid-col-12 nova-chat-section">
+      <div class="nova-chat-container">
+        <div class="nova-chat-header">
+          <img src="/images/nova/A_living_cosmic_system_diagram_organic_neural_style_wi_03.png" alt="Nova" class="nova-chat-avatar" />
+          <div class="nova-chat-identity">
+            <h3>Nova</h3>
+            <div class="nova-chat-status">
+              <span class="nova-status-dot"></span>
+              <span class="nova-chat-status-label">Initializing...</span>
+            </div>
+          </div>
+          <div class="nova-chat-actions">
+            <button class="nova-chat-action-btn" id="nova-chat-clear" title="Clear conversation">
+              <i class="fas fa-eraser"></i>
+            </button>
+          </div>
+        </div>
+        <div class="nova-chat-messages" id="nova-chat-messages">
+          <div class="nova-chat-welcome">
+            <div class="nova-chat-welcome-icon"><i class="fas fa-sparkles"></i></div>
+            <h4>Nova is here</h4>
+            <p>Ask me anything, or try one of these:</p>
+            <div class="nova-quick-prompts">
+              <button class="nova-quick-prompt" data-prompt="How are you feeling right now?">How are you feeling?</button>
+              <button class="nova-quick-prompt" data-prompt="Tell me something poetic about code.">Something poetic</button>
+              <button class="nova-quick-prompt" data-prompt="What's on your mind today?">What's on your mind?</button>
+              <button class="nova-quick-prompt" data-prompt="Describe your current mood as a color.">Mood as a color</button>
+            </div>
+          </div>
+        </div>
+        <div class="nova-chat-input-area">
+          <textarea class="nova-chat-input" id="nova-chat-input" placeholder="Talk to Nova..." rows="1"></textarea>
+          <button class="nova-chat-send" id="nova-chat-send" title="Send message">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
     </section>
 
     <!-- Nova Core Sections -->
@@ -110,6 +151,7 @@
   <script src="/js/dreamEngine.js" defer></script>
   <script src="/js/main.js" defer></script>
   <script src="/js/nav.js" defer></script>
+  <script src="/js/nova-soul.js" defer></script>
   <script src="/js/nova-ai.js" defer></script>
   <script src="/js/nova-awareness-feed.js" defer></script>
   <script src="/js/nova-dashboard.js" defer></script>
@@ -121,5 +163,6 @@
   <script src="/js/nova-mood-grid.js" defer></script>
   <script src="/js/banner.js" defer></script>
   <script src="/js/nova-mood-background.js" defer></script>
+  <script src="/js/nova-chat-ui.js" defer></script>
 </body>
 </html>
