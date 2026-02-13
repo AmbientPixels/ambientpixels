@@ -25,37 +25,69 @@
     });
   }
 
-  // ── Changelog Timeline ──
+  // ── Changelog Timeline (live from GitHub API, static fallback) ──
+  var GITHUB_REPO = 'AmbientPixels/ambientpixels';
+  var GITHUB_COMMITS_URL = 'https://api.github.com/repos/' + GITHUB_REPO + '/commits?per_page=15';
+
   async function loadChangelog() {
     var timeline = document.getElementById('nova-changelog-timeline');
     if (!timeline) return;
 
+    // Try GitHub API first (public repo, no auth needed)
+    try {
+      var res = await fetch(GITHUB_COMMITS_URL, {
+        headers: { 'Accept': 'application/vnd.github.v3+json' }
+      });
+
+      if (res.ok) {
+        var commits = await res.json();
+        if (commits.length > 0) {
+          renderTimeline(timeline, commits.map(function (c) {
+            return {
+              hash: c.sha.substring(0, 7),
+              date: c.commit.author.date,
+              message: c.commit.message.split('\n')[0],
+              url: c.html_url
+            };
+          }));
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('[Nova Logs] GitHub API unavailable, falling back to static:', err.message);
+    }
+
+    // Fallback: static changelog.json
     try {
       var res = await fetch('/data/changelog.json?t=' + Date.now());
       var data = await res.json();
-
-      if (!data.entries || !data.entries.length) {
-        timeline.innerHTML = '<li class="nova-timeline-entry"><div class="nova-timeline-message">No changelog entries found.</div></li>';
+      if (data.entries && data.entries.length) {
+        renderTimeline(timeline, data.entries.slice(0, 15));
         return;
       }
-
-      timeline.innerHTML = '';
-      data.entries.slice(0, 15).forEach(function (entry) {
-        var date = new Date(entry.date).toLocaleDateString('en-US', {
-          year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-        });
-        var li = document.createElement('li');
-        li.className = 'nova-timeline-entry';
-        li.innerHTML =
-          '<div class="nova-timeline-date">' + date + '</div>' +
-          '<div class="nova-timeline-message">' + escapeHtml(entry.message) +
-          ' <span class="nova-timeline-hash">' + escapeHtml(entry.hash) + '</span></div>';
-        timeline.appendChild(li);
-      });
     } catch (err) {
-      console.error('[Nova Logs] Changelog load failed:', err);
-      timeline.innerHTML = '<li class="nova-timeline-entry"><div class="nova-timeline-message">Changelog offline.</div></li>';
+      console.error('[Nova Logs] Static changelog also failed:', err);
     }
+
+    timeline.innerHTML = '<li class="nova-timeline-entry"><div class="nova-timeline-message">Changelog offline.</div></li>';
+  }
+
+  function renderTimeline(timeline, entries) {
+    timeline.innerHTML = '';
+    entries.forEach(function (entry) {
+      var date = new Date(entry.date).toLocaleDateString('en-US', {
+        year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+      var li = document.createElement('li');
+      li.className = 'nova-timeline-entry';
+      var hashHtml = entry.url
+        ? '<a href="' + entry.url + '" target="_blank" rel="noopener" class="nova-timeline-hash">' + escapeHtml(entry.hash) + '</a>'
+        : '<span class="nova-timeline-hash">' + escapeHtml(entry.hash) + '</span>';
+      li.innerHTML =
+        '<div class="nova-timeline-date">' + date + '</div>' +
+        '<div class="nova-timeline-message">' + escapeHtml(entry.message) + ' ' + hashHtml + '</div>';
+      timeline.appendChild(li);
+    });
   }
 
   // ── Dream Archive (AI + static merged) ──
