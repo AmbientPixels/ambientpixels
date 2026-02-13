@@ -34,11 +34,15 @@ var CompanySchemas = (function () {
     ACTION_CATEGORIES[cat].forEach(function (t) { ALL_ACTION_TYPES.push(t); });
   });
 
-  var ACTION_EXECUTION_STATUSES = ['pending', 'approved', 'running', 'success', 'failed', 'rejected', 'dry_run'];
+  var ACTION_EXECUTION_STATUSES = ['pending', 'approved', 'running', 'success', 'failed', 'rejected', 'dry_run', 'scheduled'];
+
+  var ACTION_APPROVAL_STATUSES = ['pending', 'approved', 'rejected', 'revision_requested', 'overridden'];
+  var ACTION_EXEC_STATUSES = ['pending', 'queued', 'running', 'success', 'failed'];
+  var SUPPORTED_PLATFORMS = ['x', 'linkedin', 'bluesky'];  // only x implemented v1
 
   // Actions that always require CEO approval
   var ACTIONS_REQUIRE_APPROVAL = [
-    'social_post.publish', 'social_post.reply',
+    'social_post.publish', 'social_post.reply', 'social_post.schedule',
     'email.send',
     'git.open_pr',
     'azure.deploy',
@@ -47,7 +51,7 @@ var CompanySchemas = (function () {
 
   // Actions that are irreversible once executed
   var ACTIONS_IRREVERSIBLE = [
-    'social_post.publish', 'social_post.reply',
+    'social_post.publish', 'social_post.reply', 'social_post.schedule',
     'email.send',
     'git.commit', 'git.open_pr',
     'azure.deploy',
@@ -168,39 +172,69 @@ var CompanySchemas = (function () {
     };
   }
 
-  // ── Action Request ──
+  // ── Action Request (v1 — nested model) ──
   function validateActionRequest(a) {
     if (!a || typeof a !== 'object') return { valid: false, error: 'ActionRequest must be an object' };
     if (!isString(a.id)) return { valid: false, error: 'ActionRequest.id required' };
-    if (!isString(a.action_type) || ALL_ACTION_TYPES.indexOf(a.action_type) === -1) return { valid: false, error: 'ActionRequest.action_type invalid: ' + a.action_type };
-    if (!isOneOf(a.execution_status, ACTION_EXECUTION_STATUSES)) return { valid: false, error: 'ActionRequest.execution_status invalid' };
+    if (!isString(a.type) || ALL_ACTION_TYPES.indexOf(a.type) === -1) return { valid: false, error: 'ActionRequest.type invalid: ' + a.type };
+    if (!a.approval || !isOneOf(a.approval.status, ACTION_APPROVAL_STATUSES)) return { valid: false, error: 'ActionRequest.approval.status invalid' };
+    if (!a.execution || !isOneOf(a.execution.status, ACTION_EXEC_STATUSES)) return { valid: false, error: 'ActionRequest.execution.status invalid' };
     return { valid: true };
   }
 
   function createActionRequest(data) {
-    var actionType = (data && data.action_type) || '';
-    var category = getActionCategory(actionType);
+    var d = data || {};
+    var actionType = d.type || d.action_type || '';
+    var platform = d.platform || _inferPlatform(actionType, d.payload || d.action_payload);
     var requiresApproval = ACTIONS_REQUIRE_APPROVAL.indexOf(actionType) !== -1;
     return {
-      id: 'act-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
-      type: 'action',
+      id: 'act_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+      created_at: new Date().toISOString(),
+      created_by: d.created_by || d.origin_agent || 'nova',
+      type: actionType,
+      platform: platform,
+      payload: d.payload || d.action_payload || {},
+      classification: d.classification || (requiresApproval ? 'advisory' : 'autonomous'),
+      requires_ceo_approval: requiresApproval,
+      risk_level: d.risk_level || (requiresApproval ? 'medium' : 'low'),
+      brand_impact: d.brand_impact || (actionType.indexOf('social_post') === 0 ? 'medium' : 'low'),
+      budget_impact: d.budget_impact || 0,
+      approval: {
+        status: requiresApproval ? 'pending' : 'approved',
+        approved_by: requiresApproval ? null : 'system',
+        approved_at: requiresApproval ? null : new Date().toISOString(),
+        decision_note: null
+      },
+      execution: {
+        status: 'pending',
+        started_at: null,
+        finished_at: null,
+        attempts: 0,
+        last_error: null,
+        receipt: null
+      },
+      // Legacy compat fields (read by existing UI)
       action_type: actionType,
-      action_category: category,
-      action_payload: (data && data.action_payload) || {},
-      origin_agent: (data && data.origin_agent) || 'nova',
-      origin_task_id: (data && data.origin_task_id) || null,
+      action_category: getActionCategory(actionType),
       execution_status: requiresApproval ? 'pending' : 'approved',
+      origin_agent: d.created_by || d.origin_agent || 'nova',
+      action_payload: d.payload || d.action_payload || {},
       requires_approval: requiresApproval,
       is_irreversible: ACTIONS_IRREVERSIBLE.indexOf(actionType) !== -1,
-      dry_run: (data && data.dry_run === true) || false,
-      execution_receipt: null,
-      created_at: new Date().toISOString(),
-      approved_at: null,
-      executed_at: null,
-      resolved_at: null,
-      error: null,
-      bundle_id: (data && data.bundle_id) || null
+      bundle_id: d.bundle_id || null
     };
+  }
+
+  function _inferPlatform(actionType, payload) {
+    // Social posts: check payload.platform first, default to 'x'
+    if (actionType.indexOf('social_post') === 0) {
+      if (payload && payload.platform && SUPPORTED_PLATFORMS.indexOf(payload.platform) !== -1) return payload.platform;
+      return 'x';
+    }
+    if (actionType.indexOf('email') === 0) return 'email';
+    if (actionType.indexOf('git') === 0) return 'github';
+    if (actionType.indexOf('azure') === 0) return 'azure';
+    return 'internal';
   }
 
   function getActionCategory(actionType) {
@@ -213,17 +247,15 @@ var CompanySchemas = (function () {
 
   function createExecutionReceipt(data) {
     return {
-      id: 'rcpt-' + Date.now(),
-      action_id: (data && data.action_id) || '',
       platform: (data && data.platform) || '',
-      account: (data && data.account) || '',
-      result_url: (data && data.result_url) || null,
+      handle: (data && data.handle) || '',
+      post_id: (data && data.post_id) || '',
+      post_url: (data && data.post_url) || '',
       timestamp: new Date().toISOString(),
+      content_hash: (data && data.content_hash) || '',
       media_ids: (data && data.media_ids) || [],
-      thread_id: (data && data.thread_id) || null,
       recipients: (data && data.recipients) || [],
       subject: (data && data.subject) || null,
-      copy_hash: (data && data.copy_hash) || null,
       extra: (data && data.extra) || {}
     };
   }
@@ -282,6 +314,9 @@ var CompanySchemas = (function () {
     ACTION_CATEGORIES: ACTION_CATEGORIES,
     ALL_ACTION_TYPES: ALL_ACTION_TYPES,
     ACTION_EXECUTION_STATUSES: ACTION_EXECUTION_STATUSES,
+    ACTION_APPROVAL_STATUSES: ACTION_APPROVAL_STATUSES,
+    ACTION_EXEC_STATUSES: ACTION_EXEC_STATUSES,
+    SUPPORTED_PLATFORMS: SUPPORTED_PLATFORMS,
     ACTIONS_REQUIRE_APPROVAL: ACTIONS_REQUIRE_APPROVAL,
     ACTIONS_IRREVERSIBLE: ACTIONS_IRREVERSIBLE,
     ACTION_RATE_LIMITS: ACTION_RATE_LIMITS,

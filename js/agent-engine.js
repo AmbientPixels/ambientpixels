@@ -1025,13 +1025,17 @@ var AgentEngine = (function () {
     _saveStorage(GOVERNANCE_LOG_KEY, log);
   }
 
-  // ── Action Layer v1 ──
+  // ── Action Layer v1 (nested model) ──
   var ACTION_QUEUE_KEY = 'ap_action_queue';
+  var ACTIONS_KEY = 'ap_actions';
   var ACTION_AUDIT_KEY = 'ap_action_audit_log';
   var ACTION_RATE_KEY = 'ap_action_rate_counts';
 
-  function getActionQueue() { return _loadStorage(ACTION_QUEUE_KEY, []); }
-  function _saveActionQueue(queue) { _saveStorage(ACTION_QUEUE_KEY, queue); }
+  function getActions() { return _loadStorage(ACTIONS_KEY, []); }
+  function _saveActions(list) { _saveStorage(ACTIONS_KEY, list); }
+  // Legacy compat — old UI reads from ap_action_queue
+  function getActionQueue() { return getActions(); }
+  function _saveActionQueue(list) { _saveActions(list); }
   function getActionAuditLog() { return _loadStorage(ACTION_AUDIT_KEY, []); }
 
   function _logAction(type, data) {
@@ -1066,7 +1070,6 @@ var AgentEngine = (function () {
     var today = new Date().toISOString().split('T')[0];
     if (!counts[today]) counts[today] = {};
     counts[today][category] = (counts[today][category] || 0) + 1;
-    // Clean old days (keep 7 days)
     var keys = Object.keys(counts).sort();
     while (keys.length > 7) { delete counts[keys.shift()]; }
     _saveRateCounts(counts);
@@ -1075,84 +1078,194 @@ var AgentEngine = (function () {
   function getRateLimitStatus() {
     var categories = ['social', 'email', 'git', 'azure', 'content'];
     var status = {};
-    categories.forEach(function (cat) {
-      status[cat] = _checkRateLimit(cat);
-    });
+    categories.forEach(function (cat) { status[cat] = _checkRateLimit(cat); });
     return status;
   }
 
-  // Create action request
+  // Sync legacy fields on an action object
+  function _syncLegacy(a) {
+    a.execution_status = (a.approval && a.approval.status === 'approved' && a.execution && a.execution.status === 'success') ? 'success'
+      : (a.approval && a.approval.status === 'approved' && a.execution && a.execution.status === 'failed') ? 'failed'
+      : (a.execution && a.execution.status === 'running') ? 'running'
+      : (a.approval && a.approval.status === 'approved') ? 'approved'
+      : (a.approval && a.approval.status === 'rejected') ? 'rejected'
+      : (a.approval && a.approval.status === 'overridden') ? 'approved'
+      : 'pending';
+    a.action_type = a.type;
+    a.origin_agent = a.created_by;
+    a.action_payload = a.payload;
+    a.action_category = (typeof CompanySchemas !== 'undefined') ? CompanySchemas.getActionCategory(a.type) : 'unknown';
+    a.requires_approval = a.requires_ceo_approval;
+    return a;
+  }
+
+  // Create action + approval queue entry
   function createAction(data) {
     if (typeof CompanySchemas === 'undefined') return null;
     var action = CompanySchemas.createActionRequest(data);
-    // Check rate limit
-    var rateCheck = _checkRateLimit(action.action_category);
+    var cat = action.action_category;
+    var rateCheck = _checkRateLimit(cat);
     if (!rateCheck.allowed) {
-      action.execution_status = 'failed';
-      action.error = 'Rate limit exceeded for ' + action.action_category + ' (' + rateCheck.current + '/' + rateCheck.limit + ')';
+      action.execution.status = 'failed';
+      action.execution.last_error = { code: 'RATE_LIMIT', message: 'Rate limit exceeded for ' + cat + ' (' + rateCheck.current + '/' + rateCheck.limit + ')' };
+      _syncLegacy(action);
     }
-    var queue = getActionQueue();
-    queue.push(action);
-    _saveActionQueue(queue);
-    _logAction('action-created', { actionId: action.id, type: action.action_type, agent: action.origin_agent, requiresApproval: action.requires_approval });
-    _logGovernance('action-created', { actionId: action.id, type: action.action_type, agent: action.origin_agent });
+    var list = getActions();
+    list.push(action);
+    _saveActions(list);
+    // Also insert into CEO approval queue if requires approval
+    if (action.requires_ceo_approval && action.approval.status === 'pending') {
+      _addToApprovalQueue(action);
+    }
+    _logAction('action-created', { actionId: action.id, type: action.type, agent: action.created_by, platform: action.platform, requiresApproval: action.requires_ceo_approval });
+    _logGovernance('action-created', { actionId: action.id, type: action.type, agent: action.created_by, platform: action.platform });
     return action;
   }
 
+  // Insert action into existing CEO approval queue (kind:'action')
+  function _addToApprovalQueue(action) {
+    var queue = getApprovalQueue();
+    queue.push({
+      id: 'aq-' + action.id,
+      kind: 'action',
+      action_id: action.id,
+      taskId: null,
+      taskTitle: action.type + ' (' + action.platform + ')',
+      originAgent: action.created_by,
+      classification: action.classification,
+      riskLevel: action.risk_level,
+      budgetImpact: action.budget_impact,
+      brandImpact: action.brand_impact,
+      status: 'pending',
+      timestamp: action.created_at,
+      preview: (action.payload && action.payload.text) ? action.payload.text.substring(0, 120) : ''
+    });
+    _saveStorage(APPROVAL_KEY, queue);
+  }
+
   function getAction(actionId) {
-    var queue = getActionQueue();
-    for (var i = 0; i < queue.length; i++) {
-      if (queue[i].id === actionId) return queue[i];
+    var list = getActions();
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === actionId) return list[i];
     }
     return null;
   }
 
   function getActionsByStatus(status) {
-    return getActionQueue().filter(function (a) { return a.execution_status === status; });
+    return getActions().filter(function (a) { return a.execution_status === status; });
+  }
+
+  function getActionsByApprovalStatus(status) {
+    return getActions().filter(function (a) { return a.approval && a.approval.status === status; });
   }
 
   // CEO approves an action
-  function approveAction(actionId) {
-    var queue = getActionQueue();
-    for (var i = 0; i < queue.length; i++) {
-      if (queue[i].id === actionId && queue[i].execution_status === 'pending') {
-        queue[i].execution_status = 'approved';
-        queue[i].approved_at = new Date().toISOString();
-        _saveActionQueue(queue);
-        _logAction('action-approved', { actionId: actionId, type: queue[i].action_type });
-        _logGovernance('ceo-approval', { actionId: actionId, type: queue[i].action_type, context: 'action' });
-        return queue[i];
+  function approveAction(actionId, note) {
+    var list = getActions();
+    for (var i = 0; i < list.length; i++) {
+      var a = list[i];
+      if (a.id === actionId && a.approval && a.approval.status === 'pending') {
+        a.approval.status = 'approved';
+        a.approval.approved_by = 'Pixelpusher';
+        a.approval.approved_at = new Date().toISOString();
+        a.approval.decision_note = note || null;
+        _syncLegacy(a);
+        _saveActions(list);
+        // Update approval queue entry
+        _updateApprovalQueueForAction(actionId, 'approved');
+        _logAction('action-approved', { actionId: actionId, type: a.type, platform: a.platform });
+        _logGovernance('ceo-approval', { actionId: actionId, type: a.type, platform: a.platform, context: 'action' });
+        return a;
       }
     }
     return null;
   }
 
   // CEO rejects an action
-  function rejectAction(actionId) {
-    var queue = getActionQueue();
-    for (var i = 0; i < queue.length; i++) {
-      if (queue[i].id === actionId && queue[i].execution_status === 'pending') {
-        queue[i].execution_status = 'rejected';
-        queue[i].resolved_at = new Date().toISOString();
-        _saveActionQueue(queue);
-        _logAction('action-rejected', { actionId: actionId, type: queue[i].action_type });
-        _logGovernance('ceo-reject', { actionId: actionId, type: queue[i].action_type, context: 'action' });
-        return queue[i];
+  function rejectAction(actionId, note) {
+    var list = getActions();
+    for (var i = 0; i < list.length; i++) {
+      var a = list[i];
+      if (a.id === actionId && a.approval && a.approval.status === 'pending') {
+        a.approval.status = 'rejected';
+        a.approval.decision_note = note || null;
+        a.execution.status = 'failed';
+        a.execution.finished_at = new Date().toISOString();
+        _syncLegacy(a);
+        _saveActions(list);
+        _updateApprovalQueueForAction(actionId, 'rejected');
+        _logAction('action-rejected', { actionId: actionId, type: a.type });
+        _logGovernance('ceo-reject', { actionId: actionId, type: a.type, context: 'action' });
+        return a;
       }
     }
     return null;
   }
 
-  // Mark action as running (execution started)
-  function markActionRunning(actionId) {
-    var queue = getActionQueue();
+  // CEO requests revision on an action
+  function requestActionRevision(actionId, note) {
+    var list = getActions();
+    for (var i = 0; i < list.length; i++) {
+      var a = list[i];
+      if (a.id === actionId && a.approval && a.approval.status === 'pending') {
+        a.approval.status = 'revision_requested';
+        a.approval.decision_note = note || null;
+        _syncLegacy(a);
+        _saveActions(list);
+        _updateApprovalQueueForAction(actionId, 'revision_requested');
+        _logAction('action-revision', { actionId: actionId, type: a.type });
+        _logGovernance('ceo-revision', { actionId: actionId, type: a.type, context: 'action' });
+        return a;
+      }
+    }
+    return null;
+  }
+
+  // CEO override on an action
+  function overrideAction(actionId) {
+    var list = getActions();
+    for (var i = 0; i < list.length; i++) {
+      var a = list[i];
+      if (a.id === actionId) {
+        a.approval.status = 'overridden';
+        a.approval.approved_by = 'Pixelpusher';
+        a.approval.approved_at = new Date().toISOString();
+        _syncLegacy(a);
+        _saveActions(list);
+        _updateApprovalQueueForAction(actionId, 'overridden');
+        _logAction('action-overridden', { actionId: actionId, type: a.type });
+        _logGovernance('ceo-override', { actionId: actionId, type: a.type, context: 'action' });
+        return a;
+      }
+    }
+    return null;
+  }
+
+  // Update matching approval queue entry status
+  function _updateApprovalQueueForAction(actionId, status) {
+    var queue = getApprovalQueue();
     for (var i = 0; i < queue.length; i++) {
-      if (queue[i].id === actionId && queue[i].execution_status === 'approved') {
-        queue[i].execution_status = 'running';
-        queue[i].executed_at = new Date().toISOString();
-        _saveActionQueue(queue);
-        _logAction('action-running', { actionId: actionId, type: queue[i].action_type });
-        return queue[i];
+      if (queue[i].action_id === actionId) {
+        queue[i].status = status;
+        break;
+      }
+    }
+    _saveStorage(APPROVAL_KEY, queue);
+  }
+
+  // Mark action as running
+  function markActionRunning(actionId) {
+    var list = getActions();
+    for (var i = 0; i < list.length; i++) {
+      var a = list[i];
+      if (a.id === actionId && (a.approval.status === 'approved' || a.approval.status === 'overridden')) {
+        a.execution.status = 'running';
+        a.execution.started_at = new Date().toISOString();
+        a.execution.attempts = (a.execution.attempts || 0) + 1;
+        _syncLegacy(a);
+        _saveActions(list);
+        _logAction('action-running', { actionId: actionId, type: a.type });
+        return a;
       }
     }
     return null;
@@ -1160,16 +1273,20 @@ var AgentEngine = (function () {
 
   // Complete action with receipt
   function completeAction(actionId, receipt) {
-    var queue = getActionQueue();
-    for (var i = 0; i < queue.length; i++) {
-      if (queue[i].id === actionId && (queue[i].execution_status === 'running' || queue[i].execution_status === 'approved')) {
-        queue[i].execution_status = queue[i].dry_run ? 'dry_run' : 'success';
-        queue[i].execution_receipt = receipt || null;
-        queue[i].resolved_at = new Date().toISOString();
-        _saveActionQueue(queue);
-        _incrementRateCount(queue[i].action_category);
-        _logAction('action-success', { actionId: actionId, type: queue[i].action_type, dryRun: queue[i].dry_run, receipt: receipt });
-        return queue[i];
+    var list = getActions();
+    for (var i = 0; i < list.length; i++) {
+      var a = list[i];
+      if (a.id === actionId && (a.execution.status === 'running' || a.execution.status === 'pending')) {
+        a.execution.status = 'success';
+        a.execution.finished_at = new Date().toISOString();
+        a.execution.receipt = receipt || null;
+        a.execution.last_error = null;
+        _syncLegacy(a);
+        _saveActions(list);
+        _incrementRateCount(a.action_category);
+        _logAction('action-success', { actionId: actionId, type: a.type, platform: a.platform, receipt: receipt });
+        _logGovernance('action-success', { actionId: actionId, type: a.type, platform: a.platform });
+        return a;
       }
     }
     return null;
@@ -1177,40 +1294,46 @@ var AgentEngine = (function () {
 
   // Fail action with error
   function failAction(actionId, error) {
-    var queue = getActionQueue();
-    for (var i = 0; i < queue.length; i++) {
-      if (queue[i].id === actionId) {
-        queue[i].execution_status = 'failed';
-        queue[i].error = error || 'Unknown error';
-        queue[i].resolved_at = new Date().toISOString();
-        _saveActionQueue(queue);
-        _logAction('action-failed', { actionId: actionId, type: queue[i].action_type, error: error });
-        return queue[i];
+    var list = getActions();
+    for (var i = 0; i < list.length; i++) {
+      var a = list[i];
+      if (a.id === actionId) {
+        a.execution.status = 'failed';
+        a.execution.finished_at = new Date().toISOString();
+        a.execution.last_error = typeof error === 'object' ? error : { code: 'ERROR', message: error || 'Unknown error' };
+        _syncLegacy(a);
+        _saveActions(list);
+        _logAction('action-failed', { actionId: actionId, type: a.type, error: error });
+        _logGovernance('action-failed', { actionId: actionId, type: a.type });
+        return a;
       }
     }
     return null;
   }
 
-  // Approval bundling — approve all pending actions with a given bundle_id
+  // Approval bundling
   function approveBundle(bundleId) {
-    var queue = getActionQueue();
+    var list = getActions();
     var approved = [];
-    for (var i = 0; i < queue.length; i++) {
-      if (queue[i].bundle_id === bundleId && queue[i].execution_status === 'pending') {
-        queue[i].execution_status = 'approved';
-        queue[i].approved_at = new Date().toISOString();
-        approved.push(queue[i]);
-        _logAction('action-approved', { actionId: queue[i].id, type: queue[i].action_type, bundle: bundleId });
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].bundle_id === bundleId && list[i].approval && list[i].approval.status === 'pending') {
+        list[i].approval.status = 'approved';
+        list[i].approval.approved_by = 'Pixelpusher';
+        list[i].approval.approved_at = new Date().toISOString();
+        _syncLegacy(list[i]);
+        approved.push(list[i]);
+        _updateApprovalQueueForAction(list[i].id, 'approved');
+        _logAction('action-approved', { actionId: list[i].id, type: list[i].type, bundle: bundleId });
       }
     }
-    _saveActionQueue(queue);
+    _saveActions(list);
     if (approved.length > 0) {
       _logGovernance('ceo-approval', { bundle: bundleId, count: approved.length, context: 'action-bundle' });
     }
     return approved;
   }
 
-  // Autonomy Score — % of tasks executed without CEO intervention
+  // Autonomy Score
   function getAutonomyScore() {
     var tasks = getTasks();
     if (tasks.length === 0) return { score: 100, autonomous: 0, total: 0 };
@@ -1219,14 +1342,10 @@ var AgentEngine = (function () {
     var autonomous = doneTasks.filter(function (t) {
       return !t.escalated && !t.requires_ceo_approval && (t.classification === 'autonomous' || !t.classification);
     }).length;
-    return {
-      score: Math.round((autonomous / doneTasks.length) * 100),
-      autonomous: autonomous,
-      total: doneTasks.length
-    };
+    return { score: Math.round((autonomous / doneTasks.length) * 100), autonomous: autonomous, total: doneTasks.length };
   }
 
-  // Risk Heatmap data
+  // Risk Heatmap
   function getRiskHeatmap() {
     var tasks = getTasks();
     var objectives = getObjectives();
@@ -1234,26 +1353,25 @@ var AgentEngine = (function () {
     var highRisk = tasks.filter(function (t) { return t.risk_level === 'high' && t.status !== 'done'; });
     var medRisk = tasks.filter(function (t) { return t.risk_level === 'medium' && t.status !== 'done'; });
     var atRiskObjectives = objectives.filter(function (o) { return o.status === 'at_risk' || o.status === 'behind'; });
-    // Escalation frequency (last 7 days)
     var weekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
     var recentEscalations = govLog.filter(function (e) {
       return e.type === 'escalation' && new Date(e.timestamp).getTime() > weekAgo;
     });
     return {
-      highRiskTasks: highRisk,
-      medRiskTasks: medRisk,
+      highRiskTasks: highRisk, medRiskTasks: medRisk,
       atRiskObjectives: atRiskObjectives,
       escalationFrequency: recentEscalations.length,
       escalationsPerDay: Math.round(recentEscalations.length / 7 * 10) / 10
     };
   }
 
-  // Action stats for dashboard
+  // Action stats
   function getActionStats() {
-    var queue = getActionQueue();
+    var list = getActions();
     var pending = 0, approved = 0, running = 0, success = 0, failed = 0, rejected = 0, dryRun = 0;
-    queue.forEach(function (a) {
-      switch (a.execution_status) {
+    list.forEach(function (a) {
+      var es = a.execution_status || 'pending';
+      switch (es) {
         case 'pending': pending++; break;
         case 'approved': approved++; break;
         case 'running': running++; break;
@@ -1263,7 +1381,7 @@ var AgentEngine = (function () {
         case 'dry_run': dryRun++; break;
       }
     });
-    return { total: queue.length, pending: pending, approved: approved, running: running, success: success, failed: failed, rejected: rejected, dryRun: dryRun };
+    return { total: list.length, pending: pending, approved: approved, running: running, success: success, failed: failed, rejected: rejected, dryRun: dryRun };
   }
 
   // ── Public API ──
@@ -1347,12 +1465,16 @@ var AgentEngine = (function () {
     ceoOverride: ceoOverride,
     getGovernanceLog: getGovernanceLog,
     // Action Layer
+    getActions: getActions,
     getActionQueue: getActionQueue,
     getAction: getAction,
     getActionsByStatus: getActionsByStatus,
+    getActionsByApprovalStatus: getActionsByApprovalStatus,
     createAction: createAction,
     approveAction: approveAction,
     rejectAction: rejectAction,
+    requestActionRevision: requestActionRevision,
+    overrideAction: overrideAction,
     markActionRunning: markActionRunning,
     completeAction: completeAction,
     failAction: failAction,

@@ -293,6 +293,48 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
           }
         }
       }
+    } else if (action.type === 'create-social-action' && action.social) {
+      // Agent-initiated social post action — routes through action layer governance
+      const socialPayload = action.social;
+      const actionRequest = {
+        type: socialPayload.schedule_for ? 'social_post.schedule' : 'social_post.publish',
+        platform: socialPayload.platform || 'x',
+        payload: {
+          text: socialPayload.text || '',
+          media: socialPayload.media || [],
+          scheduled_for: socialPayload.schedule_for || null
+        },
+        created_by: agentId
+      };
+
+      // Save to actions store (requires CEO approval)
+      const actionsStore = (await storage.getState('actions')) || [];
+      const newAction = _createActionFromHeartbeat(actionRequest, agentId);
+      actionsStore.push(newAction);
+      await storage.setState('actions', actionsStore);
+
+      // Add to approval queue
+      const approvalQueue = (await storage.getState('approvalQueue')) || [];
+      approvalQueue.push({
+        id: 'aq-' + newAction.id,
+        kind: 'action',
+        action_id: newAction.id,
+        taskId: null,
+        taskTitle: newAction.type + ' (' + newAction.platform + ')',
+        originAgent: agentId,
+        classification: newAction.classification,
+        riskLevel: newAction.risk_level,
+        budgetImpact: 0,
+        brandImpact: 'medium',
+        status: 'pending',
+        submittedAt: new Date().toISOString(),
+        preview: (newAction.payload && newAction.payload.text) ? newAction.payload.text.substring(0, 120) : ''
+      });
+      if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
+      await storage.setState('approvalQueue', approvalQueue);
+
+      context.log('[Heartbeat]', agentId, 'created social action:', newAction.id, newAction.type, newAction.platform);
+      result.taskUpdates.push({ action: 'social-action-created', actionId: newAction.id, agentId: agentId });
     } else if (action.type === 'review-task' && action.taskId) {
       // Review: agent reviews another agent's deliverable (costs 1 extra Gemini call)
       const task = tasks.find(t => t.id === action.taskId && t.status === 'review');
@@ -380,6 +422,7 @@ Action types:
 - move-task: Move a task to a new status column
 - execute-task: Pick up one of YOUR in-progress or todo tasks and produce actual work output (a report, analysis, draft, recommendation, audit, etc). This will generate a deliverable and move the task to review.
 - review-task: Review a completed deliverable from another agent's task that is in the review column. You'll evaluate their work and either approve it (done) or request changes (back to in-progress).
+- create-social-action: (Marketing/Echo) Draft a social media post that will be routed through CEO approval before publishing. Include a "social" object with: text (the post content, max 280 chars for X, 300 for Bluesky, 3000 for LinkedIn), platform ("x", "linkedin", or "bluesky"), and optionally media (array of image URLs) and schedule_for (ISO datetime for scheduled posts).
 
 Rules:
 - actions array can be empty if nothing needs doing
@@ -389,7 +432,8 @@ Rules:
 - Only move tasks if you have reason to
 - Prefer execute-task on your own in-progress tasks when you have work to do
 - Review other agents' work when tasks are waiting in review
-- Keep observations brief and factual`;
+- Keep observations brief and factual
+- Echo (Marketing): You can use create-social-action to draft social posts. All posts require CEO approval before publishing. Keep brand voice consistent, professional, and forward-looking. Include relevant context about AmbientPixels.`;
 }
 
 // ── Apply task mutation ──
@@ -697,6 +741,54 @@ async function callGemini(prompt) {
     console.error('[Heartbeat] Gemini call failed:', err.message);
     return null;
   }
+}
+
+// ── Create action object from heartbeat (server-side, mirrors CompanySchemas.createActionRequest) ──
+function _createActionFromHeartbeat(data, agentId) {
+  const actionType = data.type || 'social_post.publish';
+  const platform = data.platform || 'x';
+  const requiresApproval = ['social_post.publish', 'social_post.reply', 'social_post.schedule'].indexOf(actionType) !== -1;
+  const catMap = { social_post: 'social', email: 'email', git: 'git', azure: 'azure' };
+  const catKey = actionType.split('.')[0] || 'unknown';
+  const category = catMap[catKey] || 'content';
+
+  return {
+    id: 'act_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+    created_at: new Date().toISOString(),
+    created_by: agentId,
+    type: actionType,
+    platform: platform,
+    payload: data.payload || {},
+    classification: 'advisory',
+    requires_ceo_approval: requiresApproval,
+    risk_level: 'medium',
+    brand_impact: 'medium',
+    budget_impact: 0,
+    approval: {
+      status: 'pending',
+      approved_by: null,
+      approved_at: null,
+      decision_note: null
+    },
+    execution: {
+      status: 'pending',
+      started_at: null,
+      finished_at: null,
+      attempts: 0,
+      last_error: null,
+      receipt: null
+    },
+    // Legacy compat
+    action_type: actionType,
+    action_category: category,
+    execution_status: 'pending',
+    origin_agent: agentId,
+    action_payload: data.payload || {},
+    requires_approval: requiresApproval,
+    is_irreversible: ['social_post.publish', 'social_post.reply'].indexOf(actionType) !== -1,
+    bundle_id: null,
+    source: 'heartbeat'
+  };
 }
 
 // ── Log helper ──

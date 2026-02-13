@@ -691,46 +691,82 @@
 
         listEl.innerHTML = '';
         pending.forEach(function (item) {
+          var isAction = item.kind === 'action';
           var div = document.createElement('div');
           div.className = 'approval-item';
-          div.style.cssText = 'padding:0.6rem 0.8rem; border:1px solid rgba(255,215,0,0.08); border-radius:8px; margin-bottom:0.5rem; background:rgba(255,215,0,0.02);';
+          var borderColor = isAction ? 'rgba(59,130,246,0.12)' : 'rgba(255,215,0,0.08)';
+          var bgColor = isAction ? 'rgba(59,130,246,0.02)' : 'rgba(255,215,0,0.02)';
+          div.style.cssText = 'padding:0.6rem 0.8rem; border:1px solid ' + borderColor + '; border-radius:8px; margin-bottom:0.5rem; background:' + bgColor + ';';
 
           var riskColor = item.riskLevel === 'high' ? '#f87171' : item.riskLevel === 'medium' ? '#fbbf24' : '#34d399';
           var classIcon = item.classification === 'executive_required' ? 'fa-exclamation-circle' : 'fa-info-circle';
           var classColor = item.classification === 'executive_required' ? '#f87171' : '#fbbf24';
 
+          var titleHtml = '';
+          if (isAction) {
+            titleHtml = '<span style="font-size:0.55rem;padding:0.1rem 0.35rem;border-radius:3px;background:rgba(59,130,246,0.1);color:#3b82f6;margin-right:0.4rem;">ACTION</span>' +
+              '<strong style="font-size:0.8rem;">' + escapeHtml(item.taskTitle) + '</strong>';
+          } else {
+            titleHtml = '<strong style="font-size:0.8rem;">' + escapeHtml(item.taskTitle) + '</strong>';
+          }
+
+          var metaHtml = '<span>Agent: ' + (item.originAgent || '?') + '</span>' +
+            '<span style="color:' + riskColor + ';">Risk: ' + item.riskLevel + '</span>' +
+            '<span>Budget: $' + (item.budgetImpact || 0) + '</span>' +
+            '<span>Brand: ' + (item.brandImpact || 'low') + '</span>';
+          if (isAction && item.preview) {
+            metaHtml += '<span style="opacity:0.5; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">"' + escapeHtml(item.preview) + '"</span>';
+          }
+
+          var btnStyle = 'font-size:0.6rem; padding:0.25rem 0.6rem; border-radius:4px; cursor:pointer;';
+          var actionTarget = isAction ? item.action_id : item.id;
+          var overrideTarget = isAction ? item.action_id : item.taskId;
+
           div.innerHTML =
             '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">' +
-              '<strong style="font-size:0.8rem;">' + escapeHtml(item.taskTitle) + '</strong>' +
+              titleHtml +
               '<span style="font-size:0.6rem; color:' + classColor + ';"><i class="fas ' + classIcon + '"></i> ' + item.classification + '</span>' +
             '</div>' +
             '<div style="display:flex; gap:0.6rem; font-size:0.65rem; opacity:0.6; margin-bottom:0.5rem;">' +
-              '<span>Agent: ' + (item.originAgent || '?') + '</span>' +
-              '<span style="color:' + riskColor + ';">Risk: ' + item.riskLevel + '</span>' +
-              '<span>Budget: $' + (item.budgetImpact || 0) + '</span>' +
-              '<span>Brand: ' + (item.brandImpact || 'low') + '</span>' +
+              metaHtml +
             '</div>' +
             '<div style="display:flex; gap:0.4rem;">' +
-              '<button class="approval-btn approval-btn--approve" data-id="' + item.id + '" style="font-size:0.6rem; padding:0.25rem 0.6rem; border:1px solid rgba(52,211,153,0.3); background:rgba(52,211,153,0.05); color:#34d399; border-radius:4px; cursor:pointer;">Approve</button>' +
-              '<button class="approval-btn approval-btn--reject" data-id="' + item.id + '" style="font-size:0.6rem; padding:0.25rem 0.6rem; border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.05); color:#f87171; border-radius:4px; cursor:pointer;">Reject</button>' +
-              '<button class="approval-btn approval-btn--revision" data-id="' + item.id + '" style="font-size:0.6rem; padding:0.25rem 0.6rem; border:1px solid rgba(251,191,36,0.3); background:rgba(251,191,36,0.05); color:#fbbf24; border-radius:4px; cursor:pointer;">Request Revision</button>' +
-              '<button class="approval-btn approval-btn--override" data-id="' + item.taskId + '" style="font-size:0.6rem; padding:0.25rem 0.6rem; border:1px solid rgba(255,215,0,0.3); background:rgba(255,215,0,0.05); color:#FFD700; border-radius:4px; cursor:pointer;">Override</button>' +
+              '<button class="approval-btn approval-btn--approve" data-id="' + item.id + '" data-action-id="' + (actionTarget || '') + '" data-kind="' + (item.kind || 'task') + '" style="' + btnStyle + ' border:1px solid rgba(52,211,153,0.3); background:rgba(52,211,153,0.05); color:#34d399;">Approve</button>' +
+              '<button class="approval-btn approval-btn--reject" data-id="' + item.id + '" data-action-id="' + (actionTarget || '') + '" data-kind="' + (item.kind || 'task') + '" style="' + btnStyle + ' border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.05); color:#f87171;">Reject</button>' +
+              '<button class="approval-btn approval-btn--revision" data-id="' + item.id + '" data-action-id="' + (actionTarget || '') + '" data-kind="' + (item.kind || 'task') + '" style="' + btnStyle + ' border:1px solid rgba(251,191,36,0.3); background:rgba(251,191,36,0.05); color:#fbbf24;">Request Revision</button>' +
+              '<button class="approval-btn approval-btn--override" data-id="' + (overrideTarget || '') + '" data-kind="' + (item.kind || 'task') + '" style="' + btnStyle + ' border:1px solid rgba(255,215,0,0.3); background:rgba(255,215,0,0.05); color:#FFD700;">Override</button>' +
             '</div>';
           listEl.appendChild(div);
         });
 
-        // Bind buttons
+        // Bind buttons — route action items to action-specific methods
         listEl.querySelectorAll('.approval-btn--approve').forEach(function (btn) {
-          btn.addEventListener('click', function () { AgentEngine.ceoApprove(btn.dataset.id); renderAll(); });
+          btn.addEventListener('click', function () {
+            if (btn.dataset.kind === 'action') { AgentEngine.approveAction(btn.dataset.actionId); }
+            else { AgentEngine.ceoApprove(btn.dataset.id); }
+            renderAll();
+          });
         });
         listEl.querySelectorAll('.approval-btn--reject').forEach(function (btn) {
-          btn.addEventListener('click', function () { AgentEngine.ceoReject(btn.dataset.id); renderAll(); });
+          btn.addEventListener('click', function () {
+            if (btn.dataset.kind === 'action') { AgentEngine.rejectAction(btn.dataset.actionId); }
+            else { AgentEngine.ceoReject(btn.dataset.id); }
+            renderAll();
+          });
         });
         listEl.querySelectorAll('.approval-btn--revision').forEach(function (btn) {
-          btn.addEventListener('click', function () { AgentEngine.ceoRequestRevision(btn.dataset.id); renderAll(); });
+          btn.addEventListener('click', function () {
+            if (btn.dataset.kind === 'action') { AgentEngine.requestActionRevision(btn.dataset.actionId); }
+            else { AgentEngine.ceoRequestRevision(btn.dataset.id); }
+            renderAll();
+          });
         });
         listEl.querySelectorAll('.approval-btn--override').forEach(function (btn) {
-          btn.addEventListener('click', function () { AgentEngine.ceoOverride(btn.dataset.id); renderAll(); });
+          btn.addEventListener('click', function () {
+            if (btn.dataset.kind === 'action') { AgentEngine.overrideAction(btn.dataset.id); }
+            else { AgentEngine.ceoOverride(btn.dataset.id); }
+            renderAll();
+          });
         });
       }
 
