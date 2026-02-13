@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Task Manager — Kanban board for agent task tracking." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Tasks — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/tasks.css" />
+</head>
+<body style="background:#071019" data-theme="dark">
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/modules/company/" class="nav-logo"><i class="fas fa-building"></i> AmbientPixels HQ</a>
+      <ul class="nav-links">
+        <li><a href="/modules/company/">HQ</a></li>
+        <li><a href="/modules/company/standup.html">Standup</a></li>
+        <li><a href="/modules/company/tasks.html" class="active">Tasks</a></li>
+        <li><a href="/modules/company/dashboard.html">Dashboard</a></li>
+        <li><a href="/modules/company/workspace.html">Workspace</a></li>
+        <li><a href="/" style="opacity:0.4;"><i class="fas fa-globe"></i> Main Site</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="content-section" style="max-width: 1100px; margin: 0 auto; padding: 1rem;">
+
+    <!-- Header -->
+    <div class="tm-header">
+      <h1><i class="fas fa-tasks"></i> Task Manager</h1>
+      <div class="tm-actions">
+        <button class="tm-btn tm-btn--primary" id="btn-new-task"><i class="fas fa-plus"></i> New Task</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="tm-stats" id="tm-stats"></div>
+
+    <!-- Filters + View Toggle -->
+    <div class="tm-filters">
+      <span class="tm-filter-label">Filter:</span>
+      <select class="tm-filter-select" id="filter-assignee">
+        <option value="">All Agents</option>
+      </select>
+      <select class="tm-filter-select" id="filter-priority">
+        <option value="">All Priorities</option>
+        <option value="critical">Critical</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
+      <select class="tm-filter-select" id="filter-division">
+        <option value="">All Divisions</option>
+      </select>
+      <div class="tm-view-toggle">
+        <button class="tm-view-btn active" id="view-board" title="Board"><i class="fas fa-columns"></i></button>
+        <button class="tm-view-btn" id="view-list" title="List"><i class="fas fa-list"></i></button>
+      </div>
+    </div>
+
+    <!-- Kanban Board -->
+    <div class="tm-board active" id="tm-board">
+      <div class="tm-column tm-column--backlog" data-status="backlog">
+        <div class="tm-column-header">
+          <span class="tm-column-title"><i class="fas fa-inbox"></i> Backlog</span>
+          <span class="tm-column-count" data-count="backlog">0</span>
+        </div>
+        <div class="tm-column-cards" data-col="backlog"></div>
+      </div>
+      <div class="tm-column tm-column--todo" data-status="todo">
+        <div class="tm-column-header">
+          <span class="tm-column-title"><i class="fas fa-clipboard-list"></i> To Do</span>
+          <span class="tm-column-count" data-count="todo">0</span>
+        </div>
+        <div class="tm-column-cards" data-col="todo"></div>
+      </div>
+      <div class="tm-column tm-column--in-progress" data-status="in-progress">
+        <div class="tm-column-header">
+          <span class="tm-column-title"><i class="fas fa-spinner"></i> In Progress</span>
+          <span class="tm-column-count" data-count="in-progress">0</span>
+        </div>
+        <div class="tm-column-cards" data-col="in-progress"></div>
+      </div>
+      <div class="tm-column tm-column--review" data-status="review">
+        <div class="tm-column-header">
+          <span class="tm-column-title"><i class="fas fa-eye"></i> Review</span>
+          <span class="tm-column-count" data-count="review">0</span>
+        </div>
+        <div class="tm-column-cards" data-col="review"></div>
+      </div>
+      <div class="tm-column tm-column--done" data-status="done">
+        <div class="tm-column-header">
+          <span class="tm-column-title"><i class="fas fa-check-circle"></i> Done</span>
+          <span class="tm-column-count" data-count="done">0</span>
+        </div>
+        <div class="tm-column-cards" data-col="done"></div>
+      </div>
+    </div>
+
+    <!-- List View -->
+    <div class="tm-list" id="tm-list">
+      <table class="tm-list-table">
+        <thead>
+          <tr>
+            <th>Task</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Assignee</th>
+            <th>Division</th>
+            <th>Due</th>
+          </tr>
+        </thead>
+        <tbody id="tm-list-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Task Modal (Create / Edit) -->
+    <div class="tm-modal-overlay" id="task-modal">
+      <div class="tm-modal">
+        <div class="tm-modal-header">
+          <h2 class="tm-modal-title" id="modal-title">New Task</h2>
+          <button class="tm-modal-close" id="modal-close"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="tm-modal-body">
+          <input type="hidden" id="task-id" />
+
+          <label for="task-title">Title</label>
+          <input type="text" id="task-title" placeholder="Task title..." />
+
+          <label for="task-desc">Description</label>
+          <textarea id="task-desc" placeholder="What needs to be done..."></textarea>
+
+          <div class="tm-modal-row">
+            <div>
+              <label for="task-status">Status</label>
+              <select id="task-status">
+                <option value="backlog">Backlog</option>
+                <option value="todo">To Do</option>
+                <option value="in-progress">In Progress</option>
+                <option value="review">Review</option>
+                <option value="done">Done</option>
+              </select>
+            </div>
+            <div>
+              <label for="task-priority">Priority</label>
+              <select id="task-priority">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="tm-modal-row">
+            <div>
+              <label for="task-assignee">Assignee</label>
+              <select id="task-assignee">
+                <option value="">Unassigned</option>
+              </select>
+            </div>
+            <div>
+              <label for="task-division">Division</label>
+              <select id="task-division">
+                <option value="">None</option>
+              </select>
+            </div>
+          </div>
+
+          <label for="task-due">Due Date</label>
+          <input type="date" id="task-due" />
+
+          <!-- Comments (only in edit mode) -->
+          <div class="tm-comments" id="task-comments" style="display:none;">
+            <h4><i class="fas fa-comments" style="margin-right:4px;"></i>Comments</h4>
+            <div id="task-comments-list"></div>
+            <div class="tm-comment-add">
+              <input type="text" id="task-comment-input" placeholder="Add a comment..." />
+              <button id="btn-add-comment"><i class="fas fa-paper-plane"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="tm-modal-footer">
+          <button class="tm-btn" id="btn-delete-task" style="margin-right:auto; color:#f87171; border-color:rgba(248,113,113,0.2); display:none;">
+            <i class="fas fa-trash"></i> Delete
+          </button>
+          <button class="tm-btn" id="btn-cancel-task">Cancel</button>
+          <button class="tm-btn tm-btn--primary" id="btn-save-task"><i class="fas fa-check"></i> Save</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="/js/agent-engine.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var agents = [];
+      var allDivisions = [];
+      var currentView = 'board';
+      var filterAssignee = '';
+      var filterPriority = '';
+      var filterDivision = '';
+
+      // DOM refs
+      var board = document.getElementById('tm-board');
+      var listView = document.getElementById('tm-list');
+      var listBody = document.getElementById('tm-list-body');
+      var statsBar = document.getElementById('tm-stats');
+      var modal = document.getElementById('task-modal');
+
+      // ── Init ──
+      AgentEngine.loadRegistry().then(function (data) {
+        if (!data || !data.agents) return;
+        agents = data.agents;
+
+        // Populate agent filter + assignee dropdown
+        var filterAssigneeEl = document.getElementById('filter-assignee');
+        var taskAssigneeEl = document.getElementById('task-assignee');
+        var filterDivisionEl = document.getElementById('filter-division');
+        var taskDivisionEl = document.getElementById('task-division');
+
+        agents.forEach(function (a) {
+          filterAssigneeEl.innerHTML += '<option value="' + a.id + '">' + a.name + ' (' + a.role + ')</option>';
+          taskAssigneeEl.innerHTML += '<option value="' + a.id + '">' + a.name + ' — ' + a.role + '</option>';
+
+          // Collect divisions
+          if (a.divisions) {
+            a.divisions.forEach(function (d) {
+              allDivisions.push({ id: d.id, name: d.name, icon: d.icon, agentId: a.id, agentName: a.name });
+              filterDivisionEl.innerHTML += '<option value="' + d.id + '">' + d.name + ' (' + a.name + ')</option>';
+              taskDivisionEl.innerHTML += '<option value="' + d.id + '">' + d.name + ' — ' + a.name + '</option>';
+            });
+          }
+        });
+
+        renderAll();
+      });
+
+      // ── Render ──
+      function renderAll() {
+        renderStats();
+        renderBoard();
+        renderList();
+      }
+
+      function getFilteredTasks() {
+        var tasks = AgentEngine.getTasks();
+        if (filterAssignee) {
+          tasks = tasks.filter(function (t) { return t.assignee === filterAssignee; });
+        }
+        if (filterPriority) {
+          tasks = tasks.filter(function (t) { return t.priority === filterPriority; });
+        }
+        if (filterDivision) {
+          tasks = tasks.filter(function (t) { return t.division === filterDivision; });
+        }
+        return tasks;
+      }
+
+      function renderStats() {
+        var stats = AgentEngine.getTaskStats();
+        statsBar.innerHTML =
+          statCard(stats.total, 'Total', '') +
+          statCard(stats.backlog, 'Backlog', '') +
+          statCard(stats.todo + stats['in-progress'], 'Active', 'tm-stat--active') +
+          statCard(stats.review, 'Review', '') +
+          statCard(stats.done, 'Done', '') +
+          statCard(stats.overdue, 'Overdue', 'tm-stat--overdue') +
+          statCard(stats.unassigned, 'Unassigned', '');
+      }
+
+      function statCard(val, label, cls) {
+        return '<div class="tm-stat ' + cls + '"><div class="tm-stat-value">' + val + '</div><div class="tm-stat-label">' + label + '</div></div>';
+      }
+
+      function renderBoard() {
+        var tasks = getFilteredTasks();
+        var cols = ['backlog', 'todo', 'in-progress', 'review', 'done'];
+
+        cols.forEach(function (status) {
+          var container = document.querySelector('[data-col="' + status + '"]');
+          var countEl = document.querySelector('[data-count="' + status + '"]');
+          var colTasks = tasks.filter(function (t) { return t.status === status; });
+
+          // Sort: critical first, then by date
+          colTasks.sort(function (a, b) {
+            var prioOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+            return (prioOrder[a.priority] || 2) - (prioOrder[b.priority] || 2);
+          });
+
+          countEl.textContent = colTasks.length;
+          container.innerHTML = '';
+
+          if (colTasks.length === 0) {
+            container.innerHTML = '<div class="tm-empty">No tasks</div>';
+            return;
+          }
+
+          colTasks.forEach(function (task) {
+            container.appendChild(createTaskCard(task));
+          });
+        });
+      }
+
+      function createTaskCard(task) {
+        var card = document.createElement('div');
+        card.className = 'tm-card';
+        card.setAttribute('draggable', 'true');
+        card.setAttribute('data-task-id', task.id);
+
+        var agent = task.assignee ? getAgentById(task.assignee) : null;
+        var div = task.division ? getDivisionById(task.division) : null;
+        var today = new Date().toISOString().split('T')[0];
+        var isOverdue = task.dueDate && task.dueDate < today && task.status !== 'done';
+
+        var meta = '<div class="tm-card-meta">';
+        meta += '<span class="tm-card-priority tm-card-priority--' + task.priority + '">' + task.priority + '</span>';
+
+        if (agent) {
+          meta += '<span class="tm-card-assignee" style="--agent-color:' + agent.color + '"><i class="' + agent.icon + '"></i> ' + agent.name + '</span>';
+        }
+
+        if (task.comments && task.comments.length > 0) {
+          meta += '<span class="tm-card-comments"><i class="fas fa-comment"></i> ' + task.comments.length + '</span>';
+        }
+
+        if (task.dueDate) {
+          meta += '<span class="tm-card-due ' + (isOverdue ? 'overdue' : '') + '"><i class="fas fa-calendar"></i> ' + formatDate(task.dueDate) + '</span>';
+        }
+
+        meta += '</div>';
+
+        if (div) {
+          meta += '<div class="tm-card-division"><i class="' + div.icon + '"></i> ' + div.name + '</div>';
+        }
+
+        card.innerHTML = '<div class="tm-card-title">' + escapeHtml(task.title) + '</div>' + meta;
+
+        card.addEventListener('click', function () { openEditModal(task.id); });
+
+        // Drag events
+        card.addEventListener('dragstart', function (e) {
+          e.dataTransfer.setData('text/plain', task.id);
+          card.style.opacity = '0.4';
+        });
+        card.addEventListener('dragend', function () {
+          card.style.opacity = '1';
+        });
+
+        return card;
+      }
+
+      function renderList() {
+        var tasks = getFilteredTasks();
+
+        // Sort: status order, then priority
+        var statusOrder = { 'in-progress': 0, 'review': 1, 'todo': 2, 'backlog': 3, 'done': 4 };
+        var prioOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+        tasks.sort(function (a, b) {
+          var s = (statusOrder[a.status] || 3) - (statusOrder[b.status] || 3);
+          if (s !== 0) return s;
+          return (prioOrder[a.priority] || 2) - (prioOrder[b.priority] || 2);
+        });
+
+        listBody.innerHTML = '';
+        if (tasks.length === 0) {
+          listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; opacity:0.2; padding:2rem;">No tasks</td></tr>';
+          return;
+        }
+
+        tasks.forEach(function (task) {
+          var agent = task.assignee ? getAgentById(task.assignee) : null;
+          var div = task.division ? getDivisionById(task.division) : null;
+          var today = new Date().toISOString().split('T')[0];
+          var isOverdue = task.dueDate && task.dueDate < today && task.status !== 'done';
+
+          var tr = document.createElement('tr');
+          tr.innerHTML =
+            '<td>' + escapeHtml(task.title) + '</td>' +
+            '<td><span class="tm-list-status tm-list-status--' + task.status + '">' + formatStatus(task.status) + '</span></td>' +
+            '<td><span class="tm-card-priority tm-card-priority--' + task.priority + '">' + task.priority + '</span></td>' +
+            '<td>' + (agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : '<span style="opacity:0.2">—</span>') + '</td>' +
+            '<td>' + (div ? '<span style="opacity:0.4;">' + div.name + '</span>' : '<span style="opacity:0.2">—</span>') + '</td>' +
+            '<td>' + (task.dueDate ? '<span class="' + (isOverdue ? 'overdue' : '') + '" style="font-size:0.7rem;' + (isOverdue ? 'color:#f87171;' : 'opacity:0.4;') + '">' + formatDate(task.dueDate) + '</span>' : '<span style="opacity:0.2">—</span>') + '</td>';
+
+          tr.addEventListener('click', function () { openEditModal(task.id); });
+          listBody.appendChild(tr);
+        });
+      }
+
+      // ── Drag & Drop ──
+      document.querySelectorAll('.tm-column').forEach(function (col) {
+        col.addEventListener('dragover', function (e) {
+          e.preventDefault();
+          col.classList.add('drag-over');
+        });
+        col.addEventListener('dragleave', function () {
+          col.classList.remove('drag-over');
+        });
+        col.addEventListener('drop', function (e) {
+          e.preventDefault();
+          col.classList.remove('drag-over');
+          var taskId = e.dataTransfer.getData('text/plain');
+          var newStatus = col.getAttribute('data-status');
+          if (taskId && newStatus) {
+            AgentEngine.moveTask(taskId, newStatus);
+            renderAll();
+          }
+        });
+      });
+
+      // ── View Toggle ──
+      var viewBoardBtn = document.getElementById('view-board');
+      var viewListBtn = document.getElementById('view-list');
+
+      viewBoardBtn.addEventListener('click', function () {
+        currentView = 'board';
+        board.classList.add('active');
+        listView.classList.remove('active');
+        viewBoardBtn.classList.add('active');
+        viewListBtn.classList.remove('active');
+      });
+
+      viewListBtn.addEventListener('click', function () {
+        currentView = 'list';
+        board.classList.remove('active');
+        listView.classList.add('active');
+        viewListBtn.classList.add('active');
+        viewBoardBtn.classList.remove('active');
+      });
+
+      // ── Filters ──
+      document.getElementById('filter-assignee').addEventListener('change', function () {
+        filterAssignee = this.value;
+        renderBoard();
+        renderList();
+      });
+
+      document.getElementById('filter-priority').addEventListener('change', function () {
+        filterPriority = this.value;
+        renderBoard();
+        renderList();
+      });
+
+      document.getElementById('filter-division').addEventListener('change', function () {
+        filterDivision = this.value;
+        renderBoard();
+        renderList();
+      });
+
+      // ── Modal ──
+      var modalTitle = document.getElementById('modal-title');
+      var taskIdField = document.getElementById('task-id');
+      var taskTitleField = document.getElementById('task-title');
+      var taskDescField = document.getElementById('task-desc');
+      var taskStatusField = document.getElementById('task-status');
+      var taskPriorityField = document.getElementById('task-priority');
+      var taskAssigneeField = document.getElementById('task-assignee');
+      var taskDivisionField = document.getElementById('task-division');
+      var taskDueField = document.getElementById('task-due');
+      var taskCommentsSection = document.getElementById('task-comments');
+      var taskCommentsList = document.getElementById('task-comments-list');
+      var taskCommentInput = document.getElementById('task-comment-input');
+      var deleteBtn = document.getElementById('btn-delete-task');
+
+      function openNewModal() {
+        modalTitle.textContent = 'New Task';
+        taskIdField.value = '';
+        taskTitleField.value = '';
+        taskDescField.value = '';
+        taskStatusField.value = 'backlog';
+        taskPriorityField.value = 'medium';
+        taskAssigneeField.value = '';
+        taskDivisionField.value = '';
+        taskDueField.value = '';
+        taskCommentsSection.style.display = 'none';
+        deleteBtn.style.display = 'none';
+        modal.classList.add('active');
+        setTimeout(function () { taskTitleField.focus(); }, 100);
+      }
+
+      function openEditModal(taskId) {
+        var task = AgentEngine.getTask(taskId);
+        if (!task) return;
+
+        modalTitle.textContent = 'Edit Task';
+        taskIdField.value = task.id;
+        taskTitleField.value = task.title;
+        taskDescField.value = task.description || '';
+        taskStatusField.value = task.status;
+        taskPriorityField.value = task.priority;
+        taskAssigneeField.value = task.assignee || '';
+        taskDivisionField.value = task.division || '';
+        taskDueField.value = task.dueDate || '';
+        deleteBtn.style.display = '';
+
+        // Render comments
+        taskCommentsSection.style.display = '';
+        renderComments(task);
+
+        modal.classList.add('active');
+      }
+
+      function renderComments(task) {
+        taskCommentsList.innerHTML = '';
+        if (!task.comments || task.comments.length === 0) {
+          taskCommentsList.innerHTML = '<div style="opacity:0.2; font-size:0.65rem; font-style:italic;">No comments yet</div>';
+          return;
+        }
+        task.comments.forEach(function (c) {
+          var agent = c.agentId ? getAgentById(c.agentId) : null;
+          var div = document.createElement('div');
+          div.className = 'tm-comment';
+          div.innerHTML =
+            '<div class="tm-comment-meta">' +
+              (agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : 'User') +
+              ' · ' + formatTimeAgo(new Date(c.timestamp)) +
+            '</div>' +
+            '<div>' + escapeHtml(c.text) + '</div>';
+          taskCommentsList.appendChild(div);
+        });
+      }
+
+      function closeModal() {
+        modal.classList.remove('active');
+      }
+
+      document.getElementById('btn-new-task').addEventListener('click', openNewModal);
+      document.getElementById('modal-close').addEventListener('click', closeModal);
+      document.getElementById('btn-cancel-task').addEventListener('click', closeModal);
+
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeModal();
+      });
+
+      // Save task
+      document.getElementById('btn-save-task').addEventListener('click', function () {
+        var title = taskTitleField.value.trim();
+        if (!title) { taskTitleField.focus(); return; }
+
+        var data = {
+          title: title,
+          description: taskDescField.value.trim(),
+          status: taskStatusField.value,
+          priority: taskPriorityField.value,
+          assignee: taskAssigneeField.value || null,
+          division: taskDivisionField.value || null,
+          dueDate: taskDueField.value || null
+        };
+
+        if (taskIdField.value) {
+          AgentEngine.updateTask(taskIdField.value, data);
+        } else {
+          AgentEngine.addTask(data);
+        }
+
+        closeModal();
+        renderAll();
+      });
+
+      // Delete task
+      deleteBtn.addEventListener('click', function () {
+        if (taskIdField.value) {
+          AgentEngine.deleteTask(taskIdField.value);
+          closeModal();
+          renderAll();
+        }
+      });
+
+      // Add comment
+      document.getElementById('btn-add-comment').addEventListener('click', function () {
+        var text = taskCommentInput.value.trim();
+        if (!text || !taskIdField.value) return;
+        var task = AgentEngine.addTaskComment(taskIdField.value, { text: text });
+        taskCommentInput.value = '';
+        if (task) renderComments(task);
+      });
+
+      taskCommentInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          document.getElementById('btn-add-comment').click();
+        }
+      });
+
+      // Auto-set division when assignee changes
+      taskAssigneeField.addEventListener('change', function () {
+        var agentId = this.value;
+        if (!agentId) return;
+        var agent = getAgentById(agentId);
+        if (agent && agent.divisions && agent.divisions.length > 0 && !taskDivisionField.value) {
+          taskDivisionField.value = agent.divisions[0].id;
+        }
+      });
+
+      // ── Helpers ──
+      function getAgentById(id) {
+        for (var i = 0; i < agents.length; i++) {
+          if (agents[i].id === id) return agents[i];
+        }
+        return null;
+      }
+
+      function getDivisionById(id) {
+        for (var i = 0; i < allDivisions.length; i++) {
+          if (allDivisions[i].id === id) return allDivisions[i];
+        }
+        return null;
+      }
+
+      function formatStatus(s) {
+        return s.replace(/-/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+      }
+
+      function formatDate(d) {
+        var dt = new Date(d + 'T00:00:00');
+        return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      }
+
+      function formatTimeAgo(date) {
+        var diff = Date.now() - date.getTime();
+        var mins = Math.floor(diff / 60000);
+        if (mins < 1) return 'just now';
+        if (mins < 60) return mins + 'm ago';
+        var hours = Math.floor(mins / 60);
+        if (hours < 24) return hours + 'h ago';
+        var days = Math.floor(hours / 24);
+        return days + 'd ago';
+      }
+
+      function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+    })();
+  </script>
+
+</body>
+</html>

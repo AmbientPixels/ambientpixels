@@ -718,6 +718,121 @@ var AgentEngine = (function () {
     emit('date-deleted', { id: id });
   }
 
+  // ── Task Manager ──
+  var TASKS_KEY = 'ap_tasks';
+  var MAX_TASKS = 500;
+  var TASK_STATUSES = ['backlog', 'todo', 'in-progress', 'review', 'done'];
+  var TASK_PRIORITIES = ['low', 'medium', 'high', 'critical'];
+
+  function getTasks() {
+    return _loadStorage(TASKS_KEY, []);
+  }
+
+  function getTask(id) {
+    var tasks = getTasks();
+    for (var i = 0; i < tasks.length; i++) {
+      if (tasks[i].id === id) return tasks[i];
+    }
+    return null;
+  }
+
+  function addTask(entry) {
+    var tasks = getTasks();
+    var task = {
+      id: 'task-' + Date.now(),
+      title: entry.title || 'Untitled Task',
+      description: entry.description || '',
+      status: entry.status || 'backlog',
+      priority: entry.priority || 'medium',
+      assignee: entry.assignee || null,        // agentId or null (unassigned)
+      division: entry.division || null,         // division id
+      tags: entry.tags || [],
+      dueDate: entry.dueDate || null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      completedAt: null,
+      comments: []
+    };
+    tasks.push(task);
+    if (tasks.length > MAX_TASKS) tasks = tasks.slice(-MAX_TASKS);
+    _saveStorage(TASKS_KEY, tasks);
+    emit('task-added', task);
+    return task;
+  }
+
+  function updateTask(id, updates) {
+    var tasks = getTasks();
+    var idx = -1;
+    for (var i = 0; i < tasks.length; i++) {
+      if (tasks[i].id === id) { idx = i; break; }
+    }
+    if (idx === -1) return null;
+    var oldStatus = tasks[idx].status;
+    Object.keys(updates).forEach(function (k) {
+      if (k === 'comments' || k === 'tags') return; // handled separately
+      tasks[idx][k] = updates[k];
+    });
+    tasks[idx].updatedAt = new Date().toISOString();
+    // Auto-set completedAt
+    if (updates.status === 'done' && oldStatus !== 'done') {
+      tasks[idx].completedAt = new Date().toISOString();
+    } else if (updates.status && updates.status !== 'done') {
+      tasks[idx].completedAt = null;
+    }
+    _saveStorage(TASKS_KEY, tasks);
+    emit('task-updated', tasks[idx]);
+    return tasks[idx];
+  }
+
+  function deleteTask(id) {
+    var tasks = getTasks().filter(function (t) { return t.id !== id; });
+    _saveStorage(TASKS_KEY, tasks);
+    emit('task-deleted', { id: id });
+  }
+
+  function moveTask(id, newStatus) {
+    return updateTask(id, { status: newStatus });
+  }
+
+  function addTaskComment(taskId, comment) {
+    var tasks = getTasks();
+    for (var i = 0; i < tasks.length; i++) {
+      if (tasks[i].id === taskId) {
+        tasks[i].comments.push({
+          id: 'cmt-' + Date.now(),
+          text: comment.text || '',
+          agentId: comment.agentId || null,
+          timestamp: new Date().toISOString()
+        });
+        tasks[i].updatedAt = new Date().toISOString();
+        _saveStorage(TASKS_KEY, tasks);
+        emit('task-comment-added', { taskId: taskId, comment: tasks[i].comments[tasks[i].comments.length - 1] });
+        return tasks[i];
+      }
+    }
+    return null;
+  }
+
+  function getTasksByStatus(status) {
+    return getTasks().filter(function (t) { return t.status === status; });
+  }
+
+  function getTasksByAssignee(agentId) {
+    return getTasks().filter(function (t) { return t.assignee === agentId; });
+  }
+
+  function getTaskStats() {
+    var tasks = getTasks();
+    var stats = { total: tasks.length, backlog: 0, todo: 0, 'in-progress': 0, review: 0, done: 0, overdue: 0, unassigned: 0 };
+    var now = new Date().toISOString().split('T')[0];
+    tasks.forEach(function (t) {
+      if (stats[t.status] !== undefined) stats[t.status]++;
+      if (!t.assignee) stats.unassigned++;
+      if (t.dueDate && t.dueDate < now && t.status !== 'done') stats.overdue++;
+    });
+    return stats;
+  }
+
   // ── Public API ──
   return {
     on: on,
@@ -759,6 +874,17 @@ var AgentEngine = (function () {
     deleteTool: deleteTool,
     getDates: getDates,
     addDate: addDate,
-    deleteDate: deleteDate
+    deleteDate: deleteDate,
+    // Tasks
+    getTasks: getTasks,
+    getTask: getTask,
+    addTask: addTask,
+    updateTask: updateTask,
+    deleteTask: deleteTask,
+    moveTask: moveTask,
+    addTaskComment: addTaskComment,
+    getTasksByStatus: getTasksByStatus,
+    getTasksByAssignee: getTasksByAssignee,
+    getTaskStats: getTaskStats
   };
 })();
