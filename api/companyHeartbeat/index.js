@@ -297,12 +297,12 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
       // Agent-initiated social post action — routes through action layer governance
       const socialPayload = action.social;
       const actionRequest = {
-        type: socialPayload.schedule_for ? 'social_post.schedule' : 'social_post.publish',
+        type: (socialPayload.scheduled_for || socialPayload.schedule_for) ? 'social_post.schedule' : 'social_post.publish',
         platform: socialPayload.platform || 'x',
         payload: {
           text: socialPayload.text || '',
           media: socialPayload.media || [],
-          scheduled_for: socialPayload.schedule_for || null
+          scheduled_for: socialPayload.scheduled_for || socialPayload.schedule_for || null
         },
         created_by: agentId
       };
@@ -412,7 +412,7 @@ Respond with ONLY valid JSON in this exact format:
       "taskId": "existing-task-id",
       "updates": { "description": "..." },
       "newStatus": "todo|in-progress|review|done",
-      "social": { "text": "Post content", "platform": "x|linkedin|bluesky", "media": ["https://..."], "schedule_for": "2026-02-14T09:00:00Z" }
+      "social": { "text": "Post content", "platform": "x|linkedin|bluesky", "media": ["https://..."], "scheduled_for": "2026-02-14T09:00:00Z" }
     }
   ]
 }
@@ -423,7 +423,7 @@ Action types:
 - move-task: Move a task to a new status column
 - execute-task: Pick up one of YOUR in-progress or todo tasks and produce actual work output (a report, analysis, draft, recommendation, audit, etc). This will generate a deliverable and move the task to review.
 - review-task: Review a completed deliverable from another agent's task that is in the review column. You'll evaluate their work and either approve it (done) or request changes (back to in-progress).
-- create-social-action: (Marketing/Echo) Draft a social media post that will be routed through CEO approval before publishing. Include a "social" object with: text (the post content, max 280 chars for X, 300 for Bluesky, 3000 for LinkedIn), platform ("x", "linkedin", or "bluesky"), and optionally media (array of image URLs) and schedule_for (ISO datetime for scheduled posts).
+- create-social-action: (Marketing/Echo) Draft a social media post that will be routed through CEO approval before publishing. Include a "social" object with: text (the post content, max 280 chars for X, 300 for Bluesky, 3000 for LinkedIn), platform ("x", "linkedin", or "bluesky"), and optionally media (array of image URLs) and scheduled_for (ISO datetime for scheduled posts).
 
 Rules:
 - actions array can be empty if nothing needs doing

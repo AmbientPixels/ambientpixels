@@ -153,13 +153,13 @@ module.exports = async function (context) {
         const metrics = tweetData.public_metrics || {};
 
         // Update receipt with engagement metrics
+        // public_metrics returns: like_count, retweet_count, reply_count, quote_count
+        // impression_count and bookmark_count require non_public_metrics (user-context OAuth)
         a.execution.receipt.metrics = {
           likes: metrics.like_count || 0,
           retweets: metrics.retweet_count || 0,
           replies: metrics.reply_count || 0,
           quotes: metrics.quote_count || 0,
-          impressions: metrics.impression_count || 0,
-          bookmarks: metrics.bookmark_count || 0,
           pulled_at: new Date().toISOString()
         };
 

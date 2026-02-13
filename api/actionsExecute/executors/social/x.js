@@ -82,8 +82,12 @@ function contentHash(text) {
   return crypto.createHash('sha256').update(text, 'utf8').digest('hex');
 }
 
+const MAX_MEDIA_BYTES = 15 * 1024 * 1024; // 15 MB cap
+const ALLOWED_MEDIA_TYPES = Object.keys(SUPPORTED_MEDIA_TYPES); // image/jpeg, image/png, image/gif, image/webp, video/mp4
+
 /**
  * Download media from a URL and return { buffer, contentType }
+ * Enforces: allowed content-type, max 15 MB, 30s timeout
  */
 function downloadMedia(url) {
   return new Promise((resolve, reject) => {
@@ -95,12 +99,35 @@ function downloadMedia(url) {
       if (res.statusCode !== 200) {
         return reject({ code: 'DOWNLOAD_ERROR', message: 'HTTP ' + res.statusCode + ' fetching media' });
       }
+
+      // Validate content-type before downloading body
+      const ct = (res.headers['content-type'] || '').split(';')[0].trim().toLowerCase();
+      if (ct && ALLOWED_MEDIA_TYPES.indexOf(ct) === -1) {
+        res.destroy();
+        return reject({ code: 'UNSUPPORTED_MEDIA_TYPE', message: 'Media type "' + ct + '" not allowed. Supported: ' + ALLOWED_MEDIA_TYPES.join(', ') });
+      }
+
+      // Check content-length header if present
+      const declaredSize = parseInt(res.headers['content-length'], 10);
+      if (declaredSize && declaredSize > MAX_MEDIA_BYTES) {
+        res.destroy();
+        return reject({ code: 'MEDIA_TOO_LARGE', message: 'Media size ' + Math.round(declaredSize / 1024 / 1024) + 'MB exceeds ' + Math.round(MAX_MEDIA_BYTES / 1024 / 1024) + 'MB limit' });
+      }
+
       const chunks = [];
-      res.on('data', chunk => chunks.push(chunk));
+      let totalBytes = 0;
+      res.on('data', chunk => {
+        totalBytes += chunk.length;
+        if (totalBytes > MAX_MEDIA_BYTES) {
+          res.destroy();
+          return reject({ code: 'MEDIA_TOO_LARGE', message: 'Media download exceeded ' + Math.round(MAX_MEDIA_BYTES / 1024 / 1024) + 'MB limit during transfer' });
+        }
+        chunks.push(chunk);
+      });
       res.on('end', () => {
         resolve({
           buffer: Buffer.concat(chunks),
-          contentType: res.headers['content-type'] || 'image/jpeg'
+          contentType: ct || 'image/jpeg'
         });
       });
       res.on('error', err => reject({ code: 'DOWNLOAD_ERROR', message: err.message }));
@@ -360,8 +387,11 @@ async function publishToX(action) {
       const mediaId = await uploadMediaToX(downloaded.buffer, downloaded.contentType, creds);
       uploadedMediaIds.push(mediaId);
     } catch (mediaErr) {
-      // Log but don't fail the entire tweet for a single media failure
-      console.warn('[x.js] Media upload failed for', mediaUrl, ':', mediaErr.message || mediaErr.code);
+      // If media was explicitly provided and upload fails, abort the tweet
+      throw {
+        code: 'MEDIA_UPLOAD_FAILED',
+        message: 'Media upload failed for ' + mediaUrl + ': ' + (mediaErr.message || mediaErr.code) + '. Tweet not posted.'
+      };
     }
   }
 

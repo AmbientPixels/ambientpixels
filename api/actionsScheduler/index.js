@@ -6,12 +6,23 @@ const storage = require('../_utils/companyStorage');
 const { executeAction, isExecutable } = require('../actionsExecute/executors');
 
 module.exports = async function (context) {
+  // Kill switch
+  if (process.env.ACTIONS_EXECUTION_ENABLED === 'false') {
+    context.log.warn('[Scheduler] Execution disabled via ACTIONS_EXECUTION_ENABLED=false');
+    return;
+  }
+
   context.log('[Scheduler] Checking for due scheduled actions');
 
   try {
     const actions = (await storage.getState('actions')) || [];
     const now = Date.now();
     let executed = 0;
+
+    const MAX_ATTEMPTS = 3;
+    const RETRY_COOLDOWN_MS = 5 * 60 * 1000; // 5 min between retries
+    const STUCK_THRESHOLD_MS = 15 * 60 * 1000; // 15 min = stuck
+    const enabledPlatforms = (process.env.SOCIAL_PLATFORMS_ENABLED || 'x').split(',').map(s => s.trim().toLowerCase());
 
     for (let i = 0; i < actions.length; i++) {
       const a = actions[i];
@@ -24,8 +35,41 @@ module.exports = async function (context) {
       const approvalStatus = a.approval ? a.approval.status : null;
       if (approvalStatus !== 'approved' && approvalStatus !== 'overridden') continue;
 
-      // Must not already be executed or running
-      if (a.execution && (a.execution.status === 'success' || a.execution.status === 'running')) continue;
+      // Already succeeded — skip
+      if (a.execution && a.execution.status === 'success') continue;
+
+      // Stuck-running escape hatch: if running for >15 min, mark failed
+      if (a.execution && a.execution.status === 'running' && a.execution.started_at) {
+        const runningFor = now - new Date(a.execution.started_at).getTime();
+        if (runningFor > STUCK_THRESHOLD_MS) {
+          context.log.warn('[Scheduler] Action', a.id, 'stuck running for', Math.round(runningFor / 60000), 'min — marking failed');
+          a.execution.status = 'failed';
+          a.execution.finished_at = new Date().toISOString();
+          a.execution.last_error = { code: 'RUN_STUCK', message: 'Execution stuck running for ' + Math.round(runningFor / 60000) + ' minutes' };
+          a.execution_status = 'failed';
+          actions[i] = a;
+        }
+        continue; // either just marked failed or still within threshold — skip
+      }
+
+      // Max attempts cap
+      if (a.execution && a.execution.attempts >= MAX_ATTEMPTS) {
+        if (a.execution.status !== 'failed') {
+          context.log.warn('[Scheduler] Action', a.id, 'exceeded max attempts (' + MAX_ATTEMPTS + ')');
+          a.execution.status = 'failed';
+          a.execution.finished_at = new Date().toISOString();
+          a.execution.last_error = { code: 'MAX_ATTEMPTS', message: 'Exceeded max ' + MAX_ATTEMPTS + ' execution attempts' };
+          a.execution_status = 'failed';
+          actions[i] = a;
+        }
+        continue;
+      }
+
+      // Retry cooldown: don't retry if last attempt < 5 min ago
+      if (a.execution && a.execution.attempts > 0 && a.execution.finished_at) {
+        const sinceLastAttempt = now - new Date(a.execution.finished_at).getTime();
+        if (sinceLastAttempt < RETRY_COOLDOWN_MS) continue;
+      }
 
       // Must have a scheduled_for time that has passed
       const scheduledFor = (a.payload && a.payload.scheduled_for) || null;
@@ -47,15 +91,31 @@ module.exports = async function (context) {
 
       const platform = a.platform || 'unknown';
 
-      // For scheduled posts, we execute as social_post.publish
+      // Platform allowlist check
+      if (enabledPlatforms.indexOf(platform) === -1) {
+        context.log('[Scheduler] Platform', platform, 'not in SOCIAL_PLATFORMS_ENABLED, skipping', a.id);
+        continue;
+      }
+
       // Check if the platform adapter exists for publish
       if (!isExecutable('social_post.publish', platform)) {
         context.log('[Scheduler] No executor for', platform, ', skipping', a.id);
         continue;
       }
 
-      // Mark running
+      // Snapshot previous attempt into history[] (if retrying)
       a.execution = a.execution || {};
+      if (a.execution.attempts > 0 && a.execution.last_error) {
+        if (!a.execution.history) a.execution.history = [];
+        a.execution.history.push({
+          attempt: a.execution.attempts,
+          started_at: a.execution.started_at || null,
+          finished_at: a.execution.finished_at || null,
+          error: a.execution.last_error
+        });
+      }
+
+      // Mark running (claim before execute)
       a.execution.status = 'running';
       a.execution.started_at = new Date().toISOString();
       a.execution.attempts = (a.execution.attempts || 0) + 1;

@@ -441,9 +441,7 @@
             if (m.likes) mParts.push('❤️ ' + m.likes);
             if (m.retweets) mParts.push('🔁 ' + m.retweets);
             if (m.replies) mParts.push('💬 ' + m.replies);
-            if (m.impressions) mParts.push('👁 ' + fmtNum(m.impressions));
             if (m.quotes) mParts.push('📝 ' + m.quotes);
-            if (m.bookmarks) mParts.push('🔖 ' + m.bookmarks);
             if (mParts.length) {
               row += '<div class="act-receipt" style="color:#3b82f6;opacity:0.7;font-size:0.58rem;">' + mParts.join(' · ');
               if (m.pulled_at) row += ' <span style="opacity:0.3;">(updated ' + timeAgo(m.pulled_at) + ')</span>';
@@ -681,8 +679,6 @@
             html += kv('Retweets', m.retweets || 0);
             html += kv('Replies', m.replies || 0);
             html += kv('Quotes', m.quotes || 0);
-            html += kv('Impressions', fmtNum(m.impressions || 0));
-            html += kv('Bookmarks', m.bookmarks || 0);
             html += kv('Last Updated', fmtDate(m.pulled_at));
             html += '</dl></div>';
           }
