@@ -103,6 +103,11 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/agentchat",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/agentchat",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/*",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
     },

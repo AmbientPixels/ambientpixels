@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Chat with an AmbientPixels AI agent." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Agent Chat — AmbientPixels</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+</head>
+<body style="background:#071019" data-theme="dark">
+
+  <!-- Nav -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo"><i class="fas fa-cube"></i> Ambient Pixels</a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/nova/">Nova</a></li>
+        <li><a href="/modules/company/">Company</a></li>
+        <li><a href="/projects/figma-fleet.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="content-section">
+    <div class="agent-chat-container" id="chat-container">
+
+      <!-- Header (populated by JS) -->
+      <div class="agent-chat-header" id="chat-header">
+        <a href="/modules/company/" class="agent-chat-back"><i class="fas fa-arrow-left"></i> Back to HQ</a>
+        <div class="agent-detail-avatar" id="chat-agent-avatar" style="width:36px;height:36px;font-size:1rem;"></div>
+        <div>
+          <strong id="chat-agent-name" style="font-size:0.95rem;">Loading...</strong>
+          <span id="chat-agent-role" style="font-size:0.7rem; opacity:0.4; display:block;"></span>
+        </div>
+      </div>
+
+      <!-- Mode Selector -->
+      <div class="agent-mode-selector" id="mode-selector">
+        <button class="agent-mode-btn active" data-mode="chat"><i class="fas fa-comment"></i> Chat</button>
+        <button class="agent-mode-btn" data-mode="task"><i class="fas fa-tasks"></i> Task</button>
+        <button class="agent-mode-btn" data-mode="report"><i class="fas fa-file-alt"></i> Report</button>
+        <button class="agent-mode-btn" data-mode="review"><i class="fas fa-search"></i> Review</button>
+      </div>
+
+      <!-- Messages -->
+      <div class="agent-chat-messages" id="chat-messages">
+        <div class="agent-chat-msg agent-chat-msg--agent" style="opacity:0.5; font-style:italic;">
+          Select an agent to start chatting...
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div class="agent-chat-input-row">
+        <textarea class="agent-chat-input" id="chat-input" placeholder="Type a message..." rows="1"></textarea>
+        <button class="agent-chat-send" id="chat-send"><i class="fas fa-paper-plane"></i> Send</button>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="/js/agent-engine.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var messagesEl = document.getElementById('chat-messages');
+      var inputEl = document.getElementById('chat-input');
+      var sendBtn = document.getElementById('chat-send');
+      var agentNameEl = document.getElementById('chat-agent-name');
+      var agentRoleEl = document.getElementById('chat-agent-role');
+      var agentAvatarEl = document.getElementById('chat-agent-avatar');
+      var modeSelector = document.getElementById('mode-selector');
+      var chatContainer = document.getElementById('chat-container');
+
+      var currentAgent = null;
+      var currentMode = 'chat';
+      var isThinking = false;
+
+      // Parse URL params
+      var params = new URLSearchParams(window.location.search);
+      var agentId = params.get('agent');
+      var initialMode = params.get('mode');
+
+      if (initialMode) {
+        currentMode = initialMode;
+      }
+
+      // Load registry and init
+      AgentEngine.loadRegistry().then(function (data) {
+        if (!data || !agentId) {
+          messagesEl.innerHTML = '<div class="agent-chat-msg agent-chat-msg--agent">No agent specified. <a href="/modules/company/" style="color:#8A2BE2;">Go back to HQ</a></div>';
+          return;
+        }
+
+        currentAgent = AgentEngine.getAgent(agentId);
+        if (!currentAgent) {
+          messagesEl.innerHTML = '<div class="agent-chat-msg agent-chat-msg--agent">Agent "' + agentId + '" not found. <a href="/modules/company/" style="color:#8A2BE2;">Go back to HQ</a></div>';
+          return;
+        }
+
+        initChat();
+      });
+
+      function initChat() {
+        // Set header info
+        document.title = currentAgent.name + ' — Agent Chat — AmbientPixels';
+        agentNameEl.textContent = currentAgent.name;
+        agentRoleEl.textContent = currentAgent.title;
+        chatContainer.style.setProperty('--agent-color', currentAgent.color);
+
+        agentAvatarEl.style.borderColor = currentAgent.color;
+        agentAvatarEl.style.color = currentAgent.color;
+        if (currentAgent.avatar) {
+          agentAvatarEl.innerHTML = '<img src="' + currentAgent.avatar + '" alt="' + currentAgent.name + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />';
+        } else {
+          agentAvatarEl.innerHTML = '<i class="' + currentAgent.icon + '"></i>';
+        }
+
+        // Set active mode button
+        updateModeButtons();
+
+        // Restore chat history
+        var history = AgentEngine.getHistory(agentId);
+        messagesEl.innerHTML = '';
+
+        if (history.length > 0) {
+          var recent = history.slice(-20);
+          recent.forEach(function (turn) {
+            addMessage(turn.role === 'user' ? 'user' : 'agent', turn.text);
+          });
+        } else {
+          addMessage('agent', getWelcomeMessage());
+        }
+
+        // If initial mode is report, auto-trigger
+        if (currentMode === 'report' && history.length === 0) {
+          sendMessage('Generate a status report for your department. Include current priorities, recent activity, and any issues.');
+        }
+
+        scrollToBottom();
+      }
+
+      function getWelcomeMessage() {
+        var greetings = {
+          nova: "Hey. I'm Nova — I run the show here at AmbientPixels. What's on your mind?",
+          cipher: "Cipher here. Numbers, budgets, costs — that's my lane. What do you need?",
+          pixel: "Hey, I'm Pixel. Design and quality — if it looks off or feels broken, I'm your person. What are we looking at?",
+          forge: "Forge, DevOps. If it's about deployments, infra, or uptime, let's talk. What's the situation?",
+          echo: "Echo here — marketing and content. Need copy, a campaign idea, or help telling the AmbientPixels story? Let's go."
+        };
+        return greetings[currentAgent.id] || "Hey, I'm " + currentAgent.name + ". How can we work together?";
+      }
+
+      // Mode selector
+      modeSelector.addEventListener('click', function (e) {
+        var btn = e.target.closest('.agent-mode-btn');
+        if (!btn) return;
+        currentMode = btn.dataset.mode;
+        updateModeButtons();
+      });
+
+      function updateModeButtons() {
+        modeSelector.querySelectorAll('.agent-mode-btn').forEach(function (btn) {
+          btn.classList.toggle('active', btn.dataset.mode === currentMode);
+        });
+      }
+
+      // Send message
+      sendBtn.addEventListener('click', function () {
+        var text = inputEl.value.trim();
+        if (text) sendMessage(text);
+      });
+
+      inputEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          var text = inputEl.value.trim();
+          if (text) sendMessage(text);
+        }
+      });
+
+      // Auto-resize input
+      inputEl.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+      });
+
+      function sendMessage(text) {
+        if (isThinking || !currentAgent) return;
+        if (!text) return;
+
+        inputEl.value = '';
+        inputEl.style.height = 'auto';
+
+        addMessage('user', text);
+        showThinking();
+
+        AgentEngine.chat(currentAgent.id, text, currentMode).then(function (reply) {
+          hideThinking();
+          if (reply) {
+            addMessage('agent', reply);
+          } else {
+            addMessage('agent', currentAgent.name + ' didn\'t respond. The agent service might be offline.');
+          }
+          scrollToBottom();
+        });
+      }
+
+      function addMessage(role, text) {
+        var div = document.createElement('div');
+        div.className = 'agent-chat-msg agent-chat-msg--' + role;
+
+        // Simple markdown-like formatting
+        var html = escapeHtml(text)
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+          .replace(/`(.*?)`/g, '<code style="background:rgba(255,255,255,0.06);padding:1px 4px;border-radius:3px;">$1</code>')
+          .replace(/\n/g, '<br>');
+
+        div.innerHTML = html;
+        messagesEl.appendChild(div);
+        scrollToBottom();
+      }
+
+      function showThinking() {
+        isThinking = true;
+        sendBtn.disabled = true;
+        var el = document.createElement('div');
+        el.className = 'agent-chat-msg agent-chat-msg--thinking';
+        el.id = 'thinking-indicator';
+        el.textContent = currentAgent.name + ' is thinking...';
+        messagesEl.appendChild(el);
+        scrollToBottom();
+      }
+
+      function hideThinking() {
+        isThinking = false;
+        sendBtn.disabled = false;
+        var el = document.getElementById('thinking-indicator');
+        if (el) el.remove();
+      }
+
+      function scrollToBottom() {
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }
+
+      function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+    })();
+  </script>
+
+</body>
+</html>

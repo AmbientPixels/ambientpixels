@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Virtual Company — AI agents running every department." />
+  <meta property="og:title" content="AmbientPixels — Virtual Company" />
+  <meta property="og:description" content="Meet the AI agents running AmbientPixels. CEO, CFO, Design, DevOps, Marketing — all autonomous." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>AmbientPixels — Virtual Company</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+</head>
+<body style="background:#071019" data-theme="dark">
+
+  <!-- Nav -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo"><i class="fas fa-cube"></i> Ambient Pixels</a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/nova/">Nova</a></li>
+        <li><a href="/modules/company/" class="active">Company</a></li>
+        <li><a href="/projects/figma-fleet.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
+
+    <!-- Company Header -->
+    <div class="company-header">
+      <h1><i class="fas fa-building" style="opacity:0.4; margin-right:8px;"></i>AmbientPixels HQ</h1>
+      <p>AI agents running every department — chat with any of them or let them work autonomously.</p>
+    </div>
+
+    <!-- Org Chart -->
+    <div class="org-chart" id="org-chart">
+      <!-- CEO Tier -->
+      <div class="org-tier" id="tier-executive"></div>
+
+      <!-- Connector -->
+      <div class="org-connector"></div>
+      <div class="org-branch-line"></div>
+
+      <!-- Department Tier -->
+      <div class="org-tier" id="tier-departments"></div>
+    </div>
+
+    <!-- Agent Detail Panel (shown when clicking a card) -->
+    <div class="agent-detail" id="agent-detail"></div>
+
+    <!-- Company Activity Feed -->
+    <div class="company-activity">
+      <h3><i class="fas fa-pulse" style="margin-right:6px;"></i>Agent Activity</h3>
+      <ul class="activity-feed" id="activity-feed">
+        <li class="activity-item" style="opacity:0.3; font-style:italic;">Loading agent activity...</li>
+      </ul>
+    </div>
+
+  </main>
+
+  <script src="/js/agent-engine.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var orgChart = document.getElementById('org-chart');
+      var tierExec = document.getElementById('tier-executive');
+      var tierDepts = document.getElementById('tier-departments');
+      var detailPanel = document.getElementById('agent-detail');
+      var activityFeed = document.getElementById('activity-feed');
+      var selectedAgent = null;
+
+      // Load and render
+      AgentEngine.loadRegistry().then(function (data) {
+        if (!data || !data.agents) {
+          orgChart.innerHTML = '<p style="opacity:0.4; text-align:center;">Failed to load agent registry.</p>';
+          return;
+        }
+
+        data.agents.forEach(function (agent) {
+          var card = createAgentCard(agent);
+          if (agent.department === 'Executive') {
+            tierExec.appendChild(card);
+          } else {
+            tierDepts.appendChild(card);
+          }
+        });
+
+        renderActivityFeed();
+      });
+
+      function createAgentCard(agent) {
+        var card = document.createElement('div');
+        card.className = 'agent-card' + (agent.role === 'CEO' ? ' agent-card--ceo' : '');
+        card.style.setProperty('--agent-color', agent.color);
+        card.setAttribute('data-agent-id', agent.id);
+
+        var avatarContent = agent.avatar
+          ? '<img src="' + agent.avatar + '" alt="' + agent.name + '" />'
+          : '<i class="' + agent.icon + '"></i>';
+
+        var statusClass = agent.status === 'active' ? 'agent-status--active' : 'agent-status--idle';
+
+        card.innerHTML =
+          '<div class="agent-status ' + statusClass + '"></div>' +
+          '<div class="agent-avatar">' + avatarContent + '</div>' +
+          '<h3 class="agent-name">' + agent.name + '</h3>' +
+          '<p class="agent-role">' + agent.role + '</p>' +
+          '<span class="agent-dept-badge">' + agent.department + '</span>';
+
+        card.addEventListener('click', function () {
+          showAgentDetail(agent);
+        });
+
+        return card;
+      }
+
+      function showAgentDetail(agent) {
+        selectedAgent = agent;
+
+        // Remove active state from all cards
+        document.querySelectorAll('.agent-card').forEach(function (c) {
+          c.style.borderColor = '';
+        });
+
+        // Highlight selected card
+        var activeCard = document.querySelector('[data-agent-id="' + agent.id + '"]');
+        if (activeCard) {
+          activeCard.style.borderColor = agent.color;
+        }
+
+        detailPanel.style.setProperty('--agent-color', agent.color);
+        detailPanel.className = 'agent-detail active';
+
+        var avatarContent = agent.avatar
+          ? '<img src="' + agent.avatar + '" alt="' + agent.name + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />'
+          : '<i class="' + agent.icon + '"></i>';
+
+        var capsHtml = (agent.capabilities || []).map(function (cap) {
+          return '<span class="agent-capability-tag">' + cap + '</span>';
+        }).join('');
+
+        var autoHtml = (agent.automations || []).map(function (auto) {
+          return '<li>' +
+            '<div class="automation-icon"><i class="fas fa-bolt"></i></div>' +
+            '<div class="automation-info">' +
+              '<div class="automation-name">' + auto.name + '</div>' +
+              '<div class="automation-schedule">' + auto.schedule + ' — ' + auto.description + '</div>' +
+            '</div>' +
+          '</li>';
+        }).join('');
+
+        detailPanel.innerHTML =
+          '<div class="agent-detail-header">' +
+            '<div class="agent-detail-avatar">' + avatarContent + '</div>' +
+            '<div class="agent-detail-info">' +
+              '<h2>' + agent.name + ' — ' + agent.title + '</h2>' +
+              '<p>' + agent.department + ' Department</p>' +
+            '</div>' +
+          '</div>' +
+          '<div class="agent-description">' + agent.description + '</div>' +
+          (capsHtml ? '<div class="agent-capabilities">' + capsHtml + '</div>' : '') +
+          (autoHtml ? '<h4 style="font-size:0.75rem; opacity:0.5; margin:0 0 0.5rem; text-transform:uppercase; letter-spacing:1px;">Automations</h4><ul class="agent-automations">' + autoHtml + '</ul>' : '') +
+          '<div class="agent-actions">' +
+            '<a href="/modules/company/agent-chat.html?agent=' + agent.id + '" class="agent-action-btn agent-action-btn--primary"><i class="fas fa-comment"></i> Chat with ' + agent.name + '</a>' +
+            '<button class="agent-action-btn" id="btn-request-report"><i class="fas fa-file-alt"></i> Request Report</button>' +
+          '</div>';
+
+        // Bind report button
+        var reportBtn = document.getElementById('btn-request-report');
+        if (reportBtn) {
+          reportBtn.addEventListener('click', function () {
+            window.location.href = '/modules/company/agent-chat.html?agent=' + agent.id + '&mode=report';
+          });
+        }
+
+        detailPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      function renderActivityFeed() {
+        var summary = AgentEngine.getActivitySummary();
+        activityFeed.innerHTML = '';
+
+        var hasActivity = false;
+
+        summary.forEach(function (agent) {
+          if (agent.messageCount > 0 || agent.lastActive) {
+            hasActivity = true;
+            var timeAgo = agent.lastActive ? formatTimeAgo(new Date(agent.lastActive)) : 'never';
+            var li = document.createElement('li');
+            li.className = 'activity-item';
+            li.innerHTML =
+              '<span class="activity-dot" style="background:' + agent.color + ';"></span>' +
+              '<span class="activity-text"><strong>' + agent.name + '</strong> (' + agent.role + ') — ' + agent.messageCount + ' messages</span>' +
+              '<span class="activity-time">' + timeAgo + '</span>';
+            activityFeed.appendChild(li);
+          }
+        });
+
+        if (!hasActivity) {
+          activityFeed.innerHTML = '<li class="activity-item" style="opacity:0.3; font-style:italic;">No agent conversations yet. Click an agent to get started.</li>';
+        }
+      }
+
+      function formatTimeAgo(date) {
+        var diff = Date.now() - date.getTime();
+        var mins = Math.floor(diff / 60000);
+        if (mins < 1) return 'just now';
+        if (mins < 60) return mins + 'm ago';
+        var hours = Math.floor(mins / 60);
+        if (hours < 24) return hours + 'h ago';
+        var days = Math.floor(hours / 24);
+        return days + 'd ago';
+      }
+    })();
+  </script>
+
+</body>
+</html>
