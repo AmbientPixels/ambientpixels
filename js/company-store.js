@@ -319,6 +319,8 @@ var CompanyStore = (function () {
     appendLog: appendLog,
     getLogs: getLogs,
     getMorningReport: getMorningReport,
+    getWriteHeaders: function () { return _serverHeaders(true); },
+    getServerBase: function () { return _serverBase; },
     KEY_MAP: KEY_MAP
   };
 })();

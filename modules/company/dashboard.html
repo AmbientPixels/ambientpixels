@@ -323,7 +323,7 @@
 
         fetch(getApiBase() + '/company-heartbeat-trigger', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+          headers: (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : { 'Content-Type': 'application/json' }
         })
         .then(function (res) { return res.json(); })
         .then(function (data) {
