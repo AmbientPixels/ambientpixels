@@ -130,12 +130,15 @@
       '- level: A number 1-100 appropriate to the rarity',
       '- quote: A punchy tagline (max 120 chars)',
       '- biography: A vivid backstory hint (max 220 chars)',
+      '- stats: An array of 3-5 objects with "name" (string, e.g. "Attack", "Defense", "Speed") and "value" (number 0-100)',
+      '- attributes: An array of 3-5 objects with "name" (string, e.g. "Element", "Faction", "Origin") and "value" (string)',
+      '- badges: An array of 2-4 objects with "category" (string, e.g. "Skill", "Title"), "icon" (one of: star, heart, bolt, trophy, leaf, gear, book, lightbulb, medal, certificate), "description" (short text), and "quantity" (number 1-5)',
       '- imagePrompt: A detailed visual description for generating the card artwork (max 200 chars). Describe the character\'s appearance, pose, and mood. Do NOT include text or card frames.',
       '',
       `User Description: ${userPrompt}`,
       '',
       'Return ONLY valid JSON (no markdown, no code fences):',
-      '{"name":"...","class":"...","rarity":"...","level":0,"quote":"...","biography":"...","imagePrompt":"..."}'
+      '{"name":"...","class":"...","rarity":"...","level":0,"quote":"...","biography":"...","stats":[{"name":"...","value":0}],"attributes":[{"name":"...","value":"..."}],"badges":[{"category":"...","icon":"star","description":"...","quantity":1}],"imagePrompt":"..."}'
     ].join('\n');
   }
 
@@ -302,15 +305,32 @@
   }
 
   // ===== HANDLER: Full Card Generate =====
+  // Random archetypes used when the user clicks Generate with an empty prompt
+  const SURPRISE_PROMPTS = [
+    'A mysterious shadow assassin who wields twin moonblades',
+    'An ancient dragon scholar guarding a library of forbidden spells',
+    'A cyberpunk street samurai with neon-lit prosthetic arms',
+    'A celestial healer born from starlight, carrying a crystal staff',
+    'A rogue alchemist who brews potions from enchanted mushrooms',
+    'A battle-scarred orc warlord seeking redemption',
+    'A time-traveling clockwork engineer with brass goggles',
+    'A frost witch living atop an enchanted glacier',
+    'A pirate captain whose ship sails through the clouds',
+    'A forest guardian shapeshifter bonded with an ancient wolf spirit',
+    'A fallen angel wielding a sword of black flame',
+    'A desert nomad who commands swirling sandstorms',
+    'An elven bard whose songs can shatter stone walls',
+    'A void walker who steps between dimensions',
+    'A volcanic knight forged in living magma armor'
+  ];
+
   async function handleFullCardGenerate(btn) {
     const promptInput = document.getElementById('cf-ai-prompt');
-    const userPrompt = promptInput?.value?.trim();
+    let userPrompt = promptInput?.value?.trim();
 
     if (!userPrompt) {
-      promptInput?.focus();
-      promptInput?.classList.add('cf-ai-highlight');
-      setTimeout(() => promptInput?.classList.remove('cf-ai-highlight'), 1500);
-      return;
+      userPrompt = SURPRISE_PROMPTS[Math.floor(Math.random() * SURPRISE_PROMPTS.length)];
+      if (promptInput) promptInput.value = userPrompt;
     }
 
     setButtonState(btn, 'loading', 'Creating card...');
@@ -330,6 +350,51 @@
       if (card.level) setField(fields.level, card.level);
       setField(fields.quote, card.quote);
       setField(fields.bio, card.biography);
+
+      // Populate stats
+      if (Array.isArray(card.stats) && window.CardForge?.createStatRow) {
+        const statsContainer = document.getElementById('stats-editor');
+        if (statsContainer) {
+          statsContainer.innerHTML = '';
+          card.stats.forEach(function (s) {
+            statsContainer.appendChild(
+              window.CardForge.createStatRow(s.name || '', s.value || 0)
+            );
+          });
+        }
+      }
+
+      // Populate attributes
+      if (Array.isArray(card.attributes) && window.CardForge?.createAttributeRow) {
+        const attrContainer = document.getElementById('attribute-editor');
+        if (attrContainer) {
+          attrContainer.innerHTML = '';
+          card.attributes.forEach(function (a) {
+            attrContainer.appendChild(
+              window.CardForge.createAttributeRow(a.name || '', a.value || '')
+            );
+          });
+        }
+      }
+
+      // Populate badges
+      if (Array.isArray(card.badges) && window.CardForge?.createBadgeRow) {
+        const badgeContainer = document.getElementById('micro-editor');
+        if (badgeContainer) {
+          badgeContainer.innerHTML = '';
+          card.badges.forEach(function (b) {
+            badgeContainer.appendChild(
+              window.CardForge.createBadgeRow(
+                b.category || '',
+                b.icon || 'star',
+                b.description || '',
+                b.quantity || 1
+              )
+            );
+          });
+        }
+      }
+
       triggerPreviewUpdate();
 
       // Step 2: Generate card artwork

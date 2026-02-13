@@ -4261,7 +4261,10 @@
     initImageGallery,
     initTier2ImageContainer,
     rollRandomCard,
-    ModularState
+    ModularState,
+    createStatRow,
+    createBadgeRow,
+    createAttributeRow
   };
 
 })();
