@@ -11,7 +11,9 @@ const corsHeaders = {
 const VALID_KEYS = [
   'tasks', 'workspaceMemory', 'agentConfigs', 'identity',
   'tools', 'dates', 'metrics', 'sessionLog', 'cronLog',
-  'standupLog', 'morningReport', 'logs', '_ping'
+  'standupLog', 'morningReport', 'logs', '_ping',
+  'directives', 'objectives', 'approvalQueue', 'governanceLog',
+  'actionQueue', 'actionAuditLog', 'actionRateCounts', 'actions'
 ];
 
 module.exports = async function (context, req) {
