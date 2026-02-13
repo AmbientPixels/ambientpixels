@@ -536,6 +536,173 @@
   color: #fff;
 }
 
+/* ── Daily Standup ── */
+.standup-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.standup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.standup-header h3 {
+  font-size: 0.85rem;
+  font-weight: 500;
+  opacity: 0.6;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.standup-trigger-btn {
+  background: rgba(138, 43, 226, 0.12);
+  border: 1px solid rgba(138, 43, 226, 0.25);
+  color: #c9a0ff;
+  padding: 6px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-family: inherit;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.standup-trigger-btn:hover {
+  background: rgba(138, 43, 226, 0.2);
+  border-color: rgba(138, 43, 226, 0.4);
+}
+
+.standup-trigger-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.standup-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.standup-entry {
+  display: flex;
+  gap: 0.8rem;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  border-left: 3px solid var(--agent-color, rgba(138, 43, 226, 0.3));
+  transition: border-color 0.3s;
+}
+
+.standup-entry--thinking {
+  opacity: 0.4;
+  border-left-style: dashed;
+}
+
+.standup-entry-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--agent-color, rgba(138, 43, 226, 0.2));
+  color: var(--agent-color, #8A2BE2);
+  flex-shrink: 0;
+}
+
+.standup-entry-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.standup-entry-name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+
+.standup-entry-role {
+  font-size: 0.6rem;
+  opacity: 0.35;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-left: 6px;
+  font-weight: 400;
+}
+
+.standup-entry-text {
+  font-size: 0.82rem;
+  line-height: 1.6;
+  opacity: 0.8;
+}
+
+.standup-entry-text p {
+  margin: 0 0 0.3rem;
+}
+
+.standup-status {
+  text-align: center;
+  font-size: 0.75rem;
+  opacity: 0.35;
+  padding: 0.5rem 0;
+  font-style: italic;
+}
+
+.standup-date-label {
+  font-size: 0.65rem;
+  opacity: 0.3;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+}
+
+.standup-past-toggle {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.35);
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.65rem;
+  font-family: inherit;
+  margin-top: 0.8rem;
+  transition: all 0.2s;
+}
+
+.standup-past-toggle:hover {
+  color: rgba(255, 255, 255, 0.6);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.standup-past-log {
+  display: none;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.standup-past-log.visible {
+  display: block;
+}
+
+.standup-past-item {
+  margin-bottom: 1.5rem;
+}
+
+.standup-past-item:last-child {
+  margin-bottom: 0;
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .org-tier {

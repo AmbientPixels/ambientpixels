@@ -187,6 +187,156 @@ var AgentEngine = (function () {
     return summary;
   }
 
+  // ── Daily Standup System ──
+  var STANDUP_KEY = 'ap_standup_log';
+  var STANDUP_DATE_KEY = 'ap_standup_last_date';
+  var MAX_STANDUPS = 14; // keep 2 weeks of standups
+  var _standupRunning = false;
+
+  // Standup speaking order: department heads first, CEO last to summarize
+  var STANDUP_ORDER = ['cipher', 'pixel', 'forge', 'echo', 'nova'];
+
+  function _loadStandupLog() {
+    return _loadStorage(STANDUP_KEY, []);
+  }
+
+  function _saveStandupLog(log) {
+    if (log.length > MAX_STANDUPS) log = log.slice(-MAX_STANDUPS);
+    _saveStorage(STANDUP_KEY, log);
+  }
+
+  function hasStandupToday() {
+    var lastDate = localStorage.getItem(STANDUP_DATE_KEY);
+    var today = new Date().toISOString().split('T')[0];
+    return lastDate === today;
+  }
+
+  function getStandupLog() {
+    return _loadStandupLog();
+  }
+
+  function getLatestStandup() {
+    var log = _loadStandupLog();
+    return log.length > 0 ? log[log.length - 1] : null;
+  }
+
+  // Run a full standup — each agent speaks in turn, seeing previous responses
+  function runStandup() {
+    if (_standupRunning) {
+      console.warn('[AgentEngine] Standup already in progress.');
+      return Promise.resolve(null);
+    }
+    if (!_registry) {
+      console.error('[AgentEngine] Registry not loaded. Call loadRegistry() first.');
+      return Promise.resolve(null);
+    }
+
+    _standupRunning = true;
+    var standup = {
+      id: 'standup-' + Date.now(),
+      date: new Date().toISOString(),
+      dateLabel: new Date().toISOString().split('T')[0],
+      entries: [],
+      status: 'in-progress'
+    };
+
+    emit('standup-start', standup);
+
+    var transcript = ''; // Running context for each agent
+
+    // Sequential chain: each agent gets previous agents' updates
+    var chain = Promise.resolve();
+
+    STANDUP_ORDER.forEach(function (agentId, index) {
+      chain = chain.then(function () {
+        var agent = getAgent(agentId);
+        if (!agent) return;
+
+        // Build context message
+        var context = '';
+        if (index === 0) {
+          context = 'You are first to speak in today\'s standup. No one else has spoken yet.';
+        } else if (agentId === 'nova') {
+          context = 'You are the last to speak. As CEO, wrap up the standup — briefly summarize what the team said, call out anything important, and set the tone for the day. Here are the team updates so far:\n\n' + transcript;
+        } else {
+          context = 'Here are the updates from team members who already spoke:\n\n' + transcript;
+        }
+
+        emit('standup-agent-thinking', { agentId: agentId, agent: agent });
+
+        return _standupCall(agentId, context).then(function (reply) {
+          var entry = {
+            agentId: agentId,
+            name: agent.name,
+            role: agent.role,
+            color: agent.color,
+            icon: agent.icon,
+            reply: reply || '(no response)',
+            timestamp: new Date().toISOString()
+          };
+
+          standup.entries.push(entry);
+          transcript += agent.name + ' (' + agent.role + '): ' + (reply || '(no response)') + '\n\n';
+
+          emit('standup-agent-done', entry);
+        });
+      });
+    });
+
+    return chain.then(function () {
+      standup.status = 'complete';
+      _standupRunning = false;
+
+      // Save to log
+      var log = _loadStandupLog();
+      log.push(standup);
+      _saveStandupLog(log);
+
+      // Mark today as done
+      localStorage.setItem(STANDUP_DATE_KEY, standup.dateLabel);
+
+      emit('standup-complete', standup);
+      return standup;
+    }).catch(function (err) {
+      console.error('[AgentEngine] Standup failed:', err);
+      standup.status = 'failed';
+      _standupRunning = false;
+      emit('standup-error', { error: err.message, standup: standup });
+      return standup;
+    });
+  }
+
+  // Internal: call agentchat in standup mode (no local history tracking)
+  function _standupCall(agentId, contextMessage) {
+    var payload = {
+      agentId: agentId,
+      message: contextMessage,
+      mode: 'standup',
+      history: []
+    };
+
+    return fetch(getEndpoint(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function (res) {
+      if (!res.ok) throw new Error('Standup API returned ' + res.status);
+      return res.json();
+    })
+    .then(function (data) {
+      return data.reply || '';
+    })
+    .catch(function (err) {
+      console.error('[AgentEngine] Standup call failed for ' + agentId + ':', err);
+      return null;
+    });
+  }
+
+  function isStandupRunning() {
+    return _standupRunning;
+  }
+
   // ── Public API ──
   return {
     on: on,
@@ -197,6 +347,11 @@ var AgentEngine = (function () {
     getHistory: getHistory,
     clearHistory: clearHistory,
     ping: ping,
-    getActivitySummary: getActivitySummary
+    getActivitySummary: getActivitySummary,
+    runStandup: runStandup,
+    hasStandupToday: hasStandupToday,
+    getStandupLog: getStandupLog,
+    getLatestStandup: getLatestStandup,
+    isStandupRunning: isStandupRunning
   };
 })();

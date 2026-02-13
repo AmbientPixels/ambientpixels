@@ -157,6 +157,8 @@ module.exports = async function (context, req) {
       userText = `[MODE: REPORT] Generate a status report for your department. Context: ${message}`;
     } else if (mode === 'review') {
       userText = `[MODE: REVIEW] Review the following and provide feedback from your role's perspective: ${message}`;
+    } else if (mode === 'standup') {
+      userText = `[MODE: DAILY STANDUP] You are in the daily team standup meeting at AmbientPixels. Give your update in your role's voice. Keep it concise (3-5 sentences max). Cover: what you're focused on, any blockers or concerns, and one priority for today. If other team members have already spoken (their updates are below), you can reference or respond to what they said — agree, push back, ask a question, or build on their point. Be natural, like a real standup.\n\n${message}`;
     }
 
     contents.push({
@@ -170,10 +172,10 @@ module.exports = async function (context, req) {
       },
       contents,
       generationConfig: {
-        temperature: mode === 'task' ? 0.7 : 0.9,
+        temperature: mode === 'task' ? 0.7 : mode === 'standup' ? 0.95 : 0.9,
         topP: 0.95,
         topK: 40,
-        maxOutputTokens: mode === 'report' ? 1500 : 1024
+        maxOutputTokens: mode === 'report' ? 1500 : mode === 'standup' ? 400 : 1024
       }
     };
 
