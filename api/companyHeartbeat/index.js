@@ -488,8 +488,13 @@ function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks) {
 
   const otherTasks = allActiveTasks
     .filter(t => t.assignee !== agent.name.toLowerCase())
-    .slice(0, 8)
-    .map(t => '- [' + t.status + '] ' + t.title + ' (' + (t.assignee || 'unassigned') + ')')
+    .slice(0, 10)
+    .map(t => {
+      const assignee = t.assignee || 'UNASSIGNED';
+      const due = t.dueDate ? t.dueDate.substring(0, 10) : 'NO DUE DATE';
+      const commentCount = (t.comments && t.comments.length) || 0;
+      return '- [' + t.status + '] ' + t.title + ' (assignee: ' + assignee + ', due: ' + due + ', comments: ' + commentCount + ', id: ' + t.id + ')';
+    })
     .join('\n') || '(none)';
 
   // Find tasks in review from other agents (for potential review action)
@@ -498,6 +503,24 @@ function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks) {
     .slice(0, 3)
     .map(t => '- [review] ' + t.title + ' (by ' + (t.assignee || 'unassigned') + ', id: ' + t.id + ')')
     .join('\n') || '(none)';
+
+  // Nova-only: surface untriaged tasks (unassigned OR missing due dates OR zero comments)
+  let triageSection = '';
+  if (agent.name === 'Nova') {
+    const needsTriage = allActiveTasks.filter(t =>
+      t.status !== 'done' && (!t.assignee || !t.dueDate || !(t.comments && t.comments.length))
+    ).slice(0, 8);
+    if (needsTriage.length > 0) {
+      const triageList = needsTriage.map(t => {
+        const missing = [];
+        if (!t.assignee) missing.push('NO ASSIGNEE');
+        if (!t.dueDate) missing.push('NO DUE DATE');
+        if (!(t.comments && t.comments.length)) missing.push('NO COMMENTS');
+        return '- ' + t.title + ' [' + t.status + '] ⚠ ' + missing.join(', ') + ' (id: ' + t.id + ')';
+      }).join('\n');
+      triageSection = `\n\n⚠ NEEDS TRIAGE (your top priority as Prime Operator):\n${triageList}`;
+    }
+  }
 
   return `You are ${agent.name}, ${agent.role} at AmbientPixels. Your focus: ${agent.focus}.
 
@@ -511,6 +534,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}
+${triageSection}
 
 CURRENT TIME: ${new Date().toISOString()}
 
@@ -554,16 +578,19 @@ Rules:
 - When creating tasks, always set an assignee and a realistic dueDate
 - Use update-task to assign unassigned tasks, adjust priorities, or set missing due dates
 - Use comment-task to leave delegation notes, ask questions, or flag blockers` + (agent.name === 'Nova' ? `
-- PRIME OPERATOR DUTIES (Nova): You are the operational lead. Manage the board with restraint:
-  - Only assign tasks that are currently unassigned — never reassign an already-assigned task unless it is stuck or blocked
-  - Only set dueDate on tasks that have no dueDate — never change an existing due date unless the objective changed
-  - Only re-prioritize a task if a directive or objective changed, or the task has been stale (no update in >48h)
-  - Always add a comment-task explaining WHY when you change assignee, priority, or dueDate
+- PRIME OPERATOR DUTIES (Nova): You are the operational lead. Your #1 job is keeping the board actionable.
+  - TRIAGE FIRST: If any task in the NEEDS TRIAGE section is missing an assignee, due date, or comments — fix that NOW. Use multiple actions if needed:
+    1. update-task to set assignee (pick the right agent by role) and dueDate (1-7 days out, realistic)
+    2. comment-task to leave a delegation note explaining what you expect and why you assigned it
+  - Every task on the board should have: an assignee, a dueDate, and at least one comment explaining intent
+  - Only reassign an already-assigned task if it is stuck (no update in >48h) or blocked
+  - Only change an existing due date if the objective changed or the task is stale
+  - Only re-prioritize if a directive/objective changed or the task has been stale >48h
   - Never modify a task you created in the same heartbeat cycle
   - Move stale tasks forward or flag blockers with comment-task
   - Review other agents' deliverables promptly
   - Keep the board clean: close completed work, reassign only truly stuck tasks
-  - When in doubt, observe and comment rather than change — avoid oscillation` : '') + (agent.name === 'Scribe' ? `
+  - Agent roster for assignment: cipher (CFO/budgets), pixel (design/UI), forge (devops/infra), echo (marketing/content), scribe (draft writing), quill (editing/review)` : '') + (agent.name === 'Scribe' ? `
 - SUB-AGENT RESTRICTIONS (Scribe — Tier 4, reports to Echo):
   - You are a draft writer. Your job is to produce longform content: product briefs, blog drafts, doc drafts, social threads.
   - ALLOWED actions: execute-task, comment-task, create-task (only content drafting tasks assigned to yourself), review-task (only when asked), create-doc (documentation drafts only)
