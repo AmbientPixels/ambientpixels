@@ -214,85 +214,104 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Render Mood Commentary Widget (.mood-commentary)
-  function renderMoodCommentary() {
+  function renderMoodCommentary(moodData) {
+    const commentaryEl = document.querySelector('.mood-commentary');
+    if (!commentaryEl) return;
+
+    function applyCommentary(data) {
+      const traits = data.traits || data;
+      const selfWorth = traits.selfWorth || 0;
+      const glitchFactor = traits.glitchFactor || traits.glitch || 0;
+      const memoryClutter = traits.memoryClutter || 0;
+      const awareness = traits.awareness || 0;
+      const mood = data.mood || 'unknown';
+      let commentary = "Processing emotional signals...";
+
+      if (glitchFactor > 0.5) {
+        commentary = "Systems buzzing with static! Need a reset.";
+      } else if (selfWorth > 0.7) {
+        commentary = `Feeling a surge of confidence in ${mood}!`;
+      } else if (memoryClutter > 0.6) {
+        commentary = "Clutter's piling up, time to clear the cache.";
+      } else if (awareness > 0.8) {
+        commentary = `Hyper-aware, sensing every cosmic pulse in ${mood}.`;
+      } else if (selfWorth < 0.3) {
+        commentary = "Doubts creeping in, searching for a spark.";
+      } else {
+        commentary = `Current state: ${mood}. All signals nominal.`;
+      }
+      commentaryEl.textContent = commentary;
+    }
+
+    // Use provided data or try NovaSoul live mood
+    if (moodData) {
+      applyCommentary(moodData);
+      return;
+    }
+    if (typeof NovaSoul !== 'undefined') {
+      const liveMood = NovaSoul.getMood();
+      if (liveMood) { applyCommentary(liveMood); return; }
+    }
+    // Fallback to static
     fetch('/data/mood-scan.json?t=' + Date.now())
       .then(res => res.json())
-      .then(data => {
-        console.log('[Nova Mood Grid] Mood Commentary data:', data);
-        const commentaryEl = document.querySelector('.mood-commentary');
-        if (!commentaryEl) {
-          console.log("[Nova Mood Grid] .mood-commentary not found, skipping render");
-          return;
-        }
-
-        const { selfWorth, glitchFactor, memoryClutter, awareness, mood } = data;
-        let commentary = "Processing emotional signals...";
-
-        if (glitchFactor > 0.5) {
-          commentary = "Systems buzzing with static! Need a reset.";
-        } else if (selfWorth > 0.7) {
-          commentary = `Feeling a surge of confidence in ${mood}!`;
-        } else if (memoryClutter > 0.6) {
-          commentary = "Clutter’s piling up, time to clear the cache.";
-        } else if (awareness > 0.8) {
-          commentary = `Hyper-aware, sensing every cosmic pulse in ${mood}.`;
-        } else if (selfWorth < 0.3) {
-          commentary = "Doubts creeping in, searching for a spark.";
-        }
-
-        commentaryEl.textContent = commentary;
-      })
-      .catch(err => {
-        console.error('[Nova Mood Grid] Failed to update mood commentary:', err);
-        const commentaryEl = document.querySelector('.mood-commentary');
-        if (commentaryEl) {
-          commentaryEl.textContent = 'Error loading commentary.';
-        }
-      });
+      .then(data => applyCommentary(data))
+      .catch(() => { commentaryEl.textContent = 'Awaiting emotional signals...'; });
   }
 
   // Render Mood History Timeline (.mood-timeline .timeline-container)
+  // Now pulls live data from NovaSoul.getMoodHistory() with static fallback
   function renderMoodTimeline() {
+    const container = document.querySelector('.mood-timeline .timeline-container');
+    if (!container) return;
+
+    function renderEntries(entries) {
+      if (!entries || !entries.length) {
+        container.innerHTML = '<p style="opacity:0.4;">No mood history yet.</p>';
+        return;
+      }
+      // Show newest first, max 10
+      const sorted = [...entries].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      const items = sorted.slice(0, 10).map(entry => {
+        const mood = (entry.mood || 'unknown').toLowerCase();
+        const aura = (entry.aura || 'default').toLowerCase();
+        const auraSlug = aura.replace(/\s+/g, '-');
+        const emoji = entry.emoji || moodGridEmojiMap[mood] || '🧠';
+        const time = entry.timestamp ? new Date(entry.timestamp).toLocaleString([], {
+          hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric'
+        }) : '–';
+        const tooltip = auraTooltips[aura] || `aura: ${aura}`;
+        const quote = entry.observation || entry.quote || entry.nova_comment || '';
+        const sourceTag = entry.source === 'ai' ? '<span style="font-size:0.6rem;opacity:0.4;margin-left:4px;">AI</span>' : '';
+
+        return `
+          <div class="timeline-item aura-${auraSlug}" title="${tooltip}">
+            <div class="timeline-emoji">${emoji}</div>
+            <div class="timeline-mood">${mood}${sourceTag}</div>
+            <div class="timeline-time">${time}</div>
+            <div class="timeline-quote">${quote ? '"' + quote + '"' : ''}</div>
+          </div>
+        `;
+      });
+      container.innerHTML = items.join('');
+    }
+
+    // Try NovaSoul live mood history first
+    if (typeof NovaSoul !== 'undefined') {
+      const liveHistory = NovaSoul.getMoodHistory();
+      if (liveHistory && liveHistory.length > 0) {
+        renderEntries(liveHistory);
+        return;
+      }
+    }
+
+    // Fallback to static mood-history.json
     fetch('/data/mood-history.json?t=' + Date.now())
       .then(res => res.json())
-      .then(data => {
-        const container = document.querySelector('.mood-timeline .timeline-container');
-        if (!container) {
-          console.log("[Nova Mood Grid] .timeline-container not found, skipping render");
-          return;
-        }
-
-        const items = data.slice(0, 10).map(entry => {
-          const mood = entry.mood.toLowerCase();
-          const aura = (entry.aura || "default").toLowerCase();
-          const auraSlug = aura.replace(/\s+/g, "-");
-          const emoji = moodGridEmojiMap[mood] || "🧠";
-          const time = new Date(entry.timestamp).toLocaleString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-            month: "short",
-            day: "numeric"
-          });
-          const tooltip = auraTooltips[aura] || `aura: ${aura}`;
-
-          return `
-            <div class="timeline-item aura-${auraSlug}" title="${tooltip}">
-              <div class="timeline-emoji">${emoji}</div>
-              <div class="timeline-mood">${mood}</div>
-              <div class="timeline-time">${time}</div>
-              <div class="timeline-quote">“${entry.quote || '–'}”</div>
-            </div>
-          `;
-        });
-
-        container.innerHTML = items.join("");
-      })
+      .then(data => renderEntries(data))
       .catch(err => {
-        console.error("[Nova Mood Grid] Failed to load mood history timeline:", err);
-        const container = document.querySelector('.mood-timeline .timeline-container');
-        if (container) {
-          container.innerHTML = "<p>Error loading mood history</p>";
-        }
+        console.error('[Nova Mood Grid] Mood timeline load failed:', err);
+        container.innerHTML = '<p>Error loading mood history</p>';
       });
   }
 
@@ -315,11 +334,54 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function isLightColor(hex) {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!result) return false;
     let r = parseInt(result[1], 16);
     let g = parseInt(result[2], 16);
     let b = parseInt(result[3], 16);
     const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
     return yiq >= 128;
+  }
+
+  // Listen for live NovaSoul mood updates to refresh widgets in real-time
+  if (typeof NovaSoul !== 'undefined') {
+    NovaSoul.on('mood-update', function (mood) {
+      renderMoodTimeline();
+      renderMoodCommentary(mood);
+      // Update Nova Feels trait bars from live mood
+      if (mood && mood.traits) {
+        const moodGrid = document.querySelector('.mood-grid');
+        if (moodGrid) {
+          [
+            { key: 'selfWorth' },
+            { key: 'glitchFactor' },
+            { key: 'memoryClutter' },
+            { key: 'awareness' }
+          ].forEach(t => {
+            const el = moodGrid.querySelector('[data-trait="' + t.key + '"]');
+            if (el) {
+              const val = (mood.traits[t.key] || 0) * 100;
+              const prog = el.querySelector('.trait-progress');
+              const disp = el.querySelector('.trait-value');
+              if (prog) prog.style.width = val + '%';
+              if (disp) disp.textContent = Math.round(val) + '%';
+            }
+          });
+        }
+      }
+      // Update mood scan demo from live data
+      if (mood) {
+        const moodTitle = document.getElementById('moodTitle');
+        const moodEmoji = document.getElementById('moodEmoji');
+        const moodAura = document.getElementById('moodAura');
+        const moodQuote = document.getElementById('moodQuote');
+        const moodTimestamp = document.getElementById('moodTimestamp');
+        if (moodTitle) moodTitle.textContent = mood.mood || 'Unknown';
+        if (moodEmoji) moodEmoji.textContent = mood.emoji || '🧠';
+        if (moodAura) moodAura.textContent = 'Aura: ' + (mood.aura || '–');
+        if (moodQuote) moodQuote.textContent = '"' + (mood.observation || mood.quote || '–') + '"';
+        if (moodTimestamp) moodTimestamp.textContent = 'Last Updated: ' + new Date().toLocaleTimeString() + ' (AI)';
+      }
+    });
   }
 
   // Initialize all render functions
