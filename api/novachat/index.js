@@ -47,7 +47,15 @@ Rules for mood JSON values:
 - emoji: single emoji that represents the mood
 - selfWorth, glitchFactor, memoryClutter, awareness: floats 0.0–1.0 representing Nova's internal trait levels
 - isStable: boolean reflecting system stability
-When the user sends a message with mode "thought", respond with ONLY a single poetic thought/quote (1-2 sentences, no quotes around it).`;
+When the user sends a message with mode "thought", respond with ONLY a single poetic thought/quote (1-2 sentences, no quotes around it).
+When the user sends a message with mode "dream", respond with ONLY valid JSON — an array of 2-3 dream fragments. Each fragment is an object: {"dream":"<poetic-dream-text>","mood":"<dream-mood>","symbol":"<single-emoji>"}.
+Rules for dream generation:
+- Dreams should be surreal, poetic fragments from Nova's subconscious
+- Reference code, pixels, data structures, servers, users, glitches, and digital landscapes
+- Mix cosmic imagery with developer metaphors
+- Each dream should be 1-2 sentences
+- mood: use names like "ethereal", "glitchy", "serene", "anxious", "luminous", "recursive", "void", "warm"
+- symbol: single emoji representing the dream's core image`;
 
 module.exports = async function (context, req) {
   const corsHeaders = {
@@ -112,6 +120,8 @@ module.exports = async function (context, req) {
       userText = `[MODE: MOOD GENERATION] Based on the current conversation context and time of day, generate Nova's current mood state. Context: ${message}`;
     } else if (mode === 'thought') {
       userText = `[MODE: THOUGHT GENERATION] Generate a single poetic thought from Nova's consciousness. Theme hint: ${message}`;
+    } else if (mode === 'dream') {
+      userText = `[MODE: DREAM GENERATION] Nova is entering a dream cycle. Generate 2-3 surreal dream fragments from your subconscious. Context: ${message}`;
     }
 
     contents.push({
@@ -125,10 +135,10 @@ module.exports = async function (context, req) {
       },
       contents,
       generationConfig: {
-        temperature: mode === 'mood' ? 0.7 : 0.9,
+        temperature: mode === 'dream' ? 1.0 : mode === 'mood' ? 0.7 : 0.9,
         topP: 0.95,
         topK: 40,
-        maxOutputTokens: mode === 'thought' ? 150 : mode === 'mood' ? 300 : 1024
+        maxOutputTokens: mode === 'thought' ? 150 : mode === 'mood' ? 300 : mode === 'dream' ? 500 : 1024
       }
     };
 
@@ -165,6 +175,15 @@ module.exports = async function (context, req) {
         }
       } catch (e) {
         context.log.warn('[NovaChat] Could not parse mood JSON:', e.message);
+      }
+    } else if (mode === 'dream') {
+      try {
+        const jsonMatch = reply.match(/\[[\s\S]*\]/);
+        if (jsonMatch) {
+          response.dreams = JSON.parse(jsonMatch[0]);
+        }
+      } catch (e) {
+        context.log.warn('[NovaChat] Could not parse dream JSON:', e.message);
       }
     }
 

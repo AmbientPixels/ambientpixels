@@ -58,33 +58,55 @@
     }
   }
 
-  // ── Dream Archive ──
+  // ── Dream Archive (AI + static merged) ──
   async function loadDreamArchive() {
     var dreamList = document.getElementById('nova-dream-list');
     if (!dreamList) return;
 
+    var combined = [];
+
+    // 1. Load AI-generated dreams from NovaSoul memory
+    if (typeof NovaSoul !== 'undefined') {
+      var aiDreams = NovaSoul.getDreamHistory();
+      aiDreams.forEach(function (d) {
+        combined.push({
+          date: d.timestamp ? new Date(d.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Unknown',
+          text: (d.symbol || '') + ' ' + (d.dream || ''),
+          mood: d.mood || '',
+          source: 'ai'
+        });
+      });
+    }
+
+    // 2. Load static dreams from history JSON
     try {
       var res = await fetch('/data/nova-dreams-history.json?t=' + Date.now());
       var history = await res.json();
-
-      dreamList.innerHTML = '';
-      // Flatten and show most recent 10 dreams
-      var allDreams = [];
       history.forEach(function (entry) {
         entry.dreams.forEach(function (dream) {
-          allDreams.push({ date: entry.date, text: dream });
+          combined.push({ date: entry.date, text: dream, source: 'static' });
         });
       });
-
-      allDreams.slice(0, 10).forEach(function (dream) {
-        var li = document.createElement('li');
-        li.innerHTML = '<span class="nova-dream-date">' + dream.date + '</span>' + escapeHtml(dream.text);
-        dreamList.appendChild(li);
-      });
     } catch (err) {
-      console.error('[Nova Logs] Dream archive load failed:', err);
-      dreamList.innerHTML = '<li>Dream archive offline.</li>';
+      console.warn('[Nova Logs] Static dream archive unavailable:', err);
     }
+
+    if (!combined.length) {
+      dreamList.innerHTML = '<li>No dreams recorded yet.</li>';
+      return;
+    }
+
+    // Show newest first, max 12
+    dreamList.innerHTML = '';
+    combined.reverse().slice(0, 12).forEach(function (dream) {
+      var li = document.createElement('li');
+      li.className = dream.source === 'ai' ? 'nova-dream-ai' : '';
+      var moodBadge = dream.mood ? ' <span class="nova-dream-mood-badge">' + dream.mood + '</span>' : '';
+      var sourceBadge = dream.source === 'ai' ? ' <span class="nova-dream-source-badge">AI</span>' : '';
+      li.innerHTML = '<span class="nova-dream-date">' + dream.date + '</span>' +
+        escapeHtml(dream.text) + moodBadge + sourceBadge;
+      dreamList.appendChild(li);
+    });
   }
 
   // ── AI Daily Reflection ──

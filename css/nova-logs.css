@@ -504,6 +504,126 @@
   color: rgba(255, 120, 120, 0.9);
 }
 
+/* ── AI Dream Entries (diary page) ── */
+.nova-dream-ai {
+  border-left: 2px solid rgba(138, 43, 226, 0.3);
+  padding-left: 0.5rem;
+}
+
+.nova-dream-mood-badge {
+  display: inline-block;
+  font-size: 0.6rem;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: rgba(138, 43, 226, 0.15);
+  color: #c9a0ff;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.nova-dream-source-badge {
+  display: inline-block;
+  font-size: 0.55rem;
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: rgba(0, 200, 150, 0.15);
+  color: rgba(0, 220, 170, 0.8);
+  margin-left: 4px;
+  vertical-align: middle;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* ── DreamEngine (all pages) ── */
+.nova-dream-entry {
+  padding: 0.4rem 0;
+  line-height: 1.5;
+  font-size: 0.85rem;
+}
+
+.nova-dream-entry.ai-dream {
+  border-left: 2px solid rgba(138, 43, 226, 0.25);
+  padding-left: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.nova-dream-symbol {
+  font-size: 1rem;
+  margin-right: 4px;
+}
+
+.nova-dream-text {
+  font-style: italic;
+  opacity: 0.9;
+}
+
+.nova-dream-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 6px;
+}
+
+.nova-dream-mood {
+  font-size: 0.6rem;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: rgba(138, 43, 226, 0.12);
+  color: #c9a0ff;
+}
+
+.nova-dream-source {
+  font-size: 0.55rem;
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: rgba(0, 200, 150, 0.12);
+  color: rgba(0, 220, 170, 0.8);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.nova-dream-time {
+  font-size: 0.6rem;
+  opacity: 0.35;
+}
+
+.nova-dream-loading {
+  opacity: 0.5;
+  font-style: italic;
+  font-size: 0.8rem;
+}
+
+.nova-dream-loading i {
+  margin-right: 4px;
+}
+
+.nova-dream-refresh {
+  list-style: none;
+  padding: 0.5rem 0 0 0;
+}
+
+.nova-dream-cycle-btn {
+  background: none;
+  border: 1px solid rgba(138, 43, 226, 0.2);
+  color: rgba(200, 160, 255, 0.7);
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  transition: all 0.2s;
+}
+
+.nova-dream-cycle-btn:hover {
+  background: rgba(138, 43, 226, 0.1);
+  border-color: rgba(138, 43, 226, 0.4);
+  color: #c9a0ff;
+}
+
+.nova-dream-cycle-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* ── Section Spacing ── */
 .nova-logs-section {
   margin-bottom: 0;

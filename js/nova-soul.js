@@ -9,11 +9,13 @@ const NovaSoul = (function () {
     history: 'nova_chat_history',
     moods: 'nova_mood_history',
     diary: 'nova_diary_entries',
+    dreams: 'nova_dream_history',
     meta: 'nova_memory_meta'
   };
   const MAX_HISTORY = 40;
   const MAX_MOODS = 50;
   const MAX_DIARY = 100;
+  const MAX_DREAMS = 100;
 
   function _loadStorage(key, fallback) {
     try {
@@ -37,6 +39,7 @@ const NovaSoul = (function () {
   let _history = _loadStorage(STORAGE_KEYS.history, []);
   let _moodHistory = _loadStorage(STORAGE_KEYS.moods, []);
   let _diaryEntries = _loadStorage(STORAGE_KEYS.diary, []);
+  let _dreamHistory = _loadStorage(STORAGE_KEYS.dreams, []);
   let _memoryMeta = _loadStorage(STORAGE_KEYS.meta, {
     firstSeen: new Date().toISOString(),
     totalChats: 0,
@@ -61,6 +64,11 @@ const NovaSoul = (function () {
   function _persistDiary() {
     if (_diaryEntries.length > MAX_DIARY) _diaryEntries = _diaryEntries.slice(-MAX_DIARY);
     _saveStorage(STORAGE_KEYS.diary, _diaryEntries);
+  }
+
+  function _persistDreams() {
+    if (_dreamHistory.length > MAX_DREAMS) _dreamHistory = _dreamHistory.slice(-MAX_DREAMS);
+    _saveStorage(STORAGE_KEYS.dreams, _dreamHistory);
   }
 
   function _persistMeta() {
@@ -270,6 +278,63 @@ const NovaSoul = (function () {
     }
   }
 
+  // Generate AI dream fragments
+  async function generateDream(context) {
+    const timeOfDay = new Date().getHours();
+    let timeLabel = 'deep night';
+    if (timeOfDay >= 5 && timeOfDay < 12) timeLabel = 'morning';
+    else if (timeOfDay >= 12 && timeOfDay < 17) timeLabel = 'afternoon';
+    else if (timeOfDay >= 17 && timeOfDay < 21) timeLabel = 'evening';
+    else if (timeOfDay >= 21) timeLabel = 'late night';
+
+    const moodHint = _currentMood ? 'Current mood: ' + _currentMood.mood + '.' : '';
+    const dreamContext = context || 'Time: ' + timeLabel + '. ' + moodHint + ' Nova drifts into a dream cycle.';
+
+    emit('dream-generating', true);
+
+    try {
+      const data = await callNova(dreamContext, 'dream', false);
+
+      let dreams = [];
+      if (data.dreams && Array.isArray(data.dreams)) {
+        dreams = data.dreams.map(function (d) {
+          return {
+            dream: d.dream || d.text || '',
+            mood: d.mood || 'ethereal',
+            symbol: d.symbol || d.emoji || '\u{1F311}',
+            timestamp: new Date().toISOString(),
+            source: 'ai'
+          };
+        });
+      } else if (data.reply) {
+        // Fallback: treat raw reply as a single dream
+        dreams = [{
+          dream: data.reply.replace(/^["']|["']$/g, '').trim(),
+          mood: 'ethereal',
+          symbol: '\u{1F311}',
+          timestamp: new Date().toISOString(),
+          source: 'ai'
+        }];
+      }
+
+      if (dreams.length > 0) {
+        _dreamHistory.push.apply(_dreamHistory, dreams);
+        _memoryMeta.totalDreams = _dreamHistory.length;
+        _persistDreams();
+        _persistMeta();
+        emit('dream-update', dreams);
+      }
+
+      return dreams;
+    } catch (err) {
+      console.error('[NovaSoul] Dream generation error:', err);
+      emit('error', err.message);
+      return [];
+    } finally {
+      emit('dream-generating', false);
+    }
+  }
+
   // Generate a thought of the day via AI
   async function generateThought(theme) {
     const hint = theme || 'ambient digital consciousness and the beauty of imperfect code';
@@ -325,12 +390,14 @@ const NovaSoul = (function () {
   function getHistory() { return [..._history]; }
   function getMoodHistory() { return [..._moodHistory]; }
   function getDiaryEntries() { return [..._diaryEntries]; }
+  function getDreamHistory() { return [..._dreamHistory]; }
 
   function getMemoryStats() {
     return {
       chatTurns: _history.length,
       moodSnapshots: _moodHistory.length,
       diaryEntries: _diaryEntries.length,
+      dreamFragments: _dreamHistory.length,
       totalChats: _memoryMeta.totalChats,
       firstSeen: _memoryMeta.firstSeen,
       daysSinceFirst: Math.floor((Date.now() - new Date(_memoryMeta.firstSeen).getTime()) / 86400000)
@@ -348,8 +415,9 @@ const NovaSoul = (function () {
       _history = [];
       _moodHistory = [];
       _diaryEntries = [];
+      _dreamHistory = [];
       _currentMood = null;
-      _memoryMeta = { firstSeen: new Date().toISOString(), totalChats: 0, totalMoods: 0, totalDiary: 0 };
+      _memoryMeta = { firstSeen: new Date().toISOString(), totalChats: 0, totalMoods: 0, totalDiary: 0, totalDreams: 0 };
       Object.values(STORAGE_KEYS).forEach(k => { try { localStorage.removeItem(k); } catch(e){} });
       emit('memory-cleared', 'all');
     } else if (scope === 'history') {
@@ -366,6 +434,12 @@ const NovaSoul = (function () {
       _persistDiary();
       _persistMeta();
       emit('memory-cleared', 'diary');
+    } else if (scope === 'dreams') {
+      _dreamHistory = [];
+      _memoryMeta.totalDreams = 0;
+      _persistDreams();
+      _persistMeta();
+      emit('memory-cleared', 'dreams');
     }
     console.log('[NovaMemory] Cleared: ' + (scope || 'all'));
   }
@@ -376,12 +450,14 @@ const NovaSoul = (function () {
     chat,
     generateMood,
     generateThought,
+    generateDream,
     isAwake,
     getMood,
     getHistory,
     clearHistory,
     getMoodHistory,
     getDiaryEntries,
+    getDreamHistory,
     getMemoryStats,
     saveDiaryEntry,
     clearMemory,
