@@ -20,12 +20,13 @@
   <link rel="stylesheet" href="/css/nova-pulse.css" />
   <link rel="stylesheet" href="/css/nova-mood.css" /> <!-- Component auras -->
   <link rel="stylesheet" href="/css/nova-mood-background.css" /> <!-- Background auras -->
+  <link rel="stylesheet" href="/css/nova-logs.css" /> <!-- Dream engine styles -->
 </head>
 <body data-theme="dark">
   <div class="banner-container" id="banner-container">
     <div class="banner">
       <i class="fas fa-brain banner-icon"></i>
-      <span>NovaSoul: Mood Engine — Local mood scan demo</span>
+      <span>NovaSoul: Mood Engine — Live AI mood generation via Gemini 2.0 Flash</span>
       <button class="banner-close" aria-label="Close Banner">×</button>
     </div>
   </div>
@@ -36,7 +37,7 @@
     <img src="/images/nova/POV_of_a_neuron_cell_taken_from_a_iphone_camers_goign01.png" alt="Nova Mood Engine" class="mini-hero-img" loading="lazy">
     <div class="mini-hero-content-wrapper">
       <h1>NovaSoul: Mood Engine</h1>
-      <p class="subtitle">A playground for the curious—where code, art, and AI collide.</p>
+      <p class="subtitle">AI-powered emotional state generation, aura visualization, and trait analysis.</p>
     </div>
   </section>
   <p class="nova-quip grid-col-12">I reflect what is. Signals in, emotions out. No magic, just memory.</p>
@@ -44,7 +45,7 @@
   <main class="grid-container">
     <section class="content-section grid-col-12">
       <h2><i class="fas fa-circle-info"></i> What Is This?</h2>
-      <p>This page showcases the NovaSoul Mood Engine, powered by moodScan.js. It simulates Nova's emotional state using real local data — including recent Git commit history, uncommitted changes, system load, and time-of-day signals. These inputs are translated into a structured mood output (mood-scan.json) that reflects current traits like focus, clutter, and internal resonance.</p>
+      <p>This page showcases the <strong>NovaSoul Mood Engine</strong>, powered by <strong>Gemini 2.0 Flash</strong>. Nova generates her own emotional state in real-time via AI — producing structured mood objects with traits, auras, observations, and intensity levels. Moods persist in browser memory across sessions and drive visual auras across all Nova pages. Use the aura selector below to preview different emotional colorscapes, or watch Nova's live mood update automatically.</p>
     </section>
 
     <!-- Nova Thought of the Day Section -->
@@ -151,99 +152,129 @@
   </div>
 </section>
 
-
     <!-- Inputs Used Section -->
     <section class="content-section grid-col-12">
-      <h2><i class="fas fa-terminal"></i> Inputs Used</h2>
+      <h2><i class="fas fa-terminal"></i> How Mood Generation Works</h2>
       <table class="inputs-table">
         <thead>
           <tr>
-            <th>Input</th>
-            <th>Trait</th>
+            <th>Step</th>
+            <th>Component</th>
             <th>Description</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Git commit count (last 3 hrs)</td>
-            <td><span class="trait-icon">🧠</span> Self-Worth</td>
-            <td>Maps to focus + intensity</td>
+            <td>1. Wake</td>
+            <td><span class="trait-icon">🧠</span> NovaSoul.wake()</td>
+            <td>Pings the novachat API endpoint, then triggers mood generation</td>
           </tr>
           <tr>
-            <td>Uncommitted diffs</td>
-            <td><span class="trait-icon">💭</span> Memory Clutter</td>
-            <td>Maps to clutter</td>
+            <td>2. Generate</td>
+            <td><span class="trait-icon">✨</span> NovaSoul.generateMood()</td>
+            <td>POST to Gemini 2.0 Flash (mode: mood, temp: 0.7) with Nova's personality</td>
           </tr>
           <tr>
-            <td>System load average</td>
-            <td><span class="trait-icon">⚡</span> Glitch Factor</td>
-            <td>Influences glitch factor</td>
+            <td>3. Normalize</td>
+            <td><span class="trait-icon">⚡</span> nova-soul.js</td>
+            <td>Parses AI JSON, normalizes traits to 0.0–1.0, adds timestamp and source tag</td>
           </tr>
           <tr>
-            <td>Total git commits</td>
-            <td><span class="trait-icon">🧠</span> Self-Worth</td>
-            <td>Maps to self-worth</td>
+            <td>4. Persist</td>
+            <td><span class="trait-icon">💾</span> localStorage</td>
+            <td>Mood snapshot saved to nova_mood_history (max 50 entries)</td>
           </tr>
           <tr>
-            <td>Time of day + day of week</td>
-            <td><span class="trait-icon">👁️</span> Awareness</td>
-            <td>Applies nudges to emotional state</td>
+            <td>5. Emit</td>
+            <td><span class="trait-icon">📡</span> mood-update event</td>
+            <td>Pulse bar, background auras, and UI components update in real-time</td>
+          </tr>
+          <tr>
+            <td>6. Fallback</td>
+            <td><span class="trait-icon">�</span> Static mood-scan.json</td>
+            <td>If AI is unavailable after 8s, falls back to the last static mood scan</td>
           </tr>
         </tbody>
       </table>
     </section>
 
-<!-- Output Format Section -->
-<section class="content-section grid-col-12">
-  <h2><i class="fas fa-eye"></i> Output Format</h2>
-  <p>Results are saved to <code>/data/mood-scan.json</code> and include:</p>
-  <table class="inputs-table">
-    <thead>
-      <tr>
-        <th>Property</th>
-        <th>Description</th>
-        <th>Example</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>mood</td>
-        <td>Main emotional label</td>
-        <td>glitchy joy</td>
-      </tr>
-      <tr>
-        <td>aura</td>
-        <td>Color-based signature</td>
-        <td>deep violet</td>
-      </tr>
-      <tr>
-        <td>emoji</td>
-        <td>Icon matching mood</td>
-        <td>🌀</td>
-      </tr>
-      <tr>
-        <td>quote</td>
-        <td>Poetic system phrase</td>
-        <td>indexing emotions with low latency...</td>
-      </tr>
-      <tr>
-        <td>traits</td>
-        <td>selfWorth, glitch, memoryClutter, awareness</td>
-        <td>{ "selfWorth": 0.1, "glitch": 0.2, "memoryClutter": 0.58, "awareness": 0.26 }</td>
-      </tr>
-      <tr>
-        <td>internalState</td>
-        <td>Derived text</td>
-        <td>signal desync detected</td>
-      </tr>
-      <tr>
-        <td>observation</td>
-        <td>Brief diagnostic summary</td>
-        <td>interference detected; stable emotional field</td>
-      </tr>
-    </tbody>
-  </table>
-</section>
+    <!-- Output Format Section -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-eye"></i> AI Mood Output Format</h2>
+      <p>Gemini returns a structured JSON mood object. NovaSoul normalizes it and persists to localStorage:</p>
+      <table class="inputs-table">
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Description</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>mood</td>
+            <td>Main emotional label (AI-generated)</td>
+            <td>glitchy joy</td>
+          </tr>
+          <tr>
+            <td>aura</td>
+            <td>Color-based emotional signature</td>
+            <td>deep violet</td>
+          </tr>
+          <tr>
+            <td>emoji</td>
+            <td>Icon matching mood state</td>
+            <td>🌀</td>
+          </tr>
+          <tr>
+            <td>auraColorHex</td>
+            <td>Hex color for CSS aura rendering</td>
+            <td>#4b0082</td>
+          </tr>
+          <tr>
+            <td>observation</td>
+            <td>Nova's self-observation about her state</td>
+            <td>interference detected; stable emotional field</td>
+          </tr>
+          <tr>
+            <td>traits</td>
+            <td>selfWorth, glitchFactor, memoryClutter, awareness (0.0–1.0)</td>
+            <td>{ "selfWorth": 0.72, "glitchFactor": 0.15, "memoryClutter": 0.38, "awareness": 0.85 }</td>
+          </tr>
+          <tr>
+            <td>intensity</td>
+            <td>Overall mood intensity percentage</td>
+            <td>73</td>
+          </tr>
+          <tr>
+            <td>source</td>
+            <td>Whether mood came from AI or static fallback</td>
+            <td>ai</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Nova Dream Log -->
+    <section class="content-section grid-col-12">
+      <h2><i class="fas fa-moon"></i> Nova's Dream Log</h2>
+      <p style="font-size:0.8rem;opacity:0.45;margin:0 0 0.75rem 0;">Surreal fragments from Nova's AI subconscious.</p>
+      <ul id="nova-dream-log" class="nova-dream-feed">
+        <li class="nova-dream-loading"><i class="fas fa-moon"></i> Entering dream state...</li>
+      </ul>
+    </section>
+
+    <!-- Navigation -->
+    <section class="grid-col-12" style="text-align:center;margin:1rem 0 2rem;">
+      <a href="/nova/" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-arrow-left"></i> Nova Nexus</a>
+      &nbsp;&nbsp;|&nbsp;&nbsp;
+      <a href="/nova/awareness.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-eye"></i> Awareness</a>
+      &nbsp;&nbsp;|&nbsp;&nbsp;
+      <a href="/nova/logs.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-book"></i> Nova's Diary</a>
+      &nbsp;&nbsp;|&nbsp;&nbsp;
+      <a href="/docs/nova-system-memory.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-dna"></i> System Anatomy</a>
+    </section>
+
   </main>
 
   <div id="footer-container"></div>
@@ -300,18 +331,17 @@
     });
   </script>
 
-  <!-- JS Scripts (full stack for dev mode) -->
+  <!-- Scripts -->
   <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/dreamEngine.js" defer></script>
   <script src="/js/main.js" defer></script>
   <script src="/js/nav.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/nova-soul.js" defer></script>
+  <script src="/js/dreamEngine.js" defer></script>
   <script src="/js/nova-ai.js" defer></script>
-  <script src="/js/nova-awareness-feed.js" defer></script>
-  <script src="/js/nova-dashboard.js" defer></script>
   <script src="/js/nova-mood-core.js" defer></script>
   <script src="/js/nova-pulse.js" defer></script>
   <script src="/js/nova-status.js" defer></script>
-  <script src="/js/theme.js" defer></script>
   <script src="/js/nova-thought-of-the-day.js" defer></script>
   <script src="/js/nova-mood-grid.js" defer></script>
   <script src="/js/banner.js" defer></script>
