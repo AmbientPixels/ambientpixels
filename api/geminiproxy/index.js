@@ -2,8 +2,9 @@
 const fetch = require('node-fetch');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-// Updated by Cascade 2025-02-12 - Using gemini-2.0-flash (current stable model)
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_API_KEY;
+const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/';
+const DEFAULT_MODEL = 'gemini-2.0-flash';
+const ALLOWED_MODELS = ['gemini-2.0-flash', 'gemini-2.5-flash-image'];
 
 /* updated by Cascade 2025-07-15 */
 module.exports = async function (context, req) {
@@ -57,7 +58,7 @@ module.exports = async function (context, req) {
   try {
     // Defensive: ensure req.body is parsed
     const body = req.body || {};
-    const { prompt, ...options } = body;
+    const { prompt, model, generationConfig, ...options } = body;
     if (!prompt) {
       context.res = {
         status: 400,
@@ -66,15 +67,23 @@ module.exports = async function (context, req) {
       return;
     }
 
+    // Resolve model — only allow whitelisted models
+    const selectedModel = (model && ALLOWED_MODELS.includes(model)) ? model : DEFAULT_MODEL;
+    const apiUrl = GEMINI_BASE + selectedModel + ':generateContent?key=' + GEMINI_API_KEY;
+
     // Build Gemini API request body
     const geminiBody = {
-      contents: [{ parts: [{ text: prompt }] }],
-      ...options
+      contents: [{ parts: [{ text: prompt }] }]
     };
 
-    context.log('[Gemini Proxy] Outgoing request:', JSON.stringify(geminiBody));
+    // Add generationConfig if provided (needed for image responseModalities)
+    if (generationConfig) {
+      geminiBody.generationConfig = generationConfig;
+    }
 
-    const apiRes = await fetch(GEMINI_API_URL, {
+    context.log('[Gemini Proxy] Model:', selectedModel, 'Request:', JSON.stringify(geminiBody));
+
+    const apiRes = await fetch(apiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(geminiBody)

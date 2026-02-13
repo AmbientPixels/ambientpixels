@@ -738,3 +738,43 @@
   margin-top: 4px;
   opacity: 0.7;
 }
+
+/* AI Card Creator prompt textarea */
+.cf-ai-prompt-wrapper {
+  margin-bottom: 12px;
+}
+
+.cf-ai-prompt {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 6px;
+  background: rgba(139, 92, 246, 0.06);
+  color: var(--mood-primary-color, #e1e1ff);
+  font-family: inherit;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  resize: vertical;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.cf-ai-prompt:focus {
+  outline: none;
+  border-color: rgba(139, 92, 246, 0.7);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+.cf-ai-prompt::placeholder {
+  color: rgba(139, 92, 246, 0.4);
+  font-style: italic;
+}
+
+/* AI Creator section accent */
+.cf-ai-creator-section .random-title {
+  color: #c4b5fd;
+}
+
+.cf-ai-creator-section .random-title i {
+  color: #a78bfa;
+  margin-right: 6px;
+}

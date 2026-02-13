@@ -459,16 +459,34 @@
           </div>
         </div>
 
-        <!-- AI Generator -->
+        <!-- AI Card Creator -->
+        <div class="random-section cf-ai-creator-section">
+          <h4 class="random-title"><i class="fas fa-bolt"></i> AI Card Creator</h4>
+          <p class="random-helper">Describe any character and AI will generate the entire card — name, stats, lore, and artwork.</p>
+          <div class="cf-ai-prompt-wrapper">
+            <textarea id="cf-ai-prompt" class="cf-ai-prompt" rows="2" placeholder="e.g. A cyberpunk samurai who controls lightning..."></textarea>
+          </div>
+          <div class="roll-button-container">
+            <button type="button" id="cf-ai-full-generate-btn" class="roll-btn cf-ai-generate-btn" title="Generate a complete card from your description">
+              <div class="roll-icon"><span class="cf-ai-btn-icon"><i class="fas fa-bolt"></i></span></div>
+              <div class="roll-text">
+                <div class="roll-label cf-ai-btn-label">Create Full Card</div>
+                <div class="roll-subtitle">Name + Stats + Lore + Artwork</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- AI Quick Generate -->
         <div class="random-section">
-          <h4 class="random-title">AI Generator</h4>
+          <h4 class="random-title"><i class="fas fa-wand-magic-sparkles"></i> AI Quick Generate</h4>
           <p class="random-helper">Auto-generate quote &amp; biography from your card's name, class, and rarity.</p>
           <div class="roll-button-container">
             <button type="button" id="cf-ai-generate-btn" class="roll-btn cf-ai-generate-btn" title="Auto-generate quote and biography using AI">
               <div class="roll-icon"><span class="cf-ai-btn-icon"><i class="fas fa-wand-magic-sparkles"></i></span></div>
               <div class="roll-text">
                 <div class="roll-label cf-ai-btn-label">AI Generate</div>
-                <div class="roll-subtitle">Powered by Gemini</div>
+                <div class="roll-subtitle">Quote + Biography only</div>
               </div>
             </button>
           </div>
