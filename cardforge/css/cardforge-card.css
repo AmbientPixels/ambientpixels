@@ -53,10 +53,10 @@
   text-align: left;
 }
 
-.card-preview-canvas.align-type-left.container-masked .card-avatar,
-.card-preview-canvas.align-type-left.container-framed .card-avatar,
-.card-preview-canvas.align-type-left.container-raw .card-avatar,
-.card-preview-canvas.align-type-left.container-inset .card-avatar {
+.card-preview-canvas.align-type-left.container-masked .card-avatar-container,
+.card-preview-canvas.align-type-left.container-framed .card-avatar-container,
+.card-preview-canvas.align-type-left.container-raw .card-avatar-container,
+.card-preview-canvas.align-type-left.container-inset .card-avatar-container {
   margin: 0 auto 1rem 0;
   float: left;
   margin-right: 1rem;
@@ -104,10 +104,10 @@
   text-align: center;
 }
 
-.card-preview-canvas.align-type-center.container-masked .card-avatar,
-.card-preview-canvas.align-type-center.container-framed .card-avatar,
-.card-preview-canvas.align-type-center.container-raw .card-avatar,
-.card-preview-canvas.align-type-center.container-inset .card-avatar {
+.card-preview-canvas.align-type-center.container-masked .card-avatar-container,
+.card-preview-canvas.align-type-center.container-framed .card-avatar-container,
+.card-preview-canvas.align-type-center.container-raw .card-avatar-container,
+.card-preview-canvas.align-type-center.container-inset .card-avatar-container {
   margin: 0 auto 1rem auto;
   display: block;
 }
@@ -154,9 +154,9 @@
   text-align: right;
 }
 
-.card-preview-canvas.align-type-right.container-masked .card-avatar,
-.card-preview-canvas.align-type-right.container-framed .card-avatar,
-.card-preview-canvas.align-type-right.container-raw .card-avatar {
+.card-preview-canvas.align-type-right.container-masked .card-avatar-container,
+.card-preview-canvas.align-type-right.container-framed .card-avatar-container,
+.card-preview-canvas.align-type-right.container-raw .card-avatar-container {
   margin: 0 0 1rem auto;
   float: right;
   margin-left: 1rem;
@@ -1398,62 +1398,78 @@
   padding-top: 1rem;
 }
 
-/* Masked Container - Bigger Size */
-.card-preview-canvas.container-masked .card-avatar {
-  width: 120px !important;
-  height: 120px !important;
+/* === Global avatar wrapper: clips zoom/pan overflow === */
+.card-preview-zone .card-avatar-container {
+  overflow: hidden;
+  position: relative;
+}
+
+/* === Global avatar image: fills wrapper, obeys slider CSS vars === */
+.card-preview-zone .card-avatar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--cf-avatar-pos-x, 50%) var(--cf-avatar-pos-y, 50%);
+  transform: scale(var(--cf-avatar-scale, 1));
+  transform-origin: var(--cf-avatar-pos-x, 50%) var(--cf-avatar-pos-y, 50%);
+}
+
+/* Masked Container - wrapper carries size + clip */
+.card-preview-canvas.container-masked .card-avatar-container {
+  width: 120px;
+  height: 120px;
   margin: 0 auto 1rem auto;
   display: block;
 }
 
 /* Masked Container Variants */
-.card-preview-canvas.container-masked.container-variant-circle .card-avatar {
+.card-preview-canvas.container-masked.container-variant-circle .card-avatar-container {
   clip-path: circle(50%);
   border-radius: 0;
 }
 
-.card-preview-canvas.container-masked.container-variant-hex .card-avatar {
+.card-preview-canvas.container-masked.container-variant-hex .card-avatar-container {
   clip-path: polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
   border-radius: 0;
 }
 
-.card-preview-canvas.container-masked.container-variant-diamond .card-avatar {
+.card-preview-canvas.container-masked.container-variant-diamond .card-avatar-container {
   clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
   border-radius: 0;
 }
 
 /* Masked Rounded Variant — rounded rectangle crop */
-.card-preview-canvas.container-masked.container-variant-rounded .card-avatar {
+.card-preview-canvas.container-masked.container-variant-rounded .card-avatar-container {
   clip-path: none;
   border-radius: 16px;
 }
 
 /* Masked Square Variant — sharp square crop */
-.card-preview-canvas.container-masked.container-variant-square .card-avatar {
+.card-preview-canvas.container-masked.container-variant-square .card-avatar-container {
   clip-path: none;
   border-radius: 0;
 }
 
 /* Masked Rectangle Variant — wide rectangle crop */
-.card-preview-canvas.container-masked.container-variant-rectangle .card-avatar {
+.card-preview-canvas.container-masked.container-variant-rectangle .card-avatar-container {
   clip-path: none;
   border-radius: 6px;
-  width: 160px !important;
-  height: 100px !important;
+  width: 160px;
+  height: 100px;
 }
 
 /* ===== POLAROID CONTAINER ===== */
 
-.card-preview-canvas.container-polaroid .card-avatar {
-  width: 140px !important;
-  height: 120px !important;
+.card-preview-canvas.container-polaroid .card-avatar-container {
+  width: 140px;
+  height: 120px;
   margin: 0 auto 1rem auto;
   display: block;
-  object-fit: cover;
 }
 
 /* Polaroid Classic — white photo frame with thick bottom */
-.card-preview-canvas.container-polaroid.container-variant-classic .card-avatar {
+.card-preview-canvas.container-polaroid.container-variant-classic .card-avatar-container {
   border: 6px solid #f5f5f0;
   border-bottom-width: 20px;
   border-radius: 2px;
@@ -1461,16 +1477,19 @@
 }
 
 /* Polaroid Vintage — warm cream tint frame */
-.card-preview-canvas.container-polaroid.container-variant-vintage .card-avatar {
+.card-preview-canvas.container-polaroid.container-variant-vintage .card-avatar-container {
   border: 6px solid #e8dcc8;
   border-bottom-width: 20px;
   border-radius: 2px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.card-preview-canvas.container-polaroid.container-variant-vintage .card-avatar {
   filter: sepia(0.15) contrast(1.05);
 }
 
 /* Polaroid Dark — themed dark frame */
-.card-preview-canvas.container-polaroid.container-variant-dark .card-avatar {
+.card-preview-canvas.container-polaroid.container-variant-dark .card-avatar-container {
   border: 6px solid var(--mood-accent-color, #2a2a3e);
   border-bottom-width: 20px;
   border-radius: 2px;
@@ -1489,13 +1508,12 @@
   --banner-h: 80px;
 }
 
-.card-preview-canvas.container-banner .card-avatar {
+.card-preview-canvas.container-banner .card-avatar-container {
   position: absolute;
   left: 0;
-  width: 100% !important;
-  height: var(--banner-h) !important;
-  object-fit: cover;
-  border-radius: 0 !important;
+  width: 100%;
+  height: var(--banner-h);
+  border-radius: 0;
   z-index: 0;
 }
 
@@ -1527,12 +1545,12 @@
 }
 
 /* Banner Top — strip at top of card */
-.card-preview-canvas.container-banner.container-variant-top .card-avatar {
+.card-preview-canvas.container-banner.container-variant-top .card-avatar-container {
   top: 0;
 }
 
 /* Banner Bottom — strip at bottom, content above */
-.card-preview-canvas.container-banner.container-variant-bottom .card-avatar {
+.card-preview-canvas.container-banner.container-variant-bottom .card-avatar-container {
   top: auto;
   bottom: 0;
 }
@@ -1545,99 +1563,106 @@
    Thumbnail hovers above card with drop shadow + optional tilt.
    Centered image with visible gap all around. */
 
+.card-preview-canvas.container-floaty {
+  padding-top: 1rem;
+}
+
+.card-preview-canvas.container-floaty .card-avatar-container {
+  width: 200px;
+  height: 280px;
+}
+
 .card-preview-canvas.container-floating {
   padding-top: 1rem;
 }
 
-.card-preview-canvas.container-floating .card-avatar {
-  width: 120px !important;
-  height: 120px !important;
+.card-preview-canvas.container-floating .card-avatar-container {
+  width: 120px;
+  height: 120px;
   margin: 0 auto 1rem auto;
   display: block;
-  object-fit: cover;
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease;
 }
 
 /* Floating Centered — straight, big shadow */
-.card-preview-canvas.container-floating.container-variant-centered .card-avatar {
+.card-preview-canvas.container-floating.container-variant-centered .card-avatar-container {
   transform: translateY(-4px);
 }
 
 /* Floating Tilted Left — slight left rotation */
-.card-preview-canvas.container-floating.container-variant-tilted-left .card-avatar {
+.card-preview-canvas.container-floating.container-variant-tilted-left .card-avatar-container {
   transform: rotate(-4deg) translateY(-4px);
 }
 
 /* Floating Tilted Right — slight right rotation */
-.card-preview-canvas.container-floating.container-variant-tilted-right .card-avatar {
+.card-preview-canvas.container-floating.container-variant-tilted-right .card-avatar-container {
   transform: rotate(4deg) translateY(-4px);
 }
 
-/* Framed Container - Bigger Size (LEGACY — kept for backward compat) */
-.card-preview-canvas.container-framed .card-avatar {
-  width: 110px !important;
-  height: 110px !important;
+/* Framed Container - wrapper carries size + border */
+.card-preview-canvas.container-framed .card-avatar-container {
+  width: 110px;
+  height: 110px;
   margin: 0 auto 1rem auto;
   display: block;
 }
 
 /* Framed Container Variants */
-.card-preview-canvas.container-framed.container-variant-classic .card-avatar {
+.card-preview-canvas.container-framed.container-variant-classic .card-avatar-container {
   border: 4px solid var(--mood-primary-color, #00d4ff);
   border-radius: 8px;
   padding: 4px;
 }
 
-.card-preview-canvas.container-framed.container-variant-modern .card-avatar {
+.card-preview-canvas.container-framed.container-variant-modern .card-avatar-container {
   border: 2px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 0;
   box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
 }
 
-.card-preview-canvas.container-framed.container-variant-ornate .card-avatar {
+.card-preview-canvas.container-framed.container-variant-ornate .card-avatar-container {
   border: 6px solid var(--mood-primary-color, #00d4ff);
   border-radius: 12px;
   box-shadow: inset 0 0 0 2px var(--aura-bg-color, #1a1a2e), 0 0 15px rgba(0, 212, 255, 0.5);
 }
 
-/* Raw Container - Enhanced Size */
-.card-preview-canvas.container-raw .card-avatar {
-  width: 100px !important;
-  height: 100px !important;
+/* Raw Container - wrapper carries size + shape */
+.card-preview-canvas.container-raw .card-avatar-container {
+  width: 100px;
+  height: 100px;
   margin: 0 auto 1rem auto;
   display: block;
 }
 
 /* Raw Container Variants - Enhanced Distinction */
-.card-preview-canvas.container-raw.container-variant-sharp .card-avatar {
+.card-preview-canvas.container-raw.container-variant-sharp .card-avatar-container {
   border-radius: 0;
   border: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.card-preview-canvas.container-raw.container-variant-rounded .card-avatar {
+.card-preview-canvas.container-raw.container-variant-rounded .card-avatar-container {
   border-radius: 12px;
   border: none;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.card-preview-canvas.container-raw.container-variant-soft .card-avatar {
+.card-preview-canvas.container-raw.container-variant-soft .card-avatar-container {
   border-radius: 20px;
   border: none;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
   transform: scale(1.02);
 }
 
-/* Full Bleed Container - Base */
-.card-preview-canvas.container-fullbleed .card-avatar {
+/* Full Bleed Container - wrapper carries position, image fills it */
+.card-preview-canvas.container-fullbleed .card-avatar-container {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover;
+  width: 100%;
+  height: 100%;
   border-radius: inherit;
   z-index: -1;
 }
@@ -1681,14 +1706,13 @@
   flex-direction: column;
 }
 
-.card-preview-canvas.container-hero .card-avatar {
+.card-preview-canvas.container-hero .card-avatar-container {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100% !important;
-  height: var(--hero-img-h, 55%) !important;
-  object-fit: cover;
-  border-radius: 0 !important;
+  width: 100%;
+  height: var(--hero-img-h, 55%);
+  border-radius: 0;
   z-index: 0;
 }
 
@@ -1780,68 +1804,70 @@
   overflow: hidden;
 }
 
-.card-preview-canvas.container-inset .card-avatar {
+.card-preview-canvas.container-inset .card-avatar-container {
   display: block;
   width: 80%;
   max-width: 200px;
-  height: auto;
+  aspect-ratio: 4 / 3;
   max-height: 45%;
-  object-fit: cover;
   margin: 0 auto 0.75rem auto;
-  overflow: hidden;
 }
 
 /* --- Panel variant: rounded rect, subtle border + inner shadow --- */
-.card-preview-canvas.container-inset.container-variant-panel .card-avatar {
+.card-preview-canvas.container-inset.container-variant-panel .card-avatar-container {
   border-radius: 10px;
   border: 2px solid var(--mood-accent-color, #4a4a6a);
   box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.35), 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 /* --- Glass variant: frosted glass look --- */
-.card-preview-canvas.container-inset.container-variant-glass .card-avatar {
+.card-preview-canvas.container-inset.container-variant-glass .card-avatar-container {
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.card-preview-canvas.container-inset.container-variant-glass .card-avatar {
   filter: contrast(1.05) brightness(0.95);
 }
 
-.card-preview-canvas.container-inset.container-variant-glass .card-avatar::after {
+.card-preview-canvas.container-inset.container-variant-glass .card-avatar-container::after {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
   border-radius: inherit;
   pointer-events: none;
+  z-index: 1;
 }
 
 /* --- Emblem variant: circle mask with border ring --- */
-.card-preview-canvas.container-inset.container-variant-emblem .card-avatar {
+.card-preview-canvas.container-inset.container-variant-emblem .card-avatar-container {
   width: 120px;
   height: 120px;
   border-radius: 50%;
   border: 3px solid var(--mood-primary-color, #00d4ff);
   box-shadow: 0 0 0 3px var(--aura-bg-color, #1a1a2e), 0 0 12px rgba(0, 212, 255, 0.15);
-  object-fit: cover;
+  aspect-ratio: auto;
 }
 
 /* --- Cutout variant: no panel, masked/rounded image with shadow separation --- */
-.card-preview-canvas.container-inset.container-variant-cutout .card-avatar {
+.card-preview-canvas.container-inset.container-variant-cutout .card-avatar-container {
   border-radius: 14px;
   border: none;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
 /* Inset alignment overrides — fixed-size container behavior like masked/framed/raw */
-.card-preview-canvas.align-type-left.container-inset .card-avatar {
+.card-preview-canvas.align-type-left.container-inset .card-avatar-container {
   margin: 0 auto 0.75rem 0;
 }
 
-.card-preview-canvas.align-type-right.container-inset .card-avatar {
+.card-preview-canvas.align-type-right.container-inset .card-avatar-container {
   margin: 0 0 0.75rem auto;
 }
 
-.card-preview-canvas.align-type-center.container-inset .card-avatar {
+.card-preview-canvas.align-type-center.container-inset .card-avatar-container {
   margin: 0 auto 0.75rem auto;
 }
 
@@ -1875,13 +1901,16 @@
 /* ===== TIER 6: IMAGE EFFECTS ===== */
 
 /* Glow Effect */
-.card-preview-canvas.effect-glow .card-avatar {
+.card-preview-canvas.effect-glow .card-avatar-container {
   box-shadow: 0 0 20px var(--mood-primary-color, #00d4ff), 0 0 40px rgba(0, 212, 255, 0.3);
+}
+
+.card-preview-canvas.effect-glow .card-avatar {
   filter: brightness(1.1);
 }
 
 /* Shadow Effect */
-.card-preview-canvas.effect-shadow .card-avatar {
+.card-preview-canvas.effect-shadow .card-avatar-container {
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
@@ -1891,7 +1920,7 @@
 }
 
 /* Border Effect */
-.card-preview-canvas.effect-border .card-avatar {
+.card-preview-canvas.effect-border .card-avatar-container {
   border: 3px solid var(--mood-primary-color, #00d4ff);
   box-shadow: 0 0 0 1px var(--aura-bg-color, #1a1a2e);
 }
@@ -1912,12 +1941,12 @@
     grid-template-rows: auto auto;
   }
   
-  .card-preview-canvas.layout-stack .card-avatar {
+  .card-preview-canvas.layout-stack .card-avatar-container {
     width: 100px;
     height: 100px;
   }
   
-  .card-preview-canvas.layout-frame .card-avatar {
+  .card-preview-canvas.layout-frame .card-avatar-container {
     width: 80px;
     height: 80px;
   }
@@ -2070,10 +2099,11 @@
   transition: filter 0.3s ease;
 }
 
-/* Hover effects for interactive preview */
-.card-preview-canvas .card-avatar:hover {
-  transform: scale(1.02);
-  transition: transform 0.2s ease, filter 0.3s ease;
+/* Hover effects for interactive preview — applied to wrapper to avoid
+   conflicting with the slider zoom transform on .card-avatar */
+.card-preview-canvas .card-avatar-container:hover {
+  filter: brightness(1.03);
+  transition: filter 0.2s ease;
 }
 
 /* COMBINED EFFECTS - For complex combinations */

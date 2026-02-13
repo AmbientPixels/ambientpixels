@@ -877,6 +877,29 @@
                   </div>
                 </div>
 
+                <!-- IMAGE POSITION & ZOOM -->
+                <div class="container-level position-level">
+                  <h5 class="level-title">Image Position &amp; Zoom</h5>
+                  <div class="cf-image-sliders">
+                    <div class="cf-slider-row">
+                      <label for="cf-img-pos-x">Horizontal</label>
+                      <input type="range" id="cf-img-pos-x" min="0" max="100" value="50" step="1" />
+                      <span class="cf-slider-value" id="cf-img-pos-x-val">50%</span>
+                    </div>
+                    <div class="cf-slider-row">
+                      <label for="cf-img-pos-y">Vertical</label>
+                      <input type="range" id="cf-img-pos-y" min="0" max="100" value="50" step="1" />
+                      <span class="cf-slider-value" id="cf-img-pos-y-val">50%</span>
+                    </div>
+                    <div class="cf-slider-row">
+                      <label for="cf-img-zoom">Zoom</label>
+                      <input type="range" id="cf-img-zoom" min="100" max="200" value="100" step="1" />
+                      <span class="cf-slider-value" id="cf-img-zoom-val">100%</span>
+                    </div>
+                    <button type="button" class="cf-slider-reset" id="cf-img-reset">Reset</button>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
@@ -1759,6 +1782,7 @@
   <script src="js/cardforge-lightbox.js" defer></script>
   <script src="js/cardforge-card-helpers.js" defer></script>
   <script src="js/cardforge-ai.js" defer></script>
+  <script src="js/cardforge-image-sliders.js" defer></script>
   <script src="/cardforge/js/app-insights.js"></script>
 
   <!-- Lightbox — Gallery Card Viewer -->
