@@ -594,7 +594,13 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action_id: id })
-      }).then(function (res) { return res.json().then(function (data) { return { ok: res.ok, status: res.status, data: data }; }); })
+      }).then(function (res) {
+        return res.text().then(function (text) {
+          var data;
+          try { data = JSON.parse(text); } catch (e) { data = { error: 'Invalid response', raw: text.substring(0, 200) }; }
+          return { ok: res.ok, status: res.status, data: data };
+        });
+      })
       .then(function (resp) {
         if (resp.ok && resp.data.success) {
           // Server succeeded — update local with receipt
