@@ -175,6 +175,51 @@ var CompanyStore = (function () {
     }
   }
 
+  // ── Sync from server ──
+  // Pulls all mapped state keys from server into localStorage.
+  // Called once after store-ready in server mode.
+  var _syncListeners = [];
+  var _synced = false;
+
+  function onSync(callback) {
+    if (_synced) { callback(); return; }
+    _syncListeners.push(callback);
+  }
+
+  function syncFromServer() {
+    if (_mode !== 'server') {
+      _synced = true;
+      _syncListeners.forEach(function (cb) { cb(); });
+      _syncListeners = [];
+      return Promise.resolve();
+    }
+
+    // Pull the critical state keys that agents write to
+    var keysToSync = ['ap_tasks', 'ap_cron_log', 'ap_standup_log', 'ap_agent_configs', 'ap_morning_report'];
+    var promises = keysToSync.map(function (localKey) {
+      var serverKey = KEY_MAP[localKey];
+      if (!serverKey) return Promise.resolve();
+
+      return _serverGet(serverKey)
+        .then(function (val) {
+          if (val !== undefined && val !== null) {
+            // Merge strategy: server wins for agent-created data
+            _localSet(localKey, val);
+          }
+        })
+        .catch(function () {
+          // Keep local data on failure
+        });
+    });
+
+    return Promise.all(promises).then(function () {
+      _synced = true;
+      console.log('[CompanyStore] Synced', keysToSync.length, 'keys from server');
+      _syncListeners.forEach(function (cb) { cb(); });
+      _syncListeners = [];
+    });
+  }
+
   // ── Logs API ──
   function appendLog(logEvent) {
     // Always append locally
@@ -261,6 +306,8 @@ var CompanyStore = (function () {
     setState: setState,
     getStateSync: getStateSync,
     setStateSync: setStateSync,
+    syncFromServer: syncFromServer,
+    onSync: onSync,
     appendLog: appendLog,
     getLogs: getLogs,
     getMorningReport: getMorningReport,

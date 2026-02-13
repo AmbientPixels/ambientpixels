@@ -82,10 +82,14 @@ var AgentEngine = (function () {
   function loadRegistry() {
     if (_registry) return Promise.resolve(_registry);
 
-    // Init CompanyStore in parallel (non-blocking server probe)
+    // Init CompanyStore in parallel (non-blocking server probe + sync)
     if (typeof CompanyStore !== 'undefined' && CompanyStore.init) {
       CompanyStore.init().then(function () {
         emit('store-ready', { mode: CompanyStore.getMode() });
+        // Pull server state into localStorage so agent-created data shows up
+        return CompanyStore.syncFromServer();
+      }).then(function () {
+        emit('sync-complete', { mode: CompanyStore.getMode() });
       });
     }
 

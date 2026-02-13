@@ -284,6 +284,12 @@
 
       AgentEngine.on('store-ready', updateStoreModeBadge);
 
+      // Re-render when server sync pulls in heartbeat/agent data
+      AgentEngine.on('sync-complete', function () {
+        renderAll();
+        updateStoreModeBadge();
+      });
+
       document.getElementById('dash-refresh').addEventListener('click', renderAll);
 
       // Live updates
