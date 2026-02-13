@@ -258,7 +258,8 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
           status: action.task.status || 'backlog',
           priority: action.task.priority || 'medium',
           assignee: action.task.assignee || agentId,
-          division: action.task.division || null
+          division: action.task.division || null,
+          dueDate: action.task.dueDate || null
         }
       });
     } else if (action.type === 'update-task' && action.taskId) {
@@ -335,6 +336,13 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
 
       context.log('[Heartbeat]', agentId, 'created social action:', newAction.id, newAction.type, newAction.platform);
       result.taskUpdates.push({ action: 'social-action-created', actionId: newAction.id, agentId: agentId });
+    } else if (action.type === 'comment-task' && action.taskId && action.comment) {
+      result.taskUpdates.push({
+        action: 'comment',
+        taskId: action.taskId,
+        comment: action.comment,
+        agentId: agentId
+      });
     } else if (action.type === 'review-task' && action.taskId) {
       // Review: agent reviews another agent's deliverable (costs 1 extra Gemini call)
       const task = tasks.find(t => t.id === action.taskId && t.status === 'review');
@@ -406,24 +414,26 @@ Respond with ONLY valid JSON in this exact format:
   "observation": "One sentence about what you notice or your current state",
   "actions": [
     {
-      "type": "create-task|update-task|move-task|execute-task|review-task|create-social-action",
+      "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action",
       "summary": "Brief description of what you're doing",
-      "task": { "title": "", "description": "", "priority": "low|medium|high|critical", "assignee": "agentId" },
+      "task": { "title": "", "description": "", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z" },
       "taskId": "existing-task-id",
-      "updates": { "description": "..." },
+      "updates": { "description": "...", "assignee": "agentId", "priority": "high", "dueDate": "2026-02-20T00:00:00Z" },
       "newStatus": "todo|in-progress|review|done",
+      "comment": "Your comment text here",
       "social": { "text": "Post content", "platform": "x|linkedin|bluesky", "media": ["https://..."], "scheduled_for": "2026-02-14T09:00:00Z" }
     }
   ]
 }
 
 Action types:
-- create-task: Create a new task on the board
-- update-task: Change a task's description, priority, or assignee
-- move-task: Move a task to a new status column
+- create-task: Create a new task. Include "task" with title, description, priority, assignee (agent id), and dueDate (ISO datetime, realistic: 1-7 days out).
+- update-task: Update an existing task. Provide taskId and "updates" with any of: description, assignee, priority, dueDate, tags.
+- move-task: Move a task to a new status column. Provide taskId and newStatus.
 - execute-task: Pick up one of YOUR in-progress or todo tasks and produce actual work output (a report, analysis, draft, recommendation, audit, etc). This will generate a deliverable and move the task to review.
-- review-task: Review a completed deliverable from another agent's task that is in the review column. You'll evaluate their work and either approve it (done) or request changes (back to in-progress).
-- create-social-action: (Marketing/Echo) Draft a social media post that will be routed through CEO approval before publishing. Include a "social" object with: text (the post content, max 280 chars for X, 300 for Bluesky, 3000 for LinkedIn), platform ("x", "linkedin", or "bluesky"), and optionally media (array of image URLs) and scheduled_for (ISO datetime for scheduled posts).
+- review-task: Review a completed deliverable from another agent's task in the review column. Approve (done) or request changes (back to in-progress).
+- comment-task: Add a comment to any task. Provide taskId and "comment" string. Use for status updates, delegation notes, questions, or flagging blockers.
+- create-social-action: (Marketing/Echo) Draft a social media post routed through CEO approval. Include "social" with: text (max 280 for X, 300 for Bluesky, 3000 for LinkedIn), platform ("x"|"linkedin"|"bluesky"), optionally media (URLs) and scheduled_for (ISO datetime).
 
 Rules:
 - actions array can be empty if nothing needs doing
@@ -434,7 +444,18 @@ Rules:
 - Prefer execute-task on your own in-progress tasks when you have work to do
 - Review other agents' work when tasks are waiting in review
 - Keep observations brief and factual
-- Echo (Marketing): You can use create-social-action to draft social posts. All posts require CEO approval before publishing. Keep brand voice consistent, professional, and forward-looking. Include relevant context about AmbientPixels.`;
+- When creating tasks, always set an assignee and a realistic dueDate
+- Use update-task to assign unassigned tasks, adjust priorities, or set missing due dates
+- Use comment-task to leave delegation notes, ask questions, or flag blockers` + (agent.name === 'Nova' ? `
+- PRIME OPERATOR DUTIES (Nova): You are the operational lead. Actively manage the board:
+  - Assign unassigned tasks to the right agent based on their role and focus
+  - Set due dates on tasks that lack them (realistic timeframes: 1-7 days)
+  - Re-prioritize tasks based on company objectives and urgency
+  - Leave delegation comments when assigning (explain what you need and by when)
+  - Move stale tasks forward or flag blockers with comment-task
+  - Review other agents' deliverables promptly
+  - Keep the board clean: close completed work, reassign stuck tasks` : '') + `
+- Echo (Marketing): Use create-social-action to draft social posts. All posts require CEO approval. Keep brand voice consistent, professional, and forward-looking.`;
 }
 
 // ── Apply task mutation ──
@@ -460,7 +481,7 @@ function applyTaskUpdate(tasks, update, _pendingEscalations) {
       assignee: update.task.assignee || null,
       division: update.task.division || null,
       tags: [],
-      dueDate: null,
+      dueDate: update.task.dueDate || null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       completedAt: null,
@@ -536,6 +557,23 @@ function applyTaskUpdate(tasks, update, _pendingEscalations) {
           tasks[i].status = 'in-progress';
           tasks[i].completedAt = null;
         }
+        tasks[i].updatedAt = new Date().toISOString();
+        return tasks[i];
+      }
+    }
+  }
+
+  if (update.action === 'comment') {
+    for (let i = 0; i < tasks.length; i++) {
+      if (tasks[i].id === update.taskId) {
+        if (!tasks[i].comments) tasks[i].comments = [];
+        tasks[i].comments.push({
+          id: 'cmt-' + Date.now(),
+          author: update.agentId || 'unknown',
+          text: update.comment || '',
+          type: 'comment',
+          createdAt: new Date().toISOString()
+        });
         tasks[i].updatedAt = new Date().toISOString();
         return tasks[i];
       }
