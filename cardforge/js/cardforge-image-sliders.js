@@ -21,6 +21,11 @@
 
     if (!posX || !posY) return;
 
+    // Set CSS vars on the persistent .card-preview-zone so they survive
+    // innerHTML rebuilds and never flicker.  CSS custom properties inherit
+    // down to .card-avatar automatically.
+    const previewZone = document.querySelector('.card-preview-zone');
+
     function applyImageTransform() {
       const x = posX.value;
       const y = posY.value;
@@ -30,12 +35,11 @@
       if (posYVal) posYVal.textContent = y + '%';
       if (zoomVal) zoomVal.textContent = (zoom ? zoom.value : 100) + '%';
 
-      const avatars = document.querySelectorAll('.card-preview-zone .card-avatar');
-      avatars.forEach(function (avatar) {
-        avatar.style.setProperty('--cf-avatar-pos-x', x + '%');
-        avatar.style.setProperty('--cf-avatar-pos-y', y + '%');
-        avatar.style.setProperty('--cf-avatar-scale', z);
-      });
+      if (previewZone) {
+        previewZone.style.setProperty('--cf-avatar-pos-x', x + '%');
+        previewZone.style.setProperty('--cf-avatar-pos-y', y + '%');
+        previewZone.style.setProperty('--cf-avatar-scale', z);
+      }
     }
 
     posX.addEventListener('input', applyImageTransform);
@@ -49,17 +53,6 @@
         if (zoom) zoom.value = 100;
         applyImageTransform();
       });
-    }
-
-    // Re-apply after card preview rebuilds
-    const previewZone = document.querySelector('.card-preview-zone');
-    if (previewZone) {
-      let debounce = null;
-      const observer = new MutationObserver(function () {
-        clearTimeout(debounce);
-        debounce = setTimeout(applyImageTransform, 60);
-      });
-      observer.observe(previewZone, { childList: true, subtree: true });
     }
   }
 
