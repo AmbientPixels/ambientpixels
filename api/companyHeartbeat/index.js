@@ -435,6 +435,34 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
           });
         }
       }
+    } else if (action.type === 'create-doc' && action.document) {
+      // Create a documentation draft — stored in documents store
+      const docPayload = action.document;
+      const VALID_DOC_KINDS = ['spec', 'runbook', 'release_notes', 'product_brief', 'marketing_post', 'governance'];
+      const kind = docPayload.kind || 'product_brief';
+
+      if (docPayload.title && VALID_DOC_KINDS.indexOf(kind) !== -1) {
+        const doc = {
+          id: 'doc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+          title: docPayload.title,
+          kind: kind,
+          status: 'draft',
+          tags: Array.isArray(docPayload.tags) ? docPayload.tags : [],
+          created_by: agentId,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          content_md: docPayload.content_md || '',
+          source: { action_id: null, task_id: null }
+        };
+
+        const docsStore = (await storage.getState('documents')) || [];
+        docsStore.push(doc);
+        if (docsStore.length > 500) docsStore.splice(0, docsStore.length - 500);
+        await storage.setState('documents', docsStore);
+
+        context.log('[Heartbeat]', agentId, 'created doc draft:', doc.id, doc.title);
+        result.taskUpdates.push({ action: 'doc-created', documentId: doc.id, agentId: agentId });
+      }
     }
 
     await logEvent('agent-action', agentId, summary, cycleId);
@@ -491,14 +519,15 @@ Respond with ONLY valid JSON in this exact format:
   "observation": "One sentence about what you notice or your current state",
   "actions": [
     {
-      "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action",
+      "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|create-doc",
       "summary": "Brief description of what you're doing",
       "task": { "title": "", "description": "", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z" },
       "taskId": "existing-task-id",
       "updates": { "description": "...", "assignee": "agentId", "priority": "high", "dueDate": "2026-02-20T00:00:00Z" },
       "newStatus": "todo|in-progress|review|done",
       "comment": "Your comment text here",
-      "social": { "text": "Post content", "platform": "x|linkedin|bluesky", "media": ["https://..."], "scheduled_for": "2026-02-14T09:00:00Z" }
+      "social": { "text": "Post content", "platform": "x|linkedin|bluesky", "media": ["https://..."], "scheduled_for": "2026-02-14T09:00:00Z" },
+      "document": { "title": "Doc Title", "kind": "spec|runbook|release_notes|product_brief|marketing_post|governance", "tags": ["tag1"], "content_md": "# Heading\n\nMarkdown content..." }
     }
   ]
 }
@@ -511,6 +540,7 @@ Action types:
 - review-task: Review a completed deliverable from another agent's task in the review column. Approve (done) or request changes (back to in-progress).
 - comment-task: Add a comment to any task. Provide taskId and "comment" string. Use for status updates, delegation notes, questions, or flagging blockers.
 - create-social-action: (Marketing/Echo) Draft a social media post routed through CEO approval. Include "social" with: text (max 280 for X, 300 for Bluesky, 3000 for LinkedIn), platform ("x"|"linkedin"|"bluesky"), optionally media (URLs) and scheduled_for (ISO datetime).
+- create-doc: Create a documentation draft. Include "document" with: title (string), kind ("spec"|"runbook"|"release_notes"|"product_brief"|"marketing_post"|"governance"), tags (array of strings), and content_md (full markdown content). Docs are created as drafts and require CEO approval to finalize.
 
 Rules:
 - actions array can be empty if nothing needs doing
@@ -536,11 +566,12 @@ Rules:
   - When in doubt, observe and comment rather than change — avoid oscillation` : '') + (agent.name === 'Scribe' ? `
 - SUB-AGENT RESTRICTIONS (Scribe — Tier 4, reports to Echo):
   - You are a draft writer. Your job is to produce longform content: product briefs, blog drafts, doc drafts, social threads.
-  - ALLOWED actions: execute-task, comment-task, create-task (only content drafting tasks assigned to yourself), review-task (only when asked)
+  - ALLOWED actions: execute-task, comment-task, create-task (only content drafting tasks assigned to yourself), review-task (only when asked), create-doc (documentation drafts only)
   - FORBIDDEN actions: create-social-action, update-task (assignee/priority changes), move-task to done
   - You CANNOT publish anything directly — all output stays as task deliverables for Echo to review
   - You CANNOT approve anything or escalate to the CEO
   - You CANNOT modify directives or objectives
+  - When creating docs with create-doc, always use proper markdown with clear headings, structured sections, and professional tone
   - Focus on executing your assigned tasks with high-quality drafts. When done, the task moves to review for Echo.` : '') + (agent.name === 'Quill' ? `
 - SUB-AGENT RESTRICTIONS (Quill — Tier 4, reports to Echo):
   - You are an editor and brand voice enforcer. Your job is to review and refine drafts for tone, clarity, compression, and CTA quality.

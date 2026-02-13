@@ -33,7 +33,8 @@ var CompanyStore = (function () {
     'ap_action_queue':       'actionQueue',
     'ap_action_audit_log':   'actionAuditLog',
     'ap_action_rate_counts': 'actionRateCounts',
-    'ap_actions':            'actions'
+    'ap_actions':            'actions',
+    'ap_documents':          'documents'
   };
 
   // Reverse map
