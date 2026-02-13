@@ -123,18 +123,35 @@
       });
   }
 
-  // Group dreams by date and render with date headers
+  // Group dreams by date, show only the last 3 per day (one night's batch)
   function renderDreams(container, allDreams, isAI) {
     container.innerHTML = '';
 
-    // Show the last 7 days of dreams (most recent first)
-    var recent = allDreams.slice(-21).reverse(); // max ~3 per day × 7 days
+    // Deduplicate by date — keep only the 3 most recent per calendar day
+    var byDate = {};
+    allDreams.forEach(function (d) {
+      var day = d.timestamp ? d.timestamp.split('T')[0] : 'unknown';
+      if (!byDate[day]) byDate[day] = [];
+      byDate[day].push(d);
+    });
+
+    // For each date, keep only the last 3 entries (one night's batch)
+    var filtered = [];
+    Object.keys(byDate).sort().reverse().slice(0, 7).forEach(function (day) {
+      var dayDreams = byDate[day].slice(-3); // last 3 from that day
+      filtered = filtered.concat(dayDreams);
+    });
+
+    // Show newest first
+    filtered.sort(function (a, b) {
+      return new Date(b.timestamp || 0) - new Date(a.timestamp || 0);
+    });
+
     var lastDateLabel = '';
 
-    recent.forEach(function (d) {
+    filtered.forEach(function (d) {
       var dateLabel = formatDreamDate(d.timestamp);
 
-      // Insert date header when the date changes
       if (dateLabel && dateLabel !== lastDateLabel) {
         var header = document.createElement('li');
         header.className = 'nova-dream-date-header';
