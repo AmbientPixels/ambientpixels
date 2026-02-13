@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Document Center — central hub for all company documentation." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Document Center — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <style>
+    .doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .doc-card {
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.02);
+      padding: 1.2rem;
+      transition: border-color 0.2s, background 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .doc-card:hover {
+      border-color: rgba(138,43,226,0.25);
+      background: rgba(138,43,226,0.03);
+    }
+    .doc-card-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+    .doc-card-title { font-size: 0.9rem; font-weight: 600; }
+    .doc-card-desc { font-size: 0.72rem; opacity: 0.5; line-height: 1.5; }
+    .doc-card-meta { display: flex; gap: 0.6rem; align-items: center; margin-top: auto; }
+    .doc-card-badge {
+      font-size: 0.55rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 3px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .doc-card-date { font-size: 0.6rem; opacity: 0.3; }
+
+    .doc-section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.35;
+      font-weight: 500;
+      margin-top: 2rem;
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .doc-section-title:first-of-type { margin-top: 0; }
+
+    .doc-empty {
+      text-align: center;
+      padding: 2rem;
+      opacity: 0.3;
+      font-size: 0.75rem;
+    }
+
+    .doc-stats {
+      display: flex; gap: 1.5rem; flex-wrap: wrap;
+      padding: 0.8rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      margin-bottom: 1rem;
+    }
+    .doc-stat { text-align: center; }
+    .doc-stat-value { font-size: 1.4rem; font-weight: 600; }
+    .doc-stat-label { font-size: 0.6rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.05em; }
+  </style>
+</head>
+<body style="background:#071019" data-theme="dark">
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/modules/company/" class="nav-logo"><i class="fas fa-building"></i> AmbientPixels HQ</a>
+      <ul class="nav-links">
+        <li><a href="/modules/company/">HQ</a></li>
+        <li><a href="/modules/company/standup.html">Standup</a></li>
+        <li><a href="/modules/company/tasks.html">Tasks</a></li>
+        <li><a href="/modules/company/dashboard.html">Dashboard</a></li>
+        <li><a href="/modules/company/directives.html">Directives</a></li>
+        <li><a href="/modules/company/objectives.html">Objectives</a></li>
+        <li><a href="/modules/company/documents.html" class="active">Docs</a></li>
+        <li><a href="/modules/company/workspace.html">Workspace</a></li>
+        <li><a href="/" style="opacity:0.4;"><i class="fas fa-globe"></i></a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
+
+    <div class="company-header">
+      <h1><i class="fas fa-folder-open" style="opacity:0.4; margin-right:8px; color:#FFD700;"></i>Document Center</h1>
+      <p>Central repository for all AmbientPixels company documentation, policies, and reference material.</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="doc-stats" id="doc-stats">
+      <div class="doc-stat">
+        <div class="doc-stat-value" id="stat-total">1</div>
+        <div class="doc-stat-label">Documents</div>
+      </div>
+      <div class="doc-stat">
+        <div class="doc-stat-value" style="color:#FFD700;" id="stat-governance">1</div>
+        <div class="doc-stat-label">Governance</div>
+      </div>
+      <div class="doc-stat">
+        <div class="doc-stat-value" style="color:#8A2BE2;" id="stat-policy">0</div>
+        <div class="doc-stat-label">Policy</div>
+      </div>
+      <div class="doc-stat">
+        <div class="doc-stat-value" style="color:#4ECDC4;" id="stat-reference">0</div>
+        <div class="doc-stat-label">Reference</div>
+      </div>
+      <div class="doc-stat">
+        <div class="doc-stat-value" style="color:#FF8C00;" id="stat-guide">0</div>
+        <div class="doc-stat-label">Guides</div>
+      </div>
+    </div>
+
+    <!-- Governance & Structure -->
+    <div class="doc-section-title">Governance & Structure</div>
+    <div class="doc-grid">
+
+      <a href="/modules/company/governance.html" class="doc-card">
+        <div class="doc-card-icon" style="background:rgba(255,215,0,0.08); color:#FFD700;">
+          <i class="fas fa-scroll"></i>
+        </div>
+        <div class="doc-card-title">Governance Document v1.0</div>
+        <div class="doc-card-desc">Organizational hierarchy, authority levels, decision classification, escalation rules, approval queue logic, override protocol, directive and objective lifecycles, and reporting flow.</div>
+        <div class="doc-card-meta">
+          <span class="doc-card-badge" style="background:rgba(255,215,0,0.1); color:#FFD700;">Governance</span>
+          <span class="doc-card-badge" style="background:rgba(52,211,153,0.1); color:#34d399;">Active</span>
+          <span class="doc-card-date">Feb 2026 · 9 sections</span>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- Policies (empty for now) -->
+    <div class="doc-section-title">Policies</div>
+    <div class="doc-grid" id="policy-grid">
+      <div class="doc-empty">No policy documents yet.</div>
+    </div>
+
+    <!-- Reference (empty for now) -->
+    <div class="doc-section-title">Reference & Technical</div>
+    <div class="doc-grid" id="reference-grid">
+      <div class="doc-empty">No reference documents yet.</div>
+    </div>
+
+    <!-- Guides (empty for now) -->
+    <div class="doc-section-title">Guides & Playbooks</div>
+    <div class="doc-grid" id="guide-grid">
+      <div class="doc-empty">No guides yet.</div>
+    </div>
+
+    <div style="text-align:center; padding:2rem 0; opacity:0.2; font-size:0.6rem;">
+      AmbientPixels Document Center — Everything documented, nothing lost.
+    </div>
+
+  </main>
+
+</body>
+</html>
