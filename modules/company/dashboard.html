@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Agent Task Manager — sessions, tokens, costs, and logs." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Task Manager — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+</head>
+<body style="background:#071019" data-theme="dark">
+
+  <!-- Nav -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo"><i class="fas fa-cube"></i> Ambient Pixels</a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/nova/">Nova</a></li>
+        <li><a href="/modules/company/">Company</a></li>
+        <li><a href="/modules/company/dashboard.html" class="active">Dashboard</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="content-section" style="max-width: 960px; margin: 0 auto; padding: 1rem;">
+
+    <!-- Header -->
+    <div class="dash-header">
+      <h1><i class="fas fa-tachometer-alt"></i> Task Manager</h1>
+      <div class="dash-header-actions">
+        <a href="/modules/company/" class="dash-refresh-btn"><i class="fas fa-arrow-left"></i> Back to HQ</a>
+        <button class="dash-refresh-btn" id="dash-refresh"><i class="fas fa-sync-alt"></i> Refresh</button>
+      </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="dash-stats" id="dash-stats">
+      <div class="dash-stat-card" style="--stat-color: #8A2BE2;">
+        <div class="dash-stat-label">Total Sessions</div>
+        <div class="dash-stat-value" id="stat-total-sessions">0</div>
+        <div class="dash-stat-sub" id="stat-total-sessions-sub">—</div>
+      </div>
+      <div class="dash-stat-card" style="--stat-color: #00C896;">
+        <div class="dash-stat-label">Active Now</div>
+        <div class="dash-stat-value" id="stat-active">0</div>
+        <div class="dash-stat-sub" id="stat-idle-count">0 idle</div>
+      </div>
+      <div class="dash-stat-card" style="--stat-color: #4ECDC4;">
+        <div class="dash-stat-label">Total Tokens</div>
+        <div class="dash-stat-value" id="stat-tokens">0</div>
+        <div class="dash-stat-sub" id="stat-tokens-sub">in / out</div>
+      </div>
+      <div class="dash-stat-card" style="--stat-color: #FF6B9D;">
+        <div class="dash-stat-label">Est. Cost</div>
+        <div class="dash-stat-value" id="stat-cost">$0.00</div>
+        <div class="dash-stat-sub" id="stat-cost-sub">lifetime</div>
+      </div>
+    </div>
+
+    <!-- Panels Grid -->
+    <div class="dash-grid">
+
+      <!-- Model Fleet -->
+      <div class="dash-panel">
+        <div class="dash-panel-header">
+          <span class="dash-panel-title"><i class="fas fa-microchip"></i> AI Model Fleet</span>
+        </div>
+        <div id="panel-fleet"></div>
+      </div>
+
+      <!-- Agent Status -->
+      <div class="dash-panel">
+        <div class="dash-panel-header">
+          <span class="dash-panel-title"><i class="fas fa-users"></i> Agent Status</span>
+          <span class="dash-panel-badge" id="agent-count-badge">5 agents</span>
+        </div>
+        <ul class="agent-status-list" id="panel-agent-status"></ul>
+      </div>
+
+      <!-- Active Sessions / Session Log -->
+      <div class="dash-panel dash-panel--full">
+        <div class="dash-panel-header">
+          <span class="dash-panel-title"><i class="fas fa-stream"></i> Session Log</span>
+          <span class="dash-panel-badge" id="session-count-badge">0 calls</span>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="session-table" id="panel-sessions">
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th>Mode</th>
+                <th>Tokens</th>
+                <th>Cost</th>
+                <th>Time</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="session-tbody"></tbody>
+          </table>
+          <div class="dash-empty" id="session-empty">No sessions recorded yet. Chat with an agent to see data here.</div>
+        </div>
+      </div>
+
+      <!-- Cron Log -->
+      <div class="dash-panel">
+        <div class="dash-panel-header">
+          <span class="dash-panel-title"><i class="fas fa-clock"></i> Cron Log</span>
+        </div>
+        <ul class="log-list" id="panel-cron"></ul>
+        <div class="dash-empty" id="cron-empty">No scheduled tasks have run yet.</div>
+      </div>
+
+      <!-- Overnight Log -->
+      <div class="dash-panel">
+        <div class="dash-panel-header">
+          <span class="dash-panel-title"><i class="fas fa-moon"></i> Today's Activity</span>
+        </div>
+        <ul class="log-list" id="panel-overnight"></ul>
+        <div class="dash-empty" id="overnight-empty">No activity today yet.</div>
+      </div>
+
+      <!-- Quick Chat -->
+      <div class="dash-panel dash-panel--full">
+        <div class="dash-panel-header">
+          <span class="dash-panel-title"><i class="fas fa-terminal"></i> Quick Chat</span>
+        </div>
+        <div class="dash-chat">
+          <div class="dash-chat-messages" id="dash-chat-messages"></div>
+          <div class="dash-chat-input-row">
+            <select class="dash-chat-select" id="dash-chat-agent">
+              <option value="nova">Nova</option>
+              <option value="cipher">Cipher</option>
+              <option value="pixel">Pixel</option>
+              <option value="forge">Forge</option>
+              <option value="echo">Echo</option>
+            </select>
+            <input type="text" class="dash-chat-input" id="dash-chat-input" placeholder="Ask any agent..." />
+            <button class="dash-chat-send" id="dash-chat-send"><i class="fas fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Transcript Modal -->
+  <div class="transcript-overlay" id="transcript-overlay">
+    <div class="transcript-modal">
+      <div class="transcript-header">
+        <h3 id="transcript-title">Session Transcript</h3>
+        <button class="transcript-close" id="transcript-close"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="transcript-messages" id="transcript-messages"></div>
+    </div>
+  </div>
+
+  <script src="/js/agent-engine.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      // ── DOM refs ──
+      var statSessions = document.getElementById('stat-total-sessions');
+      var statSessionsSub = document.getElementById('stat-total-sessions-sub');
+      var statActive = document.getElementById('stat-active');
+      var statIdle = document.getElementById('stat-idle-count');
+      var statTokens = document.getElementById('stat-tokens');
+      var statTokensSub = document.getElementById('stat-tokens-sub');
+      var statCost = document.getElementById('stat-cost');
+      var statCostSub = document.getElementById('stat-cost-sub');
+      var panelFleet = document.getElementById('panel-fleet');
+      var panelAgentStatus = document.getElementById('panel-agent-status');
+      var sessionTbody = document.getElementById('session-tbody');
+      var sessionEmpty = document.getElementById('session-empty');
+      var sessionCountBadge = document.getElementById('session-count-badge');
+      var panelCron = document.getElementById('panel-cron');
+      var cronEmpty = document.getElementById('cron-empty');
+      var panelOvernight = document.getElementById('panel-overnight');
+      var overnightEmpty = document.getElementById('overnight-empty');
+      var dashChatMessages = document.getElementById('dash-chat-messages');
+      var dashChatInput = document.getElementById('dash-chat-input');
+      var dashChatSend = document.getElementById('dash-chat-send');
+      var dashChatAgent = document.getElementById('dash-chat-agent');
+      var transcriptOverlay = document.getElementById('transcript-overlay');
+      var transcriptMessages = document.getElementById('transcript-messages');
+      var transcriptTitle = document.getElementById('transcript-title');
+      var transcriptClose = document.getElementById('transcript-close');
+
+      var _chatThinking = false;
+
+      // ── Init ──
+      AgentEngine.loadRegistry().then(function () {
+        renderAll();
+      });
+
+      document.getElementById('dash-refresh').addEventListener('click', renderAll);
+
+      // Live updates
+      AgentEngine.on('metrics-update', renderAll);
+
+      function renderAll() {
+        renderStats();
+        renderFleet();
+        renderAgentStatus();
+        renderSessions();
+        renderCronLog();
+        renderOvernightLog();
+      }
+
+      // ── Stat Cards ──
+      function renderStats() {
+        var m = AgentEngine.getMetrics();
+        var statuses = AgentEngine.getAgentStatuses();
+        var totalTokens = m.totalInputTokens + m.totalOutputTokens;
+
+        statSessions.textContent = m.totalMessages;
+        statSessionsSub.textContent = m.firstUsed ? 'since ' + shortDate(m.firstUsed) : '—';
+
+        statActive.textContent = statuses.active.length;
+        statIdle.textContent = statuses.idle.length + ' idle';
+
+        statTokens.textContent = formatNumber(totalTokens);
+        statTokensSub.textContent = formatNumber(m.totalInputTokens) + ' in / ' + formatNumber(m.totalOutputTokens) + ' out';
+
+        statCost.textContent = '$' + m.totalCost.toFixed(4);
+        statCostSub.textContent = 'Gemini 2.0 Flash';
+      }
+
+      // ── Model Fleet ──
+      function renderFleet() {
+        var fleet = AgentEngine.getModelFleet();
+        panelFleet.innerHTML = '';
+
+        fleet.forEach(function (model) {
+          var el = document.createElement('div');
+          el.className = 'fleet-item';
+          el.innerHTML =
+            '<div class="fleet-icon"><i class="fas fa-brain"></i></div>' +
+            '<div class="fleet-info">' +
+              '<div class="fleet-name">' + model.name + '</div>' +
+              '<div class="fleet-detail">' + model.provider + ' · ' + model.inputPrice + ' in / ' + model.outputPrice + ' out</div>' +
+              '<div class="fleet-detail">' + model.usage + '</div>' +
+            '</div>' +
+            '<span class="fleet-status fleet-status--' + model.status + '">' + model.status + '</span>';
+          panelFleet.appendChild(el);
+        });
+      }
+
+      // ── Agent Status ──
+      function renderAgentStatus() {
+        var statuses = AgentEngine.getAgentStatuses();
+        panelAgentStatus.innerHTML = '';
+        var agentStats = AgentEngine.getAgentSessionStats();
+
+        function addItem(agent, isActive) {
+          var stat = agentStats[agent.id];
+          var li = document.createElement('li');
+          li.className = 'agent-status-item';
+          li.innerHTML =
+            '<span class="agent-status-dot agent-status-dot--' + (isActive ? 'active' : 'idle') + '"></span>' +
+            '<span class="agent-status-name" style="color:' + agent.color + ';">' + agent.name + '</span>' +
+            '<span class="agent-status-role">' + agent.role + '</span>' +
+            '<span class="agent-status-meta">' + (stat ? stat.calls + ' calls' : 'no calls') + '</span>';
+          panelAgentStatus.appendChild(li);
+        }
+
+        statuses.active.forEach(function (s) { addItem(s.agent, true); });
+        statuses.idle.forEach(function (s) { addItem(s.agent, false); });
+      }
+
+      // ── Session Log ──
+      function renderSessions() {
+        var sessions = AgentEngine.getSessionLog().slice().reverse().slice(0, 30);
+        sessionTbody.innerHTML = '';
+        sessionEmpty.style.display = sessions.length === 0 ? '' : 'none';
+        sessionCountBadge.textContent = sessions.length + ' calls';
+
+        sessions.forEach(function (s) {
+          var agent = AgentEngine.getAgent(s.agentId);
+          var color = agent ? agent.color : '#8A2BE2';
+          var name = agent ? agent.name : s.agentId;
+
+          var tr = document.createElement('tr');
+          tr.innerHTML =
+            '<td><span class="session-agent-badge"><span class="session-agent-dot" style="background:' + color + ';"></span> ' + name + '</span></td>' +
+            '<td><span class="session-mode-tag">' + (s.mode || 'chat') + '</span></td>' +
+            '<td class="session-tokens">' + s.inputTokens + ' / ' + s.outputTokens + '</td>' +
+            '<td class="session-cost">$' + s.cost.toFixed(6) + '</td>' +
+            '<td class="session-time">' + formatTime(s.timestamp) + '</td>' +
+            '<td><button class="session-view-btn" data-agent="' + s.agentId + '"><i class="fas fa-eye"></i></button></td>';
+
+          // View transcript button
+          tr.querySelector('.session-view-btn').addEventListener('click', function () {
+            showTranscript(this.dataset.agent);
+          });
+
+          sessionTbody.appendChild(tr);
+        });
+      }
+
+      // ── Cron Log ──
+      function renderCronLog() {
+        var log = AgentEngine.getCronLog().slice().reverse().slice(0, 15);
+        panelCron.innerHTML = '';
+        cronEmpty.style.display = log.length === 0 ? '' : 'none';
+
+        log.forEach(function (entry) {
+          var agent = AgentEngine.getAgent(entry.agentId);
+          var li = document.createElement('li');
+          li.className = 'log-item';
+          li.innerHTML =
+            '<div class="log-icon log-icon--cron"><i class="fas fa-bolt"></i></div>' +
+            '<div class="log-body">' +
+              '<div class="log-text"><strong>' + (agent ? agent.name : entry.agentId) + '</strong> — ' + entry.task + ' <span style="opacity:0.4;">(' + entry.result + ')</span></div>' +
+              '<div class="log-time">' + formatTime(entry.timestamp) + '</div>' +
+            '</div>';
+          panelCron.appendChild(li);
+        });
+      }
+
+      // ── Overnight / Today Log ──
+      function renderOvernightLog() {
+        var overnight = AgentEngine.getOvernightLog();
+        panelOvernight.innerHTML = '';
+        var hasData = overnight.sessions.length > 0 || overnight.standups.length > 0;
+        overnightEmpty.style.display = hasData ? 'none' : '';
+
+        // Standups today
+        overnight.standups.forEach(function (standup) {
+          var li = document.createElement('li');
+          li.className = 'log-item';
+          li.innerHTML =
+            '<div class="log-icon log-icon--standup"><i class="fas fa-users"></i></div>' +
+            '<div class="log-body">' +
+              '<div class="log-text"><strong>Daily Standup</strong> — ' + standup.entries.length + ' agents participated</div>' +
+              '<div class="log-time">' + formatTime(standup.date) + '</div>' +
+            '</div>';
+          panelOvernight.appendChild(li);
+        });
+
+        // Group sessions by agent
+        var byAgent = {};
+        overnight.sessions.forEach(function (s) {
+          if (!byAgent[s.agentId]) byAgent[s.agentId] = { count: 0, tokens: 0 };
+          byAgent[s.agentId].count += 1;
+          byAgent[s.agentId].tokens += s.inputTokens + s.outputTokens;
+        });
+
+        Object.keys(byAgent).forEach(function (agentId) {
+          var agent = AgentEngine.getAgent(agentId);
+          var data = byAgent[agentId];
+          var li = document.createElement('li');
+          li.className = 'log-item';
+          li.innerHTML =
+            '<div class="log-icon log-icon--session"><i class="fas fa-comment"></i></div>' +
+            '<div class="log-body">' +
+              '<div class="log-text"><strong>' + (agent ? agent.name : agentId) + '</strong> — ' + data.count + ' calls, ~' + formatNumber(data.tokens) + ' tokens</div>' +
+              '<div class="log-time">today</div>' +
+            '</div>';
+          panelOvernight.appendChild(li);
+        });
+      }
+
+      // ── Transcript Viewer ──
+      function showTranscript(agentId) {
+        var agent = AgentEngine.getAgent(agentId);
+        var history = AgentEngine.getHistory(agentId);
+
+        transcriptTitle.textContent = (agent ? agent.name : agentId) + ' — Chat Transcript';
+        transcriptMessages.innerHTML = '';
+
+        if (history.length === 0) {
+          transcriptMessages.innerHTML = '<div class="dash-empty">No messages in this conversation yet.</div>';
+        } else {
+          history.slice(-20).forEach(function (turn) {
+            var div = document.createElement('div');
+            div.className = 'transcript-msg transcript-msg--' + (turn.role === 'user' ? 'user' : 'agent');
+            if (agent) div.style.setProperty('--agent-color', agent.color);
+            div.innerHTML =
+              '<div class="transcript-msg-label">' + (turn.role === 'user' ? 'You' : (agent ? agent.name : 'Agent')) + '</div>' +
+              '<div>' + escapeHtml(turn.text).replace(/\n/g, '<br>') + '</div>';
+            transcriptMessages.appendChild(div);
+          });
+        }
+
+        transcriptOverlay.classList.add('visible');
+      }
+
+      transcriptClose.addEventListener('click', function () {
+        transcriptOverlay.classList.remove('visible');
+      });
+
+      transcriptOverlay.addEventListener('click', function (e) {
+        if (e.target === transcriptOverlay) transcriptOverlay.classList.remove('visible');
+      });
+
+      // ── Quick Chat ──
+      dashChatSend.addEventListener('click', sendDashChat);
+      dashChatInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') sendDashChat();
+      });
+
+      function sendDashChat() {
+        var msg = dashChatInput.value.trim();
+        if (!msg || _chatThinking) return;
+
+        var agentId = dashChatAgent.value;
+        var agent = AgentEngine.getAgent(agentId);
+
+        dashChatInput.value = '';
+        addDashMsg('user', msg);
+
+        _chatThinking = true;
+        dashChatSend.disabled = true;
+
+        AgentEngine.chat(agentId, msg, 'chat').then(function (reply) {
+          _chatThinking = false;
+          dashChatSend.disabled = false;
+          if (reply) {
+            addDashMsg('agent', reply, agent);
+          } else {
+            addDashMsg('agent', '(no response)', agent);
+          }
+          // Refresh stats after chat
+          renderAll();
+        });
+      }
+
+      function addDashMsg(role, text, agent) {
+        var div = document.createElement('div');
+        div.className = 'dash-chat-msg dash-chat-msg--' + role;
+        div.textContent = text;
+        dashChatMessages.appendChild(div);
+        dashChatMessages.scrollTop = dashChatMessages.scrollHeight;
+      }
+
+      // ── Helpers ──
+      function formatNumber(n) {
+        if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+        if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+        return n.toString();
+      }
+
+      function formatTime(iso) {
+        if (!iso) return '—';
+        var d = new Date(iso);
+        var now = new Date();
+        if (d.toDateString() === now.toDateString()) {
+          return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        }
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' ' +
+               d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      }
+
+      function shortDate(iso) {
+        return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      }
+
+      function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+    })();
+  </script>
+
+</body>
+</html>

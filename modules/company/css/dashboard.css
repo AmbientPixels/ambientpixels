@@ -1,0 +1,619 @@
+/* ── Agent Task Manager Dashboard ── */
+
+.dash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 0 1rem;
+}
+
+.dash-header h1 {
+  font-size: 1.3rem;
+  font-weight: 500;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dash-header h1 i {
+  opacity: 0.4;
+}
+
+.dash-header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.dash-refresh-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.dash-refresh-btn:hover {
+  color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Stat Cards Row ── */
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.dash-stat-card {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.dash-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--stat-color, rgba(138, 43, 226, 0.4));
+}
+
+.dash-stat-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  opacity: 0.35;
+  margin-bottom: 0.4rem;
+}
+
+.dash-stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--stat-color, #c9a0ff);
+}
+
+.dash-stat-sub {
+  font-size: 0.65rem;
+  opacity: 0.3;
+  margin-top: 0.3rem;
+}
+
+/* ── Dashboard Panels Grid ── */
+.dash-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dash-panel {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 1rem;
+  min-height: 200px;
+}
+
+.dash-panel--full {
+  grid-column: 1 / -1;
+}
+
+.dash-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.dash-panel-title {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.5;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dash-panel-title i {
+  font-size: 0.7rem;
+}
+
+.dash-panel-badge {
+  font-size: 0.55rem;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ── Model Fleet ── */
+.fleet-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.fleet-item:last-child {
+  border-bottom: none;
+}
+
+.fleet-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(66, 133, 244, 0.1);
+  color: #4285F4;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.fleet-info {
+  flex: 1;
+}
+
+.fleet-name {
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.fleet-detail {
+  font-size: 0.65rem;
+  opacity: 0.35;
+  margin-top: 2px;
+}
+
+.fleet-status {
+  font-size: 0.6rem;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.fleet-status--active {
+  background: rgba(0, 200, 150, 0.12);
+  color: #00C896;
+}
+
+.fleet-status--idle {
+  background: rgba(255, 184, 0, 0.12);
+  color: #FFB800;
+}
+
+/* ── Agent Status List ── */
+.agent-status-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.agent-status-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0;
+  font-size: 0.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.agent-status-item:last-child {
+  border-bottom: none;
+}
+
+.agent-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.agent-status-dot--active {
+  background: #00C896;
+  box-shadow: 0 0 6px rgba(0, 200, 150, 0.4);
+}
+
+.agent-status-dot--idle {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.agent-status-name {
+  flex: 1;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+.agent-status-role {
+  font-size: 0.6rem;
+  opacity: 0.3;
+}
+
+.agent-status-meta {
+  font-size: 0.6rem;
+  opacity: 0.3;
+  text-align: right;
+}
+
+/* ── Session Log Table ── */
+.session-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.session-table th {
+  text-align: left;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.3;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-weight: 500;
+}
+
+.session-table td {
+  padding: 0.45rem 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  vertical-align: middle;
+}
+
+.session-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.session-agent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.session-agent-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.session-mode-tag {
+  font-size: 0.55rem;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.session-tokens {
+  font-family: monospace;
+  font-size: 0.65rem;
+  opacity: 0.5;
+}
+
+.session-cost {
+  font-family: monospace;
+  font-size: 0.65rem;
+  color: #00C896;
+}
+
+.session-time {
+  font-size: 0.6rem;
+  opacity: 0.3;
+}
+
+.session-view-btn {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.35);
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.6rem;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.session-view-btn:hover {
+  color: rgba(255, 255, 255, 0.7);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Cron / Overnight Log ── */
+.log-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.log-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  font-size: 0.78rem;
+}
+
+.log-item:last-child {
+  border-bottom: none;
+}
+
+.log-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  flex-shrink: 0;
+}
+
+.log-icon--cron {
+  background: rgba(255, 140, 0, 0.1);
+  color: #FF8C00;
+}
+
+.log-icon--session {
+  background: rgba(138, 43, 226, 0.1);
+  color: #8A2BE2;
+}
+
+.log-icon--standup {
+  background: rgba(0, 200, 150, 0.1);
+  color: #00C896;
+}
+
+.log-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.log-text {
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.log-time {
+  font-size: 0.6rem;
+  opacity: 0.25;
+  margin-top: 2px;
+}
+
+/* ── Transcript Modal ── */
+.transcript-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.transcript-overlay.visible {
+  display: flex;
+}
+
+.transcript-modal {
+  background: #0d1825;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.transcript-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.transcript-header h3 {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.transcript-close {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 4px;
+  transition: color 0.2s;
+}
+
+.transcript-close:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.transcript-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.transcript-msg {
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.transcript-msg--user {
+  background: rgba(138, 43, 226, 0.08);
+  border-left: 2px solid rgba(138, 43, 226, 0.3);
+}
+
+.transcript-msg--agent {
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 2px solid var(--agent-color, rgba(255, 255, 255, 0.1));
+}
+
+.transcript-msg-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  opacity: 0.35;
+  margin-bottom: 0.2rem;
+  font-weight: 500;
+}
+
+/* ── Dashboard Chat ── */
+.dash-chat {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 250px;
+}
+
+.dash-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.dash-chat-msg {
+  font-size: 0.78rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  line-height: 1.4;
+  max-width: 85%;
+}
+
+.dash-chat-msg--user {
+  align-self: flex-end;
+  background: rgba(138, 43, 226, 0.1);
+  border: 1px solid rgba(138, 43, 226, 0.15);
+}
+
+.dash-chat-msg--agent {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dash-chat-input-row {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.dash-chat-select {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.7rem;
+  padding: 4px 6px;
+  font-family: inherit;
+  outline: none;
+  width: 90px;
+}
+
+.dash-chat-input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: #fff;
+  font-size: 0.78rem;
+  font-family: inherit;
+  outline: none;
+}
+
+.dash-chat-input:focus {
+  border-color: rgba(138, 43, 226, 0.3);
+}
+
+.dash-chat-send {
+  background: rgba(138, 43, 226, 0.15);
+  border: 1px solid rgba(138, 43, 226, 0.25);
+  color: #c9a0ff;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.dash-chat-send:hover {
+  background: rgba(138, 43, 226, 0.25);
+}
+
+.dash-chat-send:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.dash-empty {
+  text-align: center;
+  opacity: 0.25;
+  font-size: 0.78rem;
+  font-style: italic;
+  padding: 2rem 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .dash-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .session-table {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dash-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+}

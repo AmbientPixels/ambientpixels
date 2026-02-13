@@ -125,6 +125,9 @@ var AgentEngine = (function () {
       state.history.push({ role: 'agent', text: reply, timestamp: new Date().toISOString() });
       _persistAgentHistory(agentId);
 
+      // Track metrics
+      _trackCall(agentId, mode || 'chat', message, reply);
+
       emit('response', { agentId: agentId, reply: reply, mode: data.mode });
       emit('thinking', { agentId: agentId, thinking: false });
 
@@ -185,6 +188,173 @@ var AgentEngine = (function () {
     });
 
     return summary;
+  }
+
+  // ── Metrics & Session Tracking ──
+  var METRICS_KEY = 'ap_metrics';
+  var SESSION_LOG_KEY = 'ap_session_log';
+  var CRON_LOG_KEY = 'ap_cron_log';
+  var MAX_SESSIONS = 100;
+  var MAX_CRON = 50;
+
+  // Gemini 2.0 Flash pricing (per 1M tokens)
+  var PRICING = {
+    model: 'gemini-2.0-flash',
+    inputPer1M: 0.10,
+    outputPer1M: 0.40
+  };
+
+  function _loadMetrics() {
+    return _loadStorage(METRICS_KEY, {
+      totalSessions: 0,
+      totalMessages: 0,
+      totalInputTokens: 0,
+      totalOutputTokens: 0,
+      totalCost: 0,
+      firstUsed: null,
+      lastUsed: null
+    });
+  }
+
+  function _saveMetrics(m) {
+    _saveStorage(METRICS_KEY, m);
+  }
+
+  // Rough token estimate: ~4 chars per token for English
+  function _estimateTokens(text) {
+    if (!text) return 0;
+    return Math.ceil(text.length / 4);
+  }
+
+  function _estimateCost(inputTokens, outputTokens) {
+    return ((inputTokens / 1000000) * PRICING.inputPer1M) +
+           ((outputTokens / 1000000) * PRICING.outputPer1M);
+  }
+
+  // Track a completed API call
+  function _trackCall(agentId, mode, inputText, outputText) {
+    var metrics = _loadMetrics();
+    var inputTokens = _estimateTokens(inputText);
+    var outputTokens = _estimateTokens(outputText);
+    var cost = _estimateCost(inputTokens, outputTokens);
+
+    metrics.totalMessages += 1;
+    metrics.totalInputTokens += inputTokens;
+    metrics.totalOutputTokens += outputTokens;
+    metrics.totalCost += cost;
+    metrics.lastUsed = new Date().toISOString();
+    if (!metrics.firstUsed) metrics.firstUsed = metrics.lastUsed;
+
+    _saveMetrics(metrics);
+
+    // Log session entry
+    var sessions = _loadStorage(SESSION_LOG_KEY, []);
+    sessions.push({
+      id: 'call-' + Date.now(),
+      agentId: agentId,
+      mode: mode,
+      inputTokens: inputTokens,
+      outputTokens: outputTokens,
+      cost: cost,
+      timestamp: new Date().toISOString()
+    });
+    if (sessions.length > MAX_SESSIONS) sessions = sessions.slice(-MAX_SESSIONS);
+    _saveStorage(SESSION_LOG_KEY, sessions);
+
+    emit('metrics-update', { metrics: metrics, latest: sessions[sessions.length - 1] });
+  }
+
+  // Log a cron/automation event
+  function logCron(agentId, taskName, result) {
+    var log = _loadStorage(CRON_LOG_KEY, []);
+    log.push({
+      agentId: agentId,
+      task: taskName,
+      result: result || 'completed',
+      timestamp: new Date().toISOString()
+    });
+    if (log.length > MAX_CRON) log = log.slice(-MAX_CRON);
+    _saveStorage(CRON_LOG_KEY, log);
+    emit('cron-logged', log[log.length - 1]);
+  }
+
+  function getMetrics() {
+    return _loadMetrics();
+  }
+
+  function getSessionLog() {
+    return _loadStorage(SESSION_LOG_KEY, []);
+  }
+
+  function getCronLog() {
+    return _loadStorage(CRON_LOG_KEY, []);
+  }
+
+  function getModelFleet() {
+    return [{
+      id: 'gemini-2.0-flash',
+      name: 'Gemini 2.0 Flash',
+      provider: 'Google',
+      status: 'active',
+      usage: 'All agents — chat, standup, tasks, reports',
+      inputPrice: '$0.10 / 1M tokens',
+      outputPrice: '$0.40 / 1M tokens'
+    }];
+  }
+
+  // Get per-agent session breakdown
+  function getAgentSessionStats() {
+    var sessions = _loadStorage(SESSION_LOG_KEY, []);
+    var stats = {};
+
+    sessions.forEach(function (s) {
+      if (!stats[s.agentId]) {
+        stats[s.agentId] = { calls: 0, inputTokens: 0, outputTokens: 0, cost: 0, lastCall: null };
+      }
+      stats[s.agentId].calls += 1;
+      stats[s.agentId].inputTokens += s.inputTokens;
+      stats[s.agentId].outputTokens += s.outputTokens;
+      stats[s.agentId].cost += s.cost;
+      stats[s.agentId].lastCall = s.timestamp;
+    });
+
+    return stats;
+  }
+
+  // Get active (recent) and idle agents
+  function getAgentStatuses() {
+    var result = { active: [], idle: [] };
+    if (!_registry) return result;
+
+    var agentStats = getAgentSessionStats();
+    var fiveMinAgo = Date.now() - (5 * 60 * 1000);
+
+    _registry.agents.forEach(function (agent) {
+      var stat = agentStats[agent.id];
+      var lastActive = stat && stat.lastCall ? new Date(stat.lastCall).getTime() : 0;
+
+      if (lastActive > fiveMinAgo || (_standupRunning && true)) {
+        result.active.push({ agent: agent, stat: stat });
+      } else {
+        result.idle.push({ agent: agent, stat: stat });
+      }
+    });
+
+    return result;
+  }
+
+  // Overnight log — all activity since midnight
+  function getOvernightLog() {
+    var sessions = _loadStorage(SESSION_LOG_KEY, []);
+    var standups = _loadStandupLog();
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var todayMs = today.getTime();
+
+    return {
+      sessions: sessions.filter(function (s) { return new Date(s.timestamp).getTime() >= todayMs; }),
+      standups: standups.filter(function (s) { return new Date(s.date).getTime() >= todayMs; })
+    };
   }
 
   // ── Daily Standup System ──
@@ -325,7 +495,9 @@ var AgentEngine = (function () {
       return res.json();
     })
     .then(function (data) {
-      return data.reply || '';
+      var reply = data.reply || '';
+      _trackCall(agentId, 'standup', contextMessage, reply);
+      return reply;
     })
     .catch(function (err) {
       console.error('[AgentEngine] Standup call failed for ' + agentId + ':', err);
@@ -352,6 +524,14 @@ var AgentEngine = (function () {
     hasStandupToday: hasStandupToday,
     getStandupLog: getStandupLog,
     getLatestStandup: getLatestStandup,
-    isStandupRunning: isStandupRunning
+    isStandupRunning: isStandupRunning,
+    getMetrics: getMetrics,
+    getSessionLog: getSessionLog,
+    getCronLog: getCronLog,
+    logCron: logCron,
+    getModelFleet: getModelFleet,
+    getAgentSessionStats: getAgentSessionStats,
+    getAgentStatuses: getAgentStatuses,
+    getOvernightLog: getOvernightLog
   };
 })();
