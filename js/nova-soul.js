@@ -353,8 +353,11 @@ const NovaSoul = (function () {
   }
 
   // Wake Nova up — initial ping + mood generation
+  var _waking = false;
   async function wake() {
     if (_isAwake) return _currentMood;
+    if (_waking) return null; // Prevent concurrent wake calls
+    _waking = true;
 
     console.log('[NovaSoul] Waking Nova...');
     emit('waking', true);
