@@ -385,8 +385,8 @@ var AgentEngine = (function () {
   var MAX_STANDUPS = 14; // keep 2 weeks of standups
   var _standupRunning = false;
 
-  // Standup speaking order: department heads first, CEO last to summarize
-  var STANDUP_ORDER = ['cipher', 'pixel', 'forge', 'echo', 'nova'];
+  // Standup speaking order: Prime Operator opens, dept heads report, Prime Operator closes
+  var STANDUP_ORDER = ['nova', 'forge', 'pixel', 'cipher', 'echo', 'nova'];
 
   function _loadStandupLog() {
     return _loadStorage(STANDUP_KEY, []);
@@ -447,9 +447,9 @@ var AgentEngine = (function () {
         // Build context message
         var context = '';
         if (index === 0) {
-          context = 'You are first to speak in today\'s standup. No one else has spoken yet.';
-        } else if (agentId === 'nova') {
-          context = 'You are the last to speak. As CEO, wrap up the standup — briefly summarize what the team said, call out anything important, and set the tone for the day. Here are the team updates so far:\n\n' + transcript;
+          context = 'You are opening today\'s standup as Prime Operator. Set the agenda, state top priorities, and flag anything the team needs to address. No one else has spoken yet.';
+        } else if (agentId === 'nova' && index > 0) {
+          context = 'You are closing the standup as Prime Operator. Summarize what the team reported, flag items that need CEO attention or escalation, assign follow-ups, and note anything for the CEO briefing. Here are the team updates:\n\n' + transcript;
         } else {
           context = 'Here are the updates from team members who already spoke:\n\n' + transcript;
         }
@@ -855,6 +855,176 @@ var AgentEngine = (function () {
     return stats;
   }
 
+  // ── Governance: Directives ──
+  var DIRECTIVES_KEY = 'ap_directives';
+  function getDirectives() { return _loadStorage(DIRECTIVES_KEY, []); }
+  function addDirective(dir) {
+    var list = getDirectives();
+    if (!dir.id) dir.id = 'dir-' + Date.now();
+    if (!dir.createdDate) dir.createdDate = new Date().toISOString();
+    if (!dir.status) dir.status = 'active';
+    if (!dir.linkedObjectives) dir.linkedObjectives = [];
+    if (!dir.linkedTasks) dir.linkedTasks = [];
+    list.push(dir);
+    _saveStorage(DIRECTIVES_KEY, list);
+    _logGovernance('directive-created', { directiveId: dir.id, title: dir.title });
+    return dir;
+  }
+  function updateDirective(id, updates) {
+    var list = getDirectives();
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === id) {
+        Object.keys(updates).forEach(function (k) { if (k !== 'id') list[i][k] = updates[k]; });
+        _saveStorage(DIRECTIVES_KEY, list);
+        return list[i];
+      }
+    }
+    return null;
+  }
+
+  // ── Governance: Objectives ──
+  var OBJECTIVES_KEY = 'ap_objectives';
+  function getObjectives() { return _loadStorage(OBJECTIVES_KEY, []); }
+  function addObjective(obj) {
+    var list = getObjectives();
+    if (!obj.id) obj.id = 'obj-' + Date.now();
+    if (!obj.status) obj.status = 'on_track';
+    if (!obj.progressPercentage) obj.progressPercentage = 0;
+    if (!obj.owner) obj.owner = 'nova';
+    if (!obj.linkedTasks) obj.linkedTasks = [];
+    list.push(obj);
+    _saveStorage(OBJECTIVES_KEY, list);
+    _logGovernance('objective-created', { objectiveId: obj.id, title: obj.title });
+    return obj;
+  }
+  function updateObjective(id, updates) {
+    var list = getObjectives();
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === id) {
+        Object.keys(updates).forEach(function (k) { if (k !== 'id') list[i][k] = updates[k]; });
+        _saveStorage(OBJECTIVES_KEY, list);
+        return list[i];
+      }
+    }
+    return null;
+  }
+
+  // ── Governance: Approval Queue ──
+  var APPROVAL_KEY = 'ap_approval_queue';
+  function getApprovalQueue() { return _loadStorage(APPROVAL_KEY, []); }
+  function _saveApprovalQueue(queue) { _saveStorage(APPROVAL_KEY, queue); }
+
+  function submitForApproval(taskId, recommendation) {
+    var task = getTask(taskId);
+    if (!task) return null;
+    var queue = getApprovalQueue();
+    // Prevent duplicates
+    if (queue.some(function (q) { return q.taskId === taskId && q.status === 'pending'; })) return null;
+    var entry = {
+      id: 'appr-' + Date.now(),
+      taskId: taskId,
+      taskTitle: task.title,
+      originAgent: task.assignee || 'nova',
+      riskLevel: task.risk_level || 'low',
+      budgetImpact: task.budget_impact || 0,
+      brandImpact: task.brand_impact || 'low',
+      classification: task.classification || 'advisory',
+      proposedDeadline: task.dueDate || null,
+      recommendation: recommendation || '',
+      status: 'pending',
+      submittedAt: new Date().toISOString(),
+      resolvedAt: null,
+      ceoDecision: null
+    };
+    queue.push(entry);
+    _saveApprovalQueue(queue);
+    // Mark task as requiring approval
+    updateTask(taskId, { requires_ceo_approval: true, escalated: true });
+    _logGovernance('escalation', { taskId: taskId, title: task.title, classification: entry.classification });
+    return entry;
+  }
+
+  function ceoApprove(approvalId) {
+    var queue = getApprovalQueue();
+    for (var i = 0; i < queue.length; i++) {
+      if (queue[i].id === approvalId) {
+        queue[i].status = 'approved';
+        queue[i].resolvedAt = new Date().toISOString();
+        queue[i].ceoDecision = 'approved';
+        _saveApprovalQueue(queue);
+        // Unlock task
+        updateTask(queue[i].taskId, { requires_ceo_approval: false, escalated: false });
+        _logGovernance('ceo-approval', { taskId: queue[i].taskId, title: queue[i].taskTitle });
+        return queue[i];
+      }
+    }
+    return null;
+  }
+
+  function ceoReject(approvalId) {
+    var queue = getApprovalQueue();
+    for (var i = 0; i < queue.length; i++) {
+      if (queue[i].id === approvalId) {
+        queue[i].status = 'rejected';
+        queue[i].resolvedAt = new Date().toISOString();
+        queue[i].ceoDecision = 'rejected';
+        _saveApprovalQueue(queue);
+        _logGovernance('ceo-reject', { taskId: queue[i].taskId, title: queue[i].taskTitle });
+        return queue[i];
+      }
+    }
+    return null;
+  }
+
+  function ceoRequestRevision(approvalId) {
+    var queue = getApprovalQueue();
+    for (var i = 0; i < queue.length; i++) {
+      if (queue[i].id === approvalId) {
+        queue[i].status = 'revision_requested';
+        queue[i].resolvedAt = new Date().toISOString();
+        queue[i].ceoDecision = 'revision_requested';
+        _saveApprovalQueue(queue);
+        _logGovernance('ceo-revision', { taskId: queue[i].taskId, title: queue[i].taskTitle });
+        return queue[i];
+      }
+    }
+    return null;
+  }
+
+  function ceoOverride(taskId) {
+    var task = getTask(taskId);
+    if (!task) return null;
+    var prevClassification = task.classification || 'autonomous';
+    updateTask(taskId, { requires_ceo_approval: false, escalated: false, classification: 'autonomous' });
+    // Also resolve any pending approval for this task
+    var queue = getApprovalQueue();
+    for (var i = 0; i < queue.length; i++) {
+      if (queue[i].taskId === taskId && queue[i].status === 'pending') {
+        queue[i].status = 'overridden';
+        queue[i].resolvedAt = new Date().toISOString();
+        queue[i].ceoDecision = 'override';
+      }
+    }
+    _saveApprovalQueue(queue);
+    _logGovernance('ceo-override', { taskId: taskId, title: task.title, previousClassification: prevClassification, riskLevel: task.risk_level || 'low' });
+    return task;
+  }
+
+  // ── Governance Log ──
+  var GOVERNANCE_LOG_KEY = 'ap_governance_log';
+  function getGovernanceLog() { return _loadStorage(GOVERNANCE_LOG_KEY, []); }
+  function _logGovernance(type, data) {
+    var log = getGovernanceLog();
+    log.push({
+      id: 'gov-' + Date.now(),
+      type: type,
+      data: data,
+      timestamp: new Date().toISOString()
+    });
+    if (log.length > 200) log = log.slice(-200);
+    _saveStorage(GOVERNANCE_LOG_KEY, log);
+  }
+
   // ── Public API ──
   return {
     on: on,
@@ -920,6 +1090,20 @@ var AgentEngine = (function () {
     getStoreMode: function () {
       if (typeof CompanyStore !== 'undefined') return CompanyStore.getMode();
       return 'local';
-    }
+    },
+    // Governance
+    getDirectives: getDirectives,
+    addDirective: addDirective,
+    updateDirective: updateDirective,
+    getObjectives: getObjectives,
+    addObjective: addObjective,
+    updateObjective: updateObjective,
+    getApprovalQueue: getApprovalQueue,
+    submitForApproval: submitForApproval,
+    ceoApprove: ceoApprove,
+    ceoReject: ceoReject,
+    ceoRequestRevision: ceoRequestRevision,
+    ceoOverride: ceoOverride,
+    getGovernanceLog: getGovernanceLog
   };
 })();

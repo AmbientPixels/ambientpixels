@@ -25,7 +25,11 @@ var CompanyStore = (function () {
     'ap_session_log':        'sessionLog',
     'ap_cron_log':           'cronLog',
     'ap_standup_log':        'standupLog',
-    'ap_morning_report':     'morningReport'
+    'ap_morning_report':     'morningReport',
+    'ap_directives':         'directives',
+    'ap_objectives':         'objectives',
+    'ap_approval_queue':     'approvalQueue',
+    'ap_governance_log':     'governanceLog'
   };
 
   // Reverse map
@@ -195,7 +199,7 @@ var CompanyStore = (function () {
     }
 
     // Pull the critical state keys that agents write to
-    var keysToSync = ['ap_tasks', 'ap_cron_log', 'ap_standup_log', 'ap_agent_configs', 'ap_morning_report'];
+    var keysToSync = ['ap_tasks', 'ap_cron_log', 'ap_standup_log', 'ap_agent_configs', 'ap_morning_report', 'ap_directives', 'ap_objectives', 'ap_approval_queue', 'ap_governance_log'];
     var promises = keysToSync.map(function (localKey) {
       var serverKey = KEY_MAP[localKey];
       if (!serverKey) return Promise.resolve();

@@ -13,7 +13,13 @@ var CompanySchemas = (function () {
 
   var TASK_STATUSES = ['backlog', 'todo', 'in-progress', 'review', 'done'];
   var TASK_PRIORITIES = ['low', 'medium', 'high', 'critical'];
-  var LOG_TYPES = ['heartbeat', 'standup', 'task-created', 'task-updated', 'task-moved', 'chat', 'cron', 'error', 'morning-report', 'agent-action'];
+  var TASK_CLASSIFICATIONS = ['autonomous', 'advisory', 'executive_required'];
+  var RISK_LEVELS = ['low', 'medium', 'high'];
+  var BRAND_IMPACTS = ['low', 'medium', 'high'];
+  var DIRECTIVE_STATUSES = ['active', 'completed', 'paused'];
+  var OBJECTIVE_STATUSES = ['on_track', 'at_risk', 'behind', 'complete'];
+  var QUARTERS = ['Q1', 'Q2', 'Q3', 'Q4'];
+  var LOG_TYPES = ['heartbeat', 'standup', 'task-created', 'task-updated', 'task-moved', 'chat', 'cron', 'error', 'morning-report', 'agent-action', 'ceo-approval', 'ceo-reject', 'ceo-override', 'ceo-revision', 'escalation', 'directive-created', 'objective-created'];
 
   // ── Task ──
   function validateTask(t) {
@@ -75,12 +81,69 @@ var CompanySchemas = (function () {
     };
   }
 
+  // ── Directive ──
+  function validateDirective(d) {
+    if (!d || typeof d !== 'object') return { valid: false, error: 'Directive must be an object' };
+    if (!isString(d.id)) return { valid: false, error: 'Directive.id required' };
+    if (!isString(d.title) || d.title.length === 0) return { valid: false, error: 'Directive.title required' };
+    if (!isOneOf(d.status, DIRECTIVE_STATUSES)) return { valid: false, error: 'Directive.status invalid' };
+    return { valid: true };
+  }
+
+  function createDirective(data) {
+    return {
+      id: 'dir-' + Date.now(),
+      title: (data && data.title) || '',
+      description: (data && data.description) || '',
+      createdDate: new Date().toISOString(),
+      priority: (data && data.priority) || 'medium',
+      status: 'active',
+      linkedObjectives: [],
+      linkedTasks: []
+    };
+  }
+
+  // ── Objective ──
+  function validateObjective(o) {
+    if (!o || typeof o !== 'object') return { valid: false, error: 'Objective must be an object' };
+    if (!isString(o.id)) return { valid: false, error: 'Objective.id required' };
+    if (!isString(o.title) || o.title.length === 0) return { valid: false, error: 'Objective.title required' };
+    if (!isOneOf(o.status, OBJECTIVE_STATUSES)) return { valid: false, error: 'Objective.status invalid' };
+    return { valid: true };
+  }
+
+  function createObjective(data) {
+    return {
+      id: 'obj-' + Date.now(),
+      title: (data && data.title) || '',
+      quarter: (data && data.quarter) || 'Q1',
+      year: (data && data.year) || new Date().getFullYear(),
+      linkedDirective: (data && data.linkedDirective) || null,
+      progressPercentage: 0,
+      status: 'on_track',
+      owner: 'nova',
+      linkedTasks: []
+    };
+  }
+
+  // ── Decision Classification ──
+  function classifyTask(task) {
+    if (task.classification) return task.classification;
+    // Auto-classify based on risk/impact
+    if (task.risk_level === 'high' || task.brand_impact === 'high') return 'executive_required';
+    if (task.budget_impact && task.budget_impact > 100) return 'executive_required';
+    if (task.risk_level === 'medium' || task.brand_impact === 'medium') return 'advisory';
+    return 'autonomous';
+  }
+
   // ── Guardrail Config ──
   var GUARDRAIL_DEFAULTS = {
     maxActionsPerCyclePerAgent: 3,
-    maxGeminiCallsPerCycle: 10,
+    maxGeminiCallsPerCycle: 15,
     maxNewTasksPerCycle: 5,
-    dedupeWindowMs: 300000 // 5 minutes
+    maxExecutesPerCyclePerAgent: 1,
+    dedupeWindowMs: 300000, // 5 minutes
+    cfoThreshold: 100 // budget_impact above this requires CEO approval
   };
 
   function getGuardrails(overrides) {
@@ -94,12 +157,23 @@ var CompanySchemas = (function () {
   return {
     TASK_STATUSES: TASK_STATUSES,
     TASK_PRIORITIES: TASK_PRIORITIES,
+    TASK_CLASSIFICATIONS: TASK_CLASSIFICATIONS,
+    RISK_LEVELS: RISK_LEVELS,
+    BRAND_IMPACTS: BRAND_IMPACTS,
+    DIRECTIVE_STATUSES: DIRECTIVE_STATUSES,
+    OBJECTIVE_STATUSES: OBJECTIVE_STATUSES,
+    QUARTERS: QUARTERS,
     LOG_TYPES: LOG_TYPES,
     validateTask: validateTask,
     validateLogEvent: validateLogEvent,
     createLogEvent: createLogEvent,
     validateMorningReport: validateMorningReport,
     createMorningReport: createMorningReport,
+    validateDirective: validateDirective,
+    createDirective: createDirective,
+    validateObjective: validateObjective,
+    createObjective: createObjective,
+    classifyTask: classifyTask,
     GUARDRAIL_DEFAULTS: GUARDRAIL_DEFAULTS,
     getGuardrails: getGuardrails
   };

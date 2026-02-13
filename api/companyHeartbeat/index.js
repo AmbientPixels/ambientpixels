@@ -12,12 +12,15 @@ const AGENT_IDS = ['cipher', 'pixel', 'forge', 'echo', 'nova'];
 
 // Agent system prompts (abbreviated for heartbeat context)
 const AGENT_ROLES = {
-  nova: { name: 'Nova', role: 'CEO', focus: 'strategy, priorities, team coordination, product direction' },
-  cipher: { name: 'Cipher', role: 'CFO', focus: 'budgets, API costs, resource efficiency, spending' },
-  pixel: { name: 'Pixel', role: 'Design & QC', focus: 'UI quality, accessibility, design consistency, frontend' },
-  forge: { name: 'Forge', role: 'DevOps', focus: 'deployments, infrastructure, uptime, backend security' },
-  echo: { name: 'Echo', role: 'Marketing', focus: 'content, social media, community, brand voice' }
+  nova: { name: 'Nova', role: 'Prime Operator', tier: 2, focus: 'execution planning, delegation, progress monitoring, escalation to CEO' },
+  cipher: { name: 'Cipher', role: 'CFO', tier: 3, focus: 'budgets, API costs, resource efficiency, spending' },
+  pixel: { name: 'Pixel', role: 'Design & QC', tier: 3, focus: 'UI quality, accessibility, design consistency, frontend' },
+  forge: { name: 'Forge', role: 'DevOps', tier: 3, focus: 'deployments, infrastructure, uptime, backend security' },
+  echo: { name: 'Echo', role: 'Marketing', tier: 3, focus: 'content, social media, community, brand voice' }
 };
+
+// Decision classification thresholds
+const CFO_THRESHOLD = 100; // budget_impact above this requires CEO approval
 
 // ── Guardrails ──
 const GUARDRAILS = {
@@ -25,6 +28,7 @@ const GUARDRAILS = {
   maxGeminiCallsPerCycle: 15,
   maxNewTasksPerCycle: 5,
   maxExecutesPerCyclePerAgent: 1,
+  maxEscalationsPerCycle: 3,
   dedupeWindowMs: 300000 // 5 min
 };
 
@@ -34,6 +38,7 @@ module.exports = async function (context) {
   let geminiCalls = 0;
   let newTasksCreated = 0;
   const agentActions = {};
+  const _pendingEscalations = [];
 
   context.log('[Heartbeat] Starting cycle:', cycleId);
 
@@ -110,6 +115,40 @@ module.exports = async function (context) {
     // Persist updated state
     await storage.setState('tasks', tasks);
     await storage.setState('agentConfigs', configs);
+
+    // Persist escalations to approval queue
+    if (_pendingEscalations.length > 0) {
+      const approvalQueue = (await storage.getState('approvalQueue')) || [];
+      for (const esc of _pendingEscalations) {
+        approvalQueue.push({
+          id: 'appr-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+          taskId: esc.taskId,
+          taskTitle: esc.taskTitle,
+          originAgent: esc.originAgent,
+          riskLevel: esc.riskLevel,
+          budgetImpact: esc.budgetImpact,
+          brandImpact: esc.brandImpact,
+          classification: esc.classification,
+          proposedDeadline: null,
+          recommendation: '',
+          status: 'pending',
+          submittedAt: new Date().toISOString(),
+          resolvedAt: null,
+          ceoDecision: null
+        });
+      }
+      if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
+      await storage.setState('approvalQueue', approvalQueue);
+      context.log('[Heartbeat] Escalated', _pendingEscalations.length, 'tasks to CEO approval queue');
+
+      // Log escalation events
+      for (const esc of _pendingEscalations) {
+        await logEvent('escalation', esc.originAgent,
+          esc.taskTitle + ' escalated to CEO (' + esc.classification + ', risk: ' + esc.riskLevel + ')',
+          cycleId
+        );
+      }
+    }
 
     // Log cron entry
     const cronLog = (await storage.getState('cronLog')) || [];
@@ -356,6 +395,17 @@ Rules:
 // ── Apply task mutation ──
 function applyTaskUpdate(tasks, update) {
   if (update.action === 'create') {
+    const riskLevel = update.task.risk_level || 'low';
+    const budgetImpact = update.task.budget_impact || 0;
+    const brandImpact = update.task.brand_impact || 'low';
+    // Auto-classify
+    let classification = update.task.classification || 'autonomous';
+    if (riskLevel === 'high' || brandImpact === 'high') classification = 'executive_required';
+    else if (budgetImpact > CFO_THRESHOLD) classification = 'executive_required';
+    else if (riskLevel === 'medium' || brandImpact === 'medium') classification = 'advisory';
+
+    const requiresApproval = classification === 'executive_required' || classification === 'advisory';
+
     const task = {
       id: 'task-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
       title: update.task.title,
@@ -370,10 +420,32 @@ function applyTaskUpdate(tasks, update) {
       updatedAt: new Date().toISOString(),
       completedAt: null,
       comments: [],
-      source: 'heartbeat'
+      source: 'heartbeat',
+      // Governance fields
+      requires_ceo_approval: requiresApproval,
+      risk_level: riskLevel,
+      budget_impact: budgetImpact,
+      brand_impact: brandImpact,
+      escalated: requiresApproval,
+      classification: classification,
+      directive_id: update.task.directive_id || null,
+      objective_id: update.task.objective_id || null
     };
     tasks.push(task);
     if (tasks.length > 500) tasks.splice(0, tasks.length - 500);
+
+    // Auto-escalate to approval queue if needed
+    if (requiresApproval) {
+      _pendingEscalations.push({
+        taskId: task.id,
+        taskTitle: task.title,
+        classification: classification,
+        riskLevel: riskLevel,
+        budgetImpact: budgetImpact,
+        brandImpact: brandImpact,
+        originAgent: update.task.assignee || 'nova'
+      });
+    }
     return task;
   }
 

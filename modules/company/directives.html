@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Strategic Directives — CEO-defined high-level direction for the company." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Strategic Directives — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+</head>
+<body style="background:#071019" data-theme="dark">
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/modules/company/" class="nav-logo"><i class="fas fa-building"></i> AmbientPixels HQ</a>
+      <ul class="nav-links">
+        <li><a href="/modules/company/">HQ</a></li>
+        <li><a href="/modules/company/standup.html">Standup</a></li>
+        <li><a href="/modules/company/tasks.html">Tasks</a></li>
+        <li><a href="/modules/company/dashboard.html">Dashboard</a></li>
+        <li><a href="/modules/company/directives.html" class="active">Directives</a></li>
+        <li><a href="/modules/company/objectives.html">Objectives</a></li>
+        <li><a href="/modules/company/governance.html">Governance</a></li>
+        <li><a href="/" style="opacity:0.4;"><i class="fas fa-globe"></i></a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
+
+    <div class="company-header">
+      <h1><i class="fas fa-compass" style="opacity:0.4; margin-right:8px; color:#8A2BE2;"></i>Strategic Directives</h1>
+      <p>CEO-defined high-level direction. Prime Operator translates directives into objectives and tasks.</p>
+    </div>
+
+    <!-- Create Directive Form -->
+    <div class="dash-panel" style="margin-bottom:1.5rem;">
+      <div class="dash-panel-header">
+        <span class="dash-panel-title"><i class="fas fa-plus-circle" style="color:#FFD700;"></i> New Directive</span>
+      </div>
+      <div style="padding:0.5rem 0;">
+        <input type="text" id="dir-title" placeholder="Directive title..." style="width:100%; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.8rem; margin-bottom:0.5rem;" />
+        <textarea id="dir-desc" placeholder="Description — what should the team achieve?" rows="3" style="width:100%; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.75rem; resize:vertical; margin-bottom:0.5rem;"></textarea>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <select id="dir-priority" style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+          <button id="dir-create-btn" style="padding:0.35rem 1rem; background:rgba(138,43,226,0.1); border:1px solid rgba(138,43,226,0.3); border-radius:6px; color:#8A2BE2; font-size:0.7rem; cursor:pointer; font-weight:500;">Create Directive</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Directives -->
+    <div class="dash-panel dash-panel--full">
+      <div class="dash-panel-header">
+        <span class="dash-panel-title"><i class="fas fa-fire" style="color:#FF8C00;"></i> Active Directives</span>
+        <span class="dash-panel-badge" id="active-dir-count">0</span>
+      </div>
+      <div id="dir-active-list">
+        <div class="dash-empty">No active directives. Create one above.</div>
+      </div>
+    </div>
+
+    <!-- Completed / Paused -->
+    <div class="dash-panel dash-panel--full" style="margin-top:1rem;">
+      <div class="dash-panel-header">
+        <span class="dash-panel-title"><i class="fas fa-archive" style="opacity:0.4;"></i> Completed / Paused</span>
+      </div>
+      <div id="dir-archive-list">
+        <div class="dash-empty">No archived directives.</div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="/js/company-store.js"></script>
+  <script src="/js/agent-engine.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var titleInput = document.getElementById('dir-title');
+      var descInput = document.getElementById('dir-desc');
+      var prioritySelect = document.getElementById('dir-priority');
+      var createBtn = document.getElementById('dir-create-btn');
+      var activeList = document.getElementById('dir-active-list');
+      var archiveList = document.getElementById('dir-archive-list');
+      var activeCount = document.getElementById('active-dir-count');
+
+      AgentEngine.loadRegistry().then(function () { renderDirectives(); });
+
+      document.addEventListener('sync-complete', function () { renderDirectives(); });
+
+      createBtn.addEventListener('click', function () {
+        var title = titleInput.value.trim();
+        if (!title) return;
+
+        AgentEngine.addDirective({
+          title: title,
+          description: descInput.value.trim(),
+          priority: prioritySelect.value
+        });
+
+        titleInput.value = '';
+        descInput.value = '';
+        prioritySelect.value = 'medium';
+        renderDirectives();
+      });
+
+      function renderDirectives() {
+        var directives = AgentEngine.getDirectives();
+        var active = directives.filter(function (d) { return d.status === 'active'; });
+        var archived = directives.filter(function (d) { return d.status !== 'active'; });
+
+        activeCount.textContent = active.length;
+
+        // Active
+        if (active.length === 0) {
+          activeList.innerHTML = '<div class="dash-empty">No active directives. Create one above.</div>';
+        } else {
+          activeList.innerHTML = '';
+          active.forEach(function (dir) { activeList.appendChild(createDirectiveCard(dir)); });
+        }
+
+        // Archived
+        if (archived.length === 0) {
+          archiveList.innerHTML = '<div class="dash-empty">No archived directives.</div>';
+        } else {
+          archiveList.innerHTML = '';
+          archived.forEach(function (dir) { archiveList.appendChild(createDirectiveCard(dir, true)); });
+        }
+      }
+
+      function createDirectiveCard(dir, isArchived) {
+        var card = document.createElement('div');
+        card.style.cssText = 'padding:0.8rem; border:1px solid rgba(138,43,226,0.08); border-radius:8px; margin-bottom:0.5rem; background:rgba(138,43,226,0.02);';
+
+        var priorityColor = dir.priority === 'critical' ? '#f87171' : dir.priority === 'high' ? '#fbbf24' : dir.priority === 'medium' ? '#8A2BE2' : '#34d399';
+
+        var linkedHtml = '';
+        if (dir.linkedObjectives && dir.linkedObjectives.length > 0) {
+          linkedHtml += '<span style="font-size:0.6rem; opacity:0.5;"><i class="fas fa-bullseye"></i> ' + dir.linkedObjectives.length + ' objectives</span> ';
+        }
+        if (dir.linkedTasks && dir.linkedTasks.length > 0) {
+          linkedHtml += '<span style="font-size:0.6rem; opacity:0.5;"><i class="fas fa-tasks"></i> ' + dir.linkedTasks.length + ' tasks</span>';
+        }
+
+        card.innerHTML =
+          '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.3rem;">' +
+            '<strong style="font-size:0.85rem;">' + escapeHtml(dir.title) + '</strong>' +
+            '<span style="font-size:0.6rem; padding:0.15rem 0.5rem; border-radius:3px; background:rgba(138,43,226,0.1); color:' + priorityColor + ';">' + dir.priority + '</span>' +
+          '</div>' +
+          (dir.description ? '<p style="font-size:0.75rem; opacity:0.6; margin:0 0 0.4rem;">' + escapeHtml(dir.description) + '</p>' : '') +
+          '<div style="display:flex; gap:0.6rem; align-items:center; margin-bottom:0.4rem;">' +
+            '<span style="font-size:0.6rem; opacity:0.4;">Created: ' + new Date(dir.createdDate).toLocaleDateString() + '</span>' +
+            '<span style="font-size:0.6rem; padding:0.1rem 0.4rem; border-radius:3px; background:rgba(255,255,255,0.05);">' + dir.status + '</span>' +
+            linkedHtml +
+          '</div>';
+
+        if (!isArchived) {
+          var btnWrap = document.createElement('div');
+          btnWrap.style.cssText = 'display:flex; gap:0.3rem; margin-top:0.3rem;';
+
+          var completeBtn = document.createElement('button');
+          completeBtn.textContent = 'Complete';
+          completeBtn.style.cssText = 'font-size:0.6rem; padding:0.2rem 0.5rem; border:1px solid rgba(52,211,153,0.3); background:rgba(52,211,153,0.05); color:#34d399; border-radius:4px; cursor:pointer;';
+          completeBtn.addEventListener('click', function () {
+            AgentEngine.updateDirective(dir.id, { status: 'completed' });
+            renderDirectives();
+          });
+
+          var pauseBtn = document.createElement('button');
+          pauseBtn.textContent = 'Pause';
+          pauseBtn.style.cssText = 'font-size:0.6rem; padding:0.2rem 0.5rem; border:1px solid rgba(251,191,36,0.3); background:rgba(251,191,36,0.05); color:#fbbf24; border-radius:4px; cursor:pointer;';
+          pauseBtn.addEventListener('click', function () {
+            AgentEngine.updateDirective(dir.id, { status: 'paused' });
+            renderDirectives();
+          });
+
+          btnWrap.appendChild(completeBtn);
+          btnWrap.appendChild(pauseBtn);
+          card.appendChild(btnWrap);
+        }
+
+        return card;
+      }
+
+      function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+    })();
+  </script>
+
+</body>
+</html>

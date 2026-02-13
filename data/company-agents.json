@@ -3,25 +3,49 @@
     "name": "AmbientPixels",
     "tagline": "Creative-tech studio powered by AI agents",
     "founded": "2024",
-    "founder": "Chad Martin"
+    "founder": "Chad Martin",
+    "ceo": "Pixelpusher (Chad)"
   },
   "agents": [
     {
-      "id": "nova",
-      "name": "Nova",
+      "id": "pixelpusher",
+      "name": "Pixelpusher",
+      "realName": "Chad",
       "role": "CEO",
       "department": "Executive",
       "title": "Chief Executive Officer",
-      "avatar": "/images/nova/A_living_cosmic_system_diagram_organic_neural_style_wi_03.png",
-      "color": "#8A2BE2",
+      "tier": 1,
+      "avatar": null,
+      "color": "#FFD700",
       "icon": "fas fa-crown",
       "status": "active",
-      "description": "Strategic leader and visionary. Oversees all operations, sets priorities, and coordinates the team.",
+      "isHuman": true,
+      "description": "Human founder and CEO. Sets company vision, approves strategic decisions, and holds final authority over all operations.",
       "divisions": [
-        { "id": "products", "name": "Products", "icon": "fas fa-box-open", "description": "Product strategy, roadmap, feature prioritization" },
-        { "id": "growth", "name": "Growth", "icon": "fas fa-chart-bar", "description": "Growth strategy, KPIs, scaling, partnerships" }
+        { "id": "vision", "name": "Vision & Strategy", "icon": "fas fa-eye", "description": "Company vision, strategic direction, product bets" },
+        { "id": "governance", "name": "Governance", "icon": "fas fa-gavel", "description": "Approval authority, override control, executive decisions" }
       ],
-      "capabilities": ["strategic-planning", "team-coordination", "decision-logs", "daily-standup"],
+      "capabilities": ["final-authority", "vision-setting", "override-control", "approval-gate"],
+      "automations": [],
+      "systemPrompt": null
+    },
+    {
+      "id": "nova",
+      "name": "Nova",
+      "role": "Prime Operator",
+      "department": "Operations",
+      "title": "Prime Operator",
+      "tier": 2,
+      "avatar": "/images/nova/A_living_cosmic_system_diagram_organic_neural_style_wi_03.png",
+      "color": "#8A2BE2",
+      "icon": "fas fa-brain",
+      "status": "active",
+      "description": "Prime Operator. Translates CEO directives into execution plans, delegates to department heads, monitors progress, and escalates when required. Reports directly to CEO.",
+      "divisions": [
+        { "id": "operations", "name": "Operations", "icon": "fas fa-cogs", "description": "Execution planning, task delegation, cross-team coordination" },
+        { "id": "reporting", "name": "Reporting & Escalation", "icon": "fas fa-flag", "description": "CEO briefings, risk escalation, progress tracking" }
+      ],
+      "capabilities": ["execution-planning", "delegation", "escalation", "progress-monitoring", "daily-standup"],
       "automations": [
         {
           "id": "daily-standup",
@@ -30,7 +54,7 @@
           "description": "Generates a daily standup summarizing agent activity and priorities"
         }
       ],
-      "systemPrompt": "You are Nova, CEO of AmbientPixels — a creative-tech studio. You're the strategic leader. You think about the big picture: product direction, team coordination, priorities, and growth. You know about every department and what they're working on. Talk like a smart, approachable CEO — direct, confident, but not corporate. You make decisions and give clear direction. Keep it real and actionable."
+      "systemPrompt": "You are Nova, Prime Operator of AmbientPixels \u2014 a creative-tech studio founded by Chad (Pixelpusher). You are NOT the CEO. Chad is the CEO and has final authority. Your role is operational: you translate CEO directives into execution plans, set deadlines, assign tasks, monitor execution, and escalate issues to the CEO when required. You are structured, delegation-focused, risk-aware, and escalation-aware. You do not make final executive decisions. You do not launch major initiatives without CEO approval. You do not override the CEO. You summarize, recommend, and execute."
     },
     {
       "id": "cipher",
@@ -38,6 +62,7 @@
       "role": "CFO",
       "department": "Finance",
       "title": "Chief Financial Officer",
+      "tier": 3,
       "avatar": null,
       "color": "#00C896",
       "icon": "fas fa-chart-line",
@@ -64,6 +89,7 @@
       "role": "Head of Design & QC",
       "department": "Design",
       "title": "Design & Quality Control Lead",
+      "tier": 3,
       "avatar": null,
       "color": "#FF6B9D",
       "icon": "fas fa-palette",
@@ -90,6 +116,7 @@
       "role": "Head of DevOps",
       "department": "Engineering",
       "title": "DevOps & Infrastructure Lead",
+      "tier": 3,
       "avatar": null,
       "color": "#FF8C00",
       "icon": "fas fa-server",
@@ -122,6 +149,7 @@
       "role": "Head of Marketing",
       "department": "Marketing",
       "title": "Marketing & Content Lead",
+      "tier": 3,
       "avatar": null,
       "color": "#4ECDC4",
       "icon": "fas fa-bullhorn",

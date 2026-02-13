@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Quarterly Objectives — track progress on company goals." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Quarterly Objectives — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+</head>
+<body style="background:#071019" data-theme="dark">
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/modules/company/" class="nav-logo"><i class="fas fa-building"></i> AmbientPixels HQ</a>
+      <ul class="nav-links">
+        <li><a href="/modules/company/">HQ</a></li>
+        <li><a href="/modules/company/standup.html">Standup</a></li>
+        <li><a href="/modules/company/tasks.html">Tasks</a></li>
+        <li><a href="/modules/company/dashboard.html">Dashboard</a></li>
+        <li><a href="/modules/company/directives.html">Directives</a></li>
+        <li><a href="/modules/company/objectives.html" class="active">Objectives</a></li>
+        <li><a href="/modules/company/governance.html">Governance</a></li>
+        <li><a href="/" style="opacity:0.4;"><i class="fas fa-globe"></i></a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
+
+    <div class="company-header">
+      <h1><i class="fas fa-bullseye" style="opacity:0.4; margin-right:8px; color:#4ECDC4;"></i>Quarterly Objectives</h1>
+      <p>Track progress on company goals. Prime Operator owns execution and updates weekly.</p>
+    </div>
+
+    <!-- Create Objective Form -->
+    <div class="dash-panel" style="margin-bottom:1.5rem;">
+      <div class="dash-panel-header">
+        <span class="dash-panel-title"><i class="fas fa-plus-circle" style="color:#FFD700;"></i> New Objective</span>
+      </div>
+      <div style="padding:0.5rem 0;">
+        <input type="text" id="obj-title" placeholder="Objective title..." style="width:100%; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.8rem; margin-bottom:0.5rem;" />
+        <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+          <select id="obj-quarter" style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;">
+            <option value="Q1">Q1</option>
+            <option value="Q2">Q2</option>
+            <option value="Q3">Q3</option>
+            <option value="Q4">Q4</option>
+          </select>
+          <input type="number" id="obj-year" value="2026" min="2024" max="2030" style="width:80px; padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;" />
+          <select id="obj-directive" style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;">
+            <option value="">No linked directive</option>
+          </select>
+          <button id="obj-create-btn" style="padding:0.35rem 1rem; background:rgba(78,205,196,0.1); border:1px solid rgba(78,205,196,0.3); border-radius:6px; color:#4ECDC4; font-size:0.7rem; cursor:pointer; font-weight:500;">Create Objective</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="dash-panel dash-panel--full" style="margin-bottom:1rem;">
+      <div class="dash-panel-header">
+        <span class="dash-panel-title"><i class="fas fa-chart-pie" style="color:#FFD700;"></i> Executive Summary</span>
+      </div>
+      <div id="obj-summary" style="display:flex; gap:1rem; flex-wrap:wrap; padding:0.5rem 0;">
+        <div class="stat-card" style="flex:1; min-width:120px;">
+          <div class="stat-value" id="obj-total">0</div>
+          <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-card" style="flex:1; min-width:120px;">
+          <div class="stat-value" id="obj-on-track" style="color:#34d399;">0</div>
+          <div class="stat-label">On Track</div>
+        </div>
+        <div class="stat-card" style="flex:1; min-width:120px;">
+          <div class="stat-value" id="obj-at-risk" style="color:#fbbf24;">0</div>
+          <div class="stat-label">At Risk</div>
+        </div>
+        <div class="stat-card" style="flex:1; min-width:120px;">
+          <div class="stat-value" id="obj-behind" style="color:#f87171;">0</div>
+          <div class="stat-label">Behind</div>
+        </div>
+        <div class="stat-card" style="flex:1; min-width:120px;">
+          <div class="stat-value" id="obj-complete" style="color:#8A2BE2;">0</div>
+          <div class="stat-label">Complete</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Objectives List -->
+    <div class="dash-panel dash-panel--full">
+      <div class="dash-panel-header">
+        <span class="dash-panel-title"><i class="fas fa-list-check" style="color:#4ECDC4;"></i> All Objectives</span>
+      </div>
+      <div id="obj-list">
+        <div class="dash-empty">No objectives yet. Create one above.</div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="/js/company-store.js"></script>
+  <script src="/js/agent-engine.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var titleInput = document.getElementById('obj-title');
+      var quarterSelect = document.getElementById('obj-quarter');
+      var yearInput = document.getElementById('obj-year');
+      var directiveSelect = document.getElementById('obj-directive');
+      var createBtn = document.getElementById('obj-create-btn');
+      var objList = document.getElementById('obj-list');
+
+      AgentEngine.loadRegistry().then(function () {
+        populateDirectiveSelect();
+        renderObjectives();
+      });
+
+      document.addEventListener('sync-complete', function () {
+        populateDirectiveSelect();
+        renderObjectives();
+      });
+
+      function populateDirectiveSelect() {
+        var directives = AgentEngine.getDirectives();
+        var active = directives.filter(function (d) { return d.status === 'active'; });
+        directiveSelect.innerHTML = '<option value="">No linked directive</option>';
+        active.forEach(function (dir) {
+          var opt = document.createElement('option');
+          opt.value = dir.id;
+          opt.textContent = dir.title;
+          directiveSelect.appendChild(opt);
+        });
+      }
+
+      createBtn.addEventListener('click', function () {
+        var title = titleInput.value.trim();
+        if (!title) return;
+
+        AgentEngine.addObjective({
+          title: title,
+          quarter: quarterSelect.value,
+          year: parseInt(yearInput.value, 10),
+          linkedDirective: directiveSelect.value || null
+        });
+
+        titleInput.value = '';
+        renderObjectives();
+      });
+
+      function renderObjectives() {
+        var objectives = AgentEngine.getObjectives();
+
+        // Summary stats
+        var total = objectives.length;
+        var onTrack = objectives.filter(function (o) { return o.status === 'on_track'; }).length;
+        var atRisk = objectives.filter(function (o) { return o.status === 'at_risk'; }).length;
+        var behind = objectives.filter(function (o) { return o.status === 'behind'; }).length;
+        var complete = objectives.filter(function (o) { return o.status === 'complete'; }).length;
+
+        document.getElementById('obj-total').textContent = total;
+        document.getElementById('obj-on-track').textContent = onTrack;
+        document.getElementById('obj-at-risk').textContent = atRisk;
+        document.getElementById('obj-behind').textContent = behind;
+        document.getElementById('obj-complete').textContent = complete;
+
+        if (objectives.length === 0) {
+          objList.innerHTML = '<div class="dash-empty">No objectives yet. Create one above.</div>';
+          return;
+        }
+
+        objList.innerHTML = '';
+        objectives.slice().reverse().forEach(function (obj) {
+          objList.appendChild(createObjectiveCard(obj));
+        });
+      }
+
+      function createObjectiveCard(obj) {
+        var card = document.createElement('div');
+        card.style.cssText = 'padding:0.8rem; border:1px solid rgba(78,205,196,0.08); border-radius:8px; margin-bottom:0.5rem; background:rgba(78,205,196,0.02);';
+
+        var statusColor = obj.status === 'on_track' ? '#34d399' : obj.status === 'at_risk' ? '#fbbf24' : obj.status === 'behind' ? '#f87171' : '#8A2BE2';
+        var pct = obj.progressPercentage || 0;
+
+        // Find linked directive title
+        var dirTitle = '';
+        if (obj.linkedDirective) {
+          var directives = AgentEngine.getDirectives();
+          var linked = directives.find(function (d) { return d.id === obj.linkedDirective; });
+          if (linked) dirTitle = linked.title;
+        }
+
+        card.innerHTML =
+          '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.3rem;">' +
+            '<strong style="font-size:0.85rem;">' + escapeHtml(obj.title) + '</strong>' +
+            '<span style="font-size:0.65rem; opacity:0.5;">' + (obj.quarter || '') + ' ' + (obj.year || '') + '</span>' +
+          '</div>' +
+          (dirTitle ? '<div style="font-size:0.6rem; opacity:0.4; margin-bottom:0.4rem;"><i class="fas fa-compass"></i> ' + escapeHtml(dirTitle) + '</div>' : '') +
+          '<div style="margin:0.4rem 0; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">' +
+            '<div style="height:100%; width:' + pct + '%; background:' + statusColor + '; border-radius:3px; transition:width 0.3s;"></div>' +
+          '</div>' +
+          '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">' +
+            '<span style="font-size:0.7rem; color:' + statusColor + '; font-weight:500;">' + pct + '% — ' + (obj.status || 'on_track').replace(/_/g, ' ') + '</span>' +
+            '<span style="font-size:0.6rem; opacity:0.4;">Owner: ' + (obj.owner || 'nova') + '</span>' +
+          '</div>';
+
+        // Controls
+        var controls = document.createElement('div');
+        controls.style.cssText = 'display:flex; gap:0.3rem; flex-wrap:wrap; align-items:center;';
+
+        // Progress slider
+        var slider = document.createElement('input');
+        slider.type = 'range';
+        slider.min = '0';
+        slider.max = '100';
+        slider.value = pct;
+        slider.style.cssText = 'flex:1; min-width:100px; accent-color:' + statusColor + ';';
+        slider.addEventListener('change', function () {
+          var newPct = parseInt(slider.value, 10);
+          var newStatus = newPct >= 100 ? 'complete' : obj.status;
+          AgentEngine.updateObjective(obj.id, { progressPercentage: newPct, status: newStatus });
+          renderObjectives();
+        });
+        controls.appendChild(slider);
+
+        // Status buttons
+        var statuses = ['on_track', 'at_risk', 'behind', 'complete'];
+        var statusLabels = { on_track: 'On Track', at_risk: 'At Risk', behind: 'Behind', complete: 'Complete' };
+        var statusColors = { on_track: '#34d399', at_risk: '#fbbf24', behind: '#f87171', complete: '#8A2BE2' };
+
+        statuses.forEach(function (s) {
+          var btn = document.createElement('button');
+          btn.textContent = statusLabels[s];
+          var isActive = obj.status === s;
+          btn.style.cssText = 'font-size:0.55rem; padding:0.2rem 0.4rem; border:1px solid ' + (isActive ? statusColors[s] : 'rgba(255,255,255,0.08)') + '; background:' + (isActive ? 'rgba(255,255,255,0.05)' : 'transparent') + '; color:' + (isActive ? statusColors[s] : 'rgba(255,255,255,0.4)') + '; border-radius:3px; cursor:pointer;';
+          btn.addEventListener('click', function () {
+            AgentEngine.updateObjective(obj.id, { status: s });
+            renderObjectives();
+          });
+          controls.appendChild(btn);
+        });
+
+        card.appendChild(controls);
+        return card;
+      }
+
+      function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+    })();
+  </script>
+
+</body>
+</html>

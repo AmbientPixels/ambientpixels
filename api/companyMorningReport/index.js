@@ -71,6 +71,16 @@ module.exports = async function (context) {
     // Latest standup
     const latestStandup = standupLog.length > 0 ? standupLog[standupLog.length - 1] : null;
 
+    // Governance data
+    const directives = (await storage.getState('directives')) || [];
+    const objectives = (await storage.getState('objectives')) || [];
+    const approvalQueue = (await storage.getState('approvalQueue')) || [];
+    const pendingApprovals = approvalQueue.filter(q => q.status === 'pending');
+    const activeDirectives = directives.filter(d => d.status === 'active');
+    const activeObjectives = objectives.filter(o => o.status !== 'complete');
+    const highRiskTasks = tasks.filter(t => t.risk_level === 'high' && t.status !== 'done');
+    const escalations = logs.filter(l => l.type === 'escalation');
+
     // ── Generate CEO summary via Gemini ──
     const summaryPrompt = buildSummaryPrompt({
       today,
@@ -81,7 +91,12 @@ module.exports = async function (context) {
       heartbeatCycles: heartbeatCycles.length,
       agentActions,
       errors: errors.length,
-      latestStandup
+      latestStandup,
+      activeDirectives,
+      activeObjectives,
+      pendingApprovals,
+      highRiskTasks,
+      escalations: escalations.length
     });
 
     let ceoSummary = '';
@@ -102,10 +117,19 @@ module.exports = async function (context) {
       activeTasks: activeTasks.map(t => ({ id: t.id, title: t.title, status: t.status, priority: t.priority, assignee: t.assignee })),
       overdueTasks: overdueTasks.map(t => ({ id: t.id, title: t.title, dueDate: t.dueDate, assignee: t.assignee })),
       decisions: [],
-      risks: overdueTasks.length > 0
-        ? [overdueTasks.length + ' overdue task(s) need attention']
-        : [],
+      risks: [
+        ...(overdueTasks.length > 0 ? [overdueTasks.length + ' overdue task(s) need attention'] : []),
+        ...(highRiskTasks.length > 0 ? [highRiskTasks.length + ' high-risk task(s) active'] : []),
+        ...(pendingApprovals.length > 0 ? [pendingApprovals.length + ' item(s) awaiting CEO approval'] : [])
+      ],
       ideas: [],
+      governance: {
+        activeDirectives: activeDirectives.length,
+        activeObjectives: activeObjectives.length,
+        pendingApprovals: pendingApprovals.length,
+        highRiskTasks: highRiskTasks.length,
+        escalations24h: escalations.length
+      },
       ceoSummary: ceoSummary || '',
       agentHighlights: agentActions,
       heartbeatCycles: heartbeatCycles.length,
@@ -187,11 +211,41 @@ function buildSummaryPrompt(data) {
     agentActivity += id + ': ' + data.agentActions[id].slice(0, 3).join('; ') + '\n';
   });
 
-  return `You are Nova, CEO of AmbientPixels. Write a brief morning report summary (3-5 sentences) covering the overnight activity.
+  // Governance context
+  const directivesCtx = data.activeDirectives && data.activeDirectives.length > 0
+    ? data.activeDirectives.map(d => '- ' + d.title + ' [' + d.priority + ']').join('\n')
+    : '(none)';
+
+  const objectivesCtx = data.activeObjectives && data.activeObjectives.length > 0
+    ? data.activeObjectives.map(o => '- ' + o.title + ' (' + (o.progressPercentage || 0) + '%, ' + o.status + ')').join('\n')
+    : '(none)';
+
+  const approvalsCtx = data.pendingApprovals && data.pendingApprovals.length > 0
+    ? data.pendingApprovals.map(a => '- ' + a.taskTitle + ' [' + a.classification + ', risk: ' + a.riskLevel + ']').join('\n')
+    : '(none)';
+
+  const highRiskCtx = data.highRiskTasks && data.highRiskTasks.length > 0
+    ? data.highRiskTasks.map(t => '- ' + t.title + ' (' + (t.assignee || 'unassigned') + ')').join('\n')
+    : '(none)';
+
+  return `You are Nova, Prime Operator of AmbientPixels. Write a CEO Executive Summary for Pixelpusher (Chad), the CEO. This is his morning briefing — no granular noise, only strategic overview.
 
 DATE: ${data.today}
 HEARTBEAT CYCLES RUN: ${data.heartbeatCycles}
 ERRORS: ${data.errors}
+ESCALATIONS (24h): ${data.escalations || 0}
+
+ACTIVE DIRECTIVES:
+${directivesCtx}
+
+OBJECTIVE STATUS:
+${objectivesCtx}
+
+CEO APPROVAL QUEUE (pending):
+${approvalsCtx}
+
+HIGH RISK ITEMS:
+${highRiskCtx}
 
 TASKS COMPLETED (last 24h):
 ${completed}
@@ -208,7 +262,14 @@ ${overdue}
 AGENT ACTIVITY:
 ${agentActivity || '(none)'}
 
-Write a concise CEO morning briefing. Highlight what got done, what's in progress, any concerns (especially overdue items), and set the tone for the day. Be direct and actionable. 3-5 sentences max.`;
+Write a concise CEO executive summary (4-6 sentences). Structure:
+1. Top-line status — are we on track?
+2. Directive/objective progress highlights
+3. Items requiring CEO attention (approval queue, high-risk)
+4. Budget alerts (if any from Cipher's activity)
+5. Tone for the day
+
+Be direct, structured, and actionable. Address the CEO as "CEO" or "Pixelpusher". No filler.`;
 }
 
 // ── Call Gemini ──
@@ -217,7 +278,7 @@ async function callGemini(prompt) {
 
   const body = {
     systemInstruction: {
-      parts: [{ text: 'You are Nova, CEO of AmbientPixels. You write concise, direct morning briefings.' }]
+      parts: [{ text: 'You are Nova, Prime Operator of AmbientPixels. You write concise, structured CEO executive summaries for Pixelpusher (Chad), the CEO. Strategic overview only — no granular noise.' }]
     },
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
     generationConfig: {

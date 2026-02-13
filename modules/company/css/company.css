@@ -103,6 +103,17 @@
   padding: 1.5rem;
 }
 
+.agent-card--prime {
+  width: 200px;
+  padding: 1.3rem;
+}
+
+.agent-card--prime .agent-avatar {
+  width: 62px;
+  height: 62px;
+  font-size: 1.5rem;
+}
+
 .agent-avatar {
   width: 56px;
   height: 56px;

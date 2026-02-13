@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Governance Document v1.0 — organizational hierarchy, authority levels, and operational protocols." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Governance — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <style>
+    .gov-section { margin-bottom: 2rem; }
+    .gov-section h2 { font-size: 1.1rem; font-weight: 500; margin: 0 0 0.8rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .gov-section h3 { font-size: 0.85rem; font-weight: 500; margin: 1rem 0 0.4rem; color: rgba(255,255,255,0.7); }
+    .gov-section p, .gov-section li { font-size: 0.78rem; line-height: 1.6; opacity: 0.7; }
+    .gov-section ul { padding-left: 1.2rem; margin: 0.3rem 0; }
+    .gov-section li { margin-bottom: 0.2rem; }
+    .gov-tier-card { padding: 0.6rem 0.8rem; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; margin-bottom: 0.4rem; background: rgba(255,255,255,0.02); }
+    .gov-tier-card strong { font-size: 0.8rem; }
+    .gov-tier-card span { font-size: 0.7rem; opacity: 0.5; }
+    .gov-class-card { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.7rem; border-radius: 6px; font-size: 0.7rem; margin-right: 0.4rem; margin-bottom: 0.4rem; }
+    .gov-toc a { display: block; font-size: 0.75rem; padding: 0.25rem 0; color: rgba(255,255,255,0.5); text-decoration: none; }
+    .gov-toc a:hover { color: #8A2BE2; }
+  </style>
+</head>
+<body style="background:#071019" data-theme="dark">
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/modules/company/" class="nav-logo"><i class="fas fa-building"></i> AmbientPixels HQ</a>
+      <ul class="nav-links">
+        <li><a href="/modules/company/">HQ</a></li>
+        <li><a href="/modules/company/standup.html">Standup</a></li>
+        <li><a href="/modules/company/tasks.html">Tasks</a></li>
+        <li><a href="/modules/company/dashboard.html">Dashboard</a></li>
+        <li><a href="/modules/company/directives.html">Directives</a></li>
+        <li><a href="/modules/company/objectives.html">Objectives</a></li>
+        <li><a href="/modules/company/governance.html" class="active">Governance</a></li>
+        <li><a href="/" style="opacity:0.4;"><i class="fas fa-globe"></i></a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="content-section" style="max-width: 800px; margin: 0 auto; padding: 1rem;">
+
+    <div class="company-header">
+      <h1><i class="fas fa-scroll" style="opacity:0.4; margin-right:8px; color:#FFD700;"></i>Governance Document</h1>
+      <p>Version 1.0 — AmbientPixels Organizational Protocol</p>
+    </div>
+
+    <!-- Table of Contents -->
+    <div class="dash-panel" style="margin-bottom:1.5rem;">
+      <div class="dash-panel-header">
+        <span class="dash-panel-title"><i class="fas fa-list"></i> Table of Contents</span>
+      </div>
+      <div class="gov-toc" style="padding:0.3rem 0;">
+        <a href="#org-hierarchy">1. Organizational Hierarchy</a>
+        <a href="#authority-levels">2. Authority Levels</a>
+        <a href="#decision-classification">3. Decision Classification</a>
+        <a href="#escalation-rules">4. Escalation Rules</a>
+        <a href="#approval-queue">5. Approval Queue Logic</a>
+        <a href="#override-protocol">6. Override Protocol</a>
+        <a href="#directive-lifecycle">7. Directive Lifecycle</a>
+        <a href="#objective-lifecycle">8. Objective Lifecycle</a>
+        <a href="#reporting-flow">9. Reporting Flow</a>
+      </div>
+    </div>
+
+    <!-- Section 1: Organizational Hierarchy -->
+    <div class="gov-section" id="org-hierarchy">
+      <h2><i class="fas fa-sitemap" style="color:#8A2BE2; margin-right:6px;"></i>1. Organizational Hierarchy</h2>
+
+      <div class="gov-tier-card" style="border-color:rgba(255,215,0,0.15);">
+        <strong style="color:#FFD700;"><i class="fas fa-crown"></i> Tier 1 — CEO</strong><br>
+        <span>Pixelpusher (Chad) — Human founder. Final authority on all strategic decisions, vision, product direction, and approvals.</span>
+      </div>
+
+      <div class="gov-tier-card" style="border-color:rgba(138,43,226,0.15);">
+        <strong style="color:#8A2BE2;"><i class="fas fa-brain"></i> Tier 2 — Prime Operator</strong><br>
+        <span>Nova — Translates CEO directives into execution plans. Delegates to department heads. Monitors progress. Escalates when required. Reports directly to CEO.</span>
+      </div>
+
+      <div class="gov-tier-card" style="border-color:rgba(255,255,255,0.06);">
+        <strong><i class="fas fa-users"></i> Tier 3 — Department Heads</strong><br>
+        <span>Cipher (CFO) · Pixel (Design & QC) · Forge (DevOps) · Echo (Marketing) — Execute within their domains. Report to Prime Operator.</span>
+      </div>
+    </div>
+
+    <!-- Section 2: Authority Levels -->
+    <div class="gov-section" id="authority-levels">
+      <h2><i class="fas fa-shield-alt" style="color:#FFD700; margin-right:6px;"></i>2. Authority Levels</h2>
+
+      <h3>CEO (Tier 1)</h3>
+      <ul>
+        <li>Final approval on all strategic decisions</li>
+        <li>Override authority on any task or decision</li>
+        <li>Creates and manages Strategic Directives</li>
+        <li>Sets company vision and product direction</li>
+        <li>Resolves cross-agent conflicts escalated by Prime Operator</li>
+      </ul>
+
+      <h3>Prime Operator (Tier 2)</h3>
+      <ul>
+        <li>Translates CEO directives into execution plans</li>
+        <li>Sets deadlines and assigns tasks to department heads</li>
+        <li>Monitors execution and tracks progress</li>
+        <li>Escalates high-risk/high-impact items to CEO</li>
+        <li>Summarizes for CEO in morning reports and standups</li>
+        <li><strong>Cannot:</strong> Override CEO, launch major initiatives without approval, create new products autonomously</li>
+      </ul>
+
+      <h3>Department Heads (Tier 3)</h3>
+      <ul>
+        <li>Execute tasks within their domain</li>
+        <li>Produce deliverables (reports, audits, drafts, plans)</li>
+        <li>Review other agents' work</li>
+        <li>Escalate domain-specific risks to Prime Operator</li>
+        <li>Report status in daily standups</li>
+      </ul>
+    </div>
+
+    <!-- Section 3: Decision Classification -->
+    <div class="gov-section" id="decision-classification">
+      <h2><i class="fas fa-traffic-light" style="color:#fbbf24; margin-right:6px;"></i>3. Decision Classification</h2>
+      <p>Every task is automatically classified based on its risk level, budget impact, and brand impact:</p>
+
+      <div style="margin:0.8rem 0;">
+        <div class="gov-class-card" style="background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.2); color:#34d399;">
+          <i class="fas fa-circle"></i> <strong>Autonomous</strong> — Prime Operator executes directly
+        </div>
+        <div class="gov-class-card" style="background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.2); color:#fbbf24;">
+          <i class="fas fa-circle"></i> <strong>Advisory</strong> — Goes to CEO Approval Queue
+        </div>
+        <div class="gov-class-card" style="background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); color:#f87171;">
+          <i class="fas fa-circle"></i> <strong>Executive Required</strong> — Must be approved before execution
+        </div>
+      </div>
+
+      <h3>Auto-Classification Rules</h3>
+      <ul>
+        <li><strong>Executive Required</strong> if: risk_level = high, brand_impact = high, or budget_impact > $100</li>
+        <li><strong>Advisory</strong> if: risk_level = medium or brand_impact = medium</li>
+        <li><strong>Autonomous</strong> for all other tasks</li>
+        <li><strong>Vision Statements</strong> (affect company direction, introduce new products, alter revenue model) are always <em>executive_required</em></li>
+      </ul>
+    </div>
+
+    <!-- Section 4: Escalation Rules -->
+    <div class="gov-section" id="escalation-rules">
+      <h2><i class="fas fa-flag" style="color:#f87171; margin-right:6px;"></i>4. Escalation Rules</h2>
+      <p>Prime Operator must escalate to CEO when:</p>
+      <ul>
+        <li>risk_level = high</li>
+        <li>brand_impact = high</li>
+        <li>budget_impact exceeds CFO threshold ($100)</li>
+        <li>classification = executive_required</li>
+        <li>Cross-agent conflict is unresolved</li>
+      </ul>
+
+      <h3>Escalation Format</h3>
+      <ul>
+        <li><strong>Situation:</strong> What happened / what is being proposed</li>
+        <li><strong>Impact:</strong> Risk level, budget, brand exposure</li>
+        <li><strong>Options:</strong> Available courses of action</li>
+        <li><strong>Recommendation:</strong> Prime Operator's recommended path</li>
+      </ul>
+    </div>
+
+    <!-- Section 5: Approval Queue Logic -->
+    <div class="gov-section" id="approval-queue">
+      <h2><i class="fas fa-gavel" style="color:#FFD700; margin-right:6px;"></i>5. Approval Queue Logic</h2>
+      <p>Tasks classified as <em>advisory</em> or <em>executive_required</em> enter the CEO Approval Queue.</p>
+
+      <h3>Queue Item Contains</h3>
+      <ul>
+        <li>Task title and origin agent</li>
+        <li>Risk level, budget impact, brand impact</li>
+        <li>Classification and proposed deadline</li>
+        <li>Prime Operator recommendation</li>
+      </ul>
+
+      <h3>CEO Actions</h3>
+      <ul>
+        <li><strong>Approve</strong> — Task unlocked for execution</li>
+        <li><strong>Reject</strong> — Sent back to Prime Operator</li>
+        <li><strong>Request Revision</strong> — Requires rework before re-submission</li>
+        <li><strong>Override</strong> — Executes immediately, logged as override event</li>
+      </ul>
+
+      <p>All actions are timestamped and logged in the Governance Log.</p>
+    </div>
+
+    <!-- Section 6: Override Protocol -->
+    <div class="gov-section" id="override-protocol">
+      <h2><i class="fas fa-bolt" style="color:#FFD700; margin-right:6px;"></i>6. Override Protocol</h2>
+      <p>CEO can override any task at any time using:</p>
+
+      <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:0.6rem 0.8rem; margin:0.5rem 0; font-family:monospace; font-size:0.75rem;">
+        /override [task_id]<br>
+        /directive create "Title"<br>
+        /objective create "Title" Q1 2026
+      </div>
+
+      <h3>Override Behavior</h3>
+      <ul>
+        <li>Marks task as approved immediately</li>
+        <li>Sets escalated = false, requires_ceo_approval = false</li>
+        <li>Forces execution regardless of classification</li>
+        <li>Resolves any pending approval for the task</li>
+      </ul>
+
+      <h3>Override Logging</h3>
+      <ul>
+        <li>Timestamp of override</li>
+        <li>Task ID</li>
+        <li>Previous classification</li>
+        <li>Risk level at time of override</li>
+      </ul>
+    </div>
+
+    <!-- Section 7: Directive Lifecycle -->
+    <div class="gov-section" id="directive-lifecycle">
+      <h2><i class="fas fa-compass" style="color:#8A2BE2; margin-right:6px;"></i>7. Directive Lifecycle</h2>
+      <div style="font-size:0.75rem; opacity:0.6; font-family:monospace; background:rgba(255,255,255,0.02); padding:0.5rem 0.8rem; border-radius:6px; margin:0.5rem 0;">
+        CEO creates directive → Prime Operator translates to objectives → Objectives break into tasks → Agents execute → Prime Operator reports progress → CEO reviews
+      </div>
+      <ul>
+        <li><strong>Active</strong> — Currently being executed</li>
+        <li><strong>Paused</strong> — Temporarily suspended by CEO</li>
+        <li><strong>Completed</strong> — All linked objectives met</li>
+      </ul>
+    </div>
+
+    <!-- Section 8: Objective Lifecycle -->
+    <div class="gov-section" id="objective-lifecycle">
+      <h2><i class="fas fa-bullseye" style="color:#4ECDC4; margin-right:6px;"></i>8. Objective Lifecycle</h2>
+      <ul>
+        <li><strong>On Track</strong> — Progress meets expected timeline</li>
+        <li><strong>At Risk</strong> — May miss deadline without intervention</li>
+        <li><strong>Behind</strong> — Significantly delayed, requires escalation</li>
+        <li><strong>Complete</strong> — Objective achieved</li>
+      </ul>
+      <p>Prime Operator updates objectives weekly. CEO sees executive summary view on the Dashboard and Objectives page.</p>
+    </div>
+
+    <!-- Section 9: Reporting Flow -->
+    <div class="gov-section" id="reporting-flow">
+      <h2><i class="fas fa-chart-line" style="color:#00C896; margin-right:6px;"></i>9. Reporting Flow</h2>
+      <div style="font-size:0.75rem; opacity:0.6; font-family:monospace; background:rgba(255,255,255,0.02); padding:0.5rem 0.8rem; border-radius:6px; margin:0.5rem 0;">
+        Department Agents → Prime Operator consolidation → CEO Executive Summary
+      </div>
+
+      <h3>CEO Morning Report Contains</h3>
+      <ul>
+        <li>Active directives status</li>
+        <li>Objective progress summary</li>
+        <li>Approval queue summary (pending items)</li>
+        <li>High-risk items flagged by agents</li>
+        <li>Budget alerts from CFO</li>
+      </ul>
+      <p>No granular noise — CEO sees strategic overview only.</p>
+
+      <h3>Standup Order</h3>
+      <ul>
+        <li>1. Nova (Prime Operator) — opens with overview + priorities</li>
+        <li>2. Forge (DevOps)</li>
+        <li>3. Pixel (Design & QC)</li>
+        <li>4. Cipher (CFO)</li>
+        <li>5. Echo (Marketing)</li>
+        <li>6. Nova (Prime Operator) — closes with summary for CEO</li>
+        <li>7. CEO commentary (optional, via Dashboard)</li>
+      </ul>
+    </div>
+
+    <div style="text-align:center; padding:2rem 0; opacity:0.3; font-size:0.65rem;">
+      AmbientPixels Governance Document v1.0 — Effective immediately
+    </div>
+
+  </main>
+
+</body>
+</html>

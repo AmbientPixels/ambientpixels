@@ -27,8 +27,11 @@
         <li><a href="/modules/company/standup.html">Standup</a></li>
         <li><a href="/modules/company/tasks.html">Tasks</a></li>
         <li><a href="/modules/company/dashboard.html" class="active">Dashboard</a></li>
+        <li><a href="/modules/company/directives.html">Directives</a></li>
+        <li><a href="/modules/company/objectives.html">Objectives</a></li>
+        <li><a href="/modules/company/governance.html">Governance</a></li>
         <li><a href="/modules/company/workspace.html">Workspace</a></li>
-        <li><a href="/" style="opacity:0.4;"><i class="fas fa-globe"></i> Main Site</a></li>
+        <li><a href="/" style="opacity:0.4;"><i class="fas fa-globe"></i></a></li>
       </ul>
     </div>
   </nav>
@@ -142,6 +145,46 @@
         <div id="panel-report">
           <div class="dash-empty">No morning report available yet.</div>
         </div>
+      </div>
+
+      <!-- CEO Approval Queue -->
+      <div class="dash-panel dash-panel--full" id="panel-approval-wrap">
+        <div class="dash-panel-header">
+          <span class="dash-panel-title"><i class="fas fa-gavel" style="color:#FFD700;"></i> CEO Approval Queue</span>
+          <span class="dash-panel-badge" id="approval-count-badge" style="background:rgba(255,215,0,0.1); color:#FFD700;">0 pending</span>
+        </div>
+        <div id="panel-approval-list">
+          <div class="dash-empty">No items awaiting CEO approval.</div>
+        </div>
+      </div>
+
+      <!-- Strategic Directives Snapshot -->
+      <div class="dash-panel">
+        <div class="dash-panel-header">
+          <span class="dash-panel-title"><i class="fas fa-compass" style="color:#8A2BE2;"></i> Directives</span>
+          <a href="/modules/company/directives.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">View All →</a>
+        </div>
+        <ul class="log-list" id="panel-directives-snap"></ul>
+        <div class="dash-empty" id="directives-snap-empty">No active directives.</div>
+      </div>
+
+      <!-- Quarterly Objectives Snapshot -->
+      <div class="dash-panel">
+        <div class="dash-panel-header">
+          <span class="dash-panel-title"><i class="fas fa-bullseye" style="color:#4ECDC4;"></i> Objectives</span>
+          <a href="/modules/company/objectives.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">View All →</a>
+        </div>
+        <ul class="log-list" id="panel-objectives-snap"></ul>
+        <div class="dash-empty" id="objectives-snap-empty">No active objectives.</div>
+      </div>
+
+      <!-- Governance Log -->
+      <div class="dash-panel dash-panel--full">
+        <div class="dash-panel-header">
+          <span class="dash-panel-title"><i class="fas fa-scroll" style="color:#FF8C00;"></i> Governance Log</span>
+        </div>
+        <ul class="log-list" id="panel-governance-log"></ul>
+        <div class="dash-empty" id="governance-log-empty">No governance events yet.</div>
       </div>
 
       <!-- Quick Chat -->
@@ -304,6 +347,10 @@
         renderOvernightLog();
         renderMorningReport();
         renderServerLogs();
+        renderApprovalQueue();
+        renderDirectivesSnap();
+        renderObjectivesSnap();
+        renderGovernanceLog();
       }
 
       // ── Stat Cards ──
@@ -586,6 +633,164 @@
         div.textContent = text;
         dashChatMessages.appendChild(div);
         dashChatMessages.scrollTop = dashChatMessages.scrollHeight;
+      }
+
+      // ── CEO Approval Queue ──
+      function renderApprovalQueue() {
+        var queue = AgentEngine.getApprovalQueue();
+        var pending = queue.filter(function (q) { return q.status === 'pending'; });
+        var listEl = document.getElementById('panel-approval-list');
+        var badge = document.getElementById('approval-count-badge');
+
+        badge.textContent = pending.length + ' pending';
+
+        if (pending.length === 0) {
+          listEl.innerHTML = '<div class="dash-empty">No items awaiting CEO approval.</div>';
+          return;
+        }
+
+        listEl.innerHTML = '';
+        pending.forEach(function (item) {
+          var div = document.createElement('div');
+          div.className = 'approval-item';
+          div.style.cssText = 'padding:0.6rem 0.8rem; border:1px solid rgba(255,215,0,0.08); border-radius:8px; margin-bottom:0.5rem; background:rgba(255,215,0,0.02);';
+
+          var riskColor = item.riskLevel === 'high' ? '#f87171' : item.riskLevel === 'medium' ? '#fbbf24' : '#34d399';
+          var classIcon = item.classification === 'executive_required' ? 'fa-exclamation-circle' : 'fa-info-circle';
+          var classColor = item.classification === 'executive_required' ? '#f87171' : '#fbbf24';
+
+          div.innerHTML =
+            '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">' +
+              '<strong style="font-size:0.8rem;">' + escapeHtml(item.taskTitle) + '</strong>' +
+              '<span style="font-size:0.6rem; color:' + classColor + ';"><i class="fas ' + classIcon + '"></i> ' + item.classification + '</span>' +
+            '</div>' +
+            '<div style="display:flex; gap:0.6rem; font-size:0.65rem; opacity:0.6; margin-bottom:0.5rem;">' +
+              '<span>Agent: ' + (item.originAgent || '?') + '</span>' +
+              '<span style="color:' + riskColor + ';">Risk: ' + item.riskLevel + '</span>' +
+              '<span>Budget: $' + (item.budgetImpact || 0) + '</span>' +
+              '<span>Brand: ' + (item.brandImpact || 'low') + '</span>' +
+            '</div>' +
+            '<div style="display:flex; gap:0.4rem;">' +
+              '<button class="approval-btn approval-btn--approve" data-id="' + item.id + '" style="font-size:0.6rem; padding:0.25rem 0.6rem; border:1px solid rgba(52,211,153,0.3); background:rgba(52,211,153,0.05); color:#34d399; border-radius:4px; cursor:pointer;">Approve</button>' +
+              '<button class="approval-btn approval-btn--reject" data-id="' + item.id + '" style="font-size:0.6rem; padding:0.25rem 0.6rem; border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.05); color:#f87171; border-radius:4px; cursor:pointer;">Reject</button>' +
+              '<button class="approval-btn approval-btn--revision" data-id="' + item.id + '" style="font-size:0.6rem; padding:0.25rem 0.6rem; border:1px solid rgba(251,191,36,0.3); background:rgba(251,191,36,0.05); color:#fbbf24; border-radius:4px; cursor:pointer;">Request Revision</button>' +
+              '<button class="approval-btn approval-btn--override" data-id="' + item.taskId + '" style="font-size:0.6rem; padding:0.25rem 0.6rem; border:1px solid rgba(255,215,0,0.3); background:rgba(255,215,0,0.05); color:#FFD700; border-radius:4px; cursor:pointer;">Override</button>' +
+            '</div>';
+          listEl.appendChild(div);
+        });
+
+        // Bind buttons
+        listEl.querySelectorAll('.approval-btn--approve').forEach(function (btn) {
+          btn.addEventListener('click', function () { AgentEngine.ceoApprove(btn.dataset.id); renderAll(); });
+        });
+        listEl.querySelectorAll('.approval-btn--reject').forEach(function (btn) {
+          btn.addEventListener('click', function () { AgentEngine.ceoReject(btn.dataset.id); renderAll(); });
+        });
+        listEl.querySelectorAll('.approval-btn--revision').forEach(function (btn) {
+          btn.addEventListener('click', function () { AgentEngine.ceoRequestRevision(btn.dataset.id); renderAll(); });
+        });
+        listEl.querySelectorAll('.approval-btn--override').forEach(function (btn) {
+          btn.addEventListener('click', function () { AgentEngine.ceoOverride(btn.dataset.id); renderAll(); });
+        });
+      }
+
+      // ── Directives Snapshot ──
+      function renderDirectivesSnap() {
+        var directives = AgentEngine.getDirectives();
+        var active = directives.filter(function (d) { return d.status === 'active'; });
+        var listEl = document.getElementById('panel-directives-snap');
+        var empty = document.getElementById('directives-snap-empty');
+
+        if (active.length === 0) {
+          listEl.innerHTML = '';
+          empty.style.display = '';
+          return;
+        }
+        empty.style.display = 'none';
+        listEl.innerHTML = '';
+
+        active.slice(0, 5).forEach(function (dir) {
+          var li = document.createElement('li');
+          li.className = 'log-item';
+          li.innerHTML =
+            '<div class="log-icon" style="background:rgba(138,43,226,0.1); color:#8A2BE2;"><i class="fas fa-compass"></i></div>' +
+            '<div class="log-body">' +
+              '<div class="log-text"><strong>' + escapeHtml(dir.title) + '</strong></div>' +
+              '<div class="log-time">' + (dir.priority || 'medium') + ' · ' + (dir.linkedTasks ? dir.linkedTasks.length : 0) + ' tasks</div>' +
+            '</div>';
+          listEl.appendChild(li);
+        });
+      }
+
+      // ── Objectives Snapshot ──
+      function renderObjectivesSnap() {
+        var objectives = AgentEngine.getObjectives();
+        var active = objectives.filter(function (o) { return o.status !== 'complete'; });
+        var listEl = document.getElementById('panel-objectives-snap');
+        var empty = document.getElementById('objectives-snap-empty');
+
+        if (active.length === 0) {
+          listEl.innerHTML = '';
+          empty.style.display = '';
+          return;
+        }
+        empty.style.display = 'none';
+        listEl.innerHTML = '';
+
+        active.slice(0, 5).forEach(function (obj) {
+          var statusColor = obj.status === 'on_track' ? '#34d399' : obj.status === 'at_risk' ? '#fbbf24' : '#f87171';
+          var li = document.createElement('li');
+          li.className = 'log-item';
+          li.innerHTML =
+            '<div class="log-icon" style="background:rgba(78,205,196,0.1); color:#4ECDC4;"><i class="fas fa-bullseye"></i></div>' +
+            '<div class="log-body" style="flex:1;">' +
+              '<div class="log-text"><strong>' + escapeHtml(obj.title) + '</strong> <span style="font-size:0.6rem; opacity:0.4;">' + (obj.quarter || '') + ' ' + (obj.year || '') + '</span></div>' +
+              '<div style="margin-top:0.3rem; height:4px; background:rgba(255,255,255,0.05); border-radius:2px; overflow:hidden;">' +
+                '<div style="height:100%; width:' + (obj.progressPercentage || 0) + '%; background:' + statusColor + '; border-radius:2px;"></div>' +
+              '</div>' +
+              '<div class="log-time" style="color:' + statusColor + ';">' + (obj.progressPercentage || 0) + '% · ' + (obj.status || 'on_track').replace(/_/g, ' ') + '</div>' +
+            '</div>';
+          listEl.appendChild(li);
+        });
+      }
+
+      // ── Governance Log ──
+      function renderGovernanceLog() {
+        var log = AgentEngine.getGovernanceLog();
+        var listEl = document.getElementById('panel-governance-log');
+        var empty = document.getElementById('governance-log-empty');
+
+        if (log.length === 0) {
+          listEl.innerHTML = '';
+          empty.style.display = '';
+          return;
+        }
+        empty.style.display = 'none';
+        listEl.innerHTML = '';
+
+        var typeIcons = {
+          'ceo-approval': { icon: 'fa-check-circle', color: '#34d399' },
+          'ceo-reject': { icon: 'fa-times-circle', color: '#f87171' },
+          'ceo-override': { icon: 'fa-bolt', color: '#FFD700' },
+          'ceo-revision': { icon: 'fa-redo', color: '#fbbf24' },
+          'escalation': { icon: 'fa-flag', color: '#f87171' },
+          'directive-created': { icon: 'fa-compass', color: '#8A2BE2' },
+          'objective-created': { icon: 'fa-bullseye', color: '#4ECDC4' }
+        };
+
+        log.slice().reverse().slice(0, 15).forEach(function (entry) {
+          var meta = typeIcons[entry.type] || { icon: 'fa-scroll', color: '#FF8C00' };
+          var li = document.createElement('li');
+          li.className = 'log-item';
+          var summary = entry.data && entry.data.title ? entry.data.title : (entry.data && entry.data.taskId ? entry.data.taskId : entry.type);
+          li.innerHTML =
+            '<div class="log-icon" style="background:rgba(255,140,0,0.1); color:' + meta.color + ';"><i class="fas ' + meta.icon + '"></i></div>' +
+            '<div class="log-body">' +
+              '<div class="log-text"><strong>' + entry.type.replace(/-/g, ' ') + '</strong> — ' + escapeHtml(summary) + '</div>' +
+              '<div class="log-time">' + formatTime(entry.timestamp) + '</div>' +
+            '</div>';
+          listEl.appendChild(li);
+        });
       }
 
       // ── Helpers ──

@@ -26,8 +26,11 @@
         <li><a href="/modules/company/standup.html">Standup</a></li>
         <li><a href="/modules/company/tasks.html">Tasks</a></li>
         <li><a href="/modules/company/dashboard.html">Dashboard</a></li>
+        <li><a href="/modules/company/directives.html">Directives</a></li>
+        <li><a href="/modules/company/objectives.html">Objectives</a></li>
+        <li><a href="/modules/company/governance.html">Governance</a></li>
         <li><a href="/modules/company/workspace.html">Workspace</a></li>
-        <li><a href="/" style="opacity:0.4;"><i class="fas fa-globe"></i> Main Site</a></li>
+        <li><a href="/" style="opacity:0.4;"><i class="fas fa-globe"></i></a></li>
       </ul>
     </div>
   </nav>
@@ -154,7 +157,7 @@
 
       function getWelcomeMessage() {
         var greetings = {
-          nova: "Hey. I'm Nova — I run the show here at AmbientPixels. What's on your mind?",
+          nova: "Nova here — Prime Operator. I coordinate the team, track execution, and escalate to the CEO when needed. What do you need?",
           cipher: "Cipher here. Numbers, budgets, costs — that's my lane. What do you need?",
           pixel: "Hey, I'm Pixel. Design and quality — if it looks off or feels broken, I'm your person. What are we looking at?",
           forge: "Forge, DevOps. If it's about deployments, infra, or uptime, let's talk. What's the situation?",
@@ -201,6 +204,16 @@
         if (isThinking || !currentAgent) return;
         if (!text) return;
 
+        // CEO Command Parsing
+        if (text.startsWith('/')) {
+          var handled = handleCeoCommand(text);
+          if (handled) {
+            inputEl.value = '';
+            inputEl.style.height = 'auto';
+            return;
+          }
+        }
+
         inputEl.value = '';
         inputEl.style.height = 'auto';
 
@@ -216,6 +229,59 @@
           }
           scrollToBottom();
         });
+      }
+
+      function handleCeoCommand(text) {
+        var parts = text.trim().split(/\s+/);
+        var cmd = parts[0].toLowerCase();
+
+        if (cmd === '/override' && parts[1]) {
+          var taskId = parts[1];
+          var result = AgentEngine.ceoOverride(taskId);
+          if (result) {
+            addMessage('user', text);
+            addMessage('agent', 'CEO Override executed on task **' + taskId + '**. Task is now unlocked for execution. Classification set to autonomous. Override logged in governance log.');
+          } else {
+            addMessage('user', text);
+            addMessage('agent', 'Override failed — task "' + taskId + '" not found.');
+          }
+          return true;
+        }
+
+        if (cmd === '/directive' && parts[1] === 'create') {
+          var title = text.replace(/^\/directive\s+create\s+/i, '').replace(/^["']|["']$/g, '');
+          if (title) {
+            var dir = AgentEngine.addDirective({ title: title });
+            addMessage('user', text);
+            addMessage('agent', 'Directive created: **' + title + '** (ID: ' + dir.id + '). Navigate to [Directives](/modules/company/directives.html) to manage it.');
+          }
+          return true;
+        }
+
+        if (cmd === '/objective' && parts[1] === 'create') {
+          var match = text.match(/\/objective\s+create\s+"([^"]+)"\s*(Q[1-4])?\s*(\d{4})?/i);
+          if (match) {
+            var obj = AgentEngine.addObjective({
+              title: match[1],
+              quarter: match[2] || 'Q1',
+              year: parseInt(match[3], 10) || new Date().getFullYear()
+            });
+            addMessage('user', text);
+            addMessage('agent', 'Objective created: **' + match[1] + '** (' + (match[2] || 'Q1') + ' ' + (match[3] || new Date().getFullYear()) + ', ID: ' + obj.id + '). Navigate to [Objectives](/modules/company/objectives.html) to track progress.');
+          } else {
+            addMessage('user', text);
+            addMessage('agent', 'Usage: `/objective create "Title" Q1 2026`');
+          }
+          return true;
+        }
+
+        if (cmd === '/help') {
+          addMessage('user', text);
+          addMessage('agent', '**CEO Commands:**\n`/override [task_id]` — Force approve and unlock a task\n`/directive create "Title"` — Create a new strategic directive\n`/objective create "Title" Q1 2026` — Create a quarterly objective\n`/help` — Show this help');
+          return true;
+        }
+
+        return false;
       }
 
       function addMessage(role, text) {

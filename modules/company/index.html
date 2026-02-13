@@ -28,8 +28,11 @@
         <li><a href="/modules/company/standup.html">Standup</a></li>
         <li><a href="/modules/company/tasks.html">Tasks</a></li>
         <li><a href="/modules/company/dashboard.html">Dashboard</a></li>
+        <li><a href="/modules/company/directives.html">Directives</a></li>
+        <li><a href="/modules/company/objectives.html">Objectives</a></li>
+        <li><a href="/modules/company/governance.html">Governance</a></li>
         <li><a href="/modules/company/workspace.html">Workspace</a></li>
-        <li><a href="/" style="opacity:0.4;"><i class="fas fa-globe"></i> Main Site</a></li>
+        <li><a href="/" style="opacity:0.4;"><i class="fas fa-globe"></i></a></li>
       </ul>
     </div>
   </nav>
@@ -39,20 +42,29 @@
     <!-- Company Header -->
     <div class="company-header">
       <h1><i class="fas fa-building" style="opacity:0.4; margin-right:8px;"></i>AmbientPixels HQ</h1>
-      <p>AI agents running every department — chat with any of them or let them work autonomously.</p>
+      <p>AI-operated company with human executive authority — governed, tiered, and approval-gated.</p>
     </div>
 
     <!-- Org Chart -->
     <div class="org-chart" id="org-chart">
-      <!-- CEO Tier -->
-      <div class="org-tier" id="tier-executive"></div>
+      <!-- Tier 1: CEO -->
+      <div class="org-tier-label" style="font-size:0.6rem; text-transform:uppercase; letter-spacing:2px; opacity:0.3; margin-bottom:0.3rem;">Tier 1 — Executive</div>
+      <div class="org-tier" id="tier-1"></div>
+
+      <!-- Connector -->
+      <div class="org-connector"></div>
+
+      <!-- Tier 2: Prime Operator -->
+      <div class="org-tier-label" style="font-size:0.6rem; text-transform:uppercase; letter-spacing:2px; opacity:0.3; margin-bottom:0.3rem;">Tier 2 — Prime Operator</div>
+      <div class="org-tier" id="tier-2"></div>
 
       <!-- Connector -->
       <div class="org-connector"></div>
       <div class="org-branch-line"></div>
 
-      <!-- Department Tier -->
-      <div class="org-tier" id="tier-departments"></div>
+      <!-- Tier 3: Department Heads -->
+      <div class="org-tier-label" style="font-size:0.6rem; text-transform:uppercase; letter-spacing:2px; opacity:0.3; margin-bottom:0.3rem;">Tier 3 — Department Heads</div>
+      <div class="org-tier" id="tier-3"></div>
     </div>
 
     <!-- Agent Detail Panel (shown when clicking a card) -->
@@ -86,8 +98,9 @@
       'use strict';
 
       var orgChart = document.getElementById('org-chart');
-      var tierExec = document.getElementById('tier-executive');
-      var tierDepts = document.getElementById('tier-departments');
+      var tier1 = document.getElementById('tier-1');
+      var tier2 = document.getElementById('tier-2');
+      var tier3 = document.getElementById('tier-3');
       var detailPanel = document.getElementById('agent-detail');
       var activityFeed = document.getElementById('activity-feed');
       var selectedAgent = null;
@@ -101,11 +114,10 @@
 
         data.agents.forEach(function (agent) {
           var card = createAgentCard(agent);
-          if (agent.department === 'Executive') {
-            tierExec.appendChild(card);
-          } else {
-            tierDepts.appendChild(card);
-          }
+          var tier = agent.tier || 3;
+          if (tier === 1) tier1.appendChild(card);
+          else if (tier === 2) tier2.appendChild(card);
+          else tier3.appendChild(card);
         });
 
         renderActivityFeed();
@@ -113,7 +125,7 @@
 
       function createAgentCard(agent) {
         var card = document.createElement('div');
-        card.className = 'agent-card' + (agent.role === 'CEO' ? ' agent-card--ceo' : '');
+        card.className = 'agent-card' + (agent.tier === 1 ? ' agent-card--ceo' : agent.tier === 2 ? ' agent-card--prime' : '');
         card.style.setProperty('--agent-color', agent.color);
         card.setAttribute('data-agent-id', agent.id);
 
