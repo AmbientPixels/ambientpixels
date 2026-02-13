@@ -130,6 +130,17 @@
         <div class="dash-empty" id="overnight-empty">No activity today yet.</div>
       </div>
 
+      <!-- Morning Report -->
+      <div class="dash-panel dash-panel--full" id="panel-report-wrap" style="display:none;">
+        <div class="dash-panel-header">
+          <span class="dash-panel-title"><i class="fas fa-sun"></i> Morning Report</span>
+          <span class="dash-panel-badge" id="report-date-badge"></span>
+        </div>
+        <div id="panel-report">
+          <div class="dash-empty">No morning report available yet.</div>
+        </div>
+      </div>
+
       <!-- Quick Chat -->
       <div class="dash-panel dash-panel--full">
         <div class="dash-panel-header">
@@ -165,6 +176,7 @@
     </div>
   </div>
 
+  <script src="/js/company-store.js"></script>
   <script src="/js/agent-engine.js"></script>
   <script>
     (function () {
@@ -216,6 +228,8 @@
         renderSessions();
         renderCronLog();
         renderOvernightLog();
+        renderMorningReport();
+        renderServerLogs();
       }
 
       // ── Stat Cards ──
@@ -369,6 +383,61 @@
               '<div class="log-time">today</div>' +
             '</div>';
           panelOvernight.appendChild(li);
+        });
+      }
+
+      // ── Morning Report ──
+      var panelReportWrap = document.getElementById('panel-report-wrap');
+      var panelReport = document.getElementById('panel-report');
+      var reportDateBadge = document.getElementById('report-date-badge');
+
+      function renderMorningReport() {
+        AgentEngine.getMorningReport().then(function (report) {
+          if (!report) return;
+          panelReportWrap.style.display = '';
+          reportDateBadge.textContent = report.date || '';
+
+          var html = '';
+          if (report.ceoSummary) {
+            html += '<div style="padding:0.6rem; background:rgba(138,43,226,0.05); border:1px solid rgba(138,43,226,0.1); border-radius:8px; margin-bottom:0.6rem; font-size:0.8rem; line-height:1.5;">' + escapeHtml(report.ceoSummary).replace(/\n/g, '<br>') + '</div>';
+          }
+          if (report.stats) {
+            html += '<div style="display:flex; gap:0.5rem; flex-wrap:wrap; font-size:0.65rem; opacity:0.5;">';
+            html += '<span>' + (report.stats.completed24h || 0) + ' completed</span> · ';
+            html += '<span>' + (report.stats.created24h || 0) + ' created</span> · ';
+            html += '<span>' + (report.stats.active || 0) + ' active</span> · ';
+            html += '<span>' + (report.stats.overdue || 0) + ' overdue</span>';
+            html += '</div>';
+          }
+          panelReport.innerHTML = html || '<div class="dash-empty">Report generated but no summary available.</div>';
+        });
+      }
+
+      // ── Server Logs (merge into overnight/cron if available) ──
+      function renderServerLogs() {
+        if (AgentEngine.getStoreMode() !== 'server') return;
+
+        var today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        AgentEngine.getCompanyLogs({ since: today.toISOString(), limit: 50 }).then(function (logs) {
+          if (!logs || logs.length === 0) return;
+
+          // Append server agent-action logs to overnight panel
+          var actionLogs = logs.filter(function (l) { return l.type === 'agent-action' || l.type === 'heartbeat'; });
+          actionLogs.forEach(function (l) {
+            var li = document.createElement('li');
+            li.className = 'log-item';
+            var agent = l.agentId ? AgentEngine.getAgent(l.agentId) : null;
+            li.innerHTML =
+              '<div class="log-icon log-icon--cron"><i class="fas fa-robot"></i></div>' +
+              '<div class="log-body">' +
+                '<div class="log-text">' + (agent ? '<strong>' + agent.name + '</strong> — ' : '') + escapeHtml(l.summary || l.type) + '</div>' +
+                '<div class="log-time">' + formatTime(l.timestamp) + '</div>' +
+              '</div>';
+            panelOvernight.appendChild(li);
+            overnightEmpty.style.display = 'none';
+          });
         });
       }
 

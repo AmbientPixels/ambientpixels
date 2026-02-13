@@ -1,0 +1,10 @@
+{
+  "bindings": [
+    {
+      "name": "heartbeatTimer",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "0 */30 * * * *"
+    }
+  ]
+}

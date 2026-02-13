@@ -108,6 +108,21 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/company-state",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/company-state",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/company-logs",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/company-logs",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/company-report",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/company-report",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/*",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
     },

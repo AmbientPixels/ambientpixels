@@ -23,7 +23,14 @@ var AgentEngine = (function () {
   }
 
   // ── Storage helpers ──
+  // Delegates through CompanyStore when available (server + local cache),
+  // falls back to raw localStorage otherwise. All calls remain synchronous
+  // to preserve existing public API contracts.
+
   function _loadStorage(key, fallback) {
+    if (typeof CompanyStore !== 'undefined' && CompanyStore.getStateSync) {
+      return CompanyStore.getStateSync(key, fallback);
+    }
     try {
       var raw = localStorage.getItem(key);
       return raw ? JSON.parse(raw) : fallback;
@@ -33,6 +40,10 @@ var AgentEngine = (function () {
   }
 
   function _saveStorage(key, data) {
+    if (typeof CompanyStore !== 'undefined' && CompanyStore.setStateSync) {
+      CompanyStore.setStateSync(key, data);
+      return;
+    }
     try {
       localStorage.setItem(key, JSON.stringify(data));
     } catch (e) {
@@ -70,6 +81,13 @@ var AgentEngine = (function () {
   // ── Load agent registry ──
   function loadRegistry() {
     if (_registry) return Promise.resolve(_registry);
+
+    // Init CompanyStore in parallel (non-blocking server probe)
+    if (typeof CompanyStore !== 'undefined' && CompanyStore.init) {
+      CompanyStore.init().then(function () {
+        emit('store-ready', { mode: CompanyStore.getMode() });
+      });
+    }
 
     return fetch('/data/company-agents.json')
       .then(function (res) { return res.json(); })
@@ -885,6 +903,19 @@ var AgentEngine = (function () {
     addTaskComment: addTaskComment,
     getTasksByStatus: getTasksByStatus,
     getTasksByAssignee: getTasksByAssignee,
-    getTaskStats: getTaskStats
+    getTaskStats: getTaskStats,
+    // Store
+    getMorningReport: function () {
+      if (typeof CompanyStore !== 'undefined') return CompanyStore.getMorningReport();
+      return Promise.resolve(_loadStorage('ap_morning_report', null));
+    },
+    getCompanyLogs: function (options) {
+      if (typeof CompanyStore !== 'undefined') return CompanyStore.getLogs(options);
+      return Promise.resolve([]);
+    },
+    getStoreMode: function () {
+      if (typeof CompanyStore !== 'undefined') return CompanyStore.getMode();
+      return 'local';
+    }
   };
 })();
