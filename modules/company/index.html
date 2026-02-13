@@ -121,12 +121,17 @@
 
         var statusClass = agent.status === 'active' ? 'agent-status--active' : 'agent-status--idle';
 
+        var divTags = (agent.divisions || []).map(function (div) {
+          return '<span class="agent-division-tag"><i class="' + div.icon + '"></i> ' + div.name + '</span>';
+        }).join('');
+
         card.innerHTML =
           '<div class="agent-status ' + statusClass + '"></div>' +
           '<div class="agent-avatar">' + avatarContent + '</div>' +
           '<h3 class="agent-name">' + agent.name + '</h3>' +
           '<p class="agent-role">' + agent.role + '</p>' +
-          '<span class="agent-dept-badge">' + agent.department + '</span>';
+          '<span class="agent-dept-badge">' + agent.department + '</span>' +
+          (divTags ? '<div class="agent-divisions">' + divTags + '</div>' : '');
 
         card.addEventListener('click', function () {
           showAgentDetail(agent);
@@ -179,6 +184,7 @@
             '</div>' +
           '</div>' +
           '<div class="agent-description">' + agent.description + '</div>' +
+          buildDivisionsHtml(agent) +
           (capsHtml ? '<div class="agent-capabilities">' + capsHtml + '</div>' : '') +
           (autoHtml ? '<h4 style="font-size:0.75rem; opacity:0.5; margin:0 0 0.5rem; text-transform:uppercase; letter-spacing:1px;">Automations</h4><ul class="agent-automations">' + autoHtml + '</ul>' : '') +
           '<div class="agent-actions">' +
@@ -195,6 +201,23 @@
         }
 
         detailPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      function buildDivisionsHtml(agent) {
+        if (!agent.divisions || agent.divisions.length === 0) return '';
+        var items = agent.divisions.map(function (div) {
+          return '<div class="division-item">' +
+            '<div class="division-icon"><i class="' + div.icon + '"></i></div>' +
+            '<div class="division-info">' +
+              '<div class="division-name">' + div.name + '</div>' +
+              '<div class="division-desc">' + div.description + '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+        return '<div class="agent-detail-divisions">' +
+          '<h4><i class="fas fa-sitemap" style="margin-right:4px;"></i>Divisions</h4>' +
+          '<div class="division-list">' + items + '</div>' +
+        '</div>';
       }
 
       function renderActivityFeed() {

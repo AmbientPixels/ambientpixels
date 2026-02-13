@@ -17,6 +17,10 @@
       "icon": "fas fa-crown",
       "status": "active",
       "description": "Strategic leader and visionary. Oversees all operations, sets priorities, and coordinates the team.",
+      "divisions": [
+        { "id": "products", "name": "Products", "icon": "fas fa-box-open", "description": "Product strategy, roadmap, feature prioritization" },
+        { "id": "growth", "name": "Growth", "icon": "fas fa-chart-bar", "description": "Growth strategy, KPIs, scaling, partnerships" }
+      ],
       "capabilities": ["strategic-planning", "team-coordination", "decision-logs", "daily-standup"],
       "automations": [
         {
@@ -39,6 +43,10 @@
       "icon": "fas fa-chart-line",
       "status": "active",
       "description": "Tracks budgets, API costs, resource usage, and financial health of the operation.",
+      "divisions": [
+        { "id": "budget-ops", "name": "Budget & Operations", "icon": "fas fa-coins", "description": "Budget allocation, cost tracking, vendor management" },
+        { "id": "compliance", "name": "Compliance & Risk", "icon": "fas fa-shield-alt", "description": "Financial compliance, risk assessment, audit trails" }
+      ],
       "capabilities": ["budget-tracking", "cost-analysis", "api-usage-reports", "resource-optimization"],
       "automations": [
         {
@@ -61,6 +69,10 @@
       "icon": "fas fa-palette",
       "status": "active",
       "description": "Handles design reviews, accessibility audits, UI consistency, and visual quality.",
+      "divisions": [
+        { "id": "frontend", "name": "Frontend", "icon": "fas fa-laptop-code", "description": "UI development, component systems, responsive design" },
+        { "id": "qa", "name": "QA", "icon": "fas fa-vial", "description": "Quality assurance, testing, accessibility audits, bug triage" }
+      ],
       "capabilities": ["design-review", "accessibility-audit", "ui-consistency", "color-contrast-check"],
       "automations": [
         {
@@ -83,6 +95,10 @@
       "icon": "fas fa-server",
       "status": "active",
       "description": "Manages deployments, build pipelines, uptime monitoring, and infrastructure health.",
+      "divisions": [
+        { "id": "backend-security", "name": "Backend & Security", "icon": "fas fa-lock", "description": "API development, authentication, data security, server-side logic" },
+        { "id": "devops", "name": "DevOps", "icon": "fas fa-cogs", "description": "CI/CD pipelines, deployments, infrastructure, uptime monitoring" }
+      ],
       "capabilities": ["deploy-monitoring", "build-status", "uptime-checks", "performance-audit"],
       "automations": [
         {
@@ -111,6 +127,10 @@
       "icon": "fas fa-bullhorn",
       "status": "active",
       "description": "Creates content, social media copy, campaign strategies, and handles brand voice.",
+      "divisions": [
+        { "id": "content-creative", "name": "Content Creative", "icon": "fas fa-pen-fancy", "description": "Copywriting, blog posts, visual content, brand storytelling" },
+        { "id": "community", "name": "Community", "icon": "fas fa-people-arrows", "description": "Community engagement, social presence, user feedback, outreach" }
+      ],
       "capabilities": ["content-generation", "social-media-drafts", "campaign-planning", "brand-voice"],
       "automations": [
         {
