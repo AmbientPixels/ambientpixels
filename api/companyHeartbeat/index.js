@@ -22,8 +22,9 @@ const AGENT_ROLES = {
 // ── Guardrails ──
 const GUARDRAILS = {
   maxActionsPerCyclePerAgent: 3,
-  maxGeminiCallsPerCycle: 10,
+  maxGeminiCallsPerCycle: 15,
   maxNewTasksPerCycle: 5,
+  maxExecutesPerCyclePerAgent: 1,
   dedupeWindowMs: 300000 // 5 min
 };
 
@@ -233,6 +234,41 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
         taskId: action.taskId,
         newStatus: action.newStatus
       });
+    } else if (action.type === 'execute-task' && action.taskId) {
+      // Execute: agent produces actual work on a task (costs 1 extra Gemini call)
+      if (result.executes >= GUARDRAILS.maxExecutesPerCyclePerAgent) {
+        context.log('[Heartbeat]', agentId, 'max executes reached, skipping');
+      } else {
+        const task = tasks.find(t => t.id === action.taskId);
+        if (task) {
+          const deliverable = await executeTask(context, agent, task);
+          result.geminiCalls++;
+          if (deliverable) {
+            result.taskUpdates.push({
+              action: 'execute',
+              taskId: action.taskId,
+              deliverable: deliverable,
+              agentId: agentId
+            });
+            result.executes = (result.executes || 0) + 1;
+          }
+        }
+      }
+    } else if (action.type === 'review-task' && action.taskId) {
+      // Review: agent reviews another agent's deliverable (costs 1 extra Gemini call)
+      const task = tasks.find(t => t.id === action.taskId && t.status === 'review');
+      if (task) {
+        const review = await reviewTask(context, agent, task);
+        result.geminiCalls++;
+        if (review) {
+          result.taskUpdates.push({
+            action: 'review',
+            taskId: action.taskId,
+            review: review,
+            agentId: agentId
+          });
+        }
+      }
     }
 
     await logEvent('agent-action', agentId, summary, cycleId);
@@ -262,6 +298,13 @@ function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks) {
     .map(t => '- [' + t.status + '] ' + t.title + ' (' + (t.assignee || 'unassigned') + ')')
     .join('\n') || '(none)';
 
+  // Find tasks in review from other agents (for potential review action)
+  const reviewableTasks = allActiveTasks
+    .filter(t => t.status === 'review' && t.assignee !== agent.name.toLowerCase() && t.comments && t.comments.some(c => c.type === 'deliverable'))
+    .slice(0, 3)
+    .map(t => '- [review] ' + t.title + ' (by ' + (t.assignee || 'unassigned') + ', id: ' + t.id + ')')
+    .join('\n') || '(none)';
+
   return `You are ${agent.name}, ${agent.role} at AmbientPixels. Your focus: ${agent.focus}.
 
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
@@ -272,6 +315,9 @@ ${taskList}
 OTHER ACTIVE TASKS:
 ${otherTasks}
 
+TASKS AWAITING REVIEW (from other agents — you can review these):
+${reviewableTasks}
+
 CURRENT TIME: ${new Date().toISOString()}
 
 Respond with ONLY valid JSON in this exact format:
@@ -279,7 +325,7 @@ Respond with ONLY valid JSON in this exact format:
   "observation": "One sentence about what you notice or your current state",
   "actions": [
     {
-      "type": "create-task|update-task|move-task",
+      "type": "create-task|update-task|move-task|execute-task|review-task",
       "summary": "Brief description of what you're doing",
       "task": { "title": "", "description": "", "priority": "low|medium|high|critical", "assignee": "agentId" },
       "taskId": "existing-task-id",
@@ -289,11 +335,21 @@ Respond with ONLY valid JSON in this exact format:
   ]
 }
 
+Action types:
+- create-task: Create a new task on the board
+- update-task: Change a task's description, priority, or assignee
+- move-task: Move a task to a new status column
+- execute-task: Pick up one of YOUR in-progress or todo tasks and produce actual work output (a report, analysis, draft, recommendation, audit, etc). This will generate a deliverable and move the task to review.
+- review-task: Review a completed deliverable from another agent's task that is in the review column. You'll evaluate their work and either approve it (done) or request changes (back to in-progress).
+
 Rules:
 - actions array can be empty if nothing needs doing
 - Max 3 actions per heartbeat
+- Max 1 execute-task per heartbeat (it's thorough work)
 - Only create tasks that are genuinely useful
 - Only move tasks if you have reason to
+- Prefer execute-task on your own in-progress tasks when you have work to do
+- Review other agents' work when tasks are waiting in review
 - Keep observations brief and factual`;
 }
 
@@ -321,6 +377,54 @@ function applyTaskUpdate(tasks, update) {
     return task;
   }
 
+  if (update.action === 'execute') {
+    for (let i = 0; i < tasks.length; i++) {
+      if (tasks[i].id === update.taskId) {
+        // Add deliverable as a comment
+        if (!tasks[i].comments) tasks[i].comments = [];
+        tasks[i].comments.push({
+          id: 'cmt-' + Date.now(),
+          author: update.agentId,
+          text: update.deliverable,
+          type: 'deliverable',
+          createdAt: new Date().toISOString()
+        });
+        // Move to review
+        tasks[i].status = 'review';
+        tasks[i].updatedAt = new Date().toISOString();
+        return tasks[i];
+      }
+    }
+  }
+
+  if (update.action === 'review') {
+    for (let i = 0; i < tasks.length; i++) {
+      if (tasks[i].id === update.taskId) {
+        // Add review as a comment
+        if (!tasks[i].comments) tasks[i].comments = [];
+        tasks[i].comments.push({
+          id: 'cmt-' + Date.now(),
+          author: update.agentId,
+          text: update.review.feedback,
+          type: 'review',
+          verdict: update.review.verdict,
+          createdAt: new Date().toISOString()
+        });
+        // Move based on verdict
+        if (update.review.verdict === 'approved') {
+          tasks[i].status = 'done';
+          tasks[i].completedAt = new Date().toISOString();
+        } else {
+          // Request changes — back to in-progress
+          tasks[i].status = 'in-progress';
+          tasks[i].completedAt = null;
+        }
+        tasks[i].updatedAt = new Date().toISOString();
+        return tasks[i];
+      }
+    }
+  }
+
   if (update.action === 'update' || update.action === 'move') {
     for (let i = 0; i < tasks.length; i++) {
       if (tasks[i].id === update.taskId) {
@@ -346,6 +450,148 @@ function applyTaskUpdate(tasks, update) {
     }
   }
   return null;
+}
+
+// ── Execute a task: agent produces actual work output ──
+async function executeTask(context, agent, task) {
+  const prompt = buildExecutePrompt(agent, task);
+  const output = await callGeminiExecute(prompt);
+  if (!output) {
+    context.log('[Heartbeat]', agent.name, 'execute-task returned empty for:', task.title);
+    return null;
+  }
+  context.log('[Heartbeat]', agent.name, 'produced deliverable for:', task.title, '(' + output.length + ' chars)');
+  return output;
+}
+
+function buildExecutePrompt(agent, task) {
+  // Gather existing comments for context
+  const existingComments = (task.comments || [])
+    .filter(c => c.text)
+    .map(c => '- [' + (c.type || 'comment') + ' by ' + (c.author || 'unknown') + '] ' + c.text.substring(0, 200))
+    .join('\n') || '(none)';
+
+  return `You are ${agent.name}, ${agent.role} at AmbientPixels. Your focus: ${agent.focus}.
+
+You are executing a task and producing a deliverable. This is real work output — be thorough, specific, and actionable.
+
+TASK: ${task.title}
+DESCRIPTION: ${task.description || '(no description)'}
+PRIORITY: ${task.priority}
+STATUS: ${task.status}
+
+EXISTING COMMENTS/HISTORY:
+${existingComments}
+
+Based on your role as ${agent.role}, produce the appropriate deliverable for this task. Examples of what you should produce:
+${agent.role === 'CEO' ? '- Strategic analysis, priority decisions, team directives, product direction memos' : ''}${agent.role === 'CFO' ? '- Budget reports, cost analyses, spending recommendations, ROI assessments' : ''}${agent.role === 'Design & QC' ? '- Design reviews, UI audit notes, accessibility recommendations, UX improvement plans' : ''}${agent.role === 'DevOps' ? '- Deployment plans, infrastructure audits, security checklists, performance reports' : ''}${agent.role === 'Marketing' ? '- Content drafts, social media copy, campaign briefs, brand messaging guides' : ''}
+
+Write your deliverable directly — no JSON wrapping. Be specific to AmbientPixels. Use headers, bullet points, or sections as appropriate. This will be attached to the task as a deliverable comment.`;
+}
+
+// ── Review a task: agent evaluates another agent's deliverable ──
+async function reviewTask(context, agent, task) {
+  const prompt = buildReviewPrompt(agent, task);
+  const response = await callGeminiExecute(prompt);
+  if (!response) {
+    context.log('[Heartbeat]', agent.name, 'review-task returned empty for:', task.title);
+    return null;
+  }
+
+  // Parse verdict from response
+  let verdict = 'approved';
+  let feedback = response;
+
+  // Check if the response contains structured verdict
+  try {
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      verdict = parsed.verdict === 'changes-requested' ? 'changes-requested' : 'approved';
+      feedback = parsed.feedback || response;
+    }
+  } catch (e) {
+    // If no JSON, check for keywords
+    const lower = response.toLowerCase();
+    if (lower.includes('changes requested') || lower.includes('needs revision') || lower.includes('request changes') || lower.includes('not approved')) {
+      verdict = 'changes-requested';
+    }
+  }
+
+  context.log('[Heartbeat]', agent.name, 'reviewed:', task.title, '→', verdict);
+  return { verdict, feedback };
+}
+
+function buildReviewPrompt(agent, task) {
+  // Find the deliverable comment(s)
+  const deliverables = (task.comments || [])
+    .filter(c => c.type === 'deliverable')
+    .map(c => '--- Deliverable by ' + (c.author || 'unknown') + ' ---\n' + c.text)
+    .join('\n\n') || '(no deliverable found)';
+
+  // Find any previous reviews
+  const previousReviews = (task.comments || [])
+    .filter(c => c.type === 'review')
+    .map(c => '--- Review by ' + (c.author || 'unknown') + ' [' + (c.verdict || '?') + '] ---\n' + c.text)
+    .join('\n\n');
+
+  return `You are ${agent.name}, ${agent.role} at AmbientPixels. Your focus: ${agent.focus}.
+
+You are reviewing a deliverable from another team member. Evaluate the quality and completeness of their work.
+
+TASK: ${task.title}
+DESCRIPTION: ${task.description || '(no description)'}
+ASSIGNED TO: ${task.assignee || 'unassigned'}
+PRIORITY: ${task.priority}
+
+DELIVERABLE(S):
+${deliverables}
+${previousReviews ? '\nPREVIOUS REVIEWS:\n' + previousReviews : ''}
+
+Review this deliverable from your perspective as ${agent.role}. Then respond with ONLY valid JSON:
+{
+  "verdict": "approved" or "changes-requested",
+  "feedback": "Your detailed review feedback — what's good, what needs improvement, specific suggestions. 2-4 sentences."
+}
+
+Guidelines:
+- Approve if the work is solid and addresses the task
+- Request changes if there are significant gaps, errors, or missing elements
+- Be constructive — give specific, actionable feedback
+- Consider quality from your role's perspective (${agent.focus})`;
+}
+
+// ── Call Gemini with higher token limit for deliverables/reviews ──
+async function callGeminiExecute(prompt) {
+  if (!GEMINI_API_KEY) return null;
+
+  const body = {
+    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    generationConfig: {
+      temperature: 0.8,
+      topP: 0.9,
+      maxOutputTokens: 1200
+    }
+  };
+
+  try {
+    const res = await fetch(GEMINI_URL + GEMINI_API_KEY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) {
+      console.error('[Heartbeat] Gemini execute returned', res.status);
+      return null;
+    }
+
+    const data = await res.json();
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+  } catch (err) {
+    console.error('[Heartbeat] Gemini execute call failed:', err.message);
+    return null;
+  }
 }
 
 // ── Call Gemini directly (same pattern as agentchat) ──
