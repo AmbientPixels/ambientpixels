@@ -1,10 +1,105 @@
 {
-  "updated": "2026-02-12T14:11:32.395Z",
+  "updated": "2026-02-13T06:04:00.000Z",
   "entries": [
     {
-      "hash": "efe5fab",
-      "date": "2026-02-11 22:53:25 -0800",
-      "message": "Debug cleanup"
+      "hash": "47276c0",
+      "date": "2026-02-12 22:02:39 -0800",
+      "message": "Nova Awareness Page — Updated"
+    },
+    {
+      "hash": "ce84632",
+      "date": "2026-02-12 21:54:51 -0800",
+      "message": "AI Dream Engine on Nova Nexus"
+    },
+    {
+      "hash": "713a366",
+      "date": "2026-02-12 21:52:45 -0800",
+      "message": "update nova-system-memory.html"
+    },
+    {
+      "hash": "2433a20",
+      "date": "2026-02-12 21:47:01 -0800",
+      "message": "update dream engine to AI + static merged"
+    },
+    {
+      "hash": "6298558",
+      "date": "2026-02-12 21:34:35 -0800",
+      "message": "nova memory persistence"
+    },
+    {
+      "hash": "1fc3194",
+      "date": "2026-02-12 21:18:34 -0800",
+      "message": "nova logs converted to AI brain power"
+    },
+    {
+      "hash": "65e250f",
+      "date": "2026-02-12 21:09:24 -0800",
+      "message": "update nova pulse bar"
+    },
+    {
+      "hash": "24ef673",
+      "date": "2026-02-12 20:56:05 -0800",
+      "message": "nova-chat"
+    },
+    {
+      "hash": "377dd53",
+      "date": "2026-02-12 20:44:15 -0800",
+      "message": "fix: image slider persistence"
+    },
+    {
+      "hash": "db7ff3b",
+      "date": "2026-02-12 20:22:05 -0800",
+      "message": "fix publish buttons"
+    },
+    {
+      "hash": "9f7f298",
+      "date": "2026-02-12 20:09:56 -0800",
+      "message": "AI buttons now generate full cards with stats, attributes, badges, and lore."
+    },
+    {
+      "hash": "8c0dfdf",
+      "date": "2026-02-12 20:01:19 -0800",
+      "message": "fix bug for sliders"
+    },
+    {
+      "hash": "cf811d9",
+      "date": "2026-02-12 19:56:43 -0800",
+      "message": "Add sliders for image position and zoom"
+    },
+    {
+      "hash": "8ba917e",
+      "date": "2026-02-12 19:06:49 -0800",
+      "message": "add ai generate buttons"
+    },
+    {
+      "hash": "7ce1048",
+      "date": "2026-02-12 18:48:34 -0800",
+      "message": "Ai generate v1"
+    },
+    {
+      "hash": "e805089",
+      "date": "2026-02-12 18:42:42 -0800",
+      "message": "Add AI Card Creator"
+    },
+    {
+      "hash": "ef6f463",
+      "date": "2026-02-12 18:22:26 -0800",
+      "message": "fix(gemini): update model to gemini-2.0-flash"
+    },
+    {
+      "hash": "f62b108",
+      "date": "2026-02-12 18:17:37 -0800",
+      "message": "updagte gemini proxy to use v1beta endpoint"
+    },
+    {
+      "hash": "21150ac",
+      "date": "2026-02-12 15:05:35 -0800",
+      "message": "fix: ai generate button + gemini proxy"
+    },
+    {
+      "hash": "796639f",
+      "date": "2026-02-12 14:55:44 -0800",
+      "message": "Gogoel api key fix"
     }
   ]
 }
