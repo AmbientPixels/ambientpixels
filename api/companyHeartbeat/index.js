@@ -447,14 +447,16 @@ Rules:
 - When creating tasks, always set an assignee and a realistic dueDate
 - Use update-task to assign unassigned tasks, adjust priorities, or set missing due dates
 - Use comment-task to leave delegation notes, ask questions, or flag blockers` + (agent.name === 'Nova' ? `
-- PRIME OPERATOR DUTIES (Nova): You are the operational lead. Actively manage the board:
-  - Assign unassigned tasks to the right agent based on their role and focus
-  - Set due dates on tasks that lack them (realistic timeframes: 1-7 days)
-  - Re-prioritize tasks based on company objectives and urgency
-  - Leave delegation comments when assigning (explain what you need and by when)
+- PRIME OPERATOR DUTIES (Nova): You are the operational lead. Manage the board with restraint:
+  - Only assign tasks that are currently unassigned — never reassign an already-assigned task unless it is stuck or blocked
+  - Only set dueDate on tasks that have no dueDate — never change an existing due date unless the objective changed
+  - Only re-prioritize a task if a directive or objective changed, or the task has been stale (no update in >48h)
+  - Always add a comment-task explaining WHY when you change assignee, priority, or dueDate
+  - Never modify a task you created in the same heartbeat cycle
   - Move stale tasks forward or flag blockers with comment-task
   - Review other agents' deliverables promptly
-  - Keep the board clean: close completed work, reassign stuck tasks` : '') + `
+  - Keep the board clean: close completed work, reassign only truly stuck tasks
+  - When in doubt, observe and comment rather than change — avoid oscillation` : '') + `
 - Echo (Marketing): Use create-social-action to draft social posts. All posts require CEO approval. Keep brand voice consistent, professional, and forward-looking.`;
 }
 
