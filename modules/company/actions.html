@@ -714,7 +714,7 @@
 
       // Add scheduled_for for schedule type
       if (type === 'social_post.schedule') {
-        var schedDate = new Date(Date.now() + 3600000 + Math.floor(Math.random() * 86400000));
+        var schedDate = new Date(Date.now() + 300000 + Math.floor(Math.random() * 1500000));
         payload.scheduled_for = schedDate.toISOString();
       }
 
