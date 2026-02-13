@@ -2,8 +2,8 @@
 const fetch = require('node-fetch');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-// Updated by Cascade 2025-02-12 - Using gemini-1.5-flash via v1beta endpoint
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + GEMINI_API_KEY;
+// Updated by Cascade 2025-02-12 - Using gemini-2.0-flash (current stable model)
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_API_KEY;
 
 /* updated by Cascade 2025-07-15 */
 module.exports = async function (context, req) {
