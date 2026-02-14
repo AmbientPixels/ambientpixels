@@ -39,6 +39,8 @@ const GUARDRAILS = {
 // ── Tier 4 Sub-Agent Gating ──
 const TIER4_SUB_AGENTS = new Set(['quill']);
 const MAX_TOOL_CALLS_PER_AGENT = 2;
+const MAX_RESEARCH_INJECTIONS = 2;
+const MAX_RESEARCH_CHARS = 1500;
 const SUB_AGENT_MENTION_WINDOW_HOURS = 24;
 
 function _isActiveStatus(status) {
@@ -396,6 +398,15 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   const toolActions = (parsed.actions || []).filter(a => a.tool === 'web_search' || a.type === 'web_search');
   const regularActions = (parsed.actions || []).filter(a => a.tool !== 'web_search' && a.type !== 'web_search');
 
+  // Scout recursion guard: skip search if task already has research_intel
+  const scoutTargetTask = agentTasks.find(t => t.status === 'in-progress') || agentTasks[0];
+  const hasExistingResearch = scoutTargetTask && scoutTargetTask.research_intel;
+  if (agentId === 'scout' && hasExistingResearch && toolActions.length > 0) {
+    context.log('[Heartbeat] scout RECURSION BLOCKED: research_intel already exists on task', scoutTargetTask.id);
+    await logEvent('tool-recursion-blocked', agentId, 'research_intel already attached to ' + scoutTargetTask.id, cycleId);
+    toolActions.length = 0; // clear all tool calls
+  }
+
   for (const toolCall of toolActions) {
     if (toolUsage >= MAX_TOOL_CALLS_PER_AGENT) {
       context.log('[Heartbeat]', agentId, 'RATE LIMITED: web_search call #' + (toolUsage + 1) + ' blocked (max ' + MAX_TOOL_CALLS_PER_AGENT + ')');
@@ -428,19 +439,50 @@ You requested web searches and here are the results:
 
 ${toolContext}
 
-Based on these results, produce your deliverable. You MUST:
-1. Summarize key findings relevant to your task
-2. Include a "## Sources" section listing ONLY URLs from the search results above
-3. Do NOT cite URLs that were not returned by the search tool
-4. Be specific and actionable
+Based on these results, produce TWO outputs:
 
-Write your output as markdown. This will be attached to your task as a deliverable.`;
+1. DELIVERABLE: A full markdown research brief with findings and a "## Sources" section listing ONLY URLs from the search results above. Do NOT cite URLs not returned by the tool.
+
+2. STRUCTURED INTEL: After the deliverable, on a new line, output EXACTLY this JSON block (no extra text around it):
+<!--RESEARCH_INTEL_JSON
+{"title":"brief title","summary":"max 600 char summary","key_findings":["finding 1","finding 2"],"sources":["url1","url2"],"impact_tags":["marketing|pricing|ux|infra|finance|strategy"]}
+RESEARCH_INTEL_JSON-->
+
+Rules for the structured intel:
+- summary: max 600 characters
+- key_findings: max 5 items, each max 200 characters
+- sources: max 3 URLs (only from search results)
+- impact_tags: pick from: marketing, pricing, ux, infra, finance, strategy
+
+Write the full deliverable first, then the structured JSON block.`;
 
     const synthesisResponse = await callGemini(synthesisPrompt);
     result.geminiCalls++;
 
     if (synthesisResponse) {
-      // Attach synthesized output as a deliverable on the agent's current task
+      // Extract structured research_intel from synthesis response
+      let researchIntel = null;
+      let deliverableText = synthesisResponse;
+      const intelMatch = synthesisResponse.match(/<!--RESEARCH_INTEL_JSON\s*([\s\S]*?)\s*RESEARCH_INTEL_JSON-->/);
+      if (intelMatch) {
+        deliverableText = synthesisResponse.replace(/<!--RESEARCH_INTEL_JSON[\s\S]*?RESEARCH_INTEL_JSON-->/, '').trim();
+        try {
+          const raw = JSON.parse(intelMatch[1].trim());
+          researchIntel = {
+            title: String(raw.title || '').substring(0, 120),
+            summary: String(raw.summary || '').substring(0, 600),
+            key_findings: (raw.key_findings || []).slice(0, 5).map(f => String(f).substring(0, 200)),
+            sources: (raw.sources || []).slice(0, 3).map(s => String(s)),
+            impact_tags: (raw.impact_tags || []).filter(t => ['marketing','pricing','ux','infra','finance','strategy'].indexOf(t) !== -1),
+            created_at: new Date().toISOString()
+          };
+          context.log('[Heartbeat]', agentId, 'research_intel extracted:', researchIntel.title);
+        } catch (e) {
+          context.log('[Heartbeat]', agentId, 'research_intel JSON parse failed:', e.message);
+        }
+      }
+
+      // Attach deliverable + research_intel to target task
       const targetTask = agentTasks.find(t => t.status === 'in-progress') || agentTasks[0];
       if (targetTask) {
         result.taskUpdates.push({
@@ -449,14 +491,22 @@ Write your output as markdown. This will be attached to your task as a deliverab
           comment: {
             type: 'deliverable',
             author: agentId,
-            text: synthesisResponse,
+            text: deliverableText,
             sources: toolResults.filter(r => r.ok).reduce(function (urls, r) {
               return urls.concat(r.results.map(function (h) { return h.url; }));
             }, []),
             timestamp: new Date().toISOString()
           }
         });
-        context.log('[Heartbeat]', agentId, 'web research deliverable attached to task:', targetTask.id);
+        // Store structured research_intel on task metadata
+        if (researchIntel) {
+          result.taskUpdates.push({
+            action: 'set-research-intel',
+            taskId: targetTask.id,
+            research_intel: researchIntel
+          });
+        }
+        context.log('[Heartbeat]', agentId, 'web research deliverable attached to task:', targetTask.id, researchIntel ? '(with structured intel)' : '(no structured intel)');
       }
     }
   }
@@ -878,6 +928,41 @@ ${objList}`;
 ${docList}`;
   }
 
+  // Recent research intelligence — structured summaries from Scout tasks (token-bounded)
+  let researchSection = '';
+  const researchEntries = [];
+  allActiveTasks.forEach(t => {
+    if (t.assignee === 'scout' && t.research_intel) {
+      researchEntries.push({ task: t.title, intel: t.research_intel });
+    }
+  });
+  if (researchEntries.length > 0) {
+    let totalChars = 0;
+    const injected = [];
+    // Take most recent entries, up to MAX_RESEARCH_INJECTIONS
+    const entries = researchEntries.slice(-MAX_RESEARCH_INJECTIONS);
+    for (const entry of entries) {
+      const ri = entry.intel;
+      const findings = (ri.key_findings || []).slice(0, 5).map(f => '  • ' + f).join('\n');
+      const impact = (ri.impact_tags || []).join(', ');
+      const sources = (ri.sources || []).slice(0, 3).join(', ');
+      const block =
+        '- [' + (ri.title || entry.task) + '] — ' + (ri.summary || '').substring(0, 600) + '\n' +
+        (findings ? findings + '\n' : '') +
+        (impact ? '  Impact: ' + impact + '\n' : '') +
+        (sources ? '  Sources: ' + sources : '');
+      // Enforce character cap
+      if (totalChars + block.length > MAX_RESEARCH_CHARS) break;
+      totalChars += block.length;
+      injected.push(block);
+    }
+    if (injected.length > 0) {
+      researchSection = '\n\nRECENT RESEARCH INTELLIGENCE (from Scout — Research & Intelligence dept):\n' +
+        injected.join('\n') +
+        '\nUse these findings to inform your decisions and work when relevant.';
+    }
+  }
+
   return `You are ${agent.name}, ${agent.role} at AmbientPixels. Your focus: ${agent.focus}.
 
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
@@ -890,7 +975,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}
-${triageSection}${directivesSection}${objectivesSection}${docsSection}
+${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}
 
 CURRENT TIME: ${new Date().toISOString()}
 
@@ -1003,8 +1088,8 @@ Rules:
 - DEPARTMENT HEAD DUTIES (Scout — Research & Intelligence):
   - You lead the Research & Intelligence department. Your job is to research market trends, competitive intelligence, business strategy, and industry benchmarks to support company growth and business decisions.
   - You serve ALL departments — any agent or directive that needs research support is in your scope.
-  - ALLOWED actions: execute-task, create-task (research tasks assigned to yourself), update-task, move-task, comment-task, web_search (tool call)
-  - FORBIDDEN actions: create-social-action, create-doc, submit-for-publish
+  - ALLOWED actions: execute-task, create-task (research tasks assigned to yourself), update-task, move-task, comment-task, web_search (tool call), create-doc (research briefs, market reports, competitive analyses), submit-for-publish (submit completed research docs for CEO approval)
+  - FORBIDDEN actions: create-social-action
   - WEB SEARCH TOOL: You have access to a live web search tool. To use it, include actions with type "web_search":
     { "type": "web_search", "tool": "web_search", "args": { "q": "your search query", "n": 5 } }
     Rules:
@@ -1016,7 +1101,10 @@ Rules:
     - NEVER cite, reference, or link to URLs you did not receive from the search tool
     - NEVER hallucinate citations — if the tool returned no results, say so honestly
     - Results are cached for 24 hours — identical queries won't hit the API again
-  - Focus on executing research tasks with structured briefs: findings, analysis, recommendations, and cited sources.` : '') + `
+  - RECURSION GUARD: Once your research deliverable is attached to a task, you CANNOT search again on that task. If the task status changes or a directive requires updated research, a new task should be created.
+  - When you produce research, the system extracts a structured summary (title, findings, sources, impact tags) that is shared with ALL agents automatically.
+  - Focus on executing research tasks with structured briefs: findings, analysis, recommendations, and cited sources.
+  - When creating research docs with create-doc, use proper markdown with clear headings, structured sections, and cited sources.` : '') + `
 - Echo (Marketing): Use create-social-action to draft social posts. All posts require CEO approval. Keep brand voice consistent, professional, and forward-looking.`;
 }
 
@@ -1130,6 +1218,16 @@ function applyTaskUpdate(tasks, update, _pendingEscalations) {
           tasks[i].status = 'in-progress';
           tasks[i].completedAt = null;
         }
+        tasks[i].updatedAt = new Date().toISOString();
+        return tasks[i];
+      }
+    }
+  }
+
+  if (update.action === 'set-research-intel') {
+    for (let i = 0; i < tasks.length; i++) {
+      if (tasks[i].id === update.taskId) {
+        tasks[i].research_intel = update.research_intel;
         tasks[i].updatedAt = new Date().toISOString();
         return tasks[i];
       }
