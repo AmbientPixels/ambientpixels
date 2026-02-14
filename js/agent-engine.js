@@ -727,6 +727,7 @@ var AgentEngine = (function () {
       title: entry.title || '',
       date: entry.date || new Date().toISOString().split('T')[0],
       type: entry.type || 'event',   // event, deadline, milestone, recurring
+      priority: entry.priority || 'medium', // low, medium, high, critical
       agentId: entry.agentId || null,
       notes: entry.notes || '',
       recurring: entry.recurring || false

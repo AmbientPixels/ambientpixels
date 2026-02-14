@@ -172,17 +172,71 @@
 
     <!-- ═══════════════ DATES TAB ═══════════════ -->
     <div class="ws-panel" id="panel-dates">
-      <div style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;">
-        <input type="text" class="ws-field-input" id="date-title" placeholder="Event title..." style="flex:2;min-width:150px;" />
-        <input type="date" class="ws-field-input" id="date-date" style="flex:1;min-width:130px;" />
-        <select class="ws-field-select" id="date-type" style="flex:1;min-width:100px;">
-          <option value="event">Event</option>
-          <option value="deadline">Deadline</option>
-          <option value="milestone">Milestone</option>
-          <option value="recurring">Recurring</option>
-        </select>
-        <button class="ws-save-btn" id="date-add" style="margin:0;"><i class="fas fa-plus"></i> Add</button>
+      <div class="ws-memory-controls">
+        <button class="ws-memory-add-btn" id="date-add-btn"><i class="fas fa-plus"></i> New Date</button>
       </div>
+
+      <div class="ws-memory-form" id="date-form">
+        <input type="hidden" id="date-edit-id" value="" />
+        <div class="ws-memory-form-row">
+          <div class="ws-field" style="margin:0;">
+            <label class="ws-field-label">Title</label>
+            <input type="text" class="ws-field-input" id="date-title" placeholder="Event title..." />
+          </div>
+          <div class="ws-field" style="margin:0;">
+            <label class="ws-field-label">Date</label>
+            <input type="date" class="ws-field-input" id="date-date" />
+          </div>
+        </div>
+        <div class="ws-memory-form-row">
+          <div class="ws-field" style="margin:0;">
+            <label class="ws-field-label">Type</label>
+            <select class="ws-field-select" id="date-type">
+              <option value="event">Event</option>
+              <option value="deadline">Deadline</option>
+              <option value="milestone">Milestone</option>
+              <option value="recurring">Recurring</option>
+            </select>
+          </div>
+          <div class="ws-field" style="margin:0;">
+            <label class="ws-field-label">Priority</label>
+            <select class="ws-field-select" id="date-priority">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+          </div>
+        </div>
+        <div class="ws-memory-form-row">
+          <div class="ws-field" style="margin:0;">
+            <label class="ws-field-label">Agent (optional)</label>
+            <select class="ws-field-select" id="date-agent">
+              <option value="">Shared (all agents)</option>
+            </select>
+          </div>
+          <div class="ws-field" style="margin:0;">
+            <label class="ws-field-label">Recurring</label>
+            <select class="ws-field-select" id="date-recurring">
+              <option value="">No</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
+        </div>
+        <div class="ws-field" style="margin:0 0 0.5rem;">
+          <label class="ws-field-label">Notes (optional)</label>
+          <input type="text" class="ws-field-input" id="date-notes" placeholder="Additional context..." />
+        </div>
+        <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+          <button class="ws-save-btn" id="date-add" style="margin:0;"><i class="fas fa-save"></i> Save Date</button>
+          <button class="ws-nav-btn" id="date-form-cancel">Cancel</button>
+        </div>
+      </div>
+
       <div class="ws-dates-list" id="dates-list"></div>
       <div class="ws-empty" id="dates-empty">No important dates tracked yet.</div>
     </div>
@@ -669,25 +723,89 @@
       // ════════════════════════════════════════
       //  DATES
       // ════════════════════════════════════════
+      var dateForm = document.getElementById('date-form');
+      var DATE_TYPE_COLORS = { event: '#3b82f6', deadline: '#ef4444', milestone: '#f59e0b', recurring: '#8b5cf6' };
+      var DATE_TYPE_ICONS = { event: 'fa-calendar-check', deadline: 'fa-clock', milestone: 'fa-flag', recurring: 'fa-sync-alt' };
+      var DATE_PRI_COLORS = { low: '#6b7280', medium: '#3b82f6', high: '#f59e0b', critical: '#ef4444' };
+
       function initDates() {
+        var agentSelect = document.getElementById('date-agent');
+        var reg = AgentEngine.getRegistry();
+        if (reg && reg.agents) {
+          reg.agents.forEach(function (a) {
+            var opt = document.createElement('option');
+            opt.value = a.id;
+            opt.textContent = a.name + ' (' + a.role + ')';
+            agentSelect.appendChild(opt);
+          });
+        }
         renderDates();
       }
+
+      function clearDateForm() {
+        document.getElementById('date-edit-id').value = '';
+        document.getElementById('date-title').value = '';
+        document.getElementById('date-date').value = '';
+        document.getElementById('date-type').value = 'event';
+        document.getElementById('date-priority').value = 'medium';
+        document.getElementById('date-agent').value = '';
+        document.getElementById('date-recurring').value = '';
+        document.getElementById('date-notes').value = '';
+        document.getElementById('date-add').innerHTML = '<i class="fas fa-save"></i> Save Date';
+      }
+
+      document.getElementById('date-add-btn').addEventListener('click', function () {
+        if (dateForm.classList.contains('visible')) {
+          dateForm.classList.remove('visible');
+        } else {
+          clearDateForm();
+          dateForm.classList.add('visible');
+        }
+      });
+
+      document.getElementById('date-form-cancel').addEventListener('click', function () {
+        clearDateForm();
+        dateForm.classList.remove('visible');
+      });
 
       document.getElementById('date-add').addEventListener('click', function () {
         var title = document.getElementById('date-title').value.trim();
         var date = document.getElementById('date-date').value;
         if (!title || !date) return;
 
-        AgentEngine.addDate({
+        var editId = document.getElementById('date-edit-id').value;
+        var data = {
           title: title,
           date: date,
-          type: document.getElementById('date-type').value
-        });
+          type: document.getElementById('date-type').value,
+          priority: document.getElementById('date-priority').value,
+          agentId: document.getElementById('date-agent').value || null,
+          recurring: document.getElementById('date-recurring').value || false,
+          notes: document.getElementById('date-notes').value.trim()
+        };
 
-        document.getElementById('date-title').value = '';
-        document.getElementById('date-date').value = '';
+        if (editId) {
+          var dates = AgentEngine.getDates();
+          var idx = dates.findIndex(function (d) { return d.id === editId; });
+          if (idx !== -1) {
+            Object.assign(dates[idx], data);
+            localStorage.setItem('ap_workspace_dates', JSON.stringify(dates));
+          }
+        } else {
+          AgentEngine.addDate(data);
+        }
+
+        clearDateForm();
+        dateForm.classList.remove('visible');
         renderDates();
       });
+
+      function daysUntil(dateStr) {
+        var now = new Date();
+        now.setHours(0, 0, 0, 0);
+        var target = new Date(dateStr + 'T00:00:00');
+        return Math.round((target - now) / 86400000);
+      }
 
       function renderDates() {
         var dates = AgentEngine.getDates();
@@ -696,30 +814,81 @@
         list.innerHTML = '';
         empty.style.display = dates.length === 0 ? '' : 'none';
 
-        // Sort by date
         dates.sort(function (a, b) { return a.date.localeCompare(b.date); });
 
         dates.forEach(function (d) {
           var dt = new Date(d.date + 'T00:00:00');
           var month = dt.toLocaleDateString('en-US', { month: 'short' });
           var day = dt.getDate();
+          var days = daysUntil(d.date);
+          var isOverdue = days < 0 && d.type === 'deadline';
+          var isToday = days === 0;
+
+          var daysLabel = '';
+          if (isToday) daysLabel = '<span style="color:#22c55e;font-weight:600;font-size:0.65rem;">TODAY</span>';
+          else if (days === 1) daysLabel = '<span style="color:#3b82f6;font-size:0.65rem;">tomorrow</span>';
+          else if (days > 1 && days <= 7) daysLabel = '<span style="color:#3b82f6;font-size:0.65rem;">in ' + days + ' days</span>';
+          else if (days > 7) daysLabel = '<span style="opacity:0.4;font-size:0.65rem;">in ' + days + ' days</span>';
+          else if (days === -1) daysLabel = '<span style="color:' + (isOverdue ? '#ef4444' : '#6b7280') + ';font-size:0.65rem;">yesterday</span>';
+          else daysLabel = '<span style="color:' + (isOverdue ? '#ef4444' : '#6b7280') + ';font-size:0.65rem;">' + Math.abs(days) + ' days ago</span>';
+
+          var typeColor = DATE_TYPE_COLORS[d.type] || '#3b82f6';
+          var typeIcon = DATE_TYPE_ICONS[d.type] || 'fa-calendar';
+          var pri = d.priority || 'medium';
+          var priColor = DATE_PRI_COLORS[pri] || '#3b82f6';
+          var agent = d.agentId ? AgentEngine.getAgent(d.agentId) : null;
 
           var el = document.createElement('div');
-          el.className = 'ws-date-item';
+          el.className = 'ws-date-item' + (isOverdue ? ' ws-date-overdue' : '');
+          el.style.borderLeft = '3px solid ' + typeColor;
+
+          var badgesHtml =
+            '<span style="font-size:0.6rem;padding:0.1rem 0.35rem;border-radius:4px;background:' + typeColor + '22;color:' + typeColor + ';"><i class="fas ' + typeIcon + '" style="margin-right:2px;"></i>' + d.type + '</span>' +
+            '<span style="font-size:0.6rem;padding:0.1rem 0.35rem;border-radius:4px;background:' + priColor + '22;color:' + priColor + ';text-transform:uppercase;">' + pri + '</span>' +
+            (isOverdue ? '<span style="font-size:0.6rem;padding:0.1rem 0.35rem;border-radius:4px;background:#ef444422;color:#ef4444;font-weight:600;">OVERDUE</span>' : '') +
+            (d.recurring ? '<span style="font-size:0.6rem;padding:0.1rem 0.35rem;border-radius:4px;background:#8b5cf622;color:#8b5cf6;"><i class="fas fa-sync-alt" style="margin-right:2px;"></i>' + d.recurring + '</span>' : '');
+
           el.innerHTML =
-            '<div class="ws-date-cal">' +
+            '<div class="ws-date-cal" style="border-color:' + typeColor + ';">' +
               '<div class="ws-date-cal-month">' + month + '</div>' +
               '<div class="ws-date-cal-day">' + day + '</div>' +
             '</div>' +
-            '<div class="ws-date-info">' +
+            '<div class="ws-date-info" style="flex:1;">' +
               '<div class="ws-date-title">' + escapeHtml(d.title) + '</div>' +
-              '<div class="ws-date-type">' + d.type + '</div>' +
+              '<div style="display:flex;gap:0.3rem;flex-wrap:wrap;margin:0.2rem 0;">' + badgesHtml + '</div>' +
+              (d.notes ? '<div style="font-size:0.68rem;opacity:0.5;margin-top:0.15rem;">' + escapeHtml(d.notes) + '</div>' : '') +
+              '<div style="display:flex;gap:0.5rem;align-items:center;margin-top:0.2rem;">' +
+                daysLabel +
+                (agent ? '<span style="font-size:0.6rem;color:' + agent.color + ';"><i class="fas fa-user" style="margin-right:2px;"></i>' + agent.name + '</span>' : '') +
+              '</div>' +
             '</div>' +
-            '<button class="ws-date-delete" data-id="' + d.id + '"><i class="fas fa-times"></i></button>';
+            '<div style="display:flex;flex-direction:column;gap:0.3rem;">' +
+              '<button class="ws-memory-action-btn ws-date-action" data-action="edit" data-id="' + d.id + '" title="Edit"><i class="fas fa-pen"></i></button>' +
+              '<button class="ws-memory-action-btn ws-memory-action-btn--delete ws-date-action" data-action="delete" data-id="' + d.id + '" title="Delete"><i class="fas fa-trash"></i></button>' +
+            '</div>';
 
-          el.querySelector('.ws-date-delete').addEventListener('click', function () {
-            AgentEngine.deleteDate(this.dataset.id);
-            renderDates();
+          el.querySelectorAll('.ws-date-action').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var id = this.dataset.id;
+              if (this.dataset.action === 'delete') {
+                AgentEngine.deleteDate(id);
+                renderDates();
+              } else if (this.dataset.action === 'edit') {
+                var item = AgentEngine.getDates().find(function (x) { return x.id === id; });
+                if (!item) return;
+                document.getElementById('date-edit-id').value = item.id;
+                document.getElementById('date-title').value = item.title || '';
+                document.getElementById('date-date').value = item.date || '';
+                document.getElementById('date-type').value = item.type || 'event';
+                document.getElementById('date-priority').value = item.priority || 'medium';
+                document.getElementById('date-agent').value = item.agentId || '';
+                document.getElementById('date-recurring').value = item.recurring || '';
+                document.getElementById('date-notes').value = item.notes || '';
+                document.getElementById('date-add').innerHTML = '<i class="fas fa-save"></i> Update Date';
+                dateForm.classList.add('visible');
+                dateForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+              }
+            });
           });
 
           list.appendChild(el);
