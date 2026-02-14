@@ -85,55 +85,51 @@
   <script src="/js/company-store.js"></script>
   <script>
   (function () {
-    var API_BASE = (window.location.hostname.includes('ambientpixels.ai'))
-      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
-      : '/api';
+    CompanyStore.init().then(function () {
+      return Promise.all([
+        CompanyStore.getState('ap_directives', []),
+        CompanyStore.getState('ap_objectives', []),
+        CompanyStore.getState('ap_approval_queue', []),
+        CompanyStore.getState('ap_governance_log', [])
+      ]);
+    }).then(function (results) {
+      var dirs = results[0] || [];
+      var objs = results[1] || [];
+      var queue = results[2] || [];
+      var govLog = results[3] || [];
 
-    // Directives
-    fetch(API_BASE + '/company-state?key=directives')
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        var dirs = (data && data.value) ? data.value : [];
-        var active = dirs.filter(function (d) { return d.status === 'active'; });
-        document.getElementById('stat-directives').textContent = active.length;
-        var el = document.getElementById('ov-directives');
-        if (active.length === 0) { el.textContent = 'No active directives.'; return; }
-        el.innerHTML = active.slice(0, 5).map(function (d) {
+      // Directives
+      var activeDirs = dirs.filter(function (d) { return d.status === 'active'; });
+      document.getElementById('stat-directives').textContent = activeDirs.length;
+      var dirEl = document.getElementById('ov-directives');
+      if (activeDirs.length === 0) { dirEl.textContent = 'No active directives.'; }
+      else {
+        dirEl.innerHTML = activeDirs.slice(0, 5).map(function (d) {
           return '<div class="ov-list-item"><span>' + esc(d.title) + '</span><span class="ov-badge" style="background:rgba(138,43,226,0.12); color:#8A2BE2;">active</span></div>';
         }).join('');
-      }).catch(function () { document.getElementById('ov-directives').textContent = 'Could not load.'; });
+      }
 
-    // Objectives
-    fetch(API_BASE + '/company-state?key=objectives')
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        var objs = (data && data.value) ? data.value : [];
-        var active = objs.filter(function (o) { return o.status === 'active' || o.status === 'on-track'; });
-        document.getElementById('stat-objectives').textContent = active.length;
-        var el = document.getElementById('ov-objectives');
-        if (active.length === 0) { el.textContent = 'No active objectives.'; return; }
-        el.innerHTML = active.slice(0, 5).map(function (o) {
-          var pct = o.progress || 0;
-          return '<div class="ov-list-item"><span>' + esc(o.title) + '</span><span style="font-size:0.6rem; opacity:0.5;">' + pct + '%</span></div>';
+      // Objectives (statuses: on_track, at_risk, behind, complete)
+      var activeObjs = objs.filter(function (o) { return o.status === 'on_track' || o.status === 'at_risk'; });
+      document.getElementById('stat-objectives').textContent = activeObjs.length;
+      var objEl = document.getElementById('ov-objectives');
+      if (activeObjs.length === 0) { objEl.textContent = 'No active objectives.'; }
+      else {
+        var statusColor = { on_track: '#34d399', at_risk: '#fbbf24', behind: '#f87171', complete: '#8A2BE2' };
+        objEl.innerHTML = activeObjs.slice(0, 5).map(function (o) {
+          var pct = o.progressPercentage || 0;
+          var color = statusColor[o.status] || '#888';
+          return '<div class="ov-list-item"><span>' + esc(o.title) + '</span><span style="font-size:0.6rem; color:' + color + ';">' + pct + '% — ' + (o.status || '').replace(/_/g, ' ') + '</span></div>';
         }).join('');
-      }).catch(function () { document.getElementById('ov-objectives').textContent = 'Could not load.'; });
+      }
 
-    // Approval queue
-    fetch(API_BASE + '/company-state?key=approvalQueue')
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        var queue = (data && data.value) ? data.value : [];
-        var pending = queue.filter(function (q) { return q.status === 'pending'; });
-        document.getElementById('stat-pending').textContent = pending.length;
-      }).catch(function () {});
+      // Approval queue
+      var pending = queue.filter(function (q) { return q.status === 'pending'; });
+      document.getElementById('stat-pending').textContent = pending.length;
 
-    // Governance log
-    fetch(API_BASE + '/company-state?key=governanceLog')
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        var log = (data && data.value) ? data.value : [];
-        document.getElementById('stat-gov-events').textContent = log.length;
-      }).catch(function () {});
+      // Governance log
+      document.getElementById('stat-gov-events').textContent = govLog.length;
+    });
 
     function esc(s) { if (!s) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
   })();

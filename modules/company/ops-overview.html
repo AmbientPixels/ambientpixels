@@ -92,46 +92,44 @@
   <script src="/js/company-store.js"></script>
   <script>
   (function () {
-    var API_BASE = (window.location.hostname.includes('ambientpixels.ai'))
-      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
-      : '/api';
+    CompanyStore.init().then(function () {
+      return Promise.all([
+        CompanyStore.getState('ap_tasks', []),
+        CompanyStore.getState('ap_cron_log', []),
+        CompanyStore.getState('ap_standup_log', [])
+      ]);
+    }).then(function (results) {
+      var tasks = results[0] || [];
+      var cronLog = results[1] || [];
+      var standupLog = results[2] || [];
 
-    // Load tasks for stats
-    fetch(API_BASE + '/company-state?key=tasks')
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        var tasks = (data && data.value) ? data.value : [];
-        var active = tasks.filter(function (t) { return t.status !== 'done' && t.status !== 'backlog'; }).length;
-        var done = tasks.filter(function (t) { return t.status === 'done'; }).length;
-        document.getElementById('stat-active').textContent = active;
-        document.getElementById('stat-done').textContent = done;
-      }).catch(function () {});
+      // Task stats
+      var active = tasks.filter(function (t) { return t.status !== 'done' && t.status !== 'backlog'; }).length;
+      var done = tasks.filter(function (t) { return t.status === 'done'; }).length;
+      document.getElementById('stat-active').textContent = active;
+      document.getElementById('stat-done').textContent = done;
 
-    // Standup status
-    var lastStandup = localStorage.getItem('ap_standup_last_date');
-    var today = new Date().toISOString().substring(0, 10);
-    document.getElementById('stat-standup').textContent = (lastStandup === today) ? '✓' : '—';
-
-    // Recent cron log
-    fetch(API_BASE + '/company-state?key=cronLog')
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        var log = (data && data.value) ? data.value : [];
-        var el = document.getElementById('ov-cron');
-        if (log.length === 0) { el.textContent = 'No heartbeat activity yet.'; return; }
-        var recent = log.slice(-5).reverse();
-        el.innerHTML = recent.map(function (entry) {
-          var time = entry.timestamp ? new Date(entry.timestamp).toLocaleString() : '?';
-          var agents = entry.agentsRun || entry.agents || '?';
-          var actions = entry.totalActions || entry.actions || 0;
-          return '<div style="padding:0.3rem 0; border-bottom:1px solid rgba(255,255,255,0.03);">' +
-            '<span style="opacity:0.4;">' + time + '</span> — ' +
-            agents + ' agents, ' + actions + ' actions' +
-            '</div>';
-        }).join('');
-      }).catch(function () {
-        document.getElementById('ov-cron').textContent = 'Could not load cron log.';
+      // Standup status
+      var today = new Date().toISOString().substring(0, 10);
+      var hasToday = standupLog.some(function (s) {
+        return s.date && s.date.substring(0, 10) === today;
       });
+      document.getElementById('stat-standup').textContent = hasToday ? '✓' : '—';
+
+      // Recent cron log
+      var el = document.getElementById('ov-cron');
+      if (cronLog.length === 0) { el.textContent = 'No heartbeat activity yet.'; return; }
+      var recent = cronLog.slice(-5).reverse();
+      el.innerHTML = recent.map(function (entry) {
+        var time = entry.timestamp ? new Date(entry.timestamp).toLocaleString() : '?';
+        var agents = entry.agentsRun || entry.agents || '?';
+        var actions = entry.totalActions || entry.actions || 0;
+        return '<div style="padding:0.3rem 0; border-bottom:1px solid rgba(255,255,255,0.03);">' +
+          '<span style="opacity:0.4;">' + time + '</span> — ' +
+          agents + ' agents, ' + actions + ' actions' +
+          '</div>';
+      }).join('');
+    });
   })();
   </script>
 

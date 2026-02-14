@@ -76,25 +76,24 @@
   </main>
 
   <script src="/js/company-store.js"></script>
-  <script src="/js/agent-engine.js"></script>
   <script>
   (function () {
-    // Load stats via AgentEngine
-    AgentEngine.loadRegistry().then(function (reg) {
-      // Memory count
-      var memories = AgentEngine.getMemories();
-      document.getElementById('stat-memory').textContent = memories.length;
-
-      // Tools count (has built-in defaults)
-      var tools = AgentEngine.getTools();
-      document.getElementById('stat-tools').textContent = tools.length;
-
+    CompanyStore.init().then(function () {
       // Store mode
-      var mode = (typeof CompanyStore !== 'undefined' && CompanyStore.getMode) ? CompanyStore.getMode() : 'local';
-      document.getElementById('stat-store').textContent = mode;
+      document.getElementById('stat-store').textContent = CompanyStore.getMode();
+
+      return Promise.all([
+        CompanyStore.getState('ap_workspace_memory', []),
+        CompanyStore.getState('ap_workspace_tools', [])
+      ]);
+    }).then(function (results) {
+      var memories = results[0] || [];
+      var tools = results[1] || [];
+      document.getElementById('stat-memory').textContent = memories.length;
+      document.getElementById('stat-tools').textContent = tools.length;
     });
 
-    // Agent roster — fetch directly to avoid registry null issue
+    // Agent roster (static JSON file)
     fetch('/data/company-agents.json')
       .then(function (r) { return r.json(); })
       .then(function (agents) {
