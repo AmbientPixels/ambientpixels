@@ -218,6 +218,28 @@ body {
   gap: 0.8rem;
 }
 
+/* Fallback warning + plain-text pre */
+.docs-warning {
+  color: #fbbf24;
+  font-size: 0.8rem;
+  margin-bottom: 1rem;
+  padding: 0.6rem 0.8rem;
+  border-left: 3px solid rgba(251, 191, 36, 0.4);
+  background: rgba(251, 191, 36, 0.04);
+  border-radius: 4px;
+}
+.docs-warning i { margin-right: 0.35rem; }
+.docs-fallback-pre {
+  white-space: pre-wrap;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
 @media (max-width: 600px) {
   .docs-wrapper { padding: 1.2rem 1rem 3rem; }
   .docs-title { font-size: 1.4rem; }

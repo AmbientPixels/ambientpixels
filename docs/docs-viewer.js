@@ -75,16 +75,20 @@
         (doc.tags && doc.tags.length ? '<span><i class="fas fa-tags"></i> ' + doc.tags.map(esc).join(', ') + '</span>' : '') +
       '</div>';
 
-    // Render markdown via marked.js
-    if (typeof marked !== 'undefined') {
-      marked.setOptions({
-        breaks: true,
-        gfm: true
-      });
-      contentEl.innerHTML = marked.parse(doc.content_md || '');
+    // Render markdown via marked.js + sanitize with DOMPurify
+    var rawMd = doc.content_md || '';
+    if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
+      marked.setOptions({ breaks: true, gfm: true });
+      var rawHtml = marked.parse(rawMd);
+      contentEl.innerHTML = DOMPurify.sanitize(rawHtml, { USE_PROFILES: { html: true } });
+    } else if (typeof marked !== 'undefined') {
+      // marked loaded but DOMPurify missing — do NOT render unsanitized HTML
+      contentEl.innerHTML = '<p class="docs-warning">' +
+        '<i class="fas fa-exclamation-triangle"></i> Sanitizer unavailable — rendering as plain text for safety.</p>' +
+        '<pre class="docs-fallback-pre">' + esc(rawMd) + '</pre>';
     } else {
-      // Fallback: render as preformatted text
-      contentEl.innerHTML = '<pre style="white-space:pre-wrap;">' + esc(doc.content_md || '') + '</pre>';
+      // No renderer at all — escaped plain text
+      contentEl.innerHTML = '<pre class="docs-fallback-pre">' + esc(rawMd) + '</pre>';
     }
 
     show('doc');

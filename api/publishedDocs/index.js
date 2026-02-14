@@ -41,6 +41,7 @@ module.exports = async function (context, req) {
           title: doc.title,
           kind: doc.kind,
           target_path: doc.target_path,
+          public_url: doc.public_url || ('/docs/published/' + doc.slug),
           content_md: doc.content_md,
           published_at: doc.published_at,
           updated_at: doc.updated_at || doc.published_at,
@@ -58,6 +59,7 @@ module.exports = async function (context, req) {
         title: d.title,
         kind: d.kind,
         target_path: d.target_path,
+        public_url: d.public_url || ('/docs/published/' + d.slug),
         published_at: d.published_at,
         updated_at: d.updated_at || d.published_at,
         tags: d.tags || []

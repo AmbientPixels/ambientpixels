@@ -585,7 +585,8 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
               slug: slug,
               kind: doc.kind,
               content_md: doc.content_md,
-              target_path: '/docs/published/' + slug
+              target_path: 'content/docs/' + slug + '.md',
+              public_url: '/docs/published/' + slug
             },
             classification: 'executive_required',
             requires_ceo_approval: true,

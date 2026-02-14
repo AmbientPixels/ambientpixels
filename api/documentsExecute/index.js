@@ -405,7 +405,8 @@ async function handleDocPublish(context, req, body) {
       slug: slug,
       kind: doc.kind,
       content_md: contentMd,
-      target_path: '/docs/published/' + slug,
+      target_path: 'content/docs/' + slug + '.md',
+      public_url: '/docs/published/' + slug,
       published_by: 'pixelpusher',
       published_at: now,
       tags: doc.tags || [],
@@ -429,6 +430,7 @@ async function handleDocPublish(context, req, body) {
     action.execution.receipt = {
       publish_entry_id: publishEntry.id,
       target_path: publishEntry.target_path,
+      public_url: publishEntry.public_url,
       slug: slug,
       published_at: now
     };
