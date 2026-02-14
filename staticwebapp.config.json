@@ -44,6 +44,12 @@
   },
   "routes": [
     {
+      "route": "/blog/*.css"
+    },
+    {
+      "route": "/blog/*.js"
+    },
+    {
       "route": "/blog/*",
       "rewrite": "/blog/index.html"
     },
