@@ -687,18 +687,27 @@
     function createTestAction() {
       var agents = ['nova', 'cipher', 'pixel', 'forge', 'echo', 'scribe', 'quill', 'scout'];
       var agent = agents[Math.floor(Math.random() * agents.length)];
-      var platform = 'x'; // only X is production-enabled (SOCIAL_PLATFORMS_ENABLED)
+      var platforms = ['x', 'x', 'linkedin']; // weighted: 2/3 X, 1/3 LinkedIn
+      var platform = platforms[Math.floor(Math.random() * platforms.length)];
       var types = ['social_post.publish', 'social_post.publish', 'social_post.publish', 'social_post.schedule'];
       var type = types[Math.floor(Math.random() * types.length)];
 
-      var texts = [
+      var xTexts = [
         'We just shipped Action Layer v2 — multi-platform publishing with media support.',
         'AmbientPixels agents can now publish to X, LinkedIn, and Bluesky autonomously.',
         'Our AI CFO just flagged a budget overrun before it happened. Governance works.',
         'New: How we built a virtual company with 8 AI agents running every department.',
         'Echo here. Just drafted a campaign brief for Q1. Waiting on CEO approval.'
       ];
-      var text = texts[Math.floor(Math.random() * texts.length)];
+      var linkedinTexts = [
+        'We built a virtual company where 8 AI agents run every department — CEO, CFO, Design, DevOps, Marketing, Content, Research, and an Editor. Each agent has a role-specific prompt, autonomous heartbeat cycles, and governance-gated decision making. Here\'s what we learned about AI-native organizational design.',
+        'Action Layer v2 is live at AmbientPixels. Our agents can now draft, schedule, and publish social media posts across X, LinkedIn, and Bluesky — all routed through CEO approval with full audit trails. The future of content operations is autonomous but governed.',
+        'Our AI CFO (Cipher) flagged a budget overrun before it happened. That\'s the power of always-on governance: every 30 minutes, each agent reviews their tasks, proposes actions, and the system enforces approval gates. No surprises.',
+        'What does an AI-operated company look like? At AmbientPixels, we\'re building one. 8 agents, tiered authority, escalation paths, and a human CEO with override power. It\'s not about replacing people — it\'s about designing systems where AI and humans govern together.'
+      ];
+      var text = platform === 'linkedin'
+        ? linkedinTexts[Math.floor(Math.random() * linkedinTexts.length)]
+        : xTexts[Math.floor(Math.random() * xTexts.length)];
       var payload = { text: text };
 
       // Add scheduled_for for schedule type

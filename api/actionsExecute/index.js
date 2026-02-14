@@ -120,7 +120,7 @@ module.exports = async function (context, req) {
     }
 
     // 5. Platform allowlist
-    const enabledPlatforms = (process.env.SOCIAL_PLATFORMS_ENABLED || 'x').split(',').map(s => s.trim().toLowerCase());
+    const enabledPlatforms = (process.env.SOCIAL_PLATFORMS_ENABLED || 'x,linkedin').split(',').map(s => s.trim().toLowerCase());
     if (actionType.indexOf('social_post') === 0 && enabledPlatforms.indexOf(platform) === -1) {
       context.res = {
         status: 403,
