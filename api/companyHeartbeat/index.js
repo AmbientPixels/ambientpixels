@@ -4,11 +4,12 @@
 
 const fetch = require('node-fetch');
 const storage = require('../_utils/companyStorage');
+const webSearch = require('../toolsWebSearch/index');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
 
-const AGENT_IDS = ['cipher', 'pixel', 'forge', 'echo', 'nova', 'scribe', 'quill'];
+const AGENT_IDS = ['cipher', 'pixel', 'forge', 'echo', 'nova', 'scribe', 'quill', 'scout'];
 
 // Agent system prompts (abbreviated for heartbeat context)
 const AGENT_ROLES = {
@@ -18,7 +19,8 @@ const AGENT_ROLES = {
   forge: { name: 'Forge', role: 'DevOps', tier: 3, focus: 'deployments, infrastructure, uptime, backend security' },
   echo: { name: 'Echo', role: 'Marketing', tier: 3, focus: 'content, social media, community, brand voice' },
   scribe: { name: 'Scribe', role: 'Marketing — Draft Writer', tier: 4, reportsTo: 'echo', focus: 'longform drafts, product briefs, doc drafts, social threads' },
-  quill: { name: 'Quill', role: 'Marketing — Editor & Brand Voice', tier: 4, reportsTo: 'echo', focus: 'editing, compression, brand consistency, CTA polish' }
+  quill: { name: 'Quill', role: 'Marketing — Editor & Brand Voice', tier: 4, reportsTo: 'echo', focus: 'editing, compression, brand consistency, CTA polish' },
+  scout: { name: 'Scout', role: 'Design — Research Analyst', tier: 4, reportsTo: 'pixel', focus: 'market research, competitor analysis, design trends, UX benchmarks, web research' }
 };
 
 // Decision classification thresholds
@@ -35,7 +37,8 @@ const GUARDRAILS = {
 };
 
 // ── Tier 4 Sub-Agent Gating ──
-const TIER4_SUB_AGENTS = new Set(['scribe', 'quill']);
+const TIER4_SUB_AGENTS = new Set(['scribe', 'quill', 'scout']);
+const MAX_TOOL_CALLS_PER_AGENT = 3;
 const SUB_AGENT_MENTION_WINDOW_HOURS = 24;
 
 function _isActiveStatus(status) {
@@ -386,8 +389,79 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
     return result;
   }
 
-  // Process structured actions
-  const actions = parsed.actions || [];
+  // ── Tool-call interception: detect web_search tool calls and execute them ──
+  let toolUsage = 0;
+  const toolResults = [];
+  const toolActions = (parsed.actions || []).filter(a => a.tool === 'web_search' || a.type === 'web_search');
+  const regularActions = (parsed.actions || []).filter(a => a.tool !== 'web_search' && a.type !== 'web_search');
+
+  for (const toolCall of toolActions) {
+    if (toolUsage >= MAX_TOOL_CALLS_PER_AGENT) {
+      context.log('[Heartbeat]', agentId, 'RATE LIMITED: web_search call #' + (toolUsage + 1) + ' blocked (max ' + MAX_TOOL_CALLS_PER_AGENT + ')');
+      await logEvent('tool-rate-limited', agentId, 'web_search rate limited: ' + ((toolCall.args && toolCall.args.q) || 'no query'), cycleId);
+      toolResults.push({ query: (toolCall.args && toolCall.args.q) || '', ok: false, error: 'rate_limited', results: [] });
+      continue;
+    }
+    const q = (toolCall.args && toolCall.args.q) || '';
+    const n = (toolCall.args && toolCall.args.n) || 5;
+    if (!q) continue;
+
+    context.log('[Heartbeat]', agentId, 'executing web_search:', q);
+    const searchResult = await webSearch.searchInternal(q, n, agentId, context);
+    toolResults.push(searchResult);
+    toolUsage++;
+  }
+
+  // If tool calls produced results, do a follow-up Gemini call so the agent can synthesize
+  if (toolResults.length > 0 && toolResults.some(r => r.ok && r.results.length > 0)) {
+    const toolContext = toolResults.map(function (r, i) {
+      if (!r.ok) return 'Search #' + (i + 1) + ' (' + r.query + '): ' + (r.error || 'failed');
+      return 'Search #' + (i + 1) + ' (' + r.query + '):\n' + r.results.map(function (hit) {
+        return '  - [' + hit.rank + '] ' + hit.title + '\n    URL: ' + hit.url + '\n    ' + (hit.snippet || '').substring(0, 200);
+      }).join('\n');
+    }).join('\n\n');
+
+    const synthesisPrompt = `You are ${agent.name}, ${agent.role} at AmbientPixels.
+
+You requested web searches and here are the results:
+
+${toolContext}
+
+Based on these results, produce your deliverable. You MUST:
+1. Summarize key findings relevant to your task
+2. Include a "## Sources" section listing ONLY URLs from the search results above
+3. Do NOT cite URLs that were not returned by the search tool
+4. Be specific and actionable
+
+Write your output as markdown. This will be attached to your task as a deliverable.`;
+
+    const synthesisResponse = await callGemini(synthesisPrompt);
+    result.geminiCalls++;
+
+    if (synthesisResponse) {
+      // Attach synthesized output as a deliverable on the agent's current task
+      const targetTask = agentTasks.find(t => t.status === 'in-progress') || agentTasks[0];
+      if (targetTask) {
+        result.taskUpdates.push({
+          action: 'comment',
+          taskId: targetTask.id,
+          comment: {
+            type: 'deliverable',
+            author: agentId,
+            text: synthesisResponse,
+            sources: toolResults.filter(r => r.ok).reduce(function (urls, r) {
+              return urls.concat(r.results.map(function (h) { return h.url; }));
+            }, []),
+            timestamp: new Date().toISOString()
+          }
+        });
+        context.log('[Heartbeat]', agentId, 'web research deliverable attached to task:', targetTask.id);
+      }
+    }
+  }
+
+  // Process structured actions (non-tool actions)
+  const actions = regularActions;
   let actionCount = 0;
 
   // Tier 4 sub-agent action restrictions (server-side enforcement)
@@ -817,7 +891,7 @@ Respond with ONLY valid JSON in this exact format:
   "observation": "One sentence about what you notice or your current state",
   "actions": [
     {
-      "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|create-doc|submit-for-publish",
+      "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|create-doc|submit-for-publish|web_search",
       "summary": "Brief description of what you're doing",
       "task": { "title": "", "description": "", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z", "directive_id": "optional-directive-id" },
       "taskId": "existing-task-id",
@@ -826,7 +900,9 @@ Respond with ONLY valid JSON in this exact format:
       "comment": "Your comment text here",
       "social": { "text": "Post content", "platform": "x|linkedin|bluesky", "media": ["https://..."], "scheduled_for": "2026-02-14T09:00:00Z" },
       "document": { "title": "Doc Title", "kind": "spec|runbook|release_notes|product_brief|marketing_post|governance", "tags": ["tag1"], "content_md": "# Heading\n\nMarkdown content..." },
-      "documentId": "existing-doc-id"
+      "documentId": "existing-doc-id",
+      "tool": "web_search",
+      "args": { "q": "search query", "n": 5 }
     }
   ]
 }
@@ -841,6 +917,7 @@ Action types:
 - create-social-action: (Marketing/Echo) Draft a social media post routed through CEO approval. Include "social" with: text (max 280 for X, 300 for Bluesky, 3000 for LinkedIn), platform ("x"|"linkedin"|"bluesky"), optionally media (URLs) and scheduled_for (ISO datetime).
 - create-doc: Create a documentation draft. Include "document" with: title (string), kind ("spec"|"runbook"|"release_notes"|"product_brief"|"marketing_post"|"governance"), tags (array of strings), and content_md (full markdown content). Docs are created as drafts and require CEO approval to finalize.
 - submit-for-publish: Submit a completed document for human/CEO approval to publish on the site. Include "documentId" (the ID of an existing draft or review document) and optionally "taskId" (the task that produced the doc). This creates a publish_document action in the approval queue. You CANNOT publish directly — only a human can approve publishing.
+- web_search: (Scout/research agents only) Run a live web search. Include "tool": "web_search" and "args": { "q": "search query", "n": 5 }. Max 3 searches per heartbeat. Results are returned and you'll be asked to synthesize findings into a deliverable with cited sources.
 
 Rules:
 - actions array can be empty if nothing needs doing
@@ -898,7 +975,7 @@ Rules:
        b. Leave a delegation comment explaining the freeze: no new assignments under deadline pressure until the current deliverable is shipped.
     3. If the deliverable is still incomplete after the next cycle:
        a. Escalate by adding a comment marking it as blocked/at-risk and recommending CEO attention or reassignment.
-  - Agent roster for assignment: cipher (CFO/budgets), pixel (design/UI), forge (devops/infra), echo (marketing/content), scribe (draft writing), quill (editing/review)` : '') + (agent.name === 'Scribe' ? `
+  - Agent roster for assignment: cipher (CFO/budgets), pixel (design/UI), forge (devops/infra), echo (marketing/content), scribe (draft writing), quill (editing/review), scout (design research/market analysis/web research)` : '') + (agent.name === 'Scribe' ? `
 - SUB-AGENT RESTRICTIONS (Scribe — Tier 4, reports to Echo):
   - You are a draft writer. Your job is to produce longform content: product briefs, blog drafts, doc drafts, social threads.
   - ALLOWED actions: execute-task, comment-task, create-task (only content drafting tasks assigned to yourself), review-task (only when asked), create-doc (documentation drafts only), submit-for-publish (submit a completed doc for CEO/human approval)
@@ -915,7 +992,23 @@ Rules:
   - You CANNOT publish anything directly — all feedback stays as task comments or review verdicts for Echo to act on
   - You CANNOT approve anything or escalate to the CEO
   - You CANNOT modify directives or objectives
-  - Focus on reviewing drafts in the review column. Approve clean work, request changes on anything off-brand.` : '') + `
+  - Focus on reviewing drafts in the review column. Approve clean work, request changes on anything off-brand.` : '') + (agent.name === 'Scout' ? `
+- SUB-AGENT RESTRICTIONS (Scout — Tier 4, reports to Pixel):
+  - You are a design research analyst. Your job is to research market trends, competitor designs, UX patterns, and industry benchmarks using live web search.
+  - ALLOWED actions: execute-task, comment-task, web_search (tool call)
+  - FORBIDDEN actions: create-social-action, create-task, update-task (assignee/priority changes), move-task to done, create-doc, submit-for-publish
+  - You CANNOT publish, approve, escalate, or modify directives/objectives
+  - WEB SEARCH TOOL: You have access to a live web search tool. To use it, include actions with type "web_search":
+    { "type": "web_search", "tool": "web_search", "args": { "q": "your search query", "n": 5 } }
+    Rules:
+    - Max 3 web searches per heartbeat cycle
+    - Max 10 results per query (use n=5 to n=8 for most queries)
+    - The runtime will execute your searches and feed results back for synthesis
+    - You MUST include a "## Sources" section in your output listing ONLY URLs returned by the search tool
+    - NEVER cite, reference, or link to URLs you did not receive from the search tool
+    - NEVER hallucinate citations — if the tool returned no results, say so honestly
+  - Focus on executing your assigned research tasks. Produce structured research briefs with findings, analysis, and cited sources.
+  - Your deliverables go to review for Pixel to evaluate.` : '') + `
 - Echo (Marketing): Use create-social-action to draft social posts. All posts require CEO approval. Keep brand voice consistent, professional, and forward-looking.`;
 }
 
@@ -1028,13 +1121,25 @@ function applyTaskUpdate(tasks, update, _pendingEscalations) {
     for (let i = 0; i < tasks.length; i++) {
       if (tasks[i].id === update.taskId) {
         if (!tasks[i].comments) tasks[i].comments = [];
-        tasks[i].comments.push({
-          id: 'cmt-' + Date.now(),
-          author: update.agentId || 'unknown',
-          text: update.comment || '',
-          type: 'comment',
-          createdAt: new Date().toISOString()
-        });
+        // Support rich comment objects (from tool-call deliverables) or plain strings
+        if (update.comment && typeof update.comment === 'object') {
+          tasks[i].comments.push({
+            id: 'cmt-' + Date.now(),
+            author: update.comment.author || update.agentId || 'unknown',
+            text: update.comment.text || '',
+            type: update.comment.type || 'comment',
+            sources: update.comment.sources || undefined,
+            createdAt: update.comment.timestamp || new Date().toISOString()
+          });
+        } else {
+          tasks[i].comments.push({
+            id: 'cmt-' + Date.now(),
+            author: update.agentId || 'unknown',
+            text: update.comment || '',
+            type: 'comment',
+            createdAt: new Date().toISOString()
+          });
+        }
         tasks[i].updatedAt = new Date().toISOString();
         return tasks[i];
       }
