@@ -220,6 +220,16 @@
         <div class="dash-empty" id="daily-log-empty">No daily log drafts pending review.</div>
       </div>
 
+      <!-- Blog Admin -->
+      <div class="dash-panel dash-panel--full">
+        <div class="dash-panel-header">
+          <span class="dash-panel-title"><i class="fas fa-newspaper" style="color:#a78bfa;"></i> Blog Posts</span>
+          <a href="/blog/" target="_blank" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">Public Blog →</a>
+        </div>
+        <div id="panel-blog-admin"></div>
+        <div class="dash-empty" id="blog-admin-empty">No published blog posts.</div>
+      </div>
+
       <!-- Governance Log -->
       <div class="dash-panel dash-panel--full">
         <div class="dash-panel-header">
@@ -401,6 +411,7 @@
         renderRiskHeatmap();
         renderActionSnap();
         renderDailyLogDrafts();
+        renderBlogAdmin();
         renderGovernanceLog();
       }
 
@@ -1317,6 +1328,100 @@
         }).catch(function (err) {
           console.error('[Dashboard] Daily log decision error:', err);
         });
+      }
+
+      // ── Blog Admin ──
+      function renderBlogAdmin() {
+        var listEl = document.getElementById('panel-blog-admin');
+        var emptyEl = document.getElementById('blog-admin-empty');
+        if (!listEl || !emptyEl) return;
+
+        var apiBase = (window.location.hostname.indexOf('ambientpixels.ai') !== -1)
+          ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+          : '/api';
+
+        fetch(apiBase + '/company-state?key=blogPosts', {
+          headers: { 'x-company-secret': (typeof CompanyStore !== 'undefined' && CompanyStore._writeSecret) ? CompanyStore._writeSecret : '' }
+        })
+        .then(function (r) { return r.ok ? r.json() : []; })
+        .then(function (posts) {
+          if (!Array.isArray(posts) || posts.length === 0) {
+            listEl.innerHTML = '';
+            emptyEl.style.display = '';
+            return;
+          }
+          emptyEl.style.display = 'none';
+
+          // Sort newest first
+          posts.sort(function (a, b) {
+            return new Date(b.published_at || 0) - new Date(a.published_at || 0);
+          });
+
+          var html = '<div style="display:flex; flex-direction:column; gap:0.4rem; padding:0.4rem;">';
+          posts.forEach(function (post) {
+            var date = post.published_at ? new Date(post.published_at).toLocaleDateString() : '?';
+            var author = post.created_by || 'unknown';
+            var excerpt = (post.excerpt || '').substring(0, 80);
+            html += '<div class="blog-admin-row" style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.6rem; border:1px solid rgba(167,139,250,0.1); border-radius:6px; background:rgba(167,139,250,0.02);">' +
+              '<div style="flex:1; min-width:0;">' +
+                '<div style="font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.9); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(post.title) + '</div>' +
+                '<div style="font-size:0.6rem; opacity:0.45; margin-top:0.15rem;">' +
+                  '<span>' + date + '</span> · <span>' + escapeHtml(author) + '</span> · <span>/blog/' + escapeHtml(post.slug) + '</span>' +
+                  (excerpt ? ' · <span style="font-style:italic;">' + escapeHtml(excerpt) + '…</span>' : '') +
+                '</div>' +
+              '</div>' +
+              '<div style="display:flex; gap:0.3rem; flex-shrink:0; margin-left:0.5rem;">' +
+                '<a href="/blog/' + escapeHtml(post.slug) + '" target="_blank" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(167,139,250,0.3); background:rgba(167,139,250,0.05); color:#a78bfa; text-decoration:none; cursor:pointer;"><i class="fas fa-external-link-alt"></i> View</a>' +
+                '<button class="blog-admin-delete" data-slug="' + escapeHtml(post.slug) + '" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.05); color:#f87171; cursor:pointer;"><i class="fas fa-trash"></i> Delete</button>' +
+              '</div>' +
+            '</div>';
+          });
+          html += '</div>';
+          listEl.innerHTML = html;
+
+          // Bind delete buttons
+          listEl.querySelectorAll('.blog-admin-delete').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var slug = btn.dataset.slug;
+              if (!confirm('Delete blog post "' + slug + '"? This removes it from the public blog.')) return;
+              btn.disabled = true;
+              btn.textContent = 'Deleting…';
+              _deleteBlogPost(slug).then(function (ok) {
+                if (ok) { renderBlogAdmin(); }
+                else { btn.disabled = false; btn.innerHTML = '<i class="fas fa-trash"></i> Delete'; alert('Failed to delete post.'); }
+              });
+            });
+          });
+        })
+        .catch(function (err) {
+          console.error('[Dashboard] Blog admin fetch error:', err);
+          listEl.innerHTML = '<div style="padding:0.5rem; font-size:0.7rem; color:#f87171;">Failed to load blog posts.</div>';
+        });
+      }
+
+      function _deleteBlogPost(slug) {
+        var apiBase = (window.location.hostname.indexOf('ambientpixels.ai') !== -1)
+          ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+          : '/api';
+        // Fetch current posts, filter out the one to delete, save back
+        return fetch(apiBase + '/company-state?key=blogPosts', {
+          headers: { 'x-company-secret': (typeof CompanyStore !== 'undefined' && CompanyStore._writeSecret) ? CompanyStore._writeSecret : '' }
+        })
+        .then(function (r) { return r.ok ? r.json() : []; })
+        .then(function (posts) {
+          if (!Array.isArray(posts)) return false;
+          var filtered = posts.filter(function (p) { return p.slug !== slug; });
+          if (filtered.length === posts.length) return false; // not found
+          return fetch(apiBase + '/company-state', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-company-secret': (typeof CompanyStore !== 'undefined' && CompanyStore._writeSecret) ? CompanyStore._writeSecret : ''
+            },
+            body: JSON.stringify({ key: 'blogPosts', value: filtered })
+          }).then(function (r) { return r.ok; });
+        })
+        .catch(function () { return false; });
       }
 
       // ── Governance Log ──
