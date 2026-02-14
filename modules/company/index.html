@@ -138,7 +138,7 @@
           '<div class="agent-avatar">' + avatarContent + '</div>' +
           '<h3 class="agent-name">' + agent.name + '</h3>' +
           '<p class="agent-role">' + agent.role + '</p>' +
-          '<span class="agent-dept-badge">' + agent.department + '</span>' +
+          (agent.department ? '<span class="agent-dept-badge">' + agent.department + '</span>' : '') +
           (divTags ? '<div class="agent-divisions">' + divTags + '</div>' : '');
 
         card.addEventListener('click', function () {
@@ -188,7 +188,7 @@
             '<div class="agent-detail-avatar">' + avatarContent + '</div>' +
             '<div class="agent-detail-info">' +
               '<h2>' + agent.name + ' — ' + agent.title + '</h2>' +
-              '<p>' + agent.department + ' Department</p>' +
+              (agent.department ? '<p>' + agent.department + ' Department</p>' : '<p>Prime Operator</p>') +
             '</div>' +
           '</div>' +
           '<div class="agent-description">' + agent.description + '</div>' +
