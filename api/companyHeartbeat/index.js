@@ -781,7 +781,8 @@ Write the full deliverable first, then the structured JSON block.`;
             timestamp: publishAction.created_at,
             preview: (doc.content_md || '').substring(0, 120),
             documentId: doc.id,
-            slug: slug
+            slug: slug,
+            docKind: doc.kind
           });
           if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
           await storage.setState('approvalQueue', approvalQueue);
@@ -908,7 +909,8 @@ Write the full deliverable first, then the structured JSON block.`;
             timestamp: publishAction.created_at,
             preview: (doc.content_md || '').substring(0, 120),
             documentId: doc.id,
-            slug: slug
+            slug: slug,
+            docKind: doc.kind
           });
           if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
           await storage.setState('approvalQueue', approvalQueue);

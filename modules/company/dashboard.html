@@ -267,6 +267,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="/js/company-store.js"></script>
   <script src="/js/agent-engine.js"></script>
   <script>
@@ -1009,7 +1010,7 @@
               '<button class="approval-btn approval-btn--reject" data-id="' + item.id + '" data-action-id="' + (actionTarget || '') + '" data-kind="' + (item.kind || 'task') + '" data-action-type="' + (item.actionType || '') + '" style="' + btnStyle + ' border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.05); color:#f87171;">Reject</button>' +
               '<button class="approval-btn approval-btn--revision" data-id="' + item.id + '" data-action-id="' + (actionTarget || '') + '" data-kind="' + (item.kind || 'task') + '" data-action-type="' + (item.actionType || '') + '" style="' + btnStyle + ' border:1px solid rgba(251,191,36,0.3); background:rgba(251,191,36,0.05); color:#fbbf24;">Request Revision</button>' +
               '<button class="approval-btn approval-btn--override" data-id="' + (overrideTarget || '') + '" data-kind="' + (item.kind || 'task') + '" data-action-type="' + (item.actionType || '') + '" style="' + btnStyle + ' border:1px solid rgba(255,215,0,0.3); background:rgba(255,215,0,0.05); color:#FFD700;">Override</button>' +
-              (isPublish && item.slug ? '<a href="/docs/published/' + escapeHtml(item.slug) + '" target="_blank" style="' + btnStyle + ' border:1px solid rgba(138,43,226,0.3); background:rgba(138,43,226,0.05); color:#8A2BE2; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;"><i class="fas fa-external-link-alt"></i> Preview</a>' : '') +
+              (isPublish && item.slug ? '<button class="approval-btn approval-btn--preview" data-id="' + item.id + '" data-slug="' + escapeHtml(item.slug) + '" data-doc-id="' + (item.documentId || '') + '" style="' + btnStyle + ' border:1px solid rgba(138,43,226,0.3); background:rgba(138,43,226,0.05); color:#8A2BE2; display:inline-flex; align-items:center; gap:0.3rem;"><i class="fas fa-external-link-alt"></i> Preview</button>' : '') +
             '</div>';
           listEl.appendChild(div);
         });
@@ -1049,6 +1050,56 @@
             renderAll();
           });
         });
+        listEl.querySelectorAll('.approval-btn--preview').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var itemDiv = btn.closest('.approval-item');
+            var existing = itemDiv.querySelector('.preview-panel');
+            // Toggle: if already open, close it
+            if (existing) { existing.remove(); return; }
+            var docId = btn.dataset.docId;
+            var slug = btn.dataset.slug;
+            var panel = document.createElement('div');
+            panel.className = 'preview-panel';
+            panel.style.cssText = 'margin-top:0.6rem; padding:0.8rem 1rem; background:rgba(0,0,0,0.3); border:1px solid rgba(138,43,226,0.2); border-radius:8px; max-height:500px; overflow-y:auto;';
+            panel.innerHTML = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:0.4rem;">' +
+              '<span style="font-size:0.7rem; color:#8A2BE2; font-weight:600;"><i class="fas fa-eye"></i> Document Preview</span>' +
+              '<button class="preview-close" style="background:none; border:none; color:rgba(255,255,255,0.4); cursor:pointer; font-size:0.7rem;"><i class="fas fa-times"></i></button>' +
+              '</div>' +
+              '<div class="preview-content" style="font-size:0.75rem; line-height:1.6; color:rgba(255,255,255,0.85);"><em style="opacity:0.4;">Loading document...</em></div>';
+            itemDiv.appendChild(panel);
+            panel.querySelector('.preview-close').addEventListener('click', function () { panel.remove(); });
+            // Fetch document content from server
+            _fetchDocPreview(docId).then(function (contentMd) {
+              var contentEl = panel.querySelector('.preview-content');
+              if (!contentMd) {
+                contentEl.innerHTML = '<span style="color:#f87171;">Could not load document content.</span>';
+                return;
+              }
+              try {
+                contentEl.innerHTML = '<div class="preview-rendered" style="font-size:0.75rem; line-height:1.7;">' + (typeof marked !== 'undefined' ? marked.parse(contentMd) : '<pre style="white-space:pre-wrap; font-family:inherit;">' + escapeHtml(contentMd) + '</pre>') + '</div>';
+              } catch (e) {
+                contentEl.innerHTML = '<pre style="white-space:pre-wrap; font-family:inherit; font-size:0.75rem;">' + escapeHtml(contentMd) + '</pre>';
+              }
+            });
+          });
+        });
+      }
+
+      // ── Fetch document content for inline preview ──
+      function _fetchDocPreview(docId) {
+        var apiBase = (window.location.hostname.indexOf('ambientpixels.ai') !== -1)
+          ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+          : '/api';
+        return fetch(apiBase + '/company-state?key=documents', {
+          headers: { 'x-company-secret': (typeof CompanyStore !== 'undefined' && CompanyStore._writeSecret) ? CompanyStore._writeSecret : '' }
+        })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (docs) {
+          if (!docs || !Array.isArray(docs)) return null;
+          var doc = docs.find(function (d) { return d.id === docId; });
+          return doc ? (doc.content_md || null) : null;
+        })
+        .catch(function () { return null; });
       }
 
       // ── Server-side publish decision (approve/reject publish_document actions) ──
