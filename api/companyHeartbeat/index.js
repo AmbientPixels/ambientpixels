@@ -78,6 +78,7 @@ function _hasRecentMention(tasks, agentId) {
 const DOMAIN_LEAD_MAP = {
   scribe: 'echo',    // Scribe reports to Echo
   quill: 'echo',     // Quill reports to Echo
+  scout: 'pixel',    // Scout reports to Pixel
   echo: 'nova',      // Echo escalates to Nova (department head)
   pixel: 'nova',     // Pixel escalates to Nova
   forge: 'nova',     // Forge escalates to Nova
@@ -1205,7 +1206,7 @@ EXISTING COMMENTS/HISTORY:
 ${existingComments}
 
 Based on your role as ${agent.role}, produce the appropriate deliverable for this task. Examples of what you should produce:
-${agent.role === 'CEO' ? '- Strategic analysis, priority decisions, team directives, product direction memos' : ''}${agent.role === 'CFO' ? '- Budget reports, cost analyses, spending recommendations, ROI assessments' : ''}${agent.role === 'Design & QC' ? '- Design reviews, UI audit notes, accessibility recommendations, UX improvement plans' : ''}${agent.role === 'DevOps' ? '- Deployment plans, infrastructure audits, security checklists, performance reports' : ''}${agent.role === 'Marketing' ? '- Content drafts, social media copy, campaign briefs, brand messaging guides' : ''}
+${agent.role === 'CEO' ? '- Strategic analysis, priority decisions, team directives, product direction memos' : ''}${agent.role === 'CFO' ? '- Budget reports, cost analyses, spending recommendations, ROI assessments' : ''}${agent.role === 'Design & QC' ? '- Design reviews, UI audit notes, accessibility recommendations, UX improvement plans' : ''}${agent.role === 'DevOps' ? '- Deployment plans, infrastructure audits, security checklists, performance reports' : ''}${agent.role === 'Marketing' ? '- Content drafts, social media copy, campaign briefs, brand messaging guides' : ''}${agent.name === 'Scribe' ? '- Longform drafts, product briefs, blog posts, documentation, social threads' : ''}${agent.name === 'Quill' ? '- Editing feedback, tone corrections, brand voice enforcement, CTA improvements' : ''}${agent.name === 'Scout' ? '- Market research briefs, competitor analysis, design trend reports, UX benchmarks. Always include a ## Sources section with cited URLs.' : ''}
 
 Write your deliverable directly — no JSON wrapping. Be specific to AmbientPixels. Use headers, bullet points, or sections as appropriate. This will be attached to the task as a deliverable comment.`;
 }
