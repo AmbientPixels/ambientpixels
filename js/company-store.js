@@ -146,7 +146,17 @@ var CompanyStore = (function () {
     if (_mode === 'server' && KEY_MAP[localKey]) {
       return _serverGet(KEY_MAP[localKey])
         .then(function (val) {
-          if (val === undefined || val === null) return fallback;
+          if (val === undefined || val === null) {
+            // Server has no data — check localStorage (may have UI-created data not yet synced)
+            var localVal = _localGet(localKey, fallback);
+            // Push local data to server so blob catches up
+            if (localVal && localVal !== fallback && (!Array.isArray(localVal) || localVal.length > 0)) {
+              _serverSet(KEY_MAP[localKey], localVal).then(function () {
+                console.log('[CompanyStore] Synced local→server:', localKey, Array.isArray(localVal) ? localVal.length + ' items' : 'data');
+              }).catch(function () {});
+            }
+            return localVal;
+          }
           // Cache locally for offline resilience
           _localSet(localKey, val);
           return val;
