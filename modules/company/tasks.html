@@ -512,13 +512,15 @@
           return;
         }
         task.comments.forEach(function (c) {
-          var agent = c.agentId ? getAgentById(c.agentId) : null;
+          var authorId = c.agentId || c.author || null;
+          var agent = authorId ? getAgentById(authorId) : null;
+          var ts = c.timestamp || c.createdAt || null;
           var div = document.createElement('div');
           div.className = 'tm-comment';
           div.innerHTML =
             '<div class="tm-comment-meta">' +
-              (agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : 'User') +
-              ' · ' + formatTimeAgo(new Date(c.timestamp)) +
+              (agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : (authorId || 'User')) +
+              ' · ' + formatTimeAgo(ts ? new Date(ts) : null) +
             '</div>' +
             '<div>' + escapeHtml(c.text) + '</div>';
           taskCommentsList.appendChild(div);
@@ -621,6 +623,7 @@
       }
 
       function formatTimeAgo(date) {
+        if (!date || isNaN(date.getTime())) return '';
         var diff = Date.now() - date.getTime();
         var mins = Math.floor(diff / 60000);
         if (mins < 1) return 'just now';
