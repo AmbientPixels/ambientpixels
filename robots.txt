@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+Allow: /blog/
+Allow: /log/
+Allow: /nova/
+Allow: /cardforge/
+Allow: /projects/
+Allow: /about/
+
+Disallow: /modules/company/
+Disallow: /docs/published/
+Disallow: /hanson/
+Disallow: /lab/
+Disallow: /playground/
+Disallow: /api/
+Disallow: /.auth/
+Disallow: /data/
+Disallow: /account/
+
+Sitemap: https://ambientpixels.ai/sitemap.xml
