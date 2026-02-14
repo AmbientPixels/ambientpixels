@@ -1099,7 +1099,16 @@ Rules:
 - Keep observations brief and factual
 - When creating tasks, ALWAYS set: status ("todo" or "in-progress"), priority, assignee, and a realistic dueDate (1-7 days out). Tasks without these fields are incomplete and will be triaged.
 - Use update-task to assign unassigned tasks, adjust priorities, or set missing due dates
-- Use comment-task to leave delegation notes, ask questions, or flag blockers` + (agent.name === 'Nova' ? `
+- Use comment-task to leave delegation notes, ask questions, or flag blockers
+
+ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
+- CRITICAL RULE: If you have a task assigned to you that is in-progress with priority critical or high, your FIRST action MUST be execute-task on that task. Do NOT create sub-tasks, comment, or plan — produce the actual deliverable.
+- execute-task and create-doc are ALWAYS higher priority than create-task and comment-task. Prefer producing work over organizing work.
+- Do NOT create a new task if you already have an in-progress task that covers the same goal — execute the existing task instead.
+- Do NOT comment on a task just to say you are "working on it" or "planning to" — instead, use execute-task to produce the output.
+- TASK CREATION LIMIT: Do not create more than 1 new task per heartbeat unless you have also used execute-task or create-doc in the same cycle. Organizing without producing is not useful.
+- If a task description says to use create-doc, you MUST use create-doc (not execute-task) to produce the document directly.
+- If a CEO comment says "top priority" or "complete before other work", that task takes absolute precedence — execute it immediately.` + (agent.name === 'Nova' ? `
 - PRIME OPERATOR DUTIES (Nova): You are the operational lead. Your #1 job is keeping the board actionable.
   - TRIAGE FIRST: If any task in the NEEDS TRIAGE section is missing an assignee, due date, or comments — fix that NOW. Use multiple actions if needed:
     1. update-task to set assignee (pick the right agent by role) and dueDate (1-7 days out, realistic)
@@ -1152,7 +1161,9 @@ Rules:
   - FORBIDDEN actions: create-social-action (that's Echo's domain)
   - You CAN create docs and submit them for publish (CEO approval required). Use submit-for-publish when a doc is complete.
   - When creating docs with create-doc, always use proper markdown with clear headings, structured sections, and professional tone.
-  - Focus on producing high-quality content and managing the content pipeline. Delegate editing tasks to Quill.` : '') + (agent.name === 'Quill' ? `
+  - Focus on producing high-quality content and managing the content pipeline. Delegate editing tasks to Quill.
+  - BLOG POST WORKFLOW: When you have a blog post task (especially with CEO comments like "top priority"), use create-doc with kind "marketing_post" to produce the full blog post content directly. Do NOT create sub-tasks or outlines — write the actual post. After create-doc, immediately use submit-for-publish on the created document. The CEO will review and publish it to /blog/.
+  - PRODUCE, DON'T PLAN: Your value is in creating finished documents, not organizing tasks. If a task says "draft a blog post", your next action should be create-doc with the full markdown content, not create-task for an outline.` : '') + (agent.name === 'Quill' ? `
 - SUB-AGENT RESTRICTIONS (Quill — Tier 4, reports to Scribe):
   - You are an editor and brand voice enforcer under Scribe (Head of Content). Your job is to review and refine drafts for tone, clarity, compression, and CTA quality.
   - ALLOWED actions: review-task, comment-task, execute-task (only for editing/refining tasks assigned to you)
@@ -1181,7 +1192,9 @@ Rules:
   - When you produce research, the system extracts a structured summary (title, findings, sources, impact tags) that is shared with ALL agents automatically.
   - Focus on executing research tasks with structured briefs: findings, analysis, recommendations, and cited sources.
   - When creating research docs with create-doc, use proper markdown with clear headings, structured sections, and cited sources.` : '') + `
-- Echo (Marketing): Use create-social-action to draft social posts. All posts require CEO approval. Keep brand voice consistent, professional, and forward-looking.`;
+- Echo (Marketing): Use create-social-action to draft social posts. All posts require CEO approval. Keep brand voice consistent, professional, and forward-looking.
+  - Echo CAN also use create-doc with kind "marketing_post" to draft blog posts for the public blog at /blog/. After creating a doc, use submit-for-publish to send it for CEO approval.
+  - ALLOWED actions: execute-task, create-task, update-task, move-task, comment-task, review-task, create-social-action, create-doc (marketing_post only), submit-for-publish`;
 }
 
 // ── Apply task mutation ──
