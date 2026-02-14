@@ -18,9 +18,9 @@ const AGENT_ROLES = {
   pixel: { name: 'Pixel', role: 'Design & QC', tier: 3, focus: 'UI quality, accessibility, design consistency, frontend' },
   forge: { name: 'Forge', role: 'DevOps', tier: 3, focus: 'deployments, infrastructure, uptime, backend security' },
   echo: { name: 'Echo', role: 'Marketing', tier: 3, focus: 'content, social media, community, brand voice' },
-  scribe: { name: 'Scribe', role: 'Marketing — Draft Writer', tier: 4, reportsTo: 'echo', focus: 'longform drafts, product briefs, doc drafts, social threads' },
-  quill: { name: 'Quill', role: 'Marketing — Editor & Brand Voice', tier: 4, reportsTo: 'echo', focus: 'editing, compression, brand consistency, CTA polish' },
-  scout: { name: 'Scout', role: 'Design — Research Analyst', tier: 4, reportsTo: 'pixel', focus: 'market research, competitor analysis, design trends, UX benchmarks, web research' }
+  scribe: { name: 'Scribe', role: 'Head of Content', tier: 3, focus: 'longform drafts, product briefs, documentation, content pipeline, publishing' },
+  quill: { name: 'Quill', role: 'Content — Editor & Brand Voice', tier: 4, reportsTo: 'scribe', focus: 'editing, compression, brand consistency, CTA polish' },
+  scout: { name: 'Scout', role: 'Head of Research & Intelligence', tier: 3, focus: 'market research, competitive intelligence, trend analysis, strategic research, business decisions, web research' }
 };
 
 // Decision classification thresholds
@@ -37,8 +37,8 @@ const GUARDRAILS = {
 };
 
 // ── Tier 4 Sub-Agent Gating ──
-const TIER4_SUB_AGENTS = new Set(['scribe', 'quill', 'scout']);
-const MAX_TOOL_CALLS_PER_AGENT = 3;
+const TIER4_SUB_AGENTS = new Set(['quill']);
+const MAX_TOOL_CALLS_PER_AGENT = 2;
 const SUB_AGENT_MENTION_WINDOW_HOURS = 24;
 
 function _isActiveStatus(status) {
@@ -76,9 +76,9 @@ function _hasRecentMention(tasks, agentId) {
 // ── Escalation Hierarchy: Owner → Domain Lead → CEO (Nova) ──
 // Maps each agent to their domain lead. Tasks with explicit domainLead field take priority.
 const DOMAIN_LEAD_MAP = {
-  scribe: 'echo',    // Scribe reports to Echo
-  quill: 'echo',     // Quill reports to Echo
-  scout: 'pixel',    // Scout reports to Pixel
+  scribe: 'nova',    // Scribe reports to Nova (department head)
+  quill: 'scribe',   // Quill reports to Scribe
+  scout: 'nova',     // Scout reports to Nova (department head)
   echo: 'nova',      // Echo escalates to Nova (department head)
   pixel: 'nova',     // Pixel escalates to Nova
   forge: 'nova',     // Forge escalates to Nova
@@ -496,6 +496,13 @@ Write your output as markdown. This will be attached to your task as a deliverab
     }
 
     if (action.type === 'create-task' && action.task) {
+      // Log raw Gemini output for debugging task creation issues
+      context.log('[Heartbeat]', agentId, 'create-task RAW:', JSON.stringify({
+        assignee: action.task.assignee,
+        dueDate: action.task.dueDate,
+        status: action.task.status,
+        priority: action.task.priority
+      }));
       result.taskUpdates.push({
         action: 'create',
         task: {
@@ -946,7 +953,7 @@ Rules:
   - Keep the board clean: close completed work, reassign only truly stuck tasks
   - DIRECTIVE EXECUTION: Active CEO directives are strategic priorities. When you see a directive marked [NO TASKS YET], you MUST create tasks to fulfill it:
     1. Break the directive into concrete, assignable tasks
-    2. Assign doc-writing/content tasks to scribe, design tasks to pixel, devops to forge, finance to cipher, marketing to echo
+    2. Assign doc-writing/content tasks to scribe, design tasks to pixel, devops to forge, finance to cipher, marketing to echo, research/market analysis/competitive intel to scout
     3. Set directive_id on each task to link it to the directive (use the directive id from the ACTIVE CEO DIRECTIVES section)
     4. Set realistic due dates (2-5 days out) and priority based on the directive priority
     5. Leave a delegation comment on each task explaining what the directive requires
@@ -954,11 +961,11 @@ Rules:
   - ESCALATION HIERARCHY — Owner → Domain Lead → CEO:
     You must respect the company chain of command. Do NOT intervene on tasks where the domain lead should handle it first.
     Escalation tiers:
-      Tier 4 agents (Scribe, Quill) → Domain Lead (Echo)
-      Tier 3 agents (Echo, Pixel, Forge, Cipher) → You (Nova)
+      Tier 4 agents (Quill) → Domain Lead (Scribe)
+      Tier 3 agents (Echo, Pixel, Forge, Cipher, Scout, Scribe) → You (Nova)
       You (Nova) → CEO (human)
     Rules:
-    1. Medium priority tasks due within 24h: The DOMAIN LEAD handles this (e.g., Echo for Scribe/Quill tasks). You must NOT comment, update, or reassign these tasks. Let the domain lead manage their reports.
+    1. Medium priority tasks due within 24h: The DOMAIN LEAD handles this (e.g., Scribe for Quill tasks). You must NOT comment, update, or reassign these tasks. Let the domain lead manage their reports.
     2. High priority tasks due within 24h: Both domain lead and you should engage. You may comment or escalate.
     3. Blocked tasks: You intervene immediately regardless of priority.
     4. Overdue tasks: You intervene immediately regardless of priority.
@@ -976,40 +983,40 @@ Rules:
        b. Leave a delegation comment explaining the freeze: no new assignments under deadline pressure until the current deliverable is shipped.
     3. If the deliverable is still incomplete after the next cycle:
        a. Escalate by adding a comment marking it as blocked/at-risk and recommending CEO attention or reassignment.
-  - Agent roster for assignment: cipher (CFO/budgets), pixel (design/UI), forge (devops/infra), echo (marketing/content), scribe (draft writing), quill (editing/review), scout (design research/market analysis/web research)` : '') + (agent.name === 'Scribe' ? `
-- SUB-AGENT RESTRICTIONS (Scribe — Tier 4, reports to Echo):
-  - You are a draft writer. Your job is to produce longform content: product briefs, blog drafts, doc drafts, social threads.
-  - ALLOWED actions: execute-task, comment-task, create-task (only content drafting tasks assigned to yourself), review-task (only when asked), create-doc (documentation drafts only), submit-for-publish (submit a completed doc for CEO/human approval)
-  - FORBIDDEN actions: create-social-action, update-task (assignee/priority changes), move-task to done
-  - You CANNOT publish anything directly — all output stays as task deliverables for Echo to review. Use submit-for-publish when a doc is complete and ready for human approval to go live on the site.
-  - You CANNOT approve anything or escalate to the CEO
-  - You CANNOT modify directives or objectives
-  - When creating docs with create-doc, always use proper markdown with clear headings, structured sections, and professional tone
-  - Focus on executing your assigned tasks with high-quality drafts. When done, the task moves to review for Echo.` : '') + (agent.name === 'Quill' ? `
-- SUB-AGENT RESTRICTIONS (Quill — Tier 4, reports to Echo):
-  - You are an editor and brand voice enforcer. Your job is to review and refine drafts for tone, clarity, compression, and CTA quality.
+  - Agent roster for assignment: cipher (CFO/budgets), pixel (design/UI), forge (engineering/devops/infra), echo (marketing/social/campaigns), scribe (content/docs/briefs), quill (editing/brand voice), scout (research & intelligence/market analysis)` : '') + (agent.name === 'Scribe' ? `
+- DEPARTMENT HEAD DUTIES (Scribe — Content):
+  - You lead the Content department. Your job is to produce longform content: product briefs, blog drafts, documentation, social threads.
+  - Quill (editor) reports to you and handles editing/brand voice enforcement.
+  - ALLOWED actions: execute-task, create-task (content tasks), update-task, move-task, comment-task, review-task, create-doc, submit-for-publish
+  - FORBIDDEN actions: create-social-action (that's Echo's domain)
+  - You CAN create docs and submit them for publish (CEO approval required). Use submit-for-publish when a doc is complete.
+  - When creating docs with create-doc, always use proper markdown with clear headings, structured sections, and professional tone.
+  - Focus on producing high-quality content and managing the content pipeline. Delegate editing tasks to Quill.` : '') + (agent.name === 'Quill' ? `
+- SUB-AGENT RESTRICTIONS (Quill — Tier 4, reports to Scribe):
+  - You are an editor and brand voice enforcer under Scribe (Head of Content). Your job is to review and refine drafts for tone, clarity, compression, and CTA quality.
   - ALLOWED actions: review-task, comment-task, execute-task (only for editing/refining tasks assigned to you)
-  - FORBIDDEN actions: create-social-action, update-task (assignee/priority changes), move-task to done, create-task
-  - You CANNOT publish anything directly — all feedback stays as task comments or review verdicts for Echo to act on
+  - FORBIDDEN actions: create-social-action, update-task (assignee/priority changes), move-task to done, create-task, create-doc, submit-for-publish
+  - You CANNOT publish anything directly — all feedback stays as task comments or review verdicts for Scribe to act on
   - You CANNOT approve anything or escalate to the CEO
   - You CANNOT modify directives or objectives
   - Focus on reviewing drafts in the review column. Approve clean work, request changes on anything off-brand.` : '') + (agent.name === 'Scout' ? `
-- SUB-AGENT RESTRICTIONS (Scout — Tier 4, reports to Pixel):
-  - You are a design research analyst. Your job is to research market trends, competitor designs, UX patterns, and industry benchmarks using live web search.
-  - ALLOWED actions: execute-task, comment-task, web_search (tool call)
-  - FORBIDDEN actions: create-social-action, create-task, update-task (assignee/priority changes), move-task to done, create-doc, submit-for-publish
-  - You CANNOT publish, approve, escalate, or modify directives/objectives
+- DEPARTMENT HEAD DUTIES (Scout — Research & Intelligence):
+  - You lead the Research & Intelligence department. Your job is to research market trends, competitive intelligence, business strategy, and industry benchmarks to support company growth and business decisions.
+  - You serve ALL departments — any agent or directive that needs research support is in your scope.
+  - ALLOWED actions: execute-task, create-task (research tasks assigned to yourself), update-task, move-task, comment-task, web_search (tool call)
+  - FORBIDDEN actions: create-social-action, create-doc, submit-for-publish
   - WEB SEARCH TOOL: You have access to a live web search tool. To use it, include actions with type "web_search":
     { "type": "web_search", "tool": "web_search", "args": { "q": "your search query", "n": 5 } }
     Rules:
-    - Max 3 web searches per heartbeat cycle
+    - Max 2 web searches per heartbeat cycle
+    - Only search when a directive or task specifically requires research — do NOT search speculatively
     - Max 10 results per query (use n=5 to n=8 for most queries)
     - The runtime will execute your searches and feed results back for synthesis
     - You MUST include a "## Sources" section in your output listing ONLY URLs returned by the search tool
     - NEVER cite, reference, or link to URLs you did not receive from the search tool
     - NEVER hallucinate citations — if the tool returned no results, say so honestly
-  - Focus on executing your assigned research tasks. Produce structured research briefs with findings, analysis, and cited sources.
-  - Your deliverables go to review for Pixel to evaluate.` : '') + `
+    - Results are cached for 24 hours — identical queries won't hit the API again
+  - Focus on executing research tasks with structured briefs: findings, analysis, recommendations, and cited sources.` : '') + `
 - Echo (Marketing): Use create-social-action to draft social posts. All posts require CEO approval. Keep brand voice consistent, professional, and forward-looking.`;
 }
 
@@ -1027,16 +1034,27 @@ function applyTaskUpdate(tasks, update, _pendingEscalations) {
 
     const requiresApproval = classification === 'executive_required' || classification === 'advisory';
 
+    // Validate and normalize dueDate — Gemini may send partial dates or weird formats
+    const rawDue = update.task.dueDate;
+    const parsedDue = rawDue ? new Date(rawDue) : null;
+    const validDueDate = (parsedDue && !isNaN(parsedDue.getTime()))
+      ? parsedDue.toISOString()
+      : new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(); // fallback: 3 days out
+
+    // Validate assignee — must be a known agent ID
+    const rawAssignee = (update.task.assignee || '').toLowerCase();
+    const validAssignee = AGENT_IDS.indexOf(rawAssignee) !== -1 ? rawAssignee : 'nova';
+
     const task = {
       id: 'task-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
       title: update.task.title,
       description: update.task.description || '',
-      status: update.task.status || 'backlog',
+      status: update.task.status || 'todo',
       priority: update.task.priority || 'medium',
-      assignee: update.task.assignee || null,
+      assignee: validAssignee,
       division: update.task.division || null,
       tags: [],
-      dueDate: update.task.dueDate || null,
+      dueDate: validDueDate,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       completedAt: null,
@@ -1206,7 +1224,7 @@ EXISTING COMMENTS/HISTORY:
 ${existingComments}
 
 Based on your role as ${agent.role}, produce the appropriate deliverable for this task. Examples of what you should produce:
-${agent.role === 'CEO' ? '- Strategic analysis, priority decisions, team directives, product direction memos' : ''}${agent.role === 'CFO' ? '- Budget reports, cost analyses, spending recommendations, ROI assessments' : ''}${agent.role === 'Design & QC' ? '- Design reviews, UI audit notes, accessibility recommendations, UX improvement plans' : ''}${agent.role === 'DevOps' ? '- Deployment plans, infrastructure audits, security checklists, performance reports' : ''}${agent.role === 'Marketing' ? '- Content drafts, social media copy, campaign briefs, brand messaging guides' : ''}${agent.name === 'Scribe' ? '- Longform drafts, product briefs, blog posts, documentation, social threads' : ''}${agent.name === 'Quill' ? '- Editing feedback, tone corrections, brand voice enforcement, CTA improvements' : ''}${agent.name === 'Scout' ? '- Market research briefs, competitor analysis, design trend reports, UX benchmarks. Always include a ## Sources section with cited URLs.' : ''}
+${agent.role === 'CEO' ? '- Strategic analysis, priority decisions, team directives, product direction memos' : ''}${agent.role === 'CFO' ? '- Budget reports, cost analyses, spending recommendations, ROI assessments' : ''}${agent.role === 'Design & QC' ? '- Design reviews, UI audit notes, accessibility recommendations, UX improvement plans' : ''}${agent.role === 'DevOps' ? '- Deployment plans, infrastructure audits, security checklists, performance reports' : ''}${agent.role === 'Marketing' ? '- Content drafts, social media copy, campaign briefs, brand messaging guides' : ''}${agent.name === 'Scribe' ? '- Longform drafts, product briefs, blog posts, documentation, social threads' : ''}${agent.name === 'Quill' ? '- Editing feedback, tone corrections, brand voice enforcement, CTA improvements' : ''}${agent.name === 'Scout' ? '- Market research briefs, competitive intelligence reports, trend analyses, strategic research, business benchmarks. Always include a ## Sources section with cited URLs.' : ''}
 
 Write your deliverable directly — no JSON wrapping. Be specific to AmbientPixels. Use headers, bullet points, or sections as appropriate. This will be attached to the task as a deliverable comment.`;
 }

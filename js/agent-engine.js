@@ -386,7 +386,7 @@ var AgentEngine = (function () {
   var _standupRunning = false;
 
   // Standup speaking order: Prime Operator opens, dept heads report, Prime Operator closes
-  var STANDUP_ORDER = ['nova', 'forge', 'pixel', 'cipher', 'echo', 'nova'];
+  var STANDUP_ORDER = ['nova', 'forge', 'pixel', 'cipher', 'echo', 'scribe', 'scout', 'nova'];
 
   function _loadStandupLog() {
     return _loadStorage(STANDUP_KEY, []);
