@@ -519,7 +519,7 @@ Write the full deliverable first, then the structured JSON block.`;
   let actionCount = 0;
 
   // Tier 4 sub-agent action restrictions (server-side enforcement)
-  const TIER4_FORBIDDEN = ['create-social-action'];
+  const TIER4_FORBIDDEN = ['create-social-action', 'create-doc', 'submit-for-publish', 'create-task'];
   const isTier4 = agent.tier === 4;
 
   for (const action of actions) {
@@ -671,8 +671,9 @@ Write the full deliverable first, then the structured JSON block.`;
       const kind = docPayload.kind || 'product_brief';
 
       if (docPayload.title && VALID_DOC_KINDS.indexOf(kind) !== -1) {
+        const docId = 'doc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
         const doc = {
-          id: 'doc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+          id: docId,
           title: docPayload.title,
           kind: kind,
           status: 'draft',
@@ -681,7 +682,7 @@ Write the full deliverable first, then the structured JSON block.`;
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           content_md: docPayload.content_md || '',
-          source: { action_id: null, task_id: null }
+          source: { action_id: null, task_id: action.taskId || null }
         };
 
         const docsStore = (await storage.getState('documents')) || [];
@@ -691,6 +692,124 @@ Write the full deliverable first, then the structured JSON block.`;
 
         context.log('[Heartbeat]', agentId, 'created doc draft:', doc.id, doc.title);
         result.taskUpdates.push({ action: 'doc-created', documentId: doc.id, agentId: agentId });
+
+        // Link doc back to the originating task: add comment + move to review
+        if (action.taskId) {
+          result.taskUpdates.push({
+            action: 'comment',
+            taskId: action.taskId,
+            comment: 'Document created: "' + doc.title + '" (id: ' + doc.id + ', kind: ' + kind + '). Submitting for CEO approval.',
+            agentId: agentId
+          });
+          result.taskUpdates.push({
+            action: 'move',
+            taskId: action.taskId,
+            newStatus: 'review'
+          });
+        }
+
+        // Auto-chain: submit for publish (agent can't know the doc ID, so we do it automatically)
+        const AUTO_PUBLISH_KINDS = ['marketing_post', 'product_brief'];
+        if (AUTO_PUBLISH_KINDS.indexOf(kind) !== -1) {
+          const slug = doc.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+          const isPublicKind = kind === 'marketing_post' || kind === 'product_brief';
+          const targetPath = isPublicKind ? '/blog/' + slug : '/docs/published/' + slug;
+          const publicUrl = isPublicKind ? '/blog/' + slug : '/docs/published/' + slug;
+
+          // Update doc status
+          doc.status = 'ready_for_approval';
+          doc.submitted_by = agentId;
+          doc.updated_at = new Date().toISOString();
+          // Update in the store (we still have reference)
+          const idx = docsStore.findIndex(d => d.id === docId);
+          if (idx !== -1) docsStore[idx] = doc;
+          await storage.setState('documents', docsStore);
+
+          // Create publish action
+          const publishAction = {
+            id: 'act_pub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+            created_at: new Date().toISOString(),
+            created_by: agentId,
+            type: 'publish_document',
+            platform: 'site',
+            payload: {
+              documentId: doc.id,
+              title: doc.title,
+              slug: slug,
+              kind: doc.kind,
+              content_md: doc.content_md,
+              target_path: targetPath,
+              public_url: publicUrl
+            },
+            classification: 'executive_required',
+            requires_ceo_approval: true,
+            risk_level: 'medium',
+            brand_impact: 'medium',
+            budget_impact: 0,
+            approval: { status: 'pending', approved_by: null, approved_at: null, decision_note: null },
+            execution: { status: 'pending', started_at: null, finished_at: null, attempts: 0, last_error: null, receipt: null },
+            action_type: 'publish_document',
+            action_category: 'content',
+            execution_status: 'pending',
+            origin_agent: agentId,
+            action_payload: { documentId: doc.id, title: doc.title, slug: slug },
+            requires_approval: true,
+            is_irreversible: true,
+            bundle_id: null
+          };
+
+          const actionsStore = (await storage.getState('actions')) || [];
+          actionsStore.push(publishAction);
+          if (actionsStore.length > 500) actionsStore.splice(0, actionsStore.length - 500);
+          await storage.setState('actions', actionsStore);
+
+          // Add to CEO approval queue
+          const approvalQueue = (await storage.getState('approvalQueue')) || [];
+          approvalQueue.push({
+            id: 'aq-' + publishAction.id,
+            kind: 'action',
+            actionType: 'publish_document',
+            action_id: publishAction.id,
+            taskId: action.taskId || null,
+            taskTitle: 'Publish: ' + doc.title,
+            originAgent: agentId,
+            classification: 'executive_required',
+            riskLevel: 'medium',
+            budgetImpact: 0,
+            brandImpact: 'medium',
+            status: 'pending',
+            timestamp: publishAction.created_at,
+            preview: (doc.content_md || '').substring(0, 120),
+            documentId: doc.id,
+            slug: slug
+          });
+          if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
+          await storage.setState('approvalQueue', approvalQueue);
+
+          // Audit + governance logs
+          const auditLog = (await storage.getState('actionAuditLog')) || [];
+          auditLog.push({
+            id: 'alog-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+            type: 'publish-requested',
+            data: { actionId: publishAction.id, documentId: doc.id, title: doc.title, slug: slug, submittedBy: agentId, taskId: action.taskId || null },
+            timestamp: new Date().toISOString()
+          });
+          if (auditLog.length > 500) auditLog.splice(0, auditLog.length - 500);
+          await storage.setState('actionAuditLog', auditLog);
+
+          const govLog = (await storage.getState('governanceLog')) || [];
+          govLog.push({
+            id: 'gov-' + Date.now(),
+            type: 'publish-requested',
+            data: { actionId: publishAction.id, documentId: doc.id, title: doc.title, agent: agentId },
+            timestamp: new Date().toISOString()
+          });
+          if (govLog.length > 200) govLog.splice(0, govLog.length - 200);
+          await storage.setState('governanceLog', govLog);
+
+          context.log('[Heartbeat]', agentId, 'auto-submitted doc for publish:', doc.id, '→', publishAction.id, '(kind:', kind, ', target:', targetPath, ')');
+          result.taskUpdates.push({ action: 'publish-requested', actionId: publishAction.id, documentId: doc.id, agentId: agentId });
+        }
       }
     } else if (action.type === 'submit-for-publish' && action.documentId) {
       // Submit a document for human approval + publish
@@ -713,6 +832,12 @@ Write the full deliverable first, then the structured JSON block.`;
           // Generate slug from title
           const slug = doc.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
+          // Route based on doc kind: marketing_post/product_brief → public blog, others → internal docs
+          const PUBLIC_KINDS = ['marketing_post', 'product_brief'];
+          const isPublic = PUBLIC_KINDS.indexOf(doc.kind) !== -1;
+          const pubTargetPath = isPublic ? '/blog/' + slug : '/docs/published/' + slug;
+          const pubPublicUrl = isPublic ? '/blog/' + slug : '/docs/published/' + slug;
+
           // Create publish_document action (requires CEO approval)
           const publishAction = {
             id: 'act_pub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
@@ -726,8 +851,8 @@ Write the full deliverable first, then the structured JSON block.`;
               slug: slug,
               kind: doc.kind,
               content_md: doc.content_md,
-              target_path: 'content/docs/' + slug + '.md',
-              public_url: '/docs/published/' + slug
+              target_path: pubTargetPath,
+              public_url: pubPublicUrl
             },
             classification: 'executive_required',
             requires_ceo_approval: true,
@@ -1546,7 +1671,7 @@ async function callGemini(prompt) {
     generationConfig: {
       temperature: 0.7,
       topP: 0.9,
-      maxOutputTokens: 600
+      maxOutputTokens: 1500
     }
   };
 
