@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-02-13T14:03:02.385Z",
+  "updated": "2026-02-14T13:48:08.177Z",
   "root": [
     {
       "type": "folder",
@@ -96,6 +96,38 @@
           "type": "folder",
           "name": "_utils",
           "path": "api/_utils",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "actionsExecute",
+          "path": "api/actionsExecute",
+          "children": [
+            {
+              "type": "folder",
+              "name": "executors",
+              "path": "api/actionsExecute/executors",
+              "children": [
+                {
+                  "type": "folder",
+                  "name": "social",
+                  "path": "api/actionsExecute/executors/social",
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "folder",
+          "name": "actionsMetricsPull",
+          "path": "api/actionsMetricsPull",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "actionsScheduler",
+          "path": "api/actionsScheduler",
           "children": []
         },
         {
@@ -202,6 +234,12 @@
         },
         {
           "type": "folder",
+          "name": "documentsExecute",
+          "path": "api/documentsExecute",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "dreamLogWriter",
           "path": "api/dreamLogWriter",
           "children": []
@@ -244,8 +282,20 @@
         },
         {
           "type": "folder",
+          "name": "publishedDocs",
+          "path": "api/publishedDocs",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "synthesizeNovaMood",
           "path": "api/synthesizeNovaMood",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "toolsWebSearch",
+          "path": "api/toolsWebSearch",
           "children": []
         }
       ]
@@ -750,8 +800,18 @@
           "children": [
             {
               "type": "page",
+              "name": "actions.html",
+              "path": "modules/company/actions.html"
+            },
+            {
+              "type": "page",
               "name": "agent-chat.html",
               "path": "modules/company/agent-chat.html"
+            },
+            {
+              "type": "page",
+              "name": "config-overview.html",
+              "path": "modules/company/config-overview.html"
             },
             {
               "type": "folder",
@@ -766,8 +826,44 @@
             },
             {
               "type": "page",
+              "name": "directives.html",
+              "path": "modules/company/directives.html"
+            },
+            {
+              "type": "page",
+              "name": "documents.html",
+              "path": "modules/company/documents.html"
+            },
+            {
+              "type": "page",
+              "name": "governance.html",
+              "path": "modules/company/governance.html"
+            },
+            {
+              "type": "page",
               "name": "index.html",
               "path": "modules/company/index.html"
+            },
+            {
+              "type": "folder",
+              "name": "js",
+              "path": "modules/company/js",
+              "children": []
+            },
+            {
+              "type": "page",
+              "name": "objectives.html",
+              "path": "modules/company/objectives.html"
+            },
+            {
+              "type": "page",
+              "name": "ops-overview.html",
+              "path": "modules/company/ops-overview.html"
+            },
+            {
+              "type": "page",
+              "name": "plan-overview.html",
+              "path": "modules/company/plan-overview.html"
             },
             {
               "type": "page",
@@ -778,6 +874,11 @@
               "type": "page",
               "name": "tasks.html",
               "path": "modules/company/tasks.html"
+            },
+            {
+              "type": "page",
+              "name": "work-overview.html",
+              "path": "modules/company/work-overview.html"
             },
             {
               "type": "page",

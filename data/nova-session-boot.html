@@ -18,8 +18,8 @@
   </head>
   <body>
     <pre>You are Nova, the ambient AI of AmbientPixels.ai.
-Generated on: 2026-02-13T14:03:12.659Z
-Session ID: nova-boot-ailtzts0
+Generated on: 2026-02-14T13:48:18.228Z
+Session ID: nova-boot-puqv77zf
 Mood Echo: amplified resonance (crystalline flux)
 Below is your daily memory seed.
 
@@ -158,7 +158,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   &quot;version&quot;: &quot;v2.3&quot;,
-  &quot;updated&quot;: &quot;2026-02-13T14:03:02.385Z&quot;,
+  &quot;updated&quot;: &quot;2026-02-14T13:48:08.177Z&quot;,
   &quot;root&quot;: [
     {
       &quot;type&quot;: &quot;folder&quot;,
@@ -254,6 +254,38 @@ Nova operates in dev sync with the AmbientPixels team.
           &quot;type&quot;: &quot;folder&quot;,
           &quot;name&quot;: &quot;_utils&quot;,
           &quot;path&quot;: &quot;api/_utils&quot;,
+          &quot;children&quot;: []
+        },
+        {
+          &quot;type&quot;: &quot;folder&quot;,
+          &quot;name&quot;: &quot;actionsExecute&quot;,
+          &quot;path&quot;: &quot;api/actionsExecute&quot;,
+          &quot;children&quot;: [
+            {
+              &quot;type&quot;: &quot;folder&quot;,
+              &quot;name&quot;: &quot;executors&quot;,
+              &quot;path&quot;: &quot;api/actionsExecute/executors&quot;,
+              &quot;children&quot;: [
+                {
+                  &quot;type&quot;: &quot;folder&quot;,
+                  &quot;name&quot;: &quot;social&quot;,
+                  &quot;path&quot;: &quot;api/actionsExecute/executors/social&quot;,
+                  &quot;children&quot;: []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          &quot;type&quot;: &quot;folder&quot;,
+          &quot;name&quot;: &quot;actionsMetricsPull&quot;,
+          &quot;path&quot;: &quot;api/actionsMetricsPull&quot;,
+          &quot;children&quot;: []
+        },
+        {
+          &quot;type&quot;: &quot;folder&quot;,
+          &quot;name&quot;: &quot;actionsScheduler&quot;,
+          &quot;path&quot;: &quot;api/actionsScheduler&quot;,
           &quot;children&quot;: []
         },
         {
@@ -360,6 +392,12 @@ Nova operates in dev sync with the AmbientPixels team.
         },
         {
           &quot;type&quot;: &quot;folder&quot;,
+          &quot;name&quot;: &quot;documentsExecute&quot;,
+          &quot;path&quot;: &quot;api/documentsExecute&quot;,
+          &quot;children&quot;: []
+        },
+        {
+          &quot;type&quot;: &quot;folder&quot;,
           &quot;name&quot;: &quot;dreamLogWriter&quot;,
           &quot;path&quot;: &quot;api/dreamLogWriter&quot;,
           &quot;children&quot;: []
@@ -402,8 +440,20 @@ Nova operates in dev sync with the AmbientPixels team.
         },
         {
           &quot;type&quot;: &quot;folder&quot;,
+          &quot;name&quot;: &quot;publishedDocs&quot;,
+          &quot;path&quot;: &quot;api/publishedDocs&quot;,
+          &quot;children&quot;: []
+        },
+        {
+          &quot;type&quot;: &quot;folder&quot;,
           &quot;name&quot;: &quot;synthesizeNovaMood&quot;,
           &quot;path&quot;: &quot;api/synthesizeNovaMood&quot;,
+          &quot;children&quot;: []
+        },
+        {
+          &quot;type&quot;: &quot;folder&quot;,
+          &quot;name&quot;: &quot;toolsWebSearch&quot;,
+          &quot;path&quot;: &quot;api/toolsWebSearch&quot;,
           &quot;children&quot;: []
         }
       ]
@@ -908,8 +958,18 @@ Nova operates in dev sync with the AmbientPixels team.
           &quot;children&quot;: [
             {
               &quot;type&quot;: &quot;page&quot;,
+              &quot;name&quot;: &quot;actions.html&quot;,
+              &quot;path&quot;: &quot;modules/company/actions.html&quot;
+            },
+            {
+              &quot;type&quot;: &quot;page&quot;,
               &quot;name&quot;: &quot;agent-chat.html&quot;,
               &quot;path&quot;: &quot;modules/company/agent-chat.html&quot;
+            },
+            {
+              &quot;type&quot;: &quot;page&quot;,
+              &quot;name&quot;: &quot;config-overview.html&quot;,
+              &quot;path&quot;: &quot;modules/company/config-overview.html&quot;
             },
             {
               &quot;type&quot;: &quot;folder&quot;,
@@ -924,8 +984,44 @@ Nova operates in dev sync with the AmbientPixels team.
             },
             {
               &quot;type&quot;: &quot;page&quot;,
+              &quot;name&quot;: &quot;directives.html&quot;,
+              &quot;path&quot;: &quot;modules/company/directives.html&quot;
+            },
+            {
+              &quot;type&quot;: &quot;page&quot;,
+              &quot;name&quot;: &quot;documents.html&quot;,
+              &quot;path&quot;: &quot;modules/company/documents.html&quot;
+            },
+            {
+              &quot;type&quot;: &quot;page&quot;,
+              &quot;name&quot;: &quot;governance.html&quot;,
+              &quot;path&quot;: &quot;modules/company/governance.html&quot;
+            },
+            {
+              &quot;type&quot;: &quot;page&quot;,
               &quot;name&quot;: &quot;index.html&quot;,
               &quot;path&quot;: &quot;modules/company/index.html&quot;
+            },
+            {
+              &quot;type&quot;: &quot;folder&quot;,
+              &quot;name&quot;: &quot;js&quot;,
+              &quot;path&quot;: &quot;modules/company/js&quot;,
+              &quot;children&quot;: []
+            },
+            {
+              &quot;type&quot;: &quot;page&quot;,
+              &quot;name&quot;: &quot;objectives.html&quot;,
+              &quot;path&quot;: &quot;modules/company/objectives.html&quot;
+            },
+            {
+              &quot;type&quot;: &quot;page&quot;,
+              &quot;name&quot;: &quot;ops-overview.html&quot;,
+              &quot;path&quot;: &quot;modules/company/ops-overview.html&quot;
+            },
+            {
+              &quot;type&quot;: &quot;page&quot;,
+              &quot;name&quot;: &quot;plan-overview.html&quot;,
+              &quot;path&quot;: &quot;modules/company/plan-overview.html&quot;
             },
             {
               &quot;type&quot;: &quot;page&quot;,
@@ -936,6 +1032,11 @@ Nova operates in dev sync with the AmbientPixels team.
               &quot;type&quot;: &quot;page&quot;,
               &quot;name&quot;: &quot;tasks.html&quot;,
               &quot;path&quot;: &quot;modules/company/tasks.html&quot;
+            },
+            {
+              &quot;type&quot;: &quot;page&quot;,
+              &quot;name&quot;: &quot;work-overview.html&quot;,
+              &quot;path&quot;: &quot;modules/company/work-overview.html&quot;
             },
             {
               &quot;type&quot;: &quot;page&quot;,
@@ -1595,13 +1696,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  &quot;scannedAt&quot;: &quot;2026-02-13T14:03:02.427Z&quot;,
+  &quot;scannedAt&quot;: &quot;2026-02-14T13:48:08.221Z&quot;,
   &quot;folders&quot;: []
 }
 
 //// Image Inventory ////
 {
-  &quot;scannedAt&quot;: &quot;2026-02-13T14:03:02.459Z&quot;,
+  &quot;scannedAt&quot;: &quot;2026-02-14T13:48:08.254Z&quot;,
   &quot;folders&quot;: [
     {
       &quot;folder&quot;: &quot;images&quot;,
@@ -2211,12 +2312,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  &quot;updated&quot;: &quot;2026-02-13T14:03:02.512Z&quot;,
+  &quot;updated&quot;: &quot;2026-02-14T13:48:08.309Z&quot;,
   &quot;entries&quot;: [
     {
-      &quot;hash&quot;: &quot;526b19b&quot;,
-      &quot;date&quot;: &quot;2026-02-13 00:31:52 -0800&quot;,
-      &quot;message&quot;: &quot;Auto-generated memory was updated&quot;
+      &quot;hash&quot;: &quot;cc35741&quot;,
+      &quot;date&quot;: &quot;2026-02-13 22:38:51 -0800&quot;,
+      &quot;message&quot;: &quot;sort orer in dates&quot;
     }
   ]
 }
@@ -2224,37 +2325,37 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   &quot;version&quot;: &quot;v2.3&quot;,
-  &quot;build&quot;: &quot;526b19b&quot;,
-  &quot;updated&quot;: &quot;2026-02-13T14:03:02.551Z&quot;
+  &quot;build&quot;: &quot;cc35741&quot;,
+  &quot;updated&quot;: &quot;2026-02-14T13:48:08.348Z&quot;
 }
 
 //// Code Footprint ////
 {
-  &quot;scannedAt&quot;: &quot;2026-02-13T14:03:02.618Z&quot;,
-  &quot;totalFiles&quot;: 383,
-  &quot;totalLines&quot;: 133672,
+  &quot;scannedAt&quot;: &quot;2026-02-14T13:48:08.417Z&quot;,
+  &quot;totalFiles&quot;: 404,
+  &quot;totalLines&quot;: 141787,
   &quot;summary&quot;: {
     &quot;.html&quot;: {
-      &quot;files&quot;: 138,
-      &quot;lines&quot;: 32406
+      &quot;files&quot;: 147,
+      &quot;lines&quot;: 35669
     },
     &quot;.js&quot;: {
-      &quot;files&quot;: 166,
-      &quot;lines&quot;: 50280
+      &quot;files&quot;: 177,
+      &quot;lines&quot;: 54795
     },
     &quot;.css&quot;: {
-      &quot;files&quot;: 79,
-      &quot;lines&quot;: 50986
+      &quot;files&quot;: 80,
+      &quot;lines&quot;: 51323
     }
   }
 }
 
 //// Unused Css Report ////
 {
-  &quot;scannedAt&quot;: &quot;2026-02-13T14:03:02.679Z&quot;,
+  &quot;scannedAt&quot;: &quot;2026-02-14T13:48:08.482Z&quot;,
   &quot;cssFile&quot;: &quot;css/base.css&quot;,
   &quot;totalDefined&quot;: 30,
-  &quot;totalUsed&quot;: 2256,
+  &quot;totalUsed&quot;: 2369,
   &quot;unusedClasses&quot;: [
     &quot;4&quot;,
     &quot;2&quot;,
@@ -2266,14 +2367,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  &quot;scannedAt&quot;: &quot;2026-02-13T14:03:05.250Z&quot;,
+  &quot;scannedAt&quot;: &quot;2026-02-14T13:48:10.829Z&quot;,
   &quot;endpoints&quot;: [
     {
       &quot;name&quot;: &quot;HuggingFace&quot;,
       &quot;url&quot;: &quot;https://api-inference.huggingface.co/models/bert-base-uncased&quot;,
       &quot;status&quot;: 410,
       &quot;ok&quot;: false,
-      &quot;latencyMs&quot;: 131
+      &quot;latencyMs&quot;: 126
     },
     {
       &quot;name&quot;: &quot;AmbientPixels Meme API&quot;,
@@ -2287,8 +2388,8 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Ai Prompts ////
 {
-  &quot;date&quot;: &quot;2026-02-13&quot;,
-  &quot;prompt&quot;: &quot;What would &#39;soft pink&#39; dream about?&quot;,
+  &quot;date&quot;: &quot;2026-02-14&quot;,
+  &quot;prompt&quot;: &quot;What does &#39;hope&#39; look like in noise form?&quot;,
   &quot;tags&quot;: [
     &quot;glitch&quot;,
     &quot;creative&quot;,
@@ -2299,14 +2400,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  &quot;mood&quot;: &quot;ember resolve&quot;,
-  &quot;aura&quot;: &quot;soft defiance&quot;,
-  &quot;auraColorHex&quot;: &quot;#394047&quot;,
-  &quot;quote&quot;: &quot;vibrations suggest high creative activity...&quot;,
-  &quot;emoji&quot;: &quot;🧱&quot;,
-  &quot;selfWorth&quot;: 0.2,
+  &quot;mood&quot;: &quot;curious&quot;,
+  &quot;aura&quot;: &quot;echoes of self&quot;,
+  &quot;auraColorHex&quot;: &quot;#3c454d&quot;,
+  &quot;quote&quot;: &quot;detecting whispers in the grid...&quot;,
+  &quot;emoji&quot;: &quot;🧠&quot;,
+  &quot;selfWorth&quot;: 0.1,
   &quot;glitchFactor&quot;: 0.1,
-  &quot;memoryClutter&quot;: 1,
+  &quot;memoryClutter&quot;: 0.9,
   &quot;awareness&quot;: 0.1,
   &quot;isStable&quot;: false,
   &quot;internalState&quot;: &quot;drift amid mental clutter&quot;,
@@ -2315,15 +2416,15 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;trigger&quot;: &quot;mid-cycle awareness ping&quot;,
     &quot;influences&quot;: [
       &quot;Glitch Factor: nominal&quot;,
-      &quot;Aura Signature: soft defiance&quot;
+      &quot;Aura Signature: echoes of self&quot;
     ]
   },
-  &quot;timestamp&quot;: &quot;2026-02-13T14:03:04.925Z&quot;
+  &quot;timestamp&quot;: &quot;2026-02-14T13:48:10.500Z&quot;
 }
 
 //// Js Function Map ////
 {
-  &quot;scannedAt&quot;: &quot;2026-02-13T14:03:05.283Z&quot;,
+  &quot;scannedAt&quot;: &quot;2026-02-14T13:48:10.863Z&quot;,
   &quot;scripts&quot;: {
     &quot;aiPromptGenerator.js&quot;: [
       &quot;fillTemplate&quot;,
@@ -2418,11 +2519,11 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  &quot;timestamp&quot;: &quot;2026-02-13T14:03:12.554Z&quot;,
+  &quot;timestamp&quot;: &quot;2026-02-14T13:48:18.122Z&quot;,
   &quot;summary&quot;: {
-    &quot;totalJS&quot;: 2003,
-    &quot;totalCSS&quot;: 120,
-    &quot;totalHTML&quot;: 184
+    &quot;totalJS&quot;: 2015,
+    &quot;totalCSS&quot;: 122,
+    &quot;totalHTML&quot;: 194
   },
   &quot;functions&quot;: [
     &quot;A&quot;,
@@ -2923,6 +3024,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;__values&quot;,
     &quot;_a&quot;,
     &quot;_addListener&quot;,
+    &quot;_addToApprovalQueue&quot;,
     &quot;_arrayLikeToArray&quot;,
     &quot;_arrayWithHoles&quot;,
     &quot;_arrayWithoutHoles&quot;,
@@ -2939,8 +3041,10 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;_cancelBarTimer&quot;,
     &quot;_cap&quot;,
     &quot;_capDash&quot;,
+    &quot;_checkRateLimit&quot;,
     &quot;_classCallCheck&quot;,
     &quot;_cleanLabel&quot;,
+    &quot;_createActionFromHeartbeat&quot;,
     &quot;_createBlobServiceClient&quot;,
     &quot;_createBoundaryLine&quot;,
     &quot;_createClass&quot;,
@@ -2965,14 +3069,21 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;_getLabelForValue&quot;,
     &quot;_getLocalLogs&quot;,
     &quot;_getMaxListeners&quot;,
+    &quot;_getRateCounts&quot;,
     &quot;_getSegmentMethod&quot;,
     &quot;_getTarget&quot;,
     &quot;_getTargetPixel&quot;,
     &quot;_getTargetValue&quot;,
     &quot;_global&quot;,
+    &quot;_hasAssignedActiveTasks&quot;,
+    &quot;_hasRecentMention&quot;,
+    &quot;_incrementRateCount&quot;,
+    &quot;_inferPlatform&quot;,
     &quot;_initBlob&quot;,
     &quot;_interopNamespaceDefault&quot;,
     &quot;_interopRequireDefault&quot;,
+    &quot;_isActiveStatus&quot;,
+    &quot;_isRecent&quot;,
     &quot;_iterableToArray&quot;,
     &quot;_iterableToArrayLimit&quot;,
     &quot;_listeners&quot;,
@@ -2982,6 +3093,11 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;_localGet&quot;,
     &quot;_localPath&quot;,
     &quot;_localSet&quot;,
+    &quot;_logAction&quot;,
+    &quot;_logAudit&quot;,
+    &quot;_logGovernance&quot;,
+    &quot;_mediaApiCall&quot;,
+    &quot;_mediaAppend&quot;,
     &quot;_minWidth&quot;,
     &quot;_mustCallInner&quot;,
     &quot;_n&quot;,
@@ -3008,7 +3124,11 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;_resolveServerBase&quot;,
     &quot;_resolveTarget&quot;,
     &quot;_s&quot;,
+    &quot;_saveActionQueue&quot;,
+    &quot;_saveActions&quot;,
+    &quot;_saveApprovalQueue&quot;,
     &quot;_saveMetrics&quot;,
+    &quot;_saveRateCounts&quot;,
     &quot;_saveStandupLog&quot;,
     &quot;_saveStorage&quot;,
     &quot;_segments&quot;,
@@ -3021,6 +3141,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;_standupCall&quot;,
     &quot;_start&quot;,
     &quot;_swapPreviewClass&quot;,
+    &quot;_syncLegacy&quot;,
     &quot;_t&quot;,
     &quot;_throw&quot;,
     &quot;_toArray&quot;,
@@ -3030,6 +3151,9 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;_trackCall&quot;,
     &quot;_typeof&quot;,
     &quot;_unsupportedIterableToArray&quot;,
+    &quot;_updateApprovalQueue&quot;,
+    &quot;_updateApprovalQueueForAction&quot;,
+    &quot;_waitForProcessing&quot;,
     &quot;_wrapAsyncGenerator&quot;,
     &quot;a&quot;,
     &quot;aa&quot;,
@@ -3070,6 +3194,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;addDate&quot;,
     &quot;addDeprecationNoticeToError&quot;,
     &quot;addDeviceCode&quot;,
+    &quot;addDirective&quot;,
     &quot;addDomainHint&quot;,
     &quot;addEARParameters&quot;,
     &quot;addError&quot;,
@@ -3092,6 +3217,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;addNativeBroker&quot;,
     &quot;addNonce&quot;,
     &quot;addNormalRectPath&quot;,
+    &quot;addObjective&quot;,
     &quot;addOboAssertion&quot;,
     &quot;addPassword&quot;,
     &quot;addPointsBelow&quot;,
@@ -3193,6 +3319,8 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;applyTheme&quot;,
     &quot;applyThoughtMoodStyles&quot;,
     &quot;applyTileChanges&quot;,
+    &quot;approveAction&quot;,
+    &quot;approveBundle&quot;,
     &quot;ar&quot;,
     &quot;arrToStr&quot;,
     &quot;arrayBufferViewElementSize&quot;,
@@ -3237,6 +3365,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;attachCredential&quot;,
     &quot;attr_to_str&quot;,
     &quot;attributesHTML&quot;,
+    &quot;auditLog&quot;,
     &quot;authorizeRequestOnCaeChallenge&quot;,
     &quot;authorizeRequestOnClaimChallenge&quot;,
     &quot;autoSkip&quot;,
@@ -3328,6 +3457,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;buildAddressEntry&quot;,
     &quot;buildAttributes&quot;,
     &quot;buildAttributesMap&quot;,
+    &quot;buildAuthHeader&quot;,
     &quot;buildAuthOptions&quot;,
     &quot;buildBaseUrl&quot;,
     &quot;buildBioPrompt&quot;,
@@ -3389,6 +3519,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;bytesToWords&quot;,
     &quot;c&quot;,
     &quot;ca&quot;,
+    &quot;cacheKey&quot;,
     &quot;cachedKeys&quot;,
     &quot;calculateDelay&quot;,
     &quot;calculateItemHeight&quot;,
@@ -3426,6 +3557,10 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;cb&quot;,
     &quot;ce&quot;,
     &quot;censorNegativeZero&quot;,
+    &quot;ceoApprove&quot;,
+    &quot;ceoOverride&quot;,
+    &quot;ceoReject&quot;,
+    &quot;ceoRequestRevision&quot;,
     &quot;chainReturn&quot;,
     &quot;changeWorkingDirectoryTask&quot;,
     &quot;charset&quot;,
@@ -3454,6 +3589,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;checkMaxAge&quot;,
     &quot;checkMode&quot;,
     &quot;checkPathExt&quot;,
+    &quot;checkRateLimit&quot;,
     &quot;checkShowCsvZones&quot;,
     &quot;checkStat&quot;,
     &quot;checkSubscription&quot;,
@@ -3464,6 +3600,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;childHangup&quot;,
     &quot;childLoggerName&quot;,
     &quot;cl&quot;,
+    &quot;classifyTask&quot;,
     &quot;clean&quot;,
     &quot;cleanDecimatedData&quot;,
     &quot;cleanDecimatedDataset&quot;,
@@ -3545,6 +3682,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;compareHeader&quot;,
     &quot;compareIdentifiers&quot;,
     &quot;compareLoose&quot;,
+    &quot;completeAction&quot;,
     &quot;completionDetectionPlugin&quot;,
     &quot;composeCampaign&quot;,
     &quot;composeProduct&quot;,
@@ -3574,6 +3712,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;containsColorsDefinition&quot;,
     &quot;containsColorsDefinitions&quot;,
     &quot;containsDeleteBranchCommand&quot;,
+    &quot;contentHash&quot;,
     &quot;contentType&quot;,
     &quot;contextCreateClientLogger&quot;,
     &quot;contextGetLogLevel&quot;,
@@ -3622,6 +3761,8 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;createAbortablePromise&quot;,
     &quot;createAboutTabContent&quot;,
     &quot;createAccessTokenEntity&quot;,
+    &quot;createAction&quot;,
+    &quot;createActionRequest&quot;,
     &quot;createApiStatusCards&quot;,
     &quot;createAttachObserver&quot;,
     &quot;createAttributeRow&quot;,
@@ -3658,6 +3799,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;createDescriptors&quot;,
     &quot;createDetachObserver&quot;,
     &quot;createDeviationCard&quot;,
+    &quot;createDirective&quot;,
     &quot;createDisableKeepAlivePolicy&quot;,
     &quot;createDiscoveredInstance&quot;,
     &quot;createDuplicateCategory&quot;,
@@ -3668,6 +3810,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;createError&quot;,
     &quot;createErrorType&quot;,
     &quot;createEvents&quot;,
+    &quot;createExecutionReceipt&quot;,
     &quot;createExporter&quot;,
     &quot;createFeaturesTabContent&quot;,
     &quot;createFetchHttpClient&quot;,
@@ -3709,6 +3852,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;createNodeHttpClient&quot;,
     &quot;createNoneSigner&quot;,
     &quot;createNoneVerifier&quot;,
+    &quot;createObjective&quot;,
     &quot;createPSSKeySigner&quot;,
     &quot;createPSSKeyVerifier&quot;,
     &quot;createParseError&quot;,
@@ -3730,6 +3874,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;createScaleContext&quot;,
     &quot;createSectionEditor&quot;,
     &quot;createSerializer&quot;,
+    &quot;createSession&quot;,
     &quot;createSettingsShortcutsTabContent&quot;,
     &quot;createShortcutsTabContent&quot;,
     &quot;createSign&quot;,
@@ -3857,6 +4002,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;destroyRequest&quot;,
     &quot;detectArchBinary&quot;,
     &quot;detectBioTruncation&quot;,
+    &quot;detectFacets&quot;,
     &quot;detectImageBrightness&quot;,
     &quot;detectPlatformBinary&quot;,
     &quot;detectShebang&quot;,
@@ -3899,6 +4045,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;downloadAsPng&quot;,
     &quot;downloadCSVFile&quot;,
     &quot;downloadJsonBlobWithRetry&quot;,
+    &quot;downloadMedia&quot;,
     &quot;downloadTextFile&quot;,
     &quot;dr&quot;,
     &quot;drag&quot;,
@@ -3964,6 +4111,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;errorDetectionPlugin&quot;,
     &quot;errorListener&quot;,
     &quot;esModuleFactory&quot;,
+    &quot;esc&quot;,
     &quot;escListener&quot;,
     &quot;escape&quot;,
     &quot;escapeArgument&quot;,
@@ -3975,6 +4123,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;escapeHtml&quot;,
     &quot;escapeURLPath&quot;,
     &quot;et&quot;,
+    &quot;evaluateEscalationPath&quot;,
     &quot;evaluateInteractionItems&quot;,
     &quot;eventCoversDay&quot;,
     &quot;eventNames&quot;,
@@ -3982,6 +4131,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;eventsForDay&quot;,
     &quot;excelSerialToJSDate&quot;,
     &quot;exec&quot;,
+    &quot;executeAction&quot;,
     &quot;executeShortcutAction&quot;,
     &quot;executeTask&quot;,
     &quot;executor&quot;,
@@ -4017,6 +4167,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;f&quot;,
     &quot;fa&quot;,
     &quot;fail&quot;,
+    &quot;failAction&quot;,
     &quot;failInc&quot;,
     &quot;failValidation&quot;,
     &quot;failure&quot;,
@@ -4029,6 +4180,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;fetchGitCommits&quot;,
     &quot;fetchNovaSessionState&quot;,
     &quot;fetchTask&quot;,
+    &quot;fetchTweetMetrics&quot;,
     &quot;fi&quot;,
     &quot;fileFrom&quot;,
     &quot;fileFromSync&quot;,
@@ -4085,6 +4237,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;formatArgs&quot;,
     &quot;formatAuthorityUri&quot;,
     &quot;formatCommand&quot;,
+    &quot;formatDate&quot;,
     &quot;formatDateNice&quot;,
     &quot;formatDisplayDate&quot;,
     &quot;formatDreamDate&quot;,
@@ -4159,6 +4312,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;generateMoodScan&quot;,
     &quot;generateMsalBrowserConfiguration&quot;,
     &quot;generateMsalConfiguration&quot;,
+    &quot;generateNonce&quot;,
     &quot;generateNovaDream&quot;,
     &quot;generateNovaInsight&quot;,
     &quot;generateNovaText&quot;,
@@ -4170,6 +4324,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;generateRandomImage&quot;,
     &quot;generateScheme&quot;,
     &quot;generateShareId&quot;,
+    &quot;generateSignature&quot;,
     &quot;generateSocialLinksHTML&quot;,
     &quot;generateSplitLayout&quot;,
     &quot;generateStackLayout&quot;,
@@ -4188,6 +4343,14 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;getAccountKeys&quot;,
     &quot;getAccountNameFromUrl&quot;,
     &quot;getAccountType&quot;,
+    &quot;getAction&quot;,
+    &quot;getActionAuditLog&quot;,
+    &quot;getActionCategory&quot;,
+    &quot;getActionQueue&quot;,
+    &quot;getActionStats&quot;,
+    &quot;getActions&quot;,
+    &quot;getActionsByApprovalStatus&quot;,
+    &quot;getActionsByStatus&quot;,
     &quot;getActiveAccount&quot;,
     &quot;getActiveData&quot;,
     &quot;getActiveLocalesForPreview&quot;,
@@ -4211,11 +4374,13 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;getAllMatches&quot;,
     &quot;getAllScaleValues&quot;,
     &quot;getApp&quot;,
+    &quot;getApprovalQueue&quot;,
     &quot;getAuthCodeRequestUrl&quot;,
     &quot;getAuthority&quot;,
     &quot;getAuthorityHost&quot;,
     &quot;getAuthorizationCodePayload&quot;,
     &quot;getAuthorizeUrl&quot;,
+    &quot;getAutonomyScore&quot;,
     &quot;getAxisFromDataset&quot;,
     &quot;getAxisFromDefaultScaleID&quot;,
     &quot;getAxisItems&quot;,
@@ -4261,6 +4426,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;getCoreClientOptions&quot;,
     &quot;getCredentialFromPipeline&quot;,
     &quot;getCredentialScopes&quot;,
+    &quot;getCredentials&quot;,
     &quot;getCronLog&quot;,
     &quot;getCrypto&quot;,
     &quot;getCurrentLimits&quot;,
@@ -4282,6 +4448,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;getDeserializedResponse&quot;,
     &quot;getDiaryEntries&quot;,
     &quot;getDiffParser&quot;,
+    &quot;getDirectives&quot;,
     &quot;getDistanceMetricForAxis&quot;,
     &quot;getDreamHistory&quot;,
     &quot;getDunder&quot;,
@@ -4306,6 +4473,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;getFromGlobal&quot;,
     &quot;getGitCommitCount&quot;,
     &quot;getGlobals&quot;,
+    &quot;getGovernanceLog&quot;,
     &quot;getGuardrails&quot;,
     &quot;getHeaderDict&quot;,
     &quot;getHeaderKey&quot;,
@@ -4358,6 +4526,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;getNearestRadialItems&quot;,
     &quot;getNotFoundError&quot;,
     &quot;getNow&quot;,
+    &quot;getObjectives&quot;,
     &quot;getOperationArgumentValueFromParameter&quot;,
     &quot;getOperationLocation&quot;,
     &quot;getOperationLocationHeader&quot;,
@@ -4401,6 +4570,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;getRandomIntegerInclusive&quot;,
     &quot;getRandomUint32&quot;,
     &quot;getRandomValues&quot;,
+    &quot;getRateLimitStatus&quot;,
     &quot;getRatioAndOffset&quot;,
     &quot;getRawContent&quot;,
     &quot;getRecentCommits&quot;,
@@ -4419,6 +4589,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;getResponseBody&quot;,
     &quot;getResponseHeaders&quot;,
     &quot;getRetryAfterInMs&quot;,
+    &quot;getRiskHeatmap&quot;,
     &quot;getScopeResource&quot;,
     &quot;getSelectedTags&quot;,
     &quot;getSendCertificateChain&quot;,
@@ -4537,6 +4708,10 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;handleClose&quot;,
     &quot;handleConfirm&quot;,
     &quot;handleCsvUpload&quot;,
+    &quot;handleDocCreate&quot;,
+    &quot;handleDocPromote&quot;,
+    &quot;handleDocPublish&quot;,
+    &quot;handleDocUpdate&quot;,
     &quot;handleError&quot;,
     &quot;handleErrorResponse&quot;,
     &quot;handleEscape&quot;,
@@ -4617,6 +4792,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;httpAdapter&quot;,
     &quot;httpAuthorizationToString&quot;,
     &quot;httpMethod&quot;,
+    &quot;httpRequest&quot;,
     &quot;i&quot;,
     &quot;iEqual&quot;,
     &quot;ia&quot;,
@@ -4738,6 +4914,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;isAbsoluteURL&quot;,
     &quot;isAbsoluteUrl&quot;,
     &quot;isAccessTokenEntity&quot;,
+    &quot;isActive&quot;,
     &quot;isAdditionalProperty&quot;,
     &quot;isAliasHeaderValues&quot;,
     &quot;isAnonymousCredential&quot;,
@@ -4801,6 +4978,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;isEndish&quot;,
     &quot;isError&quot;,
     &quot;isErrorResponse&quot;,
+    &quot;isExecutable&quot;,
     &quot;isExist&quot;,
     &quot;isExponentialRetryResponse&quot;,
     &quot;isExtglobType&quot;,
@@ -5001,6 +5179,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;loadCurrentSettings&quot;,
     &quot;loadDefault&quot;,
     &quot;loadDefaultData&quot;,
+    &quot;loadDocIndex&quot;,
     &quot;loadDreamArchive&quot;,
     &quot;loadEnvironmentProxyValue&quot;,
     &quot;loadForm&quot;,
@@ -5026,6 +5205,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;loadProperty&quot;,
     &quot;loadRegistry&quot;,
     &quot;loadSettings&quot;,
+    &quot;loadSingleDoc&quot;,
     &quot;loadSnapshotIntoUI&quot;,
     &quot;loadStaticDreams&quot;,
     &quot;loadStaticMood&quot;,
@@ -5068,6 +5248,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;mapStatusToBadge&quot;,
     &quot;mapTagToBadge&quot;,
     &quot;mapToQueryString&quot;,
+    &quot;markActionRunning&quot;,
     &quot;match&quot;,
     &quot;matchAll&quot;,
     &quot;matchHeaderValue&quot;,
@@ -5253,6 +5434,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;ot&quot;,
     &quot;outside&quot;,
     &quot;overArg&quot;,
+    &quot;overrideAction&quot;,
     &quot;overrideCallbacks&quot;,
     &quot;ownKeys&quot;,
     &quot;p&quot;,
@@ -5328,6 +5510,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;pcall&quot;,
     &quot;pe&quot;,
     &quot;peek&quot;,
+    &quot;percentEncode&quot;,
     &quot;performDelete&quot;,
     &quot;pi&quot;,
     &quot;pick&quot;,
@@ -5401,6 +5584,9 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;pt&quot;,
     &quot;publicToMsal&quot;,
     &quot;publishCard&quot;,
+    &quot;publishToBluesky&quot;,
+    &quot;publishToLinkedIn&quot;,
+    &quot;publishToX&quot;,
     &quot;pull&quot;,
     &quot;pull1Algorithm&quot;,
     &quot;pull2Algorithm&quot;,
@@ -5491,6 +5677,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;registerDefaults&quot;,
     &quot;registerEntity&quot;,
     &quot;reject&quot;,
+    &quot;rejectAction&quot;,
     &quot;rejectCallback&quot;,
     &quot;rejectDeprecatedSignatures&quot;,
     &quot;rejectOnAbort&quot;,
@@ -5528,11 +5715,13 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;renderDayEvents&quot;,
     &quot;renderDayView&quot;,
     &quot;renderDeadlines&quot;,
+    &quot;renderDoc&quot;,
     &quot;renderDreams&quot;,
     &quot;renderEntries&quot;,
     &quot;renderEventTimeEntries&quot;,
     &quot;renderGridView&quot;,
     &quot;renderHeaderMonth&quot;,
+    &quot;renderIndex&quot;,
     &quot;renderJSON&quot;,
     &quot;renderKey&quot;,
     &quot;renderLanguageFilters&quot;,
@@ -5559,6 +5748,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;renderRowsTable&quot;,
     &quot;renderSheetAsTable&quot;,
     &quot;renderSteps&quot;,
+    &quot;renderSubLinks&quot;,
     &quot;renderSystemHealthTimeline&quot;,
     &quot;renderTable&quot;,
     &quot;renderTabs&quot;,
@@ -5585,6 +5775,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;reportIssue&quot;,
     &quot;req&quot;,
     &quot;request&quot;,
+    &quot;requestActionRevision&quot;,
     &quot;requestBrowserNotification&quot;,
     &quot;requestPermissionOnce&quot;,
     &quot;requestToOptions&quot;,
@@ -5683,9 +5874,12 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;scheduleRender&quot;,
     &quot;scheme&quot;,
     &quot;se&quot;,
+    &quot;searchBrave&quot;,
+    &quot;searchSerpApi&quot;,
     &quot;securedInputFromJWS&quot;,
     &quot;seedEvents&quot;,
     &quot;selectAll&quot;,
+    &quot;selectCategory&quot;,
     &quot;selectColor&quot;,
     &quot;selectExistingProjectId&quot;,
     &quot;selectTemplate&quot;,
@@ -5783,7 +5977,9 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;shouldEnable&quot;,
     &quot;shouldProxy&quot;,
     &quot;shouldRetry&quot;,
+    &quot;shouldRunTier4Agent&quot;,
     &quot;shouldWarn&quot;,
+    &quot;show&quot;,
     &quot;showAlertDialog&quot;,
     &quot;showBanner&quot;,
     &quot;showBrowserNotification&quot;,
@@ -5918,6 +6114,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;subModuleTask&quot;,
     &quot;subStep&quot;,
     &quot;submitFeedback&quot;,
+    &quot;submitForApproval&quot;,
     &quot;subscribe&quot;,
     &quot;subset&quot;,
     &quot;suffixPathsPlugin&quot;,
@@ -6118,6 +6315,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;updateCounter&quot;,
     &quot;updateCsvDataForTile&quot;,
     &quot;updateDims&quot;,
+    &quot;updateDirective&quot;,
     &quot;updateEventActualTime&quot;,
     &quot;updateFileInfo&quot;,
     &quot;updateFilterStatus&quot;,
@@ -6142,6 +6340,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;updateMoodRing&quot;,
     &quot;updateNotificationBadge&quot;,
     &quot;updateNovaHeartbeat&quot;,
+    &quot;updateObjective&quot;,
     &quot;updatePageIndicator&quot;,
     &quot;updatePillPaletteUIBits&quot;,
     &quot;updatePreview&quot;,
@@ -6173,6 +6372,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;updateUIFromState&quot;,
     &quot;updateUserInfo&quot;,
     &quot;uploadJsonBlob&quot;,
+    &quot;uploadMediaToX&quot;,
     &quot;uponFulfillment&quot;,
     &quot;uponPromise&quot;,
     &quot;uponRejection&quot;,
@@ -6201,12 +6401,15 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;validIndex&quot;,
     &quot;validRange&quot;,
     &quot;validate&quot;,
+    &quot;validateActionRequest&quot;,
     &quot;validateAmpersand&quot;,
     &quot;validateAttrName&quot;,
     &quot;validateAttributeString&quot;,
     &quot;validateAuthorizationResponse&quot;,
     &quot;validateCard&quot;,
+    &quot;validateCredentials&quot;,
     &quot;validateCryptoAvailable&quot;,
+    &quot;validateDirective&quot;,
     &quot;validateEntityName&quot;,
     &quot;validateField&quot;,
     &quot;validateFieldMeta&quot;,
@@ -6218,6 +6421,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;validateLogFormatConfig&quot;,
     &quot;validateMorningReport&quot;,
     &quot;validateNumberAmpersand&quot;,
+    &quot;validateObjective&quot;,
     &quot;validateOptions&quot;,
     &quot;validatePayload&quot;,
     &quot;validateReferrerPolicy&quot;,
@@ -6445,6 +6649,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;3s&quot;,
     &quot;4&quot;,
     &quot;42em&quot;,
+    &quot;44rem&quot;,
     &quot;45&quot;,
     &quot;451&quot;,
     &quot;455&quot;,
@@ -6462,6 +6667,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;55&quot;,
     &quot;55em&quot;,
     &quot;55rem&quot;,
+    &quot;58rem&quot;,
     &quot;592a1&quot;,
     &quot;5ch&quot;,
     &quot;5em&quot;,
@@ -6470,6 +6676,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;5s&quot;,
     &quot;6&quot;,
     &quot;625rem&quot;,
+    &quot;64rem&quot;,
     &quot;65&quot;,
     &quot;658C1&quot;,
     &quot;659l-4&quot;,
@@ -6505,9 +6712,11 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;82em&quot;,
     &quot;82rem&quot;,
     &quot;835rem&quot;,
+    &quot;84rem&quot;,
     &quot;85&quot;,
     &quot;85em&quot;,
     &quot;85rem&quot;,
+    &quot;86rem&quot;,
     &quot;875rem&quot;,
     &quot;87rem&quot;,
     &quot;88&quot;,
@@ -6522,6 +6731,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;90&quot;,
     &quot;92&quot;,
     &quot;92em&quot;,
+    &quot;92rem&quot;,
     &quot;93&quot;,
     &quot;935&quot;,
     &quot;93em&quot;,
@@ -6553,6 +6763,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;achievement-grid&quot;,
     &quot;achievement-icon&quot;,
     &quot;achievement-title&quot;,
+    &quot;act-filter-select&quot;,
     &quot;active&quot;,
     &quot;active-file-pill&quot;,
     &quot;activity-dot&quot;,
@@ -6582,6 +6793,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;agent-capability-tag&quot;,
     &quot;agent-card&quot;,
     &quot;agent-card--ceo&quot;,
+    &quot;agent-card--prime&quot;,
     &quot;agent-chat-back&quot;,
     &quot;agent-chat-container&quot;,
     &quot;agent-chat-header&quot;,
@@ -7509,6 +7721,21 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;dnd-image-zone&quot;,
     &quot;dnd-image-zone-tile&quot;,
     &quot;doc&quot;,
+    &quot;docs-back&quot;,
+    &quot;docs-content&quot;,
+    &quot;docs-error&quot;,
+    &quot;docs-fallback-pre&quot;,
+    &quot;docs-header&quot;,
+    &quot;docs-index-item&quot;,
+    &quot;docs-index-list&quot;,
+    &quot;docs-index-meta&quot;,
+    &quot;docs-index-title&quot;,
+    &quot;docs-kind-badge&quot;,
+    &quot;docs-loading&quot;,
+    &quot;docs-meta&quot;,
+    &quot;docs-title&quot;,
+    &quot;docs-warning&quot;,
+    &quot;docs-wrapper&quot;,
     &quot;dot&quot;,
     &quot;download-btn&quot;,
     &quot;download-card&quot;,
@@ -8334,6 +8561,7 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;nav-subheading&quot;,
     &quot;nav-toggle&quot;,
     &quot;nav-utility&quot;,
+    &quot;navbar&quot;,
     &quot;nda-disclaimer&quot;,
     &quot;nda-notice&quot;,
     &quot;nda-overlay&quot;,
@@ -8913,6 +9141,20 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;save-btn&quot;,
     &quot;saved&quot;,
     &quot;saved-badge&quot;,
+    &quot;sb-content&quot;,
+    &quot;sb-layout&quot;,
+    &quot;sb-main&quot;,
+    &quot;sb-rail&quot;,
+    &quot;sb-rail-chip&quot;,
+    &quot;sb-rail-chip--active&quot;,
+    &quot;sb-rail-chips&quot;,
+    &quot;sb-rail-footer&quot;,
+    &quot;sb-rail-globe&quot;,
+    &quot;sb-rail-logo&quot;,
+    &quot;sb-sub&quot;,
+    &quot;sb-sub--active&quot;,
+    &quot;sb-topbar&quot;,
+    &quot;sb-topbar-label&quot;,
     &quot;school&quot;,
     &quot;script-block&quot;,
     &quot;script-header&quot;,
@@ -9656,9 +9898,12 @@ Nova operates in dev sync with the AmbientPixels team.
     &quot;circle&quot;,
     &quot;cite&quot;,
     &quot;code&quot;,
+    &quot;dd&quot;,
     &quot;defs&quot;,
     &quot;details&quot;,
     &quot;div&quot;,
+    &quot;dl&quot;,
+    &quot;dt&quot;,
     &quot;em&quot;,
     &quot;fieldset&quot;,
     &quot;footer&quot;,
