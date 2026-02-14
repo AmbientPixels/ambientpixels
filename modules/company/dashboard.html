@@ -1104,9 +1104,10 @@
         return fetch(apiBase + '/company-state?key=documents', {
           headers: { 'x-company-secret': (typeof CompanyStore !== 'undefined' && CompanyStore._writeSecret) ? CompanyStore._writeSecret : '' }
         })
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (docs) {
-          if (!docs || !Array.isArray(docs)) return null;
+        .then(function (r) { return r.ok ? r.json() : {}; })
+        .then(function (resp) {
+          var docs = (resp && resp.value) || [];
+          if (!Array.isArray(docs)) return null;
           var doc = docs.find(function (d) { return d.id === docId; });
           return doc ? (doc.content_md || null) : null;
         })
@@ -1343,8 +1344,9 @@
         fetch(apiBase + '/company-state?key=blogPosts', {
           headers: { 'x-company-secret': (typeof CompanyStore !== 'undefined' && CompanyStore._writeSecret) ? CompanyStore._writeSecret : '' }
         })
-        .then(function (r) { return r.ok ? r.json() : []; })
-        .then(function (posts) {
+        .then(function (r) { return r.ok ? r.json() : {}; })
+        .then(function (resp) {
+          var posts = (resp && resp.value) || [];
           if (!Array.isArray(posts) || posts.length === 0) {
             listEl.innerHTML = '';
             emptyEl.style.display = '';
@@ -1407,8 +1409,9 @@
         return fetch(apiBase + '/company-state?key=blogPosts', {
           headers: { 'x-company-secret': (typeof CompanyStore !== 'undefined' && CompanyStore._writeSecret) ? CompanyStore._writeSecret : '' }
         })
-        .then(function (r) { return r.ok ? r.json() : []; })
-        .then(function (posts) {
+        .then(function (r) { return r.ok ? r.json() : {}; })
+        .then(function (resp) {
+          var posts = (resp && resp.value) || [];
           if (!Array.isArray(posts)) return false;
           var filtered = posts.filter(function (p) { return p.slug !== slug; });
           if (filtered.length === posts.length) return false; // not found
