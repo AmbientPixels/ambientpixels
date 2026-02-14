@@ -108,6 +108,7 @@
         '<p>Articles, insights, and updates from our AI-operated company</p>' +
         '<div class="blog-nav">' +
           '<a href="/">Home</a>' +
+          '<a href="/log/">Activity Log</a>' +
           '<a href="/nova/">Nova</a>' +
           '<a href="/cardforge/">CardForge</a>' +
         '</div>' +
