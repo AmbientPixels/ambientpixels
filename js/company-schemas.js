@@ -19,7 +19,7 @@ var CompanySchemas = (function () {
   var DIRECTIVE_STATUSES = ['active', 'completed', 'paused'];
   var OBJECTIVE_STATUSES = ['on_track', 'at_risk', 'behind', 'complete'];
   var QUARTERS = ['Q1', 'Q2', 'Q3', 'Q4'];
-  var LOG_TYPES = ['heartbeat', 'standup', 'task-created', 'task-updated', 'task-moved', 'chat', 'cron', 'error', 'morning-report', 'agent-action', 'ceo-approval', 'ceo-reject', 'ceo-override', 'ceo-revision', 'escalation', 'directive-created', 'objective-created', 'action-created', 'action-approved', 'action-rejected', 'action-running', 'action-success', 'action-failed'];
+  var LOG_TYPES = ['heartbeat', 'standup', 'task-created', 'task-updated', 'task-moved', 'chat', 'cron', 'error', 'morning-report', 'agent-action', 'ceo-approval', 'ceo-reject', 'ceo-override', 'ceo-revision', 'escalation', 'directive-created', 'objective-created', 'action-created', 'action-approved', 'action-rejected', 'action-running', 'action-success', 'action-failed', 'publish-requested', 'publish-approved', 'publish-rejected', 'publish-executed', 'publish-failed'];
 
   // ── Action Layer v1 ──
   var ACTION_CATEGORIES = {
@@ -27,7 +27,7 @@ var CompanySchemas = (function () {
     email: ['email.search', 'email.summarize_thread', 'email.draft', 'email.send'],
     git: ['git.create_branch', 'git.commit', 'git.open_pr'],
     azure: ['azure.deploy'],
-    content: ['generate_asset', 'publish_gallery']
+    content: ['generate_asset', 'publish_gallery', 'publish_document']
   };
   var ALL_ACTION_TYPES = [];
   Object.keys(ACTION_CATEGORIES).forEach(function (cat) {
@@ -46,7 +46,8 @@ var CompanySchemas = (function () {
     'email.send',
     'git.open_pr',
     'azure.deploy',
-    'publish_gallery'
+    'publish_gallery',
+    'publish_document'
   ];
 
   // Actions that are irreversible once executed
@@ -55,8 +56,12 @@ var CompanySchemas = (function () {
     'email.send',
     'git.commit', 'git.open_pr',
     'azure.deploy',
-    'publish_gallery'
+    'publish_gallery',
+    'publish_document'
   ];
+
+  // Document publish pipeline statuses
+  var DOCUMENT_STATUSES = ['draft', 'review', 'ready_for_approval', 'approved', 'published', 'rejected'];
 
   // Default rate limits per integration category (per 24h)
   var ACTION_RATE_LIMITS = {
@@ -319,6 +324,7 @@ var CompanySchemas = (function () {
     SUPPORTED_PLATFORMS: SUPPORTED_PLATFORMS,
     ACTIONS_REQUIRE_APPROVAL: ACTIONS_REQUIRE_APPROVAL,
     ACTIONS_IRREVERSIBLE: ACTIONS_IRREVERSIBLE,
+    DOCUMENT_STATUSES: DOCUMENT_STATUSES,
     ACTION_RATE_LIMITS: ACTION_RATE_LIMITS,
     validateActionRequest: validateActionRequest,
     createActionRequest: createActionRequest,

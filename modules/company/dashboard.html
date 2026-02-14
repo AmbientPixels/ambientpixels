@@ -686,8 +686,12 @@
           var classIcon = item.classification === 'executive_required' ? 'fa-exclamation-circle' : 'fa-info-circle';
           var classColor = item.classification === 'executive_required' ? '#f87171' : '#fbbf24';
 
+          var isPublish = item.actionType === 'publish_document';
           var titleHtml = '';
-          if (isAction) {
+          if (isPublish) {
+            titleHtml = '<span style="font-size:0.55rem;padding:0.1rem 0.35rem;border-radius:3px;background:rgba(52,211,153,0.15);color:#34d399;margin-right:0.4rem;">PUBLISH</span>' +
+              '<strong style="font-size:0.8rem;">' + escapeHtml(item.taskTitle) + '</strong>';
+          } else if (isAction) {
             titleHtml = '<span style="font-size:0.55rem;padding:0.1rem 0.35rem;border-radius:3px;background:rgba(59,130,246,0.1);color:#3b82f6;margin-right:0.4rem;">ACTION</span>' +
               '<strong style="font-size:0.8rem;">' + escapeHtml(item.taskTitle) + '</strong>';
           } else {
@@ -714,28 +718,32 @@
             '<div style="display:flex; gap:0.6rem; font-size:0.65rem; opacity:0.6; margin-bottom:0.5rem;">' +
               metaHtml +
             '</div>' +
-            '<div style="display:flex; gap:0.4rem;">' +
-              '<button class="approval-btn approval-btn--approve" data-id="' + item.id + '" data-action-id="' + (actionTarget || '') + '" data-kind="' + (item.kind || 'task') + '" style="' + btnStyle + ' border:1px solid rgba(52,211,153,0.3); background:rgba(52,211,153,0.05); color:#34d399;">Approve</button>' +
-              '<button class="approval-btn approval-btn--reject" data-id="' + item.id + '" data-action-id="' + (actionTarget || '') + '" data-kind="' + (item.kind || 'task') + '" style="' + btnStyle + ' border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.05); color:#f87171;">Reject</button>' +
-              '<button class="approval-btn approval-btn--revision" data-id="' + item.id + '" data-action-id="' + (actionTarget || '') + '" data-kind="' + (item.kind || 'task') + '" style="' + btnStyle + ' border:1px solid rgba(251,191,36,0.3); background:rgba(251,191,36,0.05); color:#fbbf24;">Request Revision</button>' +
-              '<button class="approval-btn approval-btn--override" data-id="' + (overrideTarget || '') + '" data-kind="' + (item.kind || 'task') + '" style="' + btnStyle + ' border:1px solid rgba(255,215,0,0.3); background:rgba(255,215,0,0.05); color:#FFD700;">Override</button>' +
+            '<div style="display:flex; gap:0.4rem; flex-wrap:wrap;">' +
+              '<button class="approval-btn approval-btn--approve" data-id="' + item.id + '" data-action-id="' + (actionTarget || '') + '" data-kind="' + (item.kind || 'task') + '" data-action-type="' + (item.actionType || '') + '" style="' + btnStyle + ' border:1px solid rgba(52,211,153,0.3); background:rgba(52,211,153,0.05); color:#34d399;">' + (isPublish ? 'Approve &amp; Publish' : 'Approve') + '</button>' +
+              '<button class="approval-btn approval-btn--reject" data-id="' + item.id + '" data-action-id="' + (actionTarget || '') + '" data-kind="' + (item.kind || 'task') + '" data-action-type="' + (item.actionType || '') + '" style="' + btnStyle + ' border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.05); color:#f87171;">Reject</button>' +
+              '<button class="approval-btn approval-btn--revision" data-id="' + item.id + '" data-action-id="' + (actionTarget || '') + '" data-kind="' + (item.kind || 'task') + '" data-action-type="' + (item.actionType || '') + '" style="' + btnStyle + ' border:1px solid rgba(251,191,36,0.3); background:rgba(251,191,36,0.05); color:#fbbf24;">Request Revision</button>' +
+              '<button class="approval-btn approval-btn--override" data-id="' + (overrideTarget || '') + '" data-kind="' + (item.kind || 'task') + '" data-action-type="' + (item.actionType || '') + '" style="' + btnStyle + ' border:1px solid rgba(255,215,0,0.3); background:rgba(255,215,0,0.05); color:#FFD700;">Override</button>' +
+              (isPublish && item.slug ? '<a href="/docs/published/' + escapeHtml(item.slug) + '" target="_blank" style="' + btnStyle + ' border:1px solid rgba(138,43,226,0.3); background:rgba(138,43,226,0.05); color:#8A2BE2; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;"><i class="fas fa-external-link-alt"></i> View</a>' : '') +
             '</div>';
           listEl.appendChild(div);
         });
 
         // Bind buttons — route action items to action-specific methods
+        // publish_document actions are routed to the server endpoint for actual execution
         listEl.querySelectorAll('.approval-btn--approve').forEach(function (btn) {
           btn.addEventListener('click', function () {
-            if (btn.dataset.kind === 'action') { AgentEngine.approveAction(btn.dataset.actionId); }
-            else { AgentEngine.ceoApprove(btn.dataset.id); }
-            renderAll();
+            if (btn.dataset.actionType === 'publish_document') {
+              _serverPublishDecision(btn.dataset.actionId, 'approve').then(renderAll);
+            } else if (btn.dataset.kind === 'action') { AgentEngine.approveAction(btn.dataset.actionId); renderAll(); }
+            else { AgentEngine.ceoApprove(btn.dataset.id); renderAll(); }
           });
         });
         listEl.querySelectorAll('.approval-btn--reject').forEach(function (btn) {
           btn.addEventListener('click', function () {
-            if (btn.dataset.kind === 'action') { AgentEngine.rejectAction(btn.dataset.actionId); }
-            else { AgentEngine.ceoReject(btn.dataset.id); }
-            renderAll();
+            if (btn.dataset.actionType === 'publish_document') {
+              _serverPublishDecision(btn.dataset.actionId, 'reject').then(renderAll);
+            } else if (btn.dataset.kind === 'action') { AgentEngine.rejectAction(btn.dataset.actionId); renderAll(); }
+            else { AgentEngine.ceoReject(btn.dataset.id); renderAll(); }
           });
         });
         listEl.querySelectorAll('.approval-btn--revision').forEach(function (btn) {
@@ -751,6 +759,33 @@
             else { AgentEngine.ceoOverride(btn.dataset.id); }
             renderAll();
           });
+        });
+      }
+
+      // ── Server-side publish decision (approve/reject publish_document actions) ──
+      function _serverPublishDecision(actionId, decision) {
+        var apiBase = (window.location.hostname.indexOf('ambientpixels.ai') !== -1)
+          ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+          : '/api';
+        return fetch(apiBase + '/documents/execute', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-company-secret': (typeof CompanyStore !== 'undefined' && CompanyStore._writeSecret) ? CompanyStore._writeSecret : ''
+          },
+          body: JSON.stringify({
+            action: 'document.publish',
+            action_id: actionId,
+            decision: decision
+          })
+        }).then(function (res) { return res.json(); }).then(function (data) {
+          if (data.success) {
+            console.log('[Dashboard] Publish ' + decision + ' succeeded:', actionId);
+          } else {
+            console.error('[Dashboard] Publish ' + decision + ' failed:', data.error || data);
+          }
+        }).catch(function (err) {
+          console.error('[Dashboard] Publish decision error:', err);
         });
       }
 

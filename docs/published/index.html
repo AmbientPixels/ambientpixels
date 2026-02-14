@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels — Published Company Documents" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Document — AmbientPixels</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/docs/docs.css" />
+</head>
+<body>
+  <div class="docs-wrapper">
+    <a href="/modules/company/dashboard.html" class="docs-back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+
+    <div id="docs-loading" class="docs-loading">
+      <i class="fas fa-spinner fa-spin" style="margin-right:0.4rem;"></i> Loading document...
+    </div>
+
+    <div id="docs-error" class="docs-error" style="display:none;"></div>
+
+    <div id="docs-header" style="display:none;"></div>
+    <div id="docs-content" class="docs-content" style="display:none;"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="/docs/docs-viewer.js"></script>
+</body>
+</html>

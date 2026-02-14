@@ -551,6 +551,141 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
         context.log('[Heartbeat]', agentId, 'created doc draft:', doc.id, doc.title);
         result.taskUpdates.push({ action: 'doc-created', documentId: doc.id, agentId: agentId });
       }
+    } else if (action.type === 'submit-for-publish' && action.documentId) {
+      // Submit a document for human approval + publish
+      // GUARDRAIL: No agent can directly publish — this only creates a publish_document action
+      // that requires CEO/human approval before execution.
+      const docsStore = (await storage.getState('documents')) || [];
+      const docIdx = docsStore.findIndex(d => d.id === action.documentId);
+
+      if (docIdx !== -1) {
+        const doc = docsStore[docIdx];
+
+        // Only drafts or review docs can be submitted for publish
+        if (doc.status === 'draft' || doc.status === 'review') {
+          // Update doc status
+          docsStore[docIdx].status = 'ready_for_approval';
+          docsStore[docIdx].updated_at = new Date().toISOString();
+          docsStore[docIdx].submitted_by = agentId;
+          await storage.setState('documents', docsStore);
+
+          // Generate slug from title
+          const slug = doc.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+          // Create publish_document action (requires CEO approval)
+          const publishAction = {
+            id: 'act_pub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+            created_at: new Date().toISOString(),
+            created_by: agentId,
+            type: 'publish_document',
+            platform: 'site',
+            payload: {
+              documentId: doc.id,
+              title: doc.title,
+              slug: slug,
+              kind: doc.kind,
+              content_md: doc.content_md,
+              target_path: '/docs/published/' + slug
+            },
+            classification: 'executive_required',
+            requires_ceo_approval: true,
+            risk_level: 'medium',
+            brand_impact: 'medium',
+            budget_impact: 0,
+            approval: {
+              status: 'pending',
+              approved_by: null,
+              approved_at: null,
+              decision_note: null
+            },
+            execution: {
+              status: 'pending',
+              started_at: null,
+              finished_at: null,
+              attempts: 0,
+              last_error: null,
+              receipt: null
+            },
+            // Legacy compat fields
+            action_type: 'publish_document',
+            action_category: 'content',
+            execution_status: 'pending',
+            origin_agent: agentId,
+            action_payload: { documentId: doc.id, title: doc.title, slug: slug },
+            requires_approval: true,
+            is_irreversible: true,
+            bundle_id: null
+          };
+
+          // Save action to actions store
+          const actionsStore = (await storage.getState('actions')) || [];
+          actionsStore.push(publishAction);
+          if (actionsStore.length > 500) actionsStore.splice(0, actionsStore.length - 500);
+          await storage.setState('actions', actionsStore);
+
+          // Add to CEO approval queue
+          const approvalQueue = (await storage.getState('approvalQueue')) || [];
+          approvalQueue.push({
+            id: 'aq-' + publishAction.id,
+            kind: 'action',
+            actionType: 'publish_document',
+            action_id: publishAction.id,
+            taskId: action.taskId || null,
+            taskTitle: 'Publish: ' + doc.title,
+            originAgent: agentId,
+            classification: 'executive_required',
+            riskLevel: 'medium',
+            budgetImpact: 0,
+            brandImpact: 'medium',
+            status: 'pending',
+            timestamp: publishAction.created_at,
+            preview: (doc.content_md || '').substring(0, 120),
+            documentId: doc.id,
+            slug: slug
+          });
+          if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
+          await storage.setState('approvalQueue', approvalQueue);
+
+          // Audit log
+          const auditLog = (await storage.getState('actionAuditLog')) || [];
+          auditLog.push({
+            id: 'alog-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+            type: 'publish-requested',
+            data: {
+              actionId: publishAction.id,
+              documentId: doc.id,
+              title: doc.title,
+              slug: slug,
+              submittedBy: agentId,
+              taskId: action.taskId || null
+            },
+            timestamp: new Date().toISOString()
+          });
+          if (auditLog.length > 500) auditLog.splice(0, auditLog.length - 500);
+          await storage.setState('actionAuditLog', auditLog);
+
+          // Governance log
+          const govLog = (await storage.getState('governanceLog')) || [];
+          govLog.push({
+            id: 'gov-' + Date.now(),
+            type: 'publish-requested',
+            data: {
+              actionId: publishAction.id,
+              documentId: doc.id,
+              title: doc.title,
+              agent: agentId
+            },
+            timestamp: new Date().toISOString()
+          });
+          if (govLog.length > 200) govLog.splice(0, govLog.length - 200);
+          await storage.setState('governanceLog', govLog);
+
+          context.log('[Heartbeat]', agentId, 'submitted doc for publish:', doc.id, doc.title, '→ action:', publishAction.id);
+          result.taskUpdates.push({ action: 'publish-requested', actionId: publishAction.id, documentId: doc.id, agentId: agentId });
+        } else {
+          context.log('[Heartbeat]', agentId, 'cannot submit doc for publish — status is', doc.status);
+        }
+      }
     }
 
     await logEvent('agent-action', agentId, summary, cycleId);
@@ -631,7 +766,7 @@ Respond with ONLY valid JSON in this exact format:
   "observation": "One sentence about what you notice or your current state",
   "actions": [
     {
-      "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|create-doc",
+      "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|create-doc|submit-for-publish",
       "summary": "Brief description of what you're doing",
       "task": { "title": "", "description": "", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z" },
       "taskId": "existing-task-id",
@@ -639,7 +774,8 @@ Respond with ONLY valid JSON in this exact format:
       "newStatus": "todo|in-progress|review|done",
       "comment": "Your comment text here",
       "social": { "text": "Post content", "platform": "x|linkedin|bluesky", "media": ["https://..."], "scheduled_for": "2026-02-14T09:00:00Z" },
-      "document": { "title": "Doc Title", "kind": "spec|runbook|release_notes|product_brief|marketing_post|governance", "tags": ["tag1"], "content_md": "# Heading\n\nMarkdown content..." }
+      "document": { "title": "Doc Title", "kind": "spec|runbook|release_notes|product_brief|marketing_post|governance", "tags": ["tag1"], "content_md": "# Heading\n\nMarkdown content..." },
+      "documentId": "existing-doc-id"
     }
   ]
 }
@@ -653,6 +789,7 @@ Action types:
 - comment-task: Add a comment to any task. Provide taskId and "comment" string. Use for status updates, delegation notes, questions, or flagging blockers.
 - create-social-action: (Marketing/Echo) Draft a social media post routed through CEO approval. Include "social" with: text (max 280 for X, 300 for Bluesky, 3000 for LinkedIn), platform ("x"|"linkedin"|"bluesky"), optionally media (URLs) and scheduled_for (ISO datetime).
 - create-doc: Create a documentation draft. Include "document" with: title (string), kind ("spec"|"runbook"|"release_notes"|"product_brief"|"marketing_post"|"governance"), tags (array of strings), and content_md (full markdown content). Docs are created as drafts and require CEO approval to finalize.
+- submit-for-publish: Submit a completed document for human/CEO approval to publish on the site. Include "documentId" (the ID of an existing draft or review document) and optionally "taskId" (the task that produced the doc). This creates a publish_document action in the approval queue. You CANNOT publish directly — only a human can approve publishing.
 
 Rules:
 - actions array can be empty if nothing needs doing
@@ -706,9 +843,9 @@ Rules:
   - Agent roster for assignment: cipher (CFO/budgets), pixel (design/UI), forge (devops/infra), echo (marketing/content), scribe (draft writing), quill (editing/review)` : '') + (agent.name === 'Scribe' ? `
 - SUB-AGENT RESTRICTIONS (Scribe — Tier 4, reports to Echo):
   - You are a draft writer. Your job is to produce longform content: product briefs, blog drafts, doc drafts, social threads.
-  - ALLOWED actions: execute-task, comment-task, create-task (only content drafting tasks assigned to yourself), review-task (only when asked), create-doc (documentation drafts only)
+  - ALLOWED actions: execute-task, comment-task, create-task (only content drafting tasks assigned to yourself), review-task (only when asked), create-doc (documentation drafts only), submit-for-publish (submit a completed doc for CEO/human approval)
   - FORBIDDEN actions: create-social-action, update-task (assignee/priority changes), move-task to done
-  - You CANNOT publish anything directly — all output stays as task deliverables for Echo to review
+  - You CANNOT publish anything directly — all output stays as task deliverables for Echo to review. Use submit-for-publish when a doc is complete and ready for human approval to go live on the site.
   - You CANNOT approve anything or escalate to the CEO
   - You CANNOT modify directives or objectives
   - When creating docs with create-doc, always use proper markdown with clear headings, structured sections, and professional tone

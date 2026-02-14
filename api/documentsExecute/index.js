@@ -60,10 +60,15 @@ module.exports = async function (context, req) {
       return await handleDocUpdate(context, body);
     }
 
+    // ── document.publish ──
+    if (actionType === 'document.publish') {
+      return await handleDocPublish(context, req, body);
+    }
+
     context.res = {
       status: 400,
       headers: corsHeaders,
-      body: { error: 'Unknown action type: ' + actionType + '. Use "document.create", "document.update", or "document.promote".' }
+      body: { error: 'Unknown action type: ' + actionType + '. Use "document.create", "document.update", "document.promote", or "document.publish".' }
     };
 
   } catch (err) {
@@ -260,6 +265,249 @@ async function handleDocPromote(context, req, body) {
     headers: corsHeaders,
     body: { success: true, document: doc }
   };
+}
+
+// ── document.publish handler ──
+// CEO-only: approves a publish_document action and writes markdown to blob storage
+async function handleDocPublish(context, req, body) {
+  // CEO-only gate
+  const secret = (req.headers && req.headers['x-company-secret']) || '';
+  if (!storage.validateSecret(secret)) {
+    context.res = {
+      status: 403,
+      headers: corsHeaders,
+      body: { error: 'Publish requires CEO authorization (x-company-secret header)' }
+    };
+    return;
+  }
+
+  const actionId = body.action_id || body.actionId;
+  const decision = body.decision || 'approve'; // approve | reject
+  const decisionNote = body.decision_note || body.note || '';
+
+  if (!actionId) {
+    context.res = {
+      status: 400,
+      headers: corsHeaders,
+      body: { error: 'Missing action_id' }
+    };
+    return;
+  }
+
+  // Load the action
+  const actions = (await storage.getState('actions')) || [];
+  const actionIdx = actions.findIndex(a => a.id === actionId);
+  if (actionIdx === -1) {
+    context.res = {
+      status: 404,
+      headers: corsHeaders,
+      body: { error: 'Action not found: ' + actionId }
+    };
+    return;
+  }
+
+  const action = actions[actionIdx];
+
+  // Must be a publish_document action
+  if (action.type !== 'publish_document') {
+    context.res = {
+      status: 400,
+      headers: corsHeaders,
+      body: { error: 'Action is not a publish_document type: ' + action.type }
+    };
+    return;
+  }
+
+  // Must be pending approval
+  if (!action.approval || action.approval.status !== 'pending') {
+    context.res = {
+      status: 409,
+      headers: corsHeaders,
+      body: { error: 'Action is not pending approval. Current status: ' + (action.approval && action.approval.status) }
+    };
+    return;
+  }
+
+  const now = new Date().toISOString();
+  const documentId = action.payload && action.payload.documentId;
+  const slug = action.payload && action.payload.slug;
+  const title = action.payload && action.payload.title;
+
+  // ── REJECT path ──
+  if (decision === 'reject') {
+    action.approval.status = 'rejected';
+    action.approval.decision_note = decisionNote;
+    action.execution.status = 'failed';
+    action.execution.finished_at = now;
+    action.execution_status = 'rejected';
+    actions[actionIdx] = action;
+    await storage.setState('actions', actions);
+
+    // Update doc status back to review
+    if (documentId) {
+      const docs = (await storage.getState('documents')) || [];
+      const docIdx = docs.findIndex(d => d.id === documentId);
+      if (docIdx !== -1) {
+        docs[docIdx].status = 'rejected';
+        docs[docIdx].updated_at = now;
+        await storage.setState('documents', docs);
+      }
+    }
+
+    // Update approval queue
+    await _updateApprovalQueue(actionId, 'rejected');
+
+    // Audit + governance
+    await _logAudit('publish-rejected', { actionId, documentId, title, slug, decisionNote, rejectedBy: 'pixelpusher' });
+    await _logGovernance(storage, 'publish-rejected', { actionId, documentId, title, rejectedBy: 'pixelpusher' });
+
+    context.log('[DocsExecute] Publish rejected:', actionId, title);
+    context.res = {
+      status: 200,
+      headers: corsHeaders,
+      body: { success: true, decision: 'rejected', actionId, documentId }
+    };
+    return;
+  }
+
+  // ── APPROVE + EXECUTE path ──
+  // Step 1: Update approval status
+  action.approval.status = 'approved';
+  action.approval.approved_by = 'pixelpusher';
+  action.approval.approved_at = now;
+  action.approval.decision_note = decisionNote;
+  action.execution.status = 'running';
+  action.execution.started_at = now;
+  action.execution.attempts = (action.execution.attempts || 0) + 1;
+  action.execution_status = 'running';
+
+  try {
+    // Step 2: Read the document content
+    const docs = (await storage.getState('documents')) || [];
+    const docIdx = docs.findIndex(d => d.id === documentId);
+    if (docIdx === -1) {
+      throw new Error('Document not found: ' + documentId);
+    }
+    const doc = docs[docIdx];
+    const contentMd = doc.content_md || '';
+
+    if (!contentMd || contentMd.length < 10) {
+      throw new Error('Document content is empty or too short');
+    }
+
+    // Step 3: Write markdown to publishedDocs blob storage
+    const publishedDocs = (await storage.getState('publishedDocs')) || [];
+    const publishEntry = {
+      id: 'pub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+      documentId: documentId,
+      actionId: actionId,
+      title: title,
+      slug: slug,
+      kind: doc.kind,
+      content_md: contentMd,
+      target_path: '/docs/published/' + slug,
+      published_by: 'pixelpusher',
+      published_at: now,
+      tags: doc.tags || [],
+      created_by: doc.created_by
+    };
+    publishedDocs.push(publishEntry);
+    if (publishedDocs.length > 200) publishedDocs.splice(0, publishedDocs.length - 200);
+    await storage.setState('publishedDocs', publishedDocs);
+
+    // Step 4: Update document status to published
+    docs[docIdx].status = 'published';
+    docs[docIdx].updated_at = now;
+    docs[docIdx].published_at = now;
+    docs[docIdx].published_by = 'pixelpusher';
+    docs[docIdx].publish_entry_id = publishEntry.id;
+    await storage.setState('documents', docs);
+
+    // Step 5: Update action execution to success
+    action.execution.status = 'success';
+    action.execution.finished_at = now;
+    action.execution.receipt = {
+      publish_entry_id: publishEntry.id,
+      target_path: publishEntry.target_path,
+      slug: slug,
+      published_at: now
+    };
+    action.execution_status = 'success';
+    actions[actionIdx] = action;
+    await storage.setState('actions', actions);
+
+    // Step 6: Update approval queue
+    await _updateApprovalQueue(actionId, 'approved');
+
+    // Step 7: Audit + governance logs
+    await _logAudit('publish-approved', { actionId, documentId, title, slug, approvedBy: 'pixelpusher' });
+    await _logAudit('publish-executed', { actionId, documentId, title, slug, publishEntryId: publishEntry.id, targetPath: publishEntry.target_path });
+    await _logGovernance(storage, 'publish-approved', { actionId, documentId, title, slug, approvedBy: 'pixelpusher' });
+    await _logGovernance(storage, 'publish-executed', { actionId, documentId, title, slug, publishEntryId: publishEntry.id });
+
+    context.log('[DocsExecute] Published:', actionId, title, '→', publishEntry.target_path);
+
+    context.res = {
+      status: 200,
+      headers: corsHeaders,
+      body: {
+        success: true,
+        decision: 'approved',
+        actionId,
+        documentId,
+        publishEntry,
+        message: 'Document published successfully'
+      }
+    };
+
+  } catch (execErr) {
+    // Execution failed
+    action.execution.status = 'failed';
+    action.execution.finished_at = now;
+    action.execution.last_error = { code: 'EXEC_ERROR', message: execErr.message };
+    action.execution_status = 'failed';
+    actions[actionIdx] = action;
+    await storage.setState('actions', actions);
+
+    await _logAudit('publish-failed', { actionId, documentId, title, slug, error: execErr.message });
+    await _logGovernance(storage, 'publish-failed', { actionId, documentId, title, error: execErr.message });
+
+    context.log.error('[DocsExecute] Publish execution failed:', execErr.message);
+    context.res = {
+      status: 500,
+      headers: corsHeaders,
+      body: { error: 'Publish execution failed', details: execErr.message, actionId }
+    };
+  }
+}
+
+// ── Helper: update approval queue entry ──
+async function _updateApprovalQueue(actionId, status) {
+  try {
+    const queue = (await storage.getState('approvalQueue')) || [];
+    for (let i = 0; i < queue.length; i++) {
+      if (queue[i].action_id === actionId) {
+        queue[i].status = status;
+        break;
+      }
+    }
+    await storage.setState('approvalQueue', queue);
+  } catch (e) { /* non-fatal */ }
+}
+
+// ── Helper: append to action audit log ──
+async function _logAudit(type, data) {
+  try {
+    const log = (await storage.getState('actionAuditLog')) || [];
+    log.push({
+      id: 'alog-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+      type: type,
+      data: data,
+      timestamp: new Date().toISOString()
+    });
+    if (log.length > 500) log.splice(0, log.length - 500);
+    await storage.setState('actionAuditLog', log);
+  } catch (e) { /* non-fatal */ }
 }
 
 async function _logGovernance(storage, type, data) {
