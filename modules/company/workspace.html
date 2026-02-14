@@ -91,6 +91,7 @@
       </div>
 
       <div class="ws-memory-form" id="mem-form">
+        <input type="hidden" id="mem-form-edit-id" value="" />
         <div class="ws-memory-form-row">
           <div class="ws-field" style="margin:0;">
             <label class="ws-field-label">Title</label>
@@ -108,8 +109,33 @@
           </div>
         </div>
         <div class="ws-field" style="margin:0 0 0.5rem;">
+          <label class="ws-field-label">Description</label>
+          <input type="text" class="ws-field-input" id="mem-form-description" placeholder="Short summary..." />
+        </div>
+        <div class="ws-field" style="margin:0 0 0.5rem;">
           <label class="ws-field-label">Content</label>
           <textarea class="ws-field-textarea" id="mem-form-content" rows="3" placeholder="What should be remembered..."></textarea>
+        </div>
+        <div class="ws-memory-form-row">
+          <div class="ws-field" style="margin:0;">
+            <label class="ws-field-label">Priority</label>
+            <select class="ws-field-select" id="mem-form-priority">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+          </div>
+          <div class="ws-field" style="margin:0;">
+            <label class="ws-field-label">Source</label>
+            <select class="ws-field-select" id="mem-form-source">
+              <option value="ceo">CEO</option>
+              <option value="agent">Agent</option>
+              <option value="research">Research</option>
+              <option value="external">External</option>
+              <option value="meeting">Meeting</option>
+            </select>
+          </div>
         </div>
         <div class="ws-memory-form-row">
           <div class="ws-field" style="margin:0;">
@@ -277,11 +303,30 @@
         renderMemories();
       }
 
+      function clearMemForm() {
+        document.getElementById('mem-form-edit-id').value = '';
+        document.getElementById('mem-form-title').value = '';
+        document.getElementById('mem-form-description').value = '';
+        document.getElementById('mem-form-content').value = '';
+        document.getElementById('mem-form-type').value = 'note';
+        document.getElementById('mem-form-priority').value = 'medium';
+        document.getElementById('mem-form-source').value = 'ceo';
+        document.getElementById('mem-form-agent').value = '';
+        document.getElementById('mem-form-tags').value = '';
+        document.getElementById('mem-form-save').innerHTML = '<i class="fas fa-save"></i> Save Memory';
+      }
+
       document.getElementById('mem-add-btn').addEventListener('click', function () {
-        memForm.classList.toggle('visible');
+        if (memForm.classList.contains('visible')) {
+          memForm.classList.remove('visible');
+        } else {
+          clearMemForm();
+          memForm.classList.add('visible');
+        }
       });
 
       document.getElementById('mem-form-cancel').addEventListener('click', function () {
+        clearMemForm();
         memForm.classList.remove('visible');
       });
 
@@ -291,18 +336,26 @@
         if (!title) return;
 
         var tags = document.getElementById('mem-form-tags').value.split(',').map(function (t) { return t.trim(); }).filter(Boolean);
+        var editId = document.getElementById('mem-form-edit-id').value;
 
-        AgentEngine.addMemory({
+        var data = {
           type: document.getElementById('mem-form-type').value,
           title: title,
+          description: document.getElementById('mem-form-description').value.trim(),
           content: content,
+          priority: document.getElementById('mem-form-priority').value,
+          source: document.getElementById('mem-form-source').value,
           agentId: document.getElementById('mem-form-agent').value || null,
           tags: tags
-        });
+        };
 
-        document.getElementById('mem-form-title').value = '';
-        document.getElementById('mem-form-content').value = '';
-        document.getElementById('mem-form-tags').value = '';
+        if (editId) {
+          AgentEngine.updateMemory(editId, data);
+        } else {
+          AgentEngine.addMemory(data);
+        }
+
+        clearMemForm();
         memForm.classList.remove('visible');
         renderMemories();
       });
@@ -311,12 +364,15 @@
         renderMemories(this.value.toLowerCase());
       });
 
+      var MEM_PRIORITY_COLORS = { low: '#6b7280', medium: '#3b82f6', high: '#f59e0b', critical: '#ef4444' };
+      var MEM_SOURCE_ICONS = { ceo: 'fa-crown', agent: 'fa-robot', research: 'fa-search', external: 'fa-globe', meeting: 'fa-users' };
+
       function renderMemories(filterText) {
         var memories = AgentEngine.getMemories().slice().reverse();
 
         if (filterText) {
           memories = memories.filter(function (m) {
-            return (m.title + ' ' + m.content + ' ' + (m.tags || []).join(' ')).toLowerCase().indexOf(filterText) !== -1;
+            return (m.title + ' ' + (m.description || '') + ' ' + m.content + ' ' + (m.tags || []).join(' ')).toLowerCase().indexOf(filterText) !== -1;
           });
         }
 
@@ -333,16 +389,24 @@
           }).join(' ');
 
           var timeStr = new Date(m.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+          var pri = m.priority || 'medium';
+          var priColor = MEM_PRIORITY_COLORS[pri] || '#3b82f6';
+          var src = m.source || 'ceo';
+          var srcIcon = MEM_SOURCE_ICONS[src] || 'fa-circle';
 
           el.innerHTML =
             '<div class="ws-memory-actions">' +
+              '<button class="ws-memory-action-btn" data-action="edit" data-id="' + m.id + '" title="Edit"><i class="fas fa-pen"></i></button>' +
               '<button class="ws-memory-action-btn" data-action="pin" data-id="' + m.id + '" title="Pin"><i class="fas fa-thumbtack"></i></button>' +
               '<button class="ws-memory-action-btn ws-memory-action-btn--delete" data-action="delete" data-id="' + m.id + '" title="Delete"><i class="fas fa-trash"></i></button>' +
             '</div>' +
             '<div class="ws-memory-item-header">' +
               '<span class="ws-memory-type ws-memory-type--' + m.type + '">' + m.type + '</span>' +
+              '<span style="font-size:0.6rem;padding:0.1rem 0.4rem;border-radius:4px;background:' + priColor + '22;color:' + priColor + ';font-weight:500;text-transform:uppercase;">' + pri + '</span>' +
+              '<span style="font-size:0.6rem;opacity:0.5;"><i class="fas ' + srcIcon + '" style="margin-right:2px;"></i>' + src + '</span>' +
               '<span class="ws-memory-title">' + escapeHtml(m.title) + '</span>' +
             '</div>' +
+            (m.description ? '<div style="font-size:0.72rem;opacity:0.6;margin:0.15rem 0 0.3rem;line-height:1.4;">' + escapeHtml(m.description) + '</div>' : '') +
             (m.content ? '<div class="ws-memory-content">' + escapeHtml(m.content) + '</div>' : '') +
             '<div class="ws-memory-meta">' +
               '<span>' + timeStr + '</span>' +
@@ -361,6 +425,21 @@
                 var mem = AgentEngine.getMemories().find(function (x) { return x.id === id; });
                 if (mem) AgentEngine.updateMemory(id, { pinned: !mem.pinned });
                 renderMemories(memFilter.value.toLowerCase());
+              } else if (this.dataset.action === 'edit') {
+                var mem = AgentEngine.getMemories().find(function (x) { return x.id === id; });
+                if (!mem) return;
+                document.getElementById('mem-form-edit-id').value = mem.id;
+                document.getElementById('mem-form-title').value = mem.title || '';
+                document.getElementById('mem-form-description').value = mem.description || '';
+                document.getElementById('mem-form-content').value = mem.content || '';
+                document.getElementById('mem-form-type').value = mem.type || 'note';
+                document.getElementById('mem-form-priority').value = mem.priority || 'medium';
+                document.getElementById('mem-form-source').value = mem.source || 'ceo';
+                document.getElementById('mem-form-agent').value = mem.agentId || '';
+                document.getElementById('mem-form-tags').value = (mem.tags || []).join(', ');
+                document.getElementById('mem-form-save').innerHTML = '<i class="fas fa-save"></i> Update Memory';
+                memForm.classList.add('visible');
+                memForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
               }
             });
           });

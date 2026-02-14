@@ -545,7 +545,10 @@ var AgentEngine = (function () {
       id: 'mem-' + Date.now(),
       type: entry.type || 'note',       // note, conversation, date, decision, milestone
       title: entry.title || '',
+      description: entry.description || '',
       content: entry.content || '',
+      priority: entry.priority || 'medium', // low, medium, high, critical
+      source: entry.source || 'ceo',       // ceo, agent, research, external, meeting
       agentId: entry.agentId || null,    // null = shared, or agent-specific
       tags: entry.tags || [],
       pinned: entry.pinned || false,
