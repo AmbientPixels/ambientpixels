@@ -495,7 +495,7 @@
         taskPriorityField.value = task.priority;
         taskAssigneeField.value = task.assignee || '';
         taskDivisionField.value = task.division || '';
-        taskDueField.value = task.dueDate || '';
+        taskDueField.value = task.dueDate ? String(task.dueDate).split('T')[0] : '';
         deleteBtn.style.display = '';
 
         // Render comments
@@ -618,7 +618,11 @@
       }
 
       function formatDate(d) {
-        var dt = new Date(d + 'T00:00:00');
+        if (!d) return '—';
+        // Handle both 'YYYY-MM-DD' and full ISO datetime strings
+        var dateStr = String(d).split('T')[0];
+        var dt = new Date(dateStr + 'T00:00:00');
+        if (isNaN(dt.getTime())) return '—';
         return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       }
 
