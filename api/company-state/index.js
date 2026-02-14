@@ -14,7 +14,7 @@ const VALID_KEYS = [
   'standupLog', 'morningReport', 'logs', '_ping',
   'directives', 'objectives', 'approvalQueue', 'governanceLog',
   'actionQueue', 'actionAuditLog', 'actionRateCounts', 'actions',
-  'documents', 'publishedDocs', 'blogPosts', 'webSearchCache'
+  'documents', 'publishedDocs', 'blogPosts', 'dailyLog', 'webSearchCache'
 ];
 
 module.exports = async function (context, req) {

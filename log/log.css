@@ -1,0 +1,337 @@
+/* log.css — Public daily activity log styles */
+
+:root {
+  --log-bg: #071019;
+  --log-surface: #0d1a2a;
+  --log-border: rgba(255,255,255,0.08);
+  --log-text: rgba(255,255,255,0.88);
+  --log-muted: rgba(255,255,255,0.5);
+  --log-accent: #8A2BE2;
+  --log-accent-soft: rgba(138,43,226,0.15);
+  --log-green: #34d399;
+  --log-amber: #fbbf24;
+  --log-blue: #60a5fa;
+  --log-max-width: 720px;
+}
+
+/* ── Layout ── */
+.log-wrapper {
+  background: var(--log-bg);
+  color: var(--log-text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+.log-container {
+  max-width: var(--log-max-width);
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+/* ── Header ── */
+.log-header {
+  text-align: center;
+  padding: 3rem 0 2rem;
+  border-bottom: 1px solid var(--log-border);
+  margin-bottom: 2rem;
+}
+
+.log-header h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0 0 0.4rem;
+  color: #fff;
+}
+
+.log-header h1 i {
+  opacity: 0.4;
+  margin-right: 0.5rem;
+  font-size: 0.85em;
+}
+
+.log-header p {
+  color: var(--log-muted);
+  font-size: 0.95rem;
+  margin: 0 0 1rem;
+}
+
+.log-nav {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+.log-nav a {
+  color: var(--log-muted);
+  text-decoration: none;
+  font-size: 0.82rem;
+  transition: color 0.2s;
+}
+
+.log-nav a:hover {
+  color: var(--log-accent);
+}
+
+/* ── Loading / Error ── */
+.log-loading {
+  text-align: center;
+  padding: 4rem 0;
+  color: var(--log-muted);
+  font-size: 0.95rem;
+}
+
+.log-error {
+  text-align: center;
+  padding: 4rem 0;
+  color: var(--log-muted);
+}
+
+.log-error h2 {
+  font-size: 1.1rem;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.log-empty {
+  text-align: center;
+  padding: 4rem 0;
+  color: var(--log-muted);
+}
+
+.log-empty i {
+  font-size: 2.5rem;
+  opacity: 0.2;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+/* ── Feed ── */
+.log-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Day Card ── */
+.log-day {
+  position: relative;
+  padding: 1.5rem 0 1.5rem 2rem;
+  border-left: 2px solid var(--log-border);
+}
+
+.log-day:last-child {
+  border-left-color: transparent;
+}
+
+.log-day::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: 1.75rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--log-accent);
+  border: 2px solid var(--log-bg);
+}
+
+.log-day--today::before {
+  background: var(--log-green);
+  box-shadow: 0 0 8px rgba(52,211,153,0.4);
+}
+
+.log-day-date {
+  font-size: 0.72rem;
+  color: var(--log-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.4rem;
+}
+
+.log-day-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 0.6rem;
+  line-height: 1.3;
+}
+
+.log-day-summary {
+  font-size: 0.9rem;
+  color: var(--log-text);
+  line-height: 1.6;
+  margin-bottom: 0.8rem;
+}
+
+/* ── Highlights ── */
+.log-highlights {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.8rem;
+}
+
+.log-highlight {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--log-text);
+  line-height: 1.4;
+}
+
+.log-highlight i {
+  color: var(--log-accent);
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+  font-size: 0.7rem;
+}
+
+/* ── Stats Bar ── */
+.log-stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.72rem;
+  color: var(--log-muted);
+}
+
+.log-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.log-stat i {
+  opacity: 0.5;
+  font-size: 0.65rem;
+}
+
+.log-stat-value {
+  color: var(--log-text);
+  font-weight: 500;
+}
+
+/* ── Mood Badge ── */
+.log-mood {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.log-mood--productive { background: rgba(52,211,153,0.12); color: var(--log-green); }
+.log-mood--steady { background: rgba(96,165,250,0.12); color: var(--log-blue); }
+.log-mood--quiet { background: rgba(255,255,255,0.06); color: var(--log-muted); }
+.log-mood--busy { background: rgba(251,191,36,0.12); color: var(--log-amber); }
+.log-mood--milestone { background: var(--log-accent-soft); color: var(--log-accent); }
+
+/* ── Single Day View ── */
+.log-single-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--log-border);
+}
+
+.log-single-date {
+  font-size: 0.75rem;
+  color: var(--log-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.log-single-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 0.5rem;
+  line-height: 1.2;
+}
+
+.log-single-meta {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  font-size: 0.78rem;
+  color: var(--log-muted);
+}
+
+.log-single-body {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--log-text);
+  margin-bottom: 2rem;
+}
+
+.log-single-body p {
+  margin: 0 0 1rem;
+}
+
+/* ── Back Link ── */
+.log-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--log-muted);
+  text-decoration: none;
+  font-size: 0.82rem;
+  margin-bottom: 1.5rem;
+  transition: color 0.2s;
+}
+
+.log-back:hover {
+  color: var(--log-accent);
+}
+
+/* ── Footer ── */
+.log-footer {
+  text-align: center;
+  padding: 2rem 0;
+  margin-top: 3rem;
+  border-top: 1px solid var(--log-border);
+  font-size: 0.78rem;
+  color: var(--log-muted);
+}
+
+.log-footer a {
+  color: var(--log-accent);
+  text-decoration: none;
+}
+
+.log-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .log-container {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .log-header {
+    padding: 2rem 0 1.5rem;
+  }
+
+  .log-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .log-day {
+    padding-left: 1.5rem;
+  }
+
+  .log-single-title {
+    font-size: 1.3rem;
+  }
+
+  .log-stats {
+    gap: 0.6rem;
+  }
+}

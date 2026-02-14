@@ -54,6 +54,16 @@
       "rewrite": "/blog/index.html"
     },
     {
+      "route": "/log/*.css"
+    },
+    {
+      "route": "/log/*.js"
+    },
+    {
+      "route": "/log/*",
+      "rewrite": "/log/index.html"
+    },
+    {
       "route": "/modules/company/*",
       "allowedRoles": ["authenticated"]
     },
@@ -149,6 +159,11 @@
     {
       "route": "/api/blogPosts",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blogPosts",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/dailyLog",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/dailyLog",
       "allowedRoles": ["anonymous"]
     },
     {

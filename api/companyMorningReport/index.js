@@ -176,6 +176,39 @@ module.exports = async function (context) {
 
     context.log('[MorningReport] Report saved:', reportId);
 
+    // ── Generate public daily log draft ──
+    try {
+      const dailyLogDraft = await generateDailyLogDraft(context, {
+        today,
+        completedTasks,
+        newTasks,
+        activeTasks,
+        agentActions,
+        heartbeatCycles: heartbeatCycles.length,
+        errors: errors.length
+      });
+
+      if (dailyLogDraft) {
+        const dailyLog = (await storage.getState('dailyLog')) || [];
+
+        // Replace existing draft for today if any
+        const existingIdx = dailyLog.findIndex(e => e.date === today);
+        if (existingIdx !== -1) {
+          dailyLog[existingIdx] = dailyLogDraft;
+        } else {
+          dailyLog.push(dailyLogDraft);
+        }
+
+        // Cap at 120 entries
+        if (dailyLog.length > 120) dailyLog.splice(0, dailyLog.length - 120);
+        await storage.setState('dailyLog', dailyLog);
+
+        context.log('[MorningReport] Daily log draft saved for', today);
+      }
+    } catch (dlErr) {
+      context.log.warn('[MorningReport] Daily log draft failed (non-fatal):', dlErr.message);
+    }
+
   } catch (err) {
     context.log.error('[MorningReport] Fatal error:', err.message);
     await storage.appendLog({
@@ -300,4 +333,120 @@ async function callGemini(prompt) {
 
   const data = await res.json();
   return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+// ── Generate public daily log draft ──
+async function generateDailyLogDraft(context, data) {
+  if (!GEMINI_API_KEY) return null;
+
+  // Build a sanitized activity summary (no task IDs, no internal names)
+  let activityLines = '';
+  Object.keys(data.agentActions).forEach(id => {
+    // Map agent IDs to friendly public names
+    const friendlyNames = {
+      nova: 'Operations Lead', cipher: 'Finance', pixel: 'Design',
+      forge: 'DevOps', echo: 'Marketing', scribe: 'Content', scout: 'Research'
+    };
+    const name = friendlyNames[id] || 'Team';
+    const actions = data.agentActions[id].slice(0, 4).map(a => {
+      // Strip internal prefixes like "Nova: " or "Echo: "
+      return a.replace(/^[A-Za-z]+:\s*/, '');
+    }).join('; ');
+    activityLines += '- ' + name + ': ' + actions + '\n';
+  });
+
+  const completedList = data.completedTasks.length > 0
+    ? data.completedTasks.slice(0, 8).map(t => '- ' + t.title).join('\n')
+    : '(none)';
+
+  const prompt = `You are writing a public daily activity log for AmbientPixels, an AI-operated creative company. This will be displayed on the public website for anyone to read.
+
+DATE: ${data.today}
+TASKS COMPLETED: ${data.completedTasks.length}
+NEW TASKS CREATED: ${data.newTasks.length}
+ACTIVE TASKS: ${data.activeTasks.length}
+HEARTBEAT CYCLES: ${data.heartbeatCycles}
+
+COMPLETED WORK:
+${completedList}
+
+TEAM ACTIVITY:
+${activityLines || '(quiet day)'}
+
+Write a JSON response with this exact structure:
+{
+  "title": "A catchy, engaging title for this day's log (5-10 words, no date)",
+  "summary": "2-3 paragraph narrative summary of the day's activity. Written in third person about the AI team. Engaging, transparent, interesting to outsiders. No internal jargon, task IDs, or config details. If it was a quiet day, acknowledge it gracefully.",
+  "highlights": ["3-5 bullet point highlights of key accomplishments or interesting moments"],
+  "mood": "productive|steady|quiet|busy|milestone"
+}
+
+Rules:
+- NEVER include internal task IDs, agent config names, or approval queue details
+- NEVER mention specific budget amounts or financial details
+- Write for a general audience who finds AI companies interesting
+- Use "the team" or department names, not internal agent IDs
+- If very little happened, mood should be "quiet" and tone should be reflective
+- mood "milestone" is for days with major achievements (doc published, feature shipped, etc)
+- Respond with ONLY the JSON, no markdown fences`;
+
+  const body = {
+    systemInstruction: {
+      parts: [{ text: 'You write engaging, public-facing daily activity summaries for an AI-operated company. Your tone is professional but personable — like a startup blog. Output valid JSON only.' }]
+    },
+    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    generationConfig: {
+      temperature: 0.85,
+      topP: 0.9,
+      maxOutputTokens: 600
+    }
+  };
+
+  const res = await fetch(GEMINI_URL + GEMINI_API_KEY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) {
+    throw new Error('Gemini daily log returned ' + res.status);
+  }
+
+  const geminiData = await res.json();
+  const raw = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+  // Parse JSON from response (strip markdown fences if present)
+  let parsed;
+  try {
+    const cleaned = raw.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+    parsed = JSON.parse(cleaned);
+  } catch (e) {
+    context.log.warn('[MorningReport] Daily log JSON parse failed:', e.message, 'raw:', raw.substring(0, 200));
+    return null;
+  }
+
+  // Validate required fields
+  if (!parsed.title || !parsed.summary) {
+    context.log.warn('[MorningReport] Daily log missing required fields');
+    return null;
+  }
+
+  // Build the draft entry
+  return {
+    id: 'dlog_' + Date.now(),
+    date: data.today,
+    status: 'draft',
+    title: (parsed.title || '').substring(0, 120),
+    summary: (parsed.summary || '').substring(0, 2000),
+    highlights: Array.isArray(parsed.highlights) ? parsed.highlights.slice(0, 6).map(h => (h || '').substring(0, 200)) : [],
+    mood: ['productive', 'steady', 'quiet', 'busy', 'milestone'].indexOf(parsed.mood) !== -1 ? parsed.mood : 'steady',
+    stats: {
+      tasks_completed: data.completedTasks.length,
+      tasks_active: data.activeTasks.length,
+      tasks_created: data.newTasks.length,
+      heartbeat_cycles: data.heartbeatCycles
+    },
+    generated_at: new Date().toISOString(),
+    published_at: null
+  };
 }
