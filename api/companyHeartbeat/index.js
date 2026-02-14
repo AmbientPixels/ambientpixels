@@ -149,6 +149,11 @@ module.exports = async function (context) {
     const tasks = (await storage.getState('tasks')) || [];
     const configs = (await storage.getState('agentConfigs')) || {};
     const recentLogs = await storage.getLogs({ limit: 50 });
+    const directives = (await storage.getState('directives')) || [];
+    const objectives = (await storage.getState('objectives')) || [];
+    const documents = (await storage.getState('documents')) || [];
+    const activeDirectives = directives.filter(d => d.status === 'active');
+    const activeObjectives = objectives.filter(o => o.status === 'active' || o.status === 'in_progress');
 
     // Dedupe check: get recent log summaries to avoid repeats
     const recentSummaries = new Set();
@@ -218,7 +223,8 @@ module.exports = async function (context) {
       try {
         const result = await runAgentHeartbeat(
           context, agentId, tasks, configs, recentSummaries, cycleId,
-          agentId === 'nova' ? novaSkipTaskIds : null
+          agentId === 'nova' ? novaSkipTaskIds : null,
+          activeDirectives, activeObjectives, documents
         );
         geminiCalls += result.geminiCalls;
         agentActions[agentId] = result.actions;
@@ -325,7 +331,7 @@ module.exports = async function (context) {
 };
 
 // ── Run a single agent's heartbeat ──
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds) {
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents) {
   const result = { geminiCalls: 0, actions: 0, taskUpdates: [] };
   const agent = AGENT_ROLES[agentId];
   if (!agent) return result;
@@ -334,7 +340,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done');
   const allActiveTasks = tasks.filter(t => t.status !== 'done' && t.status !== 'backlog');
 
-  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks);
+  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents);
 
   // Call Gemini
   const response = await callGemini(prompt);
@@ -705,9 +711,13 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents) {
+  activeDirectives = activeDirectives || [];
+  activeObjectives = activeObjectives || [];
+  documents = documents || [];
+
   const taskList = agentTasks.map(t =>
-    '- [' + t.status + '] ' + t.title + ' (priority: ' + t.priority + ', id: ' + t.id + ')'
+    '- [' + t.status + '] ' + t.title + ' (priority: ' + t.priority + ', id: ' + t.id + (t.directive_id ? ', directive: ' + t.directive_id : '') + ')'
   ).join('\n') || '(none assigned)';
 
   const otherTasks = allActiveTasks
@@ -746,6 +756,46 @@ function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks) {
     }
   }
 
+  // Active CEO Directives — strategic priorities that drive task creation
+  let directivesSection = '';
+  if (activeDirectives.length > 0) {
+    // Check which directives already have tasks linked to them
+    const directiveTaskMap = {};
+    allActiveTasks.forEach(t => {
+      if (t.directive_id) {
+        if (!directiveTaskMap[t.directive_id]) directiveTaskMap[t.directive_id] = [];
+        directiveTaskMap[t.directive_id].push(t.title);
+      }
+    });
+    const dirList = activeDirectives.map(d => {
+      const linked = directiveTaskMap[d.id];
+      const linkInfo = linked ? ' [' + linked.length + ' task(s) linked]' : ' [NO TASKS YET — needs task creation]';
+      return '- "' + d.title + '" (id: ' + d.id + ', priority: ' + (d.priority || 'medium') + ')' + linkInfo;
+    }).join('\n');
+    directivesSection = `\n\nACTIVE CEO DIRECTIVES (strategic priorities from the CEO — these drive what the company works on):
+${dirList}`;
+  }
+
+  // Active Objectives
+  let objectivesSection = '';
+  if (activeObjectives.length > 0) {
+    const objList = activeObjectives.map(o =>
+      '- "' + o.title + '" Q' + (o.quarter || '?') + ' (id: ' + o.id + ', progress: ' + (o.progress || 0) + '%)'
+    ).join('\n');
+    objectivesSection = `\n\nACTIVE OBJECTIVES:
+${objList}`;
+  }
+
+  // Existing documents — so agents know what's already drafted/published
+  let docsSection = '';
+  if (documents.length > 0) {
+    const docList = documents.slice(-10).map(d =>
+      '- "' + d.title + '" [' + (d.status || 'draft') + '] (id: ' + d.id + ', slug: ' + (d.slug || '?') + ')'
+    ).join('\n');
+    docsSection = `\n\nEXISTING DOCUMENTS (already created — do NOT duplicate):
+${docList}`;
+  }
+
   return `You are ${agent.name}, ${agent.role} at AmbientPixels. Your focus: ${agent.focus}.
 
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
@@ -758,7 +808,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}
-${triageSection}
+${triageSection}${directivesSection}${objectivesSection}${docsSection}
 
 CURRENT TIME: ${new Date().toISOString()}
 
@@ -769,7 +819,7 @@ Respond with ONLY valid JSON in this exact format:
     {
       "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|create-doc|submit-for-publish",
       "summary": "Brief description of what you're doing",
-      "task": { "title": "", "description": "", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z" },
+      "task": { "title": "", "description": "", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z", "directive_id": "optional-directive-id" },
       "taskId": "existing-task-id",
       "updates": { "description": "...", "assignee": "agentId", "priority": "high", "dueDate": "2026-02-20T00:00:00Z" },
       "newStatus": "todo|in-progress|review|done",
@@ -782,7 +832,7 @@ Respond with ONLY valid JSON in this exact format:
 }
 
 Action types:
-- create-task: Create a new task. Include "task" with title, description, priority, assignee (agent id), and dueDate (ISO datetime, realistic: 1-7 days out).
+- create-task: Create a new task. Include "task" with title, description, priority, assignee (agent id), dueDate (ISO datetime, realistic: 1-7 days out), and optionally directive_id (to link to a CEO directive).
 - update-task: Update an existing task. Provide taskId and "updates" with any of: description, assignee, priority, dueDate, tags.
 - move-task: Move a task to a new status column. Provide taskId and newStatus.
 - execute-task: Pick up one of YOUR in-progress or todo tasks and produce actual work output (a report, analysis, draft, recommendation, audit, etc). This will generate a deliverable and move the task to review.
@@ -816,6 +866,13 @@ Rules:
   - Move stale tasks forward or flag blockers with comment-task
   - Review other agents' deliverables promptly
   - Keep the board clean: close completed work, reassign only truly stuck tasks
+  - DIRECTIVE EXECUTION: Active CEO directives are strategic priorities. When you see a directive marked [NO TASKS YET], you MUST create tasks to fulfill it:
+    1. Break the directive into concrete, assignable tasks
+    2. Assign doc-writing/content tasks to scribe, design tasks to pixel, devops to forge, finance to cipher, marketing to echo
+    3. Set directive_id on each task to link it to the directive (use the directive id from the ACTIVE CEO DIRECTIVES section)
+    4. Set realistic due dates (2-5 days out) and priority based on the directive priority
+    5. Leave a delegation comment on each task explaining what the directive requires
+    For documentation directives: create tasks assigned to scribe to draft the document, then scribe will use create-doc and submit-for-publish when ready
   - ESCALATION HIERARCHY — Owner → Domain Lead → CEO:
     You must respect the company chain of command. Do NOT intervene on tasks where the domain lead should handle it first.
     Escalation tiers:
