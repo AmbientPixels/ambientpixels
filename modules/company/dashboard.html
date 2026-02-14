@@ -495,8 +495,8 @@
         var hasData = overnight.sessions.length > 0 || overnight.standups.length > 0;
         overnightEmpty.style.display = hasData ? 'none' : '';
 
-        // Standups today
-        overnight.standups.forEach(function (standup) {
+        // Standups today (newest first)
+        overnight.standups.slice().reverse().forEach(function (standup) {
           var li = document.createElement('li');
           li.className = 'log-item';
           li.innerHTML =
