@@ -70,6 +70,56 @@ function _hasRecentMention(tasks, agentId) {
   });
 }
 
+// ── Escalation Hierarchy: Owner → Domain Lead → CEO (Nova) ──
+// Maps each agent to their domain lead. Tasks with explicit domainLead field take priority.
+const DOMAIN_LEAD_MAP = {
+  scribe: 'echo',    // Scribe reports to Echo
+  quill: 'echo',     // Quill reports to Echo
+  echo: 'nova',      // Echo escalates to Nova (department head)
+  pixel: 'nova',     // Pixel escalates to Nova
+  forge: 'nova',     // Forge escalates to Nova
+  cipher: 'nova',    // Cipher escalates to Nova
+  nova: null          // Nova is top of chain (CEO is human)
+};
+
+/**
+ * Evaluate which escalation tier should handle a task.
+ * Returns: { handler: 'owner'|'domainLead'|'escalationLead', domainLead, reason, novaSkip }
+ */
+function evaluateEscalationPath(task, now) {
+  const assignee = (task.assignee || '').toLowerCase();
+  const priority = (task.priority || 'medium').toLowerCase();
+  const status = (task.status || '').toLowerCase();
+  const domainLead = task.domainLead || DOMAIN_LEAD_MAP[assignee] || 'nova';
+  const isBlocked = status === 'blocked' || (task.tags && task.tags.indexOf('blocked') !== -1);
+  const dueDate = task.dueDate ? new Date(task.dueDate) : null;
+  const hoursUntilDue = dueDate ? (dueDate.getTime() - now) / (1000 * 60 * 60) : Infinity;
+  const isOverdue = dueDate ? hoursUntilDue < 0 : false;
+
+  // Blocked → escalate to Nova immediately
+  if (isBlocked) {
+    return { handler: 'escalationLead', domainLead, reason: 'task_blocked', novaSkip: false };
+  }
+
+  // Overdue → escalate to Nova immediately
+  if (isOverdue) {
+    return { handler: 'escalationLead', domainLead, reason: 'task_overdue', novaSkip: false };
+  }
+
+  // High priority due within 24h → both domain lead AND Nova
+  if (priority === 'high' && hoursUntilDue <= 24) {
+    return { handler: 'both', domainLead, reason: 'high_due_24h', novaSkip: false };
+  }
+
+  // Medium priority due within 24h → domain lead only, Nova skips
+  if (priority === 'medium' && hoursUntilDue <= 24) {
+    return { handler: 'domainLead', domainLead, reason: 'medium_due_24h_domain_lead_handles', novaSkip: true };
+  }
+
+  // Default: normal owner flow
+  return { handler: 'owner', domainLead, reason: 'normal_flow', novaSkip: false };
+}
+
 function shouldRunTier4Agent(tasks, agentId) {
   if (!TIER4_SUB_AGENTS.has(agentId)) return { run: true, reason: 'not_tier4_subagent' };
   if (_hasAssignedActiveTasks(tasks, agentId)) return { run: true, reason: 'assigned_active_task' };
@@ -109,6 +159,33 @@ module.exports = async function (context) {
       }
     });
 
+    // ── Evaluate escalation paths for all active tasks ──
+    const now = Date.now();
+    const escalationLog = [];
+    const novaSkipTaskIds = new Set();
+
+    const activeTasks = tasks.filter(t => t.status !== 'done' && t.status !== 'backlog');
+    for (const task of activeTasks) {
+      const esc = evaluateEscalationPath(task, now);
+      if (esc.handler !== 'owner' && esc.handler !== 'normal_flow') {
+        escalationLog.push({
+          taskId: task.id,
+          taskTitle: task.title,
+          priority: task.priority,
+          dueDate: task.dueDate,
+          handler: esc.handler,
+          domainLead: esc.domainLead,
+          reason: esc.reason,
+          novaSkip: esc.novaSkip
+        });
+      }
+      if (esc.novaSkip) {
+        novaSkipTaskIds.add(task.id);
+        context.log('[Heartbeat] Escalation:', task.title,
+          '→ Owner →', esc.domainLead, '| Nova skipped (' + esc.reason + ')');
+      }
+    }
+
     // Process each agent
     for (const agentId of AGENT_IDS) {
       if (geminiCalls >= GUARDRAILS.maxGeminiCallsPerCycle) {
@@ -140,7 +217,8 @@ module.exports = async function (context) {
 
       try {
         const result = await runAgentHeartbeat(
-          context, agentId, tasks, configs, recentSummaries, cycleId
+          context, agentId, tasks, configs, recentSummaries, cycleId,
+          agentId === 'nova' ? novaSkipTaskIds : null
         );
         geminiCalls += result.geminiCalls;
         agentActions[agentId] = result.actions;
@@ -223,6 +301,7 @@ module.exports = async function (context) {
       agentActions: agentActions,
       skippedAgents: skippedAgents,
       ranTier4: ranTier4,
+      escalationLog: escalationLog.length > 0 ? escalationLog : undefined,
       timestamp: new Date().toISOString()
     });
     if (cronLog.length > 50) cronLog.splice(0, cronLog.length - 50);
@@ -246,7 +325,7 @@ module.exports = async function (context) {
 };
 
 // ── Run a single agent's heartbeat ──
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId) {
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds) {
   const result = { geminiCalls: 0, actions: 0, taskUpdates: [] };
   const agent = AGENT_ROLES[agentId];
   if (!agent) return result;
@@ -315,6 +394,15 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
     // Block forbidden actions for Tier 4 sub-agents
     if (isTier4 && TIER4_FORBIDDEN.indexOf(action.type) !== -1) {
       context.log('[Heartbeat]', agentId, 'BLOCKED forbidden action:', action.type, '(Tier 4 restriction)');
+      continue;
+    }
+
+    // Nova escalation guard: skip actions on tasks handled by domain lead
+    if (novaSkipTaskIds && action.taskId && novaSkipTaskIds.has(action.taskId)) {
+      const skipTarget = tasks.find(t => t.id === action.taskId);
+      const dlead = skipTarget ? (skipTarget.domainLead || DOMAIN_LEAD_MAP[(skipTarget.assignee || '').toLowerCase()] || '?') : '?';
+      context.log('[Heartbeat] Nova SKIPPED action on', action.taskId,
+        '— handled by domain lead (' + dlead + '), not High/Blocked/Overdue');
       continue;
     }
 
@@ -590,6 +678,19 @@ Rules:
   - Move stale tasks forward or flag blockers with comment-task
   - Review other agents' deliverables promptly
   - Keep the board clean: close completed work, reassign only truly stuck tasks
+  - ESCALATION HIERARCHY — Owner → Domain Lead → CEO:
+    You must respect the company chain of command. Do NOT intervene on tasks where the domain lead should handle it first.
+    Escalation tiers:
+      Tier 4 agents (Scribe, Quill) → Domain Lead (Echo)
+      Tier 3 agents (Echo, Pixel, Forge, Cipher) → You (Nova)
+      You (Nova) → CEO (human)
+    Rules:
+    1. Medium priority tasks due within 24h: The DOMAIN LEAD handles this (e.g., Echo for Scribe/Quill tasks). You must NOT comment, update, or reassign these tasks. Let the domain lead manage their reports.
+    2. High priority tasks due within 24h: Both domain lead and you should engage. You may comment or escalate.
+    3. Blocked tasks: You intervene immediately regardless of priority.
+    4. Overdue tasks: You intervene immediately regardless of priority.
+    5. If a domain lead has already engaged on a task and it remains at-risk after their intervention, THEN you may escalate.
+    When in doubt: If the task is not High priority, not Blocked, and not Overdue — skip it and let the domain lead handle it.
   - DEADLINE DISCIPLINE — T-12h Escalation & Assignment Freeze:
     Treat priority: high tasks with due dates as SLA-bound deliverables.
     1. If a high priority task is due within the next 12 hours and the deliverable is not complete, you MUST:
