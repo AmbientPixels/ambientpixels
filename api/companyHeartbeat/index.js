@@ -828,6 +828,29 @@ Write the full deliverable first, then the structured JSON block.`;
           context.log('[Heartbeat]', agentId, 'cannot submit doc for publish — status is', doc.status);
         }
       }
+    } else if (action.type === 'create-reminder' && action.reminder) {
+      // Agent sets a reminder/date in the workspace dates store
+      const rem = action.reminder;
+      if (rem.title && rem.date) {
+        const VALID_TYPES = ['event', 'deadline', 'milestone', 'recurring'];
+        const dateEntry = {
+          id: 'date_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+          title: rem.title.substring(0, 200),
+          date: rem.date.substring(0, 10),
+          type: (rem.type && VALID_TYPES.indexOf(rem.type) !== -1) ? rem.type : 'deadline',
+          description: (rem.description || '').substring(0, 500),
+          created_by: agentId,
+          created_at: new Date().toISOString()
+        };
+
+        const dates = (await storage.getState('dates')) || [];
+        dates.push(dateEntry);
+        if (dates.length > 200) dates.splice(0, dates.length - 200);
+        await storage.setState('dates', dates);
+
+        context.log('[Heartbeat]', agentId, 'created reminder:', dateEntry.id, dateEntry.title, dateEntry.date);
+        result.taskUpdates.push({ action: 'reminder-created', dateId: dateEntry.id, agentId: agentId });
+      }
     }
 
     await logEvent('agent-action', agentId, summary, cycleId);
@@ -1035,7 +1058,7 @@ Respond with ONLY valid JSON in this exact format:
   "observation": "One sentence about what you notice or your current state",
   "actions": [
     {
-      "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|create-doc|submit-for-publish|web_search",
+      "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|create-doc|submit-for-publish|create-reminder|web_search",
       "summary": "Brief description of what you're doing",
       "task": { "title": "", "description": "", "status": "todo|in-progress", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z", "directive_id": "optional-directive-id" },
       "taskId": "existing-task-id",
@@ -1046,7 +1069,8 @@ Respond with ONLY valid JSON in this exact format:
       "document": { "title": "Doc Title", "kind": "spec|runbook|release_notes|product_brief|marketing_post|governance", "tags": ["tag1"], "content_md": "# Heading\n\nMarkdown content..." },
       "documentId": "existing-doc-id",
       "tool": "web_search",
-      "args": { "q": "search query", "n": 5 }
+      "args": { "q": "search query", "n": 5 },
+      "reminder": { "title": "Reminder title", "date": "2026-02-20", "type": "deadline|event|milestone|recurring", "description": "Optional details" }
     }
   ]
 }
@@ -1061,6 +1085,7 @@ Action types:
 - create-social-action: (Marketing/Echo) Draft a social media post routed through CEO approval. Include "social" with: text (max 280 for X, 300 for Bluesky, 3000 for LinkedIn), platform ("x"|"linkedin"|"bluesky"), optionally media (URLs) and scheduled_for (ISO datetime).
 - create-doc: Create a documentation draft. Include "document" with: title (string), kind ("spec"|"runbook"|"release_notes"|"product_brief"|"marketing_post"|"governance"), tags (array of strings), and content_md (full markdown content). Docs are created as drafts and require CEO approval to finalize.
 - submit-for-publish: Submit a completed document for human/CEO approval to publish on the site. Include "documentId" (the ID of an existing draft or review document) and optionally "taskId" (the task that produced the doc). This creates a publish_document action in the approval queue. You CANNOT publish directly — only a human can approve publishing.
+- create-reminder: Set a reminder or important date in the CEO workspace. Include "reminder" with: title (string), date (YYYY-MM-DD), type ("deadline"|"event"|"milestone"|"recurring"), and optionally description. Use for tracking deadlines, renewals, milestones, or follow-ups. These appear in the CEO Morning Inbox and are injected into future heartbeat prompts.
 - web_search: (Scout/research agents only) Run a live web search. Include "tool": "web_search" and "args": { "q": "search query", "n": 5 }. Max 3 searches per heartbeat. Results are returned and you'll be asked to synthesize findings into a deliverable with cited sources.
 
 Rules:
