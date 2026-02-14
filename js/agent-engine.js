@@ -142,6 +142,7 @@ var AgentEngine = (function () {
     })
     .then(function (data) {
       var reply = data.reply || '';
+      var actions = data.actions || [];
 
       // Add agent reply to local history
       state.history.push({ role: 'agent', text: reply, timestamp: new Date().toISOString() });
@@ -150,10 +151,10 @@ var AgentEngine = (function () {
       // Track metrics
       _trackCall(agentId, mode || 'chat', message, reply);
 
-      emit('response', { agentId: agentId, reply: reply, mode: data.mode });
+      emit('response', { agentId: agentId, reply: reply, actions: actions, mode: data.mode });
       emit('thinking', { agentId: agentId, thinking: false });
 
-      return reply;
+      return { reply: reply, actions: actions };
     })
     .catch(function (err) {
       console.error('[AgentEngine] Chat error with ' + agentId + ':', err);

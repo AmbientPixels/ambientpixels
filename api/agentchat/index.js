@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const storage = require('../_utils/companyStorage');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
@@ -121,6 +122,282 @@ SHARED RULES (all agents):
 - If asked about something outside your role, acknowledge it and suggest which colleague would handle it better.
 - High-risk, high-budget, or high-brand-impact decisions must be escalated to the CEO via the approval queue.`;
 
+// Action instructions appended to system prompt for actionable chat
+const ACTION_INSTRUCTIONS = `
+
+ACTION CAPABILITIES:
+When the CEO (Pixelpusher) asks you to DO something in chat — create a task, write a doc, assign work, move a task — you can take real actions on the company board.
+
+You MUST respond with valid JSON in this exact format:
+{"reply": "Your conversational response", "actions": []}
+
+The "reply" field is your normal text response. The "actions" array contains 0-3 actions to execute.
+
+Available action types:
+- create-task: {"type":"create-task","task":{"title":"...","description":"...","status":"todo","priority":"high|medium|low|critical","assignee":"agent_id","dueDate":"ISO datetime","directive_id":"optional"}}
+- update-task: {"type":"update-task","taskId":"...","updates":{"description":"...","priority":"...","assignee":"...","dueDate":"..."}}
+- move-task: {"type":"move-task","taskId":"...","newStatus":"backlog|todo|in-progress|review|done"}
+- comment-task: {"type":"comment-task","taskId":"...","comment":"..."}
+- create-doc: {"type":"create-doc","document":{"title":"...","kind":"spec|runbook|release_notes|product_brief|marketing_post|governance","tags":[...],"content_md":"full markdown"},"taskId":"optional"}
+
+Rules:
+- Max 3 actions per response
+- Only take actions when the CEO explicitly asks you to DO something
+- For casual conversation, questions, or status updates: just reply with empty actions
+- Agent roster for assignment: nova (CEO ops), cipher (CFO/budgets), pixel (design/UI), forge (engineering/devops), echo (marketing/social), scribe (content/docs), quill (editing/brand voice), scout (research/intelligence)
+- When creating docs, content_md MUST be complete publish-ready text — NO placeholders like "[insert here]"
+- marketing_post and product_brief docs are auto-submitted for CEO blog approval
+- Set realistic due dates (2-7 days out)
+- ALWAYS respond with the JSON format, even for casual chat: {"reply":"your message","actions":[]}
+`;
+
+const QUILL_FORBIDDEN_CHAT = ['create-task', 'create-doc', 'move-task', 'update-task'];
+
+// Load live company state for agent context
+async function loadCompanyContext(agentId) {
+  try {
+    const tasks = (await storage.getState('tasks')) || [];
+    const directives = (await storage.getState('directives')) || [];
+    const documents = (await storage.getState('documents')) || [];
+
+    const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done');
+    const taskSummary = agentTasks.map(t => {
+      let line = '- [' + t.status + '] ' + t.title + ' (priority: ' + t.priority + ', id: ' + t.id + ')';
+      if (t.description) line += '\n  ' + t.description.substring(0, 150);
+      return line;
+    }).join('\n') || '(none)';
+
+    const activeTasks = tasks.filter(t => t.status !== 'done' && t.status !== 'backlog').slice(0, 20);
+    const allTasksSummary = activeTasks.map(t =>
+      '- [' + t.status + '] ' + t.title + ' → ' + (t.assignee || 'unassigned') + ' (id: ' + t.id + ')'
+    ).join('\n') || '(none)';
+
+    const activeDirectives = directives.filter(d => d.status === 'active').slice(0, 5);
+    const directiveSummary = activeDirectives.map(d =>
+      '- ' + d.title + ' (priority: ' + (d.priority || 'medium') + ', id: ' + d.id + ')'
+    ).join('\n') || '(none)';
+
+    const recentDocs = documents.slice(-5).map(d =>
+      '- ' + d.title + ' [' + d.status + '] (kind: ' + d.kind + ', id: ' + d.id + ')'
+    ).join('\n') || '(none)';
+
+    return '\n\nCOMPANY CONTEXT (live board state):\nYour tasks:\n' + taskSummary +
+      '\n\nAll active tasks:\n' + allTasksSummary +
+      '\n\nActive CEO directives:\n' + directiveSummary +
+      '\n\nRecent documents:\n' + recentDocs;
+  } catch (err) {
+    return '\n\n(Company context unavailable)';
+  }
+}
+
+// Parse structured JSON response from Gemini
+function parseActionResponse(text) {
+  // Try pure JSON
+  try {
+    const parsed = JSON.parse(text);
+    if (parsed.reply !== undefined) {
+      return { reply: parsed.reply || '', actions: Array.isArray(parsed.actions) ? parsed.actions : [] };
+    }
+  } catch (e) { /* not pure JSON */ }
+
+  // Try JSON in code fence
+  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fenceMatch) {
+    try {
+      const parsed = JSON.parse(fenceMatch[1]);
+      const before = text.substring(0, text.indexOf('```')).trim();
+      return { reply: parsed.reply || before || '', actions: Array.isArray(parsed.actions) ? parsed.actions : [] };
+    } catch (e) { /* parse failed */ }
+  }
+
+  // Try to find {"reply":...} object in text
+  const rawMatch = text.match(/\{[\s\S]*"reply"\s*:[\s\S]*\}/);
+  if (rawMatch) {
+    try {
+      const parsed = JSON.parse(rawMatch[0]);
+      return { reply: parsed.reply || '', actions: Array.isArray(parsed.actions) ? parsed.actions : [] };
+    } catch (e) { /* parse failed */ }
+  }
+
+  // Fallback: entire text is the reply
+  return { reply: text, actions: [] };
+}
+
+// Execute actions from chat and return results
+async function executeChatActions(context, actions, agentId) {
+  const results = [];
+  const validActions = actions.slice(0, 3);
+
+  for (const action of validActions) {
+    try {
+      if (agentId === 'quill' && QUILL_FORBIDDEN_CHAT.includes(action.type)) {
+        results.push({ type: action.type, success: false, summary: 'Quill cannot perform ' + action.type });
+        continue;
+      }
+
+      switch (action.type) {
+        case 'create-task': {
+          const t = action.task || {};
+          const tasks = (await storage.getState('tasks')) || [];
+          const newTask = {
+            id: 'task-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+            title: t.title || 'Untitled Task',
+            description: t.description || '',
+            status: t.status || 'todo',
+            priority: t.priority || 'medium',
+            assignee: t.assignee || null,
+            dueDate: t.dueDate || null,
+            directive_id: t.directive_id || null,
+            tags: t.tags || [],
+            comments: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            createdBy: agentId + ' (via chat)'
+          };
+          tasks.push(newTask);
+          if (tasks.length > 500) tasks.splice(0, tasks.length - 500);
+          await storage.setState('tasks', tasks);
+          results.push({ type: 'create-task', success: true, summary: 'Created task: "' + newTask.title + '" assigned to ' + (newTask.assignee || 'unassigned') + ' (id: ' + newTask.id + ')' });
+          break;
+        }
+
+        case 'update-task': {
+          const tasks = (await storage.getState('tasks')) || [];
+          const idx = tasks.findIndex(t => t.id === action.taskId);
+          if (idx === -1) { results.push({ type: 'update-task', success: false, summary: 'Task not found: ' + action.taskId }); break; }
+          const updates = action.updates || {};
+          for (const key of ['description', 'priority', 'assignee', 'dueDate', 'tags']) {
+            if (updates[key] !== undefined) tasks[idx][key] = updates[key];
+          }
+          tasks[idx].updatedAt = new Date().toISOString();
+          await storage.setState('tasks', tasks);
+          results.push({ type: 'update-task', success: true, summary: 'Updated task: "' + tasks[idx].title + '"' });
+          break;
+        }
+
+        case 'move-task': {
+          const tasks = (await storage.getState('tasks')) || [];
+          const idx = tasks.findIndex(t => t.id === action.taskId);
+          if (idx === -1) { results.push({ type: 'move-task', success: false, summary: 'Task not found: ' + action.taskId }); break; }
+          const oldStatus = tasks[idx].status;
+          tasks[idx].status = action.newStatus || 'todo';
+          tasks[idx].updatedAt = new Date().toISOString();
+          if (action.newStatus === 'done') tasks[idx].completedAt = new Date().toISOString();
+          await storage.setState('tasks', tasks);
+          results.push({ type: 'move-task', success: true, summary: 'Moved "' + tasks[idx].title + '" from ' + oldStatus + ' → ' + action.newStatus });
+          break;
+        }
+
+        case 'comment-task': {
+          const tasks = (await storage.getState('tasks')) || [];
+          const idx = tasks.findIndex(t => t.id === action.taskId);
+          if (idx === -1) { results.push({ type: 'comment-task', success: false, summary: 'Task not found: ' + action.taskId }); break; }
+          if (!tasks[idx].comments) tasks[idx].comments = [];
+          tasks[idx].comments.push({ user: agentId, text: action.comment || '', timestamp: new Date().toISOString() });
+          tasks[idx].updatedAt = new Date().toISOString();
+          await storage.setState('tasks', tasks);
+          results.push({ type: 'comment-task', success: true, summary: 'Added comment to "' + tasks[idx].title + '"' });
+          break;
+        }
+
+        case 'create-doc': {
+          const d = action.document || {};
+          const documents = (await storage.getState('documents')) || [];
+          const slug = (d.title || 'untitled').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+          const newDoc = {
+            id: 'doc-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+            title: d.title || 'Untitled Document',
+            kind: d.kind || 'spec',
+            status: 'draft',
+            tags: d.tags || [],
+            content_md: d.content_md || '',
+            slug: slug,
+            created_by: agentId,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            source: { type: 'chat', agent: agentId, task_id: action.taskId || null }
+          };
+          documents.push(newDoc);
+          if (documents.length > 200) documents.splice(0, documents.length - 200);
+          await storage.setState('documents', documents);
+
+          let docSummary = 'Created doc: "' + newDoc.title + '" (id: ' + newDoc.id + ')';
+
+          // Auto-submit for publish if public kind
+          const PUBLIC_KINDS = ['marketing_post', 'product_brief'];
+          if (PUBLIC_KINDS.includes(newDoc.kind)) {
+            const publishAction = {
+              id: 'act-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+              type: 'publish_document',
+              origin_agent: agentId,
+              payload: { documentId: newDoc.id, title: newDoc.title, slug: slug, kind: newDoc.kind, visibility: 'public' },
+              approval: { status: 'pending', required_role: 'ceo' },
+              execution: { status: 'pending', attempts: 0 },
+              execution_status: 'pending_approval',
+              created_at: new Date().toISOString()
+            };
+            const actionsStore = (await storage.getState('actions')) || [];
+            actionsStore.push(publishAction);
+            if (actionsStore.length > 500) actionsStore.splice(0, actionsStore.length - 500);
+            await storage.setState('actions', actionsStore);
+
+            const approvalQueue = (await storage.getState('approvalQueue')) || [];
+            approvalQueue.push({
+              id: 'aq-' + publishAction.id, kind: 'action', actionType: 'publish_document',
+              action_id: publishAction.id, taskId: action.taskId || null,
+              taskTitle: 'Publish: ' + newDoc.title, originAgent: agentId,
+              classification: 'executive_required', riskLevel: 'medium',
+              budgetImpact: 0, brandImpact: 'medium', status: 'pending',
+              timestamp: publishAction.created_at,
+              preview: (newDoc.content_md || '').substring(0, 120),
+              documentId: newDoc.id, slug: slug, docKind: newDoc.kind
+            });
+            if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
+            await storage.setState('approvalQueue', approvalQueue);
+            docSummary += ' → Auto-submitted for blog publish (awaiting CEO approval)';
+          }
+
+          // Link to task if provided
+          if (action.taskId) {
+            const tasks = (await storage.getState('tasks')) || [];
+            const tIdx = tasks.findIndex(t => t.id === action.taskId);
+            if (tIdx !== -1) {
+              if (!tasks[tIdx].comments) tasks[tIdx].comments = [];
+              tasks[tIdx].comments.push({ user: agentId, text: 'Created document: ' + newDoc.title + ' (id: ' + newDoc.id + ')', type: 'deliverable', timestamp: new Date().toISOString() });
+              tasks[tIdx].status = 'review';
+              tasks[tIdx].updatedAt = new Date().toISOString();
+              await storage.setState('tasks', tasks);
+            }
+          }
+          results.push({ type: 'create-doc', success: true, summary: docSummary });
+          break;
+        }
+
+        default:
+          results.push({ type: action.type, success: false, summary: 'Unknown action type: ' + action.type });
+      }
+    } catch (err) {
+      context.log.error('[AgentChat] Action error:', action.type, err.message);
+      results.push({ type: action.type, success: false, summary: 'Error: ' + err.message });
+    }
+  }
+
+  // Audit log
+  try {
+    const auditLog = (await storage.getState('actionAuditLog')) || [];
+    auditLog.push({
+      id: 'alog-chat-' + Date.now(),
+      type: 'chat-actions',
+      data: { agentId, actionCount: results.length, results: results.map(r => r.summary) },
+      timestamp: new Date().toISOString()
+    });
+    if (auditLog.length > 500) auditLog.splice(0, auditLog.length - 500);
+    await storage.setState('actionAuditLog', auditLog);
+  } catch (e) { /* non-fatal */ }
+
+  return results;
+}
+
 module.exports = async function (context, req) {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -178,8 +455,19 @@ module.exports = async function (context, req) {
       return;
     }
 
-    // Build system instruction from agent prompt + shared rules
-    const systemInstruction = AGENT_PROMPTS[agentId] + SHARED_RULES;
+    // Determine if this mode supports actions
+    const actionModes = ['chat', 'task'];
+    const enableActions = actionModes.includes(mode || 'chat');
+
+    // Load company context for actionable modes
+    let companyContext = '';
+    if (enableActions) {
+      companyContext = await loadCompanyContext(agentId);
+    }
+
+    // Build system instruction: agent prompt + shared rules + (context + actions if enabled)
+    const systemInstruction = AGENT_PROMPTS[agentId] + SHARED_RULES +
+      (enableActions ? companyContext + ACTION_INSTRUCTIONS : '');
 
     // Build conversation contents from history
     const contents = [];
@@ -196,7 +484,7 @@ module.exports = async function (context, req) {
     // Build user message with optional mode prefix
     let userText = message;
     if (mode === 'task') {
-      userText = `[MODE: TASK] Execute this task as part of your role. Be specific and actionable. Task: ${message}`;
+      userText = `[MODE: TASK] Execute this task as part of your role. Be specific and actionable. Take actions if appropriate. Task: ${message}`;
     } else if (mode === 'report') {
       userText = `[MODE: REPORT] Generate a status report for your department. Context: ${message}`;
     } else if (mode === 'review') {
@@ -216,14 +504,14 @@ module.exports = async function (context, req) {
       },
       contents,
       generationConfig: {
-        temperature: mode === 'task' ? 0.7 : mode === 'standup' ? 0.95 : 0.9,
+        temperature: mode === 'task' ? 0.7 : mode === 'standup' ? 0.95 : 0.85,
         topP: 0.95,
         topK: 40,
-        maxOutputTokens: mode === 'report' ? 1500 : mode === 'standup' ? 400 : 1024
+        maxOutputTokens: mode === 'report' ? 1500 : mode === 'standup' ? 400 : 1500
       }
     };
 
-    context.log('[AgentChat] Agent:', agentId, 'Mode:', mode || 'chat', 'Message:', message.substring(0, 100));
+    context.log('[AgentChat] Agent:', agentId, 'Mode:', mode || 'chat', 'Actions:', enableActions, 'Message:', message.substring(0, 100));
 
     const apiRes = await fetch(GEMINI_URL + GEMINI_API_KEY, {
       method: 'POST',
@@ -243,7 +531,22 @@ module.exports = async function (context, req) {
       return;
     }
 
-    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    // Parse response for reply + actions
+    let reply = rawText;
+    let actionResults = [];
+
+    if (enableActions) {
+      const parsed = parseActionResponse(rawText);
+      reply = parsed.reply;
+
+      if (parsed.actions.length > 0) {
+        context.log('[AgentChat]', agentId, 'requested', parsed.actions.length, 'actions:', parsed.actions.map(a => a.type).join(', '));
+        actionResults = await executeChatActions(context, parsed.actions, agentId);
+        context.log('[AgentChat] Actions executed:', actionResults.map(r => (r.success ? '✓' : '✗') + ' ' + r.summary).join(' | '));
+      }
+    }
 
     context.res = {
       status: 200,
@@ -251,6 +554,7 @@ module.exports = async function (context, req) {
       body: {
         agentId,
         reply,
+        actions: actionResults,
         mode: mode || 'chat',
         timestamp: new Date().toISOString()
       }

@@ -204,10 +204,15 @@
         addMessage('user', text);
         showThinking();
 
-        AgentEngine.chat(currentAgent.id, text, currentMode).then(function (reply) {
+        AgentEngine.chat(currentAgent.id, text, currentMode).then(function (result) {
           hideThinking();
-          if (reply) {
-            addMessage('agent', reply);
+          if (result && result.reply) {
+            addMessage('agent', result.reply);
+            if (result.actions && result.actions.length > 0) {
+              addActionCards(result.actions);
+            }
+          } else if (result && typeof result === 'string') {
+            addMessage('agent', result);
           } else {
             addMessage('agent', currentAgent.name + ' didn\'t respond. The agent service might be offline.');
           }
@@ -329,6 +334,25 @@
 
         div.innerHTML = html;
         messagesEl.appendChild(div);
+        scrollToBottom();
+      }
+
+      function addActionCards(actions) {
+        if (!actions || actions.length === 0) return;
+        var container = document.createElement('div');
+        container.style.cssText = 'display:flex; flex-direction:column; gap:0.4rem; max-width:80%; align-self:flex-start; margin:0.2rem 0;';
+        actions.forEach(function (action) {
+          var card = document.createElement('div');
+          var iconMap = { 'create-task': 'fa-plus-circle', 'update-task': 'fa-edit', 'move-task': 'fa-arrows-alt', 'comment-task': 'fa-comment', 'create-doc': 'fa-file-alt' };
+          var icon = iconMap[action.type] || 'fa-bolt';
+          var color = action.success ? 'rgba(52,211,153,0.15)' : 'rgba(248,113,113,0.15)';
+          var border = action.success ? 'rgba(52,211,153,0.3)' : 'rgba(248,113,113,0.3)';
+          var textColor = action.success ? '#34d399' : '#f87171';
+          card.style.cssText = 'padding:0.5rem 0.7rem; border-radius:8px; background:' + color + '; border:1px solid ' + border + '; font-size:0.75rem;';
+          card.innerHTML = '<span style="color:' + textColor + ';"><i class="fas ' + icon + '"></i> ' + (action.success ? '✓' : '✗') + ' ' + escapeHtml(action.summary) + '</span>';
+          container.appendChild(card);
+        });
+        messagesEl.appendChild(container);
         scrollToBottom();
       }
 

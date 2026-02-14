@@ -904,11 +904,16 @@
         _chatThinking = true;
         dashChatSend.disabled = true;
 
-        AgentEngine.chat(agentId, msg, 'chat').then(function (reply) {
+        AgentEngine.chat(agentId, msg, 'chat').then(function (result) {
           _chatThinking = false;
           dashChatSend.disabled = false;
-          if (reply) {
-            addDashMsg('agent', reply, agent);
+          if (result && result.reply) {
+            addDashMsg('agent', result.reply, agent);
+            if (result.actions && result.actions.length > 0) {
+              addDashActionCards(result.actions);
+            }
+          } else if (result && typeof result === 'string') {
+            addDashMsg('agent', result, agent);
           } else {
             addDashMsg('agent', '(no response)', agent);
           }
@@ -922,6 +927,21 @@
         div.className = 'dash-chat-msg dash-chat-msg--' + role;
         div.textContent = text;
         dashChatMessages.appendChild(div);
+        dashChatMessages.scrollTop = dashChatMessages.scrollHeight;
+      }
+
+      function addDashActionCards(actions) {
+        actions.forEach(function (action) {
+          var div = document.createElement('div');
+          var color = action.success ? 'rgba(52,211,153,0.1)' : 'rgba(248,113,113,0.1)';
+          var border = action.success ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)';
+          var textColor = action.success ? '#34d399' : '#f87171';
+          var iconMap = { 'create-task': 'fa-plus-circle', 'update-task': 'fa-edit', 'move-task': 'fa-arrows-alt', 'comment-task': 'fa-comment', 'create-doc': 'fa-file-alt' };
+          var icon = iconMap[action.type] || 'fa-bolt';
+          div.style.cssText = 'padding:0.3rem 0.5rem; margin:0.15rem 0; border-radius:6px; background:' + color + '; border:1px solid ' + border + '; font-size:0.65rem; color:' + textColor + '; align-self:flex-start;';
+          div.innerHTML = '<i class="fas ' + icon + '"></i> ' + (action.success ? '✓' : '✗') + ' ' + (action.summary || action.type);
+          dashChatMessages.appendChild(div);
+        });
         dashChatMessages.scrollTop = dashChatMessages.scrollHeight;
       }
 
