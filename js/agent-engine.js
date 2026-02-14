@@ -744,6 +744,20 @@ var AgentEngine = (function () {
     emit('date-deleted', { id: id });
   }
 
+  function updateDate(id, updates) {
+    var dates = getDates();
+    var idx = -1;
+    for (var i = 0; i < dates.length; i++) {
+      if (dates[i].id === id) { idx = i; break; }
+    }
+    if (idx === -1) return null;
+    Object.keys(updates).forEach(function (k) { dates[idx][k] = updates[k]; });
+    dates[idx].updatedAt = new Date().toISOString();
+    _saveStorage(DATES_KEY, dates);
+    emit('date-updated', dates[idx]);
+    return dates[idx];
+  }
+
   // ── Task Manager ──
   var TASKS_KEY = 'ap_tasks';
   var MAX_TASKS = 500;
@@ -948,47 +962,50 @@ var AgentEngine = (function () {
     return entry;
   }
 
-  function ceoApprove(approvalId) {
+  function ceoApprove(approvalId, note) {
     var queue = getApprovalQueue();
     for (var i = 0; i < queue.length; i++) {
       if (queue[i].id === approvalId) {
         queue[i].status = 'approved';
         queue[i].resolvedAt = new Date().toISOString();
         queue[i].ceoDecision = 'approved';
+        if (note) queue[i].ceoNote = note;
         _saveApprovalQueue(queue);
         // Unlock task
         updateTask(queue[i].taskId, { requires_ceo_approval: false, escalated: false });
-        _logGovernance('ceo-approval', { taskId: queue[i].taskId, title: queue[i].taskTitle });
+        _logGovernance('ceo-approval', { taskId: queue[i].taskId, title: queue[i].taskTitle, note: note || '' });
         return queue[i];
       }
     }
     return null;
   }
 
-  function ceoReject(approvalId) {
+  function ceoReject(approvalId, note) {
     var queue = getApprovalQueue();
     for (var i = 0; i < queue.length; i++) {
       if (queue[i].id === approvalId) {
         queue[i].status = 'rejected';
         queue[i].resolvedAt = new Date().toISOString();
         queue[i].ceoDecision = 'rejected';
+        if (note) queue[i].ceoNote = note;
         _saveApprovalQueue(queue);
-        _logGovernance('ceo-reject', { taskId: queue[i].taskId, title: queue[i].taskTitle });
+        _logGovernance('ceo-reject', { taskId: queue[i].taskId, title: queue[i].taskTitle, note: note || '' });
         return queue[i];
       }
     }
     return null;
   }
 
-  function ceoRequestRevision(approvalId) {
+  function ceoRequestRevision(approvalId, note) {
     var queue = getApprovalQueue();
     for (var i = 0; i < queue.length; i++) {
       if (queue[i].id === approvalId) {
         queue[i].status = 'revision_requested';
         queue[i].resolvedAt = new Date().toISOString();
         queue[i].ceoDecision = 'revision_requested';
+        if (note) queue[i].ceoNote = note;
         _saveApprovalQueue(queue);
-        _logGovernance('ceo-revision', { taskId: queue[i].taskId, title: queue[i].taskTitle });
+        _logGovernance('ceo-revision', { taskId: queue[i].taskId, title: queue[i].taskTitle, note: note || '' });
         return queue[i];
       }
     }
@@ -1430,6 +1447,7 @@ var AgentEngine = (function () {
     getDates: getDates,
     addDate: addDate,
     deleteDate: deleteDate,
+    updateDate: updateDate,
     // Tasks
     getTasks: getTasks,
     getTask: getTask,

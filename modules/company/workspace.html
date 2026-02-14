@@ -785,12 +785,7 @@
         };
 
         if (editId) {
-          var dates = AgentEngine.getDates();
-          var idx = dates.findIndex(function (d) { return d.id === editId; });
-          if (idx !== -1) {
-            Object.assign(dates[idx], data);
-            localStorage.setItem('ap_workspace_dates', JSON.stringify(dates));
-          }
+          AgentEngine.updateDate(editId, data);
         } else {
           AgentEngine.addDate(data);
         }

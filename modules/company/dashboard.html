@@ -62,6 +62,17 @@
     <!-- Panels Grid -->
     <div class="dash-grid">
 
+      <!-- CEO Morning Inbox -->
+      <div class="dash-panel dash-panel--full" id="panel-ceo-inbox" style="border:1px solid rgba(255,215,0,0.12); background:linear-gradient(135deg, rgba(255,215,0,0.03) 0%, rgba(138,43,226,0.03) 100%);">
+        <div class="dash-panel-header" style="border-bottom:1px solid rgba(255,215,0,0.08);">
+          <span class="dash-panel-title"><i class="fas fa-inbox" style="color:#FFD700;"></i> CEO Morning Inbox</span>
+          <span class="dash-panel-badge" id="inbox-total-badge" style="background:rgba(255,215,0,0.1); color:#FFD700;">0 items</span>
+        </div>
+        <div id="ceo-inbox-body" style="padding:0.5rem;">
+          <div class="dash-empty">Loading inbox...</div>
+        </div>
+      </div>
+
       <!-- Model Fleet -->
       <div class="dash-panel">
         <div class="dash-panel-header">
@@ -363,6 +374,7 @@
       AgentEngine.on('metrics-update', renderAll);
 
       function renderAll() {
+        renderCeoInbox();
         renderStats();
         renderFleet();
         renderAgentStatus();
@@ -378,6 +390,156 @@
         renderRiskHeatmap();
         renderActionSnap();
         renderGovernanceLog();
+      }
+
+      // ── CEO Morning Inbox ──
+      function renderCeoInbox() {
+        var body = document.getElementById('ceo-inbox-body');
+        var badge = document.getElementById('inbox-total-badge');
+        var sections = [];
+        var totalItems = 0;
+
+        // 1. Pending Approvals
+        var queue = AgentEngine.getApprovalQueue();
+        var pending = queue.filter(function (q) { return q.status === 'pending'; });
+        var execFirst = pending.filter(function (q) { return q.classification === 'executive_required'; });
+        var otherPending = pending.filter(function (q) { return q.classification !== 'executive_required'; });
+        var sortedPending = execFirst.concat(otherPending);
+        totalItems += pending.length;
+
+        if (pending.length > 0) {
+          var approvalHtml = '<div style="margin-bottom:0.8rem;">';
+          approvalHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-gavel" style="color:#FFD700; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#FFD700;">Pending Approvals</strong> <span style="font-size:0.6rem; opacity:0.4;">(' + pending.length + ')</span></div>';
+          sortedPending.slice(0, 5).forEach(function (item) {
+            var riskColor = item.riskLevel === 'high' ? '#f87171' : item.riskLevel === 'medium' ? '#fbbf24' : '#34d399';
+            var isExec = item.classification === 'executive_required';
+            approvalHtml += '<div style="padding:0.4rem 0.6rem; border:1px solid ' + (isExec ? 'rgba(248,113,113,0.15)' : 'rgba(255,255,255,0.04)') + '; border-radius:6px; margin-bottom:0.3rem; background:' + (isExec ? 'rgba(248,113,113,0.03)' : 'rgba(255,255,255,0.01)') + '; display:flex; justify-content:space-between; align-items:center;">';
+            approvalHtml += '<div style="flex:1; min-width:0;">';
+            if (isExec) approvalHtml += '<span style="font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; background:rgba(248,113,113,0.15); color:#f87171; margin-right:0.3rem;">EXEC REQUIRED</span>';
+            if (item.kind === 'action') approvalHtml += '<span style="font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; background:rgba(59,130,246,0.1); color:#3b82f6; margin-right:0.3rem;">ACTION</span>';
+            approvalHtml += '<span style="font-size:0.75rem;">' + escapeHtml(item.taskTitle) + '</span>';
+            approvalHtml += '<div style="font-size:0.6rem; opacity:0.4; margin-top:0.15rem;">' + (item.originAgent || '?') + ' · <span style="color:' + riskColor + ';">risk: ' + item.riskLevel + '</span></div>';
+            approvalHtml += '</div>';
+            approvalHtml += '<a href="#panel-approval-wrap" style="font-size:0.55rem; color:#FFD700; text-decoration:none; white-space:nowrap; margin-left:0.5rem;">Review →</a>';
+            approvalHtml += '</div>';
+          });
+          if (pending.length > 5) approvalHtml += '<div style="font-size:0.55rem; opacity:0.3; padding-left:0.6rem;">+' + (pending.length - 5) + ' more awaiting review</div>';
+          approvalHtml += '</div>';
+          sections.push(approvalHtml);
+        }
+
+        // 2. Overdue Tasks
+        var tasks = AgentEngine.getTasks();
+        var today = new Date().toISOString().split('T')[0];
+        var overdue = tasks.filter(function (t) {
+          return t.dueDate && t.dueDate < today && t.status !== 'done';
+        }).sort(function (a, b) { return a.dueDate.localeCompare(b.dueDate); });
+        totalItems += overdue.length;
+
+        if (overdue.length > 0) {
+          var overdueHtml = '<div style="margin-bottom:0.8rem;">';
+          overdueHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-exclamation-triangle" style="color:#f87171; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#f87171;">Overdue Tasks</strong> <span style="font-size:0.6rem; opacity:0.4;">(' + overdue.length + ')</span></div>';
+          overdue.slice(0, 5).forEach(function (t) {
+            var agent = t.assignee ? AgentEngine.getAgent(t.assignee) : null;
+            var daysLate = Math.floor((new Date(today) - new Date(t.dueDate)) / 86400000);
+            var prioColor = t.priority === 'critical' ? '#ef4444' : t.priority === 'high' ? '#f87171' : t.priority === 'medium' ? '#fbbf24' : '#94a3b8';
+            overdueHtml += '<div style="padding:0.4rem 0.6rem; border:1px solid rgba(248,113,113,0.1); border-radius:6px; margin-bottom:0.3rem; background:rgba(248,113,113,0.02); display:flex; justify-content:space-between; align-items:center;">';
+            overdueHtml += '<div style="flex:1; min-width:0;">';
+            overdueHtml += '<span style="font-size:0.75rem;">' + escapeHtml(t.title) + '</span>';
+            overdueHtml += '<div style="font-size:0.6rem; opacity:0.5; margin-top:0.15rem;">' + (agent ? agent.name : 'unassigned') + ' · <span style="color:' + prioColor + ';">' + t.priority + '</span> · <span style="color:#f87171;">' + daysLate + 'd overdue</span></div>';
+            overdueHtml += '</div>';
+            overdueHtml += '<a href="/modules/company/tasks.html" style="font-size:0.55rem; color:#f87171; text-decoration:none; white-space:nowrap; margin-left:0.5rem;">View →</a>';
+            overdueHtml += '</div>';
+          });
+          if (overdue.length > 5) overdueHtml += '<div style="font-size:0.55rem; opacity:0.3; padding-left:0.6rem;">+' + (overdue.length - 5) + ' more overdue</div>';
+          overdueHtml += '</div>';
+          sections.push(overdueHtml);
+        }
+
+        // 3. Blocked / Escalated Tasks
+        var blocked = tasks.filter(function (t) {
+          return t.status !== 'done' && (t.blocked || t.escalated ||
+            (t.tags && t.tags.indexOf('blocked') !== -1));
+        });
+        totalItems += blocked.length;
+
+        if (blocked.length > 0) {
+          var blockedHtml = '<div style="margin-bottom:0.8rem;">';
+          blockedHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-ban" style="color:#FFA500; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#FFA500;">Blocked / Escalated</strong> <span style="font-size:0.6rem; opacity:0.4;">(' + blocked.length + ')</span></div>';
+          blocked.slice(0, 3).forEach(function (t) {
+            var agent = t.assignee ? AgentEngine.getAgent(t.assignee) : null;
+            blockedHtml += '<div style="padding:0.4rem 0.6rem; border:1px solid rgba(255,165,0,0.1); border-radius:6px; margin-bottom:0.3rem; background:rgba(255,165,0,0.02); display:flex; justify-content:space-between; align-items:center;">';
+            blockedHtml += '<div style="flex:1; min-width:0;">';
+            blockedHtml += '<span style="font-size:0.75rem;">' + escapeHtml(t.title) + '</span>';
+            blockedHtml += '<div style="font-size:0.6rem; opacity:0.5; margin-top:0.15rem;">' + (agent ? agent.name : 'unassigned') + ' · ' + t.status + '</div>';
+            blockedHtml += '</div>';
+            blockedHtml += '<a href="/modules/company/tasks.html" style="font-size:0.55rem; color:#FFA500; text-decoration:none; white-space:nowrap; margin-left:0.5rem;">View →</a>';
+            blockedHtml += '</div>';
+          });
+          blockedHtml += '</div>';
+          sections.push(blockedHtml);
+        }
+
+        // 4. Upcoming Critical Dates (next 7 days)
+        var dates = AgentEngine.getDates();
+        var nowMs = Date.now();
+        var upcoming = dates.filter(function (d) {
+          if (!d.date) return false;
+          var diff = Math.ceil((new Date(d.date + 'T00:00:00') - nowMs) / 86400000);
+          return diff >= 0 && diff <= 7;
+        }).sort(function (a, b) { return a.date.localeCompare(b.date); });
+
+        if (upcoming.length > 0) {
+          totalItems += upcoming.length;
+          var dateHtml = '<div style="margin-bottom:0.8rem;">';
+          dateHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-calendar-day" style="color:#8A2BE2; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#8A2BE2;">Upcoming (7 days)</strong> <span style="font-size:0.6rem; opacity:0.4;">(' + upcoming.length + ')</span></div>';
+          upcoming.slice(0, 5).forEach(function (d) {
+            var diff = Math.ceil((new Date(d.date + 'T00:00:00') - nowMs) / 86400000);
+            var dayLabel = diff === 0 ? 'today' : diff === 1 ? 'tomorrow' : diff + ' days';
+            var typeColor = d.type === 'deadline' ? '#f87171' : d.type === 'meeting' ? '#3b82f6' : d.type === 'launch' ? '#34d399' : '#8A2BE2';
+            dateHtml += '<div style="padding:0.3rem 0.6rem; border:1px solid rgba(138,43,226,0.08); border-radius:6px; margin-bottom:0.25rem; background:rgba(138,43,226,0.02); display:flex; justify-content:space-between; align-items:center;">';
+            dateHtml += '<div style="flex:1; min-width:0;">';
+            dateHtml += '<span style="font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; background:rgba(' + (d.type === 'deadline' ? '248,113,113' : d.type === 'meeting' ? '59,130,246' : d.type === 'launch' ? '52,211,153' : '138,43,226') + ',0.1); color:' + typeColor + '; margin-right:0.3rem;">' + (d.type || 'event') + '</span>';
+            dateHtml += '<span style="font-size:0.75rem;">' + escapeHtml(d.title) + '</span>';
+            dateHtml += '</div>';
+            dateHtml += '<span style="font-size:0.6rem; color:' + (diff === 0 ? '#f87171' : diff <= 2 ? '#fbbf24' : 'rgba(255,255,255,0.4)') + '; white-space:nowrap; margin-left:0.5rem;">' + dayLabel + '</span>';
+            dateHtml += '</div>';
+          });
+          dateHtml += '</div>';
+          sections.push(dateHtml);
+        }
+
+        // 5. Overnight Highlights (compact summary)
+        var overnight = AgentEngine.getOvernightLog();
+        var hasOvernight = overnight.sessions.length > 0 || overnight.standups.length > 0;
+        if (hasOvernight) {
+          var oHtml = '<div style="margin-bottom:0.4rem;">';
+          oHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-moon" style="color:#4ECDC4; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#4ECDC4;">Overnight Highlights</strong></div>';
+          oHtml += '<div style="display:flex; gap:0.6rem; flex-wrap:wrap; font-size:0.65rem; opacity:0.6;">';
+          if (overnight.standups.length > 0) oHtml += '<span><i class="fas fa-users" style="margin-right:0.2rem;"></i>' + overnight.standups.length + ' standup(s)</span>';
+          if (overnight.sessions.length > 0) oHtml += '<span><i class="fas fa-comment" style="margin-right:0.2rem;"></i>' + overnight.sessions.length + ' sessions</span>';
+          var totalOvernightTokens = 0;
+          overnight.sessions.forEach(function (s) { totalOvernightTokens += (s.inputTokens || 0) + (s.outputTokens || 0); });
+          if (totalOvernightTokens > 0) oHtml += '<span><i class="fas fa-coins" style="margin-right:0.2rem;"></i>~' + formatNumber(totalOvernightTokens) + ' tokens</span>';
+          oHtml += '</div></div>';
+          sections.push(oHtml);
+        }
+
+        // Render
+        badge.textContent = totalItems + ' item' + (totalItems !== 1 ? 's' : '');
+        if (totalItems > 0) {
+          badge.style.background = 'rgba(255,215,0,0.15)';
+          badge.style.color = '#FFD700';
+        } else {
+          badge.style.background = 'rgba(52,211,153,0.1)';
+          badge.style.color = '#34d399';
+        }
+
+        if (sections.length === 0) {
+          body.innerHTML = '<div style="text-align:center; padding:1rem; opacity:0.4;"><i class="fas fa-check-circle" style="font-size:1.2rem; color:#34d399; margin-bottom:0.4rem; display:block;"></i><div style="font-size:0.75rem;">All clear! Nothing needs your attention.</div></div>';
+        } else {
+          body.innerHTML = sections.join('');
+        }
       }
 
       // ── Stat Cards ──
@@ -541,22 +703,100 @@
 
       function renderMorningReport() {
         AgentEngine.getMorningReport().then(function (report) {
-          if (!report) return;
           panelReportWrap.style.display = '';
-          reportDateBadge.textContent = report.date || '';
+          reportDateBadge.textContent = (report && report.date) ? report.date : new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
           var html = '';
-          if (report.ceoSummary) {
+
+          // CEO Summary (from heartbeat-generated report)
+          if (report && report.ceoSummary) {
             html += '<div style="padding:0.6rem; background:rgba(138,43,226,0.05); border:1px solid rgba(138,43,226,0.1); border-radius:8px; margin-bottom:0.6rem; font-size:0.8rem; line-height:1.5;">' + escapeHtml(report.ceoSummary).replace(/\n/g, '<br>') + '</div>';
           }
-          if (report.stats) {
-            html += '<div style="display:flex; gap:0.5rem; flex-wrap:wrap; font-size:0.65rem; opacity:0.5;">';
+
+          // Stats bar
+          if (report && report.stats) {
+            html += '<div style="display:flex; gap:0.5rem; flex-wrap:wrap; font-size:0.65rem; opacity:0.5; margin-bottom:0.8rem;">';
             html += '<span>' + (report.stats.completed24h || 0) + ' completed</span> · ';
             html += '<span>' + (report.stats.created24h || 0) + ' created</span> · ';
             html += '<span>' + (report.stats.active || 0) + ' active</span> · ';
             html += '<span>' + (report.stats.overdue || 0) + ' overdue</span>';
             html += '</div>';
           }
+
+          // ── Needs CEO Decision Now ──
+          var queue = AgentEngine.getApprovalQueue();
+          var pendingExec = queue.filter(function (q) { return q.status === 'pending' && q.classification === 'executive_required'; });
+          if (pendingExec.length > 0) {
+            html += '<div style="margin-bottom:0.7rem;">';
+            html += '<div style="font-size:0.7rem; font-weight:600; color:#f87171; margin-bottom:0.3rem;"><i class="fas fa-exclamation-circle"></i> Needs CEO Decision Now (' + pendingExec.length + ')</div>';
+            pendingExec.slice(0, 3).forEach(function (item) {
+              html += '<div style="font-size:0.7rem; padding:0.2rem 0; display:flex; justify-content:space-between;">';
+              html += '<span>' + escapeHtml(item.taskTitle) + ' <span style="opacity:0.4;">(' + (item.originAgent || '?') + ')</span></span>';
+              html += '<a href="#panel-approval-wrap" style="font-size:0.55rem; color:#FFD700; text-decoration:none;">Review →</a>';
+              html += '</div>';
+            });
+            html += '</div>';
+          }
+
+          // ── Top 3 Risks ──
+          var tasks = AgentEngine.getTasks();
+          var today = new Date().toISOString().split('T')[0];
+          var risks = [];
+          // Overdue high/critical tasks
+          tasks.forEach(function (t) {
+            if (t.status === 'done') return;
+            var isOverdue = t.dueDate && t.dueDate < today;
+            var isHighPrio = t.priority === 'high' || t.priority === 'critical';
+            if (isOverdue && isHighPrio) risks.push({ title: t.title, reason: 'overdue ' + t.priority, agent: t.assignee || '?' });
+            else if (isOverdue) risks.push({ title: t.title, reason: 'overdue', agent: t.assignee || '?' });
+            else if (isHighPrio && t.status === 'backlog') risks.push({ title: t.title, reason: t.priority + ' stuck in backlog', agent: t.assignee || '?' });
+          });
+          // At-risk objectives
+          var objectives = AgentEngine.getObjectives();
+          objectives.forEach(function (o) {
+            if (o.status === 'at_risk' || o.status === 'behind') risks.push({ title: o.title, reason: 'objective ' + (o.status || 'at_risk').replace(/_/g, ' '), agent: '' });
+          });
+          if (risks.length > 0) {
+            html += '<div style="margin-bottom:0.7rem;">';
+            html += '<div style="font-size:0.7rem; font-weight:600; color:#fbbf24; margin-bottom:0.3rem;"><i class="fas fa-fire"></i> Top Risks (' + Math.min(risks.length, 3) + ')</div>';
+            risks.slice(0, 3).forEach(function (r) {
+              html += '<div style="font-size:0.65rem; padding:0.15rem 0; opacity:0.7;">• ' + escapeHtml(r.title) + ' <span style="color:#fbbf24;">(' + r.reason + ')</span>' + (r.agent ? ' — ' + r.agent : '') + '</div>';
+            });
+            if (risks.length > 3) html += '<div style="font-size:0.55rem; opacity:0.3;">+' + (risks.length - 3) + ' more</div>';
+            html += '</div>';
+          }
+
+          // ── Top Wins by Agent (completed in last 24h) ──
+          var yesterday = new Date(Date.now() - 86400000).toISOString();
+          var recentDone = tasks.filter(function (t) {
+            return t.status === 'done' && t.completedAt && t.completedAt >= yesterday;
+          });
+          if (recentDone.length > 0) {
+            var winsByAgent = {};
+            recentDone.forEach(function (t) {
+              var a = t.assignee || 'unassigned';
+              if (!winsByAgent[a]) winsByAgent[a] = [];
+              winsByAgent[a].push(t.title);
+            });
+            html += '<div style="margin-bottom:0.7rem;">';
+            html += '<div style="font-size:0.7rem; font-weight:600; color:#34d399; margin-bottom:0.3rem;"><i class="fas fa-trophy"></i> Recent Wins (' + recentDone.length + ')</div>';
+            Object.keys(winsByAgent).forEach(function (agentId) {
+              var agent = AgentEngine.getAgent(agentId);
+              var color = agent ? agent.color : '#34d399';
+              html += '<div style="font-size:0.65rem; padding:0.15rem 0;"><strong style="color:' + color + ';">' + (agent ? agent.name : agentId) + '</strong>: ' + winsByAgent[agentId].map(function (w) { return escapeHtml(w); }).join(', ') + '</div>';
+            });
+            html += '</div>';
+          }
+
+          // ── Deep Links ──
+          html += '<div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(255,255,255,0.04);">';
+          html += '<a href="/modules/company/tasks.html" style="font-size:0.6rem; color:#4ECDC4; text-decoration:none;"><i class="fas fa-tasks"></i> Task Board</a>';
+          html += '<a href="/modules/company/actions.html" style="font-size:0.6rem; color:#FFA500; text-decoration:none;"><i class="fas fa-bolt"></i> Actions</a>';
+          html += '<a href="/modules/company/directives.html" style="font-size:0.6rem; color:#8A2BE2; text-decoration:none;"><i class="fas fa-compass"></i> Directives</a>';
+          html += '<a href="/modules/company/objectives.html" style="font-size:0.6rem; color:#4ECDC4; text-decoration:none;"><i class="fas fa-bullseye"></i> Objectives</a>';
+          html += '<a href="/modules/company/workspace.html" style="font-size:0.6rem; color:#FF6B9D; text-decoration:none;"><i class="fas fa-brain"></i> Workspace</a>';
+          html += '</div>';
+
           panelReport.innerHTML = html || '<div class="dash-empty">Report generated but no summary available.</div>';
         });
       }
@@ -663,6 +903,18 @@
       }
 
       // ── CEO Approval Queue ──
+      function _approvalSortKey(item) {
+        var classScore = item.classification === 'executive_required' ? 0 : 1;
+        var riskScore = item.riskLevel === 'high' ? 0 : item.riskLevel === 'medium' ? 1 : 2;
+        var timeScore = item.submittedAt || '9999';
+        return classScore + '-' + riskScore + '-' + timeScore;
+      }
+
+      function _getApprovalNote(itemId) {
+        var input = document.getElementById('approval-note-' + itemId);
+        return input ? input.value.trim() : '';
+      }
+
       function renderApprovalQueue() {
         var queue = AgentEngine.getApprovalQueue();
         var pending = queue.filter(function (q) { return q.status === 'pending'; });
@@ -675,6 +927,11 @@
           listEl.innerHTML = '<div class="dash-empty">No items awaiting CEO approval.</div>';
           return;
         }
+
+        // Sort: executive_required first → high risk → oldest
+        pending.sort(function (a, b) {
+          return _approvalSortKey(a).localeCompare(_approvalSortKey(b));
+        });
 
         listEl.innerHTML = '';
         pending.forEach(function (item) {
@@ -709,6 +966,10 @@
             metaHtml += '<span style="opacity:0.5; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">"' + escapeHtml(item.preview) + '"</span>';
           }
 
+          // Age badge
+          var ageMins = item.submittedAt ? Math.floor((Date.now() - new Date(item.submittedAt).getTime()) / 60000) : 0;
+          var ageLabel = ageMins < 60 ? ageMins + 'm ago' : Math.floor(ageMins / 60) + 'h ago';
+
           var btnStyle = 'font-size:0.6rem; padding:0.25rem 0.6rem; border-radius:4px; cursor:pointer;';
           var actionTarget = isAction ? item.action_id : item.id;
           var overrideTarget = isAction ? item.action_id : item.taskId;
@@ -716,10 +977,16 @@
           div.innerHTML =
             '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">' +
               titleHtml +
-              '<span style="font-size:0.6rem; color:' + classColor + ';"><i class="fas ' + classIcon + '"></i> ' + item.classification + '</span>' +
+              '<div style="display:flex; align-items:center; gap:0.5rem;">' +
+                '<span style="font-size:0.5rem; opacity:0.35;">' + ageLabel + '</span>' +
+                '<span style="font-size:0.6rem; color:' + classColor + ';"><i class="fas ' + classIcon + '"></i> ' + item.classification + '</span>' +
+              '</div>' +
             '</div>' +
             '<div style="display:flex; gap:0.6rem; font-size:0.65rem; opacity:0.6; margin-bottom:0.5rem;">' +
               metaHtml +
+            '</div>' +
+            '<div style="margin-bottom:0.4rem;">' +
+              '<input type="text" id="approval-note-' + item.id + '" placeholder="Decision note (optional)..." style="width:100%; padding:0.3rem 0.5rem; font-size:0.65rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:4px; color:rgba(255,255,255,0.8); outline:none;" />' +
             '</div>' +
             '<div style="display:flex; gap:0.4rem; flex-wrap:wrap;">' +
               '<button class="approval-btn approval-btn--approve" data-id="' + item.id + '" data-action-id="' + (actionTarget || '') + '" data-kind="' + (item.kind || 'task') + '" data-action-type="' + (item.actionType || '') + '" style="' + btnStyle + ' border:1px solid rgba(52,211,153,0.3); background:rgba(52,211,153,0.05); color:#34d399;">' + (isPublish ? 'Approve &amp; Publish' : 'Approve') + '</button>' +
@@ -732,27 +999,29 @@
         });
 
         // Bind buttons — route action items to action-specific methods
-        // publish_document actions are routed to the server endpoint for actual execution
         listEl.querySelectorAll('.approval-btn--approve').forEach(function (btn) {
           btn.addEventListener('click', function () {
+            var note = _getApprovalNote(btn.dataset.id);
             if (btn.dataset.actionType === 'publish_document') {
               _serverPublishDecision(btn.dataset.actionId, 'approve').then(renderAll);
-            } else if (btn.dataset.kind === 'action') { AgentEngine.approveAction(btn.dataset.actionId); renderAll(); }
-            else { AgentEngine.ceoApprove(btn.dataset.id); renderAll(); }
+            } else if (btn.dataset.kind === 'action') { AgentEngine.approveAction(btn.dataset.actionId, note); renderAll(); }
+            else { AgentEngine.ceoApprove(btn.dataset.id, note); renderAll(); }
           });
         });
         listEl.querySelectorAll('.approval-btn--reject').forEach(function (btn) {
           btn.addEventListener('click', function () {
+            var note = _getApprovalNote(btn.dataset.id);
             if (btn.dataset.actionType === 'publish_document') {
               _serverPublishDecision(btn.dataset.actionId, 'reject').then(renderAll);
-            } else if (btn.dataset.kind === 'action') { AgentEngine.rejectAction(btn.dataset.actionId); renderAll(); }
-            else { AgentEngine.ceoReject(btn.dataset.id); renderAll(); }
+            } else if (btn.dataset.kind === 'action') { AgentEngine.rejectAction(btn.dataset.actionId, note); renderAll(); }
+            else { AgentEngine.ceoReject(btn.dataset.id, note); renderAll(); }
           });
         });
         listEl.querySelectorAll('.approval-btn--revision').forEach(function (btn) {
           btn.addEventListener('click', function () {
-            if (btn.dataset.kind === 'action') { AgentEngine.requestActionRevision(btn.dataset.actionId); }
-            else { AgentEngine.ceoRequestRevision(btn.dataset.id); }
+            var note = _getApprovalNote(btn.dataset.id);
+            if (btn.dataset.kind === 'action') { AgentEngine.requestActionRevision(btn.dataset.actionId, note); }
+            else { AgentEngine.ceoRequestRevision(btn.dataset.id, note); }
             renderAll();
           });
         });

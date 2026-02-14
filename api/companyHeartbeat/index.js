@@ -158,6 +158,8 @@ module.exports = async function (context) {
     const directives = (await storage.getState('directives')) || [];
     const objectives = (await storage.getState('objectives')) || [];
     const documents = (await storage.getState('documents')) || [];
+    const workspaceMemory = (await storage.getState('workspaceMemory')) || [];
+    const workspaceDates = (await storage.getState('dates')) || [];
     const activeDirectives = directives.filter(d => d.status === 'active');
     const activeObjectives = objectives.filter(o => o.status === 'active' || o.status === 'in_progress');
 
@@ -230,7 +232,8 @@ module.exports = async function (context) {
         const result = await runAgentHeartbeat(
           context, agentId, tasks, configs, recentSummaries, cycleId,
           agentId === 'nova' ? novaSkipTaskIds : null,
-          activeDirectives, activeObjectives, documents
+          activeDirectives, activeObjectives, documents,
+          workspaceMemory, workspaceDates
         );
         geminiCalls += result.geminiCalls;
         agentActions[agentId] = result.actions;
@@ -337,7 +340,7 @@ module.exports = async function (context) {
 };
 
 // ── Run a single agent's heartbeat ──
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents) {
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates) {
   const result = { geminiCalls: 0, actions: 0, taskUpdates: [] };
   const agent = AGENT_ROLES[agentId];
   if (!agent) return result;
@@ -346,7 +349,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done');
   const allActiveTasks = tasks.filter(t => t.status !== 'done' && t.status !== 'backlog');
 
-  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents);
+  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates);
 
   // Call Gemini
   const response = await callGemini(prompt);
@@ -843,10 +846,12 @@ Write the full deliverable first, then the structured JSON block.`;
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
+  workspaceMemory = workspaceMemory || [];
+  workspaceDates = workspaceDates || [];
 
   const taskList = agentTasks.map(t =>
     '- [' + t.status + '] ' + t.title + ' (priority: ' + t.priority + ', id: ' + t.id + (t.directive_id ? ', directive: ' + t.directive_id : '') + ')'
@@ -963,6 +968,52 @@ ${docList}`;
     }
   }
 
+  // CEO workspace context: high-priority memories + upcoming critical dates (token-capped)
+  const MAX_WORKSPACE_CHARS = 1000;
+  let workspaceSection = '';
+  const wsParts = [];
+  let wsChars = 0;
+
+  // High-priority memories (pinned or priority high/critical)
+  const priorityMemories = workspaceMemory.filter(m =>
+    m.pinned || m.priority === 'high' || m.priority === 'critical'
+  ).slice(0, 5);
+  if (priorityMemories.length > 0) {
+    const memLines = [];
+    for (const m of priorityMemories) {
+      const line = '- [' + (m.priority || 'medium') + (m.pinned ? ', pinned' : '') + '] ' + (m.title || m.content || '').substring(0, 150);
+      if (wsChars + line.length > MAX_WORKSPACE_CHARS) break;
+      wsChars += line.length;
+      memLines.push(line);
+    }
+    if (memLines.length > 0) wsParts.push('Key Memories:\n' + memLines.join('\n'));
+  }
+
+  // Upcoming dates (next 7 days + overdue deadlines)
+  const nowDate = new Date().toISOString().split('T')[0];
+  const sevenDaysMs = 7 * 86400000;
+  const criticalDates = workspaceDates.filter(d => {
+    if (!d.date) return false;
+    const diffMs = new Date(d.date + 'T00:00:00').getTime() - Date.now();
+    return (diffMs >= 0 && diffMs <= sevenDaysMs) || (diffMs < 0 && d.type === 'deadline');
+  }).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 5);
+  if (criticalDates.length > 0) {
+    const dateLines = [];
+    for (const d of criticalDates) {
+      const diffDays = Math.ceil((new Date(d.date + 'T00:00:00').getTime() - Date.now()) / 86400000);
+      const urgency = diffDays < 0 ? 'OVERDUE ' + Math.abs(diffDays) + 'd' : diffDays === 0 ? 'TODAY' : diffDays + 'd away';
+      const line = '- [' + (d.type || 'event') + '] ' + d.title + ' (' + urgency + (d.priority ? ', ' + d.priority : '') + ')';
+      if (wsChars + line.length > MAX_WORKSPACE_CHARS) break;
+      wsChars += line.length;
+      dateLines.push(line);
+    }
+    if (dateLines.length > 0) wsParts.push('Critical Dates:\n' + dateLines.join('\n'));
+  }
+
+  if (wsParts.length > 0) {
+    workspaceSection = '\n\nCEO WORKSPACE CONTEXT (strategic context from the CEO — factor into your decisions):\n' + wsParts.join('\n');
+  }
+
   return `You are ${agent.name}, ${agent.role} at AmbientPixels. Your focus: ${agent.focus}.
 
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
@@ -975,7 +1026,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}
-${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}
+${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${workspaceSection}
 
 CURRENT TIME: ${new Date().toISOString()}
 
