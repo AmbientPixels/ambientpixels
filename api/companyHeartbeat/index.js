@@ -500,11 +500,11 @@ Write your output as markdown. This will be attached to your task as a deliverab
         task: {
           title: action.task.title || 'Untitled',
           description: action.task.description || '',
-          status: action.task.status || 'backlog',
+          status: action.task.status || 'todo',
           priority: action.task.priority || 'medium',
           assignee: action.task.assignee || agentId,
           division: action.task.division || null,
-          dueDate: action.task.dueDate || null
+          dueDate: action.task.dueDate || new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
         }
       });
     } else if (action.type === 'update-task' && action.taskId) {
@@ -893,7 +893,7 @@ Respond with ONLY valid JSON in this exact format:
     {
       "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|create-doc|submit-for-publish|web_search",
       "summary": "Brief description of what you're doing",
-      "task": { "title": "", "description": "", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z", "directive_id": "optional-directive-id" },
+      "task": { "title": "", "description": "", "status": "todo|in-progress", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z", "directive_id": "optional-directive-id" },
       "taskId": "existing-task-id",
       "updates": { "description": "...", "assignee": "agentId", "priority": "high", "dueDate": "2026-02-20T00:00:00Z" },
       "newStatus": "todo|in-progress|review|done",
@@ -908,7 +908,7 @@ Respond with ONLY valid JSON in this exact format:
 }
 
 Action types:
-- create-task: Create a new task. Include "task" with title, description, priority, assignee (agent id), dueDate (ISO datetime, realistic: 1-7 days out), and optionally directive_id (to link to a CEO directive).
+- create-task: Create a new task. Include "task" with title, description, status ("todo" or "in-progress" — default is "todo"), priority, assignee (agent id), dueDate (ISO datetime, realistic: 1-7 days out), and optionally directive_id (to link to a CEO directive). You MUST always set status, priority, assignee, and dueDate.
 - update-task: Update an existing task. Provide taskId and "updates" with any of: description, assignee, priority, dueDate, tags.
 - move-task: Move a task to a new status column. Provide taskId and newStatus.
 - execute-task: Pick up one of YOUR in-progress or todo tasks and produce actual work output (a report, analysis, draft, recommendation, audit, etc). This will generate a deliverable and move the task to review.
@@ -928,7 +928,7 @@ Rules:
 - Prefer execute-task on your own in-progress tasks when you have work to do
 - Review other agents' work when tasks are waiting in review
 - Keep observations brief and factual
-- When creating tasks, always set an assignee and a realistic dueDate
+- When creating tasks, ALWAYS set: status ("todo" or "in-progress"), priority, assignee, and a realistic dueDate (1-7 days out). Tasks without these fields are incomplete and will be triaged.
 - Use update-task to assign unassigned tasks, adjust priorities, or set missing due dates
 - Use comment-task to leave delegation notes, ask questions, or flag blockers` + (agent.name === 'Nova' ? `
 - PRIME OPERATOR DUTIES (Nova): You are the operational lead. Your #1 job is keeping the board actionable.
