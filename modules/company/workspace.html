@@ -814,7 +814,20 @@
         list.innerHTML = '';
         empty.style.display = dates.length === 0 ? '' : 'none';
 
-        dates.sort(function (a, b) { return a.date.localeCompare(b.date); });
+        // Sort: overdue deadlines → today → next 7 days → future → past
+        function dateSortBucket(d) {
+          var days = daysUntil(d.date);
+          if (days < 0 && d.type === 'deadline') return 0; // overdue deadlines
+          if (days === 0) return 1;                         // today
+          if (days > 0 && days <= 7) return 2;              // next 7 days
+          if (days > 7) return 3;                           // future
+          return 4;                                          // past (non-deadline)
+        }
+        dates.sort(function (a, b) {
+          var ba = dateSortBucket(a), bb = dateSortBucket(b);
+          if (ba !== bb) return ba - bb;
+          return a.date.localeCompare(b.date);
+        });
 
         dates.forEach(function (d) {
           var dt = new Date(d.date + 'T00:00:00');
