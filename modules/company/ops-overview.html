@@ -122,8 +122,11 @@
       var recent = cronLog.slice(-5).reverse();
       el.innerHTML = recent.map(function (entry) {
         var time = entry.timestamp ? new Date(entry.timestamp).toLocaleString() : '?';
-        var agents = entry.agentsRun || entry.agents || '?';
-        var actions = entry.totalActions || entry.actions || 0;
+        var aa = entry.agentActions || {};
+        var agentKeys = Object.keys(aa);
+        var agents = agentKeys.length;
+        var actions = 0;
+        agentKeys.forEach(function (k) { actions += aa[k] || 0; });
         return '<div style="padding:0.3rem 0; border-bottom:1px solid rgba(255,255,255,0.03);">' +
           '<span style="opacity:0.4;">' + time + '</span> — ' +
           agents + ' agents, ' + actions + ' actions' +
