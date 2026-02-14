@@ -333,6 +333,14 @@ async function handleDocPublish(context, req, body) {
   const slug = action.payload && action.payload.slug;
   const title = action.payload && action.payload.title;
 
+  // Visibility: public → /blog/<slug>, internal → /docs/published/<slug>
+  // Can be set in request body, action payload, or defaults by doc kind
+  const PUBLIC_KINDS = ['marketing_post', 'product_brief'];
+  const requestVisibility = body.visibility || (action.payload && action.payload.visibility);
+  const docKind = (action.payload && action.payload.kind) || '';
+  const visibility = requestVisibility || (PUBLIC_KINDS.indexOf(docKind) !== -1 ? 'public' : 'internal');
+  const isPublic = visibility === 'public';
+
   // ── REJECT path ──
   if (decision === 'reject') {
     action.approval.status = 'rejected';
@@ -395,8 +403,18 @@ async function handleDocPublish(context, req, body) {
       throw new Error('Document content is empty or too short');
     }
 
-    // Step 3: Write markdown to publishedDocs blob storage
-    const publishedDocs = (await storage.getState('publishedDocs')) || [];
+    // Generate excerpt for blog posts (first ~200 chars of plain text)
+    var excerpt = '';
+    if (isPublic) {
+      excerpt = contentMd.replace(/#{1,6}\s+/g, '').replace(/[*_`~\[\]()>]/g, '').replace(/\n+/g, ' ').trim().substring(0, 200);
+      if (contentMd.length > 200) excerpt += '...';
+    }
+
+    // Step 3: Write to appropriate storage (blogPosts for public, publishedDocs for internal)
+    const storageKey = isPublic ? 'blogPosts' : 'publishedDocs';
+    const publicUrl = isPublic ? '/blog/' + slug : '/docs/published/' + slug;
+    const store = (await storage.getState(storageKey)) || [];
+
     const publishEntry = {
       id: 'pub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
       documentId: documentId,
@@ -405,16 +423,18 @@ async function handleDocPublish(context, req, body) {
       slug: slug,
       kind: doc.kind,
       content_md: contentMd,
-      target_path: 'content/docs/' + slug + '.md',
-      public_url: '/docs/published/' + slug,
+      target_path: isPublic ? '/blog/' + slug : 'content/docs/' + slug + '.md',
+      public_url: publicUrl,
+      visibility: visibility,
+      excerpt: excerpt,
       published_by: 'pixelpusher',
       published_at: now,
       tags: doc.tags || [],
       created_by: doc.created_by
     };
-    publishedDocs.push(publishEntry);
-    if (publishedDocs.length > 200) publishedDocs.splice(0, publishedDocs.length - 200);
-    await storage.setState('publishedDocs', publishedDocs);
+    store.push(publishEntry);
+    if (store.length > 200) store.splice(0, store.length - 200);
+    await storage.setState(storageKey, store);
 
     // Step 4: Update document status to published
     docs[docIdx].status = 'published';
@@ -422,6 +442,8 @@ async function handleDocPublish(context, req, body) {
     docs[docIdx].published_at = now;
     docs[docIdx].published_by = 'pixelpusher';
     docs[docIdx].publish_entry_id = publishEntry.id;
+    docs[docIdx].visibility = visibility;
+    docs[docIdx].public_url = publicUrl;
     await storage.setState('documents', docs);
 
     // Step 5: Update action execution to success
@@ -430,7 +452,8 @@ async function handleDocPublish(context, req, body) {
     action.execution.receipt = {
       publish_entry_id: publishEntry.id,
       target_path: publishEntry.target_path,
-      public_url: publishEntry.public_url,
+      public_url: publicUrl,
+      visibility: visibility,
       slug: slug,
       published_at: now
     };
@@ -442,12 +465,12 @@ async function handleDocPublish(context, req, body) {
     await _updateApprovalQueue(actionId, 'approved');
 
     // Step 7: Audit + governance logs
-    await _logAudit('publish-approved', { actionId, documentId, title, slug, approvedBy: 'pixelpusher' });
-    await _logAudit('publish-executed', { actionId, documentId, title, slug, publishEntryId: publishEntry.id, targetPath: publishEntry.target_path });
-    await _logGovernance(storage, 'publish-approved', { actionId, documentId, title, slug, approvedBy: 'pixelpusher' });
-    await _logGovernance(storage, 'publish-executed', { actionId, documentId, title, slug, publishEntryId: publishEntry.id });
+    await _logAudit('publish-approved', { actionId, documentId, title, slug, visibility, approvedBy: 'pixelpusher' });
+    await _logAudit('publish-executed', { actionId, documentId, title, slug, visibility, publishEntryId: publishEntry.id, targetPath: publishEntry.target_path });
+    await _logGovernance(storage, 'publish-approved', { actionId, documentId, title, slug, visibility, approvedBy: 'pixelpusher' });
+    await _logGovernance(storage, 'publish-executed', { actionId, documentId, title, slug, visibility, publishEntryId: publishEntry.id });
 
-    context.log('[DocsExecute] Published:', actionId, title, '→', publishEntry.target_path);
+    context.log('[DocsExecute] Published (' + visibility + '):', actionId, title, '→', publicUrl);
 
     context.res = {
       status: 200,
@@ -455,10 +478,11 @@ async function handleDocPublish(context, req, body) {
       body: {
         success: true,
         decision: 'approved',
+        visibility: visibility,
         actionId,
         documentId,
         publishEntry,
-        message: 'Document published successfully'
+        message: 'Document published successfully to ' + (isPublic ? 'blog' : 'internal docs')
       }
     };
 

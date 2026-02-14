@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Blog — Articles, insights, and updates from our AI-operated company" />
+  <meta property="og:title" content="AmbientPixels Blog" />
+  <meta property="og:description" content="Articles, insights, and updates from our AI-operated company" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://ambientpixels.ai/blog/" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Blog — AmbientPixels</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/blog/blog.css" />
+</head>
+<body class="blog-wrapper">
+  <div class="blog-container">
+
+    <div id="blog-loading" class="blog-loading">
+      <i class="fas fa-spinner fa-spin"></i> Loading...
+    </div>
+
+    <div id="blog-error" style="display:none;"></div>
+
+    <div id="blog-header" style="display:none;"></div>
+    <div id="blog-content" style="display:none;"></div>
+
+    <div class="blog-footer">
+      <a href="/">AmbientPixels.ai</a> · Powered by AI agents · 
+      <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.3/dist/purify.min.js"></script>
+  <script src="/blog/blog.js"></script>
+</body>
+</html>

@@ -988,12 +988,17 @@
             '<div style="margin-bottom:0.4rem;">' +
               '<input type="text" id="approval-note-' + item.id + '" placeholder="Decision note (optional)..." style="width:100%; padding:0.3rem 0.5rem; font-size:0.65rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:4px; color:rgba(255,255,255,0.8); outline:none;" />' +
             '</div>' +
+            (isPublish ? '<div style="margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;">' +
+              '<span style="font-size:0.65rem; color:rgba(255,255,255,0.5);">Publish to:</span>' +
+              '<label style="font-size:0.65rem; cursor:pointer; display:flex; align-items:center; gap:0.25rem; color:#34d399;"><input type="radio" name="vis-' + item.id + '" value="public" checked style="accent-color:#34d399;" /> <i class="fas fa-globe"></i> Public Blog</label>' +
+              '<label style="font-size:0.65rem; cursor:pointer; display:flex; align-items:center; gap:0.25rem; color:#60a5fa;"><input type="radio" name="vis-' + item.id + '" value="internal" style="accent-color:#60a5fa;" /> <i class="fas fa-lock"></i> Internal Docs</label>' +
+            '</div>' : '') +
             '<div style="display:flex; gap:0.4rem; flex-wrap:wrap;">' +
               '<button class="approval-btn approval-btn--approve" data-id="' + item.id + '" data-action-id="' + (actionTarget || '') + '" data-kind="' + (item.kind || 'task') + '" data-action-type="' + (item.actionType || '') + '" style="' + btnStyle + ' border:1px solid rgba(52,211,153,0.3); background:rgba(52,211,153,0.05); color:#34d399;">' + (isPublish ? 'Approve &amp; Publish' : 'Approve') + '</button>' +
               '<button class="approval-btn approval-btn--reject" data-id="' + item.id + '" data-action-id="' + (actionTarget || '') + '" data-kind="' + (item.kind || 'task') + '" data-action-type="' + (item.actionType || '') + '" style="' + btnStyle + ' border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.05); color:#f87171;">Reject</button>' +
               '<button class="approval-btn approval-btn--revision" data-id="' + item.id + '" data-action-id="' + (actionTarget || '') + '" data-kind="' + (item.kind || 'task') + '" data-action-type="' + (item.actionType || '') + '" style="' + btnStyle + ' border:1px solid rgba(251,191,36,0.3); background:rgba(251,191,36,0.05); color:#fbbf24;">Request Revision</button>' +
               '<button class="approval-btn approval-btn--override" data-id="' + (overrideTarget || '') + '" data-kind="' + (item.kind || 'task') + '" data-action-type="' + (item.actionType || '') + '" style="' + btnStyle + ' border:1px solid rgba(255,215,0,0.3); background:rgba(255,215,0,0.05); color:#FFD700;">Override</button>' +
-              (isPublish && item.slug ? '<a href="/docs/published/' + escapeHtml(item.slug) + '" target="_blank" style="' + btnStyle + ' border:1px solid rgba(138,43,226,0.3); background:rgba(138,43,226,0.05); color:#8A2BE2; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;"><i class="fas fa-external-link-alt"></i> View</a>' : '') +
+              (isPublish && item.slug ? '<a href="/docs/published/' + escapeHtml(item.slug) + '" target="_blank" style="' + btnStyle + ' border:1px solid rgba(138,43,226,0.3); background:rgba(138,43,226,0.05); color:#8A2BE2; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;"><i class="fas fa-external-link-alt"></i> Preview</a>' : '') +
             '</div>';
           listEl.appendChild(div);
         });
@@ -1003,7 +1008,8 @@
           btn.addEventListener('click', function () {
             var note = _getApprovalNote(btn.dataset.id);
             if (btn.dataset.actionType === 'publish_document') {
-              _serverPublishDecision(btn.dataset.actionId, 'approve').then(renderAll);
+              var vis = _getPublishVisibility(btn.dataset.id);
+              _serverPublishDecision(btn.dataset.actionId, 'approve', vis).then(renderAll);
             } else if (btn.dataset.kind === 'action') { AgentEngine.approveAction(btn.dataset.actionId, note); renderAll(); }
             else { AgentEngine.ceoApprove(btn.dataset.id, note); renderAll(); }
           });
@@ -1035,24 +1041,31 @@
       }
 
       // ── Server-side publish decision (approve/reject publish_document actions) ──
-      function _serverPublishDecision(actionId, decision) {
+      function _getPublishVisibility(itemId) {
+        var radio = document.querySelector('input[name="vis-' + itemId + '"]:checked');
+        return radio ? radio.value : 'public';
+      }
+
+      function _serverPublishDecision(actionId, decision, visibility) {
         var apiBase = (window.location.hostname.indexOf('ambientpixels.ai') !== -1)
           ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
           : '/api';
+        var payload = {
+          action: 'document.publish',
+          action_id: actionId,
+          decision: decision
+        };
+        if (visibility) payload.visibility = visibility;
         return fetch(apiBase + '/documents/execute', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'x-company-secret': (typeof CompanyStore !== 'undefined' && CompanyStore._writeSecret) ? CompanyStore._writeSecret : ''
           },
-          body: JSON.stringify({
-            action: 'document.publish',
-            action_id: actionId,
-            decision: decision
-          })
+          body: JSON.stringify(payload)
         }).then(function (res) { return res.json(); }).then(function (data) {
           if (data.success) {
-            console.log('[Dashboard] Publish ' + decision + ' succeeded:', actionId);
+            console.log('[Dashboard] Publish ' + decision + ' (' + (visibility || 'default') + ') succeeded:', actionId);
           } else {
             console.error('[Dashboard] Publish ' + decision + ' failed:', data.error || data);
           }

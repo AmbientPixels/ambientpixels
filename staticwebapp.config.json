@@ -44,8 +44,17 @@
   },
   "routes": [
     {
+      "route": "/blog/*",
+      "rewrite": "/blog/index.html"
+    },
+    {
+      "route": "/modules/company/*",
+      "allowedRoles": ["authenticated"]
+    },
+    {
       "route": "/docs/published/*",
-      "rewrite": "/docs/published/index.html"
+      "rewrite": "/docs/published/index.html",
+      "allowedRoles": ["authenticated"]
     },
     {
       "route": "/hanson*",
@@ -129,6 +138,11 @@
     {
       "route": "/api/company-heartbeat-trigger",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/company-heartbeat-trigger",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/blogPosts",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blogPosts",
       "allowedRoles": ["anonymous"]
     },
     {

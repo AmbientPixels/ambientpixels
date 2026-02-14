@@ -119,11 +119,38 @@
 
   rail.appendChild(chipsWrap);
 
-  // Globe at bottom
+  // Footer: Globe + Auth
   var footer = document.createElement('div');
   footer.className = 'sb-rail-footer';
-  footer.innerHTML = '<a href="/" class="sb-rail-globe" title="Main Site"><i class="fas fa-globe"></i></a>';
+  footer.innerHTML = '<a href="/" class="sb-rail-globe" title="Main Site"><i class="fas fa-globe"></i></a>' +
+    '<a href="/blog/" class="sb-rail-globe" title="Public Blog" style="opacity:0.5;"><i class="fas fa-newspaper"></i></a>' +
+    '<button type="button" id="sb-auth-btn" class="sb-rail-globe" title="Loading..." style="opacity:0.4; background:none; border:none; cursor:pointer; color:inherit; font-size:inherit; padding:0;"><i class="fas fa-spinner fa-spin"></i></button>';
   rail.appendChild(footer);
+
+  // Check auth status and update button
+  fetch('/.auth/me').then(function (r) { return r.json(); }).then(function (data) {
+    var btn = document.getElementById('sb-auth-btn');
+    if (!btn) return;
+    var user = data && data.clientPrincipal;
+    if (user) {
+      btn.title = 'Logout (' + (user.userDetails || 'user') + ')';
+      btn.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
+      btn.style.opacity = '0.6';
+      btn.addEventListener('click', function () {
+        window.location.href = '/.auth/logout?post_logout_redirect_uri=/';
+      });
+    } else {
+      btn.title = 'Sign In';
+      btn.innerHTML = '<i class="fas fa-sign-in-alt"></i>';
+      btn.style.opacity = '0.6';
+      btn.addEventListener('click', function () {
+        window.location.href = '/.auth/login/aad?post_login_redirect_uri=' + encodeURIComponent(window.location.pathname);
+      });
+    }
+  }).catch(function () {
+    var btn = document.getElementById('sb-auth-btn');
+    if (btn) { btn.style.display = 'none'; }
+  });
 
   // ── Build Top Sub-link Bar ──
   var topbar = document.createElement('nav');
