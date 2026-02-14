@@ -876,9 +876,25 @@ function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirective
   workspaceMemory = workspaceMemory || [];
   workspaceDates = workspaceDates || [];
 
-  const taskList = agentTasks.map(t =>
-    '- [' + t.status + '] ' + t.title + ' (priority: ' + t.priority + ', id: ' + t.id + (t.directive_id ? ', directive: ' + t.directive_id : '') + ')'
-  ).join('\n') || '(none assigned)';
+  const taskList = agentTasks.map(t => {
+    let line = '- [' + t.status + '] ' + t.title + ' (priority: ' + t.priority + ', id: ' + t.id;
+    if (t.directive_id) line += ', directive: ' + t.directive_id;
+    if (t.dueDate) line += ', due: ' + t.dueDate.substring(0, 10);
+    line += ')';
+    if (t.description) {
+      const desc = t.description.length > 200 ? t.description.substring(0, 200) + '...' : t.description;
+      line += '\n  Description: ' + desc;
+    }
+    if (t.comments && t.comments.length > 0) {
+      const recent = t.comments.slice(-3);
+      recent.forEach(c => {
+        const who = c.user || c.author || 'unknown';
+        const text = String(c.text || c.comment || c.body || '').substring(0, 150);
+        line += '\n  Comment (' + who + '): ' + text;
+      });
+    }
+    return line;
+  }).join('\n') || '(none assigned)';
 
   const otherTasks = allActiveTasks
     .filter(t => t.assignee !== agent.name.toLowerCase())
