@@ -996,15 +996,26 @@
           var classColor = item.classification === 'executive_required' ? '#f87171' : '#fbbf24';
 
           var isPublish = item.actionType === 'publish_document';
-          var titleHtml = '';
+          // Type badge + color-coded border for visual differentiation
+          var typeBadge = '';
           if (isPublish) {
-            titleHtml = '<span style="font-size:0.55rem;padding:0.1rem 0.35rem;border-radius:3px;background:rgba(52,211,153,0.15);color:#34d399;margin-right:0.4rem;">PUBLISH</span>' +
-              '<strong style="font-size:0.8rem;">' + escapeHtml(item.taskTitle) + '</strong>';
+            typeBadge = '<span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(52,211,153,0.12);color:#34d399;margin-right:0.4rem;font-weight:600;"><i class="fas fa-globe" style="font-size:0.45rem;"></i> PUBLISH</span>';
+            borderColor = 'rgba(52,211,153,0.15)'; bgColor = 'rgba(52,211,153,0.02)';
           } else if (isAction) {
-            titleHtml = '<strong style="font-size:0.8rem;">' + friendlyTitle(item.taskTitle) + '</strong>';
+            var _actObj = AgentEngine.getAction(item.action_id);
+            var _actType = _actObj ? (_actObj.type || '') : (item.taskTitle || '');
+            if (_actType.indexOf('social') !== -1 || (item.taskTitle && item.taskTitle.indexOf('Social') !== -1)) {
+              typeBadge = '<span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(168,85,247,0.12);color:#a855f7;margin-right:0.4rem;font-weight:600;"><i class="fas fa-share-alt" style="font-size:0.45rem;"></i> SOCIAL</span>';
+              borderColor = 'rgba(168,85,247,0.15)'; bgColor = 'rgba(168,85,247,0.02)';
+            } else {
+              typeBadge = '<span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(59,130,246,0.12);color:#3b82f6;margin-right:0.4rem;font-weight:600;"><i class="fas fa-bolt" style="font-size:0.45rem;"></i> ACTION</span>';
+            }
           } else {
-            titleHtml = '<strong style="font-size:0.8rem;">' + escapeHtml(item.taskTitle) + '</strong>';
+            typeBadge = '<span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(255,215,0,0.12);color:#FFD700;margin-right:0.4rem;font-weight:600;"><i class="fas fa-flag" style="font-size:0.45rem;"></i> ESCALATION</span>';
+            borderColor = 'rgba(255,215,0,0.12)'; bgColor = 'rgba(255,215,0,0.02)';
           }
+          div.style.cssText = 'padding:0.6rem 0.8rem; border:1px solid ' + borderColor + '; border-radius:8px; margin-bottom:0.5rem; background:' + bgColor + ';';
+          var titleHtml = typeBadge + '<strong style="font-size:0.8rem;">' + (isAction ? friendlyTitle(item.taskTitle) : escapeHtml(item.taskTitle)) + '</strong>';
 
           var metaHtml = '<span>Agent: ' + (item.originAgent || '?') + '</span>' +
             '<span style="color:' + riskColor + ';">Risk: ' + item.riskLevel + '</span>' +
