@@ -6,7 +6,7 @@ const https = require('https');
 const crypto = require('crypto');
 
 const LINKEDIN_API_URL = 'https://api.linkedin.com/rest/posts';
-const LINKEDIN_API_VERSION = '202402';
+const LINKEDIN_API_VERSION = '202301';
 const MAX_CHARS = 3000;
 
 function getCredentials() {
