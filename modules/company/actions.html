@@ -625,7 +625,11 @@
       if (context === 'pending' && execStatus === 'pending') {
         html += '<button class="act-btn act-btn--approve" onclick="doApprove(\'' + a.id + '\')">Approve</button>';
         html += '<button class="act-btn act-btn--reject" onclick="doReject(\'' + a.id + '\')">Reject</button>';
-        html += '<button class="act-btn act-btn--revision" onclick="openRevisionModal(\'' + a.id + '\')">Revision</button>';
+        if (approvalStatus === 'revision_requested') {
+          html += '<button class="act-btn act-btn--revision" disabled style="opacity:0.4;cursor:default;"><i class="fas fa-clock" style="margin-right:0.2rem;"></i>Revision Sent</button>';
+        } else {
+          html += '<button class="act-btn act-btn--revision" onclick="openRevisionModal(\'' + a.id + '\')">Revision</button>';
+        }
         html += '<button class="act-btn act-btn--override" onclick="doOverride(\'' + a.id + '\')">Override</button>';
       }
       // Approved: show Execute button (for publish) or Scheduled label (for schedule)

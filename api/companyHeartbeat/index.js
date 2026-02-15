@@ -621,6 +621,22 @@ Write the full deliverable first, then the structured JSON block.`;
         continue;
       }
 
+      // Server-side enforcement: reject posts linking to unpublished blog articles
+      const blogSlugMatches = postText.match(/(?:ambientpixels\.ai)?\/blog\/([a-z0-9][a-z0-9-]+[a-z0-9])/gi);
+      if (blogSlugMatches && blogSlugMatches.length > 0) {
+        const blogPosts = (await storage.getState('blogPosts')) || [];
+        const publishedSlugs = new Set(blogPosts.map(p => p.slug));
+        const deadSlugs = [];
+        for (const match of blogSlugMatches) {
+          const slug = match.replace(/.*\/blog\//i, '');
+          if (!publishedSlugs.has(slug)) deadSlugs.push(slug);
+        }
+        if (deadSlugs.length > 0) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — links to unpublished blog slug(s):', deadSlugs.join(', '));
+          continue;
+        }
+      }
+
       const actionRequest = {
         type: (socialPayload.scheduled_for || socialPayload.schedule_for) ? 'social_post.schedule' : 'social_post.publish',
         platform: socialPayload.platform || 'x',
@@ -1594,6 +1610,7 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - ONLY Echo may use create-social-action. All other agents MUST NOT create social posts — if you want social content, create a task for Echo instead.
   - NEVER write social posts that impersonate another agent. Do NOT say "Echo here", "Cipher here", etc. Social posts speak as AmbientPixels the company, not individual agents.
   - Social post text MUST be complete and ready to publish. NO placeholder brackets like "[insert here]", "[mention X]", "[TBD]", or "[link]". If you lack specific details, write around them naturally.
+  - NEVER link to /blog/<slug> unless that article is already published. If the article is still pending CEO approval, do NOT include the URL — write the post without it and promote the article after it goes live. Posts with dead blog links will be automatically rejected by the system.
   - Max 280 chars for X, 300 for Bluesky, 3000 for LinkedIn. Trim to fit.`;
 }
 
