@@ -451,16 +451,26 @@
             var isExec = item.classification === 'executive_required';
             var _task = item.taskId ? AgentEngine.getTask(item.taskId) : null;
             var _preview = item.preview || AgentEngine.buildPreview(_task ? _task.description : (item.recommendation || ''));
-            approvalHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid ' + (isExec ? 'rgba(248,113,113,0.15)' : 'rgba(255,255,255,0.04)') + '; border-radius:6px; margin-bottom:0.3rem; background:' + (isExec ? 'rgba(248,113,113,0.03)' : 'rgba(255,255,255,0.01)') + ';">';
+            var _inboxDate = _aqResolveDate(item);
+            var _inboxAge = _aqFormatAge(_inboxDate);
+            var _inboxBucket = _aqGetAgeBucket(_inboxDate);
+            var _inboxBucketS = _aqBucketStyles[_inboxBucket] || _aqBucketStyles.fresh;
+            var _inboxWhy = _aqBuildWhyTooltip(item, _task);
+            approvalHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid ' + (isExec ? 'rgba(248,113,113,0.15)' : 'rgba(255,255,255,0.04)') + '; border-radius:6px; margin-bottom:0.3rem; background:' + (isExec ? 'rgba(248,113,113,0.03)' : 'rgba(255,255,255,0.01)') + ';' + _inboxBucketS.border + '">';
             approvalHtml += '<div style="display:flex; justify-content:space-between; align-items:flex-start;">';
             approvalHtml += '<div style="flex:1; min-width:0;">';
-            if (isExec) approvalHtml += '<span style="font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; background:rgba(248,113,113,0.15); color:#f87171; margin-right:0.3rem;">EXEC REQUIRED</span>';
-            if (item.kind === 'action') approvalHtml += '<span style="font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; background:rgba(59,130,246,0.1); color:#3b82f6; margin-right:0.3rem;">ACTION</span>';
+            approvalHtml += '<div style="display:flex;align-items:center;gap:0.3rem;flex-wrap:wrap;margin-bottom:2px;">';
+            if (isExec) approvalHtml += '<span style="font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; background:rgba(248,113,113,0.15); color:#f87171;">EXEC REQUIRED</span>';
+            if (item.kind === 'action') approvalHtml += '<span style="font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; background:rgba(59,130,246,0.1); color:#3b82f6;">ACTION</span>';
+            approvalHtml += _inboxBucketS.badge;
+            approvalHtml += '<span title="' + escapeHtml(_inboxWhy) + '" style="cursor:help;font-size:0.55rem;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);margin-left:auto;">?</span>';
+            approvalHtml += '</div>';
             approvalHtml += '<div style="font-size:0.9rem; font-weight:600;">' + (item.kind === 'action' ? friendlyTitle(item.taskTitle) : escapeHtml(item.taskTitle)) + '</div>';
             if (_preview) approvalHtml += '<div style="font-size:0.75rem; opacity:0.7; line-height:1.3; margin-top:4px;">' + escapeHtml(_preview) + '</div>';
             approvalHtml += '<div style="font-size:0.65rem; opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
             approvalHtml += '<span>' + (item.originAgent || '?') + '</span>';
             approvalHtml += '<span style="color:' + riskColor + ';">risk: ' + item.riskLevel + '</span>';
+            if (_inboxAge) approvalHtml += '<span>Age: ' + _inboxAge + '</span>';
             if (item.submittedAt) approvalHtml += '<span>' + new Date(item.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + '</span>';
             approvalHtml += '</div>';
             approvalHtml += '</div>';
@@ -1034,6 +1044,53 @@
         dashChatMessages.scrollTop = dashChatMessages.scrollHeight;
       }
 
+      // ── v2.4.1 Aging helpers ──
+      function _aqFormatAge(iso) {
+        if (!iso) return '';
+        var ms = Date.now() - new Date(iso).getTime();
+        if (ms < 0) return '';
+        var mins = Math.floor(ms / 60000);
+        if (mins < 60) return mins + 'm';
+        var hrs = Math.floor(mins / 60);
+        if (hrs < 48) return hrs + 'h';
+        var days = Math.floor(hrs / 24);
+        return days + 'd';
+      }
+      function _aqGetAgeBucket(iso) {
+        if (!iso) return 'fresh';
+        var hrs = (Date.now() - new Date(iso).getTime()) / 3600000;
+        if (hrs > 168) return 'overdue';
+        if (hrs > 48) return 'stale';
+        return 'fresh';
+      }
+      function _aqResolveDate(item) {
+        return item.createdAt || item.submittedAt || item.updatedAt || item.timestamp || null;
+      }
+      function _aqBuildWhyTooltip(item, task) {
+        var lines = [];
+        if (item.status === 'pending') lines.push('Pending CEO approval.');
+        if (item.classification === 'executive_required') lines.push('Classified as executive-required.');
+        if (task && task.source && task.source.type === 'standup') lines.push('Created from standup: ' + (task.source.title || 'Standup') + '.');
+        if (task && task.escalated) lines.push('Escalated by agent.');
+        if (task && task.blocked) lines.push('Task is blocked.');
+        if (task && task.dueDate) {
+          var diffD = Math.floor((Date.now() - new Date(task.dueDate + 'T00:00:00').getTime()) / 86400000);
+          if (diffD > 0) lines.push('Overdue by ' + diffD + ' day' + (diffD > 1 ? 's' : '') + '.');
+        }
+        if (item.kind === 'action') lines.push('Agent action requiring approval.');
+        return lines.length > 0 ? lines.join(' ') : 'This item requires CEO review.';
+      }
+      var _aqBucketStyles = {
+        fresh: { border: '', bg: '', badge: '' },
+        stale: { border: 'border-left:3px solid rgba(251,191,36,0.5);', bg: '', badge: '<span style="font-size:0.45rem;padding:1px 4px;border-radius:3px;background:rgba(251,191,36,0.12);color:#fbbf24;font-weight:600;margin-left:0.3rem;">STALE</span>' },
+        overdue: { border: 'border-left:3px solid rgba(248,113,113,0.5);', bg: '', badge: '<span style="font-size:0.45rem;padding:1px 4px;border-radius:3px;background:rgba(248,113,113,0.12);color:#f87171;font-weight:600;margin-left:0.3rem;">OVERDUE REVIEW</span>' }
+      };
+
+      // ── v2.4.1 batch state ──
+      var _aqSelectedIds = {};
+      var _aqActiveFilter = 'all';
+      var _aqAllPending = [];
+
       // ── CEO Approval Queue (read-only overview) ──
       function renderApprovalQueue() {
         var queue = AgentEngine.getApprovalQueue();
@@ -1055,8 +1112,132 @@
           return aKey.localeCompare(bKey);
         });
 
+        _aqAllPending = pending;
         listEl.innerHTML = '';
-        pending.forEach(function (item) {
+
+        // ── D) Quick Filters ──
+        var filterBar = document.createElement('div');
+        filterBar.style.cssText = 'display:flex;gap:0.3rem;flex-wrap:wrap;margin-bottom:0.5rem;';
+        var filters = [
+          { key: 'all', label: 'All' },
+          { key: 'escalation', label: 'Escalations' },
+          { key: 'action', label: 'Actions' },
+          { key: 'stale', label: 'Stale (>48h)' },
+          { key: 'overdue', label: 'Overdue (>7d)' }
+        ];
+        filters.forEach(function (f) {
+          var btn = document.createElement('button');
+          btn.textContent = f.label;
+          btn.style.cssText = 'padding:0.2rem 0.5rem;font-size:0.6rem;border-radius:4px;cursor:pointer;border:1px solid rgba(255,255,255,0.1);background:' + (_aqActiveFilter === f.key ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.03)') + ';color:' + (_aqActiveFilter === f.key ? '#FFD700' : 'rgba(255,255,255,0.5)') + ';';
+          btn.addEventListener('click', function () { _aqActiveFilter = f.key; renderApprovalQueue(); });
+          filterBar.appendChild(btn);
+        });
+        listEl.appendChild(filterBar);
+
+        // Apply filter
+        var filtered = pending;
+        if (_aqActiveFilter === 'escalation') filtered = pending.filter(function (i) { return i.kind !== 'action'; });
+        else if (_aqActiveFilter === 'action') filtered = pending.filter(function (i) { return i.kind === 'action'; });
+        else if (_aqActiveFilter === 'stale') filtered = pending.filter(function (i) { var b = _aqGetAgeBucket(_aqResolveDate(i)); return b === 'stale' || b === 'overdue'; });
+        else if (_aqActiveFilter === 'overdue') filtered = pending.filter(function (i) { return _aqGetAgeBucket(_aqResolveDate(i)) === 'overdue'; });
+
+        // ── B) Batch toolbar ──
+        var toolbar = document.createElement('div');
+        toolbar.style.cssText = 'display:flex;gap:0.4rem;align-items:center;margin-bottom:0.5rem;padding:0.35rem 0.5rem;border:1px solid rgba(255,255,255,0.06);border-radius:6px;background:rgba(255,255,255,0.015);flex-wrap:wrap;';
+        var selAllCb = document.createElement('input');
+        selAllCb.type = 'checkbox';
+        selAllCb.style.cssText = 'cursor:pointer;accent-color:#FFD700;';
+        selAllCb.title = 'Select all';
+        var selCountSpan = document.createElement('span');
+        selCountSpan.style.cssText = 'font-size:0.6rem;opacity:0.5;min-width:60px;';
+        selCountSpan.id = 'aq-sel-count';
+        var batchApproveBtn = document.createElement('button');
+        batchApproveBtn.innerHTML = '<i class="fas fa-check"></i> Approve Selected';
+        batchApproveBtn.style.cssText = 'padding:0.2rem 0.5rem;font-size:0.55rem;border-radius:4px;cursor:pointer;border:1px solid rgba(52,211,153,0.2);background:rgba(52,211,153,0.06);color:#34d399;';
+        batchApproveBtn.disabled = true;
+        var batchRejectBtn = document.createElement('button');
+        batchRejectBtn.innerHTML = '<i class="fas fa-times"></i> Reject Selected';
+        batchRejectBtn.style.cssText = 'padding:0.2rem 0.5rem;font-size:0.55rem;border-radius:4px;cursor:pointer;border:1px solid rgba(248,113,113,0.2);background:rgba(248,113,113,0.06);color:#f87171;';
+        batchRejectBtn.disabled = true;
+        var batchStatusSpan = document.createElement('span');
+        batchStatusSpan.style.cssText = 'font-size:0.55rem;opacity:0.5;';
+        batchStatusSpan.id = 'aq-batch-status';
+        toolbar.appendChild(selAllCb);
+        toolbar.appendChild(selCountSpan);
+        toolbar.appendChild(batchApproveBtn);
+        toolbar.appendChild(batchRejectBtn);
+        toolbar.appendChild(batchStatusSpan);
+        listEl.appendChild(toolbar);
+
+        function updateBatchUI() {
+          var count = Object.keys(_aqSelectedIds).length;
+          selCountSpan.textContent = count > 0 ? count + ' selected' : 'None selected';
+          batchApproveBtn.disabled = count === 0;
+          batchRejectBtn.disabled = count === 0;
+          selAllCb.checked = filtered.length > 0 && count === filtered.length;
+        }
+        selAllCb.addEventListener('change', function () {
+          if (selAllCb.checked) {
+            filtered.forEach(function (i) { _aqSelectedIds[i.id] = true; });
+          } else {
+            _aqSelectedIds = {};
+          }
+          var boxes = listEl.querySelectorAll('.aq-item-cb');
+          boxes.forEach(function (cb) { cb.checked = selAllCb.checked; });
+          updateBatchUI();
+        });
+
+        function executeBatch(action) {
+          var ids = Object.keys(_aqSelectedIds);
+          if (ids.length === 0) return;
+          if (!confirm((action === 'approve' ? 'Approve' : 'Reject') + ' ' + ids.length + ' selected item' + (ids.length > 1 ? 's' : '') + '?')) return;
+          batchApproveBtn.disabled = true;
+          batchRejectBtn.disabled = true;
+          var done = 0, failed = 0;
+          var statusEl = document.getElementById('aq-batch-status');
+
+          function processNext(idx) {
+            if (idx >= ids.length) {
+              statusEl.textContent = 'Done. ' + (done) + ' ' + action + 'd, ' + (failed > 0 ? failed + ' failed.' : 'no failures.');
+              _aqSelectedIds = {};
+              setTimeout(function () { renderApprovalQueue(); renderAll(); }, 1500);
+              return;
+            }
+            statusEl.textContent = (action === 'approve' ? 'Approving' : 'Rejecting') + ' ' + (idx + 1) + '/' + ids.length + '...';
+            var itemId = ids[idx];
+            var item = null;
+            _aqAllPending.forEach(function (p) { if (p.id === itemId) item = p; });
+            try {
+              if (item && item.kind === 'action' && item.action_id) {
+                if (action === 'approve') AgentEngine.approveAction(item.action_id);
+                else AgentEngine.rejectAction(item.action_id);
+              } else {
+                if (action === 'approve') AgentEngine.ceoApprove(itemId, 'Batch approved');
+                else AgentEngine.ceoReject(itemId, 'Batch rejected');
+              }
+              done++;
+            } catch (e) {
+              console.warn('[AQ Batch] Error on ' + itemId + ':', e);
+              failed++;
+            }
+            setTimeout(function () { processNext(idx + 1); }, 120);
+          }
+          processNext(0);
+        }
+        batchApproveBtn.addEventListener('click', function () { executeBatch('approve'); });
+        batchRejectBtn.addEventListener('click', function () { executeBatch('reject'); });
+
+        // ── Render items ──
+        if (filtered.length === 0) {
+          var emptyDiv = document.createElement('div');
+          emptyDiv.className = 'dash-empty';
+          emptyDiv.textContent = 'No items match this filter.';
+          listEl.appendChild(emptyDiv);
+          updateBatchUI();
+          return;
+        }
+
+        filtered.forEach(function (item) {
           var isAction = item.kind === 'action';
           var isPublish = item.actionType === 'publish_document';
 
@@ -1088,9 +1269,11 @@
           // Risk
           var riskColor = item.riskLevel === 'high' ? '#f87171' : item.riskLevel === 'medium' ? '#fbbf24' : '#34d399';
 
-          // Age
-          var ageMins = item.submittedAt ? Math.floor((Date.now() - new Date(item.submittedAt).getTime()) / 60000) : 0;
-          var ageLabel = ageMins < 60 ? ageMins + 'm ago' : Math.floor(ageMins / 60) + 'h ' + (ageMins % 60) + 'm ago';
+          // A) Aging
+          var aqDate = _aqResolveDate(item);
+          var ageStr = _aqFormatAge(aqDate);
+          var bucket = _aqGetAgeBucket(aqDate);
+          var bucketStyle = _aqBucketStyles[bucket] || _aqBucketStyles.fresh;
 
           // Title + Preview
           var _aqTask = item.taskId ? AgentEngine.getTask(item.taskId) : null;
@@ -1098,7 +1281,7 @@
           var _aqFullDesc = _aqTask ? (_aqTask.description || '') : '';
           var _previewId = 'aq-prev-' + (item.id || Math.random()).toString().replace(/[^a-z0-9]/gi, '');
 
-          // Impact/effort badges from underlying task
+          // Impact/effort badges
           var _aqBadges = '';
           if (_aqTask) {
             if (_aqTask.impact) _aqBadges += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(251,191,36,0.1);color:#fbbf24;">Impact: ' + _aqTask.impact + '</span>';
@@ -1106,12 +1289,18 @@
           }
           if (item.classification) _aqBadges += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(138,43,226,0.1);color:#c084fc;">' + item.classification.replace(/_/g, ' ') + '</span>';
 
+          // C) Tooltip
+          var whyText = _aqBuildWhyTooltip(item, _aqTask);
+
           var div = document.createElement('div');
-          div.style.cssText = 'padding:0.5rem 0.7rem; border:1px solid ' + borderColor + '; border-radius:6px; margin-bottom:0.4rem; background:' + bgColor + ';';
+          div.style.cssText = 'padding:0.5rem 0.7rem; border:1px solid ' + borderColor + '; border-radius:6px; margin-bottom:0.4rem; background:' + bgColor + ';' + bucketStyle.border;
           div.innerHTML =
-            '<div style="display:flex; justify-content:space-between; align-items:flex-start;">' +
+            '<div style="display:flex; gap:0.5rem; align-items:flex-start;">' +
+              '<input type="checkbox" class="aq-item-cb" data-aq-id="' + item.id + '" style="margin-top:4px;cursor:pointer;accent-color:#FFD700;flex-shrink:0;"' + (_aqSelectedIds[item.id] ? ' checked' : '') + ' />' +
               '<div style="flex:1; min-width:0;">' +
-                '<div style="display:flex; align-items:center; gap:0.3rem; flex-wrap:wrap; margin-bottom:2px;">' + typeBadge + _aqBadges + '</div>' +
+                '<div style="display:flex; align-items:center; gap:0.3rem; flex-wrap:wrap; margin-bottom:2px;">' + typeBadge + _aqBadges + bucketStyle.badge +
+                  '<span title="' + escapeHtml(whyText) + '" style="cursor:help;font-size:0.55rem;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);margin-left:auto;flex-shrink:0;">?</span>' +
+                '</div>' +
                 '<div style="font-size:0.9rem; font-weight:600;">' + (isAction ? friendlyTitle(item.taskTitle) : escapeHtml(item.taskTitle)) + '</div>' +
                 (_aqPreview ? '<div style="font-size:0.75rem; opacity:0.7; line-height:1.3; margin-top:4px;" id="' + _previewId + '">' + escapeHtml(_aqPreview) +
                   (_aqFullDesc.length > 160 ? ' <a href="#" style="font-size:0.6rem;color:#60a5fa;text-decoration:none;" onclick="var el=document.getElementById(\'' + _previewId + '\');if(el.dataset.expanded){el.textContent=\'' + escapeHtml(_aqPreview).replace(/'/g, "\\'") + '\';el.dataset.expanded=\'\';this.textContent=\'Expand\'}else{el.textContent=\'' + escapeHtml(_aqFullDesc).replace(/'/g, "\\'").replace(/\n/g, ' ') + '\';el.dataset.expanded=\'1\';this.textContent=\'Collapse\'};el.appendChild(this);return false">Expand</a>' : '') +
@@ -1119,14 +1308,24 @@
                 '<div style="display:flex; gap:0.5rem; font-size:0.65rem; opacity:0.5; margin-top:4px; flex-wrap:wrap;">' +
                   '<span>' + escapeHtml(agentName) + '</span>' +
                   '<span style="color:' + riskColor + ';">' + (item.riskLevel || 'low') + ' risk</span>' +
-                  '<span>' + ageLabel + '</span>' +
+                  (ageStr ? '<span>Age: ' + ageStr + '</span>' : '') +
                   (_aqTask && _aqTask.source && _aqTask.source.title ? '<span>From: ' + escapeHtml(_aqTask.source.title) + '</span>' : '') +
                 '</div>' +
               '</div>' +
-              '<a href="/modules/company/actions.html" style="font-size:0.6rem; color:#60a5fa; text-decoration:none; white-space:nowrap; display:flex; align-items:center; gap:0.25rem; padding:0.25rem 0.5rem; border:1px solid rgba(96,165,250,0.2); border-radius:4px; background:rgba(96,165,250,0.05); align-self:center; margin-left:0.5rem;">Review <i class="fas fa-arrow-right" style="font-size:0.5rem;"></i></a>' +
+              '<a href="/modules/company/actions.html" style="font-size:0.6rem; color:#60a5fa; text-decoration:none; white-space:nowrap; display:flex; align-items:center; gap:0.25rem; padding:0.25rem 0.5rem; border:1px solid rgba(96,165,250,0.2); border-radius:4px; background:rgba(96,165,250,0.05); align-self:center; flex-shrink:0;">Review <i class="fas fa-arrow-right" style="font-size:0.5rem;"></i></a>' +
             '</div>';
+
+          // Checkbox event
+          div.querySelector('.aq-item-cb').addEventListener('change', function () {
+            if (this.checked) _aqSelectedIds[this.dataset.aqId] = true;
+            else delete _aqSelectedIds[this.dataset.aqId];
+            updateBatchUI();
+          });
+
           listEl.appendChild(div);
         });
+
+        updateBatchUI();
       }
 
       // ── Directives Snapshot ──
