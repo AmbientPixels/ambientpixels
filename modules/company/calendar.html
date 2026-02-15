@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/modules/company/css/company.css" />
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/calendar.css" />
   <style>
     .cal-header {
       display: flex; align-items: center; justify-content: space-between;
@@ -312,10 +313,23 @@
       weekStartDate = getWeekStart(now);
       dayViewDate = new Date(now);
 
+      // Restore persisted open day (collapse detail by default if none stored)
+      var _storedDay = localStorage.getItem('ap_calendar_open_day') || '';
+      selectedDate = null;
+
       AgentEngine.loadRegistry().then(function () {
         loadAllData().then(function () {
           render();
-          selectDay(toDateStr(now));
+          // Restore persisted day if it's in the current month
+          if (_storedDay) {
+            var storedMonth = _storedDay.substring(0, 7);
+            var currentMonthStr = currentYear + '-' + String(currentMonth + 1).padStart(2, '0');
+            if (storedMonth === currentMonthStr) {
+              selectDay(_storedDay);
+            } else {
+              localStorage.removeItem('ap_calendar_open_day');
+            }
+          }
         });
       });
 
@@ -348,6 +362,8 @@
         if (currentView === 'month') {
           currentMonth--;
           if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+          selectedDate = null;
+          localStorage.removeItem('ap_calendar_open_day');
         } else if (currentView === 'week') {
           weekStartDate.setDate(weekStartDate.getDate() - 7);
           currentYear = weekStartDate.getFullYear();
@@ -364,6 +380,8 @@
         if (currentView === 'month') {
           currentMonth++;
           if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+          selectedDate = null;
+          localStorage.removeItem('ap_calendar_open_day');
         } else if (currentView === 'week') {
           weekStartDate.setDate(weekStartDate.getDate() + 7);
           currentYear = weekStartDate.getFullYear();
@@ -555,7 +573,11 @@
 
       // ── Render Dispatch ──
       function render() {
-        detailEl.style.display = 'none';
+        // Hide detail unless a day is actively selected
+        if (!selectedDate) {
+          detailEl.style.display = 'none';
+          detailEl.classList.add('cal-detail--collapsed');
+        }
         // Clean up day container when leaving day view
         var dayContainer = document.getElementById('cal-day-container');
         if (dayContainer && currentView !== 'day') dayContainer.remove();
@@ -710,19 +732,16 @@
         maxItems = maxItems || 3;
         var classes = 'cal-cell';
         if (isOther) classes += ' cal-cell--other';
-        if (isToday) classes += ' cal-cell--today';
+        if (isToday) classes += ' cal-cell--today cal-today-enhanced';
         if (isSelected) classes += ' cal-cell--selected';
 
         var items = calData[dateStr] || {};
-        var html = '<div class="' + classes + '" data-date="' + dateStr + '">';
-        html += '<div class="cal-day-num">' + dayNum;
-        if (isToday) html += '<span class="cal-today-badge">TODAY</span>';
-        html += '</div>';
 
-        // Show dots + item labels
+        // Density + overdue detection (single pass)
+        var count = 0;
+        var hasOverdue = false;
         var dots = '';
         var itemHtml = '';
-        var count = 0;
         ['tasks', 'content', 'social', 'reminders', 'activity'].forEach(function (layer) {
           if (!activeLayers[layer]) return;
           var arr = items[layer] || [];
@@ -732,9 +751,25 @@
             if (count < maxItems) {
               itemHtml += '<div class="cal-cell-item" title="' + tooltip + '" style="background:' + LAYER_COLORS[layer] + '22;color:' + LAYER_COLORS[layer] + ';">' + esc(item.title) + '</div>';
             }
+            if (layer === 'tasks' && item.badge === 'overdue') hasOverdue = true;
             count++;
           });
         });
+
+        // Density class
+        if (!isOther) {
+          if (count >= 10) classes += ' cal-density-4';
+          else if (count >= 6) classes += ' cal-density-3';
+          else if (count >= 3) classes += ' cal-density-2';
+          else if (count >= 1) classes += ' cal-density-1';
+        }
+        // Overdue dot
+        if (hasOverdue && !isOther) classes += ' cal-overdue';
+
+        var html = '<div class="' + classes + '" data-date="' + dateStr + '">';
+        html += '<div class="cal-day-num">' + dayNum;
+        if (isToday) html += '<span class="cal-today-badge">TODAY</span>';
+        html += '</div>';
 
         if (dots) html += '<div class="cal-dots">' + dots + '</div>';
         html += itemHtml;
@@ -751,12 +786,15 @@
 
       function selectDay(dateStr) {
         selectedDate = dateStr;
+        localStorage.setItem('ap_calendar_open_day', dateStr);
         // Update selection visuals
         gridEl.querySelectorAll('.cal-cell').forEach(function (c) {
           c.classList.toggle('cal-cell--selected', c.dataset.date === dateStr);
         });
-        if (currentView === 'month') renderDetail(dateStr);
-        if (currentView === 'week') renderDetail(dateStr);
+        if (currentView === 'month' || currentView === 'week') {
+          detailEl.classList.remove('cal-detail--collapsed');
+          renderDetail(dateStr);
+        }
       }
 
       // ── Day Detail Panel ──

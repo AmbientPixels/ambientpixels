@@ -1,0 +1,40 @@
+/* ── Calendar Visual Enhancements ── */
+
+/* ── Day Density Heatmap ── */
+.cal-density-1 { background: rgba(59,130,246,0.03); }
+.cal-density-2 { background: rgba(59,130,246,0.06); }
+.cal-density-3 { background: rgba(59,130,246,0.10); }
+.cal-density-4 {
+  background: rgba(59,130,246,0.10);
+  border-left: 2px solid rgba(239,68,68,0.4);
+}
+
+/* ── Overdue Day Indicator ── */
+.cal-overdue::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f87171;
+  box-shadow: 0 0 3px rgba(248,113,113,0.4);
+  pointer-events: none;
+}
+
+/* ── Today Highlight Upgrade ── */
+.cal-cell--today.cal-today-enhanced {
+  background: rgba(255,215,0,0.06);
+  border: 1px solid rgba(255,215,0,0.2);
+  box-shadow: 0 0 8px rgba(255,215,0,0.06);
+}
+.cal-cell--today.cal-today-enhanced .cal-day-num {
+  font-weight: 700;
+  color: #FFD700;
+}
+
+/* ── Detail Panel Collapse ── */
+.cal-detail.cal-detail--collapsed {
+  display: none;
+}
