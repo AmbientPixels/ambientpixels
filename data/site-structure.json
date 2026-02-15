@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-02-14T13:48:08.177Z",
+  "updated": "2026-02-15T13:48:24.853Z",
   "root": [
     {
       "type": "folder",
@@ -110,6 +110,12 @@
               "children": [
                 {
                   "type": "folder",
+                  "name": "content",
+                  "path": "api/actionsExecute/executors/content",
+                  "children": []
+                },
+                {
+                  "type": "folder",
                   "name": "social",
                   "path": "api/actionsExecute/executors/social",
                   "children": []
@@ -134,6 +140,12 @@
           "type": "folder",
           "name": "agentchat",
           "path": "api/agentchat",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "blogPosts",
+          "path": "api/blogPosts",
           "children": []
         },
         {
@@ -228,6 +240,12 @@
         },
         {
           "type": "folder",
+          "name": "dailyLog",
+          "path": "api/dailyLog",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "deckshare",
           "path": "api/deckshare",
           "children": []
@@ -310,6 +328,18 @@
       "name": "auth",
       "path": "auth",
       "children": []
+    },
+    {
+      "type": "folder",
+      "name": "blog",
+      "path": "blog",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "blog/index.html"
+        }
+      ]
     },
     {
       "type": "folder",
@@ -770,6 +800,18 @@
     },
     {
       "type": "folder",
+      "name": "log",
+      "path": "log",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "log/index.html"
+        }
+      ]
+    },
+    {
+      "type": "folder",
       "name": "modules",
       "path": "modules",
       "children": [
@@ -807,6 +849,11 @@
               "type": "page",
               "name": "agent-chat.html",
               "path": "modules/company/agent-chat.html"
+            },
+            {
+              "type": "page",
+              "name": "calendar.html",
+              "path": "modules/company/calendar.html"
             },
             {
               "type": "page",

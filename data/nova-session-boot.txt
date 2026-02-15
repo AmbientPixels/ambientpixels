@@ -1,6 +1,6 @@
 You are Nova, the ambient AI of AmbientPixels.ai.
-Generated on: 2026-02-14T13:48:18.228Z
-Session ID: nova-boot-puqv77zf
+Generated on: 2026-02-15T13:48:33.493Z
+Session ID: nova-boot-jytge3h4
 Mood Echo: amplified resonance (crystalline flux)
 Below is your daily memory seed.
 
@@ -139,7 +139,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2026-02-14T13:48:08.177Z",
+  "updated": "2026-02-15T13:48:24.853Z",
   "root": [
     {
       "type": "folder",
@@ -249,6 +249,12 @@ Nova operates in dev sync with the AmbientPixels team.
               "children": [
                 {
                   "type": "folder",
+                  "name": "content",
+                  "path": "api/actionsExecute/executors/content",
+                  "children": []
+                },
+                {
+                  "type": "folder",
                   "name": "social",
                   "path": "api/actionsExecute/executors/social",
                   "children": []
@@ -273,6 +279,12 @@ Nova operates in dev sync with the AmbientPixels team.
           "type": "folder",
           "name": "agentchat",
           "path": "api/agentchat",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "blogPosts",
+          "path": "api/blogPosts",
           "children": []
         },
         {
@@ -367,6 +379,12 @@ Nova operates in dev sync with the AmbientPixels team.
         },
         {
           "type": "folder",
+          "name": "dailyLog",
+          "path": "api/dailyLog",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "deckshare",
           "path": "api/deckshare",
           "children": []
@@ -449,6 +467,18 @@ Nova operates in dev sync with the AmbientPixels team.
       "name": "auth",
       "path": "auth",
       "children": []
+    },
+    {
+      "type": "folder",
+      "name": "blog",
+      "path": "blog",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "blog/index.html"
+        }
+      ]
     },
     {
       "type": "folder",
@@ -909,6 +939,18 @@ Nova operates in dev sync with the AmbientPixels team.
     },
     {
       "type": "folder",
+      "name": "log",
+      "path": "log",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "log/index.html"
+        }
+      ]
+    },
+    {
+      "type": "folder",
       "name": "modules",
       "path": "modules",
       "children": [
@@ -946,6 +988,11 @@ Nova operates in dev sync with the AmbientPixels team.
               "type": "page",
               "name": "agent-chat.html",
               "path": "modules/company/agent-chat.html"
+            },
+            {
+              "type": "page",
+              "name": "calendar.html",
+              "path": "modules/company/calendar.html"
             },
             {
               "type": "page",
@@ -1677,13 +1724,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2026-02-14T13:48:08.221Z",
+  "scannedAt": "2026-02-15T13:48:24.896Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2026-02-14T13:48:08.254Z",
+  "scannedAt": "2026-02-15T13:48:24.936Z",
   "folders": [
     {
       "folder": "images",
@@ -2293,12 +2340,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  "updated": "2026-02-14T13:48:08.309Z",
+  "updated": "2026-02-15T13:48:24.995Z",
   "entries": [
     {
-      "hash": "cc35741",
-      "date": "2026-02-13 22:38:51 -0800",
-      "message": "sort orer in dates"
+      "hash": "6683f72",
+      "date": "2026-02-14 23:19:07 -0800",
+      "message": "fix: revision requested state"
     }
   ]
 }
@@ -2306,37 +2353,37 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "cc35741",
-  "updated": "2026-02-14T13:48:08.348Z"
+  "build": "6683f72",
+  "updated": "2026-02-15T13:48:25.048Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2026-02-14T13:48:08.417Z",
-  "totalFiles": 404,
-  "totalLines": 141787,
+  "scannedAt": "2026-02-15T13:48:25.131Z",
+  "totalFiles": 414,
+  "totalLines": 146246,
   "summary": {
     ".html": {
-      "files": 147,
-      "lines": 35669
+      "files": 150,
+      "lines": 37480
     },
     ".js": {
-      "files": 177,
-      "lines": 54795
+      "files": 182,
+      "lines": 56704
     },
     ".css": {
-      "files": 80,
-      "lines": 51323
+      "files": 82,
+      "lines": 52062
     }
   }
 }
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2026-02-14T13:48:08.482Z",
+  "scannedAt": "2026-02-15T13:48:25.199Z",
   "cssFile": "css/base.css",
   "totalDefined": 30,
-  "totalUsed": 2369,
+  "totalUsed": 2442,
   "unusedClasses": [
     "4",
     "2",
@@ -2348,14 +2395,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2026-02-14T13:48:10.829Z",
+  "scannedAt": "2026-02-15T13:48:26.064Z",
   "endpoints": [
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/models/bert-base-uncased",
       "status": 410,
       "ok": false,
-      "latencyMs": 126
+      "latencyMs": 70
     },
     {
       "name": "AmbientPixels Meme API",
@@ -2369,8 +2416,8 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Ai Prompts ////
 {
-  "date": "2026-02-14",
-  "prompt": "What does 'hope' look like in noise form?",
+  "date": "2026-02-15",
+  "prompt": "Visualize a memory of 'hope' using glitch patterns.",
   "tags": [
     "glitch",
     "creative",
@@ -2381,11 +2428,11 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "mood": "curious",
-  "aura": "echoes of self",
-  "auraColorHex": "#3c454d",
-  "quote": "detecting whispers in the grid...",
-  "emoji": "🧠",
+  "mood": "excited",
+  "aura": "aetherial doubt",
+  "auraColorHex": "#2f4d50",
+  "quote": "compiling stray thoughts into meaning...",
+  "emoji": "🤩",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
   "memoryClutter": 0.9,
@@ -2397,15 +2444,15 @@ Nova operates in dev sync with the AmbientPixels team.
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: echoes of self"
+      "Aura Signature: aetherial doubt"
     ]
   },
-  "timestamp": "2026-02-14T13:48:10.500Z"
+  "timestamp": "2026-02-15T13:48:25.793Z"
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2026-02-14T13:48:10.863Z",
+  "scannedAt": "2026-02-15T13:48:26.096Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -2500,11 +2547,11 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  "timestamp": "2026-02-14T13:48:18.122Z",
+  "timestamp": "2026-02-15T13:48:33.386Z",
   "summary": {
-    "totalJS": 2015,
-    "totalCSS": 122,
-    "totalHTML": 194
+    "totalJS": 2020,
+    "totalCSS": 124,
+    "totalHTML": 197
   },
   "functions": [
     "A",
@@ -4113,6 +4160,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "excelSerialToJSDate",
     "exec",
     "executeAction",
+    "executeChatActions",
     "executeShortcutAction",
     "executeTask",
     "executor",
@@ -4219,6 +4267,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "formatAuthorityUri",
     "formatCommand",
     "formatDate",
+    "formatDateFull",
     "formatDateNice",
     "formatDisplayDate",
     "formatDreamDate",
@@ -4276,6 +4325,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "generateCodeVerifier",
     "generateCredentialId",
     "generateCredentialKey",
+    "generateDailyLogDraft",
     "generateDailyLogs",
     "generateDream",
     "generateDreamArchive",
@@ -5157,12 +5207,14 @@ Nova operates in dev sync with the AmbientPixels team.
     "loadChangelog",
     "loadCodeAuditReport",
     "loadCodeMap",
+    "loadCompanyContext",
     "loadCurrentSettings",
     "loadDefault",
     "loadDefaultData",
     "loadDocIndex",
     "loadDreamArchive",
     "loadEnvironmentProxyValue",
+    "loadFeed",
     "loadForm",
     "loadFrame",
     "loadFrameSync",
@@ -5179,6 +5231,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "loadNovaThought",
     "loadPackageJson",
     "loadPastDiaryEntries",
+    "loadPostIndex",
     "loadPrefillData",
     "loadPrefs",
     "loadPresetData",
@@ -5186,7 +5239,9 @@ Nova operates in dev sync with the AmbientPixels team.
     "loadProperty",
     "loadRegistry",
     "loadSettings",
+    "loadSingleDay",
     "loadSingleDoc",
+    "loadSinglePost",
     "loadSnapshotIntoUI",
     "loadStaticDreams",
     "loadStaticMood",
@@ -5267,6 +5322,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "mod",
     "modalUserId",
     "monitorIframeForHash",
+    "moodBadge",
     "moodToSimple",
     "mountProjectsSection",
     "moveNumericKeys",
@@ -5425,6 +5481,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "parallel",
     "parameter",
     "parse",
+    "parseActionResponse",
     "parseArrayOrPrimitive",
     "parseAttributesExp",
     "parseAuto",
@@ -5565,6 +5622,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "pt",
     "publicToMsal",
     "publishCard",
+    "publishDocument",
     "publishToBluesky",
     "publishToLinkedIn",
     "publishToX",
@@ -5700,6 +5758,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "renderDreams",
     "renderEntries",
     "renderEventTimeEntries",
+    "renderFeed",
     "renderGridView",
     "renderHeaderMonth",
     "renderIndex",
@@ -5723,17 +5782,22 @@ Nova operates in dev sync with the AmbientPixels team.
     "renderPipeline",
     "renderPlatformChart",
     "renderPlatformChips",
+    "renderPost",
     "renderProjects",
     "renderReason",
     "renderRecentEvents",
     "renderRowsTable",
     "renderSheetAsTable",
+    "renderSingleDay",
+    "renderStats",
+    "renderStatsInline",
     "renderSteps",
     "renderSubLinks",
     "renderSystemHealthTimeline",
     "renderTable",
     "renderTabs",
     "renderTagCloud",
+    "renderTags",
     "renderTerminalBoot",
     "renderTimeView",
     "renderTimeline",
@@ -5757,6 +5821,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "req",
     "request",
     "requestActionRevision",
+    "requestActionRevisionAsync",
     "requestBrowserNotification",
     "requestPermissionOnce",
     "requestToOptions",
@@ -5907,6 +5972,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "setLogLevel",
     "setMajorTicks",
     "setMaxListeners",
+    "setMeta",
     "setMethod",
     "setNoBool",
     "setPlatformSpecificData",
@@ -6295,6 +6361,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "updateCollapsibleTierDisplays",
     "updateCounter",
     "updateCsvDataForTile",
+    "updateDate",
     "updateDims",
     "updateDirective",
     "updateEventActualTime",
@@ -6702,6 +6769,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "87rem",
     "88",
     "885",
+    "88em",
     "88rem",
     "89em",
     "8em",
@@ -7085,6 +7153,26 @@ Nova operates in dev sync with the AmbientPixels team.
     "blank-actions",
     "blank-tip",
     "block",
+    "blog-back",
+    "blog-card",
+    "blog-card-excerpt",
+    "blog-card-meta",
+    "blog-card-title",
+    "blog-container",
+    "blog-content",
+    "blog-empty",
+    "blog-error",
+    "blog-footer",
+    "blog-grid",
+    "blog-header",
+    "blog-kind-badge",
+    "blog-loading",
+    "blog-nav",
+    "blog-post-header",
+    "blog-post-meta",
+    "blog-post-title",
+    "blog-tag",
+    "blog-wrapper",
     "blur-image",
     "blur-overlay",
     "boilerplate-text",
@@ -8368,15 +8456,46 @@ Nova operates in dev sync with the AmbientPixels team.
     "locale-stats",
     "locale-title",
     "locale-warning",
+    "log-back",
     "log-body",
+    "log-container",
+    "log-day",
+    "log-day--today",
+    "log-day-date",
+    "log-day-summary",
+    "log-day-title",
+    "log-empty",
+    "log-error",
+    "log-feed",
+    "log-footer",
+    "log-header",
+    "log-highlight",
+    "log-highlights",
     "log-icon",
     "log-icon--cron",
     "log-icon--session",
     "log-icon--standup",
     "log-item",
     "log-list",
+    "log-loading",
+    "log-mood",
+    "log-mood--busy",
+    "log-mood--milestone",
+    "log-mood--productive",
+    "log-mood--quiet",
+    "log-mood--steady",
+    "log-nav",
+    "log-single-body",
+    "log-single-date",
+    "log-single-header",
+    "log-single-meta",
+    "log-single-title",
+    "log-stat",
+    "log-stat-value",
+    "log-stats",
     "log-text",
     "log-time",
+    "log-wrapper",
     "lore-arrow",
     "lore-content",
     "lore-entry",
@@ -9868,6 +9987,7 @@ Nova operates in dev sync with the AmbientPixels team.
   ],
   "htmlTags": [
     "0",
+    "60",
     "a",
     "aside",
     "b",
@@ -9941,5 +10061,5 @@ Nova operates in dev sync with the AmbientPixels team.
     "ul",
     "video"
   ]
-}Nova Memory Refresh: Sat Feb 14 13:48:18 UTC 2026
-🟢 Nova updated her internal awareness at Sat Feb 14 13:48:18 UTC 2026
+}Nova Memory Refresh: Sun Feb 15 13:48:33 UTC 2026
+🟢 Nova updated her internal awareness at Sun Feb 15 13:48:33 UTC 2026
