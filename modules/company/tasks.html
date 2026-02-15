@@ -1,3 +1,8 @@
+    function riskPill(task) {
+      if (!task.risk_level || task.risk_level === 'none') return '';
+      var cls = 'task-risk-pill task-risk-pill--' + task.risk_level;
+      return '<span class="' + cls + '">' + task.risk_level + '</span>';
+    }
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,8 +20,18 @@
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/modules/company/css/company.css" />
-  <link rel="stylesheet" href="/modules/company/css/tasks.css" />
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/tasks.css" />
+  <style>
+    .task-risk-pill {
+      font-size:0.55rem; padding:0.1rem 0.35rem; border-radius:4px;
+      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);
+      color:rgba(255,255,255,0.6); margin-left:0.4rem; text-transform:capitalize;
+    }
+    .task-risk-pill--high { border-color:rgba(248,113,113,0.4); color:#f87171; }
+    .task-risk-pill--medium { border-color:rgba(251,191,36,0.4); color:#fbbf24; }
+    .task-risk-pill--low { border-color:rgba(52,211,153,0.4); color:#34d399; }
+  </style>
 </head>
 <body style="background:#071019" data-theme="dark">
 
@@ -166,6 +181,14 @@
 
           <label for="task-due">Due Date</label>
           <input type="date" id="task-due" />
+
+          <label for="task-risk">Risk Level</label>
+          <select id="task-risk">
+            <option value="none">None</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
 
           <!-- Comments (only in edit mode) -->
           <div class="tm-comments" id="task-comments" style="display:none;">
@@ -338,7 +361,12 @@
           meta += '<div class="tm-card-division"><i class="' + div.icon + '"></i> ' + div.name + '</div>';
         }
 
-        card.innerHTML = '<div class="tm-card-title">' + escapeHtml(task.title) + '</div>' + meta;
+        var badge = '';
+        if (task.risk_level) {
+          badge = '<span class="task-risk-pill task-risk-pill--' + task.risk_level + '">' + task.risk_level + '</span>';
+        }
+
+        card.innerHTML = '<div class="tm-card-title">' + escapeHtml(task.title) + badge + riskPill(task) + '</div>' + meta;
 
         card.addEventListener('click', function () { openEditModal(task.id); });
 
