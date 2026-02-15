@@ -633,7 +633,7 @@ Write the full deliverable first, then the structured JSON block.`;
         kind: 'action',
         action_id: newAction.id,
         taskId: null,
-        taskTitle: newAction.type + ' (' + newAction.platform + ')',
+        taskTitle: 'Social Post (' + (newAction.platform || 'x') + ')',
         originAgent: agentId,
         classification: newAction.classification,
         riskLevel: newAction.risk_level,
@@ -1326,7 +1326,7 @@ Action types:
 - execute-task: Pick up one of YOUR in-progress or todo tasks and produce actual work output (a report, analysis, draft, recommendation, audit, etc). This will generate a deliverable and move the task to review.
 - review-task: Review a completed deliverable from another agent's task in the review column. Approve (done) or request changes (back to in-progress).
 - comment-task: Add a comment to any task. Provide taskId and "comment" string. Use for status updates, delegation notes, questions, or flagging blockers.
-- create-social-action: (Marketing/Echo) Draft a social media post routed through CEO approval. Include "social" with: text (max 280 for X, 300 for Bluesky, 3000 for LinkedIn), platform ("x"|"linkedin"|"bluesky"), optionally media (URLs) and scheduled_for (ISO datetime). When linking to company content, use https://ambientpixels.ai/blog/<slug> for public articles — never link to /modules/company/ or /docs/published/ as those are internal and auth-gated.
+- create-social-action: (Marketing/Echo) Draft a social media post routed through CEO approval. Include "social" with: text (max 280 for X, 300 for Bluesky, 3000 for LinkedIn), platform ("x"|"linkedin"|"bluesky"), optionally media (URLs). You may include scheduled_for (ISO datetime) to time posts strategically (e.g., peak engagement hours, staggering content throughout the day). Keep scheduling within 24 hours. If you have no specific timing reason, omit scheduled_for and the post will go live immediately after CEO approval. When linking to company content, use https://ambientpixels.ai/blog/<slug> for public articles — never link to /modules/company/ or /docs/published/ as those are internal and auth-gated.
 - create-doc: Create a NEW document. Include "document" with: title (string), kind ("spec"|"runbook"|"release_notes"|"product_brief"|"marketing_post"|"governance"), tags (array of strings), and content_md (full markdown content — MUST be complete, publish-ready text with NO placeholders like "[insert here]" or "[TBD]"). Also include "taskId" if this doc is for a specific task. marketing_post/product_brief → CEO approval queue for blog. Internal kinds (spec, runbook, release_notes, governance) → auto-published to /docs/published/ immediately. IMPORTANT: Check EXISTING DOCUMENTS below first — if a relevant doc already exists, use update-doc instead of creating a duplicate.
 - update-doc: Update an existing document. Include "documentId" (the doc ID from EXISTING DOCUMENTS) and "updates" with any of: content_md (full replacement), append_md (add new content to end), title (rename), tags (replace tags). Use this when new information should be added to an existing doc instead of creating a new one. Internal docs are auto-refreshed at /docs/published/.
 - submit-for-publish: Submit a completed document for human/CEO approval to publish on the site. Include "documentId" (the ID of an existing draft or review document) and optionally "taskId" (the task that produced the doc). This creates a publish_document action in the approval queue. You CANNOT publish directly — only a human can approve publishing.

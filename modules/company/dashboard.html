@@ -444,7 +444,7 @@
             approvalHtml += '<div style="flex:1; min-width:0;">';
             if (isExec) approvalHtml += '<span style="font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; background:rgba(248,113,113,0.15); color:#f87171; margin-right:0.3rem;">EXEC REQUIRED</span>';
             if (item.kind === 'action') approvalHtml += '<span style="font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; background:rgba(59,130,246,0.1); color:#3b82f6; margin-right:0.3rem;">ACTION</span>';
-            approvalHtml += '<span style="font-size:0.75rem;">' + escapeHtml(item.taskTitle) + '</span>';
+            approvalHtml += '<span style="font-size:0.75rem;">' + (item.kind === 'action' ? friendlyTitle(item.taskTitle) : escapeHtml(item.taskTitle)) + '</span>';
             approvalHtml += '<div style="font-size:0.6rem; opacity:0.4; margin-top:0.15rem;">' + (item.originAgent || '?') + ' · <span style="color:' + riskColor + ';">risk: ' + item.riskLevel + '</span></div>';
             approvalHtml += '</div>';
             approvalHtml += '<a href="#panel-approval-wrap" style="font-size:0.55rem; color:#FFD700; text-decoration:none; white-space:nowrap; margin-left:0.5rem;">Review →</a>';
@@ -1001,8 +1001,7 @@
             titleHtml = '<span style="font-size:0.55rem;padding:0.1rem 0.35rem;border-radius:3px;background:rgba(52,211,153,0.15);color:#34d399;margin-right:0.4rem;">PUBLISH</span>' +
               '<strong style="font-size:0.8rem;">' + escapeHtml(item.taskTitle) + '</strong>';
           } else if (isAction) {
-            titleHtml = '<span style="font-size:0.55rem;padding:0.1rem 0.35rem;border-radius:3px;background:rgba(59,130,246,0.1);color:#3b82f6;margin-right:0.4rem;">ACTION</span>' +
-              '<strong style="font-size:0.8rem;">' + escapeHtml(item.taskTitle) + '</strong>';
+            titleHtml = '<strong style="font-size:0.8rem;">' + friendlyTitle(item.taskTitle) + '</strong>';
           } else {
             titleHtml = '<strong style="font-size:0.8rem;">' + escapeHtml(item.taskTitle) + '</strong>';
           }
@@ -1608,6 +1607,34 @@
         var div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
+      }
+
+      // Friendly action names + platform badges for approval queue
+      var _ACTION_NAMES = {
+        'social_post.schedule': 'Social Post', 'social_post.publish': 'Social Post',
+        'publish_document': 'Publish Document', 'email.send': 'Send Email',
+        'git.deploy': 'Deploy', 'git.pr': 'Pull Request'
+      };
+      var _PLAT_BADGES = {
+        'x':       { icon: 'fa-x-twitter',   color: '#fff',    bg: 'rgba(255,255,255,0.08)' },
+        'twitter': { icon: 'fa-x-twitter',   color: '#fff',    bg: 'rgba(255,255,255,0.08)' },
+        'linkedin':{ icon: 'fa-linkedin-in', color: '#0A66C2', bg: 'rgba(10,102,194,0.12)' },
+        'bluesky': { icon: 'fa-cloud',       color: '#0085FF', bg: 'rgba(0,133,255,0.12)' }
+      };
+      function friendlyTitle(rawTitle) {
+        if (!rawTitle) return '';
+        // Convert "social_post.schedule (linkedin)" → "Social Post" + badge
+        var match = rawTitle.match(/^([\w_.]+)\s*\((\w+)\)$/);
+        if (match) {
+          var name = _ACTION_NAMES[match[1]] || match[1].replace(/[_.]/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+          var plat = match[2];
+          var p = _PLAT_BADGES[plat.toLowerCase()];
+          if (p) {
+            return escapeHtml(name) + ' <span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.5rem;padding:0.08rem 0.35rem;border-radius:3px;background:' + p.bg + ';color:' + p.color + ';font-weight:500;vertical-align:middle;"><i class="fab ' + p.icon + '"></i>' + escapeHtml(plat.charAt(0).toUpperCase() + plat.slice(1)) + '</span>';
+          }
+          return escapeHtml(name + ' (' + plat + ')');
+        }
+        return escapeHtml(rawTitle);
       }
     })();
   </script>

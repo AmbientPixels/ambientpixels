@@ -524,8 +524,8 @@
       var html = '<div class="act-row">';
       html += '<div class="act-row-icon" style="background:' + bg + ';color:' + tc + ';"><i class="fas ' + icon + '"></i></div>';
       html += '<div class="act-row-info" style="cursor:pointer;" onclick="openDrawer(\'' + a.id + '\')">';
-      html += '<div class="act-row-title">' + esc(aType);
-      if (aPlat) html += ' <span style="font-size:0.5rem;opacity:0.4;">(' + esc(aPlat) + ')</span>';
+      html += '<div class="act-row-title">' + friendlyActionName(aType);
+      if (aPlat) html += ' ' + platformBadge(aPlat);
       if (a.is_irreversible) html += ' <span class="act-badge act-badge--irreversible">irreversible</span>';
       html += '</div>';
       html += '<div class="act-row-meta">' + esc(aAgent) + ' · ' + timeAgo(a.created_at);
@@ -732,14 +732,46 @@
       d.textContent = String(s);
       return d.innerHTML;
     }
+    var ACTION_NAMES = {
+      'social_post.schedule': 'Social Post',
+      'social_post.publish': 'Social Post',
+      'publish_document': 'Publish Document',
+      'email.send': 'Send Email',
+      'git.deploy': 'Deploy',
+      'git.pr': 'Pull Request',
+      'azure.scale': 'Scale Infrastructure'
+    };
+    function friendlyActionName(type) {
+      return esc(ACTION_NAMES[type] || type.replace(/[_.]/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); }));
+    }
+    var PLATFORM_BADGES = {
+      'x':        { icon: 'fa-x-twitter',  color: '#fff',    bg: 'rgba(255,255,255,0.08)' },
+      'twitter':  { icon: 'fa-x-twitter',  color: '#fff',    bg: 'rgba(255,255,255,0.08)' },
+      'linkedin': { icon: 'fa-linkedin-in', color: '#0A66C2', bg: 'rgba(10,102,194,0.12)' },
+      'bluesky':  { icon: 'fa-cloud',       color: '#0085FF', bg: 'rgba(0,133,255,0.12)' }
+    };
+    function platformBadge(platform) {
+      var p = PLATFORM_BADGES[platform.toLowerCase()];
+      if (!p) return '<span style="font-size:0.5rem;opacity:0.4;">(' + esc(platform) + ')</span>';
+      return '<span style="display:inline-flex;align-items:center;gap:0.25rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:' + p.bg + ';color:' + p.color + ';font-weight:500;"><i class="fab ' + p.icon + '"></i>' + esc(platform.charAt(0).toUpperCase() + platform.slice(1)) + '</span>';
+    }
+
     function timeAgo(iso) {
       if (!iso) return '';
       var diff = Date.now() - new Date(iso).getTime();
-      if (diff < 0) return 'in ' + Math.ceil(-diff / 60000) + 'm';
-      if (diff < 60000) return 'just now';
-      if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
-      if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
-      return Math.floor(diff / 86400000) + 'd ago';
+      var abs = Math.abs(diff);
+      var suffix = diff < 0 ? '' : ' ago';
+      var prefix = diff < 0 ? 'in ' : '';
+      if (abs < 60000) return diff < 0 ? 'in <1m' : 'just now';
+      if (abs < 3600000) return prefix + Math.floor(abs / 60000) + 'm' + suffix;
+      if (abs < 86400000) {
+        var h = Math.floor(abs / 3600000);
+        var m = Math.floor((abs % 3600000) / 60000);
+        return prefix + h + 'h' + (m > 0 ? ' ' + m + 'm' : '') + suffix;
+      }
+      var d = Math.floor(abs / 86400000);
+      var rh = Math.floor((abs % 86400000) / 3600000);
+      return prefix + d + 'd' + (rh > 0 ? ' ' + rh + 'h' : '') + suffix;
     }
     function fmtNum(n) {
       if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
