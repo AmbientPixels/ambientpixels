@@ -649,12 +649,32 @@ Write the full deliverable first, then the structured JSON block.`;
       context.log('[Heartbeat]', agentId, 'created social action:', newAction.id, newAction.type, newAction.platform);
       result.taskUpdates.push({ action: 'social-action-created', actionId: newAction.id, agentId: agentId });
     } else if (action.type === 'comment-task' && action.taskId && action.comment) {
-      result.taskUpdates.push({
-        action: 'comment',
-        taskId: action.taskId,
-        comment: action.comment,
-        agentId: agentId
+      // Comment dedup: skip if same agent posted a similar comment on this task in last 2 hours
+      const targetTask = tasks.find(t => t.id === action.taskId);
+      const recentComments = (targetTask && Array.isArray(targetTask.comments)) ? targetTask.comments : [];
+      const twoHoursAgo = Date.now() - 2 * 60 * 60 * 1000;
+      const commentText = String(action.comment).toLowerCase().trim();
+      const isDuplicate = recentComments.some(c => {
+        if ((c.user || c.author || '') !== agentId) return false;
+        const ts = c.createdAt || c.created_at || c.timestamp || null;
+        if (ts && new Date(ts).getTime() < twoHoursAgo) return false;
+        // Check similarity: if 60%+ of words overlap, treat as duplicate
+        const existing = String(c.text || c.comment || c.body || '').toLowerCase().trim();
+        const wordsA = commentText.split(/\s+/);
+        const wordsB = new Set(existing.split(/\s+/));
+        const overlap = wordsA.filter(w => wordsB.has(w)).length;
+        return overlap >= wordsA.length * 0.6;
       });
+      if (isDuplicate) {
+        context.log('[Heartbeat]', agentId, 'comment-task SKIPPED (duplicate within 2h) on task:', action.taskId);
+      } else {
+        result.taskUpdates.push({
+          action: 'comment',
+          taskId: action.taskId,
+          comment: action.comment,
+          agentId: agentId
+        });
+      }
     } else if (action.type === 'review-task' && action.taskId) {
       // Review: agent reviews another agent's deliverable (costs 1 extra Gemini call)
       const task = tasks.find(t => t.id === action.taskId && t.status === 'review');
