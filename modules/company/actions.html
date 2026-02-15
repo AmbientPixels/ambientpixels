@@ -648,7 +648,17 @@
     // ── CEO Actions ──
     function doApprove(id) { AE.approveAction(id); renderAll(); }
     function doReject(id) { AE.rejectAction(id); renderAll(); }
-    function doRevision(id, note) { AE.requestActionRevision(id, note || ''); renderAll(); }
+    function doRevision(id, note) {
+      // Use async version that awaits server confirmation
+      return AE.requestActionRevisionAsync(id, note || '').then(function (a) {
+        renderAll();
+        if (a) _showExecNotice('success', 'Revision request synced to server — agent will pick it up on next heartbeat.');
+        else _showExecNotice('error', 'Revision request failed — action not found or already processed.');
+      }).catch(function () {
+        renderAll();
+        _showExecNotice('warn', 'Revision saved locally but server sync may have failed. Try again.');
+      });
+    }
     function doOverride(id) { AE.overrideAction(id); renderAll(); }
     function doApproveBundle(bid) { AE.approveBundle(bid); renderAll(); }
 
@@ -677,8 +687,16 @@
         rm.note.focus();
         return;
       }
-      doRevision(rm.actionId, note);
+      var btn = document.getElementById('revision-save');
+      var origText = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:0.3rem;"></i>Syncing…';
+      btn.disabled = true;
+      var actionId = rm.actionId;
       closeRevisionModal();
+      doRevision(actionId, note).finally(function () {
+        btn.innerHTML = origText;
+        btn.disabled = false;
+      });
     }
 
     window.openRevisionModal = openRevisionModal;

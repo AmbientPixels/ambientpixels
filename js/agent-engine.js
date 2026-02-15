@@ -1278,7 +1278,7 @@ var AgentEngine = (function () {
     var list = getActions();
     for (var i = 0; i < list.length; i++) {
       var a = list[i];
-      if (a.id === actionId && a.approval && a.approval.status === 'pending') {
+      if (a.id === actionId && a.approval && (a.approval.status === 'pending' || a.approval.status === 'revision_requested')) {
         a.approval.status = 'revision_requested';
         a.approval.decision_note = note || null;
         _syncLegacy(a);
@@ -1290,6 +1290,23 @@ var AgentEngine = (function () {
       }
     }
     return null;
+  }
+
+  // Async version — awaits server confirmation before resolving
+  function requestActionRevisionAsync(actionId, note) {
+    var a = requestActionRevision(actionId, note);
+    if (!a) return Promise.resolve(null);
+    // Explicitly push actions + approvalQueue to server and wait for both
+    if (typeof CompanyStore !== 'undefined' && CompanyStore.isServerAvailable && CompanyStore.isServerAvailable()) {
+      var actions = getActions();
+      var queue = getApprovalQueue();
+      return Promise.all([
+        CompanyStore.setState(ACTIONS_KEY, actions),
+        CompanyStore.setState(APPROVAL_KEY, queue)
+      ]).then(function () { return a; })
+        .catch(function (err) { console.warn('[AgentEngine] Revision server sync failed:', err); return a; });
+    }
+    return Promise.resolve(a);
   }
 
   // CEO override on an action
@@ -1546,6 +1563,7 @@ var AgentEngine = (function () {
     approveAction: approveAction,
     rejectAction: rejectAction,
     requestActionRevision: requestActionRevision,
+    requestActionRevisionAsync: requestActionRevisionAsync,
     overrideAction: overrideAction,
     markActionRunning: markActionRunning,
     completeAction: completeAction,
