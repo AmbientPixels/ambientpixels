@@ -767,6 +767,10 @@
   font-size: 0.72rem;
 }
 .meetings-widget-item:last-child { border-bottom: none; }
+.meetings-widget-item--extra { display: none; }
+@media (min-width: 960px) {
+  .meetings-widget-item--extra { display: block; }
+}
 
 /* ── FAB Chat Button ── */
 .dash-chat-fab {

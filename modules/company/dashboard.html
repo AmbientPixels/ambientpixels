@@ -495,13 +495,22 @@
         chatDrawer.classList.remove('open');
         chatOverlay.classList.remove('open');
         chatFab.style.display = '';
+        chatFab.focus();
       }
       chatFab.addEventListener('click', openChatDrawer);
       chatDrawerClose.addEventListener('click', closeChatDrawer);
       chatOverlay.addEventListener('click', closeChatDrawer);
-      // Trap focus basics: Escape closes
+      // Focus trap: Tab cycles within drawer, Escape closes
       chatDrawer.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') closeChatDrawer();
+        if (e.key === 'Escape') { closeChatDrawer(); return; }
+        if (e.key === 'Tab') {
+          var focusable = chatDrawer.querySelectorAll('button, input, select, [tabindex]:not([tabindex="-1"])');
+          if (focusable.length === 0) return;
+          var first = focusable[0];
+          var last = focusable[focusable.length - 1];
+          if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
       });
 
       // ── Store mode badge ──
@@ -586,6 +595,7 @@
       AgentEngine.on('metrics-update', renderAll);
 
       function renderAll() {
+        _govEntriesCache = null; // clear gov cache for fresh data
         renderCeoInbox();
         renderStats();
         renderFleet();
@@ -1914,32 +1924,37 @@
         .catch(function () { return false; });
       }
 
-      // ── Governance Log ──
-      function renderGovernanceLog() {
-        var log = AgentEngine.getGovernanceLog();
-        var listEl = document.getElementById('panel-governance-log');
-        var empty = document.getElementById('governance-log-empty');
+      // ── Governance Log (shared renderer for CEO + Dev) ──
+      var _govTypeIcons = {
+        'ceo-approval': { icon: 'fa-check-circle', color: '#34d399' },
+        'ceo-reject': { icon: 'fa-times-circle', color: '#f87171' },
+        'ceo-override': { icon: 'fa-bolt', color: '#FFD700' },
+        'ceo-revision': { icon: 'fa-redo', color: '#fbbf24' },
+        'escalation': { icon: 'fa-flag', color: '#f87171' },
+        'directive-created': { icon: 'fa-compass', color: '#8A2BE2' },
+        'objective-created': { icon: 'fa-bullseye', color: '#4ECDC4' }
+      };
+      var _govEntriesCache = null; // cached sorted entries, cleared each renderAll cycle
 
-        if (log.length === 0) {
+      function _getGovEntries() {
+        if (_govEntriesCache) return _govEntriesCache;
+        var log = AgentEngine.getGovernanceLog();
+        _govEntriesCache = log.slice().reverse().slice(0, 15);
+        return _govEntriesCache;
+      }
+
+      function _renderGovInto(listEl, emptyEl) {
+        if (!listEl || !emptyEl) return;
+        var entries = _getGovEntries();
+        if (entries.length === 0) {
           listEl.innerHTML = '';
-          empty.style.display = '';
+          emptyEl.style.display = '';
           return;
         }
-        empty.style.display = 'none';
+        emptyEl.style.display = 'none';
         listEl.innerHTML = '';
-
-        var typeIcons = {
-          'ceo-approval': { icon: 'fa-check-circle', color: '#34d399' },
-          'ceo-reject': { icon: 'fa-times-circle', color: '#f87171' },
-          'ceo-override': { icon: 'fa-bolt', color: '#FFD700' },
-          'ceo-revision': { icon: 'fa-redo', color: '#fbbf24' },
-          'escalation': { icon: 'fa-flag', color: '#f87171' },
-          'directive-created': { icon: 'fa-compass', color: '#8A2BE2' },
-          'objective-created': { icon: 'fa-bullseye', color: '#4ECDC4' }
-        };
-
-        log.slice().reverse().slice(0, 15).forEach(function (entry) {
-          var meta = typeIcons[entry.type] || { icon: 'fa-scroll', color: '#FF8C00' };
+        entries.forEach(function (entry) {
+          var meta = _govTypeIcons[entry.type] || { icon: 'fa-scroll', color: '#FF8C00' };
           var li = document.createElement('li');
           li.className = 'log-item';
           var summary = entry.data && entry.data.title ? entry.data.title : (entry.data && entry.data.taskId ? entry.data.taskId : entry.type);
@@ -1951,6 +1966,10 @@
             '</div>';
           listEl.appendChild(li);
         });
+      }
+
+      function renderGovernanceLog() {
+        _renderGovInto(document.getElementById('panel-governance-log'), document.getElementById('governance-log-empty'));
       }
 
       // ── Autonomy Score ──
@@ -2123,7 +2142,7 @@
 
         var today = new Date().toISOString().split('T')[0];
         var todayMeetings = meetings.filter(function (m) { return m.dateLabel === today; });
-        var recent = meetings.slice().reverse().slice(0, 5);
+        var recent = meetings.slice().reverse().slice(0, 5); // CSS controls 3 vs 5 visibility
 
         countEl.textContent = todayMeetings.length;
 
@@ -2139,12 +2158,12 @@
         if (recent.length === 0) {
           html += '<div class="dash-empty" style="padding:0.8rem 0;">No meetings yet. Call your first meeting to get started.</div>';
         } else {
-          recent.forEach(function (m) {
+          recent.forEach(function (m, mIdx) {
             var statusColor = m.decisionStatus === 'Approved' ? '#34d399' : m.decisionStatus === 'Rejected' ? '#ef4444' : m.decisionStatus === 'Deferred' ? '#fbbf24' : 'rgba(255,255,255,0.4)';
             var proposalCount = ((m.proposals && m.proposals.tasks) ? m.proposals.tasks.length : 0) + ((m.proposals && m.proposals.directives) ? m.proposals.directives.length : 0);
             var riskCount = m.riskSummary ? m.riskSummary.length : 0;
 
-            html += '<div class="meetings-widget-item">';
+            html += '<div class="meetings-widget-item' + (mIdx >= 3 ? ' meetings-widget-item--extra' : '') + '">';
             html += '<div style="display:flex; justify-content:space-between; align-items:center;">';
             html += '<div style="flex:1; min-width:0;">';
             html += '<div style="font-size:0.8rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(m.title || 'Untitled Meeting') + '</div>';
@@ -2169,43 +2188,38 @@
         body.innerHTML = html;
       }
 
-      // ── Action Required Badge ──
+      // ── Action Required Badge (deduped via Set) ──
       function updateActionBadge() {
         var badge = document.getElementById('dash-action-badge');
         var ccActionCount = document.getElementById('cc-count-action');
         if (!badge) return;
 
+        var seen = {}; // keyed by unique item identifier
         var count = 0;
+        function add(key) { if (!seen[key]) { seen[key] = true; count++; } }
 
-        // Pending approvals
-        try {
-          var queue = AgentEngine.getApprovalQueue();
-          var pending = queue.filter(function (q) { return q.status === 'pending'; });
-          count += pending.length;
-        } catch (e) {}
-
-        // Pending-approval tasks + directives (from standups/meetings)
-        try {
-          var tasks = AgentEngine.getTasks();
-          count += tasks.filter(function (t) { return t.status === 'pending-approval'; }).length;
-          count += AgentEngine.getDirectives().filter(function (d) { return d.status === 'pending-approval'; }).length;
-        } catch (e) {}
-
-        // Overdue tasks
         try {
           var today = new Date().toISOString().split('T')[0];
-          var allTasks = AgentEngine.getTasks();
-          count += allTasks.filter(function (t) {
-            return t.dueDate && t.dueDate < today && t.status !== 'done';
-          }).length;
-        } catch (e) {}
 
-        // Blocked tasks
-        try {
-          var allT = AgentEngine.getTasks();
-          count += allT.filter(function (t) {
-            return t.status !== 'done' && (t.blocked || t.escalated || (t.tags && t.tags.indexOf('blocked') !== -1));
-          }).length;
+          // Pending approvals
+          var queue = AgentEngine.getApprovalQueue();
+          queue.forEach(function (q) {
+            if (q.status === 'pending') add('aq:' + q.id);
+          });
+
+          // Tasks: pending-approval, overdue, blocked/escalated
+          var tasks = AgentEngine.getTasks();
+          tasks.forEach(function (t) {
+            if (t.status === 'done') return;
+            if (t.status === 'pending-approval') add('task:' + t.id);
+            if (t.dueDate && t.dueDate < today) add('task:' + t.id);
+            if (t.blocked || t.escalated || (t.tags && t.tags.indexOf('blocked') !== -1)) add('task:' + t.id);
+          });
+
+          // Directives: pending-approval
+          AgentEngine.getDirectives().forEach(function (d) {
+            if (d.status === 'pending-approval') add('dir:' + d.id);
+          });
         } catch (e) {}
 
         badge.textContent = count > 0 ? count : '';
@@ -2214,44 +2228,9 @@
         if (ccActionCount) ccActionCount.textContent = count;
       }
 
-      // ── Governance Log (Dev View copy) ──
+      // ── Governance Log (Dev View — reuses shared renderer) ──
       function renderGovernanceLogDev() {
-        var log = AgentEngine.getGovernanceLog();
-        var listEl = document.getElementById('panel-governance-log-dev');
-        var empty = document.getElementById('governance-log-dev-empty');
-        if (!listEl || !empty) return;
-
-        if (log.length === 0) {
-          listEl.innerHTML = '';
-          empty.style.display = '';
-          return;
-        }
-        empty.style.display = 'none';
-        listEl.innerHTML = '';
-
-        var typeIcons = {
-          'ceo-approval': { icon: 'fa-check-circle', color: '#34d399' },
-          'ceo-reject': { icon: 'fa-times-circle', color: '#f87171' },
-          'ceo-override': { icon: 'fa-bolt', color: '#FFD700' },
-          'ceo-revision': { icon: 'fa-redo', color: '#fbbf24' },
-          'escalation': { icon: 'fa-flag', color: '#f87171' },
-          'directive-created': { icon: 'fa-compass', color: '#8A2BE2' },
-          'objective-created': { icon: 'fa-bullseye', color: '#4ECDC4' }
-        };
-
-        log.slice().reverse().slice(0, 15).forEach(function (entry) {
-          var meta = typeIcons[entry.type] || { icon: 'fa-scroll', color: '#FF8C00' };
-          var li = document.createElement('li');
-          li.className = 'log-item';
-          var summary = entry.data && entry.data.title ? entry.data.title : (entry.data && entry.data.taskId ? entry.data.taskId : entry.type);
-          li.innerHTML =
-            '<div class="log-icon" style="background:rgba(255,140,0,0.1); color:' + meta.color + ';"><i class="fas ' + meta.icon + '"></i></div>' +
-            '<div class="log-body">' +
-              '<div class="log-text"><strong>' + entry.type.replace(/-/g, ' ') + '</strong> — ' + escapeHtml(summary) + '</div>' +
-              '<div class="log-time">' + formatTime(entry.timestamp) + '</div>' +
-            '</div>';
-          listEl.appendChild(li);
-        });
+        _renderGovInto(document.getElementById('panel-governance-log-dev'), document.getElementById('governance-log-dev-empty'));
       }
 
     })();
