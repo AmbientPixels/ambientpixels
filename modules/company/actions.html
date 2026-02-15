@@ -640,8 +640,23 @@
 
     window.openRevisionModal = openRevisionModal;
 
+    // ── Execution toast notification ──
+    function _showExecNotice(type, msg) {
+      var colors = { success: '#34d399', error: '#f87171', warn: '#fbbf24', info: '#60a5fa' };
+      var icons = { success: 'fa-check-circle', error: 'fa-exclamation-triangle', warn: 'fa-clock', info: 'fa-info-circle' };
+      var el = document.createElement('div');
+      var c = colors[type] || colors.info;
+      el.style.cssText = 'position:fixed;top:1rem;right:1rem;z-index:9999;padding:0.7rem 1rem;border-radius:8px;font-size:0.75rem;max-width:420px;word-break:break-word;border:1px solid ' + c + ';background:rgba(0,0,0,0.92);color:' + c + ';box-shadow:0 4px 20px rgba(0,0,0,0.5);display:flex;align-items:flex-start;gap:0.5rem;';
+      el.innerHTML = '<i class="fas ' + (icons[type] || icons.info) + '" style="margin-top:0.1rem;flex-shrink:0;"></i><span>' + msg + '</span>';
+      document.body.appendChild(el);
+      setTimeout(function () { el.style.transition = 'opacity 0.3s'; el.style.opacity = '0'; setTimeout(function () { el.remove(); }, 300); }, type === 'error' ? 8000 : 5000);
+    }
+
     // ── Execute via Azure Function ──
     function doExecute(id) {
+      // Disable all execute buttons to prevent repeat clicks → 429
+      document.querySelectorAll('.act-btn--execute').forEach(function (b) { b.disabled = true; b.style.opacity = '0.4'; });
+      _showExecNotice('info', 'Executing…');
       // Optimistic: mark running locally
       AE.markActionRunning(id);
       renderAll();
@@ -659,21 +674,26 @@
       })
       .then(function (resp) {
         if (resp.ok && resp.data.success) {
-          // Server succeeded — update local with receipt
           var exec = resp.data.execution || {};
           AE.completeAction(id, exec.receipt || null);
+          _showExecNotice('success', 'Posted successfully!' + (exec.receipt && exec.receipt.post_url ? ' → ' + exec.receipt.post_url : ''));
         } else if (resp.status === 409 && resp.data.receipt) {
-          // Already executed on server — sync local to success
           AE.completeAction(id, resp.data.receipt);
+          _showExecNotice('info', 'Already posted — synced local state.');
+        } else if (resp.status === 429) {
+          var retryMsg = resp.data.error || 'Too many requests — wait before retrying.';
+          _showExecNotice('warn', retryMsg);
         } else {
-          // Server returned error
           var errMsg = resp.data.error || 'Execution failed (HTTP ' + resp.status + ')';
           var errDetails = resp.data.details || null;
+          var detailMsg = errDetails ? (errDetails.message || errDetails.code || '') : '';
           AE.failAction(id, errDetails || { code: 'HTTP_' + resp.status, message: errMsg });
+          _showExecNotice('error', errMsg + (detailMsg && detailMsg !== errMsg ? ' — ' + detailMsg : ''));
         }
         renderAll();
       }).catch(function (err) {
         AE.failAction(id, { code: 'NETWORK_ERROR', message: err.message || 'Network request failed' });
+        _showExecNotice('error', 'Network error: ' + (err.message || 'Request failed'));
         renderAll();
       });
     }
