@@ -312,6 +312,9 @@
     <!-- ════════════════════════════════════════ -->
     <div id="view-governance">
 
+      <!-- Action Drift Alert (injected by renderActionDrift) -->
+      <div id="action-drift-alert"></div>
+
       <!-- Approvals Section -->
       <div class="act-section" data-section="approvals">
         <div class="act-section-header" tabindex="0" role="button" aria-expanded="true">
@@ -542,6 +545,7 @@
     }
 
     function renderAll() {
+      renderActionDrift();
       renderExecutionPulse();
       renderRawStats();
       renderPending();
@@ -551,6 +555,35 @@
       renderFailures();
       renderRateLimits();
       renderAuditLog();
+    }
+
+    // ── Action Drift Detection (>24h pending approvals) ──
+    function renderActionDrift() {
+      var el = document.getElementById('action-drift-alert');
+      if (!el) return;
+      var threshold = 24 * 60 * 60 * 1000; // 24h in ms
+      var now = Date.now();
+      var drifting = [];
+      AE.getActions().forEach(function (a) {
+        if (!a.approval || a.approval.status !== 'pending') return;
+        if (!a.created_at) return;
+        var age = now - new Date(a.created_at).getTime();
+        if (isNaN(age) || age <= threshold) return;
+        drifting.push({ id: a.id, age: age, type: a.type || a.action_type || '' });
+      });
+      if (drifting.length === 0) { el.innerHTML = ''; return; }
+      var count = drifting.length > 5 ? '5+' : String(drifting.length);
+      var oldest = Math.max.apply(null, drifting.map(function (d) { return d.age; }));
+      var oldestH = Math.floor(oldest / 3600000);
+      var plural = drifting.length !== 1;
+      var html = '<div class="drift-alert">';
+      html += '<div class="drift-alert-header"><i class="fas fa-exclamation-triangle"></i> Action Drift Detected</div>';
+      html += '<div class="drift-alert-body">' + count + ' approval' + (plural ? 's have' : ' has') + ' been pending over 24 hours.';
+      html += ' <span class="drift-alert-age">Oldest: ' + oldestH + 'h</span>';
+      html += '</div>';
+      html += '<a href="#pending-list" class="drift-alert-link">Review Now →</a>';
+      html += '</div>';
+      el.innerHTML = html;
     }
 
     // ── Execution Pulse ──
