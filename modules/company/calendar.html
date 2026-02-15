@@ -249,6 +249,9 @@
     <!-- Month Stats -->
     <div class="cal-stats" id="cal-stats"></div>
 
+    <!-- Calendar Intelligence -->
+    <div id="cal-intel-alerts"></div>
+
     <!-- Calendar Grid -->
     <div class="cal-grid" id="cal-grid"></div>
 
@@ -476,6 +479,8 @@
               meta: (agent ? agent.name : 'unassigned') + ' · ' + (t.priority || 'medium'),
               status: t.status,
               priority: t.priority,
+              assignee: t.assignee || null,
+              assigneeName: agent ? agent.name : null,
               badge: isOverdue ? 'overdue' : t.status,
               badgeColor: isOverdue ? '#f87171' : t.status === 'done' ? '#34d399' : t.status === 'review' ? '#a855f7' : t.status === 'in-progress' ? '#3b82f6' : '#FFA500',
               link: '/modules/company/tasks.html?task=' + t.id
@@ -585,6 +590,152 @@
         else if (currentView === 'day') { renderDayView(); }
         else { renderMonth(); }
         renderStats();
+        renderCalIntel();
+      }
+
+      // ── Calendar Intelligence ──
+      function renderCalIntel() {
+        var el = document.getElementById('cal-intel-alerts');
+        if (!el) return;
+
+        // Determine visible date range based on current view
+        var visibleDates = {};
+        if (currentView === 'day') {
+          visibleDates[toDateStr(dayViewDate)] = true;
+        } else if (currentView === 'week') {
+          for (var wi = 0; wi < 7; wi++) {
+            var wd = new Date(weekStartDate);
+            wd.setDate(wd.getDate() + wi);
+            visibleDates[toDateStr(wd)] = true;
+          }
+        } else {
+          // Month: all days in current month
+          var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+          for (var mi = 1; mi <= daysInMonth; mi++) {
+            visibleDates[toDateStr(new Date(currentYear, currentMonth, mi))] = true;
+          }
+        }
+
+        // Single pass over visible dates
+        var worstOverload = null; // { date, count, sev }
+        var worstCluster = null; // { date, count, sev }
+        var worstBurst = null;   // { date, count, sev }
+        var worstBooking = null; // { date, agent, agentName, count, sev }
+
+        Object.keys(visibleDates).forEach(function (ds) {
+          var items = calData[ds];
+          if (!items) return;
+
+          // 1) Overloaded day: total visible item count
+          var totalCount = 0;
+          ['tasks', 'content', 'social', 'reminders', 'activity'].forEach(function (layer) {
+            if (activeLayers[layer]) totalCount += (items[layer] || []).length;
+          });
+          if (totalCount >= 8) {
+            var olSev = totalCount >= 12 ? 2 : 1;
+            if (!worstOverload || olSev > worstOverload.sev || (olSev === worstOverload.sev && totalCount > worstOverload.count) || (olSev === worstOverload.sev && totalCount === worstOverload.count && ds < worstOverload.date)) {
+              worstOverload = { date: ds, count: totalCount, sev: olSev };
+            }
+          }
+
+          // Tasks-specific detections (only when Tasks layer active)
+          if (activeLayers.tasks) {
+            var taskArr = items.tasks || [];
+
+            // 2) Deadline cluster: task count per day
+            if (taskArr.length >= 3) {
+              var dcSev = taskArr.length >= 5 ? 2 : 1;
+              if (!worstCluster || dcSev > worstCluster.sev || (dcSev === worstCluster.sev && taskArr.length > worstCluster.count) || (dcSev === worstCluster.sev && taskArr.length === worstCluster.count && ds < worstCluster.date)) {
+                worstCluster = { date: ds, count: taskArr.length, sev: dcSev };
+              }
+            }
+
+            // 4) Agent overbooking: group tasks by assignee
+            var agentCounts = {};
+            taskArr.forEach(function (t) {
+              if (t.assignee) {
+                if (!agentCounts[t.assignee]) agentCounts[t.assignee] = { count: 0, name: t.assigneeName || t.assignee };
+                agentCounts[t.assignee].count++;
+              }
+            });
+            Object.keys(agentCounts).forEach(function (agentId) {
+              var ac = agentCounts[agentId];
+              if (ac.count >= 3) {
+                var abSev = ac.count >= 5 ? 2 : 1;
+                if (!worstBooking || abSev > worstBooking.sev || (abSev === worstBooking.sev && ac.count > worstBooking.count) || (abSev === worstBooking.sev && ac.count === worstBooking.count && ds < worstBooking.date)) {
+                  worstBooking = { date: ds, agent: agentId, agentName: ac.name, count: ac.count, sev: abSev };
+                }
+              }
+            });
+          }
+
+          // 3) Social burst (only when Social layer active)
+          if (activeLayers.social) {
+            var socialArr = items.social || [];
+            if (socialArr.length >= 4) {
+              var sbSev = socialArr.length >= 6 ? 2 : 1;
+              if (!worstBurst || sbSev > worstBurst.sev || (sbSev === worstBurst.sev && socialArr.length > worstBurst.count) || (sbSev === worstBurst.sev && socialArr.length === worstBurst.count && ds < worstBurst.date)) {
+                worstBurst = { date: ds, count: socialArr.length, sev: sbSev };
+              }
+            }
+          }
+        });
+
+        // Build prioritized alert list: red first, then amber, in type priority order
+        var candidates = [];
+        if (worstOverload) candidates.push({ type: 'overload', sev: worstOverload.sev, priority: 1, data: worstOverload });
+        if (worstCluster) candidates.push({ type: 'cluster', sev: worstCluster.sev, priority: 2, data: worstCluster });
+        if (worstBurst) candidates.push({ type: 'burst', sev: worstBurst.sev, priority: 3, data: worstBurst });
+        if (worstBooking) candidates.push({ type: 'booking', sev: worstBooking.sev, priority: 4, data: worstBooking });
+
+        // Sort: severity desc, then priority asc
+        candidates.sort(function (a, b) {
+          if (b.sev !== a.sev) return b.sev - a.sev;
+          return a.priority - b.priority;
+        });
+
+        // Render top 3
+        var html = '';
+        var max = Math.min(candidates.length, 3);
+        for (var ci = 0; ci < max; ci++) {
+          var c = candidates[ci];
+          var cls = c.sev === 2 ? 'cal-intel-alert--red' : 'cal-intel-alert--amber';
+          var icon = c.sev === 2 ? 'fas fa-exclamation-circle' : 'fas fa-exclamation-triangle';
+          var dateLabel = _formatIntelDate(c.data.date);
+          var text = '';
+          var linkText = 'Open day →';
+
+          if (c.type === 'overload') {
+            text = 'Overloaded day: ' + dateLabel + ' has ' + c.data.count + ' items scheduled.';
+          } else if (c.type === 'cluster') {
+            text = 'Deadline cluster: ' + c.data.count + ' task deadlines on ' + dateLabel + '.';
+            linkText = 'Review tasks →';
+          } else if (c.type === 'burst') {
+            text = 'Social burst: ' + c.data.count + ' posts scheduled on ' + dateLabel + '.';
+            linkText = 'Review posts →';
+          } else if (c.type === 'booking') {
+            text = 'Agent overbooked: ' + esc(c.data.agentName) + ' has ' + c.data.count + ' task deadlines on ' + dateLabel + '.';
+          }
+
+          html += '<div class="cal-intel-alert ' + cls + '"><i class="' + icon + '"></i><span>' + text + '</span>';
+          html += '<button class="cal-intel-link" data-intel-date="' + c.data.date + '">' + linkText + '</button>';
+          html += '</div>';
+        }
+
+        el.innerHTML = html;
+
+        // Bind alert links
+        el.querySelectorAll('.cal-intel-link').forEach(function (link) {
+          link.addEventListener('click', function () {
+            var ds = link.dataset.intelDate;
+            if (ds) selectDay(ds);
+          });
+        });
+      }
+
+      function _formatIntelDate(ds) {
+        var d = new Date(ds + 'T12:00:00');
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       }
 
       // ── Month View ──
