@@ -1485,23 +1485,68 @@ var AgentEngine = (function () {
     return { score: Math.round((autonomous / doneTasks.length) * 100), autonomous: autonomous, total: doneTasks.length };
   }
 
-  // Risk Heatmap
+  // Risk Heatmap — derives risk from multiple real signals
   function getRiskHeatmap() {
     var tasks = getTasks();
     var objectives = getObjectives();
+    var directives = getDirectives();
+    var actions = getActions();
     var govLog = getGovernanceLog();
-    var highRisk = tasks.filter(function (t) { return t.risk_level === 'high' && t.status !== 'done'; });
-    var medRisk = tasks.filter(function (t) { return t.risk_level === 'medium' && t.status !== 'done'; });
-    var atRiskObjectives = objectives.filter(function (o) { return o.status === 'at_risk' || o.status === 'behind'; });
-    var weekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+    var today = new Date().toISOString().split('T')[0];
+    var now = Date.now();
+    var weekAgo = now - (7 * 86400000);
+
+    // Overdue tasks (not done)
+    var overdueTasks = tasks.filter(function (t) {
+      return t.status !== 'done' && t.dueDate && t.dueDate.substring(0, 10) < today;
+    });
+
+    // High-priority tasks stuck in backlog
+    var stuckHighPrio = tasks.filter(function (t) {
+      return (t.priority === 'high' || t.priority === 'critical') && t.status === 'backlog';
+    });
+
+    // Blocked tasks
+    var blockedTasks = tasks.filter(function (t) {
+      return t.blocked && t.status !== 'done';
+    });
+
+    // At-risk or behind objectives
+    var atRiskObjectives = objectives.filter(function (o) {
+      return o.status === 'at_risk' || o.status === 'behind';
+    });
+
+    // At-risk directives (from progress tracker)
+    var atRiskDirectives = directives.filter(function (d) {
+      if (d.status !== 'active') return false;
+      var p = getDirectiveProgress(d.id);
+      return p.signal === 'at_risk' || p.signal === 'blocked' || p.signal === 'stale';
+    });
+
+    // Failed actions (last 7 days)
+    var failedActions = actions.filter(function (a) {
+      return a.execution_status === 'failed' && a.created_at && new Date(a.created_at).getTime() > weekAgo;
+    });
+
+    // Escalations (last 7 days)
     var recentEscalations = govLog.filter(function (e) {
       return e.type === 'escalation' && new Date(e.timestamp).getTime() > weekAgo;
     });
+
+    // Explicit high/medium risk tasks (original fields)
+    var explicitHigh = tasks.filter(function (t) { return t.risk_level === 'high' && t.status !== 'done'; });
+    var explicitMed = tasks.filter(function (t) { return t.risk_level === 'medium' && t.status !== 'done'; });
+
     return {
-      highRiskTasks: highRisk, medRiskTasks: medRisk,
+      overdueTasks: overdueTasks,
+      stuckHighPrio: stuckHighPrio,
+      blockedTasks: blockedTasks,
       atRiskObjectives: atRiskObjectives,
+      atRiskDirectives: atRiskDirectives,
+      failedActions: failedActions,
       escalationFrequency: recentEscalations.length,
-      escalationsPerDay: Math.round(recentEscalations.length / 7 * 10) / 10
+      highRiskTasks: explicitHigh,
+      medRiskTasks: explicitMed
     };
   }
 
