@@ -1254,16 +1254,19 @@ var AgentEngine = (function () {
     var list = getActions();
     for (var i = 0; i < list.length; i++) {
       var a = list[i];
-      if (a.id === actionId && a.approval && a.approval.status === 'pending') {
-        a.approval.status = 'rejected';
+      // Allow reject on pending OR approved (cancel scheduled/approved-but-not-executed)
+      if (a.id === actionId && a.approval && (a.approval.status === 'pending' || a.approval.status === 'approved')) {
+        var wasCancelled = a.approval.status === 'approved';
+        a.approval.status = wasCancelled ? 'cancelled' : 'rejected';
         a.approval.decision_note = note || null;
         a.execution.status = 'failed';
         a.execution.finished_at = new Date().toISOString();
+        a.execution_status = 'failed';
         _syncLegacy(a);
         _saveActions(list);
-        _updateApprovalQueueForAction(actionId, 'rejected');
-        _logAction('action-rejected', { actionId: actionId, type: a.type });
-        _logGovernance('ceo-reject', { actionId: actionId, type: a.type, context: 'action' });
+        _updateApprovalQueueForAction(actionId, a.approval.status);
+        _logAction(wasCancelled ? 'action-cancelled' : 'action-rejected', { actionId: actionId, type: a.type });
+        _logGovernance(wasCancelled ? 'ceo-cancel' : 'ceo-reject', { actionId: actionId, type: a.type, context: 'action' });
         return a;
       }
     }

@@ -528,7 +528,9 @@
       if (aPlat) html += ' ' + platformBadge(aPlat);
       if (a.is_irreversible) html += ' <span class="act-badge act-badge--irreversible">irreversible</span>';
       html += '</div>';
-      html += '<div class="act-row-meta">' + esc(aAgent) + ' · ' + timeAgo(a.created_at);
+      var showTime = (approvalStatus === 'approved' && a.approval && a.approval.approved_at) ? a.approval.approved_at : a.created_at;
+      var timePrefix = (approvalStatus === 'approved' && a.approval && a.approval.approved_at) ? 'approved ' : '';
+      html += '<div class="act-row-meta">' + esc(aAgent) + ' · ' + timePrefix + timeAgo(showTime);
       if (preview) html += ' · ' + esc(preview);
       if (approvalStatus === 'approved' && a.approval && a.approval.approved_by) html += ' · ✓ ' + esc(a.approval.approved_by);
       var scheduledFor = (payload && payload.scheduled_for) ? payload.scheduled_for : null;

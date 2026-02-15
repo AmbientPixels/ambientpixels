@@ -1054,7 +1054,7 @@
 
           // Age badge
           var ageMins = item.submittedAt ? Math.floor((Date.now() - new Date(item.submittedAt).getTime()) / 60000) : 0;
-          var ageLabel = ageMins < 60 ? ageMins + 'm ago' : Math.floor(ageMins / 60) + 'h ago';
+          var ageLabel = ageMins < 60 ? 'waiting ' + ageMins + 'm' : 'waiting ' + Math.floor(ageMins / 60) + 'h ' + (ageMins % 60) + 'm';
 
           var btnStyle = 'font-size:0.6rem; padding:0.25rem 0.6rem; border-radius:4px; cursor:pointer;';
           var actionTarget = isAction ? item.action_id : item.id;
