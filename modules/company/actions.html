@@ -662,6 +662,9 @@
           // Server succeeded — update local with receipt
           var exec = resp.data.execution || {};
           AE.completeAction(id, exec.receipt || null);
+        } else if (resp.status === 409 && resp.data.receipt) {
+          // Already executed on server — sync local to success
+          AE.completeAction(id, resp.data.receipt);
         } else {
           // Server returned error
           var errMsg = resp.data.error || 'Execution failed (HTTP ' + resp.status + ')';

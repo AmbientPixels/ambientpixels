@@ -1127,9 +1127,9 @@
         listEl.querySelectorAll('.approval-btn--revision').forEach(function (btn) {
           btn.addEventListener('click', function () {
             var note = _getApprovalNote(btn.dataset.id);
+            _optimisticRemove(btn);
             if (btn.dataset.kind === 'action') { AgentEngine.requestActionRevision(btn.dataset.actionId, note); }
             else { AgentEngine.ceoRequestRevision(btn.dataset.id, note); }
-            renderAll();
           });
         });
         listEl.querySelectorAll('.approval-btn--override').forEach(function (btn) {
