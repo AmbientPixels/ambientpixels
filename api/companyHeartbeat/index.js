@@ -609,6 +609,14 @@ Write the full deliverable first, then the structured JSON block.`;
     } else if (action.type === 'create-social-action' && action.social) {
       // Agent-initiated social post action — routes through action layer governance
       const socialPayload = action.social;
+      const postText = socialPayload.text || '';
+
+      // Server-side enforcement: reject posts with unfilled template placeholders
+      if (/\[(?:mention|insert|add|include|TBD|link|your |e\.g\.|fill)[^\]]*\]/i.test(postText)) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — contains placeholder brackets:', postText.substring(0, 100));
+        continue;
+      }
+
       const actionRequest = {
         type: (socialPayload.scheduled_for || socialPayload.schedule_for) ? 'social_post.schedule' : 'social_post.publish',
         platform: socialPayload.platform || 'x',
