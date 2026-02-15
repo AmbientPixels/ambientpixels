@@ -312,7 +312,7 @@
           return CompanyStore.syncFromServer();
         }).then(function () { renderAll(); });
       }
-      document.addEventListener('sync-complete', renderAll);
+      AE.on('sync-complete', renderAll);
       renderAll();
     });
 

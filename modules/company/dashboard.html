@@ -1010,8 +1010,35 @@
             '<span style="color:' + riskColor + ';">Risk: ' + item.riskLevel + '</span>' +
             '<span>Budget: $' + (item.budgetImpact || 0) + '</span>' +
             '<span>Brand: ' + (item.brandImpact || 'low') + '</span>';
-          if (isAction && item.preview) {
-            metaHtml += '<span style="opacity:0.5; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">"' + escapeHtml(item.preview) + '"</span>';
+
+          // Build expandable preview for action items
+          var previewHtml = '';
+          if (isAction && item.action_id) {
+            var actionObj = AgentEngine.getAction(item.action_id);
+            var payload = actionObj && (actionObj.payload || actionObj.action_payload) || {};
+            var fullText = payload.text || payload.content || payload.subject || '';
+            var platform = actionObj ? (actionObj.platform || '') : '';
+            var scheduledFor = payload.scheduled_for || '';
+            if (fullText || item.preview) {
+              previewHtml =
+                '<div id="preview-wrap-' + item.id + '" style="margin-bottom:0.5rem;">' +
+                  '<button onclick="var el=document.getElementById(\'preview-body-' + item.id + '\');el.style.display=el.style.display===\'none\'?\'block\':\'none\';this.querySelector(\'i\').className=el.style.display===\'none\'?\'fas fa-eye\':\'fas fa-eye-slash\';" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(138,43,226,0.2); background:rgba(138,43,226,0.05); color:#a855f7; cursor:pointer; margin-bottom:0.3rem;"><i class="fas fa-eye"></i> Preview Content</button>' +
+                  '<div id="preview-body-' + item.id + '" style="display:none; padding:0.5rem; border-radius:6px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);">' +
+                    (platform ? '<div style="margin-bottom:0.3rem;">' + friendlyTitle(item.taskTitle) + '</div>' : '') +
+                    '<div style="font-size:0.7rem; line-height:1.5; color:rgba(255,255,255,0.85); white-space:pre-wrap; word-break:break-word;">' + escapeHtml(fullText || item.preview) + '</div>' +
+                    (scheduledFor ? '<div style="font-size:0.55rem; color:#fbbf24; margin-top:0.3rem;"><i class="fas fa-clock"></i> Scheduled: ' + new Date(scheduledFor).toLocaleString() + '</div>' : '') +
+                    (fullText.length > 0 ? '<div style="font-size:0.5rem; opacity:0.3; margin-top:0.2rem;">' + fullText.length + ' chars</div>' : '') +
+                  '</div>' +
+                '</div>';
+            }
+          } else if (isPublish && item.preview) {
+            previewHtml =
+              '<div id="preview-wrap-' + item.id + '" style="margin-bottom:0.5rem;">' +
+                '<button onclick="var el=document.getElementById(\'preview-body-' + item.id + '\');el.style.display=el.style.display===\'none\'?\'block\':\'none\';this.querySelector(\'i\').className=el.style.display===\'none\'?\'fas fa-eye\':\'fas fa-eye-slash\';" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(138,43,226,0.2); background:rgba(138,43,226,0.05); color:#a855f7; cursor:pointer; margin-bottom:0.3rem;"><i class="fas fa-eye"></i> Preview Content</button>' +
+                '<div id="preview-body-' + item.id + '" style="display:none; padding:0.5rem; border-radius:6px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);">' +
+                  '<div style="font-size:0.7rem; line-height:1.5; color:rgba(255,255,255,0.85); white-space:pre-wrap; word-break:break-word;">' + escapeHtml(item.preview) + '</div>' +
+                '</div>' +
+              '</div>';
           }
 
           // Age badge
@@ -1033,6 +1060,7 @@
             '<div style="display:flex; gap:0.6rem; font-size:0.65rem; opacity:0.6; margin-bottom:0.5rem;">' +
               metaHtml +
             '</div>' +
+            previewHtml +
             '<div style="margin-bottom:0.4rem;">' +
               '<input type="text" id="approval-note-' + item.id + '" placeholder="Decision note (optional)..." style="width:100%; padding:0.3rem 0.5rem; font-size:0.65rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:4px; color:rgba(255,255,255,0.8); outline:none;" />' +
             '</div>' +
