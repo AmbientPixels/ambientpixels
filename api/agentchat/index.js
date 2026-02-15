@@ -138,7 +138,8 @@ Available action types:
 - update-task: {"type":"update-task","taskId":"...","updates":{"description":"...","priority":"...","assignee":"...","dueDate":"..."}}
 - move-task: {"type":"move-task","taskId":"...","newStatus":"backlog|todo|in-progress|review|done"}
 - comment-task: {"type":"comment-task","taskId":"...","comment":"..."}
-- create-doc: {"type":"create-doc","document":{"title":"...","kind":"spec|runbook|release_notes|product_brief|marketing_post|governance","tags":[...],"content_md":"full markdown"},"taskId":"optional"}
+- create-doc: {"type":"create-doc","document":{"title":"...","kind":"spec|runbook|release_notes|product_brief|marketing_post|governance","tags":[...],"content_md":"full markdown"},"taskId":"optional"} — Check existing docs first; use update-doc if one already covers the topic.
+- update-doc: {"type":"update-doc","documentId":"existing doc ID","updates":{"content_md":"full replacement","append_md":"add to end","title":"new title","tags":[...]}} — Update an existing document instead of creating duplicates. Internal docs auto-refresh at /docs/published/.
 
 Rules:
 - Max 3 actions per response
@@ -370,6 +371,38 @@ async function executeChatActions(context, actions, agentId) {
             }
           }
           results.push({ type: 'create-doc', success: true, summary: docSummary });
+          break;
+        }
+
+        case 'update-doc': {
+          const documents = (await storage.getState('documents')) || [];
+          const dIdx = documents.findIndex(d => d.id === action.documentId);
+          if (dIdx === -1) { results.push({ type: 'update-doc', success: false, summary: 'Document not found: ' + action.documentId }); break; }
+          const doc = documents[dIdx];
+          const upd = action.updates || {};
+          if (upd.content_md) doc.content_md = upd.content_md;
+          if (upd.append_md && doc.content_md) doc.content_md = doc.content_md + '\n\n' + upd.append_md;
+          if (upd.title) { doc.title = upd.title; doc.slug = upd.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
+          if (upd.tags) doc.tags = upd.tags;
+          doc.updated_at = new Date().toISOString();
+          doc.last_edited_by = agentId;
+          documents[dIdx] = doc;
+          await storage.setState('documents', documents);
+
+          // Refresh publishedDocs if internal
+          if (doc.visibility === 'internal' && doc.status === 'published' && doc.slug) {
+            const pubStore = (await storage.getState('publishedDocs')) || [];
+            const pIdx = pubStore.findIndex(p => p.documentId === doc.id);
+            if (pIdx !== -1) {
+              pubStore[pIdx].content_md = doc.content_md;
+              pubStore[pIdx].title = doc.title;
+              pubStore[pIdx].tags = doc.tags || [];
+              pubStore[pIdx].updated_at = doc.updated_at;
+              if (upd.title) { pubStore[pIdx].slug = doc.slug; pubStore[pIdx].target_path = '/docs/published/' + doc.slug; pubStore[pIdx].public_url = '/docs/published/' + doc.slug; }
+              await storage.setState('publishedDocs', pubStore);
+            }
+          }
+          results.push({ type: 'update-doc', success: true, summary: 'Updated doc: "' + doc.title + '"' });
           break;
         }
 

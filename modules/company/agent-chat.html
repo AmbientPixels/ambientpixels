@@ -343,7 +343,7 @@
         container.style.cssText = 'display:flex; flex-direction:column; gap:0.4rem; max-width:80%; align-self:flex-start; margin:0.2rem 0;';
         actions.forEach(function (action) {
           var card = document.createElement('div');
-          var iconMap = { 'create-task': 'fa-plus-circle', 'update-task': 'fa-edit', 'move-task': 'fa-arrows-alt', 'comment-task': 'fa-comment', 'create-doc': 'fa-file-alt' };
+          var iconMap = { 'create-task': 'fa-plus-circle', 'update-task': 'fa-edit', 'move-task': 'fa-arrows-alt', 'comment-task': 'fa-comment', 'create-doc': 'fa-file-alt', 'update-doc': 'fa-file-edit' };
           var icon = iconMap[action.type] || 'fa-bolt';
           var color = action.success ? 'rgba(52,211,153,0.15)' : 'rgba(248,113,113,0.15)';
           var border = action.success ? 'rgba(52,211,153,0.3)' : 'rgba(248,113,113,0.3)';

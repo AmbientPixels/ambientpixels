@@ -810,8 +810,87 @@ Write the full deliverable first, then the structured JSON block.`;
 
           context.log('[Heartbeat]', agentId, 'auto-submitted doc for publish:', doc.id, '→', publishAction.id, '(kind:', kind, ', target:', targetPath, ')');
           result.taskUpdates.push({ action: 'publish-requested', actionId: publishAction.id, documentId: doc.id, agentId: agentId });
+        } else {
+          // Internal doc kinds (spec, runbook, release_notes, governance) — auto-publish to /docs/published/ without CEO approval
+          const slug = doc.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+          doc.status = 'published';
+          doc.slug = slug;
+          doc.published_at = new Date().toISOString();
+          doc.published_by = agentId + ' (auto)';
+          doc.visibility = 'internal';
+          doc.public_url = '/docs/published/' + slug;
+          doc.updated_at = new Date().toISOString();
+          const dIdx = docsStore.findIndex(d => d.id === docId);
+          if (dIdx !== -1) docsStore[dIdx] = doc;
+          await storage.setState('documents', docsStore);
+
+          const pubStore = (await storage.getState('publishedDocs')) || [];
+          pubStore.push({
+            id: 'pub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+            documentId: doc.id, title: doc.title, slug: slug, kind: doc.kind,
+            content_md: doc.content_md, target_path: '/docs/published/' + slug,
+            public_url: '/docs/published/' + slug, visibility: 'internal',
+            published_by: agentId + ' (auto)', published_at: new Date().toISOString(),
+            tags: doc.tags || [], created_by: doc.created_by
+          });
+          if (pubStore.length > 200) pubStore.splice(0, pubStore.length - 200);
+          await storage.setState('publishedDocs', pubStore);
+
+          const auditLog2 = (await storage.getState('actionAuditLog')) || [];
+          auditLog2.push({ id: 'alog-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4), type: 'internal-doc-published', data: { documentId: doc.id, title: doc.title, slug: slug, kind: kind, publishedBy: agentId }, timestamp: new Date().toISOString() });
+          if (auditLog2.length > 500) auditLog2.splice(0, auditLog2.length - 500);
+          await storage.setState('actionAuditLog', auditLog2);
+
+          context.log('[Heartbeat]', agentId, 'auto-published internal doc:', doc.id, doc.title, '→ /docs/published/' + slug);
+          result.taskUpdates.push({ action: 'internal-doc-published', documentId: doc.id, agentId: agentId, url: '/docs/published/' + slug });
         }
       }
+    } else if (action.type === 'update-doc' && action.documentId) {
+      // Update an existing document's content or metadata
+      const docsStore = (await storage.getState('documents')) || [];
+      const docIdx = docsStore.findIndex(d => d.id === action.documentId);
+
+      if (docIdx !== -1) {
+        const doc = docsStore[docIdx];
+        const updates = action.updates || {};
+        if (updates.content_md) doc.content_md = updates.content_md;
+        if (updates.title) {
+          doc.title = updates.title;
+          doc.slug = updates.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        }
+        if (updates.tags) doc.tags = updates.tags;
+        if (updates.append_md && doc.content_md) {
+          doc.content_md = doc.content_md + '\n\n' + updates.append_md;
+        }
+        doc.updated_at = new Date().toISOString();
+        doc.last_edited_by = agentId;
+        docsStore[docIdx] = doc;
+        await storage.setState('documents', docsStore);
+
+        // If doc is published internally, also update the publishedDocs store
+        if (doc.visibility === 'internal' && doc.status === 'published' && doc.slug) {
+          const pubStore = (await storage.getState('publishedDocs')) || [];
+          const pubIdx = pubStore.findIndex(p => p.documentId === doc.id);
+          if (pubIdx !== -1) {
+            pubStore[pubIdx].content_md = doc.content_md;
+            pubStore[pubIdx].title = doc.title;
+            pubStore[pubIdx].tags = doc.tags || [];
+            pubStore[pubIdx].updated_at = doc.updated_at;
+            if (updates.title) {
+              pubStore[pubIdx].slug = doc.slug;
+              pubStore[pubIdx].target_path = '/docs/published/' + doc.slug;
+              pubStore[pubIdx].public_url = '/docs/published/' + doc.slug;
+            }
+            await storage.setState('publishedDocs', pubStore);
+          }
+        }
+
+        context.log('[Heartbeat]', agentId, 'updated doc:', doc.id, doc.title);
+        result.taskUpdates.push({ action: 'doc-updated', documentId: doc.id, agentId: agentId });
+      } else {
+        context.log('[Heartbeat]', agentId, 'update-doc failed — doc not found:', action.documentId);
+      }
+
     } else if (action.type === 'submit-for-publish' && action.documentId) {
       // Submit a document for human approval + publish
       // GUARDRAIL: No agent can directly publish — this only creates a publish_document action
@@ -1226,7 +1305,8 @@ Action types:
 - review-task: Review a completed deliverable from another agent's task in the review column. Approve (done) or request changes (back to in-progress).
 - comment-task: Add a comment to any task. Provide taskId and "comment" string. Use for status updates, delegation notes, questions, or flagging blockers.
 - create-social-action: (Marketing/Echo) Draft a social media post routed through CEO approval. Include "social" with: text (max 280 for X, 300 for Bluesky, 3000 for LinkedIn), platform ("x"|"linkedin"|"bluesky"), optionally media (URLs) and scheduled_for (ISO datetime). When linking to company content, use https://ambientpixels.ai/blog/<slug> for public articles — never link to /modules/company/ or /docs/published/ as those are internal and auth-gated.
-- create-doc: Create a documentation draft. Include "document" with: title (string), kind ("spec"|"runbook"|"release_notes"|"product_brief"|"marketing_post"|"governance"), tags (array of strings), and content_md (full markdown content — MUST be complete, publish-ready text with NO placeholders like "[insert here]" or "[TBD]"). Also include "taskId" if this doc is for a specific task. Docs go straight to CEO approval queue — marketing_post and product_brief are auto-submitted for blog publishing.
+- create-doc: Create a NEW document. Include "document" with: title (string), kind ("spec"|"runbook"|"release_notes"|"product_brief"|"marketing_post"|"governance"), tags (array of strings), and content_md (full markdown content — MUST be complete, publish-ready text with NO placeholders like "[insert here]" or "[TBD]"). Also include "taskId" if this doc is for a specific task. marketing_post/product_brief → CEO approval queue for blog. Internal kinds (spec, runbook, release_notes, governance) → auto-published to /docs/published/ immediately. IMPORTANT: Check EXISTING DOCUMENTS below first — if a relevant doc already exists, use update-doc instead of creating a duplicate.
+- update-doc: Update an existing document. Include "documentId" (the doc ID from EXISTING DOCUMENTS) and "updates" with any of: content_md (full replacement), append_md (add new content to end), title (rename), tags (replace tags). Use this when new information should be added to an existing doc instead of creating a new one. Internal docs are auto-refreshed at /docs/published/.
 - submit-for-publish: Submit a completed document for human/CEO approval to publish on the site. Include "documentId" (the ID of an existing draft or review document) and optionally "taskId" (the task that produced the doc). This creates a publish_document action in the approval queue. You CANNOT publish directly — only a human can approve publishing.
 - create-reminder: Set a reminder or important date in the CEO workspace. Include "reminder" with: title (string), date (YYYY-MM-DD), type ("deadline"|"event"|"milestone"|"recurring"), and optionally description. Use for tracking deadlines, renewals, milestones, or follow-ups. These appear in the CEO Morning Inbox and are injected into future heartbeat prompts.
 - web_search: (Scout/research agents only) Run a live web search. Include "tool": "web_search" and "args": { "q": "search query", "n": 5 }. Max 3 searches per heartbeat. Results are returned and you'll be asked to synthesize findings into a deliverable with cited sources.
