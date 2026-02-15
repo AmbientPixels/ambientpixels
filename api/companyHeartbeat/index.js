@@ -170,6 +170,12 @@ module.exports = async function (context) {
     const workspaceDates = (await storage.getState('dates')) || [];
     const allActions = (await storage.getState('actions')) || [];
     const revisionActions = allActions.filter(a => a.approval && a.approval.status === 'revision_requested');
+    // v2.3: Exclude pending-approval items from heartbeat processing
+    const pendingTasks = tasks.filter(t => t.status === 'pending-approval');
+    const pendingDirs = directives.filter(d => d.status === 'pending-approval');
+    if (pendingTasks.length > 0 || pendingDirs.length > 0) {
+      context.log('[Heartbeat] Pending approval items detected: ' + pendingTasks.length + ' tasks, ' + pendingDirs.length + ' directives — skipping until approved.');
+    }
     const activeDirectives = directives.filter(d => d.status === 'active');
     const activeObjectives = objectives.filter(o => o.status === 'active' || o.status === 'in_progress');
 
@@ -187,7 +193,7 @@ module.exports = async function (context) {
     const escalationLog = [];
     const novaSkipTaskIds = new Set();
 
-    const activeTasks = tasks.filter(t => t.status !== 'done' && t.status !== 'backlog');
+    const activeTasks = tasks.filter(t => t.status !== 'done' && t.status !== 'backlog' && t.status !== 'pending-approval');
     for (const task of activeTasks) {
       const esc = evaluateEscalationPath(task, now);
       if (esc.handler !== 'owner' && esc.handler !== 'normal_flow') {

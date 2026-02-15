@@ -67,6 +67,13 @@
 
     <!-- Kanban Board -->
     <div class="tm-board active" id="tm-board">
+      <div class="tm-column" data-status="pending-approval" style="border-top:2px solid rgba(251,191,36,0.3);">
+        <div class="tm-column-header">
+          <span class="tm-column-title" style="color:#fbbf24;"><i class="fas fa-hourglass-half"></i> Pending Approval</span>
+          <span class="tm-column-count" data-count="pending-approval" style="background:rgba(251,191,36,0.12);color:#fbbf24;">0</span>
+        </div>
+        <div class="tm-column-cards" data-col="pending-approval"></div>
+      </div>
       <div class="tm-column tm-column--backlog" data-status="backlog">
         <div class="tm-column-header">
           <span class="tm-column-title"><i class="fas fa-inbox"></i> Backlog</span>
@@ -141,6 +148,7 @@
             <div>
               <label for="task-status">Status</label>
               <select id="task-status">
+                <option value="pending-approval">Pending Approval</option>
                 <option value="backlog">Backlog</option>
                 <option value="todo">To Do</option>
                 <option value="in-progress">In Progress</option>
@@ -281,8 +289,10 @@
 
       function renderStats() {
         var stats = AgentEngine.getTaskStats();
+        var pendingCount = AgentEngine.getTasks().filter(function(t){ return t.status === 'pending-approval'; }).length;
         statsBar.innerHTML =
           statCard(stats.total, 'Total', '') +
+          (pendingCount > 0 ? statCard(pendingCount, 'Pending', 'tm-stat--pending') : '') +
           statCard(stats.backlog, 'Backlog', '') +
           statCard(stats.todo + stats['in-progress'], 'Active', 'tm-stat--active') +
           statCard(stats.review, 'Review', '') +
@@ -303,7 +313,7 @@
 
       function renderBoard() {
         var tasks = getFilteredTasks();
-        var cols = ['backlog', 'todo', 'in-progress', 'review', 'done'];
+        var cols = ['pending-approval', 'backlog', 'todo', 'in-progress', 'review', 'done'];
 
         cols.forEach(function (status) {
           var container = document.querySelector('[data-col="' + status + '"]');
@@ -364,7 +374,13 @@
 
         var badge = riskPill(task);
 
-        card.innerHTML = '<div class="tm-card-title">' + escapeHtml(task.title) + badge + '</div>' + meta;
+        // v2.3 D) Source traceability link
+        var sourceHtml = '';
+        if (task.source && task.source.type === 'standup') {
+          sourceHtml = '<div style="font-size:0.55rem;opacity:0.4;margin-top:0.2rem;"><i class="fas fa-link" style="margin-right:2px;"></i> From standup: <a href="/modules/company/standup.html" style="color:#fbbf24;text-decoration:none;">' + escapeHtml(task.source.title || 'Standup') + '</a></div>';
+        }
+
+        card.innerHTML = '<div class="tm-card-title">' + escapeHtml(task.title) + badge + '</div>' + meta + sourceHtml;
 
         card.addEventListener('click', function () { openEditModal(task.id); });
 
@@ -384,7 +400,7 @@
         var tasks = getFilteredTasks();
 
         // Sort: status order, then priority
-        var statusOrder = { 'in-progress': 0, 'review': 1, 'todo': 2, 'backlog': 3, 'done': 4 };
+        var statusOrder = { 'pending-approval': -1, 'in-progress': 0, 'review': 1, 'todo': 2, 'backlog': 3, 'done': 4 };
         var prioOrder = { critical: 0, high: 1, medium: 2, low: 3 };
         tasks.sort(function (a, b) {
           var s = (statusOrder[a.status] || 3) - (statusOrder[b.status] || 3);

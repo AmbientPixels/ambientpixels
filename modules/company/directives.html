@@ -119,6 +119,15 @@
       </div>
     </div>
 
+    <!-- Pending Approval Directives (v2.3) -->
+    <div class="dash-panel dash-panel--full" id="panel-pending-dirs" style="margin-bottom:1rem; border:1px solid rgba(251,191,36,0.12); display:none;">
+      <div class="dash-panel-header" style="border-bottom:1px solid rgba(251,191,36,0.08);">
+        <span class="dash-panel-title" style="color:#fbbf24;"><i class="fas fa-hourglass-half"></i> Pending Approval</span>
+        <span class="dash-panel-badge" id="pending-dir-count" style="background:rgba(251,191,36,0.1);color:#fbbf24;">0</span>
+      </div>
+      <div id="dir-pending-list"></div>
+    </div>
+
     <!-- Active Directives -->
     <div class="dash-panel dash-panel--full">
       <div class="dash-panel-header">
@@ -161,6 +170,7 @@
 
       <label for="edit-status">Status</label>
       <select id="edit-status">
+        <option value="pending-approval">Pending Approval</option>
         <option value="active">Active</option>
         <option value="paused">Paused</option>
         <option value="completed">Completed</option>
@@ -230,10 +240,25 @@
         renderDirectives();
       });
 
+      var pendingList = document.getElementById('dir-pending-list');
+      var pendingCount = document.getElementById('pending-dir-count');
+      var pendingPanel = document.getElementById('panel-pending-dirs');
+
       function renderDirectives() {
         var directives = AgentEngine.getDirectives();
+        var pending = directives.filter(function (d) { return d.status === 'pending-approval'; });
         var active = directives.filter(function (d) { return d.status === 'active'; });
-        var archived = directives.filter(function (d) { return d.status !== 'active'; });
+        var archived = directives.filter(function (d) { return d.status !== 'active' && d.status !== 'pending-approval'; });
+
+        // Pending Approval (v2.3)
+        pendingCount.textContent = pending.length;
+        if (pending.length > 0) {
+          pendingPanel.style.display = '';
+          pendingList.innerHTML = '';
+          pending.forEach(function (dir) { pendingList.appendChild(createDirectiveCard(dir)); });
+        } else {
+          pendingPanel.style.display = 'none';
+        }
 
         activeCount.textContent = active.length;
 
@@ -304,6 +329,23 @@
           html += '<span class="dir-stat">No tasks linked yet — agents will create them on next heartbeat</span>';
         }
         html += '</div>';
+
+        // v2.3: Classification, Impact/Effort, Source link, Approval state
+        if (dir.classification) {
+          html += '<div style="display:flex;gap:0.3rem;flex-wrap:wrap;margin:0.3rem 0;">';
+          html += '<span style="font-size:0.55rem;padding:1px 6px;border-radius:4px;background:rgba(138,43,226,0.1);color:#c084fc;">' + escapeHtml(dir.classification) + '</span>';
+          if (dir.impact) html += '<span style="font-size:0.55rem;padding:1px 6px;border-radius:4px;background:rgba(251,191,36,0.1);color:#fbbf24;">Impact: ' + dir.impact + '</span>';
+          if (dir.effort) html += '<span style="font-size:0.55rem;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.06);color:#ccc;">Effort: ' + dir.effort + '</span>';
+          if (dir.owner) html += '<span style="font-size:0.55rem;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.06);color:#ccc;">Owner: ' + dir.owner + '</span>';
+          if (dir.approval && dir.approval.status && dir.approval.status !== 'none') {
+            var apClr = dir.approval.status === 'approved' ? '#22c55e' : dir.approval.status === 'pending' ? '#fbbf24' : '#6b7280';
+            html += '<span style="font-size:0.55rem;padding:1px 6px;border-radius:4px;background:' + apClr + '22;color:' + apClr + ';">' + dir.approval.status + '</span>';
+          }
+          html += '</div>';
+        }
+        if (dir.source && dir.source.type === 'standup') {
+          html += '<div style="font-size:0.55rem;opacity:0.4;margin-bottom:0.2rem;"><i class="fas fa-link" style="margin-right:2px;"></i> From standup: <a href="/modules/company/standup.html" style="color:#fbbf24;text-decoration:none;">' + escapeHtml(dir.source.title || 'Standup') + '</a></div>';
+        }
 
         // Meta row
         html += '<div style="display:flex; gap:0.6rem; align-items:center; margin:0.3rem 0;">' +

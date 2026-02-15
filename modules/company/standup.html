@@ -79,7 +79,7 @@
   <main class="content-section" style="max-width: 800px; margin: 0 auto; padding: 1rem;">
 
     <div class="company-header">
-      <h1><i class="fas fa-users" style="opacity:0.4; margin-right:8px;"></i>Standup <span style="font-size:0.5rem; opacity:0.3; vertical-align:middle;">Decision Engine v2.2</span></h1>
+      <h1><i class="fas fa-users" style="opacity:0.4; margin-right:8px;"></i>Standup <span style="font-size:0.5rem; opacity:0.3; vertical-align:middle;">Decision Engine v2.3</span></h1>
       <p>Nova (Prime Operator) opens with priorities, department heads report in, Nova closes with summary for CEO.</p>
     </div>
 
@@ -117,6 +117,16 @@
         <div>
           <label for="su-agenda">Agenda / Intent</label>
           <textarea id="su-agenda" placeholder="What should this standup focus on? Leave blank for open status update..."></textarea>
+        </div>
+        <div class="su-config-grid" style="margin-top:0.4rem;">
+          <div>
+            <label for="su-topic-key">Topic Key <span style="opacity:0.4;font-size:0.55rem;">(auto from title)</span></label>
+            <input type="text" id="su-topic-key" placeholder="auto-generated-from-title" />
+          </div>
+          <div>
+            <label for="su-topic-existing">Or select existing topic</label>
+            <select id="su-topic-existing"><option value="">— New topic —</option></select>
+          </div>
         </div>
         <div class="su-config-row" style="margin-top:0.4rem;">
           <div class="su-recurrence">
@@ -165,7 +175,8 @@
           <button class="su-action-btn su-action-btn--reject" data-decision="Rejected"><i class="fas fa-times"></i> Reject</button>
           <button class="su-action-btn su-action-btn--defer" data-decision="Deferred"><i class="fas fa-clock"></i> Defer</button>
           <button class="su-action-btn" data-decision="NoAction"><i class="fas fa-minus"></i> No Action</button>
-          <button class="su-action-btn su-action-btn--create" id="su-create-all" style="margin-left:auto;"><i class="fas fa-plus-circle"></i> Create All (Pending Approval)</button>
+          <button class="su-action-btn su-action-btn--create" id="su-create-all"><i class="fas fa-plus-circle"></i> Create All (Pending Approval)</button>
+          <button class="su-action-btn" id="su-approve-activate" style="margin-left:auto;border-color:rgba(34,197,94,0.4);color:#22c55e;background:rgba(34,197,94,0.08);"><i class="fas fa-rocket"></i> Approve + Activate</button>
         </div>
       </div>
 
@@ -179,6 +190,17 @@
       <div class="su-proposals-panel" id="su-proposals-panel">
         <div class="su-proposals-title"><i class="fas fa-lightbulb"></i> Proposed Actions</div>
         <div id="su-proposals-list"></div>
+      </div>
+
+      <!-- Artifacts Created (v2.3 D) -->
+      <div id="su-artifacts-panel" style="background:rgba(59,130,246,0.04);border:1px solid rgba(59,130,246,0.12);border-radius:10px;padding:0.6rem 0.8rem;margin-bottom:0.8rem;display:none;">
+        <div style="font-size:0.7rem;font-weight:600;color:#3b82f6;margin-bottom:0.4rem;"><i class="fas fa-cube"></i> Artifacts Created</div>
+        <div id="su-artifacts-list" style="font-size:0.65rem;"></div>
+      </div>
+
+      <!-- Parser Warnings (v2.3 H) -->
+      <div id="su-parse-warnings" style="background:rgba(251,191,36,0.04);border:1px solid rgba(251,191,36,0.1);border-radius:8px;padding:0.4rem 0.6rem;margin-bottom:0.6rem;font-size:0.6rem;color:#fbbf24;display:none;">
+        <i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i> <span id="su-parse-warnings-text"></span>
       </div>
 
       <!-- Live Feed -->
@@ -214,6 +236,8 @@
       var suRiskPanel = document.getElementById('su-risk-panel');
       var suProposalsPanel = document.getElementById('su-proposals-panel');
       var suWarningBanner = document.getElementById('su-warning-banner');
+      var suArtifactsPanel = document.getElementById('su-artifacts-panel');
+      var suParseWarnings = document.getElementById('su-parse-warnings');
       var _currentStandupId = null;
 
       // Show today's date
@@ -224,7 +248,27 @@
         document.getElementById('su-frequency').disabled = !this.checked;
       });
 
+      // Auto-fill topicKey from title
+      document.getElementById('su-title').addEventListener('input', function () {
+        var slug = this.value.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').substring(0, 80);
+        document.getElementById('su-topic-key').value = slug;
+      });
+
+      // Existing topic dropdown overrides topicKey
+      document.getElementById('su-topic-existing').addEventListener('change', function () {
+        if (this.value) document.getElementById('su-topic-key').value = this.value;
+      });
+
       AgentEngine.loadRegistry().then(function () {
+        // Populate existing topic keys dropdown
+        var topicKeys = AgentEngine.getStandupTopicKeys();
+        var sel = document.getElementById('su-topic-existing');
+        Object.keys(topicKeys).forEach(function (k) {
+          var opt = document.createElement('option');
+          opt.value = k;
+          opt.textContent = k + ' (' + (topicKeys[k].title || '') + ')';
+          sel.appendChild(opt);
+        });
         initStandup();
       });
 
@@ -238,6 +282,8 @@
           renderRiskPanel(latest);
           renderProposalsPanel(latest);
           renderWarningBanner(latest);
+          renderArtifacts(latest);
+          renderParseWarnings(latest);
           _currentStandupId = latest.id;
           suConfig.style.display = 'none';
           standupTrigger.disabled = true;
@@ -265,6 +311,7 @@
           title: document.getElementById('su-title').value.trim() || 'Daily Standup',
           agenda: document.getElementById('su-agenda').value.trim(),
           type: document.getElementById('su-type').value,
+          topicKey: document.getElementById('su-topic-key').value.trim() || undefined,
           template: {
             isRecurring: document.getElementById('su-recurring').checked,
             frequency: document.getElementById('su-recurring').checked ? document.getElementById('su-frequency').value : null
@@ -310,6 +357,8 @@
         renderRiskPanel(standup);
         renderProposalsPanel(standup);
         renderWarningBanner(standup);
+        renderArtifacts(standup);
+        renderParseWarnings(standup);
 
         var log = AgentEngine.getStandupLog();
         if (log.length > 1) {
@@ -362,6 +411,21 @@
             alert('Created ' + result.tasks.length + ' task(s) and ' + result.directives.length + ' directive(s) as Pending Approval.');
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-check"></i> Created';
+            var s = AgentEngine.getStandupById(_currentStandupId);
+            if (s) renderArtifacts(s);
+          }
+          return;
+        }
+
+        if (btn.id === 'su-approve-activate') {
+          var res = AgentEngine.approveAndActivate(_currentStandupId);
+          if (res) {
+            alert('Approved and activated: ' + res.activatedTasks + ' task(s) moved to Todo, ' + res.activatedDirs + ' directive(s) activated.');
+            var updated = AgentEngine.getStandupById(_currentStandupId);
+            if (updated) {
+              renderDecisionPanel(updated);
+              renderArtifacts(updated);
+            }
           }
           return;
         }
@@ -441,7 +505,7 @@
         });
       }
 
-      // ── Warning Banner (related/previously decided standups) ──
+      // ── Warning Banner (related/previously decided standups — v2.3 uses topicKey) ──
       function renderWarningBanner(standup) {
         var related = standup.relatedStandups || [];
         var locked = related.filter(function (r) { return r.decisionStatus === 'Approved' || r.decisionStatus === 'Rejected'; });
@@ -449,9 +513,48 @@
         suWarningBanner.style.display = '';
         var msgs = locked.map(function (r) {
           var d = new Date(r.date);
-          return '"' + r.title + '" — ' + r.decisionStatus + ' on ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          return '<a href="/modules/company/standup.html" style="color:#fbbf24;text-decoration:underline;">' + escapeHtml(r.title) + '</a> — ' + r.decisionStatus + ' on ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         });
-        document.getElementById('su-warning-text').innerHTML = 'Previously decided: ' + msgs.join('; ');
+        document.getElementById('su-warning-text').innerHTML = 'Previous decision on topic "' + escapeHtml(standup.topicKey || '') + '": ' + msgs.join('; ');
+      }
+
+      // ── Artifacts Created (v2.3 D) ──
+      function renderArtifacts(standup) {
+        var taskIds = standup._createdTaskIds || [];
+        var dirIds = standup._createdDirectiveIds || [];
+        if (taskIds.length === 0 && dirIds.length === 0) { suArtifactsPanel.style.display = 'none'; return; }
+        suArtifactsPanel.style.display = '';
+        var html = '';
+        if (taskIds.length > 0) {
+          html += '<div style="margin-bottom:0.3rem;"><strong>Tasks (' + taskIds.length + '):</strong> ';
+          html += taskIds.map(function (id) {
+            var t = AgentEngine.getTask(id);
+            var label = t ? escapeHtml(t.title) + ' <span style="opacity:0.4;">(' + t.status + ')</span>' : id;
+            return '<a href="/modules/company/tasks.html" style="color:#3b82f6;text-decoration:none;">' + label + '</a>';
+          }).join(', ');
+          html += '</div>';
+        }
+        if (dirIds.length > 0) {
+          html += '<div><strong>Directives (' + dirIds.length + '):</strong> ';
+          html += dirIds.map(function (id) {
+            var d = null;
+            AgentEngine.getDirectives().forEach(function (dir) { if (dir.id === id) d = dir; });
+            var label = d ? escapeHtml(d.title) + ' <span style="opacity:0.4;">(' + d.status + ')</span>' : id;
+            return '<a href="/modules/company/directives.html" style="color:#a855f7;text-decoration:none;">' + label + '</a>';
+          }).join(', ');
+          html += '</div>';
+        }
+        document.getElementById('su-artifacts-list').innerHTML = html;
+      }
+
+      // ── Parser Warnings (v2.3 H) ──
+      function renderParseWarnings(standup) {
+        var errors = standup.parseErrors || [];
+        if (errors.length === 0) { suParseWarnings.style.display = 'none'; return; }
+        suParseWarnings.style.display = '';
+        var txt = 'Parser warnings: ' + errors.length + ' — ';
+        txt += errors.map(function (e) { return e.agentId + ': ' + escapeHtml(e.error); }).join('; ');
+        document.getElementById('su-parse-warnings-text').textContent = txt;
       }
 
       // ── Entry rendering ──

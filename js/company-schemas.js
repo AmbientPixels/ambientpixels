@@ -11,12 +11,12 @@ var CompanySchemas = (function () {
   function isArray(v) { return Array.isArray(v); }
   function isOneOf(v, list) { return list.indexOf(v) !== -1; }
 
-  var TASK_STATUSES = ['backlog', 'todo', 'in-progress', 'review', 'done'];
+  var TASK_STATUSES = ['pending-approval', 'backlog', 'todo', 'in-progress', 'review', 'done'];
   var TASK_PRIORITIES = ['low', 'medium', 'high', 'critical'];
   var TASK_CLASSIFICATIONS = ['autonomous', 'advisory', 'executive_required'];
   var RISK_LEVELS = ['low', 'medium', 'high'];
   var BRAND_IMPACTS = ['low', 'medium', 'high'];
-  var DIRECTIVE_STATUSES = ['active', 'completed', 'paused'];
+  var DIRECTIVE_STATUSES = ['pending-approval', 'active', 'completed', 'paused'];
   var OBJECTIVE_STATUSES = ['on_track', 'at_risk', 'behind', 'complete'];
   var QUARTERS = ['Q1', 'Q2', 'Q3', 'Q4'];
   var LOG_TYPES = ['heartbeat', 'standup', 'task-created', 'task-updated', 'task-moved', 'chat', 'cron', 'error', 'morning-report', 'agent-action', 'ceo-approval', 'ceo-reject', 'ceo-override', 'ceo-revision', 'escalation', 'directive-created', 'objective-created', 'action-created', 'action-approved', 'action-rejected', 'action-running', 'action-success', 'action-failed', 'publish-requested', 'publish-approved', 'publish-rejected', 'publish-executed', 'publish-failed'];

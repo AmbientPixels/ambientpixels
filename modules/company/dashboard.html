@@ -452,8 +452,38 @@
           sections.push(approvalHtml);
         }
 
+        // 1b. SDE Pending Approval (standup-generated tasks+directives awaiting CEO)
+        var allTasks = AgentEngine.getTasks();
+        var sdePendingTasks = allTasks.filter(function (t) { return t.status === 'pending-approval'; });
+        var sdePendingDirs = AgentEngine.getDirectives().filter(function (d) { return d.status === 'pending-approval'; });
+        var sdePendingTotal = sdePendingTasks.length + sdePendingDirs.length;
+        totalItems += sdePendingTotal;
+
+        if (sdePendingTotal > 0) {
+          var sdeHtml = '<div style="margin-bottom:0.8rem;">';
+          sdeHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-hourglass-half" style="color:#fbbf24; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#fbbf24;">Standup Pending Approval</strong> <span style="font-size:0.6rem; opacity:0.4;">(' + sdePendingTotal + ')</span></div>';
+          sdePendingTasks.slice(0, 3).forEach(function (t) {
+            var agent = t.assignee ? AgentEngine.getAgent(t.assignee) : null;
+            sdeHtml += '<div style="padding:0.3rem 0.6rem; border:1px solid rgba(251,191,36,0.1); border-radius:6px; margin-bottom:0.25rem; background:rgba(251,191,36,0.02); display:flex; justify-content:space-between; align-items:center;">';
+            sdeHtml += '<div style="flex:1;"><span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(59,130,246,0.1);color:#3b82f6;margin-right:0.3rem;">TASK</span><span style="font-size:0.75rem;">' + escapeHtml(t.title) + '</span>';
+            if (t.source && t.source.title) sdeHtml += '<div style="font-size:0.55rem;opacity:0.4;">from: ' + escapeHtml(t.source.title) + '</div>';
+            sdeHtml += '</div>';
+            sdeHtml += '<a href="/modules/company/tasks.html" style="font-size:0.55rem; color:#fbbf24; text-decoration:none;">View →</a></div>';
+          });
+          sdePendingDirs.slice(0, 3).forEach(function (d) {
+            sdeHtml += '<div style="padding:0.3rem 0.6rem; border:1px solid rgba(138,43,226,0.1); border-radius:6px; margin-bottom:0.25rem; background:rgba(138,43,226,0.02); display:flex; justify-content:space-between; align-items:center;">';
+            sdeHtml += '<div style="flex:1;"><span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(138,43,226,0.1);color:#a855f7;margin-right:0.3rem;">DIRECTIVE</span><span style="font-size:0.75rem;">' + escapeHtml(d.title) + '</span>';
+            if (d.source && d.source.title) sdeHtml += '<div style="font-size:0.55rem;opacity:0.4;">from: ' + escapeHtml(d.source.title) + '</div>';
+            sdeHtml += '</div>';
+            sdeHtml += '<a href="/modules/company/directives.html" style="font-size:0.55rem; color:#a855f7; text-decoration:none;">View →</a></div>';
+          });
+          if (sdePendingTotal > 6) sdeHtml += '<div style="font-size:0.55rem; opacity:0.3; padding-left:0.6rem;">+' + (sdePendingTotal - 6) + ' more pending</div>';
+          sdeHtml += '</div>';
+          sections.push(sdeHtml);
+        }
+
         // 2. Overdue Tasks
-        var tasks = AgentEngine.getTasks();
+        var tasks = allTasks;
         var today = new Date().toISOString().split('T')[0];
         var overdue = tasks.filter(function (t) {
           return t.dueDate && t.dueDate < today && t.status !== 'done';
@@ -1035,17 +1065,34 @@
       };
       function renderDirectivesSnap() {
         var directives = AgentEngine.getDirectives();
+        var pendingDirs = directives.filter(function (d) { return d.status === 'pending-approval'; });
         var active = directives.filter(function (d) { return d.status === 'active'; });
         var listEl = document.getElementById('panel-directives-snap');
         var empty = document.getElementById('directives-snap-empty');
 
-        if (active.length === 0) {
+        if (active.length === 0 && pendingDirs.length === 0) {
           listEl.innerHTML = '';
           empty.style.display = '';
           return;
         }
         empty.style.display = 'none';
         listEl.innerHTML = '';
+
+        // v2.3: Show pending-approval directives at top
+        pendingDirs.slice(0, 3).forEach(function (dir) {
+          var li = document.createElement('li');
+          li.className = 'log-item';
+          li.innerHTML =
+            '<div class="log-icon" style="background:rgba(251,191,36,0.1); color:#fbbf24;"><i class="fas fa-hourglass-half"></i></div>' +
+            '<div class="log-body" style="flex:1;">' +
+              '<div class="log-text" style="display:flex;justify-content:space-between;align-items:center;">' +
+                '<strong>' + escapeHtml(dir.title) + '</strong>' +
+                '<span style="font-size:0.5rem;padding:0.1rem 0.35rem;border-radius:3px;background:rgba(251,191,36,0.12);color:#fbbf24;font-weight:600;">Pending</span>' +
+              '</div>' +
+              (dir.source && dir.source.title ? '<div class="log-time">From: ' + escapeHtml(dir.source.title) + '</div>' : '<div class="log-time">Awaiting CEO approval</div>') +
+            '</div>';
+          listEl.appendChild(li);
+        });
 
         active.slice(0, 5).forEach(function (dir) {
           var p = AgentEngine.getDirectiveProgress(dir.id);
