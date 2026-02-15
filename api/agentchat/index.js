@@ -159,33 +159,72 @@ async function loadCompanyContext(agentId) {
   try {
     const tasks = (await storage.getState('tasks')) || [];
     const directives = (await storage.getState('directives')) || [];
+    const objectives = (await storage.getState('objectives')) || [];
     const documents = (await storage.getState('documents')) || [];
+    const workspaceMemory = (await storage.getState('workspaceMemory')) || [];
+    const workspaceDates = (await storage.getState('dates')) || [];
 
+    // Agent's own tasks with descriptions and recent comments
     const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done');
     const taskSummary = agentTasks.map(t => {
-      let line = '- [' + t.status + '] ' + t.title + ' (priority: ' + t.priority + ', id: ' + t.id + ')';
-      if (t.description) line += '\n  ' + t.description.substring(0, 150);
+      let line = '- [' + t.status + '] ' + t.title + ' (priority: ' + t.priority + ', id: ' + t.id;
+      if (t.dueDate) line += ', due: ' + t.dueDate.substring(0, 10);
+      line += ')';
+      if (t.description) line += '\n  Description: ' + t.description.substring(0, 200);
+      if (t.comments && t.comments.length > 0) {
+        t.comments.slice(-2).forEach(c => {
+          const who = c.user || c.author || 'unknown';
+          const text = String(c.text || c.comment || c.body || '').substring(0, 120);
+          line += '\n  Comment (' + who + '): ' + text;
+        });
+      }
       return line;
     }).join('\n') || '(none)';
 
-    const activeTasks = tasks.filter(t => t.status !== 'done' && t.status !== 'backlog').slice(0, 20);
+    // All active tasks
+    const activeTasks = tasks.filter(t => t.status !== 'done' && t.status !== 'backlog').slice(0, 25);
     const allTasksSummary = activeTasks.map(t =>
-      '- [' + t.status + '] ' + t.title + ' → ' + (t.assignee || 'unassigned') + ' (id: ' + t.id + ')'
+      '- [' + t.status + '] ' + t.title + ' → ' + (t.assignee || 'unassigned') + ' (due: ' + (t.dueDate ? t.dueDate.substring(0, 10) : '?') + ', id: ' + t.id + ')'
     ).join('\n') || '(none)';
 
+    // Directives
     const activeDirectives = directives.filter(d => d.status === 'active').slice(0, 5);
     const directiveSummary = activeDirectives.map(d =>
       '- ' + d.title + ' (priority: ' + (d.priority || 'medium') + ', id: ' + d.id + ')'
     ).join('\n') || '(none)';
 
-    const recentDocs = documents.slice(-5).map(d =>
-      '- ' + d.title + ' [' + d.status + '] (kind: ' + d.kind + ', id: ' + d.id + ')'
+    // Objectives
+    const activeObjectives = objectives.filter(o => o.status === 'active' || !o.status).slice(0, 5);
+    const objectivesSummary = activeObjectives.map(o =>
+      '- "' + o.title + '" Q' + (o.quarter || '?') + ' (progress: ' + (o.progress || 0) + '%, id: ' + o.id + ')'
     ).join('\n') || '(none)';
 
-    return '\n\nCOMPANY CONTEXT (live board state):\nYour tasks:\n' + taskSummary +
+    // Documents
+    const recentDocs = documents.slice(-8).map(d =>
+      '- ' + d.title + ' [' + d.status + '] (kind: ' + d.kind + ', slug: ' + (d.slug || '?') + ', id: ' + d.id + ')'
+    ).join('\n') || '(none)';
+
+    // Workspace memory
+    const memorySummary = workspaceMemory.slice(-5).map(m =>
+      '- ' + (m.title || m.key || 'note') + ': ' + String(m.value || m.content || '').substring(0, 150)
+    ).join('\n') || '';
+
+    // Upcoming dates
+    const today = new Date().toISOString().split('T')[0];
+    const upcomingDates = workspaceDates
+      .filter(d => d.date && d.date >= today)
+      .slice(0, 5)
+      .map(d => '- ' + d.date + ' ' + d.title + ' (' + (d.type || 'event') + ')')
+      .join('\n') || '';
+
+    let ctx = '\n\nCOMPANY CONTEXT (live board state):\nYour tasks:\n' + taskSummary +
       '\n\nAll active tasks:\n' + allTasksSummary +
       '\n\nActive CEO directives:\n' + directiveSummary +
+      '\n\nActive objectives:\n' + objectivesSummary +
       '\n\nRecent documents:\n' + recentDocs;
+    if (memorySummary) ctx += '\n\nWorkspace notes:\n' + memorySummary;
+    if (upcomingDates) ctx += '\n\nUpcoming dates:\n' + upcomingDates;
+    return ctx;
   } catch (err) {
     return '\n\n(Company context unavailable)';
   }
