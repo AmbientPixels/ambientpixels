@@ -107,7 +107,7 @@
       <div style="padding:0.5rem 0;">
         <input type="text" id="dir-title" placeholder="Directive title..." style="width:100%; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.8rem; margin-bottom:0.5rem;" />
         <textarea id="dir-desc" placeholder="Description — what should the team achieve?" rows="3" style="width:100%; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.75rem; resize:vertical; margin-bottom:0.5rem;"></textarea>
-        <div style="display:flex; gap:0.5rem; align-items:center;">
+        <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
           <select id="dir-priority" style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;">
             <option value="low">Low</option>
             <option value="medium" selected>Medium</option>
@@ -115,6 +115,10 @@
             <option value="critical">Critical</option>
           </select>
           <button id="dir-create-btn" style="padding:0.35rem 1rem; background:rgba(138,43,226,0.1); border:1px solid rgba(138,43,226,0.3); border-radius:6px; color:#8A2BE2; font-size:0.7rem; cursor:pointer; font-weight:500;">Create Directive</button>
+        </div>
+        <div style="margin-top:0.5rem;">
+          <label style="font-size:0.65rem; opacity:0.5;">Linked KPIs</label>
+          <select id="dir-kpi-select" multiple style="width:100%; min-height:60px; padding:0.3rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.65rem;"></select>
         </div>
       </div>
     </div>
@@ -176,6 +180,9 @@
         <option value="completed">Completed</option>
       </select>
 
+      <label for="edit-kpis">Linked KPIs</label>
+      <select id="edit-kpis" multiple style="min-height:60px; font-size:0.7rem;"></select>
+
       <div class="dir-modal-actions">
         <button class="dir-btn" id="edit-cancel">Cancel</button>
         <button class="dir-btn dir-btn--primary" id="edit-save">Save</button>
@@ -205,7 +212,23 @@
       var editCancel = document.getElementById('edit-cancel');
       var editingId = null;
 
-      AgentEngine.loadRegistry().then(function () { renderDirectives(); });
+      // v2.5: Populate KPI selects
+      function populateKpiSelects() {
+        var kpis = AgentEngine.getKpiRegistry();
+        var selects = [document.getElementById('dir-kpi-select'), document.getElementById('edit-kpis')];
+        selects.forEach(function (sel) {
+          if (!sel) return;
+          sel.innerHTML = '';
+          kpis.forEach(function (k) {
+            var opt = document.createElement('option');
+            opt.value = k.id;
+            opt.textContent = k.name + ' (' + k.category + ')';
+            sel.appendChild(opt);
+          });
+        });
+      }
+
+      AgentEngine.loadRegistry().then(function () { populateKpiSelects(); renderDirectives(); });
 
       document.addEventListener('sync-complete', function () { renderDirectives(); });
 
@@ -213,11 +236,17 @@
       modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
       editSave.addEventListener('click', function () {
         if (!editingId) return;
+        var ekSel = document.getElementById('edit-kpis');
+        var ekpis = [];
+        for (var i = 0; i < ekSel.options.length; i++) {
+          if (ekSel.options[i].selected) ekpis.push(ekSel.options[i].value);
+        }
         var payload = {
           title: editTitle.value.trim(),
           description: editDesc.value.trim(),
           priority: editPriority.value,
-          status: editStatus.value
+          status: editStatus.value,
+          kpiLinks: ekpis
         };
         AgentEngine.updateDirective(editingId, payload);
         closeModal();
@@ -228,15 +257,23 @@
         var title = titleInput.value.trim();
         if (!title) return;
 
+        var kpiSel = document.getElementById('dir-kpi-select');
+        var selectedKpis = [];
+        for (var i = 0; i < kpiSel.options.length; i++) {
+          if (kpiSel.options[i].selected) selectedKpis.push(kpiSel.options[i].value);
+        }
+
         AgentEngine.addDirective({
           title: title,
           description: descInput.value.trim(),
-          priority: prioritySelect.value
+          priority: prioritySelect.value,
+          kpiLinks: selectedKpis
         });
 
         titleInput.value = '';
         descInput.value = '';
         prioritySelect.value = 'medium';
+        kpiSel.selectedIndex = -1;
         renderDirectives();
       });
 
@@ -347,6 +384,20 @@
           html += '<div style="font-size:0.55rem;opacity:0.4;margin-bottom:0.2rem;"><i class="fas fa-link" style="margin-right:2px;"></i> From standup: <a href="/modules/company/standup.html" style="color:#fbbf24;text-decoration:none;">' + escapeHtml(dir.source.title || 'Standup') + '</a></div>';
         }
 
+        // v2.5: KPI chips
+        if (dir.kpiLinks && dir.kpiLinks.length > 0) {
+          var kpis = AgentEngine.getKpiRegistry();
+          var kpiMap = {};
+          kpis.forEach(function (k) { kpiMap[k.id] = k; });
+          html += '<div style="display:flex;gap:0.25rem;flex-wrap:wrap;margin:0.3rem 0;">';
+          dir.kpiLinks.forEach(function (kId) {
+            var k = kpiMap[kId];
+            if (!k) return;
+            html += '<a href="/modules/company/dashboard.html#kpi_' + k.id + '" style="font-size:0.55rem;padding:2px 6px;border-radius:4px;background:rgba(78,205,196,0.1);color:#4ECDC4;text-decoration:none;border:1px solid rgba(78,205,196,0.15);"><i class="fas fa-chart-line" style="font-size:0.45rem;margin-right:2px;"></i>KPI: ' + escapeHtml(k.name) + '</a>';
+          });
+          html += '</div>';
+        }
+
         // Meta row
         html += '<div style="display:flex; gap:0.6rem; align-items:center; margin:0.3rem 0;">' +
           '<span style="font-size:0.6rem; opacity:0.4;">Created: ' + new Date(dir.createdDate).toLocaleDateString() + '</span>';
@@ -440,6 +491,12 @@
         editDesc.value = dir.description || '';
         editPriority.value = dir.priority || 'medium';
         editStatus.value = dir.status || 'active';
+        // v2.5: pre-select linked KPIs
+        var ekSel = document.getElementById('edit-kpis');
+        var linked = dir.kpiLinks || [];
+        for (var i = 0; i < ekSel.options.length; i++) {
+          ekSel.options[i].selected = linked.indexOf(ekSel.options[i].value) !== -1;
+        }
         modal.style.display = 'flex';
       }
 

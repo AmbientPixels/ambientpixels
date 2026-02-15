@@ -30,6 +30,7 @@
         <button class="dash-refresh-btn" id="dash-heartbeat" title="Run agent heartbeat cycle manually" style="border-color:rgba(78,205,196,0.2); color:#4ecdc4;">
           <i class="fas fa-heartbeat"></i> Run Heartbeat
         </button>
+        <a href="/modules/company/board.html" class="dash-refresh-btn" style="border-color:rgba(138,43,226,0.2); color:#c084fc;"><i class="fas fa-columns"></i> Board Mode</a>
         <a href="/modules/company/" class="dash-refresh-btn"><i class="fas fa-arrow-left"></i> Back to HQ</a>
         <button class="dash-refresh-btn" id="dash-refresh"><i class="fas fa-sync-alt"></i> Refresh</button>
       </div>
@@ -162,6 +163,16 @@
         </div>
         <ul class="log-list" id="panel-directives-snap"></ul>
         <div class="dash-empty" id="directives-snap-empty">No active directives.</div>
+      </div>
+
+      <!-- KPI Scoreboard (v2.5) -->
+      <div class="dash-panel dash-panel--full" id="panel-kpi-wrap">
+        <div class="dash-panel-header">
+          <span class="dash-panel-title"><i class="fas fa-chart-line" style="color:#4ECDC4;"></i> KPI Scoreboard</span>
+          <a href="/modules/company/board.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">Board Mode →</a>
+        </div>
+        <div id="panel-kpi-list" style="display:flex; gap:0.5rem; flex-wrap:wrap; padding:0.3rem 0;"></div>
+        <div class="dash-empty" id="kpi-empty">No KPIs registered.</div>
       </div>
 
       <!-- Quarterly Objectives Snapshot -->
@@ -407,6 +418,7 @@
         renderServerLogs();
         renderApprovalQueue();
         renderDirectivesSnap();
+        renderKpiScoreboard();
         renderObjectivesSnap();
         renderAutonomyScore();
         renderRiskHeatmap();
@@ -1202,6 +1214,76 @@
               (agentChips ? '<div style="display:flex;gap:0.2rem;flex-wrap:wrap;margin-top:0.25rem;">' + agentChips + '</div>' : '') +
             '</div>';
           listEl.appendChild(li);
+        });
+      }
+
+      // ── KPI Scoreboard (v2.5) ──
+      function renderKpiScoreboard() {
+        var kpis = AgentEngine.getKpiRegistry();
+        var index = AgentEngine.getDirectiveKpiIndex();
+        var listEl = document.getElementById('panel-kpi-list');
+        var emptyEl = document.getElementById('kpi-empty');
+        var directives = AgentEngine.getDirectives();
+
+        if (!kpis || kpis.length === 0) {
+          listEl.innerHTML = '';
+          emptyEl.style.display = '';
+          return;
+        }
+        emptyEl.style.display = 'none';
+        listEl.innerHTML = '';
+
+        var catColors = { Growth: '#34d399', Engagement: '#60a5fa', Product: '#a78bfa', Activation: '#fbbf24', Cost: '#f87171', Reliability: '#4ECDC4' };
+
+        kpis.forEach(function (k) {
+          var linkedDirIds = index.kpiToDirectives[k.id] || [];
+          var linkedDirs = linkedDirIds.map(function (did) {
+            var d = null;
+            directives.forEach(function (dir) { if (dir.id === did) d = dir; });
+            return d;
+          }).filter(Boolean);
+
+          var catColor = catColors[k.category] || '#8A2BE2';
+          var unitLabel = k.unit === 'usd' ? '$' : k.unit === 'percent' ? '%' : '';
+
+          var card = document.createElement('div');
+          card.id = 'kpi_' + k.id;
+          card.style.cssText = 'flex:1 1 200px; min-width:180px; padding:0.5rem 0.6rem; border:1px solid ' + catColor + '18; border-radius:8px; background:' + catColor + '06;';
+
+          var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">';
+          html += '<span style="font-size:0.7rem;font-weight:600;">' + escapeHtml(k.name) + '</span>';
+          html += '<span style="font-size:0.5rem;padding:1px 5px;border-radius:3px;background:' + catColor + '15;color:' + catColor + ';">' + k.category + '</span>';
+          html += '</div>';
+
+          html += '<div style="display:flex;gap:0.5rem;align-items:baseline;margin-bottom:0.3rem;">';
+          html += '<span style="font-size:1.1rem;font-weight:700;color:' + catColor + ';">-' + unitLabel + '</span>';
+          if (k.target !== null) html += '<span style="font-size:0.6rem;opacity:0.4;">/ ' + unitLabel + k.target + '</span>';
+          html += '</div>';
+
+          if (linkedDirs.length > 0) {
+            html += '<div style="font-size:0.6rem;opacity:0.5;margin-bottom:0.2rem;"><i class="fas fa-compass" style="margin-right:2px;"></i>' + linkedDirs.length + ' linked directive' + (linkedDirs.length > 1 ? 's' : '') + '</div>';
+            var showDirs = linkedDirs.slice(0, 3);
+            showDirs.forEach(function (d) {
+              var sColor = d.status === 'active' ? '#34d399' : d.status === 'completed' ? '#c084fc' : d.status === 'pending-approval' ? '#fbbf24' : '#6b7280';
+              html += '<div style="font-size:0.6rem;padding:0.15rem 0;display:flex;gap:0.3rem;align-items:center;">';
+              html += '<span style="width:5px;height:5px;border-radius:50%;background:' + sColor + ';display:inline-block;flex-shrink:0;"></span>';
+              html += '<span style="opacity:0.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(d.title) + '</span>';
+              html += '</div>';
+            });
+            if (linkedDirs.length > 3) {
+              html += '<div style="font-size:0.55rem;opacity:0.3;">+' + (linkedDirs.length - 3) + ' more</div>';
+            }
+          } else {
+            html += '<div style="font-size:0.6rem;opacity:0.3;">No linked directives</div>';
+          }
+
+          var owner = k.owner ? AgentEngine.getAgent(k.owner) : null;
+          if (owner) {
+            html += '<div style="font-size:0.55rem;opacity:0.35;margin-top:0.2rem;">Owner: ' + owner.name + '</div>';
+          }
+
+          card.innerHTML = html;
+          listEl.appendChild(card);
         });
       }
 

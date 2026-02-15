@@ -1342,6 +1342,156 @@ var AgentEngine = (function () {
     return stats;
   }
 
+  // ── v2.5: KPI Registry ──
+  var _kpiRegistry = null;
+  var _kpiIdSet = null;
+
+  function getKpiRegistry() {
+    if (_kpiRegistry) return _kpiRegistry;
+    try {
+      var stored = _loadStorage('ap_kpi_registry', null);
+      if (stored && Array.isArray(stored) && stored.length > 0) { _kpiRegistry = stored; }
+    } catch (e) { /* ignore */ }
+    if (!_kpiRegistry) {
+      _kpiRegistry = [
+        { id: 'kpi_site_visits', name: 'Site Visits', unit: 'count', target: null, owner: 'echo', category: 'Growth' },
+        { id: 'kpi_gallery_views', name: 'Gallery Views', unit: 'count', target: null, owner: 'echo', category: 'Engagement' },
+        { id: 'kpi_cards_generated', name: 'Cards Generated', unit: 'count', target: null, owner: 'pixel', category: 'Product' },
+        { id: 'kpi_cards_published', name: 'Cards Published', unit: 'count', target: null, owner: 'pixel', category: 'Activation' },
+        { id: 'kpi_social_followers', name: 'Social Followers', unit: 'count', target: null, owner: 'echo', category: 'Growth' },
+        { id: 'kpi_api_cost_monthly', name: 'Monthly API Cost', unit: 'usd', target: null, owner: 'cipher', category: 'Cost' },
+        { id: 'kpi_error_rate', name: 'Error Rate', unit: 'percent', target: null, owner: 'forge', category: 'Reliability' }
+      ];
+    }
+    _kpiIdSet = {};
+    _kpiRegistry.forEach(function (k) { _kpiIdSet[k.id] = true; });
+    return _kpiRegistry;
+  }
+
+  function _validateKpiIds(ids) {
+    if (!ids || !Array.isArray(ids)) return [];
+    getKpiRegistry();
+    return ids.filter(function (id) {
+      if (_kpiIdSet[id]) return true;
+      console.warn('[AgentEngine] Unknown KPI id dropped:', id);
+      return false;
+    });
+  }
+
+  function getDirectiveKpiIndex() {
+    var directives = getDirectives();
+    var kpiToDirectives = {};
+    var directiveToKpis = {};
+    directives.forEach(function (d) {
+      var links = d.kpiLinks || [];
+      if (links.length === 0) return;
+      directiveToKpis[d.id] = links;
+      links.forEach(function (kId) {
+        if (!kpiToDirectives[kId]) kpiToDirectives[kId] = [];
+        kpiToDirectives[kId].push(d.id);
+      });
+    });
+    return { kpiToDirectives: kpiToDirectives, directiveToKpis: directiveToKpis };
+  }
+
+  // ── v2.5: Quarterly Board Helpers ──
+  function getQuarterRange(year, quarter) {
+    var ranges = {
+      Q1: ['-01-01', '-03-31'],
+      Q2: ['-04-01', '-06-30'],
+      Q3: ['-07-01', '-09-30'],
+      Q4: ['-10-01', '-12-31']
+    };
+    var r = ranges[quarter] || ranges.Q1;
+    return {
+      startISO: year + r[0] + 'T00:00:00.000Z',
+      endISO: year + r[1] + 'T23:59:59.999Z'
+    };
+  }
+
+  function getBoardPacket(opts) {
+    opts = opts || {};
+    var year = opts.year || new Date().getFullYear();
+    var quarter = opts.quarter || ('Q' + (Math.floor(new Date().getMonth() / 3) + 1));
+    var range = getQuarterRange(year, quarter);
+    var startMs = new Date(range.startISO).getTime();
+    var endMs = new Date(range.endISO).getTime();
+
+    function inRange(iso) {
+      if (!iso) return false;
+      var t = new Date(iso).getTime();
+      return t >= startMs && t <= endMs;
+    }
+
+    // Standups in quarter
+    var log = _loadStandupLog();
+    var standups = log.filter(function (s) { return inRange(s.date || s.createdAt); });
+
+    // Decisions (non-Pending)
+    var decisions = standups.filter(function (s) { return s.decisionStatus && s.decisionStatus !== 'Pending'; }).map(function (s) {
+      return { id: s.id, title: s.title, topicKey: s.topicKey, date: s.date, decisionStatus: s.decisionStatus, decisionNotes: s.decisionNotes || '' };
+    });
+
+    // Risks from standups
+    var allRisks = [];
+    standups.forEach(function (s) {
+      (s.riskSummary || []).forEach(function (r) {
+        allRisks.push({ description: r.description || r, severity: r.severity || 'medium', date: s.date, standupTitle: s.title });
+      });
+    });
+    var SEV_RANK = { critical: 0, high: 1, medium: 2, low: 3 };
+    allRisks.sort(function (a, b) { return (SEV_RANK[a.severity] || 3) - (SEV_RANK[b.severity] || 3); });
+
+    // Directives
+    var directives = getDirectives();
+    var activeDir = directives.filter(function (d) { return d.status === 'active' && (inRange(d.createdDate) || !d.createdDate); });
+    var completedDir = directives.filter(function (d) { return d.status === 'completed' && inRange(d.createdDate); });
+    var pendingDir = directives.filter(function (d) { return d.status === 'pending-approval'; });
+
+    // Tasks throughput
+    var tasks = getTasks();
+    var created = tasks.filter(function (t) { return inRange(t.createdDate || t.createdAt); }).length;
+    var completed = tasks.filter(function (t) { return t.status === 'done' && inRange(t.completedAt); }).length;
+    var pendingApproval = tasks.filter(function (t) { return t.status === 'pending-approval'; }).length;
+
+    // KPIs
+    var kpis = getKpiRegistry();
+    var kpiIndex = getDirectiveKpiIndex();
+    var kpiData = kpis.map(function (k) {
+      var linkedDirIds = kpiIndex.kpiToDirectives[k.id] || [];
+      var linkedDirs = linkedDirIds.map(function (did) {
+        var d = null;
+        directives.forEach(function (dir) { if (dir.id === did) d = dir; });
+        return d ? { id: d.id, title: d.title, status: d.status } : null;
+      }).filter(Boolean);
+      return { id: k.id, name: k.name, unit: k.unit, target: k.target, owner: k.owner, category: k.category, linkedDirectives: linkedDirs };
+    });
+
+    // Exec summary (deterministic, no LLM)
+    var IMPACT_RANK = { High: 0, Medium: 1, Low: 2 };
+    var topCompleted = completedDir.slice().sort(function (a, b) { return (IMPACT_RANK[a.impact] || 2) - (IMPACT_RANK[b.impact] || 2); }).slice(0, 3);
+    var topRisks = allRisks.slice(0, 2);
+    var summary = '';
+    if (topCompleted.length > 0) {
+      summary += 'Completed: ' + topCompleted.map(function (d) { return d.title + (d.impact ? ' (' + d.impact + ')' : ''); }).join(', ') + '. ';
+    }
+    if (topRisks.length > 0) {
+      summary += 'Top risks: ' + topRisks.map(function (r) { return r.description + ' [' + r.severity + ']'; }).join('; ') + '. ';
+    }
+    summary += 'Throughput: ' + created + ' created, ' + completed + ' completed' + (pendingApproval > 0 ? ', ' + pendingApproval + ' pending approval' : '') + '.';
+
+    return {
+      quarterKey: year + '-' + quarter,
+      dateRange: range,
+      kpis: kpiData,
+      directives: { active: activeDir, completed: completedDir, pendingApproval: pendingDir },
+      decisions: decisions,
+      risks: allRisks,
+      throughput: { tasksCreated: created, tasksCompleted: completed, pendingApprovalTasks: pendingApproval },
+      execSummary: summary
+    };
+  }
+
   // ── Governance: Directives ──
   var DIRECTIVES_KEY = 'ap_directives';
   function getDirectives() { return _loadStorage(DIRECTIVES_KEY, []); }
@@ -1360,6 +1510,9 @@ var AgentEngine = (function () {
     if (!dir.source) dir.source = null;
     if (!dir.approval) dir.approval = { status: 'none', approvedBy: null, approvedAt: null };
     if (!dir.owner) dir.owner = null;
+    // v2.5: KPI linking
+    dir.kpiLinks = _validateKpiIds(dir.kpiLinks);
+    if (!dir.kpiImpactNotes) dir.kpiImpactNotes = '';
     list.push(dir);
     _saveStorage(DIRECTIVES_KEY, list);
     _logGovernance('directive-created', { directiveId: dir.id, title: dir.title });
@@ -2112,6 +2265,11 @@ var AgentEngine = (function () {
     getActionStats: getActionStats,
     // Analytics
     getAutonomyScore: getAutonomyScore,
-    getRiskHeatmap: getRiskHeatmap
+    getRiskHeatmap: getRiskHeatmap,
+    // v2.5
+    getKpiRegistry: getKpiRegistry,
+    getDirectiveKpiIndex: getDirectiveKpiIndex,
+    getQuarterRange: getQuarterRange,
+    getBoardPacket: getBoardPacket
   };
 })();

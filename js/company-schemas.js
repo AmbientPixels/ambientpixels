@@ -150,7 +150,9 @@ var CompanySchemas = (function () {
       priority: (data && data.priority) || 'medium',
       status: 'active',
       linkedObjectives: [],
-      linkedTasks: []
+      linkedTasks: [],
+      kpiLinks: (data && isArray(data.kpiLinks)) ? data.kpiLinks : [],
+      kpiImpactNotes: (data && data.kpiImpactNotes) || ''
     };
   }
 
