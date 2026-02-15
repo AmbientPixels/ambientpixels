@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AmbientPixels Daily Standup — AI agents report in and coordinate." />
+  <meta name="description" content="AmbientPixels Standup — Structured Decision Engine v2.2" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Daily Standup — AmbientPixels HQ</title>
+  <title>Standup — AmbientPixels HQ</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -16,13 +16,70 @@
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/modules/company/css/company.css" />
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <style>
+    .su-config { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:0.8rem; margin-bottom:0.8rem; }
+    .su-config-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.5rem; }
+    .su-config label { font-size:0.65rem; opacity:0.5; display:block; margin-bottom:2px; }
+    .su-config input, .su-config select, .su-config textarea { width:100%; font-size:0.72rem; padding:6px 8px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:#e0e0e0; font-family:inherit; box-sizing:border-box; }
+    .su-config textarea { resize:vertical; min-height:48px; }
+    .su-config-row { display:flex; gap:0.5rem; align-items:end; }
+
+    .su-decision-panel { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:0.8rem; margin-bottom:0.8rem; display:none; }
+    .su-decision-header { display:flex; align-items:center; gap:0.5rem; margin-bottom:0.6rem; }
+    .su-decision-title { font-size:0.8rem; font-weight:600; }
+    .su-lock-icon { color:#FFD700; font-size:0.7rem; }
+    .su-decision-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:0.5rem; }
+    .su-decision-card { background:rgba(255,255,255,0.03); border-radius:8px; padding:0.5rem; }
+    .su-decision-card-label { font-size:0.55rem; opacity:0.4; text-transform:uppercase; margin-bottom:2px; }
+    .su-decision-card-value { font-size:0.72rem; font-weight:500; }
+
+    .su-status-badge { display:inline-block; font-size:0.6rem; padding:2px 8px; border-radius:10px; font-weight:600; text-transform:uppercase; }
+    .su-status-Pending { background:rgba(251,191,36,0.15); color:#fbbf24; }
+    .su-status-Approved { background:rgba(34,197,94,0.15); color:#22c55e; }
+    .su-status-Rejected { background:rgba(239,68,68,0.15); color:#ef4444; }
+    .su-status-Deferred { background:rgba(139,92,246,0.15); color:#8b5cf6; }
+    .su-status-NoAction { background:rgba(107,114,128,0.15); color:#6b7280; }
+
+    .su-warning-banner { background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.2); border-radius:8px; padding:0.5rem 0.7rem; margin-bottom:0.6rem; font-size:0.68rem; color:#fbbf24; display:none; }
+    .su-warning-banner i { margin-right:4px; }
+
+    .su-risk-panel { background:rgba(239,68,68,0.04); border:1px solid rgba(239,68,68,0.12); border-radius:10px; padding:0.6rem 0.8rem; margin-bottom:0.8rem; display:none; }
+    .su-risk-title { font-size:0.7rem; font-weight:600; color:#ef4444; margin-bottom:0.4rem; }
+    .su-risk-item { display:flex; align-items:center; gap:0.4rem; font-size:0.68rem; padding:0.2rem 0; }
+    .su-risk-sev { font-size:0.55rem; padding:1px 6px; border-radius:6px; font-weight:600; text-transform:uppercase; }
+    .su-risk-High { background:rgba(239,68,68,0.15); color:#ef4444; }
+    .su-risk-Medium { background:rgba(251,191,36,0.15); color:#fbbf24; }
+    .su-risk-Low { background:rgba(107,114,128,0.15); color:#6b7280; }
+
+    .su-proposals-panel { background:rgba(138,43,226,0.04); border:1px solid rgba(138,43,226,0.12); border-radius:10px; padding:0.6rem 0.8rem; margin-bottom:0.8rem; display:none; }
+    .su-proposals-title { font-size:0.7rem; font-weight:600; color:#a855f7; margin-bottom:0.4rem; }
+    .su-proposal-item { background:rgba(255,255,255,0.03); border-radius:8px; padding:0.5rem; margin-bottom:0.4rem; border-left:3px solid rgba(138,43,226,0.4); }
+    .su-proposal-item--task { border-left-color:rgba(59,130,246,0.5); }
+    .su-proposal-name { font-size:0.72rem; font-weight:500; margin-bottom:0.2rem; }
+    .su-proposal-meta { display:flex; gap:0.3rem; flex-wrap:wrap; }
+    .su-proposal-badge { font-size:0.55rem; padding:1px 6px; border-radius:6px; font-weight:500; }
+    .su-proposal-rationale { font-size:0.62rem; opacity:0.5; margin-top:0.2rem; }
+
+    .su-actions-bar { display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.6rem; }
+    .su-action-btn { font-size:0.65rem; padding:5px 12px; border-radius:6px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04); color:#e0e0e0; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+    .su-action-btn:hover { background:rgba(255,255,255,0.08); }
+    .su-action-btn--approve { border-color:rgba(34,197,94,0.3); color:#22c55e; }
+    .su-action-btn--reject { border-color:rgba(239,68,68,0.3); color:#ef4444; }
+    .su-action-btn--defer { border-color:rgba(139,92,246,0.3); color:#8b5cf6; }
+    .su-action-btn--create { border-color:rgba(59,130,246,0.3); color:#3b82f6; background:rgba(59,130,246,0.08); }
+    .su-action-btn--create:hover { background:rgba(59,130,246,0.15); }
+    .su-action-btn:disabled { opacity:0.3; cursor:not-allowed; }
+
+    .su-recurrence { display:flex; gap:0.4rem; align-items:center; }
+    .su-recurrence label { margin:0; white-space:nowrap; }
+  </style>
 </head>
 <body style="background:#071019" data-theme="dark">
 
   <main class="content-section" style="max-width: 800px; margin: 0 auto; padding: 1rem;">
 
     <div class="company-header">
-      <h1><i class="fas fa-users" style="opacity:0.4; margin-right:8px;"></i>Daily Standup</h1>
+      <h1><i class="fas fa-users" style="opacity:0.4; margin-right:8px;"></i>Standup <span style="font-size:0.5rem; opacity:0.3; vertical-align:middle;">Decision Engine v2.2</span></h1>
       <p>Nova (Prime Operator) opens with priorities, department heads report in, Nova closes with summary for CEO.</p>
     </div>
 
@@ -35,9 +92,98 @@
         </button>
       </div>
 
+      <!-- Standup Configuration Form -->
+      <div class="su-config" id="su-config">
+        <div class="su-config-grid">
+          <div>
+            <label for="su-title">Title</label>
+            <input type="text" id="su-title" placeholder="Daily Standup" />
+          </div>
+          <div>
+            <label for="su-type">Type</label>
+            <select id="su-type">
+              <option value="Status" selected>Status</option>
+              <option value="Issue">Issue</option>
+              <option value="Directive">Directive</option>
+              <option value="Launch">Launch</option>
+              <option value="Cost">Cost</option>
+              <option value="Brand">Brand</option>
+              <option value="Strategy">Strategy</option>
+              <option value="Infrastructure">Infrastructure</option>
+              <option value="Experiment">Experiment</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="su-agenda">Agenda / Intent</label>
+          <textarea id="su-agenda" placeholder="What should this standup focus on? Leave blank for open status update..."></textarea>
+        </div>
+        <div class="su-config-row" style="margin-top:0.4rem;">
+          <div class="su-recurrence">
+            <label><input type="checkbox" id="su-recurring" /> Recurring</label>
+            <select id="su-frequency" style="width:auto; font-size:0.65rem; padding:3px 6px;" disabled>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Warning Banner (related standups) -->
+      <div class="su-warning-banner" id="su-warning-banner">
+        <i class="fas fa-exclamation-triangle"></i> <span id="su-warning-text"></span>
+      </div>
+
+      <!-- Decision Status Panel -->
+      <div class="su-decision-panel" id="su-decision-panel">
+        <div class="su-decision-header">
+          <span class="su-decision-title"><i class="fas fa-gavel" style="margin-right:4px;"></i> Decision Status</span>
+          <span id="su-lock-icon" class="su-lock-icon" style="display:none;"><i class="fas fa-lock"></i> Locked</span>
+          <span id="su-decision-badge" class="su-status-badge su-status-Pending">Pending</span>
+        </div>
+        <div class="su-decision-grid" id="su-decision-grid">
+          <div class="su-decision-card">
+            <div class="su-decision-card-label">Decisions Made</div>
+            <div class="su-decision-card-value" id="su-decisions-count">0</div>
+          </div>
+          <div class="su-decision-card">
+            <div class="su-decision-card-label">Approvals Required</div>
+            <div class="su-decision-card-value" id="su-approvals-count">0</div>
+          </div>
+          <div class="su-decision-card">
+            <div class="su-decision-card-label">Proposed Tasks</div>
+            <div class="su-decision-card-value" id="su-tasks-count">0</div>
+          </div>
+          <div class="su-decision-card">
+            <div class="su-decision-card-label">Proposed Directives</div>
+            <div class="su-decision-card-value" id="su-directives-count">0</div>
+          </div>
+        </div>
+        <div class="su-actions-bar" id="su-decision-actions">
+          <button class="su-action-btn su-action-btn--approve" data-decision="Approved"><i class="fas fa-check"></i> Approve</button>
+          <button class="su-action-btn su-action-btn--reject" data-decision="Rejected"><i class="fas fa-times"></i> Reject</button>
+          <button class="su-action-btn su-action-btn--defer" data-decision="Deferred"><i class="fas fa-clock"></i> Defer</button>
+          <button class="su-action-btn" data-decision="NoAction"><i class="fas fa-minus"></i> No Action</button>
+          <button class="su-action-btn su-action-btn--create" id="su-create-all" style="margin-left:auto;"><i class="fas fa-plus-circle"></i> Create All (Pending Approval)</button>
+        </div>
+      </div>
+
+      <!-- Risk Aggregation Panel -->
+      <div class="su-risk-panel" id="su-risk-panel">
+        <div class="su-risk-title"><i class="fas fa-exclamation-circle"></i> Risk Summary</div>
+        <div id="su-risk-list"></div>
+      </div>
+
+      <!-- Proposals Panel -->
+      <div class="su-proposals-panel" id="su-proposals-panel">
+        <div class="su-proposals-title"><i class="fas fa-lightbulb"></i> Proposed Actions</div>
+        <div id="su-proposals-list"></div>
+      </div>
+
       <!-- Live Feed -->
       <div class="standup-feed" id="standup-feed">
-        <div class="standup-status" id="standup-status">No standup yet today. Hit the button to kick one off.</div>
+        <div class="standup-status" id="standup-status">No standup yet today. Configure above and hit Run Standup.</div>
       </div>
 
       <!-- Past Standups -->
@@ -63,8 +209,20 @@
       var standupPastLog = document.getElementById('standup-past-log');
       var dateHeading = document.getElementById('standup-date-heading');
 
+      var suConfig = document.getElementById('su-config');
+      var suDecisionPanel = document.getElementById('su-decision-panel');
+      var suRiskPanel = document.getElementById('su-risk-panel');
+      var suProposalsPanel = document.getElementById('su-proposals-panel');
+      var suWarningBanner = document.getElementById('su-warning-banner');
+      var _currentStandupId = null;
+
       // Show today's date
       dateHeading.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+      // Recurring checkbox toggles frequency select
+      document.getElementById('su-recurring').addEventListener('change', function () {
+        document.getElementById('su-frequency').disabled = !this.checked;
+      });
 
       AgentEngine.loadRegistry().then(function () {
         initStandup();
@@ -76,6 +234,12 @@
 
         if (AgentEngine.hasStandupToday() && latest) {
           renderStandupEntries(latest.entries);
+          renderDecisionPanel(latest);
+          renderRiskPanel(latest);
+          renderProposalsPanel(latest);
+          renderWarningBanner(latest);
+          _currentStandupId = latest.id;
+          suConfig.style.display = 'none';
           standupTrigger.disabled = true;
           standupTriggerLabel.textContent = 'Done for today';
           standupTrigger.querySelector('i').className = 'fas fa-check';
@@ -97,7 +261,17 @@
         standupFeed.innerHTML = '';
         standupStatus.style.display = 'none';
 
-        AgentEngine.runStandup();
+        var opts = {
+          title: document.getElementById('su-title').value.trim() || 'Daily Standup',
+          agenda: document.getElementById('su-agenda').value.trim(),
+          type: document.getElementById('su-type').value,
+          template: {
+            isRecurring: document.getElementById('su-recurring').checked,
+            frequency: document.getElementById('su-recurring').checked ? document.getElementById('su-frequency').value : null
+          }
+        };
+
+        AgentEngine.runStandup(opts);
       });
 
       AgentEngine.on('standup-agent-thinking', function (data) {
@@ -126,9 +300,16 @@
       });
 
       AgentEngine.on('standup-complete', function (standup) {
+        _currentStandupId = standup.id;
         standupTrigger.disabled = true;
         standupTriggerLabel.textContent = 'Done for today';
         standupTrigger.querySelector('i').className = 'fas fa-check';
+        suConfig.style.display = 'none';
+
+        renderDecisionPanel(standup);
+        renderRiskPanel(standup);
+        renderProposalsPanel(standup);
+        renderWarningBanner(standup);
 
         var log = AgentEngine.getStandupLog();
         if (log.length > 1) {
@@ -144,6 +325,136 @@
         standupFeed.innerHTML += '<div class="standup-status">Standup failed. Try again.</div>';
       });
 
+      // ── Decision Panel ──
+      function renderDecisionPanel(standup) {
+        if (!standup || standup.status !== 'complete') return;
+        suDecisionPanel.style.display = '';
+        var totalProposals = (standup.proposals.tasks || []).length + (standup.proposals.directives || []).length;
+
+        document.getElementById('su-decision-badge').className = 'su-status-badge su-status-' + (standup.decisionStatus || 'Pending');
+        document.getElementById('su-decision-badge').textContent = standup.decisionStatus || 'Pending';
+
+        document.getElementById('su-decisions-count').textContent = (standup.decisionStatus === 'Approved' || standup.decisionStatus === 'Rejected') ? '1' : '0';
+        document.getElementById('su-approvals-count').textContent = totalProposals;
+        document.getElementById('su-tasks-count').textContent = (standup.proposals.tasks || []).length;
+        document.getElementById('su-directives-count').textContent = (standup.proposals.directives || []).length;
+
+        // Lock state
+        var lockIcon = document.getElementById('su-lock-icon');
+        var actionsBar = document.getElementById('su-decision-actions');
+        if (standup.locked) {
+          lockIcon.style.display = '';
+          actionsBar.querySelectorAll('.su-action-btn').forEach(function (b) { b.disabled = true; });
+        } else {
+          lockIcon.style.display = 'none';
+          actionsBar.querySelectorAll('.su-action-btn').forEach(function (b) { b.disabled = false; });
+        }
+      }
+
+      // Decision action buttons
+      document.getElementById('su-decision-actions').addEventListener('click', function (e) {
+        var btn = e.target.closest('.su-action-btn');
+        if (!btn || btn.disabled || !_currentStandupId) return;
+
+        if (btn.id === 'su-create-all') {
+          var result = AgentEngine.createProposalsAsPending(_currentStandupId);
+          if (result) {
+            alert('Created ' + result.tasks.length + ' task(s) and ' + result.directives.length + ' directive(s) as Pending Approval.');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-check"></i> Created';
+          }
+          return;
+        }
+
+        var decision = btn.dataset.decision;
+        if (decision) {
+          var updated = AgentEngine.updateStandupDecision(_currentStandupId, decision);
+          if (updated) {
+            renderDecisionPanel(updated);
+          }
+        }
+      });
+
+      // ── Risk Panel ──
+      function renderRiskPanel(standup) {
+        var risks = standup.riskSummary || [];
+        if (risks.length === 0) { suRiskPanel.style.display = 'none'; return; }
+        suRiskPanel.style.display = '';
+        var list = document.getElementById('su-risk-list');
+        list.innerHTML = '';
+        risks.forEach(function (r) {
+          var el = document.createElement('div');
+          el.className = 'su-risk-item';
+          el.innerHTML =
+            '<span class="su-risk-sev su-risk-' + r.severity + '">' + r.severity + '</span>' +
+            '<span>' + escapeHtml(r.title) + '</span>' +
+            (r.reportedBy ? '<span style="font-size:0.55rem;opacity:0.3;">(' + r.reportedBy + ')</span>' : '');
+          list.appendChild(el);
+        });
+      }
+
+      // ── Proposals Panel ──
+      function renderProposalsPanel(standup) {
+        var tasks = standup.proposals.tasks || [];
+        var dirs = standup.proposals.directives || [];
+        if (tasks.length === 0 && dirs.length === 0) { suProposalsPanel.style.display = 'none'; return; }
+        suProposalsPanel.style.display = '';
+        var list = document.getElementById('su-proposals-list');
+        list.innerHTML = '';
+
+        var IMPACT_COLORS = { High: '#ef4444', Medium: '#fbbf24', Low: '#6b7280' };
+        var PRI_COLORS = { urgent: '#ef4444', high: '#f59e0b', medium: '#3b82f6', low: '#6b7280' };
+
+        tasks.forEach(function (t) {
+          var el = document.createElement('div');
+          el.className = 'su-proposal-item su-proposal-item--task';
+          el.innerHTML =
+            '<div class="su-proposal-name"><i class="fas fa-tasks" style="color:#3b82f6;margin-right:4px;font-size:0.6rem;"></i>' + escapeHtml(t.title) + '</div>' +
+            '<div class="su-proposal-meta">' +
+              '<span class="su-proposal-badge" style="background:rgba(59,130,246,0.12);color:#3b82f6;">Task</span>' +
+              (t.assignee ? '<span class="su-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">' + t.assignee + '</span>' : '') +
+              '<span class="su-proposal-badge" style="background:' + (PRI_COLORS[t.priority] || '#3b82f6') + '22;color:' + (PRI_COLORS[t.priority] || '#3b82f6') + ';">' + (t.priority || 'medium') + '</span>' +
+              '<span class="su-proposal-badge" style="background:' + (IMPACT_COLORS[t.impact] || '#fbbf24') + '22;color:' + (IMPACT_COLORS[t.impact] || '#fbbf24') + ';">Impact: ' + (t.impact || '?') + '</span>' +
+              '<span class="su-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">Effort: ' + (t.effort || '?') + '</span>' +
+              (t._proposers && t._proposers.length > 1 ? '<span class="su-proposal-badge" style="background:rgba(138,43,226,0.12);color:#a855f7;">Merged (' + t._proposers.join(', ') + ')</span>' : '') +
+            '</div>' +
+            (t.rationale ? '<div class="su-proposal-rationale">' + escapeHtml(t.rationale) + '</div>' : '');
+          list.appendChild(el);
+        });
+
+        dirs.forEach(function (d) {
+          var el = document.createElement('div');
+          el.className = 'su-proposal-item';
+          el.innerHTML =
+            '<div class="su-proposal-name"><i class="fas fa-compass" style="color:#a855f7;margin-right:4px;font-size:0.6rem;"></i>' + escapeHtml(d.title) + '</div>' +
+            '<div class="su-proposal-meta">' +
+              '<span class="su-proposal-badge" style="background:rgba(138,43,226,0.12);color:#a855f7;">Directive</span>' +
+              '<span class="su-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">' + (d.classification || 'Operational') + '</span>' +
+              (d.owner ? '<span class="su-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">' + d.owner + '</span>' : '') +
+              '<span class="su-proposal-badge" style="background:' + (PRI_COLORS[d.priority] || '#3b82f6') + '22;color:' + (PRI_COLORS[d.priority] || '#3b82f6') + ';">' + (d.priority || 'medium') + '</span>' +
+              '<span class="su-proposal-badge" style="background:' + (IMPACT_COLORS[d.impact] || '#fbbf24') + '22;color:' + (IMPACT_COLORS[d.impact] || '#fbbf24') + ';">Impact: ' + (d.impact || '?') + '</span>' +
+              '<span class="su-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">Effort: ' + (d.effort || '?') + '</span>' +
+              (d._proposers && d._proposers.length > 1 ? '<span class="su-proposal-badge" style="background:rgba(138,43,226,0.12);color:#a855f7;">Merged (' + d._proposers.join(', ') + ')</span>' : '') +
+            '</div>' +
+            (d.rationale ? '<div class="su-proposal-rationale">' + escapeHtml(d.rationale) + '</div>' : '');
+          list.appendChild(el);
+        });
+      }
+
+      // ── Warning Banner (related/previously decided standups) ──
+      function renderWarningBanner(standup) {
+        var related = standup.relatedStandups || [];
+        var locked = related.filter(function (r) { return r.decisionStatus === 'Approved' || r.decisionStatus === 'Rejected'; });
+        if (locked.length === 0) { suWarningBanner.style.display = 'none'; return; }
+        suWarningBanner.style.display = '';
+        var msgs = locked.map(function (r) {
+          var d = new Date(r.date);
+          return '"' + r.title + '" — ' + r.decisionStatus + ' on ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        });
+        document.getElementById('su-warning-text').innerHTML = 'Previously decided: ' + msgs.join('; ');
+      }
+
+      // ── Entry rendering ──
       function createStandupEntryEl(entry) {
         var el = document.createElement('div');
         el.className = 'standup-entry';
@@ -183,7 +494,10 @@
           item.className = 'standup-past-item';
 
           var dateStr = formatStandupDate(standup.date);
-          item.innerHTML = '<div class="standup-date-label"><i class="fas fa-calendar-day" style="margin-right:4px;"></i>' + dateStr + '</div>';
+          var lockHtml = standup.locked ? ' <i class="fas fa-lock" style="color:#FFD700;font-size:0.55rem;"></i>' : '';
+          var statusHtml = standup.decisionStatus ? ' <span class="su-status-badge su-status-' + standup.decisionStatus + '" style="font-size:0.5rem;">' + standup.decisionStatus + '</span>' : '';
+          item.innerHTML = '<div class="standup-date-label"><i class="fas fa-calendar-day" style="margin-right:4px;"></i>' + dateStr + lockHtml + statusHtml +
+            (standup.title && standup.title !== 'Daily Standup' ? ' <span style="opacity:0.4;font-size:0.65rem;">— ' + escapeHtml(standup.title) + '</span>' : '') + '</div>';
 
           var feed = document.createElement('div');
           feed.className = 'standup-feed';
@@ -208,6 +522,7 @@
       }
 
       function escapeHtml(str) {
+        if (!str) return '';
         var div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;

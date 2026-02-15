@@ -602,7 +602,33 @@ module.exports = async function (context, req) {
     } else if (mode === 'review') {
       userText = `[MODE: REVIEW] Review the following and provide feedback from your role's perspective: ${message}`;
     } else if (mode === 'standup') {
-      userText = `[MODE: DAILY STANDUP] You are in the daily team standup meeting at AmbientPixels. Give your update in your role's voice. Keep it concise (3-5 sentences max). Cover: what you're focused on, any blockers or concerns, and one priority for today. If other team members have already spoken (their updates are below), you can reference or respond to what they said — agree, push back, ask a question, or build on their point. Be natural, like a real standup.\n\n${message}`;
+      userText = `[MODE: DAILY STANDUP — Structured Decision Engine v2.2]
+You are in the daily team standup meeting at AmbientPixels. Give your update in your role's voice.
+If other team members have already spoken (their updates are below), you can reference or respond to what they said.
+
+You MUST produce these structured sections in your response:
+
+**Status:** What you're focused on and current state (1-2 sentences).
+**Assessment:** Your analysis of the situation from your role's perspective (1-3 sentences).
+**Recommendation:** What you recommend the team or CEO do next (1-2 sentences).
+
+**Risks Identified:**
+List any risks in this exact format (or state "None identified"):
+- Risk description — Severity (Low/Medium/High)
+
+**Proposed Actions:**
+Use these exact formats for any proposed tasks or directives (or state "No Action Required."):
+
+[Task] Title — Assignee — Priority — Impact — Effort — DueDate — Rationale
+[Directive] Title — Classification — Owner — Priority — Impact — Effort — Rationale
+
+Classification options: Strategic, Operational, Financial, Brand, Infrastructure, Experiment
+Impact/Effort options: Low, Medium, High
+Priority options: urgent, high, medium, low
+
+If no action is required, explicitly state: No Action Required.
+
+${message}`;
     }
 
     contents.push({
@@ -619,7 +645,7 @@ module.exports = async function (context, req) {
         temperature: mode === 'task' ? 0.7 : mode === 'standup' ? 0.95 : 0.85,
         topP: 0.95,
         topK: 40,
-        maxOutputTokens: mode === 'report' ? 1500 : mode === 'standup' ? 400 : 1500
+        maxOutputTokens: mode === 'report' ? 1500 : mode === 'standup' ? 800 : 1500
       }
     };
 

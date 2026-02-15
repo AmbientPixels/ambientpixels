@@ -459,8 +459,18 @@ var AgentEngine = (function () {
     return log.length > 0 ? log[log.length - 1] : null;
   }
 
+  // Valid standup types and decision statuses
+  var STANDUP_TYPES = ['Issue', 'Status', 'Directive', 'Launch', 'Cost', 'Brand', 'Strategy', 'Infrastructure', 'Experiment'];
+  var DECISION_STATUSES = ['Pending', 'Approved', 'Rejected', 'Deferred', 'NoAction'];
+  var IMPACT_EFFORT_ENUM = ['Low', 'Medium', 'High'];
+
+  // Proposal limits (soft caps)
+  var MAX_PROPOSED_TASKS_PER_AGENT = 3;
+  var MAX_PROPOSED_DIRECTIVES_PER_STANDUP = 2; // unless Nova
+
   // Run a full standup — each agent speaks in turn, seeing previous responses
-  function runStandup() {
+  // opts: { title, agenda, type, requestedOutputs, template }
+  function runStandup(opts) {
     if (_standupRunning) {
       console.warn('[AgentEngine] Standup already in progress.');
       return Promise.resolve(null);
@@ -470,18 +480,51 @@ var AgentEngine = (function () {
       return Promise.resolve(null);
     }
 
+    opts = opts || {};
     _standupRunning = true;
+    var standupId = 'standup-' + Date.now();
     var standup = {
-      id: 'standup-' + Date.now(),
+      id: standupId,
+      standupId: standupId,
+      title: opts.title || 'Daily Standup',
+      agenda: opts.agenda || '',
+      type: (STANDUP_TYPES.indexOf(opts.type) !== -1) ? opts.type : 'Status',
+      requestedOutputs: opts.requestedOutputs || [],
       date: new Date().toISOString(),
       dateLabel: new Date().toISOString().split('T')[0],
       entries: [],
-      status: 'in-progress'
+      status: 'in-progress',
+      decisionStatus: 'Pending',
+      createdAt: new Date().toISOString(),
+      createdBy: opts.createdBy || 'ceo',
+      proposals: { directives: [], tasks: [] },
+      riskSummary: [],
+      relatedStandups: [],
+      template: opts.template || { isRecurring: false, frequency: null }
     };
+
+    // Check for related standups (same agenda/title or same directives)
+    var log = _loadStandupLog();
+    if (opts.agenda || opts.title) {
+      var search = (opts.agenda || opts.title).toLowerCase();
+      log.forEach(function (prev) {
+        if (prev.id === standup.id) return;
+        var prevText = ((prev.agenda || '') + ' ' + (prev.title || '')).toLowerCase();
+        if (prevText && search && _stringSimilarity(prevText, search) > 0.4) {
+          standup.relatedStandups.push({
+            id: prev.id,
+            title: prev.title || 'Untitled',
+            date: prev.date,
+            decisionStatus: prev.decisionStatus || 'N/A'
+          });
+        }
+      });
+    }
 
     emit('standup-start', standup);
 
     var transcript = ''; // Running context for each agent
+    var agendaBlock = standup.agenda ? '\n\nSTANDUP AGENDA: ' + standup.agenda + '\nSTANDUP TYPE: ' + standup.type : '';
 
     // Sequential chain: each agent gets previous agents' updates
     var chain = Promise.resolve();
@@ -494,11 +537,11 @@ var AgentEngine = (function () {
         // Build context message
         var context = '';
         if (index === 0) {
-          context = 'You are opening today\'s standup as Prime Operator. Set the agenda, state top priorities, and flag anything the team needs to address. No one else has spoken yet.';
+          context = 'You are opening today\'s standup as Prime Operator. Set the agenda, state top priorities, and flag anything the team needs to address. No one else has spoken yet.' + agendaBlock;
         } else if (agentId === 'nova' && index > 0) {
-          context = 'You are closing the standup as Prime Operator. Summarize what the team reported, flag items that need CEO attention or escalation, assign follow-ups, and note anything for the CEO briefing. Here are the team updates:\n\n' + transcript;
+          context = 'You are closing the standup as Prime Operator. Summarize what the team reported, flag items that need CEO attention or escalation, assign follow-ups, and note anything for the CEO briefing. Here are the team updates:\n\n' + transcript + agendaBlock;
         } else {
-          context = 'Here are the updates from team members who already spoke:\n\n' + transcript;
+          context = 'Here are the updates from team members who already spoke:\n\n' + transcript + agendaBlock;
         }
 
         emit('standup-agent-thinking', { agentId: agentId, agent: agent });
@@ -517,6 +560,25 @@ var AgentEngine = (function () {
           standup.entries.push(entry);
           transcript += agent.name + ' (' + agent.role + '): ' + (reply || '(no response)') + '\n\n';
 
+          // Parse structured proposals and risks from agent reply
+          var parsed = _parseStandupReply(reply, agentId);
+          if (parsed.tasks.length > 0) {
+            // Enforce proposal limit: max 3 tasks per agent
+            if (parsed.tasks.length > MAX_PROPOSED_TASKS_PER_AGENT) {
+              console.warn('[AgentEngine] Agent ' + agentId + ' proposed ' + parsed.tasks.length + ' tasks, clamping to ' + MAX_PROPOSED_TASKS_PER_AGENT);
+              parsed.tasks = parsed.tasks.slice(0, MAX_PROPOSED_TASKS_PER_AGENT);
+            }
+            parsed.tasks.forEach(function (t) { t.proposedBy = agentId; });
+            standup.proposals.tasks = standup.proposals.tasks.concat(parsed.tasks);
+          }
+          if (parsed.directives.length > 0) {
+            parsed.directives.forEach(function (d) { d.proposedBy = agentId; });
+            standup.proposals.directives = standup.proposals.directives.concat(parsed.directives);
+          }
+          if (parsed.risks.length > 0) {
+            standup.riskSummary = standup.riskSummary.concat(parsed.risks);
+          }
+
           emit('standup-agent-done', entry);
         });
       });
@@ -525,6 +587,22 @@ var AgentEngine = (function () {
     return chain.then(function () {
       standup.status = 'complete';
       _standupRunning = false;
+
+      // Enforce directive proposal limit: max 2 per standup unless Nova
+      var novaDirectives = standup.proposals.directives.filter(function (d) { return d.proposedBy === 'nova'; });
+      var otherDirectives = standup.proposals.directives.filter(function (d) { return d.proposedBy !== 'nova'; });
+      if (otherDirectives.length > MAX_PROPOSED_DIRECTIVES_PER_STANDUP) {
+        console.warn('[AgentEngine] Non-Nova directives exceed limit (' + otherDirectives.length + '), clamping to ' + MAX_PROPOSED_DIRECTIVES_PER_STANDUP);
+        otherDirectives = otherDirectives.slice(0, MAX_PROPOSED_DIRECTIVES_PER_STANDUP);
+      }
+      standup.proposals.directives = novaDirectives.concat(otherDirectives);
+
+      // Deduplicate proposals
+      standup.proposals.tasks = _dedupeProposals(standup.proposals.tasks);
+      standup.proposals.directives = _dedupeProposals(standup.proposals.directives);
+
+      // Aggregate top 3 risks by severity
+      standup.riskSummary = _aggregateRisks(standup.riskSummary);
 
       // Save to log
       var log = _loadStandupLog();
@@ -576,6 +654,228 @@ var AgentEngine = (function () {
 
   function isStandupRunning() {
     return _standupRunning;
+  }
+
+  // ── Standup Decision Engine v2.2 Helpers ──
+
+  // Parse structured sections from agent standup reply
+  function _parseStandupReply(reply, agentId) {
+    var result = { tasks: [], directives: [], risks: [] };
+    if (!reply) return result;
+
+    // Parse [Task] lines: [Task] Title — Assignee — Priority — Impact — Effort — DueDate — Rationale
+    var taskRegex = /\[Task\]\s*(.+?)(?:\s*[—–-]\s*(.+?))?(?:\s*[—–-]\s*(urgent|high|medium|low))?(?:\s*[—–-]\s*(High|Medium|Low))?(?:\s*[—–-]\s*(High|Medium|Low))?(?:\s*[—–-]\s*(\d{4}-\d{2}-\d{2}))?(?:\s*[—–-]\s*(.+))?$/gim;
+    var m;
+    while ((m = taskRegex.exec(reply)) !== null) {
+      result.tasks.push({
+        title: (m[1] || '').trim(),
+        assignee: (m[2] || agentId).trim().toLowerCase(),
+        priority: _clampEnum((m[3] || 'medium').toLowerCase(), ['urgent', 'high', 'medium', 'low'], 'medium'),
+        impact: _clampEnum(m[4] || 'Medium', IMPACT_EFFORT_ENUM, 'Medium'),
+        effort: _clampEnum(m[5] || 'Medium', IMPACT_EFFORT_ENUM, 'Medium'),
+        dueDate: m[6] || null,
+        rationale: (m[7] || '').trim()
+      });
+    }
+
+    // Parse [Directive] lines: [Directive] Title — Classification — Owner — Priority — Impact — Effort — Rationale
+    var dirRegex = /\[Directive\]\s*(.+?)(?:\s*[—–-]\s*(Strategic|Operational|Financial|Brand|Infrastructure|Experiment))?(?:\s*[—–-]\s*(.+?))?(?:\s*[—–-]\s*(urgent|high|medium|low))?(?:\s*[—–-]\s*(High|Medium|Low))?(?:\s*[—–-]\s*(High|Medium|Low))?(?:\s*[—–-]\s*(.+))?$/gim;
+    while ((m = dirRegex.exec(reply)) !== null) {
+      result.directives.push({
+        title: (m[1] || '').trim(),
+        classification: _clampEnum(m[2] || 'Operational', ['Strategic', 'Operational', 'Financial', 'Brand', 'Infrastructure', 'Experiment'], 'Operational'),
+        owner: (m[3] || agentId).trim().toLowerCase(),
+        priority: _clampEnum((m[4] || 'medium').toLowerCase(), ['urgent', 'high', 'medium', 'low'], 'medium'),
+        impact: _clampEnum(m[5] || 'Medium', IMPACT_EFFORT_ENUM, 'Medium'),
+        effort: _clampEnum(m[6] || 'Medium', IMPACT_EFFORT_ENUM, 'Medium'),
+        rationale: (m[7] || '').trim()
+      });
+    }
+
+    // Parse risk lines: Risk title — Severity (Low/Medium/High)
+    var riskRegex = /(?:^|\n)\s*[-•*]?\s*(?:Risk:?\s*)?(.+?)\s*[—–-]\s*(?:Severity:?\s*)?(Low|Medium|High)/gim;
+    while ((m = riskRegex.exec(reply)) !== null) {
+      var rTitle = (m[1] || '').trim();
+      if (rTitle.length > 3 && rTitle.length < 200) {
+        result.risks.push({
+          title: rTitle,
+          severity: _clampEnum(m[2] || 'Medium', IMPACT_EFFORT_ENUM, 'Medium'),
+          reportedBy: agentId
+        });
+      }
+    }
+
+    return result;
+  }
+
+  // Clamp value to allowed enum list
+  function _clampEnum(val, allowed, fallback) {
+    if (!val) return fallback;
+    for (var i = 0; i < allowed.length; i++) {
+      if (allowed[i].toLowerCase() === val.toLowerCase()) return allowed[i];
+    }
+    return fallback;
+  }
+
+  // Simple word-overlap similarity (0–1)
+  function _stringSimilarity(a, b) {
+    if (!a || !b) return 0;
+    var wa = a.split(/\s+/).filter(Boolean);
+    var wb = b.split(/\s+/).filter(Boolean);
+    if (wa.length === 0 || wb.length === 0) return 0;
+    var set = {};
+    wa.forEach(function (w) { set[w] = true; });
+    var overlap = 0;
+    wb.forEach(function (w) { if (set[w]) overlap++; });
+    return overlap / Math.max(wa.length, wb.length);
+  }
+
+  // Deduplicate proposals: merge similar titles, combine rationales, keep highest priority/impact
+  function _dedupeProposals(proposals) {
+    if (proposals.length <= 1) return proposals;
+    var PRIORITY_RANK = { urgent: 0, high: 1, medium: 2, low: 3 };
+    var IMPACT_RANK = { High: 0, Medium: 1, Low: 2 };
+    var merged = [];
+
+    proposals.forEach(function (p) {
+      var found = false;
+      for (var i = 0; i < merged.length; i++) {
+        if (_stringSimilarity(merged[i].title.toLowerCase(), p.title.toLowerCase()) > 0.5) {
+          // Merge: keep highest priority
+          if ((PRIORITY_RANK[p.priority] || 3) < (PRIORITY_RANK[merged[i].priority] || 3)) {
+            merged[i].priority = p.priority;
+          }
+          // Keep highest impact
+          if ((IMPACT_RANK[p.impact] || 2) < (IMPACT_RANK[merged[i].impact] || 2)) {
+            merged[i].impact = p.impact;
+          }
+          // Combine rationales
+          if (p.rationale && merged[i].rationale.indexOf(p.rationale) === -1) {
+            merged[i].rationale = (merged[i].rationale ? merged[i].rationale + ' | ' : '') + p.rationale;
+          }
+          // Track multiple proposers
+          if (p.proposedBy && merged[i]._proposers) {
+            if (merged[i]._proposers.indexOf(p.proposedBy) === -1) merged[i]._proposers.push(p.proposedBy);
+          }
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        p._proposers = [p.proposedBy || 'unknown'];
+        merged.push(p);
+      }
+    });
+
+    return merged;
+  }
+
+  // Aggregate risks: dedupe by title similarity, sort by severity, keep top 3
+  function _aggregateRisks(risks) {
+    if (risks.length === 0) return [];
+    var SEVERITY_RANK = { High: 0, Medium: 1, Low: 2 };
+    var deduped = _dedupeProposals(risks.map(function (r) {
+      return { title: r.title, severity: r.severity, priority: r.severity, impact: r.severity, rationale: '', reportedBy: r.reportedBy, proposedBy: r.reportedBy };
+    }));
+    deduped.sort(function (a, b) {
+      return (SEVERITY_RANK[a.severity] || 2) - (SEVERITY_RANK[b.severity] || 2);
+    });
+    return deduped.slice(0, 3).map(function (r) {
+      return { title: r.title, severity: r.severity, reportedBy: r.reportedBy };
+    });
+  }
+
+  // Get a standup by ID
+  function getStandupById(id) {
+    var log = _loadStandupLog();
+    for (var i = 0; i < log.length; i++) {
+      if (log[i].id === id) return log[i];
+    }
+    return null;
+  }
+
+  // Update standup decision status (lock/approve/reject/defer)
+  function updateStandupDecision(standupId, status, notes) {
+    if (DECISION_STATUSES.indexOf(status) === -1) {
+      console.warn('[AgentEngine] Invalid decision status:', status);
+      return null;
+    }
+    var log = _loadStandupLog();
+    for (var i = 0; i < log.length; i++) {
+      if (log[i].id === standupId) {
+        log[i].decisionStatus = status;
+        log[i].decisionNotes = notes || '';
+        log[i].decisionAt = new Date().toISOString();
+        log[i].decisionBy = 'ceo';
+        if (status === 'Approved' || status === 'Rejected') {
+          log[i].locked = true;
+        }
+        _saveStandupLog(log);
+        _logGovernance('standup-decision', { standupId: standupId, status: status, notes: notes || '' });
+        emit('standup-decision-updated', log[i]);
+        return log[i];
+      }
+    }
+    return null;
+  }
+
+  // Create proposals from standup as Pending Approval tasks + directives
+  function createProposalsAsPending(standupId) {
+    var standup = getStandupById(standupId);
+    if (!standup) { console.warn('[AgentEngine] Standup not found:', standupId); return null; }
+
+    var createdTasks = [];
+    var createdDirectives = [];
+    var source = { type: 'standup', id: standupId, title: standup.title, date: standup.date };
+
+    // Create tasks as pending-approval
+    (standup.proposals.tasks || []).forEach(function (p) {
+      var task = addTask({
+        title: p.title,
+        description: (p.rationale || '') + (p._proposers ? '\n[Proposed by: ' + p._proposers.join(', ') + ']' : ''),
+        status: 'pending-approval',
+        priority: p.priority || 'medium',
+        assignee: p.assignee || null,
+        dueDate: p.dueDate || null,
+        tags: ['standup-proposal'],
+        source: source,
+        impact: p.impact || 'Medium',
+        effort: p.effort || 'Medium'
+      });
+      createdTasks.push(task);
+    });
+
+    // Create directives as pending-approval
+    (standup.proposals.directives || []).forEach(function (p) {
+      var dir = addDirective({
+        title: p.title,
+        description: (p.rationale || '') + (p._proposers ? '\n[Proposed by: ' + p._proposers.join(', ') + ']' : ''),
+        status: 'pending-approval',
+        priority: p.priority || 'medium',
+        classification: p.classification || 'Operational',
+        owner: p.owner || null,
+        impact: p.impact || 'Medium',
+        effort: p.effort || 'Medium',
+        dependencies: [],
+        source: source,
+        approval: { status: 'pending', approvedBy: null, approvedAt: null }
+      });
+      createdDirectives.push(dir);
+    });
+
+    // Update standup with created artifact IDs
+    var log = _loadStandupLog();
+    for (var i = 0; i < log.length; i++) {
+      if (log[i].id === standupId) {
+        log[i]._createdTaskIds = createdTasks.map(function (t) { return t.id; });
+        log[i]._createdDirectiveIds = createdDirectives.map(function (d) { return d.id; });
+        _saveStandupLog(log);
+        break;
+      }
+    }
+
+    emit('standup-proposals-created', { standupId: standupId, tasks: createdTasks, directives: createdDirectives });
+    return { tasks: createdTasks, directives: createdDirectives };
   }
 
   // ── Workspace: Shared Memory ──
@@ -846,6 +1146,9 @@ var AgentEngine = (function () {
       division: entry.division || null,         // division id
       tags: entry.tags || [],
       dueDate: entry.dueDate || null,
+      impact: entry.impact || null,            // Low/Medium/High (v2.2)
+      effort: entry.effort || null,            // Low/Medium/High (v2.2)
+      source: entry.source || null,            // { type, id, title, date } traceability (v2.2)
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       completedAt: null,
@@ -941,6 +1244,14 @@ var AgentEngine = (function () {
     if (!dir.status) dir.status = 'active';
     if (!dir.linkedObjectives) dir.linkedObjectives = [];
     if (!dir.linkedTasks) dir.linkedTasks = [];
+    // v2.2 extended fields
+    if (!dir.classification) dir.classification = 'Operational';
+    if (!dir.impact) dir.impact = null;
+    if (!dir.effort) dir.effort = null;
+    if (!dir.dependencies) dir.dependencies = [];
+    if (!dir.source) dir.source = null;
+    if (!dir.approval) dir.approval = { status: 'none', approvedBy: null, approvedAt: null };
+    if (!dir.owner) dir.owner = null;
     list.push(dir);
     _saveStorage(DIRECTIVES_KEY, list);
     _logGovernance('directive-created', { directiveId: dir.id, title: dir.title });
@@ -1596,6 +1907,11 @@ var AgentEngine = (function () {
     getStandupLog: getStandupLog,
     getLatestStandup: getLatestStandup,
     isStandupRunning: isStandupRunning,
+    getStandupById: getStandupById,
+    updateStandupDecision: updateStandupDecision,
+    createProposalsAsPending: createProposalsAsPending,
+    STANDUP_TYPES: STANDUP_TYPES,
+    DECISION_STATUSES: DECISION_STATUSES,
     getMetrics: getMetrics,
     getSessionLog: getSessionLog,
     getCronLog: getCronLog,
