@@ -154,6 +154,13 @@ var AgentEngine = (function () {
       emit('response', { agentId: agentId, reply: reply, actions: actions, mode: data.mode });
       emit('thinking', { agentId: agentId, thinking: false });
 
+      // Re-sync from server if actions were executed so localStorage reflects changes
+      if (actions.length > 0 && typeof CompanyStore !== 'undefined' && CompanyStore.syncFromServer) {
+        CompanyStore.syncFromServer().then(function () {
+          emit('sync-complete', { mode: CompanyStore.getMode(), source: 'chat-action' });
+        });
+      }
+
       return { reply: reply, actions: actions };
     })
     .catch(function (err) {
