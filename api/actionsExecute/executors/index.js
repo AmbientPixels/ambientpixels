@@ -4,6 +4,7 @@
 const xAdapter = require('./social/x');
 const linkedinAdapter = require('./social/linkedin');
 const blueskyAdapter = require('./social/bluesky');
+const contentAdapter = require('./content/publishDocument');
 
 // Map of action_type → platform → executor function
 const EXECUTORS = {
@@ -26,11 +27,14 @@ const EXECUTORS = {
     'x': null, // drafts don't execute externally
     'linkedin': null,
     'bluesky': null
+  },
+  'publish_document': {
+    'site': contentAdapter.publishDocument
   }
 };
 
 // Supported action types for execution
-const EXECUTABLE_TYPES = ['social_post.publish', 'social_post.schedule'];
+const EXECUTABLE_TYPES = ['social_post.publish', 'social_post.schedule', 'publish_document'];
 
 /**
  * Execute an action by routing to the correct platform adapter

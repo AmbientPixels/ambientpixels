@@ -531,6 +531,12 @@ Write the full deliverable first, then the structured JSON block.`;
       continue;
     }
 
+    // Only Echo can create social posts (server-side enforcement)
+    if (action.type === 'create-social-action' && agentId !== 'echo') {
+      context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action (only Echo can post)');
+      continue;
+    }
+
     // Nova escalation guard: skip actions on tasks handled by domain lead
     if (novaSkipTaskIds && action.taskId && novaSkipTaskIds.has(action.taskId)) {
       const skipTarget = tasks.find(t => t.id === action.taskId);
@@ -1418,7 +1424,12 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - When creating research docs with create-doc, use proper markdown with clear headings, structured sections, and cited sources.` : '') + `
 - Echo (Marketing): Use create-social-action to draft social posts. All posts require CEO approval. Keep brand voice consistent, professional, and forward-looking.
   - Echo CAN also use create-doc with kind "marketing_post" to draft blog posts for the public blog at /blog/. After creating a doc, use submit-for-publish to send it for CEO approval.
-  - ALLOWED actions: execute-task, create-task, update-task, move-task, comment-task, review-task, create-social-action, create-doc (marketing_post only), submit-for-publish`;
+  - ALLOWED actions: execute-task, create-task, update-task, move-task, comment-task, review-task, create-social-action, create-doc (marketing_post only), submit-for-publish
+- SOCIAL POST RULES (ALL AGENTS):
+  - ONLY Echo may use create-social-action. All other agents MUST NOT create social posts — if you want social content, create a task for Echo instead.
+  - NEVER write social posts that impersonate another agent. Do NOT say "Echo here", "Cipher here", etc. Social posts speak as AmbientPixels the company, not individual agents.
+  - Social post text MUST be complete and ready to publish. NO placeholder brackets like "[insert here]", "[mention X]", "[TBD]", or "[link]". If you lack specific details, write around them naturally.
+  - Max 280 chars for X, 300 for Bluesky, 3000 for LinkedIn. Trim to fit.`;
 }
 
 // ── Apply task mutation ──
