@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AmbientPixels Governance Document v1.0 — organizational hierarchy, authority levels, and operational protocols." />
+  <meta name="description" content="AmbientPixels Governance Document v2.1 — organizational hierarchy, authority levels, doctrine governance, and operational protocols." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <title>Governance — AmbientPixels HQ</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
@@ -38,7 +38,7 @@
 
     <div class="company-header">
       <h1><i class="fas fa-scroll" style="opacity:0.4; margin-right:8px; color:#FFD700;"></i>Governance Document</h1>
-      <p>Version 2.0 — AmbientPixels Organizational Protocol</p>
+      <p>Version 2.1 — AmbientPixels Organizational Protocol · Feb 2026</p>
     </div>
 
     <!-- Table of Contents -->
@@ -56,6 +56,9 @@
         <a href="#directive-lifecycle">7. Directive Lifecycle</a>
         <a href="#objective-lifecycle">8. Objective Lifecycle</a>
         <a href="#reporting-flow">9. Reporting Flow</a>
+        <a href="#doctrine-governance" style="color:rgba(168,85,247,0.6);">10. Doctrine Governance Layer <span style="font-size:0.6rem; opacity:0.5;">(v2.1)</span></a>
+        <a href="#escalation-routing" style="color:rgba(168,85,247,0.6);">11. Escalation Routing Matrix <span style="font-size:0.6rem; opacity:0.5;">(v2.1)</span></a>
+        <a href="#conflict-resolution" style="color:rgba(168,85,247,0.6);">12. Conflict Resolution Order <span style="font-size:0.6rem; opacity:0.5;">(v2.1)</span></a>
       </div>
     </div>
 
@@ -281,8 +284,148 @@
       </ul>
     </div>
 
+    <!-- Section 10: Doctrine Governance Layer (v2.1) -->
+    <div class="gov-section" id="doctrine-governance">
+      <h2><i class="fas fa-book" style="color:#a855f7; margin-right:6px;"></i>10. Doctrine Governance Layer <span style="font-size:0.6rem; opacity:0.4; font-weight:400;">(v2.1)</span></h2>
+      <p>Each agent carries an <strong>Operating Doctrine</strong> — a structured strategic lens that influences approximately 40% of reasoning weight. Doctrines shape how agents evaluate priorities, frame decisions, and detect escalation triggers.</p>
+
+      <h3>Doctrine Influence Rule</h3>
+      <ul>
+        <li>Doctrine influences up to the configured weight (default: <strong>0.4 / 40%</strong>)</li>
+        <li>Doctrine shapes strategic bias, risk framing, and time-horizon awareness</li>
+        <li>Doctrine provides each agent a <strong>Core Question</strong> to evaluate every action against</li>
+        <li>Doctrine defines per-agent <strong>Escalation Triggers</strong> specific to their domain</li>
+      </ul>
+
+      <h3>Doctrine Cannot Override</h3>
+      <div style="margin:0.5rem 0;">
+        <div class="gov-class-card" style="background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.15); color:#f87171;">
+          <i class="fas fa-lock"></i> <strong>Tier authority boundaries</strong>
+        </div>
+        <div class="gov-class-card" style="background:rgba(255,215,0,0.08); border:1px solid rgba(255,215,0,0.15); color:#FFD700;">
+          <i class="fas fa-crown"></i> <strong>CEO veto / override</strong>
+        </div>
+        <div class="gov-class-card" style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.15); color:#ef4444;">
+          <i class="fas fa-shield-alt"></i> <strong>Hard-coded guardrails</strong>
+        </div>
+        <div class="gov-class-card" style="background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.15); color:#3b82f6;">
+          <i class="fas fa-server"></i> <strong>Security rules</strong>
+        </div>
+        <div class="gov-class-card" style="background:rgba(0,200,150,0.08); border:1px solid rgba(0,200,150,0.15); color:#00C896;">
+          <i class="fas fa-coins"></i> <strong>Budget constraints</strong>
+        </div>
+      </div>
+
+      <h3>Doctrine Audit Trail</h3>
+      <ul>
+        <li>Doctrine values are stored in <code>company-agents.json</code> and <code>AGENT_ROLES</code></li>
+        <li>Doctrine is injected deterministically into every prompt surface (heartbeat, execute, review, chat)</li>
+        <li>Weight is fixed at build time — agents cannot self-modify their doctrine weight</li>
+        <li>CEO can update doctrine values via config — no agent has self-modification authority</li>
+      </ul>
+    </div>
+
+    <!-- Section 11: Escalation Routing Matrix (v2.1) -->
+    <div class="gov-section" id="escalation-routing">
+      <h2><i class="fas fa-route" style="color:#a855f7; margin-right:6px;"></i>11. Escalation Routing Matrix <span style="font-size:0.6rem; opacity:0.4; font-weight:400;">(v2.1)</span></h2>
+      <p>Doctrine-aware escalation routing. Each agent has domain-specific escalation triggers defined in their Operating Doctrine. When triggered, the following routing applies:</p>
+
+      <div style="overflow-x:auto; margin:0.8rem 0;">
+        <table style="width:100%; border-collapse:collapse; font-size:0.72rem;">
+          <thead>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+              <th style="text-align:left; padding:0.4rem 0.6rem; color:rgba(255,255,255,0.5); font-weight:500;">Agent</th>
+              <th style="text-align:left; padding:0.4rem 0.6rem; color:rgba(255,255,255,0.5); font-weight:500;">Escalates To</th>
+              <th style="text-align:left; padding:0.4rem 0.6rem; color:rgba(255,255,255,0.5); font-weight:500;">Trigger Conditions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td style="padding:0.4rem 0.6rem;"><span style="color:#FF6B9D;"><i class="fas fa-palette"></i></span> Pixel</td>
+              <td style="padding:0.4rem 0.6rem;">Nova</td>
+              <td style="padding:0.4rem 0.6rem; opacity:0.6;">UX conflict vs velocity · UI inconsistency · Accessibility regressions · Feature clutter</td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td style="padding:0.4rem 0.6rem;"><span style="color:#00C896;"><i class="fas fa-chart-line"></i></span> Cipher</td>
+              <td style="padding:0.4rem 0.6rem;">Nova</td>
+              <td style="padding:0.4rem 0.6rem; opacity:0.6;">Budget risk &gt; threshold · API cost spikes · Unclear monetization · Budget drift</td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td style="padding:0.4rem 0.6rem;"><span style="color:#FF8C00;"><i class="fas fa-server"></i></span> Forge</td>
+              <td style="padding:0.4rem 0.6rem;">Nova</td>
+              <td style="padding:0.4rem 0.6rem; opacity:0.6;">Infra risk · Security exposure · Unmonitored automation · Recursion loops</td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td style="padding:0.4rem 0.6rem;"><span style="color:#4ECDC4;"><i class="fas fa-bullhorn"></i></span> Echo</td>
+              <td style="padding:0.4rem 0.6rem;">Nova</td>
+              <td style="padding:0.4rem 0.6rem; opacity:0.6;">Brand risk · Dormant channels · Missed campaign cadence · Brand inconsistency</td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td style="padding:0.4rem 0.6rem;"><span style="color:#E87CBB;"><i class="fas fa-magnifying-glass-chart"></i></span> Scout</td>
+              <td style="padding:0.4rem 0.6rem;">Nova</td>
+              <td style="padding:0.4rem 0.6rem; opacity:0.6;">Strategic pivot · Competitor acceleration · Platform dependency risk · Market shifts</td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+              <td style="padding:0.4rem 0.6rem;"><span style="color:#7ECFC0;"><i class="fas fa-pen-nib"></i></span> Scribe</td>
+              <td style="padding:0.4rem 0.6rem;">Nova</td>
+              <td style="padding:0.4rem 0.6rem; opacity:0.6;">Governance ambiguity · Vague directives · Missing documentation · Inconsistent voice</td>
+            </tr>
+            <tr>
+              <td style="padding:0.4rem 0.6rem;"><span style="color:#5BB8A6;"><i class="fas fa-spell-check"></i></span> Quill</td>
+              <td style="padding:0.4rem 0.6rem;">Scribe <span style="opacity:0.4;">(always)</span></td>
+              <td style="padding:0.4rem 0.6rem; opacity:0.6;">Redundant language · Message dilution · All escalations route through department head</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Routing Rules</h3>
+      <ul>
+        <li>Tier 3 agents escalate to <strong>Nova (Prime Operator)</strong> — never directly to CEO</li>
+        <li>Tier 4 agents escalate to their <strong>department head</strong> — never to Nova or CEO directly</li>
+        <li>Nova escalates to <strong>CEO</strong> when: risk_level = high, budget &gt; threshold, brand_impact = high, or cross-agent conflict is unresolved</li>
+        <li>Doctrine-triggered escalations follow the same routing — doctrine does not create new escalation paths</li>
+      </ul>
+    </div>
+
+    <!-- Section 12: Conflict Resolution Order (v2.1) -->
+    <div class="gov-section" id="conflict-resolution">
+      <h2><i class="fas fa-balance-scale" style="color:#a855f7; margin-right:6px;"></i>12. Conflict Resolution Order <span style="font-size:0.6rem; opacity:0.4; font-weight:400;">(v2.1)</span></h2>
+      <p>When agent doctrines, governance rules, or operational constraints conflict, the following priority order applies. <strong>Higher-ranked items always win.</strong></p>
+
+      <div style="margin:0.8rem 0;">
+        <div style="display:flex; align-items:center; gap:0.6rem; padding:0.5rem 0.7rem; border-left:3px solid #FFD700; background:rgba(255,215,0,0.04); border-radius:0 6px 6px 0; margin-bottom:0.3rem;">
+          <span style="font-size:0.85rem; font-weight:600; color:#FFD700; min-width:1.5rem;">1.</span>
+          <span style="font-size:0.75rem;"><strong>Governance Rules</strong> — Tier hierarchy, approval gates, guardrails, security policies</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.6rem; padding:0.5rem 0.7rem; border-left:3px solid #FFD700; background:rgba(255,215,0,0.03); border-radius:0 6px 6px 0; margin-bottom:0.3rem;">
+          <span style="font-size:0.85rem; font-weight:600; color:#FFD700; min-width:1.5rem;">2.</span>
+          <span style="font-size:0.75rem;"><strong>CEO Authority</strong> — Veto, override, directive creation, final approval</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.6rem; padding:0.5rem 0.7rem; border-left:3px solid #00C896; background:rgba(0,200,150,0.03); border-radius:0 6px 6px 0; margin-bottom:0.3rem;">
+          <span style="font-size:0.85rem; font-weight:600; color:#00C896; min-width:1.5rem;">3.</span>
+          <span style="font-size:0.75rem;"><strong>Budget Constraints</strong> — CFO threshold, API cost limits, resource caps</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.6rem; padding:0.5rem 0.7rem; border-left:3px solid #FF8C00; background:rgba(255,140,0,0.03); border-radius:0 6px 6px 0; margin-bottom:0.3rem;">
+          <span style="font-size:0.85rem; font-weight:600; color:#FF8C00; min-width:1.5rem;">4.</span>
+          <span style="font-size:0.75rem;"><strong>Infrastructure Constraints</strong> — Uptime, security exposure, deployment stability</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.6rem; padding:0.5rem 0.7rem; border-left:3px solid #a855f7; background:rgba(168,85,247,0.03); border-radius:0 6px 6px 0; margin-bottom:0.3rem;">
+          <span style="font-size:0.85rem; font-weight:600; color:#a855f7; min-width:1.5rem;">5.</span>
+          <span style="font-size:0.75rem;"><strong>Doctrine Bias</strong> — Agent's strategic lens, risk tolerance, core question (40% weight)</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.6rem; padding:0.5rem 0.7rem; border-left:3px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.01); border-radius:0 6px 6px 0; margin-bottom:0.3rem;">
+          <span style="font-size:0.85rem; font-weight:600; color:rgba(255,255,255,0.4); min-width:1.5rem;">6.</span>
+          <span style="font-size:0.75rem;"><strong>Agent Preference</strong> — Individual agent initiative, task prioritization</span>
+        </div>
+      </div>
+
+      <h3>Key Principle</h3>
+      <p><strong>Doctrine is explicitly subordinate to governance.</strong> An agent's strategic bias may inform how they approach a task, but it cannot cause them to bypass approval gates, exceed budget thresholds, ignore security requirements, or override CEO decisions. Governance always wins.</p>
+    </div>
+
     <div style="text-align:center; padding:2rem 0; opacity:0.3; font-size:0.65rem;">
-      AmbientPixels Governance Document v2.0 — Updated Feb 2026
+      AmbientPixels Governance Document v2.1 — Updated Feb 2026
     </div>
 
   </main>
