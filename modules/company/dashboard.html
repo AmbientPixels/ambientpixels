@@ -100,7 +100,7 @@
       <!-- CEO: Decisions Section -->
       <div class="dash-section" id="section-decisions" data-section="decisions">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-gavel" style="color:#FFD700; font-size:0.65rem;"></i>
+          <i class="fas fa-gavel" style="color:#FFD700;"></i>
           <h2>Decisions</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
@@ -141,20 +141,19 @@
       <!-- CEO: Metrics Section -->
       <div class="dash-section" id="section-metrics" data-section="metrics">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-chart-line" style="color:#4ECDC4; font-size:0.65rem;"></i>
+          <i class="fas fa-chart-line" style="color:#4ECDC4;"></i>
           <h2>Metrics</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
         <div class="dash-section-body">
           <div class="dash-grid">
-            <!-- KPI Scoreboard -->
-            <div class="dash-panel dash-panel--full" id="panel-kpi-wrap">
+            <!-- System Pulse -->
+            <div class="dash-panel dash-panel--full" id="panel-system-pulse-wrap" style="min-height:auto;">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-chart-line" style="color:#4ECDC4;"></i> KPI Scoreboard</span>
+                <span class="dash-panel-title"><i class="fas fa-wave-square" style="color:#4ECDC4;"></i> System Pulse</span>
                 <a href="/modules/company/board.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">Board Mode →</a>
               </div>
-              <div id="panel-kpi-list" style="display:flex; gap:0.5rem; flex-wrap:wrap; padding:0.3rem 0;"></div>
-              <div class="dash-empty" id="kpi-empty">No KPIs registered.</div>
+              <div id="panel-system-pulse" class="system-pulse"></div>
             </div>
             <!-- Autonomy Score -->
             <div class="dash-panel">
@@ -196,7 +195,7 @@
       <!-- CEO: Content Section -->
       <div class="dash-section" id="section-content" data-section="content">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-newspaper" style="color:#a78bfa; font-size:0.65rem;"></i>
+          <i class="fas fa-newspaper" style="color:#a78bfa;"></i>
           <h2>Content</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
@@ -257,7 +256,7 @@
       <!-- Dev: System Section -->
       <div class="dash-section" id="section-system" data-section="system">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-cogs" style="color:#4ECDC4; font-size:0.65rem;"></i>
+          <i class="fas fa-cogs" style="color:#4ECDC4;"></i>
           <h2>System</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
@@ -308,6 +307,15 @@
               </div>
               <ul class="log-list" id="panel-cron"></ul>
               <div class="dash-empty" id="cron-empty">No scheduled tasks have run yet.</div>
+            </div>
+            <!-- KPI Scoreboard (Dev) -->
+            <div class="dash-panel dash-panel--full" id="panel-kpi-wrap">
+              <div class="dash-panel-header">
+                <span class="dash-panel-title"><i class="fas fa-chart-line" style="color:#4ECDC4;"></i> KPI Scoreboard</span>
+                <a href="/modules/company/board.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">Board Mode →</a>
+              </div>
+              <div id="panel-kpi-list" style="display:flex; gap:0.5rem; flex-wrap:wrap; padding:0.3rem 0;"></div>
+              <div class="dash-empty" id="kpi-empty">No KPIs registered.</div>
             </div>
             <!-- Governance Log (Dev copy — uses same IDs, rendered once) -->
             <div class="dash-panel">
@@ -607,6 +615,7 @@
         renderServerLogs();
         renderApprovalQueue();
         renderDirectivesSnap();
+        renderSystemPulse();
         renderKpiScoreboard();
         renderObjectivesSnap();
         renderAutonomyScore();
@@ -1603,6 +1612,72 @@
         });
       }
 
+      // ── System Pulse (CEO View) ──
+      function renderSystemPulse() {
+        var el = document.getElementById('panel-system-pulse');
+        if (!el) return;
+
+        var segments = [];
+
+        // 1. Execution: % tasks done vs total open
+        try {
+          var tasks = AgentEngine.getTasks();
+          var done = tasks.filter(function (t) { return t.status === 'done'; }).length;
+          var total = tasks.length;
+          var execPct = total > 0 ? Math.round((done / total) * 100) : 0;
+          var execColor = execPct >= 70 ? '#34d399' : execPct >= 40 ? '#fbbf24' : total === 0 ? 'rgba(255,255,255,0.15)' : '#ef4444';
+          var execLabel = total === 0 ? '—' : execPct + '%';
+          segments.push({ label: 'Execution', value: execLabel, color: execColor, title: done + ' of ' + total + ' tasks completed' });
+        } catch (e) {
+          segments.push({ label: 'Execution', value: '—', color: 'rgba(255,255,255,0.15)', title: 'Data unavailable' });
+        }
+
+        // 2. Autonomy: existing score
+        try {
+          var auto = AgentEngine.getAutonomyScore();
+          var aScore = auto.score || 0;
+          var aColor = aScore >= 80 ? '#34d399' : aScore >= 50 ? '#fbbf24' : auto.total === 0 ? 'rgba(255,255,255,0.15)' : '#ef4444';
+          var aLabel = auto.total === 0 ? '—' : aScore + '%';
+          segments.push({ label: 'Autonomy', value: aLabel, color: aColor, title: auto.autonomous + ' of ' + auto.total + ' tasks autonomous' });
+        } catch (e) {
+          segments.push({ label: 'Autonomy', value: '—', color: 'rgba(255,255,255,0.15)', title: 'Data unavailable' });
+        }
+
+        // 3. Cost: use metrics if available
+        try {
+          var metrics = AgentEngine.getMetrics();
+          var costVal = metrics.totalCost || 0;
+          var cColor = costVal < 1 ? '#34d399' : costVal < 5 ? '#fbbf24' : '#ef4444';
+          var cLabel = costVal === 0 ? '—' : '$' + costVal.toFixed(2);
+          segments.push({ label: 'Cost', value: cLabel, color: costVal === 0 ? 'rgba(255,255,255,0.15)' : cColor, title: 'Estimated API spend: $' + costVal.toFixed(2) });
+        } catch (e) {
+          segments.push({ label: 'Cost', value: '—', color: 'rgba(255,255,255,0.15)', title: 'Data unavailable' });
+        }
+
+        // 4. Risk: derive from risk heatmap total signals
+        try {
+          var risk = AgentEngine.getRiskHeatmap();
+          var totalRisk = risk.overdueTasks.length + risk.stuckHighPrio.length + risk.blockedTasks.length + risk.atRiskObjectives.length + risk.atRiskDirectives.length + risk.failedActions.length;
+          var rColor = totalRisk === 0 ? '#34d399' : totalRisk <= 2 ? '#fbbf24' : '#ef4444';
+          var rLabel = totalRisk === 0 ? 'Clear' : totalRisk + ' signal' + (totalRisk !== 1 ? 's' : '');
+          segments.push({ label: 'Risk', value: rLabel, color: rColor, title: totalRisk + ' risk signals detected' });
+        } catch (e) {
+          segments.push({ label: 'Risk', value: '—', color: 'rgba(255,255,255,0.15)', title: 'Data unavailable' });
+        }
+
+        var html = '';
+        segments.forEach(function (s) {
+          html += '<div class="pulse-segment" style="--pulse-color:' + s.color + ';" title="' + escapeHtml(s.title) + '">';
+          html += '<div class="pulse-dot"></div>';
+          html += '<div class="pulse-info">';
+          html += '<div class="pulse-label">' + s.label + '</div>';
+          html += '<div class="pulse-value">' + s.value + '</div>';
+          html += '</div>';
+          html += '</div>';
+        });
+        el.innerHTML = html;
+      }
+
       // ── KPI Scoreboard (v2.5) ──
       function renderKpiScoreboard() {
         var kpis = AgentEngine.getKpiRegistry();
@@ -1857,11 +1932,11 @@
           });
 
           var html = '<div style="display:flex; flex-direction:column; gap:0.4rem; padding:0.4rem;">';
-          posts.forEach(function (post) {
+          posts.forEach(function (post, postIdx) {
             var date = post.published_at ? new Date(post.published_at).toLocaleDateString() : '?';
             var author = post.created_by || 'unknown';
             var excerpt = (post.excerpt || '').substring(0, 80);
-            html += '<div class="blog-admin-row" style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.6rem; border:1px solid rgba(167,139,250,0.1); border-radius:6px; background:rgba(167,139,250,0.02);">' +
+            html += '<div class="blog-admin-row' + (postIdx >= 3 ? ' blog-admin-row--extra' : '') + '" style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.6rem; border:1px solid rgba(167,139,250,0.1); border-radius:6px; background:rgba(167,139,250,0.02);">' +
               '<div style="flex:1; min-width:0;">' +
                 '<div style="font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.9); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(post.title) + '</div>' +
                 '<div style="font-size:0.6rem; opacity:0.45; margin-top:0.15rem;">' +
@@ -1875,6 +1950,9 @@
               '</div>' +
             '</div>';
           });
+          if (posts.length > 3) {
+            html += '<div style="text-align:right; padding:0.3rem 0.2rem 0;"><a href="/blog/" target="_blank" style="font-size:0.6rem; color:#a78bfa; text-decoration:none;">View all ' + posts.length + ' blog posts →</a></div>';
+          }
           html += '</div>';
           listEl.innerHTML = html;
 
