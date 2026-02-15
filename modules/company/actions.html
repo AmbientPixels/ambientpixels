@@ -580,6 +580,37 @@
     function doOverride(id) { AE.overrideAction(id); renderAll(); }
     function doApproveBundle(bid) { AE.approveBundle(bid); renderAll(); }
 
+    function openRevisionModal(id) {
+      var rm = window._revisionModal;
+      if (!rm) return;
+      rm.actionId = id;
+      rm.note.value = '';
+      rm.backdrop.classList.add('open');
+      setTimeout(function () { rm.note.focus(); }, 50);
+    }
+
+    function closeRevisionModal() {
+      var rm = window._revisionModal;
+      if (!rm) return;
+      rm.backdrop.classList.remove('open');
+      rm.actionId = null;
+    }
+
+    function submitRevisionNote() {
+      var rm = window._revisionModal;
+      if (!rm || !rm.actionId) return;
+      var note = rm.note.value.trim();
+      if (!note) {
+        alert('Please add revision feedback so the agent knows what to fix.');
+        rm.note.focus();
+        return;
+      }
+      doRevision(rm.actionId, note);
+      closeRevisionModal();
+    }
+
+    window.openRevisionModal = openRevisionModal;
+
     // ── Execute via Azure Function ──
     function doExecute(id) {
       // Optimistic: mark running locally
