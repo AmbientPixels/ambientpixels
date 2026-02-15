@@ -690,6 +690,13 @@
       if (scheduledFor) html += ' · <span style="color:#fbbf24;">⏰ ' + timeAgo(scheduledFor) + '</span>';
       if (a.source === 'heartbeat') html += ' · <span style="opacity:0.3;">via heartbeat</span>';
       html += '</div>';
+      // v2.4.4: Show dependency / blocked status
+      var depCheck = AE.checkActionDependencies(a);
+      if (!depCheck.ready) {
+        html += '<div style="font-size:0.65rem;margin-top:3px;padding:3px 8px;border-radius:4px;background:rgba(251,191,36,0.08);color:#fbbf24;border:1px solid rgba(251,191,36,0.15);"><i class="fas fa-link" style="margin-right:4px;"></i>Blocked: ' + esc(depCheck.blockedReason) + '</div>';
+      } else if (a.dependsOn && a.dependsOn.length > 0) {
+        html += '<div style="font-size:0.6rem;margin-top:3px;opacity:0.4;"><i class="fas fa-check-circle" style="margin-right:3px;color:#34d399;"></i>Dependencies satisfied</div>';
+      }
       html += '</div>';
       html += '<span class="act-badge act-badge--' + execStatus + '">' + execStatus.replace('_', ' ') + '</span>';
       html += '<div class="act-row-actions">';
@@ -792,6 +799,25 @@
 
     // ── Execute via Azure Function ──
     function doExecute(id) {
+      // v2.4.4: Pre-execute dependency + token resolution check
+      var action = AE.getAction(id);
+      if (action) {
+        var depCheck = AE.checkActionDependencies(action);
+        if (!depCheck.ready) {
+          _showExecNotice('error', 'Cannot execute — ' + depCheck.blockedReason);
+          return;
+        }
+        // Resolve tokens before executing
+        var tokenRes = AE.resolveActionTokens(action);
+        if (tokenRes.resolved && tokenRes.text !== action.payload.text) {
+          // Update the action payload with resolved URLs
+          action.payload.text = tokenRes.text;
+          var list = AE.getActions();
+          for (var i = 0; i < list.length; i++) {
+            if (list[i].id === id) { list[i].payload.text = tokenRes.text; break; }
+          }
+        }
+      }
       // Disable all execute buttons to prevent repeat clicks → 429
       document.querySelectorAll('.act-btn--execute').forEach(function (b) { b.disabled = true; b.style.opacity = '0.4'; });
       _showExecNotice('info', 'Executing…');
@@ -891,6 +917,30 @@
       } else if (payload.text || payload.content) {
         html += '<div class="act-drawer-section"><h4>Content</h4>';
         html += '<div class="act-drawer-post"><div class="act-drawer-post-text">' + esc(payload.text || payload.content) + '</div></div>';
+        html += '</div>';
+      }
+
+      // v2.4.4: Dependencies section
+      var drawerDeps = a.dependsOn || [];
+      var drawerTokens = a.tokens || {};
+      var hasDepInfo = drawerDeps.length > 0 || Object.keys(drawerTokens).length > 0;
+      if (hasDepInfo) {
+        var dCheck = AE.checkActionDependencies(a);
+        html += '<div class="act-drawer-section"><h4>Dependencies</h4>';
+        if (!dCheck.ready) {
+          html += '<div style="padding:6px 10px;border-radius:6px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.15);color:#fbbf24;font-size:0.7rem;margin-bottom:0.5rem;"><i class="fas fa-exclamation-triangle" style="margin-right:5px;"></i>' + esc(dCheck.blockedReason) + '</div>';
+        } else {
+          html += '<div style="font-size:0.7rem;color:#34d399;margin-bottom:0.5rem;"><i class="fas fa-check-circle" style="margin-right:4px;"></i>All dependencies satisfied</div>';
+        }
+        drawerDeps.forEach(function (dep) {
+          if (dep.type === 'artifact') {
+            var depArt = AE.getArtifactById(dep.id);
+            var artStatus = depArt ? depArt.status : 'not found';
+            var artTitle = depArt ? (depArt.title || depArt.slug || dep.id) : dep.id;
+            var artColor = artStatus === 'published' ? '#34d399' : artStatus === 'draft' ? '#fbbf24' : '#ef4444';
+            html += '<div style="font-size:0.65rem;opacity:0.7;"><i class="fas fa-file-alt" style="margin-right:4px;"></i>' + esc(artTitle) + ' <span style="color:' + artColor + ';">(' + artStatus + ')</span></div>';
+          }
+        });
         html += '</div>';
       }
 

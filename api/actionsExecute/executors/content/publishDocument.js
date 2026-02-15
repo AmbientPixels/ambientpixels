@@ -92,6 +92,24 @@ async function publishDocument(action) {
     await storage.setState('approvalQueue', queue);
   } catch (e) { /* non-fatal */ }
 
+  // v2.4.4: Mark artifact as published with canonical URL
+  try {
+    const artifacts = (await storage.getState('ap_artifacts')) || [];
+    let artifactUpdated = false;
+    for (let i = 0; i < artifacts.length; i++) {
+      if (artifacts[i].actionId === action.id || (artifacts[i].documentId === documentId && artifacts[i].status === 'draft')) {
+        artifacts[i].status = 'published';
+        artifacts[i].url = isPublic ? 'https://ambientpixels.ai' + publicUrl : publicUrl;
+        artifacts[i].publishedAt = now;
+        artifactUpdated = true;
+        break;
+      }
+    }
+    if (artifactUpdated) {
+      await storage.setState('ap_artifacts', artifacts);
+    }
+  } catch (e) { /* non-fatal — artifact registry update failed */ }
+
   // Audit log
   try {
     const auditLog = (await storage.getState('actionAuditLog')) || [];

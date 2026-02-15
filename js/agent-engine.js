@@ -2152,6 +2152,152 @@ var AgentEngine = (function () {
     return { total: list.length, pending: pending, approved: approved, running: running, success: success, failed: failed, rejected: rejected, dryRun: dryRun };
   }
 
+  // ── Artifact Registry (v2.4.4) ──
+  var ARTIFACTS_KEY = 'ap_artifacts';
+
+  function getArtifacts() { return _loadStorage(ARTIFACTS_KEY, []); }
+  function _saveArtifacts(list) { _saveStorage(ARTIFACTS_KEY, list); }
+
+  function registerArtifact(artifact) {
+    if (!artifact || !artifact.id || !artifact.type) return null;
+    var list = getArtifacts();
+    // Dedup by id
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === artifact.id) return list[i]; // already registered
+    }
+    var record = {
+      id: artifact.id,
+      type: artifact.type || 'article',
+      title: artifact.title || '',
+      slug: artifact.slug || '',
+      url: artifact.url || null,
+      status: artifact.status || 'draft',
+      createdAt: artifact.createdAt || new Date().toISOString(),
+      publishedAt: artifact.publishedAt || null,
+      source: artifact.source || null,
+      actionId: artifact.actionId || null,
+      documentId: artifact.documentId || null
+    };
+    list.push(record);
+    if (list.length > 200) list = list.slice(-200);
+    _saveArtifacts(list);
+    return record;
+  }
+
+  function markArtifactPublished(artifactId, url) {
+    var list = getArtifacts();
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === artifactId) {
+        list[i].status = 'published';
+        list[i].url = url || list[i].url;
+        list[i].publishedAt = new Date().toISOString();
+        _saveArtifacts(list);
+        return list[i];
+      }
+    }
+    return null;
+  }
+
+  function getArtifactById(id) {
+    var list = getArtifacts();
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === id) return list[i];
+    }
+    return null;
+  }
+
+  function findArtifactBySlug(type, slug) {
+    var list = getArtifacts();
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].type === type && list[i].slug === slug) return list[i];
+    }
+    return null;
+  }
+
+  function findArtifactByActionId(actionId) {
+    var list = getArtifacts();
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].actionId === actionId) return list[i];
+    }
+    return null;
+  }
+
+  function resolveArtifactUrl(ref) {
+    if (!ref) return null;
+    // ref can be { type: "artifact", id: "art_..." } or just an id string
+    var id = (typeof ref === 'object') ? ref.id : ref;
+    var art = getArtifactById(id);
+    if (!art) return null;
+    if (art.status === 'published' && art.url) return art.url;
+    return null; // not yet published
+  }
+
+  // Resolve all {{ARTICLE_URL}} tokens in an action's payload.text
+  function resolveActionTokens(action) {
+    if (!action || !action.payload || !action.payload.text) return { resolved: true, text: (action && action.payload) ? action.payload.text : '', missing: [] };
+    var text = action.payload.text;
+    var tokens = action.tokens || {};
+    var missing = [];
+
+    // Replace {{ARTICLE_URL}} or {{ARTICLE_URL:art_...}}
+    text = text.replace(/\{\{ARTICLE_URL(?::([^}]+))?\}\}/g, function (match, explicitId) {
+      var ref = null;
+      if (explicitId) {
+        ref = { type: 'artifact', id: explicitId.trim() };
+      } else if (tokens.ARTICLE_URL) {
+        ref = tokens.ARTICLE_URL;
+      }
+      if (!ref) { missing.push({ token: 'ARTICLE_URL', reason: 'No artifact reference found' }); return match; }
+      var url = resolveArtifactUrl(ref);
+      if (!url) { missing.push({ token: 'ARTICLE_URL', artifactId: ref.id, reason: 'Article not yet published' }); return match; }
+      return url;
+    });
+
+    return { resolved: missing.length === 0, text: text, missing: missing };
+  }
+
+  // Check if action dependencies are satisfied
+  function checkActionDependencies(action) {
+    if (!action) return { ready: true, blockedReason: null };
+    var deps = action.dependsOn || [];
+    var tokens = action.tokens || {};
+    var issues = [];
+
+    // Check explicit dependsOn
+    for (var i = 0; i < deps.length; i++) {
+      var dep = deps[i];
+      if (dep.type === 'artifact') {
+        var art = getArtifactById(dep.id);
+        if (!art) { issues.push('Artifact ' + dep.id + ' not found'); }
+        else if (art.status !== 'published') { issues.push('Waiting for "' + (art.title || art.slug || art.id) + '" to be published'); }
+      }
+    }
+
+    // Check tokens that reference artifacts
+    var tokenKeys = Object.keys(tokens);
+    for (var j = 0; j < tokenKeys.length; j++) {
+      var tk = tokens[tokenKeys[j]];
+      if (tk && tk.type === 'artifact') {
+        var tArt = getArtifactById(tk.id);
+        if (!tArt) { issues.push('Artifact ' + tk.id + ' not found for token ' + tokenKeys[j]); }
+        else if (tArt.status !== 'published') { issues.push('Token ' + tokenKeys[j] + ': waiting for "' + (tArt.title || tArt.slug || tArt.id) + '" to be published'); }
+      }
+    }
+
+    // Also check for unresolved {{ARTICLE_URL}} in text
+    if (action.payload && action.payload.text && /\{\{ARTICLE_URL/.test(action.payload.text)) {
+      var resolution = resolveActionTokens(action);
+      if (!resolution.resolved) {
+        resolution.missing.forEach(function (m) {
+          issues.push('Missing ' + m.token + ': ' + m.reason);
+        });
+      }
+    }
+
+    if (issues.length === 0) return { ready: true, blockedReason: null };
+    return { ready: false, blockedReason: issues.join('; ') };
+  }
+
   // ── Public API ──
   return {
     on: on,
@@ -2270,6 +2416,16 @@ var AgentEngine = (function () {
     getKpiRegistry: getKpiRegistry,
     getDirectiveKpiIndex: getDirectiveKpiIndex,
     getQuarterRange: getQuarterRange,
-    getBoardPacket: getBoardPacket
+    getBoardPacket: getBoardPacket,
+    // v2.4.4 Artifact Registry
+    getArtifacts: getArtifacts,
+    registerArtifact: registerArtifact,
+    markArtifactPublished: markArtifactPublished,
+    getArtifactById: getArtifactById,
+    findArtifactBySlug: findArtifactBySlug,
+    findArtifactByActionId: findArtifactByActionId,
+    resolveArtifactUrl: resolveArtifactUrl,
+    resolveActionTokens: resolveActionTokens,
+    checkActionDependencies: checkActionDependencies
   };
 })();

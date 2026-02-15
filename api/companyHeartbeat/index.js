@@ -646,7 +646,9 @@ Write the full deliverable first, then the structured JSON block.`;
       }
 
       // Server-side enforcement: reject posts linking to unpublished blog articles
-      const blogSlugMatches = postText.match(/(?:ambientpixels\.ai)?\/blog\/([a-z0-9][a-z0-9-]+[a-z0-9])/gi);
+      // v2.4.4: Skip this check for {{ARTICLE_URL}} tokens — those are resolved at execute time
+      const textWithoutTokens = postText.replace(/\{\{ARTICLE_URL[^}]*\}\}/g, '');
+      const blogSlugMatches = textWithoutTokens.match(/(?:ambientpixels\.ai)?\/blog\/([a-z0-9][a-z0-9-]+[a-z0-9])/gi);
       if (blogSlugMatches && blogSlugMatches.length > 0) {
         const blogPosts = (await storage.getState('blogPosts')) || [];
         const publishedSlugs = new Set(blogPosts.map(p => p.slug));
@@ -675,6 +677,14 @@ Write the full deliverable first, then the structured JSON block.`;
       // Save to actions store (requires CEO approval)
       const actionsStore = (await storage.getState('actions')) || [];
       const newAction = _createActionFromHeartbeat(actionRequest, agentId);
+
+      // v2.4.4: If agent provided artifact_id, wire up tokens + dependsOn for URL resolution
+      if (socialPayload.artifact_id) {
+        newAction.tokens = { ARTICLE_URL: { type: 'artifact', id: socialPayload.artifact_id } };
+        newAction.dependsOn = [{ type: 'artifact', id: socialPayload.artifact_id }];
+        context.log('[Heartbeat]', agentId, 'social action linked to artifact:', socialPayload.artifact_id);
+      }
+
       actionsStore.push(newAction);
       await storage.setState('actions', actionsStore);
 
@@ -938,6 +948,26 @@ Write the full deliverable first, then the structured JSON block.`;
           if (actionsStore.length > 500) actionsStore.splice(0, actionsStore.length - 500);
           await storage.setState('actions', actionsStore);
 
+          // v2.4.4: Register draft artifact for URL resolution
+          const artifactId = 'art_' + Date.now() + '_' + slug;
+          const artifacts = (await storage.getState('ap_artifacts')) || [];
+          artifacts.push({
+            id: artifactId,
+            type: 'article',
+            title: doc.title,
+            slug: slug,
+            url: null,
+            status: 'draft',
+            createdAt: new Date().toISOString(),
+            publishedAt: null,
+            source: { type: 'heartbeat', agentId: agentId, taskId: action.taskId || null },
+            actionId: publishAction.id,
+            documentId: doc.id
+          });
+          if (artifacts.length > 200) artifacts.splice(0, artifacts.length - 200);
+          await storage.setState('ap_artifacts', artifacts);
+          context.log('[Heartbeat] Registered draft artifact:', artifactId, 'for publish action:', publishAction.id);
+
           // Add to CEO approval queue
           const approvalQueue = (await storage.getState('approvalQueue')) || [];
           approvalQueue.push({
@@ -957,7 +987,8 @@ Write the full deliverable first, then the structured JSON block.`;
             preview: (doc.content_md || '').substring(0, 120),
             documentId: doc.id,
             slug: slug,
-            docKind: doc.kind
+            docKind: doc.kind,
+            artifactId: artifactId
           });
           if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
           await storage.setState('approvalQueue', approvalQueue);
@@ -1153,6 +1184,26 @@ Write the full deliverable first, then the structured JSON block.`;
           if (actionsStore.length > 500) actionsStore.splice(0, actionsStore.length - 500);
           await storage.setState('actions', actionsStore);
 
+          // v2.4.4: Register draft artifact for URL resolution
+          const sfpArtifactId = 'art_' + Date.now() + '_' + slug;
+          const sfpArtifacts = (await storage.getState('ap_artifacts')) || [];
+          sfpArtifacts.push({
+            id: sfpArtifactId,
+            type: 'article',
+            title: doc.title,
+            slug: slug,
+            url: null,
+            status: 'draft',
+            createdAt: new Date().toISOString(),
+            publishedAt: null,
+            source: { type: 'submit-for-publish', agentId: agentId, taskId: action.taskId || null },
+            actionId: publishAction.id,
+            documentId: doc.id
+          });
+          if (sfpArtifacts.length > 200) sfpArtifacts.splice(0, sfpArtifacts.length - 200);
+          await storage.setState('ap_artifacts', sfpArtifacts);
+          context.log('[Heartbeat] Registered draft artifact:', sfpArtifactId, 'for submit-for-publish action:', publishAction.id);
+
           // Add to CEO approval queue
           const approvalQueue = (await storage.getState('approvalQueue')) || [];
           approvalQueue.push({
@@ -1172,7 +1223,8 @@ Write the full deliverable first, then the structured JSON block.`;
             preview: (doc.content_md || '').substring(0, 120),
             documentId: doc.id,
             slug: slug,
-            docKind: doc.kind
+            docKind: doc.kind,
+            artifactId: sfpArtifactId
           });
           if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
           await storage.setState('approvalQueue', approvalQueue);
@@ -1556,7 +1608,7 @@ Respond with ONLY valid JSON in this exact format:
       "updates": { "description": "...", "assignee": "agentId", "priority": "high", "dueDate": "2026-02-20T00:00:00Z" },
       "newStatus": "todo|in-progress|review|done",
       "comment": "Your comment text here",
-      "social": { "text": "Post content", "platform": "x|linkedin|bluesky", "media": ["https://..."], "scheduled_for": "2026-02-14T09:00:00Z" },
+      "social": { "text": "Post content", "platform": "x|linkedin|bluesky", "media": ["https://..."], "scheduled_for": "2026-02-14T09:00:00Z", "artifact_id": "optional-art_xxx-if-linking-to-article" },
       "document": { "title": "Doc Title", "kind": "spec|runbook|release_notes|product_brief|marketing_post|governance", "tags": ["tag1"], "content_md": "# Heading\n\nMarkdown content..." },
       "documentId": "existing-doc-id",
       "tool": "web_search",
@@ -1573,7 +1625,8 @@ Action types:
 - execute-task: Pick up one of YOUR in-progress or todo tasks and produce actual work output (a report, analysis, draft, recommendation, audit, etc). This will generate a deliverable and move the task to review.
 - review-task: Review a completed deliverable from another agent's task in the review column. Approve (done) or request changes (back to in-progress).
 - comment-task: Add a comment to any task. Provide taskId and "comment" string. Use for status updates, delegation notes, questions, or flagging blockers.
-- create-social-action: (Marketing/Echo) Draft a social media post routed through CEO approval. Include "social" with: text (max 280 for X, 300 for Bluesky, 3000 for LinkedIn), platform ("x"|"linkedin"|"bluesky"), optionally media (URLs). You may include scheduled_for (ISO datetime) to time posts strategically (e.g., peak engagement hours, staggering content throughout the day). Keep scheduling within 24 hours. If you have no specific timing reason, omit scheduled_for and the post will go live immediately after CEO approval. When linking to company content, use https://ambientpixels.ai/blog/<slug> for public articles — never link to /modules/company/ or /docs/published/ as those are internal and auth-gated.
+- create-social-action: (Marketing/Echo) Draft a social media post routed through CEO approval. Include "social" with: text (max 280 for X, 300 for Bluesky, 3000 for LinkedIn), platform ("x"|"linkedin"|"bluesky"), optionally media (URLs). You may include scheduled_for (ISO datetime) to time posts strategically (e.g., peak engagement hours, staggering content throughout the day). Keep scheduling within 24 hours. If you have no specific timing reason, omit scheduled_for and the post will go live immediately after CEO approval.
+  ARTICLE URL RULES: Never hardcode an article/blog URL unless you are 100% certain the article is already published. If linking to an article that is pending publish or was just submitted, use the placeholder token {{ARTICLE_URL}} in your text and include "artifact_id" in the social object (set it to the artifact ID from the publish action). The URL will be resolved automatically when the article is published. Example: "social": { "text": "Check out our latest post {{ARTICLE_URL}}", "platform": "x", "artifact_id": "art_123_my-slug" }. Never link to /modules/company/ or /docs/published/ as those are internal and auth-gated.
 - revise-action: Revise an action that the CEO sent back for changes. Provide "action_id" (from the CEO REVISION REQUESTS section) and "social" with the corrected content (same format as create-social-action). The revised action replaces the old one and is re-submitted for CEO approval. Address ALL of the CEO's feedback in your revision.
 - create-doc: Create a NEW document. Include "document" with: title (string), kind ("spec"|"runbook"|"release_notes"|"product_brief"|"marketing_post"|"governance"), tags (array of strings), and content_md (full markdown content — MUST be complete, publish-ready text with NO placeholders like "[insert here]" or "[TBD]"). Also include "taskId" if this doc is for a specific task. marketing_post/product_brief → CEO approval queue for blog. Internal kinds (spec, runbook, release_notes, governance) → auto-published to /docs/published/ immediately. IMPORTANT: Check EXISTING DOCUMENTS below first — if a relevant doc already exists, use update-doc instead of creating a duplicate.
 - update-doc: Update an existing document. Include "documentId" (the doc ID from EXISTING DOCUMENTS) and "updates" with any of: content_md (full replacement), append_md (add new content to end), title (rename), tags (replace tags). Use this when new information should be added to an existing doc instead of creating a new one. Internal docs are auto-refreshed at /docs/published/.
