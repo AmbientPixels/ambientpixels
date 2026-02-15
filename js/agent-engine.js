@@ -1232,7 +1232,7 @@ var AgentEngine = (function () {
     var list = getActions();
     for (var i = 0; i < list.length; i++) {
       var a = list[i];
-      if (a.id === actionId && a.approval && a.approval.status === 'pending') {
+      if (a.id === actionId && a.approval && (a.approval.status === 'pending' || a.approval.status === 'revision_requested')) {
         a.approval.status = 'approved';
         a.approval.approved_by = 'Pixelpusher';
         a.approval.approved_at = new Date().toISOString();
@@ -1255,7 +1255,7 @@ var AgentEngine = (function () {
     for (var i = 0; i < list.length; i++) {
       var a = list[i];
       // Allow reject on pending OR approved (cancel scheduled/approved-but-not-executed)
-      if (a.id === actionId && a.approval && (a.approval.status === 'pending' || a.approval.status === 'approved')) {
+      if (a.id === actionId && a.approval && (a.approval.status === 'pending' || a.approval.status === 'approved' || a.approval.status === 'revision_requested')) {
         var wasCancelled = a.approval.status === 'approved';
         a.approval.status = wasCancelled ? 'cancelled' : 'rejected';
         a.approval.decision_note = note || null;

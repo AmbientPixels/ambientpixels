@@ -160,6 +160,8 @@ module.exports = async function (context) {
     const documents = (await storage.getState('documents')) || [];
     const workspaceMemory = (await storage.getState('workspaceMemory')) || [];
     const workspaceDates = (await storage.getState('dates')) || [];
+    const allActions = (await storage.getState('actions')) || [];
+    const revisionActions = allActions.filter(a => a.approval && a.approval.status === 'revision_requested');
     const activeDirectives = directives.filter(d => d.status === 'active');
     const activeObjectives = objectives.filter(o => o.status === 'active' || o.status === 'in_progress');
 
@@ -233,7 +235,7 @@ module.exports = async function (context) {
           context, agentId, tasks, configs, recentSummaries, cycleId,
           agentId === 'nova' ? novaSkipTaskIds : null,
           activeDirectives, activeObjectives, documents,
-          workspaceMemory, workspaceDates
+          workspaceMemory, workspaceDates, revisionActions
         );
         geminiCalls += result.geminiCalls;
         agentActions[agentId] = result.actions;
@@ -340,7 +342,7 @@ module.exports = async function (context) {
 };
 
 // ── Run a single agent's heartbeat ──
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates) {
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions) {
   const result = { geminiCalls: 0, actions: 0, taskUpdates: [] };
   const agent = AGENT_ROLES[agentId];
   if (!agent) return result;
@@ -348,8 +350,10 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   // Build context for the agent
   const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done');
   const allActiveTasks = tasks.filter(t => t.status !== 'done' && t.status !== 'backlog');
+  // Only show this agent their own revision-requested actions
+  const agentRevisions = (revisionActions || []).filter(a => a.created_by === agentId || a.origin_agent === agentId);
 
-  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates);
+  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions);
 
   // Call Gemini
   const response = await callGemini(prompt);
@@ -656,6 +660,78 @@ Write the full deliverable first, then the structured JSON block.`;
 
       context.log('[Heartbeat]', agentId, 'created social action:', newAction.id, newAction.type, newAction.platform);
       result.taskUpdates.push({ action: 'social-action-created', actionId: newAction.id, agentId: agentId });
+
+    } else if (action.type === 'revise-action' && action.action_id && action.social) {
+      // Agent revising a CEO-rejected action — update payload and re-submit for approval
+      const revisedText = action.social.text || '';
+
+      // Server-side enforcement: reject revised posts with placeholder brackets
+      if (/\[(?:mention|insert|add|include|TBD|link|your |e\.g\.|fill)[^\]]*\]/i.test(revisedText)) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED revise-action — contains placeholder brackets:', revisedText.substring(0, 100));
+        continue;
+      }
+
+      const actionsStore = (await storage.getState('actions')) || [];
+      const origIdx = actionsStore.findIndex(a => a.id === action.action_id);
+      if (origIdx === -1) {
+        context.log('[Heartbeat]', agentId, 'revise-action: action not found:', action.action_id);
+        continue;
+      }
+      const orig = actionsStore[origIdx];
+
+      // Update payload with revised content
+      orig.payload = orig.payload || {};
+      orig.payload.text = revisedText;
+      if (action.social.media) orig.payload.media = action.social.media;
+      if (action.social.scheduled_for) orig.payload.scheduled_for = action.social.scheduled_for;
+
+      // Reset approval to pending
+      orig.approval = orig.approval || {};
+      orig.approval.status = 'pending';
+      orig.approval.decision_note = null;
+      orig.approval.revised_at = new Date().toISOString();
+      orig.approval.revision_count = (orig.approval.revision_count || 0) + 1;
+
+      // Reset execution state so it can be re-executed after approval
+      orig.execution_status = 'pending';
+      if (orig.execution) {
+        orig.execution.status = 'pending';
+        orig.execution.attempts = 0;
+        orig.execution.last_error = null;
+      }
+
+      actionsStore[origIdx] = orig;
+      await storage.setState('actions', actionsStore);
+
+      // Update or re-add to approval queue
+      const approvalQueue = (await storage.getState('approvalQueue')) || [];
+      const aqIdx = approvalQueue.findIndex(q => q.action_id === orig.id);
+      const aqEntry = {
+        id: aqIdx !== -1 ? approvalQueue[aqIdx].id : 'aq-' + orig.id,
+        kind: 'action',
+        action_id: orig.id,
+        taskId: null,
+        taskTitle: 'Social Post (' + (orig.platform || 'x') + ')',
+        originAgent: agentId,
+        classification: orig.classification || 'standard',
+        riskLevel: orig.risk_level || 'medium',
+        budgetImpact: 0,
+        brandImpact: 'medium',
+        status: 'pending',
+        submittedAt: new Date().toISOString(),
+        preview: revisedText.substring(0, 120)
+      };
+      if (aqIdx !== -1) {
+        approvalQueue[aqIdx] = aqEntry;
+      } else {
+        approvalQueue.push(aqEntry);
+      }
+      if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
+      await storage.setState('approvalQueue', approvalQueue);
+
+      context.log('[Heartbeat]', agentId, 'revised action:', orig.id, '| revision #' + orig.approval.revision_count);
+      result.taskUpdates.push({ action: 'action-revised', actionId: orig.id, agentId: agentId });
+
     } else if (action.type === 'comment-task' && action.taskId && action.comment) {
       // Comment dedup: skip if same agent posted a similar comment on this task in last 2 hours
       const targetTask = tasks.find(t => t.id === action.taskId);
@@ -1137,7 +1213,7 @@ Write the full deliverable first, then the structured JSON block.`;
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -1321,6 +1397,25 @@ ${docList}`;
     workspaceSection = '\n\nCEO WORKSPACE CONTEXT (strategic context from the CEO — factor into your decisions):\n' + wsParts.join('\n');
   }
 
+  // Revision requests — actions the CEO sent back for changes
+  agentRevisions = agentRevisions || [];
+  let revisionSection = '';
+  if (agentRevisions.length > 0) {
+    const revList = agentRevisions.slice(0, 3).map(a => {
+      const note = (a.approval && a.approval.decision_note) || 'No specific feedback provided';
+      const aType = a.type || a.action_type || 'unknown';
+      const plat = a.platform || '';
+      const text = (a.payload && (a.payload.text || a.payload.content || '')) || '';
+      const preview = text.length > 150 ? text.substring(0, 150) + '...' : text;
+      return '- ACTION ID: ' + a.id + ' | Type: ' + aType + (plat ? ' (' + plat + ')' : '') +
+        '\n  Original content: ' + preview +
+        '\n  CEO feedback: ' + note;
+    }).join('\n');
+    revisionSection = `\n\n⚠ CEO REVISION REQUESTS (HIGH PRIORITY — the CEO rejected these and wants changes):
+${revList}
+You MUST address these revision requests using revise-action. Provide the action_id and the corrected content based on the CEO's feedback. This takes priority over creating new actions.`;
+  }
+
   return `You are ${agent.name}, ${agent.role} at AmbientPixels. Your focus: ${agent.focus}.
 
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
@@ -1333,7 +1428,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}
-${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${workspaceSection}
+${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${workspaceSection}${revisionSection}
 
 CURRENT TIME: ${new Date().toISOString()}
 
@@ -1342,10 +1437,11 @@ Respond with ONLY valid JSON in this exact format:
   "observation": "One sentence about what you notice or your current state",
   "actions": [
     {
-      "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|create-doc|submit-for-publish|create-reminder|web_search",
+      "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|revise-action|create-doc|submit-for-publish|create-reminder|web_search",
       "summary": "Brief description of what you're doing",
       "task": { "title": "", "description": "", "status": "todo|in-progress", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z", "directive_id": "optional-directive-id" },
       "taskId": "existing-task-id",
+      "action_id": "existing-action-id-for-revise-action",
       "updates": { "description": "...", "assignee": "agentId", "priority": "high", "dueDate": "2026-02-20T00:00:00Z" },
       "newStatus": "todo|in-progress|review|done",
       "comment": "Your comment text here",
@@ -1367,6 +1463,7 @@ Action types:
 - review-task: Review a completed deliverable from another agent's task in the review column. Approve (done) or request changes (back to in-progress).
 - comment-task: Add a comment to any task. Provide taskId and "comment" string. Use for status updates, delegation notes, questions, or flagging blockers.
 - create-social-action: (Marketing/Echo) Draft a social media post routed through CEO approval. Include "social" with: text (max 280 for X, 300 for Bluesky, 3000 for LinkedIn), platform ("x"|"linkedin"|"bluesky"), optionally media (URLs). You may include scheduled_for (ISO datetime) to time posts strategically (e.g., peak engagement hours, staggering content throughout the day). Keep scheduling within 24 hours. If you have no specific timing reason, omit scheduled_for and the post will go live immediately after CEO approval. When linking to company content, use https://ambientpixels.ai/blog/<slug> for public articles — never link to /modules/company/ or /docs/published/ as those are internal and auth-gated.
+- revise-action: Revise an action that the CEO sent back for changes. Provide "action_id" (from the CEO REVISION REQUESTS section) and "social" with the corrected content (same format as create-social-action). The revised action replaces the old one and is re-submitted for CEO approval. Address ALL of the CEO's feedback in your revision.
 - create-doc: Create a NEW document. Include "document" with: title (string), kind ("spec"|"runbook"|"release_notes"|"product_brief"|"marketing_post"|"governance"), tags (array of strings), and content_md (full markdown content — MUST be complete, publish-ready text with NO placeholders like "[insert here]" or "[TBD]"). Also include "taskId" if this doc is for a specific task. marketing_post/product_brief → CEO approval queue for blog. Internal kinds (spec, runbook, release_notes, governance) → auto-published to /docs/published/ immediately. IMPORTANT: Check EXISTING DOCUMENTS below first — if a relevant doc already exists, use update-doc instead of creating a duplicate.
 - update-doc: Update an existing document. Include "documentId" (the doc ID from EXISTING DOCUMENTS) and "updates" with any of: content_md (full replacement), append_md (add new content to end), title (rename), tags (replace tags). Use this when new information should be added to an existing doc instead of creating a new one. Internal docs are auto-refreshed at /docs/published/.
 - submit-for-publish: Submit a completed document for human/CEO approval to publish on the site. Include "documentId" (the ID of an existing draft or review document) and optionally "taskId" (the task that produced the doc). This creates a publish_document action in the approval queue. You CANNOT publish directly — only a human can approve publishing.

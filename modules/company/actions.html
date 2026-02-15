@@ -74,6 +74,7 @@
       white-space: nowrap;
     }
     .act-badge--pending { background: rgba(255,165,0,0.12); color: #FFA500; }
+    .act-badge--revision_requested { background: rgba(251,191,36,0.12); color: #fbbf24; }
     .act-badge--approved { background: rgba(52,211,153,0.12); color: #34d399; }
     .act-badge--running { background: rgba(59,130,246,0.12); color: #3b82f6; }
     .act-badge--success { background: rgba(52,211,153,0.12); color: #34d399; }
@@ -267,6 +268,15 @@
       <div class="act-panel-body" id="pending-list"></div>
     </div>
 
+    <!-- Revision Requested (CEO sent back for changes) -->
+    <div class="act-panel" id="revision-panel" style="display:none;">
+      <div class="act-panel-head" style="border-color:rgba(251,191,36,0.15);">
+        <span style="color:#fbbf24;"><i class="fas fa-pen-to-square"></i> Revision Requested</span>
+        <span id="revision-count" style="font-size:0.6rem; opacity:0.4;"></span>
+      </div>
+      <div class="act-panel-body" id="revision-list"></div>
+    </div>
+
     <!-- Scheduled / Approved (ready to execute) -->
     <div class="act-panel">
       <div class="act-panel-head">
@@ -350,6 +360,18 @@
       }
       AE.on('sync-complete', renderAll);
       renderAll();
+
+      // Wire up revision modal
+      var backdrop = document.getElementById('revision-modal');
+      var noteEl = document.getElementById('revision-note');
+      window._revisionModal = {
+        backdrop: backdrop,
+        note: noteEl,
+        actionId: null
+      };
+      document.getElementById('revision-cancel').addEventListener('click', closeRevisionModal);
+      document.getElementById('revision-save').addEventListener('click', submitRevisionNote);
+      backdrop.addEventListener('click', function (e) { if (e.target === backdrop) closeRevisionModal(); });
     });
 
     // ── Filter helpers ──
@@ -373,6 +395,7 @@
     function renderAll() {
       renderStats();
       renderPending();
+      renderRevisions();
       renderScheduled();
       renderExecLog();
       renderFailures();
@@ -422,6 +445,26 @@
       });
       unbundled.forEach(function (a) { html += actionRow(a, 'pending'); });
       el.innerHTML = html;
+    }
+
+    // ── Revision Requested ──
+    function renderRevisions() {
+      var all = AE.getActions().filter(function (a) {
+        return a.approval && a.approval.status === 'revision_requested';
+      });
+      var items = applyFilters(all);
+      var panel = document.getElementById('revision-panel');
+      var el = document.getElementById('revision-list');
+      document.getElementById('revision-count').textContent = items.length + ' awaiting revision';
+      if (items.length === 0) { panel.style.display = 'none'; el.innerHTML = ''; return; }
+      panel.style.display = '';
+      el.innerHTML = items.map(function (a) {
+        var row = actionRow(a, 'pending');
+        var note = (a.approval && a.approval.decision_note) || '';
+        if (note) row += '<div style="font-size:0.65rem; padding:0.3rem 0.5rem; margin-top:0.2rem; border-radius:4px; border:1px solid rgba(251,191,36,0.15); background:rgba(251,191,36,0.04); color:#fbbf24;"><i class="fas fa-comment-dots" style="margin-right:0.3rem; opacity:0.6;"></i>CEO: ' + esc(note) + '</div>';
+        row += '<div style="font-size:0.55rem; opacity:0.4; margin-top:0.15rem;"><i class="fas fa-clock"></i> Waiting for agent to revise and re-submit during next heartbeat</div>';
+        return row;
+      }).join('');
     }
 
     // ── Scheduled / Approved ──
