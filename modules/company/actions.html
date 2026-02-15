@@ -567,7 +567,17 @@
     // ── CEO Actions ──
     function doApprove(id) { AE.approveAction(id); renderAll(); }
     function doReject(id) { AE.rejectAction(id); renderAll(); }
-    function doRevision(id) { AE.requestActionRevision(id); renderAll(); }
+    function doRevision(id) {
+      var note = prompt('What needs to change before approval? This note will go back to the agent.');
+      if (note === null) return;
+      note = note.trim();
+      if (!note) {
+        alert('Please add revision feedback so the agent knows what to fix.');
+        return;
+      }
+      AE.requestActionRevision(id, note);
+      renderAll();
+    }
     function doOverride(id) { AE.overrideAction(id); renderAll(); }
     function doApproveBundle(bid) { AE.approveBundle(bid); renderAll(); }
 
