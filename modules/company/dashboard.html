@@ -437,15 +437,23 @@
           sortedPending.slice(0, 5).forEach(function (item) {
             var riskColor = item.riskLevel === 'high' ? '#f87171' : item.riskLevel === 'medium' ? '#fbbf24' : '#34d399';
             var isExec = item.classification === 'executive_required';
-            approvalHtml += '<div style="padding:0.4rem 0.6rem; border:1px solid ' + (isExec ? 'rgba(248,113,113,0.15)' : 'rgba(255,255,255,0.04)') + '; border-radius:6px; margin-bottom:0.3rem; background:' + (isExec ? 'rgba(248,113,113,0.03)' : 'rgba(255,255,255,0.01)') + '; display:flex; justify-content:space-between; align-items:center;">';
+            var _task = item.taskId ? AgentEngine.getTask(item.taskId) : null;
+            var _preview = item.preview || AgentEngine.buildPreview(_task ? _task.description : (item.recommendation || ''));
+            approvalHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid ' + (isExec ? 'rgba(248,113,113,0.15)' : 'rgba(255,255,255,0.04)') + '; border-radius:6px; margin-bottom:0.3rem; background:' + (isExec ? 'rgba(248,113,113,0.03)' : 'rgba(255,255,255,0.01)') + ';">';
+            approvalHtml += '<div style="display:flex; justify-content:space-between; align-items:flex-start;">';
             approvalHtml += '<div style="flex:1; min-width:0;">';
             if (isExec) approvalHtml += '<span style="font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; background:rgba(248,113,113,0.15); color:#f87171; margin-right:0.3rem;">EXEC REQUIRED</span>';
             if (item.kind === 'action') approvalHtml += '<span style="font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; background:rgba(59,130,246,0.1); color:#3b82f6; margin-right:0.3rem;">ACTION</span>';
-            approvalHtml += '<span style="font-size:0.75rem;">' + (item.kind === 'action' ? friendlyTitle(item.taskTitle) : escapeHtml(item.taskTitle)) + '</span>';
-            approvalHtml += '<div style="font-size:0.6rem; opacity:0.4; margin-top:0.15rem;">' + (item.originAgent || '?') + ' · <span style="color:' + riskColor + ';">risk: ' + item.riskLevel + '</span></div>';
+            approvalHtml += '<div style="font-size:0.9rem; font-weight:600;">' + (item.kind === 'action' ? friendlyTitle(item.taskTitle) : escapeHtml(item.taskTitle)) + '</div>';
+            if (_preview) approvalHtml += '<div style="font-size:0.75rem; opacity:0.7; line-height:1.3; margin-top:4px;">' + escapeHtml(_preview) + '</div>';
+            approvalHtml += '<div style="font-size:0.65rem; opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
+            approvalHtml += '<span>' + (item.originAgent || '?') + '</span>';
+            approvalHtml += '<span style="color:' + riskColor + ';">risk: ' + item.riskLevel + '</span>';
+            if (item.submittedAt) approvalHtml += '<span>' + new Date(item.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + '</span>';
             approvalHtml += '</div>';
-            approvalHtml += '<a href="#panel-approval-wrap" style="font-size:0.55rem; color:#FFD700; text-decoration:none; white-space:nowrap; margin-left:0.5rem;">Review →</a>';
             approvalHtml += '</div>';
+            approvalHtml += '<a href="#panel-approval-wrap" style="font-size:0.55rem; color:#FFD700; text-decoration:none; white-space:nowrap; margin-left:0.5rem; align-self:center;">Review →</a>';
+            approvalHtml += '</div></div>';
           });
           if (pending.length > 5) approvalHtml += '<div style="font-size:0.55rem; opacity:0.3; padding-left:0.6rem;">+' + (pending.length - 5) + ' more awaiting review</div>';
           approvalHtml += '</div>';
@@ -464,18 +472,41 @@
           sdeHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-hourglass-half" style="color:#fbbf24; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#fbbf24;">Standup Pending Approval</strong> <span style="font-size:0.6rem; opacity:0.4;">(' + sdePendingTotal + ')</span></div>';
           sdePendingTasks.slice(0, 3).forEach(function (t) {
             var agent = t.assignee ? AgentEngine.getAgent(t.assignee) : null;
-            sdeHtml += '<div style="padding:0.3rem 0.6rem; border:1px solid rgba(251,191,36,0.1); border-radius:6px; margin-bottom:0.25rem; background:rgba(251,191,36,0.02); display:flex; justify-content:space-between; align-items:center;">';
-            sdeHtml += '<div style="flex:1;"><span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(59,130,246,0.1);color:#3b82f6;margin-right:0.3rem;">TASK</span><span style="font-size:0.75rem;">' + escapeHtml(t.title) + '</span>';
-            if (t.source && t.source.title) sdeHtml += '<div style="font-size:0.55rem;opacity:0.4;">from: ' + escapeHtml(t.source.title) + '</div>';
-            sdeHtml += '</div>';
-            sdeHtml += '<a href="/modules/company/tasks.html" style="font-size:0.55rem; color:#fbbf24; text-decoration:none;">View →</a></div>';
+            var tPreview = AgentEngine.buildPreview(t.description || '');
+            var prioColor = t.priority === 'critical' ? '#ef4444' : t.priority === 'high' ? '#f87171' : t.priority === 'medium' ? '#fbbf24' : '#94a3b8';
+            sdeHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid rgba(251,191,36,0.1); border-radius:6px; margin-bottom:0.3rem; background:rgba(251,191,36,0.02);">';
+            sdeHtml += '<div style="display:flex; justify-content:space-between; align-items:flex-start;">';
+            sdeHtml += '<div style="flex:1; min-width:0;">';
+            sdeHtml += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(59,130,246,0.1);color:#3b82f6;margin-right:0.3rem;">TASK</span>';
+            sdeHtml += '<div style="font-size:0.9rem; font-weight:600; margin-top:2px;">' + escapeHtml(t.title) + '</div>';
+            if (tPreview) sdeHtml += '<div style="font-size:0.75rem; opacity:0.7; line-height:1.3; margin-top:4px;">' + escapeHtml(tPreview) + '</div>';
+            sdeHtml += '<div style="font-size:0.65rem; opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
+            sdeHtml += '<span>' + (agent ? agent.name : (t.assignee || 'unassigned')) + '</span>';
+            sdeHtml += '<span style="color:' + prioColor + ';">' + (t.priority || 'medium') + '</span>';
+            if (t.impact) sdeHtml += '<span>Impact: ' + t.impact + '</span>';
+            if (t.effort) sdeHtml += '<span>Effort: ' + t.effort + '</span>';
+            if (t.source && t.source.title) sdeHtml += '<span>From: ' + escapeHtml(t.source.title) + '</span>';
+            sdeHtml += '</div></div>';
+            sdeHtml += '<a href="/modules/company/tasks.html" style="font-size:0.55rem; color:#fbbf24; text-decoration:none; white-space:nowrap; align-self:center; margin-left:0.5rem;">View →</a>';
+            sdeHtml += '</div></div>';
           });
           sdePendingDirs.slice(0, 3).forEach(function (d) {
-            sdeHtml += '<div style="padding:0.3rem 0.6rem; border:1px solid rgba(138,43,226,0.1); border-radius:6px; margin-bottom:0.25rem; background:rgba(138,43,226,0.02); display:flex; justify-content:space-between; align-items:center;">';
-            sdeHtml += '<div style="flex:1;"><span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(138,43,226,0.1);color:#a855f7;margin-right:0.3rem;">DIRECTIVE</span><span style="font-size:0.75rem;">' + escapeHtml(d.title) + '</span>';
-            if (d.source && d.source.title) sdeHtml += '<div style="font-size:0.55rem;opacity:0.4;">from: ' + escapeHtml(d.source.title) + '</div>';
-            sdeHtml += '</div>';
-            sdeHtml += '<a href="/modules/company/directives.html" style="font-size:0.55rem; color:#a855f7; text-decoration:none;">View →</a></div>';
+            var dPreview = AgentEngine.buildPreview(d.description || '');
+            sdeHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid rgba(138,43,226,0.1); border-radius:6px; margin-bottom:0.3rem; background:rgba(138,43,226,0.02);">';
+            sdeHtml += '<div style="display:flex; justify-content:space-between; align-items:flex-start;">';
+            sdeHtml += '<div style="flex:1; min-width:0;">';
+            sdeHtml += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(138,43,226,0.1);color:#a855f7;margin-right:0.3rem;">DIRECTIVE</span>';
+            if (d.classification) sdeHtml += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(138,43,226,0.06);color:#c084fc;margin-left:0.2rem;">' + escapeHtml(d.classification) + '</span>';
+            sdeHtml += '<div style="font-size:0.9rem; font-weight:600; margin-top:2px;">' + escapeHtml(d.title) + '</div>';
+            if (dPreview) sdeHtml += '<div style="font-size:0.75rem; opacity:0.7; line-height:1.3; margin-top:4px;">' + escapeHtml(dPreview) + '</div>';
+            sdeHtml += '<div style="font-size:0.65rem; opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
+            if (d.owner) sdeHtml += '<span>' + escapeHtml(d.owner) + '</span>';
+            if (d.impact) sdeHtml += '<span>Impact: ' + d.impact + '</span>';
+            if (d.effort) sdeHtml += '<span>Effort: ' + d.effort + '</span>';
+            if (d.source && d.source.title) sdeHtml += '<span>From: ' + escapeHtml(d.source.title) + '</span>';
+            sdeHtml += '</div></div>';
+            sdeHtml += '<a href="/modules/company/directives.html" style="font-size:0.55rem; color:#a855f7; text-decoration:none; white-space:nowrap; align-self:center; margin-left:0.5rem;">View →</a>';
+            sdeHtml += '</div></div>';
           });
           if (sdePendingTotal > 6) sdeHtml += '<div style="font-size:0.55rem; opacity:0.3; padding-left:0.6rem;">+' + (sdePendingTotal - 6) + ' more pending</div>';
           sdeHtml += '</div>';
@@ -497,13 +528,21 @@
             var agent = t.assignee ? AgentEngine.getAgent(t.assignee) : null;
             var daysLate = Math.floor((new Date(today) - new Date(t.dueDate)) / 86400000);
             var prioColor = t.priority === 'critical' ? '#ef4444' : t.priority === 'high' ? '#f87171' : t.priority === 'medium' ? '#fbbf24' : '#94a3b8';
-            overdueHtml += '<div style="padding:0.4rem 0.6rem; border:1px solid rgba(248,113,113,0.1); border-radius:6px; margin-bottom:0.3rem; background:rgba(248,113,113,0.02); display:flex; justify-content:space-between; align-items:center;">';
+            var odPreview = AgentEngine.buildPreview(t.description || '');
+            overdueHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid rgba(248,113,113,0.1); border-radius:6px; margin-bottom:0.3rem; background:rgba(248,113,113,0.02);">';
+            overdueHtml += '<div style="display:flex; justify-content:space-between; align-items:flex-start;">';
             overdueHtml += '<div style="flex:1; min-width:0;">';
-            overdueHtml += '<span style="font-size:0.75rem;">' + escapeHtml(t.title) + '</span>';
-            overdueHtml += '<div style="font-size:0.6rem; opacity:0.5; margin-top:0.15rem;">' + (agent ? agent.name : 'unassigned') + ' · <span style="color:' + prioColor + ';">' + t.priority + '</span> · <span style="color:#f87171;">' + daysLate + 'd overdue</span></div>';
+            overdueHtml += '<div style="font-size:0.9rem; font-weight:600;">' + escapeHtml(t.title) + '</div>';
+            if (odPreview) overdueHtml += '<div style="font-size:0.75rem; opacity:0.7; line-height:1.3; margin-top:4px;">' + escapeHtml(odPreview) + '</div>';
+            overdueHtml += '<div style="font-size:0.65rem; opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
+            overdueHtml += '<span>' + (agent ? agent.name : 'unassigned') + '</span>';
+            overdueHtml += '<span style="color:' + prioColor + ';">' + t.priority + '</span>';
+            overdueHtml += '<span style="color:#f87171;">' + daysLate + 'd overdue</span>';
+            if (t.source && t.source.title) overdueHtml += '<span>From: ' + escapeHtml(t.source.title) + '</span>';
             overdueHtml += '</div>';
-            overdueHtml += '<a href="/modules/company/tasks.html" style="font-size:0.55rem; color:#f87171; text-decoration:none; white-space:nowrap; margin-left:0.5rem;">View →</a>';
             overdueHtml += '</div>';
+            overdueHtml += '<a href="/modules/company/tasks.html" style="font-size:0.55rem; color:#f87171; text-decoration:none; white-space:nowrap; margin-left:0.5rem; align-self:center;">View →</a>';
+            overdueHtml += '</div></div>';
           });
           if (overdue.length > 5) overdueHtml += '<div style="font-size:0.55rem; opacity:0.3; padding-left:0.6rem;">+' + (overdue.length - 5) + ' more overdue</div>';
           overdueHtml += '</div>';
@@ -522,13 +561,20 @@
           blockedHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-ban" style="color:#FFA500; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#FFA500;">Blocked / Escalated</strong> <span style="font-size:0.6rem; opacity:0.4;">(' + blocked.length + ')</span></div>';
           blocked.slice(0, 3).forEach(function (t) {
             var agent = t.assignee ? AgentEngine.getAgent(t.assignee) : null;
-            blockedHtml += '<div style="padding:0.4rem 0.6rem; border:1px solid rgba(255,165,0,0.1); border-radius:6px; margin-bottom:0.3rem; background:rgba(255,165,0,0.02); display:flex; justify-content:space-between; align-items:center;">';
+            var blkPreview = AgentEngine.buildPreview(t.description || '');
+            blockedHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid rgba(255,165,0,0.1); border-radius:6px; margin-bottom:0.3rem; background:rgba(255,165,0,0.02);">';
+            blockedHtml += '<div style="display:flex; justify-content:space-between; align-items:flex-start;">';
             blockedHtml += '<div style="flex:1; min-width:0;">';
-            blockedHtml += '<span style="font-size:0.75rem;">' + escapeHtml(t.title) + '</span>';
-            blockedHtml += '<div style="font-size:0.6rem; opacity:0.5; margin-top:0.15rem;">' + (agent ? agent.name : 'unassigned') + ' · ' + t.status + '</div>';
+            blockedHtml += '<div style="font-size:0.9rem; font-weight:600;">' + escapeHtml(t.title) + '</div>';
+            if (blkPreview) blockedHtml += '<div style="font-size:0.75rem; opacity:0.7; line-height:1.3; margin-top:4px;">' + escapeHtml(blkPreview) + '</div>';
+            blockedHtml += '<div style="font-size:0.65rem; opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
+            blockedHtml += '<span>' + (agent ? agent.name : 'unassigned') + '</span>';
+            blockedHtml += '<span>' + t.status + '</span>';
+            if (t.source && t.source.title) blockedHtml += '<span>From: ' + escapeHtml(t.source.title) + '</span>';
             blockedHtml += '</div>';
-            blockedHtml += '<a href="/modules/company/tasks.html" style="font-size:0.55rem; color:#FFA500; text-decoration:none; white-space:nowrap; margin-left:0.5rem;">View →</a>';
             blockedHtml += '</div>';
+            blockedHtml += '<a href="/modules/company/tasks.html" style="font-size:0.55rem; color:#FFA500; text-decoration:none; white-space:nowrap; margin-left:0.5rem; align-self:center;">View →</a>';
+            blockedHtml += '</div></div>';
           });
           blockedHtml += '</div>';
           sections.push(blockedHtml);
@@ -1034,21 +1080,39 @@
           var ageMins = item.submittedAt ? Math.floor((Date.now() - new Date(item.submittedAt).getTime()) / 60000) : 0;
           var ageLabel = ageMins < 60 ? ageMins + 'm ago' : Math.floor(ageMins / 60) + 'h ' + (ageMins % 60) + 'm ago';
 
-          // Title
-          var titleHtml = typeBadge + '<span style="font-size:0.75rem; font-weight:500;">' + (isAction ? friendlyTitle(item.taskTitle) : escapeHtml(item.taskTitle)) + '</span>';
+          // Title + Preview
+          var _aqTask = item.taskId ? AgentEngine.getTask(item.taskId) : null;
+          var _aqPreview = item.preview || AgentEngine.buildPreview(_aqTask ? _aqTask.description : (item.recommendation || ''));
+          var _aqFullDesc = _aqTask ? (_aqTask.description || '') : '';
+          var _previewId = 'aq-prev-' + (item.id || Math.random()).toString().replace(/[^a-z0-9]/gi, '');
+
+          // Impact/effort badges from underlying task
+          var _aqBadges = '';
+          if (_aqTask) {
+            if (_aqTask.impact) _aqBadges += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(251,191,36,0.1);color:#fbbf24;">Impact: ' + _aqTask.impact + '</span>';
+            if (_aqTask.effort) _aqBadges += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(255,255,255,0.06);color:#ccc;">Effort: ' + _aqTask.effort + '</span>';
+          }
+          if (item.classification) _aqBadges += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(138,43,226,0.1);color:#c084fc;">' + item.classification.replace(/_/g, ' ') + '</span>';
 
           var div = document.createElement('div');
-          div.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.7rem; border:1px solid ' + borderColor + '; border-radius:6px; margin-bottom:0.4rem; background:' + bgColor + ';';
+          div.style.cssText = 'padding:0.5rem 0.7rem; border:1px solid ' + borderColor + '; border-radius:6px; margin-bottom:0.4rem; background:' + bgColor + ';';
           div.innerHTML =
-            '<div style="display:flex; flex-direction:column; gap:0.15rem; flex:1; min-width:0;">' +
-              '<div style="display:flex; align-items:center; gap:0.3rem; flex-wrap:wrap;">' + titleHtml + '</div>' +
-              '<div style="display:flex; gap:0.6rem; font-size:0.6rem; opacity:0.5;">' +
-                '<span>' + escapeHtml(agentName) + '</span>' +
-                '<span style="color:' + riskColor + ';">' + (item.riskLevel || 'low') + ' risk</span>' +
-                '<span>' + ageLabel + '</span>' +
+            '<div style="display:flex; justify-content:space-between; align-items:flex-start;">' +
+              '<div style="flex:1; min-width:0;">' +
+                '<div style="display:flex; align-items:center; gap:0.3rem; flex-wrap:wrap; margin-bottom:2px;">' + typeBadge + _aqBadges + '</div>' +
+                '<div style="font-size:0.9rem; font-weight:600;">' + (isAction ? friendlyTitle(item.taskTitle) : escapeHtml(item.taskTitle)) + '</div>' +
+                (_aqPreview ? '<div style="font-size:0.75rem; opacity:0.7; line-height:1.3; margin-top:4px;" id="' + _previewId + '">' + escapeHtml(_aqPreview) +
+                  (_aqFullDesc.length > 160 ? ' <a href="#" style="font-size:0.6rem;color:#60a5fa;text-decoration:none;" onclick="var el=document.getElementById(\'' + _previewId + '\');if(el.dataset.expanded){el.textContent=\'' + escapeHtml(_aqPreview).replace(/'/g, "\\'") + '\';el.dataset.expanded=\'\';this.textContent=\'Expand\'}else{el.textContent=\'' + escapeHtml(_aqFullDesc).replace(/'/g, "\\'").replace(/\n/g, ' ') + '\';el.dataset.expanded=\'1\';this.textContent=\'Collapse\'};el.appendChild(this);return false">Expand</a>' : '') +
+                '</div>' : '') +
+                '<div style="display:flex; gap:0.5rem; font-size:0.65rem; opacity:0.5; margin-top:4px; flex-wrap:wrap;">' +
+                  '<span>' + escapeHtml(agentName) + '</span>' +
+                  '<span style="color:' + riskColor + ';">' + (item.riskLevel || 'low') + ' risk</span>' +
+                  '<span>' + ageLabel + '</span>' +
+                  (_aqTask && _aqTask.source && _aqTask.source.title ? '<span>From: ' + escapeHtml(_aqTask.source.title) + '</span>' : '') +
+                '</div>' +
               '</div>' +
-            '</div>' +
-            '<a href="/modules/company/actions.html" style="font-size:0.6rem; color:#60a5fa; text-decoration:none; white-space:nowrap; display:flex; align-items:center; gap:0.25rem; padding:0.25rem 0.5rem; border:1px solid rgba(96,165,250,0.2); border-radius:4px; background:rgba(96,165,250,0.05);">Review <i class="fas fa-arrow-right" style="font-size:0.5rem;"></i></a>';
+              '<a href="/modules/company/actions.html" style="font-size:0.6rem; color:#60a5fa; text-decoration:none; white-space:nowrap; display:flex; align-items:center; gap:0.25rem; padding:0.25rem 0.5rem; border:1px solid rgba(96,165,250,0.2); border-radius:4px; background:rgba(96,165,250,0.05); align-self:center; margin-left:0.5rem;">Review <i class="fas fa-arrow-right" style="font-size:0.5rem;"></i></a>' +
+            '</div>';
           listEl.appendChild(div);
         });
       }

@@ -474,6 +474,22 @@ var AgentEngine = (function () {
     return str.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').substring(0, 80);
   }
 
+  // v2.4: Build preview text — strip markdown, newlines, truncate
+  function buildPreview(text, maxLength) {
+    if (!text) return '';
+    maxLength = maxLength || 160;
+    var clean = text
+      .replace(/#{1,6}\s?/g, '')       // headings
+      .replace(/\*{1,3}([^*]+)\*{1,3}/g, '$1') // bold/italic
+      .replace(/`{1,3}[^`]*`{1,3}/g, '')        // code
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')  // links
+      .replace(/[\r\n]+/g, ' ')         // newlines
+      .replace(/\s{2,}/g, ' ')          // collapse spaces
+      .trim();
+    if (clean.length <= maxLength) return clean;
+    return clean.substring(0, maxLength).replace(/\s+\S*$/, '') + '\u2026';
+  }
+
   // Run a full standup — each agent speaks in turn, seeing previous responses
   // opts: { title, agenda, type, requestedOutputs, template }
   function runStandup(opts) {
@@ -2004,6 +2020,7 @@ var AgentEngine = (function () {
     createProposalsAsPending: createProposalsAsPending,
     approveAndActivate: approveAndActivate,
     getStandupTopicKeys: getStandupTopicKeys,
+    buildPreview: buildPreview,
     STANDUP_TYPES: STANDUP_TYPES,
     DECISION_STATUSES: DECISION_STATUSES,
     getMetrics: getMetrics,
