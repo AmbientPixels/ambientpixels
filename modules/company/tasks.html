@@ -65,12 +65,28 @@
       </div>
     </div>
 
+    <!-- Signal Filter Bar -->
+    <div class="tm-signal-bar" id="tm-signal-bar">
+      <button class="tm-signal-chip" data-signal="all" aria-pressed="true">All</button>
+      <button class="tm-signal-chip" data-signal="aging" aria-pressed="false">Aging 5d+</button>
+      <button class="tm-signal-chip" data-signal="overdue" aria-pressed="false">Overdue</button>
+      <button class="tm-signal-chip" data-signal="blocked" aria-pressed="false">Blocked</button>
+      <button class="tm-signal-chip" data-signal="mytasks" aria-pressed="false">My Tasks</button>
+      <div class="tm-signal-sep"></div>
+      <select class="tm-preset-select" id="tm-preset-select">
+        <option value="default">Default View</option>
+        <option value="ceo">CEO Focus</option>
+        <option value="execution">Execution Focus</option>
+      </select>
+    </div>
+
     <!-- Kanban Board -->
     <div class="tm-board active" id="tm-board">
       <div class="tm-column" data-status="pending-approval" style="border-top:2px solid rgba(251,191,36,0.3);">
         <div class="tm-column-header">
           <span class="tm-column-title" style="color:#fbbf24;"><i class="fas fa-hourglass-half"></i> Pending Approval</span>
           <span class="tm-column-count" data-count="pending-approval" style="background:rgba(251,191,36,0.12);color:#fbbf24;">0</span>
+          <button class="tm-col-chevron" aria-expanded="true" aria-label="Toggle column"><i class="fas fa-chevron-down"></i></button>
         </div>
         <div class="tm-column-summary" data-summary="pending-approval"></div>
         <div class="tm-column-cards" data-col="pending-approval"></div>
@@ -79,6 +95,7 @@
         <div class="tm-column-header">
           <span class="tm-column-title"><i class="fas fa-inbox"></i> Backlog</span>
           <span class="tm-column-count" data-count="backlog">0</span>
+          <button class="tm-col-chevron" aria-expanded="true" aria-label="Toggle column"><i class="fas fa-chevron-down"></i></button>
         </div>
         <div class="tm-column-summary" data-summary="backlog"></div>
         <div class="tm-column-cards" data-col="backlog"></div>
@@ -87,6 +104,7 @@
         <div class="tm-column-header">
           <span class="tm-column-title"><i class="fas fa-clipboard-list"></i> To Do</span>
           <span class="tm-column-count" data-count="todo">0</span>
+          <button class="tm-col-chevron" aria-expanded="true" aria-label="Toggle column"><i class="fas fa-chevron-down"></i></button>
         </div>
         <div class="tm-column-summary" data-summary="todo"></div>
         <div class="tm-column-cards" data-col="todo"></div>
@@ -95,6 +113,7 @@
         <div class="tm-column-header">
           <span class="tm-column-title"><i class="fas fa-spinner"></i> In Progress</span>
           <span class="tm-column-count" data-count="in-progress">0</span>
+          <button class="tm-col-chevron" aria-expanded="true" aria-label="Toggle column"><i class="fas fa-chevron-down"></i></button>
         </div>
         <div class="tm-column-summary" data-summary="in-progress"></div>
         <div class="tm-column-cards" data-col="in-progress"></div>
@@ -103,6 +122,7 @@
         <div class="tm-column-header">
           <span class="tm-column-title"><i class="fas fa-eye"></i> Review</span>
           <span class="tm-column-count" data-count="review">0</span>
+          <button class="tm-col-chevron" aria-expanded="true" aria-label="Toggle column"><i class="fas fa-chevron-down"></i></button>
         </div>
         <div class="tm-column-summary" data-summary="review"></div>
         <div class="tm-column-cards" data-col="review"></div>
@@ -111,6 +131,7 @@
         <div class="tm-column-header">
           <span class="tm-column-title"><i class="fas fa-check-circle"></i> Done</span>
           <span class="tm-column-count" data-count="done">0</span>
+          <button class="tm-col-chevron" aria-expanded="true" aria-label="Toggle column"><i class="fas fa-chevron-down"></i></button>
         </div>
         <div class="tm-column-summary" data-summary="done"></div>
         <div class="tm-column-cards" data-col="done"></div>
@@ -244,6 +265,20 @@
       });
       function _saveCollapsedCols() { localStorage.setItem('ap_tasks_collapsed_columns', JSON.stringify(_collapsedCols)); }
 
+      // Signal filter mode
+      var _signalFilter = localStorage.getItem('ap_tasks_filter_mode') || 'all';
+      var _viewPreset = localStorage.getItem('ap_tasks_view_preset') || 'default';
+      var _currentAgentId = '';
+
+      // Try to resolve current user identity for "My Tasks" filter
+      try {
+        fetch('/.auth/me').then(function (r) { return r.json(); }).then(function (d) {
+          if (d && d.clientPrincipal && d.clientPrincipal.userId) {
+            _currentAgentId = d.clientPrincipal.userDetails || d.clientPrincipal.userId;
+          }
+        }).catch(function () {});
+      } catch (e) {}
+
       // DOM refs
       var board = document.getElementById('tm-board');
       var listView = document.getElementById('tm-list');
@@ -289,7 +324,7 @@
         renderList();
       }
 
-      function getFilteredTasks() {
+      function getFilteredTasks(applySignal) {
         var tasks = AgentEngine.getTasks();
         if (filterAssignee) {
           tasks = tasks.filter(function (t) { return t.assignee === filterAssignee; });
@@ -299,6 +334,27 @@
         }
         if (filterDivision) {
           tasks = tasks.filter(function (t) { return t.division === filterDivision; });
+        }
+        // Signal filters (board view only)
+        if (applySignal && _signalFilter !== 'all') {
+          var nowMs = Date.now();
+          var dayMs = 86400000;
+          var today = new Date().toISOString().split('T')[0];
+          tasks = tasks.filter(function (t) {
+            if (_signalFilter === 'aging') {
+              return t.createdAt && (nowMs - new Date(t.createdAt).getTime()) > 5 * dayMs;
+            }
+            if (_signalFilter === 'overdue') {
+              return t.dueDate && t.dueDate < today && t.status !== 'done';
+            }
+            if (_signalFilter === 'blocked') {
+              return t.blocked || t.escalated || (t.tags && t.tags.indexOf('blocked') !== -1);
+            }
+            if (_signalFilter === 'mytasks') {
+              return t.assignee && t.assignee === _currentAgentId;
+            }
+            return true;
+          });
         }
         return tasks;
       }
@@ -328,7 +384,7 @@
       }
 
       function renderBoard() {
-        var tasks = getFilteredTasks();
+        var tasks = getFilteredTasks(true);
         var cols = ['pending-approval', 'backlog', 'todo', 'in-progress', 'review', 'done'];
         var today = new Date().toISOString().split('T')[0];
         var nowMs = Date.now();
@@ -502,20 +558,82 @@
         });
       });
 
-      // ── Collapsible Columns ──
+      // ── Collapsible Columns (chevron only) ──
       document.querySelectorAll('.tm-column').forEach(function (col) {
         var status = col.getAttribute('data-status');
+        var chevron = col.querySelector('.tm-col-chevron');
         // Apply initial collapsed state
-        if (_collapsedCols[status]) col.classList.add('collapsed');
-        // Toggle on header click
-        col.querySelector('.tm-column-header').addEventListener('click', function (e) {
-          // Don't toggle if clicking inside a draggable card
-          if (e.target.closest('.tm-card')) return;
+        if (_collapsedCols[status]) {
+          col.classList.add('collapsed');
+          chevron.setAttribute('aria-expanded', 'false');
+        }
+        // Toggle on chevron click only
+        chevron.addEventListener('click', function (e) {
+          e.stopPropagation();
           var isCollapsed = col.classList.toggle('collapsed');
+          chevron.setAttribute('aria-expanded', !isCollapsed);
           _collapsedCols[status] = isCollapsed;
           _saveCollapsedCols();
         });
+        chevron.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); chevron.click(); }
+        });
       });
+
+      // ── Dynamic Board Height ──
+      function _updateBoardHeight() {
+        if (board) {
+          var offset = board.getBoundingClientRect().top;
+          document.documentElement.style.setProperty('--tasks-board-height', (window.innerHeight - offset - 8) + 'px');
+        }
+      }
+      _updateBoardHeight();
+      window.addEventListener('resize', _updateBoardHeight);
+      window.addEventListener('orientationchange', function () { setTimeout(_updateBoardHeight, 100); });
+
+      // ── Signal Filter Chips ──
+      function _setSignalFilter(mode) {
+        _signalFilter = mode;
+        localStorage.setItem('ap_tasks_filter_mode', mode);
+        document.querySelectorAll('.tm-signal-chip').forEach(function (chip) {
+          chip.setAttribute('aria-pressed', chip.dataset.signal === mode ? 'true' : 'false');
+        });
+        renderBoard();
+      }
+      // Init chip state
+      document.querySelectorAll('.tm-signal-chip').forEach(function (chip) {
+        chip.setAttribute('aria-pressed', chip.dataset.signal === _signalFilter ? 'true' : 'false');
+        chip.addEventListener('click', function () { _setSignalFilter(chip.dataset.signal); });
+      });
+
+      // ── View Presets ──
+      var presetSelect = document.getElementById('tm-preset-select');
+      function _applyPreset(preset) {
+        _viewPreset = preset;
+        localStorage.setItem('ap_tasks_view_preset', preset);
+        presetSelect.value = preset;
+        if (preset === 'ceo') {
+          _setSignalFilter('overdue');
+          _collapsedCols = { 'pending-approval': false, backlog: false, todo: false, 'in-progress': false, review: false, done: true };
+        } else if (preset === 'execution') {
+          _setSignalFilter('mytasks');
+          _collapsedCols = { 'pending-approval': true, backlog: true, todo: true, 'in-progress': false, review: false, done: true };
+        } else {
+          _setSignalFilter('all');
+          Object.keys(_defaultCollapsed).forEach(function (k) { _collapsedCols[k] = _defaultCollapsed[k]; });
+        }
+        _saveCollapsedCols();
+        // Apply collapsed state to DOM
+        document.querySelectorAll('.tm-column').forEach(function (col) {
+          var st = col.getAttribute('data-status');
+          var chev = col.querySelector('.tm-col-chevron');
+          if (_collapsedCols[st]) { col.classList.add('collapsed'); chev.setAttribute('aria-expanded', 'false'); }
+          else { col.classList.remove('collapsed'); chev.setAttribute('aria-expanded', 'true'); }
+        });
+        renderBoard();
+      }
+      presetSelect.value = _viewPreset;
+      presetSelect.addEventListener('change', function () { _applyPreset(this.value); });
 
       // ── View Toggle ──
       var viewBoardBtn = document.getElementById('view-board');

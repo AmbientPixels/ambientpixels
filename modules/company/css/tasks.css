@@ -161,7 +161,7 @@
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 0.6rem;
-  height: calc(100vh - 200px);
+  height: var(--tasks-board-height, calc(100vh - 200px));
   min-height: 350px;
 }
 
@@ -572,10 +572,22 @@
 .tm-summary-blocked { color: #fbbf24; }
 
 /* ── Collapsible Columns ── */
-.tm-column-header {
+.tm-col-chevron {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.25);
+  font-size: 0.5rem;
   cursor: pointer;
-  user-select: none;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: transform 0.2s, color 0.15s;
+  outline: none;
+  margin-left: 0.3rem;
+  flex-shrink: 0;
 }
+.tm-col-chevron:hover { color: rgba(255,255,255,0.5); }
+.tm-col-chevron:focus-visible { box-shadow: 0 0 0 2px rgba(138,43,226,0.4); }
+.tm-column.collapsed .tm-col-chevron { transform: rotate(-90deg); }
 .tm-column.collapsed .tm-column-cards,
 .tm-column.collapsed .tm-column-summary {
   display: none;
@@ -593,6 +605,57 @@
   border-left: 3px solid rgba(239,68,68,0.5);
 }
 
+/* ── Signal Filter Bar ── */
+.tm-signal-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.6rem;
+  flex-wrap: wrap;
+}
+.tm-signal-chip {
+  font-size: 0.6rem;
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+  color: rgba(255,255,255,0.45);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  outline: none;
+  white-space: nowrap;
+}
+.tm-signal-chip:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.65); }
+.tm-signal-chip:focus-visible { box-shadow: 0 0 0 2px rgba(138,43,226,0.4); }
+.tm-signal-chip[aria-pressed="true"] {
+  background: rgba(138,43,226,0.15);
+  border-color: rgba(138,43,226,0.3);
+  color: #c7a0f0;
+  font-weight: 500;
+}
+.tm-signal-sep {
+  width: 1px;
+  height: 16px;
+  background: rgba(255,255,255,0.06);
+  margin: 0 0.15rem;
+  flex-shrink: 0;
+}
+.tm-preset-select {
+  font-size: 0.6rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+  color: rgba(255,255,255,0.5);
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  margin-left: auto;
+}
+.tm-preset-select:focus { border-color: rgba(138,43,226,0.3); }
+.tm-preset-select option { background: #0d1520; color: #ccc; }
+
 /* ── Empty State ── */
 .tm-empty {
   text-align: center;
@@ -608,6 +671,7 @@
     grid-template-columns: repeat(3, 1fr);
     height: auto;
   }
+  .tm-signal-bar { gap: 0.25rem; }
 }
 
 @media (max-width: 600px) {
