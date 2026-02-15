@@ -437,9 +437,17 @@ var AgentEngine = (function () {
   }
 
   function hasStandupToday() {
-    var lastDate = localStorage.getItem(STANDUP_DATE_KEY);
     var today = new Date().toISOString().split('T')[0];
-    return lastDate === today;
+    // Fast path: check localStorage flag
+    var lastDate = localStorage.getItem(STANDUP_DATE_KEY);
+    if (lastDate === today) return true;
+    // Fallback: check actual standup log (survives cache clears via server sync)
+    var log = _loadStandupLog();
+    if (log.length > 0 && log[log.length - 1].dateLabel === today) {
+      try { localStorage.setItem(STANDUP_DATE_KEY, today); } catch (e) {}
+      return true;
+    }
+    return false;
   }
 
   function getStandupLog() {
