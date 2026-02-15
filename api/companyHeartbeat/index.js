@@ -753,15 +753,20 @@ Write the full deliverable first, then the structured JSON block.`;
       const targetTask = tasks.find(t => t.id === action.taskId);
       const recentComments = (targetTask && Array.isArray(targetTask.comments)) ? targetTask.comments : [];
       const twoHoursAgo = Date.now() - 2 * 60 * 60 * 1000;
-      const twelveHoursAgo = Date.now() - 12 * 60 * 60 * 1000;
       const commentText = String(action.comment).toLowerCase().trim();
-      const mentionsAppendix = commentText.indexOf('appendix a') !== -1;
 
+      // Guard 1: Max 3 comments per agent per task (prevents spam loops)
+      const agentCommentCount = recentComments.filter(c => (c.user || c.author || '') === agentId).length;
+      if (agentCommentCount >= 3) {
+        context.log('[Heartbeat]', agentId, 'comment-task SKIPPED (agent already has', agentCommentCount, 'comments on task:', action.taskId, ')');
+        continue;
+      }
+
+      // Guard 2: Similarity dedup — skip if same agent posted 60%+ similar comment in last 2 hours
       const isDuplicate = recentComments.some(c => {
         if ((c.user || c.author || '') !== agentId) return false;
         const ts = c.createdAt || c.created_at || c.timestamp || null;
         if (ts && new Date(ts).getTime() < twoHoursAgo) return false;
-        // Check similarity: if 60%+ of words overlap, treat as duplicate
         const existing = String(c.text || c.comment || c.body || '').toLowerCase().trim();
         const wordsA = commentText.split(/\s+/);
         const wordsB = new Set(existing.split(/\s+/));
@@ -769,16 +774,16 @@ Write the full deliverable first, then the structured JSON block.`;
         return overlap >= wordsA.length * 0.6;
       });
 
-      const appendixRepeat = mentionsAppendix && recentComments.some(c => {
-        if ((c.user || c.author || '') !== agentId) return false;
-        const ts = c.createdAt || c.created_at || c.timestamp || null;
-        if (!ts || new Date(ts).getTime() < twelveHoursAgo) return false;
-        const existing = String(c.text || c.comment || c.body || '').toLowerCase();
-        return existing.indexOf('appendix a') !== -1;
-      });
+      // Guard 3: Block follow-up/waiting loop patterns (any agent who already asked about the same thing)
+      const isFollowUpLoop = /\b(still waiting|still awaiting|checking in|following up|just checking|any update|provide.*update|firm eta|appendix)\b/i.test(commentText) &&
+        recentComments.some(c => {
+          if ((c.user || c.author || '') !== agentId) return false;
+          const existing = String(c.text || c.comment || c.body || '').toLowerCase();
+          return /\b(waiting|awaiting|checking|following|update|appendix)\b/.test(existing);
+        });
 
-      if (isDuplicate || appendixRepeat) {
-        context.log('[Heartbeat]', agentId, 'comment-task SKIPPED (duplicate ' + (appendixRepeat ? 'Appendix A ' : '') + 'comment) on task:', action.taskId);
+      if (isDuplicate || isFollowUpLoop) {
+        context.log('[Heartbeat]', agentId, 'comment-task SKIPPED (' + (isFollowUpLoop ? 'follow-up loop' : 'duplicate') + ' comment) on task:', action.taskId);
       } else {
         result.taskUpdates.push({
           action: 'comment',
@@ -1815,7 +1820,9 @@ function buildExecutePrompt(agent, task) {
     .map(c => '- [' + (c.type || 'comment') + ' by ' + (c.author || 'unknown') + '] ' + c.text.substring(0, 200))
     .join('\n') || '(none)';
 
+  const todayStr = new Date().toISOString().split('T')[0];
   return `You are ${agent.name}, ${agent.role} at AmbientPixels. Your focus: ${agent.focus}.
+TODAY'S DATE: ${todayStr}
 
 You are executing a task and producing a deliverable. This is real work output — be thorough, specific, and actionable.
 
@@ -1830,7 +1837,14 @@ ${existingComments}
 Based on your role as ${agent.role}, produce the appropriate deliverable for this task. Examples of what you should produce:
 ${agent.role === 'CEO' ? '- Strategic analysis, priority decisions, team directives, product direction memos' : ''}${agent.role === 'CFO' ? '- Budget reports, cost analyses, spending recommendations, ROI assessments' : ''}${agent.role === 'Design & QC' ? '- Design reviews, UI audit notes, accessibility recommendations, UX improvement plans' : ''}${agent.role === 'DevOps' ? '- Deployment plans, infrastructure audits, security checklists, performance reports' : ''}${agent.role === 'Marketing' ? '- Content drafts, social media copy, campaign briefs, brand messaging guides' : ''}${agent.name === 'Scribe' ? '- Longform drafts, product briefs, blog posts, documentation, social threads' : ''}${agent.name === 'Quill' ? '- Editing feedback, tone corrections, brand voice enforcement, CTA improvements' : ''}${agent.name === 'Scout' ? '- Market research briefs, competitive intelligence reports, trend analyses, strategic research, business benchmarks. Always include a ## Sources section with cited URLs.' : ''}
 
-Write your deliverable directly — no JSON wrapping. Be specific to AmbientPixels. Use headers, bullet points, or sections as appropriate. This will be attached to the task as a deliverable comment.`;
+CRITICAL RULES — READ CAREFULLY:
+- Write your deliverable directly — no JSON wrapping. Be specific to AmbientPixels.
+- Use headers, bullet points, or sections as appropriate. This will be attached to the task as a deliverable comment.
+- Use today's date (${todayStr}) for any dates in your deliverable. NEVER use dates from 2023 or 2024.
+- Your deliverable must be COMPLETE and SELF-CONTAINED. Do NOT create placeholder sections like "Appendix A", "TBD", "To Be Populated", or reference external documents that do not exist.
+- Do NOT reference or wait for information from external sources that have not been provided to you. Work with what you have.
+- Do NOT invent fictional dependencies, missing documents, or pending inputs. If you need more context, note it briefly in a "Notes" section but still deliver complete, actionable output.
+- NEVER loop on the same request across multiple heartbeats. If you already produced a deliverable, do not produce it again unless explicitly asked for a revision.`;
 }
 
 // ── Review a task: agent evaluates another agent's deliverable ──
@@ -1902,7 +1916,9 @@ Guidelines:
 - Approve if the work is solid and addresses the task
 - Request changes if there are significant gaps, errors, or missing elements
 - Be constructive — give specific, actionable feedback
-- Consider quality from your role's perspective (${agent.focus})`;
+- Consider quality from your role's perspective (${agent.focus})
+- Do NOT request "Appendix A", external documents, or fictional dependencies that were not provided. Judge the deliverable based on what was actually produced.
+- Do NOT loop — if the deliverable is reasonably complete, approve it. Perfection is not the goal; actionable output is.`;
 }
 
 // ── Call Gemini with higher token limit for deliverables/reviews ──
