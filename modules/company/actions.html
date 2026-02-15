@@ -171,6 +171,10 @@
       overflow-y:auto;
       box-shadow:-10px 0 30px rgba(0,0,0,0.4);
     }
+    .act-drawer h3 {
+      font-size: 0.95rem; margin: 0 0 1rem; color: #fff;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
     .act-drawer-close {
       background:none;
       border:none;
@@ -178,6 +182,42 @@
       font-size:1.2rem;
       cursor:pointer;
       float:right;
+    }
+    .act-drawer-close:hover { color:#fff; }
+    .act-drawer-section {
+      margin-bottom: 1rem; padding: 0.6rem 0;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .act-drawer-section:first-of-type { border-top: none; padding-top: 0; }
+    .act-drawer-section h4 {
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;
+      color: rgba(255,255,255,0.35); margin: 0 0 0.5rem; font-weight: 600;
+    }
+    .act-drawer-kv {
+      display: grid; grid-template-columns: 110px 1fr; gap: 0.2rem 0.6rem;
+      font-size: 0.7rem; margin: 0;
+    }
+    .act-drawer-kv dt { color: rgba(255,255,255,0.4); font-weight: 500; }
+    .act-drawer-kv dd { color: rgba(255,255,255,0.85); margin: 0; word-break: break-word; }
+    .act-drawer-pre {
+      font-family: 'Courier New', monospace; font-size: 0.65rem;
+      background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px; padding: 0.6rem; white-space: pre-wrap;
+      word-break: break-word; color: rgba(255,255,255,0.7);
+      max-height: 200px; overflow-y: auto; line-height: 1.5;
+    }
+    .act-drawer-post {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px; padding: 0.7rem; margin-bottom: 0.5rem;
+    }
+    .act-drawer-post-text {
+      font-size: 0.75rem; line-height: 1.5; color: rgba(255,255,255,0.9);
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .act-drawer-badge {
+      display: inline-flex; align-items: center; gap: 0.2rem;
+      font-size: 0.55rem; padding: 0.15rem 0.4rem; border-radius: 3px;
+      font-weight: 600;
     }
 
     .act-modal-backdrop {
@@ -770,73 +810,142 @@
       if (!a) return;
       var el = document.getElementById('drawer-content');
       var aType = a.type || a.action_type || '';
+      var payload = a.payload || a.action_payload || {};
+      var isSocial = aType.indexOf('social') !== -1;
+      var agentName = a.created_by || a.origin_agent || '—';
+      var agentLabel = agentName.charAt(0).toUpperCase() + agentName.slice(1);
+
+      // Status colors
+      var statusColors = { pending: '#FFA500', approved: '#34d399', revision_requested: '#fbbf24', rejected: '#ef4444', failed: '#ef4444', success: '#34d399', running: '#3b82f6', overridden: '#FFD700' };
+      var approvalStatus = (a.approval && a.approval.status) || 'pending';
+      var execStatus = a.execution_status || 'pending';
+      var statusColor = statusColors[approvalStatus] || '#888';
+
       var html = '<button class="act-drawer-close" onclick="closeDrawer()">&times;</button>';
-      html += '<h3><i class="fas fa-bolt" style="color:#FFA500;margin-right:6px;"></i>' + esc(aType) + '</h3>';
 
-      // Overview
-      html += '<div class="act-drawer-section"><h4>Overview</h4><dl class="act-drawer-kv">';
-      html += kv('ID', a.id);
-      html += kv('Type', aType);
-      html += kv('Platform', a.platform || '—');
-      html += kv('Created by', a.created_by || a.origin_agent || '—');
-      html += kv('Created at', fmtDate(a.created_at));
-      if (a.source) html += kv('Source', a.source);
-      if (a.payload && a.payload.scheduled_for) html += kv('Scheduled for', fmtDate(a.payload.scheduled_for));
-      html += kv('Classification', a.classification || '—');
-      html += kv('Risk', a.risk_level || '—');
-      html += kv('Brand Impact', a.brand_impact || '—');
-      html += kv('Budget Impact', '$' + (a.budget_impact || 0));
-      html += kv('CEO Approval', a.requires_ceo_approval ? 'Required' : 'Not required');
-      html += '</dl></div>';
+      // Title with friendly name
+      html += '<h3>' + friendlyActionName(aType);
+      if (a.platform) html += ' ' + platformBadge(a.platform);
+      html += '</h3>';
 
-      // Payload
-      html += '<div class="act-drawer-section"><h4>Payload</h4>';
-      html += '<div class="act-drawer-pre">' + esc(JSON.stringify(a.payload || a.action_payload || {}, null, 2)) + '</div>';
+      // Status bar
+      html += '<div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:1rem;">';
+      html += '<span class="act-drawer-badge" style="background:' + statusColor + '20;color:' + statusColor + ';">' + approvalStatus.replace(/_/g, ' ') + '</span>';
+      if (execStatus !== 'pending' && execStatus !== approvalStatus) {
+        var execColor = statusColors[execStatus] || '#888';
+        html += '<span class="act-drawer-badge" style="background:' + execColor + '20;color:' + execColor + ';">exec: ' + execStatus + '</span>';
+      }
+      html += '<span style="font-size:0.6rem;opacity:0.35;margin-left:auto;">' + esc(a.id) + '</span>';
       html += '</div>';
+
+      // Post preview card (for social posts)
+      if (isSocial && payload.text) {
+        html += '<div class="act-drawer-section">';
+        html += '<h4>Post Content</h4>';
+        html += '<div class="act-drawer-post">';
+        html += '<div class="act-drawer-post-text">' + esc(payload.text) + '</div>';
+        var charLimit = a.platform === 'linkedin' ? 3000 : a.platform === 'bluesky' ? 300 : 280;
+        var charPct = Math.round((payload.text.length / charLimit) * 100);
+        var charColor = charPct > 100 ? '#ef4444' : charPct > 90 ? '#fbbf24' : '#34d399';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;font-size:0.6rem;opacity:0.5;">';
+        html += '<span style="color:' + charColor + ';">' + payload.text.length + '/' + charLimit + ' chars (' + charPct + '%)</span>';
+        if (payload.media && payload.media.length) html += '<span><i class="fas fa-image" style="margin-right:0.2rem;"></i>' + payload.media.length + ' media</span>';
+        html += '</div>';
+        html += '</div>';
+        if (payload.scheduled_for) {
+          html += '<div style="font-size:0.65rem;color:#fbbf24;margin-top:0.3rem;"><i class="fas fa-clock" style="margin-right:0.3rem;"></i>Scheduled: ' + fmtDate(payload.scheduled_for) + '</div>';
+        }
+        html += '</div>';
+      } else if (payload.text || payload.content) {
+        html += '<div class="act-drawer-section"><h4>Content</h4>';
+        html += '<div class="act-drawer-post"><div class="act-drawer-post-text">' + esc(payload.text || payload.content) + '</div></div>';
+        html += '</div>';
+      }
+
+      // Details
+      html += '<div class="act-drawer-section"><h4>Details</h4><dl class="act-drawer-kv">';
+      html += kv('Agent', agentLabel);
+      html += kv('Created', fmtDate(a.created_at));
+      if (a.source) html += kv('Source', a.source);
+      html += kv('Risk', a.risk_level || 'low');
+      html += kv('Classification', a.classification || '—');
+      if (a.requires_ceo_approval) html += kv('CEO Approval', 'Required');
+      if (a.approval && a.approval.revision_count) html += kv('Revisions', a.approval.revision_count);
+      html += '</dl></div>';
 
       // Approval
       if (a.approval) {
         html += '<div class="act-drawer-section"><h4>Approval</h4><dl class="act-drawer-kv">';
-        html += kv('Status', a.approval.status);
-        html += kv('Approved by', a.approval.approved_by || '—');
-        html += kv('Approved at', fmtDate(a.approval.approved_at));
-        html += kv('Note', a.approval.decision_note || '—');
-        html += '</dl></div>';
+        html += kv('Status', approvalStatus.replace(/_/g, ' '));
+        if (a.approval.approved_by) html += kv('Approved by', a.approval.approved_by);
+        if (a.approval.approved_at) html += kv('Approved at', fmtDate(a.approval.approved_at));
+        if (a.approval.revised_at) html += kv('Last revised', fmtDate(a.approval.revised_at));
+        html += '</dl>';
+        if (a.approval.decision_note) {
+          html += '<div style="margin-top:0.4rem;padding:0.4rem 0.6rem;border-radius:6px;border:1px solid rgba(251,191,36,0.15);background:rgba(251,191,36,0.04);font-size:0.7rem;">';
+          html += '<span style="color:#fbbf24;font-weight:500;font-size:0.6rem;"><i class="fas fa-comment-dots" style="margin-right:0.25rem;"></i>Note:</span> ';
+          html += '<span style="color:rgba(255,255,255,0.8);">' + esc(a.approval.decision_note) + '</span></div>';
+        }
+        html += '</div>';
       }
 
       // Execution
-      if (a.execution) {
+      if (a.execution && a.execution.status !== 'pending') {
         html += '<div class="act-drawer-section"><h4>Execution</h4><dl class="act-drawer-kv">';
         html += kv('Status', a.execution.status);
-        html += kv('Started', fmtDate(a.execution.started_at));
-        html += kv('Finished', fmtDate(a.execution.finished_at));
+        if (a.execution.started_at) html += kv('Started', fmtDate(a.execution.started_at));
+        if (a.execution.finished_at) html += kv('Finished', fmtDate(a.execution.finished_at));
         html += kv('Attempts', a.execution.attempts || 0);
         html += '</dl>';
+
+        // Error
         if (a.execution.last_error) {
-          html += '<div style="margin-top:0.4rem;"><h4 style="color:#ef4444;">Error</h4>';
-          html += '<div class="act-drawer-pre" style="color:#ef4444;">' + esc(JSON.stringify(a.execution.last_error, null, 2)) + '</div></div>';
+          var err = a.execution.last_error;
+          html += '<div style="margin-top:0.5rem;padding:0.5rem;border-radius:6px;border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.04);">';
+          html += '<div style="font-size:0.6rem;font-weight:600;color:#ef4444;margin-bottom:0.3rem;"><i class="fas fa-exclamation-triangle" style="margin-right:0.25rem;"></i>Error</div>';
+          if (err.code) html += '<div style="font-size:0.6rem;color:rgba(255,255,255,0.5);">Code: ' + esc(err.code) + '</div>';
+          if (err.message) html += '<div style="font-size:0.7rem;color:rgba(255,255,255,0.8);margin-top:0.2rem;">' + esc(err.message) + '</div>';
+          html += '</div>';
         }
+
+        // Receipt
         if (a.execution.receipt) {
-          html += '<div style="margin-top:0.4rem;"><h4 style="color:#34d399;">Receipt</h4>';
-          html += '<div class="act-drawer-pre" style="color:#34d399;">' + esc(JSON.stringify(a.execution.receipt, null, 2)) + '</div>';
-          if (a.execution.receipt.post_url) {
-            html += '<a href="' + esc(a.execution.receipt.post_url) + '" target="_blank" style="display:inline-block;margin-top:0.3rem;font-size:0.65rem;color:#3b82f6;">View Post →</a>';
+          var r = a.execution.receipt;
+          html += '<div style="margin-top:0.5rem;padding:0.5rem;border-radius:6px;border:1px solid rgba(52,211,153,0.2);background:rgba(52,211,153,0.04);">';
+          html += '<div style="font-size:0.6rem;font-weight:600;color:#34d399;margin-bottom:0.3rem;"><i class="fas fa-check-circle" style="margin-right:0.25rem;"></i>Receipt</div>';
+          html += '<dl class="act-drawer-kv">';
+          if (r.platform) html += kv('Platform', r.platform);
+          if (r.handle) html += kv('Handle', r.handle);
+          if (r.post_id) html += kv('Post ID', r.post_id);
+          if (r.timestamp) html += kv('Published', fmtDate(r.timestamp));
+          if (r.media_count) html += kv('Media', r.media_count + ' attached');
+          html += '</dl>';
+          if (r.post_url) {
+            html += '<a href="' + esc(r.post_url) + '" target="_blank" style="display:inline-flex;align-items:center;gap:0.3rem;margin-top:0.4rem;font-size:0.65rem;color:#3b82f6;text-decoration:none;"><i class="fas fa-external-link-alt"></i>View Post</a>';
           }
-          // Engagement metrics in drawer
-          if (a.execution.receipt.metrics) {
-            var m = a.execution.receipt.metrics;
-            html += '<div style="margin-top:0.5rem;"><h4 style="color:#3b82f6;">Engagement Metrics</h4><dl class="act-drawer-kv">';
-            html += kv('Likes', m.likes || 0);
-            html += kv('Retweets', m.retweets || 0);
-            html += kv('Replies', m.replies || 0);
-            html += kv('Quotes', m.quotes || 0);
-            html += kv('Last Updated', fmtDate(m.pulled_at));
-            html += '</dl></div>';
+
+          // Engagement metrics
+          if (r.metrics) {
+            var m = r.metrics;
+            html += '<div style="margin-top:0.5rem;display:flex;gap:0.6rem;font-size:0.65rem;">';
+            if (m.likes) html += '<span style="color:#ef4444;">❤️ ' + m.likes + '</span>';
+            if (m.retweets) html += '<span style="color:#34d399;">🔁 ' + m.retweets + '</span>';
+            if (m.replies) html += '<span style="color:#3b82f6;">💬 ' + m.replies + '</span>';
+            if (m.quotes) html += '<span style="color:#a855f7;">📝 ' + m.quotes + '</span>';
+            html += '</div>';
+            if (m.pulled_at) html += '<div style="font-size:0.55rem;opacity:0.3;margin-top:0.2rem;">Updated ' + timeAgo(m.pulled_at) + '</div>';
           }
           html += '</div>';
         }
         html += '</div>';
       }
+
+      // Raw payload (collapsed)
+      html += '<div class="act-drawer-section">';
+      html += '<details style="cursor:pointer;">';
+      html += '<summary style="font-size:0.6rem;color:rgba(255,255,255,0.3);font-weight:500;letter-spacing:0.05em;text-transform:uppercase;">Raw Payload</summary>';
+      html += '<div class="act-drawer-pre" style="margin-top:0.4rem;">' + esc(JSON.stringify(payload, null, 2)) + '</div>';
+      html += '</details></div>';
 
       el.innerHTML = html;
       document.getElementById('drawer-overlay').classList.add('open');
