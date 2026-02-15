@@ -548,7 +548,9 @@
       // Approved: show Execute button (for publish) or Scheduled label (for schedule)
       if (context === 'scheduled' && execStatus === 'approved') {
         if (aType === 'social_post.schedule' && scheduledFor) {
-          html += '<span style="font-size:0.55rem;color:#fbbf24;opacity:0.7;"><i class="fas fa-clock"></i> Auto-executes ' + timeAgo(scheduledFor) + '</span>';
+          html += '<span style="font-size:0.55rem;color:#fbbf24;opacity:0.7;margin-right:0.3rem;"><i class="fas fa-clock"></i> ' + timeAgo(scheduledFor) + '</span>';
+          html += '<button class="act-btn act-btn--execute" onclick="doExecute(\'' + a.id + '\')" title="Skip schedule, post immediately"><i class="fas fa-play" style="margin-right:0.2rem;"></i>Post Now</button>';
+          html += '<button class="act-btn act-btn--reject" onclick="doReject(\'' + a.id + '\')" title="Cancel this post"><i class="fas fa-times" style="margin-right:0.2rem;"></i>Cancel</button>';
         } else {
           html += '<button class="act-btn act-btn--execute" onclick="doExecute(\'' + a.id + '\')"><i class="fas fa-play" style="margin-right:0.2rem;"></i>Execute</button>';
         }
