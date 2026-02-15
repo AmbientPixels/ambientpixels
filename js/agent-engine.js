@@ -41,7 +41,30 @@ var AgentEngine = (function () {
 
   function _saveStorage(key, data) {
     if (typeof CompanyStore !== 'undefined' && CompanyStore.setStateSync) {
+      // Always write to localStorage immediately for responsive UI
       CompanyStore.setStateSync(key, data);
+      // For array data in server mode, merge with server to prevent overwriting
+      // heartbeat-created items that aren't in localStorage yet
+      if (Array.isArray(data) && CompanyStore.getMode() === 'server' && CompanyStore.getState) {
+        CompanyStore.getState(key).then(function (serverData) {
+          if (Array.isArray(serverData) && serverData.length > 0) {
+            var localIds = {};
+            data.forEach(function (item) { if (item && item.id) localIds[item.id] = true; });
+            var merged = data.slice();
+            var added = 0;
+            serverData.forEach(function (item) {
+              if (item && item.id && !localIds[item.id]) {
+                merged.push(item);
+                added++;
+              }
+            });
+            if (added > 0) {
+              console.log('[AgentEngine] Merged ' + added + ' server-only items into ' + key);
+              CompanyStore.setStateSync(key, merged);
+            }
+          }
+        }).catch(function () { /* server fetch failed, local write already done */ });
+      }
       return;
     }
     try {
@@ -90,6 +113,14 @@ var AgentEngine = (function () {
         return CompanyStore.syncFromServer();
       }).then(function () {
         emit('sync-complete', { mode: CompanyStore.getMode() });
+        // Periodic sync: keep localStorage fresh every 60s while page is open
+        if (CompanyStore.getMode() === 'server') {
+          setInterval(function () {
+            CompanyStore.syncFromServer().then(function () {
+              emit('sync-complete', { mode: 'server', source: 'periodic' });
+            });
+          }, 60000);
+        }
       });
     }
 
