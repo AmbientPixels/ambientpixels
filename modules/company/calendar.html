@@ -90,9 +90,17 @@
     }
     .cal-detail-head {
       padding: 0.6rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.04);
-      font-size: 0.8rem; font-weight: 500; display: flex; align-items: center; gap: 0.4rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 0.6rem;
     }
+    .cal-detail-head-info { display:flex; align-items:center; gap:0.4rem; font-size:0.8rem; font-weight:500; }
     .cal-detail-head i { opacity: 0.4; }
+    .cal-detail-actions { display:flex; gap:0.3rem; flex-wrap:wrap; }
+    .cal-quick-btn {
+      font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:4px;
+      border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04);
+      color:rgba(255,255,255,0.7); cursor:pointer; transition:all 0.15s;
+    }
+    .cal-quick-btn:hover { background:rgba(255,255,255,0.08); color:#fff; }
     .cal-detail-body { padding: 0.6rem 0.8rem; }
     .cal-detail-empty {
       text-align: center; font-size: 0.7rem; opacity: 0.25; padding: 1.5rem;
@@ -118,6 +126,17 @@
       font-size: 0.45rem; padding: 0.08rem 0.3rem; border-radius: 3px; font-weight: 500;
       white-space: nowrap;
     }
+    .cal-cell-flags {
+      display:flex; gap:0.2rem; flex-wrap:wrap; margin-top:0.15rem;
+    }
+    .cal-flag {
+      font-size:0.45rem; padding:0.05rem 0.3rem; border-radius:3px;
+      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);
+      color:rgba(255,255,255,0.65); display:inline-flex; align-items:center; gap:0.15rem;
+    }
+    .cal-flag--alert { border-color:rgba(248,113,113,0.4); color:#f87171; }
+    .cal-flag--social { border-color:rgba(59,130,246,0.4); color:#3b82f6; }
+    .cal-flag--reminder { border-color:rgba(255,215,0,0.4); color:#fbbf24; }
 
     /* View toggle */
     .cal-view-toggle {
@@ -235,8 +254,14 @@
     <!-- Day Detail -->
     <div class="cal-detail" id="cal-detail" style="display:none;">
       <div class="cal-detail-head" id="cal-detail-head">
-        <i class="fas fa-calendar-day"></i>
-        <span id="cal-detail-date"></span>
+        <div class="cal-detail-head-info">
+          <i class="fas fa-calendar-day"></i>
+          <span id="cal-detail-date"></span>
+        </div>
+        <div class="cal-detail-actions">
+          <button class="cal-quick-btn" id="cal-add-task-btn"><i class="fas fa-plus"></i> Task</button>
+          <button class="cal-quick-btn" id="cal-add-reminder-btn"><i class="fas fa-bell"></i> Reminder</button>
+        </div>
       </div>
       <div class="cal-detail-body" id="cal-detail-body"></div>
     </div>
@@ -277,6 +302,8 @@
       var detailDate = document.getElementById('cal-detail-date');
       var detailBody = document.getElementById('cal-detail-body');
       var statsEl = document.getElementById('cal-stats');
+      var addTaskBtn = document.getElementById('cal-add-task-btn');
+      var addReminderBtn = document.getElementById('cal-add-reminder-btn');
 
       // Init
       var now = new Date();
@@ -371,8 +398,28 @@
         if (selectedDate && currentView === 'month') renderDetail(selectedDate);
       });
 
+      addTaskBtn.addEventListener('click', function () {
+        if (!selectedDate) return;
+        quickAddTask(selectedDate);
+      });
+      addReminderBtn.addEventListener('click', function () {
+        if (!selectedDate) return;
+        quickAddReminder(selectedDate);
+      });
+
       // Re-render on sync
       AgentEngine.on('sync-complete', function () {
+        loadAllData().then(function () {
+          render();
+          if (selectedDate && currentView === 'month') renderDetail(selectedDate);
+        });
+      });
+
+      // Cross-tab/local updates — listen for storage changes on key datasets
+      window.addEventListener('storage', function (e) {
+        if (!e.key) return;
+        var watched = ['ap_tasks', 'ap_actions', 'ap_documents', 'ap_workspace_dates', 'ap_standup_log'];
+        if (watched.indexOf(e.key) === -1) return;
         loadAllData().then(function () {
           render();
           if (selectedDate && currentView === 'month') renderDetail(selectedDate);
@@ -400,16 +447,20 @@
 
       function loadTasks() {
         var tasks = AgentEngine.getTasks();
+        var todayStr = toDateStr(new Date());
         tasks.forEach(function (t) {
           if (t.dueDate) {
             var agent = t.assignee ? AgentEngine.getAgent(t.assignee) : null;
+            var isOverdue = t.status !== 'done' && t.dueDate < todayStr;
             addItem(t.dueDate, 'tasks', {
+              id: t.id,
               title: t.title,
               meta: (agent ? agent.name : 'unassigned') + ' · ' + (t.priority || 'medium'),
               status: t.status,
               priority: t.priority,
-              badge: t.status,
-              badgeColor: t.status === 'done' ? '#34d399' : t.status === 'review' ? '#a855f7' : t.status === 'in-progress' ? '#3b82f6' : '#FFA500'
+              badge: isOverdue ? 'overdue' : t.status,
+              badgeColor: isOverdue ? '#f87171' : t.status === 'done' ? '#34d399' : t.status === 'review' ? '#a855f7' : t.status === 'in-progress' ? '#3b82f6' : '#FFA500',
+              link: '/modules/company/tasks.html?task=' + t.id
             });
           }
         });
@@ -424,18 +475,22 @@
           docs.forEach(function (d) {
             if (d.status === 'published' && d.published_at) {
               addItem(d.published_at, 'content', {
+                id: d.id,
                 title: d.title,
                 meta: (d.kind || 'doc') + ' · published',
                 badge: d.kind || 'doc',
                 badgeColor: '#34d399',
-                slug: d.slug
+                slug: d.slug,
+                link: '/modules/company/documents.html#doc-' + d.id
               });
             } else if (d.created_at) {
               addItem(d.created_at, 'content', {
+                id: d.id,
                 title: d.title,
                 meta: (d.kind || 'doc') + ' · ' + (d.status || 'draft'),
                 badge: d.status || 'draft',
-                badgeColor: d.status === 'published' ? '#34d399' : d.status === 'review' ? '#a855f7' : '#60a5fa'
+                badgeColor: d.status === 'published' ? '#34d399' : d.status === 'review' ? '#a855f7' : '#60a5fa',
+                link: '/modules/company/documents.html#doc-' + d.id
               });
             }
           });
@@ -454,11 +509,13 @@
           var approvalStatus = (a.approval && a.approval.status) || '';
           var execStatus = a.execution_status || 'pending';
           addItem(date, 'social', {
+            id: a.id,
             title: text || 'Social post',
             meta: platform + ' · ' + (a.created_by || a.origin_agent || '?'),
             badge: approvalStatus === 'approved' ? execStatus : approvalStatus,
             badgeColor: execStatus === 'success' ? '#34d399' : approvalStatus === 'approved' ? '#3b82f6' : approvalStatus === 'rejected' ? '#ef4444' : '#FFA500',
-            platform: platform
+            platform: platform,
+            link: '/modules/company/actions.html?action=' + a.id
           });
         });
         return Promise.resolve();
@@ -469,6 +526,7 @@
         dates.forEach(function (d) {
           if (d.date) {
             addItem(d.date, 'reminders', {
+              id: d.id,
               title: d.title || 'Reminder',
               meta: (d.type || 'event') + (d.description ? ' · ' + d.description.substring(0, 60) : ''),
               badge: d.type || 'event',
@@ -670,8 +728,9 @@
           var arr = items[layer] || [];
           arr.forEach(function (item) {
             dots += '<span class="cal-cell-dot" style="background:' + LAYER_COLORS[layer] + ';"></span>';
+            var tooltip = attrEsc(item.meta ? item.title + ' — ' + item.meta : item.title);
             if (count < maxItems) {
-              itemHtml += '<div class="cal-cell-item" style="background:' + LAYER_COLORS[layer] + '22;color:' + LAYER_COLORS[layer] + ';">' + esc(item.title) + '</div>';
+              itemHtml += '<div class="cal-cell-item" title="' + tooltip + '" style="background:' + LAYER_COLORS[layer] + '22;color:' + LAYER_COLORS[layer] + ';">' + esc(item.title) + '</div>';
             }
             count++;
           });
@@ -679,6 +738,12 @@
 
         if (dots) html += '<div class="cal-dots">' + dots + '</div>';
         html += itemHtml;
+        var stats = getDayStats(items);
+        var flags = '';
+        if (stats.overdue) flags += '<span class="cal-flag cal-flag--alert"><i class="fas fa-exclamation-triangle"></i> ' + stats.overdue + '</span>';
+        if (stats.pendingSocial) flags += '<span class="cal-flag cal-flag--social"><i class="fas fa-share-alt"></i> ' + stats.pendingSocial + '</span>';
+        if (stats.reminders) flags += '<span class="cal-flag cal-flag--reminder"><i class="fas fa-bell"></i> ' + stats.reminders + '</span>';
+        if (flags) html += '<div class="cal-cell-flags">' + flags + '</div>';
         if (count > maxItems) html += '<div style="font-size:0.4rem;opacity:0.3;">+' + (count - maxItems) + ' more</div>';
         html += '</div>';
         return html;
@@ -730,6 +795,9 @@
             html += '</div>';
             if (item.badge) {
               html += '<span class="cal-detail-item-badge" style="background:' + item.badgeColor + '22;color:' + item.badgeColor + ';">' + esc(item.badge) + '</span>';
+            }
+            if (item.link) {
+              html += '<button class="cal-nav-btn" style="margin-left:auto;font-size:0.5rem;padding:0.15rem 0.4rem;" onclick="window.location.href=\'' + item.link + '\'">Open</button>';
             }
             html += '</div>';
           });
@@ -796,6 +864,39 @@
         var d = document.createElement('div');
         d.textContent = String(s);
         return d.innerHTML;
+      }
+      function attrEsc(s) {
+        if (!s) return '';
+        return esc(s).replace(/"/g, '&quot;');
+      }
+      function getDayStats(items) {
+        var stats = { overdue: 0, pendingSocial: 0, reminders: 0 };
+        (items.tasks || []).forEach(function (t) {
+          if (t.badge === 'overdue') stats.overdue++;
+        });
+        (items.social || []).forEach(function (s) {
+          if (s.badge !== 'success' && s.badge !== 'approved') stats.pendingSocial++;
+        });
+        stats.reminders = (items.reminders || []).length;
+        return stats;
+      }
+      function quickAddTask(dateStr) {
+        var title = prompt('Task title for ' + dateStr + ':');
+        if (!title) return;
+        AgentEngine.addTask({ title: title, dueDate: dateStr, status: 'todo', priority: 'medium' });
+        loadAllData().then(function () {
+          render();
+          selectDay(dateStr);
+        });
+      }
+      function quickAddReminder(dateStr) {
+        var title = prompt('Reminder title for ' + dateStr + ':');
+        if (!title) return;
+        AgentEngine.addDate({ title: title, date: dateStr, type: 'reminder' });
+        loadAllData().then(function () {
+          render();
+          selectDay(dateStr);
+        });
       }
     })();
   </script>
