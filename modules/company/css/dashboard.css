@@ -591,6 +591,288 @@
   padding: 2rem 0;
 }
 
+/* ── View Mode Toggle ── */
+.dash-view-toggle {
+  display: inline-flex;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.08);
+  overflow: hidden;
+  margin-left: 0.5rem;
+}
+.dash-view-toggle button {
+  background: rgba(255,255,255,0.03);
+  border: none;
+  color: rgba(255,255,255,0.4);
+  font-size: 0.65rem;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  outline: none;
+}
+.dash-view-toggle button:focus-visible {
+  box-shadow: 0 0 0 2px rgba(78,205,196,0.4);
+  z-index: 1;
+  position: relative;
+}
+.dash-view-toggle button.active {
+  background: rgba(78,205,196,0.12);
+  color: #4ecdc4;
+  font-weight: 600;
+}
+.dash-view-toggle button:hover:not(.active) {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.6);
+}
+
+/* ── Action Required Badge ── */
+.dash-action-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 0 6px;
+  background: rgba(239,68,68,0.2);
+  color: #ef4444;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.dash-action-badge:empty, .dash-action-badge[data-count="0"] {
+  display: none;
+}
+
+/* ── Command Center Tabs ── */
+.cc-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 0.8rem;
+}
+.cc-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: rgba(255,255,255,0.4);
+  font-size: 0.7rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  outline: none;
+  white-space: nowrap;
+}
+.cc-tab:focus-visible {
+  box-shadow: inset 0 -2px 0 rgba(78,205,196,0.4);
+}
+.cc-tab:hover {
+  color: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.02);
+}
+.cc-tab.active {
+  color: #FFD700;
+  border-bottom-color: #FFD700;
+  font-weight: 600;
+}
+.cc-tab .cc-tab-count {
+  display: inline-block;
+  font-size: 0.5rem;
+  min-width: 14px;
+  height: 14px;
+  line-height: 14px;
+  text-align: center;
+  border-radius: 7px;
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.35);
+  margin-left: 4px;
+  padding: 0 3px;
+}
+.cc-tab.active .cc-tab-count {
+  background: rgba(255,215,0,0.15);
+  color: #FFD700;
+}
+.cc-tab-body {
+  display: none;
+  min-height: 100px;
+}
+.cc-tab-body.active {
+  display: block;
+}
+
+/* ── Collapsible Sections ── */
+.dash-section {
+  margin-bottom: 1rem;
+}
+.dash-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  user-select: none;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  margin-bottom: 0.8rem;
+}
+.dash-section-header:hover {
+  opacity: 0.9;
+}
+.dash-section-header h2 {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin: 0;
+  flex: 1;
+  opacity: 0.5;
+}
+.dash-section-header .dash-section-chevron {
+  font-size: 0.55rem;
+  opacity: 0.3;
+  transition: transform 0.2s;
+}
+.dash-section.collapsed .dash-section-chevron {
+  transform: rotate(-90deg);
+}
+.dash-section-body {
+  transition: none;
+}
+.dash-section.collapsed .dash-section-body {
+  display: none;
+}
+
+/* ── Meetings Widget ── */
+.meetings-widget {
+  background: rgba(78,205,196,0.04);
+  border: 1px solid rgba(78,205,196,0.12);
+  border-radius: 10px;
+  padding: 0.8rem;
+}
+.meetings-widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+.meetings-widget-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4ecdc4;
+}
+.meetings-widget-item {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  font-size: 0.72rem;
+}
+.meetings-widget-item:last-child { border-bottom: none; }
+
+/* ── FAB Chat Button ── */
+.dash-chat-fab {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(138,43,226,0.25);
+  border: 1px solid rgba(138,43,226,0.4);
+  color: #c9a0ff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+.dash-chat-fab:hover {
+  background: rgba(138,43,226,0.35);
+  transform: scale(1.05);
+}
+.dash-chat-fab:focus-visible {
+  box-shadow: 0 0 0 3px rgba(138,43,226,0.4);
+}
+
+/* ── Chat Drawer ── */
+.dash-chat-drawer {
+  position: fixed;
+  top: 0;
+  right: -380px;
+  width: 360px;
+  height: 100vh;
+  background: #0d1825;
+  border-left: 1px solid rgba(255,255,255,0.08);
+  z-index: 950;
+  display: flex;
+  flex-direction: column;
+  transition: right 0.25s ease;
+  box-shadow: -8px 0 32px rgba(0,0,0,0.4);
+}
+.dash-chat-drawer.open {
+  right: 0;
+}
+.dash-chat-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.dash-chat-drawer-header h3 {
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin: 0;
+  color: rgba(255,255,255,0.7);
+}
+.dash-chat-drawer-close {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.4);
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.dash-chat-drawer-close:hover {
+  color: rgba(255,255,255,0.8);
+  border-color: rgba(255,255,255,0.2);
+}
+.dash-chat-drawer-close:focus-visible {
+  box-shadow: 0 0 0 2px rgba(138,43,226,0.4);
+}
+.dash-chat-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.8rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.dash-chat-drawer-input {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.8rem 1rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.dash-chat-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 940;
+}
+.dash-chat-overlay.open { display: block; }
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .dash-grid {
@@ -604,6 +886,21 @@
   .session-table {
     font-size: 0.65rem;
   }
+
+  .dash-chat-drawer {
+    width: 100vw;
+    right: -110vw;
+  }
+
+  .cc-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cc-tab {
+    font-size: 0.6rem;
+    padding: 0.4rem 0.6rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -615,5 +912,10 @@
     flex-direction: column;
     gap: 0.5rem;
     align-items: flex-start;
+  }
+
+  .dash-view-toggle {
+    margin-left: 0;
+    margin-top: 0.3rem;
   }
 }
