@@ -198,6 +198,16 @@
         <div id="su-artifacts-list" style="font-size:0.65rem;"></div>
       </div>
 
+      <!-- Outcome Summary (v2.3.1) -->
+      <div id="su-outcome-panel" style="background:rgba(255,215,0,0.03);border:1px solid rgba(255,215,0,0.1);border-radius:10px;padding:0.6rem 0.8rem;margin-bottom:0.8rem;display:none;">
+        <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.15rem;">
+          <i class="fas fa-chart-line" style="color:#FFD700;font-size:0.65rem;"></i>
+          <strong style="font-size:0.75rem;color:#FFD700;">Outcome Summary</strong>
+        </div>
+        <div style="font-size:0.55rem;opacity:0.35;margin-bottom:0.5rem;">What changed as a result of this standup.</div>
+        <div id="su-outcome-body"></div>
+      </div>
+
       <!-- Parser Warnings (v2.3 H) -->
       <div id="su-parse-warnings" style="background:rgba(251,191,36,0.04);border:1px solid rgba(251,191,36,0.1);border-radius:8px;padding:0.4rem 0.6rem;margin-bottom:0.6rem;font-size:0.6rem;color:#fbbf24;display:none;">
         <i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i> <span id="su-parse-warnings-text"></span>
@@ -284,6 +294,7 @@
           renderWarningBanner(latest);
           renderArtifacts(latest);
           renderParseWarnings(latest);
+          renderOutcomeSummary(latest);
           _currentStandupId = latest.id;
           suConfig.style.display = 'none';
           standupTrigger.disabled = true;
@@ -359,6 +370,7 @@
         renderWarningBanner(standup);
         renderArtifacts(standup);
         renderParseWarnings(standup);
+        renderOutcomeSummary(standup);
 
         var log = AgentEngine.getStandupLog();
         if (log.length > 1) {
@@ -412,7 +424,7 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-check"></i> Created';
             var s = AgentEngine.getStandupById(_currentStandupId);
-            if (s) renderArtifacts(s);
+            if (s) { renderArtifacts(s); renderOutcomeSummary(s); }
           }
           return;
         }
@@ -425,6 +437,7 @@
             if (updated) {
               renderDecisionPanel(updated);
               renderArtifacts(updated);
+              renderOutcomeSummary(updated);
             }
           }
           return;
@@ -435,6 +448,7 @@
           var updated = AgentEngine.updateStandupDecision(_currentStandupId, decision);
           if (updated) {
             renderDecisionPanel(updated);
+            renderOutcomeSummary(updated);
           }
         }
       });
@@ -555,6 +569,223 @@
         var txt = 'Parser warnings: ' + errors.length + ' — ';
         txt += errors.map(function (e) { return e.agentId + ': ' + escapeHtml(e.error); }).join('; ');
         document.getElementById('su-parse-warnings-text').textContent = txt;
+      }
+
+      // ── Outcome Summary (v2.3.1) ──
+      var suOutcomePanel = document.getElementById('su-outcome-panel');
+
+      function buildOutcomeSummary(standup) {
+        if (!standup || standup.status !== 'complete') return null;
+
+        // Resolve directives: prefer created IDs, fallback proposals
+        var dirIds = standup._createdDirectiveIds || [];
+        var allDirs = AgentEngine.getDirectives();
+        var directives = [];
+        if (dirIds.length > 0) {
+          dirIds.forEach(function (id) {
+            allDirs.forEach(function (d) { if (d.id === id) directives.push(d); });
+          });
+        } else {
+          directives = (standup.proposals && standup.proposals.directives) || [];
+        }
+
+        // Resolve tasks: prefer created IDs, fallback proposals
+        var taskIds = standup._createdTaskIds || [];
+        var tasks = [];
+        if (taskIds.length > 0) {
+          taskIds.forEach(function (id) {
+            var t = AgentEngine.getTask(id);
+            if (t) tasks.push(t);
+          });
+        } else {
+          tasks = (standup.proposals && standup.proposals.tasks) || [];
+        }
+
+        // Risks
+        var risks = standup.riskSummary || [];
+
+        // KPI aggregation from directives
+        var kpiCounts = {};
+        directives.forEach(function (d) {
+          var links = d.kpiLinks || [];
+          links.forEach(function (kpiId) {
+            kpiCounts[kpiId] = (kpiCounts[kpiId] || 0) + 1;
+          });
+        });
+
+        // Activated count
+        var activatedTasks = 0;
+        var activatedDirs = 0;
+        if (taskIds.length > 0) {
+          tasks.forEach(function (t) { if (t.status && t.status !== 'pending-approval') activatedTasks++; });
+        }
+        if (dirIds.length > 0) {
+          directives.forEach(function (d) { if (d.status && d.status !== 'pending-approval') activatedDirs++; });
+        }
+
+        return {
+          decision: standup.decisionStatus || 'Pending',
+          decisionNotes: standup.decisionNotes || '',
+          directives: directives,
+          tasks: tasks,
+          risks: risks.slice(0, 3),
+          kpiCounts: kpiCounts,
+          counts: {
+            directives: directives.length,
+            tasks: tasks.length,
+            risks: risks.length,
+            uniqueKpis: Object.keys(kpiCounts).length,
+            activatedTasks: activatedTasks,
+            activatedDirs: activatedDirs
+          }
+        };
+      }
+
+      function renderOutcomeSummary(standup) {
+        var summary = buildOutcomeSummary(standup);
+        if (!summary || (summary.counts.directives === 0 && summary.counts.tasks === 0 && summary.counts.risks === 0)) {
+          suOutcomePanel.style.display = 'none';
+          return;
+        }
+        suOutcomePanel.style.display = '';
+        var body = document.getElementById('su-outcome-body');
+        var html = '';
+
+        var IMPACT_COLORS = { High: '#ef4444', Medium: '#fbbf24', Low: '#6b7280' };
+        var PRI_COLORS = { urgent: '#ef4444', high: '#f59e0b', medium: '#3b82f6', low: '#6b7280' };
+        var STATUS_COLORS = { 'pending-approval': '#fbbf24', active: '#22c55e', completed: '#c084fc', backlog: '#6b7280', todo: '#3b82f6' };
+
+        // ── 1) Decision ──
+        html += '<div style="margin-bottom:0.5rem;">';
+        html += '<span class="su-status-badge su-status-' + summary.decision + '" style="font-size:0.55rem;">' + summary.decision + '</span>';
+        if (summary.decisionNotes) html += '<span style="font-size:0.62rem;opacity:0.5;margin-left:0.4rem;">' + escapeHtml(summary.decisionNotes) + '</span>';
+        html += '</div>';
+
+        // ── 2) Directives ──
+        if (summary.directives.length > 0) {
+          html += '<div style="margin-bottom:0.5rem;">';
+          html += '<div style="font-size:0.65rem;font-weight:600;color:#a855f7;margin-bottom:0.3rem;"><i class="fas fa-compass" style="font-size:0.55rem;margin-right:3px;"></i>Directives (' + summary.directives.length + ')</div>';
+          summary.directives.forEach(function (d) {
+            var status = d.status || d.approval || 'pending-approval';
+            var sColor = STATUS_COLORS[status] || '#6b7280';
+            html += '<div style="padding:0.35rem 0.5rem;border-left:3px solid rgba(138,43,226,0.4);background:rgba(138,43,226,0.03);border-radius:0 6px 6px 0;margin-bottom:0.25rem;">';
+            html += '<div style="font-size:0.72rem;font-weight:600;">' + escapeHtml(d.title) + '</div>';
+            html += '<div style="display:flex;gap:0.25rem;flex-wrap:wrap;margin-top:2px;">';
+            html += '<span style="font-size:0.5rem;padding:1px 5px;border-radius:4px;background:' + sColor + '22;color:' + sColor + ';font-weight:500;">' + (status || '').replace(/-/g, ' ') + '</span>';
+            if (d.classification) html += '<span style="font-size:0.5rem;padding:1px 5px;border-radius:4px;background:rgba(255,255,255,0.06);color:#ccc;">' + escapeHtml(d.classification) + '</span>';
+            if (d.owner) html += '<span style="font-size:0.5rem;padding:1px 5px;border-radius:4px;background:rgba(255,255,255,0.06);color:#ccc;">' + escapeHtml(d.owner) + '</span>';
+            if (d.impact) html += '<span style="font-size:0.5rem;padding:1px 5px;border-radius:4px;background:' + (IMPACT_COLORS[d.impact] || '#fbbf24') + '22;color:' + (IMPACT_COLORS[d.impact] || '#fbbf24') + ';">Impact: ' + d.impact + '</span>';
+            if (d.effort) html += '<span style="font-size:0.5rem;padding:1px 5px;border-radius:4px;background:rgba(255,255,255,0.06);color:#ccc;">Effort: ' + d.effort + '</span>';
+            html += '</div>';
+            // KPI chips
+            var kLinks = d.kpiLinks || [];
+            if (kLinks.length > 0) {
+              var kpiReg = null;
+              try { kpiReg = AgentEngine.getKpiRegistry(); } catch (e) {}
+              var kpiMap = {};
+              if (kpiReg) kpiReg.forEach(function (k) { kpiMap[k.id] = k; });
+              html += '<div style="display:flex;gap:0.2rem;flex-wrap:wrap;margin-top:3px;">';
+              var showMax = 4;
+              kLinks.slice(0, showMax).forEach(function (kId) {
+                var kpi = kpiMap[kId];
+                var label = kpi ? kpi.name : kId;
+                var cat = kpi ? kpi.category : '';
+                html += '<a href="/modules/company/dashboard.html#kpi_' + kId + '" style="font-size:0.48rem;padding:1px 5px;border-radius:4px;background:rgba(255,215,0,0.1);color:#FFD700;text-decoration:none;" title="' + escapeHtml(cat) + '">' + escapeHtml(label) + '</a>';
+              });
+              if (kLinks.length > showMax) html += '<span style="font-size:0.48rem;opacity:0.4;">+' + (kLinks.length - showMax) + ' more</span>';
+              html += '</div>';
+            }
+            html += '</div>';
+          });
+          html += '</div>';
+        }
+
+        // ── 3) Tasks ──
+        if (summary.tasks.length > 0) {
+          html += '<div style="margin-bottom:0.5rem;">';
+          html += '<div style="font-size:0.65rem;font-weight:600;color:#3b82f6;margin-bottom:0.3rem;"><i class="fas fa-tasks" style="font-size:0.55rem;margin-right:3px;"></i>Tasks (' + summary.tasks.length + ')</div>';
+          // Group by assignee
+          var byAssignee = {};
+          summary.tasks.forEach(function (t) {
+            var a = t.assignee || 'Unassigned';
+            if (!byAssignee[a]) byAssignee[a] = [];
+            byAssignee[a].push(t);
+          });
+          var showAllId = 'su-outcome-tasks-all-' + Date.now();
+          var taskCount = 0;
+          Object.keys(byAssignee).forEach(function (assignee) {
+            var group = byAssignee[assignee];
+            html += '<div style="margin-bottom:0.3rem;">';
+            html += '<div style="font-size:0.58rem;font-weight:500;opacity:0.6;margin-bottom:2px;">' + escapeHtml(assignee.charAt(0).toUpperCase() + assignee.slice(1)) + ' (' + group.length + ')</div>';
+            group.forEach(function (t, idx) {
+              taskCount++;
+              var isExtra = taskCount > 8;
+              var pColor = PRI_COLORS[t.priority] || '#3b82f6';
+              html += '<div' + (isExtra ? ' class="su-outcome-task-extra"' : '') + ' style="' + (isExtra ? 'display:none;' : '') + 'padding:0.2rem 0.4rem;border-left:2px solid rgba(59,130,246,0.3);margin-bottom:2px;margin-left:0.3rem;">';
+              html += '<span style="font-size:0.68rem;font-weight:500;">' + escapeHtml(t.title) + '</span>';
+              html += ' <span style="font-size:0.48rem;padding:1px 4px;border-radius:3px;background:' + pColor + '22;color:' + pColor + ';">' + (t.priority || 'medium') + '</span>';
+              if (t.impact) html += ' <span style="font-size:0.48rem;padding:1px 4px;border-radius:3px;background:' + (IMPACT_COLORS[t.impact] || '#fbbf24') + '22;color:' + (IMPACT_COLORS[t.impact] || '#fbbf24') + ';">Impact: ' + t.impact + '</span>';
+              if (t.effort) html += ' <span style="font-size:0.48rem;padding:1px 4px;border-radius:3px;background:rgba(255,255,255,0.06);color:#ccc;">Effort: ' + t.effort + '</span>';
+              if (t.dueDate) html += ' <span style="font-size:0.48rem;opacity:0.4;">Due: ' + t.dueDate + '</span>';
+              html += '</div>';
+            });
+            html += '</div>';
+          });
+          if (summary.tasks.length > 8) {
+            html += '<button id="' + showAllId + '" onclick="var els=document.querySelectorAll(\'.su-outcome-task-extra\');var show=this.dataset.open!==\'1\';els.forEach(function(e){e.style.display=show?\'\':\'none\';});this.dataset.open=show?\'1\':\'\';this.textContent=show?\'Show less\':\'Show all ' + summary.tasks.length + ' tasks\';" style="font-size:0.55rem;padding:2px 8px;border-radius:4px;border:1px solid rgba(59,130,246,0.2);background:rgba(59,130,246,0.06);color:#3b82f6;cursor:pointer;margin-top:2px;">Show all ' + summary.tasks.length + ' tasks</button>';
+          }
+          html += '</div>';
+        }
+
+        // ── 4) Risks ──
+        if (summary.risks.length > 0) {
+          html += '<div style="margin-bottom:0.5rem;">';
+          html += '<div style="font-size:0.65rem;font-weight:600;color:#ef4444;margin-bottom:0.3rem;"><i class="fas fa-exclamation-circle" style="font-size:0.55rem;margin-right:3px;"></i>Top Risks (' + summary.risks.length + ')</div>';
+          summary.risks.forEach(function (r) {
+            html += '<div style="display:flex;align-items:center;gap:0.3rem;padding:0.15rem 0;font-size:0.65rem;">';
+            html += '<span class="su-risk-sev su-risk-' + (r.severity || 'Medium') + '">' + (r.severity || 'Medium') + '</span>';
+            html += '<span>' + escapeHtml(r.title || r.description || '') + '</span>';
+            if (r.reportedBy) html += '<span style="font-size:0.5rem;opacity:0.3;">(' + escapeHtml(r.reportedBy) + ')</span>';
+            html += '</div>';
+          });
+          html += '</div>';
+        }
+
+        // ── 5) KPI Impact ──
+        var kpiKeys = Object.keys(summary.kpiCounts);
+        if (kpiKeys.length > 0) {
+          var kpiReg2 = null;
+          try { kpiReg2 = AgentEngine.getKpiRegistry(); } catch (e) {}
+          var kpiMap2 = {};
+          if (kpiReg2) kpiReg2.forEach(function (k) { kpiMap2[k.id] = k; });
+          html += '<div style="margin-bottom:0.5rem;">';
+          html += '<div style="font-size:0.65rem;font-weight:600;color:#FFD700;margin-bottom:0.3rem;"><i class="fas fa-bullseye" style="font-size:0.55rem;margin-right:3px;"></i>KPI Impact (' + kpiKeys.length + ' KPIs)</div>';
+          kpiKeys.forEach(function (kId) {
+            var kpi = kpiMap2[kId];
+            var name = kpi ? kpi.name : kId;
+            var cat = kpi ? kpi.category : '';
+            html += '<div style="display:flex;align-items:center;gap:0.3rem;font-size:0.62rem;padding:0.1rem 0;">';
+            html += '<a href="/modules/company/dashboard.html#kpi_' + kId + '" style="color:#FFD700;text-decoration:none;font-weight:500;">' + escapeHtml(name) + '</a>';
+            html += '<span style="font-size:0.5rem;opacity:0.4;">' + summary.kpiCounts[kId] + ' directive' + (summary.kpiCounts[kId] > 1 ? 's' : '') + '</span>';
+            if (cat) html += '<span style="font-size:0.48rem;padding:1px 5px;border-radius:3px;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.35);">' + escapeHtml(cat) + '</span>';
+            html += '</div>';
+          });
+          html += '</div>';
+        }
+
+        // ── 6) Net Changes Snapshot ──
+        html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;padding-top:0.3rem;border-top:1px solid rgba(255,255,255,0.04);font-size:0.6rem;">';
+        if (summary.counts.directives > 0) html += '<span style="color:#a855f7;font-weight:500;">+' + summary.counts.directives + ' Directive' + (summary.counts.directives > 1 ? 's' : '') + '</span>';
+        if (summary.counts.tasks > 0) html += '<span style="color:#3b82f6;font-weight:500;">+' + summary.counts.tasks + ' Task' + (summary.counts.tasks > 1 ? 's' : '') + '</span>';
+        if (summary.counts.risks > 0) html += '<span style="color:#ef4444;font-weight:500;">+' + summary.counts.risks + ' Risk' + (summary.counts.risks > 1 ? 's' : '') + '</span>';
+        if (summary.counts.uniqueKpis > 0) html += '<span style="color:#FFD700;">KPI links: ' + summary.counts.uniqueKpis + ' unique</span>';
+        if (summary.counts.activatedTasks > 0 || summary.counts.activatedDirs > 0) {
+          var actCount = summary.counts.activatedTasks + summary.counts.activatedDirs;
+          html += '<span style="color:#22c55e;">Activated: ' + actCount + '</span>';
+        }
+        html += '</div>';
+
+        body.innerHTML = html;
       }
 
       // ── Entry rendering ──
