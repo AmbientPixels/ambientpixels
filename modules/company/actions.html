@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="/modules/company/css/company.css" />
   <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/actions.css" />
   <style>
     .act-stats { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
     .act-stat {
@@ -39,12 +40,12 @@
     }
     .act-panel-head {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0.65rem 0.9rem;
+      padding: 0.5rem 0.8rem;
       border-bottom: 1px solid rgba(255,255,255,0.04);
       font-size: 0.78rem; font-weight: 500;
     }
     .act-panel-head i { opacity: 0.4; margin-right: 0.4rem; }
-    .act-panel-body { padding: 0.6rem 0.8rem; }
+    .act-panel-body { padding: 0.45rem 0.7rem; }
     .act-panel-body:empty::after {
       content: 'None';
       display: block; text-align: center;
@@ -52,8 +53,8 @@
     }
 
     .act-row {
-      display: flex; align-items: center; gap: 0.6rem;
-      padding: 0.5rem 0;
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.4rem 0;
       border-bottom: 1px solid rgba(255,255,255,0.03);
       font-size: 0.72rem;
     }
@@ -134,7 +135,7 @@
     }
 
     .act-filters {
-      display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; align-items: center;
+      display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.8rem; align-items: center;
     }
     .act-filter-select {
       font-size: 0.65rem; padding: 0.3rem 0.5rem; border-radius: 5px;
@@ -252,13 +253,24 @@
 
   <main class="content-section" style="max-width: 960px; margin: 0 auto; padding: 1rem;">
 
-    <div class="company-header">
-      <h1><i class="fas fa-bolt" style="opacity:0.4; margin-right:8px; color:#FFA500;"></i>Action Command Center</h1>
-      <p>Controlled execution layer — every external and internal action routes through approval, audit, and receipt.</p>
+    <div class="company-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+      <div>
+        <h1 style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;">
+          <i class="fas fa-bolt" style="opacity:0.4; color:#FFA500;"></i>Action Command Center
+          <span class="act-view-toggle" id="act-view-toggle" role="tablist">
+            <button role="tab" data-view="governance" class="active" aria-selected="true">Governance</button>
+            <button role="tab" data-view="execution" aria-selected="false">Execution</button>
+          </span>
+        </h1>
+        <p style="margin:0.2rem 0 0; font-size:0.7rem; opacity:0.4;">Controlled execution layer — every external and internal action routes through approval, audit, and receipt.</p>
+      </div>
+      <button class="act-btn" onclick="createTestAction()" style="font-size:0.6rem; padding:0.3rem 0.8rem; flex-shrink:0;">
+        <i class="fas fa-plus" style="margin-right:0.3rem;"></i>Test Action
+      </button>
     </div>
 
-    <!-- Stats -->
-    <div class="act-stats" id="action-stats"></div>
+    <!-- Execution Pulse (replaces stat cards) -->
+    <div class="exec-pulse" id="exec-pulse"></div>
 
     <!-- Filters -->
     <div class="act-filters">
@@ -293,74 +305,122 @@
         <option value="azure">Azure</option>
         <option value="internal">Internal</option>
       </select>
-      <div style="flex:1;"></div>
-      <button class="act-btn" onclick="createTestAction()" style="font-size:0.6rem; padding:0.3rem 0.8rem;">
-        <i class="fas fa-plus" style="margin-right:0.3rem;"></i>Test Action
-      </button>
     </div>
 
-    <!-- Pending Approvals -->
-    <div class="act-panel">
-      <div class="act-panel-head">
-        <span><i class="fas fa-clock"></i> Pending Action Approvals</span>
-        <span id="pending-count" style="font-size:0.6rem; opacity:0.4;"></span>
+    <!-- ════════════════════════════════════════ -->
+    <!-- GOVERNANCE VIEW                          -->
+    <!-- ════════════════════════════════════════ -->
+    <div id="view-governance">
+
+      <!-- Approvals Section -->
+      <div class="act-section" data-section="approvals">
+        <div class="act-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-gavel" style="color:#FFA500;"></i>
+          <h2>Approvals</h2>
+          <i class="fas fa-chevron-down act-section-chevron"></i>
+        </div>
+        <div class="act-section-body">
+          <!-- Pending Approvals -->
+          <div class="act-panel">
+            <div class="act-panel-head">
+              <span><i class="fas fa-clock"></i> Pending Action Approvals</span>
+              <span id="pending-count" style="font-size:0.6rem; opacity:0.4;"></span>
+            </div>
+            <div class="act-panel-body" id="pending-list"></div>
+          </div>
+          <!-- Revision Requested -->
+          <div class="act-panel" id="revision-panel" style="display:none;">
+            <div class="act-panel-head" style="border-color:rgba(251,191,36,0.15);">
+              <span style="color:#fbbf24;"><i class="fas fa-pen-to-square"></i> Revision Requested</span>
+              <span id="revision-count" style="font-size:0.6rem; opacity:0.4;"></span>
+            </div>
+            <div class="act-panel-body" id="revision-list"></div>
+          </div>
+          <!-- Scheduled / Approved -->
+          <div class="act-panel">
+            <div class="act-panel-head">
+              <span><i class="fas fa-calendar-check"></i> Approved / Scheduled</span>
+              <span id="scheduled-count" style="font-size:0.6rem; opacity:0.4;"></span>
+            </div>
+            <div class="act-panel-body" id="scheduled-list"></div>
+          </div>
+        </div>
       </div>
-      <div class="act-panel-body" id="pending-list"></div>
+
+      <!-- Failures Section (elevated: right after approvals) -->
+      <div class="act-section" data-section="failures">
+        <div class="act-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-exclamation-triangle" style="color:#ef4444;"></i>
+          <h2>Failures</h2>
+          <i class="fas fa-chevron-down act-section-chevron"></i>
+        </div>
+        <div class="act-section-body">
+          <div class="act-panel">
+            <div class="act-panel-head">
+              <span><i class="fas fa-exclamation-triangle"></i> Failures</span>
+              <span id="fail-count" style="font-size:0.6rem; opacity:0.4;"></span>
+            </div>
+            <div class="act-panel-body" id="fail-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Integrations Section -->
+      <div class="act-section" data-section="integrations">
+        <div class="act-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-plug" style="color:#60a5fa;"></i>
+          <h2>Integrations</h2>
+          <i class="fas fa-chevron-down act-section-chevron"></i>
+        </div>
+        <div class="act-section-body">
+          <div class="act-panel">
+            <div class="act-panel-head">
+              <span><i class="fas fa-tachometer-alt"></i> Integration Status &amp; Rate Limits</span>
+            </div>
+            <div class="act-panel-body">
+              <div class="act-rate-grid" id="rate-grid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Revision Requested (CEO sent back for changes) -->
-    <div class="act-panel" id="revision-panel" style="display:none;">
-      <div class="act-panel-head" style="border-color:rgba(251,191,36,0.15);">
-        <span style="color:#fbbf24;"><i class="fas fa-pen-to-square"></i> Revision Requested</span>
-        <span id="revision-count" style="font-size:0.6rem; opacity:0.4;"></span>
-      </div>
-      <div class="act-panel-body" id="revision-list"></div>
-    </div>
+    <!-- ════════════════════════════════════════ -->
+    <!-- EXECUTION VIEW                           -->
+    <!-- ════════════════════════════════════════ -->
+    <div id="view-execution" style="display:none;">
 
-    <!-- Scheduled / Approved (ready to execute) -->
-    <div class="act-panel">
-      <div class="act-panel-head">
-        <span><i class="fas fa-calendar-check"></i> Approved / Scheduled</span>
-        <span id="scheduled-count" style="font-size:0.6rem; opacity:0.4;"></span>
-      </div>
-      <div class="act-panel-body" id="scheduled-list"></div>
-    </div>
+      <!-- Raw stats (Dev-friendly numbers) -->
+      <div class="act-raw-stats" id="act-raw-stats"></div>
 
-    <!-- Execution Log (success + dry_run) -->
-    <div class="act-panel">
-      <div class="act-panel-head">
-        <span><i class="fas fa-check-circle"></i> Execution Log</span>
-        <span id="exec-count" style="font-size:0.6rem; opacity:0.4;"></span>
+      <!-- Logs Section -->
+      <div class="act-section" data-section="logs">
+        <div class="act-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-stream" style="color:#34d399;"></i>
+          <h2>Logs</h2>
+          <i class="fas fa-chevron-down act-section-chevron"></i>
+        </div>
+        <div class="act-section-body">
+          <!-- Execution Log -->
+          <div class="act-panel">
+            <div class="act-panel-head">
+              <span><i class="fas fa-check-circle"></i> Execution Log</span>
+              <span id="exec-count" style="font-size:0.6rem; opacity:0.4;"></span>
+            </div>
+            <div class="act-panel-body" id="exec-list"></div>
+          </div>
+          <!-- Audit Log -->
+          <div class="act-panel">
+            <div class="act-panel-head">
+              <span><i class="fas fa-list-alt"></i> Action Audit Log</span>
+              <span id="audit-count" style="font-size:0.6rem; opacity:0.4;"></span>
+            </div>
+            <div class="act-panel-body" id="audit-list" style="max-height: 300px; overflow-y: auto;"></div>
+          </div>
+        </div>
       </div>
-      <div class="act-panel-body" id="exec-list"></div>
-    </div>
 
-    <!-- Failures -->
-    <div class="act-panel">
-      <div class="act-panel-head">
-        <span><i class="fas fa-exclamation-triangle"></i> Failures</span>
-        <span id="fail-count" style="font-size:0.6rem; opacity:0.4;"></span>
-      </div>
-      <div class="act-panel-body" id="fail-list"></div>
-    </div>
-
-    <!-- Rate Limits -->
-    <div class="act-panel">
-      <div class="act-panel-head">
-        <span><i class="fas fa-tachometer-alt"></i> Integration Status &amp; Rate Limits</span>
-      </div>
-      <div class="act-panel-body">
-        <div class="act-rate-grid" id="rate-grid"></div>
-      </div>
-    </div>
-
-    <!-- Audit Log -->
-    <div class="act-panel">
-      <div class="act-panel-head">
-        <span><i class="fas fa-list-alt"></i> Action Audit Log</span>
-        <span id="audit-count" style="font-size:0.6rem; opacity:0.4;"></span>
-      </div>
-      <div class="act-panel-body" id="audit-list" style="max-height: 300px; overflow-y: auto;"></div>
     </div>
 
   </main>
@@ -391,6 +451,45 @@
       ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
       : '/api';
 
+    // ── View Mode Toggle ──
+    var _actViewMode = localStorage.getItem('ap_actions_view_mode') || 'governance';
+    function setActView(mode) {
+      _actViewMode = mode;
+      localStorage.setItem('ap_actions_view_mode', mode);
+      document.getElementById('view-governance').style.display = mode === 'governance' ? '' : 'none';
+      document.getElementById('view-execution').style.display = mode === 'execution' ? '' : 'none';
+      var btns = document.querySelectorAll('#act-view-toggle button');
+      btns.forEach(function (b) {
+        var isActive = b.dataset.view === mode;
+        b.classList.toggle('active', isActive);
+        b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+    }
+
+    // ── Collapsible Sections ──
+    var _actCollapsed = {};
+    try { _actCollapsed = JSON.parse(localStorage.getItem('ap_actions_collapsed')) || {}; } catch (e) {}
+    function _saveActCollapsed() { localStorage.setItem('ap_actions_collapsed', JSON.stringify(_actCollapsed)); }
+
+    function initActSections() {
+      document.querySelectorAll('.act-section').forEach(function (sec) {
+        var key = sec.dataset.section;
+        if (_actCollapsed[key]) {
+          sec.classList.add('collapsed');
+          sec.querySelector('.act-section-header').setAttribute('aria-expanded', 'false');
+        }
+        sec.querySelector('.act-section-header').addEventListener('click', function () {
+          var isCollapsed = sec.classList.toggle('collapsed');
+          this.setAttribute('aria-expanded', !isCollapsed);
+          _actCollapsed[key] = isCollapsed;
+          _saveActCollapsed();
+        });
+        sec.querySelector('.act-section-header').addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.click(); }
+        });
+      });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
       AE.loadRegistry('/data/company-agents.json');
       if (typeof CompanyStore !== 'undefined') {
@@ -399,6 +498,16 @@
         }).then(function () { renderAll(); });
       }
       AE.on('sync-complete', renderAll);
+
+      // Init view toggle
+      setActView(_actViewMode);
+      document.querySelectorAll('#act-view-toggle button').forEach(function (btn) {
+        btn.addEventListener('click', function () { setActView(btn.dataset.view); });
+      });
+
+      // Init collapsible sections
+      initActSections();
+
       renderAll();
 
       // Wire up revision modal
@@ -433,7 +542,8 @@
     }
 
     function renderAll() {
-      renderStats();
+      renderExecutionPulse();
+      renderRawStats();
       renderPending();
       renderRevisions();
       renderScheduled();
@@ -443,20 +553,68 @@
       renderAuditLog();
     }
 
-    // ── Stats ──
-    function renderStats() {
+    // ── Execution Pulse ──
+    function renderExecutionPulse() {
+      var el = document.getElementById('exec-pulse');
+      if (!el) return;
       var s = AE.getActionStats();
-      document.getElementById('action-stats').innerHTML =
-        statCard(s.total, 'Total', '#fff') +
-        statCard(s.pending, 'Pending', '#FFA500') +
-        statCard(s.approved, 'Approved', '#34d399') +
-        statCard(s.running, 'Running', '#3b82f6') +
-        statCard(s.success, 'Success', '#34d399') +
-        statCard(s.failed, 'Failed', '#ef4444') +
-        statCard(s.rejected, 'Rejected', '#ef4444');
+      var total = s.total || 0;
+      var segments = [];
+
+      // Pending
+      var pendColor = s.pending > 10 ? '#fbbf24' : s.pending > 0 ? '#FFA500' : total === 0 ? 'rgba(255,255,255,0.15)' : '#34d399';
+      segments.push({ label: 'Pending', value: total === 0 ? '—' : String(s.pending), color: pendColor, title: s.pending + ' actions awaiting approval' });
+
+      // Running
+      var runColor = s.running > 5 ? '#fbbf24' : s.running > 0 ? '#3b82f6' : total === 0 ? 'rgba(255,255,255,0.15)' : '#34d399';
+      segments.push({ label: 'Running', value: total === 0 ? '—' : String(s.running), color: runColor, title: s.running + ' actions currently executing' });
+
+      // Success %
+      var completed = s.success + s.failed;
+      var lowSample = completed > 0 && completed < 5;
+      var successPct = completed > 0 ? Math.round((s.success / completed) * 100) : 0;
+      var successColor = completed === 0 ? 'rgba(255,255,255,0.15)' : successPct >= 80 ? '#34d399' : successPct >= 50 ? '#fbbf24' : (lowSample ? '#fbbf24' : '#ef4444');
+      var successTip = completed === 0 ? 'No completed actions yet' : successPct + '% of completed actions succeeded (' + s.success + ' / ' + completed + ')' + (lowSample ? ' (low sample size)' : '');
+      segments.push({ label: 'Success', value: completed === 0 ? '—' : successPct + '%', color: successColor, title: successTip });
+
+      // Failure %
+      var failPct = completed > 0 ? Math.round((s.failed / completed) * 100) : 0;
+      var failColor = completed === 0 ? 'rgba(255,255,255,0.15)' : failPct > 20 ? (lowSample ? '#fbbf24' : '#ef4444') : failPct > 0 ? '#fbbf24' : '#34d399';
+      var failTip = completed === 0 ? 'No completed actions yet' : failPct + '% of completed actions failed (' + s.failed + ' / ' + completed + ')' + (lowSample ? ' (low sample size)' : '');
+      segments.push({ label: 'Failed', value: completed === 0 ? '—' : failPct + '%', color: failColor, title: failTip });
+
+      // Rejected
+      var rejColor = s.rejected > 5 ? '#ef4444' : s.rejected > 0 ? '#fbbf24' : total === 0 ? 'rgba(255,255,255,0.15)' : '#34d399';
+      segments.push({ label: 'Rejected', value: total === 0 ? '—' : String(s.rejected), color: rejColor, title: s.rejected + ' actions rejected' });
+
+      var html = '';
+      segments.forEach(function (seg) {
+        html += '<div class="exec-pulse-seg" style="--pulse-color:' + seg.color + ';" title="' + esc(seg.title) + '">';
+        html += '<div class="exec-pulse-dot"></div>';
+        html += '<div class="exec-pulse-info">';
+        html += '<div class="exec-pulse-label">' + seg.label + '</div>';
+        html += '<div class="exec-pulse-value">' + seg.value + '</div>';
+        html += '</div></div>';
+      });
+      el.innerHTML = html;
     }
-    function statCard(v, l, c) {
-      return '<div class="act-stat"><div class="act-stat-val" style="color:' + c + '">' + v + '</div><div class="act-stat-label">' + l + '</div></div>';
+
+    // ── Raw Stats (Execution View) ──
+    function renderRawStats() {
+      var el = document.getElementById('act-raw-stats');
+      if (!el) return;
+      var s = AE.getActionStats();
+      function rawCard(v, l, c) {
+        return '<div class="act-raw-stat"><div class="act-raw-stat-val" style="color:' + c + '">' + v + '</div><div class="act-raw-stat-label">' + l + '</div></div>';
+      }
+      el.innerHTML =
+        rawCard(s.total, 'Total', '#fff') +
+        rawCard(s.pending, 'Pending', '#FFA500') +
+        rawCard(s.approved, 'Approved', '#34d399') +
+        rawCard(s.running, 'Running', '#3b82f6') +
+        rawCard(s.success, 'Success', '#34d399') +
+        rawCard(s.failed, 'Failed', '#ef4444') +
+        rawCard(s.rejected, 'Rejected', '#ef4444');
     }
 
     // ── Pending ──
