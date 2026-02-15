@@ -251,6 +251,7 @@
 
     <!-- Calendar Intelligence -->
     <div id="cal-intel-alerts"></div>
+    <div id="cal-recommendations"></div>
 
     <!-- Calendar Grid -->
     <div class="cal-grid" id="cal-grid"></div>
@@ -591,38 +592,51 @@
         else { renderMonth(); }
         renderStats();
         renderCalIntel();
+        renderCalRecommendations();
       }
 
-      // ── Calendar Intelligence ──
+      // ── Calendar Intelligence (shared results) ──
+      var _intelVisibleDates = {};
+      var _intelOverload = null;
+      var _intelCluster = null;
+      var _intelBurst = null;
+      var _intelBooking = null;
+
       function renderCalIntel() {
         var el = document.getElementById('cal-intel-alerts');
         if (!el) return;
 
         // Determine visible date range based on current view
-        var visibleDates = {};
+        _intelVisibleDates = {};
         if (currentView === 'day') {
-          visibleDates[toDateStr(dayViewDate)] = true;
+          _intelVisibleDates[toDateStr(dayViewDate)] = true;
         } else if (currentView === 'week') {
           for (var wi = 0; wi < 7; wi++) {
             var wd = new Date(weekStartDate);
             wd.setDate(wd.getDate() + wi);
-            visibleDates[toDateStr(wd)] = true;
+            _intelVisibleDates[toDateStr(wd)] = true;
           }
         } else {
           // Month: all days in current month
           var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
           for (var mi = 1; mi <= daysInMonth; mi++) {
-            visibleDates[toDateStr(new Date(currentYear, currentMonth, mi))] = true;
+            _intelVisibleDates[toDateStr(new Date(currentYear, currentMonth, mi))] = true;
           }
         }
 
-        // Single pass over visible dates
-        var worstOverload = null; // { date, count, sev }
-        var worstCluster = null; // { date, count, sev }
-        var worstBurst = null;   // { date, count, sev }
-        var worstBooking = null; // { date, agent, agentName, count, sev }
+        // Reset shared results
+        _intelOverload = null;
+        _intelCluster = null;
+        _intelBurst = null;
+        _intelBooking = null;
 
-        Object.keys(visibleDates).forEach(function (ds) {
+        // Single pass over visible dates
+        var worstOverload = null;
+        var worstCluster = null;
+        var worstBurst = null;
+        var worstBooking = null;
+
+        Object.keys(_intelVisibleDates).forEach(function (ds) {
           var items = calData[ds];
           if (!items) return;
 
@@ -681,6 +695,12 @@
           }
         });
 
+        // Store to shared scope for recommendations
+        _intelOverload = worstOverload;
+        _intelCluster = worstCluster;
+        _intelBurst = worstBurst;
+        _intelBooking = worstBooking;
+
         // Build prioritized alert list: red first, then amber, in type priority order
         var candidates = [];
         if (worstOverload) candidates.push({ type: 'overload', sev: worstOverload.sev, priority: 1, data: worstOverload });
@@ -736,6 +756,138 @@
       function _formatIntelDate(ds) {
         var d = new Date(ds + 'T12:00:00');
         return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      }
+
+      // ── Calendar Recommendations ──
+      function renderCalRecommendations() {
+        var el = document.getElementById('cal-recommendations');
+        if (!el) return;
+
+        var recs = [];
+
+        // Helper: count visible items for a date
+        function _dayItemCount(ds) {
+          var items = calData[ds];
+          if (!items) return 0;
+          var c = 0;
+          ['tasks', 'content', 'social', 'reminders', 'activity'].forEach(function (layer) {
+            if (activeLayers[layer]) c += (items[layer] || []).length;
+          });
+          return c;
+        }
+
+        // 1) Overloaded Day → suggest moving items to adjacent lighter day
+        if (_intelOverload) {
+          var srcDate = _intelOverload.date;
+          var srcD = new Date(srcDate + 'T12:00:00');
+          var monthStr = currentYear + '-' + String(currentMonth + 1).padStart(2, '0');
+          var bestTarget = null;
+          for (var offset = 1; offset <= 2; offset++) {
+            var offsets = [-offset, offset];
+            for (var oi = 0; oi < offsets.length; oi++) {
+              var td = new Date(srcD);
+              td.setDate(td.getDate() + offsets[oi]);
+              var tds = toDateStr(td);
+              if (tds.substring(0, 7) !== monthStr) continue;
+              if (!_intelVisibleDates[tds]) continue;
+              var tc = _dayItemCount(tds);
+              if (tc <= 3) {
+                if (!bestTarget || tc < bestTarget.count || (tc === bestTarget.count && Math.abs(offsets[oi]) < Math.abs(bestTarget.offset))) {
+                  bestTarget = { date: tds, count: tc, offset: offsets[oi] };
+                }
+              }
+            }
+          }
+          if (bestTarget) {
+            recs.push({
+              priority: 1,
+              text: 'Consider moving 1\u20132 items from ' + _formatIntelDate(srcDate) + ' to ' + _formatIntelDate(bestTarget.date) + ' to reduce overload.',
+              links: [
+                { label: 'Open ' + _formatIntelDate(srcDate), date: srcDate },
+                { label: 'Open ' + _formatIntelDate(bestTarget.date), date: bestTarget.date }
+              ]
+            });
+          }
+        }
+
+        // 2) Deadline Cluster → suggest rescheduling lowest-priority non-critical task
+        if (_intelCluster && activeLayers.tasks) {
+          var clusterItems = (calData[_intelCluster.date] || {}).tasks || [];
+          var prioOrder = { low: 0, medium: 1, high: 2, critical: 3 };
+          var candidate = null;
+          clusterItems.forEach(function (t) {
+            var p = (t.priority || 'medium').toLowerCase();
+            if (p === 'critical') return;
+            var pVal = prioOrder[p] !== undefined ? prioOrder[p] : 1;
+            if (!candidate || pVal < candidate.pVal) {
+              candidate = { title: t.title, id: t.id, link: t.link, pVal: pVal };
+            }
+          });
+          if (candidate) {
+            recs.push({
+              priority: 2,
+              text: 'Consider rescheduling \u201c' + esc(candidate.title) + '\u201d to reduce deadline clustering on ' + _formatIntelDate(_intelCluster.date) + '.',
+              links: [
+                { label: 'Open task', url: candidate.link }
+              ]
+            });
+          }
+        }
+
+        // 3) Agent Overbooking → suggest reassigning one non-critical task
+        if (_intelBooking && activeLayers.tasks) {
+          var bookingItems = (calData[_intelBooking.date] || {}).tasks || [];
+          var agentTasks = bookingItems.filter(function (t) { return t.assignee === _intelBooking.agent; });
+          var nonCritical = agentTasks.filter(function (t) { return (t.priority || 'medium').toLowerCase() !== 'critical'; });
+          if (nonCritical.length > 0) {
+            recs.push({
+              priority: 3,
+              text: 'Consider reassigning 1 task from ' + esc(_intelBooking.agentName) + ' on ' + _formatIntelDate(_intelBooking.date) + ' to balance workload.',
+              links: [
+                { label: 'Open ' + _formatIntelDate(_intelBooking.date), date: _intelBooking.date }
+              ]
+            });
+          }
+        }
+
+        // 4) Social Burst → suggest spacing out
+        if (_intelBurst && activeLayers.social) {
+          recs.push({
+            priority: 4,
+            text: 'Consider spacing out social posts on ' + _formatIntelDate(_intelBurst.date) + '.',
+            links: [
+              { label: 'Open ' + _formatIntelDate(_intelBurst.date), date: _intelBurst.date }
+            ]
+          });
+        }
+
+        // Sort by priority, show max 2
+        recs.sort(function (a, b) { return a.priority - b.priority; });
+        var html = '';
+        var maxRecs = Math.min(recs.length, 2);
+        for (var ri = 0; ri < maxRecs; ri++) {
+          var r = recs[ri];
+          html += '<div class="cal-rec"><i class="fas fa-lightbulb"></i><span>' + r.text + '</span>';
+          html += '<div class="cal-rec-actions">';
+          r.links.forEach(function (lnk) {
+            if (lnk.url) {
+              html += '<a class="cal-rec-link" href="' + lnk.url + '">' + lnk.label + '</a>';
+            } else if (lnk.date) {
+              html += '<button class="cal-rec-link" data-rec-date="' + lnk.date + '">' + lnk.label + '</button>';
+            }
+          });
+          html += '</div></div>';
+        }
+
+        el.innerHTML = html;
+
+        // Bind recommendation links
+        el.querySelectorAll('[data-rec-date]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var ds = btn.dataset.recDate;
+            if (ds) selectDay(ds);
+          });
+        });
       }
 
       // ── Month View ──
