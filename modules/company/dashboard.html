@@ -2197,6 +2197,10 @@
         var seen = {}; // keyed by unique item identifier
         var count = 0;
         function add(key) { if (!seen[key]) { seen[key] = true; count++; } }
+        function stableId(prefix, item) {
+          if (item.id) return prefix + ':' + item.id;
+          return prefix + ':' + (item.createdAt || item.submittedAt || '') + ':' + (item.title || item.taskTitle || '');
+        }
 
         try {
           var today = new Date().toISOString().split('T')[0];
@@ -2204,21 +2208,22 @@
           // Pending approvals
           var queue = AgentEngine.getApprovalQueue();
           queue.forEach(function (q) {
-            if (q.status === 'pending') add('aq:' + q.id);
+            if (q.status === 'pending') add(stableId('aq', q));
           });
 
           // Tasks: pending-approval, overdue, blocked/escalated
           var tasks = AgentEngine.getTasks();
           tasks.forEach(function (t) {
             if (t.status === 'done') return;
-            if (t.status === 'pending-approval') add('task:' + t.id);
-            if (t.dueDate && t.dueDate < today) add('task:' + t.id);
-            if (t.blocked || t.escalated || (t.tags && t.tags.indexOf('blocked') !== -1)) add('task:' + t.id);
+            var k = stableId('task', t);
+            if (t.status === 'pending-approval') add(k);
+            if (t.dueDate && t.dueDate < today) add(k);
+            if (t.blocked || t.escalated || (t.tags && t.tags.indexOf('blocked') !== -1)) add(k);
           });
 
           // Directives: pending-approval
           AgentEngine.getDirectives().forEach(function (d) {
-            if (d.status === 'pending-approval') add('dir:' + d.id);
+            if (d.status === 'pending-approval') add(stableId('dir', d));
           });
         } catch (e) {}
 
