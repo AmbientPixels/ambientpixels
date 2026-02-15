@@ -653,14 +653,15 @@
     function doApprove(id) { AE.approveAction(id); renderAll(); }
     function doReject(id) { AE.rejectAction(id); renderAll(); }
     function doRevision(id, note) {
-      // Use async version that awaits server confirmation
-      return AE.requestActionRevisionAsync(id, note || '').then(function (a) {
-        renderAll();
-        if (a) _showExecNotice('success', 'Revision request synced to server — agent will pick it up on next heartbeat.');
-        else _showExecNotice('error', 'Revision request failed — action not found or already processed.');
+      // Sync version updates localStorage instantly — render UI immediately
+      var a = AE.requestActionRevision(id, note || '');
+      renderAll();
+      if (!a) { _showExecNotice('error', 'Revision request failed — action not found or already processed.'); return Promise.resolve(); }
+      // Async server sync in background — toast confirms when done
+      return AE.requestActionRevisionAsync(id, note || '').then(function () {
+        _showExecNotice('success', 'Revision synced to server — agent will pick it up on next heartbeat.');
       }).catch(function () {
-        renderAll();
-        _showExecNotice('warn', 'Revision saved locally but server sync may have failed. Try again.');
+        _showExecNotice('warn', 'Revision saved locally but server sync may have failed.');
       });
     }
     function doOverride(id) { AE.overrideAction(id); renderAll(); }
