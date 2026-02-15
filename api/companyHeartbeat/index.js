@@ -653,7 +653,10 @@ Write the full deliverable first, then the structured JSON block.`;
       const targetTask = tasks.find(t => t.id === action.taskId);
       const recentComments = (targetTask && Array.isArray(targetTask.comments)) ? targetTask.comments : [];
       const twoHoursAgo = Date.now() - 2 * 60 * 60 * 1000;
+      const twelveHoursAgo = Date.now() - 12 * 60 * 60 * 1000;
       const commentText = String(action.comment).toLowerCase().trim();
+      const mentionsAppendix = commentText.indexOf('appendix a') !== -1;
+
       const isDuplicate = recentComments.some(c => {
         if ((c.user || c.author || '') !== agentId) return false;
         const ts = c.createdAt || c.created_at || c.timestamp || null;
@@ -665,8 +668,17 @@ Write the full deliverable first, then the structured JSON block.`;
         const overlap = wordsA.filter(w => wordsB.has(w)).length;
         return overlap >= wordsA.length * 0.6;
       });
-      if (isDuplicate) {
-        context.log('[Heartbeat]', agentId, 'comment-task SKIPPED (duplicate within 2h) on task:', action.taskId);
+
+      const appendixRepeat = mentionsAppendix && recentComments.some(c => {
+        if ((c.user || c.author || '') !== agentId) return false;
+        const ts = c.createdAt || c.created_at || c.timestamp || null;
+        if (!ts || new Date(ts).getTime() < twelveHoursAgo) return false;
+        const existing = String(c.text || c.comment || c.body || '').toLowerCase();
+        return existing.indexOf('appendix a') !== -1;
+      });
+
+      if (isDuplicate || appendixRepeat) {
+        context.log('[Heartbeat]', agentId, 'comment-task SKIPPED (duplicate ' + (appendixRepeat ? 'Appendix A ' : '') + 'comment) on task:', action.taskId);
       } else {
         result.taskUpdates.push({
           action: 'comment',
