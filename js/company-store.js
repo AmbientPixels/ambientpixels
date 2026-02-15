@@ -12,6 +12,7 @@ var CompanyStore = (function () {
   var _writeSecret = '';       // optional shared secret for writes
   var _serverAvailable = null; // null = unchecked, true/false after probe
   var _probePromise = null;
+  var _memCache = {};  // In-memory fallback when localStorage is full
 
   // Key mapping: localStorage keys → server state keys
   var KEY_MAP = {
@@ -90,17 +91,40 @@ var CompanyStore = (function () {
   function _localGet(key, fallback) {
     try {
       var raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : fallback;
-    } catch (e) {
-      return fallback;
-    }
+      if (raw) return JSON.parse(raw);
+    } catch (e) { /* fall through */ }
+    // Fallback to in-memory cache if localStorage is empty or failed
+    if (_memCache[key] !== undefined) return _memCache[key];
+    return fallback;
   }
+
+  // In server mode, localStorage is just a cache. Trim large arrays to fit.
+  var LOCAL_CACHE_LIMITS = {
+    'ap_tasks': 80, 'ap_actions': 60, 'ap_action_audit_log': 40,
+    'ap_action_queue': 40, 'ap_approval_queue': 40, 'ap_governance_log': 40,
+    'ap_cron_log': 30, 'ap_standup_log': 20, 'ap_documents': 40,
+    'ap_published_docs': 30, 'ap_workspace_dates': 30, 'ap_workspace_memory': 30
+  };
 
   function _localSet(key, data) {
     try {
-      localStorage.setItem(key, JSON.stringify(data));
+      var toWrite = data;
+      if (_mode === 'server' && Array.isArray(data) && LOCAL_CACHE_LIMITS[key] && data.length > LOCAL_CACHE_LIMITS[key]) {
+        toWrite = data.slice(-LOCAL_CACHE_LIMITS[key]);
+      }
+      localStorage.setItem(key, JSON.stringify(toWrite));
     } catch (e) {
-      console.warn('[CompanyStore] localStorage write failed:', key, e);
+      _memCache[key] = data;  // Always keep in memory even if localStorage fails
+      if (e.name === 'QuotaExceededError' || (e.message && e.message.indexOf('quota') !== -1)) {
+        try { localStorage.removeItem(key); } catch (ignore) {}
+        if (_mode === 'server') {
+          console.log('[CompanyStore] Cache full, skipped local cache for:', key);
+        } else {
+          console.warn('[CompanyStore] localStorage quota exceeded:', key);
+        }
+      } else {
+        console.warn('[CompanyStore] localStorage write failed:', key, e);
+      }
     }
   }
 
@@ -223,7 +247,9 @@ var CompanyStore = (function () {
       return _serverGet(serverKey)
         .then(function (val) {
           if (val !== undefined && val !== null) {
-            // Merge strategy: server wins for agent-created data
+            // Always keep full data in memory (no trimming)
+            _memCache[localKey] = val;
+            // Cache trimmed version to localStorage (may fail if quota full)
             _localSet(localKey, val);
           }
         })
