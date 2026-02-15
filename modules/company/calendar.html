@@ -119,6 +119,62 @@
       white-space: nowrap;
     }
 
+    /* View toggle */
+    .cal-view-toggle {
+      display: flex; gap: 2px; background: rgba(255,255,255,0.04);
+      border-radius: 6px; padding: 2px; margin-right: 0.5rem;
+    }
+    .cal-view-btn {
+      font-size: 0.6rem; padding: 0.25rem 0.6rem; border-radius: 4px;
+      border: none; background: transparent; color: rgba(255,255,255,0.4);
+      cursor: pointer; font-family: inherit; transition: all 0.15s;
+    }
+    .cal-view-btn:hover { color: rgba(255,255,255,0.7); }
+    .cal-view-btn.active { background: rgba(59,130,246,0.15); color: #3b82f6; font-weight: 600; }
+
+    /* Week view */
+    .cal-grid--week .cal-cell { min-height: 200px; }
+    .cal-grid--week .cal-cell-item {
+      font-size: 0.55rem; padding: 0.15rem 0.3rem; border-radius: 3px;
+      margin-bottom: 2px; line-height: 1.4;
+    }
+
+    /* Day view */
+    .cal-day-view {
+      border: 1px solid rgba(255,255,255,0.05); border-radius: 10px;
+      background: rgba(255,255,255,0.015); overflow: hidden;
+    }
+    .cal-day-view-head {
+      padding: 0.8rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cal-day-view-date { font-size: 1rem; font-weight: 600; }
+    .cal-day-view-sub { font-size: 0.65rem; opacity: 0.35; }
+    .cal-day-view-body { padding: 0.8rem 1rem; }
+    .cal-day-view-section { margin-bottom: 1rem; }
+    .cal-day-view-section-title {
+      font-size: 0.6rem; opacity: 0.4; text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.3rem;
+    }
+    .cal-day-view-item {
+      display: flex; align-items: flex-start; gap: 0.5rem;
+      padding: 0.5rem 0.6rem; border-radius: 6px; margin-bottom: 0.3rem;
+      border: 1px solid rgba(255,255,255,0.04); background: rgba(255,255,255,0.015);
+      transition: background 0.15s;
+    }
+    .cal-day-view-item:hover { background: rgba(255,255,255,0.03); }
+    .cal-day-view-item .cal-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 0.25rem; }
+    .cal-day-view-item-info { flex: 1; min-width: 0; }
+    .cal-day-view-item-title { font-size: 0.75rem; font-weight: 500; }
+    .cal-day-view-item-meta { font-size: 0.6rem; opacity: 0.4; margin-top: 0.15rem; }
+    .cal-day-view-item-badge {
+      font-size: 0.5rem; padding: 0.1rem 0.4rem; border-radius: 3px;
+      font-weight: 500; white-space: nowrap; align-self: center;
+    }
+    .cal-day-view-empty {
+      text-align: center; font-size: 0.8rem; opacity: 0.2; padding: 3rem;
+    }
+
     /* Stats bar */
     .cal-stats {
       display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.8rem;
@@ -139,6 +195,11 @@
     <div class="cal-header">
       <h1><i class="fas fa-calendar-alt"></i>Company Calendar</h1>
       <div class="cal-nav">
+        <div class="cal-view-toggle" id="cal-view-toggle">
+          <button class="cal-view-btn active" data-view="month">Month</button>
+          <button class="cal-view-btn" data-view="week">Week</button>
+          <button class="cal-view-btn" data-view="day">Day</button>
+        </div>
         <button class="cal-nav-btn" id="cal-prev"><i class="fas fa-chevron-left"></i></button>
         <span class="cal-month-label" id="cal-month-label"></span>
         <button class="cal-nav-btn" id="cal-next"><i class="fas fa-chevron-right"></i></button>
@@ -194,6 +255,9 @@
       // State
       var currentYear, currentMonth; // 0-indexed month
       var selectedDate = null;
+      var currentView = 'month'; // 'month' | 'week' | 'day'
+      var weekStartDate = null; // Date object for week view start (Sunday)
+      var dayViewDate = null; // Date object for day view
       var activeLayers = { tasks: true, content: true, social: true, reminders: true, activity: true };
       var calData = {}; // dateStr → { tasks:[], content:[], social:[], reminders:[], activity:[] }
 
@@ -218,32 +282,82 @@
       var now = new Date();
       currentYear = now.getFullYear();
       currentMonth = now.getMonth();
+      weekStartDate = getWeekStart(now);
+      dayViewDate = new Date(now);
 
       AgentEngine.loadRegistry().then(function () {
         loadAllData().then(function () {
           render();
-          // Auto-select today
           selectDay(toDateStr(now));
         });
       });
 
-      // Navigation
+      // Helper: get Sunday of the week containing d
+      function getWeekStart(d) {
+        var s = new Date(d);
+        s.setDate(s.getDate() - s.getDay());
+        return s;
+      }
+
+      // View toggle
+      document.getElementById('cal-view-toggle').addEventListener('click', function (e) {
+        var btn = e.target.closest('.cal-view-btn');
+        if (!btn) return;
+        currentView = btn.dataset.view;
+        document.querySelectorAll('.cal-view-btn').forEach(function (b) {
+          b.classList.toggle('active', b.dataset.view === currentView);
+        });
+        // Sync week/day dates from selected date or today
+        var ref = selectedDate ? new Date(selectedDate + 'T12:00:00') : new Date();
+        weekStartDate = getWeekStart(ref);
+        dayViewDate = new Date(ref);
+        currentYear = ref.getFullYear();
+        currentMonth = ref.getMonth();
+        render();
+      });
+
+      // Navigation — view-aware
       document.getElementById('cal-prev').addEventListener('click', function () {
-        currentMonth--;
-        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+        if (currentView === 'month') {
+          currentMonth--;
+          if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+        } else if (currentView === 'week') {
+          weekStartDate.setDate(weekStartDate.getDate() - 7);
+          currentYear = weekStartDate.getFullYear();
+          currentMonth = weekStartDate.getMonth();
+        } else {
+          dayViewDate.setDate(dayViewDate.getDate() - 1);
+          currentYear = dayViewDate.getFullYear();
+          currentMonth = dayViewDate.getMonth();
+          selectedDate = toDateStr(dayViewDate);
+        }
         render();
       });
       document.getElementById('cal-next').addEventListener('click', function () {
-        currentMonth++;
-        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+        if (currentView === 'month') {
+          currentMonth++;
+          if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+        } else if (currentView === 'week') {
+          weekStartDate.setDate(weekStartDate.getDate() + 7);
+          currentYear = weekStartDate.getFullYear();
+          currentMonth = weekStartDate.getMonth();
+        } else {
+          dayViewDate.setDate(dayViewDate.getDate() + 1);
+          currentYear = dayViewDate.getFullYear();
+          currentMonth = dayViewDate.getMonth();
+          selectedDate = toDateStr(dayViewDate);
+        }
         render();
       });
       document.getElementById('cal-today').addEventListener('click', function () {
         var n = new Date();
         currentYear = n.getFullYear();
         currentMonth = n.getMonth();
+        weekStartDate = getWeekStart(n);
+        dayViewDate = new Date(n);
+        selectedDate = toDateStr(n);
         render();
-        selectDay(toDateStr(n));
+        if (currentView === 'month') selectDay(toDateStr(n));
       });
 
       // Filter toggles
@@ -254,14 +368,14 @@
         activeLayers[layer] = !activeLayers[layer];
         btn.classList.toggle('active', activeLayers[layer]);
         render();
-        if (selectedDate) renderDetail(selectedDate);
+        if (selectedDate && currentView === 'month') renderDetail(selectedDate);
       });
 
       // Re-render on sync
       AgentEngine.on('sync-complete', function () {
         loadAllData().then(function () {
           render();
-          if (selectedDate) renderDetail(selectedDate);
+          if (selectedDate && currentView === 'month') renderDetail(selectedDate);
         });
       });
 
@@ -381,11 +495,25 @@
         return Promise.resolve();
       }
 
-      // ── Render Calendar Grid ──
+      // ── Render Dispatch ──
       function render() {
+        detailEl.style.display = 'none';
+        // Clean up day container when leaving day view
+        var dayContainer = document.getElementById('cal-day-container');
+        if (dayContainer && currentView !== 'day') dayContainer.remove();
+        if (currentView === 'week') { renderWeek(); }
+        else if (currentView === 'day') { renderDayView(); }
+        else { renderMonth(); }
+        renderStats();
+      }
+
+      // ── Month View ──
+      function renderMonth() {
+        gridEl.style.display = '';
+        gridEl.className = 'cal-grid';
         var first = new Date(currentYear, currentMonth, 1);
         var last = new Date(currentYear, currentMonth + 1, 0);
-        var startDay = first.getDay(); // 0=Sun
+        var startDay = first.getDay();
         var daysInMonth = last.getDate();
         var prevLast = new Date(currentYear, currentMonth, 0).getDate();
         var todayStr = toDateStr(new Date());
@@ -393,47 +521,135 @@
         monthLabel.textContent = first.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
         var html = '';
-        // Weekday headers
         ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(function (d) {
           html += '<div class="cal-weekday">' + d + '</div>';
         });
-
-        // Previous month fill
         for (var p = startDay - 1; p >= 0; p--) {
           var pDay = prevLast - p;
-          var pDate = toDateStr(new Date(currentYear, currentMonth - 1, pDay));
-          html += cellHtml(pDate, pDay, true);
+          html += cellHtml(toDateStr(new Date(currentYear, currentMonth - 1, pDay)), pDay, true);
         }
-
-        // Current month
         for (var d = 1; d <= daysInMonth; d++) {
-          var dateStr = toDateStr(new Date(currentYear, currentMonth, d));
-          var isToday = dateStr === todayStr;
-          var isSelected = dateStr === selectedDate;
-          html += cellHtml(dateStr, d, false, isToday, isSelected);
+          var ds = toDateStr(new Date(currentYear, currentMonth, d));
+          html += cellHtml(ds, d, false, ds === todayStr, ds === selectedDate);
         }
-
-        // Next month fill
         var totalCells = startDay + daysInMonth;
         var remaining = (7 - (totalCells % 7)) % 7;
         for (var n = 1; n <= remaining; n++) {
-          var nDate = toDateStr(new Date(currentYear, currentMonth + 1, n));
-          html += cellHtml(nDate, n, true);
+          html += cellHtml(toDateStr(new Date(currentYear, currentMonth + 1, n)), n, true);
         }
-
         gridEl.innerHTML = html;
+        gridEl.querySelectorAll('.cal-cell').forEach(function (cell) {
+          cell.addEventListener('click', function () { selectDay(cell.dataset.date); });
+        });
+      }
 
-        // Bind click
+      // ── Week View ──
+      function renderWeek() {
+        gridEl.style.display = '';
+        gridEl.className = 'cal-grid cal-grid--week';
+        var todayStr = toDateStr(new Date());
+        var weekEnd = new Date(weekStartDate);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        var startLabel = weekStartDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        var endLabel = weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        monthLabel.textContent = startLabel + ' — ' + endLabel;
+
+        var html = '';
+        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(function (d) {
+          html += '<div class="cal-weekday">' + d + '</div>';
+        });
+        for (var i = 0; i < 7; i++) {
+          var d = new Date(weekStartDate);
+          d.setDate(d.getDate() + i);
+          var ds = toDateStr(d);
+          html += cellHtml(ds, d.getDate(), false, ds === todayStr, ds === selectedDate, 6);
+        }
+        gridEl.innerHTML = html;
         gridEl.querySelectorAll('.cal-cell').forEach(function (cell) {
           cell.addEventListener('click', function () {
             selectDay(cell.dataset.date);
+            // Double-click enters day view
+          });
+          cell.addEventListener('dblclick', function () {
+            dayViewDate = new Date(cell.dataset.date + 'T12:00:00');
+            selectedDate = cell.dataset.date;
+            currentView = 'day';
+            document.querySelectorAll('.cal-view-btn').forEach(function (b) {
+              b.classList.toggle('active', b.dataset.view === 'day');
+            });
+            render();
           });
         });
-
-        renderStats();
       }
 
-      function cellHtml(dateStr, dayNum, isOther, isToday, isSelected) {
+      // ── Day View ──
+      function renderDayView() {
+        gridEl.style.display = 'none';
+        var ds = toDateStr(dayViewDate);
+        selectedDate = ds;
+        var todayStr = toDateStr(new Date());
+        var d = new Date(ds + 'T12:00:00');
+        monthLabel.textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+        var items = calData[ds] || {};
+        var sections = [
+          { key: 'tasks', label: 'Task Deadlines', icon: 'fa-tasks' },
+          { key: 'content', label: 'Content', icon: 'fa-file-alt' },
+          { key: 'social', label: 'Social Posts', icon: 'fa-share-alt' },
+          { key: 'reminders', label: 'Reminders & Dates', icon: 'fa-bell' },
+          { key: 'activity', label: 'Activity', icon: 'fa-history' }
+        ];
+
+        var bodyHtml = '';
+        var hasItems = false;
+        sections.forEach(function (sec) {
+          if (!activeLayers[sec.key]) return;
+          var arr = items[sec.key] || [];
+          if (arr.length === 0) return;
+          hasItems = true;
+          bodyHtml += '<div class="cal-day-view-section">';
+          bodyHtml += '<div class="cal-day-view-section-title"><i class="fas ' + sec.icon + '"></i> ' + sec.label + ' (' + arr.length + ')</div>';
+          arr.forEach(function (item) {
+            bodyHtml += '<div class="cal-day-view-item">';
+            bodyHtml += '<span class="cal-dot" style="background:' + LAYER_COLORS[sec.key] + ';"></span>';
+            bodyHtml += '<div class="cal-day-view-item-info">';
+            bodyHtml += '<div class="cal-day-view-item-title">' + esc(item.title) + '</div>';
+            if (item.meta) bodyHtml += '<div class="cal-day-view-item-meta">' + esc(item.meta) + '</div>';
+            bodyHtml += '</div>';
+            if (item.badge) {
+              bodyHtml += '<span class="cal-day-view-item-badge" style="background:' + item.badgeColor + '22;color:' + item.badgeColor + ';">' + esc(item.badge) + '</span>';
+            }
+            bodyHtml += '</div>';
+          });
+          bodyHtml += '</div>';
+        });
+        if (!hasItems) bodyHtml = '<div class="cal-day-view-empty"><i class="fas fa-calendar-day" style="font-size:1.5rem; display:block; margin-bottom:0.5rem;"></i>Nothing scheduled for this day.</div>';
+
+        var isToday = ds === todayStr;
+        var dayHtml =
+          '<div class="cal-day-view">' +
+            '<div class="cal-day-view-head">' +
+              '<div>' +
+                '<div class="cal-day-view-date">' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + (isToday ? ' <span style="font-size:0.55rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(255,215,0,0.15);color:#FFD700;font-weight:600;vertical-align:middle;">TODAY</span>' : '') + '</div>' +
+                '<div class="cal-day-view-sub">' + d.getFullYear() + '</div>' +
+              '</div>' +
+              '<div style="display:flex;gap:0.3rem;">' +
+                '<button class="cal-nav-btn" onclick="document.getElementById(\'cal-prev\').click();" style="font-size:0.6rem;"><i class="fas fa-chevron-left"></i> Prev Day</button>' +
+                '<button class="cal-nav-btn" onclick="document.getElementById(\'cal-next\').click();" style="font-size:0.6rem;">Next Day <i class="fas fa-chevron-right"></i></button>' +
+              '</div>' +
+            '</div>' +
+            '<div class="cal-day-view-body">' + bodyHtml + '</div>' +
+          '</div>';
+
+        // Use the grid element area to render day view
+        gridEl.insertAdjacentHTML('afterend', '<div id="cal-day-container">' + dayHtml + '</div>');
+        // Clean up previous day container if any
+        var prev = document.querySelectorAll('#cal-day-container');
+        if (prev.length > 1) prev[0].remove();
+      }
+
+      function cellHtml(dateStr, dayNum, isOther, isToday, isSelected, maxItems) {
+        maxItems = maxItems || 3;
         var classes = 'cal-cell';
         if (isOther) classes += ' cal-cell--other';
         if (isToday) classes += ' cal-cell--today';
@@ -445,7 +661,7 @@
         if (isToday) html += '<span class="cal-today-badge">TODAY</span>';
         html += '</div>';
 
-        // Show dots for each active layer that has items
+        // Show dots + item labels
         var dots = '';
         var itemHtml = '';
         var count = 0;
@@ -454,7 +670,7 @@
           var arr = items[layer] || [];
           arr.forEach(function (item) {
             dots += '<span class="cal-cell-dot" style="background:' + LAYER_COLORS[layer] + ';"></span>';
-            if (count < 3) {
+            if (count < maxItems) {
               itemHtml += '<div class="cal-cell-item" style="background:' + LAYER_COLORS[layer] + '22;color:' + LAYER_COLORS[layer] + ';">' + esc(item.title) + '</div>';
             }
             count++;
@@ -463,7 +679,7 @@
 
         if (dots) html += '<div class="cal-dots">' + dots + '</div>';
         html += itemHtml;
-        if (count > 3) html += '<div style="font-size:0.4rem;opacity:0.3;">+' + (count - 3) + ' more</div>';
+        if (count > maxItems) html += '<div style="font-size:0.4rem;opacity:0.3;">+' + (count - maxItems) + ' more</div>';
         html += '</div>';
         return html;
       }
@@ -474,7 +690,8 @@
         gridEl.querySelectorAll('.cal-cell').forEach(function (c) {
           c.classList.toggle('cal-cell--selected', c.dataset.date === dateStr);
         });
-        renderDetail(dateStr);
+        if (currentView === 'month') renderDetail(dateStr);
+        if (currentView === 'week') renderDetail(dateStr);
       }
 
       // ── Day Detail Panel ──
@@ -527,13 +744,30 @@
         detailBody.innerHTML = html;
       }
 
-      // ── Month Stats ──
+      // ── Stats (view-aware) ──
       function renderStats() {
         var taskCount = 0, contentCount = 0, socialCount = 0, reminderCount = 0;
-        var monthPrefix = currentYear + '-' + String(currentMonth + 1).padStart(2, '0');
+
+        // Determine which dates to count based on current view
+        var datesToCount = {};
+        if (currentView === 'day') {
+          var ds = toDateStr(dayViewDate);
+          datesToCount[ds] = true;
+        } else if (currentView === 'week') {
+          for (var i = 0; i < 7; i++) {
+            var wd = new Date(weekStartDate);
+            wd.setDate(wd.getDate() + i);
+            datesToCount[toDateStr(wd)] = true;
+          }
+        } else {
+          var monthPrefix = currentYear + '-' + String(currentMonth + 1).padStart(2, '0');
+          Object.keys(calData).forEach(function (ds) {
+            if (ds.substring(0, 7) === monthPrefix) datesToCount[ds] = true;
+          });
+        }
 
         Object.keys(calData).forEach(function (dateStr) {
-          if (dateStr.substring(0, 7) !== monthPrefix) return;
+          if (!datesToCount[dateStr]) return;
           var d = calData[dateStr];
           taskCount += d.tasks.length;
           contentCount += d.content.length;
@@ -541,6 +775,7 @@
           reminderCount += d.reminders.length;
         });
 
+        var periodLabel = currentView === 'day' ? 'Today' : currentView === 'week' ? 'This Week' : 'This Month';
         statsEl.innerHTML =
           statHtml(taskCount, 'Task Deadlines', '#3b82f6') +
           statHtml(contentCount, 'Content Items', '#34d399') +
