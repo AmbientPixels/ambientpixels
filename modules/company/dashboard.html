@@ -736,6 +736,40 @@
           sections.push(sdeHtml);
         }
 
+        // 1c. Decision Drift Detection (>48h pending proposals from meetings/standups)
+        var _driftThreshold = 48 * 60 * 60 * 1000; // 48 hours in ms
+        var _driftNow = Date.now();
+        var _driftItems = [];
+        sdePendingTasks.forEach(function (t) {
+          if (!t.source || !t.createdAt) return;
+          if (t.source.type !== 'meeting' && t.source.type !== 'standup') return;
+          var age = _driftNow - new Date(t.createdAt).getTime();
+          if (age > _driftThreshold) _driftItems.push({ title: t.title, age: age, sourceType: t.source.type, sourceTitle: t.source.title || '' });
+        });
+        sdePendingDirs.forEach(function (d) {
+          if (!d.source) return;
+          var dCreated = d.createdDate || d.createdAt;
+          if (!dCreated) return;
+          if (d.source.type !== 'meeting' && d.source.type !== 'standup') return;
+          var age = _driftNow - new Date(dCreated).getTime();
+          if (age > _driftThreshold) _driftItems.push({ title: d.title, age: age, sourceType: d.source.type, sourceTitle: d.source.title || '' });
+        });
+        if (_driftItems.length > 0) {
+          var _driftCount = _driftItems.length > 5 ? '5+' : _driftItems.length;
+          var _driftOldest = Math.max.apply(null, _driftItems.map(function (d) { return d.age; }));
+          var _driftOldestH = Math.floor(_driftOldest / 3600000);
+          var _driftLabel = _driftItems.some(function (d) { return d.sourceType === 'meeting'; }) && _driftItems.some(function (d) { return d.sourceType === 'standup'; })
+            ? 'meeting & standup' : _driftItems[0].sourceType;
+          var driftHtml = '<div class="drift-alert">';
+          driftHtml += '<div class="drift-alert-header"><i class="fas fa-exclamation-triangle"></i> Decision Drift Detected</div>';
+          driftHtml += '<div class="drift-alert-body">' + _driftCount + ' ' + _driftLabel + ' proposal' + (_driftItems.length !== 1 ? 's have' : ' has') + ' been pending for over 48 hours.';
+          driftHtml += ' <span class="drift-alert-age">Oldest: ' + _driftOldestH + 'h</span>';
+          driftHtml += '</div>';
+          driftHtml += '<a href="#panel-approval-wrap" class="drift-alert-link">Review Now →</a>';
+          driftHtml += '</div>';
+          sections.unshift(driftHtml);
+        }
+
         // 2. Overdue Tasks
         var tasks = allTasks;
         var today = new Date().toISOString().split('T')[0];

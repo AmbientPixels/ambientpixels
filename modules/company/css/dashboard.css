@@ -751,6 +751,54 @@
   display: none;
 }
 
+/* ── Decision Drift Alert ── */
+.drift-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  margin-bottom: 0.8rem;
+  border-radius: 8px;
+  background: rgba(251,191,36,0.06);
+  border: 1px solid rgba(251,191,36,0.18);
+}
+.drift-alert-header {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #fbbf24;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.drift-alert-header i {
+  margin-right: 4px;
+  font-size: 0.65rem;
+}
+.drift-alert-body {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.6);
+  flex: 1;
+  line-height: 1.4;
+}
+.drift-alert-age {
+  opacity: 0.5;
+  font-size: 0.6rem;
+}
+.drift-alert-link {
+  font-size: 0.6rem;
+  color: #fbbf24;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid rgba(251,191,36,0.2);
+  border-radius: 4px;
+  background: rgba(251,191,36,0.05);
+  transition: background 0.15s;
+}
+.drift-alert-link:hover {
+  background: rgba(251,191,36,0.12);
+}
+
 /* ── System Pulse (CEO View) ── */
 .system-pulse {
   display: grid;
