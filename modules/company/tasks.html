@@ -65,6 +65,9 @@
       </div>
     </div>
 
+    <!-- Task Intelligence Alerts -->
+    <div id="tm-intel-alerts"></div>
+
     <!-- Signal Filter Bar -->
     <div class="tm-signal-bar" id="tm-signal-bar">
       <button class="tm-signal-chip" data-signal="all" aria-pressed="true">All</button>
@@ -319,9 +322,133 @@
 
       // ── Render ──
       function renderAll() {
+        renderTaskIntel();
         renderStats();
         renderBoard();
         renderList();
+      }
+
+      // ── Task Intelligence ──
+      function renderTaskIntel() {
+        var el = document.getElementById('tm-intel-alerts');
+        if (!el) return;
+        var tasks = AgentEngine.getTasks();
+        var nowMs = Date.now();
+        var dayMs = 86400000;
+        var today = new Date().toISOString().split('T')[0];
+        var alerts = [];
+
+        // Single pass: gather column stats + agent load + objective freshness
+        var colStats = {};
+        var agentLoad = {};
+        var objLastActivity = {}; // objectiveId → newest updatedAt ms
+        var cols = ['pending-approval', 'backlog', 'todo', 'in-progress', 'review'];
+
+        tasks.forEach(function (t) {
+          var isDone = t.status === 'done';
+
+          // Column bottleneck (exclude done)
+          if (!isDone && cols.indexOf(t.status) !== -1) {
+            if (!colStats[t.status]) colStats[t.status] = { count: 0, oldestAge: 0 };
+            colStats[t.status].count++;
+            if (t.createdAt) {
+              var age = nowMs - new Date(t.createdAt).getTime();
+              if (!isNaN(age) && age > colStats[t.status].oldestAge) colStats[t.status].oldestAge = age;
+            }
+          }
+
+          // Agent overload (active tasks only)
+          if (!isDone && t.assignee) {
+            agentLoad[t.assignee] = (agentLoad[t.assignee] || 0) + 1;
+          }
+
+          // Objective stagnation via directive linkage (skip done + pending-approval)
+          if (t.directive_id && t.updatedAt && t.status !== 'done' && t.status !== 'pending-approval') {
+            var ts = new Date(t.updatedAt).getTime();
+            if (!isNaN(ts)) {
+              if (!objLastActivity[t.directive_id] || ts > objLastActivity[t.directive_id]) {
+                objLastActivity[t.directive_id] = ts;
+              }
+            }
+          }
+        });
+
+        // 1) Column Bottleneck — show worst column only
+        var worstCol = null;
+        var worstSeverity = 0; // 0=none, 1=amber, 2=red
+        var colLabels = { 'pending-approval': 'Pending Approval', backlog: 'Backlog', todo: 'To Do', 'in-progress': 'In Progress', review: 'Review' };
+        cols.forEach(function (status) {
+          var s = colStats[status];
+          if (!s) return;
+          var ageDays = Math.floor(s.oldestAge / dayMs);
+          var sev = 0;
+          if (s.count >= 10 || ageDays >= 14) sev = 2;
+          else if (s.count >= 6 || ageDays >= 7) sev = 1;
+          if (sev > worstSeverity
+            || (sev === worstSeverity && worstCol && ageDays > worstCol.ageDays)
+            || (sev === worstSeverity && worstCol && ageDays === worstCol.ageDays && s.count > worstCol.count)) {
+            worstSeverity = sev;
+            worstCol = { status: status, count: s.count, ageDays: ageDays };
+          }
+        });
+        if (worstCol && worstSeverity > 0) {
+          var cls = worstSeverity === 2 ? 'tm-intel-alert--red' : 'tm-intel-alert--amber';
+          var icon = worstSeverity === 2 ? 'fas fa-exclamation-circle' : 'fas fa-exclamation-triangle';
+          alerts.push('<div class="tm-intel-alert ' + cls + '"><i class="' + icon + '"></i><span>' + colLabels[worstCol.status] + ' column accumulating tasks (' + worstCol.count + ' items, oldest ' + worstCol.ageDays + 'd)</span></div>');
+        }
+
+        // 2) Agent Overload — show worst agent only
+        var worstAgent = null;
+        var worstAgentCount = 0;
+        Object.keys(agentLoad).forEach(function (agentId) {
+          if (agentLoad[agentId] > worstAgentCount) {
+            worstAgentCount = agentLoad[agentId];
+            worstAgent = agentId;
+          }
+        });
+        if (worstAgent && worstAgentCount >= 7) {
+          var agentObj = null;
+          for (var i = 0; i < agents.length; i++) { if (agents[i].id === worstAgent) { agentObj = agents[i]; break; } }
+          var agentName = agentObj ? agentObj.name : worstAgent;
+          var agentCls = worstAgentCount >= 10 ? 'tm-intel-alert--red' : 'tm-intel-alert--amber';
+          var agentIcon = worstAgentCount >= 10 ? 'fas fa-exclamation-circle' : 'fas fa-user-clock';
+          alerts.push('<div class="tm-intel-alert ' + agentCls + '"><i class="' + agentIcon + '"></i><span>' + escapeHtml(agentName) + ' has ' + worstAgentCount + ' active tasks</span></div>');
+        }
+
+        // 3) Objective Stagnation via directives
+        try {
+          var directives = typeof AgentEngine.getDirectives === 'function' ? AgentEngine.getDirectives() : [];
+          directives.forEach(function (dir) {
+            var lastMs = objLastActivity[dir.id];
+            if (!lastMs) return;
+            var staleDays = Math.floor((nowMs - lastMs) / dayMs);
+            if (staleDays >= 4) {
+              alerts.push('<div class="tm-intel-alert tm-intel-alert--amber"><i class="fas fa-hourglass-end"></i><span>' + escapeHtml(dir.title || dir.id) + ' shows no progress in ' + staleDays + ' days</span></div>');
+            }
+          });
+        } catch (e) {}
+
+        // Also check objectives with linkedTasks
+        try {
+          var objectives = typeof AgentEngine.getObjectives === 'function' ? AgentEngine.getObjectives() : [];
+          objectives.forEach(function (obj) {
+            if (!obj.linkedTasks || obj.linkedTasks.length === 0) return;
+            var newestMs = 0;
+            tasks.forEach(function (t) {
+              if (obj.linkedTasks.indexOf(t.id) !== -1 && t.updatedAt && t.status !== 'done' && t.status !== 'pending-approval') {
+                var ts = new Date(t.updatedAt).getTime();
+                if (!isNaN(ts) && ts > newestMs) newestMs = ts;
+              }
+            });
+            if (newestMs === 0) return;
+            var staleDays = Math.floor((nowMs - newestMs) / dayMs);
+            if (staleDays >= 4) {
+              alerts.push('<div class="tm-intel-alert tm-intel-alert--amber"><i class="fas fa-bullseye"></i><span>' + escapeHtml(obj.title || obj.id) + ' objective shows no progress in ' + staleDays + ' days</span></div>');
+            }
+          });
+        } catch (e) {}
+
+        el.innerHTML = alerts.join('');
       }
 
       function getFilteredTasks(applySignal) {
