@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Meetings — On-demand collaborative decision sessions (CEO-triggered)" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Meetings — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <style>
+    .mt-config { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:0.8rem; margin-bottom:0.8rem; }
+    .mt-config-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.5rem; }
+    .mt-config label { font-size:0.65rem; opacity:0.5; display:block; margin-bottom:2px; }
+    .mt-config input, .mt-config select, .mt-config textarea { width:100%; font-size:0.72rem; padding:6px 8px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:#e0e0e0; font-family:inherit; box-sizing:border-box; }
+    .mt-config textarea { resize:vertical; min-height:48px; }
+    .mt-config-row { display:flex; gap:0.5rem; align-items:end; }
+
+    .mt-decision-panel { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:0.8rem; margin-bottom:0.8rem; display:none; }
+    .mt-decision-header { display:flex; align-items:center; gap:0.5rem; margin-bottom:0.6rem; }
+    .mt-decision-title { font-size:0.8rem; font-weight:600; }
+    .mt-lock-icon { color:#FFD700; font-size:0.7rem; }
+    .mt-decision-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:0.5rem; }
+    .mt-decision-card { background:rgba(255,255,255,0.03); border-radius:8px; padding:0.5rem; }
+    .mt-decision-card-label { font-size:0.55rem; opacity:0.4; text-transform:uppercase; margin-bottom:2px; }
+    .mt-decision-card-value { font-size:0.72rem; font-weight:500; }
+
+    .mt-status-badge { display:inline-block; font-size:0.6rem; padding:2px 8px; border-radius:10px; font-weight:600; text-transform:uppercase; }
+    .mt-status-Pending { background:rgba(251,191,36,0.15); color:#fbbf24; }
+    .mt-status-Approved { background:rgba(34,197,94,0.15); color:#22c55e; }
+    .mt-status-Rejected { background:rgba(239,68,68,0.15); color:#ef4444; }
+    .mt-status-Deferred { background:rgba(139,92,246,0.15); color:#8b5cf6; }
+    .mt-status-NoAction { background:rgba(107,114,128,0.15); color:#6b7280; }
+
+    .mt-warning-banner { background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.2); border-radius:8px; padding:0.5rem 0.7rem; margin-bottom:0.6rem; font-size:0.68rem; color:#fbbf24; display:none; }
+    .mt-warning-banner i { margin-right:4px; }
+
+    .mt-risk-panel { background:rgba(239,68,68,0.04); border:1px solid rgba(239,68,68,0.12); border-radius:10px; padding:0.6rem 0.8rem; margin-bottom:0.8rem; display:none; }
+    .mt-risk-title { font-size:0.7rem; font-weight:600; color:#ef4444; margin-bottom:0.4rem; }
+    .mt-risk-item { display:flex; align-items:center; gap:0.4rem; font-size:0.68rem; padding:0.2rem 0; }
+    .mt-risk-sev { font-size:0.55rem; padding:1px 6px; border-radius:6px; font-weight:600; text-transform:uppercase; }
+    .mt-risk-High { background:rgba(239,68,68,0.15); color:#ef4444; }
+    .mt-risk-Medium { background:rgba(251,191,36,0.15); color:#fbbf24; }
+    .mt-risk-Low { background:rgba(107,114,128,0.15); color:#6b7280; }
+
+    .mt-proposals-panel { background:rgba(138,43,226,0.04); border:1px solid rgba(138,43,226,0.12); border-radius:10px; padding:0.6rem 0.8rem; margin-bottom:0.8rem; display:none; }
+    .mt-proposals-title { font-size:0.7rem; font-weight:600; color:#a855f7; margin-bottom:0.4rem; }
+    .mt-proposal-item { background:rgba(255,255,255,0.03); border-radius:8px; padding:0.5rem; margin-bottom:0.4rem; border-left:3px solid rgba(138,43,226,0.4); }
+    .mt-proposal-item--task { border-left-color:rgba(59,130,246,0.5); }
+    .mt-proposal-name { font-size:0.72rem; font-weight:500; margin-bottom:0.2rem; }
+    .mt-proposal-meta { display:flex; gap:0.3rem; flex-wrap:wrap; }
+    .mt-proposal-badge { font-size:0.55rem; padding:1px 6px; border-radius:6px; font-weight:500; }
+    .mt-proposal-rationale { font-size:0.62rem; opacity:0.5; margin-top:0.2rem; }
+
+    .mt-actions-bar { display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.6rem; }
+    .mt-action-btn { font-size:0.65rem; padding:5px 12px; border-radius:6px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04); color:#e0e0e0; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+    .mt-action-btn:hover { background:rgba(255,255,255,0.08); }
+    .mt-action-btn--approve { border-color:rgba(34,197,94,0.3); color:#22c55e; }
+    .mt-action-btn--reject { border-color:rgba(239,68,68,0.3); color:#ef4444; }
+    .mt-action-btn--defer { border-color:rgba(139,92,246,0.3); color:#8b5cf6; }
+    .mt-action-btn--create { border-color:rgba(59,130,246,0.3); color:#3b82f6; background:rgba(59,130,246,0.08); }
+    .mt-action-btn--create:hover { background:rgba(59,130,246,0.15); }
+    .mt-action-btn:disabled { opacity:0.3; cursor:not-allowed; }
+
+    .mt-count-badge { display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; font-size:0.55rem; font-weight:600; border-radius:9px; padding:0 5px; background:rgba(78,205,196,0.15); color:#4ecdc4; margin-left:6px; }
+  </style>
+</head>
+<body style="background:#071019" data-theme="dark">
+
+  <main class="content-section" style="max-width: 800px; margin: 0 auto; padding: 1rem;">
+
+    <div class="company-header">
+      <h1><i class="fas fa-video" style="opacity:0.4; margin-right:8px;"></i>Meetings <span style="font-size:0.5rem; opacity:0.3; vertical-align:middle;">On-Demand v2.6</span> <span class="mt-count-badge" id="mt-total-count">0</span></h1>
+      <p>On-demand collaborative decision sessions (CEO-triggered). Unlimited per day — agenda-driven, decision-engine powered.</p>
+    </div>
+
+    <!-- Meeting Controls -->
+    <div class="standup-section" id="mt-section" style="border-top:none; margin-top:0; padding-top:0;">
+      <div class="standup-header">
+        <h3 id="mt-date-heading" style="font-size:0.8rem; font-weight:400; opacity:0.4;"></h3>
+        <button class="standup-trigger-btn" id="mt-trigger" style="border-color:rgba(78,205,196,0.3); color:#4ecdc4;">
+          <i class="fas fa-play"></i> <span id="mt-trigger-label">Call Meeting</span>
+        </button>
+      </div>
+
+      <!-- Meeting Configuration Form -->
+      <div class="mt-config" id="mt-config">
+        <div class="mt-config-grid">
+          <div>
+            <label for="mt-title">Title</label>
+            <input type="text" id="mt-title" placeholder="e.g. Marketing Strategy Sync" />
+          </div>
+          <div>
+            <label for="mt-type">Type</label>
+            <select id="mt-type">
+              <option value="Status">Status</option>
+              <option value="Issue">Issue</option>
+              <option value="Directive" selected>Directive</option>
+              <option value="Launch">Launch</option>
+              <option value="Cost">Cost</option>
+              <option value="Brand">Brand</option>
+              <option value="Strategy">Strategy</option>
+              <option value="Infrastructure">Infrastructure</option>
+              <option value="Experiment">Experiment</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="mt-agenda">Agenda / Intent <span style="opacity:0.4;font-size:0.55rem;">(required for focused meetings)</span></label>
+          <textarea id="mt-agenda" placeholder="What should this meeting focus on? Be specific — the agents will respond to this agenda."></textarea>
+        </div>
+        <div class="mt-config-grid" style="margin-top:0.4rem;">
+          <div>
+            <label for="mt-topic-key">Topic Key <span style="opacity:0.4;font-size:0.55rem;">(auto from title)</span></label>
+            <input type="text" id="mt-topic-key" placeholder="auto-generated-from-title" />
+          </div>
+          <div>
+            <label for="mt-topic-existing">Or select existing topic</label>
+            <select id="mt-topic-existing"><option value="">— New topic —</option></select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Warning Banner (related meetings/standups) -->
+      <div class="mt-warning-banner" id="mt-warning-banner">
+        <i class="fas fa-exclamation-triangle"></i> <span id="mt-warning-text"></span>
+      </div>
+
+      <!-- Decision Status Panel -->
+      <div class="mt-decision-panel" id="mt-decision-panel">
+        <div class="mt-decision-header">
+          <span class="mt-decision-title"><i class="fas fa-gavel" style="margin-right:4px;"></i> Decision Status</span>
+          <span id="mt-lock-icon" class="mt-lock-icon" style="display:none;"><i class="fas fa-lock"></i> Locked</span>
+          <span id="mt-decision-badge" class="mt-status-badge mt-status-Pending">Pending</span>
+        </div>
+        <div class="mt-decision-grid" id="mt-decision-grid">
+          <div class="mt-decision-card">
+            <div class="mt-decision-card-label">Decisions Made</div>
+            <div class="mt-decision-card-value" id="mt-decisions-count">0</div>
+          </div>
+          <div class="mt-decision-card">
+            <div class="mt-decision-card-label">Approvals Required</div>
+            <div class="mt-decision-card-value" id="mt-approvals-count">0</div>
+          </div>
+          <div class="mt-decision-card">
+            <div class="mt-decision-card-label">Proposed Tasks</div>
+            <div class="mt-decision-card-value" id="mt-tasks-count">0</div>
+          </div>
+          <div class="mt-decision-card">
+            <div class="mt-decision-card-label">Proposed Directives</div>
+            <div class="mt-decision-card-value" id="mt-directives-count">0</div>
+          </div>
+        </div>
+        <div class="mt-actions-bar" id="mt-decision-actions">
+          <button class="mt-action-btn mt-action-btn--approve" data-decision="Approved"><i class="fas fa-check"></i> Approve</button>
+          <button class="mt-action-btn mt-action-btn--reject" data-decision="Rejected"><i class="fas fa-times"></i> Reject</button>
+          <button class="mt-action-btn mt-action-btn--defer" data-decision="Deferred"><i class="fas fa-clock"></i> Defer</button>
+          <button class="mt-action-btn" data-decision="NoAction"><i class="fas fa-minus"></i> No Action</button>
+          <button class="mt-action-btn mt-action-btn--create" id="mt-create-all"><i class="fas fa-plus-circle"></i> Create All (Pending Approval)</button>
+          <button class="mt-action-btn" id="mt-approve-activate" style="margin-left:auto;border-color:rgba(34,197,94,0.4);color:#22c55e;background:rgba(34,197,94,0.08);"><i class="fas fa-rocket"></i> Approve + Activate</button>
+        </div>
+      </div>
+
+      <!-- Risk Aggregation Panel -->
+      <div class="mt-risk-panel" id="mt-risk-panel">
+        <div class="mt-risk-title"><i class="fas fa-exclamation-circle"></i> Risk Summary</div>
+        <div id="mt-risk-list"></div>
+      </div>
+
+      <!-- Proposals Panel -->
+      <div class="mt-proposals-panel" id="mt-proposals-panel">
+        <div class="mt-proposals-title"><i class="fas fa-lightbulb"></i> Proposed Actions</div>
+        <div id="mt-proposals-list"></div>
+      </div>
+
+      <!-- Outcome Summary -->
+      <div id="mt-outcome-panel" style="background:rgba(255,215,0,0.03);border:1px solid rgba(255,215,0,0.1);border-radius:10px;padding:0.6rem 0.8rem;margin-bottom:0.8rem;display:none;">
+        <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.15rem;">
+          <i class="fas fa-chart-line" style="color:#FFD700;font-size:0.65rem;"></i>
+          <strong style="font-size:0.75rem;color:#FFD700;">Outcome Summary</strong>
+        </div>
+        <div style="font-size:0.55rem;opacity:0.35;margin-bottom:0.5rem;">What changed as a result of this meeting.</div>
+        <div id="mt-outcome-body"></div>
+      </div>
+
+      <!-- Artifacts Created -->
+      <div id="mt-artifacts-panel" style="background:rgba(59,130,246,0.04);border:1px solid rgba(59,130,246,0.12);border-radius:10px;padding:0.6rem 0.8rem;margin-bottom:0.8rem;display:none;">
+        <div style="font-size:0.7rem;font-weight:600;color:#3b82f6;margin-bottom:0.4rem;"><i class="fas fa-cube"></i> Artifacts Created</div>
+        <div id="mt-artifacts-list" style="font-size:0.65rem;"></div>
+      </div>
+
+      <!-- Parser Warnings -->
+      <div id="mt-parse-warnings" style="background:rgba(251,191,36,0.04);border:1px solid rgba(251,191,36,0.1);border-radius:8px;padding:0.4rem 0.6rem;margin-bottom:0.6rem;font-size:0.6rem;color:#fbbf24;display:none;">
+        <i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i> <span id="mt-parse-warnings-text"></span>
+      </div>
+
+      <!-- Live Feed -->
+      <div class="standup-feed" id="mt-feed">
+        <div class="standup-status" id="mt-status">No meeting in progress. Configure above and hit Call Meeting.</div>
+      </div>
+
+      <!-- Past Meetings -->
+      <button class="standup-past-toggle" id="mt-past-toggle" style="display:none;">
+        <i class="fas fa-history"></i> View past meetings
+      </button>
+      <div class="standup-past-log" id="mt-past-log"></div>
+    </div>
+
+  </main>
+
+  <script src="/js/company-store.js"></script>
+  <script src="/js/agent-engine.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var AE = AgentEngine;
+      var feed = document.getElementById('mt-feed');
+      var statusEl = document.getElementById('mt-status');
+      var trigger = document.getElementById('mt-trigger');
+      var triggerLabel = document.getElementById('mt-trigger-label');
+      var pastToggle = document.getElementById('mt-past-toggle');
+      var pastLog = document.getElementById('mt-past-log');
+      var dateHeading = document.getElementById('mt-date-heading');
+
+      var configPanel = document.getElementById('mt-config');
+      var decisionPanel = document.getElementById('mt-decision-panel');
+      var riskPanel = document.getElementById('mt-risk-panel');
+      var proposalsPanel = document.getElementById('mt-proposals-panel');
+      var warningBanner = document.getElementById('mt-warning-banner');
+      var artifactsPanel = document.getElementById('mt-artifacts-panel');
+      var parseWarnings = document.getElementById('mt-parse-warnings');
+      var outcomePanel = document.getElementById('mt-outcome-panel');
+      var totalCountBadge = document.getElementById('mt-total-count');
+      var _currentMeetingId = null;
+
+      dateHeading.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+      // Auto-fill topicKey from title
+      document.getElementById('mt-title').addEventListener('input', function () {
+        var slug = this.value.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').substring(0, 80);
+        document.getElementById('mt-topic-key').value = slug;
+      });
+
+      // Existing topic dropdown overrides topicKey
+      document.getElementById('mt-topic-existing').addEventListener('change', function () {
+        if (this.value) document.getElementById('mt-topic-key').value = this.value;
+      });
+
+      AE.loadRegistry().then(function () {
+        // Populate topic keys from both meetings and standups
+        var meetingKeys = AE.getMeetingTopicKeys();
+        var standupKeys = AE.getStandupTopicKeys();
+        var sel = document.getElementById('mt-topic-existing');
+        var allKeys = {};
+        Object.keys(meetingKeys).forEach(function (k) { allKeys[k] = meetingKeys[k]; });
+        Object.keys(standupKeys).forEach(function (k) { if (!allKeys[k]) allKeys[k] = standupKeys[k]; });
+        Object.keys(allKeys).forEach(function (k) {
+          var opt = document.createElement('option');
+          opt.value = k;
+          opt.textContent = k + ' (' + (allKeys[k].title || '') + ')';
+          sel.appendChild(opt);
+        });
+        initMeetings();
+      });
+
+      function initMeetings() {
+        var meetings = AE.getMeetings();
+        totalCountBadge.textContent = meetings.length;
+        if (meetings.length > 0) {
+          pastToggle.style.display = '';
+        }
+        renderPastMeetings(meetings);
+      }
+
+      // ── Trigger Meeting ──
+      trigger.addEventListener('click', function () {
+        if (AE.isMeetingRunning()) return;
+
+        // Reset UI for new meeting
+        _currentMeetingId = null;
+        decisionPanel.style.display = 'none';
+        riskPanel.style.display = 'none';
+        proposalsPanel.style.display = 'none';
+        warningBanner.style.display = 'none';
+        artifactsPanel.style.display = 'none';
+        parseWarnings.style.display = 'none';
+        outcomePanel.style.display = 'none';
+
+        trigger.disabled = true;
+        triggerLabel.textContent = 'Meeting in progress...';
+        trigger.querySelector('i').className = 'fas fa-spinner fa-spin';
+        feed.innerHTML = '';
+        statusEl.style.display = 'none';
+
+        var opts = {
+          title: document.getElementById('mt-title').value.trim() || 'Ad-hoc Meeting',
+          agenda: document.getElementById('mt-agenda').value.trim(),
+          type: document.getElementById('mt-type').value,
+          topicKey: document.getElementById('mt-topic-key').value.trim() || undefined
+        };
+
+        AE.runMeeting(opts);
+      });
+
+      // ── Meeting Events ──
+      AE.on('meeting-agent-thinking', function (data) {
+        var agent = data.agent;
+        var el = document.createElement('div');
+        el.className = 'standup-entry standup-entry--thinking';
+        el.id = 'mt-thinking-' + data.agentId;
+        el.style.setProperty('--agent-color', agent.color);
+        el.innerHTML =
+          '<div class="standup-entry-avatar"><i class="' + agent.icon + '"></i></div>' +
+          '<div class="standup-entry-body">' +
+            '<div class="standup-entry-name">' + agent.name + '<span class="standup-entry-role">' + agent.role + '</span></div>' +
+            '<div class="standup-entry-text" style="font-style:italic;">' + agent.name + ' is thinking...</div>' +
+          '</div>';
+        feed.appendChild(el);
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+
+      AE.on('meeting-agent-done', function (entry) {
+        var thinking = document.getElementById('mt-thinking-' + entry.agentId);
+        if (thinking) thinking.remove();
+        var el = createEntryEl(entry);
+        feed.appendChild(el);
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+
+      AE.on('meeting-complete', function (meeting) {
+        _currentMeetingId = meeting.id;
+        trigger.disabled = false;
+        triggerLabel.textContent = 'Call Another Meeting';
+        trigger.querySelector('i').className = 'fas fa-play';
+        configPanel.style.display = '';
+
+        renderDecisionPanel(meeting);
+        renderRiskPanel(meeting);
+        renderProposalsPanel(meeting);
+        renderWarningBanner(meeting);
+        renderArtifacts(meeting);
+        renderParseWarnings(meeting);
+        renderOutcomeSummary(meeting);
+
+        // Refresh past meetings
+        var meetings = AE.getMeetings();
+        totalCountBadge.textContent = meetings.length;
+        if (meetings.length > 0) {
+          pastToggle.style.display = '';
+          renderPastMeetings(meetings);
+        }
+      });
+
+      AE.on('meeting-error', function () {
+        trigger.disabled = false;
+        triggerLabel.textContent = 'Retry Meeting';
+        trigger.querySelector('i').className = 'fas fa-redo';
+        feed.innerHTML += '<div class="standup-status">Meeting failed. Try again.</div>';
+      });
+
+      // ── Decision Panel ──
+      function renderDecisionPanel(meeting) {
+        if (!meeting || meeting.status !== 'complete') return;
+        decisionPanel.style.display = '';
+        var totalProposals = (meeting.proposals.tasks || []).length + (meeting.proposals.directives || []).length;
+
+        document.getElementById('mt-decision-badge').className = 'mt-status-badge mt-status-' + (meeting.decisionStatus || 'Pending');
+        document.getElementById('mt-decision-badge').textContent = meeting.decisionStatus || 'Pending';
+        document.getElementById('mt-decisions-count').textContent = (meeting.decisionStatus === 'Approved' || meeting.decisionStatus === 'Rejected') ? '1' : '0';
+        document.getElementById('mt-approvals-count').textContent = totalProposals;
+        document.getElementById('mt-tasks-count').textContent = (meeting.proposals.tasks || []).length;
+        document.getElementById('mt-directives-count').textContent = (meeting.proposals.directives || []).length;
+
+        var lockIcon = document.getElementById('mt-lock-icon');
+        var actionsBar = document.getElementById('mt-decision-actions');
+        if (meeting.locked) {
+          lockIcon.style.display = '';
+          actionsBar.querySelectorAll('.mt-action-btn').forEach(function (b) { b.disabled = true; });
+        } else {
+          lockIcon.style.display = 'none';
+          actionsBar.querySelectorAll('.mt-action-btn').forEach(function (b) { b.disabled = false; });
+        }
+      }
+
+      // Decision action buttons
+      document.getElementById('mt-decision-actions').addEventListener('click', function (e) {
+        var btn = e.target.closest('.mt-action-btn');
+        if (!btn || btn.disabled || !_currentMeetingId) return;
+
+        if (btn.id === 'mt-create-all') {
+          var result = AE.createMeetingProposals(_currentMeetingId);
+          if (result) {
+            alert('Created ' + result.tasks.length + ' task(s) and ' + result.directives.length + ' directive(s) as Pending Approval.');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-check"></i> Created';
+            var m = AE.getMeetingById(_currentMeetingId);
+            if (m) { renderArtifacts(m); renderOutcomeSummary(m); }
+          }
+          return;
+        }
+
+        if (btn.id === 'mt-approve-activate') {
+          var res = AE.approveAndActivateMeeting(_currentMeetingId);
+          if (res) {
+            alert('Approved and activated: ' + res.activatedTasks + ' task(s) moved to Todo, ' + res.activatedDirs + ' directive(s) activated.');
+            var updated = AE.getMeetingById(_currentMeetingId);
+            if (updated) {
+              renderDecisionPanel(updated);
+              renderArtifacts(updated);
+              renderOutcomeSummary(updated);
+            }
+          }
+          return;
+        }
+
+        var decision = btn.dataset.decision;
+        if (decision) {
+          var updated = AE.updateMeetingDecision(_currentMeetingId, decision);
+          if (updated) {
+            renderDecisionPanel(updated);
+            renderOutcomeSummary(updated);
+          }
+        }
+      });
+
+      // ── Risk Panel ──
+      function renderRiskPanel(meeting) {
+        var risks = meeting.riskSummary || [];
+        if (risks.length === 0) { riskPanel.style.display = 'none'; return; }
+        riskPanel.style.display = '';
+        var list = document.getElementById('mt-risk-list');
+        list.innerHTML = '';
+        risks.forEach(function (r) {
+          var el = document.createElement('div');
+          el.className = 'mt-risk-item';
+          el.innerHTML =
+            '<span class="mt-risk-sev mt-risk-' + r.severity + '">' + r.severity + '</span>' +
+            '<span>' + esc(r.title) + '</span>' +
+            (r.reportedBy ? '<span style="font-size:0.55rem;opacity:0.3;">(' + r.reportedBy + ')</span>' : '');
+          list.appendChild(el);
+        });
+      }
+
+      // ── Proposals Panel ──
+      function renderProposalsPanel(meeting) {
+        var tasks = meeting.proposals.tasks || [];
+        var dirs = meeting.proposals.directives || [];
+        if (tasks.length === 0 && dirs.length === 0) { proposalsPanel.style.display = 'none'; return; }
+        proposalsPanel.style.display = '';
+        var list = document.getElementById('mt-proposals-list');
+        list.innerHTML = '';
+
+        var IMPACT_COLORS = { High: '#ef4444', Medium: '#fbbf24', Low: '#6b7280' };
+        var PRI_COLORS = { urgent: '#ef4444', high: '#f59e0b', medium: '#3b82f6', low: '#6b7280' };
+
+        tasks.forEach(function (t) {
+          var el = document.createElement('div');
+          el.className = 'mt-proposal-item mt-proposal-item--task';
+          el.innerHTML =
+            '<div class="mt-proposal-name"><i class="fas fa-tasks" style="color:#3b82f6;margin-right:4px;font-size:0.6rem;"></i>' + esc(t.title) + '</div>' +
+            '<div class="mt-proposal-meta">' +
+              '<span class="mt-proposal-badge" style="background:rgba(59,130,246,0.12);color:#3b82f6;">Task</span>' +
+              (t.assignee ? '<span class="mt-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">' + t.assignee + '</span>' : '') +
+              '<span class="mt-proposal-badge" style="background:' + (PRI_COLORS[t.priority] || '#3b82f6') + '22;color:' + (PRI_COLORS[t.priority] || '#3b82f6') + ';">' + (t.priority || 'medium') + '</span>' +
+              '<span class="mt-proposal-badge" style="background:' + (IMPACT_COLORS[t.impact] || '#fbbf24') + '22;color:' + (IMPACT_COLORS[t.impact] || '#fbbf24') + ';">Impact: ' + (t.impact || '?') + '</span>' +
+              '<span class="mt-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">Effort: ' + (t.effort || '?') + '</span>' +
+              (t._proposers && t._proposers.length > 1 ? '<span class="mt-proposal-badge" style="background:rgba(138,43,226,0.12);color:#a855f7;">Merged (' + t._proposers.join(', ') + ')</span>' : '') +
+            '</div>' +
+            (t.rationale ? '<div class="mt-proposal-rationale">' + esc(t.rationale) + '</div>' : '');
+          list.appendChild(el);
+        });
+
+        dirs.forEach(function (d) {
+          var el = document.createElement('div');
+          el.className = 'mt-proposal-item';
+          el.innerHTML =
+            '<div class="mt-proposal-name"><i class="fas fa-compass" style="color:#a855f7;margin-right:4px;font-size:0.6rem;"></i>' + esc(d.title) + '</div>' +
+            '<div class="mt-proposal-meta">' +
+              '<span class="mt-proposal-badge" style="background:rgba(138,43,226,0.12);color:#a855f7;">Directive</span>' +
+              '<span class="mt-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">' + (d.classification || 'Operational') + '</span>' +
+              (d.owner ? '<span class="mt-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">' + d.owner + '</span>' : '') +
+              '<span class="mt-proposal-badge" style="background:' + (PRI_COLORS[d.priority] || '#3b82f6') + '22;color:' + (PRI_COLORS[d.priority] || '#3b82f6') + ';">' + (d.priority || 'medium') + '</span>' +
+              '<span class="mt-proposal-badge" style="background:' + (IMPACT_COLORS[d.impact] || '#fbbf24') + '22;color:' + (IMPACT_COLORS[d.impact] || '#fbbf24') + ';">Impact: ' + (d.impact || '?') + '</span>' +
+              '<span class="mt-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">Effort: ' + (d.effort || '?') + '</span>' +
+              (d._proposers && d._proposers.length > 1 ? '<span class="mt-proposal-badge" style="background:rgba(138,43,226,0.12);color:#a855f7;">Merged (' + d._proposers.join(', ') + ')</span>' : '') +
+            '</div>' +
+            (d.rationale ? '<div class="mt-proposal-rationale">' + esc(d.rationale) + '</div>' : '');
+          list.appendChild(el);
+        });
+      }
+
+      // ── Warning Banner ──
+      function renderWarningBanner(meeting) {
+        var related = meeting.relatedMeetings || [];
+        var locked = related.filter(function (r) { return r.decisionStatus === 'Approved' || r.decisionStatus === 'Rejected'; });
+        if (locked.length === 0) { warningBanner.style.display = 'none'; return; }
+        warningBanner.style.display = '';
+        var msgs = locked.map(function (r) {
+          var d = new Date(r.date);
+          var src = r.source === 'standup' ? ' (standup)' : '';
+          return '<a href="/modules/company/' + (r.source === 'standup' ? 'standup' : 'meetings') + '.html" style="color:#fbbf24;text-decoration:underline;">' + esc(r.title) + src + '</a> — ' + r.decisionStatus + ' on ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        });
+        document.getElementById('mt-warning-text').innerHTML = 'Previous decision on topic "' + esc(meeting.topicKey || '') + '": ' + msgs.join('; ');
+      }
+
+      // ── Artifacts Created ──
+      function renderArtifacts(meeting) {
+        var taskIds = meeting._createdTaskIds || [];
+        var dirIds = meeting._createdDirectiveIds || [];
+        if (taskIds.length === 0 && dirIds.length === 0) { artifactsPanel.style.display = 'none'; return; }
+        artifactsPanel.style.display = '';
+        var html = '';
+        if (taskIds.length > 0) {
+          html += '<div style="margin-bottom:0.3rem;"><strong>Tasks (' + taskIds.length + '):</strong> ';
+          html += taskIds.map(function (id) {
+            var t = AE.getTask(id);
+            var label = t ? esc(t.title) + ' <span style="opacity:0.4;">(' + t.status + ')</span>' : id;
+            return '<a href="/modules/company/tasks.html" style="color:#3b82f6;text-decoration:none;">' + label + '</a>';
+          }).join(', ');
+          html += '</div>';
+        }
+        if (dirIds.length > 0) {
+          html += '<div><strong>Directives (' + dirIds.length + '):</strong> ';
+          html += dirIds.map(function (id) {
+            var d = null;
+            AE.getDirectives().forEach(function (dir) { if (dir.id === id) d = dir; });
+            var label = d ? esc(d.title) + ' <span style="opacity:0.4;">(' + d.status + ')</span>' : id;
+            return '<a href="/modules/company/directives.html" style="color:#a855f7;text-decoration:none;">' + label + '</a>';
+          }).join(', ');
+          html += '</div>';
+        }
+        document.getElementById('mt-artifacts-list').innerHTML = html;
+      }
+
+      // ── Parser Warnings ──
+      function renderParseWarnings(meeting) {
+        var errors = meeting.parseErrors || [];
+        if (errors.length === 0) { parseWarnings.style.display = 'none'; return; }
+        parseWarnings.style.display = '';
+        var txt = 'Parser warnings: ' + errors.length + ' — ';
+        txt += errors.map(function (e) { return e.agentId + ': ' + esc(e.error); }).join('; ');
+        document.getElementById('mt-parse-warnings-text').textContent = txt;
+      }
+
+      // ── Outcome Summary ──
+      function buildOutcomeSummary(meeting) {
+        if (!meeting || meeting.status !== 'complete') return null;
+        var dirIds = meeting._createdDirectiveIds || [];
+        var allDirs = AE.getDirectives();
+        var directives = [];
+        if (dirIds.length > 0) {
+          dirIds.forEach(function (id) { allDirs.forEach(function (d) { if (d.id === id) directives.push(d); }); });
+        } else {
+          directives = (meeting.proposals && meeting.proposals.directives) || [];
+        }
+        var taskIds = meeting._createdTaskIds || [];
+        var tasks = [];
+        if (taskIds.length > 0) {
+          taskIds.forEach(function (id) { var t = AE.getTask(id); if (t) tasks.push(t); });
+        } else {
+          tasks = (meeting.proposals && meeting.proposals.tasks) || [];
+        }
+        var risks = meeting.riskSummary || [];
+        var kpiCounts = {};
+        directives.forEach(function (d) { (d.kpiLinks || []).forEach(function (k) { kpiCounts[k] = (kpiCounts[k] || 0) + 1; }); });
+        var activatedTasks = 0, activatedDirs = 0;
+        if (taskIds.length > 0) tasks.forEach(function (t) { if (t.status && t.status !== 'pending-approval') activatedTasks++; });
+        if (dirIds.length > 0) directives.forEach(function (d) { if (d.status && d.status !== 'pending-approval') activatedDirs++; });
+        return {
+          decision: meeting.decisionStatus || 'Pending',
+          decisionNotes: meeting.decisionNotes || '',
+          directives: directives, tasks: tasks, risks: risks.slice(0, 3), kpiCounts: kpiCounts,
+          counts: { directives: directives.length, tasks: tasks.length, risks: risks.length, uniqueKpis: Object.keys(kpiCounts).length, activatedTasks: activatedTasks, activatedDirs: activatedDirs }
+        };
+      }
+
+      function renderOutcomeSummary(meeting) {
+        var summary = buildOutcomeSummary(meeting);
+        if (!summary || (summary.counts.directives === 0 && summary.counts.tasks === 0 && summary.counts.risks === 0)) {
+          outcomePanel.style.display = 'none'; return;
+        }
+        outcomePanel.style.display = '';
+        var body = document.getElementById('mt-outcome-body');
+        var html = '';
+        var IMPACT_COLORS = { High: '#ef4444', Medium: '#fbbf24', Low: '#6b7280' };
+        var PRI_COLORS = { urgent: '#ef4444', high: '#f59e0b', medium: '#3b82f6', low: '#6b7280' };
+        var STATUS_COLORS = { 'pending-approval': '#fbbf24', active: '#22c55e', completed: '#c084fc', backlog: '#6b7280', todo: '#3b82f6' };
+
+        html += '<div style="margin-bottom:0.5rem;">';
+        html += '<span class="mt-status-badge mt-status-' + summary.decision + '" style="font-size:0.55rem;">' + summary.decision + '</span>';
+        if (summary.decisionNotes) html += '<span style="font-size:0.62rem;opacity:0.5;margin-left:0.4rem;">' + esc(summary.decisionNotes) + '</span>';
+        html += '</div>';
+
+        if (summary.directives.length > 0) {
+          html += '<div style="margin-bottom:0.5rem;">';
+          html += '<div style="font-size:0.65rem;font-weight:600;color:#a855f7;margin-bottom:0.3rem;"><i class="fas fa-compass" style="font-size:0.55rem;margin-right:3px;"></i>Directives (' + summary.directives.length + ')</div>';
+          summary.directives.forEach(function (d) {
+            var status = d.status || 'pending-approval';
+            var sColor = STATUS_COLORS[status] || '#6b7280';
+            html += '<div style="padding:0.35rem 0.5rem;border-left:3px solid rgba(138,43,226,0.4);background:rgba(138,43,226,0.03);border-radius:0 6px 6px 0;margin-bottom:0.25rem;">';
+            html += '<div style="font-size:0.72rem;font-weight:600;">' + esc(d.title) + '</div>';
+            html += '<div style="display:flex;gap:0.25rem;flex-wrap:wrap;margin-top:2px;">';
+            html += '<span style="font-size:0.5rem;padding:1px 5px;border-radius:4px;background:' + sColor + '22;color:' + sColor + ';font-weight:500;">' + (status || '').replace(/-/g, ' ') + '</span>';
+            if (d.classification) html += '<span style="font-size:0.5rem;padding:1px 5px;border-radius:4px;background:rgba(255,255,255,0.06);color:#ccc;">' + esc(d.classification) + '</span>';
+            if (d.owner) html += '<span style="font-size:0.5rem;padding:1px 5px;border-radius:4px;background:rgba(255,255,255,0.06);color:#ccc;">' + esc(d.owner) + '</span>';
+            html += '</div></div>';
+          });
+          html += '</div>';
+        }
+
+        if (summary.tasks.length > 0) {
+          html += '<div style="margin-bottom:0.5rem;">';
+          html += '<div style="font-size:0.65rem;font-weight:600;color:#3b82f6;margin-bottom:0.3rem;"><i class="fas fa-tasks" style="font-size:0.55rem;margin-right:3px;"></i>Tasks (' + summary.tasks.length + ')</div>';
+          summary.tasks.forEach(function (t) {
+            var pColor = PRI_COLORS[t.priority] || '#3b82f6';
+            html += '<div style="padding:0.2rem 0.4rem;border-left:2px solid rgba(59,130,246,0.3);margin-bottom:2px;">';
+            html += '<span style="font-size:0.68rem;font-weight:500;">' + esc(t.title) + '</span>';
+            html += ' <span style="font-size:0.48rem;padding:1px 4px;border-radius:3px;background:' + pColor + '22;color:' + pColor + ';">' + (t.priority || 'medium') + '</span>';
+            html += '</div>';
+          });
+          html += '</div>';
+        }
+
+        if (summary.risks.length > 0) {
+          html += '<div style="margin-bottom:0.5rem;">';
+          html += '<div style="font-size:0.65rem;font-weight:600;color:#ef4444;margin-bottom:0.3rem;"><i class="fas fa-exclamation-circle" style="font-size:0.55rem;margin-right:3px;"></i>Top Risks (' + summary.risks.length + ')</div>';
+          summary.risks.forEach(function (r) {
+            html += '<div style="display:flex;align-items:center;gap:0.3rem;padding:0.15rem 0;font-size:0.65rem;">';
+            html += '<span class="mt-risk-sev mt-risk-' + (r.severity || 'Medium') + '">' + (r.severity || 'Medium') + '</span>';
+            html += '<span>' + esc(r.title || '') + '</span>';
+            html += '</div>';
+          });
+          html += '</div>';
+        }
+
+        html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;padding-top:0.3rem;border-top:1px solid rgba(255,255,255,0.04);font-size:0.6rem;">';
+        if (summary.counts.directives > 0) html += '<span style="color:#a855f7;font-weight:500;">+' + summary.counts.directives + ' Directive' + (summary.counts.directives > 1 ? 's' : '') + '</span>';
+        if (summary.counts.tasks > 0) html += '<span style="color:#3b82f6;font-weight:500;">+' + summary.counts.tasks + ' Task' + (summary.counts.tasks > 1 ? 's' : '') + '</span>';
+        if (summary.counts.risks > 0) html += '<span style="color:#ef4444;font-weight:500;">+' + summary.counts.risks + ' Risk' + (summary.counts.risks > 1 ? 's' : '') + '</span>';
+        if (summary.counts.activatedTasks > 0 || summary.counts.activatedDirs > 0) {
+          html += '<span style="color:#22c55e;">Activated: ' + (summary.counts.activatedTasks + summary.counts.activatedDirs) + '</span>';
+        }
+        html += '</div>';
+        body.innerHTML = html;
+      }
+
+      // ── Entry Rendering ──
+      function createEntryEl(entry) {
+        var el = document.createElement('div');
+        el.className = 'standup-entry';
+        el.style.setProperty('--agent-color', entry.color);
+        var textHtml = esc(entry.reply).replace(/\n/g, '<br>');
+        el.innerHTML =
+          '<div class="standup-entry-avatar"><i class="' + entry.icon + '"></i></div>' +
+          '<div class="standup-entry-body">' +
+            '<div class="standup-entry-name">' + entry.name + '<span class="standup-entry-role">' + entry.role + '</span></div>' +
+            '<div class="standup-entry-text">' + textHtml + '</div>' +
+          '</div>';
+        return el;
+      }
+
+      // ── Past Meetings ──
+      pastToggle.addEventListener('click', function () {
+        pastLog.classList.toggle('visible');
+        this.querySelector('i').className = pastLog.classList.contains('visible') ? 'fas fa-chevron-up' : 'fas fa-history';
+      });
+
+      function renderPastMeetings(meetings) {
+        pastLog.innerHTML = '';
+        var list = meetings.slice().reverse();
+        // Skip the one we're currently viewing if it exists
+        if (_currentMeetingId) {
+          list = list.filter(function (m) { return m.id !== _currentMeetingId; });
+        }
+        list.forEach(function (meeting) {
+          var item = document.createElement('div');
+          item.className = 'standup-past-item';
+          var dateStr = fmtDate(meeting.date);
+          var lockHtml = meeting.locked ? ' <i class="fas fa-lock" style="color:#FFD700;font-size:0.55rem;"></i>' : '';
+          var statusHtml = meeting.decisionStatus ? ' <span class="mt-status-badge mt-status-' + meeting.decisionStatus + '" style="font-size:0.5rem;">' + meeting.decisionStatus + '</span>' : '';
+          item.innerHTML = '<div class="standup-date-label"><i class="fas fa-video" style="margin-right:4px;color:#4ecdc4;"></i>' + dateStr + lockHtml + statusHtml +
+            ' <span style="opacity:0.4;font-size:0.65rem;">— ' + esc(meeting.title || 'Meeting') + '</span>' +
+            ' <span style="opacity:0.25;font-size:0.55rem;">(' + (meeting.entries || []).length + ' entries)</span></div>';
+
+          // Expandable: click to show entries
+          var feedDiv = document.createElement('div');
+          feedDiv.className = 'standup-feed';
+          feedDiv.style.display = 'none';
+          (meeting.entries || []).forEach(function (entry) {
+            feedDiv.appendChild(createEntryEl(entry));
+          });
+
+          item.querySelector('.standup-date-label').style.cursor = 'pointer';
+          item.querySelector('.standup-date-label').addEventListener('click', function () {
+            feedDiv.style.display = feedDiv.style.display === 'none' ? '' : 'none';
+          });
+
+          item.appendChild(feedDiv);
+          pastLog.appendChild(item);
+        });
+      }
+
+      function fmtDate(isoDate) {
+        var d = new Date(isoDate);
+        var today = new Date();
+        var yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        if (d.toDateString() === today.toDateString()) return 'Today ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        if (d.toDateString() === yesterday.toDateString()) return 'Yesterday ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) + ' ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      }
+
+      function esc(str) {
+        if (!str) return '';
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+    })();
+  </script>
+
+  <script src="/modules/company/js/sidebar.js"></script>
+</body>
+</html>

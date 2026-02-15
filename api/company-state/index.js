@@ -15,7 +15,7 @@ const VALID_KEYS = [
   'directives', 'objectives', 'approvalQueue', 'governanceLog',
   'actionQueue', 'actionAuditLog', 'actionRateCounts', 'actions',
   'documents', 'publishedDocs', 'blogPosts', 'dailyLog', 'webSearchCache',
-  'ap_artifacts'
+  'ap_artifacts', 'meetings'
 ];
 
 module.exports = async function (context, req) {

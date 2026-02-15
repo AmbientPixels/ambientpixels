@@ -986,6 +986,347 @@ var AgentEngine = (function () {
     return keys;
   }
 
+  // ── Meetings System (v2.6 — On-Demand) ──
+  var MEETINGS_KEY = 'ap_meetings';
+  var MAX_MEETINGS = 50;
+  var _meetingRunning = false;
+
+  // Meeting speaking order: same as standup
+  var MEETING_ORDER = STANDUP_ORDER;
+
+  function _loadMeetings() { return _loadStorage(MEETINGS_KEY, []); }
+  function _saveMeetings(log) {
+    if (log.length > MAX_MEETINGS) log = log.slice(-MAX_MEETINGS);
+    _saveStorage(MEETINGS_KEY, log);
+  }
+
+  function getMeetings() { return _loadMeetings(); }
+
+  function getLatestMeeting() {
+    var log = _loadMeetings();
+    return log.length > 0 ? log[log.length - 1] : null;
+  }
+
+  function getMeetingById(id) {
+    var log = _loadMeetings();
+    for (var i = 0; i < log.length; i++) {
+      if (log[i].id === id) return log[i];
+    }
+    return null;
+  }
+
+  function isMeetingRunning() { return _meetingRunning; }
+
+  // Run an on-demand meeting — no daily limit, same agent pipeline as standup
+  // opts: { title, agenda, type, topicKey, attendees, createdBy }
+  function runMeeting(opts) {
+    if (_meetingRunning) {
+      console.warn('[AgentEngine] Meeting already in progress.');
+      return Promise.resolve(null);
+    }
+    if (!_registry) {
+      console.error('[AgentEngine] Registry not loaded. Call loadRegistry() first.');
+      return Promise.resolve(null);
+    }
+
+    opts = opts || {};
+    _meetingRunning = true;
+    var meetingId = 'meeting-' + Date.now();
+    var topicKey = opts.topicKey || _slugify(opts.title || 'ad-hoc-meeting');
+
+    // Determine attendee order — custom or default MEETING_ORDER
+    var attendees = opts.attendees && opts.attendees.length > 0 ? opts.attendees : MEETING_ORDER;
+
+    var meeting = {
+      id: meetingId,
+      kind: 'meeting',
+      title: opts.title || 'Ad-hoc Meeting',
+      agenda: opts.agenda || '',
+      topicKey: topicKey,
+      type: (STANDUP_TYPES.indexOf(opts.type) !== -1) ? opts.type : 'Status',
+      attendees: attendees,
+      date: new Date().toISOString(),
+      dateLabel: new Date().toISOString().split('T')[0],
+      entries: [],
+      status: 'in-progress',
+      decisionStatus: 'Pending',
+      createdAt: new Date().toISOString(),
+      createdBy: opts.createdBy || 'ceo',
+      proposals: { directives: [], tasks: [] },
+      riskSummary: [],
+      relatedMeetings: [],
+      rawReplies: {},
+      parseErrors: []
+    };
+
+    // Check for related meetings by topicKey
+    var log = _loadMeetings();
+    if (topicKey) {
+      log.forEach(function (prev) {
+        if (prev.id === meeting.id) return;
+        if (prev.topicKey && prev.topicKey === topicKey) {
+          meeting.relatedMeetings.push({
+            id: prev.id,
+            title: prev.title || 'Untitled',
+            date: prev.date,
+            topicKey: prev.topicKey,
+            decisionStatus: prev.decisionStatus || 'N/A'
+          });
+        }
+      });
+    }
+
+    // Also check standup log for related topics
+    var standupLog = _loadStandupLog();
+    if (topicKey) {
+      standupLog.forEach(function (prev) {
+        if (prev.topicKey && prev.topicKey === topicKey) {
+          meeting.relatedMeetings.push({
+            id: prev.id,
+            title: prev.title || 'Untitled',
+            date: prev.date,
+            topicKey: prev.topicKey,
+            decisionStatus: prev.decisionStatus || 'N/A',
+            source: 'standup'
+          });
+        }
+      });
+    }
+
+    emit('meeting-start', meeting);
+
+    var transcript = '';
+    var agendaBlock = meeting.agenda ? '\n\nMEETING AGENDA: ' + meeting.agenda + '\nMEETING TYPE: ' + meeting.type : '';
+
+    var chain = Promise.resolve();
+
+    attendees.forEach(function (agentId, index) {
+      chain = chain.then(function () {
+        var agent = getAgent(agentId);
+        if (!agent) return;
+
+        var context = '';
+        if (index === 0) {
+          context = 'You are opening this on-demand meeting called by the CEO as Prime Operator. Set the agenda, state top priorities, and flag anything the team needs to address. No one else has spoken yet.' + agendaBlock;
+        } else if (agentId === 'nova' && index > 0) {
+          context = 'You are closing this CEO-called meeting as Prime Operator. Summarize what the team discussed, flag items that need CEO attention or escalation, assign follow-ups, and note action items. Here are the team updates:\n\n' + transcript + agendaBlock;
+        } else {
+          context = 'This is an on-demand meeting called by the CEO. Here are the updates from team members who already spoke:\n\n' + transcript + agendaBlock;
+        }
+
+        emit('meeting-agent-thinking', { agentId: agentId, agent: agent });
+
+        return _standupCall(agentId, context).then(function (reply) {
+          var entry = {
+            agentId: agentId,
+            name: agent.name,
+            role: agent.role,
+            color: agent.color,
+            icon: agent.icon,
+            reply: reply || '(no response)',
+            timestamp: new Date().toISOString()
+          };
+
+          meeting.entries.push(entry);
+          meeting.rawReplies[agentId] = reply || '(no response)';
+          transcript += agent.name + ' (' + agent.role + '): ' + (reply || '(no response)') + '\n\n';
+
+          try {
+            var parsed = _parseStandupReply(reply, agentId);
+            if (parsed.tasks.length > 0) {
+              if (parsed.tasks.length > MAX_PROPOSED_TASKS_PER_AGENT) {
+                parsed.tasks = parsed.tasks.slice(0, MAX_PROPOSED_TASKS_PER_AGENT);
+              }
+              parsed.tasks.forEach(function (t) { t.proposedBy = agentId; });
+              meeting.proposals.tasks = meeting.proposals.tasks.concat(parsed.tasks);
+            }
+            if (parsed.directives.length > 0) {
+              parsed.directives.forEach(function (d) { d.proposedBy = agentId; });
+              meeting.proposals.directives = meeting.proposals.directives.concat(parsed.directives);
+            }
+            if (parsed.risks.length > 0) {
+              meeting.riskSummary = meeting.riskSummary.concat(parsed.risks);
+            }
+          } catch (parseErr) {
+            console.warn('[AgentEngine] Meeting parse error for ' + agentId + ':', parseErr.message);
+            meeting.parseErrors.push({ agentId: agentId, error: parseErr.message, at: new Date().toISOString() });
+          }
+
+          emit('meeting-agent-done', entry);
+        });
+      });
+    });
+
+    return chain.then(function () {
+      meeting.status = 'complete';
+      _meetingRunning = false;
+
+      var novaDirectives = meeting.proposals.directives.filter(function (d) { return d.proposedBy === 'nova'; });
+      var otherDirectives = meeting.proposals.directives.filter(function (d) { return d.proposedBy !== 'nova'; });
+      if (otherDirectives.length > MAX_PROPOSED_DIRECTIVES_PER_STANDUP) {
+        otherDirectives = otherDirectives.slice(0, MAX_PROPOSED_DIRECTIVES_PER_STANDUP);
+      }
+      meeting.proposals.directives = novaDirectives.concat(otherDirectives);
+
+      meeting.proposals.tasks = _dedupeProposals(meeting.proposals.tasks);
+      meeting.proposals.directives = _dedupeProposals(meeting.proposals.directives);
+      meeting.riskSummary = _aggregateRisks(meeting.riskSummary);
+
+      var log = _loadMeetings();
+      log.push(meeting);
+      _saveMeetings(log);
+
+      emit('meeting-complete', meeting);
+      return meeting;
+    }).catch(function (err) {
+      console.error('[AgentEngine] Meeting failed:', err);
+      meeting.status = 'failed';
+      _meetingRunning = false;
+      emit('meeting-error', { error: err.message, meeting: meeting });
+      return meeting;
+    });
+  }
+
+  // Update meeting decision status
+  function updateMeetingDecision(meetingId, status, notes) {
+    if (DECISION_STATUSES.indexOf(status) === -1) {
+      console.warn('[AgentEngine] Invalid decision status:', status);
+      return null;
+    }
+    var log = _loadMeetings();
+    for (var i = 0; i < log.length; i++) {
+      if (log[i].id === meetingId) {
+        log[i].decisionStatus = status;
+        log[i].decisionNotes = notes || '';
+        log[i].decisionAt = new Date().toISOString();
+        log[i].decisionBy = 'ceo';
+        if (status === 'Approved' || status === 'Rejected') {
+          log[i].locked = true;
+        }
+        _saveMeetings(log);
+        _logGovernance('meeting-decision', { meetingId: meetingId, status: status, notes: notes || '' });
+        emit('meeting-decision-updated', log[i]);
+        return log[i];
+      }
+    }
+    return null;
+  }
+
+  // Create proposals from meeting as Pending Approval tasks + directives
+  function createMeetingProposals(meetingId) {
+    var meeting = getMeetingById(meetingId);
+    if (!meeting) { console.warn('[AgentEngine] Meeting not found:', meetingId); return null; }
+
+    var createdTasks = [];
+    var createdDirectives = [];
+    var source = { type: 'meeting', id: meetingId, title: meeting.title, date: meeting.date };
+
+    (meeting.proposals.tasks || []).forEach(function (p) {
+      var task = addTask({
+        title: p.title,
+        description: (p.rationale || '') + (p._proposers ? '\n[Proposed by: ' + p._proposers.join(', ') + ']' : ''),
+        status: 'pending-approval',
+        priority: p.priority || 'medium',
+        assignee: p.assignee || null,
+        dueDate: p.dueDate || null,
+        tags: ['meeting-proposal'],
+        source: source,
+        impact: p.impact || 'Medium',
+        effort: p.effort || 'Medium'
+      });
+      createdTasks.push(task);
+    });
+
+    (meeting.proposals.directives || []).forEach(function (p) {
+      var dir = addDirective({
+        title: p.title,
+        description: (p.rationale || '') + (p._proposers ? '\n[Proposed by: ' + p._proposers.join(', ') + ']' : ''),
+        status: 'pending-approval',
+        priority: p.priority || 'medium',
+        classification: p.classification || 'Operational',
+        owner: p.owner || null,
+        impact: p.impact || 'Medium',
+        effort: p.effort || 'Medium',
+        dependencies: [],
+        source: source,
+        approval: { status: 'pending', approvedBy: null, approvedAt: null }
+      });
+      createdDirectives.push(dir);
+    });
+
+    // Update meeting with created IDs
+    var log = _loadMeetings();
+    for (var i = 0; i < log.length; i++) {
+      if (log[i].id === meetingId) {
+        log[i]._createdTaskIds = createdTasks.map(function (t) { return t.id; });
+        log[i]._createdDirectiveIds = createdDirectives.map(function (d) { return d.id; });
+        _saveMeetings(log);
+        break;
+      }
+    }
+
+    emit('meeting-proposals-created', { meetingId: meetingId, tasks: createdTasks, directives: createdDirectives });
+    return { tasks: createdTasks, directives: createdDirectives };
+  }
+
+  // Approve + Activate meeting proposals
+  function approveAndActivateMeeting(meetingId) {
+    var meeting = getMeetingById(meetingId);
+    if (!meeting) { console.warn('[AgentEngine] Meeting not found:', meetingId); return null; }
+
+    updateMeetingDecision(meetingId, 'Approved', 'CEO approved and activated');
+
+    var taskIds = meeting._createdTaskIds || [];
+    var dirIds = meeting._createdDirectiveIds || [];
+    if (taskIds.length === 0 && dirIds.length === 0) {
+      var created = createMeetingProposals(meetingId);
+      if (created) {
+        taskIds = created.tasks.map(function (t) { return t.id; });
+        dirIds = created.directives.map(function (d) { return d.id; });
+      }
+    }
+
+    var activatedTasks = 0;
+    var activatedDirs = 0;
+
+    taskIds.forEach(function (tid) {
+      var task = getTask(tid);
+      if (task && task.status === 'pending-approval') {
+        updateTask(tid, { status: 'todo' });
+        activatedTasks++;
+      }
+    });
+
+    dirIds.forEach(function (did) {
+      var list = getDirectives();
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].id === did && list[i].status === 'pending-approval') {
+          updateDirective(did, {
+            status: 'active',
+            approval: { status: 'approved', approvedBy: 'ceo', approvedAt: new Date().toISOString() }
+          });
+          activatedDirs++;
+          break;
+        }
+      }
+    });
+
+    emit('meeting-activated', { meetingId: meetingId, activatedTasks: activatedTasks, activatedDirs: activatedDirs });
+    return { activatedTasks: activatedTasks, activatedDirs: activatedDirs };
+  }
+
+  // Get all unique meeting topic keys
+  function getMeetingTopicKeys() {
+    var log = _loadMeetings();
+    var keys = {};
+    log.forEach(function (m) {
+      if (m.topicKey) {
+        keys[m.topicKey] = { topicKey: m.topicKey, title: m.title, date: m.date, decisionStatus: m.decisionStatus };
+      }
+    });
+    return keys;
+  }
+
   // ── Workspace: Shared Memory ──
   var MEMORY_KEY = 'ap_workspace_memory';
   var MAX_MEMORIES = 200;
@@ -2417,6 +2758,16 @@ var AgentEngine = (function () {
     getDirectiveKpiIndex: getDirectiveKpiIndex,
     getQuarterRange: getQuarterRange,
     getBoardPacket: getBoardPacket,
+    // v2.6 Meetings
+    getMeetings: getMeetings,
+    getLatestMeeting: getLatestMeeting,
+    getMeetingById: getMeetingById,
+    isMeetingRunning: isMeetingRunning,
+    runMeeting: runMeeting,
+    updateMeetingDecision: updateMeetingDecision,
+    createMeetingProposals: createMeetingProposals,
+    approveAndActivateMeeting: approveAndActivateMeeting,
+    getMeetingTopicKeys: getMeetingTopicKeys,
     // v2.4.4 Artifact Registry
     getArtifacts: getArtifacts,
     registerArtifact: registerArtifact,

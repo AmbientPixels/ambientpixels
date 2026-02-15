@@ -18,7 +18,8 @@
       links: [
         { href: BASE + 'ops-overview.html', label: 'Overview', icon: 'fa-gauge-high', match: ['ops-overview.html', 'index.html', ''] },
         { href: BASE + 'dashboard.html', label: 'Dashboard', icon: 'fa-chart-line', match: ['dashboard.html'] },
-        { href: BASE + 'standup.html', label: 'Standup', icon: 'fa-users', match: ['standup.html'] }
+        { href: BASE + 'standup.html', label: 'Standup', icon: 'fa-users', match: ['standup.html'] },
+        { href: BASE + 'meetings.html', label: 'Meetings', icon: 'fa-video', match: ['meetings.html'] }
       ]
     },
     {
