@@ -1,9 +1,4 @@
-    function riskPill(task) {
-      if (!task.risk_level || task.risk_level === 'none') return '';
-      var cls = 'task-risk-pill task-risk-pill--' + task.risk_level;
-      return '<span class="' + cls + '">' + task.risk_level + '</span>';
-    }
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -300,6 +295,12 @@
         return '<div class="tm-stat ' + cls + '"><div class="tm-stat-value">' + val + '</div><div class="tm-stat-label">' + label + '</div></div>';
       }
 
+      function riskPill(task) {
+        if (!task.risk_level || task.risk_level === 'none') return '';
+        var cls = 'task-risk-pill task-risk-pill--' + task.risk_level;
+        return '<span class="' + cls + '">' + task.risk_level + '</span>';
+      }
+
       function renderBoard() {
         var tasks = getFilteredTasks();
         var cols = ['backlog', 'todo', 'in-progress', 'review', 'done'];
@@ -361,12 +362,9 @@
           meta += '<div class="tm-card-division"><i class="' + div.icon + '"></i> ' + div.name + '</div>';
         }
 
-        var badge = '';
-        if (task.risk_level) {
-          badge = '<span class="task-risk-pill task-risk-pill--' + task.risk_level + '">' + task.risk_level + '</span>';
-        }
+        var badge = riskPill(task);
 
-        card.innerHTML = '<div class="tm-card-title">' + escapeHtml(task.title) + badge + riskPill(task) + '</div>' + meta;
+        card.innerHTML = '<div class="tm-card-title">' + escapeHtml(task.title) + badge + '</div>' + meta;
 
         card.addEventListener('click', function () { openEditModal(task.id); });
 

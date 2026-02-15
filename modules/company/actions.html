@@ -150,37 +150,32 @@
     .act-btn--override:hover { background: rgba(255,215,0,0.1); }
     .act-btn--details { border-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
 
-    .act-drawer-overlay {
-      display: none; position: fixed; inset: 0; z-index: 1000;
-      background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+    .act-modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+      display: none; align-items: center; justify-content: center; z-index: 2000;
+      backdrop-filter: blur(4px);
     }
-    .act-drawer-overlay.open { display: flex; justify-content: flex-end; }
-    .act-drawer {
-      width: 420px; max-width: 90vw; height: 100vh; overflow-y: auto;
-      background: #0d1520; border-left: 1px solid rgba(255,255,255,0.06);
-      padding: 1.2rem;
+    .act-modal-backdrop.open { display: flex; }
+    .act-modal {
+      width: min(420px, 90vw); background: #0e1826; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 1rem; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
     }
-    .act-drawer-close {
-      background: none; border: none; color: rgba(255,255,255,0.4);
-      font-size: 1rem; cursor: pointer; float: right;
+    .act-modal h3 { margin: 0 0 0.6rem; font-size: 0.95rem; }
+    .act-modal textarea {
+      width: 100%; min-height: 120px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03);
+      color: inherit; font-family: inherit; font-size: 0.75rem; padding: 0.6rem;
+      resize: vertical;
     }
-    .act-drawer h3 { font-size: 0.85rem; margin-bottom: 0.8rem; }
-    .act-drawer-section { margin-bottom: 0.8rem; }
-    .act-drawer-section h4 {
-      font-size: 0.65rem; opacity: 0.4; text-transform: uppercase;
-      letter-spacing: 0.05em; margin-bottom: 0.3rem;
+    .act-modal-actions { margin-top: 0.8rem; display:flex; gap:0.4rem; justify-content:flex-end; }
+    .act-modal-actions button {
+      font-size:0.65rem; padding:0.3rem 0.8rem; border-radius:5px;
+      border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05);
+      color:rgba(255,255,255,0.8); cursor:pointer;
     }
-    .act-drawer-kv {
-      display: grid; grid-template-columns: 100px 1fr; gap: 0.15rem 0.5rem;
-      font-size: 0.65rem;
-    }
-    .act-drawer-kv dt { opacity: 0.4; }
-    .act-drawer-kv dd { word-break: break-all; }
-    .act-drawer-pre {
-      font-size: 0.6rem; background: rgba(255,255,255,0.03);
-      padding: 0.5rem; border-radius: 4px; white-space: pre-wrap;
-      word-break: break-all; max-height: 200px; overflow-y: auto;
-    }
+    .act-modal-actions button:hover { background:rgba(255,255,255,0.1); }
+    .act-modal-actions .primary { border-color:#fbbf24; color:#fbbf24; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -296,6 +291,18 @@
     <div class="act-drawer" id="drawer-content"></div>
   </div>
 
+  <div class="act-modal-backdrop" id="revision-modal">
+    <div class="act-modal">
+      <h3><i class="fas fa-comment-dots" style="margin-right:0.35rem; opacity:0.6;"></i>Send Revision Request</h3>
+      <p style="font-size:0.7rem; opacity:0.6; margin:0 0 0.5rem;">Tell the agent what needs to change before approval.</p>
+      <textarea id="revision-note" placeholder="Example: Tighten the headline, remove placeholder hashtags, and schedule for 9AM PST."></textarea>
+      <div class="act-modal-actions">
+        <button id="revision-cancel">Cancel</button>
+        <button class="primary" id="revision-save"><i class="fas fa-paper-plane" style="margin-right:0.3rem;"></i>Send Revision</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/company-schemas.js"></script>
   <script src="/js/company-store.js"></script>
   <script src="/js/agent-engine.js"></script>
@@ -362,7 +369,9 @@
 
     // ── Pending ──
     function renderPending() {
-      var all = AE.getActionsByStatus('pending');
+      var all = AE.getActions().filter(function (a) {
+        return a.approval && a.approval.status === 'pending';
+      });
       var items = applyFilters(all);
       var el = document.getElementById('pending-list');
       document.getElementById('pending-count').textContent = items.length + ' pending';
@@ -544,7 +553,7 @@
       if (context === 'pending' && execStatus === 'pending') {
         html += '<button class="act-btn act-btn--approve" onclick="doApprove(\'' + a.id + '\')">Approve</button>';
         html += '<button class="act-btn act-btn--reject" onclick="doReject(\'' + a.id + '\')">Reject</button>';
-        html += '<button class="act-btn act-btn--revision" onclick="doRevision(\'' + a.id + '\')">Revision</button>';
+        html += '<button class="act-btn act-btn--revision" onclick="openRevisionModal(\'' + a.id + '\')">Revision</button>';
         html += '<button class="act-btn act-btn--override" onclick="doOverride(\'' + a.id + '\')">Override</button>';
       }
       // Approved: show Execute button (for publish) or Scheduled label (for schedule)
@@ -567,17 +576,7 @@
     // ── CEO Actions ──
     function doApprove(id) { AE.approveAction(id); renderAll(); }
     function doReject(id) { AE.rejectAction(id); renderAll(); }
-    function doRevision(id) {
-      var note = prompt('What needs to change before approval? This note will go back to the agent.');
-      if (note === null) return;
-      note = note.trim();
-      if (!note) {
-        alert('Please add revision feedback so the agent knows what to fix.');
-        return;
-      }
-      AE.requestActionRevision(id, note);
-      renderAll();
-    }
+    function doRevision(id, note) { AE.requestActionRevision(id, note || ''); renderAll(); }
     function doOverride(id) { AE.overrideAction(id); renderAll(); }
     function doApproveBundle(bid) { AE.approveBundle(bid); renderAll(); }
 
