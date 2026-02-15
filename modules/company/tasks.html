@@ -72,6 +72,7 @@
           <span class="tm-column-title" style="color:#fbbf24;"><i class="fas fa-hourglass-half"></i> Pending Approval</span>
           <span class="tm-column-count" data-count="pending-approval" style="background:rgba(251,191,36,0.12);color:#fbbf24;">0</span>
         </div>
+        <div class="tm-column-summary" data-summary="pending-approval"></div>
         <div class="tm-column-cards" data-col="pending-approval"></div>
       </div>
       <div class="tm-column tm-column--backlog" data-status="backlog">
@@ -79,6 +80,7 @@
           <span class="tm-column-title"><i class="fas fa-inbox"></i> Backlog</span>
           <span class="tm-column-count" data-count="backlog">0</span>
         </div>
+        <div class="tm-column-summary" data-summary="backlog"></div>
         <div class="tm-column-cards" data-col="backlog"></div>
       </div>
       <div class="tm-column tm-column--todo" data-status="todo">
@@ -86,6 +88,7 @@
           <span class="tm-column-title"><i class="fas fa-clipboard-list"></i> To Do</span>
           <span class="tm-column-count" data-count="todo">0</span>
         </div>
+        <div class="tm-column-summary" data-summary="todo"></div>
         <div class="tm-column-cards" data-col="todo"></div>
       </div>
       <div class="tm-column tm-column--in-progress" data-status="in-progress">
@@ -93,6 +96,7 @@
           <span class="tm-column-title"><i class="fas fa-spinner"></i> In Progress</span>
           <span class="tm-column-count" data-count="in-progress">0</span>
         </div>
+        <div class="tm-column-summary" data-summary="in-progress"></div>
         <div class="tm-column-cards" data-col="in-progress"></div>
       </div>
       <div class="tm-column tm-column--review" data-status="review">
@@ -100,6 +104,7 @@
           <span class="tm-column-title"><i class="fas fa-eye"></i> Review</span>
           <span class="tm-column-count" data-count="review">0</span>
         </div>
+        <div class="tm-column-summary" data-summary="review"></div>
         <div class="tm-column-cards" data-col="review"></div>
       </div>
       <div class="tm-column tm-column--done" data-status="done">
@@ -107,6 +112,7 @@
           <span class="tm-column-title"><i class="fas fa-check-circle"></i> Done</span>
           <span class="tm-column-count" data-count="done">0</span>
         </div>
+        <div class="tm-column-summary" data-summary="done"></div>
         <div class="tm-column-cards" data-col="done"></div>
       </div>
     </div>
@@ -228,6 +234,16 @@
       var filterPriority = '';
       var filterDivision = '';
 
+      // Collapsed columns state
+      var _defaultCollapsed = { 'pending-approval': false, backlog: false, todo: false, 'in-progress': false, review: false, done: true };
+      var _collapsedCols = {};
+      try { _collapsedCols = JSON.parse(localStorage.getItem('ap_tasks_collapsed_columns')) || {}; } catch (e) {}
+      // Merge defaults for any missing keys
+      Object.keys(_defaultCollapsed).forEach(function (k) {
+        if (typeof _collapsedCols[k] === 'undefined') _collapsedCols[k] = _defaultCollapsed[k];
+      });
+      function _saveCollapsedCols() { localStorage.setItem('ap_tasks_collapsed_columns', JSON.stringify(_collapsedCols)); }
+
       // DOM refs
       var board = document.getElementById('tm-board');
       var listView = document.getElementById('tm-list');
@@ -314,10 +330,14 @@
       function renderBoard() {
         var tasks = getFilteredTasks();
         var cols = ['pending-approval', 'backlog', 'todo', 'in-progress', 'review', 'done'];
+        var today = new Date().toISOString().split('T')[0];
+        var nowMs = Date.now();
+        var dayMs = 86400000;
 
         cols.forEach(function (status) {
           var container = document.querySelector('[data-col="' + status + '"]');
           var countEl = document.querySelector('[data-count="' + status + '"]');
+          var summaryEl = document.querySelector('[data-summary="' + status + '"]');
           var colTasks = tasks.filter(function (t) { return t.status === status; });
 
           // Sort: critical first, then by date
@@ -329,20 +349,47 @@
           countEl.textContent = colTasks.length;
           container.innerHTML = '';
 
+          // Column summary
           if (colTasks.length === 0) {
+            summaryEl.innerHTML = '';
             container.innerHTML = '<div class="tm-empty">No tasks</div>';
             return;
           }
 
+          var oldestAge = 0;
+          var overdueCount = 0;
+          var blockedCount = 0;
+          colTasks.forEach(function (t) {
+            if (t.createdAt) {
+              var age = nowMs - new Date(t.createdAt).getTime();
+              if (!isNaN(age) && age > oldestAge) oldestAge = age;
+            }
+            if (t.dueDate && t.dueDate < today && t.status !== 'done') overdueCount++;
+            if (t.blocked || t.escalated || (t.tags && t.tags.indexOf('blocked') !== -1)) blockedCount++;
+          });
+
+          var summaryHtml = '';
+          var oldestDays = Math.floor(oldestAge / dayMs);
+          if (oldestDays > 0) summaryHtml += '<div class="tm-column-summary-line"><i class="fas fa-clock"></i> Oldest: ' + oldestDays + 'd</div>';
+          if (overdueCount > 0) summaryHtml += '<div class="tm-column-summary-line tm-summary-overdue"><i class="fas fa-exclamation-circle"></i> ' + overdueCount + ' overdue</div>';
+          if (blockedCount > 0) summaryHtml += '<div class="tm-column-summary-line tm-summary-blocked"><i class="fas fa-ban"></i> ' + blockedCount + ' blocked</div>';
+          summaryEl.innerHTML = summaryHtml;
+
           colTasks.forEach(function (task) {
-            container.appendChild(createTaskCard(task));
+            container.appendChild(createTaskCard(task, nowMs, dayMs));
           });
         });
       }
 
-      function createTaskCard(task) {
+      function createTaskCard(task, nowMs, dayMs) {
         var card = document.createElement('div');
-        card.className = 'tm-card';
+        var agingClass = '';
+        if (task.createdAt && nowMs && dayMs && task.status !== 'done') {
+          var ageDays = (nowMs - new Date(task.createdAt).getTime()) / dayMs;
+          if (ageDays > 10) agingClass = ' tm-card--age-critical';
+          else if (ageDays > 5) agingClass = ' tm-card--age-warn';
+        }
+        card.className = 'tm-card' + agingClass;
         card.setAttribute('draggable', 'true');
         card.setAttribute('data-task-id', task.id);
 
@@ -452,6 +499,21 @@
             AgentEngine.moveTask(taskId, newStatus);
             renderAll();
           }
+        });
+      });
+
+      // ── Collapsible Columns ──
+      document.querySelectorAll('.tm-column').forEach(function (col) {
+        var status = col.getAttribute('data-status');
+        // Apply initial collapsed state
+        if (_collapsedCols[status]) col.classList.add('collapsed');
+        // Toggle on header click
+        col.querySelector('.tm-column-header').addEventListener('click', function (e) {
+          // Don't toggle if clicking inside a draggable card
+          if (e.target.closest('.tm-card')) return;
+          var isCollapsed = col.classList.toggle('collapsed');
+          _collapsedCols[status] = isCollapsed;
+          _saveCollapsedCols();
         });
       });
 

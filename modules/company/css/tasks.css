@@ -159,9 +159,10 @@
 /* ── Kanban Board ── */
 .tm-board {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 0.6rem;
-  min-height: 400px;
+  height: calc(100vh - 200px);
+  min-height: 350px;
 }
 
 .tm-column {
@@ -171,7 +172,8 @@
   padding: 0.6rem;
   display: flex;
   flex-direction: column;
-  min-height: 300px;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .tm-column-header {
@@ -213,8 +215,11 @@
   flex-direction: column;
   gap: 0.4rem;
   overflow-y: auto;
-  min-height: 50px;
+  min-height: 0;
 }
+.tm-column-cards::-webkit-scrollbar { width: 3px; }
+.tm-column-cards::-webkit-scrollbar-track { background: transparent; }
+.tm-column-cards::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
 
 /* Drop zone highlighting */
 .tm-column.drag-over {
@@ -224,13 +229,14 @@
 
 /* ── Task Card ── */
 .tm-card {
-  padding: 0.6rem;
+  padding: 0.5rem;
   background: rgba(255,255,255,0.025);
   border: 1px solid rgba(255,255,255,0.05);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s;
   position: relative;
+  flex-shrink: 0;
 }
 
 .tm-card:hover {
@@ -544,6 +550,49 @@
   cursor: pointer;
 }
 
+/* ── Column Summary ── */
+.tm-column-summary {
+  font-size: 0.55rem;
+  padding: 0.3rem 0.2rem;
+  margin-bottom: 0.3rem;
+  opacity: 0.5;
+  line-height: 1.5;
+}
+.tm-column-summary-line {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.tm-column-summary-line i {
+  width: 10px;
+  text-align: center;
+  font-size: 0.45rem;
+}
+.tm-summary-overdue { color: #f87171; }
+.tm-summary-blocked { color: #fbbf24; }
+
+/* ── Collapsible Columns ── */
+.tm-column-header {
+  cursor: pointer;
+  user-select: none;
+}
+.tm-column.collapsed .tm-column-cards,
+.tm-column.collapsed .tm-column-summary {
+  display: none;
+}
+.tm-column.collapsed {
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+/* ── Aging Highlights ── */
+.tm-card--age-warn {
+  border-left: 3px solid rgba(251,191,36,0.5);
+}
+.tm-card--age-critical {
+  border-left: 3px solid rgba(239,68,68,0.5);
+}
+
 /* ── Empty State ── */
 .tm-empty {
   text-align: center;
@@ -557,12 +606,14 @@
 @media (max-width: 900px) {
   .tm-board {
     grid-template-columns: repeat(3, 1fr);
+    height: auto;
   }
 }
 
 @media (max-width: 600px) {
   .tm-board {
     grid-template-columns: 1fr;
+    height: auto;
   }
   .tm-stats {
     flex-wrap: wrap;
