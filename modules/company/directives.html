@@ -17,6 +17,34 @@
   <link rel="stylesheet" href="/modules/company/css/company.css" />
   <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <style>
+    .dir-modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      display: none; align-items: center; justify-content: center; z-index: 1000;
+    }
+    .dir-modal {
+      width: min(420px, 90%); background: rgba(7,16,25,0.95);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
+      padding: 1rem; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .dir-modal h3 { margin: 0 0 0.6rem; font-size: 1rem; }
+    .dir-modal label { display:block; font-size:0.7rem; opacity:0.5; margin-top:0.6rem; }
+    .dir-modal input,
+    .dir-modal textarea,
+    .dir-modal select {
+      width: 100%; padding: 0.4rem 0.6rem; border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);
+      color: inherit; font-size: 0.8rem; font-family: inherit;
+    }
+    .dir-modal textarea { resize: vertical; min-height: 80px; }
+    .dir-modal-actions { margin-top: 0.8rem; display:flex; gap:0.5rem; justify-content:flex-end; }
+    .dir-btn {
+      font-size:0.65rem; padding:0.3rem 0.8rem; border-radius:5px; border:1px solid rgba(255,255,255,0.1);
+      background:rgba(255,255,255,0.05); color:#fff; cursor:pointer;
+    }
+    .dir-btn--primary { border-color:#8A2BE2; background:rgba(138,43,226,0.2); color:#d8b4fe; }
+    .dir-btn--danger { border-color:#f87171; color:#f87171; }
+  </style>
 </head>
 <body style="background:#071019" data-theme="dark">
 
@@ -70,6 +98,37 @@
 
   </main>
 
+  <div class="dir-modal-backdrop" id="dir-edit-modal">
+    <div class="dir-modal">
+      <h3>Edit Directive</h3>
+      <label for="edit-title">Title</label>
+      <input type="text" id="edit-title" />
+
+      <label for="edit-desc">Description</label>
+      <textarea id="edit-desc"></textarea>
+
+      <label for="edit-priority">Priority</label>
+      <select id="edit-priority">
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+        <option value="critical">Critical</option>
+      </select>
+
+      <label for="edit-status">Status</label>
+      <select id="edit-status">
+        <option value="active">Active</option>
+        <option value="paused">Paused</option>
+        <option value="completed">Completed</option>
+      </select>
+
+      <div class="dir-modal-actions">
+        <button class="dir-btn" id="edit-cancel">Cancel</button>
+        <button class="dir-btn dir-btn--primary" id="edit-save">Save</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/company-store.js"></script>
   <script src="/js/agent-engine.js"></script>
   <script>
@@ -83,10 +142,33 @@
       var activeList = document.getElementById('dir-active-list');
       var archiveList = document.getElementById('dir-archive-list');
       var activeCount = document.getElementById('active-dir-count');
+      var modal = document.getElementById('dir-edit-modal');
+      var editTitle = document.getElementById('edit-title');
+      var editDesc = document.getElementById('edit-desc');
+      var editPriority = document.getElementById('edit-priority');
+      var editStatus = document.getElementById('edit-status');
+      var editSave = document.getElementById('edit-save');
+      var editCancel = document.getElementById('edit-cancel');
+      var editingId = null;
 
       AgentEngine.loadRegistry().then(function () { renderDirectives(); });
 
       document.addEventListener('sync-complete', function () { renderDirectives(); });
+
+      editCancel.addEventListener('click', closeModal);
+      modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+      editSave.addEventListener('click', function () {
+        if (!editingId) return;
+        var payload = {
+          title: editTitle.value.trim(),
+          description: editDesc.value.trim(),
+          priority: editPriority.value,
+          status: editStatus.value
+        };
+        AgentEngine.updateDirective(editingId, payload);
+        closeModal();
+        renderDirectives();
+      });
 
       createBtn.addEventListener('click', function () {
         var title = titleInput.value.trim();
@@ -174,8 +256,14 @@
             renderDirectives();
           });
 
+          var editBtn = document.createElement('button');
+          editBtn.textContent = 'Edit';
+          editBtn.style.cssText = 'font-size:0.6rem; padding:0.2rem 0.5rem; border:1px solid rgba(138,43,226,0.3); background:rgba(138,43,226,0.05); color:#c084fc; border-radius:4px; cursor:pointer;';
+          editBtn.addEventListener('click', function () { openModal(dir); });
+
           btnWrap.appendChild(completeBtn);
           btnWrap.appendChild(pauseBtn);
+          btnWrap.appendChild(editBtn);
           card.appendChild(btnWrap);
         }
 
@@ -186,6 +274,20 @@
         var div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
+      }
+
+      function openModal(dir) {
+        editingId = dir.id;
+        editTitle.value = dir.title || '';
+        editDesc.value = dir.description || '';
+        editPriority.value = dir.priority || 'medium';
+        editStatus.value = dir.status || 'active';
+        modal.style.display = 'flex';
+      }
+
+      function closeModal() {
+        modal.style.display = 'none';
+        editingId = null;
       }
     })();
   </script>
