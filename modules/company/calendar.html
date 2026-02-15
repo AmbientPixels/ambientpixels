@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Company Calendar — tasks, content, reminders, and activity at a glance." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Calendar — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <style>
+    .cal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 0 0.8rem; flex-wrap: wrap; gap: 0.5rem;
+    }
+    .cal-header h1 { font-size: 1.2rem; font-weight: 500; margin: 0; display: flex; align-items: center; gap: 8px; }
+    .cal-header h1 i { opacity: 0.4; }
+    .cal-nav { display: flex; align-items: center; gap: 0.4rem; }
+    .cal-nav-btn {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px; color: rgba(255,255,255,0.6); cursor: pointer;
+      font-size: 0.7rem; padding: 0.3rem 0.6rem; font-family: inherit; transition: all 0.15s;
+    }
+    .cal-nav-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .cal-month-label { font-size: 0.85rem; font-weight: 500; min-width: 140px; text-align: center; }
+
+    /* Filters */
+    .cal-filters {
+      display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.8rem;
+    }
+    .cal-filter {
+      font-size: 0.55rem; padding: 0.2rem 0.5rem; border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);
+      color: rgba(255,255,255,0.5); cursor: pointer; font-family: inherit;
+      display: flex; align-items: center; gap: 0.25rem; transition: all 0.15s;
+    }
+    .cal-filter:hover { background: rgba(255,255,255,0.06); }
+    .cal-filter.active { border-color: var(--fc); color: var(--fc); background: var(--fb); }
+    .cal-filter .cal-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+    /* Grid */
+    .cal-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px;
+      background: rgba(255,255,255,0.03); border-radius: 10px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .cal-weekday {
+      font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.06em;
+      opacity: 0.3; text-align: center; padding: 0.4rem 0;
+      background: rgba(255,255,255,0.02);
+    }
+    .cal-cell {
+      min-height: 80px; padding: 0.3rem; background: rgba(7,16,25,0.6);
+      cursor: pointer; transition: background 0.15s; position: relative;
+    }
+    .cal-cell:hover { background: rgba(255,255,255,0.04); }
+    .cal-cell--other { opacity: 0.25; }
+    .cal-cell--today { background: rgba(255,215,0,0.04); border: 1px solid rgba(255,215,0,0.15); }
+    .cal-cell--selected { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); }
+    .cal-day-num {
+      font-size: 0.65rem; font-weight: 500; margin-bottom: 0.2rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cal-day-num .cal-today-badge {
+      font-size: 0.4rem; background: rgba(255,215,0,0.15); color: #FFD700;
+      padding: 0.05rem 0.25rem; border-radius: 3px; font-weight: 600;
+    }
+    .cal-dots { display: flex; gap: 2px; flex-wrap: wrap; }
+    .cal-cell-dot {
+      width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0;
+    }
+    .cal-cell-item {
+      font-size: 0.45rem; padding: 0.08rem 0.2rem; border-radius: 2px;
+      margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      line-height: 1.3;
+    }
+
+    /* Day Detail Panel */
+    .cal-detail {
+      margin-top: 1rem; border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 10px; background: rgba(255,255,255,0.015); overflow: hidden;
+    }
+    .cal-detail-head {
+      padding: 0.6rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 0.8rem; font-weight: 500; display: flex; align-items: center; gap: 0.4rem;
+    }
+    .cal-detail-head i { opacity: 0.4; }
+    .cal-detail-body { padding: 0.6rem 0.8rem; }
+    .cal-detail-empty {
+      text-align: center; font-size: 0.7rem; opacity: 0.25; padding: 1.5rem;
+    }
+    .cal-detail-section {
+      margin-bottom: 0.6rem;
+    }
+    .cal-detail-section-title {
+      font-size: 0.55rem; opacity: 0.4; text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 0.3rem;
+    }
+    .cal-detail-item {
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.3rem 0.4rem; border-radius: 5px; margin-bottom: 0.2rem;
+      font-size: 0.65rem; border: 1px solid rgba(255,255,255,0.03);
+      background: rgba(255,255,255,0.01);
+    }
+    .cal-detail-item .cal-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .cal-detail-item-info { flex: 1; min-width: 0; }
+    .cal-detail-item-title { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cal-detail-item-meta { font-size: 0.55rem; opacity: 0.4; margin-top: 0.05rem; }
+    .cal-detail-item-badge {
+      font-size: 0.45rem; padding: 0.08rem 0.3rem; border-radius: 3px; font-weight: 500;
+      white-space: nowrap;
+    }
+
+    /* Stats bar */
+    .cal-stats {
+      display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.8rem;
+    }
+    .cal-stat {
+      flex: 1; min-width: 80px; padding: 0.5rem 0.6rem;
+      border: 1px solid rgba(255,255,255,0.04); border-radius: 8px;
+      background: rgba(255,255,255,0.015); text-align: center;
+    }
+    .cal-stat-val { font-size: 1.1rem; font-weight: 600; }
+    .cal-stat-label { font-size: 0.5rem; opacity: 0.35; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 0.1rem; }
+  </style>
+</head>
+<body style="background:#071019" data-theme="dark">
+
+  <main class="content-section" style="max-width: 960px; margin: 0 auto; padding: 1rem;">
+
+    <div class="cal-header">
+      <h1><i class="fas fa-calendar-alt"></i>Company Calendar</h1>
+      <div class="cal-nav">
+        <button class="cal-nav-btn" id="cal-prev"><i class="fas fa-chevron-left"></i></button>
+        <span class="cal-month-label" id="cal-month-label"></span>
+        <button class="cal-nav-btn" id="cal-next"><i class="fas fa-chevron-right"></i></button>
+        <button class="cal-nav-btn" id="cal-today" style="margin-left:0.3rem;">Today</button>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="cal-filters" id="cal-filters">
+      <button class="cal-filter active" data-layer="tasks" style="--fc:#3b82f6;--fb:rgba(59,130,246,0.08);">
+        <span class="cal-dot" style="background:#3b82f6;"></span> Tasks
+      </button>
+      <button class="cal-filter active" data-layer="content" style="--fc:#34d399;--fb:rgba(52,211,153,0.08);">
+        <span class="cal-dot" style="background:#34d399;"></span> Content
+      </button>
+      <button class="cal-filter active" data-layer="social" style="--fc:#a855f7;--fb:rgba(168,85,247,0.08);">
+        <span class="cal-dot" style="background:#a855f7;"></span> Social
+      </button>
+      <button class="cal-filter active" data-layer="reminders" style="--fc:#FFD700;--fb:rgba(255,215,0,0.08);">
+        <span class="cal-dot" style="background:#FFD700;"></span> Reminders
+      </button>
+      <button class="cal-filter active" data-layer="activity" style="--fc:#FFA500;--fb:rgba(255,165,0,0.08);">
+        <span class="cal-dot" style="background:#FFA500;"></span> Activity
+      </button>
+    </div>
+
+    <!-- Month Stats -->
+    <div class="cal-stats" id="cal-stats"></div>
+
+    <!-- Calendar Grid -->
+    <div class="cal-grid" id="cal-grid"></div>
+
+    <!-- Day Detail -->
+    <div class="cal-detail" id="cal-detail" style="display:none;">
+      <div class="cal-detail-head" id="cal-detail-head">
+        <i class="fas fa-calendar-day"></i>
+        <span id="cal-detail-date"></span>
+      </div>
+      <div class="cal-detail-body" id="cal-detail-body"></div>
+    </div>
+
+  </main>
+
+  <script src="/js/company-store.js"></script>
+  <script src="/js/agent-engine.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? '/api' : 'https://ambientpixels-nova-api.azurewebsites.net/api';
+
+      // State
+      var currentYear, currentMonth; // 0-indexed month
+      var selectedDate = null;
+      var activeLayers = { tasks: true, content: true, social: true, reminders: true, activity: true };
+      var calData = {}; // dateStr → { tasks:[], content:[], social:[], reminders:[], activity:[] }
+
+      // Layer colors
+      var LAYER_COLORS = {
+        tasks: '#3b82f6',
+        content: '#34d399',
+        social: '#a855f7',
+        reminders: '#FFD700',
+        activity: '#FFA500'
+      };
+
+      // Elements
+      var gridEl = document.getElementById('cal-grid');
+      var monthLabel = document.getElementById('cal-month-label');
+      var detailEl = document.getElementById('cal-detail');
+      var detailDate = document.getElementById('cal-detail-date');
+      var detailBody = document.getElementById('cal-detail-body');
+      var statsEl = document.getElementById('cal-stats');
+
+      // Init
+      var now = new Date();
+      currentYear = now.getFullYear();
+      currentMonth = now.getMonth();
+
+      AgentEngine.loadRegistry().then(function () {
+        loadAllData().then(function () {
+          render();
+          // Auto-select today
+          selectDay(toDateStr(now));
+        });
+      });
+
+      // Navigation
+      document.getElementById('cal-prev').addEventListener('click', function () {
+        currentMonth--;
+        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+        render();
+      });
+      document.getElementById('cal-next').addEventListener('click', function () {
+        currentMonth++;
+        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+        render();
+      });
+      document.getElementById('cal-today').addEventListener('click', function () {
+        var n = new Date();
+        currentYear = n.getFullYear();
+        currentMonth = n.getMonth();
+        render();
+        selectDay(toDateStr(n));
+      });
+
+      // Filter toggles
+      document.getElementById('cal-filters').addEventListener('click', function (e) {
+        var btn = e.target.closest('.cal-filter');
+        if (!btn) return;
+        var layer = btn.dataset.layer;
+        activeLayers[layer] = !activeLayers[layer];
+        btn.classList.toggle('active', activeLayers[layer]);
+        render();
+        if (selectedDate) renderDetail(selectedDate);
+      });
+
+      // Re-render on sync
+      AgentEngine.on('sync-complete', function () {
+        loadAllData().then(function () {
+          render();
+          if (selectedDate) renderDetail(selectedDate);
+        });
+      });
+
+      // ── Data Loading ──
+      function loadAllData() {
+        calData = {};
+        return Promise.all([
+          loadTasks(),
+          loadContent(),
+          loadSocial(),
+          loadReminders(),
+          loadActivity()
+        ]);
+      }
+
+      function addItem(dateStr, layer, item) {
+        if (!dateStr) return;
+        dateStr = dateStr.substring(0, 10); // normalize to YYYY-MM-DD
+        if (!calData[dateStr]) calData[dateStr] = { tasks: [], content: [], social: [], reminders: [], activity: [] };
+        calData[dateStr][layer].push(item);
+      }
+
+      function loadTasks() {
+        var tasks = AgentEngine.getTasks();
+        tasks.forEach(function (t) {
+          if (t.dueDate) {
+            var agent = t.assignee ? AgentEngine.getAgent(t.assignee) : null;
+            addItem(t.dueDate, 'tasks', {
+              title: t.title,
+              meta: (agent ? agent.name : 'unassigned') + ' · ' + (t.priority || 'medium'),
+              status: t.status,
+              priority: t.priority,
+              badge: t.status,
+              badgeColor: t.status === 'done' ? '#34d399' : t.status === 'review' ? '#a855f7' : t.status === 'in-progress' ? '#3b82f6' : '#FFA500'
+            });
+          }
+        });
+        return Promise.resolve();
+      }
+
+      function loadContent() {
+        return fetch(API_BASE + '/company-state?key=documents', {
+          headers: { 'x-company-secret': 'pixelpusher' }
+        }).then(function (r) { return r.json(); }).then(function (docs) {
+          if (!Array.isArray(docs)) return;
+          docs.forEach(function (d) {
+            if (d.status === 'published' && d.published_at) {
+              addItem(d.published_at, 'content', {
+                title: d.title,
+                meta: (d.kind || 'doc') + ' · published',
+                badge: d.kind || 'doc',
+                badgeColor: '#34d399',
+                slug: d.slug
+              });
+            } else if (d.created_at) {
+              addItem(d.created_at, 'content', {
+                title: d.title,
+                meta: (d.kind || 'doc') + ' · ' + (d.status || 'draft'),
+                badge: d.status || 'draft',
+                badgeColor: d.status === 'published' ? '#34d399' : d.status === 'review' ? '#a855f7' : '#60a5fa'
+              });
+            }
+          });
+        }).catch(function () {});
+      }
+
+      function loadSocial() {
+        var actions = AgentEngine.getActions ? AgentEngine.getActions() : [];
+        actions.forEach(function (a) {
+          var type = a.type || a.action_type || '';
+          if (type.indexOf('social_post') === -1) return;
+          var payload = a.payload || a.action_payload || {};
+          var platform = a.platform || 'x';
+          var text = (payload.text || '').substring(0, 60);
+          var date = (payload.scheduled_for) || a.created_at;
+          var approvalStatus = (a.approval && a.approval.status) || '';
+          var execStatus = a.execution_status || 'pending';
+          addItem(date, 'social', {
+            title: text || 'Social post',
+            meta: platform + ' · ' + (a.created_by || a.origin_agent || '?'),
+            badge: approvalStatus === 'approved' ? execStatus : approvalStatus,
+            badgeColor: execStatus === 'success' ? '#34d399' : approvalStatus === 'approved' ? '#3b82f6' : approvalStatus === 'rejected' ? '#ef4444' : '#FFA500',
+            platform: platform
+          });
+        });
+        return Promise.resolve();
+      }
+
+      function loadReminders() {
+        var dates = AgentEngine.getDates ? AgentEngine.getDates() : [];
+        dates.forEach(function (d) {
+          if (d.date) {
+            addItem(d.date, 'reminders', {
+              title: d.title || 'Reminder',
+              meta: (d.type || 'event') + (d.description ? ' · ' + d.description.substring(0, 60) : ''),
+              badge: d.type || 'event',
+              badgeColor: d.type === 'deadline' ? '#f87171' : d.type === 'milestone' ? '#FFD700' : d.type === 'recurring' ? '#a855f7' : '#fbbf24'
+            });
+          }
+        });
+        return Promise.resolve();
+      }
+
+      function loadActivity() {
+        // Standups
+        var standups = AgentEngine.getStandupLog ? AgentEngine.getStandupLog() : [];
+        standups.forEach(function (s) {
+          if (s.dateLabel) {
+            addItem(s.dateLabel, 'activity', {
+              title: 'Daily Standup',
+              meta: (s.entries ? s.entries.length : 0) + ' agents reported',
+              badge: 'standup',
+              badgeColor: '#FFA500'
+            });
+          }
+        });
+        return Promise.resolve();
+      }
+
+      // ── Render Calendar Grid ──
+      function render() {
+        var first = new Date(currentYear, currentMonth, 1);
+        var last = new Date(currentYear, currentMonth + 1, 0);
+        var startDay = first.getDay(); // 0=Sun
+        var daysInMonth = last.getDate();
+        var prevLast = new Date(currentYear, currentMonth, 0).getDate();
+        var todayStr = toDateStr(new Date());
+
+        monthLabel.textContent = first.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+        var html = '';
+        // Weekday headers
+        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(function (d) {
+          html += '<div class="cal-weekday">' + d + '</div>';
+        });
+
+        // Previous month fill
+        for (var p = startDay - 1; p >= 0; p--) {
+          var pDay = prevLast - p;
+          var pDate = toDateStr(new Date(currentYear, currentMonth - 1, pDay));
+          html += cellHtml(pDate, pDay, true);
+        }
+
+        // Current month
+        for (var d = 1; d <= daysInMonth; d++) {
+          var dateStr = toDateStr(new Date(currentYear, currentMonth, d));
+          var isToday = dateStr === todayStr;
+          var isSelected = dateStr === selectedDate;
+          html += cellHtml(dateStr, d, false, isToday, isSelected);
+        }
+
+        // Next month fill
+        var totalCells = startDay + daysInMonth;
+        var remaining = (7 - (totalCells % 7)) % 7;
+        for (var n = 1; n <= remaining; n++) {
+          var nDate = toDateStr(new Date(currentYear, currentMonth + 1, n));
+          html += cellHtml(nDate, n, true);
+        }
+
+        gridEl.innerHTML = html;
+
+        // Bind click
+        gridEl.querySelectorAll('.cal-cell').forEach(function (cell) {
+          cell.addEventListener('click', function () {
+            selectDay(cell.dataset.date);
+          });
+        });
+
+        renderStats();
+      }
+
+      function cellHtml(dateStr, dayNum, isOther, isToday, isSelected) {
+        var classes = 'cal-cell';
+        if (isOther) classes += ' cal-cell--other';
+        if (isToday) classes += ' cal-cell--today';
+        if (isSelected) classes += ' cal-cell--selected';
+
+        var items = calData[dateStr] || {};
+        var html = '<div class="' + classes + '" data-date="' + dateStr + '">';
+        html += '<div class="cal-day-num">' + dayNum;
+        if (isToday) html += '<span class="cal-today-badge">TODAY</span>';
+        html += '</div>';
+
+        // Show dots for each active layer that has items
+        var dots = '';
+        var itemHtml = '';
+        var count = 0;
+        ['tasks', 'content', 'social', 'reminders', 'activity'].forEach(function (layer) {
+          if (!activeLayers[layer]) return;
+          var arr = items[layer] || [];
+          arr.forEach(function (item) {
+            dots += '<span class="cal-cell-dot" style="background:' + LAYER_COLORS[layer] + ';"></span>';
+            if (count < 3) {
+              itemHtml += '<div class="cal-cell-item" style="background:' + LAYER_COLORS[layer] + '22;color:' + LAYER_COLORS[layer] + ';">' + esc(item.title) + '</div>';
+            }
+            count++;
+          });
+        });
+
+        if (dots) html += '<div class="cal-dots">' + dots + '</div>';
+        html += itemHtml;
+        if (count > 3) html += '<div style="font-size:0.4rem;opacity:0.3;">+' + (count - 3) + ' more</div>';
+        html += '</div>';
+        return html;
+      }
+
+      function selectDay(dateStr) {
+        selectedDate = dateStr;
+        // Update selection visuals
+        gridEl.querySelectorAll('.cal-cell').forEach(function (c) {
+          c.classList.toggle('cal-cell--selected', c.dataset.date === dateStr);
+        });
+        renderDetail(dateStr);
+      }
+
+      // ── Day Detail Panel ──
+      function renderDetail(dateStr) {
+        var items = calData[dateStr] || {};
+        var d = new Date(dateStr + 'T12:00:00');
+        detailDate.textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+        detailEl.style.display = '';
+
+        var html = '';
+        var hasItems = false;
+
+        var sections = [
+          { key: 'tasks', label: 'Task Deadlines', icon: 'fa-tasks' },
+          { key: 'content', label: 'Content', icon: 'fa-file-alt' },
+          { key: 'social', label: 'Social Posts', icon: 'fa-share-alt' },
+          { key: 'reminders', label: 'Reminders & Dates', icon: 'fa-bell' },
+          { key: 'activity', label: 'Activity', icon: 'fa-history' }
+        ];
+
+        sections.forEach(function (sec) {
+          if (!activeLayers[sec.key]) return;
+          var arr = items[sec.key] || [];
+          if (arr.length === 0) return;
+          hasItems = true;
+
+          html += '<div class="cal-detail-section">';
+          html += '<div class="cal-detail-section-title"><i class="fas ' + sec.icon + '" style="margin-right:0.3rem;"></i>' + sec.label + ' (' + arr.length + ')</div>';
+
+          arr.forEach(function (item) {
+            html += '<div class="cal-detail-item">';
+            html += '<span class="cal-dot" style="background:' + LAYER_COLORS[sec.key] + ';"></span>';
+            html += '<div class="cal-detail-item-info">';
+            html += '<div class="cal-detail-item-title">' + esc(item.title) + '</div>';
+            if (item.meta) html += '<div class="cal-detail-item-meta">' + esc(item.meta) + '</div>';
+            html += '</div>';
+            if (item.badge) {
+              html += '<span class="cal-detail-item-badge" style="background:' + item.badgeColor + '22;color:' + item.badgeColor + ';">' + esc(item.badge) + '</span>';
+            }
+            html += '</div>';
+          });
+
+          html += '</div>';
+        });
+
+        if (!hasItems) {
+          html = '<div class="cal-detail-empty">Nothing scheduled for this day.</div>';
+        }
+
+        detailBody.innerHTML = html;
+      }
+
+      // ── Month Stats ──
+      function renderStats() {
+        var taskCount = 0, contentCount = 0, socialCount = 0, reminderCount = 0;
+        var monthPrefix = currentYear + '-' + String(currentMonth + 1).padStart(2, '0');
+
+        Object.keys(calData).forEach(function (dateStr) {
+          if (dateStr.substring(0, 7) !== monthPrefix) return;
+          var d = calData[dateStr];
+          taskCount += d.tasks.length;
+          contentCount += d.content.length;
+          socialCount += d.social.length;
+          reminderCount += d.reminders.length;
+        });
+
+        statsEl.innerHTML =
+          statHtml(taskCount, 'Task Deadlines', '#3b82f6') +
+          statHtml(contentCount, 'Content Items', '#34d399') +
+          statHtml(socialCount, 'Social Posts', '#a855f7') +
+          statHtml(reminderCount, 'Reminders', '#FFD700');
+      }
+
+      function statHtml(val, label, color) {
+        return '<div class="cal-stat"><div class="cal-stat-val" style="color:' + color + ';">' + val + '</div><div class="cal-stat-label">' + label + '</div></div>';
+      }
+
+      // ── Helpers ──
+      function toDateStr(d) {
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      }
+      function esc(s) {
+        if (!s) return '';
+        var d = document.createElement('div');
+        d.textContent = String(s);
+        return d.innerHTML;
+      }
+    })();
+  </script>
+
+  <script src="/modules/company/js/sidebar.js"></script>
+</body>
+</html>

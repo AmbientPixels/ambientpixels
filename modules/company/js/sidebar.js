@@ -42,6 +42,7 @@
         { href: BASE + 'plan-overview.html', label: 'Overview', icon: 'fa-compass', match: ['plan-overview.html'] },
         { href: BASE + 'directives.html', label: 'Directives', icon: 'fa-compass', match: ['directives.html'] },
         { href: BASE + 'objectives.html', label: 'Objectives', icon: 'fa-bullseye', match: ['objectives.html'] },
+        { href: BASE + 'calendar.html', label: 'Calendar', icon: 'fa-calendar-alt', match: ['calendar.html'] },
         { href: BASE + 'governance.html', label: 'Governance', icon: 'fa-scroll', match: ['governance.html'] }
       ]
     },
