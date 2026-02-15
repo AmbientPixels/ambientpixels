@@ -383,6 +383,10 @@
 
       AgentEngine.on('store-ready', updateStoreModeBadge);
 
+      // Sync guard: after an approval action, skip sync-triggered approval re-renders
+      // for a few seconds so the server write can land first
+      var _approvalSyncGuard = 0;
+
       // Re-render when server sync pulls in heartbeat/agent data
       AgentEngine.on('sync-complete', function () {
         renderAll();
@@ -959,6 +963,8 @@
       }
 
       function renderApprovalQueue() {
+        // Skip re-render if a recent approval action is still writing to server
+        if (_approvalSyncGuard && Date.now() < _approvalSyncGuard) return;
         var queue = AgentEngine.getApprovalQueue();
         var pending = queue.filter(function (q) { return q.status === 'pending'; });
         var listEl = document.getElementById('panel-approval-list');
@@ -1046,24 +1052,38 @@
           listEl.appendChild(div);
         });
 
+        // Optimistic UI: remove the approval item from DOM immediately, guard against stale sync
+        function _optimisticRemove(btnEl) {
+          var item = btnEl.closest('.approval-item');
+          if (item) item.remove();
+          var badge = document.getElementById('approval-count-badge');
+          var remaining = listEl.querySelectorAll('.approval-item').length;
+          if (badge) badge.textContent = remaining + ' pending';
+          if (remaining === 0) listEl.innerHTML = '<div class="dash-empty">No items awaiting CEO approval.</div>';
+          // Guard: skip sync-triggered re-renders for 8 seconds so server write can land
+          _approvalSyncGuard = Date.now() + 8000;
+        }
+
         // Bind buttons — route action items to action-specific methods
         listEl.querySelectorAll('.approval-btn--approve').forEach(function (btn) {
           btn.addEventListener('click', function () {
             var note = _getApprovalNote(btn.dataset.id);
+            _optimisticRemove(btn);
             if (btn.dataset.actionType === 'publish_document') {
               var vis = _getPublishVisibility(btn.dataset.id);
-              _serverPublishDecision(btn.dataset.actionId, 'approve', vis).then(renderAll);
-            } else if (btn.dataset.kind === 'action') { AgentEngine.approveAction(btn.dataset.actionId, note); renderAll(); }
-            else { AgentEngine.ceoApprove(btn.dataset.id, note); renderAll(); }
+              _serverPublishDecision(btn.dataset.actionId, 'approve', vis).then(function () { _approvalSyncGuard = 0; renderApprovalQueue(); });
+            } else if (btn.dataset.kind === 'action') { AgentEngine.approveAction(btn.dataset.actionId, note); }
+            else { AgentEngine.ceoApprove(btn.dataset.id, note); }
           });
         });
         listEl.querySelectorAll('.approval-btn--reject').forEach(function (btn) {
           btn.addEventListener('click', function () {
             var note = _getApprovalNote(btn.dataset.id);
+            _optimisticRemove(btn);
             if (btn.dataset.actionType === 'publish_document') {
-              _serverPublishDecision(btn.dataset.actionId, 'reject').then(renderAll);
-            } else if (btn.dataset.kind === 'action') { AgentEngine.rejectAction(btn.dataset.actionId, note); renderAll(); }
-            else { AgentEngine.ceoReject(btn.dataset.id, note); renderAll(); }
+              _serverPublishDecision(btn.dataset.actionId, 'reject').then(function () { _approvalSyncGuard = 0; renderApprovalQueue(); });
+            } else if (btn.dataset.kind === 'action') { AgentEngine.rejectAction(btn.dataset.actionId, note); }
+            else { AgentEngine.ceoReject(btn.dataset.id, note); }
           });
         });
         listEl.querySelectorAll('.approval-btn--revision').forEach(function (btn) {
