@@ -150,6 +150,35 @@
     .act-btn--override:hover { background: rgba(255,215,0,0.1); }
     .act-btn--details { border-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
 
+    .act-drawer-overlay {
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:1400;
+      background:rgba(0,0,0,0.5);
+      backdrop-filter:blur(4px);
+      justify-content:flex-end;
+    }
+    .act-drawer-overlay.open { display:flex; }
+    .act-drawer {
+      width:420px;
+      max-width:90vw;
+      height:100%;
+      background:#0f1724;
+      border-left:1px solid rgba(255,255,255,0.08);
+      padding:1.2rem;
+      overflow-y:auto;
+      box-shadow:-10px 0 30px rgba(0,0,0,0.4);
+    }
+    .act-drawer-close {
+      background:none;
+      border:none;
+      color:rgba(255,255,255,0.5);
+      font-size:1.2rem;
+      cursor:pointer;
+      float:right;
+    }
+
     .act-modal-backdrop {
       position: fixed; inset: 0; background: rgba(0,0,0,0.65);
       display: none; align-items: center; justify-content: center; z-index: 2000;
