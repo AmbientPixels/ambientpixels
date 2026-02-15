@@ -355,6 +355,14 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   const agent = AGENT_ROLES[agentId];
   if (!agent) return result;
 
+  // Read dynamic doctrine weight from workspace config (slider value), clamp 0.0–0.6
+  const agentCfg = configs[agentId] || {};
+  let dw = parseFloat(agentCfg.doctrineWeight);
+  if (isNaN(dw)) dw = 0.4;
+  if (dw > 0.6) dw = 0.6;
+  if (dw < 0) dw = 0;
+  agent._doctrineWeight = Math.round(dw * 100) / 100;
+
   // Build context for the agent
   const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done');
   const allActiveTasks = tasks.filter(t => t.status !== 'done' && t.status !== 'backlog');
@@ -1457,9 +1465,10 @@ ${revList}
 You MUST address these revision requests using revise-action. Provide the action_id and the corrected content based on the CEO's feedback. This takes priority over creating new actions.`;
   }
 
-  // Build doctrine block if available
-  const doctrineBlock = agent.doctrine ? `
-OPERATING DOCTRINE (apply ~40% reasoning weight — influences strategy, does NOT override governance):
+  // Build doctrine block if available and weight > 0
+  const dWeight = agent._doctrineWeight != null ? agent._doctrineWeight : 0.4;
+  const doctrineBlock = (agent.doctrine && dWeight > 0) ? `
+OPERATING DOCTRINE (apply with weight: ${dWeight} / ${Math.round(dWeight * 100)}% — influences strategy, does NOT override governance):
 - Strategic Bias: ${agent.doctrine.strategicBias}
 - Risk Tolerance: ${agent.doctrine.riskTolerance}
 - Time Horizon: ${agent.doctrine.timeHorizon}
@@ -1840,8 +1849,9 @@ function buildExecutePrompt(agent, task) {
     .join('\n') || '(none)';
 
   const todayStr = new Date().toISOString().split('T')[0];
-  const execDoctrine = agent.doctrine ? `
-OPERATING DOCTRINE (apply ~40% reasoning weight):
+  const eDW = agent._doctrineWeight != null ? agent._doctrineWeight : 0.4;
+  const execDoctrine = (agent.doctrine && eDW > 0) ? `
+OPERATING DOCTRINE (apply with weight: ${eDW} / ${Math.round(eDW * 100)}%):
 - Strategic Bias: ${agent.doctrine.strategicBias}
 - Risk Tolerance: ${agent.doctrine.riskTolerance}
 - Core Question: "${agent.doctrine.coreQuestion}"
@@ -1919,8 +1929,9 @@ function buildReviewPrompt(agent, task) {
     .map(c => '--- Review by ' + (c.author || 'unknown') + ' [' + (c.verdict || '?') + '] ---\n' + c.text)
     .join('\n\n');
 
-  const reviewDoctrine = agent.doctrine ? `
-OPERATING DOCTRINE (apply ~40% reasoning weight):
+  const rDW = agent._doctrineWeight != null ? agent._doctrineWeight : 0.4;
+  const reviewDoctrine = (agent.doctrine && rDW > 0) ? `
+OPERATING DOCTRINE (apply with weight: ${rDW} / ${Math.round(rDW * 100)}%):
 - Strategic Bias: ${agent.doctrine.strategicBias}
 - Risk Tolerance: ${agent.doctrine.riskTolerance}
 - Core Question: "${agent.doctrine.coreQuestion}"

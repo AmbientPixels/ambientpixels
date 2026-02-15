@@ -121,12 +121,18 @@ const AGENT_DOCTRINES = {
   scout: { strategicBias: 'Strategic advantage, signal detection', riskTolerance: 'Medium', timeHorizon: 'Quarterly-Annual', coreQuestion: 'Where is leverage hiding?', escalationTriggers: ['Competitor acceleration', 'Platform dependency risk', 'Market shifts'] }
 };
 
-function buildDoctrineBlock(agentId) {
+function buildDoctrineBlock(agentId, weight) {
   const d = AGENT_DOCTRINES[agentId];
   if (!d) return '';
+  // Clamp weight 0.0–0.6, default 0.4
+  let w = parseFloat(weight);
+  if (isNaN(w)) w = 0.4;
+  if (w > 0.6) w = 0.6;
+  if (w < 0) w = 0;
+  if (w === 0) return ''; // Doctrine disabled
   return `
 
-OPERATING DOCTRINE (apply ~40% reasoning weight — influences strategy, does NOT override governance):
+OPERATING DOCTRINE (apply with weight: ${w} / ${Math.round(w * 100)}% — influences strategy, does NOT override governance):
 - Strategic Bias: ${d.strategicBias}
 - Risk Tolerance: ${d.riskTolerance}
 - Time Horizon: ${d.timeHorizon}
@@ -566,8 +572,13 @@ module.exports = async function (context, req) {
       companyContext = await loadCompanyContext(agentId);
     }
 
+    // Load dynamic doctrine weight from agent config (workspace slider value)
+    const agentConfigs = (await storage.getState('agentConfigs')) || {};
+    const agentCfg = agentConfigs[agentId] || {};
+    const doctrineWeight = agentCfg.doctrineWeight != null ? agentCfg.doctrineWeight : 0.4;
+
     // Build system instruction: agent prompt + doctrine + shared rules + (context + actions if enabled)
-    const systemInstruction = AGENT_PROMPTS[agentId] + buildDoctrineBlock(agentId) + SHARED_RULES +
+    const systemInstruction = AGENT_PROMPTS[agentId] + buildDoctrineBlock(agentId, doctrineWeight) + SHARED_RULES +
       (enableActions ? companyContext + ACTION_INSTRUCTIONS : '');
 
     // Build conversation contents from history

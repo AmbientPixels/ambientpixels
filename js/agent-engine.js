@@ -654,6 +654,7 @@ var AgentEngine = (function () {
           lastBeat: null,
           status: 'idle'
         },
+        doctrineWeight: 0.4,         // 0.0–0.6, default 0.4 (Operating Doctrine influence)
         roleOverride: null,          // null = use registry default
         titleOverride: null,
         systemPromptOverride: null,   // null = use registry default
@@ -683,6 +684,16 @@ var AgentEngine = (function () {
     _saveStorage(AGENT_CONFIG_KEY, configs);
     emit('agent-config-updated', { agentId: agentId, config: current });
     return current;
+  }
+
+  // Get doctrine influence weight for an agent, clamped to 0.0–0.6
+  function getDoctrineWeight(agentId) {
+    var config = getAgentConfig(agentId);
+    var w = parseFloat(config.doctrineWeight);
+    if (isNaN(w)) w = 0.4;
+    if (w > 0.6) { console.warn('[AgentEngine] doctrineWeight for ' + agentId + ' exceeded 0.6, clamped.'); w = 0.6; }
+    if (w < 0) { console.warn('[AgentEngine] doctrineWeight for ' + agentId + ' below 0, clamped.'); w = 0; }
+    return Math.round(w * 100) / 100;
   }
 
   // Record heartbeat for an agent
@@ -1601,6 +1612,7 @@ var AgentEngine = (function () {
     getAgentConfig: getAgentConfig,
     getAgentConfigs: getAgentConfigs,
     updateAgentConfig: updateAgentConfig,
+    getDoctrineWeight: getDoctrineWeight,
     recordHeartbeat: recordHeartbeat,
     getIdentity: getIdentity,
     updateIdentity: updateIdentity,
