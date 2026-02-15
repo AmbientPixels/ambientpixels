@@ -105,6 +105,7 @@ var CompanyStore = (function () {
     'ap_cron_log': 30, 'ap_standup_log': 20, 'ap_documents': 40,
     'ap_published_docs': 30, 'ap_workspace_dates': 30, 'ap_workspace_memory': 30
   };
+  var _cacheFullLogged = {};  // Track which keys already logged quota warning
 
   function _localSet(key, data) {
     try {
@@ -118,7 +119,7 @@ var CompanyStore = (function () {
       if (e.name === 'QuotaExceededError' || (e.message && e.message.indexOf('quota') !== -1)) {
         try { localStorage.removeItem(key); } catch (ignore) {}
         if (_mode === 'server') {
-          console.log('[CompanyStore] Cache full, skipped local cache for:', key);
+          if (!_cacheFullLogged[key]) { console.log('[CompanyStore] Cache full, skipped local cache for:', key); _cacheFullLogged[key] = true; }
         } else {
           console.warn('[CompanyStore] localStorage quota exceeded:', key);
         }
@@ -259,8 +260,8 @@ var CompanyStore = (function () {
     });
 
     return Promise.all(promises).then(function () {
+      if (!_synced) console.log('[CompanyStore] Synced', keysToSync.length, 'keys from server');
       _synced = true;
-      console.log('[CompanyStore] Synced', keysToSync.length, 'keys from server');
       _syncListeners.forEach(function (cb) { cb(); });
       _syncListeners = [];
     });

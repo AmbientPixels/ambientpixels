@@ -717,6 +717,14 @@ Write the full deliverable first, then the structured JSON block.`;
         // Auto-chain: submit for publish (agent can't know the doc ID, so we do it automatically)
         const AUTO_PUBLISH_KINDS = ['marketing_post', 'product_brief'];
         if (AUTO_PUBLISH_KINDS.indexOf(kind) !== -1) {
+          // Dedup: skip if a pending publish action already exists for this document
+          const existingActions = (await storage.getState('actions')) || [];
+          const hasPending = existingActions.some(a => a.type === 'publish_document' && a.payload && a.payload.documentId === doc.id && a.approval && a.approval.status === 'pending');
+          if (hasPending) {
+            context.log('[Heartbeat] Skipping duplicate publish action for doc:', doc.id, doc.title);
+            break;
+          }
+
           const slug = doc.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
           const isPublicKind = kind === 'marketing_post' || kind === 'product_brief';
           const targetPath = isPublicKind ? '/blog/' + slug : '/docs/published/' + slug;
@@ -909,6 +917,14 @@ Write the full deliverable first, then the structured JSON block.`;
 
         // Only drafts or review docs can be submitted for publish
         if (doc.status === 'draft' || doc.status === 'review') {
+          // Dedup: skip if a pending publish action already exists for this document
+          const existingActs = (await storage.getState('actions')) || [];
+          const hasPendingPub = existingActs.some(a => a.type === 'publish_document' && a.payload && a.payload.documentId === doc.id && a.approval && a.approval.status === 'pending');
+          if (hasPendingPub) {
+            context.log('[Heartbeat] Skipping duplicate submit-for-publish for doc:', doc.id, doc.title);
+            break;
+          }
+
           // Update doc status
           docsStore[docIdx].status = 'ready_for_approval';
           docsStore[docIdx].updated_at = new Date().toISOString();

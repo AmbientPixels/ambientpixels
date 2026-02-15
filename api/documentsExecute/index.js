@@ -297,34 +297,45 @@ async function handleDocPublish(context, req, body) {
   // Load the action
   const actions = (await storage.getState('actions')) || [];
   const actionIdx = actions.findIndex(a => a.id === actionId);
-  if (actionIdx === -1) {
-    context.res = {
-      status: 404,
-      headers: corsHeaders,
-      body: { error: 'Action not found: ' + actionId }
-    };
-    return;
-  }
+  let action = actionIdx !== -1 ? actions[actionIdx] : null;
+  let reconstructed = false;
 
-  const action = actions[actionIdx];
+  // Fallback: if action was trimmed from the actions array, reconstruct from approvalQueue + documents
+  if (!action) {
+    const approvalQueue = (await storage.getState('approvalQueue')) || [];
+    const queueEntry = approvalQueue.find(q => q.action_id === actionId);
+    if (!queueEntry || queueEntry.actionType !== 'publish_document') {
+      context.res = { status: 404, headers: corsHeaders, body: { error: 'Action not found: ' + actionId } };
+      return;
+    }
+    const docs = (await storage.getState('documents')) || [];
+    const doc = docs.find(d => d.id === queueEntry.documentId);
+    if (!doc) {
+      context.res = { status: 404, headers: corsHeaders, body: { error: 'Document not found for action: ' + actionId } };
+      return;
+    }
+    const slug = doc.slug || doc.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    action = {
+      id: actionId,
+      type: 'publish_document',
+      payload: { documentId: doc.id, title: doc.title, slug: slug, kind: doc.kind, content_md: doc.content_md },
+      approval: { status: 'pending' },
+      execution: { status: 'pending', started_at: null, finished_at: null, attempts: 0, last_error: null, receipt: null },
+      created_by: queueEntry.originAgent || 'unknown'
+    };
+    reconstructed = true;
+    context.log('[DocsExecute] Reconstructed action from approvalQueue:', actionId);
+  }
 
   // Must be a publish_document action
   if (action.type !== 'publish_document') {
-    context.res = {
-      status: 400,
-      headers: corsHeaders,
-      body: { error: 'Action is not a publish_document type: ' + action.type }
-    };
+    context.res = { status: 400, headers: corsHeaders, body: { error: 'Action is not a publish_document type: ' + action.type } };
     return;
   }
 
   // Must be pending approval
   if (!action.approval || action.approval.status !== 'pending') {
-    context.res = {
-      status: 409,
-      headers: corsHeaders,
-      body: { error: 'Action is not pending approval. Current status: ' + (action.approval && action.approval.status) }
-    };
+    context.res = { status: 409, headers: corsHeaders, body: { error: 'Action is not pending approval. Current status: ' + (action.approval && action.approval.status) } };
     return;
   }
 
@@ -348,8 +359,7 @@ async function handleDocPublish(context, req, body) {
     action.execution.status = 'failed';
     action.execution.finished_at = now;
     action.execution_status = 'rejected';
-    actions[actionIdx] = action;
-    await storage.setState('actions', actions);
+    if (actionIdx !== -1) { actions[actionIdx] = action; await storage.setState('actions', actions); }
 
     // Update doc status back to review
     if (documentId) {
@@ -458,8 +468,7 @@ async function handleDocPublish(context, req, body) {
       published_at: now
     };
     action.execution_status = 'success';
-    actions[actionIdx] = action;
-    await storage.setState('actions', actions);
+    if (actionIdx !== -1) { actions[actionIdx] = action; await storage.setState('actions', actions); }
 
     // Step 6: Update approval queue
     await _updateApprovalQueue(actionId, 'approved');
@@ -492,8 +501,7 @@ async function handleDocPublish(context, req, body) {
     action.execution.finished_at = now;
     action.execution.last_error = { code: 'EXEC_ERROR', message: execErr.message };
     action.execution_status = 'failed';
-    actions[actionIdx] = action;
-    await storage.setState('actions', actions);
+    if (actionIdx !== -1) { actions[actionIdx] = action; await storage.setState('actions', actions); }
 
     await _logAudit('publish-failed', { actionId, documentId, title, slug, error: execErr.message });
     await _logGovernance(storage, 'publish-failed', { actionId, documentId, title, error: execErr.message });
