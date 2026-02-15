@@ -1176,18 +1176,30 @@ Write the full deliverable first, then the structured JSON block.`;
       // Agent sets a reminder/date in the workspace dates store
       const rem = action.reminder;
       if (rem.title && rem.date) {
+        const dates = (await storage.getState('dates')) || [];
+
+        // Dedup: skip if a date with the same title + date already exists
+        const normTitle = rem.title.trim().toLowerCase();
+        const normDate = rem.date.substring(0, 10);
+        const isDupe = dates.some(d =>
+          d.title && d.title.trim().toLowerCase() === normTitle && d.date === normDate
+        );
+        if (isDupe) {
+          context.log('[Heartbeat]', agentId, 'SKIPPED duplicate reminder:', rem.title, normDate);
+          continue;
+        }
+
         const VALID_TYPES = ['event', 'deadline', 'milestone', 'recurring'];
         const dateEntry = {
           id: 'date_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
           title: rem.title.substring(0, 200),
-          date: rem.date.substring(0, 10),
+          date: normDate,
           type: (rem.type && VALID_TYPES.indexOf(rem.type) !== -1) ? rem.type : 'deadline',
           description: (rem.description || '').substring(0, 500),
           created_by: agentId,
           created_at: new Date().toISOString()
         };
 
-        const dates = (await storage.getState('dates')) || [];
         dates.push(dateEntry);
         if (dates.length > 200) dates.splice(0, dates.length - 200);
         await storage.setState('dates', dates);
