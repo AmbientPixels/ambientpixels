@@ -44,6 +44,50 @@
     }
     .dir-btn--primary { border-color:#8A2BE2; background:rgba(138,43,226,0.2); color:#d8b4fe; }
     .dir-btn--danger { border-color:#f87171; color:#f87171; }
+
+    /* Directive Progress Tracker */
+    .dir-card { padding:0.8rem; border:1px solid rgba(138,43,226,0.08); border-radius:8px; margin-bottom:0.5rem; background:rgba(138,43,226,0.02); }
+    .dir-progress-bar { height:6px; border-radius:3px; background:rgba(255,255,255,0.06); overflow:hidden; margin:0.4rem 0; }
+    .dir-progress-fill { height:100%; border-radius:3px; transition:width 0.3s ease; }
+    .dir-signal {
+      display:inline-flex; align-items:center; gap:0.2rem;
+      font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; font-weight:600; letter-spacing:0.02em;
+    }
+    .dir-signal--on_track { background:rgba(52,211,153,0.12); color:#34d399; }
+    .dir-signal--at_risk { background:rgba(251,191,36,0.12); color:#fbbf24; }
+    .dir-signal--blocked { background:rgba(239,68,68,0.12); color:#ef4444; }
+    .dir-signal--stale { background:rgba(156,163,175,0.12); color:#9ca3af; }
+    .dir-signal--complete { background:rgba(138,43,226,0.12); color:#c084fc; }
+    .dir-signal--not_started { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4); }
+    .dir-signal--no_tasks { background:rgba(255,165,0,0.12); color:#FFA500; }
+    .dir-agents { display:flex; flex-wrap:wrap; gap:0.3rem; margin-top:0.4rem; }
+    .dir-agent-chip {
+      display:inline-flex; align-items:center; gap:0.25rem;
+      font-size:0.6rem; padding:0.15rem 0.5rem; border-radius:4px;
+      background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06);
+    }
+    .dir-agent-chip .done-count { color:#34d399; }
+    .dir-agent-chip .active-count { color:#FFA500; }
+    .dir-tasks-toggle {
+      font-size:0.6rem; color:rgba(255,255,255,0.4); cursor:pointer; background:none;
+      border:none; padding:0.2rem 0; margin-top:0.3rem; display:flex; align-items:center; gap:0.3rem;
+    }
+    .dir-tasks-toggle:hover { color:rgba(255,255,255,0.7); }
+    .dir-task-list { margin-top:0.3rem; padding-left:0; list-style:none; }
+    .dir-task-item {
+      font-size:0.65rem; padding:0.25rem 0.5rem; margin-bottom:0.15rem;
+      border-radius:4px; background:rgba(255,255,255,0.02);
+      display:flex; align-items:center; gap:0.4rem;
+    }
+    .dir-task-status { font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:2px; font-weight:600; }
+    .dir-task-status--done { background:rgba(52,211,153,0.12); color:#34d399; }
+    .dir-task-status--in-progress { background:rgba(59,130,246,0.12); color:#3b82f6; }
+    .dir-task-status--review { background:rgba(168,85,247,0.12); color:#a855f7; }
+    .dir-task-status--todo { background:rgba(255,165,0,0.12); color:#FFA500; }
+    .dir-task-status--backlog { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4); }
+    .dir-stat-row { display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center; font-size:0.6rem; margin:0.3rem 0; }
+    .dir-stat { opacity:0.5; }
+    .dir-stat strong { opacity:1; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -210,35 +254,107 @@
         }
       }
 
+      var signalLabels = {
+        on_track: { label: 'On Track', icon: 'fa-check-circle' },
+        at_risk: { label: 'At Risk', icon: 'fa-exclamation-triangle' },
+        blocked: { label: 'Blocked', icon: 'fa-ban' },
+        stale: { label: 'Stale', icon: 'fa-clock' },
+        complete: { label: 'Complete', icon: 'fa-trophy' },
+        not_started: { label: 'Not Started', icon: 'fa-hourglass-start' },
+        no_tasks: { label: 'No Tasks', icon: 'fa-exclamation-circle' }
+      };
+
+      var progressColors = {
+        on_track: '#34d399', at_risk: '#fbbf24', blocked: '#ef4444',
+        stale: '#9ca3af', complete: '#c084fc', not_started: 'rgba(255,255,255,0.15)', no_tasks: '#FFA500'
+      };
+
       function createDirectiveCard(dir, isArchived) {
         var card = document.createElement('div');
-        card.style.cssText = 'padding:0.8rem; border:1px solid rgba(138,43,226,0.08); border-radius:8px; margin-bottom:0.5rem; background:rgba(138,43,226,0.02);';
+        card.className = 'dir-card';
 
         var priorityColor = dir.priority === 'critical' ? '#f87171' : dir.priority === 'high' ? '#fbbf24' : dir.priority === 'medium' ? '#8A2BE2' : '#34d399';
+        var p = AgentEngine.getDirectiveProgress(dir.id);
+        var sig = signalLabels[p.signal] || signalLabels.no_tasks;
+        var barColor = progressColors[p.signal] || '#888';
 
-        var linkedHtml = '';
-        if (dir.linkedObjectives && dir.linkedObjectives.length > 0) {
-          linkedHtml += '<span style="font-size:0.6rem; opacity:0.5;"><i class="fas fa-bullseye"></i> ' + dir.linkedObjectives.length + ' objectives</span> ';
-        }
-        if (dir.linkedTasks && dir.linkedTasks.length > 0) {
-          linkedHtml += '<span style="font-size:0.6rem; opacity:0.5;"><i class="fas fa-tasks"></i> ' + dir.linkedTasks.length + ' tasks</span>';
-        }
-
-        card.innerHTML =
-          '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.3rem;">' +
-            '<strong style="font-size:0.85rem;">' + escapeHtml(dir.title) + '</strong>' +
+        // Header row: title + priority + signal
+        var html = '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.3rem;">' +
+          '<strong style="font-size:0.85rem;">' + escapeHtml(dir.title) + '</strong>' +
+          '<div style="display:flex; gap:0.3rem; align-items:center;">' +
+            '<span class="dir-signal dir-signal--' + p.signal + '"><i class="fas ' + sig.icon + '"></i> ' + sig.label + '</span>' +
             '<span style="font-size:0.6rem; padding:0.15rem 0.5rem; border-radius:3px; background:rgba(138,43,226,0.1); color:' + priorityColor + ';">' + dir.priority + '</span>' +
-          '</div>' +
-          (dir.description ? '<p style="font-size:0.75rem; opacity:0.6; margin:0 0 0.4rem;">' + escapeHtml(dir.description) + '</p>' : '') +
-          '<div style="display:flex; gap:0.6rem; align-items:center; margin-bottom:0.4rem;">' +
-            '<span style="font-size:0.6rem; opacity:0.4;">Created: ' + new Date(dir.createdDate).toLocaleDateString() + '</span>' +
-            '<span style="font-size:0.6rem; padding:0.1rem 0.4rem; border-radius:3px; background:rgba(255,255,255,0.05);">' + dir.status + '</span>' +
-            linkedHtml +
-          '</div>';
+          '</div></div>';
+
+        if (dir.description) html += '<p style="font-size:0.75rem; opacity:0.6; margin:0 0 0.4rem;">' + escapeHtml(dir.description) + '</p>';
+
+        // Progress bar
+        html += '<div class="dir-progress-bar"><div class="dir-progress-fill" style="width:' + p.pct + '%;background:' + barColor + ';"></div></div>';
+
+        // Stats row
+        html += '<div class="dir-stat-row">';
+        html += '<span style="font-size:0.7rem; font-weight:600; color:' + barColor + ';">' + p.pct + '%</span>';
+        if (p.total > 0) {
+          html += '<span class="dir-stat"><strong>' + p.done + '</strong>/' + p.total + ' done</span>';
+          if (p.inProgress) html += '<span class="dir-stat"><strong>' + p.inProgress + '</strong> active</span>';
+          if (p.review) html += '<span class="dir-stat"><strong>' + p.review + '</strong> in review</span>';
+          if (p.overdue) html += '<span class="dir-stat" style="color:#fbbf24;opacity:1;"><i class="fas fa-clock"></i> <strong>' + p.overdue + '</strong> overdue</span>';
+          if (p.blocked) html += '<span class="dir-stat" style="color:#ef4444;opacity:1;"><i class="fas fa-ban"></i> <strong>' + p.blocked + '</strong> blocked</span>';
+        } else {
+          html += '<span class="dir-stat">No tasks linked yet — agents will create them on next heartbeat</span>';
+        }
+        html += '</div>';
+
+        // Meta row
+        html += '<div style="display:flex; gap:0.6rem; align-items:center; margin:0.3rem 0;">' +
+          '<span style="font-size:0.6rem; opacity:0.4;">Created: ' + new Date(dir.createdDate).toLocaleDateString() + '</span>';
+        if (p.staleDays > 0 && p.total > 0 && p.signal !== 'complete') {
+          html += '<span style="font-size:0.55rem; opacity:0.35;">Last activity: ' + p.staleDays + 'd ago</span>';
+        }
+        if (dir.linkedObjectives && dir.linkedObjectives.length > 0) {
+          html += '<span style="font-size:0.6rem; opacity:0.5;"><i class="fas fa-bullseye"></i> ' + dir.linkedObjectives.length + ' objectives</span>';
+        }
+        html += '</div>';
+
+        // Agent breakdown
+        var agentIds = Object.keys(p.agents);
+        if (agentIds.length > 0) {
+          html += '<div class="dir-agents">';
+          agentIds.forEach(function (aid) {
+            var ag = p.agents[aid];
+            var label = aid.charAt(0).toUpperCase() + aid.slice(1);
+            html += '<span class="dir-agent-chip">' + escapeHtml(label) + ' <span class="done-count">' + ag.done + '✓</span>';
+            if (ag.active > 0) html += ' <span class="active-count">' + ag.active + '⟳</span>';
+            html += '</span>';
+          });
+          html += '</div>';
+        }
+
+        // Expandable task list
+        var taskListId = 'dir-tasks-' + dir.id;
+        if (p.total > 0) {
+          html += '<button class="dir-tasks-toggle" onclick="var el=document.getElementById(\'' + taskListId + '\');var ic=this.querySelector(\'i\');if(el.style.display===\'none\'){el.style.display=\'\';ic.className=\'fas fa-chevron-down\';}else{el.style.display=\'none\';ic.className=\'fas fa-chevron-right\';}">' +
+            '<i class="fas fa-chevron-right"></i> ' + p.total + ' linked tasks</button>';
+          html += '<ul class="dir-task-list" id="' + taskListId + '" style="display:none;">';
+          p.tasks.forEach(function (t) {
+            var s = t.status || 'backlog';
+            var assignee = t.assignee ? t.assignee.charAt(0).toUpperCase() + t.assignee.slice(1) : '—';
+            var overdue = t.dueDate && new Date(t.dueDate) < new Date() && s !== 'done';
+            html += '<li class="dir-task-item">' +
+              '<span class="dir-task-status dir-task-status--' + s + '">' + s + '</span>' +
+              '<span style="flex:1;">' + escapeHtml(t.title) + '</span>' +
+              '<span style="font-size:0.55rem;opacity:0.4;">' + assignee + '</span>';
+            if (overdue) html += '<span style="font-size:0.5rem;color:#fbbf24;"><i class="fas fa-clock"></i></span>';
+            html += '</li>';
+          });
+          html += '</ul>';
+        }
+
+        card.innerHTML = html;
 
         if (!isArchived) {
           var btnWrap = document.createElement('div');
-          btnWrap.style.cssText = 'display:flex; gap:0.3rem; margin-top:0.3rem;';
+          btnWrap.style.cssText = 'display:flex; gap:0.3rem; margin-top:0.5rem; padding-top:0.4rem; border-top:1px solid rgba(255,255,255,0.04);';
 
           var completeBtn = document.createElement('button');
           completeBtn.textContent = 'Complete';

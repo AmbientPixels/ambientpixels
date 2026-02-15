@@ -1024,6 +1024,15 @@
       }
 
       // ── Directives Snapshot ──
+      var _dirSignalMeta = {
+        on_track: { label: 'On Track', icon: 'fa-check-circle', color: '#34d399' },
+        at_risk: { label: 'At Risk', icon: 'fa-exclamation-triangle', color: '#fbbf24' },
+        blocked: { label: 'Blocked', icon: 'fa-ban', color: '#ef4444' },
+        stale: { label: 'Stale', icon: 'fa-clock', color: '#9ca3af' },
+        complete: { label: 'Complete', icon: 'fa-trophy', color: '#c084fc' },
+        not_started: { label: 'Not Started', icon: 'fa-hourglass-start', color: 'rgba(255,255,255,0.4)' },
+        no_tasks: { label: 'No Tasks', icon: 'fa-exclamation-circle', color: '#FFA500' }
+      };
       function renderDirectivesSnap() {
         var directives = AgentEngine.getDirectives();
         var active = directives.filter(function (d) { return d.status === 'active'; });
@@ -1039,13 +1048,47 @@
         listEl.innerHTML = '';
 
         active.slice(0, 5).forEach(function (dir) {
+          var p = AgentEngine.getDirectiveProgress(dir.id);
+          var sig = _dirSignalMeta[p.signal] || _dirSignalMeta.no_tasks;
+          var priorityColor = dir.priority === 'critical' ? '#f87171' : dir.priority === 'high' ? '#fbbf24' : dir.priority === 'medium' ? '#8A2BE2' : '#34d399';
+
+          var agentChips = '';
+          var agentIds = Object.keys(p.agents);
+          if (agentIds.length > 0) {
+            agentChips = agentIds.map(function (aid) {
+              var ag = p.agents[aid];
+              return '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);">' +
+                aid.charAt(0).toUpperCase() + aid.slice(1) +
+                ' <span style="color:#34d399;">' + ag.done + '✓</span>' +
+                (ag.active > 0 ? ' <span style="color:#FFA500;">' + ag.active + '⟳</span>' : '') +
+              '</span>';
+            }).join(' ');
+          }
+
+          var warnings = '';
+          if (p.overdue) warnings += '<span style="font-size:0.5rem;color:#fbbf24;"><i class="fas fa-clock"></i> ' + p.overdue + ' overdue</span> ';
+          if (p.blocked) warnings += '<span style="font-size:0.5rem;color:#ef4444;"><i class="fas fa-ban"></i> ' + p.blocked + ' blocked</span>';
+
           var li = document.createElement('li');
           li.className = 'log-item';
+          li.style.cssText = 'align-items:flex-start;';
           li.innerHTML =
-            '<div class="log-icon" style="background:rgba(138,43,226,0.1); color:#8A2BE2;"><i class="fas fa-compass"></i></div>' +
-            '<div class="log-body">' +
-              '<div class="log-text"><strong>' + escapeHtml(dir.title) + '</strong></div>' +
-              '<div class="log-time">' + (dir.priority || 'medium') + ' · ' + (dir.linkedTasks ? dir.linkedTasks.length : 0) + ' tasks</div>' +
+            '<div class="log-icon" style="background:' + sig.color + '15; color:' + sig.color + ';"><i class="fas ' + sig.icon + '"></i></div>' +
+            '<div class="log-body" style="flex:1;">' +
+              '<div class="log-text" style="display:flex;justify-content:space-between;align-items:center;">' +
+                '<strong>' + escapeHtml(dir.title) + '</strong>' +
+                '<span style="font-size:0.5rem;padding:0.1rem 0.35rem;border-radius:3px;background:' + sig.color + '18;color:' + sig.color + ';font-weight:600;">' + sig.label + '</span>' +
+              '</div>' +
+              '<div style="height:4px;border-radius:2px;background:rgba(255,255,255,0.06);margin:0.25rem 0;overflow:hidden;">' +
+                '<div style="height:100%;width:' + p.pct + '%;background:' + sig.color + ';border-radius:2px;"></div>' +
+              '</div>' +
+              '<div class="log-time" style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">' +
+                '<span style="color:' + sig.color + ';font-weight:600;">' + p.pct + '%</span>' +
+                '<span>' + p.done + '/' + p.total + ' done</span>' +
+                '<span style="color:' + priorityColor + ';">' + dir.priority + '</span>' +
+                warnings +
+              '</div>' +
+              (agentChips ? '<div style="display:flex;gap:0.2rem;flex-wrap:wrap;margin-top:0.25rem;">' + agentChips + '</div>' : '') +
             '</div>';
           listEl.appendChild(li);
         });
