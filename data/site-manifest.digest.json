@@ -1,0 +1,63 @@
+{
+  "generatedAt": "2026-02-15T21:54:46.006Z",
+  "gitHead": "d67e3a5b",
+  "lastDeployHint": "// trigger deploy",
+  "counts": {
+    "pages": 148,
+    "categories": {
+      "company": 17,
+      "root": 26,
+      "modules": 16,
+      "nova": 24,
+      "cardforge": 4,
+      "hanson": 5,
+      "lab": 7,
+      "tools": 15,
+      "projects": 34
+    }
+  },
+  "attention": [
+    {
+      "path": "/modules/footer.html",
+      "issue": "missingTitle"
+    },
+    {
+      "path": "/modules/contact-cta.html",
+      "issue": "missingTitle"
+    },
+    {
+      "path": "/projects/websites/transformation-partial.html",
+      "issue": "missingTitle"
+    },
+    {
+      "path": "/modules/services-cta.html",
+      "issue": "missingTitle"
+    },
+    {
+      "path": "/modules/version-history.html",
+      "issue": "missingTitle"
+    }
+  ],
+  "recentPages": [
+    {
+      "path": "/modules/company/standup.html",
+      "title": "Standup — AmbientPixels HQ"
+    },
+    {
+      "path": "/modules/company/actions.html",
+      "title": "Actions — AmbientPixels HQ"
+    },
+    {
+      "path": "/modules/company/dashboard.html",
+      "title": "Dashboard — AmbientPixels HQ"
+    },
+    {
+      "path": "/modules/company/board.html",
+      "title": "Board Mode — AmbientPixels HQ"
+    },
+    {
+      "path": "/modules/company/directives.html",
+      "title": "Strategic Directives — AmbientPixels HQ"
+    }
+  ]
+}

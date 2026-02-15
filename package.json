@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "build:site-manifest": "node scripts/buildSiteManifest.js"
+  },
   "dependencies": {
     "@azure/identity": "^4.0.0",
     "@azure/storage-blob": "^12.27.0",

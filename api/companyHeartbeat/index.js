@@ -5,6 +5,8 @@
 const fetch = require('node-fetch');
 const storage = require('../_utils/companyStorage');
 const webSearch = require('../toolsWebSearch/index');
+const fs = require('fs');
+const path = require('path');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
@@ -1267,6 +1269,48 @@ Write the full deliverable first, then the structured JSON block.`;
   return result;
 }
 
+// ── Site Context Digest (v1.0) ──
+function buildSiteContextBlock() {
+  try {
+    const digestPath = path.join(__dirname, '..', '..', 'data', 'site-manifest.digest.json');
+    const raw = fs.readFileSync(digestPath, 'utf-8');
+    const d = JSON.parse(raw);
+    if (!d || !d.counts) return '';
+
+    const cats = d.counts.categories || {};
+    const catParts = Object.keys(cats).map(k => k.charAt(0).toUpperCase() + k.slice(1) + ': ' + cats[k]);
+    let block = '\nSITE CONTEXT (AmbientPixels.ai — auto-generated digest):\n';
+    block += 'Pages: ' + (d.counts.pages || 0) + ' | ' + catParts.join(' | ') + '\n';
+
+    if (d.gitHead) block += 'Build: ' + d.gitHead;
+    if (d.lastDeployHint) {
+      const hint = d.lastDeployHint;
+      const dateStr = hint.length > 10 ? new Date(hint).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : hint;
+      block += (d.gitHead ? ' | ' : '') + 'Last deploy hint: ' + dateStr;
+    }
+    block += '\n';
+
+    if (d.attention && d.attention.length > 0) {
+      block += 'Attention:\n';
+      d.attention.forEach(function (a) {
+        block += '- ' + a.path + ' — ' + a.issue.replace(/([A-Z])/g, ' $1').trim().toLowerCase() + '\n';
+      });
+    }
+
+    if (d.recentPages && d.recentPages.length > 0) {
+      block += 'Recent changes:\n';
+      d.recentPages.forEach(function (p) {
+        block += '- ' + p.path + (p.title ? ' — "' + p.title + '"' : '') + '\n';
+      });
+    }
+
+    return block + 'Use this context when reasoning about the site, content gaps, or SEO issues.\n';
+  } catch (e) {
+    // Digest not found or unreadable — graceful fallback
+    return '';
+  }
+}
+
 // ── Build heartbeat prompt ──
 function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions) {
   activeDirectives = activeDirectives || [];
@@ -1496,7 +1540,7 @@ ${otherTasks}
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}
 ${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${workspaceSection}${revisionSection}
-
+${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
 Respond with ONLY valid JSON in this exact format:
