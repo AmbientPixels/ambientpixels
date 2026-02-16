@@ -1662,7 +1662,7 @@
               '</div>' +
               '<div class="log-time" style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">' +
                 '<span style="color:' + sig.color + ';font-weight:600;">' + p.pct + '%</span>' +
-                '<span>' + p.done + '/' + p.total + ' done</span>' +
+                '<span>' + p.done + '/' + p.total + ' done' + (p.inProgress ? ', ' + p.inProgress + ' active' : '') + '</span>' +
                 '<span style="color:' + priorityColor + ';">' + dir.priority + '</span>' +
                 warnings +
               '</div>' +

@@ -2139,17 +2139,20 @@ var AgentEngine = (function () {
       if (updated && (!latestUpdate || updated > latestUpdate)) latestUpdate = updated;
     });
 
-    var pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    // Weighted progress: done=100%, review=75%, in-progress=50%, todo=25%, backlog=0%
+    var weightedDone = (done * 1.0) + (review * 0.75) + (inProgress * 0.5) + (todo * 0.25);
+    var pct = total > 0 ? Math.round((weightedDone / total) * 100) : 0;
+    var donePct = total > 0 ? Math.round((done / total) * 100) : 0;
     var staleDays = latestUpdate ? Math.floor((now - new Date(latestUpdate)) / 86400000) : 999;
 
     var signal = 'on_track';
     if (blocked > 0) signal = 'blocked';
     else if (overdue > 0) signal = 'at_risk';
-    else if (staleDays >= 3 && pct < 100) signal = 'stale';
-    else if (pct === 100) signal = 'complete';
-    else if (inProgress === 0 && review === 0 && done === 0) signal = 'not_started';
+    else if (staleDays >= 3 && donePct < 100) signal = 'stale';
+    else if (donePct === 100) signal = 'complete';
+    else if (inProgress === 0 && review === 0 && done === 0 && todo === 0) signal = 'not_started';
 
-    return { total: total, done: done, inProgress: inProgress, review: review, todo: todo, backlog: backlog, blocked: blocked, overdue: overdue, pct: pct, signal: signal, agents: agents, tasks: linked, staleDays: staleDays };
+    return { total: total, done: done, inProgress: inProgress, review: review, todo: todo, backlog: backlog, blocked: blocked, overdue: overdue, pct: pct, donePct: donePct, signal: signal, agents: agents, tasks: linked, staleDays: staleDays };
   }
 
   function getAllDirectiveProgress() {
