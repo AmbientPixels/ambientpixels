@@ -301,6 +301,34 @@
     .cfg-storage-btn:disabled { opacity: 0.3; cursor: default; }
     .cfg-storage-toast { font-size: 0.58rem; opacity: 0.5; margin-top: 0.4rem; min-height: 1rem; }
 
+    /* Server Persistence panel (v1) */
+    .cfg-store-panel {
+      background: rgba(78,205,196,0.03);
+      border: 1px solid rgba(78,205,196,0.12);
+      border-radius: 10px; padding: 1rem 1.2rem;
+      margin-bottom: 1.4rem;
+    }
+    .cfg-store-title { font-size: 0.7rem; font-weight: 600; color: #4ECDC4; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem; }
+    .cfg-store-status { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+    .cfg-store-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .cfg-store-dot--on { background: #34d399; }
+    .cfg-store-dot--off { background: #ef4444; }
+    .cfg-store-dot--warn { background: #fbbf24; }
+    .cfg-store-state { font-size: 0.72rem; font-weight: 500; }
+    .cfg-store-info { font-size: 0.6rem; opacity: 0.4; margin-bottom: 0.6rem; line-height: 1.6; }
+    .cfg-store-btns { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.4rem; }
+    .cfg-store-btn {
+      font-size: 0.6rem; padding: 0.4rem 0.8rem; border-radius: 5px;
+      cursor: pointer; border: 1px solid; font-family: inherit; font-weight: 500;
+    }
+    .cfg-store-btn--enable { border-color: rgba(52,211,153,0.25); background: rgba(52,211,153,0.04); color: #34d399; }
+    .cfg-store-btn--disable { border-color: rgba(239,68,68,0.25); background: rgba(239,68,68,0.04); color: #ef4444; }
+    .cfg-store-btn--push { border-color: rgba(59,130,246,0.25); background: rgba(59,130,246,0.04); color: #60a5fa; }
+    .cfg-store-btn--pull { border-color: rgba(138,43,226,0.25); background: rgba(138,43,226,0.04); color: #a855f7; }
+    .cfg-store-btn--flush { border-color: rgba(251,191,36,0.25); background: rgba(251,191,36,0.04); color: #fbbf24; }
+    .cfg-store-btn:disabled { opacity: 0.3; cursor: default; }
+    .cfg-store-toast { font-size: 0.58rem; opacity: 0.5; margin-top: 0.3rem; min-height: 1rem; }
+
     @media (prefers-reduced-motion: reduce) {
       .cfg-status-dot { animation: none; opacity: 1; }
     }
@@ -474,6 +502,24 @@
       <div class="cfg-storage-toast" id="cfg-storage-toast"></div>
     </div>
 
+    <!-- Server Persistence -->
+    <div class="ov-section-title">Server Persistence</div>
+    <div class="cfg-store-panel" id="cfg-store-panel">
+      <div class="cfg-store-title"><i class="fas fa-cloud" style="opacity:0.5;"></i> Server Store</div>
+      <div class="cfg-store-status">
+        <div class="cfg-store-dot" id="cfg-store-dot"></div>
+        <span class="cfg-store-state" id="cfg-store-state">—</span>
+      </div>
+      <div class="cfg-store-info" id="cfg-store-info"></div>
+      <div class="cfg-store-btns">
+        <button class="cfg-store-btn cfg-store-btn--enable" id="cfg-store-toggle"></button>
+        <button class="cfg-store-btn cfg-store-btn--push" id="cfg-store-push" disabled><i class="fas fa-upload"></i> Push Local → Server</button>
+        <button class="cfg-store-btn cfg-store-btn--pull" id="cfg-store-pull" disabled><i class="fas fa-download"></i> Pull Server → Local</button>
+        <button class="cfg-store-btn cfg-store-btn--flush" id="cfg-store-flush" disabled><i class="fas fa-sync"></i> Flush Outbox</button>
+      </div>
+      <div class="cfg-store-toast" id="cfg-store-toast"></div>
+    </div>
+
     <!-- System Tools -->
     <div class="ov-section-title">System Tools</div>
     <div class="cfg-tools-grid">
@@ -524,6 +570,7 @@
 
   </main>
 
+  <script src="/js/company-store-adapter.js"></script>
   <script src="/js/storage-manager.js"></script>
   <script src="/js/task-verifier.js"></script>
   <script src="/js/planner-audit.js"></script>
@@ -1042,6 +1089,92 @@
     });
 
     render();
+  })();
+
+  // ── Server Persistence panel ──
+  (function () {
+    var dot = document.getElementById('cfg-store-dot');
+    var stateEl = document.getElementById('cfg-store-state');
+    var infoEl = document.getElementById('cfg-store-info');
+    var toggleBtn = document.getElementById('cfg-store-toggle');
+    var pushBtn = document.getElementById('cfg-store-push');
+    var pullBtn = document.getElementById('cfg-store-pull');
+    var flushBtn = document.getElementById('cfg-store-flush');
+    var toastEl = document.getElementById('cfg-store-toast');
+    if (!dot || !stateEl || !toggleBtn) return;
+    if (typeof CompanyStoreAdapter === 'undefined') { stateEl.textContent = 'Adapter not loaded'; return; }
+
+    var _deb = null;
+    function _toast(msg) { if (toastEl) { toastEl.textContent = msg; setTimeout(function () { toastEl.textContent = ''; }, 5000); } }
+
+    function renderStorePanel() {
+      var s = CompanyStoreAdapter.getStatus();
+      dot.className = 'cfg-store-dot ' + (s.enabled ? (s.hasKey ? 'cfg-store-dot--on' : 'cfg-store-dot--warn') : 'cfg-store-dot--off');
+      stateEl.textContent = s.enabled ? (s.hasKey ? 'Enabled' : 'Enabled (no key)') : 'Disabled';
+      stateEl.style.color = s.enabled ? '#34d399' : '#ef4444';
+      toggleBtn.textContent = s.enabled ? 'Disable' : 'Enable Server Persistence';
+      toggleBtn.className = 'cfg-store-btn ' + (s.enabled ? 'cfg-store-btn--disable' : 'cfg-store-btn--enable');
+      pushBtn.disabled = !s.enabled;
+      pullBtn.disabled = !s.enabled;
+      flushBtn.disabled = !s.enabled || s.outboxSize === 0;
+      var lines = [];
+      if (s.lastSync) lines.push('Last sync: ' + new Date(s.lastSync).toLocaleString());
+      if (s.outboxSize > 0) lines.push('Outbox: ' + s.outboxSize + ' pending batch(es)');
+      if (!s.hasKey && s.enabled) lines.push('Enter key in dev console: CompanyStoreAdapter.setKey("...")'); 
+      infoEl.innerHTML = lines.join('<br>') || (s.enabled ? 'Ready to sync.' : 'Enable to sync state to server.');
+    }
+
+    toggleBtn.addEventListener('click', function () {
+      if (_deb) return;
+      _deb = setTimeout(function () { _deb = null; }, 800);
+      var on = CompanyStoreAdapter.isEnabled();
+      if (on) {
+        if (!confirm('Disable server persistence? Local writes will continue.')) return;
+        CompanyStoreAdapter.setEnabled(false);
+      } else {
+        CompanyStoreAdapter.setEnabled(true);
+      }
+      renderStorePanel();
+    });
+
+    pushBtn.addEventListener('click', function () {
+      if (_deb) return;
+      if (!confirm('Push all local state to server? This merges with existing server data.')) return;
+      _deb = setTimeout(function () { _deb = null; }, 3000);
+      pushBtn.disabled = true;
+      _toast('Pushing...');
+      CompanyStoreAdapter.pushLocalToServer().then(function (r) {
+        pushBtn.disabled = false;
+        if (r.ok) { _toast('Push complete.'); } else { _toast('Push failed: ' + (r.reason || 'unknown')); }
+        renderStorePanel();
+      });
+    });
+
+    pullBtn.addEventListener('click', function () {
+      if (_deb) return;
+      if (!confirm('Pull server state to this device? This will overwrite local settings, audits, and queue (local pending approvals preserved).')) return;
+      _deb = setTimeout(function () { _deb = null; }, 3000);
+      pullBtn.disabled = true;
+      _toast('Pulling...');
+      CompanyStoreAdapter.pullServerToLocal().then(function (r) {
+        pullBtn.disabled = false;
+        if (r.ok) { _toast('Pull complete. Reload recommended.'); } else { _toast('Pull failed: ' + (r.reason || 'unknown')); }
+        renderStorePanel();
+      });
+    });
+
+    flushBtn.addEventListener('click', function () {
+      if (_deb) return;
+      _deb = setTimeout(function () { _deb = null; }, 2000);
+      flushBtn.disabled = true;
+      _toast('Flushing outbox...');
+      CompanyStoreAdapter.flushOutbox().then(function (r) {
+        _toast('Flushed: ' + r.flushed + ' batches sent, ' + r.failed + ' remaining.');
+        renderStorePanel();
+      });
+    });
+
+    renderStorePanel();
   })();
   </script>
 

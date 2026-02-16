@@ -313,6 +313,7 @@ var ActionQueue = (function () {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(queue)); }
       catch (e) { console.warn('[ActionQueue] Storage write failed'); }
     }
+    if (typeof CompanyStoreAdapter !== 'undefined' && CompanyStoreAdapter.markQueueDirty) CompanyStoreAdapter.markQueueDirty();
   }
 
   return {

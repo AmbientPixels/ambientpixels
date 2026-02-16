@@ -66,8 +66,9 @@ var PriorityEngine = (function () {
     if (typeof StorageManager !== 'undefined' && StorageManager.safeSet) {
       return StorageManager.safeSet(WEIGHTS_KEY, updated);
     }
-    try { localStorage.setItem(WEIGHTS_KEY, JSON.stringify(updated)); return true; }
-    catch (e) { return false; }
+    try { localStorage.setItem(WEIGHTS_KEY, JSON.stringify(updated)); } catch (e) { return false; }
+    if (typeof CompanyStoreAdapter !== 'undefined' && CompanyStoreAdapter.bufferSettingsPatch) CompanyStoreAdapter.bufferSettingsPatch({ priorityWeights: updated });
+    return true;
   }
 
   // ── Impact map by task.type (0–5) ──

@@ -27,6 +27,7 @@ var WorkerAudit = (function () {
     log.push(entry);
     if (log.length > MAX_ENTRIES) log = log.slice(-MAX_ENTRIES);
     _write(log);
+    if (typeof CompanyStoreAdapter !== 'undefined' && CompanyStoreAdapter.bufferAudit) CompanyStoreAdapter.bufferAudit('worker', entry);
     return entry;
   }
 

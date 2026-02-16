@@ -77,8 +77,9 @@ var PlannerLoop = (function () {
     if (typeof StorageManager !== 'undefined' && StorageManager.safeSet) {
       return StorageManager.safeSet(THRESHOLDS_KEY, updated);
     }
-    try { localStorage.setItem(THRESHOLDS_KEY, JSON.stringify(updated)); return true; }
-    catch (e) { return false; }
+    try { localStorage.setItem(THRESHOLDS_KEY, JSON.stringify(updated)); } catch (e) { return false; }
+    if (typeof CompanyStoreAdapter !== 'undefined' && CompanyStoreAdapter.bufferSettingsPatch) CompanyStoreAdapter.bufferSettingsPatch({ plannerThresholds: updated });
+    return true;
   }
 
   // ═══════════════════════════════════════════════════
