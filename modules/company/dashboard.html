@@ -1656,8 +1656,8 @@
                 '<strong>' + escapeHtml(dir.title) + '</strong>' +
                 '<span style="font-size:0.5rem;padding:0.1rem 0.35rem;border-radius:3px;background:' + sig.color + '18;color:' + sig.color + ';font-weight:600;">' + sig.label + '</span>' +
               '</div>' +
-              '<div style="height:4px;border-radius:2px;background:rgba(255,255,255,0.06);margin:0.25rem 0;overflow:hidden;">' +
-                '<div style="height:100%;width:' + p.pct + '%;background:' + sig.color + ';border-radius:2px;"></div>' +
+              '<div style="height:6px;border-radius:3px;background:rgba(255,255,255,0.15);margin:0.25rem 0;overflow:hidden;">' +
+                '<div style="height:100%;width:' + p.pct + '%;background:' + sig.color + ';border-radius:3px;min-width:' + (p.pct > 0 ? '2px' : '0') + ';"></div>' +
               '</div>' +
               '<div class="log-time" style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">' +
                 '<span style="color:' + sig.color + ';font-weight:600;">' + p.pct + '%</span>' +

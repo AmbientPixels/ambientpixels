@@ -48,8 +48,8 @@
 
     /* Directive Progress Tracker */
     .dir-card { padding:0.8rem; border:1px solid rgba(138,43,226,0.08); border-radius:8px; margin-bottom:0.5rem; background:rgba(138,43,226,0.02); }
-    .dir-progress-bar { height:6px; border-radius:3px; background:rgba(255,255,255,0.06); overflow:hidden; margin:0.4rem 0; }
-    .dir-progress-fill { height:100%; border-radius:3px; transition:width 0.3s ease; }
+    .dir-progress-bar { height:6px; border-radius:3px; background:rgba(255,255,255,0.15); overflow:hidden; margin:0.4rem 0; }
+    .dir-progress-fill { height:100%; border-radius:3px; transition:width 0.3s ease; min-width:2px; }
     .dir-signal {
       display:inline-flex; align-items:center; gap:0.2rem;
       font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; font-weight:600; letter-spacing:0.02em;
@@ -232,7 +232,7 @@
 
       AgentEngine.loadRegistry().then(function () { populateKpiSelects(); renderDirectives(); });
 
-      document.addEventListener('sync-complete', function () { renderDirectives(); });
+      AgentEngine.on('sync-complete', function () { renderDirectives(); });
 
       // Re-render after CompanyStore server sync
       window.addEventListener('companystoreready', function () { renderDirectives(); });
