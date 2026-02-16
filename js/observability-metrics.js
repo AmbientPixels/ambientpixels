@@ -1,4 +1,4 @@
-// observability-metrics.js — Observability Dashboard v1: Deterministic metrics aggregator
+// observability-metrics.js — Observability Dashboard v1.1: Deterministic metrics aggregator
 // Reads from audit logs, queue, priority engine, and storage manager.
 // No external libraries. Fail closed — returns empty metrics on error.
 
@@ -34,7 +34,11 @@ var ObservabilityMetrics = (function () {
   function _dayRange(days) {
     var end = new Date();
     var start = new Date(end.getTime() - days * 86400000);
-    return { days: days, startTs: start.toISOString(), endTs: end.toISOString(), startMs: start.getTime() };
+    return { days: days, startTs: start.toISOString(), endTs: end.toISOString(), startMs: start.getTime(), endMs: end.getTime() };
+  }
+
+  function _dayRangeExplicit(startMs, endMs, days) {
+    return { days: days, startTs: new Date(startMs).toISOString(), endTs: new Date(endMs).toISOString(), startMs: startMs, endMs: endMs };
   }
 
   function _filterSince(arr, startMs) {
@@ -47,9 +51,68 @@ var ObservabilityMetrics = (function () {
   // ═══════════════════════════════════════════════════
   // ── compute ──
   // ═══════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════
+  // ── Data Quality detection ──
+  // ═══════════════════════════════════════════════════
+  var CORE_STORES = ['ActionAudit', 'ActionQueue'];
+  var ALL_STORES = ['ActionAudit', 'WorkerAudit', 'PlannerAudit', 'CalibrationAudit', 'PriorityAudit', 'ActionQueue'];
+
+  function _checkDataQuality() {
+    var missing = [];
+    var notes = [];
+    for (var i = 0; i < ALL_STORES.length; i++) {
+      var name = ALL_STORES[i];
+      if (name === 'ActionQueue') {
+        var q = _safeGet('ap_action_queue');
+        if (!q) { missing.push(name); notes.push('ActionQueue missing: queue metrics unavailable'); }
+      } else {
+        var mod = _getModule(name);
+        if (!mod) { missing.push(name); notes.push(name + ' missing: related metrics shown as n/a'); }
+      }
+    }
+    var corePresent = 0;
+    for (var j = 0; j < CORE_STORES.length; j++) {
+      if (missing.indexOf(CORE_STORES[j]) === -1) corePresent++;
+    }
+    var status = 'ok';
+    if (missing.length > 0 && corePresent >= CORE_STORES.length) status = 'partial';
+    else if (corePresent < CORE_STORES.length) status = missing.length >= ALL_STORES.length ? 'none' : 'partial';
+    return { status: status, missing: missing, notes: notes };
+  }
+
+  // ═══════════════════════════════════════════════════
+  // ── Delta computation (current vs prior period) ──
+  // ═══════════════════════════════════════════════════
+  function _computeDeltas(currentKpis, priorKpis) {
+    if (!priorKpis) return _nullDeltas();
+    return {
+      approvalRatePP: _deltaPP(currentKpis.approvals.approvalRate, priorKpis.approvals.approvalRate),
+      successRatePP: _deltaPP(currentKpis.execution.successRate, priorKpis.execution.successRate),
+      avgTimeToApprovalMin: _deltaNum(currentKpis.timeToApprovalMin.avg, priorKpis.timeToApprovalMin.avg),
+      criticalResolutionRatePP: _deltaPP(currentKpis.priority.criticalResolutionRate, priorKpis.priority.criticalResolutionRate),
+      blockedDoneCount: _deltaNum(currentKpis.verification.blockedDoneCount, priorKpis.verification.blockedDoneCount),
+      pendingCount: _deltaNum(currentKpis.queue.pending, priorKpis.queue.pending)
+    };
+  }
+
+  function _deltaPP(cur, prev) {
+    if (cur == null || prev == null) return null;
+    return Math.round((cur - prev) * 10000) / 100; // percentage points, 2 decimal
+  }
+
+  function _deltaNum(cur, prev) {
+    if (cur == null || prev == null) return null;
+    return cur - prev;
+  }
+
+  function _nullDeltas() {
+    return { approvalRatePP: null, successRatePP: null, avgTimeToApprovalMin: null, criticalResolutionRatePP: null, blockedDoneCount: null, pendingCount: null };
+  }
+
   function compute(opts) {
     var days = (opts && opts.days) || 7;
     var range = _dayRange(days);
+    var dataQuality = _checkDataQuality();
 
     try {
       // ── Read all data once ──
@@ -64,6 +127,25 @@ var ObservabilityMetrics = (function () {
       // ── KPIs ──
       var kpis = _computeKpis(actionEvents, workerEvents, plannerEvents, calibrationEvents, priorityEvents, queueAll, queueInRange, range);
 
+      // ── Prior period KPIs ──
+      var prior = null;
+      var deltas = _nullDeltas();
+      try {
+        var priorRange = _dayRangeExplicit(range.startMs - days * 86400000, range.startMs, days);
+        var pAction = _clamp(_readAudit('ActionAudit', priorRange), MAX_EVENTS);
+        var pWorker = _clamp(_readAudit('WorkerAudit', priorRange), MAX_EVENTS);
+        var pPlanner = _clamp(_readAudit('PlannerAudit', priorRange), MAX_EVENTS);
+        var pCal = _clamp(_readAudit('CalibrationAudit', priorRange), MAX_EVENTS);
+        var pPrio = _clamp(_readAudit('PriorityAudit', priorRange), MAX_EVENTS);
+        var pQueueInRange = _filterSince(queueAll, priorRange.startMs).filter(function (e) {
+          var ts = e.timestamp || e.createdAt;
+          return ts && new Date(ts).getTime() < priorRange.endMs;
+        });
+        var priorKpis = _computeKpis(pAction, pWorker, pPlanner, pCal, pPrio, queueAll, pQueueInRange, priorRange);
+        prior = { kpis: priorKpis };
+        deltas = _computeDeltas(kpis, priorKpis);
+      } catch (pe) { /* fail closed: deltas stay null */ }
+
       // ── byDay ──
       var byDay = _computeByDay(actionEvents, workerEvents, plannerEvents, calibrationEvents, priorityEvents, range);
 
@@ -76,13 +158,18 @@ var ObservabilityMetrics = (function () {
       return {
         range: { days: range.days, startTs: range.startTs, endTs: range.endTs },
         kpis: kpis,
+        prior: prior,
+        deltas: deltas,
+        dataQuality: dataQuality,
         byDay: byDay,
         breakdowns: breakdowns,
         recent: recent
       };
     } catch (e) {
       console.warn('[ObservabilityMetrics] compute failed:', e);
-      return _emptyResult(range);
+      var empty = _emptyResult(range);
+      empty.dataQuality = dataQuality;
+      return empty;
     }
   }
 
@@ -408,6 +495,9 @@ var ObservabilityMetrics = (function () {
         calibration: { runs: 0, proposalsEnqueued: 0 },
         storage: { estBytes: 0, storageFullEvents: 0 }
       },
+      prior: null,
+      deltas: _nullDeltas(),
+      dataQuality: { status: 'none', missing: [], notes: [] },
       byDay: [],
       breakdowns: { approvalsBySource: {}, actionsByType: {}, topRejectReasons: [], topFailureReasons: [] },
       recent: { actions: [], workers: [], planner: [], calibration: [] }

@@ -19,7 +19,18 @@
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
   <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
   <style>
-    /* Observability Dashboard v1 */
+    /* Observability Dashboard v1.1 — CSP-safe, deltas, data quality */
+
+    /* Status bar + data quality badge */
+    .obs-status-bar { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap; font-size: 0.55rem; }
+    .obs-dq-badge { font-size: 0.48rem; font-weight: 700; padding: 0.12rem 0.4rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
+    .obs-dq-badge--ok { background: rgba(52,211,153,0.12); color: #34d399; }
+    .obs-dq-badge--partial { background: rgba(251,191,36,0.12); color: #fbbf24; }
+    .obs-dq-badge--none { background: rgba(248,113,113,0.12); color: #f87171; }
+    .obs-dq-detail { opacity: 0.3; font-size: 0.5rem; }
+    .obs-last-updated { margin-left: auto; opacity: 0.25; font-size: 0.5rem; }
+
+    /* Controls */
     .obs-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 0.4rem; }
     .obs-controls-right { display: flex; gap: 0.3rem; }
     .obs-toggle { display: inline-flex; border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden; }
@@ -28,20 +39,47 @@
     .obs-btn { font-size: 0.58rem; padding: 0.3rem 0.6rem; border-radius: 5px; cursor: pointer; border: 1px solid; font-family: inherit; font-weight: 500; }
     .obs-btn--refresh { border-color: rgba(96,165,250,0.2); background: rgba(96,165,250,0.04); color: #60a5fa; }
     .obs-btn--export { border-color: rgba(52,211,153,0.2); background: rgba(52,211,153,0.04); color: #34d399; }
+
+    /* Section titles */
     .obs-section-title { font-size: 0.65rem; font-weight: 600; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.04em; margin: 0.8rem 0 0.4rem; }
     .obs-range-label { font-weight: 400; opacity: 0.5; text-transform: none; letter-spacing: 0; }
+
+    /* KPI grid + value color classes */
     .obs-kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.4rem; }
     .obs-kpi-card { background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; padding: 0.5rem 0.6rem; }
     .obs-kpi-label { font-size: 0.55rem; opacity: 0.35; font-weight: 500; margin-bottom: 0.15rem; }
     .obs-kpi-value { font-size: 1.1rem; font-weight: 700; line-height: 1.2; }
+    .obs-kpi-value--good { color: #34d399; }
+    .obs-kpi-value--warn { color: #fbbf24; }
+    .obs-kpi-value--bad { color: #ef4444; }
+    .obs-kpi-value--muted { color: #94a3b8; }
+    .obs-kpi-value--info { color: #60a5fa; }
+    .obs-kpi-value--purple { color: #a78bfa; }
+    .obs-kpi-value--purple-light { color: #c084fc; }
     .obs-kpi-sub { font-size: 0.52rem; opacity: 0.3; margin-top: 0.1rem; }
+
+    /* Delta indicators */
+    .obs-delta { font-size: 0.5rem; font-weight: 600; margin-left: 0.2rem; vertical-align: middle; }
+    .obs-delta--up { color: #34d399; }
+    .obs-delta--down { color: #ef4444; }
+    .obs-delta--na { color: #64748b; opacity: 0.5; }
+
+    /* Sparkline trends — CSP-safe: height via CSS var, colors via classes */
     .obs-trends-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.6rem; }
     .obs-spark-chart { background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; padding: 0.5rem 0.6rem; }
     .obs-spark-title { font-size: 0.58rem; font-weight: 500; opacity: 0.4; margin-bottom: 0.4rem; }
     .obs-spark-row { display: flex; align-items: flex-end; gap: 2px; height: 50px; }
     .obs-spark-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 0; }
-    .obs-spark-bar { width: 100%; min-height: 1px; border-radius: 2px 2px 0 0; transition: height 0.2s; opacity: 0.8; }
+    .obs-spark-bar { width: 100%; min-height: 1px; border-radius: 2px 2px 0 0; transition: height 0.2s; opacity: 0.8; height: var(--h, 2%); }
+    .obs-spark-bar--s1 { background: #34d399; } /* green — approved, good */
+    .obs-spark-bar--s2 { background: #ef4444; } /* red — rejected, failed */
+    .obs-spark-bar--s3 { background: #60a5fa; } /* blue — succeeded */
+    .obs-spark-bar--s4 { background: #f87171; } /* light red — critical */
+    .obs-spark-bar--s5 { background: #fbbf24; } /* amber — blocked */
+    .obs-spark-bar--s6 { background: #a78bfa; } /* purple — workers */
     .obs-spark-label { font-size: 0.4rem; opacity: 0.2; margin-top: 2px; white-space: nowrap; overflow: hidden; }
+
+    /* Drivers */
     .obs-drivers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
     @media (max-width: 640px) { .obs-drivers-grid { grid-template-columns: 1fr; } }
     .obs-driver-panel { background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; padding: 0.5rem 0.6rem; }
@@ -52,6 +90,12 @@
     .obs-driver-table { font-size: 0.55rem; }
     .obs-driver-table-head { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; opacity: 0.3; font-weight: 600; padding-bottom: 0.2rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
     .obs-driver-table-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; padding: 0.15rem 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
+    .obs-rate--good { color: #34d399; }
+    .obs-rate--warn { color: #fbbf24; }
+    .obs-rate--bad { color: #ef4444; }
+    .obs-rate--muted { color: #94a3b8; }
+
+    /* Recent events */
     .obs-recent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
     @media (max-width: 640px) { .obs-recent-grid { grid-template-columns: 1fr; } }
     .obs-recent-panel { background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; padding: 0.5rem 0.6rem; max-height: 220px; overflow-y: auto; }
@@ -65,9 +109,27 @@
     .obs-recent-compact { font-size: 0.55rem; padding: 0.12rem 0; border-bottom: 1px solid rgba(255,255,255,0.015); display: flex; align-items: center; gap: 0.3rem; flex-wrap: wrap; }
     .obs-recent-ev { font-weight: 500; }
     .obs-recent-extra { opacity: 0.35; font-size: 0.5rem; }
+    .obs-ev--good { color: #34d399; }
+    .obs-ev--bad { color: #ef4444; }
+    .obs-ev--bad-light { color: #f87171; }
+    .obs-ev--info { color: #60a5fa; }
+    .obs-ev--warn { color: #fbbf24; }
+    .obs-ev--purple { color: #a78bfa; }
+    .obs-ev--muted { color: #94a3b8; }
+
+    /* Icon color classes (CSP-safe) */
+    .obs-icon--bad { color: #ef4444; opacity: 0.5; }
+    .obs-icon--info { color: #60a5fa; opacity: 0.5; }
+    .obs-icon--warn { color: #ffa500; opacity: 0.5; }
+    .obs-icon--purple { color: #a78bfa; opacity: 0.5; }
+    .obs-icon--purple-light { color: #c084fc; opacity: 0.5; }
+
+    /* Source pills */
     .obs-src-pill { font-size: 0.45rem; padding: 0.08rem 0.3rem; border-radius: 3px; font-weight: 500; }
     .obs-src-pill--planner { background: rgba(138,43,226,0.1); color: #c084fc; }
     .obs-src-pill--cal { background: rgba(52,211,153,0.1); color: #34d399; }
+
+    /* Storage strip */
     .obs-storage-strip { display: flex; align-items: center; gap: 1rem; font-size: 0.58rem; padding: 0.4rem 0.6rem; background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; flex-wrap: wrap; }
     .obs-storage-item { opacity: 0.5; }
     .obs-storage-hint { opacity: 0.25; font-size: 0.5rem; margin-left: auto; }
